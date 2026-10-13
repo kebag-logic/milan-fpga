@@ -36,7 +36,7 @@ and quoted phrases too; see
 [B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage). Its
 fifth makes the check account for every digit, and holds a number before its
 unit to be a measurement however it is written; see
-[B16, round 5: every digit](#b16-round-5-every-digit). Its sixth reads the text as a reader sees it, and lets an identifier stand only before a closed list of what may follow it; see [B16, round 6: the closed list](#b16-round-6-the-closed-list). Its seventh refuses any markup in the text the check reads, instead of dropping comments as a renderer would; see [B16, round 7: no markup](#b16-round-7-no-markup). Its eighth reads that text through the pinned Markdown parser and refuses any construct off a closed allowlist; see [B16, round 8: the parser](#b16-round-8-the-parser). Its ninth judges each construct by the lines its source spans, not by the end the parser reports, and refuses a paragraph whose lines the parser misplaces; see [B16, round 9: source extents](#b16-round-9-source-extents).
+[B16, round 5: every digit](#b16-round-5-every-digit). Its sixth reads the text as a reader sees it, and lets an identifier stand only before a closed list of what may follow it; see [B16, round 6: the closed list](#b16-round-6-the-closed-list). Its seventh refuses any markup in the text the check reads, instead of dropping comments as a renderer would; see [B16, round 7: no markup](#b16-round-7-no-markup). Its eighth reads that text through the pinned Markdown parser and refuses any construct off a closed allowlist; see [B16, round 8: the parser](#b16-round-8-the-parser). Its ninth judges each construct by the lines its source spans, not by the end the parser reports, and refuses a paragraph whose lines the parser misplaces; see [B16, round 9: source extents](#b16-round-9-source-extents). Its tenth refuses a block holding a node the parser gives no position, and a block whose rendered digits differ from those the check read; see [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
 
 The question is #629's bench acceptance: when a listener's CLOCK_DOMAIN
 follows the talker's stream, is the media clock recovered correctly? The
@@ -81,7 +81,7 @@ These are operator observations, not review verdicts.
 - **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, limits, hashes and where the packet is published.
 - **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items: the known tone absent at the peer's talker, so Direction B's THD+N not run; the AAF and CRF source switch, the #645 slip after an INTERNAL-to-AAF set, the CRF lock loss and the saved selection across a power cycle; the #629 acceptance re-judged, limits and hashes.
 - **[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15)** -- Where Direction B's tone is lost: four points captured at once, the tone absent in the peer's own talker stream, the DUT's TDM output equal to what it receives, a positive control on the same taps, the tone source and the peer read only, the #629 acceptance, limits and hashes.
-- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the acceptance of #629, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0's grade by THD+N and SNR, with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the acceptance of #629, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found. Then round 4: where the packet is published, and the check's exemptions narrowed to identifiers, with figures inside links and quoted phrases claimed by rows. Then round 5: the check accounts for every digit, and a number before its unit is a measurement that only a row can claim, however it is written. Then round 6: the check reads the text as a reader sees it, an identifier counts only before a closed list of what may follow it, so a unit or any other word directly after an identifier makes it a measurement, and a figure for several cases is recomputed from each case's own receipt. Then round 7: the check refuses any line of its text that holds markup, in code too, and drops nothing, and the section's table markers are removed. Then round 8: the check reads its text through the repository's pinned Markdown parser, judges only the visible text it yields, and refuses any construct off a closed allowlist, in the index row too. Then round 9: each construct judged by the lines its source spans rather than the end the parser reports, a paragraph whose lines the parser misplaces refused, and lines counted as the parser counts them.
+- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the acceptance of #629, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0's grade by THD+N and SNR, with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the acceptance of #629, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found. Then round 4: where the packet is published, and the check's exemptions narrowed to identifiers, with figures inside links and quoted phrases claimed by rows. Then round 5: the check accounts for every digit, and a number before its unit is a measurement that only a row can claim, however it is written. Then round 6: the check reads the text as a reader sees it, an identifier counts only before a closed list of what may follow it, so a unit or any other word directly after an identifier makes it a measurement, and a figure for several cases is recomputed from each case's own receipt. Then round 7: the check refuses any line of its text that holds markup, in code too, and drops nothing, and the section's table markers are removed. Then round 8: the check reads its text through the repository's pinned Markdown parser, judges only the visible text it yields, and refuses any construct off a closed allowlist, in the index row too. Then round 9: each construct judged by the lines its source spans rather than the end the parser reports, a paragraph whose lines the parser misplaces refused, and lines counted as the parser counts them. Then round 10: a block refused where the parser gives a node in it no position, an e-mail autolink among them, and where the digits a reader sees in it differ from those the check read.
 
 ## Identity and setup
 
@@ -2309,7 +2309,7 @@ documents only, is in
 [B16, round 2: reduced receipts](#b16-round-2-reduced-receipts), the third
 in [B16, round 3: figures check](#b16-round-3-figures-check), the fourth in
 [B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage), and the
-fifth in [B16, round 5: every digit](#b16-round-5-every-digit), and the sixth in [B16, round 6: the closed list](#b16-round-6-the-closed-list), and the seventh in [B16, round 7: no markup](#b16-round-7-no-markup), and the eighth in [B16, round 8: the parser](#b16-round-8-the-parser), and the ninth in [B16, round 9: source extents](#b16-round-9-source-extents).
+fifth in [B16, round 5: every digit](#b16-round-5-every-digit), and the sixth in [B16, round 6: the closed list](#b16-round-6-the-closed-list), and the seventh in [B16, round 7: no markup](#b16-round-7-no-markup), and the eighth in [B16, round 8: the parser](#b16-round-8-the-parser), and the ninth in [B16, round 9: source extents](#b16-round-9-source-extents), and the tenth in [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
 
 | Item | Verdict | Evidence |
 |---|---|---|
@@ -2613,7 +2613,7 @@ it: `author-r1/` for lanes B16, B16b and B16c, archived with this page at
 `e20fd282`; `author-r2/` for round 2, at `35e332b6`; and `author-r3/` for
 round 3, at `0782c55f`. So `runs/loop2/events.jsonl` is
 `review-evidence/629-b16-r1/author-r3/runs/loop2/events.jsonl`. Round 4's
-packet is in `author-r4/`, archived with this page at `61ae8641` and published by commit `b83e5d76`; round 5's is in `author-r5/`, archived at `36190193` and published by commit `a73ce5c4`, whose tree holds every directory named here and whose `MANIFEST.json` binds them the same way. Round 6's is in `author-r6/`, archived at `e91a62ee` and published by commit `b616e7ea`, whose `MANIFEST.json` binds every directory the same way. Round 7's is in `author-r7/`, archived at `295ba9d7` and published by commit `fa974c3f`, whose `MANIFEST.json` binds every directory the same way. Round 8's is in `author-r8/`, archived at `b522bb92` and published by commit `b0134c63`, whose `MANIFEST.json` binds every directory the same way. Round 9's packet follows as `author-r9/`, in a later commit on the same branch. `tools/r9_evidence_receipt.py` checks this mapping; see [B16, round 9: source extents](#b16-round-9-source-extents).
+packet is in `author-r4/`, archived with this page at `61ae8641` and published by commit `b83e5d76`; round 5's is in `author-r5/`, archived at `36190193` and published by commit `a73ce5c4`, whose tree holds every directory named here and whose `MANIFEST.json` binds them the same way. Round 6's is in `author-r6/`, archived at `e91a62ee` and published by commit `b616e7ea`, whose `MANIFEST.json` binds every directory the same way. Round 7's is in `author-r7/`, archived at `295ba9d7` and published by commit `fa974c3f`, whose `MANIFEST.json` binds every directory the same way. Round 8's is in `author-r8/`, archived at `b522bb92` and published by commit `b0134c63`, whose `MANIFEST.json` binds every directory the same way. Round 9's is in `author-r9/`, archived at `cb5ff79f` and published by commit `4ab00ba5`, whose `MANIFEST.json` binds every directory the same way. Round 10's packet follows as `author-r10/`, in a later commit on the same branch. `tools/r10_evidence_receipt.py` checks this mapping; see [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
 
 `review-evidence/629-b16-r1/MANIFEST.json` at `b84584e4` has 1,680 entries
 and SHA-256: `8d417d54b13a264484bfcb0b69f8a643e5cd3bf2819294cea201242a2f67f034`.
@@ -4147,7 +4147,7 @@ mark at each end, which every rule of the check looks past, so a code literal
 still ends with its code word. Every line it names is the parser's own source
 position. No pattern of the check reads code, escapes, entities, comments or
 tags any more, and its separators no longer look past a tag, a comment or a
-link's target, since none of them can stand in the text it reads.
+link's target, since none of them can stand in the text it reads. Since round 10, a block holding a node the parser gives no position is refused, as is any block whose rendered digits differ from those it reads; see [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
 
 **A closed allowlist.** The text may hold paragraphs, headings, lists and
 their items, tables, block quotes, text, soft and hard line breaks, emphasis,
@@ -4306,7 +4306,7 @@ text runs over a line break as starting on its last line. So every node spans
 all that it holds, and a link or an image starts as many lines above its
 reported line as its text holds line breaks. A construct off the allowlist is
 refused at the first covered line its source reaches. A node whose source
-reaches no covered line is passed over, with all it holds.
+reaches no covered line is passed over, with all it holds. Since round 10, a node the parser gives no position refuses its block, wherever it stands; see [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
 
 **Text the parser misplaces.** In a paragraph, the parser counts a line break
 where it yields a soft break or a hard break of trailing spaces, and inside a
@@ -4422,3 +4422,181 @@ The round's files in the packet:
 | `r9/parser-extents.json` | 13,280 | `e165a7f72e18d38a0397f2736d8f99441f55bc6a8e56aaf6e9c1d226b4097a44` |
 | `tools/r9_evidence_receipt.py` (where the packet is) | 7,868 | `681dc44a5272671ccbce6d1f87cecbf2d812f4c3f47b3175d674f602881487fb` |
 | `r9/evidence-receipt.json` | 65,166 | `98dbaee7054883eed16431ae4f2b7e3fd4aacbc6f1392655196c976683a517ec` |
+
+### B16, round 10: no lost digit
+
+Round 9's reviews were NEGATIVE in
+[R624-9](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6134093761),
+with a finding rated MINOR, and in
+[R625-9](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6133964452),
+whose finding and residue concern wording in the PR body only, which the
+manager [applied](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6133971231)
+there. In R624-9-F1, the pinned parser gives no source position to the link
+that the autolink extension makes from a bare e-mail address, to that link's
+text, or to the text after it, so the check placed them at the start of their
+paragraph or table cell. Where that start lies outside the covered text, a
+figure written after such an address went unread: the introduction's
+paragraph starts above its covered part, and the index row's cell starts
+before its part on lane B16. Neither review alleged a DUT defect, changed a
+figure or reversed a bench verdict. Under the manager's
+[assignment for round 10](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6134101205),
+the operator, [A603], closed the class by conservation, documents only.
+Nothing on the bench was touched, and no figure above changed.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-9-F1: text after a bare e-mail autolink | Passed: placed at its block's start and not read | Fails: the block refused at its first covered line, named MARKUP | `r10/r624-9-autolink-probe-rerun.json` |
+| R624-9-R1: wording in the PR body | Open | Applied in the PR body | the PR body |
+
+**No node without a position.** A node inside a paragraph, heading or table
+cell that the check reads or judges, other than a soft or hard line break,
+and that has no start line, makes the check refuse that whole block, named
+MARKUP at the first covered line the block reaches. The same refusal applies
+when the block itself or its enclosing structure has no source start.
+`tools/r10_reader_controls.py` checks these cases by changing parser output
+in memory; it also checks lost, duplicated and substituted digits against
+the unchanged rendered source (`r10/reader-controls.json`). The pinned parser gives
+no position to the link the autolink extension makes from a bare e-mail
+address, with or without `mailto:`, or from an `xmpp:` address, to that
+link's text, or to the rest of the text after it in the same run. No line can
+be given to such a node, so its block is refused even where the address
+stands on a line the check does not cover, as on a line of the introduction's
+paragraph above its covered part. A link the extension makes from a `www.` or
+`https://` address keeps its line; opening a line, it has no column, and the
+check places its text at the column where it ends, as since round 8.
+
+**Digit conservation.** For each paragraph, heading or table cell that
+reaches the covered text, the check takes the block's source, writes each
+digit outside the covered text as a letter, and renders it with the pinned
+renderer as `scripts/gen_toc_renderer.py` does: cmark-gfm's HTML, with the
+same extensions and options, read by the HTML parser that module uses. The digits a reader sees in
+that rendering, counted as a multiset, must equal the digits the check judged
+in the block. Any difference refuses the whole block, named MARKUP at its
+first covered line. This holds whatever node the parser misplaces or omits,
+whether or not its kind is known. The block is rendered whole, from its own
+start, so that a construct opening above the covered part renders as a reader
+sees it: a link whose text runs into the introduction's covered part shows
+its text and not its target. The check now loads that HTML parser with the
+Markdown parser, both pinned by `tools/markdown/requirements.txt`; without either it names what
+is missing and fails.
+
+**A loss no review had named.** Conservation found another case of the class.
+An entity or a backslash escape written in the index row just before its part
+on lane B16, where the covered text starts, made the parser's text run start
+before the covered column, and round 9's check placed the rest of that run there, so the digits of that part's
+first words went unread. No figure stood in that run, and the check now
+refuses the cell.
+
+**Each rule alone.** `tools/r10_layers.py` runs the check, and copies of it
+with each rule taken out, on R624-9's forms and on the entity and escape forms
+(`r10/layers.json`). Conservation alone refuses the forms in the introduction
+and the index row, and the entity and escape forms. Where the address stands
+in a block wholly covered, conservation alone reads the figure but names it at
+the block's first line, so a figure on a paragraph's second line is named at
+its first, as in R624-9's report. The position rule alone refuses every e-mail
+form and passes the entity and escape forms. Together they refuse all of them.
+
+**What the parser reports.** `tools/r10_parser_extents.py` runs round 9's 37
+cases, which all still meet what is stated, then 22 cases of nodes the parser
+leaves without a position (`r10/parser-extents.json`), all met. Twelve are
+forms of the e-mail, `mailto:` and `xmpp:` autolinks: in a line, opening it,
+ending a sentence, inside emphasis, after a code span, beside another address,
+and in a table cell, a heading, a block quote and a list item. In each, the link, its text
+and the text after it have no line, and the check refuses the block. Three are
+a `www.` or `https://` address opening a paragraph or its second line, with a
+line but no column; each is read on its line. The other seven, which the
+parser places fully, are read as they stand.
+
+**Its controls.** `tools/r10_check_controls.py` runs each control on an
+altered copy (`controls/r10-controls.json`, 117 of 117 PASS). Round 9's 97
+come first, their code unchanged. Each of the 20 new controls appends to a
+line or prefixes it, so no line moves:
+
+- each autolink form the parser leaves with no position, with a figure after
+  it, on the introduction's second covered line and in the index row's part
+  on lane B16; the e-mail form in the last cell of a row of the section's first
+  table, inside emphasis in its first paragraph, at the Contents entry, and on
+  that paragraph's second line, R624-9's case of a later line: each fails with
+  its block named MARKUP at the block's first covered line, the introduction's
+  on the line above the edit, and nothing named UNCOVERED;
+- an e-mail address with no digit, in the section's first paragraph and on a
+  line of the introduction's paragraph above its covered part, so that only
+  the refusal can catch it: each fails the same way;
+- an entity or a backslash escape in the index row just before its part on
+  lane B16, which only conservation catches: each fails with the cell named MARKUP at
+  the index line, for the digits a reader sees;
+- a `www.` or `https://` address before a figure on the section paragraph's
+  second line or opening it, and a `www.` address opening the introduction's
+  second covered line: each fails with the figure named UNCOVERED at its own
+  line and nothing at the paragraph's first;
+- a `www.` address with no digit, and an e-mail address in a code span, in
+  the section's first paragraph: each passes as the unchanged page does.
+
+Against round 9's check and page, the new runner passes the 97 earlier
+controls and the 6 new ones that round 9's check already met, and fails the
+other 14 (`controls/r10-controls-on-r9-check.json`). Round 3's to round 9's
+runners, unchanged, against the new check pass
+5 of 5, 7 of 8, 21 of 22, 38 of 39, 48 of 50, 73 of 73 and 97 of 97,
+failing only the expectations the decision supersedes
+(`controls/r10-rerun-r3-controls.json` to `controls/r10-rerun-r9-controls.json`).
+
+**The reviews' probes.** Each runs unchanged under the parser's environment,
+with its results in `r10/`, a file per probe. R624-9's
+`probe_r624_9_autolink.py`: no case escapes, and the check fails every case
+that adds a figure. The cases the parser places, after a `www.` or `https://`
+address or alone, name the added figure UNCOVERED at the line the probe edits. Each case with an
+e-mail or `mailto:` address is refused, named MARKUP at its block's first
+covered line: in the introduction, the line above the edit, since its
+paragraph's covered part starts there; in the section's first paragraph, its
+first line, for an edit on that line or the next; and in a table cell or the
+index row, the cell's line. The probe's own word for a refusal is
+FAILED_OTHERWISE, since it looks only for the added figure named UNCOVERED. The earlier probes keep
+their exit statuses and verdicts. Their named lines stay the same except
+for the footnote definition appended after the page, which moves as the page grows.
+
+**Further forms.** `tools/r10_self_probes.py` (`r10/self-probes.json`) runs
+round 5's to round 9's forms, then round 10's: autolinks the parser gives no
+position at the introduction's edges and on the line above it, after a code
+span on a paragraph's later line, beside another address, in a heading, a block
+quote, a list item and a paragraph at the page's end, and at the Contents
+entry; a figure in a link whose text an address opens; an entity before a
+figure; and, expected to pass, an e-mail address in angle brackets, in a code
+span or as a link's text, and a cell beyond a table header's count, which
+GitHub's parser drops for a reader too. All 172 meet what the rule says: 134
+fail and are named at their lines, and 38 pass as stated. No earlier form
+changed its outcome.
+
+**What the rule does not cover.** Round 8's and round 9's limits stand.
+Conservation compares how many of each digit a block shows with how many the
+check read, not where: a node the parser places on another covered line of
+the same block is read there, and the position rule catches the only such kind
+known, the e-mail autolink. A block is rendered by itself, outside its list,
+quote or table and without the page's link reference definitions, so a block
+the renderer reads otherwise there could be refused with nothing lost; no
+such block is on the page.
+
+With these changes the page passes: every row equals its receipt, every digit
+lies in a claimed figure or in an identifier followed by an item of the closed
+list, and no construct or block is refused. `tools/r10_figures_build.py`
+regenerates the check byte for byte from `tools/r10_figures_spec.py`. It now
+writes each row's key with the spaces between its tokens dropped where the tokens
+on either side would not join, the same syntax tree, so the check stays under the packet's size
+limit. Round 10's reader with round 9's rows, on the page at `cb5ff79f`, gives
+rows, coverage and output byte-equal to round 9's (`tools/r10_reader_on_r9.py`,
+`r10/reader-on-r9.json`), so the change in reading moves nothing on the page
+as it stood. As before, the hashes of the check, its spec and its output are
+in the packet's `MANIFEST.sha256`, not here.
+
+The round's files in the packet:
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r10_check_controls.py` (the check's controls) | 52,846 | `465670bb9bd6862a7a8066e9f7673d0ba3f851ef2882da3fa378a8cb65229dcc` |
+| `controls/r10-controls.json` (117 of 117 PASS) | 42,065 | `fc38bcaac78dddda91f042ee2e5305d2d9a656780c2bffa2e5e7007507e5ce12` |
+| `controls/r10-controls-on-r9-check.json` | 42,079 | `9e65df74de7c7ff02006c2f7b02c2ba5c3f204fc349e2709ce6c2445542d0a40` |
+| `tools/r10_parser_extents.py` (what the parser reports) | 13,016 | `66e4f70edb5a2df2d4934aef53bd1c8febb94e044f711a983260685012343ac2` |
+| `r10/parser-extents.json` | 23,655 | `7dccc64e6c5b312f59dfd0c101fc913fa07c2ff3608f86d313b17b3a57a9049c` |
+| `tools/r10_layers.py` (each rule alone) | 5,229 | `7dd74139fb52396b875fce97802eb11f8166b9882e87403928016df489c38a9b` |
+| `r10/layers.json` | 5,485 | `3bc430b8369db73c85c6dc8b3cab7ac5d5866ba009fa9c11ca9ebcbaf85d99d3` |
+| `tools/r10_evidence_receipt.py` (where the packet is) | 8,560 | `f91d210da8716f65d8f0fd2f2e2ad7cf69c43606ff8751b3f69278a2cacdd8a5` |
+| `r10/evidence-receipt.json` | 71,804 | `9986bd098d2e6dd703239ee665d8b3ab49354e9feb140e50bc4a10847f971e80` |
