@@ -132,6 +132,9 @@ It calls no protocol core.
 If the allocation report makes the source destination valid,
 the gate opens on the next MAAP poll.
 MAAP loss additionally closes the gate before its allocation report.
+Receive and link refreshes keep callback snapshots current.
+They provide freshness within the service pass.
+The same pass's MAAP poll refreshes and republishes changed gates.
 The composition does not replace the integrator's source owner.
 `maap_mbx_init` still refuses counts exceeding the publication block.
 
