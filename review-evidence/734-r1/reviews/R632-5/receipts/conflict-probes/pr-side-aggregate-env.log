@@ -1,0 +1,3 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/rtl-fast.yml: job `rtl-fast` step 1 (`Require every applicable fast gate to pass`) `env` names ['FIRMWARE_BOUNDARY_RESULT'] outside this job's allowlist ['BDD_CONFORMANCE_RESULT', 'CHANGES_RESULT', 'FIRMWARE_AECP_MUTANTS_RESULT', 'FIRMWARE_CONTROL_MUTANTS_RESULT', 'FIRMWARE_SRP_MUTANTS_RESULT', 'FIRMWARE_UNIT_RESULT', 'FIRMWARE_VERILATOR_RESULT', 'PUBLICATION_CENSUS_RESULT', 'VERILATOR_LINT_RESULT', 'YOSYS_ELABORATION_RESULT']: a step-level `BASH_ENV` reaches that step's shell the same way
+ci_events: 1 finding(s) over 2174 contract item(s)

@@ -1,0 +1,15 @@
+gate	rc	seconds	command
+ci-events-check	0	0.2	scripts/ci_events.py --check
+ci-events-selftest	0	31.2	scripts/ci_events.py --selftest
+ci-scope-selftest	0	19.6	scripts/ci_scope.py --selftest
+doc-paths	0	0.1	scripts/check_doc_paths.py
+docs-check	0	5.6	scripts/docs_check.py
+docs-check-selftest	0	0.2	scripts/docs_check.py --selftest
+doc-style	0	0.1	scripts/check_doc_style.py
+em-dash-base-0136de16	0	4.2	scripts/check_em_dash.py --base 0136de16291a127e0a34627c77ac09cd41efc08b
+pp-srcs	0	0.4	scripts/pp_srcs.py --check
+py-idiom	0	6.4	scripts/check_py_idiom.py
+sh-idiom	0	0.3	scripts/check_sh_idiom.py
+test-evidence	0	10.9	scripts/measure_test_evidence.py --check
+toc-anchors	0	4.8	scripts/gen_toc.py --verify-anchors
+toc-check	0	6.9	scripts/gen_toc.py --check

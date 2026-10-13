@@ -1,0 +1,9 @@
+39:          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+40:          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+49:              base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+51:              merged="$(git merge-tree --write-tree "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+52:              git diff --no-renames --name-only "refs/remotes/origin/$PR_BASE_REF" "$merged" \
+614:          FIRMWARE_BOUNDARY_RESULT: ${{ needs.firmware-boundary.result }}
+615:          FIRMWARE_VERILATOR_RESULT: ${{ needs.firmware-verilator.result }}
+629:            "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \
+630:            "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do

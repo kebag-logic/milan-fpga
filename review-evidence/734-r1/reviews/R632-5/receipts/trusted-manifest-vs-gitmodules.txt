@@ -1,0 +1,55 @@
+== .gitmodules at head
+[submodule "external"]
+	path = external
+	url = git@github.com:kebag-logic/fpga-avb-ethernet.git
+[submodule "third_party/verilog-axis"]
+	path = third_party/verilog-axis
+	url = https://github.com/alexforencich/verilog-axis
+[submodule "protocol-processor"]
+	path = protocol-processor
+	url = https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+[submodule "gptp-processor"]
+	path = gptp-processor
+	url = https://github.com/Mister-M-alt/FPGA-gPTP.git
+[submodule "third_party/lwSRP"]
+	path = third_party/lwSRP
+	url = https://github.com/kebag-logic/lwSRP.git
+[submodule "third_party/tsn-c-stack"]
+	path = third_party/tsn-c-stack
+	url = https://github.com/kebag-logic/tsn-c-stack.git
+== TRUSTED_SUBMODULES at head
+228:TRUSTED_SUBMODULES = (
+229-    (
+230-        "external",
+231-        "external",
+232-        "git@github.com:kebag-logic/fpga-avb-ethernet.git",
+233-    ),
+234-    (
+235-        "third_party/verilog-axis",
+236-        "third_party/verilog-axis",
+237-        "https://github.com/alexforencich/verilog-axis",
+238-    ),
+239-    (
+240-        "protocol-processor",
+241-        "protocol-processor",
+242-        "https://github.com/Mister-M-alt/"
+243-        "protocol-processor-control-plane-avb-milan.git",
+244-    ),
+245-    (
+246-        "gptp-processor",
+247-        "gptp-processor",
+248-        "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+249-    ),
+250-    (
+251-        "third_party/lwSRP",
+252-        "third_party/lwSRP",
+253-        "https://github.com/kebag-logic/lwSRP.git",
+254-    ),
+255-    (
+256-        "third_party/tsn-c-stack",
+257-        "third_party/tsn-c-stack",
+258-        "https://github.com/kebag-logic/tsn-c-stack.git",
+259-    ),
+260-)
+261-REQUIRED_SUBMODULES = tuple(
+262-    path for name, path, _url in TRUSTED_SUBMODULES if name != "external"

@@ -1,0 +1,13 @@
+patch-id pr-own (a0f39ad4..59354ffe):
+6479e1c0fcf23fea667fdc0bd92cf1dc406c58cf
+patch-id pr-on-dev (0136de16..7c862ad9):
+375b03185b79107b99ac0b77cef76ebc1b9b4d9e
+dev-side patch-id (a0f39ad4..0136de16) vs merge first-parent (59354ffe..7c862ad9):
+db16e1e526e457f1eb53bac700030b10fafc4a7e
+11d8efcfe7f8ca8fedf0faa370d54ee667641c72
+850,851c850,851
+<      (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+<                               "FIRMWARE_UNIT_RESULT",
+---
+>      (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_RESULT",
+>                               "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
