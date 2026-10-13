@@ -22,6 +22,28 @@ Lane B15 located the loss on dev `5603c353`: the tone is already absent in the
 peer's own talker stream, on the peer's link, and the DUT renders what it
 receives sample for sample; see
 [Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15).
+In lane B16, the operator tried the reference peer's own loopback as the positive reference
+on the same image: the peer cannot bind its listener to its own talker on this
+network, because its probe for that talker goes unanswered, so the lane
+stopped there; see
+[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16).
+Resumed after the manager's ruling as B16b, the lane found the tone present in
+the peer's talker stream and carried sample-exact to the DUT's TDM output. It
+graded B0, by THD+N and SNR, and stopped for a decision on B-CRF and B-AAF; see
+[B16b: the resume](#b16b-the-resume). As B16c, with the peer on its internal
+source by the maintainer's exception, it graded B-CRF and B-AAF at the path's
+floor with no discontinuity; see [B16c: the resume](#b16c-the-resume). Its
+second findings round corrected figures against their receipts and published
+reduced receipts; see
+[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts). Its third
+added a check that recomputes every figure from its receipt; see
+[B16, round 3: figures check](#b16-round-3-figures-check). Its fourth states
+where the packet is published and makes the check claim figures inside links
+and quoted phrases too; see
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage). Its
+fifth makes the check account for every digit, and holds a number before its
+unit to be a measurement however it is written; see
+[B16, round 5: every digit](#b16-round-5-every-digit). Its sixth reads the text as a reader sees it, and lets an identifier stand only before a closed list of what may follow it; see [B16, round 6: the closed list](#b16-round-6-the-closed-list). Its seventh refuses any markup in the text the check reads, instead of dropping comments as a renderer would; see [B16, round 7: no markup](#b16-round-7-no-markup). Its eighth reads that text through the pinned Markdown parser and refuses any construct off a closed allowlist; see [B16, round 8: the parser](#b16-round-8-the-parser). Its ninth judges each construct by the lines its source spans, not by the end the parser reports, and refuses a paragraph whose lines the parser misplaces; see [B16, round 9: source extents](#b16-round-9-source-extents). Its tenth refuses a block holding a node the parser gives no position, and a block whose rendered digits differ from those the check read; see [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
 
 The question is #629's bench acceptance: when a listener's CLOCK_DOMAIN
 follows the talker's stream, is the media clock recovered correctly? The
@@ -66,6 +88,7 @@ These are operator observations, not review verdicts.
 - **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, limits, hashes and where the packet is published.
 - **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items: the known tone absent at the peer's talker, so Direction B's THD+N not run; the AAF and CRF source switch, the #645 slip after an INTERNAL-to-AAF set, the CRF lock loss and the saved selection across a power cycle; the #629 acceptance re-judged, limits and hashes.
 - **[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15)** -- Where Direction B's tone is lost: four points captured at once, the tone absent in the peer's own talker stream, the DUT's TDM output equal to what it receives, a positive control on the same taps, the tone source and the peer read only, the #629 acceptance, limits and hashes.
+- **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the acceptance of #629, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0's grade by THD+N and SNR, with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the acceptance of #629, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found. Then round 4: where the packet is published, and the check's exemptions narrowed to identifiers, with figures inside links and quoted phrases claimed by rows. Then round 5: the check accounts for every digit, and a number before its unit is a measurement that only a row can claim, however it is written. Then round 6: the check reads the text as a reader sees it, an identifier counts only before a closed list of what may follow it, so a unit or any other word directly after an identifier makes it a measurement, and a figure for several cases is recomputed from each case's own receipt. Then round 7: the check refuses any line of its text that holds markup, in code too, and drops nothing, and the section's table markers are removed. Then round 8: the check reads its text through the repository's pinned Markdown parser, judges only the visible text it yields, and refuses any construct off a closed allowlist, in the index row too. Then round 9: each construct judged by the lines its source spans rather than the end the parser reports, a paragraph whose lines the parser misplaces refused, and lines counted as the parser counts them. Then round 10: a block refused where the parser gives a node in it no position, an e-mail autolink among them, and where the digits a reader sees in it differ from those the check read.
 
 ## Identity and setup
 
@@ -2267,3 +2290,2320 @@ Every raw row above is recorded in `RAW-ARTIFACTS.json` at `06148614`.
 | `runs/pts1/events.jsonl` | 6,213 | `063f01784e0b308cdc34cf154d4d603e8f7bf84fa6eb31ec0d7db52b10a851de` |
 | `runs/pts2/events.jsonl` | 6,007 | `c81c682006b884e7f3cd3e6cb01df9895df4a6f74b7bbbaa2580e2cf83442db4` |
 | `restore/census-compare.txt` (the start against the end) | 369 | `a38dca80e66a1e108f7e9418ba33dba47e56fc6b2c7cd6420dadea3f2ff7164f` |
+
+## Dev 5603c353, 2026-10-12: lane B16
+
+Refs #629. Operator [A603], 2026-10-12, under the
+[assignment of bench lane B16](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6117305187).
+The image is the manager's build of dev `5603c353`, as flashed and booted. No
+flash, JTAG reload or power cycle occurred in this lane.
+
+Lane B15's capture found the known tone absent already in the reference peer's own
+talker stream. The maintainer has since reported that the peer's path from
+its talker inputs to its talker works in loopback. This lane's first task was
+to reproduce that loopback as the positive reference: the peer's own listener
+bound to its own talker, the tone played into the peer's talker inputs, and the
+peer's output graded at the external capture.
+
+The loopback did not form. The peer's listener, bound to its own talker,
+sent its probe for that talker onto the network and never received an
+answer, so it never learned the stream and the talker never started. The
+external capture read exact zero. Under the assignment that is a STOP, and the
+lane stopped at step 2. After the manager's ruling it resumed as B16b; see
+[B16b: the resume](#b16b-the-resume). After the second ruling it resumed as
+B16c; see [B16c: the resume](#b16c-the-resume). The second findings round,
+documents only, is in
+[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts), the third
+in [B16, round 3: figures check](#b16-round-3-figures-check), the fourth in
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage), and the
+fifth in [B16, round 5: every digit](#b16-round-5-every-digit), and the sixth in [B16, round 6: the closed list](#b16-round-6-the-closed-list), and the seventh in [B16, round 7: no markup](#b16-round-7-no-markup), and the eighth in [B16, round 8: the parser](#b16-round-8-the-parser), and the ninth in [B16, round 9: source extents](#b16-round-9-source-extents), and the tenth in [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| Identity gate, dev `5603c353` | PASS | The assignment's ATDECC and console facts. See [B16: identity and setup](#b16-identity-and-setup) |
+| Tool controls | PASS | Lanes B6 and B9's byte-equal to lane B15's; the tap decode 8 of 8 and the full-value alignment 6 of 6, both with new controls. See [B16: the controls](#b16-the-controls) |
+| Step 2, the loopback as the positive reference | TONE ABSENT; no stream formed. STOP | Two runs. The peer's listener never resolved its own talker's stream, and its digital output read exact zero. See [B16: the loopback](#b16-the-loopback) |
+| Where this setup and the working loopback differ | At the bind | The peer sends its probe for its own talker to the network, twice, 200 ms apart, and no answer arrives. Lane B15's `pts1` failed at the same step. See [B16: the loopback](#b16-the-loopback) |
+| The tone source, read only | Playing, routed as in lane B15's read, and to a second pair | The tone left it on the outputs the documented wiring uses, as in lane B15. It now also leaves on a second pair of outputs, which lane B15's read found silent. See [B16: the tone source, read only](#b16-the-tone-source-read-only) |
+| Step 3, the talker stream with the loopback carrying the tone | NOT RUN | No loopback carried the tone. The peer's talker sent no PDU on its link in either run |
+| Step 4, Direction B end to end; B0, B-CRF, B-AAF | NOT RUN | The lane stopped at step 2 |
+| A DUT fix | Not applicable | No DUT stage was reached |
+| Restore | Done | See [B16: bench as left](#b16-bench-as-left) |
+
+These are operator observations, not review verdicts. Paths such as
+`runs/loop2/events.jsonl` are in the lane packet, `629-b16-a603`; where it is
+published is in [B16: artifact hashes](#b16-artifact-hashes).
+
+### B16: identity and setup
+
+| Identity check | Result |
+|---|---|
+| Over ATDECC, the live ENTITY descriptor | entity_id `020000fffe000001`, entity name "Milan FPGA 1x1 TDM8", firmware_version "2.96.0", serial "AX7101-0001" |
+| Console `milan_status` | ID `4d494c4e`, VERSION `0x00020060` |
+| AEM image in QSPI, 7,512 bytes, its CRC32 | `5ba355eb` |
+| Live ENTITY and CONFIGURATION | Byte-equal to the QSPI AEM bytes the console dumps, 312 and 106 bytes |
+| Clock sources of #629 | CLOCK_SOURCE 0 INTERNAL; 1 INPUT_STREAM on STREAM_INPUT 1; 2 INPUT_STREAM on STREAM_INPUT 0; CLOCK_SOURCE 3 answers NO_SUCH_DESCRIPTOR; CLOCK_DOMAIN 0, which lists 0, 1 and 2 and reads 0 |
+| UART grader | 10 of 10 |
+| ADP | The DUT with entity model `001bc5c1935893e1` |
+| Identity gate | PASS, 05:45:06 to 05:45:12 CEST |
+
+The gate is lane B15's (`identity_b16.sh`, `identity_b15.py`), unchanged but
+for its environment and staging. The flash record is the manager's.
+
+As found, at 05:45 CEST, the bench was in lane B15's end state:
+
+- **DUT.** Every stream unbound. STREAM_INPUT 0, at the peer talker's
+  `0205022001006000`; STREAM_PORT_INPUT 0, with four identity mappings, and
+  STREAM_PORT_OUTPUT 0, with eight. CLOCK_DOMAIN 0, on CLOCK_SOURCE 0. NVM image
+  seq 276, 42 commits, `pend=0`. `SLIP_LB` 152 dups.
+- **Reference peer.** Its STREAM_INPUT 0, bound to the DUT's AAF talker, at
+  `0205022002006000`, and its STREAM_INPUT 8, bound to the DUT's CRF talker. Its
+  CLOCK_DOMAIN on the source located on that CRF input. Its STREAM_OUTPUT 0, the
+  AAF talker, at `0205022001006000` with connection count 0.
+- **SoC board.** Reached only over key-based SSH; its serial console was not
+  used. The to-host bridge leg running, the from-host leg dead, and its McASP
+  playback closed: no other playback was running. The USB function was
+  configured.
+- **Controller host.** No gPTP daemon, no staging.
+
+### B16: method
+
+**The tone.** Lane B15's: lane B9's loop (`b9_tone.py`, 997 Hz and 9,973 Hz
+at -20 dBFS), SHA-256: `d9684a8f...`, played into the reference peer's talker
+inputs through the authorised tone source, from 05:55:37 to 06:01:59 CEST. The
+lane only started and stopped that playback, read the source's state twice and
+read its meters passively. No instrument setting was written.
+
+**The runs.** Each run is one locked action of `run_b16.py`:
+
+- The peer's STREAM_INPUT 0, as found bound to the DUT's AAF
+  talker, is unbound and then bound to the peer's own STREAM_OUTPUT 0, under the binding
+  rule. The DUT is not bound.
+- For 12 s after the bind, and again after the captures, the listener's
+  GET_RX_STATE, its GET_COUNTERS and the talker's GET_TX_STATE are read every
+  2 s.
+- Both taps and the external capture record.
+- Teardown unbinds, restores the listener's format, remakes the as-found bind
+  and reads every format, clock source, binding and map back.
+
+| Run | Window, CEST | Captures | Purpose |
+|---|---|---|---|
+| `loop1` | 05:56:30 to 05:57:30 | Taps 30.6 s and the external capture 22 s, from 05:56:45 | The loopback, as assigned |
+| `loop2` | 05:59:18 to 06:00:28 | Taps 52.5 s from 05:59:19, before the bind; the external capture 16 s from 05:59:36 | The same, with the bind's ACMP exchange on record |
+
+`loop2` was added after `loop1`. `loop1`'s taps started after the bind, so
+they held none of its messages.
+
+**Binding rule record.**
+
+| Bind | Talker format | Listener format read | Set on the listener | Read back |
+|---|---|---|---|---|
+| Peer AAF to the peer's STREAM_INPUT 0, `loop1` and `loop2` | `0205022001006000` | `0205022002006000` | `0205022001006000`, SUCCESS | `0205022001006000` |
+| DUT AAF to the peer's STREAM_INPUT 0, the as-found bind remade | `0205022002006000` | `0205022002006000`, after its restore | None, equal | - |
+
+Every bind and unbind answered SUCCESS. No clock source was set on either
+entity, and the DUT was not bound. Each run ended with every format, clock
+source, binding and map read back equal to its start.
+
+**Grading rules, fixed before any capture.** The presence rule is lane B15's
+(share of the channel's power within 5 Hz of a tone above 0.9) with one change.
+The level floor is -100 dBFS instead of -40 dBFS, because the tone leaves the
+source at about -38.5 dBFS and a converted tone could sit below -40 dBFS.
+A channel present between -100 and -40 dBFS is flagged, so lane B8's rule can
+still be read off. The loopback is graded by THD+N and SNR at the external
+capture where a tone is present.
+
+### B16: the loopback
+
+The peer's listener, polled every 2 s after the bind:
+
+| Run | Reads | Listener stream ID and destination | Listener flags | Talker connection count | MEDIA_LOCKED, FRAMES_RX |
+|---|---|---|---|---|---|
+| `loop1` | 14, over 12 s after the bind and 12 s after the captures | `0000000000000000`, `000000000000` at every read | `0x0002` at every read | 0 at every read | 0, 0 at every read and at both counter marks |
+| `loop2` | 14, likewise | The same | The same | The same | The same |
+
+The bind itself answered SUCCESS with connection count 1. The listener never
+learned the talker's stream ID or destination, and the talker's connection
+count stayed 0.
+
+The bind's ACMP exchange in `loop2`, from the peer's link tap. Times are from
+the controller's UNBIND_RX command:
+
+| Time, ms | Direction | Message | Talker, listener | Result |
+|---|---|---|---|---|
+| 0.0 | Controller to the peer | UNBIND_RX command | The DUT's AAF talker, the peer's STREAM_INPUT 0 | - |
+| 0.0 | The peer | UNBIND_RX response | - | SUCCESS, connection count 0 |
+| 0.1 | Controller to the peer | BIND_RX command | The peer's STREAM_OUTPUT 0, the peer's STREAM_INPUT 0 | - |
+| 99.6 | The peer | BIND_RX response | The same | SUCCESS, connection count 1, stream ID 0 |
+| 99.6 | The peer, to the network | PROBE_TX command | The peer's own STREAM_OUTPUT 0 | No response |
+| 299.6 | The peer, to the network | PROBE_TX command, again | The same | No response |
+
+Milan's PROBE_TX is IEEE 1722.1's CONNECT_TX. No PROBE_TX response and no
+further probe appear in the rest of the capture, 49.6 s after the second probe.
+
+So the peer resolves its own talker over the network, as for any talker, and
+nothing answers. A switch does not send a frame back out of the port it
+arrived on, and the peer evidently does not answer its own probe internally. Its
+listener therefore never learns the stream, never declares it, and the talker
+never starts. Neither tap holds a PDU of the peer's talker stream in either
+run:
+
+
+| Run | Point | Content | Either tone |
+|---|---|---|---|
+| `loop1` | The peer's link, its talker stream | 0 PDUs; the link carries only the DUT's CRF stream to the peer | Absent: no stream |
+| `loop1` | The DUT's link, the peer's talker stream | 0 PDUs | Absent: no stream |
+| `loop1` | The external capture, the peer's digital output | Its two channels: every word zero, 1,056,000 frames | Absent |
+| `loop2` | The peer's link, its talker stream | 0 PDUs; the link carries the DUT's CRF stream to the peer, and its AAF stream until the unbind | Absent: no stream |
+| `loop2` | The DUT's link, the peer's talker stream | 0 PDUs | Absent: no stream |
+| `loop2` | The external capture, the peer's digital output | Its two channels: every word zero, 768,000 frames | Absent |
+
+With no tone at any point, there is no frequency, SNR or THD+N to fit, and no
+point carries the talker for step 3's tap to decode.
+
+Lane B15's `pts1` bound the same listener to the same talker, and lane B15's
+record shows the same: its counters stayed 0 and its output read exact zero. That lane
+attributed it to the switch not reflecting the talker's frames. Its tap did
+not cover the bind. This lane's record places the failure a step earlier:
+the stream is never started, because the listener's probe goes unanswered.
+
+So the loopback the maintainer reports working is not this bind on this
+network path. It must differ: another network path, a different bind, or a
+loop outside ATDECC. The lane cannot tell which, and the owner holds that
+setup. Under the assignment's step 2, the lane stops here. The tone was absent
+at the loopback's output, the levels below are recorded, and the source's
+routing was read read-only.
+
+### B16: the tone source, read only
+
+The tone source's state was read before the playback and again at its end,
+at 05:47 and 06:01 CEST. The two reads are identical. Its level meters were
+read passively while the tone played. Nothing was written.
+
+The read method changed from lane B15's. Another client of the source's
+control service held the reply port that lane B15's read binds. This lane
+observed the service's replies passively on the host instead, binding no port.
+Each state read sent the service's documented state read request, as lane
+B15's did.
+
+| Source outputs | Before the output level setting | Output level setting | Leaving the source | Lane B15 |
+|---|---|---|---|---|
+| The pair the documented wiring uses | -20.0 dBFS on each | -18.5 dB | -38.5 dBFS on each | The same |
+| A second pair | -20.0 dBFS on each | +6.0 dB | -14.0 dBFS on each | Silent, same setting |
+| Every other output | Silent: no reading above -135.2 dBFS | - | Silent: no reading above -147.6 dBFS | Silent |
+
+The playback reads -20.0 dBFS, so it reaches the documented pair at 0 dB, as
+the owner's condition requires. The second pair is new: lane B15's read found it
+silent with the same output setting. So the route from the playback to that
+pair changed after lane B15, outside this lane. The documented wiring
+does not include that pair, and the lane did not change it.
+
+The two state reads hold 2,262 entries each, all equal. The reduced receipt
+`r2/source-receipt.json` carries that comparison, the settings and the meter
+levels above; see
+[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts).
+
+This is the per-channel record the assignment asks for: the source's two
+documented outputs carry the tone at -38.5 dBFS. The peer's output, its talker
+stream and the DUT's link carry nothing, because no stream formed.
+
+### B16: the controls
+
+**Tool controls.** All ran before any capture was graded.
+
+| Control | Result |
+|---|---|
+| `b6_thdn.py controls` | Byte-equal to lane B15's `controls.json`, `7bbefc71...` |
+| `b9_thdn.py controls` | Byte-equal to lane B15's `b9-controls.json`, `728a4f0e...` |
+| `tone_points_b16.py control`: lane B15's five controls | PASS, 5 of 5, each record equal to lane B15's |
+| The same, new: the tone pair at -60 dBFS on a one-LSB floor | Present on both channels, flagged below lane B8's floor, at -60.00 dBFS. PASS |
+| The same, new: a -130 dBFS tone alone | Its share is 1.0, but it is below the level floor: absent. PASS |
+| The same, new: eight channels with the tone pair on channels 5 and 6 | Found there only. PASS |
+| `align_b16.py control synth`: lane B15's five planted cases on a synthetic tone stream | PASS, 5 of 5 |
+| The same, new: one sample changed by +256 LSB, its low byte unchanged | One differing frame. PASS. Lane B15's `align_b15.py` reads the same recording SAMPLE-EXACT, because it keys on each sample's low byte |
+
+`align_b16.py` was built for step 4, which did not run. Its new control shows
+why lane B15's alignment needed the change for a stream that carries a tone.
+
+**The positive reference itself is the control this lane lacks.** The loopback
+was to show the tone through the peer before the DUT was involved. It did not
+form, so nothing downstream of the source was graded on a tone.
+
+### B16: bench as left
+
+| State | As left |
+|---|---|
+| DUT stream state | Unbound; STREAM_INPUT 0, at `0205022001006000`; both maps as found; CLOCK_SOURCE 0, INTERNAL; all read back |
+| Reference peer | Its STREAM_INPUT 0, bound to the DUT's AAF talker, at `0205022002006000`, its STREAM_INPUT 8 to the DUT's CRF talker, its CLOCK_DOMAIN on the source on that CRF input, never set; all as found |
+| Census, start against end | 44 of 45 reads equal, the census's start record aside; the other is the DUT's live propagation delay, 387 to 377 ns |
+| DUT saved state | NVM image seq 276, 42 commits, `pend=0`, `VD_OK`, unchanged: the DUT was not bound |
+| The tone | Stopped by its process ID at 06:01:59 CEST; the playback closed |
+| SoC board | Same boot; the to-host leg running with the process ID it had as found, never stopped; the from-host leg dead, as found; McASP playback closed; USB function configured |
+| Controller host | No task process; staging removed |
+| Tap host | No capture file left |
+| Bench host | Both USB audio devices present; the board link's address present; the bench lock free |
+
+Residuals that no permitted command restores:
+
+- **The DUT's AAF talker** counted two more stream stops and starts, one per
+  run, when the peer's listener was unbound from it and bound back.
+- **On the peer's STREAM_INPUT 0, the counters** restarted at the rebind: their
+  TIMESTAMP_VALID and FRAMES_RX read lower at the end than at the start.
+- **`SLIP_LB`** read 152 dups at both ends, unchanged.
+
+### B16: acceptance of #629
+
+Lane B16's findings change no judgement in [B15: acceptance of #629](#b15-629-acceptance).
+
+| Item of #629 | Judgement after lane B16 | Evidence |
+|---|---|---|
+| Bench quality metric: THD+N and SNR of a known tone on the selected path | Met for Direction A, by lane B7; NOT met for Direction B | The positive reference could not be formed, and no Direction B case ran. See [B16: the loopback](#b16-the-loopback) |
+| Bench, both directions, each followed source | As judged after lane B8 | - |
+| Fabric, lock loss, protocol processor | As judged after lane B8, pending #645 | - |
+| Every other item | As judged in [B7: acceptance of #629](#b7-629-acceptance) | - |
+
+So #629's items are not all met, and the issue stays open.
+
+### B16: limits
+
+- Two loopback runs, each about a minute, on this bench's reference peer only.
+- The loopback was tried as an ATDECC bind on this bench's network only. The
+  maintainer's working loopback is not described in public. This lane shows
+  only that this bind cannot carry it.
+- Whether the peer's talker now carries the tone is not shown: its talker
+  never started. The new route of the playback to a second pair of source
+  outputs makes that worth checking. A capture with the DUT's listener bound
+  to the talker, lane B15's method, would show it; the STOP precedes it.
+- The tone source's playback routes are shown by its meters, before and after
+  each output's level setting, not by a read of a routing setting.
+- Printed precision is not calibrated accuracy.
+
+### B16: artifact hashes
+
+The raw files stay outside the lane packet, on the bench host. The packet's
+`RAW-ARTIFACTS.json` records each of them. The external capture's sizes are
+withheld there and here, because they would state its channel count.
+
+| Run | Raw file | Bytes | SHA-256 |
+|---|---|---|---|
+| `loop1` | `tap-peer.pcap`, the peer's link | 1,567,518 | `0f4c6b42f6792dc84d8ba89d93e9edb97add667bf236b2d06833256ba14f1b0b` |
+| `loop1` | `tap-dut.pcap`, the DUT's link | 1,567,518 | `a879b24feec3f4cdd4d72522d152afce4a1f6b527ce6a8210213c9779a6d9036` |
+| `loop1` | `extcap.raw`, the external capture | Withheld | `afff760831cd795283185c800d86460a1216511be9ebeb90a00baebc2ce8d0e2` |
+| `loop2` | `tap-peer.pcap`, the peer's link, with the bind | 8,752,338 | `6e0e1f4271d31495bd4d4c33ca4f5a55d791c9c3c8540a53b584abc505696776` |
+| `loop2` | `tap-dut.pcap`, the DUT's link | 8,680,530 | `898242c513f4f30be70d0b3386f983e536f4bc4e5d63eaf341149b47aa6ac276` |
+| `loop2` | `extcap.raw`, the external capture | Withheld | `265d9585facf0aa1d6766454a5a0c1a871ae1449e0850e7de7f684b32b03067c` |
+
+The packet's evidence files, as retained after its redaction pass
+(`redaction.json` gives each masked file's original and retained hashes):
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/b16-asrun/run_b16.py` (the runs, as run in B16; `tools/run_b16.py` is B16b's extension) | 18,087 | `d1a60cc2be9af3d8a3f81424ce468441ceeae88c960d817c127de5816f27a289` |
+| `tools/tone_points_b16.py` (the presence verdicts) | 19,842 | `975645309ecb92d124b28d488c74902a2aea9379470e3eec563f1d93ea20869c` |
+| `tools/align_b16.py` (the full-value alignment) | 7,802 | `71fd639b5db4c00f4048c6f2930330ee6880388613459a0d7411d577ab3eac86` |
+| `tools/acmp_tap_b16.py` (the ACMP decode) | 2,949 | `8c686a58e5c0288623c50cd7a40b273a6d0336b66af9765f0214a4dffaf57f65` |
+| `controls/b16-tap-controls.json` | 1,565 | `77a5995f07b9e300b5d819477e70441ed7ba3a26848e881ec6841219867da8fe` |
+| `controls/b16-align-controls-synth.json` | 1,176 | `20ca766eb693b2f2252f6de97efda18c94455ade5d661813a8e26fd604b1d276` |
+| `runs/loop1/events.jsonl` | 11,587 | `0390182f646584223bceeaf240e47135be383e47ddd56b4d15950336a441f954` |
+| `runs/loop2/events.jsonl` | 11,656 | `cb3a5ffada5c35cdbbbbacc866e3f15abeded2e706754e9b3958479f75a0e2c0` |
+| `summary/loop2/acmp-peer-tap.json` (the bind's ACMP exchange) | 8,739 | `ecd9b4589b9508322c587938417550fa7dcb3a6eaee2065261e3ad73dabf6688` |
+| `summary/loop1/d-extcap-pair.json` | 664 | `496e6ad34ad164d1b8fea06c92d8ed099e3e831386c58d4b192d7881dfc64704` |
+| `summary/loop2/d-extcap-pair.json` | 661 | `17f6c33f990654a1dd6dae8e5277ecd874955337cac66f0cfeb94eac33f549a5` |
+| `restore/census-compare.txt` (the start against the end) | 369 | `3a9a17cfc7ab6849571b9b2221c4981e8a19b7f460f1f66c30f9293a43f2de6f` |
+| `identity/identity-verdict.txt` | 1,532 | `4634ee944266589d6be3a9a1f90c93cd58c003b4d9fc60a341d43e46d7ff2130` |
+
+**Where the packet is.** It is published on branch `629-b16-review-evidence`,
+pinned at commit `b84584e4ccb069248909f0fdeb7f8b72a1c41ae4`. There the packet
+label `629-b16-a603` maps to a directory per findings round under
+`review-evidence/629-b16-r1/`, each a copy of the packet as that round left
+it: `author-r1/` for lanes B16, B16b and B16c, archived with this page at
+`e20fd282`; `author-r2/` for round 2, at `35e332b6`; and `author-r3/` for
+round 3, at `0782c55f`. So `runs/loop2/events.jsonl` is
+`review-evidence/629-b16-r1/author-r3/runs/loop2/events.jsonl`. Round 4's
+packet is in `author-r4/`, archived with this page at `61ae8641` and published by commit `b83e5d76`; round 5's is in `author-r5/`, archived at `36190193` and published by commit `a73ce5c4`, whose tree holds every directory named here and whose `MANIFEST.json` binds them the same way. Round 6's is in `author-r6/`, archived at `e91a62ee` and published by commit `b616e7ea`, whose `MANIFEST.json` binds every directory the same way. Round 7's is in `author-r7/`, archived at `295ba9d7` and published by commit `fa974c3f`, whose `MANIFEST.json` binds every directory the same way. Round 8's is in `author-r8/`, archived at `b522bb92` and published by commit `b0134c63`, whose `MANIFEST.json` binds every directory the same way. Round 9's is in `author-r9/`, archived at `cb5ff79f` and published by commit `4ab00ba5`, whose `MANIFEST.json` binds every directory the same way. Round 10's packet follows as `author-r10/`, in a later commit on the same branch. `tools/r10_evidence_receipt.py` checks this mapping; see [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
+
+`review-evidence/629-b16-r1/MANIFEST.json` at `b84584e4` has 1,680 entries
+and SHA-256: `8d417d54b13a264484bfcb0b69f8a643e5cd3bf2819294cea201242a2f67f034`.
+For each published file it gives the `original_sha256`, the lane packet's
+file, beside the `published_sha256`, with a `path_redacted` flag; the
+hashes differ exactly where the flag is set. The publication masked local
+paths in 27 author files, 1 in `author-r1/`, 9 in `author-r2/` and 17 in
+`author-r3/`: gate logs, gate results and the gate tool `tools/gates_r2.py`.
+No hash row in lane B16's section names any of them. Each of the 66
+packet-file rows in its tables at `0782c55f`, here, in
+[B16b: artifact hashes](#b16b-artifact-hashes),
+[B16c: artifact hashes](#b16c-artifact-hashes), round 2's and round 3's,
+equals its file's `original_sha256`, its `published_sha256` and the published
+file in `author-r3/`, by size and SHA-256. `tools/r4_evidence_receipt.py`
+reads all of this from the repository's object store and writes
+`r4/evidence-receipt.json`; see
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage).
+
+### B16b: the resume
+
+The manager [ruled on the STOP](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6117672835).
+Lane B15's four-point capture was to run with the DUT's
+listener bound to the peer's talker. If the tone was present at the peer's
+talker, there followed step 4: B0, B-CRF and B-AAF graded by THD+N and SNR, with
+every loss attributed to a stage. The operator, [A603], resumed on the same image,
+branch and head, `694d7da6`; the first bench action was at 06:22:23 CEST.
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| Identity gate, dev `5603c353`, again | PASS | 06:22:29 to 06:22:34 CEST, every fact as in [B16: identity and setup](#b16-identity-and-setup). The bench was in lane B16's end state: census 44 of 45 reads equal, the other the DUT's live propagation delay |
+| (a) The peer's talker stream on the peer's link | TONE PRESENT | 997 Hz on channel 0, and 9,973 Hz on channel 1, in every run, at -14.14 dBFS to 06:28:50 CEST and -14.10 dBFS from 06:31:51. See [B16b: the four points](#b16b-the-four-points) |
+| (b) The same stream on the DUT's link | TONE PRESENT | Equal to (a), 0 sequence gaps on both taps |
+| (c) The DUT's TDM output on McASP0 | TONE PRESENT | Equal to (a) and (b) sample for sample: 480,000 of 480,000 frames in three runs, and the 34.1 s the taps cover in B0, 0 slips |
+| (d) The positive control at the external capture | PRESENT | Lane B6's loop through the DUT's talker and the peer's listener, at -1.00 dBFS with THD+N at the loop's floor. B0's capture holds no discontinuity in 303.8 s. `pts2` holds two 2-frame repeats that neither tap carries |
+| The tone source, read only | Changed during the lane, outside it | Its clock setting changed between 06:23 and 06:50 CEST, and with it the tone at (a). See [B16b: the tone source changed during the lane](#b16b-the-tone-source-changed-during-the-lane) |
+| Step 4, B0: the DUT on INTERNAL | Graded | THD+N -123.95 dB at 997 Hz and -122.80 dB at 9,973 Hz, median over 300 one-second blocks; 0 discontinuities; 0.0000 ppm. Inside the taps' 34.1 s every impairment is already in the peer's talker stream, shown sample for sample; beyond them it is assigned upstream by inference. See [B16b: B0](#b16b-b0) |
+| Step 4, B-CRF and B-AAF | NOT RUN: a decision is needed. STOP | As found, the peer's clock follows the DUT's CRF talker. Either case would have the DUT follow a clock that follows the DUT. See [B16b: B-CRF and B-AAF need a decision](#b16b-b-crf-and-b-aaf-need-a-decision) |
+| A DUT fix | Not needed | No DUT stage loses or alters the tone |
+| Restore | Done | See [B16b: bench as left](#b16b-bench-as-left) |
+
+These are operator observations, not review verdicts. The packet paths below,
+such as `runs/b0-2/events.jsonl`, are in the same lane packet as lane B16's.
+
+### B16b: method
+
+Each run is one locked action of `run_b16.py` through `run_locked_b16.sh`. The
+wrapper stops the SoC board's to-host bridge leg by its process ID for the
+action, so that McASP0's recording can run, and restarts it with its recorded line.
+Before every bind the tool checks that the board's McASP playback is closed:
+the owner's music was not playing at any check.
+
+| Run | Mode | Locked, CEST | Binds, at | Captures |
+|---|---|---|---|---|
+| `pts1` | `dirb` | 06:23:39 to 06:24:28 | The peer's STREAM_OUTPUT 0 to the DUT's STREAM_INPUT 0, 06:23:46 | Both taps 24.5 s from 06:23:58, the external capture 16 s, McASP0's 10 s from 06:24:02 |
+| `pts2` | `dira` | 06:28:06 to 06:28:56 | The same, 06:28:13 | Taps as `pts1`, from 06:28:25. McASP0, too, plays lane B6's loop into the DUT's TDM input: the positive control, lane B15's `pts2`. It plays 2 s before it records, so its 10 s start at about 06:28:31.5, 2 s after the capture command at 06:28:29.5 |
+| `b0` | `b0` | 06:31:28 to 06:37:05 | The peer's CRF talker, its STREAM_OUTPUT 2, to the DUT's STREAM_INPUT 1, then the AAF bind of `pts1`, 06:31:30 | Taps 40 s from 06:31:50, the external capture 306 s. McASP0's recording failed: an incident, below. B0's grade does not use this run |
+| `b0-2` | `b0` | 06:37:31 to 06:43:17 | As `b0`, 06:37:39 | Taps 40 s from 06:37:59, the external capture 306 s. McASP0's recording lasts 300 s while the loop plays: the capture command at 06:38:03.2, then the board's 2 s of playback, so the recording starts at about 06:38:05.2 |
+| `pts3` | `dirb` | 06:48:55 to 06:49:45 | As `pts1`, 06:49:02 | As `pts1`, from 06:49:14. Added after `b0-2`, to test whether the tone's change follows the CRF bind |
+
+`dira` and `b0` keep the binding of the peer's STREAM_INPUT 0 to the DUT's AAF talker,
+as found. The DUT's eight identity mappings on STREAM_PORT_OUTPUT 0 and four on
+STREAM_PORT_INPUT 0: checked, not edited. Lane B6's loop (`b6_tone.py`,
+SHA-256: `566d3dfa...`) was copied to the board, checked there and removed after
+each run.
+
+**Binding rule record.** Every listener format already equalled its
+talker's, so none was set: `0205022001006000` on the DUT's STREAM_INPUT 0 and
+`041060010000bb80` on its STREAM_INPUT 1. Every bind and unbind answered
+SUCCESS. No clock source was set on either entity. The DUT's clock source read
+0, INTERNAL, before and after each window of B0. Each run ended with every format, clock
+source, binding and map read back equal to its start.
+
+**Grading.** Lane B16's rules were kept unchanged. `tone_points_b16.py`
+grades each point: the presence rule, the fitted level and frequency, and
+THD+N and SNR per one-second block. `align_b16.py` compares (c) with (a) and
+with (b) on full 24-bit values. `b9_thdn.py grade` grades McASP0's recording
+with lane B9's discontinuity detector and phase offset. Its floor is the
+path's own: an event-free block within 3 dB of the median. `dloop_b16.py`
+decodes lane B6's loop at (d) with lane B6's decoder. SNR equals minus THD+N
+within 0.01 dB in every row below.
+
+**B0's window** is 300 s, not lane B7's 630 s, because one locked action
+must end within 10 minutes. The capture command ran 24.0 s after the last
+bind, and the board played the loop 2 s before it recorded (`run_b16.py`'s mode
+`b0`; the board's log shows the playback running before the recording). So the
+recording starts about 26 s after the last bind, past lane B7's 20 s.
+
+**One incident.** In `b0` McASP0's recording failed immediately with "Device or
+resource busy". The wrapper stopped the to-host leg only for modes `dirb` and
+`dira`, and the running leg held McASP0's capture. Nothing else was affected:
+the leg kept its process ID, and the binds were undone and read back. B0's grade does
+not use `b0`. Its taps and external capture serve only to place the tone
+source's change, and its raw files are hashed below. The wrapper then added
+mode `b0`, and `b0-2` ran the case again.
+
+### B16b: the four points
+
+The tone in channels 0 and 1 of the peer's talker stream; channels 2 and 3
+carry -1 to 0 LSB at every point, and McASP0's channels 4 to 7, unmapped, are
+zero. Each THD+N cell is the median over one-second blocks, with the worst
+block in brackets.
+
+
+| Run | Point | Frames | Level, dBFS | 997 Hz: frequency, offset | THD+N, dB | SNR, dB | 9,973 Hz: frequency, offset | THD+N, dB | SNR, dB |
+|---|---|---|---|---|---|---|---|---|---|
+| `pts1` | (a) | 1,145,034; 190,839 PDUs, 0 gaps | -14.1353 | 997.0069 Hz, +6.94 ppm | -108.74 (-100.95) | 108.74 | 9,973.0692 Hz, +6.94 ppm | -88.87 (-80.97) | 88.87 |
+| `pts1` | (b) | 1,149,822; 191,637 PDUs, 0 gaps | -14.1353 | 997.0069 Hz, +6.94 ppm | -107.17 (-100.80) | 107.17 | 9,973.0692 Hz, +6.94 ppm | -87.26 (-80.81) | 87.26 |
+| `pts1` | (c) | 480,000 | -14.1353 | 997.0069 Hz, +6.95 ppm | -105.27 (-98.66) | 105.27 | 9,973.0693 Hz, +6.95 ppm | -85.33 (-78.67) | 85.33 |
+| `pts2` | (a) | 1,149,828; 191,638 PDUs, 0 gaps | -14.1353 | 997.0069 Hz, +6.96 ppm | -107.72 (-101.02) | 107.72 | 9,973.0694 Hz, +6.96 ppm | -87.82 (-81.05) | 87.82 |
+| `pts2` | (b) | 1,149,822; 191,637 PDUs, 0 gaps | -14.1353 | 997.0069 Hz, +6.96 ppm | -108.33 (-100.62) | 108.33 | 9,973.0694 Hz, +6.96 ppm | -88.44 (-80.64) | 88.44 |
+| `pts2` | (c) | 480,000 | -14.1353 | 997.0069 Hz, +6.96 ppm | -109.70 (-101.43) | 109.70 | 9,973.0694 Hz, +6.96 ppm | -89.87 (-81.46) | 89.87 |
+| `pts3` | (a) | 1,149,834; 191,639 PDUs, 0 gaps | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.93 (-109.28) | 123.94 | 9,973.0000 Hz, 0.000 ppm | -122.47 (-89.43) | 122.48 |
+| `pts3` | (b) | 1,149,822; 191,637 PDUs, 0 gaps | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.93 (-109.31) | 123.93 | 9,973.0000 Hz, 0.000 ppm | -122.47 (-89.46) | 122.47 |
+| `pts3` | (c) | 480,000 | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.97 (-110.32) | 123.98 | 9,973.0000 Hz, 0.000 ppm | -123.97 (-90.50) | 123.97 |
+| `b0-2` | (a) | 1,919,610; 319,935 PDUs, 0 gaps | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.62 (-102.55) | 123.62 | 9,973.0000 Hz, 0.000 ppm | -114.29 (-82.58) | 114.29 |
+| `b0-2` | (b) | 1,919,592; 319,932 PDUs, 0 gaps | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.62 (-102.15) | 123.62 | 9,973.0000 Hz, 0.000 ppm | -114.33 (-82.18) | 114.33 |
+| `b0-2` | (c) | 14,400,000 | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.95 (-100.47) | 123.95 | 9,973.0000 Hz, 0.000 ppm | -122.80 (-80.48) | 122.80 |
+
+The offsets are against each point's own sample clock: the stream's at (a)
+and (b), the DUT's TDM clock at (c).
+
+Point (d), the peer's digital output at the external capture:
+
+| Run | The peer's output | Verdict |
+|---|---|---|
+| `pts1`, `pts3` | Its two channels at a constant -1 LSB: the DUT's talker carries its idle TDM input, and these modes play nothing into it | No control in this mode |
+| `pts2` | Lane B6's loop at -1.00 dBFS, 997.0000 Hz and 9,973.0000 Hz, 0.000 ppm; THD+N -146.06 dB and -145.99 dB, the loop's floor, in 11 of the 13 blocks wholly inside the playback. Of the 16 blocks, 0 and 1 precede the playback and block 2 holds its start. Blocks 6 and 12 each hold a repeat of 2 frames, at 6.131 s and 12.113 s, net -4 frames over 665,599 decoded frames, 0 torn | PRESENT |
+| `b0-2` | The loop as in `pts2`, at the floor in all 303 blocks wholly inside the playback; of the 306, blocks 0 and 1 precede it and block 2 holds its start. 0 discontinuities and 0 torn in 14,583,286 decoded frames; `b0` likewise in 14,583,189 | PRESENT |
+
+In `pts2` both taps carry the DUT's AAF talker with the same loop at -1.00
+dBFS, THD+N -146.06 dB and -145.99 dB, at the floor in all 15 blocks wholly
+inside the playback. Of each tap's 23 blocks, 0 to 2 and 20 to 22 hold no
+playback, and blocks 3 and 19 hold its start and end. So `pts2`'s two repeats
+at (d) are not on the wire.
+They arose after it: in the peer's listener, its output or the external
+capture. They stopped with the tone source's change, below. The decode is lane
+B6's (`dloop_b16.py`, with a planted control).
+
+(c) against (a) and (b), on full 24-bit values:
+
+| Run | (c) against (b) | (c) against (a) |
+|---|---|---|
+| `pts1`, `pts2`, `pts3` | SAMPLE-EXACT in each: 480,000 of 480,000 frames, 0 slips | SAMPLE-EXACT in each: 480,000 of 480,000 frames, 0 slips |
+| `b0-2` | SAMPLE-EXACT over the 1,637,980 recorded frames the tap covers, 34.1 s, 0 differing, 0 slips | SAMPLE-EXACT over 1,637,452 frames, 34.1 s, 0 differing, 0 slips |
+
+So the tone is in the peer's own talker stream, and the network and the DUT
+carry it to the TDM output unchanged. Lane B15's capture found it absent at (a). Its
+level at (a), -14.14 dBFS, is the level at which the tone source's meters show
+it leaving the second pair of outputs, -14.0 dBFS. It is not the documented
+pair's -38.5 dBFS. Lane B15's read found that second pair silent. Which input of the
+peer the tone enters is the owner's wiring, not shown here.
+
+### B16b: the tone source changed during the lane
+
+The tone, lane B15's loop `d9684a8f...`, played from 06:23:26 to 06:52:19 CEST.
+The source's state was read read-only at 06:23 and 06:50 CEST, and its meters
+were read passively at both times. Its meters read as in lane B16, at both:
+-38.5 dBFS leaving the documented pair and -14.0 dBFS leaving the second pair.
+The later state read caught 1,255 of the 2,262 entries the first held. Of the
+1,255 both hold, four differ, and this lane wrote none of them:
+
+- its clock setting;
+- the level setting of an output this lane does not use;
+- two inputs of a monitoring mix. These differ only in which messages the
+  reads caught: the first caught two messages for each address and the second
+  one, which the first also caught. All of them are at minus infinity.
+
+So, among the 1,255 entries both reads hold, two settings changed: the clock
+setting and that output's level. The later read did not catch the other
+1,007. The reduced receipt `r2/source-receipt.json` carries these counts and
+classes; see [B16, round 2: reduced receipts](#b16-round-2-reduced-receipts).
+The clock setting accounts for the change at (a):
+
+| Runs | Tone at (a) | Offset against the stream | THD+N at (c), event-free blocks within 3 dB of the median | Phase drift at (c) | Discontinuities at (d) |
+|---|---|---|---|---|---|
+| `pts1`, `pts2`, to 06:28:50 | -14.1353 dBFS | +6.94 to +6.96 ppm | -109.68 and -111.26 dB at 997 Hz; -89.83 and -91.51 dB at 9,973 Hz | +3.00 and +3.01 frames in 10 s, smooth | Two 2-frame repeats in 13.9 s, `pts2` |
+| `b0`, `b0-2`, `pts3`, from 06:31:51 | -14.1035 dBFS | 0.000 ppm | `pts3`: -123.98 dB on both tones; `b0-2`: -123.98 dB at 997 Hz and -123.95 dB at 9,973 Hz | 0.0000 frames in 10 s, `pts3`; 0.0005 in 300 s, `b0-2` | None in 303.8 s, `b0` and `b0-2` |
+
+The change fell between `pts2`'s last tap frame at 06:28:50 and `b0`'s first
+at 06:31:51. `pts3`, without the CRF bind, reads as `b0-2`, so the CRF bind
+did not cause it. In both states `b9_thdn.py` finds no discontinuity at (c) in
+any run. The tone at +6.94 to +6.96 ppm advanced smoothly against the stream,
+so it was resampled upstream of the peer's talker, not slipped.
+
+The operator's record of the tone's stop (step b17 of `HANDOFF.md`) notes five
+underruns in the playback's log, from 06:45:27 to 06:46:38 CEST, while this
+host graded `b0-2` offline. That log was not retained: lane B16c's playback
+overwrote it, so these figures rest on that record alone. No capture window
+falls in that interval: `b0-2` ended at 06:43:09 and `pts3`'s taps started at
+06:49:14. Lane B16's playback log, retained privately, holds no underrun
+(`r3/playback-logs.json`).
+
+### B16b: B0
+
+B0, as in lanes B7 and B9: the DUT on INTERNAL with both of the peer's talkers
+bound, its CRF to the DUT's STREAM_INPUT 1 and its AAF to STREAM_INPUT 0. The
+DUT's CRF listener read MEDIA_LOCKED 1 12 s after its bind. The DUT's servo
+read IDLE (`MCSRV_STAT` `0x00000020`) before the binds and after the window.
+Its clock source read 0 at both marks.
+
+`b0-2`, McASP0's 300 s at (c), graded by `b9_thdn.py`:
+
+
+| Tone | Blocks | Discontinuities | Blocks at the path's floor | THD+N at the floor, dB, median (worst) | SNR at the floor, dB | THD+N, all blocks, dB, median (worst) | Level | Offset, ppm, median (largest block) |
+|---|---|---|---|---|---|---|---|---|
+| 997 Hz, channel 0 | 300 | 0 | 169 | -123.98 (-123.91) | 123.98 | -123.95 (-100.47) | -14.10 dBFS | 0.0000 (0.030) |
+| 9,973 Hz, channel 1 | 300 | 0 | 169 | -123.95 (-120.18) | 123.95 | -122.80 (-80.48) | -14.10 dBFS | 0.0000 (0.030) |
+
+No skip, repeat, insert, glitch or silent frame. The 997 Hz tone's phase moved
+0.0005 frames over the window. The other 131 blocks at (c) hold no event
+either; they sit more than 3 dB above the floor in runs of blocks: 0 to 18,
+28 to 31, 43 to 44, 46 to 54 and later runs. Both taps' sample comparisons
+cover the recording's first 1,637,452 frames, 34.1 s, which hold whole blocks
+0 to 33. Of the 131, 23 lie there, blocks 0 to 18 and 28 to 31. There (c)
+equals (a) sample for sample, so those 23 are in the peer's talker stream
+already: shown directly. The other 108 lie beyond the taps, blocks 43 to 251
+in thirteen runs, and include the worst block of each tone. No sample comparison
+covers them. `r2/b0-2-receipt.json` lists every run.
+
+Attribution, stage by stage. Inside the taps' 34.1 s each row is shown
+directly; beyond them, where (c) has no reference, the attribution is
+inference:
+
+| Stage | Loss shown directly, inside the taps' 34.1 s | Beyond the taps, by inference only | Evidence |
+|---|---|---|---|
+| The tone source and the peer's path into its talker | The path's floor at -124 dB; 23 degraded blocks at (c), down to -100.61 dB and -80.63 dB (block 7); to 06:28:50, the +6.94 to +6.96 ppm offset with a floor 13 to 34 dB higher, in `pts1` and `pts2`, whose whole 10 s at (c) the taps cover | The other 108 degraded blocks at (c), down to -100.47 dB and -80.48 dB (block 224) | Inside: (a) holds each of them, and (c) equals (a). Beyond: the blocks are assigned upstream by their kind, as the 23 inside, with no discontinuity at (c); (a)'s own 39 blocks reach -102.55 dB and -82.58 dB |
+| The network, (a) to (b) | None | Not observed: the taps end | 0 sequence gaps on either tap over 40 s; (a) and (b) both equal (c) over the same recorded frames |
+| The DUT's listener, map and TDM render, (b) to (c) | None | That the DUT added none of the 108 is inference. Measured over all 300 s: no discontinuity and 0.0005 frames of phase drift | Sample-exact over 34.1 s; carried as received, the idle channels 2 and 3 |
+| The DUT's talker, the peer's listener and its output: the positive control | None in B0 | Measured over the whole window | 0 discontinuities in 14,583,286 decoded frames, 0 net steps; all 303 blocks wholly inside the playback at the loop's floor. `pts2`'s two repeats lay after the wire and ended with the tone source's change |
+
+The DUT renders the stream sample for sample in every frame this lane
+compared: 3,077,452 against (a) and 3,077,980 against (b), over the four
+runs.
+
+**The DUT's words over B0**, from console reads before the binds and after the
+window: `SLIP_TDM` 0, static; `SLIP_LB` 158 to 160 dups, one slipped frame,
+and 156 to 158 in the incident run. The window at (c) holds no discontinuity,
+so whatever the loopback ring slipped did not reach the TDM output inside the
+graded window. The slip is not timed; the ring's slips are tracked in
+[#645](https://github.com/kebag-logic/milan-fpga/issues/645).
+
+### B16b: B-CRF and B-AAF need a decision
+
+As found, and as the assignment restores it, the peer's CLOCK_DOMAIN follows
+its CRF input, which is bound to the DUT's CRF talker. The DUT, on INTERNAL,
+is the bench's media clock. Both of the peer's talkers run on the peer's media
+clock, which follows the DUT's:
+
+- B-CRF sets the DUT's CLOCK_DOMAIN to follow the peer's CRF talker;
+- B-AAF sets it to follow the peer's AAF talker.
+
+Either way, the DUT would follow a clock that follows the DUT. That closed
+loop has no independent reference, so it does not test following. Lanes B7
+and B8, finding the peer on its internal source, ran their following cases
+that way, and lanes B9 and B10's run tools refuse to start otherwise.
+
+The clock-source rule allows a set on the listener's CLOCK_DOMAIN only, never
+on the talker's. In both cases the peer is the talker, so the lane cannot put
+it on its internal source. A run in the loop would grade something other than
+what B-CRF and B-AAF claim. So the lane did not run them, and stops for a
+decision between:
+
+1. a set of the peer's CLOCK_DOMAIN to its internal source for B-CRF and
+   B-AAF, read back, and restored to the as-found source with a read-back;
+2. B-CRF and B-AAF run in the loop as found, reported as loop cases, not as
+   following;
+3. step 4, closed on B0.
+
+### B16b: bench as left
+
+| State | As left |
+|---|---|
+| DUT stream state | Both STREAM_INPUTs unbound; STREAM_INPUT 0, at `0205022001006000`, and STREAM_INPUT 1, at `041060010000bb80`; both maps as found; CLOCK_SOURCE 0, INTERNAL; all read back |
+| Reference peer | STREAM_INPUT 0, bound to the DUT's STREAM_OUTPUT 0, at `0205022002006000`, STREAM_INPUT 8 to the DUT's STREAM_OUTPUT 1; its CLOCK_DOMAIN on CLOCK_SOURCE 1, never set; all as found |
+| Census, B16b's start against its end | 44 of 45 reads equal, the census's start record aside; the other is the DUT's live propagation delay |
+| DUT saved state | NVM image seq 276 to 286, commits 42 to 52, `pend=0`, `VD_OK` |
+| The tone | Stopped by its process ID at 06:52:19 CEST; the playback closed |
+| The tone source | As the owner left it; the lane wrote nothing. Its clock setting differs from the lane's start |
+| SoC board | Same boot; McASP playback closed; the to-host leg running with its recorded line under a new process ID; the from-host leg dead, as found; USB function configured; no lane file left |
+| Controller host | No task process; staging removed |
+| Tap host | No capture file and no capture process |
+| Bench host | Both USB audio devices present; the board link's address present; the bench lock free |
+
+Residuals that no permitted command restores:
+
+- **The peer's talkers** counted five more stream starts and stops on its AAF
+  talker, one per run that bound the DUT, and two more on its CRF talker.
+- **The DUT's listeners'** GET_COUNTERS advanced with the binds. Its talkers'
+  starts and stops and its CLOCK_DOMAIN counters did not move.
+- **`SLIP_LB`** read 152 dups at the start and 162 at the end: five slipped
+  frames over the five runs that bound the DUT's STREAM_INPUT 0. The console
+  reads place one in each run of B0, between the read before its binds and the
+  read after its window. The others are not placed, and none is timed.
+
+### B16b: acceptance of #629
+
+| Item of #629 | Judgement after lane B16b | Evidence |
+|---|---|---|
+| Bench quality metric: THD+N and SNR of a known tone on the selected path | Met for Direction A, by lane B7. Direction B: graded with the DUT on INTERNAL; NOT met for the following cases, which wait on a decision | See [B16b: B0](#b16b-b0) and [B16b: B-CRF and B-AAF need a decision](#b16b-b-crf-and-b-aaf-need-a-decision) |
+| Bench, both directions, each followed source | As judged after lane B8 | - |
+| Fabric, lock loss, protocol processor | As judged after lane B8, pending #645 | `SLIP_LB` counted five slipped frames over five binds of the DUT's AAF listener |
+| Every other item | As judged in [B7: acceptance of #629](#b7-629-acceptance) | - |
+
+So #629's items are not all met, and the issue stays open.
+
+### B16b: limits
+
+- Four graded runs, on this bench's DUT and reference peer only. Three had
+  10 s at McASP0 and about 24 s of each tap. B0's run had 300 s at McASP0, and 40 s
+  of each tap.
+- B0's case here is not lane B7's mismatch control. With the peer following the DUT,
+  both run on the same clock, so B0's case holds no mismatch for the metric to show.
+- The tone source changed during the lane, outside it. `pts1` and `pts2`
+  graded it before the change, B0 and `pts3` after it.
+- The path's floor and the 23 degraded blocks inside the taps' 34.1 s are
+  shown in the peer's talker stream; the other 108 degraded blocks are
+  assigned to it by inference. Their cause is not analysed: the source and the
+  peer's input path are not observable over ATDECC.
+- Printed precision is not calibrated accuracy.
+
+### B16b: artifact hashes
+
+The raw files stay outside the lane packet, on the bench host, and the
+packet's `RAW-ARTIFACTS.json` records each of them. The external capture's
+sizes are withheld, because they would state its channel count.
+
+| Run | Raw file | Bytes | SHA-256 |
+|---|---|---|---|
+| `pts1` | `tap-peer.pcap`, the peer's link | 90,602,048 | `b235c4321fc2324cab2412692bd5d1b0642b73ea13549c028c1722ba9dfbc68a` |
+| `pts1` | `tap-dut.pcap`, the DUT's link | 90,981,020 | `e0b086473164bf58ba304eb7b2d9e435eb412fcf11da8d246524abd18f4bb083` |
+| `pts1` | `mcasp-all.raw`, McASP0 | 15,360,000 | `ff408b45488948294ed1c7bc5ce2ca13725fd0c7613e311d16fbf880f3992dd5` |
+| `pts1` | `extcap.raw`, the external capture | Withheld | `02345629d6828ebe193391209b4bda618ff95f1d83b24e164996d8fcefbf75d4` |
+| `pts2` | `tap-peer.pcap` | 90,981,358 | `f06bfd1ed8f486f765bce404607e88b0fda7c3e33da6d936cfa9840bfebf8b1b` |
+| `pts2` | `tap-dut.pcap` | 90,980,890 | `9c6059d0b7ad9a23fe8176733d087d01b13613d96c0012244f1982a2acbaf75e` |
+| `pts2` | `mcasp-all.raw` | 15,360,000 | `f3447f30211ed37e548e9746bf2c9c9e4795797d1e551dc3afae2204f7f0eb6c` |
+| `pts2` | `extcap.raw` | Withheld | `08bf83e0eb4a50540517142c82ad0f386852384ae66f89fad1dd3824b9fd31e5` |
+| `pts2`, `b0`, `b0-2` | `b6-loop.raw`, lane B6's loop | 1,536,000 | `566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588` |
+| `b0` | `tap-peer.pcap` | 153,665,476 | `075ff41dfbe12b06673eac87f2b04b78519fbb914fd987e7d6b7af4d3ae42e23` |
+| `b0` | `tap-dut.pcap` | 154,049,176 | `ce0f42c6753d8acd2c214d98c9162ffcd12b566ecfab8ba6f2b38bedb67a6737` |
+| `b0` | `mcasp-all.raw`, empty: the incident | 0 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `b0` | `extcap.raw` | Withheld | `b0517ab7e64865159ba8aa319fd9084886812d8ddbf1dedbc95889740c9c41c1` |
+| `b0-2` | `tap-peer.pcap` | 154,050,970 | `c0efda0683566f3b1a5299fe1ffa97f970585ce51d6ca218c7d9d825c08bbf23` |
+| `b0-2` | `tap-dut.pcap` | 154,049,284 | `59bcfef4cfe31f3326360aa3b861e5a5dc7f26f45f00f94afcbc65dce286209d` |
+| `b0-2` | `mcasp-all.raw` | 460,800,000 | `9b7072a2ff202841d81ffb4846697a9ebb9240ed72b66610292b4071f83486c1` |
+| `b0-2` | `extcap.raw` | Withheld | `52da5d1febaebd5b03617b24f40c52ed381f57a3490ef20c4a2f6ad7a931dc7b` |
+| `pts3` | `tap-peer.pcap` | 90,981,956 | `6cdf04d06b9d92d11a9fd748e0a8d94b394f2a5337f8ce7a1da52d7f962c46c0` |
+| `pts3` | `tap-dut.pcap` | 90,980,912 | `f759569cdeab83ae2491346826a33cb1c8c015289ea80963400794ed52f5aed0` |
+| `pts3` | `mcasp-all.raw` | 15,360,000 | `c99d7fc661f7886da65aa8e7728527699b2ee78d30102baa851ea24163ae2558` |
+| `pts3` | `extcap.raw` | Withheld | `5260ce29b7d118595fa61d98435f3bab28a469448000856daa328b01c5565f2a` |
+
+The packet's evidence files for B16b, as retained after its redaction pass
+(`redaction.json` gives each masked file's original and retained hashes):
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/run_b16.py` (the runs, with modes `dira` and `b0`) | 25,161 | `424234725a2035ab9ce30512e2da1275495758283f1f483c86d982e008a43be2` |
+| `tools/run_locked_b16.sh` (the locked wrapper) | 1,812 | `8694f9b0e3c38814ab55896108abbde59f04e302b9de82f690c12f41646f90fa` |
+| `tools/dloop_b16.py` (lane B6's loop decoded at (d)) | 4,122 | `d3bf1a0e81b2b01bd1c12713b5ab7dbca0903c596d3fb33b6ac194e725af1ecf` |
+| `controls/b16b-dloop-control.json` (its planted control) | 705 | `fbce8878a37a47b76d67fed3e450eecf57b6b3083c7ec0edc12e789e5bd775fb` |
+| `runs/pts1/events.jsonl` | 8,437 | `bcd8663a9cd40acd7c4cf7c933950751527d9088432d153a9306f40ae12031fd` |
+| `runs/pts2/events.jsonl` | 9,876 | `d6a68179a3dc2aed3e36a15d2e080922068e476c9163657d4aeacfbe394ac45b` |
+| `runs/b0/events.jsonl` (the incident) | 11,877 | `6b9bb18043df40efeb2d93808cbca099d0988b25bfa04a91aefaaf9c3994053a` |
+| `runs/b0-2/events.jsonl` | 11,883 | `d5e6d8dd6cc5b349a0aa37adad9394206fded1f221905b0e41f7d82f96dc82ab` |
+| `runs/pts3/events.jsonl` | 8,435 | `a53e635e28ca361874eb2b9c5d842d45479ca69722f74ce10e27c31cd8997c40` |
+| `summary/pts1/align-a-c.json` | 422 | `11bc737c7af2d4ef1cf77d234dfe275049102e65a801e5cf1ff0e8eb6548fcb3` |
+| `summary/pts2/align-a-c.json` | 422 | `9cf3e2f3923e649dc20a34f9f711c4f62f0a772b41a7e7a51f28f0baaa7a8202` |
+| `summary/pts3/align-a-c.json` | 422 | `dab152d9ae393ed2f20476b8e79b45d969bc3240c06a2235a49c58f2bc7f41cd` |
+| `summary/b0-2/align-a-c.json` | 426 | `a24903924f8a43d07721c366966d7ee9a84a0b70f708612de079438bfb3e0da4` |
+| `summary/b0-2/align-b-c.json` | 426 | `141619ca294c004ca02231eab1122a4a93ce6ddd732635c7d2e95bfbaf29bcd2` |
+| `summary/b0-2/c-b9-grade.json` (B0's grade at (c)) | 135,813 | `1d554ce3a70dfb4a5ef935d139980ff0bee6cf8eb505ec42fca2781a7ed54078` |
+| `summary/pts2/d-loop-decode.json` (the two repeats at (d)) | 563 | `49ce9f4c6487fcc15f41d68e5a25f36a0b83b7f994cee838e0c8204b455a21da` |
+| `summary/b0-2/d-loop-decode.json` | 316 | `a58b5ebbe5a15cd3a3d216b18192b4157a5b762baa7b010be901428d9e56fd1b` |
+| `restore/census-compare-b16b.txt` (B16b's start against its end) | 481 | `d14071dedb18e5cafc24421ede3cd450289d77e1af6f13f8a48c9d3c26f66648` |
+| `identity-b16b/identity-verdict.txt` | 1,532 | `4634ee944266589d6be3a9a1f90c93cd58c003b4d9fc60a341d43e46d7ff2130` |
+
+### B16c: the resume
+
+The manager [ruled on the STOP of B16b](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6118365090).
+For B-CRF and B-AAF only, the maintainer allows setting the
+reference peer's clock source to its internal source over ATDECC: a
+SET_CLOCK_SOURCE on the peer's CLOCK_DOMAIN, read back with GET_CLOCK_SOURCE.
+After the case the peer returns to following its CRF input, as found, and that
+is read back too. Every other part of the clock-source rule stands. The operator,
+[A603], resumed on the same image and branch, at head `0d4ff919`. After the
+offline dry run below, the first bench action was at 07:48:07 CEST.
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| Identity gate, dev `5603c353`, again | PASS | 07:48:16 to 07:48:22 CEST, every fact as in [B16: identity and setup](#b16-identity-and-setup). The bench was in lane B16b's end state: census 44 of 45 reads equal, the other the DUT's live propagation delay |
+| Tool controls | PASS | The new run mode, dry-run offline against stand-ins in 8 of 8 scenarios, and its wrapper's deadline path. See [B16c: method](#b16c-method) |
+| The peer's clock source, the ruling's exception | Set and restored, each read back | Set to INTERNAL before each case's binds, and returned to its CRF input after the DUT's binds were undone. See [B16c: clock-source record](#b16c-clock-source-record) |
+| B-CRF: the DUT follows the peer's CRF talker | Graded | Servo LOCKED 2.585 to 3.161 s after the set and at all 596 polls of the window. THD+N -123.98 dB at 997 Hz and -123.97 dB at 9,973 Hz, median over 300 one-second blocks, all 300 at the path's floor; 0 discontinuities; 0.0000 ppm. Lane B6's terms: three met, the timed ratio NOT RUN. See [B16c: B-CRF and B-AAF](#b16c-b-crf-and-b-aaf) and [B16c: the following record](#b16c-the-following-record) |
+| B-AAF: the DUT follows the peer's AAF talker | Graded | Servo LOCKED 6.602 to 7.180 s after the set and at all 596 polls of the window. THD+N -123.98 dB and -123.97 dB, all 300 blocks at the floor; 0 discontinuities; 0.0000 ppm. Lane B6's terms: three met, the timed ratio NOT RUN |
+| The four points | TONE PRESENT at (a), (b) and (c); (d) PRESENT | (c) equals (a) and (b) sample for sample over the 34.2 to 34.3 s the taps cover in both cases. (d), lane B6's loop through the DUT's talker and the peer's listener: 0 discontinuities and 0 net steps in each case |
+| Attribution | No loss in the network or the DUT | Every stage at the path's floor. See [B16c: attribution](#b16c-attribution) |
+| A DUT fix | Not needed | No DUT stage loses or alters the tone |
+| Restore | Done | See [B16c: bench as left](#b16c-bench-as-left) |
+
+These are operator observations, not review verdicts. The packet paths below,
+such as `runs/bcrf/events.jsonl`, are in the same lane packet as lane B16's.
+
+### B16c: method
+
+Each case is one locked action of `run_b16c.py` through `run_locked_b16c.sh`.
+These are copies of lane B16b's tools with the modes `bcrf` and `baaf`
+added. Each mode is lane B16b's `b0` with the following set of lanes B9 and
+B10, in `run_b9.py` and `run_b10.py`, in this order:
+
+1. Refuse to start unless the tone plays, the board's McASP playback is
+   closed, the DUT is on INTERNAL, and the peer is on CLOCK_SOURCE 1, its
+   STREAM_INPUT 8, bound to the DUT's STREAM_OUTPUT 1, as found.
+2. Read the DUT's console words, then start lane B9's console poll of the
+   servo, slip, meter and CRF words every 0.5 s.
+3. Set the peer's CLOCK_DOMAIN to CLOCK_SOURCE 0, INTERNAL, read it back,
+   and wait 5 s.
+4. Bind the peer's CRF talker to the DUT's STREAM_INPUT 1 and its AAF talker
+   to STREAM_INPUT 0, under the binding rule.
+5. Set the DUT's CLOCK_DOMAIN to CLOCK_SOURCE 1 for B-CRF or 2 for B-AAF,
+   read it back, and wait up to 60 s for the servo to read LOCKED.
+6. From 20 s after the set, capture as lane B16b's B0. At McASP0, the
+   DUT's TDM output is recorded for 300 s while lane B6's loop plays into the DUT's
+   TDM input. The external capture covers the window, and both taps its first
+   40 s.
+7. Read GET_COUNTERS and GET_CLOCK_SOURCE of both entities 20 s after the
+   DUT's set, about 6 s before the window, then at its middle and 15 s before
+   its end, and after it.
+8. Tear down: the DUT back to INTERNAL, read back; the binds undone; then the
+   peer back to CLOCK_SOURCE 1, read back.
+
+No step has each clock following the other. The McASP playback check also ran
+just before the peer's set, the binds and the DUT's set; the owner's music was
+not playing at any of the eight checks. The SoC board's to-host bridge leg was
+stopped by its process ID for each case and restarted with its recorded line.
+
+| Run | Locked, CEST | The peer set to INTERNAL | Binds | The DUT's set | Window at McASP0 | Teardown |
+|---|---|---|---|---|---|---|
+| `bcrf` | 07:50:00 to 07:56:15 | 07:50:12.3 | 07:50:17.5 | CLOCK_SOURCE 1, 07:50:29.7 | 07:50:55 to 07:55:55, from 26 s after the set | 07:56:00.0 to 07:56:04.0 |
+| `baaf` | 07:56:52 to 08:03:07 | 07:57:04.1 | 07:57:09.3 | CLOCK_SOURCE 2, 07:57:21.5 | 07:57:47 to 08:02:47, from 26 s after the set | 08:02:51.7 to 08:02:55.7 |
+
+**Before any bench action** the two modes ran offline against stand-ins for
+the controller agent, the DUT's console, the SoC board, the tap host and the
+captures (`tools/dryrun_b16c/`). There were eight scenarios:
+
+- B-CRF and B-AAF as intended;
+- the DUT's set refused;
+- a deadline signal mid-window;
+- the owner's music found before the binds;
+- no servo lock;
+- the peer not found as recorded;
+- the controller agent ending at a bind.
+
+Each scenario checks the order of every state-changing request and the end
+state; 8 of 8 pass. The wrapper's deadline path passes too: the action's
+teardown and the leg's restart finish under the lock. The first dry run
+failed on a fault in a stand-in. It also showed that the teardown could not
+restore the peer's clock source after the controller agent had ended. The
+tool now starts a new agent for each restore step that finds the agent gone;
+neither bench case needed it.
+
+**Grading** is lane B16b's, unchanged: `tone_points_b16.py` at (a), (b) and
+(c); `align_b16.py` on full 24-bit values; `b9_thdn.py grade` at (c), with
+the path's floor an event-free block within 3 dB of the median; and
+`dloop_b16.py` at (d). `tables_b16c.py`, new, renders the rows below from the
+packet's files. SNR equals minus THD+N within 0.01 dB in every row.
+
+### B16c: clock-source record
+
+| Run | Step | Entity | SET_CLOCK_SOURCE | Status | GET_CLOCK_SOURCE |
+|---|---|---|---|---|---|
+| `bcrf` | The ruling's exception | The peer | 0, INTERNAL | SUCCESS | 0 |
+| `bcrf` | The case | The DUT, the listener | 1, its CRF input | SUCCESS | 1 |
+| `bcrf` | Restore | The DUT | 0, INTERNAL | SUCCESS | 0 |
+| `bcrf` | Restore, after the DUT's unbinds | The peer | 1, its CRF input, as found | SUCCESS | 1 |
+| `baaf` | The ruling's exception | The peer | 0 | SUCCESS | 0 |
+| `baaf` | The case | The DUT | 2, its AAF input | SUCCESS | 2 |
+| `baaf` | Restore | The DUT | 0 | SUCCESS | 0 |
+| `baaf` | Restore, after the DUT's unbinds | The peer | 1 | SUCCESS | 1 |
+
+At the four marks of step 7, GET_CLOCK_SOURCE read 1 or 2 on the DUT and 0 on
+the peer: 20 s after the DUT's set, about 6 s before the window; at its
+middle; 15 s before its end; and after it. After the restore it read 0 on the
+DUT and 1 on the peer.
+
+**Binding rule record.** Every listener format already equalled its talker's,
+so none was set: `0205022001006000` on the DUT's STREAM_INPUT 0 and
+`041060010000bb80` on its STREAM_INPUT 1. Every bind and unbind answered
+SUCCESS. Each run ended with every format, clock source, binding and map read
+back equal to its start.
+
+### B16c: B-CRF and B-AAF
+
+The tone sits in channels 0 and 1 of the peer's talker stream. Channels 2 and
+3 carry -1 to 0 LSB at every point, and McASP0's channels 4 to 7, unmapped,
+are zero. Each THD+N cell is the median over one-second blocks, with the worst
+block in brackets. For comparison, the table repeats lane B16b's B0: in it the DUT
+was on INTERNAL and the peer followed the DUT's CRF talker.
+
+
+| Run | Point | Frames | Level, dBFS | 997 Hz: frequency, offset | THD+N, dB | SNR, dB | 9,973 Hz: frequency, offset | THD+N, dB | SNR, dB |
+|---|---|---|---|---|---|---|---|---|---|
+| `bcrf` | (a) | 1,919,598; 319,933 PDUs, 0 gaps | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.98 (-123.93) | 123.99 | 9,973.0000 Hz, 0.000 ppm | -123.97 (-123.93) | 123.97 |
+| `bcrf` | (b) | 1,919,574; 319,929 PDUs, 0 gaps | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.99 (-123.93) | 123.99 | 9,973.0000 Hz, 0.000 ppm | -123.97 (-123.93) | 123.97 |
+| `bcrf` | (c) | 14,400,000 | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.98 (-123.93) | 123.99 | 9,973.0000 Hz, 0.000 ppm | -123.97 (-123.90) | 123.97 |
+| `baaf` | (a) | 1,919,598; 319,933 PDUs, 0 gaps | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.98 (-123.93) | 123.98 | 9,973.0000 Hz, 0.000 ppm | -123.98 (-123.93) | 123.98 |
+| `baaf` | (b) | 1,919,580; 319,930 PDUs, 0 gaps | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.98 (-123.92) | 123.98 | 9,973.0000 Hz, 0.000 ppm | -123.98 (-123.93) | 123.98 |
+| `baaf` | (c) | 14,400,000 | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.98 (-123.92) | 123.99 | 9,973.0000 Hz, 0.000 ppm | -123.97 (-123.91) | 123.97 |
+| `b0-2`, B16b's B0 | (a) | 1,919,610; 319,935 PDUs, 0 gaps | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.62 (-102.55) | 123.62 | 9,973.0000 Hz, 0.000 ppm | -114.29 (-82.58) | 114.29 |
+| `b0-2`, B16b's B0 | (c) | 14,400,000 | -14.1035 | 997.0000 Hz, 0.000 ppm | -123.95 (-100.47) | 123.95 | 9,973.0000 Hz, 0.000 ppm | -122.80 (-80.48) | 122.80 |
+
+The offsets are against each point's own sample clock: the stream's at (a)
+and (b), the DUT's TDM clock at (c).
+
+McASP0's 300 s at (c), graded by `b9_thdn.py`:
+
+
+| Run | Tone | Blocks | Discontinuities | Blocks at the path's floor | THD+N at the floor, dB, median (worst) | SNR at the floor, dB | THD+N, all blocks, dB, median (worst) | Level | Offset, ppm, median (largest block) |
+|---|---|---|---|---|---|---|---|---|---|
+| `bcrf` | 997 Hz, channel 0 | 300 | 0 | 300 | -123.98 (-123.93) | 123.99 | -123.98 (-123.93) | -14.10 dBFS | 0.0000 (0.000) |
+| `bcrf` | 9,973 Hz, channel 1 | 300 | 0 | 300 | -123.97 (-123.90) | 123.97 | -123.97 (-123.90) | -14.10 dBFS | 0.0000 (0.000) |
+| `baaf` | 997 Hz, channel 0 | 300 | 0 | 300 | -123.98 (-123.92) | 123.99 | -123.98 (-123.92) | -14.10 dBFS | 0.0000 (0.000) |
+| `baaf` | 9,973 Hz, channel 1 | 300 | 0 | 300 | -123.97 (-123.91) | 123.97 | -123.97 (-123.91) | -14.10 dBFS | 0.0000 (0.000) |
+| `b0-2`, B16b's B0 | 997 Hz, channel 0 | 300 | 0 | 169 | -123.98 (-123.91) | 123.98 | -123.95 (-100.47) | -14.10 dBFS | 0.0000 (0.030) |
+| `b0-2`, B16b's B0 | 9,973 Hz, channel 1 | 300 | 0 | 169 | -123.95 (-120.18) | 123.95 | -122.80 (-80.48) | -14.10 dBFS | 0.0000 (0.030) |
+
+In both following cases: no skip, repeat, insert, glitch or silent frame, and
+an effective offset of 0 ppm. The 997 Hz tone's phase moved less than 0.000001
+frames over the window, against 0.0005 in B0.
+
+(c) against (a) and (b), on full 24-bit values:
+
+| Run | (c) against (b) | (c) against (a) |
+|---|---|---|
+| `bcrf` | SAMPLE-EXACT over 1,646,473 recorded frames, 34.3 s, 0 differing, 0 slips | SAMPLE-EXACT over 1,647,859 frames, 34.3 s, 0 differing, 0 slips |
+| `baaf` | SAMPLE-EXACT over 1,644,390 recorded frames, 34.3 s, 0 differing, 0 slips | SAMPLE-EXACT over 1,641,156 frames, 34.2 s, 0 differing, 0 slips |
+
+Point (d), the peer's digital output at the external capture, carries lane
+B6's loop from McASP0, played into the DUT's TDM input:
+
+| Run | Decoded frames | Skips | Repeats | Net steps | Torn | Level and THD+N, both tones | Blocks at the loop's floor |
+|---|---|---|---|---|---|---|---|
+| `bcrf` | 14,583,391 | 0 | 0 | 0 | 0 | -1.00 dBFS; -146.06 dB and -145.99 dB median | 303 of the 303 wholly inside the playback; of the 306, blocks 0 and 1 precede it and block 2 holds its start |
+| `baaf` | 14,585,924 | 0 | 0 | 0 | 0 | -1.00 dBFS; -146.06 dB and -145.99 dB median | 303 of the 303 wholly inside the playback; of the 306, blocks 0 and 1 precede it and block 2 holds its start |
+
+So there were 0 net steps between the DUT's TDM clock and the peer's output
+over 303.8 s and 303.9 s. The decode counts a step as small as one frame, as
+its planted control shows (`controls/b16b-dloop-control.json`); one frame in
+14.58 million would be 0.07 ppm.
+
+### B16c: the following record
+
+From lane B9's console poll, 0.5 s per poll, and the GET_COUNTERS marks. The
+reduced receipts `r2/bcrf-poll-receipt.json` and `r2/baaf-poll-receipt.json`
+carry each poll figure below; see
+[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts).
+
+| Case | Set to LOCKED | Servo at the window's polls | Trim | The followed stream's rate against gPTP | AAF meter in the window | `SLIP_TDM` | DUT CLOCK_DOMAIN LOCKED / UNLOCKED, before the window and near its end |
+|---|---|---|---|---|---|---|---|
+| B-CRF | 2.585 to 3.161 s; ACQUIRE before it | LOCKED at 596 of 596 | -6.000 to -6.125 ppm | CRF sink +10.60 to +10.65 ppm | Not selected: `AAFM_STAT` 0 | 0, static | 23 / 22 and 23 / 22 |
+| B-AAF | 6.602 to 7.180 s; ACQUIRE before it | LOCKED at 596 of 596 | -6.000 to -6.125 ppm | AAF meter +10.60 to +10.63 ppm; the CRF sink, not followed, +10.59 to +10.65 ppm | `AAFM_STAT` `0x001e0007` at every poll: locked, rate valid, enabled, 0 history restarts, largest deviation 30 ns | 0, static | 24 / 23 and 24 / 23 |
+
+Each poll records only its own start and end. Its servo read, the second of
+its five console reads, falls between them. So each lock bracket runs from
+the start of the last poll that read ACQUIRE to the end of the first that read
+LOCKED: polls 44 and 45 in B-CRF, 52 and 53 in B-AAF. The `SLIP_LB` brackets
+below use the same rule.
+
+The servo word read `0x...0034` while LOCKED, as in lane B7's read, and
+`0x...0074` while the fine-PS actuator was busy: 580 and 16 of the window's
+polls in B-CRF, 584 and 12 in B-AAF. The design's
+[bench row](../design/MEDIA_CLOCK_FOLLOWING.md#bench) for B AAF asks for:
+
+- LOCKED within 15 s of the set and never left during the capture: met;
+- 0 net steps between the DUT's TDM clock and the peer's output: met, at (d);
+- tone blocks at the floor outside capture-path losses: met, at (c) and (d);
+- `SLIP_TDM` static: met;
+- the meter's history-restart count unchanged after lock: met;
+- its largest timestamp deviation recorded: 30 ns.
+
+For B CRF the row says "As B6". Lane B6's pass rule has four terms (see
+[Method](#method)), and both cases are judged against all four here:
+
+| Lane B6's term | B-CRF | B-AAF | Evidence |
+|---|---|---|---|
+| The DUT's servo reads LOCKED | Met | Met | LOCKED at 596 of 596 window polls; 2.585 to 3.161 s and 6.602 to 7.180 s after the set |
+| The counted frame-rate ratio within 0.5 ppm of zero | Met | Met | 0 net steps at (d) in 14,583,391 and 14,585,924 frames: below one frame in 14.58 million, 0.07 ppm. At (c) 0.0000 ppm |
+| The timed ratio's interval holds zero | NOT RUN | NOT RUN | This mode ran no timing sampler at McASP0, so no timed ratio exists |
+| 0 listener discontinuities on the tone path | Met | Met | 0 at (c) over 300 s and 0 at (d) |
+
+So B-CRF and B-AAF meet three of lane B6's four terms; the timed ratio was not
+run. The counted ratio stands in for it as evidence only. No recorded decision
+replaces the timed ratio, so the term stays open.
+
+**`SLIP_LB`**, the DUT's loopback ring, counted 162 dups at the start of B16c and
+188 at its end, in steps of two. Each step is timed by the two polls between
+which it appears, against the DUT's set. In each case five steps fell in the
+12.2 s between the binds and the DUT's set, all with the servo IDLE: from 0.1
+s after the binds to 1.4 s before the set. Then the DUT was on INTERNAL and
+the peer on its own clock. The steps are consistent with the ring absorbing
+the clocks' difference and, for the first, with the one slip per bind
+that lane B16b's runs counted; the receipts do not separate these causes. The rest fell
+in ACQUIRE, the servo reading ACQUIRE at both polls of each:
+
+- B-CRF: one step, between 2.08 and 2.66 s after the set;
+- B-AAF: two steps, between 2.08 and 2.65 s and between 5.10 and 5.68 s after
+  the set.
+
+None fell after LOCKED: not up to the window, through it, to the restore or in
+the poll's last 12 polls. Lane B8's INTERNAL-to-AAF set slipped 2.0 to 3.0 s
+after LOCKED ([#645](https://github.com/kebag-logic/milan-fpga/issues/645));
+that did not repeat in either case here.
+
+**MEDIA_RESET.** Both DUT talkers counted MEDIA_RESET 0 at the start of B16c and
+4 at its end, as many as the DUT's clock-source sets. The design declares one
+per switch (Milan v1.2 Table 5.4). The peer's listener of the DUT's AAF talker
+times them at the marks, in each case: one between the mark 5 s after the
+peer's set and the first window mark, 20 s after the DUT's set; none from
+there to the mark after the captures; and one at the restore.
+
+**CLOCK_DOMAIN counters.** The DUT's LOCKED and UNLOCKED each moved once per
+case, between the mark before the binds and the first window mark, and not
+from there to the restore. The peer's moved once each at each restore to its
+CRF input, and not at the set to INTERNAL.
+
+### B16c: attribution
+
+| Stage | Loss | Evidence |
+|---|---|---|
+| The tone source and the peer's path into its talker | None beyond the path's floor | At (a), medians are -123.98/-123.97 dB for B-CRF and -123.98/-123.98 dB for B-AAF (997/9,973 Hz); every worst block is -123.93 dB. |
+| The network, (a) to (b) | None | 0 sequence gaps on either tap; (a) and (b) both equal (c) over the same recorded frames |
+| The DUT's listener, its media-clock recovery, map and TDM render, (b) to (c) | None | Sample-exact over 34.2 to 34.3 s. Over 300 s: no discontinuity, every block at the floor, phase drift below 0.000001 frames |
+| The DUT's talker, the peer's listener and its output: the positive control | None | 0 discontinuities and 0 net steps in 14.58 million decoded frames each; all 303 blocks wholly inside the playback at the loop's floor |
+
+The DUT renders the stream sample for sample in every frame compared:
+3,289,015 against (a) and 3,290,863 against (b).
+
+Beyond the taps' 34 s, (c) is graded on its own. With every block at the
+floor and no discontinuity, nothing is left to assign upstream.
+
+**Against B0.** In lane B16b's B0, the peer followed the DUT's CRF talker.
+There 131 of the 300 blocks at (c) sat off the floor. Inside the taps' 34.1 s,
+23 of them lie, and (a) holds them sample for sample: shown directly. (a)'s
+own 39 blocks reach -102.6 dB and -82.6 dB. The other 108 lie beyond the taps
+and are assigned to the peer's talker stream by inference only. In B-CRF and
+B-AAF the peer ran on its internal source, and no block at (a) or (c) left the
+floor. In the entries the reads around them both hold (618 between lane
+B16b's last read and B16c's first, 668 within B16c), the tone source's state
+read the same for B0 and for both cases here. One run of each, at different
+times, does not show that the peer's clock source causes the degraded blocks.
+The peer's internals are not observable over ATDECC.
+
+### B16c: the tone source, read only
+
+The tone, lane B15's loop `d9684a8f...`, played from 07:49:29 to 08:03:52
+CEST. The lane read the source's state at 07:48 and 08:03 CEST, and its meters
+passively at 07:49 and 08:03. The meters read as in lane B16b, at both
+times: -38.5 dBFS leaving the documented pair of outputs and -14.0 dBFS
+leaving the second pair.
+
+The first state read equals lane B16b's last in all 618 entries both hold.
+Between B16c's two reads, two of the 668 entries both hold differ only in
+which messages for the same address each read caught: the first read caught
+two for each, the second one, which the first also caught. Both reads show
+those inputs of a monitoring mix at minus infinity, and the lane wrote
+nothing. The reduced receipt `r2/source-receipt.json` carries these counts and
+the meter levels; see
+[B16, round 2: reduced receipts](#b16-round-2-reduced-receipts).
+
+Lane B9's tone monitor read the playback RUNNING at every 0.2 s read of both
+cases, 1,805 and 1,803 reads. It saw one trigger time and a monotonic hardware
+pointer: no restart and no underrun (each case's `tone-summary` in its
+`events.jsonl`). The playback's own log, retained privately, holds no underrun
+either (`r3/playback-logs.json`).
+
+### B16c: bench as left
+
+| State | As left |
+|---|---|
+| DUT stream state | Both STREAM_INPUTs unbound; STREAM_INPUT 0, at `0205022001006000`, and STREAM_INPUT 1, at `041060010000bb80`; both maps as found; CLOCK_SOURCE 0, INTERNAL; all read back |
+| Reference peer | STREAM_INPUT 0, bound to the DUT's STREAM_OUTPUT 0, STREAM_INPUT 8 to the DUT's STREAM_OUTPUT 1; its CLOCK_DOMAIN on CLOCK_SOURCE 1, its CRF input, as found. It was set to 0 and back to 1 once per case, each read back |
+| Census, B16c's start against its end | 44 of 45 reads equal, the census's start record aside; the other is the DUT's live propagation delay |
+| Counters, B16c's start against its end | Moved only as the method implies; see the residuals |
+| DUT saved state | NVM image seq 286 to 292, commits 52 to 58, `pend=0`, `VD_OK` |
+| The tone | Stopped by its process ID at 08:03:52 CEST; the playback closed |
+| The tone source | As the owner left it; the lane wrote nothing |
+| SoC board | Same boot; McASP playback closed; the to-host leg running with its recorded line under a new process ID; the from-host leg dead, as found; USB function configured; no lane file left |
+| Controller host | No task process; staging removed |
+| Tap host | No capture file and no capture process |
+| Bench host | Both USB audio devices present; the board link's address present; the bench lock free |
+
+Residuals that no permitted command restores:
+
+- **The peer's talkers** counted two more stream starts and stops each, one
+  per case. Its listeners of the DUT's talkers counted four MEDIA_RESETs each.
+- **The DUT's talkers** counted MEDIA_RESET 0 to 4 each; its listeners'
+  GET_COUNTERS advanced with the binds.
+- **The CLOCK_DOMAIN counters** read LOCKED / UNLOCKED 22 / 21 to 24 / 23 on
+  the DUT and 6 / 5 to 8 / 7 on the peer.
+- **`SLIP_LB`** read 162 dups at the start and 188 at the end, every step
+  before LOCKED.
+
+### B16c: acceptance of #629
+
+| Item of #629 | Judgement after lane B16c | Evidence |
+|---|---|---|
+| Bench quality metric: THD+N and SNR of a known tone on the selected path, against the INTERNAL control and synthetic slips and drift | Direction A: met, by lane B7. Direction B: graded for both followed sources, B-CRF and B-AAF, against lane B9's synthetic controls (PASS in lane B16). Against lane B6's four pass terms, three are met in each case and the timed ratio was NOT RUN; no recorded decision replaces it. NOT met for the INTERNAL control: B0's run had the peer following the DUT, so it holds no mismatch to show. The ruling's exception covers B-CRF and B-AAF only | [B16c: B-CRF and B-AAF](#b16c-b-crf-and-b-aaf); [B16c: the following record](#b16c-the-following-record); [B16: the controls](#b16-the-controls); [B16b: limits](#b16b-limits) |
+| Bench, both directions, each followed source: the listener's CLOCK_DOMAIN set and read back, its format adapted, the as-found source restored | Met, as after lane B7, and held again here for Direction B | [B16c: clock-source record](#b16c-clock-source-record) |
+| Fabric: a switch re-locks with no undeclared discontinuity | As judged after lane B8, pending #645. In both INTERNAL-to-following sets here `SLIP_LB` stepped only before LOCKED | [B16c: the following record](#b16c-the-following-record) |
+| Every other item | As judged in [B8: acceptance of #629](#b8-629-acceptance) and [B7: acceptance of #629](#b7-629-acceptance) | - |
+
+So #629's items are not all met, and the issue stays open. Direction B's INTERNAL
+control would need the same exception for B0, with the peer on its internal
+source. Lane B6's timed ratio for B-CRF and B-AAF would need a mode with
+McASP0's timing sampler, or a recorded decision.
+
+### B16c: limits
+
+- One graded run per case, on this bench's DUT and reference peer only, each
+  with 300 s at McASP0, and 40 s of each tap. Lane B7's windows were 630 s;
+  one locked action must end within 10 minutes.
+- Lane B6's timed ratio was NOT RUN: this mode ran no timing sampler at
+  McASP0. The counted ratio at (d) stands in for it as evidence only; no
+  recorded decision replaces the term.
+- The peer's internal source is both cases' reference. Its rate is recorded
+  through the DUT's meters, +10.59 to +10.65 ppm against gPTP, not graded.
+- The servo's status carried bit 4, DRP config mismatch, at every ACQUIRE and
+  LOCKED poll in both cases, as in lanes B6 and B7. It is recorded, not
+  analysed.
+- B0's case with the peer on its internal source was not run, so Direction B has no
+  INTERNAL mismatch control on this image.
+- The degraded blocks of B0 and their absence here come from one run each.
+  In B0, 108 of the 131 lie beyond the taps and are assigned upstream by
+  inference.
+- Printed precision is not calibrated accuracy.
+
+### B16c: artifact hashes
+
+The raw files stay outside the lane packet, on the bench host, and the
+packet's `RAW-ARTIFACTS.json` records each of them. The external capture's
+sizes are withheld, because they would state its channel count.
+
+| Run | Raw file | Bytes | SHA-256 |
+|---|---|---|---|
+| `bcrf` | `tap-peer.pcap`, the peer's link | 154,049,992 | `edad46fe5de09dcace08a19eef8f5ecc5f0e9cab9bf5e506eb3e2f23a6bc97b3` |
+| `bcrf` | `tap-dut.pcap`, the DUT's link | 154,048,228 | `4e7013347ec9de4e29c61165f92acee4e22104bbf5e7aa1050225d38ba593d09` |
+| `bcrf` | `mcasp-all.raw`, McASP0 | 460,800,000 | `b5e30bb576949c077f3ff611c6226d5bf094e7b65ff2e1f033541c3f9ba1c03f` |
+| `bcrf` | `extcap.raw`, the external capture | Withheld | `b4f6a999500c5b1b0e1c058afeaf9788410f1b2f29e4a4e684ba19b1c2f50e4d` |
+| `bcrf` | `poll-run.jsonl`, the console poll | 218,420 | `9cfc79bb2ae8ad6c6e8cca028d66af3b6695c0982ffe2a512ea756fb3dc06c03` |
+| `bcrf` | `tone-status.jsonl`, the tone monitor | 199,498 | `2a7974d5a6f6548e847844c326e52e59d6cc4b1f6dcfd0a730c673f85865a10c` |
+| `baaf` | `tap-peer.pcap` | 154,049,168 | `234a2f0b414dcd0a07e9f2fb9047d417b9d14da77fddc0a0b708e315983ab36d` |
+| `baaf` | `tap-dut.pcap` | 154,048,154 | `5a8dbaad272ad1c6bbd18aa146486ed2a78c27d23270a8e9d243207b9269038b` |
+| `baaf` | `mcasp-all.raw` | 460,800,000 | `1351272cb679353885983762402caa13ef6e793831463dfc5a2ca242cca3a93e` |
+| `baaf` | `extcap.raw` | Withheld | `1eeaad6845cb2ad30de88ffe5eb211518f12acf14fa6fed9bd14a12cdd9c099c` |
+| `baaf` | `poll-run.jsonl` | 218,401 | `476a007728d267931a7baf32095afd8342fde5e8c30984f469b857c3841bab73` |
+| `baaf` | `tone-status.jsonl` | 200,133 | `40962288e0fe5eca37964b068c2060c005bc39ccbbe470486c41003653ce3a99` |
+| `bcrf`, `baaf` | `b6-loop.raw`, lane B6's loop | 1,536,000 | `566d3dfae6eb60a658b8cb0ddf5c833900ccbe4feb41c427a970a5854cc75588` |
+
+The packet's evidence files for B16c, as retained after its redaction pass
+(`redaction.json` gives each masked file's original and retained hashes):
+
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/run_b16c.py` (the runs, modes `bcrf` and `baaf`) | 41,693 | `8ed6b63f03598f595c6b2aedcfedcdd81f37d3d130cdc2368ba5010962948a3c` |
+| `tools/run_locked_b16c.sh` (the locked wrapper) | 2,564 | `6eed98dbba4f6fde2752e185c5406005ad5e0915910c8ca43026231b8aa0cd6f` |
+| `tools/tables_b16c.py` (the tables above, from the packet's files) | 6,593 | `95b33b4530062c48e17b0db09019ff18b0fa166938006693947ee3b31408d918` |
+| `tools/dryrun_b16c/dryrun_b16c.sh` (the offline dry run) | 1,903 | `699955707f9847b5db9076782d0f4472978c27ea4d85cb45fcedcc8e95b60be7` |
+| `tools/dryrun_b16c/check_dryrun_b16c.py` (its checks) | 4,074 | `fdfffe23a65b2e07fd28270128e5832d8f0ce6eb801178bd0de671b216c4a204` |
+| `controls/b16c-dryrun-summary.json` (8 of 8 scenarios) | 273 | `685737875fc4df85c27e5e37ac680f373cdc0e02e930da8189da8834a891e336` |
+| `controls/b16c-wrapper-deadline.txt` (the wrapper's deadline path) | 617 | `090969eb04c94470e4589d465f960e72d938745fa1c61203570f0ef9fc439677` |
+| `runs/bcrf/events.jsonl` | 20,973 | `9e6b07074af7d371cbca8df974a85e9a6d3f6bd73526bd6350c42344a7c88e55` |
+| `runs/baaf/events.jsonl` | 20,973 | `2011eca5bb7b5802451342da06268acc88af4b2ac0c161c06edd9d7f7b24ab2f` |
+| `summary/bcrf/c-b9-grade.json` (B-CRF's grade at (c)) | 135,192 | `a74f236bb68e333f5dbc8f1a47176badf318048573728e9cec603cc8de5a7e6b` |
+| `summary/baaf/c-b9-grade.json` (B-AAF's grade at (c)) | 135,271 | `2b0ee83ea4d80978bc7239cba706e6c14881f77b4a503c89759021c0203efd84` |
+| `summary/bcrf/align-a-c.json` | 426 | `80df5a0b1751a209f2b8055409e5399d3648618bd80ca036c913d9045e3721ec` |
+| `summary/bcrf/align-b-c.json` | 426 | `e22934e3702eb234534b11342b3710bdee94001dd4ffbc1b446a9d52d7e51cf2` |
+| `summary/baaf/align-a-c.json` | 426 | `1c88af889538788a8c7842e79aea5f2e3684802d5d2dbaa5dd293e8003dbfabd` |
+| `summary/baaf/align-b-c.json` | 426 | `1a8d61828b3d882136014f6cd2b2eefc69a963b46a33d49c84e047702103c245` |
+| `summary/bcrf/d-loop-decode.json` | 316 | `9b238160fb9fda206294b9df90bc52724c6d9d97d262681c8e7a6a011b74fae0` |
+| `summary/baaf/d-loop-decode.json` | 316 | `342724e82b1877b12579f04102566a8ae7cba30dd0baea8a55a8cb88acf2e2b9` |
+| `summary/b16c-tables.md` (the rendered rows) | 12,847 | `8df9a8ccda5f2bbc143bc2dbcaa8868e3dd5a1d1fab8eb427428c2a7d95a19f8` |
+| `restore/census-compare-b16c.txt` (B16c's start against its end) | 481 | `5b0015fd2a63e3aa2a6676842da251196fcb1f1540c7532980f006b7c5f90dcc` |
+| `identity-b16c/identity-verdict.txt` | 1,532 | `4634ee944266589d6be3a9a1f90c93cd58c003b4d9fc60a341d43e46d7ff2130` |
+
+### B16, round 2: reduced receipts
+
+The reviews of this section,
+[R624-1](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119236428)
+and [R625-1](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119311570),
+found figures that did not equal their receipts and figures with no public
+receipt. Neither alleged a DUT defect. Under the manager's
+[assignment for round 2](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6119316763),
+the operator, [A603], corrected the text above and published the reduced receipts
+below, on 2026-10-12, documents only. Nothing on the bench was touched: no
+lock, controller, board or instrument. Every receipt was extracted from files
+the lane already retained, and each receipt carries those files' SHA-256.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| B0's floor at (c), `b0-2` | -123.98 dB on both tones | -123.98 dB at 997 Hz and -123.95 dB at 9,973 Hz; `pts3` -123.98 dB on both | `r2/b0-2-receipt.json`, from `summary/b0-2/c-b9-grade.json` |
+| B0's degraded runs | 0 to 18, 28 to 31, 43 to 54 and later runs | 0 to 18, 28 to 31, 43 to 44, 46 to 54 and eleven later runs; block 45 is at the floor | `r2/b0-2-receipt.json` |
+| B0's recording start | From 06:38:03, 24 s after the last bind | About 06:38:05.2, 26 s after the last bind: the capture command at 06:38:03.2 plus the board's 2 s of playback | `r2/b0-2-receipt.json`, from `runs/b0-2/events.jsonl` and `tools/run_b16.py` |
+| `pts2`'s start at McASP0, found by the operator's own check | As `pts1`, from 06:28:25 | About 06:28:31.5, after the same 2 s of playback | `runs/pts2/events.jsonl`, `runs/pts2/soc-record.log` |
+| B-CRF and B-AAF against lane B6 | Three terms, all met | All four terms: three met, the timed ratio NOT RUN; no recorded decision replaces it | [B16c: the following record](#b16c-the-following-record) |
+| B0's attribution | 131 degraded blocks in the peer's talker stream, reaching (c) unchanged | 131 is the count at (c). 23 lie inside the taps' 34.1 s and are shown in (a) sample for sample; the other 108 are assigned upstream by inference | `r2/b0-2-receipt.json` |
+| B16c's first counter mark | At the window's start | 20 s after the DUT's set, about 6 s before the window | `runs/bcrf/events.jsonl`, `runs/baaf/events.jsonl` |
+| B16b's state comparison | Four entries differ | Two settings changed; two monitoring-mix entries differ only in which messages each read caught | `r2/source-receipt.json` |
+| B16's other source outputs | Silent | No reading above -135.2 dBFS | `r2/source-receipt.json` |
+| B16c's `SLIP_LB` steps | 2.66 s, 2.65 s and 5.68 s after the set | Each bracketed by its two polls: 2.08 to 2.66 s, 2.08 to 2.65 s and 5.10 to 5.68 s | `r2/bcrf-poll-receipt.json`, `r2/baaf-poll-receipt.json` |
+
+The receipts:
+
+- **The console poll of each case of B16c.** `r2_poll_b16c.py` reads the raw poll
+  and refuses it unless its SHA-256 and size equal the record in the case's
+  own `events.jsonl`. It then recomputes the published poll summary from the
+  raw poll with the run tool's own rule; it equals the published summary in both
+  cases. It decodes each poll by
+  [the register map](../reference/REGISTER_MAP.md), cuts spans at the case's
+  steps and gives each span's servo states, servo word values, and the minimum
+  and maximum of the trim, the CRF and AAF rates, `SLIP_LB` and `SLIP_TDM`. It
+  lists every `SLIP_LB` step with its two polls' times and servo states. The
+  trace beside each receipt holds every poll's eight raw words and its time
+  against the DUT's set, so the extrema can be checked without the raw file.
+  It recomputes the run's own LOCKED brackets, 2.657 to 3.161 s and 6.68 to
+  7.18 s. Those open at the end of the last poll that read ACQUIRE. That poll
+  read the state before it ended, so round 3's brackets open at the poll's
+  start instead, 2.585 s and 6.602 s; see
+  [B16, round 3: figures check](#b16-round-3-figures-check).
+- **The tone source's reads.** `r2_source_b16.py` reads the twelve retained
+  reads, four per lane, and a class map. The map says which of the source's
+  controls are meters, which meter belongs to which role and which class a
+  state entry belongs to. The reads and the map name the source's controls,
+  so they stay private; the receipt names none. Per read it gives the time,
+  the SHA-256 and, per role, the meter levels. Per compared pair it gives the
+  entries each holds, those both hold, those that differ, and each differing
+  entry's class. It also gives how many messages each read caught for that
+  entry's address, and whether each read's last value is among the other's.
+  The receipt holds the map's SHA-256.
+- **B0's overlap.** `r2_b0_receipt.py` reads only files in the packet: B0's
+  grade, both alignments, (a)'s grade, the run's events and the run tool.
+
+Each tool was checked offline on altered copies before use
+(`controls/r2-controls.json`, 6 of 6 PASS): a changed byte in the raw poll is
+refused; a changed field in the published summary is reported as a mismatch;
+a planted `SLIP_LB` step is listed at its poll with its servo state; a
+planted setting and meter level appear in the source receipt; a shortened
+overlap moves the inside and beyond counts.
+
+The extraction, from the packet's root with the raw files at their recorded
+paths:
+
+
+- `python3 -I tools/r2_poll_b16c.py {raw}/bcrf/poll-run.jsonl runs/bcrf/events.jsonl r2/bcrf-poll-receipt.json r2/bcrf-poll-trace.tsv`
+- `python3 -I tools/r2_poll_b16c.py {raw}/baaf/poll-run.jsonl runs/baaf/events.jsonl r2/baaf-poll-receipt.json r2/baaf-poll-trace.tsv`
+- `python3 -I tools/r2_source_b16.py {class map} {list of the twelve reads} r2/source-receipt.json`
+- `python3 -I tools/r2_b0_receipt.py . r2/b0-2-receipt.json`
+
+
+The tone source's twelve reads, now also listed in the packet's
+`RAW-ARTIFACTS.json` under `source/`. Their sizes are withheld, because they
+would state the source's control layout:
+
+| Read | At, CEST | SHA-256 |
+|---|---|---|
+| `b16-state-1.json`, state | 05:47:56 | `ce5574185d1c05f8ca0d1d669904eb4c4ea21229f8af7f33b624aa461e56dca0` |
+| `b16-meters-1.json`, meters | 05:55:41 | `3a04b34f9fd83de714ba30523a4ed0ee4b09f4fae1e413d4adfc9891ebcfa6ca` |
+| `b16-meters-2.json`, meters | 06:01:44 | `5e8e366bd950e2523b57735c4be8c3b672cda416b105b3ddc55ee3d6d18611b2` |
+| `b16-state-2.json`, state | 06:01:48 | `f4bcf327c815ec686ec7bb2573551e0ac78cbb6ba03d0862cff7480a65b6bd1e` |
+| `b16b-state-1.json`, state | 06:23:06 | `6b4cd4e6a325b389e4be65e43e5109ed903f7ca27b58864e9dbef531b4818c72` |
+| `b16b-meters-1.json`, meters | 06:23:30 | `a7c844bddf786fb0eccfd15af94b5c0bc1b5ae55bbe49e5021dedce01a6c2c04` |
+| `b16b-meters-2.json`, meters | 06:50:05 | `fb5c6e23143b1379948586545b66fc26a3419827c72eb929ad4b531fcbc273ed` |
+| `b16b-state-2.json`, state | 06:50:08 | `b8f0746478b7cd652f3a06234aa7358a4078614f0b0fc64344a9a476b1d25288` |
+| `b16c-state-1.json`, state | 07:48:56 | `195d59866d6ccd976e95d79f3833b6ff01c0ab5bac7d04e934b7338a97d54a3a` |
+| `b16c-meters-1.json`, meters | 07:49:34 | `f694f3dfdbec41ec48e85fec9bc77019a4168855d2f01f921a88e677af19fbf7` |
+| `b16c-meters-2.json`, meters | 08:03:29 | `794b67fe8ab03f3e61c2eaf9245d0988849b1ce73cd26167ab67f8690d5e01ab` |
+| `b16c-state-2.json`, state | 08:03:32 | `93cb9240f72ee45779008872da841cb3bec4bb7de527bb05381a91dfac781624` |
+
+The two raw polls are those in [B16c: artifact hashes](#b16c-artifact-hashes):
+`9cfc79bb...` (B-CRF) and `476a0077...` (B-AAF).
+
+The round's files in the packet:
+
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r2_poll_b16c.py` (the poll receipt) | 10,234 | `14ae199a556bca981cd9898d186efd983609325b93412beb6dd332a0f0276cb2` |
+| `tools/r2_source_b16.py` (the source receipt) | 6,604 | `903145f68d3ce8e4e2dc3813b67ac9acfad2b0361a58b146e73b839bec63fa3c` |
+| `tools/r2_b0_receipt.py` (B0's receipt) | 4,874 | `cf650fa86179d611ddf63eed2151b5f1062847fd6797b277590e3a5e82cdfcad` |
+| `r2/bcrf-poll-receipt.json` | 6,945 | `abb1f853804c23c364b49f2b4263bcae68b928881ccb501d187f78a64c00660f` |
+| `r2/bcrf-poll-trace.tsv` | 62,923 | `050aeded3806ec9ec821b19da28b85313a9ae58921fc9d2c86a236d10078f1db` |
+| `r2/baaf-poll-receipt.json` | 7,446 | `2f8cc0894cfb8918ff3b066721f8e0b0200c2241ee280375202cf6d6f641c931` |
+| `r2/baaf-poll-trace.tsv` | 62,923 | `3e891d0faf7ba65997b8a487ad53f01e86dfc2713fa8b1721ff33c0d1bdfdeea` |
+| `r2/source-receipt.json` | 21,276 | `1afbce9cdd27468394bf33265c45f1bb1d1e7a46091e15a715950a2ba4406912` |
+| `r2/b0-2-receipt.json` | 2,484 | `8bcab8394d2f8d02890c76ce9bf5f864f53cf195ae4c58bec8bee055c3aba6f7` |
+| `controls/r2-controls.json` (6 of 6 PASS) | 1,984 | `dc6f67634197b22e7f30225758d4221f697833472997b0b05a8174d94956b437` |
+
+### B16, round 3: figures check
+
+The reviews of round 2,
+[R624-2](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119878041)
+and [R625-2](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6119899949),
+found more figures that did not equal their receipts. Neither alleged a DUT
+defect or reversed a bench verdict. Under the manager's
+[assignment for round 3](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6119906508),
+the operator, [A603], corrected the text above and added a figures check to the lane
+packet, documents only. Nothing on the bench was touched.
+
+**The check.** `tools/check_b16_figures.py` is in the packet, not the tree. It
+holds a row for each quoted figure in this section, in this page's introduction
+and Contents entry on lane B16, and in lane B16's part of the page's row in
+the [findings index](README.md). A row gives the document line, the figure as shown,
+the receipt, the key into it and the displayed precision. The receipt is a
+packet file, a repository file, or this page at an earlier commit, for a
+figure that a round superseded. The check recomputes each figure from its
+receipt, rounds it to the displayed precision and fails on any mismatch.
+Receipts are read as exact decimals and rounded half up: `pts3`'s SNR at (a),
+stored as 122.475 dB, shows as 122.48. Clock times are cut to the last digit
+shown, as a clock shows them: lane B16b's identity gate ended at 06:22:34.993
+and shows as 06:22:34.
+
+The check also read the numbers, times, dates, hashes and number words that
+its token pattern finds in that text. In round 3, each had to be claimed by a
+row or fall in a named category: descriptor and channel indices, step and list
+ordinals, tone names, commit names, citations, units, and links and quoted
+phrases as a whole. So a figure added without a row failed the check unless it
+was written inside a link or a quoted phrase, or in a form the pattern does
+not read. Round 4's change closed the first gap, and round 5's the second; see
+[B16, round 4: packet and coverage](#b16-round-4-packet-and-coverage) and
+[B16, round 5: every digit](#b16-round-5-every-digit).
+
+At round 3's head the check passed. All of its rows equalled their receipts,
+and no token was left uncovered. Its output is in the packet:
+`r3/figures-rows.tsv`, a line for each row with the recomputed value, and
+`r3/figures-coverage.tsv`, every token that a category covers. Their SHA-256
+and the check's own are in the packet's `MANIFEST.sha256`, not on this page.
+The check holds this page's figures, so this page cannot also hold the
+check's hash.
+
+Its controls ran on altered copies (`controls/r3-controls.json`, 5 of 5 PASS,
+from `tools/r3_check_controls.py`). Each of these fails the check and is named
+in its output: a figure changed on the page, a value changed in a receipt, a
+figure added without a row, a row pointing at the wrong line, and a clock time
+rounded instead of cut.
+
+The reviews' findings:
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R625-2-F1: B16c's attribution at (a) | -123.98 dB median, worst block -123.93 dB, on both tones in both cases | -123.98/-123.97 dB for B-CRF and -123.98/-123.98 dB for B-AAF (997/9,973 Hz); every worst block -123.93 dB | `summary/bcrf/a-peer-tap.json`, `summary/baaf/a-peer-tap.json` |
+| R624-2-F1: the positive control's floor at (d) | 305 of 306 blocks; `pts2` 13 of 16 | All 303 blocks wholly inside the playback; `pts2` 11 of 13, blocks 6 and 12 holding its repeats. Blocks 0 and 1 precede the playback and block 2 holds its start | `summary/b0-2/d-extcap-pair.json` and those of `bcrf`, `baaf` and `pts2` |
+| R624-2-F1: the taps in `pts2` | At the floor in every block but the playback's first and last | All 15 blocks wholly inside the playback | `summary/pts2/ctl-dut-talker-dut-tap.json`, `summary/pts2/ctl-dut-talker-peer-tap.json` |
+| R624-2-F2: B16c's LOCKED brackets | 2.66 to 3.16 s and 6.68 to 7.18 s, from the end of the last poll that read ACQUIRE | 2.585 to 3.161 s and 6.602 to 7.180 s, from that poll's start | `r2/bcrf-poll-trace.tsv`, `r2/baaf-poll-trace.tsv` and their receipts |
+| R624-2-R1: the tone source's state | Two settings changed; the state was the same for B0 and both cases | Each narrowed to the entries both reads hold: 1,255 in lane B16b; 618 and 668 around B16c | `r2/source-receipt.json` |
+| R624-2-R2: the five `SLIP_LB` steps before the set | The ring absorbed the clocks' difference | Consistent with that and, for the first, with one slip per bind; the receipts do not separate the two | `r2/bcrf-poll-receipt.json`, `r2/baaf-poll-receipt.json` |
+| R624-2-S1: the servo status bit 4 | Not stated | Recorded in [B16c: limits](#b16c-limits) | `r2/bcrf-poll-trace.tsv`, `r2/baaf-poll-trace.tsv` |
+
+The check's own findings, each corrected above:
+
+| Where | Was | Now | Receipt |
+|---|---|---|---|
+| B16: the identity gate | 05:45:07 to 05:45:13 | 05:45:06 to 05:45:12 | `identity/lock-window.txt` |
+| B16: the tone | From 05:55:38 to 06:02:00 | From 05:55:37 to 06:01:59: the first status read less the frames played, and the stop action's start | `runs/tone-start.txt`, `runs/tone-stop.txt` |
+| B16: `loop1` and `loop2` | 05:56:31 to 05:57:31; `loop2` to 06:00:29 | 05:56:30 to 05:57:30; `loop2` to 06:00:28 | `runs/loop1-lock.txt`, `runs/loop2-lock.txt` |
+| B16: the tap after the probes | The remaining 49 s | 49.6 s after the second probe | `summary/loop2/acmp-peer-tap.json`, `runs/loop2/events.jsonl` |
+| B16: lane B15's `pts1` | Flags `0x0002` and stream ID 0, from lane B15's packet | Only what lane B15's section records: counters 0 and output exact zero | [B15: the controls](#b15-the-controls) |
+| B16: the state reads | At 05:48 and 06:01 | At 05:47 and 06:01 | `r2/source-receipt.json` |
+| B16b: the resume | At 06:20, the operator's note | The first bench action, 06:22:23 | `soc/b16b-precheck-status.log` |
+| B16b: the tone's level at (a) | -14.14 dBFS before 06:29 and -14.10 dBFS after | To 06:28:50 and from 06:31:51, the last and first tap frames | `summary/pts2/a-peer-tap.json`, `summary/b0/a-peer-tap.json` |
+| B16b: phase drift before the change | +3.00 frames in 10 s | +3.00 and +3.01 frames | `summary/pts1/c-b9-grade.json`, `summary/pts2/c-b9-grade.json` |
+| B16b: the offset before the change | +6.95 ppm | +6.94 to +6.96 ppm | The point summaries of `pts1` and `pts2` |
+| B16b: the playback's underruns | Five, 0.43 to 1.63 s each, from the private log | Five, from 06:45:27 to 06:46:38, cited to the operator's record; that log was overwritten and is not retained | `HANDOFF.md` step b17; `r3/playback-logs.json` |
+| B16c: the resume | At 07:32, the operator's note | The first bench action, 07:48:07 | `soc/b16c-precheck-status.log` |
+| B16c: the run table | `bcrf` 07:50:12.4, 07:50:17.6, 07:50:29.8, a window from 07:50:56 to 07:55:56, a teardown to 07:56:04.1; `baaf`'s teardown 08:02:51.8 to 08:02:55.8 | 07:50:12.3, 07:50:17.5, 07:50:29.7, from 07:50:55 to 07:55:55, to 07:56:04.0; 08:02:51.7 to 08:02:55.7 | `runs/bcrf/events.jsonl`, `runs/baaf/events.jsonl` |
+| B16c: (d)'s decoded span | 303.8 s in each case | 303.8 s and 303.9 s | `summary/bcrf/d-loop-decode.json`, `summary/baaf/d-loop-decode.json` |
+| B16c: the peer's rate | +10.6 ppm | +10.59 to +10.65 ppm | `r2/bcrf-poll-receipt.json`, `r2/baaf-poll-receipt.json` |
+
+Six number words with no receipt were reworded: "plus one change", "one PDU",
+"one step earlier", "one request", "the two lanes" and "one route".
+
+The playback's two retained logs are now listed in the packet's
+`RAW-ARTIFACTS.json` under `playback/`, their sizes withheld because each log
+names the tone source's device. `tools/r3_playback_logs.py` reduces them to
+`r3/playback-logs.json`: per log its SHA-256, its modification time, the lines
+that report an underrun and its exit line. Lane B16b's log is not retained.
+
+| Log | Modified, CEST | Underrun lines | SHA-256 |
+|---|---|---|---|
+| `b16-tone-play.log`, lane B16's | 06:02:00 | 0 | `dab353b5ead02cb68b5ecebc757786c48b7672e6f93a37a152e37aedf9dfe43b` |
+| `b16c-tone-play.log`, lane B16c's | 08:03:53 | 0 | `dab353b5ead02cb68b5ecebc757786c48b7672e6f93a37a152e37aedf9dfe43b` |
+
+The two logs are byte-equal: each holds the playback's setup, the stop
+signal and the exit line, and nothing else.
+
+The round's files in the packet:
+
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r3_playback_logs.py` (the playback-log receipt) | 1,990 | `27334c6d3106f9305187deef6196a7dcb7e14b10d6fbea08f721029766dcf595` |
+| `r3/playback-logs.json` | 795 | `68e905288cf0c01c385a995bf66edc78e6323e041de99c1e0f1f3e4b360f64fe` |
+| `tools/r3_check_controls.py` (the check's controls) | 6,541 | `85fc57876334b823cd349a9752bf12581bbb22f9f5c5b2a4d6f68ab948a54157` |
+| `controls/r3-controls.json` (5 of 5 PASS) | 1,579 | `6b6f8bc7b99e5ec6843a7c385e681b4bcf4b89b1b56d84dcc10a88889ce6cc05` |
+
+### B16, round 4: packet and coverage
+
+The reviews of round 3,
+[R624-3](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6121093801)
+and [R625-3](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6121186527),
+each found a MINOR. Neither alleged a DUT defect, changed a figure or
+reversed a bench verdict. Under the manager's
+[assignment for round 4](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6121193402),
+the operator, [A603], made the changes below, documents only. Nothing on the bench
+was touched.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-3-F1: where the packet is | Not stated | The branch, a pinned commit, each round's directory, and the manifest's original and published hash per file; see [B16: artifact hashes](#b16-artifact-hashes) | `r4/evidence-receipt.json` |
+| R625-3-F1: a figure inside a link label or a quoted phrase | Exempt with the link or the phrase as a whole | Read as any other text: claimed by a row, or by an identifier category bound to its keyword | `controls/r4-controls.json` |
+| R625-3-S1, taken: the census | 45 of 46 entries equal | 44 of 45 reads equal, the census's start record aside | `restore/census-*.jsonl`, `restore/census-compare*.txt` |
+
+**The check's exemptions.** Round 3's check exempted a whole link, label and
+target, and a whole quoted phrase, so a figure written inside either needed
+no row. R625-3's probe showed it with a figure and its unit added both ways. The check
+now exempts only identifiers, each bound to the text that makes it an
+identifier:
+
+- commit names, each listed;
+- clause numbers: IEEE 1722.1 and Milan v1.2 Table 5.4;
+- descriptor, channel, step, round and list-item indices, each after its
+  keyword;
+- the packet's label, `629-b16-a603`;
+- a link's target, the URL or anchor in its parentheses, not its label.
+
+Every other token the pattern finds is claimed by a row that reads a
+receipt. Round 3's other categories are gone. The tone frequencies now read
+the tone tool and the analyser, the block length and the comparison's bit
+width read the run summaries, the decode's smallest step reads its planted
+control, and the lane's limit on a locked action reads the operator's record.
+The check's tokens now also take a full commit name and the number words for
+tens.
+
+A guard sat under the categories. A token followed by a unit, such as dB,
+dBFS, ppm, %, s, Hz, frames, samples, blocks, polls, bits or LSB, was a
+measurement, and only a row could claim it, whatever category matched. The
+guard read only tokens, and allowed at most a single space, non-breaking space
+or hyphen before the unit. So a number the pattern does not read, or set
+further from its unit, escaped it; round 5's check closes that, see
+[B16, round 5: every digit](#b16-round-5-every-digit).
+
+**Its controls.** `tools/r4_check_controls.py` runs each control on an
+altered copy (`controls/r4-controls.json`, 8 of 8 PASS). The first five are
+round 3's, their code unchanged. The new ones:
+
+- a figure with its unit added inside a quoted phrase on the attribution row
+  R625-3's probe used: the check fails and names the figure UNCOVERED;
+- the same figure added there as a link label: the check fails the same way;
+- a category planted in a copy of the check that matches every token, with
+  the figure added in plain text: the check still fails, naming the figure as
+  a measurement.
+
+Round 3's own runner, `tools/r3_check_controls.py`, run unchanged against the
+new check, passes 5 of 5 too (`controls/r4-rerun-r3-controls.json`).
+
+The unchanged page passes: at this head the check's output,
+`r4/figures-rows.tsv` and `r4/figures-coverage.tsv`, has every row OK and no
+token uncovered. `tools/r4_figures_build.py` regenerates the check byte for
+byte from `tools/r4_figures_spec.py`. As in round 3, the hashes of the check,
+its spec and its output are in the packet's `MANIFEST.sha256`, not here.
+
+**Rewording.** Seventeen phrases whose number words only a category covered,
+and which state no figure, were reworded: "records each one",
+"the published one", "failed at once", "once the controller agent",
+"these two cases", "the two cases run", "on one clock", "one state of it",
+"two modes added", "the two clocks' difference", "do not separate the two.",
+"Two reviews of this section", "Two reviews of round 2",
+"one row per quoted figure", "one line per row", "on one reference peer" and
+"on one DUT and one reference peer". The date after each ruling's link was
+dropped; the section's heading carries it. Each quoted number word above, and
+in round 3's list, has a row that finds its phrase on this page as it stood
+before the rewording.
+
+The round's files in the packet:
+
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r4_evidence_receipt.py` (where the packet is) | 5,191 | `7dca8a53f24c1e7330ed2e154e41f4e30a47012171d68c2a80c138c2834c6164` |
+| `r4/evidence-receipt.json` | 38,177 | `1a433cd27edb2632a92e7abbc1f4eebca9ad4d15fae55f23d98a48647ee9805a` |
+| `tools/r4_check_controls.py` (the check's controls) | 10,379 | `54d2e1df507cb1b8c8b77214942f49cfcbe3a524f4e52b882ae124384e6d4e0f` |
+| `controls/r4-controls.json` (8 of 8 PASS) | 3,116 | `d01b56caf89cf99604dc32ce2d69118618fae457074c7c723eb792ef890b68e5` |
+| `controls/r4-rerun-r3-controls.json` (5 of 5 PASS) | 1,579 | `a0c9a8ed6f768b70208c1c28e6d37c402444a57b2877b882f175c5db4586ce87` |
+
+### B16, round 5: every digit
+
+The reviews of round 4,
+[R624-4](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6125594896)
+and [R625-4](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6125596576),
+each found a MINOR in the figures check: it passed a measurement written in a
+form its token pattern does not read. Neither alleged a DUT defect, changed a
+figure or reversed a bench verdict. Under the manager's
+[assignment for round 5](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6125608002),
+the operator, [A603], changed the check, documents only. Nothing on the bench was
+touched, and no figure above changed.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-4-F1: a number written against its unit, such as seconds, dB or milliseconds, and a decimal written with a leading point | Not a token, so never read, and the check passed | A measurement in a spelling no row can claim: the check fails and names it | `controls/r5-controls.json` |
+| R625-4-F1: a leading point after a sign, an exponent, a double space before the unit, and a channel index on a continuation line exempted without its keyword | The same, and the continuation exempt by the start of its line | Each fails the check and is named. A channel index is bound to its keyword across the line break | `controls/r5-controls.json` |
+| R624-4-S1, taken: this section's opening paragraph | Pointed to rounds 2 and 3 | Points to each findings round | - |
+
+**The rule.** The check no longer decides coverage by token. It reads every
+digit in its text, and each must lie in either of these:
+
+- a figure that a row claims and recomputes from its receipt;
+- an identifier that a category binds to its keyword in the same sentence,
+  across a line break inside that sentence.
+
+Any other digit fails the check, named with its line and the text around it,
+in the spelling it was written in: with its sign, a leading point or an
+exponent. The token pattern is unchanged and now only finds the figures a row
+may claim. A number it does not read can never be claimed, so it always fails;
+such a figure is written apart from its unit, as the rest of this page writes
+it. A row's figure must also be the whole number on the page, not part of a
+longer number, such as a figure after a minus sign the pattern does not read.
+
+**A measurement is never an identifier.** A number followed by a unit is a
+measurement, and no category covers its digits: only a row. Between number and
+unit may stand nothing, any run of spaces or line breaks (non-breaking, thin
+and zero-width ones too), a soft, non-breaking or plain hyphen, emphasis or
+code marks, a backslash, a double quote, an opening bracket, or an HTML entity,
+tag or comment. A number quoted on its own is a mention: its closing quote does
+not join it to a unit, and as no category takes a quoted number, it needs a row
+either way. Units are read in either case: percent, dB and dBFS, ppm and ppb,
+seconds and their fractions, minutes, hours, Hz, frames, samples, blocks,
+bytes, bits, LSB, polls, PDUs, packets, steps, slips, repeats, skips,
+discontinuities, entries and reads, with the rest of the list in the check. The
+word zero before a unit counts as a number. Round 5's list named units by symbol and a few words: a unit written as another word, or set beyond a comment over a line break, still passed after an identifier, as shown by R624-5 and R625-5; see [B16, round 6: the closed list](#b16-round-6-the-closed-list).
+
+A link's target is an address, not text. Its digits are covered when it
+resolves: an anchor of a heading on this page, or an issue, pull request or
+comment of this repository. An anchor's hyphens stand for its heading's
+spaces and punctuation, so the measurement rule reads the heading where it
+stands, not the anchor.
+
+**The identifiers.** Each category holds its keyword with its identifier:
+
+- commit names, each listed, in code or after the word Dev;
+- clause numbers: IEEE 1722.1 and Milan v1.2 Table 5.4;
+- descriptor, channel, step and round indices after their keyword, and a
+  second channel index after "and" or "to", or a second step or round index after "and";
+- a list-item index, where its block is an ordered list and the index is the
+  item's place in it; a line inside a paragraph that starts with a number is
+  text;
+- names from closed lists: the lanes and cases, the reviews and their
+  findings, the operator, the issue numbers it cites, McASP0, SHA-256 and CRC32, the DUT's entity name and
+  serial number, the Python command, the manifest's field names, the packet's
+  label, branch and published directories, and this page's markers;
+- a path in code that names a file or directory of the packet, or a raw file
+  the packet lists;
+- a link target that resolves.
+
+**Its controls.** `tools/r5_check_controls.py` runs each control on an
+altered copy (`controls/r5-controls.json`, 22 of 22 PASS). Round 3's and
+round 4's come first, their code unchanged. Each new control adds a
+measurement to the attribution row R625-3's probe used, as the reviews wrote it,
+unless stated:
+
+- a number glued to s, to dB and to ms;
+- a decimal with a leading point, with and without a sign;
+- a number in exponent form;
+- a descriptor index before ppm, set off by a double space, a non-breaking
+  space or a hyphen;
+- R625-4's continuation, applied where the continuation is, since a table row
+  cannot hold a line break;
+- a Unicode minus before a figure that a row claims, in B16c's grade table;
+- a cited path that names no packet file;
+- an anchor that names no heading;
+- a category planted in a copy of the check that matches every number, with a
+  figure and its unit added: the check still names it a measurement.
+
+Each fails the check and names what it added, in the spelling it was written
+in. Round 3's runner and round 4's, unchanged, pass against the new check
+too: 5 of 5 and 8 of 8 (`controls/r5-rerun-r3-controls.json`,
+`controls/r5-rerun-r4-controls.json`). The new runner against round 4's check
+and page fails every new control that targets a defect of round 4's check
+(`controls/r5-controls-on-r4-check.json`). The descriptor index set off by a
+non-breaking space or a hyphen, and the planted category, pass there: round
+4's guard already read those.
+
+R624-4's `probe_escape_forms.py` and R625-4's `probe_coverage.py`, unchanged,
+detect every form they insert (`r5/r624-4-probe-rerun.json`,
+`r5/r625-4-probe-rerun.json`), and so does R625-3's probe
+(`r5/r625-3-probe-rerun.json`). Further forms, from `tools/r5_self_probes.py`
+(`r5/self-probes.json`), each fail the check and are named: a descriptor index
+set off from its unit by a line break, bold, code, brackets, an HTML entity or
+comment, or a thin, zero-width or escaped space, or with the unit in capitals;
+an identifier glued to a unit or set before a unit; a fullwidth digit, a
+fraction, a superscript and a Unicode minus; a path, an anchor, a link off the
+repository and a page marker that name nothing real; and a line inside a
+paragraph that starts with a number.
+
+With these changes the page passes: every row equals its receipt, and every
+digit lies in a claimed figure or a bound identifier. The output,
+`r5/figures-rows.tsv` and `r5/figures-coverage.tsv`, lists each identifier
+with its category. `tools/r5_figures_build.py` regenerates the check byte for
+byte from `tools/r5_figures_spec.py`. As before, the hashes of the check, its
+spec and its output are in the packet's `MANIFEST.sha256`, not here.
+
+The round's files in the packet:
+
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r5_check_controls.py` (the check's controls) | 16,186 | `bf84a387ebdaae6fee5dc93f9da5b9b06bcb827281ff1c51eac3b7da17a8aa2e` |
+| `controls/r5-controls.json` (22 of 22 PASS) | 8,154 | `c22a199aa34ed8fb4d01fe238bf601d45f519cec484fe3035aee833b179a0188` |
+| `controls/r5-rerun-r3-controls.json` (5 of 5 PASS) | 1,579 | `4871ef3e84d940d91cc7938ca2ebaf3f904e39b74e21678aa03c602dae7e3560` |
+| `controls/r5-rerun-r4-controls.json` (8 of 8 PASS) | 3,116 | `a79d24b9c9e272960eb1ffe528c5ada294571f5a5a63fbe217e8d2c344e4964d` |
+| `controls/r5-controls-on-r4-check.json` | 8,165 | `2569e99d4283036b2bc38868812721621330b86b8dbfa735e5ad08fad544391b` |
+
+### B16, round 6: the closed list
+
+The reviews of round 5,
+[R624-5](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6126709633)
+and [R625-5](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6126763696),
+were NEGATIVE on findings rated MINOR. New routes by which an identifier stood
+for a measurement were found by R624-5-F2, a unit written as a word, and by
+R625-5-F1, a unit set beyond an HTML comment over a line break. Neither review
+alleged a DUT defect, changed a figure or reversed a bench verdict. Under the
+manager's
+[assignment for round 6](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6126774639),
+the operator, [A603], changed the check and the wording of the covered text,
+documents only. Nothing on the bench was touched, and no figure above changed.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-5-F1: the LOCKED counts in lane B6's terms table, a single figure for B-CRF and B-AAF | The row read B-AAF's count for both cases, and named B-CRF's receipt | The row reads each case's count from that case's own receipt and names both files; if the counts differ, it is a MISMATCH that names each | `controls/r6-controls.json` |
+| R624-5-F2: a unit written as a word after an identifier | Passed: the guard read units by symbol and a few names | Fails: an identifier counts only before a closed list of what may follow it, and the guard also reads the units' names | `controls/r6-controls.json` |
+| R625-5-F1: a unit beyond an HTML comment over a line break | Passed: the guard's separator stopped at the line break | Fails: every comment is dropped before the text is read | `controls/r6-controls.json` |
+| R624-5-F3: where round 5's packet is | Not stated | The paragraph maps rounds 4 and 5, each with its commits, and names round 6's directory; see [B16: artifact hashes](#b16-artifact-hashes) | `r6/evidence-receipt.json` |
+| R624-5-R1: round 5's list of identifiers | A second index after any keyword, and no issue numbers | The wording given in R624-5-R1, in round 5's list | - |
+| R624-5-S1, taken: the rule's limits | Not stated | Stated below | - |
+
+**Normalised first.** The check now reads its text as a reader sees it, before
+it matches any token or category. It drops every HTML comment, even a comment over
+several lines. A backslash escape gives the character it escapes, and an
+HTML entity the character it names. Code is kept as written: a fenced block,
+an indented line or a code span, so a comment shown in code stays text. A
+comment that holds a blank line is dropped only where it starts a line, as an
+HTML block; elsewhere it is not a comment, and the check reads it. The text is
+then split into blocks at blank lines. In a block every run of whitespace, a
+line break too, is a single space, and soft hyphens and zero-width characters are
+dropped. Each character keeps its source, so each line the check names is a
+line of this page.
+
+**The closed list.** An identifier now counts only when what follows it is on
+a closed list. The check looks past spaces, hyphens and dashes, a slash or
+backslash, emphasis and code marks, brackets, quotes and a link's target, and
+what stands there must be among these:
+
+- the end of the text;
+- a mark that ends a phrase: a full stop, comma, semicolon, colon, question
+  or exclamation mark, a table's bar, or a dash set off by spaces; a point or
+  comma before a digit is a decimal sign, not such a mark;
+- a possessive 's;
+- any of the words "and", "or", "to" and "of", unless a measurement follows
+  that word, as in a range.
+
+Anything else, any other word, a number or a symbol, makes the identifier's
+digits a measurement, which only a row can claim. So a unit is refused after
+an identifier whether or not a list names it, and so is any other word. A dash
+that touches the number joins it to what follows. A code literal, such as a
+packet path, a listed commit or the packet's label, ends with its code word:
+the code mark or the space after it inside code ends it. A link's target is
+still an address, and the list is read after the link.
+
+**Units by name.** The guard before a unit now reads every hyphen and dash, a
+comment over a line break, and the names of the units the ruling lists: per
+cent, decibels, hertz and its multiples, parts per million, billion or
+trillion, milli-, micro-, nano- and picoseconds, and msec, usec and nsec. Past
+an identifier the closed list refuses these anyway; the guard also reads the
+digits inside a code literal, which the list does not.
+
+**Rows.** A figure that stands for several cases is recomputed from each
+case's own receipt. The LOCKED counts in lane B6's terms table now read
+B-CRF's window from B-CRF's receipt and B-AAF's from B-AAF's, and the rows
+output names both files; if the counts differ, the row is a MISMATCH that
+names each. A row may also name the text around its figure, and it then claims
+the figure only where that text stands. The idle channels' indices before the
+point tables are such rows: the closed list refuses the verb after them, so
+each is recomputed from every run's point summaries, and each holds its
+keyword before it and the verb after it.
+
+**Reworded text.** Where the closed list refused the covered text's own
+wording, an identifier before a verb or a noun, the sentence was reworded
+within its line, with a comma, a colon, a possessive or "of", so no line
+moved. No figure, verdict or link target changed. The acceptance headings, of
+B16, B16b and B16c, now read "acceptance of #629"; nothing linked to their old
+anchors.
+
+**What the rule does not cover** (R624-5-S1, taken). The closed list reads
+only what follows an identifier, and a figure a row claims is checked for its
+value, not for what follows it. A mark that ends a phrase ends the
+identifier's phrase: an identifier followed by a full stop, a comma, a colon
+or a dash set off by spaces, and then a unit, passes, unless the guard reads
+the unit through the mark, as it reads a dash but not a full stop, comma or
+colon. A possessive is on the list. A code literal followed by a word passes,
+since its digits are part of its name; only the guard reads them. A comment
+is not read, so a figure inside a comment is not checked, as a reader does not
+see it. A quantity written in words the token pattern does not list, such as a
+dozen or a million, holds no digit and is not read. `tools/r6_self_probes.py`
+runs each of these and records it passing.
+
+**Its controls.** `tools/r6_check_controls.py` runs each control on an
+altered copy (`controls/r6-controls.json`, 39 of 39 PASS). Round 5's 22 come
+first, their code unchanged. Each new control adds a measurement to the
+attribution row R625-3's probe used, unless stated:
+
+- a descriptor index before each unit written as a word in R624-5: per cent,
+  decibels, hertz, kilohertz, parts per million and per billion, milli-,
+  micro- and nanoseconds, msec, usec and nsec;
+- R624-5's lane name and clause number before milliseconds;
+- a descriptor index before a unit no list names, furlongs;
+- R625-5's comment over a line break, on B16c's channels paragraph as in
+  R625-5, with every line kept in place;
+- B-CRF's window LOCKED count changed in a copy of its receipt: the terms
+  table's row is a MISMATCH that names each case's count.
+
+Each fails the check and names what it added, as a measurement; the last
+fails on its row. Round 3's, round 4's and round 5's runners, unchanged, pass
+against the new check: 5 of 5, 8 of 8 and 22 of 22
+(`controls/r6-rerun-r3-controls.json`, `controls/r6-rerun-r4-controls.json`,
+`controls/r6-rerun-r5-controls.json`). The new runner against round 5's check
+and page fails every new control (`controls/r6-controls-on-r5-check.json`).
+
+The reviews' probes, unchanged, all hold against the new check. R624-4's
+`probe_escape_forms.py`, R625-4's `probe_coverage.py` and R625-3's probe
+detect every form they insert. R624-5's `probe_row3200.py` turns the LOCKED
+row of the terms table into a MISMATCH; its other row there, the window's
+poll count, stays OK, since the probe changes only the LOCKED count, as at
+B16c's servo table. R624-5's `probe_r624_5_escapes.py` detects every form
+it writes with an identifier before a unit or a word but the colon form, as a
+colon ends the identifier's phrase; its forms that write a number as a word
+hold no digit to detect. R625-5's `probe_comment_separator.py` passes: the
+unchanged page passes and both comment forms fail. Their results are in `r6/`, a file per probe.
+Further forms, from `tools/r6_self_probes.py` (`r6/self-probes.json`), each
+meet what the rule says. Round 5's still fail the check and are named, but
+for its page marker, now inside a comment the check drops. Of the forms that
+passed in R625-5's own campaign, a small or fullwidth hyphen-minus, an em
+dash, a closing bracket and an apostrophe between an identifier and its unit
+now fail; a full stop between them still passes, as it ends the phrase. A
+word after each kind of identifier fails, and so do an entity, an escape, a
+comment in code, a range into a figure a row claims, and a code literal
+before a unit.
+
+With these changes the page passes: every row equals its receipt, and every
+digit lies in a claimed figure or in an identifier followed by an item of the
+closed list. The output, `r6/figures-rows.tsv` and `r6/figures-coverage.tsv`,
+lists each identifier with its category. `tools/r6_figures_build.py`
+regenerates the check byte for byte from `tools/r6_figures_spec.py`. As
+before, the hashes of the check, its spec and its output are in the packet's
+`MANIFEST.sha256`, not here.
+
+The round's files in the packet:
+
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r6_check_controls.py` (the check's controls) | 21,545 | `789a4f7ca25b8ef0d5b38bae9432d9f6be23434fe69ad20f0db9d7a80eb875de` |
+| `controls/r6-controls.json` (39 of 39 PASS) | 14,414 | `a9709363266aaa05cc1a04b2d90cbbb095a426650a9f802325cbf3fe0335f043` |
+| `controls/r6-rerun-r3-controls.json` (5 of 5 PASS) | 1,579 | `4871ef3e84d940d91cc7938ca2ebaf3f904e39b74e21678aa03c602dae7e3560` |
+| `controls/r6-rerun-r4-controls.json` (8 of 8 PASS) | 3,115 | `cde959a0d411c360f6a2159196d22bc0311006bea9025a863e192b75b3d0d02b` |
+| `controls/r6-rerun-r5-controls.json` (22 of 22 PASS) | 8,153 | `d3e0663e86195cf88e45353661cdd9464eb26d1f8622c378fc0abffaf667613f` |
+| `controls/r6-controls-on-r5-check.json` | 14,432 | `8f03249c0ec24a6b018122b5be2d45780ab97d145d692d067abd43c2bb141943` |
+| `tools/r6_evidence_receipt.py` (where the packet is) | 6,586 | `71d32ba09f2ec1f4ab02bc9adf8085b66e96e5ca35c7243026b25ba10fe1f0bb` |
+| `r6/evidence-receipt.json` | 46,562 | `bc3c0e91362f28ebcdc21d13c2e9d2ae875803da60e216b29e9227f79d35a58d` |
+
+### B16, round 7: no markup
+
+The reviews of round 6, POSITIVE in
+[R624-6](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6128169977)
+and NEGATIVE in
+[R625-6](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6128099316),
+differ on a finding rated MINOR, R625-6-F1. The short forms of an HTML comment
+end where they open in the renderer GitHub uses, but the check's normalisation
+read on to the next comment end, so a unit a reader sees vanished from what
+the check read. Neither review alleged a DUT defect, changed a figure or
+reversed a bench verdict. Under the manager's
+[assignment for round 7](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6128175910),
+the operator, [A603], changed the check and the section's markup, documents
+only. Nothing on the bench was touched, and no figure above changed.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R625-6-F1: a short comment form hid a unit from the check | Passed: the check dropped a comment up to the next comment end, which is not where these forms end | Fails: a line holding any markup is refused, and nothing is dropped | `controls/r7-controls.json` |
+| R624-6-S1, taken: an approximate quantity after an identifier | Not stated | Stated as a limit below | `r7/self-probes.json` |
+
+**No markup.** The check no longer reads its text as a renderer would. It
+refuses every line of the text it covers that holds a less-than sign directly
+followed by a letter, a slash, an exclamation mark or a question mark. So
+starts every HTML tag, closing tag, comment, processing instruction,
+declaration and CDATA section that CommonMark knows, and an autolink. It
+refuses markup inside code too, so no difference between its reading of code
+and a renderer's can shelter a tag. The only exception is a line equal, byte
+for byte, to a marker a repository generator writes:
+`scripts/check_solution_docs.py` writes its markers around the tables it
+generates, and the generator of tables of contents writes none. Nothing is
+dropped any more, so nothing written on a line can vanish from what the check
+reads. The check names each refused line with its markup, as MARKUP, and then
+fails, whatever else it finds. It still reads a backslash escape or an entity
+as the character it gives, keeps code as written, and splits the text into
+blocks at blank lines, with whitespace collapsed across line breaks. Round 8's reading, through the pinned parser, replaced it; see [B16, round 8: the parser](#b16-round-8-the-parser).
+
+**The section's markup.** The section held an HTML comment before each of its
+tables, a marker the earlier checks dropped, and a code block wrote its
+placeholders in angle brackets. Each marker's line is now blank, so no line
+moved and the page renders as before, and the placeholders are in braces. The
+authoring aid that writes the point and grade tables' rows found those tables
+by their markers; it now finds them by their header rows, and every row is as
+it was.
+
+**What the rule does not cover** (R624-6-S1, taken). Round 6's limits stand
+but for comments: a comment is now refused, not dropped unread. A word of the
+closed list followed by words that hold no number, and then a unit, passes, as
+in an approximate quantity after an identifier: "or so", "or more", "and a
+half" or "to some" before a unit. So does a bare unit after "of" or "and". A
+list marker ends with a full stop, so a numbered item that is only a unit
+passes. The check reads only its own lines: another lane's table markers are
+not its text, and a block of raw HTML opened elsewhere and left open into the
+section is outside what it reads. A less-than sign before a space, a
+less-than sign given by an entity, and a fullwidth less-than sign are not
+markup, and the check does not refuse them. `tools/r7_self_probes.py` runs
+each of these forms and records it passing.
+
+**Its controls.** `tools/r7_check_controls.py` runs each control on an
+altered copy (`controls/r7-controls.json`, 50 of 50 PASS). Round 6's 39 come
+first, their code unchanged. The new controls:
+
+- R625-6's forms, appended to the attribution row as in R625-6: an ordinary
+  comment, each short form before a unit, and a short form before
+  furlongs;
+- R625-5's comment on its line and over a line break, on B16c's channels
+  paragraph, as in R625-5;
+- a raw tag between a number and its unit, and a comment inside a code span,
+  on the attribution row;
+- a former table marker, put back on the blank line it left;
+- a generator's marker with a byte changed, appended as the page's last line;
+- that marker byte for byte, appended the same way, which must pass.
+
+Each new control but the last fails the check with its line named MARKUP, and
+where it adds a digit, that digit is named UNCOVERED there. The last passes:
+it names nothing the unchanged page does not, exits as the unchanged page
+does, and both appended lines are read. Round 3's, round 4's, round 5's and
+round 6's runners, unchanged, pass against the new check: 5 of 5, 8 of 8,
+22 of 22 and 39 of 39 (`controls/r7-rerun-r3-controls.json` to
+`controls/r7-rerun-r6-controls.json`). The new runner against round 6's check
+and page passes the earlier controls and the last, and fails every other new
+control (`controls/r7-controls-on-r6-check.json`): round 6's check passed the
+short comment forms, the former marker and the changed marker outright.
+
+**The reviews' probes.** Each runs unchanged, with its results in `r7/`, a
+file per probe. R625-6's `probe_rendered_comment.py` runs with the
+repository's locked renderer: the unchanged page passes, and the plain form and
+every comment form fail, each comment form with its line named MARKUP and its
+added digit UNCOVERED there. Its last assertion still states the exit statuses
+of round 6's check, so the probe itself fails, as R625-6's report said it would.
+R625-6's `probe_followers.py`: every comment and tag form now fails. R624-6's
+`probe_r624_6_escapes.py` gives each form the exit status in R624-6's record
+at round 6's head; the forms it found passing are those stated above as limits.
+R624-6's poll-count probe turns the terms table's poll-count row into a
+MISMATCH. Round 6's probes, from R624-4, R625-4, R625-3, R624-5 and R625-5,
+give what round 6's record shows for them.
+
+**Further forms.** `tools/r7_self_probes.py` (`r7/self-probes.json`) runs
+round 5's and round 6's forms, then round 7's: markup of each kind, written
+with no digit so that only the refusal can catch it, in a code span and a
+fenced block too, and R624-6-S1's forms. All 111 meet what the rule says: 92
+fail and are named at their line, and 19 pass as stated. Round 5's page
+marker, which round 6's check passed inside a dropped comment, is now refused.
+
+With these changes the page passes: every row equals its receipt, every digit
+lies in a claimed figure or in an identifier followed by an item of the closed
+list, and no line holds markup. The output, `r7/figures-rows.tsv` and
+`r7/figures-coverage.tsv`, lists each identifier with its category.
+`tools/r7_figures_build.py` regenerates the check byte for byte from
+`tools/r7_figures_spec.py`. As before, the hashes of the check, its spec and
+its output are in the packet's `MANIFEST.sha256`, not here.
+
+The round's files in the packet:
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r7_check_controls.py` (the check's controls) | 28,060 | `6a53a284ef5e70910282c3551285d82161d77412804c27830b7c684adc80c8fb` |
+| `controls/r7-controls.json` (50 of 50 PASS) | 18,201 | `5b782cd6734c2a637df54b968693dfd230e9210677778f5039d08eb37f39e576` |
+| `controls/r7-rerun-r3-controls.json` (5 of 5 PASS) | 1,579 | `4871ef3e84d940d91cc7938ca2ebaf3f904e39b74e21678aa03c602dae7e3560` |
+| `controls/r7-rerun-r4-controls.json` (8 of 8 PASS) | 3,115 | `f635748893ab28b258768f74aeede60a58b2ffa3a41abecac5af8b11ce3d1b60` |
+| `controls/r7-rerun-r5-controls.json` (22 of 22 PASS) | 8,153 | `cfba195f4842f725385f6a7c7de1449c780050d94b05495bdff0289de32a00e7` |
+| `controls/r7-rerun-r6-controls.json` (39 of 39 PASS) | 14,414 | `79e4edf8360106c43474d4bc77807c8beb1296f62fb27d211217c0e89b648946` |
+| `controls/r7-controls-on-r6-check.json` | 18,212 | `f288208a13bff378280fd5f9e4cbb1e4e17a137790730bc1d007319d398fa6e3` |
+| `tools/r7_evidence_receipt.py` (where the packet is) | 6,919 | `a46c4ad554c6a1448319f7d1e26fdf6e01407aedb0d4868d1fb96bf66d8b099e` |
+| `r7/evidence-receipt.json` | 52,808 | `23322f43d94c68a2dcc6da0412007596828c33bcb60fdb522f1a0f4fbf4a128f` |
+
+### B16, round 8: the parser
+
+The reviews of round 7, NEGATIVE in
+[R624-7](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6130711392)
+and in
+[R625-7](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6130634625),
+each rate a finding MINOR. In R624-7-F1, image syntax between an identifier's
+number and its unit put an exclamation mark into the check's text that a
+reader never sees, and the check took it for a mark that ends a phrase, so a
+number before its unit passed. In R625-7-F1, markup in the index row, in its
+part on lane B16, stopped the check with an exception before it named the
+line or wrote its receipts. Neither review alleged a DUT defect, changed a
+figure or reversed a bench verdict. Under the manager's
+[assignment for round 8](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6130721355),
+the operator, [A603], changed how the check reads its text, documents only.
+Nothing on the bench was touched, and no figure above changed.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-7-F1: image syntax hid a phrase mark from the reader, not from the check | Passed: the check read the image's exclamation mark as a mark that ends a phrase | Fails: the check reads what the pinned parser yields; the image is refused at its line, and the text around it is read without it | `r8/r624-7-escapes-probe-rerun.json` |
+| R625-7-F1: markup in the index row, in its part on lane B16, stopped the check | An exception, with no line named and no receipt written | Refused at the index row's line and named MARKUP, with both receipts written | `r8/r625-7-markup-probe-rerun.json` |
+
+**The parser.** The check now parses both documents whole with the
+repository's pinned Markdown parser: cmark-gfm, through the cmarkgfm binding,
+at the releases `tools/markdown/requirements.txt` pins. It verifies them as
+the documentation gates do, with `scripts/gen_toc_renderer.py`, and parses
+with that renderer's extensions and options. Without them it does not run: it
+names what is missing and fails. It judges only the visible inline text the
+parser yields: text, code spans and link text. A code span is read with a code
+mark at each end, which every rule of the check looks past, so a code literal
+still ends with its code word. Every line it names is the parser's own source
+position. No pattern of the check reads code, escapes, entities, comments or
+tags any more, and its separators no longer look past a tag, a comment or a
+link's target, since none of them can stand in the text it reads. Since round 10, a block holding a node the parser gives no position is refused, as is any block whose rendered digits differ from those it reads; see [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
+
+**A closed allowlist.** The text may hold paragraphs, headings, lists and
+their items, tables, block quotes, text, soft and hard line breaks, emphasis,
+strong emphasis, links and code spans. Any other construct is refused at the
+first line of it that the check covers, named MARKUP by the parser's name for
+it, and not read: an image, raw HTML inline or as a block, a fenced or
+indented code block, a thematic break, struck text, a footnote or a reference
+to a footnote, a task list item, and anything else the parser yields. The
+check then fails, whatever else it finds. The only exception is a block of raw
+HTML that is a whole line equal, byte for byte, to a marker that
+`scripts/check_solution_docs.py` writes. A link is read on its text. Its
+target and its title are not text a reader sees, so neither is read, but a
+target must still resolve, as since round 5: to an issue or a pull request of
+the repository on GitHub, or to a heading's anchor on the page. A target that
+does not is read as text of its own, at its line.
+
+**The index row.** Both documents are parsed whole, so the index row is read
+where the parser places it, and only its part on lane B16, from that part's
+first byte on, by the source columns of the row's text. Markup there is
+refused at the row's line as it is on the page, and the check writes both
+receipts before it fails.
+
+**The section's code block.** The section held a fenced code block, the
+extraction commands of round 2. They are now a list of code spans on the
+same lines, so no line moved. A list's numbers are drawn from its structure,
+not written as text, so the category for list-item numbers is gone, and so is
+the category for link targets.
+
+**What the rule does not cover.** Round 6's and round 7's limits stand, but
+for markup. A word of the closed list followed by words that hold no number,
+and then a unit, passes, and so does a bare unit after "of" or "and". A
+list's numbers are not text, so a numbered item that is only a unit passes.
+Code is text a reader sees, so markup written in a code span is read as
+written, not refused, and the same holds for a tag that a backslash escapes,
+a less-than sign that starts no tag, and an autolink, which is a link. A
+link's title, a link's target that resolves, a reference definition and a
+footnote that nothing cites show the reader no text, and the check does not
+read them. A mark that a reader sees after an identifier still ends its
+phrase. A construct that starts above the section and runs into it is refused
+at the first line of it that the check covers. Since round 9, that holds whatever end the parser reports; see [B16, round 9: source extents](#b16-round-9-source-extents).
+
+**Earlier expectations.** Each earlier runner keeps its code. A control of
+round 4's and a control of round 7's now each fail on a single expectation,
+and in both the check still fails the altered page and names the added
+number. Round 4's control for a figure written as a link's text before a unit
+expects that number not to be named a measurement, since the link's target
+stood between it and the unit; a reader sees the number before the unit, and
+the check now names it a measurement. Round 7's control for a comment inside
+a code span expects the line named MARKUP; a reader sees the comment written
+out in the code, and the check now reads it as text, names the number
+UNCOVERED and refuses nothing. `tools/r8_check_controls.py` holds both forms
+with these expectations. The assignment asks that earlier controls keep their
+outcomes, and reading only what the parser yields changes both; the change was
+published here, in the pull request and in the post, for the manager's
+decision, and the manager's [decision](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6132293481) accepts both; see [B16, round 9: source extents](#b16-round-9-source-extents).
+
+**Its controls.** `tools/r8_check_controls.py` runs each control on an
+altered copy (`controls/r8-controls.json`, 73 of 73 PASS). Round 7's 50 come
+first, their code unchanged but for the expectations above. The new
+controls:
+
+- R624-7's image forms, appended to the attribution row as in R624-7: each
+  fails with its line named MARKUP, an image, and the added number named
+  UNCOVERED there;
+- R625-7's index cases, appended to the index row's part on lane B16, as in
+  R625-7: each fails with the row's line named MARKUP, the added number named
+  UNCOVERED where it adds a number, both receipts written and no exception;
+- a control per construct off the allowlist, written with no digit, so that
+  only the refusal can catch it: an image, raw HTML inline and as a block, a
+  fenced and an indented code block, a thematic break, struck text, a
+  footnote's reference and its definition, and a task list item, each failing
+  with the construct's first line named MARKUP by the parser's name for it;
+- the check run by an interpreter without the pinned parser, which fails,
+  names the parser and writes no receipt.
+
+Against round 7's check and page, the new runner passes the 48 earlier
+controls whose expectations stand and fails the other 25
+(`controls/r8-controls-on-r7-check.json`): round 7's check passed every image
+form and every new construct, stopped on each index case, and ran without the
+parser. Round 3's to round 7's runners, unchanged, against the new check: 5
+of 5, 7 of 8, 21 of 22, 38 of 39 and 48 of 50, failing only the controls
+above (`controls/r8-rerun-r3-controls.json` to
+`controls/r8-rerun-r7-controls.json`), whose expectations the manager's [decision](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6132293481) supersedes.
+
+**The reviews' probes.** Each runs unchanged under the parser's environment,
+with its results in `r8/`, a file per probe. R624-7's
+`probe_r624_7_markdown_escapes.py`: no form escapes; the unchanged page and
+the stated full stop pass, and every other form fails. R624-7's
+`probe_r624_7_invisible.py`: every form fails. R625-7's `probe_markup.py`:
+every case but the unchanged page fails, and each index case is refused at the
+index row's line, with both receipts written and no exception. The earlier
+probes give what round 7's record shows, but for the name each refusal now
+carries and for a form of R624-6's that may pass or fail: a link reference
+definition with a title, which renders nothing, now passes.
+
+**Further forms.** `tools/r8_self_probes.py` (`r8/self-probes.json`) runs
+round 5's, round 6's and round 7's forms, then round 8's: Markdown that
+renders no character between a number and its unit, a figure inside each
+construct off the allowlist, and forms that show the reader nothing. All 138
+meet what the rule says: 108 fail and are named at their lines, and 30 pass
+as stated. Five of round 7's forms, which failed there, now pass, each as a
+reader sees it: an autolink, a tag in a code span, a comment after a
+backslash, an unclosed tag, and angle brackets around a link target that
+resolves.
+
+With these changes the page passes: every row equals its receipt, every digit
+lies in a claimed figure or in an identifier followed by an item of the closed
+list, and no construct is refused. The output, `r8/figures-rows.tsv` and
+`r8/figures-coverage.tsv`, lists each identifier with its category.
+`tools/r8_figures_build.py` regenerates the check byte for byte from
+`tools/r8_figures_spec.py`. As before, the hashes of the check, its spec and
+its output are in the packet's `MANIFEST.sha256`, not here.
+
+The round's files in the packet:
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r8_check_controls.py` (the check's controls) | 36,524 | `68f85edf41723ad7e87aa7dd4353182666022bb7286cdfa81cccbbe86fb864d6` |
+| `controls/r8-controls.json` (73 of 73 PASS) | 26,053 | `83f791b3819086772ce214262e148c0b8e5e6241f1895cb31acc09cecb7ed64b` |
+| `controls/r8-controls-on-r7-check.json` | 26,077 | `ddea3af5efc65645fcadde07c5e38f7d7d70149956d7437ae4d6fcc3949a4b40` |
+| `tools/r8_evidence_receipt.py` (where the packet is) | 7,353 | `95c3ca5ea4f5ebda66ea3d5bbeb2584cb7dda9773182ac40b3b9aea4c6a1ebee` |
+| `r8/evidence-receipt.json` | 59,920 | `1377b5d575bd0adb974a5cfc5f002a8e3d12d222e8b89ff22cd7f6f14709b502` |
+
+### B16, round 9: source extents
+
+Round 8's reviews were NEGATIVE in
+[R624-8](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6132342798)
+and in
+[R625-8](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6132288182),
+each with a finding rated MINOR. In R624-8-F1, a raw HTML block opened on the
+uncovered line just above the introduction's covered part and closed on its
+first covered line was neither refused nor read, because the parser reports
+that block as ending on the line before its last. In R625-8-F1, a decision
+was asked for on round 8's changed expectations; the manager's
+[decision](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6132293481)
+accepts both. Neither review alleged a DUT defect, changed a figure or
+reversed a bench verdict. Under the manager's
+[assignment for round 9](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6132350672),
+the operator, [A603], changed where the check places what it reads, documents
+only. Nothing on the bench was touched, and no figure above changed.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-8-F1: a raw HTML block from the line above a covered part to its first covered line | Passed: neither refused nor read | Fails: refused at that covered line, named MARKUP, an html_block | `r9/r624-8-html-block-edge-probe-rerun.json` |
+| R625-8-F1: changed expectations of earlier controls | Open, for a decision | Accepted by the manager's decision; the earlier runners keep their code and their recorded outcomes | `controls/r9-rerun-r4-controls.json` to `controls/r9-rerun-r7-controls.json` |
+
+**Source extents.** The check now judges each construct by the lines its
+source spans, not by the end the parser reports. The pinned parser reports a
+raw HTML block that ends at a closing marker (`</pre>`, `</script>`,
+`</style>`, `</textarea>`, `-->`, `?>`, `>` or `]]>`) as ending on the line
+before its last, and such a block on a single line as ending above it.
+So the check takes such a block's last line from the block's own text, which
+holds each of its source lines, never from the reported end. The parser also
+reports struck text as ending where it starts, and a link or an image whose
+text runs over a line break as starting on its last line. So every node spans
+all that it holds, and a link or an image starts as many lines above its
+reported line as its text holds line breaks. A construct off the allowlist is
+refused at the first covered line its source reaches. A node whose source
+reaches no covered line is passed over, with all it holds. Since round 10, a node the parser gives no position refuses its block, wherever it stands; see [B16, round 10: no lost digit](#b16-round-10-no-lost-digit).
+
+**Text the parser misplaces.** In a paragraph, the parser counts a line break
+where it yields a soft break or a hard break of trailing spaces, and inside a
+code span or inline HTML. A backslash line break, a link's target, title or
+reference label over a line break, an image's title over a line break, and a
+reference definition that opens the paragraph each hold a line break it does
+not count, and it places all that follows on an earlier line. The
+introduction's covered part starts partway through its paragraph, so such a
+break above that part moved the text of its covered lines onto earlier lines,
+the first onto a line the check does not cover, where it went unread. The check now compares the parser's last
+line in each paragraph, heading or table cell with the source's; where they
+differ it refuses the whole block at its first covered line, named MARKUP by
+the parser's name for it, since nothing in it can be placed.
+
+**Lines.** The check counts a document's lines as the parser does, at a line
+feed, a carriage return or both. It used to split the page at every
+separator Python's `splitlines` knows, a form feed and the Unicode line
+separator among them, which the parser reads as text, so such a character
+above a covered region shifted that region's lines from the parser's. The
+unchanged page holds none of them. Round 9's reader with round 8's rows, run
+on the page at `b522bb92`, gives rows, coverage and output byte-equal to
+round 8's (`tools/r9_reader_on_r8.py`, `r9/reader-on-r8.json`).
+
+**What the parser reports.** `tools/r9_parser_extents.py` writes small
+documents with the lines each node truly spans and runs the check's own
+reader on them (`r9/parser-extents.json`): 37 of 37 cases meet what is
+stated. The kinds whose reported lines fall short of their source are raw
+HTML blocks, images, links and struck text. Six forms of paragraph are
+misplaced, the forms named above. Every other kind tried is reported where it
+stands: inline HTML, code spans, emphasis, footnotes and their references,
+fenced and indented code blocks, thematic breaks, task list items, setext
+headings, table cells, and a paragraph continued lazily in a block quote.
+
+**The decision.** The manager's decision accepts round 8's changed
+expectations as the correct results under the parser's reading: round 4's
+control for a figure written as a link's text before a unit, now named a
+measurement, and round 7's control for a comment inside a code span, now read
+as code. It supersedes round 4's expectation, with its copies in the runners
+of round 5, round 6 and round 7, and round 7's expectation. Both altered pages
+still fail, with the number named at its line and both receipts written. The
+earlier runners keep their code and their recorded outcomes. Against the new
+check, round 3's to round 8's pass
+5 of 5, 7 of 8, 21 of 22, 38 of 39, 48 of 50 and 73 of 73, failing only
+those superseded expectations (`controls/r9-rerun-r3-controls.json` to
+`controls/r9-rerun-r8-controls.json`); they are not reported as wholly
+green.
+
+**Its controls.** `tools/r9_check_controls.py` runs each control on an
+altered copy (`controls/r9-controls.json`, 97 of 97 PASS). Round 8's 73 come
+first, their code unchanged. Each of the 24 new controls replaces whole
+lines, so no line moves:
+
+- R624-8's case: `<pre>` on the line above the introduction's covered part,
+  and a figure and the block's end on its first covered line. It fails with
+  that line named MARKUP, an html_block;
+- the other raw HTML blocks whose end the parser reports early, opened and
+  closed the same way with no digit, so that only the refusal can catch them:
+  each fails the same way;
+- struck text opened above the introduction's covered part and closed on its
+  first covered line, and an image whose description runs from the Contents
+  entry onto the line below it: each fails with its covered line named MARKUP;
+- each way the parser misplaces a paragraph's lines, written above the
+  introduction's covered part: each fails with that part's first line named
+  MARKUP, a paragraph;
+- each separator `splitlines` splits at and the parser does not, written above
+  the introduction's covered part with a figure on its first covered line:
+  each fails with the figure named UNCOVERED there and no row failing.
+
+Against round 8's check and page, the new runner passes the 73 earlier
+controls and fails the 24 new ones (`controls/r9-controls-on-r8-check.json`).
+
+**The reviews' probes.** Each runs unchanged under the parser's environment,
+with its results in `r9/`, a file per probe. R624-8's
+`probe_r624_8_html_block_edge.py`: its case
+`intro_pre_from_line_above_with_figure` fails with the introduction's first
+covered line named MARKUP, an html_block; no case escapes, and every other
+case keeps its exit status and verdict. The cases at the section's heading and
+at the Contents entry now also name their block MARKUP there. The earlier
+probes each give what round 8's record shows, but for the line at which a form
+of R624-7's names the footnote it appends after the page's last line, which
+moves as the page grows.
+
+**Further forms.** `tools/r9_self_probes.py` (`r9/self-probes.json`) runs
+round 5's to round 8's forms, then round 9's: constructs that open above a
+covered part and close inside it, at the introduction, the section's heading
+and the Contents entry; each misplacing break, with a figure where a reader
+would see it; and, expected to pass, a hard line break of trailing spaces,
+emphasis and a link's text over a line break, and R624-8-S1's emoji
+shortcode. All 156 meet what the rule says: 122 fail and are named at their
+lines, and 34 pass as stated. No earlier form changed its outcome.
+
+**What the rule does not cover.** Round 8's limits stand. As noted in
+R624-8-S1, the check reads what the pinned parser yields, and GitHub changes
+some of it after the parser: an emoji shortcode is text to the parser, and
+its colon a mark that ends a phrase, while GitHub draws an emoji there; and a
+link's title, which the check does not read, shows as a tooltip on the link.
+
+With these changes the page passes: every row equals its receipt, every digit
+lies in a claimed figure or in an identifier followed by an item of the closed
+list, and no construct is refused. `tools/r9_figures_build.py` regenerates the
+check byte for byte from `tools/r9_figures_spec.py`; as before, the hashes of
+the check, its spec and its output are in the packet's `MANIFEST.sha256`, not
+here.
+
+The round's files in the packet:
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r9_check_controls.py` (the check's controls) | 43,115 | `11fc340920756e9e86dbe415f132b1eac204c8c5bcca4ce70114e5be09072c1e` |
+| `controls/r9-controls.json` (97 of 97 PASS) | 34,200 | `8b5ec97c1b2da15a1cdc9f0c14f3828c59dc47f2fa234999cf8f05118496a92a` |
+| `controls/r9-controls-on-r8-check.json` | 34,224 | `9678b0a74ccaaed2b7b0e4a9ae4e6e2a6541619f4469931fb3dd964dbc06b930` |
+| `tools/r9_parser_extents.py` (what the parser reports) | 6,592 | `d26cdd914e6da3916adcc64782e357bed4e22a18192adc5fffa5b2593a078885` |
+| `r9/parser-extents.json` | 13,280 | `e165a7f72e18d38a0397f2736d8f99441f55bc6a8e56aaf6e9c1d226b4097a44` |
+| `tools/r9_evidence_receipt.py` (where the packet is) | 7,868 | `681dc44a5272671ccbce6d1f87cecbf2d812f4c3f47b3175d674f602881487fb` |
+| `r9/evidence-receipt.json` | 65,166 | `98dbaee7054883eed16431ae4f2b7e3fd4aacbc6f1392655196c976683a517ec` |
+
+### B16, round 10: no lost digit
+
+Round 9's reviews were NEGATIVE in
+[R624-9](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6134093761),
+with a finding rated MINOR, and in
+[R625-9](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6133964452),
+whose finding and residue concern wording in the PR body only, which the
+manager [applied](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6133971231)
+there. In R624-9-F1, the pinned parser gives no source position to the link
+that the autolink extension makes from a bare e-mail address, to that link's
+text, or to the text after it, so the check placed them at the start of their
+paragraph or table cell. Where that start lies outside the covered text, a
+figure written after such an address went unread: the introduction's
+paragraph starts above its covered part, and the index row's cell starts
+before its part on lane B16. Neither review alleged a DUT defect, changed a
+figure or reversed a bench verdict. Under the manager's
+[assignment for round 10](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6134101205),
+the operator, [A603], closed the class by conservation, documents only.
+Nothing on the bench was touched, and no figure above changed.
+
+| Finding | Was | Now | Receipt |
+|---|---|---|---|
+| R624-9-F1: text after a bare e-mail autolink | Passed: placed at its block's start and not read | Fails: the block refused at its first covered line, named MARKUP | `r10/r624-9-autolink-probe-rerun.json` |
+| R624-9-R1: wording in the PR body | Open | Applied in the PR body | the PR body |
+
+**No node without a position.** A node inside a paragraph, heading or table
+cell that the check reads or judges, other than a soft or hard line break,
+and that has no start line, makes the check refuse that whole block, named
+MARKUP at the first covered line the block reaches. The same refusal applies
+when the block itself or its enclosing structure has no source start.
+`tools/r10_reader_controls.py` checks these cases by changing parser output
+in memory; it also checks lost, duplicated and substituted digits against
+the unchanged rendered source (`r10/reader-controls.json`). The pinned parser gives
+no position to the link the autolink extension makes from a bare e-mail
+address, with or without `mailto:`, or from an `xmpp:` address, to that
+link's text, or to the rest of the text after it in the same run. No line can
+be given to such a node, so its block is refused even where the address
+stands on a line the check does not cover, as on a line of the introduction's
+paragraph above its covered part. A link the extension makes from a `www.` or
+`https://` address keeps its line; opening a line, it has no column, and the
+check places its text at the column where it ends, as since round 8.
+
+**Digit conservation.** For each paragraph, heading or table cell that
+reaches the covered text, the check takes the block's source, writes each
+digit outside the covered text as a letter, and renders it with the pinned
+renderer as `scripts/gen_toc_renderer.py` does: cmark-gfm's HTML, with the
+same extensions and options, read by the HTML parser that module uses. The digits a reader sees in
+that rendering, counted as a multiset, must equal the digits the check judged
+in the block. Any difference refuses the whole block, named MARKUP at its
+first covered line. This holds whatever node the parser misplaces or omits,
+whether or not its kind is known. The block is rendered whole, from its own
+start, so that a construct opening above the covered part renders as a reader
+sees it: a link whose text runs into the introduction's covered part shows
+its text and not its target. The check now loads that HTML parser with the
+Markdown parser, both pinned by `tools/markdown/requirements.txt`; without either it names what
+is missing and fails.
+
+**A loss no review had named.** Conservation found another case of the class.
+An entity or a backslash escape written in the index row just before its part
+on lane B16, where the covered text starts, made the parser's text run start
+before the covered column, and round 9's check placed the rest of that run there, so the digits of that part's
+first words went unread. No figure stood in that run, and the check now
+refuses the cell.
+
+**Each rule alone.** `tools/r10_layers.py` runs the check, and copies of it
+with each rule taken out, on R624-9's forms and on the entity and escape forms
+(`r10/layers.json`). Conservation alone refuses the forms in the introduction
+and the index row, and the entity and escape forms. Where the address stands
+in a block wholly covered, conservation alone reads the figure but names it at
+the block's first line, so a figure on a paragraph's second line is named at
+its first, as in R624-9's report. The position rule alone refuses every e-mail
+form and passes the entity and escape forms. Together they refuse all of them.
+
+**What the parser reports.** `tools/r10_parser_extents.py` runs round 9's 37
+cases, which all still meet what is stated, then 22 cases of nodes the parser
+leaves without a position (`r10/parser-extents.json`), all met. Twelve are
+forms of the e-mail, `mailto:` and `xmpp:` autolinks: in a line, opening it,
+ending a sentence, inside emphasis, after a code span, beside another address,
+and in a table cell, a heading, a block quote and a list item. In each, the link, its text
+and the text after it have no line, and the check refuses the block. Three are
+a `www.` or `https://` address opening a paragraph or its second line, with a
+line but no column; each is read on its line. The other seven, which the
+parser places fully, are read as they stand.
+
+**Its controls.** `tools/r10_check_controls.py` runs each control on an
+altered copy (`controls/r10-controls.json`, 117 of 117 PASS). Round 9's 97
+come first, their code unchanged. Each of the 20 new controls appends to a
+line or prefixes it, so no line moves:
+
+- each autolink form the parser leaves with no position, with a figure after
+  it, on the introduction's second covered line and in the index row's part
+  on lane B16; the e-mail form in the last cell of a row of the section's first
+  table, inside emphasis in its first paragraph, at the Contents entry, and on
+  that paragraph's second line, R624-9's case of a later line: each fails with
+  its block named MARKUP at the block's first covered line, the introduction's
+  on the line above the edit, and nothing named UNCOVERED;
+- an e-mail address with no digit, in the section's first paragraph and on a
+  line of the introduction's paragraph above its covered part, so that only
+  the refusal can catch it: each fails the same way;
+- an entity or a backslash escape in the index row just before its part on
+  lane B16, which only conservation catches: each fails with the cell named MARKUP at
+  the index line, for the digits a reader sees;
+- a `www.` or `https://` address before a figure on the section paragraph's
+  second line or opening it, and a `www.` address opening the introduction's
+  second covered line: each fails with the figure named UNCOVERED at its own
+  line and nothing at the paragraph's first;
+- a `www.` address with no digit, and an e-mail address in a code span, in
+  the section's first paragraph: each passes as the unchanged page does.
+
+Against round 9's check and page, the new runner passes the 97 earlier
+controls and the 6 new ones that round 9's check already met, and fails the
+other 14 (`controls/r10-controls-on-r9-check.json`). Round 3's to round 9's
+runners, unchanged, against the new check pass
+5 of 5, 7 of 8, 21 of 22, 38 of 39, 48 of 50, 73 of 73 and 97 of 97,
+failing only the expectations the decision supersedes
+(`controls/r10-rerun-r3-controls.json` to `controls/r10-rerun-r9-controls.json`).
+
+**The reviews' probes.** Each runs unchanged under the parser's environment,
+with its results in `r10/`, a file per probe. R624-9's
+`probe_r624_9_autolink.py`: no case escapes, and the check fails every case
+that adds a figure. The cases the parser places, after a `www.` or `https://`
+address or alone, name the added figure UNCOVERED at the line the probe edits. Each case with an
+e-mail or `mailto:` address is refused, named MARKUP at its block's first
+covered line: in the introduction, the line above the edit, since its
+paragraph's covered part starts there; in the section's first paragraph, its
+first line, for an edit on that line or the next; and in a table cell or the
+index row, the cell's line. The probe's own word for a refusal is
+FAILED_OTHERWISE, since it looks only for the added figure named UNCOVERED. The earlier probes keep
+their exit statuses and verdicts. Their named lines stay the same except
+for the footnote definition appended after the page, which moves as the page grows.
+
+**Further forms.** `tools/r10_self_probes.py` (`r10/self-probes.json`) runs
+round 5's to round 9's forms, then round 10's: autolinks the parser gives no
+position at the introduction's edges and on the line above it, after a code
+span on a paragraph's later line, beside another address, in a heading, a block
+quote, a list item and a paragraph at the page's end, and at the Contents
+entry; a figure in a link whose text an address opens; an entity before a
+figure; and, expected to pass, an e-mail address in angle brackets, in a code
+span or as a link's text, and a cell beyond a table header's count, which
+GitHub's parser drops for a reader too. All 172 meet what the rule says: 134
+fail and are named at their lines, and 38 pass as stated. No earlier form
+changed its outcome.
+
+**What the rule does not cover.** Round 8's and round 9's limits stand.
+Conservation compares how many of each digit a block shows with how many the
+check read, not where: a node the parser places on another covered line of
+the same block is read there, and the position rule catches the only such kind
+known, the e-mail autolink. A block is rendered by itself, outside its list,
+quote or table and without the page's link reference definitions, so a block
+the renderer reads otherwise there could be refused with nothing lost; no
+such block is on the page.
+
+With these changes the page passes: every row equals its receipt, every digit
+lies in a claimed figure or in an identifier followed by an item of the closed
+list, and no construct or block is refused. `tools/r10_figures_build.py`
+regenerates the check byte for byte from `tools/r10_figures_spec.py`. It now
+writes each row's key with the spaces between its tokens dropped where the tokens
+on either side would not join, the same syntax tree, so the check stays under the packet's size
+limit. Round 10's reader with round 9's rows, on the page at `cb5ff79f`, gives
+rows, coverage and output byte-equal to round 9's (`tools/r10_reader_on_r9.py`,
+`r10/reader-on-r9.json`), so the change in reading moves nothing on the page
+as it stood. As before, the hashes of the check, its spec and its output are
+in the packet's `MANIFEST.sha256`, not here.
+
+The round's files in the packet:
+
+| Evidence file | Bytes | SHA-256 |
+|---|---|---|
+| `tools/r10_check_controls.py` (the check's controls) | 52,846 | `465670bb9bd6862a7a8066e9f7673d0ba3f851ef2882da3fa378a8cb65229dcc` |
+| `controls/r10-controls.json` (117 of 117 PASS) | 42,065 | `fc38bcaac78dddda91f042ee2e5305d2d9a656780c2bffa2e5e7007507e5ce12` |
+| `controls/r10-controls-on-r9-check.json` | 42,079 | `9e65df74de7c7ff02006c2f7b02c2ba5c3f204fc349e2709ce6c2445542d0a40` |
+| `tools/r10_parser_extents.py` (what the parser reports) | 13,016 | `66e4f70edb5a2df2d4934aef53bd1c8febb94e044f711a983260685012343ac2` |
+| `r10/parser-extents.json` | 23,655 | `7dccc64e6c5b312f59dfd0c101fc913fa07c2ff3608f86d313b17b3a57a9049c` |
+| `tools/r10_layers.py` (each rule alone) | 5,229 | `7dd74139fb52396b875fce97802eb11f8166b9882e87403928016df489c38a9b` |
+| `r10/layers.json` | 5,485 | `3bc430b8369db73c85c6dc8b3cab7ac5d5866ba009fa9c11ca9ebcbaf85d99d3` |
+| `tools/r10_evidence_receipt.py` (where the packet is) | 8,560 | `f91d210da8716f65d8f0fd2f2e2ad7cf69c43606ff8751b3f69278a2cacdd8a5` |
+| `r10/evidence-receipt.json` | 71,804 | `9986bd098d2e6dd703239ee665d8b3ab49354e9feb140e50bc4a10847f971e80` |
