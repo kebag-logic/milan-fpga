@@ -1808,7 +1808,24 @@ replica time, not fidelity. On every exit the event stream's process group is
 walked down the same containment ladder as `act`'s, and the monitor's reader is
 joined and proven ended, before the Docker boundary is torn down. That holds
 when the containment, its leader reap or the join itself fails: the runner
-finishes every step first. Then the first failure wins. An interrupt or a
+finishes every step first.
+
+The monitor blocks `CLEANUP_SIGNALS` with `signal.pthread_sigmask` before yielding.
+Its reader inherits that mask when started.
+Other runner workers also start with these signals blocked.
+The act boundary temporarily unblocks them so act remains interruptible.
+The live interrupt probe opens the same temporary signal window.
+Its exit restores the mask before returning to the monitor.
+The mask covers the transition into cleanup and every cleanup step.
+Containment, reader completion, dead-thread proof and pipe finalization finish first.
+Only then does the monitor restore the incoming mask.
+A held signal is delivered then, with status `128 + signal`.
+An earlier body failure keeps precedence over that signal.
+The signal diagnostic accompanies that earlier failure.
+Without an earlier failure, a held signal keeps its conventional status.
+Any cleanup error is printed beside that signal.
+
+Then the first failure wins. An interrupt or a
 failure that was already unwinding through the monitor keeps going, so
 `SIGINT`, `SIGTERM` and `SIGHUP` keep their `128 + signal` exit status and
 diagnostic. Each cleanup failure is printed beside it as
@@ -1849,6 +1866,13 @@ ranges it pins:
   still runs after the pause. A reader that outlives a shortened bounded wait
   is held for, printed and recorded. Containment runs with the cleanup signals
   blocked, and a reader whose read fails records a problem;
+- signals at cleanup entry and every step through mask release.
+  Each arrives with a reader moving a container during shutdown.
+  Signals target the main thread and the whole process.
+  Every case requires containment, joined reader and closed pipe before teardown.
+  Conventional status, diagnostic and restored signal masks are required.
+  Act remains interruptible; a pending signal prevents its start.
+  The live interrupt probe's window is also checked offline;
 - which failure wins. A body failure, and a real `SIGINT`, `SIGTERM` and
   `SIGHUP`, each followed by a failed reap, keep their outcome, exit status and
   diagnostic, with the reap failure printed beside them. With no earlier
