@@ -1,0 +1,9 @@
+# firmware-boundary timeout-minutes 30 -> 31 in .github/workflows/rtl-fast.yml (probe clone at the head)
+ci_events: OK (2169 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
+# litex_pins dropped from firmware-boundary's install line (workflow and contract mirror both reverted to 'pyyaml' only would be the author's edit; here only the workflow line changes)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+  FAIL .github/workflows/rtl-fast.yml: job `firmware-boundary` step 3 (`Install GoogleTest and GoogleMock and print the versions`) script is not the canonical form: line 4 must be 'python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt' (found 'python3 -m pip install --quiet pyyaml'); 6 line(s) expected, 6 found
+ci_events: 1 finding(s) over 2169 contract item(s)
+rc=1
+probe clone porcelain lines: 0

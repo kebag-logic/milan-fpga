@@ -1,0 +1,8 @@
+# MILAN_RV32_CC=/nonexistent/riscv32-gcc python3 sw/litex/test_ctrl_memory.py --build-only
+REFUSED: the reset-entry build needs an RV32 compiler
+rc=2
+# a broken reset entry: --build-only must fail (plant: syntax error in a probe-clone copy)
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['~/br-milan-rv32/host/bin/riscv32-linux-gcc', '-march=rv32i', '-mabi=ilp32', '-c', '$REVIEWS/697c-r584-17-packet/scratch/probe/sw/firmware/ctrl/plat/ctrl_split_start.S', '-o', '$REVIEWS/697c-r584-17-packet/scratch/tmp/ctrl-memory-build-ebqth7y7/start.o']' returned non-zero exit status 1.
+rc=1
+probe clone porcelain lines: 0

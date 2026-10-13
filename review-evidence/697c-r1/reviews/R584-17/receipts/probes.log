@@ -1,0 +1,41 @@
+# cmd: $REVIEWS/697c-r584-17-packet/scripts/probes.sh
+# head: 97e713168470bfae2685521fa557dc462b782b32
+# python: $REVIEWS/697c-r584-17-packet/scratch/venv/bin/python3 Python 3.12.13
+## captures at the exact head
+capture memory rc 0
+capture rv32 rc 0
+capture store rc 0
+capture coverage rc 0
+capture control rc 0
+## P0 baseline: five captures, unmodified head (expect rc 0)
+gate P0-baseline rc 0 (22 s)
+    ctrl_boundary: 2824 compiled sources of 3052 recorded invocations (1623 the firmware's, 347 the stack's, 854 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s)
+    ctrl_boundary: PASS
+## P1 the fifth capture omitted (expect refusal naming sw/litex/test_ctrl_memory.py)
+gate P1-four-captures rc 2 (20 s)
+    REFUSED: the capture holds no invocation of sw/litex/test_ctrl_memory.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+## P2 test_ctrl_memory.py removed from BUILDERS (expect refusal naming it)
+gate P2-builder-removed rc 2 (22 s)
+    REFUSED: sw/litex/test_ctrl_memory.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+## P3 ctrl_memory.py OUTSIDE entry removed (expect refusal naming it)
+gate P3-ctrl_memory-unclassified rc 2 (19 s)
+    REFUSED: sw/litex/ctrl_memory.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+## P4 milan_soc.py OUTSIDE entry removed (expect refusal naming it)
+gate P4-milan_soc-unclassified rc 2 (19 s)
+    REFUSED: sw/litex/milan_soc.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+## P5 ctrl_memory_probe.py PART_OF entry removed (expect refusal naming it)
+gate P5-probe-unclassified rc 0 (21 s)
+    ctrl_boundary: 2824 compiled sources of 3052 recorded invocations (1623 the firmware's, 347 the stack's, 854 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s)
+    ctrl_boundary: PASS
+## P6 a stack example header included by the reset entry, fifth capture re-made (expect a finding naming ctrl_split_start.S)
+capture memory-planted rc 0
+gate P6-reset-entry-include rc 1 (21 s)
+      [FAIL] firmware: sw/firmware/ctrl/plat/ctrl_split_start.S reads tsn-c-stack/examples/adp_port.h, not one of the stack's public headers [sw/litex/ctrl_memory_probe.py, sw/litex/test_ctrl_memory.py]
+      [FAIL] firmware: sw/firmware/ctrl/plat/ctrl_split_start.S includes tsn-c-stack/examples/adp_port.h, not one of the stack's public headers [sw/litex/ctrl_memory_probe.py, sw/litex/test_ctrl_memory.py]
+    ctrl_boundary: 2824 compiled sources of 3052 recorded invocations (1623 the firmware's, 347 the stack's, 854 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 2 finding(s)
+    ctrl_boundary: FAIL
+## P7 control for P6: the same planted reset entry judged with the clean fifth capture (expect rc 0: the finding needs the fifth capture)
+gate P7-planted-file-old-capture rc 0 (18 s)
+    ctrl_boundary: 2824 compiled sources of 3052 recorded invocations (1623 the firmware's, 347 the stack's, 854 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s)
+    ctrl_boundary: PASS
+0

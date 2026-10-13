@@ -1,0 +1,19 @@
+# hosted firmware-boundary job 115129383559 at 97e71316 (rtl-fast run 38345881915): selected lines, timestamps stripped
+Complete job name: firmware-boundary
+HEAD is now at ba848d8 Merge 97e713168470bfae2685521fa557dc462b782b32 into 49da9fd974e8805d56c90e29dcfcb67994c2c430
+python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (6 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (210 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (64 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (182 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 0 (0 s)
+capture: 3052 compiler invocations from 20 builder runs; every known builder held: sw/firmware/gtest/fw_rv32_selftest.py, sw/firmware/ctrl/test/test_ctrl_firmware.py, sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, sw/firmware/gtest/fw_coverage.py, sw/litex/test_ctrl_memory.py, third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl
+    ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (6 s)
+    ctrl_image_selftest.py: exit 0 (14 s)
+[ok] boundary control an unclassified copy of test_ctrl_memory.py: REFUSED: sw/firmware/ctrl/test/planted_test_ctrl_memory.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+[ok] boundary control an unclassified copy of ctrl_memory.py: REFUSED: sw/firmware/ctrl/test/planted_ctrl_memory.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+[ok] boundary control an unclassified copy of milan_soc.py: REFUSED: sw/firmware/ctrl/test/planted_milan_soc.py names the firmware's tree and is a program, and is neither a known builder (ctrl_configs.BUILDERS) nor listed as one that runs under another (PART_OF), compiles none of the firmware's (OUTSIDE) or compiles only in a suite (SUITES)
+[ok] boundary control the reset-entry builder's own capture is missing: REFUSED: the capture holds no invocation of sw/litex/test_ctrl_memory.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+[ok] boundary control the reset entry includes a private stack header in the fifth capture: firmware: sw/firmware/ctrl/plat/ctrl_split_start.S reads tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+ctrl_boundary: 2824 compiled sources of 3052 recorded invocations (1623 the firmware's, 347 the stack's, 854 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 110 boundary, 106 pin and 4 figure controls, 0 misbehaved
+ctrl_boundary: PASS

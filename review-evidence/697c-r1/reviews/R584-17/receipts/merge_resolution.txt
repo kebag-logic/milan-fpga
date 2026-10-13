@@ -1,0 +1,54 @@
+# merge 95ca54cb = parents 27ee16b52ac49b6b2523dafbf45f3af7ff4bba8c d5858bbee328cf8d2c39a99ec14203f5d0ddd123
+# 3-way merge reproduced: git merge-tree --write-tree 27ee16b52 d5858bbee
+61ca6912d9f5ba95815f6a5f6092c543a4e30afd
+sw/firmware/ctrl/test/ctrl_srp_image.py
+
+Auto-merging docs/design/MAILBOX_SPLIT.md
+Auto-merging docs/testing/CI_WORKFLOWS.md
+Auto-merging scripts/ci_scope.py
+Auto-merging sw/firmware/ctrl/README.md
+Auto-merging sw/firmware/ctrl/test/ctrl_srp_image.py
+CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/ctrl_srp_image.py
+# reproduced tree vs merge commit tree (only the conflicted file may differ):
+ sw/firmware/ctrl/test/ctrl_srp_image.py | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+# combined diff of the merge (resolution against both parents):
+95ca54cb9454d967b5534b4c3cc32c4c7e2e6a62
+diff --cc sw/firmware/ctrl/test/ctrl_srp_image.py
+index 62dd9c475,724296f1d..29fc2aa6a
+--- a/sw/firmware/ctrl/test/ctrl_srp_image.py
++++ b/sw/firmware/ctrl/test/ctrl_srp_image.py
+@@@ -5,10 -5,9 +5,12 @@@
+  Runtime archives must be bare-metal ILP32 libraries, never the SDK's glibc.
+  Their sizes and hashes are recorded alongside the section and symbol reports.
+  The firmware objects are rebuilt with the shared CI-pinned RV32 compiler.
+- The ELF is a size fixture; it has no board reset entry or fabric licence port.
++ The ELF is a size fixture with no fabric licence port. `--layout split` links it
++ into the split placement's block RAM (sw/litex/ctrl_memory.py) behind its reset
++ entry and reports the bank plan the SoC would build for it.
+ +The ADP, ACMP and MAAP cores come from the TSN stack (--stack-source, the
+ +tsn-c-stack submodule by default), or from a --ctrl-source that predates #697
+ +and still holds them.
+  """
+  from __future__ import annotations
+  import argparse
+# lane's added/removed lines over its merge base dc4d06cb vs over dev at the merge (sorted, hunk headers dropped):
+IDENTICAL
+# dev side retained at the head:
+8:The ELF is a size fixture with no fabric licence port. `--layout split` links it
+30:import ctrl_memory  # noqa: E402
+80:def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Path],
+107:    parser.add_argument("--layout",choices=("flat","split"),default="flat",
+195:            report["split"]=ctrl_memory.plan(ctrl_memory.read_elf(elf)).summary()
+# lane side retained at the head:
+11:The ADP, ACMP and MAAP cores come from the TSN stack (--stack-source, the
+23:from ctrl_build import (CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, NVM_DIR, STACK, Tree, Refusal, legacy_stack, run,
+41:def source_tree(ctrl: Path, stack: Path, out: Path) -> Tree:
+43:    legacy=legacy_stack(ctrl,out/"legacy-stack")
+45:        raise Refusal("a --ctrl-source from before #697 holds its own cores; it takes no --stack-source")
+47:        stack_pin()
+103:    parser.add_argument("--stack-source",type=Path,default=STACK)
+138:            lw=ROOT/"third_party/lwSRP"; lwsrp_pin(lw)
+# plat files equal dev:
+sw/firmware/ctrl/plat/ctrl_split.ld head=f05021cddd53f4b7c79583568cb37962937e0fc0 dev=f05021cddd53f4b7c79583568cb37962937e0fc0
+sw/firmware/ctrl/plat/ctrl_split_start.S head=97ebe7cd1d213aed89cb32897155ecf34daf955e dev=97ebe7cd1d213aed89cb32897155ecf34daf955e
