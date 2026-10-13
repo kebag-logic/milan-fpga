@@ -163,8 +163,9 @@ from ctrl_build import (DECISION, HERE, HOOK_REFUSED, PP, PROOF_EVENT, ROOT, STA
                         git_env, stack_gitlink, stack_pin)
 from ctrl_capture import COMPILER
 from ctrl_pin_bench import bench_arms
-from ctrl_pin_env import inherited_arms
+from ctrl_pin_env import create, inherited_arms
 from ctrl_pin_store import store_arms
+from ctrl_pin_lifecycle import controls as lifecycle_controls
 import fw_gtest
 
 #: This module's code is the pin proof's: under the audit hook from here on, as ctrl_build.py's is (THE HOOK).
@@ -731,6 +732,12 @@ def mirror(directory: Path, into: Path) -> Path:
     return there
 
 
+def vanished(_function: object, _path: str, error: tuple) -> None:
+    """Only a file vanishing during scratch removal is harmless; every other error propagates."""
+    if not isinstance(error[1], FileNotFoundError):
+        raise error[1]
+
+
 @dataclass(frozen=True)
 class Clone:
     """The scratch clone of the stack each pin control spoils (`path`, under `work`), at the gitlink `pin`."""
@@ -746,10 +753,9 @@ class Clone:
     def fresh(self) -> None:
         """A new clone of the stack at its gitlink, for the next control."""
         if self.path.exists():
-            shutil.rmtree(self.path)
-        if git(self.work, "clone", "--quiet", "--no-hardlinks", str(STACK), str(self.path)).returncode or \
-                git(self.path, "-c", "advice.detachedHead=false", "checkout", "--quiet", self.pin).returncode:
-            raise Refusal(f"cannot clone {STACK.relative_to(ROOT)} at {self.pin} for the pin controls")
+            shutil.rmtree(self.path, onerror=vanished)
+        create(self.path, STACK)
+        self.answer("-c", "advice.detachedHead=false", "checkout", "--quiet", self.pin)
 
     def answer(self, *args: str, stdin: str | None = None) -> str:
         """What a command of the clone's repository prints; a failure refuses the control's setup."""
@@ -965,7 +971,9 @@ def pin_controls(work: Path, makefiles: list[Path]) -> tuple[int, int]:
         ok = accepted if not needle else (not accepted and needle in detail)
         print(f"[{'ok' if ok else 'ESCAPED'}] tsn-c-stack pin control, {what}: {detail}", flush=True)
         bad += not ok
+    lifecycle_bad, lifecycle_count = lifecycle_controls(clone)
+    bad += lifecycle_bad
     for scratch in (clone.path, *(work / d for d in ("aecp-out", "bench", "unpinned", "inherited", "store"))):
         shutil.rmtree(scratch, ignore_errors=True)
     (work / "adp.c").unlink(missing_ok=True)
-    return bad, len(arms)
+    return bad, len(arms) + lifecycle_count

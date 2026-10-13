@@ -196,8 +196,15 @@ Git checks the hash of no object `cat-file` prints, nor of a tree below the one 
 An object forged or corrupted in the stack's object store is refused by its place in the pin (the pinned `src/` tree, say), and no blob is read: each file is hashed from its own bytes.
 No variable the proof inherits (`GIT_DIR`, `GIT_INDEX_FILE`, `GIT_OBJECT_DIRECTORY`, `GIT_CONFIG_*`, `GIT_ATTR_SOURCE`, `HOME` and the rest) can redirect Git's repository, object store, configuration or replacement refs.
 Both repositories' configuration is read by one parser (`ctrl_build.parsed_key`), which splits each key as Git's own does: a section, a subsection that may be absent, empty or named, and a variable.
-The stack's own configuration may hold only the keys Git writes itself for a clone and a submodule (`ctrl_build.STACK_CONFIG`, the allowlist).
+The stack's own configuration admits clone and submodule bookkeeping.
+`ctrl_build.STACK_CONFIG` lists those keys.
 They are `core.repositoryformatversion`, `core.filemode`, `core.bare`, `core.logallrefupdates`, `core.worktree`, a remote's `url` and `fetch`, a branch's `remote` and `merge`, and the submodule bookkeeping: `submodule.active`, a submodule's `url` and `active`, `submodule.alternateLocation` and `submodule.alternateErrorStrategy`.
+It also admits exactly `gc.auto=0` and `maintenance.auto=false`.
+Enabled maintenance settings remain refused.
+Every scratch repository persists both disabled settings.
+Every helper command also supplies both settings explicitly.
+Thus automatic maintenance cannot race scratch-clone removal.
+Removal tolerates only disappearing files; other errors propagate.
 A remote, a branch and a submodule are named subsections; a key with an empty subsection, such as `submodule "".active`, is not in the allowlist.
 Before it reads any object, the pin check lists all the configuration Git reads there (`git config --list --show-scope`) and refuses every other key by its name and scope.
 Those are a promisor remote and its transport (`extensions.partialClone`, `remote.promisor`, `remote.partialCloneFilter`, `remote.uploadpack` and `core.sshCommand`, with any subsection or none), `core.fsmonitor`, `core.hooksPath`, a filter, a credential or other helper, an include, a work tree's own configuration, and every key a later Git adds.
@@ -245,7 +252,7 @@ The datapath counter targets also require it before their recipes.
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-120 pin controls follow the boundary controls.
+126 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.

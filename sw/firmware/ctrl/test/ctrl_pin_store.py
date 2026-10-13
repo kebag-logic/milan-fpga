@@ -84,7 +84,7 @@ from pathlib import Path
 
 from ctrl_build import (STACK_CONFIG, SUPERPROJECT_KEYS, UNLISTED, Refusal, family, parsed_key, stack_gitlink,
                         stack_pin)
-from ctrl_pin_env import EDITED, GITLINK, RECORDER, Scene, answer
+from ctrl_pin_env import EDITED, GITLINK, RECORDER, Scene, answer, create
 
 #: More objects than a fetch of the pin's history brings, so that the fetch unpacks each into a loose object
 #: rather than keep the pack it is sent.
@@ -102,7 +102,7 @@ def loose(scene: Scene) -> None:
     in another store: fetched from the clone into a new repository, then checked out at the pin."""
     packed = scene.own / "packed"
     scene.stack.rename(packed)
-    answer(scene.own, "init", "--quiet", str(scene.stack))
+    create(scene.stack)
     answer(scene.stack, "-c", f"fetch.unpackLimit={UNPACK_LIMIT}", "fetch", "--quiet", "--no-tags", str(packed),
            "HEAD")
     answer(scene.stack, "-c", "advice.detachedHead=false", "checkout", "--quiet", scene.pin)
@@ -166,7 +166,7 @@ def converted(scene: Scene) -> None:
 def superproject(scene: Scene, keys: tuple[tuple[str, str], ...]) -> None:
     """A superproject whose index's gitlink is the pin, `keys` set in its own configuration."""
     top = scene.own / "superproject"
-    answer(scene.own, "init", "--quiet", str(top))
+    create(top)
     answer(top, "update-index", "--add", "--cacheinfo", f"160000,{scene.pin},{GITLINK}")
     for key, value in keys:
         answer(top, "config", key, value)
@@ -198,14 +198,14 @@ def sparse_superproject(scene: Scene, keys: Callable[[Path], tuple[tuple[str, st
     (given the origin's path) set in its own configuration, a value None naming the recorder. A Git reading the
     gitlink must fetch the tree first."""
     origin, top, parent = scene.own / "origin", scene.own / "superproject", GITLINK.rpartition("/")[0]
-    answer(scene.own, "init", "--quiet", str(origin))
+    create(origin)
     (origin / "kept").mkdir()
     (origin / "kept/file").write_text("kept\n", encoding="utf-8")
     answer(origin, "add", "kept/file")
     answer(origin, "update-index", "--add", "--cacheinfo", f"160000,{scene.pin},{GITLINK}")
     answer(origin, "-c", "user.name=pin-control", "-c", "user.email=pin-control@invalid", "commit", "--quiet", "-m",
            "pin-control")
-    answer(scene.own, "init", "--quiet", str(top))
+    create(top)
     answer(top, "-c", f"fetch.unpackLimit={UNPACK_LIMIT}", "fetch", "--quiet", "--no-tags", str(origin), "HEAD")
     answer(top, "update-ref", "HEAD", "FETCH_HEAD")
     answer(top, "sparse-checkout", "set", "--cone", "--sparse-index", "kept")
