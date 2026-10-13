@@ -1,0 +1,24 @@
+Networkless disposable boundary; candidate read-only; no credentials or daemon socket.
+COMMAND ['python3', 'sw/builder/endstation_builder.py', 'configs/endstation_arty_4x4.yaml', '-o', '/work/build']
+Traceback (most recent call last):
+  File "/candidate/sw/builder/endstation_builder.py", line 6071, in <module>
+    main()
+    ~~~~^^
+  File "/candidate/sw/builder/endstation_builder.py", line 6045, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None))
+  File "/candidate/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/candidate/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 809, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/candidate/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh'
+
+EXIT 1 elapsed_seconds=0.264

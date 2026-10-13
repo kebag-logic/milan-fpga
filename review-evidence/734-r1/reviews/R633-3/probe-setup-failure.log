@@ -1,0 +1,39 @@
+Networkless disposable boundary; candidate read-only; no credentials or daemon socket.
+COMMAND ['python3', '/packet/independent_scope.py']
+{"case": "stale docs", "workflow": "rtl.yml", "mode": "hosted", "rc": 0, "rtl": "false", "paths": ["docs/pr.md"], "run_full": "false"}
+{"case": "stale docs", "workflow": "rtl.yml", "mode": "replay", "rc": 0, "rtl": "false", "paths": ["docs/pr.md"], "run_full": "false"}
+{"case": "stale docs", "workflow": "rtl-fast.yml", "mode": "hosted", "rc": 0, "rtl": "false", "paths": ["docs/pr.md"], "run_full": null}
+{"case": "stale docs", "workflow": "rtl-fast.yml", "mode": "replay", "rc": 0, "rtl": "false", "paths": ["docs/pr.md"], "run_full": null}
+{"case": "stale docs", "workflow": "elaborate.yml", "mode": "hosted", "rc": 0, "rtl": "false", "paths": ["docs/pr.md"], "run_full": null}
+{"case": "stale docs", "workflow": "elaborate.yml", "mode": "replay", "rc": 0, "rtl": "false", "paths": ["docs/pr.md"], "run_full": null}
+{"case": "stale RTL", "workflow": "rtl.yml", "mode": "hosted", "rc": 0, "rtl": "true", "paths": ["docs/pr.md", "hdl/filter.sv"], "run_full": "true"}
+{"case": "stale RTL", "workflow": "rtl.yml", "mode": "replay", "rc": 0, "rtl": "true", "paths": ["docs/pr.md", "hdl/filter.sv"], "run_full": "true"}
+{"case": "stale RTL", "workflow": "rtl-fast.yml", "mode": "hosted", "rc": 0, "rtl": "true", "paths": ["docs/pr.md", "hdl/filter.sv"], "run_full": null}
+{"case": "stale RTL", "workflow": "rtl-fast.yml", "mode": "replay", "rc": 0, "rtl": "true", "paths": ["docs/pr.md", "hdl/filter.sv"], "run_full": null}
+{"case": "stale RTL", "workflow": "elaborate.yml", "mode": "hosted", "rc": 0, "rtl": "true", "paths": ["docs/pr.md", "hdl/filter.sv"], "run_full": null}
+{"case": "stale RTL", "workflow": "elaborate.yml", "mode": "replay", "rc": 0, "rtl": "true", "paths": ["docs/pr.md", "hdl/filter.sv"], "run_full": null}
+Traceback (most recent call last):
+  File "/packet/independent_scope.py", line 84, in <module>
+    result=run(root,body,base,l,h,replay)
+  File "/packet/independent_scope.py", line 48, in run
+    target=checked or (head if replay else merge(root,live,head))
+                                           ~~~~~^^^^^^^^^^^^^^^^
+  File "/packet/independent_scope.py", line 33, in merge
+    git(root,'merge','--no-ff','--no-edit',head)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/packet/independent_scope.py", line 17, in git
+    return subprocess.check_output(['git','-c','core.hooksPath=/dev/null','-c','commit.gpgsign=false',
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                    '-c','gc.auto=0','-C',str(root),*args],env=E,stderr=subprocess.PIPE,text=True).strip()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 473, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               **kwargs).stdout
+               ^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-c', 'core.hooksPath=/dev/null', '-c', 'commit.gpgsign=false', '-c', 'gc.auto=0', '-C', '/work/history', 'merge', '--no-ff', '--no-edit', '201e3bf68a1c5142a1f0cd0bf0dd5e61ed37f618']' returned non-zero exit status 1.
+
+EXIT 1 elapsed_seconds=1.369

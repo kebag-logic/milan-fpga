@@ -1,0 +1,9 @@
+Networkless disposable boundary; candidate read-only; no credentials or daemon socket.
+COMMAND ['bash', '-euc', '/work/venv/bin/python scripts/gen_toc.py --check; /work/venv/bin/python scripts/gen_toc.py --selftest; /work/venv/bin/python scripts/gen_toc.py --verify-anchors; /work/venv/bin/python scripts/check_em_dash.py --base a0f39ad4; /work/venv/bin/python scripts/check_em_dash.py --selftest']
+TOC gate: OK (146 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+TOC selftest: PASS (1501/1501 arm(s))
+anchor check: 486 existing cross-page fragment links reproduced
+check_em_dash: 0 finding(s) over 99 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [a0f39ad4..HEAD]
+check_em_dash selftest: PASS (339 arm(s))
+
+EXIT 0 elapsed_seconds=16.611

@@ -1,0 +1,61 @@
+Networkless disposable boundary; candidate read-only; no credentials or daemon socket.
+COMMAND ['bash', '-euc', 'python3 scripts/ci_rv32_sdk.py --archive /work/sdk.tar.xz --destination /work/sdk; export MILAN_RV32_CC=/work/sdk/bin/riscv32-linux-gcc; python3 sw/firmware/ctrl/test/ctrl_image.py --shape endstation_arty_4x4 --shape endstation_arty_8ch --shape endstation_arty_current --shape endstation_ax7101_1x1_tdm8 --shape endstation_ax7101_8x8 --base a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0 --out /work/build']
+SDK archive verified: /work/sdk.tar.xz sha256=d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f
+SDK argv: ["/work/sdk/relocate-sdk.sh"]
+Relocating the buildroot SDK from /builds/buildroot.org/toolchains-builder/build/riscv32-ilp32d--glibc--stable-2025.08-1 to /work/sdk ...
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "/work/sdk", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "/work/sdk/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "/work/sdk/bin/toolchain-wrapper", "sysroot": "/work/sdk/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+SDK fresh installation: verified
+Traceback (most recent call last):
+  File "/candidate/sw/builder/endstation_builder.py", line 6071, in <module>
+    main()
+    ~~~~^^
+  File "/candidate/sw/builder/endstation_builder.py", line 6045, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None))
+  File "/candidate/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/candidate/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 809, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/candidate/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh'
+compiler: /work/sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "/candidate/sw/firmware/ctrl/test/ctrl_image.py", line 434, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/candidate/sw/firmware/ctrl/test/ctrl_image.py", line 422, in main
+    head = measure(cc, ROOT / "sw/firmware", shape, out / "head" / shape)
+  File "/candidate/sw/firmware/ctrl/test/ctrl_image.py", line 339, in measure
+    inputs = nvm_bench.shape_inputs(config, work / "shape")
+  File "/candidate/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 246, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/candidate/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/candidate/sw/builder/endstation_builder.py', '/candidate/configs/endstation_arty_4x4.yaml', '-o', '/work/build/head/endstation_arty_4x4/shape/builder']' returned non-zero exit status 1.
+
+EXIT 1 elapsed_seconds=16.307

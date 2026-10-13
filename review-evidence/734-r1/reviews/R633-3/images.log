@@ -1,0 +1,121 @@
+Networkless disposable boundary; candidate read-only; no credentials or daemon socket.
+COMMAND ['bash', '-euc', 'git clone --quiet --shared /candidate /work/tree; git -C /work/tree -c protocol.file.allow=always -c submodule.protocol-processor.url=/candidate/protocol-processor -c submodule.gptp-processor.url=/candidate/gptp-processor -c submodule.third_party/verilog-axis.url=/candidate/third_party/verilog-axis submodule update --init protocol-processor gptp-processor third_party/verilog-axis; python3 /candidate/scripts/ci_rv32_sdk.py --verify-only --destination /work/sdk; export MILAN_RV32_CC=/work/sdk/bin/riscv32-linux-gcc; cd /work/tree; python3 sw/firmware/ctrl/test/ctrl_image.py --shape endstation_arty_4x4 --shape endstation_arty_8ch --shape endstation_arty_current --shape endstation_ax7101_1x1_tdm8 --shape endstation_ax7101_8x8 --base a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0 --out /work/build']
+Cloning into '/work/tree/gptp-processor'...
+done.
+Cloning into '/work/tree/protocol-processor'...
+done.
+Cloning into '/work/tree/third_party/verilog-axis'...
+done.
+Submodule path 'gptp-processor': checked out '7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9'
+Submodule path 'protocol-processor': checked out '2ad2f845dd583f8310075fa2380cb60a04fd091a'
+Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/work/sdk/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "/work/sdk", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "/work/sdk/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "/work/sdk/bin/toolchain-wrapper", "sysroot": "/work/sdk/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+compiler: /work/sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+shape endstation_arty_4x4: 5 STREAM_INPUTs, 5 STREAM_OUTPUTs
+  section         head      base     delta
+  text          34,088    34,088        +0
+  rodata           732       732        +0
+  data               0         0        +0
+  bss           14,656    14,656        +0
+  total         49,476    49,476        +0
+  load image (text + rodata + data) 34,820; with bss 49,476 of the 131,072-byte budget (37.7 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,522 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 508 bytes (__lshrdi3, __muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    app                        8,728
+    nvm_stage                  4,816
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    acmp_cfg                      88
+    nvm_payload                   66
+  struct ctrl_app, by part (sizeof): app 8,728, acmp 4,984, loop 1,768, maap 1,104, pool 204, adp 124
+shape endstation_arty_8ch: 5 STREAM_INPUTs, 5 STREAM_OUTPUTs
+  section         head      base     delta
+  text          34,088    34,088        +0
+  rodata           732       732        +0
+  data               0         0        +0
+  bss           17,216    17,216        +0
+  total         52,036    52,036        +0
+  load image (text + rodata + data) 34,820; with bss 52,036 of the 131,072-byte budget (39.7 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,522 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 508 bytes (__lshrdi3, __muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    app                        8,728
+    nvm_stage                  7,376
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    acmp_cfg                      88
+    nvm_payload                   66
+  struct ctrl_app, by part (sizeof): app 8,728, acmp 4,984, loop 1,768, maap 1,104, pool 204, adp 124
+shape endstation_arty_current: 2 STREAM_INPUTs, 1 STREAM_OUTPUTs
+  section         head      base     delta
+  text          34,080    34,080        +0
+  rodata           732       732        +0
+  data               0         0        +0
+  bss           12,352    12,352        +0
+  total         47,164    47,164        +0
+  load image (text + rodata + data) 34,812; with bss 47,164 of the 131,072-byte budget (36.0 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,520 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 508 bytes (__lshrdi3, __muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    app                        8,728
+    nvm_stage                  2,524
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    acmp_cfg                      88
+    nvm_payload                   66
+  struct ctrl_app, by part (sizeof): app 8,728, acmp 4,984, loop 1,768, maap 1,104, pool 204, adp 124
+shape endstation_ax7101_1x1_tdm8: 2 STREAM_INPUTs, 2 STREAM_OUTPUTs
+  section         head      base     delta
+  text          34,088    34,088        +0
+  rodata           748       748        +0
+  data               0         0        +0
+  bss           13,248    13,248        +0
+  total         48,084    48,084        +0
+  load image (text + rodata + data) 34,836; with bss 48,084 of the 131,072-byte budget (36.7 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,522 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 508 bytes (__lshrdi3, __muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    app                        8,728
+    nvm_stage                  3,344
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    nvm_payload                  136
+    acmp_cfg                      88
+  struct ctrl_app, by part (sizeof): app 8,728, acmp 4,984, loop 1,768, maap 1,104, pool 204, adp 124
+shape endstation_ax7101_8x8: 9 STREAM_INPUTs, 9 STREAM_OUTPUTs
+  section         head      base     delta
+  text          34,092    34,092        +0
+  rodata           748       748        +0
+  data               0         0        +0
+  bss           23,600    23,600        +0
+  total         58,440    58,440        +0
+  load image (text + rodata + data) 34,840; with bss 58,440 of the 131,072-byte budget (44.6 %), the stack not counted
+  RV32I audit: e_flags 0, rv32i2p1, 8,523 words all RV32I base instructions, nothing undefined
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  arithmetic helpers in text: 508 bytes (__lshrdi3, __muldi3, __mulsi3, __udivdi3, __umoddi3, __umodsi3, image_udivmod32, image_udivmod64; libcompiler_rt's in the SoC image)
+  static objects of 64 bytes or more:
+    nvm_stage                 13,264
+    app                        8,728
+    nvm_payload                  576
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    acmp_cfg                      88
+  struct ctrl_app, by part (sizeof): app 8,728, acmp 4,984, loop 1,768, maap 1,104, pool 204, adp 124
+base: a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0
+
+EXIT 0 elapsed_seconds=22.079
