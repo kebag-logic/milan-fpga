@@ -1,0 +1,5 @@
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+PROBE crf-guard shape=1 condition=uncertain: DETECTED: clean/run.log: rc=1, ['  [FAIL] [726 CADENCE] consecutive gaps and final wait at most 1025 ms got=0x0 exp=0x1', '  [FAIL] [726 CADENCE] consecutive gaps and final wait at most 1025 ms got=0x0 exp=0x1']
+PROBE crf-guard failing groups: {'CADENCE': 2}
+PROBE crf-guard omit=CADENCE: rc=0 ESCAPES (passes with group omitted) groups={}
