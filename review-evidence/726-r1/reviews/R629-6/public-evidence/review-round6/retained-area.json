@@ -1,0 +1,26 @@
+{
+  "local_report_bytes": 13369,
+  "local_report_sha256": "e8782e2a68e1bda931c5510560c74cd4a316cf595901ce57700649ce5f33fe99",
+  "published_revision": "172c8c4fc1b3847f7fced160f034d9d45f71bf6e",
+  "published_path": "review-evidence/726-r1/author-r2/evidence/alinx_ax7101_utilization_route.rpt",
+  "published_bytes": 13373,
+  "published_sha256": "3455f7d228a328e175bc70615033e0e057383049cded5d5b7ca16484b8040427",
+  "rows": [
+    "| Slice LUTs                 | 49427 |     0 |          0 |     63400 | 77.96 |",
+    "| Slice Registers            | 53378 |     0 |          0 |    126800 | 42.10 |",
+    "| Slice Registers                            | 53378 |     0 |          0 |    126800 | 42.10 |",
+    "| Block RAM Tile    | 87.5 |     0 |          0 |       135 | 64.81 |",
+    "|   RAMB36/FIFO*    |   74 |     0 |          0 |       135 | 54.81 |",
+    "|   RAMB18          |   27 |     0 |          0 |       270 | 10.00 |",
+    "|     RAMB18E1 only |   27 |       |            |           |       |",
+    "* Note: Each Block RAM Tile only has one FIFO logic available and therefore can accommodate only one FIFO36E1 or one FIFO18E1. However, if a FIFO18E1 occupies a Block RAM Tile, that tile can still accommodate a RAMB18E1",
+    "| RAMB18E1    |    27 |        Block Memory |"
+  ],
+  "LUT": 49427,
+  "FF": 53378,
+  "BRAM": 87.5,
+  "baseline_LUT": 49392,
+  "delta_LUT": 35,
+  "measurement": "retained; no new implementation run",
+  "published_table_agrees": true
+}

@@ -1,0 +1,18 @@
+USING RUNNER: behave.runner:Runner
+Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
+  Background: 
+
+  Scenario: the bind edge wipes all ten, and the unbind edge wipes none
+    Given the counters contract is importable ... passed in 0.000s
+    Then the CRF Media Clock Input zeroes all ten counters on the bind edge ... failed in 0.001s
+ASSERT FAILED: these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall reset all of these counters to zero'):
+  SEQ_NUM_MISMATCH (seq_err_o)
+
+
+Failing scenarios:
+  features/counters_contract_milan.feature:489  the bind edge wipes all ten, and the unbind edge wipes none
+
+0 features passed, 1 failed, 0 skipped
+0 scenarios passed, 1 failed, 87 skipped
+1 step passed, 1 failed, 274 skipped
+Took 0min 0.001s

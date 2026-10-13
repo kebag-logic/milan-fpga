@@ -1,0 +1,50 @@
+diff --git a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+index eae99385c..5b581cbee 100644
+--- a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
++++ b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+@@ -179,9 +179,10 @@ module KL_aaf_packetizer #(
+   //! --- status ------------------------------------------------------------
+   output logic [31:0] frames_sent_o,     //! t0 frames (legacy CSR alias)
+   //! per-PDU completion strobe + its talker: the event feed for the Milan
+-  //! Table 5.4 diagnostic counters (KL_talker_diag_ctx - FRAMES_TX and the
+-  //! tu-qualified TIMESTAMP_UNCERTAIN are per-OBSERVATION-INTERVAL counts
+-  //! over TRANSMITTED PDUs, so they need the emission event, not a total)
++  //! Table 5.4 diagnostic counters (KL_talker_diag_ctx). FRAMES_TX counts each
++  //! transmitted PDU (#726) and the tu-qualified TIMESTAMP_UNCERTAIN is a
++  //! per-OBSERVATION-INTERVAL count over TRANSMITTED PDUs, so they need the
++  //! emission event, not a total
+   output logic        frame_p_o,         //! one-cycle pulse per emitted PDU
+   output logic [3:0]  frame_idx_o,       //! that PDU's talker index
+   //! the tu bit from the same completed PDU. This is the latched etu_r
+diff --git a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+index 3a76db591..b2913b646 100644
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -184,10 +184,11 @@ module KL_avtp_rx_monitor_ctx #(
+   output wire [31:0] cnt_ts_valid_o,
+   output wire [31:0] cnt_ts_not_valid_o,
+   output logic        media_locked_o,    //! stream-0 lock state (level)
+-  //! Per-context counter-change pulses (Milan 5.4.5.2 Table 5.22).
++  //! Per-context counter-change pulses, one clk_i cycle per update
++  //! (Milan 5.4.5.2 Table 5.22).
+   //! Every changed counter, including healthy TV/TNV and FRAMES_RX,
+   //! marks its descriptor dirty (#726 ruling 6126028604, 2026-10-12).
+-  //! Coalescing and one-second spacing belong to the notification scheduler.
++  //! Coalescing and spacing of 1 second belong to the notification scheduler.
+   output logic [N_LISTENERS_P-1:0] dirty_p_o,
+   output logic        pdu_accept_p_o,    //! per-PDU commit verdict pulse
+   output logic [3:0]  pdu_accept_idx_o,  //! its stream index
+diff --git a/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv b/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+index cd27ee190..3163940e3 100644
+--- a/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv
+@@ -65,7 +65,8 @@
+                 clear is a later nonblocking assignment than the per-bit fold,
+                 so it wins, and the strobe is one cycle wide and never comes
+                 back. This matters for sparse interval events: a lone
+-                tu-stamped PDU or a single mr toggle must survive the boundary. Same rule at a start edge: the three counters reset
++                tu-stamped PDU or a single mr toggle survives the boundary.
++                At a start edge, the three counters reset
+                 per Table 5.4. A simultaneous transmitted PDU is the first
+                 count of the new run; its MR/TU flags enter the fresh interval.
+ 
