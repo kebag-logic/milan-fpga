@@ -399,6 +399,7 @@ DECIDE_STEP_ENV = {
     "EVENT_NAME": "${{ github.event_name }}",
     "PR_DRAFT": "${{ github.event.pull_request.draft }}",
     "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+    "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}",
 }
 #: The decision step's script, pinned verbatim after whitespace
 #: normalization, exactly as the default-branch step's is. The bindings above
@@ -421,7 +422,7 @@ CANONICAL_DECIDE_SCRIPT = (
     "fi",
     'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
     "2>/dev/null; then",
-    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
+    'git diff --no-renames --name-only "$PR_BASE_SHA...$PR_HEAD_SHA" '
     '> "$RUNNER_TEMP/changed-files"',
     "else",
     'git ls-files > "$RUNNER_TEMP/changed-files"',
@@ -581,13 +582,13 @@ RECORDED_ACTIONS = frozenset({
 #: The pinned steps bind these exactly elsewhere; this table closes the
 #: unpinned steps too, and a job absent from it may carry none.
 INHERITED_STEP_ENV = {
-    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_SHA", "PR_DRAFT"),
+    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_SHA", "PR_DRAFT", "PR_HEAD_SHA"),
     (RTL_FULL, "verilator-shards"): ("SHARD", "SHARDS", "TARGET_SHA"),
     (RTL_FULL, PHYSICAL_GPTP_JOB): ("TARGET_SHA",),
     (RTL_FULL, "verilator-suites"): ("GATE_SHA", "SHARD_RESULT"),
     (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
-    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
+    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PR_HEAD_SHA", "PUSH_BEFORE_SHA"),
     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
                              "FIRMWARE_UNIT_RESULT",
                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
@@ -595,7 +596,7 @@ INHERITED_STEP_ENV = {
                              "PUBLICATION_CENSUS_RESULT",
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
-    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
+    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA", "PR_HEAD_SHA"),
     (DOCS, "docs-check"): ("EVENT_NAME", "PR_BASE_REF", "PUSH_BEFORE_SHA"),
 }
 #: The shard denominator a worker passes and states in its display name.
@@ -846,7 +847,7 @@ CANONICAL_ELAB_SCOPE_SCRIPT = (
     "fi",
     'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
     "2>/dev/null; then",
-    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
+    'git diff --no-renames --name-only "$PR_BASE_SHA...$PR_HEAD_SHA" '
     '> "$RUNNER_TEMP/changed"',
     "else",
     'git ls-files > "$RUNNER_TEMP/changed"',
@@ -1145,7 +1146,8 @@ CARRIER_STEP_LISTS = {
         {"name": "Decide whether this head needs an elaboration",
          "id": ELAB_SCOPE_STEP_ID,
          "env": {"EVENT_NAME": "${{ github.event_name }}",
-                 "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}"},
+                 "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+                 "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}"},
          "run": CANONICAL_ELAB_SCOPE_SCRIPT},
         {"name": "Fetch the source dependencies the elaboration reads",
          "if": BUILDER_IF,
@@ -1282,6 +1284,7 @@ FAST_SCOPE_STEP_KEYS = ("name", "id", "env", "run")
 FAST_SCOPE_STEP_ENV = {
     "EVENT_NAME": "${{ github.event_name }}",
     "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+    "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}",
     "PUSH_BEFORE_SHA": "${{ github.event.before }}",
 }
 CANONICAL_FAST_SCOPE_SCRIPT = (
@@ -1296,8 +1299,13 @@ CANONICAL_FAST_SCOPE_SCRIPT = (
     'if [ -n "$base" ] && [ "$base" != '
     '0000000000000000000000000000000000000000 ] && '
     'git cat-file -e "$base^{commit}" 2>/dev/null; then',
+    'if [ "$EVENT_NAME" = pull_request ]; then',
+    'git diff --no-renames --name-only "$base...$PR_HEAD_SHA" > '
+    '"$RUNNER_TEMP/changed-files"',
+    "else",
     'git diff --no-renames --name-only "$base" "$GITHUB_SHA" > '
     '"$RUNNER_TEMP/changed-files"',
+    "fi",
     "else",
     "# An unknown base must never turn a real change into docs-only.",
     'git ls-files > "$RUNNER_TEMP/changed-files"',
@@ -6406,6 +6414,17 @@ def _invisible_whitespace_arms() -> list[Arm]:
         arms.append((f"#444 {title} detects renames in its changed-path list",
                      _m_step_text(get, "git diff --no-renames --name-only",
                                   "git diff --name-only"), want))
+    for title, get, want in (
+            ("full", _decide_step, "the decision step script is not the canonical form"),
+            ("fast", _fast_scope_step, "the fast selector scope script is not the canonical form"),
+            ("elaborate", _elab_scope_step, "the elaborate scope step script is not the canonical form")):
+        base = "$base" if title == "fast" else "$PR_BASE_SHA"
+        arms.append((f"#734 {title} scope compares endpoint trees",
+                     _m_step_text(get, f'"{base}...$PR_HEAD_SHA"',
+                                  f'"{base}" "$PR_HEAD_SHA"'), want))
+        arms.append((f"#734 {title} scope head rebound to the merge commit",
+                     _set_env_key(get, "PR_HEAD_SHA", "${{ github.sha }}"),
+                     "must bind `PR_HEAD_SHA`"))
     return arms
 
 
@@ -6826,7 +6845,7 @@ def _contract_step_and_env_arms() -> list[Arm]:
          "['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']"),
         ("#261 elaborate builder-call step-level BASH_ENV",
          _m_step_env(ELABORATE, "elaborate", BUILDER_CALL, "BASH_ENV"),
-         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_SHA']"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_SHA', 'PR_HEAD_SHA']"),
         ("#261 wire-accountability gate step-level BASH_ENV",
          _m_step_env(DOCS, "wire-accountability", "check_wire_accountability", "BASH_ENV"),
          "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),

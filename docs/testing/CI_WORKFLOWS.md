@@ -165,6 +165,34 @@ named only inside a message, a reader outside those six roots (a script under
 it does not read. A reader written that way must be added to `GATE_READ_DOCS`
 by hand.
 
+All three scope steps classify the PR's own changes.
+They use `git diff --no-renames --name-only <base>...<head>`.
+Both revisions come from the pull request event payload.
+The base is its recorded base SHA.
+The head is its own head SHA, through `PR_HEAD_SHA`.
+`GITHUB_SHA` still identifies the checkout each validation job builds.
+On hosted PR jobs, that checkout is a synthetic merge.
+Using it for scope would include later base changes.
+Each scope checkout explicitly sets `fetch-depth: 0`.
+That preserves the ancestry needed to find the merge base.
+Older documentation branches therefore remain documentation-only.
+RTL changes and submodule pointers remain relevant.
+Empty deltas retain the conservative relevant verdict.
+Fast push events retain their before-to-after tree comparison.
+
+The merge train validates composition before every merge.
+Its current-dev candidate runs builder and full native banks.
+Those banks catch interactions with intervening base changes.
+Scope selection therefore need not charge those changes to PRs.
+The hosted required contexts and merge validation remain mandatory.
+
+The scope self-test executes each workflow's actual shell body.
+It compares hosted merge checkouts with replay head checkouts.
+Its divergent history covers documentation, RTL, gitlinks, and empty deltas.
+Each control rejects its corresponding removed rule.
+Additional mutations reject endpoint comparisons and synthetic-merge scope.
+The CI-events gate pins these scripts and their event bindings.
+
 All three classifier-gated workflows build the changed-path list with
 `git diff --no-renames --name-only`, so a rename reaches the classifier as
 both of its sides ([R198] N2). With git's default rename detection the list
@@ -1485,11 +1513,12 @@ GitHub's recorded PR base oid (`baseRefOid`) is frozen when the PR is opened
 and does not track the branch, so the runner prints both SHAs and the recorded
 one never refuses a run; re-targeting a PR's base to refresh it (the old
 `gh pr edit --base` flip) is no longer needed. The generated event still
-carries the **recorded** oid, because its only consumer is scope
-classification and the hosted run receives that same value: the three scope
-steps compare two trees with `git diff <base> <head>`, so a different base
-there would make this replica classify a different file set than the run it
-exists to predict. Because the trusted worktree must sit at a moving branch
+carries the **recorded** oid and the PR's own head.
+The three scope steps use their merge-base diff, `<base>...<head>`.
+Hosted and replay therefore classify the same PR changes.
+The replay self-test proves this on a stale-base documentation branch.
+The validation base still anchors every trust and fetch check.
+Because the trusted worktree must sit at a moving branch
 tip, fast-forward it before invoking; a `dev` push between the resolve and the
 fetch refuses the run, and the fix is to fast-forward and re-run. The runner is
 host-side

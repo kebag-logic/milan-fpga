@@ -2377,18 +2377,14 @@ def build_event(run: ValidatedRun) -> dict[str, object]:
 
     The base SHA is the RECORDED base oid, because this payload's only
     consumer is scope classification and hosted receives the recorded value.
-    All three scope steps (`rtl.yml`, `rtl-fast.yml`, `elaborate.yml`) run a
-    two-argument `git diff <base> <head>` - a tree comparison, not a
-    merge-base one - so handing them a different base makes the local replica
-    classify a different file set than the hosted run it exists to predict,
-    in BOTH directions: a file the head and the live tip now agree on drops
-    out of the diff, and `ci_scope.is_rtl_relevant` fails safe only on a
-    wholly EMPTY list, not on a docs-only remainder. A stacked PR whose own
-    changes are documentation would then report PASS locally having run no
-    RTL job while hosted ran the sweep ([R3] on PR #336; the equality this
-    lane replaced made the divergence impossible, so it is this lane's to
-    avoid). The fetch is full-history, so the recorded oid is present in the
-    materialized checkout and the two diffs are identical.
+    All three scope steps (`rtl.yml`, `rtl-fast.yml`, `elaborate.yml`) use
+    `git diff <recorded-base>...<pr-head>`: only the PR's merge-base delta.
+    Both SHAs come from this payload, including the PR head rather than the
+    hosted synthetic merge commit in GITHUB_SHA. Full-history checkouts keep
+    the merge base available. Hosted and replay therefore classify the same
+    file set even when the recorded base and live dev tip have moved beyond
+    the PR's fork point. A stale-base docs-only PR stays docs-only; the
+    merge-train candidate banks validate composition before every merge.
 
     The trust properties stay on the validation base, where they belong:
     which commit the trusted worktree must be at, and which commit the fetch
@@ -6206,6 +6202,45 @@ def selftest_fetch_window(
         "mistaken for the commit the trust checks read",
         stale_event_pr["base"]["sha"] != resolved.validation_base,
     )
+
+
+def selftest_scope_event(tally: SelftestTally, fixture: SelftestFixture) -> None:
+    """A real stale-base docs PR has the same merge-base delta in both payloads."""
+    with tempfile.TemporaryDirectory(prefix="act-ci-scope-selftest-") as raw:
+        git_fixture = selftest_git_fixture(pathlib.Path(raw), fixture.pr)
+        repo, test_git = git_fixture.repo, git_fixture.test_git
+        recorded = git_fixture.test_head
+        (repo / "README").write_text("live base change\n", encoding="utf-8")
+        test_git("add", "README")
+        test_git("commit", "--quiet", "-m", "Live base")
+        live = test_git("rev-parse", "HEAD")
+        test_git("checkout", "--quiet", "--detach", git_fixture.first_commit)
+        (repo / "docs").mkdir()
+        (repo / "docs/note.md").write_text("PR documentation\n", encoding="utf-8")
+        test_git("add", "docs/note.md")
+        test_git("commit", "--quiet", "-m", "Documentation only")
+        head = test_git("rev-parse", "HEAD")
+        pr = replace(fixture.pr, base_sha=recorded, head_sha=head)
+        resolved = resolve_validation_base(
+            pr, fixture.repository, query_tip=lambda _repo, _ref: live,
+            emit=lambda _note: None,
+        )
+        event = build_event(resolved)
+        payload = event["pull_request"]
+        assert isinstance(payload, dict)
+        hosted = test_git("diff", "--no-renames", "--name-only",
+                          f"{recorded}...{head}").splitlines()
+        replay = test_git("diff", "--no-renames", "--name-only",
+                          f'{payload["base"]["sha"]}...{payload["head"]["sha"]}').splitlines()
+        tally.check(
+            "stale-base docs-only PR: hosted and replay classify only docs/note.md",
+            hosted == replay == ["docs/note.md"],
+        )
+        tally.check(
+            "the stale-base fixture detects an endpoint-tree comparison",
+            test_git("diff", "--no-renames", "--name-only", recorded, head).splitlines()
+            == ["README", "docs/note.md"],
+        )
 
 
 def materialize_for_transcript(
@@ -15119,6 +15154,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     selftest_event_payload(tally, fixture, fixture_run, draft_run)
     resolved = selftest_base_resolution(tally, fixture)
     selftest_fetch_window(tally, fixture, resolved)
+    selftest_scope_event(tally, fixture)
     selftest_validation_transcript(tally, fixture, resolved, shipping_root)
     selftest_slot_validation_path(tally, resolved, shipping_root)
     selftest_dry_run_cpu_ranges(tally, resolved, shipping_root)

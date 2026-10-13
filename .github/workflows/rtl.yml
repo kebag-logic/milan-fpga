@@ -100,6 +100,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           PR_DRAFT: ${{ github.event.pull_request.draft }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           python3 scripts/ci_scope.py --selftest
@@ -113,7 +114,7 @@ jobs:
 
           if [ -n "$PR_BASE_SHA" ] \
              && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
-            git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \
+            git diff --no-renames --name-only "$PR_BASE_SHA...$PR_HEAD_SHA" \
               > "$RUNNER_TEMP/changed-files"
           else
             git ls-files > "$RUNNER_TEMP/changed-files"
