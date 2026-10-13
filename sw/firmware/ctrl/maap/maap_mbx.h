@@ -42,7 +42,7 @@ struct maap_mbx {
 	uint32_t foreign_if;
 	struct acmp *acmp;
 	uint32_t published_gate[MBX_N_IF];
-	uint32_t demand;
+	uint32_t demand; // Cached acmp_declaring answers, including source DA validity.
 };
 
 // Bind the declaration owner before attaching the adapter. No owner means
@@ -53,7 +53,7 @@ void maap_mbx_bind_acmp(struct maap_mbx *m, struct acmp *acmp);
 // be supplied and returns without waiting or calling any protocol core. count
 // is the entity's talker sources, one address each, at most the publication
 // block's MBX_N_PUB_SOURCES: before each allocation is reported, the adapter
-// writes the interface's DA_GATE (valid range and cached ACMP demand).
+// writes the interface's DA_GATE (valid range and cached ACMP declaration).
 bool maap_mbx_init(struct maap_mbx *m, const uint64_t mac[MBX_N_IF], uint16_t count,
 		   unsigned first_slot, maap_allocation_fn allocation, void *ctx);
 bool maap_mbx_attach(struct maap_mbx *m, struct ctrl_loop *loop);

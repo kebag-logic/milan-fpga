@@ -38,11 +38,9 @@ static void refresh_demand(struct maap_mbx *m)
 	m->demand = 0u;
 	if (m->acmp != NULL) {
 		for (unsigned s = 0; s < m->acmp->cfg.n_sources; ++s) {
-			// Retire observed expiry in the core, even while its source owner
-			// has no destination. Only the dispatch path may call a core.
-			(void)acmp_declaring(m->acmp, s);
-			const struct acmp_source *source = &m->acmp->sources[s];
-			if (source->answered || source->listener_registered) {
+			// The owner supplies per-source destination validity and retires
+			// observed probe expiry. Only dispatch may call a protocol core.
+			if (acmp_declaring(m->acmp, s)) {
 				m->demand |= UINT32_C(1) << s;
 			}
 		}
@@ -91,7 +89,7 @@ static void range(void *ctx, unsigned interface, uint64_t base, uint16_t count, 
 	mbx_filter_set_maap_range(first, last > first ? (uint16_t)(last - first) : 0u);
 	// The datapath's talker DA gate (the publication block), before the
 	// allocation is reported: source s holds address base + s while the range
-	// is valid and ACMP has fresh probe or registered Listener demand
+	// is valid and ACMP's cached per-source declaration predicate holds
 	// (Milan v1.2 4.3.3.1).
 	// count never exceeds the entity's talker sources, which the publication
 	// block holds (maap_mbx_init).

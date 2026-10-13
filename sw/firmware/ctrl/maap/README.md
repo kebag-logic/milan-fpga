@@ -124,11 +124,13 @@ Queries also run after every service pass, including idle ticks.
 The composition enables those ticks to observe freshness expiry.
 Gate changes publish even when no transport frame is owed.
 
-The dispatch path queries ACMP before entering MAAP and snapshots its public
-source demand fields without changing them. ACMP retires observed probe expiry.
+The dispatch path caches each `acmp_declaring` answer before entering MAAP.
+Each answer includes the source owner's destination validity and demand.
+ACMP also retires observed probe expiry.
 The range callback combines that snapshot with its current MAAP validity.
-It calls no protocol core. This preserves ordering even when the source owner
-updates destination validity only after receiving the allocation report.
+It calls no protocol core.
+If the allocation report makes the source destination valid,
+the gate opens on the next MAAP poll.
 MAAP loss additionally closes the gate before its allocation report.
 The composition does not replace the integrator's source owner.
 `maap_mbx_init` still refuses counts exceeding the publication block.

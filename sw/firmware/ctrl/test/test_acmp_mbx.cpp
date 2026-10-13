@@ -485,6 +485,59 @@ TEST_F(AcmpMailbox, F3bComposedGateExpiresAfterIdleTickWake) {
     EXPECT_EQ(view.da_gate, 0u) << "idle tick closes the composed gate at freshness expiry";
 }
 
+// Exercise the real composition with both demand arms and independent source
+// destinations. The same tests run with one and two generated interfaces.
+void source_predicate(bool listener) {
+    mbx_model_reset(&model);
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface)
+        mbx_model_set_link(&model, interface, true);
+    const ctrl_app_config cfg = three_way();
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg));
+    for (unsigned ms = 0; ms < 2200u; ++ms) {
+        mbx_model_advance_ms(&model, 1u);
+        settle();
+    }
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface)
+        ASSERT_TRUE(app.maap.ifs[interface].core.valid);
+    for (unsigned source = 0; source < core()->cfg.n_sources; ++source) {
+        const unsigned interface = core()->cfg.source_interface[source];
+        fk.source[source].dest_mac_valid = false;
+        if (listener) {
+            ASSERT_TRUE(acmp_listener_registered(core(), interface, source, true));
+        } else {
+            Pdu request;
+            request.msg = 0u;
+            request.talker = kOwn;
+            request.talker_uid = static_cast<std::uint16_t>(source);
+            ASSERT_TRUE(offer(request, spec::MULTICAST_MAC, interface));
+        }
+        settle();
+        ASSERT_TRUE(listener ? core()->sources[source].listener_registered : core()->sources[source].answered);
+        for (bool valid : {false, true, false}) {
+            fk.source[source].dest_mac_valid = valid;
+            settle();
+            const bool predicate = acmp_declaring(core(), source);
+            EXPECT_EQ(predicate, valid) << "source validity gates each demand arm in the core";
+            for (unsigned published_if = 0; published_if < MBX_N_IF; ++published_if) {
+                mbx_model_pub view{};
+                mbx_model_pub_view(&model, published_if, &view);
+                const bool bit = (view.da_gate & (UINT32_C(1) << source)) != 0u;
+                EXPECT_EQ(bit, published_if == interface && predicate)
+                    << "published source predicate includes destination validity and interface";
+            }
+        }
+    }
+    EXPECT_EQ(core()->reentries, 0u) << "source predicate service never reenters a core";
+}
+
+TEST_F(AcmpMailbox, F3bListenerRequiresSourceDestination) {
+    source_predicate(true);
+}
+
+TEST_F(AcmpMailbox, F3bProbeRequiresSourceDestination) {
+    source_predicate(false);
+}
+
 TEST_F(AcmpMailbox, B6TheGrandmasterIsTheInterfaces) {
     for (unsigned i = 0; i < MBX_N_IF; ++i) {
         boot_restored({i});

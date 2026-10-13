@@ -43,6 +43,8 @@ class MaapHost : public ::testing::Test {
     acmp_env declaration_env{};
     std::array<std::uint64_t, MBX_N_IF> macs{};
     std::array<bool, MBX_N_IF> valid{};
+    // The source owner is independent of MAAP's range validity.
+    std::array<bool, ACMP_MAX_SOURCES> source_valid{};
     // the interface's DA_GATE in the publication block when its allocation was reported
     std::array<std::uint32_t, MBX_N_IF> gate_at_report{};
     std::vector<std::uint64_t> commits;
@@ -57,7 +59,7 @@ class MaapHost : public ::testing::Test {
         auto* r = static_cast<MaapHost*>(ctx);
         for (const auto& i : r->adapter.ifs)
             EXPECT_FALSE(i.core.in_call) << "declaration query stays outside MAAP callbacks";
-        state->dest_mac_valid = r->valid[r->declaration_owner.cfg.source_interface[source]];
+        state->dest_mac_valid = r->source_valid[source];
     }
     static uint32_t expected_gate(unsigned interface) {
         return MBX_N_IF == 1u ? 0xffu : interface == 0u ? 0x55u : 0xaau;
@@ -96,6 +98,7 @@ class MaapHost : public ::testing::Test {
             r.commits.push_back(r.now_ns);
     }
     void SetUp() override {
+        source_valid.fill(true);
         mbx_model_reset(&model); mbx_model_bind(&model, nullptr, nullptr); mbx_host_trace(trace, this);
         ctrl_loop_init(&loop);
         for (unsigned k = 0; k < MBX_N_IF; ++k) { macs[k] = kMac + k; mbx_model_set_link(&model, k, true); }
@@ -295,6 +298,16 @@ TEST_F(MaapHost, DaGateInvalidDestinationRefusesBothDemandArms) {
     acquire();
     maap_mbx_stop(&adapter);
     EXPECT_EQ(gate_at_report[0], 0u) << "address loss closes demand before the allocation report";
+}
+
+TEST_F(MaapHost, DaGateWaitsForSourceOwnerAfterAllocation) {
+    source_valid.fill(false);
+    acquire();
+    EXPECT_EQ(gate_at_report[0], 0u) << "allocation report cannot replace source destination validity";
+    EXPECT_EQ(gate(0), 0u);
+    source_valid[0] = true;
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(gate(0), 1u) << "next poll publishes the newly valid source only";
 }
 
 TEST_F(MaapHost, HMaapFilterTupleAndRate) {
