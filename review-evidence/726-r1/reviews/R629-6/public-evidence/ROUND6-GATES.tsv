@@ -1,0 +1,64 @@
+gate	command	cwd	rc	seconds	memory_peak_bytes
+before-1	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --variant before --work $SCRATCH_BASE/standing-before-1	$CHECKOUT	0	71.014	4708622336
+before-8	python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --variant before --work $SCRATCH_BASE/standing-before-8	$CHECKOUT	0	87.147	6219141120
+behavior	python3 -m behave --no-capture -f plain	$CHECKOUT/tests	0	1.718	939425792
+capture	python3 scripts/check_nvm_capture.py	$CHECKOUT	0	0.816	2079412224
+clean-1	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --work $SCRATCH_BASE/standing-clean-1	$CHECKOUT	0	31.55	930643968
+clean-8	python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --work $SCRATCH_BASE/standing-clean-8	$CHECKOUT	0	45.366	930643968
+cpp	python3 scripts/check_cpp_idiom.py	$CHECKOUT	0	1.668	866914304
+crf-discontinuity	make -j8 -C tb/verilator/crf_rx discontinuity	$SCRATCH_BASE/round5/receive-tree	0	5.027	3653193728
+crf-mutants	make -j8 -C tb/verilator/crf_rx mutants	$SCRATCH_BASE/round5/receive-tree	0	110.756	3908575232
+crf-talker_step	make -j8 -C tb/verilator/crf_rx talker_step	$SCRATCH_BASE/round5/receive-tree	0	456.064	4172009472
+crf-unit	make -j8 -C tb/verilator/crf_rx unit	$SCRATCH_BASE/round5/receive-tree	0	5.129	3815317504
+docs-final-working	python3 scripts/docs_check.py	$CHECKOUT	0	4.522	3875209216
+docs	python3 scripts/docs_check.py	$CHECKOUT	0	4.776	1186799616
+egress-1	python3 tb/verilator/milan_dp/stream_counters.py --variant egress-stall --shape 1 --work $SCRATCH/egress-1	$CHECKOUT	0	94.315	2088185856
+egress-8	python3 tb/verilator/milan_dp/stream_counters.py --variant egress-stall --shape 8 --work $SCRATCH/egress-8	$CHECKOUT	0	131.016	2098548736
+em-dash-final	python3 scripts/check_em_dash.py --base c6bd08c6	$CHECKOUT	0	3.674	3093032960
+em-dash-step1	python3 scripts/check_em_dash.py --base c6bd08c6	$CHECKOUT	0	3.321	3089817600
+em-dash	python3 scripts/check_em_dash.py --base c6bd08c6	$CHECKOUT	0	3.775	1293922304
+f5-clean-1	python3 tb/verilator/milan_dp/stream_counter_f5.py --shape 1 --work $SCRATCH_BASE/f5-1	$CHECKOUT	0	18.106	4025569280
+f5-clean-8	python3 tb/verilator/milan_dp/stream_counter_f5.py --shape 8 --work $SCRATCH_BASE/f5-8	$CHECKOUT	0	16.495	3323150336
+f5-fixed-grid	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant fixed-grid --work $SCRATCH_BASE/f5-fixed-grid	$CHECKOUT	0	18.302	3475894272
+f5-late	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant late --work $SCRATCH_BASE/f5-late	$CHECKOUT	0	19.004	5932961792
+f5-rate	python3 tb/verilator/milan_dp/stream_counter_f5.py --variant rate --work $SCRATCH_BASE/f5-rate	$CHECKOUT	0	19.705	5981851648
+frames-1	python3 tb/verilator/milan_dp/stream_counters.py --shape 1 --output-condition frames-only --work $SCRATCH_BASE/review-round2/frames-only-1	$CHECKOUT	0	66.849	4053807104
+frames-8	python3 tb/verilator/milan_dp/stream_counters.py --shape 8 --output-condition frames-only --work $SCRATCH_BASE/review-round2/frames-only-8	$CHECKOUT	0	90.268	4921413632
+grader	python3 tb/tools/torture_campaign.py --self-test	$CHECKOUT	0	0.565	939425792
+idioms	python3 scripts/check_py_idiom.py	$CHECKOUT	1	4.823	1154695168
+lint	python3 scripts/lint_rtl.py --check --jobs 2	$CHECKOUT	0	28.984	3700207616
+naming	python3 scripts/measure_naming.py --check	$CHECKOUT	0	0.465	870109184
+paths-final-working	python3 scripts/check_doc_paths.py	$CHECKOUT	0	0.114	3613671424
+paths	python3 scripts/check_doc_paths.py	$CHECKOUT	0	0.116	2028371968
+plant-aaf-reset	python3 tb/verilator/milan_dp/stream_counters.py --variant aaf-reset --work $SCRATCH_BASE/plant-aaf-reset	$CHECKOUT	0	99.188	4708098048
+plant-crf-reset	python3 tb/verilator/milan_dp/stream_counters.py --variant crf-reset --work $SCRATCH_BASE/plant-crf-reset	$CHECKOUT	0	94.114	6221238272
+plant-egress-stall	python3 tb/verilator/milan_dp/stream_counters.py --variant egress-stall --work $SCRATCH/egress-1	$CHECKOUT	0	94.416	4172009472
+plant-fixed-grid	python3 tb/verilator/milan_dp/stream_counters.py --variant fixed-grid --work $SCRATCH_BASE/round4/plant-grid	$CHECKOUT	0	97.651	3998851072
+plant-late	python3 tb/verilator/milan_dp/stream_counters.py --variant late --work $SCRATCH_BASE/plant-late	$CHECKOUT	0	94.656	4557762560
+plant-rate	python3 tb/verilator/milan_dp/stream_counters.py --variant rate --work $SCRATCH_BASE/plant-rate	$CHECKOUT	0	95.779	5981589504
+plant-rx-interval	python3 tb/verilator/milan_dp/stream_counters.py --variant rx-interval --work $SCRATCH_BASE/plant-rx-interval	$CHECKOUT	0	93.701	4167409664
+plant-rx-saturation	python3 tb/verilator/milan_dp/stream_counters.py --variant rx-saturation --work $SCRATCH_BASE/plant-rx-saturation	$CHECKOUT	0	97.727	6539780096
+plant-tx-interval	python3 tb/verilator/milan_dp/stream_counters.py --variant tx-interval --work $SCRATCH_BASE/plant-tx-interval	$CHECKOUT	0	93.397	4313583616
+plant-tx-nodirty	python3 tb/verilator/milan_dp/stream_counters.py --variant tx-nodirty --work $SCRATCH_BASE/plant-tx-nodirty	$CHECKOUT	0	98.252	3998326784
+plant-tx-reset	python3 tb/verilator/milan_dp/stream_counters.py --variant tx-reset --work $SCRATCH_BASE/plant-tx-reset	$CHECKOUT	0	96.836	4930588672
+probe-egress-stall-1	python3 -I $SCRATCH/probe_counters.py $CHECKOUT egress-stall 1 $SCRATCH/probe-egress-stall-1	$CHECKOUT	0	61.318	2592817152
+probe-egress-stall-8	python3 -I $SCRATCH/probe_counters.py $CHECKOUT egress-stall 8 $SCRATCH/probe-egress-stall-8	$CHECKOUT	0	82.439	3672330240
+probe-sched-1600-1	python3 -I $SCRATCH/probe_counters.py $CHECKOUT sched-1600 1 $SCRATCH/probe-sched-1600-1	$CHECKOUT	0	65.142	2098548736
+probe-sched-1600-8	python3 -I $SCRATCH/probe_counters.py $CHECKOUT sched-1600 8 $SCRATCH/probe-sched-1600-8	$CHECKOUT	0	88.368	4330295296
+probe-sched-2000-1	python3 -I $SCRATCH/probe_counters.py $CHECKOUT sched-2000 1 $SCRATCH/probe-sched-2000-1	$CHECKOUT	0	65.681	3690663936
+probe-sched-2000-8	python3 -I $SCRATCH/probe_counters.py $CHECKOUT sched-2000 8 $SCRATCH/probe-sched-2000-8	$CHECKOUT	0	81.257	2592292864
+py-fixed	python3 scripts/check_py_idiom.py	$CHECKOUT	0	5.13	1186799616
+receive	make -j8 -C tb/verilator/avtp_rxmon run	$SCRATCH_BASE/round5/receive-tree	0	50.12	4223758336
+recursive-counters	make -j8 -C tb/verilator/milan_dp counters	$CHECKOUT	0	260.885	6466138112
+review-escapes	python3 $SCRATCH/review_escapes.py	$CHECKOUT	0	217.607	4954443776
+runtime	python3 --version	$CHECKOUT	0	0.008	3822620672
+source-pp	python3 scripts/pp_srcs.py --check --selftest	$CHECKOUT	0	0.214	2028109824
+source-rtl-selftest	python3 scripts/check_rtl_source_lists.py --selftest	$CHECKOUT	0	2.819	1534799872
+source-rtl	python3 scripts/check_rtl_source_lists.py	$CHECKOUT	0	1.517	2079412224
+source-soc	python3 scripts/check_soc_sources.py	$CHECKOUT	0	0.114	2025762816
+style-final-working	python3 scripts/check_doc_style.py	$CHECKOUT	0	0.064	3614298112
+style	python3 scripts/check_doc_style.py	$CHECKOUT	0	0.067	654757888
+test-evidence	python3 scripts/measure_test_evidence.py --check	$CHECKOUT	0	9.532	939425792
+toc-final-working	python3 scripts/gen_toc.py --check	$CHECKOUT	0	6.13	4316590080
+toc	python3 scripts/gen_toc.py --check	$CHECKOUT	0	5.174	2079412224
+whitespace-final	git diff --check c6bd08c6 HEAD	$CHECKOUT	0	0.032	3076833280
