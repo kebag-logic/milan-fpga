@@ -12463,7 +12463,86 @@ def selftest_act_signal_window(
         "and the hold is back after it",
         held == (signal.SIGHUP, set(CLEANUP_SIGNALS)) and len(seen) == 1 and not left,
     )
+    for signum, pending in itertools.product(CLEANUP_SIGNALS, (False, True)):
+        passed, evidence = act_interrupt_signal_case(fixture, fixture_run, signum, pending)
+        where = "pending before act" if pending else "during act"
+        check(
+            f"first {signal.Signals(signum).name} {where}, no earlier failure: "
+            f"conventional status and only the interrupt diagnostic, cleanup complete ({evidence})", passed,
+        )
     selftest_act_closing_signal(tally, fixture, fixture_run)
+
+
+def act_interrupt_signal_case(
+    fixture: SelftestFixture, fixture_run: ValidatedRun, signum: int, pending: bool
+) -> tuple[bool, str]:
+    """Deliver a first signal through the real monitor and boundary; require only its conventional diagnostic (#730)."""
+    trail: list[str] = []
+    stream = FakeEventStream([], trail=trail)
+    stream.stdout = HeldEventPipe([], stream.contained, stream.contained, trail)
+    context = CommandContext(use_sudo=False, cwd=ROOT, env={})
+    started: list[set[int]] = []
+    masks: list[set[int]] = []
+    outcome: BaseException | int | None = None
+    stderr = io.StringIO()
+
+    def act_process(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[object]:
+        """Record the open window and deliver the signal during act without an external process."""
+        started.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        if not pending:
+            signal.raise_signal(signum)
+        trail.append("act returned")
+        return subprocess.CompletedProcess([], 0)
+
+    def contain(*_args: object, **_kwargs: object) -> None:
+        """Record the restored hold and release the real reader during containment."""
+        masks.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        trail.append("contained")
+        stream.contained.set()
+
+    def action() -> int:
+        """Hold the pending signal in the monitor or deliver it during the interruptible act call."""
+        try:
+            with job_cpu_range_monitor(
+                DockerBoundary(token="a" * 32, name="interrupt-signal-probe"), ("4-7",), context=context,
+                seams=ProcessSeams(popen=lambda *_args, **_kwargs: stream, terminate_group=contain),
+            ):
+                if pending:
+                    signal.raise_signal(signum)
+                return execute_act_boundary(
+                    ["act"], run=fixture_run, context=context, integrity_check=lambda: None,
+                    seams=SpawnSeams(query=lambda *_args: fixture.pr, run_process=act_process),
+                )
+        finally:
+            if not stream.stdout.closed:
+                trail.append("pipe open")
+            if any(thread.name == "act-ci-cpu-range-monitor" for thread in threading.enumerate()):
+                trail.append("reader alive")
+            trail.append("outer teardown")
+
+    incoming = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    with mock.patch.object(sys.modules[__name__], "require_tool", fake_host_tool), \
+            contextlib.redirect_stderr(stderr):
+        try:
+            outcome = run_with_cleanup_signals(action)
+        except BaseException as exc:
+            outcome = exc
+        finally:
+            remaining = signal.pthread_sigmask(signal.SIG_BLOCK, ()) != incoming
+            left = settle_cleanup_signals(incoming)
+            stream.contained.set()
+            for thread in threading.enumerate():
+                if thread.name == "act-ci-cpu-range-monitor":
+                    thread.join(timeout=10)
+    diagnostic = stderr.getvalue()
+    name = signal.Signals(signum).name
+    passed = (
+        outcome == 128 + signum and diagnostic == f"act-ci: interrupted by {name} after cleanup\n"
+        and started == ([] if pending else [set()]) and masks == [set(CLEANUP_SIGNALS)]
+        and trail == ["contained", "stream ended", "outer teardown"]
+        and stream.stdout.closed and not remaining and not left
+    )
+    return passed, f"outcome={outcome!r}, started={started!r}, stderr={diagnostic!r}, trail={trail!r}"
 
 
 def act_closing_signal_case(
