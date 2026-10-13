@@ -1,0 +1,43 @@
+Traceback (most recent call last):
+  File "/source/sw/builder/endstation_builder.py", line 6071, in <module>
+    main()
+    ~~~~^^
+  File "/source/sw/builder/endstation_builder.py", line 6045, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+              write_fragment=(True if args.write_fragment else None))
+  File "/source/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/source/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 809, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/source/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh'
+compiler: /sdk/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0; libgcc.a sha256 faef00acffa378a84c98c04cb6e548ed3881d7f90048f998f2efaf02c5cb280a (not linked)
+Traceback (most recent call last):
+  File "/source/sw/firmware/ctrl/test/ctrl_image.py", line 434, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/source/sw/firmware/ctrl/test/ctrl_image.py", line 422, in main
+    head = measure(cc, ROOT / "sw/firmware", shape, out / "head" / shape)
+  File "/source/sw/firmware/ctrl/test/ctrl_image.py", line 339, in measure
+    inputs = nvm_bench.shape_inputs(config, work / "shape")
+  File "/source/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 246, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/source/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/source/sw/builder/endstation_builder.py', '/source/configs/endstation_arty_4x4.yaml', '-o', '/work/images/head/endstation_arty_4x4/shape/builder']' returned non-zero exit status 1.

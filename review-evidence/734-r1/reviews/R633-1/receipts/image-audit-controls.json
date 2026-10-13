@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+    "--require-rv32",
+    "--out",
+    "/work/probes"
+  ],
+  "source_head": "0519ff3684258482a56892056edbfbb65c186f88",
+  "utc": "2026-10-13T17:52:42.311594+00:00",
+  "isolation": "unprivileged disposable mount, PID, user and network namespaces; read-only candidate; no host credentials or service sockets; no delegated capabilities",
+  "returncode": 1,
+  "elapsed_seconds": 2.68
+}

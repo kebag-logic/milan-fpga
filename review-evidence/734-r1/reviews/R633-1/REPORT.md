@@ -1,0 +1,84 @@
+[R633] POSITIVE - exact head 0519ff3684258482a56892056edbfbb65c186f88
+
+Round R633-1, external independent review of issue #734 / PR #735.
+Tree: `a7777345d841a565687c667bee6d53e0f5a734b8`.
+Source base: `a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0`.
+All five lenses were applied independently. No open BLOCKER, MAJOR or MINOR was found. One prose-only RESIDUE is recorded below. This is a source-review verdict, not merge authorization or acceptance of pending hosted/replay and current-dev candidate evidence.
+
+Scope was reconstructed from AGENTS.md and CONTRIBUTING.md, docs/README.md, the [frozen issue](https://github.com/kebag-logic/milan-fpga/issues/734), the [public assignment](https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6151273761), REQUIREMENTS.md:305 (especially REQ-VER-04), and the CI workflow policy before examining the complete eight-file diff and its single commit. Public executable evidence was read afterward from the [pinned evidence tree](https://github.com/kebag-logic/milan-fpga/tree/a7ca711b8256ea6d655203364a2b83c1af340f48/review-evidence/734-r1). No private author material or another reviewer's report informed the independent verdict.
+
+The implementation satisfies the requested source behavior:
+
+- `.github/workflows/rtl.yml:97`, `rtl-fast.yml:35` and `elaborate.yml:83` bind both recorded base and PR head directly from the event. Their scope commands compare `base...PR_HEAD_SHA`, with `--no-renames`. The hosted synthetic merge remains the validation checkout, not the scope endpoint.
+- Every selector checkout explicitly uses `fetch-depth: 0`. The upstream [checkout fetch implementation](https://github.com/actions/checkout/blob/v4/src/git-source-provider.ts#L172) fetches full history; its [ref helper](https://github.com/actions/checkout/blob/v4/src/ref-helper.ts#L69) includes the requested pull ref. The replay's `scripts/act_ci.py:1840` separately fetches complete live-base and PR-head history. Existing validation-base and exact-head checks are preserved.
+- `scripts/act_ci.py:2375` documents the merge-base rule and still emits the recorded base and original PR head. Its new real-history test at :6207 agrees with the shipping scope tests. The offline trust, fetch, event, cleanup and workflow-policy controls pass.
+- Fast push events retain their before-to-after tree comparison, including rewinds. The full and elaboration selectors remain unconditional for non-PR events. Draft RTL remains relevant while exhaustive work is deferred.
+- The classifier still treats empty deltas, submodule pointers and unknown-base fallbacks conservatively. An invalid head or absent merge base fails the shell step without publishing a docs-only output. RTL additions, mixed changes, deletions and renames into documentation paths remained relevant in independent probes. No path introduced by this PR was found that classifies a PR's own RTL delta as docs-only.
+- `docs/testing/CI_WORKFLOWS.md:168`, :182 and :1513 state both the selection rule and the composition safeguard: builder and full native banks validate the current-dev candidate before every merge. These responsibilities remain distinct from source-head validation.
+
+B16 was reproduced from `49da9fd9` and `f1b2489f`, not from the issue's summary. The endpoint comparison reports 64 files with default rename detection and 65 with the shipping `--no-renames` option. The merge-base comparison reports exactly `docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md` and `docs/findings/README.md`. All three new scope bodies publish `rtl=false`, even when GITHUB_SHA is changed independently of PR_HEAD_SHA. See `receipts/independent-scope.log` and `scripts/scope_probes.py`.
+
+Reviewer execution results are recorded with commands, return codes and raw logs:
+
+| Check | Result | Receipt |
+|---|---|---|
+| `python3 scripts/ci_scope.py --selftest` | PASS; 132 assertions, including all four controls in each selector and 15 rejected scope mutations | `receipts/ci-scope.log`, `.json`, `.rc` |
+| `python3 scripts/act_ci.py --selftest` | PASS; 533 checks, inside a disposable isolated job only | `receipts/act-selftest.log`, `.json`, `.rc` |
+| `python3 scripts/ci_events.py --check` | PASS; 2021 contract items | `receipts/ci-events-check.log`, `.json`, `.rc` |
+| `python3 scripts/ci_events.py --selftest` | PASS; 2834 arms, including the six new endpoint/binding mutations | `receipts/ci-events-selftest.log`, `.json`, `.rc` |
+| Independent shipping-shell probes | PASS; 44 executions, including B16, missing/invalid refs, unrelated ancestry, pushes, drafts, mixed changes, RTL deletion and rename | `receipts/independent-scope.log`, `.rc` |
+| Documentation, cited paths, generated contents, added em-dashes and Python idiom gates | All five commands exit 0 | `receipts/docs-checks.log`, `.json`, `.rc` |
+| Five linked images, base versus head | PASS; every ELF byte identical, all hashes also match the published author evidence | `receipts/linked-images-final.log`, `.json`, `.rc`; `receipts/linked-image-hashes.json` |
+| Linked-image audit controls | PASS; 33 checks | `receipts/image-audit-final.log`, `.json`, `.rc` |
+| Published receipts and source integrity | PASS; 65 published receipt digests and all eight validated-file hashes match; tracked bytes, modes and index match | `receipts/public-evidence-audit.json`; `receipts/tree-integrity.json`; `receipts/packet-audit.rc` |
+
+The four required scope controls are defect-sensitive. The documentation case rejects endpoint-tree and synthetic-merge substitutions. The RTL, pointer and empty cases reject removal of their respective classifier rules. The pointer fixture deliberately uses a documentation-shaped gitlink, preventing a generic non-documentation suffix from masking removal of the explicit pointer rule. The history test executes the actual workflow shell text, omitting only its recursive self-test call; the separate CI-event gate pins the surrounding step keys, event bindings, checkout depth and script text.
+
+The runner self-test had no host credentials, network, host service sockets, delegated capabilities or host orchestration authority. It ran in an unprivileged disposable filesystem/process/network namespace with the candidate mounted read-only. No live PR runner, Docker, workflow replay, privileged operation or GitHub write was performed. Independent gates ran concurrently as foreground commands; all completed before this report.
+
+The initial image attempts encountered read-only generated-output directories. Their nonzero receipts are retained as `linked-images`, `linked-images-overlay` and `image-audit-controls`. Final runs mounted scratch copies of only `configs/generated` and `hdl/common/csr/gen` as writable outputs. The candidate itself remained unchanged. These were review-environment setup failures, not source failures. The successful final image receipts supersede those attempts.
+
+All five image comparisons used the unchanged head harness and shapes with archived base firmware. The product-input trees (`hdl`, `sw`, `configs`, `syn`, requirements and submodule pins) are unchanged across this PR. The fixtures use the same compiler identity and runtime-library digest as the public author measurement. These are linked measurement images, not deployed images or physical evidence.
+
+| Shape | Bytes | Base and head SHA-256 |
+|---|---:|---|
+| `endstation_arty_4x4` | 50752 | `f70be6b729d203ade7fb75e832d1ca0b1d1d9ba99f03e746cc2907174ec9cce4` |
+| `endstation_arty_8ch` | 50752 | `eb5dfe04250400df1a0546c4f52096cfbd4e8f0e7abc777388e6d55cf64802e6` |
+| `endstation_arty_current` | 50744 | `9600824e12c1890edebeee455afe2244dc4fa9166c463fbb01591e284fe1f441` |
+| `endstation_ax7101_1x1_tdm8` | 50768 | `ee7991b0b767b331d1b9fc84972b5a610ec0e9ae521ddf20689d9b4df4a9f33c` |
+| `endstation_ax7101_8x8` | 50776 | `1b17baeb51ab66d3eeaeb97e5136fc8f516361ca6d99900d490a7953689e7018` |
+
+Finding R633-1-D1: RESIDUE; attributable lens: Docs.
+Artifact: `docs/testing/CI_WORKFLOWS.md:650`, :663 and :669.
+Authority/evidence: the duplicate numbered explanation still enumerates three decision-step environment variables, while the operative rule at :172, `.github/workflows/rtl.yml:100` and `scripts/ci_events.py:398` correctly include PR_HEAD_SHA.
+Impact: the repeated prose enumeration is stale; execution, tests, measurements, generated artifacts and protocol conformance claims are unaffected.
+Required outcome / exact fix: add `PR_HEAD_SHA` to item 5's variable list; add `PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}` to item 6's binding list; change the following phrase `all three names` to `all four names`. Keep the step-key count unchanged.
+Verification: compare both prose lists to DECIDE_STEP_ENV and the shipping step's env mapping; rerun documentation checks. Under the owner's wording-residue rule this does not unclean Docs or change the verdict. The manager carries it to the residue checklist.
+
+The reviewer-owned completion ledger is:
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Issue #734 acceptance/assignment; REQUIREMENTS.md:305; rtl.yml:97, rtl-fast.yml:35, elaborate.yml:83; act_ci.py:2375; independent-scope.log | R633-1 | 0519ff3684258482a56892056edbfbb65c186f88 |
+| RTL | CLEAN | Complete candidate.diff; unchanged hdl/sw/configs/syn and gitlinks; linked-image-hashes.json; tree-integrity.json. No clock, reset, CDC, FSM or interface changes occur in the diff | R633-1 | 0519ff3684258482a56892056edbfbb65c186f88 |
+| Robustness | CLEAN | ci_scope.py:122 and :255; ci_scope_history.py:108; independent-scope.log; act-selftest.log; failure cases publish no docs-only result | R633-1 | 0519ff3684258482a56892056edbfbb65c186f88 |
+| Tests | CLEAN | ci_scope_history.py:36, :67, :89, :108; act_ci.py:6207; ci_events.py:6417; reviewer scope, runner, contract and image-audit receipts | R633-1 | 0519ff3684258482a56892056edbfbb65c186f88 |
+| Docs | CLEAN | CI_WORKFLOWS.md:168, :182, :1513; CONTRIBUTING.md candidate-merge contract; public-evidence-audit.json; D1 wording residue | R633-1 | 0519ff3684258482a56892056edbfbb65c186f88 |
+
+The independent verdict and ledger were written in `receipts/independent-verdict.md` before checking prior public reviews. At the subsequent observation, PR #735 had two manager review-start comments, no submitted reviews and no inline review comments. There were no prior public findings to resolve or retain. See `receipts/prior-findings.json` for the observation time and URLs.
+
+The public packet includes earlier unsuccessful author receipts as well as accepted results. In particular, `python-idiom-final` records a failure, followed by the successful `python-idiom-accepted` receipt; the review independently reran that gate successfully at the exact head. The earlier unsuccessful runner self-test is superseded by `act-selftest-final` and the reviewer's isolated PASS. No earlier failed receipt was counted as passing evidence.
+
+Final integrity verification compared raw tracked bytes with Git blob IDs, filesystem modes with tree modes, and every index entry with the pinned tree. It checked 1308 parent blobs and 562, 104 and 214 blobs in the required processor/axis submodules. Required gitlinks remain `2ad2f845dd583f8310075fa2380cb60a04fd091a`, `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9` and `48ff7a7e2ef782cf778d47910cf85835c64b1bce`, respectively. The inactive external and lwSRP gitlinks also match the exact tree. The worktree and index are clean; no source restoration was needed.
+
+Remaining limits and manager duties:
+
+- This review did not run full parent, processor, gPTP, synthesis or builder banks, or inspect hosted job completion. Source-head execution evidence is the author's published receipts plus the focused reviewer results above. No manager source bank at this head is claimed.
+- The manager owns trusted replay and exact-head hosted acceptance, distinguishing executed jobs from skipped contexts. Acceptance item 5 and the complete merge bar remain pending that evidence and the separate independent review.
+- At the merge turn, construct and validate the current-dev candidate with builder and native banks and publish its receipts. The supplied live dev and source base were both `a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0`; this review does not pre-approve a future candidate. Respect the issue's 697c then 696 sequencing, finish all review rounds, obtain merge authorization, and perform post-merge containment.
+- Physical calibration NOT RUN. Field skips and linked-image measurements are not hardware proof.
+- Publish only REPORT.md and the paths listed in MANIFEST.sha256. Scratch contains disposable fixtures, outputs and downloaded public evidence; it is not publishable.
+
+The portable scripts take source and packet paths as arguments. `run_gate.py` records each isolated foreground gate, with optional read-only SDK/dependency mounts and scratch generated-output overlays. `scope_probes.py` reproduces the historical and independent cases. `fetch_evidence.py` restores the pinned public receipts under scratch, and `audit_packet.py` verifies those receipts, the ten generated ELF files, and the exact source tree. Exact executed gate commands are in the adjacent JSON receipts.
+
+R633-1 FINISHED

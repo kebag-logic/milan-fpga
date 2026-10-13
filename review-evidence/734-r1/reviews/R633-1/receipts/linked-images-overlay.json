@@ -1,0 +1,25 @@
+{
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_image.py",
+    "--shape",
+    "endstation_arty_4x4",
+    "--shape",
+    "endstation_arty_8ch",
+    "--shape",
+    "endstation_arty_current",
+    "--shape",
+    "endstation_ax7101_1x1_tdm8",
+    "--shape",
+    "endstation_ax7101_8x8",
+    "--base",
+    "a0f39ad4f4bfc9ed4805bac049c4f2b926a94ec0",
+    "--out",
+    "/work/images"
+  ],
+  "source_head": "0519ff3684258482a56892056edbfbb65c186f88",
+  "utc": "2026-10-13T17:53:12.950828+00:00",
+  "isolation": "unprivileged disposable mount, PID, user and network namespaces; read-only candidate; no host credentials or service sockets; no delegated capabilities",
+  "returncode": 1,
+  "elapsed_seconds": 8.284
+}
