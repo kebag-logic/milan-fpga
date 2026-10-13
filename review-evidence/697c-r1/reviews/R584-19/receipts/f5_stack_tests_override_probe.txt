@@ -1,0 +1,4 @@
+Probe: submodule tests/acmp_fake.hpp ended in #error; F5 run with --stack <pinned clone> --shape 1 --build-only.
+Result: F5 BUILT with rc 0, so its mailbox-mode compile never read the submodule's tests/ (acmp_fake.hpp is included only under AECP_TEST_APP, test_aecp.cpp:34-36). Suspicion refuted; no finding.
+1:tsn-c-stack at 405dc68310a18f669049ffc10cc23eef7300dcff
+3:rc=0
