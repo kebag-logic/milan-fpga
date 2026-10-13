@@ -1,0 +1,8 @@
+{
+  "name": "act-selftest",
+  "command": "sudo -n docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --memory 4g --memory-swap 4g --cpus 4 --user 1000:1000 --mount type=bind,src=$LANES/734-scope,dst=/candidate,readonly --mount type=bind,src=$VALIDATION_STORAGE/734-a613,dst=$VALIDATION_STORAGE/734-a613 --mount type=bind,src=$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu,dst=$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu,readonly --env TMPDIR=$VALIDATION_STORAGE/734-a613 --env PYTHONDONTWRITEBYTECODE=1 --workdir /candidate catthehacker/ubuntu:full-latest $VALIDATION_STORAGE/734-a613/venv/bin/python scripts/act_ci.py --selftest",
+  "rc": 1,
+  "seconds": 28.89,
+  "bytes": 56500,
+  "sha256": "a1111f4e3e1a55439070f64f54bec1f1e05356bbbffbe8c7adaba70beb28a4cb"
+}
