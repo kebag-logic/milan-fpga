@@ -1,0 +1,17 @@
+r625-5-comment exit 0 {"statuses": [0, 1, 1], "names": ["unchanged", "single_line_comment", "multiline_comment"]}
+r625-6-rendered exit 1 {"versions": {"cmarkgfm": "2025.10.22", "html5lib": "1.1"}, "statuses": [0, 1, 1, 1, 1, 1], "names": ["unchanged", "plain", "ordinary_comment", "short_comment", "short_dash_comment", "short_comment_unknown_unit"], "markup": [[], [], ["html_inline <!-- -->"], ["html_inline <!-->", "html_inline <!-- -->"], ["html_inline <!--->", "html_inline <!-- -->"], ["html_inline <!-->", "html_inline <!-- -->"]], "uncovered": [[], ["7"], ["7"], ["7"], ["7"], ["7"]]}
+r625-6-followers exit 0 {"forms": 22, "statuses": {"unchanged": 0, "plain_furlongs": 1, "code_descriptor_furlongs": 1, "code_lane_furlongs": 1, "code_directory_furlongs": 0, "code_directory_word": 0, "code_directory_ms": 0, "code_commit_furlongs": 0, "code_hashfield_furlongs": 0, "code_packet_furlongs": 0, "code_file_furlongs": 0, "code_directory_comment": 1, "code_directory_entity": 0, "literal_descriptor_comment": 1, "link_identifier_furlongs": 1, "identifier_bold_unit": 1, "identifier_tag_unit": 1, "identifier_word_after_and": 0, "identifier_adjacent_unlisted": 1, "unbound_digit": 1, "malformed_comment": 1, "html_code_comment": 1}, "markup": {"code_directory_comment": ["html_inline <!-- -->"], "literal_descriptor_comment": ["html_inline <!-- -->"], "identifier_tag_unit": ["html_inline <span>", "html_inline </span>"], "malformed_comment": ["html_inline <!-->", "html_inline <!-- -->"], "html_code_comment": ["html_inline <code>", "html_inline <!-- -->", "html_inline </code>"]}}
+Traceback (most recent call last):
+  File "$PACKET/scratch/ev/review-evidence/629-b16-r1/author-r11/tools/run_validation.py", line 39, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$PACKET/scratch/ev/review-evidence/629-b16-r1/author-r11/tools/r11_probe_reruns.py", line 206, in main
+    results = json.loads(res(o).read_text())
+                         ~~~~~~~~~~~~~~~~^^
+  File "$PYLIB/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PYLIB/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '$PACKET/scratch/val/probes-1/probes-1/r624-6-escapes/out.json'

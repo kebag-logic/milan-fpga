@@ -1,0 +1,71 @@
+# R624-12 byte comparisons (EQUAL = cmp exit 0)
+EQUAL rebuild(candidate page, published spec+build, author-r10 check) == author-r11 check
+EQUAL rebuild(source page, same spec+build) == author-r10 check
+EQUAL reviewer +7 probe (shift_rows.py on author-r10 check) == author-r11 check
+EQUAL reproduce.sh step 2 rebuild == author-r11 check
+EQUAL candidate run stdout: regenerated check == reviewer +7 probe
+EQUAL candidate rows: regenerated == +7 probe
+EQUAL candidate coverage: regenerated == +7 probe
+EQUAL candidate stdout == packet receipts/cand.stdout
+EQUAL candidate rows == packet receipts/cand-rows.tsv
+EQUAL candidate coverage == packet receipts/cand-coverage.tsv
+EQUAL source stdout == packet receipts/src.stdout
+EQUAL source rows == packet receipts/src-rows.tsv
+EQUAL source coverage == packet receipts/src-coverage.tsv
+EQUAL negative control stdout == packet receipts/cand-old.stdout
+EQUAL source-page/source-check stdout == candidate-page/regenerated-check stdout
+EQUAL reproduce/cand.stdout == packet receipts/reproduce/cand.stdout
+EQUAL reproduce/cand-rows.tsv == packet receipts/reproduce/cand-rows.tsv
+EQUAL reproduce/cand-coverage.tsv == packet receipts/reproduce/cand-coverage.tsv
+EQUAL reproduce/cand.rc == packet receipts/reproduce/cand.rc
+EQUAL reproduce/src.stdout == packet receipts/reproduce/src.stdout
+EQUAL reproduce/src-rows.tsv == packet receipts/reproduce/src-rows.tsv
+EQUAL reproduce/src-coverage.tsv == packet receipts/reproduce/src-coverage.tsv
+EQUAL reproduce/src.rc == packet receipts/reproduce/src.rc
+EQUAL reproduce/normalized-comparison.json == packet receipts/reproduce/normalized-comparison.json
+EQUAL validation/control-comparison.json == packet receipts/control-comparison.json
+EQUAL validation/controls-10.json == packet receipts/controls-10.json
+EQUAL validation/controls-3.json == packet receipts/controls-3.json
+EQUAL validation/controls-4.json == packet receipts/controls-4.json
+EQUAL validation/controls-5.json == packet receipts/controls-5.json
+EQUAL validation/controls-6.json == packet receipts/controls-6.json
+EQUAL validation/controls-7.json == packet receipts/controls-7.json
+EQUAL validation/controls-8.json == packet receipts/controls-8.json
+EQUAL validation/controls-9.json == packet receipts/controls-9.json
+EQUAL validation/layers.json == packet receipts/layers.json
+EQUAL validation/parser.json == packet receipts/parser.json
+EQUAL validation/probe-comparison.json == packet receipts/probe-comparison.json
+EQUAL validation/reader.json == packet receipts/reader.json
+EQUAL validation/relocated-escapes.json == packet receipts/relocated-escapes.json
+EQUAL validation/relocated-locked.json == packet receipts/relocated-locked.json
+EQUAL validation/relocated-polls.json == packet receipts/relocated-polls.json
+EQUAL validation/self.json == packet receipts/self.json
+EQUAL validation/supplementary-comparison.json == packet receipts/supplementary-comparison.json
+EQUAL validation/validation-summary.json == packet receipts/validation-summary.json
+EQUAL validation/controls-10.rc == packet receipts/controls-10.rc
+EQUAL validation/controls-3.rc == packet receipts/controls-3.rc
+EQUAL validation/controls-4.rc == packet receipts/controls-4.rc
+EQUAL validation/controls-5.rc == packet receipts/controls-5.rc
+EQUAL validation/controls-6.rc == packet receipts/controls-6.rc
+EQUAL validation/controls-7.rc == packet receipts/controls-7.rc
+EQUAL validation/controls-8.rc == packet receipts/controls-8.rc
+EQUAL validation/controls-9.rc == packet receipts/controls-9.rc
+EQUAL validation/layers.rc == packet receipts/layers.rc
+EQUAL validation/parser.rc == packet receipts/parser.rc
+EQUAL validation/reader.rc == packet receipts/reader.rc
+EQUAL validation/self.rc == packet receipts/self.rc
+EQUAL validation/probes/r624-4-probe-rerun.json == packet receipts/probes/r624-4-probe-rerun.json
+EQUAL validation/probes/r624-5-escapes-probe-rerun.json == packet receipts/probes/r624-5-escapes-probe-rerun.json
+EQUAL validation/probes/r624-5-row3200-probe-rerun.json == packet receipts/probes/r624-5-row3200-probe-rerun.json
+EQUAL validation/probes/r624-6-row3200-polls-probe-rerun.json == packet receipts/probes/r624-6-row3200-polls-probe-rerun.json
+EQUAL validation/probes/r624-7-escapes-probe-rerun.json == packet receipts/probes/r624-7-escapes-probe-rerun.json
+EQUAL validation/probes/r624-7-invisible-probe-rerun.json == packet receipts/probes/r624-7-invisible-probe-rerun.json
+EQUAL validation/probes/r624-8-html-block-edge-probe-rerun.json == packet receipts/probes/r624-8-html-block-edge-probe-rerun.json
+DIFFER validation/probes/r624-9-autolink-probe-rerun.json == packet receipts/probes/r624-9-autolink-probe-rerun.json
+EQUAL validation/probes/r625-3-probe-rerun.json == packet receipts/probes/r625-3-probe-rerun.json
+EQUAL validation/probes/r625-4-probe-rerun.json == packet receipts/probes/r625-4-probe-rerun.json
+EQUAL validation/probes/r625-5-comment-probe-rerun.json == packet receipts/probes/r625-5-comment-probe-rerun.json
+EQUAL validation/probes/r625-6-followers-probe-rerun.json == packet receipts/probes/r625-6-followers-probe-rerun.json
+EQUAL validation/probes/r625-6-rendered-probe-rerun.json == packet receipts/probes/r625-6-rendered-probe-rerun.json
+EQUAL validation/probes/r625-7-markup-probe-rerun.json == packet receipts/probes/r625-7-markup-probe-rerun.json
+# note: the one DIFFER differs only in results.check, the absolute path of the check the probe ran (scratch path here, the author's temporary path there); reading and exit are equal (see REPORT.md)
