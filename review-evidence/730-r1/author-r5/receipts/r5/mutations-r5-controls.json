@@ -1,0 +1,50 @@
+[
+  [
+    "E08",
+    "interrupt",
+    "            signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)\n            require_act_job_volumes_absent",
+    "            require_act_job_volumes_absent"
+  ],
+  [
+    "E01",
+    "masked",
+    "        signal.pthread_sigmask(signal.SIG_BLOCK, held)",
+    "        pass"
+  ],
+  [
+    "E02",
+    "masked",
+    "        with TerminationRequest.delivered_after(released, primary, \"CPU-range monitor cleanup\"):",
+    "        signal.pthread_sigmask(signal.SIG_SETMASK, released)\n        with TerminationRequest.delivered_after(released, primary, \"CPU-range monitor cleanup\"):"
+  ],
+  [
+    "E03",
+    "masked",
+    "        for line in process.stdout or ():",
+    "        signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)\n        for line in process.stdout or ():"
+  ],
+  [
+    "E04",
+    "masked",
+    "                signal.pthread_sigmask(signal.SIG_SETMASK, released)",
+    "                pass"
+  ],
+  [
+    "E05",
+    "masked",
+    "                if primary is None:\n                    raise",
+    "                if True:\n                    raise"
+  ],
+  [
+    "E06",
+    "window",
+    "        signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)\n        require_live_pull_request",
+    "        require_live_pull_request"
+  ],
+  [
+    "E07",
+    "window",
+    "    held = signal.pthread_sigmask(signal.SIG_BLOCK, ())\n    try:\n        signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)\n        require_live_pull_request",
+    "    held = signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)\n    try:\n        require_live_pull_request"
+  ]
+]
