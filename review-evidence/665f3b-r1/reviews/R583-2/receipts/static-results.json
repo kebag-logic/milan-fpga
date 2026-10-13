@@ -1,0 +1,52 @@
+[
+  {
+    "name": "mailbox-generator",
+    "command": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check",
+      "--crosscheck",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.79
+  },
+  {
+    "name": "submodule-docs",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.7
+  },
+  {
+    "name": "diagram",
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.61
+  },
+  {
+    "name": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 7.13
+  },
+  {
+    "name": "ci-scope-classification",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "docs/design/MAILBOX_SPLIT.md"
+    ],
+    "rc": 0,
+    "seconds": 0.08
+  }
+]

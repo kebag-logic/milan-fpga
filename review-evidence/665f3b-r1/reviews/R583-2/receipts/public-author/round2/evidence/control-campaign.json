@@ -1,0 +1,17 @@
+{
+  "name": "control-campaign",
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--require-rv32",
+    "--self-test",
+    "--shard",
+    "1/4",
+    "--jobs",
+    "4",
+    "--build-dir",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/control-campaign"
+  ],
+  "rc": 124,
+  "seconds": 570.01
+}
