@@ -2375,20 +2375,19 @@ def is_leased_act_job_volume(boundary: DockerBoundary, name: str) -> bool:
 def build_event(run: ValidatedRun) -> dict[str, object]:
     """The smallest pull_request payload every repository workflow consumes.
 
-    The base SHA is the RECORDED base oid, because this payload's only
-    consumer is scope classification and hosted receives the recorded value.
-    All three scope steps (`rtl.yml`, `rtl-fast.yml`, `elaborate.yml`) use
-    `git diff <recorded-base>...<pr-head>`: only the PR's merge-base delta.
-    Both SHAs come from this payload, including the PR head rather than the
-    hosted synthetic merge commit in GITHUB_SHA. Full-history checkouts keep
-    the merge base available. Hosted and replay therefore classify the same
-    file set even when the recorded base and live dev tip have moved beyond
-    the PR's fork point. A stale-base docs-only PR stays docs-only; the
-    merge-train candidate banks validate composition before every merge.
+    Hosted scope compares the synthetic merge with its first parent, the
+    live base that job builds on. Replay checks out the PR head instead,
+    so with ACT=true the three selectors resolve the payload's base ref to
+    refs/remotes/origin/<base-ref>, fetched and verified by
+    materialize_remote_head against run.validation_base. They compare
+    merge-base(live, head) to head, never the frozen recorded base oid.
+    Missing or multiple merge bases refuse classification. Full-history
+    checkouts preserve the ancestry. A lane that merges newer dev and restores
+    its RTL therefore stays relevant, while stale-base docs stay docs-only.
+    The merge-train candidate banks validate composition before every merge.
 
-    The trust properties stay on the validation base, where they belong:
-    which commit the trusted worktree must be at, and which commit the fetch
-    must return. Neither reads this payload.
+    The trust and fetch checks still read run.validation_base directly.
+    The recorded oid remains metadata for diagnostics, not a scope input.
     """
     pr = run.pr
     repository = run.repository
@@ -6187,60 +6186,47 @@ def selftest_fetch_window(
     stale_event = build_event(resolved)
     stale_event_pr = stale_event["pull_request"]
     assert isinstance(stale_event_pr, dict)
-    #: [R3] on PR #336: the payload feeds scope classification and nothing
-    #: else, and hosted receives the RECORDED oid, so the replica must too or
-    #: its verdict stops predicting the run it stands in for. The trust
-    #: checks read resolved.validation_base and never this payload, so the
-    #: two arms below pin the split in both directions.
     check(
-        "the event carries the recorded base oid, so the local replica "
-        "classifies the same file set hosted does",
+        "the event retains the recorded base oid as metadata",
         stale_event_pr["base"]["sha"] == pr.base_sha,
     )
     check(
-        "and that is not the validation base, so the payload cannot be "
-        "mistaken for the commit the trust checks read",
+        "the recorded payload oid is not the fetched live scope base",
         stale_event_pr["base"]["sha"] != resolved.validation_base,
     )
 
 
 def selftest_scope_event(tally: SelftestTally, fixture: SelftestFixture) -> None:
-    """A real stale-base docs PR has the same merge-base delta in both payloads."""
+    """Execute hosted and live-base replay scope from the production event builder."""
+    from ci_scope_history import execute, git, history, merge_checkout, scope_script
+
     with tempfile.TemporaryDirectory(prefix="act-ci-scope-selftest-") as raw:
-        git_fixture = selftest_git_fixture(pathlib.Path(raw), fixture.pr)
-        repo, test_git = git_fixture.repo, git_fixture.test_git
-        recorded = git_fixture.test_head
-        (repo / "README").write_text("live base change\n", encoding="utf-8")
-        test_git("add", "README")
-        test_git("commit", "--quiet", "-m", "Live base")
-        live = test_git("rev-parse", "HEAD")
-        test_git("checkout", "--quiet", "--detach", git_fixture.first_commit)
-        (repo / "docs").mkdir()
-        (repo / "docs/note.md").write_text("PR documentation\n", encoding="utf-8")
-        test_git("add", "docs/note.md")
-        test_git("commit", "--quiet", "-m", "Documentation only")
-        head = test_git("rev-parse", "HEAD")
-        pr = replace(fixture.pr, base_sha=recorded, head_sha=head)
-        resolved = resolve_validation_base(
-            pr, fixture.repository, query_tip=lambda _repo, _ref: live,
-            emit=lambda _note: None,
-        )
-        event = build_event(resolved)
-        payload = event["pull_request"]
-        assert isinstance(payload, dict)
-        hosted = test_git("diff", "--no-renames", "--name-only",
-                          f"{recorded}...{head}").splitlines()
-        replay = test_git("diff", "--no-renames", "--name-only",
-                          f'{payload["base"]["sha"]}...{payload["head"]["sha"]}').splitlines()
-        tally.check(
-            "stale-base docs-only PR: hosted and replay classify only docs/note.md",
-            hosted == replay == ["docs/note.md"],
-        )
-        tally.check(
-            "the stale-base fixture detects an endpoint-tree comparison",
-            test_git("diff", "--no-renames", "--name-only", recorded, head).splitlines()
-            == ["README", "docs/note.md"],
-        )
+        repo = pathlib.Path(raw)
+        for case in history(repo, ROOT):
+            pr = replace(fixture.pr, base_sha=case.recorded, head_sha=case.head)
+            resolved = resolve_validation_base(
+                pr, fixture.repository, query_tip=lambda _repo, _ref: case.live,
+                emit=lambda _note: None,
+            )
+            event = build_event(resolved)
+            payload = event["pull_request"]
+            assert isinstance(payload, dict)
+            for workflow, job, step in (
+                    ("rtl.yml", "full-ci-gate", "gate"),
+                    ("rtl-fast.yml", "changes", "scope"),
+                    ("elaborate.yml", "elaborate", "scope")):
+                script = scope_script(ROOT, workflow, job, step)
+                merge = merge_checkout(repo, case)
+                hosted = execute(repo, script, case.recorded, case.head, merge)
+                git(repo, "checkout", "--quiet", "--detach", case.head)
+                git(repo, "update-ref", "refs/remotes/origin/dev", resolved.validation_base)
+                replay = execute(repo, script, payload["base"]["sha"],
+                                 payload["head"]["sha"], case.head,
+                                 inputs={"ACT": "true", "PR_BASE_REF": payload["base"]["ref"]})
+                tally.check(
+                    f"scope event {case.label} {workflow}: hosted = replay = {case.paths}",
+                    hosted == replay == (case.paths, case.rtl),
+                )
 
 
 def materialize_for_transcript(

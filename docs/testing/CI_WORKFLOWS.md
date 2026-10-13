@@ -165,20 +165,30 @@ named only inside a message, a reader outside those six roots (a script under
 it does not read. A reader written that way must be added to `GATE_READ_DOCS`
 by hand.
 
-All three scope steps classify the PR's own changes.
-They use `git diff --no-renames --name-only <base>...<head>`.
-Both revisions come from the pull request event payload.
-The base is its recorded base SHA.
-The head is its own head SHA, through `PR_HEAD_SHA`.
-`GITHUB_SHA` still identifies the checkout each validation job builds.
-On hosted PR jobs, that checkout is a synthetic merge.
-Using it for scope would include later base changes.
+All three scope steps classify against the live base the job builds on.
+Hosted PR jobs check out a synthetic merge at `GITHUB_SHA`.
+They use `git diff --no-renames --name-only <merge>^1 <merge>`.
+The first parent is the live base tip used for that merge.
+This lists exactly what landing the PR would change in that base.
+GitHub's recorded `pull_request.base.sha` is frozen when the PR opens.
+After a lane merges newer dev, that recorded base can hide restored RTL.
+A frozen-base diff can therefore incorrectly skip the RTL gates.
+
+The replay checks out the PR head, identified by `PR_HEAD_SHA`.
+With `ACT=true`, scope reads `refs/remotes/origin/<base-ref>`.
+`PR_BASE_REF` binds to `github.event.pull_request.base.ref`.
+The runner already fetched that ref and verified its live tip.
+Scope compares its unique merge base with the PR head.
+This is `<live-base>...<head>`, with ambiguous merge bases refused.
+The frozen base SHA remains event metadata and is never a scope input.
+This also works with the existing trusted runner's event payload.
 Each scope checkout explicitly sets `fetch-depth: 0`.
-That preserves the ancestry needed to find the merge base.
-Older documentation branches therefore remain documentation-only.
+Missing revisions or missing merge ancestry fail the scope step.
+Older documentation branches remain documentation-only.
 RTL changes and submodule pointers remain relevant.
 Empty deltas retain the conservative relevant verdict.
 Fast push events retain their before-to-after tree comparison.
+An unknown push base retains the full tracked-file fallback.
 
 The merge train validates composition before every merge.
 Its current-dev candidate runs builder and full native banks.
@@ -188,9 +198,12 @@ The hosted required contexts and merge validation remain mandatory.
 
 The scope self-test executes each workflow's actual shell body.
 It compares hosted merge checkouts with replay head checkouts.
-Its divergent history covers documentation, RTL, gitlinks, and empty deltas.
+Its histories cover documentation, RTL, gitlinks, and empty deltas.
+REV merges newer dev, restores an RTL file, then edits documentation.
+REV+E adds a later unrelated dev RTL commit.
+Both must stay relevant; a two-documentation-path B16 shape stays docs-only.
 Each control rejects its corresponding removed rule.
-Additional mutations reject endpoint comparisons and synthetic-merge scope.
+Mutations reject frozen-base scope and replay endpoint comparisons.
 The CI-events gate pins these scripts and their event bindings.
 
 All three classifier-gated workflows build the changed-path list with
@@ -647,12 +660,12 @@ is exactly these twelve things:
    checkout are pinned to their own key sets exactly as the default-branch
    step is, so `if: false`, an `if:` naming only some events, a `shell:`, a
    `continue-on-error` or a `working-directory` on any of them is refused by
-   name; the decision step's `env` is exactly `EVENT_NAME`, `PR_DRAFT` and
-   `PR_BASE_SHA`, each bound to the source expression item 6 requires, and
-   the checkout keeps `fetch-depth: 0` (the decision step
-   diffs against the pull request's base commit, which a shallow clone does
-   not carry). `if: false` on the pin step or on the decision step leaves the
-   assert step's script canonical and publishes no `run_full` at all.
+   name; the decision step's `env` is exactly `EVENT_NAME`, `PR_DRAFT`,
+   `PR_BASE_REF` and `PR_HEAD_SHA`.
+   Each uses the source expression item 6 requires, and the checkout keeps `fetch-depth: 0` (the decision step
+   needs the merge's first parent or the replay's live-base ancestry,
+   which a shallow clone need not carry).
+   `if: false` on the pin step or on the decision step leaves the assert step's script canonical and publishes no `run_full` at all.
    Additionally, neither the workflow's top-level `env` nor `full-ci-gate`'s
    own names any `GH_*` variable: the step's `env` is pinned to exactly
    `GH_TOKEN`, but a `GH_HOST` or `GH_CONFIG_DIR` set at either level above it
@@ -661,19 +674,21 @@ is exactly these twelve things:
    source expression that name is bound to, because the name is not the
    contract. The decision step carries
    `EVENT_NAME: ${{ github.event_name }}`,
-   `PR_DRAFT: ${{ github.event.pull_request.draft }}` and
-   `PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}`; the
+   `PR_DRAFT: ${{ github.event.pull_request.draft }}`,
+   `PR_BASE_REF: ${{ github.event.pull_request.base.ref }}` and
+   `PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}`; the
    default-branch step carries `GH_TOKEN: ${{ github.token }}`; each verifier
    step binds `GATE_SHA` to `full-ci-gate`'s `target_sha` output, derived from
    that job and output rather than restated. Names alone held nothing where it
-   mattered: `PR_DRAFT: "true"` is valid workflow YAML that keeps all three
+   mattered: `PR_DRAFT: "true"` is valid workflow YAML that keeps all four
    names and all four keys and makes a ready RTL pull request publish
    `run_full=false`, on which both worker matrices skip, both aggregates skip
    under the no-op exception in item 8, and the skipped required contexts
    satisfy the ruleset -- a false green, not a refusal.
-   `PR_BASE_SHA: ${{ github.sha }}` (a commit diffed against itself, so
-   `rtl=false`) and `EVENT_NAME: pull_request` (a push, schedule or dispatch
-   run taking the pull-request branch) arrive at the same place. A refusal
+   Rebinding `PR_BASE_REF` changes the replay's live-base lookup.
+   Rebinding `PR_HEAD_SHA` changes its scope endpoint.
+   The `ACT` marker selects the source-head replay path; hosted uses the merge.
+   `EVENT_NAME: pull_request` makes a non-PR run take that PR path. A refusal
    names the step, the variable, the expression required and the one found.
 7. **The decision step's script.** Pinned verbatim after whitespace
    normalization, the way the default-branch step's is, and refused by naming
@@ -760,7 +775,7 @@ is exactly these twelve things:
     `defaults` or job-level `env`; the workflow carries no top-level
     `defaults`; and its exact
     two-step sequence is `actions/checkout@v4` with full history followed by
-    the `scope` step. That step's keys and three env bindings are pinned, and
+    the `scope` step. That step's keys and four env bindings are pinned, and
     its normalized canonical script must self-test `ci_scope.py`, derive the
     conservative changed-file set, read the selector answer and publish that
     answer. An empty or forced-false publication can no longer skip both RTL
@@ -860,8 +875,9 @@ is exactly these twelve things:
     HEAD` judges no line and a `|| true` reports none, and each left every
     recorded key, name and binding in place;
     `elaborate`'s scope step is held as the decide step is (item 7, the
-    #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its two
-    env bindings pinned to their source expressions, `ci_scope.py
+    #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its three
+    env bindings (`EVENT_NAME`, `PR_BASE_REF`, `PR_HEAD_SHA`) pinned to
+    the source expressions in item 6, `ci_scope.py
     --selftest` exactly once and before the script reads the selector's
     answer, and the whole script canonical -- so `if: false` on the step
     that publishes the output every elaboration gate's guard reads, a
@@ -931,9 +947,9 @@ is exactly these twelve things:
     `TSN_GEN_REV` in the exhaustive workflow, `VERILATOR_VERSION` in the fast
     one, nothing in the other two); no job carries a job-level `env`; and
     the names a job's steps bind stay inside that job's recorded set (the
-    gate's four, the workers' shard and target names, the aggregates'
+    gate's five, the workers' shard and target names, the aggregates'
     `GATE_SHA` and `SHARD_RESULT`, the selectors' event names, the verdict
-    step's result bindings, `elaborate`'s scope pair, `docs-check`'s
+    step's result bindings, `elaborate`'s scope triple, `docs-check`'s
     em-dash gate triple (`EVENT_NAME`, `PR_BASE_REF`, `PUSH_BEFORE_SHA`),
     and nothing else in the documentation jobs). Each
     refusal names the scope, the job or step, and
@@ -1069,7 +1085,7 @@ on the step, on the job, on the workflow and on the verifier steps; the gate
 given a `needs` on a job that skips on `schedule`; `if: false`, an event-only
 `if`, a `shell:`, a `continue-on-error`, a `working-directory` and a dropped
 env key on the pin and decision steps; `PR_DRAFT` forced to `true`,
-`PR_BASE_SHA` rebound to `${{ github.sha }}`, `EVENT_NAME` hard-coded to
+`PR_BASE_REF` rebound to `${{ github.sha }}`, `EVENT_NAME` hard-coded to
 `pull_request`, `GH_TOKEN` rebound to another token and a verifier's
 `GATE_SHA` rebound to its own run; the decision script rewritten to publish
 `run_full=false` always and stripped of the selector's self-test; the assert
@@ -1144,7 +1160,7 @@ given an `if: false`, a
 `continue-on-error`, a `shell`, a `working-directory` and a `|| true`, and
 each removed; the elaborate scope script made to publish a literal
 `rtl=false`, stripped of its `ci_scope.py --selftest`, running the
-self-test after the answer is read, and its two env bindings rebound; each
+self-test after the answer is read, and its three env bindings rebound; each
 of the four carriers' bodies replaced by a `run: true` stub behind a
 renamed-away id and by a duplicate mapping's last-wins parse, plus an
 appended duplicate `wire-accountability:` and `elaborate:` mapping as a
@@ -1512,11 +1528,14 @@ commit the trusted worktree must be at, and the commit the fetch must return.
 GitHub's recorded PR base oid (`baseRefOid`) is frozen when the PR is opened
 and does not track the branch, so the runner prints both SHAs and the recorded
 one never refuses a run; re-targeting a PR's base to refresh it (the old
-`gh pr edit --base` flip) is no longer needed. The generated event still
-carries the **recorded** oid and the PR's own head.
-The three scope steps use their merge-base diff, `<base>...<head>`.
-Hosted and replay therefore classify the same PR changes.
-The replay self-test proves this on a stale-base documentation branch.
+`gh pr edit --base` flip) is no longer needed.
+The generated event retains the recorded oid as metadata, plus the base ref and the PR's own head.
+Hosted scope compares the synthetic merge against its live-base first parent.
+Replay scope uses the fetched, verified `refs/remotes/origin/<base-ref>`.
+It compares that tip's unique merge base with the PR head.
+The recorded oid never participates in either scope calculation.
+The replay self-test checks the production payload through all three selectors.
+It covers stale-base documentation, RTL, pointers, empty deltas, REV and REV+E.
 The validation base still anchors every trust and fetch check.
 Because the trusted worktree must sit at a moving branch
 tip, fast-forward it before invoking; a `dev` push between the resolve and the

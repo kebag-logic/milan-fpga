@@ -77,14 +77,14 @@ jobs:
       # A documentation-only pull request must not pay a LiteX install, a
       # VexiiRiscv checkout and a Scala run. scripts/ci_scope.py is the
       # repository's one answer to "does this change need the RTL toolchain",
-      # and it fails safe: an empty diff and an unresolvable base both come
-      # back `true`. Raised against this workflow by [R1] while reviewing
+      # and it fails safe: an empty diff is relevant and an unresolvable
+      # PR ancestry fails the step. Raised against this workflow by [R1] while reviewing
       # PR #176, which introduces that classifier.
       - name: Decide whether this head needs an elaboration
         id: scope
         env:
           EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
@@ -101,12 +101,15 @@ jobs:
             echo "rtl=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if [ -n "$PR_BASE_SHA" ] \
-             && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
-            git diff --no-renames --name-only "$PR_BASE_SHA...$PR_HEAD_SHA" \
+          if [ "${ACT:-false}" = true ]; then
+            # Replay uses the live base fetched and verified by the runner.
+            base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+            git cat-file -e "$base^{commit}"
+            git diff --no-renames --name-only "$base" "$PR_HEAD_SHA" \
               > "$RUNNER_TEMP/changed"
           else
-            git ls-files > "$RUNNER_TEMP/changed"
+            git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \
+              > "$RUNNER_TEMP/changed"
           fi
           echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"
 
