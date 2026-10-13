@@ -1,0 +1,151 @@
+[
+  {
+    "name": "mutants-r2",
+    "command": [
+      "python3",
+      "-I",
+      "<packet>/scripts/mutants_r2.py",
+      "<packet>",
+      "<packet>/scratch/pristine",
+      "--jobs",
+      "6"
+    ],
+    "rc": 0,
+    "seconds": 325.332
+  },
+  {
+    "name": "mutants-r3",
+    "command": [
+      "python3",
+      "-I",
+      "<packet>/scripts/mutants_r3.py",
+      "<packet>",
+      "<packet>/scratch/pristine",
+      "--jobs",
+      "6"
+    ],
+    "rc": 0,
+    "seconds": 132.646
+  },
+  {
+    "name": "r633-r1-unchanged",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<review-checkout>",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_cpu_ranges_r1.py",
+      "/work"
+    ],
+    "rc": 1,
+    "seconds": 0.469
+  },
+  {
+    "name": "r633-r1-compatible",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<review-checkout>",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_cpu_ranges_compat.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 0.618
+  },
+  {
+    "name": "r633-r2-lifecycle",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<review-checkout>",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_lifecycle.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 0.667
+  },
+  {
+    "name": "r633-r2-monitor",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<review-checkout>",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_monitor.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 2.019
+  },
+  {
+    "name": "cleanup-entry",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<review-checkout>",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_cleanup_entry.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 0.466
+  },
+  {
+    "name": "r632-r2-shutdown",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<review-checkout>",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_shutdown.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 3.923
+  },
+  {
+    "name": "r632-r3-probe",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<review-checkout>",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/scripts/probe_r3.py",
+      "/work",
+      "300"
+    ],
+    "rc": 0,
+    "seconds": 1.118
+  },
+  {
+    "name": "offline-dryrun",
+    "command": [
+      "sh",
+      "<packet>/scripts/reviewer_sandbox.sh",
+      "<review-checkout>",
+      "<packet>",
+      "python3",
+      "-I",
+      "/packet/scripts/offline_dryrun.py",
+      "/work"
+    ],
+    "rc": 0,
+    "seconds": 0.466
+  }
+]

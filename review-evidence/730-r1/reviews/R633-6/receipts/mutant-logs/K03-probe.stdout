@@ -1,0 +1,13 @@
+PASS P1 restart sequence: A and B never share a range; A keeps 4-7 across die/start, B gets 8-11: cpus={'a': '4-7', 'b': '8-11'} held={'a': 0, 'b': 1}
+PASS P2 update applied then CLI timeout: A's target 4-7 stays reserved (inspect shows it there); B gets 8-11: held={'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': 0, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb': 1} problems=['the move of job container aaaaaaaaaaaa to 4-7 reported job container CPU-range move timed out, but docker inspect shows it there']
+PASS P2b applied, CLI timeout, inspect timeout: 4-7 stays reserved through die; later creates get 8-11, 12-15: held={'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': 0, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb': 1, 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc': 2}
+PASS P3a slot 0 job_cpu_ranges refuses 4/7/8/19 CPUs for 4 containers and 4/7 for 1: 'REFUSED: replay slot 0 needs CPUs 0-19 for 4 concurrent job container(s), but this host has 19'
+PASS P3b run level, slot 0 dry run of shipping rtl-full on a 19-CPU host: Refusal before the slot is entered: rc=None entered=[] refused_line=True
+PASS P3b run level, slot 0 dry run of shipping rtl-full on a 20-CPU host: runs, slot entered, ranges 4-7..: rc=0 entered=['slot 0'] refused_line=False
+FAIL P4 injected reap failure with a failing body: containment, reader end, pipe close all precede exit; reap Refusal raised with the body failure kept in its chain: trail=['body ended', 'contained', 'moved', 'stream ended', 'pipe closed', 'monitor exited'] chain=['RuntimeError(original body failure)'] alive=[]
+PASS P7 derivation from a workflow file: default 4, literal, too wide refused, unreadable refused: [('default', 4, 4), ('max-parallel 2', 2, 2), ('max-parallel 5', 'refuse-range', 'refuse-range'), ('expression', 'refuse', 'refuse'), ("quoted '3'", 3, 3), ('hex 0x4', 'refuse', 'refuse')]
+PASS P7b shipping workflows derive rtl-full 4, others 1: {'docs': 1, 'elaborate': 1, 'rtl-fast': 1, 'rtl-full': 4}
+PASS P8 independent layout check: slots 0-63 x (staging + 4), disjoint, every range 4 wide (nproc 4), slot N = 20N..20N+19: ranges=320 widths={4}
+PASS P9 fuzz without CLI faults: 400 random interleavings with event lag and concurrent act steps; no two existing containers ever on one job range: moved=6710 staging=415 first=[]
+PASS P10 fuzz with applied/lost/rejected moves and read timeouts: 400 interleavings; no two existing containers (with pending moves) ever on one job range: moved=4326 staging=246 first=[]
+probes: FAIL P4 injected reap failure with a failing body: containment, reader end, pipe close all precede exit; reap Refusal raised with the body failure kept in its chain
