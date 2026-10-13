@@ -1,0 +1,10 @@
+side A changed 77 top-level names; side B changed 4: ['TRUSTED_SUBMODULES', 'selftest_lwsrp_manifest', 'selftest_stack_manifest', 'selftest_submodule_manifest']
+overlap: none
+composed definitions differing from the union: none
+side A definitions naming a side-B change: [('selftest', ['selftest_submodule_manifest'])]
+side B definitions naming a side-A change: none
+rc=1
+# follow-up to compose_independence.txt: the one cross reference is the unchanged call site
+base dc4d06cb:scripts/act_ci.py:12724:        selftest_submodule_manifest(tally, git_fixture)
+composed d8f01088:scripts/act_ci.py:15203:        selftest_submodule_manifest(tally, git_fixture)
+initialize_required_submodules (sole REQUIRED_SUBMODULES consumer) identical at base, source and composed: True
