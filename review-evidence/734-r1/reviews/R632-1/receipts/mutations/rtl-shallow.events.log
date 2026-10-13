@@ -1,0 +1,5 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/rtl.yml: the gate checkout step must set `fetch-depth: 0` (found 1): the decision step diffs this head against the pull request's base commit, which a shallow clone does not carry, so a shallow gate silently falls back to the whole file list
+  FAIL .github/workflows/rtl.yml: job `full-ci-gate` step 1 (`actions/checkout@v4`) `with` must be exactly {'fetch-depth': 0} (found {'fetch-depth': 1}): a `with` decides what an action reads and restores -- a widened cache key hands over generated metadata from another toolchain head, a moved upload path publishes other bytes, and a widened download pattern feeds the verifier evidence from other workers
+  FAIL .github/workflows/rtl.yml: job `full-ci-gate` step 1 checkout `with` may carry only {'fetch-depth': 0} (found {'fetch-depth': 1}): a `ref` or `repository` here computes the required context on another tree
+ci_events: 3 finding(s) over 2021 contract item(s)

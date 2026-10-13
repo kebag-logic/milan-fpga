@@ -1,0 +1,4 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/rtl-fast.yml: the fast selector scope step env must bind `PR_HEAD_SHA` to `${{ github.event.pull_request.head.sha }}` (found `${{ github.sha }}`): the name is not the contract, the source expression behind it is, and a rebound value leaves every pinned name and key in place while changing what the script reads
+  FAIL .github/workflows/rtl-fast.yml: job `changes` step 2 (`Classify the change conservatively`) env must bind `PR_HEAD_SHA` to `${{ github.event.pull_request.head.sha }}` (found `${{ github.sha }}`): the name is not the contract, the source expression behind it is, and a rebound value leaves every pinned name and key in place while changing what the script reads
+ci_events: 2 finding(s) over 2021 contract item(s)
