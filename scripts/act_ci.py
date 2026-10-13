@@ -6256,7 +6256,11 @@ def scope_fixture_history(root: pathlib.Path, shipping: pathlib.Path) -> list[Sc
     """Forked PRs and lanes that merge newer dev, restore RTL, then edit docs."""
     scope_fixture_git(root, "init", "--quiet")
     (root / "scripts").mkdir()
-    shutil.copyfile(shipping / "scripts/ci_scope.py", root / "scripts/ci_scope.py")
+    classifier, _info = read_regular_file_bounded(
+        shipping, "scripts/ci_scope.py", maximum=MAX_CHECKED_FILE_BYTES,
+        description="scope fixture classifier",
+    )
+    (root / "scripts/ci_scope.py").write_bytes(classifier)
     (root / "hdl").mkdir()
     (root / "hdl/x.sv").write_text("// original RTL\n", encoding="utf-8")
     (root / "docs").mkdir()
@@ -6328,7 +6332,11 @@ def scope_fixture_scope_script(shipping: pathlib.Path, workflow: str, job: str, 
     """Read the actual workflow body, omitting only its recursive selftest call."""
     # Scope runs before dependency installation; the fixture needs only the
     # literal block shape independently pinned by ci_events.py.
-    text = (shipping / ".github/workflows" / workflow).read_text()
+    raw, _info = read_regular_file_bounded(
+        shipping, ".github/workflows/" + workflow, maximum=MAX_WORKFLOW_BYTES,
+        description="scope fixture workflow",
+    )
+    text = raw.decode("utf-8")
     _, found, tail = text.partition(f"  {job}:\n")
     assert found, f"missing scope job: {workflow}"
     _, found, tail = tail.partition(f"        id: {step_id}\n")
@@ -6438,6 +6446,30 @@ def selftest_scope_event(
                     f"scope event {case.label} {workflow}: hosted = replay = {case.paths}",
                     hosted == replay == (case.paths, case.rtl),
                 )
+
+
+def scope_history_wired(source: str) -> bool:
+    """Require the classifier selftest to call history and accumulate its failures."""
+    expected = ast.dump(ast.parse("failures += history_selftest(ROOT)").body[0])
+    functions = [node for node in ast.parse(source).body
+                 if isinstance(node, ast.FunctionDef) and node.name == "selftest"]
+    return (len(functions) == 1
+            and sum(ast.dump(node) == expected for node in functions[0].body) == 1)
+
+
+def selftest_scope_history_wiring(tally: SelftestTally, shipping_root: pathlib.Path) -> None:
+    """Independently pin the executed history population and kill disconnections."""
+    raw, _info = read_regular_file_bounded(
+        shipping_root, "scripts/ci_scope.py", maximum=MAX_CHECKED_FILE_BYTES,
+        description="scope history wiring",
+    )
+    source = raw.decode("utf-8")
+    call = "failures += history_selftest(ROOT)"
+    tally.check("classifier selftest accumulates the history result", scope_history_wired(source))
+    for label, replacement in (("removed", "pass"), ("discarded", "history_selftest(ROOT)"),
+                               ("zeroed", "failures += 0 * history_selftest(ROOT)")):
+        tally.check(f"classifier history wiring rejects {label} result",
+                    not scope_history_wired(source.replace(call, replacement)))
 
 
 def selftest_scope_flat_install(tally: SelftestTally, shipping_root: pathlib.Path) -> None:
@@ -15386,6 +15418,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     resolved = selftest_base_resolution(tally, fixture)
     selftest_fetch_window(tally, fixture, resolved)
     selftest_scope_event(tally, fixture, shipping_root)
+    selftest_scope_history_wiring(tally, shipping_root)
     selftest_scope_flat_install(tally, shipping_root)
     selftest_validation_transcript(tally, fixture, resolved, shipping_root)
     selftest_slot_validation_path(tally, resolved, shipping_root)

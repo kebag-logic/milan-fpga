@@ -215,6 +215,8 @@ They reject replacing composition with a head-only merge-base diff.
 Each control rejects its corresponding removed rule.
 Mutations reject frozen-base scope and replay endpoint comparisons.
 The CI-events gate pins these scripts and their event bindings.
+The runner contract separately pins the classifier's history call.
+Removed, discarded and zeroed history results fail its controls.
 
 All three classifier-gated workflows build the changed-path list with
 `git diff --no-renames --name-only`, so a rename reaches the classifier as
