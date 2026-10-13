@@ -1,0 +1,41 @@
+command: ["$REVIEWS/696-r559-11-packet/scratch/m3_datapath_ignores_clock/obj/maap_integration"]
+wire type=1 bytes=60 start=531
+wire type=1 bytes=60 start=5730
+wire type=1 bytes=60 start=11150
+wire type=1 bytes=60 start=16620
+station 0 first offset 0x0109, probe intervals: 5199 5420 5470
+wire type=3 bytes=60 start=17140
+wire type=1 bytes=60 start=17660
+wire type=1 bytes=60 start=22520
+wire type=1 bytes=60 start=27880
+wire type=1 bytes=60 start=33610
+wire type=3 bytes=60 start=34130
+link return: probes 4 -> 8, announces 2, delay 504
+wire type=1 bytes=60 start=531
+wire type=1 bytes=60 start=6050
+wire type=1 bytes=60 start=11470
+wire type=1 bytes=60 start=16990
+station 1 first offset 0x4901, probe intervals: 5519 5420 5520
+wire type=3 bytes=60 start=17510
+wire type=1 bytes=60 start=18030
+wire type=1 bytes=60 start=23330
+wire type=1 bytes=60 start=28810
+wire type=1 bytes=60 start=34190
+wire type=3 bytes=60 start=34710
+link return: probes 4 -> 8, announces 2, delay 504
+[ok] M4 datapath: programmed MAC changes probe intervals
+[ok] M5 datapath: link return starts four fresh PROBEs
+[ok] M4 datapath: fixed adjacent MAC pair claims disjoint first blocks
+wire type=1 bytes=60 start=1531
+wire type=1 bytes=60 start=6730
+wire type=1 bytes=60 start=12150
+wire type=1 bytes=60 start=17620
+clock trial 0 first offset 0x0109, probe intervals: 5199 5420 5470
+wire type=1 bytes=60 start=2531
+wire type=1 bytes=60 start=7730
+wire type=1 bytes=60 start=13150
+wire type=1 bytes=60 start=18620
+clock trial 1 first offset 0x0109, probe intervals: 5199 5420 5470
+[FAIL] M3 datapath: real-time clock changes probe intervals
+[FAIL] M3 datapath: fixed PHC time pair claims different first offsets
+MAAP integration: 5 checks, 2 failures

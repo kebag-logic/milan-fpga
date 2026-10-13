@@ -1,0 +1,453 @@
+command: ["$REVIEWS/696-r559-11-packet/scratch/m4_first_offset_raw_seed_bits/obj/VKL_maap_sim"]
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+
+[1] reset/idle
+  [ ok ] state IDLE                                   = 0
+  [ ok ] addr not valid                               = 0
+  [ ok ] no frame while disabled                      = 0
+
+[2] Begin!: four golden PROBEs, the first at once, then ANNOUNCE at once
+  [ ok ] state PROBE                                  = 1
+  [ ok ] offset inside pool                           = 1
+  [ ok ] offset leaves room for the range cases       = 1
+  [ ok ] Begin! PROBE 1 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 1)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 1)          = 1
+  [ ok ] Begin! PROBE 2 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 2)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 2)          = 1
+  [ ok ] Begin! PROBE 3 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 3)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 3)          = 1
+  [ ok ] address not valid before the fourth PROBE    = 0
+  [ ok ] Begin! PROBE 4 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 4)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 4)          = 1
+  [ ok ] Begin! ANNOUNCE = golden (B.2/B.3.6.7)       = 1
+  [ ok ] Begin!: address valid in ANNOUNCE            = 1
+  [ ok ] T.B7 Begin!: first PROBE at once             = 1
+  [ ok ] T.B7 Begin!: four PROBEs before ANNOUNCE     = 4
+  [ ok ] T.B7 probeCount!: ANNOUNCE at once (Begin!)  = 1
+  [ ok ] state ANNOUNCE after four PROBEs             = 2
+  [ ok ] addr = pool base + offset                    = 1
+  [ ok ] B.3.4.2 probe T > 500 ms                     = 1
+  [ ok ] B.3.4.2 probe T < 600 ms                     = 1
+  [ ok ] B.3.4.2 probe T > 500 ms                     = 1
+  [ ok ] B.3.4.2 probe T < 600 ms                     = 1
+  [ ok ] B.3.4.2 probe T > 500 ms                     = 1
+  [ ok ] B.3.4.2 probe T < 600 ms                     = 1
+
+[3] B.3.4.1: ANNOUNCE every 30 s < T < 32 s, randomized, multicast
+  [i]    24 ANNOUNCE intervals: 305140..313730 cycles
+  [ ok ] B.3.4.1 announce T > 30 s                    = 1
+  [ ok ] B.3.4.1 announce T < 32 s                    = 1
+  [ ok ] B.3.4.1 announce T randomized                = 1
+  [ ok ] B.2.1 ANNOUNCE DA multicast                  = 1
+  [ ok ] B.2.1 cdl 16 (ANNOUNCE)                      = 16
+
+[4] announced + conflicting PROBE -> DEFEND to the prober (B.2.1)
+  [ ok ] above: DEFEND emitted promptly               = 1
+  [ ok ] B.2.1 DEFEND DA = PROBE source (above)       = 1
+  [ ok ] B.2.1 cdl 16 (DEFEND above)                  = 16
+  [ ok ] above: SA, ethertype, subtype                = 1
+  [ ok ] B.2.7 conflict_start = overlap (above)       = 160395285237765
+  [ ok ] B.2.8 conflict_count = overlap (above)       = 4
+  [ ok ] M2 B.3.6.6 requested start echoes PROBE      = 160395285237765
+  [ ok ] still ANNOUNCE                               = 2
+  [ ok ] defends counted                              = 1
+
+[4b] the prober's range starts below ours, another prober
+  [ ok ] below: DEFEND emitted promptly               = 1
+  [ ok ] B.2.1 DEFEND DA = PROBE source (below)       = 1
+  [ ok ] B.2.1 cdl 16 (DEFEND below)                  = 16
+  [ ok ] below: SA, ethertype, subtype                = 1
+  [ ok ] B.2.7 conflict_start = overlap (below)       = 160395285237761
+  [ ok ] B.2.8 conflict_count = overlap (below)       = 4
+  [ ok ] M2 B.3.6.6 requested start echoes a PROBE starting below ours = 160395285237757
+
+[4c] DEFEND held by backpressure; a later PDU must not redirect it
+  [ ok ] B.2.1 DEFEND DA latched at send              = 1
+  [ ok ] B.2.7 one-address overlap start              = 4104
+  [ ok ] M2 B.3.6.6 requested count echoes all 16 bits = 4660
+  [ ok ] M2 requested start held under backpressure   = 4104
+  [ ok ] B.2.8 one-address overlap count              = 1
+  [ ok ] defends = 3                                  = 3
+  [ ok ] M6 occupied response buffer preserves active DEFEND = 1
+  [ ok ] M6 occupied response buffer preserves active DEFEND = 1
+  [ ok ] M6 occupied response buffer preserves active DEFEND = 1
+  [ ok ] M6 occupied response buffer preserves active DEFEND = 1
+
+[4d] note b applies to PROBE: adjacent and empty ranges get no DEFEND
+  [ ok ] note b: no DEFEND for non-conflicting PROBEs = 0
+  [ ok ] non-conflicting PROBEs leave defends unchanged = 7
+
+[4e] unknown message type ignored (B.2.2)
+  [ ok ] unknown msg: still ANNOUNCE                  = 2
+
+[4f] the ANNOUNCE after the DEFENDs is multicast again
+  [ ok ] B.2.1 ANNOUNCE DA multicast after DEFEND     = 1
+
+[5] ANNOUNCE conflict detection (B.3.2, Table B.7 notes b and d)
+  [ ok ] T.B7 note d: lower MAC keeps range           = 1
+  [ ok ] B.2.7 ANNOUNCE conflict_* is not its range   = 1
+  [ ok ] note b adjacent above: no conflict           = 1
+  [ ok ] note b adjacent below: no conflict           = 1
+  [ ok ] note b empty range: no conflict              = 1
+  [ ok ] no re-address so far                         = 0
+
+[5b] one shared address, peer below: rAnnounce!/DEFEND re-addresses
+  [ ok ] T.B7 rAnnounce!/DEFEND: re-address           = 1
+  [ ok ] addr dropped                                 = 0
+  [ ok ] offset changed                               = 1
+  [ ok ] conflicts counted                            = 1
+  [ ok ] T.B7 Restart!: first PROBE at once           = 1
+  [ ok ] Restart! PROBE carries the new range         = 1
+
+[5c] ANNOUNCE while probing: rAnnounce!/PROBE yields without compare_MAC
+  [ ok ] T.B7 rAnnounce!/PROBE: no compare_MAC        = 1
+  [ ok ] Restart! PROBE 1 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 1)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 1)        = 1
+  [ ok ] Restart! PROBE 2 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 2)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 2)        = 1
+  [ ok ] Restart! PROBE 3 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 3)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 3)        = 1
+  [ ok ] address not valid before the fourth PROBE    = 0
+  [ ok ] Restart! PROBE 4 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 4)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 4)        = 1
+  [ ok ] Restart! ANNOUNCE = golden (B.2/B.3.6.7)     = 1
+  [ ok ] Restart!: address valid in ANNOUNCE          = 1
+  [ ok ] T.B7 Restart!: first PROBE at once           = 1
+  [ ok ] T.B7 Restart!: four PROBEs before ANNOUNCE   = 4
+  [ ok ] T.B7 probeCount!: ANNOUNCE at once (Restart!) = 1
+
+[6a] a conflicting PROBE parsed while an ANNOUNCE is part-way out on the
+     wire leaves that frame byte-identical and gets a deferred DEFEND
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] PROBE mid-frame: frame on the wire byte-identical = 1
+  [ ok ] M6 busy PROBE gets DEFEND after wire is free = 1
+  [ ok ] M6 pending response preserves prober and requested range = 1
+  [ ok ] M6 pending response sent exactly once        = 2
+  [ ok ] PROBE mid-frame: deferred DEFEND counted     = 8
+  [ ok ] PROBE mid-frame: range kept                  = 1
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] PROBE mid-frame: frame on the wire byte-identical = 1
+  [ ok ] M6 busy PROBE gets DEFEND after wire is free = 1
+  [ ok ] M6 pending response preserves prober and requested range = 1
+  [ ok ] M6 pending response sent exactly once        = 2
+  [ ok ] PROBE mid-frame: deferred DEFEND counted     = 9
+  [ ok ] PROBE mid-frame: range kept                  = 1
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] PROBE mid-frame: frame on the wire byte-identical = 1
+  [ ok ] M6 busy PROBE gets DEFEND after wire is free = 1
+  [ ok ] M6 pending response preserves prober and requested range = 1
+  [ ok ] M6 pending response sent exactly once        = 2
+  [ ok ] PROBE mid-frame: deferred DEFEND counted     = 10
+  [ ok ] PROBE mid-frame: range kept                  = 1
+
+[6] a Restart! while an ANNOUNCE waits on the wire leaves it intact
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] DEFEND re-addresses (state PROBE)            = 1
+  [ ok ] frame on the wire keeps its offset           = 1
+  [ ok ] then the new range's PROBE                   = 1
+
+[7] DEFEND judged on conflict_*; PROBE while probing re-addresses silently
+  [ ok ] DEFEND with conflicting conflict_*: re-address = 1
+  [ ok ] conflicts +1                                 = 4
+  [ ok ] DEFEND judged on conflict_* only             = 22092
+  [ ok ] probing + PROBE: still PROBE                 = 1
+  [ ok ] probing + PROBE: offset changed              = 1
+  [ ok ] probing + PROBE: no DEFEND                   = 10
+  [ ok ] conflicts +2                                 = 5
+
+[8] non-conflicting + non-pool PDUs ignored
+  [ ok ] offset stable                                = 18438
+  [ ok ] conflicts unchanged                          = 5
+  [ ok ] note b: this station's empty range never conflicts = 1
+
+[8b] maap_version handling (IEEE 1722-2016 B.2.3.2: a future-version
+     PDU must STILL count as a conflict for its ranges; lower/equal
+     versions processed normally)
+  [ ok ] ver7: conflict honored (re-address)          = 1
+  [ ok ] ver7: conflicts +1                           = 6
+  [ ok ] ver0: conflict honored (re-address)          = 1
+  [ ok ] ver0: conflicts +2                           = 7
+  [ ok ] ver7 disjoint: ignored                       = 47815
+  [ ok ] ver7 disjoint: conflicts still +2            = 7
+
+[9] B.3.4.2 over 150 walks: every PROBE interval strictly inside
+    500..600 ms, and the draw reaches both ends of 518..581 ms
+  [ ok ] campaign: every walk four PROBEs + ANNOUNCE  = 0
+  [ ok ] campaign: T.B7 Begin!: first PROBE at once   = 1
+  [ ok ] campaign: observed PROBE intervals           = 1
+  [i]    456 PROBE intervals: 5174..5810 cycles
+  [ ok ] B.3.4.2 probe T > 500 ms (campaign)          = 1
+  [ ok ] B.3.4.2 probe T < 600 ms (campaign)          = 1
+  [ ok ] probe draw reaches its low end               = 1
+  [ ok ] probe draw reaches its high end              = 1
+
+[10] disable -> IDLE; seeded re-enable claims the seed at once
+  [ ok ] IDLE on disable                              = 0
+  [ ok ] addr dropped on disable                      = 0
+  [ ok ] seeded offset                                = 4660
+  [ ok ] PROBE with seed                              = 1
+  [ ok ] T.B7 note a: seeded PROBE at once            = 1
+
+[11] B.3.4: a station MAC whose seed with clock 0 is zero
+     (02:00:00:00:00:00) still draws random probe and announce intervals
+  [ ok ] zero-seed MAC: four PROBEs, then ANNOUNCEs   = 1
+  [i]    6 timer PROBE intervals, 6 distinct; 3 timer ANNOUNCE intervals, 3 distinct
+  [ ok ] B.3.4.2 probe T in bounds (zero-seed MAC)    = 1
+  [ ok ] B.3.4.2 probe T randomized (zero-seed MAC)   = 1
+  [ ok ] B.3.4.1 announce T in bounds (zero-seed MAC) = 1
+  [ ok ] B.3.4.1 announce T randomized (zero-seed MAC) = 1
+  [ ok ] M1 rProbe/PROBE lower MAC keeps range        = 1
+  [ ok ] M1 rProbe/PROBE higher or equal MAC yields   = 1
+  [ ok ] M1 rDefend/DEFEND lower MAC keeps range      = 1
+  [ ok ] M1 rDefend/DEFEND higher or equal MAC yields = 1
+  [ ok ] M6 pending response cancelled with allocation = 1
+  [ ok ] M5 B.3.5.9 link return restarts PROBE        = 1
+  [ ok ] M5 stable operational level does not restart = 2
+  [ ok ] M5 B.3.5.9 link return revokes and reprobes  = 1
+  [ ok ] M5 stable operational level does not restart = 2
+  [ ok ] M5 B.3.5.9 link loss is no event; return reprobes = 1
+  [ ok ] M7 Table B.9 valid supplied boundary retained = 1
+  [ ok ] M7 Table B.9 invalid supplied range refused  = 1
+  [ ok ] M8 B.2 truncated PROBE-state input has no effect = 1
+  [ ok ] M8 B.2 truncated DEFEND-state input has no effect = 1
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+  [ ok ] M3 B.3.6.1 generator period is 2^32-1        = 1
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+  [ ok ] M3 B.3.6.1 first enable seeds MAC plus clock = 1
+  [ ok ] M3 Release/Begin retains the generator sequence = 1
+
+[12] #696 M4: first Begin! claims of equally timed stations (B.3.4 NOTE, B.3.6.1)
+  [i]    2^i apart: 32 adjacent, 136 with i 16..31, 360 with i 1..15, 32 clock, 48 interval pairs; fixed: 4 MAC, 2 clock pairs
+  [i]    0200db55e2c0 clock 074141fc -> 0x24bc; 0200db55e2c1 clock 074141fc -> 0x24bd
+  [i]    020097bccb6e clock f55ded7b -> 0xb8e9; 020097bccb6f clock f55ded7b -> 0xb8ea
+  [i]    0200e2dcbc5d clock 388e3cee -> 0xf94b; 0200e2dcbc5e clock 388e3cee -> 0xf94c
+  [i]    0200f4eb9892 clock a3e517c5 -> 0xb057; 0200f4eb9893 clock a3e517c5 -> 0xb058
+  [i]    02004c17e6ff clock 117edeb0 -> 0xc5af; 02004c17e700 clock 117edeb0 -> 0xc5b0
+  [i]    0200098882c0 clock 54829a9f -> 0x1d5f; 0200098882c1 clock 54829a9f -> 0x1d60
+  [i]    0200ba788a7d clock 92eb5fc2 -> 0xea3f; 0200ba788a7e clock 92eb5fc2 -> 0xea40
+  [i]    0200204291f6 clock bd345489 -> 0xe67f; 0200204291f7 clock bd345489 -> 0xe680
+  [i]    02007e120e5b clock dbdf0ca4 -> 0x1aff; 02007e120e5c clock dbdf0ca4 -> 0x1b00
+  [i]    02002d860dfc clock 6a882803 -> 0x35ff; 02002d860dfd clock 6a882803 -> 0x3600
+  [i]    02002d141e29 clock b64d65d6 -> 0x83ff; 02002d141e2a clock b64d65d6 -> 0x8400
+  [i]    020036ae7c72 clock 2f8e9b8d -> 0x17ff; 020036ae7c73 clock 2f8e9b8d -> 0x1800
+  [i]    0200cd549027 clock 92243fd8 -> 0xcfff; 0200cd549028 clock 92243fd8 -> 0xd000
+  [i]    02006a08a658 clock 3e8679a7 -> 0x1fff; 02006a08a659 clock 3e8679a7 -> 0x2000
+  [i]    0200d869dcd5 clock c7c2e32a -> 0xbfff; 0200d869dcd6 clock c7c2e32a -> 0xc000
+  [i]    0200b0250f2e clock 1fa970d1 -> 0x7fff; 0200b0250f2f clock 1fa970d1 -> 0x8000
+  [FAIL] M4 B.3.6.1 adjacent MACs claim disjoint first blocks got=0 exp=1
+  [i]    02008657e740 clock 8a0e8424 -> 0x6b64; 02008658e740 clock 8a0e8424 -> 0x6b64
+  [i]    0200852305f0 clock d80e3983 -> 0x3f73; 0200852405f0 clock d80e3983 -> 0x3f73
+  [i]    0200fcceb4e0 clock 66954956 -> 0x0036; 0200fccfb4e0 clock 66954956 -> 0x0036
+  [i]    020059bd3710 clock ff5a290d -> 0x601d; 020059be3710 clock ff5a290d -> 0x601d
+  [i]    02009ad3f380 clock 0b5b6f58 -> 0x62d8; 02009ad4f380 clock 0b5b6f58 -> 0x62d8
+  [i]    0200fe1e2530 clock 06c0e327 -> 0x0857; 0200fe1f2530 clock 06c0e327 -> 0x0857
+  [i]    02009ffbcb20 clock 86433eaa -> 0x09ca; 02009ffccb20 clock 86433eaa -> 0x09ca
+  [i]    0200085cd850 clock e0231651 -> 0xeea1; 0200085dd850 clock e0231651 -> 0xeea1
+  [i]    0200f142a3c0 clock afbc93cc -> 0x378c; 0200f143a3c0 clock afbc93cc -> 0x378c
+  [i]    020016759870 clock a389f50b -> 0x8d7b; 020016769870 clock a389f50b -> 0x8d7b
+  [i]    020083212560 clock 58ddff3e -> 0x249e; 020083222560 clock 58ddff3e -> 0x249e
+  [i]    02000ed1ed90 clock 092dd5d5 -> 0xc365; 02000ed2ed90 clock 092dd5d5 -> 0xc365
+  [i]    0200ae843800 clock c17ae580 -> 0x1d80; 0200ae853800 clock c17ae580 -> 0x1d80
+  [i]    020006a99fb0 clock 5955d32f -> 0x72df; 020006aa9fb0 clock 5955d32f -> 0x72df
+  [i]    0200bfc103a0 clock 803e9f12 -> 0xa2b2; 0200bfc203a0 clock 803e9f12 -> 0xa2b2
+  [i]    02005b86b6d0 clock 24786b99 -> 0x2269; 02005b87b6d0 clock 24786b99 -> 0x2269
+  [i]    0200ad68f040 clock 7c149874 -> 0x88b4; 0200ad6af040 clock 7c149874 -> 0x88b4
+  [i]    02002b957af0 clock 8a452193 -> 0x9c83; 02002b977af0 clock 8a452193 -> 0x9c83
+  [i]    0200de50a5e0 clock fd657226 -> 0x1806; 0200de52a5e0 clock fd657226 -> 0x1806
+  [i]    0200520f7410 clock 947f1b9d -> 0x8fad; 020052117410 clock 947f1b9d -> 0x8fad
+  [i]    02005bad0c80 clock 06f120a8 -> 0x2d28; 02005baf0c80 clock 06f120a8 -> 0x2d28
+  [i]    0200c0ee6a30 clock c2d0c437 -> 0x2e67; 0200c0f06a30 clock c2d0c437 -> 0x2e67
+  [i]    02002f304c20 clock 614e0c7a -> 0x589a; 02002f324c20 clock 614e0c7a -> 0x589a
+  [i]    02000dfe6550 clock 670069e1 -> 0xcf31; 02000e006550 clock 670069e1 -> 0xcf31
+  [i]    0200ccaaccc0 clock e155321c -> 0x00dc; 0200ccacccc0 clock e155321c -> 0x00dc
+  [i]    020026d0ad70 clock 6d2ddf1b -> 0x8c8b; 020026d2ad70 clock 6d2ddf1b -> 0x8c8b
+  [i]    020086fb3660 clock c103420e -> 0x786e; 020086fd3660 clock c103420e -> 0x786e
+  [i]    0200bdfdca90 clock b2011a65 -> 0xe4f5; 0200bdffca90 clock b2011a65 -> 0xe4f5
+  [i]    0200ec687100 clock 3396c0d0 -> 0x31d0; 0200ec6a7100 clock 3396c0d0 -> 0x31d0
+  [i]    0200170d84b0 clock a8f1d63f -> 0x5aef; 0200170f84b0 clock a8f1d63f -> 0x5aef
+  [i]    02007f0ba4a0 clock 00f326e2 -> 0xcb82; 02007f0da4a0 clock 00f326e2 -> 0xcb82
+  [i]    02009d58e3d0 clock df103129 -> 0x14f9; 02009d5ce3d0 clock df103129 -> 0x14f9
+  [i]    0200bee43940 clock b99100c4 -> 0x3a04; 0200bee83940 clock b99100c4 -> 0x3a04
+  [i]    0200b6b62ff0 clock 6af64da3 -> 0x7d93; 0200b6ba2ff0 clock 6af64da3 -> 0x7d93
+  [i]    02003c59d6e0 clock 4b830ef6 -> 0xe5d6; 02003c5dd6e0 clock 4b830ef6 -> 0xe5d6
+  [i]    0200f674f110 clock a8caf22d -> 0xe33d; 0200f678f110 clock a8caf22d -> 0xe33d
+  [i]    020064246580 clock 3a5865f8 -> 0xcb78; 020064286580 clock 3a5865f8 -> 0xcb78
+  [i]    02003d81ef30 clock 497d2947 -> 0x1877; 02003d85ef30 clock 497d2947 -> 0x1877
+  [i]    02003b1a0d20 clock c6e38e4a -> 0x9b6a; 02003b1e0d20 clock c6e38e4a -> 0x9b6a
+  [i]    0200b55d3250 clock cea0e171 -> 0x13c1; 0200b5613250 clock cea0e171 -> 0x13c1
+  [i]    020016cf35c0 clock c12ea46c -> 0xda2c; 020016d335c0 clock c12ea46c -> 0xda2c
+  [i]    0200f7680270 clock 98948d2b -> 0x8f9b; 0200f76c0270 clock 98948d2b -> 0x8f9b
+  [i]    020001d88760 clock de2478de -> 0x003e; 020001dc8760 clock de2478de -> 0x003e
+  [i]    0200fd26e790 clock c2d7c2f5 -> 0xaa85; 0200fd2ae790 clock c2d7c2f5 -> 0xaa85
+  [i]    02007448ea00 clock 0bb6b020 -> 0x9a20; 0200744cea00 clock 0bb6b020 -> 0x9a20
+  [i]    020024eba9b0 clock babadd4f -> 0x86ff; 020024f3a9b0 clock babadd4f -> 0x86ff
+  [i]    02006f0385a0 clock b188e2b2 -> 0x6852; 02006f0b85a0 clock b188e2b2 -> 0x6852
+  [i]    02005ecb50d0 clock d6cf9ab9 -> 0xeb89; 02005ed350d0 clock d6cf9ab9 -> 0xeb89
+  [i]    02006d55c240 clock e168bd14 -> 0x7f54; 02006d5dc240 clock e168bd14 -> 0x7f54
+  [i]    020097b824f0 clock c9c2bdb3 -> 0xe2a3; 020097c024f0 clock c9c2bdb3 -> 0xe2a3
+  [i]    0200b6e147e0 clock 821b1fc6 -> 0x67a6; 0200b6e947e0 clock 821b1fc6 -> 0x67a6
+  [i]    0200d473ae10 clock a986acbd -> 0x5acd; 0200d47bae10 clock a986acbd -> 0x5acd
+  [i]    0200c3b1fe80 clock 48463f48 -> 0x3dc8; 0200c3b9fe80 clock 48463f48 -> 0x3dc8
+  [i]    0200cc08b430 clock fbf71257 -> 0xc687; 0200cc10b430 clock fbf71257 -> 0xc687
+  [i]    0200637c0e20 clock 2c80c41a -> 0xd23a; 020063840e20 clock 2c80c41a -> 0xd23a
+  [i]    0200039d3f50 clock dc5d7d01 -> 0xbc51; 020003a53f50 clock dc5d7d01 -> 0xbc51
+  [i]    0200f52ddec0 clock cacdeabc -> 0xc97c; 0200f535dec0 clock cacdeabc -> 0xc97c
+  [i]    0200167c9770 clock 697eff3b -> 0x96ab; 020016849770 clock 697eff3b -> 0x96ab
+  [i]    0200481a1860 clock 070ea3ae -> 0xbc0e; 0200482a1860 clock 070ea3ae -> 0xbc0e
+  [i]    020087c14490 clock 521acf85 -> 0x1415; 020087d14490 clock 521acf85 -> 0x1415
+  [i]    02004e89a300 clock 432fb370 -> 0x5670; 02004e99a300 clock 432fb370 -> 0x5670
+  [i]    020097770eb0 clock 1601e85f -> 0xf70f; 020097870eb0 clock 1601e85f -> 0xf70f
+  [i]    0200ebdda6a0 clock b71cd282 -> 0x7922; 0200ebeda6a0 clock b71cd282 -> 0x7922
+  [i]    0200edccfdd0 clock 7c2fa849 -> 0xa619; 0200eddcfdd0 clock 7c2fa849 -> 0xa619
+  [i]    02004c318b40 clock dfc0cd64 -> 0x58a4; 02004c418b40 clock dfc0cd64 -> 0x58a4
+  [i]    0200d56759f0 clock 628b71c3 -> 0xcbb3; 0200d57759f0 clock 628b71c3 -> 0xcbb3
+  [i]    02007e5cf8e0 clock d19aa496 -> 0x9d76; 02007e6cf8e0 clock d19aa496 -> 0x9d76
+  [i]    020025b9ab10 clock 7a3b4b4d -> 0xf65d; 020025c9ab10 clock 7a3b4b4d -> 0xf65d
+  [i]    0200eb4dd780 clock 54afac98 -> 0x8418; 0200eb5dd780 clock 54afac98 -> 0x8418
+  [i]    02003448b930 clock 4baf7f67 -> 0x3897; 02003458b930 clock 4baf7f67 -> 0x3897
+  [i]    02003eb24f20 clock 5ae2adea -> 0xfd0a; 02003ed24f20 clock 5ae2adea -> 0xfd0a
+  [i]    0200cd5c8c50 clock 0fcf3c91 -> 0xc8e1; 0200cd7c8c50 clock 0fcf3c91 -> 0xc8e1
+  [i]    02009b72c7c0 clock 6ef8050c -> 0xcccc; 02009b92c7c0 clock 6ef8050c -> 0xcccc
+  [i]    02003ef26c70 clock 17ee354b -> 0xa1bb; 02003f126c70 clock 17ee354b -> 0xa1bb
+  [i]    0200841be960 clock 79cec27e -> 0xabde; 0200843be960 clock 79cec27e -> 0xabde
+  [i]    02007f6ee190 clock b4734015 -> 0x21a5; 02007f8ee190 clock b4734015 -> 0x21a5
+  [i]    02003b589c00 clock 7c96cac0 -> 0x66c0; 02003b789c00 clock 7c96cac0 -> 0x66c0
+  [i]    0200d58fb3b0 clock 5a57f76f -> 0xab1f; 0200d5afb3b0 clock 5a57f76f -> 0xab1f
+  [i]    02002ddc07a0 clock f20bf652 -> 0xfdf2; 02002dfc07a0 clock f20bf652 -> 0xfdf2
+  [i]    0200fdfdead0 clock 41e959d9 -> 0x44a9; 0200fe1dead0 clock 41e959d9 -> 0x44a9
+  [i]    020041eb9440 clock 3dfe31b4 -> 0xc5f4; 0200420b9440 clock 3dfe31b4 -> 0xc5f4
+  [i]    0200052fcef0 clock 6d7169d3 -> 0x38c3; 0200056fcef0 clock 6d7169d3 -> 0x38c3
+  [i]    02001f98e9e0 clock 39ae9d66 -> 0x8746; 02001fd8e9e0 clock 39ae9d66 -> 0x8746
+  [i]    0200fa1ae810 clock 04b1cddd -> 0xb5ed; 0200fa5ae810 clock 04b1cddd -> 0xb5ed
+  [i]    0200a12bf080 clock 54c9ade8 -> 0x9e68; 0200a16bf080 clock 54c9ade8 -> 0x9e68
+  [i]    0200d995fe30 clock ca577077 -> 0x6ea7; 0200d9d5fe30 clock ca577077 -> 0x6ea7
+  [i]    0200d9dcd020 clock 3e064bba -> 0x1bda; 0200da1cd020 clock 3e064bba -> 0x1bda
+  [i]    02001d0b1950 clock 32cf2021 -> 0x3971; 02001d4b1950 clock 32cf2021 -> 0x3971
+  [i]    0200fc3df0c0 clock 63b1f35c -> 0xe41c; 0200fc7df0c0 clock 63b1f35c -> 0xe41c
+  [i]    02005fd98170 clock e0232f5b -> 0xb0cb; 020060198170 clock e0232f5b -> 0xb0cb
+  [i]    02005415fa60 clock 2bb1d54e -> 0xcfae; 02005455fa60 clock 2bb1d54e -> 0xcfae
+  [i]    02005487be90 clock 0cca14a5 -> 0xd335; 02005507be90 clock 0cca14a5 -> 0xd335
+  [i]    02001329d500 clock 53c0f610 -> 0xcb10; 020013a9d500 clock 53c0f610 -> 0xcb10
+  [i]    0200964598b0 clock 4f8e0a7f -> 0xa32f; 020096c598b0 clock 4f8e0a7f -> 0xa32f
+  [i]    02004dd6a8a0 clock cdf34e22 -> 0xf6c2; 02004e56a8a0 clock cdf34e22 -> 0xf6c2
+  [i]    02002afe17d0 clock 2cf5af69 -> 0xc739; 02002b7e17d0 clock 2cf5af69 -> 0xc739
+  [i]    02007cfbdd40 clock 72c5ea04 -> 0xc744; 02007d7bdd40 clock 72c5ea04 -> 0xc744
+  [i]    020070f983f0 clock aed5a5e3 -> 0x29d3; 0200717983f0 clock aed5a5e3 -> 0x29d3
+  [i]    0200e6751ae0 clock 59440a36 -> 0x2516; 0200e6f51ae0 clock 59440a36 -> 0x2516
+  [i]    0200b6cf6510 clock c8f3346d -> 0x997d; 0200b74f6510 clock c8f3346d -> 0x997d
+  [i]    0200f5a44980 clock 5f094338 -> 0x8cb8; 0200f6a44980 clock 5f094338 -> 0x8cb8
+  [i]    020033688330 clock 39dfe587 -> 0x68b7; 020034688330 clock 39dfe587 -> 0x68b7
+  [i]    0200268b9120 clock b5289d8a -> 0x2eaa; 0200278b9120 clock b5289d8a -> 0x2eaa
+  [i]    0200de50e650 clock e97627b1 -> 0x0e01; 0200df50e650 clock e97627b1 -> 0x0e01
+  [i]    02003af759c0 clock f440b5ac -> 0x0f6c; 02003bf759c0 clock f440b5ac -> 0x0f6c
+  [i]    0200cd59d670 clock 129eed6b -> 0xc3db; 0200ce59d670 clock 129eed6b -> 0xc3db
+  [i]    0200a6384b60 clock 9944dc1e -> 0x277e; 0200a7384b60 clock 9944dc1e -> 0x277e
+  [i]    0200a38bdb90 clock dc484d35 -> 0x28c5; 0200a48bdb90 clock dc484d35 -> 0x28c5
+  [i]    02005eed4e00 clock adc33560 -> 0x8360; 020060ed4e00 clock adc33560 -> 0x8360
+  [i]    02001468bdb0 clock f5b5218f -> 0xdf3f; 02001668bdb0 clock f5b5218f -> 0xdf3f
+  [i]    0200645d89a0 clock 11afd9f2 -> 0x6392; 0200665d89a0 clock 11afd9f2 -> 0x6392
+  [i]    0200c97d84d0 clock 648da8f9 -> 0x2dc9; 0200cb7d84d0 clock 648da8f9 -> 0x2dc9
+  [i]    02006de26640 clock 31fcf654 -> 0x5c94; 02006fe26640 clock 31fcf654 -> 0x5c94
+  [i]    0200b6c478f0 clock 875925f3 -> 0x9ee3; 0200b8c478f0 clock 875925f3 -> 0x9ee3
+  [i]    020040e18be0 clock 3e87eb06 -> 0x76e6; 020042e18be0 clock 3e87eb06 -> 0x76e6
+  [i]    02003b572210 clock 6d487efd -> 0xa10d; 02003f572210 clock 6d487efd -> 0xa10d
+  [i]    020059d6e280 clock fb236c88 -> 0x4f08; 02005dd6e280 clock fb236c88 -> 0x4f08
+  [i]    02006ff04830 clock 9c79de97 -> 0x26c7; 020073f04830 clock 9c79de97 -> 0x26c7
+  [i]    0200fbee9220 clock 62c6a35a -> 0x357a; 0200ffee9220 clock 62c6a35a -> 0x357a
+  [i]    0200fdbdf350 clock 421d5341 -> 0x4691; 020001bdf350 clock 421d5341 -> 0x4691
+  [i]    02002baf02c0 clock 51294bfc -> 0x4ebc; 02002faf02c0 clock 51294bfc -> 0x4ebc
+  [i]    0200df036b70 clock 24226f7b -> 0xdaeb; 0200e7036b70 clock 24226f7b -> 0xdaeb
+  [i]    02003532dc60 clock 9654d6ee -> 0xb34e; 02003d32dc60 clock 9654d6ee -> 0xb34e
+  [i]    02004c0b3890 clock 9256e9c5 -> 0x2255; 0200540b3890 clock 9256e9c5 -> 0x2255
+  [i]    020032730700 clock 08f288b0 -> 0x8fb0; 02003a730700 clock 08f288b0 -> 0x8fb0
+  [i]    0200e2e922b0 clock 951e3c9f -> 0x5f4f; 0200eae922b0 clock 951e3c9f -> 0x5f4f
+  [i]    02003420aaa0 clock af5e99c2 -> 0x4462; 02004420aaa0 clock af5e99c2 -> 0x4462
+  [i]    02001a8c31d0 clock c22a4689 -> 0x7859; 02002a8c31d0 clock c22a4689 -> 0x7859
+  [i]    0200f98f2f40 clock bcc856a4 -> 0x85e4; 0200098f2f40 clock bcc856a4 -> 0x85e4
+  [i]    02006da0adf0 clock 03dcea03 -> 0x97f3; 02007da0adf0 clock 03dcea03 -> 0x97f3
+  [i]    0200da2e3ce0 clock 36e73fd6 -> 0x7cb6; 0200fa2e3ce0 clock 36e73fd6 -> 0x7cb6
+  [i]    0200e9c21f10 clock 4e3aad8d -> 0xcc9d; 020009c21f10 clock 4e3aad8d -> 0xcc9d
+  [i]    0200f713bb80 clock 720d29d8 -> 0xe558; 02001713bb80 clock 720d29d8 -> 0xe558
+  [i]    0200ef7d4d30 clock 44965ba7 -> 0xa8d7; 02002f7d4d30 clock 44965ba7 -> 0xa8d7
+  [i]    0200f715d320 clock 7c9d5d2a -> 0x304a; 02003715d320 clock 7c9d5d2a -> 0x304a
+  [i]    020033a24050 clock 455da2d1 -> 0xe321; 0200b3a24050 clock 455da2d1 -> 0xe321
+  [FAIL] M4 B.3.6.1 MACs 2^i apart (16 <= i <= 31) claim disjoint first blocks got=0 exp=1
+  [i]    0200af6ff4c0 clock 717eea9c -> 0xdf5c; 0200af6ff4c2 clock 717eea9c -> 0xdf5e
+  [i]    0200823bb570 clock 634f3d9b -> 0xf30b; 0200823bb572 clock 634f3d9b -> 0xf30d
+  [i]    0200368a9e58 clock c6dc0e8e -> 0xace6; 0200368a9e5a clock c6dc0e8e -> 0xace8
+  [i]    02008ecc128a clock 57fe7ce5 -> 0x8f6f; 02008ecc128c clock 57fe7ce5 -> 0x8f71
+  [i]    0200771a190e clock 3533c150 -> 0xda5e; 0200771a1910 clock 3533c150 -> 0xda60
+  [i]    0200fa910c80 clock 589ddcbf -> 0xe93f; 0200fa910c82 clock 589ddcbf -> 0xe941
+  [i]    0200d8e38d1c clock 19c67b62 -> 0x087e; 0200d8e38d1e clock 19c67b62 -> 0x0880
+  [i]    0200807dab56 clock 95f67ba9 -> 0x26ff; 0200807dab58 clock 95f67ba9 -> 0x2701
+  [i]    0200776e60ba clock 0b71c944 -> 0x29fe; 0200776e60bc clock 0b71c944 -> 0x2a00
+  [i]    0200a1e237dc clock b7c37c23 -> 0xb3ff; 0200a1e237de clock b7c37c23 -> 0xb401
+  [i]    0200e87e3c88 clock 7cf56b76 -> 0xa7fe; 0200e87e3c8a clock 7cf56b76 -> 0xa800
+  [i]    0200569e2b52 clock c4f4a4ad -> 0xcfff; 0200569e2b54 clock c4f4a4ad -> 0xd001
+  [i]    02001a9d2986 clock b4157678 -> 0x9ffe; 02001a9d2988 clock b4157678 -> 0xa000
+  [i]    020056224038 clock 6929ffc7 -> 0x3fff; 02005622403a clock 6929ffc7 -> 0x4001
+  [i]    0200d6350d34 clock 32a172ca -> 0x7ffe; 0200d6350d36 clock 32a172ca -> 0x8000
+  [i]    02003b050750 clock 95ddb781 -> 0xbed1; 02003b050754 clock 95ddb781 -> 0xbed5
+  [i]    0200ce4306b8 clock 041fe33c -> 0xe9f4; 0200ce4306bc clock 041fe33c -> 0xe9f8
+  [i]    0200ee1f9f74 clock 402b9dbb -> 0x3d2f; 0200ee1f9f78 clock 402b9dbb -> 0x3d33
+  [i]    02005a598070 clock 2f79b02e -> 0x309e; 02005a598074 clock 2f79b02e -> 0x30a2
+  [i]    0200e0598cb8 clock 3f057205 -> 0x00bd; 0200e0598cbc clock 3f057205 -> 0x00c1
+  [i]    0200e3e54a8c clock a658f3f0 -> 0x3e7c; 0200e3e54a90 clock a658f3f0 -> 0x3e80
+  [i]    020058ce9620 clock db4d2edf -> 0xc4ff; 020058ce9624 clock db4d2edf -> 0xc503
+  [i]    0200a0ff8efc clock 9c866702 -> 0xf5fe; 0200a0ff8f00 clock 9c866702 -> 0xf602
+  [i]    020004b5c934 clock b43732c9 -> 0xfbfd; 020004b5c938 clock b43732c9 -> 0xfc01
+  [i]    020012a3b218 clock 3fd1d5e4 -> 0x87fc; 020012a3b21c clock 3fd1d5e4 -> 0x8800
+  [i]    0200c4436fbc clock e14be043 -> 0x4fff; 0200c4436fc0 clock e14be043 -> 0x5003
+  [i]    020078295ee8 clock b7e74116 -> 0x9ffe; 020078295eec clock b7e74116 -> 0xa002
+  [i]    020023db0230 clock fafa3dcd -> 0x3ffd; 020023db0234 clock fafa3dcd -> 0x4001
+  [i]    0200e2ce82e4 clock a180fd18 -> 0x7ffc; 0200e2ce82e8 clock a180fd18 -> 0x8000
+  [i]    020086dafe90 clock 5e6c00c5 -> 0x0155; 020086db0090 clock 5e6c00c5 -> 0x0155
+  [i]    020092274b00 clock 0c2eb3b0 -> 0x00b0; 020092274d00 clock 0c2eb3b0 -> 0x00b0
+  [i]    02000f9592b0 clock eb4e6b9f -> 0x004f; 02000f9594b0 clock eb4e6b9f -> 0x004f
+  [i]    0200592d02a0 clock d98afcc2 -> 0x0162; 0200592d04a0 clock d98afcc2 -> 0x0162
+  [i]    02007dd2b1d0 clock 40dd4d89 -> 0x0159; 02007dd2b3d0 clock 40dd4d89 -> 0x0159
+  [i]    020078b64d40 clock 2fa9b1a4 -> 0x00e4; 020078b64f40 clock 2fa9b1a4 -> 0x00e4
+  [i]    0200252f75f0 clock 86908903 -> 0x00f3; 0200252f77f0 clock 86908903 -> 0x00f3
+  [i]    02001b1face0 clock f26052d6 -> 0x01b6; 02001b1faee0 clock f26052d6 -> 0x01b6
+  [i]    0200570d5b10 clock ebf2a48d -> 0x019d; 0200570d5d10 clock ebf2a48d -> 0x019d
+  [i]    0200e6314980 clock dfceb4d8 -> 0x0058; 0200e6314b80 clock dfceb4d8 -> 0x0058
+  [i]    020004339530 clock 87cc6aa7 -> 0x01d7; 020004339730 clock 87cc6aa7 -> 0x01d7
+  [i]    0200e0a9df20 clock e756202a -> 0x014a; 0200e0a9e120 clock e756202a -> 0x014a
+  [i]    0200168e7450 clock 597189d1 -> 0x0021; 0200168e7650 clock 597189d1 -> 0x0021
+  [i]    0200bdc28dc0 clock 623d714c -> 0x010c; 0200bdc28fc0 clock 623d714c -> 0x010c
+  [i]    02009229ca70 clock add6348b -> 0x00fb; 02009229cc70 clock add6348b -> 0x00fb
+  [i]    02000c75c560 clock 738a38be -> 0x001e; 02000c75c760 clock 738a38be -> 0x001e
+  [FAIL] M4 B.3.6.1 MACs 2^i apart (1 <= i <= 15) claim disjoint first blocks got=0 exp=1
+  [i]    020000000001 clock 00000000 -> 0x0001; 020000000002 clock 00000000 -> 0x0002
+  [i]    020000000001 clock 00000000 -> 0x0001; 020000010001 clock 00000000 -> 0x0001
+  [i]    0200000a1234 clock 00000007 -> 0x123b; 0200005b1234 clock 00000007 -> 0x123b
+  [i]    020011001234 clock 00000000 -> 0x1234; 020022001234 clock 00000000 -> 0x1234
+  [FAIL] M4 B.3.6.1 R558-6's fixed MAC pairs claim disjoint first blocks got=0 exp=1
+  [FAIL] M3 B.3.6.1 clocks 2^k apart claim different first offsets got=0 exp=1
+  [ ok ] M3 B.3.6.1 fixed clock pairs claim different first offsets = 1
+  [ ok ] M4 B.3.4 MACs 2^i apart draw different first probe intervals = 1
+  [ ok ] M4 B.3.4 R558-6's fixed MAC pairs draw different first probe intervals = 1
+
+[13] #696 M4: first draws for every seed, learned from the RTL (B.3.4, B.3.6.1)
+  [ ok ] M4 first-draw maps learned from the RTL are linear in the seed = 1
+  [i]    carry run 0..0, count 2: words 0x0000 / 0x0001 claim 0x0000 / 0x0001
+  [i]    offset image 16 bits, probe image 6 bits; 65536 words x 8 counts claimed; 528 carry runs; least spare addresses -8
+  [FAIL] M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8 got=0 exp=1
+  [ ok ] M4 B.3.4 every seed pair 2^i apart draws different first probe intervals = 1
+  [FAIL] M4 B.3.6.1 seed bits 16..31 map one-to-one onto the first offset word got=0 exp=1
+  [ ok ] M4 B.3.6.1 first offset word and first probe draw are independent = 1
+
+======================================================================
+KL_maap: 186 checks, 7 failures
