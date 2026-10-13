@@ -1585,7 +1585,11 @@ remove on stderr and fails. With `--sudo`, the probe also requires a root
 `kill`, proves every process-group member is stopped, and proves the complete
 group is absent before Docker teardown. Cancellation is serialized with that
 STOP transition, and the monitor must signal completion and be joined before
-Docker teardown can begin. A separate delayed-mutation probe times out a CLI
+Docker teardown can begin. The interrupted job also runs under the CPU-range
+monitor described below. That monitor must have moved the job's container to a
+range of its own, as `docker container inspect` shows it, and it is contained
+and joined before Docker teardown as well. A separate delayed-mutation probe
+times out a CLI
 whose privileged child would create a labelled volume two seconds later, then
 proves the whole CLI group is absent and the mutation never occurs:
 
@@ -1754,8 +1758,9 @@ consequently runs only in the disposable job boundary.
 
 The same `--container-options` word also bounds every job container to a CPU
 set of `min(host CPUs, 4)` cores (`--cpuset-cpus=0-3` on a large host;
-`CONTAINER_CPU_LIMIT`; an isolated replay slot N uses CPUs `4N` to `4N+3`
-instead) and to 16 GB of memory with no swap beyond it
+`CONTAINER_CPU_LIMIT`; an isolated replay slot N uses its own block instead)
+until the runner moves it to a range of its own, as described below, and to
+16 GB of memory with no swap beyond it
 (`--memory=16g --memory-swap=16g`; `CONTAINER_MEMORY`). Hosted
 `ubuntu-latest` runners have 4 vCPUs and 16 GB, so `rtl-fast`'s
 `make -j"$(nproc)"` Verilator and Yosys builds are hosted-shaped: `nproc`
@@ -1771,10 +1776,156 @@ bounds jobs, not matrix legs, which `act` runs `strategy.max-parallel` wide
 (default 4) inside one job's slot, so each of `rtl.yml`'s sharded jobs (five
 Verilator workers, four Yosys workers) still fans out to at most four
 containers at once, each held to 16 GB: at most 64 GB at once.
+
+`act` gives every job container of a run that one options word, so the word
+alone puts every concurrent matrix leg on the same four CPUs. Before #730 an
+`rtl-full` replay ran four shard legs together on `0-3`, a quarter of a hosted
+runner each, while the rest of the host stayed idle. The word's CPU set is
+therefore only a staging range. While `act` runs, the runner reads the
+daemon's container events for its own ownership label (`docker events`, in a
+process group of its own). As each job container is created, the runner
+reserves the lowest of the slot's job ranges that no container holds, and
+moves the container there with `docker container update --cpuset-cpus`. Each
+range is `CONTAINER_CPU_LIMIT` CPUs wide, so a leg's `nproc` is the hosted
+runner's 4 before and after the move, and the memory bound is unchanged. The
+job ranges follow the staging range: slot 0 stages on `0-3` and moves up to
+four containers to `4-7`, `8-11`, `12-15` and `16-19`.
+
+A reservation lasts until the container's `destroy` event, or until
+`docker container inspect` shows that the daemon no longer has the container.
+A `die` frees nothing, because a stopped container keeps its CPU set and can
+start again. `act` removes each leg's container (`--rm`) before its worker
+takes the next leg, so a finished leg's range is free for the next one. A move
+whose command failed or timed out keeps its range reserved as well, because the
+daemon may have applied it or may still apply it. Where a container runs is
+read from its CPU set as `docker container inspect` reports it, never inferred
+from the events that arrived. The runner reads it after each move, at each
+`start`, at an `update` of a container not yet seen on its range, and for every
+holder when no range is free. A holder the daemon no longer has then frees its
+range.
+
+The number of ranges a run uses comes from the workflows it replays, not from
+a setting. A matrix job runs `strategy.max-parallel` containers at once, or
+`act`'s default of 4 when it names none, and a job without a matrix runs one.
+At most `CONCURRENT_JOB_LIMIT` jobs of a stage run together, so a workflow's
+concurrency is that many of its widest jobs added up. The shipping `rtl-full`
+derives 4, because its shard jobs name no `max-parallel`; `docs`, `elaborate`
+and `rtl-fast` derive 1. A `max-parallel` the runner cannot read as `act` does,
+such as an expression, refuses the run. Every slot is spaced for
+`CONCURRENT_JOB_LIMIT` times `act`'s default width, which is four job ranges,
+so a slot's CPUs depend on its number alone, whatever it replays. A run that
+derives more is refused rather than sharing CPUs. A host without the CPUs for
+the ranges a run derives refuses the run on every slot, slot 0 included, before
+the slot is entered. The run prints the plan before its boundary is created,
+for example on slot 0:
+
+```text
+act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1);
+  each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7
+  --cpuset-cpus=8-11 --cpuset-cpus=12-15 --cpuset-cpus=16-19
+```
+
+The runner prints that plan as one line, wrapped here. After each workflow it
+prints one line on what its job containers got, also wrapped here:
+
+```text
+act-ci: rtl-full: CPU ranges: <n> job container(s) created: <m> seen on a range
+  of their own by docker inspect, <g> removed before that, <s> never seen on one;
+  at most <k> held a range at once
+```
+
+A container left on the staging range is printed as a warning and never
+changes a verdict. That happens when a move fails or cannot be confirmed, when
+more containers hold or need a range than there are ranges, or when the event
+stream ended early. Such a container keeps the same `nproc`, so it costs
+replica time, not fidelity. On every exit the event stream's process group is
+walked down the same containment ladder as `act`'s, and the monitor's reader is
+joined and proven ended, before the Docker boundary is torn down. That holds
+when the containment, its leader reap or the join itself fails: the runner
+finishes every step first.
+
+The monitor blocks `CLEANUP_SIGNALS` with `signal.pthread_sigmask` before yielding.
+Its reader inherits that mask when started.
+Other runner workers also start with these signals blocked.
+The act boundary temporarily unblocks them so act remains interruptible.
+The live interrupt probe opens the same temporary signal window.
+Its exit restores the mask before returning to the monitor.
+Closing the normal boundary preserves any already-propagating failure.
+An interrupt during restoration cannot replace that failure.
+The runner restores the hold before monitor cleanup.
+It prints the later signal beside the failure:
+
+```text
+act-ci: act boundary closing was interrupted (...); the failure already propagating is kept
+```
+
+The mask covers the transition into cleanup and every cleanup step.
+Containment, reader completion, dead-thread proof and pipe finalization finish first.
+Only then does the monitor restore the incoming mask.
+A held signal is delivered then, with status `128 + signal`.
+An earlier body failure keeps precedence over that signal.
+The signal is printed beside that earlier failure as
+`act-ci: CPU-range monitor cleanup was interrupted (...); the failure already propagating is kept`.
+Without an earlier failure, a held signal keeps its conventional status.
+Any cleanup error is printed beside that signal.
+
+Throughout, the first failure wins. An interrupt or a
+failure that was already unwinding through the monitor keeps going, so
+`SIGINT`, `SIGTERM` and `SIGHUP` keep their `128 + signal` exit status and
+diagnostic. Each cleanup failure is printed beside it as
+`act-ci: CPU-range monitor cleanup also failed: ...`. With no earlier failure,
+the first cleanup failure is raised, and any later one is printed the same
+way. A reader still running after its bounded wait is
+printed as a containment hold, and teardown waits for it. The effect on a
+replay's wall clock is not measured yet (#730).
+
 The bounds are replica-shape decisions, not trust-boundary ones; the offline
 self-test pins the word's four tokens in order, the CPU ceiling for host
 counts above, at, and below the limit, the memory and swap limits, the single
-`--concurrent-jobs` value, and the surviving ownership label.
+`--concurrent-jobs` value, and the surviving ownership label. For the job
+ranges it pins:
+
+- the concurrency each job and workflow derives, including the
+  `CONCURRENT_JOB_LIMIT` sum, and each `max-parallel` it refuses;
+- each slot's ranges, and the refusal of a host without them on every slot:
+  slot 0 below, at and above the boundary for one and for four containers;
+- a disjointness proof with every slot from 0 to 63 at its most concurrency.
+  The proof fails on two planted overlaps: across slots, the one-range-per-slot
+  spacing used before #730; within a slot, every leg on one range. A staging
+  range planted onto a job range is refused;
+- the monitor's record against a model daemon that holds each container's CPU
+  set, checked after every event. Four legs get four ranges. A container that
+  died keeps its range and starts again on it after another was created. A
+  destroy frees a range. Each of these keeps its range reserved: a move applied
+  before its command timed out, a move that completes after another container
+  was created, a move and a read that both time out, and a refused move. With
+  every range held, an inspect frees the range of a container removed without
+  its event and keeps a stopped one's. Foreign, malformed and repeated events
+  move nothing;
+- the monitor's event filter, and its `--since` second against a stubbed
+  clock. Its containment, reader join and closed pipe hold after a body that
+  returns, raises or ends on a signal while the reader is still moving a
+  container. They hold after a failed leader reap, poll or join, and when the
+  stream or the reader cannot start. A failed join is retried while the reader
+  still runs after the pause. A reader that outlives a shortened bounded wait
+  is held for, printed and recorded. Containment runs with the cleanup signals
+  blocked, and a reader whose read fails records a problem;
+- signals at cleanup entry and every step through mask release.
+  Each arrives with a reader moving a container during shutdown.
+  Signals target the main thread and the whole process.
+  Every case requires containment, joined reader and closed pipe before teardown.
+  Conventional status, diagnostic and restored signal masks are required.
+  Act remains interruptible; a pending signal prevents its start.
+  The live interrupt probe's window is also checked offline;
+- which failure wins. A body failure, and a real `SIGINT`, `SIGTERM` and
+  `SIGHUP`, each followed by a failed reap, keep their outcome, exit status and
+  diagnostic, with the reap failure printed beside them. With no earlier
+  failure, a reap failure and then a join failure raise the reap's;
+- a run whose monitor left a container on the staging range: each workflow
+  prints its summary and one warning per problem, and the verdict follows
+  `act`'s exit alone;
+- a dry run of the shipping `rtl-full` printing every range, in slot 0 and in
+  slot 3.
 
 Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
 configuration, and input directories. `act` 0.2.89 also hard-codes the global
@@ -2060,9 +2211,17 @@ replay in one slot cannot collide with a replay in another.
 
 Resource bounds:
 
-- The job containers of slot N get the CPU set `4N` to `4N+3`, which is
-  `CONTAINER_CPU_LIMIT` CPUs of their own. Slot 0 keeps `0-3`. A host without
-  those CPUs refuses the slot.
+- Slot N owns the CPUs `20N` to `20N+19`: a staging range of
+  `CONTAINER_CPU_LIMIT` CPUs, then four job ranges of the same width, one per
+  concurrent job container, as described above. Its job containers are
+  created on `20N` to `20N+3` and moved to their own ranges from `20N+4`. Slot
+  0 stages on `0-3` and uses `4-19`. A host without a slot's staging range
+  refuses the slot. A host without the job ranges a run derives refuses the
+  run before the slot is entered, slot 0 included. On a 128-CPU host, any
+  shipping workflow fits in slots 1 to 5, and slot 6 holds workflows that
+  derive one container. A replay started by a runner from before #730 still
+  puts slot N on `4N` to `4N+3`, which meets these blocks, so run every
+  concurrent slot from one runner version.
 - `--memory`, `--memory-swap`, `--concurrent-jobs` and the matrix width are
   unchanged, so each job container is shaped as described above and only its
   CPUs differ.
@@ -2272,7 +2431,7 @@ The offline self-test of the runner pins:
 - slot 0's environment, prefixes and act command, unchanged;
 - slot N's derived names, which are disjoint across slots and identical for
   one slot, together with its endpoint parser, its namespace prefix and its
-  CPUs;
+  CPUs, which no other slot shares even at the most concurrency;
 - the uplink, daemon, firewall and every other host command and query, word
   for word, and the uplink discovery: which default routes count, and its
   refusals of no route, loopback, an unquotable name, malformed output and a
