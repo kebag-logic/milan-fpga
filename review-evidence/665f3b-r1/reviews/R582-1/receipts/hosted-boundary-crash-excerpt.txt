@@ -1,0 +1,82 @@
+# Hosted run 38451042997 (head db29bdd07529fbc697b7956827092f64b1241714), failed-job log excerpts, ANSI stripped
+firmware-verilator	2026-10-13T19:18:49.3800807Z [ok] tsn-c-stack pin control, the audit hook, os.system, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 starts git ls-files (os.system) while the pin proof runs, not by the helper
+firmware-verilator	2026-10-13T19:18:49.7570847Z [ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:977 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-verilator	2026-10-13T19:18:50.0912244Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.exec, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	2026-10-13T19:18:50.6523342Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code filed under another name (code.replace), then exec of a string: <elsewhere>:974 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	2026-10-13T19:18:50.8251251Z [ok] tsn-c-stack pin control, the audit hook, an import of importlib.metadata, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 asks for an import of importlib.metadata in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	2026-10-13T19:18:51.5084695Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string: sw/firmware/ctrl/test/ctrl_pin.py:174 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	2026-10-13T19:18:51.6810092Z [ok] tsn-c-stack pin control, the audit hook, a thread started, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 starts <bound method Thread._bootstrap of <Thread(Thread-1 (print), initial)>> (_thread.start_new_thread) while the pin proof runs, not by the helper
+firmware-verilator	2026-10-13T19:18:51.8544472Z [ok] tsn-c-stack pin control, the audit hook, the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 replaces __code__ of stack_pin, a function of the pin proof
+firmware-verilator	2026-10-13T19:18:52.0279981Z [ok] tsn-c-stack pin control, the audit hook, the collector's list of objects, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 asks for gc.get_objects in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	2026-10-13T19:18:52.2006853Z [ok] tsn-c-stack pin control, the audit hook, a trace function, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 asks for sys.settrace in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-verilator	2026-10-13T19:18:52.3249091Z [ok] tsn-c-stack pin control, the audit hook, the Git program rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start /usr/bin/true (subprocess.Popen), not the Git program PATH names, /usr/bin/git
+firmware-verilator	2026-10-13T19:18:52.7003703Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+firmware-verilator	2026-10-13T19:18:52.8262597Z [ok] tsn-c-stack pin control, the audit hook, the caller's environment passed to Git again, git_env rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with SHELL in its environment, which the pin proof's own does not set
+firmware-verilator	2026-10-13T19:18:52.9520256Z [ok] tsn-c-stack pin control, the audit hook, a variable added to the proof's own environment (GIT_DIR) in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with GIT_DIR in its environment, which the pin proof's own does not set
+firmware-verilator	2026-10-13T19:18:57.0803225Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree af6e65bf) hashes to 38f28bed, not to its id, so nothing under it can be compared
+firmware-verilator	2026-10-13T19:18:57.8993556Z Traceback (most recent call last):
+firmware-verilator	2026-10-13T19:18:57.8998997Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 962, in pin_controls
+firmware-verilator	2026-10-13T19:18:57.9001725Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 749, in fresh
+firmware-verilator	2026-10-13T19:18:57.9003494Z     shutil.rmtree(self.path)
+firmware-verilator	2026-10-13T19:18:57.9003953Z   File "/usr/lib/python3.12/shutil.py", line 785, in rmtree
+firmware-verilator	2026-10-13T19:18:57.9005272Z     _rmtree_safe_fd(fd, path, onexc)
+firmware-verilator	2026-10-13T19:18:57.9005783Z   File "/usr/lib/python3.12/shutil.py", line 686, in _rmtree_safe_fd
+firmware-verilator	2026-10-13T19:18:57.9006895Z     _rmtree_safe_fd(dirfd, fullname, onexc)
+firmware-verilator	2026-10-13T19:18:57.9007377Z   File "/usr/lib/python3.12/shutil.py", line 686, in _rmtree_safe_fd
+firmware-verilator	2026-10-13T19:18:57.9008989Z     _rmtree_safe_fd(dirfd, fullname, onexc)
+firmware-verilator	2026-10-13T19:18:57.9009635Z   File "/usr/lib/python3.12/shutil.py", line 717, in _rmtree_safe_fd
+firmware-verilator	2026-10-13T19:18:57.9011421Z   File "/usr/lib/python3.12/shutil.py", line 715, in _rmtree_safe_fd
+firmware-verilator	2026-10-13T19:18:57.9013266Z FileNotFoundError: [Errno 2] No such file or directory: 'maintenance.lock'
+firmware-verilator	2026-10-13T19:18:57.9692447Z ##[error]Process completed with exit code 1.
+firmware-boundary	2026-10-13T19:32:44.5746292Z [ok] tsn-c-stack pin control, the audit hook, os.system, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 starts git ls-files (os.system) while the pin proof runs, not by the helper
+firmware-boundary	2026-10-13T19:32:44.9788186Z [ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:977 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+firmware-boundary	2026-10-13T19:32:45.3319540Z [ok] tsn-c-stack pin control, the audit hook, inspect.builtins.exec, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-boundary	2026-10-13T19:32:45.9343812Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code filed under another name (code.replace), then exec of a string: <elsewhere>:974 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-boundary	2026-10-13T19:32:46.1165927Z [ok] tsn-c-stack pin control, the audit hook, an import of importlib.metadata, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 asks for an import of importlib.metadata in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-boundary	2026-10-13T19:32:46.8336706Z [ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string: sw/firmware/ctrl/test/ctrl_pin.py:174 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-boundary	2026-10-13T19:32:47.0161250Z [ok] tsn-c-stack pin control, the audit hook, a thread started, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 starts <bound method Thread._bootstrap of <Thread(Thread-1 (print), initial)>> (_thread.start_new_thread) while the pin proof runs, not by the helper
+firmware-boundary	2026-10-13T19:32:47.1973293Z [ok] tsn-c-stack pin control, the audit hook, the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 replaces __code__ of stack_pin, a function of the pin proof
+firmware-boundary	2026-10-13T19:32:47.3829118Z [ok] tsn-c-stack pin control, the audit hook, the collector's list of objects, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:973 asks for gc.get_objects in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-boundary	2026-10-13T19:32:47.5626925Z [ok] tsn-c-stack pin control, the audit hook, a trace function, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:972 asks for sys.settrace in the pin proof: dynamic code, or a reach into the audit hook's own state
+firmware-boundary	2026-10-13T19:32:47.6958726Z [ok] tsn-c-stack pin control, the audit hook, the Git program rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start /usr/bin/true (subprocess.Popen), not the Git program PATH names, /usr/bin/git
+firmware-boundary	2026-10-13T19:32:48.0907258Z [ok] tsn-c-stack pin control, the audit hook, the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+firmware-boundary	2026-10-13T19:32:48.2211569Z [ok] tsn-c-stack pin control, the audit hook, the caller's environment passed to Git again, git_env rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with SHELL in its environment, which the pin proof's own does not set
+firmware-boundary	2026-10-13T19:32:48.3530396Z [ok] tsn-c-stack pin control, the audit hook, a variable added to the proof's own environment (GIT_DIR) in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:418 has the helper start Git (subprocess.Popen) with GIT_DIR in its environment, which the pin proof's own does not set
+firmware-boundary	2026-10-13T19:32:52.6297308Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree af6e65bf) hashes to 38f28bed, not to its id, so nothing under it can be compared
+firmware-boundary	2026-10-13T19:32:53.2290675Z Traceback (most recent call last):
+firmware-boundary	2026-10-13T19:32:53.2296768Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 962, in pin_controls
+firmware-boundary	2026-10-13T19:32:53.2300392Z   File "<home-path>/work/milan-fpga/milan-fpga/sw/firmware/ctrl/test/ctrl_pin.py", line 749, in fresh
+firmware-boundary	2026-10-13T19:32:53.2302987Z     shutil.rmtree(self.path)
+firmware-boundary	2026-10-13T19:32:53.2303437Z   File "/usr/lib/python3.12/shutil.py", line 785, in rmtree
+firmware-boundary	2026-10-13T19:32:53.2305300Z     _rmtree_safe_fd(fd, path, onexc)
+firmware-boundary	2026-10-13T19:32:53.2305985Z   File "/usr/lib/python3.12/shutil.py", line 686, in _rmtree_safe_fd
+firmware-boundary	2026-10-13T19:32:53.2307240Z     _rmtree_safe_fd(dirfd, fullname, onexc)
+firmware-boundary	2026-10-13T19:32:53.2307839Z   File "/usr/lib/python3.12/shutil.py", line 686, in _rmtree_safe_fd
+firmware-boundary	2026-10-13T19:32:53.2309260Z     _rmtree_safe_fd(dirfd, fullname, onexc)
+firmware-boundary	2026-10-13T19:32:53.2309803Z   File "/usr/lib/python3.12/shutil.py", line 717, in _rmtree_safe_fd
+firmware-boundary	2026-10-13T19:32:53.2311800Z   File "/usr/lib/python3.12/shutil.py", line 715, in _rmtree_safe_fd
+firmware-boundary	2026-10-13T19:32:53.2315218Z FileNotFoundError: [Errno 2] No such file or directory: 'bitmap-ref-tips_VElR2S'
+firmware-boundary	2026-10-13T19:32:53.3668235Z ##[error]Process completed with exit code 1.
+rtl-fast	2026-10-13T19:37:38.9019972Z ^[[36;1m  "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \^[[0m
+rtl-fast	2026-10-13T19:37:38.9021563Z ^[[36;1m  "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do^[[0m
+rtl-fast	2026-10-13T19:37:39.0055061Z   FIRMWARE_BOUNDARY_RESULT: failure
+rtl-fast	2026-10-13T19:37:39.0055604Z   FIRMWARE_VERILATOR_RESULT: failure
+rtl-fast	2026-10-13T19:37:39.0302367Z ##[error]Process completed with exit code 1.
+
+# Base run 38372974178 (d40e4e9827be2516f8f34b9d65f0a483fff2194c), same image ubuntu24/20261004.327, git 2.55.0: object-store pin controls
+firmware-boundary	2026-10-13T08:58:58.5447840Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+firmware-boundary	2026-10-13T08:58:59.2322027Z git version 2.55.0
+firmware-boundary	2026-10-13T09:09:30.7017616Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ t
+firmware-boundary	2026-10-13T09:09:30.8456829Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned commit's object overwritten by a commit whose tree holds the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinne
+firmware-boundary	2026-10-13T09:09:30.9978061Z [ok] tsn-c-stack pin control, the object store, a source edited, its pinned blob's object overwritten by the edit's: tsn-c-stack differs from the pinned 405dc683: src/adp.c
+firmware-boundary	2026-10-13T09:09:42.3845300Z [ok] figure control, the page's pin controls one more: sw/firmware/ctrl/README.md gives the pin controls as 121, where the self-test has 120
+firmware-boundary	2026-10-13T09:09:45.9148826Z ctrl_boundary: 2852 compiled sources of 3082 recorded invocations (1639 the firmware's, 347 the stack's, 866 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, eve
+firmware-boundary	2026-10-13T09:09:46.2215469Z git version 2.55.0
+firmware-verilator	2026-10-13T08:58:58.9726656Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261004.327
+firmware-verilator	2026-10-13T08:58:59.7766233Z git version 2.55.0
+firmware-verilator	2026-10-13T09:11:02.5746296Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ 
+firmware-verilator	2026-10-13T09:11:02.7768369Z [ok] tsn-c-stack pin control, the object store, a source edited, the pinned commit's object overwritten by a commit whose tree holds the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinn
+firmware-verilator	2026-10-13T09:11:02.9987446Z [ok] tsn-c-stack pin control, the object store, a source edited, its pinned blob's object overwritten by the edit's: tsn-c-stack differs from the pinned 405dc683: src/adp.c
+firmware-verilator	2026-10-13T09:11:20.8241468Z [ok] figure control, the page's pin controls one more: sw/firmware/ctrl/README.md gives the pin controls as 121, where the self-test has 120
+firmware-verilator	2026-10-13T09:11:25.9405504Z ctrl_boundary: 829 compiled sources of 926 recorded invocations (386 the firmware's, 94 the stack's, 349 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every 
+firmware-verilator	2026-10-13T09:11:26.4304648Z git version 2.55.0

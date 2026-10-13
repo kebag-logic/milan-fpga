@@ -1,0 +1,11 @@
+# cmd: $REVIEWS/665f3b-r582-1-packet/scratch/venv312/bin/python3 -I $REVIEWS/665f3b-r582-1-packet/scripts/probe_f3b.py $REVIEWS/r582-1-665f3b $REVIEWS/665f3b-r582-1-packet/scratch/probe 4 p-ignore-source-interface
+# start: 2026-10-13T19:14:57Z head: db29bdd07529fbc697b7956827092f64b1241714
+[caught] p-ignore-source-interface (maap=rc0, maap_if2=rc1): 9 failing line(s)
+    maap_if2: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate opens the eight sources before the allocation is reported
+    maap_if2: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate stays open while the range is held
+    maap_if2: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+    maap_if2: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface stays open while it holds the range
+    maap_if2: [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: DA gate of interface 0 opens before its own report
+    maap_if2: [FAIL] MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport: DA gate of interface 0 stays open while it holds the range
+SUMMARY p-ignore-source-interface=caught
+# end: 2026-10-13T19:15:13Z rc=0

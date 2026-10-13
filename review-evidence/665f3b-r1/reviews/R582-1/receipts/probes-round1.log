@@ -1,0 +1,39 @@
+# cmd: $REVIEWS/665f3b-r582-1-packet/scratch/venv312/bin/python3 -I $REVIEWS/665f3b-r582-1-packet/scripts/probe_f3b.py $REVIEWS/r582-1-665f3b $REVIEWS/665f3b-r582-1-packet/scratch/probe 4
+# start: 2026-10-13T19:13:33Z head: db29bdd07529fbc697b7956827092f64b1241714
+[caught] p-timer-no-refresh (maap=rc1, maap_if2=rc1, acmp=rc0): 18 failing line(s)
+    maap: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: DA gate opens each of the count sources
+    maap: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: DA gate opens each of the count sources
+    maap: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: DA gate opens each of the count sources
+    maap: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: DA gate opens each of the count sources
+    maap: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: DA gate opens each of the count sources
+    maap: [FAIL] MaapHost.CallbackWorkAndEveryOutputCount: DA gate opens each of the count sources
+[ESCAPED] p-rx-no-refresh (maap=rc0, maap_if2=rc0, acmp=rc0): 0 failing line(s)
+[ESCAPED] p-link-no-refresh (maap=rc0, maap_if2=rc0, acmp=rc0): 0 failing line(s)
+[caught] p-no-expiry-retire (maap=rc1, acmp=rc1): 3 failing line(s)
+    maap: [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: probe expires at 15000 milliseconds without a Listener
+    maap: [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: aged probe cannot keep declaring
+    acmp: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: idle tick closes the composed gate at freshness expiry
+[caught] p-poll-no-refresh (maap=rc1, acmp=rc1): 4 failing line(s)
+    maap: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+    maap: [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: last Listener withdrawal closes a gate without probe demand
+    maap: [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: probe remains fresh before 15000 milliseconds
+    acmp: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand
+[caught] p-poll-never-republish (maap=rc1, acmp=rc1): 4 failing line(s)
+    maap: [FAIL] MaapHost.DaGateFreshProbeDeclaresOnlyItsSource: fresh probe opens only its configured source
+    maap: [FAIL] MaapHost.DaGateListenerDeclaresWithoutProbe: last Listener withdrawal closes a gate without probe demand
+    maap: [FAIL] MaapHost.DaGateProbeExpiresAtFifteenSeconds: probe remains fresh before 15000 milliseconds
+    acmp: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: composed mailbox publishes the accepted probe demand
+[ESCAPED] p-ignore-source-interface (maap=rc2, maap_if2=rc2): 2 failing line(s)
+    maap: BUILD/RUN rc 2: ['cc1: all warnings being treated as errors']
+    maap_if2: BUILD/RUN rc 2: ['cc1: all warnings being treated as errors']
+[caught] p-fresh-14999 (acmp=rc1): 1 failing line(s)
+    acmp: [FAIL] AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake: mailbox composition supplies the Milan freshness interval
+[caught] p-stop-keeps-gate (maap=rc1, maap_if2=rc1): 4 failing line(s)
+    maap: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closes before the loss is reported
+    maap: [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: address loss closes demand before the allocation report
+    maap_if2: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closes before the loss is reported
+    maap_if2: [FAIL] MaapHost.DaGateInvalidDestinationRefusesBothDemandArms: address loss closes demand before the allocation report
+[caught] p-stack-dest-fail-no-demand (maap=rc0, acmp=rc1): 1 failing line(s)
+    acmp: [FAIL] AcmpFresh.FailedAllocationAnswer: an answered allocation failure retains demand for later validity
+SUMMARY p-timer-no-refresh=caught p-rx-no-refresh=ESCAPED p-link-no-refresh=ESCAPED p-no-expiry-retire=caught p-poll-no-refresh=caught p-poll-never-republish=caught p-ignore-source-interface=ESCAPED p-fresh-14999=caught p-stop-keeps-gate=caught p-stack-dest-fail-no-demand=caught
+# end: 2026-10-13T19:14:28Z rc=0
