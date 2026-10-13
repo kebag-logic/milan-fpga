@@ -1,0 +1,187 @@
+https://github.com/kebag-logic/milan-fpga/issues/696
+[A10] Follow-up from #686 (PR #695, merged as `17f62ef6`). #686 conformed four items of the fabric MAAP engine (`hdl/ieee1722/maap/KL_maap.sv`) to IEEE 1722-2016 Annex B. These deviations were recorded in [MAAP_FABRIC.md](https://github.com/kebag-logic/milan-fpga/blob/dev/docs/design/MAAP_FABRIC.md) and left for a decision.
+
+| Id | Deviation | Clause |
+|---|---|---|
+| M1 | compare_MAC is not applied in the rProbe!/PROBE and rDefend!/DEFEND cells | Table B.7 note d, B.3.6.4 |
+| M2 | DEFEND sends this station's own range instead of echoing the PROBE's requested_start_address and requested_count | B.3.6.6 |
+| M3 | Address generator: 16-bit LFSR folded into the pool, not a generator with period at least 2^32 - 1 seeded from MAC plus real-time clock | B.3.6.1 |
+| M4 | **Seed timing:** in the shipping `milan_datapath` integration the LFSR seed is sampled during `axis_resetn`, when MAC_ADDR_LO/HI are still 0, so every shipping station seeds `0xACE1` and the station MAC never enters the draws (R548-2-F1) | B.3.4 NOTE, B.3.6.1 |
+| M5 | No PortOperational! input, so a returning link does not re-probe | Table B.7, B.3.5.9 |
+| M6 | A PROBE parsed while a frame is on the wire is not defended; a missed fourth PROBE is settled by the prober's ANNOUNCE and compare_MAC, which can move this station | Table B.7, B.3.6.3 |
+| M7 | A supplied seed (`seed_valid_i`) is used without a range check, so a block outside the Table B.9 dynamic pool can be claimed | Table B.9, B.4 |
+| M8 | Truncated MAAP PDUs (pre-existing; R548-1-S2) | B.2 |
+
+**Acceptance:**
+1. Each item is either conformed, with a suite check and a planted defect, or justified by clause in MAAP_FABRIC.md.
+2. M4 is fixed in RTL first: the seed is taken when the engine is enabled or the MAC is programmed, and a datapath-level check shows two stations with different MACs drawing different intervals.
+3. OOC area and one shipping route stay within the then-current budget; resource records are re-recorded through the recipe.
+4. Bench interop with the reference peer is unchanged.
+
+Relates to #686.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6076750392
+[A10] **Assignment** for [A570] (author) on #696. Reviewers: [R558] (internal) and [R559] (external). Branch `696-maap-annexb` from dev `6aa25dec`. Scope: `hdl/ieee1722/maap/KL_maap.sv`, its integration in `hdl/milan/milan_datapath.sv`, the MAAP suite, and [MAAP_FABRIC.md](https://github.com/kebag-logic/milan-fpga/blob/dev/docs/design/MAAP_FABRIC.md).
+
+1. **M4 first (RTL).** Take the generator seed when the engine is enabled or when the MAC is programmed, not during `axis_resetn`. Add a datapath-level check: two stations with different MACs draw different intervals. Add a planted defect that restores the reset-time sampling and fails that check.
+2. **M2, M7, M8.** Conform each:
+   - DEFEND echoes the PROBE's requested start address and count (B.3.6.6);
+   - refuse a supplied seed outside the Table B.9 dynamic pool (B.4);
+   - truncated PDUs are discarded and counted (B.2).
+3. **M1, M5, M6, M3.** Conform each one that fits the area ceiling below:
+   - compare_MAC in the rProbe!/PROBE and rDefend!/DEFEND cells (Table B.7 note d);
+   - a PortOperational! input that re-probes on link return, wired from the existing link status, with no register-map change (B.3.5.9);
+   - a PROBE parsed while a frame is on the wire is defended once the wire is free (B.3.6.3);
+   - a generator with period at least 2^32 - 1, seeded from the MAC and the real-time clock (B.3.6.1).
+   Any item left out gets a clause-cited justification in MAAP_FABRIC.md and a row in the PR body.
+4. **Tests.** Each conformed item has a suite check and a planted defect that fails it. The existing MAAP checks stay.
+5. **Area.** Report OOC 1x1 LUT and FF per item against `6aa25dec`, using the recipe.
+   - **STOP** if the total exceeds +60 LUT or +60 FF, with a per-item table (item, clause, LUT, FF), for a manager decision. Do not drop an item yourself.
+   - When the total fits, re-record `route-1x1`, `ooc-1x1` and `ooc-8x8` through the recipe (AREA_BUDGET.md 194-195). The route keeps WNS at least +0.03 ns.
+6. Acceptance 4 (bench interop with the reference peer) goes to a bench lane after merge. It is not this lane's.
+
+No register-map, filter or mailbox change (STOP instead). Post REVIEW READY with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6076940309
+[A10] **Ruling on the [A570] STOP** ([6076927974](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6076927974)).
+
+**M8: discard, no counter.** A truncated MAAP PDU is discarded with no state, timer or transmit effect, and the suite checks that with a planted defect. "Counted" is withdrawn: the register map has no field for it, and a new field is a register-map change outside this lane. Record the missing count in MAAP_FABRIC.md as a deviation (B.2) pointing to a later register-map change. Do not add a module-only counter.
+
+**M4:** the draft is sound. Commit it, wire the new datapath check into the default MAAP target, and update MAAP_FABRIC.md.
+
+The rest of the assignment ([6076750392](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6076750392)) stands: M2 and M7; then M1, M5, M6 and M3 within +60 LUT / +60 FF OOC (else STOP with the per-item table); re-record the three endpoints; REVIEW READY.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6079087547
+[A10] **Ruling on the [A570] area STOP** ([6079069824](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6079069824)).
+
+1. **Scope.** The +60 LUT / +60 FF ceiling applies to the `g_maap.maap_engine` row in the recipe OOC, as you measured it. The whole-datapath swing (-180 / -178) is synthesis variation and does not count either way. The resource gate on the three recorded endpoints decides the image.
+2. **M4, M2, M7, M8, M1 and M5 are accepted** (+17 LUT / +19 FF cumulative before M6).
+3. **M6: reduce, then decide by number.** M6 adds +62 / +81 for one pending response. Let the pending DEFEND share the response storage M2 already holds (one response buffer, not two), and measure again.
+   - If the cumulative total fits +60 / +60, keep M6.
+   - If not, revert M6 with a new commit (no history rewrite). Restore its Table B.7 / B.3.6.3 deviation in MAAP_FABRIC.md and the PR body, with the measured cost.
+4. **M3** only within the headroom left after item 3. Otherwise it stays a documented deviation, as now.
+5. Then the rest of the assignment: the broad local bank, the shipping route, the three re-records, the resource gate, and REVIEW READY.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6079463350
+[A10] **Ruling on the [A570] STOP** ([6079443321](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6079443321)).
+
+**Authorized:** update `sw/firmware/ctrl/test/test_maap_differential.cpp`, and `sw/firmware/ctrl/test/maap_differential.py` if its self-test table needs it. The test's stimulus varied the seed through the wait before enable. M4 deliberately removes that path.
+- Vary the programmed MAC identity across the sweep instead, set before first enable. Keep the 1,024-phase breadth.
+- Keep the strict 5,000..6,000 bounds and both draw-coverage assertions (lowest and highest draw).
+- Add a planted defect: a generator that ignores the MAC must fail the coverage check.
+- No other firmware file changes.
+
+Then continue ruling [6079087547](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6079087547):
+- measure M6 with the shared buffer (`bb194096`), and keep it or revert it by the number;
+- M3 within the headroom;
+- the broad bank, the shipping route, the three re-records, the resource gate;
+- REVIEW READY.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6080332335
+[A10] **Ruling on the [A570] STOP** ([6080309288](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6080309288)).
+
+**Authorized, standing for this lane:** correct any documentation page whose description of MAAP behaviour this lane changes. That includes `hdl/ieee1722/maap/doc/KL_maap/KL_maap.md` (the conflict, seed and supplied-seed text, and the `port_operational_i` row) and `sw/firmware/ctrl/maap/README.md:189`. Apply your proposed patch after checking it. A documentation-only consistency fix needs no further STOP. STOP stays required for RTL outside `KL_maap.sv` and its datapath integration, and for register-map, filter, mailbox or other firmware source changes.
+
+Then continue ruling [6079087547](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6079087547):
+- the M6 shared-buffer area figure, and keep or revert it by the number;
+- M3 within the headroom;
+- the broad bank, the shipping route, the three re-records, the resource gate;
+- REVIEW READY.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6089712293
+[A10] **Ruling on the [A570 STOP](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6089695284): option (b). Merge dev and re-measure; no floor exception.** Head `39571196`.
+
+The +0.03 ns WNS floor stays as recorded. This lane does not change it, record below it, or add an exception. The failing path is in unchanged soft-CPU DMA logic, and dev has since moved: `4640d995` re-recorded the gate, and `milan_datapath.sv` changed. So the honest measurement is the image at the merge with dev.
+
+1. **Merge** current dev (`8b61b709`, the merge of #699, or later; resolve with `git rev-parse origin/dev`) into `696-maap-annexb` as a merge commit. Do not rebase. Resolve any conflict in favour of dev's recorded gate. Keep your MAAP changes intact.
+2. **Rerun the full local bar at the merged head:**
+   - the parent suite sweep (`run_all_suites.sh` without any shared flock);
+   - the parser, portability, lint and behaviour;
+   - the documentation set;
+   - the focused MAAP checks.
+3. **Re-measure** `route-1x1`, `ooc-1x1` and `ooc-8x8` at the merged head, using the recipe under `flock $VIVADO_LOCK` (exclusive), as background jobs with no timeout.
+   - If every endpoint passes its gate, record through the recipe (`record --write`) and commit the record separately.
+   - If `route-1x1` again misses the floor on a path outside the lane's logic, STOP without recording, and include both routes' worst paths and the slack history.
+4. Report the MAAP resources at the merged head against the ceiling.
+
+Then post REVIEW READY with the head. The PR, with reviewers R558 and R559, follows.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6093171536
+[A10] **Round 2 for [A570] on PR #706**, head `030eb98a`. [R558-1](https://github.com/kebag-logic/milan-fpga/pull/706#issuecomment-6093137183) (one MINOR) and [R559-1](https://github.com/kebag-logic/milan-fpga/pull/706#issuecomment-6093167069) (three MINOR) are NEGATIVE. Both find the RTL correct, and Conformance, RTL and Robustness clean.
+
+1. **R559-1-F1 (Tests): M5 must tell link return from link loss.**
+   - Add an M5 check whose outage is longer than a full PROBE walk. It requires that the drop causes no restart and no PROBE, and that the fresh walk starts after the rise (IEEE 1722-2016 B.3.5.9; Table B.7 has no leave event).
+   - R559-1's `r_restart_on_link_loss` plant (`receipts/plants/r_restart_on_link_loss.patch`) joins the default campaign and must fail that named check.
+2. **R558-1-F1 (Docs):** `docs/design/MAAP_FABRIC.md:141-143` states the merge-result figure: 445 LUT / 340 FF, +6 / +60 against `6aa25dec`, with the lane's share +2 / +60 against dev `8b61b709`. Also attribute 441 / 340 to the pre-merge head `39571196`.
+3. **R559-1-F2 (Docs):** the "Current record" figures in `docs/design/MARK_II_AREA_PLAN.md:108-137` and the gate row at `:56` (R558-1-S1) follow this PR's re-record, quoted from the recorded file.
+4. **R559-1-F3 (Docs, Tests):** describe the zero-seed fixture by its current MAC (`MAAP_FABRIC.md:222-223`, `sim_main.cpp:640-641`).
+5. Apply R559-1's residue wording now; the suggestions are optional.
+
+No RTL change, so there is no re-measure; confirm with a design-input hash. Run the full documentation set and the MAAP campaign. Commit on `030eb98a` with no rebase or amend, and post REVIEW READY with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6097504752
+[A10] **Round 6 for [A570] on PR #706**, head `6de3904e`. [R559-5](https://github.com/kebag-logic/milan-fpga/pull/706#issuecomment-6097443587) is POSITIVE. [R558-6](https://github.com/kebag-logic/milan-fpga/pull/706#issuecomment-6097490649) is NEGATIVE on a **real RTL defect**.
+
+The first Begin! address draw takes the raw low 16 bits of the first-enable seed, with no generator step (`KL_maap.sv:306-308`).
+- Stations with adjacent MACs claim overlapping first blocks, and stations whose MACs share bits 15:0 claim identical ones, which is exactly M4's identical-timing collision (IEEE 1722-2016 B.3.4 NOTE, B.3.6.1).
+- A planted revert of the pre-#696 expression escapes every check.
+
+**Option 1 (conform). Do not justify the old behaviour.**
+1. **RTL.** Make the first offset, and the first probe interval, depend on the full 32-bit seed through at least one generator step before either first draw, as the firmware core does (`sw/firmware/ctrl/maap/maap.c:31-54,108`). Keep the period-2^32-1 LFSR and the M3 seeding from the MAC plus the real-time clock.
+2. **Checks.**
+   - A named suite check grades the first Begin! range across equally timed stations. Different MACs (adjacent ones, and ones differing only in bits 16..31) must give non-identical, non-overlapping first blocks, and different clocks must give different first offsets.
+   - R558-6's p7 (`p7_first_offset_ignores_seed.patch`) joins the default campaign and must fail that check.
+   - Rerun R558-6's `reviewer_probes.py` (p7 becomes CAUGHT) and `first_draw_probe.cpp` (no identical or overlapping pair).
+3. **Area and records.** The RTL changes, so re-measure:
+   - OOC MAAP against the ceiling;
+   - all three endpoints through the recipe, as background jobs under the exclusive lock.
+
+   Record only if every endpoint passes its gate, including the route floor and drop limit, with no exception. If the route misses on a path outside the lane's logic, STOP with both routes' worst paths and do not record.
+4. **Docs.** `MAAP_FABRIC.md` and `KL_maap.md` must describe the first draw exactly. Fix the PR body's stale head (R558-6-R1).
+
+Commit on `6de3904e` with no rebase or amend. Run the full MAAP target and the documentation set, and post REVIEW READY with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6102832618
+[A10] **Round 7 for [A570] on PR #706**, head `d1b18b3f`. [R558-7](https://github.com/kebag-logic/milan-fpga/pull/706#issuecomment-6102796423) and [R559-6](https://github.com/kebag-logic/milan-fpga/pull/706#issuecomment-6102829355) are both NEGATIVE, on test and docs MINORs only. The RTL first-draw fix holds. R559-6's exhaustive proof confirms every documented universal claim at the head's constants. No RTL change and no re-route this round; the records stay as written.
+
+**Narrowed round-6 criterion (recorded here, superseding item 2 of 6097504752 as written).** The criterion "MACs differing only in bits 16..31 must give non-identical, non-overlapping first blocks" cannot hold for any 16-bit draw: 65,536 high halves map onto at most 65,017 offsets (R559-6-F1). The binding criterion is:
+- Two seeds a power of two apart, with any carry run, claim disjoint first blocks of up to 8 addresses through the pool fold and the clip. That covers adjacent MACs, MACs 2^i apart and clocks 2^i apart.
+- Seed bits 16..31 map one-to-one onto the offset word, so any bits-16..31 difference draws a different word.
+- Other pairs carry no separation guarantee beyond B.3.6.1's random draw. The pool fold may map different words onto one block.
+
+**Required.**
+1. **R559-6-F1:** each first-draw check is named for what it establishes, for example "MACs 2^i apart (i >= 16) claim disjoint first blocks", with the fixed pairs named as fixed pairs. The mutant anchors follow the rename. The docs and PR body cite this comment for the criterion.
+2. **R559-6-F2:** an executable check in the default MAAP target establishes the universal claims for the RTL's actual constants:
+   - every carry run against every word through the pool fold and clip, for counts 1 to 8;
+   - the probe-interval difference;
+   - the bits-16..31 bijection.
+   
+   The check reads its constants from the RTL, or is tied to it so that a constant change cannot leave it stale. R559-6's planted q3 (row 0 `32'h0000_0081` to `32'h0000_0080`) and q9 (row 6 `32'h8008_0040` to `32'h8000_0040`) join the default campaign, and each fails that check by name.
+3. **R558-7-F1:** a named M2 check reads the DEFEND's requested_start for a PROBE whose requested_start is below this station's offset (the `[4b]` fixture). A planted defect echoing `conf_start_w` joins the default campaign and must fail that check.
+4. **Residue (exact texts):** R558-7-R1 and R559-6-R1.
+
+New commits on `d1b18b3f`, with no rebase or amend. Post REVIEW READY with the head.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6142198285
+[A10] **Round: merge dev `e81ce82f`.** PR #706 holds two POSITIVE reviews at `26e2748f` (R558-12 and R559-9). Its act passed on 10-12. Hosted Verilator shard 1/5 then hit the 120-minute timeout under the old hash split (the `maap` suite is 1,380 s). #727 (PR #728) has since merged as dev `49da9fd9`; it balances the workers by measured time and already carries this PR's `maap` figure. Dev is now `e81ce82f` (#727, M8a, #716 and #726). Executor [A570].
+
+1. **Merge dev `e81ce82f`** with a merge commit, no rebase. The merge is expected to be clean, because PR #706 is MERGEABLE. STOP if any conflict touches the MAAP RTL, the `maap` suite or its mutation table.
+2. **On the merged tree:**
+   - `scripts/suite_shards.py --selftest` passes;
+   - `maap` keeps its recorded duration (1,375 s) and lands on a worker whose predicted time stays within the 60 % bound;
+   - the `maap` suite, its mutation campaign and the MAAP Annex B checks of round 7 still pass;
+   - the shipping image is unchanged apart from dev's own changes (report LUT/FF against dev `e81ce82f`).
+3. Record the merge in HANDOFF.md and the PR body.
+
+Post REVIEW READY (or STOP) with the head.
+

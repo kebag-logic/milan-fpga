@@ -1,0 +1,28 @@
+PASS automatic merge a72913118ab370e889b7bf4be10ec6ac6f87ce0f parents 32582421bbf095a7b5a7d4b953c4d737b86fe54b 09c7231eca343607c97c0d66abebb2553688712c tree 0705eb4a691dcfb8211de9c7da79883cc357b249
+PASS automatic merge b075a994f6daae3b406bce415a837b7c401712d5 parents aa980479aafd1d72c72015707fa6618b5aa47cb1 c6bd08c6f52632c6d33d834ce842ac3cf63f29cc tree 4650fd5d9d5c940bc6788491229dc808cf866962
+PASS automatic merge 313616d1a18549d41907db389d378f0beb9bc543 parents 26e2748f47b0d8fa533f53203264d9f31fc13c48 e81ce82f9aa3e4dcaffa5bcdf7e60f0c7cffd80c tree 8eb5d868bfac1973ba1d82b0665aabae07d9494c
+PASS retained from 32582421 hdl/ieee1722/maap/KL_maap.sv 746be52d3e043f4ff4f16ee6f590f984b069118e
+PASS retained from 32582421 tb/verilator/maap/Makefile 4c71e9fb022c9bccd1541f560dff3b1f39c73b37
+PASS retained from 32582421 tb/verilator/maap/integration.mk 0d005fd0d7e8a51373767415760d9d2b8cd8efd3
+PASS retained from 32582421 tb/verilator/maap/mutants.py 085989b73764269884bf09861173d01c1f62f2f7
+PASS retained from 32582421 tb/verilator/maap/sim_main.cpp 9dfc863ac6df92577feeeab717fc0647fdd3878f
+PASS retained from 32582421 tb/verilator/maap/sim_integration.cpp e02f65f70fb35b3780702257f89ac37a0bdb97d9
+PASS retained from 32582421 docs/design/MAAP_FABRIC.md 77de72998b1db0fa888bcc422f27ff7457087e07
+PASS retained from 32582421 hdl/ieee1722/maap/doc/KL_maap/KL_maap.md fa5f70dd0a6fc9efcc5e39b5f196679596def00e
+PASS retained from 32582421 sw/firmware/ctrl/test/maap_differential.py 684f238839867477ed6a339e911132afebbe924d
+PASS retained from 32582421 sw/firmware/ctrl/test/test_maap_differential.cpp af9ae46141fcc86adcfe42d0b57939db7ccaf003
+PASS retained from 32582421 syn/ooc/pp_resource_baseline.json af98405d156079445b3939c9453ecd6f0af7bffc
+Datapath delta against imported dev:
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index e95c18c5a..e0ad46910 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -267,2 +267,2 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+-  //! MAAP engine (KL_maap, 515 LUT / 278 FF by syn/yosys/ooc.sh). 0 prunes
+-  //! it, ties addr_valid_o = 0 and parks its low-rate TX port. Term-by-term
++  //! MAAP engine (KL_maap). Measured area: docs/design/MAAP_FABRIC.md.
++  //! 0 prunes it, ties addr_valid_o = 0 and parks its low-rate TX port. Term-by-term
+@@ -7183,0 +7184,2 @@ module milan_datapath import ethernet_packet_pkg::*; #(
++    .port_operational_i (eff_link_w),
++    .realtime_ns_i     (ptp_now_w[31:0]),
+PASS imported datapath counter wiring retained; only MAAP comment and two pins differ
