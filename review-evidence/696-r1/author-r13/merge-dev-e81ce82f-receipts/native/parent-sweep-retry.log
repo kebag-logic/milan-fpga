@@ -1,0 +1,26 @@
+shard: 0/1   selected suites: 62
+PASS     aaf
+PASS     aaf_audio_loop
+PASS     aaf_clock_meter
+PASS     aaf_latency_tap_bank
+PASS     aaf_latency_taps
+PASS     adp_tx
+PASS     aes3
+PASS     avtp_parser
+PASS     avtp_rxmon
+PASS     avtp_stream
+PASS     capture_coherence
+PASS     cbs
+PASS     cdc
+PASS     chmap_capture
+PASS     chmap_render
+PASS     classifier
+PASS     clkvalid
+PASS     cls
+PASS     controller_rate
+PASS     crf_rx
+PASS     crf_tx
+Terminated                 timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+CANCELLED: TERM; no completed sweep result
+partial logs: $WORK/native/parent-retry-logs
+CANCELLED: signal 15; no completed sweep result

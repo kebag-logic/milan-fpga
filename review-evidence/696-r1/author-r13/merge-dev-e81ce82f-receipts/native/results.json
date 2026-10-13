@@ -1,0 +1,181 @@
+[
+  {
+    "name": "field-configure",
+    "argv": [
+      "cmake",
+      "-S",
+      "$WORK/tsn-gen",
+      "-B",
+      "$WORK/tsn-gen/build",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DENABLE_PARSER_TESTS=OFF"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 0.8
+  },
+  {
+    "name": "field-build",
+    "argv": [
+      "cmake",
+      "--build",
+      "$WORK/tsn-gen/build",
+      "--target",
+      "packet_gen",
+      "--parallel",
+      "4"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 18.3
+  },
+  {
+    "name": "parent-sweep",
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$WORK/native/parent-logs"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 2,
+    "seconds": 48.0
+  },
+  {
+    "name": "lint",
+    "argv": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check",
+      "--self-test",
+      "--jobs",
+      "2"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 31.8
+  },
+  {
+    "name": "maap-integration-build",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "integration-build",
+      "DP_MDIR=$WORK/native/integration-build"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 31.5
+  },
+  {
+    "name": "maap-integration",
+    "argv": [
+      "$WORK/native/integration-build/maap_integration"
+    ],
+    "cwd": "$WORK/native/integration-build",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 0.4
+  },
+  {
+    "name": "maap-coverage",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "coverage",
+      "COV_MDIR=$WORK/native/coverage-build"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 14.0
+  },
+  {
+    "name": "maap-differential",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/maap_differential.py",
+      "--self-test",
+      "--keep",
+      "$WORK/native/differential"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 189.6
+  },
+  {
+    "name": "behaviour",
+    "argv": [
+      "python3",
+      "-m",
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$WORK/candidate/tests",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 2.1
+  },
+  {
+    "name": "portability",
+    "argv": [
+      "bash",
+      "syn/yosys/run.sh",
+      "--results",
+      "$WORK/native/portability-results"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 979.1
+  },
+  {
+    "name": "processor-suites",
+    "argv": [
+      "bash",
+      "scripts/run_suites.sh"
+    ],
+    "cwd": "$WORK/candidate/protocol-processor",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 1487.0
+  },
+  {
+    "name": "gptp-suites",
+    "argv": [
+      "make",
+      "-j8",
+      "tb"
+    ],
+    "cwd": "$WORK/candidate/gptp-processor",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 1733.3
+  },
+  {
+    "name": "firmware",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "2"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "313616d1a18549d41907db389d378f0beb9bc543",
+    "rc": 0,
+    "seconds": 2534.8
+  }
+]

@@ -1,0 +1,64 @@
+--- dev
+
++++ candidate
+
+@@ -189,4 +189,5 @@
+
+ ├── crg (_CRG)
+ │    ├── pll (S7PLL)
++│    │    ├── [BB:PLLE2_ADV]
+ │    │    ├── [BB:FDCE]
+ │    │    ├── [BB:FDCE]
+@@ -197,5 +198,4 @@
+
+ │    │    ├── [BB:FDCE]
+ │    │    ├── [BB:FDCE]
+-│    │    ├── [BB:PLLE2_ADV]
+ │    │    ├── [BB:BUFG]
+ │    │    ├── [BB:BUFG]
+@@ -287,4 +287,7 @@
+
+ │    ├── tappeddelayline_2 (TappedDelayLine) [Gen]
+ │    ├── tappeddelayline_3 (TappedDelayLine) [Gen]
++│    ├── [BB:ISERDESE2]
++│    ├── [BB:IDELAYE2]
++│    ├── [BB:IOBUF]
+ │    ├── [BB:OSERDESE2]
+ │    ├── [BB:ISERDESE2]
+@@ -307,6 +310,4 @@
+
+ │    ├── [BB:IDELAYE2]
+ │    ├── [BB:IOBUF]
+-│    ├── [BB:ISERDESE2]
+-│    ├── [BB:IDELAYE2]
+ │    ├── [BB:IOBUF]
+ │    ├── [BB:OSERDESE2]
+@@ -421,4 +422,5 @@
+
+ │    ├── [BB:OSERDESE2]
+ │    ├── [BB:OSERDESE2]
++│    ├── [BB:OSERDESE2]
+ │    ├── [BB:IOBUFDS]
+ │    ├── [BB:OSERDESE2]
+@@ -447,6 +449,4 @@
+
+ │    ├── [BB:ISERDESE2]
+ │    ├── [BB:IDELAYE2]
+-│    ├── [BB:IOBUF]
+-│    ├── [BB:OSERDESE2]
+ │    ├── [BB:OSERDESE2]
+ │    ├── [BB:OSERDESE2]
+@@ -872,4 +872,5 @@
+
+ │         └── csrstatus_5 (CSRStatus) [Gen]
+ ├── csr_interconnect (InterconnectShared)
++├── [BB:IBUFDS]
+ ├── [BB:FDPE]
+ ├── [BB:FDPE]
+@@ -899,5 +900,4 @@
+
+ ├── [BB:FDPE]
+ ├── [BB:FDPE]
+-├── [BB:IBUFDS]
+ ├── [BB:FDPE]
+ └── [BB:FDPE]
