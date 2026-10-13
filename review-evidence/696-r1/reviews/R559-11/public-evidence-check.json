@@ -1,0 +1,79 @@
+{
+  "manifest_verified_files": [
+    "accepted-validation.json",
+    "validation-summary.json",
+    "validation-resume-results.json",
+    "merge-provenance.json",
+    "maap-ceiling.json",
+    "resource-results.json",
+    "measurement-records.json",
+    "final-integrity.json",
+    "source-inputs.json",
+    "shipping-image-comparison.json",
+    "submodule-verification.json",
+    "candidate-route-check.log",
+    "candidate-ooc-1x1-check.log",
+    "candidate-ooc-8x8-check.log",
+    "suite-comparison.json",
+    "firmware-comparison.json",
+    "validation/maap.log",
+    "validation/maap-coverage.log",
+    "validation/maap-integration.log",
+    "validation/suite-tally.log",
+    "validation/portability.log",
+    "validation/builder.log",
+    "maap-ooc-candidate/util_hier_base.rpt",
+    "shipping-candidate/ax7101/gateware/alinx_ax7101_route_status.rpt",
+    "shipping-candidate/ax7101/gateware/baseline_utilization.rpt"
+  ],
+  "input_checks": 241,
+  "unique_source_inputs": 123,
+  "unverified_generated_inputs": [
+    "$HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+    "$HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+    "$HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v",
+    "$WORK/shipping-candidate/ax7101/gateware/alinx_ax7101.v",
+    "$WORK/shipping-candidate/ax7101/gateware/alinx_ax7101.xdc",
+    "$HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+    "$HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+    "$HOME_DIR/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v",
+    "$WORK/shipping-candidate/ax8x8/gateware/alinx_ax7101.v",
+    "$WORK/shipping-candidate/ax8x8/gateware/alinx_ax7101.xdc"
+  ],
+  "resource_figures": {
+    "candidate-route": {
+      "LUT": 49277,
+      "FF": 53419,
+      "SLICE": 15779,
+      "BRAM_TILE": 87.5,
+      "RAMB36": 74,
+      "RAMB18": 27,
+      "DSP": 14,
+      "WNS_ns": 0.242,
+      "WHS_ns": 0.017,
+      "CARRY4": 3393
+    },
+    "candidate-ooc-1x1": {
+      "LUT": 23179,
+      "FF": 19779,
+      "BRAM_TILE": 17.5,
+      "RAMB36": 16,
+      "RAMB18": 3,
+      "DSP": 8,
+      "WNS_ns": -3.562,
+      "WHS_ns": 0.159,
+      "CARRY4": 1494
+    },
+    "candidate-ooc-8x8": {
+      "LUT": 30135,
+      "FF": 27380,
+      "BRAM_TILE": 23.5,
+      "RAMB36": 21,
+      "RAMB18": 5,
+      "DSP": 8,
+      "WNS_ns": -2.278,
+      "WHS_ns": 0.159,
+      "CARRY4": 1889
+    }
+  }
+}

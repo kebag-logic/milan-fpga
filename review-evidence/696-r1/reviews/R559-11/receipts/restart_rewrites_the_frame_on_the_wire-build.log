@@ -1,0 +1,4 @@
+command: ["make", "-j16", "-s", "-C", "$REVIEWS/r559-11-696/tb/verilator/maap", "build", "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator", "VERILATOR_JOBS=2", "MAAP_RTL=$REVIEWS/696-r559-11-packet/scratch/restart_rewrites_the_frame_on_the_wire/KL_maap.sv", "MDIR=$REVIEWS/696-r559-11-packet/scratch/restart_rewrites_the_frame_on_the_wire/obj"]
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.069 MB sources in 2 modules, into 0.214 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 6.331 s (elab=0.002, cvt=0.020, bld=6.298); cpu 0.036 s on 2 threads; allocated 216.227 MB

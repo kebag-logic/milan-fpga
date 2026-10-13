@@ -1,0 +1,19 @@
+[R559] POSITIVE - exact head e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd
+
+Independent pass completed before reading previous public review findings or reports. Tree: 295aadcc963e941f2fcc97b27d497aa787da0d86. Scope is issue #696 as amended by public decisions 6076750392, 6076940309, 6079087547, 6079463350, 6080332335, 6089712293, 6102832618, 6142198285 and 6148294623.
+
+No open BLOCKER, MAJOR or MINOR found in the independent pass. One prose residue is recorded below. Final reconciliation of prior public findings follows this saved independent verdict.
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Issue #696 frozen acceptance and rulings; docs/design/MAAP_FABRIC.md:42; hdl/ieee1722/maap/KL_maap.sv:141; source resource receipts | R559-11 | e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd |
+| RTL | CLEAN | hdl/ieee1722/maap/KL_maap.sv:141,219,313,340; hdl/milan/milan_datapath.sv:2933,3000,7181 | R559-11 | e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd |
+| Robustness | CLEAN | hdl/ieee1722/maap/KL_maap.sv:319,331,421,433; tb/verilator/maap/sim_main.cpp:744,774,811,836,874,895; boundary_probe.cpp; receipts/boundary-run.log | R559-11 | e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd |
+| Tests | CLEAN | tb/verilator/maap/{sim_main.cpp,sim_integration.cpp,mutants.py,Makefile,integration.mk}; sw/firmware/ctrl/test/{maap_differential.py,test_maap_differential.cpp}; campaign-summary.json | R559-11 | e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd |
+| Docs | CLEAN | docs/design/{MAAP_FABRIC.md,AREA_BUDGET.md,MARK_II_AREA_PLAN.md}; docs/findings/234_PP_SHADOW_AREA_BASELINE.md; hdl/ieee1722/maap/doc/KL_maap/KL_maap.md; sw/firmware/ctrl/maap/README.md; PR #706 body; public source receipts | R559-11 | e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd |
+
+R559-11-R1: RESIDUE; Docs; PR #706 Status paragraph. The body still says the published head remains 313616d1 until publication, whereas the public PR head is already e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd. This is stale publication wording; all measurement and review-head attributions in the surrounding Round 14 evidence remain explicit. Exact fix: replace the local/published-head sentences with "Published head: `e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd`." Replace "After the manager publishes this head:" with "To reproduce this published head:". Verify against PR head metadata. This changes no measurement, test, verdict or clause claim and does not unclean Docs under the owner residue rule.
+
+Independent execution: 186 unit checks; 58/58 unit defects and 5/5 datapath defects rejected by their named checks; two passing controls, with five integration checks; differential 12 clean cases and 17/17 named rejections; independent receive-boundary probe 1554 checks, zero failures. Each defect compiled and exited 1 at its named check. No source file was edited. Builds and mutations are in scratch only.
+
+Source evidence is the author's public Round 14 packet at evidence commit 217cf1306f90460527ab5cf477ad3c16bdaa72d9. It is not a manager source bank. No final current-dev candidate validation, hosted acceptance, workflow replication, physical calibration or bench interop is claimed by this review.
