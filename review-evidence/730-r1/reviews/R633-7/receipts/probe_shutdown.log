@@ -1,0 +1,8 @@
+act-ci: containment hold for the CPU-range monitor's reader (event stream process group 4242); Docker teardown is paused until it ends
+act-ci: containment hold for the CPU-range monitor's reader (event stream process group 4242); Docker teardown is paused until it ends
+act-ci: CPU-range monitor cleanup also failed: RuntimeError: join interrupted
+PASS S1 reader alive past the bounded wait is held for, not abandoned: elapsed=2.00s trail=['reader ended'] problems=['the CPU-range monitor survived its bounded shutdown']
+PASS S2 a failed join is retried while the reader still runs after the retry pause: elapsed=1.00s trail=['reader ended'] returned=RuntimeError('join interrupted')
+PASS S3 reap failure then join failure: the first (reap) is raised, after the reader ended: raised=Refusal('reap failed') trail=['reader ended']
+PASS S4 cleanup signals are blocked during containment: seen=[True]
+shutdown probes: PASS

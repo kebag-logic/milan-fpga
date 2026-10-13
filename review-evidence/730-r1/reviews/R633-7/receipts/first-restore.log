@@ -1,0 +1,257 @@
+[
+  {
+    "signal": "SIGINT",
+    "inject": "none",
+    "line": 5357,
+    "fired": [],
+    "outcome": {
+      "contained": true,
+      "reader_finished": true,
+      "pipe_closed": true,
+      "raised": "Refusal",
+      "message": "original integrity failure",
+      "original_preserved": true,
+      "rc": 2
+    },
+    "diagnostic": "act-ci: REFUSED: original integrity failure\n",
+    "trail": [
+      "original failure raised",
+      "contained",
+      "reader ended",
+      "pipe closed",
+      "outer teardown"
+    ]
+  },
+  {
+    "signal": "SIGINT",
+    "inject": "boundary_restore",
+    "line": 5357,
+    "fired": [
+      {
+        "active_exception": "original integrity failure",
+        "mask_before_signal": []
+      }
+    ],
+    "outcome": {
+      "contained": true,
+      "reader_finished": true,
+      "pipe_closed": true,
+      "raised": "Refusal",
+      "message": "original integrity failure",
+      "original_preserved": true,
+      "rc": 2
+    },
+    "diagnostic": "act-ci: act boundary closing was interrupted (TerminationRequest: SIGINT); the failure already propagating is kept\nact-ci: REFUSED: original integrity failure\n",
+    "trail": [
+      "original failure raised",
+      "signal at boundary_restore",
+      "contained",
+      "reader ended",
+      "pipe closed",
+      "outer teardown"
+    ]
+  },
+  {
+    "signal": "SIGINT",
+    "inject": "monitor_cleanup",
+    "line": 5767,
+    "fired": [
+      {
+        "active_exception": "original integrity failure",
+        "mask_before_signal": [
+          1,
+          2,
+          15
+        ]
+      }
+    ],
+    "outcome": {
+      "contained": true,
+      "reader_finished": true,
+      "pipe_closed": true,
+      "raised": "Refusal",
+      "message": "original integrity failure",
+      "original_preserved": true,
+      "rc": 2
+    },
+    "diagnostic": "act-ci: CPU-range monitor cleanup was interrupted (TerminationRequest: SIGINT); the failure already propagating is kept\nact-ci: REFUSED: original integrity failure\n",
+    "trail": [
+      "original failure raised",
+      "signal at monitor_cleanup",
+      "contained",
+      "reader ended",
+      "pipe closed",
+      "outer teardown"
+    ]
+  },
+  {
+    "signal": "SIGTERM",
+    "inject": "none",
+    "line": 5357,
+    "fired": [],
+    "outcome": {
+      "contained": true,
+      "reader_finished": true,
+      "pipe_closed": true,
+      "raised": "Refusal",
+      "message": "original integrity failure",
+      "original_preserved": true,
+      "rc": 2
+    },
+    "diagnostic": "act-ci: REFUSED: original integrity failure\n",
+    "trail": [
+      "original failure raised",
+      "contained",
+      "reader ended",
+      "pipe closed",
+      "outer teardown"
+    ]
+  },
+  {
+    "signal": "SIGTERM",
+    "inject": "boundary_restore",
+    "line": 5357,
+    "fired": [
+      {
+        "active_exception": "original integrity failure",
+        "mask_before_signal": []
+      }
+    ],
+    "outcome": {
+      "contained": true,
+      "reader_finished": true,
+      "pipe_closed": true,
+      "raised": "Refusal",
+      "message": "original integrity failure",
+      "original_preserved": true,
+      "rc": 2
+    },
+    "diagnostic": "act-ci: act boundary closing was interrupted (TerminationRequest: SIGTERM); the failure already propagating is kept\nact-ci: REFUSED: original integrity failure\n",
+    "trail": [
+      "original failure raised",
+      "signal at boundary_restore",
+      "contained",
+      "reader ended",
+      "pipe closed",
+      "outer teardown"
+    ]
+  },
+  {
+    "signal": "SIGTERM",
+    "inject": "monitor_cleanup",
+    "line": 5767,
+    "fired": [
+      {
+        "active_exception": "original integrity failure",
+        "mask_before_signal": [
+          1,
+          2,
+          15
+        ]
+      }
+    ],
+    "outcome": {
+      "contained": true,
+      "reader_finished": true,
+      "pipe_closed": true,
+      "raised": "Refusal",
+      "message": "original integrity failure",
+      "original_preserved": true,
+      "rc": 2
+    },
+    "diagnostic": "act-ci: CPU-range monitor cleanup was interrupted (TerminationRequest: SIGTERM); the failure already propagating is kept\nact-ci: REFUSED: original integrity failure\n",
+    "trail": [
+      "original failure raised",
+      "signal at monitor_cleanup",
+      "contained",
+      "reader ended",
+      "pipe closed",
+      "outer teardown"
+    ]
+  },
+  {
+    "signal": "SIGHUP",
+    "inject": "none",
+    "line": 5357,
+    "fired": [],
+    "outcome": {
+      "contained": true,
+      "reader_finished": true,
+      "pipe_closed": true,
+      "raised": "Refusal",
+      "message": "original integrity failure",
+      "original_preserved": true,
+      "rc": 2
+    },
+    "diagnostic": "act-ci: REFUSED: original integrity failure\n",
+    "trail": [
+      "original failure raised",
+      "contained",
+      "reader ended",
+      "pipe closed",
+      "outer teardown"
+    ]
+  },
+  {
+    "signal": "SIGHUP",
+    "inject": "boundary_restore",
+    "line": 5357,
+    "fired": [
+      {
+        "active_exception": "original integrity failure",
+        "mask_before_signal": []
+      }
+    ],
+    "outcome": {
+      "contained": true,
+      "reader_finished": true,
+      "pipe_closed": true,
+      "raised": "Refusal",
+      "message": "original integrity failure",
+      "original_preserved": true,
+      "rc": 2
+    },
+    "diagnostic": "act-ci: act boundary closing was interrupted (TerminationRequest: SIGHUP); the failure already propagating is kept\nact-ci: REFUSED: original integrity failure\n",
+    "trail": [
+      "original failure raised",
+      "signal at boundary_restore",
+      "contained",
+      "reader ended",
+      "pipe closed",
+      "outer teardown"
+    ]
+  },
+  {
+    "signal": "SIGHUP",
+    "inject": "monitor_cleanup",
+    "line": 5767,
+    "fired": [
+      {
+        "active_exception": "original integrity failure",
+        "mask_before_signal": [
+          1,
+          2,
+          15
+        ]
+      }
+    ],
+    "outcome": {
+      "contained": true,
+      "reader_finished": true,
+      "pipe_closed": true,
+      "raised": "Refusal",
+      "message": "original integrity failure",
+      "original_preserved": true,
+      "rc": 2
+    },
+    "diagnostic": "act-ci: CPU-range monitor cleanup was interrupted (TerminationRequest: SIGHUP); the failure already propagating is kept\nact-ci: REFUSED: original integrity failure\n",
+    "trail": [
+      "original failure raised",
+      "signal at monitor_cleanup",
+      "contained",
+      "reader ended",
+      "pipe closed",
+      "outer teardown"
+    ]
+  }
+]
