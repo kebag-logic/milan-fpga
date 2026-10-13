@@ -1,0 +1,5 @@
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+PROBE aaf-rx-interval shape=1 condition=uncertain: DETECTED: clean/run.log: rc=1, ['  [FAIL] [726 RX] every received PDU counted            got=0x5 exp=0x1f4', '  [FAIL] [726 RX] batch crosses 65535 without loss      got=0x1 exp=0x10001']
+PROBE aaf-rx-interval failing groups: {'RX': 2}
+PROBE aaf-rx-interval omit=RX: rc=0 ESCAPES (passes with group omitted) groups={}

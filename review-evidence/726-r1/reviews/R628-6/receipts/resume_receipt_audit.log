@@ -1,0 +1,33 @@
+PAIR m_tx-interval: 6 TX failures; omission PASS
+PAIR m_rx-interval: 1 RX failures; omission PASS
+PAIR m_tx-reset: 4 TX_RESET failures; omission PASS
+PAIR m_aaf-reset: 1 RX_RESET failures; omission PASS
+PAIR m_crf-reset: 1 RX_RESET failures; omission PASS
+PAIR m_rx-saturation: 1 RX failures; omission PASS
+PAIR m_late: 4 CADENCE failures; omission PASS
+PAIR m_egress-stall: 8 CADENCE failures; omission PASS
+PAIR m_egress-stall_s8: 36 CADENCE failures; omission PASS
+PAIR m_rate: 8 RATE failures; omission PASS
+PAIR m_tx-nodirty: 4 OUTPUT_CADENCE failures; omission PASS
+PAIR m_fixed-grid: 8 PHASE failures; omission PASS
+PAIR f5_late_s1: 8 CADENCE failures; omission PASS
+PAIR f5_rate_s1: 8 RATE failures; omission PASS
+PAIR f5_fixed-grid_s1: 8 PHASE failures; omission PASS
+PAIR r5_sched-1600_s1: 8 CADENCE failures; omission PASS
+PAIR r5_sched-2000_s1: 8 CADENCE failures; omission PASS
+PAIR r5_egress-stall_s1: 8 CADENCE failures; omission PASS
+PAIR r5_sched-1600_s8: 36 CADENCE failures; omission PASS
+PAIR r5_sched-2000_s8: 36 CADENCE failures; omission PASS
+PAIR r5_egress-stall_s8: 36 CADENCE failures; omission PASS
+PAIR my_aaf-guard: 2 CADENCE failures; omission PASS
+PAIR my_crf-guard: 2 CADENCE failures; omission PASS
+PAIR my_aaf-rx-interval: 2 RX failures; omission PASS
+PAIR my_sched-900: 8 RATE failures; omission PASS
+PAIR my_sched-1030: 36 CADENCE failures; omission PASS
+CLEAN w_clean_s1: 8 rows, 28 gaps, 1000 <= gaps <= 1025 ms; seven shifts PASS
+CLEAN w_fo_s1: 8 rows, 28 gaps, 1000 <= gaps <= 1025 ms; seven shifts PASS
+CLEAN w_clean_s8: 36 rows, 126 gaps, 1000 <= gaps <= 1025 ms; seven shifts PASS
+CLEAN w_fo_s8: 36 rows, 126 gaps, 1000 <= gaps <= 1025 ms; seven shifts PASS
+BASELINE shape 1: {'TX': 6, 'CADENCE': 4, 'RX': 2}
+BASELINE shape 8: {'TX': 27, 'CADENCE': 18, 'RX': 9}
+RECEIPT AUDIT: PASS (88 runtime logs checked)

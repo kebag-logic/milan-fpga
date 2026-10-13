@@ -1,0 +1,64 @@
+test_counter_semantics_grades_both_ways_round (__main__.StandingCounterLaws.test_counter_semantics_grades_both_ways_round)
+Packet counters follow the ruled rate; anomaly counters keep their law. ... ok
+test_counter_tables_match_the_standards (__main__.StandingCounterLaws.test_counter_tables_match_the_standards)
+The four counter tables still hold what the two standards define, and ... ok
+test_counters_payload_decode_and_unnamed_slots (__main__.StandingCounterLaws.test_counters_payload_decode_and_unnamed_slots)
+A GET_COUNTERS payload decodes BY NAME: an unclaimed slot is absent ... ok
+test_every_stream_input_counter_has_an_update_law (__main__.StandingCounterLaws.test_every_stream_input_counter_has_an_update_law)
+Every counter in the 1722.1 Stream Input block has an update law, so no ... ok
+test_frames_rate_band (__main__.StandingCounterLaws.test_frames_rate_band)
+Milan bounds the observation interval from ABOVE only, so 200 ticks/s is ... ok
+test_interval_ceiling_catches_a_half_converted_counter (__main__.StandingCounterLaws.test_interval_ceiling_catches_a_half_converted_counter)
+Nothing whose trigger arrives in a frame may out-tick FRAMES_RX - except ... ok
+test_lock_and_talker_invariants (__main__.StandingCounterLaws.test_lock_and_talker_invariants)
+Both Milan state invariants grade their legal shapes AND their illegal ... ok
+test_no_growth_is_a_verdict_and_not_a_note (__main__.StandingCounterLaws.test_no_growth_is_a_verdict_and_not_a_note)
+One tick of an error counter is one bad observation interval and FAILS. ... ok
+test_tv_tnv_grades_settled_and_coalesced_packet_snapshots (__main__.StandingCounterLaws.test_tv_tnv_grades_settled_and_coalesced_packet_snapshots)
+A single coalesced snapshot cannot establish a packet-rate defect. ... ok
+test_unpublished_zero_receive_snapshot (__main__.StandingCounterLaws.test_unpublished_zero_receive_snapshot)
+Real startup boundary: three accepted packets precede RX publication. ... FAIL
+
+======================================================================
+FAIL: test_unpublished_zero_receive_snapshot (__main__.StandingCounterLaws.test_unpublished_zero_receive_snapshot)
+Real startup boundary: three accepted packets precede RX publication.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/snapshot-guard/torture_campaign.py", line 4121, in test_unpublished_zero_receive_snapshot
+    self.assertEqual(verdict, "INFO", "[726 SNAPSHOT] unpublished zero")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FAIL' != 'INFO'
+- FAIL
++ INFO
+ : [726 SNAPSHOT] unpublished zero
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.001s
+
+FAILED (failures=1)
+OMITTED=False tests=10 failures=['test_unpublished_zero_receive_snapshot']
+test_counter_semantics_grades_both_ways_round (__main__.StandingCounterLaws.test_counter_semantics_grades_both_ways_round)
+Packet counters follow the ruled rate; anomaly counters keep their law. ... ok
+test_counter_tables_match_the_standards (__main__.StandingCounterLaws.test_counter_tables_match_the_standards)
+The four counter tables still hold what the two standards define, and ... ok
+test_counters_payload_decode_and_unnamed_slots (__main__.StandingCounterLaws.test_counters_payload_decode_and_unnamed_slots)
+A GET_COUNTERS payload decodes BY NAME: an unclaimed slot is absent ... ok
+test_every_stream_input_counter_has_an_update_law (__main__.StandingCounterLaws.test_every_stream_input_counter_has_an_update_law)
+Every counter in the 1722.1 Stream Input block has an update law, so no ... ok
+test_frames_rate_band (__main__.StandingCounterLaws.test_frames_rate_band)
+Milan bounds the observation interval from ABOVE only, so 200 ticks/s is ... ok
+test_interval_ceiling_catches_a_half_converted_counter (__main__.StandingCounterLaws.test_interval_ceiling_catches_a_half_converted_counter)
+Nothing whose trigger arrives in a frame may out-tick FRAMES_RX - except ... ok
+test_lock_and_talker_invariants (__main__.StandingCounterLaws.test_lock_and_talker_invariants)
+Both Milan state invariants grade their legal shapes AND their illegal ... ok
+test_no_growth_is_a_verdict_and_not_a_note (__main__.StandingCounterLaws.test_no_growth_is_a_verdict_and_not_a_note)
+One tick of an error counter is one bad observation interval and FAILS. ... ok
+test_tv_tnv_grades_settled_and_coalesced_packet_snapshots (__main__.StandingCounterLaws.test_tv_tnv_grades_settled_and_coalesced_packet_snapshots)
+A single coalesced snapshot cannot establish a packet-rate defect. ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.000s
+
+OK
+OMITTED=True tests=9 failures=[]
+SNAPSHOT GUARD DETECTION AND OMISSION: PASS
