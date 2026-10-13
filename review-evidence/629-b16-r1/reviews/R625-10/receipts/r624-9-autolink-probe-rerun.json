@@ -1,0 +1,341 @@
+{
+ "note": "Lane B16 round 10: R624-9-AUTOLINK's published probe, R624-9/tools/probe_r624_9_autolink.py under review-evidence/629-b16-r1/reviews/ on branch 629-b16-review-evidence, run unchanged against this packet's check and the page at f1b2489f; its own results file, verbatim, under 'results'. Offline, no bench action",
+ "probe": "probe_r624_9_autolink.py",
+ "probe_sha256": "a77ad603e1346ac0fba25e918aa187844f1bd286cb9dcd8042ff2b88aac832c7",
+ "page_commit": "f1b2489f5b1c929e81eeae79a469b2b27c47e340",
+ "exit": 0,
+ "reading": {
+  "cases": 15,
+  "statuses": {
+   "unchanged": 0,
+   "intro_email_autolink_then_7ppm": 1,
+   "intro_email_autolink_then_7ppm_no_space_word": 1,
+   "intro_www_autolink_then_7ppm": 1,
+   "intro_url_autolink_then_7ppm": 1,
+   "intro_7ppm_alone": 1,
+   "section_para_first_line_email_then_7ppm": 1,
+   "section_para_later_line_email_then_7ppm": 1,
+   "section_table_cell_email_then_7ppm": 1,
+   "index_row_email_then_7ppm": 1,
+   "index_row_www_then_7ppm": 1,
+   "index_row_7ppm_alone": 1,
+   "intro_mailto_autolink_then_7ppm": 1,
+   "intro_email_then_figure_on_next_word_run": 1,
+   "intro_and_index_email_then_7ppm": 1
+  },
+  "verdicts": {
+   "unchanged": "OK",
+   "intro_email_autolink_then_7ppm": "FAILED_OTHERWISE",
+   "intro_email_autolink_then_7ppm_no_space_word": "FAILED_OTHERWISE",
+   "intro_www_autolink_then_7ppm": "DETECTED",
+   "intro_url_autolink_then_7ppm": "DETECTED",
+   "intro_7ppm_alone": "DETECTED",
+   "section_para_first_line_email_then_7ppm": "FAILED_OTHERWISE",
+   "section_para_later_line_email_then_7ppm": "FAILED_OTHERWISE",
+   "section_table_cell_email_then_7ppm": "FAILED_OTHERWISE",
+   "index_row_email_then_7ppm": "FAILED_OTHERWISE",
+   "index_row_www_then_7ppm": "DETECTED",
+   "index_row_7ppm_alone": "DETECTED",
+   "intro_mailto_autolink_then_7ppm": "FAILED_OTHERWISE",
+   "intro_email_then_figure_on_next_word_run": "FAILED_OTHERWISE",
+   "intro_and_index_email_then_7ppm": "FAILED_OTHERWISE"
+  },
+  "escaped": [],
+  "uncovered_7": {
+   "unchanged": [],
+   "intro_email_autolink_then_7ppm": [],
+   "intro_email_autolink_then_7ppm_no_space_word": [],
+   "intro_www_autolink_then_7ppm": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:19"
+   ],
+   "intro_url_autolink_then_7ppm": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:19"
+   ],
+   "intro_7ppm_alone": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:19"
+   ],
+   "section_para_first_line_email_then_7ppm": [],
+   "section_para_later_line_email_then_7ppm": [],
+   "section_table_cell_email_then_7ppm": [],
+   "index_row_email_then_7ppm": [],
+   "index_row_www_then_7ppm": [
+    "README.md:15"
+   ],
+   "index_row_7ppm_alone": [
+    "README.md:15"
+   ],
+   "intro_mailto_autolink_then_7ppm": [],
+   "intro_email_then_figure_on_next_word_run": [],
+   "intro_and_index_email_then_7ppm": []
+  },
+  "markup": {
+   "unchanged": [],
+   "intro_email_autolink_then_7ppm": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph"
+   ],
+   "intro_email_autolink_then_7ppm_no_space_word": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph"
+   ],
+   "intro_www_autolink_then_7ppm": [],
+   "intro_url_autolink_then_7ppm": [],
+   "intro_7ppm_alone": [],
+   "section_para_first_line_email_then_7ppm": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 paragraph"
+   ],
+   "section_para_later_line_email_then_7ppm": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 paragraph"
+   ],
+   "section_table_cell_email_then_7ppm": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324 table_cell"
+   ],
+   "index_row_email_then_7ppm": [
+    "README.md:15 table_cell"
+   ],
+   "index_row_www_then_7ppm": [],
+   "index_row_7ppm_alone": [],
+   "intro_mailto_autolink_then_7ppm": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph"
+   ],
+   "intro_email_then_figure_on_next_word_run": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph"
+   ],
+   "intro_and_index_email_then_7ppm": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph",
+    "README.md:15 table_cell"
+   ]
+  }
+ },
+ "results": {
+  "check": "{author-packet}/tools/check_b16_figures.py",
+  "results": [
+   {
+    "case": "unchanged",
+    "document": null,
+    "line": null,
+    "phrase": null,
+    "expect": "pass",
+    "exit": 0,
+    "verdict": "OK",
+    "named": [],
+    "summary": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15597, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}",
+    "stderr": ""
+   },
+   {
+    "case": "intro_email_autolink_then_7ppm",
+    "document": "page",
+    "line": 19,
+    "phrase": " Write to x@example.com 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "FAILED_OTHERWISE",
+    "named": [
+     "BAD 1036\t22\t2026-10-12\t-\tdate\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph In lane B16, the operator tried the refe (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2244, \"rows\": 1960, \"rows_ok\": 1959, \"rows_bad\": 1, \"by_category\": 1375, \"digits\": 15541, \"digits_by_row\": 12980, \"digits_by_category\": 2561, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}",
+    "stderr": ""
+   },
+   {
+    "case": "intro_email_autolink_then_7ppm_no_space_word",
+    "document": "page",
+    "line": 19,
+    "phrase": " x@example.com, 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "FAILED_OTHERWISE",
+    "named": [
+     "BAD 1036\t22\t2026-10-12\t-\tdate\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph In lane B16, the operator tried the refe (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2244, \"rows\": 1960, \"rows_ok\": 1959, \"rows_bad\": 1, \"by_category\": 1375, \"digits\": 15541, \"digits_by_row\": 12980, \"digits_by_category\": 2561, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}",
+    "stderr": ""
+   },
+   {
+    "case": "intro_www_autolink_then_7ppm",
+    "document": "page",
+    "line": 19,
+    "phrase": " See www.example.com 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "DETECTED",
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:19 7 (a measurement: only a row can claim it) | its listener to its own talker on this See www.example.com 7 ppm. network, because its probe for that talker goes unansw"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+    "stderr": ""
+   },
+   {
+    "case": "intro_url_autolink_then_7ppm",
+    "document": "page",
+    "line": 19,
+    "phrase": " See https://example.com 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "DETECTED",
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:19 7 (a measurement: only a row can claim it) | listener to its own talker on this See https://example.com 7 ppm. network, because its probe for that talker goes unansw"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+    "stderr": ""
+   },
+   {
+    "case": "intro_7ppm_alone",
+    "document": "page",
+    "line": 19,
+    "phrase": " It ran 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "DETECTED",
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:19 7 (a measurement: only a row can claim it) | r cannot bind its listener to its own talker on this It ran 7 ppm. network, because its probe for that talker goes unansw"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+    "stderr": ""
+   },
+   {
+    "case": "section_para_first_line_email_then_7ppm",
+    "document": "page",
+    "line": 2301,
+    "phrase": " x@example.com 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "FAILED_OTHERWISE",
+    "named": [
+     "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 paragraph The loopback did not form. The peer's li (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2244, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1378, \"digits\": 15560, \"digits_by_row\": 12988, \"digits_by_category\": 2572, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}",
+    "stderr": ""
+   },
+   {
+    "case": "section_para_later_line_email_then_7ppm",
+    "document": "page",
+    "line": 2302,
+    "phrase": " x@example.com 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "FAILED_OTHERWISE",
+    "named": [
+     "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 paragraph The loopback did not form. The peer's li (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2244, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1378, \"digits\": 15560, \"digits_by_row\": 12988, \"digits_by_category\": 2572, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}",
+    "stderr": ""
+   },
+   {
+    "case": "section_table_cell_email_then_7ppm",
+    "document": "page",
+    "line": 2324,
+    "phrase": " x@example.com 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "FAILED_OTHERWISE",
+    "named": [
+     "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324 table_cell  See [B16: bench as left](#b16-bench-as- (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1400, \"digits\": 15595, \"digits_by_row\": 12988, \"digits_by_category\": 2607, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}",
+    "stderr": ""
+   },
+   {
+    "case": "index_row_email_then_7ppm",
+    "document": "index",
+    "line": 15,
+    "phrase": "; write to x@example.com 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "FAILED_OTHERWISE",
+    "named": [
+     "BAD 1012\tREADME.md:15\ttwice\tsummary/loop2/acmp-peer-tap.json\tx\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1013\tREADME.md:15\t-14.1\tsummary/pts1/a-peer-tap.json\t.1f\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1014\tREADME.md:15\tfour\tsummary/pts1/align-a-c.json\tw\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1015\tREADME.md:15\t300\tsummary/b0-2/c-b9-grade.json\t.0f#0\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1016\tREADME.md:15\t-123.95\tsummary/b0-2/c-b9-grade.json\t.2f\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1017\tREADME.md:15\t-122.80\tsummary/b0-2/c-b9-grade.json\t.2f\t\tERROR AssertionError: figure not on the line, or claimed twice"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2217, \"rows\": 1960, \"rows_ok\": 1934, \"rows_bad\": 26, \"by_category\": 1379, \"digits\": 15483, \"digits_by_row\": 12911, \"digits_by_category\": 2572, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}",
+    "stderr": ""
+   },
+   {
+    "case": "index_row_www_then_7ppm",
+    "document": "index",
+    "line": 15,
+    "phrase": "; see www.example.com 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "DETECTED",
+    "named": [
+     "UNCOVERED README.md:15 7 (a measurement: only a row can claim it) | ed ratio for B-CRF and B-AAF, and #645; see www.example.com 7 ppm."
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+    "stderr": ""
+   },
+   {
+    "case": "index_row_7ppm_alone",
+    "document": "index",
+    "line": 15,
+    "phrase": "; it ran 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "DETECTED",
+    "named": [
+     "UNCOVERED README.md:15 7 (a measurement: only a row can claim it) | lane B6's timed ratio for B-CRF and B-AAF, and #645; it ran 7 ppm."
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}",
+    "stderr": ""
+   },
+   {
+    "case": "intro_mailto_autolink_then_7ppm",
+    "document": "page",
+    "line": 19,
+    "phrase": " Write mailto:x@example.com 7 ppm.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "FAILED_OTHERWISE",
+    "named": [
+     "BAD 1036\t22\t2026-10-12\t-\tdate\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph In lane B16, the operator tried the refe (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2244, \"rows\": 1960, \"rows_ok\": 1959, \"rows_bad\": 1, \"by_category\": 1375, \"digits\": 15541, \"digits_by_row\": 12980, \"digits_by_category\": 2561, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}",
+    "stderr": ""
+   },
+   {
+    "case": "intro_email_then_figure_on_next_word_run",
+    "document": "page",
+    "line": 19,
+    "phrase": " x@example.com: 7 ppm, 26 s, -3 dB.",
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "FAILED_OTHERWISE",
+    "named": [
+     "BAD 1036\t22\t2026-10-12\t-\tdate\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph In lane B16, the operator tried the refe (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2244, \"rows\": 1960, \"rows_ok\": 1959, \"rows_bad\": 1, \"by_category\": 1375, \"digits\": 15541, \"digits_by_row\": 12980, \"digits_by_category\": 2561, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}",
+    "stderr": ""
+   },
+   {
+    "case": "intro_and_index_email_then_7ppm",
+    "document": "both",
+    "line": [
+     19,
+     15
+    ],
+    "phrase": [
+     " Write to x@example.com 7 ppm.",
+     "; write to x@example.com 7 ppm."
+    ],
+    "expect": "detect",
+    "exit": 1,
+    "verdict": "FAILED_OTHERWISE",
+    "named": [
+     "BAD 1012\tREADME.md:15\ttwice\tsummary/loop2/acmp-peer-tap.json\tx\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1013\tREADME.md:15\t-14.1\tsummary/pts1/a-peer-tap.json\t.1f\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1014\tREADME.md:15\tfour\tsummary/pts1/align-a-c.json\tw\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1015\tREADME.md:15\t300\tsummary/b0-2/c-b9-grade.json\t.0f#0\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1016\tREADME.md:15\t-123.95\tsummary/b0-2/c-b9-grade.json\t.2f\t\tERROR AssertionError: figure not on the line, or claimed twice",
+     "BAD 1017\tREADME.md:15\t-122.80\tsummary/b0-2/c-b9-grade.json\t.2f\t\tERROR AssertionError: figure not on the line, or claimed twice"
+    ],
+    "summary": "{\"lines\": 2340, \"tokens\": 2207, \"rows\": 1960, \"rows_ok\": 1933, \"rows_bad\": 27, \"by_category\": 1353, \"digits\": 15427, \"digits_by_row\": 12903, \"digits_by_category\": 2524, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 2}",
+    "stderr": ""
+   }
+  ]
+ }
+}

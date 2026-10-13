@@ -1,0 +1,263 @@
+[
+  {
+    "name": "figures",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/receipts/figures-rows.tsv",
+      "{output}/receipts/figures-coverage.tsv",
+      "--repo",
+      "{repo}"
+    ],
+    "rc": 0,
+    "seconds": 2.071
+  },
+  {
+    "name": "controls-r3",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r3_check_controls.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/scratch/checks/controls-r3",
+      "{output}/receipts/controls-r3.json"
+    ],
+    "rc": 0,
+    "seconds": 10.842
+  },
+  {
+    "name": "controls-r4",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r4_check_controls.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/scratch/checks/controls-r4",
+      "{output}/receipts/controls-r4.json"
+    ],
+    "rc": 1,
+    "seconds": 16.2
+  },
+  {
+    "name": "controls-r5",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r5_check_controls.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/scratch/checks/controls-r5",
+      "{output}/receipts/controls-r5.json"
+    ],
+    "rc": 1,
+    "seconds": 41.154
+  },
+  {
+    "name": "controls-r6",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r6_check_controls.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/scratch/checks/controls-r6",
+      "{output}/receipts/controls-r6.json"
+    ],
+    "rc": 1,
+    "seconds": 71.367
+  },
+  {
+    "name": "controls-r7",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r7_check_controls.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/scratch/checks/controls-r7",
+      "{output}/receipts/controls-r7.json"
+    ],
+    "rc": 1,
+    "seconds": 92.505
+  },
+  {
+    "name": "controls-r8",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r8_check_controls.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/scratch/checks/controls-r8",
+      "{output}/receipts/controls-r8.json"
+    ],
+    "rc": 0,
+    "seconds": 131.621
+  },
+  {
+    "name": "controls-r9",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r9_check_controls.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/scratch/checks/controls-r9",
+      "{output}/receipts/controls-r9.json"
+    ],
+    "rc": 0,
+    "seconds": 176.894
+  },
+  {
+    "name": "controls-r10",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r10_check_controls.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/scratch/checks/controls-r10",
+      "{output}/receipts/controls-r10.json"
+    ],
+    "rc": 0,
+    "seconds": 217.222
+  },
+  {
+    "name": "review-probes",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r10_probe_reruns.py",
+      "{repo}",
+      "{author-packet}",
+      "{author-packet}/tools/review-probes",
+      "{output}/scratch/checks/review-probes",
+      "f1b2489f5b1c929e81eeae79a469b2b27c47e340"
+    ],
+    "rc": 0,
+    "seconds": 327.092
+  },
+  {
+    "name": "self-probes",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r10_self_probes.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+      "{author-packet}",
+      "{output}/scratch/checks/self-probes",
+      "{output}/receipts/self-probes.json"
+    ],
+    "rc": 0,
+    "seconds": 324.744
+  },
+  {
+    "name": "reader-controls",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r10_reader_controls.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}",
+      "{output}/scratch/checks/reader-controls",
+      "{output}/receipts/reader-controls.json"
+    ],
+    "rc": 0,
+    "seconds": 0.165
+  },
+  {
+    "name": "parser-extents",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{author-packet}/tools/r10_parser_extents.py",
+      "{author-packet}/tools/check_b16_figures.py",
+      "{repo}",
+      "{output}/scratch/checks/parser-extents",
+      "{output}/receipts/parser-extents.json"
+    ],
+    "rc": 0,
+    "seconds": 0.164
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "-C",
+      "{repo}",
+      "diff",
+      "--check",
+      "c20c85bd",
+      "HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.008
+  },
+  {
+    "name": "docs-check",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{repo}/scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.874
+  },
+  {
+    "name": "doc-style",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{repo}/scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "toc-check",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{repo}/scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.972
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{repo}/scripts/check_em_dash.py",
+      "--base",
+      "c20c85bd"
+    ],
+    "rc": 0,
+    "seconds": 3.121
+  },
+  {
+    "name": "doc-paths",
+    "argv": [
+      "{locked-python}",
+      "-B",
+      "{repo}/scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  }
+]

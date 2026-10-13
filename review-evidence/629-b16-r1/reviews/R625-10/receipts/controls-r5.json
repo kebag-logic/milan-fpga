@@ -1,0 +1,249 @@
+{
+ "note": "Lane B16 rounds 3 to 5: controls of check_b16_figures.py on altered copies; offline, no bench action",
+ "controls": [
+  {
+   "control": "a figure changed on the page",
+   "alteration": "B-CRF's 9,973 Hz floor median at (c), line 3135: -123.97 to -123.96",
+   "expect": "exit 1, that row an ERROR (its figure gone from the line) and -123.96 UNCOVERED there",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a value changed in a receipt",
+   "alteration": "summary/bcrf/c-b9-grade.json ch1_floor.thdn_db_median: -123.97 to -123.96",
+   "expect": "exit 1, a MISMATCH row reading that receipt",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a figure added without a row",
+   "alteration": "' It held 7 polls.' appended to line 3205",
+   "expect": "exit 1, the token 7 UNCOVERED at that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a row pointing at the wrong line",
+   "alteration": "row 1 moved from line 2287 to line 2288",
+   "expect": "exit 1, row 1 an ERROR: the figure is not on that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a clock time rounded instead of cut",
+   "alteration": "lane B16b's identity gate end, line 2646, on the page and in its row: 06:22:34.993 shown as 06:22:35",
+   "expect": "exit 1, a MISMATCH row at that line recomputing 06:22:34",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a figure with its unit added inside a quoted phrase",
+   "alteration": "'The measured residual was \"7.25 ppm\" in \"37\" blocks.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, the tokens 7.25 (a measurement) and 37 (not one) both UNCOVERED at that line and named on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 4"
+  },
+  {
+   "control": "a figure with its unit added as a link label",
+   "alteration": "'The measured residual was [7.25 ppm](#b16c-attribution) in [37](#b16c-attribution) blocks.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, the tokens 7.25 (a measurement) and 37 (not one) both UNCOVERED at that line and named on standard output",
+   "observed": {
+    "rc": 1,
+    "named": false
+   },
+   "verdict": "FAIL",
+   "from": "round 4"
+  },
+  {
+   "control": "a category planted that matches every token, and a figure with its unit added in plain text",
+   "alteration": "X('planted: every token', '.+') first in EXCLUDE; 'The measured residual was 7.25 ppm.' inserted on line 3011",
+   "expect": "exit 1, the planted category live (it covers other tokens), the token 7.25 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true,
+    "planted_category_covered": 473
+   },
+   "verdict": "PASS",
+   "from": "round 4"
+  },
+  {
+   "control": "a number glued to s",
+   "alteration": "'The residual settled in 26s.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 26 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a number glued to dB",
+   "alteration": "'The residual sat 10dB above the floor.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 10 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a number glued to ms",
+   "alteration": "'The probe answered after 300ms.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 300 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a decimal with a leading point",
+   "alteration": "'The measured residual was .5 ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, .5 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a decimal with a sign and a leading point",
+   "alteration": "'The measured residual was -.25 ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, -.25 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a number in exponent form",
+   "alteration": "'The measured residual was 7e2 ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7e2 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a descriptor index before its unit after a double space",
+   "alteration": "'The measured residual was CLOCK_DOMAIN 7  ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a descriptor index before its unit after a non-breaking space",
+   "alteration": "'The measured residual was CLOCK_DOMAIN 7\\xa0ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a descriptor index before its unit after a hyphen",
+   "alteration": "'The measured residual was CLOCK_DOMAIN 7-ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a channel index on a continuation line, its keyword removed (R625-4)",
+   "alteration": "'Channels 2 and' on line 3108 replaced by 'Channel 2 reports samples:'",
+   "expect": "exit 1, the 3 that starts line 3109 UNCOVERED and not a measurement",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a Unicode minus before a figure a row claims",
+   "alteration": "B-CRF's 9,973 Hz floor count at (c), line 3135: 300 to U+2212 300",
+   "expect": "exit 1, that row an ERROR (part of a longer number) and the signed number UNCOVERED there",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a cited path that names no packet file",
+   "alteration": "'See `runs/pts9/events.jsonl`.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 9 UNCOVERED at that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "an anchor that names no heading",
+   "alteration": "'See [the round](#b16-round-9).' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 16 and -9 UNCOVERED at that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a category planted that matches every number, and a figure with its unit added",
+   "alteration": "X('planted: every number', r'(?P<t>\\d+(?:\\.\\d+)?)') first in EXCLUDE; 'The measured residual was 7.25 ppm.' inserted on line 3011",
+   "expect": "exit 1, the planted category live, and 7.25, named a measurement, the only UNCOVERED",
+   "observed": {
+    "rc": 1,
+    "named": true,
+    "planted_category_live": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  }
+ ]
+}

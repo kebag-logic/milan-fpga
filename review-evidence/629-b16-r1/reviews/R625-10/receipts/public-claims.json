@@ -1,0 +1,60 @@
+{
+  "head": "f1b2489f5b1c929e81eeae79a469b2b27c47e340",
+  "pr_updated_at": "2026-10-13T03:27:01Z",
+  "title": "Record bench lanes B16, B16b and B16c: Direction B's B0 graded, and B-CRF and B-AAF graded at the path's floor (#629)",
+  "body_sha256": "555f15e76b7d9598b37aafbc2af9c1c665f00ada644239203bd2903bd3811b0c",
+  "selected_body_lines": [
+    {
+      "line": 31,
+      "text": "- The second run's tap covered the bind. 99.6 ms after the unbind command, the peer sent PROBE_TX (IEEE 1722.1's CONNECT_TX) for its own talker onto the network, and again 200 ms later. Nothing answered in the rest of the capture, 49.6 s, so the stream never started."
+    },
+    {
+      "line": 70,
+      "text": "Direction B's bench quality metric is now graded for both followed sources, B-CRF and B-AAF, and with the DUT on INTERNAL. Lane B6's timed ratio for B-CRF and B-AAF was not run. Direction B's INTERNAL mismatch control did not run: B0 had the peer following the DUT, and the exception covers B-CRF and B-AAF only. #645 stays open, so #629 stays open."
+    },
+    {
+      "line": 424,
+      "text": "   - the earlier probes give round 8's exit statuses, verdicts and named lines (their summary counts and the check's hash follow the new page and check), but for R624-7's `footnote_ref_and` form: its footnote definition, appended after the page's last line, is named at line 4426 instead of 4274, because the page grew;"
+    },
+    {
+      "line": 498,
+      "text": "- R624-9-R1 is applied above: earlier probes retained exit statuses, verdicts and named lines, with the stated footnote movement; their full output bytes also contain updated counts and the check's hash. R625-9's manager-applied corrections remain: \u201c99.6 ms after the unbind command\u201d and \u201cline 4426\u201d."
+    }
+  ],
+  "formal_reviews": 0,
+  "inline_review_comments": 0,
+  "read_at_UTC": "2026-10-13T03:45:51.338700+00:00",
+  "decisions": [
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6132293481",
+      "body": "[A10] **Decision on the two changed control expectations (R625-8-F1, [6132288182](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6132288182)).** Round 8 moved the check to the pinned parser's visible text ([6130721355](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6130721355)). Two frozen diagnostics from earlier rounds now read differently. Both are accepted as the correct results under that contract.\n\n1. **Round 4's link-label control** (`in [37](#b16c-attribution) blocks`). The reader sees \"37 blocks\", so the digit is now a measurement that only a row may claim, where round 4 expected UNCOVERED but not a measurement. This supersedes round 4's expectation and the inherited copies in the round 5, 6 and 7 runners.\n2. **Round 7's comment inside a code span** (`` `CLOCK_DOMAIN 7<!-- -->ppm` ``). Inside a code span the parser presents the text verbatim as visible code, so no HTML comment exists to refuse. The digit is now UNCOVERED at its line, where round 7 expected MARKUP. This supersedes round 7's expectation.\n\nBoth altered pages are still refused (exit 1), with the number named at the correct source line and both receipts written. That remains the frozen requirement. The historical runners keep their recorded outcomes: 7/8, 21/22, 38/39 and 48/50, each failing only on these superseded expectations. They are not reported as wholly green. The round 8 runner (73/73) is the standing set.\n"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6133971231",
+      "body": "[A10] **R625-9 applied to the PR body.** The head is unchanged at `cb5ff79f`.\n- R625-9-F1: \"99.6 ms after the bind command\" now reads \"99.6 ms after the unbind command\". The tap records DISCONNECT_RX at 2.600600 s and the first CONNECT_TX at 2.700216 s; the findings already use that origin.\n- R625-9-R1: the locator now reads line 4426.\n\nNo source or page change was needed. The next delta review confirms the body."
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-6134101205",
+      "body": "[A10] **B16 findings, round 10 (documents only, no bench work).** R624-9 is NEGATIVE ([6134093761](https://github.com/kebag-logic/milan-fpga/pull/725#issuecomment-6134093761)). The pinned cmark-gfm reports a bare e-mail autolink, its text and the text after it with no position at all, so the check drops them silently: `x@example.com 7 ppm` escapes. R625-9's finding and its residue were applied to the PR body (6133971231). This is the third round in which the parser's own reporting hides text from the check. The class is closed by conservation, not by enumerating node kinds. Executor [A603].\n\n1. **No node without a position.** Any node the check reads or judges, other than a soft or hard break, that has no valid source start refuses its whole block. The refusal is named at the first covered line the block reaches. This covers the e-mail and `mailto:` autolinks and any other zero-position kind.\n2. **Digit conservation.** For each covered block, render it with the pinned renderer, the same one round 8 uses, and take its visible text. The multiset of digits in that visible text must equal the multiset of digits the check judged for the block. Any difference refuses the block, named at its first covered line. This catches any node kind the parser misplaces or omits, whether or not it is known today.\n3. **Controls.** R624-9's `probe_r624_9_autolink.py`, unchanged: every `detect` case exits 1, naming its 7 at the true line (19 or `README.md:15`) or refused there. The unchanged page passes. Add a standing control per autolink form, and one where a later line's figure in a paragraph must be named at its own line, not the paragraph's first (R624-9's 2301-for-2302 case). Add the zero-position kinds to the parser-extents audit. Every earlier runner and probe keeps its outcome.\n4. **Texts.** The page, the index row and the PR body state the rule. Apply R624-9-R1. The location paragraph gains round 9 at `author-r9/` (`4ab00ba5`).\n\nPost REVIEW READY (or STOP) with the head.\n"
+    }
+  ],
+  "changed_files": [
+    "M\tdocs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+    "M\tdocs/findings/README.md"
+  ],
+  "history": [
+    "f1b2489f5b1c929e81eeae79a469b2b27c47e340 Refuse unpositioned blocks and conserve rendered digits in lane B16's figures check (#629)",
+    "cb5ff79f1f69117efba353484851eceb620e5c92 Make lane B16's figures check judge each construct by the lines its source spans, refuse a paragraph whose lines the parser misplaces, count lines as the parser does, and record the decision on round 8's expectations (#629)",
+    "b522bb923fa59581478460b61633bce2cb90ac1d Make lane B16's figures check read its text through the pinned Markdown parser and refuse any construct off a closed allowlist, in the index row too, and map round 7's packet (#629)",
+    "295ba9d7f7dfed65e95002478ed6d55ccc14e580 Make lane B16's figures check refuse any line of its text that holds markup, in code too, instead of dropping comments, blank the section's table markers, and map round 6's packet (#629)",
+    "e91a62ee266e182a804ca1f45a0f18f715096563 Make lane B16's figures check read the page as rendered and count an identifier only before a closed list of followers, recompute each case's LOCKED count from its own receipt, and map rounds 4 and 5's packets (#629)",
+    "3619019350936d5af851933df0b5444ef8387e69 State the figures check's quoted-mention rule and every separator it reads between a number and its unit in lane B16's round 5 (#629)",
+    "f60132ca63ee74d34b6994ee189b2e87e85091ef Make lane B16's figures check account for every digit, so a measurement in any spelling needs a receipt and no identifier can stand for one (#629)",
+    "61ae86419c50f2707d6ee1dc5433bc6dee66ce84 State where lane B16's packet is published, and narrow its figures check to identifier exemptions so figures inside links and quoted phrases need a receipt (#629)",
+    "0782c55f77e7f44df2e39da1ca9d8643f2dd1dc5 Check every figure of lane B16's findings against its receipt: the positive control's floor counts, B16c's lock brackets and attribution, one rule for clock times (#629)",
+    "35e332b6be3de2b36c4aec0f1d0bc9f390447b74 Correct lane B16's findings against their receipts: B0's figures and attribution, lane B6's four terms, reduced receipts (#629)",
+    "e20fd2820a9c6b9effabc529a742e732263fafa8 Record bench lane B16c: B-CRF and B-AAF graded at the path's floor with the reference peer on its internal source (#629)",
+    "0d4ff91952bf46f786e08c7da24ffe777ba166da Record bench lane B16b: the tone reaches the DUT's TDM output sample-exact, B0 graded, B-CRF and B-AAF wait on a decision (#629)",
+    "694d7da601a29c099d1d01fd29b61fc23f2160c0 Record bench lane B16: the reference peer's loopback does not form, so the lane stops at step 2 (#629)"
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "head": "f1b2489f5b1c929e81eeae79a469b2b27c47e340",
+  "gates": [
+    {
+      "gate": "tool-md",
+      "cmd": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "--version"
+      ],
+      "rc": 0,
+      "seconds": 0.0
+    },
+    {
+      "gate": "tool-python3",
+      "cmd": [
+        "python3",
+        "--version"
+      ],
+      "rc": 0,
+      "seconds": 0.0
+    },
+    {
+      "gate": "docs-check",
+      "cmd": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 6.7
+    },
+    {
+      "gate": "doc-style",
+      "cmd": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "gate": "toc-check",
+      "cmd": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 5.5
+    },
+    {
+      "gate": "toc-verify-anchors",
+      "cmd": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "rc": 0,
+      "seconds": 3.4
+    },
+    {
+      "gate": "em-dash",
+      "cmd": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_em_dash.py",
+        "--base",
+        "e8454e27"
+      ],
+      "rc": 0,
+      "seconds": 3.3
+    },
+    {
+      "gate": "doc-paths",
+      "cmd": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "seconds": 0.1
+    },
+    {
+      "gate": "ci-scope-selftest",
+      "cmd": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 5.9
+    },
+    {
+      "gate": "baremetal-only-check",
+      "cmd": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 20.0
+    },
+    {
+      "gate": "baremetal-only-selftest",
+      "cmd": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 6.2
+    },
+    {
+      "gate": "feature-status-selftest",
+      "cmd": [
+        "python3",
+        "scripts/check_feature_status.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 1.1
+    },
+    {
+      "gate": "git-diff-check-worktree",
+      "cmd": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.0
+    },
+    {
+      "gate": "git-diff-check-range",
+      "cmd": [
+        "git",
+        "diff",
+        "--check",
+        "c20c85bd",
+        "HEAD"
+      ],
+      "rc": 0,
+      "seconds": 0.0
+    }
+  ],
+  "all_rc0": true,
+  "provenance": "Published author source-head receipts; not manager source or merge-candidate bank evidence."
+}

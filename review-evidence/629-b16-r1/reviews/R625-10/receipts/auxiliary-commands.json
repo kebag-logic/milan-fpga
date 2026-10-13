@@ -1,0 +1,35 @@
+{
+  "rebuild": [
+    "{output}/scratch/venv/bin/python",
+    "-B",
+    "{author-packet}/tools/r10_figures_build.py",
+    "{repo}/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+    "{author-packet}/tools/r10_figures_spec.py",
+    "{author-packet}/tools/check_b16_figures.py",
+    "{output}/scratch/aux/rebuilt.py"
+  ],
+  "historical-evidence": [
+    "{output}/scratch/venv/bin/python",
+    "-B",
+    "{author-packet}/tools/r4_evidence_receipt.py",
+    "{repo}",
+    "b84584e4",
+    "0782c55f",
+    "{output}/receipts/historical-evidence.json"
+  ],
+  "receipt-audit": [
+    "{output}/scratch/venv/bin/python",
+    "-B",
+    "{output}/audit_receipts.py",
+    "{repo}",
+    "{author-packet}",
+    "{output}/scratch/review-evidence/629-b16-r1/MANIFEST.json",
+    "{output}"
+  ],
+  "checkout-integrity": [
+    "python3",
+    "{output}/verify_checkout.py",
+    "{repo}",
+    "{output}/receipts/checkout-integrity.json"
+  ]
+}

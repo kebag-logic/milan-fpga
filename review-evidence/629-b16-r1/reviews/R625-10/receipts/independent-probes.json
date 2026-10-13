@@ -1,0 +1,260 @@
+{
+  "head": "f1b2489f5b1c929e81eeae79a469b2b27c47e340",
+  "cases": 23,
+  "met": 23,
+  "results": [
+    {
+      "case": "quoted_unit",
+      "inserted": " Extra \"7.25 ppm\".",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15600, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7.25 (a measurement: only a row can claim it) | AAF (997/9,973 Hz); every worst block is -123.93 dB. Extra \"7.25 ppm\".\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "linked_unit",
+      "inserted": " Extra [7.25 ppm](#b16c-attribution).",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15600, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 3, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7.25 (a measurement: only a row can claim it) | -AAF (997/9,973 Hz); every worst block is -123.93 dB. Extra 7.25 ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "decimal_nbsp",
+      "inserted": " Extra CLOCK_DOMAIN 7\u00a0ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7 ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "unlisted_unit",
+      "inserted": " Extra CLOCK_DOMAIN 7 furlongs.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7 furlongs.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "exponent",
+      "inserted": " Extra -.7e+2ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15599, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 2, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 -.7e+2 (a measurement: only a row can claim it) (no row can claim this spelling) | -AAF (997/9,973 Hz); every worst block is -123.93 dB. Extra -.7e+2ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "joined_unit",
+      "inserted": " Extra 26s.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15599, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 2, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 26 (a measurement: only a row can claim it) (no row can claim this spelling) | -AAF (997/9,973 Hz); every worst block is -123.93 dB. Extra 26s.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "raw_tag_split",
+      "inserted": " Extra CLOCK_DOMAIN 7<span></span>ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 2}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7ppm.\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 html_inline <span> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 html_inline </span> (refused: a construct off the allowlist; write plain Markdown)\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "character_reference",
+      "inserted": " Extra CLOCK_DOMAIN 7&#32;ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7 ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "unicode_numeric",
+      "inserted": " Extra CLOCK_DOMAIN \u0667 ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 \u0667 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN \u0667 ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "superscript_numeric",
+      "inserted": " Extra CLOCK_DOMAIN \u2077 ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 \u2077 (no row can claim this spelling) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN \u2077 ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "math_text",
+      "inserted": " Extra $7$ ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7  | AAF (997/9,973 Hz); every worst block is -123.93 dB. Extra $7$ ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "linked_image",
+      "inserted": " Extra CLOCK_DOMAIN 7[![](x.png)](#b16c-attribution)ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 1}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7ppm.\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 image ![](x.png) (refused: a construct off the allowlist; write plain Markdown)\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "collapsed_reference_image",
+      "inserted": " Extra CLOCK_DOMAIN 7![blank][]ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2342, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 1}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7ppm.\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 image ![blank][] (refused: a construct off the allowlist; write plain Markdown)\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "nul_separator",
+      "inserted": " Extra CLOCK_DOMAIN 7\u0000ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by '\ufffd', not on the closed list) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7\ufffdppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "unicode_keycap",
+      "inserted": " Extra CLOCK_DOMAIN 7\ufe0f\u20e3ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by '\ufe0f', not on the closed list) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7\ufe0f\u20e3ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "zero_width_unit",
+      "inserted": " Extra CLOCK_DOMAIN 7\u200bppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "short_comment",
+      "inserted": " Extra CLOCK_DOMAIN 7<!-->ppm<!-- -->.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2254, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 2, \"markup\": 2}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (no row can claim this spelling) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7ppm.\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 html_inline <!--> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 html_inline <!-- --> (refused: a construct off the allowlist; write plain Markdown)\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "email_after_code",
+      "inserted": " Extra `label` x@example.com 7 ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2250, \"rows\": 1960, \"rows_ok\": 1956, \"rows_bad\": 4, \"by_category\": 1401, \"digits\": 15565, \"digits_by_row\": 12956, \"digits_by_category\": 2609, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nBAD 720\t3244\t-123.98/-123.97\tsummary/bcrf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 721\t3244\t-123.98/-123.98\tsummary/baaf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 722\t3244\t-123.93\tsummary/bcrf/a-peer-tap.json\t.2f\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 1953\t3244\t997/9,973\ttools/b6_tone.py\ts#0\t\tERROR AssertionError: figure not on the line, or claimed twice\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 table_cell  At (a), medians are -123.98/-123.97 dB (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "entity_then_email",
+      "inserted": " Extra &amp; x@example.com 7 ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2250, \"rows\": 1960, \"rows_ok\": 1956, \"rows_bad\": 4, \"by_category\": 1401, \"digits\": 15565, \"digits_by_row\": 12956, \"digits_by_category\": 2609, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nBAD 720\t3244\t-123.98/-123.97\tsummary/bcrf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 721\t3244\t-123.98/-123.98\tsummary/baaf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 722\t3244\t-123.93\tsummary/bcrf/a-peer-tap.json\t.2f\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 1953\t3244\t997/9,973\ttools/b6_tone.py\ts#0\t\tERROR AssertionError: figure not on the line, or claimed twice\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 table_cell  At (a), medians are -123.98/-123.97 dB (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "xmpp",
+      "inserted": " Extra xmpp:x@example.com 7 ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2250, \"rows\": 1960, \"rows_ok\": 1956, \"rows_bad\": 4, \"by_category\": 1401, \"digits\": 15565, \"digits_by_row\": 12956, \"digits_by_category\": 2609, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nBAD 720\t3244\t-123.98/-123.97\tsummary/bcrf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 721\t3244\t-123.98/-123.98\tsummary/baaf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 722\t3244\t-123.93\tsummary/bcrf/a-peer-tap.json\t.2f\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 1953\t3244\t997/9,973\ttools/b6_tone.py\ts#0\t\tERROR AssertionError: figure not on the line, or claimed twice\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 table_cell  At (a), medians are -123.98/-123.97 dB (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "struck_figure",
+      "inserted": " Extra ~~7 ppm~~.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2250, \"rows\": 1960, \"rows_ok\": 1956, \"rows_bad\": 4, \"by_category\": 1401, \"digits\": 15565, \"digits_by_row\": 12956, \"digits_by_category\": 2609, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 2}\nBAD 720\t3244\t-123.98/-123.97\tsummary/bcrf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 721\t3244\t-123.98/-123.98\tsummary/baaf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 722\t3244\t-123.93\tsummary/bcrf/a-peer-tap.json\t.2f\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 1953\t3244\t997/9,973\ttools/b6_tone.py\ts#0\t\tERROR AssertionError: figure not on the line, or claimed twice\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 strikethrough ~~7 ppm~~ (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 table_cell  At (a), medians are -123.98/-123.97 dB (refused: the digits a reader sees differ from those the check read)\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "footnote_reference",
+      "inserted": " Extra [^7].",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2342, \"tokens\": 2250, \"rows\": 1960, \"rows_ok\": 1956, \"rows_bad\": 4, \"by_category\": 1401, \"digits\": 15565, \"digits_by_row\": 12956, \"digits_by_category\": 2609, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 3}\nBAD 720\t3244\t-123.98/-123.97\tsummary/bcrf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 721\t3244\t-123.98/-123.98\tsummary/baaf/a-peer-tap.json\ts\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 722\t3244\t-123.93\tsummary/bcrf/a-peer-tap.json\t.2f\t\tERROR AssertionError: figure not on the line, or claimed twice\nBAD 1953\t3244\t997/9,973\ttools/b6_tone.py\ts#0\t\tERROR AssertionError: figure not on the line, or claimed twice\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 footnote_reference [^7] (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 table_cell  At (a), medians are -123.98/-123.97 dB (refused: the digits a reader sees differ from those the check read)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4604 footnote_definition A note. (refused: a construct off the allowlist; write plain Markdown)\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    },
+    {
+      "case": "allowed_emphasis",
+      "inserted": " Extra CLOCK_DOMAIN **7** ppm.",
+      "line": 3244,
+      "rc": 1,
+      "stdout": "{\"lines\": 2340, \"tokens\": 2255, \"rows\": 1960, \"rows_ok\": 1960, \"rows_bad\": 0, \"by_category\": 1401, \"digits\": 15598, \"digits_by_row\": 12988, \"digits_by_category\": 2609, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3244 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | 73 Hz); every worst block is -123.93 dB. Extra CLOCK_DOMAIN 7 ppm.\n",
+      "stderr": "",
+      "rows_written": true,
+      "coverage_written": true,
+      "met": true
+    }
+  ]
+}
