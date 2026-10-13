@@ -1,0 +1,15 @@
+{
+  "label": "coverage-dev",
+  "argv": [
+    "python3",
+    "$WORK/in_checkout.py",
+    "$DEV",
+    "python3",
+    "sw/firmware/gtest/fw_coverage.py",
+    "--check",
+    "--jobs",
+    "4"
+  ],
+  "rc": 0,
+  "seconds": 264.5
+}

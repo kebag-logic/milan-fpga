@@ -1,0 +1,15 @@
+{
+  "label": "unit-tkdiag",
+  "argv": [
+    "env",
+    "VERILATOR=$WORK/verilator-two",
+    "python3",
+    "$WORK/in_checkout.py",
+    "$WORK/clone-v",
+    "make",
+    "-C",
+    "tb/verilator/tkdiag"
+  ],
+  "rc": 0,
+  "seconds": 28.73
+}

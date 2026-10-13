@@ -1,0 +1,17 @@
+{
+  "label": "capture-coverage",
+  "argv": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_capture.py",
+    "--out",
+    "$WORK/captures/coverage",
+    "--",
+    "python3",
+    "sw/firmware/gtest/fw_coverage.py",
+    "--build-only",
+    "--jobs",
+    "4"
+  ],
+  "rc": 0,
+  "seconds": 249.84
+}

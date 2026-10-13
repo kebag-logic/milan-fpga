@@ -1,0 +1,18 @@
+{
+  "label": "capture-store",
+  "argv": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_capture.py",
+    "--out",
+    "$WORK/captures/store",
+    "--",
+    "python3",
+    "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+    "--require-rv32",
+    "--build-only",
+    "--jobs",
+    "4"
+  ],
+  "rc": 0,
+  "seconds": 87.22
+}

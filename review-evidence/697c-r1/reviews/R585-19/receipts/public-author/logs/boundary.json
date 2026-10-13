@@ -1,0 +1,25 @@
+{
+  "label": "boundary",
+  "argv": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_boundary.py",
+    "--require-rv32",
+    "--selftest",
+    "--without",
+    "verilator",
+    "--capture",
+    "$WORK/captures/rv32",
+    "--capture",
+    "$WORK/captures/control",
+    "--capture",
+    "$WORK/captures/store",
+    "--capture",
+    "$WORK/captures/coverage",
+    "--capture",
+    "$WORK/captures/memory",
+    "--capture",
+    "$WORK/captures/f5"
+  ],
+  "rc": 0,
+  "seconds": 117.08
+}

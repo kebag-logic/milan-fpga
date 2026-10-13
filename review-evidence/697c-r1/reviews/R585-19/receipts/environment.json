@@ -1,0 +1,51 @@
+{
+  "recorded_at": "2026-10-13T09:32:34.459185+00:00",
+  "commands": {
+    "$REVIEWS/697c-r585-19-packet/scratch/venv/bin/python3 --version": {
+      "rc": 0,
+      "stdout": "Python 3.12.3\n",
+      "stderr": ""
+    },
+    "git --version": {
+      "rc": 0,
+      "stdout": "git version 2.56.0\n",
+      "stderr": ""
+    },
+    "gcc --version": {
+      "rc": 0,
+      "stdout": "gcc (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    "g++ --version": {
+      "rc": 0,
+      "stdout": "g++ (GCC) 16.2.1 20260810\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    "cmake --version": {
+      "rc": 0,
+      "stdout": "cmake version 4.4.4\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n",
+      "stderr": ""
+    },
+    "$VALIDATION_TOOLS/pinned-verilator-5.050/verilator --version": {
+      "rc": 0,
+      "stdout": "Verilator 5.050 2026-07-01 rev v5.050\n",
+      "stderr": ""
+    },
+    "$REVIEWS/697c-r585-19-packet/scratch/sdk/bin/riscv32-linux-gcc --version": {
+      "rc": 0,
+      "stdout": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    "clang --version": {
+      "rc": 0,
+      "stdout": "clang version 23.1.1\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n",
+      "stderr": ""
+    }
+  },
+  "resources": {
+    "memory.max": "12884901888\n",
+    "memory.peak": "5892993024\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n"
+  },
+  "note": "The stack boundary uses the ordinary clang executable. The unused clang-18 shim on PATH was not the compiler used by this run."
+}

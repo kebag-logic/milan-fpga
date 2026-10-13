@@ -1,0 +1,16 @@
+{
+  "label": "boundary-v",
+  "argv": [
+    "python3",
+    "$WORK/in_checkout.py",
+    "$WORK/clone-v",
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_boundary.py",
+    "--require-rv32",
+    "--selftest",
+    "--only",
+    "verilator"
+  ],
+  "rc": 0,
+  "seconds": 511.49
+}

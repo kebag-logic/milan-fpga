@@ -1,0 +1,24 @@
+RUN tx-nodirty
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 tx-nodirty frames-only run.log: rc=1, failures=4
+1x1 tx-nodirty frames-only escape.log: rc=0, failures=0
+PASS tx-nodirty
+RUN fixed-grid
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 fixed-grid uncertain run.log: rc=1, failures=8
+1x1 fixed-grid uncertain escape.log: rc=0, failures=0
+PASS fixed-grid
+RUN egress-stall
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 egress-stall uncertain run.log: rc=1, failures=8
+1x1 egress-stall uncertain escape.log: rc=0, failures=0
+PASS egress-stall
+RUN egress-stall@8
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+8x8 egress-stall uncertain run.log: rc=1, failures=36
+8x8 egress-stall uncertain escape.log: rc=0, failures=0
+PASS egress-stall@8

@@ -1,0 +1,16 @@
+{
+  "label": "unit-crf-mutants",
+  "argv": [
+    "env",
+    "VERILATOR=$WORK/verilator-two",
+    "python3",
+    "$WORK/in_checkout.py",
+    "$WORK/clone-ci",
+    "make",
+    "-C",
+    "tb/verilator/crf_rx",
+    "mutants"
+  ],
+  "rc": 0,
+  "seconds": 110.67
+}
