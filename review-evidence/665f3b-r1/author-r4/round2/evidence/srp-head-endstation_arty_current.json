@@ -1,0 +1,17 @@
+{
+  "name": "srp-head-endstation_arty_current",
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_srp_image.py",
+    "--config",
+    "configs/endstation_arty_current.yaml",
+    "--libc",
+    "$VALIDATION_STORAGE/665f3b-a612/runtime/libc.a",
+    "--compiler-runtime",
+    "$VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a",
+    "--output",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/composed-images/srp/head/endstation_arty_current"
+  ],
+  "rc": 0,
+  "seconds": 2.41
+}
