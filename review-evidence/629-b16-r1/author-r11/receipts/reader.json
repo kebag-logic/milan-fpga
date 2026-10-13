@@ -1,0 +1,168 @@
+{
+ "note": "Offline parser-output mutations; source unchanged; no bench action",
+ "cases": [
+  {
+   "case": "missing start: paragraph",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "paragraph",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: heading",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "heading",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: table_cell",
+   "met": true,
+   "refused": [
+    {
+     "line": 3,
+     "kind": "table_cell",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: block_quote",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "block_quote",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: list",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "list",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: item",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "item",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: emph",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "paragraph",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: strong",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "paragraph",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: link",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "paragraph",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: text",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "paragraph",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: code",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "paragraph",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "missing start: document",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "kind": "document",
+     "reason": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ]
+  },
+  {
+   "case": "lost digit",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "reason": "(refused: the digits a reader sees differ from those the check read)"
+    }
+   ]
+  },
+  {
+   "case": "duplicated digit",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "reason": "(refused: the digits a reader sees differ from those the check read)"
+    }
+   ]
+  },
+  {
+   "case": "substituted digit",
+   "met": true,
+   "refused": [
+    {
+     "line": 1,
+     "reason": "(refused: the digits a reader sees differ from those the check read)"
+    }
+   ]
+  }
+ ],
+ "all_met": true
+}

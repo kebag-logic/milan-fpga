@@ -1,0 +1,94 @@
+{
+ "note": "Lane B16 rounds 3 and 4: controls of check_b16_figures.py on altered copies; offline, no bench action",
+ "controls": [
+  {
+   "control": "a figure changed on the page",
+   "alteration": "B-CRF's 9,973 Hz floor median at (c), line 3142: -123.97 to -123.96",
+   "expect": "exit 1, that row an ERROR (its figure gone from the line) and -123.96 UNCOVERED there",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a value changed in a receipt",
+   "alteration": "summary/bcrf/c-b9-grade.json ch1_floor.thdn_db_median: -123.97 to -123.96",
+   "expect": "exit 1, a MISMATCH row reading that receipt",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a figure added without a row",
+   "alteration": "' It held 7 polls.' appended to line 3212",
+   "expect": "exit 1, the token 7 UNCOVERED at that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a row pointing at the wrong line",
+   "alteration": "row 1 moved from line 2294 to line 2295",
+   "expect": "exit 1, row 1 an ERROR: the figure is not on that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a clock time rounded instead of cut",
+   "alteration": "lane B16b's identity gate end, line 2653, on the page and in its row: 06:22:34.993 shown as 06:22:35",
+   "expect": "exit 1, a MISMATCH row at that line recomputing 06:22:34",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a figure with its unit added inside a quoted phrase",
+   "alteration": "'The measured residual was \"7.25 ppm\" in \"37\" blocks.' inserted before 'Every stage' on line 3018",
+   "expect": "exit 1, the tokens 7.25 (a measurement) and 37 (not one) both UNCOVERED at that line and named on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 4"
+  },
+  {
+   "control": "a figure with its unit added as a link label",
+   "alteration": "'The measured residual was [7.25 ppm](#b16c-attribution) in [37](#b16c-attribution) blocks.' inserted before 'Every stage' on line 3018",
+   "expect": "exit 1, the tokens 7.25 (a measurement) and 37 (not one) both UNCOVERED at that line and named on standard output",
+   "observed": {
+    "rc": 1,
+    "named": false
+   },
+   "verdict": "FAIL",
+   "from": "round 4"
+  },
+  {
+   "control": "a category planted that matches every token, and a figure with its unit added in plain text",
+   "alteration": "X('planted: every token', '.+') first in EXCLUDE; 'The measured residual was 7.25 ppm.' inserted on line 3018",
+   "expect": "exit 1, the planted category live (it covers other tokens), the token 7.25 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true,
+    "planted_category_covered": 473
+   },
+   "verdict": "PASS",
+   "from": "round 4"
+  }
+ ]
+}

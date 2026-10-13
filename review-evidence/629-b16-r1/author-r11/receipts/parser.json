@@ -1,0 +1,1354 @@
+{
+ "note": "Lane B16 round 10: the pinned parser's reported lines against each node's true lines, and the check's extent (round 9); the nodes it gives no start line or no column, and what the check makes of them (round 10); offline, no bench action",
+ "cases": 37,
+ "met": 37,
+ "short_of_source": [
+  "html_block",
+  "image",
+  "link",
+  "strikethrough"
+ ],
+ "misplaced": [
+  "a paragraph with a backslash line break",
+  "a paragraph with a link's title over a line break",
+  "a paragraph with a link's target over a line break",
+  "a paragraph with a reference label over a line break",
+  "a paragraph with an image's title over a line break",
+  "a paragraph opened by a reference definition"
+ ],
+ "results": [
+  {
+   "case": "<pre> block over two lines",
+   "document": "p\n\n<pre>\nx\n</pre>\n",
+   "kind": "html_block",
+   "reported": [
+    3,
+    4
+   ],
+   "true": [
+    3,
+    5
+   ],
+   "short_of_source": true,
+   "extent": [
+    3,
+    5
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "<pre> block closed on its second line",
+   "document": "p\n<pre>\nx</pre>\nq\n",
+   "kind": "html_block",
+   "reported": [
+    2,
+    2
+   ],
+   "true": [
+    2,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    2,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "<script> block",
+   "document": "<script>\nx\n</script>\n",
+   "kind": "html_block",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "<style> block",
+   "document": "<style>\nx\n</style>\n",
+   "kind": "html_block",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "<textarea> block",
+   "document": "<textarea>\nx\n</textarea>\n",
+   "kind": "html_block",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a comment block over two lines",
+   "document": "<!--\nx -->\n",
+   "kind": "html_block",
+   "reported": [
+    1,
+    1
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a comment block on one line",
+   "document": "p\n\n<!-- x -->\n",
+   "kind": "html_block",
+   "reported": [
+    3,
+    2
+   ],
+   "true": [
+    3,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    3,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a <? block",
+   "document": "<?\nx\n?>\n",
+   "kind": "html_block",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a <! block with a letter",
+   "document": "<!A\nx\n>\n",
+   "kind": "html_block",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a CDATA block",
+   "document": "<![CDATA[\nx\n]]>\n",
+   "kind": "html_block",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a <!-- block at the end without a line feed",
+   "document": "p\n<!--\nx -->",
+   "kind": "html_block",
+   "reported": [
+    2,
+    2
+   ],
+   "true": [
+    2,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    2,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a <div> block, ended by a blank line",
+   "document": "<div>\nx\n\ny\n",
+   "kind": "html_block",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a fenced code block",
+   "document": "```\nx\n```\n",
+   "kind": "code_block",
+   "reported": [
+    1,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "an indented code block",
+   "document": "p\n\n    x\n    y\n",
+   "kind": "code_block",
+   "reported": [
+    3,
+    4
+   ],
+   "true": [
+    3,
+    4
+   ],
+   "short_of_source": false,
+   "extent": [
+    3,
+    4
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "struck text over a line break",
+   "document": "a ~~b\nc~~ d\n",
+   "kind": "strikethrough",
+   "reported": [
+    1,
+    1
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "struck text on one line",
+   "document": "a ~~b~~ d\n",
+   "kind": "strikethrough",
+   "reported": [
+    1,
+    1
+   ],
+   "true": [
+    1,
+    1
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    1
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "an image whose description runs over a line break",
+   "document": "a ![b\nc](x.png) d\n",
+   "kind": "image",
+   "reported": [
+    2,
+    2
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "an image with an empty description over a line break",
+   "document": "a ![\n](x.png) d\n",
+   "kind": "image",
+   "reported": [
+    2,
+    2
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a link whose text runs over a line break",
+   "document": "a [b\nc](#x) d\n",
+   "kind": "link",
+   "reported": [
+    2,
+    2
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a link whose text holds a code span over a line break",
+   "document": "a [`b\nc`\nd](#x) e\n",
+   "kind": "link",
+   "reported": [
+    3,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": true,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "raw HTML inline over a line break",
+   "document": "a <span\nid=\"q\">b</span>\n",
+   "kind": "html_inline",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a code span over a line break",
+   "document": "a `b\nc` d\n",
+   "kind": "code",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "emphasis over a line break",
+   "document": "a *b\nc* d\n",
+   "kind": "emph",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a footnote reference",
+   "document": "a[^n] b\n\n[^n]: c\n",
+   "kind": "footnote_reference",
+   "reported": [
+    1,
+    1
+   ],
+   "true": [
+    1,
+    1
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    1
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a footnote definition over two lines",
+   "document": "a[^n]\n\n[^n]: c\n    d\n",
+   "kind": "footnote_definition",
+   "reported": [
+    3,
+    4
+   ],
+   "true": [
+    3,
+    4
+   ],
+   "short_of_source": false,
+   "extent": [
+    3,
+    4
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a thematic break",
+   "document": "a\n\n***\n",
+   "kind": "thematic_break",
+   "reported": [
+    3,
+    3
+   ],
+   "true": [
+    3,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    3,
+    3
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a task list item",
+   "document": "- [ ] a\n  b\n",
+   "kind": "tasklist",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": null,
+   "misplaced": null,
+   "expect_misplaced": null,
+   "met": true
+  },
+  {
+   "case": "a setext heading over two lines of text",
+   "document": "a\nb\n---\n",
+   "kind": "heading",
+   "reported": [
+    1,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": 2,
+   "misplaced": false,
+   "expect_misplaced": false,
+   "met": true
+  },
+  {
+   "case": "a table cell",
+   "document": "| a | b |\n|---|---|\n| c | d |\n",
+   "kind": "table_cell",
+   "reported": [
+    3,
+    3
+   ],
+   "true": [
+    3,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    3,
+    3
+   ],
+   "parser_last_line": 3,
+   "misplaced": false,
+   "expect_misplaced": false,
+   "met": true
+  },
+  {
+   "case": "a paragraph with a hard line break of two spaces",
+   "document": "a  \nb\nc\n",
+   "kind": "paragraph",
+   "reported": [
+    1,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": 3,
+   "misplaced": false,
+   "expect_misplaced": false,
+   "met": true
+  },
+  {
+   "case": "a paragraph with a backslash line break",
+   "document": "a\\\nb\nc\n",
+   "kind": "paragraph",
+   "reported": [
+    1,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": 2,
+   "misplaced": true,
+   "expect_misplaced": true,
+   "met": true
+  },
+  {
+   "case": "a paragraph with a link's title over a line break",
+   "document": "a [b](#x \"t\nu\") c\nd\n",
+   "kind": "paragraph",
+   "reported": [
+    1,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": 2,
+   "misplaced": true,
+   "expect_misplaced": true,
+   "met": true
+  },
+  {
+   "case": "a paragraph with a link's target over a line break",
+   "document": "a [b](\n#x) c\nd\n",
+   "kind": "paragraph",
+   "reported": [
+    1,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": 2,
+   "misplaced": true,
+   "expect_misplaced": true,
+   "met": true
+  },
+  {
+   "case": "a paragraph with a reference label over a line break",
+   "document": "a [b][r\nq] c\nd\n\n[r q]: #x\n",
+   "kind": "paragraph",
+   "reported": [
+    1,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": 2,
+   "misplaced": true,
+   "expect_misplaced": true,
+   "met": true
+  },
+  {
+   "case": "a paragraph with an image's title over a line break",
+   "document": "a ![b](x.png \"t\nu\") c\nd\n",
+   "kind": "paragraph",
+   "reported": [
+    1,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": 2,
+   "misplaced": true,
+   "expect_misplaced": true,
+   "met": true
+  },
+  {
+   "case": "a paragraph opened by a reference definition",
+   "document": "[r]: #x\nb\nc\n",
+   "kind": "paragraph",
+   "reported": [
+    1,
+    3
+   ],
+   "true": [
+    1,
+    3
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    3
+   ],
+   "parser_last_line": 2,
+   "misplaced": true,
+   "expect_misplaced": true,
+   "met": true
+  },
+  {
+   "case": "a paragraph in a block quote, continued lazily",
+   "document": "> a\nb\n",
+   "kind": "paragraph",
+   "reported": [
+    1,
+    2
+   ],
+   "true": [
+    1,
+    2
+   ],
+   "short_of_source": false,
+   "extent": [
+    1,
+    2
+   ],
+   "parser_last_line": 2,
+   "misplaced": false,
+   "expect_misplaced": false,
+   "met": true
+  }
+ ],
+ "no_position_cases": 22,
+ "no_position_met": 22,
+ "no_line_kinds": [
+  "link",
+  "text"
+ ],
+ "no_line_forms": [
+  "a bare e-mail address",
+  "a bare e-mail address opening a paragraph",
+  "a mailto: address",
+  "an xmpp: address",
+  "an e-mail address ending a sentence",
+  "an e-mail address inside emphasis",
+  "an e-mail address after a code span",
+  "two e-mail addresses",
+  "an e-mail address in a table cell",
+  "an e-mail address in a heading",
+  "an e-mail address in a block quote",
+  "an e-mail address in a list item"
+ ],
+ "no_column_forms": [
+  "a www. address opening a paragraph",
+  "a www. address opening a paragraph's second line",
+  "an https:// address opening a paragraph"
+ ],
+ "no_position": [
+  {
+   "case": "a bare e-mail address",
+   "document": "p\nq a@example.com 7 ppm\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text: 7 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph p",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "a bare e-mail address opening a paragraph",
+   "document": "a@example.com 7 ppm\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text: 7 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph a@example.com 7 ppm",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "a mailto: address",
+   "document": "p\nq mailto:a@example.com 7 ppm\n",
+   "no_line": [
+    "link:",
+    "text:mailto:a@example.com",
+    "text: 7 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph p",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "an xmpp: address",
+   "document": "p\nq xmpp:a@example.com/r 7 ppm\n",
+   "no_line": [
+    "link:",
+    "text:xmpp:a@example.com/r",
+    "text: 7 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "xmpp:a@example.com/r"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph p",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "an e-mail address ending a sentence",
+   "document": "p\nq a@example.com. 7 ppm\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text:. 7 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph p",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "an e-mail address inside emphasis",
+   "document": "p\nq *a@example.com 7* ppm\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text: 7"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph p",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "an e-mail address after a code span",
+   "document": "p\nq `x` a@example.com 7 ppm\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text: 7 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph p",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "two e-mail addresses",
+   "document": "p\nq a@example.com 7 b@example.com 8 ppm\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text: 7 ",
+    "link:",
+    "text:b@example.com",
+    "text: 8 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com",
+    "mailto:b@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph p",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "an e-mail address in a table cell",
+   "document": "| a | b |\n|---|---|\n| q a@example.com 7 ppm | d |\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text: 7 ppm"
+   ],
+   "no_column": [],
+   "read": [
+    {
+     "text": "a",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "text": "b",
+     "lines": [
+      1
+     ]
+    },
+    {
+     "text": "d",
+     "lines": [
+      3
+     ]
+    }
+   ],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 3,
+     "block": "table_cell  q a@example.com 7 ppm",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "an e-mail address in a heading",
+   "document": "### q a@example.com 7 ppm\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text: 7 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "heading ### q a@example.com 7 ppm",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "an e-mail address in a block quote",
+   "document": "> q a@example.com 7 ppm\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text: 7 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph q a@example.com 7 ppm",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "an e-mail address in a list item",
+   "document": "- q a@example.com 7 ppm\n",
+   "no_line": [
+    "link:",
+    "text:a@example.com",
+    "text: 7 ppm"
+   ],
+   "no_column": [],
+   "read": [],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [
+    {
+     "line": 1,
+     "block": "paragraph q a@example.com 7 ppm",
+     "why": "(refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+    }
+   ],
+   "met": true
+  },
+  {
+   "case": "a www. address opening a paragraph",
+   "document": "www.example.com 7 ppm\n",
+   "no_line": [],
+   "no_column": [
+    "link:",
+    "text:www.example.com"
+   ],
+   "read": [
+    {
+     "text": "www.example.com 7 ppm",
+     "lines": [
+      1
+     ]
+    }
+   ],
+   "targets_read": [
+    "http://www.example.com"
+   ],
+   "refused": [],
+   "met": true
+  },
+  {
+   "case": "a www. address opening a paragraph's second line",
+   "document": "p\nwww.example.com 7 ppm\n",
+   "no_line": [],
+   "no_column": [
+    "link:",
+    "text:www.example.com"
+   ],
+   "read": [
+    {
+     "text": "p www.example.com 7 ppm",
+     "lines": [
+      1,
+      2
+     ]
+    }
+   ],
+   "targets_read": [
+    "http://www.example.com"
+   ],
+   "refused": [],
+   "met": true
+  },
+  {
+   "case": "an https:// address opening a paragraph",
+   "document": "https://example.com 7 ppm\n",
+   "no_line": [],
+   "no_column": [
+    "link:",
+    "text:https://example.com"
+   ],
+   "read": [
+    {
+     "text": "https://example.com 7 ppm",
+     "lines": [
+      1
+     ]
+    }
+   ],
+   "targets_read": [
+    "https://example.com"
+   ],
+   "refused": [],
+   "met": true
+  },
+  {
+   "case": "an https:// address opening a paragraph's second line",
+   "document": "p\nhttps://example.com 7 ppm\n",
+   "no_line": [],
+   "no_column": [],
+   "read": [
+    {
+     "text": "p https://example.com 7 ppm",
+     "lines": [
+      1,
+      2
+     ]
+    }
+   ],
+   "targets_read": [
+    "https://example.com"
+   ],
+   "refused": [],
+   "met": true
+  },
+  {
+   "case": "a www. address inside a line",
+   "document": "p\nq www.example.com 7 ppm\n",
+   "no_line": [],
+   "no_column": [],
+   "read": [
+    {
+     "text": "p q www.example.com 7 ppm",
+     "lines": [
+      1,
+      2
+     ]
+    }
+   ],
+   "targets_read": [
+    "http://www.example.com"
+   ],
+   "refused": [],
+   "met": true
+  },
+  {
+   "case": "an https:// address inside a line",
+   "document": "p\nq https://example.com 7 ppm\n",
+   "no_line": [],
+   "no_column": [],
+   "read": [
+    {
+     "text": "p q https://example.com 7 ppm",
+     "lines": [
+      1,
+      2
+     ]
+    }
+   ],
+   "targets_read": [
+    "https://example.com"
+   ],
+   "refused": [],
+   "met": true
+  },
+  {
+   "case": "a core autolink to a URL",
+   "document": "p\nq <https://example.com> 7 ppm\n",
+   "no_line": [],
+   "no_column": [],
+   "read": [
+    {
+     "text": "p q https://example.com 7 ppm",
+     "lines": [
+      1,
+      2
+     ]
+    }
+   ],
+   "targets_read": [
+    "https://example.com"
+   ],
+   "refused": [],
+   "met": true
+  },
+  {
+   "case": "a core autolink to an e-mail address",
+   "document": "p\nq <a@example.com> 7 ppm\n",
+   "no_line": [],
+   "no_column": [],
+   "read": [
+    {
+     "text": "p q a@example.com 7 ppm",
+     "lines": [
+      1,
+      2
+     ]
+    }
+   ],
+   "targets_read": [
+    "mailto:a@example.com"
+   ],
+   "refused": [],
+   "met": true
+  },
+  {
+   "case": "an e-mail address in a code span",
+   "document": "p\nq `a@example.com` 7 ppm\n",
+   "no_line": [],
+   "no_column": [],
+   "read": [
+    {
+     "text": "p q `a@example.com` 7 ppm",
+     "lines": [
+      1,
+      2
+     ]
+    }
+   ],
+   "targets_read": [],
+   "refused": [],
+   "met": true
+  },
+  {
+   "case": "an e-mail address as a link's text",
+   "document": "p\nq [a@example.com 7](#x) ppm\n",
+   "no_line": [],
+   "no_column": [],
+   "read": [
+    {
+     "text": "p q a@example.com 7 ppm",
+     "lines": [
+      1,
+      2
+     ]
+    }
+   ],
+   "targets_read": [
+    "#x"
+   ],
+   "refused": [],
+   "met": true
+  }
+ ]
+}
