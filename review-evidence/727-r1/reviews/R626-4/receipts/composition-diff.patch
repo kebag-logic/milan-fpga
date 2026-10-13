@@ -1,0 +1,3313 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index 0e53b3a61..902b92cd4 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -312,6 +312,7 @@ jobs:
+   # F4 requires the exact lwSRP submodule and the freestanding RV32 control
+   # build after SDK installation, plus the control mutation campaign. The
+   # public dependency is fetched at the reviewed gitlink.
++  # Four complete phases run independently (#716); coverage stays unsplit.
+   # The saved-state and tally mutation campaigns remain additional local gates.
+   firmware-unit:
+     needs: changes
+@@ -351,7 +352,7 @@ jobs:
+         run: |
+           set -euo pipefail
+           python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+-          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
++          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
+ 
+       - name: Run the saved-state store suites and its RV32 build
+         run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+@@ -362,12 +363,114 @@ jobs:
+           python3 sw/firmware/gtest/fw_coverage.py --selftest
+           python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
+ 
++  firmware-control-mutants:
++    needs: changes
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
++    runs-on: ubuntu-latest
++    timeout-minutes: 45
++    steps:
++      - uses: actions/checkout@v4
++      - name: Fetch RTL dependencies
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
++
++      - name: Install GoogleTest and GoogleMock and print the versions
++        run: |
++          set -euo pipefail
++          sudo apt-get update -qq
++          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
++          python3 -m pip install --quiet pyyaml
++          dpkg-query -W libgtest-dev libgmock-dev
++          g++ --version | head -n 1
++          gcov --version | head -n 1
++
++      - name: Cache the pinned RV32 SDK
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++
++      - name: Run the control mutation campaign
++        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
++
++  firmware-aecp-mutants:
++    needs: changes
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
++    runs-on: ubuntu-latest
++    timeout-minutes: 45
++    steps:
++      - uses: actions/checkout@v4
++      - name: Fetch RTL dependencies
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
++
++      - name: Install GoogleTest and GoogleMock and print the versions
++        run: |
++          set -euo pipefail
++          sudo apt-get update -qq
++          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
++          python3 -m pip install --quiet pyyaml
++          dpkg-query -W libgtest-dev libgmock-dev
++          g++ --version | head -n 1
++          gcov --version | head -n 1
++
++      - name: Cache the pinned RV32 SDK
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++
++      - name: Run the AECP mutation campaign
++        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
++
++  firmware-srp-mutants:
++    needs: changes
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
++    runs-on: ubuntu-latest
++    timeout-minutes: 45
++    steps:
++      - uses: actions/checkout@v4
++      - name: Fetch RTL dependencies
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
++
++      - name: Install GoogleTest and GoogleMock and print the versions
++        run: |
++          set -euo pipefail
++          sudo apt-get update -qq
++          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
++          python3 -m pip install --quiet pyyaml
++          dpkg-query -W libgtest-dev libgmock-dev
++          g++ --version | head -n 1
++          gcov --version | head -n 1
++
++      - name: Cache the pinned RV32 SDK
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++
++      - name: Run both SRP mutation campaigns and pin controls
++        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
++
+   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
+   # deliberate docs-only result; failures and cancellations remain failures.
+   rtl-fast:
+     name: rtl-fast
+     if: ${{ always() && !cancelled() }}
+-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit]
++    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants]
+     runs-on: ubuntu-latest
+     timeout-minutes: 5
+     steps:
+@@ -379,6 +482,9 @@ jobs:
+           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
+           PUBLICATION_CENSUS_RESULT: ${{ needs.publication-census.result }}
+           FIRMWARE_UNIT_RESULT: ${{ needs.firmware-unit.result }}
++          FIRMWARE_CONTROL_MUTANTS_RESULT: ${{ needs.firmware-control-mutants.result }}
++          FIRMWARE_AECP_MUTANTS_RESULT: ${{ needs.firmware-aecp-mutants.result }}
++          FIRMWARE_SRP_MUTANTS_RESULT: ${{ needs.firmware-srp-mutants.result }}
+         run: |
+           set -euo pipefail
+           bad=0
+@@ -388,7 +494,10 @@ jobs:
+             "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
+             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
+             "publication-census:$PUBLICATION_CENSUS_RESULT" \
+-            "firmware-unit:$FIRMWARE_UNIT_RESULT"; do
++            "firmware-unit:$FIRMWARE_UNIT_RESULT" \
++            "firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT" \
++            "firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT" \
++            "firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT"; do
+             name="${pair%%:*}"
+             result="${pair#*:}"
+             printf '%-24s %s\n' "$name" "$result"
+diff --git a/docs/ARCHITECTURE_HW_SW_SPLIT.md b/docs/ARCHITECTURE_HW_SW_SPLIT.md
+index ed8f940fd..2c47d3a1b 100644
+--- a/docs/ARCHITECTURE_HW_SW_SPLIT.md
++++ b/docs/ARCHITECTURE_HW_SW_SPLIT.md
+@@ -189,6 +189,7 @@ In the ownerless test form:
+ 
+ F0's `--ctrl-mailbox` switch is default-off.
+ Its datapath inputs remain idle until protocol integration connects them.
++It also selects M8a-1's [firmware block RAM](design/SPLIT_CONTROL_MEMORY.md), with no BIOS.
+ The publication block's outputs remain unread until the placement switch selects them.
+ F1's flash and state ports await integration with those owners.
+ Access counts and model time do not prove target service latency.
+diff --git a/docs/README.md b/docs/README.md
+index 04d179b10..9711b7216 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -76,6 +76,7 @@ Publish conflicts before continuing.
+ | Review saved-state materialization | [Materialization contract, accepted](design/SAVED_STATE_MATERIALIZATION.md) |
+ | Review Mark II placement and timing | [Split architecture](ARCHITECTURE_HW_SW_SPLIT.md) |
+ | Review the firmware mailbox | [Packet mailbox split, F0](design/MAILBOX_SPLIT.md) |
++| Review the split placement's firmware memory | [Split control memory, M8a-1](design/SPLIT_CONTROL_MEMORY.md) |
+ 
+ ## Verification
+ 
+diff --git a/docs/design/AREA_BUDGET.md b/docs/design/AREA_BUDGET.md
+index bad66b843..0316da028 100644
+--- a/docs/design/AREA_BUDGET.md
++++ b/docs/design/AREA_BUDGET.md
+@@ -229,7 +229,7 @@ The 121.5-tile ceiling and 13.5-tile reserve remain unchanged.
+ 
+ The [owner's memory decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081706413) replaces the approximately 128 KB firmware budget.
+ The [F5 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081705916) allows 224 KB, AECP included.
+-Budget about 50 RAMB36 tiles for the complete firmware allocation.
++The [ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877) binds it: up to 56 RAMB36 as mapped; M8a-1 maps 54 at the largest shape.
+ The [F5 preflight](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081556432) measured 94,688 bytes for shipping 1x1 with one interface.
+ The largest supported shape with two interfaces measured 147,360 bytes.
+ Both fixtures retain F1 but exclude AECP and its descriptor image.
+@@ -242,34 +242,35 @@ The [memory ledger](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger) gives ea
+ | Recorded route at `a5ca6e51` | 74 | 27 | 87.5 | 87.5 |
+ | L2 credited removals: AECP and SRP storage | -6 | -1 | -6.5 | 81 |
+ | Measured mailbox replacement | +1 | +10 | +6 | 87 |
+-| M8a reuse of existing BIOS ROM and SRAM, estimate | -18 | -1 | -18.5 | 68.5 |
+-| Total firmware allocation, including reused CPU memory | +50 | 0 | +50 | 118.5 |
+-| M2 maximum additional allocation | +2 | 0 | +2 | 120.5 |
+-| Conditional release of remaining wrapper storage | -10 | -2 | -11 | 109.5 |
+-
+-The CPU-memory reuse uses the [historical SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic).
+-M8a must confirm it at the actual checkpoint.
+-Retained boot storage outside the firmware allocation adds a debit.
+-Descriptor images, alignment and saved-state staging outside it add debits.
+-Without that reuse, the totals become 139 and 128 tiles.
++| M8a-1: BIOS ROM and SRAM not built in the split, measured at `e8454e27` | -18 | 0 | -18 | 69 |
++| M8a-1: firmware allocation as mapped, 8x8 with two interfaces | +53 | +2 | +54 | 123 |
++| M2 maximum additional allocation | +2 | 0 | +2 | 125 |
++| Conditional release of remaining wrapper storage, split only | -10 | -2 | -11 | 114 |
++
++M8a-1 measured the BIOS ROM and SRAM at `e8454e27`: 16 + 2 RAMB36, no RAMB18.
++The [historical SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) also counted the identifier's RAMB18, which stays.
++The split builds neither BIOS memory, so no boot storage is retained outside the allocation.
++Descriptor images, alignment and saved-state staging are inside it.
++Keeping the BIOS memories would add 18: 143 and 132 tiles.
+ Neither fits the ceiling.
+ 
+-The nominal 50 tiles use approximately 4.5 KB raw capacity each.
+-A 4 KiB usable mapping would require 56 tiles for 224 KiB.
+-Actual primitive counts decide fit; the byte-to-tile estimate cannot prove it.
+-Arithmetic in tiles: `87.5 - 6.5 + 6 - 18.5 + 50 + 2 = 120.5`.
+-The conditional release subtracts eleven once, giving 109.5.
++The nominal 50 tiles used approximately 4.5 KB raw capacity each.
++A 4 KiB usable mapping requires 56 tiles for 224 KiB, the ruled limit.
++Actual primitive counts decide fit: [M8a-1's mapping](SPLIT_CONTROL_MEMORY.md#5-fit) gives 54 at the largest shape.
++With every bank in block RAM it gives 55.
++Arithmetic in tiles: `87.5 - 6.5 + 6 - 18 + 54 + 2 = 125`.
++The conditional release subtracts eleven once, giving 114.
+ These memory entries grant no additional LUT saving.
+ The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+ They depend on fitting the credited RAM conversions within the ledger.
+ 
+-At 50 tiles, the ledger leaves one tile before conditional reclamation.
+-After it, twelve tiles remain below 121.5.
+-At 56 firmware tiles, the conditional total is 115.5, leaving six.
++With M2's unused +2 allowance, the ledger is 3.5 tiles over 121.5 before conditional reclamation.
++The split takes it: 114 tiles leaves 7.5 below 121.5, or 6.5 with every bank in block RAM.
++At 56 firmware tiles, the conditional total is 116, leaving 5.5.
+ The separate 13.5-tile reserve remains untouched in these estimates.
+ Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.
+ 
+-Above 50 firmware tiles, the remaining wrapper stores give way first.
++For the ruled 56-tile firmware allocation, the remaining wrapper stores give way first.
+ They are five RX pools, MRP strip, TX slots, timer, trace, RX validator and `ctl_fifo`.
+ The plan names their exact [scopes and counts](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): eleven tiles altogether.
+ These credits require full removal and debiting every replacement store.
+@@ -279,7 +280,8 @@ If more capacity is needed, defer new M6/M7 RAM conversions; reprice every lost
+ Keep existing functionality, capacities and the 10 percent reserve.
+ Further unmet demand needs a manager ruling commissioning redesign.
+ Partial placement cannot claim retained AECP or wrapper storage as released.
+-Its same 50-tile hold gives 126.5 before additional fabric-AECP staging.
++With its six retained AECP tiles, the measured 54 gives `125 + 6 = 131`, 9.5 over 121.5.
++That is before additional fabric-AECP staging.
+ M0s must replace that over-ceiling estimate with the actual allocation.
+ 
+ Both M0s routes, the default flip and M9 publish memory-ledger reconciliation.
+@@ -382,7 +384,8 @@ Acceptance records, schema and policy are unchanged.
+ Intermediate selected placements cannot re-record acceptance; M9 owns that step.
+ 
+ The future route must reconcile actual firmware and retained storage.
+-About 50 firmware tiles remains a budget, not measured consumption.
++The ruled firmware limit is up to 56 RAMB36 as mapped.
++M8a-1's 54 at the largest shape is an out-of-context mapping, not integrated consumption.
+ Partial placement cannot borrow the full split's reclamation credits.
+ The 121.5-tile ceiling preserves the separate 10 percent reserve.
+ Missing measurements cannot qualify the default flip.
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index bd4d50bbf..0238b18be 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -1133,6 +1133,13 @@ list, so a switch-on build carries a different `VexiiRiscvLitex_<hash>` from
+ the shipping one. The datapath side is held
+ idle in F0.
+ 
++Since #640 M8a-1 the switch also selects the split placement's firmware
++memory: it requires `--ctrl-firmware <elf>`, builds no BIOS ROM or BIOS SRAM,
++and builds `rom` and `sram` block RAM from that image, with the firmware
++owning the reset entry. See
++[Split placement control memory](SPLIT_CONTROL_MEMORY.md). Off, nothing
++changes, and the default export is digest-identical again.
++
+ The proof is a gateware export (no Vivado) of every shipped config, with the
+ base and the head `milan_soc.py`, compared after removing the run's
+ timestamps, output paths and LiteX's comment-only hierarchy tree, whose order
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index 4b62edc59..ae577fbd5 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -39,7 +39,7 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
+ - **No double counting:** M3/M10 receive zero default-image credit.
+   Their AECP hardware leaves with F5.
+   M4 is replaced by the split; diagnostics remain enabled.
+-- **Firmware allocation:** 224 KB, budgeted at about 50 RAMB36 tiles.
++- **Firmware allocation:** 224 KB, up to 56 RAMB36 as mapped ([ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877)); M8a-1 maps 54 at the largest shape.
+   The [memory ledger](#firmware-and-block-ram-ledger) preserves the 10 percent reserve.
+   Its reuse and packing assumptions require routed confirmation.
+ - **Qualification risk:** F5, target service timing and bench acceptance remain.
+@@ -432,7 +432,7 @@ A software protocol owner must not become a software media path.
+ firmware capacity and F5 qualification remain implementation obligations.
+ The [owner's memory decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6081706413) replaces the earlier approximately 128 KB budget.
+ F5's limit is now 224 KB, including AECP.
+-Budget about 50 RAMB36 tiles for firmware.
++The [ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877) binds it: up to 56 RAMB36 as mapped.
+ The [memory ledger](#firmware-and-block-ram-ledger) includes the measured preflight and packing risk.
+ Measure linked code, data, stack, static pools and saved-state staging.
+ The current ROM parameter does not establish Mark II capacity.
+@@ -598,7 +598,7 @@ Shared sites or larger replacement logic can erase that saving.
+ Anonymous DDR logic could instead increase the measured saving.
+ M8a must replace these assumptions with a routed delta.
+ M0s and M9 retain independent primitive and memory-capacity checks.
+-M8a replaces the existing CPU memory allocation within the 50-tile budget.
++M8a replaces the existing CPU memory allocation within the owner's 224 KB, up to 56 RAMB36 as mapped.
+ It must reconcile that reuse against the [memory ledger](#firmware-and-block-ram-ledger).
+ The lane owns its memory-map migration and both placement contracts.
+ 
+@@ -772,6 +772,8 @@ The [F5 ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecommen
+ This supersedes the approximately 128 KB figure.
+ The device still reserves 13.5 of its 135 tiles.
+ The usable ceiling remains 121.5 tiles.
++The [ruling on M8a's STOP](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6101485877) binds the owner's 224 KB: up to 56 RAMB36 as mapped.
++Because M8a is split-placement only, its ledger takes the conditional release below.
+ 
+ The [F5 sizing preflight](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081556432) used dev `5603c353`.
+ It linked existing protocol code with the F1 store retained.
+@@ -792,9 +794,8 @@ They establish neither F5 completion nor mapped RAMB36 counts.
+ 
+ The 50-tile figure uses approximately 4.5 KB per RAMB36.
+ That is raw capacity; mapping can expose less usable storage.
+-For example, 224 KiB needs 56 tiles at 4 KiB usable each.
+-That example is a packing check, not a new F5 threshold.
+-M8a must report actual usable bytes and allocated primitives.
++224 KiB is 56 tiles at 4 KiB usable each; the ruling makes that the limit.
++[M8a-1](SPLIT_CONTROL_MEMORY.md#5-fit) reports the usable bytes and allocated primitives.
+ 
+ This ledger first withholds the wrapper's remaining 11 tiles.
+ It credits only the same removed scopes as L2's LUT basis.
+@@ -806,38 +807,41 @@ The firmware row replaces CPU memory, so replacement storage counts once.
+ | Recorded route at `a5ca6e51` | 74 | 27 | 87.5 | 87.5 |
+ | L2 credited removals: AECP and SRP storage | -6 | -1 | -6.5 | 81 |
+ | Measured mailbox replacement | +1 | +10 | +6 | 87 |
+-| M8a reuse of existing BIOS ROM and SRAM, estimate | -18 | -1 | -18.5 | 68.5 |
+-| Total firmware allocation, including reused CPU memory | +50 | 0 | +50 | 118.5 |
+-| M2 maximum additional allocation | +2 | 0 | +2 | 120.5 |
+-| Conditional release of remaining wrapper storage | -10 | -2 | -11 | 109.5 |
++| M8a-1: BIOS ROM and SRAM not built in the split, measured at `e8454e27` | -18 | 0 | -18 | 69 |
++| M8a-1: firmware allocation as mapped, 8x8 with two interfaces | +53 | +2 | +54 | 123 |
++| M2 maximum additional allocation | +2 | 0 | +2 | 125 |
++| Conditional release of remaining wrapper storage, split only | -10 | -2 | -11 | 114 |
+ 
+ The base and wrapper counts come from the [route record](../../syn/ooc/pp_resource_baseline.json).
+ The [mailbox measurement](MAILBOX_SPLIT.md#measured-area) supplies its debit.
+-The reuse estimate comes from the [earlier SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic).
+-That census reports BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
+-It is historical attribution, not a new census of `a5ca6e51`.
+-M8a must confirm the reusable count at its actual checkpoint.
+-Any retained boot memory outside the firmware allocation adds a debit.
+-The allocation must also contain stack, pools and shape-sized saved-state staging.
+-Any descriptor image or alignment space outside it adds a debit.
++The [earlier SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) reported BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
++M8a-1 measured 16 + 2 RAMB36 and no RAMB18 at `e8454e27`.
++The census's RAMB18 is the 49-byte identifier memory, which stays.
++The split builds neither BIOS memory, so no boot memory is retained outside the allocation.
++The allocation contains the stack, pools, shape-sized staging, descriptor image and alignment.
++Its 54 tiles are Vivado's mapping of the 8x8 two-interface image's banks, linked at `8ab2b539`.
++Vivado trims constant ROM bit columns and puts one sparse 512-word ROM bank, with the region's bank decode and read multiplexer, in 169 LUT cells.
++With every bank in block RAM, the same banks take 55 tiles.
+ No separate smaller-core RAM saving is credited.
+ 
+-Arithmetic in tiles: `87.5 - 6.5 + 6 - 18.5 + 50 + 2 = 120.5`.
+-The conditional release subtracts eleven once, giving 109.5.
++Arithmetic in tiles: `87.5 - 6.5 + 6 - 18 + 54 + 2 = 125`.
++The conditional release subtracts eleven once, giving 114.
++With every bank in block RAM: `126`, and 115 after the release.
+ These memory entries grant no additional LUT saving.
+ The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
+ They depend on fitting the credited RAM conversions within the ledger.
+ 
+-Before the conditional release, the estimate leaves one tile below 121.5.
+-After it, 109.5 tiles leaves twelve below that ceiling.
++Before the conditional release, with M2's unused +2 allowance, the total is 3.5 tiles over 121.5.
++The split takes the release: 114 tiles leaves 7.5 below that ceiling.
++With every bank in block RAM, 115 leaves 6.5.
+ Both leave the separate 13.5-tile reserve untouched.
+-Neither number proves integrated fit.
++Neither number proves integrated fit; M8a-2's route does.
+ Unpriced M6/M7 RAM conversions and integration buffers consume that allowance.
+ Each lane must debit them before accepting its LUT saving.
+-Without the estimated CPU-memory reuse, those totals become 139 and 128.
+-Both exceed the ceiling; reuse is a prerequisite, not free headroom.
++Keeping the BIOS ROM and SRAM would add 18: 143 and 132.
++Both exceed the ceiling, which is why the split builds neither.
+ 
+-**What gives way above 50 firmware tiles:** the remaining wrapper storage.
++**What gives way for the ruled 56-tile firmware allocation:** the remaining wrapper storage.
+ These disjoint scopes are outside the six AECP tiles and SRP half-tile:
+ 
+ | Released fabric scope, relative to wrapper | RAMB36 | RAMB18 | Tiles |
+@@ -856,8 +860,8 @@ Debit every replacement event, queue or diagnostic store separately.
+ Equivalent observability remains required by D2.
+ The measured mailbox already supplies its own queues and timers.
+ Do not credit its storage or these released stores twice.
+-At 56 firmware tiles, the conditional total becomes 115.5 tiles.
+-It leaves six below the ceiling, before other unpriced debits.
++At 56 firmware tiles, the conditional total becomes 116 tiles.
++It leaves 5.5 below the ceiling, before other unpriced debits.
+ M2's measured MAC/CSR FIFO conversion adds no tile, so deferring it frees none.
+ Beyond that allowance, defer new M6/M7 block-RAM conversions first.
+ Keep their existing storage and reprice the associated LUT savings.
+@@ -865,8 +869,8 @@ No media buffer, diagnostic function or protocol capacity is pruned.
+ If these trades still exceed 121.5, the manager must commission further redesign.
+ 
+ Partial placement retains AECP's six tiles and any still-used wrapper stores.
+-With the same 50-tile hold, the pre-release estimate becomes 126.5.
+-That is five tiles over the ceiling, before extra fabric-AECP staging.
++At the measured 54 firmware tiles, its pre-release total is `125 + 6 = 131`.
++That is 9.5 tiles over the ceiling, before extra fabric-AECP staging.
+ M0s must substitute measured firmware use and actual retained storage.
+ A partial route cannot borrow the full split's reclamation credits.
+ The all-fabric option needs its own complete memory reconciliation.
+@@ -1125,7 +1129,7 @@ Measurements queue serially; no Vivado overlaps another heavy build.
+ | 3, weeks 2-6 | M5 | Existing read mux and snapshots in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) | Adopted pin; preserve both placement faces | 600 (400-1,000) | CSR coherence, AXI-Lite timing and firmware readback |
+ | 4, weeks 2-6 | M6 | AVTP counter contexts, channel-map capture and render set-point under [`hdl/ieee1722/`](../../hdl/ieee1722/) | Adopted pin; fabric media ownership fixed by [#664](https://github.com/kebag-logic/milan-fpga/issues/664) | 600 (400-900) | Update/read/reset hazards, GET_COUNTERS and full datapath |
+ | 5, weeks 3-6 | M7 | gPTP engine state tables and parent shadow wrapper | Adopted pin; gPTP remains fabric; excludes M2 arrays | 500 (300-700) | gPTP suites, CDC/timestamps and turnaround |
+-| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging | D4 approved; D5 conditional; reconcile 50-tile firmware allocation and measured linked storage; prove split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
++| 6, weeks 2-8 | M8a/M8b | SoC memory/core selection, firmware layout and [#70](https://github.com/kebag-logic/milan-fpga/issues/70)/F1 staging | D4 approved; D5 conditional; reconcile the ruled 56-tile firmware allocation and measured linked storage; prove split service before accepting core | 2,700 (1,700-3,700) | Memory capacity, boot, 8x8 capture <= 24.5 ms, SRP churn; revert core if bounds fail |
+ | 7, decision at week 4; weeks 4-8 | M3 | Retained fabric AECP dispatch, notification, D3 and entity widths in processor | D1/D3 approved; ACMP/ADP portion replaced; schedule residual only for a selected fabric-AECP image | **0**; fabric-only opportunity 2,600 (1,500-3,600) | PDU/port equivalence and complete processor/consumer bank; no F5 overlap |
+ | 8, weeks 6-9 | M10 | One gPTP/AECP engine across processor integration | D6 planned; requires fabric AECP remaining and M3 preserving a separate removable engine | **0**; fabric-only opportunity 1,200 (900-1,500) | Sharing turnaround proof; removed AECP cannot be saved twice |
+ | 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | M0s coverage accepted; selected F2-F5 functions qualified; actual M-lane deltas known; required review complete | No assumed saving | <= 38,040 LUT with timing; aim <= 37,659; all suites/campaigns and physical acceptance |
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+new file mode 100644
+index 000000000..26290e9f2
+--- /dev/null
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -0,0 +1,207 @@
++# Split placement control memory
++
++Status: **M8a-1 implemented** behind `--ctrl-mailbox` (#640 lane M8a, plan L11a).
++The split image's boot, service checks and route are M8a-2, after F-INT PR 2 (#665).
++The all-fabric shipping default is unchanged and keeps its BIOS.
++
++In the split placement the control firmware owns the CPU's reset entry and runs from block RAM.
++No BIOS ROM or BIOS SRAM is built there.
++[`ctrl_memory.py`](../../sw/litex/ctrl_memory.py) is the one statement of the map, the bank plan and the checks.
++[`milan_soc.py`](../../sw/litex/milan_soc.py) builds the memory from the linked image (`CtrlMemory`, `add_ctrl_memory`).
++
++## Contents
++
++- **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, and why each region spans the whole budget.
++- **[2. Block RAM from the image](#2-block-ram-from-the-image)** -- Power-of-two banks of RAMB18 granules, the error answer past the last bank, and the build switch.
++- **[3. Named refusals](#3-named-refusals)** -- The checks every image passes before any block RAM is built, and the three planted controls.
++- **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and DDR3 until the wrapper is removed.
++- **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points, mapped out of context, and the ledger rows.
++- **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
++
++## 1. Memory map
++
++| Region | Origin | Size | Holds |
++|---|---|---:|---|
++| `rom` | `0x0000_0000`, the CPU's reset address | 224 KiB | `.text` with the reset entry first, `.rodata`, the initial bytes of `.data` |
++| `sram` | `0x1000_0000` | 224 KiB | `.data`, `.bss`, the 8 KiB stack |
++
++Both origins are LiteX's VexiiRiscv `rom` and `sram` origins.
++`add_ctrl_memory` refuses a CPU whose reset address or `sram` origin differs.
++Every other region is unchanged: `main_ram`, `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`.
++
++Each region spans the whole 224 KiB budget.
++The VexiiRiscv netlist is generated from the region list, so it does not depend on the image.
++Both shipped shapes elaborate the same CPU netlist.
++
++[`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld) links the firmware into these regions.
++It includes `regions.ld`, which `ctrl_memory.py regions` writes.
++[`ctrl_split_start.S`](../../sw/firmware/ctrl/plat/ctrl_split_start.S) is the reset entry.
++It sets the stack, copies `.data` from its initial bytes in `rom` and clears `.bss`.
++A CPU reset therefore re-enters with power-on state.
++
++## 2. Block RAM from the image
++
++`ctrl_memory.plan` reads the linked ELF.
++The `rom` need runs to the last initial byte; the `sram` need runs to the top of the stack.
++Each need is rounded up to 2,048-byte granules, one RAMB18 of 512 32-bit words.
++The granule count's binary digits are the banks, largest first.
++
++Each bank is LiteX's own `wishbone.SRAM` of power-of-two depth.
++It maps to whole block RAMs with no rounding.
++A region therefore wastes less than one granule.
++Largest first keeps every bank aligned to its own size, so the bank decode is a compare of high address bits.
++An address of the region past the last bank answers `err` at once instead of aliasing a bank.
++
++`rom` is read-only and initialised with the image; `sram` is uninitialised.
++The Builder then builds no BIOS: `add_ctrl_memory` sets LiteX's own `integrated_rom_initialized`.
++`main()` does not add the shipping firmware library, which has no BIOS to link into.
++
++`--ctrl-mailbox` requires `--ctrl-firmware <elf>`, and `--ctrl-firmware` alone is refused.
++The default build passes neither, and its export is digest-identical to the base (section 5).
++
++## 3. Named refusals
++
++Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `rule` names the rule that refused.
++`ctrl_memory.RULES` registers each rule, and this table lists the same rules in the same order:
++
++| Check | Rule | Refuses |
++|---|---|---|
++| `reset entry` | `entry address` | An image entering anywhere but `rom`'s first byte |
++| `reset entry` | `entry bytes` | An image with no initial bytes at the reset address |
++| `reset entry` | `cpu origins` | A CPU whose reset address or `sram` origin is not this map's |
++| `memory map` | `elf class` | A file that is not a little-endian ELF32 file |
++| `memory map` | `elf machine` | An ELF32 file for a machine other than RISC-V |
++| `memory map` | `elf truncated` | A header, table, name or load segment running past the end of the file |
++| `memory map` | `outside regions` | A section outside both regions |
++| `memory map` | `loads outside rom` | Initial bytes loading outside `rom`, the only region the bitstream initialises |
++| `memory map` | `load coverage` | A section with initial bytes that the load segments' file bytes, which program `rom`, do not all carry |
++| `memory map` | `nobits in rom` | A NOBITS section in `rom`, which the firmware cannot write |
++| `memory map` | `writable in rom` | A writable section with initial bytes running in `rom`, which drops its writes |
++| `memory-map overlap` | `regions` | The two regions sharing an address |
++| `memory-map overlap` | `addresses` | Two sections sharing an address |
++| `memory-map overlap` | `initial bytes` | Two sections sharing a load address |
++| `allocation over budget` | `budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half |
++| `staging buffer` | `stage symbol` | An image with no `nvm_stage` |
++| `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ2 container plus one record header |
++
++The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
++An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
++`rom`'s contents are the load segments' file bytes and nothing else.
++So `entry bytes` reads them as well as the sections: the first word at the reset address must be in them.
++`load coverage` requires them to carry every byte of every section with initial bytes.
++`add_ctrl_memory` checks the CPU's origins, then reads and plans the image, which runs every other rule but the two staging rules.
++`main()` runs the staging check before any export; the shape comes from `--entity-gen-dir`.
++
++[`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) plants a defect for every rule and requires that rule to refuse it.
++It also requires this table to equal `ctrl_memory.RULES`.
++For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
++
++The three planted controls fail by name in the test and in the SoC build itself.
++The test drives `milan_soc.py`'s own `main()` on the shipping 1x1 config's argv, with ELFs it writes:
++
++- an allocation over budget, 58 RAMB36, refused by `budget`;
++- a memory-map overlap, `.bss` at `.data`'s address, refused by `addresses`;
++- a staging buffer of another shape, the 8x8 stage in the 1x1 build, refused by `stage size`.
++
++A fourth case empties the reset segment's file bytes and keeps its section, refused by `entry bytes`.
++Each is refused before any Verilog or init file is written.
++`--ctrl-mailbox` alone and `--ctrl-firmware` alone are each refused.
++The passing split export holds the image's banks and no BIOS ROM or SRAM, and its `rom` banks hold the image.
++
++The same three controls, on the firmware linked at `c20ed894`, were also run once through the SoC build:
++
++- an allocation over budget: the 8x8 two-interface image with a 16 KiB stack, 56.5 RAMB36;
++- a memory-map overlap: `.bss` linked at `.data`'s address, which GNU ld accepts;
++- a staging buffer of another shape: the 1x1 image in an 8x8 build, 3,344 against 13,264 bytes.
++
++## 4. Boot console and diagnostics
++
++The split image loses:
++
++- the LiteX BIOS and its console: banner, memory, flash, SDRAM and boot commands;
++- the BIOS DDR3 initialisation (`sdram_init`);
++- the shipping firmware's UART commands, because `libmilan_baremetal` is not linked.
++
++It keeps the UART, `timer0`, `ctrl` (reset, scratch, bus errors) and the identifier memory.
++It also keeps the `ppmem` observer and every Milan CSR.
++Any console in the split image is the control firmware's.
++
++The CSR map is unchanged: a split export's `csr.csv` equals the base `--ctrl-mailbox` export's.
++Only the `rom` and `sram` region sizes differ.
++
++DDR3 stays instantiated under `--ctrl-mailbox` at this base.
++`KL_pp_shadow` is still instantiated, and its three processor memory masters reach the window in `main_ram`.
++With no BIOS, the DFI never makes the 1 to 0 to 1 hand-back that `pp_mem_gate` waits for.
++Those masters are therefore refused safely, as before DDR3 training.
++F-INT PR 2 removes the wrapper in the split build; M8a-2 then routes the split without DDR3.
++
++## 5. Fit
++
++The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-aecp --layout split` with an 8 KiB stack.
++It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
++The figures below link the firmware of `8ab2b539`, which carries dev `c6bd08c6`: F-INT's publication writers and lwSRP `08ee86e8`.
++Mapped out of context by `syn/ooc/ctrl_memory_ooc.py`: Vivado 2026.1, `xc7a100t-fgg484-2`, `AreaOptimized_high`.
++
++| Point | `rom` need, B | `sram` need, B | Planned RAMB36 equivalents | As mapped RAMB36 / RAMB18 | As mapped tiles | LUT cells / FF | Byte floor |
++|---|---:|---:|---:|---:|---:|---:|---:|
++| 1x1, one interface (shipping) | 96,624 | 45,776 | 35.5 | 34 / 2 | 35.0 | 128 / 8 | 35 |
++| 1x1, two interfaces | 98,056 | 57,152 | 38.0 | 37 / 1 | 37.5 | 89 / 7 | 38 |
++| 8x8, one interface | 110,344 | 86,336 | 48.5 | 46 / 2 | 47.0 | 417 / 42 | 48 |
++| 8x8, two interfaces (largest) | 111,848 | 112,464 | 55.0 | 53 / 2 | 54.0 | 266 / 34 | 55 |
++
++"Planned" is `ctrl_memory.plan` with every bank in block RAM.
++The banks hold 97.2 to 99.8 percent of their bytes.
++The byte floor is the flat linked span at 4,096 B per RAMB36, rounded up.
++Every point is within the 56-RAMB36 budget.
++The largest leaves 2 tiles as mapped.
++The budget check reads the planned 55.0, so its banks can grow 4 KiB (1.0 tile) before it is refused; with the unused bytes inside them, 5,064 B.
++
++Two Vivado optimisations put the ROM below its plan:
++
++- it trims a ROM bit column that is constant across a bank, so `16384x31` takes 15 RAMB36 and one RAMB18;
++- it maps a small or sparse ROM bank into logic: the 1,024-word bank at 8x8 with one interface, and the 512-word bank at 8x8 with two interfaces.
++
++At 1x1 every `rom` bank is in block RAM.
++At 8x8 that logic, with the `rom` region's bank decode and read multiplexer, is most of each point's LUT cells: 327 of 417 with one interface, and 169 of the largest point's 266.
++A LUT cell is one LUT primitive, as `ctrl_memory_ooc.py` counts them; `report_utilization` gives 161 Slice LUTs for the largest point's `rom` region.
++The decode and multiplexer are not free: two `rom` banks with none in logic take 36 LUT cells, and the largest point's five `sram` banks 97.
++The `sram` banks map exactly as planned, and their LUT cells are the bank decode and read multiplexer.
++LiteX's memory emitter carries no `ROM_STYLE`, so the build keeps Vivado's default.
++Forcing the logic bank into block RAM would recover only that bank's share of the 169, which this mapping does not separate.
++M8a-2's route weighs that share against at most 1.0 tile.
++
++The firmware of `ce10328c`, on dev `ac2c5e77`, planned 35.0 / 38.0 / 48.5 / 54.5 and mapped 34.0 / 37.5 / 47.0 / 53.0 tiles at the same points.
++Dev `c6bd08c6` added 1,792 B of `.text` and 264 B of `.bss` at the largest point, and its `rom` gained a fifth bank.
++
++Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
++One LiteX SRAM of the whole need of that revision's largest image, 221,728 B, took 64 RAMB36.
++The ledger rows are in the [plan](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 114 tiles after the split's release.
++
++## 6. Reproduce
++
++Link the image with the fixture, then plan it:
++
++```sh
++python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml \
++  --interfaces 2 --with-aecp --layout split --output "$OUT" \
++  --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
++python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264
++```
++
++`ctrl_image_runtime.py` builds the runtime archives; see the [control firmware](../../sw/firmware/ctrl/README.md#linked-size).
++
++Map the regions out of context with the LiteX interpreter and Vivado:
++
++```sh
++python3 syn/ooc/ctrl_memory_ooc.py "$MAP" s8i2="$OUT/ctrl_app.elf"
++cd "$MAP"
++vivado -mode batch -nojournal -source ctrl_memory_ooc.tcl
++```
++
++Build a split SoC by adding `--ctrl-mailbox --ctrl-firmware "$OUT/ctrl_app.elf"` to a shipping export.
++
++The test runs in the LiteX aggregate:
++
++```sh
++python3 sw/litex/test_ctrl_memory.py
++```
+diff --git a/docs/litex/LITEX_SOC.md b/docs/litex/LITEX_SOC.md
+index 8dcef7674..5a57d0a91 100644
+--- a/docs/litex/LITEX_SOC.md
++++ b/docs/litex/LITEX_SOC.md
+@@ -5,6 +5,7 @@ This page describes the all-fabric shipping placement.
+ Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+ All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+ That acceptance covers all streams, counters and the audio soak.
++The split placement's firmware memory, with no BIOS, is [Split placement control memory](../design/SPLIT_CONTROL_MEMORY.md).
+ 
+ 
+ `sw/litex/milan_soc.py` builds the supported target: a cacheless RV32
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 0eabe364c..a0990d667 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -42,7 +42,8 @@ pull-request update and on every push to `dev`. It produces one stable
+ - the mailbox publication census, `publication-census` (#665), when RTL or
+   its tooling changes (below);
+ - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
+-  (#665), when RTL or its tooling changes: the GoogleTest suites of
++  and three mutation jobs (#665, #716), for relevant changes.
++  They run the GoogleTest suites of
+   `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
+   two freestanding RV32 object builds, the tally listener's planted failure and
+   crash, and the line and branch coverage ratchet with its planted cases
+@@ -60,8 +61,49 @@ pull-request update and on every push to `dev`. It produces one stable
+   The tally listener's mutations (`tally_selftest.py --mutants`) also remain local.
+   The job runs the tally listener's planted cases.
+ 
++Firmware work uses four independent jobs, each requiring `changes`.
++The `rtl-fast` aggregate requires every job's result.
++Failures and cancellations remain failures.
++Each job retains the same relevance condition.
++
++`firmware-unit` runs normal suites, saved-state tests, and RV32 controls.
++It also runs the tally checks and complete coverage ratchet.
++`firmware-control-mutants` runs the complete control mutation table.
++`firmware-aecp-mutants` runs the complete AECP mutation table.
++`firmware-srp-mutants` runs both SRP campaigns and pin controls.
++The normal shard includes the SRP wire comparator self-test.
++Both SRP interface campaigns retain F-INT's publication mutants.
++The aggregate also requires the separate `publication-census` job.
++All jobs verify the same pinned SDK.
++Only that authenticated SDK is cached; builds remain fresh.
++
++| Job | Timeout | Hosted acceptance ceiling | Prediction ceiling |
++|---|---|---|---|
++| `firmware-unit` | 45 min | 1890 s | 1620 s |
++| `firmware-control-mutants` | 45 min | 1890 s | 1620 s |
++| `firmware-aecp-mutants` | 45 min | 1890 s | 1620 s |
++| `firmware-srp-mutants` | 45 min | 1890 s | 1620 s |
++
++Acceptance requires ten consecutive hosted runs within each 70% ceiling.
++Before review, four-CPU measurements must predict each job below 60%.
++Scale them using the original job's hosted-to-local ratio.
++Include checkout, installation, cache, and completion overhead.
++Issue #716 records measurements and the hosted acceptance table.
++
++The control driver's `--shard INDEX/4` selects complete phases.
++Its default invocation remains complete and ordered.
++Every sharded run checks the live default invocation inventory.
++Omitted or duplicated invocations fail, including newly discovered suites.
++The self-test plants both defects and a future suite.
++Coverage remains one unsplit measurement, with unchanged suites and thresholds.
++No coverage artifacts cross job boundaries.
++The generated command census retains each command's conditions.
++`ci_events.py` rejects differences after removing only shard arguments.
++It also pins every worker and its 45-minute timeout.
++
+ A change containing only documentation skips the Verilator and Yosys setup
+-jobs, `publication-census` and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
++jobs, `publication-census` and all four firmware jobs.
++Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+ `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
+ module reads (#444). A gated module is code under the six roots named below,
+ other than the builder bank that `docs-check` runs whole. A page a gated module
+@@ -75,7 +117,7 @@ Issue template and the root `LICENSE`. The `tsn_fuzz` suite compares
+ [the gPTP record](../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) with
+ the campaign it runs, so those two records are relevant by directory.
+ 
+-Six pages under `docs/` are relevant because Python in a classifier-gated
++Seven pages under `docs/` are relevant because Python in a classifier-gated
+ job names them. The behave suite of `bdd-conformance`, which no docs job runs,
+ asserts on [REGISTER_MAP.md](../reference/REGISTER_MAP.md) and
+ [MILAN_V12_AUDIT_2026-08-16.md](MILAN_V12_AUDIT_2026-08-16.md). The trace
+@@ -93,6 +135,10 @@ Its reader is absent from `DOCS_JOB_PY`.
+ [MAILBOX_CONTRACT.md](../reference/MAILBOX_CONTRACT.md) with the page it
+ generates from `sw/mailbox/mailbox.yaml` and reads its constant table back
+ (#665). No `docs-check` step runs it.
++`sw/litex/test_ctrl_memory.py`, in the LiteX aggregate of `elaborate`,
++requires the rule table in section 3 of
++[SPLIT_CONTROL_MEMORY.md](../design/SPLIT_CONTROL_MEMORY.md) to equal
++`ctrl_memory.RULES` (#640). No `docs-check` step runs it either.
+ The classifier's
+ self-test, `scripts/ci_scope.py --selftest`, derives that list from the
+ Python, the Makefiles and the shell under `tests/`, `tb/`, `syn/`, `sw/`,
+@@ -1233,6 +1279,19 @@ Verilator the member declares a skip (`RESULT: SKIP`, counted skipped, never
+ failed) and the aggregate reports INCOMPLETE rather than a green that would
+ claim a comparison nobody ran.
+ 
++The RV32 SDK this job installs serves one member the same way.
++`test_ctrl_memory` (#640 M8a) links a probe through the split placement's
++link script with it, found by `sw/firmware/gtest/fw_rv32.py` at the path the
++SDK step installs; without a compiler that member declares a skip too.
++Its SoC arm runs the end-station builder, so it needs the PyYAML this job
++installs, and exports the split 1x1 SoC through the LiteX the pins install and
++the patch series patches. It needs no firmware data package: as
++`sw/builder/test_shipping_clock_constraints.py` does, its child refuses every
++`pythondata_software_*` import and writes LiteX's headers without the firmware
++make inputs, which name picolibc and compiler-rt. So the arm grades the same in
++this job and on a host that has those packages. The split CPU is its own
++VexiiRiscv argument set, so a cold metadata cache pays one more Scala run for it.
++
+ `actions/checkout` does not populate submodules. Both this job and the hosted
+ `docs-check` job run the full builder, whose source gates consume
+ `protocol-processor`, `gptp-processor`, and the five shipping primitives under
+@@ -2359,6 +2418,20 @@ python3 sw/firmware/gtest/fw_coverage.py --selftest
+ python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 16
+ ```
+ 
++The hosted control phases can also run separately:
++
++```sh
++python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
++python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
++python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
++python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
++python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
++python3 scripts/ci_events.py --firmware-census
++```
++
++Run all four phases to reproduce the complete control gate.
++Shard arguments cannot combine with coverage or mutation slicing.
++
+ ## Failure and cancellation semantics
+ 
+ A worker is not trusted merely because an aggregate job was able to download
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 6770d5e88..3a6a0ca42 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -701,6 +701,30 @@ in the MAC reinit domain, a read port one entry ahead, `MilanMAC` without its
+ storage call, and arrays that register their read address. Each must fail its
+ named check.
+ 
++`test_ctrl_memory.py` (#640 M8a) grades the split placement's firmware
++memory: [`ctrl_memory.py`](../../sw/litex/ctrl_memory.py)'s bank plan, a
++planted defect for every rule in `ctrl_memory.RULES` refused by that rule
++(the 56.0 RAMB36 budget accepted and 56.5 refused), the real
++`milan_soc.CtrlMemory` in simulation at the largest image's banks across the
++whole decoded window, and a probe linked by
++[`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld), whose rom words
++must equal its `objcopy -O binary` image and whose load segments, emptied or cut
++short, are refused by rule. Its SoC arm runs
++`milan_soc.py`'s own `main()` on the shipping 1x1 config's argv without
++Vivado: the three planted controls (an allocation over budget, a memory-map
++overlap, a staging buffer of another shape), an emptied reset segment and the
++two lone flags are refused, and the split export holds the image's banks and no
++BIOS memory.
++That arm refuses LiteX's firmware data packages, which the `elaborate` job does
++not install, so it grades the same in any interpreter.
++It requires the
++[split control memory](../design/SPLIT_CONTROL_MEMORY.md#3-named-refusals)
++rule table to equal `ctrl_memory.RULES`. Its forty-four mutants each rebuild one
++function or class with a rule or property removed or weakened, and each must
++turn its arm red by name; an arm that fails unmutated grades no mutant. The
++link arm needs an RV32 compiler (`sw/firmware/gtest/fw_rv32.py` finds the
++pinned SDK); without one the member declares a skip.
++
+ An access that is never acknowledged must not wedge either bridge or the shared
+ bus.
+ 
+diff --git a/scripts/check_py_idiom.py b/scripts/check_py_idiom.py
+index 5d84953ab..dbec4dd4c 100644
+--- a/scripts/check_py_idiom.py
++++ b/scripts/check_py_idiom.py
+@@ -172,16 +172,24 @@ WILDCARD_EXCEPTIONS = {
+ }
+ 
+ #: `eval`/`exec` on a non-literal, with the guard that makes each safe. An entry
+-#: is a (path, reason) pair; a site not listed here is refused. All three read a
++#: is a (path, reason) pair; a site not listed here is refused. Three read a
+ #: number out of a source file that is the contract, rather than restating it
+-#: where the two could drift, and all three prove the text is arithmetic before
+-#: evaluating it. That proof is the entry fee: an unguarded `eval` on file text
++#: where the two could drift, and prove the text is arithmetic before
++#: evaluating it. The fourth rebuilds a definition its test has already
++#: imported, from that definition's own source, and proves the text is that
++#: one definition. A proof is the entry fee: an unguarded `eval` on file text
+ #: is refused however good the reason.
+ DYNAMIC_EXEC_INVENTORY = {
+     "sw/builder/test_builder.py":
+         "reads a C `#define` bit expression out of the firmware source. Guarded "
+         "by `re.fullmatch(r'[0-9A-Fa-fxX()~|&^<>+\\-\\s]*')` and a second pass "
+         "refusing any residual identifier, with `__builtins__` emptied.",
++    "sw/litex/test_ctrl_memory.py":
++        "rebuilds one function or class of ctrl_memory.py or milan_soc.py, both "
++        "already imported, from its own `inspect.getsource` text with one edit "
++        "from the test's mutant table, for the standing mutation check. Guarded "
++        "by the edit matching exactly once and by `ast.parse` of the result being "
++        "exactly one definition of that name; it runs in that module's namespace.",
+     "sw/trace/test_trace_roundtrip.py":
+         "reads MILAN_TRACE_BUDGET_BYTES_PER_HOUR and MILAN_TRACE_MIN_FLUSH_BYTES "
+         "out of milan_trace.h, which is the ABI. `_c_define_int` parses the "
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index 52df0a83b..ff8d72328 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -126,6 +126,7 @@ from __future__ import annotations
+ 
+ import argparse
+ import copy
++import json
+ import itertools
+ import pathlib
+ import re
+@@ -589,6 +590,8 @@ INHERITED_STEP_ENV = {
+     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
+     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+                              "FIRMWARE_UNIT_RESULT",
++                             "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
++                             "FIRMWARE_SRP_MUTANTS_RESULT",
+                              "PUBLICATION_CENSUS_RESULT",
+                              "VERILATOR_LINT_RESULT",
+                              "YOSYS_ELABORATION_RESULT"),
+@@ -1254,6 +1257,12 @@ GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
+ OOC_SH_SELFTEST_JOB = "yosys-elaboration"
+ #: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
+ FIRMWARE_UNIT_JOB = "firmware-unit"
++FIRMWARE_JOBS = (FIRMWARE_UNIT_JOB, "firmware-control-mutants",
++                 "firmware-aecp-mutants", "firmware-srp-mutants")
++FIRMWARE_JOB_IF = "${{ needs.changes.outputs.rtl == 'true' }}"
++FIRMWARE_PHASE_STEPS = ("Run the control-plane firmware suites and RV32 builds",
++                        "Run the control mutation campaign", "Run the AECP mutation campaign",
++                        "Run both SRP mutation campaigns and pin controls")
+ #: #665 F-INT: the fast job that runs the mailbox publication census in every
+ #: shape the builder builds, on its own runner (comment 6100024293).
+ CENSUS_JOB = "publication-census"
+@@ -2417,6 +2426,20 @@ RTL_STEP_LISTS = {
+          )},
+     ),
+ }
++# Preserve the pre-split recipe as the command census's source (#716).
++# Only shard arguments change. Setup may repeat, but every command and guard
++# survives in the union. Runtime dispatch separately proves suite ownership.
++FIRMWARE_BASE_STEPS = RTL_STEP_LISTS[(RTL_FAST, FIRMWARE_UNIT_JOB)]
++for firmware_index, firmware_job in enumerate(FIRMWARE_JOBS):
++    firmware_command = FIRMWARE_BASE_STEPS[6]["run"][-1] + f" --shard {firmware_index}/4"
++    if firmware_index == 0:
++        firmware_steps = list(FIRMWARE_BASE_STEPS)
++        firmware_steps[6] = {**firmware_steps[6], "run": (*firmware_steps[6]["run"][:-1], firmware_command)}
++    else:
++        firmware_steps = [*FIRMWARE_BASE_STEPS[:3], *FIRMWARE_BASE_STEPS[4:6],
++                          {"name": FIRMWARE_PHASE_STEPS[firmware_index], "run": (firmware_command,)}]
++    RTL_STEP_LISTS[(RTL_FAST, firmware_job)] = tuple(firmware_steps)
++
+ #: The other four jobs of the two RTL files, recorded in the same shape so
+ #: that whether a job is pinned is a COMPARISON and never a claim: the gate
+ #: job (item 4, #209), the physical leg, the fast selector and the fast
+@@ -3566,6 +3589,47 @@ def check_fast_ooc_sh_selftest(c: Contract, wf: YamlMap) -> None:
+            "setup, proving nothing)")
+ 
+ 
++def firmware_census(wf: YamlMap) -> list[dict[str, str]]:
++    """Generate every firmware command with its job and step conditions."""
++    rows = []
++    for jid in FIRMWARE_JOBS:
++        job = jobs(wf).get(jid, {})
++        for step in steps(job):
++            run = step.get("run", "")
++            if isinstance(run, (tuple, list)):
++                run = "\n".join(run)
++            for line in normalize_script(run):
++                rows.append({"job": jid, "step": step.get("name", ""), "command": line,
++                             "job_if": str(job.get("if", "success()")),
++                             "step_if": str(step.get("if", "success()"))})
++    return rows
++
++
++def firmware_commands(rows: list[dict[str, str]]) -> set[tuple[str, str, str]]:
++    """Collapse repeated setup; only the four new shard arguments are ignored."""
++    return {(re.sub(r" --shard [0-3]/4$", "", row["command"]), row["job_if"], row["step_if"])
++            for row in rows}
++
++
++def firmware_baseline_census() -> list[dict[str, str]]:
++    """Render the original job's recorded commands through the same generator."""
++    return firmware_census({"jobs": {FIRMWARE_UNIT_JOB: {
++        "if": FIRMWARE_JOB_IF, "steps": list(FIRMWARE_BASE_STEPS)}}})
++
++
++def check_firmware_layout(c: Contract, wf: YamlMap, policy: str) -> None:
++    """Hold the unchanged command population and all four documented budgets."""
++    want = firmware_commands(firmware_baseline_census())
++    got = firmware_commands(firmware_census(wf))
++    c.item(got == want, RTL_FAST,
++           f"firmware command census differs: missing={sorted(want - got)}, added={sorted(got - want)}")
++    for jid in FIRMWARE_JOBS:
++        c.item(jobs(wf).get(jid, {}).get("timeout-minutes") == 45, RTL_FAST,
++               f"firmware job `{jid}` timeout must remain 45 minutes")
++        row = f"| `{jid}` | 45 min | 1890 s | 1620 s |"
++        c.item(row in policy, POLICY, f"firmware budget row must state `{row}`")
++
++
+ def check_rtl_fast(c: Contract, wf: YamlMap) -> None:
+     """Everything rtl-fast.yml owes: triggers, concurrency, one carrier per
+     public name, the selector, the verdict, the ooc.sh self-test and the
+@@ -4155,6 +4219,7 @@ def check(parsed: World) -> Contract:
+     check_ownership_step(c, parsed[RTL_FULL])
+     check_aggregate_scripts(c, parsed[RTL_FULL])
+     check_rtl_fast(c, parsed[RTL_FAST])
++    check_firmware_layout(c, parsed[RTL_FAST], parsed[POLICY])
+     check_sequence_pin_coverage(c, parsed)
+     check_docs(c, parsed[DOCS])
+     check_elaborate(c, parsed[ELABORATE])
+@@ -7779,7 +7844,8 @@ def _rv32_sdk_arms() -> list[Arm]:
+     arms = []
+     for path, jid, count in ((DOCS, "docs-check", 50),
+                              (ELABORATE, "elaborate", 20),
+-                             (RTL_FAST, FIRMWARE_UNIT_JOB, 9)):
++                             *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
++                               for job in FIRMWARE_JOBS)):
+         for label, key, value in (
+                 ("digest", "key", RV32_CACHE_WITH["key"].replace(
+                     "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
+@@ -7800,9 +7866,10 @@ def _rv32_sdk_arms() -> list[Arm]:
+                      "(`Install and verify the pinned RV32 SDK`)"))
+         if path == RTL_FAST:
+             # Each missing compiler must refuse, never silently skip a build.
+-            for script, step_name in (
+-                    ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
+-                    ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build")):
++            controls = [("test_ctrl_firmware.py", FIRMWARE_PHASE_STEPS[FIRMWARE_JOBS.index(jid)])]
++            if jid == FIRMWARE_UNIT_JOB:
++                controls.append(("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build"))
++            for script, step_name in controls:
+                 suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
+                 arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
+                              _m_step_key_any(path, jid, script, "run",
+@@ -7907,6 +7974,27 @@ def _rtl_script_arms(pristine: World) -> list[Arm]:
+     return arms
+ 
+ 
++def _firmware_layout_arms() -> list[Arm]:
++    """The new census and budget checks must catch their own planted defects."""
++    arms = [
++        ("firmware command census omission",
++         _m_step_key_any(RTL_FAST, FIRMWARE_UNIT_JOB, "tally_selftest.py", "run", "true"),
++         "firmware command census differs"),
++        ("firmware command census condition",
++         _m_step_key_any(RTL_FAST, FIRMWARE_UNIT_JOB, "tally_selftest.py", "if", False),
++         "firmware command census differs"),
++    ]
++    for jid in FIRMWARE_JOBS:
++        arms.append((f"firmware {jid} timeout raised",
++                     _m_job_key_any(RTL_FAST, jid, "timeout-minutes", 46),
++                     f"firmware job `{jid}` timeout must remain 45 minutes"))
++        row = f"| `{jid}` | 45 min | 1890 s | 1620 s |"
++        arms.append((f"firmware {jid} budget absent",
++                     lambda w, row=row: w.__setitem__(POLICY, w[POLICY].replace(row, "")),
++                     f"firmware budget row must state `{row}`"))
++    return arms
++
++
+ def _mutations(pristine: World) -> list[Arm]:
+     """(name, mutate(parsed_world), expected finding fragment), every arm.
+ 
+@@ -7932,6 +8020,7 @@ def _mutations(pristine: World) -> list[Arm]:
+             + _aggregate_script_arms()
+             + _docs_builder_arms()
+             + _rv32_sdk_arms()
++            + _firmware_layout_arms()
+             + _docs_carrier_arms()
+             + _elaborate_arms()
+             + _decoy_name_arms()
+@@ -8583,6 +8672,8 @@ def main(argv: Sequence[str]) -> int:
+                       help="the live tree against the contract")
+     mode.add_argument("--selftest", action="store_true",
+                       help="mutation arms over in-memory copies")
++    mode.add_argument("--firmware-census", action="store_true",
++                      help="generate original and current firmware commands with their conditions")
+     mode.add_argument("--require-target-sha", action="store_true",
+                       help="verify every shard's TARGET_SHA record")
+     mode.add_argument("--require-default-branch", action="store_true",
+@@ -8604,6 +8695,17 @@ def main(argv: Sequence[str]) -> int:
+     parser.add_argument("roots", nargs="*",
+                         help="shard evidence directories (--require-target-sha)")
+     args = parser.parse_args(argv[1:])
++    if args.firmware_census:
++        try:
++            parsed = parse_world(read_tree(args.root))
++        except CannotRun as exc:
++            print(f"ci_events: cannot run: {exc}")
++            return RC_CANNOT_RUN
++        before = firmware_baseline_census()
++        after = firmware_census(parsed[RTL_FAST])
++        preserved = firmware_commands(before) == firmware_commands(after)
++        print(json.dumps({"before": before, "after": after, "preserved": preserved}, indent=2))
++        return RC_OK if preserved else RC_FINDING
+     if args.check:
+         return run_check(args.root)
+     if args.selftest:
+diff --git a/scripts/ci_scope.py b/scripts/ci_scope.py
+index 45bbee64e..812dcfaf5 100644
+--- a/scripts/ci_scope.py
++++ b/scripts/ci_scope.py
+@@ -60,10 +60,13 @@ TOP_LEVEL_SUFFIXES = [".md"]
+ #: event page, and the clock-contract test checks the latency-tap table. The
+ #: resource gate's check-baseline (yosys-elaboration) holds its baseline's
+ #: policy to the area budget's table. The mailbox contract generator's
+-#: --check compares its reference page with what it emits (#665 F0).
++#: --check compares its reference page with what it emits (#665 F0). The
++#: split control memory test (elaborate's LiteX aggregate) holds its rule
++#: table to ctrl_memory.RULES (#640).
+ GATE_READ_DOCS = [
+     "docs/AAF_LATENCY_TAPS.md",
+     "docs/design/AREA_BUDGET.md",
++    "docs/design/SPLIT_CONTROL_MEMORY.md",
+     "docs/reference/MAILBOX_CONTRACT.md",
+     "docs/reference/REGISTER_MAP.md",
+     "docs/reference/TRACE_EVENTS.md",
+@@ -282,6 +285,8 @@ def _cases() -> list[Case]:
+         (["docs/design/AREA_BUDGET.md"], True),
+         # The page the mailbox contract generator's --check compares (#665).
+         (["docs/reference/MAILBOX_CONTRACT.md"], True),
++        # The page whose rule table the split control memory test reads (#640).
++        (["docs/design/SPLIT_CONTROL_MEMORY.md"], True),
+         # Under docs/, a generator, a manifest, a budget or other non-prose.
+         (["docs/traceability/gen_module_matrix.py"], True),
+         (["docs/diagrams/PNG_MANIFEST.json"], True),
+diff --git a/scripts/run_litex_sims.sh b/scripts/run_litex_sims.sh
+index a7c491c70..9af909c60 100755
+--- a/scripts/run_litex_sims.sh
++++ b/scripts/run_litex_sims.sh
+@@ -98,6 +98,7 @@ SIM_DIR="$ROOT/sw/litex"
+ #: a red run, and docs/testing/TESTING.md section 2 names the rule.
+ INVENTORY=(
+   test_cpu_memory_port_cdc
++  test_ctrl_memory
+   test_gmii_rx_capture
+   test_gptp_tx_timestamp
+   test_pp_boot_bus_freeze
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 32b58826e..690e8c296 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -364,6 +364,12 @@ verified bare-metal runtime archives and an 8192-byte stack reservation;
+ see the [SRP recipe](srp/README.md#evidence).
+ Neither fixture is a shipping or booted image, and neither connects the
+ integrator's live stream, persistence and media owners completely.
++`ctrl_srp_image.py --layout split` links the same composition into the split
++placement's block RAM instead, behind its reset entry
++([`plat/ctrl_split.ld`](plat/ctrl_split.ld),
++[`plat/ctrl_split_start.S`](plat/ctrl_split_start.S)), and adds the bank plan
++the SoC would build for it to its report; see
++[Split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md).
+ 
+ 
+ `ctrl_image.py` links the firmware as a Mark II platform composes it
+diff --git a/sw/firmware/ctrl/plat/ctrl_split.ld b/sw/firmware/ctrl/plat/ctrl_split.ld
+new file mode 100644
+index 000000000..f05021cdd
+--- /dev/null
++++ b/sw/firmware/ctrl/plat/ctrl_split.ld
+@@ -0,0 +1,38 @@
++/* SPDX-FileCopyrightText: 2026 Kebag Logic */
++/* SPDX-License-Identifier: CERN-OHL-W-2.0 */
++/* ctrl_split.ld - the control firmware in the split placement's block RAM
++ * (#640 M8a). The firmware owns the reset entry: _start is the first word of
++ * rom, the CPU's reset address. rom holds the load image (.text, .rodata and
++ * the initial values of .data); sram holds .data, .bss and the stack.
++ * regions.ld is sw/litex/ctrl_memory.py's, the one statement of the map, and
++ * the SoC sizes both regions' block RAM from the image this script links. */
++OUTPUT_ARCH(riscv)
++ENTRY(_start)
++INCLUDE regions.ld
++
++SECTIONS
++{
++	.text : { KEEP(*(.text.start)) *(.text .text.*) } > rom
++	.rodata : ALIGN(4) { *(.rodata .rodata.* .srodata .srodata.*) } > rom
++	.data : ALIGN(4)
++	{
++		_fdata = .;
++		*(.data .data.* .sdata .sdata.*) *(.got .got.plt)
++		. = ALIGN(4);
++		_edata = .;
++	} > sram AT > rom
++	_fdata_rom = LOADADDR(.data);
++	.bss (NOLOAD) : ALIGN(4)
++	{
++		_fbss = .;
++		*(.bss .bss.* .sbss .sbss.* COMMON)
++		. = ALIGN(4);
++		_ebss = .;
++	} > sram
++	.stack (NOLOAD) : ALIGN(16)
++	{
++		. += 8192;
++		_stack_top = .;
++	} > sram
++	/DISCARD/ : { *(.comment) *(.note .note.*) *(.eh_frame .eh_frame.*) }
++}
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_start.S b/sw/firmware/ctrl/plat/ctrl_split_start.S
+new file mode 100644
+index 000000000..97ebe7cd1
+--- /dev/null
++++ b/sw/firmware/ctrl/plat/ctrl_split_start.S
+@@ -0,0 +1,28 @@
++/* SPDX-FileCopyrightText: 2026 Kebag Logic */
++/* SPDX-License-Identifier: CERN-OHL-W-2.0 */
++/* ctrl_split_start.S - the control firmware's reset entry in the split
++ * placement (#640 M8a, ctrl_split.ld). No BIOS runs first: the stack goes at
++ * the top of its reservation, .data is copied from its initial values in rom
++ * and .bss is cleared, so a CPU reset re-enters with the state of power-on.
++ * Then main; a return from it parks the hart. */
++	.section .text.start, "ax"
++	.global _start
++_start:
++	lla	sp, _stack_top
++	lla	t0, _fdata_rom
++	lla	t1, _fdata
++	lla	t2, _edata
++1:	bgeu	t1, t2, 2f
++	lw	t3, 0(t0)
++	sw	t3, 0(t1)
++	addi	t0, t0, 4
++	addi	t1, t1, 4
++	j	1b
++2:	lla	t0, _fbss
++	lla	t1, _ebss
++3:	bgeu	t0, t1, 4f
++	sw	zero, 0(t0)
++	addi	t0, t0, 4
++	j	3b
++4:	call	main
++5:	j	5b
+diff --git a/sw/firmware/ctrl/test/ctrl_srp_image.py b/sw/firmware/ctrl/test/ctrl_srp_image.py
+index 90f3bd652..724296f1d 100644
+--- a/sw/firmware/ctrl/test/ctrl_srp_image.py
++++ b/sw/firmware/ctrl/test/ctrl_srp_image.py
+@@ -5,7 +5,9 @@
+ Runtime archives must be bare-metal ILP32 libraries, never the SDK's glibc.
+ Their sizes and hashes are recorded alongside the section and symbol reports.
+ The firmware objects are rebuilt with the shared CI-pinned RV32 compiler.
+-The ELF is a size fixture; it has no board reset entry or fabric licence port.
++The ELF is a size fixture with no fabric licence port. `--layout split` links it
++into the split placement's block RAM (sw/litex/ctrl_memory.py) behind its reset
++entry and reports the bank plan the SoC would build for it.
+ """
+ from __future__ import annotations
+ import argparse
+@@ -20,6 +22,8 @@ from srp_arms import prepared, LWSRP_SOURCES
+ from ctrl_arms import lwsrp_pin
+ import fw_gtest
+ import fw_rv32
++sys.path.insert(0,str(ROOT/"sw/litex"))
++import ctrl_memory  # noqa: E402
+ 
+ 
+ def checked(argv: list[str]) -> str:
+@@ -59,6 +63,23 @@ def verify_abi(cc: str, elf: Path) -> None:
+         raise Refusal("linked image must be RV32I ILP32, including runtime code")
+ 
+ 
++def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Path],
++         layout: str) -> tuple[Path, Path]:
++    """Link the image flat (ctrl_image.ld) or split behind its reset entry (plat/ctrl_split.ld)."""
++    elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
++    script,ldflags=HERE/"ctrl_image.ld",[]
++    if layout == "split":
++        start=out/"ctrl_split_start.o"
++        checked([cc,"-march=rv32i","-mabi=ilp32","-c",str(src/"plat/ctrl_split_start.S"),"-o",str(start)])
++        (out/"regions.ld").write_text(ctrl_memory.regions_ld())
++        script,ldflags=src/"plat/ctrl_split.ld",[f"-L{out}",str(start)]
++    checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
++             "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
++             "-T",str(script),*ldflags,*map(str,objects),
++             "-Wl,--start-group",*map(str,libraries),"-Wl,--end-group","-o",str(elf)])
++    return elf,mapfile
++
++
+ def arguments() -> argparse.Namespace:
+     """Parse the shape, composition and isolated runtime inputs."""
+     parser=argparse.ArgumentParser(description=__doc__)
+@@ -68,6 +89,8 @@ def arguments() -> argparse.Namespace:
+     parser.add_argument("--without-srp",action="store_true")
+     parser.add_argument("--with-aecp",action="store_true")
+     parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
++    parser.add_argument("--layout",choices=("flat","split"),default="flat",
++                        help="flat: one RAM region (ctrl_image.ld); split: rom and sram behind the reset entry")
+     parser.add_argument("--libc",type=Path,required=True)
+     parser.add_argument("--compiler-runtime",type=Path,required=True)
+     return parser.parse_args()
+@@ -110,12 +133,7 @@ def main() -> int:
+         findings=fw_rv32.object_findings(cc,objects)
+         if findings:
+             raise Refusal(str(findings))
+-        elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
+-        ldflags=[]
+-        checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
+-                 "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
+-                 "-T",str(HERE/"ctrl_image.ld"),*ldflags,*map(str,objects),
+-                 "-Wl,--start-group",*map(str,libraries),"-Wl,--end-group","-o",str(elf)])
++        elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
+         nm=cc.removesuffix("gcc")+"nm"
+         verify_abi(cc,elf)
+         symbols=checked([nm,"-S",str(elf)])
+@@ -157,8 +175,11 @@ def main() -> int:
+                             "sha256":hashlib.sha256(path.read_bytes()).hexdigest()})
+         report={"shape":args.config.stem,"interfaces":args.interfaces,"srp":not args.without_srp,"aecp":args.with_aecp,
+                 "sections":sections,"static_storage":storage,"artifacts":records,
+-                "ram_sections":sum(sections.get(n,0) for n in (".text",".rodata",".data",".bss",".stack")),
+-                "ram_span":addresses["__image_end"]-addresses["__image_start"]}
++                "ram_sections":sum(sections.get(n,0) for n in (".text",".rodata",".data",".bss",".stack"))}
++        if args.layout == "split":
++            report["split"]=ctrl_memory.plan(ctrl_memory.read_elf(elf)).summary()
++        else:
++            report["ram_span"]=addresses["__image_end"]-addresses["__image_start"]
+         (out/"symbols.txt").write_text(symbols)
+         (out/"size.txt").write_text(size)
+         (out/"size.json").write_text(json.dumps(report,indent=2)+"\n")
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+index ce6feb05d..3f0bea6ec 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -88,6 +88,11 @@ partitions instead. Each mode covers the entire table across its partitions.
+ --coverage DIR builds the firmware with gcov's instrumentation into DIR and
+ runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
+ 
++--shard INDEX/4 schedules the complete gate across four jobs: normal suites,
++control mutants, AECP mutants, and SRP mutants with the pin controls.
++It requires --self-test and cannot narrow coverage or another partition.
++Every sharded run proves exhaustive, disjoint dispatch against the live default.
++
+ Usage:
+     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
+     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
+@@ -121,6 +126,86 @@ import fw_gtest  # noqa: E402
+ from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
+ from ctrl_reuse import cut_reuse  # noqa: E402
+ 
++PHASES = ("suites", "control", "aecp", "srp")
++SHARD_COUNT = len(PHASES)
++
++
++def shard_part(text: str) -> tuple[int, int]:
++    """One zero-based member of the complete four-job schedule."""
++    index, _, count = text.partition("/")
++    if not (index.isdigit() and count.isdigit() and int(count) == SHARD_COUNT
++            and 0 <= int(index) < SHARD_COUNT):
++        raise argparse.ArgumentTypeError(f"{text!r} is not INDEX/{SHARD_COUNT} with 0 <= INDEX < {SHARD_COUNT}")
++    return int(index), int(count)
++
++
++def selected_phases(shard: tuple[int, int] | None) -> tuple[str, ...]:
++    """Keep the default complete; each hosted member owns one whole phase."""
++    return PHASES if shard is None else (PHASES[shard[0]],)
++
++
++def run_suites(args: argparse.Namespace, tree: Tree) -> list:
++    """The unchanged normal suite population, including each live shape."""
++    outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
++                ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
++                ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
++                ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
++                ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
++                ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
++                ctrl_arms.arm_srpcmp()]
++    if args.lwsrp is not None:
++        outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
++        for i in (1, 2):
++            outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i))
++            outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, debug=True))
++            for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
++                          "srp_latency.cpp", "srp_walk.cpp"):
++                outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
++        outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
++    outcomes.extend(aecp_arms.all_arms(tree))
++    return outcomes
++
++
++def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
++    """Keep both interface campaigns and the dependency pin refusals together."""
++    if args.lwsrp is None:
++        return False
++    lwsrp = args.lwsrp.resolve()
++    failed = srp_mutants.campaign(out / "srp-mutants", lwsrp, args.jobs)
++    complete_srp_table = srp_mutants.DEFECTS
++    try:
++        srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
++                                  if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
++                                                        "p11-", "srp-bound-", "srp-term-",
++                                                        "srp-poll-extra", "srp-send-extra",
++                                                        *srp_pub_mutants.ROUND5)))
++        failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
++    finally:
++        srp_mutants.DEFECTS = complete_srp_table
++    return ctrl_mutants.lwsrp_pin_arms(out / "mutants", lwsrp) != 0 or failed
++
++
++def run_selected(args: argparse.Namespace, tree: Tree, out: Path) -> bool:
++    """Dispatch complete phases; a failed normal run still prevents mutations."""
++    failed = False
++    for phase in selected_phases(args.shard):
++        if phase == "suites":
++            failed = ctrl_arms.report(run_suites(args, tree))
++            if failed:
++                return True
++        elif args.self_test:
++            if phase == "control":
++                failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs,
++                                               args.slice, args.mutation_shard) or failed
++            elif phase == "aecp":
++                aecp_shard = args.mutation_shard or (args.slice[0] - 1, args.slice[1])
++                failed = aecp_mutants.campaign(out / "aecp-mutants", args.jobs, aecp_shard) or failed
++            elif phase == "srp":
++                failed = run_srp_mutants(args, out) or failed
++            else:
++                raise Refusal(f"unknown firmware phase {phase!r}")
++    return failed
++
+ 
+ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
+     """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
+@@ -162,6 +247,8 @@ def main(argv: list[str] | None = None) -> int:
+     ap.add_argument("--lwsrp", type=Path, default=CTRL.parents[2] / "third_party/lwSRP",
+                     help="an exact pinned lwSRP checkout (default: the submodule)")
+     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
++    ap.add_argument("--shard", type=shard_part, metavar="INDEX/4",
++                    help="with --self-test: one of four exhaustive, disjoint phase partitions")
+     ap.add_argument("--mutation-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
+                     help="with --self-test: run zero-based INDEX of COUNT mutation partitions")
+     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
+@@ -171,6 +258,9 @@ def main(argv: list[str] | None = None) -> int:
+                     help="with --self-test: plant slice K of N of the defect table")
+     args = ap.parse_args(argv)
+     args.jobs = min(4, max(1, args.jobs))
++    if args.shard is not None and (not args.self_test or args.coverage is not None
++                                  or args.mutation_shard is not None or args.slice != (1, 1)):
++        ap.error("--shard requires --self-test and excludes --coverage, --mutation-shard and --slice")
+     if args.mutation_shard is not None:
+         index, count = args.mutation_shard
+         if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
+@@ -179,54 +269,19 @@ def main(argv: list[str] | None = None) -> int:
+             ap.error("choose either --slice or --mutation-shard")
+     if args.coverage is not None:
+         return coverage(args.coverage.resolve(), args.lwsrp, args.jobs)
++    if args.shard is not None:
++        from test_ctrl_firmware_shards import run_cases
++        run_cases(sys.modules[__name__])
+     print(f"toolchain: {fw_gtest.toolchain()}")
+     with tempfile.TemporaryDirectory(prefix="ctrl-fw-") as tmp:
+         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
+         try:
+             tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=args.jobs))
+             cut_reuse(tree.reuse)
+-            outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
+-                        ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
+-                        ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
+-                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
+-                        ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
+-                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
+-                        ctrl_arms.arm_srpcmp()]
+-            if args.lwsrp is not None:
+-                outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
+-                for i in (1, 2):
+-                    outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i))
+-                    outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, debug=True))
+-                    for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
+-                          "srp_latency.cpp", "srp_walk.cpp"):
+-                        outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+-                outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+-            outcomes.extend(aecp_arms.all_arms(tree))
++            failed = run_selected(args, tree, out)
+         except Refusal as exc:
+             print(f"REFUSED: {exc}")
+             return 2
+-        failed = ctrl_arms.report(outcomes)
+-        if args.self_test and not failed:
+-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice, args.mutation_shard)
+-            aecp_shard = args.mutation_shard or (args.slice[0] - 1, args.slice[1])
+-            failed = aecp_mutants.campaign(out / "aecp-mutants", args.jobs, aecp_shard) or failed
+-            if args.lwsrp is not None:
+-                failed = srp_mutants.campaign(out / "srp-mutants", args.lwsrp.resolve(), args.jobs) or failed
+-                complete_srp_table = srp_mutants.DEFECTS
+-                try:
+-                    srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+-                                              if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
+-                                                                    "p11-", "srp-bound-", "srp-term-",
+-                                                                    "srp-poll-extra", "srp-send-extra",
+-                                                                    *srp_pub_mutants.ROUND5)))
+-                    failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
+-                finally:
+-                    srp_mutants.DEFECTS = complete_srp_table
+-                try:
+-                    failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed
+-                except Refusal as exc:
+-                    print(f"REFUSED: {exc}")
+-                    return 2
+     print(f"test_ctrl_firmware: {'FAIL' if failed else 'PASS'}")
+     return 1 if failed else 0
+ 
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware_shards.py b/sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+new file mode 100644
+index 000000000..07ec7a3eb
+--- /dev/null
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+@@ -0,0 +1,174 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Prove sharded dispatch preserves the live default suite and mutant inventory."""
++
++from __future__ import annotations
++
++import argparse
++from collections import Counter
++from collections.abc import Callable
++from contextlib import ExitStack, redirect_stderr, redirect_stdout
++from io import StringIO
++import json
++from pathlib import Path
++from types import ModuleType, SimpleNamespace
++from unittest.mock import patch
++
++import test_ctrl_firmware as driver
++from ctrl_build import Outcome, Tree
++
++
++def argument(value: object) -> object:
++    """Stable call identity without temporary checkout paths."""
++    if isinstance(value, Tree):
++        return "firmware tree"
++    if isinstance(value, Path):
++        return value.name
++    return value
++
++
++def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
++              extra_suite: bool = False) -> list[str]:
++    """Discover dispatch through the real driver, intercepting expensive entry points.
++
++    Composite arm builders still enumerate their live shapes and suites.
++    Campaign entries come from their current tables, including interface variants.
++    This checks scheduling; the unchanged real arms judge firmware behavior.
++    """
++    calls = []
++    args = SimpleNamespace(shard=shard, self_test=True, jobs=4, slice=(1, 1),
++                           mutation_shard=None, require_rv32=True,
++                           lwsrp=module.CTRL.parents[2] / "third_party/lwSRP")
++    tree = Tree(module.CTRL, Path("dispatch-build"), Path("dispatch-reuse"),
++                module.fw_gtest.Build(jobs=4))
++
++    def arm(name: str) -> Callable[..., Outcome]:
++        """Record the live entry point and every argument that selects its suite."""
++        def record(*positional: object, **keywords: object) -> Outcome:
++            """Return a passing stand-in without compiling or running firmware."""
++            call = [name, [argument(v) for v in positional],
++                    {k: argument(v) for k, v in keywords.items()}]
++            calls.append("suite:" + json.dumps(call, sort_keys=True))
++            return Outcome(name, 0, "")
++        return record
++
++    def control_campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
++                         shard: tuple[int, int] | None = None) -> bool:
++        """Read the same complete or legacy-partitioned control table."""
++        table = (module.ctrl_mutants.sliced(part) if shard is None
++                 else module.ctrl_mutants.MUTANTS[shard[0]::shard[1]])
++        calls.append("control:unnamed-tests")
++        calls.extend("control:" + mutant.name for mutant in table)
++        return False
++
++    def aecp_campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1)) -> bool:
++        """Keep the campaign's controls and each live AECP defect visible."""
++        calls.append("aecp:controls")
++        calls.extend("aecp:" + defect.name for defect in module.aecp_mutants.DEFECTS[shard[0]::shard[1]])
++        return False
++
++    def srp_campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
++        """Distinguish both interface variants of the live SRP table."""
++        calls.extend(f"srp-if{interfaces}:" + defect.name for defect in module.srp_mutants.DEFECTS)
++        return False
++
++    def pin_controls(root: Path, lwsrp: Path) -> int:
++        """Retain the unchanged pin-control invocation."""
++        calls.append("lwsrp:pin-controls")
++        return 0
++
++    with ExitStack() as context, redirect_stdout(StringIO()):
++        if extra_suite:
++            original = module.run_suites
++
++            def with_future_suite(*args: object) -> list[Outcome]:
++                """A new suite needs no entry in an ownership list."""
++                results = original(*args)
++                results.append(arm("future-suite")())
++                return results
++
++            context.enter_context(patch.object(module, "run_suites", with_future_suite))
++        for owner in (module.ctrl_arms, module.srp_arms, module.aecp_arms):
++            for name, value in vars(owner).copy().items():
++                if callable(value) and (name.startswith("arm_") or name in ("core_arm", "image_arm")):
++                    context.enter_context(patch.object(owner, name, arm(owner.__name__ + "." + name)))
++        context.enter_context(patch.object(module.ctrl_arms, "report", return_value=False))
++        context.enter_context(patch.object(module.ctrl_mutants, "campaign", control_campaign))
++        context.enter_context(patch.object(module.aecp_mutants, "campaign", aecp_campaign))
++        context.enter_context(patch.object(module.srp_mutants, "campaign", srp_campaign))
++        context.enter_context(patch.object(module.ctrl_mutants, "lwsrp_pin_arms", pin_controls))
++        assert not module.run_selected(args, tree, Path("dispatch-build"))
++    return calls
++
++
++def differences(expected: list[str], shards: list[list[str]]) -> dict[str, list[str]]:
++    """Each live default invocation must occur exactly once across the shards."""
++    want = Counter(expected)
++    have = Counter(call for shard in shards for call in shard)
++    return {"missing": sorted((want - have).elements()),
++            "duplicate_or_unexpected": sorted((have - want).elements())}
++
++
++def refusal_cases(module: ModuleType) -> None:
++    """Invalid or narrowing shard combinations must refuse before any build."""
++    flags = (["--shard", value, "--self-test"] for value in ("0/0", "0/3", "4/4", "-1/4", "x/4"))
++    incompatible = (["--shard", "0/4"],
++                    ["--shard", "0/4", "--self-test", "--coverage", "unused"],
++                    ["--shard", "0/4", "--self-test", "--slice", "1/2"],
++                    ["--shard", "0/4", "--self-test", "--mutation-shard", "0", "2"])
++    for argv in (*flags, *incompatible):
++        with redirect_stderr(StringIO()):
++            try:
++                module.main(argv)
++            except SystemExit as exc:
++                assert exc.code == 2, (argv, exc.code)
++            else:
++                raise AssertionError(f"accepted invalid shard arguments: {argv}")
++    args = SimpleNamespace(shard=None, self_test=True)
++    with patch.object(module, "run_suites", return_value=[]), \
++            patch.object(module.ctrl_arms, "report", return_value=True), \
++            patch.object(module.ctrl_mutants, "campaign") as campaign:
++        assert module.run_selected(args, None, Path("unused"))
++        campaign.assert_not_called()
++    print("PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations")
++
++
++def run_cases(module: ModuleType = driver) -> list[list[str]]:
++    """Compare live dispatch, then require dropped and duplicated work to fail."""
++    expected = inventory(module)
++    shards = [inventory(module, (index, module.SHARD_COUNT)) for index in range(module.SHARD_COUNT)]
++    assert expected and not any(differences(expected, shards).values())
++    assert len(expected) == len(set(expected)), "default inventory has duplicate identities"
++    original = module.selected_phases
++    for label, replacement in (
++            ("missing suite", lambda shard: [p for p in original(shard) if p != "suites"]),
++            ("duplicate suite", lambda shard: list(original(shard)) + (["suites"] if shard[0] == 1 else []))):
++        with patch.object(module, "selected_phases", replacement):
++            bad = [inventory(module, (index, module.SHARD_COUNT)) for index in range(module.SHARD_COUNT)]
++        assert any(differences(expected, bad).values()), f"escaped planted {label}"
++        print(f"PASS: shard inventory rejects planted {label}")
++    future = inventory(module, extra_suite=True)
++    future_shards = [inventory(module, (index, module.SHARD_COUNT), extra_suite=True)
++                     for index in range(module.SHARD_COUNT)]
++    assert len(future) == len(expected) + 1
++    assert not any(differences(future, future_shards).values())
++    print("PASS: a newly discovered suite is assigned without an ownership list")
++    print(f"PASS: {len(expected)} live invocations in exactly one shard; "
++          f"shard sizes {[len(shard) for shard in shards]}")
++    refusal_cases(module)
++    return shards
++
++
++def main() -> int:
++    """Standalone proof and optional generated ownership census."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--census", type=Path)
++    args = parser.parse_args()
++    shards = run_cases()
++    if args.census:
++        args.census.write_text(json.dumps(shards, indent=2) + "\n")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+new file mode 100644
+index 000000000..5cce82f5a
+--- /dev/null
++++ b/sw/litex/ctrl_memory.py
+@@ -0,0 +1,382 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""ctrl_memory.py - the split placement's control-firmware memory (#640 M8a).
++
++In the split placement (`milan_soc.py --ctrl-mailbox`) the control firmware
++owns the CPU's reset entry and runs from block RAM; the BIOS ROM and SRAM are
++not built. This file is the one statement of that memory map. The SoC reads it
++(`add_ctrl_memory`), the firmware link reads it (`regions.ld` for
++`sw/firmware/ctrl/plat/ctrl_split.ld`) and so does the fit evidence:
++
++- two regions at the CPU's own origins: `rom` at the reset address holds the
++  load image (.text, .rodata and the initial values of .data), and `sram`
++  holds .data, .bss and the stack. Each region spans the whole budget, so the
++  CPU netlist, which is generated from the region list, does not depend on the
++  image;
++- the populated part of each region is sized from the linked image, in
++  power-of-two banks of whole RAMB18 granules (2,048 bytes: 512 32-bit
++  words), largest first. Each bank maps to whole block RAMs with no rounding,
++  so a region wastes less than one granule;
++- the allocation is held to the owner's 224 KB: 56 RAMB36 at 4,096 usable
++  bytes each, a RAMB18 counting half (#640 ruling 6101485877).
++
++Every refusal names its check: `reset entry`, `memory map`, `memory-map
++overlap`, `allocation over budget` and `staging buffer`. RULES lists each
++rule a check enforces, as docs/design/SPLIT_CONTROL_MEMORY.md section 3 does,
++and a refusal names its rule too; test_ctrl_memory.py requires every rule to
++have an arm that fails when the rule is removed.
++
++    python3 sw/litex/ctrl_memory.py regions <directory>
++    python3 sw/litex/ctrl_memory.py plan <elf> [--stage-bytes N]
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import struct
++import sys
++from collections.abc import Mapping
++from dataclasses import dataclass
++from pathlib import Path
++
++SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
++
++#: One RAMB36: 1,024 32-bit words. Its parity bits are not byte-addressable.
++TILE_BYTES = 4096
++#: One RAMB18: 512 32-bit words, the smallest bank.
++GRANULE_BYTES = 2048
++#: The owner's 224 KB as RAMB36 at 4,096 usable bytes (#640 ruling 6101485877).
++BUDGET_TILES = 56
++BUDGET_BYTES = BUDGET_TILES * TILE_BYTES
++#: The F1 store's staging buffer (sw/firmware/ctrl_nvm/nvm_store.c).
++STAGE_SYMBOL = "nvm_stage"
++
++_PT_LOAD = 1
++_SHT_SYMTAB = 2
++_SHT_NOBITS = 8
++_SHF_WRITE = 0x1
++_SHF_ALLOC = 0x2
++_EM_RISCV = 243
++
++
++@dataclass(frozen=True)
++class Rule:
++    """One documented refusal: the check that names it and what it refuses."""
++
++    check: str
++    refuses: str
++
++
++#: Every refusal rule, keyed by rule, in the order of SPLIT_CONTROL_MEMORY.md
++#: section 3, whose table test_ctrl_memory.py requires to equal this one.
++RULES: dict[str, Rule] = {
++    "entry address": Rule("reset entry", "An image entering anywhere but `rom`'s first byte"),
++    "entry bytes": Rule("reset entry", "An image with no initial bytes at the reset address"),
++    "cpu origins": Rule("reset entry", "A CPU whose reset address or `sram` origin is not this map's"),
++    "elf class": Rule("memory map", "A file that is not a little-endian ELF32 file"),
++    "elf machine": Rule("memory map", "An ELF32 file for a machine other than RISC-V"),
++    "elf truncated": Rule("memory map", "A header, table, name or load segment running past the end of the file"),
++    "outside regions": Rule("memory map", "A section outside both regions"),
++    "loads outside rom": Rule("memory map", "Initial bytes loading outside `rom`, the only region the bitstream "
++                                            "initialises"),
++    "load coverage": Rule("memory map", "A section with initial bytes that the load segments' file bytes, which "
++                                        "program `rom`, do not all carry"),
++    "nobits in rom": Rule("memory map", "A NOBITS section in `rom`, which the firmware cannot write"),
++    "writable in rom": Rule("memory map", "A writable section with initial bytes running in `rom`, which drops "
++                                          "its writes"),
++    "regions": Rule("memory-map overlap", "The two regions sharing an address"),
++    "addresses": Rule("memory-map overlap", "Two sections sharing an address"),
++    "initial bytes": Rule("memory-map overlap", "Two sections sharing a load address"),
++    "budget": Rule("allocation over budget", "Banks totalling more than 56 RAMB36, a RAMB18 counting half"),
++    "stage symbol": Rule("staging buffer", "An image with no `nvm_stage`"),
++    "stage size": Rule("staging buffer", "An `nvm_stage` that is not the selected shape's stage: its KLJ2 "
++                                         "container plus one record header"),
++}
++
++
++class Refusal(ValueError):
++    """An image or a map the split placement cannot hold, named by its check and rule."""
++
++    def __init__(self, rule: str, detail: str) -> None:
++        """Keep the check's and the rule's names apart from the detail, for callers that test them."""
++        self.rule = rule
++        self.check = RULES[rule].check
++        super().__init__(f"{self.check}: {detail}")
++
++
++@dataclass(frozen=True)
++class Region:
++    """One window of the CPU's address map, in bytes."""
++
++    name: str
++    origin: int
++    size: int
++
++    @property
++    def end(self) -> int:
++        """The first address past the region."""
++        return self.origin + self.size
++
++    def holds(self, start: int, end: int) -> bool:
++        """Whether [start, end) lies inside the region."""
++        return self.origin <= start and end <= self.end
++
++
++#: The VexiiRiscv origins LiteX gives `rom` (the reset address) and `sram`.
++ROM = Region("rom", 0x0000_0000, BUDGET_BYTES)
++RAM = Region("sram", 0x1000_0000, BUDGET_BYTES)
++
++
++@dataclass(frozen=True)
++class Section:
++    """One allocated section of a linked image."""
++
++    name: str
++    vma: int
++    lma: int
++    size: int
++    loaded: bool       # it has initial bytes in the file (not NOBITS)
++    writable: bool     # SHF_WRITE: the firmware writes it
++
++
++@dataclass(frozen=True)
++class Image:
++    """What the split placement reads from a linked ELF."""
++
++    entry: int
++    sections: tuple[Section, ...]
++    symbols: Mapping[str, tuple[int, int]]     # name -> (value, size)
++    segments: tuple[tuple[int, bytes], ...]    # (physical address, initial bytes)
++
++
++@dataclass(frozen=True)
++class Plan:
++    """The banks each region is built from, in bytes, largest first."""
++
++    rom_bytes: int
++    ram_bytes: int
++    rom_banks: tuple[int, ...]
++    ram_banks: tuple[int, ...]
++
++    @property
++    def tiles(self) -> float:
++        """The allocation in RAMB36 equivalents, a RAMB18 counting half."""
++        return (sum(self.rom_banks) + sum(self.ram_banks)) / TILE_BYTES
++
++    def summary(self) -> dict[str, object]:
++        """The plan as the fit evidence and the build log print it."""
++        def region(need: int, banks: tuple[int, ...]) -> dict[str, object]:
++            """One region's need, banks and the block RAMs they map to."""
++            return {"bytes": need, "banks": list(banks),
++                    "RAMB36": sum(b // TILE_BYTES for b in banks),
++                    "RAMB18": sum(b == GRANULE_BYTES for b in banks)}
++        return {"rom": region(self.rom_bytes, self.rom_banks),
++                "sram": region(self.ram_bytes, self.ram_banks),
++                "tiles": self.tiles, "budget_tiles": BUDGET_TILES}
++
++
++def banks(need: int) -> tuple[int, ...]:
++    """`need` bytes as power-of-two banks of whole granules, largest first."""
++    granules = -(-need // GRANULE_BYTES)
++    return tuple(GRANULE_BYTES << bit for bit in reversed(range(granules.bit_length()))
++                 if granules >> bit & 1)
++
++
++def _unpack(path: Path, data: bytes, layout: str, offset: int, what: str) -> tuple[int, ...]:
++    """`struct.unpack_from`, refused by name when the field runs past the end of the file."""
++    if offset + struct.calcsize(layout) > len(data):
++        raise Refusal("elf truncated", f"{path}: the {what} at byte {offset} runs past the end "
++                      f"of the {len(data)}-byte file")
++    return struct.unpack_from(layout, data, offset)
++
++
++def _string(path: Path, data: bytes, offset: int) -> str:
++    """The NUL-terminated string at `offset`."""
++    end = data.find(b"\0", offset)
++    if end < 0:
++        raise Refusal("elf truncated", f"{path}: the name at byte {offset} runs past the end "
++                      f"of the {len(data)}-byte file")
++    return data[offset:end].decode()
++
++
++def read_elf(path: Path) -> Image:
++    """The entry, allocated sections, symbols and load bytes of a little-endian RV32 ELF."""
++    data = path.read_bytes()
++    if data[:6] != b"\x7fELF\x01\x01":
++        raise Refusal("elf class", f"{path} is not a little-endian ELF32 file")
++    (_, machine, _, entry, phoff, shoff, _, _, phentsize, phnum, shentsize, shnum,
++     shstrndx) = _unpack(path, data, "<HHIIIIIHHHHHH", 16, "ELF header")
++    if machine != _EM_RISCV:
++        raise Refusal("elf machine", f"{path} is not a RISC-V image")
++    headers = [_unpack(path, data, "<10I", shoff + i * shentsize, f"section header {i}")
++               for i in range(shnum)]
++    programs = [_unpack(path, data, "<8I", phoff + i * phentsize, f"program header {i}")
++                for i in range(phnum)]
++    loads = [p for p in programs if p[0] == _PT_LOAD]
++    for _, offset, _, _, filesz, _, _, _ in loads:
++        if offset + filesz > len(data):
++            raise Refusal("elf truncated", f"{path}: the {filesz} initial bytes at byte {offset} "
++                          f"run past the end of the {len(data)}-byte file")
++    names = headers[shstrndx][4]
++
++    def lma(vma: int) -> int:
++        """The load address of `vma`, through the segment that holds it."""
++        for _, _, vaddr, paddr, _, memsz, _, _ in loads:
++            if vaddr <= vma < vaddr + memsz:
++                return paddr + vma - vaddr
++        return vma
++
++    sections, symbols = [], {}
++    for name, kind, flags, addr, offset, size, link, _, _, entsize in headers:
++        if flags & _SHF_ALLOC and size:
++            sections.append(Section(_string(path, data, names + name), addr, lma(addr), size,
++                                    kind != _SHT_NOBITS, bool(flags & _SHF_WRITE)))
++        if kind == _SHT_SYMTAB:
++            strings = headers[link][4]
++            for at in range(offset, offset + size, entsize):
++                st_name, value, st_size = _unpack(path, data, "<III", at, "symbol")
++                if st_name:
++                    symbols[_string(path, data, strings + st_name)] = (value, st_size)
++    segments = tuple((p[3], data[p[1]:p[1] + p[4]]) for p in loads if p[4])
++    return Image(entry, tuple(sections), symbols, segments)
++
++
++def _carried(segments: tuple[tuple[int, bytes], ...], start: int, end: int) -> bool:
++    """Whether the load segments' file bytes, which `rom_words` programs, cover [start, end)."""
++    at = start
++    for addr, data in sorted(segments, key=lambda segment: segment[0]):
++        if addr <= at < addr + len(data):
++            at = addr + len(data)
++    return at >= end
++
++
++def _overlap(rule: str, spans: list[tuple[int, int, str]]) -> None:
++    """Refuse the first two of `spans` ([start, end) and name) that share an address."""
++    spans = sorted(spans)
++    for (start, end, name), (other, _, second) in zip(spans, spans[1:]):
++        if other < end:
++            raise Refusal(rule, f"{second} at 0x{other:08x} lies inside {name} "
++                          f"[0x{start:08x}, 0x{end:08x}) ({rule})")
++
++
++def check_map(image: Image, rom: Region = ROM, ram: Region = RAM) -> None:
++    """The reset entry, every section inside its region, and no two sharing an address."""
++    _overlap("regions", [(r.origin, r.end, r.name) for r in (rom, ram)])
++    if image.entry != rom.origin:
++        raise Refusal("entry address", f"the image enters at 0x{image.entry:08x}, not at the "
++                      f"CPU's reset address 0x{rom.origin:08x}, the start of {rom.name}")
++    if not any(s.loaded and s.vma <= image.entry < s.vma + s.size for s in image.sections):
++        raise Refusal("entry bytes", f"no initial bytes at the reset address 0x{image.entry:08x}")
++    if not _carried(image.segments, image.entry, image.entry + 4):
++        raise Refusal("entry bytes", f"no load segment carries the first word at the reset address "
++                      f"0x{image.entry:08x}, so {rom.name} would hold none there")
++    for s in image.sections:
++        home = next((r for r in (rom, ram) if r.holds(s.vma, s.vma + s.size)), None)
++        if home is None:
++            raise Refusal("outside regions", f"{s.name} [0x{s.vma:08x}, 0x{s.vma + s.size:08x}) "
++                          f"is outside {rom.name} and {ram.name}")
++        if s.loaded and not rom.holds(s.lma, s.lma + s.size):
++            raise Refusal("loads outside rom", f"{s.name}'s initial bytes load at 0x{s.lma:08x}, "
++                          f"outside {rom.name}, the only region the bitstream initialises")
++        if s.loaded and not _carried(image.segments, s.lma, s.lma + s.size):
++            raise Refusal("load coverage", f"{s.name}'s {s.size} initial bytes at 0x{s.lma:08x} are not all "
++                          f"in the load segments' file bytes, the only bytes that program {rom.name}")
++        if not s.loaded and home is rom:
++            raise Refusal("nobits in rom", f"{s.name} reserves {rom.name}, which the firmware cannot write")
++        if s.writable and home is rom:
++            raise Refusal("writable in rom", f"{s.name} is writable and runs at 0x{s.vma:08x} in "
++                          f"{rom.name}, which drops writes; it runs in {ram.name}, loaded from {rom.name}")
++    _overlap("addresses", [(s.vma, s.vma + s.size, s.name) for s in image.sections])
++    _overlap("initial bytes", [(s.lma, s.lma + s.size, s.name) for s in image.sections if s.loaded])
++
++
++def plan(image: Image, rom: Region = ROM, ram: Region = RAM,
++         budget: int = BUDGET_TILES) -> Plan:
++    """The banks the image needs, refused when its map is wrong or it exceeds the budget."""
++    check_map(image, rom, ram)
++    rom_end = max((s.lma + s.size for s in image.sections if s.loaded), default=rom.origin)
++    ram_end = max((s.vma + s.size for s in image.sections if ram.holds(s.vma, s.vma + s.size)),
++                  default=ram.origin)
++    need = Plan(rom_end - rom.origin, ram_end - ram.origin,
++                banks(rom_end - rom.origin), banks(ram_end - ram.origin))
++    if need.tiles > budget:
++        raise Refusal("budget",
++                      f"{need.tiles:g} RAMB36 ({rom.name} {need.rom_bytes} bytes in "
++                      f"{sum(need.rom_banks)}, {ram.name} {need.ram_bytes} bytes in "
++                      f"{sum(need.ram_banks)}) exceeds the {budget}-RAMB36 budget")
++    return need
++
++
++def rom_words(image: Image, rom: Region = ROM) -> list[int]:
++    """The initial contents of `rom` as little-endian 32-bit words."""
++    end = max((addr + len(data) for addr, data in image.segments), default=rom.origin)
++    contents = bytearray(end - rom.origin + -(end - rom.origin) % 4)
++    for addr, data in image.segments:
++        contents[addr - rom.origin:addr - rom.origin + len(data)] = data
++    return list(struct.unpack(f"<{len(contents) // 4}I", contents))
++
++
++def stage_bytes(shape: object, donor: object) -> int:
++    """The F1 store's stage for `shape`: its container plus one record header.
++
++    The container is `scripts/nvm_klj2.py`'s own, over the shape's record
++    inventory, so this reads the derivation the store's host tests grade
++    against `nvm_shape.h` (NVM_STAGE_BYTES) rather than restating it.
++    """
++    if str(SCRIPTS) not in sys.path:
++        sys.path.insert(0, str(SCRIPTS))
++    from nvm_contract import REC_HDR, Ident
++    from nvm_klj2 import erased_record, klj2_assemble
++    from nvm_shape import inventory
++    frames = {rid: erased_record(plen)
++              for _, _, rid, plen, _ in inventory(shape, donor.base) if rid is not None}
++    container, _ = klj2_assemble(frames, donor, Ident(seq=0, entity_id=0, model_id=0))
++    return len(container) + REC_HDR
++
++
++def check_stage(image: Image, stage: int, shape: str) -> None:
++    """Refuse an image whose staging buffer was built for another shape."""
++    if STAGE_SYMBOL not in image.symbols:
++        raise Refusal("stage symbol", f"the image has no {STAGE_SYMBOL}")
++    size = image.symbols[STAGE_SYMBOL][1]
++    if size != stage:
++        raise Refusal("stage size", f"{STAGE_SYMBOL} is {size} bytes; the {shape} "
++                      f"shape stages {stage}")
++
++
++def regions_ld(rom: Region = ROM, ram: Region = RAM) -> str:
++    """The MEMORY block `ctrl_split.ld` includes as regions.ld."""
++    return ("MEMORY\n{\n"
++            f"\t{rom.name} (rx) : ORIGIN = 0x{rom.origin:08x}, LENGTH = 0x{rom.size:08x}\n"
++            f"\t{ram.name} (rwx) : ORIGIN = 0x{ram.origin:08x}, LENGTH = 0x{ram.size:08x}\n"
++            "}\n")
++
++
++def main(argv: list[str] | None = None) -> int:
++    """Write regions.ld, or check one linked image and print its plan."""
++    ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
++    sub = ap.add_subparsers(dest="command", required=True)
++    regions = sub.add_parser("regions", help="write regions.ld into a directory")
++    regions.add_argument("directory", type=Path)
++    planned = sub.add_parser("plan", help="check a linked image and print its banks")
++    planned.add_argument("elf", type=Path)
++    planned.add_argument("--stage-bytes", type=int, help="the selected shape's staging buffer")
++    args = ap.parse_args(argv)
++    if args.command == "regions":
++        (args.directory / "regions.ld").write_text(regions_ld())
++        return 0
++    try:
++        image = read_elf(args.elf)
++        if args.stage_bytes is not None:
++            check_stage(image, args.stage_bytes, "requested")
++        print(json.dumps(plan(image).summary(), indent=2))
++    except Refusal as exc:
++        print(f"REFUSED {exc}", file=sys.stderr)
++        return 2
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/sw/litex/milan_soc.py b/sw/litex/milan_soc.py
+index 95a052b21..f5b438bfe 100644
+--- a/sw/litex/milan_soc.py
++++ b/sw/litex/milan_soc.py
+@@ -41,6 +41,7 @@ import runpy
+ from pathlib import Path
+ 
+ from boot_policy import fabric_constants
++import ctrl_memory
+ from gptp_owner_contract import GPTP_OWNER_CODES
+ from qspi_owner_transition import aem_image_binding, bitstream_binding
+ 
+@@ -2721,6 +2722,59 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
+         print("[milan] --ctrl-mailbox: the CPU has no interrupt controller; firmware polls the mailbox")
+ 
+ 
++# ---- #640 M8a: the split placement's control-firmware memory -------------------------------------
++# Under --ctrl-mailbox the control firmware owns the reset entry and runs from
++# block RAM; MilanSoC builds no BIOS ROM or SRAM. sw/litex/ctrl_memory.py is the
++# map, the bank plan and the checks; only the hookup lives here.
++class CtrlMemory(LiteXModule):
++    """One firmware region: the image's banks, largest first, each LiteX's own wishbone.SRAM.
++
++    A bank is a power of two of RAMB18 granules, so it maps to whole block
++    RAMs with no rounding and the region wastes less than one granule. An
++    address of the region past the last bank answers err at once instead of
++    aliasing a bank.
++    """
++
++    def __init__(self, region: ctrl_memory.Region, banks: tuple[int, ...],
++                 words: list[int] | None) -> None:
++        """`words` initialises a read-only region; None builds a writable one."""
++        from litex.soc.interconnect import wishbone
++        self.bus = wishbone.Interface(data_width=32, address_width=32, addressing="word")
++        low = (region.size - 1).bit_length() - 2      # word-address bits the region decodes
++        slaves, first = [], 0
++        for n, size in enumerate(banks):
++            depth = size // 4
++            bank = wishbone.SRAM(size, read_only=words is not None, name=f"{region.name}_bank{n}",
++                                 init=None if words is None else words[first:first + depth])
++            setattr(self, f"bank{n}", bank)
++            shift = depth.bit_length() - 1
++            slaves.append((lambda a, s=shift, f=first: a[s:low] == f >> s, bank.bus))
++            first += depth
++        hole = wishbone.Interface(data_width=32, address_width=32, addressing="word")
++        self.sync += hole.err.eq(hole.cyc & hole.stb & ~hole.err)
++        slaves.append((lambda a: a[:low] >= first, hole))
++        self.decoder = wishbone.Decoder(self.bus, slaves)
++
++
++def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
++    """Build rom and sram from the linked control firmware; rom's first word is the reset entry."""
++    if (soc.cpu.reset_address, soc.mem_map["sram"]) != (ctrl_memory.ROM.origin, ctrl_memory.RAM.origin):
++        raise ctrl_memory.Refusal("cpu origins", f"the CPU resets to 0x{soc.cpu.reset_address:08x} "
++                                  f"with sram at 0x{soc.mem_map['sram']:08x}; ctrl_memory.py maps "
++                                  f"rom at 0x{ctrl_memory.ROM.origin:08x}, sram at 0x{ctrl_memory.RAM.origin:08x}")
++    soc.ctrl_image = ctrl_memory.read_elf(firmware)
++    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image)
++    for region, banks, words, mode in (
++            (ctrl_memory.ROM, soc.ctrl_plan.rom_banks, ctrl_memory.rom_words(soc.ctrl_image), "rx"),
++            (ctrl_memory.RAM, soc.ctrl_plan.ram_banks, None, "rwx")):
++        soc.add_module(name=region.name, module=CtrlMemory(region, banks, words))
++        soc.bus.add_slave(region.name, getattr(soc, region.name).bus,
++                          region=SoCRegion(origin=region.origin, size=region.size, mode=mode))
++    # LiteX's own flag for "rom already holds its contents": the Builder builds no BIOS.
++    soc.integrated_rom_initialized = True
++    print(f"[milan] --ctrl-firmware {firmware}: {json.dumps(soc.ctrl_plan.summary())}")
++
++
+ def _parse_l2_bytes(token: str) -> Decimal:
+     """Preserve fractional CLI tokens until whole-byte validation."""
+     try:
+@@ -2768,7 +2822,7 @@ class MilanSoC(SoCCore):
+                  gptp_plane=None,
+                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
+                  render_lpf=True, optional_blocks=None,
+-                 entity_gen_dir=None, ctrl_mailbox=False, **kwargs):
++                 entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, **kwargs):
+         self._cpu_xlen = int(xlen)
+         if software_profile != "baremetal":
+             raise ValueError("unsupported software profile")
+@@ -2865,9 +2919,17 @@ class MilanSoC(SoCCore):
+             kwargs["cpu_type"]    = "naxriscv"
+             kwargs["cpu_variant"] = "standard"
+             kwargs["cpu_count"]   = cpu_count
+-        # BIOS ROM is always integrated. Main RAM is external LiteDRAM when
++        # BIOS ROM is integrated in the all-fabric placement. Under
++        # --ctrl-mailbox the control firmware owns the reset entry instead, in
++        # its own block RAM (add_ctrl_memory, #640 M8a), and neither the BIOS
++        # ROM nor its SRAM is built. Main RAM is external LiteDRAM when
+         # requested, otherwise integrated SRAM. Do not add integrated
+         # main RAM when DRAM provides it.
++        if ctrl_mailbox:
++            if ctrl_firmware is None:
++                raise ValueError("--ctrl-mailbox needs --ctrl-firmware: the split placement "
++                                 "runs no BIOS, so its block RAM is sized from the firmware")
++            kwargs.update(integrated_rom_size=0, integrated_sram_size=0)
+         kwargs.setdefault("integrated_rom_size", 0x20000)   # BIOS lives here; reset vector
+         if not with_dram:
+             kwargs.setdefault("integrated_main_ram_size", main_ram_size)
+@@ -2894,6 +2956,8 @@ class MilanSoC(SoCCore):
+                          ident=(f"Milan TSN SoC - {_cpu_human} RV{xlen} "
+                                 f"{cpu_count}-core {software_profile}"),
+                          **kwargs)
++        if ctrl_mailbox:
++            add_ctrl_memory(self, Path(ctrl_firmware))
+         # Compiled into soc.h so layout_from_soch.py can reconstruct the exact
+         # ownership state for sweep artifacts without consulting a launcher or
+         # mutable launch state. Encoding: 0=none, 1=fabric.
+@@ -3765,7 +3829,14 @@ def main() -> None:
+                          "firmware (sw/mailbox/mailbox.yaml: KL_mbx behind KL_mbx_wb at "
+                          "0x9010_0000, its CSR bank and one interrupt). Its datapath side "
+                          "is held idle in F0. Default off => no source, no instance, no "
+-                         "region: the top .v and source list are byte-identical.")
++                         "region: the top .v and source list are byte-identical. "
++                         "Needs --ctrl-firmware (#640 M8a).")
++    ap.add_argument("--ctrl-firmware", type=Path, default=None,
++                    help="#640 M8a: the split placement's control firmware, an ELF linked by "
++                         "sw/firmware/ctrl/plat/ctrl_split.ld. Under --ctrl-mailbox it owns the "
++                         "reset entry: no BIOS ROM or SRAM is built, and its image sizes and "
++                         "initialises the block RAM of the rom and sram regions "
++                         "(sw/litex/ctrl_memory.py). Refused without --ctrl-mailbox.")
+     ap.add_argument("--loopback-lane", action="store_true",
+                     help="task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK "
+                          "bucket (SRC_LOOP = 5) to the depacketizer payload clone, so a "
+@@ -3964,6 +4035,9 @@ def main() -> None:
+         ap.error(f"baremetal clock: effective --milan-clk-freq must be {BAREMETAL_CLK_HZ} Hz "
+                  "(docs/integration/BAREMETAL_FIRMWARE.md build contract); "
+                  "without a Milan clock domain, --sys-clk-freq supplies that clock")
++    if args.ctrl_mailbox != (args.ctrl_firmware is not None):
++        ap.error("--ctrl-mailbox and --ctrl-firmware go together: the split placement's "
++                 "firmware owns the reset entry and sizes its own block RAM (#640 M8a)")
+     if args.fabric_gptp is None:
+         args.fabric_gptp = not args.no_milan
+     if args.fabric_gptp and args.no_milan:
+@@ -4101,6 +4175,7 @@ def main() -> None:
+                    },
+                    entity_gen_dir=args.entity_gen_dir,
+                    ctrl_mailbox=args.ctrl_mailbox,
++                   ctrl_firmware=args.ctrl_firmware,
+                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
+                                    "tdm32": 32}[args.audio_interface],
+                    talker_wire_chans=int(args.talker_wire_chans),
+@@ -4138,7 +4213,8 @@ def main() -> None:
+         soc.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_nets sys_rst]")
+         soc.platform.add_platform_command("set_multicycle_path 1 -hold  -through [get_nets sys_rst]")
+     builder = Builder(soc, **builder_argdict(args))
+-    if args.software_profile == "baremetal":
++    # The split placement builds no BIOS, so the shipping firmware has nothing to link into.
++    if args.software_profile == "baremetal" and not args.ctrl_mailbox:
+         fw_dir = str(REPO_ROOT / "sw" / "firmware" / "milan_baremetal")
+         builder.add_software_package("libmilan_baremetal", fw_dir)
+         builder.add_software_library("libmilan_baremetal", always_link=True)
+@@ -4258,6 +4334,11 @@ def main() -> None:
+         _nvm_donor = NvmDonor(base=binding_base(), layout=layout_version())
+         for _name, _value in firmware_constants(_nvm_shape, _nvm_donor).items():
+             soc.add_constant(_name, _value)
++        if args.ctrl_mailbox:
++            # #640 M8a: the split firmware stages this shape's container.
++            ctrl_memory.check_stage(soc.ctrl_image,
++                                    ctrl_memory.stage_bytes(_nvm_shape, _nvm_donor),
++                                    Path(args.entity_gen_dir).name)
+     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
+     if args.build:
+         # Every launcher and shipping board passes here. A successful vendor
+diff --git a/sw/litex/test_ctrl_memory.py b/sw/litex/test_ctrl_memory.py
+new file mode 100644
+index 000000000..a8cca2a37
+--- /dev/null
++++ b/sw/litex/test_ctrl_memory.py
+@@ -0,0 +1,999 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The split placement's firmware memory (#640 M8a): plan, rules, banks, link and SoC build.
++
++`ctrl_memory.py` is the map and its checks; `milan_soc.CtrlMemory` is the
++block RAM the SoC builds from them. This file grades seven things:
++
++  1. BANKS. For every need up to past the budget, the banks are powers of two
++     of whole RAMB18 granules, largest first, and hold the need with less than
++     one granule spare. The oracle is ceil(need / 2,048) and its binary digits.
++  2. RULES. ELFs written here, by a writer independent of `read_elf`, are
++     planned or refused. A good image is accepted and its rom contents are the
++     bytes placed at their load addresses. Every rule in `ctrl_memory.RULES`
++     has a planted defect that must be refused by that rule, among them a
++     truncated ELF, writable data running in rom, a CPU with other origins and
++     a load segment carrying fewer bytes than its sections claim.
++     The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
++  3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the
++     largest image's sram banks (64, 32, 8, 4 and 2 KiB). rom reads its image
++     at the first and last word of every bank and drops a write; sram writes
++     byte lanes and reads them back at every bank boundary. Addresses past the
++     last bank, sampled to the top of the 256 KiB window the SoC decodes for a
++     region and so past 224 KiB, answer err in either region and write no
++     bank. An access presented on the cycle after an err acks with its data.
++  4. THE LINK. With an RV32 compiler (sw/firmware/gtest/fw_rv32.py), a probe
++     linked by `sw/firmware/ctrl/plat/ctrl_split.ld` behind
++     `ctrl_split_start.S` enters at the reset address with the reset entry
++     first, loads .data's initial value from rom and is planned, and its rom
++     words are the toolchain's own `objcopy -O binary` of it. The same script
++     with `.data`'s `AT > rom` removed, with `.data` linked in rom, or entering
++     at `main` is refused by its rule, and so is the linked image with its
++     reset segment's file bytes emptied or cut to one word, or .data's emptied.
++     Without a compiler this arm is a declared skip.
++  5. THE SOC BUILD. milan_soc.py's own main(), on the shipping 1x1 config's
++     argv (sw/builder/endstation_builder.py), exporting without Vivado or
++     software: an allocation over budget, a memory-map overlap, the 8x8 stage
++     and an emptied reset segment are each refused by its rule before any
++     Verilog or init file is written;
++     --ctrl-mailbox alone and --ctrl-firmware alone are each refused; and the
++     split export holds the image's banks and no BIOS ROM or SRAM, its rom
++     banks hold the image, and the Builder is told to build no BIOS and no
++     shipping firmware. LiteX's firmware data packages are refused in every
++     interpreter, as the elaborate job installs none, so the arm grades the
++     same in either.
++  6. THE REGISTER. docs/design/SPLIT_CONTROL_MEMORY.md section 3 lists exactly
++     `ctrl_memory.RULES`, and every rule has a refusal arm and a mutant.
++  7. MUTANTS. Each mutant rebuilds one function or class of ctrl_memory.py or
++     milan_soc.py from its own source with one edit that removes or weakens a
++     rule or a property, and must turn its arm red with a named failure. A
++     mutant is graded only against an arm that passed unmutated in the same
++     run, so a failure of the environment is never counted as a kill.
++"""
++from __future__ import annotations
++
++import __future__
++import ast
++import contextlib
++import importlib.abc
++import inspect
++import json
++import os
++import re
++import shutil
++import struct
++import subprocess
++import sys
++import tempfile
++import textwrap
++import types
++from collections.abc import Callable, Generator, Iterator
++from functools import partial
++from pathlib import Path
++from typing import Any, NamedTuple
++
++from migen import ClockDomain, Module, run_simulation
++
++from litex.soc.integration.builder import Builder
++from litex.soc.interconnect import wishbone
++
++HERE = Path(__file__).resolve().parent
++ROOT = HERE.parents[1]
++sys.path.insert(0, str(HERE))
++sys.path.insert(0, str(ROOT / "sw/firmware/gtest"))
++import ctrl_memory  # noqa: E402
++import fw_rv32  # noqa: E402
++import milan_soc  # noqa: E402
++
++PLAT = ROOT / "sw/firmware/ctrl/plat"
++DOC = ROOT / "docs/design/SPLIT_CONTROL_MEMORY.md"
++GRANULE = 2048
++RAM = ctrl_memory.RAM.origin
++#: The largest shipped image's sram need (8x8, two interfaces): 64, 32, 8, 4 and 2 KiB banks.
++LARGEST_NEED = 112_208
++#: The words of the power-of-two window the SoC decodes for a 224 KiB region (adr[29:16] in the export).
++WINDOW = (1 << (ctrl_memory.BUDGET_BYTES - 1).bit_length()) // 4
++#: The shipping 1x1 shape, which stages 3,344 bytes; the 8x8 shape stages 13,264.
++SOC_CONFIG = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
++STAGE_1X1, STAGE_8X8 = 3344, 13264
++PAIRING = "--ctrl-mailbox and --ctrl-firmware go together"
++MODULES = {"ctrl_memory": ctrl_memory, "milan_soc": milan_soc}
++
++#: What a migen stimulus process is: it yields reads and writes and is sent
++#: back whatever a read resolved to.
++Stim = Generator[Any, Any, Any]
++
++
++def check(problems: list[str], ok: bool, what: str) -> None:
++    """Record one graded fact."""
++    print(f"  [{'ok  ' if ok else 'FAIL'}] {what}")
++    if not ok:
++        problems.append(what)
++
++
++def refused(problems: list[str], rule: str, attempt: Callable[[], object], what: str) -> None:
++    """`attempt` must raise ctrl_memory.Refusal for `rule`, under the check that rule belongs to."""
++    want = ctrl_memory.RULES[rule].check
++    try:
++        attempt()
++    except ctrl_memory.Refusal as exc:
++        check(problems, (exc.rule, exc.check) == (rule, want),
++              f"{what}: refused by '{exc.check}' rule '{exc.rule}' ({exc})")
++        return
++    except Exception as exc:     # an unnamed failure is not the refusal the rule promises
++        check(problems, False, f"{what}: raised {type(exc).__name__} ({exc}), expected '{want}' rule '{rule}'")
++        return
++    check(problems, False, f"{what}: accepted, expected '{want}' rule '{rule}'")
++
++
++def accepted(problems: list[str], attempt: Callable[[], object], what: str) -> object:
++    """`attempt` must return; its result, or None with the failure recorded."""
++    try:
++        result = attempt()
++    except Exception as exc:     # a refusal here is the failure this check exists to name
++        check(problems, False, f"{what}: raised {type(exc).__name__} ({exc})")
++        return None
++    check(problems, True, what)
++    return result
++
++
++# ---- 1. banks --------------------------------------------------------------------------------
++
++def bank_arms(problems: list[str]) -> None:
++    """Every need from one byte past the budget, at granule edges and between them."""
++    needs = sorted({1, GRANULE - 1, GRANULE, GRANULE + 1,
++                    *range(0, ctrl_memory.BUDGET_BYTES + 8 * GRANULE, 509),
++                    *(k * GRANULE + d for k in range(1, 120) for d in (-1, 0, 1))} - {0})
++    bad = []
++    for need in needs:
++        granules = -(-need // GRANULE)
++        got = ctrl_memory.banks(need)
++        want = tuple(GRANULE << b for b in range(granules.bit_length() - 1, -1, -1) if granules >> b & 1)
++        if got != want or sum(got) - need >= GRANULE or list(got) != sorted(got, reverse=True):
++            bad.append(need)
++    check(problems, not bad, f"{len(needs)} needs: power-of-two granule banks, largest first, "
++                             f"under one granule spare (first wrong: {bad[:3]})")
++    check(problems, ctrl_memory.banks(0) == (), "a zero need builds no bank")
++    p = ctrl_memory.Plan(1, 1, (65536, 2048), (4096,))
++    check(problems, (p.tiles, p.summary()["rom"]["RAMB36"], p.summary()["rom"]["RAMB18"],
++                     p.summary()["sram"]["RAMB36"]) == (17.5, 16, 1, 1),
++          "a plan counts a 2 KiB bank as one RAMB18, half a tile")
++
++
++# ---- 2. rules, on ELFs written here ------------------------------------------------------------
++
++def write_elf(entry: int, sections: list[tuple[str, int, int, bytes | int, bool]],
++              symbols: dict[str, int], machine: int = 243) -> bytes:
++    """A little-endian ELF32 executable, one PT_LOAD per section.
++
++    A section is (name, address, load address, initial bytes or a NOBITS
++    size, writable); a symbol is a name and the size of the object it names.
++    """
++    shstr = b"\0" + b"".join(n.encode() + b"\0" for n, *_ in sections) + b".symtab\0.strtab\0.shstrtab\0"
++    strtab = b"\0" + b"".join(n.encode() + b"\0" for n in symbols)
++    body, placed = b"", []
++    base = 52 + 32 * len(sections)
++    for _, _, _, data, _ in sections:
++        payload = data if isinstance(data, bytes) else b""
++        placed.append(base + len(body))
++        body += payload + b"\0" * (-len(payload) % 4)
++    symtab = bytes(16)
++    for name, size in symbols.items():
++        symtab += struct.pack("<IIIBBH", strtab.index(name.encode() + b"\0"), RAM, size, 0x11, 0, 1)
++    tables = {"symtab": base + len(body)}
++    body += symtab
++    tables["strtab"] = base + len(body)
++    body += strtab
++    tables["shstrtab"] = base + len(body)
++    body += shstr + b"\0" * (-len(shstr) % 4)
++    shoff = base + len(body)
++    head = struct.pack("<16sHHIIIIIHHHHHH", b"\x7fELF\x01\x01\x01" + bytes(9), 2, machine, 1, entry, 52, shoff,
++                       0, 52, 32, len(sections), 40, len(sections) + 4, len(sections) + 3)
++    programs = b""
++    shdrs = bytes(40)
++    for (name, vma, lma, data, writable), offset in zip(sections, placed):
++        loaded = isinstance(data, bytes)
++        size = len(data) if loaded else data
++        programs += struct.pack("<8I", 1, offset, vma, lma, size if loaded else 0, size, 6, 4)
++        shdrs += struct.pack("<10I", shstr.index(name.encode() + b"\0"), 1 if loaded else 8,
++                             0x2 | (0x1 if writable else 0x4), vma, offset, size, 0, 0, 4, 0)
++    n = len(sections)
++    shdrs += struct.pack("<10I", shstr.index(b".symtab\0"), 2, 0, 0, tables["symtab"], len(symtab), n + 2, 1, 4, 16)
++    shdrs += struct.pack("<10I", shstr.index(b".strtab\0"), 3, 0, 0, tables["strtab"], len(strtab), 0, 0, 1, 0)
++    shdrs += struct.pack("<10I", shstr.index(b".shstrtab\0"), 3, 0, 0, tables["shstrtab"], len(shstr), 0, 0, 1, 0)
++    return head + programs + body + shdrs
++
++
++class Layout(NamedTuple):
++    """A split image's shape; each planted defect moves one field."""
++
++    entry: int = 0
++    text_at: int = 0
++    bss: int = 40_000
++    data_at: int = RAM              # .data's run address
++    data_lma: int | None = None     # its load address; None follows .rodata
++    bss_at: int | None = None       # None follows .data in sram
++    stage: int | None = STAGE_1X1   # nvm_stage's size; None leaves the symbol out
++    machine: int = 243
++
++
++GOOD = Layout()
++#: The good image's rom need, .text and .rodata and .data's initial bytes, and its banks' bytes.
++ROM_NEED = 9_000 + 3_004 + 64
++ROM_BANKED = -(-ROM_NEED // GRANULE) * GRANULE
++#: The .bss that brings the good image to exactly the budget: sram's banks fill what rom's leave.
++BUDGET_BSS = ctrl_memory.BUDGET_BYTES - ROM_BANKED - 64 - 8192
++
++
++def elf(tmp: Path, layout: Layout) -> Path:
++    """Write `layout`: code and constants in rom, .data loaded from rom, .bss, the stack."""
++    at = layout.text_at
++    lma = at + 12_004 if layout.data_lma is None else layout.data_lma
++    bss_at = RAM + 64 if layout.bss_at is None else layout.bss_at
++    stack = RAM + 64 + layout.bss
++    symbols = {"_start": 4} if layout.stage is None else {"_start": 4, ctrl_memory.STAGE_SYMBOL: layout.stage}
++    path = tmp / ("image-" + "-".join(str(v) for v in layout) + ".elf")
++    path.write_bytes(write_elf(layout.entry, [
++        (".text", at, at, bytes((i * 7 + 3) & 0xFF for i in range(9_000)), False),
++        (".rodata", at + 9_000, at + 9_000, bytes((i * 13 + 5) & 0xFF for i in range(3_002)), False),
++        (".data", layout.data_at, lma, bytes(range(64)), True),
++        (".bss", bss_at, bss_at, layout.bss, True),
++        (".stack", stack, stack, 8192, True)], symbols, layout.machine))
++    return path
++
++
++def image(tmp: Path, layout: Layout) -> ctrl_memory.Image:
++    """`layout` written, then read back by `read_elf`."""
++    return ctrl_memory.read_elf(elf(tmp, layout))
++
++
++def edited(tmp: Path, name: str, edit: Callable[[bytearray], None]) -> Path:
++    """The good image's bytes with one edit, as a file."""
++    data = bytearray(elf(tmp, GOOD).read_bytes())
++    edit(data)
++    path = tmp / f"{name}.elf"
++    path.write_bytes(bytes(data))
++    return path
++
++
++def truncate(size: Callable[[int], int]) -> Callable[[bytearray], None]:
++    """An edit that cuts the file to `size(len)` bytes."""
++    def cut(data: bytearray) -> None:
++        """Drop everything past the new end."""
++        del data[size(len(data)):]
++    return cut
++
++
++def poke(offset: Callable[[bytearray], int], value: int) -> Callable[[bytearray], None]:
++    """An edit that overwrites the 32-bit field at `offset(data)` with `value`."""
++    def write(data: bytearray) -> None:
++        """Pack the field in place."""
++        struct.pack_into("<I", data, offset(data), value)
++    return write
++
++
++def splice(at: int, value: bytes) -> Callable[[bytearray], None]:
++    """An edit that overwrites the bytes at `at` with `value`."""
++    def write(data: bytearray) -> None:
++        """Overwrite in place."""
++        data[at:at + len(value)] = value
++    return write
++
++
++class FakeSoC:
++    """The parts of a SoC that add_ctrl_memory reads and calls, recorded."""
++
++    def __init__(self, reset_address: int, sram: int) -> None:
++        """A CPU resetting to `reset_address`, with LiteX's sram origin at `sram`."""
++        self.cpu = types.SimpleNamespace(reset_address=reset_address)
++        self.mem_map = {"sram": sram}
++        self.regions: dict[str, Any] = {}
++        self.bus = types.SimpleNamespace(add_slave=self.add_slave)
++        self.integrated_rom_initialized = False
++
++    def add_module(self, name: str, module: object) -> None:
++        """Keep the module as the SoC would, under its name."""
++        setattr(self, name, module)
++
++    def add_slave(self, name: str, bus: object, region: Any) -> None:
++        """Keep the region each slave was given."""
++        self.regions[name] = region
++
++
++def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
++    """One planted defect per rule, with the rule that must refuse it. Every call looks
++    `ctrl_memory` and `milan_soc` up when it runs, so a mutant rebinding one is graded."""
++    plan = lambda layout: lambda: ctrl_memory.plan(image(tmp, layout))  # noqa: E731
++    read = lambda path: lambda: ctrl_memory.plan(ctrl_memory.read_elf(path))  # noqa: E731
++    stage = lambda layout, size: lambda: ctrl_memory.check_stage(image(tmp, layout), size, "planted")  # noqa: E731
++    cpu = lambda reset, sram: lambda: milan_soc.add_ctrl_memory(FakeSoC(reset, sram), elf(tmp, GOOD))  # noqa: E731
++    shoff = lambda data: struct.unpack_from("<I", data, 32)[0]  # noqa: E731
++    return [
++        ("entry address", "an image entering away from the reset address", plan(GOOD._replace(entry=0x100))),
++        ("entry bytes", "an image with no initial bytes at the reset address", plan(GOOD._replace(text_at=0x100))),
++        ("entry bytes", "the reset segment's file bytes emptied, its section kept",
++         read(edited(tmp, "reset-empty", poke(lambda data: 52 + 16, 0)))),
++        ("entry bytes", "the reset section moved to 0x100 in the section table, its segment kept",
++         read(edited(tmp, "reset-moved", poke(lambda data: shoff(data) + 40 + 12, 0x100)))),
++        ("cpu origins", "a CPU resetting away from rom's origin", cpu(0x100, RAM)),
++        ("cpu origins", "a CPU whose sram is not at sram's origin", cpu(0, 0x2000_0000)),
++        ("elf class", "a file that is not an ELF", read(edited(tmp, "not-elf", splice(0, b"#!sh")))),
++        ("elf class", "an empty file", read(edited(tmp, "empty", truncate(lambda n: 0)))),
++        ("elf class", "an ELF64 file", read(edited(tmp, "elf64", splice(4, b"\x02")))),
++        ("elf class", "a big-endian ELF32 file", read(edited(tmp, "big-endian", splice(5, b"\x02")))),
++        ("elf machine", "an x86 ELF32 file", plan(GOOD._replace(machine=3))),
++        ("elf truncated", "an ELF cut inside its header", read(edited(tmp, "cut-40", truncate(lambda n: 40)))),
++        ("elf truncated", "an ELF cut to half", read(edited(tmp, "cut-half", truncate(lambda n: n // 2)))),
++        ("elf truncated", "a load segment past the end of the file",
++         read(edited(tmp, "segment", poke(lambda data: 52 + 16, 1 << 20)))),
++        ("elf truncated", "a section name past the end of the file",
++         read(edited(tmp, "name", poke(lambda data: shoff(data) + 40, 1 << 30)))),
++        ("outside regions", "a section outside rom and sram", plan(GOOD._replace(bss_at=0x4000_0000))),
++        ("loads outside rom", "initial bytes of .data left in sram, which nothing initialises",
++         plan(GOOD._replace(data_lma=RAM))),
++        ("load coverage", "the reset segment's file bytes cut to its first word, its section kept",
++         read(edited(tmp, "reset-short", poke(lambda data: 52 + 16, 4)))),
++        ("load coverage", ".data's load segment emptied, its section kept",
++         read(edited(tmp, "data-unloaded", poke(lambda data: 52 + 2 * 32 + 16, 0)))),
++        ("nobits in rom", ".bss reserved in rom", plan(GOOD._replace(bss_at=12_100, bss=1_000))),
++        ("writable in rom", ".data linked to run in rom", plan(GOOD._replace(data_at=12_100, data_lma=12_100))),
++        ("regions", "PLANTED: a memory-map overlap (sram moved into rom)",
++         lambda: ctrl_memory.plan(image(tmp, GOOD), ram=ctrl_memory.Region("sram", 0x2_0000, ctrl_memory.ROM.size))),
++        ("addresses", "PLANTED: a memory-map overlap (.bss over .data)", plan(GOOD._replace(bss_at=RAM + 32))),
++        ("initial bytes", ".data's initial bytes loading over .rodata's", plan(GOOD._replace(data_lma=9_000))),
++        ("budget", "PLANTED: an allocation over budget (215,000 bytes of .bss: 58 RAMB36, each region inside its own)",
++         plan(GOOD._replace(bss=215_000))),
++        ("budget", "an allocation of 56.5 RAMB36, half a tile over", plan(GOOD._replace(bss=BUDGET_BSS + GRANULE))),
++        ("stage symbol", "an image with no nvm_stage", stage(GOOD._replace(stage=None), STAGE_1X1)),
++        ("stage size", "PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage)",
++         stage(GOOD, STAGE_8X8)),
++        ("stage size", "PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage)",
++         stage(GOOD._replace(stage=STAGE_8X8), STAGE_1X1)),
++    ]
++
++
++def check_arms(problems: list[str], tmp: Path) -> None:
++    """The good image, the budget boundary, the hookup's own effects, then every refusal by its rule."""
++    plan = accepted(problems, lambda: ctrl_memory.plan(image(tmp, GOOD)), "the good image is planned")
++    if plan is not None:
++        check(problems, (plan.rom_bytes, plan.ram_bytes) == (ROM_NEED, 64 + 40_000 + 8192),
++              f"the plan's needs are rom to the end of .data's initial bytes, sram to the stack's top "
++              f"({plan.rom_bytes}, {plan.ram_bytes})")
++    raw = b""
++    with contextlib.suppress(Exception):     # a mutant that breaks the reader fails the check below
++        words = ctrl_memory.rom_words(image(tmp, GOOD))
++        raw = struct.pack(f"<{len(words)}I", *words)
++    check(problems, raw[:4] == bytes((3, 10, 17, 24)) and raw[9_000:9_002] == bytes((5, 18))
++          and raw[12_004:12_068] == bytes(range(64)),
++          "rom holds .text at the reset address, .rodata after it and .data's initial bytes at their load address")
++    accepted(problems, lambda: ctrl_memory.check_stage(image(tmp, GOOD), STAGE_1X1, "1x1"),
++             "a staging buffer of the shape's size is accepted")
++    full = accepted(problems, lambda: ctrl_memory.plan(image(tmp, GOOD._replace(bss=BUDGET_BSS))),
++                    "an allocation of exactly 56 RAMB36 is accepted")
++    check(problems, getattr(full, "tiles", None) == 56.0, f"that allocation plans 56.0 RAMB36 ({full and full.tiles})")
++    soc = FakeSoC(ctrl_memory.ROM.origin, RAM)
++    accepted(problems, lambda: milan_soc.add_ctrl_memory(soc, elf(tmp, GOOD)), "add_ctrl_memory builds the image")
++    regions = {name: (r.origin, r.size, r.mode) for name, r in soc.regions.items()}
++    check(problems, regions == {"rom": (0, ctrl_memory.ROM.size, "rx"), "sram": (RAM, ctrl_memory.RAM.size, "rwx")}
++          and all(isinstance(getattr(soc, n, None), milan_soc.CtrlMemory) for n in ("rom", "sram")),
++          f"add_ctrl_memory adds rom (rx) and sram (rwx) as CtrlMemory, each the whole 224 KiB ({regions})")
++    check(problems, soc.integrated_rom_initialized is True,
++          "add_ctrl_memory tells LiteX's Builder that rom holds its contents, so it builds no BIOS")
++    for rule, what, attempt in refusal_arms(tmp):
++        refused(problems, rule, attempt, what)
++    text = ctrl_memory.regions_ld()
++    check(problems, "rom (rx) : ORIGIN = 0x00000000, LENGTH = 0x00038000" in text
++          and "sram (rwx) : ORIGIN = 0x10000000, LENGTH = 0x00038000" in text,
++          "regions.ld states both regions at the CPU's origins, each the whole 224 KiB budget")
++
++
++# ---- 3. banks in simulation --------------------------------------------------------------------
++
++def request(bus: wishbone.Interface, adr: int, we: int = 0, dat: int = 0, sel: int = 0xF) -> Stim:
++    """Present one Wishbone request and hold it."""
++    yield bus.adr.eq(adr)
++    yield bus.we.eq(we)
++    yield bus.dat_w.eq(dat)
++    yield bus.sel.eq(sel)
++    yield bus.cyc.eq(1)
++    yield bus.stb.eq(1)
++
++
++def response(bus: wishbone.Interface) -> Stim:
++    """('ack' | 'err' | 'both' | 'none', dat_r) within eight clocks of the request."""
++    for _ in range(8):
++        yield
++        ack, err = (yield bus.ack), (yield bus.err)
++        if ack or err:
++            return {(1, 0): "ack", (0, 1): "err"}.get((ack, err), "both"), (yield bus.dat_r)
++    return "none", None
++
++
++def release(bus: wishbone.Interface) -> Stim:
++    """End the cycle, with one idle clock."""
++    yield bus.cyc.eq(0)
++    yield bus.stb.eq(0)
++    yield
++
++
++def access(bus: wishbone.Interface, adr: int, we: int = 0, dat: int = 0, sel: int = 0xF) -> Stim:
++    """One Wishbone cycle and its answer."""
++    yield from request(bus, adr, we, dat, sel)
++    answer = yield from response(bus)
++    yield from release(bus)
++    return answer
++
++
++def back_to_back(bus: wishbone.Interface, hole: int, good: int) -> Stim:
++    """A read of `hole`, then a read of `good` presented on the cycle the first answer is seen."""
++    yield from request(bus, hole)
++    first = yield from response(bus)
++    yield bus.adr.eq(good)
++    second = yield from response(bus)
++    yield from release(bus)
++    return first, second
++
++
++def pattern(i: int) -> int:
++    """A word that names its own index."""
++    return (i * 0x9E37_79B1 + 0x0102_0304) & 0xFFFF_FFFF
++
++
++class Bench(Module):
++    """rom and sram as add_ctrl_memory builds them, for one need."""
++
++    def __init__(self, need: int) -> None:
++        """Both regions, with the same banks."""
++        self.clock_domains.cd_sys = ClockDomain("sys")
++        self.banks = ctrl_memory.banks(need)
++        self.words = sum(self.banks) // 4
++        self.submodules.rom = milan_soc.CtrlMemory(ctrl_memory.ROM, self.banks,
++                                                   [pattern(i) for i in range(need // 4)])
++        self.submodules.ram = milan_soc.CtrlMemory(ctrl_memory.RAM, self.banks, None)
++
++
++def hole_addresses(words: int) -> list[int]:
++    """Word addresses past the last bank to the top of the decoded window: its edges, the
++    upper half a decode one bit short would alias, the 224 KiB edge and a stride across."""
++    half, region = WINDOW // 2, ctrl_memory.BUDGET_BYTES // 4
++    marks = {words, words + 1, half - 1, half, half + 1, half + words - 1, region - 1, region, region + 1,
++             WINDOW - 2, WINDOW - 1, *range(words, WINDOW, 1021)}
++    return sorted(a for a in marks if words <= a < WINDOW)
++
++
++def sweep(bus: wishbone.Interface, addresses: list[int], we: int = 0, dat: int = 0) -> Stim:
++    """One access to each address, in order; their answers."""
++    out = []
++    for a in addresses:
++        out.append((yield from access(bus, a, we, dat)))
++    return out
++
++
++def sim_arms(problems: list[str], need: int = LARGEST_NEED) -> None:
++    """Every bank's edges in both regions, the whole hole, back-to-back after err, the refused rom write."""
++    bench = Bench(need)
++    edges, offsets, first = [], [], 0
++    for size in bench.banks:
++        edges += [first, first + 1, first + size // 4 - 1]
++        offsets.append(first)
++        first += size // 4
++    holes = hole_addresses(bench.words)
++    alias = sorted({f + a % (s // 4) for a in holes for f, s in zip(offsets, bench.banks)})
++    base, marker = RAM // 4, 0x5555_5555
++    lanes = [((pattern(a) ^ 0xFFFF_0000) & ~(0xFF << 8 * (n % 4))) | (0xA5 << 8 * (n % 4))
++             for n, a in enumerate(edges)]
++    seen: dict[str, Any] = {}
++
++    def run() -> Stim:
++        """Read rom and try its hole, write and read sram and try its hole, then read every alias cell."""
++        seen["rom"] = yield from sweep(bench.rom.bus, [a for a in edges if a < need // 4])
++        seen["rom_write"] = yield from access(bench.rom.bus, edges[1], we=1, dat=0xDEAD_BEEF)
++        seen["rom_after"] = yield from access(bench.rom.bus, edges[1])
++        seen["rom_hole"] = yield from sweep(bench.rom.bus, holes)
++        seen["rom_b2b"] = yield from back_to_back(bench.rom.bus, holes[0], edges[1])
++        for n, a in enumerate(edges):
++            yield from access(bench.ram.bus, base + a, we=1, dat=pattern(a) ^ 0xFFFF_0000)
++            yield from access(bench.ram.bus, base + a, we=1, dat=0xA5 << (8 * (n % 4)), sel=1 << (n % 4))
++        seen["ram"] = yield from sweep(bench.ram.bus, [base + a for a in edges])
++        seen["ram_hole"] = yield from sweep(bench.ram.bus, [base + a for a in holes], we=1, dat=marker)
++        seen["ram_alias"] = yield from sweep(bench.ram.bus, [base + a for a in alias])
++        seen["ram_b2b"] = yield from back_to_back(bench.ram.bus, base + holes[-1], base + edges[0])
++
++    run_simulation(bench, run())
++    span = f"{len(holes)} addresses from word 0x{holes[0]:x} to the window's top 0x{WINDOW - 1:x}"
++    check(problems, seen["rom"] == [("ack", pattern(a)) for a in edges if a < need // 4],
++          f"rom reads its image at the first, second and last word of each of {len(bench.banks)} banks "
++          f"({', '.join(str(s // 1024) for s in bench.banks)} KiB)")
++    check(problems, seen["rom_write"][0] == "ack" and seen["rom_after"] == ("ack", pattern(edges[1])),
++          "a write to rom changes nothing")
++    for region in ("rom", "ram"):
++        wrong = [(hex(a), r[0]) for a, r in zip(holes, seen[f"{region}_hole"]) if r[0] != "err"]
++        check(problems, not wrong, f"{region} answers err alone at all {span} (first wrong: {wrong[:3]})")
++    check(problems, seen["ram"] == [("ack", w) for w in lanes],
++          "sram keeps each byte lane written at every bank's edges, the other lanes intact")
++    check(problems, all(r[0] == "ack" and r[1] != marker for r in seen["ram_alias"]),
++          f"a write past the last bank lands in none of the {len(alias)} cells it would alias")
++    check(problems, seen["rom_b2b"] == (("err", seen["rom_b2b"][0][1]), ("ack", pattern(edges[1]))),
++          f"rom: a read presented on the cycle after an err acks with its own data ({seen['rom_b2b']})")
++    check(problems, seen["ram_b2b"] == (("err", seen["ram_b2b"][0][1]), ("ack", lanes[0])),
++          f"sram: a read presented on the cycle after an err acks with its own data ({seen['ram_b2b']})")
++
++
++# ---- 4. the link ---------------------------------------------------------------------------
++
++PROBE = """\
++int counter = 7;
++unsigned char nvm_stage[3344];
++int main(void) { return counter + nvm_stage[counter]; }
++"""
++
++
++def link(cc: str, tmp: Path, script: str) -> Path:
++    """The probe linked by `script` behind the reset entry."""
++    (tmp / "regions.ld").write_text(ctrl_memory.regions_ld())
++    (tmp / "probe.c").write_text(PROBE)
++    (tmp / "split.ld").write_text(script)
++    flags = ["-march=rv32i", "-mabi=ilp32"]
++    subprocess.run([cc, *flags, "-ffreestanding", "-Os", "-c", str(tmp / "probe.c"), "-o", str(tmp / "probe.o")],
++                   check=True)
++    subprocess.run([cc, *flags, "-c", str(PLAT / "ctrl_split_start.S"), "-o", str(tmp / "start.o")], check=True)
++    elf_path = tmp / "probe.elf"
++    subprocess.run([cc, *flags, "-nostdlib", "-static", "-no-pie", "-Wl,--gc-sections,--build-id=none",
++                    "-T", str(tmp / "split.ld"), f"-L{tmp}", str(tmp / "start.o"), str(tmp / "probe.o"),
++                    "-o", str(elf_path)], check=True)
++    return elf_path
++
++
++def filesz_at(data: bytes, address: int) -> int:
++    """Where the file size of the load segment carrying `address` is, read without `read_elf`."""
++    phoff, = struct.unpack_from("<I", data, 28)
++    phentsize, phnum = struct.unpack_from("<HH", data, 42)
++    for at in range(phoff, phoff + phnum * phentsize, phentsize):
++        kind, _, _, paddr, filesz = struct.unpack_from("<5I", data, at)
++        if kind == 1 and paddr <= address < paddr + filesz:
++            return at + 16
++    raise LookupError(f"no load segment carries 0x{address:08x}")
++
++
++def link_arms(problems: list[str], tmp: Path) -> bool:
++    """The real link script and reset entry; False when no RV32 compiler is found."""
++    cc = fw_rv32.compiler()
++    if cc is None:
++        print("  [skip] no RV32 compiler: the link arm did not run")
++        return False
++    script = (PLAT / "ctrl_split.ld").read_text()
++    linked = link(cc, tmp, script)
++    probe = ctrl_memory.read_elf(linked)
++    plan = ctrl_memory.plan(probe)
++    sections = {s.name: s for s in probe.sections}
++    words = ctrl_memory.rom_words(probe)
++    data = sections[".data"]
++    check(problems, probe.entry == 0 and words[0] & 0xFFF == 0x117,
++          "the probe enters at the reset address, whose first word is the reset entry's auipc sp")
++    check(problems, data.vma == RAM and data.lma < plan.rom_bytes and data.writable
++          and words[data.lma // 4] == 7, ".data runs in sram and its initial value 7 loads from rom")
++    check(problems, sections[".stack"].vma + sections[".stack"].size == RAM + plan.ram_bytes,
++          "the stack tops the sram need")
++    binary = tmp / "probe.bin"
++    subprocess.run([str(Path(cc).with_name(Path(cc).name.replace("gcc", "objcopy"))), "-O", "binary",
++                    str(linked), str(binary)], check=True)
++    loaded = binary.read_bytes()
++    check(problems, struct.pack(f"<{len(words)}I", *words) == loaded + bytes(-len(loaded) % 4),
++          f"the probe's rom words are its load image as the toolchain's objcopy -O binary writes it "
++          f"({len(words)} words, {len(loaded)} bytes)")
++    ctrl_memory.check_stage(probe, STAGE_1X1, "1x1")
++    check(problems, True, "the probe's nvm_stage passes as the shape's stage")
++    for plant, edit, rule in (("no AT > rom on .data", ("} > sram AT > rom", "} > sram"), "loads outside rom"),
++                              (".data in rom", ("} > sram AT > rom", "} > rom"), "writable in rom"),
++                              ("ENTRY(main)", ("ENTRY(_start)", "ENTRY(main)"), "entry address")):
++        broken = tmp / re.sub(r"\W+", "-", plant)
++        broken.mkdir()
++        refused(problems, rule, lambda b=broken, e=edit: ctrl_memory.plan(
++            ctrl_memory.read_elf(link(cc, b, script.replace(*e)))), f"PLANTED link script: {plant}")
++    raw = linked.read_bytes()
++    for plant, address, size, rule in (("the reset segment's file bytes emptied", probe.entry, 0, "entry bytes"),
++                                       ("the reset segment's file bytes cut to its first word", probe.entry, 4,
++                                        "load coverage"),
++                                       (".data's load segment emptied", data.lma, 0, "load coverage")):
++        broken = bytearray(raw)
++        struct.pack_into("<I", broken, filesz_at(raw, address), size)
++        path = tmp / (re.sub(r"\W+", "-", plant).strip("-") + ".elf")
++        path.write_bytes(bytes(broken))
++        refused(problems, rule, lambda p=path: ctrl_memory.plan(ctrl_memory.read_elf(p)),
++                f"PLANTED linked image: {plant}")
++    return True
++
++
++# ---- 5. the SoC build ----------------------------------------------------------------------
++
++#: The shipping 1x1 config's own SoC argv, built once per run.
++SOC_ARGV: list[str] = []
++
++
++def soc_argv() -> list[str]:
++    """The shipping 1x1 config's argv from the end-station builder, its output written first."""
++    if not SOC_ARGV:
++        sys.path.insert(0, str(ROOT / "sw/builder"))
++        try:
++            import endstation_builder as eb
++        except SystemExit as exc:     # the builder exits when PyYAML is absent
++            raise RuntimeError(f"the end-station builder cannot load: {exc}") from exc
++        cfg = eb.load_config(str(SOC_CONFIG))
++        with contextlib.redirect_stdout(None):
++            eb.build(str(SOC_CONFIG))
++        SOC_ARGV.extend(eb.emit_soc_argv(cfg) + ["--entity-gen-dir", str(ROOT / "configs/generated" / cfg["name"])])
++    return SOC_ARGV
++
++
++class FirmwareDataRefused(importlib.abc.MetaPathFinder):
++    """Refuse LiteX's firmware data packages, which the pinned elaborate install lacks."""
++
++    def find_spec(self, name: str, path: Any = None, target: Any = None) -> None:
++        """Fail any pythondata_software_* import and defer every other module."""
++        if name.startswith("pythondata_software_"):
++            raise ImportError(f"{name}: sw/litex/litex_pins.txt installs no firmware data package")
++        return None
++
++
++def soc_child(spec_path: Path) -> int:
++    """In a child process: milan_soc.main() on the spec's argv, its mutation applied; write what it decided."""
++    spec = json.loads(spec_path.read_text())
++    if spec["mutation"]:
++        owner, name, old, new = spec["mutation"]
++        setattr(MODULES[owner], name, mutated(MODULES[owner], name, old, new))
++    # As sw/builder/test_shipping_clock_constraints.py does: the elaborate job
++    # installs sw/litex/litex_pins.txt alone, so no interpreter may reach a
++    # firmware data package here (#640, R606-2-F2).
++    sys.meta_path.insert(0, FirmwareDataRefused())
++    result: dict[str, Any] = {"rc": 0, "includes": []}
++    original, original_includes = Builder.build, Builder._generate_includes
++
++    def generate_includes(self: Builder, with_bios: bool = True) -> None:
++        """Write the SoC headers, omitting only the firmware make inputs."""
++        # Those inputs name the picolibc and compiler-rt data packages. Nothing
++        # is compiled here, and the gateware and its init files read neither.
++        result["includes"].append(with_bios)
++        original_includes(self, with_bios=False)
++
++    def build(self: Builder, **kwargs: Any) -> object:
++        """Record what the Builder is handed, then build as asked."""
++        soc = self.soc
++        result["builder"] = {"rom": soc.integrated_rom_size, "sram": soc.integrated_sram_size,
++                             "initialized": soc.integrated_rom_initialized,
++                             "packages": [name for name, _ in self.software_packages]}
++        return original(self, **kwargs)
++
++    Builder.build, Builder._generate_includes = build, generate_includes
++    sys.argv = ["milan_soc.py", *spec["argv"]]
++    try:
++        milan_soc.main()
++    except SystemExit as exc:
++        result["rc"] = 0 if exc.code is None else exc.code if isinstance(exc.code, int) else 1
++    except ctrl_memory.Refusal as exc:
++        result.update(rc=1, rule=exc.rule, refusal=str(exc))
++    except Exception as exc:     # any other failure is recorded as itself, never as a refusal
++        result.update(rc=1, error=f"{type(exc).__name__}: {exc}")
++    Path(spec["result"]).write_text(json.dumps(result))
++    return 0
++
++
++def soc_case(tmp: Path, label: str, extra: list[str], mutation: list[str] | None) -> dict[str, Any]:
++    """One child run of milan_soc.main(); its result, log and export directory."""
++    stem = tmp / re.sub(r"\W+", "-", label).strip("-")
++    out, spec, log = stem / "export", stem.with_suffix(".json"), stem.with_suffix(".log")
++    stem.mkdir(parents=True)
++    spec.write_text(json.dumps({"argv": [*soc_argv(), *extra, "--output-dir", str(out), "--no-compile-software"],
++                                "result": str(stem.with_suffix(".result.json")), "mutation": mutation}))
++    with log.open("w") as fh:
++        subprocess.run([sys.executable, str(Path(__file__).resolve()), "--soc-child", str(spec)], cwd=HERE,
++                       env=dict(os.environ, PYTHONHASHSEED="0"), stdout=fh, stderr=subprocess.STDOUT, check=False)
++    result_path = stem.with_suffix(".result.json")
++    result = json.loads(result_path.read_text()) if result_path.exists() else {"rc": None, "error": "no result"}
++    result.update(log=log.read_text(), out=out, verilog=sorted(out.glob("gateware/*.v")),
++                  inits=sorted(out.glob("gateware/*.init")))
++    return result
++
++
++def split_export(problems: list[str], result: dict[str, Any], firmware: Path) -> None:
++    """The passing split export: the image's banks and contents, the map, and no BIOS."""
++    check(problems, result["rc"] == 0 and len(result["verilog"]) == 1,
++          f"the split build exports (rc {result['rc']}, {result.get('error') or result.get('refusal') or 'no error'})")
++    if result["rc"] != 0 or len(result["verilog"]) != 1:
++        return
++    linked = ctrl_memory.read_elf(firmware)
++    plan, out = ctrl_memory.plan(linked), result["out"]
++    memories = dict(re.findall(r"^reg \[31:0\] (\w+)\[0:(\d+)\];", result["verilog"][0].read_text(), re.M))
++    want = {f"{region}_bank{n}": str(size // 4 - 1)
++            for region, banks in (("rom", plan.rom_banks), ("sram", plan.ram_banks)) for n, size in enumerate(banks)}
++    check(problems, {k: v for k, v in memories.items() if "_bank" in k} == want,
++          f"the split export's memories are the image's banks ({sorted(want)})")
++    check(problems, not {"rom", "sram"} & set(memories), "the split export holds no BIOS ROM and no BIOS SRAM")
++    inits = sorted(out.glob("gateware/*_rom_bank*.init"), key=lambda p: int(p.stem.rsplit("bank", 1)[1]))
++    words = [int(w, 16) for p in inits for w in p.read_text().split()]
++    check(problems, words == ctrl_memory.rom_words(linked), "the rom banks' init files hold the image word for word")
++    rows = [line.split(",") for line in (out / "csr.csv").read_text().splitlines() if line.startswith("memory_region,")]
++    regions = {row[1]: (row[2], row[3]) for row in rows}
++    want_regions = {r.name: (f"0x{r.origin:08x}", str(r.size)) for r in (ctrl_memory.ROM, ctrl_memory.RAM)}
++    check(problems, {k: regions.get(k) for k in want_regions} == want_regions,
++          f"csr.csv maps rom and sram at the CPU's origins, each 224 KiB ({regions.get('rom')}, {regions.get('sram')})")
++    told = result.get("builder", {})
++    check(problems, (told.get("rom"), told.get("sram"), told.get("initialized")) == (0, 0, True),
++          f"the Builder is handed no BIOS ROM or SRAM and a rom that holds its contents, so builds no BIOS ({told})")
++    check(problems, result.get("includes") == [True],
++          f"the Builder writes the SoC headers once, without the firmware make inputs ({result.get('includes')})")
++    check(problems, "libmilan_baremetal" not in told.get("packages", ["?"])
++          and not (out / "software/libmilan_baremetal").exists(), "the split build adds no shipping firmware")
++
++
++def soc_arms(problems: list[str], tmp: Path, mutation: list[str] | None = None) -> None:
++    """The planted controls, the flag pairings and the split export, through milan_soc.main()."""
++    tmp.mkdir(parents=True, exist_ok=True)
++    good = elf(tmp, GOOD)
++    mbx = ["--ctrl-mailbox", "--ctrl-firmware"]
++    for label, extra, rule in (
++            ("an allocation over budget", [*mbx, str(elf(tmp, GOOD._replace(bss=215_000)))], "budget"),
++            ("a memory-map overlap", [*mbx, str(elf(tmp, GOOD._replace(bss_at=RAM + 32)))], "addresses"),
++            ("the 8x8 stage in the 1x1 build", [*mbx, str(elf(tmp, GOOD._replace(stage=STAGE_8X8)))], "stage size"),
++            ("the reset segment's file bytes emptied",
++             [*mbx, str(edited(tmp, "reset-empty", poke(lambda data: 52 + 16, 0)))], "entry bytes")):
++        result = soc_case(tmp, label, extra, mutation)
++        check(problems, (result["rc"], result.get("rule"), result["verilog"], result["inits"]) == (1, rule, [], []),
++              f"SoC build: {label} is refused by rule '{rule}' before any Verilog or init file is written "
++              f"(rc {result['rc']}: {result.get('refusal') or result.get('error')})")
++    for label, extra in (("--ctrl-mailbox alone", ["--ctrl-mailbox"]),
++                         ("--ctrl-firmware alone", ["--ctrl-firmware", str(good)])):
++        result = soc_case(tmp, label, extra, mutation)
++        check(problems, result["rc"] == 2 and PAIRING in result["log"] and not result["verilog"],
++              f"SoC build: {label} is refused, '{PAIRING}' (rc {result['rc']}: {result.get('error', '')})")
++    result = soc_case(tmp, "the split build", [*mbx, str(good)], mutation)
++    split_export(problems, result, good)
++    shutil.rmtree(tmp)
++
++
++# ---- 6. the register, and 7. the mutants ---------------------------------------------------
++
++class Mutant(NamedTuple):
++    """One edit of one function or class, and the rule or property it removes or weakens."""
++
++    name: str
++    target: str
++    owner: str
++    attribute: str
++    old: str
++    new: str
++    arm: str
++
++
++#: What the mutants target besides ctrl_memory.RULES: the documented behaviour that is not a refusal.
++PROPERTIES = {
++    "load address": "a section's load address is read through its segment",
++    "bank order": "banks are largest first",
++    "decode width": "a region decodes its whole window",
++    "hole width": "the hole compares the whole window",
++    "hole start": "the hole starts at the first word past the last bank",
++    "hole answer": "the hole answers err",
++    "err pulse": "err lasts one cycle",
++    "rom contents": "each rom bank holds its own words of the image",
++    "read-only rom": "rom drops writes",
++    "no BIOS build": "add_ctrl_memory tells the Builder that rom holds its contents",
++    "no BIOS memory": "the split build adds no BIOS ROM or SRAM",
++    "memory hookup": "the split build adds the control memory",
++    "stage in main": "main() runs the staging check before any export",
++    "pairing": "--ctrl-mailbox and --ctrl-firmware are refused apart",
++    "no shipping firmware": "the split build adds no shipping firmware library",
++}
++
++_CHECKS = ("ctrl_memory", "check_map")
++_ORIGINS = 'if (soc.cpu.reset_address, soc.mem_map["sram"]) != (ctrl_memory.ROM.origin, ctrl_memory.RAM.origin):'
++_ERR = "hole.err.eq(hole.cyc & hole.stb & ~hole.err)"
++_HOLE = "slaves.append((lambda a: a[:low] >= first, hole))"
++_BIOS = "kwargs.update(integrated_rom_size=0, integrated_sram_size=0)"
++MUTANTS = tuple(Mutant(*row) for row in (
++    ("elf class weakened", "elf class", "ctrl_memory", "read_elf",
++     'if data[:6] != b"\\x7fELF\\x01\\x01":', 'if data[:4] != b"\\x7fELF":', "checks"),
++    ("elf machine off", "elf machine", "ctrl_memory", "read_elf", "if machine != _EM_RISCV:", "if False:", "checks"),
++    ("truncated fields read", "elf truncated", "ctrl_memory", "_unpack",
++     "if offset + struct.calcsize(layout) > len(data):", "if False:", "checks"),
++    ("truncated segments read", "elf truncated", "ctrl_memory", "read_elf",
++     "if offset + filesz > len(data):", "if False:", "checks"),
++    ("unterminated names read", "elf truncated", "ctrl_memory", "_string", "if end < 0:", "if False:", "checks"),
++    ("load address read as the run address", "load address", "ctrl_memory", "read_elf",
++     "return paddr + vma - vaddr", "return vma", "checks"),
++    ("entry address off", "entry address", *_CHECKS, "if image.entry != rom.origin:", "if False:", "checks"),
++    ("entry bytes off", "entry bytes", *_CHECKS, "if not any(s.loaded and s.vma <= image.entry",
++     "if False and not any(s.loaded and s.vma <= image.entry", "checks"),
++    ("outside regions off", "outside regions", *_CHECKS, "if home is None:", "if False:", "checks"),
++    ("entry bytes read the sections only", "entry bytes", *_CHECKS,
++     "if not _carried(image.segments, image.entry, image.entry + 4):", "if False:", "checks"),
++    ("loads outside rom off", "loads outside rom", *_CHECKS,
++     "if s.loaded and not rom.holds(s.lma, s.lma + s.size):", "if False:", "checks"),
++    ("load coverage off", "load coverage", *_CHECKS,
++     "if s.loaded and not _carried(image.segments, s.lma, s.lma + s.size):", "if False:", "checks"),
++    ("load coverage reads the first byte only", "load coverage", *_CHECKS,
++     "_carried(image.segments, s.lma, s.lma + s.size)", "_carried(image.segments, s.lma, s.lma + 1)", "checks"),
++    ("a segment carries bytes below its start", "load coverage", "ctrl_memory", "_carried",
++     "if addr <= at < addr + len(data):", "if at < addr + len(data):", "checks"),
++    ("nobits in rom off", "nobits in rom", *_CHECKS, "if not s.loaded and home is rom:", "if False:", "checks"),
++    ("writable in rom off", "writable in rom", *_CHECKS, "if s.writable and home is rom:", "if False:", "checks"),
++    ("region overlap off", "regions", *_CHECKS, '_overlap("regions", ', '0 and _overlap("regions", ', "checks"),
++    ("address overlap off", "addresses", *_CHECKS, '_overlap("addresses", ', '0 and _overlap("addresses", ',
++     "checks"),
++    ("load-address overlap off", "initial bytes", *_CHECKS, '_overlap("initial bytes", ',
++     '0 and _overlap("initial bytes", ', "checks"),
++    ("budget off", "budget", "ctrl_memory", "plan", "if need.tiles > budget:", "if False:", "checks"),
++    ("budget refuses exactly 56", "budget", "ctrl_memory", "plan", "if need.tiles > budget:",
++     "if need.tiles >= budget:", "checks"),
++    ("budget half a tile slack", "budget", "ctrl_memory", "plan", "if need.tiles > budget:",
++     "if need.tiles > budget + 0.5:", "checks"),
++    ("budget 1.5 tiles slack", "budget", "ctrl_memory", "plan", "if need.tiles > budget:",
++     "if need.tiles > budget + 1.5:", "checks"),
++    ("stage symbol off", "stage symbol", "ctrl_memory", "check_stage", "if STAGE_SYMBOL not in image.symbols:",
++     "if False:", "checks"),
++    ("stage size off", "stage size", "ctrl_memory", "check_stage", "if size != stage:", "if False:", "checks"),
++    ("stage accepts a larger buffer", "stage size", "ctrl_memory", "check_stage", "if size != stage:",
++     "if size < stage:", "checks"),
++    ("stage accepts a smaller buffer", "stage size", "ctrl_memory", "check_stage", "if size != stage:",
++     "if size > stage:", "checks"),
++    ("banks smallest first", "bank order", "ctrl_memory", "banks", "reversed(range(granules.bit_length()))",
++     "range(granules.bit_length())", "banks"),
++    ("cpu origins off", "cpu origins", "milan_soc", "add_ctrl_memory", _ORIGINS, "if False:", "checks"),
++    ("cpu origins read the reset address only", "cpu origins", "milan_soc", "add_ctrl_memory", _ORIGINS,
++     "if soc.cpu.reset_address != ctrl_memory.ROM.origin:", "checks"),
++    ("rom left uninitialised for the Builder", "no BIOS build", "milan_soc", "add_ctrl_memory",
++     "soc.integrated_rom_initialized = True", "soc.integrated_rom_initialized = False", "checks"),
++    ("decode one bit short", "decode width", "milan_soc", "CtrlMemory",
++     "low = (region.size - 1).bit_length() - 2", "low = (region.size - 1).bit_length() - 3", "sim"),
++    ("hole compares one bit short", "hole width", "milan_soc", "CtrlMemory", _HOLE,
++     _HOLE.replace("a[:low]", "a[:low - 1]"), "sim"),
++    ("hole starts a word late", "hole start", "milan_soc", "CtrlMemory", _HOLE, _HOLE.replace(">=", ">"), "sim"),
++    ("hole answers nothing", "hole answer", "milan_soc", "CtrlMemory", f"self.sync += {_ERR}",
++     "self.sync += hole.err.eq(0)", "sim"),
++    ("err held a second cycle", "err pulse", "milan_soc", "CtrlMemory", _ERR, "hole.err.eq(hole.cyc & hole.stb)",
++     "sim"),
++    ("rom banks from the image start", "rom contents", "milan_soc", "CtrlMemory", "words[first:first + depth]",
++     "words[0:depth]", "sim"),
++    ("a writable rom", "read-only rom", "milan_soc", "CtrlMemory", "read_only=words is not None",
++     "read_only=False", "sim"),
++    ("BIOS ROM built", "no BIOS memory", "milan_soc", "MilanSoC", _BIOS, "kwargs.update(integrated_sram_size=0)",
++     "soc"),
++    ("BIOS SRAM built", "no BIOS memory", "milan_soc", "MilanSoC", _BIOS, "kwargs.update(integrated_rom_size=0)",
++     "soc"),
++    ("control memory not added", "memory hookup", "milan_soc", "MilanSoC",
++     "add_ctrl_memory(self, Path(ctrl_firmware))", "None", "soc"),
++    ("main() staging check removed", "stage in main", "milan_soc", "main",
++     "ctrl_memory.check_stage(soc.ctrl_image,", "(soc.ctrl_image,", "soc"),
++    ("flag pairing off", "pairing", "milan_soc", "main",
++     "if args.ctrl_mailbox != (args.ctrl_firmware is not None):", "if False:", "soc"),
++    ("shipping firmware linked", "no shipping firmware", "milan_soc", "main",
++     'if args.software_profile == "baremetal" and not args.ctrl_mailbox:', 'if args.software_profile == "baremetal":',
++     "soc"),
++))
++
++
++def mutated(owner: types.ModuleType, name: str, old: str, new: str) -> Any:
++    """`owner.name` rebuilt from its own source with `old` replaced by `new`, which must match once.
++
++    The text compiled is the module's own definition of `name` and nothing else:
++    it must parse to exactly that one definition, and it runs in the module's
++    own namespace, so the rebuilt object sees every other name as it was.
++    """
++    source = textwrap.dedent(inspect.getsource(getattr(owner, name)))
++    if source.count(old) != 1:
++        raise LookupError(f"{owner.__name__}.{name}: the edit matches {source.count(old)} times, not once")
++    edited_source = source.replace(old, new)
++    tree = ast.parse(edited_source)
++    if [getattr(node, "name", None) for node in tree.body] != [name]:
++        raise LookupError(f"{owner.__name__}.{name}: the edited source is not one definition of {name}")
++    scope: dict[str, Any] = {}
++    exec(compile(edited_source, f"<mutant of {owner.__name__}.{name}>", "exec",
++                 flags=__future__.annotations.compiler_flag, dont_inherit=True), vars(owner), scope)
++    return scope[name]
++
++
++@contextlib.contextmanager
++def patched(owner: object, name: str, value: object) -> Iterator[None]:
++    """Replace `owner.name` for the duration of one mutant."""
++    original = getattr(owner, name)
++    setattr(owner, name, value)
++    try:
++        yield
++    finally:
++        setattr(owner, name, original)
++
++
++def doc_rules() -> list[tuple[str, str, str]]:
++    """(check, rule, refuses) for each row of SPLIT_CONTROL_MEMORY.md section 3's rule table."""
++    section = DOC.read_text().split("## 3. Named refusals", 1)[-1].split("\n## ", 1)[0]
++    return re.findall(r"^\| `([^`]+)` \| `([^`]+)` \| (.+?) \|$", section, re.M)
++
++
++def registry_arms(problems: list[str], tmp: Path) -> None:
++    """The documented rules are the registered ones, and each has a refusal arm and a mutant."""
++    want = [(rule.check, key, rule.refuses) for key, rule in ctrl_memory.RULES.items()]
++    got = doc_rules()
++    differ = next((pair for pair in zip(got, want) if pair[0] != pair[1]), None)
++    check(problems, got == want, f"SPLIT_CONTROL_MEMORY.md section 3 lists the {len(want)} rules of "
++                                 f"ctrl_memory.RULES in order ({len(got)} rows; first difference: {differ})")
++    rules = set(ctrl_memory.RULES)
++    armed = {rule for rule, _, _ in refusal_arms(tmp)}
++    mutants = {m.target for m in MUTANTS}
++    check(problems, armed >= rules, f"every rule has a refusal arm (none: {sorted(rules - armed)})")
++    check(problems, mutants >= rules,
++          f"every rule has a mutant that removes or weakens it (none: {sorted(rules - mutants)})")
++    check(problems, mutants <= rules | set(PROPERTIES),
++          f"every mutant targets a rule or a named property (stray: {sorted(mutants - rules - set(PROPERTIES))})")
++
++
++def mutant_arms(problems: list[str], tmp: Path, green: set[str]) -> None:
++    """Each mutant must turn its arm red, named by the first failure it causes.
++
++    Only an arm in `green`, one that passed unmutated in this run, grades a
++    mutant: a failure the arm shows anyway is no evidence that the mutant is caught.
++    """
++    arms = {"banks": bank_arms, "checks": partial(check_arms, tmp=tmp), "sim": sim_arms}
++    for n, m in enumerate(MUTANTS):
++        if m.arm not in green:
++            check(problems, False, f"MUTANT '{m.name}' ({m.target}) is not graded: the {m.arm} arm fails unmutated")
++            continue
++        caught: list[str] = []
++        owner = MODULES[m.owner]
++        try:
++            rebuilt = mutated(owner, m.attribute, m.old, m.new)
++        except LookupError as exc:
++            check(problems, False, f"MUTANT '{m.name}': {exc}")
++            continue
++        with contextlib.redirect_stdout(None):
++            try:
++                if m.arm == "soc":
++                    soc_arms(caught, tmp / f"mutant-{n}", [m.owner, m.attribute, m.old, m.new])
++                else:
++                    with patched(owner, m.attribute, rebuilt):
++                        arms[m.arm](caught)
++            except Exception as exc:     # a mutant that breaks an arm outright is caught too
++                caught.append(f"the arm raised {type(exc).__name__}: {exc}")
++        check(problems, bool(caught), f"MUTANT '{m.name}' ({m.target}) is caught by the {m.arm} arm: "
++                                      f"{caught[0] if caught else 'nothing went red'}")
++
++
++def run_arm(problems: list[str], label: str, arm: Callable[[list[str]], object]) -> object:
++    """Run one arm; an exception out of it is a named failure, never a crash."""
++    print(f"-- {label}")
++    try:
++        return arm(problems)
++    except Exception as exc:     # every arm reports through `problems`, so an escape is a failure
++        check(problems, False, f"the {label} arm raised {type(exc).__name__}: {exc}")
++        return None
++
++
++def main() -> int:
++    """Every arm; exit 1 naming each failure."""
++    if sys.argv[1:2] == ["--soc-child"]:
++        return soc_child(Path(sys.argv[2]))
++    problems: list[str] = []
++    print("test_ctrl_memory: the split placement's firmware memory (#640 M8a)")
++    with tempfile.TemporaryDirectory(prefix="ctrl-memory-") as name:
++        tmp = Path(name)
++        outcomes: dict[str, object] = {}
++        green: set[str] = set()
++        for key, label, arm in (("banks", "banks", bank_arms), ("checks", "rules", partial(check_arms, tmp=tmp)),
++                                ("sim", "simulation", sim_arms), ("link", "link", partial(link_arms, tmp=tmp)),
++                                ("soc", "SoC build", partial(soc_arms, tmp=tmp / "soc"))):
++            before = len(problems)
++            outcomes[key] = run_arm(problems, label, arm)
++            if len(problems) == before:
++                green.add(key)
++        run_arm(problems, "register", partial(registry_arms, tmp=tmp))
++        run_arm(problems, "mutants", partial(mutant_arms, tmp=tmp, green=green))
++    for problem in problems:
++        print(f"FAIL: {problem}", file=sys.stderr)
++    print(f"test_ctrl_memory: {len(problems)} failure(s)")
++    if not problems and not outcomes["link"]:
++        print("RESULT: SKIP (no RV32 compiler; the link arm needs one, see sw/firmware/gtest/fw_rv32.py)")
++        return 0
++    print(f"RESULT: {'PASS' if not problems else 'FAIL'}")
++    return 1 if problems else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/syn/ooc/ctrl_memory_ooc.py b/syn/ooc/ctrl_memory_ooc.py
+new file mode 100644
+index 000000000..b8d1ad174
+--- /dev/null
++++ b/syn/ooc/ctrl_memory_ooc.py
+@@ -0,0 +1,119 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Map the split placement's firmware memory out of context (#640 M8a).
++
++For each linked control-firmware image, this emits the two regions exactly as
++the SoC builds them (`milan_soc.CtrlMemory` over `ctrl_memory.plan`). Each
++region becomes its own top with the Wishbone port the SoC bus drives. It also
++writes a Vivado script that synthesises every top out of context at the
++shipping part and directive and records its block RAM, LUT and flip-flop
++counts. A missing ROM image is an error, never an empty memory.
++
++    python3 syn/ooc/ctrl_memory_ooc.py <directory> TAG=ELF [TAG=ELF ...]
++    cd <directory> && vivado -mode batch -nojournal -source ctrl_memory_ooc.tcl
++
++Run it with the LiteX interpreter; the Vivado step writes ctrl_memory_ooc.tsv.
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT / "sw/litex"))
++
++import ctrl_memory  # noqa: E402
++import milan_soc  # noqa: E402
++from litex.gen import LiteXModule  # noqa: E402
++from litex.gen.fhdl.verilog import convert  # noqa: E402
++from migen import ClockDomain  # noqa: E402
++
++#: The AX7101's part and the shipping synthesis directive (sw/litex/build.sh).
++PART = "xc7a100t-fgg484-2"
++DIRECTIVE = "AreaOptimized_high"
++TSV = "ctrl_memory_ooc.tsv"
++COLUMNS = ("top", "RAMB36E1", "RAMB18E1", "LUT", "FF", "LUTRAM")
++
++
++class Top(LiteXModule):
++    """One region of the split placement's firmware memory and its clock."""
++
++    def __init__(self, region: ctrl_memory.Region, banks: tuple[int, ...],
++                 words: list[int] | None) -> None:
++        """The region as add_ctrl_memory builds it."""
++        self.cd_sys = ClockDomain("sys")
++        self.memory = milan_soc.CtrlMemory(region, banks, words)
++
++
++def emit(directory: Path, name: str, top: Top) -> None:
++    """Write `name`.v and its memory images into `directory`."""
++    bus = top.memory.bus
++    ios = {top.cd_sys.clk, top.cd_sys.rst, bus.adr, bus.dat_w, bus.dat_r, bus.sel, bus.cyc,
++           bus.stb, bus.ack, bus.we, bus.err, bus.cti, bus.bte}
++    output = convert(top, ios=ios, name=name)
++    (directory / f"{name}.v").write_text(output.main_source)
++    for filename, content in output.data_files.items():
++        (directory / filename).write_text(content)
++
++
++def tcl(tops: list[str]) -> str:
++    """Synthesise each top alone and append its primitive counts to the TSV."""
++    lines = ["set_msg_config -id {Synth 8-4445} -new_severity ERROR",
++             f"set out [open {TSV} w]", f'puts $out "{chr(9).join(COLUMNS)}"']
++    for top in tops:
++        lines += [
++            f"read_verilog {top}.v",
++            f"synth_design -top {top} -part {PART} -mode out_of_context -directive {DIRECTIVE}",
++            "set n {}",
++            "foreach f {{REF_NAME == RAMB36E1} {REF_NAME == RAMB18E1} {PRIMITIVE_GROUP == LUT} "
++            "{PRIMITIVE_GROUP == FLOP_LATCH} {PRIMITIVE_GROUP == DMEM}} {",
++            "  lappend n [llength [get_cells -quiet -hier -filter $f]]",
++            "}",
++            f'puts $out "{top}\\t[join $n \\t]"',
++            f"report_utilization -file {top}_utilization.rpt",
++            "close_design",
++            "close_project -quiet",
++        ]
++    return "\n".join(lines + ["close $out", ""])
++
++
++def image(text: str) -> tuple[str, Path]:
++    """TAG=ELF."""
++    tag, sep, path = text.partition("=")
++    if not sep or not tag.isidentifier():
++        raise argparse.ArgumentTypeError(f"{text!r} is not TAG=ELF")
++    return tag, Path(path)
++
++
++def main(argv: list[str] | None = None) -> int:
++    """Emit both regions of every image, their plans and the Vivado script."""
++    ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
++    ap.add_argument("directory", type=Path)
++    ap.add_argument("images", type=image, nargs="+", metavar="TAG=ELF")
++    args = ap.parse_args(argv)
++    args.directory.mkdir(parents=True, exist_ok=True)
++    plans, tops = {}, []
++    try:
++        for tag, elf in args.images:
++            linked = ctrl_memory.read_elf(elf)
++            plan = ctrl_memory.plan(linked)
++            plans[tag] = plan.summary()
++            for region, banks, words in ((ctrl_memory.ROM, plan.rom_banks, ctrl_memory.rom_words(linked)),
++                                         (ctrl_memory.RAM, plan.ram_banks, None)):
++                tops.append(f"{tag}_{region.name}")
++                emit(args.directory, tops[-1], Top(region, banks, words))
++    except ctrl_memory.Refusal as exc:
++        print(f"REFUSED {exc}", file=sys.stderr)
++        return 2
++    (args.directory / "ctrl_memory_plan.json").write_text(json.dumps(plans, indent=2) + "\n")
++    (args.directory / "ctrl_memory_ooc.tcl").write_text(tcl(tops))
++    print(json.dumps(plans, indent=2))
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())

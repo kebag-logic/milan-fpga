@@ -1,0 +1,16 @@
+applied .github/workflows/rtl.yml: rtl.yml: append the new last index to the verilator-shards matrix's shard, set its total to the new count
+applied .github/workflows/rtl.yml: rtl.yml: set the verilator-suites verifier's --expect to the new count
+applied .github/workflows/rtl.yml: rtl.yml: give the ownership step's milan_dp arm the new last index
+applied scripts/ci_events.py: ci_events.py: the same change to CANONICAL_OWNERSHIP_SCRIPT
+applied scripts/ci_events.py: ci_events.py: the same change to the canonical verilator-suites verifier step
+applied scripts/ci_events.py: ci_events.py self-test: _m_shard_denominator_stale's asserted shard list, restated count and planted index
+applied scripts/ci_events.py: ci_events.py self-test: _m_dedicated_worker_dropped's asserted last index
+applied scripts/ci_events.py: ci_events.py self-test: _m_dedicated_worker_reverted's asserted last index and planted count
+applied scripts/ci_events.py: ci_events.py self-test: _m_ownership_dedicated_arm_dropped's asserted arm index
+applied scripts/ci_events.py: ci_events.py self-test: _m_shard_matrix_include's planted index and count
+applied scripts/ci_events.py: ci_events.py self-test: _m_verify_expect_missing's asserted count
+applied scripts/ci_events.py: ci_events.py self-test: _m_matrix_grows_expect_stays's asserted shard list and planted index
+applied scripts/ci_events.py: ci_events.py self-test: the expected finding of 'R4 matrix grows, --expect stays'
+applied scripts/ci_events.py: ci_events.py self-test: the expected finding of '#444 the matrix and total return to four, --expect stays'
+applied scripts/suite_shards.py: this file: give the self-test's milan_dp landmark the new last index
+applied scripts/suite_shards.py: this file: one more WORKER_OVERHEAD_SECONDS entry before the last, equal to the largest one already there (115)

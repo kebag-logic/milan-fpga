@@ -1,0 +1,92 @@
+[
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.431
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.166
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 2,
+    "seconds": 0.117
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "d5858bbee328cf8d2c39a99ec14203f5d0ddd123"
+    ],
+    "rc": 2,
+    "seconds": 1.068
+  },
+  {
+    "name": "ci-events-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.266
+  },
+  {
+    "name": "ci-events-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 24.956
+  },
+  {
+    "name": "ci-scope-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 7.436
+  },
+  {
+    "name": "suite-shards-selftest",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.867
+  },
+  {
+    "name": "firmware-census",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--firmware-census"
+    ],
+    "rc": 0,
+    "seconds": 0.265
+  }
+]

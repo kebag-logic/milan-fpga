@@ -1,0 +1,33 @@
+[
+  {
+    "name": "toc-check",
+    "command": [
+      "$REVIEWS/727-r626-4-packet/scratch/markdown-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.579
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "$REVIEWS/727-r626-4-packet/scratch/markdown-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 4.426
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "$REVIEWS/727-r626-4-packet/scratch/markdown-venv/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "d5858bbee328cf8d2c39a99ec14203f5d0ddd123"
+    ],
+    "rc": 0,
+    "seconds": 4.128
+  }
+]

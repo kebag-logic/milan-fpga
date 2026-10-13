@@ -1,0 +1,18 @@
+PASS missing: rc 1, expected 1
+PASS missing-list: rc 2, expected 2
+PASS step1: rc 0, expected 0
+PASS five-worker-bound: rc 1, expected 1
+PASS step2: rc 0, expected 0
+PASS firmware-census: rc 0, expected 0
+PASS ci-check: rc 0, expected 0
+PASS six-worker-selftest: rc 0, expected 0
+PASS ci-selftest: rc 0, expected 0
+PASS list-3: rc 0, expected 0
+PASS list-5: rc 0, expected 0
+PASS list-2: rc 0, expected 0
+PASS list-1: rc 0, expected 0
+PASS list-4: rc 0, expected 0
+PASS list-0: rc 0, expected 0
+PASS default-list: rc 0, expected 0
+PASS six-worker lists cover 63 suites exactly once, specialized owners retained
+PASS candidate new-suite procedure and predecessor firmware census coexist; no suite/build/full preflight executed

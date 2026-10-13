@@ -1,0 +1,20 @@
+Source changes: ['docs/testing/CI_WORKFLOWS.md', 'docs/testing/TESTING.md', 'scripts/suite_shards.py']
+Predecessor changes: ['.github/workflows/rtl-fast.yml', 'docs/ARCHITECTURE_HW_SW_SPLIT.md', 'docs/README.md', 'docs/design/AREA_BUDGET.md', 'docs/design/MAILBOX_SPLIT.md', 'docs/design/MARK_II_AREA_PLAN.md', 'docs/design/SPLIT_CONTROL_MEMORY.md', 'docs/litex/LITEX_SOC.md', 'docs/testing/CI_WORKFLOWS.md', 'docs/testing/TESTING.md', 'scripts/check_py_idiom.py', 'scripts/ci_events.py', 'scripts/ci_scope.py', 'scripts/run_litex_sims.sh', 'sw/firmware/ctrl/README.md', 'sw/firmware/ctrl/plat/ctrl_split.ld', 'sw/firmware/ctrl/plat/ctrl_split_start.S', 'sw/firmware/ctrl/test/ctrl_srp_image.py', 'sw/firmware/ctrl/test/test_ctrl_firmware.py', 'sw/firmware/ctrl/test/test_ctrl_firmware_shards.py', 'sw/litex/ctrl_memory.py', 'sw/litex/milan_soc.py', 'sw/litex/test_ctrl_memory.py', 'syn/ooc/ctrl_memory_ooc.py']
+Exact overlap: ['docs/testing/CI_WORKFLOWS.md', 'docs/testing/TESTING.md']
+d5858bbee Merge PR #721: Mark II M8a-1: split placement control memory on chip, firmware owns the reset entry (#640)
+dc4d06cbf Merge PR #724: Split the firmware-unit job into four required firmware jobs within unchanged timeouts (#716)
+
+PASS exact three-way text composition: docs/testing/CI_WORKFLOWS.md
+PASS exact three-way text composition: docs/testing/TESTING.md
+PASS every nonoverlapping changed entry retains its owning source mode and blob
+PASS unchanged across all four trees: .github/workflows/rtl.yml 100644 blob 67766752e267c6c8f50528926e307f050a8ff518	.github/workflows/rtl.yml
+PASS unchanged across all four trees: scripts/run_all_suites.sh 100755 blob 133a9c8f524d174e9cd47bb996ca1a65b85e48b8	scripts/run_all_suites.sh
+PASS unchanged across all four trees: scripts/suite_tally.py 100644 blob 836ea2f8e888eca9702861d3983c712f7ac21a5e	scripts/suite_tally.py
+PASS unchanged across all four trees: protocol-processor 160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+PASS unchanged across all four trees: gptp-processor 160000 commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp-processor
+PASS unchanged across all four trees: third_party/verilog-axis 160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+PASS unchanged across all four trees: third_party/lwSRP 160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+PASS unchanged full Makefile inventory: 63
+PASS live driver lists are disjoint and complete: 62 default suites
+PASS independent sum over real lists: [4204, 4205, 4203, 4205, 2877] bound: 4320
+PASS composition introduces no durationless suite or provisional entry
