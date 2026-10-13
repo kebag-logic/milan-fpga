@@ -1,0 +1,15 @@
+{
+  "label": "verilator",
+  "argv": [
+    "env",
+    "PATH=$SCRATCH/r5/venv312/bin:/usr/local/bin:/usr/bin:/bin",
+    "$SCRATCH/r5/venv312/bin/python3",
+    "$WORK/clone-v/sw/firmware/ctrl/test/ctrl_boundary.py",
+    "--require-rv32",
+    "--selftest",
+    "--only",
+    "verilator"
+  ],
+  "rc": 0,
+  "seconds": 472.53
+}

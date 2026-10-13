@@ -1,0 +1,48 @@
+[
+  {
+    "capture": "capture-rv32",
+    "reset_entry_invocations": []
+  },
+  {
+    "capture": "capture-control",
+    "reset_entry_invocations": []
+  },
+  {
+    "capture": "capture-store",
+    "reset_entry_invocations": []
+  },
+  {
+    "capture": "capture-coverage",
+    "reset_entry_invocations": []
+  },
+  {
+    "capture": "capture-memory-final",
+    "reset_entry_invocations": [
+      {
+        "args": [
+          "-march=rv32i",
+          "-mabi=ilp32",
+          "-c",
+          "$CANDIDATE/sw/firmware/ctrl/plat/ctrl_split_start.S",
+          "-o",
+          "$WORK/tmpdir/ctrl-memory-build-vzij_3rb/start.o"
+        ],
+        "run": [
+          "sw/litex/test_ctrl_memory.py"
+        ],
+        "builders": [
+          "sw/litex/ctrl_memory_probe.py",
+          "sw/litex/test_ctrl_memory.py"
+        ],
+        "sources": [
+          {
+            "path": "$CANDIDATE/sw/firmware/ctrl/plat/ctrl_split_start.S",
+            "deps": [
+              "$TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1/riscv32-buildroot-linux-gnu/sysroot/usr/include/stdc-predef.h"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

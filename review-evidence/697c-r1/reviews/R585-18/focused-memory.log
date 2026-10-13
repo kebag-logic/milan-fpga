@@ -1,0 +1,15 @@
+clean build 0 test_ctrl_memory: BUILT (reset entry and probe; no suites run)
+ 
+reset source $REPO/sw/firmware/ctrl/plat/ctrl_split_start.S language assembler dependencies ('$PACKET/scratch/rv32-sdk/riscv32-buildroot-linux-gnu/sysroot/usr/include/stdc-predef.h',)
+clean reset entry: no boundary finding
+present fifth capture: its missing-run diagnostic is absent
+dropped fifth capture: the capture holds no invocation of sw/litex/test_ctrl_memory.py from a run of its own
+unclassified copy: sw/firmware/ctrl/test/independent_test_ctrl_memory.py names the firmware's tree and is a program
+unclassified copy: sw/firmware/ctrl/test/independent_ctrl_memory.py names the firmware's tree and is a program
+unclassified copy: sw/firmware/ctrl/test/independent_milan_soc.py names the firmware's tree and is a program
+private include: firmware: sw/firmware/ctrl/plat/ctrl_split_start.S reads tsn-c-stack/examples/port/boundary_private.h, not one of the stack's public headers
+private include: firmware: sw/firmware/ctrl/plat/ctrl_split_start.S includes tsn-c-stack/examples/port/boundary_private.h, not one of the stack's public headers
+missing RV32 compiler: named refusal, rc 2
+link AST identical to dev
+PROBE AST identical to dev
+focused memory capture: PASS

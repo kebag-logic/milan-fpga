@@ -1,0 +1,60 @@
+  [ok  ] 840 needs: power-of-two granule banks, largest first, under one granule spare (first wrong: [])
+  [ok  ] a zero need builds no bank
+  [ok  ] a plan counts a 2 KiB bank as one RAMB18, half a tile
+  [ok  ] the good image is planned
+  [ok  ] the plan's needs are rom to the end of .data's initial bytes, sram to the stack's top (12068, 48256)
+  [ok  ] rom holds .text at the reset address, .rodata after it and .data's initial bytes at their load address
+  [ok  ] a staging buffer of the shape's size is accepted
+  [ok  ] an allocation of exactly 56 RAMB36 is accepted
+  [ok  ] that allocation plans 56.0 RAMB36 (56.0)
+[milan] --ctrl-firmware $PACKET/scratch/memory-link/image-0-0-40000-268435456-None-None-3344-243.elf: {"rom": {"bytes": 12068, "banks": [8192, 4096], "RAMB36": 3, "RAMB18": 0}, "sram": {"bytes": 48256, "banks": [32768, 16384], "RAMB36": 12, "RAMB18": 0}, "tiles": 15.0, "budget_tiles": 56}
+  [ok  ] add_ctrl_memory builds the image
+  [ok  ] add_ctrl_memory adds rom (rx) and sram (rwx) as CtrlMemory, each the whole 224 KiB ({'rom': (0, 229376, 'rx'), 'sram': (268435456, 229376, 'rwx')})
+  [ok  ] add_ctrl_memory tells LiteX's Builder that rom holds its contents, so it builds no BIOS
+  [ok  ] an image entering away from the reset address: refused by 'reset entry' rule 'entry address' (reset entry: the image enters at 0x00000100, not at the CPU's reset address 0x00000000, the start of rom)
+  [ok  ] an image with no initial bytes at the reset address: refused by 'reset entry' rule 'entry bytes' (reset entry: no initial bytes at the reset address 0x00000000)
+  [ok  ] the reset segment's file bytes emptied, its section kept: refused by 'reset entry' rule 'entry bytes' (reset entry: no load segment carries the first word at the reset address 0x00000000, so rom would hold none there)
+  [ok  ] the reset section moved to 0x100 in the section table, its segment kept: refused by 'reset entry' rule 'entry bytes' (reset entry: no initial bytes at the reset address 0x00000000)
+  [ok  ] a CPU resetting away from rom's origin: refused by 'reset entry' rule 'cpu origins' (reset entry: the CPU resets to 0x00000100 with sram at 0x10000000; ctrl_memory.py maps rom at 0x00000000, sram at 0x10000000)
+  [ok  ] a CPU whose sram is not at sram's origin: refused by 'reset entry' rule 'cpu origins' (reset entry: the CPU resets to 0x00000000 with sram at 0x20000000; ctrl_memory.py maps rom at 0x00000000, sram at 0x10000000)
+  [ok  ] a file that is not an ELF: refused by 'memory map' rule 'elf class' (memory map: $PACKET/scratch/memory-link/not-elf.elf is not a little-endian ELF32 file)
+  [ok  ] an empty file: refused by 'memory map' rule 'elf class' (memory map: $PACKET/scratch/memory-link/empty.elf is not a little-endian ELF32 file)
+  [ok  ] an ELF64 file: refused by 'memory map' rule 'elf class' (memory map: $PACKET/scratch/memory-link/elf64.elf is not a little-endian ELF32 file)
+  [ok  ] a big-endian ELF32 file: refused by 'memory map' rule 'elf class' (memory map: $PACKET/scratch/memory-link/big-endian.elf is not a little-endian ELF32 file)
+  [ok  ] an x86 ELF32 file: refused by 'memory map' rule 'elf machine' (memory map: $PACKET/scratch/memory-link/image-0-0-40000-268435456-None-None-3344-3.elf is not a RISC-V image)
+  [ok  ] an ELF cut inside its header: refused by 'memory map' rule 'elf truncated' (memory map: $PACKET/scratch/memory-link/cut-40.elf: the ELF header at byte 16 runs past the end of the 40-byte file)
+  [ok  ] an ELF cut to half: refused by 'memory map' rule 'elf truncated' (memory map: $PACKET/scratch/memory-link/cut-half.elf: the section header 0 at byte 12406 runs past the end of the 6383-byte file)
+  [ok  ] a load segment past the end of the file: refused by 'memory map' rule 'elf truncated' (memory map: $PACKET/scratch/memory-link/segment.elf: the 1048576 initial bytes at byte 212 run past the end of the 12766-byte file)
+  [ok  ] a section name past the end of the file: refused by 'memory map' rule 'elf truncated' (memory map: $PACKET/scratch/memory-link/name.elf: the name at byte 1073754170 runs past the end of the 12766-byte file)
+  [ok  ] a section outside rom and sram: refused by 'memory map' rule 'outside regions' (memory map: .bss [0x40000000, 0x40009c40) is outside rom and sram)
+  [ok  ] initial bytes of .data left in sram, which nothing initialises: refused by 'memory map' rule 'loads outside rom' (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+  [ok  ] the reset segment's file bytes cut to its first word, its section kept: refused by 'memory map' rule 'load coverage' (memory map: .text's 9000 initial bytes at 0x00000000 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] .data's load segment emptied, its section kept: refused by 'memory map' rule 'load coverage' (memory map: .data's 64 initial bytes at 0x00002ee4 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] .bss reserved in rom: refused by 'memory map' rule 'nobits in rom' (memory map: .bss reserves rom, which the firmware cannot write)
+  [ok  ] .data linked to run in rom: refused by 'memory map' rule 'writable in rom' (memory map: .data is writable and runs at 0x00002f44 in rom, which drops writes; it runs in sram, loaded from rom)
+  [ok  ] PLANTED: a memory-map overlap (sram moved into rom): refused by 'memory-map overlap' rule 'regions' (memory-map overlap: sram at 0x00020000 lies inside rom [0x00000000, 0x00038000) (regions))
+  [ok  ] PLANTED: a memory-map overlap (.bss over .data): refused by 'memory-map overlap' rule 'addresses' (memory-map overlap: .bss at 0x10000020 lies inside .data [0x10000000, 0x10000040) (addresses))
+  [ok  ] .data's initial bytes loading over .rodata's: refused by 'memory-map overlap' rule 'initial bytes' (memory-map overlap: .rodata at 0x00002328 lies inside .data [0x00002328, 0x00002368) (initial bytes))
+  [ok  ] PLANTED: an allocation over budget (215,000 bytes of .bss: 58 RAMB36, each region inside its own): refused by 'allocation over budget' rule 'budget' (allocation over budget: 58 RAMB36 (rom 12068 bytes in 12288, sram 223256 bytes in 225280) exceeds the 56-RAMB36 budget)
+  [ok  ] an allocation of 56.5 RAMB36, half a tile over: refused by 'allocation over budget' rule 'budget' (allocation over budget: 56.5 RAMB36 (rom 12068 bytes in 12288, sram 219136 bytes in 219136) exceeds the 56-RAMB36 budget)
+  [ok  ] an image with no nvm_stage: refused by 'staging buffer' rule 'stage symbol' (staging buffer: the image has no nvm_stage)
+  [ok  ] PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage): refused by 'staging buffer' rule 'stage size' (staging buffer: nvm_stage is 3344 bytes; the planted shape stages 13264)
+  [ok  ] PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage): refused by 'staging buffer' rule 'stage size' (staging buffer: nvm_stage is 13264 bytes; the planted shape stages 3344)
+  [ok  ] regions.ld states both regions at the CPU's origins, each the whole 224 KiB budget
+  [ok  ] the probe enters at the reset address, whose first word is the reset entry's auipc sp
+  [ok  ] .data runs in sram and its initial value 7 loads from rom
+  [ok  ] the stack tops the sram need
+  [ok  ] the probe's rom words are its load image as the toolchain's objcopy -O binary writes it (32 words, 128 bytes)
+  [ok  ] the probe's nvm_stage passes as the shape's stage
+  [ok  ] PLANTED link script: no AT > rom on .data: refused by 'memory map' rule 'loads outside rom' (memory map: .data's initial bytes load at 0x10000000, outside rom, the only region the bitstream initialises)
+$PACKET/scratch/rv32-sdk/bin/../lib/gcc/riscv32-buildroot-linux-gnu/14.3.0/../../../../riscv32-buildroot-linux-gnu/bin/ld: warning: $PACKET/scratch/memory-link/-data-in-rom/probe.elf has a LOAD segment with RWX permissions
+  [ok  ] PLANTED link script: .data in rom: refused by 'memory map' rule 'writable in rom' (memory map: .data is writable and runs at 0x00000070 in rom, which drops writes; it runs in sram, loaded from rom)
+  [ok  ] PLANTED link script: ENTRY(main): refused by 'reset entry' rule 'entry address' (reset entry: the image enters at 0x0000005c, not at the CPU's reset address 0x00000000, the start of rom)
+  [ok  ] PLANTED linked image: the reset segment's file bytes emptied: refused by 'reset entry' rule 'entry bytes' (reset entry: no load segment carries the first word at the reset address 0x00000000, so rom would hold none there)
+  [ok  ] PLANTED linked image: the reset segment's file bytes cut to its first word: refused by 'memory map' rule 'load coverage' (memory map: .text's 124 initial bytes at 0x00000000 are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] PLANTED linked image: .data's load segment emptied: refused by 'memory map' rule 'load coverage' (memory map: .data's 4 initial bytes at 0x0000007c are not all in the load segments' file bytes, the only bytes that program rom)
+  [ok  ] SPLIT_CONTROL_MEMORY.md section 3 lists the 17 rules of ctrl_memory.RULES in order (17 rows; first difference: None)
+  [ok  ] every rule has a refusal arm (none: [])
+  [ok  ] every rule has a mutant that removes or weakens it (none: [])
+  [ok  ] every mutant targets a rule or a named property (stray: [])
+memory bank, map, link and rule-registry arms: PASS
