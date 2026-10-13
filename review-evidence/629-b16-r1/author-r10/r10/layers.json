@@ -1,0 +1,174 @@
+{
+ "note": "Lane B16 round 10: the check with both of round 10's rules, and copies of it with each taken out, on the unchanged page and on altered copies; offline, no bench action",
+ "cut": {
+  "no position": "bad_start = sl < 1",
+  "conservation": "if not leaf[3] and sorted("
+ },
+ "cases": [
+  {
+   "case": "the unchanged page",
+   "document": null,
+   "line": null,
+   "runs": {
+    "both rules": {
+     "rc": 0,
+     "named": []
+    },
+    "without no position": {
+     "rc": 0,
+     "named": []
+    },
+    "without conservation": {
+     "rc": 0,
+     "named": []
+    }
+   }
+  },
+  {
+   "case": "an e-mail address before a figure on the introduction's second covered line",
+   "document": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+   "line": 19,
+   "runs": {
+    "both rules": {
+     "rc": 1,
+     "named": [
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph In lane B16, the operator tried the refe (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+     ]
+    },
+    "without no position": {
+     "rc": 1,
+     "named": [
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph In lane B16, the operator tried the refe (refused: the digits a reader sees differ from those the check read)"
+     ]
+    },
+    "without conservation": {
+     "rc": 1,
+     "named": [
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:18 paragraph In lane B16, the operator tried the refe (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+     ]
+    }
+   }
+  },
+  {
+   "case": "an e-mail address before a figure in the index row's lane B16 part",
+   "document": "README.md",
+   "line": 15,
+   "runs": {
+    "both rules": {
+     "rc": 1,
+     "named": [
+      "MARKUP README.md:15 table_cell Lane B16, `5603c353`: identity and tool (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+     ]
+    },
+    "without no position": {
+     "rc": 1,
+     "named": [
+      "MARKUP README.md:15 table_cell Lane B16, `5603c353`: identity and tool (refused: the digits a reader sees differ from those the check read)"
+     ]
+    },
+    "without conservation": {
+     "rc": 1,
+     "named": [
+      "MARKUP README.md:15 table_cell Lane B16, `5603c353`: identity and tool (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+     ]
+    }
+   }
+  },
+  {
+   "case": "an e-mail address before a figure on the second line of the section's first paragraph",
+   "document": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+   "line": 2302,
+   "runs": {
+    "both rules": {
+     "rc": 1,
+     "named": [
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 paragraph The loopback did not form. The peer's li (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+     ]
+    },
+    "without no position": {
+     "rc": 1,
+     "named": [
+      "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 7 (a measurement: only a row can claim it)"
+     ]
+    },
+    "without conservation": {
+     "rc": 1,
+     "named": [
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2301 paragraph The loopback did not form. The peer's li (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+     ]
+    }
+   }
+  },
+  {
+   "case": "an e-mail address before a figure in the last cell of a row of the section's first table",
+   "document": "629_MEDIA_CLOCK_FOLLOWING_BENCH.md",
+   "line": 2324,
+   "runs": {
+    "both rules": {
+     "rc": 1,
+     "named": [
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324 table_cell  See [B16: bench as left](#b16-bench-as- (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+     ]
+    },
+    "without no position": {
+     "rc": 1,
+     "named": [
+      "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324 7 (a measurement: only a row can claim it)"
+     ]
+    },
+    "without conservation": {
+     "rc": 1,
+     "named": [
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:2324 table_cell  See [B16: bench as left](#b16-bench-as- (refused: the parser gives a node in it no position; no e-mail, mailto: or xmpp: autolink)"
+     ]
+    }
+   }
+  },
+  {
+   "case": "an entity just before the index row's lane B16 part",
+   "document": "README.md",
+   "line": 15,
+   "runs": {
+    "both rules": {
+     "rc": 1,
+     "named": [
+      "MARKUP README.md:15 table_cell Lane B16, `5603c353`: identity and tool (refused: the digits a reader sees differ from those the check read)"
+     ]
+    },
+    "without no position": {
+     "rc": 1,
+     "named": [
+      "MARKUP README.md:15 table_cell Lane B16, `5603c353`: identity and tool (refused: the digits a reader sees differ from those the check read)"
+     ]
+    },
+    "without conservation": {
+     "rc": 0,
+     "named": []
+    }
+   }
+  },
+  {
+   "case": "a backslash escape just before the index row's lane B16 part",
+   "document": "README.md",
+   "line": 15,
+   "runs": {
+    "both rules": {
+     "rc": 1,
+     "named": [
+      "MARKUP README.md:15 table_cell Lane B16, `5603c353`: identity and tool (refused: the digits a reader sees differ from those the check read)"
+     ]
+    },
+    "without no position": {
+     "rc": 1,
+     "named": [
+      "MARKUP README.md:15 table_cell Lane B16, `5603c353`: identity and tool (refused: the digits a reader sees differ from those the check read)"
+     ]
+    },
+    "without conservation": {
+     "rc": 0,
+     "named": []
+    }
+   }
+  }
+ ]
+}

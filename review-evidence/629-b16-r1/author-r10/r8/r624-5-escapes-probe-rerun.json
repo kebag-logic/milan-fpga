@@ -1,0 +1,641 @@
+{
+ "note": "Lane B16 round 8: R624-5-ESCAPES's published probe, R624-5/scripts/probe_r624_5_escapes.py under review-evidence/629-b16-r1/reviews/ on branch 629-b16-review-evidence, run unchanged against this packet's check and the page at b522bb92; its own results file, verbatim, under 'results'. Offline, no bench action",
+ "probe": "probe_r624_5_escapes.py",
+ "probe_sha256": "c7ea04fb719dc0ef8d3e277cffd7c9b843304443f7dbf2cc97935163351b4b26",
+ "page_commit": "b522bb923fa59581478460b61633bce2cb90ac1d",
+ "exit": 0,
+ "reading": {
+  "forms": 25,
+  "detected": 21,
+  "id_forms": 19,
+  "id_detected": 18,
+  "not_detected": [
+   "id+ colon",
+   "word: a million frames",
+   "word: thousands of frames",
+   "word: a dozen slips"
+  ]
+ },
+ "results": {
+  "line": 3011,
+  "probes": [
+   {
+    "probe": "control: free number before milliseconds",
+    "inserted": "The residual settled in 7 milliseconds.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) | The residual settled in 7 milliseconds. Every stage at the path's floor. See B16c: at"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 2,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "control: descriptor index before ms",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 ms.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ms', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 ms. Every stage at the path's floor. See B16c: attribution"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ milliseconds",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 milliseconds.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'milliseconds', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 milliseconds. Every stage at the path's floor. See B16c: at"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ microseconds",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 microseconds.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'microseconds', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 microseconds. Every stage at the path's floor. See B16c: at"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ nanoseconds",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 nanoseconds.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'nanoseconds', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 nanoseconds. Every stage at the path's floor. See B16c: att"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ msec",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 msec.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'msec', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 msec. Every stage at the path's floor. See B16c: attributio"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ decibels",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 decibels.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'decibels', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 decibels. Every stage at the path's floor. See B16c: attrib"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ hertz",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 hertz.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'hertz', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 hertz. Every stage at the path's floor. See B16c: attributi"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ kilohertz",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 kilohertz.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'kilohertz', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 kilohertz. Every stage at the path's floor. See B16c: attri"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ dBm",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 dBm.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'dBm', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 dBm. Every stage at the path's floor. See B16c: attribution"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ parts per million",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 parts per million.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'parts', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 parts per million. Every stage at the path's floor. See B16"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ per cent",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 per cent.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'per', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 per cent. Every stage at the path's floor. See B16c: attrib"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ underruns",
+    "inserted": "The playback logged channel 3 underruns.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 3 (a measurement: only a row can claim it) (an identifier followed by 'underruns', not on the closed list) | The playback logged channel 3 underruns. Every stage at the path's floor. See B16c: attri"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ events",
+    "inserted": "The decode found STREAM_INPUT 2 events.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 2 (a measurement: only a row can claim it) (an identifier followed by 'events', not on the closed list) | The decode found STREAM_INPUT 2 events. Every stage at the path's floor. See B16c: attribut"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ drops",
+    "inserted": "The listener made channels 0 and 4 drops.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 4 (a measurement: only a row can claim it) (an identifier followed by 'drops', not on the closed list) | The listener made channels 0 and 4 drops. Every stage at the path's floor. See B16c: attributi"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2101,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14444,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 2,
+     "uncovered": 2,
+     "uncovered_measurements": 2,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ lane name before milliseconds",
+    "inserted": "The lock took B16 milliseconds.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 16 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'milliseconds', not on the closed list) | The lock took B16 milliseconds. Every stage at the path's floor. See B16c: at"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2099,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14444,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 2,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ clause before milliseconds",
+    "inserted": "The lock took IEEE 1722.1 milliseconds.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 1722.1 (a measurement: only a row can claim it) (an identifier followed by 'milliseconds', not on the closed list) | The lock took IEEE 1722.1 milliseconds. Every stage at the path's floor. See B16c: at"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14447,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 5,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ closing paren",
+    "inserted": "The residual (CLOCK_DOMAIN 7) ppm.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | The residual (CLOCK_DOMAIN 7) ppm. Every stage at the path's floor. See B16c: attributio"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ single quotes",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7 'ppm'.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | The residual sat at CLOCK_DOMAIN 7 'ppm'. Every stage at the path's floor. See B16c: attributi"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ colon",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7: ppm.",
+    "rc": 0,
+    "detected": false,
+    "named": [],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1244,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2279,
+     "digits_uncovered": 0,
+     "uncovered": 0,
+     "uncovered_measurements": 0,
+     "refused_identifiers": 2,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "id+ slash",
+    "inserted": "The residual sat at CLOCK_DOMAIN 7/ppm.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'ppm', not on the closed list) | The residual sat at CLOCK_DOMAIN 7/ppm. Every stage at the path's floor. See B16c: attribution"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14443,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 1,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 3,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "word: a million frames",
+    "inserted": "The decode held a million frames.",
+    "rc": 0,
+    "detected": false,
+    "named": [],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2099,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14442,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 0,
+     "uncovered": 0,
+     "uncovered_measurements": 0,
+     "refused_identifiers": 2,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "word: thousands of frames",
+    "inserted": "The decode held thousands of frames.",
+    "rc": 0,
+    "detected": false,
+    "named": [],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2099,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14442,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 0,
+     "uncovered": 0,
+     "uncovered_measurements": 0,
+     "refused_identifiers": 2,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "word: a dozen slips",
+    "inserted": "The ring made a dozen slips.",
+    "rc": 0,
+    "detected": false,
+    "named": [],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2099,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14442,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 0,
+     "uncovered": 0,
+     "uncovered_measurements": 0,
+     "refused_identifiers": 2,
+     "markup": 0
+    }
+   },
+   {
+    "probe": "word: seven milliseconds",
+    "inserted": "The lock took seven milliseconds.",
+    "rc": 1,
+    "detected": true,
+    "named": [
+     "UNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 seven (a measurement: only a row can claim it) | The lock took seven milliseconds. Every stage at the path's floor. See B16c: at"
+    ],
+    "summary": {
+     "lines": 2010,
+     "tokens": 2100,
+     "rows": 1867,
+     "rows_ok": 1867,
+     "rows_bad": 0,
+     "by_category": 1243,
+     "digits": 14442,
+     "digits_by_row": 12164,
+     "digits_by_category": 2278,
+     "digits_uncovered": 0,
+     "uncovered": 1,
+     "uncovered_measurements": 1,
+     "refused_identifiers": 2,
+     "markup": 0
+    }
+   }
+  ]
+ }
+}

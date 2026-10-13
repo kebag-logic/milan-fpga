@@ -1,0 +1,329 @@
+{
+ "note": "Lane B16 round 8: R625-6-FOLLOWERS's published probe, R625-6/scripts/probe_followers.py under review-evidence/629-b16-r1/reviews/ on branch 629-b16-review-evidence, run unchanged against this packet's check and the page at b522bb92; its own results file, verbatim, under 'results'. Offline, no bench action",
+ "probe": "probe_followers.py",
+ "probe_sha256": "6703a34616f606f2be81d943646a1022fd6e8070d273f4aaaa459cf29a0e451b",
+ "page_commit": "b522bb923fa59581478460b61633bce2cb90ac1d",
+ "exit": 0,
+ "reading": {
+  "forms": 22,
+  "statuses": {
+   "unchanged": 0,
+   "plain_furlongs": 1,
+   "code_descriptor_furlongs": 1,
+   "code_lane_furlongs": 1,
+   "code_directory_furlongs": 0,
+   "code_directory_word": 0,
+   "code_directory_ms": 0,
+   "code_commit_furlongs": 0,
+   "code_hashfield_furlongs": 0,
+   "code_packet_furlongs": 0,
+   "code_file_furlongs": 0,
+   "code_directory_comment": 1,
+   "code_directory_entity": 0,
+   "literal_descriptor_comment": 1,
+   "link_identifier_furlongs": 1,
+   "identifier_bold_unit": 1,
+   "identifier_tag_unit": 1,
+   "identifier_word_after_and": 0,
+   "identifier_adjacent_unlisted": 1,
+   "unbound_digit": 1,
+   "malformed_comment": 1,
+   "html_code_comment": 1
+  },
+  "markup": {
+   "code_directory_comment": [
+    "html_inline <!-- -->"
+   ],
+   "literal_descriptor_comment": [
+    "html_inline <!-- -->"
+   ],
+   "identifier_tag_unit": [
+    "html_inline <span>",
+    "html_inline </span>"
+   ],
+   "malformed_comment": [
+    "html_inline <!-->",
+    "html_inline <!-- -->"
+   ],
+   "html_code_comment": [
+    "html_inline <code>",
+    "html_inline <!-- -->",
+    "html_inline </code>"
+   ]
+  }
+ },
+ "results": [
+  {
+   "name": "unchanged",
+   "insertion": "",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14442, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "plain_furlongs",
+   "insertion": " CLOCK_DOMAIN 7 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list) | Every stage at the path's floor. CLOCK_DOMAIN 7 furlongs. See B16c: attribution\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED"
+   ]
+  },
+  {
+   "name": "code_descriptor_furlongs",
+   "insertion": " `CLOCK_DOMAIN 7` furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list) | Every stage at the path's floor. `CLOCK_DOMAIN 7` furlongs. See B16c: attribution\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED"
+   ]
+  },
+  {
+   "name": "code_lane_furlongs",
+   "insertion": " `B16` furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14444, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 2, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 16 (a measurement: only a row can claim it) (no row can claim this spelling) (an identifier followed by 'furlongs', not on the closed list) | Every stage at the path's floor. `B16` furlongs. See B16c: attribution\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t16\tUNCOVERED"
+   ]
+  },
+  {
+   "name": "code_directory_furlongs",
+   "insertion": " `author-r5/` furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2279, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tauthor-r5/\tpacket directory",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "code_directory_word",
+   "insertion": " `author-r5/` bananas.",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2279, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tauthor-r5/\tpacket directory",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "code_directory_ms",
+   "insertion": " `author-r5/` ms.",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2279, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tauthor-r5/\tpacket directory",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "code_commit_furlongs",
+   "insertion": " `5603c353` furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14449, \"digits_by_row\": 12164, \"digits_by_category\": 2285, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t5603c353\tcommit",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "code_hashfield_furlongs",
+   "insertion": " `original_sha256` furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14445, \"digits_by_row\": 12164, \"digits_by_category\": 2281, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\toriginal_sha256\tfield name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "code_packet_furlongs",
+   "insertion": " `629-b16-a603` furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14450, \"digits_by_row\": 12164, \"digits_by_category\": 2286, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t629-b16-a603\tpacket label",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "code_file_furlongs",
+   "insertion": " `b9_thdn.py` furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2279, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tb9_thdn.py\tpacket path",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "code_directory_comment",
+   "insertion": " `author-r5/`<!-- -->furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2279, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- --> (refused: a construct off the allowlist; write plain Markdown)\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tauthor-r5/\tpacket directory",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-- -->\tMARKUP"
+   ]
+  },
+  {
+   "name": "code_directory_entity",
+   "insertion": " `author-r5/`&#32;furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2279, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tauthor-r5/\tpacket directory",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "literal_descriptor_comment",
+   "insertion": " CLOCK_DOMAIN 7<!-- -->furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 1}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (no row can claim this spelling) | Every stage at the path's floor. CLOCK_DOMAIN 7furlongs. See B16c: attribution\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- --> (refused: a construct off the allowlist; write plain Markdown)\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-- -->\tMARKUP"
+   ]
+  },
+  {
+   "name": "link_identifier_furlongs",
+   "insertion": " [CLOCK_DOMAIN 7](#b16c-attribution) furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list) | Every stage at the path's floor. CLOCK_DOMAIN 7 furlongs. See B16c: attribution\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED"
+   ]
+  },
+  {
+   "name": "identifier_bold_unit",
+   "insertion": " CLOCK_DOMAIN 7 **furlongs**.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list) | Every stage at the path's floor. CLOCK_DOMAIN 7 furlongs. See B16c: attribution\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED"
+   ]
+  },
+  {
+   "name": "identifier_tag_unit",
+   "insertion": " CLOCK_DOMAIN 7 <span>furlongs</span>.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 1, \"refused_identifiers\": 3, \"markup\": 2}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (a measurement: only a row can claim it) (an identifier followed by 'furlongs', not on the closed list) | Every stage at the path's floor. CLOCK_DOMAIN 7 furlongs. See B16c: attribution\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <span> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline </span> (refused: a construct off the allowlist; write plain Markdown)\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <span>\tMARKUP",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline </span>\tMARKUP"
+   ]
+  },
+  {
+   "name": "identifier_word_after_and",
+   "insertion": " CLOCK_DOMAIN 7 and furlongs.",
+   "line": 3011,
+   "rc": 0,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1244, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2279, \"digits_uncovered\": 0, \"uncovered\": 0, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tdescriptor index",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name"
+   ]
+  },
+  {
+   "name": "identifier_adjacent_unlisted",
+   "insertion": " CLOCK_DOMAIN 7furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (no row can claim this spelling) | Every stage at the path's floor. CLOCK_DOMAIN 7furlongs. See B16c: attribution\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED"
+   ]
+  },
+  {
+   "name": "unbound_digit",
+   "insertion": " The residual was 7 furlongs.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2100, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 0}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7  | Every stage at the path's floor. The residual was 7 furlongs. See B16c: attribution\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED"
+   ]
+  },
+  {
+   "name": "malformed_comment",
+   "insertion": " CLOCK_DOMAIN 7<!-->furlongs<!-- -->.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 2}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (no row can claim this spelling) | Every stage at the path's floor. CLOCK_DOMAIN 7furlongs. See B16c: attribution\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!--> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- --> (refused: a construct off the allowlist; write plain Markdown)\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-->\tMARKUP",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-- -->\tMARKUP"
+   ]
+  },
+  {
+   "name": "html_code_comment",
+   "insertion": " <code>CLOCK_DOMAIN 7<!-- -->furlongs</code>.",
+   "line": 3011,
+   "rc": 1,
+   "stdout": "{\"lines\": 2010, \"tokens\": 2099, \"rows\": 1867, \"rows_ok\": 1867, \"rows_bad\": 0, \"by_category\": 1243, \"digits\": 14443, \"digits_by_row\": 12164, \"digits_by_category\": 2278, \"digits_uncovered\": 1, \"uncovered\": 1, \"uncovered_measurements\": 0, \"refused_identifiers\": 2, \"markup\": 3}\nUNCOVERED 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 7 (no row can claim this spelling) | Every stage at the path's floor. CLOCK_DOMAIN 7furlongs. See B16c: attribution\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <code> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline <!-- --> (refused: a construct off the allowlist; write plain Markdown)\nMARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 html_inline </code> (refused: a construct off the allowlist; write plain Markdown)\n",
+   "stderr": "",
+   "categories": [
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\tB16c\tlane or case name",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\t7\tUNCOVERED",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <code>\tMARKUP",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline <!-- -->\tMARKUP",
+    "629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011\thtml_inline </code>\tMARKUP"
+   ]
+  }
+ ]
+}

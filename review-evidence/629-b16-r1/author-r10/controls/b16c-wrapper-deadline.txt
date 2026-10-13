@@ -1,0 +1,16 @@
+# B16c control (offline): tools/run_locked_b16c.sh's deadline path, with the lock path replaced by a scratch lock, a stub action that takes 5 s to tear down after SIGTERM, and stub board legs. LIM 5 s. Expected: the stub's teardown finishes, then the leg restart, then UNLOCK; LOCK_RC 124.
+LOCK_REQUEST 2026-10-12T05:47:39.653Z t2 bcrf 300
+LOCK 2026-10-12T05:47:39.659Z
+TO_HOST_PID=77
+STUB_LEG stop
+STOP_RC=0
+STUB_RUNNING
+STUB_TERM_RECEIVED
+STUB_TEARDOWN_DONE
+DEADLINE_TERM 2026-10-12T05:47:49.662Z
+ACTION_RC=1
+STUB_LEG start
+START_RC=0
+UNLOCK 2026-10-12T05:47:49.667Z
+LOCK_RC=124 2026-10-12T05:47:49.669Z
+OUTER_RC=0

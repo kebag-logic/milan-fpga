@@ -1,0 +1,815 @@
+{
+ "note": "Lane B16 rounds 3 to 8: controls of check_b16_figures.py on altered copies; offline, no bench action",
+ "controls": [
+  {
+   "control": "a figure changed on the page",
+   "alteration": "B-CRF's 9,973 Hz floor median at (c), line 3135: -123.97 to -123.96",
+   "expect": "exit 1, that row an ERROR (its figure gone from the line) and -123.96 UNCOVERED there",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a value changed in a receipt",
+   "alteration": "summary/bcrf/c-b9-grade.json ch1_floor.thdn_db_median: -123.97 to -123.96",
+   "expect": "exit 1, a MISMATCH row reading that receipt",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a figure added without a row",
+   "alteration": "' It held 7 polls.' appended to line 3205",
+   "expect": "exit 1, the token 7 UNCOVERED at that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a row pointing at the wrong line",
+   "alteration": "row 1 moved from line 2287 to line 2288",
+   "expect": "exit 1, row 1 an ERROR: the figure is not on that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a clock time rounded instead of cut",
+   "alteration": "lane B16b's identity gate end, line 2646, on the page and in its row: 06:22:34.993 shown as 06:22:35",
+   "expect": "exit 1, a MISMATCH row at that line recomputing 06:22:34",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 3"
+  },
+  {
+   "control": "a figure with its unit added inside a quoted phrase",
+   "alteration": "'The measured residual was \"7.25 ppm\" in \"37\" blocks.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, the tokens 7.25 (a measurement) and 37 both UNCOVERED at that line and named on standard output, 37 not one",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 4"
+  },
+  {
+   "control": "a figure with its unit added as a link label",
+   "alteration": "'The measured residual was [7.25 ppm](#b16c-attribution) in [37](#b16c-attribution) blocks.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, the tokens 7.25 (a measurement) and 37 both UNCOVERED at that line and named on standard output, 37 one too: a reader sees '37 blocks'",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 4",
+   "expectation": "round 8"
+  },
+  {
+   "control": "a category planted that matches every token, and a figure with its unit added in plain text",
+   "alteration": "X('planted: every token', '.+') first in EXCLUDE; 'The measured residual was 7.25 ppm.' inserted on line 3011",
+   "expect": "exit 1, the planted category live (it covers other tokens), the token 7.25 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true,
+    "planted_category_covered": 473
+   },
+   "verdict": "PASS",
+   "from": "round 4"
+  },
+  {
+   "control": "a number glued to s",
+   "alteration": "'The residual settled in 26s.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 26 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a number glued to dB",
+   "alteration": "'The residual sat 10dB above the floor.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 10 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a number glued to ms",
+   "alteration": "'The probe answered after 300ms.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 300 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a decimal with a leading point",
+   "alteration": "'The measured residual was .5 ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, .5 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a decimal with a sign and a leading point",
+   "alteration": "'The measured residual was -.25 ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, -.25 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a number in exponent form",
+   "alteration": "'The measured residual was 7e2 ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7e2 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a descriptor index before its unit after a double space",
+   "alteration": "'The measured residual was CLOCK_DOMAIN 7  ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a descriptor index before its unit after a non-breaking space",
+   "alteration": "'The measured residual was CLOCK_DOMAIN 7\\xa0ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a descriptor index before its unit after a hyphen",
+   "alteration": "'The measured residual was CLOCK_DOMAIN 7-ppm.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a channel index on a continuation line, its keyword removed (R625-4)",
+   "alteration": "'Channels 2 and' on line 3108 replaced by 'Channel 2 reports samples:'",
+   "expect": "exit 1, the 3 that starts line 3109 UNCOVERED and not a measurement",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a Unicode minus before a figure a row claims",
+   "alteration": "B-CRF's 9,973 Hz floor count at (c), line 3135: 300 to U+2212 300",
+   "expect": "exit 1, that row an ERROR (part of a longer number) and the signed number UNCOVERED there",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a cited path that names no packet file",
+   "alteration": "'See `runs/pts9/events.jsonl`.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 9 UNCOVERED at that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "an anchor that names no heading",
+   "alteration": "'See [the round](#b16-round-9).' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 16 and -9 UNCOVERED at that line",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a category planted that matches every number, and a figure with its unit added",
+   "alteration": "X('planted: every number', r'(?P<t>\\d+(?:\\.\\d+)?)') first in EXCLUDE; 'The measured residual was 7.25 ppm.' inserted on line 3011",
+   "expect": "exit 1, the planted category live, and 7.25, named a measurement, the only UNCOVERED",
+   "observed": {
+    "rc": 1,
+    "named": true,
+    "planted_category_live": true
+   },
+   "verdict": "PASS",
+   "from": "round 5"
+  },
+  {
+   "control": "a descriptor index before per cent",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 per cent.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before decibels",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 decibels.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before hertz",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 hertz.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before kilohertz",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 kilohertz.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before parts per million",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 parts per million.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before parts per billion",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 parts per billion.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before milliseconds",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 milliseconds.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before microseconds",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 microseconds.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before nanoseconds",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 nanoseconds.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before msec",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 msec.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before usec",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 usec.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before nsec",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 nsec.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a lane name before milliseconds",
+   "alteration": "'The lock took B16 milliseconds.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 16 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a clause number before milliseconds",
+   "alteration": "'The lock took IEEE 1722.1 milliseconds.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 1722.1 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before a unit no list names",
+   "alteration": "'The residual sat at CLOCK_DOMAIN 7 furlongs.' inserted before 'Every stage' on line 3011",
+   "expect": "exit 1, 7 UNCOVERED at that line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "a descriptor index before its unit beyond a comment over a line break (R625-5)",
+   "alteration": "R625-5's multiline form on lines 3108 and 3109, 'The residual was CLOCK_DOMAIN 7<!--' and '-->ppm.'",
+   "expect": "exit 1, 7 UNCOVERED at the first line and named a measurement on standard output",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "one case's window LOCKED count changed in its own receipt (R624-5-F1)",
+   "alteration": "r2/bcrf-poll-receipt.json window LOCKED 596 to 595 (and ACQUIRE 1)",
+   "expect": "exit 1, the row stating LOCKED at 596 of 596 for both cases a MISMATCH that names each case's count and both receipts",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 6"
+  },
+  {
+   "control": "an ordinary comment between a descriptor index and its unit (R625-6)",
+   "alteration": "'CLOCK_DOMAIN 7<!-- -->ppm.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "the short comment <!--> before a unit (R625-6)",
+   "alteration": "'CLOCK_DOMAIN 7<!-->ppm<!-- -->.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "the short comment <!---> before a unit (R625-6)",
+   "alteration": "'CLOCK_DOMAIN 7<!--->ppm<!-- -->.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "the short comment before a unit no list names (R625-6)",
+   "alteration": "'CLOCK_DOMAIN 7<!-->furlongs<!-- -->.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "a raw tag between a number and its unit",
+   "alteration": "'The residual was 7<span></span>ppm.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "a comment inside a code span",
+   "alteration": "'See `CLOCK_DOMAIN 7<!-- -->ppm`.' appended to the attribution row, line 3011",
+   "expect": "exit 1, 7 UNCOVERED at the line and nothing refused: a reader sees the comment in the code",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7",
+   "expectation": "round 8"
+  },
+  {
+   "control": "R625-5's comment on one line, refused as markup",
+   "alteration": "R625-5's form on line 3108, where R625-5 applied it, no line moved",
+   "expect": "exit 1, the comment's first line named MARKUP and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "R625-5's comment over a line break, refused as markup",
+   "alteration": "R625-5's form on line 3108, where R625-5 applied it, no line moved",
+   "expect": "exit 1, the comment's first line named MARKUP and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "a former table marker of the page",
+   "alteration": "'<!-- b16c-grade -->' on line 3131, put back on the blank line it left",
+   "expect": "exit 1, the line named MARKUP",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "a generator's marker one byte off",
+   "alteration": "'<!-- solution-cpu-contract:start  -->' appended as the page's last line, line 4604",
+   "expect": "exit 1, the line named MARKUP",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "a generator's marker, byte for byte",
+   "alteration": "'<!-- solution-cpu-contract:start -->' appended as the page's last line, line 4604",
+   "expect": "no MARKUP, nothing named beyond the unchanged page, its exit status, and the two appended lines read (the exception)",
+   "observed": {
+    "rc": 0,
+    "unchanged_page_rc": 0,
+    "named": false,
+    "as_unchanged": true,
+    "lines_read": true
+   },
+   "verdict": "PASS",
+   "from": "round 7"
+  },
+  {
+   "control": "R624-7's image form 1 between a number and its unit",
+   "alteration": "'CLOCK_DOMAIN 7![](x.png)ppm.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP, an image, and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R624-7's image form 2 between a number and its unit",
+   "alteration": "'CLOCK_DOMAIN 7![](x.png) ppm.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP, an image, and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R624-7's image form 3 between a number and its unit",
+   "alteration": "'Channel 2![](x.png) dB.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP, an image, and 2 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R624-7's image form 4 between a number and its unit",
+   "alteration": "'Round 7![](x.png) ms.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP, an image, and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R624-7's image form 5 between a number and its unit",
+   "alteration": "'CLOCK_DOMAIN 7![](x.png) furlongs.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP, an image, and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R624-7's image form 6 between a number and its unit",
+   "alteration": "'CLOCK_DOMAIN 7![.](x.png) ppm.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP, an image, and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R624-7's image form 7 between a number and its unit",
+   "alteration": "'CLOCK_DOMAIN 7 ![and](x.png) ppm.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP, an image, and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R624-7's image form 8 between a number and its unit",
+   "alteration": "'CLOCK_DOMAIN 7![](x.png \"and\") ppm.' appended to the attribution row, line 3011",
+   "expect": "exit 1, the line named MARKUP, an image, and 7 UNCOVERED at it",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R625-7's index case 1",
+   "alteration": "'CLOCK_DOMAIN 7<!-- -->ppm.' appended to the lane B16 part of the index row, README.md line 15",
+   "expect": "exit 1, that line named MARKUP, raw HTML, 7 UNCOVERED at it, both receipts written, no exception",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R625-7's index case 2",
+   "alteration": "'CLOCK_DOMAIN 7<!-->ppm<!-- -->.' appended to the lane B16 part of the index row, README.md line 15",
+   "expect": "exit 1, that line named MARKUP, raw HTML, 7 UNCOVERED at it, both receipts written, no exception",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R625-7's index case 3",
+   "alteration": "'Residual 7<span></span>ppm.' appended to the lane B16 part of the index row, README.md line 15",
+   "expect": "exit 1, that line named MARKUP, raw HTML, 7 UNCOVERED at it, both receipts written, no exception",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "R625-7's index case 4",
+   "alteration": "'<b>evidence</b>' appended to the lane B16 part of the index row, README.md line 15",
+   "expect": "exit 1, that line named MARKUP, raw HTML, both receipts written, no exception",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: image",
+   "alteration": "' See ![this](https://example.com/x.png).' appended to the attribution row, line 3011",
+   "expect": "exit 1, line 3011 named MARKUP, image",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: html_inline",
+   "alteration": "' See <i>this</i>.' appended to the attribution row, line 3011",
+   "expect": "exit 1, line 3011 named MARKUP, html_inline",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: html_block",
+   "alteration": "'<div>\\nthis\\n</div>' appended after the page's last line, line 4604",
+   "expect": "exit 1, line 4604 named MARKUP, html_block",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: code_block",
+   "alteration": "'```text\\nthis\\n```' appended after the page's last line, line 4604",
+   "expect": "exit 1, line 4604 named MARKUP, code_block",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: code_block, indented",
+   "alteration": "'    this' appended after the page's last line, line 4604",
+   "expect": "exit 1, line 4604 named MARKUP, code_block",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: thematic_break",
+   "alteration": "'***' appended after the page's last line, line 4604",
+   "expect": "exit 1, line 4604 named MARKUP, thematic_break",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: strikethrough",
+   "alteration": "' See ~~this~~.' appended to the attribution row, line 3011",
+   "expect": "exit 1, line 3011 named MARKUP, strikethrough",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: footnote_reference",
+   "alteration": "' See this[^n].' appended to the attribution row, line 3011",
+   "expect": "exit 1, line 3011 named MARKUP, footnote_reference",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: footnote_definition",
+   "alteration": "'[^n]: That.' appended after the page's last line, line 4604",
+   "expect": "exit 1, line 4604 named MARKUP, footnote_definition",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "a construct off the allowlist: tasklist",
+   "alteration": "'- [ ] this' appended after the page's last line, line 4604",
+   "expect": "exit 1, line 4604 named MARKUP, tasklist",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  },
+  {
+   "control": "the check run without the pinned parser",
+   "alteration": "run by the base interpreter of <parser python>, which has none",
+   "expect": "exit 1, the pinned parser named on standard error, no receipt written",
+   "observed": {
+    "rc": 1,
+    "named": true
+   },
+   "verdict": "PASS",
+   "from": "round 8"
+  }
+ ]
+}

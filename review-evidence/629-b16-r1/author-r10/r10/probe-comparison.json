@@ -1,0 +1,860 @@
+{
+ "note": "Round 9 to round 10: unchanged probe hashes, exits and outcome fields; all other reading differences retained, including appended source-line movement",
+ "probes": [
+  {
+   "probe": "r624-4-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [],
+   "diagnostic_points_after": []
+  },
+  {
+   "probe": "r624-5-escapes-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ],
+   "diagnostic_points_after": [
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ]
+  },
+  {
+   "probe": "r624-5-row3200-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [],
+   "diagnostic_points_after": []
+  },
+  {
+   "probe": "r624-6-escapes-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [],
+   "diagnostic_points_after": []
+  },
+  {
+   "probe": "r624-6-row3200-polls-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [],
+   "diagnostic_points_after": []
+  },
+  {
+   "probe": "r624-7-escapes-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [
+    {
+     "path": "/markup/footnote_ref_and",
+     "before": [
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 footnote_reference [^and]",
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4426 footnote_definition See the attribution."
+     ],
+     "after": [
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:3011 footnote_reference [^and]",
+      "MARKUP 629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4604 footnote_definition See the attribution."
+     ]
+    }
+   ],
+   "diagnostic_points_before": [
+    [
+     "MARKUP",
+     "3011"
+    ],
+    [
+     "MARKUP",
+     "4426"
+    ],
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ],
+   "diagnostic_points_after": [
+    [
+     "MARKUP",
+     "3011"
+    ],
+    [
+     "MARKUP",
+     "4604"
+    ],
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ]
+  },
+  {
+   "probe": "r624-7-invisible-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ],
+   "diagnostic_points_after": [
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ]
+  },
+  {
+   "probe": "r624-8-html-block-edge-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [
+    [
+     "MARKUP",
+     "18"
+    ],
+    [
+     "MARKUP",
+     "2287"
+    ],
+    [
+     "MARKUP",
+     "2288"
+    ],
+    [
+     "MARKUP",
+     "2443"
+    ],
+    [
+     "MARKUP",
+     "84"
+    ],
+    [
+     "UNCOVERED",
+     "22"
+    ],
+    [
+     "UNCOVERED",
+     "2287"
+    ],
+    [
+     "UNCOVERED",
+     "84"
+    ]
+   ],
+   "diagnostic_points_after": [
+    [
+     "MARKUP",
+     "18"
+    ],
+    [
+     "MARKUP",
+     "2287"
+    ],
+    [
+     "MARKUP",
+     "2288"
+    ],
+    [
+     "MARKUP",
+     "2443"
+    ],
+    [
+     "MARKUP",
+     "84"
+    ],
+    [
+     "UNCOVERED",
+     "22"
+    ],
+    [
+     "UNCOVERED",
+     "2287"
+    ],
+    [
+     "UNCOVERED",
+     "84"
+    ]
+   ]
+  },
+  {
+   "probe": "r625-3-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [],
+   "diagnostic_points_after": []
+  },
+  {
+   "probe": "r625-4-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [
+    [
+     "UNCOVERED",
+     "3011"
+    ],
+    [
+     "UNCOVERED",
+     "3108"
+    ],
+    [
+     "UNCOVERED",
+     "3109"
+    ]
+   ],
+   "diagnostic_points_after": [
+    [
+     "UNCOVERED",
+     "3011"
+    ],
+    [
+     "UNCOVERED",
+     "3108"
+    ],
+    [
+     "UNCOVERED",
+     "3109"
+    ]
+   ]
+  },
+  {
+   "probe": "r625-5-comment-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [
+    [
+     "MARKUP",
+     "3108"
+    ],
+    [
+     "UNCOVERED",
+     "3108"
+    ],
+    [
+     "UNCOVERED",
+     "3109"
+    ]
+   ],
+   "diagnostic_points_after": [
+    [
+     "MARKUP",
+     "3108"
+    ],
+    [
+     "UNCOVERED",
+     "3108"
+    ],
+    [
+     "UNCOVERED",
+     "3109"
+    ]
+   ]
+  },
+  {
+   "probe": "r625-6-followers-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [
+    [
+     "MARKUP",
+     "3011"
+    ],
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ],
+   "diagnostic_points_after": [
+    [
+     "MARKUP",
+     "3011"
+    ],
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ]
+  },
+  {
+   "probe": "r625-6-rendered-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [
+    [
+     "MARKUP",
+     "3011"
+    ],
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ],
+   "diagnostic_points_after": [
+    [
+     "MARKUP",
+     "3011"
+    ],
+    [
+     "UNCOVERED",
+     "3011"
+    ]
+   ]
+  },
+  {
+   "probe": "r625-7-markup-probe-rerun.json",
+   "unchanged_probe": true,
+   "outcomes_equal": true,
+   "reading_differences": [],
+   "diagnostic_points_before": [
+    [
+     "MARKUP",
+     "15"
+    ],
+    [
+     "MARKUP",
+     "3011"
+    ],
+    [
+     "MARKUP",
+     "3012"
+    ],
+    [
+     "UNCOVERED",
+     "15"
+    ],
+    [
+     "UNCOVERED",
+     "3011"
+    ],
+    [
+     "UNCOVERED",
+     "3021"
+    ],
+    [
+     "UNCOVERED",
+     "3030"
+    ],
+    [
+     "UNCOVERED",
+     "3031"
+    ],
+    [
+     "UNCOVERED",
+     "3032"
+    ],
+    [
+     "UNCOVERED",
+     "3035"
+    ],
+    [
+     "UNCOVERED",
+     "3036"
+    ],
+    [
+     "UNCOVERED",
+     "3037"
+    ],
+    [
+     "UNCOVERED",
+     "3038"
+    ],
+    [
+     "UNCOVERED",
+     "3040"
+    ],
+    [
+     "UNCOVERED",
+     "3041"
+    ],
+    [
+     "UNCOVERED",
+     "3042"
+    ],
+    [
+     "UNCOVERED",
+     "3045"
+    ],
+    [
+     "UNCOVERED",
+     "3049"
+    ],
+    [
+     "UNCOVERED",
+     "3054"
+    ],
+    [
+     "UNCOVERED",
+     "3055"
+    ],
+    [
+     "UNCOVERED",
+     "3057"
+    ],
+    [
+     "UNCOVERED",
+     "3059"
+    ],
+    [
+     "UNCOVERED",
+     "3070"
+    ],
+    [
+     "UNCOVERED",
+     "3078"
+    ],
+    [
+     "UNCOVERED",
+     "3079"
+    ],
+    [
+     "UNCOVERED",
+     "3081"
+    ],
+    [
+     "UNCOVERED",
+     "3087"
+    ],
+    [
+     "UNCOVERED",
+     "3088"
+    ],
+    [
+     "UNCOVERED",
+     "3089"
+    ],
+    [
+     "UNCOVERED",
+     "3090"
+    ],
+    [
+     "UNCOVERED",
+     "3091"
+    ],
+    [
+     "UNCOVERED",
+     "3092"
+    ],
+    [
+     "UNCOVERED",
+     "3093"
+    ],
+    [
+     "UNCOVERED",
+     "3094"
+    ],
+    [
+     "UNCOVERED",
+     "3096"
+    ],
+    [
+     "UNCOVERED",
+     "3097"
+    ],
+    [
+     "UNCOVERED",
+     "3098"
+    ],
+    [
+     "UNCOVERED",
+     "3099"
+    ],
+    [
+     "UNCOVERED",
+     "3102"
+    ],
+    [
+     "UNCOVERED",
+     "3103"
+    ],
+    [
+     "UNCOVERED",
+     "3109"
+    ],
+    [
+     "UNCOVERED",
+     "3110"
+    ],
+    [
+     "UNCOVERED",
+     "3111"
+    ],
+    [
+     "UNCOVERED",
+     "3116"
+    ],
+    [
+     "UNCOVERED",
+     "3118"
+    ],
+    [
+     "UNCOVERED",
+     "3119"
+    ],
+    [
+     "UNCOVERED",
+     "3120"
+    ],
+    [
+     "UNCOVERED",
+     "3121"
+    ],
+    [
+     "UNCOVERED",
+     "3122"
+    ],
+    [
+     "UNCOVERED",
+     "3123"
+    ],
+    [
+     "UNCOVERED",
+     "3124"
+    ],
+    [
+     "UNCOVERED",
+     "3125"
+    ],
+    [
+     "UNCOVERED",
+     "3130"
+    ],
+    [
+     "UNCOVERED",
+     "3135"
+    ],
+    [
+     "UNCOVERED",
+     "3136"
+    ],
+    [
+     "UNCOVERED",
+     "3137"
+    ],
+    [
+     "UNCOVERED",
+     "3138"
+    ],
+    [
+     "UNCOVERED",
+     "3139"
+    ],
+    [
+     "UNCOVERED",
+     "3140"
+    ],
+    [
+     "UNCOVERED",
+     "3143"
+    ],
+    [
+     "UNCOVERED",
+     "3144"
+    ],
+    [
+     "UNCOVERED",
+     "3146"
+    ],
+    [
+     "UNCOVERED",
+     "3150"
+    ],
+    [
+     "UNCOVERED",
+     "3151"
+    ],
+    [
+     "UNCOVERED",
+     "3158"
+    ],
+    [
+     "UNCOVERED",
+     "3159"
+    ]
+   ],
+   "diagnostic_points_after": [
+    [
+     "MARKUP",
+     "15"
+    ],
+    [
+     "MARKUP",
+     "3011"
+    ],
+    [
+     "MARKUP",
+     "3012"
+    ],
+    [
+     "UNCOVERED",
+     "15"
+    ],
+    [
+     "UNCOVERED",
+     "3011"
+    ],
+    [
+     "UNCOVERED",
+     "3021"
+    ],
+    [
+     "UNCOVERED",
+     "3030"
+    ],
+    [
+     "UNCOVERED",
+     "3031"
+    ],
+    [
+     "UNCOVERED",
+     "3032"
+    ],
+    [
+     "UNCOVERED",
+     "3035"
+    ],
+    [
+     "UNCOVERED",
+     "3036"
+    ],
+    [
+     "UNCOVERED",
+     "3037"
+    ],
+    [
+     "UNCOVERED",
+     "3038"
+    ],
+    [
+     "UNCOVERED",
+     "3040"
+    ],
+    [
+     "UNCOVERED",
+     "3041"
+    ],
+    [
+     "UNCOVERED",
+     "3042"
+    ],
+    [
+     "UNCOVERED",
+     "3045"
+    ],
+    [
+     "UNCOVERED",
+     "3049"
+    ],
+    [
+     "UNCOVERED",
+     "3054"
+    ],
+    [
+     "UNCOVERED",
+     "3055"
+    ],
+    [
+     "UNCOVERED",
+     "3057"
+    ],
+    [
+     "UNCOVERED",
+     "3059"
+    ],
+    [
+     "UNCOVERED",
+     "3070"
+    ],
+    [
+     "UNCOVERED",
+     "3078"
+    ],
+    [
+     "UNCOVERED",
+     "3079"
+    ],
+    [
+     "UNCOVERED",
+     "3081"
+    ],
+    [
+     "UNCOVERED",
+     "3087"
+    ],
+    [
+     "UNCOVERED",
+     "3088"
+    ],
+    [
+     "UNCOVERED",
+     "3089"
+    ],
+    [
+     "UNCOVERED",
+     "3090"
+    ],
+    [
+     "UNCOVERED",
+     "3091"
+    ],
+    [
+     "UNCOVERED",
+     "3092"
+    ],
+    [
+     "UNCOVERED",
+     "3093"
+    ],
+    [
+     "UNCOVERED",
+     "3094"
+    ],
+    [
+     "UNCOVERED",
+     "3096"
+    ],
+    [
+     "UNCOVERED",
+     "3097"
+    ],
+    [
+     "UNCOVERED",
+     "3098"
+    ],
+    [
+     "UNCOVERED",
+     "3099"
+    ],
+    [
+     "UNCOVERED",
+     "3102"
+    ],
+    [
+     "UNCOVERED",
+     "3103"
+    ],
+    [
+     "UNCOVERED",
+     "3109"
+    ],
+    [
+     "UNCOVERED",
+     "3110"
+    ],
+    [
+     "UNCOVERED",
+     "3111"
+    ],
+    [
+     "UNCOVERED",
+     "3116"
+    ],
+    [
+     "UNCOVERED",
+     "3118"
+    ],
+    [
+     "UNCOVERED",
+     "3119"
+    ],
+    [
+     "UNCOVERED",
+     "3120"
+    ],
+    [
+     "UNCOVERED",
+     "3121"
+    ],
+    [
+     "UNCOVERED",
+     "3122"
+    ],
+    [
+     "UNCOVERED",
+     "3123"
+    ],
+    [
+     "UNCOVERED",
+     "3124"
+    ],
+    [
+     "UNCOVERED",
+     "3125"
+    ],
+    [
+     "UNCOVERED",
+     "3130"
+    ],
+    [
+     "UNCOVERED",
+     "3135"
+    ],
+    [
+     "UNCOVERED",
+     "3136"
+    ],
+    [
+     "UNCOVERED",
+     "3137"
+    ],
+    [
+     "UNCOVERED",
+     "3138"
+    ],
+    [
+     "UNCOVERED",
+     "3139"
+    ],
+    [
+     "UNCOVERED",
+     "3140"
+    ],
+    [
+     "UNCOVERED",
+     "3143"
+    ],
+    [
+     "UNCOVERED",
+     "3144"
+    ],
+    [
+     "UNCOVERED",
+     "3146"
+    ],
+    [
+     "UNCOVERED",
+     "3150"
+    ],
+    [
+     "UNCOVERED",
+     "3151"
+    ],
+    [
+     "UNCOVERED",
+     "3158"
+    ],
+    [
+     "UNCOVERED",
+     "3159"
+    ]
+   ]
+  }
+ ],
+ "all_outcomes_equal": true
+}
