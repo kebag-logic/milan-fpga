@@ -1,0 +1,18 @@
+# control: same checker on the 532ab871 tree (expect rc 1)
+paragraph lines 179..204
+first line: Seven pages under `docs/` are relevant because Python in a classifier-gated
+count words before 'pages' in paragraph: ['Seven']
+GATE_READ_DOCS (8): ['docs/AAF_LATENCY_TAPS.md', 'docs/design/AREA_BUDGET.md', 'docs/design/MAILBOX_SPLIT.md', 'docs/design/SPLIT_CONTROL_MEMORY.md', 'docs/reference/MAILBOX_CONTRACT.md', 'docs/reference/REGISTER_MAP.md', 'docs/reference/TRACE_EVENTS.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']
+paragraph docs links (8): ['docs/AAF_LATENCY_TAPS.md', 'docs/design/AREA_BUDGET.md', 'docs/design/MAILBOX_SPLIT.md', 'docs/design/SPLIT_CONTROL_MEMORY.md', 'docs/reference/MAILBOX_CONTRACT.md', 'docs/reference/REGISTER_MAP.md', 'docs/reference/TRACE_EVENTS.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']
+missing from paragraph: []
+extra in paragraph: []
+exists docs/AAF_LATENCY_TAPS.md
+exists docs/design/AREA_BUDGET.md
+exists docs/design/MAILBOX_SPLIT.md
+exists docs/design/SPLIT_CONTROL_MEMORY.md
+exists docs/reference/MAILBOX_CONTRACT.md
+exists docs/reference/REGISTER_MAP.md
+exists docs/reference/TRACE_EVENTS.md
+exists docs/testing/MILAN_V12_AUDIT_2026-08-16.md
+RESULT FAIL
+rc=1
