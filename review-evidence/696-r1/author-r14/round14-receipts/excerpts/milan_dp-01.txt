@@ -1,0 +1,1982 @@
+54:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+94:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+825: 182 checks: 182 PASS, 0 FAIL
+833: 182 checks: 182 PASS, 0 FAIL
+867:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+1265:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+1694:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+2123:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+2553:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+2982:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+3380:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+3778:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+4176:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+4575:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+4973:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+5371:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+5739:   [PASS] ID == 'MILN'                       got=0x4d494c4e exp=0x4d494c4e
+5740:   [PASS] VERSION                            got=0x00020060 exp=0x00020060
+5741:   [PASS] LINKG unarmed                      got=0x00000003 exp=0x00000003
+5742: [CSR] eth guard: refused levers, magic unguard, junk re-arm
+5743:   [PASS] GUARD armed at reset               got=0x00000001 exp=0x00000001
+5744:   [PASS] PHY_RST write REFUSED while guarded got=0x00000001 exp=0x00000001
+5745:   [PASS] LINK_CTRL[1] masked while guarded  got=0x00000001 exp=0x00000001
+5746:   [PASS] magic unguards                     got=0x00000000 exp=0x00000000
+5747:   [PASS] PHY_RST write accepted unguarded   got=0x00000000 exp=0x00000000
+5748:   [PASS] junk write re-arms the guard       got=0x00000001 exp=0x00000001
+5749:   [PASS] unguarded for the suite            got=0x00000000 exp=0x00000000
+5750:   [PASS] CAP.ADP bit12                      got=0x00000001 exp=0x00000001
+5751:   [PASS] CAP.TCAM bit13                     got=0x00000001 exp=0x00000001
+5753:   [PASS] CLS_REGEN readback                 got=0x00fac688 exp=0x00fac688
+5754:   [PASS] CLS_TCQ   readback                 got=0x000000e4 exp=0x000000e4
+5756:   [PASS] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) got=0x00000001 exp=0x00000001
+5757:   [PASS] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) got=0x00000007 exp=0x00000007
+5759:   [PASS] A_ADP_DIAG 0x668 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+5760:   [PASS] A_ADP_DIAG2 0x674 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+5763:   [PASS] 0x618 RO shape word derives from the config got=0x40010001 exp=0x40010001
+5764:   [PASS] 0x61C RO shape word derives from the config got=0x48010002 exp=0x48010002
+5765:   [PASS] 0x618 refuses the poke             got=0x40010001 exp=0x40010001
+5766:   [PASS] 0x61C refuses the poke             got=0x48010002 exp=0x48010002
+5768:   [PASS] ACMP response emerged on MAC port  got=0x00000001 exp=0x00000001
+5769:   [PASS] ACMP response is 9 beats           got=0x00000009 exp=0x00000009
+5770:   [PASS] ACMP dst multicast                 got=0x01f0e091 exp=0x01f0e091
+5771:   [PASS] ACMP subtype 0xFC                  got=0x000000fc exp=0x000000fc
+5772:   [PASS] ACMP msg GET_TX_STATE_RESPONSE(5)  got=0x00000005 exp=0x00000005
+5773:   [PASS] ACMP status SUCCESS + cdl 44       got=0x00002c00 exp=0x00002c00
+5774:   [PASS] ACMP connection_count 0            got=0x00000000 exp=0x00000000
+5775:   [PASS] ACMP sequence echoed               got=0x00002b1a exp=0x00002b1a
+5776:   [PASS] 0x650 ACMP_STAT is a STRUCTURAL ZERO (no PDU counters) got=0x00000000 exp=0x00000000
+5777:   [PASS] PP_DIAG: the plane ACCEPTED control frames (rx_frames > 0) got=0x00000001 exp=0x00000001
+5778:   [PASS] PP_DIAG: and it SENT some (tx_frames > 0) got=0x00000001 exp=0x00000001
+5779:   [PASS] PP_DIAG: nothing was lost to a full control FIFO got=0x00000000 exp=0x00000000
+5781:   [PASS] o_irq_csr defined (0/1)            got=0x00000001 exp=0x00000001
+5783:   [PASS] PHC adjfine owns the rate          got=0x00000001 exp=0x00000001
+5784:   [PASS] PHC adjtime hops the counter       got=0x00000001 exp=0x00000001
+5786:   [PASS] gate closed pre-probe (CSR)        got=0x00000000 exp=0x00000000
+5787:   [PASS] MAC silent while gated             got=0x00000000 exp=0x00000000
+5788:   [PASS] PROBE response emerged             got=0x00000001 exp=0x00000001
+5789:   [PASS] PROBE response 9 beats             got=0x00000009 exp=0x00000009
+5790:   [PASS] PROBE msg RESPONSE(1)              got=0x00000001 exp=0x00000001
+5791:   [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+5792:   [PASS] gate STILL closed after a refused probe got=0x00000000 exp=0x00000000
+5793:   [PASS] AAF_CTRL[1] bypass opens the gate, and ONLY the gate got=0x00000008 exp=0x00000008
+5794:   [PASS] AAF frames flow under the bypass escape got=0x00000001 exp=0x00000001
+5795:   [PASS] AAF stream_id == {station MAC, uid 0} got=0x200000000010000 exp=0x200000000010000
+5796:   [PASS] TONE_CTRL readback                 got=0x00000001 exp=0x00000001
+5797:   [PASS] tone L0 in table                   got=0x00000001 exp=0x00000001
+5798:   [PASS] tone L0 == R0 (both channels)      got=0x00000001 exp=0x00000001
+5799:   [PASS] tone advances (L1 = next entry)    got=0x00000001 exp=0x00000001
+5800:   [PASS] tone frame captured                got=0x00000001 exp=0x00000001
+5801:   [PASS] crossbar tone: 48 ticks captured   got=0x00000030 exp=0x00000030
+5802:   [PASS] crossbar tone: all wire channels equal got=0x00000000 exp=0x00000000
+5803:   [PASS] crossbar tone: first sample in table got=0x00000001 exp=0x00000001
+5804:   [PASS] ONE GRID: N ticks = N table steps (no slip) got=0x00000000 exp=0x00000000
+5806:   [PASS] CLKV: retained CTRL resets zero    got=0x00000000 exp=0x00000000
+5807:   [PASS] CLKV: reset tu = 1                 got=0x00000001 exp=0x00000001
+5808:   [PASS] CLKV: reset sync_ok = 0            got=0x00000000 exp=0x00000000
+5809:   [PASS] CLKV: retired no-lease bit = 0     got=0x00000000 exp=0x00000000
+5810:   [PASS] CLKV: retired lease count = 0      got=0x00000000 exp=0x00000000
+5811:   [PASS] CLKV: reset asCapable = 0          got=0x00000000 exp=0x00000000
+5812:   [PASS] CLKV: ownerless frame is still emitted got=0x00000001 exp=0x00000001
+5813:   [PASS] CLKV: ownerless frame carries tu=1 got=0x00000001 exp=0x00000001
+5814:   [PASS] CLKV: ownerless frame keeps tv=1   got=0x00000081 exp=0x00000081
+5815:   [PASS] CLKV: frame remains the full AAF PDU got=0x0000005a exp=0x0000005a
+5816:   [PASS] CLKV: all owner-control bits read back zero got=0x00000000 exp=0x00000000
+5817:   [PASS] CLKV: write cannot clear tu        got=0x00000001 exp=0x00000001
+5818:   [PASS] CLKV: write cannot assert sync     got=0x00000000 exp=0x00000000
+5819:   [PASS] CLKV: write cannot assert asCapable got=0x00000000 exp=0x00000000
+5820:   [PASS] CLKV: write cannot create a lease  got=0x00000000 exp=0x00000000
+5821:   [PASS] CLKV: software discontinuity is inert got=0x00000000 exp=0x00000000
+5822:   [PASS] CLKV: frame after owner write is emitted got=0x00000001 exp=0x00000001
+5823:   [PASS] CLKV: owner write cannot clear wire tu got=0x00000001 exp=0x00000001
+5824:   [PASS] CLKV: GM LO write reads zero       got=0x00000000 exp=0x00000000
+5825:   [PASS] CLKV: GM HI write reads zero       got=0x00000000 exp=0x00000000
+5826:   [PASS] CLKV: domain write reads zero      got=0x00000000 exp=0x00000000
+5827:   [PASS] CLKV: pdelay write reads zero      got=0x00000000 exp=0x00000000
+5828:   [PASS] CLKV: parent LO write reads zero   got=0x00000000 exp=0x00000000
+5829:   [PASS] CLKV: parent HI write reads zero   got=0x00000000 exp=0x00000000
+5830:   [PASS] CLKV: publication writes cannot assert GM holdover got=0x00000000 exp=0x00000000
+5831:   [PASS] CLKV: publication writes cannot clear tu got=0x00000001 exp=0x00000001
+5832:   [PASS] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000000 exp=0x00000000
+5833:   [PASS] CLKV: PHC step arms holdover       got=0x00000001 exp=0x00000001
+5834:   [PASS] CLKV: PHC step keeps tu asserted   got=0x00000001 exp=0x00000001
+5835:   [PASS] CLKV: holdover expires             got=0x00000000 exp=0x00000000
+5836:   [PASS] CLKV: ownerless tu remains asserted after holdover got=0x00000001 exp=0x00000001
+5837:   [PASS] CLKV: TUCNT advances for permanent uncertainty got=0x00000001 exp=0x00000001
+5838:   [PASS] CLKV: post-holdover frame is emitted got=0x00000001 exp=0x00000001
+5839:   [PASS] CLKV: post-holdover frame still carries tu=1 got=0x00000001 exp=0x00000001
+5840:   [PASS] CLKV: the settime leaves mr unchanged (#602) got=0x00000000 exp=0x00000000
+5841:   [PASS] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000000 exp=0x00000000
+5843:   [PASS] ASP: reset LO zero                 got=0x00000000 exp=0x00000000
+5844:   [PASS] ASP: reset HI zero                 got=0x00000000 exp=0x00000000
+5845:   [PASS] ASP: reset {gen,count} zero        got=0x00000000 exp=0x00000000
+5846:   [PASS] ASP: LO write reads zero           got=0x00000000 exp=0x00000000
+5847:   [PASS] ASP: HI write reads zero           got=0x00000000 exp=0x00000000
+5848:   [PASS] ASP: commit/publish writes read zero got=0x00000000 exp=0x00000000
+5850:   [PASS] RXMON stat idle                    got=0x00000000 exp=0x00000000
+5851:   [PASS] RXMON frames_rx idle               got=0x00000000 exp=0x00000000
+5852:   [PASS] the listener launched a PROBE_TX at the named talker got=0x00000001 exp=0x00000001
+5853:   [PASS] listener bound (0x6A4[3] bound, the class-D record) got=0x00000001 exp=0x00000001
+5854:   [PASS] ...and 0x6A4[4] stream-active follows it got=0x00000001 exp=0x00000001
+5855:   [PASS] 0x6A4[2:0] SM state is a STRUCTURAL ZERO (no ladder here) got=0x00000000 exp=0x00000000
+5857:   [PASS] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000000 exp=0x00000000
+5858:   [PASS] ...so FRAMES_RX moved (0x6BC)      got=0x00000001 exp=0x00000001
+5859:   [PASS] ...and PCMRX advanced (0x6C4)      got=0x00000001 exp=0x00000001
+5860:   [PASS] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+5861:   [PASS] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000001 exp=0x00000001
+5862:   [PASS] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000000 exp=0x00000000
+5863:   [PASS] tagged: FRAMES_RX = 2              got=0x00000002 exp=0x00000002
+5864:   [PASS] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+5865:   [PASS] APRB parsed = 2 frames             got=0x00000002 exp=0x00000002
+5866:   [PASS] APRB matched = 2 frames            got=0x00000002 exp=0x00000002
+5867:   [PASS] APRB last SID_HI (wire)            got=0x02000000 exp=0x02000000
+5868:   [PASS] APRB last SID_LO (wire)            got=0x00020000 exp=0x00020000
+5869:   [PASS] APRB info subtype = AAF            got=0x00000002 exp=0x00000002
+5870:   [PASS] APRB info matched flag             got=0x00000001 exp=0x00000001
+5871:   [PASS] APRB info armed entries            got=0x00000001 exp=0x00000001
+5872:   [PASS] APRB unknown-sid: parsed = 3       got=0x00000003 exp=0x00000003
+5873:   [PASS] APRB unknown-sid: matched still 2  got=0x00000002 exp=0x00000002
+5874:   [PASS] APRB unknown-sid: SID_LO is the WIRE value got=0x00090000 exp=0x00090000
+5875:   [PASS] APRB unknown-sid: match flag clear got=0x00000000 exp=0x00000000
+5876:   [PASS] APRB unknown-sid: no fabric-render payload got=0x00000000 exp=0x00000000
+5877:   [PASS] APRB unknown-sid: FRAMES_RX still 2 (unbound sid refused) got=0x00000002 exp=0x00000002
+5881:   [PASS] prefilter: PCMRX KEPT consuming (+2 PDUs) got=0x00000005 exp=0x00000005
+5882:   [PASS] prefilter: fabric render KEPT consuming (+12 beats) got=0x0000000c exp=0x0000000c
+5883:   [PASS] I2S left sample from payload       got=0x00000001 exp=0x00000001
+5884:   [PASS] epoch = 1 (one reset release since bitstream) got=0x00000001 exp=0x00000001
+5885:   [PASS] LINK_CTRL reads back 0 (shadowed)  got=0x00000000 exp=0x00000000
+5886:   [PASS] LINK_CTRL reads back 1 (shadowed)  got=0x00000001 exp=0x00000001
+5887:   [PASS] epoch unchanged by link toggles    got=0x00000001 exp=0x00000001
+5888:   [PASS] datapath alive after link toggle (ID) got=0x4d494c4e exp=0x4d494c4e
+5889:   [PASS] ENT_NAME_LO reads back             got=0x59545241 exp=0x59545241
+5890:   [PASS] LPF_CTRL default on                got=0x00000001 exp=0x00000001
+5891:   [PASS] LPF_CTRL bypass set                got=0x00000000 exp=0x00000000
+5892:   [PASS] UNSUPPORTED_FORMAT +1 (0x6C0)      got=0x00000001 exp=0x00000001
+5893:   [PASS] FRAMES_RX unchanged by wrong-rate  got=0x00000009 exp=0x00000009
+5894:   [PASS] no fabric render for rejected PDU  got=0x00000000 exp=0x00000000
+5895:   [PASS] PCMRX unchanged by wrong-rate      got=0x00000006 exp=0x00000006
+5896:   [PASS] UNSUPPORTED_FORMAT view reached its 0xFF ceiling got=0x000000ff exp=0x000000ff
+5897:   [PASS] saturated view STAYS 0xFF (no wrap) got=0x000000ff exp=0x000000ff
+5898:   [PASS] neighbouring TIMESTAMP_UNCERTAIN byte untouched got=0x00000000 exp=0x00000000
+5899:   [PASS] full 32-bit UNSUPPORTED_FORMAT > the saturated view got=0x00000001 exp=0x00000001
+5902:   [PASS] CRF pdu_count 1                    got=0x00000001 exp=0x00000001
+5903:   [PASS] CRF no fmt/seq errors              got=0x00000000 exp=0x00000000
+5904:   [PASS] CRF not locked yet                 got=0x00000000 exp=0x00000000
+5905:   [PASS] CRF delta captured (nonzero)       got=0x00000001 exp=0x00000001
+5906:   [PASS] CRF locked after 8 clean PDUs      got=0x00000001 exp=0x00000001
+5907:   [PASS] CRF pdu_count 8                    got=0x00000008 exp=0x00000008
+5908:   [PASS] CRF fmt_err 1 (wrong interval)     got=0x00000001 exp=0x00000001
+5909:   [PASS] CRF count unchanged by bad fmt     got=0x00000008 exp=0x00000008
+5910:   [PASS] CRF still locked (no timeout)      got=0x00000001 exp=0x00000001
+5911:   [PASS] CRF foreign sid ignored            got=0x00000008 exp=0x00000008
+5912:   [PASS] CRF seq_err 1                      got=0x00000001 exp=0x00000001
+5913:   [PASS] CRF rate = +256000 ns/window       got=0x0003e800 exp=0x0003e800
+5914:   [PASS] CRF-5: mr/fs/tu PDUs accepted (+2) got=0x0000010f exp=0x0000010f
+5915:   [PASS] CRF-5: no fmt/seq errors from mr/fs/tu got=0x00000101 exp=0x00000101
+5916:   [PASS] CRF-5: lock survives mr/fs/tu      got=0x00000001 exp=0x00000001
+5917:   [PASS] CRF-5: sv=0 PDU ignored            got=0x0000010f exp=0x0000010f
+5918:   [PASS] CRF-5: clean seq resumes after sv=0 got=0x00000101 exp=0x00000101
+5919:   [PASS] CRF-5: resumed PDU counted         got=0x00000110 exp=0x00000110
+5920:   [PASS] CRF disabled = inert               got=0x00000110 exp=0x00000110
+5923:   [PASS] the NCO grid is aligned at INTERNAL (servo_en = 1, #629 A2-a) got=0x00000001 exp=0x00000001
+5924:   [PASS] ...and no source is followed at INTERNAL (follow_sel = 0) got=0x00000000 exp=0x00000000
+5925:   [PASS] MMCM servo stays IDLE at clock_source = INTERNAL (MCSRV_STAT[2:0] == 0) got=0x00000000 exp=0x00000000
+5926:   [PASS] MCSRV_CTRL reads 0 at reset        got=0x00000000 exp=0x00000000
+5927:   [PASS] MCSRV_CTRL ps_invert readback      got=0x00000001 exp=0x00000001
+5928:   [PASS] MCSRV_CTRL clears                  got=0x00000000 exp=0x00000000
+5931:   [PASS] CRFT count starts 0                got=0x00000000 exp=0x00000000
+5932:   [PASS] CRFT sid readback (shadow)         got=0x00010001 exp=0x00010001
+5933:   [PASS] CRFT dmac readback (shadow)        got=0xf0002a07 exp=0xf0002a07
+5934:   [PASS] CRFT_CTRL readback en=1 + stat[7]  got=0x00000081 exp=0x00000081
+5935:   [PASS] CRFTX captured 10 PDUs             got=0x0000000a exp=0x0000000a
+5936:   [PASS] CRFTX 60-byte frame (last keep 0x0F) got=0x0000000f exp=0x0000000f
+5937:   [PASS] CRFT count == captured             got=0x0000000a exp=0x0000000a
+5939:   [PASS] CRFTX header/sid/base/dlen/ival byte-exact got=0x00000001 exp=0x00000001
+5940:   [PASS] CRFTX option-off ownerless tu stays one got=0x00000001 exp=0x00000001
+5941:   [PASS] CRFTX sequence_num 0..9 consecutive got=0x00000001 exp=0x00000001
+5942:   [PASS] CRFTX zero pad to 60B              got=0x00000001 exp=0x00000001
+5943:   [PASS] CRFTX ts strictly monotone         got=0x00000001 exp=0x00000001
+5944:   [PASS] CRFTX ts grid uniform (event-locked) got=0x00000001 exp=0x00000001
+5945:   [PASS] CRFTX ts spacing nonzero           got=0x00000001 exp=0x00000001
+5946:   [PASS] CRFRX counted all looped PDUs      got=0x0000000a exp=0x0000000a
+5947:   [PASS] CRFRX fmt clean on our wire format got=0x00000000 exp=0x00000000
+5948:   [PASS] CRFRX at most the sid-switch seq gap got=0x00000001 exp=0x00000001
+5949:   [PASS] CRFRX locked on our stream         got=0x00000001 exp=0x00000001
+5950:   [PASS] CRFRX delta ~= +PTO (Milan future-dating) got=0x00000001 exp=0x00000001
+5952:   [PASS] H2 baseline: the CRF output is emitting got=0x00000003 exp=0x00000003
+5953:   [PASS] H2 baseline: byte 15 is a well-formed sv|mr|fs|tu byte got=0x00000080 exp=0x00000080
+5954:   [PASS] H2: the granted mr level reaches the wire byte, held got=0x00000001 exp=0x00000001
+5956:   [PASS] CRFTX disabled = silent wire       got=0x00000000 exp=0x00000000
+5957:   [PASS] CRFTX disabled = count frozen      got=0x0000000d exp=0x0000000d
+5958:   [PASS] CRFTX unlicensed (lwSRP on, no listener-ready) = silent got=0x00000000 exp=0x00000000
+5959:   [PASS] CRFTX unlicensed = count frozen    got=0x0000000d exp=0x0000000d
+5960:   [PASS] CRFT stat[7] emission-licensed clear got=0x00000000 exp=0x00000000
+5961:   [PASS] CRFTX free-run restored with lwSRP off got=0x00000001 exp=0x00000001
+5962:   [PASS] CRFT stat[7] emission-licensed set got=0x00000001 exp=0x00000001
+5965:   [PASS] [S1CRF] CSR enable cleared         got=0x00000000 exp=0x00000000
+5966:   [PASS] [S1CRF] sink 1 launched its PROBE_TX got=0x00000001 exp=0x00000001
+5968:   [PASS] [S1CRF] ACMPL bit31 = sink-1 bound got=0x00000001 exp=0x00000001
+5969:   [PASS] [S1CRF] engine counted on bound sid got=0x00000009 exp=0x00000009
+5970:   [PASS] [S1CRF] locked via ACMP provisioning got=0x00000001 exp=0x00000001
+5971:   [PASS] [S1CRF] unbind clears bit31        got=0x00000000 exp=0x00000000
+5972:   [PASS] [S1CRF] post-unbind PDU ignored    got=0x00000009 exp=0x00000009
+5975:   [PASS] [LINKG] armed alive                got=0x00000003 exp=0x00000003
+5976:   [PASS] [LINKG] reinit pin idle            got=0x00000000 exp=0x00000000
+5977:   [PASS] [LINKG] freeze bounce              got=0x00000001 exp=0x00000001
+5978:   [PASS] [LINKG] freeze state               got=0x00000001 exp=0x00000001
+5979:   [PASS] [LINKG] freeze grst                got=0x00000001 exp=0x00000001
+5980:   [PASS] [LINKG] freeze alive               got=0x00000000 exp=0x00000000
+5981:   [PASS] [LINKG] reinit pin held            got=0x00000001 exp=0x00000001
+5982:   [PASS] [LINKG] disable releases pin       got=0x00000000 exp=0x00000000
+5983:   [PASS] [LINKG] re-enable RUN              got=0x00000000 exp=0x00000000
+5984:   [PASS] [LINKG] re-enable alive            got=0x00000003 exp=0x00000003
+5985:   [PASS] [LINKG] no extra bounce            got=0x00000001 exp=0x00000001
+5986:   [PASS] [LINKG] reinit pin clear           got=0x00000000 exp=0x00000000
+5988:   [PASS] [RMON] baseline TX_GOOD 0          got=0x00000000 exp=0x00000000
+5989:   [PASS] [RMON] baseline RX_GOOD 0          got=0x00000000 exp=0x00000000
+5990:   [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+5991:   [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+5992:   [PASS] [RMON] lanes latched (pre-re-arm TX_GOOD still 0) got=0x00000000 exp=0x00000000
+5993:   [PASS] [RMON] RX_GOOD == 2 (0x230)        got=0x00000002 exp=0x00000002
+5994:   [PASS] [RMON] UNDERFLOW == 0 (0x210)      got=0x00000000 exp=0x00000000
+5995:   [PASS] [RMON] ext UNDERFLOW pulse == 1    got=0x00000001 exp=0x00000001
+5996:   [PASS] [RMON] ext TX_GOOD bit ignored     got=0x00000000 exp=0x00000000
+5997:   [PASS] [RMON] ext RX_GOOD bit ignored     got=0x00000002 exp=0x00000002
+5998:   [PASS] [RMON] reinit release zeroes TX_GOOD got=0x00000000 exp=0x00000000
+5999:   [PASS] [RMON] reinit release zeroes RX_GOOD got=0x00000000 exp=0x00000000
+6001:   [PASS] [RMON] cap with no MAC = the two derived lanes only got=0x00000108 exp=0x00000108
+6002:   [PASS] [RMON] cap ORs the integration's lanes over the derived pair got=0x000001b8 exp=0x000001b8
+6003:   [PASS] [RMON] TX_ERROR_UNDERFLOW declared unsupported got=0x00000000 exp=0x00000000
+6004:   [PASS] [RMON] TX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+6005:   [PASS] [RMON] TX_FIFO_BAD_FRAME declared unsupported got=0x00000000 exp=0x00000000
+6006:   [PASS] [RMON] RX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+6007:   [PASS] [RMON] cap is a live read (bits 31:9 reserved 0) got=0x00000000 exp=0x00000000
+6009: milan_datapath: 236 checks, 0 failures
+6010: milan_datapath: guarded and NOT run in this shape: 1
+6014:   [ok]   ID == 'MILN'                                   = 0x4d494c4e
+6015:   [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+6016:   [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+6017:   [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+6018:   [ok]   [AECP] ...read over a posted access that did not error = 0x1
+6019:   [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+6021:   [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+6022:   [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+6023:   [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+6024:   [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+6025:   [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+6026:   [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+6027:   [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+6028:   [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+6029:   [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+6030:   [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+6031:   [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+6032:   [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+6033:   [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+6034:   [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+6035:   [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+6036:   [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+6037:   [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+6038:   [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+6040:   [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+6041:   [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+6042:   [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+6043:   [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+6044:   [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+6045:   [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+6046:   [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+6047:   [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+6048:   [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+6049:   [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+6050:   [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+6051:   [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+6052:   [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+6053:   [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+6054:   [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+6055:   [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+6057:   [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+6058:   [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+6059:   [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+6060:   [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+6061:   [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+6062:   [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+6063:   [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+6064:   [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+6065:   [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+6066:   [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+6067:   [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+6068:   [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+6069:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: ANSWERED, not silence = 0x1
+6070:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: an AEM_RESPONSE (message_type 1) = 0x1
+6071:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: status SUCCESS(0) = 0x0
+6072:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: sequence_id echoed = 0x4100
+6073:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: command_type echoed, u = 0 = 0x17
+6074:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: control_data_length is the clause's = 0x14
+6075:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: descriptor_type @24 echoed = 0x24
+6076:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: descriptor_index @26 echoed = 0x0
+6077:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: clock_source_index IS the model's = 0x0
+6078:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: reserved @30 is zero = 0x0
+6079:   [ok]   [AECP-MODEL] the model has CLOCK_DOMAIN 0      = 0x1
+6080:   [ok]   [AECP-MODEL] CLOCK_DOMAIN 0 clock_sources_offset is 76 (7.2.32) = 0x4c
+6081:   [ok]   [AECP-MODEL] CLOCK_DOMAIN 0 lists CLOCK_SOURCE 0..count-1 in order = 0x1
+6082:   [ok]   [AECP-MODEL] one INTERNAL CLOCK_SOURCE (the aligned grid) = 0x1
+6083:   [ok]   [AECP-MODEL] exactly one INPUT_STREAM CLOCK_SOURCE, at the CRF sink = 0x1
+6084:   [ok]   [AECP-MODEL] one INPUT_STREAM CLOCK_SOURCE on every AAF listener, and only one (#629) = 0x1
+6085:   [ok]   [AECP-MODEL] the class order of #629 D1: INTERNAL 0, CRF 1, AAF listener k at 2 + k = 0x1
+6086:   [ok]   [AECP-MODEL] no CLOCK_SOURCE of a kind the fabric cannot follow = 0x0
+6087:   [ok]   [AECP-MODEL] every listed CLOCK_SOURCE is one the fabric follows = 0x3
+6089:   [ok]   [NOTIFY] GET_NAME(ENTITY,0) answers SUCCESS (the restore point) = 0x0
+6090:   [ok]   [NOTIFY] REGISTER from controller A answers SUCCESS = 0x0
+6091:   [ok]   [NOTIFY] REGISTER from controller B answers SUCCESS = 0x0
+6092:   [ok]   [NOTIFY] ...B's response went to B (dst MAC + controller_entity_id) = 0x1
+6093:   [ok]   [NOTIFY] SET_NAME from A (a real change) is SUCCESS = 0x0
+6095:   [ok]   [NOTIFY] exactly ONE unsolicited SET_NAME egressed = 0x1
+6096:   [ok]   [NOTIFY] ...to controller B (dst MAC and controller_entity_id) = 0x1
+6097:   [ok]   [NOTIFY] ...and none to A, the requester (5.4.5.2 'except') = 0x0
+6098:   [ok]   [NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry) = 0x0
+6099:   [ok]   [NOTIFY] ...target_entity_id is this entity    = 0x1
+6100:   [ok]   [NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body = 0x1
+6101:   [ok]   [NOTIFY] ...carrying the NEW name: current state, not history = 0x1
+6102:   [ok]   [NOTIFY] SET_NAME of the value already held is SUCCESS = 0x0
+6103:   [ok]   [NOTIFY] ...and pushes NOTHING: no state was modified (5.4.5.2) = 0x0
+6104:   [ok]   [NOTIFY] SET_NAME from B is SUCCESS            = 0x0
+6105:   [ok]   [NOTIFY] B's change reaches A alone            = 0x1
+6106:   [ok]   [NOTIFY] ...A's entry starts its own sequence at 0 = 0x0
+6107:   [ok]   [NOTIFY] a second change from A is SUCCESS     = 0x0
+6108:   [ok]   [NOTIFY] ...reaches B with sequence_id 1 (its entry advanced) = 0x1
+6109:   [ok]   [NOTIFY] ...and A's entry did not move (independent per entry) = 0x0
+6110:   [ok]   [NOTIFY] GET_NAME right after is byte-identical from the body on = 0x1
+6111:   [ok]   [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A = 0x1
+6112:   [ok]   [NOTIFY-CRF] ...and to B                       = 0x1
+6113:   [ok]   [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body = 0x1
+6114:   [ok]   [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) = 0xf3f
+6115:   [ok]   [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer = 0x1
+6116:   [ok]   [NOTIFY-CRF] ...and so is A's copy             = 0x1
+6117:   [ok]   [NOTIFY-CRF] a second change inside the second is WITHHELD = 0x1
+6118:   [ok]   [NOTIFY-CRF] ...and RELEASED exactly once after it = 0x2
+6120:   [ok]   [NOTIFY-CRF] ...no earlier than one second after the first = 0x1
+6121:   [ok]   [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change = 0x2
+6122:   [ok]   [NOTIFY-CRF] ...nor to A                       = 0x2
+6123:   [ok]   [OWNERLESS] GM LO write is inert               = 0x0
+6124:   [ok]   [OWNERLESS] GM HI write is inert               = 0x0
+6125:   [ok]   [OWNERLESS] domain write is inert              = 0x0
+6126:   [ok]   [OWNERLESS] pdelay write is inert              = 0x0
+6127:   [ok]   [OWNERLESS] parent LO write is inert           = 0x0
+6128:   [ok]   [OWNERLESS] parent HI write is inert           = 0x0
+6129:   [ok]   [OWNERLESS] CLKV control write is inert        = 0x0
+6130:   [ok]   [OWNERLESS] AS path LO write is inert          = 0x0
+6131:   [ok]   [OWNERLESS] AS path HI write is inert          = 0x0
+6132:   [ok]   [OWNERLESS] AS path command/write is inert     = 0x0
+6133:   [ok]   [OWNERLESS] timestamp uncertainty is permanent = 0x1
+6134:   [ok]   [OWNERLESS] sync_ok remains clear              = 0x0
+6135:   [ok]   [OWNERLESS] retired no-lease bit remains clear = 0x0
+6136:   [ok]   [OWNERLESS] software discontinuity cannot arm holdover = 0x0
+6137:   [ok]   [OWNERLESS] retired lease count remains zero   = 0x0
+6138:   [ok]   [OWNERLESS] asCapable remains clear            = 0x0
+6139:   [ok]   [OWNERLESS] writes emit no GET_AVB_INFO notification = 0x0
+6140:   [ok]   [OWNERLESS] writes emit no GET_AS_PATH notification = 0x0
+6141:   [ok]   [OWNERLESS] writes emit no AVB_INTERFACE counter notification = 0x0
+6142:   [ok]   [OWNERLESS] writes do not count a grandmaster change = 0x0
+6143:   [ok]   [OWNERLESS] solicited GET_AVB_INFO succeeds    = 0x0
+6144:   [ok]   [OWNERLESS] GET_AVB_INFO grandmaster is zero   = 0x0
+6145:   [ok]   [OWNERLESS] GET_AVB_INFO propagation delay is zero = 0x0
+6146:   [ok]   [OWNERLESS] GET_AVB_INFO domain is zero        = 0x0
+6147:   [ok]   [OWNERLESS] GET_AVB_INFO asCapable flag is clear = 0x0
+6148:   [ok]   [OWNERLESS] solicited GET_AS_PATH succeeds     = 0x0
+6149:   [ok]   [OWNERLESS] GET_AS_PATH has the empty cdl      = 0x10
+6150:   [ok]   [OWNERLESS] GET_AS_PATH count is zero          = 0x0
+6153:   [ok]   [NOTIFY-T] the entity ORIGINATED a CONTROLLER_AVAILABLE command to B = 0x1
+6154:   [ok]   [NOTIFY-T] ...30 s to 60 s after B's last command = 0x1
+6155:   [ok]   [NOTIFY-T] ...addressed to B (dst MAC, target_entity_id) from this entity (controller_entity_id), an AEM_COMMAND with cdl 12 = 0x1
+6156:   [ok]   [NOTIFY-T] exactly ONE retry (IEEE 9.3.6: retried is a bit) = 0x1
+6158:   [ok]   [NOTIFY-T] ...250 ms after the first on the wire (the 9.3.6 timeout, within 5 ms of it) = 0x1
+6159:   [ok]   [NOTIFY-T] silence removes B: unsolicited DEREGISTER_UNSOLICITED_NOTIFICATION to B = 0x1
+6160:   [ok]   [NOTIFY-T] ...within 1 s of the retry          = 0x1
+6161:   [ok]   [NOTIFY-T] ...and to B ONLY (Table 5.22: 'this controller only') = 0x0
+6162:   [ok]   [NOTIFY-T] A, which kept talking, was never probed = 0x1
+6163:   [ok]   [NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic = 0x0
+6164:   [ok]   [NOTIFY-T] a change from A after B's removal is SUCCESS = 0x0
+6165:   [ok]   [NOTIFY-T] ...and pushes nothing: the registry no longer holds B = 0x0
+6166:   [ok]   [NOTIFY-T] B re-registers after its removal (SUCCESS) = 0x0
+6167:   [ok]   [NOTIFY-T] ...and hears A's next change, sequence restarted at 0 = 0x1
+6168:   [ok]   [NOTIFY] DEREGISTER from B answers SUCCESS     = 0x0
+6169:   [ok]   [NOTIFY] a change from A with B gone is SUCCESS = 0x0
+6170:   [ok]   [NOTIFY] ...and pushes nothing: A is the requester, B is gone = 0x0
+6171:   [ok]   [NOTIFY] DEREGISTER from A answers SUCCESS     = 0x0
+6172:   [ok]   [NOTIFY] the shipped entity_name is restored   = 0x1
+6174:   [ok]   [GSI] the shape has the AAF and the CRF sink the section drives = 0x2
+6175:   [ok]   [GSI] REGISTER_UNSOLICITED_NOTIFICATION from A = 0x0
+6176:   [ok]   [GSI] REGISTER_UNSOLICITED_NOTIFICATION from B = 0x0
+6177:   [ok]   [GSI] G0 sink 0 unbound: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6178:   [ok]   [GSI] G0 sink 0 unbound: probing_status        = 0x0
+6179:   [ok]   [GSI] G0 sink 0 unbound: acmp_status           = 0x0
+6180:   [ok]   [GSI] G0 sink 0 unbound: MSRP_FAILURE_VALID    = 0x0
+6181:   [ok]   [GSI] G0 sink 0 unbound: REGISTERING_FAILED    = 0x0
+6182:   [ok]   [GSI] G0 sink 0 unbound: msrp_failure_code     = 0x0
+6183:   [ok]   [GSI] G0 sink 0 unbound: msrp_failure_bridge_id = 0x0
+6184:   [ok]   [GSI] G0 sink 1 unbound: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6185:   [ok]   [GSI] G0 sink 1 unbound: probing_status        = 0x0
+6186:   [ok]   [GSI] G0 sink 1 unbound: acmp_status           = 0x0
+6187:   [ok]   [GSI] G0 sink 1 unbound: MSRP_FAILURE_VALID    = 0x0
+6188:   [ok]   [GSI] G0 sink 1 unbound: REGISTERING_FAILED    = 0x0
+6189:   [ok]   [GSI] G0 sink 1 unbound: msrp_failure_code     = 0x0
+6190:   [ok]   [GSI] G0 sink 1 unbound: msrp_failure_bridge_id = 0x0
+6191:   [ok]   [GSI] G0 a missing STREAM_INPUT answers NO_SUCH_DESCRIPTOR = 0x2
+6192:   [ok]   [GSI] G0 ...with the full cdl-68 body          = 0x44
+6193:   [ok]   [GSI] G0 ...every field zero, the processor's included = 0x1
+6194:   [ok]   [GSI] G1 sink 0 BIND_RX: the ACMP response is SUCCESS = 0x0
+6195:   [ok]   [GSI] G1 sink 0 the bind sent its PROBE_TX     = 0x1
+6196:   [ok]   [GSI] G1 sink 0 bound: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+6197:   [ok]   [GSI] G1 sink 0 bound: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+6198:   [ok]   [GSI] G1 sink 0 bound: the push equals the solicited answer from the body on = 0x1
+6199:   [ok]   [GSI] G1 sink 0 bound: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6200:   [ok]   [GSI] G1 sink 0 bound: probing_status          = 0x2
+6201:   [ok]   [GSI] G1 sink 0 bound: acmp_status             = 0x0
+6202:   [ok]   [GSI] G1 sink 0 bound: BOUND                   = 0x1
+6203:   [ok]   [GSI] G1 sink 0 bound: MSRP_FAILURE_VALID      = 0x0
+6204:   [ok]   [GSI] G1 sink 0 bound: REGISTERING_FAILED      = 0x0
+6205:   [ok]   [GSI] G1 sink 0 bound: msrp_failure_code       = 0x0
+6206:   [ok]   [GSI] G1 sink 0 bound: msrp_failure_bridge_id  = 0x0
+6207:   [ok]   [GSI] G1 sink 1 untouched by sink 0's bind: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6208:   [ok]   [GSI] G1 sink 1 untouched by sink 0's bind: probing_status = 0x0
+6209:   [ok]   [GSI] G1 sink 1 untouched by sink 0's bind: acmp_status = 0x0
+6210:   [ok]   [GSI] G1 sink 0 the probe timeout sent the duplicate PROBE_TX = 0x2
+6211:   [ok]   [GSI] G1 sink 0 duplicate probe (no status change): unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+6212:   [ok]   [GSI] G1 sink 0 duplicate probe (no status change): unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+6213:   [ok]   [GSI] G2 sink 0 two probes unanswered: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+6214:   [ok]   [GSI] G2 sink 0 two probes unanswered: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+6215:   [ok]   [GSI] G2 sink 0 two probes unanswered: the push equals the solicited answer from the body on = 0x1
+6216:   [ok]   [GSI] G2 sink 0 two probes unanswered: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6217:   [ok]   [GSI] G2 sink 0 two probes unanswered: probing_status = 0x2
+6218:   [ok]   [GSI] G2 sink 0 two probes unanswered: acmp_status = 0x7
+6219:   [ok]   [GSI] G2 sink 0 two probes unanswered: MSRP_FAILURE_VALID = 0x0
+6220:   [ok]   [GSI] G2 sink 0 two probes unanswered: REGISTERING_FAILED = 0x0
+6221:   [ok]   [GSI] G2 sink 0 two probes unanswered: msrp_failure_code = 0x0
+6222:   [ok]   [GSI] G2 sink 0 two probes unanswered: msrp_failure_bridge_id = 0x0
+6223:   [ok]   [GSI] G2 sink 1 BIND_RX: the ACMP response is SUCCESS = 0x0
+6224:   [ok]   [GSI] G2 sink 1 the bind sent its PROBE_TX     = 0x1
+6225:   [ok]   [GSI] G2 sink 1 bound: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+6226:   [ok]   [GSI] G2 sink 1 bound: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+6227:   [ok]   [GSI] G2 sink 1 bound: the push equals the solicited answer from the body on = 0x1
+6228:   [ok]   [GSI] G2 sink 0 untouched by sink 1's bind: unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+6229:   [ok]   [GSI] G2 sink 0 untouched by sink 1's bind: unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+6230:   [ok]   [GSI] G2 sink 1 probe refused: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+6231:   [ok]   [GSI] G2 sink 1 probe refused: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+6232:   [ok]   [GSI] G2 sink 1 probe refused: the push equals the solicited answer from the body on = 0x1
+6233:   [ok]   [GSI] G2 sink 1 probe refused: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6234:   [ok]   [GSI] G2 sink 1 probe refused: probing_status  = 0x2
+6235:   [ok]   [GSI] G2 sink 1 probe refused: acmp_status     = 0x3
+6236:   [ok]   [GSI] G2 sink 0 beside sink 1's refusal: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6237:   [ok]   [GSI] G2 sink 0 beside sink 1's refusal: probing_status = 0x2
+6238:   [ok]   [GSI] G2 sink 0 beside sink 1's refusal: acmp_status = 0x7
+6239:   [ok]   [GSI] G3 sink 0 retry, talker never seen: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+6240:   [ok]   [GSI] G3 sink 0 retry, talker never seen: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+6241:   [ok]   [GSI] G3 sink 0 retry, talker never seen: the push equals the solicited answer from the body on = 0x1
+6242:   [ok]   [GSI] G3 sink 0 retry, talker never seen: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6243:   [ok]   [GSI] G3 sink 0 retry, talker never seen: probing_status = 0x1
+6244:   [ok]   [GSI] G3 sink 0 retry, talker never seen: acmp_status = 0x0
+6245:   [ok]   [GSI] G3 sink 0 no talker was discovered, so no new PROBE_TX = 0x2
+6246:   [ok]   [GSI] G3 sink 1 retry, talker never seen: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+6247:   [ok]   [GSI] G3 sink 1 retry, talker never seen: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+6248:   [ok]   [GSI] G3 sink 1 retry, talker never seen: the push equals the solicited answer from the body on = 0x1
+6249:   [ok]   [GSI] G3 sink 1 retry, talker never seen: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6250:   [ok]   [GSI] G3 sink 1 retry, talker never seen: probing_status = 0x1
+6251:   [ok]   [GSI] G3 sink 1 retry, talker never seen: acmp_status = 0x0
+6252:   [ok]   [GSI] G3 sink 0 quiet while sink 1 retries: unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+6253:   [ok]   [GSI] G3 sink 0 quiet while sink 1 retries: unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+6254:   [ok]   [GSI] G4 sink 0 UNBIND_RX: the ACMP response is SUCCESS = 0x0
+6255:   [ok]   [GSI] G4 sink 0 unbound: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+6256:   [ok]   [GSI] G4 sink 0 unbound: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+6257:   [ok]   [GSI] G4 sink 0 unbound: the push equals the solicited answer from the body on = 0x1
+6258:   [ok]   [GSI] G4 sink 0 unbound: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6259:   [ok]   [GSI] G4 sink 0 unbound: probing_status        = 0x0
+6260:   [ok]   [GSI] G4 sink 0 unbound: acmp_status           = 0x0
+6261:   [ok]   [GSI] G4 sink 0 unbound: BOUND                 = 0x0
+6262:   [ok]   [GSI] G4 sink 0 bound again: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+6263:   [ok]   [GSI] G4 sink 0 bound again: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+6264:   [ok]   [GSI] G4 sink 0 bound again: the push equals the solicited answer from the body on = 0x1
+6265:   [ok]   [GSI] G4 sink 0 bound again: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6266:   [ok]   [GSI] G4 sink 0 bound again: probing_status    = 0x2
+6267:   [ok]   [GSI] G4 sink 0 bound again: acmp_status       = 0x0
+6268:   [ok]   [GSI] G4 sink 0 probe answered SUCCESS: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+6269:   [ok]   [GSI] G4 sink 0 probe answered SUCCESS: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+6270:   [ok]   [GSI] G4 sink 0 probe answered SUCCESS: the push equals the solicited answer from the body on = 0x1
+6271:   [ok]   [GSI] G4 sink 0 probe answered SUCCESS: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6272:   [ok]   [GSI] G4 sink 0 probe answered SUCCESS: probing_status = 0x3
+6273:   [ok]   [GSI] G4 sink 0 probe answered SUCCESS: acmp_status = 0x0
+6274:   [ok]   [GSI] G4 sink 0 settled: stream_id is the talker's = 0x211223344550000
+6275:   [ok]   [GSI] G4 sink 1 bound again: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+6276:   [ok]   [GSI] G4 sink 1 bound again: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+6277:   [ok]   [GSI] G4 sink 1 bound again: the push equals the solicited answer from the body on = 0x1
+6278:   [ok]   [GSI] G4 sink 1 bound again: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6279:   [ok]   [GSI] G4 sink 1 bound again: probing_status    = 0x2
+6280:   [ok]   [GSI] G4 sink 1 bound again: acmp_status       = 0x0
+6281:   [ok]   [GSI] G4 sink 1 probe answered SUCCESS: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+6282:   [ok]   [GSI] G4 sink 1 probe answered SUCCESS: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+6283:   [ok]   [GSI] G4 sink 1 probe answered SUCCESS: the push equals the solicited answer from the body on = 0x1
+6284:   [ok]   [GSI] G4 sink 1 probe answered SUCCESS: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6285:   [ok]   [GSI] G4 sink 1 probe answered SUCCESS: probing_status = 0x3
+6286:   [ok]   [GSI] G4 sink 1 probe answered SUCCESS: acmp_status = 0x0
+6287:   [ok]   [GSI] G4 sink 1 settled: stream_id is the talker's = 0x211223344550001
+6288:   [ok]   [GSI] G5 sink 0 Talker Failed: unsolicited GET_STREAM_INFO(sink 0) to A = 0x1
+6289:   [ok]   [GSI] G5 sink 0 Talker Failed: unsolicited GET_STREAM_INFO(sink 0) to B = 0x1
+6290:   [ok]   [GSI] G5 sink 0 Talker Failed: the push equals the solicited answer from the body on = 0x1
+6291:   [ok]   [GSI] G5 sink 0 Talker Failed: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6292:   [ok]   [GSI] G5 sink 0 Talker Failed: probing_status  = 0x3
+6293:   [ok]   [GSI] G5 sink 0 Talker Failed: acmp_status     = 0x0
+6294:   [ok]   [GSI] G5 sink 0 Talker Failed: MSRP_FAILURE_VALID = 0x1
+6295:   [ok]   [GSI] G5 sink 0 Talker Failed: REGISTERING_FAILED = 0x1
+6296:   [ok]   [GSI] G5 sink 0 Talker Failed: msrp_failure_code = 0x1
+6297:   [ok]   [GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id = 0x123456789abcdef
+6298:   [ok]   [GSI] G5 ...REGISTERING (flags_ex)             = 0x1
+6299:   [ok]   [GSI] G5 sink 1 Talker Failed: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+6300:   [ok]   [GSI] G5 sink 1 Talker Failed: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+6301:   [ok]   [GSI] G5 sink 1 Talker Failed: the push equals the solicited answer from the body on = 0x1
+6302:   [ok]   [GSI] G5 sink 1 Talker Failed: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6303:   [ok]   [GSI] G5 sink 1 Talker Failed: probing_status  = 0x3
+6304:   [ok]   [GSI] G5 sink 1 Talker Failed: acmp_status     = 0x0
+6305:   [ok]   [GSI] G5 sink 1 Talker Failed: MSRP_FAILURE_VALID = 0x1
+6306:   [ok]   [GSI] G5 sink 1 Talker Failed: REGISTERING_FAILED = 0x1
+6307:   [ok]   [GSI] G5 sink 1 Talker Failed: msrp_failure_code = 0x2
+6308:   [ok]   [GSI] G5 sink 1 Talker Failed: msrp_failure_bridge_id = 0xfedcba9876543210
+6309:   [ok]   [GSI] G5 ...REGISTERING (flags_ex)             = 0x1
+6310:   [ok]   [GSI] G5 sink 0 beside the other sink's failure: MSRP_FAILURE_VALID = 0x1
+6311:   [ok]   [GSI] G5 sink 0 beside the other sink's failure: REGISTERING_FAILED = 0x1
+6312:   [ok]   [GSI] G5 sink 0 beside the other sink's failure: msrp_failure_code = 0x1
+6313:   [ok]   [GSI] G5 sink 0 beside the other sink's failure: msrp_failure_bridge_id = 0x123456789abcdef
+6314:   [ok]   [GSI] G5 sink 1 beside the other sink's failure: MSRP_FAILURE_VALID = 0x1
+6315:   [ok]   [GSI] G5 sink 1 beside the other sink's failure: REGISTERING_FAILED = 0x1
+6316:   [ok]   [GSI] G5 sink 1 beside the other sink's failure: msrp_failure_code = 0x2
+6317:   [ok]   [GSI] G5 sink 1 beside the other sink's failure: msrp_failure_bridge_id = 0xfedcba9876543210
+6318:   [ok]   [GSI] G6 sink 0 unchanged refresh: unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+6319:   [ok]   [GSI] G6 sink 0 unchanged refresh: unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+6320:   [ok]   [GSI] G6 sink 1 unchanged refresh: unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+6321:   [ok]   [GSI] G6 sink 1 unchanged refresh: unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+6322:   [ok]   [GSI] G7 sink 1 FailureInformation changed: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+6323:   [ok]   [GSI] G7 sink 1 FailureInformation changed: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+6324:   [ok]   [GSI] G7 sink 1 FailureInformation changed: the push equals the solicited answer from the body on = 0x1
+6325:   [ok]   [GSI] G7 sink 1 FailureInformation changed: MSRP_FAILURE_VALID = 0x1
+6326:   [ok]   [GSI] G7 sink 1 FailureInformation changed: REGISTERING_FAILED = 0x1
+6327:   [ok]   [GSI] G7 sink 1 FailureInformation changed: msrp_failure_code = 0x8
+6328:   [ok]   [GSI] G7 sink 1 FailureInformation changed: msrp_failure_bridge_id = 0xf1e2d3c4b5a6978
+6329:   [ok]   [GSI] G7 sink 0 untouched by sink 1's change: unsolicited GET_STREAM_INFO(sink 0) to A = 0x0
+6330:   [ok]   [GSI] G7 sink 0 untouched by sink 1's change: unsolicited GET_STREAM_INFO(sink 0) to B = 0x0
+6331:   [ok]   [GSI] G7 sink 0 untouched by sink 1's change: MSRP_FAILURE_VALID = 0x1
+6332:   [ok]   [GSI] G7 sink 0 untouched by sink 1's change: REGISTERING_FAILED = 0x1
+6333:   [ok]   [GSI] G7 sink 0 untouched by sink 1's change: msrp_failure_code = 0x1
+6334:   [ok]   [GSI] G7 sink 0 untouched by sink 1's change: msrp_failure_bridge_id = 0x123456789abcdef
+6335:   [ok]   [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A = 0x2
+6336:   [ok]   [GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to B = 0x2
+6337:   [ok]   [GSI] G8 sink 0 withdrawn: the push equals the solicited answer from the body on = 0x1
+6338:   [ok]   [GSI] G8 sink 0 registrar withdrawal to A: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6339:   [ok]   [GSI] G8 sink 0 registrar withdrawal to A: probing_status = 0x1
+6340:   [ok]   [GSI] G8 sink 0 registrar withdrawal to A: acmp_status = 0x0
+6341:   [ok]   [GSI] G8 sink 0 registrar withdrawal to A: MSRP_FAILURE_VALID = 0x0
+6342:   [ok]   [GSI] G8 sink 0 registrar withdrawal to A: REGISTERING_FAILED = 0x0
+6343:   [ok]   [GSI] G8 sink 0 registrar withdrawal to A: msrp_failure_code = 0x0
+6344:   [ok]   [GSI] G8 sink 0 registrar withdrawal to A: msrp_failure_bridge_id = 0x0
+6345:   [ok]   [GSI] G8 sink 0 registrar withdrawal to A: body equals the solicited answer = 0x1
+6346:   [ok]   [GSI] G8 sink 0 settlement teardown to A: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6347:   [ok]   [GSI] G8 sink 0 settlement teardown to A: probing_status = 0x1
+6348:   [ok]   [GSI] G8 sink 0 settlement teardown to A: acmp_status = 0x0
+6349:   [ok]   [GSI] G8 sink 0 settlement teardown to A: MSRP_FAILURE_VALID = 0x0
+6350:   [ok]   [GSI] G8 sink 0 settlement teardown to A: REGISTERING_FAILED = 0x0
+6351:   [ok]   [GSI] G8 sink 0 settlement teardown to A: msrp_failure_code = 0x0
+6352:   [ok]   [GSI] G8 sink 0 settlement teardown to A: msrp_failure_bridge_id = 0x0
+6353:   [ok]   [GSI] G8 sink 0 settlement teardown to A: body equals the solicited answer = 0x1
+6354:   [ok]   [GSI] G8 sink 0 registrar withdrawal to B: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6355:   [ok]   [GSI] G8 sink 0 registrar withdrawal to B: probing_status = 0x1
+6356:   [ok]   [GSI] G8 sink 0 registrar withdrawal to B: acmp_status = 0x0
+6357:   [ok]   [GSI] G8 sink 0 registrar withdrawal to B: MSRP_FAILURE_VALID = 0x0
+6358:   [ok]   [GSI] G8 sink 0 registrar withdrawal to B: REGISTERING_FAILED = 0x0
+6359:   [ok]   [GSI] G8 sink 0 registrar withdrawal to B: msrp_failure_code = 0x0
+6360:   [ok]   [GSI] G8 sink 0 registrar withdrawal to B: msrp_failure_bridge_id = 0x0
+6361:   [ok]   [GSI] G8 sink 0 registrar withdrawal to B: body equals the solicited answer = 0x1
+6362:   [ok]   [GSI] G8 sink 0 settlement teardown to B: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6363:   [ok]   [GSI] G8 sink 0 settlement teardown to B: probing_status = 0x1
+6364:   [ok]   [GSI] G8 sink 0 settlement teardown to B: acmp_status = 0x0
+6365:   [ok]   [GSI] G8 sink 0 settlement teardown to B: MSRP_FAILURE_VALID = 0x0
+6366:   [ok]   [GSI] G8 sink 0 settlement teardown to B: REGISTERING_FAILED = 0x0
+6367:   [ok]   [GSI] G8 sink 0 settlement teardown to B: msrp_failure_code = 0x0
+6368:   [ok]   [GSI] G8 sink 0 settlement teardown to B: msrp_failure_bridge_id = 0x0
+6369:   [ok]   [GSI] G8 sink 0 settlement teardown to B: body equals the solicited answer = 0x1
+6370:   [ok]   [GSI] G8 sink 1 quiet on sink 0 withdrawal: unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+6371:   [ok]   [GSI] G8 sink 1 quiet on sink 0 withdrawal: unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+6372:   [ok]   [GSI] G8 sink 0 withdrawn: MSRP_FAILURE_VALID  = 0x0
+6373:   [ok]   [GSI] G8 sink 0 withdrawn: REGISTERING_FAILED  = 0x0
+6374:   [ok]   [GSI] G8 sink 0 withdrawn: msrp_failure_code   = 0x0
+6375:   [ok]   [GSI] G8 sink 0 withdrawn: msrp_failure_bridge_id = 0x0
+6376:   [ok]   [GSI] G8 sink 0 withdrawn: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6377:   [ok]   [GSI] G8 sink 0 withdrawn: probing_status      = 0x1
+6378:   [ok]   [GSI] G8 sink 0 withdrawn: acmp_status         = 0x0
+6379:   [ok]   [GSI] G8 sink 1 keeps its own failure: MSRP_FAILURE_VALID = 0x1
+6380:   [ok]   [GSI] G8 sink 1 keeps its own failure: REGISTERING_FAILED = 0x1
+6381:   [ok]   [GSI] G8 sink 1 keeps its own failure: msrp_failure_code = 0x8
+6382:   [ok]   [GSI] G8 sink 1 keeps its own failure: msrp_failure_bridge_id = 0xf1e2d3c4b5a6978
+6383:   [ok]   [GSI] G9 STOP_STREAMING(sink 1) from A is SUCCESS = 0x0
+6384:   [ok]   [GSI] G9 ...pushes STOP_STREAMING to B         = 0x1
+6385:   [ok]   [GSI] G9 ...and not to A, the requester        = 0x0
+6386:   [ok]   [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+6387:   [ok]   [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+6388:   [ok]   [GSI] G9 sink 1 stopped: STREAMING_WAIT        = 0x1
+6389:   [ok]   [GSI] G9 sink 1 stopped: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6390:   [ok]   [GSI] G9 sink 1 stopped: probing_status        = 0x3
+6391:   [ok]   [GSI] G9 sink 1 stopped: acmp_status           = 0x0
+6393:   [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+6394:   [ok]   [GSI] G10 sink 0 after a reset: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6395:   [ok]   [GSI] G10 sink 0 after a reset: probing_status = 0x0
+6396:   [ok]   [GSI] G10 sink 0 after a reset: acmp_status    = 0x0
+6397:   [ok]   [GSI] G10 sink 0 after a reset: MSRP_FAILURE_VALID = 0x0
+6398:   [ok]   [GSI] G10 sink 0 after a reset: REGISTERING_FAILED = 0x0
+6399:   [ok]   [GSI] G10 sink 0 after a reset: msrp_failure_code = 0x0
+6400:   [ok]   [GSI] G10 sink 0 after a reset: msrp_failure_bridge_id = 0x0
+6401:   [ok]   [GSI] G10 sink 1 after a reset: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6402:   [ok]   [GSI] G10 sink 1 after a reset: probing_status = 0x0
+6403:   [ok]   [GSI] G10 sink 1 after a reset: acmp_status    = 0x0
+6404:   [ok]   [GSI] G10 sink 1 after a reset: MSRP_FAILURE_VALID = 0x0
+6405:   [ok]   [GSI] G10 sink 1 after a reset: REGISTERING_FAILED = 0x0
+6406:   [ok]   [GSI] G10 sink 1 after a reset: msrp_failure_code = 0x0
+6407:   [ok]   [GSI] G10 sink 1 after a reset: msrp_failure_bridge_id = 0x0
+6409:   [ok]   [UNB] REGISTER_UNSOLICITED_NOTIFICATION from A = 0x0
+6410:   [ok]   [UNB] REGISTER_UNSOLICITED_NOTIFICATION from B = 0x0
+6411:   [ok]   [UNB] AAF sink 0 BIND_RX: the ACMP response is SUCCESS = 0x0
+6412:   [ok]   [UNB] AAF sink 0 the bind sent its PROBE_TX    = 0x1
+6413:   [ok]   [UNB] AAF sink 0 locked: MEDIA_LOCKED          = 0x1
+6414:   [ok]   [UNB] AAF sink 0 locked: MEDIA_UNLOCKED        = 0x0
+6415:   [ok]   [UNB] AAF sink 0 the lock was pushed           = 0x1
+6416:   [ok]   [UNB] AAF sink 0 source pause remains below silence timeout = 0x1
+6417:   [ok]   [UNB] AAF sink 0 the row pushed nothing in the second before the unbind = 0x1
+6418:   [ok]   [UNB] AAF sink 0 U1 UNBIND_RX: the ACMP response is SUCCESS = 0x0
+6419:   [ok]   [UNB] AAF sink 0 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED = 0x101
+6420:   [ok]   [UNB] AAF sink 0 U3 right after the response: MEDIA_LOCKED = 0x1
+6421:   [ok]   [UNB] AAF sink 0 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED = 0x1
+6422:   [ok]   [UNB] AAF sink 0 U3 right after the response: STREAM_INTERRUPTED = 0x0
+6423:   [ok]   [UNB] AAF sink 0 U2 a push reporting the unlock reached A = 0x1
+6424:   [ok]   [UNB] AAF sink 0 U2 every push reporting the unlock to A left after the UNBIND_RX response = 0x1
+6425:   [ok]   [UNB] AAF sink 0 U2 a push reporting the unlock reached B = 0x1
+6426:   [ok]   [UNB] AAF sink 0 U2 every push reporting the unlock to B left after the UNBIND_RX response = 0x1
+6427:   [ok]   [UNB] AAF sink 0 U3 every push after the response reads MEDIA_LOCKED = MEDIA_UNLOCKED = 0x0
+6428:   [ok]   [UNB] AAF sink 0 U4 the wait outlasted both 100 ms silence timeouts = 0x1
+6429:   [ok]   [UNB] AAF sink 0 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED = 0x10100
+6431:   [ok]   [UNB] CRF sink 1 BIND_RX: the ACMP response is SUCCESS = 0x0
+6432:   [ok]   [UNB] CRF sink 1 the bind sent its PROBE_TX    = 0x1
+6433:   [ok]   [UNB] CRF sink 1 locked: MEDIA_LOCKED          = 0x1
+6434:   [ok]   [UNB] CRF sink 1 locked: MEDIA_UNLOCKED        = 0x0
+6435:   [ok]   [UNB] CRF sink 1 the lock was pushed           = 0x1
+6436:   [ok]   [UNB] CRF sink 1 source pause remains below silence timeout = 0x1
+6437:   [ok]   [UNB] CRF sink 1 the row pushed nothing in the second before the unbind = 0x1
+6438:   [ok]   [UNB] CRF sink 1 U1 UNBIND_RX: the ACMP response is SUCCESS = 0x0
+6439:   [ok]   [UNB] CRF sink 1 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED = 0x101
+6440:   [ok]   [UNB] CRF sink 1 U3 right after the response: MEDIA_LOCKED = 0x1
+6441:   [ok]   [UNB] CRF sink 1 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED = 0x1
+6442:   [ok]   [UNB] CRF sink 1 U3 right after the response: STREAM_INTERRUPTED = 0x0
+6443:   [ok]   [UNB] CRF sink 1 U2 a push reporting the unlock reached A = 0x1
+6444:   [ok]   [UNB] CRF sink 1 U2 every push reporting the unlock to A left after the UNBIND_RX response = 0x1
+6445:   [ok]   [UNB] CRF sink 1 U2 a push reporting the unlock reached B = 0x1
+6446:   [ok]   [UNB] CRF sink 1 U2 every push reporting the unlock to B left after the UNBIND_RX response = 0x1
+6447:   [ok]   [UNB] CRF sink 1 U3 every push after the response reads MEDIA_LOCKED = MEDIA_UNLOCKED = 0x0
+6448:   [ok]   [UNB] CRF sink 1 U4 the wait outlasted both 100 ms silence timeouts = 0x1
+6449:   [ok]   [UNB] CRF sink 1 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED = 0x10100
+6452: checks: 423   failures: 0
+6458:   [PASS] ID == 'MILN'                                                       got=1296649294 exp=1296649294
+6459:   [PASS] KL_maap is probing, no block claimed yet                           got=1 exp=1
+6460:   [PASS] CRFT_CTRL[1:0] reads back the boot value                           got=3 exp=3
+6461:   [PASS] nothing declares yet, so nothing is licensed                       got=0 exp=0
+6462: [A] the Run B opening: probe refused, MAAP grant, Talker Advertise declared and admitted, NO Listener Ready - nothing may be emitted
+6469:   [PASS] KL_maap reached ANNOUNCE (a block of two is claimed)               got=1 exp=1
+6471:   [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+6472:   [PASS] ...and MAAP's grant opens the DA gate after it
+6473:   [PASS] the DUT declares Talker Advertise on the wire
+6474:   [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+6475:   [PASS] ...while no Listener Ready has been declared to the DUT
+6476:   [PASS] ACTIVE never rose                                                  got=0 exp=0
+6478:   [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+6479:   [PASS] ...and MAAP's grant opens the DA gate after it
+6480:   [PASS] the DUT declares Talker Advertise on the wire
+6481:   [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+6482:   [PASS] ...while no Listener Ready has been declared to the DUT
+6483:   [PASS] ACTIVE never rose                                                  got=0 exp=0
+6484:   [PASS] the CRF licence never opened (every cycle sampled)                 got=0 exp=0
+6485:   [PASS] no CRF PDU on the wire                                             got=0 exp=0
+6486:   [PASS] CRFT_COUNT stays 0                                                 got=0 exp=0
+6487:   [PASS] CRFT_CTRL[5] the output is tagged (its Talker Advertise stands)    got=1 exp=1
+6488:   [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+6489:   [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+6490:   [PASS] the AAF gate never opened                                          got=0 exp=0
+6491:   [PASS] no AAF PDU on the wire                                             got=0 exp=0
+6492:   [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 0                     got=0 exp=0
+6506:   [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+6507:   [PASS] the switch's first Listener Ready reached the DUT
+6508:   [PASS] ACTIVE rose after it, within 50 ms
+6510:   [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+6511:   [PASS] the switch's first Listener Ready reached the DUT
+6512:   [PASS] ACTIVE rose after it, within 50 ms
+6513:   [PASS] the CRF licence opened on the cycle ACTIVE[CRF] rose               got=407190 exp=407190
+6514:   [PASS] the AAF gate opened on the cycle ACTIVE[AAF] rose                  got=407773 exp=407773
+6515:   [PASS] CRF PDUs follow the licence (>= 3 in 3 s)
+6516:   [PASS] AAF PDUs follow the AAF gate
+6517:   [PASS] every CRF PDU: C-tag {PCP 3, VID 2}, stream {MAC, uid 1}, the MAAP DA got=6 exp=6
+6518:   [PASS] CRFT_CTRL[6] reservation active reads 1                            got=1 exp=1
+6519:   [PASS] CRFT_CTRL[7] emission licensed reads 1                             got=1 exp=1
+6520:   [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 1                     got=1 exp=1
+6524:   [PASS] ACTIVE[AAF] fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+6525:   [PASS] the AAF gate closed on that cycle                                  got=702668 exp=702668
+6526:   [PASS] ...while the AAF talker still declares Talker Advertise            got=1 exp=1
+6527:   [PASS] ...and its raw verdict still stands (the pre-#530 gate stayed open) got=1 exp=1
+6528:   [PASS] no AAF PDU 20 ms after the gate closed                             got=0 exp=0
+6529:   [PASS] the CRF output is untouched                                        got=1 exp=1
+6538:   [PASS] the DUT sent no Talker Advertise Leave for its bound CRF output    got=0 exp=0
+6539:   [PASS] ACTIVE[CRF] never fell                                             got=0 exp=0
+6540:   [PASS] the CRF licence never fell                                         got=0 exp=0
+6541:   [PASS] the CRF DA gate never closed                                       got=0 exp=0
+6542:   [PASS] the listener never had to re-probe (two probes in all)             got=2 exp=2
+6543:   [PASS] the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)
+6545:   [PASS] the DUT sent >= 3 LeaveAll MRPDUs
+6546:   [PASS] every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20) got=0 exp=0
+6547:   [PASS] the switch sent >= 3 of its own, Listener JoinMt first
+6549:   [PASS] each switch LeaveAll restarted the DUT's leavealltimer: every DUT LeaveAll came >= 10 s after the switch's preceding one (802.1Q-2014 Table 10-5 rLA!)
+6550:   [PASS] the Listener registration still reads Ready                        got=2 exp=2
+6552:   [PASS] the CRF stream never paused (longest gap <= 1.5 mean periods)
+6555:   [PASS] STREAM_START = 1: one start since the bind                         got=1 exp=1
+6556:   [PASS] STREAM_STOP = 0                                                    got=0 exp=0
+6557:   [PASS] FRAMES_TX follows wire PDUs (one in-flight completion permitted)
+6558:   [PASS] CRFT_COUNT (0x764) is the PDU total the wire carried               got=154 exp=154
+6564:   [PASS] Asking Failed registered                                           got=1 exp=1
+6565:   [PASS] ACTIVE fell within 50 ms of it
+6566:   [PASS] the licence closed on that cycle                                   got=8052664 exp=8052664
+6567:   [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+6568:   [PASS] ...and its raw verdict still stands                                got=1 exp=1
+6569:   [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+6573:   [PASS] Ready Failed registered                                            got=3 exp=3
+6574:   [PASS] ACTIVE rose after it
+6575:   [PASS] the licence reopened on that cycle                                 got=8252664 exp=8252664
+6576:   [PASS] CRF PDUs resumed
+6578:   [PASS] STREAM_START = 2                                                   got=2 exp=2
+6579:   [PASS] STREAM_STOP = 1                                                    got=1 exp=1
+6580:   [PASS] FRAMES_TX restarted: only new-run wire PDUs (one in flight)
+6585:   [PASS] the probe window is still open
+6586:   [PASS] ACTIVE fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+6587:   [PASS] the licence closed on that cycle                                   got=8502664 exp=8502664
+6588:   [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+6589:   [PASS] ...and its raw verdict still stands                                got=1 exp=1
+6590:   [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+6591:   [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+6592:   [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+6598:   [PASS] calibration decoded a real Listener frame
+6599:   [PASS] decoder delay can bracket a declaration
+6600: [G] source 0, admission phase 0: refused re-declaration
+6603:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6604:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6605:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6606:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6607:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6608:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6609:   [PASS] Listener replay retained the measured decoder timing               got=9520991 exp=9520991
+6610:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6611:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6612:   [PASS] ACTIVE rose within three admission rounds
+6613:   [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+6614:   [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+6615:   [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+6616:   [PASS] the declaration became Talker Failed                               got=2 exp=2
+6617:   [PASS] refused AAF gate never opened                                      got=0 exp=0
+6618:   [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+6619:   [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+6620:   [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+6621:   [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+6622:   [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+6623:   [PASS] refused re-declaration emits no PDU                                got=27 exp=27
+6627:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6628:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6629:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6630:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6631:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6632:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6633:   [PASS] Listener replay retained the measured decoder timing               got=10031299 exp=10031299
+6634:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6635:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6636:   [PASS] ACTIVE rose within three admission rounds
+6637:   [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+6638:   [PASS] licence waits for both ACTIVE and grant
+6640:   [PASS] added start latency fits three admission rounds
+6641:   [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+6642:   [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+6643:   [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+6644:   [PASS] admitted re-declaration still streams
+6645:   [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+6646:   [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+6647: [I] source 0, admission phase 0: refused re-declaration
+6650:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6651:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6652:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6653:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6654:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6655:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6656:   [PASS] Listener replay retained the measured decoder timing               got=10541603 exp=10541603
+6657:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6658:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6659:   [PASS] ACTIVE rose within three admission rounds
+6660:   [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+6661:   [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+6662:   [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+6663:   [PASS] the declaration became Talker Failed                               got=2 exp=2
+6664:   [PASS] refused AAF gate never opened                                      got=0 exp=0
+6665:   [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+6666:   [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+6667:   [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+6668:   [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+6669:   [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+6670:   [PASS] refused re-declaration emits no PDU                                got=51 exp=51
+6674:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6675:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6676:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6677:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6678:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6679:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6680:   [PASS] Listener replay retained the measured decoder timing               got=11051911 exp=11051911
+6681:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6682:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6683:   [PASS] ACTIVE rose within three admission rounds
+6684:   [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+6685:   [PASS] licence waits for both ACTIVE and grant
+6687:   [PASS] added start latency fits three admission rounds
+6688:   [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+6689:   [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+6690:   [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+6691:   [PASS] admitted re-declaration still streams
+6692:   [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+6693:   [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+6694: [G] source 0, admission phase 1: refused re-declaration
+6697:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6698:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6699:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6700:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6701:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6702:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6703:   [PASS] Listener replay retained the measured decoder timing               got=11562214 exp=11562214
+6704:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6705:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6706:   [PASS] ACTIVE rose within three admission rounds
+6707:   [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+6708:   [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+6709:   [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+6710:   [PASS] the declaration became Talker Failed                               got=2 exp=2
+6711:   [PASS] refused AAF gate never opened                                      got=0 exp=0
+6712:   [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+6713:   [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+6714:   [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+6715:   [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+6716:   [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+6717:   [PASS] refused re-declaration emits no PDU                                got=75 exp=75
+6721:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6722:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6723:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6724:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6725:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6726:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6727:   [PASS] Listener replay retained the measured decoder timing               got=12072522 exp=12072522
+6728:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6729:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6730:   [PASS] ACTIVE rose within three admission rounds
+6731:   [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+6732:   [PASS] licence waits for both ACTIVE and grant
+6734:   [PASS] added start latency fits three admission rounds
+6735:   [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+6736:   [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+6737:   [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+6738:   [PASS] admitted re-declaration still streams
+6739:   [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+6740:   [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+6741: [I] source 0, admission phase 1: refused re-declaration
+6744:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6745:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6746:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6747:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6748:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6749:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6750:   [PASS] Listener replay retained the measured decoder timing               got=12582826 exp=12582826
+6751:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6752:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6753:   [PASS] ACTIVE rose within three admission rounds
+6754:   [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+6755:   [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+6756:   [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+6757:   [PASS] the declaration became Talker Failed                               got=2 exp=2
+6758:   [PASS] refused AAF gate never opened                                      got=0 exp=0
+6759:   [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+6760:   [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+6761:   [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+6762:   [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+6763:   [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+6764:   [PASS] refused re-declaration emits no PDU                                got=99 exp=99
+6768:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6769:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6770:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6771:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6772:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6773:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6774:   [PASS] Listener replay retained the measured decoder timing               got=13093134 exp=13093134
+6775:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6776:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6777:   [PASS] ACTIVE rose within three admission rounds
+6778:   [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+6779:   [PASS] licence waits for both ACTIVE and grant
+6781:   [PASS] added start latency fits three admission rounds
+6782:   [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+6783:   [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+6784:   [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+6785:   [PASS] admitted re-declaration still streams
+6786:   [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+6787:   [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+6788:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6789:   [PASS] calibration decoded a real Listener frame
+6790:   [PASS] decoder delay can bracket a declaration
+6791: [G] source 1, admission phase 0: refused re-declaration
+6794:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6795:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6796:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6797:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6798:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6799:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6802:   [PASS] Listener replay retained the measured decoder timing               got=13621629 exp=13621629
+6803:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6804:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6805:   [PASS] ACTIVE rose within three admission rounds
+6806:   [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+6807:   [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+6808:   [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+6809:   [PASS] the declaration became Talker Failed                               got=2 exp=2
+6810:   [PASS] refused CRF licence never opened                                   got=0 exp=0
+6811:   [PASS] refused re-declaration adds no STREAM_START                        got=2 exp=2
+6812:   [PASS] refused re-declaration adds no STREAM_STOP                         got=2 exp=2
+6813:   [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+6814:   [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+6815:   [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+6816:   [PASS] refused re-declaration emits no PDU                                got=160 exp=160
+6817:   [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=160 exp=160
+6821:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6822:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6823:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6824:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6825:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6826:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6829:   [PASS] Listener replay retained the measured decoder timing               got=14131941 exp=14131941
+6830:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6831:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6832:   [PASS] ACTIVE rose within three admission rounds
+6833:   [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+6834:   [PASS] licence waits for both ACTIVE and grant
+6836:   [PASS] added start latency fits three admission rounds
+6837:   [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+6838:   [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+6839:   [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+6840:   [PASS] admitted re-declaration still streams
+6841:   [PASS] admitted re-declaration adds one STREAM_START                      got=3 exp=3
+6842:   [PASS] admitted re-declaration adds no STREAM_STOP                        got=2 exp=2
+6843: [I] source 1, admission phase 0: refused re-declaration
+6846:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6849:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6850:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6851:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6852:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6853:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6856:   [PASS] Listener replay retained the measured decoder timing               got=14642245 exp=14642245
+6857:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6858:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6859:   [PASS] ACTIVE rose within three admission rounds
+6860:   [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+6861:   [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+6862:   [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+6863:   [PASS] the declaration became Talker Failed                               got=2 exp=2
+6864:   [PASS] refused CRF licence never opened                                   got=0 exp=0
+6865:   [PASS] refused re-declaration adds no STREAM_START                        got=3 exp=3
+6866:   [PASS] refused re-declaration adds no STREAM_STOP                         got=3 exp=3
+6867:   [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+6868:   [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+6869:   [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+6870:   [PASS] refused re-declaration emits no PDU                                got=166 exp=166
+6871:   [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=166 exp=166
+6875:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6876:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6877:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6878:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6879:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6880:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6883:   [PASS] Listener replay retained the measured decoder timing               got=15152557 exp=15152557
+6884:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6885:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6886:   [PASS] ACTIVE rose within three admission rounds
+6887:   [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+6888:   [PASS] licence waits for both ACTIVE and grant
+6890:   [PASS] added start latency fits three admission rounds
+6891:   [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+6892:   [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+6893:   [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+6894:   [PASS] admitted re-declaration still streams
+6895:   [PASS] admitted re-declaration adds one STREAM_START                      got=4 exp=4
+6896:   [PASS] admitted re-declaration adds no STREAM_STOP                        got=3 exp=3
+6897: [G] source 1, admission phase 1: refused re-declaration
+6900:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6903:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6904:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6905:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6906:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6907:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6910:   [PASS] Listener replay retained the measured decoder timing               got=15662860 exp=15662860
+6911:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6912:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6913:   [PASS] ACTIVE rose within three admission rounds
+6914:   [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+6915:   [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+6916:   [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+6917:   [PASS] the declaration became Talker Failed                               got=2 exp=2
+6918:   [PASS] refused CRF licence never opened                                   got=0 exp=0
+6919:   [PASS] refused re-declaration adds no STREAM_START                        got=4 exp=4
+6920:   [PASS] refused re-declaration adds no STREAM_STOP                         got=4 exp=4
+6921:   [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+6922:   [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+6923:   [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+6924:   [PASS] refused re-declaration emits no PDU                                got=172 exp=172
+6925:   [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=172 exp=172
+6929:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6930:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6931:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6932:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6933:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6934:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6937:   [PASS] Listener replay retained the measured decoder timing               got=16173172 exp=16173172
+6938:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6939:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6940:   [PASS] ACTIVE rose within three admission rounds
+6941:   [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+6942:   [PASS] licence waits for both ACTIVE and grant
+6944:   [PASS] added start latency fits three admission rounds
+6945:   [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+6946:   [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+6947:   [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+6948:   [PASS] admitted re-declaration still streams
+6949:   [PASS] admitted re-declaration adds one STREAM_START                      got=5 exp=5
+6950:   [PASS] admitted re-declaration adds no STREAM_STOP                        got=4 exp=4
+6951: [I] source 1, admission phase 1: refused re-declaration
+6954:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6957:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6958:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6959:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6960:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6961:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6964:   [PASS] Listener replay retained the measured decoder timing               got=16683476 exp=16683476
+6965:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6966:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6967:   [PASS] ACTIVE rose within three admission rounds
+6968:   [PASS] the ceiling refused the re-declaration throughout                  got=0 exp=0
+6969:   [PASS] the live over-limit bit confirms refusal                           got=1 exp=1
+6970:   [PASS] ACTIVE fell after the optimistic window                            got=0 exp=0
+6971:   [PASS] the declaration became Talker Failed                               got=2 exp=2
+6972:   [PASS] refused CRF licence never opened                                   got=0 exp=0
+6973:   [PASS] refused re-declaration adds no STREAM_START                        got=5 exp=5
+6974:   [PASS] refused re-declaration adds no STREAM_STOP                         got=5 exp=5
+6975:   [PASS] refused re-declaration preserves MEDIA_RESET                       got=17 exp=17
+6976:   [PASS] refused re-declaration preserves TIMESTAMP_UNCERTAIN               got=29 exp=29
+6977:   [PASS] refused re-declaration preserves FRAMES_TX                         got=43 exp=43
+6978:   [PASS] refused re-declaration emits no PDU                                got=178 exp=178
+6979:   [PASS] refused CRF leaves CRFT_COUNT unchanged                            got=178 exp=178
+6983:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6984:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6985:   [PASS] withdrawal cleared the real grant                                  got=0 exp=0
+6986:   [PASS] withdrawal closed ACTIVE                                           got=0 exp=0
+6987:   [PASS] the ACMP declaration still stands                                  got=1 exp=1
+6988:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+6991:   [PASS] Listener replay retained the measured decoder timing               got=17193788 exp=17193788
+6992:   [PASS] Listener Ready registered after re-declaration                     got=2 exp=2
+6993:   [PASS] the optimistic window actually raised ACTIVE                       got=1 exp=1
+6994:   [PASS] ACTIVE rose within three admission rounds
+6995:   [PASS] admitted re-declaration opens the licence once                     got=1 exp=1
+6996:   [PASS] licence waits for both ACTIVE and grant
+6998:   [PASS] added start latency fits three admission rounds
+6999:   [PASS] admitted start resets MEDIA_RESET                                  got=0 exp=0
+7000:   [PASS] admitted start resets TIMESTAMP_UNCERTAIN                          got=0 exp=0
+7001:   [PASS] admitted start resets FRAMES_TX                                    got=0 exp=0
+7002:   [PASS] admitted re-declaration still streams
+7003:   [PASS] admitted re-declaration adds one STREAM_START                      got=6 exp=6
+7004:   [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+7005:   [PASS] SRP service is idle before staging                                 got=0 exp=0
+7009:   [PASS] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=0 exp=0
+7010:   [PASS] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=0 exp=0
+7011:   [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+7014: checks: 416   failures: 0
+7019:   [ok]   ID == 'MILN'                                   = 0x4d494c4e
+7020:   [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+7021:   [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+7022:   [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+7023:   [ok]   [AECP] ...read over a posted access that did not error = 0x1
+7024:   [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+7026:   [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+7027:   [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+7028:   [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+7029:   [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+7030:   [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+7031:   [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+7032:   [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+7033:   [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+7034:   [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+7035:   [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+7036:   [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+7037:   [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+7038:   [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+7039:   [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+7040:   [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+7041:   [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+7042:   [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+7043:   [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+7045:   [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+7046:   [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+7047:   [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+7048:   [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+7049:   [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+7050:   [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+7051:   [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+7052:   [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+7053:   [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+7054:   [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+7055:   [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+7056:   [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+7057:   [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+7058:   [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+7059:   [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+7060:   [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+7062:   [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+7063:   [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+7064:   [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+7065:   [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+7066:   [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+7067:   [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+7068:   [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+7069:   [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+7070:   [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+7071:   [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+7072:   [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+7073:   [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+7076:   [ok]   [DYNMAP] the reset input format is 8 channels  = 0x8
+7077:   [ok]   [DYNMAP] the image declares both ports' clusters = 0x1
+7079:   [ok]   [DYNMAP] power-on SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+7080:   [ok]   [DYNMAP] power-on SPI 0: number_of_maps 1      = 0x1
+7081:   [ok]   [DYNMAP] power-on SPI 0: cdl carries every counted record = 0x58
+7082:   [ok]   [DYNMAP] power-on SPI 0: number_of_mappings    = 0x8
+7083:   [ok]   [DYNMAP] power-on SPI 0: records off the identity = 0x0
+7085:   [ok]   [DYNMAP] power-on SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+7086:   [ok]   [DYNMAP] power-on SPO 0: number_of_maps 1      = 0x1
+7087:   [ok]   [DYNMAP] power-on SPO 0: cdl carries every counted record = 0x58
+7088:   [ok]   [DYNMAP] power-on SPO 0: number_of_mappings    = 0x8
+7089:   [ok]   [DYNMAP] power-on SPO 0: records off the identity = 0x0
+7090:   [ok]   [DYNMAP] power-on: render RAM keys 2..9 hold the input map = 0x0
+7091:   [ok]   [DYNMAP] power-on: capture RAM keys 0..7 hold the output map = 0x0
+7092:   [ok]   [DYNMAP] 8->4 while 4..7 are mapped: SET_STREAM_FORMAT BAD_ARGUMENTS (Milan 5.4.2.7) = 0x7
+7093:   [ok]   [DYNMAP] 8->4 while 4..7 are mapped: GET_STREAM_FORMAT reads the unchanged format = 0x1
+7095:   [i]    refused 8->4 SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+7096:   [ok]   [DYNMAP] refused 8->4 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+7097:   [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_maps 1  = 0x1
+7098:   [ok]   [DYNMAP] refused 8->4 SPI 0: cdl carries every counted record = 0x58
+7099:   [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_mappings = 0x8
+7100:   [ok]   [DYNMAP] refused 8->4 SPI 0: records off the identity = 0x0
+7101:   [i]    refused 8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+7102:   [ok]   [DYNMAP] refused 8->4 SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+7103:   [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_maps 1  = 0x1
+7104:   [ok]   [DYNMAP] refused 8->4 SPO 0: cdl carries every counted record = 0x58
+7105:   [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_mappings = 0x8
+7106:   [ok]   [DYNMAP] refused 8->4 SPO 0: records off the identity = 0x0
+7107:   [ok]   [DYNMAP] REMOVE_AUDIO_MAPPINGS of channels 4..7 SUCCESS = 0x0
+7109:   [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+7110:   [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_maps 1 = 0x1
+7111:   [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: cdl carries every counted record = 0x38
+7112:   [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_mappings = 0x4
+7113:   [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: records off the identity = 0x0
+7114:   [ok]   [DYNMAP] after REMOVE 4..7: render RAM keys 2..9 hold the input map = 0x0
+7115:   [ok]   [DYNMAP] after REMOVE 4..7: capture RAM keys 0..7 hold the output map = 0x0
+7116:   [ok]   [DYNMAP] 8->4: SET_STREAM_FORMAT SUCCESS       = 0x0
+7117:   [ok]   [DYNMAP] 8->4: GET_STREAM_FORMAT reads the new format = 0x1
+7120:   [ok]   [DYNMAP] 8->4 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+7121:   [ok]   [DYNMAP] 8->4 SPI 0: number_of_maps 1          = 0x1
+7122:   [ok]   [DYNMAP] 8->4 SPI 0: cdl carries every counted record = 0x38
+7123:   [ok]   [DYNMAP] 8->4 SPI 0: number_of_mappings        = 0x4
+7124:   [ok]   [DYNMAP] 8->4 SPI 0: records off the identity  = 0x0
+7126:   [ok]   [DYNMAP] 8->4 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+7127:   [ok]   [DYNMAP] 8->4 SPO 0: number_of_maps 1          = 0x1
+7128:   [ok]   [DYNMAP] 8->4 SPO 0: cdl carries every counted record = 0x58
+7129:   [ok]   [DYNMAP] 8->4 SPO 0: number_of_mappings        = 0x8
+7130:   [ok]   [DYNMAP] 8->4 SPO 0: records off the identity  = 0x0
+7131:   [ok]   [DYNMAP] 4->8: SET_STREAM_FORMAT SUCCESS       = 0x0
+7132:   [ok]   [DYNMAP] 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+7135:   [ok]   [DYNMAP] 4->8 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+7136:   [ok]   [DYNMAP] 4->8 SPI 0: number_of_maps 1          = 0x1
+7137:   [ok]   [DYNMAP] 4->8 SPI 0: cdl carries every counted record = 0x38
+7138:   [ok]   [DYNMAP] 4->8 SPI 0: number_of_mappings        = 0x4
+7139:   [ok]   [DYNMAP] 4->8 SPI 0: records off the identity  = 0x0
+7141:   [ok]   [DYNMAP] 4->8 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+7142:   [ok]   [DYNMAP] 4->8 SPO 0: number_of_maps 1          = 0x1
+7143:   [ok]   [DYNMAP] 4->8 SPO 0: cdl carries every counted record = 0x58
+7144:   [ok]   [DYNMAP] 4->8 SPO 0: number_of_mappings        = 0x8
+7145:   [ok]   [DYNMAP] 4->8 SPO 0: records off the identity  = 0x0
+7146:   [ok]   [DYNMAP] 4->8: render RAM keys 2..9 hold the input map = 0x0
+7147:   [ok]   [DYNMAP] 4->8: capture RAM keys 0..7 hold the output map = 0x0
+7148:   [ok]   [DYNMAP] window, output row staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+7149:   [ok]   [DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+7150:   [ok]   [DYNMAP] window, output row invalid again: render RAM keys 2..9 hold the input map = 0x0
+7151:   [ok]   [DYNMAP] window, output row invalid again: capture RAM keys 0..7 hold the output map = 0x0
+7152:   [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+7153:   [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+7154:   [ok]   [DYNMAP] restore: the saved-state window holds a 4 ch input format = 0x1
+7155:   [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+7156:   [ok]   [DYNMAP] restore: the walk applied a record (fail 0, blank 0) = 0x0
+7158:   [ok]   [DYNMAP] restore: GET_STREAM_FORMAT reads the saved 4 ch format = 0x1
+7160:   [ok]   [DYNMAP] restored SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+7161:   [ok]   [DYNMAP] restored SPI 0: number_of_maps 1      = 0x1
+7162:   [ok]   [DYNMAP] restored SPI 0: cdl carries every counted record = 0x38
+7163:   [ok]   [DYNMAP] restored SPI 0: number_of_mappings    = 0x4
+7164:   [ok]   [DYNMAP] restored SPI 0: records off the identity = 0x0
+7166:   [ok]   [DYNMAP] restored SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+7167:   [ok]   [DYNMAP] restored SPO 0: number_of_maps 1      = 0x1
+7168:   [ok]   [DYNMAP] restored SPO 0: cdl carries every counted record = 0x58
+7169:   [ok]   [DYNMAP] restored SPO 0: number_of_mappings    = 0x8
+7170:   [ok]   [DYNMAP] restored SPO 0: records off the identity = 0x0
+7171:   [ok]   [DYNMAP] restored: render RAM keys 2..9 hold the input map = 0x0
+7172:   [ok]   [DYNMAP] restored: capture RAM keys 0..7 hold the output map = 0x0
+7173:   [ok]   [DYNMAP] restored 4->8: SET_STREAM_FORMAT SUCCESS = 0x0
+7174:   [ok]   [DYNMAP] restored 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+7177:   [ok]   [DYNMAP] restored 4->8 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+7178:   [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_maps 1 = 0x1
+7179:   [ok]   [DYNMAP] restored 4->8 SPI 0: cdl carries every counted record = 0x38
+7180:   [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_mappings = 0x4
+7181:   [ok]   [DYNMAP] restored 4->8 SPI 0: records off the identity = 0x0
+7182:   [i]    CSR hold, input: CSR commit at CLOSED-2: store 0x00087, RAM 0x0087 (refused)
+7183:   [i]    CSR hold, input: CSR commit at CLOSED-1: store 0x00087, RAM 0x0087 (refused)
+7184:   [i]    CSR hold, input: CSR commit at CLOSED+0: store 0x00087, RAM 0x0087 (refused)
+7185:   [i]    CSR hold, input: CSR commit at CLOSED+1: store 0x00087, RAM 0x0087 (refused)
+7186:   [i]    CSR hold, input: CSR commit at CLOSED+2: store 0x00087, RAM 0x0087 (refused)
+7187:   [i]    CSR hold, input: CSR commit at CLOSED+3: store 0x00087, RAM 0x0087 (refused)
+7188:   [i]    CSR hold, input: CSR commit at CLOSED+4: store 0x00087, RAM 0x0087 (refused)
+7189:   [i]    CSR hold, input: CSR commit at CLOSED+5: store 0x00087, RAM 0x0087 (refused)
+7190:   [i]    CSR hold, input: CSR commit at CLOSED+6: store 0x00087, RAM 0x0087 (refused)
+7191:   [i]    CSR hold, input: CSR commit at CLOSED+7: store 0x00087, RAM 0x0087 (refused)
+7192:   [i]    CSR hold, input: CSR commit at CLOSED+8: store 0x00087, RAM 0x0087 (refused)
+7193:   [i]    CSR hold, input: CSR commit at CLOSED+9: store 0x00087, RAM 0x0087 (refused)
+7197:   [ok]   [DYNMAP] CSR hold, input: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+7198:   [ok]   [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM = 0x0
+7199:   [ok]   [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED = 0x0
+7200:   [ok]   [DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended = 0x0
+7201:   [i]    CSR hold, output: CSR commit at CLOSED-2: store 0x10007, RAM 0x1a03 (refused)
+7202:   [i]    CSR hold, output: CSR commit at CLOSED-1: store 0x10007, RAM 0x1a03 (refused)
+7203:   [i]    CSR hold, output: CSR commit at CLOSED+0: store 0x10007, RAM 0x1a03 (refused)
+7204:   [i]    CSR hold, output: CSR commit at CLOSED+1: store 0x10007, RAM 0x1a03 (refused)
+7205:   [i]    CSR hold, output: CSR commit at CLOSED+2: store 0x10007, RAM 0x1a03 (refused)
+7206:   [i]    CSR hold, output: CSR commit at CLOSED+3: store 0x10007, RAM 0x1a03 (refused)
+7207:   [i]    CSR hold, output: CSR commit at CLOSED+4: store 0x10007, RAM 0x1a03 (refused)
+7208:   [i]    CSR hold, output: CSR commit at CLOSED+5: store 0x10007, RAM 0x1a03 (refused)
+7209:   [i]    CSR hold, output: CSR commit at CLOSED+6: store 0x10007, RAM 0x1a03 (refused)
+7210:   [i]    CSR hold, output: CSR commit at CLOSED+7: store 0x10007, RAM 0x1a03 (refused)
+7211:   [i]    CSR hold, output: CSR commit at CLOSED+8: store 0x10007, RAM 0x1a03 (refused)
+7212:   [i]    CSR hold, output: CSR commit at CLOSED+9: store 0x10007, RAM 0x1a03 (refused)
+7216:   [ok]   [DYNMAP] CSR hold, output: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+7217:   [ok]   [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM = 0x0
+7218:   [ok]   [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED = 0x0
+7219:   [ok]   [DYNMAP] CSR hold, output: CSR lands in both once the sweep after CLOSED has ended = 0x0
+7220:   [ok]   [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+7221:   [ok]   [DYNMAP] window, both rows staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+7222:   [ok]   [DYNMAP] CLOSED on the roll-back's clock: both stores hold the whole image = 0x0
+7223:   [ok]   [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map = 0x0
+7224:   [ok]   [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map = 0x0
+7225:   [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+7226:   [ok]   [DYNMAP] edit meets the sweep: REMOVE of the top two output channels SUCCESS = 0x0
+7228:   [ok]   [DYNMAP] edit meets the sweep: ADD of the moved channel SUCCESS = 0x0
+7229:   [ok]   [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends = 0x1
+7230:   [ok]   [DYNMAP] edit meets the sweep: GET reads the moved channel on its new cluster = 0x1
+7231:   [ok]   [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word = 0x1203
+7232:   [ok]   [DYNMAP] edit meets the sweep: the removed channel's capture key stays empty = 0x0
+7233:   [ok]   [DYNMAP] every identity page ran (vacuity guard) = 0xc
+7235: checks: 162   failures: 0
+7239:   [ok]   ID == 'MILN'                                   = 0x4d494c4e
+7240:   [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+7241:   [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+7242:   [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+7243:   [ok]   [AECP] ...read over a posted access that did not error = 0x1
+7244:   [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+7246:   [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+7247:   [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+7248:   [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+7249:   [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+7250:   [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+7251:   [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+7252:   [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+7253:   [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+7254:   [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+7255:   [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+7256:   [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+7257:   [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+7258:   [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+7259:   [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+7260:   [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+7261:   [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+7262:   [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+7263:   [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+7265:   [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+7266:   [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+7267:   [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+7268:   [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+7269:   [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+7270:   [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+7271:   [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+7272:   [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+7273:   [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+7274:   [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xaa
+7275:   [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xc4
+7276:   [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+7277:   [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+7278:   [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+7279:   [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+7280:   [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+7282:   [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+7283:   [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+7284:   [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+7285:   [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+7286:   [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+7287:   [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+7288:   [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+7289:   [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+7290:   [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+7291:   [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+7292:   [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+7293:   [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+7294:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the image HAS this descriptor = 0x1
+7295:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7296:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7297:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: status SUCCESS(0) = 0x0
+7298:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: sequence_id echoed = 0x4100
+7299:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: command_type echoed, u = 0 = 0x4
+7300:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: cdl = 12 + 4 + the descriptor = 0x148
+7301:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the frame is as long as it claims = 0x162
+7302:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: configuration_index @24 echoed = 0x0
+7303:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: reserved @26 is zero = 0x0
+7304:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: the bytes ARE the image's, exactly = 0x0
+7305:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: descriptor_type field @28 = 0x0
+7306:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 000000 index 0: descriptor_index field @30 = 0x0
+7307:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the image HAS this descriptor = 0x1
+7308:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7309:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7310:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: status SUCCESS(0) = 0x0
+7311:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: sequence_id echoed = 0x4101
+7312:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: command_type echoed, u = 0 = 0x4
+7313:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: cdl = 12 + 4 + the descriptor = 0x7a
+7314:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the frame is as long as it claims = 0x94
+7315:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: configuration_index @24 echoed = 0x0
+7316:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: reserved @26 is zero = 0x0
+7317:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: the bytes ARE the image's, exactly = 0x0
+7318:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: descriptor_type field @28 = 0x1
+7319:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0001 index 0: descriptor_index field @30 = 0x0
+7320:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the image HAS this descriptor = 0x1
+7321:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7322:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7323:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: status SUCCESS(0) = 0x0
+7324:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: sequence_id echoed = 0x4102
+7325:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: command_type echoed, u = 0 = 0x4
+7326:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: cdl = 12 + 4 + the descriptor = 0xa4
+7327:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the frame is as long as it claims = 0xbe
+7328:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: configuration_index @24 echoed = 0x0
+7329:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: reserved @26 is zero = 0x0
+7330:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: the bytes ARE the image's, exactly = 0x0
+7331:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: descriptor_type field @28 = 0x2
+7332:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0002 index 0: descriptor_index field @30 = 0x0
+7333:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the image HAS this descriptor = 0x1
+7334:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7335:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7336:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: status SUCCESS(0) = 0x0
+7337:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: sequence_id echoed = 0x4103
+7338:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: command_type echoed, u = 0 = 0x4
+7339:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: cdl = 12 + 4 + the descriptor = 0xaa
+7340:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the frame is as long as it claims = 0xc4
+7341:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: configuration_index @24 echoed = 0x0
+7342:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: reserved @26 is zero = 0x0
+7343:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: the bytes ARE the image's, exactly = 0x0
+7344:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: descriptor_type field @28 = 0x5
+7345:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 0: descriptor_index field @30 = 0x0
+7346:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the image HAS this descriptor = 0x1
+7347:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+7348:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+7349:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: status SUCCESS(0) = 0x0
+7350:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: sequence_id echoed = 0x4104
+7351:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: command_type echoed, u = 0 = 0x4
+7352:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: cdl = 12 + 4 + the descriptor = 0xaa
+7353:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the frame is as long as it claims = 0xc4
+7354:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: configuration_index @24 echoed = 0x0
+7355:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: reserved @26 is zero = 0x0
+7356:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: the bytes ARE the image's, exactly = 0x0
+7357:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: descriptor_type field @28 = 0x5
+7358:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 1: descriptor_index field @30 = 0x1
+7359:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the image HAS this descriptor = 0x1
+7360:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+7361:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+7362:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: status SUCCESS(0) = 0x0
+7363:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: sequence_id echoed = 0x4105
+7364:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: command_type echoed, u = 0 = 0x4
+7365:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: cdl = 12 + 4 + the descriptor = 0xaa
+7366:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the frame is as long as it claims = 0xc4
+7367:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: configuration_index @24 echoed = 0x0
+7368:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: reserved @26 is zero = 0x0
+7369:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: the bytes ARE the image's, exactly = 0x0
+7370:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: descriptor_type field @28 = 0x5
+7371:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 2: descriptor_index field @30 = 0x2
+7372:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the image HAS this descriptor = 0x1
+7373:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+7374:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+7375:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: status SUCCESS(0) = 0x0
+7376:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: sequence_id echoed = 0x4106
+7377:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: command_type echoed, u = 0 = 0x4
+7378:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: cdl = 12 + 4 + the descriptor = 0xaa
+7379:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the frame is as long as it claims = 0xc4
+7380:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: configuration_index @24 echoed = 0x0
+7381:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: reserved @26 is zero = 0x0
+7382:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: the bytes ARE the image's, exactly = 0x0
+7383:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: descriptor_type field @28 = 0x5
+7384:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 3: descriptor_index field @30 = 0x3
+7385:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the image HAS this descriptor = 0x1
+7386:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+7387:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+7388:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: status SUCCESS(0) = 0x0
+7389:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: sequence_id echoed = 0x4107
+7390:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: command_type echoed, u = 0 = 0x4
+7391:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: cdl = 12 + 4 + the descriptor = 0xa2
+7392:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the frame is as long as it claims = 0xbc
+7393:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: configuration_index @24 echoed = 0x0
+7394:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: reserved @26 is zero = 0x0
+7395:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: the bytes ARE the image's, exactly = 0x0
+7396:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: descriptor_type field @28 = 0x5
+7397:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0005 index 4: descriptor_index field @30 = 0x4
+7398:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the image HAS this descriptor = 0x1
+7399:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7400:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7401:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: status SUCCESS(0) = 0x0
+7402:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: sequence_id echoed = 0x4108
+7403:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: command_type echoed, u = 0 = 0x4
+7404:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: cdl = 12 + 4 + the descriptor = 0xa2
+7405:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the frame is as long as it claims = 0xbc
+7406:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: configuration_index @24 echoed = 0x0
+7407:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: reserved @26 is zero = 0x0
+7408:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: the bytes ARE the image's, exactly = 0x0
+7409:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: descriptor_type field @28 = 0x6
+7410:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 0: descriptor_index field @30 = 0x0
+7411:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the image HAS this descriptor = 0x1
+7412:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+7413:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+7414:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: status SUCCESS(0) = 0x0
+7415:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: sequence_id echoed = 0x4109
+7416:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: command_type echoed, u = 0 = 0x4
+7417:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: cdl = 12 + 4 + the descriptor = 0xa2
+7418:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the frame is as long as it claims = 0xbc
+7419:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: configuration_index @24 echoed = 0x0
+7420:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: reserved @26 is zero = 0x0
+7421:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: the bytes ARE the image's, exactly = 0x0
+7422:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: descriptor_type field @28 = 0x6
+7423:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 1: descriptor_index field @30 = 0x1
+7424:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the image HAS this descriptor = 0x1
+7425:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+7426:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+7427:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: status SUCCESS(0) = 0x0
+7428:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: sequence_id echoed = 0x410a
+7429:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: command_type echoed, u = 0 = 0x4
+7430:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: cdl = 12 + 4 + the descriptor = 0xa2
+7431:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the frame is as long as it claims = 0xbc
+7432:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: configuration_index @24 echoed = 0x0
+7433:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: reserved @26 is zero = 0x0
+7434:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: the bytes ARE the image's, exactly = 0x0
+7435:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: descriptor_type field @28 = 0x6
+7436:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 2: descriptor_index field @30 = 0x2
+7437:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the image HAS this descriptor = 0x1
+7438:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+7439:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+7440:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: status SUCCESS(0) = 0x0
+7441:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: sequence_id echoed = 0x410b
+7442:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: command_type echoed, u = 0 = 0x4
+7443:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: cdl = 12 + 4 + the descriptor = 0xa2
+7444:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the frame is as long as it claims = 0xbc
+7445:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: configuration_index @24 echoed = 0x0
+7446:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: reserved @26 is zero = 0x0
+7447:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: the bytes ARE the image's, exactly = 0x0
+7448:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: descriptor_type field @28 = 0x6
+7449:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 3: descriptor_index field @30 = 0x3
+7450:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the image HAS this descriptor = 0x1
+7451:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+7452:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+7453:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: status SUCCESS(0) = 0x0
+7454:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: sequence_id echoed = 0x410c
+7455:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: command_type echoed, u = 0 = 0x4
+7456:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: cdl = 12 + 4 + the descriptor = 0xa2
+7457:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the frame is as long as it claims = 0xbc
+7458:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: configuration_index @24 echoed = 0x0
+7459:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: reserved @26 is zero = 0x0
+7460:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: the bytes ARE the image's, exactly = 0x0
+7461:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: descriptor_type field @28 = 0x6
+7462:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0006 index 4: descriptor_index field @30 = 0x4
+7463:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the image HAS this descriptor = 0x1
+7464:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7465:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7466:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: status SUCCESS(0) = 0x0
+7467:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: sequence_id echoed = 0x410d
+7468:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: command_type echoed, u = 0 = 0x4
+7469:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: cdl = 12 + 4 + the descriptor = 0x76
+7470:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the frame is as long as it claims = 0x90
+7471:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: configuration_index @24 echoed = 0x0
+7472:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: reserved @26 is zero = 0x0
+7473:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: the bytes ARE the image's, exactly = 0x0
+7474:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: descriptor_type field @28 = 0x9
+7475:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0009 index 0: descriptor_index field @30 = 0x0
+7476:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the image HAS this descriptor = 0x1
+7477:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7478:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7479:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: status SUCCESS(0) = 0x0
+7480:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: sequence_id echoed = 0x410e
+7481:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: command_type echoed, u = 0 = 0x4
+7482:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: cdl = 12 + 4 + the descriptor = 0x66
+7483:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the frame is as long as it claims = 0x80
+7484:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: configuration_index @24 echoed = 0x0
+7485:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: reserved @26 is zero = 0x0
+7486:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: the bytes ARE the image's, exactly = 0x0
+7487:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: descriptor_type field @28 = 0xa
+7488:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 0: descriptor_index field @30 = 0x0
+7489:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the image HAS this descriptor = 0x1
+7490:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+7491:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: an AEM_RESPONSE (message_type 1) = 0x1
+7492:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: status SUCCESS(0) = 0x0
+7493:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: sequence_id echoed = 0x410f
+7494:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: command_type echoed, u = 0 = 0x4
+7495:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: cdl = 12 + 4 + the descriptor = 0x66
+7496:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the frame is as long as it claims = 0x80
+7497:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: configuration_index @24 echoed = 0x0
+7498:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: reserved @26 is zero = 0x0
+7499:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: the bytes ARE the image's, exactly = 0x0
+7500:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: descriptor_type field @28 = 0xa
+7501:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 1: descriptor_index field @30 = 0x1
+7502:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: the image HAS this descriptor = 0x1
+7503:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+7504:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: an AEM_RESPONSE (message_type 1) = 0x1
+7505:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: status SUCCESS(0) = 0x0
+7506:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: sequence_id echoed = 0x4110
+7507:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: command_type echoed, u = 0 = 0x4
+7508:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: cdl = 12 + 4 + the descriptor = 0x66
+7509:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: the frame is as long as it claims = 0x80
+7510:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: configuration_index @24 echoed = 0x0
+7511:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: reserved @26 is zero = 0x0
+7512:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: the bytes ARE the image's, exactly = 0x0
+7513:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: descriptor_type field @28 = 0xa
+7514:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 2: descriptor_index field @30 = 0x2
+7515:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: the image HAS this descriptor = 0x1
+7516:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+7517:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: an AEM_RESPONSE (message_type 1) = 0x1
+7518:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: status SUCCESS(0) = 0x0
+7519:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: sequence_id echoed = 0x4111
+7520:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: command_type echoed, u = 0 = 0x4
+7521:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: cdl = 12 + 4 + the descriptor = 0x66
+7522:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: the frame is as long as it claims = 0x80
+7523:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: configuration_index @24 echoed = 0x0
+7524:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: reserved @26 is zero = 0x0
+7525:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: the bytes ARE the image's, exactly = 0x0
+7526:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: descriptor_type field @28 = 0xa
+7527:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 3: descriptor_index field @30 = 0x3
+7528:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: the image HAS this descriptor = 0x1
+7529:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+7530:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: an AEM_RESPONSE (message_type 1) = 0x1
+7531:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: status SUCCESS(0) = 0x0
+7532:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: sequence_id echoed = 0x4112
+7533:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: command_type echoed, u = 0 = 0x4
+7534:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: cdl = 12 + 4 + the descriptor = 0x66
+7535:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: the frame is as long as it claims = 0x80
+7536:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: configuration_index @24 echoed = 0x0
+7537:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: reserved @26 is zero = 0x0
+7538:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: the bytes ARE the image's, exactly = 0x0
+7539:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: descriptor_type field @28 = 0xa
+7540:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 4: descriptor_index field @30 = 0x4
+7541:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: the image HAS this descriptor = 0x1
+7542:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+7543:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: an AEM_RESPONSE (message_type 1) = 0x1
+7544:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: status SUCCESS(0) = 0x0
+7545:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: sequence_id echoed = 0x4113
+7546:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: command_type echoed, u = 0 = 0x4
+7547:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: cdl = 12 + 4 + the descriptor = 0x66
+7548:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: the frame is as long as it claims = 0x80
+7549:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: configuration_index @24 echoed = 0x0
+7550:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: reserved @26 is zero = 0x0
+7551:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: the bytes ARE the image's, exactly = 0x0
+7552:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: descriptor_type field @28 = 0xa
+7553:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000a index 5: descriptor_index field @30 = 0x5
+7554:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: the image HAS this descriptor = 0x1
+7555:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7556:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7557:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: status SUCCESS(0) = 0x0
+7558:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: sequence_id echoed = 0x4114
+7559:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: command_type echoed, u = 0 = 0x4
+7560:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: cdl = 12 + 4 + the descriptor = 0x58
+7561:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: the frame is as long as it claims = 0x72
+7562:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: configuration_index @24 echoed = 0x0
+7563:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: reserved @26 is zero = 0x0
+7564:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: the bytes ARE the image's, exactly = 0x0
+7565:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: descriptor_type field @28 = 0xc
+7566:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000c index 0: descriptor_index field @30 = 0x0
+7567:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: the image HAS this descriptor = 0x1
+7568:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7569:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7570:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: status SUCCESS(0) = 0x0
+7571:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: sequence_id echoed = 0x4115
+7572:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: command_type echoed, u = 0 = 0x4
+7573:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: cdl = 12 + 4 + the descriptor = 0x1d4
+7574:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: the frame is as long as it claims = 0x1ee
+7575:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: configuration_index @24 echoed = 0x0
+7576:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: reserved @26 is zero = 0x0
+7577:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: the bytes ARE the image's, exactly = 0x0
+7578:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: descriptor_type field @28 = 0xd
+7579:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000d index 0: descriptor_index field @30 = 0x0
+7580:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: the image HAS this descriptor = 0x1
+7581:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7582:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7583:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: status SUCCESS(0) = 0x0
+7584:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: sequence_id echoed = 0x4116
+7585:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: command_type echoed, u = 0 = 0x4
+7586:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: cdl = 12 + 4 + the descriptor = 0x24
+7587:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: the frame is as long as it claims = 0x3e
+7588:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: configuration_index @24 echoed = 0x0
+7589:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: reserved @26 is zero = 0x0
+7590:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: the bytes ARE the image's, exactly = 0x0
+7591:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: descriptor_type field @28 = 0xe
+7592:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 0: descriptor_index field @30 = 0x0
+7593:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: the image HAS this descriptor = 0x1
+7594:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+7595:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: an AEM_RESPONSE (message_type 1) = 0x1
+7596:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: status SUCCESS(0) = 0x0
+7597:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: sequence_id echoed = 0x4117
+7598:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: command_type echoed, u = 0 = 0x4
+7599:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: cdl = 12 + 4 + the descriptor = 0x24
+7600:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: the frame is as long as it claims = 0x3e
+7601:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: configuration_index @24 echoed = 0x0
+7602:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: reserved @26 is zero = 0x0
+7603:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: the bytes ARE the image's, exactly = 0x0
+7604:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: descriptor_type field @28 = 0xe
+7605:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 1: descriptor_index field @30 = 0x1
+7606:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: the image HAS this descriptor = 0x1
+7607:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+7608:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: an AEM_RESPONSE (message_type 1) = 0x1
+7609:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: status SUCCESS(0) = 0x0
+7610:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: sequence_id echoed = 0x4118
+7611:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: command_type echoed, u = 0 = 0x4
+7612:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: cdl = 12 + 4 + the descriptor = 0x24
+7613:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: the frame is as long as it claims = 0x3e
+7614:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: configuration_index @24 echoed = 0x0
+7615:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: reserved @26 is zero = 0x0
+7616:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: the bytes ARE the image's, exactly = 0x0
+7617:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: descriptor_type field @28 = 0xe
+7618:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 2: descriptor_index field @30 = 0x2
+7619:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: the image HAS this descriptor = 0x1
+7620:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+7621:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: an AEM_RESPONSE (message_type 1) = 0x1
+7622:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: status SUCCESS(0) = 0x0
+7623:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: sequence_id echoed = 0x4119
+7624:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: command_type echoed, u = 0 = 0x4
+7625:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: cdl = 12 + 4 + the descriptor = 0x24
+7626:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: the frame is as long as it claims = 0x3e
+7627:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: configuration_index @24 echoed = 0x0
+7628:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: reserved @26 is zero = 0x0
+7629:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: the bytes ARE the image's, exactly = 0x0
+7630:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: descriptor_type field @28 = 0xe
+7631:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000e index 3: descriptor_index field @30 = 0x3
+7632:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: the image HAS this descriptor = 0x1
+7633:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7634:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7635:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: status SUCCESS(0) = 0x0
+7636:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: sequence_id echoed = 0x411a
+7637:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: command_type echoed, u = 0 = 0x4
+7638:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: cdl = 12 + 4 + the descriptor = 0x24
+7639:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: the frame is as long as it claims = 0x3e
+7640:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: configuration_index @24 echoed = 0x0
+7641:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: reserved @26 is zero = 0x0
+7642:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: the bytes ARE the image's, exactly = 0x0
+7643:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: descriptor_type field @28 = 0xf
+7644:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 0: descriptor_index field @30 = 0x0
+7645:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: the image HAS this descriptor = 0x1
+7646:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+7647:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: an AEM_RESPONSE (message_type 1) = 0x1
+7648:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: status SUCCESS(0) = 0x0
+7649:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: sequence_id echoed = 0x411b
+7650:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: command_type echoed, u = 0 = 0x4
+7651:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: cdl = 12 + 4 + the descriptor = 0x24
+7652:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: the frame is as long as it claims = 0x3e
+7653:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: configuration_index @24 echoed = 0x0
+7654:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: reserved @26 is zero = 0x0
+7655:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: the bytes ARE the image's, exactly = 0x0
+7656:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: descriptor_type field @28 = 0xf
+7657:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 1: descriptor_index field @30 = 0x1
+7658:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: the image HAS this descriptor = 0x1
+7659:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+7660:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: an AEM_RESPONSE (message_type 1) = 0x1
+7661:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: status SUCCESS(0) = 0x0
+7662:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: sequence_id echoed = 0x411c
+7663:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: command_type echoed, u = 0 = 0x4
+7664:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: cdl = 12 + 4 + the descriptor = 0x24
+7665:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: the frame is as long as it claims = 0x3e
+7666:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: configuration_index @24 echoed = 0x0
+7667:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: reserved @26 is zero = 0x0
+7668:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: the bytes ARE the image's, exactly = 0x0
+7669:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: descriptor_type field @28 = 0xf
+7670:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 2: descriptor_index field @30 = 0x2
+7671:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: the image HAS this descriptor = 0x1
+7672:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+7673:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: an AEM_RESPONSE (message_type 1) = 0x1
+7674:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: status SUCCESS(0) = 0x0
+7675:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: sequence_id echoed = 0x411d
+7676:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: command_type echoed, u = 0 = 0x4
+7677:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: cdl = 12 + 4 + the descriptor = 0x24
+7678:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: the frame is as long as it claims = 0x3e
+7679:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: configuration_index @24 echoed = 0x0
+7680:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: reserved @26 is zero = 0x0
+7681:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: the bytes ARE the image's, exactly = 0x0
+7682:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: descriptor_type field @28 = 0xf
+7683:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x000f index 3: descriptor_index field @30 = 0x3
+7684:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: the image HAS this descriptor = 0x1
+7685:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: READ_DESCRIPTOR was ANSWERED = 0x1
+7686:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: an AEM_RESPONSE (message_type 1) = 0x1
+7687:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: status SUCCESS(0) = 0x0
+7688:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: sequence_id echoed = 0x411e
+7689:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: command_type echoed, u = 0 = 0x4
+7690:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: cdl = 12 + 4 + the descriptor = 0x6a
+7691:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: the frame is as long as it claims = 0x84
+7692:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: configuration_index @24 echoed = 0x0
+7693:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: reserved @26 is zero = 0x0
+7694:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: the bytes ARE the image's, exactly = 0x0
+7695:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: descriptor_type field @28 = 0x14
+7696:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 0: descriptor_index field @30 = 0x0
+7697:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: the image HAS this descriptor = 0x1
+7698:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: READ_DESCRIPTOR was ANSWERED = 0x1
+7699:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: an AEM_RESPONSE (message_type 1) = 0x1
+7700:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: status SUCCESS(0) = 0x0
+7701:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: sequence_id echoed = 0x411f
+7702:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: command_type echoed, u = 0 = 0x4
+7703:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: cdl = 12 + 4 + the descriptor = 0x6a
+7704:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: the frame is as long as it claims = 0x84
+7705:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: configuration_index @24 echoed = 0x0
+7706:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: reserved @26 is zero = 0x0
+7707:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: the bytes ARE the image's, exactly = 0x0
+7708:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: descriptor_type field @28 = 0x14
+7709:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 1: descriptor_index field @30 = 0x1
+7710:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: the image HAS this descriptor = 0x1
+7711:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: READ_DESCRIPTOR was ANSWERED = 0x1
+7712:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: an AEM_RESPONSE (message_type 1) = 0x1
+7713:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: status SUCCESS(0) = 0x0
+7714:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: sequence_id echoed = 0x4120
+7715:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: command_type echoed, u = 0 = 0x4
+7716:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: cdl = 12 + 4 + the descriptor = 0x6a
+7717:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: the frame is as long as it claims = 0x84
+7718:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: configuration_index @24 echoed = 0x0
+7719:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: reserved @26 is zero = 0x0
+7720:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: the bytes ARE the image's, exactly = 0x0
+7721:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: descriptor_type field @28 = 0x14
+7722:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 2: descriptor_index field @30 = 0x2
+7723:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: the image HAS this descriptor = 0x1
+7724:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: READ_DESCRIPTOR was ANSWERED = 0x1
+7725:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: an AEM_RESPONSE (message_type 1) = 0x1
+7726:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: status SUCCESS(0) = 0x0
+7727:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: sequence_id echoed = 0x4121
+7728:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: command_type echoed, u = 0 = 0x4
+7729:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: cdl = 12 + 4 + the descriptor = 0x6a
+7730:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: the frame is as long as it claims = 0x84
+7731:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: configuration_index @24 echoed = 0x0
+7732:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: reserved @26 is zero = 0x0
+7733:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: the bytes ARE the image's, exactly = 0x0
+7734:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: descriptor_type field @28 = 0x14
+7735:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 3: descriptor_index field @30 = 0x3
+7736:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: the image HAS this descriptor = 0x1
+7737:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: READ_DESCRIPTOR was ANSWERED = 0x1
+7738:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: an AEM_RESPONSE (message_type 1) = 0x1
+7739:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: status SUCCESS(0) = 0x0
+7740:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: sequence_id echoed = 0x4122
+7741:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: command_type echoed, u = 0 = 0x4
+7742:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: cdl = 12 + 4 + the descriptor = 0x6a
+7743:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: the frame is as long as it claims = 0x84
+7744:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: configuration_index @24 echoed = 0x0
+7745:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: reserved @26 is zero = 0x0
+7746:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: the bytes ARE the image's, exactly = 0x0
+7747:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: descriptor_type field @28 = 0x14
+7748:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 4: descriptor_index field @30 = 0x4
+7749:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: the image HAS this descriptor = 0x1
+7750:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: READ_DESCRIPTOR was ANSWERED = 0x1
+7751:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: an AEM_RESPONSE (message_type 1) = 0x1
+7752:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: status SUCCESS(0) = 0x0
+7753:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: sequence_id echoed = 0x4123
+7754:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: command_type echoed, u = 0 = 0x4
+7755:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: cdl = 12 + 4 + the descriptor = 0x6a
+7756:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: the frame is as long as it claims = 0x84
+7757:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: configuration_index @24 echoed = 0x0
+7758:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: reserved @26 is zero = 0x0
+7759:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: the bytes ARE the image's, exactly = 0x0
+7760:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: descriptor_type field @28 = 0x14
+7761:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 5: descriptor_index field @30 = 0x5
+7762:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: the image HAS this descriptor = 0x1
+7763:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: READ_DESCRIPTOR was ANSWERED = 0x1
+7764:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: an AEM_RESPONSE (message_type 1) = 0x1
+7765:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: status SUCCESS(0) = 0x0
+7766:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: sequence_id echoed = 0x4124
+7767:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: command_type echoed, u = 0 = 0x4
+7768:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: cdl = 12 + 4 + the descriptor = 0x6a
+7769:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: the frame is as long as it claims = 0x84
+7770:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: configuration_index @24 echoed = 0x0
+7771:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: reserved @26 is zero = 0x0
+7772:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: the bytes ARE the image's, exactly = 0x0
+7773:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: descriptor_type field @28 = 0x14
+7774:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 6: descriptor_index field @30 = 0x6
+7775:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: the image HAS this descriptor = 0x1
+7776:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: READ_DESCRIPTOR was ANSWERED = 0x1
+7777:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: an AEM_RESPONSE (message_type 1) = 0x1
+7778:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: status SUCCESS(0) = 0x0
+7779:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: sequence_id echoed = 0x4125
+7780:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: command_type echoed, u = 0 = 0x4
+7781:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: cdl = 12 + 4 + the descriptor = 0x6a
+7782:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: the frame is as long as it claims = 0x84
+7783:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: configuration_index @24 echoed = 0x0
+7784:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: reserved @26 is zero = 0x0
+7785:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: the bytes ARE the image's, exactly = 0x0
+7786:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: descriptor_type field @28 = 0x14
+7787:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 7: descriptor_index field @30 = 0x7
+7788:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: the image HAS this descriptor = 0x1
+7789:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: READ_DESCRIPTOR was ANSWERED = 0x1
+7790:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: an AEM_RESPONSE (message_type 1) = 0x1
+7791:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: status SUCCESS(0) = 0x0
+7792:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: sequence_id echoed = 0x4126
+7793:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: command_type echoed, u = 0 = 0x4
+7794:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: cdl = 12 + 4 + the descriptor = 0x6a
+7795:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: the frame is as long as it claims = 0x84
+7796:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: configuration_index @24 echoed = 0x0
+7797:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: reserved @26 is zero = 0x0
+7798:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: the bytes ARE the image's, exactly = 0x0
+7799:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: descriptor_type field @28 = 0x14
+7800:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 8: descriptor_index field @30 = 0x8
+7801:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: the image HAS this descriptor = 0x1
+7802:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: READ_DESCRIPTOR was ANSWERED = 0x1
+7803:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: an AEM_RESPONSE (message_type 1) = 0x1
+7804:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: status SUCCESS(0) = 0x0
+7805:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: sequence_id echoed = 0x4127
+7806:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: command_type echoed, u = 0 = 0x4
+7807:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: cdl = 12 + 4 + the descriptor = 0x6a
+7808:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: the frame is as long as it claims = 0x84
+7809:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: configuration_index @24 echoed = 0x0
+7810:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: reserved @26 is zero = 0x0
+7811:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: the bytes ARE the image's, exactly = 0x0
+7812:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: descriptor_type field @28 = 0x14
+7813:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 9: descriptor_index field @30 = 0x9
+7814:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: the image HAS this descriptor = 0x1
+7815:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: READ_DESCRIPTOR was ANSWERED = 0x1
+7816:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: an AEM_RESPONSE (message_type 1) = 0x1
+7817:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: status SUCCESS(0) = 0x0
+7818:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: sequence_id echoed = 0x4128
+7819:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: command_type echoed, u = 0 = 0x4
+7820:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: cdl = 12 + 4 + the descriptor = 0x6a
+7821:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: the frame is as long as it claims = 0x84
+7822:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: configuration_index @24 echoed = 0x0
+7823:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: reserved @26 is zero = 0x0
+7824:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: the bytes ARE the image's, exactly = 0x0
+7825:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: descriptor_type field @28 = 0x14
+7826:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 10: descriptor_index field @30 = 0xa
+7827:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: the image HAS this descriptor = 0x1
+7828:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: READ_DESCRIPTOR was ANSWERED = 0x1
+7829:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: an AEM_RESPONSE (message_type 1) = 0x1
+7830:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: status SUCCESS(0) = 0x0
+7831:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: sequence_id echoed = 0x4129
+7832:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: command_type echoed, u = 0 = 0x4
+7833:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: cdl = 12 + 4 + the descriptor = 0x6a
+7834:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: the frame is as long as it claims = 0x84
+7835:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: configuration_index @24 echoed = 0x0
+7836:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: reserved @26 is zero = 0x0
+7837:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: the bytes ARE the image's, exactly = 0x0
+7838:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: descriptor_type field @28 = 0x14
+7839:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 11: descriptor_index field @30 = 0xb
+7840:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: the image HAS this descriptor = 0x1
+7841:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: READ_DESCRIPTOR was ANSWERED = 0x1
+7842:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: an AEM_RESPONSE (message_type 1) = 0x1
+7843:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: status SUCCESS(0) = 0x0
+7844:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: sequence_id echoed = 0x412a
+7845:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: command_type echoed, u = 0 = 0x4
+7846:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: cdl = 12 + 4 + the descriptor = 0x6a
+7847:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: the frame is as long as it claims = 0x84
+7848:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: configuration_index @24 echoed = 0x0
+7849:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: reserved @26 is zero = 0x0
+7850:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: the bytes ARE the image's, exactly = 0x0
+7851:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: descriptor_type field @28 = 0x14
+7852:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 12: descriptor_index field @30 = 0xc
+7853:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: the image HAS this descriptor = 0x1
+7854:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: READ_DESCRIPTOR was ANSWERED = 0x1
+7855:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: an AEM_RESPONSE (message_type 1) = 0x1
+7856:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: status SUCCESS(0) = 0x0
+7857:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: sequence_id echoed = 0x412b
+7858:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: command_type echoed, u = 0 = 0x4
+7859:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: cdl = 12 + 4 + the descriptor = 0x6a
+7860:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: the frame is as long as it claims = 0x84
+7861:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: configuration_index @24 echoed = 0x0
+7862:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: reserved @26 is zero = 0x0
+7863:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: the bytes ARE the image's, exactly = 0x0
+7864:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: descriptor_type field @28 = 0x14
+7865:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 13: descriptor_index field @30 = 0xd
+7866:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: the image HAS this descriptor = 0x1
+7867:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: READ_DESCRIPTOR was ANSWERED = 0x1
+7868:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: an AEM_RESPONSE (message_type 1) = 0x1
+7869:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: status SUCCESS(0) = 0x0
+7870:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: sequence_id echoed = 0x412c
+7871:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: command_type echoed, u = 0 = 0x4
+7872:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: cdl = 12 + 4 + the descriptor = 0x6a
+7873:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: the frame is as long as it claims = 0x84
+7874:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: configuration_index @24 echoed = 0x0
+7875:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: reserved @26 is zero = 0x0
+7876:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: the bytes ARE the image's, exactly = 0x0
+7877:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: descriptor_type field @28 = 0x14
+7878:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 14: descriptor_index field @30 = 0xe
+7879:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: the image HAS this descriptor = 0x1
+7880:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: READ_DESCRIPTOR was ANSWERED = 0x1
+7881:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: an AEM_RESPONSE (message_type 1) = 0x1
+7882:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: status SUCCESS(0) = 0x0
+7883:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: sequence_id echoed = 0x412d
+7884:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: command_type echoed, u = 0 = 0x4
+7885:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: cdl = 12 + 4 + the descriptor = 0x6a
+7886:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: the frame is as long as it claims = 0x84
+7887:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: configuration_index @24 echoed = 0x0
+7888:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: reserved @26 is zero = 0x0
+7889:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: the bytes ARE the image's, exactly = 0x0
+7890:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: descriptor_type field @28 = 0x14
+7891:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 15: descriptor_index field @30 = 0xf
+7892:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: the image HAS this descriptor = 0x1
+7893:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: READ_DESCRIPTOR was ANSWERED = 0x1
+7894:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: an AEM_RESPONSE (message_type 1) = 0x1
+7895:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: status SUCCESS(0) = 0x0
+7896:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: sequence_id echoed = 0x412e
+7897:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: command_type echoed, u = 0 = 0x4
+7898:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: cdl = 12 + 4 + the descriptor = 0x6a
+7899:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: the frame is as long as it claims = 0x84
+7900:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: configuration_index @24 echoed = 0x0
+7901:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: reserved @26 is zero = 0x0
+7902:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: the bytes ARE the image's, exactly = 0x0
+7903:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: descriptor_type field @28 = 0x14
+7904:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 16: descriptor_index field @30 = 0x10
+7905:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: the image HAS this descriptor = 0x1
+7906:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: READ_DESCRIPTOR was ANSWERED = 0x1
+7907:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: an AEM_RESPONSE (message_type 1) = 0x1
+7908:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: status SUCCESS(0) = 0x0
+7909:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: sequence_id echoed = 0x412f
+7910:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: command_type echoed, u = 0 = 0x4
+7911:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: cdl = 12 + 4 + the descriptor = 0x6a
+7912:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: the frame is as long as it claims = 0x84
+7913:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: configuration_index @24 echoed = 0x0
+7914:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: reserved @26 is zero = 0x0
+7915:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: the bytes ARE the image's, exactly = 0x0
+7916:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: descriptor_type field @28 = 0x14
+7917:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 17: descriptor_index field @30 = 0x11
+7918:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: the image HAS this descriptor = 0x1
+7919:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: READ_DESCRIPTOR was ANSWERED = 0x1
+7920:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: an AEM_RESPONSE (message_type 1) = 0x1
+7921:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: status SUCCESS(0) = 0x0
+7922:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: sequence_id echoed = 0x4130
+7923:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: command_type echoed, u = 0 = 0x4
+7924:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: cdl = 12 + 4 + the descriptor = 0x6a
+7925:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: the frame is as long as it claims = 0x84
+7926:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: configuration_index @24 echoed = 0x0
+7927:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: reserved @26 is zero = 0x0
+7928:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: the bytes ARE the image's, exactly = 0x0
+7929:   [ok]   [AECP-MODEL] READ_DESCRIPTOR type 0x0014 index 18: descriptor_type field @28 = 0x14

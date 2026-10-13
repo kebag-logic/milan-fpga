@@ -1,0 +1,643 @@
+{
+  "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+  "commands": [
+    {
+      "name": "lint",
+      "argv": [
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check",
+        "--self-test",
+        "--jobs",
+        "2"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 30.9
+    },
+    {
+      "name": "maap",
+      "argv": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/maap",
+        "MDIR=$WORK/validation/unit"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 646.5
+    },
+    {
+      "name": "maap-integration-build",
+      "argv": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/maap",
+        "integration-build",
+        "DP_MDIR=$WORK/validation/integration"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 26.4
+    },
+    {
+      "name": "maap-integration",
+      "argv": [
+        "$WORK/validation/integration/maap_integration"
+      ],
+      "cwd": "$WORK/validation/integration",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 0.4
+    },
+    {
+      "name": "maap-coverage",
+      "argv": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/maap",
+        "coverage",
+        "COV_MDIR=$WORK/validation/coverage"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 14.0
+    },
+    {
+      "name": "maap-differential",
+      "argv": [
+        "python3",
+        "sw/firmware/ctrl/test/maap_differential.py",
+        "--self-test",
+        "--keep",
+        "$WORK/validation/differential"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 171.4
+    },
+    {
+      "name": "milan_dp",
+      "argv": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/milan_dp"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 2020.1
+    },
+    {
+      "name": "mbx",
+      "argv": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/mbx"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 40.7
+    },
+    {
+      "name": "pp_shadow",
+      "argv": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/pp_shadow"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 254.8
+    },
+    {
+      "name": "capture_coherence",
+      "argv": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/capture_coherence"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 337.3
+    },
+    {
+      "name": "milan_dp_mclk",
+      "argv": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/milan_dp_mclk"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 962.3
+    },
+    {
+      "name": "milan_dp_render",
+      "argv": [
+        "make",
+        "-j8",
+        "-C",
+        "tb/verilator/milan_dp_render"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 761.4
+    },
+    {
+      "name": "portability",
+      "argv": [
+        "bash",
+        "syn/yosys/run.sh",
+        "--results",
+        "$WORK/validation/portability-results"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 945.6
+    },
+    {
+      "name": "firmware",
+      "argv": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--jobs",
+        "2"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 2654.6
+    },
+    {
+      "name": "store",
+      "argv": [
+        "python3",
+        "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+        "--require-rv32",
+        "--jobs",
+        "2"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 128.4
+    },
+    {
+      "name": "coverage-selftest",
+      "argv": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--selftest"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 0.6
+    },
+    {
+      "name": "firmware-coverage",
+      "argv": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--check",
+        "--jobs",
+        "2"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 304.9
+    },
+    {
+      "name": "boundary",
+      "argv": [
+        "$BUILD_ENV/bin/python3",
+        "sw/firmware/ctrl/test/ctrl_boundary.py",
+        "--require-rv32",
+        "--selftest"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 1344.4
+    },
+    {
+      "name": "control-memory",
+      "argv": [
+        "$BUILD_ENV/bin/python3",
+        "sw/litex/test_ctrl_memory.py"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 75.0
+    },
+    {
+      "name": "firmware-shards",
+      "argv": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 0.2
+    },
+    {
+      "name": "builder",
+      "argv": [
+        "python3",
+        "sw/builder/test_builder.py",
+        "--require-rv32",
+        "--require-elaboration"
+      ],
+      "cwd": "$WORK/candidate",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 1234.0
+    },
+    {
+      "name": "behaviour",
+      "argv": [
+        "python3",
+        "-m",
+        "behave",
+        "--no-capture",
+        "-f",
+        "plain"
+      ],
+      "cwd": "$WORK/candidate/tests",
+      "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+      "rc": 0,
+      "seconds": 1.8
+    }
+  ],
+  "suites": {
+    "maap": {
+      "checks": 251,
+      "failures": 0,
+      "matched": [
+        [
+          "n-checks-m-failures",
+          186,
+          0,
+          "KL_maap: 186 checks, 0 failures"
+        ],
+        [
+          "checks-colon-failures-colon",
+          65,
+          0,
+          "== maap mutants: checks: 65   failures: 0 =="
+        ]
+      ],
+      "unparsed": [],
+      "skipped": []
+    },
+    "milan_dp": {
+      "checks": 11956,
+      "failures": 0,
+      "matched": [
+        [
+          "n-checks-pass-fail",
+          182,
+          0,
+          "182 checks: 182 PASS, 0 FAIL"
+        ],
+        [
+          "n-checks-pass-fail",
+          182,
+          0,
+          "182 checks: 182 PASS, 0 FAIL"
+        ],
+        [
+          "n-checks-m-failures",
+          236,
+          0,
+          "milan_datapath: 236 checks, 0 failures"
+        ],
+        [
+          "checks-colon-failures-colon",
+          423,
+          0,
+          "checks: 423   failures: 0"
+        ],
+        [
+          "checks-colon-failures-colon",
+          416,
+          0,
+          "checks: 416   failures: 0"
+        ],
+        [
+          "checks-colon-failures-colon",
+          162,
+          0,
+          "checks: 162   failures: 0"
+        ],
+        [
+          "checks-colon-failures-colon",
+          1967,
+          0,
+          "checks: 1967   failures: 0"
+        ],
+        [
+          "checks-colon-failures-colon",
+          1969,
+          0,
+          "checks: 1969   failures: 0"
+        ],
+        [
+          "checks-colon-failures-colon",
+          3751,
+          0,
+          "checks: 3751   failures: 0"
+        ],
+        [
+          "checks-colon-failures-colon",
+          1967,
+          0,
+          "checks: 1967   failures: 0"
+        ],
+        [
+          "n-checks-m-failures",
+          236,
+          0,
+          "milan_datapath: 236 checks, 0 failures"
+        ],
+        [
+          "checks-colon-failures-colon",
+          33,
+          0,
+          "checks: 33   failures: 0"
+        ],
+        [
+          "n-checks-m-failures",
+          233,
+          0,
+          "milan_datapath: 233 checks, 0 failures"
+        ],
+        [
+          "n-checks-m-failures",
+          193,
+          0,
+          "media_aclk: 193 checks, 0 failures"
+        ],
+        [
+          "n-checks-pass-fail",
+          6,
+          0,
+          "6 checks: 6 PASS, 0 FAIL"
+        ]
+      ],
+      "unparsed": [],
+      "skipped": []
+    },
+    "mbx": {
+      "checks": 2123,
+      "failures": 0,
+      "matched": [
+        [
+          "checks-colon-failures-colon",
+          447,
+          0,
+          "== mbx (AXI4-Lite host): checks: 447   failures: 0 =="
+        ],
+        [
+          "checks-colon-failures-colon",
+          402,
+          0,
+          "== mbx (Wishbone host): checks: 402   failures: 0 =="
+        ],
+        [
+          "checks-colon-failures-colon",
+          32,
+          0,
+          "== mbx cosim (firmware on the RTL and on the model): checks: 32   failures: 0 =="
+        ],
+        [
+          "checks-colon-failures-colon",
+          404,
+          0,
+          "== mbx (Wishbone host, 2 interfaces): checks: 404   failures: 0 =="
+        ],
+        [
+          "checks-colon-failures-colon",
+          449,
+          0,
+          "== mbx (AXI4-Lite host, 2 interfaces): checks: 449   failures: 0 =="
+        ],
+        [
+          "checks-colon-failures-colon",
+          389,
+          0,
+          "== mbx (host model, 2 interfaces): checks: 389   failures: 0 =="
+        ]
+      ],
+      "unparsed": [],
+      "skipped": []
+    },
+    "pp_shadow": {
+      "checks": 2184,
+      "failures": 0,
+      "matched": [
+        [
+          "n-checks-m-failures",
+          609,
+          0,
+          "pp_shadow: 609 checks, 0 failures"
+        ],
+        [
+          "n-checks-m-failures",
+          609,
+          0,
+          "pp_shadow: 609 checks, 0 failures"
+        ],
+        [
+          "n-checks-m-failures",
+          649,
+          0,
+          "pp_shadow: 649 checks, 0 failures"
+        ],
+        [
+          "n-checks-m-failures",
+          317,
+          0,
+          "pp_shadow: 317 checks, 0 failures"
+        ]
+      ],
+      "unparsed": [],
+      "skipped": []
+    },
+    "capture_coherence": {
+      "checks": 21194,
+      "failures": 0,
+      "matched": [
+        [
+          "checks-colon-failures-colon",
+          332,
+          0,
+          "== capture_coherence_dp: checks: 332   failures: 0 =="
+        ],
+        [
+          "checks-colon-failures-colon",
+          20832,
+          0,
+          "== capture_coherence: checks: 20832   failures: 0 =="
+        ],
+        [
+          "n-checks-pass-fail",
+          30,
+          0,
+          "30 checks: 30 PASS, 0 FAIL"
+        ]
+      ],
+      "unparsed": [],
+      "skipped": []
+    },
+    "milan_dp_mclk": {
+      "checks": 168,
+      "failures": 0,
+      "matched": [
+        [
+          "checks-colon-failures-colon",
+          55,
+          0,
+          "== milan_dp_mclk: checks: 55   failures: 0 =="
+        ],
+        [
+          "checks-colon-failures-colon",
+          32,
+          0,
+          "== milan_dp_mclk: checks: 32   failures: 0 =="
+        ],
+        [
+          "checks-colon-failures-colon",
+          50,
+          0,
+          "== milan_dp_mclk: checks: 50   failures: 0 =="
+        ],
+        [
+          "n-checks-pass-fail",
+          31,
+          0,
+          "31 checks: 31 PASS, 0 FAIL"
+        ]
+      ],
+      "unparsed": [],
+      "skipped": []
+    },
+    "milan_dp_render": {
+      "checks": 342,
+      "failures": 0,
+      "matched": [
+        [
+          "checks-colon-failures-colon",
+          71,
+          0,
+          "== tdm8_render: checks: 71   failures: 0 =="
+        ],
+        [
+          "checks-colon-failures-colon",
+          266,
+          0,
+          "== tdm8_render: checks: 266   failures: 0 =="
+        ],
+        [
+          "n-checks-pass-fail",
+          5,
+          0,
+          "5 checks: 5 PASS, 0 FAIL (--leg-defects: the arms that need no elaboration; the gateware and shape mutants are the tdm8render-mutants target)"
+        ]
+      ],
+      "unparsed": [],
+      "skipped": []
+    }
+  },
+  "suite_total": 38218,
+  "prior": [
+    {
+      "suite": "maap",
+      "checks": 251,
+      "failures": 0,
+      "skips": [],
+      "head": "313616d1a18549d41907db389d378f0beb9bc543",
+      "raw_log_bytes": 26785,
+      "raw_log_sha256": "d60eed49ed59c6d1ff3c2aadc602fef7df478276233fadecc2e39f04402943af"
+    },
+    {
+      "suite": "milan_dp",
+      "checks": 11956,
+      "failures": 0,
+      "skips": [],
+      "head": "313616d1a18549d41907db389d378f0beb9bc543",
+      "raw_log_bytes": 1958868,
+      "raw_log_sha256": "3cc9e6644aa3a968f77018cba0ec6af66086bd8a5cf2a5b5c113734da9abc966"
+    },
+    {
+      "suite": "mbx",
+      "checks": 2123,
+      "failures": 0,
+      "skips": [],
+      "head": "313616d1a18549d41907db389d378f0beb9bc543",
+      "raw_log_bytes": 86335,
+      "raw_log_sha256": "80b79e5c7008f749d8bcf5763d67305e2cc84f46b198fb1d4ba25f70f9f3a26f"
+    },
+    {
+      "suite": "pp_shadow",
+      "checks": 2184,
+      "failures": 0,
+      "skips": [],
+      "head": "313616d1a18549d41907db389d378f0beb9bc543",
+      "raw_log_bytes": 277699,
+      "raw_log_sha256": "59cc0f2a252218e8a7bb15fa7a719dd2e6ae85c6c7bf4b5a0f7e7e6312b6afd9"
+    },
+    {
+      "suite": "capture_coherence",
+      "checks": 21194,
+      "failures": 0,
+      "skips": [],
+      "head": "313616d1a18549d41907db389d378f0beb9bc543",
+      "raw_log_bytes": 331540,
+      "raw_log_sha256": "6bf7574b8b648a35fc9a2c85b924724044b4648d2db03dad98dfa78f9bc3a22d"
+    },
+    {
+      "suite": "milan_dp_mclk",
+      "checks": 168,
+      "failures": 0,
+      "skips": [],
+      "head": "313616d1a18549d41907db389d378f0beb9bc543",
+      "raw_log_bytes": 69754,
+      "raw_log_sha256": "436c62f7a347e0a8016b3e179aa2936414f8f67af6c7ab9bbe2ebe9548740fa4"
+    },
+    {
+      "suite": "milan_dp_render",
+      "checks": 342,
+      "failures": 0,
+      "skips": [],
+      "head": "313616d1a18549d41907db389d378f0beb9bc543",
+      "raw_log_bytes": 156991,
+      "raw_log_sha256": "2b4ef2a7177f1980782ec6be85b5ba40fbd57cfcd4aff59518d0cde9fca2a2f0"
+    }
+  ]
+}

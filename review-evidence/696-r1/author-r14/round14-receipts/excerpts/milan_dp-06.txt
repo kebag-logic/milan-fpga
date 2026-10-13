@@ -1,0 +1,1465 @@
+16562:   [ok]   [AECP-MODEL] model has AUDIO_CLUSTER[0] name 0 to set = 0x1
+16563:   [ok]   [AECP-MODEL] SET_NAME is SUCCESS(0)            = 0x0
+16564:   [ok]   [AECP-MODEL] SET_NAME response cdl is 84       = 0x54
+16565:   [ok]   [AECP-MODEL] SET_NAME returns the current new name = 0x1
+16566:   [ok]   [AECP-MODEL] GET_NAME after SET_NAME is SUCCESS(0) = 0x0
+16567:   [ok]   [AECP-MODEL] GET_NAME returns the written 64 bytes = 0x1
+16568:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: the image HAS this descriptor = 0x1
+16569:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: READ_DESCRIPTOR was ANSWERED = 0x1
+16570:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: an AEM_RESPONSE (message_type 1) = 0x1
+16571:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: status SUCCESS(0) = 0x0
+16572:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: sequence_id echoed = 0x417d
+16573:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: command_type echoed, u = 0 = 0x4
+16574:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: cdl = 12 + 4 + the descriptor = 0x6a
+16575:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: the frame is as long as it claims = 0x84
+16576:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: configuration_index @24 echoed = 0x0
+16577:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: reserved @26 is zero = 0x0
+16578:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: the bytes ARE the image's, exactly = 0x0
+16579:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: descriptor_type field @28 = 0x14
+16580:   [ok]   [AECP-MODEL] changed AUDIO_CLUSTER,0: descriptor_index field @30 = 0x0
+16581:   [ok]   [AECP-MODEL] READ_DESCRIPTOR after SET_NAME stays coherent = 0x1
+16582:   [ok]   [AECP-MODEL] the model HAS an ENTITY descriptor = 0x1
+16583:   [ok]   [AECP-MODEL] GET_CONFIGURATION: ANSWERED       = 0x1
+16584:   [ok]   [AECP-MODEL] GET_CONFIGURATION: status SUCCESS(0) = 0x0
+16585:   [ok]   [AECP-MODEL] GET_CONFIGURATION: cdl 16 (IEEE 7.4.8.2) = 0x10
+16586:   [ok]   [AECP-MODEL] GET_CONFIGURATION: reserved @24 is zero = 0x0
+16587:   [ok]   [AECP-MODEL] GET_CONFIGURATION: configuration_index IS the model's ENTITY.current_configuration = 0x0
+16588:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: ANSWERED, not silence = 0x1
+16589:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: an AEM_RESPONSE (message_type 1) = 0x1
+16590:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: status SUCCESS(0) = 0x0
+16591:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: sequence_id echoed = 0x417f
+16592:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: command_type echoed, u = 0 = 0x17
+16593:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: control_data_length is the clause's = 0x14
+16594:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: descriptor_type @24 echoed = 0x24
+16595:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: descriptor_index @26 echoed = 0x0
+16596:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: clock_source_index IS the model's = 0x0
+16597:   [ok]   [AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN 0: reserved @30 is zero = 0x0
+16598:   [ok]   [AECP-MODEL] the model has CLOCK_DOMAIN 0      = 0x1
+16599:   [ok]   [AECP-MODEL] CLOCK_DOMAIN 0 clock_sources_offset is 76 (7.2.32) = 0x4c
+16600:   [ok]   [AECP-MODEL] CLOCK_DOMAIN 0 lists CLOCK_SOURCE 0..count-1 in order = 0x1
+16601:   [ok]   [AECP-MODEL] one INTERNAL CLOCK_SOURCE (the aligned grid) = 0x1
+16602:   [ok]   [AECP-MODEL] exactly one INPUT_STREAM CLOCK_SOURCE, at the CRF sink = 0x1
+16603:   [ok]   [AECP-MODEL] one INPUT_STREAM CLOCK_SOURCE on every AAF listener, and only one (#629) = 0x1
+16604:   [ok]   [AECP-MODEL] the class order of #629 D1: INTERNAL 0, CRF 1, AAF listener k at 2 + k = 0x1
+16605:   [ok]   [AECP-MODEL] no CLOCK_SOURCE of a kind the fabric cannot follow = 0x0
+16606:   [ok]   [AECP-MODEL] every listed CLOCK_SOURCE is one the fabric follows = 0x6
+16607:   [ok]   [AECP-FACE] SET_CLOCK_SOURCE(1) was ANSWERED   = 0x1
+16608:   [ok]   [AECP-FACE] the datapath sees clock source 1   = 0x1
+16609:   [ok]   [AECP-FACE] ...and the configuration face did NOT move with it (the two are both 16 bits) = 0x0
+16610:   [ok]   [AECP-FACE] SET_CONTROL(IDENTIFY, 255) was ANSWERED = 0x1
+16611:   [ok]   [AECP-FACE] SET_CONTROL(IDENTIFY, 255) is SUCCESS(0) = 0x0
+16612:   [ok]   [AECP-FACE] the datapath sees IDENTIFY asserted = 0xff
+16613:   [ok]   [AECP-FACE] the face follows back DOWN to 0    = 0x0
+16614:   [ok]   [AECP-FACE] ...and IDENTIFY deasserts          = 0x0
+16615:   [ok]   [CRF-SEL] the model names a CRF CLOCK_SOURCE to select = 0x1
+16616:   [ok]   [CRF-SEL] SET_CLOCK_SOURCE(CRF) answers SUCCESS = 0x0
+16617:   [ok]   [CRF-SEL] the one registered resolve reads CRF = 0x1
+16618:   [ok]   [CRF-SEL] the follow select rose with it       = 0x1
+16619:   [ok]   [CRF-SEL] the NCO gate is engaged under CRF    = 0x1
+16620:   [ok]   [CRF-SEL] restore: the verdict falls to INTERNAL = 0x0
+16621:   [ok]   [CRF-SEL] ...and the follow select falls with it = 0x0
+16622:   [ok]   [CRF-SEL] ...while the NCO gate stays engaged at INTERNAL (#629 A2-a) = 0x1
+16623:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(0) answers SUCCESS = 0x0
+16624:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(0) reads back   = 0x0
+16625:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(0) decodes as INTERNAL: 1 = 0x1
+16626:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(0) decodes as CRF: 0 = 0x0
+16627:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(0) decodes as AAF: 0 = 0x0
+16628:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(0): the servo select follows a stream source = 0x0
+16629:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(1) answers SUCCESS = 0x0
+16630:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(1) reads back   = 0x1
+16631:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(1) decodes as INTERNAL: 0 = 0x0
+16632:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(1) decodes as CRF: 1 = 0x1
+16633:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(1) decodes as AAF: 0 = 0x0
+16634:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(1): the servo select follows a stream source = 0x1
+16635:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(2) answers SUCCESS = 0x0
+16636:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(2) reads back   = 0x2
+16637:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(2) decodes as INTERNAL: 0 = 0x0
+16638:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(2) decodes as CRF: 0 = 0x0
+16639:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(2) decodes as AAF: 1 = 0x1
+16640:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(2): the servo select follows a stream source = 0x1
+16641:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(2): the meter follows listener 0 (AAFM_STAT[7:4]) = 0x0
+16642:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(2): the meter is enabled (AAFM_STAT[2]) = 0x1
+16643:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(3) answers SUCCESS = 0x0
+16644:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(3) reads back   = 0x3
+16645:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(3) decodes as INTERNAL: 0 = 0x0
+16646:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(3) decodes as CRF: 0 = 0x0
+16647:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(3) decodes as AAF: 1 = 0x1
+16648:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(3): the servo select follows a stream source = 0x1
+16649:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(3): the meter follows listener 1 (AAFM_STAT[7:4]) = 0x1
+16650:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(3): the meter is enabled (AAFM_STAT[2]) = 0x1
+16651:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(4) answers SUCCESS = 0x0
+16652:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(4) reads back   = 0x4
+16653:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(4) decodes as INTERNAL: 0 = 0x0
+16654:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(4) decodes as CRF: 0 = 0x0
+16655:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(4) decodes as AAF: 1 = 0x1
+16656:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(4): the servo select follows a stream source = 0x1
+16657:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(4): the meter follows listener 2 (AAFM_STAT[7:4]) = 0x2
+16658:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(4): the meter is enabled (AAFM_STAT[2]) = 0x1
+16659:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(5) answers SUCCESS = 0x0
+16660:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(5) reads back   = 0x5
+16661:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(5) decodes as INTERNAL: 0 = 0x0
+16662:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(5) decodes as CRF: 0 = 0x0
+16663:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(5) decodes as AAF: 1 = 0x1
+16664:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(5): the servo select follows a stream source = 0x1
+16665:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(5): the meter follows listener 3 (AAFM_STAT[7:4]) = 0x3
+16666:   [ok]   [CLKSRC-WALK] SET_CLOCK_SOURCE(5): the meter is enabled (AAFM_STAT[2]) = 0x1
+16667:   [ok]   [CLKSRC-WALK] restore: the face is back at the current index = 0x0
+16668:   [ok]   [CLKSRC-RANGE] the model lists at least the INTERNAL source = 0x1
+16669:   [ok]   [CLKSRC-RANGE] SET_CLOCK_SOURCE(6: clock_sources_count, one past the list) answers BAD_ARGUMENTS(7) = 0x7
+16670:   [ok]   [CLKSRC-RANGE] SET_CLOCK_SOURCE(6: clock_sources_count, one past the list) carries the CURRENT index = 0x0
+16671:   [ok]   [CLKSRC-RANGE] SET_CLOCK_SOURCE(6: clock_sources_count, one past the list): reserved @30 is zero = 0x0
+16672:   [ok]   [CLKSRC-RANGE] SET_CLOCK_SOURCE(6: clock_sources_count, one past the list): the resolved face did not move = 0x0
+16673:   [ok]   [CLKSRC-RANGE] SET_CLOCK_SOURCE(65535: 0xFFFF) answers BAD_ARGUMENTS(7) = 0x7
+16674:   [ok]   [CLKSRC-RANGE] SET_CLOCK_SOURCE(65535: 0xFFFF) carries the CURRENT index = 0x0
+16675:   [ok]   [CLKSRC-RANGE] SET_CLOCK_SOURCE(65535: 0xFFFF): reserved @30 is zero = 0x0
+16676:   [ok]   [CLKSRC-RANGE] SET_CLOCK_SOURCE(65535: 0xFFFF): the resolved face did not move = 0x0
+16677:   [ok]   [CLKSRC-RANGE] GET_CLOCK_SOURCE still reads the current index = 0x0
+16678:   [ok]   [CLKSRC-RANGE] SET_CLOCK_SOURCE(count - 1) answers SUCCESS = 0x0
+16679:   [ok]   [CLKSRC-RANGE] ...and the resolved face follows to count - 1 = 0x5
+16680:   [ok]   [CLKSRC-RANGE] restore: the face is back at the current index = 0x0
+16682:   [ok]   [AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT 0: ANSWERED, not silence = 0x1
+16683:   [ok]   [AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT 0: an AEM_RESPONSE (message_type 1) = 0x1
+16684:   [ok]   [AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT 0: status SUCCESS(0) = 0x0
+16685:   [ok]   [AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT 0: sequence_id echoed = 0x4198
+16686:   [ok]   [AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT 0: command_type echoed, u = 0 = 0x15
+16687:   [ok]   [AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT 0: control_data_length is the clause's = 0x14
+16688:   [ok]   [AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT 0: descriptor_type @24 echoed = 0x2
+16689:   [ok]   [AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT 0: descriptor_index @26 echoed = 0x0
+16690:   [ok]   [AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT 0: sampling_rate IS the model's current_sampling_rate (48000) = 0xbb80
+16691:   [ok]   [AECP-MODEL] ...and the model's rate is non-zero = 0x1
+16692:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/0: ANSWERED, not silence = 0x1
+16693:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/0: an AEM_RESPONSE (message_type 1) = 0x1
+16694:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/0: status SUCCESS(0) = 0x0
+16695:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/0: sequence_id echoed = 0x4199
+16696:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/0: command_type echoed, u = 0 = 0x9
+16697:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/0: control_data_length is the clause's = 0x18
+16698:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/0: descriptor_type @24 echoed = 0x5
+16699:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/0: descriptor_index @26 echoed = 0x0
+16700:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/1: ANSWERED, not silence = 0x1
+16701:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/1: an AEM_RESPONSE (message_type 1) = 0x1
+16702:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/1: status SUCCESS(0) = 0x0
+16703:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/1: sequence_id echoed = 0x419a
+16704:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/1: command_type echoed, u = 0 = 0x9
+16705:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/1: control_data_length is the clause's = 0x18
+16706:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/1: descriptor_type @24 echoed = 0x5
+16707:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/1: descriptor_index @26 echoed = 0x1
+16708:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/2: ANSWERED, not silence = 0x1
+16709:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/2: an AEM_RESPONSE (message_type 1) = 0x1
+16710:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/2: status SUCCESS(0) = 0x0
+16711:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/2: sequence_id echoed = 0x419b
+16712:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/2: command_type echoed, u = 0 = 0x9
+16713:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/2: control_data_length is the clause's = 0x18
+16714:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/2: descriptor_type @24 echoed = 0x5
+16715:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/2: descriptor_index @26 echoed = 0x2
+16716:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/3: ANSWERED, not silence = 0x1
+16717:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/3: an AEM_RESPONSE (message_type 1) = 0x1
+16718:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/3: status SUCCESS(0) = 0x0
+16719:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/3: sequence_id echoed = 0x419c
+16720:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/3: command_type echoed, u = 0 = 0x9
+16721:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/3: control_data_length is the clause's = 0x18
+16722:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/3: descriptor_type @24 echoed = 0x5
+16723:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0005/3: descriptor_index @26 echoed = 0x3
+16724:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/0: ANSWERED, not silence = 0x1
+16725:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/0: an AEM_RESPONSE (message_type 1) = 0x1
+16726:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/0: status SUCCESS(0) = 0x0
+16727:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/0: sequence_id echoed = 0x419d
+16728:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/0: command_type echoed, u = 0 = 0x9
+16729:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/0: control_data_length is the clause's = 0x18
+16730:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/0: descriptor_type @24 echoed = 0x6
+16731:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/0: descriptor_index @26 echoed = 0x0
+16732:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/1: ANSWERED, not silence = 0x1
+16733:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/1: an AEM_RESPONSE (message_type 1) = 0x1
+16734:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/1: status SUCCESS(0) = 0x0
+16735:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/1: sequence_id echoed = 0x419e
+16736:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/1: command_type echoed, u = 0 = 0x9
+16737:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/1: control_data_length is the clause's = 0x18
+16738:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/1: descriptor_type @24 echoed = 0x6
+16739:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/1: descriptor_index @26 echoed = 0x1
+16740:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/2: ANSWERED, not silence = 0x1
+16741:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/2: an AEM_RESPONSE (message_type 1) = 0x1
+16742:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/2: status SUCCESS(0) = 0x0
+16743:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/2: sequence_id echoed = 0x419f
+16744:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/2: command_type echoed, u = 0 = 0x9
+16745:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/2: control_data_length is the clause's = 0x18
+16746:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/2: descriptor_type @24 echoed = 0x6
+16747:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/2: descriptor_index @26 echoed = 0x2
+16748:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/3: ANSWERED, not silence = 0x1
+16749:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/3: an AEM_RESPONSE (message_type 1) = 0x1
+16750:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/3: status SUCCESS(0) = 0x0
+16751:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/3: sequence_id echoed = 0x41a0
+16752:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/3: command_type echoed, u = 0 = 0x9
+16753:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/3: control_data_length is the clause's = 0x18
+16754:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/3: descriptor_type @24 echoed = 0x6
+16755:   [ok]   [AECP-MODEL] GET_STREAM_FORMAT 0x0006/3: descriptor_index @26 echoed = 0x3
+16756:   [ok]   [AECP-MODEL] ENTITY_AVAILABLE: ANSWERED        = 0x1
+16757:   [ok]   [AECP-MODEL] ENTITY_AVAILABLE: status SUCCESS(0) = 0x0
+16758:   [ok]   [AECP-MODEL] ENTITY_AVAILABLE: cdl 32 (7.4.3.2) = 0x20
+16759:   [ok]   [AECP-MODEL] ...ENTITY_ACQUIRED is clear (Milan D7) = 0x0
+16760:   [ok]   [AECP-MODEL] ...acquired_controller_id is zero = 0x0
+16761:   [ok]   [AECP-MODEL] type 000000 index 1 is NOT in the model and refuses NO_SUCH_DESCRIPTOR = 0x2
+16762:   [ok]   [AECP-MODEL] type 0x0002 index 1 is NOT in the model and refuses NO_SUCH_DESCRIPTOR = 0x2
+16763:   [ok]   [AECP-MODEL] type 0x0005 index 5 is NOT in the model and refuses NO_SUCH_DESCRIPTOR = 0x2
+16764:   [ok]   [AECP-MODEL] type 0x0006 index 5 is NOT in the model and refuses NO_SUCH_DESCRIPTOR = 0x2
+16765:   [ok]   [AECP-MODEL] type 0x0009 index 1 is NOT in the model and refuses NO_SUCH_DESCRIPTOR = 0x2
+16766:   [ok]   [AECP-MODEL] type 0x0024 index 1 is NOT in the model and refuses NO_SUCH_DESCRIPTOR = 0x2
+16767:   [ok]   [AECP-MODEL] the negative oracle actually probed = 0x1
+16769:   [ok]   LCTX w4 masks retired route bit (port B)       = 0x1
+16770:   [ok]   LCTX w2 FMT_LO readback (port B)               = 0x800000
+16771:   [ok]   LCTX w3 FMT_HI readback (port B)               = 0x2050220
+16772:   [ok]   stream 2 CTRL readback (port B)                = 0x1
+16774:   [ok]   route-only idx0 commit: sid-0 frame ignored    = 0x0
+16775:   [ok]   route-only idx0 commit: no fabric-render beat  = 0x0
+16776:   [ok]   route-only idx0 commit leaves entry 0 on the ACMP alias = 0x2
+16778:   [ok]   shared PCMRX counts the five matched PDUs      = 0x5
+16779:   [ok]   retired/null routes produce no fabric-render beats = 0x0
+16780:   [ok]   APRB parsed > matched (unknown sid seen)       = 0x1
+16781:   [ok]   APRB last frame did NOT match                  = 0x0
+16782:   [ok]   APRB last subtype = AAF                        = 0x2
+16783:   [ok]   APRB last SID == the unmatched wire sid        = 0x1
+16784:   [ok]   APRB armed entries = 2 (idx0 still the ACMP alias) = 0x2
+16786:   [ok]   s1 CNT9 FRAMES_RX = 3                          = 0x3
+16787:   [ok]   s1 CNT0 MEDIA_LOCKED = 1                       = 0x1
+16788:   [ok]   s1 CNT3 SEQ_NUM_MISMATCH = 0                   = 0x0
+16789:   [ok]   s1 CNT6 UNSUPPORTED_FORMAT = 0                 = 0x0
+16790:   [ok]   s1 PDUS = {drops 0, pdus 3}                    = 0x3
+16791:   [ok]   s1 STATE media_locked                          = 0x1
+16792:   [ok]   s1 STATE wire_chans = 2                        = 0x2
+16793:   [ok]   s2 CNT9 FRAMES_RX = 2                          = 0x2
+16794:   [ok]   s2 PDUS = 2 (NULL still counted)               = 0x2
+16795:   [ok]   s3 (unprovisioned) CNT9 = 0                    = 0x0
+16796:   [ok]   legacy 0x6BC (s0 FRAMES_RX) = 0                = 0x0
+16797:   [ok]   legacy 0x6C4 = shared-depkt total 5            = 0x5
+16799:   [ok]   s1 CNT9 FRAMES_RX = 10                         = 0xa
+16800:   [ok]   s1 CNT3 SEQ_NUM_MISMATCH = 1                   = 0x1
+16801:   [ok]   s1 CNT2 STREAM_INTERRUPTED = 1                 = 0x1
+16802:   [ok]   s2 CNT3 still 0                                = 0x0
+16803:   [ok]   s2 CNT9 still 2                                = 0x2
+16805:   [ok]   [CTRS] GET_COUNTERS(STREAM_INPUT,1) was ANSWERED = 0x1
+16806:   [ok]   [CTRS] real input counter changes reached the descriptor arbiter = 0x6
+16807:   [ok]   [CTRS] status SUCCESS(0), not NOT_IMPLEMENTED  = 0x0
+16808:   [ok]   [CTRS] cdl = 12 + 136                          = 0x94
+16809:   [ok]   [CTRS] the frame is as long as it claims       = 0xae
+16810:   [ok]   [CTRS] descriptor_type echoed                  = 0x5
+16811:   [ok]   [CTRS] descriptor_index echoed                 = 0x1
+16812:   [ok]   [CTRS] counters_valid = 0xFFF (quadlets 0..11) = 0xfff
+16813:   [ok]   [CTRS] @0 MEDIA_LOCKED == CSR CNT0             = 0x1
+16814:   [ok]   [CTRS] @4 MEDIA_UNLOCKED == CSR CNT1           = 0x0
+16815:   [ok]   [CTRS] @8 STREAM_INTERRUPTED == CSR CNT2       = 0x1
+16816:   [ok]   [CTRS] @12 SEQ_NUM_MISMATCH == CSR CNT3        = 0x1
+16817:   [ok]   [CTRS] @16 MEDIA_RESET == CSR CNT4             = 0x0
+16818:   [ok]   [CTRS] @20 TIMESTAMP_UNCERTAIN == CSR CNT5     = 0x0
+16819:   [ok]   [CTRS] @32 UNSUPPORTED_FORMAT == CSR CNT6      = 0x0
+16820:   [ok]   [CTRS] @36 LATE_TIMESTAMP == CSR CNT7          = 0xa
+16821:   [ok]   [CTRS] @40 EARLY_TIMESTAMP == CSR CNT8         = 0x0
+16822:   [ok]   [CTRS] @44 FRAMES_RX == CSR CNT9               = 0xa
+16823:   [ok]   [CTRS] the graded counters are DISTINCT, not a flat block = 0x1
+16824:   [ok]   [CTRS] @24 TIMESTAMP_VALID + @28 TIMESTAMP_NOT_VALID = FRAMES_RX = 0xa
+16825:   [ok]   [CTRS] @24 TIMESTAMP_VALID carries the tally (tv was set) = 0xa
+16826:   [ok]   [CTRS] @28 TIMESTAMP_NOT_VALID is zero         = 0x0
+16827:   [ok]   [CTRS] the unclaimed quadlets 12..31 are zero  = 0x0
+16828:   [ok]   [CTRS-CRF] descriptor image declares STREAM_INPUT N, not N + 1 = 0x1
+16829:   [ok]   [CTRS-CRF] GET_COUNTERS(STREAM_INPUT, N) status SUCCESS = 0x0
+16830:   [ok]   [CTRS-CRF] cdl = 12 + 136                      = 0x94
+16831:   [ok]   [CTRS-CRF] the frame is as long as it claims   = 0xae
+16832:   [ok]   [CTRS-CRF] descriptor_type echoed              = 0x5
+16833:   [ok]   [CTRS-CRF] descriptor_index echoed             = 0x4
+16834:   [ok]   [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) = 0xf3f
+16835:   [ok]   [CTRS-CRF] from reset: @0 MEDIA_LOCKED         = 0x0
+16836:   [ok]   [CTRS-CRF] from reset: @4 MEDIA_UNLOCKED       = 0x0
+16837:   [ok]   [CTRS-CRF] from reset: @8 STREAM_INTERRUPTED   = 0x0
+16838:   [ok]   [CTRS-CRF] from reset: @12 SEQ_NUM_MISMATCH    = 0x0
+16839:   [ok]   [CTRS-CRF] from reset: @16 MEDIA_RESET         = 0x0
+16840:   [ok]   [CTRS-CRF] from reset: @20 TIMESTAMP_UNCERTAIN = 0x0
+16841:   [ok]   [CTRS-CRF] from reset: @32 UNSUPPORTED_FORMAT  = 0x0
+16842:   [ok]   [CTRS-CRF] from reset: @36 LATE_TIMESTAMP      = 0x0
+16843:   [ok]   [CTRS-CRF] from reset: @40 EARLY_TIMESTAMP     = 0x0
+16844:   [ok]   [CTRS-CRF] from reset: @44 FRAMES_RX           = 0x0
+16845:   [ok]   [CTRS-CRF] from reset: unclaimed @24/@28/@48.. zero = 0x0
+16846:   [ok]   [CTRS-CRF] signatures: counters_valid still 0xF3F = 0xf3f
+16847:   [ok]   [CTRS-CRF] signatures: @0 MEDIA_LOCKED         = 0xa5010101
+16848:   [ok]   [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED       = 0xa5020202
+16849:   [ok]   [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED   = 0xa5030303
+16850:   [ok]   [CTRS-CRF] signatures: @12 SEQ_NUM_MISMATCH    = 0xa5040404
+16851:   [ok]   [CTRS-CRF] signatures: @16 MEDIA_RESET         = 0xa5050505
+16852:   [ok]   [CTRS-CRF] signatures: @20 TIMESTAMP_UNCERTAIN = 0xa5060606
+16853:   [ok]   [CTRS-CRF] signatures: @32 UNSUPPORTED_FORMAT  = 0xa5090909
+16854:   [ok]   [CTRS-CRF] signatures: @36 LATE_TIMESTAMP      = 0xa50a0a0a
+16855:   [ok]   [CTRS-CRF] signatures: @40 EARLY_TIMESTAMP     = 0xa50b0b0b
+16856:   [ok]   [CTRS-CRF] signatures: @44 FRAMES_RX           = 0xa50c0c0c
+16857:   [ok]   [CTRS-CRF] signatures: unclaimed @24/@28/@48.. zero = 0x0
+16858:   [ok]   [CTRS-CRF] CRF_STATUS reads the same pdu/fmt/seq flops = 0xc0c0904
+16859:   [ok]   [CTRS-CRF] every AAF input keeps 0xFFF and none carries a CRF quadlet = 0x1
+16860:   [ok]   [CTRS-CRF] index N + 1 refuses NO_SUCH_DESCRIPTOR = 0x2
+16861:   [ok]   [CTRS-CRF] ...with the empty mask and a zero block, not the CRF bank = 0x1
+16862:   [ok]   [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only = 0x10
+16863:   [ok]   [CTRS-CRF] ...and as no STREAM_OUTPUT row      = 0x0
+16864:   [ok]   [CTRS-CRF] ...nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0 = 0x0
+16865:   [ok]   [CTRS-CRF] ...nor any tuple of another type or index = 0x0
+16866:   [ok]   [CTRS-CRF] after the bind edge: counters_valid still 0xF3F = 0xf3f
+16867:   [ok]   [CTRS-CRF] after the bind edge: @0 MEDIA_LOCKED = 0x0
+16868:   [ok]   [CTRS-CRF] after the bind edge: @4 MEDIA_UNLOCKED = 0x0
+16869:   [ok]   [CTRS-CRF] after the bind edge: @8 STREAM_INTERRUPTED = 0x0
+16870:   [ok]   [CTRS-CRF] after the bind edge: @12 SEQ_NUM_MISMATCH = 0x0
+16871:   [ok]   [CTRS-CRF] after the bind edge: @16 MEDIA_RESET = 0x0
+16872:   [ok]   [CTRS-CRF] after the bind edge: @20 TIMESTAMP_UNCERTAIN = 0x0
+16873:   [ok]   [CTRS-CRF] after the bind edge: @32 UNSUPPORTED_FORMAT = 0x0
+16874:   [ok]   [CTRS-CRF] after the bind edge: @36 LATE_TIMESTAMP = 0x0
+16875:   [ok]   [CTRS-CRF] after the bind edge: @40 EARLY_TIMESTAMP = 0x0
+16876:   [ok]   [CTRS-CRF] after the bind edge: @44 FRAMES_RX  = 0x0
+16877:   [ok]   [CTRS-CRF] after the bind edge: unclaimed @24/@28/@48.. zero = 0x0
+16878:   [ok]   [CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF = 0xffffffff
+16879:   [ok]   [CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF = 0xffffffff
+16880:   [ok]   [CTRS-CRF] wrap: one accepted PDU takes FRAMES_RX to 0 = 0x0
+16881:   [ok]   [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move = 0xffffffff
+16882:   [ok]   [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 = 0x0
+16883:   [ok]   [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once = 0x1
+16884:   [ok]   [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero = 0x1
+16885:   [ok]   [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 = 0x1
+16886:   [ok]   [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) = 0x0
+16887:   [ok]   [CTRS-CRF] events: ...and CRF_CTRL[31] reads the sink locked = 0x1
+16888:   [ok]   [CTRS-CRF] events: the silence's last millisecond unlocks the sink = 0x0
+16889:   [ok]   [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 = 0x1
+16890:   [ok]   [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) = 0x1
+16891:   [ok]   [CTRS-CRF] events: counters_valid still 0xF3F  = 0xf3f
+16892:   [ok]   [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    = 0x2
+16893:   [ok]   [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  = 0x1
+16894:   [ok]   [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED = 0x3
+16895:   [ok]   [CTRS-CRF] events, all ten: @12 SEQ_NUM_MISMATCH = 0x4
+16896:   [ok]   [CTRS-CRF] events, all ten: @16 MEDIA_RESET    = 0x5
+16897:   [ok]   [CTRS-CRF] events, all ten: @20 TIMESTAMP_UNCERTAIN = 0x6
+16898:   [ok]   [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT = 0x7
+16899:   [ok]   [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP = 0x8
+16900:   [ok]   [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP = 0x9
+16901:   [ok]   [CTRS-CRF] events, all ten: @44 FRAMES_RX      = 0x15
+16902:   [ok]   [CTRS-CRF] events, all ten: unclaimed @24/@28/@48.. zero = 0x0
+16903:   [ok]   [CTRS-OUT] descriptor image matches this entity shape = 0x1
+16904:   [ok]   [CTRS-OUT] Stream Output 0 answers SUCCESS     = 0x0
+16905:   [ok]   [CTRS-OUT] Table 5.17 mask is compact 0x1F     = 0x1f
+16906:   [ok]   [CTRS-OUT] every AAF and CRF output returns mask 0x1F = 0x1
+16907:   [ok]   [CTRS-OUT] first undeclared output returns NO_SUCH_DESCRIPTOR = 0x2
+16908:   [ok]   [CTRS-OUT] refusal keeps the full empty body   = 0x1
+16909:   [ok]   [CTRS-OUT] every output asserted its raw dirty bit = 0x1f
+16910:   [ok]   [CTRS-OUT] simultaneous output changes ALL reached the arbiter = 0x1f
+16911:   [ok]   [CTRS-OUT] real start/stop edges reach every index = 0x1
+16912:   [ok]   [CTRS-OUT] composed Stream Output gate rose    = 0x1
+16913:   [ok]   [CTRS-OUT] start edge raised its descriptor dirty pulse = 0x1
+16914:   [ok]   [CTRS-OUT] STREAM_START incremented through the wire bank = 0x2
+16915:   [ok]   [CTRS-OUT] STREAM_STOP stayed unchanged while streaming = 0x1
+16916:   [ok]   [CTRS-OUT] precondition: PHC verdict is uncertain = 0x1
+16917:   [ok]   [CTRS-OUT] real q3/q4 stimuli reach every AAF and CRF index = 0x1
+16918:   [ok]   [CTRS-OUT] every real FRAMES_TX source raises dirty = 0x1f
+16919:   [ok]   [CTRS-OUT] real q2 stimulus reaches every AAF and CRF index = 0x1
+16920:   [ok]   [CTRS-OUT] composed Stream Output gate fell    = 0x0
+16921:   [ok]   [CTRS-OUT] stop edge raised its descriptor dirty pulse = 0x1
+16922:   [ok]   [CTRS-OUT] STREAM_START survives a stop        = 0x2
+16923:   [ok]   [CTRS-OUT] STREAM_STOP incremented through the wire bank = 0x2
+16924:   [ok]   [CTRS-OUT] stopped invariant START equals STOP = 0x2
+16925:   [ok]   [CTRS-OUT] every NxN row preserves its unique five-word signature = 0x1
+16926:   [ok]   [CTRS-OUT] unclaimed quadlets 5..31 are zero   = 0x0
+16927:   [ok]   [CTRS2] AVB_INTERFACE mask = 0x23 (LINK_UP, LINK_DOWN, GPTP_GM_CHANGED) = 0x23
+16928:   [ok]   [CTRS2] LINK_UP = LINK_DOWN + 1 (the link is up) = 0x1
+16929:   [ok]   [CTRS2] the link has risen at least once       = 0x1
+16932:   [ok]   [CTRS2] ownerless GM writes read zero          = 0x0
+16933:   [ok]   [CTRS2] ownerless GM writes do not move GPTP_GM_CHANGED = 0x0
+16934:   [ok]   [CTRS2] ownerless GM writes do not reach the arbiter = 0x0
+16935:   [ok]   [CTRS2] CLOCK_DOMAIN mask = 0x3 (LOCKED, UNLOCKED) = 0x3
+16937:   [ok]   [CTRS2] retired lease control reads zero       = 0x0
+16938:   [ok]   [CTRS2] retired lease cannot LOCK the domain   = 0x0
+16939:   [ok]   [CTRS2] ownerless verdict remains tu=1, sync_ok=0 = 0x1
+16940:   [ok]   [CTRS2] retired discontinuity cannot UNLOCK the domain = 0x0
+16941:   [ok]   [CTRS2] LOCKED - UNLOCKED is 0 or 1 (the shall-invariant) = 0x1
+16942:   [ok]   [CTRS2] retired clock controls do not reach the arbiter = 0x0
+16943:   [ok]   [CTRS2] AVB_INTERFACE @8 FRAMES_TX unclaimed and zero = 0x0
+16944:   [ok]   [CTRS2] AVB_INTERFACE index 1 refuses NO_SUCH_DESCRIPTOR = 0x2
+16945:   [ok]   [CTRS2] ...with the zero mask in the fixed body = 0x0
+16946:   [ok]   [CTRS2] CLOCK_DOMAIN index 1 refuses NO_SUCH_DESCRIPTOR = 0x2
+16947:   [ok]   [CTRS] GET_COUNTERS(first undeclared Stream Input) answered = 0x1
+16948:   [ok]   [CTRS] first undeclared input returns NO_SUCH_DESCRIPTOR = 0x2
+16949:   [ok]   [CTRS] ...and the block is all zeros, not a neighbour's = 0x0
+16951:   [ok]   [AMAP] SPI 0 powers up with the identity map (#658) = 0x0
+16952:   [ok]   [AMAP] LOOP reads cluster 0 = {en, avb 1.1}    = 0x89
+16953:   [ok]   [AMAP] LOOP reads cluster 1 = {en, reserved 5} = 0xc5
+16954:   [ok]   [AMAP] non-physical cluster 2 does not alias RMAP = 0x0
+16955:   [ok]   [AMAP] LOOP reads cluster 3 = unmapped         = 0x0
+16956:   [ok]   [AMAP] GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED = 0x1
+16957:   [ok]   [AMAP] status SUCCESS(0), not NOT_IMPLEMENTED  = 0x0
+16958:   [ok]   [AMAP] cdl = 24 + 8*2 (two records)            = 0x28
+16959:   [ok]   [AMAP] the frame is as long as it claims       = 0x42
+16960:   [ok]   [AMAP] descriptor_type echoed                  = 0xe
+16961:   [ok]   [AMAP] descriptor_index echoed                 = 0x0
+16962:   [ok]   [AMAP] map_index echoed                        = 0x0
+16963:   [ok]   [AMAP] number_of_maps = the ONE fixed partition = 0x1
+16964:   [ok]   [AMAP] number_of_mappings = 2 (reserved entry excluded) = 0x2
+16965:   [ok]   [AMAP] reserved zero                           = 0x0
+16966:   [ok]   [AMAP] both records equal the LOOP-derived expectation = 0x0
+16967:   [ok]   [AMAP] page 1 answers BAD_ARGUMENTS(7)         = 0x7
+16968:   [ok]   [AMAP] ...with the real number_of_maps and an EMPTY page = 0x10000
+16969:   [ok]   [AMAP] first undeclared SPI returns NO_SUCH_DESCRIPTOR(2) = 0x2
+16970:   [ok]   [AMAP] static STREAM_PORT_OUTPUT returns NOT_SUPPORTED(11) = 0xb
+16971:   [ok]   [AMAP] static output reports no dynamic maps, cdl 24 = 0x180000
+16972:   [ok]   [AMAP] ...and the power-on map is back on SPI 0 = 0x0
+16974:   [ok]   TCTX w0 CTRL readback (port B)                 = 0x41
+16975:   [ok]   TCTX w1 DMAC_LO readback                       = 0xf000ab01
+16976:   [ok]   TCTX w2 DMAC_HI readback                       = 0x591e0
+16977:   [ok]   talker 2 CTRL reads 0                          = 0x0
+16979:   [ok]   render tap silent while s0 owns RENDER         = 0x0
+16980:   [ok]   s1 CTRL masks retired bit but keeps RENDER     = 0x5
+16981:   [ok]   RENDER+retired: PCMRX +2                       = 0x2
+16982:   [ok]   RENDER+retired: 12 fabric-render beats         = 0xc
+16983:   [ok]   RENDER: PCMRX +2                               = 0x2
+16984:   [ok]   RENDER: 12 fabric-render beats                 = 0xc
+16985:   [ok]   NULL: PCMRX still counts two PDUs              = 0x2
+16986:   [ok]   NULL: no render beats                          = 0x0
+16987:   [ok]   NULL still counted: s1 FRAMES_RX = 16          = 0x10
+16989:   [ok]   AAF_CTRL.en=0 holds t1 too (one flat enable, no per-context lever) = 0x0
+16990:   [ok]   t0 still down (AAF_CTRL.en = 0)                = 0x0
+16991:   [ok]   t0 up via AAF_CTRL                             = 0x1
+16992:   [ok]   t0 emission alive while t1 armed               = 0x1
+16993:   [ok]   lwSRP on + bypass: t1 rides bypass like t0     = 0x1
+16994:   [ok]   lwSRP on + bypass: t0 unaffected               = 0x1
+16995:   [ok]   bypass clear: t1 gates (no reservation)        = 0x0
+16996:   [ok]   bypass clear: t0 gates too (mirrored)          = 0x0
+16997:   [ok]   t0 emission alive on bypass restore            = 0x1
+16999:   [ok]   silence fill: armed t1 EMITS AAF PDUs          = 0x1
+17000:   [ok]   silence fill: t1 channels_per_frame = wire width = 0x2
+17001:   [ok]   silence fill: t1 stream_data_length = 48       = 0x30
+17002:   [ok]   silence fill: t1 payload is DIGITAL SILENCE, every PDU = 0x3
+17003:   [ok]   silence fill: no PDU from an unelaborated uid  = 0x0
+17004:   [ok]   silence fill: sibling talkers t2/t3 frame too (5.3.7.3) = 0x1
+17006:   [ok]   adopt-dp: defaults in force (0x788 = {prio 3, vid 2}) = 0x30002
+17007:   [ok]   adopt-dp: 0x788 reads {adopted, prio 3, VID 5} = 0x1030005
+17008:   [ok]   adopt-dp: re-declaration of the adopted pair heals domain_ok = 0x1
+17009:   [ok]   adopt-dp: AAF C-TAG TCI = {PCP 3, VID 5} (0x6005) = 0x6005
+17010:   [ok]   lwSRP off: t1 re-arms                          = 0x1
+17011:   [ok]   MAAP unclaimed: t1 held                        = 0x0
+17012:   [ok]   MAAP unclaimed: t0 held too                    = 0x0
+17013:   [ok]   MAAP off: both restored                        = 0x3
+17014:   [ok]   w0 CTRL[0]=0 does NOT stop t1 (no per-stream software enable) = 0x1
+17015:   [ok]   t0 unaffected by the t1 w0 commit              = 0x1
+17016:   [ok]   t2/t3 armed too (shape-static, reset-armed)    = 0x3
+17018:   [ok]   ctx3 CTRL readback (port B)                    = 0x1
+17019:   [ok]   sweep: shared PCMRX counts one PDU per fresh stream = 0x1
+17020:   [ok]   sweep: retired route bit never reaches fabric render = 0x0
+17021:   [ok]   ctx3 FRAMES_RX == 1 (isolated)                 = 0x1
+17022:   [ok]   ctx3 PDUS == 1                                 = 0x1
+17023:   [ok]   sweep: unknown sid ignored by PCMRX            = 0x13
+17024:   [ok]   sweep: unknown sid ignored by fabric render    = 0x18
+17026:   [ok]   TRAP-1 bind: the listener launched its PROBE_TX = 0x1
+17027:   [ok]   TRAP-1 bound: PARSED climbs                    = 0x1
+17028:   [ok]   TRAP-1 bound: MATCHED climbs (alias intact)    = 0x1
+17029:   [ok]   TRAP-1 bound: INFO match flag set              = 0x1
+17030:   [ok]   TRAP-1 bound: INFO index 0                     = 0x0
+17031:   [ok]   TRAP-1 bound: the ACMP alias counts as one armed entry = 0x1
+17032:   [ok]   5.3.8.7 GET_STREAM_INFO answers before the stop = 0x0
+17033:   [ok]   5.3.8.7 started: STREAMING_WAIT reads 0        = 0x1
+17034:   [ok]   5.3.8.7 STOP_STREAMING answered SUCCESS        = 0x0
+17035:   [ok]   5.3.8.7 stopped: STREAMING_WAIT reads 1        = 0x1
+17036:   [ok]   5.3.8.7 stopped: ...and BOUND still reads 1 - the clause stops the data, it does not unbind the sink = 0x1
+17037:   [ok]   5.3.8.7 stopped: the frame still REACHES the parser = 0x1
+17038:   [ok]   5.3.8.7 stopped: ...and is STILL matched (it is still bound) = 0x1
+17039:   [ok]   5.3.8.7 stopped: ...but the media path got NOTHING = 0x0
+17040:   [ok]   5.3.8.7 START_STREAMING answered SUCCESS       = 0x0
+17041:   [ok]   5.3.8.7 restarted: PARSED climbs               = 0x1
+17042:   [ok]   5.3.8.7 restarted: MATCHED climbs again        = 0x1
+17043:   [ok]   5.3.8.7 restarted: ...and the media path receives again = 0x1
+17044:   [ok]   5.3.8.7 restarted: STREAMING_WAIT reads 0 again = 0x1
+17045:   [ok]   5.3.8.7 Table 5.6: FRAMES_RX SURVIVED the stop/start pair = 0x1
+17046:   [ok]   5.3.8.7 Table 5.6: ...and counted the frame arriving while STOPPED (the clause says a stopped input RECEIVES) = 0x1
+17047:   [ok]   CRF 5.3.8.7 the tuid!=luid bind SETTLES (the validator's response-uid law end to end) = 0x1
+17048:   [ok]   CRF 5.3.8.7 wait-bind: GET_STREAM_INFO SUCCESS = 0x0
+17049:   [ok]   CRF 5.3.8.7 wait-bind: BOUND reads 1           = 0x1
+17050:   [ok]   CRF 5.3.8.7 wait-bind: STREAMING_WAIT reads 1  = 0x1
+17051:   [ok]   CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10  = 0xa
+17052:   [ok]   CRF 5.3.8.7 stopped: fmt/seq stayed clean      = 0x0
+17053:   [ok]   CRF 5.3.8.7 stopped: ten valid PDUs did NOT lock the sink = 0x0
+17054:   [ok]   CRF 5.3.8.7 START_STREAMING answered SUCCESS   = 0x0
+17055:   [ok]   CRF 5.3.8.7 started: STREAMING_WAIT reads 0 immediately = 0x1
+17056:   [ok]   CRF 5.3.8.7 started: the same cadence now LOCKS = 0x1
+17057:   [ok]   CRF 5.3.8.7 STOP_STREAMING answered SUCCESS    = 0x0
+17058:   [ok]   CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair = 0x3
+17059:   [ok]   CRF 5.3.8.7 re-stopped: still BOUND (stop is not unbind) = 0x1
+17060:   [ok]   CRF 5.3.8.7 cleanup: START answered SUCCESS    = 0x0
+17061:   [ok]   #67 pre: the high Stream Input is NOT bound    = 0x1
+17062:   [ok]   #67 GET_STREAM_FORMAT SUCCESS at cdl 24        = 0x1
+17063:   [ok]   #67 pre: the high input's power-on mappings are removed (#658) = 0x0
+17064:   [ok]   #67 pre: SPI 0's cluster 0 is freed for the probe mapping = 0x0
+17065:   [ok]   #67 the generated base declares the leg's channel count = 0x4
+17066:   [ok]   #67 SET_STREAM_FORMAT to the 2ch family member SUCCEEDS = 0x0
+17067:   [ok]   #67 ...echoing the format now in force         = 0x1
+17068:   [ok]   #67 GET_STREAM_FORMAT serves the SETTING through the fold = 0x1
+17069:   [ok]   #67 an off-family base is BAD_ARGUMENTS        = 0x7
+17070:   [ok]   #67 ...carrying the CURRENT format, not the refused one = 0x1
+17071:   [ok]   #67 baseline: the base format is in force      = 0x0
+17072:   [ok]   #67 ADD_AUDIO_MAPPINGS(channel 2 of the high input) SUCCEEDS = 0x0
+17073:   [ok]   #67 a 1ch format that orphans channel 2 is BAD_ARGUMENTS = 0x7
+17074:   [ok]   #67 2ch still orphans channel 2 (needs 3)      = 0x7
+17075:   [ok]   #67 the 8ch base still satisfies the mapping   = 0x0
+17076:   [ok]   #67 REMOVE_AUDIO_MAPPINGS SUCCEEDS             = 0x0
+17077:   [ok]   #67 ...and the 1ch format is accepted once the mapping is gone = 0x0
+17078:   [ok]   #67 ADD of channel 2 refuses under the 1ch setting = 0x7
+17079:   [ok]   #67 restore: the base format is back           = 0x0
+17080:   [ok]   #67 ...and the same ADD succeeds under the base again = 0x0
+17081:   [ok]   #67 cleanup: the probe mapping is removed      = 0x0
+17082:   [ok]   #67 pre: Stream Input 0 IS bound               = 0x1
+17083:   [ok]   #67 a bound Stream Input refuses STREAM_IS_RUNNING = 0xc
+17084:   [ok]   #67 the CRF output's current format is the CRF family = 0x4
+17085:   [ok]   #67 an AAF base on the CRF output is BAD_ARGUMENTS = 0x7
+17086:   [ok]   #67 ...carrying the CRF format as current      = 0x1
+17087:   [ok]   #67 the advertised CRF format itself is accepted = 0x0
+17088:   [ok]   #403 every factory output GET succeeds         = 0x0
+17089:   [ok]   #403 every factory output is 2 ms              = 0x1e8480
+17090:   [ok]   #403 every factory output GET succeeds         = 0x0
+17091:   [ok]   #403 every factory output is 2 ms              = 0x1e8480
+17092:   [ok]   #403 every factory output GET succeeds         = 0x0
+17093:   [ok]   #403 every factory output is 2 ms              = 0x1e8480
+17094:   [ok]   #403 every factory output GET succeeds         = 0x0
+17095:   [ok]   #403 every factory output is 2 ms              = 0x1e8480
+17096:   [ok]   #403 every factory output GET succeeds         = 0x0
+17097:   [ok]   #403 every factory output is 2 ms              = 0x1e8480
+17099:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17101:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17103:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17105:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17107:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17109:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17111:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17113:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17115:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17117:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17118:   [ok]   #403 output 0 produced two timestamp observations = 0x2
+17119:   [ok]   #403 output 1 produced two timestamp observations = 0x2
+17120:   [ok]   #403 output 2 produced two timestamp observations = 0x2
+17121:   [ok]   #403 output 3 produced two timestamp observations = 0x2
+17122:   [ok]   #403 output 4 produced two timestamp observations = 0x2
+17123:   [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+17124:   [ok]   #403 runtime GET changes only its own output   = 0xf4240
+17125:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17126:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17127:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17128:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17130:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17132:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17134:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17136:   [ok]   #403 output 0 AAF timestamp follows 1000000 ns = 0x1
+17138:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17140:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17142:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17144:   [ok]   #403 output 0 AAF timestamp follows 1000000 ns = 0x1
+17146:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17148:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17149:   [ok]   #403 output 0 produced two timestamp observations = 0x2
+17150:   [ok]   #403 output 1 produced two timestamp observations = 0x2
+17151:   [ok]   #403 output 2 produced two timestamp observations = 0x2
+17152:   [ok]   #403 output 3 produced two timestamp observations = 0x2
+17153:   [ok]   #403 output 4 produced two timestamp observations = 0x2
+17154:   [ok]   #403 runtime factory value can be selected again = 0x0
+17155:   [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+17156:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17157:   [ok]   #403 runtime GET changes only its own output   = 0xf4240
+17158:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17159:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17160:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17162:   [ok]   #403 output 1 AAF timestamp follows 1000000 ns = 0x1
+17164:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17166:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17168:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17170:   [ok]   #403 output 1 AAF timestamp follows 1000000 ns = 0x1
+17172:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17174:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17176:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17178:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17180:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17181:   [ok]   #403 output 0 produced two timestamp observations = 0x2
+17182:   [ok]   #403 output 1 produced two timestamp observations = 0x2
+17183:   [ok]   #403 output 2 produced two timestamp observations = 0x2
+17184:   [ok]   #403 output 3 produced two timestamp observations = 0x2
+17185:   [ok]   #403 output 4 produced two timestamp observations = 0x2
+17186:   [ok]   #403 runtime factory value can be selected again = 0x0
+17187:   [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+17188:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17189:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17190:   [ok]   #403 runtime GET changes only its own output   = 0xf4240
+17191:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17192:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17194:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17196:   [ok]   #403 output 2 AAF timestamp follows 1000000 ns = 0x1
+17198:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17200:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17202:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17204:   [ok]   #403 output 2 AAF timestamp follows 1000000 ns = 0x1
+17206:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17208:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17210:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17212:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17213:   [ok]   #403 output 0 produced two timestamp observations = 0x2
+17214:   [ok]   #403 output 1 produced two timestamp observations = 0x2
+17215:   [ok]   #403 output 2 produced two timestamp observations = 0x2
+17216:   [ok]   #403 output 3 produced two timestamp observations = 0x2
+17217:   [ok]   #403 output 4 produced two timestamp observations = 0x2
+17218:   [ok]   #403 runtime factory value can be selected again = 0x0
+17219:   [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+17220:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17221:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17222:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17223:   [ok]   #403 runtime GET changes only its own output   = 0xf4240
+17224:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17226:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17228:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17230:   [ok]   #403 output 3 AAF timestamp follows 1000000 ns = 0x1
+17232:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17234:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17236:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17238:   [ok]   #403 output 3 AAF timestamp follows 1000000 ns = 0x1
+17240:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17242:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17244:   [ok]   #403 output 4 CRF timestamp follows 2000000 ns = 0x1
+17245:   [ok]   #403 output 0 produced two timestamp observations = 0x2
+17246:   [ok]   #403 output 1 produced two timestamp observations = 0x2
+17247:   [ok]   #403 output 2 produced two timestamp observations = 0x2
+17248:   [ok]   #403 output 3 produced two timestamp observations = 0x2
+17249:   [ok]   #403 output 4 produced two timestamp observations = 0x2
+17250:   [ok]   #403 runtime factory value can be selected again = 0x0
+17251:   [ok]   #403 addressed output accepts runtime 1 ms     = 0x0
+17252:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17253:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17254:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17255:   [ok]   #403 runtime GET changes only its own output   = 0x1e8480
+17256:   [ok]   #403 runtime GET changes only its own output   = 0xf4240
+17258:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17260:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17262:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17264:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17266:   [ok]   #403 output 1 AAF timestamp follows 2000000 ns = 0x1
+17268:   [ok]   #403 output 2 AAF timestamp follows 2000000 ns = 0x1
+17270:   [ok]   #403 output 3 AAF timestamp follows 2000000 ns = 0x1
+17272:   [ok]   #403 output 0 AAF timestamp follows 2000000 ns = 0x1
+17274:   [ok]   #403 output 4 CRF timestamp follows 1000000 ns = 0x1
+17276:   [ok]   #403 output 4 CRF timestamp follows 1000000 ns = 0x1
+17277:   [ok]   #403 output 0 produced two timestamp observations = 0x2
+17278:   [ok]   #403 output 1 produced two timestamp observations = 0x2
+17279:   [ok]   #403 output 2 produced two timestamp observations = 0x2
+17280:   [ok]   #403 output 3 produced two timestamp observations = 0x2
+17281:   [ok]   #403 output 4 produced two timestamp observations = 0x2
+17282:   [ok]   #403 runtime factory value can be selected again = 0x0
+17283:   [ok]   #67 SET_STREAM_INFO(ACC_LAT) SUCCESS at cdl 96 = 0x1
+17284:   [ok]   #67 GET_STREAM_INFO reads the folded transit entry = 0xb71b0
+17285:   [ok]   #67 SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED = 0xb
+17286:   [ok]   #67 an extra sub-flag refuses the WHOLE command = 0xb
+17287:   [ok]   #67 a bit-31 offset is BAD_ARGUMENTS           = 0x7
+17288:   [ok]   #67 the 2013-length SET_STREAM_INFO refuses at cdl 96 = 0x1
+17289:   [ok]   #67 no refusal moved the stored offset         = 0xb71b0
+17290:   [ok]   #67 the CRF output's offset row takes SET_STREAM_INFO = 0x0
+17291:   [ok]   #67 ...and its GET reads the value the CRF talker stamps = 0x1e8480
+17292:   [ok]   #67 cleanup: SPI 0's power-on cluster 0 mapping is back = 0x0
+17293:   [ok]   #67 cleanup: the high input's power-on mappings are back = 0x0
+17294:   [ok]   TRAP-1 route-only CTRL at idx0 does not arm an override = 0x4
+17295:   [ok]   TRAP-1 route-only CTRL at idx0: STILL MATCHES  = 0x1
+17296:   [ok]   TRAP-1 explicit override at idx0: MATCH        = 0x1
+17297:   [ok]   TRAP-1 explicit override: INFO index 0         = 0x0
+17298:   [ok]   TRAP-1 release-to-alias: PARSED climbs         = 0x1
+17299:   [ok]   TRAP-1 release-to-alias: alias is back, MATCHED climbs = 0x1
+17300:   [ok]   TRAP-1 release-to-alias: INFO match flag set   = 0x1
+17301:   [ok]   TRAP-1 ACMP re-bind still matches: PARSED climbs = 0x1
+17302:   [ok]   TRAP-1 ACMP re-bind still matches: MATCHED climbs = 0x1
+17303:   [ok]   TRAP-1 negative: foreign sid PARSED            = 0x1
+17304:   [ok]   TRAP-1 negative: foreign sid NOT matched       = 0x0
+17305:   [ok]   TRAP-1 negative: INFO match flag clear         = 0x0
+17307:   [ok]   CRF probe: a 70-byte ACMP response came back   = 0x46
+17308:   [ok]   CRF probe: CONNECT_TX_RESPONSE(1)              = 0x1
+17309:   [ok]   CRF probe: status TALKER_DEST_MAC_FAILED(3), no DA held = 0x3
+17310:   [ok]   CRF probe: talker_unique_id echoed = N         = 0x4
+17311:   [ok]   CRF probe negative: uid N+1 -> TALKER_UNKNOWN_ID = 0x2
+17312:   [ok]   audio uid 1 answered in range (DEST_MAC_FAILED, not UNKNOWN_ID) = 0x3
+17313:   [ok]   CRFT_SID unset (auto)                          = 0x0
+17314:   [ok]   CRFT_DMAC unset (auto)                         = 0x0
+17315:   [ok]   CRF PDU on the wire                            = 0x1
+17316:   [ok]   CRF PDU dmac = the ACMP answer (base + N)      = 0x91e0f000fe05
+17317:   [ok]   CRF PDU stream_id tail = N                     = 0x4
+17318:   [ok]   explicit CRFT_DMAC overrides the auto pair     = 0x91e0f000feaa
+17320:   [ok]   class A off: a CRF PDU still reaches the MAC   = 0x1
+17321:   [ok]   class A off: UNTAGGED (ethertype 22F0 at 12)   = 0x22f0
+17322:   [ok]   class A off: 60-octet legacy frame             = 0x3c
+17323:   [ok]   class A off: dmac = the ACMP answer            = 0x91e0f000fe05
+17324:   [ok]   class A off: 0x750[4] TA not declared          = 0x0
+17325:   [ok]   class A off: 0x750[5] not tagged               = 0x0
+17326:   [ok]   class A off: 0x750[19:8] VID reads 0           = 0x0
+17327:   [ok]   lwSRP off: a CRF PDU still reaches the MAC (Milan 5.3.7.3 - a Stream Output is never stopped) = 0x1
+17328:   [ok]   lwSRP off + class A asked: STILL UNTAGGED (the interlock) = 0x22f0
+17329:   [ok]   lwSRP off: 0x750[1] readback keeps what was written = 0x1
+17330:   [ok]   lwSRP off: 0x750[5] tag refused                = 0x0
+17332:   [ok]   lb: talker 0 frames while the LOOP slot is mapped = 0x1
+17333:   [ok]   lb (lane OFF): a loopback slot is silent by construction = 0x0
+17335:   [ok]   lb: an UNMAPPED loop slot carries no rx audio  = 0x0
+17336:   [ok]   lb: unmapping a slot never stops talker 0 framing = 0x2
+17337:   [ok]   lb: and what it frames instead is silence      = 0x0
+17339:   [ok]   [NOTIFY] GET_NAME(ENTITY,0) answers SUCCESS (the restore point) = 0x0
+17340:   [ok]   [NOTIFY] REGISTER from controller A answers SUCCESS = 0x0
+17341:   [ok]   [NOTIFY] REGISTER from controller B answers SUCCESS = 0x0
+17342:   [ok]   [NOTIFY] ...B's response went to B (dst MAC + controller_entity_id) = 0x1
+17343:   [ok]   [NOTIFY] SET_NAME from A (a real change) is SUCCESS = 0x0
+17345:   [ok]   [NOTIFY] exactly ONE unsolicited SET_NAME egressed = 0x1
+17346:   [ok]   [NOTIFY] ...to controller B (dst MAC and controller_entity_id) = 0x1
+17347:   [ok]   [NOTIFY] ...and none to A, the requester (5.4.5.2 'except') = 0x0
+17348:   [ok]   [NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry) = 0x0
+17349:   [ok]   [NOTIFY] ...target_entity_id is this entity    = 0x1
+17350:   [ok]   [NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body = 0x1
+17351:   [ok]   [NOTIFY] ...carrying the NEW name: current state, not history = 0x1
+17352:   [ok]   [NOTIFY] SET_NAME of the value already held is SUCCESS = 0x0
+17353:   [ok]   [NOTIFY] ...and pushes NOTHING: no state was modified (5.4.5.2) = 0x0
+17354:   [ok]   [NOTIFY] SET_NAME from B is SUCCESS            = 0x0
+17355:   [ok]   [NOTIFY] B's change reaches A alone            = 0x1
+17356:   [ok]   [NOTIFY] ...A's entry starts its own sequence at 0 = 0x0
+17357:   [ok]   [NOTIFY] a second change from A is SUCCESS     = 0x0
+17358:   [ok]   [NOTIFY] ...reaches B with sequence_id 1 (its entry advanced) = 0x1
+17359:   [ok]   [NOTIFY] ...and A's entry did not move (independent per entry) = 0x0
+17360:   [ok]   [NOTIFY] GET_NAME right after is byte-identical from the body on = 0x1
+17361:   [ok]   [OWNERLESS] GM LO write is inert               = 0x0
+17362:   [ok]   [OWNERLESS] GM HI write is inert               = 0x0
+17363:   [ok]   [OWNERLESS] domain write is inert              = 0x0
+17364:   [ok]   [OWNERLESS] pdelay write is inert              = 0x0
+17365:   [ok]   [OWNERLESS] parent LO write is inert           = 0x0
+17366:   [ok]   [OWNERLESS] parent HI write is inert           = 0x0
+17367:   [ok]   [OWNERLESS] CLKV control write is inert        = 0x0
+17368:   [ok]   [OWNERLESS] AS path LO write is inert          = 0x0
+17369:   [ok]   [OWNERLESS] AS path HI write is inert          = 0x0
+17370:   [ok]   [OWNERLESS] AS path command/write is inert     = 0x0
+17371:   [ok]   [OWNERLESS] timestamp uncertainty is permanent = 0x1
+17372:   [ok]   [OWNERLESS] sync_ok remains clear              = 0x0
+17373:   [ok]   [OWNERLESS] retired no-lease bit remains clear = 0x0
+17374:   [ok]   [OWNERLESS] software discontinuity cannot arm holdover = 0x0
+17375:   [ok]   [OWNERLESS] retired lease count remains zero   = 0x0
+17376:   [ok]   [OWNERLESS] asCapable remains clear            = 0x0
+17377:   [ok]   [OWNERLESS] writes emit no GET_AVB_INFO notification = 0x0
+17378:   [ok]   [OWNERLESS] writes emit no GET_AS_PATH notification = 0x0
+17379:   [ok]   [OWNERLESS] writes emit no AVB_INTERFACE counter notification = 0x0
+17380:   [ok]   [OWNERLESS] writes do not count a grandmaster change = 0x0
+17381:   [ok]   [OWNERLESS] solicited GET_AVB_INFO succeeds    = 0x0
+17382:   [ok]   [OWNERLESS] GET_AVB_INFO grandmaster is zero   = 0x0
+17383:   [ok]   [OWNERLESS] GET_AVB_INFO propagation delay is zero = 0x0
+17384:   [ok]   [OWNERLESS] GET_AVB_INFO domain is zero        = 0x0
+17385:   [ok]   [OWNERLESS] GET_AVB_INFO asCapable flag is clear = 0x0
+17386:   [ok]   [OWNERLESS] solicited GET_AS_PATH succeeds     = 0x0
+17387:   [ok]   [OWNERLESS] GET_AS_PATH has the empty cdl      = 0x10
+17388:   [ok]   [OWNERLESS] GET_AS_PATH count is zero          = 0x0
+17389:   [ok]   [NOTIFY] DEREGISTER from B answers SUCCESS     = 0x0
+17390:   [ok]   [NOTIFY] a change from A with B gone is SUCCESS = 0x0
+17391:   [ok]   [NOTIFY] ...and pushes nothing: A is the requester, B is gone = 0x0
+17392:   [ok]   [NOTIFY] DEREGISTER from A answers SUCCESS     = 0x0
+17393:   [ok]   [NOTIFY] the shipped entity_name is restored   = 0x1
+17396:   [ok]   0x0041 grid: media_tick_p actually ticks (vacuity guard) = 0x1
+17397:   [ok]   0x0041 grid: rate is 48 kHz on the milan clock = 0x1
+17399:   [ok]   0x0042 phys: the slot-indexed capture bucket IS fed (was tied off) = 0x1
+17400:   [ok]   0x0041 grid: the NCO's servo gate IS the live selection verdict = 0x0
+17401:   [ok]   0x0041 grid: INTERNAL engages the grid aligner (#629 A2-a) = 0x1
+17402:   [ok]   0x0041 grid: a disengaged aligner leaves no residual trim on the NCO port = 0x0
+17404: checks: 1967   failures: 0
+17410:   [PASS] ID == 'MILN'                       got=0x4d494c4e exp=0x4d494c4e
+17411:   [PASS] VERSION                            got=0x00020060 exp=0x00020060
+17412:   [PASS] LINKG unarmed                      got=0x00000003 exp=0x00000003
+17413: [CSR] eth guard: refused levers, magic unguard, junk re-arm
+17414:   [PASS] GUARD armed at reset               got=0x00000001 exp=0x00000001
+17415:   [PASS] PHY_RST write REFUSED while guarded got=0x00000001 exp=0x00000001
+17416:   [PASS] LINK_CTRL[1] masked while guarded  got=0x00000001 exp=0x00000001
+17417:   [PASS] magic unguards                     got=0x00000000 exp=0x00000000
+17418:   [PASS] PHY_RST write accepted unguarded   got=0x00000000 exp=0x00000000
+17419:   [PASS] junk write re-arms the guard       got=0x00000001 exp=0x00000001
+17420:   [PASS] unguarded for the suite            got=0x00000000 exp=0x00000000
+17421:   [PASS] CAP.ADP bit12                      got=0x00000001 exp=0x00000001
+17422:   [PASS] CAP.TCAM bit13                     got=0x00000001 exp=0x00000001
+17424:   [PASS] CLS_REGEN readback                 got=0x00fac688 exp=0x00fac688
+17425:   [PASS] CLS_TCQ   readback                 got=0x000000e4 exp=0x000000e4
+17427:   [PASS] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) got=0x00000001 exp=0x00000001
+17428:   [PASS] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) got=0x00000007 exp=0x00000007
+17430:   [PASS] A_ADP_DIAG 0x668 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+17431:   [PASS] A_ADP_DIAG2 0x674 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+17434:   [PASS] 0x618 RO shape word derives from the config got=0x40010001 exp=0x40010001
+17435:   [PASS] 0x61C RO shape word derives from the config got=0x48010002 exp=0x48010002
+17436:   [PASS] 0x618 refuses the poke             got=0x40010001 exp=0x40010001
+17437:   [PASS] 0x61C refuses the poke             got=0x48010002 exp=0x48010002
+17439:   [PASS] ACMP response emerged on MAC port  got=0x00000001 exp=0x00000001
+17440:   [PASS] ACMP response is 9 beats           got=0x00000009 exp=0x00000009
+17441:   [PASS] ACMP dst multicast                 got=0x01f0e091 exp=0x01f0e091
+17442:   [PASS] ACMP subtype 0xFC                  got=0x000000fc exp=0x000000fc
+17443:   [PASS] ACMP msg GET_TX_STATE_RESPONSE(5)  got=0x00000005 exp=0x00000005
+17444:   [PASS] ACMP status SUCCESS + cdl 44       got=0x00002c00 exp=0x00002c00
+17445:   [PASS] ACMP connection_count 0            got=0x00000000 exp=0x00000000
+17446:   [PASS] ACMP sequence echoed               got=0x00002b1a exp=0x00002b1a
+17447:   [PASS] 0x650 ACMP_STAT is a STRUCTURAL ZERO (no PDU counters) got=0x00000000 exp=0x00000000
+17448:   [PASS] PP_DIAG: the plane ACCEPTED control frames (rx_frames > 0) got=0x00000001 exp=0x00000001
+17449:   [PASS] PP_DIAG: and it SENT some (tx_frames > 0) got=0x00000001 exp=0x00000001
+17450:   [PASS] PP_DIAG: nothing was lost to a full control FIFO got=0x00000000 exp=0x00000000
+17452:   [PASS] o_irq_csr defined (0/1)            got=0x00000001 exp=0x00000001
+17454:   [PASS] PHC adjfine owns the rate          got=0x00000001 exp=0x00000001
+17455:   [PASS] PHC adjtime hops the counter       got=0x00000001 exp=0x00000001
+17457:   [PASS] gate closed pre-probe (CSR)        got=0x00000000 exp=0x00000000
+17458:   [PASS] MAC silent while gated             got=0x00000000 exp=0x00000000
+17459:   [PASS] PROBE response emerged             got=0x00000001 exp=0x00000001
+17460:   [PASS] PROBE response 9 beats             got=0x00000009 exp=0x00000009
+17461:   [PASS] PROBE msg RESPONSE(1)              got=0x00000001 exp=0x00000001
+17462:   [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+17463:   [PASS] gate STILL closed after a refused probe got=0x00000000 exp=0x00000000
+17464:   [PASS] AAF_CTRL[1] bypass opens the gate, and ONLY the gate got=0x00000008 exp=0x00000008
+17465:   [PASS] AAF frames flow under the bypass escape got=0x00000001 exp=0x00000001
+17466:   [PASS] AAF stream_id == {station MAC, uid 0} got=0x200000000010000 exp=0x200000000010000
+17467:   [PASS] TONE_CTRL readback                 got=0x00000001 exp=0x00000001
+17468:   [PASS] tone L0 in table                   got=0x00000001 exp=0x00000001
+17469:   [PASS] tone L0 == R0 (both channels)      got=0x00000001 exp=0x00000001
+17470:   [PASS] tone advances (L1 = next entry)    got=0x00000001 exp=0x00000001
+17471:   [PASS] tone frame captured                got=0x00000001 exp=0x00000001
+17472:   [PASS] crossbar tone: 48 ticks captured   got=0x00000030 exp=0x00000030
+17473:   [PASS] crossbar tone: all wire channels equal got=0x00000000 exp=0x00000000
+17474:   [PASS] crossbar tone: first sample in table got=0x00000001 exp=0x00000001
+17475:   [PASS] ONE GRID: N ticks = N table steps (no slip) got=0x00000000 exp=0x00000000
+17477:   [PASS] CLKV: retained CTRL resets zero    got=0x00000000 exp=0x00000000
+17478:   [PASS] CLKV: reset tu = 1                 got=0x00000001 exp=0x00000001
+17479:   [PASS] CLKV: reset sync_ok = 0            got=0x00000000 exp=0x00000000
+17480:   [PASS] CLKV: retired no-lease bit = 0     got=0x00000000 exp=0x00000000
+17481:   [PASS] CLKV: retired lease count = 0      got=0x00000000 exp=0x00000000
+17482:   [PASS] CLKV: reset asCapable = 0          got=0x00000000 exp=0x00000000
+17483:   [PASS] CLKV: ownerless frame is still emitted got=0x00000001 exp=0x00000001
+17484:   [PASS] CLKV: ownerless frame carries tu=1 got=0x00000001 exp=0x00000001
+17485:   [PASS] CLKV: ownerless frame keeps tv=1   got=0x00000081 exp=0x00000081
+17486:   [PASS] CLKV: frame remains the full AAF PDU got=0x0000005a exp=0x0000005a
+17487:   [PASS] CLKV: all owner-control bits read back zero got=0x00000000 exp=0x00000000
+17488:   [PASS] CLKV: write cannot clear tu        got=0x00000001 exp=0x00000001
+17489:   [PASS] CLKV: write cannot assert sync     got=0x00000000 exp=0x00000000
+17490:   [PASS] CLKV: write cannot assert asCapable got=0x00000000 exp=0x00000000
+17491:   [PASS] CLKV: write cannot create a lease  got=0x00000000 exp=0x00000000
+17492:   [PASS] CLKV: software discontinuity is inert got=0x00000000 exp=0x00000000
+17493:   [PASS] CLKV: frame after owner write is emitted got=0x00000001 exp=0x00000001
+17494:   [PASS] CLKV: owner write cannot clear wire tu got=0x00000001 exp=0x00000001
+17495:   [PASS] CLKV: GM LO write reads zero       got=0x00000000 exp=0x00000000
+17496:   [PASS] CLKV: GM HI write reads zero       got=0x00000000 exp=0x00000000
+17497:   [PASS] CLKV: domain write reads zero      got=0x00000000 exp=0x00000000
+17498:   [PASS] CLKV: pdelay write reads zero      got=0x00000000 exp=0x00000000
+17499:   [PASS] CLKV: parent LO write reads zero   got=0x00000000 exp=0x00000000
+17500:   [PASS] CLKV: parent HI write reads zero   got=0x00000000 exp=0x00000000
+17501:   [PASS] CLKV: publication writes cannot assert GM holdover got=0x00000000 exp=0x00000000
+17502:   [PASS] CLKV: publication writes cannot clear tu got=0x00000001 exp=0x00000001
+17503:   [PASS] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000000 exp=0x00000000
+17504:   [PASS] CLKV: PHC step arms holdover       got=0x00000001 exp=0x00000001
+17505:   [PASS] CLKV: PHC step keeps tu asserted   got=0x00000001 exp=0x00000001
+17506:   [PASS] CLKV: holdover expires             got=0x00000000 exp=0x00000000
+17507:   [PASS] CLKV: ownerless tu remains asserted after holdover got=0x00000001 exp=0x00000001
+17508:   [PASS] CLKV: TUCNT advances for permanent uncertainty got=0x00000001 exp=0x00000001
+17509:   [PASS] CLKV: post-holdover frame is emitted got=0x00000001 exp=0x00000001
+17510:   [PASS] CLKV: post-holdover frame still carries tu=1 got=0x00000001 exp=0x00000001
+17511:   [PASS] CLKV: the settime leaves mr unchanged (#602) got=0x00000000 exp=0x00000000
+17512:   [PASS] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000000 exp=0x00000000
+17514:   [PASS] ASP: reset LO zero                 got=0x00000000 exp=0x00000000
+17515:   [PASS] ASP: reset HI zero                 got=0x00000000 exp=0x00000000
+17516:   [PASS] ASP: reset {gen,count} zero        got=0x00000000 exp=0x00000000
+17517:   [PASS] ASP: LO write reads zero           got=0x00000000 exp=0x00000000
+17518:   [PASS] ASP: HI write reads zero           got=0x00000000 exp=0x00000000
+17519:   [PASS] ASP: commit/publish writes read zero got=0x00000000 exp=0x00000000
+17521:   [PASS] RXMON stat idle                    got=0x00000000 exp=0x00000000
+17522:   [PASS] RXMON frames_rx idle               got=0x00000000 exp=0x00000000
+17523:   [PASS] the listener launched a PROBE_TX at the named talker got=0x00000001 exp=0x00000001
+17524:   [PASS] listener bound (0x6A4[3] bound, the class-D record) got=0x00000001 exp=0x00000001
+17525:   [PASS] ...and 0x6A4[4] stream-active follows it got=0x00000001 exp=0x00000001
+17526:   [PASS] 0x6A4[2:0] SM state is a STRUCTURAL ZERO (no ladder here) got=0x00000000 exp=0x00000000
+17528:   [PASS] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000000 exp=0x00000000
+17529:   [PASS] ...so FRAMES_RX moved (0x6BC)      got=0x00000001 exp=0x00000001
+17530:   [PASS] ...and PCMRX advanced (0x6C4)      got=0x00000001 exp=0x00000001
+17531:   [PASS] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+17532:   [PASS] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000001 exp=0x00000001
+17533:   [PASS] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000000 exp=0x00000000
+17534:   [PASS] tagged: FRAMES_RX = 2              got=0x00000002 exp=0x00000002
+17535:   [PASS] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+17536:   [PASS] APRB parsed = 2 frames             got=0x00000002 exp=0x00000002
+17537:   [PASS] APRB matched = 2 frames            got=0x00000002 exp=0x00000002
+17538:   [PASS] APRB last SID_HI (wire)            got=0x02000000 exp=0x02000000
+17539:   [PASS] APRB last SID_LO (wire)            got=0x00020000 exp=0x00020000
+17540:   [PASS] APRB info subtype = AAF            got=0x00000002 exp=0x00000002
+17541:   [PASS] APRB info matched flag             got=0x00000001 exp=0x00000001
+17542:   [PASS] APRB info armed entries            got=0x00000001 exp=0x00000001
+17543:   [PASS] APRB unknown-sid: parsed = 3       got=0x00000003 exp=0x00000003
+17544:   [PASS] APRB unknown-sid: matched still 2  got=0x00000002 exp=0x00000002
+17545:   [PASS] APRB unknown-sid: SID_LO is the WIRE value got=0x00090000 exp=0x00090000
+17546:   [PASS] APRB unknown-sid: match flag clear got=0x00000000 exp=0x00000000
+17547:   [PASS] APRB unknown-sid: no fabric-render payload got=0x00000000 exp=0x00000000
+17548:   [PASS] APRB unknown-sid: FRAMES_RX still 2 (unbound sid refused) got=0x00000002 exp=0x00000002
+17552:   [PASS] prefilter: PCMRX KEPT consuming (+2 PDUs) got=0x00000005 exp=0x00000005
+17553:   [PASS] prefilter: fabric render KEPT consuming (+12 beats) got=0x0000000c exp=0x0000000c
+17554:   [PASS] I2S left sample from payload       got=0x00000001 exp=0x00000001
+17555:   [PASS] epoch = 1 (one reset release since bitstream) got=0x00000001 exp=0x00000001
+17556:   [PASS] LINK_CTRL reads back 0 (shadowed)  got=0x00000000 exp=0x00000000
+17557:   [PASS] LINK_CTRL reads back 1 (shadowed)  got=0x00000001 exp=0x00000001
+17558:   [PASS] epoch unchanged by link toggles    got=0x00000001 exp=0x00000001
+17559:   [PASS] datapath alive after link toggle (ID) got=0x4d494c4e exp=0x4d494c4e
+17560:   [PASS] ENT_NAME_LO reads back             got=0x59545241 exp=0x59545241
+17561:   [PASS] LPF_CTRL default on                got=0x00000001 exp=0x00000001
+17562:   [PASS] LPF_CTRL bypass set                got=0x00000000 exp=0x00000000
+17563:   [PASS] UNSUPPORTED_FORMAT +1 (0x6C0)      got=0x00000001 exp=0x00000001
+17564:   [PASS] FRAMES_RX unchanged by wrong-rate  got=0x00000009 exp=0x00000009
+17565:   [PASS] no fabric render for rejected PDU  got=0x00000000 exp=0x00000000
+17566:   [PASS] PCMRX unchanged by wrong-rate      got=0x00000006 exp=0x00000006
+17567:   [PASS] UNSUPPORTED_FORMAT view reached its 0xFF ceiling got=0x000000ff exp=0x000000ff
+17568:   [PASS] saturated view STAYS 0xFF (no wrap) got=0x000000ff exp=0x000000ff
+17569:   [PASS] neighbouring TIMESTAMP_UNCERTAIN byte untouched got=0x00000000 exp=0x00000000
+17570:   [PASS] full 32-bit UNSUPPORTED_FORMAT > the saturated view got=0x00000001 exp=0x00000001
+17573:   [PASS] CRF pdu_count 1                    got=0x00000001 exp=0x00000001
+17574:   [PASS] CRF no fmt/seq errors              got=0x00000000 exp=0x00000000
+17575:   [PASS] CRF not locked yet                 got=0x00000000 exp=0x00000000
+17576:   [PASS] CRF delta captured (nonzero)       got=0x00000001 exp=0x00000001
+17577:   [PASS] CRF locked after 8 clean PDUs      got=0x00000001 exp=0x00000001
+17578:   [PASS] CRF pdu_count 8                    got=0x00000008 exp=0x00000008
+17579:   [PASS] CRF fmt_err 1 (wrong interval)     got=0x00000001 exp=0x00000001
+17580:   [PASS] CRF count unchanged by bad fmt     got=0x00000008 exp=0x00000008
+17581:   [PASS] CRF still locked (no timeout)      got=0x00000001 exp=0x00000001
+17582:   [PASS] CRF foreign sid ignored            got=0x00000008 exp=0x00000008
+17583:   [PASS] CRF seq_err 1                      got=0x00000001 exp=0x00000001
+17584:   [PASS] CRF rate = +256000 ns/window       got=0x0003e800 exp=0x0003e800
+17585:   [PASS] CRF-5: mr/fs/tu PDUs accepted (+2) got=0x0000010f exp=0x0000010f
+17586:   [PASS] CRF-5: no fmt/seq errors from mr/fs/tu got=0x00000101 exp=0x00000101
+17587:   [PASS] CRF-5: lock survives mr/fs/tu      got=0x00000001 exp=0x00000001
+17588:   [PASS] CRF-5: sv=0 PDU ignored            got=0x0000010f exp=0x0000010f
+17589:   [PASS] CRF-5: clean seq resumes after sv=0 got=0x00000101 exp=0x00000101
+17590:   [PASS] CRF-5: resumed PDU counted         got=0x00000110 exp=0x00000110
+17591:   [PASS] CRF disabled = inert               got=0x00000110 exp=0x00000110
+17594:   [PASS] the NCO grid is aligned at INTERNAL (servo_en = 1, #629 A2-a) got=0x00000001 exp=0x00000001
+17595:   [PASS] ...and no source is followed at INTERNAL (follow_sel = 0) got=0x00000000 exp=0x00000000
+17596:   [PASS] MMCM servo stays IDLE at clock_source = INTERNAL (MCSRV_STAT[2:0] == 0) got=0x00000000 exp=0x00000000
+17597:   [PASS] MCSRV_CTRL reads 0 at reset        got=0x00000000 exp=0x00000000
+17598:   [PASS] MCSRV_CTRL ps_invert readback      got=0x00000001 exp=0x00000001
+17599:   [PASS] MCSRV_CTRL clears                  got=0x00000000 exp=0x00000000
+17602:   [PASS] CRFT count starts 0                got=0x00000000 exp=0x00000000
+17603:   [PASS] CRFT sid readback (shadow)         got=0x00010001 exp=0x00010001
+17604:   [PASS] CRFT dmac readback (shadow)        got=0xf0002a07 exp=0xf0002a07
+17605:   [PASS] CRFT_CTRL readback en=1 + stat[7]  got=0x00000081 exp=0x00000081
+17606:   [PASS] CRFTX captured 10 PDUs             got=0x0000000a exp=0x0000000a
+17607:   [PASS] CRFTX 60-byte frame (last keep 0x0F) got=0x0000000f exp=0x0000000f
+17608:   [PASS] CRFT count == captured             got=0x0000000a exp=0x0000000a
+17610:   [PASS] CRFTX header/sid/base/dlen/ival byte-exact got=0x00000001 exp=0x00000001
+17611:   [PASS] CRFTX option-off ownerless tu stays one got=0x00000001 exp=0x00000001
+17612:   [PASS] CRFTX sequence_num 0..9 consecutive got=0x00000001 exp=0x00000001
+17613:   [PASS] CRFTX zero pad to 60B              got=0x00000001 exp=0x00000001
+17614:   [PASS] CRFTX ts strictly monotone         got=0x00000001 exp=0x00000001
+17615:   [PASS] CRFTX ts grid uniform (event-locked) got=0x00000001 exp=0x00000001
+17616:   [PASS] CRFTX ts spacing nonzero           got=0x00000001 exp=0x00000001
+17617:   [PASS] CRFRX counted all looped PDUs      got=0x0000000a exp=0x0000000a
+17618:   [PASS] CRFRX fmt clean on our wire format got=0x00000000 exp=0x00000000
+17619:   [PASS] CRFRX at most the sid-switch seq gap got=0x00000001 exp=0x00000001
+17620:   [PASS] CRFRX locked on our stream         got=0x00000001 exp=0x00000001
+17621:   [PASS] CRFRX delta ~= +PTO (Milan future-dating) got=0x00000001 exp=0x00000001
+17623:   [PASS] H2 baseline: the CRF output is emitting got=0x00000003 exp=0x00000003
+17624:   [PASS] H2 baseline: byte 15 is a well-formed sv|mr|fs|tu byte got=0x00000080 exp=0x00000080
+17625:   [PASS] H2: the granted mr level reaches the wire byte, held got=0x00000001 exp=0x00000001
+17627:   [PASS] CRFTX disabled = silent wire       got=0x00000000 exp=0x00000000
+17628:   [PASS] CRFTX disabled = count frozen      got=0x0000000d exp=0x0000000d
+17629:   [PASS] CRFTX unlicensed (lwSRP on, no listener-ready) = silent got=0x00000000 exp=0x00000000
+17630:   [PASS] CRFTX unlicensed = count frozen    got=0x0000000d exp=0x0000000d
+17631:   [PASS] CRFT stat[7] emission-licensed clear got=0x00000000 exp=0x00000000
+17632:   [PASS] CRFTX free-run restored with lwSRP off got=0x00000001 exp=0x00000001
+17633:   [PASS] CRFT stat[7] emission-licensed set got=0x00000001 exp=0x00000001
+17636:   [PASS] [S1CRF] CSR enable cleared         got=0x00000000 exp=0x00000000
+17637:   [PASS] [S1CRF] sink 1 launched its PROBE_TX got=0x00000001 exp=0x00000001
+17639:   [PASS] [S1CRF] ACMPL bit31 = sink-1 bound got=0x00000001 exp=0x00000001
+17640:   [PASS] [S1CRF] engine counted on bound sid got=0x00000009 exp=0x00000009
+17641:   [PASS] [S1CRF] locked via ACMP provisioning got=0x00000001 exp=0x00000001
+17642:   [PASS] [S1CRF] unbind clears bit31        got=0x00000000 exp=0x00000000
+17643:   [PASS] [S1CRF] post-unbind PDU ignored    got=0x00000009 exp=0x00000009
+17646:   [PASS] [LINKG] armed alive                got=0x00000003 exp=0x00000003
+17647:   [PASS] [LINKG] reinit pin idle            got=0x00000000 exp=0x00000000
+17648:   [PASS] [LINKG] freeze bounce              got=0x00000001 exp=0x00000001
+17649:   [PASS] [LINKG] freeze state               got=0x00000001 exp=0x00000001
+17650:   [PASS] [LINKG] freeze grst                got=0x00000001 exp=0x00000001
+17651:   [PASS] [LINKG] freeze alive               got=0x00000000 exp=0x00000000
+17652:   [PASS] [LINKG] reinit pin held            got=0x00000001 exp=0x00000001
+17653:   [PASS] [LINKG] disable releases pin       got=0x00000000 exp=0x00000000
+17654:   [PASS] [LINKG] re-enable RUN              got=0x00000000 exp=0x00000000
+17655:   [PASS] [LINKG] re-enable alive            got=0x00000003 exp=0x00000003
+17656:   [PASS] [LINKG] no extra bounce            got=0x00000001 exp=0x00000001
+17657:   [PASS] [LINKG] reinit pin clear           got=0x00000000 exp=0x00000000
+17659:   [PASS] [RMON] baseline TX_GOOD 0          got=0x00000000 exp=0x00000000
+17660:   [PASS] [RMON] baseline RX_GOOD 0          got=0x00000000 exp=0x00000000
+17661:   [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+17662:   [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+17663:   [PASS] [RMON] lanes latched (pre-re-arm TX_GOOD still 0) got=0x00000000 exp=0x00000000
+17664:   [PASS] [RMON] RX_GOOD == 2 (0x230)        got=0x00000002 exp=0x00000002
+17665:   [PASS] [RMON] UNDERFLOW == 0 (0x210)      got=0x00000000 exp=0x00000000
+17666:   [PASS] [RMON] ext UNDERFLOW pulse == 1    got=0x00000001 exp=0x00000001
+17667:   [PASS] [RMON] ext TX_GOOD bit ignored     got=0x00000000 exp=0x00000000
+17668:   [PASS] [RMON] ext RX_GOOD bit ignored     got=0x00000002 exp=0x00000002
+17669:   [PASS] [RMON] reinit release zeroes TX_GOOD got=0x00000000 exp=0x00000000
+17670:   [PASS] [RMON] reinit release zeroes RX_GOOD got=0x00000000 exp=0x00000000
+17672:   [PASS] [RMON] cap with no MAC = the two derived lanes only got=0x00000108 exp=0x00000108
+17673:   [PASS] [RMON] cap ORs the integration's lanes over the derived pair got=0x000001b8 exp=0x000001b8
+17674:   [PASS] [RMON] TX_ERROR_UNDERFLOW declared unsupported got=0x00000000 exp=0x00000000
+17675:   [PASS] [RMON] TX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+17676:   [PASS] [RMON] TX_FIFO_BAD_FRAME declared unsupported got=0x00000000 exp=0x00000000
+17677:   [PASS] [RMON] RX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+17678:   [PASS] [RMON] cap is a live read (bits 31:9 reserved 0) got=0x00000000 exp=0x00000000
+17680: milan_datapath: 236 checks, 0 failures
+17681: milan_datapath: guarded and NOT run in this shape: 1
+17686:   [ok]   ID == 'MILN'                                       = 0x4d494c4e
+17687:   [ok]   VERSION unchanged by the prunes                    = 0x20060
+17688:   [ok]   CAP.ADP bit12 still set                            = 0x1
+17689:   [ok]   CAP.TCAM bit13 still set                           = 0x1
+17691:   [ok]   MCSRV_STAT 0x8F8 reads 0 (structural)              = 0x0
+17692:   [ok]   MCSRV_CTRL reads 0 at reset                        = 0x0
+17693:   [ok]   MCSRV_CTRL still RW (ps_invert|auto_repair)        = 0x3
+17695:   [ok]   LTAP_CTRL = enable bit only, no status             = 0x2
+17696:   [ok]   all 16 LTAP RO words read 0                        = 0x0
+17698:   [ok]   MAAP_STAT0 reads 0                                 = 0x0
+17699:   [ok]   MAAP_STAT1 reads 0 (state INITIAL, addr_valid 0)   = 0x0
+17701:   [ok]   I2SPB_STAT reads 0                                 = 0x0
+17702:   [ok]   I2SPB_TRIM reads 0                                 = 0x0
+17703:   [ok]   I2SPB_DBG  reads 0                                 = 0x0
+17705:   [ok]   LPF_CTRL reset = 1 (enable, default)               = 0x1
+17706:   [ok]   LPF_CTRL still RW with no filter behind it         = 0x0
+17708:   [ok]   TCAM_CTRL still stores (window intact)             = 0x2
+17709:   [ok]   TCAM-drop dmac is accepted at MAC ingress          = 0x8
+17710:   [ok]   foreign unicast is accepted at MAC ingress         = 0x8
+17712:   [ok]   LTAP words STILL 0 after traffic                   = 0x0
+17713:   [ok]   LTAP_CTRL STILL 0x2 after traffic                  = 0x2
+17714:   [ok]   MCSRV_STAT STILL 0 after traffic                   = 0x0
+17715:   [ok]   listener 0 accepted the fed AAF PDUs (PCMRX_CNT pdus) = 0x10
+17716:   [ok]   SLIP_LB 0x8D4 STILL 0 fed then starved (structural: LOOPBACK_P=0) = 0x0
+17717:   [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison = 0x0
+17718:   [ok]   CHMAP_SNAP valid: a snapshot completed behind that word = 0x1
+17719:   [ok]   CHMAP_LOOP {mask_valid, valid, fed}: no lane       = 0x6
+17720:   [ok]   MAAP_STAT1 STILL 0 with MAAP_CTRL.en=1             = 0x0
+17721:   [ok]   MAAP_STAT0 STILL 0 with MAAP_CTRL.en=1             = 0x0
+17722:   [ok]   I2SPB_STAT STILL 0 after traffic                   = 0x0
+17723:   [ok]   no MMCM pin ever moved                             = 0x0
+17724:   [ok]   no DAC pin ever moved                              = 0x0
+17726:   [ok]   RST_EPOCH live (no shadow lie)                     = 0x1
+17728: checks: 33   failures: 0
+17734:   [PASS] ID == 'MILN'                       got=0x4d494c4e exp=0x4d494c4e
+17735:   [PASS] VERSION                            got=0x00020060 exp=0x00020060
+17736:   [PASS] LINKG unarmed                      got=0x00000003 exp=0x00000003
+17737: [CSR] eth guard: refused levers, magic unguard, junk re-arm
+17738:   [PASS] GUARD armed at reset               got=0x00000001 exp=0x00000001
+17739:   [PASS] PHY_RST write REFUSED while guarded got=0x00000001 exp=0x00000001
+17740:   [PASS] LINK_CTRL[1] masked while guarded  got=0x00000001 exp=0x00000001
+17741:   [PASS] magic unguards                     got=0x00000000 exp=0x00000000
+17742:   [PASS] PHY_RST write accepted unguarded   got=0x00000000 exp=0x00000000
+17743:   [PASS] junk write re-arms the guard       got=0x00000001 exp=0x00000001
+17744:   [PASS] unguarded for the suite            got=0x00000000 exp=0x00000000
+17745:   [PASS] CAP.ADP bit12                      got=0x00000001 exp=0x00000001
+17746:   [PASS] CAP.TCAM bit13                     got=0x00000001 exp=0x00000001
+17748:   [PASS] CLS_REGEN readback                 got=0x00fac688 exp=0x00fac688
+17749:   [PASS] CLS_TCQ   readback                 got=0x000000e4 exp=0x000000e4
+17751:   [PASS] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) got=0x00000001 exp=0x00000001
+17752:   [PASS] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) got=0x00000007 exp=0x00000007
+17754:   [PASS] A_ADP_DIAG 0x668 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+17755:   [PASS] A_ADP_DIAG2 0x674 is a STRUCTURAL ZERO (no advertiser) got=0x00000000 exp=0x00000000
+17758:   [PASS] 0x618 RO shape word derives from the config got=0x48010002 exp=0x48010002
+17759:   [PASS] 0x61C RO shape word derives from the config got=0x48010002 exp=0x48010002
+17760:   [PASS] 0x618 refuses the poke             got=0x48010002 exp=0x48010002
+17761:   [PASS] 0x61C refuses the poke             got=0x48010002 exp=0x48010002
+17763:   [PASS] ACMP response emerged on MAC port  got=0x00000001 exp=0x00000001
+17764:   [PASS] ACMP response is 9 beats           got=0x00000009 exp=0x00000009
+17765:   [PASS] ACMP dst multicast                 got=0x01f0e091 exp=0x01f0e091
+17766:   [PASS] ACMP subtype 0xFC                  got=0x000000fc exp=0x000000fc
+17767:   [PASS] ACMP msg GET_TX_STATE_RESPONSE(5)  got=0x00000005 exp=0x00000005
+17768:   [PASS] ACMP status SUCCESS + cdl 44       got=0x00002c00 exp=0x00002c00
+17769:   [PASS] ACMP connection_count 0            got=0x00000000 exp=0x00000000
+17770:   [PASS] ACMP sequence echoed               got=0x00002b1a exp=0x00002b1a
+17771:   [PASS] 0x650 ACMP_STAT is a STRUCTURAL ZERO (no PDU counters) got=0x00000000 exp=0x00000000
+17772:   [PASS] PP_DIAG: the plane ACCEPTED control frames (rx_frames > 0) got=0x00000001 exp=0x00000001
+17773:   [PASS] PP_DIAG: and it SENT some (tx_frames > 0) got=0x00000001 exp=0x00000001
+17774:   [PASS] PP_DIAG: nothing was lost to a full control FIFO got=0x00000000 exp=0x00000000
+17776:   [PASS] o_irq_csr defined (0/1)            got=0x00000001 exp=0x00000001
+17778:   [PASS] PHC adjfine owns the rate          got=0x00000001 exp=0x00000001
+17779:   [PASS] PHC adjtime hops the counter       got=0x00000001 exp=0x00000001
+17781:   [PASS] gate closed pre-probe (CSR)        got=0x00000000 exp=0x00000000
+17782:   [PASS] MAC silent while gated             got=0x00000000 exp=0x00000000
+17783:   [PASS] PROBE response emerged             got=0x00000001 exp=0x00000001
+17784:   [PASS] PROBE response 9 beats             got=0x00000009 exp=0x00000009
+17785:   [PASS] PROBE msg RESPONSE(1)              got=0x00000001 exp=0x00000001
+17786:   [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+17787:   [PASS] gate STILL closed after a refused probe got=0x00000000 exp=0x00000000
+17788:   [PASS] AAF_CTRL[1] bypass opens the gate, and ONLY the gate got=0x00000008 exp=0x00000008
+17789:   [PASS] AAF frames flow under the bypass escape got=0x00000001 exp=0x00000001
+17790:   [PASS] AAF stream_id == {station MAC, uid 0} got=0x200000000010000 exp=0x200000000010000
+17791:   [PASS] TONE_CTRL readback                 got=0x00000001 exp=0x00000001
+17796:   [PASS] crossbar tone: 48 ticks captured   got=0x00000030 exp=0x00000030
+17797:   [PASS] crossbar tone: all wire channels equal got=0x00000000 exp=0x00000000
+17798:   [PASS] crossbar tone: first sample in table got=0x00000001 exp=0x00000001
+17799:   [PASS] ONE GRID: N ticks = N table steps (no slip) got=0x00000000 exp=0x00000000
+17801:   [PASS] CLKV: retained CTRL resets zero    got=0x00000000 exp=0x00000000
+17802:   [PASS] CLKV: reset tu = 1                 got=0x00000001 exp=0x00000001
+17803:   [PASS] CLKV: reset sync_ok = 0            got=0x00000000 exp=0x00000000
+17804:   [PASS] CLKV: retired no-lease bit = 0     got=0x00000000 exp=0x00000000
+17805:   [PASS] CLKV: retired lease count = 0      got=0x00000000 exp=0x00000000
+17806:   [PASS] CLKV: reset asCapable = 0          got=0x00000000 exp=0x00000000
+17807:   [PASS] CLKV: ownerless frame is still emitted got=0x00000001 exp=0x00000001
+17808:   [PASS] CLKV: ownerless frame carries tu=1 got=0x00000001 exp=0x00000001
+17809:   [PASS] CLKV: ownerless frame keeps tv=1   got=0x00000081 exp=0x00000081
+17810:   [PASS] CLKV: frame remains the full AAF PDU got=0x000000ea exp=0x000000ea
+17811:   [PASS] CLKV: all owner-control bits read back zero got=0x00000000 exp=0x00000000
+17812:   [PASS] CLKV: write cannot clear tu        got=0x00000001 exp=0x00000001
+17813:   [PASS] CLKV: write cannot assert sync     got=0x00000000 exp=0x00000000
+17814:   [PASS] CLKV: write cannot assert asCapable got=0x00000000 exp=0x00000000
+17815:   [PASS] CLKV: write cannot create a lease  got=0x00000000 exp=0x00000000
+17816:   [PASS] CLKV: software discontinuity is inert got=0x00000000 exp=0x00000000
+17817:   [PASS] CLKV: frame after owner write is emitted got=0x00000001 exp=0x00000001
+17818:   [PASS] CLKV: owner write cannot clear wire tu got=0x00000001 exp=0x00000001
+17819:   [PASS] CLKV: GM LO write reads zero       got=0x00000000 exp=0x00000000
+17820:   [PASS] CLKV: GM HI write reads zero       got=0x00000000 exp=0x00000000
+17821:   [PASS] CLKV: domain write reads zero      got=0x00000000 exp=0x00000000
+17822:   [PASS] CLKV: pdelay write reads zero      got=0x00000000 exp=0x00000000
+17823:   [PASS] CLKV: parent LO write reads zero   got=0x00000000 exp=0x00000000
+17824:   [PASS] CLKV: parent HI write reads zero   got=0x00000000 exp=0x00000000
+17825:   [PASS] CLKV: publication writes cannot assert GM holdover got=0x00000000 exp=0x00000000
+17826:   [PASS] CLKV: publication writes cannot clear tu got=0x00000001 exp=0x00000001
+17827:   [PASS] CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) got=0x00000000 exp=0x00000000
+17828:   [PASS] CLKV: PHC step arms holdover       got=0x00000001 exp=0x00000001
+17829:   [PASS] CLKV: PHC step keeps tu asserted   got=0x00000001 exp=0x00000001
+17830:   [PASS] CLKV: holdover expires             got=0x00000000 exp=0x00000000
+17831:   [PASS] CLKV: ownerless tu remains asserted after holdover got=0x00000001 exp=0x00000001
+17832:   [PASS] CLKV: TUCNT advances for permanent uncertainty got=0x00000001 exp=0x00000001
+17833:   [PASS] CLKV: post-holdover frame is emitted got=0x00000001 exp=0x00000001
+17834:   [PASS] CLKV: post-holdover frame still carries tu=1 got=0x00000001 exp=0x00000001
+17835:   [PASS] CLKV: the settime leaves mr unchanged (#602) got=0x00000000 exp=0x00000000
+17836:   [PASS] CLKV: settime adds no MEDIA_RESET (#602) got=0x00000000 exp=0x00000000
+17838:   [PASS] ASP: reset LO zero                 got=0x00000000 exp=0x00000000
+17839:   [PASS] ASP: reset HI zero                 got=0x00000000 exp=0x00000000
+17840:   [PASS] ASP: reset {gen,count} zero        got=0x00000000 exp=0x00000000
+17841:   [PASS] ASP: LO write reads zero           got=0x00000000 exp=0x00000000
+17842:   [PASS] ASP: HI write reads zero           got=0x00000000 exp=0x00000000
+17843:   [PASS] ASP: commit/publish writes read zero got=0x00000000 exp=0x00000000
+17845:   [PASS] RXMON stat idle                    got=0x00000000 exp=0x00000000
+17846:   [PASS] RXMON frames_rx idle               got=0x00000000 exp=0x00000000
+17847:   [PASS] the listener launched a PROBE_TX at the named talker got=0x00000001 exp=0x00000001
+17848:   [PASS] listener bound (0x6A4[3] bound, the class-D record) got=0x00000001 exp=0x00000001
+17849:   [PASS] ...and 0x6A4[4] stream-active follows it got=0x00000001 exp=0x00000001
+17850:   [PASS] 0x6A4[2:0] SM state is a STRUCTURAL ZERO (no ladder here) got=0x00000000 exp=0x00000000
+17852:   [PASS] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000000 exp=0x00000000
+17853:   [PASS] ...so FRAMES_RX moved (0x6BC)      got=0x00000001 exp=0x00000001
+17854:   [PASS] ...and PCMRX advanced (0x6C4)      got=0x00000001 exp=0x00000001
+17855:   [PASS] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+17856:   [PASS] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000001 exp=0x00000001
+17857:   [PASS] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000000 exp=0x00000000
+17858:   [PASS] tagged: FRAMES_RX = 2              got=0x00000002 exp=0x00000002
+17859:   [PASS] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000006 exp=0x00000006
+17860:   [PASS] APRB parsed = 2 frames             got=0x00000002 exp=0x00000002
+17861:   [PASS] APRB matched = 2 frames            got=0x00000002 exp=0x00000002
+17862:   [PASS] APRB last SID_HI (wire)            got=0x02000000 exp=0x02000000
+17863:   [PASS] APRB last SID_LO (wire)            got=0x00020000 exp=0x00020000
+17864:   [PASS] APRB info subtype = AAF            got=0x00000002 exp=0x00000002
+17865:   [PASS] APRB info matched flag             got=0x00000001 exp=0x00000001
+17866:   [PASS] APRB info armed entries            got=0x00000001 exp=0x00000001
+17867:   [PASS] APRB unknown-sid: parsed = 3       got=0x00000003 exp=0x00000003
+17868:   [PASS] APRB unknown-sid: matched still 2  got=0x00000002 exp=0x00000002
+17869:   [PASS] APRB unknown-sid: SID_LO is the WIRE value got=0x00090000 exp=0x00090000
+17870:   [PASS] APRB unknown-sid: match flag clear got=0x00000000 exp=0x00000000
+17871:   [PASS] APRB unknown-sid: no fabric-render payload got=0x00000000 exp=0x00000000
+17872:   [PASS] APRB unknown-sid: FRAMES_RX still 2 (unbound sid refused) got=0x00000002 exp=0x00000002
+17876:   [PASS] prefilter: PCMRX KEPT consuming (+2 PDUs) got=0x00000005 exp=0x00000005
+17877:   [PASS] prefilter: fabric render KEPT consuming (+12 beats) got=0x0000000c exp=0x0000000c
+17879:   [PASS] epoch = 1 (one reset release since bitstream) got=0x00000001 exp=0x00000001
+17880:   [PASS] LINK_CTRL reads back 0 (shadowed)  got=0x00000000 exp=0x00000000
+17881:   [PASS] LINK_CTRL reads back 1 (shadowed)  got=0x00000001 exp=0x00000001
+17882:   [PASS] epoch unchanged by link toggles    got=0x00000001 exp=0x00000001
+17883:   [PASS] datapath alive after link toggle (ID) got=0x4d494c4e exp=0x4d494c4e
+17884:   [PASS] ENT_NAME_LO reads back             got=0x59545241 exp=0x59545241
+17885:   [PASS] LPF_CTRL default on                got=0x00000001 exp=0x00000001
+17886:   [PASS] LPF_CTRL bypass set                got=0x00000000 exp=0x00000000
+17887:   [PASS] UNSUPPORTED_FORMAT +1 (0x6C0)      got=0x00000001 exp=0x00000001
+17888:   [PASS] FRAMES_RX unchanged by wrong-rate  got=0x00000009 exp=0x00000009
+17889:   [PASS] no fabric render for rejected PDU  got=0x00000000 exp=0x00000000
+17890:   [PASS] PCMRX unchanged by wrong-rate      got=0x00000006 exp=0x00000006
+17891:   [PASS] UNSUPPORTED_FORMAT view reached its 0xFF ceiling got=0x000000ff exp=0x000000ff
+17892:   [PASS] saturated view STAYS 0xFF (no wrap) got=0x000000ff exp=0x000000ff
+17893:   [PASS] neighbouring TIMESTAMP_UNCERTAIN byte untouched got=0x00000000 exp=0x00000000
+17894:   [PASS] full 32-bit UNSUPPORTED_FORMAT > the saturated view got=0x00000001 exp=0x00000001
+17897:   [PASS] CRF pdu_count 1                    got=0x00000001 exp=0x00000001
+17898:   [PASS] CRF no fmt/seq errors              got=0x00000000 exp=0x00000000
+17899:   [PASS] CRF not locked yet                 got=0x00000000 exp=0x00000000
+17900:   [PASS] CRF delta captured (nonzero)       got=0x00000001 exp=0x00000001
+17901:   [PASS] CRF locked after 8 clean PDUs      got=0x00000001 exp=0x00000001
+17902:   [PASS] CRF pdu_count 8                    got=0x00000008 exp=0x00000008
+17903:   [PASS] CRF fmt_err 1 (wrong interval)     got=0x00000001 exp=0x00000001
+17904:   [PASS] CRF count unchanged by bad fmt     got=0x00000008 exp=0x00000008
+17905:   [PASS] CRF still locked (no timeout)      got=0x00000001 exp=0x00000001
+17906:   [PASS] CRF foreign sid ignored            got=0x00000008 exp=0x00000008
+17907:   [PASS] CRF seq_err 1                      got=0x00000001 exp=0x00000001
+17908:   [PASS] CRF rate = +256000 ns/window       got=0x0003e800 exp=0x0003e800
+17909:   [PASS] CRF-5: mr/fs/tu PDUs accepted (+2) got=0x0000010f exp=0x0000010f
+17910:   [PASS] CRF-5: no fmt/seq errors from mr/fs/tu got=0x00000101 exp=0x00000101
+17911:   [PASS] CRF-5: lock survives mr/fs/tu      got=0x00000001 exp=0x00000001
+17912:   [PASS] CRF-5: sv=0 PDU ignored            got=0x0000010f exp=0x0000010f
+17913:   [PASS] CRF-5: clean seq resumes after sv=0 got=0x00000101 exp=0x00000101
+17914:   [PASS] CRF-5: resumed PDU counted         got=0x00000110 exp=0x00000110
+17915:   [PASS] CRF disabled = inert               got=0x00000110 exp=0x00000110
+17918:   [PASS] the NCO grid is aligned at INTERNAL (servo_en = 1, #629 A2-a) got=0x00000001 exp=0x00000001
+17919:   [PASS] ...and no source is followed at INTERNAL (follow_sel = 0) got=0x00000000 exp=0x00000000
+17920:   [PASS] MMCM servo stays IDLE at clock_source = INTERNAL (MCSRV_STAT[2:0] == 0) got=0x00000000 exp=0x00000000
+17921:   [PASS] MCSRV_CTRL reads 0 at reset        got=0x00000000 exp=0x00000000
+17922:   [PASS] MCSRV_CTRL ps_invert readback      got=0x00000001 exp=0x00000001
+17923:   [PASS] MCSRV_CTRL clears                  got=0x00000000 exp=0x00000000
+17926:   [PASS] CRFT count starts 0                got=0x00000000 exp=0x00000000
+17927:   [PASS] CRFT sid readback (shadow)         got=0x00010001 exp=0x00010001
+17928:   [PASS] CRFT dmac readback (shadow)        got=0xf0002a07 exp=0xf0002a07
+17929:   [PASS] CRFT_CTRL readback en=1 + stat[7]  got=0x00000081 exp=0x00000081
+17930:   [PASS] CRFTX captured 10 PDUs             got=0x0000000a exp=0x0000000a
+17931:   [PASS] CRFTX 60-byte frame (last keep 0x0F) got=0x0000000f exp=0x0000000f
+17932:   [PASS] CRFT count == captured             got=0x0000000a exp=0x0000000a
+17934:   [PASS] CRFTX header/sid/base/dlen/ival byte-exact got=0x00000001 exp=0x00000001
+17935:   [PASS] CRFTX option-off ownerless tu stays one got=0x00000001 exp=0x00000001
+17936:   [PASS] CRFTX sequence_num 0..9 consecutive got=0x00000001 exp=0x00000001
+17937:   [PASS] CRFTX zero pad to 60B              got=0x00000001 exp=0x00000001
+17938:   [PASS] CRFTX ts strictly monotone         got=0x00000001 exp=0x00000001
+17939:   [PASS] CRFTX ts grid uniform (event-locked) got=0x00000001 exp=0x00000001
+17940:   [PASS] CRFTX ts spacing nonzero           got=0x00000001 exp=0x00000001
+17941:   [PASS] CRFRX counted all looped PDUs      got=0x0000000a exp=0x0000000a
+17942:   [PASS] CRFRX fmt clean on our wire format got=0x00000000 exp=0x00000000
+17943:   [PASS] CRFRX at most the sid-switch seq gap got=0x00000001 exp=0x00000001
+17944:   [PASS] CRFRX locked on our stream         got=0x00000001 exp=0x00000001
+17945:   [PASS] CRFRX delta ~= +PTO (Milan future-dating) got=0x00000001 exp=0x00000001
+17947:   [PASS] H2 baseline: the CRF output is emitting got=0x00000003 exp=0x00000003
+17948:   [PASS] H2 baseline: byte 15 is a well-formed sv|mr|fs|tu byte got=0x00000080 exp=0x00000080
+17949:   [PASS] H2: the granted mr level reaches the wire byte, held got=0x00000001 exp=0x00000001
+17951:   [PASS] CRFTX disabled = silent wire       got=0x00000000 exp=0x00000000
+17952:   [PASS] CRFTX disabled = count frozen      got=0x0000000d exp=0x0000000d
+17953:   [PASS] CRFTX unlicensed (lwSRP on, no listener-ready) = silent got=0x00000000 exp=0x00000000
+17954:   [PASS] CRFTX unlicensed = count frozen    got=0x0000000d exp=0x0000000d
+17955:   [PASS] CRFT stat[7] emission-licensed clear got=0x00000000 exp=0x00000000
+17956:   [PASS] CRFTX free-run restored with lwSRP off got=0x00000001 exp=0x00000001
+17957:   [PASS] CRFT stat[7] emission-licensed set got=0x00000001 exp=0x00000001
+17960:   [PASS] [S1CRF] CSR enable cleared         got=0x00000000 exp=0x00000000
+17961:   [PASS] [S1CRF] sink 1 launched its PROBE_TX got=0x00000001 exp=0x00000001
+17963:   [PASS] [S1CRF] ACMPL bit31 = sink-1 bound got=0x00000001 exp=0x00000001
+17964:   [PASS] [S1CRF] engine counted on bound sid got=0x00000009 exp=0x00000009
+17965:   [PASS] [S1CRF] locked via ACMP provisioning got=0x00000001 exp=0x00000001
+17966:   [PASS] [S1CRF] unbind clears bit31        got=0x00000000 exp=0x00000000
+17967:   [PASS] [S1CRF] post-unbind PDU ignored    got=0x00000009 exp=0x00000009
+17970:   [PASS] [LINKG] armed alive                got=0x00000003 exp=0x00000003
+17971:   [PASS] [LINKG] reinit pin idle            got=0x00000000 exp=0x00000000
+17972:   [PASS] [LINKG] freeze bounce              got=0x00000001 exp=0x00000001
+17973:   [PASS] [LINKG] freeze state               got=0x00000001 exp=0x00000001
+17974:   [PASS] [LINKG] freeze grst                got=0x00000001 exp=0x00000001
+17975:   [PASS] [LINKG] freeze alive               got=0x00000000 exp=0x00000000
+17976:   [PASS] [LINKG] reinit pin held            got=0x00000001 exp=0x00000001
+17977:   [PASS] [LINKG] disable releases pin       got=0x00000000 exp=0x00000000
+17978:   [PASS] [LINKG] re-enable RUN              got=0x00000000 exp=0x00000000
+17979:   [PASS] [LINKG] re-enable alive            got=0x00000003 exp=0x00000003
+17980:   [PASS] [LINKG] no extra bounce            got=0x00000001 exp=0x00000001
+17981:   [PASS] [LINKG] reinit pin clear           got=0x00000000 exp=0x00000000
+17983:   [PASS] [RMON] baseline TX_GOOD 0          got=0x00000000 exp=0x00000000
+17984:   [PASS] [RMON] baseline RX_GOOD 0          got=0x00000000 exp=0x00000000
+17985:   [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+17986:   [PASS] [RMON] RX frame accepted at MAC ingress got=0x00000008 exp=0x00000008
+17987:   [PASS] [RMON] lanes latched (pre-re-arm TX_GOOD still 0) got=0x00000000 exp=0x00000000
+17988:   [PASS] [RMON] RX_GOOD == 2 (0x230)        got=0x00000002 exp=0x00000002
+17989:   [PASS] [RMON] UNDERFLOW == 0 (0x210)      got=0x00000000 exp=0x00000000
+17990:   [PASS] [RMON] ext UNDERFLOW pulse == 1    got=0x00000001 exp=0x00000001
+17991:   [PASS] [RMON] ext TX_GOOD bit ignored     got=0x00000000 exp=0x00000000
+17992:   [PASS] [RMON] ext RX_GOOD bit ignored     got=0x00000002 exp=0x00000002
+17993:   [PASS] [RMON] reinit release zeroes TX_GOOD got=0x00000000 exp=0x00000000
+17994:   [PASS] [RMON] reinit release zeroes RX_GOOD got=0x00000000 exp=0x00000000
+17996:   [PASS] [RMON] cap with no MAC = the two derived lanes only got=0x00000108 exp=0x00000108
+17997:   [PASS] [RMON] cap ORs the integration's lanes over the derived pair got=0x000001b8 exp=0x000001b8
+17998:   [PASS] [RMON] TX_ERROR_UNDERFLOW declared unsupported got=0x00000000 exp=0x00000000
+17999:   [PASS] [RMON] TX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+18000:   [PASS] [RMON] TX_FIFO_BAD_FRAME declared unsupported got=0x00000000 exp=0x00000000
+18001:   [PASS] [RMON] RX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+18002:   [PASS] [RMON] cap is a live read (bits 31:9 reserved 0) got=0x00000000 exp=0x00000000
+18004:   [PASS] tdm-live: the MASTER generates its frame sync got=0x00000001 exp=0x00000001
+18005:   [PASS] tdm-live: the front end captures pairs (A_AAF_PAIRS advances) got=0x00000001 exp=0x00000001
+18007: milan_datapath: 233 checks, 0 failures
+18008: milan_datapath: guarded and NOT run in this shape: 5
+18016:   [ok]   [RENDER-BIND] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) = 1
+18017:   [ok]   [RENDER-BIND] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) = 7
+18018:   [ok]   RENDER-BIND: the listener launched a PROBE_TX at the named talker = 1
+18019:   [ok]   RENDER-BIND: listener bound (0x6A4[3], the class-D record) = 1
+18022:   [ok]   RENDER-CSR: AR handshake                                   = 1
+18023:   [ok]   RENDER-CSR: R response                                     = 1
+18024:   [ok]   RENDER-CSR: OKAY response                                  = 0
+18025:   [ok]   RENDER-CSR: prefill mirrors taps                           = 256
+18026:   [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+18027:   [ok]   RENDER-CSR: sampled word held under backpressure           = 256
+18028:   [ok]   RENDER-CSR: reset prefill                                  = 256
+18029:   [ok]   RENDER-CSR: AR handshake                                   = 1
+18030:   [ok]   RENDER-CSR: R response                                     = 1
+18031:   [ok]   RENDER-CSR: OKAY response                                  = 0
+18032:   [ok]   RENDER-CSR: filling mirrors taps                           = 262
+18033:   [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+18034:   [ok]   RENDER-CSR: sampled word held under backpressure           = 262
+18035:   [ok]   RENDER-CSR: fill nonzero during prefill                    = 1
+18036:   [ok]   RENDER-CSR: prefill still held                             = 1
+18037:   [ok]   RENDER-CSR: AR handshake                                   = 1
+18038:   [ok]   RENDER-CSR: R response                                     = 1
+18039:   [ok]   RENDER-CSR: OKAY response                                  = 0
+18040:   [ok]   RENDER-CSR: converged mirrors taps                         = 520
+18041:   [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+18042:   [ok]   RENDER-CSR: sampled word held under backpressure           = 520
+18043:   [ok]   RENDER-CSR: converged bit reached the word                 = 1
+18044:   [ok]   RENDER-CSR: prefill released                               = 0
+18045:   [ok]   RENDER-INT: every injected PDU was accepted                = 960
+18048:   [ok]   RENDER-INT: PDUs measured in the window                    = 1
+18049:   [ok]   RENDER-INT: every PDU's first event inside the law band    = 916
+18050:   [ok]   RENDER-INT: the fill at accept is the setpoint for every PDU = 916
+18051:   [ok]   RENDER-INT: one constant: spread within 2147 cycles        = 1
+18052:   [ok]   RENDER-INT: no rail inside the window                      = 0
+18053:   [ok]   RENDER-INT: no underrun inside the window                  = 0
+18054:   [ok]   RENDER-INT: converged                                      = 1
+18058:   [ok]   RENDER-RC-INT: the instrument sees the late displacement (fill at accept = setpoint -3) = 12
+18059:   [ok]   RENDER-RC-INT: ...and the delay left the law band (late)   = 0
+18060:   [ok]   RENDER-RC-INT: a three-tick displacement trips no rail (late) = 0
+18061:   [ok]   RENDER-RC-INT: the step reached the render stage as one pulse (late) = 1
+18062:   [ok]   RENDER-RC-INT: the recentre executed once (late)           = 1
+18063:   [ok]   RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late) = 13
+18064:   [ok]   RENDER-RC-INT: ...and the delay is back inside the band (late) = 13
+18065:   [ok]   RENDER-RC-INT: counted once, never again (late)            = 1
+18066:   [ok]   RENDER-RC-INT: no drift back: every later PDU at the setpoint (late) = 96
+18067:   [ok]   RENDER-RC-INT: no drift back: every later PDU inside the band (late) = 96
+18068:   [ok]   RENDER-RC-INT: the recentre is not a rail (late)           = 0
+18070:   [ok]   RENDER-RC-INT: the instrument sees the early displacement (fill at accept = setpoint +3) = 13
+18071:   [ok]   RENDER-RC-INT: ...and the delay left the law band (early)  = 0
+18072:   [ok]   RENDER-RC-INT: a three-tick displacement trips no rail (early) = 0
+18073:   [ok]   RENDER-RC-INT: the step reached the render stage as one pulse (early) = 2
+18074:   [ok]   RENDER-RC-INT: the recentre executed once (early)          = 2
+18075:   [ok]   RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early) = 13
+18076:   [ok]   RENDER-RC-INT: ...and the delay is back inside the band (early) = 13
+18077:   [ok]   RENDER-RC-INT: counted once, never again (early)           = 2
+18078:   [ok]   RENDER-RC-INT: no drift back: every later PDU at the setpoint (early) = 96
+18079:   [ok]   RENDER-RC-INT: no drift back: every later PDU inside the band (early) = 96
+18080:   [ok]   RENDER-RC-INT: the recentre is not a rail (early)          = 0
+18081:   [ok]   RENDER-SETTIME: the settime reaches the stage as one pulse = 1
+18082:   [ok]   RENDER-SETTIME: the settime executes one render re-base    = 1
+18083:   [ok]   RENDER-SETTIME: no later re-base pulse                     = 1
+18084:   [ok]   RENDER-SETTIME: the render re-base remains counted once    = 1
+18088:   [ok]   RENDER-LIVE: the stream sat at the setpoint before the move = 17
+18090:   [ok]   RENDER-LIVE: the fill at accept is one event long for every PDU = 13
+18091:   [ok]   RENDER-LIVE: ...and the delay left the law band            = 0
+18092:   [ok]   RENDER-LIVE: one event off trips no rail                   = 0
+18093:   [ok]   RENDER-LIVE: nothing recentred it                          = 0
+18094:   [ok]   RENDER-LIVE: the move left the convergence verdict as it was = 0
+18097:   [ok]   RING-INT: the priming PDU reached the loop tap             = 1
+18099:   [ok]   RING-INT: the priming PDU's loop-tap latency is inside one AAF period = 1
+18101:   [ok]   RING-INT: the restart PDU landed inside the aimed band     = 1
+18105:   [ok]   RING-INT: zero ring dups over the window that would expose -10.64 ppm (A2-a) = 0
+18106:   [ok]   RING-INT: zero ring skips                                  = 0
+18107:   [ok]   RING-INT: zero TDM junction slips over the same window     = 0
+18108:   [ok]   RING-INT: the align loop is engaged at INTERNAL (A2-a)     = 1
+18109:   [ok]   RING-INT: SLIP_LB 0x8D4 carries the ring's {skip, dup}     = 60
+18114:   [ok]   media grid ticked                                          = 1
+18115:   [ok]   TDM master framed                                          = 1
+18118:   [ok]   INTERNAL: the grids hold one rate within 5 ppm (the plan's -10.64 ppm drift gone) = 1
+18119:   [ok]   INTERNAL: phase error bounded well inside a sample (<300 cycles) = 1
+18120:   [ok]   INTERNAL: zero junction dups over the window               = 0
+18121:   [ok]   INTERNAL: zero junction skips over the window              = 0
+18122:   [ok]   INTERNAL: align loop engaged (A2-a)                        = 1
+18123:   [ok]   INTERNAL: NCO servo gate live (A2-a)                       = 1
+18126:   [ok]   CRF: the root resolve sees the selection                   = 1
+18127:   [ok]   CRF: the NCO servo gate is live                            = 1
+18128:   [ok]   CRF: sink locked (8 clean PDUs)                            = 1
+18129:   [ok]   CRF: align loop engaged on the physical frame marker       = 1
+18131:   [ok]   CRF: the grids are ALIGNED (|ppm| < 0.5 - the #74 close)   = 1
+18132:   [ok]   CRF: zero junction dups over the aligned window            = 0
+18133:   [ok]   CRF: zero junction skips over the aligned window           = 0
+18134:   [ok]   CRF: phase error bounded well inside a sample (<300 cycles) = 1
+18136:   [ok]   CRF: the MMCM servo tracks through the live select (ACQUIRE) = 3
+18139:   [ok]   RENDER-LIVE-CRF: the selection fired the settled-grid trigger once = 1
+18140:   [ok]   RENDER-LIVE-CRF: ...as one recentre pulse                  = 1
+18141:   [ok]   RENDER-LIVE-CRF: the recentre executed once                = 1
+18144:   [ok]   RENDER-LIVE-CRF: PDUs measured in the window               = 1
+18145:   [ok]   RENDER-LIVE-CRF: every PDU's first event inside the law band = 1196
+18146:   [ok]   RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU = 1196
+18147:   [ok]   RENDER-LIVE-CRF: one constant: spread within 2147 cycles   = 1
+18148:   [ok]   RENDER-LIVE-CRF: converged                                 = 1
+18151:   [ok]   RENDER-CRF: every injected PDU was accepted                = 1359
+18154:   [ok]   RENDER-CRF: PDUs measured in the window                    = 1
+18155:   [ok]   RENDER-CRF: every PDU's first event inside the law band    = 1195
+18156:   [ok]   RENDER-CRF: the fill at accept is the setpoint for every PDU = 1195
+18157:   [ok]   RENDER-CRF: one constant: spread within 2147 cycles        = 1
+18158:   [ok]   RENDER-CRF: no rail inside the window                      = 0
+18159:   [ok]   RENDER-CRF: no underrun inside the window                  = 0
+18160:   [ok]   RENDER-CRF: the aligner stayed engaged                     = 1
+18161:   [ok]   RENDER-CRF: converged                                      = 1
+18165:   [ok]   RENDER-RC-CRF: the instrument sees the late displacement (fill at accept = setpoint -3) = 12
+18166:   [ok]   RENDER-RC-CRF: ...and the delay left the law band (late)   = 0
+18167:   [ok]   RENDER-RC-CRF: a three-tick displacement trips no rail (late) = 0
+18168:   [ok]   RENDER-RC-CRF: the step reached the render stage as one pulse (late) = 1
+18169:   [ok]   RENDER-RC-CRF: the recentre executed once (late)           = 1
+18170:   [ok]   RENDER-RC-CRF: the recentre restored the law (fill at accept = setpoint) (late) = 13
+18171:   [ok]   RENDER-RC-CRF: ...and the delay is back inside the band (late) = 13
+18172:   [ok]   RENDER-RC-CRF: counted once, never again (late)            = 1
+18173:   [ok]   RENDER-RC-CRF: no drift back: every later PDU at the setpoint (late) = 96
+18174:   [ok]   RENDER-RC-CRF: no drift back: every later PDU inside the band (late) = 96
+18175:   [ok]   RENDER-RC-CRF: the recentre is not a rail (late)           = 0
+18177:   [ok]   RENDER-RC-CRF: the instrument sees the early displacement (fill at accept = setpoint +3) = 13
+18178:   [ok]   RENDER-RC-CRF: ...and the delay left the law band (early)  = 0
+18179:   [ok]   RENDER-RC-CRF: a three-tick displacement trips no rail (early) = 0
+18180:   [ok]   RENDER-RC-CRF: the step reached the render stage as one pulse (early) = 2
+18181:   [ok]   RENDER-RC-CRF: the recentre executed once (early)          = 2
+18182:   [ok]   RENDER-RC-CRF: the recentre restored the law (fill at accept = setpoint) (early) = 13
+18183:   [ok]   RENDER-RC-CRF: ...and the delay is back inside the band (early) = 13
+18184:   [ok]   RENDER-RC-CRF: counted once, never again (early)           = 2
+18185:   [ok]   RENDER-RC-CRF: no drift back: every later PDU at the setpoint (early) = 96
+18186:   [ok]   RENDER-RC-CRF: no drift back: every later PDU inside the band (early) = 96
+18187:   [ok]   RENDER-RC-CRF: the recentre is not a rail (early)          = 0
+18190:   [ok]   RING-CRF: the align loop is engaged                        = 1
+18192:   [ok]   RING-CRF: the restart PDU landed inside the aimed band     = 1
+18195:   [ok]   RING-CRF: zero ring dups over the window that exposed -10.64 ppm at INTERNAL = 0
+18196:   [ok]   RING-CRF: zero ring skips                                  = 0
+18197:   [ok]   RING-CRF: zero TDM junction slips over the same window     = 0
+18198:   [ok]   RING-CRF: the align loop stayed engaged                    = 1
+18199:   [ok]   RING-CRF: SLIP_LB still reads its tap under lock           = 108
+18200:   [ok]   RING-CRF: SLIP_TDM still reads its tap under lock          = 0
+18201:   [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison     = 0
+18202:   [ok]   CHMAP_SNAP valid: a snapshot completed behind that word    = 1
+18203:   [ok]   RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}              = 7
+18207:   [ok]   RENDER-LIVE: the stream sat at the setpoint before the move = 17
+18209:   [ok]   RENDER-LIVE: the fill at accept is one event short for every PDU = 12
+18210:   [ok]   RENDER-LIVE: ...and the delay left the law band            = 0
+18211:   [ok]   RENDER-LIVE: one event off trips no rail                   = 0
+18212:   [ok]   RENDER-LIVE: nothing recentred it                          = 0
+18213:   [ok]   RENDER-LIVE: the move left the convergence verdict as it was = 1
+18216:   [ok]   MR baseline: our CRF output is emitting                    = 2
+18217:   [ok]   MR: our outgoing mr FLIPPED on the received toggle (CRF selected) = 0
+18218:   [ok]   MR: deselect resolves back                                 = 0
+18219:   [ok]   MR: the source change itself toggles mr (4.4.4.3)          = 1
+18220:   [ok]   MR: the received toggle does NOT echo at INTERNAL (10.4.3) = 1
+18221:   [ok]   MR: align loop stays engaged back at INTERNAL (A2-a)       = 1
+18224:   [ok]   RENDER-LIVE-INT: the source change fired the settled-grid trigger once = 1
+18225:   [ok]   RENDER-LIVE-INT: ...as one recentre pulse                  = 1
+18226:   [ok]   RENDER-LIVE-INT: the recentre executed once                = 1
+18229:   [ok]   RENDER-LIVE-INT: PDUs measured in the window               = 1
+18230:   [ok]   RENDER-LIVE-INT: every PDU's first event inside the law band = 96
+18231:   [ok]   RENDER-LIVE-INT: the fill at accept is the setpoint for every PDU = 96
+18232:   [ok]   RENDER-LIVE-INT: one constant: spread within 2147 cycles   = 1
+18233:   [ok]   RENDER-LIVE-INT: no rail                                   = 0
+18234:   [ok]   RENDER-LIVE-INT: counted once, never again                 = 1
+18237:   [ok]   SLIP-CSR: one held frame = one TDM junction dup            = 1
+18239:   [ok]   SLIP-CSR: doubled frames = TDM junction skips              = 1
+18241:   [ok]   SLIP-CSR: SLIP_TDM carries the junction's {skip, dup}      = 131073
+18243:   [ok]   SLIP-CSR: SLIP_LB carries the ring's {skip, dup}           = 112
+18244:   [ok]   SLIP-CSR: both words are non-zero after the induced slips  = 1
+18245:   [ok]   SLIP-CSR: SLIP_LB ignores writes                           = 112
+18246:   [ok]   SLIP-CSR: SLIP_TDM ignores writes                          = 131073
+18247:   [ok]   RENDER-CSR: AR handshake                                   = 1
+18248:   [ok]   RENDER-CSR: R response                                     = 1
+18249:   [ok]   RENDER-CSR: OKAY response                                  = 0
+18250:   [ok]   RENDER-CSR: rail mirrors taps                              = 65550
+18251:   [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+18252:   [ok]   RENDER-CSR: sampled word held under backpressure           = 65550
+18253:   [ok]   RENDER-CSR: rail event reached the word                    = 1
+18254:   [ok]   RENDER-CSR: rail cleared convergence                       = 0
+18255:   [ok]   RENDER-CSR: talker selection reads zero                    = 0
+18256:   [ok]   RENDER-CSR: bit 9 preserves talker rejection               = 0
+18257:   [ok]   RENDER-CSR: out-of-range listener reads zero               = 0
+18258:   [ok]   RENDER-CSR: AR handshake                                   = 1
+18259:   [ok]   RENDER-CSR: R response                                     = 1
+18260:   [ok]   RENDER-CSR: OKAY response                                  = 0
+18261:   [ok]   RENDER-CSR: bit 9 with listener 0 mirrors taps             = 65550
+18262:   [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+18263:   [ok]   RENDER-CSR: sampled word held under backpressure           = 65550
+18264:   [ok]   RENDER-CSR: AR handshake                                   = 1
+18265:   [ok]   RENDER-CSR: R response                                     = 1
+18266:   [ok]   RENDER-CSR: OKAY response                                  = 0
+18267:   [ok]   RENDER-CSR: write ignored mirrors taps                     = 65550
+18268:   [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+18269:   [ok]   RENDER-CSR: sampled word held under backpressure           = 65550
+18272: media_aclk: 193 checks, 0 failures
+18280: [PASS] the unmutated gateware still passes the render-law leg (--live-only)
+18283: [PASS] the unmutated gateware still passes the render-law leg (--render-only)
+18288: [PASS] mutant caught (--render-only): prefill target three events high - breaks "RENDER-INT: every PDU's first event inside the law band"
+18293: [PASS] mutant caught (--render-only): recentre pulse ignored - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late)"
+18298: [PASS] mutant caught (--render-only): recentre counted and cleared but not snapped - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early)"
+18303: [PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+18306: 6 checks: 6 PASS, 0 FAIL

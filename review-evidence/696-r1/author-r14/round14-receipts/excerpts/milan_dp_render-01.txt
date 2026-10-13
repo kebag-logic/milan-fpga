@@ -1,0 +1,12 @@
+28: checksum 0xBCE6817E
+74: checksum 0xBCE67FDD
+134:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+284:   971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+921: == tdm8_render: checks: 71   failures: 0 ==
+1023: == tdm8_render: checks: 266   failures: 0 ==
+1027: [PASS] the unmutated gateware still passes the render lane leg (ship --crf-only)
+1028: [PASS] the unmutated gateware still passes the render lane leg (ship --serial-only)
+1029: [PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks "T5 FRAMING: the window decoded whole frames"
+1030: [PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record"
+1031: [PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks "T30 CRF: the media plane's one registered resolve reads CRF"
+1033: 5 checks: 5 PASS, 0 FAIL (--leg-defects: the arms that need no elaboration; the gateware and shape mutants are the tdm8render-mutants target)

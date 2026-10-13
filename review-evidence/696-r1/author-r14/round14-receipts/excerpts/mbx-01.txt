@@ -1,0 +1,13 @@
+60: == mbx (AXI4-Lite host): checks: 447   failures: 0 ==
+70: == mbx (Wishbone host): checks: 402   failures: 0 ==
+117: == mbx cosim (firmware on the RTL and on the model): checks: 32   failures: 0 ==
+152: == mbx (Wishbone host, 2 interfaces): checks: 404   failures: 0 ==
+155: == mbx (AXI4-Lite host, 2 interfaces): checks: 449   failures: 0 ==
+158: == mbx (host model, 2 interfaces): checks: 389   failures: 0 ==
+160: [ok] rx-lanes-big-endian: 16 check(s) failed; first: [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+161: [ok] tx-refusal-no-flush: 13 check(s) failed; first: [FAIL] X1 a malformed TX record counts once in TX_ERR got=3 exp=1
+162: [ok] evt-tick-count-lost: 1 check(s) failed; first: [FAIL] K1 carrying every tick                   got=1 exp=5
+163: [ok] top-partial-strobe-accepted: 2 check(s) failed; first: [FAIL] R2 a write with a partial strobe leaves the register got=0xa5a5a5a5 exp=0x0
+164: [ok] rx-dst-ignored: 58 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (adp): no RX record, no delivery got=0 exp=5
+165: [ok] top-pub-sid-valid-held-high: 5 check(s) failed; first: [FAIL] P2 every field reaches the datapath on its own output, for its own interface and sink
+166: mbx mutants: 6 of 6 caught

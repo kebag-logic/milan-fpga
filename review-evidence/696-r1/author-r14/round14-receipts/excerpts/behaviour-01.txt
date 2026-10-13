@@ -1,0 +1,47 @@
+223:   Scenario: before software loads the image, every read is refused and none is silent
+663:   Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @1.1 Milan 5.4.2.19/5.4.2.20 - a Stream Output is refused by name
+673:   Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input -- @1.2 Milan 5.4.2.19/5.4.2.20 - a Stream Output is refused by name
+851:     And de-interleaving by a declared count of 8 is refused ... passed in 0.000s
+1077:     And a block offset that is not quadlet aligned is refused ... passed in 0.000s
+1104:   Scenario: a truncated counters payload is refused rather than half-decoded
+1367:   Scenario: an anomaly delta exceeding the packet delta is caught
+1697:   Scenario: a cluster_offset past the port is refused, which a missing pin is not
+2050:     Then the topology is configuration and a typo is refused ... passed in 0.001s
+2498:   Scenario: areas can be selected, and an unknown area is refused
+2511:     And the summary counts every verdict kind ... passed in 0.000s
+2623:   Scenario: a talker declaring 8 channels and emitting 2 is caught
+2627:     When the analyser checks the declared format against the wire ... passed in 0.000s
+2635:     When the analyser checks the declared format against the wire ... passed in 0.000s
+2641:     When the analyser checks header legality ... passed in 0.000s
+2648:     When the analyser checks header legality ... passed in 0.000s
+2655:     When the analyser checks header legality ... passed in 0.000s
+2662:     When the analyser checks sequence continuity ... passed in 0.000s
+2665:     When the analyser checks sequence continuity ... passed in 0.000s
+2672:     When the analyser checks sequence continuity ... passed in 0.000s
+2678:     When the analyser checks the presentation timestamps ... passed in 0.000s
+2682:   Scenario: a presentation time that steps four times too far is caught
+2685:     When the analyser checks the presentation timestamps ... passed in 0.000s
+2691:     When the analyser checks the presentation timestamps ... passed in 0.000s
+2699:     When the analyser checks the presentation timestamps ... passed in 0.000s
+2703:     When the analyser checks the presentation timestamps ... passed in 0.000s
+2709:     When the analyser checks the VLAN class ... passed in 0.000s
+2716:     When the analyser checks the VLAN class ... passed in 0.000s
+2723:     When the analyser checks the VLAN class ... passed in 0.000s
+2730:     When the analyser checks zero fill ... passed in 0.000s
+2736:     When the analyser checks zero fill ... passed in 0.000s
+2743:     When the analyser checks zero fill ... passed in 0.000s
+2749:     When the analyser checks the CRF format and rate ... passed in 0.000s
+2757:     When the analyser checks the CRF format and rate ... passed in 0.000s
+2763:     When the analyser checks the ADP frame rule ... passed in 0.000s
+2770:     When the analyser checks the ADP frame rule ... passed in 0.000s
+2773:   Scenario: a frame that lies about its control_data_length is caught
+2776:     When the analyser checks control length honesty ... passed in 0.000s
+2782:     When the analyser checks the capture shape ... passed in 0.000s
+2795:     When the analyser checks an empty capture end to end ... passed in 0.000s
+2821:     When the analyser checks the SRP declarations ... passed in 0.000s
+2828:     When the analyser checks the SRP declarations ... passed in 0.000s
+2834:     When the analyser checks the SRP declarations ... passed in 0.000s
+2840:     When the analyser checks the SRP declarations ... passed in 0.000s
+2846:     When the analyser checks the SRP declarations ... passed in 0.000s
+2851: 406 scenarios passed, 0 failed, 0 skipped
+2852: 1977 steps passed, 0 failed, 0 skipped

@@ -1,0 +1,244 @@
+[
+  {
+    "name": "lint",
+    "argv": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check",
+      "--self-test",
+      "--jobs",
+      "2"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 30.9
+  },
+  {
+    "name": "maap",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "MDIR=$WORK/validation/unit"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 646.5
+  },
+  {
+    "name": "maap-integration-build",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "integration-build",
+      "DP_MDIR=$WORK/validation/integration"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 26.4
+  },
+  {
+    "name": "maap-integration",
+    "argv": [
+      "$WORK/validation/integration/maap_integration"
+    ],
+    "cwd": "$WORK/validation/integration",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 0.4
+  },
+  {
+    "name": "maap-coverage",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/maap",
+      "coverage",
+      "COV_MDIR=$WORK/validation/coverage"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 14.0
+  },
+  {
+    "name": "maap-differential",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/maap_differential.py",
+      "--self-test",
+      "--keep",
+      "$WORK/validation/differential"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 171.4
+  },
+  {
+    "name": "milan_dp",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/milan_dp"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 2020.1
+  },
+  {
+    "name": "mbx",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/mbx"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 40.7
+  },
+  {
+    "name": "pp_shadow",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/pp_shadow"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 254.8
+  },
+  {
+    "name": "capture_coherence",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/capture_coherence"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 337.3
+  },
+  {
+    "name": "milan_dp_mclk",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/milan_dp_mclk"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 962.3
+  },
+  {
+    "name": "milan_dp_render",
+    "argv": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/milan_dp_render"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 761.4
+  },
+  {
+    "name": "portability",
+    "argv": [
+      "bash",
+      "syn/yosys/run.sh",
+      "--results",
+      "$WORK/validation/portability-results"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 945.6
+  },
+  {
+    "name": "firmware",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "2"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 2654.6
+  },
+  {
+    "name": "store",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "--require-rv32",
+      "--jobs",
+      "2"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 128.4
+  },
+  {
+    "name": "coverage-selftest",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 0.6
+  },
+  {
+    "name": "firmware-coverage",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "2"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 0,
+    "seconds": 304.9
+  },
+  {
+    "name": "boundary",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest"
+    ],
+    "cwd": "$WORK/candidate",
+    "head": "e2cd089ce2d902c73a5f7c6ae5bcee3aa84461bd",
+    "rc": 2,
+    "seconds": 720.0
+  }
+]
