@@ -1,0 +1,29 @@
+import os, subprocess, sys
+from pathlib import Path
+repo, mode = sys.argv[1:3]
+scratch = Path('<scratch>')
+python_root = Path('<python-root>')
+python = scratch / 'venv/bin/python'
+commands = {
+    'ordinary': 'python3 scripts/act_ci.py --selftest',
+    'flat': 'install_dir="$(mktemp -d)"\ntrap \'rm -rf "$install_dir"\' EXIT\ninstall -m 0555 scripts/act_ci.py "$install_dir/act_ci.py"\npython3 -I "$install_dir/act_ci.py" --selftest --worktree "$GITHUB_WORKSPACE"',
+}
+if mode == 'workflow':
+    import yaml
+    workflow = yaml.safe_load((Path(repo) / '.github/workflows/docs.yml').read_text())
+    found = [s for s in workflow['jobs']['docs-check']['steps'] if s.get('name') == 'Local act runner contract gate']
+    assert len(found) == 1
+    command = found[0]['run']
+else:
+    command = commands[mode]
+args = ['sudo','-n','docker','run','--rm','--network','none','--cap-drop','ALL',
+        '--security-opt','no-new-privileges','--memory','4g','--memory-swap','4g','--cpus','4',
+        '--user',f'{os.getuid()}:{os.getgid()}',
+        '--mount',f'type=bind,src={Path(repo).resolve()},dst=/candidate,readonly',
+        '--mount',f'type=bind,src={scratch},dst={scratch}',
+        '--mount',f'type=bind,src={python_root},dst={python_root},readonly',
+        '--env',f'TMPDIR={scratch}/r5','--env','PYTHONDONTWRITEBYTECODE=1',
+        '--env',f'PATH={python.parent}:/usr/bin:/bin','--env','GITHUB_WORKSPACE=/candidate',
+        '--workdir','/candidate','catthehacker/ubuntu:full-latest',
+        'bash','-e','-o','pipefail','-c',command]
+raise SystemExit(subprocess.run(args, timeout=520).returncode)

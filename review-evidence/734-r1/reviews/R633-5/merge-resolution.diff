@@ -1,0 +1,21 @@
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+remerge CONFLICT (content): Merge conflict in scripts/ci_events.py
+index f53130840..f2a17f6a9 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -595,15 +595,9 @@ INHERITED_STEP_ENV = {
+     (RTL_FULL, "verilator-suites"): ("GATE_SHA", "SHARD_RESULT"),
+     (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
+     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
+-<<<<<<< 59354ffe7 (Correct elaboration scope failure wording)
+     (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA", "PUSH_BEFORE_SHA"),
+-    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+-                             "FIRMWARE_UNIT_RESULT",
+-=======
+-    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
+     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_RESULT",
+                              "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
+->>>>>>> 0136de162 (Merge PR #705: Build the ADP, ACMP and MAAP cores from the tsn-c-stack submodule (#697))
+                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
+                              "FIRMWARE_SRP_MUTANTS_RESULT",
+                              "PUBLICATION_CENSUS_RESULT",

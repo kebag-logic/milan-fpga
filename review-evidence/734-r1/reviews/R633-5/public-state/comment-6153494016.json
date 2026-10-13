@@ -1,0 +1,7 @@
+{
+  "id": 6153494016,
+  "html_url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6153494016",
+  "created_at": "2026-10-13T19:29:43Z",
+  "updated_at": "2026-10-13T19:29:43Z",
+  "body": "[A10] **Round 4.** R633-3 ([6153458432](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153458432)) is POSITIVE at `97907c2e`. R632-3 ([6153487534](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153487534)) is NEGATIVE there with one MINOR finding; it confirms that the live-base rule is sound. Executor [A613].\n\n1. **CI runs the documented flat install itself (R632-3-F1).**\n   - A CI-run check copies `scripts/act_ci.py` alone into an empty temporary directory, sets mode `0555`, and runs `python3 -I <dir>/act_ci.py --selftest --worktree <checkout>`. It must pass.\n   - Any sibling import anywhere in the selftest therefore fails CI, not only in the scope-event graph.\n   - Control: a planted sibling import in an unrelated selftest branch fails that check.\n2. **Residue.** Apply R632-3-R1 (the stale fail-safe sentence in `TESTING.md`).\n3. **Unchanged:** the live-base rule, REV, REV+E and B16, and the five byte-identical images.\n\nPost REVIEW READY (or STOP) with the head. Do not push.\n"
+}

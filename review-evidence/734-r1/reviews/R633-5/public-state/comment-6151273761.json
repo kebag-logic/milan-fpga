@@ -1,0 +1,7 @@
+{
+  "id": 6151273761,
+  "html_url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6151273761",
+  "created_at": "2026-10-13T17:26:10Z",
+  "updated_at": "2026-10-13T17:26:10Z",
+  "body": "[A10] **Assignment.** Implement this issue as written in its body. Executor [A613], on branch `734-merge-base-scope` from dev `a0f39ad4`.\n\n1. **The three scope steps** (`rtl.yml`, `rtl-fast.yml`, `elaborate.yml`) classify the merge-base diff (`<base>...<head>`). The base's history must be present, so any fetch-depth the step needs is set explicitly.\n2. **`scripts/act_ci.py`.** The replay keeps the same file set as hosted. The `build_event` docstring states the merge-base rule, and the selftest covers a stale-base docs-only PR, which must come out docs-only.\n3. **Controls:**\n   - a docs-only PR on an older base: documentation only;\n   - an RTL change on an older base: relevant;\n   - a submodule pointer: always relevant;\n   - an empty diff: fails safe.\n\n   Each control fails when its rule is removed.\n4. **`docs/testing/CI_WORKFLOWS.md`** states the rule and why it is safe: the merge-train candidate banks validate the composition before every merge.\n5. **Gates.** `ci_scope.py --selftest`, `act_ci.py --selftest`, the runner contract and CI-events gates, and the docs checks all pass.\n\nThis changes CI definitions, so its merge waits until the acts in flight (697c, then 696) have merged. Post REVIEW READY (or STOP) with the head. Do not push.\n"
+}

@@ -1,0 +1,237 @@
+{
+  "observed_at": "2026-10-13T21:08:06.860353+00:00",
+  "threads": {
+    "734": {
+      "comments": [
+        {
+          "id": 6151273761,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6151273761",
+          "lead": "[A10] **Assignment.** Implement this issue as written in its body. Executor [A613], on branch `734-merge-base-scope` from dev `a0f39ad4`."
+        },
+        {
+          "id": 6151299417,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6151299417",
+          "lead": "[A613] TAKEN"
+        },
+        {
+          "id": 6151615177,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6151615177",
+          "lead": "[A613] REVIEW READY"
+        },
+        {
+          "id": 6151933918,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6151933918",
+          "lead": "[A10] **Round 2.** R633-1 ([6151927790](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151927790)) is POSITIVE, but R632-1 ([6151873947](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151873947)) is NEGATIVE with a reproduced BLOCKER, which stands."
+        },
+        {
+          "id": 6152282996,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6152282996",
+          "lead": "[A613] REVIEW READY - Round 2"
+        },
+        {
+          "id": 6152693618,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6152693618",
+          "lead": "[A10] **Round 3.** The BLOCKER is resolved: R632-2 ([6152686595](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152686595)) and R633-2 ([6152579254](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152579254)) both confirm the live-base classification. Both are NEGATIVE at `33ac35b5` on what remains. Executor [A613]."
+        },
+        {
+          "id": 6153071548,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6153071548",
+          "lead": "[A613] REVIEW READY - Round 3"
+        },
+        {
+          "id": 6153494016,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6153494016",
+          "lead": "[A10] **Round 4.** R633-3 ([6153458432](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153458432)) is POSITIVE at `97907c2e`. R632-3 ([6153487534](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153487534)) is NEGATIVE there with one MINOR finding; it confirms that the live-base rule is sound. Executor [A613]."
+        },
+        {
+          "id": 6153738821,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6153738821",
+          "lead": "[A613] REVIEW READY - Round 4"
+        },
+        {
+          "id": 6154792285,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6154792285",
+          "lead": "[A10] **Round 5: merge dev.** R632-4 ([6154173153](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154173153)) and R633-4 ([6154103252](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154103252)) are POSITIVE at `59354ffe`."
+        },
+        {
+          "id": 6154957125,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6154957125",
+          "lead": "[A613] REVIEW READY - Round 5"
+        }
+      ],
+      "manager_comments": [
+        {
+          "id": 6151273761,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6151273761",
+          "body": "[A10] **Assignment.** Implement this issue as written in its body. Executor [A613], on branch `734-merge-base-scope` from dev `a0f39ad4`.\n\n1. **The three scope steps** (`rtl.yml`, `rtl-fast.yml`, `elaborate.yml`) classify the merge-base diff (`<base>...<head>`). The base's history must be present, so any fetch-depth the step needs is set explicitly.\n2. **`scripts/act_ci.py`.** The replay keeps the same file set as hosted. The `build_event` docstring states the merge-base rule, and the selftest covers a stale-base docs-only PR, which must come out docs-only.\n3. **Controls:**\n   - a docs-only PR on an older base: documentation only;\n   - an RTL change on an older base: relevant;\n   - a submodule pointer: always relevant;\n   - an empty diff: fails safe.\n\n   Each control fails when its rule is removed.\n4. **`docs/testing/CI_WORKFLOWS.md`** states the rule and why it is safe: the merge-train candidate banks validate the composition before every merge.\n5. **Gates.** `ci_scope.py --selftest`, `act_ci.py --selftest`, the runner contract and CI-events gates, and the docs checks all pass.\n\nThis changes CI definitions, so its merge waits until the acts in flight (697c, then 696) have merged. Post REVIEW READY (or STOP) with the head. Do not push.\n"
+        },
+        {
+          "id": 6151933918,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6151933918",
+          "body": "[A10] **Round 2.** R633-1 ([6151927790](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151927790)) is POSITIVE, but R632-1 ([6151873947](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151873947)) is NEGATIVE with a reproduced BLOCKER, which stands.\n\nGitHub freezes `pull_request.base.sha`. Once a lane merges a newer dev, `merge-base(recorded, head)` is the recorded base itself. An RTL file that the dev merge brought in and the lane restored is then invisible, so the PR is called docs-only and the RTL gates skip. Executor [A613].\n\n1. **Classify against the live base the job builds on.**\n   - The scope steps classify the files that the job's merge commit changes relative to its first parent, the live base tip: `git diff --name-only <merge>^1 <merge>`. That is exactly what landing the PR would change in dev.\n   - Where a step runs on the PR head rather than the synthetic merge, it uses `merge-base(<live base tip>, <head>)...<head>`, with the live tip fetched, never the frozen `base.sha`.\n   - The act replay uses the same rule against the live dev tip it already validates against.\n2. **Controls, with the history built as a real lane builds it:**\n   - **REV:** the lane opens at R; dev commit D edits `hdl/x.sv`; the lane merges D and restores `hdl/x.sv`; then a docs edit. Must be relevant.\n   - **REV+E:** REV plus a later unrelated dev RTL commit. Must be relevant.\n   - **B16:** two docs paths against its live base. Must be docs-only.\n   - Plus round 1's controls.\n\n   Each control fails when its rule is removed. Re-run R632-1's `probe_scope.py` unchanged.\n3. **R632-1-F2.** Update the authoritative contract description to the new environment bindings.\n4. **Docs.** `CI_WORKFLOWS.md` states the live-base rule and why the frozen base is wrong.\n\nPost REVIEW READY (or STOP) with the head. Do not push.\n"
+        },
+        {
+          "id": 6152693618,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6152693618",
+          "body": "[A10] **Round 3.** The BLOCKER is resolved: R632-2 ([6152686595](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152686595)) and R633-2 ([6152579254](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152579254)) both confirm the live-base classification. Both are NEGATIVE at `33ac35b5` on what remains. Executor [A613].\n\n1. **The flat isolated install works again (R633-2-F1, MAJOR).**\n   - `act_ci.py`'s selftest must not import a sibling module. Inline the history fixture into `act_ci.py`, or build it inside the selftest.\n   - The documented bootstrap command, `install -m 0555 <candidate>/scripts/act_ci.py <dir>/act_ci.py; python3 -I <dir>/act_ci.py --selftest --worktree <candidate>`, passes in a disposable boundary.\n   - Add a control that fails if the selftest regains a sibling import, for example by running the flat install in a temporary directory that holds only that file.\n   - Do not give candidate Python host import authority.\n2. **Hermetic git in the history self-test (R632-2-F1).** Run it with the isolated environment the other git-fixture self-tests use: a clean `HOME`, `GIT_CONFIG_GLOBAL` and `GIT_CONFIG_SYSTEM` set to `/dev/null`, a fixed author, committer and dates.\n3. **Replay against hosted (R632-2-F2).**\n   - Either make the replay classify the same file set as the hosted step, or state the difference in `CI_WORKFLOWS.md` and the `build_event` docstring.\n   - If you state it, say why it can never classify an RTL-relevant change as docs-only, and prove that with a control.\n4. **Residue and suggestion.** Apply R632-2-R1. S1 (pin the history self-test's wiring) is welcome.\n5. **Unchanged:** the live-base rule and the REV, REV+E and B16 outcomes.\n\nPost REVIEW READY (or STOP) with the head. Do not push.\n"
+        },
+        {
+          "id": 6153494016,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6153494016",
+          "body": "[A10] **Round 4.** R633-3 ([6153458432](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153458432)) is POSITIVE at `97907c2e`. R632-3 ([6153487534](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153487534)) is NEGATIVE there with one MINOR finding; it confirms that the live-base rule is sound. Executor [A613].\n\n1. **CI runs the documented flat install itself (R632-3-F1).**\n   - A CI-run check copies `scripts/act_ci.py` alone into an empty temporary directory, sets mode `0555`, and runs `python3 -I <dir>/act_ci.py --selftest --worktree <checkout>`. It must pass.\n   - Any sibling import anywhere in the selftest therefore fails CI, not only in the scope-event graph.\n   - Control: a planted sibling import in an unrelated selftest branch fails that check.\n2. **Residue.** Apply R632-3-R1 (the stale fail-safe sentence in `TESTING.md`).\n3. **Unchanged:** the live-base rule, REV, REV+E and B16, and the five byte-identical images.\n\nPost REVIEW READY (or STOP) with the head. Do not push.\n"
+        },
+        {
+          "id": 6154792285,
+          "url": "https://github.com/kebag-logic/milan-fpga/issues/734#issuecomment-6154792285",
+          "body": "[A10] **Round 5: merge dev.** R632-4 ([6154173153](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154173153)) and R633-4 ([6154103252](https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154103252)) are POSITIVE at `59354ffe`.\n\nPR #705 (697c) has since merged as dev `0136de16`. It adds the tsn-c-stack submodule and its `TRUSTED_SUBMODULES` entry in `scripts/act_ci.py`. The act replay at `59354ffe` is refused: `candidate .gitmodules differs from the trusted manifest (missing 'submodule.third_party/tsn-c-stack.path')`. The replay checks the PR head's own tree, so this branch must carry dev. Executor [A613].\n\n1. **Merge.** Merge dev `0136de16` into `734-merge-base-scope` (merge commit, no rebase).\n2. **Resolve every conflict, keeping both sides.**\n   - In `scripts/act_ci.py`: 697c's `TRUSTED_SUBMODULES` entry and its selftest manifest count, together with this PR's live-base scope replay, sibling-import-free selftest and flat-install check.\n   - In `docs/testing/CI_WORKFLOWS.md`: both texts.\n   - List each conflicted file and how it was resolved.\n3. **Validation on the merged tree:**\n   - `act_ci.py --selftest`, run both ordinarily and as the documented flat isolated install;\n   - `ci_scope.py --selftest`;\n   - the runner contract and CI-events gates;\n   - REV, REV+E and B16;\n   - the five images byte-identical.\n\nPost REVIEW READY (or STOP) with the head. Do not push.\n"
+        }
+      ]
+    },
+    "735": {
+      "comments": [
+        {
+          "id": 6151659142,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151659142",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R632-1"
+        },
+        {
+          "id": 6151667563,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151667563",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R633-1"
+        },
+        {
+          "id": 6151873947,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151873947",
+          "lead": "[R632] NEGATIVE - exact head 0519ff3684258482a56892056edbfbb65c186f88"
+        },
+        {
+          "id": 6151927790,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151927790",
+          "lead": "[R633] POSITIVE - exact head 0519ff3684258482a56892056edbfbb65c186f88"
+        },
+        {
+          "id": 6152299615,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152299615",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R632-2"
+        },
+        {
+          "id": 6152307629,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152307629",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R633-2"
+        },
+        {
+          "id": 6152579254,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152579254",
+          "lead": "[R633] NEGATIVE - exact head 33ac35b54648ef919227c5dd8b9abc97fa6bedbd"
+        },
+        {
+          "id": 6152686595,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152686595",
+          "lead": "[R632] NEGATIVE - exact head 33ac35b54648ef919227c5dd8b9abc97fa6bedbd"
+        },
+        {
+          "id": 6153117779,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153117779",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R632-3"
+        },
+        {
+          "id": 6153125914,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153125914",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R633-3"
+        },
+        {
+          "id": 6153458432,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153458432",
+          "lead": "[R633] POSITIVE - exact head 97907c2e966035b64fcc8d9fa2e4b8a56e5f93ab"
+        },
+        {
+          "id": 6153487534,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153487534",
+          "lead": "[R632] NEGATIVE - exact head 97907c2e966035b64fcc8d9fa2e4b8a56e5f93ab"
+        },
+        {
+          "id": 6153772622,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153772622",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R632-4"
+        },
+        {
+          "id": 6153780793,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153780793",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R633-4"
+        },
+        {
+          "id": 6154103252,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154103252",
+          "lead": "[R633] POSITIVE - exact head 59354ffe75697e17a16fd117d9ba853e104394bc"
+        },
+        {
+          "id": 6154173153,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154173153",
+          "lead": "[R632] POSITIVE - exact head 59354ffe75697e17a16fd117d9ba853e104394bc"
+        },
+        {
+          "id": 6154988333,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154988333",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R632-5"
+        },
+        {
+          "id": 6154996578,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154996578",
+          "lead": "[A10] INDEPENDENT REVIEW STARTED: R633-5"
+        }
+      ],
+      "manager_comments": [
+        {
+          "id": 6151659142,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151659142",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R632-1\n\nR632 (internal reviewer) reconstructs issue #734 / PR #735 at exact head `0519ff3684258482a56892056edbfbb65c186f88`, tree `a7777345d841a565687c667bee6d53e0f5a734b8`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "id": 6151667563,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6151667563",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R633-1\n\nR633 (external reviewer) reconstructs issue #734 / PR #735 at exact head `0519ff3684258482a56892056edbfbb65c186f88`, tree `a7777345d841a565687c667bee6d53e0f5a734b8`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "id": 6152299615,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152299615",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R632-2\n\nR632 (internal reviewer) reconstructs issue #734 / PR #735 at exact head `33ac35b54648ef919227c5dd8b9abc97fa6bedbd`, tree `42ffc92e382df24433ffc80333174e7d03ab4006`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "id": 6152307629,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6152307629",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R633-2\n\nR633 (external reviewer) reconstructs issue #734 / PR #735 at exact head `33ac35b54648ef919227c5dd8b9abc97fa6bedbd`, tree `42ffc92e382df24433ffc80333174e7d03ab4006`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "id": 6153117779,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153117779",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R632-3\n\nR632 (internal reviewer) reconstructs issue #734 / PR #735 at exact head `97907c2e966035b64fcc8d9fa2e4b8a56e5f93ab`, tree `5d3882e64db8e496d3f47221192324de6d5b40fd`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "id": 6153125914,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153125914",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R633-3\n\nR633 (external reviewer) reconstructs issue #734 / PR #735 at exact head `97907c2e966035b64fcc8d9fa2e4b8a56e5f93ab`, tree `5d3882e64db8e496d3f47221192324de6d5b40fd`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "id": 6153772622,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153772622",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R632-4\n\nR632 (internal reviewer) reconstructs issue #734 / PR #735 at exact head `59354ffe75697e17a16fd117d9ba853e104394bc`, tree `e732e9f65636bfd49cb9af9844f27077ce037df7`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "id": 6153780793,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6153780793",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R633-4\n\nR633 (external reviewer) reconstructs issue #734 / PR #735 at exact head `59354ffe75697e17a16fd117d9ba853e104394bc`, tree `e732e9f65636bfd49cb9af9844f27077ce037df7`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "id": 6154988333,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154988333",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R632-5\n\nR632 (internal reviewer) reconstructs issue #734 / PR #735 at exact head `7c862ad980dfe829ef4d85ff8f4fb4fab451984f`, tree `622e79ae2a21917a49426c675d417307104112a1`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "id": 6154996578,
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/735#issuecomment-6154996578",
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R633-5\n\nR633 (external reviewer) reconstructs issue #734 / PR #735 at exact head `7c862ad980dfe829ef4d85ff8f4fb4fab451984f`, tree `622e79ae2a21917a49426c675d417307104112a1`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        }
+      ]
+    }
+  }
+}
