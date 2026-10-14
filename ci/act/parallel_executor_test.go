@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestBoundedFailureStopsAdmission(t *testing.T) {
+func verifyFailure(t *testing.T, dispatch func(int, ...Executor) Executor) {
 	var started atomic.Int32
 	var cleaned atomic.Int32
 	var ready sync.WaitGroup
@@ -34,7 +34,7 @@ func TestBoundedFailureStopsAdmission(t *testing.T) {
 			return ctx.Err()
 		}
 	}
-	if err := NewFailFastParallelExecutor(4, executors...)(context.Background()); !errors.Is(err, failure) {
+	if err := dispatch(4, executors...)(context.Background()); !errors.Is(err, failure) {
 		t.Fatalf("lost first failure: %v", err)
 	}
 	if started.Load() != 4 || cleaned.Load() != 4 {
@@ -42,7 +42,7 @@ func TestBoundedFailureStopsAdmission(t *testing.T) {
 	}
 }
 
-func TestBoundedSuccessRunsEveryJob(t *testing.T) {
+func verifySuccess(t *testing.T, dispatch func(int, ...Executor) Executor) {
 	var started atomic.Int32
 	var running atomic.Int32
 	var peak atomic.Int32
@@ -62,7 +62,7 @@ func TestBoundedSuccessRunsEveryJob(t *testing.T) {
 			return nil
 		}
 	}
-	if err := NewFailFastParallelExecutor(4, executors...)(context.Background()); err != nil {
+	if err := dispatch(4, executors...)(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	if started.Load() != 40 || running.Load() != 0 || peak.Load() != 4 {
@@ -70,12 +70,39 @@ func TestBoundedSuccessRunsEveryJob(t *testing.T) {
 	}
 }
 
-func TestCancelledParentStartsNoJobs(t *testing.T) {
+func verifyCancelled(t *testing.T, dispatch func(int, ...Executor) Executor) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	called := false
-	err := NewFailFastParallelExecutor(4, func(context.Context) error { called = true; return nil })(ctx)
+	err := dispatch(4, func(context.Context) error { called = true; return nil })(ctx)
 	if !errors.Is(err, context.Canceled) || called {
 		t.Fatalf("err=%v called=%t", err, called)
+	}
+}
+
+// nestedDispatch models four independent workflows, each with a four-wide matrix.
+func nestedDispatch(limit int, executors ...Executor) Executor {
+	return func(ctx context.Context) error {
+		gate := NewJobAdmission(ctx, limit)
+		defer gate.Close()
+		groups := make([]Executor, 4)
+		for group := range groups {
+			legs := make([]Executor, 0)
+			for index := group; index < len(executors); index += len(groups) {
+				legs = append(legs, gate.Wrap(executors[index]))
+			}
+			groups[group] = NewFailFastParallelExecutor(4, legs...)
+		}
+		return NewFailFastParallelExecutor(4, groups...)(ctx)
+	}
+}
+
+func TestBoundedDispatcher(t *testing.T) {
+	for name, dispatch := range map[string]func(int, ...Executor) Executor{
+		"flat": NewFailFastParallelExecutor, "nested": nestedDispatch,
+	} {
+		t.Run(name+"/failure", func(t *testing.T) { verifyFailure(t, dispatch) })
+		t.Run(name+"/success", func(t *testing.T) { verifySuccess(t, dispatch) })
+		t.Run(name+"/cancelled", func(t *testing.T) { verifyCancelled(t, dispatch) })
 	}
 }

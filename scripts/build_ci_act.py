@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ACT_COMMIT = "4f411281417e88660bea1c1a1749aa71ae0bd60f"
 ACT_SHA256 = "0d151c0a14455ea2ee1d2bff5258aadef9ac96e35f9756e6bcd8af323780ae98"
 GO_SHA256 = "2852af0cb20a13139b3448992e69b868e50ed0f8a1e5940ee1de9e19a123b613"
-VERSION = "0.2.89+milan-ci1"
+VERSION = "0.2.89+milan-ci2"
 
 
 def digest(path: Path) -> str:
@@ -64,6 +64,8 @@ def build(directory: Path) -> dict:
     controls = ROOT / "ci/act/parallel_executor_test.go"
     subprocess.run(["patch", "--batch", "--fuzz=0", "-p1", "-i", str(patch)], cwd=source, check=True)
     shutil.copyfile(controls, source / "pkg/common/milan_parallel_executor_test.go")
+    admission = ROOT / "ci/act/job_admission.go"
+    shutil.copyfile(admission, source / "pkg/common/milan_job_admission.go")
     environment = dict(os.environ, GOCACHE=str(directory / "cache"), GOPATH=str(directory / "modules"),
                        GOTOOLCHAIN="local", GOMAXPROCS="4", TMPDIR=str(directory))
     commands = (
@@ -79,7 +81,8 @@ def build(directory: Path) -> dict:
         raise ValueError("built dispatcher version differs")
     return {"version": VERSION, "source_commit": ACT_COMMIT, "source_sha256": ACT_SHA256,
             "compiler_sha256": GO_SHA256, "patch_sha256": digest(patch),
-            "controls_sha256": digest(controls), "recipe_sha256": digest(Path(__file__)),
+            "controls_sha256": digest(controls), "admission_sha256": digest(admission),
+            "recipe_sha256": digest(Path(__file__)),
             "binary_sha256": digest(directory / "act"), "binary_bytes": (directory / "act").stat().st_size}
 
 
