@@ -1,0 +1,60 @@
+  ok   scope history: elaborate.yml submodule pointer rule-removal mutation rejected
+  ok   scope history: elaborate.yml empty delta: hosted = replay = ([], 'true')
+  ok   scope history: elaborate.yml empty delta rule-removal mutation rejected
+  ok   scope history: elaborate.yml REV: hosted = replay = (['docs/note.md', 'hdl/x.sv'], 'true')
+  ok   scope history: elaborate.yml REV hosted frozen-base mutation rejected
+  ok   scope history: elaborate.yml REV replay frozen-base mutation rejected
+  ok   scope history: elaborate.yml REV hosted frozen merge-base mutation rejected
+  ok   scope history: elaborate.yml REV+E: hosted = replay = (['docs/note.md', 'hdl/x.sv'], 'true')
+  ok   scope history: elaborate.yml REV+E hosted frozen-base mutation rejected
+  ok   scope history: elaborate.yml REV+E replay frozen-base mutation rejected
+  ok   scope history: elaborate.yml REV+E hosted frozen merge-base mutation rejected
+  ok   scope history: elaborate.yml identical-on-dev: hosted = replay = (['docs/note.md'], 'false')
+  ok   scope history: elaborate.yml identical-on-dev replay without composition rejected
+  ok   scope history: elaborate.yml base-side rename: hosted = replay = (['docs/reference/REGISTER_MAP.md'], 'true')
+  ok   scope history: elaborate.yml base-side rename replay without composition rejected
+  ok   scope history: elaborate.yml replay merge conflict refuses
+  ok   scope history: elaborate.yml missing hosted merge refuses
+  ok   scope history: elaborate.yml missing replay base refuses
+  ok   scope history: elaborate.yml missing replay head refuses
+  ok   scope history: elaborate.yml ambiguous replay base refuses
+  ok   scope history: elaborate.yml arbitrary merge-base mutation rejected
+selftest: PASS
+  ci/image/Dockerfile
+  ci/image/build.py
+  ci/image/build_selftest.py
+  ci/image/command-table.json
+  ci/image/image.lock.json
+  ci/image/image_archive.py
+  ci/image/image_lock.py
+  ci/image/install.py
+  ci/image/integrity_selftest.py
+  ci/image/normalize.py
+  ci/image/package_roots.json
+  ci/image/patch_provenance.py
+  ci/image/prepare_parser.py
+  ci/image/privacy.json
+  ci/image/privacy.py
+  ci/image/privacy_patch_selftest.py
+  ci/image/privacy_selftest.py
+  ci/image/resolve_base.py
+  ci/image/resolve_git.py
+  ci/image/resolve_maven.py
+  ci/image/resolve_packages.py
+  ci/image/sbt-repositories
+  ci/image/smoke.py
+  ci/image/sources.lock.json
+  ci/image/syntax-census.json
+  ci/image/tool-inventory.json
+  docs/README.md
+  docs/testing/CI_IMAGE.md
+  scripts/check_baremetal_only.py
+  scripts/ci_command_table.py
+  scripts/ci_inventory_nodes_selftest.py
+  scripts/ci_inventory_patterns_selftest.py
+  scripts/ci_make_walk.py
+  scripts/ci_shell_walk.py
+  scripts/ci_syntax.py
+  scripts/ci_tool_inventory.py
+  scripts/ci_tool_inventory_selftest.py
+RTL/tooling relevant: true

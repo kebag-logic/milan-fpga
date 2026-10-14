@@ -1,0 +1,29 @@
+      0s START lint mem=5g
+      0s START docs-check mem=4g
+      1s START changes mem=1g
+      1s START bdd mem=1g
+      1s START wire mem=1g
+      6s END bdd rc=0 dur=5s
+      6s END wire rc=0 dur=5s
+     12s START nogit mem=1g
+     22s END nogit rc=0 dur=10s
+     32s END lint rc=0 dur=31s
+     37s START yosys mem=5g
+     37s END changes rc=0 dur=36s
+     42s START mut1 mem=3g
+   1062s END mut1 rc=0 dur=1020s
+   1068s START mut2 mem=3g
+   1138s END yosys rc=0 dur=1101s
+   1143s START fwunit mem=4g
+   1373s END mut2 rc=0 dur=305s
+   1378s START mut3 mem=3g
+   1453s END docs-check rc=0 dur=1453s
+   1459s START boundary mem=3g
+   1904s END fwunit rc=0 dur=761s
+   1909s START pubcensus mem=6g
+   2219s END mut3 rc=0 dur=841s
+   2634s END boundary rc=0 dur=1175s
+   2639s START fwver mem=4g
+   2999s END pubcensus rc=0 dur=1090s
+   3389s END fwver rc=0 dur=750s
+   3394s ALL DONE

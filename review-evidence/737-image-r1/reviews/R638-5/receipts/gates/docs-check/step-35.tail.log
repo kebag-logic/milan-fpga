@@ -1,0 +1,60 @@
+  ok   runner installed inside the candidate worktree is refused
+  ok   bootstrap install requires explicit repository and worktree
+  ok   bootstrap accepts both explicit identity arguments
+  ok   directory removal failure cannot report cleanup success
+  ok   broken replacement symlink cannot masquerade as completed cleanup
+  ok   assume-unchanged cannot hide selected workflow bytes
+  ok   skip-worktree cannot hide selected workflow bytes
+  ok   an index flag cannot hide a selected workflow symlink
+  ok   replacement object is refused even when HEAD text is unchanged
+  ok   the trusted manifest includes exactly the six approved entries
+  ok   the exact trusted submodule manifest is accepted
+  ok   materialization fetches all five public pins including lwSRP and tsn-c-stack and excludes external
+  ok   candidate that drops lwSRP is refused before fetch
+  ok   drops lwSRP control catches candidate-controlled trust
+  ok   candidate that duplicates lwSRP is refused before fetch
+  ok   candidate that adds another lwSRP is refused before fetch
+  ok   adds another lwSRP control catches candidate-controlled trust
+  ok   candidate that redirects lwSRP is refused before fetch
+  ok   candidate that drops lwSRP gitlink is refused before fetch
+  ok   candidate that adds lwSRP gitlink is refused before fetch
+  ok   candidate that drops tsn-c-stack is refused before fetch
+  ok   candidate that redirects tsn-c-stack is refused before fetch
+  ok   candidate that drops tsn-c-stack gitlink is refused before fetch
+  ok   candidate that adds tsn-c-stack gitlink is refused before fetch
+  ok   candidate submodule URL changes are refused before fetch
+  ok   candidate submodule update commands are refused before fetch
+  ok   candidate gitlink path changes are refused before fetch
+  ok   Git disables every protocol except credential-free HTTPS
+  ok   self-hosted runner authority is refused
+  ok   a missing runner label is refused
+  ok   a nonliteral runner label is refused
+  ok   job container authority is refused
+  ok   service container authority is refused
+  ok   reusable workflow authority is refused
+  ok   step-level action docker://alpine:3.20 is refused before act
+  ok   step-level action example/setup@v1 is refused before act
+  ok   step-level action actions/checkout@v5 is refused before act
+  ok   step-level action ./local-action is refused before act
+  ok   a workflow without a declared name cannot lease act job volumes
+  ok   a workflow name that is a hyphen-prefix of another cannot share a lease
+  ok   either overlapping workflow alone still leases its own volumes
+  ok   workflow reads do not follow a candidate symlink
+  ok   workflow reads reject a FIFO without blocking
+  ok   workflow reads reject a host device before reading it
+  ok   workflow reads reject an oversized regular file before parsing
+  ok   shipping workflows satisfy the sandbox policy
+  ok   shipping workflows lease act job volumes by declared name
+  ok   no shipping workflow name is a hyphen-prefix of another, so a rival workflow's volumes stay outside every lease
+  ok   a job without a matrix runs one container, with or without a strategy or a max-parallel
+  ok   a matrix job runs act's default 4 wide, or its literal max-parallel, never below one, as act 0.2.89 does
+  ok   a strategy that is not a mapping is refused: the concurrency cannot be derived
+  ok   an expression max-parallel is refused: the concurrency cannot be derived
+  ok   a negative max-parallel is refused: the concurrency cannot be derived
+  ok   a fractional max-parallel is refused: the concurrency cannot be derived
+  ok   a seven-digit max-parallel is refused: the concurrency cannot be derived
+  ok   a list max-parallel is refused: the concurrency cannot be derived
+  ok   a replay's concurrency is its workflows' CONCURRENT_JOB_LIMIT widest jobs together (4, then 4+2, then 4+2+1), the most of any selected workflow
+  ok   the most of any selected workflow in every order: rtl-full beside docs either way round, and first, between or last beside a 3-wide rtl-fast and a 1-wide docs, derives 4, 6, 7
+  ok   every shipping workflow derives 1 to 4 concurrent containers, and rtl-full's matrix legs run more than one at once
+selftest: PASS
