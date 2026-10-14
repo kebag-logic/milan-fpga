@@ -87,9 +87,11 @@ def skipped_collector_control(root: Path) -> None:
         changed = copy.deepcopy(raw)
         changed[0][field] = value
         refused(lambda: api_evidence(source, changed, filename), "raw matrix " + field + " " + str(value))
+        refused(lambda: observe(changed, expected, skipped), "watcher raw matrix " + field)
     expanded_job = {"name": skipped[raw[0]["name"]][0], "conclusion": "skipped", "steps": []}
     for rows in ([*raw, expanded_job], [expanded_job, *raw], [*raw, raw[0]]):
         refused(lambda: api_evidence(source, rows, filename), "overlapping raw matrix coverage")
+        refused(lambda: observe(rows, expected, skipped), "watcher overlapping raw matrix coverage")
     print("Skipped matrices: collector entry, watcher and terminal graph PASS; no success fabricated")
 
 

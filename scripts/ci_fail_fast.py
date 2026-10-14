@@ -112,21 +112,24 @@ def observe(jobs: list[dict], expected: set[str],
             skipped: dict[str, list[str]] | None = None) -> tuple[bool, dict | None]:
     """Do not confuse an empty startup response with successful completion."""
     skipped = skipped or {}
+    terminal_names = {"Fail fast across this head", "Cancel late CI failures"}
+    if {job["name"] for job in jobs} - expected - set(skipped) - terminal_names:
+        raise ValueError("API returned an unplanned job name")
     relevant = [job for job in jobs if job["name"] in expected or job["name"] in skipped]
     names = [job["name"] for job in relevant]
     if len(names) != len(set(names)):
         raise ValueError("duplicate current-attempt job names")
-    failed = next((job for job in relevant
-                   if job.get("conclusion") in FAILURES), None)
     covered = []
     for job in relevant:
         if job["name"] in skipped:
-            if job.get("status") == "completed" and job.get("conclusion") == "skipped":
-                covered.extend(skipped[job["name"]])
+            if job.get("status") != "completed" or job.get("conclusion") != "skipped" or job.get("steps"):
+                raise ValueError("API returned an invalid unexpanded matrix state")
+            covered.extend(skipped[job["name"]])
         else:
             covered.append(job["name"])
     if len(covered) != len(set(covered)):
         raise ValueError("expanded and unexpanded matrix jobs overlap")
+    failed = next((job for job in relevant if job.get("conclusion") in FAILURES), None)
     complete = set(covered) == expected and all(job["status"] == "completed" for job in relevant)
     return complete, failed
 
