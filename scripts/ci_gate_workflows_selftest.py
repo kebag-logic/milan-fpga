@@ -23,23 +23,35 @@ from ci_suite_workflows import check_inventory_dependencies, inventory_dependenc
 
 def inventory_controls() -> None:
     """Every current consumer loses its preparation independently and must be refused."""
+    preparation = inventory_dependencies()["run"].strip()
     for name in ("docs", "elaborate", "rtl", "rtl-fast"):
         generated = generate(name, load_template(ROOT, name))
         check_inventory_dependencies(generated)
         for job_id, job in generated["jobs"].items():
-            preparation = inventory_dependencies()["run"].strip()
             if not any(step.get("run", "").strip() == preparation for step in job["steps"]):
                 continue
             changed = copy.deepcopy(generated)
             changed["jobs"][job_id]["steps"] = [step for step in job["steps"]
                                                   if step.get("run", "").strip() != preparation]
-            try:
-                check_inventory_dependencies(changed)
-            except ValueError as exc:
-                assert job_id in str(exc)
-                print(name + ": refused missing inventory preparation in " + job_id)
-            else:
-                raise AssertionError("accepted unprepared inventory reader: " + job_id)
+            refuse_preparation(changed, job_id, name + ": missing inventory preparation in ")
+            # A preparation that may not run, or may fail unseen, prepares nothing.
+            for planted in ({"if": "${{ false }}"}, {"continue-on-error": True}):
+                changed = copy.deepcopy(generated)
+                changed["jobs"][job_id]["steps"] = [
+                    {**step, **planted} if step.get("run", "").strip() == preparation else step
+                    for step in job["steps"]]
+                refuse_preparation(changed, job_id, name + ": " + next(iter(planted)) + " preparation in ")
+
+
+def refuse_preparation(changed: dict, job_id: str, label: str) -> None:
+    """The generator's own construction check must name the unprepared reader."""
+    try:
+        check_inventory_dependencies(changed)
+    except ValueError as exc:
+        assert job_id in str(exc)
+        print("refused " + label + job_id)
+    else:
+        raise AssertionError("accepted unprepared inventory reader: " + label + job_id)
 
 
 def scheduling_controls() -> None:
