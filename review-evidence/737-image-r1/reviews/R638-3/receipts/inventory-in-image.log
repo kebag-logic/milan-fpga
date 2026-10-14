@@ -1,0 +1,10 @@
+Python 3.12.3
+TMPDIR=unset
+CI tool inventory matches workflow installation requests
+check_rc=0
+default_tmp_selftest_rc=1
+  File "/src/scripts/ci_tool_inventory_selftest.py", line 70, in refuse
+    raise AssertionError(expected)
+AssertionError: installer needs an explicit pin reader
+var_tmp_selftest_rc=0
+PASS: missing inventory entry differs

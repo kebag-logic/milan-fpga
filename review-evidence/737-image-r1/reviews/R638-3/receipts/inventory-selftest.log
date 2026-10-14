@@ -1,0 +1,76 @@
+PASS: added tool changes the derived inventory
+PASS: removed tool changes the derived inventory
+PASS: changed pin changes the derived inventory
+PASS: new job changes the derived inventory
+PASS: an orphan inventory entry differs
+PASS: unsupported installer refused: npm
+PASS: unsupported installer refused: pip
+PASS: unsupported installer refused: apt
+PASS: unsupported installer refused: curl
+PASS: moving Git requirement refused
+PASS: comparison-only token data is not an installation
+PASS: an installation hidden in a called script is refused
+PASS: an installation hidden in a called shell script is refused
+PASS: indirect installation data refused
+PASS: indirect installation data refused
+PASS: indirect installation data refused
+PASS: unsupported action or installer refused
+PASS: unsupported action or installer refused
+PASS: unsupported action or installer refused
+PASS: Makefile installation refused
+PASS: unclassified refused
+PASS: closed command control: sudo dpkg -i fixture.deb
+PASS: unclassified refused
+PASS: closed command control: npx --yes fixture@1.2.3
+PASS: unclassified refused
+PASS: closed command control: go install fixture@v1
+PASS: unclassified refused
+PASS: closed command control: snap install fixture
+PASS: unclassified refused
+PASS: closed command control: uv tool install fixture
+PASS: unclassified refused
+PASS: closed command control: docker run fixture:tag
+PASS: unclassified refused
+PASS: closed command control: git -C somewhere fetch https://example.invalid/repo
+PASS: unclassified refused
+PASS: closed command control: brand_new_command --version
+PASS: unclassified refused
+PASS: closed command control: env MODE=check brand_new_command
+PASS: unclassified refused
+PASS: closed command control: timeout 20 brand_new_command
+PASS: unclassified refused
+PASS: closed command control: echo okay; brand_new_command
+PASS: unclassified refused
+PASS: closed command control: echo $(brand_new_command)
+PASS: unclassified refused
+PASS: closed command control: selected=brand_new_command; $selected
+PASS: unclassified refused
+PASS: closed command control: f() { brand_new_command; }; f
+PASS: unclassified refused
+PASS: closed command control: find . -exec brand_new_command {} \;
+PASS: unclassified refused
+PASS: newly classified command permits only its reviewed form
+PASS: undeclared executing or network script 'bootstrap.py' refused
+PASS: undeclared executing or network script 'bootstrap.py' refused
+PASS: undeclared executing or network script 'bootstrap.py' refused
+PASS: changed declared script 'bootstrap.py' refused
+PASS: unclassified refused
+PASS: unresolved script 'missing.py' refused
+Traceback (most recent call last):
+  File "<clone>/scripts/ci_tool_inventory_selftest.py", line 215, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<clone>/scripts/ci_tool_inventory_selftest.py", line 210, in main
+    closed_controls(root, workflow, prefix)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<clone>/scripts/ci_tool_inventory_selftest.py", line 120, in closed_controls
+    refuse(root, "installer needs an explicit pin reader")
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<clone>/scripts/ci_tool_inventory_selftest.py", line 70, in refuse
+    raise AssertionError(expected)
+AssertionError: installer needs an explicit pin reader
+
+real	0m0.362s
+user	0m0.278s
+sys	0m0.099s
+rc=1

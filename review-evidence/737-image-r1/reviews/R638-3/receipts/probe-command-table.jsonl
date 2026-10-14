@@ -1,0 +1,44 @@
+{"case": "control-npx", "detail": "Refusal: unclassified command 'npx' at .github/workflows/test.yml:1", "outcome": "REFUSED"}
+{"case": "gh-extension-install", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "gh-release-download", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "git-submodule-add", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "git-config-then-submodule", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "git-clone-scp-syntax", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "git-archive-remote", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "python-heredoc-no-dash", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "python-heredoc-I-dash", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "python-dash-heredoc-control", "detail": "Refusal: undeclared executing or network script '.github/workflows/test.yml:heredoc'", "outcome": "REFUSED"}
+{"case": "bash-herestring", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "pipe-to-bash", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "bash-c-control", "outcome": "RESIDUE", "residue": [".github/workflows/test.yml:1: indirect shell"], "tools": []}
+{"case": "py-os-popen", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "py-os-execvp", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "py-os-spawnlp", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "py-asyncio-subprocess", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "py-static-alias", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "py-pip-in-process", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "py-urllib3", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "py-importlib-network", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "py-ssl-socket-alt", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "py-urllib-control", "detail": "Refusal: undeclared executing or network script 'scripts/p.py'", "outcome": "REFUSED"}
+{"case": "make-pattern-rule", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "make-pattern-control", "detail": "Refusal: unclassified command 'npx' at fx/Makefile:4:1", "outcome": "REFUSED"}
+{"case": "make-directory-long-option", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "working-directory-make", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "job-level-reusable-workflow", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": []}
+{"case": "r638-2-dpkg", "detail": "Refusal: unclassified command 'dpkg' at .github/workflows/test.yml:1", "outcome": "REFUSED"}
+{"case": "r638-2-npx", "detail": "Refusal: unclassified command 'npx' at .github/workflows/test.yml:1", "outcome": "REFUSED"}
+{"case": "r638-2-go-install", "detail": "Refusal: unclassified command 'go' at .github/workflows/test.yml:1", "outcome": "REFUSED"}
+{"case": "r638-2-snap", "detail": "Refusal: unclassified command 'snap' at .github/workflows/test.yml:1", "outcome": "REFUSED"}
+{"case": "r638-2-uv-tool", "detail": "Refusal: unclassified command 'uv' at .github/workflows/test.yml:1", "outcome": "REFUSED"}
+{"case": "r638-2-docker-run", "detail": "Refusal: unclassified command 'docker' at .github/workflows/test.yml:1", "outcome": "REFUSED"}
+{"case": "r638-2-git-fetch-url", "detail": "Refusal: unclassified git fetch source at .github/workflows/test.yml:1", "outcome": "REFUSED"}
+{"case": "r638-2-followed-urllib", "detail": "Refusal: undeclared executing or network script 'scripts/fetch.py'", "outcome": "REFUSED"}
+{"case": "r639-2-keyword-args", "detail": "Refusal: undeclared executing or network script 'scripts/bootstrap.py'", "outcome": "REFUSED"}
+{"case": "r639-2-root-script", "detail": "Refusal: undeclared executing or network script 'bootstrap.py'", "outcome": "REFUSED"}
+{"case": "r639-2-makefile-download-build", "detail": "Refusal: unresolved Makefile <packet>/scratch/probe-roots/r639-2-makefile-download-build/tools/tool/Makefile at tools/Makefile:3:1", "outcome": "REFUSED"}
+{"case": "newly-added-command", "detail": "Refusal: unclassified command 'brand_new_tool' at .github/workflows/test.yml:1", "outcome": "REFUSED"}
+{"case": "r638-2-container-tag", "detail": "Refusal: job container image requires an exact digest: 'example/tool:latest'", "outcome": "REFUSED"}
+{"case": "r638-2-container-digest", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": [{"kind": "image", "pin": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tool": "example/tool"}]}
+{"case": "r638-2-services-tag", "detail": "Refusal: job service:db image requires an exact digest: 'example/db:16'", "outcome": "REFUSED"}
+{"case": "r638-2-services-digest", "outcome": "ACCEPTED-SILENT", "residue": [], "tools": [{"kind": "image", "pin": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "tool": "example/db"}]}
