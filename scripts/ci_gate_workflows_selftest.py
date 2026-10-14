@@ -204,6 +204,11 @@ def main() -> int:
             receipt["results"] = [row for row in receipt["results"] if row["case"] != dropped]
         refuse("gate dropped from every leg and claimed inventory", changed, needs)
         if name == "elaborate":
+            mixed = copy.deepcopy(receipts)
+            mixed[1]["scope"] = "false"
+            for row in mixed[1]["results"]:
+                row.update(outcome="skipped", conclusion="skipped")
+            refuse("individually valid mixed execution scopes", mixed, needs)
             skipped = {case["id"]: {"outcome": "skipped", "conclusion": "skipped"} for case in cases}
             receipts = [record(name, leg, source, identity, digest, StepContext(skipped, "false")) for leg in legs]
             assert len(verify(name, source, identity, digest, receipts, needs)) == len(cases)

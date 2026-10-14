@@ -164,7 +164,7 @@ def main() -> int:
         changed = copy.deepcopy(base)
         changed[0][key] = value
         refuse(lambda: verify(changed), f"changed {key}")
-    for key, value in (("case", "foreign"), ("outcome", "failure"), ("returncode", -9),
+    for key, value in (("case", "foreign"), ("outcome", "failure"), ("outcome", "failed"), ("returncode", -9),
                        ("returncode", True), ("output_sha256", "missing")):
         changed = copy.deepcopy(base)
         changed[0]["results"][0][key] = value

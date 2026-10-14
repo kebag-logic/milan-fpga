@@ -86,6 +86,15 @@ def main() -> int:
         assert refused, section
         print("manifest extra job refused:", section)
     incomplete = envelope(changed(original, ("results", "check/test/0"), "cancelled"), {})
+    for reason in (None, "false"):
+        skipped = envelope(changed(original, ("execution", "check/test/0"),
+                                   [{"name": "test", "outcome": "skipped", "skip_reason": reason}]), {})
+        try:
+            compare(skipped, deepcopy(skipped))
+        except ValueError:
+            print("two identical skipped-step collections refused")
+        else:
+            raise AssertionError("skipped-step collections accepted")
     try:
         compare(incomplete, incomplete)
     except ValueError:
