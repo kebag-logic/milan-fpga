@@ -1,0 +1,79 @@
+[
+  {
+    "check": "inventory-check",
+    "argv": [
+      "<scratch>/reference-python/usr/bin/python3.12",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.038
+  },
+  {
+    "check": "inventory-selftest",
+    "argv": [
+      "<scratch>/reference-python/usr/bin/python3.12",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.617
+  },
+  {
+    "check": "build-selftest",
+    "argv": [
+      "<scratch>/reference-python/usr/bin/python3.12",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.6
+  },
+  {
+    "check": "integrity-selftest",
+    "argv": [
+      "<scratch>/reference-python/usr/bin/python3.12",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.624
+  },
+  {
+    "check": "privacy-selftest",
+    "argv": [
+      "<scratch>/reference-python/usr/bin/python3.12",
+      "ci/image/privacy_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.573
+  },
+  {
+    "check": "patch-selftest",
+    "argv": [
+      "<scratch>/reference-python/usr/bin/python3.12",
+      "ci/image/privacy_patch_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.568
+  },
+  {
+    "check": "lock-check",
+    "argv": [
+      "<scratch>/reference-python/usr/bin/python3.12",
+      "ci/image/build.py",
+      "--work",
+      "<scratch>/lock",
+      "--check-lock"
+    ],
+    "rc": 0,
+    "seconds": 0.377
+  },
+  {
+    "check": "baremetal-check",
+    "argv": [
+      "<scratch>/reference-python/usr/bin/python3.12",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 21.682
+  }
+]

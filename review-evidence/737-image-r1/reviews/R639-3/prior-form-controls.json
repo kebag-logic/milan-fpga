@@ -1,0 +1,183 @@
+[
+  {
+    "label": "sudo dpkg -i fixture.deb",
+    "refused": true,
+    "reason": "unclassified command 'dpkg' at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "npx --yes fixture@1.2.3",
+    "refused": true,
+    "reason": "unclassified command 'npx' at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "go install fixture@v1.0.0",
+    "refused": true,
+    "reason": "unclassified command 'go' at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "sudo snap install fixture",
+    "refused": true,
+    "reason": "unclassified command 'snap' at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "uv tool install fixture",
+    "refused": true,
+    "reason": "unclassified command 'uv' at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "docker run fixture:tag",
+    "refused": true,
+    "reason": "unclassified command 'docker' at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "git -C somewhere fetch https://example.invalid/repo",
+    "refused": true,
+    "reason": "unclassified git fetch source at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "brand_new_command --version",
+    "refused": true,
+    "reason": "unclassified command 'brand_new_command' at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "Python keyword string",
+    "refused": true,
+    "reason": "undeclared executing or network script 'bootstrap.py'"
+  },
+  {
+    "label": "Python positional string",
+    "refused": true,
+    "reason": "undeclared executing or network script 'bootstrap.py'"
+  },
+  {
+    "label": "Python command alias",
+    "refused": true,
+    "reason": "undeclared executing or network script 'bootstrap.py'"
+  },
+  {
+    "label": "root Python literal list",
+    "refused": true,
+    "reason": "undeclared executing or network script 'bootstrap.py'"
+  },
+  {
+    "label": "undeclared network",
+    "refused": true,
+    "reason": "undeclared executing or network script 'bootstrap.py'"
+  },
+  {
+    "label": "Makefile downloader",
+    "refused": true,
+    "reason": "installer needs an explicit pin reader at Makefile:2:1: curl https://example.invalid/tool -o tool"
+  },
+  {
+    "label": "missing script",
+    "refused": true,
+    "reason": "unresolved script 'absent.py' at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "container moving",
+    "refused": true,
+    "reason": "job container image requires an exact digest: 'fixture:latest'"
+  },
+  {
+    "label": "container pinned",
+    "refused": false,
+    "tools": [
+      {
+        "tool": "fixture",
+        "kind": "image",
+        "pin": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "source": "fixture@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "role": "container",
+        "installed_by": [
+          {
+            "workflow": ".github/workflows/control.yml",
+            "job": "control",
+            "step": "container",
+            "index": -1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "services moving",
+    "refused": true,
+    "reason": "job service:database image requires an exact digest: 'fixture:latest'"
+  },
+  {
+    "label": "services pinned",
+    "refused": false,
+    "tools": [
+      {
+        "tool": "fixture",
+        "kind": "image",
+        "pin": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "source": "fixture@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "role": "service:database",
+        "installed_by": [
+          {
+            "workflow": ".github/workflows/control.yml",
+            "job": "control",
+            "step": "service:database",
+            "index": -1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "new name classified",
+    "refused": false,
+    "tools": []
+  },
+  {
+    "label": "new name unclassified subcommand",
+    "refused": true,
+    "reason": "unclassified command 'brand_new_command install fixture' at .github/workflows/control.yml:1"
+  },
+  {
+    "label": "network declaration accepted",
+    "refused": false,
+    "tools": []
+  },
+  {
+    "label": "changed declaration refused",
+    "refused": true,
+    "reason": "changed declared script 'bootstrap.py'"
+  },
+  {
+    "label": "baseline pip",
+    "refused": false,
+    "tools": [
+      {
+        "tool": "fixture",
+        "kind": "pip",
+        "pin": "1.0",
+        "installed_by": [
+          {
+            "workflow": ".github/workflows/control.yml",
+            "job": "control",
+            "step": "0",
+            "index": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "baseline CLI comparison",
+    "rc": 0,
+    "output": "CI tool inventory matches workflow installation requests\n"
+  },
+  {
+    "label": "missing CLI comparison",
+    "rc": 2,
+    "output": "REFUSED: tool inventory differs from workflow installation requests\n"
+  },
+  {
+    "label": "orphan CLI comparison",
+    "rc": 2,
+    "output": "REFUSED: tool inventory differs from workflow installation requests\n"
+  }
+]

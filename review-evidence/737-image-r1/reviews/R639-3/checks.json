@@ -1,0 +1,78 @@
+[
+  {
+    "check": "inventory-check",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.789
+  },
+  {
+    "check": "inventory-selftest",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.431
+  },
+  {
+    "check": "build-selftest",
+    "argv": [
+      "/usr/bin/python3",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.195
+  },
+  {
+    "check": "integrity-selftest",
+    "argv": [
+      "/usr/bin/python3",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.206
+  },
+  {
+    "check": "privacy-selftest",
+    "argv": [
+      "/usr/bin/python3",
+      "ci/image/privacy_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.212
+  },
+  {
+    "check": "patch-selftest",
+    "argv": [
+      "/usr/bin/python3",
+      "ci/image/privacy_patch_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.202
+  },
+  {
+    "check": "lock-check",
+    "argv": [
+      "/usr/bin/python3",
+      "ci/image/build.py",
+      "--work",
+      "<scratch>/lock",
+      "--check-lock"
+    ],
+    "rc": 0,
+    "seconds": 0.126
+  },
+  {
+    "check": "baremetal-check",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/check_baremetal_only.py"
+    ],
+    "rc": 2,
+    "seconds": 0.102
+  }
+]

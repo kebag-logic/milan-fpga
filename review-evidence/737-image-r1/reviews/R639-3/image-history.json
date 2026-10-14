@@ -1,0 +1,145 @@
+[
+  {
+    "created": "2026-09-11T11:44:03.605540158Z",
+    "created_by": "/bin/sh -c #(nop)  ARG RELEASE",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-09-11T11:44:03.646010328Z",
+    "created_by": "/bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-09-11T11:44:03.67741558Z",
+    "created_by": "/bin/sh -c #(nop)  LABEL org.opencontainers.image.version=24.04",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-09-11T11:44:06.020434349Z",
+    "created_by": "/bin/sh -c #(nop) ADD file:43d479b270bbaf47965cfc86b37f4c517bda83ddefda6f708f98c3b2b7d15396 in / "
+  },
+  {
+    "created": "2026-09-11T11:44:06.579973371Z",
+    "created_by": "/bin/sh -c #(nop)  CMD [\"/bin/bash\"]",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ARG SOURCE_DATE_EPOCH=1791940308",
+    "comment": "buildkit.dockerfile.v0",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV DEBIAN_FRONTEND=noninteractive",
+    "comment": "buildkit.dockerfile.v0",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "RUN |1 SOURCE_DATE_EPOCH=1791940308 /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     python3 /recipe/normalize.py system # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV LANG=C.UTF-8 LC_ALL=C.UTF-8",
+    "comment": "buildkit.dockerfile.v0",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "RUN |1 SOURCE_DATE_EPOCH=1791940308 /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     python3 /recipe/normalize.py system # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY --chown=0:0 /opt/python /opt/python # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY --chown=0:0 /opt/litex /opt/python # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/verilator /opt/verilator # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/yosys /opt/yosys # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/rv32-sdk /opt/rv32-sdk # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/sv2v /opt/sv2v # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/sbt /opt/sbt # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/tsn-gen /opt/tsn-gen # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/node /opt/node # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/gh /opt/gh # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV PATH=/opt/node/bin:/opt/gh/bin:/opt/python/bin:/opt/verilator/bin:/opt/yosys/bin:/opt/rv32-sdk/bin:/opt/sv2v/bin:/opt/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "comment": "buildkit.dockerfile.v0",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV MILAN_RV32_CC=/opt/rv32-sdk/bin/riscv32-linux-gcc",
+    "comment": "buildkit.dockerfile.v0",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV TSN_GEN_ROOT=/opt/tsn-gen",
+    "comment": "buildkit.dockerfile.v0",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV COURSIER_CACHE=/opt/sbt/cache/coursier",
+    "comment": "buildkit.dockerfile.v0",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV SBT_OPTS=-Dsbt.boot.directory=/opt/sbt/cache/boot -Dsbt.global.base=/opt/sbt/cache/global -Dsbt.ivy.home=/opt/sbt/cache/ivy -Dsbt.override.build.repos=true -Dsbt.repository.config=/opt/sbt/repositories",
+    "comment": "buildkit.dockerfile.v0",
+    "empty_layer": true
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY recipe/smoke.py recipe/sources.lock.json /opt/ci-image/ # buildkit",
+    "comment": "buildkit.dockerfile.v0"
+  },
+  {
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "CMD [\"bash\"]",
+    "comment": "buildkit.dockerfile.v0",
+    "empty_layer": true
+  }
+]

@@ -1,0 +1,170 @@
+[
+  {
+    "name": "make-long-file",
+    "command": "make --file=install.mk",
+    "files": {
+      "Makefile": "all:\n\techo clean\n",
+      "install.mk": "all:\n\tbrand_new_command install tool\n"
+    },
+    "accepted": true,
+    "tools": [],
+    "residue": [],
+    "followed": [
+      ".github/workflows/probe.yml",
+      "Makefile",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "cli_write_rc": 0,
+    "cli_check_rc": 0,
+    "make_dry_run": {
+      "rc": 0,
+      "stdout": "brand_new_command install tool\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "make-short-file",
+    "command": "make -finstall.mk",
+    "files": {
+      "Makefile": "all:\n\techo clean\n",
+      "install.mk": "all:\n\tbrand_new_command install tool\n"
+    },
+    "accepted": true,
+    "tools": [],
+    "residue": [],
+    "followed": [
+      ".github/workflows/probe.yml",
+      "Makefile",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "cli_write_rc": 0,
+    "cli_check_rc": 0,
+    "make_dry_run": {
+      "rc": 0,
+      "stdout": "brand_new_command install tool\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "make-default-goal",
+    "command": "make",
+    "files": {
+      "Makefile": "clean:\n\techo clean\n.DEFAULT_GOAL := install\ninstall:\n\tbrand_new_command install tool\n"
+    },
+    "accepted": true,
+    "tools": [],
+    "residue": [],
+    "followed": [
+      ".github/workflows/probe.yml",
+      "Makefile",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "cli_write_rc": 0,
+    "cli_check_rc": 0,
+    "make_dry_run": {
+      "rc": 0,
+      "stdout": "brand_new_command install tool\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "make-pattern-target",
+    "command": "make install",
+    "files": {
+      "Makefile": "%:\n\tbrand_new_command install tool\n"
+    },
+    "accepted": true,
+    "tools": [],
+    "residue": [],
+    "followed": [
+      ".github/workflows/probe.yml",
+      "Makefile",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "cli_write_rc": 0,
+    "cli_check_rc": 0,
+    "make_dry_run": {
+      "rc": 0,
+      "stdout": "brand_new_command install tool\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "python-literal-kwargs",
+    "command": "python3 bootstrap.py",
+    "files": {
+      "bootstrap.py": "import subprocess\nsubprocess.run(**{\"args\": [\"brand_new_command\", \"install\"]})\n"
+    },
+    "accepted": true,
+    "tools": [],
+    "residue": [],
+    "followed": [
+      ".github/workflows/probe.yml",
+      "bootstrap.py",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "cli_write_rc": 0,
+    "cli_check_rc": 0
+  },
+  {
+    "name": "python-literal-starargs",
+    "command": "python3 bootstrap.py",
+    "files": {
+      "bootstrap.py": "import subprocess\nsubprocess.run(*([\"brand_new_command\", \"install\"],))\n"
+    },
+    "accepted": false,
+    "error": "undeclared executing or network script 'bootstrap.py'"
+  },
+  {
+    "name": "python-positional",
+    "command": "python3 bootstrap.py",
+    "files": {
+      "bootstrap.py": "import subprocess\nsubprocess.run([\"brand_new_command\", \"install\"])\n"
+    },
+    "accepted": false,
+    "error": "undeclared executing or network script 'bootstrap.py'"
+  },
+  {
+    "name": "shell-cwd-subshell",
+    "command": "(cd subdir); bash bootstrap.sh",
+    "files": {
+      "bootstrap.sh": "brand_new_command install tool\n",
+      "subdir/bootstrap.sh": "echo clean\n"
+    },
+    "accepted": true,
+    "tools": [],
+    "residue": [],
+    "followed": [
+      ".github/workflows/probe.yml",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json",
+      "subdir/bootstrap.sh"
+    ],
+    "cli_write_rc": 0,
+    "cli_check_rc": 0
+  },
+  {
+    "name": "shell-cwd-step-default",
+    "command": "bash bootstrap.sh",
+    "files": {
+      "bootstrap.sh": "echo clean\n",
+      "subdir/bootstrap.sh": "brand_new_command install tool\n"
+    },
+    "accepted": true,
+    "tools": [],
+    "residue": [],
+    "followed": [
+      ".github/workflows/probe.yml",
+      "bootstrap.sh",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "cli_write_rc": 0,
+    "cli_check_rc": 0
+  }
+]

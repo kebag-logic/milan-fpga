@@ -1,0 +1,111 @@
+{
+  "cold_builds": {
+    "same_manifest_config_all_14_layers": true,
+    "manifest": "sha256:86d7aa16e7d2464baf8e0d246434982838c8174de8c8fa610608cce5b23b5e6c",
+    "config": "sha256:62b56e1ab52dce1a1914e8469429c014e69a465e74e0bdb9a7d8bf4a626b2776",
+    "build_ms": [
+      434933,
+      398716
+    ],
+    "size_bytes": 3931071698,
+    "missing_buildx_config_metadata_handled": true,
+    "buildx": "github.com/docker/buildx v0.38.0 0dbe87f36ed472fe36b6796c3f70b4210a731fc5"
+  },
+  "builder": {
+    "source_sha256": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47",
+    "exact_invocation_cover": 103,
+    "groups": [
+      {
+        "group": 0,
+        "count": 13,
+        "rc": 0,
+        "skips": []
+      },
+      {
+        "group": 1,
+        "count": 1,
+        "rc": 0,
+        "skips": [
+          [
+            "gate 1b",
+            "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+            "row"
+          ]
+        ]
+      },
+      {
+        "group": 2,
+        "count": 15,
+        "rc": 0,
+        "skips": [
+          [
+            "gate 11",
+            "real report not on disk ($VALIDATION_STORAGE/737-a615/container-home/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+            "row"
+          ]
+        ]
+      },
+      {
+        "group": 3,
+        "count": 15,
+        "rc": 0,
+        "skips": []
+      },
+      {
+        "group": 4,
+        "count": 15,
+        "rc": 0,
+        "skips": []
+      },
+      {
+        "group": 5,
+        "count": 1,
+        "rc": 0,
+        "skips": []
+      },
+      {
+        "group": 6,
+        "count": 15,
+        "rc": 0,
+        "skips": []
+      },
+      {
+        "group": 7,
+        "count": 15,
+        "rc": 0,
+        "skips": []
+      },
+      {
+        "group": 8,
+        "count": 13,
+        "rc": 0,
+        "skips": []
+      }
+    ],
+    "evidence_kind": "Historical grouped author execution on prior image; unchanged builder source; no manager source bank."
+  },
+  "smoke": {
+    "rc": 0,
+    "elapsed_ms": 30028,
+    "offline": true,
+    "reference_python": "3.12.3",
+    "kind": "Published author execution, not reviewer container execution."
+  },
+  "retained_packages": {
+    "published_downloads_checked_against_lock": 185,
+    "rc": 0
+  },
+  "make_skip": {
+    "job_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38516575606/job/115696619496",
+    "head": "fa8209889411e8ca95757174c981f720dbcd95a2",
+    "excerpts": [
+      "2026-10-14T05:25:44.8642519Z Version: 20261004.327.1",
+      "2026-10-14T05:34:23.9696544Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+      "2026-10-14T05:49:38.9890328Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make"
+    ],
+    "runner_manifest": "https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md",
+    "runner_make": "| make                   | 4.3-4.1build2                 |",
+    "image_make": "4.3-4.1build2",
+    "same_skip": true
+  }
+}
