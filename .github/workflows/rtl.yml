@@ -187,7 +187,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/verilator
-          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
 
       - name: Build Verilator from source on cache miss
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
@@ -199,6 +199,7 @@ jobs:
           git clone --depth 1 --branch "$VERILATOR_VERSION" \
             https://github.com/verilator/verilator.git /tmp/verilator-src
           cd /tmp/verilator-src
+          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
           autoconf
           ./configure --prefix=/opt/verilator
           make -j"$(nproc)"
@@ -233,7 +234,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/yosys
-          key: yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}
+          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
 
       - name: Build Yosys from source on cache miss
         if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
@@ -244,6 +245,7 @@ jobs:
             git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
           git clone --depth 1 --branch "$YOSYS_VERSION" \
             https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+          test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
           git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
           make -C /tmp/yosys-src config-gcc
           printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
@@ -342,7 +344,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/verilator
-          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
       - name: Build Verilator from source on cache miss
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
         run: |
@@ -353,6 +355,7 @@ jobs:
           git clone --depth 1 --branch "$VERILATOR_VERSION" \
             https://github.com/verilator/verilator.git /tmp/verilator-src
           cd /tmp/verilator-src
+          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
           autoconf
           ./configure --prefix=/opt/verilator
           make -j"$(nproc)"
@@ -497,7 +500,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/yosys
-          key: yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}
+          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
 
       - name: Build Yosys from source on cache miss
         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
@@ -508,6 +511,7 @@ jobs:
             git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
           git clone --depth 1 --branch "$YOSYS_VERSION" \
             https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+          test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
           git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
           make -C /tmp/yosys-src config-gcc
           printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \

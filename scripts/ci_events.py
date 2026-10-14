@@ -200,11 +200,16 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                      'id': 'cache-verilator',
                      'uses': 'actions/cache@v4',
                      'with': {   'path': '/opt/verilator',
-                                 'key': 'verilator-${{ env.VERILATOR_VERSION }}-${{ '
-                                        'runner.os }}'}},
+                                 'key': (
+                                        'verilator-${{ env.VERILATOR_VERSION }}-'
+                                        '848d926ebd4addacacd294dc84e35d9d4ae8078c-'
+                                        "${{ hashFiles('.github/workflows/*.yml') }}-"
+                                        '${{ runner.os }}'
+                                        )}},
                  {   'name': 'Build Verilator from source on cache miss',
                      'if': "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}",
-                     'run': 'set -euo pipefail\n'
+                     'run': (
+                            'set -euo pipefail\n'
                             'sudo apt-get update -qq\n'
                             'sudo apt-get install -y --no-install-recommends \\\n'
                             '  git make autoconf g++ flex bison libfl2 libfl-dev help2man '
@@ -213,10 +218,13 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                             '  https://github.com/verilator/verilator.git '
                             '/tmp/verilator-src\n'
                             'cd /tmp/verilator-src\n'
+                            'test "$(git rev-parse HEAD)" = '
+                            '"848d926ebd4addacacd294dc84e35d9d4ae8078c"\n'
                             'autoconf\n'
                             './configure --prefix=/opt/verilator\n'
                             'make -j"$(nproc)"\n'
-                            'sudo make install\n'},
+                            'sudo make install\n'
+                            )},
                  {   'name': 'Put Verilator on PATH and prove the version',
                      'run': 'set -euo pipefail\n'
                             'echo "/opt/verilator/bin" >> "$GITHUB_PATH"\n'
@@ -1224,8 +1232,12 @@ CARRIER_STEP_LISTS = {
         {"name": "Cache the pinned Verilator build", "uses": "actions/cache@v4",
          "id": "cache-verilator", "if": BUILDER_IF,
          "with": {"path": "/opt/verilator",
-                  "key": "verilator-${{ env.VERILATOR_VERSION }}-"
-                         "${{ runner.os }}"}},
+                  "key": (
+                         'verilator-${{ env.VERILATOR_VERSION }}-'
+                         '848d926ebd4addacacd294dc84e35d9d4ae8078c-'
+                         "${{ hashFiles('.github/workflows/*.yml') }}-"
+                         '${{ runner.os }}'
+                         )}},
         {"name": "Build Verilator from source on cache miss",
          "if": "${{ steps.scope.outputs.rtl == 'true' && "
                "steps.cache-verilator.outputs.cache-hit != 'true' }}",
@@ -1237,6 +1249,7 @@ CARRIER_STEP_LISTS = {
              'git clone --depth 1 --branch "$VERILATOR_VERSION" '
              'https://github.com/verilator/verilator.git /tmp/verilator-src',
              'cd /tmp/verilator-src',
+             'test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"',
              'autoconf',
              './configure --prefix=/opt/verilator',
              'make -j"$(nproc)"',
@@ -2091,11 +2104,21 @@ RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache"
 #: Every run entry also records its canonical normalized script (#439).
 VERILATOR_CACHE_WITH = {
     "path": "/opt/verilator",
-    "key": "verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}",
+    "key": (
+           'verilator-${{ env.VERILATOR_VERSION }}-'
+           '848d926ebd4addacacd294dc84e35d9d4ae8078c-'
+           "${{ hashFiles('.github/workflows/*.yml') }}-"
+           '${{ runner.os }}'
+           ),
 }
 YOSYS_CACHE_WITH = {
     "path": "/opt/yosys",
-    "key": "yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}",
+    "key": (
+           'yosys-${{ env.YOSYS_VERSION }}-'
+           '86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-'
+           "${{ hashFiles('.github/workflows/*.yml') }}-"
+           '${{ runner.os }}'
+           ),
 }
 VERILATOR_CACHE_MISS_IF = "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}"
 YOSYS_CACHE_MISS_IF = "${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"
@@ -2134,6 +2157,7 @@ RTL_VERILATOR_BUILD_SCRIPT = (
     'git clone --depth 1 --branch "$VERILATOR_VERSION" '
     'https://github.com/verilator/verilator.git /tmp/verilator-src',
     'cd /tmp/verilator-src',
+             'test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"',
     'autoconf',
     './configure --prefix=/opt/verilator',
     'make -j"$(nproc)"',
@@ -2145,6 +2169,7 @@ RTL_YOSYS_BUILD_SCRIPT = (
     'sudo apt-get install -y --no-install-recommends git make g++ bison flex libfl-dev '
     'pkg-config zlib1g-dev python3',
     'git clone --depth 1 --branch "$YOSYS_VERSION" https://github.com/YosysHQ/yosys.git /tmp/yosys-src',
+    'test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"',
     'git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts',
     'make -C /tmp/yosys-src config-gcc',
     "printf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' >> /tmp/yosys-src/Makefile.conf",
@@ -8107,6 +8132,31 @@ def _rtl_script_arms(pristine: World) -> list[Arm]:
     return arms
 
 
+def _tool_cache_arms(pristine: World) -> list[Arm]:
+    """Every tool build cache requires its version, source and recipe digest."""
+    arms = []
+    sources = {"Verilator": "848d926ebd4addacacd294dc84e35d9d4ae8078c",
+               "Yosys": "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"}
+    recipe = "${{ hashFiles('.github/workflows/*.yml') }}"
+    for path in (RTL_FULL, RTL_FAST, ELABORATE):
+        for jid, job in pristine[path]["jobs"].items():
+            for step in job.get("steps", []):
+                for tool, source in sources.items():
+                    name = f"Cache the pinned {tool} build"
+                    if step.get("name") != name:
+                        continue
+                    key = step["with"]["key"]
+                    version = "${{ env." + tool.upper() + "_VERSION }}"
+                    for label, fragment in (("version", version), ("source", source),
+                                            ("recipe", recipe)):
+                        if fragment not in key:
+                            raise ValueError(f"{path}/{jid}: missing {label} in cache control")
+                        arms.append((f"{jid} {tool} cache missing {label}",
+                                     _m_with_key(path, jid, name, "key", key.replace(fragment, "")),
+                                     f"(`{name}`) `with` must be exactly"))
+    return arms
+
+
 def _firmware_layout_arms() -> list[Arm]:
     """The new census and budget checks must catch their own planted defects."""
     arms = [
@@ -8153,6 +8203,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _aggregate_script_arms()
             + _docs_builder_arms()
             + _rv32_sdk_arms()
+            + _tool_cache_arms(pristine)
             + _firmware_layout_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()

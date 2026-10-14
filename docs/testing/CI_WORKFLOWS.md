@@ -17,6 +17,7 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 - **[Issue closing on merge](#issue-closing-on-merge)** -- What `Closes #N` does now that `dev` is the default branch, and what still waits for containment.
 - **[Local commands](#local-commands)** -- The serial commands that remain the authoritative developer-side gates.
 - **[Failure and cancellation semantics](#failure-and-cancellation-semantics)** -- How missing artifacts, superseded commits, and resumed work are handled.
+- **[Source-tool cache provenance](#source-tool-cache-provenance)** -- Bind installations to release, source, and recipe digests.
 
 ## Fast feedback
 
@@ -2754,3 +2755,21 @@ Pushes cannot cancel physical evidence without starting a replacement.
 Push validation on `dev` checks the actual merge result. It complements, but
 does not replace, the explicit post-merge containment check required by
 [CONTRIBUTING.md](../../CONTRIBUTING.md).
+
+## Source-tool cache provenance
+
+Verilator and Yosys cache keys include three provenance inputs.
+The release version remains explicit in workflow environment variables.
+An immutable source commit follows that version in each key.
+The build verifies that commit before configuration or compilation.
+The recipe digest covers every committed workflow definition.
+Operating-system identity also separates these cached installations.
+No fallback restores another version, source, or recipe.
+The CI contract pins these complete cache keys.
+Its controls remove each provenance input and require refusal.
+
+Verilator v5.050 uses source commit `848d926ebd4addacacd294dc84e35d9d4ae8078c`.
+Yosys v0.66 uses source commit `86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51`.
+These are Git object digests, verified after the release checkout.
+A changed workflow invalidates the recipe digest automatically.
+Cache hits still require the existing installed-version checks.

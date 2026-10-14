@@ -275,7 +275,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/verilator
-          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
 
       - name: Build Verilator from source on cache miss
         if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true' }}
@@ -287,6 +287,7 @@ jobs:
           git clone --depth 1 --branch "$VERILATOR_VERSION" \
             https://github.com/verilator/verilator.git /tmp/verilator-src
           cd /tmp/verilator-src
+          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
           autoconf
           ./configure --prefix=/opt/verilator
           make -j"$(nproc)"
