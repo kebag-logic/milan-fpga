@@ -1,0 +1,189 @@
+[receipt summary: 188 of 328736 lines matching ^RESULT|^ *verdict|differential mutant|checks:|^\[  (PASSED|FAILED) |^\[==========\] .* ran|ESCAP|PROBE intervals; raw log hashed in the ledger]
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[==========] 12 tests from 2 test suites ran. (2970 ms total)
+[  PASSED  ] 12 tests.
+== MAAP core and parent wire differential: checks: 12   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (12 tests, 0 failures, exit 0)
+[  FAILED  ] MaapDifferential.ProbeSequenceWireAndCadence (45 ms)
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/3, where GetParam() = 3 (0 ms)
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/4, where GetParam() = 4 (0 ms)
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/5, where GetParam() = 5 (0 ms)
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/6, where GetParam() = 6 (2 ms)
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/7, where GetParam() = 7 (2 ms)
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/8, where GetParam() = 8 (2 ms)
+[==========] 12 tests from 2 test suites ran. (2518 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 7 tests, listed below:
+[  FAILED  ] MaapDifferential.ProbeSequenceWireAndCadence
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/3, where GetParam() = 3
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/4, where GetParam() = 4
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/5, where GetParam() = 5
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/6, where GetParam() = 6
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/7, where GetParam() = 7
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/8, where GetParam() = 8
+== MAAP core and parent wire differential: checks: 12   failures: 7 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 7 failure(s) across 12 checks, exit 1)
+[ok] differential mutant wire: MaapDifferential.ProbeSequenceWireAndCadence
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] MaapDifferential.ReleaseAndRetry (2 ms)
+[==========] 12 tests from 2 test suites ran. (2478 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ReleaseAndRetry
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant release: MaapDifferential.ReleaseAndRetry
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/0, where GetParam() = 0 (0 ms)
+[==========] 12 tests from 2 test suites ran. (2472 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/0, where GetParam() = 0
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant maap-table-b7-0: AllStates/DifferentialCell.SharedConflict/0
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/1, where GetParam() = 1 (0 ms)
+[==========] 12 tests from 2 test suites ran. (2490 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/1, where GetParam() = 1
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant maap-table-b7-1: AllStates/DifferentialCell.SharedConflict/1
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/2, where GetParam() = 2 (0 ms)
+[==========] 12 tests from 2 test suites ran. (2475 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/2, where GetParam() = 2
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant maap-table-b7-2: AllStates/DifferentialCell.SharedConflict/2
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/3, where GetParam() = 3 (0 ms)
+[==========] 12 tests from 2 test suites ran. (2470 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/3, where GetParam() = 3
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant maap-table-b7-6: AllStates/DifferentialCell.SharedConflict/3
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/4, where GetParam() = 4 (0 ms)
+[==========] 12 tests from 2 test suites ran. (2478 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/4, where GetParam() = 4
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant maap-table-b7-7: AllStates/DifferentialCell.SharedConflict/4
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/5, where GetParam() = 5 (0 ms)
+[==========] 12 tests from 2 test suites ran. (2473 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/5, where GetParam() = 5
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant maap-table-b7-8: AllStates/DifferentialCell.SharedConflict/5
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/6, where GetParam() = 6 (2 ms)
+[==========] 12 tests from 2 test suites ran. (2476 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/6, where GetParam() = 6
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant maap-table-b7-12: AllStates/DifferentialCell.SharedConflict/6
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/7, where GetParam() = 7 (2 ms)
+[==========] 12 tests from 2 test suites ran. (2475 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/7, where GetParam() = 7
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant maap-table-b7-13: AllStates/DifferentialCell.SharedConflict/7
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/8, where GetParam() = 8 (2 ms)
+[==========] 12 tests from 2 test suites ran. (2477 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AllStates/DifferentialCell.SharedConflict/8, where GetParam() = 8
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant maap-table-b7-14: AllStates/DifferentialCell.SharedConflict/8
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount (2510 ms)
+[==========] 12 tests from 2 test suites ran. (2565 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant probe-1ms: MaapDifferential.ProbeTimingAndCount
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount (2637 ms)
+[==========] 12 tests from 2 test suites ran. (2691 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant probe-500ms: MaapDifferential.ProbeTimingAndCount
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount (2513 ms)
+[==========] 12 tests from 2 test suites ran. (2568 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant probe-600ms: MaapDifferential.ProbeTimingAndCount
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount (2811 ms)
+[==========] 12 tests from 2 test suites ran. (2873 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant parent-probe-bound: MaapDifferential.ProbeTimingAndCount
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount (2 ms)
+[==========] 12 tests from 2 test suites ran. (63 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant parent-probe-count: MaapDifferential.ProbeTimingAndCount
+  parent PROBE intervals over 1024 MAC/phase pairs: 5230..5801 cycles
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount (2537 ms)
+[==========] 12 tests from 2 test suites ran. (2593 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant parent-ignores-mac: MaapDifferential.ProbeTimingAndCount
+differential mutants: 17/17 caught

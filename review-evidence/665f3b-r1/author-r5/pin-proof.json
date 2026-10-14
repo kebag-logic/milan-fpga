@@ -1,0 +1,264 @@
+{
+  "old": "405dc68310a18f669049ffc10cc23eef7300dcff",
+  "target": "70936b77dc41981e192438388cd0aced69954f18",
+  "authorized_prs": [
+    19,
+    20,
+    25
+  ],
+  "integration_pr": 23,
+  "prs": [
+    {
+      "number": 19,
+      "merge": "51870377c5012766a8ea1d9798e3c499ca1060a3",
+      "head": "66b3a75746fbbca3cffdfc7d89f013ab14aa1cc0",
+      "reviews": [
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/19#issuecomment-6085778617",
+          "verdict": "[R576] POSITIVE - exact head 66b3a75746fbbca3cffdfc7d89f013ab14aa1cc0"
+        },
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/19#issuecomment-6086078198",
+          "verdict": "[R577] POSITIVE - exact head 66b3a75746fbbca3cffdfc7d89f013ab14aa1cc0"
+        }
+      ],
+      "files": [
+        "docs/DEVIATIONS.md",
+        "docs/PORTING.md",
+        "docs/REQUIREMENTS.md",
+        "docs/STATIC_ANALYSIS.md",
+        "docs/TESTS.md",
+        "docs/TRACEABILITY.md",
+        "docs/VERIFICATION.md",
+        "docs/requirements.json",
+        "examples/rv32/smoke.c",
+        "scripts/static_analysis.py",
+        "src/adp.c",
+        "tests/coverage.ratchet",
+        "tests/mutations.json",
+        "tests/test_adp.cpp"
+      ]
+    },
+    {
+      "number": 20,
+      "merge": "98dc9e3076714bebe113982ee18c3c1c496cf3c9",
+      "head": "0c5ef532cb782f9e7c73855b41c397679d176ea7",
+      "reviews": [
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/20#issuecomment-6088521104",
+          "verdict": "[R578] POSITIVE - exact head 64888e91fa5bc86c6c0e4efbf707fff3174d10e1"
+        },
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/20#issuecomment-6088675209",
+          "verdict": "[R578] POSITIVE - exact head 0c5ef532cb782f9e7c73855b41c397679d176ea7"
+        },
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/20#issuecomment-6088680624",
+          "verdict": "[R579] POSITIVE - exact head 0c5ef532cb782f9e7c73855b41c397679d176ea7"
+        }
+      ],
+      "files": [
+        ".github/workflows/quality.yml",
+        "CMakeLists.txt",
+        "configs/ax7101.yaml",
+        "configs/compat/ax7101.json",
+        "configs/duplex.yaml",
+        "configs/listener.yaml",
+        "configs/talker.yaml",
+        "docs/CODING_STANDARD.md",
+        "docs/ENTITY_YAML.md",
+        "docs/PORTING.md",
+        "docs/REQUIREMENTS.md",
+        "docs/STATIC_ANALYSIS.md",
+        "docs/TESTS.md",
+        "docs/TRACEABILITY.md",
+        "docs/VERIFICATION.md",
+        "docs/requirements.json",
+        "examples/entities/ax7101/entity_config.c",
+        "examples/entities/ax7101/entity_config.h",
+        "examples/entities/duplex/entity_config.c",
+        "examples/entities/duplex/entity_config.h",
+        "examples/entities/listener/entity_config.c",
+        "examples/entities/listener/entity_config.h",
+        "examples/entities/talker/entity_config.c",
+        "examples/entities/talker/entity_config.h",
+        "examples/entity_roundtrip.c",
+        "examples/entity_roundtrip.h",
+        "examples/rv32/smoke.c",
+        "scripts/baremetal.py",
+        "scripts/conditional_policy.py",
+        "scripts/entity_selftest.py",
+        "scripts/entity_yaml.py",
+        "scripts/milan_entity.py",
+        "scripts/mutation.py",
+        "scripts/requirement_records.py",
+        "scripts/static_analysis.py",
+        "scripts/traceability.py",
+        "scripts/validate.py",
+        "tests/mutations.json",
+        "tests/test_entity.cpp"
+      ]
+    },
+    {
+      "number": 23,
+      "merge": "1ba273540abbdf51ea5d235c0a7e81c0bcb5d475",
+      "head": "3c9ca52fc44b4a37e11149392363686f0ea426e0",
+      "reviews": [
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/22#issuecomment-6116467700",
+          "verdict": "Separate positive integration verdict at 3c9ca52fc44b4a37e11149392363686f0ea426e0"
+        },
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/22#issuecomment-6116469528",
+          "verdict": "Separate positive integration verdict at 3c9ca52fc44b4a37e11149392363686f0ea426e0"
+        }
+      ],
+      "files": [
+        "CHANGELOG.md",
+        "docs/ARCHITECTURE.md",
+        "docs/PORTING.md",
+        "docs/REQUIREMENTS.md",
+        "docs/TESTS.md",
+        "docs/TRACEABILITY.md",
+        "docs/VERIFICATION.md",
+        "docs/requirements.json",
+        "examples/entity_roundtrip.c",
+        "examples/rv32/smoke.c",
+        "include/acmp.h",
+        "scripts/acmp_cache_controls.py",
+        "scripts/assertion_messages.py",
+        "scripts/check_acmp_cache.py",
+        "scripts/check_port_contracts.py",
+        "scripts/requirement_records.py",
+        "scripts/validate.py",
+        "src/acmp.c",
+        "tests/acmp_fake.hpp",
+        "tests/coverage.ratchet",
+        "tests/mutations.json",
+        "tests/test_acmp.cpp",
+        "tests/test_entity.cpp"
+      ]
+    },
+    {
+      "number": 25,
+      "merge": "70936b77dc41981e192438388cd0aced69954f18",
+      "head": "f13c9c16c2b300d158f980dd7c7f071dcb84df5b",
+      "reviews": [
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/25#issuecomment-6127654574",
+          "verdict": "[R631] POSITIVE - exact head 9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1"
+        },
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/25#issuecomment-6128499323",
+          "verdict": "[R631] POSITIVE - exact head 0868387deab21bd0db414424f306c7ea62498e29"
+        },
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/25#issuecomment-6129053139",
+          "verdict": "[R631] POSITIVE - exact head 1edff3180c2ff435b855cc770fb8be371f2096b3"
+        },
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/25#issuecomment-6130754591",
+          "verdict": "[R631] POSITIVE - exact head f13c9c16c2b300d158f980dd7c7f071dcb84df5b"
+        },
+        {
+          "url": "https://github.com/kebag-logic/tsn-c-stack/pull/25#issuecomment-6130759174",
+          "verdict": "[R630] POSITIVE - exact head f13c9c16c2b300d158f980dd7c7f071dcb84df5b"
+        }
+      ],
+      "files": [
+        "configs/talker.yaml",
+        "docs/ENTITY_YAML.md",
+        "docs/PORTING.md",
+        "docs/REQUIREMENTS.md",
+        "docs/TESTS.md",
+        "docs/TRACEABILITY.md",
+        "docs/VERIFICATION.md",
+        "docs/requirements.json",
+        "examples/entities/ax7101/entity_config.c",
+        "examples/entities/duplex/entity_config.c",
+        "examples/entities/listener/entity_config.c",
+        "examples/entities/talker/entity_config.c",
+        "examples/entity_roundtrip.c",
+        "examples/entity_roundtrip.h",
+        "examples/rv32/smoke.c",
+        "include/acmp.h",
+        "scripts/entity_selftest.py",
+        "scripts/entity_yaml.py",
+        "scripts/requirement_records.py",
+        "src/acmp.c",
+        "tests/coverage.ratchet",
+        "tests/mutations.json",
+        "tests/test_acmp.cpp",
+        "tests/test_entity.cpp"
+      ]
+    }
+  ],
+  "changed_files": [
+    ".github/workflows/quality.yml",
+    "CMakeLists.txt",
+    "configs/ax7101.yaml",
+    "configs/compat/ax7101.json",
+    "configs/duplex.yaml",
+    "configs/listener.yaml",
+    "configs/talker.yaml",
+    "docs/CODING_STANDARD.md",
+    "docs/DEVIATIONS.md",
+    "docs/ENTITY_YAML.md",
+    "docs/PORTING.md",
+    "docs/REQUIREMENTS.md",
+    "docs/TESTS.md",
+    "docs/TRACEABILITY.md",
+    "docs/VERIFICATION.md",
+    "docs/requirements.json",
+    "examples/entities/ax7101/entity_config.c",
+    "examples/entities/ax7101/entity_config.h",
+    "examples/entities/duplex/entity_config.c",
+    "examples/entities/duplex/entity_config.h",
+    "examples/entities/listener/entity_config.c",
+    "examples/entities/listener/entity_config.h",
+    "examples/entities/talker/entity_config.c",
+    "examples/entities/talker/entity_config.h",
+    "examples/entity_roundtrip.c",
+    "examples/entity_roundtrip.h",
+    "examples/rv32/smoke.c",
+    "include/acmp.h",
+    "scripts/baremetal.py",
+    "scripts/conditional_policy.py",
+    "scripts/entity_selftest.py",
+    "scripts/entity_yaml.py",
+    "scripts/milan_entity.py",
+    "scripts/mutation.py",
+    "scripts/requirement_records.py",
+    "scripts/static_analysis.py",
+    "scripts/traceability.py",
+    "scripts/validate.py",
+    "src/acmp.c",
+    "src/adp.c",
+    "tests/coverage.ratchet",
+    "tests/mutations.json",
+    "tests/test_acmp.cpp",
+    "tests/test_adp.cpp",
+    "tests/test_entity.cpp"
+  ],
+  "pre_f3b_core_changes": [
+    "src/adp.c"
+  ],
+  "target_only_commits": [
+    "70936b77dc41981e192438388cd0aced69954f18 Gate ACMP declaration on a fresh probe or Listener (#25)",
+    "f13c9c16c2b300d158f980dd7c7f071dcb84df5b Complete ACMP freshness contract mutation coverage",
+    "1edff3180c2ff435b855cc770fb8be371f2096b3 Protect ACMP freshness expiry across masked clock wraps",
+    "0868387deab21bd0db414424f306c7ea62498e29 Address ACMP freshness review findings",
+    "9ef7bd5281c0bb3f2967b11c5a5d8d74a75755d1 Prove ACMP freshness terms with mutation and target coverage",
+    "917201098395f1f1acc635ea1722e6c9a91a3ec0 Gate ACMP declaration on configured probe freshness or Listener demand",
+    "1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 Integrate the ACMP publish port with main (#23)",
+    "98dc9e3076714bebe113982ee18c3c1c496cf3c9 Specify the entity in YAML and generate the cores' C configuration (#20)",
+    "51870377c5012766a8ea1d9798e3c499ca1060a3 Discard malformed ADP discovery frames (#19)"
+  ],
+  "old_only_commits": [
+    "405dc68310a18f669049ffc10cc23eef7300dcff Identify ACMP cache assertions by owner and definition location",
+    "bc68ad8f3577e8f3dc24c4336e9b80a933df6c79 Require per-field ACMP publication cache coverage",
+    "f3dc2ae5bad02aa05a504b43c207e8b304d2bed5 Close ACMP publication review gaps",
+    "2dcbe91ead981591d5bfb652f6616f6edb325875 Publish ACMP sink state before responses and completion callbacks"
+  ],
+  "target_equals_reviewed_tree": true
+}

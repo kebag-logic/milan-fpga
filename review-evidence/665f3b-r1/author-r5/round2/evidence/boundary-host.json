@@ -1,0 +1,13 @@
+{
+  "name": "boundary-host",
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_boundary.py",
+    "--require-rv32",
+    "--selftest",
+    "--without",
+    "verilator"
+  ],
+  "rc": 124,
+  "seconds": 570.0
+}

@@ -1,0 +1,17 @@
+{
+  "name": "capture-coverage",
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_capture.py",
+    "--out",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/capture-coverage",
+    "--",
+    "python3",
+    "sw/firmware/gtest/fw_coverage.py",
+    "--build-only",
+    "--jobs",
+    "4"
+  ],
+  "rc": 0,
+  "seconds": 259.27
+}

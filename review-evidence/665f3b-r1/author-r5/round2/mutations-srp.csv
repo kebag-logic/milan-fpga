@@ -1,0 +1,279 @@
+interface,name,result,evidence,batch
+1,four-way-f3b-listener-not-forwarded,CAUGHT,AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate,1
+1,four-way-f3b-asking-failed-excluded,CAUGHT,AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate,1
+1,four-way-f3b-withdrawal-stale,CAUGHT,AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate,1
+1,binding-debug-guard,CAUGHT,SynchronousBindingFromOutputAsserts / failed to die,1
+1,four-way-srp-irq-missing,CAUGHT,AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask,1
+1,four-way-srp-wake-missing,CAUGHT,AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone,1
+1,four-way-acmp-enable-lost,CAUGHT,AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others,1
+1,four-way-unbound-irq-enabled,CAUGHT,AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask,1
+1,four-way-bound-drops-srp,CAUGHT,AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once,1
+1,four-way-bound-duplicates-events,CAUGHT,AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once,1
+1,binding-delivery-missing,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered,1
+1,binding-synchronous,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding,1
+1,binding-poll-adds-access,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access,1
+1,binding-interface-lost,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered,1
+1,binding-sink-lost,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered,1
+1,binding-refusal-dropped,CAUGHT,SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered,1
+1,binding-owed-retry-dropped,CAUGHT,SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered,1
+1,binding-unbind-lost,CAUGHT,SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind,1
+1,binding-replacement-lost,CAUGHT,SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered,1
+1,binding-pending-sleeps,CAUGHT,SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake,1
+1,binding-count-overflow,CAUGHT,SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp,1
+1,binding-poll-overflow,CAUGHT,SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp,1
+1,binding-reattach-recurses,CAUGHT,SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter,1
+1,srp-bound-event,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound,1
+1,srp-bound-receive,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound,1
+1,srp-bound-poll-transmit,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP transmitting poll bound,1
+1,srp-bound-poll,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound,1
+1,srp-bound-tx-record,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound,1
+1,srp-bound-rx-record,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound,1
+1,srp-bound-pass,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound,1
+1,feedback-advertise-missing,CAUGHT,SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP,1
+1,feedback-failed-as-advertise,CAUGHT,SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP,1
+1,feedback-withdrawal-missing,CAUGHT,SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP,1
+1,feedback-sink-crossed,CAUGHT,SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity,1
+1,feedback-interface-suppressed,CAUGHT,SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface,1
+1,feedback-repeated,CAUGHT,SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once,1
+1,binding-park-keeps-old,CAUGHT,SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding,1
+1,binding-invalid-retries,CAUGHT,SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep,1
+1,binding-invalid-upper-bound,CAUGHT,SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible,1
+1,binding-park-never-clears,CAUGHT,SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking,1
+1,srp-term-fixed,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently,1
+1,srp-term-transmit-count,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll transmit count is funded independently,1
+1,srp-term-interface-count,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently,1
+1,srp-term-send-cost,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum,1
+1,srp-term-event-record,CAUGHT,Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently,1
+1,srp-term-rx-count,CAUGHT,Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently,1
+1,srp-term-pass-poll,CAUGHT,Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope,1
+1,srp-poll-extra-read,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface,1
+1,srp-send-extra-read,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record accesses,1
+1,feedback-kind-failed-lost,CAUGHT,SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP,1
+1,feedback-kind-advertise-lost,CAUGHT,SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP,1
+1,feedback-withdrawal-overwritten,CAUGHT,SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes,1
+1,feedback-intrapdu-lost,CAUGHT,SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes,1
+1,feedback-leave-clears-advertise-only,CAUGHT,SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes,1
+1,feedback-failed-indication-as-advertise,CAUGHT,SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes,1
+1,feedback-change-clears-both-kinds,CAUGHT,SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn,1
+1,feedback-expiry-lost,CAUGHT,SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive,1
+1,feedback-first-registration-lost,CAUGHT,SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes,1
+1,feedback-kind-order-lost,CAUGHT,SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal,1
+1,feedback-supersession-lost,CAUGHT,SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state,1
+1,feedback-withdrawal-sink-crossed,CAUGHT,SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes,1
+1,feedback-advertise-copy-lost,CAUGHT,SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state,1
+1,feedback-failed-copy-lost,CAUGHT,SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state,1
+1,feedback-identity-copy-stale,CAUGHT,SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes,1
+1,p11-supersession-kind-stale,CAUGHT,SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch,1
+1,p11-reset-withdrawal-lost,CAUGHT,SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration,1
+1,p11-postwithdrawal-kind-overwrite,CAUGHT,SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind,1
+1,r10-feedback-ignores-pending,CAUGHT,SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement,1
+1,r10-transient-refusal-forgotten,CAUGHT,SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake,1
+1,r10-feedback-allowance-quarter,CAUGHT,SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance,1
+1,r10-feedback-allowance-eight,CAUGHT,SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance,1
+1,pub-declared-dropped-at-adoption,CAUGHT,PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again,1
+1,pub-declared-withdrawn-after-the-adoption,CAUGHT,PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption,1
+1,pub-declared-skipped-at-adoption,CAUGHT,PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again,1
+1,pub-declared-before-the-joins,CAUGHT,PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration,1
+1,pub-declared-as-each-source-joins,CAUGHT,PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration,1
+2,four-way-f3b-listener-not-forwarded,CAUGHT,AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate,1
+2,four-way-f3b-withdrawal-stale,CAUGHT,AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate,1
+2,asking-is-ready,CAUGHT,RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0],1
+2,ignore-peer-domain,CAUGHT,DomainUsesPeerPriorityAndVlan / domain.priority,1
+2,reentry-uncounted,CAUGHT,ReentryFromOutputIsRefusedAndCounted / adapter.reentries,1
+2,missing-port-accepted,CAUGHT,MissingBootDependenciesRefuseBeforeAttachment / srp_mbx_init,1
+2,reset-skips-recreate,CAUGHT,RecreateAllocationFailureIsCountedAndRetried / adapter.ifs[0].msrp,1
+2,foreign-vlan-stored,CAUGHT,MvrpAcceptsOnlyCurrentDomainVid / ctrl_pool_in_use,1
+2,domain-refusal-lost,CAUGHT,DomainExhaustionPreservesOldDeclarationUntilRetry / domain.vid,1
+2,duplicate-tick-owner,CAUGHT,OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach,1
+2,tick-debug-guard,CAUGHT,SynchronousTickFromOutputAsserts / failed to die,1
+2,withdraw-bound-domain,CAUGHT,BoundOldDomainVlanSurvivesDomainChange / d.event,1
+2,ready-before-vlan,CAUGHT,SinkMembershipCommitsBeforeReadyAtStartup / joined,1
+2,latency-leave-origin,CAUGHT,SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog / Unexpected mock function call,1
+2,walk-match-da-ignored,CAUGHT,SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal / declared,1
+2,walk-malformed-uncounted,CAUGHT,SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput / adapter.malformed,1
+2,preamble-ifg-omitted,CAUGHT,AdmissionStraddlesTheExactEthernetCeiling / admitted[0],1
+2,short-link-interruption-ignored,CAUGHT,AdjacentLinkEdgesResetDomainAndAllPriorRegistrations / domain.priority,1
+2,event-reentry-unguarded,CAUGHT,EventReentryAndSinkCapacityAreGuarded / adapter.reentries,1
+2,link-level-loss-ignored,CAUGHT,LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0],1
+2,delayed-in-listener,CAUGHT,InListenerWithdrawalRevokesLicenceImmediately / adapter.ifs[i].active[0],1
+2,cancelled-link-never-recovers,CAUGHT,CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link,1
+2,consecutive-rebind-loses-applicant,CAUGHT,ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation / left,1
+2,final-unbind-withdraws-domain-vid,CAUGHT,FinalDomainVidUnbindKeepsSrClassMembership / d.event,1
+2,reset-keeps-sink-vlan,CAUGHT,SinkVlanRedeclaredBeforeReadyAfterLinkRestart / vlan,1
+2,receive-retry-removed,CAUGHT,SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.received,1
+2,receive-refusal-malformed,CAUGHT,SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.malformed,1
+2,peer-reset-cancels-retained-receive,CAUGHT,SrpRetry.OtherInterfaceResetPreservesRetainedPayload / adapter.pending_rx.len,1
+2,composition-attach-omitted,CAUGHT,SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.n_ticks,1
+2,recreated-receive-retry-removed,CAUGHT,SrpRetry.FailedParticipantRecreationRetainsFreshReceive / adapter.received,1
+2,receive-retry-passes-backlog,CAUGHT,SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs / adapter.received,1
+2,composition-refusal-ignored,CAUGHT,SrpApp.AttachRefusalPreservesExistingComposition / ctrl_app_attach_srp,1
+2,receive-retention-short,CAUGHT,SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded,1
+2,receive-discard-malformed,CAUGHT,SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.malformed,1
+2,receive-first-refusal-never-expires,CAUGHT,SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded,1
+2,receive-flood-unbounded,CAUGHT,SrpRetry.DomainFloodCannotDelayLaterRapidLeave / adapter.pending_rx.len,1
+2,four-way-srp-wake-missing,CAUGHT,AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 idle loop wakes for SRP alone,1
+2,four-way-bound-drops-srp,CAUGHT,AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once,1
+2,binding-synchronous,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / callback only queues the binding,1
+2,binding-sink-lost,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered,1
+2,binding-unbind-lost,CAUGHT,SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding / unbind supersedes pending bind,1
+2,binding-count-overflow,CAUGHT,SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp,1
+2,srp-bound-event,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP event bound,1
+2,srp-bound-poll,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP retained receive poll bound,1
+2,srp-bound-pass,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP complete pass bound,1
+2,feedback-withdrawal-missing,CAUGHT,SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / withdrawal reaches ACMP,1
+2,feedback-repeated,CAUGHT,SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / unchanged registration is delivered once,1
+2,binding-invalid-upper-bound,CAUGHT,SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal is visible,1
+2,srp-term-transmit-count,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll transmit count is funded independently,1
+2,srp-term-event-record,CAUGHT,Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass event records are funded independently,1
+2,srp-poll-extra-read,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / one link read per interface,1
+2,feedback-kind-advertise-lost,CAUGHT,SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView / current kind reaches ACMP,1
+2,feedback-leave-clears-advertise-only,CAUGHT,SrpFeedback.FailedSinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes,1
+2,feedback-expiry-lost,CAUGHT,SrpFeedback.ExpiryThenRegistrationRetainsTheFirstEvent / expiry retained before receive,1
+2,feedback-supersession-lost,CAUGHT,SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / kind preserves settled state,1
+2,feedback-failed-copy-lost,CAUGHT,SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state,1
+2,p11-reset-withdrawal-lost,CAUGHT,SrpFeedback.LinkResetWithdrawsTheSettledRegistration / link reset withdraws registration,1
+2,r10-transient-refusal-forgotten,CAUGHT,SrpFeedback.EarlierSinkTransientRefusalKeepsDeliveryAwake / earlier refusal keeps delivery awake,1
+2,pub-licence-after-the-report,CAUGHT,PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported,1
+2,pub-licence-after-the-revocations,CAUGHT,PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB a link loss clears LICENCE before the revocation is reported,1
+2,pub-domain-priority-for-vid,CAUGHT,PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it,1
+2,pub-slope-skipped,CAUGHT,PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again,1
+2,pub-domain-default-after-the-declarations,CAUGHT,"PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB after a link restart, the default Domain is published before it is declared again",1
+2,pub-term-reset-understated,CAUGHT,"PollPublicationTermIsMeasuredThroughRealCallbacks / a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each",1
+2,pub-declared-wrong-bit,CAUGHT,PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup,1
+2,pub-declared-withdrawn-after-the-new-declarations,CAUGHT,PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB a link restart withdraws TALKER_DECL before the new participants declare,1
+2,pub-declared-withdrawn-after-the-adoption,CAUGHT,PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption,1
+2,pub-declared-as-each-source-joins,CAUGHT,PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration,1
+2,f3b-listener-wrong-interface,CAUGHT,AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate,2
+2,startup-vid,CAUGHT,StartupDeclaresTalkersDomainAndVlan / d.value,2
+2,ignore-link,CAUGHT,InterfaceStateDoesNotCross / adapter.ifs[i].active[0],2
+2,rx-overtakes-owed,CAUGHT,RefusedMailboxRetainsOwedFrameAndDefersInput / adapter.received,2
+2,invalid-vid,CAUGHT,InvalidBindingsAndDuplicateBindingsPreserveState / srp_mbx_bind,2
+2,attach-nonatomic,CAUGHT,AttachmentFailureIsAtomicAndDetachesAfterLoopReset / srp_mbx_attach,2
+2,readyfailed-ignored,CAUGHT,ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count,2
+2,sink-da-ignored,CAUGHT,WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt / declared,2
+2,listener-refusal-lost,CAUGHT,SinkDeclarationExhaustionRetriesWithoutLosingBinding / declared,2
+2,binding-debug-guard,CAUGHT,SynchronousBindingFromOutputAsserts / failed to die,2
+2,licence-before-vlan,CAUGHT,ListenerBeforeVlanCommitCannotStartTalker / joined,2
+2,withdraw-same-domain,CAUGHT,PriorityOnlyDomainChangeKeepsVlanMembership / d.event,2
+2,latency-missing-startup,CAUGHT,SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget / commits.size(),2
+2,latency-relaxed-budget,CAUGHT,SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails / service_limit,2
+2,walk-leave-shortened,CAUGHT,SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener / Unexpected mock function call,2
+2,shape-last-output-missing,CAUGHT,EveryGeneratedOutputIsDeclaredAndEverySinkFits / outputs,2
+2,ninety-percent-ceiling,CAUGHT,AdmissionStraddlesTheExactEthernetCeiling / admitted[0],2
+2,old-prefix-accepted,CAUGHT,LinkEventsDiscardOnlyTheirPublishedReceivePrefix / mock function call,2
+2,failed-interface-starves-peer,CAUGHT,RecreateAllocationFailureIsCountedAndRetried / other_sent,2
+2,reset-leaks-owned-participants,CAUGHT,ExhaustedPoolStillReusesOwnedBlocksOnLinkReset / adapter.refused,2
+2,delayed-in-talker,CAUGHT,InTalkerWithdrawalImmediatelyWithdrawsListener / declared,2
+2,cancelled-link-record-posted,CAUGHT,CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / the DOWN record stayed held,2
+2,joining-binding-loses-applicant,CAUGHT,JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves / d.event,2
+2,last-ineligible-vid-leaks,CAUGHT,LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder / vlan_left,2
+2,shared-ready-uses-first-vlan,CAUGHT,SharedReadyWaitsForTheMatchingBindingsOwnVlan / vlan,2
+2,partial-receive-retry-removed,CAUGHT,SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop / domain.vid,2
+2,receive-overtakes-retained,CAUGHT,SrpRetry.LaterRecordsCannotOvertakeRetainedInterface / loop.stats.rx_records,2
+2,destroy-keeps-retained-receive,CAUGHT,SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization / adapter.pending_rx.len,2
+2,composition-srp-irq-omitted,CAUGHT,SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / model.irq_enable,2
+2,mvrp-receive-retry-removed,CAUGHT,SrpRetry.RetainedMvrpUsesItsOriginalParticipant / adapter.received,2
+2,future-receive-refused,CAUGHT,SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0],2
+2,recovery-latency-retry-removed,CAUGHT,SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget / adapter.ifs[0].active[0],2
+2,receive-retention-late,CAUGHT,SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded,2
+2,receive-discard-as-success,CAUGHT,SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received,2
+2,receive-expiry-precedes-recovery,CAUGHT,SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord / adapter.received,2
+2,receive-deadline-not-modular,CAUGHT,SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard / adapter.rx_discarded,2
+2,four-way-acmp-enable-lost,CAUGHT,AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 four receive channels and no others,2
+2,four-way-bound-duplicates-events,CAUGHT,AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound / F6 four modules count each shared event record once,2
+2,binding-poll-adds-access,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding poll makes no mailbox access,2
+2,binding-refusal-dropped,CAUGHT,SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / binding delivered,2
+2,binding-replacement-lost,CAUGHT,SrpBinding.ReplacementSupersedesPendingIdentity / stream identity delivered,2
+2,binding-poll-overflow,CAUGHT,SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / ctrl_app_attach_srp,2
+2,srp-bound-receive,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP refused receive bound,2
+2,srp-bound-tx-record,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum TX record bound,2
+2,feedback-advertise-missing,CAUGHT,SrpBinding.AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline / Advertise reaches ACMP,2
+2,feedback-sink-crossed,CAUGHT,SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback keeps sink identity,2
+2,binding-park-keeps-old,CAUGHT,SrpBinding.ParkedReplacementRetiresThePreviouslyAcceptedBinding / parking retires the old accepted binding,2
+2,binding-park-never-clears,CAUGHT,SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / replacement clears parking,2
+2,srp-term-interface-count,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently,2
+2,srp-term-rx-count,CAUGHT,Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass receive count is funded independently,2
+2,srp-send-extra-read,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback has only the TX record accesses,2
+2,feedback-withdrawal-overwritten,CAUGHT,SrpFeedback.WithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes,2
+2,feedback-failed-indication-as-advertise,CAUGHT,SrpFeedback.FailedReplacementWithdrawnInsideOnePduStillReprobes / retained withdrawal reprobes,2
+2,feedback-first-registration-lost,CAUGHT,SrpFeedback.FirstRegistrationThenWithdrawalIsDeliveredInOrder / retained withdrawal reprobes,2
+2,feedback-withdrawal-sink-crossed,CAUGHT,SrpFeedback.WithdrawalIsIsolatedAndSupersededEvenForAnIdenticalStream / retained withdrawal reprobes,2
+2,feedback-identity-copy-stale,CAUGHT,SrpFeedback.SinglePduIdentityMismatchThenRecoveryStillWithdraws / retained withdrawal reprobes,2
+2,p11-postwithdrawal-kind-overwrite,CAUGHT,SrpFeedback.LaterKindAfterWithdrawalIsNotReported / retained pre-withdrawal kind,2
+2,r10-feedback-allowance-quarter,CAUGHT,SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance,2
+2,pub-licence-skipped,CAUGHT,PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported,2
+2,pub-licence-kept-at-destroy,CAUGHT,PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB destroy clears LICENCE before any revocation is reported,2
+2,pub-domain-default-skipped,CAUGHT,"PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB after a link restart, the default Domain is published before it is declared again",2
+2,pub-slope-halved,CAUGHT,PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB IDLE_SLOPE is the admitted bandwidth from startup,2
+2,pub-slope-after-the-declarations,CAUGHT,PubIdleSlopeIsPublishedBeforeTheDeclarationsItAdmits / PUB every MRPDU of the restarted interface left with IDLE_SLOPE published again,2
+2,pub-declared-skipped,CAUGHT,PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup,2
+2,pub-declared-after-the-declarations,CAUGHT,PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB every MRPDU carrying a Talker declaration left with TALKER_DECL published again,2
+2,pub-declared-kept-at-destroy,CAUGHT,PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB destroy withdraws every declaration from the datapath,2
+2,pub-declared-skipped-at-adoption,CAUGHT,PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again,2
+2,four-way-f3b-asking-failed-excluded,CAUGHT,AcmpMailbox.F3bListenerRegistrationControlsItsOwnGate / registered Listener controls only its source interface gate,3
+2,short-leave,CAUGHT,LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call,3
+2,failed-listener-ready,CAUGHT,SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared,3
+2,rx-overtakes-expiry,CAUGHT,ExpiryBacklogPrecedesSamePassReceive / adapter.stops,3
+2,failed-init-leaks,CAUGHT,ExhaustionDuringEachStartupStageReleasesEveryBlock / ctrl_pool_in_use,3
+2,malformed-uncounted,CAUGHT,InvalidFramesHaveNoReservationSideEffects / adapter.malformed,3
+2,foreign-domain-stored,CAUGHT,DomainFilterAndDuplicateDoNotGrowDeclarations / ctrl_pool_in_use,3
+2,admission-ceiling-ignored,CAUGHT,AdmissionUsesBandwidthAndEthernetMinimum / admitted[0],3
+2,other-link-cancels-owed,CAUGHT,LinkLossCancelsItsOwedFrameOnly / adapter.owed_len,3
+2,receive-debug-guard,CAUGHT,SynchronousReceiveFromOutputAsserts / failed to die,3
+2,unbind-shared-listener,CAUGHT,SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event,3
+2,sink-vlan-refusal-lost,CAUGHT,SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent / vlan_requested,3
+2,latency-domain-unserviced,CAUGHT,SrpLatency.ReceiveStateMalformedDomainAndListenerPaths / domain.vid,3
+2,walk-domain-ignored,CAUGHT,SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA / domain.vid,3
+2,walk-startup-is-join,CAUGHT,SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire / d.event,3
+2,tag-overhead-omitted,CAUGHT,AdmissionStraddlesTheExactEthernetCeiling / admitted[0],3
+2,readyfailed-callback-stop,CAUGHT,ReadyToReadyFailedNeverGlitchesAnActiveLicence / mock function call,3
+2,shared-identity-overwritten,CAUGHT,SharedIdentityReconcilesBothBindingOrdersOnTheWire / last,3
+2,backlogged-old-prefix-accepted,CAUGHT,OldReceiveBacklogCannotRegisterAcrossLinkRestart / mock function call,3
+2,downlink-receive-accepted,CAUGHT,OldReceiveBacklogCannotRegisterAcrossLinkRestart / adapter.ifs[i].registered[0],3
+2,attach-ignores-current-link,CAUGHT,ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].link,3
+2,rebind-loses-shared-applicant,CAUGHT,SharedRebindKeepsOnlyTheRemainingEligibleRequest / left,3
+2,applicant-inherited-across-streams,CAUGHT,ReboundStreamCannotInheritAnotherStreamsReady / ready,3
+2,reset-keeps-owed-domain,CAUGHT,RefusedPeerDomainDoesNotSurviveLinkRestart / domain.vid,3
+2,milan-rapid-leave-leaks-to-mvrp,CAUGHT,MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline / registered(),3
+2,receive-record-lost,CAUGHT,SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.pending_rx.len,3
+2,reset-keeps-retained-receive,CAUGHT,SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords / adapter.received,3
+2,bind-overtakes-retained-receive,CAUGHT,SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / srp_mbx_bind,3
+2,composition-srp-tick-omitted,CAUGHT,SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.stats.ticks,3
+2,receive-retry-passes-owed,CAUGHT,SrpRetry.RetainedReceiveWaitsForOwedTransmit / adapter.pending_rx.len,3
+2,invalid-suffix-uncounted,CAUGHT,SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.malformed,3
+2,receive-retention-unbounded,CAUGHT,SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.pending_rx.len,3
+2,receive-discard-uncounted,CAUGHT,SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded,3
+2,receive-queue-renews-deadline,CAUGHT,SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded,3
+2,receive-recreate-never-expires,CAUGHT,SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline / adapter.rx_discarded,3
+2,four-way-srp-irq-missing,CAUGHT,AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask,3
+2,four-way-unbound-irq-enabled,CAUGHT,AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen / U6 exact four-channel receive and event interrupt mask,3
+2,binding-delivery-missing,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered,3
+2,binding-interface-lost,CAUGHT,SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface / binding delivered,3
+2,binding-owed-retry-dropped,CAUGHT,SrpBinding.OwedTransmissionRetriesAfterCommit / binding delivered,3
+2,binding-pending-sleeps,CAUGHT,SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry / pending binding keeps service awake,3
+2,binding-reattach-recurses,CAUGHT,SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding / recompose before replacing the attached adapter,3
+2,srp-bound-poll-transmit,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP transmitting poll bound,3
+2,srp-bound-rx-record,CAUGHT,EventReceiveAndTransmitPollFitTheirMeasuredBounds / SRP maximum RX record bound,3
+2,feedback-failed-as-advertise,CAUGHT,SrpBinding.FailedRegistrationReachesAcmpAndWithdrawalReprobes / Failed flag reaches ACMP,3
+2,feedback-interface-suppressed,CAUGHT,SrpBinding.RegistrationKeepsSinkAndInterfaceIdentity / feedback uses configured interface,3
+2,binding-invalid-retries,CAUGHT,SrpBinding.PermanentRefusalParksAndDoesNotBlockAnotherSink / permanent refusal allows sleep,3
+2,srp-term-fixed,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / poll fixed term is funded independently,3
+2,srp-term-send-cost,CAUGHT,Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks / real send callback maximum,3
+2,srp-term-pass-poll,CAUGHT,Srp.PassFundsEveryEventRecordAndBothMaximumReceives / pass funds the independently measured poll envelope,3
+2,feedback-kind-failed-lost,CAUGHT,SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView / current kind reaches ACMP,3
+2,feedback-intrapdu-lost,CAUGHT,SrpFeedback.SinglePduWithdrawalThenRegistrationRetainsTheFirstEvent / retained withdrawal reprobes,3
+2,feedback-change-clears-both-kinds,CAUGHT,SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal / continuous Advertise is not withdrawn,3
+2,feedback-kind-order-lost,CAUGHT,SrpFeedback.KindThenWithdrawalIsDeliveredInOrder / kind precedes withdrawal,3
+2,feedback-advertise-copy-lost,CAUGHT,SrpFeedback.SinglePduKindReplacementsRemainContinuous / kind preserves settled state,3
+2,p11-supersession-kind-stale,CAUGHT,SrpFeedback.IdenticalRebindAfterUndeliveredWithdrawalSettlesNoRsv / retired kind cannot settle the new epoch,3
+2,r10-feedback-ignores-pending,CAUGHT,SrpFeedback.ReplacementAwaitingDeliveryGetsNoOldRegistration / old registration cannot settle replacement,3
+2,r10-feedback-allowance-eight,CAUGHT,SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath / measured feedback per sink allowance,3
+2,pub-licence-wrong-bit,CAUGHT,PubLicenceIsSetAndClearedBeforeEachChangeIsReported / PUB LICENCE holds source 0's bit before the licence is reported,3
+2,pub-domain-adoption-skipped,CAUGHT,PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it,3
+2,pub-domain-default-marked-adopted,CAUGHT,"PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB the default Domain {priority 3, VID 2}, not adopted, from startup",3
+2,pub-domain-adoption-after-the-declarations,CAUGHT,PubDomainPrecedesEveryDeclarationThatCarriesIt / PUB an MRPDU carrying the adopted Domain or its VID left after SR_DOMAIN published it,3
+2,pub-term-poll-understated,CAUGHT,"PollPublicationTermIsMeasuredThroughRealCallbacks / the poll's publication term funds a reset, an adoption and two changes per source",3
+2,pub-declared-in-the-licence,CAUGHT,PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB TALKER_DECL holds every declared source from startup,3
+2,pub-declared-kept-at-reset,CAUGHT,PubTalkerDeclPrecedesTheDeclarationsAndIsWithdrawnFirst / PUB a link restart withdraws TALKER_DECL before the new participants declare,3
+2,pub-declared-dropped-at-adoption,CAUGHT,PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again,3
+2,pub-declared-before-the-joins,CAUGHT,PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration,3
