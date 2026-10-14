@@ -1,0 +1,8 @@
+em_dash.rc=2 and gen_toc.rc=2: first attempt lacked the pinned Markdown renderer in the
+reviewer's interpreter ("cffi" missing). After installing tools/markdown/requirements.txt
+with --require-hashes, md_scripts_check_em_dash.py___base_fa82*, md_scripts_gen_toc.py___check
+and md_scripts_check_em_dash.py___selftest all returned 0. Those reruns supersede the two rc=2 files.
+ci_events_selftest.rc=124: the single-process `ci_events.py --selftest` exceeds the reviewer's
+10-minute command bound (1582 generated arms passed, none failed, before the bound). Every arm
+was then executed once, split into four parts, in ../contract-timing/head-{rest,gen-a,gen-b,gen-c}.log
+(3180 + 731 + 561 + 621 = 5093 arms, all rc 0).

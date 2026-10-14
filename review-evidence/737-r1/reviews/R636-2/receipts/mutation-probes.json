@@ -1,0 +1,133 @@
+[
+ {
+  "mutant": "ff-drop-action_required",
+  "file": "scripts/ci_fail_fast.py",
+  "test": [
+   "scripts/ci_fail_fast_selftest.py"
+  ],
+  "rc": 1,
+  "caught": true,
+  "tail": [
+   "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+   "AssertionError"
+  ]
+ },
+ {
+  "mutant": "ff-observer-error-is-failure",
+  "file": "scripts/ci_fail_fast.py",
+  "test": [
+   "scripts/ci_fail_fast_selftest.py"
+  ],
+  "rc": 1,
+  "caught": true,
+  "tail": [
+   "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+   "AssertionError"
+  ]
+ },
+ {
+  "mutant": "ff-5xx-not-transient",
+  "file": "scripts/ci_fail_fast.py",
+  "test": [
+   "scripts/ci_fail_fast_selftest.py"
+  ],
+  "rc": 1,
+  "caught": true,
+  "tail": [
+   "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+   "AssertionError"
+  ]
+ },
+ {
+  "mutant": "ff-skipped-raw-any-status",
+  "file": "scripts/ci_fail_fast.py",
+  "test": [
+   "scripts/ci_fail_fast_selftest.py"
+  ],
+  "rc": 0,
+  "caught": false,
+  "tail": [
+   "rtl-fast: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS",
+   "fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS"
+  ]
+ },
+ {
+  "mutant": "ff-tail-ignores-collector",
+  "file": "scripts/ci_fail_fast.py",
+  "test": [
+   "scripts/ci_fail_fast_selftest.py"
+  ],
+  "rc": 1,
+  "caught": true,
+  "tail": [
+   "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+   "AssertionError"
+  ]
+ },
+ {
+  "mutant": "ff-fork-allowed",
+  "file": "scripts/ci_fail_fast.py",
+  "test": [
+   "scripts/ci_fail_fast_selftest.py"
+  ],
+  "rc": 1,
+  "caught": true,
+  "tail": [
+   "    raise AssertionError(\"unauthorized event requested writes\")",
+   "AssertionError: unauthorized event requested writes"
+  ]
+ },
+ {
+  "mutant": "shards-1620-to-1700",
+  "file": "scripts/suite_shards.py",
+  "test": [
+   "scripts/suite_shards.py",
+   "--selftest"
+  ],
+  "rc": 1,
+  "caught": true,
+  "tail": [
+   "  ok   reject 'a/4'",
+   "selftest: 1 FAILURE(S)"
+  ]
+ },
+ {
+  "mutant": "receipts-no-union-count",
+  "file": "scripts/ci_case_receipts.py",
+  "test": [
+   "scripts/ci_case_receipts_selftest.py"
+  ],
+  "rc": 0,
+  "caught": false,
+  "tail": [
+   "receipt control: changed checked value and its digest refused by comparison",
+   "case receipt self-test: 31 driver cases, union and comparison controls pass"
+  ]
+ },
+ {
+  "mutant": "receipts-accept-failed",
+  "file": "scripts/ci_case_receipts.py",
+  "test": [
+   "scripts/ci_case_receipts_selftest.py"
+  ],
+  "rc": 0,
+  "caught": false,
+  "tail": [
+   "receipt control: changed checked value and its digest refused by comparison",
+   "case receipt self-test: 31 driver cases, union and comparison controls pass"
+  ]
+ },
+ {
+  "mutant": "manifest-ignore-skip",
+  "file": "scripts/ci_manifest.py",
+  "test": [
+   "scripts/ci_manifest_selftest.py"
+  ],
+  "rc": 0,
+  "caught": false,
+  "tail": [
+   "duplicate JSON key refused",
+   "manifest comparison controls: PASS"
+  ]
+ }
+]

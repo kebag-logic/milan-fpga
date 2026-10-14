@@ -1,0 +1,22 @@
+{
+ "inputs": {
+  "baseline_docs_check_job_seconds": 2039,
+  "baseline_run": "38495894291 at 7032bca5 (published baseline-docs.json)",
+  "baseline_builder_gate_seconds": 1065,
+  "baseline_ci_event_contract_gate_seconds": 37,
+  "base_selftest_seconds_this_host": 33.4,
+  "base_selftest_arms": 3096,
+  "head_selftest_rest_seconds": 43.6,
+  "head_selftest_rest_arms": 3180,
+  "head_generated_arms": 1913,
+  "head_seconds_per_full_check": 0.364,
+  "head_direct_run": "1582 generated arms in 585 s, then timed out (0.370 s/arm)",
+  "head_new_controls_step_seconds": 14.4
+ },
+ "head_contract_selftest_seconds_estimate": 739.9,
+ "docs_gates_0_projection_seconds_before_collection_steps": 1691.3,
+ "gate_worker_allowance_seconds": 1620,
+ "over_allowance_seconds": 71.3,
+ "calibration": "base selftest 33.4 s on this host vs 37 s hosted step window (which also ran --check): this host is not slower than the hosted runner for this single-threaded workload",
+ "not_measured": "act_ci.py --selftest duration at head (host runner selftest is out of reviewer scope); record/upload step time; aggregate, collector and watcher tail"
+}

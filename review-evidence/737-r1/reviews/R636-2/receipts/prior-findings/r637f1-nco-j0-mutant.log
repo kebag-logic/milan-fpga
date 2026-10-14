@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "$REVIEWS/737-r636-2-packet/scratch/probe-mut/scripts/ci_gate_workflows_selftest.py", line 169, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$REVIEWS/737-r636-2-packet/scratch/probe-mut/scripts/ci_gate_workflows_selftest.py", line 98, in main
+    cpu_controls()
+  File "$REVIEWS/737-r636-2-packet/scratch/probe-mut/scripts/ci_gate_workflows_selftest.py", line 64, in cpu_controls
+    child_controls(root)
+  File "$REVIEWS/737-r636-2-packet/scratch/probe-mut/scripts/ci_gate_workflows_selftest.py", line 46, in child_controls
+    child_budget(directory, target, width // 4)
+  File "$REVIEWS/737-r636-2-packet/scratch/probe-mut/scripts/ci_gate_workflows_selftest.py", line 34, in child_budget
+    assert recipe[recipe.index("-j") + 1] == str(budget), (directory, target, recipe)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (PosixPath('$REVIEWS/737-r636-2-packet/scratch/probe-mut/tb/verilator/capture_coherence/../media_nco'), 'build', ['ci-budget-compiler', '--cc', '--exe', '--build', '-j', '0', '--top-module', 'media_nco_wrap', '-Wall', '-Wno-fatal', '-Wno-DECLFILENAME', '-Wno-UNUSEDSIGNAL', '-Wno-WIDTHEXPAND', '-Wno-WIDTHTRUNC', '-Wno-UNUSEDPARAM', '+incdir+../../../hdl/common', '-CFLAGS', '-std=c++17 -O2 -I$REVIEWS/737-r636-2-packet/scratch/probe-mut/tb/verilator/media_nco -Wall -Wextra', '--Mdir', 'obj_dir', 'media_nco_wrap.sv', '../../../hdl/ieee1722/crf/KL_media_nco.sv', 'sim_main.cpp', '-o', 'Vmedia_nco_sim'])

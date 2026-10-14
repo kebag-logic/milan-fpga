@@ -1,0 +1,783 @@
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+
+[1] reset/idle
+  [ ok ] state IDLE                                   = 0
+  [ ok ] addr not valid                               = 0
+  [ ok ] no frame while disabled                      = 0
+
+[2] Begin!: four golden PROBEs, the first at once, then ANNOUNCE at once
+  [ ok ] state PROBE                                  = 1
+  [ ok ] offset inside pool                           = 1
+  [ ok ] offset leaves room for the range cases       = 1
+  [ ok ] Begin! PROBE 1 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 1)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 1)          = 1
+  [ ok ] Begin! PROBE 2 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 2)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 2)          = 1
+  [ ok ] Begin! PROBE 3 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 3)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 3)          = 1
+  [ ok ] address not valid before the fourth PROBE    = 0
+  [ ok ] Begin! PROBE 4 = golden (B.2/B.3.6.5)        = 1
+  [ ok ] B.2.1 cdl 16 (Begin! PROBE 4)                = 16
+  [ ok ] B.2.1 PROBE DA multicast (Begin! 4)          = 1
+  [ ok ] Begin! ANNOUNCE = golden (B.2/B.3.6.7)       = 1
+  [ ok ] Begin!: address valid in ANNOUNCE            = 1
+  [ ok ] T.B7 Begin!: first PROBE at once             = 1
+  [ ok ] T.B7 Begin!: four PROBEs before ANNOUNCE     = 4
+  [ ok ] T.B7 probeCount!: ANNOUNCE at once (Begin!)  = 1
+  [ ok ] state ANNOUNCE after four PROBEs             = 2
+  [ ok ] addr = pool base + offset                    = 1
+  [ ok ] B.3.4.2 probe T > 500 ms                     = 1
+  [ ok ] B.3.4.2 probe T < 600 ms                     = 1
+  [ ok ] B.3.4.2 probe T > 500 ms                     = 1
+  [ ok ] B.3.4.2 probe T < 600 ms                     = 1
+  [ ok ] B.3.4.2 probe T > 500 ms                     = 1
+  [ ok ] B.3.4.2 probe T < 600 ms                     = 1
+
+[3] B.3.4.1: ANNOUNCE every 30 s < T < 32 s, randomized, multicast
+  [i]    24 ANNOUNCE intervals: 305140..313730 cycles
+  [ ok ] B.3.4.1 announce T > 30 s                    = 1
+  [ ok ] B.3.4.1 announce T < 32 s                    = 1
+  [ ok ] B.3.4.1 announce T randomized                = 1
+  [ ok ] B.2.1 ANNOUNCE DA multicast                  = 1
+  [ ok ] B.2.1 cdl 16 (ANNOUNCE)                      = 16
+
+[4] announced + conflicting PROBE -> DEFEND to the prober (B.2.1)
+  [ ok ] above: DEFEND emitted promptly               = 1
+  [ ok ] B.2.1 DEFEND DA = PROBE source (above)       = 1
+  [ ok ] B.2.1 cdl 16 (DEFEND above)                  = 16
+  [ ok ] above: SA, ethertype, subtype                = 1
+  [ ok ] B.2.7 conflict_start = overlap (above)       = 160395285250636
+  [ ok ] B.2.8 conflict_count = overlap (above)       = 4
+  [ ok ] M2 B.3.6.6 requested start echoes PROBE      = 160395285250636
+  [ ok ] still ANNOUNCE                               = 2
+  [ ok ] defends counted                              = 1
+
+[4b] the prober's range starts below ours, another prober
+  [ ok ] below: DEFEND emitted promptly               = 1
+  [ ok ] B.2.1 DEFEND DA = PROBE source (below)       = 1
+  [ ok ] B.2.1 cdl 16 (DEFEND below)                  = 16
+  [ ok ] below: SA, ethertype, subtype                = 1
+  [ ok ] B.2.7 conflict_start = overlap (below)       = 160395285250632
+  [ ok ] B.2.8 conflict_count = overlap (below)       = 4
+  [ ok ] M2 B.3.6.6 requested start echoes a PROBE starting below ours = 160395285250628
+
+[4c] DEFEND held by backpressure; a later PDU must not redirect it
+  [ ok ] B.2.1 DEFEND DA latched at send              = 1
+  [ ok ] B.2.7 one-address overlap start              = 16975
+  [ ok ] M2 B.3.6.6 requested count echoes all 16 bits = 4660
+  [ ok ] M2 requested start held under backpressure   = 16975
+  [ ok ] B.2.8 one-address overlap count              = 1
+  [ ok ] defends = 3                                  = 3
+  [ ok ] M6 occupied response buffer preserves active DEFEND = 1
+  [ ok ] M6 occupied response buffer preserves active DEFEND = 1
+  [ ok ] M6 occupied response buffer preserves active DEFEND = 1
+  [ ok ] M6 occupied response buffer preserves active DEFEND = 1
+
+[4d] note b applies to PROBE: adjacent and empty ranges get no DEFEND
+  [ ok ] note b: no DEFEND for non-conflicting PROBEs = 0
+  [ ok ] non-conflicting PROBEs leave defends unchanged = 7
+
+[4e] unknown message type ignored (B.2.2)
+  [ ok ] unknown msg: still ANNOUNCE                  = 2
+
+[4f] the ANNOUNCE after the DEFENDs is multicast again
+  [ ok ] B.2.1 ANNOUNCE DA multicast after DEFEND     = 1
+
+[5] ANNOUNCE conflict detection (B.3.2, Table B.7 notes b and d)
+  [ ok ] T.B7 note d: lower MAC keeps range           = 1
+  [ ok ] B.2.7 ANNOUNCE conflict_* is not its range   = 1
+  [ ok ] note b adjacent above: no conflict           = 1
+  [ ok ] note b adjacent below: no conflict           = 1
+  [ ok ] note b empty range: no conflict              = 1
+  [ ok ] no re-address so far                         = 0
+
+[5b] one shared address, peer below: rAnnounce!/DEFEND re-addresses
+  [ ok ] T.B7 rAnnounce!/DEFEND: re-address           = 1
+  [ ok ] addr dropped                                 = 0
+  [ ok ] offset changed                               = 1
+  [ ok ] conflicts counted                            = 1
+  [ ok ] T.B7 Restart!: first PROBE at once           = 1
+  [ ok ] Restart! PROBE carries the new range         = 1
+
+[5c] ANNOUNCE while probing: rAnnounce!/PROBE yields without compare_MAC
+  [ ok ] T.B7 rAnnounce!/PROBE: no compare_MAC        = 1
+  [ ok ] Restart! PROBE 1 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 1)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 1)        = 1
+  [ ok ] Restart! PROBE 2 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 2)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 2)        = 1
+  [ ok ] Restart! PROBE 3 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 3)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 3)        = 1
+  [ ok ] address not valid before the fourth PROBE    = 0
+  [ ok ] Restart! PROBE 4 = golden (B.2/B.3.6.5)      = 1
+  [ ok ] B.2.1 cdl 16 (Restart! PROBE 4)              = 16
+  [ ok ] B.2.1 PROBE DA multicast (Restart! 4)        = 1
+  [ ok ] Restart! ANNOUNCE = golden (B.2/B.3.6.7)     = 1
+  [ ok ] Restart!: address valid in ANNOUNCE          = 1
+  [ ok ] T.B7 Restart!: first PROBE at once           = 1
+  [ ok ] T.B7 Restart!: four PROBEs before ANNOUNCE   = 4
+  [ ok ] T.B7 probeCount!: ANNOUNCE at once (Restart!) = 1
+
+[6a] a conflicting PROBE parsed while an ANNOUNCE is part-way out on the
+     wire leaves that frame byte-identical and gets a deferred DEFEND
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] PROBE mid-frame: frame on the wire byte-identical = 1
+  [ ok ] M6 busy PROBE gets DEFEND after wire is free = 1
+  [ ok ] M6 pending response preserves prober and requested range = 1
+  [ ok ] M6 pending response sent exactly once        = 2
+  [ ok ] PROBE mid-frame: deferred DEFEND counted     = 8
+  [ ok ] PROBE mid-frame: range kept                  = 1
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] PROBE mid-frame: frame on the wire byte-identical = 1
+  [ ok ] M6 busy PROBE gets DEFEND after wire is free = 1
+  [ ok ] M6 pending response preserves prober and requested range = 1
+  [ ok ] M6 pending response sent exactly once        = 2
+  [ ok ] PROBE mid-frame: deferred DEFEND counted     = 9
+  [ ok ] PROBE mid-frame: range kept                  = 1
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] PROBE mid-frame: frame on the wire byte-identical = 1
+  [ ok ] M6 busy PROBE gets DEFEND after wire is free = 1
+  [ ok ] M6 pending response preserves prober and requested range = 1
+  [ ok ] M6 pending response sent exactly once        = 2
+  [ ok ] PROBE mid-frame: deferred DEFEND counted     = 10
+  [ ok ] PROBE mid-frame: range kept                  = 1
+
+[6] a Restart! while an ANNOUNCE waits on the wire leaves it intact
+  [ ok ] ANNOUNCE requested under backpressure        = 1
+  [ ok ] DEFEND re-addresses (state PROBE)            = 1
+  [ ok ] frame on the wire keeps its offset           = 1
+  [ ok ] then the new range's PROBE                   = 1
+
+[7] DEFEND judged on conflict_*; PROBE while probing re-addresses silently
+  [ ok ] DEFEND with conflicting conflict_*: re-address = 1
+  [ ok ] conflicts +1                                 = 4
+  [ ok ] DEFEND judged on conflict_* only             = 22092
+  [ ok ] probing + PROBE: still PROBE                 = 1
+  [ ok ] probing + PROBE: offset changed              = 1
+  [ ok ] probing + PROBE: no DEFEND                   = 10
+  [ ok ] conflicts +2                                 = 5
+
+[8] non-conflicting + non-pool PDUs ignored
+  [ ok ] offset stable                                = 18438
+  [ ok ] conflicts unchanged                          = 5
+  [ ok ] note b: this station's empty range never conflicts = 1
+
+[8b] maap_version handling (IEEE 1722-2016 B.2.3.2: a future-version
+     PDU must STILL count as a conflict for its ranges; lower/equal
+     versions processed normally)
+  [ ok ] ver7: conflict honored (re-address)          = 1
+  [ ok ] ver7: conflicts +1                           = 6
+  [ ok ] ver0: conflict honored (re-address)          = 1
+  [ ok ] ver0: conflicts +2                           = 7
+  [ ok ] ver7 disjoint: ignored                       = 47815
+  [ ok ] ver7 disjoint: conflicts still +2            = 7
+
+[9] B.3.4.2 over 150 walks: every PROBE interval strictly inside
+    500..600 ms, and the draw reaches both ends of 518..581 ms
+  [ ok ] campaign: every walk four PROBEs + ANNOUNCE  = 0
+  [ ok ] campaign: T.B7 Begin!: first PROBE at once   = 1
+  [ ok ] campaign: observed PROBE intervals           = 1
+  [i]    456 PROBE intervals: 5174..5810 cycles
+  [ ok ] B.3.4.2 probe T > 500 ms (campaign)          = 1
+  [ ok ] B.3.4.2 probe T < 600 ms (campaign)          = 1
+  [ ok ] probe draw reaches its low end               = 1
+  [ ok ] probe draw reaches its high end              = 1
+
+[10] disable -> IDLE; seeded re-enable claims the seed at once
+  [ ok ] IDLE on disable                              = 0
+  [ ok ] addr dropped on disable                      = 0
+  [ ok ] seeded offset                                = 4660
+  [ ok ] PROBE with seed                              = 1
+  [ ok ] T.B7 note a: seeded PROBE at once            = 1
+
+[11] B.3.4: a station MAC whose seed with clock 0 is zero
+     (02:00:00:00:00:00) still draws random probe and announce intervals
+  [ ok ] zero-seed MAC: four PROBEs, then ANNOUNCEs   = 1
+  [i]    6 timer PROBE intervals, 6 distinct; 3 timer ANNOUNCE intervals, 3 distinct
+  [ ok ] B.3.4.2 probe T in bounds (zero-seed MAC)    = 1
+  [ ok ] B.3.4.2 probe T randomized (zero-seed MAC)   = 1
+  [ ok ] B.3.4.1 announce T in bounds (zero-seed MAC) = 1
+  [ ok ] B.3.4.1 announce T randomized (zero-seed MAC) = 1
+  [ ok ] M1 rProbe/PROBE lower MAC keeps range        = 1
+  [ ok ] M1 rProbe/PROBE higher or equal MAC yields   = 1
+  [ ok ] M1 rDefend/DEFEND lower MAC keeps range      = 1
+  [ ok ] M1 rDefend/DEFEND higher or equal MAC yields = 1
+  [ ok ] M6 pending response cancelled with allocation = 1
+  [ ok ] M5 B.3.5.9 link return restarts PROBE        = 1
+  [ ok ] M5 stable operational level does not restart = 2
+  [ ok ] M5 B.3.5.9 link return revokes and reprobes  = 1
+  [ ok ] M5 stable operational level does not restart = 2
+  [ ok ] M5 B.3.5.9 link loss is no event; return reprobes = 1
+  [ ok ] M7 Table B.9 valid supplied boundary retained = 1
+  [ ok ] M7 Table B.9 invalid supplied range refused  = 1
+  [ ok ] M8 B.2 truncated PROBE-state input has no effect = 1
+  [ ok ] M8 B.2 truncated DEFEND-state input has no effect = 1
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+  [ ok ] M3 B.3.6.1 generator period is 2^32-1        = 1
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+== KL_maap harness, IEEE 1722-2016 Annex B (10 kHz scaled: 1 ms = 10 cyc) ==
+  [ ok ] M3 B.3.6.1 first enable seeds MAC plus clock = 1
+  [ ok ] M3 Release/Begin retains the generator sequence = 1
+
+[12] #696 M4: first Begin! claims of equally timed stations (B.3.4 NOTE, B.3.6.1)
+  [i]    2^i apart: 32 adjacent, 136 with i 16..31, 360 with i 1..15, 32 clock, 48 interval pairs; fixed: 4 MAC, 2 clock pairs
+  [i]    0200db55e2c0 clock 074141fc -> 0xce1b; 0200db55e2c1 clock 074141fc -> 0xce1b
+  [i]    020097bccb6e clock f55ded7b -> 0xce1b; 020097bccb6f clock f55ded7b -> 0xce1b
+  [i]    0200e2dcbc5d clock 388e3cee -> 0xce1b; 0200e2dcbc5e clock 388e3cee -> 0xce1b
+  [i]    0200f4eb9892 clock a3e517c5 -> 0xce1b; 0200f4eb9893 clock a3e517c5 -> 0xce1b
+  [i]    02004c17e6ff clock 117edeb0 -> 0xce1b; 02004c17e700 clock 117edeb0 -> 0xce1b
+  [i]    0200098882c0 clock 54829a9f -> 0xce1b; 0200098882c1 clock 54829a9f -> 0xce1b
+  [i]    0200ba788a7d clock 92eb5fc2 -> 0xce1b; 0200ba788a7e clock 92eb5fc2 -> 0xce1b
+  [i]    0200204291f6 clock bd345489 -> 0xce1b; 0200204291f7 clock bd345489 -> 0xce1b
+  [i]    02007e120e5b clock dbdf0ca4 -> 0xce1b; 02007e120e5c clock dbdf0ca4 -> 0xce1b
+  [i]    02002d860dfc clock 6a882803 -> 0xce1b; 02002d860dfd clock 6a882803 -> 0xce1b
+  [i]    02002d141e29 clock b64d65d6 -> 0xce1b; 02002d141e2a clock b64d65d6 -> 0xce1b
+  [i]    020036ae7c72 clock 2f8e9b8d -> 0xce1b; 020036ae7c73 clock 2f8e9b8d -> 0xce1b
+  [i]    0200cd549027 clock 92243fd8 -> 0xce1b; 0200cd549028 clock 92243fd8 -> 0xce1b
+  [i]    02006a08a658 clock 3e8679a7 -> 0xce1b; 02006a08a659 clock 3e8679a7 -> 0xce1b
+  [i]    0200d869dcd5 clock c7c2e32a -> 0xce1b; 0200d869dcd6 clock c7c2e32a -> 0xce1b
+  [i]    0200b0250f2e clock 1fa970d1 -> 0xce1b; 0200b0250f2f clock 1fa970d1 -> 0xce1b
+  [i]    020048d2d3b3 clock 481e2c4c -> 0xce1b; 020048d2d3b4 clock 481e2c4c -> 0xce1b
+  [i]    020012f84c74 clock 27c1b38b -> 0xce1b; 020012f84c75 clock 27c1b38b -> 0xce1b
+  [i]    020062ba5441 clock e019abbe -> 0xce1b; 020062ba5442 clock e019abbe -> 0xce1b
+  [i]    02000b4767aa clock 86709855 -> 0xce1b; 02000b4767ab clock 86709855 -> 0xce1b
+  [i]    02000eb239ff clock b5ddc600 -> 0xce1b; 02000eb23a00 clock b5ddc600 -> 0xce1b
+  [i]    02009911c650 clock 144e39af -> 0xce1b; 02009911c651 clock 144e39af -> 0xce1b
+  [i]    0200610d2c6d clock fa32d392 -> 0xce1b; 0200610d2c6e clock fa32d392 -> 0xce1b
+  [i]    0200ff35e9e6 clock c34a1619 -> 0xce1b; 0200ff35e9e7 clock c34a1619 -> 0xce1b
+  [i]    02004bd6bf0b clock bd2940f4 -> 0xce1b; 02004bd6bf0c clock bd2940f4 -> 0xce1b
+  [i]    02000e0b4fec clock 87f4b013 -> 0xce1b; 02000e0b4fed clock 87f4b013 -> 0xce1b
+  [i]    02007f695159 clock bc96aea6 -> 0xce1b; 02007f69515a clock bc96aea6 -> 0xce1b
+  [i]    02001765d1e2 clock d09a2e1d -> 0xce1b; 02001765d1e3 clock d09a2e1d -> 0xce1b
+  [i]    020023cfeed7 clock ac301128 -> 0xce1b; 020023cfeed8 clock ac301128 -> 0xce1b
+  [i]    020028aa0548 clock b755fab7 -> 0xce1b; 020028aa0549 clock b755fab7 -> 0xce1b
+  [i]    02000db72f05 clock 3248d0fa -> 0xce1b; 02000db72f06 clock 3248d0fa -> 0xce1b
+  [i]    020061789b9e clock 1e876461 -> 0xce1b; 020061789b9f clock 1e876461 -> 0xce1b
+  [FAIL] M4 B.3.6.1 adjacent MACs claim disjoint first blocks got=0 exp=1
+  [i]    02008657e740 clock 8a0e8424 -> 0xce1b; 02008658e740 clock 8a0e8424 -> 0xce1b
+  [i]    0200852305f0 clock d80e3983 -> 0xce1b; 0200852405f0 clock d80e3983 -> 0xce1b
+  [i]    0200fcceb4e0 clock 66954956 -> 0xce1b; 0200fccfb4e0 clock 66954956 -> 0xce1b
+  [i]    020059bd3710 clock ff5a290d -> 0xce1b; 020059be3710 clock ff5a290d -> 0xce1b
+  [i]    02009ad3f380 clock 0b5b6f58 -> 0xce1b; 02009ad4f380 clock 0b5b6f58 -> 0xce1b
+  [i]    0200fe1e2530 clock 06c0e327 -> 0xce1b; 0200fe1f2530 clock 06c0e327 -> 0xce1b
+  [i]    02009ffbcb20 clock 86433eaa -> 0xce1b; 02009ffccb20 clock 86433eaa -> 0xce1b
+  [i]    0200085cd850 clock e0231651 -> 0xce1b; 0200085dd850 clock e0231651 -> 0xce1b
+  [i]    0200f142a3c0 clock afbc93cc -> 0xce1b; 0200f143a3c0 clock afbc93cc -> 0xce1b
+  [i]    020016759870 clock a389f50b -> 0xce1b; 020016769870 clock a389f50b -> 0xce1b
+  [i]    020083212560 clock 58ddff3e -> 0xce1b; 020083222560 clock 58ddff3e -> 0xce1b
+  [i]    02000ed1ed90 clock 092dd5d5 -> 0xce1b; 02000ed2ed90 clock 092dd5d5 -> 0xce1b
+  [i]    0200ae843800 clock c17ae580 -> 0xce1b; 0200ae853800 clock c17ae580 -> 0xce1b
+  [i]    020006a99fb0 clock 5955d32f -> 0xce1b; 020006aa9fb0 clock 5955d32f -> 0xce1b
+  [i]    0200bfc103a0 clock 803e9f12 -> 0xce1b; 0200bfc203a0 clock 803e9f12 -> 0xce1b
+  [i]    02005b86b6d0 clock 24786b99 -> 0xce1b; 02005b87b6d0 clock 24786b99 -> 0xce1b
+  [i]    0200ad68f040 clock 7c149874 -> 0xce1b; 0200ad6af040 clock 7c149874 -> 0xce1b
+  [i]    02002b957af0 clock 8a452193 -> 0xce1b; 02002b977af0 clock 8a452193 -> 0xce1b
+  [i]    0200de50a5e0 clock fd657226 -> 0xce1b; 0200de52a5e0 clock fd657226 -> 0xce1b
+  [i]    0200520f7410 clock 947f1b9d -> 0xce1b; 020052117410 clock 947f1b9d -> 0xce1b
+  [i]    02005bad0c80 clock 06f120a8 -> 0xce1b; 02005baf0c80 clock 06f120a8 -> 0xce1b
+  [i]    0200c0ee6a30 clock c2d0c437 -> 0xce1b; 0200c0f06a30 clock c2d0c437 -> 0xce1b
+  [i]    02002f304c20 clock 614e0c7a -> 0xce1b; 02002f324c20 clock 614e0c7a -> 0xce1b
+  [i]    02000dfe6550 clock 670069e1 -> 0xce1b; 02000e006550 clock 670069e1 -> 0xce1b
+  [i]    0200ccaaccc0 clock e155321c -> 0xce1b; 0200ccacccc0 clock e155321c -> 0xce1b
+  [i]    020026d0ad70 clock 6d2ddf1b -> 0xce1b; 020026d2ad70 clock 6d2ddf1b -> 0xce1b
+  [i]    020086fb3660 clock c103420e -> 0xce1b; 020086fd3660 clock c103420e -> 0xce1b
+  [i]    0200bdfdca90 clock b2011a65 -> 0xce1b; 0200bdffca90 clock b2011a65 -> 0xce1b
+  [i]    0200ec687100 clock 3396c0d0 -> 0xce1b; 0200ec6a7100 clock 3396c0d0 -> 0xce1b
+  [i]    0200170d84b0 clock a8f1d63f -> 0xce1b; 0200170f84b0 clock a8f1d63f -> 0xce1b
+  [i]    02007f0ba4a0 clock 00f326e2 -> 0xce1b; 02007f0da4a0 clock 00f326e2 -> 0xce1b
+  [i]    02009d58e3d0 clock df103129 -> 0xce1b; 02009d5ce3d0 clock df103129 -> 0xce1b
+  [i]    0200bee43940 clock b99100c4 -> 0xce1b; 0200bee83940 clock b99100c4 -> 0xce1b
+  [i]    0200b6b62ff0 clock 6af64da3 -> 0xce1b; 0200b6ba2ff0 clock 6af64da3 -> 0xce1b
+  [i]    02003c59d6e0 clock 4b830ef6 -> 0xce1b; 02003c5dd6e0 clock 4b830ef6 -> 0xce1b
+  [i]    0200f674f110 clock a8caf22d -> 0xce1b; 0200f678f110 clock a8caf22d -> 0xce1b
+  [i]    020064246580 clock 3a5865f8 -> 0xce1b; 020064286580 clock 3a5865f8 -> 0xce1b
+  [i]    02003d81ef30 clock 497d2947 -> 0xce1b; 02003d85ef30 clock 497d2947 -> 0xce1b
+  [i]    02003b1a0d20 clock c6e38e4a -> 0xce1b; 02003b1e0d20 clock c6e38e4a -> 0xce1b
+  [i]    0200b55d3250 clock cea0e171 -> 0xce1b; 0200b5613250 clock cea0e171 -> 0xce1b
+  [i]    020016cf35c0 clock c12ea46c -> 0xce1b; 020016d335c0 clock c12ea46c -> 0xce1b
+  [i]    0200f7680270 clock 98948d2b -> 0xce1b; 0200f76c0270 clock 98948d2b -> 0xce1b
+  [i]    020001d88760 clock de2478de -> 0xce1b; 020001dc8760 clock de2478de -> 0xce1b
+  [i]    0200fd26e790 clock c2d7c2f5 -> 0xce1b; 0200fd2ae790 clock c2d7c2f5 -> 0xce1b
+  [i]    02007448ea00 clock 0bb6b020 -> 0xce1b; 0200744cea00 clock 0bb6b020 -> 0xce1b
+  [i]    020024eba9b0 clock babadd4f -> 0xce1b; 020024f3a9b0 clock babadd4f -> 0xce1b
+  [i]    02006f0385a0 clock b188e2b2 -> 0xce1b; 02006f0b85a0 clock b188e2b2 -> 0xce1b
+  [i]    02005ecb50d0 clock d6cf9ab9 -> 0xce1b; 02005ed350d0 clock d6cf9ab9 -> 0xce1b
+  [i]    02006d55c240 clock e168bd14 -> 0xce1b; 02006d5dc240 clock e168bd14 -> 0xce1b
+  [i]    020097b824f0 clock c9c2bdb3 -> 0xce1b; 020097c024f0 clock c9c2bdb3 -> 0xce1b
+  [i]    0200b6e147e0 clock 821b1fc6 -> 0xce1b; 0200b6e947e0 clock 821b1fc6 -> 0xce1b
+  [i]    0200d473ae10 clock a986acbd -> 0xce1b; 0200d47bae10 clock a986acbd -> 0xce1b
+  [i]    0200c3b1fe80 clock 48463f48 -> 0xce1b; 0200c3b9fe80 clock 48463f48 -> 0xce1b
+  [i]    0200cc08b430 clock fbf71257 -> 0xce1b; 0200cc10b430 clock fbf71257 -> 0xce1b
+  [i]    0200637c0e20 clock 2c80c41a -> 0xce1b; 020063840e20 clock 2c80c41a -> 0xce1b
+  [i]    0200039d3f50 clock dc5d7d01 -> 0xce1b; 020003a53f50 clock dc5d7d01 -> 0xce1b
+  [i]    0200f52ddec0 clock cacdeabc -> 0xce1b; 0200f535dec0 clock cacdeabc -> 0xce1b
+  [i]    0200167c9770 clock 697eff3b -> 0xce1b; 020016849770 clock 697eff3b -> 0xce1b
+  [i]    0200481a1860 clock 070ea3ae -> 0xce1b; 0200482a1860 clock 070ea3ae -> 0xce1b
+  [i]    020087c14490 clock 521acf85 -> 0xce1b; 020087d14490 clock 521acf85 -> 0xce1b
+  [i]    02004e89a300 clock 432fb370 -> 0xce1b; 02004e99a300 clock 432fb370 -> 0xce1b
+  [i]    020097770eb0 clock 1601e85f -> 0xce1b; 020097870eb0 clock 1601e85f -> 0xce1b
+  [i]    0200ebdda6a0 clock b71cd282 -> 0xce1b; 0200ebeda6a0 clock b71cd282 -> 0xce1b
+  [i]    0200edccfdd0 clock 7c2fa849 -> 0xce1b; 0200eddcfdd0 clock 7c2fa849 -> 0xce1b
+  [i]    02004c318b40 clock dfc0cd64 -> 0xce1b; 02004c418b40 clock dfc0cd64 -> 0xce1b
+  [i]    0200d56759f0 clock 628b71c3 -> 0xce1b; 0200d57759f0 clock 628b71c3 -> 0xce1b
+  [i]    02007e5cf8e0 clock d19aa496 -> 0xce1b; 02007e6cf8e0 clock d19aa496 -> 0xce1b
+  [i]    020025b9ab10 clock 7a3b4b4d -> 0xce1b; 020025c9ab10 clock 7a3b4b4d -> 0xce1b
+  [i]    0200eb4dd780 clock 54afac98 -> 0xce1b; 0200eb5dd780 clock 54afac98 -> 0xce1b
+  [i]    02003448b930 clock 4baf7f67 -> 0xce1b; 02003458b930 clock 4baf7f67 -> 0xce1b
+  [i]    02003eb24f20 clock 5ae2adea -> 0xce1b; 02003ed24f20 clock 5ae2adea -> 0xce1b
+  [i]    0200cd5c8c50 clock 0fcf3c91 -> 0xce1b; 0200cd7c8c50 clock 0fcf3c91 -> 0xce1b
+  [i]    02009b72c7c0 clock 6ef8050c -> 0xce1b; 02009b92c7c0 clock 6ef8050c -> 0xce1b
+  [i]    02003ef26c70 clock 17ee354b -> 0xce1b; 02003f126c70 clock 17ee354b -> 0xce1b
+  [i]    0200841be960 clock 79cec27e -> 0xce1b; 0200843be960 clock 79cec27e -> 0xce1b
+  [i]    02007f6ee190 clock b4734015 -> 0xce1b; 02007f8ee190 clock b4734015 -> 0xce1b
+  [i]    02003b589c00 clock 7c96cac0 -> 0xce1b; 02003b789c00 clock 7c96cac0 -> 0xce1b
+  [i]    0200d58fb3b0 clock 5a57f76f -> 0xce1b; 0200d5afb3b0 clock 5a57f76f -> 0xce1b
+  [i]    02002ddc07a0 clock f20bf652 -> 0xce1b; 02002dfc07a0 clock f20bf652 -> 0xce1b
+  [i]    0200fdfdead0 clock 41e959d9 -> 0xce1b; 0200fe1dead0 clock 41e959d9 -> 0xce1b
+  [i]    020041eb9440 clock 3dfe31b4 -> 0xce1b; 0200420b9440 clock 3dfe31b4 -> 0xce1b
+  [i]    0200052fcef0 clock 6d7169d3 -> 0xce1b; 0200056fcef0 clock 6d7169d3 -> 0xce1b
+  [i]    02001f98e9e0 clock 39ae9d66 -> 0xce1b; 02001fd8e9e0 clock 39ae9d66 -> 0xce1b
+  [i]    0200fa1ae810 clock 04b1cddd -> 0xce1b; 0200fa5ae810 clock 04b1cddd -> 0xce1b
+  [i]    0200a12bf080 clock 54c9ade8 -> 0xce1b; 0200a16bf080 clock 54c9ade8 -> 0xce1b
+  [i]    0200d995fe30 clock ca577077 -> 0xce1b; 0200d9d5fe30 clock ca577077 -> 0xce1b
+  [i]    0200d9dcd020 clock 3e064bba -> 0xce1b; 0200da1cd020 clock 3e064bba -> 0xce1b
+  [i]    02001d0b1950 clock 32cf2021 -> 0xce1b; 02001d4b1950 clock 32cf2021 -> 0xce1b
+  [i]    0200fc3df0c0 clock 63b1f35c -> 0xce1b; 0200fc7df0c0 clock 63b1f35c -> 0xce1b
+  [i]    02005fd98170 clock e0232f5b -> 0xce1b; 020060198170 clock e0232f5b -> 0xce1b
+  [i]    02005415fa60 clock 2bb1d54e -> 0xce1b; 02005455fa60 clock 2bb1d54e -> 0xce1b
+  [i]    02005487be90 clock 0cca14a5 -> 0xce1b; 02005507be90 clock 0cca14a5 -> 0xce1b
+  [i]    02001329d500 clock 53c0f610 -> 0xce1b; 020013a9d500 clock 53c0f610 -> 0xce1b
+  [i]    0200964598b0 clock 4f8e0a7f -> 0xce1b; 020096c598b0 clock 4f8e0a7f -> 0xce1b
+  [i]    02004dd6a8a0 clock cdf34e22 -> 0xce1b; 02004e56a8a0 clock cdf34e22 -> 0xce1b
+  [i]    02002afe17d0 clock 2cf5af69 -> 0xce1b; 02002b7e17d0 clock 2cf5af69 -> 0xce1b
+  [i]    02007cfbdd40 clock 72c5ea04 -> 0xce1b; 02007d7bdd40 clock 72c5ea04 -> 0xce1b
+  [i]    020070f983f0 clock aed5a5e3 -> 0xce1b; 0200717983f0 clock aed5a5e3 -> 0xce1b
+  [i]    0200e6751ae0 clock 59440a36 -> 0xce1b; 0200e6f51ae0 clock 59440a36 -> 0xce1b
+  [i]    0200b6cf6510 clock c8f3346d -> 0xce1b; 0200b74f6510 clock c8f3346d -> 0xce1b
+  [i]    0200f5a44980 clock 5f094338 -> 0xce1b; 0200f6a44980 clock 5f094338 -> 0xce1b
+  [i]    020033688330 clock 39dfe587 -> 0xce1b; 020034688330 clock 39dfe587 -> 0xce1b
+  [i]    0200268b9120 clock b5289d8a -> 0xce1b; 0200278b9120 clock b5289d8a -> 0xce1b
+  [i]    0200de50e650 clock e97627b1 -> 0xce1b; 0200df50e650 clock e97627b1 -> 0xce1b
+  [i]    02003af759c0 clock f440b5ac -> 0xce1b; 02003bf759c0 clock f440b5ac -> 0xce1b
+  [i]    0200cd59d670 clock 129eed6b -> 0xce1b; 0200ce59d670 clock 129eed6b -> 0xce1b
+  [i]    0200a6384b60 clock 9944dc1e -> 0xce1b; 0200a7384b60 clock 9944dc1e -> 0xce1b
+  [i]    0200a38bdb90 clock dc484d35 -> 0xce1b; 0200a48bdb90 clock dc484d35 -> 0xce1b
+  [i]    02005eed4e00 clock adc33560 -> 0xce1b; 020060ed4e00 clock adc33560 -> 0xce1b
+  [i]    02001468bdb0 clock f5b5218f -> 0xce1b; 02001668bdb0 clock f5b5218f -> 0xce1b
+  [i]    0200645d89a0 clock 11afd9f2 -> 0xce1b; 0200665d89a0 clock 11afd9f2 -> 0xce1b
+  [i]    0200c97d84d0 clock 648da8f9 -> 0xce1b; 0200cb7d84d0 clock 648da8f9 -> 0xce1b
+  [i]    02006de26640 clock 31fcf654 -> 0xce1b; 02006fe26640 clock 31fcf654 -> 0xce1b
+  [i]    0200b6c478f0 clock 875925f3 -> 0xce1b; 0200b8c478f0 clock 875925f3 -> 0xce1b
+  [i]    020040e18be0 clock 3e87eb06 -> 0xce1b; 020042e18be0 clock 3e87eb06 -> 0xce1b
+  [i]    02003b572210 clock 6d487efd -> 0xce1b; 02003f572210 clock 6d487efd -> 0xce1b
+  [i]    020059d6e280 clock fb236c88 -> 0xce1b; 02005dd6e280 clock fb236c88 -> 0xce1b
+  [i]    02006ff04830 clock 9c79de97 -> 0xce1b; 020073f04830 clock 9c79de97 -> 0xce1b
+  [i]    0200fbee9220 clock 62c6a35a -> 0xce1b; 0200ffee9220 clock 62c6a35a -> 0xce1b
+  [i]    0200fdbdf350 clock 421d5341 -> 0xce1b; 020001bdf350 clock 421d5341 -> 0xce1b
+  [i]    02002baf02c0 clock 51294bfc -> 0xce1b; 02002faf02c0 clock 51294bfc -> 0xce1b
+  [i]    0200df036b70 clock 24226f7b -> 0xce1b; 0200e7036b70 clock 24226f7b -> 0xce1b
+  [i]    02003532dc60 clock 9654d6ee -> 0xce1b; 02003d32dc60 clock 9654d6ee -> 0xce1b
+  [i]    02004c0b3890 clock 9256e9c5 -> 0xce1b; 0200540b3890 clock 9256e9c5 -> 0xce1b
+  [i]    020032730700 clock 08f288b0 -> 0xce1b; 02003a730700 clock 08f288b0 -> 0xce1b
+  [i]    0200e2e922b0 clock 951e3c9f -> 0xce1b; 0200eae922b0 clock 951e3c9f -> 0xce1b
+  [i]    02003420aaa0 clock af5e99c2 -> 0xce1b; 02004420aaa0 clock af5e99c2 -> 0xce1b
+  [i]    02001a8c31d0 clock c22a4689 -> 0xce1b; 02002a8c31d0 clock c22a4689 -> 0xce1b
+  [i]    0200f98f2f40 clock bcc856a4 -> 0xce1b; 0200098f2f40 clock bcc856a4 -> 0xce1b
+  [i]    02006da0adf0 clock 03dcea03 -> 0xce1b; 02007da0adf0 clock 03dcea03 -> 0xce1b
+  [i]    0200da2e3ce0 clock 36e73fd6 -> 0xce1b; 0200fa2e3ce0 clock 36e73fd6 -> 0xce1b
+  [i]    0200e9c21f10 clock 4e3aad8d -> 0xce1b; 020009c21f10 clock 4e3aad8d -> 0xce1b
+  [i]    0200f713bb80 clock 720d29d8 -> 0xce1b; 02001713bb80 clock 720d29d8 -> 0xce1b
+  [i]    0200ef7d4d30 clock 44965ba7 -> 0xce1b; 02002f7d4d30 clock 44965ba7 -> 0xce1b
+  [i]    0200f715d320 clock 7c9d5d2a -> 0xce1b; 02003715d320 clock 7c9d5d2a -> 0xce1b
+  [i]    020033a24050 clock 455da2d1 -> 0xce1b; 0200b3a24050 clock 455da2d1 -> 0xce1b
+  [FAIL] M4 B.3.6.1 MACs 2^i apart (16 <= i <= 31) claim disjoint first blocks got=0 exp=1
+  [i]    0200af6ff4c0 clock 717eea9c -> 0xce1b; 0200af6ff4c2 clock 717eea9c -> 0xce1b
+  [i]    0200823bb570 clock 634f3d9b -> 0xce1b; 0200823bb572 clock 634f3d9b -> 0xce1b
+  [i]    0200368a9e58 clock c6dc0e8e -> 0xce1b; 0200368a9e5a clock c6dc0e8e -> 0xce1b
+  [i]    02008ecc128a clock 57fe7ce5 -> 0xce1b; 02008ecc128c clock 57fe7ce5 -> 0xce1b
+  [i]    0200771a190e clock 3533c150 -> 0xce1b; 0200771a1910 clock 3533c150 -> 0xce1b
+  [i]    0200fa910c80 clock 589ddcbf -> 0xce1b; 0200fa910c82 clock 589ddcbf -> 0xce1b
+  [i]    0200d8e38d1c clock 19c67b62 -> 0xce1b; 0200d8e38d1e clock 19c67b62 -> 0xce1b
+  [i]    0200807dab56 clock 95f67ba9 -> 0xce1b; 0200807dab58 clock 95f67ba9 -> 0xce1b
+  [i]    0200776e60ba clock 0b71c944 -> 0xce1b; 0200776e60bc clock 0b71c944 -> 0xce1b
+  [i]    0200a1e237dc clock b7c37c23 -> 0xce1b; 0200a1e237de clock b7c37c23 -> 0xce1b
+  [i]    0200e87e3c88 clock 7cf56b76 -> 0xce1b; 0200e87e3c8a clock 7cf56b76 -> 0xce1b
+  [i]    0200569e2b52 clock c4f4a4ad -> 0xce1b; 0200569e2b54 clock c4f4a4ad -> 0xce1b
+  [i]    02001a9d2986 clock b4157678 -> 0xce1b; 02001a9d2988 clock b4157678 -> 0xce1b
+  [i]    020056224038 clock 6929ffc7 -> 0xce1b; 02005622403a clock 6929ffc7 -> 0xce1b
+  [i]    0200d6350d34 clock 32a172ca -> 0xce1b; 0200d6350d36 clock 32a172ca -> 0xce1b
+  [i]    020001c2840e clock 40d07bf1 -> 0xce1b; 020001c28410 clock 40d07bf1 -> 0xce1b
+  [i]    02004fb98312 clock 9ba87cec -> 0xce1b; 02004fb98314 clock 9ba87cec -> 0xce1b
+  [i]    02008cdc7454 clock 61878bab -> 0xce1b; 02008cdc7456 clock 61878bab -> 0xce1b
+  [i]    0200bd659aa0 clock be62655e -> 0xce1b; 0200bd659aa2 clock be62655e -> 0xce1b
+  [i]    0200b3383a8a clock eab7c575 -> 0xce1b; 0200b3383a8c clock eab7c575 -> 0xce1b
+  [i]    0200070a2f5e clock 9195d0a0 -> 0xce1b; 0200070a2f60 clock 9195d0a0 -> 0xce1b
+  [i]    0200223d7c30 clock 9a8283cf -> 0xce1b; 0200223d7c32 clock 9a8283cf -> 0xce1b
+  [i]    020069fca8cc clock dd835732 -> 0xce1b; 020069fca8ce clock dd835732 -> 0xce1b
+  [i]    0200ad8d7ac6 clock 3d728539 -> 0xce1b; 0200ad8d7ac8 clock 3d728539 -> 0xce1b
+  [i]    020052625a6a clock e79da594 -> 0xce1b; 020052625a6c clock e79da594 -> 0xce1b
+  [i]    0200806a73cc clock e3958c33 -> 0xce1b; 0200806a73ce clock e3958c33 -> 0xce1b
+  [i]    02009d6963b8 clock fa969c46 -> 0xce1b; 02009d6963ba clock fa969c46 -> 0xce1b
+  [i]    02008c1900c2 clock 23e6ff3d -> 0xce1b; 02008c1900c4 clock 23e6ff3d -> 0xce1b
+  [i]    020071769036 clock ee896fc8 -> 0xce1b; 020071769038 clock ee896fc8 -> 0xce1b
+  [i]    020050cc7728 clock ef3388d7 -> 0xce1b; 020050cc772a clock ef3388d7 -> 0xce1b
+  [i]    02004fb63764 clock 3049c89a -> 0xce1b; 02004fb63766 clock 3049c89a -> 0xce1b
+  [i]    02003b050750 clock 95ddb781 -> 0xce1b; 02003b050754 clock 95ddb781 -> 0xce1b
+  [i]    0200ce4306b8 clock 041fe33c -> 0xce1b; 0200ce4306bc clock 041fe33c -> 0xce1b
+  [i]    0200ee1f9f74 clock 402b9dbb -> 0xce1b; 0200ee1f9f78 clock 402b9dbb -> 0xce1b
+  [i]    02005a598070 clock 2f79b02e -> 0xce1b; 02005a598074 clock 2f79b02e -> 0xce1b
+  [i]    0200e0598cb8 clock 3f057205 -> 0xce1b; 0200e0598cbc clock 3f057205 -> 0xce1b
+  [i]    0200e3e54a8c clock a658f3f0 -> 0xce1b; 0200e3e54a90 clock a658f3f0 -> 0xce1b
+  [i]    020058ce9620 clock db4d2edf -> 0xce1b; 020058ce9624 clock db4d2edf -> 0xce1b
+  [i]    0200a0ff8efc clock 9c866702 -> 0xce1b; 0200a0ff8f00 clock 9c866702 -> 0xce1b
+  [i]    020004b5c934 clock b43732c9 -> 0xce1b; 020004b5c938 clock b43732c9 -> 0xce1b
+  [i]    020012a3b218 clock 3fd1d5e4 -> 0xce1b; 020012a3b21c clock 3fd1d5e4 -> 0xce1b
+  [i]    0200c4436fbc clock e14be043 -> 0xce1b; 0200c4436fc0 clock e14be043 -> 0xce1b
+  [i]    020078295ee8 clock b7e74116 -> 0xce1b; 020078295eec clock b7e74116 -> 0xce1b
+  [i]    020023db0230 clock fafa3dcd -> 0xce1b; 020023db0234 clock fafa3dcd -> 0xce1b
+  [i]    0200e2ce82e4 clock a180fd18 -> 0xce1b; 0200e2ce82e8 clock a180fd18 -> 0xce1b
+  [i]    020056116a18 clock 74e395e7 -> 0xce1b; 020056116a1c clock 74e395e7 -> 0xce1b
+  [i]    0200b3d32d94 clock 65fed26a -> 0xce1b; 0200b3d32d98 clock 65fed26a -> 0xce1b
+  [i]    0200f6fbe8ec clock 67481711 -> 0xce1b; 0200f6fbe8f0 clock 67481711 -> 0xce1b
+  [i]    0200339de270 clock 5daa1d8c -> 0xce1b; 0200339de274 clock 5daa1d8c -> 0xce1b
+  [i]    020075538c34 clock 913c73cb -> 0xce1b; 020075538c38 clock 913c73cb -> 0xce1b
+  [i]    020074711100 clock ea2eeefe -> 0xce1b; 020074711104 clock ea2eeefe -> 0xce1b
+  [i]    0200b22f7d68 clock 13908295 -> 0xce1b; 0200b22f7d6c clock 13908295 -> 0xce1b
+  [i]    0200d76dd4bc clock 78122b40 -> 0xce1b; 0200d76dd4c0 clock 78122b40 -> 0xce1b
+  [i]    02003a712210 clock b48eddef -> 0xce1b; 02003a712214 clock b48eddef -> 0xce1b
+  [i]    02004cd3552c clock e92caad2 -> 0xce1b; 02004cd35530 clock e92caad2 -> 0xce1b
+  [i]    020075027ba4 clock 76fd8459 -> 0xce1b; 020075027ba8 clock 76fd8459 -> 0xce1b
+  [i]    0200d88ca5c8 clock 1f735a34 -> 0xce1b; 0200d88ca5cc clock 1f735a34 -> 0xce1b
+  [i]    02002cf887ac clock 83077853 -> 0xce1b; 02002cf887b0 clock 83077853 -> 0xce1b
+  [i]    0200996ba618 clock 869459e6 -> 0xce1b; 0200996ba61c clock 869459e6 -> 0xce1b
+  [i]    020062089fa0 clock ddf7605d -> 0xce1b; 020062089fa4 clock ddf7605d -> 0xce1b
+  [i]    02001bcee194 clock 64311e68 -> 0xce1b; 02001bcee198 clock 64311e68 -> 0xce1b
+  [i]    0200afc08630 clock c5eb26f7 -> 0xce1b; 0200afc08638 clock c5eb26f7 -> 0xce1b
+  [i]    0200d435b810 clock b1bd903a -> 0xce1b; 0200d435b818 clock b1bd903a -> 0xce1b
+  [i]    0200407ee138 clock c8e89aa1 -> 0xce1b; 0200407ee140 clock c8e89aa1 -> 0xce1b
+  [i]    0200ec4f18e0 clock 204c2bdc -> 0xce1b; 0200ec4f18e8 clock 204c2bdc -> 0xce1b
+  [i]    020005e889a0 clock 6afb0ddb -> 0xce1b; 020005e889a8 clock 6afb0ddb -> 0xce1b
+  [i]    020076c96330 clock f5cf21ce -> 0xce1b; 020076c96338 clock f5cf21ce -> 0xce1b
+  [i]    0200f81406d8 clock 7541f725 -> 0xce1b; 0200f81406e0 clock 7541f725 -> 0xce1b
+  [i]    02004ef97d68 clock 84967690 -> 0xce1b; 02004ef97d70 clock 84967690 -> 0xce1b
+  [i]    0200b6c12700 clock 681890ff -> 0xce1b; 0200b6c12708 clock 681890ff -> 0xce1b
+  [i]    0200834c8d58 clock 611322a2 -> 0xce1b; 0200834c8d60 clock 611322a2 -> 0xce1b
+  [i]    0200636ae610 clock 14be79e9 -> 0xce1b; 0200636ae618 clock 14be79e9 -> 0xce1b
+  [i]    020094320d78 clock ff273284 -> 0xce1b; 020094320d80 clock ff273284 -> 0xce1b
+  [i]    02000f292b98 clock a7295463 -> 0xce1b; 02000f292ba0 clock a7295463 -> 0xce1b
+  [i]    020014961948 clock 578ae6b6 -> 0xce1b; 020014961950 clock 578ae6b6 -> 0xce1b
+  [i]    02007ce69910 clock 76e766ed -> 0xce1b; 02007ce69918 clock 76e766ed -> 0xce1b
+  [i]    020072652c40 clock 6f0ed3b8 -> 0xce1b; 020072652c48 clock 6f0ed3b8 -> 0xce1b
+  [i]    02004c5cc3f8 clock 5e3b3c07 -> 0xce1b; 02004c5cc400 clock 5e3b3c07 -> 0xce1b
+  [i]    0200f1ccfdf0 clock 64c3020a -> 0xce1b; 0200f1ccfdf8 clock 64c3020a -> 0xce1b
+  [i]    02001647bdc8 clock 28d84231 -> 0xce1b; 02001647bdd0 clock 28d84231 -> 0xce1b
+  [i]    0200c8f4f1d0 clock d94b0e2c -> 0xce1b; 0200c8f4f1d8 clock d94b0e2c -> 0xce1b
+  [i]    020096979410 clock 77e86beb -> 0xce1b; 020096979418 clock 77e86beb -> 0xce1b
+  [i]    0200d018b760 clock 60e7489e -> 0xce1b; 0200d018b768 clock 60e7489e -> 0xce1b
+  [i]    0200b6bd3048 clock 4f42cfb5 -> 0xce1b; 0200b6bd3050 clock 4f42cfb5 -> 0xce1b
+  [i]    020059052a18 clock 12fad5e0 -> 0xce1b; 020059052a20 clock 12fad5e0 -> 0xce1b
+  [i]    02001804b7f0 clock effb480f -> 0xce1b; 02001804b7f8 clock effb480f -> 0xce1b
+  [i]    020092e93188 clock 7d16ce72 -> 0xce1b; 020092e93190 clock 7d16ce72 -> 0xce1b
+  [i]    0200a14cec80 clock beb31379 -> 0xce1b; 0200a14cec88 clock beb31379 -> 0xce1b
+  [i]    02002b2da128 clock 14d25ed4 -> 0xce1b; 02002b2da130 clock 14d25ed4 -> 0xce1b
+  [i]    020037ad8b88 clock 48527473 -> 0xce1b; 020037ad8b90 clock 48527473 -> 0xce1b
+  [i]    0200fabbf3e0 clock 0af7e786 -> 0xce1b; 0200fabbf3f0 clock 0af7e786 -> 0xce1b
+  [i]    020086de6a20 clock 1613517d -> 0xce1b; 020086de6a30 clock 1613517d -> 0xce1b
+  [i]    0200ea658ab0 clock ebcf1d08 -> 0xce1b; 0200ea658ac0 clock ebcf1d08 -> 0xce1b
+  [i]    0200fa1ed060 clock 7a04d517 -> 0xce1b; 0200fa1ed070 clock 7a04d517 -> 0xce1b
+  [i]    0200667b7920 clock 138c27da -> 0xce1b; 0200667b7930 clock 138c27da -> 0xce1b
+  [i]    02006b55bc30 clock df700dc1 -> 0xce1b; 02006b55bc40 clock df700dc1 -> 0xce1b
+  [i]    0200fe142780 clock 7b2bc47c -> 0xce1b; 0200fe142790 clock 7b2bc47c -> 0xce1b
+  [i]    020034167a00 clock 06c58dfb -> 0xce1b; 020034167a10 clock 06c58dfb -> 0xce1b
+  [i]    0200f45a4c90 clock 1144636e -> 0xce1b; 0200f45a4ca0 clock 1144636e -> 0xce1b
+  [i]    0200247b93b0 clock fafc0c45 -> 0xce1b; 0200247b93c0 clock fafc0c45 -> 0xce1b
+  [i]    0200b4d676c0 clock 83944930 -> 0xce1b; 0200b4d676d0 clock 83944930 -> 0xce1b
+  [i]    0200e6e87ce0 clock 0e88031f -> 0xce1b; 0200e6e87cf0 clock 0e88031f -> 0xce1b
+  [i]    0200304a51b0 clock 6154ae42 -> 0xce1b; 0200304a51c0 clock 6154ae42 -> 0xce1b
+  [i]    0200931daef0 clock d8545109 -> 0xce1b; 0200931daf00 clock d8545109 -> 0xce1b
+  [i]    0200809a20d0 clock a399df24 -> 0xce1b; 0200809a20e0 clock a399df24 -> 0xce1b
+  [i]    02003d142770 clock 8d63d883 -> 0xce1b; 02003d142780 clock 8d63d883 -> 0xce1b
+  [i]    02003647a3a0 clock 40485c56 -> 0xce1b; 02003647a3b0 clock 40485c56 -> 0xce1b
+  [i]    0200801bdff0 clock 4204200d -> 0xce1b; 0200801be000 clock 4204200d -> 0xce1b
+  [i]    020055d905a0 clock 4566fa58 -> 0xce1b; 020055d905b0 clock 4566fa58 -> 0xce1b
+  [i]    02005bc70dd0 clock 25b8f227 -> 0xce1b; 02005bc70de0 clock 25b8f227 -> 0xce1b
+  [i]    02005129fe50 clock 65d601aa -> 0xce1b; 02005129fe60 clock 65d601aa -> 0xce1b
+  [i]    020026b702a0 clock bf48fd51 -> 0xce1b; 020026b702b0 clock bf48fd51 -> 0xce1b
+  [i]    0200264cb130 clock adb34ecc -> 0xce1b; 0200264cb140 clock adb34ecc -> 0xce1b
+  [i]    0200fd6c8bf0 clock 1a93740b -> 0xce1b; 0200fd6c8c00 clock 1a93740b -> 0xce1b
+  [i]    02005c0c8dc0 clock 93f3723e -> 0xce1b; 02005c0c8dd0 clock 93f3723e -> 0xce1b
+  [i]    02008fe95320 clock d016acd5 -> 0xce1b; 02008fe95330 clock d016acd5 -> 0xce1b
+  [i]    0200a0082f70 clock 9ff7d080 -> 0xce1b; 0200a0082f80 clock 9ff7d080 -> 0xce1b
+  [i]    020021b03dd0 clock 5e4fc22f -> 0xce1b; 020021b03de0 clock 5e4fc22f -> 0xce1b
+  [i]    02002373f380 clock ad29c212 -> 0xce1b; 02002373f3a0 clock ad29c212 -> 0xce1b
+  [i]    0200e1dce690 clock 875b3299 -> 0xce1b; 0200e1dce6b0 clock 875b3299 -> 0xce1b
+  [i]    02001dc66000 clock 4be2b374 -> 0xce1b; 02001dc66020 clock 4be2b374 -> 0xce1b
+  [i]    02000af42a50 clock d97e8093 -> 0xce1b; 02000af42a70 clock d97e8093 -> 0xce1b
+  [i]    0200203994c0 clock 26294526 -> 0xce1b; 0200203994e0 clock 26294526 -> 0xce1b
+  [i]    02004ecba150 clock 4782d29d -> 0xce1b; 02004ecba170 clock 4782d29d -> 0xce1b
+  [i]    0200408d7c40 clock 780b6ba8 -> 0xce1b; 0200408d7c60 clock 780b6ba8 -> 0xce1b
+  [i]    0200e6921cb0 clock 4e089337 -> 0xce1b; 0200e6921cd0 clock 4e089337 -> 0xce1b
+  [i]    020091d25080 clock e69d8f7a -> 0xce1b; 020091d250a0 clock e69d8f7a -> 0xce1b
+  [i]    02002209af10 clock a53c10e1 -> 0xce1b; 02002209af30 clock a53c10e1 -> 0xce1b
+  [i]    02003811d2e0 clock 1de6ad1c -> 0xce1b; 02003811d300 clock 1de6ad1c -> 0xce1b
+  [i]    02002329e1d0 clock 7a931e1b -> 0xce1b; 02002329e1f0 clock 7a931e1b -> 0xce1b
+  [i]    02007b8c8ae0 clock ed41750e -> 0xce1b; 02007b8c8b00 clock ed41750e -> 0xce1b
+  [i]    0200f4104e90 clock b47bb165 -> 0xce1b; 0200f4104eb0 clock b47bb165 -> 0xce1b
+  [i]    020051fd9420 clock eafa6bd0 -> 0xce1b; 020051fd9440 clock eafa6bd0 -> 0xce1b
+  [i]    0200fbcc7ab0 clock 6223853f -> 0xce1b; 0200fbcc7ad0 clock 6223853f -> 0xce1b
+  [i]    0200986cf600 clock 4b3309e2 -> 0xce1b; 0200986cf620 clock 4b3309e2 -> 0xce1b
+  [i]    0200ca7f47d0 clock 43c0b829 -> 0xce1b; 0200ca7f47f0 clock 43c0b829 -> 0xce1b
+  [i]    02009c2e2420 clock 5b51dbc4 -> 0xce1b; 02009c2e2440 clock 5b51dbc4 -> 0xce1b
+  [i]    020048fc9350 clock dc036ca3 -> 0xce1b; 020048fc9370 clock dc036ca3 -> 0xce1b
+  [i]    020097785e00 clock 4a87a1f6 -> 0xce1b; 020097785e20 clock 4a87a1f6 -> 0xce1b
+  [i]    02008a6796d0 clock c998692d -> 0xce1b; 02008a6796f0 clock c998692d -> 0xce1b
+  [i]    020056ce8f00 clock 613170f8 -> 0xce1b; 020056ce8f20 clock 613170f8 -> 0xce1b
+  [i]    0200e01b47b0 clock cfe4b847 -> 0xce1b; 0200e01b47d0 clock cfe4b847 -> 0xce1b
+  [i]    0200cbe02ea0 clock d41fd14a -> 0xce1b; 0200cbe02ec0 clock d41fd14a -> 0xce1b
+  [i]    0200379db770 clock 08624871 -> 0xce1b; 0200379db790 clock 08624871 -> 0xce1b
+  [i]    0200b1f52080 clock ce0adf6c -> 0xce1b; 0200b1f520a0 clock ce0adf6c -> 0xce1b
+  [i]    0200efd0b270 clock c2458c2b -> 0xce1b; 0200efd0b2b0 clock c2458c2b -> 0xce1b
+  [i]    0200d8e977a0 clock 68bb6bde -> 0xce1b; 0200d8e977e0 clock 68bb6bde -> 0xce1b
+  [i]    0200c91316d0 clock ac5419f5 -> 0xce1b; 0200c9131710 clock ac5419f5 -> 0xce1b
+  [i]    020035b35ac0 clock f0b11b20 -> 0xce1b; 020035b35b00 clock f0b11b20 -> 0xce1b
+  [i]    0200113f57b0 clock 95144c4f -> 0xce1b; 0200113f57f0 clock 95144c4f -> 0xce1b
+  [i]    0200f76b7220 clock 414d85b2 -> 0xce1b; 0200f76b7260 clock 414d85b2 -> 0xce1b
+  [i]    0200f53a8e10 clock 67bde1b9 -> 0xce1b; 0200f53a8e50 clock 67bde1b9 -> 0xce1b
+  [i]    02006ee347c0 clock 1ccc5814 -> 0xce1b; 02006ee34800 clock 1ccc5814 -> 0xce1b
+  [i]    02002716a330 clock a0939cb3 -> 0xce1b; 02002716a370 clock a0939cb3 -> 0xce1b
+  [i]    0200f7b80d20 clock 6a9072c6 -> 0xce1b; 0200f7b80d60 clock 6a9072c6 -> 0xce1b
+  [i]    020086c51c10 clock 518de3bd -> 0xce1b; 020086c51c50 clock 518de3bd -> 0xce1b
+  [i]    0200755ff580 clock 0f8e0a48 -> 0xce1b; 0200755ff5c0 clock 0f8e0a48 -> 0xce1b
+  [i]    0200779d9e70 clock 887e6157 -> 0xce1b; 0200779d9eb0 clock 887e6157 -> 0xce1b
+  [i]    020076be38e0 clock efd9c71a -> 0xce1b; 020076be3920 clock efd9c71a -> 0xce1b
+  [i]    02000b1b5bd0 clock 8a14a401 -> 0xce1b; 02000b1b5c10 clock 8a14a401 -> 0xce1b
+  [i]    02000ebb1a40 clock 65a4e5bc -> 0xce1b; 02000ebb1a80 clock 65a4e5bc -> 0xce1b
+  [i]    0200bdd441b0 clock 716bbe3b -> 0xce1b; 0200bdd441f0 clock 716bbe3b -> 0xce1b
+  [i]    0200f551a920 clock 692e56ae -> 0xce1b; 0200f551a960 clock 692e56ae -> 0xce1b
+  [i]    020034f71950 clock 6a08e685 -> 0xce1b; 020034f71990 clock 6a08e685 -> 0xce1b
+  [i]    0200a38f2180 clock 9670de70 -> 0xce1b; 0200a38f21c0 clock 9670de70 -> 0xce1b
+  [i]    0200498ce870 clock 7a73175f -> 0xce1b; 0200498ce8b0 clock 7a73175f -> 0xce1b
+  [i]    0200e769ca60 clock 80963582 -> 0xce1b; 0200e769caa0 clock 80963582 -> 0xce1b
+  [i]    020070345090 clock bfcbaf49 -> 0xce1b; 0200703450d0 clock bfcbaf49 -> 0xce1b
+  [i]    0200f788d780 clock 28772864 -> 0xce1b; 0200f788d7c0 clock 28772864 -> 0xce1b
+  [i]    0200a0efef30 clock 9f1010c3 -> 0xce1b; 0200a0efef70 clock 9f1010c3 -> 0xce1b
+  [i]    02003d4f4860 clock 42b0b796 -> 0xce1b; 02003d4f48a0 clock 42b0b796 -> 0xce1b
+  [i]    02003fcfdb10 clock deec424d -> 0xce1b; 02003fcfdb90 clock deec424d -> 0xce1b
+  [i]    02008aae4700 clock 13163798 -> 0xce1b; 02008aae4780 clock 13163798 -> 0xce1b
+  [i]    02008e1e6730 clock 65468e67 -> 0xce1b; 02008e1e67b0 clock 65468e67 -> 0xce1b
+  [i]    0200b26c42a0 clock 4e8870ea -> 0xce1b; 0200b26c4320 clock 4e8870ea -> 0xce1b
+  [i]    0200720db450 clock 85ec2391 -> 0xce1b; 0200720db4d0 clock 85ec2391 -> 0xce1b
+  [i]    0200bed22fc0 clock 8179c00c -> 0xce1b; 0200bed23040 clock 8179c00c -> 0xce1b
+  [i]    0200fbeb2b70 clock fc06b44b -> 0xce1b; 0200fbeb2bf0 clock fc06b44b -> 0xce1b
+  [i]    0200567d0a60 clock 38a7357e -> 0xce1b; 0200567d0ae0 clock 38a7357e -> 0xce1b
+  [i]    0200749b6890 clock de431715 -> 0xce1b; 0200749b6910 clock de431715 -> 0xce1b
+  [i]    020083364a00 clock 6aceb5c0 -> 0xce1b; 020083364a80 clock 6aceb5c0 -> 0xce1b
+  [i]    0200dbdd1930 clock add0e66f -> 0xce1b; 0200dbdd19b0 clock add0e66f -> 0xce1b
+  [i]    02006751e6a0 clock b56a1952 -> 0xce1b; 02006751e720 clock b56a1952 -> 0xce1b
+  [i]    0200f9d4ded0 clock 1aa320d9 -> 0xce1b; 0200f9d4df50 clock 1aa320d9 -> 0xce1b
+  [i]    02004e18b340 clock b3b74cb4 -> 0xce1b; 02004e18b3c0 clock b3b74cb4 -> 0xce1b
+  [i]    0200708636f0 clock cb99c8d3 -> 0xce1b; 020070863770 clock cb99c8d3 -> 0xce1b
+  [i]    020099aa8f60 clock 5e957066 -> 0xce1b; 020099aa8fe0 clock 5e957066 -> 0xce1b
+  [i]    02006d037b10 clock 777c84dd -> 0xce1b; 02006d037b90 clock 777c84dd -> 0xce1b
+  [i]    0200b6010700 clock ccfef8e8 -> 0xce1b; 0200b6010780 clock ccfef8e8 -> 0xce1b
+  [i]    0200ee11c030 clock 73ee3f77 -> 0xce1b; 0200ee11c0b0 clock 73ee3f77 -> 0xce1b
+  [i]    020073d73120 clock 2828ceba -> 0xce1b; 020073d731a0 clock 2828ceba -> 0xce1b
+  [i]    0200063e38d0 clock a1c1c721 -> 0xce1b; 0200063e3950 clock a1c1c721 -> 0xce1b
+  [i]    02002c719140 clock 038e6e5c -> 0xce1b; 02002c7191c0 clock 038e6e5c -> 0xce1b
+  [i]    020045a89170 clock da576e5b -> 0xce1b; 020045a891f0 clock da576e5b -> 0xce1b
+  [i]    0200678cf760 clock d873084e -> 0xce1b; 0200678cf7e0 clock d873084e -> 0xce1b
+  [i]    0200b8145410 clock c7ebaba5 -> 0xce1b; 0200b8145490 clock c7ebaba5 -> 0xce1b
+  [i]    020064244500 clock f59fa110 -> 0xce1b; 020064244600 clock f59fa110 -> 0xce1b
+  [i]    02005d9d47b0 clock f2feb97f -> 0xce1b; 02005d9d48b0 clock f2feb97f -> 0xce1b
+  [i]    02009c6a9aa0 clock 17663122 -> 0xce1b; 02009c6a9ba0 clock 17663122 -> 0xce1b
+  [i]    0200692140d0 clock d93d3669 -> 0xce1b; 0200692141d0 clock d93d3669 -> 0xce1b
+  [i]    0200b3e54a40 clock e131c504 -> 0xce1b; 0200b3e54b40 clock e131c504 -> 0xce1b
+  [i]    020021f41af0 clock a691c4e3 -> 0xce1b; 020021f41bf0 clock a691c4e3 -> 0xce1b
+  [i]    02002fd021e0 clock e92b9d36 -> 0xce1b; 02002fd022e0 clock e92b9d36 -> 0xce1b
+  [i]    0200790dd410 clock b747ab6d -> 0xce1b; 0200790dd510 clock b747ab6d -> 0xce1b
+  [i]    020034edb180 clock bfbd4e38 -> 0xce1b; 020034edb280 clock bfbd4e38 -> 0xce1b
+  [i]    020036b78b30 clock f2667487 -> 0xce1b; 020036b78c30 clock f2667487 -> 0xce1b
+  [i]    0200769c1f20 clock a7f7e08a -> 0xce1b; 0200769c2020 clock a7f7e08a -> 0xce1b
+  [i]    02007ad97050 clock 5dae8eb1 -> 0xce1b; 02007ad97150 clock 5dae8eb1 -> 0xce1b
+  [i]    020067080ec0 clock 6327f0ac -> 0xce1b; 020067080fc0 clock 6327f0ac -> 0xce1b
+  [i]    0200eb411370 clock 98deec6b -> 0xce1b; 0200eb411470 clock 98deec6b -> 0xce1b
+  [i]    02001b213060 clock d11ecf1e -> 0xce1b; 02001b213160 clock d11ecf1e -> 0xce1b
+  [i]    02005f545b90 clock 442ba435 -> 0xce1b; 02005f545c90 clock 442ba435 -> 0xce1b
+  [i]    020077075f00 clock 07f8a060 -> 0xce1b; 020077076000 clock 07f8a060 -> 0xce1b
+  [i]    0200aff26eb0 clock 460d908f -> 0xce1b; 0200aff26fb0 clock 460d908f -> 0xce1b
+  [i]    0200029882a0 clock 39677cf2 -> 0xce1b; 0200029883a0 clock 39677cf2 -> 0xce1b
+  [i]    0200492d0fd0 clock 7ed2eff9 -> 0xce1b; 0200492d10d0 clock 7ed2eff9 -> 0xce1b
+  [i]    02001f346e40 clock 10cb9154 -> 0xce1b; 02001f346f40 clock 10cb9154 -> 0xce1b
+  [i]    02001366faf0 clock 4c9904f3 -> 0xce1b; 02001366fbf0 clock 4c9904f3 -> 0xce1b
+  [i]    0200435fc1e0 clock 7ca03e06 -> 0xce1b; 0200435fc2e0 clock 7ca03e06 -> 0xce1b
+  [i]    02001f694910 clock 6096b5fd -> 0xce1b; 02001f694a10 clock 6096b5fd -> 0xce1b
+  [i]    02006cfb5080 clock df063788 -> 0xce1b; 02006cfb5280 clock df063788 -> 0xce1b
+  [i]    0200d169f630 clock 5ee02d97 -> 0xce1b; 0200d169f830 clock 5ee02d97 -> 0xce1b
+  [i]    02002f3c8020 clock bc72a65a -> 0xce1b; 02002f3c8220 clock bc72a65a -> 0xce1b
+  [i]    02004e531550 clock a40b7a41 -> 0xce1b; 02004e531750 clock a40b7a41 -> 0xce1b
+  [i]    0200a46258c0 clock fccb46fc -> 0xce1b; 0200a4625ac0 clock fccb46fc -> 0xce1b
+  [i]    0200dec01170 clock e85e2e7b -> 0xce1b; 0200dec01370 clock e85e2e7b -> 0xce1b
+  [i]    02009fe7f460 clock 027789ee -> 0xce1b; 02009fe7f660 clock 027789ee -> 0xce1b
+  [i]    020086dafe90 clock 5e6c00c5 -> 0xce1b; 020086db0090 clock 5e6c00c5 -> 0xce1b
+  [i]    020092274b00 clock 0c2eb3b0 -> 0xce1b; 020092274d00 clock 0c2eb3b0 -> 0xce1b
+  [i]    02000f9592b0 clock eb4e6b9f -> 0xce1b; 02000f9594b0 clock eb4e6b9f -> 0xce1b
+  [i]    0200592d02a0 clock d98afcc2 -> 0xce1b; 0200592d04a0 clock d98afcc2 -> 0xce1b
+  [i]    02007dd2b1d0 clock 40dd4d89 -> 0xce1b; 02007dd2b3d0 clock 40dd4d89 -> 0xce1b
+  [i]    020078b64d40 clock 2fa9b1a4 -> 0xce1b; 020078b64f40 clock 2fa9b1a4 -> 0xce1b
+  [i]    0200252f75f0 clock 86908903 -> 0xce1b; 0200252f77f0 clock 86908903 -> 0xce1b
+  [i]    02001b1face0 clock f26052d6 -> 0xce1b; 02001b1faee0 clock f26052d6 -> 0xce1b
+  [i]    0200570d5b10 clock ebf2a48d -> 0xce1b; 0200570d5d10 clock ebf2a48d -> 0xce1b
+  [i]    0200e6314980 clock dfceb4d8 -> 0xce1b; 0200e6314b80 clock dfceb4d8 -> 0xce1b
+  [i]    020004339530 clock 87cc6aa7 -> 0xce1b; 020004339730 clock 87cc6aa7 -> 0xce1b
+  [i]    0200e0a9df20 clock e756202a -> 0xce1b; 0200e0a9e120 clock e756202a -> 0xce1b
+  [i]    0200168e7450 clock 597189d1 -> 0xce1b; 0200168e7650 clock 597189d1 -> 0xce1b
+  [i]    0200bdc28dc0 clock 623d714c -> 0xce1b; 0200bdc28fc0 clock 623d714c -> 0xce1b
+  [i]    02009229ca70 clock add6348b -> 0xce1b; 02009229cc70 clock add6348b -> 0xce1b
+  [i]    02000c75c560 clock 738a38be -> 0xce1b; 02000c75c760 clock 738a38be -> 0xce1b
+  [i]    020078720190 clock a055c155 -> 0xce1b; 020078720590 clock a055c155 -> 0xce1b
+  [i]    02002e596c00 clock 55d6db00 -> 0xce1b; 02002e597000 clock 55d6db00 -> 0xce1b
+  [i]    0200047283b0 clock 7f524aaf -> 0xce1b; 0200047287b0 clock 7f524aaf -> 0xce1b
+  [i]    02009cf7eba0 clock b12db092 -> 0xce1b; 02009cf7efa0 clock b12db092 -> 0xce1b
+  [i]    020070c16ed0 clock 97154f19 -> 0xce1b; 020070c172d0 clock 97154f19 -> 0xce1b
+  [i]    020088cf5840 clock 083125f4 -> 0xce1b; 020088cf5c40 clock 083125f4 -> 0xce1b
+  [i]    0200351daaf0 clock d9995113 -> 0xce1b; 0200351daef0 clock d9995113 -> 0xce1b
+  [i]    0200df3921e0 clock 3318dba6 -> 0xce1b; 0200df3925e0 clock 3318dba6 -> 0xce1b
+  [i]    02007fff8810 clock 1824771d -> 0xce1b; 02007fff8c10 clock 1824771d -> 0xce1b
+  [i]    020048cc3880 clock 884bc628 -> 0xce1b; 020048cc3c80 clock 884bc628 -> 0xce1b
+  [i]    0200df33d230 clock 9bdc2bb7 -> 0xce1b; 0200df33d630 clock 9bdc2bb7 -> 0xce1b
+  [i]    020083c0b020 clock 0d9f4dfa -> 0xce1b; 020083c0b420 clock 0d9f4dfa -> 0xce1b
+  [i]    020035864150 clock ecb9bd61 -> 0xce1b; 020035864550 clock ecb9bd61 -> 0xce1b
+  [i]    02008bfc8cc0 clock aa836f9c -> 0xce1b; 02008bfc90c0 clock aa836f9c -> 0xce1b
+  [i]    02007a77fd70 clock 1287fe9b -> 0xce1b; 02007a780170 clock 1287fe9b -> 0xce1b
+  [i]    0200e35c2260 clock 22a3db8e -> 0xce1b; 0200e35c2660 clock 22a3db8e -> 0xce1b
+  [i]    0200722e1690 clock a1d1e5e5 -> 0xce1b; 0200722e1a90 clock a1d1e5e5 -> 0xce1b
+  [i]    02006639e900 clock 71c61650 -> 0xce1b; 02006639ed00 clock 71c61650 -> 0xce1b
+  [i]    02006915d0b0 clock 06ea2dbf -> 0xce1b; 02006915d4b0 clock 06ea2dbf -> 0xce1b
+  [i]    02001b1364a0 clock 44ec9862 -> 0xce1b; 02001b1368a0 clock 44ec9862 -> 0xce1b
+  [i]    0200f48c07d0 clock cb73f4a9 -> 0xce1b; 0200f48c0bd0 clock cb73f4a9 -> 0xce1b
+  [i]    0200edf91140 clock 9206ee44 -> 0xce1b; 0200edf91540 clock 9206ee44 -> 0xce1b
+  [i]    02006f7787f0 clock 97145d23 -> 0xce1b; 02006f778ff0 clock 97145d23 -> 0xce1b
+  [i]    0200a6f356e0 clock 06b6d876 -> 0xce1b; 0200a6f35ee0 clock 06b6d876 -> 0xce1b
+  [i]    020036eff110 clock 7a352dad -> 0xce1b; 020036eff910 clock 7a352dad -> 0xce1b
+  [i]    020067a4cd80 clock fff26b78 -> 0xce1b; 020067a4d580 clock fff26b78 -> 0xce1b
+  [i]    020052e50f30 clock 3a0070c7 -> 0xce1b; 020052e51730 clock 3a0070c7 -> 0xce1b
+  [i]    0200e7f3cd20 clock 478b2fca -> 0xce1b; 0200e7f3d520 clock 478b2fca -> 0xce1b
+  [i]    020032c8ea50 clock e6fd14f1 -> 0xce1b; 020032c8f250 clock e6fd14f1 -> 0xce1b
+  [i]    0200d3f1bdc0 clock c1e241ec -> 0xce1b; 0200d3f1c5c0 clock c1e241ec -> 0xce1b
+  [i]    0200dd137270 clock 93f48cab -> 0xce1b; 0200dd137a70 clock 93f48cab -> 0xce1b
+  [i]    0200da7e8760 clock d551725e -> 0xce1b; 0200da7e8f60 clock d551725e -> 0xce1b
+  [i]    0200edd68f90 clock 99096e75 -> 0xce1b; 0200edd69790 clock 99096e75 -> 0xce1b
+  [i]    0200052e9a00 clock 761165a0 -> 0xce1b; 0200052ea200 clock 761165a0 -> 0xce1b
+  [i]    02008758e9b0 clock ff2714cf -> 0xce1b; 02008758f1b0 clock ff2714cf -> 0xce1b
+  [i]    0200445b45a0 clock b4a4b432 -> 0xce1b; 0200445b4da0 clock b4a4b432 -> 0xce1b
+  [i]    02004fcdc0d0 clock 8a323e39 -> 0xce1b; 02004fcdc8d0 clock 8a323e39 -> 0xce1b
+  [i]    020069eff240 clock 42100a94 -> 0xce1b; 020069effa40 clock 42100a94 -> 0xce1b
+  [i]    0200ab5d4cf0 clock eca2ad33 -> 0xce1b; 0200ab5d54f0 clock eca2ad33 -> 0xce1b
+  [i]    0200eb98afe0 clock e4674946 -> 0xce1b; 0200eb98b7e0 clock e4674946 -> 0xce1b
+  [i]    020052923610 clock 0d6dc83d -> 0xce1b; 020052923e10 clock 0d6dc83d -> 0xce1b
+  [i]    020020885680 clock 1f77a4c8 -> 0xce1b; 020020885e80 clock 1f77a4c8 -> 0xce1b
+  [i]    0200fe95c430 clock 816a39d7 -> 0xce1b; 0200fe95cc30 clock 816a39d7 -> 0xce1b
+  [i]    020094030620 clock b096c59a -> 0xce1b; 020094031620 clock b096c59a -> 0xce1b
+  [i]    020068ffc750 clock 7b949081 -> 0xce1b; 020068ffd750 clock 7b949081 -> 0xce1b
+  [i]    020062df56c0 clock b9dee83c -> 0xce1b; 020062df66c0 clock b9dee83c -> 0xce1b
+  [i]    0200eb729f70 clock 13dcdebb -> 0xce1b; 0200eb72af70 clock 13dcdebb -> 0xce1b
+  [i]    020039750060 clock e85ffd2e -> 0xce1b; 020039751060 clock e85ffd2e -> 0xce1b
+  [i]    02008d189c90 clock ea655b05 -> 0xce1b; 02008d18ac90 clock ea655b05 -> 0xce1b
+  [i]    020066862b00 clock 520dc8f0 -> 0xce1b; 020066863b00 clock 520dc8f0 -> 0xce1b
+  [i]    0200d22df6b0 clock 6d59ffdf -> 0xce1b; 0200d22e06b0 clock 6d59ffdf -> 0xce1b
+  [i]    0200fabceea0 clock 8b730402 -> 0xce1b; 0200fabcfea0 clock 8b730402 -> 0xce1b
+  [i]    02004216c5d0 clock 71c92bc9 -> 0xce1b; 02004216d5d0 clock 71c92bc9 -> 0xce1b
+  [i]    02004ace8340 clock 5a717ae4 -> 0xce1b; 02004ace9340 clock 5a717ae4 -> 0xce1b
+  [i]    02003c5ab1f0 clock f4254143 -> 0xce1b; 02003c5ac1f0 clock f4254143 -> 0xce1b
+  [i]    0200ca68d0e0 clock c2972e16 -> 0xce1b; 0200ca68e0e0 clock c2972e16 -> 0xce1b
+  [i]    0200b6a8b310 clock c35746cd -> 0xce1b; 0200b6a8c310 clock c35746cd -> 0xce1b
+  [i]    0200cb2f7f80 clock c0d07218 -> 0xce1b; 0200cb2f8f80 clock c0d07218 -> 0xce1b
+  [i]    0200c6757130 clock 218a86e7 -> 0xce1b; 0200c6758130 clock 218a86e7 -> 0xce1b
+  [i]    0200d880e720 clock 377f0f6a -> 0xce1b; 0200d880f720 clock 377f0f6a -> 0xce1b
+  [i]    020047e6c450 clock 18193011 -> 0xce1b; 020047e6d450 clock 18193011 -> 0xce1b
+  [i]    0200a6c18fc0 clock 193e628c -> 0xce1b; 0200a6c19fc0 clock 193e628c -> 0xce1b
+  [i]    020097be0470 clock e841f4cb -> 0xce1b; 020097be1470 clock e841f4cb -> 0xce1b
+  [i]    0200a6946160 clock 1fdc7bfe -> 0xce1b; 0200a6948160 clock 1fdc7bfe -> 0xce1b
+  [i]    02002dfcf990 clock b88eab95 -> 0xce1b; 02002dfd1990 clock b88eab95 -> 0xce1b
+  [i]    020097a03400 clock 1e504040 -> 0xce1b; 020097a05400 clock 1e504040 -> 0xce1b
+  [i]    02002cdd0bb0 clock ef13eeef -> 0xce1b; 02002cdd2bb0 clock ef13eeef -> 0xce1b
+  [i]    020048615fa0 clock 8fb487d2 -> 0xce1b; 020048617fa0 clock 8fb487d2 -> 0xce1b
+  [i]    0200faa222d0 clock a2f1bd59 -> 0xce1b; 0200faa242d0 clock a2f1bd59 -> 0xce1b
+  [i]    0200f1e7ac40 clock 3a903f34 -> 0xce1b; 0200f1e7cc40 clock 3a903f34 -> 0xce1b
+  [i]    02002cd2c6f0 clock c3bd1953 -> 0xce1b; 02002cd2e6f0 clock c3bd1953 -> 0xce1b
+  [i]    0200b4ac61e0 clock e6f386e6 -> 0xce1b; 0200b4ac81e0 clock e6f386e6 -> 0xce1b
+  [i]    02007b054010 clock 13baa95d -> 0xce1b; 02007b056010 clock 13baa95d -> 0xce1b
+  [i]    02005f4e2880 clock 0f31d368 -> 0xce1b; 02005f4e4880 clock 0f31d368 -> 0xce1b
+  [i]    0200c8ed9630 clock 6a1257f7 -> 0xce1b; 0200c8edb630 clock 6a1257f7 -> 0xce1b
+  [i]    0200bfbee820 clock 6e410d3a -> 0xce1b; 0200bfbf0820 clock 6e410d3a -> 0xce1b
+  [i]    0200cf9bf150 clock f463f3a1 -> 0xce1b; 0200cf9c1150 clock f463f3a1 -> 0xce1b
+  [i]    0200dbfa48c0 clock 2c05b0dc -> 0xce1b; 0200dbfa68c0 clock 2c05b0dc -> 0xce1b
+  [i]    0200649b1970 clock eb64cedb -> 0xce1b; 0200649b3970 clock eb64cedb -> 0xce1b
+  [i]    0200e8ebf260 clock 7713eece -> 0xce1b; 0200e8ec1260 clock 7713eece -> 0xce1b
+  [i]    0200cb919690 clock 746e6025 -> 0xce1b; 0200cb91b690 clock 746e6025 -> 0xce1b
+  [i]    020013522d00 clock 6cadcb90 -> 0xce1b; 020013524d00 clock 6cadcb90 -> 0xce1b
+  [i]    0200c7c930b0 clock ca25e1ff -> 0xce1b; 0200c7c970b0 clock ca25e1ff -> 0xce1b
+  [i]    0200809820a0 clock 93063fa2 -> 0xce1b; 0200809860a0 clock 93063fa2 -> 0xce1b
+  [i]    02001ea7efd0 clock 50a4f2e9 -> 0xce1b; 02001ea82fd0 clock 50a4f2e9 -> 0xce1b
+  [i]    0200a1289540 clock af115784 -> 0xce1b; 0200a128d540 clock af115784 -> 0xce1b
+  [i]    020005109bf0 clock 7dcb3563 -> 0xce1b; 02000510dbf0 clock 7dcb3563 -> 0xce1b
+  [i]    0200bf1e92e0 clock b66953b6 -> 0xce1b; 0200bf1ed2e0 clock b66953b6 -> 0xce1b
+  [i]    0200ba0efd10 clock 8ca0efed -> 0xce1b; 0200ba0f3d10 clock 8ca0efed -> 0xce1b
+  [i]    0200560f0180 clock d710c8b8 -> 0xce1b; 0200560f4180 clock d710c8b8 -> 0xce1b
+  [i]    02004e4d1b30 clock 5af2ad07 -> 0xce1b; 02004e4d5b30 clock 5af2ad07 -> 0xce1b
+  [i]    020028660920 clock 5a19bf0a -> 0xce1b; 020028664920 clock 5a19bf0a -> 0xce1b
+  [i]    02008871fe50 clock a28ddb31 -> 0xce1b; 020088723e50 clock a28ddb31 -> 0xce1b
+  [i]    0200868611c0 clock 5379d32c -> 0xce1b; 0200868651c0 clock 5379d32c -> 0xce1b
+  [i]    020018396e70 clock 8bc66ceb -> 0xce1b; 02001839ae70 clock 8bc66ceb -> 0xce1b
+  [i]    0200576c8360 clock f093559e -> 0xce1b; 0200576cc360 clock f093559e -> 0xce1b
+  [i]    0200e2d27390 clock 6d2d78b5 -> 0xce1b; 0200e2d2b390 clock 6d2d78b5 -> 0xce1b
+  [i]    0200c7c48600 clock 983b6ae0 -> 0xce1b; 0200c7c4c600 clock 983b6ae0 -> 0xce1b
+  [i]    0200435f15b0 clock fca0d90f -> 0xce1b; 0200435f55b0 clock fca0d90f -> 0xce1b
+  [i]    02003dbac1a0 clock 42452b72 -> 0xce1b; 02003dbb01a0 clock 42452b72 -> 0xce1b
+  [i]    0200c6ec9cd0 clock 501bcc79 -> 0xce1b; 0200c6ed1cd0 clock 501bcc79 -> 0xce1b
+  [i]    02007b1d1e40 clock 41d9c3d4 -> 0xce1b; 02007b1d9e40 clock 41d9c3d4 -> 0xce1b
+  [i]    0200e61150f0 clock 60f09573 -> 0xce1b; 0200e611d0f0 clock 60f09573 -> 0xce1b
+  [i]    02007ac603e0 clock 85259486 -> 0xce1b; 02007ac683e0 clock 85259486 -> 0xce1b
+  [i]    020033b4ba10 clock 62531a7d -> 0xce1b; 020033b53a10 clock 62531a7d -> 0xce1b
+  [i]    0200322d9a80 clock d6225208 -> 0xce1b; 0200322e1a80 clock d6225208 -> 0xce1b
+  [i]    02006a032030 clock b45c8617 -> 0xce1b; 02006a03a030 clock b45c8617 -> 0xce1b
+  [i]    0200a9398a20 clock 438624da -> 0xce1b; 0200a93a0a20 clock 438624da -> 0xce1b
+  [i]    02008f900b50 clock 9eefe6c1 -> 0xce1b; 02008f908b50 clock 9eefe6c1 -> 0xce1b
+  [i]    0200eedfbac0 clock 561fc97c -> 0xce1b; 0200eee03ac0 clock 561fc97c -> 0xce1b
+  [i]    020035d7c370 clock dc27cefb -> 0xce1b; 020035d84370 clock dc27cefb -> 0xce1b
+  [i]    020005d7d460 clock 6627b06e -> 0xce1b; 020005d85460 clock 6627b06e -> 0xce1b
+  [i]    0200b7cad090 clock 6034f545 -> 0xce1b; 0200b7cb5090 clock 6034f545 -> 0xce1b
+  [i]    0200fab1bf00 clock 154e1e30 -> 0xce1b; 0200fab23f00 clock 154e1e30 -> 0xce1b
+  [i]    02001329fab0 clock 4cd5d41f -> 0xce1b; 0200132a7ab0 clock 4cd5d41f -> 0xce1b
+  [i]    02004a71a2a0 clock f58e4b42 -> 0xce1b; 02004a7222a0 clock f58e4b42 -> 0xce1b
+  [i]    0200d73049d0 clock a8cf4a09 -> 0xce1b; 0200d730c9d0 clock a8cf4a09 -> 0xce1b
+  [FAIL] M4 B.3.6.1 MACs 2^i apart (1 <= i <= 15) claim disjoint first blocks got=0 exp=1
+  [i]    020000000001 clock 00000000 -> 0xce1b; 020000000002 clock 00000000 -> 0xce1b
+  [i]    020000000001 clock 00000000 -> 0xce1b; 020000010001 clock 00000000 -> 0xce1b
+  [i]    0200000a1234 clock 00000007 -> 0xce1b; 0200005b1234 clock 00000007 -> 0xce1b
+  [i]    020011001234 clock 00000000 -> 0xce1b; 020022001234 clock 00000000 -> 0xce1b
+  [FAIL] M4 B.3.6.1 R558-6's fixed MAC pairs claim disjoint first blocks got=0 exp=1
+  [FAIL] M3 B.3.6.1 clocks 2^k apart claim different first offsets got=0 exp=1
+  [FAIL] M3 B.3.6.1 fixed clock pairs claim different first offsets got=0 exp=1
+  [ ok ] M4 B.3.4 MACs 2^i apart draw different first probe intervals = 1
+  [ ok ] M4 B.3.4 R558-6's fixed MAC pairs draw different first probe intervals = 1
+
+[13] #696 M4: first draws for every seed, learned from the RTL (B.3.4, B.3.6.1)
+  [ ok ] M4 first-draw maps learned from the RTL are linear in the seed = 1
+  [i]    carry run 0..0, count 1: words 0x0000 / 0x0000 claim 0x59c3 / 0x59c3
+  [i]    offset image 0 bits, probe image 6 bits; 1 words x 8 counts claimed; 528 carry runs; least spare addresses -8
+  [FAIL] M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8 got=0 exp=1
+  [ ok ] M4 B.3.4 every seed pair 2^i apart draws different first probe intervals = 1
+  [FAIL] M4 B.3.6.1 seed bits 16..31 map one-to-one onto the first offset word got=0 exp=1
+  [FAIL] M4 B.3.6.1 first offset word and first probe draw are independent got=0 exp=1
+
+======================================================================
+KL_maap: 186 checks, 9 failures

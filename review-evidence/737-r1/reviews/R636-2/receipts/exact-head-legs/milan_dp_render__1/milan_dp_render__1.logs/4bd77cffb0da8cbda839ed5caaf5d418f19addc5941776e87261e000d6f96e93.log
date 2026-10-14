@@ -1,0 +1,18 @@
+
+[MULTI] the stream-qualified render epoch on a two-stream shape, and a legal cluster key with no pin
+  [i]    M1: the stream table holds 0200000000020000 and 0200000000020002
+  [i]    M2 both streams live: 239 frames decoded from ordinal 352, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 60..87 axis cycles (0.600..0.870 us) over 239 frames, spread 27 of one frame = 2083
+  [i]    M2 both streams live: the commit-to-pin interval WALKS at +54.4532 ppm over 495839 axis cycles, which is one whole frame of phi - one counted skip - every 0.3826 s
+  [i]    M2: PDUs accepted per stream 100 / 100; render-stage pops per stream 588 / 588
+  [i]    M3 after the UNRELATED stream's loss: 359 frames decoded from ordinal 592, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 86..121 axis cycles (0.860..1.210 us) over 359 frames, spread 35 of one frame = 2083
+  [i]    M3 after the UNRELATED stream's loss: the commit-to-pin interval WALKS at +46.9268 ppm over 745842 axis cycles, which is one whole frame of phi - one counted skip - every 0.4440 s
+  [i]    M7 with one lane key on a stream that stopped: 179 frames decoded from ordinal 1012, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 126..141 axis cycles (1.260..1.410 us) over 179 frames, spread 15 of one frame = 2083
+  [i]    M7 with one lane key on a stream that stopped: the commit-to-pin interval WALKS at +37.7524 ppm over 370837 axis cycles, which is one whole frame of phi - one counted skip - every 0.5518 s
+  [i]    M7: lane key 5 re-pointed at stream 1 channel 4 while that stream is down holds 062384 in all 179 decoded frames (the crossbar's retained sample of that stream)
+  [i]    M4 with one slot fed from stream 1: 359 frames decoded from ordinal 1315, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 150..175 axis cycles (1.500..1.750 us) over 359 frames, spread 25 of one frame = 2083
+  [i]    M4 with one slot fed from stream 1: the commit-to-pin interval WALKS at +33.5192 ppm over 745842 axis cycles, which is one whole frame of phi - one counted skip - every 0.6215 s
+  [i]    M5 after the reopen: 239 frames decoded from ordinal 1946, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 190..203 axis cycles (1.900..2.030 us) over 239 frames, spread 13 of one frame = 2083
+  [i]    M5 after the reopen: the commit-to-pin interval WALKS at +22.1847 ppm over 495838 axis cycles, which is one whole frame of phi - one counted skip - every 0.9391 s
+  [i]    M6: the three cluster-key classes, each graded on BOTH observations
+== tdm8_render: checks: 71   failures: 0 ==
+RESULT: PASS
