@@ -10,7 +10,7 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 - **[Exhaustive validation](#exhaustive-validation)** -- When the full Verilator and Yosys inventories run and how exact-head evidence is preserved.
 - **[Nightly and manual dispatch](#nightly-and-manual-dispatch)** -- The cron on the tip of `dev`, how to start a run by hand, and the two situations in which an agent should.
 - **[One authoritative SHA](#one-authoritative-sha)** -- How every job of a run is pinned to one tree, what the workers record, what the aggregates refuse, and the gate that holds the files to this page.
-- **[Elaboration](#elaboration)** -- The one job that installs LiteX and observes what elaboration hands the datapath Instance, and what makes it red.
+- **[Elaboration](#elaboration)** -- The two gate workers that install LiteX, check elaboration and run its simulations, and what makes the aggregate red.
 - **[Pull-request state](#pull-request-state)** -- How draft and ready states control hosted long jobs without changing local responsibilities.
 - **[Act-first local replication](#act-first-local-replication)** -- The required exact-head local response while hosted Actions runs in parallel.
 - **[Protected merge bar](#protected-merge-bar)** -- The active `dev` ruleset, its seven exact required contexts, and why its update policy is loose.
@@ -2349,6 +2349,10 @@ Resource bounds:
   OOM event occurred. An earlier two-GiB trial killed the largest shard, so
   that cap was rejected. This sample validates the proposed workload budget;
   it does not prove an upper bound for every future compiler or campaign.
+- The publication census at four driver workers passed in 558.192 seconds
+  with a cgroup peak of 5738594304 bytes (5.34 GiB) and no memory-limit or
+  OOM event. Its earlier four-GiB trial killed an elaborator; the eight-GiB
+  job cap accommodates this larger measured peak.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
   which counts only the slice's limit and never a job container's eight-GiB limit
