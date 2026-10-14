@@ -1645,7 +1645,7 @@ security code: from the candidate worktree, execute only the copy in a
 separate, clean worktree at the validation base:
 
 ```sh
-python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number> --cpu-ranges "$BOOKED_CPU_RANGES"
 ```
 
 Never invoke `scripts/act_ci.py` from the candidate worktree as the host-side
@@ -1672,7 +1672,7 @@ install -m 0555 <candidate>/scripts/act_ci.py <audited-install>/act_ci.py
 sha256sum <audited-install>/act_ci.py
 python3 -I <audited-install>/act_ci.py --selftest \
   --worktree <candidate>
-python3 -I <audited-install>/act_ci.py --pr <number> \
+python3 -I <audited-install>/act_ci.py --pr <number> --cpu-ranges "$BOOKED_CPU_RANGES" \
   --repo kebag-logic/milan-fpga --worktree <candidate> \
   --trusted-install-sha256 <recorded-64-hex-digest>
 ```
@@ -1747,7 +1747,7 @@ whose privileged child would create a labelled volume two seconds later, then
 proves the whole CLI group is absent and the mutation never occurs:
 
 ```sh
-python3 -I <audited-install>/act_ci.py --interrupt-selftest \
+python3 -I <audited-install>/act_ci.py --interrupt-selftest --cpu-ranges "$BOOKED_CPU_RANGES" \
   --act-bin <absolute-act-0.2.89> [--sudo]
 ```
 
@@ -1778,7 +1778,7 @@ admissibility under the trusted sandbox, the transcript grading and both
 command shapes.
 
 ```sh
-python3 -I <audited-install>/act_ci.py --boundary-selftest \
+python3 -I <audited-install>/act_ci.py --boundary-selftest --cpu-ranges "$BOOKED_CPU_RANGES" \
   --act-bin <absolute-act-0.2.89> [--sudo]
 ```
 
@@ -1909,146 +1909,59 @@ unpredictable ownership token as a container label, never bind-mounts the
 operator's worktree, and supplies no privileged flag. Candidate workflow code
 consequently runs only in the disposable job boundary.
 
-Every local job container gets sixteen CPUs and eight GiB of memory, including
-swap (`CONTAINER_CPU_LIMIT=16`, `CONTAINER_MEMORY=8g`). It initially uses the
-slot's sixteen-CPU staging range, then moves to an exclusive sixteen-CPU job
-range. Slot 0 stages on `0-15` and owns four job ranges: `16-31`, `32-47`,
-`48-63`, and `64-79`. `nproc` is sixteen both before and after the move.
-Hosted runners remain standard four-vCPU runners; local CPU count is an
-excluded operational observation, not a claim that their performance is equal.
+Every local job gets an exclusively booked CPU range.
+The manager supplies these through `--cpu-ranges`.
+For example, `0-15,16-31,32-47,48-63` books four ranges.
+This example is not a host allocation table.
+The manager prevents overlap with other host work.
+Each normal range contains sixteen CPUs, aligned to sixteen.
+The fallback width is `FALLBACK_CPU_LIMIT=12`, aligned to twelve.
+Missing, overlapping, unaligned and unavailable ranges are refused.
+Eight-CPU ranges remain refused under the current owner ruling.
+Daemon slot numbers never determine CPU numbers.
 
-The replay uses one scheduler for all selected, byte-identical workflow files.
-`CONCURRENT_JOB_LIMIT=4` and the pinned dispatcher `0.2.89+milan-ci3` enforce
-one admission bound across nested matrices and workflows. Vanilla `act`'s
-outer job limit can multiply by each matrix's width; it is therefore refused.
-`scripts/build_ci_act.py` verifies the upstream source archive and compiler,
-applies the small scheduling patch, runs the upstream common tests and repeated
-race-enabled admission controls, and emits source, recipe and binary digests.
-The upstream general parallel executor remains unchanged. The new workflow
-executor stops admission on the first failure and joins cancellation cleanup.
-Native hosted matrices retain `fail-fast: true`, including fork PRs.
+The dispatcher reserves a free range before executing a job.
+Docker creates that job container directly on its reserved range.
+No staging range or later CPU update exists.
+A job waits until an admission token becomes available.
+Its range stays reserved until the job's cleanup finishes.
+Failed cleanup cancels admission before any range can be reused.
+The run records each job's range in its scheduler events.
+A read-only daemon monitor independently checks container placement.
+Sharing, unbooked placement and later movement fail the replay.
+Monitor failure also prevents a successful replay verdict.
+`cpu-placements.json` retains reservations, inspection problems and peak concurrency.
+CPU observations remain outside the canonical manifest comparison.
 
-The CPU monitor reads daemon events under the invocation's ownership label.
-For each created job container it reserves the lowest free range and calls
-`docker container update --cpuset-cpus`. It confirms placement by inspection.
+One scheduler serves every selected, byte-identical workflow file.
+`CONCURRENT_JOB_LIMIT=4` bounds admissions across workflows and nested matrices.
+The pinned dispatcher is `0.2.89+milan-ci4`.
+Vanilla dispatchers lack this combined admission and placement contract.
+The build recipe verifies upstream source and compiler digests.
+It runs original upstream controls and repeated race-enabled controls.
+Controls prove nonoverlap, stable placement and failed-cleanup refusal.
+Missing, insufficient and too-small ranges are independently refused.
+The first failed job stops further admissions and cancels siblings.
+Successful controls require every scheduled job to complete.
+Hosted matrices retain `fail-fast: true`, including fork PRs.
 
-A reservation lasts until the container's `destroy` event, or until
-`docker container inspect` shows that the daemon no longer has the container.
-A `die` frees nothing, because a stopped container keeps its CPU set and can
-start again. `act` removes each leg's container (`--rm`) before its worker
-takes the next leg, so a finished leg's range is free for the next one. A move
-whose command failed or timed out keeps its range reserved as well, because the
-daemon may have applied it or may still apply it. Where a container runs is
-read from its CPU set as `docker container inspect` reports it, never inferred
-from the events that arrived. The runner reads it after each move, at each
-`start`, at an `update` of a container not yet seen on its range, and for every
-holder when no range is free. A holder the daemon no longer has then frees its
-range.
+Containers retain the measured eight-GiB limit, with no additional swap.
+Four containers plus four-GiB overhead fit the 36-GiB slot cap.
+The host now has 61 GB, shared with other work.
+This policy leaves headroom without reserving all remaining host memory.
+Measured peaks and their limits appear under resource bounds below.
+Higher concurrency requires a new measured memory allocation.
+The current runner deliberately keeps four as its maximum.
 
-The number of ranges comes from the selected workflows' literal matrix widths,
-capped by the dispatcher's global four-leg admission bound. Expressions in a
-matrix concurrency bound are refused. All four shipping workflows can overlap
-within that same bound. Every slot is spaced for one staging range plus four
-job ranges, eighty CPUs in total. A host missing any required range refuses the
-run before entering the slot; ranges are never silently shared.
-
-The runner prints the selected ranges before launch and reports observed
-placements after the combined replay. The placement summary distinguishes
-containers confirmed on their own range, removed before confirmation, and
-never confirmed. Its peak is the number of simultaneously reserved ranges.
-
-A container left on the staging range is printed as a warning and never
-changes a verdict. That happens when a move fails or cannot be confirmed, when
-more containers hold or need a range than there are ranges, or when the event
-stream ended early. Such a container keeps the same `nproc`, so it costs
-replica time, not fidelity. On every exit the event stream's process group is
-walked down the same containment ladder as `act`'s, and the monitor's reader is
-joined and proven ended, before the Docker boundary is torn down. That holds
-when the containment, its leader reap or the join itself fails: the runner
-finishes every step first.
-
-The monitor blocks `CLEANUP_SIGNALS` with `signal.pthread_sigmask` before yielding.
-Its reader inherits that mask when started.
-Other runner workers also start with these signals blocked.
-The act boundary temporarily unblocks them so act remains interruptible.
-The live interrupt probe opens the same temporary signal window.
-Its exit restores the mask before returning to the monitor.
-Closing the normal boundary preserves any already-propagating failure.
-An interrupt during restoration cannot replace that failure.
-The runner restores the hold before monitor cleanup.
-It prints the later signal beside the failure:
-
-```text
-act-ci: act boundary closing was interrupted (...); the failure already propagating is kept
-```
-
-The mask covers the transition into cleanup and every cleanup step.
-Containment, reader completion, dead-thread proof and pipe finalization finish first.
-Only then does the monitor restore the incoming mask.
-A held signal is delivered then, with status `128 + signal`.
-An earlier body failure keeps precedence over that signal.
-The signal is printed beside that earlier failure as
-`act-ci: CPU-range monitor cleanup was interrupted (...); the failure already propagating is kept`.
-Without an earlier failure, a held signal keeps its conventional status.
-Any cleanup error is printed beside that signal.
-
-Throughout, the first failure wins. An interrupt or a
-failure that was already unwinding through the monitor keeps going, so
-`SIGINT`, `SIGTERM` and `SIGHUP` keep their `128 + signal` exit status and
-diagnostic. Each cleanup failure is printed beside it as
-`act-ci: CPU-range monitor cleanup also failed: ...`. With no earlier failure,
-the first cleanup failure is raised, and any later one is printed the same
-way. A reader still running after its bounded wait is
-printed as a containment hold, and teardown waits for it. The effect on a
-replay's wall clock is not measured yet (#730).
-
-The bounds are replica-shape decisions, not trust-boundary ones; the offline
-self-test pins the word's four tokens in order, the CPU ceiling for host
-counts above, at, and below the limit, the memory and swap limits, the single
-`--concurrent-jobs` value, and the surviving ownership label. For the job
-ranges it pins:
-
-- the concurrency each job and workflow derives, including the
-  `CONCURRENT_JOB_LIMIT` sum, and each `max-parallel` it refuses;
-- each slot's ranges, and the refusal of a host without them on every slot:
-  slot 0 below, at and above the boundary for one and for four containers;
-- a disjointness proof with every slot from 0 to 63 at its most concurrency.
-  The proof fails on two planted overlaps: across slots, the one-range-per-slot
-  spacing used before #730; within a slot, every leg on one range. A staging
-  range planted onto a job range is refused;
-- the monitor's record against a model daemon that holds each container's CPU
-  set, checked after every event. Four legs get four ranges. A container that
-  died keeps its range and starts again on it after another was created. A
-  destroy frees a range. Each of these keeps its range reserved: a move applied
-  before its command timed out, a move that completes after another container
-  was created, a move and a read that both time out, and a refused move. With
-  every range held, an inspect frees the range of a container removed without
-  its event and keeps a stopped one's. Foreign, malformed and repeated events
-  move nothing;
-- the monitor's event filter, and its `--since` second against a stubbed
-  clock. Its containment, reader join and closed pipe hold after a body that
-  returns, raises or ends on a signal while the reader is still moving a
-  container. They hold after a failed leader reap, poll or join, and when the
-  stream or the reader cannot start. A failed join is retried while the reader
-  still runs after the pause. A reader that outlives a shortened bounded wait
-  is held for, printed and recorded. Containment runs with the cleanup signals
-  blocked, and a reader whose read fails records a problem;
-- signals at cleanup entry and every step through mask release.
-  Each arrives with a reader moving a container during shutdown.
-  Signals target the main thread and the whole process.
-  Every case requires containment, joined reader and closed pipe before teardown.
-  Conventional status, diagnostic and restored signal masks are required.
-  Act remains interruptible; a pending signal prevents its start.
-  The live interrupt probe's window is also checked offline;
-- which failure wins. A body failure, and a real `SIGINT`, `SIGTERM` and
-  `SIGHUP`, each followed by a failed reap, keep their outcome, exit status and
-  diagnostic, with the reap failure printed beside them. With no earlier
-  failure, a reap failure and then a join failure raise the reap's;
-- a run whose monitor left a container on the staging range: each workflow
-  prints its summary and one warning per problem, and the verdict follows
-  `act`'s exit alone;
-- a dry run of the shipping `rtl-full` printing every range, in slot 0 and in
-  slot 3.
+The placement monitor retains the audited signal-safe cleanup boundary.
+Cleanup signals remain blocked while its reader is being joined.
+The execution boundary opens its signal window during execution.
+Every exit contains the event process and closes its pipe.
+The reader must end before Docker boundary teardown starts.
+A delayed inspection exercises that ordering in the offline controls.
+Signals retain conventional status and cannot replace an earlier failure.
+The existing containment, failed-reap and interrupted-join controls remain required.
+Dry runs print manager-booked ranges for every daemon slot.
 
 Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
 configuration, and input directories. `act` 0.2.89 also hard-codes the global
@@ -2234,7 +2147,7 @@ as described above. `--slot N` runs a replay against a daemon of its own
 instead (#532):
 
 ```sh
-python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number> --sudo --slot 1
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number> --cpu-ranges "$BOOKED_CPU_RANGES" --sudo --slot 1
 ```
 
 Slot 0 is the default and means the default local daemon, so a command without
@@ -2334,13 +2247,11 @@ replay in one slot cannot collide with a replay in another.
 
 Resource bounds:
 
-- Slot N owns CPUs `80N` to `80N+79`: sixteen staging CPUs followed by four
-  sixteen-CPU job ranges. Slot 0 stages on `0-15` and runs jobs on `16-79`.
-  A full isolated slot 1 requires CPUs through 159. A 128-CPU host therefore
-  supports slot 0's four-job layout, not a second full isolated slot. Every
-  concurrent replay must use the same resource-policy version.
+- CPU ranges are explicitly booked through `--cpu-ranges`.
+  Slots isolate daemon resources, not host CPU allocations.
+  Every concurrent replay must receive disjoint booked ranges.
 - Four containers at eight GiB plus four GiB for daemon and service overhead
-  fit the isolated slot's 36 GiB cap. This leaves room on the 53 GB shared
+  fit the isolated slot's 36 GiB cap. This leaves room on the 61 GB shared
   host, but is not a reservation of all remaining host memory. Slot 0 has
   per-container limits; only isolated slots enforce the aggregate slice cap.
 - Four concurrent real Yosys shards at sixteen CPUs each passed with cgroup

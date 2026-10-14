@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ACT_COMMIT = "4f411281417e88660bea1c1a1749aa71ae0bd60f"
 ACT_SHA256 = "0d151c0a14455ea2ee1d2bff5258aadef9ac96e35f9756e6bcd8af323780ae98"
 GO_SHA256 = "2852af0cb20a13139b3448992e69b868e50ed0f8a1e5940ee1de9e19a123b613"
-VERSION = "0.2.89+milan-ci3"
+VERSION = "0.2.89+milan-ci4"
 
 
 def digest(path: Path) -> str:
@@ -63,16 +63,21 @@ def build(directory: Path) -> dict:
     patch = ROOT / "ci/act/fail-fast.patch"
     controls = ROOT / "ci/act/parallel_executor_test.go"
     admission = ROOT / "ci/act/job_admission.go"
+    cpu_ranges = ROOT / "ci/act/cpu_ranges.go"
+    cpu_controls = ROOT / "ci/act/cpu_ranges_test.go"
     inputs = {"patch_sha256": patch, "controls_sha256": controls,
-              "admission_sha256": admission, "recipe_sha256": Path(__file__)}
+              "admission_sha256": admission, "cpu_ranges_sha256": cpu_ranges,
+              "cpu_controls_sha256": cpu_controls, "recipe_sha256": Path(__file__)}
     bound = {name: digest(path) for name, path in inputs.items()}
     subprocess.run(["patch", "--batch", "--fuzz=0", "-p1", "-i", str(patch)], cwd=source, check=True)
     shutil.copyfile(controls, source / "pkg/common/milan_parallel_executor_test.go")
     shutil.copyfile(admission, source / "pkg/common/milan_job_admission.go")
+    shutil.copyfile(cpu_ranges, source / "pkg/common/milan_cpu_ranges.go")
+    shutil.copyfile(cpu_controls, source / "pkg/common/milan_cpu_ranges_test.go")
     environment = dict(os.environ, GOCACHE=str(directory / "cache"), GOPATH=str(directory / "modules"),
                        GOTOOLCHAIN="local", GOMAXPROCS="4", TMPDIR=str(directory))
     commands = (
-        ["test", "-p", "4", "-race", "./pkg/common", "-run", "Test(Bounded|CancelledParent)", "-count=20"],
+        ["test", "-p", "4", "-race", "./pkg/common", "-run", "Test(Bounded|CancelledParent|CPU)", "-count=20"],
         ["test", "-p", "4", "./pkg/common"],
         ["build", "-p", "4", "-trimpath", "-buildvcs=false", "-ldflags", "-X main.version=" + VERSION,
          "-o", str(directory / "act"), "main.go"],

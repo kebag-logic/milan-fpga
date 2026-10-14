@@ -173,7 +173,7 @@ from a separate, clean worktree at the live remote `dev` tip (the validation
 base; GitHub's recorded PR base oid is frozen at open and is not it):
 
 ```sh
-python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number> --cpu-ranges "$BOOKED_CPU_RANGES"
 ```
 
 Never execute the candidate's copy as the **host-side orchestrator**. The
