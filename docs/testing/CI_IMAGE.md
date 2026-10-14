@@ -479,18 +479,32 @@ Adoption replaces `ci_litex_env.py` placement with its offline `--check`.
 The existing patches are already applied in the image.
 The census also requires `$HOME/br-milan-rv32/host`.
 Its compiler lookup does not consume `MILAN_RV32_CC`.
-Adoption must link that location for the actual job user:
+The SDK receipt records `/opt/rv32-sdk` as its destination.
+Verification therefore runs there; through a link it reports a provenance mismatch.
+The home link serves compiler lookup only.
+
+The switch lane changes every step named "Install and verify the pinned RV32 SDK".
+These are the docs-check step, the six rtl-fast firmware jobs and the elaborate job.
+Each one's run text becomes:
 
 ```sh
+set -euo pipefail
+python3 scripts/ci_rv32_sdk_selftest.py
+python3 scripts/ci_rv32_sdk.py --verify-only --destination /opt/rv32-sdk
 mkdir -p "$HOME/br-milan-rv32"
 ln -s /opt/rv32-sdk "$HOME/br-milan-rv32/host"
 "$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc" --version
 ```
 
-Create this link in a fresh job home.
+`--verify-only` checks provenance, every installed file and the compiler identity.
+It never downloads.
+The SDK cache step before it is removed.
+The CI event contract changes in the same lane.
+`RV32_INSTALL` and `RV32_CACHE_WITH` in `scripts/ci_events.py` pin the old step and cache.
+Create the link in a fresh job home.
 An existing destination must already resolve to `/opt/rv32-sdk`.
 The image supplies the SDK at that immutable location.
-No download or compiler change is required.
+No compiler change is required.
 
 The switch lane must pin CPython to 3.12.3 everywhere.
 Every workflow's suites must pass using these accepted versions.
