@@ -156,8 +156,8 @@ PIECE_SECONDS = {
 }
 
 
-def concrete_job_limits(workflow: str) -> tuple[int, int] | None:
-    """Read every materialized worker, refusing holes, duplicates and differing limits."""
+def concrete_job_limits(workflow: str) -> tuple[int, ...] | None:
+    """Read each materialized worker own limit, refusing holes and duplicate IDs."""
     blocks = re.split(r"(?m)^  ([A-Za-z0-9_-]+):\s*$", workflow)
     workers = {}
     for index in range(1, len(blocks), 2):
@@ -173,7 +173,7 @@ def concrete_job_limits(workflow: str) -> tuple[int, int] | None:
         return None
     if set(workers) != set(range(len(workers))):
         raise ValueError("materialized worker inventory or timeouts differ")
-    return max(workers.values()), len(workers)
+    return tuple(workers[index] for index in range(len(workers)))
 
 
 
@@ -286,17 +286,13 @@ def select_suites(suites: Sequence[str], index: int, total: int,
     return [suite for suite in suites if owners[suite] == index]
 
 
-def verilator_job_limits(workflow: str) -> tuple[int, int]:
-    """Return the Verilator job's (timeout-minutes, worker count) from the
-    text of rtl.yml. Only that job's own keys, at their indentation, are
-    read, and anything but exactly one of each is refused."""
+def verilator_worker_limits(workflow: str) -> tuple[int, ...]:
+    """Read each worker own timeout without borrowing another matrix leg limit."""
     concrete = concrete_job_limits(workflow)
     if concrete is not None:
         return concrete
     # Generated YAML uses block arrays and a literal two-budget expression.
     workflow = re.sub(r"(?m)^        total:\n          - ([0-9]+) *$", r"        total: [\1]", workflow)
-    workflow = re.sub(r"(?m)^    timeout-minutes: \$\{\{ matrix.shard == [0-9]+ && 60 \|\| 29 \}\} *$",
-                      "    timeout-minutes: 60", workflow)
     lines = workflow.splitlines()
     starts = [n for n, line in enumerate(lines)
               if line.rstrip() == f"  {VERILATOR_JOB}:"]
@@ -310,15 +306,31 @@ def verilator_job_limits(workflow: str) -> tuple[int, int]:
             break
         block.append(line)
     found = {}
-    for key, pattern in (("timeout-minutes", r"    timeout-minutes: *([0-9]+) *"),
+    for key, pattern in (("timeout-minutes", r"    timeout-minutes: *(.*?) *"),
                          ("matrix total", r"        total: *\[ *([0-9]+) *\] *")):
-        values = [int(match.group(1)) for line in block
+        values = [match.group(1) for line in block
                   if (match := re.fullmatch(pattern, line))]
         if len(values) != 1:
             raise ValueError(f"rtl.yml job `{VERILATOR_JOB}` has {len(values)} "
                              f"{key} values, not one")
         found[key] = values[0]
-    return found["timeout-minutes"], found["matrix total"]
+    workers = int(found["matrix total"])
+    timeout = found["timeout-minutes"]
+    if timeout.isdigit() and int(timeout) > 0 and workers > 0:
+        return (int(timeout),) * workers
+    expression = re.fullmatch(r"\$\{\{ matrix.shard == ([0-9]+) && ([0-9]+) \|\| ([0-9]+) \}\}", timeout)
+    if expression is None:
+        raise ValueError("unsupported worker timeout expression")
+    special, extended, regular = map(int, expression.groups())
+    if special >= workers or min(extended, regular) < 1:
+        raise ValueError("worker timeout expression has an invalid index or limit")
+    return tuple(extended if index == special else regular for index in range(workers))
+
+
+def verilator_job_limits(workflow: str) -> tuple[int, int]:
+    """Fixture range only; production enforcement reads each worker limit separately."""
+    limits = verilator_worker_limits(workflow)
+    return max(limits), len(limits)
 
 
 
@@ -384,26 +396,27 @@ def bound_seconds(timeout_minutes: int) -> int:
 def headroom_problems(suites: Sequence[str], workflow: str,
                       seconds: Mapping[str, int] = SUITE_SECONDS,
                       overhead: Sequence[int] = WORKER_OVERHEAD_SECONDS,
-                      ) -> tuple[list[str], list[int], int]:
-    """The gate: (problems, predicted seconds per worker, bound) for this
+                      ) -> tuple[list[str], list[int], list[int]]:
+    """The gate: (problems, predicted seconds per worker, bounds) for this
     inventory against the table and rtl.yml's Verilator job."""
-    timeout, workers = verilator_job_limits(workflow)
-    bound = bound_seconds(timeout)
+    limits = verilator_worker_limits(workflow)
+    workers = len(limits)
+    bounds = [bound_seconds(limit) for limit in limits]
     problems = table_problems(suites, seconds)
     if len(overhead) != workers:
         problems.append(f"WORKER_OVERHEAD_SECONDS describes {len(overhead)} "
                         f"workers; rtl.yml runs {workers}")
     if problems:
-        return problems, [], bound
+        return problems, [], bounds
     _, load = balance(suites, workers, seconds, overhead)
     problems += [f"worker {worker}/{workers} is predicted at {value} s, over "
-                 f"{bound} s ({HEADROOM_PERCENT}% of timeout-minutes {timeout})"
-                 for worker, value in enumerate(load) if value > bound]
+                 f"{bounds[worker]} s ({HEADROOM_PERCENT}% of timeout-minutes {limits[worker]})"
+                 for worker, value in enumerate(load) if value > bounds[worker]]
     # The continuous media-clock history has an explicit owner exception.
     # Every other worker has a stricter, absolute 27-minute scheduling budget.
     problems += [f"worker {worker}/{workers} exceeds the 1620 s CI budget: {value} s"
                  for worker, value in enumerate(load[:-len(DEDICATED_SUITES)]) if value > 1620]
-    return problems, load, bound
+    return problems, load, bounds
 
 
 class LogTimes(NamedTuple):
@@ -683,10 +696,11 @@ def report(planted: str, caught: bool) -> int:
 
 
 def planted_selftest(suites: Sequence[str], workflow: str,
-                     load: Sequence[int], bound: int) -> int:
+                     load: Sequence[int], bounds: Sequence[int]) -> int:
     """Plant, on the head's own inventory, table and rtl.yml, each defect the
     gate exists for; the number the gate let through."""
     timeout, workers = verilator_job_limits(workflow)
+    bound = max(bounds)
     bad = 0
     found, _, _ = headroom_problems([*suites, "unmeasured_suite"], workflow)
     bad += report("an inventory suite with no recorded duration is refused",
@@ -723,7 +737,7 @@ def planted_selftest(suites: Sequence[str], workflow: str,
     # The 60% itself. Every threshold above comes from bound_seconds, so a
     # looser percentage or formula moves them all together and they pass.
     # This one is computed without it: 60% of a minute is 36 s.
-    applied = {timeout: bound, tight: over_bound, tight + 1: under_bound}
+    applied = {timeout: bound, tight: max(over_bound), tight + 1: max(under_bound)}
     expected = {minutes: minutes * 36 for minutes in applied}
     bad += report(f"the bound applied at each timeout-minutes is 36 s a minute "
                   f"(60%): {dict(sorted(applied.items()))}, expected "
@@ -762,6 +776,22 @@ def planted_selftest(suites: Sequence[str], workflow: str,
                                     {**SUITE_SECONDS, heavy: grown})
     bad += report(f"{heavy} grown by {spare + 1} s to {grown} s puts a balanced "
                   "worker over and is refused", bool(found))
+    own = workflow.replace("|| 45", "|| 29")
+    found, _, actual_bounds = headroom_problems(suites, own)
+    bad += report("regular 29-minute workers retain their own 1044-second bound",
+                  actual_bounds[:-1] == [1044] * (workers - 1)
+                  and any("1044 s (60% of timeout-minutes 29)" in problem for problem in found))
+    # Isolate the absolute rule from the percentage rule with deliberately wide limits.
+    wide = with_verilator_key(workflow, "    timeout-minutes", 120)
+    over_budget = {suite: 1 for suite in suites}
+    over_budget[heavy] = 1621 - WORKER_OVERHEAD_SECONDS[0]
+    found_at, at_load, _ = headroom_problems(
+        suites, wide, {**over_budget, heavy: over_budget[heavy] - 1})
+    bad += report("1620-second regular worker passes the absolute budget",
+                  not found_at and max(at_load) == 1620)
+    found, _, _ = headroom_problems(suites, wide, over_budget)
+    bad += report("1621-second regular worker is refused below its own-limit bound",
+                  any("exceeds the 1620 s CI budget" in problem for problem in found))
     return bad
 
 
@@ -813,7 +843,7 @@ def head_selftest() -> int:
         suites = expand_suites(sweep_suites(SUITE_ROOT))
         workflow = WORKFLOW.read_text(encoding="utf-8")
         driver = DRIVER.read_text(encoding="utf-8")
-        problems, load, bound = headroom_problems(suites, workflow)
+        problems, load, bounds = headroom_problems(suites, workflow)
         provisional = provisional_problems(driver)
     except (OSError, ValueError) as exc:
         print(f"  FAIL head: {exc}")
@@ -829,9 +859,9 @@ def head_selftest() -> int:
     for problem in problems if not load else ():
         print(f"  FAIL head: {problem}")
     for worker, value in enumerate(load):
-        print(f"  {'ok  ' if value <= bound else 'FAIL'} head worker "
+        print(f"  {'ok  ' if value <= bounds[worker] else 'FAIL'} head worker "
               f"{worker}/{len(load)} predicted {value} s ({value / 60:.1f} "
-              f"min), bound {bound} s")
+              f"min), bound {bounds[worker]} s")
     if problems or provisional:
         return len(problems) + len(provisional)
 
@@ -856,7 +886,7 @@ def head_selftest() -> int:
           f"media-clock history alone={alone}, held at any planted duration={held}")
     shards = [select_suites(suites, index, len(load)) for index in range(len(load))]
     return ((0 if ok else 1) + seeded_selftest(shards)
-            + planted_selftest(suites, workflow, load, bound)
+            + planted_selftest(suites, workflow, load, bounds)
             + provisional_selftest(driver))
 
 

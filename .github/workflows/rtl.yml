@@ -139,7 +139,7 @@ jobs:
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ matrix.shard == 15 && 60 || 29 }}
+    timeout-minutes: ${{ matrix.shard == 15 && 60 || 45 }}
     strategy:
       fail-fast: true
       matrix:

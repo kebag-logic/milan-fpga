@@ -110,7 +110,7 @@ jobs:
           retention-days: 3
   docs-gates-0:
     runs-on: ubuntu-latest
-    timeout-minutes: 27
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -489,7 +489,7 @@ jobs:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   docs-gates-1:
     runs-on: ubuntu-latest
-    timeout-minutes: 27
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:

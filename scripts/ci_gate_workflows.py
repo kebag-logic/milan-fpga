@@ -131,7 +131,7 @@ def gate_graph(name: str, template: dict) -> dict:
     cases = {case["index"]: case for case in case_inventory(name, template)}
     for leg in range(2):
         worker = {key: copy.deepcopy(value) for key, value in original.items() if key != "steps"}
-        worker["timeout-minutes"] = 27
+        worker["timeout-minutes"] = 45
         worker["steps"] = []
         for index, step in enumerate(original["steps"]):
             case = cases.get(index)

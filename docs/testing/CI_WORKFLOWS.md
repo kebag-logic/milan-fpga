@@ -360,14 +360,16 @@ indivisible under #737's ruling. Fifteen workers project at most 1605 seconds
 including a conservative 122-second setup allowance. Leg A projects to 1910
 seconds before setup and 2032 seconds with it. This is the explicit round-one
 exception; the coordinating role measures the actual hosted head before the
-owner decides any remaining acceleration. Regular workers have 29-minute
+owner decides any remaining acceleration. Regular workers have 45-minute
 limits; leg A retains a 60-minute allowance within its former 120-minute job
 limit. The separate nightly physical-rate job keeps its existing deadline.
 
 The selector refuses a missing or extra duration, duplicate ownership, a
 changed specialized owner, or a regular worker projected above 1620 seconds.
-Its existing 60%-of-deadline control remains as an additional bound against
-the largest declared timeout. The figures for split suites apportion baseline
+Its existing 60%-of-deadline control applies separately to each worker's own
+timeout: 1620 seconds for regular workers, 2160 seconds for leg A. Controls
+plant a shorter regular timeout and a 1621-second ordinary worker under a
+deliberately wide timeout; each must fail its respective bound. The figures for split suites apportion baseline
 `7032bca5` windows using measured local leg durations; they are predictions,
 not measurements of the resulting hosted graph. Refresh them from the next
 complete hosted run. The ordinary unsharded scheduling mode remains available.
@@ -2557,7 +2559,15 @@ It puts the 1065-second docs builder gate on one worker and the other gates
 on the other. Elaboration separates its 1441-second builder gate from the
 593-second standalone simulation aggregate. These are measured baseline step
 windows; setup and evidence collection add to each worker's duration.
-Workers have 27-minute limits and their aggregates have three-minute limits.
+Workers have 45-minute limits and their aggregates have three-minute limits.
+The 60% scheduling allowance is therefore 1620 seconds per gate worker.
+The round-two local elaboration builder measurement is 1338.04 seconds,
+leaving 281.96 seconds within that allowance before setup. Sixteen local
+Verilator workers completed in 533.257 to 1466.094 seconds, including queue
+contention; their conservative projections remain below 1620 seconds except
+the explicitly excepted media-clock history. These are local measurements,
+not hosted after-times. The next hosted run must replace the projections;
+any worker exceeding its own allowance requires another sizing round.
 
 Each worker records the source gate IDs and the actual step outcomes reported
 by the workflow runtime. The aggregate recomputes the inventory from the same

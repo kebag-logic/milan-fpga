@@ -63,7 +63,7 @@ def generate(source: dict) -> dict:
                 '  4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;\n', "")
         if step.get("name") == "Run this exhaustive suite shard":
             step["run"] = step["run"].replace("--shard", "--ci-pieces --shard")
-    worker["timeout-minutes"] = "${{ matrix.shard == " + str(total - 1) + " && 60 || 29 }}"
+    worker["timeout-minutes"] = "${{ matrix.shard == " + str(total - 1) + " && 60 || 45 }}"
     source["jobs"]["yosys-shards"]["timeout-minutes"] = 29
     for suite in PIECE_SECONDS:
         source["jobs"]["union-" + suite] = union_job(suite)
