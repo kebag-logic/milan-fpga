@@ -1,0 +1,17 @@
+collector checkout: {"uses": "actions/checkout@v4", "with": {"fetch-depth": 0}}
+milan_dp collector inventory failed, rc 1
+driver stderr: case execution refused: Command '['make', '-s', '--no-print-directory', '-C', '<checkout>/tb/verilator/milan_dp', 'ci-list']' returned non-zero exit status 2.
+Makefile refusal: <checkout>/protocol-processor/hdl not found. The protocol-processor submodule is not checked out; run `git submodule update --init protocol-processor`. This script refuses to emit an empty list, because an empty list builds cleanly and proves nothing.
+Makefile:155: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.
+milan_dp_render collector inventory failed, rc 1
+driver stderr: case execution refused: Command '['make', '-s', '--no-print-directory', '-C', '<checkout>/tb/verilator/milan_dp_render', 'ci-list']' returned non-zero exit status 2.
+Makefile refusal: <checkout>/protocol-processor/hdl not found. The protocol-processor submodule is not checked out; run `git submodule update --init protocol-processor`. This script refuses to emit an empty list, because an empty list builds cleanly and proves nothing.
+Makefile:155: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.
+Makefile:89: *** ../milan_dp print-srcs failed; the datapath source list could not be derived.  Stop.
+pp_shadow collector inventory failed, rc 1
+driver stderr: case execution refused: Command '['make', '-s', '--no-print-directory', '-C', '<checkout>/tb/verilator/pp_shadow', 'ci-list']' returned non-zero exit status 2.
+Makefile refusal: sed: can't read ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv: No such file or directory
+<checkout>/protocol-processor/hdl not found. The protocol-processor submodule is not checked out; run `git submodule update --init protocol-processor`. This script refuses to emit an empty list, because an empty list builds cleanly and proves nothing.
+Makefile:155: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.
+Makefile:110: *** ../milan_dp print-srcs failed; the datapath source list could not be derived.  Stop.
+PASS reproduction: three valid union inventories cannot be collected in the generated checkout.

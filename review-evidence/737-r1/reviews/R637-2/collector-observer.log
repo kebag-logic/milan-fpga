@@ -1,0 +1,5 @@
+{"injected_exhausted_read": "403", "collector_exit": 1, "manifest_emitted": false, "watcher_failure": "Collect CI manifest", "tail_requests_cancellation": true, "stderr": "runtime collection refused: HTTP Error 403: injected exhausted read"}
+{"injected_exhausted_read": "429", "collector_exit": 1, "manifest_emitted": false, "watcher_failure": "Collect CI manifest", "tail_requests_cancellation": true, "stderr": "runtime collection refused: HTTP Error 429: injected exhausted read"}
+{"injected_exhausted_read": "502", "collector_exit": 1, "manifest_emitted": false, "watcher_failure": "Collect CI manifest", "tail_requests_cancellation": true, "stderr": "runtime collection refused: HTTP Error 502: injected exhausted read"}
+{"injected_exhausted_read": "timeout", "collector_exit": 1, "manifest_emitted": false, "watcher_failure": "Collect CI manifest", "tail_requests_cancellation": true, "stderr": "runtime collection refused: injected exhausted read"}
+PASS reproduction: all four observer failures become confirmed cancellation authority through the collector.

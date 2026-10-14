@@ -1,0 +1,443 @@
+{
+  "public_evidence_commit": "ef2f49e58bf81e5e149e7698221161f5ce0fbef2",
+  "comparisons": [
+    {
+      "suite": "milan_dp",
+      "head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "tree": "a5eb619c5c9ead508e7189fd77527d84d2c4fdda",
+      "cases": 19,
+      "legs": 4,
+      "equal_recorded_observations": true,
+      "fresh_inventory_matches": true,
+      "dropped_from_all_claims": "refused",
+      "changed_observation": "different"
+    },
+    {
+      "suite": "capture_coherence",
+      "head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "tree": "a5eb619c5c9ead508e7189fd77527d84d2c4fdda",
+      "cases": 31,
+      "legs": 4,
+      "equal_recorded_observations": true,
+      "fresh_inventory_matches": true,
+      "dropped_from_all_claims": "refused",
+      "changed_observation": "different"
+    },
+    {
+      "suite": "maap",
+      "head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "tree": "a5eb619c5c9ead508e7189fd77527d84d2c4fdda",
+      "cases": 66,
+      "legs": 4,
+      "equal_recorded_observations": true,
+      "fresh_inventory_matches": true,
+      "dropped_from_all_claims": "refused",
+      "changed_observation": "different"
+    },
+    {
+      "suite": "milan_dp_mclk",
+      "head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "tree": "a5eb619c5c9ead508e7189fd77527d84d2c4fdda",
+      "cases": 31,
+      "legs": 4,
+      "equal_recorded_observations": true,
+      "fresh_inventory_matches": true,
+      "dropped_from_all_claims": "refused",
+      "changed_observation": "different"
+    },
+    {
+      "suite": "milan_dp_render",
+      "head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "tree": "a5eb619c5c9ead508e7189fd77527d84d2c4fdda",
+      "cases": 3,
+      "legs": 3,
+      "equal_recorded_observations": true,
+      "fresh_inventory_matches": true,
+      "dropped_from_all_claims": "refused",
+      "changed_observation": "different"
+    },
+    {
+      "suite": "pp_shadow",
+      "head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "tree": "a5eb619c5c9ead508e7189fd77527d84d2c4fdda",
+      "cases": 4,
+      "legs": 4,
+      "equal_recorded_observations": true,
+      "fresh_inventory_matches": true,
+      "dropped_from_all_claims": "refused",
+      "changed_observation": "different"
+    }
+  ],
+  "comparison_limit": "Recorded verdicts, return codes and output digests verified; original per-case stdout was not available in this packet and was not rehashed. No full suite rerun.",
+  "memory": [
+    {
+      "class": "census",
+      "cpus": 16,
+      "peak_bytes": 5860151296,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "census",
+      "cpus": 12,
+      "peak_bytes": 5201534976,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "yosys",
+      "cpus": 16,
+      "peak_bytes": 3745005568,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "yosys",
+      "cpus": 12,
+      "peak_bytes": 3391201280,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "firmware",
+      "cpus": 16,
+      "peak_bytes": 1365569536,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "firmware",
+      "cpus": 12,
+      "peak_bytes": 1372815360,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "datapath",
+      "cpus": 16,
+      "peak_bytes": 3349397504,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "datapath",
+      "cpus": 12,
+      "peak_bytes": 2697302016,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "capture",
+      "cpus": 16,
+      "peak_bytes": 6047100928,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "capture",
+      "cpus": 12,
+      "peak_bytes": 5042556928,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "builder",
+      "cpus": 16,
+      "peak_bytes": 3523665920,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": true
+    },
+    {
+      "class": "builder",
+      "cpus": 12,
+      "peak_bytes": 3172597760,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": true
+    },
+    {
+      "class": "litex",
+      "cpus": 16,
+      "peak_bytes": 3745722368,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    },
+    {
+      "class": "litex",
+      "cpus": 12,
+      "peak_bytes": 3303358464,
+      "returncode": 0,
+      "all_memory_events_zero": true,
+      "publication_path_redacted": false
+    }
+  ],
+  "max_peak_bytes": 6047100928,
+  "slot_arithmetic_gib": "4 * 8 + 4 = 36; not a simultaneous peak measurement",
+  "dispatcher_input_digests_match_head": true,
+  "dispatcher_version": "0.2.89+milan-ci5",
+  "dispatcher_binary_not_executed": true,
+  "measurement_source_to_head_files": [
+    "docs/testing/CI_WORKFLOWS.md",
+    "scripts/act_ci.py"
+  ],
+  "runner_ast_unchanged": true,
+  "dispatch_start_receipts": [
+    {
+      "replay": "dependency-ready",
+      "observed_intervals": {
+        "short/start": {
+          "first": "2026-10-14T16:22:21+02:00",
+          "last": "2026-10-14T16:22:21+02:00"
+        },
+        "long/start": {
+          "first": "2026-10-14T16:22:21+02:00",
+          "last": "2026-10-14T16:22:21+02:00"
+        },
+        "short/success": {
+          "first": "2026-10-14T16:22:21+02:00",
+          "last": "2026-10-14T16:22:21+02:00"
+        },
+        "dependent/start": {
+          "first": "2026-10-14T16:22:21+02:00",
+          "last": "2026-10-14T16:22:21+02:00"
+        },
+        "dependent/success": {
+          "first": "2026-10-14T16:22:21+02:00",
+          "last": "2026-10-14T16:22:21+02:00"
+        },
+        "long/success": {
+          "first": "2026-10-14T16:22:21+02:00",
+          "last": "2026-10-14T16:22:21+02:00"
+        }
+      }
+    },
+    {
+      "replay": "planted-stage-barrier",
+      "observed_intervals": {
+        "short/start": {
+          "first": "2026-10-14T16:00:55+02:00",
+          "last": "2026-10-14T16:00:55+02:00"
+        },
+        "long/start": {
+          "first": "2026-10-14T16:00:55+02:00",
+          "last": "2026-10-14T16:01:05+02:00"
+        },
+        "short/success": {
+          "first": "2026-10-14T16:00:55+02:00",
+          "last": "2026-10-14T16:00:55+02:00"
+        },
+        "long/failure": {
+          "first": "2026-10-14T16:01:05+02:00",
+          "last": "2026-10-14T16:01:05+02:00"
+        }
+      }
+    }
+  ],
+  "worker_projection_own_limit_checks": 16,
+  "inputs": [
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/comparison-summary.json",
+      "sha256": "a59e51ef7693912328d0984605a46f940f10bae0e628a0576cbf444624562230"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp/full.json",
+      "sha256": "acc36ee0f0ad3273f45e6e0f6e19ade4e76fef6c9787488ba42534213e0a4927"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp/leg0.json",
+      "sha256": "caee17da7212e52adb412aa68dddfac69ad4c02bee50b31ca4a3c6d22f4e1428"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp/leg1.json",
+      "sha256": "d627c0ee04555be07b61d7f1fd7ad72b53ce1c874ce0c49eb2014e7b38103a0f"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp/leg2.json",
+      "sha256": "1bcaf72559b6bdeb91aad28b177acf02fb8839b275977f21156bc78dc1f35c77"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp/leg3.json",
+      "sha256": "b4795c4ad73345a42482113394e21825428a800403b5c14d9c1f0eef186572af"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/capture_coherence/full.json",
+      "sha256": "9ea54431ce992dcadf0abbbe3fce98ef859e836511f9b591d4507321a92080fc"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/capture_coherence/leg0.json",
+      "sha256": "a597689e3a4b24ebd3ef20f1800b5f2fd7fa4925f59d8bccef8585327132ce9d"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/capture_coherence/leg1.json",
+      "sha256": "b6f838a0cc6be483a2426118f8c539e11bfb6801ced2c4b723065c26ab96e41b"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/capture_coherence/leg2.json",
+      "sha256": "4a918484c8ca3eb3a31864ab343b844532f2f43a571e47073cba451248d560b5"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/capture_coherence/leg3.json",
+      "sha256": "f9f060130d3608d3c7ad5d1dd30fb8e49443f84749dbfc872ad9fc1405f86d41"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/maap/full.json",
+      "sha256": "1a6c4f86633f841d18ba81046055ac4fe5581c0a21b0ca44ea4fda5fe18e797d"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/maap/leg0.json",
+      "sha256": "2e753c95c5d9857db5fc0eafb16e28c3cd9268b7ee135589a1e03206bc1e1593"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/maap/leg1.json",
+      "sha256": "e01b491952dfa18a0ea32148c15826459fbe02f06d0b9dfc46572980cfe65989"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/maap/leg2.json",
+      "sha256": "e42422cee75271e68b2ce0018bd16ecae788282fa8413253f04f9444517a2caa"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/maap/leg3.json",
+      "sha256": "5e342f1d2237a7675ced5200d2804686ef53e89fdefdde2f97e8356108911c55"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp_mclk/full.json",
+      "sha256": "64e9e5c87959b208e209b6a1bfc6059219d12fc31327008c3fcf354652ac8dc8"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp_mclk/leg0.json",
+      "sha256": "8b75120168d1be1b13014b0c48fc7ffe13305c12b1d3127ada76a0c8a6449c21"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp_mclk/leg1.json",
+      "sha256": "7f5e99ed013ce05ba38042112743e15a3d08101c415b915a9eaa9228cccc4d20"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp_mclk/leg2.json",
+      "sha256": "bdb4f739f45fc608ef99e3496647ac63675afa97f7f58ac8ef02a062461e28b6"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp_mclk/leg3.json",
+      "sha256": "8827984e7baf93f58fb8efa61b77ac4487e04a98f821c61d91ed7c2cdf880c5a"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp_render/full.json",
+      "sha256": "d3ded87a43eb6149a20dd22b58309d45a2241db1006f3af5899b67560052e19c"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp_render/leg0.json",
+      "sha256": "388ac3d9a3ac5e354eb4f95a7ba9148a6cc80b2098c905f12e15146b9ae12bd9"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp_render/leg1.json",
+      "sha256": "8af1f1c1aa6b5f0786fd257f1fac1c45773bb64aca64e50c8cdf8136a7fa6c56"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/milan_dp_render/leg2.json",
+      "sha256": "50e0518a3c7c10e4b6644d43e4eb1d828da612ad188d61b0012bb95877c61171"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/pp_shadow/full.json",
+      "sha256": "211edb1bab67ce338a7e8c3d08d9ce98b0f1ccb7a1ae4ff263a04ee06541a96b"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/pp_shadow/leg0.json",
+      "sha256": "cd7f2ec42c2bc86bafa499ed7211a2d3bcedc37d14e139c92dc46d74c89014c3"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/pp_shadow/leg1.json",
+      "sha256": "759ac23996d9144ecc5fd2e99a270251bc87a80d74588b790ee060a950e5d826"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/pp_shadow/leg2.json",
+      "sha256": "51cf0516c06dc9be370826b20e1c9b91c38e2bd9633fd0b881c3b8cd139d349b"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-case-evidence/pp_shadow/leg3.json",
+      "sha256": "62d2fe42644ba0f841fd506d5eab88b024072f8d29cb34e84813d11340c8d0f2"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-resumed-resource-summary.json",
+      "sha256": "b9825eaf07aadca43f169170070e0ffb3131e2fb86970de18aad35159bd3fd74"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-census-memory-16.json",
+      "sha256": "121a0bcf44021c4a4892bdb6805b0791a5e51a0afc5b8b7c80bc5182a6f604d5"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-census-memory-12.json",
+      "sha256": "7505fd4343e7ec677e0d601cb2c09be29630652d093c2d7a08b120f6fc112ce8"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-yosys-memory-16.json",
+      "sha256": "d881c36140118e983c94c6e05a753fb8bd9b9def638a07c84e57bf9552bcbceb"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-yosys-memory-12.json",
+      "sha256": "b4c82a1ae457d2adff984587a50ae5dfc1e026d9cee355c38440a224f500335b"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-firmware-memory-16.json",
+      "sha256": "87c41e6018114f0c78855c785cbd5ea5156eae89405a73a1a338fe985448769e"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-firmware-memory-12.json",
+      "sha256": "f41689ba719cdb25427a917c6ece1bedd56117592d8a18bdec4f05a0ab23953f"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-datapath-memory-16.json",
+      "sha256": "3d99ab459973078a9a469ea5125bf229b78ef4aa2c8f0f1a64cb554e4143943e"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-datapath-memory-12.json",
+      "sha256": "ad01c4a48ccf8d0b295c4d0604bc0dfb50476d98dfea35008650ec65fe37687e"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-capture-memory-16.json",
+      "sha256": "c4ec53dcfafe1d4d8b6f33a35f8ce8c16ef147afe3da8a2cfcfcfbb90af05cbd"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-capture-memory-12.json",
+      "sha256": "62be4fa20e62da835449097312d92c787f0f035c1ec7a68fa4af31414291986d"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-builder-memory-16.json",
+      "sha256": "3f9db6e04c93527f36088b11357d1789ed252150eff99e33bd414d0c6a07f1c5"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-builder-memory-12.json",
+      "sha256": "17b9b67755f793071cb24f515e2f1cf2f1ad601c357451741fa761eede766cb7"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-litex-memory-16.json",
+      "sha256": "5d52344371f19aa30e30572fef89837b8d6a71fcbc62d78842f45c78ca41c479"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-litex-memory-12.json",
+      "sha256": "d3252dafced7bdc01650c0a7986d2ceb250738907fcd9f71b8be9e1f05015d96"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-dispatcher-build.json",
+      "sha256": "f5d77ae0a88eecdb7002436cc5de5aa4e72b0c75c48fb5e2c964df6b5e35127b"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-dispatch-start-times.json",
+      "sha256": "b43fd6660969e713b25c6337394e64c4abfbcae6f3abb6b805570eb187b52e96"
+    },
+    {
+      "path": "review-evidence/737-r1/author-r2/round2-worker-headroom.json",
+      "sha256": "65ae65329321c080c5b6c92a56c7b8a0643796dd5b918b5a0c5e24d3eccd39a7"
+    }
+  ]
+}

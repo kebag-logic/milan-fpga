@@ -1,0 +1,35 @@
+[
+  {
+    "script": "probe_skipped_collector.py",
+    "receipt": "skipped-collector.log",
+    "returncode": 0,
+    "seconds": 0.516
+  },
+  {
+    "script": "probe_collector_checkout.py",
+    "receipt": "collector-checkout.log",
+    "returncode": 0,
+    "seconds": 1.768
+  },
+  {
+    "script": "probe_collector_observer.py",
+    "receipt": "collector-observer.log",
+    "returncode": 0,
+    "seconds": 0.465
+  },
+  {
+    "script": "probe_failure_conclusions.py",
+    "receipt": "failure-conclusion-mutations.log",
+    "returncode": 0,
+    "seconds": 2.519
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/generate_ci_evidence_pins.py",
+      "--check"
+    ],
+    "receipt": "evidence-pins-check.log",
+    "returncode": 0
+  }
+]

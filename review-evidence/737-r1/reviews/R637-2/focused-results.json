@@ -1,0 +1,150 @@
+[
+  {
+    "name": "ci_case_receipts_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_case_receipts_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 2.37
+  },
+  {
+    "name": "ci_make_cases_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_make_cases_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.47
+  },
+  {
+    "name": "ci_maap_cases_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_maap_cases_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.52
+  },
+  {
+    "name": "ci_capture_cases_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_capture_cases_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.52
+  },
+  {
+    "name": "ci_suite_pieces_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_suite_pieces_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 23.91
+  },
+  {
+    "name": "ci_suite_collect_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_suite_collect_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 9.73
+  },
+  {
+    "name": "ci_manifest_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_manifest_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.21
+  },
+  {
+    "name": "ci_workflow_plan_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_workflow_plan_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.41
+  },
+  {
+    "name": "ci_runtime_evidence_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_runtime_evidence_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 1.72
+  },
+  {
+    "name": "ci_fail_fast_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_fail_fast_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 1.22
+  },
+  {
+    "name": "ci_install_cache_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_install_cache_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.31
+  },
+  {
+    "name": "ci_gate_workflows_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 3.92
+  },
+  {
+    "name": "workflow_regeneration",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.72
+  },
+  {
+    "name": "suite_headroom",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 7.93
+  },
+  {
+    "name": "event_contract",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.87
+  },
+  {
+    "name": "event_controls",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "returncode": 124,
+    "seconds": 420.0
+  }
+]

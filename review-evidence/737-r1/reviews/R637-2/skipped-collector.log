@@ -1,0 +1,6 @@
+Raw skipped labels verified against public run 38273578232; this is a shape fixture, not current-head execution.
+watcher complete and first failure: (True, None)
+collector refuses legitimate skip: API returned an unplanned job: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
+collector refuses legitimate skip: API returned an unplanned job: Yosys shard ${{ matrix.shard }}/${{ matrix.total }}
+collector failure requests tail cancellation: True
+Reproduced: allowed matrix skips fail collection and become cancellation authority.

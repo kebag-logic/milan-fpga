@@ -1,0 +1,45 @@
+{
+  "queried_at_utc": "2026-10-14T18:29:24.062221+00:00",
+  "head": "2658a64c408bf87ae36574f36a6deeb34b2f297f",
+  "total_count": 0,
+  "windows": [
+    {
+      "workflow": "docs",
+      "seconds": null,
+      "reason": "No exact-head workflow run returned by GitHub"
+    },
+    {
+      "workflow": "elaborate",
+      "seconds": null,
+      "reason": "No exact-head workflow run returned by GitHub"
+    },
+    {
+      "workflow": "rtl-fast",
+      "seconds": null,
+      "reason": "No exact-head workflow run returned by GitHub"
+    },
+    {
+      "workflow": "rtl-full",
+      "seconds": null,
+      "reason": "No exact-head workflow run returned by GitHub"
+    }
+  ],
+  "commands": [
+    [
+      "gh",
+      "api",
+      "repos/kebag-logic/milan-fpga/actions/runs?head_sha=2658a64c408bf87ae36574f36a6deeb34b2f297f&per_page=100"
+    ],
+    [
+      "gh",
+      "pr",
+      "view",
+      "739",
+      "-R",
+      "kebag-logic/milan-fpga",
+      "--json",
+      "headRefOid,baseRefOid,mergeable,statusCheckRollup"
+    ]
+  ],
+  "acceptance": "Manager decision; no duration inferred from skipped jobs or missing runs."
+}
