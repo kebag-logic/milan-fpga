@@ -2661,7 +2661,10 @@ Worker two adds both measured self-tests, two seconds for checking,
 and a conservative 120-second setup/evidence allowance.
 Worker one uses the larger 1386-second local builder measurement,
 plus that allowance, rather than the shorter hosted builder window.
-Elaboration retains its 1441/593-second hosted gate windows plus 120 seconds.
+The `7032bca5` elaboration job took 2144 seconds. Its gate windows took 1441
+and 593 seconds, and the Verilator setup that only worker one keeps took 3.
+By the docs worker zero method, elaboration worker zero projects at
+`2144 - 593 - 3 + 60` and worker one at `2144 - 1441 + 60`.
 
 Yosys compilation now runs once in prerequisite `yosys-tool`.
 Its pinned source and cache-key construction are preserved. Source compilation
@@ -2679,8 +2682,8 @@ plus 60 seconds for download, extraction and execution evidence.
 | `docs-gates-0` | 922 | 1620 | 698 |
 | `docs-gates-1` | 1506 | 1620 | 114 |
 | `docs-gates-2` | 553 | 1620 | 1067 |
-| `elaborate-gates-0` | 1561 | 1620 | 59 |
-| `elaborate-gates-1` | 713 | 1620 | 907 |
+| `elaborate-gates-0` | 1608 | 1620 | 12 |
+| `elaborate-gates-1` | 763 | 1620 | 857 |
 | `yosys-tool (cold)` | 720 | 1044 | 324 |
 | `yosys-shards 0/4` | 554 | 1044 | 490 |
 | `yosys-shards 1/4` | 85 | 1044 | 959 |
@@ -2709,6 +2712,12 @@ Docs now projects at 1506 seconds for its slowest worker.
 Allowing 60 seconds each for aggregate and collector, one 120-second
 watcher interval and 30 seconds for the tail gives 1776 seconds,
 or about 29.6 minutes. This corrects the earlier 26-minute docs projection.
+Elaboration projects at 1608 seconds for its slowest worker. The same
+270 seconds of aggregate, collector, watcher and tail allowance gives
+1878 seconds, about 31.3 minutes, above thirty minutes. Worker zero's
+1441-second gate is one `sw/builder/test_builder.py` invocation, so no
+existing step can move to another worker. Dividing it needs that driver
+to expose shards.
 The collector outage budget is not normal-run duration evidence.
 Hosted job spans and runner-capacity contention still require coordinating readback.
 
