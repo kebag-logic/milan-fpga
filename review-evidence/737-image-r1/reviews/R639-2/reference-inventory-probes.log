@@ -1,0 +1,96 @@
+[
+  {
+    "case": "positional-string-control",
+    "path": "scripts/bootstrap.py",
+    "source": "import subprocess\nsubprocess.run(\"python3 -m pip install fixture-package==1.0\", shell=True)\n",
+    "workflow_command": "python3 scripts/bootstrap.py",
+    "--write": {
+      "rc": 2,
+      "stdout": "",
+      "stderr": "REFUSED: scripts/bootstrap.py: installation string needs an explicit pin reader\n"
+    },
+    "--check": {
+      "rc": 2,
+      "stdout": "",
+      "stderr": "REFUSED: scripts/bootstrap.py: installation string needs an explicit pin reader\n"
+    }
+  },
+  {
+    "case": "keyword-string",
+    "path": "scripts/bootstrap.py",
+    "source": "import subprocess\nsubprocess.run(args=\"python3 -m pip install fixture-package==1.0\", shell=True)\n",
+    "workflow_command": "python3 scripts/bootstrap.py",
+    "--write": {
+      "rc": 0,
+      "stdout": "CI tool inventory matches workflow installation requests\n",
+      "stderr": ""
+    },
+    "--check": {
+      "rc": 0,
+      "stdout": "CI tool inventory matches workflow installation requests\n",
+      "stderr": ""
+    },
+    "tools": [],
+    "inputs": [
+      ".github/workflows/test.yml",
+      "scripts/bootstrap.py"
+    ]
+  },
+  {
+    "case": "root-script",
+    "path": "bootstrap.py",
+    "source": "import subprocess\nsubprocess.run([\"python3\", \"-m\", \"pip\", \"install\", \"fixture-package==1.0\"])\n",
+    "workflow_command": "python3 bootstrap.py",
+    "--write": {
+      "rc": 0,
+      "stdout": "CI tool inventory matches workflow installation requests\n",
+      "stderr": ""
+    },
+    "--check": {
+      "rc": 0,
+      "stdout": "CI tool inventory matches workflow installation requests\n",
+      "stderr": ""
+    },
+    "tools": [],
+    "inputs": [
+      ".github/workflows/test.yml"
+    ]
+  },
+  {
+    "case": "make-downloader",
+    "path": "tb/fixture/Makefile",
+    "source": "all:\n\tcurl -fsSL https://example.invalid/tool-v1.tar.gz -o tool.tar.gz\n\ttar xf tool.tar.gz\n\tmake -C tool install\n",
+    "workflow_command": "make -C tb/fixture",
+    "--write": {
+      "rc": 0,
+      "stdout": "CI tool inventory matches workflow installation requests\n",
+      "stderr": ""
+    },
+    "--check": {
+      "rc": 0,
+      "stdout": "CI tool inventory matches workflow installation requests\n",
+      "stderr": ""
+    },
+    "tools": [],
+    "inputs": [
+      ".github/workflows/test.yml",
+      "tb/fixture/Makefile"
+    ]
+  },
+  {
+    "case": "missing-entry",
+    "--check": {
+      "rc": 2,
+      "stdout": "",
+      "stderr": "REFUSED: tool inventory differs from workflow installation requests\n"
+    }
+  },
+  {
+    "case": "orphan-entry",
+    "--check": {
+      "rc": 2,
+      "stdout": "",
+      "stderr": "REFUSED: tool inventory differs from workflow installation requests\n"
+    }
+  }
+]

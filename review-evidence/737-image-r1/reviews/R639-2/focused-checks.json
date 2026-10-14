@@ -1,0 +1,94 @@
+{
+  "interpreter": "CPython 3.12.3 in exact image; four concurrent lightweight processes",
+  "checks": [
+    {
+      "name": "inventory",
+      "argv": [
+        "python3",
+        "scripts/ci_tool_inventory.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 4.478
+    },
+    {
+      "name": "inventory-controls",
+      "argv": [
+        "python3",
+        "scripts/ci_tool_inventory_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 0.159
+    },
+    {
+      "name": "build-controls",
+      "argv": [
+        "python3",
+        "ci/image/build_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 0.445
+    },
+    {
+      "name": "integrity-controls",
+      "argv": [
+        "python3",
+        "ci/image/integrity_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 0.495
+    },
+    {
+      "name": "privacy-controls",
+      "argv": [
+        "python3",
+        "ci/image/privacy_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 0.469
+    },
+    {
+      "name": "patch-controls",
+      "argv": [
+        "python3",
+        "ci/image/privacy_patch_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 0.458
+    },
+    {
+      "name": "baremetal",
+      "argv": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.172,
+      "log": "reference-baremetal.log",
+      "replacement": "Initial root container could not read Git ownership; repeated with caller UID, explicit safe.directory and same read-only clone. Final result is recorded separately."
+    },
+    {
+      "name": "baremetal-controls",
+      "argv": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 6.958
+    },
+    {
+      "name": "lock-consistency",
+      "argv": [
+        "python3",
+        "ci/image/build.py",
+        "--work",
+        "/packet/scratch/image",
+        "--check-lock"
+      ],
+      "rc": 0,
+      "seconds": 0.247
+    }
+  ]
+}

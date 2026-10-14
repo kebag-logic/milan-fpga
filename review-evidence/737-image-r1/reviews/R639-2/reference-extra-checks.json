@@ -1,0 +1,48 @@
+[
+  {
+    "name": "reference-baremetal",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "reference-maven-closure",
+    "argv": [
+      "python3",
+      "ci/image/resolve_maven.py",
+      "--cache",
+      "/opt/sbt/cache"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "reference-litex-placement",
+    "argv": [
+      "python3",
+      "scripts/ci_litex_env.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "reference-docs-privacy",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "reference-git-diagnostic",
+    "argv": [
+      "git",
+      "ls-files",
+      "--error-unmatch",
+      "AGENTS.md"
+    ],
+    "rc": 0
+  }
+]
