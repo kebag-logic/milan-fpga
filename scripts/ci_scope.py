@@ -508,7 +508,8 @@ def _mutation_arms(cases: list[Case]) -> int:
 def selftest() -> int:
     """Prove the classification table, the derived gate-read table, and that
     dropping any one submodule pointer or gate-read file from the rules is
-    caught by a case; 0 when every arm holds."""
+    caught by a case. Execute the workflow scopes on divergent history too;
+    0 when every arm holds."""
     cases = _cases()
     failures = 0
     for paths, expected in cases:
@@ -525,7 +526,10 @@ def selftest() -> int:
         print(f"  {'ok  ' if ok else 'FAIL'} submodule rule names {want}")
         failures += 0 if ok else 1
 
+    from ci_scope_history import selftest as history_selftest
+
     failures += _gate_read_arms() + _new_reader_arms() + _mutation_arms(cases)
+    failures += history_selftest(ROOT)
     print("selftest:", "PASS" if failures == 0 else f"{failures} FAILURE(S)")
     return 1 if failures else 0
 

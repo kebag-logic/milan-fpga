@@ -36,27 +36,36 @@ jobs:
         id: scope
         env:
           EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PUSH_BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
           python3 scripts/ci_scope.py --selftest
 
-          base=""
           if [ "$EVENT_NAME" = pull_request ]; then
-            base="$PR_BASE_SHA"
+            if [ "${ACT:-false}" = true ]; then
+              # Replay uses the live base fetched and verified by the runner.
+              base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+              git cat-file -e "$base^{commit}"
+              merged="$(git merge-tree --write-tree "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+              git diff --no-renames --name-only "refs/remotes/origin/$PR_BASE_REF" "$merged" \
+                > "$RUNNER_TEMP/changed-files"
+            else
+              git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \
+                > "$RUNNER_TEMP/changed-files"
+            fi
           else
             base="$PUSH_BEFORE_SHA"
-          fi
-
-          if [ -n "$base" ] \
-             && [ "$base" != 0000000000000000000000000000000000000000 ] \
-             && git cat-file -e "$base^{commit}" 2>/dev/null; then
-            git diff --no-renames --name-only "$base" "$GITHUB_SHA" \
-              > "$RUNNER_TEMP/changed-files"
-          else
-            # An unknown base must never turn a real change into docs-only.
-            git ls-files > "$RUNNER_TEMP/changed-files"
+            if [ -n "$base" ] \
+               && [ "$base" != 0000000000000000000000000000000000000000 ] \
+               && git cat-file -e "$base^{commit}" 2>/dev/null; then
+              git diff --no-renames --name-only "$base" "$GITHUB_SHA" \
+                > "$RUNNER_TEMP/changed-files"
+            else
+              # An unknown base must never turn a real change into docs-only.
+              git ls-files > "$RUNNER_TEMP/changed-files"
+            fi
           fi
 
           echo "Changed files:"

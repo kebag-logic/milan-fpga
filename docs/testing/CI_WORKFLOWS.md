@@ -228,6 +228,59 @@ named only inside a message, a reader outside those six roots (a script under
 it does not read. A reader written that way must be added to `GATE_READ_DOCS`
 by hand.
 
+All three scope steps classify against the live base the job builds on.
+Hosted PR jobs check out a synthetic merge at `GITHUB_SHA`.
+They use `git diff --no-renames --name-only <merge>^1 <merge>`.
+The first parent is the live base tip used for that merge.
+This lists exactly what landing the PR would change in that base.
+GitHub's recorded `pull_request.base.sha` is frozen when the PR opens.
+After a lane merges newer dev, that recorded base can hide restored RTL.
+A frozen-base diff can therefore incorrectly skip the RTL gates.
+
+The replay checks out the PR head, identified by `PR_HEAD_SHA`.
+With `ACT=true`, scope reads `refs/remotes/origin/<base-ref>`.
+`PR_BASE_REF` binds to `github.event.pull_request.base.ref`.
+The runner already fetched that ref and verified its live tip.
+Scope first requires a unique merge base.
+It composes live and head using `git merge-tree --write-tree`.
+It compares the live base with that composed tree.
+The resulting paths match hosted merge scope.
+Base-side renames follow Git's merge result into their destination.
+Identical RTL edits already on dev add no changed path.
+A head-only merge-base diff can miss renamed gate inputs.
+It therefore cannot substitute for the composed diff.
+The frozen base SHA remains event metadata and is never a scope input.
+This also works with the existing trusted runner's event payload.
+Each scope checkout explicitly sets `fetch-depth: 0`.
+Missing revisions or missing merge ancestry fail the scope step.
+Ambiguous ancestry and merge conflicts also fail the step.
+Replay requires Git supporting `merge-tree --write-tree` (2.38 or newer).
+Older documentation branches remain documentation-only.
+RTL changes and submodule pointers remain relevant.
+Empty deltas retain the conservative relevant verdict.
+Fast push events retain their before-to-after tree comparison.
+An unknown push base retains the full tracked-file fallback.
+
+The merge train validates composition before every merge.
+Its current-dev candidate runs builder and full native banks.
+Those banks catch interactions with intervening base changes.
+Scope selection therefore need not charge those changes to PRs.
+The hosted required contexts and merge validation remain mandatory.
+
+The scope self-test executes each workflow's actual shell body.
+It compares hosted merge checkouts with replay head checkouts.
+Its histories cover documentation, RTL, gitlinks, and empty deltas.
+REV merges newer dev, restores an RTL file, then edits documentation.
+REV+E adds a later unrelated dev RTL commit.
+Both must stay relevant; a two-documentation-path B16 shape stays docs-only.
+Base-side rename and identical-edit controls require hosted/replay equality.
+They reject replacing composition with a head-only merge-base diff.
+Each control rejects its corresponding removed rule.
+Mutations reject frozen-base scope and replay endpoint comparisons.
+The CI-events gate pins these scripts and their event bindings.
+The runner contract separately pins the classifier's history call.
+Removed, discarded and zeroed history results fail its controls.
+
 All three classifier-gated workflows build the changed-path list with
 `git diff --no-renames --name-only`, so a rename reaches the classifier as
 both of its sides ([R198] N2). With git's default rename detection the list
@@ -238,8 +291,10 @@ the three scripts.
 
 The aggregate still completes,
 so a docs-only PR does not leave a required verdict pending. Mixed changes are
-treated as RTL relevant. An empty or unresolvable diff is also treated as RTL
-relevant. A submodule pointer (`protocol-processor`, `gptp-processor`,
+treated as RTL relevant. An empty diff is RTL relevant.
+On PRs, unresolvable revisions or merge ancestry fail scope.
+On pushes, an unresolvable before-SHA selects every tracked file.
+A submodule pointer (`protocol-processor`, `gptp-processor`,
 `external`, `third_party/...`, read from `.gitmodules`) or `.gitmodules` itself
 is never docs-only: it moves the RTL the sweep elaborates without touching a
 file under `hdl/`, and `scripts/ci_scope.py --selftest` proves a classifier
@@ -689,12 +744,12 @@ is exactly these twelve things:
    checkout are pinned to their own key sets exactly as the default-branch
    step is, so `if: false`, an `if:` naming only some events, a `shell:`, a
    `continue-on-error` or a `working-directory` on any of them is refused by
-   name; the decision step's `env` is exactly `EVENT_NAME`, `PR_DRAFT` and
-   `PR_BASE_SHA`, each bound to the source expression item 6 requires, and
-   the checkout keeps `fetch-depth: 0` (the decision step
-   diffs against the pull request's base commit, which a shallow clone does
-   not carry). `if: false` on the pin step or on the decision step leaves the
-   assert step's script canonical and publishes no `run_full` at all.
+   name; the decision step's `env` is exactly `EVENT_NAME`, `PR_DRAFT`,
+   `PR_BASE_REF` and `PR_HEAD_SHA`.
+   Each uses the source expression item 6 requires, and the checkout keeps `fetch-depth: 0` (the decision step
+   needs the merge's first parent or the replay's live-base ancestry,
+   which a shallow clone need not carry).
+   `if: false` on the pin step or on the decision step leaves the assert step's script canonical and publishes no `run_full` at all.
    Additionally, neither the workflow's top-level `env` nor `full-ci-gate`'s
    own names any `GH_*` variable: the step's `env` is pinned to exactly
    `GH_TOKEN`, but a `GH_HOST` or `GH_CONFIG_DIR` set at either level above it
@@ -703,19 +758,21 @@ is exactly these twelve things:
    source expression that name is bound to, because the name is not the
    contract. The decision step carries
    `EVENT_NAME: ${{ github.event_name }}`,
-   `PR_DRAFT: ${{ github.event.pull_request.draft }}` and
-   `PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}`; the
+   `PR_DRAFT: ${{ github.event.pull_request.draft }}`,
+   `PR_BASE_REF: ${{ github.event.pull_request.base.ref }}` and
+   `PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}`; the
    default-branch step carries `GH_TOKEN: ${{ github.token }}`; each verifier
    step binds `GATE_SHA` to `full-ci-gate`'s `target_sha` output, derived from
    that job and output rather than restated. Names alone held nothing where it
-   mattered: `PR_DRAFT: "true"` is valid workflow YAML that keeps all three
+   mattered: `PR_DRAFT: "true"` is valid workflow YAML that keeps all four
    names and all four keys and makes a ready RTL pull request publish
    `run_full=false`, on which both worker matrices skip, both aggregates skip
    under the no-op exception in item 8, and the skipped required contexts
    satisfy the ruleset -- a false green, not a refusal.
-   `PR_BASE_SHA: ${{ github.sha }}` (a commit diffed against itself, so
-   `rtl=false`) and `EVENT_NAME: pull_request` (a push, schedule or dispatch
-   run taking the pull-request branch) arrive at the same place. A refusal
+   Rebinding `PR_BASE_REF` changes the replay's live-base lookup.
+   Rebinding `PR_HEAD_SHA` changes its scope endpoint.
+   The `ACT` marker selects the source-head replay path; hosted uses the merge.
+   `EVENT_NAME: pull_request` makes a non-PR run take that PR path. A refusal
    names the step, the variable, the expression required and the one found.
 7. **The decision step's script.** Pinned verbatim after whitespace
    normalization, the way the default-branch step's is, and refused by naming
@@ -802,7 +859,7 @@ is exactly these twelve things:
     `defaults` or job-level `env`; the workflow carries no top-level
     `defaults`; and its exact
     two-step sequence is `actions/checkout@v4` with full history followed by
-    the `scope` step. That step's keys and three env bindings are pinned, and
+    the `scope` step. That step's keys and four env bindings are pinned, and
     its normalized canonical script must self-test `ci_scope.py`, derive the
     conservative changed-file set, read the selector answer and publish that
     answer. An empty or forced-false publication can no longer skip both RTL
@@ -902,8 +959,9 @@ is exactly these twelve things:
     HEAD` judges no line and a `|| true` reports none, and each left every
     recorded key, name and binding in place;
     `elaborate`'s scope step is held as the decide step is (item 7, the
-    #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its two
-    env bindings pinned to their source expressions, `ci_scope.py
+    #209 precedent) -- keys exactly `name`, `id`, `env` and `run`, its three
+    env bindings (`EVENT_NAME`, `PR_BASE_REF`, `PR_HEAD_SHA`) pinned to
+    the source expressions in item 6, `ci_scope.py
     --selftest` exactly once and before the script reads the selector's
     answer, and the whole script canonical -- so `if: false` on the step
     that publishes the output every elaboration gate's guard reads, a
@@ -973,9 +1031,9 @@ is exactly these twelve things:
     `TSN_GEN_REV` in the exhaustive workflow, `VERILATOR_VERSION` in the fast
     one, nothing in the other two); no job carries a job-level `env`; and
     the names a job's steps bind stay inside that job's recorded set (the
-    gate's four, the workers' shard and target names, the aggregates'
+    gate's five, the workers' shard and target names, the aggregates'
     `GATE_SHA` and `SHARD_RESULT`, the selectors' event names, the verdict
-    step's result bindings, `elaborate`'s scope pair, `docs-check`'s
+    step's result bindings, `elaborate`'s scope triple, `docs-check`'s
     em-dash gate triple (`EVENT_NAME`, `PR_BASE_REF`, `PUSH_BEFORE_SHA`),
     and nothing else in the documentation jobs). Each
     refusal names the scope, the job or step, and
@@ -1111,7 +1169,7 @@ on the step, on the job, on the workflow and on the verifier steps; the gate
 given a `needs` on a job that skips on `schedule`; `if: false`, an event-only
 `if`, a `shell:`, a `continue-on-error`, a `working-directory` and a dropped
 env key on the pin and decision steps; `PR_DRAFT` forced to `true`,
-`PR_BASE_SHA` rebound to `${{ github.sha }}`, `EVENT_NAME` hard-coded to
+`PR_BASE_REF` rebound to `${{ github.sha }}`, `EVENT_NAME` hard-coded to
 `pull_request`, `GH_TOKEN` rebound to another token and a verifier's
 `GATE_SHA` rebound to its own run; the decision script rewritten to publish
 `run_full=false` always and stripped of the selector's self-test; the assert
@@ -1186,7 +1244,7 @@ given an `if: false`, a
 `continue-on-error`, a `shell`, a `working-directory` and a `|| true`, and
 each removed; the elaborate scope script made to publish a literal
 `rtl=false`, stripped of its `ci_scope.py --selftest`, running the
-self-test after the answer is read, and its two env bindings rebound; each
+self-test after the answer is read, and its three env bindings rebound; each
 of the four carriers' bodies replaced by a `run: true` stub behind a
 renamed-away id and by a duplicate mapping's last-wins parse, plus an
 appended duplicate `wire-accountability:` and `elaborate:` mapping as a
@@ -1554,12 +1612,23 @@ commit the trusted worktree must be at, and the commit the fetch must return.
 GitHub's recorded PR base oid (`baseRefOid`) is frozen when the PR is opened
 and does not track the branch, so the runner prints both SHAs and the recorded
 one never refuses a run; re-targeting a PR's base to refresh it (the old
-`gh pr edit --base` flip) is no longer needed. The generated event still
-carries the **recorded** oid, because its only consumer is scope
-classification and the hosted run receives that same value: the three scope
-steps compare two trees with `git diff <base> <head>`, so a different base
-there would make this replica classify a different file set than the run it
-exists to predict. Because the trusted worktree must sit at a moving branch
+`gh pr edit --base` flip) is no longer needed.
+The generated event retains the recorded oid as metadata, plus the base ref and the PR's own head.
+Hosted scope compares the synthetic merge against its live-base first parent.
+Replay scope uses the fetched, verified `refs/remotes/origin/<base-ref>`.
+It requires a unique merge base with the PR head.
+It composes both tips and compares live against that tree.
+This matches hosted scope through base-side renames and identical edits.
+Merge conflicts fail scope before any documentation-only output.
+
+The recorded oid never participates in either scope calculation.
+The replay self-test checks the production payload through all three selectors.
+It covers stale-base documentation, RTL, pointers, empty deltas, REV and REV+E.
+It also checks base-side renames and identical edits on dev.
+Fixture Git uses isolated configuration, identity, dates and home directories.
+Controls reject inherited signing settings and writes through `GIT_DIR`.
+The validation base still anchors every trust and fetch check.
+Because the trusted worktree must sit at a moving branch
 tip, fast-forward it before invoking; a `dev` push between the resolve and the
 fetch refuses the run, and the fix is to fast-forward and re-run. The runner is
 host-side
@@ -1601,7 +1670,12 @@ python3 -I <audited-install>/act_ci.py --pr <number> \
 
 The audited install may be flat as shown. The offline self-test binds its byte
 check to that installed file. It requires no copied repository directory
-shape.
+shape. Scope fixtures are inline; no sibling import is required.
+The ordinary self-test runs the complete isolated single-file self-test.
+The isolated child skips only that launcher, preventing recursion.
+A sibling import planted outside the scope-event graph must fail.
+The docs workflow also runs the documented flat installation directly.
+Its contract pins the empty temporary directory, mode and invocation.
 
 The reviewer's audit of those exact installed bytes is the trust anchor. The
 runner's check of `--trusted-install-sha256` is self-attestation and detects
@@ -1655,7 +1729,11 @@ remove on stderr and fails. With `--sudo`, the probe also requires a root
 `kill`, proves every process-group member is stopped, and proves the complete
 group is absent before Docker teardown. Cancellation is serialized with that
 STOP transition, and the monitor must signal completion and be joined before
-Docker teardown can begin. A separate delayed-mutation probe times out a CLI
+Docker teardown can begin. The interrupted job also runs under the CPU-range
+monitor described below. That monitor must have moved the job's container to a
+range of its own, as `docker container inspect` shows it, and it is contained
+and joined before Docker teardown as well. A separate delayed-mutation probe
+times out a CLI
 whose privileged child would create a labelled volume two seconds later, then
 proves the whole CLI group is absent and the mutation never occurs:
 
@@ -1824,8 +1902,9 @@ consequently runs only in the disposable job boundary.
 
 The same `--container-options` word also bounds every job container to a CPU
 set of `min(host CPUs, 4)` cores (`--cpuset-cpus=0-3` on a large host;
-`CONTAINER_CPU_LIMIT`; an isolated replay slot N uses CPUs `4N` to `4N+3`
-instead) and to 16 GB of memory with no swap beyond it
+`CONTAINER_CPU_LIMIT`; an isolated replay slot N uses its own block instead)
+until the runner moves it to a range of its own, as described below, and to
+16 GB of memory with no swap beyond it
 (`--memory=16g --memory-swap=16g`; `CONTAINER_MEMORY`). Hosted
 `ubuntu-latest` runners have 4 vCPUs and 16 GB, so `rtl-fast`'s
 `make -j"$(nproc)"` Verilator and Yosys builds are hosted-shaped: `nproc`
@@ -1841,10 +1920,156 @@ bounds jobs, not matrix legs, which `act` runs `strategy.max-parallel` wide
 (default 4) inside one job's slot, so each of `rtl.yml`'s sharded jobs (five
 Verilator workers, four Yosys workers) still fans out to at most four
 containers at once, each held to 16 GB: at most 64 GB at once.
+
+`act` gives every job container of a run that one options word, so the word
+alone puts every concurrent matrix leg on the same four CPUs. Before #730 an
+`rtl-full` replay ran four shard legs together on `0-3`, a quarter of a hosted
+runner each, while the rest of the host stayed idle. The word's CPU set is
+therefore only a staging range. While `act` runs, the runner reads the
+daemon's container events for its own ownership label (`docker events`, in a
+process group of its own). As each job container is created, the runner
+reserves the lowest of the slot's job ranges that no container holds, and
+moves the container there with `docker container update --cpuset-cpus`. Each
+range is `CONTAINER_CPU_LIMIT` CPUs wide, so a leg's `nproc` is the hosted
+runner's 4 before and after the move, and the memory bound is unchanged. The
+job ranges follow the staging range: slot 0 stages on `0-3` and moves up to
+four containers to `4-7`, `8-11`, `12-15` and `16-19`.
+
+A reservation lasts until the container's `destroy` event, or until
+`docker container inspect` shows that the daemon no longer has the container.
+A `die` frees nothing, because a stopped container keeps its CPU set and can
+start again. `act` removes each leg's container (`--rm`) before its worker
+takes the next leg, so a finished leg's range is free for the next one. A move
+whose command failed or timed out keeps its range reserved as well, because the
+daemon may have applied it or may still apply it. Where a container runs is
+read from its CPU set as `docker container inspect` reports it, never inferred
+from the events that arrived. The runner reads it after each move, at each
+`start`, at an `update` of a container not yet seen on its range, and for every
+holder when no range is free. A holder the daemon no longer has then frees its
+range.
+
+The number of ranges a run uses comes from the workflows it replays, not from
+a setting. A matrix job runs `strategy.max-parallel` containers at once, or
+`act`'s default of 4 when it names none, and a job without a matrix runs one.
+At most `CONCURRENT_JOB_LIMIT` jobs of a stage run together, so a workflow's
+concurrency is that many of its widest jobs added up. The shipping `rtl-full`
+derives 4, because its shard jobs name no `max-parallel`; `docs`, `elaborate`
+and `rtl-fast` derive 1. A `max-parallel` the runner cannot read as `act` does,
+such as an expression, refuses the run. Every slot is spaced for
+`CONCURRENT_JOB_LIMIT` times `act`'s default width, which is four job ranges,
+so a slot's CPUs depend on its number alone, whatever it replays. A run that
+derives more is refused rather than sharing CPUs. A host without the CPUs for
+the ranges a run derives refuses the run on every slot, slot 0 included, before
+the slot is entered. The run prints the plan before its boundary is created,
+for example on slot 0:
+
+```text
+act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1);
+  each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7
+  --cpuset-cpus=8-11 --cpuset-cpus=12-15 --cpuset-cpus=16-19
+```
+
+The runner prints that plan as one line, wrapped here. After each workflow it
+prints one line on what its job containers got, also wrapped here:
+
+```text
+act-ci: rtl-full: CPU ranges: <n> job container(s) created: <m> seen on a range
+  of their own by docker inspect, <g> removed before that, <s> never seen on one;
+  at most <k> held a range at once
+```
+
+A container left on the staging range is printed as a warning and never
+changes a verdict. That happens when a move fails or cannot be confirmed, when
+more containers hold or need a range than there are ranges, or when the event
+stream ended early. Such a container keeps the same `nproc`, so it costs
+replica time, not fidelity. On every exit the event stream's process group is
+walked down the same containment ladder as `act`'s, and the monitor's reader is
+joined and proven ended, before the Docker boundary is torn down. That holds
+when the containment, its leader reap or the join itself fails: the runner
+finishes every step first.
+
+The monitor blocks `CLEANUP_SIGNALS` with `signal.pthread_sigmask` before yielding.
+Its reader inherits that mask when started.
+Other runner workers also start with these signals blocked.
+The act boundary temporarily unblocks them so act remains interruptible.
+The live interrupt probe opens the same temporary signal window.
+Its exit restores the mask before returning to the monitor.
+Closing the normal boundary preserves any already-propagating failure.
+An interrupt during restoration cannot replace that failure.
+The runner restores the hold before monitor cleanup.
+It prints the later signal beside the failure:
+
+```text
+act-ci: act boundary closing was interrupted (...); the failure already propagating is kept
+```
+
+The mask covers the transition into cleanup and every cleanup step.
+Containment, reader completion, dead-thread proof and pipe finalization finish first.
+Only then does the monitor restore the incoming mask.
+A held signal is delivered then, with status `128 + signal`.
+An earlier body failure keeps precedence over that signal.
+The signal is printed beside that earlier failure as
+`act-ci: CPU-range monitor cleanup was interrupted (...); the failure already propagating is kept`.
+Without an earlier failure, a held signal keeps its conventional status.
+Any cleanup error is printed beside that signal.
+
+Throughout, the first failure wins. An interrupt or a
+failure that was already unwinding through the monitor keeps going, so
+`SIGINT`, `SIGTERM` and `SIGHUP` keep their `128 + signal` exit status and
+diagnostic. Each cleanup failure is printed beside it as
+`act-ci: CPU-range monitor cleanup also failed: ...`. With no earlier failure,
+the first cleanup failure is raised, and any later one is printed the same
+way. A reader still running after its bounded wait is
+printed as a containment hold, and teardown waits for it. The effect on a
+replay's wall clock is not measured yet (#730).
+
 The bounds are replica-shape decisions, not trust-boundary ones; the offline
 self-test pins the word's four tokens in order, the CPU ceiling for host
 counts above, at, and below the limit, the memory and swap limits, the single
-`--concurrent-jobs` value, and the surviving ownership label.
+`--concurrent-jobs` value, and the surviving ownership label. For the job
+ranges it pins:
+
+- the concurrency each job and workflow derives, including the
+  `CONCURRENT_JOB_LIMIT` sum, and each `max-parallel` it refuses;
+- each slot's ranges, and the refusal of a host without them on every slot:
+  slot 0 below, at and above the boundary for one and for four containers;
+- a disjointness proof with every slot from 0 to 63 at its most concurrency.
+  The proof fails on two planted overlaps: across slots, the one-range-per-slot
+  spacing used before #730; within a slot, every leg on one range. A staging
+  range planted onto a job range is refused;
+- the monitor's record against a model daemon that holds each container's CPU
+  set, checked after every event. Four legs get four ranges. A container that
+  died keeps its range and starts again on it after another was created. A
+  destroy frees a range. Each of these keeps its range reserved: a move applied
+  before its command timed out, a move that completes after another container
+  was created, a move and a read that both time out, and a refused move. With
+  every range held, an inspect frees the range of a container removed without
+  its event and keeps a stopped one's. Foreign, malformed and repeated events
+  move nothing;
+- the monitor's event filter, and its `--since` second against a stubbed
+  clock. Its containment, reader join and closed pipe hold after a body that
+  returns, raises or ends on a signal while the reader is still moving a
+  container. They hold after a failed leader reap, poll or join, and when the
+  stream or the reader cannot start. A failed join is retried while the reader
+  still runs after the pause. A reader that outlives a shortened bounded wait
+  is held for, printed and recorded. Containment runs with the cleanup signals
+  blocked, and a reader whose read fails records a problem;
+- signals at cleanup entry and every step through mask release.
+  Each arrives with a reader moving a container during shutdown.
+  Signals target the main thread and the whole process.
+  Every case requires containment, joined reader and closed pipe before teardown.
+  Conventional status, diagnostic and restored signal masks are required.
+  Act remains interruptible; a pending signal prevents its start.
+  The live interrupt probe's window is also checked offline;
+- which failure wins. A body failure, and a real `SIGINT`, `SIGTERM` and
+  `SIGHUP`, each followed by a failed reap, keep their outcome, exit status and
+  diagnostic, with the reap failure printed beside them. With no earlier
+  failure, a reap failure and then a join failure raise the reap's;
+- a run whose monitor left a container on the staging range: each workflow
+  prints its summary and one warning per problem, and the verdict follows
+  `act`'s exit alone;
+- a dry run of the shipping `rtl-full` printing every range, in slot 0 and in
+  slot 3.
 
 Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
 configuration, and input directories. `act` 0.2.89 also hard-codes the global
@@ -2130,9 +2355,17 @@ replay in one slot cannot collide with a replay in another.
 
 Resource bounds:
 
-- The job containers of slot N get the CPU set `4N` to `4N+3`, which is
-  `CONTAINER_CPU_LIMIT` CPUs of their own. Slot 0 keeps `0-3`. A host without
-  those CPUs refuses the slot.
+- Slot N owns the CPUs `20N` to `20N+19`: a staging range of
+  `CONTAINER_CPU_LIMIT` CPUs, then four job ranges of the same width, one per
+  concurrent job container, as described above. Its job containers are
+  created on `20N` to `20N+3` and moved to their own ranges from `20N+4`. Slot
+  0 stages on `0-3` and uses `4-19`. A host without a slot's staging range
+  refuses the slot. A host without the job ranges a run derives refuses the
+  run before the slot is entered, slot 0 included. On a 128-CPU host, any
+  shipping workflow fits in slots 1 to 5, and slot 6 holds workflows that
+  derive one container. A replay started by a runner from before #730 still
+  puts slot N on `4N` to `4N+3`, which meets these blocks, so run every
+  concurrent slot from one runner version.
 - `--memory`, `--memory-swap`, `--concurrent-jobs` and the matrix width are
   unchanged, so each job container is shaped as described above and only its
   CPUs differ.
@@ -2342,7 +2575,7 @@ The offline self-test of the runner pins:
 - slot 0's environment, prefixes and act command, unchanged;
 - slot N's derived names, which are disjoint across slots and identical for
   one slot, together with its endpoint parser, its namespace prefix and its
-  CPUs;
+  CPUs, which no other slot shares even at the most concurrency;
 - the uplink, daemon, firewall and every other host command and query, word
   for word, and the uplink discovery: which default routes count, and its
   refusals of no route, loopback, an unquotable name, malformed output and a

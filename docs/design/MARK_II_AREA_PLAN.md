@@ -53,7 +53,7 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
 | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ([requirements](../reference/FR_NFR.md)) | At most 38,040 LUTs, 60 percent of 63,400 |
 | Planning margin, D8 | At least 1 percent below the limit: <= 37,659 LUTs |
 | Timing | Shipping 50 MHz datapath; every build-gate corner WNS >= +0.030 ns and WHS >= 0 |
-| Gate comparison | With the current record, WNS >= +0.049 ns also preserves the 0.25 ns fall limit |
+| Gate comparison | At the current +0.233 ns WNS record, the +0.030 ns floor binds first, after a fall of 0.203 ns; the 0.25 ns fall limit is unchanged |
 | Function | Equivalent PDUs and state transactions; suites and campaigns retain their counts |
 | Delivery | Milestone 12 by 2026-12-15, before P3 |
 
@@ -107,7 +107,10 @@ Its deltas therefore inform planning, not a comparable gate verdict.
 
 ### Current processor inventory
 
-These are the current record's source-scope references.
+These are the source-scope references of the gate's current record, [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s [first-draw re-baseline of 2026-10-10](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-10-issue-696-first-draw).
+It measured lane head `bee1b0d7`, after its merge of dev `e8454e27`, with processor `2ad2f845`.
+Against the baseline above, only the route figures changed; both standalone endpoints keep every figure.
+The levers and the ledger keep the baseline's route figures.
 The routed hierarchy is rebuilt and can absorb neighbouring logic.
 Use standalone scopes to estimate removable source functionality.
 Parent rows include descendants; never add both to a saving.
@@ -115,32 +118,33 @@ The [historical inventory](#inventory) supplies functions, clauses and construct
 
 | Scope relative to wrapper | Route LUT | OOC 1x1 LUT | OOC 8x8 LUT | Split disposition |
 |---|---:|---:|---:|---|
-| `wrapper` | 23,345 | 23,179 | 30,135 | Replaced after every control function qualifies |
-| `u_pp` | 22,794 | 22,517 | 28,938 | Control functions move; retained fabric interfaces are reconnected |
-| `u_pp/u_aecp` | 8,084 | 6,150 | 7,298 | F5; includes the following five children |
-| `u_pp/u_aecp/u_d3` | 1,781 | 1,703 | 2,297 | F1/F5 saved-state ownership |
-| `u_pp/u_aecp/u_dyn` | 1,440 | 134 | 497 | F5; fabric media state stays authoritative |
-| `u_pp/u_aecp/u_store` | 979 | 1,026 | 1,119 | F5 validated image and names |
-| `u_pp/u_aecp/u_ucpu` | 1,727 | 1,553 | 1,651 | F5; no second M10 credit |
-| `u_pp/u_aecp/u_resp` | 345 | 432 | 416 | F5 response serving |
-| `u_pp/u_notify` | 2,259 | 2,125 | 2,114 | F5 registry, notification and counter serving |
-| `u_pp/u_srp` | 3,682 | 3,868 | 7,312 | F4; media admission enforcement remains in fabric |
-| `u_pp/u_srp/u_encoder` | 1,358 | 1,479 | 1,466 | Included in SRP |
+| `wrapper` | 22,993 | 23,179 | 30,135 | Replaced after every control function qualifies |
+| `u_pp` | 22,442 | 22,517 | 28,938 | Control functions move; retained fabric interfaces are reconnected |
+| `u_pp/u_aecp` | 7,874 | 6,150 | 7,298 | F5; includes the following five children |
+| `u_pp/u_aecp/u_d3` | 1,817 | 1,703 | 2,297 | F1/F5 saved-state ownership |
+| `u_pp/u_aecp/u_dyn` | 1,289 | 134 | 497 | F5; fabric media state stays authoritative |
+| `u_pp/u_aecp/u_store` | 980 | 1,026 | 1,119 | F5 validated image and names |
+| `u_pp/u_aecp/u_ucpu` | 1,720 | 1,553 | 1,651 | F5; no second M10 credit |
+| `u_pp/u_aecp/u_resp` | 338 | 432 | 416 | F5 response serving |
+| `u_pp/u_notify` | 2,210 | 2,125 | 2,114 | F5 registry, notification and counter serving |
+| `u_pp/u_srp` | 3,638 | 3,868 | 7,312 | F4; media admission enforcement remains in fabric |
+| `u_pp/u_srp/u_encoder` | 1,351 | 1,479 | 1,466 | Included in SRP |
 | `u_pp/u_srp/u_decoder` | 579 | 588 | 922 | Included in SRP |
-| `u_pp/u_listener` | 1,451 | 1,560 | 1,681 | F3 ACMP listener |
-| `u_pp/u_talker` | 641 | 823 | 1,472 | F3 ACMP talker |
-| `u_pp/u_adp` | 385 | 523 | 696 | F0/F3 advertisement and discovery |
-| `u_pp/u_originator` | 687 | 697 | 682 | F3/F5 originated transactions |
+| `u_pp/u_listener` | 1,452 | 1,560 | 1,681 | F3 ACMP listener |
+| `u_pp/u_talker` | 624 | 823 | 1,472 | F3 ACMP talker |
+| `u_pp/u_adp` | 386 | 523 | 696 | F0/F3 advertisement and discovery |
+| `u_pp/u_originator` | 684 | 697 | 682 | F3/F5 originated transactions |
 | `u_pp/u_nvm_shadow` | 792 | 808 | 780 | F1/F3 binding persistence |
 | `u_pp/u_nvm_port` | 513 | 526 | 524 | F1 store and flash service |
-| `u_nvm` | 486 | 581 | 1,116 | F1 replaces container backend |
-| `u_pp/u_timer` | 882 | 906 | 1,631 | Hard deadlines remain fabric events; no saving credited |
-| `u_pp/u_dispatch` | 665 | 887 | 908 | Replaced routing; no separate credit |
+| `u_nvm` | 487 | 581 | 1,116 | F1 replaces container backend |
+| `u_pp/u_timer` | 881 | 906 | 1,631 | Hard deadlines remain fabric events; no saving credited |
+| `u_pp/u_dispatch` | 670 | 887 | 908 | Replaced routing; no separate credit |
 | `u_pp/u_trace` | 31 | 37 | 28 | Equivalent diagnostics retained; no credit |
 
 The [#232](https://github.com/kebag-logic/milan-fpga/issues/232) registry, [#230](https://github.com/kebag-logic/milan-fpga/issues/230) SRP storage and [#639](https://github.com/kebag-logic/milan-fpga/issues/639) rings/listener changes
 are already included; their savings cannot be subtracted again.
 [#686](https://github.com/kebag-logic/milan-fpga/issues/686) also changed MAAP, before [#645](https://github.com/kebag-logic/milan-fpga/issues/645)/[#647](https://github.com/kebag-logic/milan-fpga/issues/647) refreshed the record.
+[#696](https://github.com/kebag-logic/milan-fpga/issues/696) changed MAAP again before the current record.
 
 ## Baseline at dev `e6172750`
 
@@ -649,8 +653,8 @@ Firmware presence therefore earns no engine-removal credit.
 | M0s step 1, F0-F4 with fabric AECP | Not measured | Not measured | Not measured | STOP: parent integration must connect the datapath |
 
 No route was started; no new resource figure is claimed.
-The last accepted gate record remains unchanged.
-Its 50,267 LUTs and 74/27 RAM primitives remain comparison anchors.
+At that base the last accepted gate record was #645/#647's 50,267 LUTs and 74/27 RAM primitives.
+[#696](https://github.com/kebag-logic/milan-fpga/issues/696) has since re-recorded it twice, now at 50,013 LUTs with 74/27 unchanged; that record is the comparison anchor, and the ledger keeps the baseline figures.
 These are stored figures, not measurements of this lane.
 The partial memory ledger still requires actual allocation and reconciliation.
 Neither the 50-tile firmware estimate nor complete-wrapper reclamation proves fit.
@@ -689,8 +693,8 @@ Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrat
 | Routed delta | -128 | -59 | -8 | 0 / 0 | +0.007 / -0.012 |
 | Post-synthesis delta, same runs | -34 | -61 | - | 0 / 0 | - |
 
-The base route equals the `route-1x1` record in every gated figure.
-Against that record, the M2 route passes with no failing endpoint.
+The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has since replaced it.
+Against that record, the M2 route passes with no failing endpoint; it also passes against #696's record.
 The changed arrays account for 44 LUTRAM sites: eleven RAM32M fewer.
 Post-synthesis, the netlist also gains 10 logic LUTs in the CPU's AXI-Lite bridge.
 The other routed logic movement lies in untouched blocks, mostly the wrapper.
@@ -700,7 +704,7 @@ The reproducible saving is 34 LUTs, below the 200 (100-400) estimate.
 The changed arrays' whole LUTRAM footprint was 72 sites.
 M2 adds no block-RAM tile; its +2 ledger allowance is unused.
 The cumulative tables keep the planning figure until the week-4 re-measure.
-The gate record stays unchanged under D7.
+M2 does not re-record the gate under D7.
 
 ### Default split saving basis
 
@@ -945,7 +949,7 @@ Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrat
 | Routed delta | -706 | -958 | +12 | 0 / 0 | -0.158 / -0.013 |
 | Post-synthesis delta, same runs | -524 | -957 | - | 0 / 0 | - |
 
-Against the record, the M6 route passes with no failing endpoint.
+Against #645/#647's record, the M6 route passes with no failing endpoint; it also passes against #696's record.
 Its worst setup path lies in the unchanged protocol processor.
 Only the changed blocks are credited:
 
@@ -966,7 +970,7 @@ Out of context, the changed modules save 552 LUTs at 1x1.
 All three lie low in the 600 (400-900) estimate.
 M6 adds no block-RAM tile; both blocks keep theirs.
 The cumulative tables keep the planning figure until the week-4 re-measure.
-The gate record stays unchanged under D7.
+M6 does not re-record the gate under D7.
 
 ### Cumulative default-image estimates
 
@@ -1092,8 +1096,8 @@ Both routes follow the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#integrat
 | `csr` scope, routed | 3,037 -> 2,916 | 2,143 -> 2,110 | - | 0 / 2 both | - |
 | `csr` scope, post-synthesis | 3,130 -> 3,003 | 2,143 -> 2,110 | - | 0 / 2 both | - |
 
-The base route equals the `route-1x1` record in every gated figure.
-Against that record, the M5 route passes with no failing endpoint.
+The base route equals #645/#647's `route-1x1` record, the gate record at dev `e8454e27`, in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT re-record has since replaced it.
+Against that record, the M5 route passes with no failing endpoint; it also passes against #696's record.
 Its worst setup path lies in the CPU's DMA write bridge, which M5 does not change.
 Paths into and out of `csr` keep at least 1.35 ns setup slack at base and 2.55 ns at M5.
 The movement outside `csr` lies in untouched blocks, mostly the processor wrapper.
@@ -1108,7 +1112,7 @@ Out of context the base block grows about 12 per stream alone and about 62 in th
 M5 adds no block RAM, LUTRAM or DSP.
 The cumulative tables keep the planning figure until the week-4 re-measure.
 With the measured savings of M2 (34), M5 (121) and M6 (418) in place of their central figures, the partial-central scenario becomes about 38,784, 744 over 38,040, pending the week-4 re-measure (D8).
-The gate record stays unchanged under D7.
+M5 does not re-record the gate under D7.
 
 ## Lane sequence
 
