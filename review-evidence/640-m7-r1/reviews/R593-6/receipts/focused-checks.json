@@ -1,0 +1,30 @@
+[
+  {
+    "name": "docs-check",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.987
+  },
+  {
+    "name": "ci-events-check",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.187
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.052
+  }
+]

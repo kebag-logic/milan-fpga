@@ -1,0 +1,14 @@
+baseline: 2175 checks, zero findings
+verilator-shards: matrix size = total = verifier expectation = 6
+yosys-shards: matrix size = total = verifier expectation = 4
+documentation --expect scan: no stale literal 5
+stale-denominator fixture: seven workers, total six; detected
+.github/workflows/rtl.yml: job `verilator-shards` shard denominator matrix `total` must be a singleton equal to the `strategy.matrix.shard` list size, 7 (found [6]): GitHub and act workers must receive the same checked count
+.github/workflows/rtl.yml: job `verilator-shards` name: the shard denominator `6` must be `${{ matrix.total }}` (it resolves to `6`): a literal does not move when the matrix changes, while `strategy.job-total` is not portable to the supported act runner
+.github/workflows/rtl.yml: job `verilator-shards` step 7: the shard denominator `$SHARDS` must be `${{ matrix.total }}` (it resolves to `6`): a literal does not move when the matrix changes, while `strategy.job-total` is not portable to the supported act runner
+.github/workflows/rtl.yml: job `verilator-shards` step 13: the shard denominator `6` must be `${{ matrix.total }}` (it resolves to `6`): a literal does not move when the matrix changes, while `strategy.job-total` is not portable to the supported act runner
+stale verifier expectation 5: detected
+.github/workflows/rtl.yml: job `verilator-suites` verifier step must pass --expect 6, the worker matrix size (found 5)
+.github/workflows/rtl.yml: job `verilator-suites` verifier step script is not the canonical form derived from its download step and worker matrix: expected exactly ['shopt -s nullglob', 'roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)', 'python3 scripts/ci_events.py --require-target-sha --expect 6 --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"'] (found ['shopt -s nullglob', 'roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)', 'python3 scripts/ci_events.py --require-target-sha --expect 5 --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"'])
+.github/workflows/rtl.yml: job `verilator-suites` step 3 (`Require every shard to have validated this run's SHA`) script is not the canonical form: line 3 must be 'python3 scripts/ci_events.py --require-target-sha --expect 6 --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"' (found 'python3 scripts/ci_events.py --require-target-sha --expect 5 --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"'); 3 line(s) expected, 3 found
+PASS: focused documentation/contract probe; no repository mutation

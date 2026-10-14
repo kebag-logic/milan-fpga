@@ -1,0 +1,24 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 49fb1bf28..c33b5e396 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -1319,7 +1319,7 @@ validates one tree. The workflow makes that explicit and machine-checked
+   reads it;
+ - both aggregates run `scripts/ci_events.py --require-target-sha` over the
+   downloaded shards before they tally anything, passing `--expect` the
+-  worker matrix size (`--expect 5` for Verilator, `--expect 4` for Yosys)
++  worker matrix size, six for Verilator and four for Yosys,
+   and exactly three sources, `--sha gate="$GATE_SHA"`
+   (the gate's `target_sha` through the step env), `--sha run="$GITHUB_SHA"`
+   and `--sha checkout="$(git rev-parse HEAD)"`, and print the SHA in their
+@@ -1334,8 +1334,8 @@ passes `--shard ${{ matrix.shard }}/${{ matrix.total }}` and names itself the
+ same way. `--check` requires that singleton to equal the shard-list length and
+ derives the aggregate's `--expect` from the list. It refuses a missing or stale
+ total and any literal or `strategy.job-total` denominator in a script or job
+-name. With a matrix of five and a stale total of four, the check fails before
+-shard 4/5's suites or tops can be omitted while the artifact counts agree.
++name. With a matrix of seven and a stale total of six, the check fails before
++shard 6/7's suites or tops can be omitted while the artifact counts agree.
+ 
+ The aggregates refuse, and the check fails rather than skips:
+ 

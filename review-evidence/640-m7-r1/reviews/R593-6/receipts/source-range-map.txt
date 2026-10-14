@@ -1,0 +1,39 @@
+$ git log --first-parent --format=%H %P %s e8454e27..HEAD
+7fb3664b9b53d0c4caa4b64415dd9cc3e850e4b0 4c5d70b50230fbd5da347852d39daf7f23b3df0b Align CI worker-count documentation with the matrix
+4c5d70b50230fbd5da347852d39daf7f23b3df0b 90f75192f5771ad873eba45a391ba764da91af57 Advance stale-denominator fixture with the worker count
+90f75192f5771ad873eba45a391ba764da91af57 fb4d30b1a491d2dddc5c98cf7d725c19f92841db Correct gPTP table reach figures at the merged donor
+fb4d30b1a491d2dddc5c98cf7d725c19f92841db 412e3f6c8c402bce63e94c291d2782b5579aaa1d Register gPTP table suite with six-worker CI balance
+412e3f6c8c402bce63e94c291d2782b5579aaa1d 354f781828d8b4d73037129f297b072320a10f9c fa8209889411e8ca95757174c981f720dbcd95a2 Merge dev fa820988 into M7 and pin the corrected gPTP donor
+354f781828d8b4d73037129f297b072320a10f9c 70c697bf92c45d8cad4a9627e40adbbf14ae3e96 Say in gptp_tables' README that make checks the limits table first
+70c697bf92c45d8cad4a9627e40adbbf14ae3e96 a9eab29a61653747d2fafe5b2cb0ec50b339caae Move gptp_tables' one-valued table generator to scripts, so ci_scope does not file the suite README it writes as the top-level page
+a9eab29a61653747d2fafe5b2cb0ec50b339caae a8a1c117d0ca35098716e006c69f46687b968330 Name gptp_tables' value census, its declaration list and the new controls in the testing index
+a8a1c117d0ca35098716e006c69f46687b968330 2cc2ba0b8b08010df5ee12c1fc228851fa9a8444 Census every column of gptp_tables' converted tables, declare each one-valued column with its reason in one list, and print the enables the decode presented
+2cc2ba0b8b08010df5ee12c1fc228851fa9a8444 270fcbf5b1548102e3f6e933bc83aef1eed50325 Describe gptp_tables' slow-engine phase, lane decode check and two added controls in the testing index
+270fcbf5b1548102e3f6e933bc83aef1eed50325 d46d386fd8179b8ef74c705f24684edad0e2b4ea Name gptp_tables' two added controls where its Makefile describes the mutation target
+d46d386fd8179b8ef74c705f24684edad0e2b4ea 84910cb42c9bcc533acdf5a71d66ada9b65ca78b Describe the FIFO words' lane decode and beat depth as the pinned FIFO stores them, and give each unconverted table its own reason in the plan
+84910cb42c9bcc533acdf5a71d66ada9b65ca78b 9d42762c555118e3ea86665bf7d8c6ef673698d3 Fill gptp_tables' result queue behind a test-only slow engine, drive every TX lane count through the decode, and narrow the coverage claim per table
+9d42762c555118e3ea86665bf7d8c6ef673698d3 49e1ce483173a33682c27116f5126edde729f955 Record M7's measured routes, per-table mapping and freed block-RAM tile in the Mark II ledger and the area budget
+49e1ce483173a33682c27116f5126edde729f955 74e7e6d5f1e8192d45b9aed3744cdb32d5b73027 Pin the gPTP processor with its measured engine snapshot and move its links, diagrams and ROM digest row
+74e7e6d5f1e8192d45b9aed3744cdb32d5b73027 9c7ad7f48f177e18b6150abe154e9fa9f4ec995a Regenerate the module test matrix with gptp_tables
+9c7ad7f48f177e18b6150abe154e9fa9f4ec995a 8a299ee13ff3a0ec8aa536d5c42443cfb7e8f159 Pin the gPTP processor with the message bank back in distributed RAM and move its links, diagrams and ROM digest row
+8a299ee13ff3a0ec8aa536d5c42443cfb7e8f159 633c178ace09811bc3bc88760109cd2512b00434 Drop the message bank from gptp_tables: it stays in distributed RAM
+633c178ace09811bc3bc88760109cd2512b00434 817247fa75891d3407c2a7184297b5bf6b90344b Grade the egress ledger at its read port and set each table's wrong-depth control to a depth its reachable use exposes
+817247fa75891d3407c2a7184297b5bf6b90344b 0a2fef7935b34b44a2a44d4b997839e5ce10b04f Add gptp_tables: each converted gPTP plane table in lockstep with its previous storage form, with depth, latency and alias controls
+0a2fef7935b34b44a2a44d4b997839e5ce10b04f 7c200939958e3a8a51eb78b41f0d3a580ec64c52 Point the gPTP donor links, both submodule diagrams and the ROM digest ledger at the new pin
+7c200939958e3a8a51eb78b41f0d3a580ec64c52 ba3502985200d930b2645d5343ce1cd5800042f4 Read the egress ledger's RAM fields through one named head port and move the two anchors that quote it
+ba3502985200d930b2645d5343ce1cd5800042f4 1795279288f8c1e9db61889c022565daca0a5cfb Pin the gPTP processor at the lane M7 tables: message bank in block RAM, timer deadlines in distributed RAM
+1795279288f8c1e9db61889c022565daca0a5cfb 2ad1528b6a55f2a8a0290073dde45c1ded3cbc3b Keep the egress ledger's tags and result queue in distributed RAM
+2ad1528b6a55f2a8a0290073dde45c1ded3cbc3b e8454e2751d05b02ee8e5a571857589ab358ab86 Store the gPTP plane FIFOs' byte enables as a lane field so each FIFO fits one RAMB36
+rc=0
+
+$ git diff --stat 4c5d70b5..HEAD
+ docs/testing/CI_WORKFLOWS.md | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+rc=0
+
+$ git diff --raw --no-abbrev 4c5d70b5..HEAD
+:100644 100644 49fb1bf289e9f4d163dea5b545a8231d0af6de6f c33b5e3966547674745d9cc4c4ab80a246d5bb41 M	docs/testing/CI_WORKFLOWS.md
+rc=0
+
+$ git diff --check 4c5d70b5..HEAD
+rc=0
