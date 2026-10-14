@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import tempfile
 from unittest.mock import patch
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 from ci_fail_fast import API, cancel, observe, same_repository, watch, tail_failed, retry_delay
 from ci_gate_workflows import ROOT, generate, load_template
@@ -23,7 +23,8 @@ def observer_controls() -> None:
     for error in (HTTPError("fixture", 403, "limited", {"Retry-After": "240"}, None),
                   HTTPError("fixture", 429, "limited", {"X-RateLimit-Remaining": "0",
                             "X-RateLimit-Reset": "1300"}, None),
-                  HTTPError("fixture", 502, "unavailable", {}, None), TimeoutError("timeout")):
+                  HTTPError("fixture", 502, "unavailable", {}, None), TimeoutError("timeout"),
+                  URLError("connection refused")):
         with tempfile.TemporaryDirectory(prefix="observer-control-") as directory:
             output = Path(directory) / "output"
             with patch("ci_fail_fast.urlopen", side_effect=error) as opened, \
@@ -40,6 +41,17 @@ def observer_controls() -> None:
                     assert sleep.call_args_list[0].args[0] >= 301
             assert not tail_failed({"ci-fail-fast": {"result": "failure",
                                    "outputs": {"observer_only_error": "true"}}})
+    for code in (400, 401, 404):
+        # A refused client request is a genuine watcher failure, never an observer-only outage.
+        with tempfile.TemporaryDirectory(prefix="client-error-control-") as directory:
+            output = Path(directory) / "output"
+            with patch("ci_fail_fast.urlopen", side_effect=HTTPError("fixture", code, "refused", {}, None)) as opened, \
+                    patch("ci_fail_fast.time.sleep") as sleep, \
+                    patch.dict(os.environ, {"GITHUB_OUTPUT": str(output)}):
+                assert watch(API("fixture/project", "fixture"), 1, {"one"}, {}) == 1
+            assert opened.call_count == 1 and sleep.call_count == 0
+            assert not output.exists()
+        assert tail_failed({"ci-fail-fast": {"result": "failure", "outputs": {"observer_only_error": "false"}}})
     with patch("ci_fail_fast.time.time", return_value=0):
         assert retry_delay({"Retry-After": "Thu, 01 Jan 1970 00:05:00 GMT"}, 0) == 300
     response = io.BytesIO(b'{"jobs": []}')
@@ -47,7 +59,8 @@ def observer_controls() -> None:
     with patch("ci_fail_fast.urlopen", side_effect=[TimeoutError("once"), response]), \
             patch("ci_fail_fast.time.sleep"):
         assert API("fixture/project", "fixture").pages("jobs", "jobs") == []
-    print("Observer controls: 403, 429, 502, timeout, bounded retries and recovery PASS")
+    print("Observer controls: 403, 429, 502, timeout, transport, bounded retries and recovery PASS; "
+          "400, 401 and 404 fail the watcher")
 
 
 def graph_controls() -> None:

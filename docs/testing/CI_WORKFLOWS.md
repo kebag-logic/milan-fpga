@@ -2762,7 +2762,10 @@ one page. Pagination adds requests and is never truncated. Read errors use at
 most four attempts and a 600-second retry budget, with exponential backoff.
 Both Retry-After and X-RateLimit-Reset are honored; a reset beyond the budget
 ends observation without cancellation. HTTP 403, 429, 5xx and timeouts never
-become failed-job conclusions. A successful response with no remaining quota
+become failed-job conclusions. Other transport errors that outlast the retries
+count as exhaustion. Any other HTTP status, such as 400, 401 or 404, is not
+retried. It fails the watcher or collector, and that failure still cancels.
+A successful response with no remaining quota
 also delays the next read until reset. More concurrent work can exhaust the
 shared allowance; the observer then reports unavailable rather than cancelling
 healthy jobs. Detection latency is normally at most one polling interval plus

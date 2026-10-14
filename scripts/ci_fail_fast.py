@@ -42,6 +42,11 @@ def retry_delay(headers: dict, attempt: int) -> float:
     return delay
 
 
+def transient(error: OSError) -> bool:
+    """The ruled observer-only reads: 403, 429, 5xx, timeouts and exhausted transport retries."""
+    return not isinstance(error, HTTPError) or error.code in (403, 429) or 500 <= error.code < 600
+
+
 def same_repository(event: dict, event_name: str, repository: str) -> bool:
     """Only pushes and PR heads belonging to this repository authorize writes."""
     if event.get("repository", {}).get("full_name") != repository:
@@ -86,8 +91,7 @@ class API:
                         self.next_read = float(response.headers["X-RateLimit-Reset"]) + 1
                 return json.loads(data) if data else {}
             except (OSError, TimeoutError) as exc:
-                transient = not isinstance(exc, HTTPError) or exc.code in (403, 429) or 500 <= exc.code < 600
-                if method != "GET" or not transient or attempt == READ_ATTEMPTS - 1:
+                if method != "GET" or not transient(exc) or attempt == READ_ATTEMPTS - 1:
                     raise
                 headers = exc.headers if isinstance(exc, HTTPError) else {}
                 delay = retry_delay(headers, attempt)
@@ -146,6 +150,10 @@ def watch(api: API, run_id: int, expected: set[str], skipped: dict) -> int:
                 return 0
             time.sleep(POLL_SECONDS)
     except (OSError, ValueError, KeyError) as exc:
+        if isinstance(exc, OSError) and not transient(exc):
+            # A refused client request (400, 401, 404, ...) is a genuine watcher failure.
+            print(f"Watcher read refused: HTTP {exc.code}")
+            return 1
         observer_error(exc)
         return 0
 

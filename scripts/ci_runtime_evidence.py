@@ -19,7 +19,7 @@ import shutil
 import subprocess
 import sys
 
-from ci_fail_fast import API, RETRY_BUDGET_SECONDS, observer_error
+from ci_fail_fast import API, RETRY_BUDGET_SECONDS, observer_error, transient
 from ci_manifest import SHA1, canonical, envelope, exact_keys, read, require_digest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -229,6 +229,8 @@ def collect(artifacts: Path, output: Path, run_ids: list[int]) -> dict:
             execution.update(observed)
             results.update(outcomes)
         except OSError as exc:
+            if not transient(exc):
+                raise
             observer_error(exc)
             observation_error = type(exc).__name__
             # An unobserved terminal result cannot authenticate any completed job.

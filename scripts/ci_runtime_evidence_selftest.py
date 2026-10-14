@@ -14,7 +14,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from unittest.mock import patch
 
 from ci_local_manifest import artifact_rows, collect, observations
@@ -106,7 +106,8 @@ def observer_collector_controls(root: Path) -> None:
         "steps.ci_collect.outcome == 'success' && steps.ci_upload.outcome == 'success' }}")
     errors = [HTTPError("fixture", code, "unavailable", {"Retry-After": "240"}, None)
               for code in (403, 429, 502)] + [TimeoutError("timeout"),
-              HTTPError("fixture", 429, "exhausted", {"Retry-After": "601"}, None)]
+              HTTPError("fixture", 429, "exhausted", {"Retry-After": "601"}, None),
+              URLError("connection refused")]
     for index, error in enumerate(errors):
         clock = [1000.0]
         def sleep(seconds: float) -> None:
@@ -138,6 +139,21 @@ def observer_collector_controls(root: Path) -> None:
         assert not tail_failed({"ci-manifest": {"result": "success", "outputs": {"observer_only_error": "true"}}})
         assert not tail_failed({"ci-manifest": {"result": "failure", "outputs": {"observer_only_error": "true"}}})
         print(f"Collector observer control {index}: rc 0, wait {elapsed}s, incomplete, zero writes")
+    for code in (400, 401, 404):
+        # A refused client request is not an outage: no retry, no observer output, a failed job.
+        Path(environment["GITHUB_OUTPUT"]).unlink(missing_ok=True)
+        output = root / ("client-" + str(code) + ".json")
+        argv = ["collector", "collect", "--run", "1", "--artifacts", str(root / "artifacts"),
+                "--output", str(output)]
+        error = HTTPError("fixture", code, "refused", {}, None)
+        with patch.object(runtime, "ROOT", root), patch.dict(os.environ, environment), \
+                patch.object(sys, "argv", argv), patch("ci_fail_fast.urlopen", side_effect=error) as opened, \
+                patch("ci_fail_fast.time.sleep") as sleep:
+            assert runtime.main() == 1
+        assert opened.call_count == 1 and sleep.call_count == 0
+        assert not Path(environment["GITHUB_OUTPUT"]).exists() and not output.exists()
+        assert tail_failed({"ci-manifest": {"result": "failure", "outputs": {"observer_only_error": "false"}}})
+        print(f"Collector client error {code}: rc 1, one request, no observer output")
     # Real collection/evidence failures remain failures even after an observation gap.
     for job in ("ci-manifest", "ci-fail-fast"):
         assert tail_failed({job: {"result": "failure", "outputs": {"observer_only_error": "false"}}})
