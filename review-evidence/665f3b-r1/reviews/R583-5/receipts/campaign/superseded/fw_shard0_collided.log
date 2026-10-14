@@ -1,0 +1,11 @@
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 938 live invocations in exactly one shard; shard sizes [61, 521, 77, 279]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+REFUSED: srp_mbx.cpp does not compile:
+Assembler messages:
+Fatal error: can't create $REVIEWS/665f3b-r583-5-packet/scratch/fw0/checkout/srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8/tests/srp_mbx-888a96aff7a6.o: No such file or directory
+
