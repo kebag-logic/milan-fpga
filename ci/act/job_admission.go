@@ -51,13 +51,20 @@ func (gate *JobAdmission) stopped() error {
 
 // Wrap reserves a container slot only for an actual matrix leg, never its group.
 func (gate *JobAdmission) Wrap(executor Executor) Executor {
-	return func(context.Context) error {
+	return func(parent context.Context) error {
+		ctx, cancel := context.WithCancel(parent)
+		stop := context.AfterFunc(gate.ctx, cancel)
+		defer stop()
+		defer cancel()
 		var cpus string
 		select {
-		case <-gate.ctx.Done():
+		case <-ctx.Done():
 			gate.lock.Lock()
 			defer gate.lock.Unlock()
-			return gate.stopped()
+			if err := gate.stopped(); err != nil {
+				return err
+			}
+			return ctx.Err()
 		case cpus = <-gate.slots:
 		}
 		defer func() { gate.slots <- cpus }()
@@ -66,8 +73,12 @@ func (gate *JobAdmission) Wrap(executor Executor) Executor {
 			gate.lock.Unlock()
 			return err
 		}
+		if err := ctx.Err(); err != nil {
+			gate.lock.Unlock()
+			return err
+		}
 		gate.lock.Unlock()
-		err := executor(context.WithValue(gate.ctx, jobCPUKey{}, cpus))
+		err := executor(context.WithValue(ctx, jobCPUKey{}, cpus))
 		gate.lock.Lock()
 		defer gate.lock.Unlock()
 		if err != nil && gate.failure == nil {

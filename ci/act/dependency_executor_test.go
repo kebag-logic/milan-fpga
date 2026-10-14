@@ -76,3 +76,30 @@ func TestDependencyFailureAndInvalidGraphs(t *testing.T) {
 		t.Fatalf("cancelled parent: %v started=%v", err, called.Load())
 	}
 }
+
+func TestDependencyPreflightFailureCancelsAdmittedJobs(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	gate := NewJobAdmission(ctx, 2)
+	defer gate.Close()
+	started := make(chan struct{})
+	failure := errors.New("planted matrix evaluation failure")
+	jobs := []DependencyJob{
+		{ID: "long", Run: gate.Wrap(func(ctx context.Context) error {
+			close(started)
+			<-ctx.Done()
+			return ctx.Err()
+		})},
+		{ID: "preflight", Run: func(context.Context) error {
+			<-started
+			return failure
+		}},
+	}
+	before := time.Now()
+	if err := NewDependencyExecutor(jobs)(ctx); !errors.Is(err, failure) {
+		t.Fatal(err)
+	}
+	if time.Since(before) >= time.Second {
+		t.Fatal("preflight failure did not cancel the admitted job promptly")
+	}
+}
