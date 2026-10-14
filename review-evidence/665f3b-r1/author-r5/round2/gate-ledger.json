@@ -1,0 +1,602 @@
+[
+  {
+    "gate": "normal-suites",
+    "command": "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard 0/4 --jobs 4 --build-dir $WORK/normal-suites",
+    "rc": 0,
+    "seconds": 335.33,
+    "control": "520 control, 76 AECP and 278 SRP plants; normal failures stop mutations",
+    "receipt": "evidence/normal-suites.json"
+  },
+  {
+    "gate": "coverage",
+    "command": "python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4 --keep $WORK/coverage",
+    "rc": 0,
+    "seconds": 274.56,
+    "control": "29 coverage exclusions, moved/missing line and branch controls; adjusted 100% over 30 files",
+    "receipt": "evidence/coverage.json"
+  },
+  {
+    "gate": "focused",
+    "command": "python3 $PACKET/round2/reproduce/run_focused.py --repo . --packet $WORK/review --jobs 2",
+    "rc": 0,
+    "seconds": 42.2,
+    "control": "Fresh-source and invalid-source arms, both interfaces, Listener/probe, source/interface isolation",
+    "receipt": "evidence/focused.json"
+  },
+  {
+    "gate": "owner-probe",
+    "command": "python3 $PACKET/round2/reproduce/run_probes_fixed.py --repo . --packet $WORK/review",
+    "rc": 0,
+    "seconds": 7.8,
+    "control": "Unchanged reviewer probe; old source-validity behavior is killed by f3b-source-validity",
+    "receipt": "evidence/owner-probe.json"
+  },
+  {
+    "gate": "pins",
+    "command": "python3 $PACKET/round2/reproduce/pins.py",
+    "rc": 0,
+    "seconds": 39.81,
+    "control": "126 pin controls, including command/local maintenance and deletion race/error cases",
+    "receipt": "evidence/pins.json"
+  },
+  {
+    "gate": "lifecycle-mutants",
+    "command": "python3 $PACKET/round2/reproduce/lifecycle_mutations.py",
+    "rc": 0,
+    "seconds": 4.39,
+    "control": "6/6 harness mutations killed: either command/clone switch absent, ENOENT propagated, all errors swallowed",
+    "receipt": "evidence/lifecycle-mutants.json"
+  },
+  {
+    "gate": "bounds",
+    "command": "python3 $PACKET/round2/reproduce/bounds.py",
+    "rc": 0,
+    "seconds": 0.52,
+    "control": "38/38 stale/missing numeric and conclusion plants; compiled headers at IF1/IF2",
+    "receipt": "evidence/bounds.json"
+  },
+  {
+    "gate": "predicate-controls",
+    "command": "python3 $PACKET/round2/reproduce/predicate_controls.py",
+    "rc": 0,
+    "seconds": 59.29,
+    "control": "16/16 F3b/publication mutations caught, including source validity at IF1/IF2",
+    "receipt": "evidence/predicate-controls.json"
+  },
+  {
+    "gate": "boundary-host-split",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator --capture $WORK/capture-control --capture $WORK/capture-coverage --capture $WORK/capture-small",
+    "rc": 0,
+    "seconds": 119.87,
+    "control": "112 boundary, 126 pin and 4 figure controls; 2854 sources / 3084 compiler invocations",
+    "receipt": "evidence/boundary-host-split.json"
+  },
+  {
+    "gate": "boundary-rtl",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator",
+    "rc": 0,
+    "seconds": 513.99,
+    "control": "6 boundary, 126 pin and 4 figure controls; 829 sources / 926 compiler invocations",
+    "receipt": "evidence/boundary-rtl.json"
+  },
+  {
+    "gate": "images",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_image.py --base d40e4e9827be2516f8f34b9d65f0a483fff2194c --shape endstation_arty_4x4 --shape endstation_arty_8ch --shape endstation_arty_current --shape endstation_ax7101_1x1_tdm8 --shape endstation_ax7101_8x8 --out $WORK/images",
+    "rc": 0,
+    "seconds": 25.57,
+    "control": "Five shapes before/after; linked RV32I/ILP32 audits; image-controls supplies planted linked-image failures",
+    "receipt": "evidence/images.json"
+  },
+  {
+    "gate": "image-controls",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_image_selftest.py --require-rv32 --out $WORK/image-controls",
+    "rc": 0,
+    "seconds": 9.24,
+    "control": "33 helper, ELF instruction/ABI, relocation and undefined-symbol checks",
+    "receipt": "evidence/image-controls.json"
+  },
+  {
+    "gate": "image-evidence",
+    "command": "python3 $PACKET/round2/reproduce/image_evidence.py",
+    "rc": 0,
+    "seconds": 0.21,
+    "control": "15 image pairs within +2048; +2048 accepted, +2049 rejected",
+    "receipt": "evidence/image-evidence.json"
+  },
+  {
+    "gate": "fabric",
+    "command": "python3 $PACKET/round2/reproduce/fabric.py",
+    "rc": 0,
+    "seconds": 5.44,
+    "control": "Baseline, round 1 and round 2 binary hashes match; one-byte corruption rejected for BIOS and AEM",
+    "receipt": "evidence/fabric.json"
+  },
+  {
+    "gate": "lint-rtl",
+    "command": "python3 scripts/lint_rtl.py --check --self-test --jobs 2",
+    "rc": 0,
+    "seconds": 30.53,
+    "control": "8 pragma/resolution controls; 90 findings at ratchet 90",
+    "receipt": "evidence/lint-rtl.json"
+  },
+  {
+    "gate": "docs",
+    "command": "python3 scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 4.58,
+    "control": "23 scrub and 4 routing controls",
+    "receipt": "evidence/docs.json"
+  },
+  {
+    "gate": "docs-selftest",
+    "command": "python3 scripts/docs_check.py --selftest",
+    "rc": 0,
+    "seconds": 0.21,
+    "control": "23 scrub and 4 routing controls",
+    "receipt": "evidence/docs-selftest.json"
+  },
+  {
+    "gate": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.06,
+    "control": "Paired doc-style-selftest plants forbidden prose forms",
+    "receipt": "evidence/doc-style.json"
+  },
+  {
+    "gate": "doc-style-selftest",
+    "command": "python3 scripts/check_doc_style.py --selftest",
+    "rc": 0,
+    "seconds": 0.06,
+    "control": "Forbidden prose forms are refused",
+    "receipt": "evidence/doc-style-selftest.json"
+  },
+  {
+    "gate": "cpp-idiom",
+    "command": "python3 scripts/check_cpp_idiom.py",
+    "rc": 0,
+    "seconds": 1.47,
+    "control": "Paired cpp-controls: 75 idiom controls",
+    "receipt": "evidence/cpp-idiom.json"
+  },
+  {
+    "gate": "cpp-controls",
+    "command": "python3 scripts/check_cpp_idiom.py --selftest",
+    "rc": 0,
+    "seconds": 1.62,
+    "control": "75 idiom controls",
+    "receipt": "evidence/cpp-controls.json"
+  },
+  {
+    "gate": "python-idiom",
+    "command": "python3 scripts/check_py_idiom.py",
+    "rc": 0,
+    "seconds": 4.88,
+    "control": "Paired python-controls: malformed/forbidden Python constructs",
+    "receipt": "evidence/python-idiom.json"
+  },
+  {
+    "gate": "python-controls",
+    "command": "python3 scripts/check_py_idiom.py --selftest",
+    "rc": 0,
+    "seconds": 4.83,
+    "control": "Forbidden Python constructs and required metadata controls",
+    "receipt": "evidence/python-controls.json"
+  },
+  {
+    "gate": "em-dash",
+    "command": "python3 scripts/check_em_dash.py --base d40e4e9827be2516f8f34b9d65f0a483fff2194c",
+    "rc": 0,
+    "seconds": 3.38,
+    "control": "Paired em-dash-controls: 339 added-line/mirrored-label arms",
+    "receipt": "evidence/em-dash.json"
+  },
+  {
+    "gate": "em-dash-controls",
+    "command": "python3 scripts/check_em_dash.py --selftest",
+    "rc": 0,
+    "seconds": 3.32,
+    "control": "339 added-line/mirrored-label arms",
+    "receipt": "evidence/em-dash-controls.json"
+  },
+  {
+    "gate": "toc",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 5.28,
+    "control": "Paired toc-controls: 1501 document/section arms",
+    "receipt": "evidence/toc.json"
+  },
+  {
+    "gate": "toc-controls",
+    "command": "python3 scripts/gen_toc.py --selftest",
+    "rc": 0,
+    "seconds": 0.92,
+    "control": "1501 document/section arms",
+    "receipt": "evidence/toc-controls.json"
+  },
+  {
+    "gate": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.11,
+    "control": "Paired doc-path-controls: bad paths and line anchors",
+    "receipt": "evidence/doc-paths.json"
+  },
+  {
+    "gate": "doc-path-controls",
+    "command": "python3 scripts/check_doc_paths.py --selftest",
+    "rc": 0,
+    "seconds": 0.11,
+    "control": "Bad paths and line anchors are refused",
+    "receipt": "evidence/doc-path-controls.json"
+  },
+  {
+    "gate": "submodule-docs",
+    "command": "python3 scripts/check_submodule_docs.py",
+    "rc": 0,
+    "seconds": 0.67,
+    "control": "Paired submodule-controls: stale pin and diagram/contract claims",
+    "receipt": "evidence/submodule-docs.json"
+  },
+  {
+    "gate": "submodule-controls",
+    "command": "python3 scripts/check_submodule_docs.py --selftest",
+    "rc": 0,
+    "seconds": 0.06,
+    "control": "Stale pin, link and generated-document claims are refused",
+    "receipt": "evidence/submodule-controls.json"
+  },
+  {
+    "gate": "hygiene",
+    "command": "python3 scripts/check_hygiene.py --check",
+    "rc": 0,
+    "seconds": 0.46,
+    "control": "Paired hygiene-controls: 35 filename/whitespace arms",
+    "receipt": "evidence/hygiene.json"
+  },
+  {
+    "gate": "hygiene-controls",
+    "command": "python3 scripts/check_hygiene.py --selftest",
+    "rc": 0,
+    "seconds": 0.47,
+    "control": "35 filename/whitespace arms",
+    "receipt": "evidence/hygiene-controls.json"
+  },
+  {
+    "gate": "mailbox-controls",
+    "command": "python3 sw/mailbox/gen_mailbox.py --check --crosscheck --selftest",
+    "rc": 0,
+    "seconds": 1.72,
+    "control": "Missing/malformed contract fields and generated-byte drift refused",
+    "receipt": "evidence/mailbox-controls.json"
+  },
+  {
+    "gate": "coverage-controls",
+    "command": "python3 sw/firmware/gtest/fw_coverage.py --selftest",
+    "rc": 0,
+    "seconds": 0.37,
+    "control": "29 exclusion/coverage corruption controls",
+    "receipt": "evidence/coverage-controls.json"
+  },
+  {
+    "gate": "tally-controls",
+    "command": "python3 sw/firmware/gtest/tally_selftest.py",
+    "rc": 0,
+    "seconds": 3.07,
+    "control": "18 false-green, absent-test and failure-accounting controls",
+    "receipt": "evidence/tally-controls.json"
+  },
+  {
+    "gate": "diagram",
+    "command": "python3 docs/diagrams/submodule_boundaries.gen.py --check",
+    "rc": 0,
+    "seconds": 0.62,
+    "control": "Paired diagram-controls: stale pin/edge and generated drift",
+    "receipt": "evidence/diagram.json"
+  },
+  {
+    "gate": "diagram-controls",
+    "command": "python3 docs/diagrams/submodule_boundaries.gen.py --selftest",
+    "rc": 0,
+    "seconds": 0.82,
+    "control": "Stale pin/edge and generated drift refused",
+    "receipt": "evidence/diagram-controls.json"
+  },
+  {
+    "gate": "source-lists",
+    "command": "python3 scripts/check_rtl_source_lists.py",
+    "rc": 0,
+    "seconds": 1.52,
+    "control": "Paired source-controls: 50 omission/consumer controls",
+    "receipt": "evidence/source-lists.json"
+  },
+  {
+    "gate": "source-controls",
+    "command": "python3 scripts/check_rtl_source_lists.py --selftest",
+    "rc": 0,
+    "seconds": 2.87,
+    "control": "50 omission/consumer controls",
+    "receipt": "evidence/source-controls.json"
+  },
+  {
+    "gate": "evidence-readers",
+    "command": "python3 scripts/measure_test_evidence.py --check",
+    "rc": 0,
+    "seconds": 9.69,
+    "control": "Paired evidence-controls: 105 reader/runner mutation controls",
+    "receipt": "evidence/evidence-readers.json"
+  },
+  {
+    "gate": "evidence-controls",
+    "command": "python3 scripts/measure_test_evidence.py --selftest",
+    "rc": 0,
+    "seconds": 9.79,
+    "control": "105 reader/runner mutation controls",
+    "receipt": "evidence/evidence-controls.json"
+  },
+  {
+    "gate": "dispatch-controls",
+    "command": "python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+    "rc": 0,
+    "seconds": 0.16,
+    "control": "Missing/duplicate/new suite, nine invalid selectors, failed-normal stopping rule; 938 invocations partitioned",
+    "receipt": "evidence/dispatch-controls.json"
+  },
+  {
+    "gate": "control-1",
+    "command": "python3 $PACKET/round2/reproduce/control_slice.py 1",
+    "rc": 0,
+    "seconds": 257.11,
+    "control": "130/130 planted mutations caught; four slices exactly cover the live 520-entry table",
+    "receipt": "evidence/control-1.json"
+  },
+  {
+    "gate": "control-2",
+    "command": "python3 $PACKET/round2/reproduce/control_slice.py 2",
+    "rc": 0,
+    "seconds": 270.83,
+    "control": "130/130 planted mutations caught; four slices exactly cover the live 520-entry table",
+    "receipt": "evidence/control-2.json"
+  },
+  {
+    "gate": "control-3",
+    "command": "python3 $PACKET/round2/reproduce/control_slice.py 3",
+    "rc": 0,
+    "seconds": 312.5,
+    "control": "130/130 planted mutations caught; four slices exactly cover the live 520-entry table",
+    "receipt": "evidence/control-3.json"
+  },
+  {
+    "gate": "control-4",
+    "command": "python3 $PACKET/round2/reproduce/control_slice.py 4",
+    "rc": 0,
+    "seconds": 265.78,
+    "control": "130/130 planted mutations caught; four slices exactly cover the live 520-entry table",
+    "receipt": "evidence/control-4.json"
+  },
+  {
+    "gate": "aecp-campaign",
+    "command": "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --shard 2/4 --jobs 4 --build-dir $WORK/aecp-campaign",
+    "rc": 0,
+    "seconds": 239.22,
+    "control": "76/76 planted defects caught",
+    "receipt": "evidence/aecp-campaign.json"
+  },
+  {
+    "gate": "srp-if1-1",
+    "command": "python3 $PACKET/round2/reproduce/srp_batch.py 1 1 1",
+    "rc": 0,
+    "seconds": 230.84,
+    "control": "Live dispatcher supplies the 202 IF2 and 76 IF1 defects; disjoint batches; IF1 also refuses two poisoned dependency states",
+    "receipt": "evidence/srp-if1-1.json"
+  },
+  {
+    "gate": "srp-if2-1",
+    "command": "python3 $PACKET/round2/reproduce/srp_batch.py 2 1 3",
+    "rc": 0,
+    "seconds": 188.2,
+    "control": "Live dispatcher supplies the 202 IF2 and 76 IF1 defects; disjoint batches; IF1 also refuses two poisoned dependency states",
+    "receipt": "evidence/srp-if2-1.json"
+  },
+  {
+    "gate": "srp-if2-2",
+    "command": "python3 $PACKET/round2/reproduce/srp_batch.py 2 2 3",
+    "rc": 0,
+    "seconds": 187.1,
+    "control": "Live dispatcher supplies the 202 IF2 and 76 IF1 defects; disjoint batches; IF1 also refuses two poisoned dependency states",
+    "receipt": "evidence/srp-if2-2.json"
+  },
+  {
+    "gate": "srp-if2-3",
+    "command": "python3 $PACKET/round2/reproduce/srp_batch.py 2 3 3",
+    "rc": 0,
+    "seconds": 179.78,
+    "control": "Live dispatcher supplies the 202 IF2 and 76 IF1 defects; disjoint batches; IF1 also refuses two poisoned dependency states",
+    "receipt": "evidence/srp-if2-3.json"
+  },
+  {
+    "gate": "capture-control",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_capture.py --out $WORK/capture-control -- python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --build-only --jobs 4",
+    "rc": 0,
+    "seconds": 350.46,
+    "control": "Build-only prerequisite capture, judged with all other captures by the full boundary controls",
+    "receipt": "evidence/capture-control.json"
+  },
+  {
+    "gate": "capture-coverage",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_capture.py --out $WORK/capture-coverage -- python3 sw/firmware/gtest/fw_coverage.py --build-only --jobs 4",
+    "rc": 0,
+    "seconds": 259.27,
+    "control": "Build-only prerequisite capture, judged with all other captures by the full boundary controls",
+    "receipt": "evidence/capture-coverage.json"
+  },
+  {
+    "gate": "capture-small",
+    "command": "python3 $PACKET/round2/reproduce/capture_small.py",
+    "rc": 0,
+    "seconds": 136.22,
+    "control": "Build-only prerequisite capture, judged with all other captures by the full boundary controls",
+    "receipt": "evidence/capture-small.json"
+  },
+  {
+    "gate": "aecp-base-endstation_arty_4x4",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_4x4.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/base/endstation_arty_4x4 --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack --with-aecp",
+    "rc": 0,
+    "seconds": 4.74,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-base-endstation_arty_4x4.json"
+  },
+  {
+    "gate": "aecp-base-endstation_arty_8ch",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_8ch.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/base/endstation_arty_8ch --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack --with-aecp",
+    "rc": 0,
+    "seconds": 4.71,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-base-endstation_arty_8ch.json"
+  },
+  {
+    "gate": "aecp-base-endstation_arty_current",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_current.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/base/endstation_arty_current --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack --with-aecp",
+    "rc": 0,
+    "seconds": 4.64,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-base-endstation_arty_current.json"
+  },
+  {
+    "gate": "aecp-base-endstation_ax7101_1x1_tdm8",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_1x1_tdm8.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/base/endstation_ax7101_1x1_tdm8 --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack --with-aecp",
+    "rc": 0,
+    "seconds": 4.76,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-base-endstation_ax7101_1x1_tdm8.json"
+  },
+  {
+    "gate": "aecp-base-endstation_ax7101_8x8",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/base/endstation_ax7101_8x8 --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack --with-aecp",
+    "rc": 0,
+    "seconds": 4.58,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-base-endstation_ax7101_8x8.json"
+  },
+  {
+    "gate": "aecp-head-endstation_arty_4x4",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_4x4.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/head/endstation_arty_4x4 --with-aecp",
+    "rc": 0,
+    "seconds": 4.62,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-head-endstation_arty_4x4.json"
+  },
+  {
+    "gate": "aecp-head-endstation_arty_8ch",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_8ch.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/head/endstation_arty_8ch --with-aecp",
+    "rc": 0,
+    "seconds": 4.86,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-head-endstation_arty_8ch.json"
+  },
+  {
+    "gate": "aecp-head-endstation_arty_current",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_current.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/head/endstation_arty_current --with-aecp",
+    "rc": 0,
+    "seconds": 4.71,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-head-endstation_arty_current.json"
+  },
+  {
+    "gate": "aecp-head-endstation_ax7101_1x1_tdm8",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_1x1_tdm8.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/head/endstation_ax7101_1x1_tdm8 --with-aecp",
+    "rc": 0,
+    "seconds": 4.84,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-head-endstation_ax7101_1x1_tdm8.json"
+  },
+  {
+    "gate": "aecp-head-endstation_ax7101_8x8",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a --output $WORK/composed-images/aecp/head/endstation_ax7101_8x8 --with-aecp",
+    "rc": 0,
+    "seconds": 4.88,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/aecp-head-endstation_ax7101_8x8.json"
+  },
+  {
+    "gate": "srp-base-endstation_arty_4x4",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_4x4.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/base/endstation_arty_4x4 --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack",
+    "rc": 0,
+    "seconds": 2.24,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-base-endstation_arty_4x4.json"
+  },
+  {
+    "gate": "srp-base-endstation_arty_8ch",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_8ch.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/base/endstation_arty_8ch --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack",
+    "rc": 0,
+    "seconds": 2.26,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-base-endstation_arty_8ch.json"
+  },
+  {
+    "gate": "srp-base-endstation_arty_current",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_current.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/base/endstation_arty_current --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack",
+    "rc": 0,
+    "seconds": 2.19,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-base-endstation_arty_current.json"
+  },
+  {
+    "gate": "srp-base-endstation_ax7101_1x1_tdm8",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_1x1_tdm8.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/base/endstation_ax7101_1x1_tdm8 --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack",
+    "rc": 0,
+    "seconds": 2.23,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-base-endstation_ax7101_1x1_tdm8.json"
+  },
+  {
+    "gate": "srp-base-endstation_ax7101_8x8",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/base/endstation_ax7101_8x8 --ctrl-source $WORK/images/base-tree/sw/firmware/ctrl --stack-source $WORK/images/base-tree/tsn-c-stack",
+    "rc": 0,
+    "seconds": 2.26,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-base-endstation_ax7101_8x8.json"
+  },
+  {
+    "gate": "srp-head-endstation_arty_4x4",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_4x4.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/head/endstation_arty_4x4",
+    "rc": 0,
+    "seconds": 2.32,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-head-endstation_arty_4x4.json"
+  },
+  {
+    "gate": "srp-head-endstation_arty_8ch",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_8ch.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/head/endstation_arty_8ch",
+    "rc": 0,
+    "seconds": 2.44,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-head-endstation_arty_8ch.json"
+  },
+  {
+    "gate": "srp-head-endstation_arty_current",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_arty_current.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/head/endstation_arty_current",
+    "rc": 0,
+    "seconds": 2.41,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-head-endstation_arty_current.json"
+  },
+  {
+    "gate": "srp-head-endstation_ax7101_1x1_tdm8",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_1x1_tdm8.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/head/endstation_ax7101_1x1_tdm8",
+    "rc": 0,
+    "seconds": 2.32,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-head-endstation_ax7101_1x1_tdm8.json"
+  },
+  {
+    "gate": "srp-head-endstation_ax7101_8x8",
+    "command": "python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml --libc $VALIDATION_STORAGE/665f3b-a612/runtime/libc.a --compiler-runtime $VALIDATION_STORAGE/665f3b-a612/runtime/libcompiler_rt.a --output $WORK/composed-images/srp/head/endstation_ax7101_8x8",
+    "rc": 0,
+    "seconds": 2.39,
+    "control": "Real runtime-linked image audit; paired image-controls and growth boundary controls",
+    "receipt": "evidence/srp-head-endstation_ax7101_8x8.json"
+  }
+]

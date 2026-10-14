@@ -1,0 +1,22 @@
+{
+  "name": "aecp-base-endstation_arty_current",
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_srp_image.py",
+    "--config",
+    "configs/endstation_arty_current.yaml",
+    "--libc",
+    "$VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libc.a",
+    "--compiler-runtime",
+    "$VALIDATION_STORAGE/665f3b-a612/runtime-freestanding/libcompiler_rt.a",
+    "--output",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/composed-images/aecp/base/endstation_arty_current",
+    "--ctrl-source",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/images/base-tree/sw/firmware/ctrl",
+    "--stack-source",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/images/base-tree/tsn-c-stack",
+    "--with-aecp"
+  ],
+  "rc": 0,
+  "seconds": 4.64
+}

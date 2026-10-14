@@ -1,0 +1,22 @@
+valid expected 0 observed 0
+doc path gate: OK (1 cited paths all resolve; 1 line anchor(s) within their file)
+
+missing-path expected 1 observed 1
+doc path gate: 1 dangling path(s) in 1 document(s)
+
+  MISSING  scripts/missing.py
+           cited by docs/page.md
+
+A cited path that does not exist sends the reader nowhere. Repoint it, or
+if it is deliberately absent add it to ALLOW in this script WITH the reason.
+
+past-end-anchor expected 1 observed 1
+doc path gate: 1 line anchor(s) point past the end of the file they cite
+
+  ANCHOR   ../scripts/present.py#L2  but that file has 1 line(s)
+           cited by docs/page.md
+
+The path still resolves, so the reader is sent to the wrong place rather than
+nowhere. Repoint the anchor at the lines it meant.
+
+doc-path controls: 3/3 PASS

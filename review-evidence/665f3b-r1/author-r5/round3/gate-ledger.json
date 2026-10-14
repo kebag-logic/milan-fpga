@@ -1,0 +1,438 @@
+[
+  {
+    "name": "ci-events-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.21,
+    "raw_log_bytes": 167,
+    "raw_log_sha256": "1012cf9adfc51d5e8af3aa5f1aa6e7abdd0010284504228ac063fd7059c183db",
+    "receipt": "round3/evidence/ci-events-check.log",
+    "receipt_sha256": "1012cf9adfc51d5e8af3aa5f1aa6e7abdd0010284504228ac063fd7059c183db",
+    "kind": "passing validation"
+  },
+  {
+    "name": "ci-events-controls",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 27.56,
+    "raw_log_bytes": 199978,
+    "raw_log_sha256": "f3fb5c71789e036a8d5916680a345413cf52326ff040665942a6ebdf3161a81f",
+    "receipt": "round3/evidence/ci-events-controls.log",
+    "receipt_sha256": "f3fb5c71789e036a8d5916680a345413cf52326ff040665942a6ebdf3161a81f",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-path-controls",
+    "command": [
+      "python3",
+      "$EVIDENCE/round3/doc_path_controls.py",
+      "--repo",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 0.16,
+    "raw_log_bytes": 783,
+    "raw_log_sha256": "3e46370ddffab529ff89c16f478d56e1ccf340e71efe0ffa954e3567bbe4d15a",
+    "receipt": "round3/evidence/doc-path-controls.log",
+    "receipt_sha256": "3e46370ddffab529ff89c16f478d56e1ccf340e71efe0ffa954e3567bbe4d15a",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11,
+    "raw_log_bytes": 100,
+    "raw_log_sha256": "c7242c4322d361e23a6cdaf1dd4020e5d402b7c0315897e06ae7cbf94e0caad0",
+    "receipt": "round3/evidence/doc-paths.log",
+    "receipt_sha256": "c7242c4322d361e23a6cdaf1dd4020e5d402b7c0315897e06ae7cbf94e0caad0",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-style-controls",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06,
+    "raw_log_bytes": 33,
+    "raw_log_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "receipt": "round3/evidence/doc-style-controls.log",
+    "receipt_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11,
+    "raw_log_bytes": 47,
+    "raw_log_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "receipt": "round3/evidence/doc-style.log",
+    "receipt_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "kind": "passing validation"
+  },
+  {
+    "name": "docs-controls",
+    "command": [
+      "python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.21,
+    "raw_log_bytes": 56,
+    "raw_log_sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+    "receipt": "round3/evidence/docs-controls.log",
+    "receipt_sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+    "kind": "passing validation"
+  },
+  {
+    "name": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.72,
+    "raw_log_bytes": 128,
+    "raw_log_sha256": "53336a969a0c2e51ea5117a2a01e23b3d28c5647a8d34dbdc0b518e2a18180b2",
+    "receipt": "round3/evidence/docs.log",
+    "receipt_sha256": "53336a969a0c2e51ea5117a2a01e23b3d28c5647a8d34dbdc0b518e2a18180b2",
+    "kind": "passing validation"
+  },
+  {
+    "name": "em-dash-controls",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 3.43,
+    "raw_log_bytes": 42,
+    "raw_log_sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a",
+    "receipt": "round3/evidence/em-dash-controls.log",
+    "receipt_sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a",
+    "kind": "passing validation"
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "d40e4e9827be2516f8f34b9d65f0a483fff2194c"
+    ],
+    "rc": 0,
+    "seconds": 3.47,
+    "raw_log_bytes": 140,
+    "raw_log_sha256": "4d6d7a341fd2d85c4e71337113a3e60e5cb79dec36ebd97425a77b6684db5bdd",
+    "receipt": "round3/evidence/em-dash.log",
+    "receipt_sha256": "4d6d7a341fd2d85c4e71337113a3e60e5cb79dec36ebd97425a77b6684db5bdd",
+    "kind": "passing validation"
+  },
+  {
+    "name": "evidence-controls",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 9.43,
+    "raw_log_bytes": 5895,
+    "raw_log_sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+    "receipt": "round3/evidence/evidence-controls.log",
+    "receipt_sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+    "kind": "passing validation"
+  },
+  {
+    "name": "evidence-readers",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 9.48,
+    "raw_log_bytes": 18702,
+    "raw_log_sha256": "009f3b7314c8a6eac7b8055060264ee4013ee35ae266763fea815a1dcce97c24",
+    "receipt": "round3/evidence/evidence-readers.log",
+    "receipt_sha256": "009f3b7314c8a6eac7b8055060264ee4013ee35ae266763fea815a1dcce97c24",
+    "kind": "passing validation"
+  },
+  {
+    "name": "gate-read-inventory",
+    "command": [
+      "python3",
+      "$EVIDENCE/round3/gate_read_inventory.py",
+      "--repo",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 1.37,
+    "raw_log_bytes": 1437,
+    "raw_log_sha256": "e8978b64ef8f9b3ee7dbd7590c2c6c7d24e3b9b1165bcc60f0414d007c260e2a",
+    "receipt": "round3/evidence/gate-read-inventory.log",
+    "receipt_sha256": "e8978b64ef8f9b3ee7dbd7590c2c6c7d24e3b9b1165bcc60f0414d007c260e2a",
+    "kind": "passing validation"
+  },
+  {
+    "name": "hygiene-controls",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.46,
+    "raw_log_bytes": 1847,
+    "raw_log_sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+    "receipt": "round3/evidence/hygiene-controls.log",
+    "receipt_sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+    "kind": "passing validation"
+  },
+  {
+    "name": "hygiene",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.46,
+    "raw_log_bytes": 2000,
+    "raw_log_sha256": "e885322d0a78008315b1b2193b90e7da87512fce38ecba80009e0db6d2b54781",
+    "receipt": "round3/evidence/hygiene.log",
+    "receipt_sha256": "e885322d0a78008315b1b2193b90e7da87512fce38ecba80009e0db6d2b54781",
+    "kind": "passing validation"
+  },
+  {
+    "name": "integrity-precleanup",
+    "command": [
+      "python3",
+      "$EVIDENCE/round3/integrity.py",
+      "--repo",
+      "."
+    ],
+    "rc": 1,
+    "seconds": 0.16,
+    "raw_log_bytes": 524,
+    "raw_log_sha256": "4ef6d8eb29992dd7c70507c9002c4d0cb58e17a5c198a9820f6edb31fb024cb1",
+    "receipt": "round3/evidence/integrity-precleanup.log",
+    "receipt_sha256": "36b1e54ccaf515930dbad04f1b7a570f4b982e7c79c6f24c5e9b7cade8919cd5",
+    "kind": "diagnostic"
+  },
+  {
+    "name": "integrity",
+    "command": [
+      "python3",
+      "$EVIDENCE/round3/integrity.py",
+      "--repo",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 0.41,
+    "raw_log_bytes": 1311,
+    "raw_log_sha256": "b3af60b6256f9d97e735e20afa63561bfe7f6abf8b5ce72c501d800fd4429a1c",
+    "receipt": "round3/evidence/integrity.log",
+    "receipt_sha256": "b3af60b6256f9d97e735e20afa63561bfe7f6abf8b5ce72c501d800fd4429a1c",
+    "kind": "passing validation"
+  },
+  {
+    "name": "python-controls",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 4.82,
+    "raw_log_bytes": 2531,
+    "raw_log_sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "receipt": "round3/evidence/python-controls.log",
+    "receipt_sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "kind": "passing validation"
+  },
+  {
+    "name": "python-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 4.87,
+    "raw_log_bytes": 461,
+    "raw_log_sha256": "00e0da2d5cd9f8035e5e4f289168b1290e322998f487413aa9276592c8d5f202",
+    "receipt": "round3/evidence/python-idiom.log",
+    "receipt_sha256": "00e0da2d5cd9f8035e5e4f289168b1290e322998f487413aa9276592c8d5f202",
+    "kind": "passing validation"
+  },
+  {
+    "name": "scope-after",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 11.63,
+    "raw_log_bytes": 7638,
+    "raw_log_sha256": "dd614d63b2c8f2eaee9826e85315c05da7290152b52f4af6126bae2f8640a84d",
+    "receipt": "round3/evidence/scope-after.log",
+    "receipt_sha256": "dd614d63b2c8f2eaee9826e85315c05da7290152b52f4af6126bae2f8640a84d",
+    "kind": "passing validation"
+  },
+  {
+    "name": "scope-before",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 1,
+    "seconds": 10.53,
+    "raw_log_bytes": 7418,
+    "raw_log_sha256": "b4ba9eda70450aabc70f355bfcd15f273640f884f8b69ed36e1f5d9d5f2d8c12",
+    "receipt": "round3/evidence/scope-before.log",
+    "receipt_sha256": "b4ba9eda70450aabc70f355bfcd15f273640f884f8b69ed36e1f5d9d5f2d8c12",
+    "kind": "diagnostic"
+  },
+  {
+    "name": "scope-classification",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "docs/design/MAILBOX_SPLIT.md"
+    ],
+    "rc": 0,
+    "seconds": 0.06,
+    "raw_log_bytes": 5,
+    "raw_log_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+    "receipt": "round3/evidence/scope-classification.log",
+    "receipt_sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+    "kind": "passing validation"
+  },
+  {
+    "name": "service-bounds-portable",
+    "command": [
+      "python3",
+      "$EVIDENCE/round3/service_bounds.py",
+      "--repo",
+      ".",
+      "--out",
+      "$WORK/portable-bounds"
+    ],
+    "rc": 0,
+    "seconds": 0.47,
+    "raw_log_bytes": 814,
+    "raw_log_sha256": "ed4c32d99898940ee0f92e818c8ac98e2bd5fb6694a2b3e25219a0acef1d5581",
+    "receipt": "round3/evidence/service-bounds-portable.log",
+    "receipt_sha256": "ed4c32d99898940ee0f92e818c8ac98e2bd5fb6694a2b3e25219a0acef1d5581",
+    "kind": "passing validation"
+  },
+  {
+    "name": "service-bounds-setup",
+    "command": [
+      "python3",
+      "$WORK/bounds.py"
+    ],
+    "rc": 1,
+    "seconds": 0.16,
+    "raw_log_bytes": 1415,
+    "raw_log_sha256": "2da5657aa2f71fc94dfbea5205766c39fc95379439c17d0ad836c8edc0a470ee",
+    "receipt": "round3/evidence/service-bounds-setup.log",
+    "receipt_sha256": "c39aa54e99c19bbf0940073205cc7b86392db6dd7976ce79fa96c8a706361e70",
+    "kind": "diagnostic"
+  },
+  {
+    "name": "service-bounds",
+    "command": [
+      "python3",
+      "$WORK/bounds.py"
+    ],
+    "rc": 0,
+    "seconds": 0.46,
+    "raw_log_bytes": 814,
+    "raw_log_sha256": "ed4c32d99898940ee0f92e818c8ac98e2bd5fb6694a2b3e25219a0acef1d5581",
+    "receipt": "round3/evidence/service-bounds.log",
+    "receipt_sha256": "ed4c32d99898940ee0f92e818c8ac98e2bd5fb6694a2b3e25219a0acef1d5581",
+    "kind": "passing validation"
+  },
+  {
+    "name": "source-controls",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.82,
+    "raw_log_bytes": 3300,
+    "raw_log_sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+    "receipt": "round3/evidence/source-controls.log",
+    "receipt_sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+    "kind": "passing validation"
+  },
+  {
+    "name": "source-lists",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "seconds": 1.52,
+    "raw_log_bytes": 153,
+    "raw_log_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+    "receipt": "round3/evidence/source-lists.log",
+    "receipt_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+    "kind": "passing validation"
+  },
+  {
+    "name": "toc-controls",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.92,
+    "raw_log_bytes": 38,
+    "raw_log_sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+    "receipt": "round3/evidence/toc-controls.log",
+    "receipt_sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+    "kind": "passing validation"
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.22,
+    "raw_log_bytes": 94,
+    "raw_log_sha256": "67f2b149224c840931e265ff3aa4f79b1d7bf373cd2cef1dbf8b517348e7f4bd",
+    "receipt": "round3/evidence/toc.log",
+    "receipt_sha256": "67f2b149224c840931e265ff3aa4f79b1d7bf373cd2cef1dbf8b517348e7f4bd",
+    "kind": "passing validation"
+  }
+]

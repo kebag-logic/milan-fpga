@@ -1,0 +1,17 @@
+{
+  "name": "aecp-campaign",
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--require-rv32",
+    "--self-test",
+    "--shard",
+    "2/4",
+    "--jobs",
+    "4",
+    "--build-dir",
+    "$VALIDATION_STORAGE/665f3b-a612/round2/aecp-campaign"
+  ],
+  "rc": 0,
+  "seconds": 239.22
+}

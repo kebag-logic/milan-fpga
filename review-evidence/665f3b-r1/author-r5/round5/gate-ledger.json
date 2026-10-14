@@ -1,0 +1,698 @@
+[
+  {
+    "name": "act-flat-selftest",
+    "command": [
+      "python3",
+      "-I",
+      "$WORK/act-install/act_ci.py",
+      "--selftest",
+      "--worktree",
+      "$REPO"
+    ],
+    "rc": 0,
+    "seconds": 31.98,
+    "raw_log_bytes": 59168,
+    "raw_log_sha256": "fe7560c45324912e4fe7fc9ef6e8d27113d8fecb0f831f86f9ae38a7063c6ff2",
+    "receipt": "round5/evidence/act-flat-selftest.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "fe7560c45324912e4fe7fc9ef6e8d27113d8fecb0f831f86f9ae38a7063c6ff2",
+    "kind": "assignment check"
+  },
+  {
+    "name": "act-selftest",
+    "command": [
+      "python3",
+      "scripts/act_ci.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 66.85,
+    "raw_log_bytes": 59315,
+    "raw_log_sha256": "7d144d28ad886967c61e2cca0d672a19fb289e27b824e9e78d11003a7d5b4e30",
+    "receipt": "round5/evidence/act-selftest.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "7d144d28ad886967c61e2cca0d672a19fb289e27b824e9e78d11003a7d5b4e30",
+    "kind": "assignment check"
+  },
+  {
+    "name": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 21.26,
+    "raw_log_bytes": 72,
+    "raw_log_sha256": "d9328f027aa7e36a535545d6843c878e24ef580a0b3f7b11c1250c5024094fe0",
+    "receipt": "round5/evidence/baremetal.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "d9328f027aa7e36a535545d6843c878e24ef580a0b3f7b11c1250c5024094fe0",
+    "kind": "passing validation"
+  },
+  {
+    "name": "baremetal-controls",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.98,
+    "raw_log_bytes": 43,
+    "raw_log_sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+    "receipt": "round5/evidence/baremetal-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+    "kind": "passing validation"
+  },
+  {
+    "name": "ci-events-check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.21,
+    "raw_log_bytes": 167,
+    "raw_log_sha256": "cbf7f2bb4fa19ca31b60e6e86d022a8f00176c252a015526d8ef299bd1933eb1",
+    "receipt": "round5/evidence/ci-events-check.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "cbf7f2bb4fa19ca31b60e6e86d022a8f00176c252a015526d8ef299bd1933eb1",
+    "kind": "assignment check"
+  },
+  {
+    "name": "ci-events-controls",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 31.44,
+    "raw_log_bytes": 201887,
+    "raw_log_sha256": "0333415b3af1f64240a56e5f674aeaa8dbcbabc237c62db549705e8f63673b96",
+    "receipt": "round5/evidence/ci-events-controls.log",
+    "receipt_kind": "summary: first and last 60 lines, every non-ok line, 2978 ok lines elided",
+    "receipt_sha256": "b85ce1124c003ddc24f7a8aad0a1c03cd87136bfabb714a48afab868a4ca8593",
+    "kind": "passing validation"
+  },
+  {
+    "name": "cpp-idiom",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.47,
+    "raw_log_bytes": 316,
+    "raw_log_sha256": "414bb86b6f7f8cc9ad775b573d2e2b094a79cdaf0a64846174fc51542cadd994",
+    "receipt": "round5/evidence/cpp-idiom.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "414bb86b6f7f8cc9ad775b573d2e2b094a79cdaf0a64846174fc51542cadd994",
+    "kind": "passing validation"
+  },
+  {
+    "name": "cpp-idiom-controls",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.57,
+    "raw_log_bytes": 3593,
+    "raw_log_sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9",
+    "receipt": "round5/evidence/cpp-idiom-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-map",
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.47,
+    "raw_log_bytes": 61,
+    "raw_log_sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16",
+    "receipt": "round5/evidence/doc-map.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-map-controls",
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.67,
+    "raw_log_bytes": 60,
+    "raw_log_sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9",
+    "receipt": "round5/evidence/doc-map-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-path-controls",
+    "command": [
+      "python3",
+      "$EVIDENCE/round3/doc_path_controls.py",
+      "--repo",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 0.16,
+    "raw_log_bytes": 783,
+    "raw_log_sha256": "3e46370ddffab529ff89c16f478d56e1ccf340e71efe0ffa954e3567bbe4d15a",
+    "receipt": "round5/evidence/doc-path-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "3e46370ddffab529ff89c16f478d56e1ccf340e71efe0ffa954e3567bbe4d15a",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11,
+    "raw_log_bytes": 100,
+    "raw_log_sha256": "76bbdee11e9718f704c6c54425e6e06bff5cb2730d3014b2fdd3d1a8636add62",
+    "receipt": "round5/evidence/doc-paths.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "76bbdee11e9718f704c6c54425e6e06bff5cb2730d3014b2fdd3d1a8636add62",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11,
+    "raw_log_bytes": 47,
+    "raw_log_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "receipt": "round5/evidence/doc-style.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "kind": "passing validation"
+  },
+  {
+    "name": "doc-style-controls",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06,
+    "raw_log_bytes": 33,
+    "raw_log_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "receipt": "round5/evidence/doc-style-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "kind": "passing validation"
+  },
+  {
+    "name": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.93,
+    "raw_log_bytes": 128,
+    "raw_log_sha256": "ba58e93f03852f06c52255fb6049b1ac116899e30c4ab9e7031a25fa64660060",
+    "receipt": "round5/evidence/docs.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "ba58e93f03852f06c52255fb6049b1ac116899e30c4ab9e7031a25fa64660060",
+    "kind": "passing validation"
+  },
+  {
+    "name": "docs-controls",
+    "command": [
+      "python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.21,
+    "raw_log_bytes": 56,
+    "raw_log_sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+    "receipt": "round5/evidence/docs-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+    "kind": "passing validation"
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa7347fc59173f90e4feec2df207692e6e6e72ec"
+    ],
+    "rc": 0,
+    "seconds": 3.38,
+    "raw_log_bytes": 140,
+    "raw_log_sha256": "4a58870e789cb2fed6aef3d0724da9c66eb4d1767ef18e5825a0f1ce74ecfb2b",
+    "receipt": "round5/evidence/em-dash.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "4a58870e789cb2fed6aef3d0724da9c66eb4d1767ef18e5825a0f1ce74ecfb2b",
+    "kind": "passing validation"
+  },
+  {
+    "name": "em-dash-controls",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 3.37,
+    "raw_log_bytes": 42,
+    "raw_log_sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a",
+    "receipt": "round5/evidence/em-dash-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a",
+    "kind": "passing validation"
+  },
+  {
+    "name": "evidence-readers",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 9.48,
+    "raw_log_bytes": 18702,
+    "raw_log_sha256": "009f3b7314c8a6eac7b8055060264ee4013ee35ae266763fea815a1dcce97c24",
+    "receipt": "round5/evidence/evidence-readers.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "009f3b7314c8a6eac7b8055060264ee4013ee35ae266763fea815a1dcce97c24",
+    "kind": "passing validation"
+  },
+  {
+    "name": "evidence-readers-controls",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 9.88,
+    "raw_log_bytes": 5895,
+    "raw_log_sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+    "receipt": "round5/evidence/evidence-readers-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+    "kind": "passing validation"
+  },
+  {
+    "name": "gate-read-paragraph",
+    "command": [
+      "python3",
+      "-I",
+      "$EVIDENCE/round4/gate_read_paragraph.py",
+      "--repo",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 0.06,
+    "raw_log_bytes": 1177,
+    "raw_log_sha256": "ac4e6fcdfb1cfc4fa9cb7891c65eda25bde105edcf616cf28a7dbd5d0fd9ec40",
+    "receipt": "round5/evidence/gate-read-paragraph.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "ac4e6fcdfb1cfc4fa9cb7891c65eda25bde105edcf616cf28a7dbd5d0fd9ec40",
+    "kind": "passing validation"
+  },
+  {
+    "name": "hygiene",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.47,
+    "raw_log_bytes": 2000,
+    "raw_log_sha256": "3084b03c55c2d48714f78e3ae516a3a3000b3f867306ac72666742d814e9f601",
+    "receipt": "round5/evidence/hygiene.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "3084b03c55c2d48714f78e3ae516a3a3000b3f867306ac72666742d814e9f601",
+    "kind": "passing validation"
+  },
+  {
+    "name": "hygiene-controls",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.46,
+    "raw_log_bytes": 1847,
+    "raw_log_sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+    "receipt": "round5/evidence/hygiene-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+    "kind": "passing validation"
+  },
+  {
+    "name": "image-inputs",
+    "command": [
+      "python3",
+      "-I",
+      "$EVIDENCE/round5/image_inputs.py",
+      "--repo",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 0.06,
+    "raw_log_bytes": 1870,
+    "raw_log_sha256": "eeccfb702f98d8cca353db8400c06e366e38c8350cc592f92130d02b050296a5",
+    "receipt": "round5/evidence/image-inputs.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "eeccfb702f98d8cca353db8400c06e366e38c8350cc592f92130d02b050296a5",
+    "kind": "passing validation"
+  },
+  {
+    "name": "integrity",
+    "command": [
+      "python3",
+      "-I",
+      "$EVIDENCE/round5/integrity.py",
+      "--repo",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 5.93,
+    "raw_log_bytes": 1537,
+    "raw_log_sha256": "45db763fcf9beca5c4ef97b4148089d57e15798f1498c280ce9ce284a4e9ca95",
+    "receipt": "round5/evidence/integrity.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "45db763fcf9beca5c4ef97b4148089d57e15798f1498c280ce9ce284a4e9ca95",
+    "kind": "passing validation"
+  },
+  {
+    "name": "maap-differential",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/maap_differential.py",
+      "--self-test",
+      "--keep",
+      "$WORK/maap-differential"
+    ],
+    "rc": 0,
+    "seconds": 146.02,
+    "raw_log_bytes": 13613199,
+    "raw_log_sha256": "56fd9e37e753a40d8e34e03eb547b2c61511dee9d53dd3a01812906007e814aa",
+    "receipt": "round5/evidence/maap-differential.log",
+    "receipt_kind": "summary: 188 of 328736 lines matching ^RESULT|^ *verdict|differential mutant|checks:|^\\[  (PASSED|FAILED) |^\\[==========\\] .* ran|ESCAP|PROBE intervals",
+    "receipt_sha256": "a39e2cdce7152c98505d8de1a65e5e1d91d19d2768ef59c2ab97b4de7185e833",
+    "kind": "passing validation"
+  },
+  {
+    "name": "mailbox-split-registration",
+    "command": [
+      "python3",
+      "-I",
+      "$EVIDENCE/round5/mailbox_split_registration.py",
+      "--repo",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 0.31,
+    "raw_log_bytes": 956,
+    "raw_log_sha256": "1fde3b88661432baf48007552d74104b3f5586897daffb32ca7d2b10b4e30b00",
+    "receipt": "round5/evidence/mailbox-split-registration.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "1fde3b88661432baf48007552d74104b3f5586897daffb32ca7d2b10b4e30b00",
+    "kind": "assignment check"
+  },
+  {
+    "name": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 6.03,
+    "raw_log_bytes": 461,
+    "raw_log_sha256": "b69453873f6194505988e9d7f16e6c1c55084ca17067c8ea228e6b88e74cd7d8",
+    "receipt": "round5/evidence/py-idiom.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "b69453873f6194505988e9d7f16e6c1c55084ca17067c8ea228e6b88e74cd7d8",
+    "kind": "passing validation"
+  },
+  {
+    "name": "py-idiom-controls",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.03,
+    "raw_log_bytes": 2531,
+    "raw_log_sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "receipt": "round5/evidence/py-idiom-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "kind": "passing validation"
+  },
+  {
+    "name": "registration-dev-before",
+    "command": [
+      "python3",
+      "-I",
+      "$EVIDENCE/round5/mailbox_split_registration.py",
+      "--repo",
+      "$WORK/dev-scope"
+    ],
+    "rc": 1,
+    "seconds": 0.06,
+    "raw_log_bytes": 549,
+    "raw_log_sha256": "0bd1c5300cd298a5044d414ecfdc176ce675e41b8dfc7a17a109c11a6f7ef0cc",
+    "receipt": "round5/evidence/registration-dev-before.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "78a7ecfa933145a88795b785d9e901874c4d2b03b343f76fa31eaf0b7142a258",
+    "kind": "diagnostic (expected rc 1)"
+  },
+  {
+    "name": "retained-images",
+    "command": [
+      "python3",
+      "-I",
+      "$WORK/rehash.py"
+    ],
+    "rc": 0,
+    "seconds": 3.12,
+    "raw_log_bytes": 36,
+    "raw_log_sha256": "72491a04f73d84e768ad6c9c64e43d479a3015293eb27027f6f4809a8b0ffb6d",
+    "receipt": "round5/evidence/retained-images.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "72491a04f73d84e768ad6c9c64e43d479a3015293eb27027f6f4809a8b0ffb6d",
+    "kind": "passing validation"
+  },
+  {
+    "name": "rtl-source-lists",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "seconds": 1.47,
+    "raw_log_bytes": 153,
+    "raw_log_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+    "receipt": "round5/evidence/rtl-source-lists.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+    "kind": "passing validation"
+  },
+  {
+    "name": "rtl-source-lists-controls",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.82,
+    "raw_log_bytes": 3300,
+    "raw_log_sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+    "receipt": "round5/evidence/rtl-source-lists-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+    "kind": "passing validation"
+  },
+  {
+    "name": "scope-controls",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 19.86,
+    "raw_log_bytes": 15329,
+    "raw_log_sha256": "be3ebff4df64fbd38d8a614ddb3be3ff889801c4531ac3a81747f7ae1185c010",
+    "receipt": "round5/evidence/scope-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "be3ebff4df64fbd38d8a614ddb3be3ff889801c4531ac3a81747f7ae1185c010",
+    "kind": "assignment check"
+  },
+  {
+    "name": "sh-idiom",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 0.26,
+    "raw_log_bytes": 235,
+    "raw_log_sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+    "receipt": "round5/evidence/sh-idiom.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+    "kind": "passing validation"
+  },
+  {
+    "name": "sh-idiom-controls",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.26,
+    "raw_log_bytes": 2461,
+    "raw_log_sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+    "receipt": "round5/evidence/sh-idiom-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+    "kind": "passing validation"
+  },
+  {
+    "name": "soc-sources",
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "rc": 0,
+    "seconds": 0.11,
+    "raw_log_bytes": 85,
+    "raw_log_sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033",
+    "receipt": "round5/evidence/soc-sources.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033",
+    "kind": "passing validation"
+  },
+  {
+    "name": "soc-sources-controls",
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.26,
+    "raw_log_bytes": 1501,
+    "raw_log_sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+    "receipt": "round5/evidence/soc-sources-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+    "kind": "passing validation"
+  },
+  {
+    "name": "submodule-docs",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.72,
+    "raw_log_bytes": 47,
+    "raw_log_sha256": "c4bbf250ee33a3cc538cbbf1028e693c8acc058adc782d1f1feef249cd2faa0b",
+    "receipt": "round5/evidence/submodule-docs.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "c4bbf250ee33a3cc538cbbf1028e693c8acc058adc782d1f1feef249cd2faa0b",
+    "kind": "passing validation"
+  },
+  {
+    "name": "submodule-docs-controls",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.06,
+    "raw_log_bytes": 66,
+    "raw_log_sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+    "receipt": "round5/evidence/submodule-docs-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+    "kind": "passing validation"
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.58,
+    "raw_log_bytes": 94,
+    "raw_log_sha256": "67f2b149224c840931e265ff3aa4f79b1d7bf373cd2cef1dbf8b517348e7f4bd",
+    "receipt": "round5/evidence/toc.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "67f2b149224c840931e265ff3aa4f79b1d7bf373cd2cef1dbf8b517348e7f4bd",
+    "kind": "passing validation"
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.72,
+    "raw_log_bytes": 64,
+    "raw_log_sha256": "9439713e461f5423bfb707b4c60ea3b07af538ee6bf834874194fb8b1b7a7685",
+    "receipt": "round5/evidence/toc-anchors.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "9439713e461f5423bfb707b4c60ea3b07af538ee6bf834874194fb8b1b7a7685",
+    "kind": "passing validation"
+  },
+  {
+    "name": "toc-controls",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.92,
+    "raw_log_bytes": 38,
+    "raw_log_sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+    "receipt": "round5/evidence/toc-controls.log",
+    "receipt_kind": "complete log",
+    "receipt_sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+    "kind": "passing validation"
+  }
+]

@@ -1,0 +1,640 @@
+before endstation_arty_4x4
+{
+  "shape": "endstation_arty_4x4",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 84612,
+    ".rodata": 15342,
+    ".data": 112,
+    ".bss": 48076,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8728,
+    "image_arena": 15968,
+    "image_binding": 40,
+    "image_descriptors": 1088,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 1360,
+    "image_latency": 20,
+    "image_licences": 5,
+    "image_map_pools": 112,
+    "image_map_scratch": 32,
+    "image_maps": 128,
+    "image_model": 12,
+    "image_names": 660,
+    "image_sources": 160,
+    "image_srp": 5000,
+    "image_state": 84,
+    "image_values": 6601
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 127148,
+      "sha256": "82e5ce706c7736fa6778c6477a5d43233415fac26efc851aaeb2776146ce34cf"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 149480,
+      "sha256": "d87ea50ed566eb5cc9032d0d5e141400b8f6887f57c2fa1b6e0519027ac3231b"
+    }
+  ],
+  "ram_sections": 156334,
+  "ram_span": 156352
+}
+before endstation_arty_8ch
+{
+  "shape": "endstation_arty_8ch",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 84604,
+    ".rodata": 21102,
+    ".data": 112,
+    ".bss": 54956,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8728,
+    "image_arena": 15968,
+    "image_binding": 40,
+    "image_descriptors": 1600,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2000,
+    "image_latency": 20,
+    "image_licences": 5,
+    "image_map_pools": 112,
+    "image_map_scratch": 64,
+    "image_maps": 256,
+    "image_model": 12,
+    "image_names": 1044,
+    "image_sources": 160,
+    "image_srp": 5000,
+    "image_state": 84,
+    "image_values": 9609
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 132900,
+      "sha256": "c2799ea46a854c45e54992800c3cdc93175a364193d41d37f2eefacb966d2118"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 149480,
+      "sha256": "96b74568306cb713e4cd790d260aa0f30d05b30594fd150cadff7097c163491e"
+    }
+  ],
+  "ram_sections": 168966,
+  "ram_span": 168976
+}
+before endstation_arty_current
+{
+  "shape": "endstation_arty_current",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 84168,
+    ".rodata": 10142,
+    ".data": 28,
+    ".bss": 34276,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8728,
+    "image_arena": 9056,
+    "image_binding": 40,
+    "image_descriptors": 528,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 660,
+    "image_latency": 4,
+    "image_licences": 1,
+    "image_map_pools": 28,
+    "image_map_scratch": 64,
+    "image_maps": 64,
+    "image_model": 12,
+    "image_names": 348,
+    "image_sources": 32,
+    "image_srp": 4784,
+    "image_state": 84,
+    "image_values": 3651
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 121416,
+      "sha256": "7f2bac9275054548497234c7d8c5042c1525c822775f1391a394d7abb65ff4dc"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 152954,
+      "sha256": "a6c258850770d026da1ec94640345783f089b406d1325237b7dfcdb4b7b20604"
+    }
+  ],
+  "ram_sections": 136806,
+  "ram_span": 136832
+}
+before endstation_ax7101_1x1_tdm8
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 84528,
+    ".rodata": 11950,
+    ".data": 56,
+    ".bss": 37508,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8728,
+    "image_arena": 9920,
+    "image_binding": 40,
+    "image_descriptors": 672,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 840,
+    "image_latency": 8,
+    "image_licences": 2,
+    "image_map_pools": 56,
+    "image_map_scratch": 136,
+    "image_maps": 200,
+    "image_model": 12,
+    "image_names": 468,
+    "image_sources": 64,
+    "image_srp": 4824,
+    "image_state": 84,
+    "image_values": 4527
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 123612,
+      "sha256": "74a12209e0301a9a7313861e6e944f972a3ba84374a147e476cf2f12814fdcda"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 155562,
+      "sha256": "089c135cea270b20358a5dcdc51706534c6d301553338350a99074671aa8f7c4"
+    }
+  ],
+  "ram_sections": 142234,
+  "ram_span": 142256
+}
+before endstation_ax7101_8x8
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 84644,
+    ".rodata": 25158,
+    ".data": 448,
+    ".bss": 77684,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 88,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8728,
+    "image_arena": 24032,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2480,
+    "image_latency": 36,
+    "image_licences": 9,
+    "image_map_pools": 448,
+    "image_map_scratch": 576,
+    "image_maps": 4608,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_sources": 288,
+    "image_srp": 5240,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 137332,
+      "sha256": "1721078bbde9510b60ba82f4c4cf7cc0639709bc3b419c0aad1260eb407d5d99"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 151360,
+      "sha256": "aec7fa142cfd7441a9bb6478af160725b1eb3c91f44a20b18cce5765c1ff5364"
+    }
+  ],
+  "ram_sections": 196126,
+  "ram_span": 196144
+}
+after endstation_arty_4x4
+{
+  "shape": "endstation_arty_4x4",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 85916,
+    ".rodata": 15342,
+    ".data": 112,
+    ".bss": 48236,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8872,
+    "image_arena": 15968,
+    "image_binding": 40,
+    "image_descriptors": 1088,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 1360,
+    "image_latency": 20,
+    "image_licences": 5,
+    "image_map_pools": 112,
+    "image_map_scratch": 32,
+    "image_maps": 128,
+    "image_model": 12,
+    "image_names": 660,
+    "image_sources": 160,
+    "image_srp": 5008,
+    "image_state": 84,
+    "image_values": 6601
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 128724,
+      "sha256": "c9ab051aa615d8f763af631b5902fba44c838ffcb1eda504b561cfe8800fe422"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 149728,
+      "sha256": "edfbe2b4fd764bdbb00b40f01e9adef324ee9e10cdbdc47d43afa5fde6cb1c20"
+    }
+  ],
+  "ram_sections": 157798,
+  "ram_span": 157808
+}
+after endstation_arty_8ch
+{
+  "shape": "endstation_arty_8ch",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 85908,
+    ".rodata": 21102,
+    ".data": 112,
+    ".bss": 55116,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8872,
+    "image_arena": 15968,
+    "image_binding": 40,
+    "image_descriptors": 1600,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2000,
+    "image_latency": 20,
+    "image_licences": 5,
+    "image_map_pools": 112,
+    "image_map_scratch": 64,
+    "image_maps": 256,
+    "image_model": 12,
+    "image_names": 1044,
+    "image_sources": 160,
+    "image_srp": 5008,
+    "image_state": 84,
+    "image_values": 9609
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 134476,
+      "sha256": "5fa5d9b7322472d4e164a43fff82b6c0c4e6008274819157c233be724cc458d1"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 149728,
+      "sha256": "96babc7d2c439c61aa350ef9fa8e323708a7860efa52c1994db94d9b2e7a6dff"
+    }
+  ],
+  "ram_sections": 170430,
+  "ram_span": 170448
+}
+after endstation_arty_current
+{
+  "shape": "endstation_arty_current",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 85380,
+    ".rodata": 10142,
+    ".data": 28,
+    ".bss": 34436,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8872,
+    "image_arena": 9056,
+    "image_binding": 40,
+    "image_descriptors": 528,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 660,
+    "image_latency": 4,
+    "image_licences": 1,
+    "image_map_pools": 28,
+    "image_map_scratch": 64,
+    "image_maps": 64,
+    "image_model": 12,
+    "image_names": 348,
+    "image_sources": 32,
+    "image_srp": 4792,
+    "image_state": 84,
+    "image_values": 3651
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 122904,
+      "sha256": "6e5ba04f811205be89167cf4505c14f5c3752844023fe1edc5c4c682082f82ed"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 153226,
+      "sha256": "3d3a3a7f0cc6e9f21dffd6aebfca6fa0cc1c2af4d58ed822f611b6a6d0b8f517"
+    }
+  ],
+  "ram_sections": 138178,
+  "ram_span": 138208
+}
+after endstation_ax7101_1x1_tdm8
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 85840,
+    ".rodata": 11950,
+    ".data": 56,
+    ".bss": 37660,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8872,
+    "image_arena": 9920,
+    "image_binding": 40,
+    "image_descriptors": 672,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 840,
+    "image_latency": 8,
+    "image_licences": 2,
+    "image_map_pools": 56,
+    "image_map_scratch": 136,
+    "image_maps": 200,
+    "image_model": 12,
+    "image_names": 468,
+    "image_sources": 64,
+    "image_srp": 4824,
+    "image_state": 84,
+    "image_values": 4527
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 125196,
+      "sha256": "e39a024245f86e8bceb9a472d428250a3aede53d4bf36844920deb38173d7ee2"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 155851,
+      "sha256": "13095005276f946b8c36dfeae77f637d0c335a13484cdb769efb882709460e70"
+    }
+  ],
+  "ram_sections": 143698,
+  "ram_span": 143712
+}
+after endstation_ax7101_8x8
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 85964,
+    ".rodata": 25158,
+    ".data": 448,
+    ".bss": 77852,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 8,
+    "image_app": 8872,
+    "image_arena": 24032,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2480,
+    "image_latency": 36,
+    "image_licences": 9,
+    "image_map_pools": 448,
+    "image_map_scratch": 576,
+    "image_maps": 4608,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_sources": 288,
+    "image_srp": 5256,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "34b313b4b1056d39a3f3457332954c2f70cd42331dc734b76652f7701b812a5c"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29432,
+      "sha256": "05eebfe03cf0ba74b451d626860ba07f895c1505e5b63acf920c68fc392a4c15"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 138924,
+      "sha256": "9394599a0abf68b9d587f5def0b6c1ce60703cca4bcd36032983b6689556a061"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 151619,
+      "sha256": "6faf818157c97b14ed8da90e93575937479cdb2a5d6d5ad230f4dd41dc1ca86d"
+    }
+  ],
+  "ram_sections": 197614,
+  "ram_span": 197632
+}
