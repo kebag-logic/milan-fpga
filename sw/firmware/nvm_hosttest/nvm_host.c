@@ -65,6 +65,10 @@ extern cmd_handler const nvm_host_cmd_milan_utc;
 void set_idle_hook(void (*fptr)(void));
 void command_dispatch_hook(void);
 void bios_dispatch_hook_required(void);
+/* The writer's CPU-only reset, which writer_restart.py appends to the host
+ * build: every writer static back to its initial value, then nvm_boot()
+ * again, with the fabric, the backend and the media kept. */
+void nvm_host_writer_restart(void);
 
 /* The host replaces the BIOS, including its patch-0006 link marker. */
 void bios_dispatch_hook_required(void)
@@ -158,7 +162,70 @@ struct flash_model {
 	uint64_t erase_ns;
 };
 
+/* A planted read fault (#671). The firmware reads a slot through the
+ * memory-mapped window, a pointer load that always returns bytes, so a media
+ * fault can only return wrong bytes. Every read the firmware opens through
+ * the mapping (one evaluation of SPIFLASH_BASE) is counted from the read the
+ * fault is armed at, power-on for a fault given before --boot, so one given
+ * after it can aim at a writer restart's reads: the first SKIP are clean,
+ * the next COUNT are answered from a view whose bytes of one slot are wrong,
+ * and the rest are clean again. A fault either
+ * XORs one byte of the slot with a different value on every faulty read
+ * (BASE, BASE + 1, ... over 1 to 255, so no two faulty reads agree), does so
+ * and then rewrites the CRC-32 trailer the slot's length word places over the
+ * faulty bytes, so every faulty read is a different container whose CRC
+ * closes (R603-4-F1), reads every byte of the slot as 0xFF, the same on every
+ * faulty read, or reads the slot as the other slot's bytes. That last one is
+ * an address fault: a valid container does not name its slot, so no rule over
+ * the bytes sees it on a judgement read, and the re-stage refuses it only by
+ * the sequence it was picked by. An XORed byte below zero counts back from
+ * the end of the container the slot's length word names: -1 is the trailer's
+ * last byte, -5 the last byte before it.
+ *
+ * Two more faults change one term of the writer's comparison of two refused
+ * reads and keep the others (#671 round 6), by forging the last four bytes
+ * before the trailer so the CRC-32 over every byte before it is a value the
+ * fault fixes. RF_LEN grows the length word by four on every faulty read,
+ * moves the slot's trailer value to the end that length names and forges the
+ * CRC to that value's complement, so each read has another byte count and is
+ * refused VD_CRC. RF_VERDICT XORs the entity, model or record layout word in
+ * turn and forges the CRC to the slot's own trailer value, which closes it, so
+ * any three faulty reads in a row are refused VD_ENT, VD_SHAPE and VD_REC. */
+enum read_fault_mode { RF_XOR, RF_SEAL, RF_FF, RF_OTHER, RF_LEN, RF_VERDICT };
+
+struct read_fault {
+	int armed;
+	uint32_t slot;          /* the slot's flash offset */
+	uint32_t other;         /* the other slot's, in RF_OTHER mode */
+	long off;               /* the byte inside it, in RF_XOR and RF_SEAL modes */
+	enum read_fault_mode mode;
+	unsigned int skip;
+	unsigned int count;
+	unsigned int base;
+	unsigned int hits;      /* reads answered from the faulty view */
+};
+/* A firmware that never stops reading is ended here, with its summary: after
+ * READ_STORM reads, or after BOOT_READ_STORM in one boot or restart, far past
+ * any bound the writer states, so a planted unbounded loop costs no more than
+ * a bounded one (#671). */
+#define READ_STORM 1000000u
+#define BOOT_READ_STORM 1000u
+
 static uint64_t now_ns;
+/* PP_NVM_STAT[31:24], the backend's saved-state contract tag. --boot-backend
+ * contract reads an older one; with over (the boot load ended and none was
+ * accepted) and live (the restore walk already sequenced) it selects the
+ * retire paths a cold boot of this model never takes. */
+static uint32_t stat_tag = 0xc3u;
+static struct read_fault rf;
+static uint8_t flash_view[NVM_HOST_FLASH_BYTES];
+static int view_loaded;
+static unsigned int reads;
+static unsigned int boot_reads;
+static unsigned int restart_reads;
+/* while a boot or a restart runs: the read it began at, and its count */
+static unsigned int boot_from;
+static unsigned int *booting;
 static uint32_t csr[CSR_WORDS];
 static uint32_t shadow[CSR_WORDS];
 static uint32_t pp_ctrl;
@@ -439,7 +506,7 @@ static void recompose(void)
 			     ((uint32_t)walk.closed << 16);
 	csr[A_PP_NVM_SEL / 4] = be.sel;
 	csr[A_PP_NVM_DATA / 4] = data_readback();
-	csr[A_PP_NVM_STAT / 4] = 0xc3000000u |
+	csr[A_PP_NVM_STAT / 4] = (stat_tag << 24) |
 				 ((uint32_t)be.unres << 23) |
 				 ((uint32_t)be.unres << 22) |
 				 ((uint32_t)be.arm_ref << 21) |
@@ -457,13 +524,16 @@ static void recompose(void)
 	memcpy(shadow, csr, sizeof(csr));
 }
 
+/* Every CSR access and tick settles, so the common case, no store since the
+ * last, is one memcmp and not a word-by-word walk; the walk is unchanged. */
 static void settle(void)
 {
 	unsigned int i;
 
-	for (i = 0; i < CSR_WORDS; ++i)
-		if (csr[i] != shadow[i])
-			on_store(i * 4u, csr[i]);
+	if (memcmp(csr, shadow, sizeof(csr)) != 0)
+		for (i = 0; i < CSR_WORDS; ++i)
+			if (csr[i] != shadow[i])
+				on_store(i * 4u, csr[i]);
 	advance();
 	recompose();
 }
@@ -478,6 +548,160 @@ void nvm_host_tick(int cycles)
 {
 	now_ns += (uint64_t)(cycles > 0 ? cycles : 0) * NS_PER_CYCLE + 1000u;
 	settle();
+}
+
+static void summary(void);
+
+static uint32_t get32(const uint8_t *p)
+{
+	return p[0] | (uint32_t)p[1] << 8 | (uint32_t)p[2] << 16 |
+	       (uint32_t)p[3] << 24;
+}
+
+static void put32(uint8_t *p, uint32_t v)
+{
+	unsigned int i;
+
+	for (i = 0; i < 4u; ++i)
+		p[i] = (uint8_t)(v >> (8u * i));
+}
+
+/* RF_SEAL: the slot's trailer, where its length word places it, recomputed
+ * over the bytes before it. A length no container can have is left alone. */
+static void seal_slot(uint8_t *s)
+{
+	uint32_t len = get32(s + 16);
+
+	if (len < 44u || len > 0x10000u)
+		return;
+	put32(s + len - 4u, crc32(s, len - 4u));
+}
+
+/* The four bytes at `at` set so the CRC-32 over the slot's first at + 4
+ * bytes is `want`. Four message bytes are XORed into the register ahead of
+ * 32 shifts, and each shift can be undone, so the register `want` needs is
+ * run back 32 shifts and XORed with the register before the four bytes. */
+static void forge_crc(uint8_t *s, uint32_t at, uint32_t want)
+{
+	uint32_t r = ~want;
+	unsigned int bit;
+
+	for (bit = 0; bit < 32u; ++bit)
+		r = (r & 0x80000000u) ? ((r ^ 0xedb88320u) << 1) | 1u : r << 1;
+	put32(s + at, r ^ ~crc32(s, at));
+}
+
+/* The words RF_VERDICT XORs, in the order the rule tests them after the CRC:
+ * the entity (VD_ENT), the model (VD_SHAPE) and the record layout (VD_REC). */
+static const uint32_t verdict_words[3] = {
+	20u, 28u, 36u
+};
+
+/* The n-th faulty read's view of the slot at `s`, which holds its clean
+ * bytes. A fault placed by the container's end needs a slot that names a
+ * length; one that does not is a harness error, not a fault. */
+static void fault_slot(uint8_t *s, unsigned int n)
+{
+	uint8_t x = (uint8_t)((rf.base - 1u + n) % 255u + 1u);
+	uint32_t len = get32(s + 16);
+	uint32_t grown = len + 4u * (n + 1u);
+
+	if ((rf.mode == RF_LEN || rf.mode == RF_VERDICT || rf.off < 0) &&
+	    (len < 48u || len > 0x10000u || (uint32_t)-rf.off > len ||
+	     (rf.mode == RF_LEN && grown > 0x10000u))) {
+		fprintf(stderr, "HOST: read fault %d on a slot of length %#x\n",
+			(int)rf.mode, (unsigned int)len);
+		exit(2);
+	}
+	switch (rf.mode) {
+	case RF_FF:
+		memset(s, 0xff, 0x10000u);
+		break;
+	case RF_OTHER:
+		memcpy(s, nvm_host_flash + rf.other, 0x10000u);
+		break;
+	case RF_LEN:
+		put32(s + grown - 4u, get32(s + len - 4u));
+		put32(s + 16, grown);
+		forge_crc(s, grown - 8u, ~get32(s + grown - 4u));
+		break;
+	case RF_VERDICT:
+		s[verdict_words[n % 3u]] ^= x;
+		forge_crc(s, len - 8u, get32(s + len - 4u));
+		break;
+	default:
+		s[rf.off < 0 ? len - (uint32_t)-rf.off : (uint32_t)rf.off] ^= x;
+		if (rf.mode == RF_SEAL)
+			seal_slot(s);
+	}
+}
+
+uintptr_t nvm_host_flash_base(void)
+{
+	unsigned int k = reads++;
+	int boot_storm = booting && reads - boot_from > BOOT_READ_STORM;
+
+	if (boot_storm)
+		*booting = reads - boot_from;
+	if (reads > READ_STORM || boot_storm) {
+		printf("HOST read storm: %u reads through the mapping\n", reads);
+		summary();
+		exit(0);
+	}
+	if (!rf.armed || k < rf.skip || k - rf.skip >= rf.count)
+		return (uintptr_t)nvm_host_flash;
+	/* only the journal is ever programmed or erased */
+	if (!view_loaded)
+		memcpy(flash_view, nvm_host_flash, sizeof(flash_view));
+	else
+		memcpy(flash_view + NVM_HOST_JOURNAL_OFFSET,
+		       nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x20000u);
+	view_loaded = 1;
+	fault_slot(flash_view + rf.slot, k - rf.skip);
+	rf.hits++;
+	return (uintptr_t)flash_view;
+}
+
+/* --read-fault and --read-sealed SLOT:OFF:SKIP:COUNT[:BASE], --read-ff,
+ * --read-other, --read-length and --read-verdict SLOT:SKIP:COUNT */
+static void arm_read_fault(const char *spec, enum read_fault_mode mode)
+{
+	long v[4] = {0};
+	unsigned int n = 0;
+	const char *p = spec + 1;
+	char *end = NULL;
+	int bytewise = mode == RF_XOR || mode == RF_SEAL;
+	unsigned int at = bytewise ? 1u : 0u;    /* where SKIP is */
+
+	v[3] = 8;    /* the first faulty read's XOR, unless BASE is given */
+	if ((spec[0] != 'a' && spec[0] != 'b') || spec[1] != ':') {
+		fprintf(stderr, "HOST: a read fault names slot a or b\n");
+		exit(2);
+	}
+	while (*p == ':' && n < 4u) {
+		v[n++] = strtol(p + 1, &end, 0);
+		p = end;
+	}
+	if (*p != '\0' || n < at + 2u || v[at] < 0 || v[at + 1u] < 0 ||
+	    (bytewise && (v[0] <= -0x10000 || v[0] >= 0x10000 || v[3] < 1 || v[3] > 255))) {
+		fprintf(stderr, "HOST: bad read fault %s\n", spec);
+		exit(2);
+	}
+	rf.armed = 1;
+	rf.slot = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0x10000u : 0u);
+	rf.other = NVM_HOST_JOURNAL_OFFSET + (spec[0] == 'b' ? 0u : 0x10000u);
+	rf.mode = mode;
+	rf.off = bytewise ? v[0] : 0;
+	rf.skip = (unsigned int)v[at];
+	rf.count = (unsigned int)v[at + 1u];
+	rf.base = bytewise ? (unsigned int)v[3] : 8u;
+}
+
+/* A fault counts its SKIP from the read it is armed at. */
+static void arm_from_here(const char *spec, enum read_fault_mode mode)
+{
+	arm_read_fault(spec, mode);
+	rf.skip += reads;
 }
 
 /* ---- the LiteSPI command master and the N25Q behind it ----------------- */
@@ -679,15 +903,16 @@ static void summary(void)
 	       "backed=%d dirty=%d stale=%d valid=%d verdict=%u blank=%d fail=%d done=%d "
 	       "seq=%u base_ok=%d img_len=%u losses=%u arms=%u reloads=%u "
 	       "ld_acc=%d ld_pend=%d rl_ref=%d unres=%d ack_ref=%d arm_ref=%d "
-	       "cap_id=%u walks=%u enable_first=%d closed=%d now_ms=%llu\n",
+	       "cap_id=%u walks=%u enable_first=%d closed=%d reads=%u boot_reads=%u "
+	       "restart_reads=%u faulty_reads=%u now_ms=%llu\n",
 	       be.hb_count, be.ack_count, be.start_count, fl.erases, fl.programs,
 	       (unsigned long long)(be.max_hb_gap_ns / 1000000ull), fl.pagewrap,
 	       be.backed, be.dirty, be.stale, be.img_valid, be.verdict, walk.blank,
 	       walk.fail, walk.done, be.words[2], be.base_ok, be.words[1], be.losses,
 	       be.arm_count, be.reload_count, be.ld_acc, be.ld_pend, be.rl_ref,
 	       be.unres, be.ack_ref, be.arm_ref, be.cap_id,
-	       walk.starts, walk.enable_first, walk.closed,
-	       (unsigned long long)(now_ns / 1000000ull));
+	       walk.starts, walk.enable_first, walk.closed, reads, boot_reads,
+	       restart_reads, rf.hits, (unsigned long long)(now_ns / 1000000ull));
 }
 
 static void boot(void)
@@ -695,8 +920,12 @@ static void boot(void)
 	/* the AEM slot: the four magic bytes the firmware's verifier looks for */
 	memcpy(nvm_host_flash + NVM_HOST_AEM_OFFSET, "AEMI", 4);
 	recompose();
+	boot_from = reads;
+	booting = &boot_reads;
 	nvm_host_init_milan_init();
 	settle();
+	booting = NULL;
+	boot_reads = reads;
 	printf("HOST booted\n");
 }
 
@@ -725,6 +954,18 @@ int main(int argc, char **argv)
 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET, 0x10000u);
 		else if (strcmp(a, "--slot-b") == 0 && v)
 			load_file(v, nvm_host_flash + NVM_HOST_JOURNAL_OFFSET + 0x10000u, 0x10000u);
+		else if (strcmp(a, "--read-fault") == 0 && v)
+			arm_from_here(v, RF_XOR);
+		else if (strcmp(a, "--read-sealed") == 0 && v)
+			arm_from_here(v, RF_SEAL);
+		else if (strcmp(a, "--read-ff") == 0 && v)
+			arm_from_here(v, RF_FF);
+		else if (strcmp(a, "--read-other") == 0 && v)
+			arm_from_here(v, RF_OTHER);
+		else if (strcmp(a, "--read-length") == 0 && v)
+			arm_from_here(v, RF_LEN);
+		else if (strcmp(a, "--read-verdict") == 0 && v)
+			arm_from_here(v, RF_VERDICT);
 		else if (strcmp(a, "--erase-ms") == 0 && v)
 			fl.erase_ns = MS(strtoul(v, NULL, 0));
 		else if (strcmp(a, "--walk-closed") == 0) {
@@ -732,7 +973,18 @@ int main(int argc, char **argv)
 			takes = 0;
 		} else if (strcmp(a, "--refuse-loads") == 0 && v)
 			be.refuse_loads = (unsigned int)strtoul(v, NULL, 0);
-		else if (strcmp(a, "--stray-ack") == 0 && v)
+		else if (strcmp(a, "--boot-backend") == 0 && v && !booted) {
+			if (strcmp(v, "contract") == 0)
+				stat_tag = 0xc2u;
+			else if (strcmp(v, "over") == 0)
+				be.ld_pend = 0;
+			else if (strcmp(v, "live") == 0)
+				walk.done = 1;
+			else {
+				fprintf(stderr, "HOST: bad boot backend %s\n", v);
+				return 2;
+			}
+		} else if (strcmp(a, "--stray-ack") == 0 && v)
 			/* an acknowledgement quoting ANOTHER capture: it names
 			 * nothing the backend holds and must be refused */
 			strobes(2u | ((uint32_t)strtoul(v, NULL, 0) << 16));
@@ -760,6 +1012,21 @@ int main(int argc, char **argv)
 				return 2;
 			be.ownership[rid / 32u] |= 1u << (rid % 32u);
 			be.unres = 1;
+		} else if (strcmp(a, "--restart") == 0) {
+			/* a CPU-only reset: the state the restart meets, then
+			 * the writer's boot again on the fabric it left */
+			unsigned int from = reads;
+
+			printf("HOST restarting\n");
+			summary();
+			boot_from = from;
+			booting = &restart_reads;
+			nvm_host_writer_restart();
+			booting = NULL;
+			settle();
+			restart_reads = reads - from;
+			printf("HOST restarted\n");
+			takes = 0;
 		} else if (strcmp(a, "--change") == 0 && v)
 			apply_change(v);
 		else if (strcmp(a, "--dirty") == 0) {
