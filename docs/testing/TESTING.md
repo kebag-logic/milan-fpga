@@ -147,7 +147,7 @@ is generated (Section 0.1).
 
 | Layer | Needs |
 |---|---|
-| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Suites that elaborate Forencich cores read `third_party/verilog-axis`; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow` and `tsn_fuzz` elaborate the gPTP processor, and both `milan_datapath` suites parse its sources even with the fabric gPTP plane off. No vendor tools are required |
+| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Suites that elaborate Forencich cores read `third_party/verilog-axis`; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow`, `gptp_tables` and `tsn_fuzz` elaborate the gPTP processor, and both `milan_datapath` suites parse its sources even with the fabric gPTP plane off. No vendor tools are required |
 | Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same three submodules |
 | LiteX / SoC elaboration | a LiteX Python environment ([Section 7 of ../litex/LITEX_SOC.md](../litex/LITEX_SOC.md#7-reproducibility---versions)) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
@@ -408,8 +408,8 @@ Explicit mutation campaigns above retain their separate targets and full invento
 **The processor submodules serve more suites than name them.**
 `milan_datapath` instantiates `KL_pp_shadow` unconditionally, so `pp_shadow`
 and `milan_dp` resolve `protocol-processor/hdl`. Both of them also resolve
-`gptp-processor/hdl`, as do `gptp_plane`, `gptp_shadow` and `tsn_fuzz`:
-`milan_dp` keeps one source list for all of its legs, and `pp_shadow` takes
+`gptp-processor/hdl`, as do `gptp_plane`, `gptp_shadow`, `gptp_tables` and
+`tsn_fuzz`: `milan_dp` keeps one source list for all of its legs, and `pp_shadow` takes
 that same list from `make -C ../milan_dp print-srcs`, so a suite can need a
 submodule its own Makefile never names. Grepping the Makefiles is therefore
 not the census; the expanded recipe is, so read it with `make -n` in the suite
@@ -515,14 +515,14 @@ preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
 worker before its suites. That self-test refuses to start until the selector's
 `SUITE_SECONDS` names every default suite, so a change that adds a suite first
 records a provisional figure for it, by the new-suite steps in the selector's
-docstring. GitHub uses five isolated `--shard INDEX/5` workers to reduce wall
+docstring. GitHub uses six isolated `--shard INDEX/6` workers to reduce wall
 time, the last of them running `milan_dp` alone, then keeps
 `verilator-suites` as a small aggregate required check. That aggregate compares
 the uploaded log names with the live default suite inventory and
 fails on a missing, unexpected, or multiply-owned suite before trusting the
-combined tally. `scripts/run_all_suites.sh --shard 0/5 --list` shows a worker's
+combined tally. `scripts/run_all_suites.sh --shard 0/6 --list` shows a worker's
 deterministic selection without building it; sharding is a scheduling detail,
-not permission to validate only one fifth locally.
+not permission to validate only one sixth locally.
 
 > **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
 > The standing rule was that every round grows it. Thirteen suites — `aecp`,
@@ -604,6 +604,7 @@ verdicts and for check counts.
 | [`tb/verilator/follow_ring`](../../tb/verilator/follow_ring) | **#645 and #647**: the media-clock plane and the two listener rings it paces, the capture crossbar's loopback ring that `SLIP_LB` counts and the #386 render stage, on the real AAF meter, CRF receiver, servo, NCO and aligner. `milan_datapath`'s own decode, reference-mux, A2-a, #386 settle, settle-recentre and render-recentre glue is copied verbatim by `dp_glue.py`. The axis clock is 6.25 MHz with the aligner's gains scaled to keep its loop in sample units, and nothing is time-compressed. Every leg grades the [settle recentre](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre): one per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred and the render stage on its law. `make` runs four legs: lane B8's INTERNAL-to-AAF set and its two stream-to-stream switches (each also slips nothing and moves the ring under 0.1 tick before its settle recentre), an INTERNAL serial-clock hold, the fine/paired pulls and the controller at four clock rates. The explicit `make mutants` runs `mutants.py`: the settle recentre never pulsing, reaching the render stage only, firing on the aligner's band instead of 8 LOCKED windows, W1 (a switch through servo IDLE), and OVERSHOOT (the loopback target one past the depth, planted in a `CMAP_SRC` copy of the capture crossbar), each failing a named check; the full list of twelve, with the check each must fail, is the controls column of the [test plan](../design/MEDIA_CLOCK_FOLLOWING.md#simulation). `make sweep-b8` (16 set phases at no lateness, 0 to 5 us and 0 to 60 us), `sweep.py b8 --jitter-us 2 --tail-us 24 --tail-p 1e-4` (the rare tail) `sweep.py b8 --jitter-us 60` (the ruled 0 to 60 us envelope) and `make sweep-pullin` (16 feed phases at holds of 52 and 56 us) are the campaigns: every run graded, a window #643's ambiguity window cannot grade reported rather than failed. Every arrival campaign requires at least one tick on both the empty side (first-event push to pop) and the full side (slot freed to reused), for the ruled 16-entry ring with target 11. |
 | [`tb/verilator/gptp_plane`](../../tb/verilator/gptp_plane) | the plane's servo closed over the REAL `timestamp_counter`: an engine rate write becomes a counter addend and a phase write becomes a step |
 | [`tb/verilator/gptp_shadow`](../../tb/verilator/gptp_shadow) | the plane slice: RX tap, TX lane, pairing, publication, and since #360 the ledger's own laws - a record that is not this frame's, the seal that waits for the observer's echo, an aged head that is not retired, and the recovery demand that only a completed episode discharges. `make` runs the suite then `mutants.py`, which also RECORDS the defects this slice cannot see and where each is carried instead |
+| [`tb/verilator/gptp_tables`](../../tb/verilator/gptp_tables) | **#640 lane M7**: the five plane tables that changed storage form - the two frame FIFOs' lane fields, and the egress ledger, result queue and timer deadlines in distributed RAM - each compared every cycle, inside the real slice, with a reference in its previous form, under a protocol peer and a seeded mix of bursts, stalls, held records and warm resets. A test-only slow-engine phase holds results in their queue, and every transmit lane count 0 to 8 is driven through the plane's decode. A value census prints each column's distinct values; a column with one value must be declared, with its reason, in `one_valued.tsv`, from which `scripts/gen_one_valued_table.py` writes the README's limits table. `make` checks that table, runs the suite, then `mutants.py`, which plants a wrong depth, a wrong read latency and an index alias in each table, plus a result written at the queue's head, odd lane counts decoded short, one undeclared column of each table stuck at one value and four wrong declaration lists, and requires each control's own named check to fail |
 | [`tb/verilator/gptp_txts`](../../tb/verilator/gptp_txts) | **the gPTP egress timestamp closed loop** (#360): the donor engine, the plane, the ledger, the PHC, the launch observer, the link guard and the SHIPPING MAC TRANSMIT CHAIN, converted from `sw/litex/milan_soc.py` by `sw/litex/gen_mac_tx_model.py`. It grades the time the plane returns against an independent oracle that counts octets at the PADS, at the product's 125:50 clock ratio with a swept phase, and measures the retired capture in the same run. `make` runs the suite then `mutants.py`; a stale converted chain is a red before anything is compiled |
 | [`tb/verilator/i2spb`](../../tb/verilator/i2spb) | — |
 | [`tb/verilator/ifg`](../../tb/verilator/ifg) | — |

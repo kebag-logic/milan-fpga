@@ -73,8 +73,8 @@ MUTATIONS = [
         "no_tag_check",
         RET,
         "  assign tag_ok_w     = cap_abort_r\n"
-        "                     || ((cap_type_r == led_type_r[led_head_r]) &&\n"
-        "                         (cap_seq_r  == led_seq_r [led_head_r]));",
+        "                     || ((cap_type_r == led_head_type_w) &&\n"
+        "                         (cap_seq_r  == led_head_seq_w));",
         "  assign tag_ok_w     = 1'b1;",
         "foreign tag: the ledger refused it and raised a barrier",
     ),

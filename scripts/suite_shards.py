@@ -28,7 +28,7 @@ job's ``timeout-minutes``, read with the worker count from
 every hosted worker before their suites, so neither starts until
 SUITE_SECONDS names every default suite.
 
-To refresh the tables, take an rtl-full run of dev in which all five
+To refresh the tables, take an rtl-full run of dev in which all
 Verilator workers passed, fetch their logs, and measure them:
 
     run=38217650945
@@ -158,6 +158,7 @@ SUITE_SECONDS = {
     "fw_service_budget": 2,
     "gptp_plane": 784,
     "gptp_shadow": 393,
+    "gptp_tables": 1800,
     "gptp_txts": 72,
     "i2spb": 6,
     "ifg": 6,
@@ -197,12 +198,13 @@ SUITE_SECONDS = {
 #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
 #: driver's suite_timeout gives a new suite, until the change's own hosted run
 #: measures it (step 3 of the module docstring's new-suite steps).
-PROVISIONAL_SUITES: frozenset[str] = frozenset()
+PROVISIONAL_SUITES: frozenset[str] = frozenset({"gptp_tables"})
 
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
 #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
-WORKER_OVERHEAD_SECONDS = (83, 115, 80, 93, 80)
+#: Worker 4 is new for #640; its provisional overhead is the prior maximum.
+WORKER_OVERHEAD_SECONDS = (83, 115, 80, 93, 115, 80)
 
 
 def parse_shard(value: str) -> tuple[int, int]:
@@ -836,12 +838,12 @@ def head_selftest() -> int:
         return len(problems) + len(provisional)
 
     # The run-time half is the workflow's ownership step: tsn-gen and
-    # Yosys/sv2v are installed on workers 1 and 3, and worker 4 must run
+    # Yosys/sv2v are installed on workers 1 and 3, and worker 5 must run
     # milan_dp alone, so a rule that moves any of them must fail here. The
     # balance alone can put a suite on its owner by chance, so each
     # specialized suite is also planted as the lightest and the heaviest.
     owners, _ = balance(suites, len(load))
-    landmarks = {"tsn_fuzz": 1, "chmap_capture": 3, "milan_dp": 4}
+    landmarks = {"tsn_fuzz": 1, "chmap_capture": 3, "milan_dp": 5}
     got = {suite: owners.get(suite) for suite in landmarks}
     alone = dedicated_alone(suites, len(load), DEDICATED_SUITES, SUITE_SECONDS)
     specialized = ("tsn_fuzz", "chmap_capture")

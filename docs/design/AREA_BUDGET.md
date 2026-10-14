@@ -202,6 +202,10 @@ These figures are estimates of the complete qualified default image:
 
 M2 has measured its lane: 34 LUTs post-synthesis, 128 routed, no block-RAM growth.
 The [plan ledger](MARK_II_AREA_PLAN.md#m2-intermediate-measurement) gives both routes and why 34 is the reproducible figure.
+
+M7 has measured its lane: the gPTP plane is 107-253 LUTs smaller.
+It also sheds 1,149 FFs and frees one block-RAM tile.
+The [plan ledger](MARK_II_AREA_PLAN.md#m7-intermediate-measurement) gives the routes and why the image delta is not credited.
 This table keeps its planning estimates until the week-4 re-measure.
 
 The split estimate includes the measured 3,102-LUT mailbox skeleton.
@@ -274,7 +278,8 @@ With M2's unused +2 allowance, the ledger is 3.5 tiles over 121.5 before conditi
 The split takes it: 114 tiles leaves 7.5 below 121.5, or 6.5 with every bank in block RAM.
 At 56 firmware tiles, the conditional total is 116, leaving 5.5.
 The separate 13.5-tile reserve remains untouched in these estimates.
-Unpriced integration buffers and M6/M7 conversions consume the remaining allowance.
+Unpriced integration buffers and M6 conversions consume the remaining allowance.
+M7's measured route frees one tile instead: 74 RAMB36 and 25 RAMB18.
 
 For the ruled 56-tile firmware allocation, the remaining wrapper stores give way first.
 They are five RX pools, MRP strip, TX slots, timer, trace, RX validator and `ctl_fifo`.
