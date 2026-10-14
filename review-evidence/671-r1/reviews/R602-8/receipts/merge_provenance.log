@@ -1,0 +1,42 @@
+head d5cd863561ba1ee7bc6342fb1b00f57dd786bd97 tree 029737bc62cb0fc1bbf45e3aed82a39160ee41da
+merge parents: 9b32002cc0c3aafae9e864af7b4f08c1089a188a fa8209889411e8ca95757174c981f720dbcd95a2
+merge-base(B,D): c6bd08c6f52632c6d33d834ce842ac3cf63f29cc
+merge-tree(B,D): 7a2041b6a0b7ea13c019a3b5be08f0eb3555f8ac  merge commit tree: 7a2041b6a0b7ea13c019a3b5be08f0eb3555f8ac
+paths differing from dev at merge: 15; same set as round-7 own paths: yes
+own paths byte-identical to round-7 head at merge: yes
+dev delta since round-7 merge-base: 160 paths; overlap with own paths: 0
+merge delta patch (B..M) == dev delta patch (C..D): yes
+gitlinks 9b32002cc0c3aafae9e864af7b4f08c1089a188a:
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor
+  2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+gitlinks fa8209889411e8ca95757174c981f720dbcd95a2:
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor
+  2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+  70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+gitlinks f3bb2014d065141930ae1a473c966b419d1040aa:
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor
+  2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+  70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+gitlinks d5cd863561ba1ee7bc6342fb1b00f57dd786bd97:
+  efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+  7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor
+  2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor
+  08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+  70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+  48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+head commit changes vs merge:
+ docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md  | 15 +++++++++------
+ tb/verilator/nvm_capture_cpu/measurements.json | 10 +++++-----
+ 2 files changed, 14 insertions(+), 11 deletions(-)
+commit subjects:
+  d5cd86356 parents=f3bb2014d Re-measure the saved-state capture at the merge of dev fa820988 (#671)
+  f3bb2014d parents=9b32002cc fa8209889 Merge dev fa820988 into the saved-state read-fault lane (#671)
