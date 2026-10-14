@@ -1,0 +1,99 @@
+[R593] NEGATIVE - exact head 412e3f6c8c402bce63e94c291d2782b5579aaa1d
+
+Round R593-4, independent external delta review of issue #640 / parent PR #713 and donor PR #78. Tree: `3a0b668761728b2e9fcc328f71f67f885ef3d11e`. Donor: `e4869fd0c42889b2ac806587cc5c78afb1c33461`.
+
+All five lenses were applied independently. The initial NEGATIVE verdict and ledger were saved in `receipts/independent-pass.md` before prior public review findings were read. This final report reconciles those findings. Two findings remain open: one MAJOR and one MINOR.
+
+Scope authorities: [M7 assignment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6097272538), [round-four merge assignment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6161607579), and [continuation ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6162175442). The full base diff `e8454e27..412e3f6c` was mapped against the two merge inputs; this round judges parent delta `354f7818..412e3f6c` and donor delta `18dd997b..e4869fd0`, preserving earlier coverage of unchanged artifacts.
+
+R593-4-F1 | MAJOR | Conformance, Tests | `scripts/suite_shards.py:160`, `scripts/suite_shards.py:239`, `.github/workflows/rtl.yml:219` | Merged inventory omits the M7 suite's duration.
+
+Authority/evidence: the round-four assignment requires integration with dev `fa820988`. The imported scheduler requires every default suite in `SUITE_SECONDS`; its new-suite procedure is at `scripts/suite_shards.py:54`. `tb/verilator/gptp_tables/Makefile` makes M7 a discovered default suite, but the duration table has no `gptp_tables` row. Exact-head `python3 scripts/suite_shards.py --selftest` exits 1, naming that missing row. Disposable copies of both parent revisions' scheduler inputs pass. All five hosted workers in run `38524965102` fail the same prerequisite.
+
+Impact: every hosted simulation shard stops before its suites. The serial full sweep also aborts at `scripts/run_all_suites.sh:291`. Passing the focused M7 campaign and CI scope/event checks cannot supply the missing full-suite evidence.
+
+Required outcome: integrate M7 with the scheduler's duration/provisional inventory and capacity contract, preserving complete/disjoint suite ownership and the existing timeout/headroom rules. Follow the documented new-suite procedure; do not remove M7, skip the prerequisite, or raise a budget to hide the failure.
+
+Verification: the focused scheduler selftest must pass on the corrected head, alongside scope/event checks and complete suite selection. The manager must obtain the required successful hosted contexts and current-dev candidate evidence. `receipts/inventory-probe.log`, `receipts/inventory-head.log` and `receipts/hosted-failure-context.log` reproduce the defect.
+
+R593-4-F2 | MINOR | Docs | `tb/verilator/gptp_tables/README.md:29,31`, `tb/verilator/gptp_tables/sim_main.cpp:15,19` | The merged donor changes the measured reach, but the current-suite description retains the old figures.
+
+Authority/evidence: AGENTS.md requires documentation to match executable evidence. The README's “Reached” column states TX 27/256 and results 3/8; the harness header repeats those figures. The exact-head fixed-seed run prints TX 25/256 and results 2/8, with 111 writes behind a waiting result (`receipts/m7-baseline.log`). The author's published round-four evidence also reports result depth two. The reviewed round-three artifacts recorded 27 and three under the previous donor.
+
+Impact: the current README and harness header overstate measured reach at this pin. This does not invalidate the required depth-two check or the caught result-write-index control, but the discrepancy changes numeric evidence and therefore is not wording-only RESIDUE.
+
+Required outcome: align both descriptions with the current run, or explicitly qualify 27/three as historical measurements at `354f7818` / donor `18dd997b` and state the current reach. Keep the existing thresholds and controls intact.
+
+Verification: the same fixed-seed baseline reports 36/36 with TX 25 beats and two queued results at this head; the documentation must distinguish that receipt from prior measurements. If a corrected head changes the stimulus, record its own observed reach and rerun the controls.
+
+R593-4-D1 | RESIDUE | Docs | PR #713 body, Status / How to get into the same state / Known limitations | Publication wording still describes local-only heads.
+
+Authority/evidence: the read-only PR response names published head `412e3f6c8c402bce63e94c291d2782b5579aaa1d`, while the body says both heads remain local and the latest commits are not remotely available.
+
+Impact: stale publication wording only; no measurement, test, figure, verdict or protocol claim changes.
+
+Exact fix: replace the Status local-only sentences with “REVIEW READY at the published parent and donor revisions listed above.” Replace the reproduction introduction with “Check out the published parent revision and initialize its pinned submodules.” Qualify the no-push/no-PR-edit statement as the executor's implementation-stage history. The manager carries this wording change on the residue checklist.
+
+Verification: read the corrected body against the published parent/donor heads. This residue leaves Docs clean under the owner's rule.
+
+| Lens | CLEAN/UNCLEAN | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN | Issue #640 frozen M7 scope and round-four rulings; parent/donor merge identities; `scripts/suite_shards.py:54,160,239`; `receipts/inventory-probe.log` | R593-4; F1 open | `412e3f6c8c402bce63e94c291d2782b5579aaa1d` |
+| RTL | CLEAN | Parent M7 RTL blobs and automatic merge comparison; donor timer, parser and generator provenance; `receipts/merge-style-audit.log`; fresh M7 lockstep | R593-4 delta; unchanged M7 artifacts retain R593-3 coverage | `412e3f6c8c402bce63e94c291d2782b5579aaa1d` |
+| Robustness | CLEAN | `tb/verilator/gptp_tables` consumer checks, census, declared limits and 26 controls; donor parser before/after runtime output; clock defect fixtures | R593-4 delta | `412e3f6c8c402bce63e94c291d2782b5579aaa1d` |
+| Tests | UNCLEAN | Focused checks pass; scheduler inventory and all five hosted shard prerequisite failures establish F1 | R593-4; F1 open | `412e3f6c8c402bce63e94c291d2782b5579aaa1d` |
+| Docs | UNCLEAN | Donor `docs/MANAGER.md:34,72,103,113`; parent measurement histories, eight donor-link pages, generated diagrams and ROM ledger; PR revision-qualified figures; suite reach table against fresh run | R593-4; F2 open; residues carried | `412e3f6c8c402bce63e94c291d2782b5579aaa1d` |
+
+The donor reviewed by every row is `e4869fd0c42889b2ac806587cc5c78afb1c33461`.
+
+The donor merge has ordered parents `18dd997b` and `61d486e9`; only `docs/MANAGER.md` differs from the automatic merge. Both measurement histories survive. The following style commit changes only that guide, the clock checker's fixture organization/docstring, and four parser declarations. Production clock-check functions and CLI remain identical. The fixture list, required findings and runner compare structurally equal. The functions span 95, 30 and eight lines. Both clock selftests pass 30 arms. Both parser simulations pass 337 checks, with identical 2,049-byte runtime output (SHA-256 `f521be7f25439184b14991a9667aabeb05d84a3b98f27df2b6dbe2ea2e8e556c`).
+
+The parent has ordered parents `354f7818` and `fa820988`. No code differs from the automatic merge; manual results are documentation, generated artifacts, the donor gitlink and ROM records. Its M7 RTL, complete table-test subtree and README generator are byte-identical to round 3. Both idiom gates pass; their budgets are unchanged from both parents, and gate code equals incoming dev. There is no M7-specific exception. Fresh generated ROM bytes match `a435fba6167238268fa9074dd4645dd03380e56ff1eeea273fd3fc2fcecab9fd`; usage is 1,016 words and `FUTO@249`.
+
+Fresh local checks pass: M7 baseline 36/36, all 26 original mutations caught by their named checks, one-valued table generation, Python/C++ idiom gates, `ci_scope.py --selftest`, `ci_events.py --check` (2,174 items), six exact submodule pins, eight donor-link pages and both generated diagrams. The diagrams were also visually inspected. Builds and mutation copies reside only in packet `scratch/`; all processes were awaited. No source edit was needed or made.
+
+The source validation is distinct from the final current-dev candidate. No manager source bank at this head is claimed. The [public author evidence](https://github.com/kebag-logic/milan-fpga/blob/d50e88ad616414b573238b52bdbd23a3e3de07bf/review-evidence/640-m7-r1/author-r4/HANDOFF.md#round-4-continuation) reports the isolated offline workflow selftest passing; this reviewer did not run that host-side script or a container. Its published summary lists a 59,168-byte receipt with SHA-256 `6a28c53acbded43c63ca0ec57eb4fb5f58c1f0826a0a6d8a8bd539d364f6debe`. The underlying raw author log is not in that public directory; this is author-reported evidence, not an independently repeated execution. Both published author evidence documents matched the public manifest's hashes.
+
+Physical calibration was NOT RUN. Skipped physical contexts and field skips provide no hardware proof. Full parent/donor/processor/synthesis/builder banks were not run by this reviewer. No route was repeated: PR area/timing numbers are explicitly tied to `e8454e27` lineage and `49e1ce48`, not to the merged tree, as ruled. Broader incoming dev changes and previously reviewed donor changes were checked for merge preservation, not re-reviewed as new implementation work.
+
+Hosted snapshot: [run 38524965102](https://github.com/kebag-logic/milan-fpga/actions/runs/38524965102) completed all four Yosys shards successfully; all five simulation shards and their aggregate failed. Physical gPTP was skipped. Other contexts were still running when inspected (`receipts/public-state.json`). The simulation failures are executed prerequisite failures, not simulation results or skipped success. Hosted and local workflow acceptance remain manager duties.
+
+The final current-dev candidate must use the then-live dev, not the frozen source base `e8454e2751d05b02ee8e5a571857589ab358ab86`. This reviewed merge already contains live dev `fa8209889411e8ca95757174c981f720dbcd95a2`; that ancestry does not substitute for the manager's merge-turn builder/native banks and linked receipts. Required contexts, corrected-head reviews, no outstanding review, explicit merge authorization, post-merge containment and the following day's area measurement remain pending. The issue's overall resource closure is not claimed by this intermediate M7 review.
+
+Prior findings were reconciled from all six public rounds, after the independent verdict was written: [R593-1](https://github.com/kebag-logic/milan-fpga/pull/713#issuecomment-6100523183), [R592-1](https://github.com/kebag-logic/milan-fpga/pull/713#issuecomment-6100974949), [R593-2](https://github.com/kebag-logic/milan-fpga/pull/713#issuecomment-6104071499), [R592-2](https://github.com/kebag-logic/milan-fpga/pull/713#issuecomment-6104114050), [R592-3](https://github.com/kebag-logic/milan-fpga/pull/713#issuecomment-6105019792), and [R593-3](https://github.com/kebag-logic/milan-fpga/pull/713#issuecomment-6105200884).
+
+| Prior item | Disposition at this head | Artifact/evidence |
+|---|---|---|
+| R592-1-F1, MINOR Tests | Resolved | Fresh results depth two, 111 writes behind a waiting result; named depth check and `results_write_index` control pass. README has a separate numeric drift, F2 above. |
+| R592-1-F2 = R593-1-R-02, RESIDUE RTL/Docs | Resolved | `KL_gptp_shadow.sv:236-242,258-261,877-879` retains corrected never-written/stale-word and beat-depth comments. |
+| R592-1-F3 = R593-1-R-01, RESIDUE Docs | Resolved | `MARK_II_AREA_PLAN.md:727-728` names each exclusion and the untaken timestamp-FIFO option. |
+| R592-1-F4, SUGGESTION Tests | Resolved | Decode gives `00 01 03 07 0f 1f 3f 7f ff`; odd-count mutation is caught. |
+| R592-1-F5, RESIDUE Docs | Resolved going forward | Current published evidence distinguishes engine 33, gaskets four and traffic generator three; original round-one prose remains history. |
+| R593-1-S-01, SUGGESTION Tests | Resolved | `one_valued.tsv` declares ledger tag; fresh census reports one value, 1. |
+| R593-1-S-02, SUGGESTION Tests | Documentation outcome resolved; per-segment coverage still deferred | `README.md:75-80` retains #714 and the cumulative-coverage limit. No claim that filing #714 fixes the underlying defect. |
+| R593-2-F1, MINOR Tests/Docs | Resolved | All eleven consumer columns are censused; tag/ok/gen declared at 1; generated README current; five stuck-column and four declaration controls caught. Complementary `ok` coverage is inherited from round three, not rerun here. |
+| R593-2-R-01, RESIDUE Docs | Original bad checkout command absent | Current PR has no `git switch --detach 640-m7`; its different publication wording issue is D1 above. |
+| R593-2-S-01, SUGGESTION Tests | Resolved | Tautological coverage line absent; actual decode enables printed. |
+| R592-2-RES1, RESIDUE Docs | Resolved | Published PR is ready and its body no longer calls it a draft. |
+| R593-1-S-03, SUGGESTION RTL/Robustness | Retained, pre-existing and explicitly out of lane | Guard at `KL_gptp_shadow.sv:271`; manager routes it to #495 at merge. |
+| R592-2-S1, SUGGESTION Tests | Retained, optional | `KL_gptp_txret.sv:637` full-ledger write guard remains; stimulus reaches only three of eight entries. |
+| R592-3-RES1, RESIDUE Tests/Docs | Retained | Reference wording still says all inputs are untouched; exact fix below. |
+| R592-3-RES2, RESIDUE Docs | Retained | Plan sentence still says widths unchanged; exact fix below. |
+| R593-3-R-01, RESIDUE Tests/Docs | Retained | Makefile still says two declaration controls; exact fix below. |
+| R593-3-S-01, SUGGESTION Docs | Retained | Donor M7 snapshot has no direct M7 evidence link; restored PR #76 link belongs to the other history. |
+
+Retained residue details for the manager's checklist:
+
+- **R592-3-RES1 | RESIDUE | Tests, Docs | `tb/verilator/gptp_tables/README.md:9` and `gptp_tables_wrap.sv:15`.** Authority/evidence: the result reference takes `push_res_w` and `res_ok_w` from resolution logic that reads the converted ledger head; the separate ledger lockstep covers that head. Impact: an overbroad independence sentence, with no changed oracle or verdict. Exact fix: append “except that the result queue's write strobe and `ok` bit come from the plane's resolution logic, which reads the ledger's converted head port; the ledger lockstep grades that port in every cycle the ledger holds an entry, which includes every resolution.” Verification: read both sentences against wrapper lines 410-428; existing checks remain unchanged.
+- **R592-3-RES2 | RESIDUE | Docs | `docs/design/MARK_II_AREA_PLAN.md:713`.** Authority/evidence: the adjacent table already gives stored widths 74/73 to 69. Impact: ambiguous prose beside correct historical figures. Exact fix: “Their function, depths and read latency are unchanged; only the two frame FIFOs' stored byte-enable fields narrow, as the table shows.” Verification: prose agrees with the unchanged table; no numeric measurement changes.
+- **R593-3-R-01 | RESIDUE | Tests, Docs | `tb/verilator/gptp_tables/Makefile:62`.** Authority/evidence: the executable list and README already contain four declaration controls. Impact: a comment label only. Exact fix: replace “and two wrong declaration” with “and four wrong declaration”. Verification: compare the comment with the four original declaration mutation entries; no test or verdict changes.
+
+Retained suggestions remain optional: **R593-1-S-03** can require 64-bit lanes or make the classifier/gearbox lane-generic, verified by explicit supported/unsupported-width elaboration; **R592-2-S1** can add a full-ledger stimulus and named guard control, verified at that boundary; **R593-3-S-01** can link donor `docs/MANAGER.md:72-97` to the published M7 measurements, verified by opening the linked evidence. Their evidence and scopes above are unchanged; none clears F1 or F2.
+
+No tracked source was edited. Final raw-byte/mode/index verification covers 1,323 parent blobs plus 1,046 initialized dependency blobs and all six root gitlinks (`receipts/identity.log`). The unused `external` checkout remains uninitialized; its gitlink was verified. The automatic parent merge comparison emitted a warning for an unavailable historical donor object; the actual donor merge parents, required ancestry and final gitlink were verified independently. A reviewer launcher initially hit a main-thread signal-handler restriction before starting M7; the corrected foreground child ran the complete baseline and campaign successfully.
+
+Portable reproduction: `scripts/run_checks.py --repo <review-clone> --packet <packet> --verilator <pinned-compiler>` runs independent checks concurrently with at most 13 compiler/check workers and waits for all children. The complete stock M7 mutation driver takes no `--jobs` option; its builds use eight workers and `make -j16`. `scripts/audit_merge.py`, `scripts/probe_suite_inventory.py` and `scripts/verify_identity.py` provide the structural, failing-inventory and restoration checks without running full banks. The scheduler probe exits zero only when both parent controls pass and the reviewed head reproduces the expected refusal.
+
+`MANIFEST.sha256` lists the publication set using packet-relative paths. Published logs preserve command output except documented path substitutions; original bytes are retained under unpublished `scratch/raw-receipts/`. Disposable trees and full hosted logs remain under `scratch/` and are excluded. No GitHub write, source fix, commit, push, merge, shared install, hardware action or author contact was performed.
+
+R593-4 FINISHED

@@ -1,0 +1,8 @@
+head 412e3f6c8c402bce63e94c291d2782b5579aaa1d expected rc 1 observed 1
+  FAIL head: gptp_tables: inventory suite with no recorded duration in SUITE_SECONDS (a new suite follows the module docstring's new-suite steps: record suite_timeout's figure for it as provisional, add a worker if one is then predicted over 60% of timeout-minutes, and replace the figure from the change's own hosted run)
+selftest: 1 FAILURE(S)
+round3 354f781828d8b4d73037129f297b072320a10f9c expected rc 0 observed 0
+selftest: PASS
+dev fa8209889411e8ca95757174c981f720dbcd95a2 expected rc 0 observed 0
+selftest: PASS
+REPRODUCED: both input inventories pass; the merged inventory fails
