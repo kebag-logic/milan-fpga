@@ -250,6 +250,10 @@ Rebuild and rerun smoke after every source-lock change.
 | `SBT_OPTS` | Boot, global and Ivy directories under `/opt/sbt/cache`; repository override | Offline Scala bootstrap and pinned public repositories |
 
 The complete values are in [`Dockerfile`](../../ci/image/Dockerfile).
+The offline runner self-test requires the Docker client executable.
+Its pinned 28.0.4 release matches the recorded runner manifest.
+The image contains the client; daemon access belongs to the caller.
+
 No image-level worker limit overrides job concurrency settings.
 `SOURCE_DATE_EPOCH` is a build argument, not runtime policy.
 

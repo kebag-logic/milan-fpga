@@ -55,7 +55,7 @@ def versions(pins: dict[str, object]) -> None:
                     ("flex", "flex"), ("bison", "bison"), ("automake", "automake"),
                     ("help2man", "help2man"), ("curl", "curl"), ("pkg-config", "pkg-config"),
                     ("rsvg-convert", "librsvg2-bin"), ("java", "openjdk-17-jre-headless"),
-                    ("xz", "xz-utils"), ("sudo", "sudo"))
+                    ("xz", "xz-utils"), ("sudo", "sudo"), ("docker", "docker-ce-cli"))
     for tool, package in distribution:
         expected = package_versions[package].rsplit("really", 1)[-1].split("+")[0]
         option = "-version" if tool == "java" else "--version"
@@ -118,6 +118,7 @@ def native_smokes(work: Path) -> None:
     run(["xz", "--keep", str(source)])
     assert run(["xz", "--decompress", "--stdout", str(source) + ".xz"]) == source.read_text()
     assert "sudo" in run(["sudo", "--help"])
+    assert "Usage:" in run(["docker", "--help"])
     assert run(["node", "-e", "require('assert').strictEqual(6*7, 42); console.log('JS_OK')"]).strip() == "JS_OK"
     assert "gh api" in run(["gh", "api", "--help"])
     run(["python3", "-m", "pip", "check"])

@@ -348,8 +348,10 @@ CI_IMAGE_LOCK_LITERALS = (
     '"sources/node-v22.23.3-linux-x64.tar.xz"',
 )
 CI_IMAGE_LOCK_MASK = re.compile("|".join(re.escape(value) for value in CI_IMAGE_LOCK_LITERALS))
+CI_IMAGE_CLIENT_URL = ('"https://download.docker.com/linux/ubuntu/dists/noble/pool/stable/amd64/'
+                       'docker-ce-cli_28.0.4-1~ubuntu.24.04~noble_amd64.deb"')
 TERM_MASKS = {
-    "ci/image/sources.lock.json": CI_IMAGE_LOCK_MASK,
+    "ci/image/sources.lock.json": re.compile(CI_IMAGE_LOCK_MASK.pattern + "|" + re.escape(CI_IMAGE_CLIENT_URL)),
     "ci/image/image.lock.json": CI_IMAGE_LOCK_MASK,
     # #738 comment 6163057631: OCI fields and certificate normalization.
     # Literal masks apply only to these infrastructure source files.
@@ -1299,6 +1301,9 @@ def _arms_image_host_masks(arm, plant_runner_path):
         arm(f"image-host-literal-unlisted-{path}",
             lambda r, p=path: plant_runner_path(r, p, '{"platform": "linux/other"}'), True, "[T]")
     fixtures = {
+        "ci/image/sources.lock.json": (
+            '"https://download.docker.com/linux/ubuntu/dists/noble/pool/stable/amd64/'
+            'docker-ce-cli_28.0.4-1~ubuntu.24.04~noble_amd64.deb"',),
         "ci/image/image_archive.py": ('config["rootfs"]',),
         "ci/image/normalize.py": ('Path("/etc/ssl/certs/java/cacerts")', 'Path("/etc")'),
         "ci/image/privacy_selftest.py": ('"linux/amd64"', '"linux"', '"rootfs"'),
