@@ -421,6 +421,10 @@ jobs:
       - name: Entity shape gate
         run: python3 scripts/check_entity_shape.py --self-test
         id: gate_49
+      - name: Fetch inventory dependencies
+        run: |
+          git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+        id: ci_step_52
       - name: CI scheduling and evidence controls
         run: |
           python3 scripts/ci_gate_workflows.py --check
@@ -445,7 +449,7 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow docs --leg 0 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_53
+        id: ci_step_54
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -453,7 +457,7 @@ jobs:
           name: gate-docs-0-${{ github.sha }}
           path: ${{ runner.temp }}/gate-results/receipt.json
           if-no-files-found: error
-        id: ci_step_54
+        id: ci_step_55
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}

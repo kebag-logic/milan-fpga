@@ -21,7 +21,7 @@ def inventory_dependencies() -> dict:
 def check_inventory_dependencies(source: dict) -> None:
     """Refuse any driver-inventory consumer without earlier pinned preparation."""
     readers = ("scripts/ci_suite_pieces.py", "scripts/ci_suite_collect.py",
-               "scripts/ci_runtime_evidence.py collect")
+               "scripts/ci_runtime_evidence.py collect", "scripts/ci_suite_pieces_selftest.py")
     preparation = inventory_dependencies()["run"].strip()
     for job_id, job in source["jobs"].items():
         prepared = False

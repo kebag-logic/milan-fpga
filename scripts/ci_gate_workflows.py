@@ -151,6 +151,9 @@ def gate_graph(name: str, template: dict) -> dict:
                 if "id" in kept:
                     raise ValueError(name + ": gate already has an output identifier")
                 kept["id"] = case["id"]
+            if step.get("name") == "CI scheduling and evidence controls":
+                from ci_suite_workflows import inventory_dependencies
+                worker["steps"].append(inventory_dependencies())
             worker["steps"].append(kept)
         worker["steps"].extend(collection_steps(name, leg))
         source["jobs"][worker_id(name, leg)] = worker
