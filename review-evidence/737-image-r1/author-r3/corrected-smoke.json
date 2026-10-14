@@ -1,0 +1,35 @@
+[
+  {
+    "command": [
+      "sudo",
+      "-n",
+      "-u",
+      "alex",
+      "-g",
+      "docker",
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-e",
+      "TMPDIR=/scratch",
+      "-e",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "-e",
+      "VERILATOR_JOBS=2",
+      "--mount",
+      "type=bind,src=$VALIDATION_STORAGE/737-a615,dst=/scratch",
+      "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools",
+      "python3",
+      "/opt/ci-image/smoke.py",
+      "--work",
+      "/scratch/final-smoke"
+    ],
+    "rc": 1,
+    "elapsed_ms": 5725,
+    "size": 16224,
+    "sha256": "ccb11df49db5dab0852c8ddbd79050c585f6c1d074f4a0cd8238732c7971a0e9",
+    "log": "corrected-smoke-0.log"
+  }
+]
