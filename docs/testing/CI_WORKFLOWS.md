@@ -2784,7 +2784,7 @@ the cache, but a changed installation command cannot reuse its predecessor.
 
 The install-cache generator also covers every ordinary Python download,
 verified sv2v archive and pinned field-oracle build. `ci/constraints-ci.txt`
-fixes CPython 3.12 Linux x86_64 package URLs with exact versions and SHA-256;
+fixes CPython 3.12 x86_64 hosted-runner package URLs with exact versions and SHA-256;
 `PIP_CONSTRAINT` applies them without changing any gate command. The download
 cache key binds that complete source list, the existing requirements and LiteX
 pins, and the generator/workflow recipe. sv2v's archive is verified on every

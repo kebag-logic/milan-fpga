@@ -17,6 +17,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tarfile
 import urllib.request
 
@@ -24,6 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ACT_COMMIT = "4f411281417e88660bea1c1a1749aa71ae0bd60f"
 ACT_SHA256 = "0d151c0a14455ea2ee1d2bff5258aadef9ac96e35f9756e6bcd8af323780ae98"
 GO_SHA256 = "2852af0cb20a13139b3448992e69b868e50ed0f8a1e5940ee1de9e19a123b613"
+GO_ARCHIVE = "go1.25.0.{}-amd64.tar.gz"
 VERSION = "0.2.89+milan-ci5"
 
 
@@ -52,7 +54,8 @@ def extract(archive: Path, directory: Path) -> None:
 def build(directory: Path) -> dict:
     """Run scheduling controls, unchanged upstream controls and a reproducible compiler invocation."""
     directory.mkdir(parents=True, exist_ok=False)
-    compiler = directory / "go1.25.0.linux-amd64.tar.gz"
+    # Go names each release archive after the build host's OS; GO_SHA256 admits only the pinned one.
+    compiler = directory / GO_ARCHIVE.format(sys.platform)
     archive = directory / "act.tar.gz"
     download("https://go.dev/dl/" + compiler.name, compiler, GO_SHA256)
     download("https://github.com/nektos/act/archive/" + ACT_COMMIT + ".tar.gz", archive, ACT_SHA256)
