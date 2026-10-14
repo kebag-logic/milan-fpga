@@ -1,0 +1,49 @@
+test_csr_defaults_rejects:
+  [gate 20b] 3/3 malformed LWSRP_CTRL sources rejected with ConfigError; en+talker+q4 emits 0x00000013
+PASS test_csr_defaults_rejects
+test_aes3_interface_switch:
+  [gate 21a] 6 aes3/spdif shapes: one core, CONSUMER_P picks the dialect, WORD_BITS_P 16/20/24, serial clock 128x4x rate = an exact PLL divide; RTL defaults (OVERSAMPLE_P=4, LOCK_BLOCKS_P=2, 192 frames/block) parsed from the modules themselves
+PASS test_aes3_interface_switch
+test_aes3_rejects:
+  [gate 21b] 3/3 unclockable AES3 shapes rejected with ConfigError; 48 kHz AES3 rides the shipping 24.576 MHz audio PLL exactly (divide 1)
+PASS test_aes3_rejects
+test_cbs_reset_table_single_source:
+  [gate 22] CBS reset table single-sourced: 5 queues, sum(IDLE_SLOPE_1G) = 725 Mb/s (72.5 % <= 75 %), SR A+B = 600 Mb/s; milan_csr CBS_*_RST == the package (credits re-derived, not copied), CBS_EN_RST = 5'b00000, and both REGISTER_MAP 0x400 and EGRESS_QUEUE_MAP agree row for row
+PASS test_cbs_reset_table_single_source
+test_optional_blocks_default_present:
+  [gate 23a] 3 shipped configs: prune posture == the declared table exactly (arty_current/arty_4x4 ALL PRESENT; ax7101_8x8 spends render_lpf + latency_taps + i2s_playback), argv flags == declared prunes, and every estimate row follows its block's declared posture
+PASS test_optional_blocks_default_present
+test_optional_block_gates_bite:
+  [gate 23b] 10/10 contradictory prune configs REFUSED with ConfigError; 3/3 honest prunes accepted and their --no-* flags reach the soc argv
+PASS test_optional_block_gates_bite
+test_optional_block_prune_accounting:
+  [gate 23c] supported prunes, MAAP retained: estimate -4052 LUT / -10816 FF (banked rows -3727 LUT), plan names every block, its parameter, its flag and the re-measurement it forces, labelled ESTIMATE
+PASS test_optional_block_prune_accounting
+test_optional_block_names_reach_the_rtl:
+  [gate 23d] 7 optional blocks: builder key == milan_soc.py map == a real off-by-default --no-* store_true main() READS == consumed by main() (6 through optional_blocks, dedicated ['render_lpf'], each a NAMED MilanSoC.__init__ parameter, none swallowed by **kwargs) == forwarded through MilanNIC and add_milan_datapath == emitted as `p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath `parameter int X = 1` guarding a generate WITH an else arm == the AREA_BUDGET tier-1 table row (the silent optional-parameter class, closed for the SPELLING of these statements. A statement that rebinds or overrides a carrier without touching them - reassigning optional_blocks, overriding a fold, deleting a dp_params key - is invisible here by construction, because each hop is checked in isolation and _reads() is a name-appearance test. That family and what elaboration hands Instance() are both gate 23f, task #144)
+  [gate 23e] task #65 loopback lane: --loopback-lane store_true == p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate == the connected lb_tvalid_i == the config declaration that primary_segment reads (same silent-no-op class, opposite polarity)
+PASS test_optional_block_names_reach_the_rtl
+test_optional_block_consumption_gate_bites:
+  [gate 23d mutation] 7/7 disconnected --no-* handoffs rejected by block name
+  [gate 23d mutation] 6/6 dedicated keywords MilanSoC.__init__ never declares rejected by block name (LiteX warns and ignores; the bitstream ships unpruned)
+  [gate 23d chain] 10/10 cut links between main() and `dp_params[f"p_{param}"] = 0` rejected, the three that would prune an UNFLAGGED build included
+PASS test_optional_block_consumption_gate_bites
+test_optional_blocks_reach_the_instance:
+  [gate 23f] 8 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8, the shipping AX shape, in 101 s: each of the 7 --no-* flags lands as p_<PARAM>=0 in the Instance("milan_datapath") parameters and moves NOTHING else, a build that prunes nothing passes none of them (16 parameters, byte-identical top .v). Fabric gPTP's product default is graded separately by gate 1e. This grades what elaboration HANDS the module, not what the module DOES with it (gate 23d) and not that the bitstream places or boots
+PASS test_optional_blocks_reach_the_instance
+test_optional_block_instance_gate_bites:
+  [gate 23f mutation] 8/8 broken links of the argv -> Instance chain rejected in 23 s: a dropped CLI handoff, two dropped constructor keywords, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, and both prune polarities inverted; gate 1e separately owns the profile-aware gPTP chain
+PASS test_optional_block_instance_gate_bites
+test_clock_plan_reaches_the_instance:
+  [gate 23l] 4 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8 in 6 s: --audio-fs-hz and --audio-word-bits land as p_AUDIO_IF_FS_HZ_P / p_AUDIO_IF_WORD_BITS_P and move p_AUDIO_IF_CLK_HZ_P (2 x SLOTS x slot bits x fs) with them, singly and together, moving NOTHING else; at the declared shipping values both are ABSENT, so the tracked configs' top .v is byte-identical to the build before #399. This grades what elaboration HANDS the module, not that the bitstream places or boots
+PASS test_clock_plan_reaches_the_instance
+test_clock_plan_instance_gate_bites:
+  [gate 23l mutation] 7/7 broken links of the declaration -> Instance chain rejected in 22 s: a dropped CLI handoff, a dropped constructor keyword, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, a bit clock that stopped following the declaration, and a parameter passed at the default
+PASS test_clock_plan_instance_gate_bites
+test_datapath_params_match_the_instance:
+  [gate 23m] 5 real milan_soc.py elaborations in 8 s: for every config the integer parameters Instance("milan_datapath") receives are exactly eb.datapath_params(), the shapes the publication census elaborates; every other keyword is a ROM image path
+PASS test_datapath_params_match_the_instance
+test_datapath_params_gate_bites:
+  [gate 23m mutation] 3/3 cuts rejected in 6 s, each naming its keyword: a binding dropped to 0, a value one short, and a keyword the builder does not state
+PASS test_datapath_params_gate_bites
+PASS: every unchanged gate function assigned to this group

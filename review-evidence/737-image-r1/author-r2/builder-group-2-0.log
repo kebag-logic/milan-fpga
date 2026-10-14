@@ -1,0 +1,59 @@
+test_gptp_product_default_and_legacy_option:
+  [gate 1c] fabric ownership is the only product configuration
+PASS test_gptp_product_default_and_legacy_option
+test_gptp_launch_observer_seam:
+  [gate 1d] the launch observer reads the MAC's own transmit stream in the MAC's own domain; one gPTP emitter, one store-and-forward writer, one fabric clock, and both record faces tied off where there is no observer
+PASS test_gptp_launch_observer_seam
+test_qspi_owner_transition_completed_write_prefixes:
+  [gate 1e] 4 injected before/after-write prefixes across the fabric-baremetal refresh retain one live owner and every prefix resumes; all writes verify; a live target bit gets an AEM-only repair; a source BIT replaced after live identification cannot replace the validated staged copy; every success/refusal (including both recovery primitives) cleans its staged transaction set; the ownerless owner, malformed/collision layouts, missing artifacts, missing cpu_xlen x2 and an unidentified live bit all refuse before programmer I/O
+PASS test_qspi_owner_transition_completed_write_prefixes
+test_gptp_plane_reaches_the_instance:
+  [gate 1e] 8 real elaborations: the product fabric default is identical across product shapes and to explicit ON; bare-metal option-OFF elaborates as announced verification-only hardware (#259); build.sh, sweep.sh and deploy.sh ship fabric ownership
+PASS test_gptp_plane_reaches_the_instance
+test_gptp_plane_instance_gate_bites:
+  [gate 1e mutation] 6/6 owner-carrier cuts rejected
+PASS test_gptp_plane_instance_gate_bites
+test_current_shape_matches_sweep_flags:
+  [gate 2] arty_4x4 argv == sweep.sh arty design flags (18 flags)
+  [gate 2] ax7101_1x1_tdm8 argv == sweep.sh ax7101 design flags (26 flags, --eth-port e1 == the config)
+PASS test_current_shape_matches_sweep_flags
+test_current_shape_matches_gen_aem_store:
+  [gate 3] arty_current overlay == gen_aem_store model (15 descriptor types, formats, rates, port layout)
+PASS test_current_shape_matches_gen_aem_store
+test_capability_marks:
+  [gate 4] arty_4x4: 4 planned mark(s) (item 5, tdm mark = supported), declared interface tdm8, no failure
+  [gate 4] ax7101_8x8: 5 planned mark(s) (item 5, tdm mark = supported), declared interface tdm32, no failure
+  [gate 4] aes3 variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] spdif variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] arty_current: zero planned FABRIC marks; the 3 clock-plan declaration(s) the fabric does not elaborate each carry their own item-6 mark (#399)
+PASS test_capability_marks
+test_bad_configs_rejected:
+  [gate 5] 7/7 invalid configs rejected with ConfigError
+PASS test_bad_configs_rejected
+test_port_layout_invariants:
+  [gate 6] arty_current: 1+1 stream ports, 16 clusters, 1 maps - invariants hold
+  [gate 6] arty_4x4: 4+4 stream ports, 32 clusters, 4 maps - invariants hold
+  [gate 6] ax7101_8x8: 8+8 stream ports, 72 clusters, 0 maps - invariants hold
+PASS test_port_layout_invariants
+test_both_policies_valid:
+  [gate 7] arty_4x4: all 3 cluster policies -> valid layouts
+  [gate 7] ax7101_8x8: all 3 cluster policies -> valid layouts
+  [gate 7] cap-at-interface caps 8ch streams to the 2ch i2s interface (32 clusters total)
+  [gate 7] cluster-per-stream-channel keeps the legacy-8 layout expressible
+PASS test_both_policies_valid
+test_model_id_hashing:
+  [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive (3 mutations), instance-field-insensitive, 4x4 != 8x8, arty_current pinned to 0x001BC50AC1000006
+PASS test_model_id_hashing
+test_sweep_opts_fragments:
+  [gate 9] arty: generated OPTS/L2 byte-match sweep.sh inline table (322 chars)
+  [gate 9] ax7101: generated OPTS/L2 byte-match sweep.sh inline table (470 chars)
+  [gate 9] sh -n clean: sweep.sh + both fragments
+PASS test_sweep_opts_fragments
+test_gen_aem_store_consumes_overlay:
+  [gate 10] ax7101_1x1_tdm8 overlay -> gen_aem_store --overlay: svh BYTE-IDENTICAL to the builder's own emit_aem_rom_svh (41787 B); no RTL destination touched; 4 stream descriptors in 1722.1-2021 Table 7-8 layout
+  [gate 10] gen_aem_store default path == arty_current overlay (refactor guard)
+PASS test_gen_aem_store_consumes_overlay
+test_resource_calibration:
+  [gate 11] SKIP: real report not on disk ($VALIDATION_STORAGE/737-a615/container-home/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+PASS test_resource_calibration
+PASS: every unchanged gate function assigned to this group

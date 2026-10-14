@@ -1,0 +1,697 @@
+{
+  "head": "18f2df92b13cb3f4036b073ed76940187bf10487",
+  "group1_settings_equal": {
+    "-e": true,
+    "--mount": true,
+    "--workdir": true,
+    "--network": true
+  },
+  "timeout_removed": true,
+  "setup_fix": "Restored group-1 HOME; existing br-milan-rv32/host symlink preserved to /opt/rv32-sdk.",
+  "source_files": [
+    {
+      "file": "sw/builder/README-parameters.md",
+      "sha256": "e06c151bbeb826f4e5793e1840cc96862a24eb7728c3cf916d86a91be6c99075"
+    },
+    {
+      "file": "sw/builder/cluster_names_golden.json",
+      "sha256": "ee76ce33001a1e5171461cf7aa3da93ae34886ce5fee01cddb5a3ea097b102e8"
+    },
+    {
+      "file": "sw/builder/endstation_builder.py",
+      "sha256": "84878e539e61c1e2f1f057c63ea390ce6e707d475d1d68d4816ae917c9e3fcc6"
+    },
+    {
+      "file": "sw/builder/test_builder.py",
+      "sha256": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47"
+    },
+    {
+      "file": "sw/builder/test_clock_constraints.py",
+      "sha256": "0c91c5f838b3baf37897458ccfbb4565b662953f0a37c929fc29be870e3d52de"
+    },
+    {
+      "file": "sw/builder/test_clock_contract.py",
+      "sha256": "72b872129176fa5febce098b6c9e24721bdc21b29180addf4169745279b453da"
+    },
+    {
+      "file": "sw/builder/test_declarations.py",
+      "sha256": "36f78e0f9c355f98f988ba18aa9616d94ef72dfc7db17f84224a85cad216c440"
+    },
+    {
+      "file": "sw/builder/test_firmware_compiler.py",
+      "sha256": "afaf37bf3eb4b77e3e9dafe6d92557c38c087dd713d4adedc79f325ced25a308"
+    },
+    {
+      "file": "sw/builder/test_shipping_clock_constraints.py",
+      "sha256": "ddfbe9c9d6ac7f886041652763ed9637eae8aa2558aca4631b5a928ac6afad4a"
+    },
+    {
+      "file": "sw/builder/test_soc_options.py",
+      "sha256": "8844d925928e493e0c811c52a52d28fcbe53e99e3825d0ec9a773d258867ce3d"
+    },
+    {
+      "file": "sw/builder/test_timing_grade.py",
+      "sha256": "93a4b2bcbe9f8c074de8a996fb2afeaa1b7b2c3fd70e19cb08a46a02340cc6a2"
+    },
+    {
+      "file": "sw/firmware/ctrl/README.md",
+      "sha256": "2d4c1f5c5c92cccae8317cf6376f48bae164e640151f035718ec7f1f941be893"
+    },
+    {
+      "file": "sw/firmware/ctrl/acmp/acmp_mbx.c",
+      "sha256": "54ed0d3449b26ac733c561039faa78f385f1d4be523e5f0fe04bfe2dc41eeae6"
+    },
+    {
+      "file": "sw/firmware/ctrl/acmp/acmp_mbx.h",
+      "sha256": "ab154975cc89f475bf8595c823cb5bf70861c2a03f71471989630be81a9c4e23"
+    },
+    {
+      "file": "sw/firmware/ctrl/acmp/acmp_nvm.c",
+      "sha256": "1d686432833d6c8e512bdbbf6d4110a073c8cda85d6a848804174f7fe73d9bf8"
+    },
+    {
+      "file": "sw/firmware/ctrl/acmp/acmp_nvm.h",
+      "sha256": "4002e5fdc4f6289500f4e288ce876eae4eb17c67312966b51c9b8670d6c3315d"
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp_entity.py",
+      "sha256": "c25c50618798991fcc852cd7fbd69e125d10f9269ba6b198f5787f66fe2c7053"
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp_mbx.c",
+      "sha256": "d09da4b83a889d018b7d99abb47297c457f29d2d475b8d71aa827bbce22c2b65"
+    },
+    {
+      "file": "sw/firmware/ctrl/adp/adp_mbx.h",
+      "sha256": "2c359e801a36b1864a7b490419787a36cc7c3f39d1b2d73d2235ff67ace34dd4"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/README.md",
+      "sha256": "c8a3444f9e6c90ceb20ea894b7b539ae8182acf467ab571eeba902f8cf7c3a47"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp.c",
+      "sha256": "7630647afff0d38014f8445e4ffbafdb0f76e2d57640383ca28f4f896d1355d3"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp.h",
+      "sha256": "3f6a92ca34d8fd24d905bf97168b8f89196bcf44e4bbc5067783710a7c210ec6"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_commands.c",
+      "sha256": "e89386562145b827b13f6860bb889bf9b08aa3b4c0df775047f8742af819ef9c"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_entity.py",
+      "sha256": "897cdcc3f7cfbee1e9b52832ab99f1926cadbb4ad034a528faad9f73c733d10e"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_image.c",
+      "sha256": "4b0de16e0f44b60710e47f848143a26f7e8f7a69d155a9b661965d2da8e47eba"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_image.h",
+      "sha256": "4992eb5a63d10de9ca7bb685b6251489ded2bf352cc23467d9ff07767d6deb39"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_internal.h",
+      "sha256": "3d9f0ec294db635037a9c0efbeadb347bf399f1cc93c4ba6ef87729eae1831f1"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_maps.c",
+      "sha256": "1e20c2156c99b499fbf2d306e2b549ca0a6c702817ebe67bc2eb100c8f9e5406"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_mbx.c",
+      "sha256": "7de8e388c997e0c6148ab5b05a2915dab85f60fde16de1d9e708a9cc68dfa465"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_mbx.h",
+      "sha256": "9d2531588e957a9188885189593b0ab29449dbe57f56642e1f32378933aa4b4a"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_model.h",
+      "sha256": "e4aed4e0110c7ea0071b439daf90620c768885cae2e21081e05cce6e4720c82f"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_nvm.c",
+      "sha256": "c3bc3b319081978fb246f020b7d2c8e8fa2cd7cec66d33d014a08c030b67c536"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_nvm.h",
+      "sha256": "1706b5f5720260aceebf5c9f062e406a98d1a5716e2521b751586d54feecc7fb"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_shape.py",
+      "sha256": "f26b70dbb35b1b0506a842e3dc76f09dc31e764a715a6419e0fe4a47ddcc2e17"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_state.c",
+      "sha256": "c16f5818dde96f618493fd2856c0759cbe601c992ffc3b62bd4c1b752970b122"
+    },
+    {
+      "file": "sw/firmware/ctrl/aecp/aecp_state.h",
+      "sha256": "30a7ec9f535742df3ebec42aeb7e8d525d7d2590c7ec8ef2b978572bf966d4be"
+    },
+    {
+      "file": "sw/firmware/ctrl/app/ctrl_app.c",
+      "sha256": "d83586dfec54a1073c4e6d6ed9e9740c718e7f54ae512f1a36bfbd3f12bf7ad2"
+    },
+    {
+      "file": "sw/firmware/ctrl/app/ctrl_app.h",
+      "sha256": "21c62274c4c5bd058ec80aa56eb22a58aa84bb27e9f5a775cff1e0238be708b8"
+    },
+    {
+      "file": "sw/firmware/ctrl/app/ctrl_app_aecp.c",
+      "sha256": "49929ac8b9b43b3299fdeae7ff914a11e43dff1e323f09e0f9d4c348a23e8f80"
+    },
+    {
+      "file": "sw/firmware/ctrl/app/ctrl_app_aecp.h",
+      "sha256": "d076ddcfcf09362c0057474a7721488de1f15add68edd7b750cfb25b989d5f4d"
+    },
+    {
+      "file": "sw/firmware/ctrl/app/ctrl_app_srp.c",
+      "sha256": "13bc42d30f6a88eba48c6f4624a84844f4d9a4cfb922dd5b5a945f00f32993a5"
+    },
+    {
+      "file": "sw/firmware/ctrl/host/mbx_model.c",
+      "sha256": "3905939510eb5dcd75a25d4f08932f1d596b086ff083f9a2329be131cdc68c02"
+    },
+    {
+      "file": "sw/firmware/ctrl/host/mbx_model.h",
+      "sha256": "0359acfc2491ad269bd331fea0ef691718875660610ad1e2e4b722778c6aaba6"
+    },
+    {
+      "file": "sw/firmware/ctrl/host/mbx_plat_host.c",
+      "sha256": "9e3cab42acb87388a285fb092edaabd255d557a7b5a1f225337b3ec0bc481d7b"
+    },
+    {
+      "file": "sw/firmware/ctrl/loop/ctrl_loop.c",
+      "sha256": "92362008a2999331692c1c1832bfd6be8701328ddb011db55c4e5262ea6bc76e"
+    },
+    {
+      "file": "sw/firmware/ctrl/loop/ctrl_loop.h",
+      "sha256": "74eff7d0459a9237113cf7fc07e0a3291dd888478ae45fe2b0e25f4f8c0ba60f"
+    },
+    {
+      "file": "sw/firmware/ctrl/maap/README.md",
+      "sha256": "99bd32b23d67120f00f6472e67bed80910c3752fd4772b4dbe16277078fd703e"
+    },
+    {
+      "file": "sw/firmware/ctrl/maap/maap_csr.c",
+      "sha256": "563ef71c3d418c3111c1e21bce741df566bb9bf288b56499f9488fd0a4135c08"
+    },
+    {
+      "file": "sw/firmware/ctrl/maap/maap_csr.h",
+      "sha256": "969583b91a3a8beaaced74ab41248a581ab87649addda91de37049cfad2582a3"
+    },
+    {
+      "file": "sw/firmware/ctrl/maap/maap_mbx.c",
+      "sha256": "e21136cc4193d5c74e4e8315026c308fcea525fc641b1230047fafbb17c43b25"
+    },
+    {
+      "file": "sw/firmware/ctrl/maap/maap_mbx.h",
+      "sha256": "4f0a1f6fe5f39b7c0ffad1ef47e2c48e0cb31f8a698e04442a8c9231f7d24154"
+    },
+    {
+      "file": "sw/firmware/ctrl/mbx/mbx.c",
+      "sha256": "d665f992ea654632e6ebcece5e0709a6545fbdcf8e070e42046e347d1d58b0ae"
+    },
+    {
+      "file": "sw/firmware/ctrl/mbx/mbx.h",
+      "sha256": "121b229f89cf0be5085f3aadecaa9d0a528b8c06d469373737b79da5cc3f53af"
+    },
+    {
+      "file": "sw/firmware/ctrl/mbx/mbx_contract.h",
+      "sha256": "4a67b3cd4fd847b61264936ee4b29397f12512b25585b3272fd784704118c02c"
+    },
+    {
+      "file": "sw/firmware/ctrl/mbx/mbx_hal.h",
+      "sha256": "24d36afba0d2640805e3227b5af43e6aa5d6e10a14546315bc2e1f2d1684f9f6"
+    },
+    {
+      "file": "sw/firmware/ctrl/mbx/mbx_wire.h",
+      "sha256": "18a61289c3c33966c2d54d33318759632dd341cee72e18544b252738e3d0d31c"
+    },
+    {
+      "file": "sw/firmware/ctrl/plat/ctrl_split.ld",
+      "sha256": "d8386197a854f43fd579377c91fa21e9b4dd34f36a7197cdb49e1b104e1e76f4"
+    },
+    {
+      "file": "sw/firmware/ctrl/plat/ctrl_split_start.S",
+      "sha256": "af62715b8e7c8a30182d05ac81c847334d3d796bbb4dd09a7cf290810b7f4d46"
+    },
+    {
+      "file": "sw/firmware/ctrl/plat/mbx_plat_mmio.c",
+      "sha256": "00603de0514377e4696fa1ca1119db8dacce09f375170804bf56dac54e30db49"
+    },
+    {
+      "file": "sw/firmware/ctrl/port/ctrl_debug.c",
+      "sha256": "2c8ffb83c4480e42adef7c63f536d27ca8e9f7b4f97b57567749a788245cc24a"
+    },
+    {
+      "file": "sw/firmware/ctrl/port/ctrl_debug.h",
+      "sha256": "388e9026fcbbd73a150a068064b1d0146c21c4d1cabf064c027e795799d3054f"
+    },
+    {
+      "file": "sw/firmware/ctrl/port/ctrl_pool.c",
+      "sha256": "6432e9fb3039c3e54e8fafea8a05c4c87b648d783e2be01aa32e5224dd1458de"
+    },
+    {
+      "file": "sw/firmware/ctrl/port/ctrl_pool.h",
+      "sha256": "f0419f453f3ac99c6de8c1b7764d63dbd10fa82c942ca522303f1f9488a84e96"
+    },
+    {
+      "file": "sw/firmware/ctrl/port/shlan_port.c",
+      "sha256": "911a05da93897b39c78daddc5b57156deeb620bc436a59869828dc8ffaf89287"
+    },
+    {
+      "file": "sw/firmware/ctrl/port/shlan_port.h",
+      "sha256": "cc19b4e4c30182368ab8087701c98e0800e6ae582c9dfad6811e4f8f9e67a0fe"
+    },
+    {
+      "file": "sw/firmware/ctrl/srp/README.md",
+      "sha256": "d9868554786ce108a025aed042cecd0eea5087267b69882c709a5201e000a5e2"
+    },
+    {
+      "file": "sw/firmware/ctrl/srp/srp_bounds.h",
+      "sha256": "6adf70a5e0baa233c20b36013bb50da2ec36d28f41b75bf507f61e76ec8b71c7"
+    },
+    {
+      "file": "sw/firmware/ctrl/srp/srp_entity.py",
+      "sha256": "a284f8d88678b2c4908aa7d96e5751044600c04a48f5ceb59fd7f611de8b3995"
+    },
+    {
+      "file": "sw/firmware/ctrl/srp/srp_mbx.c",
+      "sha256": "3a2dfa4c4ba670763c047ea5c55d7d1eb8b78f896ac5f33d6e4ef29a7e7c2a63"
+    },
+    {
+      "file": "sw/firmware/ctrl/srp/srp_mbx.h",
+      "sha256": "33d60c87644c66865dbf29a414bb3beae844f6ed7a9a0ced64117caf28a96367"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/acmp_if2.cpp",
+      "sha256": "2ade9f507abb60757a2c64ee60afc8ee5cbc4ec32f859f66906c4deda911d16b"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/acmp_mutants.py",
+      "sha256": "7e1f7729b4316c87b1ef2bcd58441d4b792c255b09438e6b0f7c28a7625437c9"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/acmp_review_mutants.py",
+      "sha256": "6dec84362d28e3cfa1ddd474bba1a990cf0e46ecc0738188f8f03376415f5aab"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/acmp_walk.cpp",
+      "sha256": "9fea8e7af29c485c57493a033058bdf2259c7b52534c1b96535d0dbdf0613fc4"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/adp_walk.cpp",
+      "sha256": "c7e5fded4ef98bfda7843dd88d8ec5dd1c3e0fb274ab568a369158314f368075"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/aecp_arms.py",
+      "sha256": "33c3c60ad505af511d0c9fdc342743c85deb519ac5f3f2919b7c31035792915e"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/aecp_callback_inputs.hpp",
+      "sha256": "8c991e0e5be993fc881db5348dac000c763bb15d2d2563a61e488f67d487fcc8"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/aecp_latency_policy.hpp",
+      "sha256": "26fbd7f228c606ecd3da9a09680e16971e4e8a6944cc123bd4590e29b3780e57"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/aecp_mutants.py",
+      "sha256": "b3f94ef03f97cdda14462a70f363e91f018f61d8170757ebd05278e0b6bef469"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/aecp_wire.cpp",
+      "sha256": "b72d498a47ed0dccf311707faa6ea092b9b2174878543fe9319b24e0fc21f288"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/aecp_wire.py",
+      "sha256": "af56021dd105de7e873ef997426a401d0c7d50dfe8355f0c597ff50bd5763c79"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/aecp_wire_model.hpp",
+      "sha256": "0df29cbf9dc9cff8a43e189f3066c9069059060515baf95c06986ba4f24775db"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/aecp_wire_oracle.py",
+      "sha256": "5161717573c93b1eb13e4915a5973c3afe43e49bccd57fa2836d45bc7303d570"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/aecp_wire_timers.hpp",
+      "sha256": "d80aa5fd37fc597ac6f02749be527883420503c086b76a2f4a7ca6e08854e164"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_aecp_image.c",
+      "sha256": "8df32de5cac58eb874dd3bbcf437214693551c99ace36cd1e12f2020e29c9099"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_arms.py",
+      "sha256": "fd48045166e3350ada8789336bbb1ae1e40cdd654eac97bc60481f5c01bf6728"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "sha256": "4f8ab247cd2651565f660aef08a83b1fddcaa962140234acafed369f03a68754"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_build.py",
+      "sha256": "5c58336a106a2916658d4a159a855bf2bb6b69793fb48f3ca7670d18233436e8"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_capture.py",
+      "sha256": "042309998d3df72df1cc780f2a2fdfedc7834483b4b9f5d28c79bc02f2acbbed"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_configs.py",
+      "sha256": "a63cd10b62552874c5b89a77bf744dfd48db705b1da4fb22bd994eb8605c8703"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_expand.py",
+      "sha256": "56b7e65faa96276c8a003235077e5198d0475da18b63cf3fdebfe993fdb4cfdf"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_image.c",
+      "sha256": "7e96177a5ab2b13b9ba4cbc117455a8c0a055f3c1eb4342d77bac2b3e56284db"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_image.ld",
+      "sha256": "821da576e45e39b40af86e4440d3f014f981dbb9f5249790a4b89fe596a12f41"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_image.py",
+      "sha256": "2529f555d1d4cf68b76f3a21c0f230f2e861f8d8180d9fdd6430b802fe4fd180"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_image_runtime.py",
+      "sha256": "7ecd4d6879f3a1283d0575f457f4b06064a8945f22cacdf96be808f8e43c5a52"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+      "sha256": "6d50a57b5da0aff1a2b76974cb0a7df76fd8559caf956571a11225a2fedacbf1"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_mutant.py",
+      "sha256": "8eec84198a837772d1f46b8168b85e0dffe5d5fb2f66c29d8da242edd14c0dff"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_mutants.py",
+      "sha256": "0bb172bc21ae9872e3df25cb67bd5a449c478c425d163c6a8a182b8503e9add3"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_pin.py",
+      "sha256": "29655ccced9242b55ffa52cbbe2816b360c14fab64a699b151c18e6fa81a85e5"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_pin_bench.py",
+      "sha256": "b502ef220a48821e936fd383015eecc30ae43e0f31b07401174752a650f4feed"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_pin_env.py",
+      "sha256": "0b107e0cd6f364683107408d36763b1412f2b908112f043ffb4c7bd11668952a"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_pin_store.py",
+      "sha256": "f484574738b286e1ba030ed57c7f561796b546e2c0863bfdaa02f2ce926bb175"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_plants.py",
+      "sha256": "f8240958e3f542b36986ceca548198134b69305cead13b9839e484a2f82a923d"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_reuse.py",
+      "sha256": "859a2909be1ac4051881d78e76f2ebd2f7db0613b2ac7f126aeb46c7f131ab1c"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_runs.py",
+      "sha256": "295a2dcedf704cdd25c9f7e8bf11c49b053f78587116d8718a26d916390dfe3a"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_shim.py",
+      "sha256": "cd3dcd3eeadb0c74d7ce3093dd65feb76ca4dff564458ca4eda0b6901a355747"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "sha256": "e2acecdf6ce9a8433cd4cbaf70a9328f11bab2b9f5bcb4442b3b93fe8d62f447"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/entity_fields.cpp",
+      "sha256": "197bb626c73b6c5cbcb8f46aed49c012f1536fc95f455118f91652e1fd1257e8"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/lwsrp_port.cpp",
+      "sha256": "7dd0817918162227d69d9f82f2ded1912d8b3373ebec2b5534d4568698d4a48e"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/maap_differential.py",
+      "sha256": "685266dcab35c632384bd15b572a80cba06f94d0bc035c20f6f22335c4cf0eeb"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/maap_mutants.py",
+      "sha256": "677d628c04cbea147262a43978a927a8422547fd9365473c1226024932ec5673"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/mmio_window.h",
+      "sha256": "c3e86bd8cf4a6b53d5a8d4face783876a4d7ee4c9b89a01741922f718fa3f6e9"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/mock_mbx_hal.cpp",
+      "sha256": "90e28b5bad09d7c92b196adc3bde4f212590da617f64572027f2157056896da1"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/mock_mbx_hal.hpp",
+      "sha256": "3069e5e69d8a4595a7ac7b8ce2c2251ce62b74f4baad2b1ef4907bec198bf49c"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/mock_shlan_port.cpp",
+      "sha256": "2e77290faf73fd78eb3be6b6984bc3b86e90a7f575b8a2ba61cd240e5ea7881b"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/mock_shlan_port.hpp",
+      "sha256": "d76ebbac9d23874bceb0d80b9f357760a716ab8b5c46596e08018105c74cadca"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/model_bench.hpp",
+      "sha256": "b18c0daa421e3427e771b7ffd81bdd9cf1f0e5f214a5709d9301932b395a82b6"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/model_suite.cpp",
+      "sha256": "cbada78df683aed2dbf31c03b17cdce41c5dd817b7fdb9ef01e5390a4355229c"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/rv32_image/image.ld",
+      "sha256": "b6e8c6a05d21f43ef7f43c1aeba0e94b9ad209a409408dc37c2d8c29b138ac0b"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/rv32_image/image_arith.c",
+      "sha256": "d98468134fe3883d96f57bf98a90ed73fe3874f22b2bcc89fb5fc96c629e442e"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/rv32_image/image_main.c",
+      "sha256": "ad6a316dc06868b54fdca19e57473c43c63c975f1b4b7c0bd8b5d1481b953c6f"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/rv32_image/image_rt.c",
+      "sha256": "97f14dd09e4573a636e52ec36177259523877abf0894596be711a89450cff252"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/rv32_image/image_start.S",
+      "sha256": "98c0580f584d48fdb6e00c554700568e1bc44979eb00f6e07e1894e2b0105cdd"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_app.cpp",
+      "sha256": "5f360dfb82fb7bdc07eeca0eb876052a3c08444067f7f37f561ef1ce95393aa6"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_arms.py",
+      "sha256": "1d8cb50ee993d3783fdc15982ba2d0b421566d8993a809fc01471503adf2a070"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_binding.hpp",
+      "sha256": "43fa25f7171769942cf8c137c03462988f2797d2f2305ba16f516c7eca1c10ce"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_cost_probe.hpp",
+      "sha256": "db5cc96fd296e8bd1dd8c8619f0c49a062316a0cb4ad7c4752693a77254df8ee"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_debug.cpp",
+      "sha256": "b8d9a45989d7b2c0e1778468be967319cd530007f6ab2c5aabad36967d70b51d"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_feedback.hpp",
+      "sha256": "ee10f32d3fc0e82b3cf29de3a8d1496cd9abdc8c5f50d2c5051a2d985c6d94c3"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_fixture.hpp",
+      "sha256": "1e85f950a54f05096d8fbdda2603efe0da4722dd69b49785282c2a4ecee1d5b9"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_latency.cpp",
+      "sha256": "1b6192d933a61e03139cc9fc364087e346b0c635810603b4e781133c0793eaf1"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_latency_policy.hpp",
+      "sha256": "518370d8de80f8b72831063ff86e6efff3af6f7e84425c0c71b92848b130a099"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_mbx.cpp",
+      "sha256": "a7ebf67d60f8e0eb9e411bf1981143039ddba492665b88d3afa3349d04c67ef3"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_mutants.py",
+      "sha256": "fc0e051d3c216a0cc85a56f723a07ae686e5d091e4fa4b0d53d4a6eb9d0da324"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_pub_mutants.py",
+      "sha256": "16dd08132ac7700fcfeaf3ae00bd991cfe9220f6a76525b6851f9a6bdd981f82"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_reuse.py",
+      "sha256": "df24f26d4c3f40ff91777aacf9282bdf4ac96bcebcb7bc4176a59cfe09537848"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_rx_retry.cpp",
+      "sha256": "1d58c76cc4e7c0a833ee0244227ef54edb58951d1d6a88b0bc0c5215bfc4755a"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_shape.cpp",
+      "sha256": "fe493c286a46930ab7185f26101c5e34e08daef2338094076c3e9ab29beab886"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_walk.cpp",
+      "sha256": "cc34c6e64407d0da051794e17d29e1403f1c99a7bb298b8fa487a3be837ec035"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/srp_wire_compare.py",
+      "sha256": "495d5db691652df2f5172f20e5fbe0a8fcb34b01635ee309a7a1738a9bb08bae"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_acmp_mbx.cpp",
+      "sha256": "d55d53b498e23e9a2f707e8e3cf29d995ceb952dd2630367cf63d7b064dd3dfc"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_acmp_nvm.cpp",
+      "sha256": "e1528816b1a89300088585f25ccb9809a11546fd9269fcbaee76615ef9d16fd1"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_adp.cpp",
+      "sha256": "db9c9b7244eb4012155bb74bdc69298e2a4bde25ff3ff1c94d5102467d20ca5a"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_aecp.cpp",
+      "sha256": "ff2d0e46d04d6ca0c68401432bc5ac40ac8a4c2757c1a67539e3c2ca99e3150c"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_aecp_debug.cpp",
+      "sha256": "0c59b13854a5831e84faa2491e0929379e33f7d669665d404768cede065a7d40"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_aecp_image.cpp",
+      "sha256": "f3f0a5566393b7cae8fb0cfdf1f5cf92b9f12dc29262d0dd36d87027f187a969"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "sha256": "2580bf394f204b2adee6ed9d2a49effd82090ae54f14853b5eb15ad1bcbb08f7"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py",
+      "sha256": "ace9ad3f2ab0b235153d9595210b66951696cd9bee05381a7f5ce37cff5bc360"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_maap.cpp",
+      "sha256": "3c807056df39b46b43dcf5fcb0bae17ddd163548ee0d2af9fbf75db071ce5525"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_maap_differential.cpp",
+      "sha256": "43b2b98a8507841fe08c14c714aa57d0938b5f11d963fcda70ae6316fd71b0d9"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_maap_mbx.cpp",
+      "sha256": "032d7cc891d1287ccc3c782a13fcc29ee765868d876c2d99e3e681c7d6905de7"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_mmio.cpp",
+      "sha256": "175c1878040a1987a282bcb7aab227a140d28cafd872d1e8ae0e0fc3a011562e"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_port_loop.cpp",
+      "sha256": "439b7074f384200c47cbd8d9fff4e3c595b0f553524735e1239222bb42738e3c"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_unit_driver.cpp",
+      "sha256": "b7d9497d00fd3627e2f27334b5eaad31feb8861dd5f6f08aaf4f99119a076550"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/test_unit_seams.cpp",
+      "sha256": "6af1619fc7bffaec26607522c93b3f2bfc5947432d71720e93699503ec166c97"
+    },
+    {
+      "file": "sw/firmware/ctrl/test/unit_window.hpp",
+      "sha256": "bfe381c678befc729c09a9628a246c7f4635dd4bd3f2e31739583987e405f9f8"
+    },
+    {
+      "file": "sw/firmware/gtest/README.md",
+      "sha256": "70dc81c49f2163863274eb966798cdf29ac3eb0f71ef4f6e0c7f25196bd0f8d0"
+    },
+    {
+      "file": "sw/firmware/gtest/coverage.ratchet",
+      "sha256": "46b3a3ed2d31ae03d422c2820cb994bc96121d97ac2ffd30137b3edd5bbe796d"
+    },
+    {
+      "file": "sw/firmware/gtest/fw_coverage.py",
+      "sha256": "5aaacf79ad807ea5589068dfd5f2d4985874507f173233dd2468ee675c2f16a0"
+    },
+    {
+      "file": "sw/firmware/gtest/fw_coverage_selftest.py",
+      "sha256": "14557e7449a161020bffb87e5c14999673decdb98ee6c736208dfef9502aad26"
+    },
+    {
+      "file": "sw/firmware/gtest/fw_gtest.hpp",
+      "sha256": "6e77d1e5f526dcd91e0f601568f948dce5097fe534aa63e1fb2b9de0fa99bc23"
+    },
+    {
+      "file": "sw/firmware/gtest/fw_gtest.py",
+      "sha256": "f760edf3ff43b1144597635323983ef6b2ac05860d5e306ced8bf5f875abcd36"
+    },
+    {
+      "file": "sw/firmware/gtest/fw_gtest_label.cpp",
+      "sha256": "6dfa9d03551240b21788deaf6b43d9c30ebf4a4efdc20ad01fbf085ab81c1531"
+    },
+    {
+      "file": "sw/firmware/gtest/fw_gtest_main.cpp",
+      "sha256": "192a33a059f35c32531ee18fa9df1db6a2ec9d6794264d81ca35863ea30de14e"
+    },
+    {
+      "file": "sw/firmware/gtest/fw_rv32.py",
+      "sha256": "d6668d68d95bfb1b36e09adfda70e4d8132a0877a877628ce2b333ff9f8ac61b"
+    },
+    {
+      "file": "sw/firmware/gtest/fw_rv32_selftest.py",
+      "sha256": "caf11ba221ade3a7fc7d41b4295e59480e8494964f3f2cb5a380b4385a1b3c8e"
+    },
+    {
+      "file": "sw/firmware/gtest/rv32_include/assert.h",
+      "sha256": "fa32c11b0187fcb3fb6a2dc2238b29d9e4f760a3472d2d3f985c2891b8776196"
+    },
+    {
+      "file": "sw/firmware/gtest/rv32_include/stdio.h",
+      "sha256": "4d3cc9ccdc2db8e08ea7810b424d79e2b6e8e7d9cead2f26d04649e94a7beb10"
+    },
+    {
+      "file": "sw/firmware/gtest/rv32_include/string.h",
+      "sha256": "50300d85bd6b3087e8fb4d69b00b1fdd7a0cd20146a19bced7828e0194b68dd0"
+    },
+    {
+      "file": "sw/firmware/gtest/tally_cases.cpp",
+      "sha256": "6cf4df6b30673a4953b5b20683ae3b39471f99aceb4890b1b1e66afd49b0f42c"
+    },
+    {
+      "file": "sw/firmware/gtest/tally_selftest.py",
+      "sha256": "b9c41af743b95c06fd6c841e2f5efc318ca3e96319e72d2d47bb18ab3f33b691"
+    }
+  ]
+}
