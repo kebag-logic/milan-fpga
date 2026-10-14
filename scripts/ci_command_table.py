@@ -16,7 +16,7 @@ import shlex
 
 
 TABLE = Path('ci/image/command-table.json')
-NETWORK = {'urllib', 'http', 'requests', 'socket', 'ftplib'}
+NETWORK = {'urllib', 'http', 'requests', 'socket', 'ftplib', 'urllib3', 'ssl', 'pip', 'socketserver'}
 CALLS = {'run', 'check_call', 'check_output', 'Popen', 'call', 'system', 'getoutput', 'getstatusoutput'}
 
 
@@ -74,6 +74,8 @@ class Audit:
         self.table = json.loads((root / TABLE).read_text())
         self.inputs[str(TABLE)] = sha256(root / TABLE)
         self.seen: set[str] = set()
+        self.external_builds: set[Path] = set()
+        self.installed_scripts: dict[str, str] = {}
         self.residue: set[str] = set()
         self.functions: set[str] = set()
         self.requests: list[dict] = []
@@ -86,12 +88,15 @@ class Audit:
         if not self.parser.is_file() or sha256(self.parser) != parser_pin['sha256']:
             raise Refusal('CI_IMAGE_SHFMT must name the checksum-pinned Bash parser')
 
-    def script(self, name: str, where: str, directory: Path | None = None) -> None:
+    def script(self, name: str, where: str, directory: Path | None = None,
+               working: Path | None = None) -> None:
         """Follow resolved scripts, refusing absent literal paths."""
-        if name.startswith(('${ROOT}/', '$ROOT/', '$R/')):
-            directory = self.root
-        name = name.replace('${ROOT}/', '').replace('$ROOT/', '').replace('$R/', '')
+        if name in self.installed_scripts:
+            self.script(self.installed_scripts[name], where, self.root)
+            return
         if '$' in name or '<dynamic>' in name:
+            if not self.table['scripts'].get(where.split(':')[0]):
+                raise Refusal(f'unclassified runtime command name {name!r} at {where}')
             self.residue.add(f'{where}: runtime script path')
             return
         if directory and '$' in str(directory):
@@ -111,12 +116,14 @@ class Audit:
                 self.requests.extend(declaration['tools'])
                 self.inputs[relative] = sha256(path)
                 return
-        if relative in self.seen:
+        working = working or directory or self.root
+        key = (relative, str(working))
+        if key in self.seen:
             return
-        self.seen.add(relative)
+        self.seen.add(key)
         self.inputs[relative] = sha256(path)
         if path.suffix == '.py':
-            self.python(path.read_text(), relative, path.parent)
+            self.python(path.read_text(), relative, working)
         elif path.suffix == '.sh':
             self.shell(path.read_text(), relative, directory or self.root)
         elif path.name == 'Makefile' or path.suffix == '.mk':
@@ -125,69 +132,116 @@ class Audit:
             raise Refusal(f'unsupported script language {relative!r} at {where}')
 
     def python(self, source: str, where: str, directory: Path) -> None:
-        """Check imports and positional/keyword subprocess arguments without execution."""
+        """Detect capabilities independently of decoding, then classify literal calls."""
         tree = ast.parse(source)
-        network = False
-        modules = {'subprocess', 'os'}
-        imported = set()
+        declaration = self.table['scripts'].get(where)
+        aliases = {}
+        assignments = {}
+        imports = []
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
-                modules.update(a.asname or a.name for a in node.names if a.name in ('subprocess', 'os'))
-            elif isinstance(node, ast.ImportFrom) and node.module in ('subprocess', 'os'):
-                imported.update(a.asname or a.name for a in node.names if a.name in CALLS)
-        calls = []
-        assignments = {}
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Assign):
+                for alias in node.names:
+                    bound = alias.asname or alias.name.split('.')[0]
+                    aliases[bound] = alias.name if alias.asname else bound
+                    imports.append(alias.name)
+            elif isinstance(node, ast.ImportFrom):
+                imports.append(node.module or '')
+                for alias in node.names:
+                    aliases[alias.asname or alias.name] = (node.module or '') + '.' + alias.name
+            elif isinstance(node, ast.Assign):
                 for target in node.targets:
                     if isinstance(target, ast.Name):
                         assignments.setdefault(target.id, []).append(node.value)
-            if isinstance(node, (ast.Import, ast.ImportFrom)):
-                names = [a.name for a in node.names] if isinstance(node, ast.Import) else [node.module or '']
-                network |= any(n.split('.')[0] in NETWORK for n in names)
-                for name in names:
-                    stem = name.replace('.', '/') + '.py'
-                    for base in (directory, self.root, self.root / 'scripts'):
-                        if (base / stem).is_file():
-                            self.script(stem, where, base)
-                            break
-            if isinstance(node, ast.Call):
-                if isinstance(node.func, ast.Name) and node.func.id in ('eval', 'exec', 'getattr', '__import__'):
-                    self.residue.add(f'{where}:{node.lineno}: runtime Python execution or lookup')
-                function = node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, 'id', '')
-                executor = (isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name)
-                            and node.func.value.id in modules and function in CALLS)
-                if executor or (isinstance(node.func, ast.Name) and function in imported):
-                    argument = next((k.value for k in node.keywords if k.arg == 'args'), None)
-                    argument = argument if argument is not None else (node.args[0] if node.args else None)
-                    if argument is not None:
-                        cwd = next((k.value for k in node.keywords if k.arg == 'cwd'), None)
-                        working = self.root
-                        if cwd is not None:
-                            working = (self.root / cwd.value if isinstance(cwd, ast.Constant) and
-                                       isinstance(cwd.value, str) else self.root / '${RUNTIME}')
-                        calls.append((node.lineno, argument, working))
-        declaration = self.table['scripts'].get(where)
-        if network or calls:
+        def qualified(node: ast.AST) -> str:
+            """Resolve imported aliases without evaluating expressions."""
+            if isinstance(node, ast.Name):
+                return aliases.get(node.id, node.id)
+            if isinstance(node, ast.Attribute):
+                return qualified(node.value) + '.' + node.attr
+            return ''
+        capability = False
+        for name in imports:
+            stem = name.replace('.', '/') + '.py'
+            local = False
+            for base in (self.root / where).parent, self.root, self.root / 'scripts':
+                if (base / stem).is_file():
+                    self.script(stem, where, base, directory)
+                    local = True
+                    break
+            if not local and name not in self.table.get('python_imports', []):
+                capability = True
+            if name.split('.')[0] in NETWORK | {'subprocess', 'pty', 'asyncio', 'multiprocessing'}:
+                capability = True
+        for name, expressions in assignments.items():
+            if len(expressions) == 1 and isinstance(expressions[0], (ast.Name, ast.Attribute)):
+                aliases[name] = qualified(expressions[0])
+        calls = []
+        for node in ast.walk(tree):
+            symbol = qualified(node) if isinstance(node, (ast.Name, ast.Attribute)) else ''
+            if symbol.startswith(('os.exec', 'os.spawn', 'os.posix_spawn', 'subprocess.', 'pty.',
+                                  'asyncio.create_subprocess')) or symbol in ('os.system', 'os.popen'):
+                capability = True
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            function = qualified(node.func)
+            executor = ((function.startswith('subprocess.') and function.split('.')[-1] in CALLS) or
+                        function.startswith(('pty.', 'asyncio.create_subprocess',
+                                             'os.exec', 'os.spawn', 'os.posix_spawn')) or
+                        function in ('os.system', 'os.popen'))
+            if function in ('eval', 'exec', 'getattr', '__import__', 'importlib.import_module'):
+                capability |= function != 'getattr'
+                self.residue.add(f'{where}:{node.lineno}: runtime Python execution or lookup')
+            if not executor:
+                continue
+            capability = True
+            keywords = {}
+            for keyword in node.keywords:
+                if keyword.arg is not None:
+                    keywords[keyword.arg] = keyword.value
+                elif isinstance(keyword.value, ast.Dict):
+                    for key, value in zip(keyword.value.keys, keyword.value.values):
+                        if not isinstance(key, ast.Constant) or not isinstance(key.value, str):
+                            raise Refusal(f'unsupported Python keyword unpacking at {where}:{node.lineno}')
+                        keywords[key.value] = value
+                else:
+                    self.residue.add(f'{where}:{node.lineno}: runtime Python keyword unpacking')
+            argument = keywords.get('args', node.args[0] if node.args else None)
+            if function.startswith(('os.exec', 'os.spawn', 'os.posix_spawn', 'pty.', 'asyncio.')):
+                raise Refusal(f'unclassified Python execution {function!r} at {where}:{node.lineno}')
+            working = directory
+            cwd = keywords.get('cwd')
+            if cwd is not None:
+                working = directory / (cwd.value if isinstance(cwd, ast.Constant) and
+                                       isinstance(cwd.value, str) else '${RUNTIME}')
+            executable = keywords.get('executable')
+            calls.append((node.lineno, argument, working, executable))
+        if capability:
             if declaration is None:
                 raise Refusal(f'undeclared executing or network script {where!r}')
             if declaration['sha256'] != hashlib.sha256(source.encode()).hexdigest():
                 raise Refusal(f'changed declared script {where!r}')
             if declaration['class'] not in ('installer', 'reviewed non-installing') or not declaration.get('reason'):
                 raise Refusal(f'invalid script classification {where!r}')
-            if declaration['class'] == 'installer':
-                if not declaration.get('tools'):
-                    raise Refusal(f'installer has no tool pins: {where}')
-                return
-        for line, argument, working in calls:
-            for value in self.values(argument, assignments):
+        self.python_calls(calls, assignments, where)
+
+    def python_calls(self, calls: list[tuple], assignments: dict, where: str) -> None:
+        """Classify decoded command and executable-override arguments."""
+        for line, argument, working, executable in calls:
+            overrides = self.values(executable, assignments, where=f'{where}:{line}') if executable else []
+            for value in self.values(argument, assignments, where=f'{where}:{line}'):
                 if isinstance(value, str):
                     self.shell(value, f'{where}:{line}', working)
                 else:
                     self.command(value, f'{where}:{line}', working)
+                for override in overrides:
+                    if not isinstance(override, str):
+                        raise Refusal(f'unsupported executable override at {where}:{line}')
+                    argv = [override, *value[1:]] if isinstance(value, list) else [override, value]
+                    self.command(argv, f'{where}:{line}', working)
 
-    def values(self, node: ast.AST, assignments: dict, seen: frozenset = frozenset()) -> list:
-        """Resolve literals and simple command aliases; record dynamic assembly."""
+    def values(self, node: ast.AST, assignments: dict, seen: frozenset = frozenset(), where: str = '') -> list:
+        """Resolve literal command data; locate every unresolved assembly."""
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             return [node.value]
         if isinstance(node, (ast.List, ast.Tuple)):
@@ -195,68 +249,31 @@ class Audit:
                      for n in node.elts]]
         if isinstance(node, ast.Name) and node.id not in seen and node.id in assignments:
             return [value for expr in assignments[node.id]
-                    for value in self.values(expr, assignments, seen | {node.id})]
-        self.residue.add('Python command assembled at runtime')
+                    for value in self.values(expr, assignments, seen | {node.id}, where)]
+        self.residue.add(f'{where}: Python command assembled at runtime')
         return []
 
     def shell(self, source: str, where: str, directory: Path | None = None) -> None:
-        """Classify calls in the complete Bash AST, including function bodies."""
-        script = self.root / where.split(':', 1)[0]
-        if script.is_file() and script.suffix == '.sh':
-            source = source.replace('$(dirname "$0")', str(script.parent))
-        source = re.sub(r'\$\{\{.*?\}\}', '${RUNTIME}', source)
-        try:
-            tree = shell_tree(source, self.parser)
-        except Refusal as error:
-            raise Refusal(f'{where}: {error}') from error
-        saved = self.functions
-        self.functions = saved | {n['Name']['Value'] for n in nodes(tree) if n.get('Type') == 'FuncDecl'}
-        try:
-            for node in nodes(tree):
-                if node.get('Type') != 'CallExpr':
-                    continue
-                for assignment in node.get('Assigns', []):
-                    if assignment.get('Value'):
-                        value = word(assignment['Value'])
-                        for key, replacement in self.env.items():
-                            value = value.replace('${' + key + '}', str(replacement))
-                        self.env[assignment['Name']['Value']] = value
-                if not node.get('Args'):
-                    continue
-                words = [word(arg) for arg in node['Args']]
-                line = node['Pos']['Line']
-                self.command(words, f'{where}:{line}', directory)
-                if words[0] == 'cd' and len(words) > 1:
-                    directory = (directory or self.root) / words[1]
-            for node in nodes(tree):
-                if 'Redirs' not in node or node.get('Cmd', {}).get('Type') != 'CallExpr':
-                    continue
-                words = [word(arg) for arg in node['Cmd'].get('Args', [])]
-                for redirect in node['Redirs']:
-                    if 'Hdoc' not in redirect:
-                        continue
-                    if words[:2] in (['python3', '-'], ['python', '-']):
-                        self.python(word(redirect['Hdoc']), where + ':heredoc', directory or self.root)
-                    elif words and words[0] in ('bash', 'sh'):
-                        self.shell(word(redirect['Hdoc']), where + ':heredoc', directory)
-        finally:
-            self.functions = saved
+        """Walk the supported syntax with lexical directory and function scope."""
+        from ci_shell_walk import Shell
+        Shell(self, where).run(source, directory or self.root)
 
-    def installation(self, words: list[str], where: str) -> None:
+    def installation(self, words: list[str], where: str, directory: Path | None = None) -> None:
         """Record supported workflow installers; refuse unreviewed script installers."""
         if not where.startswith('.github/workflows/') or self.install_reader is None:
             raise Refusal(f'installer needs an explicit pin reader at {where}: {shlex.join(words)}')
-        self.requests.extend(self.install_reader(shlex.join(words), self.env, self.root))
+        self.requests.extend(self.install_reader(shlex.join(words), self.env, directory or self.root))
 
     def command(self, words: list[str], where: str, directory: Path | None = None) -> None:
         """Dispatch only the finite handlers declared in the table."""
         if not words:
             return
-        words = [re.sub(r'\$\{(\w+)\}', lambda m: str(self.env.get(m[1], m[0])), w) for w in words]
         name = words[0]
         if name in self.functions:
             return
         if '$' in name or '<dynamic>' in name:
+            if not self.table['scripts'].get(where.split(':')[0]):
+                raise Refusal(f'unclassified runtime command name {name!r} at {where}')
             self.residue.add(f'{where}: runtime command name')
             return
         if name.endswith(('.py', '.sh')):
@@ -264,10 +281,11 @@ class Audit:
             return
         key = name if name == "." else Path(name).name
         row = self.table['commands'].get(key)
-        if row is None:
+        if row is None or name.replace(str(self.root), '${CHECKOUT}') not in row.get('executables', [key]):
             raise Refusal(f'unclassified command {name!r} at {where}')
-        prefixes = row.get('prefixes')
-        if prefixes is not None and not any(words[1:1 + len(p)] == p for p in prefixes):
+        patterns = row.get('patterns', row.get('prefixes', []))
+        normalized = [w.replace(str(self.root), '${CHECKOUT}') for w in words[1:]]
+        if not row.get('handler') and not any(self.matches(normalized, pattern) for pattern in patterns):
             raise Refusal(f'unclassified command {shlex.join(words)!r} at {where}')
         handler = row.get('handler')
         if row['class'] not in ('installer', 'non-installing'):
@@ -276,22 +294,17 @@ class Audit:
             if row.get('pin_reader') == 'copy':
                 if len(words) > 2 and words[-2] in row.get('local_sources', []):
                     self.script(words[-2], where, directory)
+                    self.installed_scripts[words[-1]] = words[-2]
                     return
                 tool = row.get('destinations', {}).get(words[-1])
                 if not tool or not any(r['tool'] == tool for r in self.requests):
                     raise Refusal(f'unbound installed tool at {where}')
             else:
-                self.installation(words, where)
+                self.installation(words, where, directory)
         if handler == 'residue':
-            self.residue.add(f'{where}: runtime command evaluation')
+            raise Refusal(f'unclassified evaluation command at {where}')
         elif handler == 'source':
-            if len(words) != 2:
-                raise Refusal(f'unsupported source command at {where}')
-            path = (directory or self.root) / words[1]
-            self.script(words[1], where, directory)
-            if path.is_file():
-                tree = shell_tree(path.read_text(), self.parser)
-                self.functions.update(n['Name']['Value'] for n in nodes(tree) if n.get('Type') == 'FuncDecl')
+            raise Refusal(f'unfollowed source command at {where}')
         elif handler == 'trap':
             if len(words) > 1 and words[1] != '-':
                 self.shell(words[1], where, directory)
@@ -305,6 +318,8 @@ class Audit:
                     if end is None:
                         raise Refusal(f'unterminated find execution at {where}')
                     self.command(rest[:end], where, directory)
+            if not any(self.matches(words[1:], p) for p in row['patterns']):
+                raise Refusal(f'unclassified find argument form at {where}')
         elif handler == 'python':
             self.python_command(words, where, directory, row)
         elif handler == 'shell':
@@ -313,6 +328,14 @@ class Audit:
             self.git_command(words, where, directory, row)
         elif handler == 'make':
             self.make_command(words, where, directory, row)
+    @staticmethod
+    def matches(args: list[str], pattern: list[str]) -> bool:
+        """Match complete argv; runtime slots cannot authorize literal options."""
+        if len(args) != len(pattern):
+            return False
+        return all(a == p or (p == '<runtime>' and ('$' in a or '<dynamic>' in a))
+                   for a, p in zip(args, pattern))
+
     def wrapper_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
         """Classify the declared wrapper command form and its executed children."""
         key = Path(words[0]).name
@@ -340,149 +363,79 @@ class Audit:
         self.command(rest, where, directory)
 
     def python_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
-        """Classify the declared python command form and its executed children."""
+        """Follow files or match an exact, reviewed inline program."""
         rest = words[1:]
         while rest and rest[0] in ('-I', '-B', '-u'):
-            rest.pop(0)
-        if not rest or rest[0] in ('--version', '-V'):
+            rest = rest[1:]
+        if rest in (['--version'], ['-V']):
             return
-        if rest[:3] == ['-m', 'pip', 'install']:
-            self.installation(['python3', *rest], where)
+        for form in row.get('installer_forms', []):
+            prefix = form['prefix']
+            if rest[:len(prefix)] == prefix:
+                self.installation(['python3', *rest], where, directory)
+                return
+        if rest[:1] == ['-c'] and len(rest) >= 2:
+            pin = hashlib.sha256(rest[1].encode()).hexdigest()
+            entry = self.table.get('inline', {}).get(words[0] + ':' + pin)
+            if not entry or not entry.get('reason'):
+                raise Refusal(f'unclassified inline interpreter text at {where}')
+            for index in entry.get('follow_args', []):
+                if len(rest) <= index + 2:
+                    raise Refusal(f'missing inline file argument at {where}')
+                self.script(rest[index + 2], where, directory)
+            if entry['class'] == 'installer':
+                self.requests.extend(entry['tools'])
+            elif entry['class'] != 'non-installing':
+                raise Refusal(f'invalid inline classification at {where}')
             return
-        if rest[0] == '-c' and len(rest) > 1:
-            self.python(rest[1], where, directory or self.root)
-        elif rest[0] == '-m':
-            raise Refusal(f'unclassified Python module at {where}')
-        elif rest[0] != '-':
-            self.script(rest[0], where, directory)
+        if not rest or rest[0].startswith('-'):
+            raise Refusal(f'unclassified Python invocation at {where}: {shlex.join(words)}')
+        self.script(rest[0], where, directory)
 
     def shell_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
-        """Classify the declared shell command form and its executed children."""
-        if '-c' in words:
-            self.residue.add(f'{where}: indirect shell')
-        else:
-            rest = [w for w in words[1:] if not w.startswith('-')]
-            if rest:
-                self.script(rest[0], where, directory)
+        """Refuse literal interpreter text; retain declared runtime execution."""
+        rest = words[1:]
+        if len(rest) == 2 and rest[0] == '-n':
+            return
+        if rest[:2] == ['-euo', 'pipefail']:
+            rest = rest[2:]
+        if rest[:1] == ['-c'] and len(rest) == 2 and '<dynamic>' in rest[1]:
+            self.residue.add(f'{where}: declared runtime shell program')
+            return
+        if rest[:1] == ['-c'] and len(rest) >= 2:
+            self.python_command([words[0], *rest[:2]], where, directory, {})
+            self.shell(rest[1], where, directory)
+            return
+        if not rest or rest[0].startswith('-'):
+            raise Refusal(f'unclassified shell invocation at {where}: {shlex.join(words)}')
+        self.script(rest[0], where, directory)
 
     def git_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
-        """Classify the declared git command form and its executed children."""
-        rest = words[1:]
-        while rest and (rest[0] in ('-C', '-c', '--git-dir', '--work-tree', '--no-optional-locks')):
-            rest = rest[1:] if rest[0] == '--no-optional-locks' else rest[2:]
-        if rest and ('<dynamic>' in rest[0] or '$' in rest[0]):
-            self.residue.add(f'{where}: runtime git subcommand')
-            return
-        if not rest or rest[0] not in row['subcommands']:
+        """Require a complete positively classified Git argument form."""
+        normalized = [w.replace(str(self.root), '${CHECKOUT}') for w in words[1:]]
+        if not any(self.matches(normalized, p) for p in row['patterns']):
             raise Refusal(f'unclassified git command at {where}: {shlex.join(words)}')
-        if rest[0] == 'clone':
-            if '--no-hardlinks' not in rest or any('://' in arg for arg in rest):
-                self.installation(['git', *rest], where)
-        if rest[0] == 'fetch':
-            args = [w for w in rest[1:] if not w.startswith('-')]
-            if not args or args[0] != 'origin':
-                raise Refusal(f'unclassified git fetch source at {where}')
+        rest = words[1:]
+        while rest and rest[0] in ('-C', '-c', '--no-optional-locks'):
+            rest = rest[1:] if rest[0] == '--no-optional-locks' else rest[2:]
+        if not rest or '$' in rest[0] or '<dynamic>' in rest[0]:
+            self.residue.add(f'{where}: declared runtime git subcommand')
+        elif rest[0] == 'clone':
+            self.installation(['git', *rest], where, directory)
+            destination = rest[-1]
+            if '$' not in destination:
+                self.external_builds.add(((directory or self.root) / destination).resolve())
 
     def make_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
-        """Classify the declared make command form and its executed children."""
-        target = directory or self.root
-        if '$' in str(target) or str(target).startswith('/tmp/'):
-            self.residue.add(f'{where}: runtime Makefile directory')
+        """Resolve selected Makefiles before inspecting their recipes."""
+        from ci_make_walk import invocation
+        normalized = [w.replace(str(self.root), '${CHECKOUT}') for w in words[1:]]
+        if '<dynamic>' in ' '.join(words) and any(self.matches(normalized, p) for p in row['patterns']):
+            self.residue.add(f'{where}: declared runtime Make invocation')
             return
-        if '-C' in words:
-            value = words[words.index('-C') + 1]
-            if '$' in value or value.startswith('/tmp/') or '<dynamic>' in value:
-                self.residue.add(f'{where}: external or runtime Makefile')
-                return
-            target = target / value
-        name = words[words.index('-f') + 1] if '-f' in words else 'Makefile'
-        if '$' in name or '<dynamic>' in name:
-            self.residue.add(f'{where}: runtime Makefile path')
-            return
-        path = target / name
-        if not path.is_file():
-            raise Refusal(f'unresolved Makefile {path} at {where}')
-        targets = []
-        skip = False
-        for word in words[1:]:
-            if skip:
-                skip = False
-            elif word in ('-C', '-f', '-j', '--jobs'):
-                skip = True
-            elif not word.startswith('-') and '=' not in word:
-                targets.append(word)
-        self.makefile(path, targets)
+        invocation(self, words, where, directory or self.root)
 
-    def make_expansions(self, source: str, where: str, directory: Path) -> str:
-        """Separate make expansion from shell syntax and inspect shell functions."""
-        output = []
-        index = 0
-        while index < len(source):
-            if source.startswith('$(', index):
-                start = index + 2
-                end = start
-                depth = 1
-                while end < len(source) and depth:
-                    depth += (source[end] == '(') - (source[end] == ')')
-                    end += 1
-                if depth:
-                    raise Refusal(f'unclosed make expansion at {where}')
-                value = self.make_expansions(source[start:end - 1], where, directory)
-                if value.startswith('shell '):
-                    self.shell(value[6:], where, directory)
-                output.append('make' if value == 'MAKE' else '${RUNTIME}')
-                self.residue.add(f'{where}: make expansion')
-                index = end
-            elif source[index:index + 1] == '$' and source[index + 1:index + 2] in ('@', '<', '^', '?', '*', '%', '+'):
-                output.append('${RUNTIME}')
-                index += 2
-            elif source.startswith('$$', index):
-                output.append('$')
-                index += 2
-            else:
-                output.append(source[index])
-                index += 1
-        return ''.join(output)
-
-    def makefile(self, path: Path, targets: list[str] | None = None) -> None:
-        """Classify selected targets and dependencies, or the owned suite population."""
-        relative = path.resolve().relative_to(self.root).as_posix()
-        self.inputs[relative] = sha256(path)
-        rules = {}
-        current = []
-        for number, line in enumerate(path.read_text().replace('\\\n', ' ').splitlines(), 1):
-            if line.startswith('.RECIPEPREFIX'):
-                raise Refusal(f'unsupported Makefile recipe prefix at {relative}:{number}')
-            if not line.lstrip().startswith('#') and '$(shell ' in line and not line.startswith('\t'):
-                self.make_expansions(line, f'{relative}:{number}', path.parent)
-            if line.startswith('\t'):
-                for target in current:
-                    rules[target][1].append((number, line))
-            elif line.startswith(('include ', '-include ')):
-                for name in line.split()[1:]:
-                    if '$' in name:
-                        self.residue.add(f'{relative}:{number}: runtime Makefile include')
-                    else:
-                        self.script(name, relative, path.parent)
-            elif ':' in line and not line.lstrip().startswith('#') and not re.match(r'^\w+\s*[:?+]?=', line):
-                names, dependencies = line.split(':', 1)
-                dependencies, separator, inline = dependencies.partition(';')
-                current = names.split()
-                for target in current:
-                    rules.setdefault(target, (dependencies.split(), []))
-                    if separator:
-                        rules[target][1].append((number, inline))
-        pending = list(rules) if targets is None else (targets or [next(iter(rules), '')])
-        while pending:
-            target = pending.pop()
-            key = f'{relative}:{target}'
-            if key in self.seen:
-                continue
-            self.seen.add(key)
-            if target not in rules:
-                continue
-            dependencies, recipes = rules[target]
-            pending.extend(d for d in dependencies if d in rules)
-            for number, line in recipes:
-                recipe = self.make_expansions(line.lstrip('\t@+-'), f'{relative}:{number}', path.parent)
-                self.shell(recipe, f'{relative}:{number}', path.parent)
+    def makefile(self, path: Path, targets: list[str] | None = None, overrides: dict | None = None) -> None:
+        """Classify reachable rules using the supported Make semantics."""
+        from ci_make_walk import Makefile
+        Makefile(self, path, overrides or {}).walk(targets)

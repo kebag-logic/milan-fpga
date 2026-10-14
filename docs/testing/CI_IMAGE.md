@@ -25,18 +25,19 @@ Each entry names its workflow, job and step.
 It follows executed scripts, local imports and selected Makefile targets.
 The suite driver's owned Makefiles are checked too.
 [`command-table.json`](../../ci/image/command-table.json) classifies the permitted commands.
-Every literal command must have a declared classification.
-Unknown names and unclassified subcommands refuse generation.
+Commands match complete argument patterns or bounded handlers.
+Unknown names, subcommands and argument forms refuse generation.
 Installers require an explicit tool and pin reader.
-Python subprocess calls include positional and keyword arguments.
-Network-using or subprocess-using Python scripts require reviewed declarations.
+Python capability detection precedes argument decoding.
+Literal keyword dictionaries and function aliases remain classified.
+Execution-capable or network-using Python scripts require reviewed declarations.
 Non-installing declarations include a reason and content SHA-256.
 Installer declarations include their tools, pins and content SHA-256.
 Changed declared scripts refuse generation until reviewed again.
 Job containers and services record immutable image references.
 Moving image tags refuse generation.
-Commands assembled at runtime, including string building, `eval`, `getattr`,
-and indirect shells, remain outside static analysis and enter the residue checklist.
+Runtime assembly in reviewed scripts produces located residue entries.
+Shell `eval` and unpinned interpreter programs refuse generation.
 Changed requests and unused inventory entries fail comparison.
 
 [`sources.lock.json`](../../ci/image/sources.lock.json) resolves those requests.
@@ -60,7 +61,9 @@ Every downloaded JAR and metadata file has its checksum.
 
 Round four starts from `e6b86814` and its unchanged workflows.
 The census follows scripts, local imports and suite recipes.
-It encounters 69 Makefiles and 214 Python import names.
+The initial census encountered 69 Makefiles and 214 import names.
+Expanded resolution binds 324 inputs, including previously hidden scripts.
+All 45 tool records retain their original pins and provenance.
 The command table records individual permitted argument forms.
 This table defines the construct boundary, including refused variants.
 Resolution never executes workflow commands or Make shell expressions.
@@ -75,11 +78,11 @@ Resolution never executes workflow commands or Make shell expressions.
 | Shell literal assignments and arrays | `scripts/run_all_suites.sh` | Retain literals; record runtime values; refuse computed function calls. |
 | Shell parameter and arithmetic expansion | `scripts/run_litex_sims.sh` | Walk nested execution; refuse unsupported expansion syntax. |
 | Shell command and process substitution | `syn/yosys/malloc.sh` | Walk child scope; refuse unresolved directory changes. |
-| Shell directory changes and subshells | `scripts/run_litex_sims.sh` | Resolve child directories; preserve parent; refuse computed directories. |
+| Shell directory changes and subshells | `scripts/run_litex_sims.sh` | Preserve child scope; unresolved directories require content-pinned review. |
 | Shell blocks and conditionals | `.github/workflows/docs.yml` | Inspect every branch; refuse ambiguous following directories. |
 | Shell loops and cases | `sw/litex/patches/apply.sh` | Inspect every body; retain runtime iteration residue. |
-| Shell declarations and functions | `scripts/run_all_suites.sh` | Walk same-file definitions and literal calls; refuse foreign functions. |
-| Shell sourced files | `syn/yosys/run.sh` | Follow the resolved file; refuse missing files. |
+| Shell declarations and functions | `scripts/run_all_suites.sh` | Walk literal same-file calls; refuse undeclared foreign functions. |
+| Shell sourced files | `syn/yosys/run.sh` | Follow resolved files; imported functions require content-pinned declarations. |
 | Inline interpreter programs | `.github/workflows/elaborate.yml` | Require interpreter and exact program digest; refuse changed bytes. |
 | Command wrappers | `.github/workflows/rtl.yml` | Parse supported options and classify children; refuse unknown options. |
 | Make options and variable overrides | `tb/verilator/maap/Makefile` | Select file, directory and targets; refuse unsupported options. |
@@ -92,13 +95,32 @@ Resolution never executes workflow commands or Make shell expressions.
 | Make string and list functions | `tb/verilator/nvm_backend/Makefile` | Resolve `foreach`, `call`, `subst`, `patsubst`, filters and prefixes. |
 | Make path and selection functions | `tb/verilator/milan_dp/Makefile` | Resolve `abspath`, `wildcard`, `firstword`, `strip`, `if`, `and`. |
 | Make literal shell expressions | `tb/verilator/milan_dp/Makefile` | Classify expanded literal commands; refuse computed executables. |
-| Make conditions and errors | `tb/verilator/capture_coherence/Makefile` | Inspect feasible branches; refuse unsupported directives. |
+| Make conditions and errors | `tb/verilator/capture_coherence/Makefile` | Inspect error-only guards; refuse conditional assignments and other directives. |
+| Make target-specific variables | `tb/verilator/milan_dp/Makefile` | Inherit literal values into prerequisites; refuse computed values. |
+| Make order-only prerequisites | `tb/verilator/mbx/Makefile` | Traverse both dependency classes; refuse missing dependencies. |
 | Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Follow resolved arguments; refuse unresolved literal selection. |
 | Python imports and local modules | `scripts/measure_test_evidence_readers.py` | Follow local files; require declarations for execution/network capabilities. |
 | Python positional and keyword calls | `scripts/check_rtl_source_lists.py` | Decode literal argv and keywords; refuse undeclared executors. |
 | Python aliases and dynamic calls | `scripts/act_ci.py` | Require content-pinned review; locate undecodable commands as residue. |
 
-Each supported category needs an accepted and refused control.
+The tree also pins two additional interpreter forms.
+The synthesis driver reads statistics through a Python heredoc.
+The render suite selects simulation modes through shell `-c`.
+Both programs require exact text digests in the table.
+Changed bytes refuse generation.
+
+Runtime fixture commands retain their enclosing Python declaration.
+Runtime directories retain their enclosing shell declaration and scope.
+Their paths never resolve to unrelated literal source files.
+Changing those scripts invalidates the declaration before traversal.
+Known external builds bind to recorded installer destinations.
+Checkout location never creates an external-build allowance.
+The sourced allocator fragment exports only its pinned function definitions.
+Unpinned foreign functions remain refused.
+
+Each supported category has accepted and refused controls.
+[`ci_inventory_patterns_selftest.py`](../../scripts/ci_inventory_patterns_selftest.py)
+exercises both generation and comparison for each fixture.
 Unlisted constructs and unlisted command forms refuse generation.
 Runtime assembly remains subject to the declared residue boundary.
 
@@ -154,6 +176,7 @@ docker pull "$base"
 docker image save --output "$IMAGE_WORK/base-locked.tar" "$base"
 python3 scripts/ci_tool_inventory.py --check
 python3 scripts/ci_tool_inventory_selftest.py
+python3 scripts/ci_inventory_patterns_selftest.py
 python3 ci/image/build_selftest.py
 python3 ci/image/integrity_selftest.py
 python3 ci/image/privacy_selftest.py

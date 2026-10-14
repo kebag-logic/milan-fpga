@@ -147,7 +147,10 @@ def shell_installs(run: str, env: dict[str, str], root: Path) -> list[dict[str, 
                 raise Refusal(f"unrecognized release download {url}")
             result.append({"tool": match[1], "kind": "archive", "pin": match[2],
                            "source": url, "sha256": variables.get("sha256")})
-        elif words and words[:2] != ["apt-get", "update"]:
+        elif words[:2] == ['apt-get', 'update']:
+            if words[2:] not in ([], ['-qq']):
+                raise Refusal('unsupported apt update options')
+        elif words:
             raise Refusal(f"unsupported installation command: {line.strip()}")
     return result
 
@@ -181,6 +184,8 @@ def derive(root: Path) -> dict[str, object]:
         doc = yaml.safe_load(raw)
         inputs[relative] = digest(raw)
         for job, body in doc["jobs"].items():
+            if 'uses' in body:
+                raise Refusal(f'unsupported reusable workflow at {relative}: job {job}')
             for row in job_images(body):
                 key = json.dumps(row, sort_keys=True)
                 records.setdefault(key, {**row, "installed_by": []})["installed_by"].append(
@@ -190,7 +195,11 @@ def derive(root: Path) -> dict[str, object]:
                 env = {**doc.get("env", {}), **body.get("env", {}), **step.get("env", {})}
                 audit.requests = []
                 audit.env = dict(env)
-                audit.shell(run, relative, root)
+                working = step.get('working-directory', body.get('defaults', {}).get('run', {}).get(
+                    'working-directory', doc.get('defaults', {}).get('run', {}).get('working-directory', '.')))
+                if not isinstance(working, str) or '$' in working:
+                    raise Refusal(f'unresolved workflow working-directory at {relative}: job {job}')
+                audit.shell(run, relative, root / working)
                 rows = audit.requests
                 if "sw/litex/patches/apply.sh" in run:
                     for patch in sorted((root / "sw/litex/patches").glob("*.patch")):
