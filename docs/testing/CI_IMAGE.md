@@ -70,9 +70,10 @@ Package database comparisons are additional checks.
 ## Rebuild
 
 Use Linux x86-64, Docker, BuildKit and Python 3.12.
-Install the Docker buildx plugin and PyYAML.
-Local cache export needs the containerd image store.
-Alternatively, use a docker-container builder.
+Install Docker buildx v0.38.0 and PyYAML.
+Use the Docker driver with the containerd image store.
+This setup supports local cache export and image inspection.
+The build authenticates configuration identity from the exported manifest.
 The host privacy reader also needs `zstd`.
 Package regeneration needs `dpkg` and `dpkg-deb`.
 Git authenticates the committed patch series.
@@ -97,6 +98,9 @@ python3 ci/image/build.py --work "$IMAGE_WORK" --record-lock
 
 Preparation downloads and verifies every locked artifact.
 Existing downloads undergo identical size and hash checks.
+Superseded Ubuntu packages fall back to timestamped snapshots.
+Retained downloads must match the original size and SHA-256.
+Other HTTP failures and corrupt downloads still refuse acceptance.
 Simultaneous downloads use separate temporary files.
 Only allowlisted recipe files enter the build context.
 Build instructions run with networking disabled.
@@ -201,7 +205,8 @@ The pinned base supplies its own installed-package records.
 
 ```sh
 python3 ci/image/resolve_base.py "$IMAGE_WORK/base-locked.tar"
-python3 ci/image/resolve_packages.py --cache "$IMAGE_WORK/context/debs" --write
+python3 ci/image/resolve_packages.py --cache "$IMAGE_WORK/context/debs" \
+  --snapshot 20261014T000000Z --write
 python3 ci/image/resolve_packages.py --cache "$IMAGE_WORK/context/debs"
 python3 ci/image/resolve_git.py --cache "$IMAGE_WORK/context"
 ```
@@ -215,6 +220,10 @@ Place those records in a candidate source-lock file.
 Pass that file through `--candidates` during regeneration.
 The generator verifies candidates before selecting the used closure.
 Never resolve moving package indexes during the image build.
+Pin the snapshot timestamp when refreshing Ubuntu package records.
+Verify every retained artifact before accepting the refreshed lock.
+Update `CI_IMAGE_LOCK_LITERALS` in `scripts/check_baremetal_only.py` when versions change.
+Its file-specific allowances must match the generated public package literals.
 The CPU generator instead follows exact public Git tree objects.
 It refuses undeclared gitlinks and verifies archive checksums.
 
@@ -244,7 +253,7 @@ Rebuild and rerun smoke after every source-lock change.
 | `PATH` | Image tool prefixes followed by the base path | Replaces workflow tool-install path exports |
 | `LANG`, `LC_ALL` | `C.UTF-8` | Stable command output and Python decoding |
 | `DEBIAN_FRONTEND` | `noninteractive` | Distribution package installation |
-| `MILAN_RV32_CC` | `/opt/rv32-sdk/bin/riscv32-linux-gcc` | Existing SDK installer's compiler selection |
+| `MILAN_RV32_CC` | `/opt/rv32-sdk/bin/riscv32-linux-gcc` | `fw_rv32.py` and control-firmware tests select the compiler |
 | `TSN_GEN_ROOT` | `/opt/tsn-gen` | Existing oracle suite's root override |
 | `COURSIER_CACHE` | `/opt/sbt/cache/coursier` | Public Scala dependency cache |
 | `SBT_OPTS` | Boot, global and Ivy directories under `/opt/sbt/cache`; repository override | Offline Scala bootstrap and pinned public repositories |
@@ -293,6 +302,21 @@ The complete CPU source tree already exists inside it.
 It contains source files, without upstream Git working directories.
 Adoption replaces `ci_litex_env.py` placement with its offline `--check`.
 The existing patches are already applied in the image.
+The census also requires `$HOME/br-milan-rv32/host`.
+Its compiler lookup does not consume `MILAN_RV32_CC`.
+Adoption must link that location for the actual job user:
+
+```sh
+mkdir -p "$HOME/br-milan-rv32"
+ln -s /opt/rv32-sdk "$HOME/br-milan-rv32/host"
+"$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc" --version
+```
+
+Create this link in a fresh job home.
+An existing destination must already resolve to `/opt/rv32-sdk`.
+The image supplies the SDK at that immutable location.
+No download or compiler change is required.
+
 The switch lane must pin CPython to 3.12.3 everywhere.
 Every workflow's suites must pass using these accepted versions.
 Hosted contexts and independent reviews remain mandatory.

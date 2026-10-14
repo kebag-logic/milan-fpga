@@ -37,10 +37,8 @@ def object_blob(archive: tarfile.TarFile, descriptor: dict[str, object]) -> dict
     return json.loads(data)
 
 
-def inspect(path: Path, platform: str, upstream: dict | None = None) -> dict[str, object]:
-    """Authenticate an exported image, inspect all layers, and report identity."""
-    policy = privacy.Policy()
-    allowed = []
+def metadata(path: Path, platform: str) -> tuple[dict, dict, dict]:
+    """Authenticate manifest and config independently of builder metadata keys."""
     with tarfile.open(path) as archive:
         index = json.load(archive.extractfile("index.json"))
         if len(index["manifests"]) != 1:
@@ -56,6 +54,15 @@ def inspect(path: Path, platform: str, upstream: dict | None = None) -> dict[str
             descriptor = available[0]
             manifest = object_blob(archive, descriptor)
         config = object_blob(archive, manifest["config"])
+    return descriptor, manifest, config
+
+
+def inspect(path: Path, platform: str, upstream: dict | None = None) -> dict[str, object]:
+    """Authenticate an exported image, inspect all layers, and report identity."""
+    policy = privacy.Policy()
+    allowed = []
+    descriptor, manifest, config = metadata(path, platform)
+    with tarfile.open(path) as archive:
         if policy.matches(json.dumps(config).encode()):
             raise ValueError("host identity in image config, history, environment or labels")
         layers = []

@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import urllib.parse
 
 
 HERE = Path(__file__).resolve().parent
@@ -107,6 +108,7 @@ def main() -> int:
     parser.add_argument("--cache", type=Path, required=True)
     parser.add_argument("--candidates", type=Path, help="source lock containing additional checked archive candidates")
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--snapshot", help="add a retained Ubuntu fallback at YYYYMMDDTHHMMSSZ")
     args = parser.parse_args()
     path = HERE / "sources.lock.json"
     pins = json.loads(path.read_text())
@@ -120,6 +122,15 @@ def main() -> int:
         pins["packages"] = list(current.values())
     base = pins["base_packages"]
     packages = selected_packages(pins, args.cache, base)
+    if args.snapshot:
+        if not args.write or not re.fullmatch(r"\d{8}T\d{6}Z", args.snapshot):
+            raise ValueError("snapshot requires --write and an exact timestamp")
+        for row in packages:
+            url = urllib.parse.urlsplit(row["url"])
+            if url.hostname in ("archive.ubuntu.com", "security.ubuntu.com"):
+                if not url.path.startswith("/ubuntu/pool/"):
+                    raise ValueError("unsupported Ubuntu package path")
+                row["fallback_urls"] = [f"https://snapshot.ubuntu.com/ubuntu/{args.snapshot}{url.path[7:]}"]
     if args.write:
         pins["packages"] = packages
         path.write_text(json.dumps(pins, sort_keys=True, indent=2) + "\n")

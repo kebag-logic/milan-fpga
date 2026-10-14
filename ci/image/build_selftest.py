@@ -12,6 +12,7 @@ from pathlib import Path
 import tempfile
 import tarfile
 import threading
+import urllib.error
 from unittest.mock import patch
 
 import build
@@ -55,6 +56,20 @@ def main() -> int:
         with patch("urllib.request.urlopen", return_value=io.BytesIO(payload)):
             build.verified_download(row, target)
         assert target.read_bytes() == payload
+        retained = {**row, "fallback_urls": ["https://example.invalid/snapshot/fixture"]}
+        target.unlink()
+        missing = urllib.error.HTTPError(row["url"], 404, "superseded", {}, None)
+        with patch("urllib.request.urlopen", side_effect=[missing, io.BytesIO(payload)]) as fetch:
+            build.verified_download(retained, target)
+        assert [call.args[0] for call in fetch.call_args_list] == [row["url"], retained["fallback_urls"][0]]
+        assert target.read_bytes() == payload
+        target.unlink()
+        with patch("urllib.request.urlopen", side_effect=[missing, io.BytesIO(b"x" * len(payload))]):
+            refused(lambda: build.verified_download(retained, target), "corrupt retained package")
+        assert not target.exists()
+        with patch("urllib.request.urlopen", return_value=io.BytesIO(payload)):
+            build.verified_download(row, target)
+        print("PASS: primary 404 uses retained URL with the original size and checksum")
         with patch("urllib.request.urlopen", side_effect=AssertionError("cache should be reused")):
             build.verified_download(row, target)
         target.write_bytes(b"x" * len(payload))

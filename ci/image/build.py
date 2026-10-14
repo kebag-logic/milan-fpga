@@ -17,6 +17,7 @@ import sys
 import tarfile
 import tempfile
 import time
+import urllib.error
 import urllib.request
 
 import image_archive
@@ -114,13 +115,22 @@ def verified_download(row: dict[str, object], target: Path) -> None:
     """Accept only exact-size, exact-hash public artifacts, including cache hits."""
     if target.is_file() and target.stat().st_size == row["size"] and sha256(target) == row["sha256"]:
         return
-    if not str(row["url"]).startswith("https://"):
+    urls = [row["url"], *row.get("fallback_urls", [])]
+    if any(not str(url).startswith("https://") for url in urls):
         raise ValueError("source must use public HTTPS")
     target.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(dir=target.parent, prefix=target.name + ".", suffix=".part") as stream:
         temporary = Path(stream.name)
-        with urllib.request.urlopen(str(row["url"]), timeout=120) as response:
-            shutil.copyfileobj(response, stream, length=1024 * 1024)
+        for index, url in enumerate(urls):
+            try:
+                with urllib.request.urlopen(str(url), timeout=120) as response:
+                    shutil.copyfileobj(response, stream, length=1024 * 1024)
+                break
+            except urllib.error.HTTPError as error:
+                if error.code != 404 or index == len(urls) - 1:
+                    raise
+                stream.seek(0)
+                stream.truncate()
         stream.flush()
         if temporary.stat().st_size != row["size"] or sha256(temporary) != row["sha256"]:
             raise ValueError(f"source digest mismatch: {row['tool']}")
@@ -313,13 +323,16 @@ def build(args: argparse.Namespace, pins: dict[str, object]) -> None:
     elapsed_ms = round((time.monotonic() - started) * 1000)
     inspected = json.loads(subprocess.check_output([*docker, "image", "inspect", tag], text=True))[0]
     produced = json.loads(metadata.read_text())
-    receipt = {"recipe_sha256": recipe, "stage": args.stage, "image_id": produced["containerimage.config.digest"],
+    archive = work / ("image.tar" if args.stage == "validation-tools" else f"{args.stage}.tar")
+    subprocess.run([*docker, "image", "save", "--output", str(archive), tag], check=True)
+    descriptor, manifest, _ = image_archive.metadata(archive, pins["platform"])
+    if descriptor["digest"] != produced["containerimage.digest"]:
+        raise ValueError("exported manifest differs from the build result")
+    receipt = {"recipe_sha256": recipe, "stage": args.stage, "image_id": manifest["config"]["digest"],
                "image_digest": produced["containerimage.digest"], "size_bytes": inspected["Size"],
                "build_ms": elapsed_ms, "tag": tag}
     (work / f"{args.stage}.receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
     if args.stage == "validation-tools":
-        archive = work / "image.tar"
-        subprocess.run([*docker, "image", "save", "--output", str(archive), tag], check=True)
         if not args.defer_lock:
             record_lock(work, pins, receipt)
         subprocess.run([*docker, "tag", tag, f"{args.repository}:{recipe}"], check=True)

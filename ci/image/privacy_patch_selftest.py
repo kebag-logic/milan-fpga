@@ -26,7 +26,8 @@ def controls(root: Path) -> None:
     path = directory / "fixture.patch"
     path.write_bytes(patch)
     for command in (["git", "init", "--quiet"], ["git", "add", "."],
-                    ["git", "commit", "--quiet", "-m", "Record fixture patch"]):
+                    ["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                     "commit", "--quiet", "-m", "Record fixture patch"]):
         subprocess.run(command, cwd=root, check=True)
     source = root / "source.tar"
     source.write_bytes(tar_bytes({"upstream/source.c": original}))
@@ -47,7 +48,8 @@ def controls(root: Path) -> None:
     planted = patch.replace(b"+new\n", b"+new /home/" + b"fixture-account/private\n")
     path.write_bytes(planted)
     subprocess.run(["git", "add", "."], cwd=root, check=True)
-    subprocess.run(["git", "commit", "--quiet", "-m", "Plant added identity"], cwd=root, check=True)
+    subprocess.run(["git", "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                    "commit", "--quiet", "-m", "Plant added identity"], cwd=root, check=True)
     refused(lambda: patch_provenance.provenance(pins, root, policy), "identity on committed patch-added line")
     source.write_bytes(source.read_bytes() + b"drift")
     refused(lambda: patch_provenance.provenance(pins, root, policy), "changed pinned archive")
