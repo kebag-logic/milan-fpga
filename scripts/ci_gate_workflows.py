@@ -155,7 +155,8 @@ def gate_graph(name: str, template: dict) -> dict:
 def generate(name: str, template: dict) -> dict:
     """Add runtime collection after deriving the unchanged gate schedule."""
     from ci_runtime_workflows import generate as runtime_workflows
-    return runtime_workflows(name, gate_graph(name, template))
+    from ci_install_workflows import generate as install_workflows
+    return runtime_workflows(name, install_workflows(gate_graph(name, template)))
 
 
 def load_template(root: Path, name: str) -> dict:

@@ -97,12 +97,25 @@ jobs:
           path: /opt/verilator
           key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
             }}-${{ runner.os }}
+      - name: Resolve exact package downloads 3
+        id: ci_packages_3
+        run: |
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 75d476c3189fef71fc03124453eee7a9c57cb835618ddc3b4c8dfdd159da7cb8 --directory "$RUNNER_TEMP/ci_packages_3" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+      - name: Cache exact package downloads 3
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_3
+          key: ${{ runner.os }}-${{ steps.ci_packages_3.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+        id: ci_step_4
       - name: Build Verilator from source on cache miss
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_3" install -y --no-install-recommends \
             git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
           git clone --depth 1 --branch "$VERILATOR_VERSION" \
             https://github.com/verilator/verilator.git /tmp/verilator-src
@@ -112,7 +125,7 @@ jobs:
           ./configure --prefix=/opt/verilator
           make -j"$(nproc)"
           sudo make install
-        id: ci_step_3
+        id: ci_step_5
       - name: Run the ratcheted whole-tree lint gate
         run: |
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
@@ -120,10 +133,10 @@ jobs:
           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
           PATH="/opt/verilator/bin:$PATH" \
             python3 scripts/lint_rtl.py --check --self-test
-        id: ci_step_4
+        id: ci_step_6
       - name: Prove protocol-processor source lists are derived
         run: python3 scripts/pp_srcs.py --check --selftest
-        id: ci_step_5
+        id: ci_step_7
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -149,16 +162,24 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_1
       - name: Fetch the processor model inputs
         run: git submodule update --init protocol-processor gptp-processor
-        id: ci_step_1
+        id: ci_step_2
       - name: Install behave
         run: python3 -m pip install --quiet behave
-        id: ci_step_2
+        id: ci_step_3
       - name: Run the specification-facing suite
         working-directory: tests
         run: behave --no-capture -f plain
-        id: ci_step_3
+        id: ci_step_4
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -177,6 +198,8 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   yosys-elaboration:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -196,12 +219,25 @@ jobs:
           path: /opt/yosys
           key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml')
             }}-${{ runner.os }}
+      - name: Resolve exact package downloads 3
+        id: ci_packages_3
+        run: |
+          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe b3e97f74995581d5910e2356723915fd7645a75dbfe71fa71334def0585bbf97 --directory "$RUNNER_TEMP/ci_packages_3" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+      - name: Cache exact package downloads 3
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_3
+          key: ${{ runner.os }}-${{ steps.ci_packages_3.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+        id: ci_step_4
       - name: Build Yosys from source on cache miss
         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_3" install -y --no-install-recommends \
             git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
           git clone --depth 1 --branch "$YOSYS_VERSION" \
             https://github.com/YosysHQ/yosys.git /tmp/yosys-src
@@ -215,7 +251,7 @@ jobs:
           git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
           # runner-owned so the cache action's save and restore are symmetric
           sudo chown -R "$(id -u):$(id -g)" /opt/yosys
-        id: ci_step_3
+        id: ci_step_5
       - name: Install the pinned Yosys and prove the version
         run: |
           set -euo pipefail
@@ -224,27 +260,36 @@ jobs:
           echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
           yosys -V
           yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
-        id: ci_step_4
+        id: ci_step_6
+      - name: Cache verified sv2v archive
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci-sv2v-cache
+          key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}-${{ runner.os }}
+        id: ci_step_7
       - name: Install the pinned sv2v release
         run: |
           set -euo pipefail
           ver=v0.0.12
           sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
           url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
-          curl -fsSL "$url" -o /tmp/sv2v.zip
-          echo "${sha256}  /tmp/sv2v.zip" | sha256sum -c -
-          unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+          mkdir -p "$RUNNER_TEMP/ci-sv2v-cache"
+          archive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"
+          if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
+          echo "${sha256}  $archive" | sha256sum -c -
+          unzip -q -o "$archive" -d /tmp/sv2v
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
           sv2v --version
-        id: ci_step_5
+        id: ci_step_8
       - name: Elaborate the integration-heavy tops
         run: |
           syn/yosys/run.sh --mode elaborate --no-structural \
             --top milan_datapath \
             --top KL_pp_shadow \
             --top KL_gptp_shadow
-        id: ci_step_6
+        id: ci_step_9
       - name: Prove the OOC read sets come from run.sh and refuse a bad one
         run: |
           set -euo pipefail
@@ -262,16 +307,16 @@ jobs:
           python3 syn/ooc/pp_resource_gate.py check-baseline
           python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
           python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
-        id: ci_step_7
+        id: ci_step_10
       - name: Prove ooc.sh generates the ROMs and fails on a failed top
         run: python3 syn/yosys/ooc_selftest.py
-        id: ci_step_8
+        id: ci_step_11
       - name: Prove both synthesis flows refuse active elaboration guards
         run: python3 syn/yosys/guard_selftest.py
-        id: ci_step_9
+        id: ci_step_12
       - name: Prove the result cache refuses a planted entry
         run: python3 syn/yosys/cache_selftest.py
-        id: ci_step_10
+        id: ci_step_13
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -299,9 +344,17 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_1
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
-        id: ci_step_1
+        id: ci_step_2
       - name: Cache the pinned Yosys build
         id: cache-yosys
         uses: actions/cache@v4
@@ -309,12 +362,25 @@ jobs:
           path: /opt/yosys
           key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml')
             }}-${{ runner.os }}
+      - name: Resolve exact package downloads 3
+        id: ci_packages_3
+        run: |
+          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe b3e97f74995581d5910e2356723915fd7645a75dbfe71fa71334def0585bbf97 --directory "$RUNNER_TEMP/ci_packages_3" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+      - name: Cache exact package downloads 3
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_3
+          key: ${{ runner.os }}-${{ steps.ci_packages_3.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+        id: ci_step_5
       - name: Build Yosys from source on cache miss
         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_3" install -y --no-install-recommends \
             git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
           git clone --depth 1 --branch "$YOSYS_VERSION" \
             https://github.com/YosysHQ/yosys.git /tmp/yosys-src
@@ -328,7 +394,7 @@ jobs:
           git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
           # runner-owned so the cache action's save and restore are symmetric
           sudo chown -R "$(id -u):$(id -g)" /opt/yosys
-        id: ci_step_3
+        id: ci_step_6
       - name: Install the pinned Yosys and prove the version
         run: |
           set -euo pipefail
@@ -337,26 +403,35 @@ jobs:
           echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
           yosys -V
           yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
-        id: ci_step_4
+        id: ci_step_7
+      - name: Cache verified sv2v archive
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci-sv2v-cache
+          key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}-${{ runner.os }}
+        id: ci_step_8
       - name: Install the pinned sv2v release
         run: |
           set -euo pipefail
           ver=v0.0.12
           sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
           url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
-          curl -fsSL "$url" -o /tmp/sv2v.zip
-          echo "${sha256}  /tmp/sv2v.zip" | sha256sum -c -
-          unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+          mkdir -p "$RUNNER_TEMP/ci-sv2v-cache"
+          archive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"
+          if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
+          echo "${sha256}  $archive" | sha256sum -c -
+          unzip -q -o "$archive" -d /tmp/sv2v
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
           sv2v --version
-        id: ci_step_5
+        id: ci_step_9
       - name: Run the publication census in every shape the builder builds
         run: |
           set -euo pipefail
           python3 -m pip install --quiet pyyaml
           python3 sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"
-        id: ci_step_6
+        id: ci_step_10
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -375,6 +450,8 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   firmware-unit:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -384,51 +461,70 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_1
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
           third_party/tsn-c-stack
-        id: ci_step_1
+        id: ci_step_2
+      - name: Resolve exact package downloads 2
+        id: ci_packages_2
+        run: |
+          python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 545d286fd202c8cdc12be725088a6edb79796c9f9361ebeecdf9cf595e990c0f --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+      - name: Cache exact package downloads 2
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_2
+          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        id: ci_step_4
       - name: Install GoogleTest and GoogleMock and print the versions
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev
           python3 -m pip install --quiet pyyaml
           dpkg-query -W libgtest-dev libgmock-dev
           g++ --version | head -n 1
           gcov --version | head -n 1
-        id: ci_step_2
+        id: ci_step_5
       - name: Prove the tally reads a failing and a crashing test as failures
         run: python3 sw/firmware/gtest/tally_selftest.py
-        id: ci_step_3
+        id: ci_step_6
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_4
+        id: ci_step_7
       - name: Install and verify the pinned RV32 SDK
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_5
+        id: ci_step_8
       - name: Run the control-plane firmware suites and RV32 builds
         run: |
           set -euo pipefail
           python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
           python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
-        id: ci_step_6
+        id: ci_step_9
       - name: Run the saved-state store suites and its RV32 build
         run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
-        id: ci_step_7
+        id: ci_step_10
       - name: Hold the firmware coverage ratchet
         run: |
           set -euo pipefail
           python3 sw/firmware/gtest/fw_coverage.py --selftest
           python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
-        id: ci_step_8
+        id: ci_step_11
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -447,6 +543,8 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   firmware-control-mutants:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -456,37 +554,56 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_1
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
           third_party/tsn-c-stack
-        id: ci_step_1
+        id: ci_step_2
+      - name: Resolve exact package downloads 2
+        id: ci_packages_2
+        run: |
+          python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 545d286fd202c8cdc12be725088a6edb79796c9f9361ebeecdf9cf595e990c0f --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+      - name: Cache exact package downloads 2
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_2
+          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        id: ci_step_4
       - name: Install GoogleTest and GoogleMock and print the versions
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev
           python3 -m pip install --quiet pyyaml
           dpkg-query -W libgtest-dev libgmock-dev
           g++ --version | head -n 1
           gcov --version | head -n 1
-        id: ci_step_2
+        id: ci_step_5
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_3
+        id: ci_step_6
       - name: Install and verify the pinned RV32 SDK
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_4
+        id: ci_step_7
       - name: Run the control mutation campaign
         run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard
           1/4
-        id: ci_step_5
+        id: ci_step_8
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -506,6 +623,8 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   firmware-aecp-mutants:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -515,37 +634,56 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_1
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
           third_party/tsn-c-stack
-        id: ci_step_1
+        id: ci_step_2
+      - name: Resolve exact package downloads 2
+        id: ci_packages_2
+        run: |
+          python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 545d286fd202c8cdc12be725088a6edb79796c9f9361ebeecdf9cf595e990c0f --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+      - name: Cache exact package downloads 2
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_2
+          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        id: ci_step_4
       - name: Install GoogleTest and GoogleMock and print the versions
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev
           python3 -m pip install --quiet pyyaml
           dpkg-query -W libgtest-dev libgmock-dev
           g++ --version | head -n 1
           gcov --version | head -n 1
-        id: ci_step_2
+        id: ci_step_5
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_3
+        id: ci_step_6
       - name: Install and verify the pinned RV32 SDK
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_4
+        id: ci_step_7
       - name: Run the AECP mutation campaign
         run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard
           2/4
-        id: ci_step_5
+        id: ci_step_8
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -564,6 +702,8 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   firmware-srp-mutants:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -573,37 +713,56 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_1
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
           third_party/tsn-c-stack
-        id: ci_step_1
+        id: ci_step_2
+      - name: Resolve exact package downloads 2
+        id: ci_packages_2
+        run: |
+          python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 545d286fd202c8cdc12be725088a6edb79796c9f9361ebeecdf9cf595e990c0f --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+      - name: Cache exact package downloads 2
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_2
+          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        id: ci_step_4
       - name: Install GoogleTest and GoogleMock and print the versions
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev
           python3 -m pip install --quiet pyyaml
           dpkg-query -W libgtest-dev libgmock-dev
           g++ --version | head -n 1
           gcov --version | head -n 1
-        id: ci_step_2
+        id: ci_step_5
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_3
+        id: ci_step_6
       - name: Install and verify the pinned RV32 SDK
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_4
+        id: ci_step_7
       - name: Run both SRP mutation campaigns and pin controls
         run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard
           3/4
-        id: ci_step_5
+        id: ci_step_8
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -622,6 +781,8 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   firmware-boundary:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -631,35 +792,54 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_1
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
           third_party/tsn-c-stack
-        id: ci_step_1
+        id: ci_step_2
+      - name: Resolve exact package downloads 2
+        id: ci_packages_2
+        run: |
+          python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 0a7770834110cbf0bf2a242c3eefab212a9b9ff9f158f62eee30bd8188f9b335 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+      - name: Cache exact package downloads 2
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_2
+          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        id: ci_step_4
       - name: Install GoogleTest and GoogleMock and print the versions
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev
           python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt
           dpkg-query -W libgtest-dev libgmock-dev
           g++ --version | head -n 1
-        id: ci_step_2
+        id: ci_step_5
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_3
+        id: ci_step_6
       - name: Install and verify the pinned RV32 SDK
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_4
+        id: ci_step_7
       - name: Hold the TSN stack boundary over the firmware builders' compiles
         run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
-        id: ci_step_5
+        id: ci_step_8
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -678,6 +858,8 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   firmware-verilator:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -687,19 +869,38 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_1
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
           third_party/tsn-c-stack
-        id: ci_step_1
+        id: ci_step_2
+      - name: Resolve exact package downloads 2
+        id: ci_packages_2
+        run: |
+          python3 scripts/ci_install_cache.py --packages libgmock-dev libgtest-dev --recipe 1bc2189d362b534d00cedebf8457eb163856c1fc534096947dea3b3c4472f6c9 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+      - name: Cache exact package downloads 2
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_2
+          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        id: ci_step_4
       - name: Install GoogleTest and GoogleMock and print the versions
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev
           python3 -m pip install --quiet pyyaml
           dpkg-query -W libgtest-dev libgmock-dev
           g++ --version | head -n 1
-        id: ci_step_2
+        id: ci_step_5
       - name: Cache the pinned Verilator build
         id: cache-verilator
         uses: actions/cache@v4
@@ -707,12 +908,25 @@ jobs:
           path: /opt/verilator
           key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
             }}-${{ runner.os }}
+      - name: Resolve exact package downloads 4
+        id: ci_packages_4
+        run: |
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 75d476c3189fef71fc03124453eee7a9c57cb835618ddc3b4c8dfdd159da7cb8 --directory "$RUNNER_TEMP/ci_packages_4" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+      - name: Cache exact package downloads 4
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_4
+          key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+        id: ci_step_8
       - name: Build Verilator from source on cache miss
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
         run: |
           set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_4" install -y --no-install-recommends \
             git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
           git clone --depth 1 --branch "$VERILATOR_VERSION" \
             https://github.com/verilator/verilator.git /tmp/verilator-src
@@ -722,30 +936,30 @@ jobs:
           ./configure --prefix=/opt/verilator
           make -j"$(nproc)"
           sudo make install
-        id: ci_step_4
+        id: ci_step_9
       - name: Put Verilator on PATH and prove the version
         run: |
           set -euo pipefail
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
           /opt/verilator/bin/verilator --version
           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
-        id: ci_step_5
+        id: ci_step_10
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_6
+        id: ci_step_11
       - name: Install and verify the pinned RV32 SDK
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_7
+        id: ci_step_12
       - name: Hold the TSN stack boundary over the Verilator builders' compiles
         run: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
-        id: ci_step_8
+        id: ci_step_13
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -764,6 +978,8 @@ jobs:
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
+    env:
+      PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   rtl-fast:
     name: rtl-fast
     if: ${{ always() && !cancelled() }}

@@ -2653,6 +2653,30 @@ including after a cache hit. Generated CPU metadata also binds the workflow
 recipe, in addition to the existing configuration, source, pin and patch inputs.
 The workflow-file hash is conservative: an unrelated workflow edit may miss
 the cache, but a changed installation command cannot reuse its predecessor.
+
+The install-cache generator also covers every ordinary Python download,
+verified sv2v archive and pinned field-oracle build. `ci/constraints-ci.txt`
+fixes CPython 3.12 Linux x86_64 package URLs with exact versions and SHA-256;
+`PIP_CONSTRAINT` applies them without changing any gate command. The download
+cache key binds that complete source list, the existing requirements and LiteX
+pins, and the generator/workflow recipe. sv2v's archive is verified on every
+use, including cache hits. Its key binds v0.0.12 and the archive SHA-256. The
+field-oracle cache binds its exact Git revision and the installation recipe;
+the original checkout, submodule initialization and build still execute.
+
+Distribution installs retain their existing package selection. Before each
+ordinary install, `ci_install_cache.py` refreshes the package index and asks
+APT for its exact download plan. The key contains separate digests of the
+resolved versions, every archive URL/size/SHA-256, and the original install
+recipe, plus the generator/workflow digest. Installation uses that prepared
+index and a private archive directory; APT still verifies every archive.
+The earlier index-update command is replaced only because preparation already
+ran it. A conditional package fallback embedded inside a test remains intact.
+Package metadata and resolver failures refuse setup. The install-cache controls
+change each identity component and reject missing source hashes, duplicates,
+broad fallback keys and changed cache paths. Test command bodies and their
+conditions remain byte-identical under this transformation.
+
 The cache controls remove each version, source and recipe component and add a
 broad fallback; every altered key must be refused.
 

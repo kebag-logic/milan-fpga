@@ -1168,6 +1168,7 @@ CARRIER_STEP_LISTS = {
              'python3 scripts/ci_suite_collect_selftest.py',
              'python3 scripts/ci_fail_fast_selftest.py',
              'python3 scripts/ci_runtime_evidence_selftest.py',
+             'python3 scripts/ci_install_cache_selftest.py',
              'python3 scripts/generate_ci_evidence_pins.py --check',
              'python3 scripts/ci_workflow_plan_selftest.py',
              'python3 scripts/ci_manifest_selftest.py',
@@ -8837,6 +8838,12 @@ def _selftest_generated_gates(pristine: World) -> tuple[list[str], int]:
                     (f"changed body {index}", lambda world, at=index:
                      jobs(world[path])[jid]["steps"][at].update({"run": "true"})),
                 ]
+                if _step.get("uses") == "actions/cache@v4":
+                    for field, value in (("key", "unbound"), ("restore-keys", "unbound-"),
+                                         ("path", "~/.unrelated-cache")):
+                        mutations.append((f"cache {index} altered {field}",
+                                          lambda world, at=index, field=field, value=value:
+                                          jobs(world[path])[jid]["steps"][at]["with"].update({field: value})))
             for label, mutate in mutations:
                 world = copy.deepcopy(pristine)
                 mutate(world)
