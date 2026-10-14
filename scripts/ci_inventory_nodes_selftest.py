@@ -4,12 +4,13 @@
 
 import hashlib
 import json
+import posixpath
 import tempfile
 from pathlib import Path
 
 import yaml
 
-from ci_command_table import Audit, Runtime, normalize, nodes, shell_tree
+from ci_command_table import Audit, Refusal, Runtime, _dirname, _join, _normpath, normalize, nodes, shell_tree
 from ci_syntax import semantic_node
 from ci_inventory_patterns_selftest import Fixture
 
@@ -25,6 +26,14 @@ def data_controls() -> None:
     assert Audit.matches(['generated/header.svh'], [{'data_path': '.svh'}])
     assert not Audit.matches(['-eprogram.svh'], [{'data_path': '.svh'}])
     print('PASS: typed data operands and variable source populations')
+    samples = ['', '/', '//', '///', 'a', 'a/', 'a//b/', '/a/../b', '//a/./b/..', '../a/../..', 'a/b/../../..',
+               '/..', '.', './', 'x/../y/']
+    for value in samples:
+        assert _dirname(value) == posixpath.dirname(value), value
+        assert _normpath(value) == posixpath.normpath(value), value
+        for other in samples:
+            assert _join([value, other]) == posixpath.join(value, other), (value, other)
+    print('PASS: modelled path functions equal the POSIX implementation')
 
 
 def shell_controls(fixture: Fixture) -> None:
@@ -146,6 +155,67 @@ def python_controls(fixture: Fixture) -> None:
     fixture.check('new Python node kind', 'uncensused Python node')
 
 
+def import_controls(fixture: Fixture) -> None:
+    """Search-path insertions and loaders reach in-tree code; no allowance stands in for it."""
+    planted = 'import subprocess\nsubprocess.run(["brand_new_command"])\n'
+    head = 'from pathlib import Path\nimport sys\n'
+    fixture.run('python3 bootstrap.py')
+    fixture.file('harness/run.py', planted)
+    fixture.file('other/run.py', planted)
+    fixture.file('bootstrap.py', head + 'sys.path.insert(0, str(Path(__file__).resolve().parent / "harness"))\n'
+                 'import run\n')
+    fixture.check('literal sys.path insertion', "undeclared executing or network script 'harness/run.py'")
+    fixture.declare('harness/run.py')
+    fixture.check('declared inserted module', "unclassified command 'brand_new_command'")
+    del fixture.table['scripts']['harness/run.py']
+    fixture.save_table()
+    fixture.file('harness/run.py', 'VALUE = 1\n')
+    fixture.check('module off the search path is not imported')
+    fixture.file('harness/run.py', planted)
+    fixture.file('helper.py', head + 'sys.path.append(str(Path(__file__).resolve().parent / "harness"))\n')
+    fixture.file('bootstrap.py', 'import helper\nimport run\n')
+    fixture.check('insertion in another module of the process', "script 'harness/run.py'")
+    fixture.file('consts.py', 'from pathlib import Path\nROOT = Path(__file__).resolve().parent\n')
+    fixture.file('bootstrap.py', 'import sys\nfrom consts import ROOT\nsys.path[:0] = [str(ROOT / "harness")]\n'
+                 'import run\n')
+    fixture.check('imported constant and slice insertion', "script 'harness/run.py'")
+    fixture.file('bootstrap.py', head + 'def setup(base):\n    sys.path.insert(0, str(base / "harness"))\n'
+                 'setup(Path(__file__).resolve().parent)\nimport run\n')
+    fixture.check('parameter bound at every call', "script 'harness/run.py'")
+    fixture.file('harness/run.py', 'VALUE = 1\n')
+    fixture.file('bootstrap.py', head + 'import os\nsys.path.insert(0, os.environ["SEARCH"])\nimport run\n')
+    fixture.check('unresolved insertion opens the search path', "script 'other/run.py'")
+    fixture.file('bootstrap.py', 'import runpy\nfrom pathlib import Path\n'
+                 'runpy.run_path(str(Path(__file__).resolve().parent / "other/run.py"))\n')
+    fixture.check('literal run_path target', "script 'other/run.py'")
+    fixture.file('bootstrap.py', 'import os\nimport runpy\nrunpy.run_path(os.environ["TARGET"])\n')
+    fixture.check('runtime loader is a declared capability', "undeclared executing or network script 'bootstrap.py'")
+    fixture.file('portion/member.py', planted)
+    fixture.file('bootstrap.py', 'from portion import member\n')
+    fixture.check('namespace package member', "script 'portion/member.py'")
+    fixture.file('compiled.cpython-312.pyc', 'not reviewable\n')
+    fixture.file('bootstrap.py', 'import compiled\n')
+    fixture.check('compiled in-tree module', 'unreviewable in-tree Python module')
+    fixture.file('sitecustomize.py', planted)
+    fixture.file('bootstrap.py', 'VALUE = 1\n')
+    fixture.check('interpreter startup module', "script 'sitecustomize.py'")
+    (fixture.root / 'sitecustomize.py').unlink()
+    fixture.file('child.py', 'VALUE = 1\n')
+    fixture.file('bootstrap.py', 'import subprocess\n'
+                 'subprocess.run(["python3", "child.py"], env={"PYTHONPATH": "x"})\n')
+    fixture.declare('bootstrap.py')
+    fixture.check('child program under a changed PYTHONPATH', 'unmodelled PYTHONPATH')
+    audit = Audit(fixture.root, {})
+    fixture.table['python_imports'].append('run')
+    audit.table = fixture.table
+    try:
+        audit.check_import_allowances()
+        raise AssertionError('an allowance naming an in-tree module was accepted')
+    except Refusal as error:
+        assert "external-import allowance 'run'" in str(error), error
+    print('PASS: an external-import allowance cannot name an in-tree module')
+
+
 def startup_controls(fixture: Fixture) -> None:
     """Uncensused directory, startup and loader variables cannot choose hidden code."""
     fixture.file('sub/bootstrap.sh', 'echo okay\n')
@@ -174,9 +244,12 @@ def main() -> int:
     for root in (Path('/src'), Path('/include')):
         value = str(root) + '/third_party/library' + str(root) + '/unit.c'
         assert normalize(value, root) == '${CHECKOUT}/third_party/library' + str(root) + '/unit.c'
-    for controls in (shell_controls, alternative_controls, make_controls, python_controls, startup_controls):
+    for controls in (shell_controls, alternative_controls, make_controls, python_controls, import_controls,
+                     startup_controls):
         with tempfile.TemporaryDirectory(prefix='ci-nodes-') as directory:
             controls(Fixture(Path(directory)))
+    Audit(Path(__file__).resolve().parents[1], {}).check_import_allowances()
+    print('PASS: committed external-import allowances name no in-tree module')
     return 0
 
 

@@ -99,7 +99,9 @@ Resolution never executes workflow commands or Make shell expressions.
 | Make target-specific variables | `tb/verilator/milan_dp/Makefile` | Inherit literal values into prerequisites; refuse computed values. |
 | Make order-only prerequisites | `tb/verilator/mbx/Makefile` | Traverse both classes; exclude order-only entries from automatic variables. |
 | Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Inherit command-line overrides; refuse interpreter-selection overrides. |
-| Python imports and local modules | `scripts/measure_test_evidence_readers.py` | Follow local files; require declarations for execution/network capabilities. |
+| Python imports and local modules | `scripts/check_nvm_capture.py` | Follow every in-tree portion on the process search path; refuse compiled modules. |
+| Python search-path insertions | `sw/firmware/gtest/fw_rv32_selftest.py` | Resolve literal entries, imported constants and call arguments; open the path otherwise. |
+| Python module loaders | `sw/builder/endstation_builder.py` | Follow literal `runpy` and file-location targets; runtime targets are declared capabilities. |
 | Python positional and keyword calls | `scripts/check_rtl_source_lists.py` | Decode literal argv and keywords; refuse undeclared executors. |
 | Python aliases and dynamic calls | `scripts/act_ci.py` | Require content-pinned review; locate undecodable commands as residue. |
 
@@ -128,8 +130,17 @@ New conditional definitions require an explicit census decision.
 Background statements, alternate workflow shells and interpreter overrides refuse.
 Make defaults respect exported environment values and command-line overrides.
 Unexported shell assignments remain outside Make's environment.
-Local Python packages take precedence over external-import allowances.
-Their initializers and selected members receive independent capability checks.
+Each interpreter process has its own modelled module search path.
+It starts at the script directory and grows to a fixed point.
+Every literal `sys.path` entry in the program's module closure joins it.
+Imported path constants and same-module call arguments resolve exactly.
+Any unresolved entry opens the path to every in-tree module portion.
+Imports follow each in-tree portion on that path, including namespace members.
+Interpreter startup modules are followed the same way.
+External-import allowances apply only when no in-tree portion exists.
+No allowance may name a module the checkout supplies.
+Compiled in-tree modules and child programs under a changed `PYTHONPATH` refuse.
+Initializers and selected members receive independent capability checks.
 Foreign-function imports require reviewed content declarations.
 
 The tree also pins two additional interpreter forms.
