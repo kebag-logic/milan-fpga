@@ -344,19 +344,22 @@ The workflow keeps the public aggregate names `verilator-suites` and
 relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
-Verilator runs the default suite inventory on five workers. Four split the
-inventory by measured hosted time (#727); the fifth, shard 4/5, runs
-`milan_dp` alone (#444). A worker runs its suites one at a time, so the fifth
+Verilator runs the default suite inventory on six workers. Five split the
+inventory by recorded duration (#727); the sixth, shard 5/6, runs
+`milan_dp` alone (#444). A worker runs its suites one at a time, so the dedicated
 worker changes no suite's deadline. It takes the other suites of the old
 shard 0/4 off `milan_dp`'s path: that shard carried `milan_dp` plus eleven
 suites and set the context's latency at 1745-2514 s, of which the eleven took
 492-725 s.
 
 `scripts/suite_shards.py` records each default suite's hosted duration and
-each worker's job overhead. All figures come from one dev run, except `maap`,
-which keeps #696's figure from its pull-request run until a dev run measures
-that change. It places the longest suite first, on the worker with the lowest
-predicted wall clock. Its self-test refuses a suite without a duration and a
+each worker's job overhead. Historical figures come from one dev run, except
+`maap`, which keeps #696's pull-request figure until measured on dev.
+`gptp_tables` uses the provisional 1800-second suite timeout (#640).
+Its added worker uses the prior maximum overhead, 115 seconds.
+Replace both provisional figures after the change's successful hosted run.
+The selector places the longest suite on the least-loaded worker.
+Its self-test refuses a suite without a duration and a
 duration without a suite.
 It also refuses any worker predicted above 60% of the job's
 `timeout-minutes`, which it reads from `rtl.yml`. The selector's docstring
@@ -367,7 +370,7 @@ own hosted run. On dev `c6bd08c6` the old hash put worker 1/5 at
 104 minutes, and #696's head reached its 120-minute timeout there.
 
 The aggregate rejects missing, unexpected, or duplicate suite logs before it
-trusts the combined tally, and requires all five workers. Specialized
+trusts the combined tally, and requires all six workers. Specialized
 dependencies are installed only by their stable owners: `tsn_fuzz` owns the
 pinned packet generator, and `chmap_capture` owns the Yosys/sv2v netlist leg.
 The shard selector pins those owners and the dedicated worker, its self-test
@@ -513,7 +516,7 @@ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
 PR and push events exclude this job from execution.
 Physical regressions therefore report nightly, outside the required PR aggregate.
-The five default workers retain every other suite.
+The six default workers retain every other suite.
 
 The physical suite has a 5400-second build-and-run deadline.
 Its separate four-core `ubuntu-latest` job permits 120 minutes total.
@@ -1917,7 +1920,7 @@ host, so `act` starts one of a stage's jobs at a time (`--concurrent-jobs 1`;
 `CONCURRENT_JOB_LIMIT`): with the CPU set alone, an `rtl-full` replica
 launched all eight shard jobs together, each building its toolchain. That flag
 bounds jobs, not matrix legs, which `act` runs `strategy.max-parallel` wide
-(default 4) inside one job's slot, so each of `rtl.yml`'s sharded jobs (five
+(default 4) inside one job's slot, so each of `rtl.yml`'s sharded jobs (six
 Verilator workers, four Yosys workers) still fans out to at most four
 containers at once, each held to 16 GB: at most 64 GB at once.
 
@@ -2231,7 +2234,7 @@ Docker teardown remains paused until absence is actually established, with the
 PGID and operator recovery action printed. Docker-daemon-owned containers are
 independently contained by the same verified cleanup.
 
-The sharded exhaustive workers (five Verilator, four Yosys) carry their
+The sharded exhaustive workers (six Verilator, four Yosys) carry their
 checked denominator through the singleton `matrix.total` dimension.
 `scripts/ci_events.py` proves that value
 equals the `matrix.shard` list length and that every job name and shard command
@@ -2678,8 +2681,8 @@ syn/yosys/run.sh
 Useful read-only inspection commands are:
 
 ```sh
-scripts/run_all_suites.sh --shard 0/5 --list
-scripts/run_all_suites.sh --shard 4/5 --list   # milan_dp alone
+scripts/run_all_suites.sh --shard 0/6 --list
+scripts/run_all_suites.sh --shard 5/6 --list   # milan_dp alone
 syn/yosys/run.sh --list
 syn/yosys/run.sh --shard 0/4 --list
 ```

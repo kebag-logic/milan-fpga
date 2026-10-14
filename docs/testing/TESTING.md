@@ -515,14 +515,14 @@ preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
 worker before its suites. That self-test refuses to start until the selector's
 `SUITE_SECONDS` names every default suite, so a change that adds a suite first
 records a provisional figure for it, by the new-suite steps in the selector's
-docstring. GitHub uses five isolated `--shard INDEX/5` workers to reduce wall
+docstring. GitHub uses six isolated `--shard INDEX/6` workers to reduce wall
 time, the last of them running `milan_dp` alone, then keeps
 `verilator-suites` as a small aggregate required check. That aggregate compares
 the uploaded log names with the live default suite inventory and
 fails on a missing, unexpected, or multiply-owned suite before trusting the
-combined tally. `scripts/run_all_suites.sh --shard 0/5 --list` shows a worker's
+combined tally. `scripts/run_all_suites.sh --shard 0/6 --list` shows a worker's
 deterministic selection without building it; sharding is a scheduling detail,
-not permission to validate only one fifth locally.
+not permission to validate only one sixth locally.
 
 > **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
 > The standing rule was that every round grows it. Thirteen suites — `aecp`,
