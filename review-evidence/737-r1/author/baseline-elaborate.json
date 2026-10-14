@@ -1,0 +1,220 @@
+{
+  "workflow": "elaborate",
+  "run_id": 38495894212,
+  "head": "7032bca5a51d8d97fcb73d7fc106ca4af21de38e",
+  "jobs": [
+    {
+      "id": 115631440899,
+      "name": "elaborate",
+      "conclusion": "success",
+      "started_at": "2026-10-14T01:28:14Z",
+      "completed_at": "2026-10-14T02:03:58Z",
+      "seconds": 2144.0,
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:28:16Z",
+          "completed_at": "2026-10-14T01:28:16Z"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:28:16Z",
+          "completed_at": "2026-10-14T01:28:37Z"
+        },
+        {
+          "number": 3,
+          "name": "Decide whether this head needs an elaboration",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:28:37Z",
+          "completed_at": "2026-10-14T01:28:59Z"
+        },
+        {
+          "number": 4,
+          "name": "Fetch the source dependencies the elaboration reads",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:28:59Z",
+          "completed_at": "2026-10-14T01:29:02Z"
+        },
+        {
+          "number": 5,
+          "name": "Install the pinned sv2v release",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:02Z",
+          "completed_at": "2026-10-14T01:29:02Z"
+        },
+        {
+          "number": 6,
+          "name": "Run actions/setup-python@v5",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:02Z",
+          "completed_at": "2026-10-14T01:29:02Z"
+        },
+        {
+          "number": 7,
+          "name": "Cache the pinned pip downloads",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:02Z",
+          "completed_at": "2026-10-14T01:29:04Z"
+        },
+        {
+          "number": 8,
+          "name": "Install LiteX at the pinned revisions",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:04Z",
+          "completed_at": "2026-10-14T01:29:32Z"
+        },
+        {
+          "number": 9,
+          "name": "Cache the Scala toolchain",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:32Z",
+          "completed_at": "2026-10-14T01:29:36Z"
+        },
+        {
+          "number": 10,
+          "name": "Cache the generated CPU metadata",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:36Z",
+          "completed_at": "2026-10-14T01:29:37Z"
+        },
+        {
+          "number": 11,
+          "name": "Install sbt",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:37Z",
+          "completed_at": "2026-10-14T01:29:39Z"
+        },
+        {
+          "number": 12,
+          "name": "Place the VexiiRiscv source at the revision LiteX pins",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:39Z",
+          "completed_at": "2026-10-14T01:29:47Z"
+        },
+        {
+          "number": 13,
+          "name": "Apply the toolchain patch series",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:47Z",
+          "completed_at": "2026-10-14T01:29:47Z"
+        },
+        {
+          "number": 14,
+          "name": "Cache the pinned RV32 SDK",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:47Z",
+          "completed_at": "2026-10-14T01:29:53Z"
+        },
+        {
+          "number": 15,
+          "name": "Install and verify the pinned RV32 SDK",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:53Z",
+          "completed_at": "2026-10-14T01:29:55Z"
+        },
+        {
+          "number": 16,
+          "name": "Elaboration gates",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:29:55Z",
+          "completed_at": "2026-10-14T01:53:56Z"
+        },
+        {
+          "number": 17,
+          "name": "Cache the pinned Verilator build",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:53:56Z",
+          "completed_at": "2026-10-14T01:53:59Z"
+        },
+        {
+          "number": 18,
+          "name": "Build Verilator from source on cache miss",
+          "conclusion": "skipped",
+          "started_at": "2026-10-14T01:53:59Z",
+          "completed_at": "2026-10-14T01:53:59Z"
+        },
+        {
+          "number": 19,
+          "name": "Put Verilator on PATH and prove the version",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:53:59Z",
+          "completed_at": "2026-10-14T01:53:59Z"
+        },
+        {
+          "number": 20,
+          "name": "Standalone LiteX simulation aggregate",
+          "conclusion": "success",
+          "started_at": "2026-10-14T01:53:59Z",
+          "completed_at": "2026-10-14T02:03:52Z"
+        },
+        {
+          "number": 21,
+          "name": "Keep the generated CPU netlist arguments for the next run",
+          "conclusion": "success",
+          "started_at": "2026-10-14T02:03:52Z",
+          "completed_at": "2026-10-14T02:03:52Z"
+        },
+        {
+          "number": 36,
+          "name": "Post Cache the pinned Verilator build",
+          "conclusion": "success",
+          "started_at": "2026-10-14T02:03:52Z",
+          "completed_at": "2026-10-14T02:03:52Z"
+        },
+        {
+          "number": 37,
+          "name": "Post Cache the pinned RV32 SDK",
+          "conclusion": "success",
+          "started_at": "2026-10-14T02:03:52Z",
+          "completed_at": "2026-10-14T02:03:53Z"
+        },
+        {
+          "number": 38,
+          "name": "Post Cache the generated CPU metadata",
+          "conclusion": "success",
+          "started_at": "2026-10-14T02:03:53Z",
+          "completed_at": "2026-10-14T02:03:53Z"
+        },
+        {
+          "number": 39,
+          "name": "Post Cache the Scala toolchain",
+          "conclusion": "success",
+          "started_at": "2026-10-14T02:03:53Z",
+          "completed_at": "2026-10-14T02:03:53Z"
+        },
+        {
+          "number": 40,
+          "name": "Post Cache the pinned pip downloads",
+          "conclusion": "success",
+          "started_at": "2026-10-14T02:03:53Z",
+          "completed_at": "2026-10-14T02:03:53Z"
+        },
+        {
+          "number": 41,
+          "name": "Post Run actions/setup-python@v5",
+          "conclusion": "success",
+          "started_at": "2026-10-14T02:03:53Z",
+          "completed_at": "2026-10-14T02:03:53Z"
+        },
+        {
+          "number": 42,
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success",
+          "started_at": "2026-10-14T02:03:53Z",
+          "completed_at": "2026-10-14T02:03:54Z"
+        },
+        {
+          "number": 43,
+          "name": "Complete job",
+          "conclusion": "success",
+          "started_at": "2026-10-14T02:03:54Z",
+          "completed_at": "2026-10-14T02:03:54Z"
+        }
+      ]
+    }
+  ]
+}

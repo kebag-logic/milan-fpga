@@ -1,0 +1,14 @@
+[A614] STOP
+Head: fa7347fc59173f90e4feec2df207692e6e6e72ec (no new commit; partial changes remain uncommitted).
+
+The ruling in comment 6160937413 clears the two simulation drivers. A further conflict concerns the CI contract gate: the execution constraint says to STOP before changing what any test checks, while the requested workflow layouts and cache keys require changing explicit assertions in `scripts/ci_events.py`.
+
+Evidence at this head:
+- `ci_events.py:501,1762,2870` forbids matrix strategies and `needs` on the protected `docs-check` and `elaborate` carriers; the public rule is `CI_WORKFLOWS.md:2633`.
+- `ci_events.py:912,1161,4042` pins each carrier's complete step sequence.
+- `ci_events.py:2092` pins the existing source-build cache mappings exactly, without source/recipe digests.
+- The unchanged contract passes 2,174 checks. In-memory controls adding each carrier's dependency or matrix, and adding digest fields to the cache key, all produce the named refusals. No workflow or existing CI contract assertion was edited.
+
+Decision requested: may this lane update those topology-specific assertions and exact cache-key expectations for the new fail-closed aggregates, retaining every required name, exact-head binding, complete step inventory, negative control, and refusal of missing/failed/cancelled legs? This asks for no product or simulation-assertion change.
+
+Partial media-clock inventory/receipt code and its planted omission/comparison controls are preserved. Source-list checks, evidence-reader checks and the C++ idiom gate pass. The original clean-leg pilot passes 55 checks in 428.72 s after a 30.18 s build. Full unsharded/sharded equivalence and real mutant replay are NOT RUN; the partial receipt also still needs dirty-source refusal. It is not review ready. No push or PR operation occurred. Handoff, draft PR body, reproduction and evidence are retained in the assigned output directory.

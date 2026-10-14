@@ -1,0 +1,25 @@
+[A614] STOP
+Head: f37cd06463fa473d0804bc192ddf83b2e598346a
+Branch: 737-ci-30min (local, not pushed; author worktree clean).
+
+Decision requested for the fail-fast directive in comment 6161180121: should public-fork PRs use a separately trusted cancellation controller, or should cross-workflow cancellation be explicitly limited to same-repository PRs?
+
+The directive requires an if: failure() step in the failed job to cancel its own run and the other three workflows at the same PR head, using actions: write. The four existing workflows accept pull_request events (rtl.yml:6, rtl-fast.yml:6, docs.yml:6, elaborate.yml:46), and the repository API confirms public visibility with forking enabled. GitHub gives public-fork PR jobs a read-only token; their own step cannot perform the required API cancellation just by declaring actions: write. A trusted workflow_run controller can have write access but introduces a different privileged event path and requires default-branch installation. Narrowing the requirement would change scope.
+
+References:
+- https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#permissions
+- https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_run
+
+AGENTS.md section 2 requires a public decision on a specification conflict rather than a private interpretation. No trigger or permission was changed. The third ruling resolves the media-clock timing STOP; this STOP is not a renewed request to change that test.
+
+Committed after passing scoped checks:
+- 48eefcca4561a5283c66c508dbecbadb731220dc: source-tool cache keys bind version, verified source commit, workflow recipe digest and operating system. Clone identity is checked before compilation. The CI contract passes 2174 items; its complete self-test passes 3142 arms, including missing-version/source/recipe controls.
+- f37cd06463fa473d0804bc192ddf83b2e598346a: seven-section canonical manifest envelope and strict comparison foundation. Planted differences, missing/extra execution, omitted/duplicated cases, identical cancelled collections and forged completeness are refused. Hosted/local collection, source-derived plans and signing remain unfinished; this is not authenticated build evidence.
+
+The resumed two-thread media-clock pilot remained incomplete after 1650.76 s versus the original complete single-thread A at 428.72 s. It was terminated and rejected; no acceleration was retained. The prior suite projection remains about 31m49s before setup, for later hosted judgement under the third ruling.
+
+The nineteen-case datapath scheduling experiment is saved as a patch, not committed. Its reference returned 1 after 2274.94 s: all subprocesses returned zero, but four counter drivers expose only RESULT: PASS without a numeric tally, so the receipt runner refuses them. Fifteen other cases passed its grading, including all six render campaign controls. No tally was invented, no assertion changed, and no full/sharded equivalence or union proof is claimed for this experiment.
+
+HANDOFF.md and PR-BODY.md are updated in the assigned output directory, with file:line changes, every baseline job's duration, current timing limits, cache keys, manifest controls, unfinished work and evidence hashes. Final service peak: 6315200512 bytes, below the operating ceiling; this is not four-job replay evidence. All background campaigns have exited. Large artifacts remain in disk scratch, with size and SHA-256 recorded.
+
+Remaining workflow splits/union jobs, install-cache audit, 16-CPU/four-job replay scheduling, fail-fast integration, manifest collectors and independent review are not complete. No firmware behavior, linked image, test assertion or timeout changed. No push, PR operation, merge, rebase or hardware operation occurred.
