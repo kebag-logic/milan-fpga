@@ -202,6 +202,30 @@ Each supported category has accepted and refused controls.
 exercises both generation and comparison for each fixture.
 [`ci_inventory_exact_selftest.py`](../../scripts/ci_inventory_exact_selftest.py)
 holds the exact-semantics boundary with planted fixtures.
+
+## Execution audit
+
+The inventory derives which programs a step should run; the execution audit
+records which programs a step does run.
+[`exec_audit.py`](../../ci/image/exec_audit.py) follows `execve` with `ptrace`,
+so a static binary is observed like any other.
+Steps run with the container network disabled.
+A step that needs the network fails and is caught by its exit status.
+A step is rejected when it runs a program the allowlist does not name, or a
+package manager or installer.
+[`exec-audit.json`](../../ci/image/exec-audit.json) is that allowlist: the
+inventory's command executables, the helper programs they spawn, and the
+interpreters, with the installer denylist.
+A program built by the job runs from outside the image's own directories and is
+recorded, not refused; a system program must be named.
+`python3 ci/image/exec_audit.py --selftest` plants an installer and an unlisted
+system program and shows each caught by name.
+`python3 ci/image/exec_audit.py --audit SPEC --output RECEIPT` runs the steps in
+a JSON spec and writes the per-step program set and findings.
+A spec entry has `job`, `label`, `argv` and an optional `working-directory` and
+`env`; that shape is the interface the follow-up PR's signed replay consumes.
+Wiring the audit into every pull request's replay is that follow-up PR's work;
+with it a hidden installer is caught at the replay whatever the walker accepts.
 Unlisted constructs and unlisted command forms refuse generation.
 Runtime assembly remains subject to the declared residue boundary.
 
