@@ -14,6 +14,7 @@ import sys
 import tempfile
 
 import ci_case_receipts as receipts
+from ci_scope_history import fixture_environment
 
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = ROOT / "tb/verilator/milan_dp_mclk/mclk_mutants.py"
@@ -31,12 +32,14 @@ def refuse(action: Callable[[], object], label: str) -> None:
 
 def source_controls() -> None:
     """Real Git controls include index-hidden edits and changes during a run."""
-    with tempfile.TemporaryDirectory(prefix="receipt-source-") as directory:
+    with tempfile.TemporaryDirectory(prefix="receipt-source-") as directory, \
+            tempfile.TemporaryDirectory(prefix="receipt-git-") as configuration:
         root = Path(directory)
 
         def git(*args: str) -> bytes:
-            """Run fixture Git with the existing configured identity."""
-            return subprocess.check_output(["git", *args], cwd=root, stderr=subprocess.STDOUT)
+            """Use only the disposable fixture's identity and isolated configuration."""
+            return subprocess.check_output(["git", *args], cwd=root, stderr=subprocess.STDOUT,
+                                           env=fixture_environment(Path(configuration)))
 
         git("init", "-q")
         path = root / "source.c"

@@ -12,6 +12,8 @@ import tempfile
 from ci_case_receipts import canonical, partition
 from ci_suite_pieces import PIECE_SECONDS, expand_suites, inventory, piece_identity, union
 from suite_shards import ROOT, SUITE_SECONDS, WORKER_OVERHEAD_SECONDS, balance, sweep_suites
+from ci_gate_workflows import generate, load_template
+from ci_suite_workflows import inventory_dependencies
 
 
 def write_leg(root: Path, suite: str, leg: int, names: list[str]) -> Path:
@@ -77,6 +79,16 @@ def suite_controls(suite: str, root: Path) -> None:
 def main() -> int:
     """Cover complete ownership, source inventories and each fail-closed union."""
     physical = sweep_suites(ROOT / "tb/verilator")
+    workflow = generate("rtl", load_template(ROOT, "rtl"))
+    for job_id in ["verilator-suites", *("union-" + suite for suite in PIECE_SECONDS)]:
+        steps = workflow["jobs"][job_id]["steps"]
+        expected = inventory_dependencies()
+        matches = [index for index, step in enumerate(steps) if step.get("name") == expected["name"]]
+        assert len(matches) == 1
+        assert steps[matches[0]]["run"] == expected["run"]
+        readers = [index for index, step in enumerate(steps)
+                   if any(name in step.get("run", "") for name in ("ci_suite_pieces.py", "ci_suite_collect.py"))]
+        assert readers and matches[0] < min(readers)
     pieces = expand_suites(physical)
     assert set(SUITE_SECONDS) == set(pieces)
     assert "milan_dp_gptp" not in pieces

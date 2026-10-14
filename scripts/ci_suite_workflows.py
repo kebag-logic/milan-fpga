@@ -11,6 +11,13 @@ from ci_suite_pieces import PIECE_SECONDS
 from suite_shards import WORKER_OVERHEAD_SECONDS
 
 
+def inventory_dependencies() -> dict:
+    """Inventory readers need the same pinned source lists as suite workers."""
+    return {"name": "Fetch inventory dependencies",
+            "run": "git submodule update --init third_party/verilog-axis protocol-processor "
+                   "gptp-processor third_party/tsn-c-stack\n"}
+
+
 def union_job(suite: str) -> dict:
     """Each union waits for the native matrix containing its driver-derived partitions."""
     needs = ["verilator-shards"]
@@ -20,6 +27,7 @@ def union_job(suite: str) -> dict:
         "runs-on": "ubuntu-latest", "timeout-minutes": 2,
         "steps": [
             {"uses": "actions/checkout@v4"},
+            inventory_dependencies(),
             {"name": "Download executed case evidence", "uses": "actions/download-artifact@v4",
              "with": {"pattern": "suite-logs-*", "path": "${{ runner.temp }}/piece-logs"}},
             {"name": "Require successful owners and every case exactly once",
@@ -88,4 +96,5 @@ assert all(row['result'] == 'success' for row in needs.values()), needs
 PY
 """,
     })
+    aggregate["steps"].insert(1, inventory_dependencies())
     return source
