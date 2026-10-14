@@ -433,6 +433,15 @@ HOST_RUNTIME_MASKS = {
     "scripts/process_test_support.py": re.compile(r'(?<=^PROC = Path\(")/proc(?="\)$)'),
     "docs/testing/CI_WORKFLOWS.md": re.compile(
         r"(?<=`)/proc(?=/<pid>/stat` state is `Z`)"),
+    # #737 round 6: the build-host execution audit reads the running program of
+    # each traced build-host process; only these two inventory roots are masked,
+    # at their exact spellings, and no other path or prose is licensed.
+    "ci/image/exec_audit.py": re.compile(
+        r'(?<=os\.readlink\(f")/proc(?=/\{waited\}/exe"\))'
+        r'|(?<=Path\(f")/proc(?=/\{waited\}/exe"\))'
+        r'|(?<=raw = Path\(f")/proc(?=/\{waited\}/cmdline"\))'
+        r'|(?<=Path\(f")/proc(?=/\{waited\}/cmdline"\))'
+        r'|(?<=", "/sbin/", "/lib/", "/lib64/", "/opt/", ")/etc(?=/"\))'),
     # #517: inventory only the runner's own children and the process-control
     # fixtures' state. These do not license another path or unrelated prose.
     "tb/verilator/milan_dp/sim_pool.py": re.compile(

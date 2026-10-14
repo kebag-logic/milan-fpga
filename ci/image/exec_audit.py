@@ -5,9 +5,9 @@
 This is the execution authority for issue #737. The static inventory derives
 which programs the workflows *should* run; this audit records which programs a
 step *does* run, by following `execve` with `ptrace`. Static binaries are
-followed like any other, because the kernel reports the exec, not a preloaded
-library. Steps run with the container's network disabled, so a step that needs
-the network fails and is caught by its own exit status.
+followed like any other, because the trace reports the exec itself, not a
+preloaded library. Steps run with the container's network disabled, so a step
+that needs the network fails and is caught by its own exit status.
 
 A step is rejected when it executes a program the allowlist does not name, or a
 program on the installer denylist (a package manager or toolchain installer).
@@ -28,6 +28,7 @@ import ctypes
 import json
 import os
 from pathlib import Path
+import re
 import signal
 import subprocess
 import sys
@@ -37,8 +38,8 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 ALLOWLIST = HERE / "exec-audit.json"
 
-#: ptrace requests and the options that make the kernel stop on exec and on each
-#: new child; PTRACE_O_EXITKILL reaps the tree if the tracer dies.
+#: ptrace requests and the options that stop a tracee on exec and on each new
+#: child; PTRACE_O_EXITKILL reaps the tree if the tracer dies.
 TRACEME, CONT, DETACH, GETEVENTMSG, SETOPTIONS = 0, 7, 17, 0x4201, 0x4200
 O_TRACEFORK, O_TRACEVFORK, O_TRACECLONE, O_TRACEEXEC, O_EXITKILL = 0x2, 0x4, 0x8, 0x10, 0x100000
 OPTIONS = O_TRACEFORK | O_TRACEVFORK | O_TRACECLONE | O_TRACEEXEC | O_EXITKILL
@@ -112,6 +113,8 @@ def allowlist() -> dict[str, object]:
 #: freshly built artifact (a simulator or test binary), allowed but recorded; a
 #: program inside them must be named, so a planted system tool is caught.
 SYSTEM_ROOTS = ("/usr/", "/bin/", "/sbin/", "/lib/", "/lib64/", "/opt/", "/etc/")
+#: A toolchain program carries a `<arch>-<os>-gnu-` prefix; the plain tool is named.
+MULTIARCH = re.compile(r"^[a-z0-9_]+-[a-z0-9]+-gnu-")
 
 
 def judge(result: dict[str, object], names: dict[str, object]) -> list[dict[str, str]]:
@@ -120,8 +123,10 @@ def judge(result: dict[str, object], names: dict[str, object]) -> list[dict[str,
     installers = set(names["installers"])
     findings = []
     for program in result["programs"]:
-        base = Path(program).name
-        if base in installers or (base.rpartition("-")[2] in installers and "linux-gnu" not in base):
+        # A multiarch toolchain prefix (for example the host GNU triple) is stripped
+        # so the allowlist names the plain tool, not one entry per architecture.
+        base = MULTIARCH.sub("", Path(program).name)
+        if base in installers:
             findings.append({"program": program, "reason": f"installer executed: {base}"})
         elif program.startswith(SYSTEM_ROOTS) and base not in allowed:
             findings.append({"program": program, "reason": f"system program not in the command table: {base}"})
@@ -162,7 +167,7 @@ def selftest(names: dict[str, object]) -> int:
     system = Path("/usr/local/bin")  # A system directory the audit holds to the allowlist.
     with tempfile.TemporaryDirectory(prefix="exec-audit-") as directory:
         base = Path(directory)
-        # A real ELF under each planted name, so the kernel execs it directly. The
+        # A real ELF under each planted name, so the exec lands on it directly. The
         # installer is caught wherever it runs; the unlisted program is planted in a
         # system directory, where the audit requires a name.
         shutil.copy("/bin/true", system / "zz_unlisted_probe")
