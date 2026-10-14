@@ -84,7 +84,7 @@ EVIDENCE_HELPERS = {
 DEFAULT_BASE = "dev"
 RUNNER_IMAGE = "catthehacker/ubuntu:full-latest"
 SUPPORTED_ACT_VERSION = (0, 2, 89)
-REQUIRED_ACT_BUILD = "0.2.89+milan-ci4"
+REQUIRED_ACT_BUILD = "0.2.89+milan-ci5"
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 REPOSITORY_RE = re.compile(
     r"^[A-Za-z0-9](?:[A-Za-z0-9_.-]{0,98}[A-Za-z0-9])?/"
@@ -11489,7 +11489,7 @@ def selftest_act_version(tally: SelftestTally) -> None:
         parse_act_version("act version 0.2.89") == SUPPORTED_ACT_VERSION,
     )
     require_supported_act_version(SUPPORTED_ACT_VERSION)
-    require_supported_act_build("act version 0.2.89+milan-ci4")
+    require_supported_act_build("act version 0.2.89+milan-ci5")
     tally.refused("the upstream dispatcher cannot claim atomic fail-fast admission",
                   lambda: require_supported_act_build("act version 0.2.89"))
     tally.refused("a different scheduling patch cannot satisfy the runtime pin",

@@ -1950,8 +1950,12 @@ They refuse zero CPUs and prove nested build budgets do not exceed the range.
 
 One scheduler serves every selected, byte-identical workflow file.
 `CONCURRENT_JOB_LIMIT=4` bounds admissions across workflows and nested matrices.
-The pinned dispatcher is `0.2.89+milan-ci4`.
+The pinned dispatcher is `0.2.89+milan-ci5`.
 Vanilla dispatchers lack this combined admission and placement contract.
+Each job waits only for its declared dependencies and a free range.
+An unrelated job in an earlier plan stage cannot hold it back.
+The dependency control keeps an independent job running until a ready
+dependent job starts, so a stage barrier fails the control.
 The build recipe verifies upstream source and compiler digests.
 It runs original upstream controls and repeated race-enabled controls.
 Controls prove nonoverlap, stable placement and failed-cleanup refusal.

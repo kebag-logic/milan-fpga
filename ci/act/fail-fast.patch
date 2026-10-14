@@ -1,8 +1,17 @@
 --- a/pkg/common/executor.go
 +++ b/pkg/common/executor.go
-@@ -4,0 +5 @@
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"context"
 +	"sync"
-@@ -133,0 +135,43 @@
+ 	"errors"
+ 	"fmt"
+ 
+@@ -131,6 +132,49 @@
+ 	}
+ }
+ 
 +// NewFailFastParallelExecutor stops scheduling after the first failed job and joins cleanup.
 +func NewFailFastParallelExecutor(parallel int, executors ...Executor) Executor {
 +	return func(parent context.Context) error {
@@ -46,17 +55,59 @@
 +	}
 +}
 +
+ func NewFieldExecutor(name string, value interface{}, exec Executor) Executor {
+ 	return func(ctx context.Context) error {
+ 		return exec(WithLogger(ctx, Logger(ctx).WithField(name, value)))
 --- a/pkg/runner/runner.go
 +++ b/pkg/runner/runner.go
-@@ -130,0 +131,4 @@
-+			admission, err := common.NewCPUJobAdmission(ctx, runner.config.GetConcurrentJobs(),
-+				runner.config.Env["MILAN_CI_CPU_RANGES"], runner.config.Env["MILAN_CI_FALLBACK_CPUS"])
-+			if err != nil { return err }
-+			defer admission.Close()
-@@ -199 +203 @@
+@@ -120,17 +120,20 @@
+ 
+ // NewPlanExecutor ...
+ func (runner *runnerImpl) NewPlanExecutor(plan *model.Plan) common.Executor {
+-	maxJobNameLen := 0
+-
+-	stagePipeline := make([]common.Executor, 0)
+-	log.Debugf("Plan Stages: %v", plan.Stages)
+-
+-	for i := range plan.Stages {
+-		stage := plan.Stages[i]
+-		stagePipeline = append(stagePipeline, func(ctx context.Context) error {
+-			pipeline := make([]common.Executor, 0)
++	return func(ctx context.Context) error {
++		admission, err := common.NewCPUJobAdmission(ctx, runner.config.GetConcurrentJobs(),
++			runner.config.Env["MILAN_CI_CPU_RANGES"], runner.config.Env["MILAN_CI_FALLBACK_CPUS"])
++		if err != nil { return err }
++		defer admission.Close()
++		jobs := make([]common.DependencyJob, 0)
++		for _, stage := range plan.Stages {
+ 			for _, run := range stage.Runs {
+-				log.Debugf("Stages Runs: %v", stage.Runs)
++				id := fmt.Sprintf("%p:%s", run.Workflow, run.JobID)
++				needs := make([]string, 0)
++				for _, dependency := range run.Job().Needs() {
++					needs = append(needs, fmt.Sprintf("%p:%s", run.Workflow, dependency))
++				}
++				jobs = append(jobs, common.DependencyJob{ID: id, Needs: needs, Run: func(ctx context.Context) error {
+ 				stageExecutor := make([]common.Executor, 0)
+ 				job := run.Job()
+ 				log.Debugf("Job.Name: %v", job.Name)
+@@ -193,29 +196,23 @@
+ 					if len(matrixes) > 1 {
+ 						rc.Name = fmt.Sprintf("%s-%d", rc.Name, i+1)
+ 					}
+-					if len(rc.String()) > maxJobNameLen {
+-						maxJobNameLen = len(rc.String())
+-					}
 -					stageExecutor = append(stageExecutor, func(ctx context.Context) error {
+-						jobName := fmt.Sprintf("%-*s", maxJobNameLen, rc.String())
 +					stageExecutor = append(stageExecutor, admission.Wrap(func(ctx context.Context) error {
-@@ -207,4 +211,4 @@
++						jobName := rc.String()
+ 						executor, err := rc.Executor()
+ 
+ 						if err != nil {
+ 							return err
+ 						}
+ 
 -						return executor(common.WithJobErrorContainer(WithJobLogger(ctx, rc.Run.JobID, jobName, rc.Config, &rc.Masks, matrix)))
 -					})
 -				}
@@ -64,16 +115,40 @@
 +						return common.RecordedJobExecutor(executor)(WithJobLogger(ctx, rc.Run.JobID, jobName, rc.Config, &rc.Masks, matrix))
 +					}))
 +				}
-+				pipeline = append(pipeline, common.NewFailFastParallelExecutor(maxParallel, stageExecutor...))
-@@ -214 +218 @@
++				return common.NewFailFastParallelExecutor(maxParallel, stageExecutor...)(ctx)
++				}})
+ 			}
+-
+-			log.Debugf("PlanExecutor concurrency: %d", runner.config.GetConcurrentJobs())
 -			return common.NewParallelExecutor(runner.config.GetConcurrentJobs(), pipeline...)(ctx)
-+			return common.NewFailFastParallelExecutor(runner.config.GetConcurrentJobs(), pipeline...)(ctx)
+-		})
+-	}
+-
+-	return common.NewPipelineExecutor(stagePipeline...).Then(handleFailure(plan))
++		}
++		return common.NewDependencyExecutor(jobs).Then(handleFailure(plan))(ctx)
++	}
+ }
+ 
+ func handleFailure(plan *model.Plan) common.Executor {
 --- a/pkg/runner/run_context.go
 +++ b/pkg/runner/run_context.go
-@@ -392,0 +393,3 @@
+@@ -390,6 +390,9 @@
+ 			jobContainerNetwork = "host"
+ 		}
+ 
 +		options, cpus, err := common.JobCPUOptions(ctx, rc.options(ctx))
 +		if err != nil { return err }
 +		common.Logger(ctx).WithField("cpuRange", cpus).Info("CPU range reserved before container creation")
-@@ -411 +414 @@
+ 		rc.JobContainer = container.NewContainer(&container.NewContainerInput{
+ 			Cmd:            nil,
+ 			Entrypoint:     []string{"tail", "-f", "/dev/null"},
+@@ -408,7 +411,7 @@
+ 			Privileged:     rc.Config.Privileged,
+ 			UsernsMode:     rc.Config.UsernsMode,
+ 			Platform:       rc.Config.ContainerArchitecture,
 -			Options:        rc.options(ctx),
 +			Options:        options,
+ 		})
+ 		if rc.JobContainer == nil {
+ 			return errors.New("Failed to create job container")
