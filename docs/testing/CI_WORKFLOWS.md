@@ -2296,6 +2296,11 @@ Resource bounds:
   not rewrite an older candidate's command that explicitly requests sixteen
   census workers; that older command exhausted the eight-GiB cap in the
   coordinating replay reported on #737.
+- The largest synthesis shard (0/4, `milan_datapath`) also passes with empty
+  result caches at both widths: 3745005568-byte peak at sixteen CPUs and
+  3391201280 bytes at twelve. Tied-input and tap-purity checks pass, and
+  every memory-event counter is zero. These measurements cover synthesis;
+  they do not substitute for the remaining compiler measurements.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
   which counts only the slice's limit and never a job container's eight-GiB limit
