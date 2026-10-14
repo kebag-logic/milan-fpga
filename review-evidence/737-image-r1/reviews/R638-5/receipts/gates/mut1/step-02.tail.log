@@ -1,0 +1,60 @@
+JSON of the wrong type cannot pass as provenance. ... ok
+test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+An existing directory is not an installed SDK. ... ok
+test_moved_cache (__main__.InstallerTests.test_moved_cache)
+A relocated tree is bound to the prefix where it was measured. ... ok
+test_provenance_values (__main__.InstallerTests.test_provenance_values)
+The installer digest and host are the ones measured here, independently. ... ok
+test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+Pointing the selector at another installed tool is cache drift. ... ok
+test_special_file (__main__.InstallerTests.test_special_file)
+A FIFO planted in the cache is refused before any tool runs. ... ok
+test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+Provenance must be stored in the installation, not another tree. ... ok
+test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+An interrupted receipt write never becomes a usable cache. ... ok
+test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+Even a successful process must prove its relocation result. ... SDK argv: ["/tmp/rv32-installer-test-qu_avxxw/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-qu_avxxw/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-qu_avxxw/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-qu_avxxw/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+The fixed x86-64 archive cannot silently adopt another host. ... ok
+test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+Every cache input is bound, including the whole digest and prefix. ... ok
+test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+A compiler with the wrong version or target cannot create a receipt. ... SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-ee0uokbe/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+Cached identification must agree with the program actually invoked. ... SDK argv: ["/tmp/rv32-installer-test-16krvg26/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-16krvg26/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-16krvg26/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-16krvg26/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.864s
+
+OK
+Traceback (most recent call last):
+  File "/work/scripts/ci_rv32_sdk.py", line 189, in <module>
+    main()
+  File "/work/scripts/ci_rv32_sdk.py", line 185, in main
+    install(args.destination, args.archive)
+  File "/work/scripts/ci_rv32_sdk.py", line 150, in install
+    raise ValueError("SDK destination must be an absolute path without symlink parents")
+ValueError: SDK destination must be an absolute path without symlink parents

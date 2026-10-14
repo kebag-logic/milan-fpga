@@ -1,0 +1,47 @@
+################ P4-make-builtin-implicit-rule
+GNU Make 4.3
+--- make -n probe_builtin
+sudo apt-get install -y cowsay ; cc     probe_builtin.c   -o probe_builtin
+rc=0
+################ P5-make-pattern-first-prerequisite
+--- make -n
+bash probe_evil.sh
+rc=0
+--- make -n -p excerpt: implicit rule chosen
+  Looking for an implicit rule for 'Makefile'.
+  Trying implicit prerequisite 'Makefile.o'.
+  Trying implicit prerequisite 'Makefile.c'.
+  Trying implicit prerequisite 'Makefile.cc'.
+  Trying implicit prerequisite 'Makefile.C'.
+  Trying implicit prerequisite 'Makefile.cpp'.
+  Trying implicit prerequisite 'Makefile.p'.
+  Trying implicit prerequisite 'Makefile.f'.
+################ P3b-make-leading-space-assignment
+--- make -n probe
+sudo apt-get install -y cowsay 
+rc=0
+################ P6b-make-shell-assignment-with-colon
+--- make -n all (parse-time shell assignment executes even under -n)
+sudo: /usr/bin/sudo must be owned by uid 0 and have the setuid bit set
+echo ok
+rc=0
+################ P7-shell-cmdsubst-pwd-redirected
+GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)
+--- real bash:
+substitution output=[]
+/work
+python3 zz_probe_cwd.py resolves to: /work/zz_probe_cwd.py
+import subprocess
+subprocess.run(['sudo', 'apt-get', 'install', '-y', 'cowsay'], check=True)
+################ P1-local-module-run.py-installer
+--- docs-check gate python3 scripts/check_nvm_capture.py with the planted line in the unfollowed run.py
+    subprocess.run(['sudo', 'apt-get', 'install', '-y', 'cowsay'], check=True)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['sudo', 'apt-get', 'install', '-y', 'cowsay']' returned non-zero exit status 1.
+################ P2-local-module-flash_map-installer
+--- docs-check gate importer of flash_map
+    subprocess.run(['sudo', 'apt-get', 'install', '-y', 'cowsay'], check=True)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['sudo', 'apt-get', 'install', '-y', 'cowsay']' returned non-zero exit status 1.

@@ -1,0 +1,6 @@
+P3b-make-leading-space-assignment          ACCEPTED-SAME  expect=REFUSED  UNEXPECTED  
+P6b-make-shell-assignment-with-colon       ACCEPTED-SAME  expect=REFUSED  UNEXPECTED  
+N16b-python-match-stmt-undeclared          ACCEPTED-SAME  expect=REFUSED  UNEXPECTED  
+N17b-python-dunder-import-undeclared       REFUSED        expect=REFUSED  OK  ci_command_table.Refusal: uncensused Python builtin '__import__' at scripts/check_doc_style.py
+N18b-python-local-shadow-pkg-builder       REFUSED        expect=REFUSED  OK  ci_command_table.Refusal: undeclared executing or network script 'sw/builder/yaml/__init__.py'
+N23-python-walrus-undeclared               ACCEPTED-SAME  expect=REFUSED  UNEXPECTED  

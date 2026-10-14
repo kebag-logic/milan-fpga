@@ -1,0 +1,60 @@
+[PASS] `xvlog -sv a.sv | tee` is a masked producer
+[PASS] `xelab top | tee` is a masked producer
+[PASS] `vivado -mode batch | tee` is a masked producer
+[PASS] `iverilog -o a b.v | tee` is a masked producer
+[PASS] `verilator_coverage --annotate d coverage.dat | tee` is a masked producer
+[PASS] `$VERILATOR --lint-only x.sv | tee` is a masked producer
+[PASS] a fallback is not a pipe
+[PASS] a comment is not a pipeline
+[PASS] a tool name inside a string is not a producer
+[PASS] a tool name glued to a suffix is not a producer
+[PASS] a path-qualified tool is a producer
+[PASS] a pipe inside a command substitution is not the line's verdict
+[PASS] a pipe inside a parameter expansion is not a pipe
+[PASS] a group that saves the producer's status before the pipe keeps the verdict
+[PASS] a file-reading grep piped to head is a producer whose status is lost
+[PASS] a file-reading cat piped to a consumer is the same shape
+[PASS] grep reading stdin is a consumer, not a producer
+[PASS] a bare grep pattern with no file reads stdin and is not a producer
+[PASS] an ordinary command is not a pipeline
+[PASS] a line that sets pipefail is not masked
+[PASS] the file-reading grep is protected once pipefail is on
+[PASS] a later pipefail cannot protect an earlier pipeline
+[PASS] a pipefail mentioned in a COMMENT protects nothing
+[PASS] a pipefail inside a here-document body protects nothing
+[PASS] a pipefail set inside a subshell ends with the subshell
+[PASS] a multi-line subshell scopes its pipefail the same way
+[PASS] a backslash-continued pipeline is one line, found at its first line
+[PASS] a shebang carrying -eo pipefail protects the script
+[PASS] a plain shebang protects nothing
+[PASS] the GitHub Actions default run shell has NO pipefail
+[PASS] a step that declares shell: bash is protected, before or after its run block
+[PASS] pipefail set in one step does not protect the next step
+[PASS] a Makefile recipe pipe runs under /bin/sh -c with no pipefail and is masked
+[PASS] a Makefile whose .SHELLFLAGS carries pipefail protects its recipes
+[PASS] a `$$(...)` in a recipe is the shell's substitution, not a make variable
+[PASS] a captured verdict with no errexit and no guard is discarded
+[PASS] the same capture under errexit is not discarded
+[PASS] errexit switched off later un-protects a later capture
+[PASS] a local/export assignment discards the status even under errexit
+[PASS] a capture whose status is consulted is not discarded
+[PASS] a capture whose $? is read on the next line is not discarded
+[PASS] a capture through a tool VARIABLE is a capture
+[PASS] an argument-form substitution is the consumer's verdict and is not modelled
+[PASS] a workflow step starts with errexit, so a bare capture there is not discarded
+[PASS] a capture inside a comment is not a finding
+[PASS] a capture inside a subshell that set errexit is protected only there
+[PASS] the version assertion is waived by SITE, with a reason
+[PASS] the same line at another path is masked, not waived
+[PASS] a NEW `--version | grep` is masked: the waiver is not a substring
+[PASS] a gate verdict carrying --version is masked, not waived
+[PASS] an unterminated here-document makes the unit unreadable, never a pass
+[PASS] the live scan reads the tree
+[PASS] the guarded set is not empty
+[PASS] the gptp-processor modules in the `int unsigned`/`string` idiom are in the population
+[PASS] KL_media_nco, the house form the guide cites, is counted guarded
+[PASS] every site waiver names a line that exists and is masked without it
+[PASS] the live scan reaches both processor submodules' shell wrappers
+[PASS] the Makefile population is first-party only and not empty
+
+106 checks: 106 PASS, 0 FAIL

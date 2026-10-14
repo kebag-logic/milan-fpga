@@ -1,0 +1,60 @@
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got [], expected ['N_AUDIO_UNIT_P'])
+  [ok]   MUTATION rejected: hop 1 N_AUDIO_UNIT_P literal = True
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['1'], expected ['N_AUDIO_UNIT_P'])
+  [ok]   MUTATION rejected: hop 1 N_AUDIO_UNIT_P/N_CLK_DOMAIN_P swapped = True
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CLK_DOM_P'], expected ['N_AUDIO_UNIT_P'])
+  [ok]   MUTATION rejected: hop 1 N_CLK_DOMAIN_P unbound = True
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got [], expected ['N_CLK_DOM_P'])
+  [ok]   MUTATION rejected: hop 1 N_CLK_DOMAIN_P literal = True
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['1'], expected ['N_CLK_DOM_P'])
+  [ok]   MUTATION rejected: hop 1 N_CLK_DOMAIN_P/N_CONTROL_P swapped = True
+         (rejected by: u_pp.N_CLK_DOMAIN_P derives from N_CLK_DOM_P: got ['N_CONTROL_P'], expected ['N_CLK_DOM_P'])
+  [ok]   MUTATION rejected: hop 1 N_CONTROL_P unbound = True
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got [], expected ['N_CONTROL_P'])
+  [ok]   MUTATION rejected: hop 1 N_CONTROL_P literal = True
+         (rejected by: u_pp.N_CONTROL_P derives from N_CONTROL_P: got ['1'], expected ['N_CONTROL_P'])
+  [ok]   MUTATION rejected: hop 1 N_CONTROL_P/N_AUDIO_UNIT_P swapped = True
+         (rejected by: u_pp.N_AUDIO_UNIT_P derives from N_AUDIO_UNIT_P: got ['N_CONTROL_P'], expected ['N_AUDIO_UNIT_P'])
+
+== endstation_ax7101_8x8  (8x8) ==
+  [ok]   MUTATION rejected: builder's talker count excludes the CRF uid = True
+         (rejected by: endstation_ax7101_8x8: advertised talker sources == STREAM_OUTPUT count: got 8, expected 9)
+
+== endstation_ax7101_8x8  (8x8) ==
+  [ok]   MUTATION rejected: builder's sink count excludes the CRF sink = True
+         (rejected by: endstation_ax7101_8x8: advertised listener sinks == STREAM_INPUT count: got 8, expected 9)
+
+== endstation_arty_current  (1x1) ==
+  [ok]   MUTATION rejected: MEDIA_CLOCK_SOURCE claimed without a CRF output = True
+         (rejected by: endstation_arty_current: no CRF output -> no MEDIA_CLOCK_SOURCE claim: got True, expected False)
+
+== pre-build: tracked definition vs endstation_ax7101_8x8 ==
+  the tree currently carries configs/endstation_arty_4x4.yaml. Fix:
+    python3 sw/builder/endstation_builder.py /work/configs/endstation_ax7101_8x8.yaml --write-rtl
+  [ok]   MUTATION rejected: the tree carries a DIFFERENT config's shape than the one being built = True
+         (rejected by: tracked ADP shape is endstation_ax7101_8x8's: got False, expected True)
+
+== tracked entity definition (what a build includes) ==
+  tracked shape source: configs/endstation_ax7101_1x1_tdm8.yaml
+  [ok]   MUTATION rejected: tracked shape is STALE against the config it names = True
+         (rejected by: tracked ADP shape == what that config generates: got False, expected True)
+== RTL: the shape is included from the config, and is read-only ==
+  [ok]   MUTATION rejected: milan_csr regained a write arm for 0x618 = True
+         (rejected by: 0x618 has NO write arm: got True, expected False)
+== RTL: the shape is included from the config, and is read-only ==
+  [ok]   MUTATION rejected: milan_datapath recomputes the talker context count = True
+         (rejected by: ACMP talker contexts sized by ADP_TALKER_SRC_C: got False, expected True)
+
+== firmware version (1722.1-2021 7.2.1, ENTITY + 116) ==
+  milan_csr VERSION: 0x0002_0003 -> major 2, minor 3
+  [ok]   MUTATION rejected: milan_csr VERSION moved out from under the entity model = True
+         (rejected by: endstation_arty_4x4: emitted firmware_version: got '2.96.0', expected '2.3.0')
+  [ok]   MUTATION rejected: a config declares its own firmware_version = True
+         (rejected by: ConfigError: entity.firmware_version: remove it. The firmware version is derived from the gateware's VERSION parameter (hdl/common/csr/milan_csr.sv), which is where it lives; this build derives '2.96.0'. For a firmware respin with no CSR-ABI change use entity.firmware_rev.)
+
+== short_listener  (7x8) ==
+  [ok]   MUTATION rejected: config edited without regenerating its shape include = True
+         (rejected by: short_listener: configs/generated copy is current: got False, expected True)
+----------------------------------------------------------------------
+checks: 228   failures: 0
+RESULT: PASS

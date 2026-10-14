@@ -1,0 +1,13 @@
+--- install (workflow form) via link
+ValueError: SDK destination must be an absolute path without symlink parents
+rc=0
+--- verify-only via link
+    raise ValueError("SDK provenance mismatch")
+ValueError: SDK provenance mismatch
+--- workflow form at /opt/rv32-sdk
+SDK cache hit: verified
+uid=1000(ubuntu) gid=1000(ubuntu) groups=1000(ubuntu)
+total 8
+drwxr-xr-x 2 ubuntu ubuntu 4096 Oct 14 19:11 .
+drwxr-xr-x 3 ubuntu ubuntu 4096 Oct 14 19:11 ..
+lrwxrwxrwx 1 ubuntu ubuntu   13 Oct 14 19:11 host -> /opt/rv32-sdk
