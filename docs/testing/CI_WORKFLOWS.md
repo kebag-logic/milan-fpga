@@ -2324,6 +2324,13 @@ Resource bounds:
   Both pass 3,751 checks with zero memory-event counters.
   Each container retains the eight-GiB memory and swap ceiling.
   These sequential measurements cover that model, not concurrent replay admission.
+- The full capture campaign also passes at both shipped widths.
+  Four builds share sixteen compiler processes, or twelve at fallback width.
+  Sampling observes all four builds and both complete compiler budgets.
+  Peaks are 6047100928 bytes and 5042556928 bytes, respectively.
+  Both runs pass all 32 checks with zero memory-event counters.
+  Their elapsed workload times are 480.432 and 484.113 seconds.
+  One eight-GiB container runs at a time, including all mutants.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
   which counts only the slice's limit and never a job container's eight-GiB limit
