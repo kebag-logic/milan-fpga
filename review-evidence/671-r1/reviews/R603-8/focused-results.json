@@ -1,0 +1,104 @@
+[
+  {
+    "name": "capture",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 1.02
+  },
+  {
+    "name": "capture-bytes",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "bytes"
+    ],
+    "rc": 1,
+    "expected": 1,
+    "seconds": 0.97
+  },
+  {
+    "name": "capture-records",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "records"
+    ],
+    "rc": 1,
+    "expected": 1,
+    "seconds": 0.97
+  },
+  {
+    "name": "capture-clock",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "clock"
+    ],
+    "rc": 1,
+    "expected": 1,
+    "seconds": 0.97
+  },
+  {
+    "name": "capture-ignore-off-timing",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "ignore-off-timing"
+    ],
+    "rc": 1,
+    "expected": 1,
+    "seconds": 0.97
+  },
+  {
+    "name": "capture-receipt-opt-out",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py",
+      "--mutation",
+      "receipt-opt-out"
+    ],
+    "rc": 1,
+    "expected": 1,
+    "seconds": 0.92
+  },
+  {
+    "name": "ci-scope",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 17.77
+  },
+  {
+    "name": "ci-events",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.27
+  },
+  {
+    "name": "delta-integrity",
+    "command": [
+      "python3",
+      "$REVIEWS/671-r603-8-packet/audit_delta.py"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 0.27
+  }
+]

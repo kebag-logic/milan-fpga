@@ -1,0 +1,33 @@
+PASS automatic two-parent merge tree: 7a2041b6a0b7ea13c019a3b5be08f0eb3555f8ac
+PASS all 15 lane paths byte/mode identical at merge; 160-path delta exactly dev: 160
+LANE docs/design/SAVED_STATE_FASTCONNECT.md 6e77c2adda8eb76aa9de112ac4ebe91b7ed75c67 6e77c2adda8eb76aa9de112ac4ebe91b7ed75c67
+LANE docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md 6f9643e1803c85e384035eb4739303d9cf1363aa 6f9643e1803c85e384035eb4739303d9cf1363aa
+LANE docs/integration/BAREMETAL_FIRMWARE.md a36a31a9fbcf7a58ca7f65646db3e6c2e681b74f a36a31a9fbcf7a58ca7f65646db3e6c2e681b74f
+LANE sw/builder/test_builder.py c06264e41adb7941ebcfbdf545cf56626be6b29c c06264e41adb7941ebcfbdf545cf56626be6b29c
+LANE sw/firmware/milan_baremetal/milan_baremetal.c 4783d203524b2ea07bfa58f26c9724289a20bc47 4783d203524b2ea07bfa58f26c9724289a20bc47
+LANE sw/firmware/nvm_hosttest/README.md c732fd342d256eda6ebc29d5638d87017cdde1cf c732fd342d256eda6ebc29d5638d87017cdde1cf
+LANE sw/firmware/nvm_hosttest/nvm_host.c cb81fd9f6e98a3476e6bfa89f30d3468466d5d2f cb81fd9f6e98a3476e6bfa89f30d3468466d5d2f
+LANE sw/firmware/nvm_hosttest/read_fault_cases.py 59c60452e45d4b83cec3ade1af1a7d967829b50b 59c60452e45d4b83cec3ade1af1a7d967829b50b
+LANE sw/firmware/nvm_hosttest/stubs/generated/mem.h 97c794d1a0eaf838cc203b81474dea1ae80b4ab1 97c794d1a0eaf838cc203b81474dea1ae80b4ab1
+LANE sw/firmware/nvm_hosttest/stubs/nvm_host.h db4fb28169f92ee95e0f414e2d10277796dfa4bf db4fb28169f92ee95e0f414e2d10277796dfa4bf
+LANE sw/firmware/nvm_hosttest/test_nvm_firmware.py 1fd815fe6e3d1c8abbb2b34893534178eac48ece 1fd815fe6e3d1c8abbb2b34893534178eac48ece
+LANE sw/firmware/nvm_hosttest/writer_restart.py 670820e0961a3469ceaab4addb6a8c021516e865 670820e0961a3469ceaab4addb6a8c021516e865
+LANE tb/verilator/nvm_capture_cpu/measurements.json bc1b784d17db5a9be2379ca2f074e8f9e4f0d8a5 bc1b784d17db5a9be2379ca2f074e8f9e4f0d8a5
+LANE tb/verilator/nvm_cosim/README.md 59a06056ad98b21f1977a04bf4b4e1886c22e255 59a06056ad98b21f1977a04bf4b4e1886c22e255
+LANE tb/verilator/nvm_cosim/run_cases.py c16fe864ac9b95c268ca964d2c1fd8ec3ca72390 c16fe864ac9b95c268ca964d2c1fd8ec3ca72390
+PASS only gitlink delta: {'third_party/tsn-c-stack': (None, ('160000', 'commit', '70936b77dc41981e192438388cd0aced69954f18'))}
+PASS final delta: section 18 only; receipt provenance only: ['base', 'date', 'provenance', 'remeasurement_assignment', 'tree']
+PASS all 96 complete measurement rows and every arm input hash equal round 7
+ARM endstation_ax7101_1x1_tdm8 50000000 on 396020 396548
+ARM endstation_ax7101_1x1_tdm8 50000000 off 390676 392034
+ARM endstation_ax7101_8x8 50000000 on 1384828 1386328
+ARM endstation_ax7101_8x8 50000000 off 1367538 1368956
+ARM endstation_ax7101_8x8 100000000 on 1041235 1042973
+ARM endstation_ax7101_8x8 100000000 off 1041246 1041566
+PASS 8x8 contract maximum ms: 13.86328 margin ms: 10.63672 floor ratio: 3.534517083980126
+PASS tracked blobs, modes, index: gptp-processor: 104 blobs
+PASS tracked blobs, modes, index: protocol-processor: 562 blobs
+PASS tracked blobs, modes, index: tsn-c-stack: 98 blobs
+PASS tracked blobs, modes, index: verilog-axis: 214 blobs
+PASS tracked blobs, modes, index: r603-8-671: 1316 blobs
+PASS exact head integrity
