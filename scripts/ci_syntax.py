@@ -51,6 +51,8 @@ def shell_nodes(audit: object, value: object, where: str, context: str = 'File',
             raise Refusal(f'uncensused shell {kind}.{key} at {where}')
         if key == 'Op' and child not in audit.census['shell_operators'].get(kind + '.Op', []):
             raise Refusal(f'uncensused shell operator {kind}.{child} at {where}')
+        if isinstance(child, bool) and child not in audit.census['shell_flags'].get(kind + '.' + key, []):
+            raise Refusal(f'uncensused shell flag {kind}.{key} at {where}')
     if kind == 'FuncDecl' and conditional:
         exact_use(audit, value, where, 'conditional-function')
     if kind == 'ParamExp':

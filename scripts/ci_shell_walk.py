@@ -271,7 +271,9 @@ class Shell:
                 raise Refusal(f'unsupported shell trap at {where}')
             if args[1] != '-':
                 saved_trap = dict(self.env)
-                self.statements(shell_tree(args[1], self.audit.parser).get('Stmts', []), directory)
+                parsed = shell_tree(args[1], self.audit.parser)
+                shell_nodes(self.audit, parsed, self.where)
+                self.statements(parsed.get('Stmts', []), directory)
                 self.env = saved_trap
         elif args[0] == 'cd':
             operands = args[1:]

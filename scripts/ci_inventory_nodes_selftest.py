@@ -56,6 +56,7 @@ def shell_controls(fixture: Fixture) -> None:
         "bash -c 'brand_new_command <dynamic>'",
         "bash -c 'echo \"<dynamic>\"; brand_new_command'",
         'coproc echo okay', 'select value in one two; do echo okay; done',
+        "trap 'coproc echo okay' EXIT",
         'echo ${!name}', 'echo $((value ** 2))', 'printf -v value %s hidden.sh',
         'env PATH=tools bash bootstrap.sh', 'exec brand_new_command',
     ):
