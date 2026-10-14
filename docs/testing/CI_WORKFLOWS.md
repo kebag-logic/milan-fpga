@@ -385,6 +385,15 @@ the union artifact, proves every original log's ownership and exact head, then
 runs the unchanged tally. Missing, duplicated, extra, failed, cancelled or
 skipped workers cannot release the protected context.
 
+Round-two comparisons on #737 use public PR head
+`cf9c936697a06e44c41681bcc12dc612a3242eb2`: six unsharded references and
+23 shard legs cover all 154 driver-enumerated units. The production receipt
+reader accepts equal outcomes, return codes and checked-output digests for
+every suite. Dropping a case from every claim is refused; changing an
+observation differs from its reference. These native runs establish case
+equivalence at that public head, not hosted timing or unchanged product inputs
+after the required dev merge. The merged candidate still needs its full replay.
+
 Every Verilator worker also initializes `third_party/tsn-c-stack`: the `mbx`
 suite's co-simulation links the firmware's ADP, ACMP and MAAP cores, which
 come from that submodule (#697), whichever shard owns the suite. Every bench
