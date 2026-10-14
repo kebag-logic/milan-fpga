@@ -339,10 +339,30 @@ class Audit:
     @staticmethod
     def matches(args: list[str], pattern: list[str]) -> bool:
         """Match complete argv; runtime slots cannot authorize literal options."""
-        if len(args) != len(pattern):
+        if not pattern:
+            return not args
+        expected = pattern[0]
+        if isinstance(expected, dict) and set(expected) == {'data_paths'}:
+            # A recipe owns its source population; the table never copies it.
+            for count in range(1, len(args) + 1):
+                if not Audit.matches([args[count - 1]], [{'data_path': expected['data_paths']}]):
+                    break
+                if Audit.matches(args[count:], pattern[1:]):
+                    return True
             return False
-        return all(isinstance(a, Runtime) if p == '<runtime>' else a == p
-                   for a, p in zip(args, pattern))
+        if not args:
+            return False
+        argument = args[0]
+        if isinstance(expected, dict):
+            suffix = expected.get('data_path')
+            accepted = (set(expected) == {'data_path'} and suffix in ('.sv', '.svh') and
+                        not isinstance(argument, Runtime) and not argument.startswith('-') and
+                        argument.endswith(suffix))
+        elif expected == '<runtime>':
+            accepted = isinstance(argument, Runtime)
+        else:
+            accepted = argument == expected
+        return accepted and Audit.matches(args[1:], pattern[1:])
 
     def wrapper_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
         """Classify the declared wrapper command form and its executed children."""

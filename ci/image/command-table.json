@@ -5239,7 +5239,9 @@
         [
           "gen_mclk_shape.py",
           "--check-header",
-          "obj_mclk_aem/endstation_mclk/gen/adp_shape_defaults.svh"
+          {
+            "data_path": ".svh"
+          }
         ],
         [
           "gen_tdm8r_multi_shape.py"
@@ -6600,22 +6602,30 @@
         [
           "-n",
           "s/.*ADP_ENTITY_CAPS_C[[:space:]]*=[[:space:]]*32'h([0-9A-Fa-f_]*).*/1/p",
-          "../../../protocol-processor/hdl/adp/pp_adp_pkg.sv"
+          {
+            "data_path": ".sv"
+          }
         ],
         [
           "-n",
           "s/.*ADP_ENTITY_CAPS_C[[:space:]]*=[[:space:]]*32'h\\([0-9A-Fa-f_]*\\).*/\\1/p",
-          "../../../protocol-processor/hdl/adp/pp_adp_pkg.sv"
+          {
+            "data_path": ".sv"
+          }
         ],
         [
           "-n",
           "s/.*AEM_NAME_ENTRIES_C = \\([0-9]*\\);.*/\\1/p",
-          "../../../configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh"
+          {
+            "data_path": ".svh"
+          }
         ],
         [
           "-n",
           "s/.*AEM_NAME_ENTRIES_C = \\([0-9]*\\);.*/\\1/p",
-          "../../../configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh"
+          {
+            "data_path": ".svh"
+          }
         ],
         [
           "-n",
@@ -12445,11 +12455,9 @@
           "-GN_AUDIO_UNIT_P=1",
           "-GN_CLK_DOM_P=1",
           "-GN_NAME_P=99",
-          "../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
-          "../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
-          "../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
-          "../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv",
-          "../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+          {
+            "data_paths": ".sv"
+          },
           "../../../hdl/milan/KL_nvm_backend.sv",
           "cosim_top.sv"
         ],
