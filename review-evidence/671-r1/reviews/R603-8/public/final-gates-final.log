@@ -1,0 +1,22 @@
+capture: rc=0 expected=0 python3 scripts/check_nvm_capture.py
+capture-bytes: rc=1 expected=1 python3 scripts/check_nvm_capture.py --mutation bytes
+capture-records: rc=1 expected=1 python3 scripts/check_nvm_capture.py --mutation records
+capture-clock: rc=1 expected=1 python3 scripts/check_nvm_capture.py --mutation clock
+capture-ignore-off-timing: rc=1 expected=1 python3 scripts/check_nvm_capture.py --mutation ignore-off-timing
+capture-receipt-opt-out: rc=1 expected=1 python3 scripts/check_nvm_capture.py --mutation receipt-opt-out
+cpp-idiom: rc=0 expected=0 python3 scripts/check_cpp_idiom.py
+py-idiom: rc=0 expected=0 python3 scripts/check_py_idiom.py
+hygiene: rc=0 expected=0 python3 scripts/check_hygiene.py --check
+docs: rc=0 expected=0 python3 scripts/docs_check.py
+toc: rc=0 expected=0 python3 scripts/gen_toc.py --check
+doc-style: rc=0 expected=0 python3 scripts/check_doc_style.py
+doc-paths: rc=0 expected=0 python3 scripts/check_doc_paths.py
+em-dash: rc=0 expected=0 python3 scripts/check_em_dash.py --base fa820988
+doc-map: rc=0 expected=0 python3 docs/DOC_MAP.gen.py --check
+solution-docs: rc=0 expected=0 python3 scripts/check_solution_docs.py
+feature-status: rc=0 expected=0 python3 scripts/check_feature_status.py
+toc-anchors: rc=0 expected=0 python3 scripts/gen_toc.py --verify-anchors
+diff: rc=0 expected=0 git diff --check
+branch-diff: rc=0 expected=0 git diff --check e8454e27
+dev-diff: rc=0 expected=0 git diff --check fa820988
+Final gates and five required negative controls: PASS
