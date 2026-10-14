@@ -2331,6 +2331,13 @@ Resource bounds:
   Both runs pass all 32 checks with zero memory-event counters.
   Their elapsed workload times are 480.432 and 484.113 seconds.
   One eight-GiB container runs at a time, including all mutants.
+- The builder runs with required RV32 and elaboration instruments at both widths.
+  Sixteen CPUs peak at 3523665920 bytes; twelve peak at 3172597760 bytes.
+  Both return zero, with every memory-event counter zero and actual JVM execution.
+  Workload times are 1385.762 and 1366.174 seconds, respectively.
+  Two existing arms remain NOT RUN: an inert Make environment mutation
+  and the absent physical calibration report. Neither result covers those arms.
+  Each fresh container starts with empty CPU metadata and cached dependencies.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
   which counts only the slice's limit and never a job container's eight-GiB limit
