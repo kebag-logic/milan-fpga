@@ -25,10 +25,30 @@ def reader_setup() -> list[dict]:
              "run": "python3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt\n"}]
 
 
+def cpu_budget_step() -> dict:
+    """Use each container's own affinity while preserving measured campaign limits."""
+    return {"name": "Set CPU-derived job budgets", "run": """set -euo pipefail
+cpus="$(nproc)"
+test "$cpus" -gt 0
+campaign=$(( cpus < 4 ? cpus : 4 ))
+simulations=$(( cpus < 4 ? cpus : 4 ))
+{
+  printf 'CI_BUILD_JOBS=%s\\n' "$cpus"
+  printf 'CI_CAMPAIGN_JOBS=%s\\n' "$campaign"
+  printf 'VERILATOR_JOBS=%s\\n' "$cpus"
+  printf 'SIM_JOBS=%s\\n' "$simulations"
+  printf 'MAKEFLAGS=-j1 --no-print-directory\\n'
+} >> "$GITHUB_ENV"
+"""}
+
+
 def instrument(path: str, job_id: str, job: dict) -> None:
     """Assign stable IDs without modifying any existing test command or condition."""
     if not any(step.get("uses", "").startswith("actions/checkout@") for step in job["steps"]):
         job["steps"].insert(0, {"uses": "actions/checkout@v4"})
+    checkout = next(i for i, step in enumerate(job["steps"])
+                    if step.get("uses", "").startswith("actions/checkout@"))
+    job["steps"].insert(checkout + 1, cpu_budget_step())
     identity = ""
     if path == ".github/workflows/docs.yml" and job_id == "docs-check-no-git":
         job["steps"].insert(1, {
@@ -74,6 +94,7 @@ def collector(name: str, dependencies: list[str]) -> dict:
             "permissions": {"contents": "read", "actions": "read"},
             "steps": [
                 {"uses": "actions/checkout@v4", "with": {"fetch-depth": 0}},
+                cpu_budget_step(),
                 *reader_setup(),
                 {"name": "Download completed execution artifacts", "uses": "actions/download-artifact@v4",
                  "continue-on-error": True, "with": {"path": "${{ runner.temp }}/manifest-inputs"}},

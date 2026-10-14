@@ -376,7 +376,7 @@ jobs:
         run: |
           set -euo pipefail
           /usr/bin/time -f 'driver_wall_seconds=%e driver_exit_status=%x' \
-            env -u SUITE_TIMEOUT VERILATOR_JOBS=4 \
+            env -u SUITE_TIMEOUT VERILATOR_JOBS="$CI_BUILD_JOBS" \
             scripts/run_all_suites.sh "$RUNNER_TEMP/physical-gptp-logs" --physical-gptp
           python3 scripts/suite_tally.py "$RUNNER_TEMP/physical-gptp-logs" --quiet \
             --expect-suite-root tb/verilator --physical-gptp

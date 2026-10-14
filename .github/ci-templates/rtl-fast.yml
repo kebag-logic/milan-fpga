@@ -113,7 +113,7 @@ jobs:
           /opt/verilator/bin/verilator --version
           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
           PATH="/opt/verilator/bin:$PATH" \
-            python3 scripts/lint_rtl.py --check --self-test --jobs 4
+            python3 scripts/lint_rtl.py --check --self-test --jobs "$CI_CAMPAIGN_JOBS"
 
       - name: Prove protocol-processor source lists are derived
         run: python3 scripts/pp_srcs.py --check --selftest
@@ -312,7 +312,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m pip install --quiet pyyaml
-          python3 sw/mailbox/publication_census.py --check --selftest --jobs 4
+          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CAMPAIGN_JOBS"
 
   # The bare-metal control-plane firmware's host unit tests (#665 lane FT):
   # the GoogleTest suites of sw/firmware/ctrl and sw/firmware/ctrl_nvm at
@@ -365,16 +365,16 @@ jobs:
         run: |
           set -euo pipefail
           python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
-          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
+          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 0/4
 
       - name: Run the saved-state store suites and its RV32 build
-        run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+        run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$CI_CAMPAIGN_JOBS"
 
       - name: Hold the firmware coverage ratchet
         run: |
           set -euo pipefail
           python3 sw/firmware/gtest/fw_coverage.py --selftest
-          python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+          python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$CI_CAMPAIGN_JOBS"
 
   firmware-control-mutants:
     needs: changes
@@ -408,7 +408,7 @@ jobs:
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
 
       - name: Run the control mutation campaign
-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 1/4
+        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 1/4
 
   firmware-aecp-mutants:
     needs: changes
@@ -442,7 +442,7 @@ jobs:
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
 
       - name: Run the AECP mutation campaign
-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 2/4
+        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 2/4
 
   firmware-srp-mutants:
     needs: changes
@@ -476,7 +476,7 @@ jobs:
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
 
       - name: Run both SRP mutation campaigns and pin controls
-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 3/4
+        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 3/4
 
   # #697: the TSN stack's boundary from both sides, over the compiles of
   # every builder it judges but those that need Verilator: the gate runs each

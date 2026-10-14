@@ -5,13 +5,56 @@
 
 import copy
 import hashlib
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+from unittest.mock import patch
 
 from ci_gate_receipts import StepContext, record, verify
 from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id
+from ci_runtime_workflows import cpu_budget_step
+import ci_suite_pieces
+
+
+def cpu_controls() -> None:
+    """Execute the emitted shell at hosted, fallback and normal local widths."""
+    with tempfile.TemporaryDirectory(prefix="cpu-budgets-") as temporary:
+        root = Path(temporary)
+        for cpus, campaign in ((1, 1), (4, 4), (12, 4), (16, 4)):
+            (root / "nproc").write_text("#!/bin/sh\nprintf '%s\\n' " + str(cpus) + "\n")
+            (root / "nproc").chmod(0o755)
+            output = root / (str(cpus) + ".env")
+            subprocess.run(["bash", "-c", cpu_budget_step()["run"]], check=True,
+                           env={**os.environ, "PATH": str(root) + ":" + os.environ["PATH"],
+                                "GITHUB_ENV": str(output)})
+            assert output.read_text().splitlines() == [
+                f"CI_BUILD_JOBS={cpus}", f"CI_CAMPAIGN_JOBS={campaign}",
+                f"VERILATOR_JOBS={cpus}", f"SIM_JOBS={campaign}",
+                "MAKEFLAGS=-j1 --no-print-directory"]
+            with patch.object(os, "sched_getaffinity", return_value=set(range(cpus))), \
+                    patch.object(subprocess, "run", return_value=subprocess.CompletedProcess([], 0)) as ran:
+                assert ci_suite_pieces.run("capture_coherence__0", root) == 0
+                command = ran.call_args.args[0]
+                jobs = int(command[command.index("--jobs") + 1])
+                compiler = int(ran.call_args.kwargs["env"]["VERILATOR_JOBS"])
+                assert jobs == campaign and jobs * compiler <= cpus
+                assert compiler == cpus // campaign
+            print(f"CPU budgets: {cpus} cores; {campaign} campaigns; nested builds bounded")
+        (root / "nproc").write_text("#!/bin/sh\necho 0\n")
+        refused = subprocess.run(["bash", "-c", cpu_budget_step()["run"]], check=False,
+                                 env={**os.environ, "PATH": str(root) + ":" + os.environ["PATH"],
+                                      "GITHUB_ENV": str(root / "zero.env")})
+        assert refused.returncode != 0 and not (root / "zero.env").exists()
+    for name in ("docs", "elaborate", "rtl", "rtl-fast"):
+        workflow = generate(name, load_template(ROOT, name))
+        for job in workflow["jobs"].values():
+            assert sum(step.get("name") == cpu_budget_step()["name"] for step in job["steps"]) == 1
 
 
 def main() -> int:
     """Drive the production generator and verifier with independent planted losses."""
+    cpu_controls()
     for name, carrier in CARRIERS.items():
         source = load_template(ROOT, name)
         generated = generate(name, source)

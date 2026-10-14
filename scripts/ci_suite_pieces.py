@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -39,8 +40,10 @@ def driver(suite: str) -> list[str]:
         command = [sys.executable, f"tb/verilator/{suite}/mutants.py", "--whole-suite"]
         # Sixteen local CPUs must not turn the hosted four-case bank into
         # sixteen simultaneous model builds inside one bounded job.
-        return command + (["--jobs", "4"] if suite == "capture_coherence" else [])
-    return [sys.executable, "scripts/ci_make_cases.py", "--suite", suite]
+        return command + (["--jobs", str(min(4, len(os.sched_getaffinity(0))))]
+                          if suite == "capture_coherence" else [])
+    return [sys.executable, "scripts/ci_make_cases.py", "--suite", suite,
+            "--jobs", str(min(2, len(os.sched_getaffinity(0))))]
 
 
 def inventory(suite: str, root: Path = ROOT) -> list[str]:
@@ -62,7 +65,13 @@ def run(piece: str, destination: Path) -> int:
                        cwd=ROOT, check=True)
     command = [*driver(suite), "--shard", f"{leg}/{total}",
                "--receipt", str(destination / (piece + ".json"))]
-    return subprocess.run(command, cwd=ROOT, check=False).returncode
+    environment = dict(os.environ)
+    if suite == "capture_coherence":
+        cpus = len(os.sched_getaffinity(0))
+        jobs = min(4, cpus)
+        environment["VERILATOR_JOBS"] = str(max(1, cpus // jobs))
+        environment["MAKEFLAGS"] = "-j1 --no-print-directory"
+    return subprocess.run(command, cwd=ROOT, env=environment, check=False).returncode
 
 
 def union(suite: str, roots: list[Path], output: Path, head: str, tree: str) -> dict:

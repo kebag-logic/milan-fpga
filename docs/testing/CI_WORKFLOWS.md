@@ -1933,6 +1933,17 @@ Monitor failure also prevents a successful replay verdict.
 `cpu-placements.json` retains reservations, inspection problems and peak concurrency.
 CPU observations remain outside the canonical manifest comparison.
 
+Every generated job reads its own CPU count with `nproc`.
+Tool builds use that count for `make -j`; Verilator uses `VERILATOR_JOBS`.
+Campaign pools use the smaller of that count and four.
+This retains the measured memory bound on both 12- and 16-CPU jobs.
+Simulation pools use the same bound; case drivers retain their two-run cap.
+Outer suite make invocations remain serial to preserve shared build ownership.
+The compiler inside the selected build receives the CPU budget.
+The capture campaign divides that budget among its active build workers.
+Controls execute the generated shell at one, four, twelve and sixteen CPUs.
+They refuse zero CPUs and prove nested build budgets do not exceed the range.
+
 One scheduler serves every selected, byte-identical workflow file.
 `CONCURRENT_JOB_LIMIT=4` bounds admissions across workflows and nested matrices.
 The pinned dispatcher is `0.2.89+milan-ci4`.
@@ -2452,18 +2463,19 @@ scripts/act_slot_proof.sh --runner <audited-install>/act_ci.py \
   --pr-a <number> --worktree-a <clean-checkout-at-its-head> \
   --pr-b <number> --worktree-b <clean-checkout-at-its-head> \
   --slot-a 1 --slot-root-a <slot-root> --slot-b 2 --slot-root-b <slot-root> \
+  --cpu-ranges-a "$BOOKED_CPU_RANGES_A" --cpu-ranges-b "$BOOKED_CPU_RANGES_B" \
   [--workflow <name>]... [--probe-image <local-image-with-python3>]
 ```
 
 The offline self-test of the runner pins:
 
-- slot selection and its range, and the CPU boundary at the host's last CPU;
+- externally booked aligned CPU ranges and the host CPU boundary;
 - the inherited-endpoint refusal, for each variable, in the PR run, the dry run
   and both live self-tests, before any collaborator runs;
 - slot 0's environment, prefixes and act command, unchanged;
 - slot N's derived names, which are disjoint across slots and identical for
-  one slot, together with its endpoint parser, its namespace prefix and its
-  CPUs, which no other slot shares even at the most concurrency;
+  one slot, together with its endpoint parser and namespace prefix;
+- disjoint per-job CPU bookings, retained from creation through cleanup;
 - the uplink, daemon, firewall and every other host command and query, word
   for word, and the uplink discovery: which default routes count, and its
   refusals of no route, loopback, an unquotable name, malformed output and a
@@ -2702,11 +2714,10 @@ python3 scripts/ci_events.py --firmware-census
 Run all four phases to reproduce the complete control gate.
 Shard arguments cannot combine with coverage or mutation slicing.
 
-The fast workflow passes `--jobs 4` to the lint, publication-census, saved-state
-and coverage drivers. Python 3.12 reports the host CPU count even inside a
-container with a smaller CPU affinity set; leaving the lint pool implicit can
-start far more front ends than the assigned CPUs. The explicit width preserves
-every check and matches the standard hosted runner while bounding local memory.
+The fast workflow derives `--jobs` from its visible CPU count, capped at four,
+for lint, publication census, saved state and coverage. Python 3.12 reports the
+host CPU count even inside a container with a smaller affinity set. Using
+`nproc` and an explicit pool width preserves every check while bounding memory.
 
 ## Failure and cancellation semantics
 

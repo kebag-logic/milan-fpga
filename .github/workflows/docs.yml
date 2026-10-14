@@ -8,6 +8,21 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Cache exact Python downloads
         uses: actions/cache@v4
         with:
@@ -15,15 +30,15 @@ jobs:
           key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
             'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
             }}-${{ runner.os }}
-        id: ci_step_1
+        id: ci_step_2
       - name: Fetch the engine authority the builder derives from
         run: git submodule update --init gptp-processor
-        id: ci_step_2
+        id: ci_step_3
       - name: Advertised-vs-emitted gate (green since 2026-07-28, item 00)
         run: |
           python3 -m pip install --quiet pyyaml
           python3 scripts/check_wire_accountability.py --self-test
-        id: ci_step_3
+        id: ci_step_4
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -54,12 +69,27 @@ jobs:
         run: |
           python3 scripts/ci_runtime_evidence.py identify --output "$RUNNER_TEMP/job-source.json"
         id: ci_step_1
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_2
       - name: Strip git metadata, then run the docs gate
         run: |
           rm -rf .git
           python3 scripts/docs_check.py
           python3 scripts/check_feature_status.py
-        id: ci_step_2
+        id: ci_step_3
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -87,6 +117,21 @@ jobs:
           fetch-depth: 0
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Cache exact Python downloads
         uses: actions/cache@v4
         with:
@@ -94,7 +139,7 @@ jobs:
           key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
             'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
             }}-${{ runner.os }}
-        id: ci_step_1
+        id: ci_step_2
       - name: Build the validated HDL reference
         run: |
           set -euo pipefail
@@ -114,19 +159,19 @@ jobs:
         id: gate_2
       - name: Install the python gate dependencies
         run: python3 -m pip install --quiet pyyaml
-        id: ci_step_4
+        id: ci_step_5
       - name: Cache the pinned Markdown renderer downloads
         uses: actions/cache@v4
         with:
           path: ~/.cache/milan-markdown-pip
           key: markdown-renderer-pip-cmarkgfm2025.10.22-html5lib1.1-${{ runner.os }}-${{ hashFiles('tools/markdown/requirements.txt')
             }}-${{ hashFiles('.github/workflows/*.yml') }}
-        id: ci_step_5
+        id: ci_step_6
       - name: Install the pinned Markdown renderer
         run: |
           python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \
             --require-hashes -r tools/markdown/requirements.txt
-        id: ci_step_6
+        id: ci_step_7
       - name: Resolve exact package downloads 6
         id: ci_packages_6
         run: |
@@ -137,13 +182,13 @@ jobs:
           path: ${{ runner.temp }}/ci_packages_6
           key: ${{ runner.os }}-${{ steps.ci_packages_6.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}
-        id: ci_step_8
+        id: ci_step_9
       - name: Install diagram gate dependencies
         run: |
           : # package index prepared above
           sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_6" install -y --no-install-recommends librsvg2-bin
           python3 -m pip install --quiet wavedrom==2.0.3.post3
-        id: ci_step_9
+        id: ci_step_10
       - name: Link health, wording, dead-reference and local-info gate
         run: python3 scripts/docs_check.py
         id: gate_7
@@ -217,7 +262,7 @@ jobs:
         id: gate_16
       - name: Fetch the builder source dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
-        id: ci_step_20
+        id: ci_step_21
       - name: Imported gPTP documentation gate
         run: |
           python3 scripts/check_gptp_docs.py --with-submodule
@@ -234,7 +279,7 @@ jobs:
           path: ${{ runner.temp }}/ci-sv2v-cache
           key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}-${{ runner.os }}
-        id: ci_step_23
+        id: ci_step_24
       - name: Install the pinned sv2v release
         run: |
           set -euo pipefail
@@ -249,7 +294,7 @@ jobs:
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
           sv2v --version
-        id: ci_step_24
+        id: ci_step_25
       - name: Bare-metal scope gate
         run: |
           python3 scripts/check_baremetal_only.py --check
@@ -261,13 +306,13 @@ jobs:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_26
+        id: ci_step_27
       - name: Install and verify the pinned RV32 SDK
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_27
+        id: ci_step_28
       - name: Compiler-absent firmware controls
         run: |
           set -euo pipefail
@@ -413,7 +458,7 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow docs --leg 0 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_54
+        id: ci_step_55
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -421,7 +466,7 @@ jobs:
           name: gate-docs-0-${{ github.sha }}
           path: ${{ runner.temp }}/gate-results/receipt.json
           if-no-files-found: error
-        id: ci_step_55
+        id: ci_step_56
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -451,6 +496,21 @@ jobs:
           fetch-depth: 0
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Cache exact Python downloads
         uses: actions/cache@v4
         with:
@@ -458,22 +518,22 @@ jobs:
           key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
             'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
             }}-${{ runner.os }}
-        id: ci_step_1
+        id: ci_step_2
       - name: Install the python gate dependencies
         run: python3 -m pip install --quiet pyyaml
-        id: ci_step_2
+        id: ci_step_3
       - name: Cache the pinned Markdown renderer downloads
         uses: actions/cache@v4
         with:
           path: ~/.cache/milan-markdown-pip
           key: markdown-renderer-pip-cmarkgfm2025.10.22-html5lib1.1-${{ runner.os }}-${{ hashFiles('tools/markdown/requirements.txt')
             }}-${{ hashFiles('.github/workflows/*.yml') }}
-        id: ci_step_3
+        id: ci_step_4
       - name: Install the pinned Markdown renderer
         run: |
           python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \
             --require-hashes -r tools/markdown/requirements.txt
-        id: ci_step_4
+        id: ci_step_5
       - name: Resolve exact package downloads 4
         id: ci_packages_4
         run: |
@@ -484,23 +544,23 @@ jobs:
           path: ${{ runner.temp }}/ci_packages_4
           key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}
-        id: ci_step_6
+        id: ci_step_7
       - name: Install diagram gate dependencies
         run: |
           : # package index prepared above
           sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_4" install -y --no-install-recommends librsvg2-bin
           python3 -m pip install --quiet wavedrom==2.0.3.post3
-        id: ci_step_7
+        id: ci_step_8
       - name: Fetch the builder source dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
-        id: ci_step_8
+        id: ci_step_9
       - name: Cache verified sv2v archive
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/ci-sv2v-cache
           key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}-${{ runner.os }}
-        id: ci_step_9
+        id: ci_step_10
       - name: Install the pinned sv2v release
         run: |
           set -euo pipefail
@@ -515,20 +575,20 @@ jobs:
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
           sv2v --version
-        id: ci_step_10
+        id: ci_step_11
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_11
+        id: ci_step_12
       - name: Install and verify the pinned RV32 SDK
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_12
+        id: ci_step_13
       - name: End-station builder gates
         run: |
           python3 -m pip install --quiet pyyaml
@@ -541,7 +601,7 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow docs --leg 1 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_14
+        id: ci_step_15
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -549,7 +609,7 @@ jobs:
           name: gate-docs-1-${{ github.sha }}
           path: ${{ runner.temp }}/gate-results/receipt.json
           if-no-files-found: error
-        id: ci_step_15
+        id: ci_step_16
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -583,6 +643,21 @@ jobs:
           fetch-depth: 0
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Cache exact Python downloads
         uses: actions/cache@v4
         with:
@@ -590,7 +665,7 @@ jobs:
           key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
             'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
             }}-${{ runner.os }}
-        id: ci_step_1
+        id: ci_step_2
       - name: Cache pinned evidence reader downloads
         uses: actions/cache@v4
         with:
@@ -598,31 +673,31 @@ jobs:
           key: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-${{ hashFiles('ci/requirements-evidence.txt',
             'scripts/ci_runtime_workflows.py', 'scripts/ci_gate_workflows.py', '.github/workflows/*.yml')
             }}-${{ runner.os }}
-        id: ci_step_2
+        id: ci_step_3
       - name: Install the pinned evidence reader
         run: |
           python3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt
-        id: ci_step_3
+        id: ci_step_4
       - name: Download executed gate outcomes
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           pattern: gate-docs-*-${{ github.sha }}
           path: ${{ runner.temp }}/gate-results
-        id: ci_step_4
+        id: ci_step_5
       - name: Require every gate exactly once
         env:
           CI_GATE_NEEDS: ${{ toJSON(needs) }}
         run: |
           python3 scripts/ci_gate_receipts.py verify --workflow docs --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
-        id: ci_step_5
+        id: ci_step_6
       - name: Upload verified gate union
         uses: actions/upload-artifact@v4
         with:
           name: gate-union-docs-${{ github.sha }}
           path: ${{ runner.temp }}/gate-union.json
           if-no-files-found: error
-        id: ci_step_6
+        id: ci_step_7
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -656,20 +731,35 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Observe the first failed job
         env:
           GH_TOKEN: ${{ github.token }}
           EXPECTED_JOBS: '["docs-check","docs-check-no-git","docs-gates-0","docs-gates-1","wire-accountability"]'
         run: |
           python3 scripts/ci_fail_fast.py watch
-        id: ci_step_1
+        id: ci_step_2
       - name: Cancel this run and sibling workflows
         if: ${{ failure() }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 scripts/ci_fail_fast.py cancel
-        id: ci_step_2
+        id: ci_step_3
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -707,6 +797,20 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
       - name: Cache pinned evidence reader downloads
         uses: actions/cache@v4
         with:

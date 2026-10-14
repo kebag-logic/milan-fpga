@@ -127,7 +127,8 @@ def no_metadata_control(root: Path) -> None:
                                        {"name": "Strip metadata", "run": "rm -rf .git"}]}}}
     generated = generate("docs", source)["jobs"][job]["steps"]
     assert " identify " in generated[1]["run"]
-    assert generated[2]["run"] == source["jobs"][job]["steps"][1]["run"]
+    assert generated[2]["name"] == "Set CPU-derived job budgets"
+    assert generated[3]["run"] == source["jobs"][job]["steps"][1]["run"]
     with patch.object(runtime, "ROOT", root):
         identity = runtime.source_identity()
         retained = root / "retained.json"
@@ -135,7 +136,7 @@ def no_metadata_control(root: Path) -> None:
         shutil.rmtree(root / ".git")
         assert not (root / ".git").exists()
         output = root / "no-metadata" / "job-evidence.json"
-        steps = {"ci_step_2": {"outcome": "failure", "conclusion": "failure"}}
+        steps = {generated[3]["id"]: {"outcome": "failure", "conclusion": "failure"}}
         environment = {"GITHUB_SHA": identity["head"], "CI_JOB_RESULT": "failure",
                        "CI_STEP_RESULTS": json.dumps(steps), "CI_MATRIX": "{}"}
         with patch.dict(os.environ, environment):

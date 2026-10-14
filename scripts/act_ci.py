@@ -5469,9 +5469,9 @@ def join_job_cpu_reader(
 ) -> BaseException | None:
     """Wait until the monitor's reader has provably ended; the first join failure, for the caller to raise after.
 
-    Each of the reader's moves and reads is bounded on its own. A reader still
+    Each of the reader's inspections is bounded on its own. A reader still
     running after the bounded wait is a problem and a printed containment
-    hold, and the wait goes on: Docker teardown never overlaps a move in
+    hold, and the wait goes on: Docker teardown never overlaps an inspection in
     flight, and a failed join proves nothing about the thread.
     """
     failure: BaseException | None = None
@@ -6622,8 +6622,8 @@ def cpu_range_monitor_stand_in(
     """A job_cpu_range_monitor stand-in that starts nothing and records ("cpus-on", *ranges), then ("cpus-off",).
 
     Its record carries the planted container `outcomes` and `problems`, as
-    the record of a run whose containers were moved, or left on the staging
-    range, would.
+    the record of a run whose container placements were verified or refused
+    would.
     """
 
     @contextlib.contextmanager
@@ -7605,14 +7605,14 @@ def drive_job_cpu_monitor(
     body: Callable[[], None],
     *,
     reap_failure: Exception | None = None,
-    move_seconds: float = 0.0,
+    read_seconds: float = 0.0,
 ) -> tuple[list[tuple[Sequence[str], dict[str, object]]], list[str], JobCpuRanges | None, str]:
     """Run job_cpu_range_monitor around `body` with a fake stream; (spawns, terminations, record, outcome).
 
-    Moves and reads go to a stand-in daemon that holds each container's
-    cpuset; a move takes `move_seconds`. Containment ends the stream, then
+    Reads go to a stand-in daemon that holds each container's
+    cpuset; an inspection takes `read_seconds`. Containment ends the stream, then
     raises `reap_failure` if one is given, as a leader that cannot be reaped
-    does. The stream's trail gets ``contained``, ``moved`` and, once the
+    does. The stream's trail gets ``contained``, ``verified`` and, once the
     monitor has returned or raised, ``monitor exited``. The monitor runs
     under the runner's own signal handlers, so an interrupted body's outcome
     is ``exit <128 + signum>``, and the stream keeps what went to stderr.
@@ -7621,7 +7621,6 @@ def drive_job_cpu_monitor(
     terminations: list[str] = []
     moved: list[JobCpuRanges] = []
     order = stream.trail
-    cpus: dict[str, str] = {}
 
     def popen(command: Sequence[str], **kwargs: object) -> FakeEventStream:
         """Record the spawn and hand back the fake stream."""
@@ -7637,10 +7636,10 @@ def drive_job_cpu_monitor(
             raise reap_failure
 
     def run_docker_stand_in(arguments: Sequence[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
-        """Apply a move after `move_seconds`; answer a read with the container's cpuset."""
+        """Answer an inspection after `read_seconds` with the container's cpuset."""
         if list(arguments[:2]) != ["container", "inspect"]:
             raise AssertionError("CPU audit attempted a Docker mutation")
-        time.sleep(move_seconds)
+        time.sleep(read_seconds)
         order.append("verified")
         return docker_completed(arguments, stdout=ranges[0] + "\n")
 
@@ -7695,9 +7694,9 @@ def drive_job_cpu_monitor(
 def busy_reader_trail(
     docker: DockerFixture, body_failure: BaseException | None, reap_failure: Exception | None
 ) -> tuple[list[str], JobCpuRanges | None, str, FakeEventStream]:
-    """(trail, record, outcome, stream) of a monitor whose reader is still moving a container when the body ends.
+    """(trail, record, outcome, stream) of a monitor whose reader is still inspecting a container when the body ends.
 
-    The stream's only line comes once the body has ended, and its move takes
+    The stream's only line comes once the body has ended, and its inspection takes
     a fifth of a second, so the reader is busy for the whole shutdown. A
     TerminationRequest body failure is delivered as its real signal, for the
     runner's handler to raise.
@@ -7717,13 +7716,13 @@ def busy_reader_trail(
             raise body_failure
 
     _spawns, _terminations, record, outcome = drive_job_cpu_monitor(
-        docker, ("4-7",), stream, body, reap_failure=reap_failure, move_seconds=0.2
+        docker, ("4-7",), stream, body, reap_failure=reap_failure, read_seconds=0.2
     )
     return trail, record, outcome, stream
 
 
 def joined_before_exit(trail: Sequence[str]) -> bool:
-    """Whether the monitor contained the stream and saw its reader finish the move and the stream end, then exited."""
+    """Whether containment, inspection and stream completion preceded monitor exit."""
     return (
         "stream gave up" not in trail
         and trail[-1:] == ["monitor exited"]
@@ -7786,7 +7785,7 @@ def selftest_job_cpu_monitor(tally: SelftestTally, docker: DockerFixture) -> Non
     )
     poll_stream.stdout.after.set()  # type: ignore[union-attr]
     _spawns, poll_terminations, polled, poll_outcome = drive_job_cpu_monitor(
-        docker, ("4-7",), poll_stream, lambda: None, move_seconds=0.2
+        docker, ("4-7",), poll_stream, lambda: None, read_seconds=0.2
     )
     check(
         "a stream whose poll fails is still contained once, its reader joined and its pipe "
@@ -7814,7 +7813,7 @@ def selftest_job_cpu_monitor(tally: SelftestTally, docker: DockerFixture) -> Non
         docker, (), FakeEventStream(lines), lambda: None
     )
     check(
-        "a run without job ranges starts no monitor and moves nothing",
+        "a run without job ranges starts no monitor and inspects nothing",
         none_spawned == [] and none_terminated == [] and empty is not None and empty.verified == 0,
     )
     selftest_job_cpu_monitor_busy(tally, docker)
@@ -7824,7 +7823,7 @@ def selftest_job_cpu_monitor(tally: SelftestTally, docker: DockerFixture) -> Non
 
 
 def selftest_job_cpu_monitor_busy(tally: SelftestTally, docker: DockerFixture) -> None:
-    """Arms: a reader still moving a container is joined before the monitor exits, however its body ends.
+    """Arms: a reader still inspecting a container is joined before the monitor exits, however its body ends.
 
     The first failure wins: a body failure or an interrupt already
     propagating keeps its outcome, exit status and diagnostic when the
@@ -7833,7 +7832,7 @@ def selftest_job_cpu_monitor_busy(tally: SelftestTally, docker: DockerFixture) -
     check = tally.check
     busy, busy_record, busy_outcome, busy_stream = busy_reader_trail(docker, None, None)
     check(
-        "a reader still moving a container when the body returns is joined, its move finished "
+        "a reader still inspecting a container when the body returns is joined, its inspection finished "
         "and the stream ended by containment, before the monitor lets the Docker boundary unwind",
         busy_outcome == "returned"
         and joined_before_exit(busy)
@@ -8093,7 +8092,7 @@ def selftest_job_cpu_monitor_shutdown(tally: SelftestTally, docker: DockerFixtur
 
 
 def contained_before_teardown(trail: Sequence[str]) -> bool:
-    """Whether containment, the move, stream completion and pipe close preceded teardown, with no reader left (#730)."""
+    """Whether containment, inspection, stream completion and pipe close preceded teardown (#730)."""
     return (
         "boundary teardown" in trail
         and {"contained", "verified", "stream ended"} <= set(trail)
@@ -8156,7 +8155,7 @@ def signal_at_step(
     """The trail, record, outcome, stream and cleanup signals left blocked or pending under `tracer` (#730).
 
     The stream's only line comes once containment has begun, so the reader
-    is still moving a container while the monitor joins it, at every step.
+    is still inspecting a container while the monitor joins it, at every step.
     The body arms the tracer as its last act, then raises `body_failure` if
     one is given.
     """
@@ -8177,7 +8176,7 @@ def signal_at_step(
     sys.settrace(tracer)
     try:
         _spawns, _terminations, record, outcome = drive_job_cpu_monitor(
-            docker, ("4-7",), stream, body, reap_failure=reap_failure, move_seconds=0.05
+            docker, ("4-7",), stream, body, reap_failure=reap_failure, read_seconds=0.05
         )
     finally:
         sys.settrace(previous)
@@ -8214,7 +8213,7 @@ def selftest_job_cpu_monitor_masked(tally: SelftestTally, docker: DockerFixture)
     """Arms: no step from the body's end to the monitor's exit lets a first signal skip its cleanup (#730).
 
     Each run has a busy reader. It passes when the stream was contained, the
-    move finished and the stream ended before the boundary's teardown would
+    inspection finished and the stream ended before the boundary's teardown would
     begin, with the pipe closed and no reader left, the runner exits
     128 + the signal with its interrupt diagnostic, and no cleanup signal is
     left blocked or pending.
@@ -15922,8 +15921,8 @@ def run_interrupt_probe(
         report_job_cpu_ranges(workflow, moved)
         if cpu_ranges and (moved.verified < 1 or moved.problems):
             raise Refusal(
-                "interrupt self-test's CPU-range monitor did not move the live job "
-                "container to a range of its own"
+                "interrupt self-test's CPU-range monitor did not verify the live job "
+                "container on its reserved range"
             )
     require_act_job_volumes_reclaimed(
         monitor.observed_job_volumes,

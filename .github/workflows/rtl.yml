@@ -23,6 +23,21 @@ jobs:
           fetch-depth: 0
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Cache exact Python downloads
         uses: actions/cache@v4
         with:
@@ -30,7 +45,7 @@ jobs:
           key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
             'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
             }}-${{ runner.os }}
-        id: ci_step_1
+        id: ci_step_2
       - name: Print the event and pin the one SHA this run validates
         id: target
         run: |
@@ -50,12 +65,12 @@ jobs:
           observed="$(gh api "repos/$GITHUB_REPOSITORY" --jq .default_branch 2>/dev/null || echo unreadable)"
           python3 scripts/ci_events.py --require-default-branch \
             --event "$GITHUB_EVENT_NAME" --observed "$observed"
-        id: ci_step_3
+        id: ci_step_4
       - name: Hold every workflow file to its contract
         run: |
           python3 -m pip install --quiet pyyaml
           python3 scripts/ci_events.py --check
-        id: ci_step_4
+        id: ci_step_5
       - name: Decide whether this exact head needs the exhaustive gates
         id: gate
         env:
@@ -151,9 +166,24 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
-        id: ci_step_1
+        id: ci_step_2
       - name: Record the tree this worker validates
         env:
           TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
@@ -166,251 +196,6 @@ jobs:
           fi
           mkdir -p "$RUNNER_TEMP/suite-logs"
           printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"
-          echo "target_sha=$GITHUB_SHA"
-        id: ci_step_2
-      - name: Cache the pinned Verilator build
-        id: cache-verilator
-        uses: actions/cache@v4
-        with:
-          path: /opt/verilator
-          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
-            }}-${{ runner.os }}
-      - name: Resolve exact package downloads 4
-        id: ci_packages_4
-        run: |
-          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 75d476c3189fef71fc03124453eee7a9c57cb835618ddc3b4c8dfdd159da7cb8 --directory "$RUNNER_TEMP/ci_packages_4" --output "$GITHUB_OUTPUT"
-        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
-      - name: Cache exact package downloads 4
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/ci_packages_4
-          key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
-            '.github/workflows/*.yml') }}
-        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
-        id: ci_step_5
-      - name: Build Verilator from source on cache miss
-        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
-        run: |
-          set -euo pipefail
-          : # package index prepared above
-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_4" install -y --no-install-recommends \
-            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
-          git clone --depth 1 --branch "$VERILATOR_VERSION" \
-            https://github.com/verilator/verilator.git /tmp/verilator-src
-          cd /tmp/verilator-src
-          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
-          autoconf
-          ./configure --prefix=/opt/verilator
-          make -j"$(nproc)"
-          sudo make install
-        id: ci_step_6
-      - name: Put Verilator on PATH and prove the version
-        run: |
-          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
-          /opt/verilator/bin/verilator --version
-          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
-        id: ci_step_7
-      - name: Prove specialized suite ownership
-        env:
-          SHARD: ${{ matrix.shard }}
-          SHARDS: ${{ matrix.total }}
-        run: |
-          set -euo pipefail
-          python3 scripts/suite_shards.py --selftest
-          scripts/run_all_suites.sh --ci-pieces --shard "$SHARD/$SHARDS" --list \
-            > "$RUNNER_TEMP/owned-suites"
-          echo "Shard $SHARD owns:"
-          sed 's/^/  /' "$RUNNER_TEMP/owned-suites"
-          case "$SHARD" in
-            1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;
-            3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
-          esac
-        id: ci_step_8
-      - name: Cache the pinned Yosys build for the netlist-level suite owner
-        if: ${{ matrix.shard == 3 }}
-        id: cache-yosys
-        uses: actions/cache@v4
-        with:
-          path: /opt/yosys
-          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml')
-            }}-${{ runner.os }}
-      - name: Resolve exact package downloads 8
-        id: ci_packages_8
-        run: |
-          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe b3e97f74995581d5910e2356723915fd7645a75dbfe71fa71334def0585bbf97 --directory "$RUNNER_TEMP/ci_packages_8" --output "$GITHUB_OUTPUT"
-        if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
-      - name: Cache exact package downloads 8
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/ci_packages_8
-          key: ${{ runner.os }}-${{ steps.ci_packages_8.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
-            '.github/workflows/*.yml') }}
-        if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
-        id: ci_step_11
-      - name: Build Yosys from source on cache miss
-        if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
-        run: |
-          set -euo pipefail
-          : # package index prepared above
-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_8" install -y --no-install-recommends \
-            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
-          git clone --depth 1 --branch "$YOSYS_VERSION" \
-            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
-          test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
-          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
-          make -C /tmp/yosys-src config-gcc
-          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
-            >> /tmp/yosys-src/Makefile.conf
-          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
-          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
-          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
-          # runner-owned so the cache action's save and restore are symmetric
-          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
-        id: ci_step_12
-      - name: Resolve exact package downloads 9
-        id: ci_packages_9
-        run: |
-          python3 scripts/ci_install_cache.py --packages libjemalloc2 --recipe 059a32a5bea6f851e8deff0d497a3b47323f7053ddee7c9139d4be8525e29d87 --directory "$RUNNER_TEMP/ci_packages_9" --output "$GITHUB_OUTPUT"
-        if: ${{ matrix.shard == 3 }}
-      - name: Cache exact package downloads 9
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/ci_packages_9
-          key: ${{ runner.os }}-${{ steps.ci_packages_9.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
-            '.github/workflows/*.yml') }}
-        if: ${{ matrix.shard == 3 }}
-        id: ci_step_14
-      - name: Install the pinned Yosys and prove the version
-        if: ${{ matrix.shard == 3 }}
-        run: |
-          set -euo pipefail
-          : # package index prepared above
-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_9" install -y --no-install-recommends libjemalloc2
-          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
-          test -x /opt/yosys/bin/yosys-abc
-          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
-          yosys -V
-          yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
-        id: ci_step_15
-      - name: Cache verified sv2v archive
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/ci-sv2v-cache
-          key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
-            '.github/workflows/*.yml') }}-${{ runner.os }}
-        if: ${{ matrix.shard == 3 }}
-        id: ci_step_16
-      - name: Install sv2v for the netlist-level suite owner
-        if: ${{ matrix.shard == 3 }}
-        run: |
-          set -euo pipefail
-          ver=v0.0.12
-          sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
-          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
-          mkdir -p "$RUNNER_TEMP/ci-sv2v-cache"
-          archive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"
-          if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
-          echo "${sha256}  $archive" | sha256sum -c -
-          unzip -q -o "$archive" -d /tmp/sv2v
-          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
-            /usr/local/bin/sv2v
-          sv2v --version
-        id: ci_step_17
-      - name: Cache pinned field oracle build
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/tsn-gen
-          key: tsn-gen-${{ env.TSN_GEN_REV }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
-            }}-${{ runner.os }}
-        if: ${{ matrix.shard == 1 }}
-        id: ci_step_18
-      - name: Build the pinned tsn-gen field oracle on its suite owner
-        if: ${{ matrix.shard == 1 }}
-        run: |
-          set -euo pipefail
-          if [ ! -d "$RUNNER_TEMP/tsn-gen/.git" ]; then
-          git clone --filter=blob:none \
-            https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"
-          fi
-          git -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"
-          git -C "$RUNNER_TEMP/tsn-gen" submodule update \
-            --init --depth 1 --recursive external/rapidyaml
-          cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" \
-            -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF
-          cmake --build "$RUNNER_TEMP/tsn-gen/build" \
-            --target packet_gen --parallel
-          test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"
-          echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"
-        id: ci_step_19
-      - name: Run this exhaustive suite shard
-        run: |
-          scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
-            --ci-pieces --shard "${{ matrix.shard }}/${{ matrix.total }}"
-        id: ci_step_20
-      - name: Upload this shard's suite logs
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: suite-logs-${{ matrix.shard }}
-          path: ${{ runner.temp }}/suite-logs
-          if-no-files-found: error
-          retention-days: 3
-        id: ci_step_21
-      - name: Record actual job execution
-        id: ci_record
-        if: ${{ always() }}
-        env:
-          CI_STEP_RESULTS: ${{ toJSON(steps) }}
-          CI_JOB_RESULT: ${{ job.status }}
-          CI_MATRIX: ${{ toJSON(matrix) }}
-        run: |
-          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job verilator-shards --output "$RUNNER_TEMP/job-evidence.json"
-      - name: Upload actual job execution
-        id: ci_upload
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: job-evidence-rtl-verilator-shards-${{ strategy.job-index }}-${{ github.sha }}
-          path: ${{ runner.temp }}/job-evidence.json
-          if-no-files-found: error
-          retention-days: 3
-  physical-gptp:
-    name: Physical gPTP (nightly and manual)
-    needs: full-ci-gate
-    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == 'schedule' || github.event_name
-      == 'workflow_dispatch') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    steps:
-      - uses: actions/checkout@v4
-        id: ci_step_0
-        name: Run actions/checkout@v4
-      - name: Cache exact Python downloads
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
-            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
-            }}-${{ runner.os }}
-        id: ci_step_1
-      - name: Fetch RTL dependencies
-        run: |
-          set -euo pipefail
-          git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
-          python3 -m pip install --quiet pyyaml
-        id: ci_step_2
-      - name: Record the tree this worker validates
-        env:
-          TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
-        run: |
-          set -euo pipefail
-          head="$(git rev-parse HEAD)"
-          if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
-            echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
-            exit 1
-          fi
-          mkdir -p "$RUNNER_TEMP/physical-gptp-logs"
-          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/physical-gptp-logs/TARGET_SHA"
           echo "target_sha=$GITHUB_SHA"
         id: ci_step_3
       - name: Cache the pinned Verilator build
@@ -451,30 +236,290 @@ jobs:
         id: ci_step_7
       - name: Put Verilator on PATH and prove the version
         run: |
-          set -euo pipefail
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
           /opt/verilator/bin/verilator --version
           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
         id: ci_step_8
+      - name: Prove specialized suite ownership
+        env:
+          SHARD: ${{ matrix.shard }}
+          SHARDS: ${{ matrix.total }}
+        run: |
+          set -euo pipefail
+          python3 scripts/suite_shards.py --selftest
+          scripts/run_all_suites.sh --ci-pieces --shard "$SHARD/$SHARDS" --list \
+            > "$RUNNER_TEMP/owned-suites"
+          echo "Shard $SHARD owns:"
+          sed 's/^/  /' "$RUNNER_TEMP/owned-suites"
+          case "$SHARD" in
+            1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;
+            3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
+          esac
+        id: ci_step_9
+      - name: Cache the pinned Yosys build for the netlist-level suite owner
+        if: ${{ matrix.shard == 3 }}
+        id: cache-yosys
+        uses: actions/cache@v4
+        with:
+          path: /opt/yosys
+          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml')
+            }}-${{ runner.os }}
+      - name: Resolve exact package downloads 8
+        id: ci_packages_8
+        run: |
+          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe b3e97f74995581d5910e2356723915fd7645a75dbfe71fa71334def0585bbf97 --directory "$RUNNER_TEMP/ci_packages_8" --output "$GITHUB_OUTPUT"
+        if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
+      - name: Cache exact package downloads 8
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_8
+          key: ${{ runner.os }}-${{ steps.ci_packages_8.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
+        id: ci_step_12
+      - name: Build Yosys from source on cache miss
+        if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_8" install -y --no-install-recommends \
+            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+          git clone --depth 1 --branch "$YOSYS_VERSION" \
+            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+          test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
+          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+          make -C /tmp/yosys-src config-gcc
+          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+            >> /tmp/yosys-src/Makefile.conf
+          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
+          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+          # runner-owned so the cache action's save and restore are symmetric
+          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+        id: ci_step_13
+      - name: Resolve exact package downloads 9
+        id: ci_packages_9
+        run: |
+          python3 scripts/ci_install_cache.py --packages libjemalloc2 --recipe 059a32a5bea6f851e8deff0d497a3b47323f7053ddee7c9139d4be8525e29d87 --directory "$RUNNER_TEMP/ci_packages_9" --output "$GITHUB_OUTPUT"
+        if: ${{ matrix.shard == 3 }}
+      - name: Cache exact package downloads 9
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_9
+          key: ${{ runner.os }}-${{ steps.ci_packages_9.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ matrix.shard == 3 }}
+        id: ci_step_15
+      - name: Install the pinned Yosys and prove the version
+        if: ${{ matrix.shard == 3 }}
+        run: |
+          set -euo pipefail
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_9" install -y --no-install-recommends libjemalloc2
+          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+          test -x /opt/yosys/bin/yosys-abc
+          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+          yosys -V
+          yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+        id: ci_step_16
+      - name: Cache verified sv2v archive
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci-sv2v-cache
+          key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}-${{ runner.os }}
+        if: ${{ matrix.shard == 3 }}
+        id: ci_step_17
+      - name: Install sv2v for the netlist-level suite owner
+        if: ${{ matrix.shard == 3 }}
+        run: |
+          set -euo pipefail
+          ver=v0.0.12
+          sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          mkdir -p "$RUNNER_TEMP/ci-sv2v-cache"
+          archive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"
+          if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
+          echo "${sha256}  $archive" | sha256sum -c -
+          unzip -q -o "$archive" -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
+          sv2v --version
+        id: ci_step_18
+      - name: Cache pinned field oracle build
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/tsn-gen
+          key: tsn-gen-${{ env.TSN_GEN_REV }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        if: ${{ matrix.shard == 1 }}
+        id: ci_step_19
+      - name: Build the pinned tsn-gen field oracle on its suite owner
+        if: ${{ matrix.shard == 1 }}
+        run: |
+          set -euo pipefail
+          if [ ! -d "$RUNNER_TEMP/tsn-gen/.git" ]; then
+          git clone --filter=blob:none \
+            https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"
+          fi
+          git -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"
+          git -C "$RUNNER_TEMP/tsn-gen" submodule update \
+            --init --depth 1 --recursive external/rapidyaml
+          cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" \
+            -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF
+          cmake --build "$RUNNER_TEMP/tsn-gen/build" \
+            --target packet_gen --parallel
+          test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"
+          echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"
+        id: ci_step_20
+      - name: Run this exhaustive suite shard
+        run: |
+          scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+            --ci-pieces --shard "${{ matrix.shard }}/${{ matrix.total }}"
+        id: ci_step_21
+      - name: Upload this shard's suite logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-logs-${{ matrix.shard }}
+          path: ${{ runner.temp }}/suite-logs
+          if-no-files-found: error
+          retention-days: 3
+        id: ci_step_22
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job verilator-shards --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-rtl-verilator-shards-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
+  physical-gptp:
+    name: Physical gPTP (nightly and manual)
+    needs: full-ci-gate
+    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == 'schedule' || github.event_name
+      == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Cache exact Python downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+            'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+            }}-${{ runner.os }}
+        id: ci_step_2
+      - name: Fetch RTL dependencies
+        run: |
+          set -euo pipefail
+          git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+          python3 -m pip install --quiet pyyaml
+        id: ci_step_3
+      - name: Record the tree this worker validates
+        env:
+          TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          head="$(git rev-parse HEAD)"
+          if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+            echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/physical-gptp-logs"
+          printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/physical-gptp-logs/TARGET_SHA"
+          echo "target_sha=$GITHUB_SHA"
+        id: ci_step_4
+      - name: Cache the pinned Verilator build
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
+            }}-${{ runner.os }}
+      - name: Resolve exact package downloads 4
+        id: ci_packages_4
+        run: |
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 75d476c3189fef71fc03124453eee7a9c57cb835618ddc3b4c8dfdd159da7cb8 --directory "$RUNNER_TEMP/ci_packages_4" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+      - name: Cache exact package downloads 4
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_4
+          key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+        id: ci_step_7
+      - name: Build Verilator from source on cache miss
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_4" install -y --no-install-recommends \
+            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator.git /tmp/verilator-src
+          cd /tmp/verilator-src
+          test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
+          autoconf
+          ./configure --prefix=/opt/verilator
+          make -j"$(nproc)"
+          sudo make install
+        id: ci_step_8
+      - name: Put Verilator on PATH and prove the version
+        run: |
+          set -euo pipefail
+          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+          /opt/verilator/bin/verilator --version
+          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+        id: ci_step_9
       - name: Prove physical suite selection
         run: |
           set -euo pipefail
           python3 scripts/suite_shards.py --selftest
           selected="$(scripts/run_all_suites.sh --physical-gptp --list)"
           test "$selected" = milan_dp_gptp
-        id: ci_step_9
+        id: ci_step_10
       - name: Run the physical gPTP suite with its own deadline
         run: |
           set -euo pipefail
           /usr/bin/time -f 'driver_wall_seconds=%e driver_exit_status=%x' \
-            env -u SUITE_TIMEOUT VERILATOR_JOBS=4 \
+            env -u SUITE_TIMEOUT VERILATOR_JOBS="$CI_BUILD_JOBS" \
             scripts/run_all_suites.sh "$RUNNER_TEMP/physical-gptp-logs" --physical-gptp
           python3 scripts/suite_tally.py "$RUNNER_TEMP/physical-gptp-logs" --quiet \
             --expect-suite-root tb/verilator --physical-gptp
           mkdir -p "$RUNNER_TEMP/physical-gptp-logs/controls"
           cp tb/verilator/milan_dp/obj_ax1x1gptp/*control.log \
             "$RUNNER_TEMP/physical-gptp-logs/controls/"
-        id: ci_step_10
+        id: ci_step_11
       - name: Upload the physical suite evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -483,7 +528,7 @@ jobs:
           path: ${{ runner.temp }}/physical-gptp-logs
           if-no-files-found: error
           retention-days: 3
-        id: ci_step_11
+        id: ci_step_12
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -523,6 +568,21 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Download every shard's logs
         id: download-logs
         continue-on-error: true
@@ -536,7 +596,7 @@ jobs:
         with:
           pattern: suite-union-*
           path: ${{ runner.temp }}/suite-unions
-        id: ci_step_2
+        id: ci_step_3
       - name: Require every shard to have validated this run's SHA
         if: ${{ always() }}
         env:
@@ -547,13 +607,13 @@ jobs:
           python3 scripts/ci_events.py --require-target-sha --expect 16 \
             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
-        id: ci_step_3
+        id: ci_step_4
       - name: Prove exhaustive ownership and tally every log
         if: ${{ always() }}
         run: |
           python3 scripts/ci_suite_collect.py   --workers "$RUNNER_TEMP/all-suite-logs" --unions "$RUNNER_TEMP/suite-unions"   --output "$RUNNER_TEMP/complete-suite-logs" --head "$GITHUB_SHA"
           python3 scripts/suite_tally.py "$RUNNER_TEMP/complete-suite-logs" --quiet   --expect-suite-root tb/verilator
-        id: ci_step_4
+        id: ci_step_5
       - name: Require every Verilator worker to pass
         if: ${{ always() }}
         env:
@@ -564,7 +624,7 @@ jobs:
             exit 1
           fi
           echo "verilator-suites: every worker succeeded at $GITHUB_SHA"
-        id: ci_step_5
+        id: ci_step_6
       - name: Require every case union to succeed
         if: ${{ always() }}
         env:
@@ -575,7 +635,7 @@ jobs:
           needs = json.loads(os.environ['UNION_NEEDS'])
           assert all(row['result'] == 'success' for row in needs.values()), needs
           PY
-        id: ci_step_6
+        id: ci_step_7
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -614,9 +674,24 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
-        id: ci_step_1
+        id: ci_step_2
       - name: Record the tree this worker validates
         env:
           TARGET_SHA: ${{ needs.full-ci-gate.outputs.target_sha }}
@@ -630,7 +705,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/yosys-results"
           printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/yosys-results/TARGET_SHA"
           echo "target_sha=$GITHUB_SHA"
-        id: ci_step_2
+        id: ci_step_3
       - name: Cache the pinned Yosys build
         id: cache-yosys
         uses: actions/cache@v4
@@ -650,7 +725,7 @@ jobs:
           key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}
         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
-        id: ci_step_5
+        id: ci_step_6
       - name: Build Yosys from source on cache miss
         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
         run: |
@@ -670,7 +745,7 @@ jobs:
           git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
           # runner-owned so the cache action's save and restore are symmetric
           sudo chown -R "$(id -u):$(id -g)" /opt/yosys
-        id: ci_step_6
+        id: ci_step_7
       - name: Resolve exact package downloads 5
         id: ci_packages_5
         run: |
@@ -681,7 +756,7 @@ jobs:
           path: ${{ runner.temp }}/ci_packages_5
           key: ${{ runner.os }}-${{ steps.ci_packages_5.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}
-        id: ci_step_8
+        id: ci_step_9
       - name: Install the pinned Yosys and prove the version
         run: |
           set -euo pipefail
@@ -692,14 +767,14 @@ jobs:
           echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
           yosys -V
           yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
-        id: ci_step_9
+        id: ci_step_10
       - name: Cache verified sv2v archive
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/ci-sv2v-cache
           key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}-${{ runner.os }}
-        id: ci_step_10
+        id: ci_step_11
       - name: Install the pinned sv2v release
         run: |
           set -euo pipefail
@@ -714,20 +789,20 @@ jobs:
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
           sv2v --version
-        id: ci_step_11
+        id: ci_step_12
       - name: Restore the portability result cache seeded from dev
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/yosys-result-cache
           key: yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}-${{ github.sha }}
           restore-keys: yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}-
-        id: ci_step_12
+        id: ci_step_13
       - name: Run this weighted portability shard
         run: |
           syn/yosys/run.sh --shard "${{ matrix.shard }}/${{ matrix.total }}" \
             --results "$RUNNER_TEMP/yosys-results" \
             --cache "$RUNNER_TEMP/yosys-result-cache"
-        id: ci_step_13
+        id: ci_step_14
       - name: Upload per-top and structural evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -736,7 +811,7 @@ jobs:
           path: ${{ runner.temp }}/yosys-results
           if-no-files-found: error
           retention-days: 3
-        id: ci_step_14
+        id: ci_step_15
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -769,6 +844,21 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Download every shard's evidence
         id: download-results
         continue-on-error: true
@@ -786,7 +876,7 @@ jobs:
           python3 scripts/ci_events.py --require-target-sha --expect 4 \
             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
-        id: ci_step_2
+        id: ci_step_3
       - name: Reconcile the live inventory and structural gates
         if: ${{ always() }}
         run: |
@@ -801,7 +891,7 @@ jobs:
           python3 scripts/yosys_tally.py "${roots[@]}" \
             --expected "$RUNNER_TEMP/expected-yosys-tops" \
             --require-structural
-        id: ci_step_3
+        id: ci_step_4
       - name: Require every Yosys worker to pass
         if: ${{ always() }}
         env:
@@ -812,7 +902,7 @@ jobs:
             exit 1
           fi
           echo "yosys-portability: every worker succeeded at $GITHUB_SHA"
-        id: ci_step_4
+        id: ci_step_5
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -843,12 +933,27 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Download executed case evidence
         uses: actions/download-artifact@v4
         with:
           pattern: suite-logs-*
           path: ${{ runner.temp }}/piece-logs
-        id: ci_step_1
+        id: ci_step_2
       - name: Require successful owners and every case exactly once
         env:
           CASE_NEEDS: ${{ toJSON(needs) }}
@@ -859,7 +964,7 @@ jobs:
           assert all(row['result'] == 'success' for row in needs.values()), needs
           PY
           python3 scripts/ci_suite_pieces.py union milan_dp   --head "$GITHUB_SHA" --tree "$(git rev-parse 'HEAD^{tree}')"   --output "$RUNNER_TEMP/union" "$RUNNER_TEMP"/piece-logs/suite-logs-*
-        id: ci_step_2
+        id: ci_step_3
       - name: Upload verified suite union
         uses: actions/upload-artifact@v4
         with:
@@ -867,7 +972,7 @@ jobs:
           path: ${{ runner.temp }}/union
           if-no-files-found: error
           retention-days: 3
-        id: ci_step_3
+        id: ci_step_4
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -898,12 +1003,27 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Download executed case evidence
         uses: actions/download-artifact@v4
         with:
           pattern: suite-logs-*
           path: ${{ runner.temp }}/piece-logs
-        id: ci_step_1
+        id: ci_step_2
       - name: Require successful owners and every case exactly once
         env:
           CASE_NEEDS: ${{ toJSON(needs) }}
@@ -914,7 +1034,7 @@ jobs:
           assert all(row['result'] == 'success' for row in needs.values()), needs
           PY
           python3 scripts/ci_suite_pieces.py union milan_dp_mclk   --head "$GITHUB_SHA" --tree "$(git rev-parse 'HEAD^{tree}')"   --output "$RUNNER_TEMP/union" "$RUNNER_TEMP"/piece-logs/suite-logs-*
-        id: ci_step_2
+        id: ci_step_3
       - name: Upload verified suite union
         uses: actions/upload-artifact@v4
         with:
@@ -922,7 +1042,7 @@ jobs:
           path: ${{ runner.temp }}/union
           if-no-files-found: error
           retention-days: 3
-        id: ci_step_3
+        id: ci_step_4
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -953,12 +1073,27 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Download executed case evidence
         uses: actions/download-artifact@v4
         with:
           pattern: suite-logs-*
           path: ${{ runner.temp }}/piece-logs
-        id: ci_step_1
+        id: ci_step_2
       - name: Require successful owners and every case exactly once
         env:
           CASE_NEEDS: ${{ toJSON(needs) }}
@@ -969,7 +1104,7 @@ jobs:
           assert all(row['result'] == 'success' for row in needs.values()), needs
           PY
           python3 scripts/ci_suite_pieces.py union capture_coherence   --head "$GITHUB_SHA" --tree "$(git rev-parse 'HEAD^{tree}')"   --output "$RUNNER_TEMP/union" "$RUNNER_TEMP"/piece-logs/suite-logs-*
-        id: ci_step_2
+        id: ci_step_3
       - name: Upload verified suite union
         uses: actions/upload-artifact@v4
         with:
@@ -977,7 +1112,7 @@ jobs:
           path: ${{ runner.temp }}/union
           if-no-files-found: error
           retention-days: 3
-        id: ci_step_3
+        id: ci_step_4
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -1008,12 +1143,27 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Download executed case evidence
         uses: actions/download-artifact@v4
         with:
           pattern: suite-logs-*
           path: ${{ runner.temp }}/piece-logs
-        id: ci_step_1
+        id: ci_step_2
       - name: Require successful owners and every case exactly once
         env:
           CASE_NEEDS: ${{ toJSON(needs) }}
@@ -1024,7 +1174,7 @@ jobs:
           assert all(row['result'] == 'success' for row in needs.values()), needs
           PY
           python3 scripts/ci_suite_pieces.py union maap   --head "$GITHUB_SHA" --tree "$(git rev-parse 'HEAD^{tree}')"   --output "$RUNNER_TEMP/union" "$RUNNER_TEMP"/piece-logs/suite-logs-*
-        id: ci_step_2
+        id: ci_step_3
       - name: Upload verified suite union
         uses: actions/upload-artifact@v4
         with:
@@ -1032,7 +1182,7 @@ jobs:
           path: ${{ runner.temp }}/union
           if-no-files-found: error
           retention-days: 3
-        id: ci_step_3
+        id: ci_step_4
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -1063,12 +1213,27 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Download executed case evidence
         uses: actions/download-artifact@v4
         with:
           pattern: suite-logs-*
           path: ${{ runner.temp }}/piece-logs
-        id: ci_step_1
+        id: ci_step_2
       - name: Require successful owners and every case exactly once
         env:
           CASE_NEEDS: ${{ toJSON(needs) }}
@@ -1079,7 +1244,7 @@ jobs:
           assert all(row['result'] == 'success' for row in needs.values()), needs
           PY
           python3 scripts/ci_suite_pieces.py union milan_dp_render   --head "$GITHUB_SHA" --tree "$(git rev-parse 'HEAD^{tree}')"   --output "$RUNNER_TEMP/union" "$RUNNER_TEMP"/piece-logs/suite-logs-*
-        id: ci_step_2
+        id: ci_step_3
       - name: Upload verified suite union
         uses: actions/upload-artifact@v4
         with:
@@ -1087,7 +1252,7 @@ jobs:
           path: ${{ runner.temp }}/union
           if-no-files-found: error
           retention-days: 3
-        id: ci_step_3
+        id: ci_step_4
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -1118,12 +1283,27 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Download executed case evidence
         uses: actions/download-artifact@v4
         with:
           pattern: suite-logs-*
           path: ${{ runner.temp }}/piece-logs
-        id: ci_step_1
+        id: ci_step_2
       - name: Require successful owners and every case exactly once
         env:
           CASE_NEEDS: ${{ toJSON(needs) }}
@@ -1134,7 +1314,7 @@ jobs:
           assert all(row['result'] == 'success' for row in needs.values()), needs
           PY
           python3 scripts/ci_suite_pieces.py union pp_shadow   --head "$GITHUB_SHA" --tree "$(git rev-parse 'HEAD^{tree}')"   --output "$RUNNER_TEMP/union" "$RUNNER_TEMP"/piece-logs/suite-logs-*
-        id: ci_step_2
+        id: ci_step_3
       - name: Upload verified suite union
         uses: actions/upload-artifact@v4
         with:
@@ -1142,7 +1322,7 @@ jobs:
           path: ${{ runner.temp }}/union
           if-no-files-found: error
           retention-days: 3
-        id: ci_step_3
+        id: ci_step_4
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -1174,6 +1354,21 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
       - name: Observe the first failed job
         env:
           GH_TOKEN: ${{ github.token }}
@@ -1186,14 +1381,14 @@ jobs:
             shard 0/4","Yosys shard 1/4","Yosys shard 2/4","Yosys shard 3/4"]'
         run: |
           python3 scripts/ci_fail_fast.py watch
-        id: ci_step_1
+        id: ci_step_2
       - name: Cancel this run and sibling workflows
         if: ${{ failure() }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 scripts/ci_fail_fast.py cancel
-        id: ci_step_2
+        id: ci_step_3
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -1238,6 +1433,20 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
       - name: Cache pinned evidence reader downloads
         uses: actions/cache@v4
         with:
