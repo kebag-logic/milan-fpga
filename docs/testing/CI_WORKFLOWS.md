@@ -1942,7 +1942,7 @@ Tool builds use that count for `make -j`; Verilator uses `VERILATOR_JOBS`.
 Existing `-j 0` recipes use Verilator 5.050's process-affinity default.
 They therefore see the container's booked CPU count.
 Campaign pools use the smaller of that count and four.
-This retains the measured memory bound on both 12- and 16-CPU jobs.
+CPU allocation alone therefore cannot expand those pools beyond four.
 Simulation pools use the same bound; case drivers retain their two-run cap.
 Outer suite make invocations remain serial to preserve shared build ownership.
 The compiler inside the selected build receives the CPU budget.
@@ -1966,7 +1966,7 @@ The first failed job stops further admissions and cancels siblings.
 Successful controls require every scheduled job to complete.
 Hosted matrices retain `fail-fast: true`, including fork PRs.
 
-Containers retain the measured eight-GiB limit, with no additional swap.
+Each container has an eight-GiB limit, with no additional swap.
 Four containers plus four-GiB overhead fit the 36-GiB slot cap.
 The host now has 61 GB, shared with other work.
 This policy leaves headroom without reserving all remaining host memory.
@@ -2285,6 +2285,17 @@ Resource bounds:
   with a cgroup peak of 5738594304 bytes (5.34 GiB) and no memory-limit or
   OOM event. Its earlier four-GiB trial killed an elaborator; the eight-GiB
   job cap accommodates this larger measured peak.
+- Round-two census measurements at `fec1f17cc` used the emitted CPU budget
+  step and eight-GiB containers. At sixteen CPUs the peak was 5860151296
+  bytes (5.46 GiB); at twelve it was 5201534976 bytes (4.84 GiB). Both passed
+  234 normal checks, all 120 planted arms and all 31 rule-removal controls,
+  with every memory-event counter zero. Both retained four campaign workers.
+  This validates that command at those widths, not the whole replay.
+  Full replay measurements remain necessary for the large compiler builds
+  and concurrent capture builds at their shipped widths. The runner does
+  not rewrite an older candidate's command that explicitly requests sixteen
+  census workers; that older command exhausted the eight-GiB cap in the
+  coordinating replay reported on #737.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
   which counts only the slice's limit and never a job container's eight-GiB limit
