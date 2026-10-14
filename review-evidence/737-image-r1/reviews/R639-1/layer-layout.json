@@ -1,0 +1,105 @@
+{
+  "head": "2b2e4d2c5b7f43cfc9df5347d99f9fee2c1fb895",
+  "method": "Static final-stage dependency and COPY instruction inspection; no image layer export executed.",
+  "instructions": [
+    {
+      "line": 1,
+      "instruction": "FROM ubuntu@sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3 AS system-tools"
+    },
+    {
+      "line": 10,
+      "instruction": "FROM system-tools AS gtest-tools"
+    },
+    {
+      "line": 17,
+      "instruction": "FROM system-tools AS python-tools"
+    },
+    {
+      "line": 24,
+      "instruction": "FROM python-tools AS litex-tools"
+    },
+    {
+      "line": 31,
+      "instruction": "FROM system-tools AS verilator-tools"
+    },
+    {
+      "line": 37,
+      "instruction": "FROM system-tools AS yosys-tools"
+    },
+    {
+      "line": 43,
+      "instruction": "FROM system-tools AS rv32-tools"
+    },
+    {
+      "line": 50,
+      "instruction": "FROM system-tools AS sv2v-tools"
+    },
+    {
+      "line": 56,
+      "instruction": "FROM system-tools AS sbt-tools"
+    },
+    {
+      "line": 63,
+      "instruction": "FROM system-tools AS oracle-tools"
+    },
+    {
+      "line": 69,
+      "instruction": "FROM system-tools AS node-tools"
+    },
+    {
+      "line": 75,
+      "instruction": "FROM system-tools AS gh-tools"
+    },
+    {
+      "line": 81,
+      "instruction": "FROM gtest-tools AS validation-tools"
+    },
+    {
+      "line": 82,
+      "instruction": "COPY --from=litex-tools /opt/python /opt/python"
+    },
+    {
+      "line": 83,
+      "instruction": "COPY --from=verilator-tools /opt/verilator /opt/verilator"
+    },
+    {
+      "line": 84,
+      "instruction": "COPY --from=yosys-tools /opt/yosys /opt/yosys"
+    },
+    {
+      "line": 85,
+      "instruction": "COPY --from=rv32-tools /opt/rv32-sdk /opt/rv32-sdk"
+    },
+    {
+      "line": 86,
+      "instruction": "COPY --from=sv2v-tools /opt/sv2v /opt/sv2v"
+    },
+    {
+      "line": 87,
+      "instruction": "COPY --from=sbt-tools /opt/sbt /opt/sbt"
+    },
+    {
+      "line": 88,
+      "instruction": "COPY --from=sbt-tools /opt/sbt-cache /opt/sbt-cache"
+    },
+    {
+      "line": 89,
+      "instruction": "COPY --from=oracle-tools /opt/tsn-gen /opt/tsn-gen"
+    },
+    {
+      "line": 90,
+      "instruction": "COPY --from=node-tools /opt/node /opt/node"
+    },
+    {
+      "line": 91,
+      "instruction": "COPY --from=gh-tools /opt/gh /opt/gh"
+    }
+  ],
+  "observations": [
+    "Final stage inherits gtest-tools, which inherits system-tools.",
+    "python-tools creates /opt/python; litex-tools inherits it and adds its packages into the same prefix.",
+    "Final stage copies that combined prefix once from litex-tools, with no separate python-tools COPY.",
+    "sbt-tools outputs are copied with two distinct COPY instructions."
+  ],
+  "limit": "Actual exported layer digests remain uninspected."
+}

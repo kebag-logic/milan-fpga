@@ -1,0 +1,55 @@
+{
+  "all_source_rows_in_lock_exactly_once": true,
+  "base": "fa7347fc59173f90e4feec2df207692e6e6e72ec",
+  "base_pinned_and_consistent": true,
+  "commits": [
+    "2b2e4d2c5b7f43cfc9df5347d99f9fee2c1fb895 Document CI image rebuilding and digest consumption",
+    "481cb1aaf68787eedd062c4f1c05fcdabce49eca Build the pinned offline CI tools image",
+    "c9ada48b915a06a731338200ef196f68420003d2 Derive CI tool installation inventory from workflow inputs"
+  ],
+  "diff_sha256": "f285048ccb1e67bcaba55de933b2391bb094e2fd470f5667faf7fec1f6a2e339",
+  "gitlink_diff": "",
+  "head": "2b2e4d2c5b7f43cfc9df5347d99f9fee2c1fb895",
+  "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "inventory_input_count": 294,
+  "inventory_inputs_match_disk": true,
+  "limitations": "Checks verify declaration consistency, not remote artifact availability or built image layer privacy.",
+  "origins": [
+    "archive.ubuntu.com",
+    "codeload.github.com",
+    "files.pythonhosted.org",
+    "github.com",
+    "nodejs.org",
+    "repo.maven.apache.org",
+    "scala.jfrog.io",
+    "toolchains.bootlin.com"
+  ],
+  "package_artifacts": 214,
+  "paths": [
+    "ci/image/Dockerfile",
+    "ci/image/build.py",
+    "ci/image/build_selftest.py",
+    "ci/image/image.lock.json",
+    "ci/image/install.py",
+    "ci/image/sbt-repositories",
+    "ci/image/smoke.py",
+    "ci/image/sources.lock.json",
+    "ci/image/tool-inventory.json",
+    "docs/README.md",
+    "docs/testing/CI_IMAGE.md",
+    "scripts/ci_tool_inventory.py",
+    "scripts/ci_tool_inventory_selftest.py"
+  ],
+  "recipe_digest": "aa3be31ce1924fac59d15ba2992f96561c5d8fb4c307c34b28568eae95b1a5fe",
+  "requested_tool_rows": 45,
+  "rtl_firmware_diff_empty": true,
+  "source_artifacts": 476,
+  "source_kinds": {
+    "maven": 423,
+    "native": 25,
+    "python": 28
+  },
+  "total_artifact_bytes": 710468038,
+  "url_userinfo_absent": true,
+  "workflow_diff_empty": true
+}

@@ -1,0 +1,109 @@
+{
+  "arbitrary_image_digest": {
+    "output": "PASS: image lock describes the current recipe",
+    "rc": 0
+  },
+  "called_script_literal_list": {
+    "output": "REFUSED: scripts/bootstrap.py: script installation needs an explicit pin reader: ['pip', 'install', 'review-fixture==1.0']",
+    "rc": 2
+  },
+  "called_script_shell_string": {
+    "check": {
+      "output": "CI tool inventory matches workflow installation requests",
+      "rc": 0
+    },
+    "derived_tools": [],
+    "output": "CI tool inventory matches workflow installation requests",
+    "rc": 0
+  },
+  "called_script_variable_list": {
+    "check": {
+      "output": "CI tool inventory matches workflow installation requests",
+      "rc": 0
+    },
+    "derived_tools": [],
+    "output": "CI tool inventory matches workflow installation requests",
+    "rc": 0
+  },
+  "empty_layers": {
+    "output": "PASS: image lock describes the current recipe",
+    "rc": 0
+  },
+  "exact_sbt_installer_repeat": {
+    "different_tar_bytes": true,
+    "method": "Exact sbt() AST function, relocated output only; fixed fixture artifact; normal USTAR file metadata; no Docker execution",
+    "runs": [
+      {
+        "files": {
+          "opt/sbt-cache/coursier/.fixture.jar.checked": {
+            "mtime": 1791957217,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "opt/sbt-cache/coursier/.fixture.jar__sha1": {
+            "mtime": 1791957217,
+            "sha256": "c2fdcd7f344d08a815789dfc12d049f45cd16b94f58d3bc760a0c6d8d06a0731"
+          },
+          "opt/sbt-cache/coursier/.fixture.jar__sha1.computed": {
+            "mtime": 1791957217,
+            "sha256": "fbde73afb203ad2682bc2dff860263412ed69dc999ca98b928eda8642f98ee99"
+          },
+          "opt/sbt-cache/coursier/fixture.jar": {
+            "mtime": 1791957217,
+            "sha256": "4e98023b54872e3ddc563d7b3d58f4100f4370eb37736962497f7aa63afab902"
+          },
+          "opt/sbt/repositories": {
+            "mtime": 1791957217,
+            "sha256": "ad444f70eb036d0ade1bcaf1e2f5b458a2c357a73bbda154d9f1725c7ac4d0c9"
+          }
+        },
+        "tar_sha256": "78b0a6c0edbf7e93026a511b3c89b8a7c78afcc4d612e40141b3b2bee25ed901"
+      },
+      {
+        "files": {
+          "opt/sbt-cache/coursier/.fixture.jar.checked": {
+            "mtime": 1791957219,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "opt/sbt-cache/coursier/.fixture.jar__sha1": {
+            "mtime": 1791957219,
+            "sha256": "c2fdcd7f344d08a815789dfc12d049f45cd16b94f58d3bc760a0c6d8d06a0731"
+          },
+          "opt/sbt-cache/coursier/.fixture.jar__sha1.computed": {
+            "mtime": 1791957219,
+            "sha256": "fbde73afb203ad2682bc2dff860263412ed69dc999ca98b928eda8642f98ee99"
+          },
+          "opt/sbt-cache/coursier/fixture.jar": {
+            "mtime": 1791957219,
+            "sha256": "4e98023b54872e3ddc563d7b3d58f4100f4370eb37736962497f7aa63afab902"
+          },
+          "opt/sbt/repositories": {
+            "mtime": 1791957219,
+            "sha256": "ad444f70eb036d0ade1bcaf1e2f5b458a2c357a73bbda154d9f1725c7ac4d0c9"
+          }
+        },
+        "tar_sha256": "f98c4ca1870499fd981c267c9272c74a495244a7c37e22fca90fefa8ca518c00"
+      }
+    ],
+    "same_file_payloads": true
+  },
+  "missing_inventory_entry": {
+    "output": "REFUSED: tool inventory differs from workflow installation requests",
+    "rc": 2
+  },
+  "orphan_inventory_entry": {
+    "output": "REFUSED: tool inventory differs from workflow installation requests",
+    "rc": 2
+  },
+  "wrong_base": {
+    "output": "PASS: image lock describes the current recipe",
+    "rc": 0
+  },
+  "wrong_layer_version": {
+    "output": "PASS: image lock describes the current recipe",
+    "rc": 0
+  },
+  "wrong_platform": {
+    "output": "PASS: image lock describes the current recipe",
+    "rc": 0
+  }
+}
