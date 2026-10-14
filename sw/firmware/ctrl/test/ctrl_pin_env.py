@@ -40,7 +40,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from ctrl_build import GIT_ENVIRONMENT, ROOT, STACK, Refusal, environment_judge, git
+from ctrl_build import GIT_ENVIRONMENT, NO_MAINTENANCE, ROOT, STACK, Refusal, environment_judge, git
 
 #: The gitlink's path in the checkout, which another index records.
 GITLINK = STACK.relative_to(ROOT).as_posix()
@@ -57,6 +57,18 @@ def answer(directory: Path, *args: str, stdin: str | None = None) -> str:
     if res.returncode:
         raise Refusal(f"an inherited-environment control's setup failed ({' '.join(args[:2])}): {res.stderr.strip()}")
     return res.stdout
+
+
+def create(directory: Path, source: Path | None = None) -> None:
+    """Create one scratch repository with maintenance disabled, including its initial clone command."""
+    if source is None:
+        answer(directory.parent, "init", "--quiet", str(directory))
+        for setting in NO_MAINTENANCE:
+            key, value = setting.split("=", 1)
+            answer(directory, "config", key, value)
+    else:
+        config = [arg for setting in NO_MAINTENANCE for arg in ("--config", setting)]
+        answer(directory.parent, "clone", "--quiet", "--no-hardlinks", *config, str(source), str(directory))
 
 
 @dataclass(frozen=True)
@@ -110,7 +122,7 @@ class Scene:
 def repository(scene: Scene) -> dict[str, str]:
     """Another repository, whose HEAD and whose index's gitlink are a commit holding the edit."""
     other = scene.own / "repository"
-    answer(scene.own, "clone", "--quiet", "--no-hardlinks", str(scene.stack), str(other))
+    create(other, scene.stack)
     (other / EDITED).write_text(scene.edited(), encoding="utf-8")
     answer(other, "-c", "user.name=pin control", "-c", "user.email=pin-control@invalid", "commit", "--quiet",
            "--all", "--message=edited")
@@ -121,7 +133,7 @@ def repository(scene: Scene) -> dict[str, str]:
 
 def index(scene: Scene) -> dict[str, str]:
     """An index whose gitlink is the stack's previous revision."""
-    answer(scene.own, "init", "--quiet", "index")
+    create(scene.own / "index")
     previous = answer(scene.stack, "rev-parse", f"{scene.pin}~1").strip()
     answer(scene.own / "index", "update-index", "--add", "--cacheinfo", f"160000,{previous},{GITLINK}")
     return {"GIT_INDEX_FILE": str(scene.own / "index/.git/index")}
@@ -129,7 +141,7 @@ def index(scene: Scene) -> dict[str, str]:
 
 def empty(scene: Scene) -> Path:
     """An empty repository's own directory."""
-    answer(scene.own, "init", "--quiet", "empty")
+    create(scene.own / "empty")
     return scene.own / "empty/.git"
 
 

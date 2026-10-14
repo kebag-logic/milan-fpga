@@ -432,6 +432,7 @@ TEST_F(AcmpMailbox, B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp) {
     wire_put_be(discover + 12, spec::ETHERTYPE, 2);
     discover[14] = spec::ADPDU_SUBTYPE;
     discover[15] = 2;
+    wire_put_be(discover + 16, 56u, 2);
     ASSERT_TRUE(mbx_model_rx(&model, discover, sizeof discover, 0));
     settle();
     EXPECT_EQ(app.adp.ifs[0].adp.state, ADP_STATE_DELAY)
@@ -441,6 +442,100 @@ TEST_F(AcmpMailbox, B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp) {
     post_adp_record(discover, sizeof discover);
     settle();
     EXPECT_EQ(app.adp.ifs[0].adp.discarded, discarded + 1u) << "B5 and so does any other ADPDU, which ADP discards";
+}
+
+TEST_F(AcmpMailbox, F3bComposedGateExpiresAfterIdleTickWake) {
+    mbx_model_reset(&model);
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface)
+        mbx_model_set_link(&model, interface, true);
+    const ctrl_app_config cfg = three_way();
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg));
+    EXPECT_EQ(core()->cfg.da_fresh_ms, 15000u) << "mailbox composition supplies the Milan freshness interval";
+    for (unsigned ms = 0; ms < 2200u; ++ms) {
+        mbx_model_advance_ms(&model, 1);
+        settle();
+    }
+    ASSERT_TRUE(app.maap.ifs[0].core.valid);
+    Pdu request;
+    request.msg = 0u;
+    request.talker = kOwn;
+    request.talker_uid = 0u;
+    ASSERT_TRUE(offer(request));
+    settle();
+    mbx_model_pub view{};
+    mbx_model_pub_view(&model, 0, &view);
+    ASSERT_EQ(view.da_gate, 1u) << "composed mailbox publishes the accepted probe demand";
+    mbx_model_advance_ms(&model, 14990u);
+    settle();
+    mbx_model_pub_view(&model, 0, &view);
+    ASSERT_EQ(view.da_gate, 1u);
+    struct Wake { unsigned waits = 0; bool woke = false; } wake;
+    mbx_model_bind(&model, [](void* ctx) {
+        auto* state = static_cast<Wake*>(ctx);
+        ++state->waits;
+        mbx_model_advance_ms(&model, 10u);
+        state->woke = mbx_model_irq(&model);
+    }, &wake);
+    ctrl_loop_step(&app.loop);
+    EXPECT_EQ(wake.waits, 1u) << "freshness test reaches the sleeping platform";
+    EXPECT_TRUE(wake.woke) << "service tick wakes an idle platform for freshness expiry";
+    mbx_model_bind(&model, nullptr, nullptr);
+    if (wake.woke) settle();
+    mbx_model_pub_view(&model, 0, &view);
+    EXPECT_EQ(view.da_gate, 0u) << "idle tick closes the composed gate at freshness expiry";
+}
+
+// Exercise the real composition with both demand arms and independent source
+// destinations. The same tests run with one and two generated interfaces.
+void source_predicate(bool listener) {
+    mbx_model_reset(&model);
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface)
+        mbx_model_set_link(&model, interface, true);
+    const ctrl_app_config cfg = three_way();
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg));
+    for (unsigned ms = 0; ms < 2200u; ++ms) {
+        mbx_model_advance_ms(&model, 1u);
+        settle();
+    }
+    for (unsigned interface = 0; interface < MBX_N_IF; ++interface)
+        ASSERT_TRUE(app.maap.ifs[interface].core.valid);
+    for (unsigned source = 0; source < core()->cfg.n_sources; ++source) {
+        const unsigned interface = core()->cfg.source_interface[source];
+        fk.source[source].dest_mac_valid = false;
+        if (listener) {
+            ASSERT_TRUE(acmp_listener_registered(core(), interface, source, true));
+        } else {
+            Pdu request;
+            request.msg = 0u;
+            request.talker = kOwn;
+            request.talker_uid = static_cast<std::uint16_t>(source);
+            ASSERT_TRUE(offer(request, spec::MULTICAST_MAC, interface));
+        }
+        settle();
+        ASSERT_TRUE(listener ? core()->sources[source].listener_registered : core()->sources[source].answered);
+        for (bool valid : {false, true, false}) {
+            fk.source[source].dest_mac_valid = valid;
+            settle();
+            const bool predicate = acmp_declaring(core(), source);
+            EXPECT_EQ(predicate, valid) << "source validity gates each demand arm in the core";
+            for (unsigned published_if = 0; published_if < MBX_N_IF; ++published_if) {
+                mbx_model_pub view{};
+                mbx_model_pub_view(&model, published_if, &view);
+                const bool bit = (view.da_gate & (UINT32_C(1) << source)) != 0u;
+                EXPECT_EQ(bit, published_if == interface && predicate)
+                    << "published source predicate includes destination validity and interface";
+            }
+        }
+    }
+    EXPECT_EQ(core()->reentries, 0u) << "source predicate service never reenters a core";
+}
+
+TEST_F(AcmpMailbox, F3bListenerRequiresSourceDestination) {
+    source_predicate(true);
+}
+
+TEST_F(AcmpMailbox, F3bProbeRequiresSourceDestination) {
+    source_predicate(false);
 }
 
 TEST_F(AcmpMailbox, B6TheGrandmasterIsTheInterfaces) {

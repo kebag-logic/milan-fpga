@@ -222,7 +222,8 @@ def _integration(add: Plant) -> None:
     add("app-channel-closed", "loop/ctrl_loop.c", "\tmbx_filter_open(open);\n",
         "\tmbx_filter_open(open & ~(1u << MBX_CH_MAAP));\n", ("MaapHost.ExplicitAppComposition", ""))
     add("callback-work-overrun", adapter, "\tstruct maap_mbx *m = ctx;\n\tif (ev->type",
-        "\tstruct maap_mbx *m = ctx;\n\t(void)mbx_now_ms();\n\tif (ev->type",
+        "\tstruct maap_mbx *m = ctx;\n"
+        "\tfor (unsigned k = 0; k <= ACMP_MAX_SOURCES; ++k) { (void)mbx_now_ms(); }\n\tif (ev->type",
         ("MaapHost.CallbackWorkAndEveryOutputCount", "callback work bound"))
     add("ignored-input-late", adapter, "\tmaap_rx(&m->ifs[f->interface].core",
         "\tfor (unsigned k = 0; k < 100001u; ++k) { (void)mbx_now_ms(); }\n"

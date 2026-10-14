@@ -111,7 +111,7 @@ fields sit at fixed bit positions, so its meaning never depends on the host's
 byte order. Frame bytes travel four to a ring word in little-endian lanes:
 frame byte k is ring word k/4, bits 8*(k%4)+7 down to 8*(k%4). Wire fields
 inside a frame keep network order, and the TSN stack's wire layer
-([`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/wire.h)) reads them byte by byte. A
+([`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/wire.h)) reads them byte by byte. A
 big-endian hard core reads the same values as the RISC-V.
 
 ## Rings, records and events
@@ -327,7 +327,7 @@ flowchart TB
   there (`CTRL_MBX_WFI`, which also needs the SoC's `ctrl_mbx` interrupt
   source and the CPU's interrupt mask enabled) never strands an owed frame.
 - **A protocol is a ports-and-adapters module**, as lwSRP is. The ADP core
-  ([`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/adp.h), the
+  ([`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/adp.h), the
   [TSN stack's](../../third_party/tsn-c-stack) since #697) knows no mailbox: it calls a
   send port, one timer per interface, the gPTP pair, the link level and a
   seed. The mailbox adapter maps those onto the driver; a test maps them onto
@@ -524,7 +524,7 @@ the core in the [TSN stack](../../third_party/tsn-c-stack) (#697), the
 adapter and the binding owner in
 [`sw/firmware/ctrl/acmp`](../../sw/firmware/ctrl/acmp).
 
-- **The core** ([`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/acmp.h)) knows no
+- **The core** ([`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/acmp.h)) knows no
   mailbox. It implements every listener transition of Table 5.30 (5.5.3.5.1
   to 5.5.3.5.48) per sink, the talker's answers of 5.5.4, the discovery
   machine of Table 5.54 (5.6.4.5.1 to 5.6.4.5.4), the timers of Tables 5.26
@@ -648,7 +648,8 @@ defect that adds accesses to its path.
 | UNBIND_RX | 50 | 50 | binding published, response, timer stopped, the talker withdrawn |
 | GET_RX_STATE | 47 | 47 | response |
 | PROBE_TX_RESPONSE | 32 | 28 to 32 | TMR_NO_TK armed and the stream published, or TMR_RETRY armed |
-| PROBE_TX, GET_TX_STATE, DISCONNECT_TX, GET_TX_CONNECTION | 47 | 47 | response |
+| PROBE_TX | 48 | 48 | response and accepted-probe freshness timestamp |
+| GET_TX_STATE, DISCONNECT_TX, GET_TX_CONNECTION | 48 | 47 | response |
 | TMR_DELAY, or the first TMR_NO_RESP | 35 | 35 | PROBE_TX, the clock read after it, TMR_NO_RESP armed |
 | the second TMR_NO_RESP, TMR_RETRY, TMR_NO_TK | 14 | 12 to 14 | the next timer armed; a TMR_NO_TK publishes the binding without its stream |
 | ENTITY_AVAILABLE from its RX_HEAD (H-DISC) | 35 | 35 | TMR_DELAY armed |
@@ -698,32 +699,32 @@ shipping core is open until the access time is measured (see
 composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
 with margin) needs the datapath tap and is not measured here.
 
-With lane F2's MAAP composed as well, a pass costs at most 1,606 accesses
-(`CTRL_APP_THREE_PASS_MAX`; 1,685 at two interfaces). MAAP adds its costliest
-action on each of the 8 events (49, `DA_GATE` included), its 2 records of the
-maap channel (20 + 48) and its poll (48). Each input is taken by the same
-pass as above, so each bound is that pass count, plus one, times 1,606:
+With MAAP and F3b freshness publication composed as well, a pass costs at most
+1,783 accesses (`CTRL_APP_THREE_PASS_MAX`; 1,879 at two interfaces).
+MAAP adds each of eight event callbacks at 65 accesses, two records at
+20 + 64, and each interface's poll at 65. These bounds fund up to sixteen
+source freshness reads in the dispatch path, outside every MAAP callback.
+Each input has the same pass count as above.
 
 | Input | Taken by pass | Bound with MAAP, accesses | Access time for T_svc | for the ceiling |
 |---|---:|---:|---:|---:|
-| an event behind 15 others | 2 | 4,818 | 2.07 us | 4.15 us |
-| an ACMP command behind a full acmp ring | 10 | 17,666 | 0.56 us | 1.13 us |
-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 35,332 | 0.28 us | 0.56 us |
-| a response with 7 frames owed ahead of it | 8, after the room returns | 14,454 | 0.69 us | 1.38 us |
+| an event behind 15 others | 2 | 5,349 | 1.86 us | 3.73 us |
+| an ACMP command behind a full acmp ring | 10 | 19,613 | 0.50 us | 1.01 us |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 39,226 | 0.25 us | 0.50 us |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 16,047 | 0.62 us | 1.24 us |
 
 On the model, 15 events, 12 acmp records and 7 maap records behind them
 take a worst pass of 231 accesses (233 at two interfaces), every record and
 event within 10 passes (`test_acmp_mbx.cpp` F6).
 
 At F0's assumed 1 us per access, only the event bound still fits T_svc
-(4.82 ms). The owed-frame bound, which fits it without MAAP, no longer does
-(14.45 ms, under the ceiling); the bound behind a full acmp ring stays
-under the ceiling (17.67 ms), and the one behind a full adp ring exceeds it
-(35.33 ms).
+(5.35 ms). The owed-frame bound, which fits it without MAAP, no longer does
+(16.05 ms, under the ceiling); the bound behind a full acmp ring stays
+under the ceiling (19.61 ms), and the one behind a full adp ring exceeds it
+(39.23 ms).
 
-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,346
-accesses at one interface and 4,235 at two (3,224 and 4,073 before the
-publication block). `ACMP_MBX_PASS_MAX` already
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,523
+accesses at one interface and 4,429 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
 includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
 sets of event-record reads: the eight shared records are each read once.
 Add `CTRL_APP_SRP_FEEDBACK_MAX`: seven accesses per sink, at most 16 sinks.
@@ -751,14 +752,17 @@ Target calibration must include both costs; this table bounds mailbox accesses o
 
 | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
 |---|---:|---:|---:|
-| an event behind 15 others | 2 | 9,981 / 12,639 | 1.00 / 0.79 us |
-| an ACMP command behind a full acmp ring | 10 | 36,597 / 46,343 | 0.27 / 0.21 us |
-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 73,194 / 92,686 | 0.13 / 0.10 us |
-| a response with 7 frames owed ahead of it | 8, after room returns | 29,943 / 37,917 | 0.33 / 0.26 us |
+| an event behind 15 others | 2 | 10,569 / 13,287 | 0.94 / 0.75 us |
+| an ACMP command behind a full acmp ring | 10 | 38,753 / 48,719 | 0.25 / 0.20 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 77,506 / 97,438 | 0.12 / 0.10 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 31,707 / 39,861 | 0.31 / 0.25 us |
 
-At 1 us per access, only the one-interface event envelope fits T_svc = 10 ms;
-the two-interface event envelope and the other rows do not. The 20 ms ACMP
+At 1 us per access, event envelopes are 10.569 / 13.287 ms.
+Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
 ceiling still covers both event envelopes, but none of the other rows.
+The firmware gate compiles these header bounds at both interface counts.
+It checks each product and conservatively rounded access-time threshold.
+Its controls spoil each table cell and the event-time conclusion.
 No target timing acceptance is claimed. Backpressure and retained SRP input
 consume their original service interval; a retry or a normative wait never
 starts a new allowance. SRP can defer its own reception behind events or owed
@@ -819,7 +823,7 @@ after F5. The all-fabric build carries no mailbox, so it is unchanged; the
 
 | Value | Register, interface i | Writer | Written before | Processor output it stands for |
 |---|---|---|---|---|
-| talker DA gate, bit s | `DA_GATE.OPEN` | MAAP adapter, its range port | the allocation is reported, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1) | `acmp_declaring_o`, as address validity only (choices below) |
+| talker DA gate, bit s | `DA_GATE.OPEN` | MAAP adapter, its range port | the allocation is reported, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1) | `acmp_declaring_o`: valid DA and fresh probe or registered Listener |
 | listener bound, sink k | `BINDING.BOUND` | ACMP core's publish port, through its adapter | any frame of the entry: the BIND_RX and UNBIND_RX responses | `acmp_bound_o` |
 | listener started, sink k | `BINDING.STARTED` | the same | the BIND_RX response that echoes STREAMING_WAIT; a START_STREAMING or STOP_STREAMING is published before the notifier and before `acmp_set_started` returns to F5's bridge (`ctrl_app_aecp.c`), whose response leaves a loop pass later | the wrapper's `aecp_strm_started_o`, which the ACMP binding record owns |
 | bound stream_id, sink k | `SID_LO`, `SID_HI`, `BINDING.SID_VALID` | the same | the end of the settling entry, before the notifier; any later GET_RX_STATE response | `acmp_bound_sid_o` |
@@ -1053,7 +1057,7 @@ stream_id unchanged, is one write of `BINDING` that keeps `SID_VALID`
 settled stream off the datapath. Gating each bit in the block instead would cost 1,024 AND
 gates once a consumer reads the port; the valid bit costs one wire a sink.
 
-Four choices are the firmware's, and the placement switch's comparison sees
+Three choices are the firmware's, and the placement switch's comparison sees
 them:
 
 - The stream_id is the stream the sink listens to: from the PROBE_TX_RESPONSE
@@ -1064,18 +1068,6 @@ them:
   ([SRP](../../sw/firmware/ctrl/srp/README.md)); `SR_DOMAIN.ADOPTED` follows
   the processor's F10.2 rule: set by the first received Domain that differs
   from the declared one, cleared by a link restart.
-- `DA_GATE` is destination-address validity only. The processor's
-  `acmp_declaring_o` also needs a probe within T-SRP-DAFRESH (15 s) or a
-  registered Listener (Milan v1.2 4.3.3.1; the processor's
-  `05_acmp_engine.md`), which the firmware ACMP talker does not implement
-  yet. The egress consequence: with SRP policing off (`cfg_lwsrp_enable`
-  clear), the split build's AAF talkers stream as soon as MAAP holds their
-  address, where the processor's also wait for that probe or Listener. With
-  policing on, the licence already needs a registered Listener Ready, so the
-  two gates agree. Lane F3b adds the predicate to the firmware talker and
-  makes `DA_GATE` publish it, and lands before the placement switch, whose
-  comparison then never meets this difference (the ruling of comment
-  6092086337, item 4).
 - `TALKER_DECL` is the firmware's declarations. The SRP adapter declares
   every source from participant creation, as a Talker Failed until MAAP
   allocates its address (`declare_sources`). The processor declares a source
@@ -1092,7 +1084,8 @@ TMR_NO_TK writes `BINDING` once (14 when it also makes the run's first
 TMR_DELAY draw); a START_STREAMING or STOP_STREAMING writes `BINDING` once,
 in F5's bridge, and the composed path commits its response within F5's 10 ms
 service target (at most 50 accesses, 1,005,100 ns with F5's allowance).
-MAAP: an allocation reported writes `DA_GATE` once (49). SRP: a reset writes
+MAAP: an allocation report writes `DA_GATE` once. Its action costs up to
+65 accesses, including the dispatch path's freshness queries. SRP: a reset writes
 `LICENCE` and `TALKER_DECL` before
 it destroys the participants, then `SR_DOMAIN`, `IDLE_SLOPE` and
 `TALKER_DECL` as it declares again (five; an event is 6), an adoption writes

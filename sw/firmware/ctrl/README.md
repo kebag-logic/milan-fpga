@@ -62,10 +62,10 @@ core-only unit tests:
 
 | Header | What it is |
 |---|---|
-| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
-| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
-| [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
-| [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/wire.h) | the big-endian wire layer |
+| [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/adp.h) | ADP advertising (Milan v1.2 5.6.3) |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/acmp.h) | Milan ACMP: the listener, the talker's answers and discovery |
+| [`maap.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/maap.h) | MAAP allocation (IEEE 1722-2016 Annex B) |
+| [`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/wire.h) | the big-endian wire layer |
 
 The stack depends on nothing in this repository.
 It includes only its own headers and the C library.
@@ -74,8 +74,16 @@ the MMIO platform, the app, the loop, the AECP core or the measured images.
 This firmware uses it the other way round, through its public headers (`include/`) only.
 AECP is not part of the stack: its core, adapters and application bridge ([`aecp/`](aecp), F5) are this firmware's.
 The adapters, the app, the loop, the HAL and both images compile its `src/*.c` unchanged.
+The F3b pin also includes the reviewed malformed ADP discovery refusals and
+standalone entity generator. The parent keeps its own entity generator; the
+`entity` arm checks every shipping shape against the fabric fields.
+The parent ADP controls exercise truncated, wrong-version and wrong-length
+discovery through the adapter, plus a complete accepted discovery.
+The composed `DA_GATE` requires valid destination state and either an answered
+probe younger than 15 seconds or a registered Listener, including Asking Failed.
+The SRP licence remains separate. Idle service ticks refresh probe expiry.
 Its callback and timing obligations are in its
-[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/docs/PORTING.md).
+[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/docs/PORTING.md).
 
 [`ctrl_boundary.py`](test/ctrl_boundary.py) holds both directions, in the builders' own compiles.
 It judges exactly the sources a capture of the builders' compiler invocations recorded as compiled; it lists no source of its own.
@@ -188,8 +196,15 @@ Git checks the hash of no object `cat-file` prints, nor of a tree below the one 
 An object forged or corrupted in the stack's object store is refused by its place in the pin (the pinned `src/` tree, say), and no blob is read: each file is hashed from its own bytes.
 No variable the proof inherits (`GIT_DIR`, `GIT_INDEX_FILE`, `GIT_OBJECT_DIRECTORY`, `GIT_CONFIG_*`, `GIT_ATTR_SOURCE`, `HOME` and the rest) can redirect Git's repository, object store, configuration or replacement refs.
 Both repositories' configuration is read by one parser (`ctrl_build.parsed_key`), which splits each key as Git's own does: a section, a subsection that may be absent, empty or named, and a variable.
-The stack's own configuration may hold only the keys Git writes itself for a clone and a submodule (`ctrl_build.STACK_CONFIG`, the allowlist).
+The stack's own configuration admits clone and submodule bookkeeping.
+`ctrl_build.STACK_CONFIG` lists those keys.
 They are `core.repositoryformatversion`, `core.filemode`, `core.bare`, `core.logallrefupdates`, `core.worktree`, a remote's `url` and `fetch`, a branch's `remote` and `merge`, and the submodule bookkeeping: `submodule.active`, a submodule's `url` and `active`, `submodule.alternateLocation` and `submodule.alternateErrorStrategy`.
+It also admits exactly `gc.auto=0` and `maintenance.auto=false`.
+Enabled maintenance settings remain refused.
+Every scratch repository persists both disabled settings.
+Every helper command also supplies both settings explicitly.
+Thus automatic maintenance cannot race scratch-clone removal.
+Removal tolerates only disappearing files; other errors propagate.
 A remote, a branch and a submodule are named subsections; a key with an empty subsection, such as `submodule "".active`, is not in the allowlist.
 Before it reads any object, the pin check lists all the configuration Git reads there (`git config --list --show-scope`) and refuses every other key by its name and scope.
 Those are a promisor remote and its transport (`extensions.partialClone`, `remote.promisor`, `remote.partialCloneFilter`, `remote.uploadpack` and `core.sshCommand`, with any subsection or none), `core.fsmonitor`, `core.hooksPath`, a filter, a credential or other helper, an include, a work tree's own configuration, and every key a later Git adds.
@@ -237,7 +252,7 @@ The datapath counter targets also require it before their recipes.
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-120 pin controls follow the boundary controls.
+126 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
@@ -287,7 +302,7 @@ The gate [below](#the-host-test) builds the stack's own core tests into the
 `adp`, `reentry_debug`, `reentry_release`, `acmp`, `maap` and `maap_debug` binaries.
 The coverage gate measures the stack's sources, and the campaign plants core defects into a copy of them.
 The stack's own suite runs from the submodule, as its
-[CI](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/.github/workflows/quality.yml)
+[CI](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/.github/workflows/quality.yml)
 runs it, with GoogleTest and GoogleMock 1.14.0:
 
 ```sh
@@ -296,7 +311,7 @@ cmake --build <build directory> -j16
 ctest --test-dir <build directory> --output-on-failure -j16
 ```
 
-The stack is [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/LICENSE) (Kebag Logic).
+The stack is [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/LICENSE) (Kebag Logic).
 Its files keep their MIT identifiers inside this platform.
 The platform's own files stay [CERN-OHL-W-2.0](../../../LICENSE).
 lwSRP stays a separate Apache-2.0 component.
@@ -309,7 +324,7 @@ machine), in three units, each stating its clauses in its header:
 
 | Unit | What it is |
 |---|---|
-| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/acmp.h), [`acmp.c`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/src/acmp.c) (the TSN stack's) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
+| [`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/acmp.h), [`acmp.c`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/src/acmp.c) (the TSN stack's) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
 | [`acmp_mbx.h`](acmp/acmp_mbx.h), [`acmp_mbx.c`](acmp/acmp_mbx.c) | the mailbox adapter: the acmp channel, one fabric timer slot per AVB interface armed at the earliest deadline of its sinks, the tap that hands the adp channel's ENTITY_AVAILABLE and ENTITY_DEPARTING to discovery and everything else to ADP, the adp channel's bound-talker table kept equal to the bindings, and the service-latency figures per path |
 | [`acmp_nvm.h`](acmp/acmp_nvm.h), [`acmp_nvm.c`](acmp/acmp_nvm.c) | the binding group on lane F1's state port (`ctrl_nvm/nvm_state.h`), every other group forwarded to the integrator's owners |
 
@@ -373,12 +388,12 @@ and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
   its end. A refusal stops the composition before the later modules attach.
 - **The pass bound.** A pass of the three costs at most `CTRL_APP_THREE_PASS_MAX`
   mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 1,030 at
-  one interface) plus MAAP's share of 576, its costliest action on each of
-  the 8 events (49, `DA_GATE` included), its 2 records of the maap channel
-  (20 + 48) and its poll on each interface (48). That is 1,606 at one
-  interface and 1,685 at two. It is also the two modules' own pass bounds
-  less what both count: `ACMP_MBX_PASS_MAX` plus `MAAP_MBX_PASS_MAX` (624 at
-  one interface, 672 at two) less the 6 accesses of each of the 8 event
+  one interface) plus MAAP's share of 753, its costliest action on each of
+  the 8 events (65, freshness queries included), its 2 maap records
+  (20 + 64) and its poll on each interface (65). That is 1,783 at one
+  interface and 1,879 at two. It is also the two modules' own pass bounds
+  less what both count: `ACMP_MBX_PASS_MAX` plus `MAAP_MBX_PASS_MAX` (801 at
+  one interface, 866 at two) less the 6 accesses of each of the 8 event
   records. Every pass
   count of `acmp_mbx.h` and of the MAAP page holds in the composed loop
   with this pass in place of its own
@@ -424,7 +439,7 @@ Registration and withdrawal can each stop or re-arm a timer.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 The static maximum of 16 sinks contributes 112 accesses.
-The result is 3,346 accesses at one interface and 4,235 at two. The SRP bound counts one maximum-size frame per
+The result is 3,523 accesses at one interface and 4,429 at two. The SRP bound counts one maximum-size frame per
 library transmit call, at most two calls per interface, receive readiness and
 retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
 The feedback allowance covers the same poll's ACMP registration entries.

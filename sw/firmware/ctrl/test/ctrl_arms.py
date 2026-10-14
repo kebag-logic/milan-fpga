@@ -15,6 +15,8 @@ from ctrl_build import (CTRL, HERE, HOST, NVM_DIR, PORTABLE, PP_ADP_PKG, ROOT, R
                         TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, label,
                         link, run, sources)
 import fw_rv32
+from ctrl_service_bounds import arm_service_bounds
+
 
 def arm_model(tree: Tree) -> Outcome:
     """The RTL's mailbox checks, on the host model."""

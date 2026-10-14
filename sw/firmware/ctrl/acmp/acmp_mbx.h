@@ -133,7 +133,7 @@ extern "C" {
 #define ACMP_MBX_LAT_GET_RX 47u         // GET_RX_STATE -> response: 1 + 1 + 22 + 22 + 1
 #define ACMP_MBX_LAT_PROBE_RESP 32u     // PROBE_TX_RESPONSE -> TMR_NO_TK armed, the stream published, or TMR_RETRY
 					//   armed: 1 + 1 + 22 + 1 + 2 + 4 + 1
-#define ACMP_MBX_LAT_TALKER 47u         // PROBE_TX / GET_TX_STATE / DISCONNECT_TX -> response: 1 + 1 + 22 + 22 + 1
+#define ACMP_MBX_LAT_TALKER 48u         // 47 for the response, plus the accepted probe's freshness clock read
 #define ACMP_MBX_LAT_TIMER_PROBE 35u    // TMR_DELAY or TMR_NO_RESP -> PROBE_TX, TMR_NO_RESP: 6 + 1 + 22 + 1 + 2 + 3
 #define ACMP_MBX_LAT_TIMER_ARM 14u      // TMR_NO_RESP (second) / TMR_RETRY / TMR_NO_TK -> next timer, and for TMR_NO_TK
 					//   the binding published without the stream: 6 + 1 + 1 + 1 + 2 + 3

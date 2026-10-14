@@ -33,6 +33,39 @@ static uint32_t clock_ms(void *ctx)
 	return mbx_now_ms();
 }
 
+static void refresh_demand(struct maap_mbx *m)
+{
+	m->demand = 0u;
+	if (m->acmp != NULL) {
+		for (unsigned s = 0; s < m->acmp->cfg.n_sources; ++s) {
+			// The owner supplies per-source destination validity and retires
+			// observed probe expiry. Only dispatch may call a protocol core.
+			if (acmp_declaring(m->acmp, s)) {
+				m->demand |= UINT32_C(1) << s;
+			}
+		}
+	}
+}
+
+static uint32_t declaring(const struct maap_mbx *m, unsigned interface, uint16_t count, bool valid)
+{
+	uint32_t gate = 0u;
+	if (m->acmp != NULL) {
+		for (unsigned s = 0; s < m->acmp->cfg.n_sources; ++s) {
+			bool demand = (m->demand & (UINT32_C(1) << s)) != 0u;
+			if (m->acmp->cfg.source_interface[s] == interface && valid && s < count && demand) {
+				gate |= UINT32_C(1) << s;
+			}
+		}
+	}
+	return gate;
+}
+
+void maap_mbx_bind_acmp(struct maap_mbx *m, struct acmp *acmp)
+{
+	m->acmp = acmp;
+}
+
 static void range(void *ctx, unsigned interface, uint64_t base, uint16_t count, bool valid)
 {
 	struct maap_mbx *m = ctx;
@@ -56,10 +89,12 @@ static void range(void *ctx, unsigned interface, uint64_t base, uint16_t count, 
 	mbx_filter_set_maap_range(first, last > first ? (uint16_t)(last - first) : 0u);
 	// The datapath's talker DA gate (the publication block), before the
 	// allocation is reported: source s holds address base + s while the range
-	// is valid, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1).
+	// is valid and ACMP's cached per-source declaration predicate holds
+	// (Milan v1.2 4.3.3.1).
 	// count never exceeds the entity's talker sources, which the publication
 	// block holds (maap_mbx_init).
-	(void)mbx_pub_da_gate(interface, valid ? (uint32_t)((1u << count) - 1u) : 0u);
+	m->published_gate[interface] = declaring(m, interface, count, valid);
+	(void)mbx_pub_da_gate(interface, m->published_gate[interface]);
 	m->allocation(m->allocation_ctx, interface, base, count, valid);
 }
 
@@ -89,6 +124,7 @@ static void receive(void *ctx, const struct mbx_frame *f)
 		m->foreign_if++;
 		return;
 	}
+	refresh_demand(m);
 	maap_rx(&m->ifs[f->interface].core, f->bytes, f->len);
 }
 
@@ -106,6 +142,7 @@ static void event(void *ctx, const struct mbx_event *ev)
 				return;
 			}
 			i->armed = false;
+			refresh_demand(m);
 			maap_timer_expired(&i->core);
 			return;
 		}
@@ -117,6 +154,7 @@ static void event(void *ctx, const struct mbx_event *ev)
 		struct maap_mbx_if *i = &m->ifs[ev->interface];
 		if (i->link != ev->link_up) {
 			i->link = ev->link_up;
+			refresh_demand(m);
 			maap_port_operational(&i->core, i->link);
 		}
 	}
@@ -126,8 +164,15 @@ static bool poll(void *ctx)
 {
 	struct maap_mbx *m = ctx;
 	bool owed = false;
+	refresh_demand(m);
 	for (unsigned k = 0; k < MBX_N_IF; ++k) {
 		owed = maap_poll(&m->ifs[k].core) || owed;
+		const struct maap *core = &m->ifs[k].core;
+		uint32_t gate = declaring(m, k, core->count, core->valid);
+		if (gate != m->published_gate[k]) {
+			m->published_gate[k] = gate;
+			(void)mbx_pub_da_gate(k, gate);
+		}
 	}
 	return owed;
 }
