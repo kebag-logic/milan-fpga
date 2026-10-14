@@ -1,0 +1,27 @@
+[
+  {
+    "command": [
+      "python3",
+      "ci/image/resolve_base.py",
+      "$VALIDATION_STORAGE/737-a615/base-locked.tar"
+    ],
+    "rc": 0,
+    "elapsed_ms": 6528,
+    "size": 51,
+    "sha256": "c011ab1610c2e02ce9451d5361b8d0e21db94a8d9cf0cc23da5f31428cb83834",
+    "log": "pin-regeneration-0.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/resolve_git.py",
+      "--cache",
+      "$VALIDATION_STORAGE/737-a615/context"
+    ],
+    "rc": 0,
+    "elapsed_ms": 6779,
+    "size": 38,
+    "sha256": "565756f10280a13b9fa8c8687bd4b781a350e9578a5e32b004f8cb2f23923da4",
+    "log": "pin-regeneration-1.log"
+  }
+]

@@ -1,0 +1,21 @@
+[
+  {
+    "gate": "verify-second-archive",
+    "command": [
+      "python3",
+      "ci/image/build.py",
+      "--work",
+      "<scratch>/cold-lock-b",
+      "--check-lock",
+      "--verify-archive",
+      "<scratch>/cold-lock-b/image.tar"
+    ],
+    "rc": 0,
+    "wall_seconds": 193.872,
+    "log": "round4-second-archive-verify-second-archive.log",
+    "size": 80,
+    "sha256": "dda615e92cfc56dfed62026cc8e6f4fc3a3e22e5ec9a6c74b33fe63ea111a41f",
+    "raw_size": 80,
+    "raw_sha256": "dda615e92cfc56dfed62026cc8e6f4fc3a3e22e5ec9a6c74b33fe63ea111a41f"
+  }
+]

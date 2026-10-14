@@ -1,0 +1,158 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_ms": 4426,
+    "size": 57,
+    "sha256": "411ed8dc1549d45856fad29e98880aab66f615fc2fb4bf58b5e149074f49dcb7",
+    "log": "refinement-step-pass-0.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 65,
+    "size": 907,
+    "sha256": "9924e7bb76b247a11aa589b0d854729ff709d9aad27df594f3dc43eeccf0d08c",
+    "log": "refinement-step-pass-1.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 165,
+    "size": 504,
+    "sha256": "86d0ed42b8eb0ffd8eae4b33d1d1fc4d65b853a7a9f28cbf4d7c0e6042ed9326",
+    "log": "refinement-step-pass-2.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 164,
+    "size": 609,
+    "sha256": "1115c88ae8c1d22829c8781d6a9eafbbdf193c5342beca6401c28714da641776",
+    "log": "refinement-step-pass-3.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 164,
+    "size": 2507,
+    "sha256": "3f1b790ed711a4b7a0fc3b535f15c69787abd66bfa27f5a6eddcc21b2a09deff",
+    "log": "refinement-step-pass-4.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_patch_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 164,
+    "size": 261,
+    "sha256": "ee1b0dbe77d02f50497ab0d607ac8ce4cc9107873bdcd301e09c62257e9c295d",
+    "log": "refinement-step-pass-5.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 5177,
+    "size": 461,
+    "sha256": "bba4469f2e16330d25681bc6d6f40563e818b9ca93040d1843143f2a3e488994",
+    "log": "refinement-step-pass-6.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_ms": 19909,
+    "size": 72,
+    "sha256": "93f81d63429c52f199fcd8a2d1d043522ef911a144ab4c422c8310c13cc480d3",
+    "log": "refinement-step-pass-7.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_ms": 7285,
+    "size": 43,
+    "sha256": "952f6e5accf3018a933af8fee3eea17301162e3db7808f67e2a59b597268c082",
+    "log": "refinement-step-pass-8.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 4775,
+    "size": 128,
+    "sha256": "45085d5fab666bcebab3d6f6ba94b3cf239f500c0a1a1e45879a4534f4e58ab0",
+    "log": "refinement-step-pass-9.log"
+  },
+  {
+    "command": [
+      "sudo",
+      "-n",
+      "-u",
+      "alex",
+      "-g",
+      "docker",
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "--mount",
+      "type=bind,src=$LANES/737-image,dst=/tree,readonly",
+      "--mount",
+      "type=bind,src=$VALIDATION_STORAGE/737-a615/context/debs,dst=/debs,readonly",
+      "--workdir",
+      "/tree",
+      "fpga-validation:e97ae5579fc4822b0aa72ddcb97bd65b48283f86faf5040c3b0de172b003fb7d-validation-tools",
+      "python3",
+      "ci/image/resolve_packages.py",
+      "--cache",
+      "/debs"
+    ],
+    "rc": 0,
+    "elapsed_ms": 2771,
+    "size": 51,
+    "sha256": "2c056107a1cb1028b0c414593e5b8fee11bb89ec240b496b5247f178ae5b02c2",
+    "log": "refinement-step-pass-10.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_ms": 32,
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "log": "refinement-step-pass-11.log"
+  }
+]

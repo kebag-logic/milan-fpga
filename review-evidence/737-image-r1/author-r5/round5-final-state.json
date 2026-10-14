@@ -1,0 +1,127 @@
+{
+  "head": "4391f353690972f4844cb641b1e77fa94f38cdf4",
+  "branch": "737-ci-image",
+  "clean": true,
+  "remote_head": "e355f789b4f59b86083809299134557ca47bbcfb",
+  "pushed": false,
+  "protected_paths_unchanged": [
+    ".github/workflows",
+    ".gitmodules",
+    "sw",
+    "hdl",
+    "tb",
+    "syn",
+    "tests",
+    "configs",
+    "avdecc",
+    "protocol-processor",
+    "gptp-processor",
+    "third_party"
+  ],
+  "commits": [
+    {
+      "head": "e97aab2cf9ac35676f76f84ad4cf03cb9e205c87",
+      "subject": "Classify HDL data operands without copying derived source lists"
+    },
+    {
+      "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+      "subject": "Enforce the syntax census and preserve scoped command selection"
+    },
+    {
+      "head": "5ed43fd83119bdd53d7c831f66e2421c748f848c",
+      "subject": "Keep literal dollar paths distinct from runtime values"
+    },
+    {
+      "head": "4e898437306e2af597570399c1add97df2f36a5c",
+      "subject": "Apply the syntax census to nested trap programs and flags"
+    },
+    {
+      "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+      "subject": "Bind sourced shell calls to the exact semantic census"
+    },
+    {
+      "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+      "subject": "Bind the image lock to the round-five syntax census"
+    },
+    {
+      "head": "5e55cfc6c316b1fd9055c3a02c8b47a29bba4739",
+      "subject": "Close startup-variable escapes and census allocator environment changes"
+    },
+    {
+      "head": "4391f353690972f4844cb641b1e77fa94f38cdf4",
+      "subject": "Refresh the authenticated lock for the closed startup-variable census"
+    }
+  ],
+  "files": [
+    {
+      "file": "ci/image/build.py",
+      "bytes": 19340,
+      "sha256": "aea3e1f134eae8cb85dd03588b83804a310a4c7b776c93c14fdfc566b88ef51e"
+    },
+    {
+      "file": "ci/image/command-table.json",
+      "bytes": 404891,
+      "sha256": "c428e6fe9106b4d154ce18cc6d7b7e962f270266717d5cae5bde6ecf71841c67"
+    },
+    {
+      "file": "ci/image/image.lock.json",
+      "bytes": 164289,
+      "sha256": "779400636ab2322c0426f8ed98f59984b1185fa2b70485af22d4c088517885bd"
+    },
+    {
+      "file": "ci/image/syntax-census.json",
+      "bytes": 16603,
+      "sha256": "65b66b6d74e7664a70f3e67626b3614a76b22588de0768e5fd7c98935dab26aa"
+    },
+    {
+      "file": "ci/image/tool-inventory.json",
+      "bytes": 107663,
+      "sha256": "d11d3dc98e93b8f808368d976eaa9c60b0be8b5e7ddd253951d4e83d3b6c0825"
+    },
+    {
+      "file": "docs/testing/CI_IMAGE.md",
+      "bytes": 25009,
+      "sha256": "88b9c5893e33f110b8db38548793f7655948cfe7f5bdbcd664be755b048c03b3"
+    },
+    {
+      "file": "scripts/ci_command_table.py",
+      "bytes": 28900,
+      "sha256": "69a1f9d075ad5a7c0907d8cfef5f15bc6b632b59e202390c9156ffe8ad3a8d42"
+    },
+    {
+      "file": "scripts/ci_inventory_nodes_selftest.py",
+      "bytes": 9862,
+      "sha256": "91e08d91e846929fe2e8ae33a27865d7d8a82bfbd8476e17f6d61c3e7ae5fa77"
+    },
+    {
+      "file": "scripts/ci_inventory_patterns_selftest.py",
+      "bytes": 17336,
+      "sha256": "c30b7555298092143ca5455d2517652e184fe8855a5f9d7c4a0607eb61669343"
+    },
+    {
+      "file": "scripts/ci_make_walk.py",
+      "bytes": 20848,
+      "sha256": "ba6dfabc0614c9785bf3599eb9ee2fd12470ddd68c765e7ada2b239490ca99f6"
+    },
+    {
+      "file": "scripts/ci_shell_walk.py",
+      "bytes": 21339,
+      "sha256": "1da76371cc7507f57a3df74166c3c614b3234e6683a9caa8d18288b2f2b0522d"
+    },
+    {
+      "file": "scripts/ci_syntax.py",
+      "bytes": 3993,
+      "sha256": "497062717d3f6c96fc7335e25c97ecc45c2dafc1cfdcbf62614c4c077d9decd5"
+    },
+    {
+      "file": "scripts/ci_tool_inventory.py",
+      "bytes": 13041,
+      "sha256": "29fab697caf84926a5e393060a18ad6a55bd6536313d0ba406b9f3adc04d98c3"
+    },
+    {
+      "file": "scripts/ci_tool_inventory_selftest.py",
+      "bytes": 10907,
+      "sha256": "3710dffadc90cea6adc61e5b0b4416bb6cc4e455bf14e6c33276b2ea1342b161"
+    }
+  ]
+}

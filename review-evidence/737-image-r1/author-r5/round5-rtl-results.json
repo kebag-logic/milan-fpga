@@ -1,0 +1,682 @@
+[
+  {
+    "job": "changes",
+    "step": "Classify the change conservatively",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 31.203,
+    "log": "round5-rtl-000.log",
+    "size": 14979,
+    "sha256": "3d4025402acb21d89009d311d2837ef54b25ded14b750ed1f240ae4a5d67a057",
+    "index": 0,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 14979,
+    "packet_sha256": "3d4025402acb21d89009d311d2837ef54b25ded14b750ed1f240ae4a5d67a057"
+  },
+  {
+    "job": "verilator-lint",
+    "step": "Run the ratcheted whole-tree lint gate",
+    "command": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 24.399,
+    "log": "round5-rtl-001.log",
+    "size": 14888,
+    "sha256": "d65957ed600df157d8b9b9d89cd625516fe67d40877f17ba8877a5fc2c3b3606",
+    "index": 1,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 14888,
+    "packet_sha256": "d65957ed600df157d8b9b9d89cd625516fe67d40877f17ba8877a5fc2c3b3606"
+  },
+  {
+    "job": "verilator-lint",
+    "step": "Prove protocol-processor source lists are derived",
+    "command": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.346,
+    "log": "round5-rtl-002.log",
+    "size": 955,
+    "sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a",
+    "index": 2,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 955,
+    "packet_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a"
+  },
+  {
+    "job": "bdd-conformance",
+    "step": "Run the specification-facing suite",
+    "command": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "directory": "tests",
+    "rc": 0,
+    "seconds": 2.815,
+    "log": "round5-rtl-003.log",
+    "size": 197349,
+    "sha256": "eb937cc58ba96b0c31affcb22c6ff741443ced859839dc480dd66c85f9087202",
+    "index": 3,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 197349,
+    "packet_sha256": "eb937cc58ba96b0c31affcb22c6ff741443ced859839dc480dd66c85f9087202"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Elaborate the integration-heavy tops",
+    "command": [
+      "syn/yosys/run.sh",
+      "--mode",
+      "elaborate",
+      "--no-structural",
+      "--top",
+      "milan_datapath",
+      "--top",
+      "KL_pp_shadow",
+      "--top",
+      "KL_gptp_shadow"
+    ],
+    "rc": 0,
+    "seconds": 122.537,
+    "log": "round5-rtl-004.log",
+    "size": 382,
+    "sha256": "02dbbc438f01561f6519b4634243ca8af18d6d268bd105e38a567dd80246aba1",
+    "index": 4,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 382,
+    "packet_sha256": "02dbbc438f01561f6519b4634243ca8af18d6d268bd105e38a567dd80246aba1"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/dp_srcs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 21.761,
+    "log": "round5-rtl-005.log",
+    "size": 36,
+    "sha256": "d1d5a4fa150962bc8cd53e563cde50da65cc8cfeee212d82e10bc293848bd428",
+    "index": 5,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 36,
+    "packet_sha256": "d1d5a4fa150962bc8cd53e563cde50da65cc8cfeee212d82e10bc293848bd428"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/ooc_tcl_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 697.625,
+    "log": "round5-rtl-006.log",
+    "size": 45,
+    "sha256": "c8115f5fe4b9eadf2c9d635505578b1b267023a61a32f8aebff7ad568f0b21eb",
+    "index": 6,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 45,
+    "packet_sha256": "c8115f5fe4b9eadf2c9d635505578b1b267023a61a32f8aebff7ad568f0b21eb"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.729,
+    "log": "round5-rtl-007.log",
+    "size": 4590,
+    "sha256": "bb32185fb2c4717b854391221e168ce1b32f7eedbf7ad0d1a2e15ccd49a7a17b",
+    "index": 7,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 4590,
+    "packet_sha256": "bb32185fb2c4717b854391221e168ce1b32f7eedbf7ad0d1a2e15ccd49a7a17b"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline_mutants.py"
+    ],
+    "rc": 0,
+    "seconds": 12.766,
+    "log": "round5-rtl-008.log",
+    "size": 1754,
+    "sha256": "16ded17addb312ad5b372f9ea6960aa4d1cbbe63fe78c7ca38937e2634192514",
+    "index": 8,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 1754,
+    "packet_sha256": "16ded17addb312ad5b372f9ea6960aa4d1cbbe63fe78c7ca38937e2634192514"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline_reports_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.163,
+    "log": "round5-rtl-009.log",
+    "size": 96,
+    "sha256": "e2b4102612b453b76c0af51f99091bbb1e1a36adafecc9f6c6b8eb345bbc81fe",
+    "index": 9,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 96,
+    "packet_sha256": "e2b4102612b453b76c0af51f99091bbb1e1a36adafecc9f6c6b8eb345bbc81fe"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.513,
+    "log": "round5-rtl-010.log",
+    "size": 36594,
+    "sha256": "2bdc01cc25b76c797b7aeb07b189f660cbcc914071d0109496c484d3e2e593c1",
+    "index": 10,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 36594,
+    "packet_sha256": "2bdc01cc25b76c797b7aeb07b189f660cbcc914071d0109496c484d3e2e593c1"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate_mutants.py"
+    ],
+    "rc": 0,
+    "seconds": 24.038,
+    "log": "round5-rtl-011.log",
+    "size": 6687,
+    "sha256": "be132116cd42d5155d01f1148e829556be067d11f82157f75809cac3ed4ab0e1",
+    "index": 11,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 6687,
+    "packet_sha256": "be132116cd42d5155d01f1148e829556be067d11f82157f75809cac3ed4ab0e1"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ],
+    "rc": 0,
+    "seconds": 0.179,
+    "log": "round5-rtl-012.log",
+    "size": 27,
+    "sha256": "2114d909e60add091220b415987d4409a611d70c9e84f1bb9e0ae12d6a2f14a0",
+    "index": 12,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 27,
+    "packet_sha256": "2114d909e60add091220b415987d4409a611d70c9e84f1bb9e0ae12d6a2f14a0"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/dp_srcs.py",
+      "--top",
+      "milan_datapath"
+    ],
+    "rc": 0,
+    "seconds": 14.12,
+    "log": "round5-rtl-013.log",
+    "size": 5514,
+    "sha256": "58ffa0eb1cf48ce2f0b3d68ae36285379245a009904a2c9600dc1762b7301acd",
+    "index": 13,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 5514,
+    "packet_sha256": "58ffa0eb1cf48ce2f0b3d68ae36285379245a009904a2c9600dc1762b7301acd"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/dp_srcs.py",
+      "--top",
+      "KL_pp_shadow"
+    ],
+    "rc": 0,
+    "seconds": 10.6,
+    "log": "round5-rtl-014.log",
+    "size": 2703,
+    "sha256": "b4f1fb732e0e9bf08d92e6122c02941db445206cd47002380e2717e26a54aecd",
+    "index": 14,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 2703,
+    "packet_sha256": "b4f1fb732e0e9bf08d92e6122c02941db445206cd47002380e2717e26a54aecd"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove ooc.sh generates the ROMs and fails on a failed top",
+    "command": [
+      "python3",
+      "syn/yosys/ooc_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 85.482,
+    "log": "round5-rtl-015.log",
+    "size": 43,
+    "sha256": "d4febc14ba490cf79a72567d657e1653d21792043ae463564d52c831f69179e0",
+    "index": 15,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 43,
+    "packet_sha256": "d4febc14ba490cf79a72567d657e1653d21792043ae463564d52c831f69179e0"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove both synthesis flows refuse active elaboration guards",
+    "command": [
+      "python3",
+      "syn/yosys/guard_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 60.969,
+    "log": "round5-rtl-016.log",
+    "size": 48,
+    "sha256": "ef3e088cff19ae241583bce9d81868c00a735f87019056b11a9011a4bb54ba1f",
+    "index": 16,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 48,
+    "packet_sha256": "ef3e088cff19ae241583bce9d81868c00a735f87019056b11a9011a4bb54ba1f"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the result cache refuses a planted entry",
+    "command": [
+      "python3",
+      "syn/yosys/cache_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 203.721,
+    "log": "round5-rtl-017.log",
+    "size": 190,
+    "sha256": "d8e090cf8c0c656d14381ecbb41901c83ad1870f0f38fed8b382815197e4dfa5",
+    "index": 17,
+    "head": "8882ce17eb14cc6fa14d4d4c902a106204f1c958",
+    "packet_bytes": 190,
+    "packet_sha256": "d8e090cf8c0c656d14381ecbb41901c83ad1870f0f38fed8b382815197e4dfa5"
+  },
+  {
+    "job": "publication-census",
+    "step": "Run the publication census in every shape the builder builds",
+    "command": [
+      "python3",
+      "sw/mailbox/publication_census.py",
+      "--check",
+      "--selftest",
+      "--jobs",
+      "1"
+    ],
+    "rc": 0,
+    "seconds": 2227.666,
+    "log": "round5-rtl-018.log",
+    "size": 30050,
+    "sha256": "7f45424f8f8a79a7aa61ba3627e05af754c129462905a6bf677c88041fc227ce",
+    "index": 18,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 30050,
+    "packet_sha256": "7f45424f8f8a79a7aa61ba3627e05af754c129462905a6bf677c88041fc227ce"
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Prove the tally reads a failing and a crashing test as failures",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/tally_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 4.692,
+    "log": "round5-rtl-019.log",
+    "size": 2026,
+    "sha256": "7cb98f8c107c611995199df80c0e3dc38bc92f4f2c2cbfb1349b5bb5008da2ee",
+    "index": 19,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 2026,
+    "packet_sha256": "7cb98f8c107c611995199df80c0e3dc38bc92f4f2c2cbfb1349b5bb5008da2ee"
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.14,
+    "log": "round5-rtl-020.log",
+    "size": 5927,
+    "sha256": "26ded76fddb35ffa2b7e0514caa25a15aa734d323f167721d94366ba2d681e46",
+    "index": 20,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 5927,
+    "packet_sha256": "26ded76fddb35ffa2b7e0514caa25a15aa734d323f167721d94366ba2d681e46"
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Run the control-plane firmware suites and RV32 builds",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 7.332,
+    "log": "round5-rtl-021.log",
+    "size": 793,
+    "sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94",
+    "index": 21,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 793,
+    "packet_sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94"
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Run the control-plane firmware suites and RV32 builds",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "0/4"
+    ],
+    "rc": 0,
+    "seconds": 307.612,
+    "log": "round5-rtl-022.log",
+    "size": 68914,
+    "sha256": "322eadcbbfe801cfe561925ed034ba0981caac34f244edb340b4a0d8e0498bbb",
+    "index": 22,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 68914,
+    "packet_sha256": "322eadcbbfe801cfe561925ed034ba0981caac34f244edb340b4a0d8e0498bbb"
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Run the saved-state store suites and its RV32 build",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "--require-rv32",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 88.917,
+    "log": "round5-rtl-023.log",
+    "size": 4035,
+    "sha256": "b5c5ce9d7a176d71bbfd61df884d9ff3504ba59911448969f6a5c08ae3a14740",
+    "index": 23,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 4035,
+    "packet_sha256": "b5c5ce9d7a176d71bbfd61df884d9ff3504ba59911448969f6a5c08ae3a14740"
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Hold the firmware coverage ratchet",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.688,
+    "log": "round5-rtl-024.log",
+    "size": 3858,
+    "sha256": "a9295d6d98ffc110d7558670a68bed6fec0af7ac586b8b7dd3cc5e493b49230b",
+    "index": 24,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 3858,
+    "packet_sha256": "a9295d6d98ffc110d7558670a68bed6fec0af7ac586b8b7dd3cc5e493b49230b"
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Hold the firmware coverage ratchet",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 255.53,
+    "log": "round5-rtl-025.log",
+    "size": 4336,
+    "sha256": "c74f50d8df412e5f1511b7ea4f85390aca4bfcd31eb1fd94e7d7e2114159a5e5",
+    "index": 25,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 4336,
+    "packet_sha256": "c74f50d8df412e5f1511b7ea4f85390aca4bfcd31eb1fd94e7d7e2114159a5e5"
+  },
+  {
+    "job": "firmware-control-mutants",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.299,
+    "log": "round5-rtl-026.log",
+    "size": 5927,
+    "sha256": "cac8474497befe12e48eee699a5eac9b509a9f2cdc1a97f7644d124b8ff62b92",
+    "index": 26,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 5927,
+    "packet_sha256": "cac8474497befe12e48eee699a5eac9b509a9f2cdc1a97f7644d124b8ff62b92"
+  },
+  {
+    "job": "firmware-control-mutants",
+    "step": "Run the control mutation campaign",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "1/4"
+    ],
+    "rc": 0,
+    "seconds": 823.068,
+    "log": "round5-rtl-027.log",
+    "size": 97269,
+    "sha256": "a68635c4fc07ec04c8e3ce5a57886fd05767aeb113a2a954398190e1a159aed5",
+    "index": 27,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 97269,
+    "packet_sha256": "a68635c4fc07ec04c8e3ce5a57886fd05767aeb113a2a954398190e1a159aed5"
+  },
+  {
+    "job": "firmware-aecp-mutants",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.035,
+    "log": "round5-rtl-028.log",
+    "size": 5927,
+    "sha256": "9b4d5d75e1cfbb29cc173246231f2ca93a8991f6d61de6ac6cea16cc357ef199",
+    "index": 28,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 5927,
+    "packet_sha256": "9b4d5d75e1cfbb29cc173246231f2ca93a8991f6d61de6ac6cea16cc357ef199"
+  },
+  {
+    "job": "firmware-aecp-mutants",
+    "step": "Run the AECP mutation campaign",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "2/4"
+    ],
+    "rc": 0,
+    "seconds": 269.301,
+    "log": "round5-rtl-029.log",
+    "size": 37466,
+    "sha256": "4e2065e95e67067bad4b1485613db5ce21b81f45a70cbee372c04477480d7833",
+    "index": 29,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 37466,
+    "packet_sha256": "4e2065e95e67067bad4b1485613db5ce21b81f45a70cbee372c04477480d7833"
+  },
+  {
+    "job": "firmware-srp-mutants",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.031,
+    "log": "round5-rtl-030.log",
+    "size": 5927,
+    "sha256": "2779c40e1aecedb09d2299ac27106b9070ceb86f6c474389ee9abcbfe127919b",
+    "index": 30,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 5927,
+    "packet_sha256": "2779c40e1aecedb09d2299ac27106b9070ceb86f6c474389ee9abcbfe127919b"
+  },
+  {
+    "job": "firmware-srp-mutants",
+    "step": "Run both SRP mutation campaigns and pin controls",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "3/4"
+    ],
+    "rc": 0,
+    "seconds": 676.314,
+    "log": "round5-rtl-031.log",
+    "size": 117153,
+    "sha256": "638cf03ad7dcdeca214b9cc6f2e2bbdbc5781fa13330d33aa7e0ee56da459f73",
+    "index": 31,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 117153,
+    "packet_sha256": "638cf03ad7dcdeca214b9cc6f2e2bbdbc5781fa13330d33aa7e0ee56da459f73"
+  },
+  {
+    "job": "firmware-boundary",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.036,
+    "log": "round5-rtl-032.log",
+    "size": 5927,
+    "sha256": "b3b55c8e307af02e5c37074be4699fd5a46310f7c294382a0b5f99b82213b181",
+    "index": 32,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 5927,
+    "packet_sha256": "b3b55c8e307af02e5c37074be4699fd5a46310f7c294382a0b5f99b82213b181"
+  },
+  {
+    "job": "firmware-boundary",
+    "step": "Hold the TSN stack boundary over the firmware builders' compiles",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest",
+      "--without",
+      "verilator"
+    ],
+    "rc": 0,
+    "seconds": 786.731,
+    "log": "round5-rtl-033.log",
+    "size": 57978,
+    "sha256": "509045c34b1e184ac28d59dc63c947aa8b7ff4490839b2549122d60b4e334893",
+    "index": 33,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 57978,
+    "packet_sha256": "509045c34b1e184ac28d59dc63c947aa8b7ff4490839b2549122d60b4e334893"
+  },
+  {
+    "job": "firmware-verilator",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.947,
+    "log": "round5-rtl-034.log",
+    "size": 5927,
+    "sha256": "e44eeb7b8376c81b7c32b661cb9cb3c22a17bfac4dbc7ed1434c570de57f9492",
+    "index": 34,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 5927,
+    "packet_sha256": "e44eeb7b8376c81b7c32b661cb9cb3c22a17bfac4dbc7ed1434c570de57f9492"
+  },
+  {
+    "job": "firmware-verilator",
+    "step": "Hold the TSN stack boundary over the Verilator builders' compiles",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest",
+      "--only",
+      "verilator"
+    ],
+    "rc": 0,
+    "seconds": 581.037,
+    "log": "round5-rtl-035.log",
+    "size": 48816,
+    "sha256": "f62b02d430859af766a95b405144d4859c356fef97cee5959d7df1e206a6e5cf",
+    "index": 35,
+    "head": "4d192b5d0ef087c1ab400a70de46283650df5d7c",
+    "packet_bytes": 48816,
+    "packet_sha256": "f62b02d430859af766a95b405144d4859c356fef97cee5959d7df1e206a6e5cf"
+  }
+]
