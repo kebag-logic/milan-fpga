@@ -20,7 +20,7 @@ import subprocess
 import sys
 
 from ci_fail_fast import API
-from ci_manifest import canonical, envelope, read
+from ci_manifest import SHA1, canonical, envelope, exact_keys, read, require_digest
 
 ROOT = Path(__file__).resolve().parents[1]
 PROBES = {"python3": ["--version"], "verilator": ["--version"], "yosys": ["-V"],
@@ -56,9 +56,28 @@ def measured_tools() -> dict:
     return results
 
 
-def record(path: Path, workflow_path: str, job: str) -> None:
+def source_identity() -> dict:
+    """Read the actual checkout before a gate intentionally removes its Git metadata."""
+    return {"head": git("rev-parse", "HEAD"), "tree": git("rev-parse", "HEAD^{tree}")}
+
+
+def retained_identity(path: Path, workflow_path: str, job: str) -> dict:
+    """Only the no-metadata gate may use its earlier checkout observation."""
+    if (workflow_path, job) != (".github/workflows/docs.yml", "docs-check-no-git"):
+        raise ValueError("retained identity is only valid for the no-metadata gate")
+    value = read(path)
+    exact_keys(value, {"head", "tree"}, "retained identity")
+    for field in value:
+        require_digest(value[field], SHA1, "retained identity." + field)
+    if value["head"] != os.environ.get("GITHUB_SHA"):
+        raise ValueError("retained checkout identity differs from this run")
+    return value
+
+
+def record(path: Path, workflow_path: str, job: str, identity: Path | None = None) -> None:
     """Retain runtime step outcomes and measured tools before the artifact upload."""
-    value = {"head": git("rev-parse", "HEAD"), "tree": git("rev-parse", "HEAD^{tree}"),
+    source = source_identity() if identity is None else retained_identity(identity, workflow_path, job)
+    value = {**source,
              "workflow": workflow_path, "job": job,
              "matrix": json.loads(os.environ.get("CI_MATRIX") or "{}") or {},
              "steps": json.loads(os.environ["CI_STEP_RESULTS"]),
@@ -200,18 +219,24 @@ def main() -> int:
     """Record a job or collect completed artifacts/API observations inside the job boundary."""
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_subparsers(dest="mode", required=True)
+    identify = modes.add_parser("identify")
+    identify.add_argument("--output", type=Path, required=True)
     job = modes.add_parser("record")
     job.add_argument("--workflow", required=True)
     job.add_argument("--job", required=True)
     job.add_argument("--output", type=Path, required=True)
+    job.add_argument("--identity", type=Path)
     manifest = modes.add_parser("collect")
     manifest.add_argument("--artifacts", type=Path, required=True)
     manifest.add_argument("--output", type=Path, required=True)
     manifest.add_argument("--run", action="append", type=int, default=[])
     args = parser.parse_args()
     try:
-        if args.mode == "record":
-            record(args.output, args.workflow, args.job)
+        if args.mode == "identify":
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_bytes(canonical(source_identity()) + b"\n")
+        elif args.mode == "record":
+            record(args.output, args.workflow, args.job, args.identity)
         else:
             collect(args.artifacts, args.output, [] if os.environ.get("ACT") == "true" else args.run)
     except (OSError, ValueError, KeyError, subprocess.CalledProcessError) as exc:

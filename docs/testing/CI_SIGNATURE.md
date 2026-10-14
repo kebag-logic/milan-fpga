@@ -113,6 +113,10 @@ versions, then reads hosted job and step outcomes through the API. The final
 job of each workflow uploads its manifest. The collector accepts repeated
 `--run` arguments for a completed readback of all four workflows. Missing
 results remain unknown; the final job cannot claim its own future success.
+The no-metadata docs job retains its actual checkout head and tree before its
+existing test removes `.git`. Only that job may use the retained identity;
+the recorder checks the run's head, and collection checks the source tree.
+The test's real failure or skipped outcome remains unchanged in the receipt.
 
 The trusted local runner collects structured scheduler start, step and job
 observations. It retains the first failure and distinguishes admitted jobs

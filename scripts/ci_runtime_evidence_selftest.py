@@ -9,12 +9,15 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
+from unittest.mock import patch
 
 from ci_local_manifest import artifact_rows, collect, observations
 from ci_manifest import compare, validate
+import ci_runtime_evidence as runtime
 from ci_runtime_evidence import api_evidence
 from ci_runtime_workflows import SAME_REPOSITORY, generate
 from ci_workflow_plan import committed_plan, expand_workflow, workflow
@@ -117,6 +120,42 @@ def isolated_reader(root: Path, subject: dict, events: Path, artifacts: Path, ex
     print("isolated collector: candidate imports excluded; changed helper refused")
 
 
+def no_metadata_control(root: Path) -> None:
+    """Retain real Git identity, remove metadata, then record unchanged observed outcomes."""
+    filename, job = ".github/workflows/docs.yml", "docs-check-no-git"
+    source = {"jobs": {job: {"steps": [{"uses": "actions/checkout@v4"},
+                                       {"name": "Strip metadata", "run": "rm -rf .git"}]}}}
+    generated = generate("docs", source)["jobs"][job]["steps"]
+    assert " identify " in generated[1]["run"]
+    assert generated[2]["run"] == source["jobs"][job]["steps"][1]["run"]
+    with patch.object(runtime, "ROOT", root):
+        identity = runtime.source_identity()
+        retained = root / "retained.json"
+        retained.write_text(json.dumps(identity))
+        shutil.rmtree(root / ".git")
+        assert not (root / ".git").exists()
+        output = root / "no-metadata" / "job-evidence.json"
+        steps = {"ci_step_2": {"outcome": "failure", "conclusion": "failure"}}
+        environment = {"GITHUB_SHA": identity["head"], "CI_JOB_RESULT": "failure",
+                       "CI_STEP_RESULTS": json.dumps(steps), "CI_MATRIX": "{}"}
+        with patch.dict(os.environ, environment):
+            runtime.record(output, filename, job, retained)
+            result = json.loads(output.read_text())
+            assert result["head"] == identity["head"] and result["tree"] == identity["tree"]
+            assert result["steps"] == steps and result["result"] == "failure"
+            refused(lambda: runtime.retained_identity(retained, filename, "another-job"), "other identity consumer")
+            retained.write_text(json.dumps({**identity, "head": "a" * 40}))
+            refused(lambda: runtime.retained_identity(retained, filename, job), "another retained head")
+            retained.write_text(json.dumps({"head": identity["head"]}))
+            refused(lambda: runtime.retained_identity(retained, filename, job), "missing retained tree")
+            key = filename + ":" + job
+            result["tree"] = "b" * 40
+            output.write_text(json.dumps(result))
+            source = {**identity, "plan": {key: {}}}
+            refused(lambda: runtime.context_evidence(source, output.parent), "changed retained tree")
+    print("no-metadata recorder: actual checkout retained; failure remains failure")
+
+
 def main() -> int:
     """Exercise real Git input binding and incomplete manifest comparison."""
     plan, labels = expand_workflow(PATH, SOURCE)
@@ -152,6 +191,7 @@ def main() -> int:
         document = collect(root, subject, event_path, artifacts, True)
         assert not document["complete"]
         assert document["observations"]["logs"]["first_failure"] == events[1]["job"]
+        no_metadata_control(root)
     print("runtime manifest collectors: all controls PASS")
     return 0
 

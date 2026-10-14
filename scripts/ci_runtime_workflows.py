@@ -29,6 +29,12 @@ def instrument(path: str, job_id: str, job: dict) -> None:
     """Assign stable IDs without modifying any existing test command or condition."""
     if not any(step.get("uses", "").startswith("actions/checkout@") for step in job["steps"]):
         job["steps"].insert(0, {"uses": "actions/checkout@v4"})
+    identity = ""
+    if path == ".github/workflows/docs.yml" and job_id == "docs-check-no-git":
+        job["steps"].insert(1, {
+            "name": "Retain checkout identity before removing metadata",
+            "run": 'python3 scripts/ci_runtime_evidence.py identify --output "$RUNNER_TEMP/job-source.json"\n'})
+        identity = ' --identity "$RUNNER_TEMP/job-source.json"'
     for index, step in enumerate(job["steps"]):
         step.setdefault("id", "ci_step_" + str(index))
         step.setdefault("name", step_plan(step)["name"])
@@ -38,7 +44,7 @@ def instrument(path: str, job_id: str, job: dict) -> None:
          "env": {"CI_STEP_RESULTS": "${{ toJSON(steps) }}", "CI_JOB_RESULT": "${{ job.status }}",
                  "CI_MATRIX": "${{ toJSON(matrix) }}"},
          "run": (f"python3 scripts/ci_runtime_evidence.py record --workflow {path} --job {job_id} "
-                 '--output "$RUNNER_TEMP/job-evidence.json"\n')},
+                 '--output "$RUNNER_TEMP/job-evidence.json"' + identity + '\n')},
         {"name": "Upload actual job execution", "id": "ci_upload", "if": "${{ always() }}",
          "uses": "actions/upload-artifact@v4",
          "with": {"name": "job-evidence-" + slug + "-" + job_id + "-${{ strategy.job-index }}-${{ github.sha }}",

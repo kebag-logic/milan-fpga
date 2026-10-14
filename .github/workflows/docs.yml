@@ -50,12 +50,16 @@ jobs:
       - uses: actions/checkout@v4
         id: ci_step_0
         name: Run actions/checkout@v4
+      - name: Retain checkout identity before removing metadata
+        run: |
+          python3 scripts/ci_runtime_evidence.py identify --output "$RUNNER_TEMP/job-source.json"
+        id: ci_step_1
       - name: Strip git metadata, then run the docs gate
         run: |
           rm -rf .git
           python3 scripts/docs_check.py
           python3 scripts/check_feature_status.py
-        id: ci_step_1
+        id: ci_step_2
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -64,7 +68,7 @@ jobs:
           CI_JOB_RESULT: ${{ job.status }}
           CI_MATRIX: ${{ toJSON(matrix) }}
         run: |
-          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/docs.yml --job docs-check-no-git --output "$RUNNER_TEMP/job-evidence.json"
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/docs.yml --job docs-check-no-git --output "$RUNNER_TEMP/job-evidence.json" --identity "$RUNNER_TEMP/job-source.json"
       - name: Upload actual job execution
         id: ci_upload
         if: ${{ always() }}
