@@ -22,6 +22,7 @@
 #   make mutants - the mutation arm alone (mutants.py)
 #   make clean   - remove build artifacts
 VERILATOR ?= verilator
+VERILATOR_JOBS ?= 0
 RTL_DIR    = ../../../hdl
 AAF        = $(RTL_DIR)/ieee1722/aaf
 CRF        = $(RTL_DIR)/ieee1722/crf
@@ -43,7 +44,7 @@ GFLAGS = -GCLK_HZ_P=$(CLK_HZ) -GN_TALKERS_P=$(N_TALKERS) -GWIRE_CHANS_P=$(WIRE_C
          -GTDM_SLOTS_P=$(TDM_SLOTS) -GLB_STREAMS_P=$(LB_STREAMS) -GLB_CH_P=$(LB_CH)
 DFLAGS = -DCLK_HZ_TB=$(CLK_HZ) -DWIRE_CHANS_TB=$(WIRE_CHANS) -DTDM_SLOTS_TB=$(TDM_SLOTS)
 
-VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) $(GFLAGS) \
+VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module $(TOP) $(GFLAGS) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra $(DFLAGS)"
