@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
 import urllib.request
 
@@ -111,13 +112,18 @@ def verified_download(row: dict[str, object], target: Path) -> None:
     if not str(row["url"]).startswith("https://"):
         raise ValueError("source must use public HTTPS")
     target.parent.mkdir(parents=True, exist_ok=True)
-    temporary = target.with_name(target.name + ".part")
-    with urllib.request.urlopen(str(row["url"]), timeout=120) as response, temporary.open("wb") as stream:
-        shutil.copyfileobj(response, stream, length=1024 * 1024)
-    if temporary.stat().st_size != row["size"] or sha256(temporary) != row["sha256"]:
-        temporary.unlink()
-        raise ValueError(f"source digest mismatch: {row['tool']}")
-    temporary.replace(target)
+    with tempfile.NamedTemporaryFile(dir=target.parent, prefix=target.name + ".", suffix=".part") as stream:
+        temporary = Path(stream.name)
+        with urllib.request.urlopen(str(row["url"]), timeout=120) as response:
+            shutil.copyfileobj(response, stream, length=1024 * 1024)
+        stream.flush()
+        if temporary.stat().st_size != row["size"] or sha256(temporary) != row["sha256"]:
+            raise ValueError(f"source digest mismatch: {row['tool']}")
+        # Copy to the target atomically while keeping the temporary file's
+        # context manager responsible for cleanup, even on failed downloads.
+        staged = temporary.with_suffix(".verified")
+        stage_file(temporary, staged)
+        staged.replace(target)
 
 
 def recipe_inputs() -> dict[str, str]:

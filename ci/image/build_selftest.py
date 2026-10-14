@@ -3,6 +3,7 @@
 """Prove that source pins, downloads and recipe identity fail closed."""
 
 import copy
+from concurrent.futures import ThreadPoolExecutor
 from collections.abc import Callable
 import hashlib
 import io
@@ -10,6 +11,7 @@ import json
 from pathlib import Path
 import tempfile
 import tarfile
+import threading
 from unittest.mock import patch
 
 import build
@@ -63,6 +65,20 @@ def main() -> int:
             build.verified_download(row, target)
         assert target.read_bytes() == payload
         print("PASS: repaired download re-verifies exact bytes")
+        for attempt in range(10):
+            duplicate = Path(directory) / f"duplicate-{attempt}"
+            barrier = threading.Barrier(2)
+
+            def response(*args: object, **kwargs: object) -> io.BytesIO:
+                """Force both transfers to start before either can finish."""
+                barrier.wait(timeout=10)
+                return io.BytesIO(payload)
+
+            with patch("urllib.request.urlopen", side_effect=response), ThreadPoolExecutor(max_workers=2) as pool:
+                list(pool.map(lambda _: build.verified_download(row, duplicate), range(2)))
+            assert duplicate.read_bytes() == payload
+            assert not list(Path(directory).glob("*.part"))
+        print("PASS: ten simultaneous duplicate downloads preserve verified bytes")
         archive = Path(directory) / "litex.tar.gz"
         source = b'git_setup("VexiiRiscv", ndir, "public", "dev", "' + b"a" * 40 + b'")\n'
         with tarfile.open(archive, "w:gz") as stream:

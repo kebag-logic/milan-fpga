@@ -73,6 +73,41 @@ def main() -> int:
             print("PASS: an installation hidden in a called shell script is refused")
         else:
             raise AssertionError("called-shell installation accepted")
+        for source in (
+            'cmd = ["pip", "install", "unlisted"]\nsubprocess.run(cmd)\n',
+            'subprocess.run("python3 -m pip install unlisted", shell=True)\n',
+            'os.system("apt-get install unlisted")\n',
+        ):
+            called.write_text(source)
+            workflow.write_text(prefix + "      - run: python3 scripts/bootstrap.py\n")
+            try:
+                inventory.derive(root)
+            except inventory.Refusal:
+                print("PASS: indirect installation data refused")
+            else:
+                raise AssertionError(source)
+        for step in (
+            "      - uses: actions/setup-java@v4\n        with:\n          java-version: '21'\n",
+            "      - uses: example/bootstrap@v1\n",
+            "      - run: pipx install unlisted\n",
+        ):
+            workflow.write_text(prefix + step)
+            try:
+                inventory.derive(root)
+            except inventory.Refusal:
+                print("PASS: unsupported action or installer refused")
+            else:
+                raise AssertionError(step)
+        makefile = root / "tb/verilator/fixture/Makefile"
+        makefile.parent.mkdir(parents=True)
+        makefile.write_text("all:\n\tpip install unlisted\n")
+        workflow.write_text(prefix + "      - run: make -C tb/verilator/fixture\n")
+        try:
+            inventory.derive(root)
+        except inventory.Refusal:
+            print("PASS: Makefile installation refused")
+        else:
+            raise AssertionError("Makefile installation accepted")
     return 0
 
 
