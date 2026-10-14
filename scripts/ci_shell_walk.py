@@ -176,7 +176,7 @@ class Shell:
                     if child.get('Type') in ('CmdSubst', 'ProcSubst'):
                         self.value(child, directory)
                 values = [self.value(item, directory) for item in loop.get('Items', [])]
-                if loop.get('Name') and values and all('$' not in value for value in values):
+                if loop.get('Name') and values and all(not isinstance(value, Runtime) for value in values):
                     for value in values:
                         self.env[loop['Name']['Value']] = value
                         if self.statements(node.get('Do', []), directory) != directory:

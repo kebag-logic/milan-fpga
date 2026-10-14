@@ -534,7 +534,7 @@ class Audit:
         rest = words[1:]
         while rest and rest[0] in ('-C', '-c', '--no-optional-locks'):
             rest = rest[1:] if rest[0] == '--no-optional-locks' else rest[2:]
-        if not rest or '$' in rest[0] or '<dynamic>' in rest[0]:
+        if not rest or isinstance(rest[0], Runtime):
             self.residue.add(f'{where}: declared runtime git subcommand')
         elif rest[0] == 'clone':
             self.installation(['git', *rest], where, directory)
@@ -546,7 +546,8 @@ class Audit:
         """Resolve selected Makefiles before inspecting their recipes."""
         from ci_make_walk import invocation
         normalized = [normalize(w, self.root) for w in words[1:]]
-        if '<dynamic>' in ' '.join(words) and any(self.matches(normalized, p) for p in row['patterns']):
+        if any(isinstance(w, Runtime) and w == '<dynamic>' for w in words) and any(
+                self.matches(normalized, p) for p in row['patterns']):
             self.residue.add(f'{where}: declared runtime Make invocation')
             return
         invocation(self, words, where, directory or self.root)
