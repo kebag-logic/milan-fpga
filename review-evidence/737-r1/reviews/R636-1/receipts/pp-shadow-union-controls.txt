@@ -1,0 +1,17 @@
+== real: four legs vs unsharded reference
+case union: 4 cases exactly once; observations verified
+rc=0
+== planted: leg 3 receipt removed
+case union refused: executed union has missing or duplicated cases
+rc=1
+== planted: case dropped from its leg's results
+case union refused: shard 3/4: executed cases differ from its inventory: []
+rc=1
+== planted: changed checked output in leg 1
+case union refused: vid73: sharded outcome or checked output differs
+rc=1
+== planted: leg 2 replaced by a second copy of leg 0
+case union refused: executed union has missing or duplicated cases
+rc=1
+case union refused: receipt head differs
+== planted: wrong head rc=1

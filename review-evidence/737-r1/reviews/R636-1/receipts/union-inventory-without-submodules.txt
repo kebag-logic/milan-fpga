@@ -1,0 +1,31 @@
+verilator on PATH: /usr/bin/verilator
+milan_dp FAILED CalledProcessError Command '['/usr/bin/python3', 'scripts/ci_make_cases.py', '--suite', 'milan_dp', '--jobs', '2', '--list']' returned non-zero exit status 1. case execution refused: Command '['make', '-s', '--no-print-directory', '-C', '$REVIEWS/737-r636-1-packet/scratch/nosub/tb/verilator/milan_dp', 'ci-list']' returned non-zero exit status 2.
+
+milan_dp_mclk OK 31 e24ac6a0d695fbc7
+capture_coherence OK 31 70386cfacc187e9f
+maap OK 66 359dc00d03d7c92d
+milan_dp_render FAILED CalledProcessError Command '['/usr/bin/python3', 'scripts/ci_make_cases.py', '--suite', 'milan_dp_render', '--jobs', '2', '--list']' returned non-zero exit status 1. case execution refused: Command '['make', '-s', '--no-print-directory', '-C', '$REVIEWS/737-r636-1-packet/scratch/nosub/tb/verilator/milan_dp_render', 'ci-list']' returned non-zero exit status 2.
+
+pp_shadow FAILED CalledProcessError Command '['/usr/bin/python3', 'scripts/ci_make_cases.py', '--suite', 'pp_shadow', '--jobs', '2', '--list']' returned non-zero exit status 1. case execution refused: Command '['make', '-s', '--no-print-directory', '-C', '$REVIEWS/737-r636-1-packet/scratch/nosub/tb/verilator/pp_shadow', 'ci-list']' returned non-zero exit status 2.
+
+== milan_dp
+<checkout>/protocol-processor/hdl not found. The protocol-processor submodule is not checked out; run `git submodule update --init protocol-processor`. This script refuses to emit an empty list, because an empty list builds cleanly and proves nothing.
+Makefile:155: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.
+== milan_dp_render
+<checkout>/protocol-processor/hdl not found. The protocol-processor submodule is not checked out; run `git submodule update --init protocol-processor`. This script refuses to emit an empty list, because an empty list builds cleanly and proves nothing.
+Makefile:155: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.
+Makefile:89: *** ../milan_dp print-srcs failed; the datapath source list could not be derived.  Stop.
+== pp_shadow
+sed: can't read ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv: No such file or directory
+<checkout>/protocol-processor/hdl not found. The protocol-processor submodule is not checked out; run `git submodule update --init protocol-processor`. This script refuses to emit an empty list, because an empty list builds cleanly and proves nothing.
+Makefile:155: *** scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived.  Stop.
+Makefile:110: *** ../milan_dp print-srcs failed; the datapath source list could not be derived.  Stop.
+union-milan_dp steps:
+  - Run actions/checkout@v4 | with: None
+  - Set CPU-derived job budgets | with: None
+  - Download executed case evidence | with: {'pattern': 'suite-logs-*', 'path': '${{ runner.temp }}/piece-logs'}
+  - Require successful owners and every case exactly once | with: None
+  - Upload verified suite union | with: {'name': 'suite-union-milan_dp', 'path': '${{ runner.temp }}/union', 'if-no-files-found': 'error', 'retention-days': 3}
+  - Record actual job execution | with: None
+  - Upload actual job execution | with: {'name': 'job-evidence-rtl-union-milan_dp-${{ strategy.job-index }}-${{ github.sha }}', 'path': '${{ runner.temp }}/job-evidence.json', 'if-no-files-found': 'error', 'retention-days': 3}
+verilator-shards checkout/submodule steps: [('Run actions/checkout@v4', None), ('Fetch RTL dependencies', None), ('Build Yosys from source on cache miss', None), ('Build the pinned tsn-gen field oracle on its suite owner', None)]

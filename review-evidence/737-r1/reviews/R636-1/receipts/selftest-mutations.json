@@ -1,0 +1,92 @@
+[
+ {
+  "file": "scripts/ci_case_receipts.py",
+  "mutation": "if Counter(seen) != Counter(names): -> if False:",
+  "selftest": "scripts/ci_case_receipts_selftest.py",
+  "rc": 0,
+  "killed": false,
+  "tail": [
+   "case receipt self-test: 31 driver cases, union and comparison controls pass"
+  ]
+ },
+ {
+  "file": "scripts/ci_case_receipts.py",
+  "mutation": "if ran != selected: -> if False:",
+  "selftest": "scripts/ci_case_receipts_selftest.py",
+  "rc": 0,
+  "killed": false,
+  "tail": [
+   "case receipt self-test: 31 driver cases, union and comparison controls pass"
+  ]
+ },
+ {
+  "file": "scripts/ci_case_receipts.py",
+  "mutation": "if observations[name] != original[name]: -> if False:",
+  "selftest": "scripts/ci_case_receipts_selftest.py",
+  "rc": 1,
+  "killed": true,
+  "tail": [
+   "AssertionError: case union: 1 cases exactly once; observations verified"
+  ]
+ },
+ {
+  "file": "scripts/ci_gate_receipts.py",
+  "mutation": "if not isinstance(needs[job], dict) or needs[job].get(\"result\") != \"success\": -> if False:",
+  "selftest": "scripts/ci_gate_workflows_selftest.py",
+  "rc": 1,
+  "killed": true,
+  "tail": [
+   "AssertionError: docs: accepted dependent job failure"
+  ]
+ },
+ {
+  "file": "scripts/ci_gate_receipts.py",
+  "mutation": "if len(scopes) != 1 or sorted(seen) != sorted(inventory) or len(set(seen)) != len(seen): -> if False:",
+  "selftest": "scripts/ci_gate_workflows_selftest.py",
+  "rc": 0,
+  "killed": false,
+  "tail": [
+   "gate workflow and union controls: PASS"
+  ]
+ },
+ {
+  "file": "scripts/ci_fail_fast.py",
+  "mutation": "if job.get(\"conclusion\") in (\"failure\", \"cancelled\", \"timed_out\", \"action_required\")), Non -> if job.get(\"conclusion\") in (\"failure\",)",
+  "selftest": "scripts/ci_fail_fast_selftest.py",
+  "rc": 0,
+  "killed": false,
+  "tail": [
+   "fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS"
+  ]
+ },
+ {
+  "file": "scripts/ci_fail_fast.py",
+  "mutation": "complete = set(names) == expected and all(job[\"status\"] == \"completed\" for job in relevant -> complete = all(job[\"status\"] == \"complet",
+  "selftest": "scripts/ci_fail_fast_selftest.py",
+  "rc": 1,
+  "killed": true,
+  "tail": [
+   "AssertionError"
+  ]
+ },
+ {
+  "file": "scripts/ci_manifest.py",
+  "mutation": "if observed[\"outcome\"] != \"success\" or observed[\"skip_reason\"] is not None: -> if False:",
+  "selftest": "scripts/ci_manifest_selftest.py",
+  "rc": 0,
+  "killed": false,
+  "tail": [
+   "manifest comparison controls: PASS"
+  ]
+ },
+ {
+  "file": "scripts/suite_shards.py",
+  "mutation": "for worker, value in enumerate(load[:-len(DEDICATED_SUITES)]) if value > 1620] -> for worker, value in enumerate(load[:-le",
+  "selftest": "scripts/suite_shards.py --selftest",
+  "rc": 0,
+  "killed": false,
+  "tail": [
+   "selftest: PASS"
+  ]
+ }
+]

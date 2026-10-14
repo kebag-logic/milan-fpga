@@ -1,0 +1,12 @@
+== real union
+pp_shadow: 4 cases exactly once; original tally passed
+rc=0
+== planted: worker 2 artifacts absent
+suite piece refused: executed union has missing or duplicated cases
+rc=1
+== planted: worker 1 log absent, receipt present
+suite piece refused: missing or duplicated executed leg log
+rc=1
+== planted: worker 2 log reports a failure
+suite piece refused: combined suite log fails the unchanged tally reader
+rc=1

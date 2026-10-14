@@ -1,0 +1,12 @@
+ci_case_receipts_selftest rc=1 | subprocess.CalledProcessError: Command '['git', 'commit', '-qm', 'Create receipt source control']' returned non-zero exit status 128.
+ci_make_cases_selftest rc=0 | make case runner: all controls pass
+ci_maap_cases_selftest rc=0 | MAAP scheduling controls: 66 cases retain their source and checks
+ci_capture_cases_selftest rc=0 | capture observations: full/sharded values match; failed unit remains failed
+ci_suite_pieces_selftest rc=0 | suite pieces: 62 parents, 79 scheduled units, all controls PASS
+ci_suite_collect_selftest rc=0 | physical suite collection: all controls PASS
+ci_gate_workflows_selftest rc=0 | gate workflow and union controls: PASS
+ci_runtime_evidence_selftest rc=0 | runtime manifest collectors: all controls PASS
+ci_workflow_plan_selftest rc=0 | workflow planner: all controls pass
+ci_manifest_selftest rc=0 | manifest comparison controls: PASS
+ci_fail_fast_selftest rc=0 | fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+ci_install_cache_selftest rc=0 | constraint source: 68d6d3f5666e0efebe14965c1fe050de7564dbb8239f743517c666351e838970

@@ -1,0 +1,36 @@
+9a76ed5cf..cf9c936 selected-suite paths:
+(empty above = identical)
+fa7347fc..cf9c936 product paths:
+(empty above = identical)
+9a76ed5cf..cf9c936 all changed files:
+ .github/ci-templates/docs.yml           |    1 +
+ .github/ci-templates/rtl-fast.yml       |   16 +-
+ .github/ci-templates/rtl.yml            |    2 +-
+ .github/workflows/docs.yml              |  271 ++++++--
+ .github/workflows/elaborate.yml         |  233 +++++--
+ .github/workflows/rtl-fast.yml          |  617 ++++++++++++++++---
+ .github/workflows/rtl.yml               |  484 ++++++++++++---
+ AGENTS.md                               |    2 +-
+ CONTRIBUTING.md                         |    2 +-
+ ci/act/cpu_ranges.go                    |   86 +++
+ ci/act/cpu_ranges_test.go               |  100 +++
+ ci/act/fail-fast.patch                  |   58 +-
+ ci/act/job_admission.go                 |   15 +-
+ ci/constraints-ci.txt                   |   58 ++
+ docs/testing/CI_SIGNATURE.md            |    4 +
+ docs/testing/CI_WORKFLOWS.md            |  295 ++++-----
+ scripts/act_ci.py                       | 1020 ++++++++-----------------------
+ scripts/act_slot_proof.sh               |   15 +-
+ scripts/build_ci_act.py                 |   11 +-
+ scripts/ci_events.py                    |   20 +-
+ scripts/ci_gate_workflows.py            |    3 +-
+ scripts/ci_gate_workflows_selftest.py   |   43 ++
+ scripts/ci_install_cache.py             |   73 +++
+ scripts/ci_install_cache_selftest.py    |   72 +++
+ scripts/ci_install_workflows.py         |  100 +++
+ scripts/ci_runtime_evidence.py          |   35 +-
+ scripts/ci_runtime_evidence_selftest.py |   41 ++
+ scripts/ci_runtime_workflows.py         |   29 +-
+ scripts/ci_suite_pieces.py              |   15 +-
+ sw/firmware/ctrl/README.md              |    2 +-
+ 30 files changed, 2456 insertions(+), 1267 deletions(-)

@@ -1,0 +1,445 @@
+{
+ "docs": [
+  {
+   "job": "docs-check",
+   "index": 6,
+   "name": "Install diagram gate dependencies",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "sudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends librsvg2-bin\npython3 -m pip install --quiet wavedrom==2.0.3.post3\n",
+     "generated": ": # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_6\" install -y --no-install-recommends librsvg2-bin\npython3 -m pip install --quiet wavedrom==2.0.3.post3\n"
+    }
+   }
+  },
+  {
+   "job": "docs-check",
+   "index": 20,
+   "name": "Install the pinned sv2v release",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n",
+     "generated": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\nmkdir -p \"$RUNNER_TEMP/ci-sv2v-cache\"\narchive=\"$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip\"\nif [ ! -f \"$archive\" ]; then curl -fsSL \"$url\" -o \"$archive\"; fi\necho \"${sha256}  $archive\" | sha256sum -c -\nunzip -q -o \"$archive\" -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n"
+    }
+   }
+  }
+ ],
+ "elaborate": [
+  {
+   "job": "elaborate",
+   "index": 3,
+   "name": "Install the pinned sv2v release",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n",
+     "generated": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\nmkdir -p \"$RUNNER_TEMP/ci-sv2v-cache\"\narchive=\"$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip\"\nif [ ! -f \"$archive\" ]; then curl -fsSL \"$url\" -o \"$archive\"; fi\necho \"${sha256}  $archive\" | sha256sum -c -\nunzip -q -o \"$archive\" -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n"
+    }
+   }
+  },
+  {
+   "job": "elaborate",
+   "index": 16,
+   "name": "Build Verilator from source on cache miss",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_15\" install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n"
+    }
+   }
+  }
+ ],
+ "rtl-fast": [
+  {
+   "job": "verilator-lint",
+   "index": 3,
+   "name": "Build Verilator from source on cache miss",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_3\" install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n"
+    }
+   }
+  },
+  {
+   "job": "yosys-elaboration",
+   "index": 3,
+   "name": "Build Yosys from source on cache miss",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ntest \"$(git -C /tmp/yosys-src rev-parse HEAD)\" = \"86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51\"\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_3\" install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ntest \"$(git -C /tmp/yosys-src rev-parse HEAD)\" = \"86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51\"\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+    }
+   }
+  },
+  {
+   "job": "yosys-elaboration",
+   "index": 5,
+   "name": "Install the pinned sv2v release",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n",
+     "generated": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\nmkdir -p \"$RUNNER_TEMP/ci-sv2v-cache\"\narchive=\"$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip\"\nif [ ! -f \"$archive\" ]; then curl -fsSL \"$url\" -o \"$archive\"; fi\necho \"${sha256}  $archive\" | sha256sum -c -\nunzip -q -o \"$archive\" -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n"
+    }
+   }
+  },
+  {
+   "job": "publication-census",
+   "index": 3,
+   "name": "Build Yosys from source on cache miss",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ntest \"$(git -C /tmp/yosys-src rev-parse HEAD)\" = \"86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51\"\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_3\" install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ntest \"$(git -C /tmp/yosys-src rev-parse HEAD)\" = \"86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51\"\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+    }
+   }
+  },
+  {
+   "job": "publication-census",
+   "index": 5,
+   "name": "Install the pinned sv2v release",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n",
+     "generated": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\nmkdir -p \"$RUNNER_TEMP/ci-sv2v-cache\"\narchive=\"$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip\"\nif [ ! -f \"$archive\" ]; then curl -fsSL \"$url\" -o \"$archive\"; fi\necho \"${sha256}  $archive\" | sha256sum -c -\nunzip -q -o \"$archive\" -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n"
+    }
+   }
+  },
+  {
+   "job": "firmware-unit",
+   "index": 2,
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\ngcov --version | head -n 1\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\ngcov --version | head -n 1\n"
+    }
+   }
+  },
+  {
+   "job": "firmware-control-mutants",
+   "index": 2,
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\ngcov --version | head -n 1\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\ngcov --version | head -n 1\n"
+    }
+   }
+  },
+  {
+   "job": "firmware-aecp-mutants",
+   "index": 2,
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\ngcov --version | head -n 1\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\ngcov --version | head -n 1\n"
+    }
+   }
+  },
+  {
+   "job": "firmware-srp-mutants",
+   "index": 2,
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\ngcov --version | head -n 1\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\ngcov --version | head -n 1\n"
+    }
+   }
+  },
+  {
+   "job": "firmware-boundary",
+   "index": 2,
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\n"
+    }
+   }
+  },
+  {
+   "job": "firmware-verilator",
+   "index": 2,
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev\npython3 -m pip install --quiet pyyaml\ndpkg-query -W libgtest-dev libgmock-dev\ng++ --version | head -n 1\n"
+    }
+   }
+  },
+  {
+   "job": "firmware-verilator",
+   "index": 4,
+   "name": "Build Verilator from source on cache miss",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_4\" install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n"
+    }
+   }
+  }
+ ],
+ "rtl": [
+  {
+   "job": "verilator-shards",
+   "index": 4,
+   "name": "Build Verilator from source on cache miss",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_4\" install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n"
+    }
+   }
+  },
+  {
+   "job": "verilator-shards",
+   "index": 6,
+   "name": "Prove specialized suite ownership",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\npython3 scripts/suite_shards.py --selftest\nscripts/run_all_suites.sh --shard \"$SHARD/$SHARDS\" --list \\\n  > \"$RUNNER_TEMP/owned-suites\"\necho \"Shard $SHARD owns:\"\nsed 's/^/  /' \"$RUNNER_TEMP/owned-suites\"\ncase \"$SHARD\" in\n  1) grep -Fx tsn_fuzz \"$RUNNER_TEMP/owned-suites\" ;;\n  3) grep -Fx chmap_capture \"$RUNNER_TEMP/owned-suites\" ;;\n  4) test \"$(cat \"$RUNNER_TEMP/owned-suites\")\" = milan_dp ;;\nesac\n",
+     "generated": "set -euo pipefail\npython3 scripts/suite_shards.py --selftest\nscripts/run_all_suites.sh --ci-pieces --shard \"$SHARD/$SHARDS\" --list \\\n  > \"$RUNNER_TEMP/owned-suites\"\necho \"Shard $SHARD owns:\"\nsed 's/^/  /' \"$RUNNER_TEMP/owned-suites\"\ncase \"$SHARD\" in\n  1) grep -Fx tsn_fuzz \"$RUNNER_TEMP/owned-suites\" ;;\n  3) grep -Fx chmap_capture \"$RUNNER_TEMP/owned-suites\" ;;\nesac\n"
+    }
+   }
+  },
+  {
+   "job": "verilator-shards",
+   "index": 8,
+   "name": "Build Yosys from source on cache miss",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ntest \"$(git -C /tmp/yosys-src rev-parse HEAD)\" = \"86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51\"\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_8\" install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ntest \"$(git -C /tmp/yosys-src rev-parse HEAD)\" = \"86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51\"\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+    }
+   }
+  },
+  {
+   "job": "verilator-shards",
+   "index": 9,
+   "name": "Install the pinned Yosys and prove the version",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libjemalloc2\nsudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/\ntest -x /opt/yosys/bin/yosys-abc\necho \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"\nyosys -V\nyosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\"\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_9\" install -y --no-install-recommends libjemalloc2\nsudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/\ntest -x /opt/yosys/bin/yosys-abc\necho \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"\nyosys -V\nyosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\"\n"
+    }
+   }
+  },
+  {
+   "job": "verilator-shards",
+   "index": 10,
+   "name": "Install sv2v for the netlist-level suite owner",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n",
+     "generated": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\nmkdir -p \"$RUNNER_TEMP/ci-sv2v-cache\"\narchive=\"$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip\"\nif [ ! -f \"$archive\" ]; then curl -fsSL \"$url\" -o \"$archive\"; fi\necho \"${sha256}  $archive\" | sha256sum -c -\nunzip -q -o \"$archive\" -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n"
+    }
+   }
+  },
+  {
+   "job": "verilator-shards",
+   "index": 11,
+   "name": "Build the pinned tsn-gen field oracle on its suite owner",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\ngit clone --filter=blob:none \\\n  https://github.com/kebag-logic/tsn-gen.git \"$RUNNER_TEMP/tsn-gen\"\ngit -C \"$RUNNER_TEMP/tsn-gen\" checkout \"$TSN_GEN_REV\"\ngit -C \"$RUNNER_TEMP/tsn-gen\" submodule update \\\n  --init --depth 1 --recursive external/rapidyaml\ncmake -S \"$RUNNER_TEMP/tsn-gen\" -B \"$RUNNER_TEMP/tsn-gen/build\" \\\n  -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF\ncmake --build \"$RUNNER_TEMP/tsn-gen/build\" \\\n  --target packet_gen --parallel\ntest -x \"$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen\"\necho \"TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen\" >> \"$GITHUB_ENV\"\n",
+     "generated": "set -euo pipefail\nif [ ! -d \"$RUNNER_TEMP/tsn-gen/.git\" ]; then\ngit clone --filter=blob:none \\\n  https://github.com/kebag-logic/tsn-gen.git \"$RUNNER_TEMP/tsn-gen\"\nfi\ngit -C \"$RUNNER_TEMP/tsn-gen\" checkout \"$TSN_GEN_REV\"\ngit -C \"$RUNNER_TEMP/tsn-gen\" submodule update \\\n  --init --depth 1 --recursive external/rapidyaml\ncmake -S \"$RUNNER_TEMP/tsn-gen\" -B \"$RUNNER_TEMP/tsn-gen/build\" \\\n  -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF\ncmake --build \"$RUNNER_TEMP/tsn-gen/build\" \\\n  --target packet_gen --parallel\ntest -x \"$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen\"\necho \"TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen\" >> \"$GITHUB_ENV\"\n"
+    }
+   }
+  },
+  {
+   "job": "verilator-shards",
+   "index": 12,
+   "name": "Run this exhaustive suite shard",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "scripts/run_all_suites.sh \"$RUNNER_TEMP/suite-logs\" \\\n  --shard \"${{ matrix.shard }}/${{ matrix.total }}\"\n",
+     "generated": "scripts/run_all_suites.sh \"$RUNNER_TEMP/suite-logs\" \\\n  --ci-pieces --shard \"${{ matrix.shard }}/${{ matrix.total }}\"\n"
+    }
+   }
+  },
+  {
+   "job": "physical-gptp",
+   "index": 4,
+   "name": "Build Verilator from source on cache miss",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_4\" install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\ntest \"$(git rev-parse HEAD)\" = \"848d926ebd4addacacd294dc84e35d9d4ae8078c\"\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n"
+    }
+   }
+  },
+  {
+   "job": "verilator-suites",
+   "index": 2,
+   "name": "Require every shard to have validated this run's SHA",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "shopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)\npython3 scripts/ci_events.py --require-target-sha --expect 5 \\\n  --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" \\\n  --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\"\n",
+     "generated": "shopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)\npython3 scripts/ci_events.py --require-target-sha --expect 16 \\\n  --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" \\\n  --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\"\n"
+    }
+   }
+  },
+  {
+   "job": "verilator-suites",
+   "index": 3,
+   "name": "Prove exhaustive ownership and tally every log",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "shopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)\nif [ \"${#roots[@]}\" -eq 0 ]; then\n  mkdir -p \"$RUNNER_TEMP/all-suite-logs/none\"\n  roots=(\"$RUNNER_TEMP/all-suite-logs/none\")\nfi\npython3 scripts/suite_tally.py \"${roots[@]}\" --quiet \\\n  --expect-suite-root tb/verilator\n",
+     "generated": "python3 scripts/ci_suite_collect.py   --workers \"$RUNNER_TEMP/all-suite-logs\" --unions \"$RUNNER_TEMP/suite-unions\"   --output \"$RUNNER_TEMP/complete-suite-logs\" --head \"$GITHUB_SHA\"\npython3 scripts/suite_tally.py \"$RUNNER_TEMP/complete-suite-logs\" --quiet   --expect-suite-root tb/verilator\n"
+    }
+   }
+  },
+  {
+   "job": "yosys-shards",
+   "index": 4,
+   "name": "Build Yosys from source on cache miss",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ntest \"$(git -C /tmp/yosys-src rev-parse HEAD)\" = \"86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51\"\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_4\" install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ntest \"$(git -C /tmp/yosys-src rev-parse HEAD)\" = \"86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51\"\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+    }
+   }
+  },
+  {
+   "job": "yosys-shards",
+   "index": 5,
+   "name": "Install the pinned Yosys and prove the version",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libjemalloc2\nsudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/\ntest -x /opt/yosys/bin/yosys-abc\necho \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"\nyosys -V\nyosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\"\n",
+     "generated": "set -euo pipefail\n: # package index prepared above\nsudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_5\" install -y --no-install-recommends libjemalloc2\nsudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/\ntest -x /opt/yosys/bin/yosys-abc\necho \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"\nyosys -V\nyosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\"\n"
+    }
+   }
+  },
+  {
+   "job": "yosys-shards",
+   "index": 6,
+   "name": "Install the pinned sv2v release",
+   "generated_same_name": true,
+   "changed_fields": [
+    "run"
+   ],
+   "detail": {
+    "run": {
+     "template": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n",
+     "generated": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\nmkdir -p \"$RUNNER_TEMP/ci-sv2v-cache\"\narchive=\"$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip\"\nif [ ! -f \"$archive\" ]; then curl -fsSL \"$url\" -o \"$archive\"; fi\necho \"${sha256}  $archive\" | sha256sum -c -\nunzip -q -o \"$archive\" -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n"
+    }
+   }
+  }
+ ]
+}
