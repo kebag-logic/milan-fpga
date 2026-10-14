@@ -57,7 +57,7 @@ def versions(pins: dict[str, object]) -> None:
                     ("rsvg-convert", "librsvg2-bin"), ("java", "openjdk-17-jre-headless"),
                     ("xz", "xz-utils"), ("sudo", "sudo"))
     for tool, package in distribution:
-        expected = package_versions[package].split("+")[0]
+        expected = package_versions[package].rsplit("really", 1)[-1].split("+")[0]
         option = "-version" if tool == "java" else "--version"
         assert expected in run([tool, option]), (tool, expected)
     for argv in (["gcc", "--version"], ["g++", "--version"], ["clang", "--version"],
