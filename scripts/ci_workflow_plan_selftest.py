@@ -44,6 +44,23 @@ jobs:
 PATH = ".github/workflows/control.yml"
 
 
+def fixture_commit(root: Path, subject: str, parent: str | None = None) -> str:
+    """Create fixture objects using source attribution without changing Git configuration."""
+    source = Path(__file__).resolve().parents[1]
+    original = subprocess.check_output(["git", "-C", str(source), "cat-file", "commit", "HEAD"])
+    attribution = [line for line in original.split(b"\n\n", 1)[0].splitlines()
+                   if line.startswith((b"author ", b"committer "))]
+    if len(attribution) != 2:
+        raise ValueError("source commit has ambiguous attribution")
+    tree = subprocess.check_output(["git", "-C", str(root), "write-tree"]).strip()
+    headers = [b"tree " + tree] + ([b"parent " + parent.encode()] if parent else []) + attribution
+    content = b"\n".join(headers) + b"\n\n" + subject.encode() + b"\n"
+    head = subprocess.check_output(["git", "-C", str(root), "hash-object", "-w", "-t", "commit", "--stdin"],
+                                   input=content).decode().strip()
+    subprocess.run(["git", "-C", str(root), "update-ref", "HEAD", head], check=True)
+    return head
+
+
 def main() -> int:
     """Use the production planner for positive, corrupt and Git-byte controls."""
     plan, labels = expand_workflow(PATH, SOURCE)
@@ -93,8 +110,7 @@ def main() -> int:
         target.parent.mkdir(parents=True)
         target.write_text(SOURCE)
         git("add", PATH)
-        git("commit", "-qm", "Create immutable workflow fixture")
-        head = git("rev-parse", "HEAD")
+        head = fixture_commit(root, "Create immutable workflow fixture")
         original = committed_plan(root, head)
         assert original["plan"] == plan
         payload = {"subject": {"head": head, "tree": original["tree"]},
@@ -116,7 +132,7 @@ def main() -> int:
         target.write_text(SOURCE.replace("exit 0", "exit 1"))
         assert committed_plan(root, head) == original
         git("add", PATH)
-        git("commit", "-qm", "Change the fixture workflow")
+        fixture_commit(root, "Change the fixture workflow", head)
         revised = committed_plan(root, git("rev-parse", "HEAD"))
         for key in ("head", "tree", "definitions", "plan"):
             assert revised[key] != original[key], key
