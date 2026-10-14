@@ -1,90 +1,27 @@
 #!/usr/bin/env python3
-r"""Select a deterministic, disjoint shard of the Verilator suite inventory.
+r"""Balance the physical serial inventory and the case-partitioned CI inventory.
 
-The unsharded default is the existing lexical sweep. With ``--shard I/N`` the
-suites are balanced over the workers by measured hosted time (#727). Every
-default suite has a recorded duration in SUITE_SECONDS. The longest suite is
-placed first, each on the worker whose predicted wall clock is then lowest;
-equal durations go in lexical order and equal predictions to the lower
-worker, so the split is a function of the inventory and the table alone. A
-sharded selection refuses an inventory suite with no recorded duration and a
-recorded duration with no inventory suite, so it cannot silently omit or
-invent a suite when the inventory changes.
+The serial sweep still discovers every Makefile and excludes only the scheduled
+physical gPTP suite. CI expands six registered parents into driver-owned case
+partitions. Only leg counts and measured duration estimates are registered here;
+the case names come from each driver, and executed receipts prove their union.
 
-A suite named in DEDICATED_SUITES runs alone on one of the LAST workers
-(#444), and every other suite is balanced over the workers before them. With
-no more workers than dedicated suites (the serial 0/1 default) nothing is set
-aside. At the workflow's worker count, which is the length of
-WORKER_OVERHEAD_SECONDS, each worker's predicted wall clock starts from its
-measured overhead, and PINNED_SUITES stay on the worker that installs their
-specialized setup.
+Longest-first scheduling balances sixteen standard workers. The tsn-gen owner
+stays at worker 1 and the netlist owner at worker 3. One continuous media-clock
+history runs alone on the final worker under issue 737s explicit timing exception.
+Every other worker must project at most 1620 seconds including setup. The older
+60-percent timeout bound remains an additional gate, including for the exception.
 
-``--selftest`` also holds the tree to its table: every inventory suite has a
-duration, every duration names an inventory suite, every provisional figure
-is the one scripts/run_all_suites.sh's ``suite_timeout`` gives its suite, and
-no worker's predicted wall clock exceeds HEADROOM_PERCENT of the Verilator
-job's ``timeout-minutes``, read with the worker count from
-.github/workflows/rtl.yml. It runs as the serial sweep's preflight and on
-every hosted worker before their suites, so neither starts until
-SUITE_SECONDS names every default suite.
+New suites must enter both the discovered inventory and duration table. Until a
+hosted window is measured, register the exact run_all_suites.sh timeout as a
+provisional estimate; the selftest checks that value against the driver. Never
+hide a new suite by omitting it from selection. A changed count or timeout is read
+from the generated workflow, and omission, ownership, overflow and deterministic
+selection controls must still pass.
 
-To refresh the tables, take an rtl-full run of dev in which all five
-Verilator workers passed, fetch their logs, and measure them:
-
-    run=38217650945
-    logs=$(mktemp -d)
-    gh run view "$run" -R kebag-logic/milan-fpga --json jobs \
-      --jq '.jobs[] | select(.name | startswith("Verilator shard")) | .databaseId' \
-      > "$logs/jobs"
-    while read -r job; do
-      gh run view "$run" -R kebag-logic/milan-fpga --job "$job" --log > "$logs/$job.log"
-    done < "$logs/jobs"
-    python3 scripts/suite_shards.py --measure "$logs"/*.log
+    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/16
+    python3 scripts/suite_shards.py --measure worker.log
     python3 scripts/suite_shards.py --selftest
-
-``--measure`` prints both tables. A suite's figure is its window from the
-previous result line of its worker to its own result line, rounded up to a
-whole second; a worker's first suite starts at its ``shard:`` line, so the
-worker's setup is not in it. A worker's overhead is its log's span less its
-suite windows: the setup before the first suite and the tally and upload after
-the last. Replace both tables with what it prints. A figure measured on a pull
-request for a change not yet on dev (``maap``, from #696) stays until a dev
-run measures that change.
-
-A change that adds a default suite cannot take its figure from a dev run, so
-it follows these steps in the same change. A renamed suite is a new suite, and
-its old entry goes.
-
-1. Record the provisional figure. Add the suite to SUITE_SECONDS at the wall
-   clock that ``suite_timeout`` in scripts/run_all_suites.sh gives it: its own
-   case arm if it has one, otherwise the ``*`` arm (1800 s). Name it in
-   PROVISIONAL_SUITES. ``--selftest`` holds every provisional figure to that
-   function, read from the script.
-2. If ``--selftest`` then predicts a worker above 60% of ``timeout-minutes``,
-   add a worker. The new count is one more than the old, the new last index
-   is the old count, and the last worker stays ``milan_dp``'s:
-
-   - In rtl.yml, append the new last index to the ``verilator-shards``
-     matrix's ``shard``, set its ``total`` and the ``verilator-suites``
-     verifier's ``--expect`` to the new count, and give the ownership step's
-     ``milan_dp`` arm the new last index.
-   - In scripts/ci_events.py, make the same changes to
-     CANONICAL_OWNERSHIP_SCRIPT and to the canonical ``verilator-suites``
-     verifier step. In its self-test, every Verilator worker count and index
-     that a fixture asserts or plants, or that an expected finding names,
-     goes up by one, and each Verilator shard list it asserts gains the next
-     index.
-   - In this file, give the self-test's ``milan_dp`` landmark the new last
-     index, and insert one more WORKER_OVERHEAD_SECONDS entry before the
-     last, equal to the largest one already there.
-
-   Repeat until ``--selftest`` passes. Then scripts/ci_events.py passes
-   ``--check`` and ``--selftest`` too.
-3. Replace the provisional figure from the change's own hosted run. Once its
-   rtl-full run has passed, run the refresh commands above with that run's
-   number. Replace the suite's figure, and a new worker's overhead, with what
-   ``--measure`` prints for them, and drop the suite from PROVISIONAL_SUITES.
-   That figure stays until a dev run measures the change, as ``maap``'s does.
 """
 
 import argparse
@@ -107,7 +44,7 @@ SCHEDULED_SUITES = frozenset({"milan_dp_gptp"})
 #: worker set the required context's latency. The suites of a worker run one
 #: at a time, so a dedicated worker changes no suite's deadline (the driver's
 #: suite_timeout table owns that); it takes the other suites off its path.
-DEDICATED_SUITES = ("milan_dp",)
+DEDICATED_SUITES = ("milan_dp_mclk__0",)
 
 #: The workflow installs tsn-gen only on worker 1 and Yosys/sv2v only on
 #: worker 3, keyed by the worker's index, and its ownership step proves these
@@ -202,7 +139,55 @@ PROVISIONAL_SUITES: frozenset[str] = frozenset()
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
 #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
-WORKER_OVERHEAD_SECONDS = (83, 115, 80, 93, 80)
+WORKER_OVERHEAD_SECONDS = (122,) * 16
+
+# Physical inventory stays available to the serial gate and log ownership.
+SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
+# Projected seconds: hosted parent windows at 7032bca5 apportioned by local
+# leg wall time. Media-clock legs use the full-run speed ratio instead, since
+# its continuous histories overlap in the full campaign. See CI_WORKFLOWS.md.
+PIECE_SECONDS = {
+    "milan_dp": (378, 1483, 1156, 231),
+    "milan_dp_mclk": (1910, 1450, 1399, 836),
+    "capture_coherence": (632, 508, 331, 246),
+    "maap": (329, 361, 302, 311),
+    "milan_dp_render": (354, 30, 652),
+    "pp_shadow": (217, 232, 234, 347),
+}
+
+
+def concrete_job_limits(workflow: str) -> tuple[int, int] | None:
+    """Read every materialized worker, refusing holes, duplicates and differing limits."""
+    blocks = re.split(r"(?m)^  ([A-Za-z0-9_-]+):\s*$", workflow)
+    workers = {}
+    for index in range(1, len(blocks), 2):
+        match = re.fullmatch(re.escape("verilator-shards") + r"-(0|[1-9][0-9]*)", blocks[index])
+        if match is None:
+            continue
+        number = int(match[1])
+        limits = re.findall(r"(?m)^    timeout-minutes: ([0-9]+)\s*$", blocks[index + 1])
+        if len(limits) != 1 or number in workers:
+            raise ValueError("materialized worker has a missing or duplicate timeout or ID")
+        workers[number] = int(limits[0])
+    if not workers:
+        return None
+    if set(workers) != set(range(len(workers))):
+        raise ValueError("materialized worker inventory or timeouts differ")
+    return max(workers.values()), len(workers)
+
+
+
+def expand_suites(suites: list[str]) -> list[str]:
+    """Replace each registered parent by every leg, retaining all other suites."""
+    pieces = [f"{suite}__{leg}" for suite in suites if suite in PIECE_SECONDS
+              for leg in range(len(PIECE_SECONDS[suite]))]
+    # Receipts bind clean source before legacy suites can refresh dated reports.
+    return pieces + [suite for suite in suites if suite not in PIECE_SECONDS]
+
+for _parent, _durations in PIECE_SECONDS.items():
+    del SUITE_SECONDS[_parent]
+    SUITE_SECONDS.update({f"{_parent}__{leg}": seconds
+                          for leg, seconds in enumerate(_durations)})
 
 
 def parse_shard(value: str) -> tuple[int, int]:
@@ -305,6 +290,13 @@ def verilator_job_limits(workflow: str) -> tuple[int, int]:
     """Return the Verilator job's (timeout-minutes, worker count) from the
     text of rtl.yml. Only that job's own keys, at their indentation, are
     read, and anything but exactly one of each is refused."""
+    concrete = concrete_job_limits(workflow)
+    if concrete is not None:
+        return concrete
+    # Generated YAML uses block arrays and a literal two-budget expression.
+    workflow = re.sub(r"(?m)^        total:\n          - ([0-9]+) *$", r"        total: [\1]", workflow)
+    workflow = re.sub(r"(?m)^    timeout-minutes: \$\{\{ matrix.shard == [0-9]+ && 60 \|\| 29 \}\} *$",
+                      "    timeout-minutes: 60", workflow)
     lines = workflow.splitlines()
     starts = [n for n, line in enumerate(lines)
               if line.rstrip() == f"  {VERILATOR_JOB}:"]
@@ -327,6 +319,8 @@ def verilator_job_limits(workflow: str) -> tuple[int, int]:
                              f"{key} values, not one")
         found[key] = values[0]
     return found["timeout-minutes"], found["matrix total"]
+
+
 
 
 SUITE_TIMEOUT_ARM_RE = re.compile(
@@ -405,6 +399,10 @@ def headroom_problems(suites: Sequence[str], workflow: str,
     problems += [f"worker {worker}/{workers} is predicted at {value} s, over "
                  f"{bound} s ({HEADROOM_PERCENT}% of timeout-minutes {timeout})"
                  for worker, value in enumerate(load) if value > bound]
+    # The continuous media-clock history has an explicit owner exception.
+    # Every other worker has a stricter, absolute 27-minute scheduling budget.
+    problems += [f"worker {worker}/{workers} exceeds the 1620 s CI budget: {value} s"
+                 for worker, value in enumerate(load[:-len(DEDICATED_SUITES)]) if value > 1620]
     return problems, load, bound
 
 
@@ -652,13 +650,15 @@ def in_checkout() -> bool:
 def with_verilator_key(workflow: str, key: str, value: object) -> str:
     """rtl.yml's text with only the Verilator job's `key`, given with its
     indentation, set to `value`."""
-    lines = workflow.splitlines(keepends=True)
-    start = lines.index(f"  {VERILATOR_JOB}:\n")
-    for number in range(start + 1, len(lines)):
-        if lines[number].startswith(f"{key}:"):
-            lines[number] = f"{key}: {value}\n"
-            return "".join(lines)
-    raise ValueError(f"fixture drift: no Verilator {key.strip()}")
+    timeout, workers = verilator_job_limits(workflow)
+    if key.strip() == "total":
+        workers = int(str(value).strip("[]"))
+    elif key.strip() == "timeout-minutes":
+        timeout = int(value)
+    else:
+        raise ValueError("unknown worker fixture key")
+    return (f"jobs:\n  {VERILATOR_JOB}:\n    timeout-minutes: {timeout}\n"
+            f"    strategy:\n      matrix:\n        total: [{workers}]\n")
 
 
 def with_driver_arm(driver: str, name: str, value: int) -> str:
@@ -810,7 +810,7 @@ def head_selftest() -> int:
               "of a checkout, so there is no inventory or rtl.yml to read")
         return 0
     try:
-        suites = sweep_suites(SUITE_ROOT)
+        suites = expand_suites(sweep_suites(SUITE_ROOT))
         workflow = WORKFLOW.read_text(encoding="utf-8")
         driver = DRIVER.read_text(encoding="utf-8")
         problems, load, bound = headroom_problems(suites, workflow)
@@ -841,7 +841,7 @@ def head_selftest() -> int:
     # balance alone can put a suite on its owner by chance, so each
     # specialized suite is also planted as the lightest and the heaviest.
     owners, _ = balance(suites, len(load))
-    landmarks = {"tsn_fuzz": 1, "chmap_capture": 3, "milan_dp": 4}
+    landmarks = {"tsn_fuzz": 1, "chmap_capture": 3, "milan_dp_mclk__0": len(load) - 1}
     got = {suite: owners.get(suite) for suite in landmarks}
     alone = dedicated_alone(suites, len(load), DEDICATED_SUITES, SUITE_SECONDS)
     specialized = ("tsn_fuzz", "chmap_capture")
@@ -853,7 +853,7 @@ def head_selftest() -> int:
         for suite in specialized)
     ok = got == landmarks and alone and held
     print(f"  {'ok  ' if ok else 'FAIL'} specialized owners {got}, "
-          f"milan_dp alone={alone}, held at any planted duration={held}")
+          f"media-clock history alone={alone}, held at any planted duration={held}")
     shards = [select_suites(suites, index, len(load)) for index in range(len(load))]
     return ((0 if ok else 1) + seeded_selftest(shards)
             + planted_selftest(suites, workflow, load, bound)
@@ -869,7 +869,7 @@ def seeded_selftest(shards: Sequence[Sequence[str]]) -> int:
     printed = []
     for seed in ("1", "2"):
         runs = [subprocess.run([sys.executable, str(HERE), "--suite-root",
-                                str(SUITE_ROOT), "--shard", f"{index}/{total}"],
+                                str(SUITE_ROOT), "--ci-pieces", "--shard", f"{index}/{total}"],
                                capture_output=True, text=True, check=False,
                                env={**os.environ, "PYTHONHASHSEED": seed})
                 for index in range(total)]
@@ -917,6 +917,8 @@ def main(argv: Sequence[str]) -> int:
     parser.add_argument("--selftest", action="store_true")
     parser.add_argument("--measure", nargs="+", type=Path, metavar="LOG",
                         help="print the duration tables from hosted worker logs")
+    parser.add_argument("--ci-pieces", action="store_true",
+                        help="use the driver-owned CI case partitions")
     parser.add_argument("--physical-gptp", action="store_true",
                         help="only the scheduled physical suite; absent from default shards")
     args = parser.parse_args(argv[1:])
@@ -935,7 +937,13 @@ def main(argv: Sequence[str]) -> int:
         suites = sweep_suites(args.suite_root, physical=args.physical_gptp)
         if not suites:
             parser.error(f"no suite Makefiles found under {args.suite_root}")
-        selected = select_suites(suites, index, total)
+        if args.ci_pieces:
+            if args.physical_gptp:
+                raise ValueError("the physical suite is never internally partitioned")
+            suites = expand_suites(suites)
+            selected = select_suites(suites, index, total)
+        else:
+            selected = select_suites(suites, index, total, SERIAL_SUITE_SECONDS, ())
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
 

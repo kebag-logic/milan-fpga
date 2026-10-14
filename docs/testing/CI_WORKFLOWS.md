@@ -341,40 +341,43 @@ The workflow keeps the public aggregate names `verilator-suites` and
 relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
-Verilator runs the default suite inventory on five workers. Four split the
-inventory by measured hosted time (#727); the fifth, shard 4/5, runs
-`milan_dp` alone (#444). A worker runs its suites one at a time, so the fifth
-worker changes no suite's deadline. It takes the other suites of the old
-shard 0/4 off `milan_dp`'s path: that shard carried `milan_dp` plus eleven
-suites and set the context's latency at 1745-2514 s, of which the eleven took
-492-725 s.
+Verilator schedules 79 units on sixteen native matrix workers. The ordinary
+serial command still runs the original 62 suites. CI expands six long suites
+into driver-derived case partitions: `milan_dp` (four legs), `milan_dp_mclk`
+(four), `capture_coherence` (four), `maap` (four), `milan_dp_render` (three), and
+`pp_shadow` (four). The source drivers enumerate 19, 31, 31, 66, 3 and 4 units,
+respectively. A unit can carry several original checks; it is never split by
+resetting a carried history. No test predicate or per-suite timeout changes.
 
-`scripts/suite_shards.py` records each default suite's hosted duration and
-each worker's job overhead. All figures come from one dev run, except `maap`,
-which keeps #696's figure from its pull-request run until a dev run measures
-that change. It places the longest suite first, on the worker with the lowest
-predicted wall clock. Its self-test refuses a suite without a duration and a
-duration without a suite.
-It also refuses any worker predicted above 60% of the job's
-`timeout-minutes`, which it reads from `rtl.yml`. The selector's docstring
-gives the refresh procedure, and the steps for a change that adds a suite: a
-provisional figure from `run_all_suites.sh`'s `suite_timeout`, a worker added
-if a prediction then exceeds 60%, and the figure replaced from the change's
-own hosted run. On dev `c6bd08c6` the old hash put worker 1/5 at
-104 minutes, and #696's head reached its 120-minute timeout there.
+`scripts/suite_shards.py` assigns the longest measured pieces first. It pins
+`tsn_fuzz` to worker 1 and `chmap_capture` to worker 3 for their specialized
+installs. Worker 15 owns only media-clock leg A, whose continuous history is
+indivisible under #737's ruling. Fifteen workers project at most 1605 seconds
+including a conservative 122-second setup allowance. Leg A projects to 1910
+seconds before setup and 2032 seconds with it. This is the explicit round-one
+exception; the coordinating role measures the actual hosted head before the
+owner decides any remaining acceleration. Regular workers have 29-minute
+limits; leg A retains a 60-minute allowance within its former 120-minute job
+limit. The separate nightly physical-rate job keeps its existing deadline.
 
-The aggregate rejects missing, unexpected, or duplicate suite logs before it
-trusts the combined tally, and requires all five workers. Specialized
-dependencies are installed only by their stable owners: `tsn_fuzz` owns the
-pinned packet generator, and `chmap_capture` owns the Yosys/sv2v netlist leg.
-The shard selector pins those owners and the dedicated worker, its self-test
-proves them, and the workers' ownership step proves them again at run time;
-`ci_events.py` pins that step's script. It pins the aggregate's tally script
-and its worker-result script the same way, and the Yosys aggregate's two
-twins. The worker-result step is the only step that turns a failed or
-timed-out worker red: a killed suite's partial log still tallies and its SHA
-record still verifies, so on both hosted `milan_dp` timeouts only that step
-failed.
+The selector refuses a missing or extra duration, duplicate ownership, a
+changed specialized owner, or a regular worker projected above 1620 seconds.
+Its existing 60%-of-deadline control remains as an additional bound against
+the largest declared timeout. The figures for split suites apportion baseline
+`7032bca5` windows using measured local leg durations; they are predictions,
+not measurements of the resulting hosted graph. Refresh them from the next
+complete hosted run. The ordinary unsharded scheduling mode remains available.
+
+Every selected leg writes source-bound case receipts. Each of six union jobs
+waits for the native worker matrix, independently enumerates its suite's
+current driver inventory, and requires every case exactly once. Dropping a
+case from every leg and every claimed inventory still fails against that fresh
+inventory. The union checks verdicts and checked-output digests, then assembles
+the original physical suite log. The final `verilator-suites` aggregate requires
+all sixteen workers and all six unions. It rechecks raw case evidence against
+the union artifact, proves every original log's ownership and exact head, then
+runs the unchanged tally. Missing, duplicated, extra, failed, cancelled or
+skipped workers cannot release the protected context.
 
 Every Verilator worker also initializes `third_party/tsn-c-stack`: the `mbx`
 suite's co-simulation links the firmware's ADP, ACMP and MAAP cores, which
@@ -484,7 +487,7 @@ That historical budget left 1140.1 s: 31.7%, approximately 32%.
 These historical samples do not measure the corrected candidate.
 The five default gmstep controls stayed in `run` (#602) until #621.
 The additional controls stay in the explicit `gmstep-mutants` campaign.
-The hosted shards allow 120 minutes; #673's envelopes appear above.
+Those historical hosted shards allowed 120 minutes; #737's current limits appear above.
 If later exact-head margin falls below 10%, split further.
 
 #621 split further. Its small-step phase took the gmstep leg from 48 s to
@@ -510,7 +513,7 @@ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
 PR and push events exclude this job from execution.
 Physical regressions therefore report nightly, outside the required PR aggregate.
-The five default workers retain every other suite.
+The sixteen default workers retain every other suite.
 
 The physical suite has a 5400-second build-and-run deadline.
 Its separate four-core `ubuntu-latest` job permits 120 minutes total.
@@ -1313,7 +1316,7 @@ validates one tree. The workflow makes that explicit and machine-checked
   reads it;
 - both aggregates run `scripts/ci_events.py --require-target-sha` over the
   downloaded shards before they tally anything, passing `--expect` the
-  worker matrix size (`--expect 5` for Verilator, `--expect 4` for Yosys)
+  worker matrix size (`--expect 16` for Verilator, `--expect 4` for Yosys)
   and exactly three sources, `--sha gate="$GATE_SHA"`
   (the gate's `target_sha` through the step env), `--sha run="$GITHUB_SHA"`
   and `--sha checkout="$(git rev-parse HEAD)"`, and print the SHA in their
@@ -1897,40 +1900,28 @@ unpredictable ownership token as a container label, never bind-mounts the
 operator's worktree, and supplies no privileged flag. Candidate workflow code
 consequently runs only in the disposable job boundary.
 
-The same `--container-options` word also bounds every job container to a CPU
-set of `min(host CPUs, 4)` cores (`--cpuset-cpus=0-3` on a large host;
-`CONTAINER_CPU_LIMIT`; an isolated replay slot N uses its own block instead)
-until the runner moves it to a range of its own, as described below, and to
-16 GB of memory with no swap beyond it
-(`--memory=16g --memory-swap=16g`; `CONTAINER_MEMORY`). Hosted
-`ubuntu-latest` runners have 4 vCPUs and 16 GB, so `rtl-fast`'s
-`make -j"$(nproc)"` Verilator and Yosys builds are hosted-shaped: `nproc`
-follows the container's cpuset, and in an unbounded container on a 128-vCPU
-host they started 128 compilers and exhausted host memory; at sixteen, four
-matrix legs still exhausted a 72 GB host. A job that needs more than 16 GB
-fails hosted too; a bounded container fails the replica instead of the host.
-Hosted jobs also each get their own runner, while a replica's jobs share one
-host, so `act` starts one of a stage's jobs at a time (`--concurrent-jobs 1`;
-`CONCURRENT_JOB_LIMIT`): with the CPU set alone, an `rtl-full` replica
-launched all eight shard jobs together, each building its toolchain. That flag
-bounds jobs, not matrix legs, which `act` runs `strategy.max-parallel` wide
-(default 4) inside one job's slot, so each of `rtl.yml`'s sharded jobs (five
-Verilator workers, four Yosys workers) still fans out to at most four
-containers at once, each held to 16 GB: at most 64 GB at once.
+Every local job container gets sixteen CPUs and eight GiB of memory, including
+swap (`CONTAINER_CPU_LIMIT=16`, `CONTAINER_MEMORY=8g`). It initially uses the
+slot's sixteen-CPU staging range, then moves to an exclusive sixteen-CPU job
+range. Slot 0 stages on `0-15` and owns four job ranges: `16-31`, `32-47`,
+`48-63`, and `64-79`. `nproc` is sixteen both before and after the move.
+Hosted runners remain standard four-vCPU runners; local CPU count is an
+excluded operational observation, not a claim that their performance is equal.
 
-`act` gives every job container of a run that one options word, so the word
-alone puts every concurrent matrix leg on the same four CPUs. Before #730 an
-`rtl-full` replay ran four shard legs together on `0-3`, a quarter of a hosted
-runner each, while the rest of the host stayed idle. The word's CPU set is
-therefore only a staging range. While `act` runs, the runner reads the
-daemon's container events for its own ownership label (`docker events`, in a
-process group of its own). As each job container is created, the runner
-reserves the lowest of the slot's job ranges that no container holds, and
-moves the container there with `docker container update --cpuset-cpus`. Each
-range is `CONTAINER_CPU_LIMIT` CPUs wide, so a leg's `nproc` is the hosted
-runner's 4 before and after the move, and the memory bound is unchanged. The
-job ranges follow the staging range: slot 0 stages on `0-3` and moves up to
-four containers to `4-7`, `8-11`, `12-15` and `16-19`.
+The replay uses one scheduler for all selected, byte-identical workflow files.
+`CONCURRENT_JOB_LIMIT=4` and the pinned dispatcher `0.2.89+milan-ci3` enforce
+one admission bound across nested matrices and workflows. Vanilla `act`'s
+outer job limit can multiply by each matrix's width; it is therefore refused.
+`scripts/build_ci_act.py` verifies the upstream source archive and compiler,
+applies the small scheduling patch, runs the upstream common tests and repeated
+race-enabled admission controls, and emits source, recipe and binary digests.
+The upstream general parallel executor remains unchanged. The new workflow
+executor stops admission on the first failure and joins cancellation cleanup.
+Native hosted matrices retain `fail-fast: true`, including fork PRs.
+
+The CPU monitor reads daemon events under the invocation's ownership label.
+For each created job container it reserves the lowest free range and calls
+`docker container update --cpuset-cpus`. It confirms placement by inspection.
 
 A reservation lasts until the container's `destroy` event, or until
 `docker container inspect` shows that the daemon no longer has the container.
@@ -1945,35 +1936,17 @@ from the events that arrived. The runner reads it after each move, at each
 holder when no range is free. A holder the daemon no longer has then frees its
 range.
 
-The number of ranges a run uses comes from the workflows it replays, not from
-a setting. A matrix job runs `strategy.max-parallel` containers at once, or
-`act`'s default of 4 when it names none, and a job without a matrix runs one.
-At most `CONCURRENT_JOB_LIMIT` jobs of a stage run together, so a workflow's
-concurrency is that many of its widest jobs added up. The shipping `rtl-full`
-derives 4, because its shard jobs name no `max-parallel`; `docs`, `elaborate`
-and `rtl-fast` derive 1. A `max-parallel` the runner cannot read as `act` does,
-such as an expression, refuses the run. Every slot is spaced for
-`CONCURRENT_JOB_LIMIT` times `act`'s default width, which is four job ranges,
-so a slot's CPUs depend on its number alone, whatever it replays. A run that
-derives more is refused rather than sharing CPUs. A host without the CPUs for
-the ranges a run derives refuses the run on every slot, slot 0 included, before
-the slot is entered. The run prints the plan before its boundary is created,
-for example on slot 0:
+The number of ranges comes from the selected workflows' literal matrix widths,
+capped by the dispatcher's global four-leg admission bound. Expressions in a
+matrix concurrency bound are refused. All four shipping workflows can overlap
+within that same bound. Every slot is spaced for one staging range plus four
+job ranges, eighty CPUs in total. A host missing any required range refuses the
+run before entering the slot; ranges are never silently shared.
 
-```text
-act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1);
-  each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7
-  --cpuset-cpus=8-11 --cpuset-cpus=12-15 --cpuset-cpus=16-19
-```
-
-The runner prints that plan as one line, wrapped here. After each workflow it
-prints one line on what its job containers got, also wrapped here:
-
-```text
-act-ci: rtl-full: CPU ranges: <n> job container(s) created: <m> seen on a range
-  of their own by docker inspect, <g> removed before that, <s> never seen on one;
-  at most <k> held a range at once
-```
+The runner prints the selected ranges before launch and reports observed
+placements after the combined replay. The placement summary distinguishes
+containers confirmed on their own range, removed before confirmation, and
+never confirmed. Its peak is the number of simultaneously reserved ranges.
 
 A container left on the staging range is printed as a warning and never
 changes a verdict. That happens when a move fails or cannot be confirmed, when
@@ -2228,7 +2201,7 @@ Docker teardown remains paused until absence is actually established, with the
 PGID and operator recovery action printed. Docker-daemon-owned containers are
 independently contained by the same verified cleanup.
 
-The sharded exhaustive workers (five Verilator, four Yosys) carry their
+The sharded exhaustive workers (sixteen Verilator, four Yosys) carry their
 checked denominator through the singleton `matrix.total` dimension.
 `scripts/ci_events.py` proves that value
 equals the `matrix.shard` list length and that every job name and shard command
@@ -2275,7 +2248,7 @@ them:
   at startup, and nothing of the slot is touched.
 - The network namespace `milan-act-slot-N`.
 - The top-level slice `milan_act_slot_N.slice`, capped as a runtime property
-  at `MemoryMax=24G` with no swap (`SLOT_MEMORY_MAX`).
+  at `MemoryMax=36G` with no swap (`SLOT_MEMORY_MAX`).
 - The uplink unit `milan-act-slot-N-net.service`. `pasta` configures the
   namespace from the host's addresses and gives it outbound connectivity
   through socket-level NAT. It forwards no port in either direction and does
@@ -2352,30 +2325,24 @@ replay in one slot cannot collide with a replay in another.
 
 Resource bounds:
 
-- Slot N owns the CPUs `20N` to `20N+19`: a staging range of
-  `CONTAINER_CPU_LIMIT` CPUs, then four job ranges of the same width, one per
-  concurrent job container, as described above. Its job containers are
-  created on `20N` to `20N+3` and moved to their own ranges from `20N+4`. Slot
-  0 stages on `0-3` and uses `4-19`. A host without a slot's staging range
-  refuses the slot. A host without the job ranges a run derives refuses the
-  run before the slot is entered, slot 0 included. On a 128-CPU host, any
-  shipping workflow fits in slots 1 to 5, and slot 6 holds workflows that
-  derive one container. A replay started by a runner from before #730 still
-  puts slot N on `4N` to `4N+3`, which meets these blocks, so run every
-  concurrent slot from one runner version.
-- `--memory`, `--memory-swap`, `--concurrent-jobs` and the matrix width are
-  unchanged, so each job container is shaped as described above and only its
-  CPUs differ.
-- The slot as a whole is not hosted-shaped. The slice cap bounds everything
-  in the slot together at 24G, while hosted runners give each job its own
-  16 GB machine and slot 0 allows up to four 16 GB matrix legs at once
-  (64 GB). rtl-full's sharded jobs can therefore meet the slot cap where
-  neither slot 0 nor hosted would. When reclaim cannot keep a slot under the
-  cap, the OOM killer acts inside that slot's slice, without taking memory
-  from the host or from another slot.
+- Slot N owns CPUs `80N` to `80N+79`: sixteen staging CPUs followed by four
+  sixteen-CPU job ranges. Slot 0 stages on `0-15` and runs jobs on `16-79`.
+  A full isolated slot 1 requires CPUs through 159. A 128-CPU host therefore
+  supports slot 0's four-job layout, not a second full isolated slot. Every
+  concurrent replay must use the same resource-policy version.
+- Four containers at eight GiB plus four GiB for daemon and service overhead
+  fit the isolated slot's 36 GiB cap. This leaves room on the 53 GB shared
+  host, but is not a reservation of all remaining host memory. Slot 0 has
+  per-container limits; only isolated slots enforce the aggregate slice cap.
+- Four concurrent real Yosys shards at sixteen CPUs each passed with cgroup
+  peaks of 2635010048, 1635954688, 889298944 and 646090752 bytes. The sum of
+  peaks, 5806354432 bytes, bounds that sample at 5.41 GiB. No memory-limit or
+  OOM event occurred. An earlier two-GiB trial killed the largest shard, so
+  that cap was rejected. This sample validates the proposed workload budget;
+  it does not prove an upper bound for every future compiler or campaign.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
-  which counts only the slice's limit and never a job container's 16 GB limit
+  which counts only the slice's limit and never a job container's eight-GiB limit
   below it. Any `oom` there is exit 2 naming the cap, so an OOM at the cap
   cannot pass for the candidate's `FAILED`.
 - That OOM is all the runner detects. Before one, the host reclaims memory
@@ -2630,11 +2597,64 @@ would otherwise satisfy the ruleset. Do not add workflow-level `paths`,
 never starts leaves its required name pending. The three documentation jobs
 are independent required siblings, so a failure in `wire-accountability` or
 `docs-check-no-git` blocks the PR even when `docs-check` itself succeeds.
-`scripts/ci_events.py --check` holds each of them, and `elaborate`, to the
-same rule as the RTL jobs (#261): the job whose id is the required name
-carries it, carries no `needs`, `if`, `continue-on-error` or `defaults`, and
-exactly one job carries each name; the gate steps inside those jobs, their
-shape and their presence, are pinned too (item 11 — landed by #295).
+`scripts/ci_events.py --check` pins the complete generated job graphs and
+the original ordered gate commands. Exactly one job carries each required name.
+The independent `wire-accountability` and `docs-check-no-git` jobs retain their
+unconditional execution. `docs-check` and `elaborate` are fail-closed aggregates
+over two workers each. Their `always()` condition also runs the verifier after
+a dependency fails or is cancelled. Missing, failed, cancelled and skipped
+worker jobs all fail the aggregate.
+
+The source inventories are `.github/ci-templates/docs.yml` and
+`.github/ci-templates/elaborate.yml`. Edit those templates and run
+`python3 scripts/ci_gate_workflows.py`; the workflow files are generated.
+The generator preserves every original command, condition and environment.
+It puts the 1065-second docs builder gate on one worker and the other gates
+on the other. Elaboration separates its 1441-second builder gate from the
+593-second standalone simulation aggregate. These are measured baseline step
+windows; setup and evidence collection add to each worker's duration.
+Workers have 27-minute limits and their aggregates have three-minute limits.
+
+Each worker records the source gate IDs and the actual step outcomes reported
+by the workflow runtime. The aggregate recomputes the inventory from the same
+template and requires its exact union, with each gate executed once. Receipts
+bind the full head, tree and template digest. The existing documentation-only
+elaboration skip remains valid only with a recorded false scope and matching
+skipped outcomes on both workers. It does not excuse a skipped worker job.
+`ci_gate_workflows_selftest.py` drops one gate from every claim, corrupts source
+identities and plants each unsuccessful job outcome; all must be refused.
+The CI contract applies its original negative controls to the template steps
+and separately mutates every generated worker and aggregate step.
+
+Each workflow has a same-repository failure watcher. On a push or a PR whose
+head belongs to this repository, only that guarded job requests `actions: write`.
+It reads actual job outcomes and, on the first failure, its `if: failure()`
+step cancels active runs of all four workflows at the same head. Fork PRs keep
+native matrix cancellation and fail-closed aggregates; they never enter the
+write-token job and do not cancel sibling workflows. There is no privileged
+`workflow_run` controller. A cancellation may interrupt artifact upload; missing
+evidence stays incomplete and can never compare as a valid build.
+
+Local replay uses one scheduler and stops its execution group at the first
+failed job before cleaning owned containers and volumes. A queued job cannot
+enter after failure. Repeated nested-matrix controls prove the global limit,
+no later admission and joined cleanup; the no-failure control runs every leg.
+Transport controls prove same-head sibling selection, fork zero-write behavior,
+actual step/job mapping, cancellation and refusal of identical incomplete
+manifests. See [CI execution signatures](CI_SIGNATURE.md) for the collector
+schema, trusted helper pins and the remaining round-two authentication work.
+
+The install caches have no broad fallback. Markdown downloads bind the renderer
+versions, the hash-pinned requirements and the workflow recipe digest. LiteX
+downloads bind the exact Git revisions in `litex_pins.txt` and the recipe digest.
+The Scala cache binds sbt 1.10.7, the release archive SHA-256, the LiteX pins and
+patches, and the recipe digest. The sbt archive is verified before extraction,
+including after a cache hit. Generated CPU metadata also binds the workflow
+recipe, in addition to the existing configuration, source, pin and patch inputs.
+The workflow-file hash is conservative: an unrelated workflow edit may miss
+the cache, but a changed installation command cannot reuse its predecessor.
+The cache controls remove each version, source and recipe component and add a
+broad fallback; every altered key must be refused.
 
 ## Issue closing on merge
 
@@ -2675,8 +2695,8 @@ syn/yosys/run.sh
 Useful read-only inspection commands are:
 
 ```sh
-scripts/run_all_suites.sh --shard 0/5 --list
-scripts/run_all_suites.sh --shard 4/5 --list   # milan_dp alone
+scripts/run_all_suites.sh --ci-pieces --shard 0/16 --list
+scripts/run_all_suites.sh --ci-pieces --shard 15/16 --list   # continuous media-clock history
 syn/yosys/run.sh --list
 syn/yosys/run.sh --shard 0/4 --list
 ```

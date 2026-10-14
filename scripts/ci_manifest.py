@@ -130,6 +130,12 @@ def completion_errors(payload: dict[str, Any]) -> list[str]:
                 errors.append(f"execution.{where}: step did not succeed")
         if results.get(job) != "success":
             errors.append(f"results.{job}: job/leg did not succeed")
+    expected_unions = {entry["job"].removeprefix("union-") for entry in plan.values()
+                       if entry["job"].startswith("union-")}
+    expected_unions.update("gate/" + name for name in ("docs", "elaborate")
+                           if any(entry["job"] == name + "-gates-0" for entry in plan.values()))
+    for missing in sorted(expected_unions - set(payload["inventories"])):
+        errors.append("inventories." + missing + ": missing executed union")
     for suite, inventory in payload["inventories"].items():
         exact_keys(inventory, {"expected", "legs", "union", "verdicts_sha256"},
                    "inventories." + suite)
@@ -167,16 +173,20 @@ def envelope(payload: dict[str, Any], observations: dict[str, Any]) -> dict[str,
     tools = payload["environment"]["tools"]
     if not isinstance(tools, dict) or not isinstance(payload["environment"]["actions"], list):
         raise ValueError("environment: tools must be a map and actions a list")
+    missing_provenance = []
     for name, tool in tools.items():
         exact_keys(tool, {"version", "source_sha256", "recipe_sha256", "binary_sha256"},
                    "environment.tools." + name)
         if not isinstance(tool["version"], str) or not tool["version"]:
             raise ValueError("environment.tools." + name + ": version missing")
         for field in ("source_sha256", "recipe_sha256", "binary_sha256"):
-            require_digest(tool[field], SHA256, "environment.tools." + name + "." + field)
+            if tool[field] is None:
+                missing_provenance.append("environment.tools." + name + "." + field + ": unmeasured")
+            else:
+                require_digest(tool[field], SHA256, "environment.tools." + name + "." + field)
     if set(observations) - OBSERVATIONS:
         raise ValueError("observations: unknown excluded field")
-    problems = completion_errors(payload)
+    problems = completion_errors(payload) + missing_provenance
     image = payload["environment"]["image"]
     if not isinstance(image, str) or re.fullmatch(r"[^\s]+@sha256:[0-9a-f]{64}", image) is None:
         problems.append("environment.image: no immutable image digest")
@@ -237,6 +247,7 @@ def main() -> int:
     check = commands.add_parser("compare")
     check.add_argument("local", type=Path)
     check.add_argument("github", type=Path)
+    check.add_argument("--root", type=Path, default=Path.cwd())
     args = parser.parse_args()
     try:
         if args.command == "emit":
@@ -245,7 +256,11 @@ def main() -> int:
                 stream.write(canonical(result) + b"\n")
             print("complete" if result["complete"] else "incomplete")
             return 0 if result["complete"] else 1
-        changed = compare(read(args.local), read(args.github))
+        from ci_workflow_plan import verify_bound_plan
+        left, right = read(args.local), read(args.github)
+        verify_bound_plan(args.root, left["payload"])
+        verify_bound_plan(args.root, right["payload"])
+        changed = compare(left, right)
         print("\n".join(changed) if changed else "equal")
         return int(bool(changed))
     except (OSError, ValueError, TypeError, KeyError) as error:

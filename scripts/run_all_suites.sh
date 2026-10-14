@@ -138,6 +138,7 @@ OUT=""
 SHARD="0/1"
 LIST=0
 PHYSICAL_GPTP=0
+CI_PIECES=0
 
 #! the command line: [outdir] [--wait] [--shard INDEX/TOTAL] [--list]
 parse_args() {
@@ -146,6 +147,7 @@ parse_args() {
       --wait) WAIT=1; shift ;;
       --list) LIST=1; shift ;;
       --physical-gptp) PHYSICAL_GPTP=1; shift ;;
+      --ci-pieces) CI_PIECES=1; shift ;;
       --shard)
         [ "$#" -ge 2 ] || { echo "--shard needs INDEX/TOTAL" >&2; exit 2; }
         SHARD="$2"; shift 2 ;;
@@ -172,6 +174,7 @@ select_suites() {
   selector=(python3 "$ROOT/scripts/suite_shards.py"
     --suite-root "$ROOT/tb/verilator" --shard "$SHARD")
   [ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)
+  [ "$CI_PIECES" = 1 ] && selector+=(--ci-pieces)
   if [ "$LIST" = 1 ]; then
     exec "${selector[@]}"
   fi
@@ -391,8 +394,16 @@ run_suites() {
   for suite in "${suites[@]}"; do
     d="$ROOT/tb/verilator/$suite"
     TMO=$(suite_timeout "$suite")
-    timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
-    rc=$?
+    if [ "$CI_PIECES" = 1 ] && [[ "$suite" == *__* ]]; then
+      # Every piece inherits its parent budget; no case timeout is raised.
+      TMO=$(suite_timeout "${suite%__*}")
+      timeout "$TMO" python3 "$ROOT/scripts/ci_suite_pieces.py" run "$suite" \
+        --receipts "$OUT/cases" > "$OUT/$suite.log" 2>&1
+      rc=$?
+    else
+      timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+      rc=$?
+    fi
     # Rule 6: a suite that PRINTS a failure and exits 0 is a masked verdict, and
     # make cannot read. The log is asked, with the same recognisers the tally
     # uses, whether it reports a failure - a [FAIL] line, or a tally counting
