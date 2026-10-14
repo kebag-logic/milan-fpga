@@ -7,6 +7,7 @@ This lane supplies the image without changing workflows.
 ## Contents
 
 - **[Inputs](#inputs)** -- Trace workflow requests to checked public sources.
+- **[Reached construct census](#reached-construct-census)** -- Define supported syntax and refused variants.
 - **[Accepted version changes](#accepted-version-changes)** -- Compare the image with its previous runner.
 - **[Rebuild](#rebuild)** -- Stage verified inputs and build offline.
 - **[Identity and layers](#identity-and-layers)** -- Authenticate declarations and exported image bytes separately.
@@ -54,6 +55,53 @@ Scala dependencies include the pinned CPU generator's requirements.
 The launcher is 1.10.7; that project selects 1.10.0.
 Both versions belong to the same installed toolchain.
 Every downloaded JAR and metadata file has its checksum.
+
+## Reached construct census
+
+Round four starts from `e6b86814` and its unchanged workflows.
+The census follows scripts, local imports and suite recipes.
+It encounters 69 Makefiles and 214 Python import names.
+The command table records individual permitted argument forms.
+This table defines the construct boundary, including refused variants.
+Resolution never executes workflow commands or Make shell expressions.
+
+| Construct | Reached example | Resolution and refused variant |
+|---|---|---|
+| Workflow commands and environment | `.github/workflows/rtl.yml` | Resolve literal environment values; refuse unknown command forms. |
+| Workflow working directories | `.github/workflows/rtl-fast.yml` | Step overrides job and workflow defaults; refuse unresolved directories. |
+| Actions, containers and services | `.github/workflows/docs.yml` | Classify actions; require image digests; refuse reusable jobs. |
+| Shell sequences and pipelines | `.github/workflows/elaborate.yml` | Walk every operand; refuse unclassified commands. |
+| Shell redirections and data heredocs | `syn/yosys/run.sh` | Walk substitutions; refuse unpinned interpreter input. |
+| Shell literal assignments and arrays | `scripts/run_all_suites.sh` | Retain literals; record runtime values; refuse computed function calls. |
+| Shell parameter and arithmetic expansion | `scripts/run_litex_sims.sh` | Walk nested execution; refuse unsupported expansion syntax. |
+| Shell command and process substitution | `syn/yosys/malloc.sh` | Walk child scope; refuse unresolved directory changes. |
+| Shell directory changes and subshells | `scripts/run_litex_sims.sh` | Resolve child directories; preserve parent; refuse computed directories. |
+| Shell blocks and conditionals | `.github/workflows/docs.yml` | Inspect every branch; refuse ambiguous following directories. |
+| Shell loops and cases | `sw/litex/patches/apply.sh` | Inspect every body; retain runtime iteration residue. |
+| Shell declarations and functions | `scripts/run_all_suites.sh` | Walk same-file definitions and literal calls; refuse foreign functions. |
+| Shell sourced files | `syn/yosys/run.sh` | Follow the resolved file; refuse missing files. |
+| Inline interpreter programs | `.github/workflows/elaborate.yml` | Require interpreter and exact program digest; refuse changed bytes. |
+| Command wrappers | `.github/workflows/rtl.yml` | Parse supported options and classify children; refuse unknown options. |
+| Make options and variable overrides | `tb/verilator/maap/Makefile` | Select file, directory and targets; refuse unsupported options. |
+| Make first target and default goal | `tb/verilator/tcam/Makefile` | Use literal default goal; refuse computed goals. |
+| Make explicit rules and prerequisites | `tb/verilator/cbs/Makefile` | Traverse selected dependencies; refuse missing targets. |
+| Make single-stem pattern rules | `tb/verilator/nvm_backend/Makefile` | Substitute the unique stem; refuse ambiguous patterns. |
+| Make variable assignment and expansion | `tb/verilator/milan_dp/Makefile` | Resolve recursive/simple/default/append assignments; refuse unknown functions. |
+| Make multiline definitions and calls | `tb/verilator/milan_dp/Makefile` | Expand declared macros and literal call arguments; refuse undefined macros. |
+| Make automatic variables | `tb/verilator/nvm_backend/Makefile` | Bind target, prerequisite and stem; refuse unsupported automatic forms. |
+| Make string and list functions | `tb/verilator/nvm_backend/Makefile` | Resolve `foreach`, `call`, `subst`, `patsubst`, filters and prefixes. |
+| Make path and selection functions | `tb/verilator/milan_dp/Makefile` | Resolve `abspath`, `wildcard`, `firstword`, `strip`, `if`, `and`. |
+| Make literal shell expressions | `tb/verilator/milan_dp/Makefile` | Classify expanded literal commands; refuse computed executables. |
+| Make conditions and errors | `tb/verilator/capture_coherence/Makefile` | Inspect feasible branches; refuse unsupported directives. |
+| Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Follow resolved arguments; refuse unresolved literal selection. |
+| Python imports and local modules | `scripts/measure_test_evidence_readers.py` | Follow local files; require declarations for execution/network capabilities. |
+| Python positional and keyword calls | `scripts/check_rtl_source_lists.py` | Decode literal argv and keywords; refuse undeclared executors. |
+| Python aliases and dynamic calls | `scripts/act_ci.py` | Require content-pinned review; locate undecodable commands as residue. |
+
+Each supported category needs an accepted and refused control.
+Unlisted constructs and unlisted command forms refuse generation.
+Runtime assembly remains subject to the declared residue boundary.
+
 
 ## Accepted version changes
 
