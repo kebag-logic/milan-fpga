@@ -295,7 +295,8 @@ def step_tp_licence_xside(context: Context) -> None:
     names = {a.name for a in context.tp_sin.asserts}
     for a in (tp.A_XSIDE_CORROBORATED, tp.A_XSIDE_UNLICENSED_SILENT,
               tp.A_XSIDE_NOT_MORE, tp.A_XSIDE_PRUNED,
-              tp.A_XSIDE_INTERVAL_AGREE, tp.A_INSTRUMENT_LOSSLESS):
+              tp.A_XSIDE_INTERVAL_AGREE, tp.A_XSIDE_PEER_SEMANTICS,
+              tp.A_INSTRUMENT_LOSSLESS):
         assert a.name in names, (a.name, sorted(names))
     # and it names BOTH ends, because a one-sided measurement cannot corroborate
     for k in ("talker", "talker_index", "listener", "listener_index"):

@@ -21,9 +21,10 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `18dd997b2459699e41e5ce9bceca1181e41fa5fe` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `gptp-processor` | `e4869fd0c42889b2ac806587cc5c78afb1c33461` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
-| `third_party/lwSRP` | `9197193e47a6bb1c45a56d90a18c1784123aba44` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+| `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+| `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -210,28 +211,55 @@ The pin checker reads Git index entries.
 
 It does not trust checked-out heads.
 
+Issue #665 adopts stack pin `70936b77`.
+
+| Stack PR | Parent-visible result |
+|---|---|
+| [19](https://github.com/kebag-logic/tsn-c-stack/pull/19) | ADP discovery rejects frames shorter than 82 bytes, unsupported versions and control-data lengths other than 56 |
+| [20](https://github.com/kebag-logic/tsn-c-stack/pull/20) | Standalone entity generation; the parent retains its existing descriptor generator |
+| [25](https://github.com/kebag-logic/tsn-c-stack/pull/25) | Valid talker destinations declare after a fresh probe or with a registered Listener |
+
+Parent adapter tests exercise every ADP refusal and valid discovery.
+
+The mailbox publishes the stack declaration predicate as `DA_GATE`.
+
 ## Initialize safely
 
-Firmware and root gates use these four submodules.
+Firmware and root gates use these five submodules.
 
 ```sh
 git submodule update --init \
   third_party/verilog-axis \
   protocol-processor \
   gptp-processor \
-  third_party/lwSRP
+  third_party/lwSRP \
+  third_party/tsn-c-stack
 ```
 
 lwSRP uses the HTTPS URL recorded in `.gitmodules`.
 The repository is public; anonymous HTTPS fetch needs no credentials.
 
 The pin is published on `main`.
-It includes PR #12 and PR #15.
+It includes PR #12, PR #15 and PR #18.
 
 The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
 
 lwSRP is licensed under Apache-2.0.
 Its pinned `LICENSE` and `NOTICE` retain dependency terms.
+
+tsn-c-stack uses HTTPS and needs no credentials.
+
+The pin is the merge of tsn-c-stack PR 25 on `main`.
+
+The previous pin remains reachable through its publication tag.
+
+The current pin includes #19's `src/adp.c` discovery refusals.
+
+It holds the ADP, ACMP and MAAP cores.
+
+The [control firmware](../../sw/firmware/ctrl/README.md) uses its public headers.
+
+tsn-c-stack is licensed under [MIT](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/LICENSE).
 
 The unused external import uses SSH.
 
@@ -276,6 +304,7 @@ The cleanliness command must print nothing.
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
 | `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
+| `third_party/tsn-c-stack` | [Quality workflow](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/.github/workflows/quality.yml) | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts
@@ -288,10 +317,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/18dd997b2459699e41e5ce9bceca1181e41fa5fe/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/18dd997b2459699e41e5ce9bceca1181e41fa5fe/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/18dd997b2459699e41e5ce9bceca1181e41fa5fe/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/18dd997b2459699e41e5ce9bceca1181e41fa5fe/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

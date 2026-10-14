@@ -18,6 +18,7 @@ Gitlinks define their exact revisions.
 | `gptp-processor` | `Mister-M-alt/FPGA-gPTP` | CERN-OHL-W-2.0 | Fabric gPTP engine |
 | `protocol-processor` | `Mister-M-alt/protocol-processor-control-plane-avb-milan` | CERN-OHL-W-2.0 | ADP, ACMP, AECP, and SRP |
 | `third_party/lwSRP` | `kebag-logic/lwSRP` | Apache-2.0; see its `LICENSE` and `NOTICE` | Bare-metal MSRP and MVRP through the mailbox adapter |
+| `third_party/tsn-c-stack` | `kebag-logic/tsn-c-stack` | MIT; see its `LICENSE` | ADP, ACMP and MAAP cores through the mailbox adapters |
 | `third_party/verilog-axis` | `alexforencich/verilog-axis` | MIT | AXI-Stream primitives |
 
 Use the [verified submodule map](docs/reference/SUBMODULES.md).

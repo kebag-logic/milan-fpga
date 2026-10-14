@@ -264,8 +264,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! EVERYTHING in docs/AAF_LATENCY_TAPS.md: the CAP-SOF/SOF-EOF/EOF-MAC
   //! silicon numbers cannot be reproduced on a pruned bitstream.
   parameter int LTAP_P = 1,
-  //! MAAP engine (KL_maap, 515 LUT / 278 FF by syn/yosys/ooc.sh). 0 prunes
-  //! it, ties addr_valid_o = 0 and parks its low-rate TX port. Term-by-term
+  //! MAAP engine (KL_maap). Measured area: docs/design/MAAP_FABRIC.md.
+  //! 0 prunes it, ties addr_valid_o = 0 and parks its low-rate TX port. Term-by-term
   //! that is the state a build with MAAP_CTRL.en = 0 is in today:
   //! eff_aaf_dmac falls back to the CSR-provisioned AAF_DMAC and the
   //! admission gate's MAAP term (~cfg_maap_enable | maap_addr_valid) is
@@ -3447,7 +3447,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam logic [31:0] CTR_VALID_SIN_C = 32'h0000_0FFF;
   localparam logic [15:0] DESC_STREAM_INPUT_C = 16'h0005;  //! Table 7-4
 
-  wire [12*32-1:0] mon_diag_cnt_w;
+  //! the monitor serves ONE counter per read, named by sink and column
+  wire [31:0] mon_diag_q_w;
 
   //! WHICH OBJECT WE ARE ALLOWED TO ANSWER FOR. There is no NO_SUCH_DESCRIPTOR
   //! arm on this face - it carries data and a mask, nothing else - so an
@@ -3501,25 +3502,35 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   assign aecp_diag_idx_w = ctr_sin_w ? ctrq_index_r[3:0] : 4'd0;
 
-  logic [31:0] ctr_blk_w;
+  //! The quadlet names a monitor COLUMN, and the monitor reads that one
+  //! counter of the sink (#640 M6: one table read, no word multiplexer).
+  logic [3:0]  mon_diag_col_w;
+  logic        ctr_col_v_w;   //! the quadlet is one of the twelve counters
   always_comb begin
+    ctr_col_v_w = 1'b1;
     unique case (ctrq_word_r)
-      6'd0    : ctr_blk_w = mon_diag_cnt_w[MON_ML_C  * 32 +: 32]; // @0   MEDIA_LOCKED
-      6'd1    : ctr_blk_w = mon_diag_cnt_w[MON_MU_C  * 32 +: 32]; // @4   MEDIA_UNLOCKED
-      6'd2    : ctr_blk_w = mon_diag_cnt_w[MON_SI_C  * 32 +: 32]; // @8   STREAM_INTERRUPTED
-      6'd3    : ctr_blk_w = mon_diag_cnt_w[MON_SM_C  * 32 +: 32]; // @12  SEQ_NUM_MISMATCH
-      6'd4    : ctr_blk_w = mon_diag_cnt_w[MON_MR_C  * 32 +: 32]; // @16  MEDIA_RESET
-      6'd5    : ctr_blk_w = mon_diag_cnt_w[MON_TU_C  * 32 +: 32]; // @20  TIMESTAMP_UNCERTAIN
-      6'd6    : ctr_blk_w = mon_diag_cnt_w[MON_TV_C  * 32 +: 32]; // @24  TIMESTAMP_VALID
-      6'd7    : ctr_blk_w = mon_diag_cnt_w[MON_TNV_C * 32 +: 32]; // @28  TIMESTAMP_NOT_VALID
-      6'd8    : ctr_blk_w = mon_diag_cnt_w[MON_UF_C  * 32 +: 32]; // @32  UNSUPPORTED_FORMAT
-      6'd9    : ctr_blk_w = mon_diag_cnt_w[MON_LT_C  * 32 +: 32]; // @36  LATE_TIMESTAMP
-      6'd10   : ctr_blk_w = mon_diag_cnt_w[MON_ET_C  * 32 +: 32]; // @40  EARLY_TIMESTAMP
-      6'd11   : ctr_blk_w = mon_diag_cnt_w[MON_FRX_C * 32 +: 32]; // @44  FRAMES_RX
-      6'd32   : ctr_blk_w = CTR_VALID_SIN_C;                      //      counters_valid
-      default : ctr_blk_w = 32'd0;   // @48..@92 reserved, @96.. ENTITY_SPECIFIC
+      6'd0    : mon_diag_col_w = 4'(MON_ML_C);  // @0   MEDIA_LOCKED
+      6'd1    : mon_diag_col_w = 4'(MON_MU_C);  // @4   MEDIA_UNLOCKED
+      6'd2    : mon_diag_col_w = 4'(MON_SI_C);  // @8   STREAM_INTERRUPTED
+      6'd3    : mon_diag_col_w = 4'(MON_SM_C);  // @12  SEQ_NUM_MISMATCH
+      6'd4    : mon_diag_col_w = 4'(MON_MR_C);  // @16  MEDIA_RESET
+      6'd5    : mon_diag_col_w = 4'(MON_TU_C);  // @20  TIMESTAMP_UNCERTAIN
+      6'd6    : mon_diag_col_w = 4'(MON_TV_C);  // @24  TIMESTAMP_VALID
+      6'd7    : mon_diag_col_w = 4'(MON_TNV_C); // @28  TIMESTAMP_NOT_VALID
+      6'd8    : mon_diag_col_w = 4'(MON_UF_C);  // @32  UNSUPPORTED_FORMAT
+      6'd9    : mon_diag_col_w = 4'(MON_LT_C);  // @36  LATE_TIMESTAMP
+      6'd10   : mon_diag_col_w = 4'(MON_ET_C);  // @40  EARLY_TIMESTAMP
+      6'd11   : mon_diag_col_w = 4'(MON_FRX_C); // @44  FRAMES_RX
+      default : begin              // counters_valid, @48..@92 reserved,
+        mon_diag_col_w = 4'(MON_ML_C);  // @96.. ENTITY_SPECIFIC
+        ctr_col_v_w    = 1'b0;
+      end
     endcase
   end
+  logic [31:0] ctr_blk_w;
+  assign ctr_blk_w = ctr_col_v_w              ? mon_diag_q_w
+                   : (ctrq_word_r == 6'd32)   ? CTR_VALID_SIN_C   // counters_valid
+                   : 32'd0;
 
   // ------------------------------------------------------------------------
   //  AVB_INTERFACE and CLOCK_DOMAIN counters (Milan v1.2 5.3.6.3 Table 5.1,
@@ -6323,12 +6334,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! Milan 5.4.2.25: every sink's Table 5.6 set, muxed by the AECP's
     //! GET_COUNTERS descriptor index
     .diag_idx_i               (aecp_diag_idx_w),
-    //! Milan Table 5.16 STREAM_INPUT counters, muxed by diag_idx_i above.
-    //! Its reader is the protocol processor's GET_COUNTERS face; the 0x6B8
-    //! A_STRMW_CNT CSR window is served from the per-context counters beside
-    //! it, NOT from this port, so the two views are independent readers of
-    //! the same flops and a divergence between them is a real defect.
-    .diag_cnt_o               (mon_diag_cnt_w),
+    .diag_col_i               (mon_diag_col_w),
+    //! Milan Table 5.16 STREAM_INPUT counters, one per read, named by
+    //! diag_idx_i and diag_col_i above. Its reader is the protocol
+    //! processor's GET_COUNTERS face; the 0x6B8 A_STRMW_CNT CSR window is
+    //! served from the per-context counters beside it, NOT from this port,
+    //! so the two views are independent readers of the same counters and a
+    //! divergence between them is a real defect.
+    .diag_q_o                 (mon_diag_q_w),
     .cnt_media_reset_o (avtprx_mreset_c),
     .cnt_late_ts_o     (avtprx_late_c),
     .cnt_early_ts_o    (avtprx_early_c),
@@ -7168,6 +7181,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   KL_maap #(.CLK_FREQ_HZ_P(MAAP_CLK_HZ_P)) maap_engine (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_maap_enable),
+    .port_operational_i (eff_link_w),
+    .realtime_ns_i     (ptp_now_w[31:0]),
     .count_i  (cfg_maap_count),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],

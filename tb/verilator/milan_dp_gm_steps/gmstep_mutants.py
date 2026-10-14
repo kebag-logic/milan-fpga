@@ -22,6 +22,13 @@ It also restores both PHC causes together and vetoes a genuine CRF request
 on the very cycle a software settime re-bases the PHC.
 Delayed adjtime causes at 16 and 256 cycles must fail only the adjtime check.
 
+The recipe, the harness and the generated images the legs read belong to
+tb/verilator/milan_dp; this driver builds and runs them there. With
+--no-small-steps every gmstep run, the positive control's included, leaves
+out the #621 small-step phase and nothing else. The sweep runs its controls
+that way: none of their named checks is in that phase, and the suite runs
+the clean leg once with it. The explicit campaigns run the whole leg.
+
 What bounds a run. This driver sets no host-time deadline (rule 8's
 wall-clock ratchet, scripts/test_evidence.budget item 4). The leg is
 cycle-bounded by construction: every phase runs a fixed cycle count, every
@@ -31,7 +38,8 @@ the clean leg. The host-time bound of the default run is the sweep's
 per-suite guard in scripts/run_all_suites.sh; the SIGTERM handler turns that
 kill into an exit that removes the temporary directory.
 
-Usage: python3 gmstep_mutants.py [--all]   (run from tb/verilator/milan_dp)
+Usage: python3 gmstep_mutants.py [--all | --slew] [--no-small-steps]
+(run from tb/verilator/milan_dp_gm_steps)
 Exit 0 = every control was caught and the clean leg still passes.
 """
 
@@ -44,6 +52,9 @@ from pathlib import Path
 from typing import NamedTuple
 
 HERE = Path(__file__).resolve().parent
+#: the suite that owns both legs' recipes and harnesses, and the run directory
+#: of their binaries: they read the generated ROM images there
+DP = HERE.parent / "milan_dp"
 SOURCES = {
     "datapath": HERE / "../../../hdl/milan/milan_datapath.sv",
     "clkv": HERE / "../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
@@ -81,12 +92,13 @@ class Leg(NamedTuple):
     exe_name: str
     harness: str                #: its C++ harness, an input of the recipe
     takes_aem: bool             #: it reads the AEM image beside its binary
+    short_flag: str = ""        #: what --no-small-steps passes it, if anything
 
 
 LEGS = {
-    "gmstep": Leg("gmstep-build", "GMSTEP_MDIR", HERE / "obj_gmstep",
-                  "Vmilan_dp_gmstep", "sim_gmstep.cpp", True),
-    "option-off": Leg("option-off-build", "OPTOFF_MDIR", HERE / "obj_dir",
+    "gmstep": Leg("gmstep-build", "GMSTEP_MDIR", DP / "obj_gmstep",
+                  "Vmilan_dp_gmstep", "sim_gmstep.cpp", True, "--no-small-steps"),
+    "option-off": Leg("option-off-build", "OPTOFF_MDIR", DP / "obj_dir",
                       "Vmilan_dp_sim", "sim_main.cpp", False),
 }
 
@@ -236,9 +248,9 @@ CONTROLS = [
 
 
 def build(leg: Leg, sources: dict[str, Path], mdir: Path) -> Path | None:
-    """Build `leg` against `sources` through the suite's own recipe; the
+    """Build `leg` against `sources` through its own recipe in milan_dp; the
     executable, or None when the recipe failed or left none."""
-    command = ["make", "-s", "-C", str(HERE), leg.target, f"{leg.mdir_var}={mdir}"]
+    command = ["make", "-s", "-C", str(DP), leg.target, f"{leg.mdir_var}={mdir}"]
     command += [f"{MAKE_VAR[key]}={path}" for key, path in sources.items()]
     out = subprocess.run(command, capture_output=True, text=True, check=False)
     exe = mdir / leg.exe_name
@@ -255,21 +267,23 @@ def is_fresh(leg: Leg, exe: Path) -> bool:
     Makefile itself. A list that cannot be read counts as stale."""
     # GNU make 4.3 can inherit directory printing from a parent recipe even
     # with -s. Keep that chatter out of the source-path inventory for both legs.
-    out = subprocess.run(["make", "--no-print-directory", "-s", "-C", str(HERE), "print-srcs"],
+    out = subprocess.run(["make", "--no-print-directory", "-s", "-C", str(DP), "print-srcs"],
                          capture_output=True, text=True, check=False)
     if out.returncode != 0 or not exe.is_file():
         return False
-    inputs = [HERE / name for name in out.stdout.split()]
-    inputs += [HERE / leg.harness, HERE / "Makefile"]
+    inputs = [DP / name for name in out.stdout.split()]
+    inputs += [DP / leg.harness, DP / "Makefile"]
     built = exe.stat().st_mtime
     return all(src.is_file() and src.stat().st_mtime <= built for src in inputs)
 
 
-def run_leg(leg: Leg, exe: Path) -> tuple[int, str]:
+def run_leg(leg: Leg, exe: Path, short: bool) -> tuple[int, str]:
     """(rc, stdout) of one run of the leg, with no host deadline: it is
-    cycle-bounded (module docstring). The AEM image sits beside the binary."""
+    cycle-bounded (module docstring). The AEM image sits beside the binary.
+    `short` passes the leg's --no-small-steps flag, when it has one."""
     command = [str(exe)] + ([str(exe.parent / "aemi.bin")] if leg.takes_aem else [])
-    out = subprocess.run(command, cwd=str(HERE), capture_output=True, text=True,
+    command += [leg.short_flag] if short and leg.short_flag else []
+    out = subprocess.run(command, cwd=str(DP), capture_output=True, text=True,
                          check=False)
     return out.returncode, out.stdout + out.stderr
 
@@ -297,7 +311,7 @@ def verdict(rc: int, out: str, must_fail: str | None) -> str:
     return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
 
 
-def run_control(control: Control, work: Path, tag: int) -> bool:
+def run_control(control: Control, work: Path, tag: int, short: bool) -> bool:
     """Plant one control, build and run the leg; True when it was caught."""
     base = SOURCES[control.source].resolve()
     text = base.read_text()
@@ -317,7 +331,7 @@ def run_control(control: Control, work: Path, tag: int) -> bool:
         print(f"[FAIL] control {control.name!r} did not compile; a control that cannot "
               f"build proves nothing about the leg")
         return False
-    rc, out = run_leg(leg, exe)
+    rc, out = run_leg(leg, exe, short)
     answer = verdict(rc, out, control.breaks)
     if answer == "caught":
         broke = failed_checks(out)
@@ -341,6 +355,8 @@ def main() -> int:
     parser.add_argument("--all", action="store_true",
                         help="plant the whole inventory, not only the acceptance's controls")
     parser.add_argument("--slew", action="store_true", help="plant only the #545 connection controls")
+    parser.add_argument("--no-small-steps", action="store_true",
+                        help="run every gmstep leg without its #621 small-step phase")
     args = parser.parse_args()
 
     def on_sigterm(*_: object) -> None:
@@ -358,19 +374,21 @@ def main() -> int:
             leg = LEGS[key]
             exe = leg.clean_mdir / leg.exe_name
             if not is_fresh(leg, exe):
-                print(f"[INFO] {exe.relative_to(HERE)} is missing or older than its "
+                print(f"[INFO] {exe.relative_to(DP)} is missing or older than its "
                       f"sources: the positive control is rebuilt")
                 exe = build(leg, {}, work / f"obj_clean_{leg.target}")
-            answer = verdict(*run_leg(leg, exe), None) if exe else "did not compile"
+            answer = (verdict(*run_leg(leg, exe, args.no_small_steps), None) if exe
+                      else "did not compile")
+            mode = f" ({leg.short_flag})" if args.no_small_steps and leg.short_flag else ""
             if answer == "pass":
                 passes += 1
-                print(f"[PASS] the unmutated gateware still passes the {key} leg")
+                print(f"[PASS] the unmutated gateware still passes the {key} leg{mode}")
             else:
                 fails += 1
-                print(f"[FAIL] the unmutated gateware does NOT pass the {key} leg "
+                print(f"[FAIL] the unmutated gateware does NOT pass the {key} leg{mode} "
                       f"({answer}) - every control result on it is meaningless")
         for tag, control in enumerate(selected):
-            if run_control(control, work, tag):
+            if run_control(control, work, tag, args.no_small_steps):
                 passes += 1
             else:
                 fails += 1

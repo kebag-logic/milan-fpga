@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 #pragma once
 #include <cstdint>
+#include <stdexcept>
 static uint64_t scenario_word(uint8_t, uint16_t, uint16_t, uint8_t, uint8_t);
 static bool scenario_format(uint16_t, uint16_t, uint64_t);
 #define main reference_suite_main

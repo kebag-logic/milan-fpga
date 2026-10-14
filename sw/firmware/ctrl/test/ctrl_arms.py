@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import shutil
 import sys
@@ -11,9 +12,11 @@ from pathlib import Path
 from subprocess import CompletedProcess
 
 from ctrl_build import (CTRL, HERE, HOST, NVM_DIR, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
-                        TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
-                        run, sources)
+                        TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, label,
+                        link, run, sources)
 import fw_rv32
+from ctrl_service_bounds import arm_service_bounds
+
 
 def arm_model(tree: Tree) -> Outcome:
     """The RTL's mailbox checks, on the host model."""
@@ -28,15 +31,21 @@ def arm_port(tree: Tree) -> Outcome:
     return execute("port", link(tree, "test_port_loop", objs))
 
 
+#: The ADP binary's tests: the stack's core cases, then the adapter's, the latency bounds and the backlog.
+ADP_TESTS = ("tsn-c-stack/tests/test_adp.cpp", "test_adp.cpp")
+
+
 def arm_adp(tree: Tree) -> Outcome:
     """The ADP core, its adapter and the latency bounds."""
-    objs = firmware(tree, PORTABLE, "adp") + compile_tests(tree, ("test_adp.cpp",), "adp/tests")
+    objs = firmware(tree, PORTABLE, "adp") + compile_tests(tree, ADP_TESTS, "adp/tests")
     return execute("adp", link(tree, "test_adp", objs))
 
 
-#: The ACMP binary's tests: the core over fake ports, then the adapter, the
-#: latency bounds and the composition on the model.
-ACMP_TESTS = ("test_acmp.cpp", "test_acmp_mbx.cpp")
+#: The ACMP binary's tests: the core over fake ports (the stack's), then the
+#: adapter, the latency bounds and the composition on the model.
+ACMP_TESTS = ("tsn-c-stack/tests/test_acmp.cpp", "test_acmp_mbx.cpp")
+#: Its tally label, which no test file of it names.
+ACMP_LABEL = "ctrl ACMP core and adapter (fake ports and host model)"
 #: The host tests' build asserts the no-callback rule (#678, acmp.h).
 REENTRY_ASSERT = ("-DCTRL_REENTRY_ASSERT",)
 
@@ -45,7 +54,7 @@ def arm_acmp(tree: Tree) -> Outcome:
     """The ACMP core over fake ports, its adapter and the latency bounds on the model."""
     objs = (compile_c(tree, sources(tree, PORTABLE), "acmp", REENTRY_ASSERT) +
             compile_c(tree, sources(tree, HOST), "acmp/host", measured=False) +
-            compile_tests(tree, ACMP_TESTS, "acmp/tests"))
+            compile_tests(tree, ACMP_TESTS, "acmp/tests") + [label(tree, ACMP_LABEL)])
     return execute("acmp", link(tree, "test_acmp", objs))
 
 
@@ -71,7 +80,7 @@ def arm_acmpif2(tree: Tree) -> Outcome:
         shutil.rmtree(src)
     shutil.copytree(tree.src, src, ignore=shutil.ignore_patterns("__pycache__"))
     shutil.copyfile(gen / "mbx_contract.h", src / "mbx" / "mbx_contract.h")
-    if2 = Tree(src, work / "build", tree.reuse, tree.build)
+    if2 = Tree(src, work / "build", tree.reuse, tree.build, tree.stack)
     objs = (compile_c(if2, sources(if2, PORTABLE), "fw", REENTRY_ASSERT, measured=False) +
             compile_c(if2, sources(if2, HOST), "host", measured=False) +
             compile_tests(if2, IF2_TESTS, "tests"))
@@ -117,20 +126,28 @@ def arm_acmpnvm(tree: Tree) -> Outcome:
     return execute("acmpnvm", link(tree, "test_acmp_nvm", objs))
 
 
+#: The MAAP arm's two binaries: the stack's Annex B core cases with the CSR output's, and H-MAAP.
+MAAP_BINARIES = (("test_maap", ("tsn-c-stack/tests/test_maap.cpp", "test_maap.cpp")),
+                 ("test_maap_mbx", ("test_maap_mbx.cpp",)))
+
+
 def arm_maap(tree: Tree) -> Outcome:
     """Annex B core, allocation CSR port and H-MAAP on the host mailbox."""
     objs = firmware(tree, PORTABLE, "maap")
-    results = [execute("maap", link(tree, name.removesuffix(".cpp"),
-                                   objs + compile_tests(tree, (name,), "maap/tests")))
-               for name in ("test_maap.cpp", "test_maap_mbx.cpp")]
+    results = [execute("maap", link(tree, name, objs + compile_tests(tree, tests, "maap/tests")))
+               for name, tests in MAAP_BINARIES]
     return Outcome("maap", max(r.rc for r in results), "\n".join(r.log for r in results))
+
+
+#: The tally label of the stack's synchronous-reentry test.
+MAAP_DEBUG_LABEL = "ctrl MAAP debug port contract"
 
 
 def arm_maap_debug(tree: Tree) -> Outcome:
     """Debug builds assert on synchronous port reentry; release is measured."""
-    objs = compile_c(tree, sources(tree, ("maap/maap.c",)), "maap_debug", ("-UNDEBUG",), measured=False)
-    test = compile_tests(tree, ("test_maap_debug.cpp",), "maap_debug/tests")
-    return execute("maap_debug", link(tree, "test_maap_debug", objs + test))
+    objs = compile_c(tree, sources(tree, ("tsn-c-stack/src/maap.c",)), "maap_debug", ("-UNDEBUG",), measured=False)
+    test = compile_tests(tree, ("tsn-c-stack/tests/test_maap_debug.cpp",), "maap_debug/tests")
+    return execute("maap_debug", link(tree, "test_maap_debug", objs + test + [label(tree, MAAP_DEBUG_LABEL)]))
 
 
 def arm_maap_if2(tree: Tree) -> Outcome:
@@ -148,6 +165,10 @@ def arm_maap_if2(tree: Tree) -> Outcome:
     return execute("maap_if2", link(tree, "test_maap_if2", objs + test))
 
 
+#: The tally labels of the stack's re-entry test in each build mode.
+REENTRY_LABELS = {False: "ADP debug re-entry", True: "ADP release re-entry"}
+
+
 def reentry(tree: Tree, release: bool) -> Outcome:
     """The same violating ports against assertions and release refusal."""
     tag = "reentry_release" if release else "reentry_debug"
@@ -155,9 +176,9 @@ def reentry(tree: Tree, release: bool) -> Outcome:
     tests = ("-DADP_TEST_RELEASE",) if release else ()
     if tree.build.coverage:
         tests += ("-DADP_TEST_COVERAGE",)
-    objs = compile_c(tree, sources(tree, ("adp/adp.c",)), tag, flags)
-    objs += compile_tests(tree, ("test_adp_reentry.cpp",), f"{tag}/tests", tests)
-    return execute(tag, link(tree, f"test_{tag}", objs))
+    objs = compile_c(tree, sources(tree, ("tsn-c-stack/src/adp.c",)), tag, flags)
+    objs += compile_tests(tree, ("tsn-c-stack/tests/test_adp_reentry.cpp",), f"{tag}/tests", tests)
+    return execute(tag, link(tree, f"test_{tag}", objs + [label(tree, REENTRY_LABELS[release])]))
 
 
 def arm_reentry_debug(tree: Tree) -> Outcome:
@@ -282,7 +303,7 @@ def entity_binary(tree: Tree, config: Path, objs: list[Path]) -> Path:
 
 def arm_entity(tree: Tree) -> Outcome:
     """Every shipped config's ADPDU fields against the fabric's sources."""
-    objs = compile_c(tree, sources(tree, ("adp/adp.c",)), "entity")
+    objs = compile_c(tree, sources(tree, ("tsn-c-stack/src/adp.c",)), "entity")
     outcomes = [execute("entity", entity_binary(tree, config, objs))
                 for config in sorted((ROOT / "configs").glob("endstation_*.yaml"))]
     return Outcome("entity", max(o.rc for o in outcomes), "\n".join(o.log for o in outcomes))
@@ -356,10 +377,10 @@ LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c"
 #: The lwSRP revision port/shlan_port.h is written against (it restates that
 #: revision's src/ports/alloc.h). Fetch it with
 #:     git clone https://github.com/kebag-logic/lwSRP lwSRP
-#:     git -C lwSRP checkout 9197193e47a6bb1c45a56d90a18c1784123aba44
+#:     git -C lwSRP checkout 08ee86e812a0eb5e1dc6cd61b494d8baf3491348
 #: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
 LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
-LWSRP_REV = "9197193e47a6bb1c45a56d90a18c1784123aba44"
+LWSRP_REV = "08ee86e812a0eb5e1dc6cd61b494d8baf3491348"
 #: Every source and header the arm compiles lives under this directory.
 LWSRP_TREE = "src"
 
@@ -409,6 +430,43 @@ def arm_lwsrp(tree: Tree, lwsrp: Path) -> Outcome:
         theirs.append(obj)
     outcome = execute("lwsrp", link(tree, "lwsrp_port", ours + test + theirs))
     return Outcome("lwsrp", outcome.rc, f"  lwSRP at {head}\n{outcome.log}")
+
+
+#: The SRP comparator the placement switch compares the two placements' frames with (#665,
+#: ruling 6088423771 keeps it as that switch's infrastructure); run here so it cannot rot first.
+SRP_COMPARE = HERE / "srp_wire_compare.py"
+#: Its self-test's controls and planted defects, by name: one that goes missing fails the arm,
+#: so a plant table that shrinks is caught, not only one that empties (#665, R582-4-S1). A
+#: control or plant added beside them passes.
+SRP_COMPARE_CONTROLS = frozenset({"five_value_vector", "frame_grouping", "packing_only",
+                                  "within_opportunity_order", "zero_padding"})
+SRP_COMPARE_PLANTS = frozenset({
+    "swapped-opportunities", "collapsed-opportunities", "plus-k-off-by-one", "wrong-AttributeEvent",
+    "wrong-FourPackedEvent", "dropped-declaration", "extra-declaration", "duplicated-declaration",
+    "LeaveAll-wrong-attribute-type", "malformed-PDU-EndMark", "malformed-list-EndMark", "wrong-ProtocolVersion",
+    "wrong-AttributeLength", "wrong-AttributeListLength", "reserved-ThreePackedEvents", "reserved-LeaveAllEvent",
+    "truncated-PDU-EndMark", "oversized-frame",
+})
+
+
+def arm_srpcmp() -> Outcome:
+    """The SRP comparator's own self-test: its named controls passing, and every named planted
+    wire and comparison defect present and caught."""
+    res = run([sys.executable, "-I", "-B", str(SRP_COMPARE), "--self-test"])
+    if res.returncode != 0:
+        return Outcome("srpcmp", res.returncode, f"{res.stdout}{res.stderr}")
+    try:
+        controls = json.loads(res.stdout)["controls"]
+        plants = [p["plant"] for p in controls.pop("plants")]
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
+        return Outcome("srpcmp", 1, f"  the self-test's report does not read as its controls and plants: {exc}")
+    failed = sorted(k for k, v in controls.items() if v != "PASS")
+    missing = sorted((SRP_COMPARE_CONTROLS - set(controls)) | (SRP_COMPARE_PLANTS - set(plants)))
+    log = (f"  {SRP_COMPARE.name} --self-test: controls {', '.join(sorted(controls))}"
+           f"{'; FAILED ' + ', '.join(failed) if failed else ' PASS'}\n"
+           f"  {len(plants)} planted defects caught: {', '.join(plants)}\n"
+           f"  named controls and plants missing: {', '.join(missing) or 'none'}")
+    return Outcome("srpcmp", 1 if failed or missing else 0, log)
 
 
 # ---- the verdict -------------------------------------------------------------------------

@@ -15,18 +15,17 @@
                 Consumes the per-frame pulse bundle from avtp_stream_parser
                 (which already matched the bound stream_id).
 
-                NOT the shipping Milan counter engine: Milan v1.2 Table 5.6
-                defines SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
-                UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP and
-                FRAMES_RX as OBSERVATION-INTERVAL counters (<= 1 s), and the
-                engine GET_COUNTERS serves - KL_avtp_rx_monitor_ctx - commits
-                them per interval. THIS module keeps every counter per-frame
-                ON PURPOSE: aaf_audio_loop's "FRAMES_RX == talker frames"
-                loop-integrity identity and the tsn_fuzz cosim model need a
-                frame-accurate probe, which an interval counter structurally
-                cannot be (torture_campaign.py CounterSemanticError). Lock/
-                settle/mismatch/format verdict logic here remains the ctx
-                engine's per-stream contract.
+                This is a per-frame verification probe. The shipping counter
+                engine is KL_avtp_rx_monitor_ctx. Its FRAMES_RX also counts
+                each accepted AVTPDU, with coalesced publication and 32-bit
+                wrap (IEEE 1722.1-2021 Table 7.157; #726 ruling 6125741685,
+                2026-10-12). Its six anomaly counters retain Milan v1.2
+                Table 5.6 observation intervals; this probe counts those
+                per frame for the loop-integrity and parser tests.
+                Lock, settle, mismatch and format verdicts keep the same
+                per-stream contract. The shipping producer reports healthy
+                counter changes under ruling 6126028604; its notification
+                scheduler retains the Milan 5.4.5.2 Table 5.22 rate limit.
 
                 Contract byte-extracted from the module-avb reference code
                 (stream.c handle_aaf_packet + cmd-get-counters.c):
@@ -87,7 +86,7 @@
 //! Single-sink STREAM_INPUT counter engine in the IEEE 1722.1-2021
 //! Table 7-153 PER-FRAME reading — the TBs' frame-accurate instrument and
 //! the per-PDU verdict reference, NOT the shipping Milan engine (Milan
-//! v1.2 Table 5.6 interval semantics live in `KL_avtp_rx_monitor_ctx`).
+//! v1.2 Table 5.6 anomaly intervals live in `KL_avtp_rx_monitor_ctx`).
 //! MEDIA_LOCKED/UNLOCKED (first-valid-PDU lock / 100 ms silence unlock),
 //! STREAM_INTERRUPTED (>= 2 PDUs lost), SEQ_NUM_MISMATCH (8-PDU settle
 //! window after every (re)lock), TIMESTAMP_UNCERTAIN (tu bit),

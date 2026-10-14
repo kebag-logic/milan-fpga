@@ -24,7 +24,9 @@ suites and coverage ratchet (#665 lane FT), gates on the same answer: a
 change under `sw/firmware/` is relevant whatever its suffix, the README whose
 exclusion table the ratchet reads included. That job's gates read the
 builder, the configs, scripts/ and the processor submodule as well, so no
-narrower list decides it.
+narrower list decides it. Its `firmware-boundary` and `firmware-verilator`
+jobs, which hold the TSN stack boundary over the same builders' compiles
+(#697), gate on the same answer.
 
 The list a classifier-gated workflow hands in names BOTH sides of a rename:
 each builds it with `git diff --no-renames --name-only` ([R198] N2), so
@@ -60,10 +62,15 @@ TOP_LEVEL_SUFFIXES = [".md"]
 #: event page, and the clock-contract test checks the latency-tap table. The
 #: resource gate's check-baseline (yosys-elaboration) holds its baseline's
 #: policy to the area budget's table. The mailbox contract generator's
-#: --check compares its reference page with what it emits (#665 F0).
+#: --check compares its reference page with what it emits (#665 F0). The
+#: split control memory test (elaborate's LiteX aggregate) holds its rule
+#: table to ctrl_memory.RULES (#640). ctrl_service_bounds.py (firmware-unit)
+#: checks the mailbox service figures against compiled headers (#665 F3b).
 GATE_READ_DOCS = [
     "docs/AAF_LATENCY_TAPS.md",
     "docs/design/AREA_BUDGET.md",
+    "docs/design/MAILBOX_SPLIT.md",
+    "docs/design/SPLIT_CONTROL_MEMORY.md",
     "docs/reference/MAILBOX_CONTRACT.md",
     "docs/reference/REGISTER_MAP.md",
     "docs/reference/TRACE_EVENTS.md",
@@ -282,6 +289,10 @@ def _cases() -> list[Case]:
         (["docs/design/AREA_BUDGET.md"], True),
         # The page the mailbox contract generator's --check compares (#665).
         (["docs/reference/MAILBOX_CONTRACT.md"], True),
+        # The page whose service figures ctrl_service_bounds.py reads (#665).
+        (["docs/design/MAILBOX_SPLIT.md"], True),
+        # The page whose rule table the split control memory test reads (#640).
+        (["docs/design/SPLIT_CONTROL_MEMORY.md"], True),
         # Under docs/, a generator, a manifest, a budget or other non-prose.
         (["docs/traceability/gen_module_matrix.py"], True),
         (["docs/diagrams/PNG_MANIFEST.json"], True),
@@ -312,7 +323,7 @@ def _cases() -> list[Case]:
         # #665 lane FT: rtl-fast's `firmware-unit` runs on this answer, so
         # the bare-metal firmware, its tests, the README whose exclusion
         # table the coverage gate reads and the ratchet are all relevant.
-        (["sw/firmware/ctrl/adp/adp.c"], True),
+        (["sw/firmware/ctrl/adp/adp_mbx.c"], True),
         (["sw/firmware/ctrl_nvm/test/test_nvm_write.cpp"], True),
         (["sw/firmware/gtest/README.md"], True),
         (["docs/x.md", "sw/firmware/gtest/coverage.ratchet"], True),
@@ -325,6 +336,8 @@ def _cases() -> list[Case]:
         (["protocol-processor"], True),
         (["external"], True),
         (["third_party/verilog-axis"], True),
+        # #697: the TSN stack's cores the firmware builds move with its gitlink.
+        (["third_party/tsn-c-stack"], True),
         ([".gitmodules"], True),
         (["docs/x.md", "gptp-processor"], True),
     ]
@@ -495,7 +508,8 @@ def _mutation_arms(cases: list[Case]) -> int:
 def selftest() -> int:
     """Prove the classification table, the derived gate-read table, and that
     dropping any one submodule pointer or gate-read file from the rules is
-    caught by a case; 0 when every arm holds."""
+    caught by a case. Execute the workflow scopes on divergent history too;
+    0 when every arm holds."""
     cases = _cases()
     failures = 0
     for paths, expected in cases:
@@ -512,7 +526,10 @@ def selftest() -> int:
         print(f"  {'ok  ' if ok else 'FAIL'} submodule rule names {want}")
         failures += 0 if ok else 1
 
+    from ci_scope_history import selftest as history_selftest
+
     failures += _gate_read_arms() + _new_reader_arms() + _mutation_arms(cases)
+    failures += history_selftest(ROOT)
     print("selftest:", "PASS" if failures == 0 else f"{failures} FAILURE(S)")
     return 1 if failures else 0
 

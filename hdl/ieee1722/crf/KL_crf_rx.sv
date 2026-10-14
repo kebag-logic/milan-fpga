@@ -55,7 +55,10 @@
                 * cnt_locked / cnt_unlocked / cnt_intr (STREAM_INTERRUPTED)
                   are EVENT counters ("incremented each time ...") - per
                   event.
-                * pdu_count (FRAMES_RX), fmt_err (UNSUPPORTED_FORMAT),
+                * pdu_count (FRAMES_RX) counts each accepted AVTPDU,
+                  with 32-bit wrap, per IEEE 1722.1-2021 Table 7.157.
+                  Issue #726 ruling 6125741685 (2026-10-12) applies.
+                * fmt_err (UNSUPPORTED_FORMAT),
                   seq_err (SEQ_NUM_MISMATCH), mr_cnt (MEDIA_RESET), tu_cnt
                   (TIMESTAMP_UNCERTAIN), late_cnt (LATE_TIMESTAMP) and
                   early_cnt (EARLY_TIMESTAMP) are OBSERVATION-INTERVAL
@@ -230,7 +233,7 @@ module KL_crf_rx #(
   //! CSR ABI is untouched: CRF_STATUS 0x74C serves documented TRUNCATED
   //! slices ({pdu[15:0], fmt[7:0], seq[7:0]}), the AECP wire serves the
   //! full width.
-  output logic [31:0] pdu_count_o,        //! FRAMES_RX: intervals with >= 1 accepted PDU
+  output logic [31:0] pdu_count_o,        //! FRAMES_RX: each accepted AVTPDU
   output logic [31:0] fmt_err_o,          //! UNSUPPORTED_FORMAT: intervals with >= 1 profile reject
   output logic [31:0] seq_err_o,          //! SEQ_NUM_MISMATCH: intervals with >= 1 discontinuity
   //! MEDIA_RESET / TIMESTAMP_UNCERTAIN / LATE_TIMESTAMP / EARLY_TIMESTAMP:
@@ -248,9 +251,9 @@ module KL_crf_rx #(
   //! GET_COUNTERS row (gh #60 F2). Fires on: a lock/unlock event, a
   //! STREAM_INTERRUPTED event, any of the SIX anomaly interval commits
   //! (UF/SM/MR/TU/LT/ET), and the bind-rise wipe (the zeroed tallies are
-  //! themselves a wire-visible change). NEVER on a healthy FRAMES_RX
-  //! interval - the task-21 exclusion, verbatim: a healthy stream closes
-  //! an interval every second forever and must not push forever.
+  //! themselves a wire-visible change), and every healthy FRAMES_RX update.
+  //! #726 ruling 6126028604 (2026-10-12) restores routine refresh events.
+  //! Milan 5.4.5.2 Table 5.22 spacing belongs to the scheduler.
   output logic        dirty_p_o,
   //! one-cycle pulse: the RECEIVED mr level TOGGLED on an accepted PDU of
   //! the followed stream (the same w_ev_mr_w event MEDIA_RESET counts,
@@ -373,7 +376,7 @@ module KL_crf_rx #(
 
   //! this cycle's Table 5.6 interval-flag events. The engine keeps settle /
   //! lock / delta / rate per-PDU (measurement is not a counter); only the
-  //! three interval counters' increments move to the tick commit. FRX = the
+  //! anomaly counters' increments move to the tick commit. FRX = the
   //! accepted PDU itself (w_acc), UF = a matched-but-rejected PDU, SM = an
   //! accepted PDU with a non-sequential sequence_num.
   wire w_ev_uf_w = w_hit && !w_fmt_ok;
@@ -418,7 +421,7 @@ module KL_crf_rx #(
   logic [IVALW_C-1:0] iv_div_r;
   logic               iv_tick_r;
   //! interval seen flags, one per Table 5.6 observation-interval counter
-  logic               iv_frx_r, iv_uf_r, iv_sm_r;
+  logic               iv_uf_r, iv_sm_r;
   logic               iv_mr_r, iv_tu_r, iv_lt_r, iv_et_r;
 
   always_ff @(posedge clk_i) begin : iv_tick_gen
@@ -458,7 +461,7 @@ module KL_crf_rx #(
       prev_ts_ns_r <= '0; prev_tu_r <= 1'b0;
       rate_seeded_r <= 1'b0; rate_valid_r <= 1'b0;
       prev_mr_r <= 1'b0; mr_seeded_r <= 1'b0; en_q <= 1'b0;
-      iv_frx_r <= 1'b0; iv_uf_r <= 1'b0; iv_sm_r <= 1'b0;
+      iv_uf_r <= 1'b0; iv_sm_r <= 1'b0;
       iv_mr_r <= 1'b0; iv_tu_r <= 1'b0; iv_lt_r <= 1'b0; iv_et_r <= 1'b0;
     end else begin
       en_q <= en_i;
@@ -481,9 +484,11 @@ module KL_crf_rx #(
       //! itself violates 5.3.8.10's "wraps back to zero" - the old
       //! fmt_err/seq_err peg at 255 froze the instrument after 4 min 15 s
       //! of persistent fault).
+      if (w_acc) begin
+        pdu_count_o <= pdu_count_o + 32'd1;
+        dirty_p_o <= 1'b1;
+      end
       if (iv_tick_r) begin
-        if (iv_frx_r || w_acc)
-          pdu_count_o <= pdu_count_o + 32'd1;
         if (iv_uf_r || w_ev_uf_w)
           fmt_err_o <= fmt_err_o + 32'd1;
         if (iv_sm_r || w_ev_sm_w)
@@ -492,13 +497,12 @@ module KL_crf_rx #(
         if (iv_tu_r || w_ev_tu_w) tu_cnt_o    <= tu_cnt_o    + 32'd1;
         if (iv_lt_r || w_ev_lt_w) late_cnt_o  <= late_cnt_o  + 32'd1;
         if (iv_et_r || w_ev_et_w) early_cnt_o <= early_cnt_o + 32'd1;
-        //! the SIX anomaly commits arm the Table 5.22 push; a healthy
-        //! FRAMES_RX interval (iv_frx alone) never does (task-21 rule)
+        //! Anomaly commits also mark this descriptor dirty. The scheduler
+        //! owns the Table 5.22 per-descriptor rate limit (#726).
         if ((iv_uf_r || w_ev_uf_w) || (iv_sm_r || w_ev_sm_w) ||
             (iv_mr_r || w_ev_mr_w) || (iv_tu_r || w_ev_tu_w) ||
             (iv_lt_r || w_ev_lt_w) || (iv_et_r || w_ev_et_w))
           dirty_p_o <= 1'b1;
-        iv_frx_r <= 1'b0;
         iv_uf_r  <= 1'b0;
         iv_sm_r  <= 1'b0;
         iv_mr_r  <= 1'b0;
@@ -506,7 +510,6 @@ module KL_crf_rx #(
         iv_lt_r  <= 1'b0;
         iv_et_r  <= 1'b0;
       end else begin
-        iv_frx_r <= iv_frx_r | w_acc;
         iv_uf_r  <= iv_uf_r  | w_ev_uf_w;
         iv_sm_r  <= iv_sm_r  | w_ev_sm_w;
         iv_mr_r  <= iv_mr_r  | w_ev_mr_w;
@@ -570,8 +573,8 @@ module KL_crf_rx #(
           //! count itself commits at the interval tick (w_ev_uf_w above)
           settle_r  <= '0;
         end else begin
-          //! FRAMES_RX / SEQ_NUM_MISMATCH commit at the interval tick
-          //! (w_acc / w_ev_sm_w above); a discontinuity still breaks the
+          //! SEQ_NUM_MISMATCH commits at the interval tick; FRAMES_RX
+          //! counts this accepted PDU above. A discontinuity breaks the
           //! settle run per-PDU
           if (have_seq_r && (seq_i != exp_seq_r)) begin
             settle_r  <= '0;
@@ -672,7 +675,6 @@ module KL_crf_rx #(
         //! the interval SEEN flags belong to the dead era too: a flag raised
         //! before the bind would commit +1 into a just-zeroed counter at the
         //! next tick and hand the new binding a phantom event
-        iv_frx_r <= 1'b0;
         iv_uf_r  <= 1'b0;
         iv_sm_r  <= 1'b0;
         iv_mr_r  <= 1'b0;

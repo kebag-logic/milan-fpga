@@ -144,6 +144,8 @@ source for both groups rather than a second hand-written copy:
 | ptp_*       | logic [31:0]/[63:0]      | PTP ctrl / incr / adj / tod-wr / offset / lat  |
 | ptp_tod_rd  | logic [63:0]             | Latched TOD for gettime                          |
 | stat_snap   | logic [31:0][0:NS-1]     | Coherent RMON snapshot                          |
+| snap_shadow_r | logic [31:0] [0:11]    | 0x800 window SNAP words: STATE, CNT0..9, PDUS   |
+| snap_kind_r | logic [1:0] [0:11]       | Per-CNT-word kind: zero, raw or POISON          |
 | *_p strobes | logic                    | Single-cycle command pulses                     |
 
 ## Processes
@@ -154,8 +156,17 @@ source for both groups rather than a second hand-written copy:
   synchronous reset defaults, hardware event latching (before W1C), AXI-Lite
   register writes, W1C on IRQ_STATUS, single-cycle command strobes, and the
   per-queue CBS window.
-- **read_mux**: `always_comb` — combinational read address decode.
-- **read_data_reg**: `always_ff @(posedge aclk)` — latch read data on the AR
-  handshake so RDATA is stable while RVALID is held.
+- **read_mux**: `always_comb`: the live read decode, one case on the 16-bit
+  read address over the live registers and ranges. The 0x800 window's word is
+  one range of it. Plain-RW registers read from the shadow block RAM instead.
+- **strm_read_mux**: `always_comb`: the 0x800 window's words. A CNT word
+  applies its SNAP kind (`snap_kind_r`: zero, raw or POISON) when read.
+- **shadow_out_reg**: `always_ff @(posedge aclk)`: the shadow block RAM's
+  output register, zeroed unless the shadow serves the read.
+- **read_data_reg**: `always_ff @(posedge aclk)`: stage 1 lands the live word
+  in `live_mux_q`, or 0 for an address outside both the 0x800 window and the
+  read-window list (`rd_in_window`); stage 2 sets RDATA to the OR of
+  `live_mux_q` and the shadow word, three cycles after the AR handshake. RDATA
+  holds while RVALID does.
 - **gen_cbs_out**: `generate for` — flatten the per-queue CBS registers onto the
   packed output buses.

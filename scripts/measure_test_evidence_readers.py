@@ -59,6 +59,15 @@ DUT_READER_DISPOSITIONS = {
         "and meter-in-front-of-servo defects into a copy of the meter or the servo and "
         "requires the named check of the meter, servo or unit leg to fail; no expected "
         "value is read from RTL",
+    "tb/verilator/avtp_rxmon/lockstep_mutants.py":
+        "mutation campaign; it plants one of four counter-context defects (a lost increment, a torn "
+        "read, a wrong stream index, a missed reset) into a copy and requires its named lockstep "
+        "check to fail; expected values come from the frozen reference module and the harness's "
+        "own arithmetic, never from the text",
+    "tb/verilator/chmap_capture/lockstep_mutants.py":
+        "mutation campaign; it plants one of three source-table and skid defects into a copy and "
+        "requires its named lockstep check to fail; expected samples come from the harness's own "
+        "stimulus, never from the text",
     "tb/verilator/capture_coherence/mutants.py":
         "mutation campaign; it plants one TDM frame-handoff, snapshot, counter or grid-aligner "
         "binding defect into a copy of the capture crossbar, the junction wrapper or the datapath, "
@@ -101,10 +110,26 @@ DUT_READER_DISPOSITIONS = {
         "compilation at four axis rates, then applies independent stimuli and "
         "hard-coded expectations for quiet noise, recovery dwell, reset, source "
         "priority, LOCKED dwell and ceiling; it reads no expected value from the text",
+    "tb/verilator/gptp_plane/phc_step.py":
+        "mutation campaign; it generates each arm's ROM from the donor microcode generator, planting "
+        "one of six named defects from its own table (a stale rate window, a measured crossing "
+        "exchange, measurement never rearmed, two deletions of a crossing exchange's liveness "
+        "credit, and liveness credit for a stepped request that was never answered; the two "
+        "deletions, one per review round, plant the same deletion, so five distinct defects run) "
+        "into a scratch copy, and requires the named runtime check of the real-counter step "
+        "regression to fail while the clean image and a control that deletes only the cease rule "
+        "pass; expected values come from the independent peer model and the physical link "
+        "constants, none from the generator text",
     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
         "orchestration lifecycle fixture; it identifies the planted mutation and "
         "compares caller bytes/modes/index across interruption. Synthetic commands "
         "grade isolation and cleanup only; RTL behavior still requires the real suite",
+    "tb/verilator/milan_dp/stream_counters.py":
+        "packet/reset/cadence campaign; stages baseline and named plants in isolated RTL/fixture copies, "
+        "requiring named failures and escapes with only the corresponding check group omitted. "
+        "Expected totals come from the MAC packet census and injected traffic; notification "
+        "expectations come from the ruled spacing/gap contract; phase checks exhaust one second, "
+        "never deriving expected packet totals or deadlines from RTL text",
     "tb/verilator/milan_dp/crflic_mutants.py":
         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
         "named failure. It is the explicit crflic-mutants target, outside the default sweep",
@@ -122,10 +147,6 @@ DUT_READER_DISPOSITIONS = {
         "of a restored input format or of an output format row, no crossbar writer) into a copy of "
         "the datapath, and the empty image under the listener and talker end-to-end legs too, and "
         "requires a named failure. It is the explicit dynmap-mutants target, outside the default sweep",
-    "tb/verilator/milan_dp/gmstep_mutants.py":
-        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
-        "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
-        "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls",
     "tb/verilator/milan_dp/render_csr_controls.py":
         "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
         "and bit-9 selector defects into copies and requires named failures. Its "
@@ -133,6 +154,12 @@ DUT_READER_DISPOSITIONS = {
         "despite accepted ingress; no expected value is derived from source text",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+    "tb/verilator/milan_dp_gm_steps/gmstep_mutants.py":
+        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
+        "named failure on milan_dp's gmstep leg or, for five, its option-off leg. The milan_dp_gm_steps sweep "
+        "plants the five #387/#602 acceptance controls on the gmstep leg without its #621 phase, which holds "
+        "none of their named checks; gmstep-mutants plants all on the whole leg, and --slew selects the three "
+        "#545 controls",
     "tb/verilator/milan_dp_mclk/mclk_mutants.py":
         "mutation campaign; it plants the #629 design's fourteen named root defects as "
         "mutant schemata in copies of the datapath, the AAF clock meter and the CSR "
@@ -171,4 +198,9 @@ DUT_READER_DISPOSITIONS = {
     "tb/verilator/tkdiag/mcr_mutants.py":
         "mutation campaign; it plants one of four restart-engine defects against the #387 "
         "pending-restart merge and its wire boundary into a copy and requires a named failure",
+    "tb/verilator/csr/lock_mutants.py":
+        "mutation campaign; it plants one of seven CSR read-path defects (decode, torn and stale "
+        "snapshot, reset value, stage-1 claim) into a copy and requires the named lockstep check "
+        "to fail; expected values come from the frozen e8454e27 block and the harness, never "
+        "from the text it mutates",
 }

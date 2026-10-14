@@ -39,18 +39,13 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
       (StreamOutputCounterValidFlagMilan12 and StreamOutputCounterValidFlag17221)
       precisely because a device serves one or the other.
 
-  (3) FRAMES_RX / FRAMES_TX MEAN TWO DIFFERENT THINGS, A FACTOR OF ~8000 APART.
-      IEEE 1722.1-2021 Table 7-157: FRAMES_RX "Increments on each Stream data
-      AVTPDU received".
-      Milan v1.2 Table 5.6: FRAMES_RX is "Incremented at the end of every
-      observation interval during which at least one Stream Data AVTPDU has
-      been received on this Stream Input. The duration of the observation
-      interval is implementation-specific and shall be less than or equal to 1
-      second."
-      Both are legitimate; they differ by the frame rate. So TV + TNV ==
-      FRAMES_RX is a 1722.1 identity and NOT a Milan one, and a checker that
-      asserts it unconditionally files a conformant interval counter as an
-      8000x defect. The model here reports WHICH READING is in force instead.
+  (3) FRAMES_RX AND FRAMES_TX COUNT EVERY STREAM DATA AVTPDU.
+      The 2026-10-12 ruling on issue #726 supersedes interval counting.
+      IEEE 1722.1-2021 Tables 7.157 and 7.159 define the packet law.
+      Milan's observation interval governs publication, not packet loss.
+      The talker-start and listener-bind reset rules remain unchanged.
+      Legacy rate bands describe measurements; they do not grant conformance.
+      An interval-rate FRAMES_RX on a flowing stream must FAIL.
 
   Clauses under test:
     Milan v1.2 5.3.8.10 + Table 5.6 - the ten Stream Input counters, the lock
@@ -192,16 +187,24 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
     And the reading in force is "1722.1-per-frame"
 
   @class:invariant @clause:Milan-Table-5.6 @regression
-  Scenario: under the Milan interval reading the same identity does NOT hold, and that is not a defect
-    # 8000 frames in one second with FRAMES_RX ticking once is the interval
-    # counter Milan Table 5.6 describes. A checker that fails here is asserting
-    # 1722.1 against a Milan device.
+  Scenario: one snapshot cannot distinguish coalesced publication from packet loss
+    # The receiver publishes FRAMES_RX at the interval commit.
+    # Rate conformance requires a measured flowing window, graded below.
     Given TIMESTAMP_VALID 8000 TIMESTAMP_NOT_VALID 0 FRAMES_RX 1
     Then the tv-tnv verdict is INFO
-    And the reading in force is "milan-interval"
+    And the reading in force is "unequal-packet-totals"
+
+  @class:invariant @clause:17221-Table-7-157 @regression
+  Scenario: three accepted packets precede the first receive publication
+    # The receiver-backed startup probe observes these exact snapshots.
+    Given TIMESTAMP_VALID 3 TIMESTAMP_NOT_VALID 0 FRAMES_RX 0
+    Then the tv-tnv verdict is INFO
+    And the reading in force is "unequal-packet-totals"
+    Given TIMESTAMP_VALID 3 TIMESTAMP_NOT_VALID 0 FRAMES_RX 3
+    Then the tv-tnv verdict is PASS
 
   @class:invariant @negative-control
-  Scenario: FRAMES_RX above TV plus TNV is a defect under BOTH readings
+  Scenario: FRAMES_RX above TV plus TNV violates the packet identity
     # Every frame is counted by exactly one of the two tv tallies, so no
     # observation interval can produce more FRAMES_RX than the sum.
     Given TIMESTAMP_VALID 5 TIMESTAMP_NOT_VALID 0 FRAMES_RX 99
@@ -249,14 +252,8 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
 
   @class:invariant @clause:Milan-Table-5.4
   Scenario Outline: a measured frames rate is classified, not asserted
-    # THE CLAUSE BOUNDS THE INTERVAL FROM ABOVE ONLY: "The duration of the
-    # observation interval is implementation-specific and shall be less than or
-    # equal to 1 second." So every interval in (0, 1 s] is conformant, and the
-    # ONLY non-conformant interval reading is one that implies MORE than a
-    # second. The first version of this table called 200.0/s - a perfectly legal
-    # 5 ms interval - "neither", i.e. the defect, and a passing unit test
-    # asserting exactly that cemented it. 0.4/s implies a 2.5 s interval and IS
-    # the violation.
+    # Historical rate bands describe the data, without granting conformance.
+    # The per-counter grader below requires the packet law for FRAMES_RX.
     Given a measured frames rate of <rate> per second
     Then the rate is consistent with the <reading> reading
 
@@ -271,7 +268,7 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
       | 0.0    | neither   |
 
   @class:invariant @clause:Milan-Table-5.4 @honesty
-  Scenario: the interval a rate implies is reported, and only over a second is a defect
+  Scenario: the legacy rate classifier reports the implied interval
     Given a measured frames rate of 200.0 per second
     Then the implied observation interval is 0.005 seconds
     And the rate is consistent with the interval reading
@@ -283,7 +280,7 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
   # Trap (3) above is one counter's version of a question every counter owes an
   # answer to: WHEN does it move? Milan Table 5.6 answers it in two different
   # grammars, and this project has been wrong in BOTH directions - it once
-  # counted the interval seven per frame, and the opposite mistake (dragging a
+  # counted the six anomaly counters per frame, and the opposite mistake (dragging a
   # per-frame counter onto the interval tick) is just as available. So the law
   # is stated here per counter, as prose, and the RTL and the bench grader are
   # both held to this table.
@@ -297,12 +294,9 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
 
   @class:law @clause:Milan-Table-5.6
   Scenario Outline: the update law of each counter, and the clause that fixes it
-    # Milan v1.2 Table 5.6 defines ten of the twelve. It does NOT define
-    # TIMESTAMP_VALID or TIMESTAMP_NOT_VALID - Table 5.16's mandatory mask
-    # 0xF3F skips bits 6 and 7 - so those two are governed only by IEEE
-    # 1722.1-2021 Table 7-157 and keep its per-frame reading. That is why a
-    # conformant device shows TIMESTAMP_VALID about 8000x FRAMES_RX at class A:
-    # the split is mandated, not a defect in either counter.
+    # The ruling applies Table 7.157 to FRAMES_RX.
+    # The TV pair also retains the per-AVTPDU law.
+    # The six anomaly counters keep their interval semantics.
     Then the update law of <counter> is <law> per <clause>
 
     Examples: the three state-change counters - "Incremented each time ..."
@@ -311,9 +305,9 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
       | MEDIA_UNLOCKED     | per-event   | Milan v1.2 Table 5.6 |
       | STREAM_INTERRUPTED | per-event   | Milan v1.2 Table 5.6 |
 
-    # the seven "at the end of every observation interval during which ..."
+    # the six "at the end of every observation interval during which ..."
     # counters, interval implementation-specific and <= 1 second
-    Examples: the seven observation-interval counters
+    Examples: the six observation-interval anomaly counters
       | counter             | law          | clause               |
       | SEQ_NUM_MISMATCH    | per-interval | Milan v1.2 Table 5.6 |
       | MEDIA_RESET         | per-interval | Milan v1.2 Table 5.6 |
@@ -321,10 +315,10 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
       | UNSUPPORTED_FORMAT  | per-interval | Milan v1.2 Table 5.6 |
       | LATE_TIMESTAMP      | per-interval | Milan v1.2 Table 5.6 |
       | EARLY_TIMESTAMP     | per-interval | Milan v1.2 Table 5.6 |
-      | FRAMES_RX           | per-interval | Milan v1.2 Table 5.6 |
 
-    Examples: the two Milan does not define, so 1722.1 alone governs them
+    Examples: the three per-AVTPDU counters
       | counter             | law       | clause                     |
+      | FRAMES_RX           | per-frame | IEEE 1722.1-2021 Table 7.157 |
       | TIMESTAMP_VALID     | per-frame | IEEE 1722.1-2021 Table 7-157 |
       | TIMESTAMP_NOT_VALID | per-frame | IEEE 1722.1-2021 Table 7-157 |
 
@@ -345,47 +339,35 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
       | UNSUPPORTED_FORMAT  | did not match the current format            |
       | LATE_TIMESTAMP      | timestamp field that was in the past         |
       | EARLY_TIMESTAMP     | too far in the future                       |
-      | FRAMES_RX           | at least one Stream Data AVTPDU              |
+      | FRAMES_RX           | each Stream Data AVTPDU                     |
       | TIMESTAMP_VALID     | tv bit set                                  |
       | MEDIA_LOCKED        | synchronized on the media clock              |
 
-  @class:law @clause:Milan-Table-5.6 @rule:frames-rx-is-the-interval-clock
-  Scenario: FRAMES_RX is the observation-interval clock, so nothing may out-tick it
-    # THE SOUND FORM OF THE SEMANTICS CHECK. The clause bounds the observation
-    # interval from ABOVE only, so no absolute rate is a defect on its own and a
-    # rate band cannot decide the question. But every one of the seven
-    # per-interval triggers arrives IN a received frame, and FRAMES_RX ticks in
-    # every interval during which any frame was received. So for any interval
-    # counter X and any window, delta(X) <= delta(FRAMES_RX) - regardless of
-    # what the implementation's interval actually is.
+  @class:law @clause:Milan-Table-5.6 @rule:anomaly-to-packet-bound
+  Scenario: anomaly deltas have a packet-count sanity bound
+    # This loose bound alone cannot prove an observation interval.
     Given a stream input window where FRAMES_RX advanced by 30
     And TIMESTAMP_UNCERTAIN advanced by 30 in that window
     And LATE_TIMESTAMP advanced by 2 in that window
     Then the interval-ceiling verdict is PASS
 
-  @class:law @negative-control @rule:frames-rx-is-the-interval-clock
-  Scenario: a counter still counting per frame while FRAMES_RX counts per interval is caught
-    # The half-converted state this fabric shipped before the seven listener
-    # counters were moved onto the interval tick - and the exact shape a partial
-    # revert would leave behind.
+  @class:law @negative-control @rule:anomaly-to-packet-bound
+  Scenario: an anomaly delta exceeding the packet delta is caught
     Given a stream input window where FRAMES_RX advanced by 30
     And TIMESTAMP_UNCERTAIN advanced by 240060 in that window
     Then the interval-ceiling verdict is FAIL
     And the interval-ceiling offender is TIMESTAMP_UNCERTAIN
 
   @class:law @honesty
-  Scenario: the two tv tallies are exempt from the ceiling, because Milan never defined them
-    # TIMESTAMP_VALID out-ticks an interval FRAMES_RX by the frame rate BY
-    # DESIGN, so the ceiling must not look at it. LATE_TIMESTAMP is in the
-    # window too, so the check actually runs rather than skipping for want of
-    # anything to grade.
+  Scenario: the two tv tallies use their separate packet identity check
+    # Anomaly-only grading does not replace check_tv_tnv or packet-rate grading.
     Given a stream input window where FRAMES_RX advanced by 30
     And LATE_TIMESTAMP advanced by 2 in that window
     And TIMESTAMP_VALID advanced by 240060 in that window
     Then the interval-ceiling verdict is PASS
 
   @class:law @honesty
-  Scenario: a window with no frames cannot grade the interval clock
+  Scenario: a window with no frames cannot grade the packet bound
     Given a stream input window where FRAMES_RX advanced by 0
     And TIMESTAMP_UNCERTAIN advanced by 0 in that window
     Then the interval-ceiling verdict is SKIP
@@ -397,43 +379,30 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
 
     Examples: the silicon shape - a bound sink at class A, mask 0xFFF
       | counter         | delta  | window | verdict | reading   |
-      | FRAMES_RX       | 30     | 30     | PASS    | interval  |
+      | FRAMES_RX       | 30     | 30     | FAIL    | interval  |
       | TIMESTAMP_VALID | 240060 | 30     | PASS    | per-frame |
       | MEDIA_LOCKED    | 1      | 30     | PASS    | per-event |
 
     Examples: the two directions of getting the law wrong
       | counter         | delta  | window | verdict | reading    |
       | TIMESTAMP_VALID | 30     | 30     | FAIL    | interval   |
-      | FRAMES_RX       | 15     | 30     | FAIL    | neither    |
-      | FRAMES_RX       | 240060 | 30     | INFO    | per-frame  |
+      | FRAMES_RX       | 15     | 30     | FAIL    | interval   |
+      | FRAMES_RX       | 240060 | 30     | PASS    | per-frame  |
 
     Examples: nothing measured is nothing concluded
       | counter            | delta | window | verdict | reading |
       | UNSUPPORTED_FORMAT | 0     | 30     | SKIP    | static  |
 
-  @class:law @honesty @clause:Milan-Table-5.6 @rule:only-frames-rx-implies-the-interval
-  Scenario Outline: only FRAMES_RX's rate implies the observation interval
-    # THE TRAP THIS PROJECT HAS NOW HIT THREE TIMES, caught the third time by
-    # running the grader against real silicon before trusting it.
-    #
-    # Table 5.6 increments each interval counter "at the end of every
-    # observation interval DURING WHICH <condition>", so a counter ticks only
-    # in the intervals where its OWN condition held. FRAMES_RX's condition -
-    # "at least one Stream Data AVTPDU has been received" - is the only one
-    # that holds in every interval of a flowing stream, which is what makes its
-    # rate the interval clock. The other six are intermittent BY DEFINITION.
-    #
-    # The numbers below are the AX7101's sink 0 read on 2026-08-03 after
-    # 60,248,450 frames (about 7,531 s at class A): FRAMES_RX 7,545 gives a
-    # 0.998 s observation interval, inside the ceiling. Dividing the OTHER
-    # counters by the same window implies intervals of minutes, and an earlier
-    # cut of this grader duly failed both of them.
+  @class:law @honesty @clause:17221-Table-7-157
+  Scenario Outline: sparse anomalies do not excuse interval-rate FRAMES_RX
+    # Historical 2026-08-03 measurements retained under the current ruling.
+    # The anomaly conditions are intermittent; FRAMES_RX counts every packet.
     Given <counter> advanced by <delta> over 7531 seconds with the stream flowing
     Then the semantics verdict is <verdict> and the reading is <reading>
 
-    Examples: the interval clock is graded against the 1 s ceiling
+    Examples: the interval-rate packet counter fails the ruling
       | counter   | delta | verdict | reading  |
-      | FRAMES_RX | 7545  | PASS    | interval |
+      | FRAMES_RX | 7545  | FAIL    | interval |
 
     Examples: an intermittent condition is not a slow clock
       | counter             | delta | verdict | reading  |
@@ -445,6 +414,11 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
   Scenario: more ticks than frames is impossible under every reading
     Given FRAMES_RX advanced by 900000 over 30 seconds with the stream flowing
     Then the semantics verdict is FAIL and the reading is impossible
+
+  @class:law @negative-control @clause:17221-Table-7-157 @regression
+  Scenario: interval-rate FRAMES_RX on a flowing stream is a FAIL
+    Given FRAMES_RX advanced by 4 over 4 seconds with the stream flowing
+    Then the semantics verdict is FAIL and the reading is interval
 
   # --------------------------------------------------- per-index obligations
   @class:coverage @clause:Milan-5.4.2.25

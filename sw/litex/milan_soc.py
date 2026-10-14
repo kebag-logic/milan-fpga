@@ -41,13 +41,16 @@ import runpy
 from pathlib import Path
 
 from boot_policy import fabric_constants
+import ctrl_memory
 from gptp_owner_contract import GPTP_OWNER_CODES
 from qspi_owner_transition import aem_image_binding, bitstream_binding
 
 from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
                    Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue,
-                   NextState, Memory, Module, Record)
+                   NextState, Memory, Module, Record, READ_FIRST)
+from migen.genlib import fifo as migen_fifo
 from migen.genlib.cdc import MultiReg
+from migen.genlib.record import layout_len
 from migen.genlib.resetsync import AsyncResetSynchronizer
 
 from litex.gen import LiteXModule
@@ -763,6 +766,39 @@ def _board_audio_ports(platform):
     return ports, i2s_pads
 
 
+#: The CSR crossing's channel FIFOs, in the order LiteX's
+#: `AXILiteClockDomainCrossing` adds them.
+_CSR_CDC_CHANNELS = ("aw", "w", "b", "ar", "r")
+
+
+def _cross_csr_bus(host, axil, milan_cd):
+    """The CPU's AXI-Lite CSR bus (`axil`, sys) as the datapath reads it in
+    `milan_cd`: `axil` itself when that is sys, else the far side of LiteX's
+    `AXILiteClockDomainCrossing`, one 4-deep async FIFO per channel.
+
+    The two 32-bit data channels, W and R, keep their payload in block RAM
+    (`_payload_in_block_ram`): one RAMB18 each holds the array and its read
+    register, which were LUTRAM and flip-flops, whether or not anything reads
+    their framing flags. They take the two RAMB18s the MAC crossings free, so
+    the image's block RAM count is unchanged. AW and AR stay in LUTRAM."""
+    if milan_cd == "sys":
+        return axil
+    csr_axil = axi.AXILiteInterface(data_width=32, address_width=32)
+    host.submodules.milan_axil_cdc = axi.AXILiteClockDomainCrossing(
+        axil, csr_axil, cd_from="sys", cd_to=milan_cd)
+    channels = [module for _, module in host.milan_axil_cdc._submodules]
+    if len(channels) != len(_CSR_CDC_CHANNELS) or any(
+            channel.sink.description.payload_layout
+            != getattr(axil, name).description.payload_layout
+            for channel, name in zip(channels, _CSR_CDC_CHANNELS)):
+        raise ValueError("the AXI-Lite crossing is not one FIFO per channel "
+                         "in %s order" % "/".join(_CSR_CDC_CHANNELS))
+    by_name = dict(zip(_CSR_CDC_CHANNELS, channels))
+    _payload_in_block_ram(by_name["w"])
+    _payload_in_block_ram(by_name["r"])
+    return csr_axil
+
+
 def add_milan_datapath(host: Module, platform: object,
                        axil: axi.AXILiteInterface,
                        extra_ports: dict[str, object] | None = None,
@@ -800,12 +836,7 @@ def add_milan_datapath(host: Module, platform: object,
     # fast. `milan_cd == "sys"` (the default, and what the sim uses) keeps the old
     # single-clock direct wiring. The MAC AXIS boundary is likewise crossed by
     # its own stream CDC in MilanMAC when `milan_cd != "sys"`.
-    if milan_cd != "sys":
-        csr_axil = axi.AXILiteInterface(data_width=32, address_width=32)
-        host.submodules.milan_axil_cdc = axi.AXILiteClockDomainCrossing(
-            axil, csr_axil, cd_from="sys", cd_to=milan_cd)
-    else:
-        csr_axil = axil
+    csr_axil = _cross_csr_bus(host, axil, milan_cd)
     ports = dict(
         # clocks / reset  -  the whole datapath runs in `milan_cd`
         i_axis_clk    = ClockSignal(milan_cd),  i_axis_resetn = ~ResetSignal(milan_cd),
@@ -1364,6 +1395,101 @@ class _AxisDP:
 #: the same number in one place.
 _AXIS_CDC_DEPTH = 16
 
+#: Bits `stream.AsyncFIFO` stores above a record's payload and params: its
+#: `first` and `last` flags, in that order.
+_FIFO_FRAMING_BITS = 2
+
+
+def _crossing_storage(crossing):
+    """The async FIFO inside one LiteX `stream.ClockDomainCrossing`, and the one
+    storage `Memory` it writes in its `write` domain and reads in `read`.
+
+    Only the array is reached here. The crossing's control (its gray-code
+    pointers, their two-stage synchronizers and the full and empty compares)
+    stays LiteX's own. Each step refuses any shape but the one the pinned LiteX
+    builds, so a pin that moves it fails elaboration instead of placing
+    nothing. Anonymous submodules and specials have no public accessor, hence
+    `_submodules` and `_fragment`."""
+    wrappers = [module for _, module in crossing._submodules]
+    if len(wrappers) != 1 or type(wrappers[0]) is not stream.AsyncFIFO:
+        raise ValueError("a crossing must hold exactly one stream.AsyncFIFO")
+    core = wrappers[0].fifo
+    if type(core) is migen_fifo.AsyncFIFOBuffered:
+        core = core.fifo
+    if type(core) is not migen_fifo.AsyncFIFO:
+        raise ValueError("the crossing's FIFO is not a migen AsyncFIFO")
+    arrays = [s for s in core._fragment.specials if isinstance(s, Memory)]
+    if len(arrays) != 1:
+        raise ValueError("the async FIFO must hold exactly one storage array")
+    storage = arrays[0]
+    ports = storage.ports
+    if (len(ports) != 2 or ports[0].we is None or ports[1].we is not None
+            or ports[1].async_read
+            or (ports[0].clock.cd, ports[1].clock.cd) != ("write", "read")):
+        raise ValueError("the storage array must have one write port in the "
+                         "write domain and one synchronous read port in read")
+    return core, storage
+
+
+def _payload_in_block_ram(crossing):
+    """Hold one crossing's payload in block RAM and its two framing flags in
+    distributed RAM (#640 lane M2, plan L3).
+
+    LiteX stores `first` and `last` above the payload, so a 72-bit payload is a
+    74-bit array that fills a RAMB36 and spills two bits into a RAMB18. Here
+    the array becomes two, both written at the FIFO's write address and enable
+    and read at its read address. Every entry is therefore in both at every
+    moment, and the FIFO reads their concatenation exactly as it read the one
+    array: same depth, width, read latency and clock domains, and no reset on
+    the storage, as in LiteX.
+
+    Each array registers the word it reads (`READ_FIRST`), not the address it
+    reads at. LiteX's Verilog emitter, which writes the SoC, gives every array
+    whose ports sit in two clocks that form anyway, so declaring it changes
+    nothing in the image. migen's emitter honours the declared form, and its
+    default would give the two arrays one read-address register each, fed
+    the same address: synthesis merges the pair, and the payload array cannot
+    take a register into block RAM that the flags also read. A buffered
+    crossing survives that on its output register; an unbuffered one whose
+    flags are read falls back to LUTRAM (Vivado Synth 8-6849, #640 R591-1).
+    With the word registered, the payload is in block RAM whether or not the
+    flags are read, buffered or not, under either emitter. A framing flag
+    nobody reads is trimmed; one that is read costs one RAM32X1D and its
+    one-bit read register."""
+    core, storage = _crossing_storage(crossing)
+    description = crossing.sink.description
+    payload_bits = (layout_len(description.payload_layout)
+                    + layout_len(description.param_layout))
+    if storage.width != payload_bits + _FIFO_FRAMING_BITS:
+        raise ValueError("the storage array is not the payload, its params "
+                         "and the two framing flags")
+    write, read = storage.ports
+    core._fragment.specials -= {storage, write, read}
+    lsb, pieces = 0, []
+    for bits, ram_style in ((payload_bits, "block"),
+                            (_FIFO_FRAMING_BITS, "distributed")):
+        array = Memory(bits, storage.depth, name="storage")
+        array.attr = {("ram_style", ram_style)}
+        array_write = array.get_port(write_capable=True, clock_domain="write")
+        array_read = array.get_port(clock_domain="read", mode=READ_FIRST)
+        core.specials += array, array_write, array_read
+        core.comb += [
+            array_write.adr.eq(write.adr),
+            array_write.we.eq(write.we),
+            array_write.dat_w.eq(write.dat_w[lsb:lsb + bits]),
+            array_read.adr.eq(read.adr),
+        ]
+        pieces.append(array_read.dat_r)
+        lsb += bits
+    core.comb += read.dat_r.eq(Cat(*pieces))
+
+
+def _mac_cdc_rename(milan_cd):
+    """The shadow domains both MAC crossings run in. `macsys` and `macdp` are
+    sys and `milan_cd` with `reinit` added to their resets (`MilanMAC`), so one
+    LINK_CTRL[1] reinit resets both sides of each crossing together."""
+    return {"sys": "macsys", milan_cd: "macdp"}
+
 
 def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, rename=None):
     """Cross one AXIS lane between the sys domain (memory bridge / MAC core) and the
@@ -1666,13 +1792,20 @@ class MilanMAC(LiteXModule):
             self.comb += self.cd_macdp.clk.eq(ClockSignal(milan_cd))
             self.specials += AsyncResetSynchronizer(
                 self.cd_macdp, ResetSignal(milan_cd) | self.reinit)
-            mac_cdc_rename = {"sys": "macsys", milan_cd: "macdp"}
+            mac_cdc_rename = _mac_cdc_rename(milan_cd)
         else:
             mac_cdc_rename = None
         tx_dp = _axis_dp_cdc(self, "mac_tx_cdc", L, milan_cd, to_datapath=False,
                              rename=mac_cdc_rename)  # dp -> MAC
         rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True,
                              rename=mac_cdc_rename)  # MAC -> dp
+        if milan_cd != "sys":
+            # Each 16 x 74 crossing filled a RAMB36 and spilled its two framing
+            # flags into a RAMB18. The flags now sit in LUTRAM, which frees
+            # both RAMB18s for the CSR crossing's W and R FIFOs
+            # (`_cross_csr_bus`; #640 lane M2).
+            _payload_in_block_ram(self.mac_tx_cdc)
+            _payload_in_block_ram(self.mac_rx_cdc)
         # LiteEth's `last_be` is NOT an AXIS keep mask  -  it is a **one-hot pointer to the
         # last valid byte** of the final beat (liteeth/mac/padding.py Case: 0x01->1 byte,
         # 0x02->2 … 0x80->8; the RX side builds it by up-converting a single `last` bit).
@@ -2511,7 +2644,10 @@ class CtrlMailbox(LiteXModule):
     idle below, so the window, the fabric timers, the TICK events and the
     interrupt work and no frame ever reaches a ring. A firmware therefore sees
     an empty, quiet mailbox, never a wrong one; the tap that feeds it comes
-    with the protocol lanes that need it (#665 F2 to F5).
+    with the protocol lanes that need it (#665 F2 to F5). The publication
+    block's outputs (contract 2.2, the class-D state the firmware owner writes
+    for the datapath) are left unread here too: only the split placement's
+    datapath reads them (#665, comment 6088423771).
     """
 
     def __init__(self, sys_clk_freq: int, contract: object) -> None:
@@ -2531,6 +2667,10 @@ class CtrlMailbox(LiteXModule):
         addr_w = (contract.window_bytes // 4 - 1).bit_length()
         if_w = max(1, (contract.interfaces - 1).bit_length())
         ch_w = max(1, (len(contract.channels) - 1).bit_length())
+        # the publication block's port widths: per interface, each field's
+        # width, a bit per source or sink, and 64 bits per sink's stream_id
+        n_if = contract.interfaces
+        pub_w = {(r.name, f.name): f.width for r in contract.pub_registers for f in r.fields}
         req, we, ack, irq = Signal(), Signal(), Signal(), Signal()
         addr, wdata, rdata, be = Signal(addr_w), Signal(32), Signal(32), Signal(4)
         self.specials += Instance("KL_mbx_wb",
@@ -2549,7 +2689,19 @@ class CtrlMailbox(LiteXModule):
             i_link_up_i=0, i_gm_change_p_i=0, i_gm_id_i=0, i_gptp_domain_i=0,
             i_rx_valid_i=0, o_rx_ready_o=Signal(), i_rx_data_i=0, i_rx_last_i=0, i_rx_if_i=0,
             o_tx_valid_o=Signal(), i_tx_ready_i=1, o_tx_data_o=Signal(8), o_tx_last_o=Signal(),
-            o_tx_if_o=Signal(if_w), o_tx_ch_o=Signal(ch_w))
+            o_tx_if_o=Signal(if_w), o_tx_ch_o=Signal(ch_w),
+            # unread here, see the class docstring
+            o_pub_da_gate_o=Signal(n_if * contract.pub_sources),
+            o_pub_licence_o=Signal(n_if * contract.pub_sources),
+            o_pub_idle_slope_bps_o=Signal(n_if * pub_w[("IDLE_SLOPE", "BPS")]),
+            o_pub_dom_vid_o=Signal(n_if * pub_w[("SR_DOMAIN", "VID")]),
+            o_pub_dom_prio_o=Signal(n_if * pub_w[("SR_DOMAIN", "PRIORITY")]),
+            o_pub_dom_adopted_o=Signal(n_if * pub_w[("SR_DOMAIN", "ADOPTED")]),
+            o_pub_talker_decl_o=Signal(n_if * contract.pub_sources),
+            o_pub_bound_o=Signal(n_if * contract.pub_sinks),
+            o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks),
+            o_pub_started_o=Signal(n_if * contract.pub_sinks),
+            o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64))
         self.comb += self.ev.mbx.trigger.eq(irq)
 
 
@@ -2568,6 +2720,59 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
         soc.irq.add("ctrl_mbx", use_loc_if_exists=True)
     else:
         print("[milan] --ctrl-mailbox: the CPU has no interrupt controller; firmware polls the mailbox")
+
+
+# ---- #640 M8a: the split placement's control-firmware memory -------------------------------------
+# Under --ctrl-mailbox the control firmware owns the reset entry and runs from
+# block RAM; MilanSoC builds no BIOS ROM or SRAM. sw/litex/ctrl_memory.py is the
+# map, the bank plan and the checks; only the hookup lives here.
+class CtrlMemory(LiteXModule):
+    """One firmware region: the image's banks, largest first, each LiteX's own wishbone.SRAM.
+
+    A bank is a power of two of RAMB18 granules, so it maps to whole block
+    RAMs with no rounding and the region wastes less than one granule. An
+    address of the region past the last bank answers err at once instead of
+    aliasing a bank.
+    """
+
+    def __init__(self, region: ctrl_memory.Region, banks: tuple[int, ...],
+                 words: list[int] | None) -> None:
+        """`words` initialises a read-only region; None builds a writable one."""
+        from litex.soc.interconnect import wishbone
+        self.bus = wishbone.Interface(data_width=32, address_width=32, addressing="word")
+        low = (region.size - 1).bit_length() - 2      # word-address bits the region decodes
+        slaves, first = [], 0
+        for n, size in enumerate(banks):
+            depth = size // 4
+            bank = wishbone.SRAM(size, read_only=words is not None, name=f"{region.name}_bank{n}",
+                                 init=None if words is None else words[first:first + depth])
+            setattr(self, f"bank{n}", bank)
+            shift = depth.bit_length() - 1
+            slaves.append((lambda a, s=shift, f=first: a[s:low] == f >> s, bank.bus))
+            first += depth
+        hole = wishbone.Interface(data_width=32, address_width=32, addressing="word")
+        self.sync += hole.err.eq(hole.cyc & hole.stb & ~hole.err)
+        slaves.append((lambda a: a[:low] >= first, hole))
+        self.decoder = wishbone.Decoder(self.bus, slaves)
+
+
+def add_ctrl_memory(soc: SoCCore, firmware: Path) -> None:
+    """Build rom and sram from the linked control firmware; rom's first word is the reset entry."""
+    if (soc.cpu.reset_address, soc.mem_map["sram"]) != (ctrl_memory.ROM.origin, ctrl_memory.RAM.origin):
+        raise ctrl_memory.Refusal("cpu origins", f"the CPU resets to 0x{soc.cpu.reset_address:08x} "
+                                  f"with sram at 0x{soc.mem_map['sram']:08x}; ctrl_memory.py maps "
+                                  f"rom at 0x{ctrl_memory.ROM.origin:08x}, sram at 0x{ctrl_memory.RAM.origin:08x}")
+    soc.ctrl_image = ctrl_memory.read_elf(firmware)
+    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image)
+    for region, banks, words, mode in (
+            (ctrl_memory.ROM, soc.ctrl_plan.rom_banks, ctrl_memory.rom_words(soc.ctrl_image), "rx"),
+            (ctrl_memory.RAM, soc.ctrl_plan.ram_banks, None, "rwx")):
+        soc.add_module(name=region.name, module=CtrlMemory(region, banks, words))
+        soc.bus.add_slave(region.name, getattr(soc, region.name).bus,
+                          region=SoCRegion(origin=region.origin, size=region.size, mode=mode))
+    # LiteX's own flag for "rom already holds its contents": the Builder builds no BIOS.
+    soc.integrated_rom_initialized = True
+    print(f"[milan] --ctrl-firmware {firmware}: {json.dumps(soc.ctrl_plan.summary())}")
 
 
 def _parse_l2_bytes(token: str) -> Decimal:
@@ -2617,7 +2822,7 @@ class MilanSoC(SoCCore):
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  render_lpf=True, optional_blocks=None,
-                 entity_gen_dir=None, ctrl_mailbox=False, **kwargs):
+                 entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, **kwargs):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
             raise ValueError("unsupported software profile")
@@ -2714,9 +2919,17 @@ class MilanSoC(SoCCore):
             kwargs["cpu_type"]    = "naxriscv"
             kwargs["cpu_variant"] = "standard"
             kwargs["cpu_count"]   = cpu_count
-        # BIOS ROM is always integrated. Main RAM is external LiteDRAM when
+        # BIOS ROM is integrated in the all-fabric placement. Under
+        # --ctrl-mailbox the control firmware owns the reset entry instead, in
+        # its own block RAM (add_ctrl_memory, #640 M8a), and neither the BIOS
+        # ROM nor its SRAM is built. Main RAM is external LiteDRAM when
         # requested, otherwise integrated SRAM. Do not add integrated
         # main RAM when DRAM provides it.
+        if ctrl_mailbox:
+            if ctrl_firmware is None:
+                raise ValueError("--ctrl-mailbox needs --ctrl-firmware: the split placement "
+                                 "runs no BIOS, so its block RAM is sized from the firmware")
+            kwargs.update(integrated_rom_size=0, integrated_sram_size=0)
         kwargs.setdefault("integrated_rom_size", 0x20000)   # BIOS lives here; reset vector
         if not with_dram:
             kwargs.setdefault("integrated_main_ram_size", main_ram_size)
@@ -2743,6 +2956,8 @@ class MilanSoC(SoCCore):
                          ident=(f"Milan TSN SoC - {_cpu_human} RV{xlen} "
                                 f"{cpu_count}-core {software_profile}"),
                          **kwargs)
+        if ctrl_mailbox:
+            add_ctrl_memory(self, Path(ctrl_firmware))
         # Compiled into soc.h so layout_from_soch.py can reconstruct the exact
         # ownership state for sweep artifacts without consulting a launcher or
         # mutable launch state. Encoding: 0=none, 1=fabric.
@@ -3614,7 +3829,14 @@ def main() -> None:
                          "firmware (sw/mailbox/mailbox.yaml: KL_mbx behind KL_mbx_wb at "
                          "0x9010_0000, its CSR bank and one interrupt). Its datapath side "
                          "is held idle in F0. Default off => no source, no instance, no "
-                         "region: the top .v and source list are byte-identical.")
+                         "region: the top .v and source list are byte-identical. "
+                         "Needs --ctrl-firmware (#640 M8a).")
+    ap.add_argument("--ctrl-firmware", type=Path, default=None,
+                    help="#640 M8a: the split placement's control firmware, an ELF linked by "
+                         "sw/firmware/ctrl/plat/ctrl_split.ld. Under --ctrl-mailbox it owns the "
+                         "reset entry: no BIOS ROM or SRAM is built, and its image sizes and "
+                         "initialises the block RAM of the rom and sram regions "
+                         "(sw/litex/ctrl_memory.py). Refused without --ctrl-mailbox.")
     ap.add_argument("--loopback-lane", action="store_true",
                     help="task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK "
                          "bucket (SRC_LOOP = 5) to the depacketizer payload clone, so a "
@@ -3813,6 +4035,9 @@ def main() -> None:
         ap.error(f"baremetal clock: effective --milan-clk-freq must be {BAREMETAL_CLK_HZ} Hz "
                  "(docs/integration/BAREMETAL_FIRMWARE.md build contract); "
                  "without a Milan clock domain, --sys-clk-freq supplies that clock")
+    if args.ctrl_mailbox != (args.ctrl_firmware is not None):
+        ap.error("--ctrl-mailbox and --ctrl-firmware go together: the split placement's "
+                 "firmware owns the reset entry and sizes its own block RAM (#640 M8a)")
     if args.fabric_gptp is None:
         args.fabric_gptp = not args.no_milan
     if args.fabric_gptp and args.no_milan:
@@ -3950,6 +4175,7 @@ def main() -> None:
                    },
                    entity_gen_dir=args.entity_gen_dir,
                    ctrl_mailbox=args.ctrl_mailbox,
+                   ctrl_firmware=args.ctrl_firmware,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),
@@ -3987,7 +4213,8 @@ def main() -> None:
         soc.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_nets sys_rst]")
         soc.platform.add_platform_command("set_multicycle_path 1 -hold  -through [get_nets sys_rst]")
     builder = Builder(soc, **builder_argdict(args))
-    if args.software_profile == "baremetal":
+    # The split placement builds no BIOS, so the shipping firmware has nothing to link into.
+    if args.software_profile == "baremetal" and not args.ctrl_mailbox:
         fw_dir = str(REPO_ROOT / "sw" / "firmware" / "milan_baremetal")
         builder.add_software_package("libmilan_baremetal", fw_dir)
         builder.add_software_library("libmilan_baremetal", always_link=True)
@@ -4107,6 +4334,11 @@ def main() -> None:
         _nvm_donor = NvmDonor(base=binding_base(), layout=layout_version())
         for _name, _value in firmware_constants(_nvm_shape, _nvm_donor).items():
             soc.add_constant(_name, _value)
+        if args.ctrl_mailbox:
+            # #640 M8a: the split firmware stages this shape's container.
+            ctrl_memory.check_stage(soc.ctrl_image,
+                                    ctrl_memory.stage_bytes(_nvm_shape, _nvm_donor),
+                                    Path(args.entity_gen_dir).name)
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
     if args.build:
         # Every launcher and shipping board passes here. A successful vendor

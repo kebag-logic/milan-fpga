@@ -27,6 +27,29 @@ build: $(MDIR)/V$(TOP)
 run: $(MDIR)/V$(TOP)
 	$(abspath $(MDIR))/V$(TOP)
 	$(MAKE) netcheck
+	$(MAKE) lockstep
+	python3 lockstep_mutants.py
+
+# #640 M6 lockstep leg: the shipping crossbar beside the pre-change reference
+# (reference/KL_chan_map_capture_ref.sv, dev e8454e27's module with only its
+# name changed) at the shipping 1x1 shape (4 pair slots, one loopback
+# stream) and the 8x8 shape (32 slots, eight streams). LS_SRC and LS_MDIR are
+# overridable so lockstep_mutants.py builds a MUTATED copy of the crossbar
+# through this exact recipe.
+LS_SRC  ?= ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv
+LS_MDIR ?= obj_ls
+LS_SRCS = reference/KL_chan_map_capture_ref.sv $(LS_SRC) chmap_lockstep_wrap.sv
+LS_FLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module chmap_lockstep_wrap \
+	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+	  -Wno-UNUSEDPARAM -Wno-DECLFILENAME -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
+lockstep-build:
+	$(VERILATOR) $(LS_FLAGS) --Mdir $(LS_MDIR)1 -GN_SLOTS_P=4 -GN_LB_STREAMS_P=1 \
+	  -CFLAGS "-DSLOTS_TB=4 -DNLB_TB=1 -Wall -Wextra" $(LS_SRCS) sim_lockstep.cpp -o Vchmap_lockstep
+	$(VERILATOR) $(LS_FLAGS) --Mdir $(LS_MDIR)8 -GN_SLOTS_P=32 -GN_LB_STREAMS_P=8 \
+	  -CFLAGS "-DSLOTS_TB=32 -DNLB_TB=8 -Wall -Wextra" $(LS_SRCS) sim_lockstep.cpp -o Vchmap_lockstep
+lockstep: lockstep-build
+	./$(LS_MDIR)1/Vchmap_lockstep
+	./$(LS_MDIR)8/Vchmap_lockstep
 
 # [NC] NETLIST-level decode pin (t532 silicon 2026-08-09, the VERSION 0x0030
 # hazard class): RTL sims were green while synthesized silicon shifted the
@@ -66,5 +89,5 @@ $(NETDIR)/Vchmap_netcheck: $(NETLIST) sim_netcheck.cpp
 netcheck: $(NETDIR)/Vchmap_netcheck
 	$(abspath $(NETDIR))/Vchmap_netcheck
 
-clean: ; rm -rf obj_dir obj_net
-.PHONY: all build run clean netcheck
+clean: ; rm -rf obj_dir obj_net obj_ls1 obj_ls8
+.PHONY: all build run clean netcheck lockstep-build lockstep

@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""Run the real-counter step regression and its isolated microcode defects."""
+
+import argparse
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+
+
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[2]
+GENERATOR = ROOT / "gptp-processor/hdl/ucode/gen_gptp_ucode.py"
+
+
+def invoke(argv: list[str], cwd: Path, log: Path) -> int:
+    """Keep the complete command output and return its actual exit status."""
+    with log.open("w") as stream:
+        result = subprocess.run(argv, cwd=cwd, stdout=stream, stderr=subprocess.STDOUT, check=False)
+    return result.returncode
+
+
+def plant(source: str, name: str, scope: str | None, old: str, new: str) -> str:
+    """Replace one anchor that is unique within the named function, or the file."""
+    start, end = 0, len(source)
+    if scope:
+        start = source.index(f"\ndef {scope}(")
+        end = source.find("\ndef ", start + 1)
+        end = len(source) if end < 0 else end
+    region = source[start:end]
+    if region.count(old) != 1:
+        raise RuntimeError(f"{name}: mutation anchor is not unique")
+    return source[:start] + region.replace(old, new) + source[end:]
+
+
+def run(work: Path, generator: Path, mutants: bool) -> None:
+    """One compiled counter/engine model, independently generated ROM per arm."""
+    work.mkdir(parents=True, exist_ok=True)
+    donor = ROOT / "gptp-processor/hdl"
+    sources = [HERE / "gptp_plane_wrap.sv", ROOT / "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv"]
+    sources.extend(donor / path for path in (
+        "ucpu/gptp_ucpu_pkg.sv", "ucpu/KL_gptp_ucpu.sv",
+        "wire/KL_gptp_rx_parser.sv", "wire/KL_gptp_tx_slot.sv",
+        "common/KL_gptp_timer.sv", "top/KL_gptp_engine.sv"))
+    binary = work / "obj/phc_step"
+    command = [os.environ.get("VERILATOR", "verilator"), "--cc", "--exe", "--build", "-j",
+               os.environ.get("VERILATOR_JOBS", "2"), "--top-module", "gptp_plane_wrap",
+               "--Mdir", str(binary.parent), "-Wall", "-Wno-fatal", "-Wno-DECLFILENAME",
+               "-Wno-UNUSEDSIGNAL", "-Wno-WIDTHEXPAND", "-Wno-WIDTHTRUNC", "-Wno-UNUSEDPARAM",
+               "-GCLK_HZ_P=8000000", "-GPHC_INCR_P=2097152000",
+               "-CFLAGS", "-std=c++17 -O2 -Wall -Wextra",
+               *map(str, sources), str(HERE / "sim_phc_step.cpp"), "-o", binary.name]
+    if invoke(command, ROOT, work / "build.log"):
+        raise RuntimeError("step regression compilation failed; see build.log")
+    source = generator.read_text()
+    arms = [("clean", source, None)]
+    if mutants:
+        credit = '    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n'
+        liveness = "asCapable falls at the fourth unanswered request after a crossing exchange"
+        unanswered = "asCapable falls at the third unanswered request after an unanswered crossing request"
+        # The timer program has no free ROM word, so the credit plant below
+        # displaces the Milan cease rule. Removing only that rule must pass.
+        cease = "    _tmr_cease_rule(p)\n"
+        step_credit = ('    p.emit("RDST", rd=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n'
+                       '    p.emit("CMP", ra=RT, rb=0, fmt=FMT_D, imm=0)\n'
+                       '    p.emit("BRS", cnd=BRS_Z, label="r571_skip")\n'
+                       '    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n'
+                       '    p.label("r571_skip")\n')
+        arms.append(("nocease-control", plant(source, "nocease-control", "prog_tmr", cease, ""), None))
+        defects = (
+            ("stale-rate-window", None, '    p.emit("WRST", ra=0, imm=RG_SCR | S_NR3, fmt=FMT_Q)\n',
+             "", "asCapable never falls after step"),
+            ("crossing-exchange", None, '    p.emit("RDST", rd=RT, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n',
+             '    p.emit("MOVE", rd=RT, ra=0, imm=0)\n', "no invalid link-delay publication"),
+            ("never-rearm-measurement", None, '    p.emit("WRST", ra=0, imm=RG_SCR | S_PDSTEP, fmt=FMT_Q)\n',
+             "", "real excessive delay still clears asCapable"),
+            # The two review rounds' plants delete the crossing exchange's
+            # liveness credit through different anchors; both write the same
+            # generator text, so five distinct defects run.
+            ("liveness-not-marked", "prog_leg_pdepoch", credit, "", liveness),
+            ("r571-no-liveness", None, credit + '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair',
+             '    p.emit("END")\n    return p\n\n\ndef prog_leg_pdpair', liveness),
+            # Credit a request that a PHC step overlapped, whether or not its
+            # exchange ever completed.
+            ("credit-on-step", "prog_tmr", cease, step_credit, unanswered),
+        )
+        for name, scope, old, new, assertion in defects:
+            arms.append((name, plant(source, name, scope, old, new), assertion))
+    for name, program, assertion in arms:
+        directory = work / name
+        directory.mkdir(exist_ok=True)
+        script = directory / "generate.py"
+        script.write_text(program)
+        if invoke(["python3", str(script), "--clk-hz", "8000000", "-o", "gptp_ucode.hex"],
+                  directory, directory / "generate.log"):
+            raise RuntimeError(f"{name}: generation failed")
+        rc = invoke([str(binary)], directory, directory / "run.log")
+        log = (directory / "run.log").read_text()
+        if assertion is None:
+            if name == "clean":
+                print(log, end="", flush=True)
+            if rc != 0 or "RESULT: PASS" not in log:
+                raise RuntimeError(f"{name} step regression failed")
+            if name != "clean":
+                print(f"PASS control {name}: every check passes", flush=True)
+        elif rc != 1 or f"[FAIL] {assertion}" not in log:
+            raise RuntimeError(f"{name}: required runtime assertion did not reject the defect")
+        else:
+            print(f"PASS planted defect {name}: {assertion}", flush=True)
+    print(f"phc_step campaign: {len(arms)} checks: {len(arms)} PASS, 0 FAIL", flush=True)
+
+
+def main() -> None:
+    """Use a retained external directory when requested, otherwise clean up."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--work", type=Path)
+    parser.add_argument("--generator", type=Path, default=GENERATOR)
+    parser.add_argument("--mutants", action="store_true")
+    args = parser.parse_args()
+    if args.work:
+        run(args.work.resolve(), args.generator.resolve(), args.mutants)
+    else:
+        with tempfile.TemporaryDirectory(prefix="gptp-phc-step-") as directory:
+            run(Path(directory), args.generator.resolve(), args.mutants)
+
+
+if __name__ == "__main__":
+    main()

@@ -5,8 +5,8 @@
 //
 // Two orders meet in a ring and neither depends on the host's own:
 //
-//   * a WIRE field inside a frame is big-endian; ../wire/wire.h reads and
-//     writes it one byte at a time;
+//   * a WIRE field inside a frame is big-endian; wire.h, the TSN stack's
+//     (third_party/tsn-c-stack/include), reads and writes it byte by byte;
 //   * a RING word carries four frame bytes in little-endian lanes, the
 //     contract's statement (sw/mailbox/mailbox.yaml): frame byte k sits in
 //     ring word k/4 at bits [8*(k%4)+7 : 8*(k%4)]. ring_lanes_*() convert.

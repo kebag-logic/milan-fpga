@@ -52,7 +52,17 @@ later loop pass. Reentry is asserted in diagnostic builds and counted/refused
 otherwise. One response remains owed through backpressure. Notifications follow
 that response, exclude its requester, and advance each recipient's own sequence.
 Counter notifications are limited per descriptor from the latest recipient's
-completed transmission. Controller probes use a 30-60 s monitor interval,
+completed transmission. Under the [2026-10-12 #726 ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6125741685),
+FRAMES_TX/RX snapshots carry per-AVTPDU 32-bit totals.
+TX resets at talker start; RX resets on not-bound to bound and retains unbind totals.
+The observation port supplies those values; the protocol core does not recount packets.
+Every counter update, including healthy traffic, must call `aecp_changed()` with the COUNTERS event (bit 3, value 8).
+The [gap check](../../../../tb/verilator/milan_dp/stream_counter_f5.py)
+uses this unchanged core and mailbox adapter, two registered recipients,
+and a two-millisecond transmit stall at both descriptor shapes.
+See the [counter evidence](../../../../docs/testing/726_STREAM_COUNTERS.md) for measurements.
+Milan 5.4.5.2 Table 5.22 remains the notification rate limit.
+Controller probes use a 30-60 s monitor interval,
 250 ms retry and eventual targeted deregistration. Locks expire after 60 s.
 
 The guard covers every public protocol and saved-state input.
@@ -81,7 +91,10 @@ then open AECP and attach SRP. The bridge restores the combined channel filter
 and interrupts after SRP attaches. Its poll service forwards ACMP bindings,
 START/STOP, persistence and deferred notifications. An UNBIND_RX response must
 be accepted before the corresponding MEDIA_UNLOCKED notification is eligible
-([#653](https://github.com/kebag-logic/milan-fpga/issues/653)).
+([#653](https://github.com/kebag-logic/milan-fpga/issues/653)). START/STOP
+applies through `acmp_set_started`, which writes the sink's started level to
+the mailbox's [publication block](../../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)
+before it returns; the response leaves on a later pass (#665).
 
 [`aecp_state.c`](aecp_state.c), [`aecp_maps.c`](aecp_maps.c) and
 [`aecp_nvm.c`](aecp_nvm.c) implement
@@ -125,7 +138,9 @@ feeds the same commands to that model and the portable core, and independently
 grades the resulting bytes. The single-interface reference is the pinned
 `2ad2f845dd583f8310075fa2380cb60a04fd091a`; the two-interface reference is
 the merged #69 revision `c9f74b6866a63dd3c0e4534724bfc07a86ad142b`.
-Both source inventories are content-pinned. The wrapper's name capacity follows
+Both source inventories are content-pinned. The core is built with the
+[TSN stack](../README.md#the-tsn-stack-submodule)'s wire layer, whose pin check
+runs first (`--stack`, the submodule by default). The wrapper's name capacity follows
 the generated shape. Only the bench's external observation/format/map providers
 are adapted to that shape. A generated verification-only second sampling rate
 exercises a real rate change. No product configuration or RTL is edited.
@@ -135,6 +150,17 @@ python3 -B sw/firmware/ctrl/test/aecp_wire.py --reference protocol-processor \
   --interfaces 1 --output "$F5_SCRATCH/wire-one" --verilator "$PINNED_VERILATOR"
 python3 -B sw/firmware/ctrl/test/aecp_wire.py --reference "$PROCESSOR_69_REFERENCE" \
   --interfaces 2 --output "$F5_SCRATCH/wire-two" --verilator "$PINNED_VERILATOR"
+```
+
+`--every` runs both, each against its pinned revision, whose tree it takes
+from the `protocol-processor` submodule's own objects without changing the
+submodule; a revision the submodule does not hold is refused by name. The
+[TSN stack boundary](../README.md#the-tsn-stack-submodule) runs it this way,
+so it judges what both configurations compile:
+
+```sh
+python3 -B sw/firmware/ctrl/test/aecp_wire.py --every --output "$F5_SCRATCH/wire" \
+  --verilator "$PINNED_VERILATOR"
 ```
 
 Each ingress grades every generated descriptor, the implemented command set and

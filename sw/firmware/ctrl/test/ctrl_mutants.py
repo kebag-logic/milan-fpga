@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """ctrl_mutants.py - planted defects the control-plane firmware's host test must catch.
 
-Each mutant is one substitution in a COPY of sw/firmware/ctrl (never the
-checkout), the arm that must catch it, the GoogleTest test that must fail (its
+Each mutant is one substitution in a COPY of sw/firmware/ctrl or of the TSN
+stack's sources and headers (never the checkout or the submodule; a path
+named with ctrl_build.STACK_PREFIX is the stack's), the arm that must catch it, the GoogleTest test that must fail (its
 full name, or the prefix every instance of a parameterised test shares) and a
 fragment of the failing assertion's own words, the name the check had in the
 hand-rolled suite this replaced. A mutant is caught only when that arm fails
@@ -15,6 +16,7 @@ test can see the defect. A mutant may name further (arm, test, words) kills in
 
 from __future__ import annotations
 
+import json
 import re
 import shutil
 from pathlib import Path
@@ -23,8 +25,8 @@ import acmp_mutants
 import ctrl_arms
 import fw_gtest
 from maap_mutants import mutants as maap_mutants
-from ctrl_build import CTRL, Outcome, Refusal, Tree
-from ctrl_mutant import Mutant
+from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
+from ctrl_mutant import ACMP_C, ADP_C, Mutant
 
 
 #: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
@@ -75,115 +77,131 @@ APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n")
     "\tshlan_port_bind_pool(&app->pool);\n"
 
 MUTANTS = (
-    Mutant("reentry-guard-removed", "adp/adp.c",
+    Mutant("reentry-guard-removed", ADP_C,
            "\tassert(!port_active);\n\tif (port_active) {",
            "\tif (port_active && false) {",
            "reentry_debug", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry asserts",
            (("reentry_debug", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry asserts"),
             ("reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
             ("reentry_release", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry is counted"))),
-    Mutant("reentry-uncounted", "adp/adp.c", "\t\treentry_count++;\n", "",
+    Mutant("reentry-uncounted", ADP_C, "\t\treentry_count++;\n", "",
            "reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
-    Mutant("reentry-not-ignored", "adp/adp.c", "\t\treentry_count++;\n\t\treturn true;",
+    Mutant("reentry-not-ignored", ADP_C, "\t\treentry_count++;\n\t\treturn true;",
            "\t\treentry_count++;\n\t\treturn false;",
            "reentry_release", "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/",
            "callback leaves core state unchanged"),
-    Mutant("departing-keeps-index", "adp/adp.c",
+    Mutant("departing-keeps-index", ADP_C,
            "\tuint32_t index = a->available_index;\n\ta->available_index = 0;\n",
            "\tuint32_t index = a->available_index;\n", "walk", "Table551/AdpWalkCell.Graded/", "available_index"),
     # R497-1-F2's reading, which the ruling on PR #668 (5994972330) rejects.
-    Mutant("departing-sends-zero", "adp/adp.c", "if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {",
+    Mutant("departing-sends-zero", ADP_C, "if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {",
            "if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index & 0u)) {",
            "adp", "AdpCore.A10toA14DepartingIndex", "A10 SHUTDOWN in WAITING"),
     # R497-2-F1: the restart's ENTITY_AVAILABLE takes the owed DEPARTING's place.
-    Mutant("available-replaces-owed-departing", "adp/adp.c",
+    Mutant("available-replaces-owed-departing", ADP_C,
            "\ta->available_owed = true;\n\tif (a->departing_owed != 0u ||",
            "\ta->available_owed = true;\n\ta->departing_owed = 0u;\n\tif (a->departing_owed != 0u ||",
            "adp", "AdpCore.A15OwedDepartingAcrossARestart",
            "A15 with room, the next poll sends the owed ENTITY_DEPARTING first"),
-    Mutant("available-passes-owed-departing", "adp/adp.c",
+    Mutant("available-passes-owed-departing", ADP_C,
            "if (a->departing_owed != 0u || !send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {",
            "if (!send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {", "adp", "AdpCore.A17RoomBackBeforeAPoll",
            "A17 room back and TMR_DELAY expiring before a poll"),
-    Mutant("second-departing-dropped", "adp/adp.c",
-           "\t\ta->departing_owed++;                                    // queued behind the oldest, carrying 0\n",
-           "", "adp", "AdpCore.A16SecondShutdownQueuesItsOwn", "A16 a SHUTDOWN while one is owed queues its own"),
-    Mutant("second-shutdown-overwrites-index", "adp/adp.c",
+    Mutant("second-departing-dropped", ADP_C,
+           "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n\t\ta->departing_owed++;\n\t} else {\n",
+           "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n\t} else {\n",
+           "adp", "AdpCore.A16SecondShutdownQueuesItsOwn", "A16 a SHUTDOWN while one is owed queues its own"),
+    Mutant("second-shutdown-overwrites-index", ADP_C,
            "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n",
            "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n\t\ta->departing_index = index;\n",
            "adp", "AdpCore.A16SecondShutdownQueuesItsOwn",
            "A16 a SHUTDOWN while one is owed queues its own"),
     # R496-3-F2: the legs of the owed-frame rule beyond A15 to A17.
-    Mutant("link-loss-drops-owed-departing", "adp/adp.c",
-           "\t\ta->available_owed = false;                              // an owed DEPARTING stays owed\n",
-           "\t\ta->available_owed = false;\n\t\ta->departing_owed = 0u;\n",
+    Mutant("link-loss-drops-owed-departing", ADP_C,
+           "\t\ta->available_owed = false;\n\t\ta->state = ADP_STATE_DOWN;\n",
+           "\t\ta->available_owed = false;\n\t\ta->departing_owed = 0u;\n\t\ta->state = ADP_STATE_DOWN;\n",
            "adp", "AdpCore.A18LinkLossKeepsTheOwedDeparting",
            "A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING"),
-    Mutant("gm-change-drops-owed-available", "adp/adp.c", "\ta->gm_changed++;\n",
+    Mutant("gm-change-drops-owed-available", ADP_C, "\ta->gm_changed++;\n",
            "\ta->gm_changed++;\n\ta->available_owed = false;\n", "adp", "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
            "A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed"),
-    Mutant("discover-drops-owed-available", "adp/adp.c",
-           "\tif (!a->enabled || a->state != ADP_STATE_WAITING) {             // Table 5.51: ignored\n",
-           "\tif (!a->enabled || a->state != ADP_STATE_WAITING) {\n\t\ta->available_owed = false;\n",
+    Mutant("discover-drops-owed-available", ADP_C,
+           ("\t}\n\tif (!a->enabled || a->state != ADP_STATE_WAITING) {             // Milan v1.2 Table 5.51\n"
+            "\t\treturn;\n"),
+           "\t}\n\tif (!a->enabled || a->state != ADP_STATE_WAITING) {\n\t\ta->available_owed = false;\n\t\treturn;\n",
            "adp", "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
            "A19 so does an ENTITY_DISCOVER"),
-    Mutant("stray-expiry-drops-owed-available", "adp/adp.c", "\t\ta->stray_expiries++;\n\t\treturn;\n",
+    Mutant("stray-expiry-drops-owed-available", ADP_C, "\t\ta->stray_expiries++;\n\t\treturn;\n",
            "\t\ta->stray_expiries++;\n\t\ta->available_owed = false;\n\t\treturn;\n",
            "adp", "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
            "A19 and a stray expiry, which is counted"),
-    Mutant("link-loss-keeps-owed-available", "adp/adp.c",
-           "\t\ta->available_owed = false;                              // an owed DEPARTING stays owed\n", "",
+    Mutant("link-loss-keeps-owed-available", ADP_C,
+           ("\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n"
+            "\t\ta->available_owed = false;\n\t\ta->state = ADP_STATE_DOWN;\n"),
+           ("\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n"
+            "\t\ta->state = ADP_STATE_DOWN;\n"),
            "adp", "AdpCore.A20LinkLossDropsTheOwedAvailable",
            "A20 a link loss drops the owed ENTITY_AVAILABLE at once"),
     # R497-3-F1: the bound on owed DEPARTINGs, and R496-3-F1: the pass it gives.
-    Mutant("departing-queue-unbounded", "adp/adp.c",
+    Mutant("departing-queue-unbounded", ADP_C,
            "\t} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {\n",
            "\t} else if (a->departing_owed != UINT32_MAX) {\n",
            "adp", "Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/",
            "E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed"),
-    Mutant("coalesced-departing-uncounted", "adp/adp.c", "\t\ta->departing_coalesced++;", "\t\t(void)0;",
+    Mutant("coalesced-departing-uncounted", ADP_C, "\t\ta->departing_coalesced++;", "\t\t(void)0;",
            "adp", "AdpCore.A21DepartingCapacity",
            "A21 the next SHUTDOWN is coalesced into the queued one and counted"),
-    Mutant("coalesce-drops-queued-departing", "adp/adp.c", "\t\ta->departing_coalesced++;",
+    Mutant("coalesce-drops-queued-departing", ADP_C, "\t\ta->departing_coalesced++;",
            "\t\ta->departing_coalesced++;\n\t\ta->departing_owed--;", "adp", "AdpCore.A21DepartingCapacity",
            "A21 the next SHUTDOWN is coalesced into the queued one and counted"),
-    Mutant("coalesce-overwrites-oldest-index", "adp/adp.c", "\t\ta->departing_coalesced++;",
+    Mutant("coalesce-overwrites-oldest-index", ADP_C, "\t\ta->departing_coalesced++;",
            "\t\ta->departing_coalesced++;\n\t\ta->departing_index = index;", "adp", "AdpCore.A21DepartingCapacity",
            "A21 the next SHUTDOWN is coalesced into the queued one and counted"),
-    Mutant("own-discover-discarded", "adp/adp.c", "if (target != 0u && target != a->entity->entity_id) {",
+    Mutant("own-discover-discarded", ADP_C, "if (target != 0u && target != a->entity->entity_id) {",
            "if (target != 0u) {",
            "walk", "Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING",
            "RCV_ADP_DISCOVER(own eid) x WAITING"),
-    Mutant("down-answers-discover", "adp/adp.c", "if (!a->enabled || a->state != ADP_STATE_WAITING) {",
+    Mutant("down-answers-discover", ADP_C, "if (!a->enabled || a->state != ADP_STATE_WAITING) {",
            "if (!a->enabled) {",
            "walk", "Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN", "RCV_ADP_DISCOVER(eid 0) x DOWN"),
-    Mutant("link-down-departs", "adp/adp.c", "\t\ttimer_stop(a);                                          // 5.6.3.5.6",
-           "\t\t(void)send(a, ADP_MSG_ENTITY_DEPARTING, a->available_index);\n\t\ttimer_stop(a); // 5.6.3.5.6",
+    Mutant("link-down-departs", ADP_C,
+           ("\tif (a->state != ADP_STATE_DOWN) {\n"
+            "\t\ttimer_stop(a);                                          // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n"
+            "\t\ta->available_owed = false;\n"),
+           ("\tif (a->state != ADP_STATE_DOWN) {\n\t\t(void)send(a, ADP_MSG_ENTITY_DEPARTING, a->available_index);\n"
+            "\t\ttimer_stop(a); // Milan v1.2 5.6.3.5.6 / 5.6.3.5.10\n\t\ta->available_owed = false;\n"),
            "walk", "Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING", "LINK_DOWN x WAITING: frames committed"),
-    Mutant("gm-change-ignored", "adp/adp.c", "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // 5.6.3.5.7",
-           "\t\t(void)0;", "walk", "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING", "GM_CHANGE x WAITING"),
-    Mutant("delay-ignores-link-down", "adp/adp.c", "\tif (a->state != ADP_STATE_DOWN) {\n\t\ttimer_stop(a);",
+    Mutant("gm-change-ignored", ADP_C,
+           ("\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n"
+            "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.7\n\t}\n"),
+           "\tif (a->enabled && a->state == ADP_STATE_WAITING) {\n\t\t(void)0;\n\t}\n",
+           "walk", "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING", "GM_CHANGE x WAITING"),
+    Mutant("delay-ignores-link-down", ADP_C, "\tif (a->state != ADP_STATE_DOWN) {\n\t\ttimer_stop(a);",
            "\tif (a->state == ADP_STATE_WAITING) {\n\t\ttimer_stop(a);",
            "walk", "Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed", "LINK_DOWN x DELAY"),
-    Mutant("shutdown-in-down-departs", "adp/adp.c",
+    Mutant("shutdown-in-down-departs", ADP_C,
            "\tif (a->state == ADP_STATE_DOWN) {\n\t\treturn;\n\t}\n\ttimer_stop(a);",
            "\ttimer_stop(a);", "walk", "Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN", "SHUTDOWN x DOWN"),
-    Mutant("advertise-expiry-skips-delay", "adp/adp.c",
-           "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // 5.6.3.5.5",
-           "\t\ttimer_start(a, ADP_TIMER_DELAY, 0u); // 5.6.3.5.5 broken",
+    Mutant("advertise-expiry-skips-delay", ADP_C,
+           ("\t} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {\n"
+            "\t\tenter_delay(a, ADP_DRAW_DELAY);                         // Milan v1.2 5.6.3.5.5\n\t} else {\n"),
+           ("\t} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {\n"
+            "\t\ttimer_start(a, ADP_TIMER_DELAY, 0u); // Milan v1.2 5.6.3.5.5\n\t} else {\n"),
            "walk", "Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING", "TMR_ADVERTISE x WAITING"),
-    Mutant("advertise-period-wrong", "adp/adp.c", "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS);",
+    Mutant("advertise-period-wrong", ADP_C, "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS);",
            "timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS + 1000u);",
            "walk", "Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed", "TMR_DELAY x DELAY(timer armed)"),
-    Mutant("link-up-draws-startup-kind", "adp/adp.c",
-           "\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // 5.6.3.5.3",
-           "\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // 5.6.3.5.3",
+    Mutant("link-up-draws-startup-kind", ADP_C,
+           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
+            "\t\t\tenter_delay(a, ADP_DRAW_DELAY);                 // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
+           ("\t\tif (a->state == ADP_STATE_DOWN) {\n"
+            "\t\t\tenter_delay(a, ADP_DRAW_STARTUP);               // Milan v1.2 5.6.3.5.3\n\t\t}\n"),
            "walk", "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN", "LINK_UP x DOWN"),
-    Mutant("draw-kinds-merged", "adp/adp.c", "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS",
+    Mutant("draw-kinds-merged", ADP_C, "kind == ADP_DRAW_STARTUP ? ADP_DELAY_STARTUP_MAX_MS : ADP_DELAY_MAX_MS",
            "ADP_DELAY_MAX_MS", "adp", "AdpCore.A9DrawKinds", "A9 every startup draw"),
-    Mutant("foreign-discover-answered", "adp/adp.c", "if (target != 0u && target != a->entity->entity_id) {",
+    Mutant("foreign-discover-answered", ADP_C, "if (target != 0u && target != a->entity->entity_id) {",
            "if (target == 1u) {", "adp", "AdpCore.A3toA5DiscoverAndDiscard", "A4 a foreign DISCOVER"),
-    Mutant("frame-misses-config-index", "adp/adp.c", "wire_put_be(pdu + 50, a->current_configuration_index, 2);",
+    Mutant("frame-misses-config-index", ADP_C, "wire_put_be(pdu + 50, a->current_configuration_index, 2);",
            "wire_put_be(pdu + 50, 0u, 2);", "walk", "AdpWalk.P11ConfigurationIndexBytes", "P11"),
     Mutant("stale-tag-accepted", "adp/adp_mbx.c", "if (!i->armed || ev->timer_tag != i->tag) {",
            "if (!i->armed) {", "adp", "AdpAdapter.B1StaleTagDiscarded", "B1 an expiry of the arm a GM_CHANGE replaced"),
@@ -244,7 +262,7 @@ MUTANTS = (
     Mutant("lanes-big-endian", "mbx/mbx_wire.h", "\t\tword |= (uint32_t)p[i] << (8u * i);",
            "\t\tword |= (uint32_t)p[i] << (8u * (3u - i));",
            "model", "Suite/MbxModelGroup.PassesOnTheModel/", "F1 frame byte k is ring word"),
-    Mutant("frame-sources-from-sinks", "adp/adp.c", "wire_put_be(pdu + 24, e->talker_stream_sources, 2);",
+    Mutant("frame-sources-from-sinks", ADP_C, "wire_put_be(pdu + 24, e->talker_stream_sources, 2);",
            "wire_put_be(pdu + 24, e->listener_stream_sinks, 2);",
            "entity", "Fabric/EntityField.MatchesTheFabric/talker_stream_sources", "talker_stream_sources"),
     # a heap the host test sees (the block is not the pool's) and the RV32
@@ -293,13 +311,13 @@ MUTANTS = (
     Mutant("rx-binds-no-function", "loop/ctrl_loop.c", "if (ch >= MBX_N_CH || fn == NULL) {",
            "if (ch >= MBX_N_CH) {", "port", "LoopBring.L9TablesRefuseNullAndOverflow",
            "L9 a channel bound to no function is refused"),
-    Mutant("seed-left-at-zero", "adp/adp.c", "0x9E3779B9u;\n\tif (a->rng == 0u) {\n\t\ta->rng = 1u;\n\t}\n",
+    Mutant("seed-left-at-zero", ADP_C, "0x9E3779B9u;\n\tif (a->rng == 0u) {\n\t\ta->rng = 1u;\n\t}\n",
            "0x9E3779B9u;\n", "adp", "AdpCore.A22GeneratorNeverStuckAtZero",
            "A22 an entity id whose words cancel the seed constant"),
-    Mutant("enable-not-idempotent", "adp/adp.c", "\tif (enable == a->enabled) {\n\t\treturn;\n\t}\n", "",
+    Mutant("enable-not-idempotent", ADP_C, "\tif (enable == a->enabled) {\n\t\treturn;\n\t}\n", "",
            "adp", "AdpCore.A23RepeatedEnableOrDisableChangesNothing",
            "A23 an enable while enabled draws and arms nothing"),
-    Mutant("other-subtype-accepted", "adp/adp.c", "\t    frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||\n", "",
+    Mutant("other-subtype-accepted", ADP_C, "\t    frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||\n", "",
            "adp", "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded",
            "A24 a DISCOVER under another EtherType or subtype is discarded"),
     # the unit arm: each seam on GoogleMock's mailbox window or port layer
@@ -452,34 +470,315 @@ MUTANTS = (
 
 #: Lane F3's test sources. Every test in them is named by at least one defect,
 #: which `unnamed_tests` proves before any is planted (the rule lane F1's
-#: store suite proves with nvm_mutants.unnamed_checks).
-NAMED_SOURCES = ("test_acmp.cpp", "test_acmp_mbx.cpp", "acmp_walk.cpp", "test_acmp_nvm.cpp")
+#: store suite proves with nvm_mutants.unnamed_checks). The core's tests are
+#: the stack's (#697).
+NAMED_SOURCES = ("tsn-c-stack/tests/test_acmp.cpp", "test_acmp_mbx.cpp", "acmp_walk.cpp", "test_acmp_nvm.cpp")
+#: The stack's own defect table, which its CI plants against its tests: a test
+#: of the stack's that this table does not name is named by a defect there.
+STACK_TABLE = STACK / "tests/mutations.json"
 
 
-def unnamed_tests(test_dir: Path = Path(__file__).resolve().parent) -> list[str]:
+def stack_named() -> set[str]:
+    """The tests the stack's own defect table names."""
+    try:
+        table = json.loads(STACK_TABLE.read_text(encoding="utf-8"))
+        return {kill["test"] for entry in table for kill in entry["kills"]}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise Refusal(f"the stack's defect table {STACK_TABLE.relative_to(STACK.parents[1])} is unreadable: {exc}")
+
+
+def unnamed_tests() -> list[str]:
     """The tests of NAMED_SOURCES no defect names: a test with no planted
-    defect is unproven. A parameterised test is named through any instance."""
+    defect is unproven. A parameterised test is named through any instance.
+    A test of the stack's may also be named by the stack's own table."""
     named = {t.split("/")[1] if "/" in t else t for m in MUTANTS for _, t, _ in m.kills()}
-    tests = [f"{suite}.{name}" for src in NAMED_SOURCES
-             for suite, name in re.findall(r"^TEST(?:_F|_P)?\((\w+), (\w+)\)", (test_dir / src).read_text(), re.M)]
-    return [t for t in tests if t not in named]
+    theirs = stack_named()
+    tests = [(src, f"{suite}.{name}") for src in NAMED_SOURCES
+             for suite, name in re.findall(r"^TEST(?:_F|_P)?\((\w+), (\w+)\)", test_source(src).read_text(), re.M)]
+    return [t for src, t in tests if t not in named and not (src.startswith(STACK_PREFIX) and t in theirs)]
 
 
 MUTANTS += maap_mutants(Mutant)
 
+MUTANTS += (
+    Mutant("f3b-query-inside-allocation", "maap/maap_mbx.c",
+           "m->published_gate[interface] = declaring(m, interface, count, valid);",
+           "refresh_demand(m); m->published_gate[interface] = declaring(m, interface, count, valid);",
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "declaration query stays outside MAAP callbacks"),
+    Mutant("f3b-composition-owner", "app/ctrl_app.c",
+           "cfg->acmp != NULL ? &app->acmp.acmp : NULL", "NULL",
+           "acmp", "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake",
+           "composed mailbox publishes the accepted probe demand"),
+    Mutant("f3b-idle-tick", "app/ctrl_app.c",
+           "mbx_tick_enable(true);", "mbx_tick_enable(false);",
+           "acmp", "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake",
+           "service tick wakes an idle platform for freshness expiry"),
+    Mutant("f3b-config-interval", "acmp/acmp_mbx.c",
+           "config.da_fresh_ms = 15000u;", "config.da_fresh_ms = 0u;",
+           "acmp", "AcmpMailbox.F3bComposedGateExpiresAfterIdleTickWake",
+           "mailbox composition supplies the Milan freshness interval"),
+    Mutant("f3b-fresh-probe-arm", ACMP_C,
+           "s->answered || s->listener_registered", "false || s->listener_registered",
+           "maap", "MaapHost.DaGateFreshProbeDeclaresOnlyItsSource",
+           "fresh probe opens only its configured source"),
+    Mutant("f3b-listener-arm", ACMP_C,
+           "s->answered || s->listener_registered", "s->answered || false",
+           "maap", "MaapHost.DaGateListenerDeclaresWithoutProbe",
+           "registered Listener opens the gate without a probe"),
+    Mutant("f3b-no-demand-arm", ACMP_C,
+           "s->answered || s->listener_registered", "s->answered || s->listener_registered || true",
+           "maap", "MaapHost.DaGateWithoutDemandStaysClosed",
+           "neither probe nor Listener keeps the gate closed"),
+    Mutant("f3b-source-validity", "maap/maap_mbx.c",
+           "if (acmp_declaring(m->acmp, s)) {",
+           "(void)acmp_declaring(m->acmp, s);\n"
+           "\t\t\tif (m->acmp->sources[s].answered || m->acmp->sources[s].listener_registered) {",
+           "acmp", "AcmpMailbox.F3bListenerRequiresSourceDestination",
+           "published source predicate includes destination validity and interface",
+           (("acmp", "AcmpMailbox.F3bProbeRequiresSourceDestination",
+             "published source predicate includes destination validity and interface"),
+            ("acmpif2", "AcmpMailbox.F3bListenerRequiresSourceDestination",
+             "published source predicate includes destination validity and interface"),
+            ("acmpif2", "AcmpMailbox.F3bProbeRequiresSourceDestination",
+             "published source predicate includes destination validity and interface"),
+            ("maap", "MaapHost.DaGateWaitsForSourceOwnerAfterAllocation",
+             "allocation report cannot replace source destination validity"))),
+    Mutant("f3b-expiry-arm", ACMP_C,
+           ">= a->cfg.da_fresh_ms", "> a->cfg.da_fresh_ms",
+           "maap", "MaapHost.DaGateProbeExpiresAtFifteenSeconds",
+           "probe expires at 15000 milliseconds without a Listener"),
+    Mutant("f3b-expiry-refresh", "maap/maap_mbx.c",
+           "if (gate != m->published_gate[k])", "if (gate != m->published_gate[k] && gate != 0u)",
+           "maap", "MaapHost.DaGateProbeExpiresAtFifteenSeconds",
+           "probe expires at 15000 milliseconds without a Listener"),
+)
 
-def plant(m: Mutant, root: Path) -> Path:
-    """A copy of the firmware tree with the mutant written into it."""
+MUTANTS += (
+    Mutant("pin-adp-short-discovery", ADP_C,
+           "len < ADP_FRAME_BYTES", "len < ADP_HEADER_BYTES + 12u",
+           "adp", "AdpAdapter.PinRejectsEveryTruncatedDiscovery",
+           "malformed discovery changes only the discard count"),
+    Mutant("pin-adp-discovery-version", ADP_C,
+           "(frame[ADP_HEADER_BYTES + 1u] & 0x70u) != 0u ||", "false ||",
+           "adp", "AdpAdapter.PinRejectsUnsupportedDiscoveryVersions",
+           "malformed discovery changes only the discard count"),
+    Mutant("pin-adp-discovery-length", ADP_C,
+           "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) != ADP_CONTROL_DATA_LENGTH ||",
+           "false ||", "adp", "AdpAdapter.PinRejectsWrongDiscoveryControlLength",
+           "malformed discovery changes only the discard count"),
+    Mutant("pin-adp-valid-discovery", ADP_C,
+           "(wire_be16(frame + ADP_HEADER_BYTES + 2u) & 0x07FFu) != ADP_CONTROL_DATA_LENGTH ||",
+           "wire_be16(frame + ADP_HEADER_BYTES + 2u) != ADP_CONTROL_DATA_LENGTH ||",
+           "adp", "AdpAdapter.PinAcceptsCompleteDiscoveryThroughMailbox",
+           "complete discovery restarts advertising through the mailbox"),
+)
+
+#: Lane F-INT: the publication block (#665, comment 6088423771). Each writer
+#: has a publish moved after what promises the value, a wrong field and a
+#: skipped publish; the driver's encoding and the model's twin of the RTL's
+#: rules are planted too. Each is killed by a test that names it.
+PUB_SINK_FIRST_WRITE = ("\tmbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING), binding);\n"
+                        "\tif (stream_id != 0u) {")
+PUB_SINK_ENTRY = ("bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, "
+                  "uint64_t stream_id)\n{\n")
+PUB_BINDING_ENTRY = ("bool mbx_pub_sink_binding(unsigned interface, unsigned sink, bool bound, bool started, "
+                     "bool sid_valid)\n{\n")
+PUB_SINK_REFUSAL = "\tif (interface >= MBX_N_IF || sink >= MBX_N_PUB_SINKS) {"
+ACMP_PUB_MOVED = "if (s->bound != s->published_bound || s->started != s->published_started || moved) {"
+ACMP_FINISH = ("\tpublish(a);\n\trearm(a);\n\tadmit(a);\n\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n"
+               "\t\tstruct acmp_sink *s = &a->sinks[k];\n\t\tuint8_t record[ACMP_BINDING_BYTES];\n"
+               "\t\trecord_of(s, record);\n\t\tif (!same_record(record, s->saved)) {\n"
+               "\t\t\tmemcpy(s->saved, record, ACMP_BINDING_BYTES);\n\t\t\tp_persist(a, k);\n\t\t}\n"
+               "\t\tstruct acmp_sink_view v;\n\t\tview_of(s, &v);\n"
+               "\t\tif (s->change_owed == 0u && !view_equal(&v, &s->reported)) {\n"
+               "\t\t\ts->reported = v;\n\t\t\tp_changed(a, k);\n\t\t}\n\t}\n}")
+ACMP_REBIND = "\t\ts->started = !sw;\n\t\tbind_response(a, interface, k, cmd);\n\t\treturn;"
+A31S = "AcmpCore.A31TheStartedLevelIsPublishedBeforeItIsPromised"
+B12 = "AcmpMailbox.B12TheStartedLevelIsOneBindingWriteThatKeepsTheStream"
+B13 = "AcmpMailbox.B13AMoveWithNoStreamLeavesSidValidClearOverAStaleStream"
+ACMP_TRANSMIT = "\tpublish(a);\n\tif (a->owed_count == 0u && p_send(a, interface, frame)) {\n\t\treturn SENT;\n\t}"
+ACMP_PUB_STREAM = "uint64_t stream = settled ? s->stream.stream_id : 0u;"
+MAAP_GATE = "\t(void)mbx_pub_da_gate(interface, m->published_gate[interface]);\n"
+MAAP_REPORT = "\tm->allocation(m->allocation_ctx, interface, base, count, valid);"
+A31 = "AcmpCore.A31TheBindingIsPublishedBeforeTheResponseThatPromisesIt"
+B10 = "AcmpMailbox.B10ThePublicationBlockFollowsEachBindingAheadOfItsResponse"
+MUTANTS += (
+    # the driver's encoding of each register
+    Mutant("pub-sid-valid-set-first", "mbx/mbx.c", PUB_SINK_FIRST_WRITE,
+           PUB_SINK_FIRST_WRITE.replace("binding);", "binding |\n\t\t\t(stream_id != 0u ? mbx_place(1u, "
+                                        "MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) : 0u));"),
+           "unit", "DriverUnit.D14PublicationBlock", "D14 SID_VALID is clear while the stream_id is written"),
+    Mutant("pub-sid-halves-swapped", "mbx/mbx.c", "mbx_place((uint32_t)stream_id, MBX_SID_LO_SID_LSB",
+           "mbx_place((uint32_t)(stream_id >> 32), MBX_SID_LO_SID_LSB",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 SID_LO holds stream_id[31:0]"),
+    Mutant("pub-domain-priority-and-vid-swapped", "mbx/mbx.c",
+           "mbx_place(vid, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |\n"
+           "\t\t\tmbx_place(priority, MBX_SR_DOMAIN_PRIORITY_LSB",
+           "mbx_place(priority, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |\n"
+           "\t\t\tmbx_place(vid, MBX_SR_DOMAIN_PRIORITY_LSB",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields"),
+    Mutant("pub-licence-in-the-da-gate", "mbx/mbx.c", "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
+           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_DA_GATE),",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 LICENCE.ACTIVE holds the licences"),
+    Mutant("pub-sink-past-the-block", "mbx/mbx.c", PUB_SINK_ENTRY + PUB_SINK_REFUSAL,
+           PUB_SINK_ENTRY + "\tif (interface >= MBX_N_IF) {",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 a sink past the block's is refused"),
+    # round 3 (#665, comment 6092086337): STARTED and TALKER_DECL
+    Mutant("pub-sink-binding-past-the-block", "mbx/mbx.c", PUB_BINDING_ENTRY + PUB_SINK_REFUSAL,
+           PUB_BINDING_ENTRY + "\tif (interface >= MBX_N_IF) {",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 a sink past the block's is refused"),
+    Mutant("pub-started-in-the-bound-bit", "mbx/mbx.c",
+           "mbx_place(started ? 1u : 0u, MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH)",
+           "mbx_place(started ? 1u : 0u, MBX_BINDING_BOUND_LSB, MBX_BINDING_BOUND_WIDTH)",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 a start with no stream: BINDING alone, STARTED set"),
+    Mutant("pub-sink-binding-drops-sid-valid", "mbx/mbx.c", "mbx_place(sid_valid ? 1u : 0u,",
+           "mbx_place(sid_valid ? 0u : 0u,",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 a stop with the stream unchanged: BINDING alone"),
+    Mutant("pub-talker-decl-in-the-licence", "mbx/mbx.c",
+           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_TALKER_DECL),",
+           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
+           "unit", "DriverUnit.D14PublicationBlock", "D14 TALKER_DECL.DECLARED holds the declarations"),
+    # the host model's twins of the RTL's rules (tb/verilator/mbx/mutants.py)
+    Mutant("model-pub-sid-not-gated", "host/mbx_model.c",
+           "\t\tif (mbx_field(binding, MBX_BINDING_SID_VALID_LSB, MBX_BINDING_SID_VALID_WIDTH) != 0u) {",
+           "\t\tif (true) {",
+           "model", MODEL_GROUP + "Publication", "P3 with SID_VALID clear the datapath reads the stream_id as 0"),
+    Mutant("model-pub-hole-takes-a-write", "host/mbx_model.c", "m->pub[i][reg / 4u] = value & pub_mask(reg);",
+           "m->pub[i][reg / 4u] = value | (pub_mask(reg) & 0u);",
+           "model", MODEL_GROUP + "Publication", "P4 every hole of every interface block"),
+    Mutant("model-pub-started-not-stored", "host/mbx_model.c",
+           " |\n\t\t\t       ones(MBX_BINDING_STARTED_LSB, MBX_BINDING_STARTED_WIDTH);", ";",
+           "model", MODEL_GROUP + "Publication", "P1 DA_GATE keeps OPEN, LICENCE ACTIVE"),
+    Mutant("model-pub-declarations-a-hole", "host/mbx_model.c",
+           "\tcase MBX_PUB_REG_TALKER_DECL:\n\t\treturn ones(MBX_TALKER_DECL_DECLARED_LSB, "
+           "MBX_TALKER_DECL_DECLARED_WIDTH);\n", "",
+           "model", MODEL_GROUP + "Publication", "P1 DA_GATE keeps OPEN, LICENCE ACTIVE"),
+    Mutant("model-pub-every-sink-reads-entry-0", "host/mbx_model.c",
+           "(MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u", "MBX_PUB_SINK_BASE / 4u",
+           "model", MODEL_GROUP + "Publication", "P2 every field reaches the datapath on its own output"),
+    # ACMP: the binding published after the response that promises it, the
+    # end-of-entry publication skipped, wrong fields, the port unguarded
+    Mutant("pub-acmp-after-the-response", ACMP_C, ACMP_TRANSMIT,
+           "\tif (a->owed_count == 0u && p_send(a, interface, frame)) {\n\t\tpublish(a);\n\t\treturn SENT;\n"
+           "\t}\n\tpublish(a);",
+           "acmp", A31, "A31 the binding is published before the BIND_RX response",
+           (("acmp", B10, "B10 BINDING is written before the BIND_RX response's TX_HEAD commit"),)),
+    Mutant("pub-acmp-skipped-at-the-end-of-an-entry", ACMP_C, "\tpublish(a);\n\trearm(a);", "\trearm(a);",
+           "acmp", A31, "A31 a PROBE_TX_RESPONSE that settles publishes the stream",
+           (("acmp", "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens",
+             "A31 acmp_open publishes each restored binding"),
+            ("acmp", B10, "B10 a PROBE_TX_RESPONSE that settles publishes its stream"))),
+    Mutant("pub-acmp-talker-for-the-stream", ACMP_C, ACMP_PUB_STREAM,
+           "uint64_t stream = settled ? s->binding.talker_entity_id : 0u;",
+           "acmp", A31, "A31 the stream_id the response carried"),
+    Mutant("pub-acmp-stream-held-past-settlement", ACMP_C, ACMP_PUB_STREAM,
+           "uint64_t stream = s->bound ? (settled ? s->stream.stream_id : s->published_stream) : 0u;",
+           "acmp", "AcmpCore.A31LeavingSettlementTakesTheStreamOffTheDatapath",
+           "A31 TMR_NO_TK publishes the sink without its stream"),
+    Mutant("pub-acmp-every-sink-every-entry", ACMP_C, ACMP_PUB_MOVED, "if (true) {",
+           "acmp", "AcmpCore.A31OnlyAMovedTripleIsPublished",
+           "A31 a re-bind to the same talker, a registration, a start of a started sink and a discovery move"),
+    Mutant("pub-acmp-port-unguarded", ACMP_C,
+           "\ta->in_port = true;\n\ta->ports->publish(a->ports->ctx, interface, sink, bound, started, stream, moved);\n"
+           "\ta->in_port = false;",
+           "\ta->ports->publish(a->ports->ctx, interface, sink, bound, started, stream, moved);",
+           "acmp", "AcmpCore.A31ACallBackFromThePublishPortIsRefused",
+           "A31 an UNBIND_RX and a poll from inside the publish port"),
+    Mutant("pub-acmp-reset-forgets-the-port", ACMP_C,
+           "\ts->published_bound = published_bound;\n\ts->published_started = published_started;\n"
+           "\ts->published_stream = published_stream;",
+           "\t(void)published_bound;\n\t(void)published_started;\n\t(void)published_stream;",
+           "acmp", "AcmpCore.A31RestoredBindingsArePublishedWhenTheTransportOpens",
+           "A31 a sink the store resets is published unbound at the next open"),
+    Mutant("pub-acmp-adapter-drops-the-port", "acmp/acmp_mbx.c",
+           "\t(void)ctx;\n\tif (stream_moved) {\n\t\t(void)mbx_pub_sink(interface, sink, bound, started, stream_id);\n"
+           "\t} else {\n\t\t(void)mbx_pub_sink_binding(interface, sink, bound, started, stream_id != 0u);\n\t}",
+           "\t(void)ctx;\n\t(void)interface;\n\t(void)sink;\n\t(void)bound;\n\t(void)started;\n"
+           "\t(void)stream_id;\n\t(void)stream_moved;",
+           "acmp", B10, "B10 a BIND_RX publishes its sink bound, with no stream",
+           (("acmp", "AcmpMailbox.B11RestoredBindingsArePublishedAtOpen",
+             "B11 the restored sink, and only it, is published bound on its interface"),)),
+    # round 3 (#665, comment 6092086337): the started level published after
+    # the BIND_RX response that echoes it and after the notifier, on the
+    # bound field, its move skipped; the adapter rewriting an unmoved stream
+    # (SID_VALID drops for three writes) or dropping SID_VALID
+    Mutant("pub-acmp-started-after-the-response", ACMP_C, ACMP_REBIND,
+           "\t\tbind_response(a, interface, k, cmd);\n\t\ts->started = !sw;\n\t\treturn;",
+           "acmp", A31S, "A31 the started move is published before the BIND_RX response"),
+    Mutant("pub-acmp-started-after-the-report", ACMP_C, ACMP_FINISH,
+           ACMP_FINISH.replace("\tpublish(a);\n\trearm(a);", "\trearm(a);").removesuffix("}") + "\tpublish(a);\n}",
+           "acmp", A31S, "A31 the stop is published before the notifier hears of it"),
+    Mutant("pub-acmp-started-from-bound", ACMP_C,
+           "p_publish(a, s->interface, k, s->bound, s->started, stream, moved);",
+           "p_publish(a, s->interface, k, s->bound, s->bound, stream, moved);",
+           "acmp", A31S, "A31 a bind with STREAMING_WAIT is published bound and stopped"),
+    Mutant("pub-acmp-started-move-skipped", ACMP_C, ACMP_PUB_MOVED,
+           "if (s->bound != s->published_bound || moved) {",
+           "acmp", A31S, "A31 a re-bind to the same talker without STREAMING_WAIT publishes once"),
+    Mutant("pub-acmp-adapter-rewrites-the-stream", "acmp/acmp_mbx.c", "\tif (stream_moved) {",
+           "\tif (stream_moved || stream_id != 0u) {",
+           "acmp", B12, "B12 a started move is one write to the sink's entry"),
+    Mutant("pub-acmp-adapter-drops-sid-valid", "acmp/acmp_mbx.c",
+           "(void)mbx_pub_sink_binding(interface, sink, bound, started, stream_id != 0u);",
+           "(void)mbx_pub_sink_binding(interface, sink, bound, started, false);",
+           "acmp", B12, "B12 that write is BINDING, with SID_VALID kept and STARTED moved"),
+    # round 5 (#665, comment 6095903333): the other polarity, SID_VALID set by
+    # a move with no stream, over the stream an unbind left in SID_LO/SID_HI
+    Mutant("pub-acmp-adapter-sid-valid-always", "acmp/acmp_mbx.c",
+           "(void)mbx_pub_sink_binding(interface, sink, bound, started, stream_id != 0u);",
+           "(void)mbx_pub_sink_binding(interface, sink, bound, started, true);",
+           "acmp", B13, "B13 the re-bound sink carries no stream_id to the datapath",
+           (("acmpif2", B13, "B13 the re-bound sink carries no stream_id to the datapath"),)),
+    # MAAP: the DA gate published after the allocation is reported, skipped,
+    # one source short, held open while the range is invalid, past the block
+    Mutant("pub-maap-gate-after-the-report", "maap/maap_mbx.c", MAAP_GATE + MAAP_REPORT,
+           MAAP_REPORT + "\n" + MAAP_GATE.rstrip("\n"),
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "DA gate opens the eight sources before the allocation is reported"),
+    Mutant("pub-maap-gate-skipped", "maap/maap_mbx.c", MAAP_GATE, "",
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "DA gate opens the eight sources before the allocation is reported"),
+    Mutant("pub-maap-gate-one-source-short", "maap/maap_mbx.c", "s < count && demand",
+           "s + 1u < count && demand",
+           "maap", "MaapHost.CallbackWorkAndEveryOutputCount", "DA gate opens each of the count sources"),
+    Mutant("pub-maap-gate-open-while-invalid", "maap/maap_mbx.c", "valid && s < count && demand",
+           "s < count && (demand || !valid)",
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "DA gate closed while the range is only probed"),
+    # round 3 (R583-1-F2): the gate published on interface 0 whichever
+    # interface allocated, killed at two interfaces (#665 comment 6092086337)
+    Mutant("rv-maap-gate-on-interface-0", "maap/maap_mbx.c",
+           "(void)mbx_pub_da_gate(interface, m->published_gate[interface])",
+           "(void)mbx_pub_da_gate(0u, m->published_gate[interface])",
+           "maap_if2", "MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport",
+           "DA gate of the acquiring interface opens before its own report",
+           (("maap_if2", "MaapHost.DaGateOfEveryInterfaceOpensBeforeItsOwnReport",
+             "DA gate of interface 1 opens before its own report"),)),
+    Mutant("pub-maap-sources-past-the-block", "maap/maap_mbx.c",
+           "allocation == NULL || count > MBX_N_PUB_SOURCES) {", "allocation == NULL) {",
+           "maap", "MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported",
+           "DA gate: more sources than the publication block has are refused"),
+)
+
+
+def plant(m: Mutant, root: Path) -> tuple[Path, Path]:
+    """Copies of the firmware tree and of the stack's sources and headers, the
+    mutant written into the one its path names."""
     copy = root / "work" / "ctrl"
-    if copy.exists():
-        shutil.rmtree(copy)
+    stack = root / "work" / "tsn-c-stack"
+    for old in (copy, stack):
+        if old.exists():
+            shutil.rmtree(old)
     shutil.copytree(CTRL, copy, ignore=shutil.ignore_patterns("__pycache__"))
-    target = copy / m.path
+    for part in STACK_PARTS:
+        shutil.copytree(STACK / part, stack / part)
+    target = stack / m.path.removeprefix(STACK_PREFIX) if m.path.startswith(STACK_PREFIX) else copy / m.path
     text = target.read_text(encoding="utf-8")
     if text.count(m.old) != 1:
         raise Refusal(f"mutant {m.name}: its fixture occurs {text.count(m.old)} times in {m.path}")
     target.write_text(text.replace(m.old, m.new), encoding="utf-8")
-    return copy
+    return copy, stack
 
 
 def names(line: str, test: str, needle: str) -> bool:
@@ -550,13 +849,18 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
     build = fw_gtest.Build(jobs=jobs)
-    unnamed = unnamed_tests()
+    try:
+        unnamed = unnamed_tests()
+    except Refusal as exc:
+        print(f"[ESCAPED] {exc}")
+        return True
     for test in unnamed:
         print(f"[ESCAPED] no defect names the test {test}")
     escaped = 0
     table = sliced(part) if shard is None else MUTANTS[shard[0]::shard[1]]
     for m in table:
-        tree = Tree(plant(m, root), root / "work" / "build", reuse, build)
+        ctrl, stack = plant(m, root)
+        tree = Tree(ctrl, root / "work" / "build", reuse, build, stack)
         missed = []
         fails: list[str] = []
         for arm, test, needle in m.kills():

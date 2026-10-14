@@ -11,7 +11,7 @@ from pathlib import Path
 
 import aecp_arms
 import fw_gtest
-from ctrl_build import CTRL, ROOT, HERE, Tree, Refusal, Outcome
+from ctrl_build import CTRL, ROOT, HERE, STACK, Tree, Refusal, Outcome, stack_pin
 
 
 @dataclass(frozen=True)
@@ -390,6 +390,23 @@ DEFECTS = (
            'acmp_set_started(a, c->start_index, c->start_value)',
            ('App.UnboundStartAndStopAreSuccessfulNoOps',
             'get(p->bytes+16,2)>>11')),
+    # #665 F-INT: the split datapath's started level, skipped by the bridge or
+    # published only after the START/STOP response is committed; each keeps
+    # the bridge's refusals, so only the publication tells it apart
+    defect('app-start-skips-publication', 'app/ctrl_app_aecp.c',
+           'acmp_set_started(a, c->start_index, c->start_value)',
+           '(!a->in_port && (a->sinks[c->start_index].started = c->start_value, true))',
+           ('App.StartAndStopPublishTheStartedLevelBeforeTheirResponse',
+            "the datapath's started level follows START/STOP")),
+    defect('app-start-response-before-publication', 'app/ctrl_app_aecp.c',
+           '\t\t\tbool ok = exists && (!old.bound || acmp_set_started(a, c->start_index, c->start_value));\n'
+           '\t\t\taecp_start_done(&c->aecp->core, ok, ok && old.bound && old.started != c->start_value);\n',
+           '\t\t\tbool ok = exists && (!old.bound || !a->in_port);\n'
+           '\t\t\taecp_start_done(&c->aecp->core, ok, ok && old.bound && old.started != c->start_value);\n'
+           '\t\t\t(void)aecp_poll(&c->aecp->core);\n'
+           '\t\t\t(void)(ok && old.bound && acmp_set_started(a, c->start_index, c->start_value));\n',
+           ('App.StartAndStopPublishTheStartedLevelBeforeTheirResponse',
+            'BINDING.STARTED is published before the response is committed')),
     defect('mailbox-interface-crossed', 'aecp_mbx.c',
            'aecp_rx(&m->core, f->interface, f->bytes, f->len);',
            'aecp_rx(&m->core, 0, f->bytes, f->len);',
@@ -466,13 +483,14 @@ def controls() -> None:
     assert not caught("Fixture.Check", "named failure", Outcome("reader", 1, log.split("verdict:")[0]))
 
 
-def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1)) -> bool:
-    """Reuse one isolated copy; compile failures and missing diagnoses are escapes."""
+def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: Path = STACK) -> bool:
+    """Reuse one isolated copy; compile failures and missing diagnoses are escapes. The stack is the
+    caller's, already pinned."""
     controls()
     root.mkdir(parents=True, exist_ok=True)
     src = root / "work/ctrl"
     shutil.copytree(CTRL, src, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    tree = Tree(src, root / "work/build", root / "work/reuse", fw_gtest.Build(jobs=jobs))
+    tree = Tree(src, root / "work/build", root / "work/reuse", fw_gtest.Build(jobs=jobs), stack)
     config = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
     receipts = []
     for d in DEFECTS[shard[0]::shard[1]]:
@@ -506,10 +524,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--shard", type=int, nargs=2, default=(0, 1))
+    parser.add_argument("--stack", type=Path, default=STACK, help="the tsn-c-stack checkout (default: the submodule)")
     args = parser.parse_args()
     if not 0 <= args.shard[0] < args.shard[1]:
         parser.error("shard requires 0 <= index < count")
-    return int(campaign(args.output, shard=args.shard))
+    try:
+        print(f"tsn-c-stack at {stack_pin(args.stack.resolve())}", flush=True)
+    except Refusal as exc:
+        print(f"REFUSED: {exc}")
+        return 2
+    return int(campaign(args.output, shard=args.shard, stack=args.stack.resolve()))
 
 
 if __name__ == "__main__":

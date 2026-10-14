@@ -58,7 +58,7 @@ A build without a MAC ties the record face off.
 
 That plane then delivers no timestamp and counts the loss.
 
-Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/18dd997b2459699e41e5ce9bceca1181e41fa5fe/docs/INTEGRATION.md).
+Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md).
 
 ## Observe
 

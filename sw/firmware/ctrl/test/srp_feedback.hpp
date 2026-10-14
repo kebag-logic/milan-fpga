@@ -1,6 +1,55 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 // Ordered SRP feedback through real mailbox input and ACMP wire responses.
 namespace {
+TEST_F(AcmpMailbox, F3bListenerRegistrationControlsItsOwnGate) {
+    mbx_model_reset(&model);
+    const unsigned interface = MBX_N_IF - 1u;
+    acfg.source_interface[0] = interface;
+    acfg.n_sources = CTRL_SRP_SOURCES + 1u; // One source has no SRP slot or allocated destination.
+    for (unsigned i = 0; i < MBX_N_IF; ++i) mbx_model_set_link(&model, i, true);
+    const ctrl_app_config cfg = three_way();
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg));
+    attach_srp();
+    for (unsigned ms = 0; ms < 2200u; ++ms) {
+        mbx_model_advance_ms(&model, 1);
+        settle();
+    }
+    ASSERT_TRUE(app.maap.ifs[interface].core.valid);
+    auto gate = [&](uint32_t expected) {
+        for (unsigned i = 0; i < MBX_N_IF; ++i) {
+            mbx_model_pub view{};
+            mbx_model_pub_view(&model, i, &view);
+            EXPECT_EQ(view.da_gate, i == interface ? expected : 0u)
+                << "registered Listener controls only its source interface gate";
+            EXPECT_EQ(view.licence, 0u) << "Asking Failed never licenses media";
+        }
+    };
+    gate(0u);
+    auto listener = [&](unsigned event) {
+        // MSRP Listener vector: one value, Asking Failed, no LeaveAll.
+        std::array<uint8_t, 60> frame{};
+        wire_put_be(frame.data(), 0x0180c200000eull, 6);
+        wire_put_be(frame.data() + 6, 0x020304010203ull, 6);
+        wire_put_be(frame.data() + 12, 0x22ea, 2);
+        auto* p = frame.data() + 14;
+        p[1] = 3; p[2] = 8; p[4] = 14; p[6] = 1;
+        std::memcpy(p + 7, srp_sources[interface][0].value.stream_id.bytes, 8);
+        p[15] = event * 36; p[16] = 64;
+        ASSERT_TRUE(mbx_model_rx(&model, frame.data(), frame.size(), interface));
+        settle();
+    };
+    listener(1); // JoinIn registers Asking Failed.
+    gate(1u);
+    listener(5); // Leave withdraws it immediately under this registrar policy.
+    gate(0u);
+    listener(1);
+    gate(1u);
+    srp_mbx_destroy(&srp_adapter);
+    settle(); settle();
+    gate(0u);
+    EXPECT_EQ(core()->reentries, 0u);
+}
+
 class SrpFeedback : public SrpBinding {
 protected:
     void current_kind(unsigned k, bool failed) {
