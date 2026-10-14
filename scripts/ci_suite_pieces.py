@@ -36,7 +36,10 @@ def driver(suite: str) -> list[str]:
     if suite == "milan_dp_mclk":
         return [sys.executable, "tb/verilator/milan_dp_mclk/mclk_mutants.py"]
     if suite in ("capture_coherence", "maap"):
-        return [sys.executable, f"tb/verilator/{suite}/mutants.py", "--whole-suite"]
+        command = [sys.executable, f"tb/verilator/{suite}/mutants.py", "--whole-suite"]
+        # Sixteen local CPUs must not turn the hosted four-case bank into
+        # sixteen simultaneous model builds inside one bounded job.
+        return command + (["--jobs", "4"] if suite == "capture_coherence" else [])
     return [sys.executable, "scripts/ci_make_cases.py", "--suite", suite]
 
 
