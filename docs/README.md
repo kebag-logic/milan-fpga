@@ -85,6 +85,7 @@ Publish conflicts before continuing.
 | Choose verification layers | [Testing guide](testing/TESTING.md) |
 | Run complete gates | [Running tests](testing/RUNNING_TESTS.md) |
 | Understand CI scheduling | [CI workflow policy](testing/CI_WORKFLOWS.md) |
+| Rebuild the pinned CI tools image | [CI tools image](testing/CI_IMAGE.md) |
 | Run RTL harnesses | [Verilator suites](../tb/verilator/README.md) |
 | Add bound assertions | [Assertion guide](testing/ASSERTIONS.md) |
 | Run behavior tests | [Behavior tests](../tests/README.md) |
