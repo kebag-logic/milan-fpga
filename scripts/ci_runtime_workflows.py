@@ -106,6 +106,7 @@ def tail_guard() -> dict:
 
 def collector(name: str, dependencies: list[str]) -> dict:
     """Use read-only API provenance on hosted runs and actual step receipts locally."""
+    from ci_suite_workflows import inventory_dependencies
     return {"name": "Collect CI manifest", "runs-on": "ubuntu-latest", "timeout-minutes": 3,
             "if": "${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}",
             "needs": dependencies,
@@ -113,6 +114,7 @@ def collector(name: str, dependencies: list[str]) -> dict:
             "steps": [
                 {"uses": "actions/checkout@v4", "with": {"fetch-depth": 0}},
                 cpu_budget_step(),
+                inventory_dependencies(),
                 *reader_setup(),
                 {"name": "Download completed execution artifacts", "uses": "actions/download-artifact@v4",
                  "continue-on-error": True, "with": {"path": "${{ runner.temp }}/manifest-inputs"}},

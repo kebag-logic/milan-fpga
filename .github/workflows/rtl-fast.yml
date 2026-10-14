@@ -1276,6 +1276,9 @@ jobs:
             printf 'SIM_JOBS=%s\n' "$simulations"
             printf 'MAKEFLAGS=-j1 --no-print-directory\n'
           } >> "$GITHUB_ENV"
+      - name: Fetch inventory dependencies
+        run: |
+          git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
       - name: Cache pinned evidence reader downloads
         uses: actions/cache@v4
         with:

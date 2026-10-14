@@ -156,7 +156,10 @@ def generate(name: str, template: dict) -> dict:
     """Add runtime collection after deriving the unchanged gate schedule."""
     from ci_runtime_workflows import generate as runtime_workflows
     from ci_install_workflows import generate as install_workflows
-    return runtime_workflows(name, install_workflows(gate_graph(name, template)))
+    from ci_suite_workflows import check_inventory_dependencies
+    result = runtime_workflows(name, install_workflows(gate_graph(name, template)))
+    check_inventory_dependencies(result)
+    return result
 
 
 def load_template(root: Path, name: str) -> dict:

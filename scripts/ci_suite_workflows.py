@@ -18,6 +18,23 @@ def inventory_dependencies() -> dict:
                    "gptp-processor third_party/tsn-c-stack\n"}
 
 
+def check_inventory_dependencies(source: dict) -> None:
+    """Refuse any driver-inventory consumer without earlier pinned preparation."""
+    readers = ("scripts/ci_suite_pieces.py", "scripts/ci_suite_collect.py",
+               "scripts/ci_runtime_evidence.py collect")
+    preparation = inventory_dependencies()["run"].strip()
+    for job_id, job in source["jobs"].items():
+        prepared = False
+        for step in job["steps"]:
+            body = step.get("run", "")
+            if body.strip() == preparation and "if" not in step and not step.get("continue-on-error"):
+                prepared = True
+            reads = any(reader in body for reader in readers) or (
+                "scripts/run_all_suites.sh" in body and "--ci-pieces" in body)
+            if reads and not prepared:
+                raise ValueError(job_id + ": inventory reader lacks pinned dependency preparation")
+
+
 def union_job(suite: str) -> dict:
     """Each union waits for the native matrix containing its driver-derived partitions."""
     needs = ["verilator-shards"]

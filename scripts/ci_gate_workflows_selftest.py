@@ -17,6 +17,28 @@ from ci_gate_receipts import StepContext, record, verify
 from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id
 from ci_runtime_workflows import cpu_budget_step
 import ci_suite_pieces
+from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
+
+
+def inventory_controls() -> None:
+    """Every current consumer loses its preparation independently and must be refused."""
+    for name in ("docs", "elaborate", "rtl", "rtl-fast"):
+        generated = generate(name, load_template(ROOT, name))
+        check_inventory_dependencies(generated)
+        for job_id, job in generated["jobs"].items():
+            preparation = inventory_dependencies()["run"].strip()
+            if not any(step.get("run", "").strip() == preparation for step in job["steps"]):
+                continue
+            changed = copy.deepcopy(generated)
+            changed["jobs"][job_id]["steps"] = [step for step in job["steps"]
+                                                  if step.get("run", "").strip() != preparation]
+            try:
+                check_inventory_dependencies(changed)
+            except ValueError as exc:
+                assert job_id in str(exc)
+                print(name + ": refused missing inventory preparation in " + job_id)
+            else:
+                raise AssertionError("accepted unprepared inventory reader: " + job_id)
 
 
 def child_budget(directory: Path, target: str, budget: int, makefile: Path | None = None) -> None:
@@ -95,6 +117,7 @@ def cpu_controls() -> None:
 
 def main() -> int:
     """Drive the production generator and verifier with independent planted losses."""
+    inventory_controls()
     cpu_controls()
     for name, carrier in CARRIERS.items():
         source = load_template(ROOT, name)
