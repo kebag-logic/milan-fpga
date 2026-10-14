@@ -64,6 +64,15 @@ def main() -> int:
             print("PASS: an installation hidden in a called script is refused")
         else:
             raise AssertionError("called-script installation accepted")
+        shell = root / "scripts/bootstrap.sh"
+        shell.write_text("#!/bin/sh\npip install unlisted\n")
+        workflow.write_text(prefix + "      - run: bash scripts/bootstrap.sh\n")
+        try:
+            inventory.derive(root)
+        except inventory.Refusal:
+            print("PASS: an installation hidden in a called shell script is refused")
+        else:
+            raise AssertionError("called-shell installation accepted")
     return 0
 
 

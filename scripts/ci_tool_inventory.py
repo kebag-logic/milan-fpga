@@ -23,7 +23,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = Path("ci/image/tool-inventory.json")
-PATH_WORD = re.compile(r"(?:scripts|sw|syn|docs|avdecc|tools|tb)/[\w./-]+\.(?:py|sh|txt)")
+PATH_WORD = re.compile(r"(?:scripts|sw|syn|docs|avdecc|tools|tb|ci)/[\w./-]+\.(?:py|sh|txt)")
 INSTALL_WORD = re.compile(
     r"(?:pip\d*|npm|pnpm|yarn|apt|apt-get|dnf|apk|cargo|gem|brew|conda)"
     r"\s+(?:[^\n]*\s)?(?:install|add)\b")
@@ -178,6 +178,11 @@ def script_inputs(run: str, root: Path, found: dict[str, str]) -> None:
         source = raw.decode()
         pending.extend(PATH_WORD.findall(source))
         if path.suffix != ".py":
+            for line in source.splitlines():
+                if line.lstrip().startswith("#"):
+                    continue
+                if INSTALL_WORD.search(line) or re.search(r"\b(?:git\s+clone|curl\s|wget\s)", line):
+                    raise Refusal(f"{relative}: shell installation needs an explicit pin reader")
             continue
         tree = ast.parse(source)
         for node in ast.walk(tree):
@@ -231,6 +236,10 @@ def derive(root: Path) -> dict[str, object]:
                     for patch in sorted((root / "sw/litex/patches").glob("*.patch")):
                         inputs[patch.relative_to(root).as_posix()] = digest(patch.read_bytes())
                 uses = step.get("uses", "")
+                if uses.startswith("actions/"):
+                    rows.append({"tool": "node", "kind": "runner", "pin": None})
+                if re.search(r"\bgh\s+(?:api|pr|issue|run|workflow)\b", run):
+                    rows.append({"tool": "gh", "kind": "runner", "pin": None})
                 if uses.startswith("actions/setup-python@"):
                     rows.append({"tool": "python", "kind": "action",
                                  "pin": step["with"]["python-version"]})

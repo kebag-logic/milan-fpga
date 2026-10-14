@@ -1695,6 +1695,326 @@
       "kind": "pip",
       "pin": null,
       "tool": "pyyaml"
+    },
+    {
+      "installed_by": [
+        {
+          "index": 2,
+          "job": "full-ci-gate",
+          "step": "Assert the repository default branch is dev",
+          "workflow": ".github/workflows/rtl.yml"
+        }
+      ],
+      "kind": "runner",
+      "pin": null,
+      "tool": "gh"
+    },
+    {
+      "installed_by": [
+        {
+          "index": 0,
+          "job": "docs-check",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 2,
+          "job": "docs-check",
+          "step": "Upload the HDL reference HTML",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 4,
+          "job": "docs-check",
+          "step": "Cache the pinned Markdown renderer downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 22,
+          "job": "docs-check",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "wire-accountability",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "docs-check-no-git",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "elaborate",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 4,
+          "job": "elaborate",
+          "step": "actions/setup-python@v5",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 5,
+          "job": "elaborate",
+          "step": "Cache the pinned pip downloads",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 7,
+          "job": "elaborate",
+          "step": "Cache the Scala toolchain",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 8,
+          "job": "elaborate",
+          "step": "Cache the generated CPU metadata",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 12,
+          "job": "elaborate",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 15,
+          "job": "elaborate",
+          "step": "Cache the pinned Verilator build",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 0,
+          "job": "changes",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "verilator-lint",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 2,
+          "job": "verilator-lint",
+          "step": "Cache the pinned Verilator build",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "bdd-conformance",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "yosys-elaboration",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 2,
+          "job": "yosys-elaboration",
+          "step": "Cache the pinned Yosys build",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "publication-census",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 2,
+          "job": "publication-census",
+          "step": "Cache the pinned Yosys build",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "firmware-unit",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 4,
+          "job": "firmware-unit",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "firmware-control-mutants",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 3,
+          "job": "firmware-control-mutants",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "firmware-aecp-mutants",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 3,
+          "job": "firmware-aecp-mutants",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "firmware-srp-mutants",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 3,
+          "job": "firmware-srp-mutants",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "firmware-boundary",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 3,
+          "job": "firmware-boundary",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "firmware-verilator",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 3,
+          "job": "firmware-verilator",
+          "step": "Cache the pinned Verilator build",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 6,
+          "job": "firmware-verilator",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "full-ci-gate",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "verilator-shards",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
+          "job": "verilator-shards",
+          "step": "Cache the pinned Verilator build",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "verilator-shards",
+          "step": "Cache the pinned Yosys build for the netlist-level suite owner",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 13,
+          "job": "verilator-shards",
+          "step": "Upload this shard's suite logs",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "physical-gptp",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
+          "job": "physical-gptp",
+          "step": "Cache the pinned Verilator build",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 8,
+          "job": "physical-gptp",
+          "step": "Upload the physical suite evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "verilator-suites",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 1,
+          "job": "verilator-suites",
+          "step": "Download every shard's logs",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "yosys-shards",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
+          "job": "yosys-shards",
+          "step": "Cache the pinned Yosys build",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "yosys-shards",
+          "step": "Restore the portability result cache seeded from dev",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 9,
+          "job": "yosys-shards",
+          "step": "Upload per-top and structural evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "yosys-portability",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 1,
+          "job": "yosys-portability",
+          "step": "Download every shard's evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        }
+      ],
+      "kind": "runner",
+      "pin": null,
+      "tool": "node"
     }
   ]
 }
