@@ -1,0 +1,26 @@
+{
+  "command": [
+    "sudo",
+    "-n",
+    "-u",
+    "alex",
+    "-g",
+    "docker",
+    "docker",
+    "run",
+    "--rm",
+    "--network",
+    "none",
+    "fpga-validation@sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19",
+    "keytool",
+    "-list",
+    "-cacerts",
+    "-storepass",
+    "changeit"
+  ],
+  "rc": 0,
+  "elapsed_ms": 666,
+  "size": 24732,
+  "sha256": "3a560209d6e3c021d31d4c3bf222308edf870f2e0457da9315cfed6a6848177b",
+  "log": "java-store-0.log"
+}

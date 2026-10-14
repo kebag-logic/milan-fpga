@@ -1,0 +1,101 @@
+{
+  "started_utc": "2026-10-14T10:27:15.081200+00:00",
+  "finished_utc": "2026-10-14T10:44:09.789141+00:00",
+  "elapsed_ms": 1014708,
+  "rc": 0,
+  "timeout": null,
+  "image_manifest": "sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19",
+  "head": "18f2df92b13cb3f4036b073ed76940187bf10487",
+  "command": [
+    "sudo",
+    "-n",
+    "-u",
+    "alex",
+    "-g",
+    "docker",
+    "docker",
+    "run",
+    "--pull",
+    "never",
+    "--memory",
+    "8g",
+    "--cpus",
+    "4",
+    "--rm",
+    "--network",
+    "none",
+    "-e",
+    "TMPDIR=$VALIDATION_STORAGE/737-a615/docs-run/tmp",
+    "-e",
+    "HOME=$VALIDATION_STORAGE/737-a615/container-home",
+    "-e",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "-e",
+    "VERILATOR_JOBS=2",
+    "--mount",
+    "type=bind,src=$VALIDATION_STORAGE/737-a615,dst=$VALIDATION_STORAGE/737-a615",
+    "--mount",
+    "type=bind,src=$LANES/737-image,dst=$LANES/737-image,readonly",
+    "--mount",
+    "type=bind,src=$WORKSPACE_HOME/prjs-avb-on-fpga/milan-fpga/.git/objects,dst=$WORKSPACE_HOME/prjs-avb-on-fpga/milan-fpga/.git/objects,readonly",
+    "-e",
+    "SUDO_UID=1000",
+    "-e",
+    "PYTHONUNBUFFERED=1",
+    "--workdir",
+    "$VALIDATION_STORAGE/737-a615/gate-tree",
+    "fpga-validation@sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19",
+    "python3",
+    "$VALIDATION_STORAGE/737-a615/builder-groups.py",
+    "--tree",
+    "$VALIDATION_STORAGE/737-a615/gate-tree",
+    "--group",
+    "1",
+    "--evidence",
+    "$VALIDATION_STORAGE/737-a615/builder-home-background-functions.json",
+    "--require-rv32"
+  ],
+  "source_sha256": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47",
+  "setup_fix": "Restored the exact round-2 HOME mapping and retained br-milan-rv32/host -> /opt/rv32-sdk; all environment variables, mounts, workdir and network match the original group-1 invocation.",
+  "preflight": "builder-home-preflight.json",
+  "environment_proof": "builder-home-environment-proof.json",
+  "source_tree_proof": "builder-home-tree-comparison.json",
+  "artifacts": [
+    {
+      "file": "builder-home-background.log",
+      "size": 49991,
+      "sha256": "39227c9b23fd7b6865ec456d1e69b14a8011fb4127533bf99466eb00222884cb",
+      "storage": "scratch"
+    },
+    {
+      "file": "builder-home-background-command.json",
+      "size": 1145,
+      "sha256": "87e0a2d7be594495318d0bd8aed73bbd0e9053ef1c155793ddb377db9a5a1940",
+      "storage": "scratch"
+    },
+    {
+      "file": "run-builder-home-background.py",
+      "size": 944,
+      "sha256": "bb202af4cf8f428cc78650d85fec5189ceae148be96674e710709c84096075a2",
+      "storage": "scratch"
+    },
+    {
+      "file": "builder-groups.py",
+      "size": 2134,
+      "sha256": "909c8f536e0d2c8ef9319da70c71a9fb878c986dc900bea03ad968bbd8fa163f",
+      "storage": "scratch"
+    },
+    {
+      "file": "builder-home-background-functions.json",
+      "size": 5286,
+      "sha256": "7a9d0a30e4383115f829a42ce78e55ff310594791f88042c5acc7ecccb0a69a1",
+      "storage": "scratch"
+    },
+    {
+      "file": "builder-home-memory.jsonl",
+      "size": 1584,
+      "sha256": "3f604ddb114962dfa5941ff2db47344b2a7f44e089a6522bfb679d82d81058a9",
+      "storage": "scratch"
+    }
+  ]
+}

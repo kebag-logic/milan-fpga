@@ -1,0 +1,18 @@
+[
+  {
+    "build": "cold-lock-a",
+    "rc": 0,
+    "command": "python3 ci/image/build.py --work \"$IMAGE_WORK/cold-lock-a\" --no-cache --defer-lock",
+    "build_ms": 400411,
+    "cached_build_steps": 0,
+    "cached_pinned_base_steps": 1
+  },
+  {
+    "build": "cold-lock-b",
+    "rc": 0,
+    "command": "python3 ci/image/build.py --work \"$IMAGE_WORK/cold-lock-b\" --no-cache --defer-lock",
+    "build_ms": 436056,
+    "cached_build_steps": 0,
+    "cached_pinned_base_steps": 1
+  }
+]

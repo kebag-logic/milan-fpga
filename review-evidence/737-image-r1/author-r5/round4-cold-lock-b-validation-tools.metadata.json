@@ -1,0 +1,69 @@
+{
+  "buildx.build.provenance": {
+    "builder": {
+      "id": ""
+    },
+    "buildType": "https://mobyproject.org/buildkit@v1",
+    "materials": [
+      {
+        "uri": "pkg:docker/ubuntu?digest=sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3\u0026platform=linux%2Famd64",
+        "digest": {
+          "sha256": "008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3"
+        }
+      }
+    ],
+    "invocation": {
+      "configSource": {
+        "entryPoint": "Dockerfile"
+      },
+      "parameters": {
+        "frontend": "dockerfile.v0",
+        "args": {
+          "build-arg:SOURCE_DATE_EPOCH": "1791940308",
+          "force-network-mode": "none",
+          "no-cache": "",
+          "target": "validation-tools"
+        },
+        "locals": [
+          {
+            "name": "context"
+          },
+          {
+            "name": "dockerfile"
+          }
+        ],
+        "root": {
+          "configSource": {
+            "path": "Dockerfile"
+          },
+          "request": {
+            "args": {
+              "build-arg:SOURCE_DATE_EPOCH": "1791940308",
+              "force-network-mode": "none",
+              "no-cache": "",
+              "target": "validation-tools"
+            }
+          }
+        },
+        "compatibilityVersion": 30
+      },
+      "environment": {
+        "dockerfileVersion": "1.28.0-dev",
+        "platform": "linux/amd64"
+      }
+    }
+  },
+  "buildx.build.ref": "default/default/v6hgxupvn7pnvvfarw99dgbwk",
+  "cache.manifest": "{\"mediaType\":\"application/vnd.oci.image.manifest.v1+json\",\"digest\":\"sha256:42fddf62c6500717007db77765084167cc298eecb97994f8915c0c8fda78d0cd\",\"size\":4963}",
+  "containerimage.descriptor": {
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "digest": "sha256:86d7aa16e7d2464baf8e0d246434982838c8174de8c8fa610608cce5b23b5e6c",
+    "size": 4093,
+    "platform": {
+      "architecture": "amd64",
+      "os": "linux"
+    }
+  },
+  "containerimage.digest": "sha256:86d7aa16e7d2464baf8e0d246434982838c8174de8c8fa610608cce5b23b5e6c",
+  "image.name": "docker.io/library/fpga-validation:e689418be8fe7e7857c291d940d96d1edfedf5958879431bfe3fcece5a3728c7-validation-tools"
+}
