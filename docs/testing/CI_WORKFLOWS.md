@@ -2665,7 +2665,7 @@ uses the measured compiler bound described above.
 The four synthesis workers download the head-bound archive and prove versions.
 A cache miss therefore adds no source build inside a timed synthesis worker.
 The cold tool projection uses the review's conservative 600-second build estimate
-plus 120 seconds; the scoped local full-width build measured 306.617 seconds.
+plus 120 seconds; the bounded sixteen-CPU local build measured 360.05 seconds.
 This is a projection for standard hosted runners, not a hosted cold-build result.
 Synthesis workers retain their measured 494/25/32/31-second baseline windows,
 plus 60 seconds for download, extraction and execution evidence.
