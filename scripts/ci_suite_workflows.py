@@ -65,6 +65,33 @@ python3 scripts/ci_suite_pieces.py union """ + suite + """ \
     }
 
 
+def separate_yosys_build(source: dict) -> None:
+    """Build the unchanged pinned tool once before the timed synthesis workers."""
+    worker = source["jobs"]["yosys-shards"]
+    build_names = {"Cache the pinned Yosys build", "Build Yosys from source on cache miss"}
+    build_steps = [copy.deepcopy(step) for step in worker["steps"] if step.get("name") in build_names]
+    if len(build_steps) != 2:
+        raise ValueError("missing Yosys build recipe")
+    source["jobs"]["yosys-tool"] = {
+        "name": "Prepare pinned Yosys", "runs-on": "ubuntu-latest", "timeout-minutes": 29,
+        "needs": "full-ci-gate", "if": worker["if"],
+        "steps": [{"uses": "actions/checkout@v4"}, *build_steps,
+                  {"name": "Package the pinned Yosys build",
+                   "run": 'tar -C /opt -czf "$RUNNER_TEMP/yosys.tar.gz" yosys\n'},
+                  {"name": "Upload the pinned Yosys build", "uses": "actions/upload-artifact@v4",
+                   "with": {"name": "pinned-yosys-${{ github.sha }}", "path": "${{ runner.temp }}/yosys.tar.gz",
+                            "if-no-files-found": "error", "retention-days": 3}}]}
+    worker["needs"] = ["full-ci-gate", "yosys-tool"]
+    worker["steps"] = [step for step in worker["steps"] if step.get("name") not in build_names]
+    position = next(index for index, step in enumerate(worker["steps"])
+                    if step.get("name") == "Install the pinned Yosys and prove the version")
+    worker["steps"][position:position] = [
+        {"name": "Download the pinned Yosys build", "uses": "actions/download-artifact@v4",
+         "with": {"name": "pinned-yosys-${{ github.sha }}", "path": "${{ runner.temp }}/yosys-tool"}},
+        {"name": "Restore the pinned Yosys build",
+         "run": 'sudo tar -C /opt -xzf "$RUNNER_TEMP/yosys-tool/yosys.tar.gz"\n'}]
+
+
 def generate(source: dict) -> dict:
     """Retain source gates, install ownership and budgets while exposing case legs."""
     source = copy.deepcopy(source)
@@ -82,6 +109,7 @@ def generate(source: dict) -> dict:
             step["run"] = step["run"].replace("--shard", "--ci-pieces --shard")
     worker["timeout-minutes"] = "${{ matrix.shard == " + str(total - 1) + " && 60 || 45 }}"
     source["jobs"]["yosys-shards"]["timeout-minutes"] = 29
+    separate_yosys_build(source)
     for suite in PIECE_SECONDS:
         source["jobs"]["union-" + suite] = union_job(suite)
     aggregate = source["jobs"]["verilator-suites"]

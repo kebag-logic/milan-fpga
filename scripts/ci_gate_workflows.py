@@ -21,6 +21,7 @@ CARRIERS = {"docs": "docs-check", "elaborate": "elaborate"}
 TEMPLATES = {name: ".github/ci-templates/" + name + ".yml"
              for name in (*CARRIERS, "rtl", "rtl-fast")}
 LONG_GATE = {"docs": "End-station builder gates", "elaborate": "Standalone LiteX simulation aggregate"}
+CONTRACT_GATES = {"CI event and SHA contract gate", "Local act runner contract gate"}
 VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
                    "Put Verilator on PATH and prove the version"}
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
@@ -62,7 +63,8 @@ def case_inventory(name: str, template: dict) -> list[dict]:
     cases = [{"id": "gate_" + str(index), "index": index,
               "name": step.get("name", "Run " + step.get("uses", "")),
               "condition": step.get("if", "success()"),
-              "leg": int(step.get("name") == LONG_GATE[name])}
+              "leg": (2 if name == "docs" and step.get("name") in CONTRACT_GATES
+                      else int(step.get("name") == LONG_GATE[name]))}
              for index, step in enumerate(original) if not setup(step)]
     if sum(case["leg"] == 1 for case in cases) != 1 or not any(case["leg"] == 0 for case in cases):
         raise ValueError(name + ": missing or ambiguous measured long gate")
@@ -71,8 +73,13 @@ def case_inventory(name: str, template: dict) -> list[dict]:
     return cases
 
 
+def worker_legs(name: str, template: dict) -> list[int]:
+    """Derive every required worker from the original gate inventory."""
+    return sorted({case["leg"] for case in case_inventory(name, template)})
+
+
 def worker_id(name: str, leg: int) -> str:
-    """The two concrete jobs the public carrier must require."""
+    """A concrete job the public carrier must require."""
     return name + "-gates-" + str(leg)
 
 
@@ -100,7 +107,7 @@ def aggregate(name: str, template: dict) -> dict:
     if not str(checkout.get("uses", "")).startswith("actions/checkout@"):
         raise ValueError(name + ": original checkout must stay first")
     return {"runs-on": "ubuntu-latest", "timeout-minutes": 3,
-            "needs": [worker_id(name, leg) for leg in range(2)], "if": "${{ always() }}",
+            "needs": [worker_id(name, leg) for leg in worker_legs(name, template)], "if": "${{ always() }}",
             "steps": [checkout, *reader_setup(),
                       {"name": "Download executed gate outcomes", "uses": "actions/download-artifact@v4",
                        "continue-on-error": True,
@@ -129,7 +136,7 @@ def gate_graph(name: str, template: dict) -> dict:
         return source
     original = source["jobs"].pop(CARRIERS[name])
     cases = {case["index"]: case for case in case_inventory(name, template)}
-    for leg in range(2):
+    for leg in worker_legs(name, template):
         worker = {key: copy.deepcopy(value) for key, value in original.items() if key != "steps"}
         worker["timeout-minutes"] = 45
         worker["steps"] = []

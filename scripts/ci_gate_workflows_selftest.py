@@ -14,8 +14,9 @@ import tempfile
 from unittest.mock import patch
 
 from ci_gate_receipts import StepContext, record, verify
-from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id
+from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
 from ci_runtime_workflows import cpu_budget_step
+from ci_gate_workflows import gate_graph
 import ci_suite_pieces
 from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
 
@@ -39,6 +40,30 @@ def inventory_controls() -> None:
                 print(name + ": refused missing inventory preparation in " + job_id)
             else:
                 raise AssertionError("accepted unprepared inventory reader: " + job_id)
+
+
+def scheduling_controls() -> None:
+    """Contract gates have their own worker; synthesis workers consume the shared tool."""
+    docs = load_template(ROOT, "docs")
+    cases = case_inventory("docs", docs)
+    assert {case["name"] for case in cases if case["leg"] == 2} == {
+        "CI event and SHA contract gate", "Local act runner contract gate"}
+    assert worker_legs("docs", docs) == [0, 1, 2]
+    source = load_template(ROOT, "rtl")
+    generated = gate_graph("rtl", source)["jobs"]
+    tool = generated["yosys-tool"]
+    worker = generated["yosys-shards"]
+    assert tool["needs"] == "full-ci-gate" and tool["if"] == worker["if"]
+    assert worker["needs"] == ["full-ci-gate", "yosys-tool"]
+    for name in ("Cache the pinned Yosys build", "Build Yosys from source on cache miss"):
+        original = next(step for step in source["jobs"]["yosys-shards"]["steps"] if step.get("name") == name)
+        moved = next(step for step in tool["steps"] if step.get("name") == name)
+        assert {key: value for key, value in moved.items() if key != "id" or "id" in original} == original
+        assert not any(step.get("name") == name for step in worker["steps"])
+    upload = next(step for step in tool["steps"] if step.get("name") == "Upload the pinned Yosys build")
+    download = next(step for step in worker["steps"] if step.get("name") == "Download the pinned Yosys build")
+    assert upload["with"]["name"] == download["with"]["name"] == "pinned-yosys-${{ github.sha }}"
+    print("Scheduling: separate contract worker and dependency-bound Yosys build PASS")
 
 
 def child_budget(directory: Path, target: str, budget: int, makefile: Path | None = None) -> None:
@@ -118,17 +143,19 @@ def cpu_controls() -> None:
 def main() -> int:
     """Drive the production generator and verifier with independent planted losses."""
     inventory_controls()
+    scheduling_controls()
     cpu_controls()
     for name, carrier in CARRIERS.items():
         source = load_template(ROOT, name)
         generated = generate(name, source)
         cases = case_inventory(name, source)
+        legs = worker_legs(name, source)
         identity = ("a" * 40, "b" * 40)
         digest = hashlib.sha256(name.encode()).hexdigest()
         scope = "true" if name == "elaborate" else ""
         actual = {case["id"]: {"outcome": "success", "conclusion": "success"} for case in cases}
-        receipts = [record(name, leg, source, identity, digest, StepContext(actual, scope)) for leg in range(2)]
-        needs = {worker_id(name, leg): {"result": "success"} for leg in range(2)}
+        receipts = [record(name, leg, source, identity, digest, StepContext(actual, scope)) for leg in legs]
+        needs = {worker_id(name, leg): {"result": "success"} for leg in legs}
         assert len(verify(name, source, identity, digest, receipts, needs)) == len(cases)
         assert set(generated["jobs"][carrier]["needs"]) == set(needs)
         original = source["jobs"][carrier]["steps"]
@@ -139,7 +166,7 @@ def main() -> int:
             body = copy.deepcopy(owned[0])
             del body["id"]
             assert body == original[case["index"]]
-        for leg in range(2):
+        for leg in legs:
             steps = generated["jobs"][worker_id(name, leg)]["steps"]
             source_order = [original.index({k: v for k, v in step.items() if k != "id"})
                             for step in steps if str(step.get("id", "")).startswith("gate_")]
@@ -178,7 +205,7 @@ def main() -> int:
         refuse("gate dropped from every leg and claimed inventory", changed, needs)
         if name == "elaborate":
             skipped = {case["id"]: {"outcome": "skipped", "conclusion": "skipped"} for case in cases}
-            receipts = [record(name, leg, source, identity, digest, StepContext(skipped, "false")) for leg in range(2)]
+            receipts = [record(name, leg, source, identity, digest, StepContext(skipped, "false")) for leg in legs]
             assert len(verify(name, source, identity, digest, receipts, needs)) == len(cases)
             receipts[0]["scope"] = "true"
             refuse("contradictory skip scope", receipts, needs)

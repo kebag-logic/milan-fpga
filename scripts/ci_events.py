@@ -4384,22 +4384,28 @@ class SemanticWorld(dict):
     """An internal test fixture over original commands, never constructed by YAML parsing."""
 
 
+def check_generated_workflow(parsed: World, c: Contract, name: str) -> None:
+    """Compare one actual generated graph with its complete source-derived definition."""
+    path = ".github/workflows/" + name + ".yml"
+    source = parsed.get(TEMPLATES[name])
+    try:
+        expected = generate_gate_workflow(name, source)
+    except (KeyError, TypeError, ValueError) as exc:
+        c.item(False, path, f"gate inventory cannot generate its jobs: {exc}")
+        return
+    c.item(parsed[path] == expected, path,
+           "generated gate jobs must match their complete inventory and aggregate: "
+           "every original body, binding, condition and checkout is preserved; "
+           "missing or additional steps, dependencies and receipts are refused")
+
+
 def project_gate_templates(parsed: World, c: Contract) -> SemanticWorld:
     """Hold generated jobs to their complete source, then apply the original command contract."""
     projected = SemanticWorld(copy.deepcopy(parsed))
     for name, rel in TEMPLATES.items():
         path = ".github/workflows/" + name + ".yml"
-        source = parsed.get(rel)
-        try:
-            expected = generate_gate_workflow(name, source)
-        except (KeyError, TypeError, ValueError) as exc:
-            c.item(False, path, f"gate inventory cannot generate its jobs: {exc}")
-            continue
-        c.item(parsed[path] == expected, path,
-               "generated gate jobs must match their complete inventory and aggregate: "
-               "every original body, binding, condition and checkout is preserved; "
-               "missing or additional steps, dependencies and receipts are refused")
-        projected[path] = copy.deepcopy(source)
+        check_generated_workflow(parsed, c, name)
+        projected[path] = copy.deepcopy(parsed.get(rel))
     return projected
 
 
@@ -8846,10 +8852,13 @@ def _selftest_generated_gates(pristine: World) -> tuple[list[str], int]:
                                           lambda world, at=index, field=field, value=value:
                                           jobs(world[path])[jid]["steps"][at]["with"].update({field: value})))
             for label, mutate in mutations:
-                world = copy.deepcopy(pristine)
+                world = dict(pristine)
+                world[path] = copy.deepcopy(pristine[path])
                 mutate(world)
                 arms += 1
-                if check(world).findings:
+                contract = Contract()
+                check_generated_workflow(world, contract, name)
+                if contract.findings:
                     print(f"  ok   generated gates: {name} {jid} {label}")
                 else:
                     problems.append(f"generated gate control survived: {name} {jid} {label}")

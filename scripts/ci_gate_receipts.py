@@ -15,7 +15,7 @@ import re
 import sys
 
 from ci_case_receipts import source_identity
-from ci_gate_workflows import CARRIERS, ROOT, TEMPLATES, case_inventory, load_template, worker_id
+from ci_gate_workflows import CARRIERS, ROOT, TEMPLATES, case_inventory, load_template, worker_id, worker_legs
 from ci_manifest import canonical, read, unique_object
 
 SCOPE_CONDITION = "${{ steps.scope.outputs.rtl == 'true' }}"
@@ -34,6 +34,8 @@ def record(name: str, leg: int, source: dict, identity: tuple[str, str], digest:
            context: StepContext) -> dict:
     """Transport reported outcomes without substituting success for missing execution."""
     cases = case_inventory(name, source)
+    if leg not in worker_legs(name, source):
+        raise ValueError("unknown gate worker")
     rows = []
     for case in cases:
         if case["leg"] != leg:
@@ -51,13 +53,14 @@ def record(name: str, leg: int, source: dict, identity: tuple[str, str], digest:
 def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
            receipts: list[dict], needs: dict) -> list[str]:
     """Require each source gate once and every dependent job successful, with exact source binding."""
-    expected_jobs = {worker_id(name, leg) for leg in range(2)}
+    legs = worker_legs(name, source)
+    expected_jobs = {worker_id(name, leg) for leg in legs}
     if set(needs) != expected_jobs:
         raise ValueError("aggregate has a missing or extra dependent job")
     for job in expected_jobs:
         if not isinstance(needs[job], dict) or needs[job].get("result") != "success":
             raise ValueError(job + ": dependent job failed, cancelled or skipped")
-    if len(receipts) != 2 or {row.get("leg") for row in receipts} != {0, 1}:
+    if len(receipts) != len(legs) or {row.get("leg") for row in receipts} != set(legs):
         raise ValueError("missing, duplicate or extra gate leg")
     cases = case_inventory(name, source)
     inventory = [case["id"] for case in cases]
@@ -106,7 +109,7 @@ def main() -> int:
     commands = parser.add_subparsers(dest="command", required=True)
     write = commands.add_parser("record")
     write.add_argument("--workflow", choices=CARRIERS, required=True)
-    write.add_argument("--leg", type=int, choices=(0, 1), required=True)
+    write.add_argument("--leg", type=int, required=True)
     write.add_argument("--output", type=Path, required=True)
     check = commands.add_parser("verify")
     check.add_argument("--workflow", choices=CARRIERS, required=True)
@@ -137,12 +140,12 @@ def main() -> int:
                                   key=lambda row: row["case"])
                 value = {"suite": "gate/" + args.workflow, "head": identity[0], "tree": identity[1],
                          "inventory": [case["id"] for case in case_inventory(args.workflow, source)],
-                         "legs": [{"shard": str(receipt["leg"]) + "/2",
+                         "legs": [{"shard": str(receipt["leg"]) + "/" + str(len(worker_legs(args.workflow, source))),
                                    "cases": [row["case"] for row in receipt["results"]]} for receipt in receipts],
                          "union": "pass", "verdicts_sha256": hashlib.sha256(canonical(observed)).hexdigest()}
                 args.output.parent.mkdir(parents=True, exist_ok=True)
                 args.output.write_bytes(canonical(value) + b"\n")
-            print(f"{args.workflow}: {len(names)} source gates exactly once; both jobs successful")
+            print(f"{args.workflow}: {len(names)} source gates exactly once; all worker jobs successful")
     except (OSError, ValueError, KeyError, TypeError) as exc:
         print(f"gate evidence refused: {exc}", file=sys.stderr)
         return 1

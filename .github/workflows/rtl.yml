@@ -660,7 +660,9 @@ jobs:
           retention-days: 3
   yosys-shards:
     name: Yosys shard ${{ matrix.shard }}/${{ matrix.total }}
-    needs: full-ci-gate
+    needs:
+      - full-ci-gate
+      - yosys-tool
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 29
@@ -710,46 +712,16 @@ jobs:
           printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/yosys-results/TARGET_SHA"
           echo "target_sha=$GITHUB_SHA"
         id: ci_step_3
-      - name: Cache the pinned Yosys build
-        id: cache-yosys
-        uses: actions/cache@v4
+      - name: Download the pinned Yosys build
+        uses: actions/download-artifact@v4
         with:
-          path: /opt/yosys
-          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml')
-            }}-${{ runner.os }}
-      - name: Resolve exact package downloads 4
-        id: ci_packages_4
+          name: pinned-yosys-${{ github.sha }}
+          path: ${{ runner.temp }}/yosys-tool
+        id: ci_step_4
+      - name: Restore the pinned Yosys build
         run: |
-          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe b3e97f74995581d5910e2356723915fd7645a75dbfe71fa71334def0585bbf97 --directory "$RUNNER_TEMP/ci_packages_4" --output "$GITHUB_OUTPUT"
-        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
-      - name: Cache exact package downloads 4
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/ci_packages_4
-          key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
-            '.github/workflows/*.yml') }}
-        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
-        id: ci_step_6
-      - name: Build Yosys from source on cache miss
-        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
-        run: |
-          set -euo pipefail
-          : # package index prepared above
-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_4" install -y --no-install-recommends \
-            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
-          git clone --depth 1 --branch "$YOSYS_VERSION" \
-            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
-          test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
-          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
-          make -C /tmp/yosys-src config-gcc
-          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
-            >> /tmp/yosys-src/Makefile.conf
-          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
-          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
-          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
-          # runner-owned so the cache action's save and restore are symmetric
-          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
-        id: ci_step_7
+          sudo tar -C /opt -xzf "$RUNNER_TEMP/yosys-tool/yosys.tar.gz"
+        id: ci_step_5
       - name: Resolve exact package downloads 5
         id: ci_packages_5
         run: |
@@ -760,7 +732,7 @@ jobs:
           path: ${{ runner.temp }}/ci_packages_5
           key: ${{ runner.os }}-${{ steps.ci_packages_5.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}
-        id: ci_step_9
+        id: ci_step_7
       - name: Install the pinned Yosys and prove the version
         run: |
           set -euo pipefail
@@ -771,14 +743,14 @@ jobs:
           echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
           yosys -V
           yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
-        id: ci_step_10
+        id: ci_step_8
       - name: Cache verified sv2v archive
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/ci-sv2v-cache
           key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}-${{ runner.os }}
-        id: ci_step_11
+        id: ci_step_9
       - name: Install the pinned sv2v release
         run: |
           set -euo pipefail
@@ -793,20 +765,20 @@ jobs:
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
           sv2v --version
-        id: ci_step_12
+        id: ci_step_10
       - name: Restore the portability result cache seeded from dev
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/yosys-result-cache
           key: yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}-${{ github.sha }}
           restore-keys: yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}-
-        id: ci_step_13
+        id: ci_step_11
       - name: Run this weighted portability shard
         run: |
           syn/yosys/run.sh --shard "${{ matrix.shard }}/${{ matrix.total }}" \
             --results "$RUNNER_TEMP/yosys-results" \
             --cache "$RUNNER_TEMP/yosys-result-cache"
-        id: ci_step_14
+        id: ci_step_12
       - name: Upload per-top and structural evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -815,7 +787,7 @@ jobs:
           path: ${{ runner.temp }}/yosys-results
           if-no-files-found: error
           retention-days: 3
-        id: ci_step_15
+        id: ci_step_13
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -922,6 +894,101 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: job-evidence-rtl-yosys-portability-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
+  yosys-tool:
+    name: Prepare pinned Yosys
+    runs-on: ubuntu-latest
+    timeout-minutes: 29
+    needs: full-ci-gate
+    if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Cache the pinned Yosys build
+        id: cache-yosys
+        uses: actions/cache@v4
+        with:
+          path: /opt/yosys
+          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml')
+            }}-${{ runner.os }}
+      - name: Resolve exact package downloads 2
+        id: ci_packages_2
+        run: |
+          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe b3e97f74995581d5910e2356723915fd7645a75dbfe71fa71334def0585bbf97 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+      - name: Cache exact package downloads 2
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_2
+          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+        id: ci_step_4
+      - name: Build Yosys from source on cache miss
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends \
+            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+          git clone --depth 1 --branch "$YOSYS_VERSION" \
+            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+          test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
+          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+          make -C /tmp/yosys-src config-gcc
+          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+            >> /tmp/yosys-src/Makefile.conf
+          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
+          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+          # runner-owned so the cache action's save and restore are symmetric
+          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+        id: ci_step_5
+      - name: Package the pinned Yosys build
+        run: |
+          tar -C /opt -czf "$RUNNER_TEMP/yosys.tar.gz" yosys
+        id: ci_step_6
+      - name: Upload the pinned Yosys build
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-yosys-${{ github.sha }}
+          path: ${{ runner.temp }}/yosys.tar.gz
+          if-no-files-found: error
+          retention-days: 3
+        id: ci_step_7
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job yosys-tool --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-rtl-yosys-tool-${{ strategy.job-index }}-${{ github.sha }}
           path: ${{ runner.temp }}/job-evidence.json
           if-no-files-found: error
           retention-days: 3
@@ -1381,6 +1448,7 @@ jobs:
       - verilator-suites
       - yosys-shards
       - yosys-portability
+      - yosys-tool
       - union-milan_dp
       - union-milan_dp_mclk
       - union-capture_coherence
@@ -1486,7 +1554,7 @@ jobs:
             shard 7/16","Verilator shard 8/16","Verilator shard 9/16","Verilator shard 10/16","Verilator
             shard 11/16","Verilator shard 12/16","Verilator shard 13/16","Verilator shard 14/16","Verilator
             shard 15/16","verilator-suites","yosys-portability","Yosys shard 0/4","Yosys shard 1/4","Yosys
-            shard 2/4","Yosys shard 3/4"]'
+            shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
           SKIPPED_MATRICES: '{"Verilator shard ${{ matrix.shard }}/${{ matrix.total }}":["Verilator shard
             0/16","Verilator shard 1/16","Verilator shard 2/16","Verilator shard 3/16","Verilator shard
             4/16","Verilator shard 5/16","Verilator shard 6/16","Verilator shard 7/16","Verilator shard

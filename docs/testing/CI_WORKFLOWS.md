@@ -2614,7 +2614,8 @@ are independent required siblings, so a failure in `wire-accountability` or
 the original ordered gate commands. Exactly one job carries each required name.
 The independent `wire-accountability` and `docs-check-no-git` jobs retain their
 unconditional execution. `docs-check` and `elaborate` are fail-closed aggregates
-over two workers each. Their `always()` condition also runs the verifier after
+over three docs workers and two elaboration workers. Their `always()` condition
+also runs the verifier after
 a dependency fails or is cancelled. Missing, failed, cancelled and skipped
 worker jobs all fail the aggregate.
 
@@ -2622,19 +2623,71 @@ The source inventories are `.github/ci-templates/docs.yml` and
 `.github/ci-templates/elaborate.yml`. Edit those templates and run
 `python3 scripts/ci_gate_workflows.py`; the workflow files are generated.
 The generator preserves every original command, condition and environment.
-It puts the 1065-second docs builder gate on one worker and the other gates
-on the other. Elaboration separates its 1441-second builder gate from the
-593-second standalone simulation aggregate. These are measured baseline step
-windows; setup and evidence collection add to each worker's duration.
-Workers have 45-minute limits and their aggregates have three-minute limits.
-The 60% scheduling allowance is therefore 1620 seconds per gate worker.
-The round-two local elaboration builder measurement is 1338.04 seconds,
-leaving 281.96 seconds within that allowance before setup. Sixteen local
-Verilator workers completed in 533.257 to 1466.094 seconds, including queue
-contention; their conservative projections remain below 1620 seconds except
-the explicitly excepted media-clock history. These are local measurements,
-not hosted after-times. The next hosted run must replace the projections;
-any worker exceeding its own allowance requires another sizing round.
+Round-three scheduling isolates the two contract self-tests in `docs-gates-2`.
+The gate inventory still defines membership and exactly-once union coverage.
+Every original control remains; generated mutations regenerate only their
+changed workflow. The full CI-event self-test passes 5,206 arms in 316.686
+seconds on CPython 3.12.3. The isolated runner self-test takes 38.772 seconds.
+The added scheduling/evidence controls take 23.699 seconds.
+These local times include competition from the scoped source-build measurement.
+
+The `7032bca5` docs job took 2039 seconds. Its builder took 1065;
+its contract and runner steps took 37 and 99 respectively.
+Thus docs worker zero projects at `2039 - 1065 - 37 - 99 + 23.699 + 60`.
+The last term allows recording/upload overhead; existing setup stays included.
+Worker two adds both measured self-tests, two seconds for checking,
+and a conservative 120-second setup/evidence allowance.
+Worker one uses the larger 1386-second local builder measurement,
+plus that allowance, rather than the shorter hosted builder window.
+Elaboration retains its 1441/593-second hosted gate windows plus 120 seconds.
+
+Yosys compilation now runs once in prerequisite `yosys-tool`.
+Its unchanged cache-miss recipe and exact cache key are preserved.
+The four synthesis workers download the head-bound archive and prove versions.
+A cache miss therefore adds no source build inside a timed synthesis worker.
+The cold tool projection uses the review's conservative 600-second build estimate
+plus 120 seconds; the scoped local full-width build measured 306.617 seconds.
+This is a projection for standard hosted runners, not a hosted cold-build result.
+Synthesis workers retain their measured 494/25/32/31-second baseline windows,
+plus 60 seconds for download, extraction and execution evidence.
+
+| Worker | Projected seconds | Own 60% bound | Margin, seconds |
+|---|---:|---:|---:|
+| `docs-gates-0` | 922 | 1620 | 698 |
+| `docs-gates-1` | 1506 | 1620 | 114 |
+| `docs-gates-2` | 478 | 1620 | 1142 |
+| `elaborate-gates-0` | 1561 | 1620 | 59 |
+| `elaborate-gates-1` | 713 | 1620 | 907 |
+| `yosys-tool (cold)` | 720 | 1044 | 324 |
+| `yosys-shards 0/4` | 554 | 1044 | 490 |
+| `yosys-shards 1/4` | 85 | 1044 | 959 |
+| `yosys-shards 2/4` | 92 | 1044 | 952 |
+| `yosys-shards 3/4` | 91 | 1044 | 953 |
+| `verilator-shards 0/16` | 1605 | 1620 | 15 |
+| `verilator-shards 1/16` | 1495 | 1620 | 125 |
+| `verilator-shards 2/16` | 1572 | 1620 | 48 |
+| `verilator-shards 3/16` | 1494 | 1620 | 126 |
+| `verilator-shards 4/16` | 1521 | 1620 | 99 |
+| `verilator-shards 5/16` | 1492 | 1620 | 128 |
+| `verilator-shards 6/16` | 1495 | 1620 | 125 |
+| `verilator-shards 7/16` | 1498 | 1620 | 122 |
+| `verilator-shards 8/16` | 1493 | 1620 | 127 |
+| `verilator-shards 9/16` | 1493 | 1620 | 127 |
+| `verilator-shards 10/16` | 1497 | 1620 | 123 |
+| `verilator-shards 11/16` | 1497 | 1620 | 123 |
+| `verilator-shards 12/16` | 1493 | 1620 | 127 |
+| `verilator-shards 13/16` | 1491 | 1620 | 129 |
+| `verilator-shards 14/16` | 1494 | 1620 | 126 |
+| `verilator-shards 15/16` | 2032 | 2160 | 128 |
+
+Verilator figures already include their 122-second overhead allowance.
+The continuous media-clock exception remains explicit at 2032 seconds.
+Docs now projects at 1506 seconds for its slowest worker.
+Allowing 60 seconds each for aggregate and collector, one 120-second
+watcher interval and 30 seconds for the tail gives 1776 seconds,
+or about 29.6 minutes. This corrects the earlier 26-minute docs projection.
+The collector outage budget is not normal-run duration evidence.
+Hosted job spans and runner-capacity contention still require coordinating readback.
 
 Each worker records the source gate IDs and the actual step outcomes reported
 by the workflow runtime. The aggregate recomputes the inventory from the same
