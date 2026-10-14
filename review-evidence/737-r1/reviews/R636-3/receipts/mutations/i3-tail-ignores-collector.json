@@ -1,0 +1,32 @@
+{
+  "mutation": "i3-tail-ignores-collector",
+  "file": "scripts/ci_fail_fast.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+      "rc": 1,
+      "seconds": 1.786,
+      "log_sha256": "b32433155c2783e8c527e6eeba3595fe358ab08d380f47fa345bf6b348354395",
+      "tail": [
+        "    assert not tail_failed({\"ci-manifest\": {\"result\": \"failure\", \"outputs\": {\"observer_only_error\": \"true\"}}})",
+        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "AssertionError"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    },
+    {
+      "command": "python3 scripts/ci_fail_fast_selftest.py",
+      "rc": 0,
+      "seconds": 1.0,
+      "log_sha256": "4cd721d81a8caa7da3dd752395e4c534c2a88ef4f4774c896b3c0abf3c0ad4ba",
+      "tail": [
+        "rtl: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS",
+        "rtl-fast: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS",
+        "fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

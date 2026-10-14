@@ -1,0 +1,20 @@
+{
+  "mutation": "i3-watcher-outage-fails",
+  "file": "scripts/ci_fail_fast.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_fail_fast_selftest.py",
+      "rc": 1,
+      "seconds": 0.124,
+      "log_sha256": "9b31dc8e0e7a35fa60cc5127a9c6da40891a390e8ba406ab9148fd2b35204832",
+      "tail": [
+        "    assert watch(API(\"fixture/project\", \"fixture\"), 1, {\"one\"}, {}) == 0",
+        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "AssertionError"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

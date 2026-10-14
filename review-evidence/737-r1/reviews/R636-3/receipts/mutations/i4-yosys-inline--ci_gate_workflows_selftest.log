@@ -1,0 +1,23 @@
+docs: refused missing inventory preparation in docs-gates-0
+docs: refused missing inventory preparation in ci-manifest
+elaborate: refused missing inventory preparation in ci-manifest
+rtl: refused missing inventory preparation in verilator-shards
+rtl: refused missing inventory preparation in verilator-suites
+rtl: refused missing inventory preparation in union-milan_dp
+rtl: refused missing inventory preparation in union-milan_dp_mclk
+rtl: refused missing inventory preparation in union-capture_coherence
+rtl: refused missing inventory preparation in union-maap
+rtl: refused missing inventory preparation in union-milan_dp_render
+rtl: refused missing inventory preparation in union-pp_shadow
+rtl: refused missing inventory preparation in ci-manifest
+rtl-fast: refused missing inventory preparation in ci-manifest
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/i4-yosys-inline/scripts/ci_gate_workflows_selftest.py", line 224, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$PACKET/scratch/mut/i4-yosys-inline/scripts/ci_gate_workflows_selftest.py", line 146, in main
+    scheduling_controls()
+  File "$PACKET/scratch/mut/i4-yosys-inline/scripts/ci_gate_workflows_selftest.py", line 54, in scheduling_controls
+    tool = generated["yosys-tool"]
+           ~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'yosys-tool'

@@ -1,0 +1,20 @@
+{
+  "mutation": "i2-collector-overlap",
+  "file": "scripts/ci_runtime_evidence.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+      "rc": 1,
+      "seconds": 1.007,
+      "log_sha256": "624e20d35dbe79ec0d386cf2a2c0fb8b7412d314d9670f0a59b6c26aa268fab0",
+      "tail": [
+        "  File \"$PACKET/scratch/mut/i2-collector-overlap/scripts/ci_runtime_evidence_selftest.py\", line 172, in refused",
+        "    raise AssertionError(\"accepted \" + label)",
+        "AssertionError: accepted overlapping raw matrix coverage"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

@@ -1,0 +1,20 @@
+{
+  "mutation": "i3-collector-outage-fails",
+  "file": "scripts/ci_runtime_evidence.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+      "rc": 1,
+      "seconds": 1.674,
+      "log_sha256": "9dd1fdaa63d9f6cdcb40c35d4c9bd6572c729c4416df02180faf8a09ce0e57ed",
+      "tail": [
+        "    assert runtime.main() == 0",
+        "           ^^^^^^^^^^^^^^^^^^^",
+        "AssertionError"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

@@ -1,0 +1,44 @@
+{
+  "mutation": "i1-collector-unprepared",
+  "file": "scripts/ci_runtime_workflows.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_gate_workflows_selftest.py",
+      "rc": 1,
+      "seconds": 0.208,
+      "log_sha256": "7328bcad18f4adce340c7987f5d851ac9b8855055ebd54978c321a6dbf7cc189",
+      "tail": [
+        "  File \"$PACKET/scratch/mut/i1-collector-unprepared/scripts/ci_suite_workflows.py\", line 35, in check_inventory_dependencies",
+        "    raise ValueError(job_id + \": inventory reader lacks pinned dependency preparation\")",
+        "ValueError: ci-manifest: inventory reader lacks pinned dependency preparation"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    },
+    {
+      "command": "python3 scripts/ci_gate_workflows.py --check",
+      "rc": 1,
+      "seconds": 0.169,
+      "log_sha256": "c57efc75a4a895ecf5165fcd69dbdea710309e47171be2ac7a2a5d3e985b0042",
+      "tail": [
+        "  File \"$PACKET/scratch/mut/i1-collector-unprepared/scripts/ci_suite_workflows.py\", line 35, in check_inventory_dependencies",
+        "    raise ValueError(job_id + \": inventory reader lacks pinned dependency preparation\")",
+        "ValueError: ci-manifest: inventory reader lacks pinned dependency preparation"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    },
+    {
+      "command": "python3 scripts/ci_events.py --check",
+      "rc": 1,
+      "seconds": 0.75,
+      "log_sha256": "a04e5ccc90e27f22c1bebe033cc704ed01e4b0cd9ab0efd7bbdbe80436588c15",
+      "tail": [
+        "  FAIL .github/workflows/rtl.yml: gate inventory cannot generate its jobs: ci-manifest: inventory reader lacks pinned dependency preparation",
+        "  FAIL .github/workflows/rtl-fast.yml: gate inventory cannot generate its jobs: ci-manifest: inventory reader lacks pinned dependency preparation",
+        "ci_events: 4 finding(s) over 2186 contract item(s)"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

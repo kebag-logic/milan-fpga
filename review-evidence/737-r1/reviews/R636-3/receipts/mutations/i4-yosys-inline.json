@@ -1,0 +1,20 @@
+{
+  "mutation": "i4-yosys-inline",
+  "file": "scripts/ci_suite_workflows.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_gate_workflows_selftest.py",
+      "rc": 1,
+      "seconds": 0.541,
+      "log_sha256": "0fe5c3195b73567bc88e4439ed45eace75864ea690b16dc0d982b2bece9cfdfa",
+      "tail": [
+        "    tool = generated[\"yosys-tool\"]",
+        "           ~~~~~~~~~^^^^^^^^^^^^^^",
+        "KeyError: 'yosys-tool'"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

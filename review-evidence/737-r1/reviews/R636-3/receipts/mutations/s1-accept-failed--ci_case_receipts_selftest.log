@@ -1,0 +1,34 @@
+case union: 1 cases exactly once; observations verified
+receipt control: dirty source None refused
+receipt control: source changed during execution refused
+receipt control: dirty source --assume-unchanged refused
+receipt control: source changed during execution refused
+receipt control: dirty source --skip-worktree refused
+receipt control: source changed during execution refused
+receipt control: staged source under clean working bytes refused
+receipt control: untracked source refused
+receipt control: source executable mode refused
+receipt control: missing source refused
+receipt control: source replaced by symlink refused
+receipt control: changed complete stdout or RESULT refused
+receipt control: changed complete stdout or RESULT refused
+receipt control: one case removed from all legs and inventories refused
+receipt control: dropped entire leg refused
+receipt control: duplicate leg refused
+receipt control: changed schema refused
+receipt control: changed suite refused
+receipt control: changed head refused
+receipt control: changed tree refused
+receipt control: changed shard refused
+receipt control: changed inventory refused
+receipt control: changed result case refused
+receipt control: changed result outcome refused
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/s1-accept-failed/scripts/ci_case_receipts_selftest.py", line 210, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$PACKET/scratch/mut/s1-accept-failed/scripts/ci_case_receipts_selftest.py", line 171, in main
+    refuse(lambda: verify(changed), f"changed result {key}")
+  File "$PACKET/scratch/mut/s1-accept-failed/scripts/ci_case_receipts_selftest.py", line 30, in refuse
+    raise AssertionError(f"receipt control accepted: {label}")
+AssertionError: receipt control accepted: changed result outcome

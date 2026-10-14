@@ -1,0 +1,30 @@
+docs: refused missing inventory preparation in docs-gates-0
+docs: refused missing inventory preparation in ci-manifest
+elaborate: refused missing inventory preparation in ci-manifest
+rtl: refused missing inventory preparation in verilator-shards
+rtl: refused missing inventory preparation in verilator-suites
+rtl: refused missing inventory preparation in union-milan_dp
+rtl: refused missing inventory preparation in union-milan_dp_mclk
+rtl: refused missing inventory preparation in union-capture_coherence
+rtl: refused missing inventory preparation in union-maap
+rtl: refused missing inventory preparation in union-milan_dp_render
+rtl: refused missing inventory preparation in union-pp_shadow
+rtl: refused missing inventory preparation in ci-manifest
+rtl-fast: refused missing inventory preparation in ci-manifest
+Scheduling: separate contract worker and dependency-bound Yosys build PASS
+Capture child recipes: 4 CPUs, 4 recipes consume 1 each
+Capture child recipes: 12 CPUs, 4 recipes consume 3 each
+Capture child recipes: 16 CPUs, 4 recipes consume 4 each
+Capture child control: unlimited compiler budget refused
+CPU budgets: 1 cores; 1 campaigns; nested builds bounded
+CPU budgets: 4 cores; 4 campaigns; nested builds bounded
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/i5-unbounded-tool-build/scripts/ci_gate_workflows_selftest.py", line 224, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$PACKET/scratch/mut/i5-unbounded-tool-build/scripts/ci_gate_workflows_selftest.py", line 147, in main
+    cpu_controls()
+  File "$PACKET/scratch/mut/i5-unbounded-tool-build/scripts/ci_gate_workflows_selftest.py", line 119, in cpu_controls
+    assert output.read_text().splitlines() == [
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

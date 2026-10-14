@@ -1,0 +1,32 @@
+{
+  "mutation": "i2-watcher-unknown",
+  "file": "scripts/ci_fail_fast.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+      "rc": 1,
+      "seconds": 1.014,
+      "log_sha256": "81986a33c1f5ff5b0039b9873e935827a8683df2c076cb667f7eaadab9e9dc9c",
+      "tail": [
+        "  File \"$PACKET/scratch/mut/i2-watcher-unknown/scripts/ci_runtime_evidence_selftest.py\", line 172, in refused",
+        "    raise AssertionError(\"accepted \" + label)",
+        "AssertionError: accepted watcher raw matrix name"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    },
+    {
+      "command": "python3 scripts/ci_fail_fast_selftest.py",
+      "rc": 0,
+      "seconds": 1.002,
+      "log_sha256": "4cd721d81a8caa7da3dd752395e4c534c2a88ef4f4774c896b3c0abf3c0ad4ba",
+      "tail": [
+        "rtl: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS",
+        "rtl-fast: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS",
+        "fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

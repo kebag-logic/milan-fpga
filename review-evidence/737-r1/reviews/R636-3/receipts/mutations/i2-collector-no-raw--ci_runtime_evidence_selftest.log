@@ -1,0 +1,20 @@
+runtime control refused: scheduler jobID
+runtime control refused: scheduler matrix
+runtime control refused: scheduler job
+runtime control refused: duplicate job conclusion
+runtime control refused: duplicate step conclusion
+runtime control refused: API extra
+runtime control refused: API name
+runtime control refused: API duplicate
+runtime controls: API and scheduler agree; cancellation retains missing work
+runtime collection refused: API returned an unplanned job: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/i2-collector-no-raw/scripts/ci_runtime_evidence_selftest.py", line 326, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$PACKET/scratch/mut/i2-collector-no-raw/scripts/ci_runtime_evidence_selftest.py", line 294, in main
+    skipped_collector_control(root / "skipped")
+  File "$PACKET/scratch/mut/i2-collector-no-raw/scripts/ci_runtime_evidence_selftest.py", line 75, in skipped_collector_control
+    assert runtime.main() == 0
+           ^^^^^^^^^^^^^^^^^^^
+AssertionError

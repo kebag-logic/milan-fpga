@@ -1,0 +1,20 @@
+{
+  "mutation": "i3-collector-no-output",
+  "file": "scripts/ci_runtime_workflows.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+      "rc": 1,
+      "seconds": 1.439,
+      "log_sha256": "b4ab182588768ccac5d44568dbbc95cb6ff124d65cf0a36de7f9c8edee1dc948",
+      "tail": [
+        "    assert collector[\"outputs\"][\"observer_only_error\"] == (",
+        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "AssertionError"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

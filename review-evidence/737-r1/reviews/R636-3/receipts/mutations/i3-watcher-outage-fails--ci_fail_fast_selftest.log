@@ -1,0 +1,11 @@
+Observer unavailable: HTTPError
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/i3-watcher-outage-fails/scripts/ci_fail_fast_selftest.py", line 182, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$PACKET/scratch/mut/i3-watcher-outage-fails/scripts/ci_fail_fast_selftest.py", line 124, in main
+    observer_controls()
+  File "$PACKET/scratch/mut/i3-watcher-outage-fails/scripts/ci_fail_fast_selftest.py", line 32, in observer_controls
+    assert watch(API("fixture/project", "fixture"), 1, {"one"}, {}) == 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

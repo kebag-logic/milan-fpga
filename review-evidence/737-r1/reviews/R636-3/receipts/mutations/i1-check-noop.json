@@ -1,0 +1,20 @@
+{
+  "mutation": "i1-check-noop",
+  "file": "scripts/ci_suite_workflows.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_gate_workflows_selftest.py",
+      "rc": 1,
+      "seconds": 0.208,
+      "log_sha256": "3631d8f0e4cacca47424163ff361b962ef85db58f195bbe560feef03e600cbbc",
+      "tail": [
+        "  File \"$PACKET/scratch/mut/i1-check-noop/scripts/ci_gate_workflows_selftest.py\", line 42, in inventory_controls",
+        "    raise AssertionError(\"accepted unprepared inventory reader: \" + job_id)",
+        "AssertionError: accepted unprepared inventory reader: docs-gates-0"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

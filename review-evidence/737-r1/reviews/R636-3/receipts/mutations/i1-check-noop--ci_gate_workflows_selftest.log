@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/i1-check-noop/scripts/ci_gate_workflows_selftest.py", line 224, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$PACKET/scratch/mut/i1-check-noop/scripts/ci_gate_workflows_selftest.py", line 145, in main
+    inventory_controls()
+  File "$PACKET/scratch/mut/i1-check-noop/scripts/ci_gate_workflows_selftest.py", line 42, in inventory_controls
+    raise AssertionError("accepted unprepared inventory reader: " + job_id)
+AssertionError: accepted unprepared inventory reader: docs-gates-0

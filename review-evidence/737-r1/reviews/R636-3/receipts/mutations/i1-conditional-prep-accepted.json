@@ -1,0 +1,20 @@
+{
+  "mutation": "i1-conditional-prep-accepted",
+  "file": "scripts/ci_suite_workflows.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_gate_workflows_selftest.py",
+      "rc": 0,
+      "seconds": 2.819,
+      "log_sha256": "44b8cf5377ed17785b730b3ebb6e5f948db78d3244d7a44906b0587c4c18ea41",
+      "tail": [
+        "elaborate: refused contradictory skip scope",
+        "elaborate: 2 source gates retain their complete original steps",
+        "gate workflow and union controls: PASS"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": false
+}

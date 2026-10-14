@@ -1,0 +1,20 @@
+{
+  "mutation": "s2-allow-skipped",
+  "file": "scripts/ci_manifest.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_manifest_selftest.py",
+      "rc": 1,
+      "seconds": 0.051,
+      "log_sha256": "3b81b6b8bc31eda3081b9a4cc9eca2c1001f8bfdbadee5d0c8460cf9449e6e65",
+      "tail": [
+        "  File \"$PACKET/scratch/mut/s2-allow-skipped/scripts/ci_manifest_selftest.py\", line 97, in main",
+        "    raise AssertionError(\"skipped-step collections accepted\")",
+        "AssertionError: skipped-step collections accepted"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

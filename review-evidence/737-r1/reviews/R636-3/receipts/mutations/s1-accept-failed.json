@@ -1,0 +1,20 @@
+{
+  "mutation": "s1-accept-failed",
+  "file": "scripts/ci_case_receipts.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_case_receipts_selftest.py",
+      "rc": 1,
+      "seconds": 0.399,
+      "log_sha256": "8312a42f3cc637afc14a8ef0f43931218d95dd7ea12b5b779bac56ea686de224",
+      "tail": [
+        "  File \"$PACKET/scratch/mut/s1-accept-failed/scripts/ci_case_receipts_selftest.py\", line 30, in refuse",
+        "    raise AssertionError(f\"receipt control accepted: {label}\")",
+        "AssertionError: receipt control accepted: changed result outcome"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/i1-collector-unprepared/scripts/ci_gate_workflows.py", line 213, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$PACKET/scratch/mut/i1-collector-unprepared/scripts/ci_gate_workflows.py", line 202, in main
+    expected = rendered(name, load_template(args.root, name))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/mut/i1-collector-unprepared/scripts/ci_gate_workflows.py", line 185, in rendered
+    value = generate(name, template)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/mut/i1-collector-unprepared/scripts/ci_gate_workflows.py", line 171, in generate
+    check_inventory_dependencies(result)
+  File "$PACKET/scratch/mut/i1-collector-unprepared/scripts/ci_suite_workflows.py", line 35, in check_inventory_dependencies
+    raise ValueError(job_id + ": inventory reader lacks pinned dependency preparation")
+ValueError: ci-manifest: inventory reader lacks pinned dependency preparation

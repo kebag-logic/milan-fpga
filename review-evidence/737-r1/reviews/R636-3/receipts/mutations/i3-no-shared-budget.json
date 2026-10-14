@@ -1,0 +1,20 @@
+{
+  "mutation": "i3-no-shared-budget",
+  "file": "scripts/ci_runtime_evidence.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+      "rc": 0,
+      "seconds": 4.334,
+      "log_sha256": "6e54d442623a100cd316f2f6f4147da8d461a3d2442b73ae03e84fc53b1cec96",
+      "tail": [
+        "no-metadata recorder: actual checkout retained; failure remains failure",
+        "runtime manifest collectors: all controls PASS",
+        "runtime collection refused: API run belongs to another head"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": false
+}

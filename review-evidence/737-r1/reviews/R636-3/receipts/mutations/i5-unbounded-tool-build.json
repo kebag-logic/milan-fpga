@@ -1,0 +1,20 @@
+{
+  "mutation": "i5-unbounded-tool-build",
+  "file": "scripts/ci_runtime_workflows.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_gate_workflows_selftest.py",
+      "rc": 1,
+      "seconds": 1.721,
+      "log_sha256": "1d55c7353da50f1d14f3f3ae750c6758a356295a748288ca55f7111b3609a5f9",
+      "tail": [
+        "    assert output.read_text().splitlines() == [",
+        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "AssertionError"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}

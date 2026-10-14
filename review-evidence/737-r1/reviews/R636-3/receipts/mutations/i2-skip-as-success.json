@@ -1,0 +1,20 @@
+{
+  "mutation": "i2-skip-as-success",
+  "file": "scripts/ci_runtime_evidence.py",
+  "matches": 1,
+  "controls": [
+    {
+      "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+      "rc": 1,
+      "seconds": 1.002,
+      "log_sha256": "20f13e68d42adbd2d08254d8439afe8c4f800d2769caa04a4cdce3cb3a132447",
+      "tail": [
+        "    assert set(document[\"payload\"][\"results\"].values()) == {\"skipped\"}",
+        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "AssertionError"
+      ],
+      "log_note": "digest over the published, path-redacted log"
+    }
+  ],
+  "caught": true
+}
