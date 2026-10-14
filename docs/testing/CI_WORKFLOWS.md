@@ -2654,17 +2654,25 @@ including the manifest collector, and cancels active runs of all four workflows
 at the same head after a confirmed failure. The collector needs the original
 jobs but not the watcher, so collection failures cannot hide behind a cycle.
 The terminal guard needs the watcher and collector and catches failures in their
-final evidence steps. Observer errors are reported separately and never authorize
-cancellation; an evidence-tail failure after an observer error still does.
+final evidence steps. Observer-only failures end successfully with an explicit
+`observer_only_error` output. Watcher and collector read outages never authorize
+cancellation. A genuine collection, recording or upload failure still does.
+The collector retains unknown results and an explicit observer-error receipt.
+That manifest remains incomplete and cannot pass build or equality acceptance.
+The collector has a fifteen-minute job limit. Its API reads share one
+600-second budget across all pages and run IDs, leaving five minutes for
+preparation, collection and upload. Individual requests consume that same budget.
+A wait beyond the former three-minute allowance is covered by controls.
 Fork PRs keep
 native matrix cancellation and fail-closed aggregates; they never enter the
 write-token job and do not cancel sibling workflows. There is no privileged
 `workflow_run` controller. A cancellation may interrupt artifact upload; missing
 evidence stays incomplete and can never compare as a valid build.
 
-The watcher accepts a skipped matrix's raw expression name only when the API
+The watcher and collector accept a skipped matrix's raw expression name only when the API
 reports that job completed and skipped. Its expansion comes from the generated
 matrix; expanded and unexpanded results cannot both cover the same leg.
+The collector records each covered leg as skipped, never successful.
 Controls retain the raw matrix names observed in run `38273578232`.
 Each first-failure conclusion has a separate control: failure, cancelled,
 timed_out and action_required.

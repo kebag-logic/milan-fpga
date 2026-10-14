@@ -19,7 +19,7 @@ import shutil
 import subprocess
 import sys
 
-from ci_fail_fast import API
+from ci_fail_fast import API, RETRY_BUDGET_SECONDS, observer_error
 from ci_manifest import SHA1, canonical, envelope, exact_keys, read, require_digest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -118,6 +118,8 @@ def context_evidence(source: dict, artifacts: Path) -> tuple[dict, dict, dict]:
         job = definitions[filename]["jobs"][receipt["job"]]
         execution[key] = step_records(source["plan"][key], job, receipt["steps"])
         results[key] = receipt["result"]
+        if any(step.get("outputs", {}).get("observer_error") == "true" for step in receipt["steps"].values()):
+            results[key] = "unknown"
         tools.update({key + "/" + name: value for name, value in receipt["tools"].items()})
     return execution, results, tools
 
@@ -191,6 +193,23 @@ def suite_evidence(source: dict, artifacts: Path) -> dict:
     return result
 
 
+def collect_api(source: dict, event: dict, run_ids: list[int]) -> tuple[dict, dict]:
+    """Bound all API reads together; malformed evidence still fails collection."""
+    api = API(os.environ["GITHUB_REPOSITORY"], os.environ["GH_TOKEN"], RETRY_BUDGET_SECONDS)
+    execution, results = {}, {}
+    for run_id in run_ids:
+        run = api.request(f"runs/{run_id}")
+        expected = (event["pull_request"]["head"]["sha"]
+                    if os.environ["GITHUB_EVENT_NAME"] == "pull_request" else source["head"])
+        if run["head_sha"] != expected:
+            raise ValueError("API run belongs to another head")
+        observed, outcomes = api_evidence(source, api.pages(f"runs/{run_id}/jobs?filter=latest", "jobs"),
+                                         run["path"].split("@")[0])
+        execution.update(observed)
+        results.update(outcomes)
+    return execution, results
+
+
 def collect(artifacts: Path, output: Path, run_ids: list[int]) -> dict:
     """Build one canonical envelope, explicitly retaining incomplete observations."""
     from ci_workflow_plan import committed_plan, workflow
@@ -202,25 +221,27 @@ def collect(artifacts: Path, output: Path, run_ids: list[int]) -> dict:
         subject["base"] = event["pull_request"]["base"]["sha"]
         subject["merge_base"] = git("merge-base", subject["base"], subject["head"])
     execution, results, tools = context_evidence(source, artifacts)
+    observer_jobs = [key for key, result in results.items() if result == "unknown"]
+    observation_error = None
     if run_ids:
-        api = API(subject["repository"], os.environ["GH_TOKEN"])
-        for run_id in run_ids:
-            run = api.request(f"runs/{run_id}")
-            # GitHub reports the PR head while checkout validates its merge ref.
-            expected = event["pull_request"]["head"]["sha"] if subject["event"] == "pull_request" else source["head"]
-            if run["head_sha"] != expected:
-                raise ValueError("API run belongs to another head")
-            observed, outcomes = api_evidence(source, api.pages(f"runs/{run_id}/jobs?filter=latest", "jobs"),
-                                               run["path"].split("@")[0])
+        try:
+            observed, outcomes = collect_api(source, event, run_ids)
             execution.update(observed)
             results.update(outcomes)
+        except OSError as exc:
+            observer_error(exc)
+            observation_error = type(exc).__name__
+            # An unobserved terminal result cannot authenticate any completed job.
+            results = {key: "unknown" for key in source["plan"]}
+    for key in observer_jobs:
+        results[key] = "unknown"
     actions = sorted({step["uses"] for path in source["definitions"]
                       for job in workflow(git("show", source["head"] + ":" + path))["jobs"].values()
                       for step in job["steps"] if "uses" in step})
     payload = {"subject": subject, "definitions": source["definitions"], "plan": source["plan"],
                "environment": {"image": None, "tools": tools, "actions": actions},
                "execution": execution, "results": results, "inventories": suite_evidence(source, artifacts)}
-    document = envelope(payload, {})
+    document = envelope(payload, {"logs": {"observer_error": observation_error}} if observation_error else {})
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(canonical(document) + b"\n")
     print("complete manifest" if document["complete"] else "incomplete manifest: " +

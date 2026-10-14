@@ -29,7 +29,7 @@ def observer_controls() -> None:
             with patch("ci_fail_fast.urlopen", side_effect=error) as opened, \
                     patch("ci_fail_fast.time.sleep") as sleep, patch("ci_fail_fast.time.time", return_value=1000), \
                     patch.dict(os.environ, {"GITHUB_OUTPUT": str(output)}):
-                assert watch(API("fixture/project", "fixture"), 1, {"one"}, {}) == 2
+                assert watch(API("fixture/project", "fixture"), 1, {"one"}, {}) == 0
                 assert 1 < opened.call_count <= 4
                 assert all(call.args[0].method == "GET" for call in opened.call_args_list)
                 assert sleep.call_count == opened.call_count - 1

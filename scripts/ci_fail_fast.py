@@ -55,10 +55,11 @@ def same_repository(event: dict, event_name: str, repository: str) -> bool:
 class API:
     """Use the job token only for this repository's Actions endpoints."""
 
-    def __init__(self, repository: str, token: str) -> None:
+    def __init__(self, repository: str, token: str, read_budget: float | None = None) -> None:
         self.root = "https://api.github.com/repos/" + repository + "/actions/"
         self.token = token
         self.next_read = 0.0
+        self.read_deadline = None if read_budget is None else time.monotonic() + read_budget
 
     def request(self, path: str, method: str = "GET") -> dict:
         """Return one bounded API response without logging authentication material."""
@@ -67,6 +68,8 @@ class API:
                                    "Accept": "application/vnd.github+json",
                                    "X-GitHub-Api-Version": "2022-11-28"})
         deadline = time.monotonic() + RETRY_BUDGET_SECONDS
+        if method == "GET" and self.read_deadline is not None:
+            deadline = min(deadline, self.read_deadline)
         for attempt in range(READ_ATTEMPTS):
             if method == "GET" and self.next_read > time.time():
                 delay = self.next_read - time.time()
@@ -74,7 +77,10 @@ class API:
                     raise TimeoutError("observer rate-limit wait exceeds retry budget")
                 time.sleep(delay)
             try:
-                with urlopen(request, timeout=30) as response:
+                remaining = deadline - time.monotonic()
+                if method == "GET" and remaining <= 0:
+                    raise TimeoutError("observer read budget exhausted")
+                with urlopen(request, timeout=min(30, remaining) if method == "GET" else 30) as response:
                     data = response.read()
                     if response.headers.get("X-RateLimit-Remaining") == "0":
                         self.next_read = float(response.headers["X-RateLimit-Reset"]) + 1
@@ -137,17 +143,22 @@ def watch(api: API, run_id: int, expected: set[str], skipped: dict) -> int:
                 return 0
             time.sleep(POLL_SECONDS)
     except (OSError, ValueError, KeyError) as exc:
-        if os.environ.get("GITHUB_OUTPUT"):
-            with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
-                output.write("observer_error=true\n")
-        print("Observer unavailable: " + type(exc).__name__)
-        return 2
+        observer_error(exc)
+        return 0
+
+
+def observer_error(error: Exception) -> None:
+    """Publish unavailable observation without creating a failed job conclusion."""
+    if os.environ.get("GITHUB_OUTPUT"):
+        with Path(os.environ["GITHUB_OUTPUT"]).open("a") as output:
+            output.write("observer_error=true\n")
+    print("Observer unavailable: " + type(error).__name__)
 
 
 def tail_failed(needs: dict) -> bool:
     """Ignore only an explicitly identified observer error, never evidence-tail failures."""
     return any(row.get("result") in FAILURES and not (
-        job == "ci-fail-fast" and row.get("outputs", {}).get("observer_only_error") == "true")
+        job in ("ci-fail-fast", "ci-manifest") and row.get("outputs", {}).get("observer_only_error") == "true")
         for job, row in needs.items())
 
 

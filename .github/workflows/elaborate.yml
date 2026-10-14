@@ -594,7 +594,7 @@ jobs:
   ci-manifest:
     name: Collect CI manifest
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 15
     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
     needs:
       - elaborate-gates-0
@@ -603,6 +603,9 @@ jobs:
     permissions:
       contents: read
       actions: read
+    outputs:
+      observer_only_error: ${{ steps.ci_collect.outputs.observer_error == 'true' && steps.ci_collect.outcome
+        == 'success' && steps.ci_upload.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -640,11 +643,13 @@ jobs:
         with:
           path: ${{ runner.temp }}/manifest-inputs
       - name: Collect actual runtime evidence
+        id: ci_collect
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 scripts/ci_runtime_evidence.py collect --run "$GITHUB_RUN_ID" --artifacts "$RUNNER_TEMP/manifest-inputs" --output "$RUNNER_TEMP/ci-manifest.json"
       - name: Upload canonical CI manifest
+        id: ci_upload
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:

@@ -107,10 +107,12 @@ def tail_guard() -> dict:
 def collector(name: str, dependencies: list[str]) -> dict:
     """Use read-only API provenance on hosted runs and actual step receipts locally."""
     from ci_suite_workflows import inventory_dependencies
-    return {"name": "Collect CI manifest", "runs-on": "ubuntu-latest", "timeout-minutes": 3,
+    return {"name": "Collect CI manifest", "runs-on": "ubuntu-latest", "timeout-minutes": 15,
             "if": "${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}",
             "needs": dependencies,
             "permissions": {"contents": "read", "actions": "read"},
+            "outputs": {"observer_only_error": "${{ steps.ci_collect.outputs.observer_error == 'true' && "
+                        "steps.ci_collect.outcome == 'success' && steps.ci_upload.outcome == 'success' }}"},
             "steps": [
                 {"uses": "actions/checkout@v4", "with": {"fetch-depth": 0}},
                 cpu_budget_step(),
@@ -118,10 +120,11 @@ def collector(name: str, dependencies: list[str]) -> dict:
                 *reader_setup(),
                 {"name": "Download completed execution artifacts", "uses": "actions/download-artifact@v4",
                  "continue-on-error": True, "with": {"path": "${{ runner.temp }}/manifest-inputs"}},
-                {"name": "Collect actual runtime evidence", "env": {"GH_TOKEN": "${{ github.token }}"},
+                {"name": "Collect actual runtime evidence", "id": "ci_collect",
+                 "env": {"GH_TOKEN": "${{ github.token }}"},
                  "run": 'python3 scripts/ci_runtime_evidence.py collect --run "$GITHUB_RUN_ID" '
                         '--artifacts "$RUNNER_TEMP/manifest-inputs" --output "$RUNNER_TEMP/ci-manifest.json"\n'},
-                {"name": "Upload canonical CI manifest", "if": "${{ always() }}",
+                {"name": "Upload canonical CI manifest", "id": "ci_upload", "if": "${{ always() }}",
                  "uses": "actions/upload-artifact@v4",
                  "with": {"name": "ci-manifest-" + name + "-${{ github.sha }}",
                           "path": "${{ runner.temp }}/ci-manifest.json", "if-no-files-found": "error",

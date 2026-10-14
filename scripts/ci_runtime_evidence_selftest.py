@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from urllib.error import HTTPError
 from unittest.mock import patch
 
 from ci_local_manifest import artifact_rows, collect, observations
@@ -23,6 +24,7 @@ from ci_runtime_workflows import SAME_REPOSITORY, generate
 from ci_workflow_plan import committed_plan, expand_workflow, workflow
 from ci_workflow_plan_selftest import PATH, SOURCE, fixture_commit
 from ci_fail_fast import observe, tail_failed, watch
+from ci_fail_fast import RETRY_BUDGET_SECONDS
 from ci_gate_workflows import generate as gate_generate, load_template
 import yaml
 
@@ -89,6 +91,56 @@ def skipped_collector_control(root: Path) -> None:
     for rows in ([*raw, expanded_job], [expanded_job, *raw], [*raw, raw[0]]):
         refused(lambda: api_evidence(source, rows, filename), "overlapping raw matrix coverage")
     print("Skipped matrices: collector entry, watcher and terminal graph PASS; no success fabricated")
+
+
+def observer_collector_controls(root: Path) -> None:
+    """Exhaust real collector reads under a virtual clock, then apply the generated graph."""
+    source, generated, environment = collector_fixture(root)
+    collector = generated["jobs"]["ci-manifest"]
+    assert collector["timeout-minutes"] * 60 > RETRY_BUDGET_SECONDS
+    assert collector["outputs"]["observer_only_error"] == (
+        "${{ steps.ci_collect.outputs.observer_error == 'true' && "
+        "steps.ci_collect.outcome == 'success' && steps.ci_upload.outcome == 'success' }}")
+    errors = [HTTPError("fixture", code, "unavailable", {"Retry-After": "240"}, None)
+              for code in (403, 429, 502)] + [TimeoutError("timeout"),
+              HTTPError("fixture", 429, "exhausted", {"Retry-After": "601"}, None)]
+    for index, error in enumerate(errors):
+        clock = [1000.0]
+        def sleep(seconds: float) -> None:
+            """Advance the real retry loop without waiting on a network outage."""
+            clock[0] += seconds
+        output = root / (str(index) + ".json")
+        Path(environment["GITHUB_OUTPUT"]).unlink(missing_ok=True)
+        argv = ["collector", "collect", "--run", "1", "--artifacts", str(root / "artifacts"),
+                "--output", str(output)]
+        with patch.object(runtime, "ROOT", root), patch.dict(os.environ, environment), \
+                patch.object(sys, "argv", argv), patch("ci_fail_fast.urlopen", side_effect=error) as opened, \
+                patch("ci_fail_fast.time.monotonic", side_effect=lambda: clock[0]), \
+                patch("ci_fail_fast.time.time", side_effect=lambda: clock[0]), \
+                patch("ci_fail_fast.time.sleep", side_effect=sleep):
+            assert runtime.main() == 0
+        assert all(call.args[0].method == "GET" for call in opened.call_args_list)
+        elapsed = clock[0] - 1000
+        assert elapsed <= RETRY_BUDGET_SECONDS
+        if index < 4:
+            assert elapsed > 180, "must exercise a wait beyond the old collector limit"
+        assert Path(environment["GITHUB_OUTPUT"]).read_text() == "observer_error=true\n"
+        document = json.loads(output.read_text())
+        assert not document["complete"]
+        assert document["observations"]["logs"]["observer_error"] == type(error).__name__
+        assert set(document["payload"]["results"].values()) == {"unknown"}
+        refused(lambda: compare(document, document), "observer-only equality")
+        assert observe([{"name": "Collect CI manifest", "status": "completed", "conclusion": "success"}],
+                       {"Collect CI manifest"}) == (True, None)
+        assert not tail_failed({"ci-manifest": {"result": "success", "outputs": {"observer_only_error": "true"}}})
+        assert not tail_failed({"ci-manifest": {"result": "failure", "outputs": {"observer_only_error": "true"}}})
+        print(f"Collector observer control {index}: rc 0, wait {elapsed}s, incomplete, zero writes")
+    # Real collection/evidence failures remain failures even after an observation gap.
+    for job in ("ci-manifest", "ci-fail-fast"):
+        assert tail_failed({job: {"result": "failure", "outputs": {"observer_only_error": "false"}}})
+    with patch.object(runtime, "ROOT", root), patch.dict(os.environ, environment), \
+            patch.object(sys, "argv", argv), patch.object(runtime.API, "request", return_value={"head_sha": "b" * 40}):
+        assert runtime.main() == 1
 
 
 def streams(source: dict) -> tuple[list[dict], list[dict]]:
@@ -238,6 +290,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="runtime-evidence-") as directory:
         root = Path(directory)
         skipped_collector_control(root / "skipped")
+        observer_collector_controls(root / "observer")
         subprocess.run(["git", "init", "-q", str(root)], check=True)
         path = root / PATH
         path.parent.mkdir(parents=True)
