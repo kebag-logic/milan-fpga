@@ -6,12 +6,13 @@ from pathlib import Path
 import glob
 import re
 
-from ci_command_table import Refusal, sha256
+from ci_command_table import Refusal, Runtime, sha256
+from ci_syntax import SENSITIVE
 
 
 def dynamic(value: str) -> bool:
     """Only unresolved source values are runtime residue, never host locations."""
-    return '$' in value or '<dynamic>' in value
+    return isinstance(value, Runtime)
 
 
 def invocation(audit: object, words: list[str], where: str, directory: Path) -> None:
@@ -19,7 +20,8 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
     filename = 'Makefile'
     file_selected = False
     targets = []
-    overrides = {}
+    overrides = dict(audit.make_overrides)
+    runtime_directory = any(directory.is_relative_to(p) for p in audit.runtime_directories)
     rest = iter(words[1:])
     for token in rest:
         if token in ('-C', '--directory', '-f', '--file'):
@@ -27,6 +29,7 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
             if value is None:
                 raise Refusal(f'missing make option operand at {where}')
             if token in ('-C', '--directory'):
+                runtime_directory |= dynamic(value)
                 directory = directory / value
             else:
                 if file_selected:
@@ -36,6 +39,7 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
         elif token.startswith(('--file=', '--directory=')) or token.startswith(('-C', '-f')):
             value = token.split('=', 1)[1] if '=' in token else token[2:]
             if token.startswith(('-C', '--directory=')):
+                runtime_directory |= dynamic(value)
                 directory = directory / value
             else:
                 if file_selected:
@@ -54,10 +58,12 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
             raise Refusal(f'unsupported make option {token!r} at {where}')
         elif re.match(r'^\w+=', token):
             key, value = token.split('=', 1)
-            overrides[key] = value
+            if key in SENSITIVE:
+                raise Refusal(f'uncensused Make override {key!r} at {where}')
+            overrides[key] = Runtime(value) if dynamic(token) else value
         else:
             targets.append(token)
-    if dynamic(str(directory)) or dynamic(filename) or any(dynamic(t) for t in targets):
+    if runtime_directory or dynamic(filename) or any(dynamic(t) for t in targets):
         audit.residue.add(f'{where}: runtime Makefile selection')
         return
     directory = directory.resolve()
@@ -81,8 +87,8 @@ class Makefile:
         self.path = path.resolve()
         self.relative = self.path.relative_to(audit.root).as_posix()
         self.directory = directory.resolve() if directory is not None else self.path.parent
-        self.variables = {'MAKE': 'make', 'CURDIR': str(self.directory)}
-        self.simple = {'MAKE', 'CURDIR'}
+        self.variables = {**audit.exported_env, 'MAKE': 'make', 'CURDIR': str(self.directory)}
+        self.simple = set(self.variables)
         self.overrides = overrides
         self.variables.update(overrides)
         self.simple.update(overrides)
@@ -130,6 +136,8 @@ class Makefile:
                 if match:
                     output.append(self.function(match[1], match[2], seen))
                 elif re.fullmatch(r'[\w.@<>^*?+%-]+', expression):
+                    if re.fullmatch(r'[@<>^*?+%][DF]', expression):
+                        raise Refusal(f'unsupported Make automatic variable {expression!r} at {self.where}')
                     if expression in ('?', '+', '%'):
                         raise Refusal(f'unsupported Make automatic variable {expression!r} at {self.where}')
                     output.append(self.variable(expression, seen))
@@ -147,7 +155,8 @@ class Makefile:
             else:
                 output.append(text[index])
                 index += 1
-        return ''.join(output)
+        result = ''.join(output)
+        return Runtime(result) if any(dynamic(item) for item in output) else result
 
     @staticmethod
     def arguments(text: str) -> list[str]:
@@ -175,6 +184,8 @@ class Makefile:
 
     def function(self, name: str, text: str, seen: frozenset[str]) -> str:
         """Implement only the functions present in the reached-source census."""
+        if name not in self.audit.census['make']['functions']:
+            raise Refusal(f'unsupported Make function {name!r} at {self.where}')
         raw = self.arguments(text)
         if name in ('call', 'foreach'):
             if name == 'call':
@@ -206,7 +217,7 @@ class Makefile:
             if re.match(r'\s*(?:\$|<dynamic>)', command):
                 raise Refusal(f'computed Make shell command at {self.where}')
             self.audit.shell(command, self.where, self.directory)
-            return '${RUNTIME}'
+            return Runtime('${RUNTIME}')
         if name == 'error':
             return ''  # Error paths execute no command; conditions are audited both ways.
         if name == 'strip':
@@ -221,7 +232,7 @@ class Makefile:
                             for p in sorted(glob.glob(str(self.directory / pattern))))
         if name in ('if', 'and'):
             if any(dynamic(a) for a in args):
-                return '${RUNTIME}'
+                return Runtime('${RUNTIME}')
             if name == 'if':
                 return args[1] if args[0].strip() else (args[2] if len(args) > 2 else '')
             return args[-1] if all(a.strip() for a in args) else ''
@@ -236,6 +247,27 @@ class Makefile:
         if name == 'addprefix' and len(args) == 2:
             return ' '.join(args[0] + item for item in args[1].split())
         raise Refusal(f'unsupported Make function {name!r} at {self.where}')
+
+    def assignment(self, assignment: re.Match) -> None:
+        """Preserve environment/default/override precedence for supported assignments."""
+        name, operator, value = assignment.groups()
+        if name in SENSITIVE:
+            raise Refusal(f'uncensused Make assignment {name!r} at {self.where}')
+        value = re.split(r'(?<!\\)#', value, 1)[0].rstrip()
+        if name == '.DEFAULT_GOAL':
+            if operator != ':=' or not re.fullmatch(r'[\w./-]+', value):
+                raise Refusal(f'computed .DEFAULT_GOAL at {self.where}')
+            self.default = value
+        elif name.startswith('.'):
+            raise Refusal(f'unsupported Make special variable {name!r} at {self.where}')
+        if name in self.overrides or (operator == '?=' and name in self.variables):
+            return
+        if operator == ':=' or (operator == '+=' and name in self.simple):
+            value = self.expand(value)
+            self.simple.add(name)
+        elif operator != '+=':
+            self.simple.discard(name)
+        self.variables[name] = self.variables.get(name, '') + ' ' + value if operator == '+=' else value
 
     def parse(self) -> None:
         """Read declarations before selecting targets; refuse unsupported directives."""
@@ -265,25 +297,12 @@ class Makefile:
             current = []
             assignment = re.fullmatch(r'([\w.]+)\s*(:=|\?=|\+=|=)\s*(.*)', line)
             if assignment:
-                name, operator, value = assignment.groups()
-                value = re.split(r'(?<!\\)#', value, 1)[0].rstrip()
-                if name == '.DEFAULT_GOAL':
-                    if operator != ':=' or not re.fullmatch(r'[\w./-]+', value):
-                        raise Refusal(f'computed .DEFAULT_GOAL at {self.where}')
-                    self.default = value
-                elif name.startswith('.'):
-                    raise Refusal(f'unsupported Make special variable {name!r} at {self.where}')
-                if name in self.overrides or (operator == '?=' and name in self.variables):
-                    continue
-                if operator == ':=' or (operator == '+=' and name in self.simple):
-                    value = self.expand(value)
-                    self.simple.add(name)
-                elif operator != '+=':
-                    self.simple.discard(name)
-                self.variables[name] = self.variables.get(name, '') + ' ' + value if operator == '+=' else value
+                self.assignment(assignment)
                 continue
             if stripped.startswith('define '):
                 definition = stripped[7:].strip()
+                if definition in SENSITIVE:
+                    raise Refusal(f'uncensused Make definition {definition!r} at {self.where}')
                 if not re.fullmatch(r'\w+', definition):
                     raise Refusal(f'unsupported Make definition at {self.where}')
                 body = []
@@ -308,14 +327,16 @@ class Makefile:
                     raise Refusal(f'unsupported Make rule at {self.where}')
                 specific = re.fullmatch(r'\s*(\w+)\s*=\s*(.*)', dependencies)
                 if specific:
-                    if dynamic(specific[2]):
+                    if specific[1] in SENSITIVE:
+                        raise Refusal(f'uncensused Make target override {specific[1]!r} at {self.where}')
+                    if '$' in specific[2]:
                         raise Refusal(f'computed target-specific Make variable at {self.where}')
                     for name in self.expand(names).split():
                         self.target_variables.setdefault(name, {})[specific[1]] = specific[2]
                     continue
                 dependencies, separator, inline = dependencies.partition(';')
                 names = self.expand(names)
-                if dynamic(names):
+                if dynamic(names) or '$' in names:
                     raise Refusal(f'unresolved Make target at {self.where}')
                 current = names.split()
                 for name in current:
@@ -386,7 +407,10 @@ class Makefile:
         if key in self.audit.seen:
             return
         self.audit.seen.add(key)
+        previous = self.audit.make_overrides
+        self.audit.make_overrides = self.overrides
         self.parse()
         selected = [t for t in self.rules if t != '.PHONY' and '%' not in t] if targets is None else targets
         for target in selected or [self.default or self.first or '']:
             self.target(target)
+        self.audit.make_overrides = previous

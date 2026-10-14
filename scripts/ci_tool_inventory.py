@@ -20,7 +20,8 @@ import sys
 
 import yaml
 
-from ci_command_table import Audit, Refusal
+from ci_command_table import Audit, Refusal, Runtime
+from ci_syntax import SENSITIVE
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -193,8 +194,16 @@ def derive(root: Path) -> dict[str, object]:
             for index, step in enumerate(body.get("steps", [])):
                 run = step.get("run", "")
                 env = {**doc.get("env", {}), **body.get("env", {}), **step.get("env", {})}
+                shell = step.get('shell', body.get('defaults', {}).get('run', {}).get(
+                    'shell', doc.get('defaults', {}).get('run', {}).get('shell')))
+                if shell is not None:
+                    raise Refusal(f'uncensused workflow shell {shell!r} at {relative}')
+                if set(env) & SENSITIVE:
+                    raise Refusal(f'uncensused workflow environment {sorted(set(env) & SENSITIVE)} at {relative}')
                 audit.requests = []
-                audit.env = dict(env)
+                audit.env = {k: Runtime(v) if isinstance(v, str) and '${{' in v else str(v)
+                             for k, v in env.items()}
+                audit.exported_env = dict(audit.env)
                 working = step.get('working-directory', body.get('defaults', {}).get('run', {}).get(
                     'working-directory', doc.get('defaults', {}).get('run', {}).get('working-directory', '.')))
                 if not isinstance(working, str) or '$' in working:
@@ -222,6 +231,8 @@ def derive(root: Path) -> dict[str, object]:
                     key = json.dumps(row, sort_keys=True)
                     records.setdefault(key, {**row, "installed_by": []})["installed_by"].append(where)
     audit.requests = []
+    audit.env = {}
+    audit.exported_env = {}
     for directory in ("tb/verilator",):
         for path in sorted((root / directory).rglob("*")):
             if path.is_file() and (path.name == "Makefile" or path.suffix == ".mk"):

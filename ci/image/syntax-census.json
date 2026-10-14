@@ -1,0 +1,976 @@
+{
+  "make": {
+    "assignment_operators": [
+      "=",
+      ":=",
+      "?=",
+      "+="
+    ],
+    "automatic_variables": [
+      "@",
+      "<",
+      "^",
+      "*"
+    ],
+    "directives": [
+      "define",
+      "endef",
+      "ifeq",
+      "ifneq",
+      "else",
+      "endif"
+    ],
+    "functions": [
+      "call",
+      "foreach",
+      "shell",
+      "error",
+      "strip",
+      "firstword",
+      "abspath",
+      "wildcard",
+      "if",
+      "and",
+      "subst",
+      "patsubst",
+      "filter",
+      "filter-out",
+      "addprefix"
+    ],
+    "special_targets": [
+      ".PHONY"
+    ],
+    "special_variables": [
+      ".DEFAULT_GOAL",
+      "CURDIR",
+      "MAKE"
+    ]
+  },
+  "python_builtins": [
+    "AssertionError",
+    "AttributeError",
+    "BaseException",
+    "BlockingIOError",
+    "BrokenPipeError",
+    "ChildProcessError",
+    "Exception",
+    "FileExistsError",
+    "FileNotFoundError",
+    "ImportError",
+    "IndexError",
+    "KeyError",
+    "KeyboardInterrupt",
+    "LookupError",
+    "OSError",
+    "PermissionError",
+    "ProcessLookupError",
+    "RecursionError",
+    "RuntimeError",
+    "StopIteration",
+    "SyntaxError",
+    "SystemExit",
+    "TimeoutError",
+    "TypeError",
+    "UnicodeDecodeError",
+    "UnicodeEncodeError",
+    "UnicodeError",
+    "ValueError",
+    "ZeroDivisionError",
+    "__doc__",
+    "__name__",
+    "abs",
+    "all",
+    "any",
+    "ascii",
+    "bool",
+    "bytearray",
+    "bytes",
+    "callable",
+    "chr",
+    "classmethod",
+    "dict",
+    "dir",
+    "divmod",
+    "enumerate",
+    "eval",
+    "exit",
+    "filter",
+    "float",
+    "format",
+    "frozenset",
+    "getattr",
+    "globals",
+    "hasattr",
+    "hash",
+    "hex",
+    "id",
+    "int",
+    "isinstance",
+    "iter",
+    "len",
+    "list",
+    "map",
+    "max",
+    "min",
+    "next",
+    "object",
+    "open",
+    "ord",
+    "print",
+    "property",
+    "range",
+    "repr",
+    "reversed",
+    "round",
+    "set",
+    "setattr",
+    "sorted",
+    "staticmethod",
+    "str",
+    "sum",
+    "super",
+    "tuple",
+    "type",
+    "vars",
+    "zip"
+  ],
+  "python_nodes": [
+    "Add",
+    "And",
+    "AnnAssign",
+    "Assert",
+    "Assign",
+    "Attribute",
+    "AugAssign",
+    "BinOp",
+    "BitAnd",
+    "BitOr",
+    "BitXor",
+    "BoolOp",
+    "Break",
+    "Call",
+    "ClassDef",
+    "Compare",
+    "Constant",
+    "Continue",
+    "Del",
+    "Delete",
+    "Dict",
+    "DictComp",
+    "Div",
+    "Eq",
+    "ExceptHandler",
+    "Expr",
+    "FloorDiv",
+    "For",
+    "FormattedValue",
+    "FunctionDef",
+    "GeneratorExp",
+    "Gt",
+    "GtE",
+    "If",
+    "IfExp",
+    "Import",
+    "ImportFrom",
+    "In",
+    "Invert",
+    "Is",
+    "IsNot",
+    "JoinedStr",
+    "LShift",
+    "Lambda",
+    "List",
+    "ListComp",
+    "Load",
+    "Lt",
+    "LtE",
+    "Match",
+    "MatchAs",
+    "MatchClass",
+    "MatchOr",
+    "MatchSequence",
+    "MatchValue",
+    "Mod",
+    "Module",
+    "Mult",
+    "Name",
+    "NamedExpr",
+    "Nonlocal",
+    "Not",
+    "NotEq",
+    "NotIn",
+    "Or",
+    "Pass",
+    "Pow",
+    "RShift",
+    "Raise",
+    "Return",
+    "Set",
+    "SetComp",
+    "Slice",
+    "Starred",
+    "Store",
+    "Sub",
+    "Subscript",
+    "Try",
+    "Tuple",
+    "USub",
+    "UnaryOp",
+    "While",
+    "With",
+    "Yield",
+    "YieldFrom",
+    "alias",
+    "arg",
+    "arguments",
+    "comprehension",
+    "keyword",
+    "match_case",
+    "withitem"
+  ],
+  "python_special_names": [
+    "__all__",
+    "__doc__",
+    "__file__",
+    "__name__",
+    "__slots__"
+  ],
+  "shell_builtins": {
+    "data": [
+      "echo",
+      "printf",
+      "test",
+      "["
+    ],
+    "declaration_options": [
+      "-a",
+      "-A",
+      "-gA"
+    ],
+    "declarations": [
+      "local",
+      "declare",
+      "export",
+      "readonly"
+    ],
+    "echo_options": [
+      "-n",
+      "-e",
+      "-E"
+    ],
+    "printf_options": [
+      "--"
+    ],
+    "set": [
+      [
+        "-euo",
+        "pipefail"
+      ],
+      [
+        "-u"
+      ],
+      [
+        "-e"
+      ]
+    ],
+    "shift": [
+      "zero or one nonnegative integer operand"
+    ],
+    "source": [
+      "one literal in-tree path"
+    ],
+    "unset": [
+      "ordinary variable names"
+    ]
+  },
+  "shell_exact_uses": {
+    "022fb69ec9bc5aa0cbfcff17a22b055c379cb8ba738985585b02bf13d53f73e3": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/run.sh"
+      ]
+    },
+    "235a50e0978875815f116ee03f8c1184386e6a356bc5832e630de078b37c0d13": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/check_tap_purity.sh"
+      ]
+    },
+    "249ba14d5e960dd38ab0b16a987b35ad146f5461ae77d09954eb691ad323a805": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/elaborate.yml"
+      ]
+    },
+    "2c897fb3f0839ff889f882150123fab536b4acdbc7a1fc5b1834ded7cbd10fc6": {
+      "kinds": [
+        "read"
+      ],
+      "sources": [
+        "scripts/check_tied_inputs.sh"
+      ]
+    },
+    "2ee0b47c357e51e33341a6d87ea40d601b7144b1d37f9cdc4301f3f103529837": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "syn/yosys/run.sh"
+      ]
+    },
+    "3e02887d9fc1455b72b5c191d2274ec3f3ab24d3b2aa1afb4b6b252d5a111d65": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "scripts/check_tied_inputs.sh"
+      ]
+    },
+    "44c34b3c904b117b9172214144289bb6c8d7b3831afd087010e7f79b0467f08d": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/rtl.yml"
+      ]
+    },
+    "45d0accd2cf9e3cc7a9401ddc4e032652319d4b70a6a7919009b8f3872a9e7e7": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "tb/verilator/maap/integration.mk",
+        "tb/verilator/milan_dp_mclk/Makefile",
+        "tb/verilator/pp_shadow/Makefile"
+      ]
+    },
+    "46fd2c03fb9b1263c4b94d70663ff699f1bb2dc01cfe3010ac4cf41f0c586661": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "tb/verilator/milan_dp_render/Makefile"
+      ]
+    },
+    "5a5c7cb0d098bbbabde1f1e4ef4865d4af6bd417fd02921c0060be8172483844": {
+      "kinds": [
+        "xargs"
+      ],
+      "sources": [
+        "tb/verilator/milan_dp_render/Makefile"
+      ]
+    },
+    "61b4089e0e40c8f0b6beddd07b220e3a183eea4dfa84612c4e90ecadfea97001": {
+      "kinds": [
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/check_tap_purity.sh"
+      ]
+    },
+    "62464eada698ca2a316f02b24c4def05222913bd0fc5dcc9250850ca341c36e8": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/run.sh"
+      ]
+    },
+    "a4e5c36c8af7221e1b0c3c2c1782b7328d3e5a3be5855b92e20596a7e5f4dd4c": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "tb/verilator/milan_dp_mclk/Makefile",
+        "tb/verilator/milan_dp_render/Makefile"
+      ]
+    },
+    "a6a9da913fb769927f47b9418a754c0399161a5859c4142f52f4f017d6ace412": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/run.sh"
+      ]
+    },
+    "a8216172b6b4170382968c5128822a7b1c369e3399cbb8e0e37c4b40546a20db": {
+      "kinds": [
+        "conditional-function"
+      ],
+      "sources": [
+        "scripts/run_all_suites.sh"
+      ]
+    },
+    "b43fc8b8bb16c1a64f50812f0ef766d750a4cde9420e7be4fc2e5fed294eb3b6": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "tb/verilator/maap/integration.mk"
+      ]
+    },
+    "b727ed6fee6eb716f9243f9e576d8cc4bb274b05faf2b31246b02629e7291d22": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/check_tap_purity.sh"
+      ]
+    },
+    "b841eb65ae709f91a2a118c3f7b2a3d48d1268817b74aae25338ca4289284d3e": {
+      "kinds": [
+        "conditional-function"
+      ],
+      "sources": [
+        "scripts/run_all_suites.sh"
+      ]
+    },
+    "be4b6b7467774a4ca7b01cb6a2dd99c14a6e1d9bf44f6db4e7fe9972f3fe6000": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        ".github/workflows/rtl-fast.yml"
+      ]
+    },
+    "c0ab6f9fe13f444ca86663e2e1ea88829d95589fb2a14fc1065576d8cfd1dcf9": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/malloc.sh"
+      ]
+    },
+    "ccbed740ad315a49421e1271c72153b7462b3b2b74dda9bc2b9878b82f2744cb": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/elaborate.yml",
+        ".github/workflows/rtl-fast.yml",
+        ".github/workflows/rtl.yml"
+      ]
+    },
+    "f536444edb4a76a4924b5e6de63316fd818d6e0d1fada2353051ab671927347f": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "scripts/check_tied_inputs.sh"
+      ]
+    }
+  },
+  "shell_fields": {
+    "Args": [
+      "Array",
+      "End",
+      "Naked",
+      "Name",
+      "Parts",
+      "Pos",
+      "Value"
+    ],
+    "ArithmExp": [
+      "End",
+      "Left",
+      "Pos",
+      "Right",
+      "Type",
+      "X"
+    ],
+    "Array": [
+      "Elems",
+      "End",
+      "Lparen",
+      "Pos",
+      "Rparen"
+    ],
+    "Assigns": [
+      "Append",
+      "Array",
+      "End",
+      "Index",
+      "Name",
+      "Pos",
+      "Value"
+    ],
+    "BinaryArithm": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Type",
+      "X",
+      "Y"
+    ],
+    "BinaryCmd": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Type",
+      "X",
+      "Y"
+    ],
+    "Block": [
+      "End",
+      "Lbrace",
+      "Pos",
+      "Rbrace",
+      "Stmts",
+      "Type"
+    ],
+    "Body": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "CStyleLoop": [
+      "Cond",
+      "End",
+      "Init",
+      "Lparen",
+      "Pos",
+      "Post",
+      "Rparen",
+      "Type"
+    ],
+    "CallExpr": [
+      "Args",
+      "Assigns",
+      "End",
+      "Pos",
+      "Type"
+    ],
+    "CaseClause": [
+      "Case",
+      "End",
+      "Esac",
+      "In",
+      "Items",
+      "Pos",
+      "Type",
+      "Word"
+    ],
+    "CmdSubst": [
+      "End",
+      "Left",
+      "Pos",
+      "Right",
+      "Stmts",
+      "Type"
+    ],
+    "Comments": [
+      "End",
+      "Hash",
+      "Pos",
+      "Text"
+    ],
+    "Cond": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "DblQuoted": [
+      "End",
+      "Left",
+      "Parts",
+      "Pos",
+      "Right",
+      "Type"
+    ],
+    "DeclClause": [
+      "Args",
+      "End",
+      "Pos",
+      "Type",
+      "Variant"
+    ],
+    "Do": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "Elems": [
+      "Comments",
+      "End",
+      "Pos",
+      "Value"
+    ],
+    "Else": [
+      "Cond",
+      "Else",
+      "End",
+      "FiPos",
+      "Pos",
+      "Position",
+      "Then",
+      "ThenPos"
+    ],
+    "Exp": [
+      "Op",
+      "Word"
+    ],
+    "File": [
+      "End",
+      "Pos",
+      "Stmts",
+      "Type"
+    ],
+    "ForClause": [
+      "Do",
+      "DoPos",
+      "DonePos",
+      "End",
+      "ForPos",
+      "Loop",
+      "Pos",
+      "Type"
+    ],
+    "FuncDecl": [
+      "Body",
+      "End",
+      "Name",
+      "Parens",
+      "Pos",
+      "Position",
+      "Type"
+    ],
+    "Hdoc": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "IfClause": [
+      "Cond",
+      "Else",
+      "End",
+      "FiPos",
+      "Pos",
+      "Position",
+      "Then",
+      "ThenPos",
+      "Type"
+    ],
+    "Items": [
+      "Comments",
+      "End",
+      "Op",
+      "OpPos",
+      "Parts",
+      "Patterns",
+      "Pos",
+      "Stmts"
+    ],
+    "Lit": [
+      "End",
+      "Pos",
+      "Type",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "N": [
+      "End",
+      "Pos",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "Name": [
+      "End",
+      "Pos",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "Orig": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "Param": [
+      "End",
+      "Pos",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "ParamExp": [
+      "Dollar",
+      "End",
+      "Exp",
+      "Index",
+      "Length",
+      "Param",
+      "Pos",
+      "Rbrace",
+      "Repl",
+      "Short",
+      "Type"
+    ],
+    "Patterns": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "ProcSubst": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Rparen",
+      "Stmts",
+      "Type"
+    ],
+    "Redirs": [
+      "End",
+      "Hdoc",
+      "N",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Word"
+    ],
+    "Repl": [
+      "All",
+      "Orig",
+      "With"
+    ],
+    "SglQuoted": [
+      "End",
+      "Left",
+      "Pos",
+      "Right",
+      "Type",
+      "Value"
+    ],
+    "Stmts": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "Subshell": [
+      "End",
+      "Lparen",
+      "Pos",
+      "Rparen",
+      "Stmts",
+      "Type"
+    ],
+    "Then": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "UnaryArithm": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Post",
+      "Type",
+      "X"
+    ],
+    "Value": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "Variant": [
+      "End",
+      "Pos",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "WhileClause": [
+      "Cond",
+      "Do",
+      "DoPos",
+      "DonePos",
+      "End",
+      "Pos",
+      "Type",
+      "WhilePos"
+    ],
+    "With": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "Word": [
+      "End",
+      "Parts",
+      "Pos",
+      "Type"
+    ],
+    "WordIter": [
+      "End",
+      "InPos",
+      "Items",
+      "Name",
+      "Pos",
+      "Type"
+    ],
+    "X": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "Y": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ]
+  },
+  "shell_flags": {
+    "Args.Naked": [
+      true
+    ],
+    "Assigns.Append": [
+      true
+    ],
+    "Cond.Negated": [
+      true
+    ],
+    "FuncDecl.Parens": [
+      true
+    ],
+    "ParamExp.Length": [
+      true
+    ],
+    "ParamExp.Short": [
+      true
+    ],
+    "Repl.All": [
+      true
+    ],
+    "UnaryArithm.Post": [
+      true
+    ],
+    "Y.Negated": [
+      true
+    ]
+  },
+  "shell_operators": {
+    "BinaryArithm.Op": [
+      38,
+      43,
+      56,
+      68,
+      70,
+      74
+    ],
+    "BinaryCmd.Op": [
+      10,
+      11,
+      12
+    ],
+    "Exp.Op": [
+      68,
+      70,
+      71,
+      77,
+      78,
+      79
+    ],
+    "Items.Op": [
+      30
+    ],
+    "ProcSubst.Op": [
+      66
+    ],
+    "Redirs.Op": [
+      54,
+      55,
+      56,
+      59,
+      61,
+      63
+    ],
+    "UnaryArithm.Op": [
+      36,
+      37
+    ]
+  },
+  "shell_special": [
+    "#",
+    "$",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "?",
+    "@"
+  ],
+  "shell_test_operators": [
+    "--owned-sweep",
+    "--reverse",
+    "-d",
+    "-e",
+    "-eq",
+    "-f",
+    "-ge",
+    "-gt",
+    "-n",
+    "-ne",
+    "-ot",
+    "-r",
+    "-s",
+    "-x",
+    "-z"
+  ]
+}

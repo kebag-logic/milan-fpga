@@ -59,10 +59,10 @@ Every downloaded JAR and metadata file has its checksum.
 
 ## Reached construct census
 
-Round four starts from `e6b86814` and its unchanged workflows.
+Round five retains the `e6b86814` tool requests.
 The census follows scripts, local imports and suite recipes.
 The initial census encountered 69 Makefiles and 214 import names.
-Expanded resolution binds 328 inputs, including previously hidden scripts.
+The generated inventory records every followed input digest.
 All 45 tool records retain their original pins and provenance.
 The command table records individual permitted argument forms.
 This table defines the construct boundary, including refused variants.
@@ -81,8 +81,8 @@ Resolution never executes workflow commands or Make shell expressions.
 | Shell directory changes and subshells | `scripts/run_litex_sims.sh` | Preserve child scope; unresolved directories require content-pinned review. |
 | Shell blocks and conditionals | `.github/workflows/docs.yml` | Inspect every branch; refuse ambiguous following directories. |
 | Shell loops and cases | `sw/litex/patches/apply.sh` | Inspect every body; retain runtime iteration residue. |
-| Shell declarations and functions | `scripts/run_all_suites.sh` | Preserve local/global scope; refuse undeclared foreign functions. |
-| Shell sourced files | `syn/yosys/run.sh` | Follow resolved files; imported functions require content-pinned declarations. |
+| Shell declarations and functions | `scripts/run_all_suites.sh` | Preserve local/global scope and every censused function alternative. |
+| Shell sourced files | `syn/yosys/run.sh` | Follow resolved files in caller scope; refuse computed paths. |
 | Inline interpreter programs | `.github/workflows/elaborate.yml` | Require interpreter and exact program digest; refuse changed bytes. |
 | Command wrappers | `.github/workflows/rtl.yml` | Parse supported options and classify children; refuse unknown options. |
 | Make options and variable overrides | `tb/verilator/maap/Makefile` | Keep file selection separate from recipe directory; refuse unsupported options. |
@@ -91,17 +91,41 @@ Resolution never executes workflow commands or Make shell expressions.
 | Make single-stem pattern rules | `tb/verilator/nvm_backend/Makefile` | Substitute the unique stem; refuse ambiguous patterns. |
 | Make variable assignment and expansion | `tb/verilator/milan_dp/Makefile` | Resolve recursive/simple/default/append assignments; refuse unknown functions. |
 | Make multiline definitions and calls | `tb/verilator/milan_dp/Makefile` | Expand declared macros and literal call arguments; refuse undefined macros. |
-| Make automatic variables | `tb/verilator/nvm_backend/Makefile` | Bind target, prerequisite and stem; refuse unsupported automatic forms. |
+| Make automatic variables | `tb/verilator/nvm_backend/Makefile` | Bind target, prerequisite and stem; refuse directory/file modifiers. |
 | Make string and list functions | `tb/verilator/nvm_backend/Makefile` | Resolve `foreach`, `call`, `subst`, `patsubst`, filters and prefixes. |
 | Make path and selection functions | `tb/verilator/milan_dp/Makefile` | Resolve `abspath`, `wildcard`, `firstword`, `strip`, `if`, `and`. |
 | Make literal shell expressions | `tb/verilator/milan_dp/Makefile` | Classify expanded literal commands; refuse computed executables. |
 | Make conditions and errors | `tb/verilator/capture_coherence/Makefile` | Inspect error-only guards; refuse conditional assignments and other directives. |
 | Make target-specific variables | `tb/verilator/milan_dp/Makefile` | Inherit literal values into prerequisites; refuse computed values. |
 | Make order-only prerequisites | `tb/verilator/mbx/Makefile` | Traverse both classes; exclude order-only entries from automatic variables. |
-| Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Follow resolved arguments; refuse unresolved literal selection. |
+| Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Inherit command-line overrides; refuse interpreter-selection overrides. |
 | Python imports and local modules | `scripts/measure_test_evidence_readers.py` | Follow local files; require declarations for execution/network capabilities. |
 | Python positional and keyword calls | `scripts/check_rtl_source_lists.py` | Decode literal argv and keywords; refuse undeclared executors. |
 | Python aliases and dynamic calls | `scripts/act_ci.py` | Require content-pinned review; locate undecodable commands as residue. |
+
+[`syntax-census.json`](../../ci/image/syntax-census.json) enumerates accepted syntax nodes.
+Its fields include operators, special variables and Python builtins.
+Unknown nodes and fields refuse before command classification.
+The command table separately bounds executable options and subcommands.
+Typed HDL operands accept data paths, never command options.
+Source-list contents remain owned by their reached recipes.
+
+Environment-changing forms require exact source-bound syntax declarations.
+These cover existing path additions and environment-file writes.
+The same boundary limits input-reading builtins and `xargs`.
+Literal inline text requires its complete program digest.
+Literal marker strings never authorize runtime execution.
+
+Conditional function definitions normally refuse.
+Two cleanup definitions are censused in `scripts/run_all_suites.sh`.
+Their alternatives survive the conditional merge and both receive inspection.
+New conditional definitions require an explicit census decision.
+Background statements, alternate workflow shells and interpreter overrides refuse.
+Make defaults respect exported environment values and command-line overrides.
+Unexported shell assignments remain outside Make's environment.
+Local Python packages take precedence over external-import allowances.
+Their initializers and selected members receive independent capability checks.
+Foreign-function imports require reviewed content declarations.
 
 The tree also pins two additional interpreter forms.
 The synthesis driver reads statistics through a Python heredoc.
@@ -119,8 +143,8 @@ Runtime argument slots require expression provenance.
 Literal dollar signs and marker text never acquire that provenance.
 Double-quoted backslashes follow shell quoting rules.
 The reached `awk` programs are exact literal argument entries.
-The sourced allocator fragment exports only its pinned function definitions.
-Unpinned foreign functions remain refused.
+Sourced fragments preserve caller variables, directories and function definitions.
+Unfollowed foreign functions remain refused.
 
 Each supported category has accepted and refused controls.
 [`ci_inventory_patterns_selftest.py`](../../scripts/ci_inventory_patterns_selftest.py)

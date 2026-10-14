@@ -22,7 +22,7 @@ class Fixture:
         self.workflow = root / '.github/workflows/fixture.yml'
         self.workflow.parent.mkdir(parents=True)
         (root / 'ci/image').mkdir(parents=True)
-        for name in ('command-table.json', 'sources.lock.json'):
+        for name in ('command-table.json', 'sources.lock.json', 'syntax-census.json'):
             shutil.copyfile(inventory.ROOT / 'ci/image' / name, root / 'ci/image' / name)
         self.table = json.loads((root / 'ci/image/command-table.json').read_text())
 

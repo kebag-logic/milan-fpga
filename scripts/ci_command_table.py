@@ -32,6 +32,13 @@ class Runtime(str):
         return Runtime(super().replace(old, new, count))
 
 
+def normalize(value: str, root: Path) -> str:
+    """Replace leading path components, including compiler include operands."""
+    pattern = r'(^|(?<=\s)|(?<=-I)|(?<=\+incdir\+))' + re.escape(str(root)) + r'(?=/|$)'
+    result = re.sub(pattern, lambda match: match[1] + '${CHECKOUT}', value)
+    return Runtime(result) if isinstance(value, Runtime) else result
+
+
 def sha256(path: Path) -> str:
     """Bind a declaration to exact source bytes."""
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -81,6 +88,12 @@ class Audit:
         self.inputs = inputs
         self.table = json.loads((root / TABLE).read_text())
         self.inputs[str(TABLE)] = sha256(root / TABLE)
+        census = root / 'ci/image/syntax-census.json'
+        self.census = json.loads(census.read_text())
+        self.inputs['ci/image/syntax-census.json'] = sha256(census)
+        self.exported_env = {}
+        self.make_overrides = {}
+        self.runtime_directories = set()
         self.seen: set[str] = set()
         self.external_builds: set[Path] = set()
         self.installed_scripts: dict[str, str] = {}
@@ -102,12 +115,12 @@ class Audit:
         if name in self.installed_scripts:
             self.script(self.installed_scripts[name], where, self.root)
             return
-        if '$' in name or '<dynamic>' in name:
+        if isinstance(name, Runtime):
             if not self.table['scripts'].get(where.split(':')[0]):
                 raise Refusal(f'unclassified runtime command name {name!r} at {where}')
             self.residue.add(f'{where}: runtime script path')
             return
-        if directory and '$' in str(directory):
+        if directory and any(directory.is_relative_to(p) for p in self.runtime_directories):
             self.residue.add(f'{where}: runtime working directory')
             return
         path = (directory or self.root) / name
@@ -142,6 +155,8 @@ class Audit:
     def python(self, source: str, where: str, directory: Path) -> None:
         """Detect capabilities independently of decoding, then classify literal calls."""
         tree = ast.parse(source)
+        from ci_syntax import python_nodes
+        python_nodes(self, tree, where)
         declaration = self.table['scripts'].get(where)
         aliases = {}
         assignments = {}
@@ -153,7 +168,10 @@ class Audit:
                     aliases[bound] = alias.name if alias.asname else bound
                     imports.append(alias.name)
             elif isinstance(node, ast.ImportFrom):
-                imports.append(node.module or '')
+                imports.append('.' * node.level + (node.module or ''))
+                for alias in node.names:
+                    if alias.name != '*':
+                        imports.append('.' * node.level + (node.module + '.' if node.module else '') + alias.name)
                 for alias in node.names:
                     aliases[alias.asname or alias.name] = (node.module or '') + '.' + alias.name
             elif isinstance(node, ast.Assign):
@@ -169,16 +187,12 @@ class Audit:
             return ''
         capability = False
         for name in imports:
-            stem = name.replace('.', '/') + '.py'
-            local = False
-            for base in (self.root / where).parent, self.root, self.root / 'scripts':
-                if (base / stem).is_file():
-                    self.script(stem, where, base, directory)
-                    local = True
-                    break
-            if not local and name not in self.table.get('python_imports', []):
+            local = self.python_import(name, where, directory)
+            if not local and not any(name == allowed or name.startswith(allowed + '.')
+                                     for allowed in self.table.get('python_imports', [])):
                 capability = True
-            if name.split('.')[0] in NETWORK | {'subprocess', 'pty', 'asyncio', 'multiprocessing'}:
+            if name.split('.')[0] in NETWORK | {
+                    'subprocess', 'pty', 'asyncio', 'multiprocessing', 'ctypes', 'cffi'}:
                 capability = True
         for name, expressions in assignments.items():
             if len(expressions) == 1 and isinstance(expressions[0], (ast.Name, ast.Attribute)):
@@ -187,7 +201,8 @@ class Audit:
         for node in ast.walk(tree):
             symbol = qualified(node) if isinstance(node, (ast.Name, ast.Attribute)) else ''
             if symbol.startswith(('os.exec', 'os.spawn', 'os.posix_spawn', 'subprocess.', 'pty.',
-                                  'asyncio.create_subprocess')) or symbol in ('os.system', 'os.popen'):
+                                  'asyncio.create_subprocess', 'ctypes.', 'cffi.')) or \
+                    symbol in ('os.system', 'os.popen'):
                 capability = True
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
@@ -222,6 +237,8 @@ class Audit:
             if cwd is not None:
                 working = directory / (cwd.value if isinstance(cwd, ast.Constant) and
                                        isinstance(cwd.value, str) else '${RUNTIME}')
+                if not isinstance(cwd, ast.Constant) or not isinstance(cwd.value, str):
+                    self.runtime_directories.add(working)
             executable = keywords.get('executable')
             calls.append((node.lineno, argument, working, executable))
         if capability:
@@ -232,6 +249,36 @@ class Audit:
             if declaration['class'] not in ('installer', 'reviewed non-installing') or not declaration.get('reason'):
                 raise Refusal(f'invalid script classification {where!r}')
         self.python_calls(calls, assignments, where)
+
+    def python_import(self, name: str, where: str, directory: Path) -> bool:
+        """Follow package initializers and members before considering external imports."""
+        level = len(name) - len(name.lstrip('.'))
+        origin = (self.root / where).parent
+        bases = [origin.parents[level - 2] if level > 1 else origin] if level else [
+            origin, self.root, self.root / 'scripts']
+        parts = name.lstrip('.').split('.')
+        for base in bases:
+            local = False
+            cursor = base
+            for part in parts:
+                cursor = cursor / part
+                module = cursor.with_suffix('.py')
+                initializer = cursor / '__init__.py'
+                if initializer.is_file():
+                    self.script(str(initializer), where, base, directory)
+                    local = True
+                elif module.is_file():
+                    self.script(str(module), where, base, directory)
+                    return True
+                elif cursor.is_dir():
+                    raise Refusal(f'unsupported Python namespace package {name!r} at {where}')
+                else:
+                    break
+            if local:
+                return True
+        if level:
+            raise Refusal(f'unresolved relative Python import {name!r} at {where}')
+        return False
 
     def python_calls(self, calls: list[tuple], assignments: dict, where: str) -> None:
         """Classify decoded command and executable-override arguments."""
@@ -289,10 +336,10 @@ class Audit:
             return
         key = name if name == "." else Path(name).name
         row = self.table['commands'].get(key)
-        if row is None or name.replace(str(self.root), '${CHECKOUT}') not in row.get('executables', [key]):
+        if row is None or normalize(name, self.root) not in row.get('executables', [key]):
             raise Refusal(f'unclassified command {name!r} at {where}')
         patterns = row.get('patterns', row.get('prefixes', []))
-        normalized = [w.replace(str(self.root), '${CHECKOUT}') for w in words[1:]]
+        normalized = [normalize(w, self.root) for w in words[1:]]
         if not row.get('handler') and not any(self.matches(normalized, pattern) for pattern in patterns):
             raise Refusal(f'unclassified command {shlex.join(words)!r} at {where}')
         handler = row.get('handler')
@@ -309,7 +356,9 @@ class Audit:
                     raise Refusal(f'unbound installed tool at {where}')
             else:
                 self.installation(words, where, directory)
-        if handler == 'residue':
+        if handler == 'data':
+            self.data_command(words, where)
+        elif handler == 'residue':
             raise Refusal(f'unclassified evaluation command at {where}')
         elif handler == 'source':
             raise Refusal(f'unfollowed source command at {where}')
@@ -336,6 +385,28 @@ class Audit:
             self.git_command(words, where, directory, row)
         elif handler == 'make':
             self.make_command(words, where, directory, row)
+    def data_command(self, words: list[str], where: str) -> None:
+        """Data builtins cannot acquire variable-writing or evaluation options."""
+        name, args = words[0], words[1:]
+        if name == 'printf':
+            delimited = args[:1] == ['--']
+            if delimited:
+                args = args[1:]
+            if (not args or (not delimited and args[0].startswith('-')) or
+                    re.search(r'%[-+ #0]*[0-9*]*(?:\.[0-9*]+)?n', args[0])):
+                raise Refusal(f'uncensused printf option or variable write at {where}')
+        elif name in ('test', '['):
+            allowed = self.census['shell_test_operators']
+            for argument in args:
+                if (not isinstance(argument, Runtime) and argument.startswith('-') and
+                        argument not in allowed):
+                    raise Refusal(f'uncensused test operator {argument!r} at {where}')
+        elif name in ('exit', 'return', 'break', 'continue'):
+            if len(args) > 1 or (args and not isinstance(args[0], Runtime) and not args[0].isdigit()):
+                raise Refusal(f'uncensused {name} operand at {where}')
+        elif name not in ('echo', 'shift', ':', 'true', 'false'):
+            raise Refusal(f'uncensused data builtin {name!r} at {where}')
+
     @staticmethod
     def matches(args: list[str], pattern: list[str]) -> bool:
         """Match complete argv; runtime slots cannot authorize literal options."""
@@ -368,10 +439,17 @@ class Audit:
         """Classify the declared wrapper command form and its executed children."""
         key = Path(words[0]).name
         rest = words[1:]
+        if key == 'xargs' and not any(self.matches(rest, p) for p in row['patterns']):
+            raise Refusal(f'uncensused xargs child form at {where}')
         if key == 'command' and rest[:1] in (['-v'], ['-V']):
             return
         while rest:
             if re.match(r'^\w+=', rest[0]):
+                from ci_syntax import SENSITIVE
+                variable, value = rest[0].split('=', 1)
+                if variable in SENSITIVE:
+                    raise Refusal(f'uncensused wrapper environment {variable!r} at {where}')
+                self.exported_env[variable] = Runtime(value) if isinstance(rest[0], Runtime) else value
                 rest = rest[1:]
             elif rest[0] == '--':
                 rest = rest[1:]
@@ -384,10 +462,18 @@ class Audit:
                 if option not in row.get('options', {}):
                     raise Refusal(f'unclassified {key} option {option!r} at {where}')
                 count = row['options'][option]
+                if key == 'env':
+                    if option in ('-i', '--ignore-environment'):
+                        self.exported_env = {}
+                    elif option in ('-u', '--unset'):
+                        variable = rest[0].split('=', 1)[1] if '=' in rest[0] else rest[1]
+                        self.exported_env.pop(variable, None)
                 rest = rest[1 + (count if '=' not in rest[0] and not attached else 0):]
             else:
                 break
         rest = rest[row.get('operands', 0):]
+        if not rest and key not in ('exec', 'flock'):
+            raise Refusal(f'missing wrapper command at {where}')
         self.command(rest, where, directory)
 
     def python_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
@@ -427,7 +513,9 @@ class Audit:
             return
         if rest[:2] == ['-euo', 'pipefail']:
             rest = rest[2:]
-        if rest[:1] == ['-c'] and len(rest) == 2 and '<dynamic>' in rest[1]:
+        if rest[:1] == ['-c'] and len(rest) == 2 and isinstance(rest[1], Runtime):
+            if not self.table['scripts'].get(where.split(':')[0]):
+                raise Refusal(f'undeclared runtime shell program at {where}')
             self.residue.add(f'{where}: declared runtime shell program')
             return
         if rest[:1] == ['-c'] and len(rest) >= 2:
@@ -440,7 +528,7 @@ class Audit:
 
     def git_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
         """Require a complete positively classified Git argument form."""
-        normalized = [w.replace(str(self.root), '${CHECKOUT}') for w in words[1:]]
+        normalized = [normalize(w, self.root) for w in words[1:]]
         if not any(self.matches(normalized, p) for p in row['patterns']):
             raise Refusal(f'unclassified git command at {where}: {shlex.join(words)}')
         rest = words[1:]
@@ -457,7 +545,7 @@ class Audit:
     def make_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
         """Resolve selected Makefiles before inspecting their recipes."""
         from ci_make_walk import invocation
-        normalized = [w.replace(str(self.root), '${CHECKOUT}') for w in words[1:]]
+        normalized = [normalize(w, self.root) for w in words[1:]]
         if '<dynamic>' in ' '.join(words) and any(self.matches(normalized, p) for p in row['patterns']):
             self.residue.add(f'{where}: declared runtime Make invocation')
             return

@@ -12823,7 +12823,7 @@
           "-I{}",
           "sh",
           "-c",
-          "<runtime>",
+          "case \"$1\" in history) mode=--with-pullin;; *) mode=--pullin=$1;; esac;  \t    ./obj_tdm8r/Vmilan_dp_tdm8r \"$mode\" > obj_pullin/pullin_$1.log 2>&1",
           "sh",
           "{}"
         ]
@@ -13262,6 +13262,11 @@
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
       "sha256": "31983930e622d1b6b833781911bf6295cf828b2ce7875915671e7a6d10ac781a"
+    },
+    "scripts/gen_toc_renderer.py": {
+      "class": "reviewed non-installing",
+      "reason": "Binds the installed hash-pinned cmark renderer through C FFI; reads Markdown and creates no installation.",
+      "sha256": "6edf7e23dbabe8d4756f50a2d92adae887f099b7e09758b67c0c52d550ae409d"
     },
     "scripts/gen_wavedrom.py": {
       "class": "reviewed non-installing",

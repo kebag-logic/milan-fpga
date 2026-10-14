@@ -5,7 +5,8 @@
 from pathlib import Path
 import re
 
-from ci_command_table import Refusal, Runtime, nodes, shell_tree
+from ci_command_table import Refusal, Runtime, nodes, shell_tree, sha256
+from ci_syntax import SENSITIVE, exact_use, shell_nodes
 
 
 class Shell:
@@ -14,9 +15,11 @@ class Shell:
     def __init__(self, audit: object, where: str) -> None:
         self.audit = audit
         self.where = where
+        self.invocation_source = where.split(':')[0]
         self.functions = {}
         self.active = set()
         self.env = dict(audit.env)
+        self.exported = set(audit.exported_env)
         self.locals = []
         self.source = ''
 
@@ -36,8 +39,8 @@ class Shell:
             name = node['Param']['Value']
             if name == 'BASH_SOURCE':
                 return str(self.audit.root / self.where.split(':')[0])
-            if name == '0' and self.where.split(':')[0].endswith('.sh'):
-                return str(self.audit.root / self.where.split(':')[0])
+            if name == '0' and self.invocation_source.endswith('.sh'):
+                return str(self.audit.root / self.invocation_source)
             for child in nodes(node):
                 if child is not node and child.get('Type') in ('CmdSubst', 'ProcSubst'):
                     self.value(child, directory)
@@ -83,7 +86,14 @@ class Shell:
             if not name:
                 continue
             if assignment.get('Value'):
-                self.env[name] = self.value(assignment['Value'], directory)
+                value = self.value(assignment['Value'], directory)
+                if assignment.get('Index'):
+                    value = Runtime('${RUNTIME}')
+                elif assignment.get('Append'):
+                    previous = self.env.get(name, '')
+                    joined = previous + value
+                    value = Runtime(joined) if isinstance(previous, Runtime) or isinstance(value, Runtime) else joined
+                self.env[name] = value
             elif assignment.get('Array'):
                 for item in assignment['Array'].get('Elems', []):
                     if item.get('Value'):
@@ -102,7 +112,12 @@ class Shell:
         kind = node.get('Type')
         where = self.location(node)
         inline = None
+        if statement.get('Background'):
+            raise Refusal(f'uncensused shell background operator at {where}')
         for redirect in statement.get('Redirs', []):
+            if any(n.get('Type') == 'ParamExp' and n['Param']['Value'] in ('GITHUB_PATH', 'GITHUB_ENV')
+                   for n in nodes(redirect)):
+                exact_use(self.audit, statement, self.where, 'environment-file')
             if redirect.get('Word'):
                 self.value(redirect['Word'], directory)
             if redirect.get('Hdoc'):
@@ -118,6 +133,8 @@ class Shell:
         if kind == 'CallExpr':
             return self.call(node, directory, where, inline)
         if kind == 'DeclClause':
+            if any(a.get('Name', {}).get('Value') in SENSITIVE for a in node.get('Args', [])):
+                exact_use(self.audit, node, self.where, 'assignment')
             if node.get('Variant', {}).get('Value') not in ('local', 'declare', 'export', 'readonly'):
                 raise Refusal(f'unsupported shell declaration at {where}')
             for item in node.get('Args', []):
@@ -126,13 +143,15 @@ class Shell:
                     if option.startswith('-') and option not in ('-a', '-A', '-gA'):
                         raise Refusal(f'unsupported shell declaration option at {where}')
                 name = item.get('Name', {}).get('Value')
+                if name and node['Variant']['Value'] == 'export':
+                    self.exported.add(name)
                 if name and self.locals and node['Variant']['Value'] == 'local':
                     self.locals[-1].setdefault(name, self.env.get(name))
             self.assignments(node.get('Args', []), directory)
             return directory
         if kind == 'FuncDecl':
             name = node['Name']['Value']
-            self.functions[name] = node['Body']
+            self.functions[name] = [(node['Body'], self.where)]
             return directory
         if kind in ('Block', 'Subshell'):
             saved = dict(self.env)
@@ -146,19 +165,7 @@ class Shell:
         if kind == 'BinaryCmd':
             return self.binary(node, directory, where)
         if kind == 'IfClause' or (kind is None and 'Then' in node):
-            if not node.get('Cond'):
-                return self.statements(node.get('Then', []), directory)
-            if self.statements(node.get('Cond', []), directory) != directory:
-                raise Refusal(f'ambiguous shell directory in conditional test at {where}')
-            before = dict(self.env)
-            left = self.statements(node.get('Then', []), directory)
-            left_env = dict(self.env)
-            self.env = dict(before)
-            right = self.statement(node['Else'], directory) if node.get('Else') else directory
-            if left != right:
-                raise Refusal(f'ambiguous shell directory after conditional at {where}')
-            self.env = {k: v if self.env.get(k) == v else Runtime('${RUNTIME}') for k, v in left_env.items()}
-            return left
+            return self.conditional(node, directory, where)
         if kind in ('ForClause', 'WhileClause', 'CaseClause'):
             before = dict(self.env)
             if kind == 'ForClause':
@@ -190,6 +197,28 @@ class Shell:
             self.env = {k: v if self.env.get(k) == v else Runtime('${RUNTIME}') for k, v in before.items()}
             return directory
         raise Refusal(f'unsupported shell construct {kind!r} at {where}')
+
+    def conditional(self, node: dict, directory: Path, where: str) -> Path:
+        """Join branch effects without overwriting reachable function alternatives."""
+        if not node.get('Cond'):
+            return self.statements(node.get('Then', []), directory)
+        if self.statements(node.get('Cond', []), directory) != directory:
+            raise Refusal(f'ambiguous shell directory in conditional test at {where}')
+        before = dict(self.env)
+        before_functions = dict(self.functions)
+        left = self.statements(node.get('Then', []), directory)
+        left_functions = dict(self.functions)
+        left_env = dict(self.env)
+        self.env = dict(before)
+        self.functions = before_functions
+        right = self.statement(node['Else'], directory) if node.get('Else') else directory
+        for name in left_functions.keys() | self.functions.keys():
+            alternatives = [*left_functions.get(name, []), *self.functions.get(name, [])]
+            self.functions[name] = [v for i, v in enumerate(alternatives) if v not in alternatives[:i]]
+        if left != right:
+            raise Refusal(f'ambiguous shell directory after conditional at {where}')
+        self.env = {k: v if self.env.get(k) == v else Runtime('${RUNTIME}') for k, v in left_env.items()}
+        return left
 
     def binary(self, node: dict, directory: Path, where: str) -> Path:
         """Keep fallback and pipeline directories separate from successful operands."""
@@ -225,6 +254,8 @@ class Shell:
     def call(self, node: dict, directory: Path, where: str, inline: str | None) -> Path:
         """Execute no commands; resolve the lexical effects of a simple call."""
         saved = dict(self.env)
+        if any(a.get('Name', {}).get('Value') in SENSITIVE for a in node.get('Assigns', [])):
+            exact_use(self.audit, node, self.where, 'assignment')
         self.assignments(node.get('Assigns', []), directory)
         args = [self.value(arg, directory) for arg in node.get('Args', [])]
         if not args:
@@ -248,33 +279,93 @@ class Shell:
                 operands = operands[1:]
             if len(operands) != 1:
                 raise Refusal(f'unresolved shell cd at {where}')
-            if '$' in operands[0] or '<dynamic>' in operands[0]:
+            if isinstance(operands[0], Runtime):
                 declaration = self.audit.table['scripts'].get(self.where.split(':')[0])
                 if not declaration:
                     raise Refusal(f'unresolved shell cd at {where}')
                 self.audit.residue.add(f'{where}: declared runtime shell directory')
             directory = (directory / operands[0]).resolve()
+            if isinstance(operands[0], Runtime):
+                self.audit.runtime_directories.add(directory)
         elif args[0] in ('source', '.'):
-            if len(args) != 2 or '$' in args[1]:
-                raise Refusal(f'unfollowed source at {where}')
-            path = (directory / args[1]).resolve()
-            self.audit.script(args[1], where, directory)
-            from ci_command_table import sha256
-            relative = path.relative_to(self.audit.root).as_posix()
-            declaration = self.audit.table['scripts'].get(relative)
-            if declaration and declaration['sha256'] == sha256(path):
-                parsed = shell_tree(path.read_text(), self.audit.parser)
-                for item in nodes(parsed):
-                    if item.get('Type') == 'FuncDecl':
-                        self.functions[item['Name']['Value']] = item['Body']
+            directory = self.source_file(args, directory, where)
+        elif args[0] == 'read':
+            exact_use(self.audit, node, self.where, 'read')
+            for name in args[1:]:
+                if re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*', name):
+                    self.env[name] = Runtime('${RUNTIME}')
+        elif args[0] == 'printf' and '-v' in args[1:]:
+            raise Refusal(f'uncensused printf -v at {where}')
+        elif args[0] == 'unset':
+            if any(name in SENSITIVE for name in args[1:]):
+                raise Refusal(f'uncensused special-variable unset at {where}')
+            for name in args[1:]:
+                if not re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*', name):
+                    raise Refusal(f'uncensused unset operand at {where}')
+                self.env.pop(name, None)
+                self.exported.discard(name)
+        elif args[0] == 'shift':
+            if len(args) > 2 or (len(args) == 2 and not args[1].isdigit()):
+                raise Refusal(f'uncensused shift operand at {where}')
+            count = int(args[1]) if len(args) == 2 else 1
+            positional = {int(k): v for k, v in self.env.items() if k.isdigit() and k != '0'}
+            for key in positional:
+                self.env.pop(str(key))
+            self.env.update({str(k - count): v for k, v in positional.items() if k > count})
         else:
+            if args[0] == 'xargs':
+                exact_use(self.audit, node, self.where, args[0])
             self.audit.env = dict(self.env)
+            prefix = {a.get('Name', {}).get('Value') for a in node.get('Assigns', [])}
+            self.audit.exported_env = {k: v for k, v in self.env.items() if k in self.exported | prefix}
             self.audit.command(args, where, directory)
         if node.get('Assigns'):
             self.env = saved
         return directory
 
+    def source_file(self, args: list[str], directory: Path, where: str) -> Path:
+        """Source into the caller's directory, variables and function namespace."""
+        if len(args) != 2 or isinstance(args[1], Runtime):
+            raise Refusal(f'unfollowed source at {where}')
+        path = (directory / args[1]).resolve()
+        if not path.is_file() or not path.is_relative_to(self.audit.root):
+            raise Refusal(f'unresolved script {args[1]!r} at {where}')
+        relative = path.relative_to(self.audit.root).as_posix()
+        declaration = self.audit.table['scripts'].get(relative)
+        if declaration and declaration['sha256'] != sha256(path):
+            raise Refusal(f'changed declared script {relative!r}')
+        if relative in self.active:
+            raise Refusal(f'recursive source {relative!r} at {where}')
+        self.audit.inputs[relative] = sha256(path)
+        self.active.add(relative)
+        previous = self.where
+        self.where = relative
+        try:
+            parsed = shell_tree(path.read_text(), self.audit.parser)
+            shell_nodes(self.audit, parsed, relative)
+            return self.statements(parsed.get('Stmts', []), directory)
+        finally:
+            self.where = previous
+            self.active.remove(relative)
+
     def function(self, args: list[str], directory: Path, where: str) -> Path:
+        """Apply every reachable definition from the same incoming state."""
+        before = dict(self.env)
+        results = []
+        environments = []
+        for body, origin in self.functions[args[0]]:
+            self.env = dict(before)
+            results.append(self.function_body(body, origin, args, directory, where))
+            environments.append(dict(self.env))
+        if len(set(results)) != 1:
+            raise Refusal(f'ambiguous function directory at {where}')
+        keys = set().union(*environments)
+        self.env = {key: environments[0].get(key, Runtime('${RUNTIME}'))
+                    if all(e.get(key) == environments[0].get(key) for e in environments)
+                    else Runtime('${RUNTIME}') for key in keys}
+        return results[0]
+
+    def function_body(self, body: dict, origin: str, args: list[str], directory: Path, where: str) -> Path:
         """Preserve global assignments while restoring positional and local values."""
         name = args[0]
         if name in self.active:
@@ -288,7 +379,12 @@ class Shell:
             scoped.setdefault(key, None)
             self.env[key] = value
         self.locals.append(scoped)
-        result = self.statement(self.functions[name], directory)
+        previous = self.where
+        self.where = origin
+        try:
+            result = self.statement(body, directory)
+        finally:
+            self.where = previous
         for key, value in self.locals.pop().items():
             if value is None:
                 self.env.pop(key, None)
@@ -301,6 +397,7 @@ class Shell:
         """Parse one script and audit even functions absent from literal calls."""
         source = re.sub(r'\$\{\{.*?\}\}', '${RUNTIME}', source)
         tree = shell_tree(source, self.audit.parser)
+        shell_nodes(self.audit, tree, self.where)
         self.statements(tree.get('Stmts', []), directory)
         for name, body in list(self.functions.items()):
             if name in self.active:
