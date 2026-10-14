@@ -8,6 +8,7 @@ This lane supplies the image without changing workflows.
 
 - **[Inputs](#inputs)** -- Trace workflow requests to checked public sources.
 - **[Reached construct census](#reached-construct-census)** -- Define supported syntax and refused variants.
+- **[Execution audit](#execution-audit)** -- Record the programs each step runs and refuse installers.
 - **[Accepted version changes](#accepted-version-changes)** -- Compare the image with its previous runner.
 - **[Rebuild](#rebuild)** -- Stage verified inputs and build offline.
 - **[Identity and layers](#identity-and-layers)** -- Authenticate declarations and exported image bytes separately.
