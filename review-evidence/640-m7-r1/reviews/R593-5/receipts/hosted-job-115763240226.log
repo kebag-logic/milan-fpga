@@ -1,0 +1,8 @@
+2026-10-14T08:45:00.0239082Z HEAD is now at 85b959c Merge 4c5d70b50230fbd5da347852d39daf7f23b3df0b into fa8209889411e8ca95757174c981f720dbcd95a2
+2026-10-14T08:45:00.8701125Z python3 scripts/ci_events.py --require-target-sha --expect 6 \
+2026-10-14T08:45:01.0065791Z target-sha: OK, 6 record(s) all 85b959cb02bfa5b53978bbd1a479256963bbb388
+2026-10-14T08:45:01.0230427Z python3 scripts/suite_tally.py "${roots[@]}" --quiet \
+2026-10-14T08:45:02.0356742Z checks: 2187219   in-suite failures: 0
+2026-10-14T08:45:02.0475052Z echo "verilator-suites: every worker succeeded at $GITHUB_SHA"
+2026-10-14T08:45:02.0541550Z   SHARD_RESULT: success
+2026-10-14T08:45:02.0623222Z verilator-suites: every worker succeeded at 85b959cb02bfa5b53978bbd1a479256963bbb388

@@ -1,0 +1,12 @@
+2026-10-14T07:42:17.7458430Z HEAD is now at 85b959c Merge 4c5d70b50230fbd5da347852d39daf7f23b3df0b into fa8209889411e8ca95757174c981f720dbcd95a2
+2026-10-14T07:42:20.1098674Z if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+2026-10-14T07:42:20.1099128Z   echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+2026-10-14T07:42:20.1100201Z printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"
+2026-10-14T07:42:20.1100683Z echo "target_sha=$GITHUB_SHA"
+2026-10-14T07:42:20.1161021Z   TARGET_SHA: 85b959cb02bfa5b53978bbd1a479256963bbb388
+2026-10-14T07:42:20.1255918Z target_sha=85b959cb02bfa5b53978bbd1a479256963bbb388
+2026-10-14T07:42:21.7179924Z   ok   head provisional figures {'gptp_tables': 1800} are what run_all_suites.sh's suite_timeout gives
+2026-10-14T07:43:29.2351467Z shard: 5/6   selected suites: 1
+2026-10-14T08:19:38.9743919Z PASS     milan_dp
+2026-10-14T08:19:38.9744700Z suites: 1   passed: 1   failed: 0   timed out: 0
+2026-10-14T08:19:39.2694211Z checks: 11956   in-suite failures: 0

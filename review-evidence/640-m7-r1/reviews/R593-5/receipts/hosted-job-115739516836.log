@@ -1,0 +1,26 @@
+2026-10-14T07:42:17.2355136Z HEAD is now at 85b959c Merge 4c5d70b50230fbd5da347852d39daf7f23b3df0b into fa8209889411e8ca95757174c981f720dbcd95a2
+2026-10-14T07:42:21.1758935Z if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+2026-10-14T07:42:21.1759533Z   echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+2026-10-14T07:42:21.1761084Z printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"
+2026-10-14T07:42:21.1761506Z echo "target_sha=$GITHUB_SHA"
+2026-10-14T07:42:21.1805545Z   TARGET_SHA: 85b959cb02bfa5b53978bbd1a479256963bbb388
+2026-10-14T07:42:21.1886069Z target_sha=85b959cb02bfa5b53978bbd1a479256963bbb388
+2026-10-14T07:42:23.2558388Z   ok   head provisional figures {'gptp_tables': 1800} are what run_all_suites.sh's suite_timeout gives
+2026-10-14T07:42:24.3664916Z HEAD is now at deca300 Merge pull request #13 from kebag-logic/12-strict-media-ptp-tx-flags
+2026-10-14T07:43:48.0222967Z shard: 1/6   selected suites: 14
+2026-10-14T07:43:52.2295785Z PASS     aaf_latency_taps
+2026-10-14T07:44:13.2446484Z PASS     avtp_parser
+2026-10-14T07:44:17.3855541Z PASS     cdc
+2026-10-14T07:44:29.7891313Z PASS     clkvalid
+2026-10-14T07:54:02.8099807Z PASS     crf_rx
+2026-10-14T07:54:07.2905225Z PASS     datapath
+2026-10-14T08:06:23.1487829Z PASS     follow_ring
+2026-10-14T08:23:21.0313306Z PASS     maap
+2026-10-14T08:24:26.2962383Z PASS     mbx
+2026-10-14T08:24:40.7874913Z PASS     media_nco
+2026-10-14T08:24:45.3997235Z PASS     mmcm_servo_autorepair
+2026-10-14T08:25:13.0925073Z PASS     nvm_backend
+2026-10-14T08:25:17.4260069Z PASS     tcam_csr
+2026-10-14T08:25:59.7838413Z PASS     tsn_fuzz
+2026-10-14T08:25:59.7839275Z suites: 14   passed: 14   failed: 0   timed out: 0
+2026-10-14T08:25:59.8653888Z checks: 32484   in-suite failures: 0

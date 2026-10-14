@@ -1,0 +1,20 @@
+2026-10-14T07:42:18.1996871Z HEAD is now at 85b959c Merge 4c5d70b50230fbd5da347852d39daf7f23b3df0b into fa8209889411e8ca95757174c981f720dbcd95a2
+2026-10-14T07:42:23.4827159Z if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+2026-10-14T07:42:23.4827779Z   echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+2026-10-14T07:42:23.4829633Z printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"
+2026-10-14T07:42:23.4830087Z echo "target_sha=$GITHUB_SHA"
+2026-10-14T07:42:23.4898475Z   TARGET_SHA: 85b959cb02bfa5b53978bbd1a479256963bbb388
+2026-10-14T07:42:23.5012371Z target_sha=85b959cb02bfa5b53978bbd1a479256963bbb388
+2026-10-14T07:42:26.4929410Z   ok   head provisional figures {'gptp_tables': 1800} are what run_all_suites.sh's suite_timeout gives
+2026-10-14T07:42:26.6431000Z   gptp_tables
+2026-10-14T07:43:40.0244440Z shard: 0/6   selected suites: 8
+2026-10-14T08:01:19.8995478Z PASS     aaf_clock_meter
+2026-10-14T08:01:25.3301224Z PASS     cbs
+2026-10-14T08:01:33.6613316Z PASS     controller_rate
+2026-10-14T08:01:39.4161538Z PASS     crf_tx
+2026-10-14T08:11:11.3871497Z PASS     gptp_tables
+2026-10-14T08:11:16.6627515Z PASS     lat_history_ring
+2026-10-14T08:24:14.7861130Z PASS     nvm_cosim
+2026-10-14T08:24:20.9104761Z PASS     shaper_core
+2026-10-14T08:24:20.9106087Z suites: 8   passed: 8   failed: 0   timed out: 0
+2026-10-14T08:24:20.9607251Z checks: 1677584   in-suite failures: 0

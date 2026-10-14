@@ -1,0 +1,24 @@
+2026-10-14T07:42:16.5204349Z HEAD is now at 85b959c Merge 4c5d70b50230fbd5da347852d39daf7f23b3df0b into fa8209889411e8ca95757174c981f720dbcd95a2
+2026-10-14T07:42:18.9787566Z if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then
+2026-10-14T07:42:18.9788204Z   echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2
+2026-10-14T07:42:18.9789720Z printf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"
+2026-10-14T07:42:18.9790180Z echo "target_sha=$GITHUB_SHA"
+2026-10-14T07:42:18.9859775Z   TARGET_SHA: 85b959cb02bfa5b53978bbd1a479256963bbb388
+2026-10-14T07:42:18.9977725Z target_sha=85b959cb02bfa5b53978bbd1a479256963bbb388
+2026-10-14T07:42:20.9067528Z   ok   head provisional figures {'gptp_tables': 1800} are what run_all_suites.sh's suite_timeout gives
+2026-10-14T07:43:33.6501025Z shard: 4/6   selected suites: 13
+2026-10-14T07:43:44.4818808Z PASS     adp_tx
+2026-10-14T08:12:37.7262517Z PASS     capture_coherence
+2026-10-14T08:12:43.0622474Z PASS     classifier
+2026-10-14T08:19:15.3262836Z PASS     gptp_shadow
+2026-10-14T08:20:27.1035215Z PASS     gptp_txts
+2026-10-14T08:20:32.4562335Z PASS     i2spb
+2026-10-14T08:39:37.2857291Z PASS     mmcm_servo
+2026-10-14T08:39:42.8239239Z PASS     pcmlpf
+2026-10-14T08:39:53.4325574Z PASS     ptp_sync
+2026-10-14T08:42:02.1325691Z PASS     ptp_ts
+2026-10-14T08:43:35.3079580Z PASS     render_setpoint
+2026-10-14T08:43:52.0271686Z PASS     rx_filter
+2026-10-14T08:43:57.3168997Z PASS     tdm_render
+2026-10-14T08:43:57.3169942Z suites: 13   passed: 13   failed: 0   timed out: 0
+2026-10-14T08:43:57.4418741Z checks: 22998   in-suite failures: 0
