@@ -243,8 +243,8 @@ Where it rests on a generated constant of the contract, the row says so, and
 the row stops matching (so the gate fails) when the constant changes.
 All sixteen rows meet that standard through their public headers.
 The five `adp.c` rows cite the no-callback rule of the stack's
-[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/docs/PORTING.md#ownership-and-dispatch), for the ports of
-[`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/adp.h), enforced by the core guard (#678).
+[porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/docs/PORTING.md#ownership-and-dispatch), for the ports of
+[`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/adp.h), enforced by the core guard (#678).
 
 ### Coverage exclusions
 
@@ -288,7 +288,7 @@ them differently would fail the gate, not pass it. `fw_coverage.py
 (a compensating swap and a condition over two lines).
 
 **ADP's port contract forbids synchronous callbacks.**
-The stack's [porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/docs/PORTING.md#ownership-and-dispatch) states the rule for every port of [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/include/adp.h).
+The stack's [porting guide](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/docs/PORTING.md#ownership-and-dispatch) states the rule for every port of [`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/adp.h).
 The shared guard covers every instance and every public entry.
 It brackets TX, timer, gPTP, link and seed calls.
 Even zero-delay expiries arrive through later event-loop dispatch.
@@ -296,7 +296,7 @@ Debug/test builds assert; release builds ignore and count violations.
 The rule also appears in the other firmware port headers.
 F2 to F5 inherit it for their protocol ports.
 
-The stack's [`test_adp_reentry.cpp`](https://github.com/kebag-logic/tsn-c-stack/blob/405dc68310a18f669049ffc10cc23eef7300dcff/tests/test_adp_reentry.cpp) tests both build modes.
+The stack's [`test_adp_reentry.cpp`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/tests/test_adp_reentry.cpp) tests both build modes.
 Its two timer probes preserve DELAY and ADVERTISE timers respectively.
 Deferred expiries still advance both machines after rejected inline expiries.
 Every port is also paired with every public entry.
@@ -316,7 +316,6 @@ The adapter still delivers inputs only from the event loop.
 | `third_party/tsn-c-stack/src/adp.c` | `adp_poll` | `if (a->enabled && a->state == ADP_STATE_DELAY) {` | arcs 2, 4 of 4; line `a->available_owed = false;` | An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. The no-callback rule of the stack's porting guide (Ownership and dispatch) prevents a port from interrupting these transitions. |
 | `sw/firmware/ctrl/adp/adp_mbx.c` | `on_poll` | `owed = adp_poll(&m->ifs[k].adp)` | arc 3 of 4 | The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the generated contract (`mbx_contract.h`), so the operand is read once, while still false. A contract of two interfaces makes it reachable, and the row stops matching. |
 | `sw/firmware/ctrl/adp/adp_mbx.c` | `adp_mbx_attach` | `ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)` | arc 2 of 6 | The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function, whatever the loop holds. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4). |
-| `sw/firmware/ctrl/app/ctrl_app.c` | `maap_compose` | `return maap_mbx_init(` | arc 4 of 4 | The MAAP adapter refusing its attach (#665 lane F3 round 6, on lane F2's adapter). `maap_mbx_attach` refuses only a full sink or poll table and a maap channel already bound. The composition reaches it after ADP and ACMP, each holding one sink and one poll of `CTRL_LOOP_MAX_SINKS` and `CTRL_LOOP_MAX_POLLS` (8 each) in the loop it initialised empty, and neither binds the maap channel. Each refusal is tested on the adapter itself (`MaapHost.AttachRefusalsAndTimerWrap`). |
 | `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_compose` | `if (!adp_mbx_init(` | arcs 2, 3 of 4; line `return false;` | The adapter refusing the app (either operand true). `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above. |
 | `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_compose` | `if (cfg->acmp != NULL &&` | arc 5 of 6 | The ACMP adapter refusing its attach (#665 lane F3). `acmp_mbx_attach` refuses only an adp channel with no handler bound, and a full sink or poll table. The statement above bound ADP into the loop the composition had just initialised empty: ADP's handler is on the adp channel, and ADP took one sink and one poll of `CTRL_LOOP_MAX_SINKS` and `CTRL_LOOP_MAX_POLLS` (8 each). Each refusal is tested on the adapter itself (`AcmpAdapterUnit.B7RefusalsOfTheAdapter`). |
 | `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `(int)r.id <= last` | arcs 2, 4, 5 of 6; line `return 0;` | The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX` (each operand true). The function takes no argument: it walks the shape the build was generated for. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`). |

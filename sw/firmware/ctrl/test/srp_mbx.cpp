@@ -332,9 +332,19 @@ TEST_F(Srp, LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline) {
 }
 TEST_F(Srp, RegisteredListenerSubtypeChangeRevokesPermission) {
     settle();
+    offer(frame(3,identity(),1,0));
+    EXPECT_FALSE(adapter.ifs[0].listener_present[0]) << "Ignore occupies no registrar and supplies no demand";
     EXPECT_CALL(licence,Change(0,0,true)); offer(frame(3,identity(),1,2));
+    EXPECT_TRUE(adapter.ifs[0].listener_present[0]) << "Listener Ready supplies declaration demand";
     EXPECT_CALL(licence,Change(0,0,false)); offer(frame(3,identity(),1,1));
     EXPECT_FALSE(adapter.ifs[0].active[0]);
+    EXPECT_TRUE(adapter.ifs[0].listener_present[0]) << "Listener Asking Failed retains declaration demand";
+    offer(frame(3,identity(),1,0));
+    EXPECT_TRUE(adapter.ifs[0].listener_present[0]) << "Ignore leaves the registered Listener unchanged";
+    offer(frame(3,identity(),1,1));
+    EXPECT_TRUE(adapter.ifs[0].listener_present[0]);
+    offer(frame(3,identity(),5,1));
+    EXPECT_FALSE(adapter.ifs[0].listener_present[0]) << "last Listener leave removes declaration demand";
 }
 TEST_F(Srp, InterfaceStateDoesNotCross) {
     settle();
