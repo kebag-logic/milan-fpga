@@ -2317,6 +2317,13 @@ Resource bounds:
   Generated configuration output used a disposable writable overlay; the
   candidate source remained read-only. This covers that phase, not the other
   firmware mutation phases or a full workflow replay.
+- Scoped datapath measurements at `21bd10cec` build the eight-stream shape.
+  Both widths compile from empty object directories, then run unchanged assertions.
+  Sixteen compiler workers peak at 3349397504 bytes (3.12 GiB).
+  Twelve workers peak at 2697302016 bytes (2.51 GiB).
+  Both pass 3,751 checks with zero memory-event counters.
+  Each container retains the eight-GiB memory and swap ceiling.
+  These sequential measurements cover that model, not concurrent replay admission.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
   which counts only the slice's limit and never a job container's eight-GiB limit
