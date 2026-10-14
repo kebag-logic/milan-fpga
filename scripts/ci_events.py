@@ -5399,7 +5399,7 @@ def _m_shard_denominator_wrong(w: World) -> None:
 def _m_shard_name_stale(w: World) -> None:
     """verilator-shards' name restates a stale denominator."""
     job = jobs(w[RTL_FULL])["verilator-shards"]
-    job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "3")
+    job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "4")
 
 
 def _m_shard_matrix_include(w: World) -> None:
