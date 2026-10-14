@@ -7,6 +7,18 @@ import (
 	"sync"
 )
 
+// RecordedJobExecutor exposes failed steps after the job's cleanup has finished.
+// The upstream job executor records step failures in its context and returns nil.
+func RecordedJobExecutor(executor Executor) Executor {
+	return func(ctx context.Context) error {
+		jobContext := WithJobErrorContainer(ctx)
+		if err := executor(jobContext); err != nil {
+			return err
+		}
+		return JobError(jobContext)
+	}
+}
+
 // JobAdmission shares one physical-container limit across nested job matrices.
 type JobAdmission struct {
 	ctx     context.Context

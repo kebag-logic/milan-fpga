@@ -81,7 +81,8 @@
 @@ -205,13 +207,13 @@
  						}
  
- 						return executor(common.WithJobErrorContainer(WithJobLogger(ctx, rc.Run.JobID, jobName, rc.Config, &rc.Masks, matrix)))
+-						return executor(common.WithJobErrorContainer(WithJobLogger(ctx, rc.Run.JobID, jobName, rc.Config, &rc.Masks, matrix)))
++						return common.RecordedJobExecutor(executor)(WithJobLogger(ctx, rc.Run.JobID, jobName, rc.Config, &rc.Masks, matrix))
 -					})
 -				}
 -				pipeline = append(pipeline, common.NewParallelExecutor(maxParallel, stageExecutor...))

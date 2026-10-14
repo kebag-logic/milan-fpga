@@ -8,6 +8,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func verifyFailure(t *testing.T, dispatch func(int, ...Executor) Executor) {
@@ -34,7 +35,9 @@ func verifyFailure(t *testing.T, dispatch func(int, ...Executor) Executor) {
 			return ctx.Err()
 		}
 	}
-	if err := dispatch(4, executors...)(context.Background()); !errors.Is(err, failure) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := dispatch(4, executors...)(ctx); !errors.Is(err, failure) {
 		t.Fatalf("lost first failure: %v", err)
 	}
 	if started.Load() != 4 || cleaned.Load() != 4 {
@@ -105,4 +108,20 @@ func TestBoundedDispatcher(t *testing.T) {
 		t.Run(name+"/success", func(t *testing.T) { verifySuccess(t, dispatch) })
 		t.Run(name+"/cancelled", func(t *testing.T) { verifyCancelled(t, dispatch) })
 	}
+}
+
+func TestBoundedRecordedFailure(t *testing.T) {
+	verifyFailure(t, func(limit int, executors ...Executor) Executor {
+		wrapped := make([]Executor, len(executors))
+		for index, executor := range executors {
+			wrapped[index] = RecordedJobExecutor(func(ctx context.Context) error {
+				// This is the upstream job executor's failed-step convention.
+				if err := executor(ctx); err != nil {
+					SetJobError(ctx, err)
+				}
+				return nil
+			})
+		}
+		return nestedDispatch(limit, wrapped...)
+	})
 }
