@@ -1,0 +1,21 @@
+{
+  "command": "python3 -I scripts/act_ci.py --selftest --worktree \"$PWD\"",
+  "returncode": 0,
+  "boundary": "Disposable container; no network, Docker socket, credentials or writable candidate mount.",
+  "image": "sha256:2d09d1152abecc5ed7799ead632f263d21ebec1f685809fe99c4e3e8801dadcc",
+  "log_bytes": 58055,
+  "log_sha256": "bec31a611de5cc357eacdbd3549e4d2fa9c9bcb5a58d1c277ebc7dfc901ec1f1",
+  "log_tail": [
+    "  ok   a single small workflow does not invent 3 jobs",
+    "  ok   all selected workflows share the 4-job limit in every order",
+    "  ok   a single small workflow does not invent 4 jobs",
+    "  ok   nested matrix width 1 shares the global four-job admission gate",
+    "  ok   nested matrix width 4 shares the global four-job admission gate",
+    "  ok   nested matrix width 9 shares the global four-job admission gate",
+    "  ok   every shipping workflow derives 1 to 4 concurrent containers, and rtl-full's matrix legs run more than one at once",
+    "selftest: PASS"
+  ],
+  "tested_script_sha256": "5ccbd700ece6f8ce0558767c77fa44435c9dbb2d37c48cc44269790ec64474dd",
+  "committed_head_with_same_tested_files": "2658a64c408bf87ae36574f36a6deeb34b2f297f",
+  "python_version": "3.12.3"
+}

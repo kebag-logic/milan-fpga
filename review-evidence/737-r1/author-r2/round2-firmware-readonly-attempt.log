@@ -1,0 +1,49 @@
+Traceback (most recent call last):
+  File "$LANES/737-ci30/sw/builder/endstation_builder.py", line 6071, in <module>
+    main()
+  File "$LANES/737-ci30/sw/builder/endstation_builder.py", line 6045, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-ci30/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-ci30/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+  File "/usr/lib/python3.12/pathlib.py", line 1049, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '$LANES/737-ci30/configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh'
+Traceback (most recent call last):
+  File "$LANES/737-ci30/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 316, in <module>
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 938 live invocations in exactly one shard; shard sizes [61, 521, 77, 279]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+    sys.exit(main())
+             ^^^^^^
+  File "$LANES/737-ci30/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 307, in main
+    failed = run_selected(args, tree, out)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-ci30/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 207, in run_selected
+    failed = ctrl_arms.report(run_suites(args, tree))
+                              ^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-ci30/sw/firmware/ctrl/test/test_ctrl_firmware.py", line 165, in run_suites
+    ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-ci30/sw/firmware/ctrl/test/ctrl_arms.py", line 116, in arm_acmpnvm
+    _NVM_INPUTS[NVM_SHAPE] = nvm_bench.shape_inputs(ROOT / "configs" / f"{NVM_SHAPE}.yaml", work / "shape")
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-ci30/sw/firmware/ctrl_nvm/test/nvm_bench.py", line 246, in shape_inputs
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-ci30/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/python/bin/python3', '$LANES/737-ci30/sw/builder/endstation_builder.py', '$LANES/737-ci30/configs/endstation_ax7101_1x1_tdm8.yaml', '-o', '/scratch/temp/ctrl-fw-ov3rqeoa/checkout/acmpnvm/shape/builder']' returned non-zero exit status 1.

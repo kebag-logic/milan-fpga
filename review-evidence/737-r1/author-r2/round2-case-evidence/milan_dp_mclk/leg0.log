@@ -1,0 +1,91 @@
+======== the clean leg A ========
+  [ ok ] boot: the CRF sink is locked (8 clean PDUs)
+  [ ok ] boot: INTERNAL decodes and nothing is followed
+  [ ok ] boot: C1 LOCKED counted the valid clock once got=1 exp=1
+  [ ok ] boot: C1 UNLOCKED has not moved          got=0 exp=0
+  [ ok ] boot: both outputs are emitting
+plan -10.6393 ppm; mode a
+
+[AAF0] INTERNAL -> AAF input 0 (talker -6.0 ppm)
+  [ ok ] AAF0: decodes as AAF listener 0 (and the servo's select)
+  [ ok ] C1: UNLOCKED moves at the switch onto AAF0 got=1 exp=1
+  [ ok ] AAF0: the meter locked on listener 0 (AAFM_STAT {idx, en, locked}) got=5 exp=5
+  [ ok ] AAF0: the servo leaves IDLE once the meter locks
+  [ ok ] C1: LOCKED holds until the servo reads LOCKED got=0 exp=0
+  [ ok ] AAF0: no restart request at the switch (the source change is the restart) got=0 exp=0
+  [ ok ] AAF0: one mr toggle on the AAF output    got=1 exp=1
+  [ ok ] AAF0: one mr toggle on the CRF output    got=1 exp=1
+  at 3 s on AAF0: state 3, trim +0.000 ppm, AAFM_STAT 0x000b0005
+  [ ok ] AAF0: the meter's rate is not valid yet at 3 s got=0 exp=0
+  [ ok ] AAF0: the trim holds until the meter's rate validates
+  AAF0: LOCKED at 6.708 s, trim +4.438 ppm
+  [ ok ] AAF0: the servo reaches LOCKED
+  [ ok ] C1: LOCKED moves when the servo reads LOCKED (AAF0) got=1 exp=1
+  AAF0: media clock -6.0832 ppm over 2 s (talker -6.0, plan -10.6393), trim +4.438
+  [ ok ] AAF0: the media clock follows the talker within 0.5 ppm
+  [ ok ] AAF0: the servo stays LOCKED             got=4 exp=4
+  [ ok ] AAF0: the aligner stays engaged          got=1 exp=1
+  [ ok ] AAF0: zero junction slips while following got=0 exp=0
+
+[CSR] AAFM_STAT 0x8E0 / AAFM_RATE 0x8E4 against the meter
+  AAFM_STAT 0x000b0007 (meter 0x000b0007)
+  [ ok ] CSR: AAFM_STAT reads the meter's status word got=720903 exp=720903
+  [ ok ] CSR: AAFM_STAT {listener 0, en, rate valid, locked} got=7 exp=7
+  [ ok ] CSR: AAFM_STAT data-caused restarts 0 (ideal timestamps) got=0 exp=0
+  largest deviation 11 ns (the offset over 15 spacings: 11.25 ns)
+  [ ok ] CSR: AAFM_STAT largest deviation is the talker's offset over a group (+/-1.5 ns)
+  AAFM_RATE 3072 ns per 512 ms (the talker: 3072.0)
+  [ ok ] CSR: AAFM_RATE reads the talker's planted rate within 2 ns per 512 ms
+
+[ECHO] the followed talker's mr toggle echoes; an unfollowed one's does not
+  [ ok ] echo: the followed AAF0's toggle raises one request got=1 exp=1
+  [ ok ] echo: ...one mr toggle on the AAF output got=1 exp=1
+  [ ok ] echo: ...one mr toggle on the CRF output got=1 exp=1
+  [ ok ] echo: the unfollowed AAF1's toggle raises no request got=0 exp=0
+  [ ok ] echo: ...and toggles no output           got=0 exp=0
+
+[LOSS] one AAF0 PDU lost in every 0.3 s for 3.0 s
+  9 PDUs lost; servo left LOCKED in 0 of the 1 ms samples
+  [ ok ] loss leg: PDUs were actually lost
+  [ ok ] loss leg: the servo stays LOCKED through single lost PDUs got=0 exp=0
+  [ ok ] C1: neither counter moves in the loss leg (LOCKED) got=0 exp=0
+  [ ok ] C1: neither counter moves in the loss leg (UNLOCKED) got=0 exp=0
+  [ ok ] loss leg: no restart request             got=0 exp=0
+  [ ok ] loss leg: no history restart in the meter got=0 exp=0
+  [ ok ] loss leg: the meter's rate stays valid   got=1 exp=1
+
+[AAF-LOSS] the followed AAF0 falls silent for 150 ms, then returns
+  [ ok ] AAF loss: one request at the meter's timeout got=1 exp=1
+  [ ok ] AAF loss: the servo holds over           got=5 exp=5
+  [ ok ] AAF loss: one mr toggle on the AAF output got=1 exp=1
+  [ ok ] AAF loss: one mr toggle on the CRF output got=1 exp=1
+  [ ok ] AAF loss: the selection is unchanged (index 2, AAF listener 0)
+  [ ok ] C1: UNLOCKED moves at the loss           got=1 exp=1
+  [ ok ] AAF return: no request on return         got=0 exp=0
+  [ ok ] AAF return: no further mr toggle         got=0 exp=0
+  [ ok ] AAF return: the meter locked again       got=1 exp=1
+  AAF return: LOCKED at 20.020 s, trim +4.500 ppm
+  [ ok ] AAF return: the servo reaches LOCKED
+  [ ok ] C1: LOCKED moves when the servo reads LOCKED (AAF return) got=1 exp=1
+
+[TU] the followed AAF0 raises, then clears, its tu bit
+  [ ok ] tu: the followed talker's tu edge restarts the meter's history (AAFM_STAT[15:8]) got=1 exp=1
+  [ ok ] tu: ...so the meter's rate is not valid (AAFM_STAT[1]) got=0 exp=0
+  [ ok ] tu: ...and the meter keeps its lock (AAFM_STAT[0]) got=1 exp=1
+  [ ok ] tu: the falling edge restarts it again   got=2 exp=2
+  [ ok ] tu: no restart request at either edge    got=0 exp=0
+
+  C1 counters at the end: LOCKED 3, UNLOCKED 2; 0 bad samples
+  [ ok ] C1: LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample got=0 exp=0
+simulated 20.030 s
+== milan_dp_mclk: checks: 55   failures: 0 ==
+RESULT: PASS
+[PASS] mutant 12 (the meter's held lock cleared on a sequence gap, --loss): caught; breaks "loss leg: the servo stays LOCKED through single lost PDUs"
+[PASS] mutant 2 (the reference mux stuck on KL_crf_rx, --refmux): caught; breaks "AAF0: the trim holds until the meter's rate validates"
+[PASS] mutant 6 (the meter's raw lock-fall edge wired as the disruption, --switch): caught; breaks "switch: no request pulse at any switch"
+[PASS] mutant 16 (a change of the followed listener keeping a held lock, --silent): caught; breaks "switch (iv): the meter's lock clears at the switch"
+[PASS] mutant 9 (the echo ungated (the meter's listener compare ignored), --echo): caught; breaks "echo: the unfollowed AAF1's toggle raises no request"
+[PASS] the schemata at id 0 pass the --w2 leg
+[PASS] mutant 11 (C2's level (the reference lock), --select): caught; breaks "C1: LOCKED holds until the servo reads LOCKED"
+
+8 checks: 8 PASS, 0 FAIL

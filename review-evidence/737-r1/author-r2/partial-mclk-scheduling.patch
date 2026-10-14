@@ -1,0 +1,459 @@
+diff --git a/tb/verilator/milan_dp_mclk/Makefile b/tb/verilator/milan_dp_mclk/Makefile
+index 983f6e409..c175e3b8a 100644
+--- a/tb/verilator/milan_dp_mclk/Makefile
++++ b/tb/verilator/milan_dp_mclk/Makefile
+@@ -26,6 +26,7 @@
+ 
+ VERILATOR ?= verilator
+ VERILATOR_JOBS ?= 0
++MCLK_ARGS ?=
+ RTL_DIR = ../../../hdl
+ PP_DIR  = ../../../protocol-processor/hdl
+ DP      = ../milan_dp
+@@ -126,7 +127,7 @@ mclk: mclk-build
+ # the clean leg's full sequence and every mutant's short leg as one pool, so
+ # the campaign shares the suite's wall clock instead of following it.
+ run: mclk-build
+-	python3 mclk_mutants.py
++	python3 mclk_mutants.py $(MCLK_ARGS)
+ 
+ clean:
+ 	rm -rf ltn_rom.hex ucode.hex gen_mclk obj_mclk_aem obj_mclk obj_mclk_mut \
+diff --git a/tb/verilator/milan_dp_mclk/mclk_mutants.py b/tb/verilator/milan_dp_mclk/mclk_mutants.py
+index 8e2c9dc29..83074e0ea 100644
+--- a/tb/verilator/milan_dp_mclk/mclk_mutants.py
++++ b/tb/verilator/milan_dp_mclk/mclk_mutants.py
+@@ -36,6 +36,8 @@ Usage: python3 mclk_mutants.py   (run from tb/verilator/milan_dp_mclk)
+ Exit 0 = the clean legs pass and every mutant was caught.
+ """
+ 
++import argparse
++import json
+ import os
+ import subprocess
+ import sys
+@@ -49,6 +51,7 @@ RTL = HERE / "../../../hdl"
+ CLEAN_EXE = HERE / "obj_mclk/Vmilan_dp_mclk"
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
++from ci_case_receipts import Receipt, partition  # noqa: E402
+ 
+ #: the three files the schemata plant into: (path, the Makefile override)
+ SOURCES = {
+@@ -213,9 +216,11 @@ def build(copies: dict[str, Path], mdir: Path) -> Path | None:
+     return exe
+ 
+ 
+-def run_leg(exe: Path, mode: str, mid: int) -> tuple[int, str]:
++def run_leg(exe: Path, mode: str, mid: int, observe: bool = False) -> tuple[int, str]:
+     """(rc, output) of one run, waited for with no host deadline."""
+     args = [str(exe), f"--{mode}", f"+MCLK_MUT={mid}"]
++    if observe:
++        args.append("+MCLK_CHECK_VALUES=1")
+     proc = subprocess.run(args, cwd=str(HERE), capture_output=True, text=True,
+                           check=False)
+     return proc.returncode, proc.stdout + proc.stderr
+@@ -243,8 +248,38 @@ def jobs() -> int:
+     return max(1, int(raw)) if raw.isdigit() else 4
+ 
+ 
++def run_inventory() -> list[tuple[str, str, int]]:
++    """The default run's cases, shared by execution and receipt verification."""
++    modes = sorted({m.mode for m in MUTANTS})
++    short = [("control", mode, 0) for mode in modes]
++    short += [("mutant", m.mode, m.mid) for m in MUTANTS]
++    short.sort(key=lambda r: -MODE_SECONDS.get(r[1], 0.1))
++    return [("leg", leg, 0) for leg in ("a", "c", "b")] + short
++
++
++def case_id(run: tuple[str, str, int]) -> str:
++    """A stable identity including the mutant selector, not only its mode."""
++    return "/".join(map(str, run))
++
++
+ def main() -> int:
+     """Run the clean legs, the schemata's controls and every mutant."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--list", action="store_true", help="print the complete case inventory as JSON")
++    parser.add_argument("--shard", help="zero-based INDEX/TOTAL; omitted runs every case")
++    parser.add_argument("--receipt", type=Path, help="record outcomes and all printed check values")
++    args = parser.parse_args()
++    inventory = run_inventory()
++    names = [case_id(run) for run in inventory]
++    if args.list:
++        print(json.dumps(names))
++        return 0
++    try:
++        selected = partition(names, args.shard)
++    except ValueError as exc:
++        parser.error(str(exc))
++    runs = [run for run in inventory if case_id(run) in selected]
++    receipt = Receipt(HERE.parents[2], "milan_dp_mclk", names, args.shard, args.receipt)
+     passes = 0
+     fails = 0
+     if not CLEAN_EXE.is_file():
+@@ -260,15 +295,14 @@ def main() -> int:
+         if exe is None:
+             print("[FAIL] the schemata did not compile; no mutant proves anything")
+             return 1
+-        modes = sorted({m.mode for m in MUTANTS})
+-        short = [("control", exe, mode, 0) for mode in modes]
+-        short += [("mutant", exe, m.mode, m.mid) for m in MUTANTS]
+-        short.sort(key=lambda r: -MODE_SECONDS.get(r[2], 0.1))
+-        runs = [("leg", CLEAN_EXE, leg, 0) for leg in ("a", "c", "b")] + short
+         with ThreadPoolExecutor(max_workers=jobs()) as pool:
+-            results = list(pool.map(lambda r: run_leg(r[1], r[2], r[3]), runs))
++            results = list(pool.map(lambda r: run_leg(CLEAN_EXE if r[0] == "leg" else exe,
++                                                     r[1], r[2], args.receipt is not None), runs))
+     by_mid = {m.mid: m for m in MUTANTS}
+-    for (kind, _, mode, mid), (rc, out) in zip(runs, results):
++    for run, (rc, out) in zip(runs, results):
++        kind, mode, mid = run
++        answer = verdict(rc, out, by_mid[mid].breaks if kind == "mutant" else None)
++        receipt.record(case_id(run), answer, rc, out)
+         if kind == "leg":
+             print(f"======== the clean leg {mode.upper()} ========")
+             sys.stdout.write(out)
+@@ -289,6 +323,7 @@ def main() -> int:
+                   f"({m.name}, --{mode}): {answer}; breaks \"{m.breaks}\"")
+         passes, fails = (passes + 1, fails) if ok else (passes, fails + 1)
+     print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL")
++    receipt.finish()
+     return 1 if fails else 0
+ 
+ 
+diff --git a/tb/verilator/milan_dp_mclk/sim_mclk.cpp b/tb/verilator/milan_dp_mclk/sim_mclk.cpp
+index fb698e6c7..93c3884d1 100644
+--- a/tb/verilator/milan_dp_mclk/sim_mclk.cpp
++++ b/tb/verilator/milan_dp_mclk/sim_mclk.cpp
+@@ -1174,6 +1174,7 @@ int main(int argc, char** argv) {
+     for (int i = 1; i < argc; i++) {
+         const std::string a = argv[i];
+         if (a.rfind("--", 0) == 0) mode = a.substr(2);
++        if (a == "+MCLK_CHECK_VALUES=1") check.echo_passes();
+     }
+     h.run(mode);
+     return check.report();
+diff --git a/scripts/ci_case_receipts.py b/scripts/ci_case_receipts.py
+new file mode 100644
+index 000000000..b38c17775
+--- /dev/null
++++ b/scripts/ci_case_receipts.py
+@@ -0,0 +1,190 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Prove executed case coverage against a driver's freshly derived inventory.
++
++A planned list is not execution evidence. Each receipt records each completed
++case, its verdict, process status and the digest of its complete diagnostic
++output. Verification requires every case exactly once, on its selected leg,
++at the requested commit and tree. Comparing a complete unsharded run with a
++complete sharded run additionally requires identical per-case observations.
++"""
++
++from __future__ import annotations
++
++import argparse
++from collections import Counter
++import hashlib
++import json
++from pathlib import Path
++import re
++import subprocess
++
++from suite_shards import parse_shard
++
++SCHEMA = 1
++HEX256 = re.compile(r"[0-9a-f]{64}")
++HEX160 = re.compile(r"[0-9a-f]{40}")
++
++
++def canonical(value: object) -> bytes:
++    """One encoding for inventory and output evidence."""
++    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
++
++
++def validate_inventory(names: list[str]) -> None:
++    """An empty or ambiguous driver inventory cannot prove coverage."""
++    if (not isinstance(names, list) or not names
++            or any(not isinstance(name, str) or not name for name in names)
++            or len(set(names)) != len(names)):
++        raise ValueError("inventory must be a nonempty list of unique case names")
++
++
++def partition(names: list[str], shard: str | None) -> list[str]:
++    """Select cases in driver order; no option retains the complete inventory."""
++    validate_inventory(names)
++    if shard is None:
++        return names[:]
++    index, total = parse_shard(shard)
++    if total > len(names):
++        raise ValueError("more shards than cases would leave empty legs")
++    return names[index::total]
++
++
++class Receipt:
++    """Record observations only; the driver still owns every case's verdict."""
++
++    def __init__(self, root: Path, suite: str, names: list[str], shard: str | None,
++                 path: Path | None) -> None:
++        self.path = path
++        self.results: list[dict[str, object]] = []
++        self.data: dict[str, object] = {}
++        if path is None:
++            return
++        if path.exists():
++            raise ValueError(f"receipt already exists: {path}")
++        head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
++        tree = subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=root, text=True).strip()
++        self.data = {"schema": SCHEMA, "suite": suite, "head": head, "tree": tree,
++                     "inventory": names, "shard": shard, "results": self.results}
++
++    def record(self, name: str, outcome: str, rc: int, output: str) -> None:
++        """Keep the completed case's own status and exact output, including failures."""
++        if self.path is None:
++            return
++        self.results.append({"case": name, "outcome": outcome, "returncode": rc,
++                             "output_sha256": hashlib.sha256(output.encode()).hexdigest()})
++        log_dir = self.path.with_suffix(".logs")
++        log_dir.mkdir(parents=True, exist_ok=True)
++        # A digest filename cannot escape the log directory through a case name.
++        log_dir.joinpath(hashlib.sha256(name.encode()).hexdigest() + ".log").write_text(output)
++
++    def finish(self) -> None:
++        """Publish only after the driver has graded every selected result."""
++        if self.path is not None:
++            self.path.parent.mkdir(parents=True, exist_ok=True)
++            with self.path.open("xb") as stream:
++                stream.write(canonical(self.data) + b"\n")
++
++
++def verify(names: list[str], receipts: list[dict], suite: str, head: str, tree: str) -> dict:
++    """Return complete case observations, or name the failed proof obligation."""
++    validate_inventory(names)
++    if not HEX160.fullmatch(head) or not HEX160.fullmatch(tree):
++        raise ValueError("head and tree must be full object IDs")
++    if not receipts:
++        raise ValueError("no executed receipts")
++    seen: list[str] = []
++    shards: list[str | None] = []
++    observations = {}
++    totals = set()
++    for receipt in receipts:
++        if set(receipt) != {"schema", "suite", "head", "tree", "inventory", "shard", "results"}:
++            raise ValueError("receipt fields differ from schema")
++        for key, want in (("schema", SCHEMA), ("suite", suite), ("head", head),
++                          ("tree", tree), ("inventory", names)):
++            if receipt[key] != want:
++                raise ValueError(f"receipt {key} differs")
++        shard = receipt["shard"]
++        selected = partition(names, shard)
++        if shard is not None:
++            totals.add(parse_shard(shard)[1])
++        shards.append(shard)
++        results = receipt["results"]
++        if not isinstance(results, list):
++            raise ValueError("results must be a list")
++        ran = []
++        for result in results:
++            if set(result) != {"case", "outcome", "returncode", "output_sha256"}:
++                raise ValueError("result fields differ from schema")
++            name = result["case"]
++            if not isinstance(name, str):
++                raise ValueError("case name must be a string")
++            rc = result["returncode"]
++            outcome = result["outcome"]
++            if (type(rc) is not int or outcome not in ("pass", "caught")
++                    or (outcome == "pass" and rc != 0)
++                    or (outcome == "caught" and rc <= 0)):
++                raise ValueError(f"{name}: unsuccessful or inconsistent case verdict")
++            digest = result["output_sha256"]
++            if not isinstance(digest, str) or not HEX256.fullmatch(digest):
++                raise ValueError(f"{name}: missing output digest")
++            ran.append(name)
++            observations[name] = result
++        if ran != selected:
++            raise ValueError(f"shard {shard}: executed cases differ from its inventory: {ran}")
++        seen.extend(ran)
++    if Counter(seen) != Counter(names):
++        raise ValueError("executed union has missing or duplicated cases")
++    if None in shards:
++        if shards != [None]:
++            raise ValueError("unsharded receipt mixed with other receipts")
++    elif len(totals) != 1 or set(shards) != {f"{n}/{len(shards)}" for n in range(len(shards))}:
++        raise ValueError("missing, duplicate or inconsistent shard coordinates")
++    return observations
++
++
++def read_receipts(paths: list[Path]) -> list[dict]:
++    """Read receipts and bind every recorded digest to its retained output."""
++    values = []
++    for path in paths:
++        value = json.loads(path.read_text())
++        for result in value["results"]:
++            filename = hashlib.sha256(result["case"].encode()).hexdigest() + ".log"
++            output = path.with_suffix(".logs").joinpath(filename).read_bytes()
++            if hashlib.sha256(output).hexdigest() != result["output_sha256"]:
++                raise ValueError(f"{result['case']}: retained output differs from receipt")
++        values.append(value)
++    return values
++
++
++def main() -> int:
++    """Check the actual union; optionally compare with an unsharded reference."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--inventory", type=Path, required=True)
++    parser.add_argument("--suite", required=True)
++    parser.add_argument("--head", required=True)
++    parser.add_argument("--tree", required=True)
++    parser.add_argument("--reference", type=Path)
++    parser.add_argument("receipts", type=Path, nargs="+")
++    args = parser.parse_args()
++    try:
++        names = json.loads(args.inventory.read_text())
++        observations = verify(names, read_receipts(args.receipts), args.suite, args.head, args.tree)
++        if args.reference:
++            reference = read_receipts([args.reference])
++            if reference[0]["shard"] is not None:
++                raise ValueError("reference must be an unsharded run")
++            original = verify(names, reference, args.suite, args.head, args.tree)
++            for name in names:
++                if observations[name] != original[name]:
++                    raise ValueError(f"{name}: sharded outcome or checked output differs")
++    except (OSError, ValueError, KeyError, TypeError) as exc:
++        print(f"case union refused: {exc}")
++        return 1
++    print(f"case union: {len(names)} cases exactly once; observations verified")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/scripts/ci_case_receipts_selftest.py b/scripts/ci_case_receipts_selftest.py
+new file mode 100644
+index 000000000..2f4443528
+--- /dev/null
++++ b/scripts/ci_case_receipts_selftest.py
+@@ -0,0 +1,121 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Planted omissions and changed observations must fail executed-union proofs."""
++
++import copy
++import hashlib
++import importlib.util
++import json
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++
++import ci_case_receipts as receipts
++
++ROOT = Path(__file__).resolve().parents[1]
++DRIVER = ROOT / "tb/verilator/milan_dp_mclk/mclk_mutants.py"
++
++
++def refuse(action, label: str) -> None:
++    """A negative control is useful only if the real verifier refuses it."""
++    try:
++        action()
++    except (ValueError, KeyError, TypeError, OSError):
++        print(f"receipt control: {label} refused")
++        return
++    raise AssertionError(f"receipt control accepted: {label}")
++
++
++def main() -> int:
++    spec = importlib.util.spec_from_file_location("mclk_inventory", DRIVER)
++    driver = importlib.util.module_from_spec(spec)
++    sys.modules[spec.name] = driver
++    spec.loader.exec_module(driver)
++    names = [driver.case_id(case) for case in driver.run_inventory()]
++    listed = subprocess.check_output([sys.executable, str(DRIVER), "--list"], text=True)
++    assert json.loads(listed) == names
++    # Every selector and every mode of the actual mutation table participates.
++    assert {run[2] for run in driver.run_inventory() if run[0] == "mutant"} == {
++        mutant.mid for mutant in driver.MUTANTS}
++    assert {run[1] for run in driver.run_inventory() if run[0] == "control"} == {
++        mutant.mode for mutant in driver.MUTANTS}
++    head, tree = "1" * 40, "2" * 40
++    suite = "milan_dp_mclk"
++
++    def result(name):
++        mutant = name.startswith("mutant/")
++        return {"case": name, "outcome": "caught" if mutant else "pass",
++                "returncode": 1 if mutant else 0,
++                "output_sha256": hashlib.sha256(name.encode()).hexdigest()}
++
++    def record(shard):
++        return {"schema": receipts.SCHEMA, "suite": suite, "head": head, "tree": tree,
++                "inventory": names, "shard": shard,
++                "results": [result(name) for name in receipts.partition(names, shard)]}
++
++    def verify(records):
++        return receipts.verify(names, records, suite, head, tree)
++
++    unsharded = verify([record(None)])
++    for count in (1, 2, 4, len(names)):
++        assert verify([record(f"{n}/{count}") for n in range(count)]) == unsharded
++    base = [record(f"{n}/4") for n in range(4)]
++    # Drop a case from EVERY leg and their claimed inventories. The authority
++    # is the driver's independent inventory, never the union's own declaration.
++    dropped = copy.deepcopy(base)
++    for part in dropped:
++        part["inventory"] = names[1:]
++        part["results"] = [item for item in part["results"] if item["case"] != names[0]]
++    refuse(lambda: verify(dropped), "one case removed from all legs and inventories")
++    refuse(lambda: verify(base[1:]), "dropped entire leg")
++    refuse(lambda: verify(base + [base[0]]), "duplicate leg")
++    for key, value in (("schema", 0), ("suite", "wrong"), ("head", "3" * 40),
++                       ("tree", "4" * 40), ("shard", "0/3"), ("inventory", [])):
++        changed = copy.deepcopy(base)
++        changed[0][key] = value
++        refuse(lambda: verify(changed), f"changed {key}")
++    for key, value in (("case", "foreign"), ("outcome", "failure"), ("returncode", -9),
++                       ("returncode", True), ("output_sha256", "missing")):
++        changed = copy.deepcopy(base)
++        changed[0]["results"][0][key] = value
++        refuse(lambda: verify(changed), f"changed result {key}")
++    for bad in ("-1/4", "4/4", "0/0", "0/32"):
++        refuse(lambda: receipts.partition(names, bad), f"shard {bad}")
++    with tempfile.TemporaryDirectory(prefix="case-receipts-") as directory:
++        work = Path(directory)
++        inventory = work / "inventory.json"
++        inventory.write_text(json.dumps(names))
++
++        def save(path, value):
++            path.write_text(json.dumps(value))
++            logs = path.with_suffix(".logs")
++            logs.mkdir(exist_ok=True)
++            for item in value["results"]:
++                logs.joinpath(hashlib.sha256(item["case"].encode()).hexdigest() + ".log").write_text(item["case"])
++
++        reference = work / "reference.json"
++        save(reference, record(None))
++        paths = [work / f"shard-{n}.json" for n in range(4)]
++        for path, value in zip(paths, base):
++            save(path, value)
++        command = [sys.executable, str(ROOT / "scripts/ci_case_receipts.py"),
++                   "--inventory", str(inventory), "--suite", suite, "--head", head,
++                   "--tree", tree, "--reference", str(reference), *map(str, paths)]
++        subprocess.run(command, check=True)
++        changed = copy.deepcopy(base[0])
++        changed["results"][0]["output_sha256"] = hashlib.sha256(b"different checked value").hexdigest()
++        paths[0].write_text(json.dumps(changed))
++        refuse(lambda: receipts.read_receipts(paths), "changed receipt output digest")
++        log = paths[0].with_suffix(".logs") / (hashlib.sha256(names[0].encode()).hexdigest() + ".log")
++        log.write_text("different checked value")
++        altered = subprocess.run(command, capture_output=True, text=True)
++        assert altered.returncode == 1 and names[0] in altered.stdout
++        print("receipt control: changed checked value and its digest refused by comparison")
++    print(f"case receipt self-test: {len(names)} driver cases, union and comparison controls pass")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())

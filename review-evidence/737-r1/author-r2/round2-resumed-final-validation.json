@@ -1,0 +1,39 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa820988"
+    ],
+    "returncode": 0,
+    "seconds": 3.269,
+    "log_bytes": 140,
+    "log_sha256": "8b109cccd839b4a042d1029ec73a0b9d47c8bff0b58a92cdacbaefc11b31ea68",
+    "log_tail": [
+      "check_em_dash: 0 finding(s) over 528 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [fa820988..HEAD]"
+    ]
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 3.218,
+    "log_bytes": 42,
+    "log_sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a",
+    "log_tail": [
+      "check_em_dash selftest: PASS (339 arm(s))"
+    ]
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "returncode": 0
+  }
+]

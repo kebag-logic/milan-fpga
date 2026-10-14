@@ -1,0 +1,134 @@
+{
+  "source_head": "21bd10cec1a999791c9cd2c6d37c52372fb1504e",
+  "job_class": "builder",
+  "allocated_cpus": 16,
+  "container_limit_bytes": 8589934592,
+  "memory_peak_bytes": 3523665920,
+  "memory_peak_gib": 3.2817,
+  "memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0,
+    "sock_throttled": 0
+  },
+  "returncode": 0,
+  "seconds": 1385.762,
+  "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "environment": [
+    "CI_BUILD_JOBS=16",
+    "CI_CAMPAIGN_JOBS=4",
+    "VERILATOR_JOBS=16",
+    "SIM_JOBS=4",
+    "MAKEFLAGS=-j1 --no-print-directory"
+  ],
+  "sampled_max_process_counts": {
+    "bash": 3,
+    "chown": 1,
+    "python3": 3,
+    "make": 1,
+    "sh": 1,
+    "java": 1,
+    "riscv32-linux-g": 1,
+    "cc1": 1,
+    "perl": 1,
+    "verilator_bin": 1,
+    "fw": 1
+  },
+  "source_scope": "Disposable initialized checkout; tracked source unchanged. One container at a time. Twelve CPUs measures width within the assigned die, not aligned fallback admission.",
+  "artifacts": [
+    {
+      "name": "cpus",
+      "bytes": 3,
+      "sha256": "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
+    },
+    {
+      "name": "finished",
+      "bytes": 21,
+      "sha256": "96e52d357184bbaa70ab4952fe693d74ddac3df174478f7c045003f46b6705c6"
+    },
+    {
+      "name": "job.env",
+      "bytes": 100,
+      "sha256": "356a5c36e395cb58e19d78fd252c22a1a4919a5452d4aec5fd3af0fd00d64e4b"
+    },
+    {
+      "name": "launch.json",
+      "bytes": 898,
+      "sha256": "8e0a5953b729688698a506d333160776408729200e9ca10e3773e601b69712de"
+    },
+    {
+      "name": "memory.events",
+      "bytes": 70,
+      "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+    },
+    {
+      "name": "memory.peak",
+      "bytes": 11,
+      "sha256": "dc9116bad354f082d8675c6ac8e217ca314123ec8e3c870f43b5a91cd0f4bdc3"
+    },
+    {
+      "name": "result.rc",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "run.log",
+      "bytes": 103046,
+      "sha256": "8d75d2adf988f9fdb027e60e62190212d391739dfd20bdfffe20d7bfd4aeaeef"
+    },
+    {
+      "name": "run.sh",
+      "bytes": 865,
+      "sha256": "3ac42a1573df5ae6663dfe5ebe1bfc7dccec5c4d45472d54c005cd1a31eebc93"
+    },
+    {
+      "name": "started",
+      "bytes": 21,
+      "sha256": "e0ddf587627a2f499904038d0de2c7a194e4ed03fe1e7f91190cba34fa660adb"
+    },
+    {
+      "name": "state.json",
+      "bytes": 269,
+      "sha256": "7ac36089aa05effb9dae915b91969a51ba7b3a51fbec4b8a0014308d4a05134e"
+    },
+    {
+      "name": "telemetry.jsonl",
+      "bytes": 62824,
+      "sha256": "998e8d34bab45394e9e6b77b39c1c09f0d0685a9f286ce0a62826899e042ab4d"
+    }
+  ],
+  "sampled_service_memory_current_max": 503275520,
+  "configuration_qualification": "Container removed before final configuration export. Caps and image are from retained launch command; completed state and cgroup peak/events were captured before removal. CPU affinity was observed in telemetry.",
+  "container_observation": {
+    "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+    "memory": 8589934592,
+    "memory_swap": 8589934592,
+    "cpuset": "112-127",
+    "exit_code": 0,
+    "oom_killed": false,
+    "started_at": "2026-10-14T17:01:00.342897437Z",
+    "finished_at": "2026-10-14T17:24:06.470322199Z",
+    "configuration_source": "retained launch command"
+  },
+  "exported_verilator_jobs_for_workload": 16,
+  "campaign_workers": null,
+  "log_tail": [
+    "  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused",
+    "test_descriptor_fields_name_this_device:",
+    "  [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused",
+    "test_name_count_fits_the_nvm_name_block:",
+    "  [gate 38] capacity 128 read from hdl/milan/KL_nvm_backend.sv:247; 128 names built, 129 and the 8x8 TDM8 point (235) refused before any write, naming both figures; KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 with N_NAME_MAX_C planted at 127",
+    "  [gate 38] 9/9 planted defects turned their check red: capacity 127 vs 128 names; capacity 129 vs 129 names; capacity 235 vs 235 names; refusal naming no figure; refusal after a write; guard on a literal; declaration commented out; declaration in hex; declaration repeated",
+    "",
+    "2 GATE ARM(S) DID NOT RUN - this verdict does not cover them:",
+    "  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+    "  - [gate 11] real report not on disk (/scratch<home-path>/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+    "ALL GATES PASS EXCEPT 2 NOT RUN",
+    "--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 2 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them"
+  ],
+  "provisioning": "Fresh image container, empty CPU metadata; preinstalled dependency caches. Home-relative RV32 selector aliases the pinned SDK. JVM source/cache directories are writable by the checkout owner.",
+  "command": "python3 sw/builder/test_builder.py --require-elaboration --require-rv32"
+}

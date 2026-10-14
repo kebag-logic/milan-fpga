@@ -1,0 +1,14 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.017 s (elab=0.000, cvt=0.000, bld=0.015); cpu 0.002 s on 4 threads; allocated 16.629 MB
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.017 s (elab=0.000, cvt=0.000, bld=0.015); cpu 0.002 s on 4 threads; allocated 16.633 MB
+======== milan_dp_render/leg-defects ========
+[PASS] the unmutated gateware still passes the render lane leg (ship --crf-only)
+[PASS] the unmutated gateware still passes the render lane leg (ship --serial-only)
+[PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks "T5 FRAMING: the window decoded whole frames"
+[PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record"
+[PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks "T30 CRF: the media plane's one registered resolve reads CRF"
+
+5 checks: 5 PASS, 0 FAIL (--leg-defects: the arms that need no elaboration; the gateware and shape mutants are the tdm8render-mutants target)

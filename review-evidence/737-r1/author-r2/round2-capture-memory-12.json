@@ -1,0 +1,134 @@
+{
+  "source_head": "21bd10cec1a999791c9cd2c6d37c52372fb1504e",
+  "job_class": "capture",
+  "allocated_cpus": 12,
+  "container_limit_bytes": 8589934592,
+  "memory_peak_bytes": 5042556928,
+  "memory_peak_gib": 4.6962,
+  "memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0,
+    "sock_throttled": 0
+  },
+  "returncode": 0,
+  "seconds": 484.113,
+  "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "environment": [
+    "CI_BUILD_JOBS=12",
+    "CI_CAMPAIGN_JOBS=4",
+    "VERILATOR_JOBS=12",
+    "SIM_JOBS=4",
+    "MAKEFLAGS=-j1 --no-print-directory"
+  ],
+  "sampled_max_process_counts": {
+    "bash": 1,
+    "python3": 2,
+    "make": 8,
+    "sh": 8,
+    "perl": 4,
+    "verilator_bin": 4,
+    "g++": 12,
+    "cc1plus": 12,
+    "Vcoherence_dp": 4,
+    "Vcoherence_sim": 4,
+    "Vchmap_wrap": 2,
+    "Vmedia_nco_sim": 1,
+    "as": 1,
+    "xargs": 1,
+    "ar": 1
+  },
+  "source_scope": "Disposable initialized checkout; tracked source unchanged. One container at a time. Twelve CPUs measures width within the assigned die, not aligned fallback admission.",
+  "artifacts": [
+    {
+      "name": "cpus",
+      "bytes": 3,
+      "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+    },
+    {
+      "name": "finished",
+      "bytes": 21,
+      "sha256": "11c25afd57db12e263661d6fb8879a4f735c5931702365139b87359c365bcfcd"
+    },
+    {
+      "name": "job.env",
+      "bytes": 100,
+      "sha256": "2cf43a8cb2e93f2f40af17afe4271f579a438d08b0f429a7a2cc2f1709b2fa2a"
+    },
+    {
+      "name": "launch.json",
+      "bytes": 682,
+      "sha256": "1443b95771e1701aefe09cb38a8a1f0b81b96102e835d77f81c3946fd1bc8c40"
+    },
+    {
+      "name": "memory.events",
+      "bytes": 70,
+      "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+    },
+    {
+      "name": "memory.peak",
+      "bytes": 11,
+      "sha256": "dbfcb643061aa121f9ef925aef9aff5afa60980a9e1ae264818bf4f20248aef7"
+    },
+    {
+      "name": "result.rc",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "run.log",
+      "bytes": 252796,
+      "sha256": "b6542ada479eb50be2ec91d155eab415b216c937fa2f690294b8567a4af5f2bb"
+    },
+    {
+      "name": "run.sh",
+      "bytes": 946,
+      "sha256": "d6b4bf17bfa43e16499bee5380cecafce4ba0e17afe96166d6fbd1896376d6cb"
+    },
+    {
+      "name": "started",
+      "bytes": 21,
+      "sha256": "51af7ed7f6ae22698f0cf19eb9a10951a095e08c4ed862167e70bc5013f55d54"
+    },
+    {
+      "name": "state.json",
+      "bytes": 269,
+      "sha256": "9c7f02e4e13bcf63a164c0587f042710f9e2d31fc56cbcd5b1f13552fda212cd"
+    },
+    {
+      "name": "telemetry.jsonl",
+      "bytes": 25526,
+      "sha256": "16e0641e0975b2e2bf72b575c1e86b027ff98562be413c22263a29525a82e856"
+    }
+  ],
+  "container_observation": {
+    "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+    "memory": 8589934592,
+    "memory_swap": 8589934592,
+    "cpuset": "112-123",
+    "exit_code": 0,
+    "oom_killed": false,
+    "started_at": "2026-10-14T16:48:34.972419341Z",
+    "finished_at": "2026-10-14T16:56:39.194251444Z"
+  },
+  "exported_verilator_jobs_for_workload": 3,
+  "campaign_workers": 4,
+  "log_tail": [
+    "[PASS] mutant caught (band): the aligner sees the tick itself, one cycle before the walk's crossing - breaks \"[C] CRF slips net zero\"",
+    "[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks \"[A] AAF columns mixing two TDM frames\"",
+    "[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks \"[C] slips while the CRF lock held\"",
+    "[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks \"Q: col 2 pair 0 L is frame 4\"",
+    "[PASS] mutant caught (chmap): RM8: a queued tick snapshots at the tick itself, reloading the walk still running - breaks \"Q: col 1 pair 2 L is frame 2\" and \"Q: col 2 pair 0 L is frame 4\"",
+    "[PASS] mutant caught (band50): RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement - breaks \"[C] slips while the CRF lock held\"",
+    "[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: \"does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C\"",
+    "[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks \"update landing at old end +0: one tick, in a period the old or the new trim sets\"",
+    "[PASS] mutant caught (fine): the terminal compare back to == (377d1ac3), under the aligner's trim updates - breaks \"[C] CRF slips net zero\"",
+    "[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks \"F1: col 0 carries its own pair-0 frame (L)\"",
+    "",
+    "32 checks: 32 PASS, 0 FAIL"
+  ],
+  "command": "VERILATOR_JOBS=$(( CI_BUILD_JOBS / CI_CAMPAIGN_JOBS )) python3 tb/verilator/capture_coherence/mutants.py --whole-suite --jobs \"$CI_CAMPAIGN_JOBS\""
+}

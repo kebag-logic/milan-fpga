@@ -1,0 +1,72 @@
+{
+  "baseline_checked": 2174,
+  "baseline_findings": [],
+  "controls": [
+    {
+      "workflow": ".github/workflows/docs.yml",
+      "job": "docs-check",
+      "change": {
+        "needs": [
+          "docs-shards"
+        ]
+      },
+      "findings": [
+        ".github/workflows/docs.yml: job `docs-check` must carry no `needs` (found ['docs-shards']): it makes the job a dependent, and a dependent of a skipped job is skipped, taking every assertion in it"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/docs.yml",
+      "job": "docs-check",
+      "change": {
+        "strategy": {
+          "matrix": {
+            "shard": [
+              0,
+              1
+            ]
+          }
+        }
+      },
+      "findings": [
+        ".github/workflows/docs.yml: job `docs-check` may carry only the keys ['if', 'name', 'needs', 'runs-on', 'steps', 'timeout-minutes'] (surplus: ['strategy']): `container` carries its own env map and picks the image every step's python3 comes from, `services` starts more, and an unknown key is refused for the same reason"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/elaborate.yml",
+      "job": "elaborate",
+      "change": {
+        "needs": [
+          "elaborate-shards"
+        ]
+      },
+      "findings": [
+        ".github/workflows/elaborate.yml: job `elaborate` must carry no `needs` (found ['elaborate-shards']): it makes the job a dependent, and a dependent of a skipped job is skipped, taking every assertion in it"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/elaborate.yml",
+      "job": "elaborate",
+      "change": {
+        "strategy": {
+          "matrix": {
+            "shard": [
+              0,
+              1
+            ]
+          }
+        }
+      },
+      "findings": [
+        ".github/workflows/elaborate.yml: job `elaborate` may carry only the keys ['if', 'name', 'needs', 'runs-on', 'steps', 'timeout-minutes'] (surplus: ['strategy']): `container` carries its own env map and picks the image every step's python3 comes from, `services` starts more, and an unknown key is refused for the same reason"
+      ]
+    },
+    {
+      "workflow": ".github/workflows/rtl.yml",
+      "job": "verilator-shards",
+      "change": "append source and recipe digest fields to cache key",
+      "findings": [
+        ".github/workflows/rtl.yml: job `verilator-shards` step 4 (`Cache the pinned Verilator build`) `with` must be exactly {'path': '/opt/verilator', 'key': 'verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}'} (found {'path': '/opt/verilator', 'key': 'verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}-source-digest-recipe-digest'}): a `with` decides what an action reads and restores -- a widened cache key hands over generated metadata from another toolchain head, a moved upload path publishes other bytes, and a widened download pattern feeds the verifier evidence from other workers"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "source_head": "21bd10cec1a999791c9cd2c6d37c52372fb1504e",
+  "job_class": "datapath",
+  "allocated_cpus": 16,
+  "container_limit_bytes": 8589934592,
+  "memory_peak_bytes": 3349397504,
+  "memory_peak_gib": 3.1194,
+  "memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0,
+    "sock_throttled": 0
+  },
+  "returncode": 0,
+  "seconds": 65.267,
+  "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "environment": [
+    "CI_BUILD_JOBS=16",
+    "CI_CAMPAIGN_JOBS=4",
+    "VERILATOR_JOBS=16",
+    "SIM_JOBS=4",
+    "MAKEFLAGS=-j1 --no-print-directory"
+  ],
+  "sampled_max_process_counts": {},
+  "source_scope": "Disposable initialized checkout; tracked source unchanged. One container at a time. Twelve CPUs measures width within the assigned die, not aligned fallback admission.",
+  "artifacts": [
+    {
+      "name": "cpus",
+      "bytes": 3,
+      "sha256": "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
+    },
+    {
+      "name": "finished",
+      "bytes": 21,
+      "sha256": "1e15114cfccc927db65a189692ca63e57687c8e25cf0344edc47a7daa4506b98"
+    },
+    {
+      "name": "job.env",
+      "bytes": 100,
+      "sha256": "356a5c36e395cb58e19d78fd252c22a1a4919a5452d4aec5fd3af0fd00d64e4b"
+    },
+    {
+      "name": "launch.json",
+      "bytes": 651,
+      "sha256": "aa62f122dd37e818c02346f2dc8c44e06dbb8544441e65909ca9e8297efe66f9"
+    },
+    {
+      "name": "memory.events",
+      "bytes": 70,
+      "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+    },
+    {
+      "name": "memory.peak",
+      "bytes": 11,
+      "sha256": "5407e200a4e95b3a9a0feee7883c5d43597291f264a4a793d9bf481d5978c032"
+    },
+    {
+      "name": "result.rc",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "run.log",
+      "bytes": 410599,
+      "sha256": "50dd9a4e84fe99ac8a4212329d9e7f04b15fd35a3349c78b9decec1b079ba6d9"
+    },
+    {
+      "name": "run.sh",
+      "bytes": 874,
+      "sha256": "1d38707aaabd0dc4ebec8ba97b6a0742907de3fbde50600badab1603af64e383"
+    },
+    {
+      "name": "started",
+      "bytes": 21,
+      "sha256": "648ed1b11b45e0c71509ebff8db27c9ea1a725a1ecdb86f6c9fa100f280ea43d"
+    }
+  ],
+  "container_observation": {
+    "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+    "memory": 8589934592,
+    "memory_swap": 8589934592,
+    "cpuset": "112-127",
+    "exit_code": 0,
+    "oom_killed": false,
+    "started_at": "2026-10-14T16:36:57.36882309Z",
+    "finished_at": "2026-10-14T16:38:02.746078281Z"
+  },
+  "exported_verilator_jobs_for_workload": 16,
+  "campaign_workers": null,
+  "log_tail": [
+    "  [i]    media grid: 300 ticks in 625000 clocks (want 300 +/-1)",
+    "  [i]    0x0041 grid: fsync-vs-grid ALIGNMENT is modelled and graded where the ratio exists: obj_aclk drives the true 391/1591 plan and proves the accepted INTERNAL drift AND the #74 aligned-under-CRF close (KL_media_grid_align). The silicon counterpart stays J11.8 against J11.9.",
+    "  [ok]   0x0041 grid: media_tick_p actually ticks (vacuity guard) = 0x1",
+    "  [ok]   0x0041 grid: rate is 48 kHz on the milan clock = 0x1",
+    "  [i]    physical bucket: the slot-indexed feed pulsed 1220 times in 625000 cycles",
+    "  [ok]   0x0042 phys: the slot-indexed capture bucket IS fed (was tied off) = 0x1",
+    "  [ok]   0x0041 grid: the NCO's servo gate IS the live selection verdict = 0x0",
+    "  [ok]   0x0041 grid: INTERNAL engages the grid aligner (#629 A2-a) = 0x1",
+    "  [ok]   0x0041 grid: a disengaged aligner leaves no residual trim on the NCO port = 0x0",
+    "--------------------------------------------------------------",
+    "checks: 3751   failures: 0",
+    "RESULT: PASS"
+  ],
+  "command": "make -C tb/verilator/milan_dp build-nxn8; make -C tb/verilator/milan_dp exec-nxn8"
+}

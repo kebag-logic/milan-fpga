@@ -1,0 +1,62 @@
+{
+  "source_head": "dafa43202c0cacdffdd2ee70a878774c7c8592e6",
+  "source_note": "Source remained unchanged during measurement; generated configuration files used a disposable writable overlay.",
+  "job_class": "firmware control normal phase, including RV32 linked-image checks",
+  "shard": "0/4",
+  "allocated_cpus": 16,
+  "campaign_workers": 4,
+  "container_limit_bytes": 8589934592,
+  "memory_peak_bytes": 1365569536,
+  "memory_peak_gib": 1.272,
+  "memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0,
+    "sock_throttled": 0
+  },
+  "returncode": 0,
+  "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "command": "python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs \"$CI_CAMPAIGN_JOBS\" --shard 0/4",
+  "seconds_from_boundary_file_timestamps": 285.877,
+  "scope": "One firmware phase, not all mutation phases or a full workflow replay. Twelve CPUs is a width measurement within the assigned die, not aligned fallback admission proof.",
+  "artifacts": [
+    {
+      "path": "run.sh",
+      "bytes": 852,
+      "sha256": "ab551024d1f1d0829d9d9538c71285488bdf2bc1e47633c6caee79c535064d88"
+    },
+    {
+      "path": "run.log",
+      "bytes": 69285,
+      "sha256": "916b3e75c6074ba9fea027297a2e53d0ca40988ab98e9ea77090cde60818eef9"
+    },
+    {
+      "path": "job.env",
+      "bytes": 100,
+      "sha256": "356a5c36e395cb58e19d78fd252c22a1a4919a5452d4aec5fd3af0fd00d64e4b"
+    },
+    {
+      "path": "cpus",
+      "bytes": 3,
+      "sha256": "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
+    },
+    {
+      "path": "memory.peak",
+      "bytes": 11,
+      "sha256": "05411bf60439c73cdc6361dfe256a50c4149b15384d4dba4d802e1d40ec400d2"
+    },
+    {
+      "path": "memory.events",
+      "bytes": 70,
+      "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+    },
+    {
+      "path": "result.rc",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    }
+  ]
+}
