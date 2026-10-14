@@ -1,0 +1,76 @@
+--- a/pkg/common/executor.go
++++ b/pkg/common/executor.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"context"
++	"sync"
+ 	"errors"
+ 	"fmt"
+ 
+@@ -131,6 +132,49 @@
+ 	}
+ }
+ 
++// NewFailFastParallelExecutor stops scheduling after the first failed job and joins cleanup.
++func NewFailFastParallelExecutor(parallel int, executors ...Executor) Executor {
++	return func(parent context.Context) error {
++		ctx, cancel := context.WithCancel(parent)
++		defer cancel()
++		if parallel < 1 {
++			parallel = 1
++		}
++		var lock sync.Mutex
++		var workers sync.WaitGroup
++		next := 0
++		var firstErr error
++		for i := 0; i < parallel; i++ {
++			workers.Add(1)
++			go func() {
++				defer workers.Done()
++				for {
++					lock.Lock()
++					if firstErr != nil || ctx.Err() != nil || next == len(executors) {
++						lock.Unlock()
++						return
++					}
++					executor := executors[next]
++					next++
++					lock.Unlock()
++					err := executor(ctx)
++					lock.Lock()
++					if err != nil && firstErr == nil {
++						firstErr = err
++						cancel()
++					}
++					lock.Unlock()
++				}
++			}()
++		}
++		workers.Wait()
++		if firstErr != nil {
++			return firstErr
++		}
++		return parent.Err()
++	}
++}
++
+ func NewFieldExecutor(name string, value interface{}, exec Executor) Executor {
+ 	return func(ctx context.Context) error {
+ 		return exec(WithLogger(ctx, Logger(ctx).WithField(name, value)))
+--- a/pkg/runner/runner.go
++++ b/pkg/runner/runner.go
+@@ -207,11 +207,11 @@
+ 						return executor(common.WithJobErrorContainer(WithJobLogger(ctx, rc.Run.JobID, jobName, rc.Config, &rc.Masks, matrix)))
+ 					})
+ 				}
+-				pipeline = append(pipeline, common.NewParallelExecutor(maxParallel, stageExecutor...))
++				pipeline = append(pipeline, common.NewFailFastParallelExecutor(maxParallel, stageExecutor...))
+ 			}
+ 
+ 			log.Debugf("PlanExecutor concurrency: %d", runner.config.GetConcurrentJobs())
+-			return common.NewParallelExecutor(runner.config.GetConcurrentJobs(), pipeline...)(ctx)
++			return common.NewFailFastParallelExecutor(runner.config.GetConcurrentJobs(), pipeline...)(ctx)
+ 		})
+ 	}
+ 
