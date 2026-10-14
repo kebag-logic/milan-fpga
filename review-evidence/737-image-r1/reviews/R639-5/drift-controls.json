@@ -1,0 +1,27 @@
+{
+  "baseline_write": {
+    "rc": 0,
+    "stdout": "CI tool inventory matches workflow installation requests\n",
+    "stderr": ""
+  },
+  "baseline_check": {
+    "rc": 0,
+    "stdout": "CI tool inventory matches workflow installation requests\n",
+    "stderr": ""
+  },
+  "missing": {
+    "rc": 2,
+    "stdout": "",
+    "stderr": "REFUSED: tool inventory differs from workflow installation requests\n"
+  },
+  "orphan": {
+    "rc": 2,
+    "stdout": "",
+    "stderr": "REFUSED: tool inventory differs from workflow installation requests\n"
+  },
+  "pin_change": {
+    "rc": 2,
+    "stdout": "",
+    "stderr": "REFUSED: tool inventory differs from workflow installation requests\n"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "env",
+    "GIT_CONFIG_GLOBAL=/dev/null",
+    "GIT_CONFIG_NOSYSTEM=1",
+    "python3",
+    "ci/image/privacy_patch_selftest.py"
+  ],
+  "python": "3.12.3",
+  "rc": 0,
+  "output": "PASS: unreproduced patched postimage refused\nPASS: uncommitted patch change refused\nPASS: identity on committed patch-added line refused\nPASS: changed pinned archive refused\nPASS: exact patched output, unchanged matches, added identity and input authentication\n"
+}

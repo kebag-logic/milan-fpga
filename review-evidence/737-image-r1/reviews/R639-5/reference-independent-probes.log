@@ -1,0 +1,11 @@
+make_target_override {'rc': 0, 'output': 'CI tool inventory matches workflow installation requests\n'} {'rc': 2, 'output': 'bash hidden.sh\nhidden.sh: line 1: brand_new_command: command not found\nmake: *** [Makefile:2: all] Error 127\n'}
+make_environment_memo {'rc': 0, 'output': 'CI tool inventory matches workflow installation requests\n'} {'rc': 2, 'output': 'echo okay\nokay\nbrand_new_command okay\nmake: brand_new_command: No such file or directory\nmake: *** [Makefile:2: all] Error 127\n'}
+shell_script_environment_memo {'rc': 0, 'output': 'CI tool inventory matches workflow installation requests\n'} {'rc': 127, 'output': 'okay\nbootstrap.sh: line 1: brand_new_command: command not found\n'}
+make_pattern_directory {'rc': 2, 'output': "REFUSED: unclassified command 'brand_new_command' at sub/task.sh:1\n"} {'rc': 2, 'output': 'bash sub/task.sh\nsub/task.sh: line 1: brand_new_command: command not found\nmake: *** [Makefile:1: sub/task.out] Error 127\n'}
+make_suffix_stem {'rc': 2, 'output': "REFUSED: unsupported script language '.py' at Makefile:1:1\n"} {'rc': 2, 'output': 'bash task.py\ntask.py: line 1: brand_new_command: command not found\nmake: *** [Makefile:1: task.sh] Error 127\n'}
+shell_new_construct {'rc': 2, 'output': "REFUSED: uncensused shell node 'CoprocClause' at .github/workflows/probe.yml\n"} 
+make_new_construct {'rc': 2, 'output': "REFUSED: unsupported Make special or suffix rule '.ONESHELL' at Makefile:1\n"} 
+python_new_construct {'rc': 2, 'output': "REFUSED: uncensused Python node 'AsyncFunctionDef' at bootstrap.py\n"} 
+trap_new_construct {'rc': 2, 'output': "REFUSED: uncensused shell node 'CoprocClause' at .github/workflows/probe.yml\n"} 
+startup_variable {'rc': 2, 'output': 'REFUSED: uncensused shell assignment at .github/workflows/probe.yml\n'} 
+source_unlisted {'rc': 2, 'output': 'REFUSED: uncensused shell source at .github/workflows/probe.yml\n'} 

@@ -1,0 +1,43 @@
+{
+  "first": {
+    "recipe_sha256": "214fefe3bd807c3403558de25d553d5a5a10f682a6bb5a824257f2a27ef192be",
+    "stage": "validation-tools",
+    "image_id": "sha256:62b56e1ab52dce1a1914e8469429c014e69a465e74e0bdb9a7d8bf4a626b2776",
+    "image_digest": "sha256:86d7aa16e7d2464baf8e0d246434982838c8174de8c8fa610608cce5b23b5e6c",
+    "size_bytes": 3931071698,
+    "build_ms": 442460,
+    "tag": "fpga-validation:214fefe3bd807c3403558de25d553d5a5a10f682a6bb5a824257f2a27ef192be-validation-tools"
+  },
+  "second": {
+    "recipe_sha256": "214fefe3bd807c3403558de25d553d5a5a10f682a6bb5a824257f2a27ef192be",
+    "stage": "validation-tools",
+    "image_id": "sha256:62b56e1ab52dce1a1914e8469429c014e69a465e74e0bdb9a7d8bf4a626b2776",
+    "image_digest": "sha256:86d7aa16e7d2464baf8e0d246434982838c8174de8c8fa610608cce5b23b5e6c",
+    "size_bytes": 3931071698,
+    "build_ms": 452858,
+    "tag": "fpga-validation:214fefe3bd807c3403558de25d553d5a5a10f682a6bb5a824257f2a27ef192be-validation-tools"
+  },
+  "receipt_identity_equal": true,
+  "sequential": true,
+  "no_cache": true,
+  "logs": [
+    {
+      "build": "cold-a",
+      "bytes": 1577984,
+      "sha256": "9a5b16c056d701d371916683e06a643a9c31953489148371de66e170fa6ec0cf",
+      "cached_steps": [
+        "#4 CACHED"
+      ],
+      "retained_in": "scratch; over packet size limit"
+    },
+    {
+      "build": "cold-b",
+      "bytes": 1557639,
+      "sha256": "8b44aa8b8d56060ba32dbfe901feb87927a6e0b29e037a45dc8ecfa99c300515",
+      "cached_steps": [
+        "#4 CACHED"
+      ],
+      "retained_in": "scratch; over packet size limit"
+    }
+  ]
+}

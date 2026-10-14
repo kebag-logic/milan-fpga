@@ -1,0 +1,69 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_inventory_patterns_selftest.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_inventory_nodes_selftest.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_selftest.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_patch_selftest.py"
+    ],
+    "rc": 0
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/build.py",
+      "--work",
+      "${PACKET}/scratch/lockcheck",
+      "--check-lock"
+    ],
+    "rc": 0
+  }
+]

@@ -1,0 +1,70 @@
+{
+  "tool_count": 45,
+  "same_tools_pins_provenance_as_e6b86814": true,
+  "builder_source_sha256": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47",
+  "builder_functions": 103,
+  "recorded_invocations": 103,
+  "exact_once": true,
+  "group_source_hashes": [
+    "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47"
+  ],
+  "groups": [
+    {
+      "group": 0,
+      "count": 13,
+      "skips": []
+    },
+    {
+      "group": 1,
+      "count": 1,
+      "skips": [
+        [
+          "gate 1b",
+          "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+          "row"
+        ]
+      ]
+    },
+    {
+      "group": 2,
+      "count": 15,
+      "skips": [
+        [
+          "gate 11",
+          "real report not on disk ($VALIDATION_STORAGE/737-a615/container-home/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+          "row"
+        ]
+      ]
+    },
+    {
+      "group": 3,
+      "count": 15,
+      "skips": []
+    },
+    {
+      "group": 4,
+      "count": 15,
+      "skips": []
+    },
+    {
+      "group": 5,
+      "count": 1,
+      "skips": []
+    },
+    {
+      "group": 6,
+      "count": 15,
+      "skips": []
+    },
+    {
+      "group": 7,
+      "count": 15,
+      "skips": []
+    },
+    {
+      "group": 8,
+      "count": 13,
+      "skips": []
+    }
+  ]
+}
