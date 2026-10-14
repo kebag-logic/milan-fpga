@@ -163,7 +163,9 @@ def main() -> int:
     transport_controls({"plan": plan, "labels": labels})
     generated = generate("control", workflow(SOURCE))
     writes = [job for job in generated["jobs"].values() if job.get("permissions", {}).get("actions") == "write"]
-    assert len(writes) == 1 and writes[0]["if"] == SAME_REPOSITORY
+    assert len(writes) == 2
+    assert generated["jobs"]["ci-fail-fast"]["if"] == SAME_REPOSITORY
+    assert generated["jobs"]["ci-cancel-tail"]["if"] == "${{ always() && (" + SAME_REPOSITORY[4:-3] + ") }}"
     original_matrix = workflow(SOURCE)["jobs"]["workers"]["strategy"]["matrix"]
     assert generated["jobs"]["workers"]["strategy"]["matrix"] == original_matrix
     with tempfile.TemporaryDirectory(prefix="runtime-evidence-") as directory:

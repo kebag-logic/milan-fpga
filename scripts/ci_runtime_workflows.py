@@ -8,7 +8,7 @@ import json
 
 import yaml
 
-from ci_workflow_plan import expand_workflow, step_plan
+from ci_workflow_plan import expand_workflow, step_plan, matrix_rows, rendered_name
 
 SAME_REPOSITORY = ("${{ github.event_name == 'push' || (github.event_name == 'pull_request' && "
                    "github.event.pull_request.head.repo.full_name == github.repository) }}")
@@ -73,17 +73,35 @@ def instrument(path: str, job_id: str, job: dict) -> None:
     ])
 
 
-def watcher(labels: list[str]) -> dict:
+def watcher(labels: list[str], skipped: dict) -> dict:
     """Only this guarded job requests write permission; fork events cannot enter it."""
     return {"name": "Fail fast across this head", "runs-on": "ubuntu-latest", "timeout-minutes": 120,
             "if": SAME_REPOSITORY, "permissions": {"contents": "read", "actions": "write"},
+            "outputs": {"observer_only_error": "${{ steps.ci_observe.outputs.observer_error == 'true' && "
+                        "steps.ci_record.outcome == 'success' && steps.ci_upload.outcome == 'success' }}"},
             "steps": [{"uses": "actions/checkout@v4"},
-                      {"name": "Observe the first failed job", "env": {"GH_TOKEN": "${{ github.token }}",
-                       "EXPECTED_JOBS": json.dumps(labels, separators=(",", ":"))},
+                      {"name": "Observe the first failed job", "id": "ci_observe",
+                       "env": {"GH_TOKEN": "${{ github.token }}",
+                               "EXPECTED_JOBS": json.dumps(labels, separators=(",", ":")),
+                               "SKIPPED_MATRICES": json.dumps(skipped, separators=(",", ":"))},
                        "run": "python3 scripts/ci_fail_fast.py watch\n"},
-                      {"name": "Cancel this run and sibling workflows", "if": "${{ failure() }}",
+                      {"name": "Cancel this run and sibling workflows",
+                       "if": "${{ failure() && steps.ci_observe.outputs.observer_error != 'true' }}",
                        "env": {"GH_TOKEN": "${{ github.token }}"},
                        "run": "python3 scripts/ci_fail_fast.py cancel\n"}]}
+
+
+def tail_guard() -> dict:
+    """Observe terminal jobs after their final evidence steps, with no dependency cycle."""
+    return {"name": "Cancel late CI failures", "runs-on": "ubuntu-latest", "timeout-minutes": 3,
+            "if": "${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && "
+                  "github.event.pull_request.head.repo.full_name == github.repository)) }}",
+            "needs": ["ci-fail-fast", "ci-manifest"],
+            "permissions": {"contents": "read", "actions": "write"},
+            "steps": [{"uses": "actions/checkout@v4"}, cpu_budget_step(),
+                      {"name": "Cancel confirmed terminal failures", "if": "${{ always() }}",
+                       "env": {"GH_TOKEN": "${{ github.token }}", "CI_TAIL_NEEDS": "${{ toJSON(needs) }}"},
+                       "run": "python3 scripts/ci_fail_fast.py tail\n"}]}
 
 
 def collector(name: str, dependencies: list[str]) -> dict:
@@ -113,9 +131,13 @@ def generate(name: str, source: dict) -> dict:
     """Keep hosted matrices intact and put collection after every original job."""
     source = copy.deepcopy(source)
     path = ".github/workflows/" + name + ".yml"
-    _, labels = expand_workflow(path, yaml.safe_dump(source))
-    source["jobs"]["ci-fail-fast"] = watcher(list(labels.values()))
-    for job_id, job in source["jobs"].items():
-        instrument(path, job_id, job)
     source["jobs"]["ci-manifest"] = collector(name, list(source["jobs"]))
+    _, labels = expand_workflow(path, yaml.safe_dump(source))
+    skipped = {job.get("name", job_id): [rendered_name(job_id, job, row) for row in matrix_rows(job)]
+               for job_id, job in source["jobs"].items() if "matrix" in job.get("strategy", {})}
+    source["jobs"]["ci-fail-fast"] = watcher(list(labels.values()), skipped)
+    for job_id, job in source["jobs"].items():
+        if job_id != "ci-manifest":
+            instrument(path, job_id, job)
+    source["jobs"]["ci-cancel-tail"] = tail_guard()
     return source

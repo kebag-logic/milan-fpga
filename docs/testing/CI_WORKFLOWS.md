@@ -2568,14 +2568,41 @@ identities and plants each unsuccessful job outcome; all must be refused.
 The CI contract applies its original negative controls to the template steps
 and separately mutates every generated worker and aggregate step.
 
-Each workflow has a same-repository failure watcher. On a push or a PR whose
-head belongs to this repository, only that guarded job requests `actions: write`.
-It reads actual job outcomes and, on the first failure, its `if: failure()`
-step cancels active runs of all four workflows at the same head. Fork PRs keep
+Each workflow has a same-repository failure watcher and a terminal failure guard.
+Only those two guarded jobs request `actions: write`, on a push or a PR whose
+head belongs to this repository. The watcher reads actual job outcomes,
+including the manifest collector, and cancels active runs of all four workflows
+at the same head after a confirmed failure. The collector needs the original
+jobs but not the watcher, so collection failures cannot hide behind a cycle.
+The terminal guard needs the watcher and collector and catches failures in their
+final evidence steps. Observer errors are reported separately and never authorize
+cancellation; an evidence-tail failure after an observer error still does.
+Fork PRs keep
 native matrix cancellation and fail-closed aggregates; they never enter the
 write-token job and do not cancel sibling workflows. There is no privileged
 `workflow_run` controller. A cancellation may interrupt artifact upload; missing
 evidence stays incomplete and can never compare as a valid build.
+
+The watcher accepts a skipped matrix's raw expression name only when the API
+reports that job completed and skipped. Its expansion comes from the generated
+matrix; expanded and unexpanded results cannot both cover the same leg.
+Controls retain the raw matrix names observed in run `38273578232`.
+Each first-failure conclusion has a separate control: failure, cancelled,
+timed_out and action_required.
+
+Polling uses a 120-second interval. Four workflows use 120 polls per hour per
+head; four concurrent heads use 480, leaving 520 of the documented
+[1000 requests per hour per repository](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api)
+for collection, startup, retries and other operations when each job list fits
+one page. Pagination adds requests and is never truncated. Read errors use at
+most four attempts and a 600-second retry budget, with exponential backoff.
+Both Retry-After and X-RateLimit-Reset are honored; a reset beyond the budget
+ends observation without cancellation. HTTP 403, 429, 5xx and timeouts never
+become failed-job conclusions. A successful response with no remaining quota
+also delays the next read until reset. More concurrent work can exhaust the
+shared allowance; the observer then reports unavailable rather than cancelling
+healthy jobs. Detection latency is normally at most one polling interval plus
+API latency, and can be longer during backoff.
 
 Local replay uses one scheduler and stops its execution group at the first
 failed job before cleaning owned containers and volumes. A queued job cannot

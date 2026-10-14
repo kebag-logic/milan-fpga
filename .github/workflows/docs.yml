@@ -718,66 +718,6 @@ jobs:
           retention-days: 3
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
-  ci-fail-fast:
-    name: Fail fast across this head
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
-      == github.repository) }}
-    permissions:
-      contents: read
-      actions: write
-    steps:
-      - uses: actions/checkout@v4
-        id: ci_step_0
-        name: Run actions/checkout@v4
-      - name: Set CPU-derived job budgets
-        run: |
-          set -euo pipefail
-          cpus="$(nproc)"
-          test "$cpus" -gt 0
-          campaign=$(( cpus < 4 ? cpus : 4 ))
-          simulations=$(( cpus < 4 ? cpus : 4 ))
-          {
-            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
-            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
-            printf 'VERILATOR_JOBS=%s\n' "$cpus"
-            printf 'SIM_JOBS=%s\n' "$simulations"
-            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
-          } >> "$GITHUB_ENV"
-        id: ci_step_1
-      - name: Observe the first failed job
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EXPECTED_JOBS: '["docs-check","docs-check-no-git","docs-gates-0","docs-gates-1","wire-accountability"]'
-        run: |
-          python3 scripts/ci_fail_fast.py watch
-        id: ci_step_2
-      - name: Cancel this run and sibling workflows
-        if: ${{ failure() }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          python3 scripts/ci_fail_fast.py cancel
-        id: ci_step_3
-      - name: Record actual job execution
-        id: ci_record
-        if: ${{ always() }}
-        env:
-          CI_STEP_RESULTS: ${{ toJSON(steps) }}
-          CI_JOB_RESULT: ${{ job.status }}
-          CI_MATRIX: ${{ toJSON(matrix) }}
-        run: |
-          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/docs.yml --job ci-fail-fast --output "$RUNNER_TEMP/job-evidence.json"
-      - name: Upload actual job execution
-        id: ci_upload
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: job-evidence-docs-ci-fail-fast-${{ strategy.job-index }}-${{ github.sha }}
-          path: ${{ runner.temp }}/job-evidence.json
-          if-no-files-found: error
-          retention-days: 3
   ci-manifest:
     name: Collect CI manifest
     runs-on: ubuntu-latest
@@ -789,7 +729,6 @@ jobs:
       - docs-gates-0
       - docs-gates-1
       - docs-check
-      - ci-fail-fast
     permissions:
       contents: read
       actions: read
@@ -839,6 +778,105 @@ jobs:
           path: ${{ runner.temp }}/ci-manifest.json
           if-no-files-found: error
           retention-days: 3
+  ci-fail-fast:
+    name: Fail fast across this head
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+      == github.repository) }}
+    permissions:
+      contents: read
+      actions: write
+    outputs:
+      observer_only_error: ${{ steps.ci_observe.outputs.observer_error == 'true' && steps.ci_record.outcome
+        == 'success' && steps.ci_upload.outcome == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Observe the first failed job
+        id: ci_observe
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_JOBS: '["Collect CI manifest","docs-check","docs-check-no-git","docs-gates-0","docs-gates-1","wire-accountability"]'
+          SKIPPED_MATRICES: '{}'
+        run: |
+          python3 scripts/ci_fail_fast.py watch
+      - name: Cancel this run and sibling workflows
+        if: ${{ failure() && steps.ci_observe.outputs.observer_error != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/ci_fail_fast.py cancel
+        id: ci_step_3
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/docs.yml --job ci-fail-fast --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-docs-ci-fail-fast-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
+  ci-cancel-tail:
+    name: Cancel late CI failures
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+      == github.repository)) }}
+    needs:
+      - ci-fail-fast
+      - ci-manifest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+      - name: Cancel confirmed terminal failures
+        if: ${{ always() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_TAIL_NEEDS: ${{ toJSON(needs) }}
+        run: |
+          python3 scripts/ci_fail_fast.py tail
 'on':
   push:
     branches:
