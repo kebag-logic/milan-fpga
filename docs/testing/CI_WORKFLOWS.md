@@ -1568,12 +1568,10 @@ No step ran this self-test before, so it rotted unseen.
 It reads first-party files only and needs no submodule.
 `CARRIER_STEP_LISTS` pins this step the same way (#407).
 
-Three caches, deliberately split. The Scala toolchain is content-addressed
-and keeps a broad fallback. The pip download cache is keyed on the pin file
-with a prefix fallback and runs only under the RTL scope, safe because the
-pins are full-SHA git revisions: pip keys the wheels it builds from them on
-the exact URL and SHA, so a cache entry can only save the rebuild, never
-substitute a revision. The generated CPU metadata keeps neither fallback: its key hashes
+Three caches have separate keys and no prefix restore fallback. The Scala
+toolchain key binds its version, source and build recipe. The pip download
+cache binds its pin file and installation recipe and runs only under the RTL
+scope. Its pins are full-SHA git revisions. The generated CPU metadata key hashes
 the configs, `milan_soc.py`, `build.sh`, `sweep.sh`, the pins and the patch
 series, because LiteX names those files from the CPU arguments alone and
 skips the generator whenever the file exists, so a stale entry would
