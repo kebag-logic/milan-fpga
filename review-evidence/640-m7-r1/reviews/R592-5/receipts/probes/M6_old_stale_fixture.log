@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "$REVIEWS/640-m7-r592-5-packet/scratch/nc/wt-M6_old_stale_fixture/scripts/ci_events.py", line 8852, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "$REVIEWS/640-m7-r592-5-packet/scratch/nc/wt-M6_old_stale_fixture/scripts/ci_events.py", line 8845, in main
+    return selftest(args.root)
+  File "$REVIEWS/640-m7-r592-5-packet/scratch/nc/wt-M6_old_stale_fixture/scripts/ci_events.py", line 8704, in selftest
+    for found, arms in (_selftest_arms(pristine),
+                        ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "$REVIEWS/640-m7-r592-5-packet/scratch/nc/wt-M6_old_stale_fixture/scripts/ci_events.py", line 8195, in _selftest_arms
+    misses = _run_mutations(real, pristine)
+  File "$REVIEWS/640-m7-r592-5-packet/scratch/nc/wt-M6_old_stale_fixture/scripts/ci_events.py", line 8182, in _run_mutations
+    mutate(world)
+    ~~~~~~^^^^^^^
+  File "$REVIEWS/640-m7-r592-5-packet/scratch/nc/wt-M6_old_stale_fixture/scripts/ci_events.py", line 5261, in _m_shard_denominator_stale
+    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: fixture drift: verilator-shards matrix

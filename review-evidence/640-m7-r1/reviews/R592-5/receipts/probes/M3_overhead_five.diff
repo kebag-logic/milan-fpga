@@ -1,0 +1,15 @@
+ scripts/suite_shards.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/scripts/suite_shards.py b/scripts/suite_shards.py
+index a03a67c28..667eb8db5 100644
+--- a/scripts/suite_shards.py
++++ b/scripts/suite_shards.py
+@@ -204,7 +204,7 @@ PROVISIONAL_SUITES: frozenset[str] = frozenset({"gptp_tables"})
+ #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
+ #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
+ #: Worker 4 is new for #640; its provisional overhead is the prior maximum.
+-WORKER_OVERHEAD_SECONDS = (83, 115, 80, 93, 115, 80)
++WORKER_OVERHEAD_SECONDS = (83, 115, 80, 93, 80)
+ 
+ 
+ def parse_shard(value: str) -> tuple[int, int]:

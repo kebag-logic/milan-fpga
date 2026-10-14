@@ -1,0 +1,12 @@
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index f2a17f6a9..8f2455d8d 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -5260,7 +5260,6 @@ def _m_shard_denominator_stale(w: World) -> None:
+         "shard"]
+     assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
+     _restate_shards(w, "verilator-shards", "5")
+-    shard.append(5)
+ 
+ 
+ def _m_dedicated_worker_dropped(w: World) -> None:

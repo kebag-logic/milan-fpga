@@ -1,0 +1,9 @@
+34:2026-10-14T08:44:57.6592634Z Complete job name: verilator-suites
+181:2026-10-14T08:45:00.8701125Z python3 scripts/ci_events.py --require-target-sha --expect 6 \
+197:2026-10-14T08:45:01.0065791Z target-sha: OK, 6 record(s) all 85b959cb02bfa5b53978bbd1a479256963bbb388
+205:2026-10-14T08:45:01.0230427Z python3 scripts/suite_tally.py "${roots[@]}" --quiet \
+206:2026-10-14T08:45:01.0230838Z   --expect-suite-root tb/verilator
+213:2026-10-14T08:45:02.0356742Z checks: 2187219   in-suite failures: 0
+219:2026-10-14T08:45:02.0475052Z echo "verilator-suites: every worker succeeded at $GITHUB_SHA"
+227:2026-10-14T08:45:02.0623222Z verilator-suites: every worker succeeded at 85b959cb02bfa5b53978bbd1a479256963bbb388
+243:2026-10-14T08:45:02.3166955Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4. For more informa

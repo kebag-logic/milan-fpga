@@ -1,0 +1,4 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/rtl.yml: the `Prove specialized suite ownership` step script is not the canonical form: line 9 must be '5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;' (found '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'); 10 line(s) expected, 10 found; its arms prove the specialized and dedicated owners at run time
+  FAIL .github/workflows/rtl.yml: job `verilator-shards` step 7 (`Prove specialized suite ownership`) script is not the canonical form: line 9 must be '5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;' (found '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'); 10 line(s) expected, 10 found
+ci_events: 2 finding(s) over 2175 contract item(s)

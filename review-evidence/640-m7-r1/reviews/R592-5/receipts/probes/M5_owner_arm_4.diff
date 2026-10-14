@@ -1,0 +1,15 @@
+ .github/workflows/rtl.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index 8226f56f9..166b6657c 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -224,7 +224,7 @@ jobs:
+           case "$SHARD" in
+             1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;
+             3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
+-            5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;
++            4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;
+           esac
+ 
+       - name: Cache the pinned Yosys build for the netlist-level suite owner

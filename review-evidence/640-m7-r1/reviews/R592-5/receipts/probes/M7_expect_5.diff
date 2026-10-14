@@ -1,0 +1,15 @@
+ .github/workflows/rtl.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index 8226f56f9..cd1e19e91 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -423,7 +423,7 @@ jobs:
+         run: |
+           shopt -s nullglob
+           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
+-          python3 scripts/ci_events.py --require-target-sha --expect 6 \
++          python3 scripts/ci_events.py --require-target-sha --expect 5 \
+             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
+             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
+ 

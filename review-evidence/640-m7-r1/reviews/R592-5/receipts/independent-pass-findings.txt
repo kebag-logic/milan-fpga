@@ -1,0 +1,5 @@
+Independent pass over 412e3f6c..4c5d70b5, written before reading any prior review on this PR.
+F1 candidate: docs/testing/CI_WORKFLOWS.md:1322 states the current Verilator verifier value as `--expect 5`; rtl.yml:423 and the canonical ci_events.py step now pass `--expect 6`. Introduced by #444 commit 06055a04c as a contract-tracking line; this round updated the neighbouring six-worker statements but not this one. Docs lens.
+Observation (no finding): CI_WORKFLOWS.md:1336-1338 example "a matrix of five and a stale total of four ... shard 4/5" is a hypothetical illustration, still true as an example.
+Observation (no finding): removing `shard.append(6)` from _m_shard_denominator_stale still passes --selftest; identical at base 412e3f6c (append(5) removed). Pre-existing redundancy, not introduced by this round.
+Wed Oct 14 07:49:05 AM UTC 2026

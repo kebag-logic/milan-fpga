@@ -1,0 +1,15 @@
+ scripts/suite_shards.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+diff --git a/scripts/suite_shards.py b/scripts/suite_shards.py
+index a03a67c28..60105a67d 100644
+--- a/scripts/suite_shards.py
++++ b/scripts/suite_shards.py
+@@ -198,7 +198,7 @@ SUITE_SECONDS = {
+ #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
+ #: driver's suite_timeout gives a new suite, until the change's own hosted run
+ #: measures it (step 3 of the module docstring's new-suite steps).
+-PROVISIONAL_SUITES: frozenset[str] = frozenset({"gptp_tables"})
++PROVISIONAL_SUITES: frozenset[str] = frozenset()
+ 
+ #: Seconds of each worker's job outside its suite windows in the same dev run:
+ #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
