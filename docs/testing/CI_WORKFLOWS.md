@@ -1935,6 +1935,8 @@ CPU observations remain outside the canonical manifest comparison.
 
 Every generated job reads its own CPU count with `nproc`.
 Tool builds use that count for `make -j`; Verilator uses `VERILATOR_JOBS`.
+Existing `-j 0` recipes use Verilator 5.050's process-affinity default.
+They therefore see the container's booked CPU count.
 Campaign pools use the smaller of that count and four.
 This retains the measured memory bound on both 12- and 16-CPU jobs.
 Simulation pools use the same bound; case drivers retain their two-run cap.
