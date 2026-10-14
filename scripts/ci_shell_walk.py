@@ -290,7 +290,7 @@ class Shell:
             if isinstance(operands[0], Runtime):
                 self.audit.runtime_directories.add(directory)
         elif args[0] in ('source', '.'):
-            directory = self.source_file(args, directory, where)
+            directory = self.source_file(args, directory, where, node)
         elif args[0] == 'read':
             exact_use(self.audit, node, self.where, 'read')
             for name in args[1:]:
@@ -325,7 +325,7 @@ class Shell:
             self.env = saved
         return directory
 
-    def source_file(self, args: list[str], directory: Path, where: str) -> Path:
+    def source_file(self, args: list[str], directory: Path, where: str, node: dict) -> Path:
         """Source into the caller's directory, variables and function namespace."""
         if len(args) != 2 or isinstance(args[1], Runtime):
             raise Refusal(f'unfollowed source at {where}')
@@ -336,6 +336,7 @@ class Shell:
         declaration = self.audit.table['scripts'].get(relative)
         if declaration and declaration['sha256'] != sha256(path):
             raise Refusal(f'changed declared script {relative!r}')
+        exact_use(self.audit, node, self.where, 'source')
         if relative in self.active:
             raise Refusal(f'recursive source {relative!r} at {where}')
         self.audit.inputs[relative] = sha256(path)

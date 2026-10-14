@@ -12,6 +12,8 @@ import sys
 import tempfile
 
 import ci_tool_inventory as inventory
+from ci_command_table import Audit, shell_tree
+from ci_syntax import semantic_node
 
 
 class Fixture:
@@ -25,6 +27,13 @@ class Fixture:
         for name in ('command-table.json', 'sources.lock.json', 'syntax-census.json'):
             shutil.copyfile(inventory.ROOT / 'ci/image' / name, root / 'ci/image' / name)
         self.table = json.loads((root / 'ci/image/command-table.json').read_text())
+        # The existing source-scope controls use this exact reviewed fixture call.
+        audit = Audit(root, {})
+        call = shell_tree('source fragment.sh', audit.parser)['Stmts'][0]['Cmd']
+        raw = json.dumps(semantic_node(call), sort_keys=True, separators=(',', ':')).encode()
+        audit.census['shell_exact_uses'][hashlib.sha256(raw).hexdigest()] = {
+            'sources': ['.github/workflows/fixture.yml'], 'kinds': ['source']}
+        self.file('ci/image/syntax-census.json', inventory.serialized(audit.census))
 
     def file(self, name: str, text: str) -> None:
         """Write one fixture input without executing it."""

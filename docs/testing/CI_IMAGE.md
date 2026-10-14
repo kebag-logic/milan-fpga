@@ -82,7 +82,7 @@ Resolution never executes workflow commands or Make shell expressions.
 | Shell blocks and conditionals | `.github/workflows/docs.yml` | Inspect every branch; refuse ambiguous following directories. |
 | Shell loops and cases | `sw/litex/patches/apply.sh` | Inspect every body; retain runtime iteration residue. |
 | Shell declarations and functions | `scripts/run_all_suites.sh` | Preserve local/global scope and every censused function alternative. |
-| Shell sourced files | `syn/yosys/run.sh` | Follow resolved files in caller scope; refuse computed paths. |
+| Shell sourced files | `syn/yosys/run.sh` | Follow exact censused calls in caller scope; refuse other calls and computed paths. |
 | Inline interpreter programs | `.github/workflows/elaborate.yml` | Require interpreter and exact program digest; refuse changed bytes. |
 | Command wrappers | `.github/workflows/rtl.yml` | Parse supported options and classify children; refuse unknown options. |
 | Make options and variable overrides | `tb/verilator/maap/Makefile` | Keep file selection separate from recipe directory; refuse unsupported options. |

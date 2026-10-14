@@ -42,6 +42,7 @@ def shell_controls(fixture: Fixture) -> None:
     fixture.run('name=bootstrap.sh; source fragment.sh; bash "$name"')
     fixture.check('sourced variable', 'brand_new_command')
     for command in (
+        'source hidden.sh',
         'cd sub & bash bootstrap.sh',
         'if true; then f() { brand_new_command; }; else f() { echo okay; }; fi; f',
         "name=bootstrap.sh; printf -v name '%s' hidden.sh; bash \"$name\"",
