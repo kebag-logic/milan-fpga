@@ -1,0 +1,17 @@
+$ compare_counts.py <head clone 7fb3664b>
+rtl.yml shard-list lengths [6, 4], totals [6, 4], --expect [6, 4]
+CI_WORKFLOWS.md verifier sentence -> [6, 4]
+CI_WORKFLOWS.md literal --expect values: none
+fixture: base 6 shards, grows to 7, stale total 6, new shard index 6
+CI_WORKFLOWS.md example: ('seven', 'six', '6', '7')
+AGREE
+rc=0
+
+$ compare_counts.py <base 4c5d70b5 files> (negative control, expect rc 1)
+rtl.yml shard-list lengths [6, 4], totals [6, 4], --expect [6, 4]
+CI_WORKFLOWS.md verifier sentence -> None
+CI_WORKFLOWS.md literal --expect values: ['`--expect 5`', '`--expect 4`']
+fixture: base 6 shards, grows to 7, stale total 6, new shard index 6
+CI_WORKFLOWS.md example: ('five', 'four', '4', '5')
+DISAGREE
+rc=1
