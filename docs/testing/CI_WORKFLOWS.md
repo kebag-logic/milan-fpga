@@ -2300,8 +2300,8 @@ Resource bounds:
   234 normal checks, all 120 planted arms and all 31 rule-removal controls,
   with every memory-event counter zero. Both retained four campaign workers.
   This validates that command at those widths, not the whole replay.
-  Full replay measurements remain necessary for the large compiler builds
-  and concurrent capture builds at their shipped widths. The runner does
+  Scoped compiler and capture measurements are recorded below.
+  Complete concurrent replay remains a separate coordinating check. The runner does
   not rewrite an older candidate's command that explicitly requests sixteen
   census workers; that older command exhausted the eight-GiB cap in the
   coordinating replay reported on #737.
@@ -2309,7 +2309,7 @@ Resource bounds:
   result caches at both widths: 3745005568-byte peak at sixteen CPUs and
   3391201280 bytes at twelve. Tied-input and tap-purity checks pass, and
   every memory-event counter is zero. These measurements cover synthesis;
-  they do not substitute for the remaining compiler measurements.
+  they do not substitute for measurements of other job classes.
 - The firmware control normal phase (`--shard 0/4`), including required RV32
   linked-image checks, passes with four campaign workers at both widths.
   At `dafa43202` its peaks were 1365569536 bytes at sixteen CPUs and
@@ -2338,6 +2338,20 @@ Resource bounds:
   Two existing arms remain NOT RUN: an inert Make environment mutation
   and the absent physical calibration report. Neither result covers those arms.
   Each fresh container starts with empty CPU metadata and cached dependencies.
+- The standalone LiteX aggregate passes all seven simulations at both widths.
+  Its ten runner controls pass, with no skipped or timed-out simulations.
+  Sixteen CPUs peak at 3745722368 bytes; twelve peak at 3303358464 bytes.
+  Workload times are 467.715 and 453.392 seconds, respectively.
+  Both execute the JVM with empty CPU metadata and cached dependencies.
+  Every memory-event counter is zero. These are sequential container measurements.
+- The largest measured class is capture at 6047100928 bytes (5.632 GiB).
+  The eight-GiB job cap leaves 2542833664 bytes (2.368 GiB),
+  a margin of 42.05% over that measured peak.
+  Four eight-GiB caps plus four GiB overhead equal the 36-GiB slot cap.
+  Admission remains `floor((36 - 4) / 8) = 4` jobs.
+  Four measured maxima plus overhead total 28483371008 bytes (26.527 GiB).
+  That is a sum of separate peaks, not an observed concurrent slot peak.
+  No cap increase or further compiler-budget reduction follows from these samples.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
   which counts only the slice's limit and never a job container's eight-GiB limit

@@ -150,8 +150,8 @@ DEFAULT_SLOT_ROOT = pathlib.Path("/var/lib/milan-act-ci")
 SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
 #: What one isolated slot - its daemon, containerd and job containers
 #: together - may hold in memory, with no swap beyond it (unit-property size
-#: syntax). Four matrix legs at CONTAINER_MEMORY each could reach 64 GB, so a
-#: slot that overruns is killed inside its own slice rather than starving the
+#: syntax). Four eight-GiB job caps leave four GiB for service overhead.
+#: A slot that overruns is killed inside its own slice rather than starving the
 #: host or a sibling slot. Hosted runners have no such aggregate cap, so a run
 #: in which the cap caused an OOM is refused rather than reported as a verdict
 #: (require_slot_memory_cap_unexhausted). That is all it detects: reclaim at the
