@@ -77,7 +77,7 @@ Resolution never executes workflow commands or Make shell expressions.
 | Shell redirections and data heredocs | `syn/yosys/run.sh` | Walk substitutions; refuse unpinned interpreter input. |
 | Shell literal assignments and arrays | `scripts/run_all_suites.sh` | Retain literals; record runtime values; refuse computed function calls. |
 | Shell parameter and arithmetic expansion | `scripts/run_litex_sims.sh` | Walk nested execution; refuse unsupported expansion syntax. |
-| Shell command and process substitution | `syn/yosys/malloc.sh` | Walk child scope; refuse unresolved directory changes. |
+| Shell command and process substitution | `syn/yosys/malloc.sh` | Walk child scope; only exact unredirected shapes yield a value; other output is runtime. |
 | Shell directory changes and subshells | `scripts/run_litex_sims.sh` | Preserve child scope; unresolved directories require content-pinned review. |
 | Shell blocks and conditionals | `.github/workflows/docs.yml` | Inspect every branch; refuse ambiguous following directories. |
 | Shell loops and cases | `sw/litex/patches/apply.sh` | Inspect every body; retain runtime iteration residue. |
@@ -87,18 +87,19 @@ Resolution never executes workflow commands or Make shell expressions.
 | Command wrappers | `.github/workflows/rtl.yml` | Parse supported options and classify children; refuse unknown options. |
 | Make options and variable overrides | `tb/verilator/maap/Makefile` | Keep file selection separate from recipe directory; refuse unsupported options. |
 | Make first target and default goal | `tb/verilator/tcam/Makefile` | Use literal default goal; refuse computed goals. |
-| Make explicit rules and prerequisites | `tb/verilator/cbs/Makefile` | Traverse selected dependencies; refuse missing targets. |
-| Make single-stem pattern rules | `tb/verilator/nvm_backend/Makefile` | Substitute the unique stem; refuse ambiguous patterns. |
-| Make variable assignment and expansion | `tb/verilator/milan_dp/Makefile` | Resolve recursive/simple/default/append assignments; refuse unknown functions. |
+| Make explicit rules and prerequisites | `tb/verilator/cbs/Makefile` | Traverse selected dependencies; refuse missing targets and applicable built-in rules. |
+| Make single-stem pattern rules | `tb/verilator/nvm_backend/Makefile` | Match file names with their directory, as make does; refuse ambiguous patterns. |
+| Make variable assignment and expansion | `tb/verilator/milan_dp/Makefile` | Read only column-zero assignments with censused operators; refuse other spellings. |
 | Make multiline definitions and calls | `tb/verilator/milan_dp/Makefile` | Expand declared macros and literal call arguments; refuse undefined macros. |
-| Make automatic variables | `tb/verilator/nvm_backend/Makefile` | Bind target, prerequisite and stem; refuse directory/file modifiers. |
+| Make automatic variables | `tb/verilator/nvm_backend/Makefile` | Implicit prerequisites come first, as in make; refuse directory/file modifiers. |
 | Make string and list functions | `tb/verilator/nvm_backend/Makefile` | Resolve `foreach`, `call`, `subst`, `patsubst`, filters and prefixes. |
 | Make path and selection functions | `tb/verilator/milan_dp/Makefile` | Resolve `abspath`, `wildcard`, `firstword`, `strip`, `if`, `and`. |
 | Make literal shell expressions | `tb/verilator/milan_dp/Makefile` | Classify expanded literal commands; refuse computed executables. |
 | Make conditions and errors | `tb/verilator/capture_coherence/Makefile` | Inspect error-only guards; refuse conditional assignments and other directives. |
-| Make target-specific variables | `tb/verilator/milan_dp/Makefile` | Inherit literal values into prerequisites; refuse computed values. |
+| Make target-specific variables | `tb/verilator/milan_dp/Makefile` | Literal `=` and `:=` for exact targets; refuse command-line collisions. |
 | Make order-only prerequisites | `tb/verilator/mbx/Makefile` | Traverse both classes; exclude order-only entries from automatic variables. |
 | Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Inherit command-line overrides; refuse interpreter-selection overrides. |
+| Make recipe environment | `tb/verilator/maap/integration.mk` | Export inherited and command-line names at their current values, as make does. |
 | Python imports and local modules | `scripts/check_nvm_capture.py` | Follow every in-tree portion on the process search path; refuse compiled modules. |
 | Python search-path insertions | `sw/firmware/gtest/fw_rv32_selftest.py` | Resolve literal entries, imported constants and call arguments; open the path otherwise. |
 | Python module loaders | `sw/builder/endstation_builder.py` | Follow literal `runpy` and file-location targets; runtime targets are declared capabilities. |
@@ -130,6 +131,40 @@ New conditional definitions require an explicit census decision.
 Background statements, alternate workflow shells and interpreter overrides refuse.
 Make defaults respect exported environment values and command-line overrides.
 Unexported shell assignments remain outside Make's environment.
+
+The walker accepts only constructs it resolves with the real tool's semantics.
+Everything else refuses by name before generation.
+Make lines are read as GNU Make reads them.
+Assignments start in column zero with a censused operator.
+Indented lines, `!=`, double-colon forms and escaped line ends refuse.
+Tab-led lines in a rule are recipes, comments included.
+Each unescaped line of an expanded recipe runs in its own shell.
+Values keep make's whitespace, including blanks before a comment.
+[`make-builtins.json`](../../ci/image/make-builtins.json) records the image's built-in rules and defaults.
+[`make_builtins.py`](../../ci/image/make_builtins.py) regenerates it inside the image:
+
+```sh
+docker run --rm --network none --mount "type=bind,src=$PWD,dst=/work" --workdir /work \
+  "$IMAGE_REFERENCE" python3 ci/image/make_builtins.py --check
+```
+
+A built-in rule that could apply to a target or prerequisite refuses it.
+The exact line `MAKEFLAGS += -r` removes those rules, as in make.
+Default variables keep their precedence, so `CXX ?=` keeps the built-in `g++`.
+A command-line value colliding with a target-specific assignment refuses.
+Pattern-specific, grouped and multiple-target pattern rules refuse.
+`VPATH`, `GPATH` and make-maintained list variables refuse.
+
+A child process starts from its exported environment alone.
+Traversal caches key on the complete incoming environment and Make state.
+A repeated script or Makefile under new values is walked again.
+
+Command substitution yields a directory only as `$(cd <literal> && pwd)`.
+That form must be unredirected and its directory must not be a link.
+`$(dirname <literal>)` and `$(realpath <literal>)` are exact functions of the operand.
+Their tests compare the dirname model with the image's coreutils.
+`$0` and `${BASH_SOURCE[0]}` are the exact words that named the file.
+Any other substitution output is a runtime value under the residue rules.
 Each interpreter process has its own modelled module search path.
 It starts at the script directory and grows to a fixed point.
 Every literal `sys.path` entry in the program's module closure joins it.
@@ -165,6 +200,8 @@ Unfollowed foreign functions remain refused.
 Each supported category has accepted and refused controls.
 [`ci_inventory_patterns_selftest.py`](../../scripts/ci_inventory_patterns_selftest.py)
 exercises both generation and comparison for each fixture.
+[`ci_inventory_exact_selftest.py`](../../scripts/ci_inventory_exact_selftest.py)
+holds the exact-semantics boundary with planted fixtures.
 Unlisted constructs and unlisted command forms refuse generation.
 Runtime assembly remains subject to the declared residue boundary.
 
@@ -221,6 +258,8 @@ docker image save --output "$IMAGE_WORK/base-locked.tar" "$base"
 python3 scripts/ci_tool_inventory.py --check
 python3 scripts/ci_tool_inventory_selftest.py
 python3 scripts/ci_inventory_patterns_selftest.py
+python3 scripts/ci_inventory_nodes_selftest.py
+python3 scripts/ci_inventory_exact_selftest.py
 python3 ci/image/build_selftest.py
 python3 ci/image/integrity_selftest.py
 python3 ci/image/privacy_selftest.py

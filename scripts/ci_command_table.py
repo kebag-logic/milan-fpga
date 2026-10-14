@@ -143,6 +143,9 @@ class Audit:
         self.inputs['ci/image/syntax-census.json'] = sha256(census)
         self.exported_env = {}
         self.make_overrides = {}
+        self.make_level = 0
+        self.make_no_builtin_rules = False
+        self.make_builtins = None
         self.runtime_directories = set()
         self.seen: set[str] = set()
         self.external_builds: set[Path] = set()
@@ -193,7 +196,7 @@ class Audit:
         working = working or directory or self.root
         program = path.suffix == '.py' and not module
         search = self.python_context[0] if module and self.python_context else None
-        key = (relative, str(working), program, search)
+        key = (relative, str(working), program, search, self.incoming_state())
         if key in self.seen:
             return
         self.seen.add(key)
@@ -203,11 +206,19 @@ class Audit:
         elif path.suffix == '.py':
             self.python(path.read_text(), relative, working)
         elif path.suffix == '.sh':
-            self.shell(path.read_text(), relative, directory or self.root)
+            self.shell(path.read_text(), relative, directory or self.root, str(name))
         elif path.name == 'Makefile' or path.suffix == '.mk':
             self.makefile(path)
         else:
             raise Refusal(f'unsupported script language {relative!r} at {where}')
+
+    def incoming_state(self) -> tuple:
+        """Everything a child process inherits that changes its command population."""
+        def frozen(values: dict) -> tuple:
+            """Order values and keep runtime provenance distinct from equal literal text."""
+            return tuple(sorted((k, v, isinstance(v, Runtime)) for k, v in values.items()))
+        return (frozen(self.exported_env), frozen(self.make_overrides), self.make_level,
+                self.make_no_builtin_rules)
 
     def python_facts(self, source: str) -> tuple:
         """Parse once: imports, literal assignments and alias-qualified names."""
@@ -654,10 +665,10 @@ class Audit:
         self.residue.add(f'{where}: Python command assembled at runtime')
         return []
 
-    def shell(self, source: str, where: str, directory: Path | None = None) -> None:
+    def shell(self, source: str, where: str, directory: Path | None = None, argv0: str | None = None) -> None:
         """Walk the supported syntax with lexical directory and function scope."""
         from ci_shell_walk import Shell
-        Shell(self, where).run(source, directory or self.root)
+        Shell(self, where, argv0).run(source, directory or self.root)
 
     def installation(self, words: list[str], where: str, directory: Path | None = None) -> None:
         """Record supported workflow installers; refuse unreviewed script installers."""

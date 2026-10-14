@@ -43,7 +43,10 @@
     "special_variables": [
       ".DEFAULT_GOAL",
       "CURDIR",
-      "MAKE"
+      "MAKE",
+      ".SHELLSTATUS",
+      "MAKECMDGOALS",
+      "MAKELEVEL"
     ]
   },
   "python_builtins": [
@@ -385,14 +388,6 @@
         "tb/verilator/milan_dp_render/Makefile"
       ]
     },
-    "5a5c7cb0d098bbbabde1f1e4ef4865d4af6bd417fd02921c0060be8172483844": {
-      "kinds": [
-        "xargs"
-      ],
-      "sources": [
-        "tb/verilator/milan_dp_render/Makefile"
-      ]
-    },
     "60ece17a20bf347bd1c367ef14c129c4d3c01ecb71bf478af72695a2a8f1eee0": {
       "kinds": [
         "assignment"
@@ -475,6 +470,14 @@
       ],
       "sources": [
         "scripts/run_all_suites.sh"
+      ]
+    },
+    "b909c1e242dd687616301844e98cb342bb22784557cc3a432d494c8da65d5aa1": {
+      "kinds": [
+        "xargs"
+      ],
+      "sources": [
+        "tb/verilator/milan_dp_render/Makefile"
       ]
     },
     "be4b6b7467774a4ca7b01cb6a2dd99c14a6e1d9bf44f6db4e7fe9972f3fe6000": {

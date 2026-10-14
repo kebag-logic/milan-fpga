@@ -149,7 +149,7 @@ def recipe_inputs() -> dict[str, str]:
                                       "patch_provenance.py")]
     files += [ROOT / "scripts/ci_rv32_sdk.py", ROOT / "scripts/ci_tool_inventory.py",
               HERE / "tool-inventory.json", HERE / "command-table.json", HERE / "syntax-census.json",
-              ROOT / "scripts/ci_syntax.py",
+              HERE / "make-builtins.json", HERE / "make_builtins.py", ROOT / "scripts/ci_syntax.py",
               ROOT / "scripts/ci_command_table.py", ROOT / "scripts/ci_shell_walk.py",
               ROOT / "scripts/ci_make_walk.py", ROOT / "sw/litex/patches/apply.sh"]
     files += sorted((ROOT / "sw/litex/patches").glob("*.patch"))

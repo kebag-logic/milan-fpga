@@ -5,20 +5,36 @@
 from pathlib import Path
 import re
 
-from ci_command_table import Refusal, Runtime, nodes, shell_tree, sha256
+from ci_command_table import Refusal, Runtime, _normpath, nodes, shell_tree, sha256
 from ci_syntax import SENSITIVE, exact_use, shell_nodes
+
+
+RUNTIME = Runtime('${RUNTIME}')
+PLAIN = {'Cmd', 'Pos', 'End', 'Position'}
+
+
+def posix_dirname(value: str) -> str:
+    """The image's coreutils dirname of one operand; its self-test holds the reference outputs."""
+    stripped = value.rstrip('/')
+    if not value or '/' not in stripped:
+        return '/' if value and not stripped else '.'
+    return stripped.rpartition('/')[0].rstrip('/') or '/'
 
 
 class Shell:
     """Keep variables, directories and function names in their actual scope."""
 
-    def __init__(self, audit: object, where: str) -> None:
+    def __init__(self, audit: object, where: str, argv0: str | None = None) -> None:
         self.audit = audit
         self.where = where
         self.invocation_source = where.split(':')[0]
+        # $0 and BASH_SOURCE are the exact words that named each executed or sourced file.
+        self.argv0 = argv0
+        self.words = {self.invocation_source: argv0} if argv0 is not None else {}
         self.functions = {}
         self.active = set()
-        self.env = dict(audit.env)
+        # A new shell process starts from its exported environment alone.
+        self.env = dict(audit.exported_env)
         self.exported = set(audit.exported_env)
         self.locals = []
         self.source = ''
@@ -37,10 +53,14 @@ class Shell:
             return node.get('Value', '')
         if kind == 'ParamExp':
             name = node['Param']['Value']
-            if name == 'BASH_SOURCE':
-                return str(self.audit.root / self.where.split(':')[0])
-            if name == '0' and self.invocation_source.endswith('.sh'):
-                return str(self.audit.root / self.invocation_source)
+            if name in ('0', 'BASH_SOURCE'):
+                index = node.get('Index')
+                parts = index.get('Parts', []) if index else []
+                zero = index is None or (name == 'BASH_SOURCE' and len(parts) == 1 and
+                                         parts[0].get('Type') == 'Lit' and parts[0].get('Value') == '0')
+                plain = not set(node) - {'Type', 'Pos', 'End', 'Short', 'Dollar', 'Rbrace', 'Param', 'Index'}
+                word = self.argv0 if name == '0' else self.words.get(self.where.split(':')[0])
+                return word if word is not None and plain and zero else RUNTIME
             for child in nodes(node):
                 if child is not node and child.get('Type') in ('CmdSubst', 'ProcSubst'):
                     self.value(child, directory)
@@ -54,20 +74,9 @@ class Shell:
             end = self.statements(node.get('Stmts', []), directory)
             self.env = saved
             self.functions = functions
-            calls = [n for n in nodes(node.get('Stmts', [])) if n.get('Type') == 'CallExpr']
-            if kind == 'CmdSubst' and calls:
-                last = calls[-1]
-                args = last.get('Args', [])
-                if len(args) == 1 and args[0].get('Parts') == [{'Type': 'Lit', 'Value': 'pwd'}]:
-                    return str(end)
-                # Use parsed words rather than source-text replacement for path idioms.
-                first = args[0].get('Parts', []) if args else []
-                if first and first[0].get('Value') == 'pwd' and len(args) == 1:
-                    return str(end)
-                if first and first[0].get('Value') in ('dirname', 'realpath') and len(args) == 2:
-                    value = Path(self.value(args[1], directory))
-                    return str(value.parent if first[0]['Value'] == 'dirname' else (directory / value).resolve())
-            return Runtime('${RUNTIME}')
+            if kind == 'CmdSubst':
+                return self.exact_substitution(node, directory, end)
+            return RUNTIME
         if kind == 'ArithmExp':
             for child in nodes(node):
                 if child is not node and child.get('Type') in ('CmdSubst', 'ProcSubst'):
@@ -78,6 +87,45 @@ class Shell:
             value = ''.join(parts)
             return Runtime(value) if any(isinstance(part, Runtime) for part in parts) else value
         raise Refusal(f'unsupported shell word {kind!r} at {self.location(node)}')
+
+    def plain_call(self, statement: dict, words: int, directory: Path) -> list[str] | None:
+        """Words of one unredirected, unassigned simple command of an exact arity."""
+        call = statement.get('Cmd', {})
+        if set(statement) - PLAIN or call.get('Type') != 'CallExpr' or call.get('Assigns') or \
+                len(call.get('Args', [])) != words:
+            return None
+        return [self.value(word, directory) for word in call['Args']]
+
+    def exact_substitution(self, node: dict, directory: Path, end: Path) -> str:
+        """Exact shapes only; any other substitution output is a runtime value.
+
+        `$(cd <literal> && pwd)` is the one shape that yields a directory. `$(dirname
+        <literal>)` and `$(realpath <literal>)` are exact functions of their operand.
+        """
+        statements = node.get('Stmts', [])
+        if len(statements) != 1 or set(statements[0]) - PLAIN:
+            return RUNTIME
+        command = statements[0]['Cmd']
+        if command.get('Type') == 'CallExpr':
+            words = self.plain_call(statements[0], 2, directory)
+            if not words or isinstance(words[1], Runtime) or words[1].startswith('-'):
+                return RUNTIME
+            if words[0] == 'dirname':
+                return posix_dirname(words[1])
+            target = directory / words[1]
+            if words[0] == 'realpath' and target.exists():
+                return str(target.resolve())
+            return RUNTIME
+        if command.get('Type') != 'BinaryCmd' or command.get('Op') != 10:
+            return RUNTIME
+        change = self.plain_call(command['X'], 2, directory)
+        report = self.plain_call(command['Y'], 1, directory)
+        if not change or report != ['pwd'] or change[0] != 'cd' or isinstance(change[1], Runtime):
+            return RUNTIME
+        logical = Path(_normpath(str(directory / change[1])))
+        if not logical.is_dir() or logical != logical.resolve() or end != logical:
+            return RUNTIME  # A missing or symlinked directory is not modelled.
+        return str(logical)
 
     def assignments(self, values: list[dict], directory: Path) -> None:
         """Resolve scalar assignments without inventing array contents."""
@@ -343,6 +391,7 @@ class Shell:
             raise Refusal(f'recursive source {relative!r} at {where}')
         self.audit.inputs[relative] = sha256(path)
         self.active.add(relative)
+        self.words[relative] = args[1]
         previous = self.where
         self.where = relative
         try:

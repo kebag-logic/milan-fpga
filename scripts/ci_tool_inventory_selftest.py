@@ -146,6 +146,7 @@ def main() -> int:
         shutil.copyfile(inventory.ROOT / "ci/image/command-table.json", root / "ci/image/command-table.json")
         shutil.copyfile(inventory.ROOT / "ci/image/sources.lock.json", root / "ci/image/sources.lock.json")
         shutil.copyfile(inventory.ROOT / "ci/image/syntax-census.json", root / "ci/image/syntax-census.json")
+        shutil.copyfile(inventory.ROOT / "ci/image/make-builtins.json", root / "ci/image/make-builtins.json")
         workflow = root / ".github/workflows/test.yml"
         workflow.parent.mkdir(parents=True)
         prefix = "name: fixture\njobs:\n  gate:\n    steps:\n"

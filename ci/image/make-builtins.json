@@ -1,0 +1,1081 @@
+{
+  "rules": [
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.out",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.a",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.ln",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.o"
+      ],
+      "recipe": [
+        "$(LINK.o) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.c",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.c"
+      ],
+      "recipe": [
+        "$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.c"
+      ],
+      "recipe": [
+        "$(LINT.c) -C$* $<"
+      ],
+      "target": "%.ln",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.c"
+      ],
+      "recipe": [
+        "$(COMPILE.c) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.cc",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.cc"
+      ],
+      "recipe": [
+        "$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.cc"
+      ],
+      "recipe": [
+        "$(COMPILE.cc) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.C",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.C"
+      ],
+      "recipe": [
+        "$(LINK.C) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.C"
+      ],
+      "recipe": [
+        "$(COMPILE.C) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.cpp",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.cpp"
+      ],
+      "recipe": [
+        "$(LINK.cpp) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.cpp"
+      ],
+      "recipe": [
+        "$(COMPILE.cpp) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.p",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.p"
+      ],
+      "recipe": [
+        "$(LINK.p) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.p"
+      ],
+      "recipe": [
+        "$(COMPILE.p) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.f",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.f"
+      ],
+      "recipe": [
+        "$(LINK.f) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.f"
+      ],
+      "recipe": [
+        "$(COMPILE.f) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.F",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.F"
+      ],
+      "recipe": [
+        "$(LINK.F) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.F"
+      ],
+      "recipe": [
+        "$(COMPILE.F) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.F"
+      ],
+      "recipe": [
+        "$(PREPROCESS.F) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.f",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.m",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.m"
+      ],
+      "recipe": [
+        "$(LINK.m) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.m"
+      ],
+      "recipe": [
+        "$(COMPILE.m) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.r",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.r"
+      ],
+      "recipe": [
+        "$(LINK.r) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.r"
+      ],
+      "recipe": [
+        "$(COMPILE.r) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.r"
+      ],
+      "recipe": [
+        "$(PREPROCESS.r) $(OUTPUT_OPTION) $<"
+      ],
+      "target": "%.f",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.y",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.y"
+      ],
+      "recipe": [
+        "$(YACC.y) $< ",
+        " $(LINT.c) -C$* y.tab.c ",
+        " $(RM) y.tab.c"
+      ],
+      "target": "%.ln",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.y"
+      ],
+      "recipe": [
+        "$(YACC.y) $< ",
+        " mv -f y.tab.c $@"
+      ],
+      "target": "%.c",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.l",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.l"
+      ],
+      "recipe": [
+        "@$(RM) $*.c",
+        " $(LEX.l) $< > $*.c",
+        "$(LINT.c) -i $*.c -o $@",
+        " $(RM) $*.c"
+      ],
+      "target": "%.ln",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.l"
+      ],
+      "recipe": [
+        "@$(RM) $@ ",
+        " $(LEX.l) $< > $@"
+      ],
+      "target": "%.c",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.l"
+      ],
+      "recipe": [
+        "$(LEX.l) $< > $@ ",
+        " mv -f lex.yy.r $@"
+      ],
+      "target": "%.r",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.ym",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.ym"
+      ],
+      "recipe": [
+        "$(YACC.m) $< ",
+        " mv -f y.tab.c $@"
+      ],
+      "target": "%.m",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.yl",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.s",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.s"
+      ],
+      "recipe": [
+        "$(LINK.s) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.s"
+      ],
+      "recipe": [
+        "$(COMPILE.s) -o $@ $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.S",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.S"
+      ],
+      "recipe": [
+        "$(LINK.S) $^ $(LOADLIBES) $(LDLIBS) -o $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.S"
+      ],
+      "recipe": [
+        "$(COMPILE.S) -o $@ $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.S"
+      ],
+      "recipe": [
+        "$(PREPROCESS.S) $< > $@"
+      ],
+      "target": "%.s",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.mod",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.mod"
+      ],
+      "recipe": [
+        "$(COMPILE.mod) -o $@ -e $@ $^"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.mod"
+      ],
+      "recipe": [
+        "$(COMPILE.mod) -o $@ $<"
+      ],
+      "target": "%.o",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.sym",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.def",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.def"
+      ],
+      "recipe": [
+        "$(COMPILE.def) -o $@ $<"
+      ],
+      "target": "%.sym",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.h",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.info",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.dvi",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.tex",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.tex"
+      ],
+      "recipe": [
+        "$(TEX) $<"
+      ],
+      "target": "%.dvi",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.texinfo",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.texinfo"
+      ],
+      "recipe": [
+        "$(MAKEINFO) $(MAKEINFO_FLAGS) $< -o $@"
+      ],
+      "target": "%.info",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.texinfo"
+      ],
+      "recipe": [
+        "$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<"
+      ],
+      "target": "%.dvi",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.texi",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.texi"
+      ],
+      "recipe": [
+        "$(MAKEINFO) $(MAKEINFO_FLAGS) $< -o $@"
+      ],
+      "target": "%.info",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.texi"
+      ],
+      "recipe": [
+        "$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<"
+      ],
+      "target": "%.dvi",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.txinfo",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.txinfo"
+      ],
+      "recipe": [
+        "$(MAKEINFO) $(MAKEINFO_FLAGS) $< -o $@"
+      ],
+      "target": "%.info",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.txinfo"
+      ],
+      "recipe": [
+        "$(TEXI2DVI) $(TEXI2DVI_FLAGS) $<"
+      ],
+      "target": "%.dvi",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.w",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.w"
+      ],
+      "recipe": [
+        "$(CTANGLE) $< - $@"
+      ],
+      "target": "%.c",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.w"
+      ],
+      "recipe": [
+        "$(CWEAVE) $< - $@"
+      ],
+      "target": "%.tex",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.ch",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.web",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.web"
+      ],
+      "recipe": [
+        "$(TANGLE) $<"
+      ],
+      "target": "%.p",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.web"
+      ],
+      "recipe": [
+        "$(WEAVE) $<"
+      ],
+      "target": "%.tex",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.sh",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.sh"
+      ],
+      "recipe": [
+        "cat $< >$@ ",
+        " chmod a+x $@"
+      ],
+      "target": "%",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.elc",
+      "terminal": false
+    },
+    {
+      "prerequisites": [],
+      "recipe": [],
+      "target": "%.el",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%"
+      ],
+      "recipe": [
+        "$(AR) $(ARFLAGS) $@ $<"
+      ],
+      "target": "(%)",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%"
+      ],
+      "recipe": [
+        "@rm -f $@ ",
+        " cp $< $@"
+      ],
+      "target": "%.out",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.w",
+        "%.ch"
+      ],
+      "recipe": [
+        "$(CTANGLE) $^ $@"
+      ],
+      "target": "%.c",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%.w",
+        "%.ch"
+      ],
+      "recipe": [
+        "$(CWEAVE) $^ $@"
+      ],
+      "target": "%.tex",
+      "terminal": false
+    },
+    {
+      "prerequisites": [
+        "%,v"
+      ],
+      "recipe": [
+        "$(CHECKOUT,v)"
+      ],
+      "target": "%",
+      "terminal": true
+    },
+    {
+      "prerequisites": [
+        "RCS/%,v"
+      ],
+      "recipe": [
+        "$(CHECKOUT,v)"
+      ],
+      "target": "%",
+      "terminal": true
+    },
+    {
+      "prerequisites": [
+        "RCS/%"
+      ],
+      "recipe": [
+        "$(CHECKOUT,v)"
+      ],
+      "target": "%",
+      "terminal": true
+    },
+    {
+      "prerequisites": [
+        "s.%"
+      ],
+      "recipe": [
+        "$(GET) $(GFLAGS) $(SCCS_OUTPUT_OPTION) $<"
+      ],
+      "target": "%",
+      "terminal": true
+    },
+    {
+      "prerequisites": [
+        "SCCS/s.%"
+      ],
+      "recipe": [
+        "$(GET) $(GFLAGS) $(SCCS_OUTPUT_OPTION) $<"
+      ],
+      "target": "%",
+      "terminal": true
+    }
+  ],
+  "suffixes": [
+    ".out",
+    ".a",
+    ".ln",
+    ".o",
+    ".c",
+    ".cc",
+    ".C",
+    ".cpp",
+    ".p",
+    ".f",
+    ".F",
+    ".m",
+    ".r",
+    ".y",
+    ".l",
+    ".ym",
+    ".yl",
+    ".s",
+    ".S",
+    ".mod",
+    ".sym",
+    ".def",
+    ".h",
+    ".info",
+    ".dvi",
+    ".tex",
+    ".texinfo",
+    ".texi",
+    ".txinfo",
+    ".w",
+    ".ch",
+    ".web",
+    ".sh",
+    ".elc",
+    ".el"
+  ],
+  "variables": {
+    "AR": {
+      "flavor": "recursive",
+      "value": "ar"
+    },
+    "ARFLAGS": {
+      "flavor": "recursive",
+      "value": "rv"
+    },
+    "AS": {
+      "flavor": "recursive",
+      "value": "as"
+    },
+    "CC": {
+      "flavor": "recursive",
+      "value": "cc"
+    },
+    "CO": {
+      "flavor": "recursive",
+      "value": "co"
+    },
+    "COFLAGS": {
+      "flavor": "recursive",
+      "value": ""
+    },
+    "COMPILE.C": {
+      "flavor": "recursive",
+      "value": "$(COMPILE.cc)"
+    },
+    "COMPILE.F": {
+      "flavor": "recursive",
+      "value": "$(FC) $(FFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c"
+    },
+    "COMPILE.S": {
+      "flavor": "recursive",
+      "value": "$(CC) $(ASFLAGS) $(CPPFLAGS) $(TARGET_MACH) -c"
+    },
+    "COMPILE.c": {
+      "flavor": "recursive",
+      "value": "$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c"
+    },
+    "COMPILE.cc": {
+      "flavor": "recursive",
+      "value": "$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c"
+    },
+    "COMPILE.cpp": {
+      "flavor": "recursive",
+      "value": "$(COMPILE.cc)"
+    },
+    "COMPILE.def": {
+      "flavor": "recursive",
+      "value": "$(M2C) $(M2FLAGS) $(DEFFLAGS) $(TARGET_ARCH)"
+    },
+    "COMPILE.f": {
+      "flavor": "recursive",
+      "value": "$(FC) $(FFLAGS) $(TARGET_ARCH) -c"
+    },
+    "COMPILE.m": {
+      "flavor": "recursive",
+      "value": "$(OBJC) $(OBJCFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c"
+    },
+    "COMPILE.mod": {
+      "flavor": "recursive",
+      "value": "$(M2C) $(M2FLAGS) $(MODFLAGS) $(TARGET_ARCH)"
+    },
+    "COMPILE.p": {
+      "flavor": "recursive",
+      "value": "$(PC) $(PFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c"
+    },
+    "COMPILE.r": {
+      "flavor": "recursive",
+      "value": "$(FC) $(FFLAGS) $(RFLAGS) $(TARGET_ARCH) -c"
+    },
+    "COMPILE.s": {
+      "flavor": "recursive",
+      "value": "$(AS) $(ASFLAGS) $(TARGET_MACH)"
+    },
+    "CPP": {
+      "flavor": "recursive",
+      "value": "$(CC) -E"
+    },
+    "CTANGLE": {
+      "flavor": "recursive",
+      "value": "ctangle"
+    },
+    "CWEAVE": {
+      "flavor": "recursive",
+      "value": "cweave"
+    },
+    "CXX": {
+      "flavor": "recursive",
+      "value": "g++"
+    },
+    "F77": {
+      "flavor": "recursive",
+      "value": "$(FC)"
+    },
+    "F77FLAGS": {
+      "flavor": "recursive",
+      "value": "$(FFLAGS)"
+    },
+    "FC": {
+      "flavor": "recursive",
+      "value": "f77"
+    },
+    "GET": {
+      "flavor": "recursive",
+      "value": "get"
+    },
+    "LD": {
+      "flavor": "recursive",
+      "value": "ld"
+    },
+    "LEX": {
+      "flavor": "recursive",
+      "value": "lex"
+    },
+    "LEX.l": {
+      "flavor": "recursive",
+      "value": "$(LEX) $(LFLAGS) -t"
+    },
+    "LEX.m": {
+      "flavor": "recursive",
+      "value": "$(LEX) $(LFLAGS) -t"
+    },
+    "LINK.C": {
+      "flavor": "recursive",
+      "value": "$(LINK.cc)"
+    },
+    "LINK.F": {
+      "flavor": "recursive",
+      "value": "$(FC) $(FFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)"
+    },
+    "LINK.S": {
+      "flavor": "recursive",
+      "value": "$(CC) $(ASFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_MACH)"
+    },
+    "LINK.c": {
+      "flavor": "recursive",
+      "value": "$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)"
+    },
+    "LINK.cc": {
+      "flavor": "recursive",
+      "value": "$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)"
+    },
+    "LINK.cpp": {
+      "flavor": "recursive",
+      "value": "$(LINK.cc)"
+    },
+    "LINK.f": {
+      "flavor": "recursive",
+      "value": "$(FC) $(FFLAGS) $(LDFLAGS) $(TARGET_ARCH)"
+    },
+    "LINK.m": {
+      "flavor": "recursive",
+      "value": "$(OBJC) $(OBJCFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)"
+    },
+    "LINK.o": {
+      "flavor": "recursive",
+      "value": "$(CC) $(LDFLAGS) $(TARGET_ARCH)"
+    },
+    "LINK.p": {
+      "flavor": "recursive",
+      "value": "$(PC) $(PFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)"
+    },
+    "LINK.r": {
+      "flavor": "recursive",
+      "value": "$(FC) $(FFLAGS) $(RFLAGS) $(LDFLAGS) $(TARGET_ARCH)"
+    },
+    "LINK.s": {
+      "flavor": "recursive",
+      "value": "$(CC) $(ASFLAGS) $(LDFLAGS) $(TARGET_MACH)"
+    },
+    "LINT": {
+      "flavor": "recursive",
+      "value": "lint"
+    },
+    "LINT.c": {
+      "flavor": "recursive",
+      "value": "$(LINT) $(LINTFLAGS) $(CPPFLAGS) $(TARGET_ARCH)"
+    },
+    "M2C": {
+      "flavor": "recursive",
+      "value": "m2c"
+    },
+    "MAKEINFO": {
+      "flavor": "recursive",
+      "value": "makeinfo"
+    },
+    "OBJC": {
+      "flavor": "recursive",
+      "value": "cc"
+    },
+    "OUTPUT_OPTION": {
+      "flavor": "recursive",
+      "value": "-o $@"
+    },
+    "PC": {
+      "flavor": "recursive",
+      "value": "pc"
+    },
+    "PREPROCESS.F": {
+      "flavor": "recursive",
+      "value": "$(FC) $(FFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -F"
+    },
+    "PREPROCESS.S": {
+      "flavor": "recursive",
+      "value": "$(CC) -E $(CPPFLAGS)"
+    },
+    "PREPROCESS.r": {
+      "flavor": "recursive",
+      "value": "$(FC) $(FFLAGS) $(RFLAGS) $(TARGET_ARCH) -F"
+    },
+    "RM": {
+      "flavor": "recursive",
+      "value": "rm -f"
+    },
+    "TANGLE": {
+      "flavor": "recursive",
+      "value": "tangle"
+    },
+    "TEX": {
+      "flavor": "recursive",
+      "value": "tex"
+    },
+    "TEXI2DVI": {
+      "flavor": "recursive",
+      "value": "texi2dvi"
+    },
+    "WEAVE": {
+      "flavor": "recursive",
+      "value": "weave"
+    },
+    "YACC": {
+      "flavor": "recursive",
+      "value": "yacc"
+    },
+    "YACC.m": {
+      "flavor": "recursive",
+      "value": "$(YACC) $(YFLAGS)"
+    },
+    "YACC.y": {
+      "flavor": "recursive",
+      "value": "$(YACC) $(YFLAGS)"
+    }
+  },
+  "version": "GNU Make 4.3"
+}

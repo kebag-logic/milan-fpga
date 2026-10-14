@@ -229,7 +229,9 @@ def derive(root: Path) -> dict[str, object]:
                          "step": step.get("name", uses or str(index)), "index": index}
                 for row in rows:
                     key = json.dumps(row, sort_keys=True)
-                    records.setdefault(key, {**row, "installed_by": []})["installed_by"].append(where)
+                    installers = records.setdefault(key, {**row, "installed_by": []})["installed_by"]
+                    if where not in installers:  # Provenance is the set of installing steps.
+                        installers.append(where)
     audit.requests = []
     audit.env = {}
     audit.exported_env = {}
