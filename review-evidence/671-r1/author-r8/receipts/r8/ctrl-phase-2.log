@@ -1,0 +1,27 @@
+PASS: shard inventory rejects planted missing suite
+PASS: shard inventory rejects planted duplicate suite
+PASS: a newly discovered suite is assigned without an ownership list
+PASS: 938 live invocations in exactly one shard; shard sizes [61, 521, 77, 279]
+PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': 'absent', 'gmock': 'absent'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-bypasses-running-only: Core.S1_NoSubcommandSetOnRunningOutputIsRefused
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-bypasses-input-refusal: Core.S2_NoSubcommandSetOnInputIsNotSupported
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-applies-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-reports-request-latency: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $SCRATCH/tmp/ctrl-fw-a77bir44/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] nosub-notifies-change: Core.SetStreamInfoWithoutSubcommandPreservesState:Core.SetStreamInfoWithoutSubcommandPreservesState

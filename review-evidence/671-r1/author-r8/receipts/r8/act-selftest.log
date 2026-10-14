@@ -1,0 +1,46 @@
+  ok   ready event is selected for a non-draft PR
+  ok   event pins the exact head and base
+  ok   event names the repository default branch without private markers
+  ok   draft event uses synchronize and preserves draft=true
+  ok   a stale recorded base oid resolves to the live dev tip and proceeds
+  ok   the stale-base note prints the recorded and live base SHAs
+  ok   a recorded base oid matching the live tip resolves unchanged
+  ok   an invalid live-tip lookup result is refused
+  ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+  ok   a head moved between metadata lookup and fetch is refused naming the head
+  ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+  ok   the event retains the recorded base oid as metadata
+  ok   the recorded payload oid is not the fetched live scope base
+Traceback (most recent call last):
+  File "/workspace/scripts/act_ci.py", line 17241, in <module>
+    raise SystemExit(main(sys.argv))
+                     ^^^^^^^^^^^^^^
+  File "/workspace/scripts/act_ci.py", line 17191, in main
+    return selftest(shipping_root)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scripts/act_ci.py", line 15454, in selftest
+    selftest_scope_event(tally, fixture, shipping_root)
+  File "/workspace/scripts/act_ci.py", line 6428, in selftest_scope_event
+    scope_fixture_environment_control(shipping_root, poison))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scripts/act_ci.py", line 6388, in scope_fixture_environment_control
+    with tempfile.TemporaryDirectory(prefix="scope-environment-") as raw:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/tempfile.py", line 1021, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/tempfile.py", line 512, in mkdtemp
+    prefix, suffix, dir, output_type = _sanitize_params(prefix, suffix, dir)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/tempfile.py", line 265, in _sanitize_params
+    dir = gettempdir()
+          ^^^^^^^^^^^^
+  File "/usr/lib/python3.12/tempfile.py", line 454, in gettempdir
+    return _os.fsdecode(_gettempdir())
+                        ^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/tempfile.py", line 447, in _gettempdir
+    tempdir = _get_default_tempdir()
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/tempfile.py", line 362, in _get_default_tempdir
+    raise FileNotFoundError(_errno.ENOENT,
+FileNotFoundError: [Errno 2] No usable temporary directory found in ['/scratch/tmp', '/tmp', '/var/tmp', '/usr/tmp', '/workspace']

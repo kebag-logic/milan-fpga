@@ -1,0 +1,209 @@
+[A592]
+
+## Contents
+
+- [Status](#status)
+- [Linked Issue / roles](#linked-issue--roles)
+- [Description](#description)
+- [Round 8](#round-8)
+- [Round 7](#round-7)
+- [Round 6](#round-6)
+- [Round 5](#round-5)
+- [Round 4](#round-4)
+- [Authoritative references](#authoritative-references)
+- [How to get into the same state](#how-to-get-into-the-same-state)
+- [How to validate](#how-to-validate)
+- [Known limitations / out of scope](#known-limitations--out-of-scope)
+- [Definition of Done](#definition-of-done)
+
+## Status
+
+Round 8 is REVIEW READY at `d5cd863561ba1ee7bc6342fb1b00f57dd786bd97`. `671-read-fault` -> `dev`.
+
+Round 8 merges dev `fa820988` (merge commit `f3bb2014`, no conflict) and re-measures the capture at the merge. Nothing else changes. Dev's MAAP and frame-counter RTL is inside the capture SoC, so all six arms were re-measured with the receipt's simulator, Verilator 5.052. All 96 captures repeat round 7's cycle counts, and the 8x8 contract maximum stays 13.86328 ms against 24.5 ms. The gates this lane's files touch, and the three requested CI checks, pass:
+
+- The writer gate passed five shapes at 3,550 cases each. All 61 planted firmware defects reddened, and the comparison check failed by name in all nine of its arms.
+- All 18 #671 controls, on three shapes, reproduce round 7's 54 counts. The term census, matrix and views are unchanged.
+- Co-simulation passed 465/465 checks and killed 39/39 mutants.
+- All 103 builder functions passed, with every elaboration arm.
+- The firmware-unit gates passed: the four control phases, the Mark II store's 435 tests and 109 plants (it imports the host gate), coverage and the firmware boundary.
+- Lint, source lists, BDD and the docs-check replica passed at the merge. The capture and document gates, the docs-check replica and the three CI checks passed again at the final head.
+
+The new commits are local. Hosted and act evidence is required at the published head.
+
+## Linked Issue / roles
+
+Relates to #671
+
+Executor: `[A592]`
+Internal cleared-context reviewer: `[R602]`
+External reviewer: `[R603]`
+
+## Description
+
+A boot read fault could make the shipping writer discard a valid slot and restart the generation at zero. Its next verified commit could then disappear on a clean reboot, or overwrite the saved authoritative slot.
+
+The firmware now judges each slot from one staged read. A validated container stands on one read; a refusal or blank verdict requires two matching reads within three attempts. Two refused reads match when their verdicts and byte counts, a CRC-32 over all but their last four bytes, and those four bytes are equal. The chosen container must read back under its validated sequence, again within three attempts. A slot that cannot be judged or re-staged leaves authority unknown and holds persistence until reset. The restore still offers the accepted slot. The hold applies both to a cold boot and to a writer restart without a fabric reset.
+
+While held, the writer captures, erases, programs and acknowledges nothing, refuses the console commit, and stops heartbeating. The existing `nvm_backed` status therefore makes no durability claim. The console names each unread slot and its cause. A writer retired for another cause continues to name that cause. An explicit operator wipe still erases both slots.
+
+Only the firmware derives the authoritative generation. The parent backend stores and reads back the published sequence; the processor writer and port operate on records and carry no generation. No processor change or adoption is needed. The register map, record format, A/B write sequence and power-loss guarantees are unchanged.
+
+| Artifact | Result |
+|---|---|
+| `sw/firmware/milan_baremetal/milan_baremetal.c` | Staged validation, bounded judgement and re-stage, validated sequence selection, cold-boot and re-attach hold, and console cause |
+| `sw/firmware/nvm_hosttest/` | Read-fault injection, generated windows, independent read-count expectations, persistent-state comparisons and named controls |
+| `tb/verilator/nvm_cosim/run_cases.py` | Shares the complete writer-static restart model with the host suite |
+| `sw/builder/test_builder.py` | The writer-gate timeout grows from 600 to 1,200 s; a hosted run already took 594 s before round 4 |
+| `sw/firmware/nvm_hosttest/nvm_host.c` `settle()` | One `memcmp` replaces the CSR word walk when nothing was stored, so the larger campaign runs about 3.7 times faster per harness run |
+| Capture receipt and saved-state documentation | Firmware-bound measurements, the hold contract, detection limits and reproducible evidence |
+| `sw/firmware/nvm_hosttest/read_fault_cases.py` `COMPARISON` | The refused-read comparison's four terms listed once; each term's class of reads that differ in it alone, its control, and a check that fails when a term has neither |
+
+## Round 8
+
+This answers assignment #671 comment 6161596895. R602-7 and R603-7 were POSITIVE at `9b32002c`. New commits start at `f3bb2014`; no history was rewritten.
+
+- **The merge.** `f3bb2014` is a merge commit of dev `fa820988` into `9b32002c`; git merged it with no conflict. The files differing from dev are exactly the branch's own 15, and at the merge all 15 are byte-identical to `9b32002c`. The merge's delta is exactly dev's 160 changed paths since `c6bd08c6`. The only gitlink change is dev's new `third_party/tsn-c-stack` (`70936b77`). The processor pins stay at protocol `2ad2f845` and gPTP `7dda9c3b`.
+- **What was re-measured, and why.** Seven dev-changed RTL files are in the capture simulation's own source list: MAAP (#696), the stream frame counters (#726) and `milan_datapath.sv`. So all six capture arms were re-measured at `f3bb2014` through `tb/verilator/nvm_capture_cpu/run.py`, with round 7's unchanged driver. The receipt gate's input census is unchanged, so it alone would not have asked for this.
+- **The result.** The 8x8 contract maximum is 13.86328 ms against 24.5 ms: 10.63672 ms of margin and 3.5345x the 49 ms floor. The 1x1 maximum is 3.96548 ms, and the non-contract 100 MHz comparison is 10.42973 ms. All 96 captures repeat round 7's cycle counts, capture for capture. Every arm's CPU netlist, instrumented firmware, BIOS, gPTP microcode and configuration hashes equal round 7's, and so do its generated headers apart from the timestamp and build directory.
+- **The commit.** `d5cd8635` writes the receipt through its assembler and refreshes section 18's current figures and identities from it; both files change and nothing else. At that head the receipt gate passes, and its five mutation arms each reject by name.
+- **What still holds without re-measurement.** The firmware size holds: the source is byte-identical, and the delta recompiled against the merged tree's headers is again +2,050 B text and +16 B bss. The boot read-cost estimate holds. Its firmware, CPU, BIOS, flash controller and flash model are unchanged; dev's SoC-generator change is an opt-in placement neither harness uses; and the capture's cycle-exact repeat shows the changed datapath leaves CPU and memory timing unchanged. The backend-only area rows hold, since that module is unchanged.
+- **An interrupted first attempt.** It measured with the pinned Verilator 5.050 first on `PATH`. Its five finished arms also repeat round 7's counts, but the receipt and the harness README record Verilator 5.052. So that attempt is recorded as superseded and does not feed the receipt.
+
+**Firmware size.** The source is byte-identical, so the figures are unchanged: text 17,579 B (+2,050 B over the base) and bss 104 B (+16 B), with the pinned RV32 SDK and product 1x1 headers. Against the merged tree's capture headers, the delta is again +2,050 B text and +16 B bss.
+
+## Round 7
+
+This answers assignment #671 comment 6125761347. PR #715 held two POSITIVE reviews at `c7d0ad63` (R602-6, R603-6) but conflicted with dev `c6bd08c6`. New commits start at `44416838`; no history was rewritten.
+
+- **The merge.** `44416838` is a merge commit of dev `c6bd08c6` into `c7d0ad63`. Git reported conflicts in exactly the two expected files. `sw/builder/test_builder.py`, changed on both sides, merged cleanly: its hunks against dev are exactly the branch's, and against `c7d0ad63` exactly dev's. The files differing from dev are exactly the branch's own 15. Twelve of them, the firmware included, are byte-identical to `c7d0ad63`. Dev moves the `gptp-processor` pin to `7dda9c3b` and `third_party/lwSRP` to `08ee86e8`.
+- **The design document.** Section 18 and UNRESOLVED 6 keep both sides' statements. The #671 receipt chain stands. Dev's #621 receipt stands as dev's: its ruling, commit, tree, firmware, pins, the byte-identical-logs and drift statements, its 13.86318 ms maximum and its six-row table. Dev's new receipt-opt-out sentence merged as it was.
+- **The receipt, re-measured rather than merged.** Neither side's receipt binds the merged tree. The branch's names the old `run.py`, which dev's #621 change replaced, and dev's names the firmware before #671. The merge commit keeps the branch's receipt, so `check_nvm_capture` fails at that commit alone on the harness hash. `9b32002c` replaces it with all six arms re-measured at `44416838` through `tb/verilator/nvm_capture_cpu/run.py`: 96 clean captures. The receipt's own assembler wrote it after the gate's `check_receipt` passed, and section 18 is regenerated from it.
+- **The result.** The 8x8 contract maximum is 13.86328 ms against 24.5 ms: 10.63672 ms of margin and 3.5345x the 49 ms floor. The 1x1 maximum is 3.96548 ms, and the non-contract 100 MHz comparison is 10.42973 ms. All 96 captures repeat the #671 round-5 receipt's cycle counts. The new receipt shares that receipt's instrumented firmware and BIOS hashes, and dev's gPTP microcode hash. At `9b32002c` the gate passes with the merged firmware digest, and its five mutation arms, dev's new `receipt-opt-out` included, each reject by name.
+- **The bar of round 6, re-run.** At `9b32002c`: the writer gate, the builder bank, co-simulation, the final gates and the docs-check replica. At `44416838`, which differs from `9b32002c` only in the receipt and the design document: the term census, matrix and views, all 18 #671 controls in full on three shapes, the service budget, the firmware-unit replica and the rtl-fast replica.
+
+**Firmware size.** The source is byte-identical, so the figures are unchanged: text 17,579 B (+2,050 B over the base) and bss 104 B (+16 B), with the pinned RV32 SDK and product 1x1 headers. Against the merged tree's capture headers, the delta is again +2,050 B text and +16 B bss.
+
+## Round 6
+
+This answers assignment #671 comment 6112358549 and PR #715 reviews R602-5 and R603-5, both NEGATIVE on one MAJOR (F1). New commits start at `0c276b62`; no history was rewritten. The firmware is unchanged: its sha256 is still `497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed`.
+
+- **The finding.** The writer compares two refused reads by verdict, byte count, prefix CRC and trailer. No standing case had two refused reads differing in the trailer alone. So removing `a.tail == b.tail` left checks 13 and 14 green, while the writer then loses an acknowledged commit for a fault confined to the trailer. Removing the prefix CRC's last four bytes (R602-5's `digest_short`) also left them green.
+- **The terms, listed once.** `read_fault_cases.COMPARISON` lists the four terms: each one's name, the firmware's spelling and the fault that changes it alone. The classes, the controls, the findings' wording and the check below are all generated from it.
+- **One class per term.** Each class has two faulty reads that differ from one another in that term alone. They open the faulted slot's judgement, and its third read is clean.
+  - Trailer: the trailer's last byte XORed differently on each read.
+  - Prefix CRC: the last byte before the trailer.
+  - Byte count: a new harness fault grows the length word by four on each read and forges the CRC so the prefix CRC and the trailer stay fixed.
+  - Verdict: a new harness fault XORs the entity, model and record-layout words in turn and forges the CRC closed on the slot's own trailer, so the verdict alone changes.
+
+  Each class runs at the four sequences (1, 0x5A5A5, 0x80000000 and 0xFFFFFFFF) with the other slot blank, and at both both-valid layouts across the wrap. It runs both ways round, on cold boots and writer restarts, with the exact read-count, hold, changed-record and other-record assertions: 32 cases per term. A probe copy of the firmware that prints each read's four terms shows that all 384 class cases on three shapes give the judgement exactly two refusals differing in their own term alone, then a valid read. Each shape now runs 3,550 of 3,636 generated cases: 1,839 cold boots and 1,711 restarts.
+- **One control per term.** `r_omit_verdict`, `r_omit_byte_count`, `r_omit_prefix_crc` and `r_omit_trailer` each replace one term with `1` in a copy of the firmware. Each is caught by its own words ("which differ only in their trailer", and so on) on `endstation_arty_4x4`, `endstation_ax7101_1x1_tdm8` and `endstation_ax7101_8x8`. In a full-count run, each is named by all 32 of its class's cases on each shape, and by none of the other three classes.
+- **A check that fails without them.** The gate checks the firmware as shipped. It fails when `nvm_reads_agree` compares by other terms than the list, when a listed term lacks its class at any of those places, or when a term lacks its control. Its self-test requires that failure, by name, for each term without its class, for each term without its control, and for a firmware with a fifth term.
+- **The reviewers' probes.** R603-5's `probe_comparison.py` passes its own assertions. Its omission plant now gives 78 standing findings on each of the three shapes, where it gave 0; 32 of them name the trailer class. R602-5's verification command gives 78 standing findings on each shape for `no_tail` and for `digest_short`, where both gave 0. Its trailer set reproduces its own figures.
+- **The harness change is equivalence-checked.** Checks 1-14, the disabled-writer and the boot-walk graders on three shapes ran on both this harness and `0c276b62`'s: 10,641 twin runs, with no difference in any transcript or dumped file. The 384 runs that use the new faults run on the new harness only.
+
+**Firmware size.** Unchanged this round; the source is byte-identical. Round 5's figures stand: text 17,579 B (+2,050 B over the base), bss 104 B (+16 B).
+
+**Capture.** Not re-measured; nothing it measures changed. The receipt still binds the firmware digest above.
+
+## Round 5
+
+This answers assignment #671 comment 6107082416 and PR #715 reviews R603-4 (NEGATIVE, one MAJOR) and R602-4 (POSITIVE). New commits start at `7bc7ceca`; no history was rewritten.
+
+- **Refused-read agreement distinguishes the bytes (R603-4-F1).** Round 4 compared refused reads by one CRC-32 over every byte read, trailer included. Over any container whose CRC closes, that is the constant residue `0x2144df1c`, so two different refused containers agreed. Two refused reads now match only when their verdicts and byte counts, a CRC-32 over all but their last four bytes, and those last four bytes are all equal. For two containers whose CRCs close, they match only on a genuine CRC-32 collision of their prefixes. Any two reads that differ in one or two bits, or within one 32-bit burst, are always told apart. A trailer-only difference is also told apart, which a prefix-only digest would miss. A second full copy for byte comparison is not available: the private stage holds one slot. The three-read bound, validated-only generation, fallback and hold are unchanged.
+- **The class is in the standing generated suite.** A new harness fault, `--read-sealed`, flips the entity ID's low byte or a record-area byte and rewrites the trailer over the faulty bytes. Every faulty read is then a different container whose CRC closes and that is refused, `VD_ENT` or `VD_REC`. Both manners join every group with a container to seal. They cross every generated window, both orientations, both layouts, cold boots and writer restarts. The rotated sequences alone left R603-4's exact class short of the boundaries: in 20 of its 24 combinations a sequence was missing. So the generator also adds that class at every sequence of its group, both orientations and both entry paths, for each sealed manner. The class is two sealed refusals opening a judgement and then a clean read, and the reference model finds its window. Each shape now runs 3,422 of 3,508 generated cases: 1,775 cold boots and 1,647 restarts. The 86 excluded cases are the same documented limit as before.
+- **Named control.** `r_digest_with_trailer` restores round 4's digest and agreement. It fails by name ("on reads that returned different bytes") on `endstation_arty_4x4`, `endstation_ax7101_1x1_tdm8` and `endstation_ax7101_8x8`: 180 named findings on each (82 restart / 98 cold) in a full-count run. All fourteen #671 controls fail by name on all three shapes.
+- **R603-4's probe.** Unmodified, it now fails its own defect assertion on its first case. The faulty boot accepts A after a third, clean read, commits to B at the next sequence, and the clean reboot keeps every record. A copy that records all four cases instead of asserting the defect reports all four DEFECT GONE (1x1 and 8x8, slots A and B: acknowledged, not held, change kept, 0 records lost). With the control planted, the same copy reproduces R603-4's figures exactly (53 and 163 records lost; the change lost from slot B).
+- **The hosted writer-gate timeout, found and fixed.** At `7bc7ceca` the hosted `docs-check` failed. The builder step killed `test_nvm_firmware.py --self-test` at its 1,200 s limit (run 38120473372) before it finished the #671 controls. Almost all of the gate's time is the host model's `settle()`, which walked 1,024 CSR words on every CSR access. It now returns after one `memcmp` when nothing was stored; otherwise the walk is unchanged. Every harness run of checks 1-14, the disabled-writer and the boot-walk graders on three shapes was run on both forms: 10,581 twin runs, with no difference in any transcript or dumped file. Locally at four jobs, the suite passed in 217.84 s with 3,382 cases and nothing else heavy running, and in 267.29 s at the final 3,422 cases alongside a builder run. Round 4's 2,158-case suite took 461.48 s. The builder limit stays 1,200 s. The hosted exact-head result is pending.
+- **The Mark II store has the same class (item 2), unchanged here.** `sw/firmware/ctrl_nvm/nvm_store.c:142-149,165-173,208-216` chains a refusal's digest over the 40-byte header read and then a separate read of the whole container. For any container whose CRC closes, the container's own bytes cancel, so only the header read and the length are distinguished. Driven on its host flash model with two sealed reads of slot A (entity or record-area byte), the unchanged store keeps the refusal with `read_faults=0`, is not held, and commits sequence 1 to B. The clean reboot prefers A, so the acknowledged commit is lost, on 1x1 and 8x8. Its README's detection-limit sentence (Boot item 3 and the limits list) overstates the digest. This is reported for a separate Issue.
+- **Documentation.** `BAREMETAL_FIRMWARE.md` and FASTCONNECT section 7 state the comparison exactly, why the trailer is excluded and the detection limit. The host-suite README adds the sealed faults, the case counts and the control.
+- **Not taken up:** R602-4-S1 (the boot line's `read faults=` count is not graded) and R602-4-S2 (no generated case faults both slots). Both are optional SUGGESTIONs.
+
+**Firmware size.** With the pinned RV32 SDK and product 1x1 headers, text is 17,579 B: +96 B this round and +2,050 B over the base. Bss is 104 B, unchanged this round and +16 B over the base. Data remains 104 B.
+
+**Capture.** All six arms passed, 96 clean captures, bound to firmware sha256 `497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed`. The 8x8 contract maximum is 13.86328 ms against 24.5 ms: 10.63672 ms of margin and 3.5345x the 49 ms floor, unchanged from round 4. The 1x1 maximum is 3.96548 ms. The non-contract 100 MHz comparison is 10.42973 ms. The receipt gate and its four mutation controls pass.
+
+## Round 4
+
+This answers assignment #671 comment 6104799677 and PR #715 reviews R602-3 and R603-3. New commits start at `fc0c517c`; no history was rewritten.
+
+- **Generated windows (R602-3-F1, R603-3-F1).** Each fault group crosses every manner of fault with every start position in the complete 13-read boot bound or 12-read restart bound and every length 1 through 4, plus the whole-boot window. It covers both orientations, one-valid/one-blank and both-valid layouts, cold boots and writer restarts. Starts a clean boot never reaches remain in the standing suite. No window is excluded to reduce runtime.
+- **Sequence reduction, explicit.** The four one-valid sequences (1, 0x5A5A5, 0x80000000, 0xFFFFFFFF) and two both-valid sequences (0x5A5A5 and 0 across the wrap) rotate across windows instead of multiplying every window. No window is removed. This is the assignment's allowed sequence reduction for runtime. Of 2,244 generated cases, 86 lie outside the stated detection limit; 2,158 run per shape: 1,119 cold boots and 1,039 restarts. Every window retains every applicable byte-fault manner.
+- **Exact expectations.** `read_fault_cases.expect()` models the judgement reads, the chosen slot's re-stage and the other slot's re-stage once, from the contract. Every case checks its exact read count and expected hold. Cases exercise all three attempts of judgements and re-stages. A clean reboot result is reused only for identical A/B slot bytes and hold state within that firmware and shape.
+- **Controls.** All thirteen #671 controls fail by their named findings on `endstation_arty_4x4`, `endstation_ax7101_1x1_tdm8` and `endstation_ax7101_8x8`. The new unbounded re-stage control `p_restage_unbounded` produces 52 exact-count findings per shape; `r_restage_four_tries` produces 68; `r_judge_four_tries` produces 140. These are complete-case counts, distinct from the suite's early-stop counts. The reviewers' re-stage plants are also caught independently. A boot read storm ends at 1,001 reads and is graded as over-bound.
+- **Correct base reproduction (R602-3-F2).** Base firmware `e8454e27`, sha256 `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`, produces 2,660 findings per product shape under this round's checks 13 and 14; 124 say the committed change was lost on the clean reboot. For this comparison only, the restart model retains the base's 15 writer statics, excluding the four absent names `nvm_unread`, `nvm_held`, `nvm_read_faults` and `nvm_unstaged`. The earlier 645 / 124 figures belonged to `9112a0df`.
+- **Console cause (R603-3-S1).** A picked slot whose re-stage fails says "did not read back as it was judged in 3 reads". A judgement failure says "gave no standing verdict in 3 reads". The same helper supplies the boot hold and console refusal; the host gate checks the cause against the reference model.
+- **Held re-attach publication (R602-3-S1).** Documented: word 2 describes the slot accepted in the new judgement, possibly older, or zero if none. The existing live window remains untouched. The word is diagnostic evidence; it cannot make the held writer persist.
+
+**Firmware size.** With the pinned RV32 SDK and product 1x1 headers, text is 17,483 B: +186 B this round, +1,954 B over the base. Bss is 104 B: +4 B this round, +16 B over base. Data remains 104 B.
+
+**Capture.** All six arms passed, 96 clean captures, bound to firmware sha256 `41000488944bea651733b9708fa0c3a72926ce2308034c51209f2dd95a27b2a2`. The 8x8 contract maximum is 13.86328 ms against 24.5 ms: 10.63672 ms margin and 3.5345x the 49 ms floor. The 1x1 maximum is 3.96548 ms. The 100 MHz comparison is non-contract, at 10.43406 ms. The receipt gate and its four mutation controls pass.
+
+## Authoritative references
+
+- #671 Required and Acceptance 1 to 3; assignment comments 6098494890, 6104799677, 6107082416, 6112358549, 6125761347 and 6161596895.
+- #665 decision 2 and the byte-agreement decision (comments 5997929153 and 5999350068).
+- `REQUIREMENTS.md`, product ownership and release verification.
+- `docs/design/SAVED_STATE_FASTCONNECT.md`, sections 6.2 and 7.
+- `docs/design/SAVED_STATE_MATERIALIZATION.md`, section 6.3.
+- `sw/firmware/ctrl_nvm/README.md`, Boot items 3, 4 and 9.
+- `docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md`, writer restart and capture measurement.
+
+## How to get into the same state
+
+```sh
+git switch 671-read-fault
+git submodule update --init protocol-processor gptp-processor third_party/verilog-axis third_party/lwSRP third_party/tsn-c-stack
+```
+
+Use the repository's pinned CPython dependencies, RV32 SDK and Verilator 5.050 for the suites. The capture recipe names its product build environment. Before any Git command within a submodule, verify its top-level directory.
+
+## How to validate
+
+```sh
+python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test --jobs 4
+make -C tb/verilator/nvm_cosim run JOBS=2 POOL=4
+make -C tb/verilator/fw_service_budget
+python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+python3 sw/builder/test_builder.py --require-rv32 --require-elaboration
+python3 scripts/check_nvm_capture.py
+python3 scripts/check_nvm_capture.py --mutation receipt-opt-out
+python3 scripts/check_nvm_record_space.py --self-test
+python3 scripts/ci_scope.py --selftest
+python3 scripts/ci_events.py --check
+python3 scripts/docs_check.py
+python3 scripts/gen_toc.py --check
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_py_idiom.py
+python3 scripts/check_hygiene.py --check
+```
+
+Run `scripts/act_ci.py --selftest` only inside the disposable CI job boundary, never as a host-side orchestrator. Use disk scratch through `TMPDIR`; limit campaign workers to four and simultaneous Verilator builds to two. The handoff records the resource-limited builder invocation and complete gate table. Expected writer result: five shapes pass at 3,550 cases each; all 61 planted firmware defects redden (five writer, eighteen #671 on three shapes each, two boot-walk), and the comparison check fails by name in all nine of its own self-test arms. Expected co-simulation result: 465/465 and 39/39 named mutants. Capture must bind the current firmware digest and satisfy the 24.5 ms contract limit; the `receipt-opt-out` control must exit 1.
+
+## Known limitations / out of scope
+
+- Memory-mapped flash always returns bytes. A differing read reveals a media fault; the same wrong bytes twice, two all-0xFF reads, or an address fault returning another valid container can be indistinguishable from stored contents. Both suites state that limit.
+- Two refused reads are compared by a 32-bit CRC over all but their last four bytes plus those four bytes. Reads that differ in one or two bits, or within one 32-bit burst, are always told apart; other differences collide with a probability of about 2^-32.
+- The verdict and byte-count term classes are constructed CRC-32 collisions in the host model. They pin each term with a test that can fail for it; they are not a claim that such faults are frequent on hardware.
+- The Mark II store (`sw/firmware/ctrl_nvm`) has the same class of collapse in its refusal comparison and is unchanged here. The reproduction and file:line evidence are in the handoff for a separate Issue.
+- The writer-restart model resets writer statics only. It assumes the retained fabric/window contract; it does not prove the boot code's memory initialization or physical reset behavior.
+- A slot that never reads cleanly holds the writer on every boot. Only the operator's explicit wipe discards that saved state.
+- Faulted boot time remains an estimate: ten worst-case 64 KiB refused reads plus two valid container reads give about 16.4 s at 1x1 and 17.1 s at 8x8, against the existing 20 s comparison. Capture timing is measured separately. A long restart can exceed the 2 s liveness deadline.
+- Runtime capture prefill's fresh flash read remains tracked by #717.
+- The merge commit `44416838` alone fails `check_nvm_capture` on the harness hash, because its receipt is the branch's unchanged one. `9b32002c` re-measures it; the two commits are published together.
+- No hardware, flashing, processor change or merge. Hosted checks, act replication and current-dev merge-candidate validation remain later duties at the published head.
+
+## Definition of Done
+
+- [x] Linked Issue acceptance criteria are satisfied
+- [x] New or changed behavior has self-checking tests
+- [ ] Required local verification bar passes
+- [ ] Self-test evidence is posted in a PR comment
+- [x] No undocumented requirement or interface change remains
+- [ ] Internal cleared-context review is positive
+- [ ] External review is positive
+- [ ] Blocking and major findings are fixed and re-reviewed
+- [ ] No review round remains in flight
+- [ ] Candidate merge result is validated per CONTRIBUTING.md
+- [x] Documentation is updated where needed
+- [ ] Post-merge containment will be checked before the Issue moves to Done
