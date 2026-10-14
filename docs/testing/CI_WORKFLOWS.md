@@ -2644,8 +2644,10 @@ The generator preserves every original command, condition and environment.
 Round-three scheduling isolates the two contract self-tests in `docs-gates-2`.
 The gate inventory still defines membership and exactly-once union coverage.
 Every original control remains; generated mutations regenerate only their
-changed workflow. The full CI-event self-test passes 5,206 arms in 316.686
-seconds on CPython 3.12.3. The complete two-invocation runner contract gate takes 113.654 seconds.
+changed workflow. The full CI-event self-test took 316.686 seconds for 5,206
+arms on CPython 3.12.3. It now passes 5,209 arms, and its whole contract step
+(check plus self-test) took 201.196 seconds; projections keep the slower figure.
+The complete two-invocation runner contract gate takes 113.654 seconds.
 The added scheduling/evidence controls take 23.699 seconds.
 These local times include competition from the scoped source-build measurement.
 
