@@ -1,0 +1,44 @@
+[
+  {
+    "name": "baseline",
+    "mode": "--write",
+    "rc": 0,
+    "output": "CI tool inventory matches workflow installation requests\n"
+  },
+  {
+    "name": "baseline",
+    "mode": "--check",
+    "rc": 0,
+    "output": "CI tool inventory matches workflow installation requests\n"
+  },
+  {
+    "name": "missing entry",
+    "mode": "--check",
+    "rc": 2,
+    "output": "REFUSED: tool inventory differs from workflow installation requests\n"
+  },
+  {
+    "name": "orphan entry",
+    "mode": "--check",
+    "rc": 2,
+    "output": "REFUSED: tool inventory differs from workflow installation requests\n"
+  },
+  {
+    "name": "new installation",
+    "mode": "--check",
+    "rc": 2,
+    "output": "REFUSED: tool inventory differs from workflow installation requests\n"
+  },
+  {
+    "name": "record added installation",
+    "mode": "--write",
+    "rc": 0,
+    "output": "CI tool inventory matches workflow installation requests\n"
+  },
+  {
+    "name": "current added inventory",
+    "mode": "--check",
+    "rc": 0,
+    "output": "CI tool inventory matches workflow installation requests\n"
+  }
+]

@@ -1,0 +1,188 @@
+[
+  {
+    "name": "literal-inline-marker",
+    "command": "bash -c 'echo \"<dynamic>\"; brand_new_command' ",
+    "files": {},
+    "result": "ACCEPTED",
+    "tools": [],
+    "inputs": [
+      ".github/workflows/fixture.yml",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "residue": [
+      ".github/workflows/fixture.yml:1: declared runtime shell program"
+    ],
+    "actual_rc": 0,
+    "actual_stdout": "<dynamic>\nREACHED_UNCLASSIFIED_COMMAND\n",
+    "actual_stderr": "",
+    "real_execution_reached_unclassified": true
+  },
+  {
+    "name": "sourced-directory",
+    "command": "source fragment.sh; bash bootstrap.sh",
+    "files": {
+      "fragment.sh": "cd sub\n",
+      "bootstrap.sh": "echo root\n",
+      "sub/bootstrap.sh": "brand_new_command\n"
+    },
+    "result": "ACCEPTED",
+    "tools": [],
+    "inputs": [
+      ".github/workflows/fixture.yml",
+      "bootstrap.sh",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json",
+      "fragment.sh"
+    ],
+    "residue": [],
+    "actual_rc": 0,
+    "actual_stdout": "REACHED_UNCLASSIFIED_COMMAND\n",
+    "actual_stderr": "",
+    "real_execution_reached_unclassified": true
+  },
+  {
+    "name": "sourced-variable",
+    "command": "name=bootstrap.sh; source fragment.sh; bash \"$name\"",
+    "files": {
+      "fragment.sh": "name=sub/bootstrap.sh\n",
+      "bootstrap.sh": "echo root\n",
+      "sub/bootstrap.sh": "brand_new_command\n"
+    },
+    "result": "ACCEPTED",
+    "tools": [],
+    "inputs": [
+      ".github/workflows/fixture.yml",
+      "bootstrap.sh",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json",
+      "fragment.sh"
+    ],
+    "residue": [],
+    "actual_rc": 0,
+    "actual_stdout": "REACHED_UNCLASSIFIED_COMMAND\n",
+    "actual_stderr": "",
+    "real_execution_reached_unclassified": true
+  },
+  {
+    "name": "background-directory",
+    "command": "cd sub & bash bootstrap.sh",
+    "files": {
+      "bootstrap.sh": "brand_new_command\n",
+      "sub/bootstrap.sh": "echo root\n"
+    },
+    "result": "ACCEPTED",
+    "tools": [],
+    "inputs": [
+      ".github/workflows/fixture.yml",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json",
+      "sub/bootstrap.sh"
+    ],
+    "residue": [],
+    "actual_rc": 0,
+    "actual_stdout": "REACHED_UNCLASSIFIED_COMMAND\n",
+    "actual_stderr": "",
+    "real_execution_reached_unclassified": true
+  },
+  {
+    "name": "branch-functions",
+    "command": "if true; then f() { brand_new_command; }; else f() { echo okay; }; fi; f",
+    "files": {},
+    "result": "ACCEPTED",
+    "tools": [],
+    "inputs": [
+      ".github/workflows/fixture.yml",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "residue": [],
+    "actual_rc": 0,
+    "actual_stdout": "REACHED_UNCLASSIFIED_COMMAND\n",
+    "actual_stderr": "",
+    "real_execution_reached_unclassified": true
+  },
+  {
+    "name": "make-selected-shell",
+    "command": "make",
+    "files": {
+      "Makefile": "SHELL := ./runner.sh\nall: ; echo okay\n",
+      "runner.sh": "#!/bin/sh\nbrand_new_command\n"
+    },
+    "result": "ACCEPTED",
+    "tools": [],
+    "inputs": [
+      ".github/workflows/fixture.yml",
+      "Makefile",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "residue": [],
+    "actual_rc": 0,
+    "actual_stdout": "echo okay\nREACHED_UNCLASSIFIED_COMMAND\n",
+    "actual_stderr": "",
+    "real_execution_reached_unclassified": true
+  },
+  {
+    "name": "make-selected-shell-override",
+    "command": "make SHELL=./runner.sh",
+    "files": {
+      "Makefile": "all: ; echo okay\n",
+      "runner.sh": "#!/bin/sh\nbrand_new_command\n"
+    },
+    "result": "ACCEPTED",
+    "tools": [],
+    "inputs": [
+      ".github/workflows/fixture.yml",
+      "Makefile",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "residue": [],
+    "actual_rc": 0,
+    "actual_stdout": "echo okay\nREACHED_UNCLASSIFIED_COMMAND\n",
+    "actual_stderr": "",
+    "real_execution_reached_unclassified": true
+  },
+  {
+    "name": "make-function-lazy",
+    "command": "make",
+    "files": {
+      "Makefile": "all: ; $(if yes,echo okay,brand_new_command)\n"
+    },
+    "result": "ACCEPTED",
+    "tools": [],
+    "inputs": [
+      ".github/workflows/fixture.yml",
+      "Makefile",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "residue": [],
+    "actual_rc": 0,
+    "actual_stdout": "echo okay\nokay\n",
+    "actual_stderr": "",
+    "real_execution_reached_unclassified": false
+  },
+  {
+    "name": "literal-python-package",
+    "command": "python3 bootstrap.py",
+    "files": {
+      "bootstrap.py": "import localpkg\n",
+      "localpkg/__init__.py": "import subprocess\nsubprocess.run([\"brand_new_command\"])\n"
+    },
+    "result": "ACCEPTED",
+    "tools": [],
+    "inputs": [
+      ".github/workflows/fixture.yml",
+      "bootstrap.py",
+      "ci/image/command-table.json",
+      "ci/image/sources.lock.json"
+    ],
+    "residue": [],
+    "actual_rc": 0,
+    "actual_stdout": "REACHED_UNCLASSIFIED_COMMAND\n",
+    "actual_stderr": "",
+    "real_execution_reached_unclassified": true
+  }
+]

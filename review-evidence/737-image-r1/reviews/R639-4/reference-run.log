@@ -1,0 +1,113 @@
+3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]
+[
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 9.482
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.615
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_inventory_patterns_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 2.468
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.515
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.515
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.565
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_patch_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.515
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/build.py",
+      "--work",
+      "<packet>/scratch/lock-check",
+      "--check-lock"
+    ],
+    "rc": 0,
+    "seconds": 0.365
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 24.615
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 8.981
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.738
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.164
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.214
+  }
+]
