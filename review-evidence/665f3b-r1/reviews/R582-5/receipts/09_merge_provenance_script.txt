@@ -1,0 +1,65 @@
+head 7032bca5a51d8d97fcb73d7fc106ca4af21de38e tree f1c1f47cb4fefb8a6c68418d03dc762f72cbee15
+parents: 6b4feeca5d2fab0ec35cf071322cc775a5b15cb5 fa7347fc59173f90e4feec2df207692e6e6e72ec
+merge-tree(lane,dev): f1c1f47cb4fefb8a6c68418d03dc762f72cbee15
+merge-base(lane,dev): d40e4e9827be2516f8f34b9d65f0a483fff2194c
+## head vs dev paths == lane paths (base..lane)
+IDENTICAL (46 paths)
+## provenance of each path the merge changed relative to the lane parent
+dev .github/workflows/docs.yml
+dev .github/workflows/elaborate.yml
+dev .github/workflows/rtl-fast.yml
+dev .github/workflows/rtl.yml
+dev docs/design/AREA_BUDGET.md
+dev docs/design/MAAP_FABRIC.md
+dev docs/design/MARK_II_AREA_PLAN.md
+dev docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+dev docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+dev docs/findings/README.md
+THREE-WAY docs/testing/CI_WORKFLOWS.md
+dev docs/testing/TESTING.md
+dev hdl/ieee1722/maap/KL_maap.sv
+dev hdl/ieee1722/maap/doc/KL_maap/KL_maap.md
+dev hdl/milan/milan_datapath.sv
+dev scripts/act_ci.py
+dev scripts/ci_events.py
+THREE-WAY scripts/ci_scope.py
+dev scripts/ci_scope_history.py
+THREE-WAY sw/firmware/ctrl/maap/README.md
+dev sw/firmware/ctrl/test/maap_differential.py
+dev sw/firmware/ctrl/test/test_maap_differential.cpp
+dev syn/ooc/pp_resource_baseline.json
+dev tb/verilator/maap/Makefile
+dev tb/verilator/maap/integration.mk
+dev tb/verilator/maap/mutants.py
+dev tb/verilator/maap/sim_integration.cpp
+dev tb/verilator/maap/sim_main.cpp
+## gitlinks
+d40e4e9827be2516f8f34b9d65f0a483fff2194c
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 405dc68310a18f669049ffc10cc23eef7300dcff	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+6b4feeca5d2fab0ec35cf071322cc775a5b15cb5
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+fa7347fc59173f90e4feec2df207692e6e6e72ec
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 405dc68310a18f669049ffc10cc23eef7300dcff	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+7032bca5a51d8d97fcb73d7fc106ca4af21de38e
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+rc=0

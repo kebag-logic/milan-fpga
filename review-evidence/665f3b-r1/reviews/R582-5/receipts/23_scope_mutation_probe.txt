@@ -1,0 +1,4 @@
+baseline copy (full archive of 7032bca5) rc=0 : selftest: PASS
+mutant remove rc=1 ;   FAIL ['docs/design/MAILBOX_SPLIT.md']: rtl=False|  FAIL gate-read page docs/design/MAILBOX_SPLIT.md (named at sw/firmware/ctrl/test/ctrl_service_bounds.py:13) is relevant|selftest: 2 FAILURE(S)|
+mutant case_flip rc=1 ;   FAIL ['docs/design/MAILBOX_SPLIT.md']: rtl=True|  FAIL mutation: gate-read docs/design/MAILBOX_SPLIT.md filed as docs-only is rejected|selftest: 2 FAILURE(S)|
+restored; classify MAILBOX_SPLIT.md: true

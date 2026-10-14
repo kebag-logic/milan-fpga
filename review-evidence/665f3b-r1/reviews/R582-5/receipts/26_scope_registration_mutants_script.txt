@@ -1,0 +1,5 @@
+baseline: PASS
+mutant remove: caught:   FAIL ['docs/design/MAILBOX_SPLIT.md']: rtl=False|  FAIL gate-read page docs/design/MAILBOX_SPLIT.md (named at sw/firmware/ctrl/test/ctrl_service_bounds.py:13) is relevant|selftest: 2 FAILURE(S)|
+mutant case_flip: caught:   FAIL ['docs/design/MAILBOX_SPLIT.md']: rtl=True|  FAIL mutation: gate-read docs/design/MAILBOX_SPLIT.md filed as docs-only is rejected|selftest: 2 FAILURE(S)|
+restored classification of docs/design/MAILBOX_SPLIT.md: true
+rc=0

@@ -1,0 +1,14 @@
+## DA_GATE / declaring / address-validity wording in the 28 delta paths at head
+7032bca5:docs/design/MAAP_FABRIC.md:308:**What depends on it:** `acmp_declaring_o` — the talker gate — is reachable
+7032bca5:hdl/milan/milan_datapath.sv:1953:  //! never reaches acmp_declaring_o. One decision, one place.
+7032bca5:hdl/milan/milan_datapath.sv:2002:  //! processor's acmp_declaring_o, which is itself only reachable through an
+7032bca5:hdl/milan/milan_datapath.sv:2383:  wire [ACMP_SRC_C-1:0]      pp_cd_acmp_declaring_w /* verilator public_flat_rd */;
+7032bca5:hdl/milan/milan_datapath.sv:4929:  wire        gsi_decl_w  = gsi_out_w && pp_cd_acmp_declaring_w[gsi_oix_w];
+7032bca5:hdl/milan/milan_datapath.sv:5342:  //! THE DA GATE IS THE TALKER GATE. acmp_declaring_o asserts only after an
+7032bca5:hdl/milan/milan_datapath.sv:5346:  assign acmp_talker_active_v = pp_cd_acmp_declaring_w;
+7032bca5:hdl/milan/milan_datapath.sv:8162:      //! walk never allocates a DA, acmp_declaring_o is stuck 0 and nothing
+7032bca5:hdl/milan/milan_datapath.sv:8302:      .acmp_declaring_o        (pp_cd_acmp_declaring_w),
+7032bca5:sw/firmware/ctrl/maap/README.md:112:For the split placement, `DA_GATE` publishes the ACMP declaration predicate.
+7032bca5:sw/firmware/ctrl/maap/README.md:119:Without that owner, every declaration gate stays closed.
+7032bca5:sw/firmware/ctrl/maap/README.md:127:The dispatch path caches each `acmp_declaring` answer before entering MAAP.
+## same wording anywhere at head outside lane paths, docs/ and hdl/ only
