@@ -2344,8 +2344,8 @@ Resource bounds:
   Workload times are 467.715 and 453.392 seconds, respectively.
   Both execute the JVM with empty CPU metadata and cached dependencies.
   Every memory-event counter is zero. These are sequential container measurements.
-- Source builds use `CI_TOOL_BUILD_JOBS=min(available CPUs, 8)` independently
-  of simulation and campaign budgets. The pinned field-oracle
+- The Yosys and Verilator source builds use `CI_TOOL_BUILD_JOBS=min(available CPUs, 8)`
+  independently of simulation and campaign budgets. The pinned field-oracle
   build passes the same count to `cmake --build --parallel`; it is bounded but
   not separately measured. Sequential shipping-image measurements
   run one eight-GiB container at a time with CPython 3.12.3 and GCC 13.3.0.
