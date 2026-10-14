@@ -383,10 +383,16 @@ jobs:
       # trusted submodule manifests, Docker ownership selection, event
       # construction, workflow selection and secret-free commands without
       # requiring Docker inside this job. The CI contract gate above pins this
-      # step and mutates its deletion/neutering. The live interruption gate is
-      # local.
+      # step and mutates its deletion/neutering. The flat isolated install also
+      # runs every self-test arm without sibling-module import authority.
+      # The live interruption gate is local.
       - name: Local act runner contract gate
-        run: python3 scripts/act_ci.py --selftest
+        run: |
+          python3 scripts/act_ci.py --selftest
+          install_dir="$(mktemp -d)"
+          trap 'rm -rf "$install_dir"' EXIT
+          install -m 0555 scripts/act_ci.py "$install_dir/act_ci.py"
+          python3 -I "$install_dir/act_ci.py" --selftest --worktree "$GITHUB_WORKSPACE"
 
       # Cited-path gate: a backticked `hdl/...` in prose is the first thing a
       # reader follows and nothing else links it to the tree. Two tree-wide

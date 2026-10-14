@@ -350,14 +350,13 @@ VERIFY_STEP_IF = "${{ always() }}"
 #: Every pinned step's `env`, as the BINDING each name must carry, never the
 #: name alone ([R0] on PR #239). Holding the names while leaving the
 #: expressions free held nothing where it mattered: `PR_DRAFT: "true"` is
-#: valid workflow YAML, keeps all three pinned names and all four pinned
+#: valid workflow YAML, keeps all four pinned names and all four pinned
 #: keys, and makes a ready RTL pull request publish `run_full=false`. Both
 #: worker matrices then skip, both aggregates skip under their documented
 #: no-op exception, and a skipped required context satisfies the ruleset, so
-#: the run is a false green rather than a refusal. `PR_BASE_SHA:
-#: ${{ github.sha }}` (a diff of a commit against itself, so `rtl=false`) and
-#: `EVENT_NAME: pull_request` (a push, schedule or dispatch run taking the
-#: pull-request branch) reach the same place by the same route. So the
+#: the run is a false green rather than a refusal. A rebound PR_BASE_REF
+#: changes the replay's live-base lookup, and PR_HEAD_SHA its endpoint.
+#: `EVENT_NAME: pull_request` makes a non-PR run take the PR path. So the
 #: mapping is the contract and pinned_step_keys compares the value: there is
 #: no longer any way to pin an env name in this file without saying what it
 #: must be bound to. GATE_SHA is derived from the job and the output it
@@ -398,7 +397,8 @@ DECIDE_STEP_KEYS = ("name", "id", "env", "run")
 DECIDE_STEP_ENV = {
     "EVENT_NAME": "${{ github.event_name }}",
     "PR_DRAFT": "${{ github.event.pull_request.draft }}",
-    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+    "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+    "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}",
 }
 #: The decision step's script, pinned verbatim after whitespace
 #: normalization, exactly as the default-branch step's is. The bindings above
@@ -419,13 +419,17 @@ CANONICAL_DECIDE_SCRIPT = (
     'echo "Non-PR event: exhaustive validation required."',
     "exit 0",
     "fi",
-    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
-    "2>/dev/null; then",
-    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
-    '> "$RUNNER_TEMP/changed-files"',
-    "else",
-    'git ls-files > "$RUNNER_TEMP/changed-files"',
-    "fi",
+    'if [ "${ACT:-false}" = true ]; then',
+    '# Replay uses the live base fetched and verified by the runner.',
+    'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git cat-file -e "$base^{commit}"',
+    'merged="$(git merge-tree --write-tree '
+    '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git diff --no-renames --name-only '
+    '"refs/remotes/origin/$PR_BASE_REF" "$merged" > "$RUNNER_TEMP/changed-files"',
+    'else',
+    'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
+    'fi',
     'echo "Changed files:"',
     "sed 's/^/ /' \"$RUNNER_TEMP/changed-files\"",
     'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
@@ -585,13 +589,13 @@ RECORDED_ACTIONS = frozenset({
 #: The pinned steps bind these exactly elsewhere; this table closes the
 #: unpinned steps too, and a job absent from it may carry none.
 INHERITED_STEP_ENV = {
-    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_SHA", "PR_DRAFT"),
+    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_REF", "PR_DRAFT", "PR_HEAD_SHA"),
     (RTL_FULL, "verilator-shards"): ("SHARD", "SHARDS", "TARGET_SHA"),
     (RTL_FULL, PHYSICAL_GPTP_JOB): ("TARGET_SHA",),
     (RTL_FULL, "verilator-suites"): ("GATE_SHA", "SHARD_RESULT"),
     (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
-    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
+    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA", "PUSH_BEFORE_SHA"),
     (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_RESULT",
                              "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
                              "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
@@ -599,7 +603,7 @@ INHERITED_STEP_ENV = {
                              "PUBLICATION_CENSUS_RESULT",
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
-    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
+    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA"),
     (DOCS, "docs-check"): ("EVENT_NAME", "PR_BASE_REF", "PUSH_BEFORE_SHA"),
 }
 #: The shard denominator a worker passes and states in its display name.
@@ -691,6 +695,13 @@ def rendered_names(job: YamlMap) -> list[str] | None:
             name))
     return out
 ACT_CI_SELFTEST = "python3 scripts/act_ci.py --selftest"
+ACT_CI_SELFTEST_SCRIPT = (
+    ACT_CI_SELFTEST,
+    'install_dir="$(mktemp -d)"',
+    'trap \'rm -rf "$install_dir"\' EXIT',
+    'install -m 0555 scripts/act_ci.py "$install_dir/act_ci.py"',
+    'python3 -I "$install_dir/act_ci.py" --selftest --worktree "$GITHUB_WORKSPACE"',
+)
 #: ``test_builder.py`` invokes both processor-image/source gates and the
 #: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
 #: shipping AXIS primitives by path, so both hosted jobs which call the
@@ -848,13 +859,17 @@ CANONICAL_ELAB_SCOPE_SCRIPT = (
     'echo "rtl=true" >> "$GITHUB_OUTPUT"',
     "exit 0",
     "fi",
-    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
-    "2>/dev/null; then",
-    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
-    '> "$RUNNER_TEMP/changed"',
-    "else",
-    'git ls-files > "$RUNNER_TEMP/changed"',
-    "fi",
+    'if [ "${ACT:-false}" = true ]; then',
+    '# Replay uses the live base fetched and verified by the runner.',
+    'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git cat-file -e "$base^{commit}"',
+    'merged="$(git merge-tree --write-tree '
+    '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git diff --no-renames --name-only '
+    '"refs/remotes/origin/$PR_BASE_REF" "$merged" > "$RUNNER_TEMP/changed"',
+    'else',
+    'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed"',
+    'fi',
     'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" '
     '>> "$GITHUB_OUTPUT"',
 )
@@ -1095,7 +1110,7 @@ CARRIER_STEP_LISTS = {
         {"name": "CI event and SHA contract gate",
          "run": CANONICAL_DOCS_GATE_SCRIPT},
         {"name": "Local act runner contract gate",
-         "run": (ACT_CI_SELFTEST,)},
+         "run": ACT_CI_SELFTEST_SCRIPT},
         {"name": "Doc cited-path gate",
          "run": (
              'python3 scripts/check_doc_paths.py',
@@ -1149,7 +1164,8 @@ CARRIER_STEP_LISTS = {
         {"name": "Decide whether this head needs an elaboration",
          "id": ELAB_SCOPE_STEP_ID,
          "env": {"EVENT_NAME": "${{ github.event_name }}",
-                 "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}"},
+                 "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+                 "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}"},
          "run": CANONICAL_ELAB_SCOPE_SCRIPT},
         {"name": "Fetch the source dependencies the elaboration reads",
          "if": BUILDER_IF,
@@ -1290,27 +1306,36 @@ FAST_CHECKOUT_WITH = {"fetch-depth": "0"}
 FAST_SCOPE_STEP_KEYS = ("name", "id", "env", "run")
 FAST_SCOPE_STEP_ENV = {
     "EVENT_NAME": "${{ github.event_name }}",
-    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+    "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+    "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}",
     "PUSH_BEFORE_SHA": "${{ github.event.before }}",
 }
 CANONICAL_FAST_SCOPE_SCRIPT = (
     "set -euo pipefail",
     "python3 scripts/ci_scope.py --selftest",
-    'base=""',
     'if [ "$EVENT_NAME" = pull_request ]; then',
-    'base="$PR_BASE_SHA"',
-    "else",
+    'if [ "${ACT:-false}" = true ]; then',
+    '# Replay uses the live base fetched and verified by the runner.',
+    'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git cat-file -e "$base^{commit}"',
+    'merged="$(git merge-tree --write-tree '
+    '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git diff --no-renames --name-only '
+    '"refs/remotes/origin/$PR_BASE_REF" "$merged" > "$RUNNER_TEMP/changed-files"',
+    'else',
+    'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
+    'fi',
+    'else',
     'base="$PUSH_BEFORE_SHA"',
-    "fi",
     'if [ -n "$base" ] && [ "$base" != '
     '0000000000000000000000000000000000000000 ] && '
     'git cat-file -e "$base^{commit}" 2>/dev/null; then',
-    'git diff --no-renames --name-only "$base" "$GITHUB_SHA" > '
-    '"$RUNNER_TEMP/changed-files"',
-    "else",
-    "# An unknown base must never turn a real change into docs-only.",
+    'git diff --no-renames --name-only "$base" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
+    'else',
+    '# An unknown base must never turn a real change into docs-only.',
     'git ls-files > "$RUNNER_TEMP/changed-files"',
-    "fi",
+    'fi',
+    'fi',
     'echo "Changed files:"',
     'sed \'s/^/ /\' "$RUNNER_TEMP/changed-files"',
     'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
@@ -4128,9 +4153,9 @@ def check_docs(c: Contract, wf: YamlMap) -> None:
     act_selftests = [s for s in steps(docs_job)
                      if tuple(normalize_script(
                          s.get("run") if isinstance(s.get("run"), str) else ""
-                     )) == (ACT_CI_SELFTEST,)]
+                     )) == ACT_CI_SELFTEST_SCRIPT]
     c.item(len(act_selftests) == 1, DOCS,
-           f"job `docs-check` must run `{ACT_CI_SELFTEST}` exactly once "
+           f"job `docs-check` must run `{ACT_CI_SELFTEST}` and the flat isolated install exactly once "
            f"(found {len(act_selftests)}): the runner's refusal and cleanup "
            "controls are not a hosted gate unless the required docs context "
            "executes their negative controls")
@@ -4992,8 +5017,8 @@ def _m_workflow_env_gh_host(w: World) -> None:
 
 
 def _m_decide_env_missing(w: World) -> None:
-    """Drop PR_BASE_SHA from the decision step's env."""
-    del _decide_step(w)["env"]["PR_BASE_SHA"]
+    """Drop PR_BASE_REF from the decision step's env."""
+    del _decide_step(w)["env"]["PR_BASE_REF"]
 
 
 def _m_decide_script_no_op(w: World) -> None:
@@ -5533,7 +5558,7 @@ def _docs_act_selftest_step(w: World) -> YamlMap:
     found = [s for s in steps(job)
              if tuple(normalize_script(
                  s.get("run") if isinstance(s.get("run"), str) else ""
-             )) == (ACT_CI_SELFTEST,)]
+             )) == ACT_CI_SELFTEST_SCRIPT]
     assert len(found) == 1, (
         "fixture drift: no unique act_ci.py self-test step")
     return found[0]
@@ -6168,16 +6193,16 @@ def _gate_condition_arms() -> list[Arm]:
         ("decision step working-directory",
          _set_step_key(_decide_step, "working-directory", "/tmp"),
          "surplus: working-directory"),
-        ("decision step loses PR_BASE_SHA", _m_decide_env_missing,
-         "missing: PR_BASE_SHA"),
+        ("decision step loses PR_BASE_REF", _m_decide_env_missing,
+         "missing: PR_BASE_REF"),
         # #209 O15/O16: the decision step's env bound to another source, and
         # its script rewritten, each leaving every pinned name and key alone.
         ("O15 decision step PR_DRAFT forced true",
          _set_env_key(_decide_step, "PR_DRAFT", "true"),
          "must bind `PR_DRAFT`"),
-        ("O15b decision step PR_BASE_SHA rebound to this run's own SHA",
-         _set_env_key(_decide_step, "PR_BASE_SHA", "${{ github.sha }}"),
-         "must bind `PR_BASE_SHA`"),
+        ("O15b decision step PR_BASE_REF rebound to this run's own SHA",
+         _set_env_key(_decide_step, "PR_BASE_REF", "${{ github.sha }}"),
+         "must bind `PR_BASE_REF`"),
         ("O15c decision step EVENT_NAME hard-coded to pull_request",
          _set_env_key(_decide_step, "EVENT_NAME", "pull_request"),
          "must bind `EVENT_NAME`"),
@@ -6473,6 +6498,25 @@ def _invisible_whitespace_arms() -> list[Arm]:
         arms.append((f"#444 {title} detects renames in its changed-path list",
                      _m_step_text(get, "git diff --no-renames --name-only",
                                   "git diff --name-only"), want))
+    for title, get, want in (
+            ("full", _decide_step, "the decision step script is not the canonical form"),
+            ("fast", _fast_scope_step, "the fast selector scope script is not the canonical form"),
+            ("elaborate", _elab_scope_step, "the elaborate scope step script is not the canonical form")):
+        for label, old, new in (
+                ("hosted frozen base", '"$GITHUB_SHA^1" "$GITHUB_SHA"',
+                 '"$PR_BASE_SHA...$PR_HEAD_SHA"'),
+                ("replay endpoint trees", '"refs/remotes/origin/$PR_BASE_REF" "$merged"',
+                 '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA"'),
+                ("replay omits merge composition", '"refs/remotes/origin/$PR_BASE_REF" "$merged"',
+                 '"$base" "$PR_HEAD_SHA"'),
+                ("hosted always takes replay path", '"${ACT:-false}" = true',
+                 '"true" = true'),
+                ("ambiguous replay merge base", "git merge-base --all", "git merge-base")):
+            arms.append((f"#734 {title} {label}",
+                         _m_step_text(get, old, new), want))
+        arms.append((f"#734 {title} scope head rebound to the merge commit",
+                     _set_env_key(get, "PR_HEAD_SHA", "${{ github.sha }}"),
+                     "must bind `PR_HEAD_SHA`"))
     return arms
 
 
@@ -6566,6 +6610,17 @@ def _docs_builder_arms() -> list[Arm]:
         ("docs only parses the local act runner self-test",
          _m_docs_act_selftest_key("shell", "bash -n {0}"),
          "must carry no `shell`"),
+        ("docs runs only the ordinary local runner self-test",
+         _m_docs_act_selftest_key("run", ACT_CI_SELFTEST), "flat isolated install"),
+        ("docs flat runner allows non-isolated imports",
+         _m_docs_act_selftest_key("run", "\n".join(ACT_CI_SELFTEST_SCRIPT).replace("python3 -I", "python3")),
+         "flat isolated install"),
+        ("docs flat runner installs a writable file",
+         _m_docs_act_selftest_key("run", "\n".join(ACT_CI_SELFTEST_SCRIPT).replace("0555", "0755")),
+         "flat isolated install"),
+        ("docs flat runner omits its shipping worktree",
+         _m_docs_act_selftest_key("run", "\n".join(ACT_CI_SELFTEST_SCRIPT).replace(
+             ' --worktree "$GITHUB_WORKSPACE"', "")), "flat isolated install"),
         ("docs builder omits verilog-axis",
          _m_builder_drop_submodule(DOCS, "docs-check",
                                   "third_party/verilog-axis"),
@@ -6893,7 +6948,7 @@ def _contract_step_and_env_arms() -> list[Arm]:
          "['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']"),
         ("#261 elaborate builder-call step-level BASH_ENV",
          _m_step_env(ELABORATE, "elaborate", BUILDER_CALL, "BASH_ENV"),
-         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_SHA']"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_REF', 'PR_HEAD_SHA']"),
         ("#261 wire-accountability gate step-level BASH_ENV",
          _m_step_env(DOCS, "wire-accountability", "check_wire_accountability", "BASH_ENV"),
          "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
@@ -7255,9 +7310,9 @@ def _elab_scope_and_presence_arms() -> list[Arm]:
         ("#295 elaborate scope step EVENT_NAME hard-coded",
          _set_env_key(_elab_scope_step, "EVENT_NAME", "pull_request"),
          "must bind `EVENT_NAME`"),
-        ("#295 elaborate scope step PR_BASE_SHA rebound to this run's SHA",
-         _set_env_key(_elab_scope_step, "PR_BASE_SHA", "${{ github.sha }}"),
-         "must bind `PR_BASE_SHA`"),
+        ("#295 elaborate scope step PR_BASE_REF rebound to this run's SHA",
+         _set_env_key(_elab_scope_step, "PR_BASE_REF", "${{ github.sha }}"),
+         "must bind `PR_BASE_REF`"),
         ("#295 elaborate scope step removed", _m_scope_step_removed,
          f"must carry exactly one step with `id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
         # #295 presence: the stub-id evasion and a duplicate mapping's

@@ -1414,8 +1414,9 @@ Neither this plan nor its self-test closes #70 or #117.
 
   A documentation-only pull request pays for none of it: every heavy step is
   gated on `scripts/ci_scope.py`, the classifier PR #176 added, and that
-  classifier fails safe - an empty diff or an unresolvable base both come
-  back RTL-relevant. Were the script ever absent the workflow would say so in
+  classifier fails safe - an empty diff comes back RTL-relevant, and on a
+  pull request an unresolvable revision or merge base fails the scope step.
+  Were the script ever absent the workflow would say so in
   its log and elaborate unconditionally rather than guess. The workflow's
   scheduling policy, what makes its check red and what only skips, is the
   `Elaboration` section of [`CI_WORKFLOWS.md`](CI_WORKFLOWS.md).
