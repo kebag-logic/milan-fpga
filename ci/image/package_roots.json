@@ -9,6 +9,7 @@
     {"package": "unzip", "path": ".github/workflows/elaborate.yml", "literal": "unzip -q -o", "reason": "The converter installation extracts a ZIP archive."}
   ],
   "recipe": [
+    {"package": "xz-utils", "path": "scripts/ci_rv32_sdk.py", "literal": "[\"tar\", \"-xJf\"", "reason": "The existing SDK installer extracts its checked XZ archive through tar."},
     {"package": "python3-venv", "path": "ci/image/install.py", "literal": "[\"python3\", \"-m\", \"venv\"", "reason": "The recipe creates the isolated Python prefix."},
     {"package": "automake", "path": "ci/image/smoke.py", "literal": "[\"automake\", \"--version\"]", "reason": "Retain the existing image smoke's build-system version check."},
     {"package": "ninja-build", "path": "ci/image/smoke.py", "literal": "[\"cmake\", \"-G\", \"Ninja\"", "reason": "The existing image smoke builds its CMake fixture with Ninja."}

@@ -105,10 +105,19 @@ def main() -> int:
     """Regenerate or check the resolved package set without consulting moving indexes."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cache", type=Path, required=True)
+    parser.add_argument("--candidates", type=Path, help="source lock containing additional checked archive candidates")
     parser.add_argument("--write", action="store_true")
     args = parser.parse_args()
     path = HERE / "sources.lock.json"
     pins = json.loads(path.read_text())
+    if args.candidates:
+        candidates = json.loads(args.candidates.read_text())["packages"]
+        current = {row["tool"]: row for row in pins["packages"]}
+        for row in candidates:
+            if row["tool"] in current and current[row["tool"]] != row:
+                raise ValueError("candidate conflicts with an existing package pin")
+            current[row["tool"]] = row
+        pins["packages"] = list(current.values())
     base = pins["base_packages"]
     packages = selected_packages(pins, args.cache, base)
     if args.write:
