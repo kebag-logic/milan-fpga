@@ -133,17 +133,7 @@ class Shell:
                 return directory
             return result
         if kind == 'BinaryCmd':
-            if node['Op'] in (10, 11):  # && and ||: inspect both paths.
-                result = self.statement(node['X'], directory)
-                return self.statement(node['Y'], result)
-            if node['Op'] in (12, 13):  # pipeline children have isolated scopes.
-                saved = dict(self.env)
-                self.statement(node['X'], directory)
-                self.env = dict(saved)
-                self.statement(node['Y'], directory)
-                self.env = saved
-                return directory
-            raise Refusal(f'unsupported shell operator at {where}')
+            return self.binary(node, directory, where)
         if kind == 'IfClause' or (kind is None and 'Then' in node):
             self.statements(node.get('Cond', []), directory)
             before = dict(self.env)
@@ -186,6 +176,33 @@ class Shell:
             self.env = {k: v if self.env.get(k) == v else '${RUNTIME}' for k, v in before.items()}
             return directory
         raise Refusal(f'unsupported shell construct {kind!r} at {where}')
+
+    def binary(self, node: dict, directory: Path, where: str) -> Path:
+        """Keep fallback and pipeline directories separate from successful operands."""
+        before = dict(self.env)
+        left = self.statement(node['X'], directory)
+        if node['Op'] == 10:  # The right side of && runs after left succeeds.
+            return self.statement(node['Y'], left)
+        left_env = dict(self.env)
+        self.env = dict(before)
+        right = self.statement(node['Y'], directory)
+        if node['Op'] == 11:
+            command = node['Y'].get('Cmd', {})
+            args = command.get('Args', [])
+            terminating = (command.get('Type') == 'CallExpr' and args and
+                           self.value(args[0], directory) in ('exit', 'return'))
+            if terminating:
+                self.env = left_env
+                return left
+            if left != right:
+                raise Refusal(f'ambiguous shell directory after fallback at {where}')
+            self.env = {key: value if self.env.get(key) == value else '${RUNTIME}'
+                        for key, value in left_env.items()}
+            return left
+        if node['Op'] in (12, 13):
+            self.env = before
+            return directory
+        raise Refusal(f'unsupported shell operator at {where}')
 
     def call(self, node: dict, directory: Path, where: str, inline: str | None) -> Path:
         """Execute no commands; resolve the lexical effects of a simple call."""
