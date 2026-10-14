@@ -132,12 +132,15 @@ class Receipt:
         self.data = {"schema": SCHEMA, "suite": suite, "head": head, "tree": tree,
                      "inventory": names, "shard": shard, "results": self.results}
 
-    def record(self, name: str, outcome: str, rc: int, output: str) -> None:
+    def record(self, name: str, outcome: str, rc: int, output: str,
+               result_line: str | None = None) -> None:
         """Keep the completed case's own status and exact output, including failures."""
         if self.path is None:
             return
         self.results.append({"case": name, "outcome": outcome, "returncode": rc,
                              "output_sha256": hashlib.sha256(output.encode()).hexdigest()})
+        if result_line is not None:
+            self.results[-1]["result_line"] = result_line
         log_dir = self.path.with_suffix(".logs")
         log_dir.mkdir(parents=True, exist_ok=True)
         # A digest filename cannot escape the log directory through a case name.
@@ -181,8 +184,11 @@ def verify(names: list[str], receipts: list[dict], suite: str, head: str, tree: 
             raise ValueError("results must be a list")
         ran = []
         for result in results:
-            if set(result) != {"case", "outcome", "returncode", "output_sha256"}:
+            fields = {"case", "outcome", "returncode", "output_sha256"}
+            if set(result) not in (fields, fields | {"result_line"}):
                 raise ValueError("result fields differ from schema")
+            if "result_line" in result and result["result_line"] != "RESULT: PASS":
+                raise ValueError("result-only verdict differs from success")
             name = result["case"]
             if not isinstance(name, str):
                 raise ValueError("case name must be a string")
@@ -218,6 +224,10 @@ def read_receipts(paths: list[Path]) -> list[dict]:
         for result in value["results"]:
             filename = hashlib.sha256(result["case"].encode()).hexdigest() + ".log"
             output = path.with_suffix(".logs").joinpath(filename).read_bytes()
+            if "result_line" in result:
+                lines = re.findall(rb"^RESULT:.*$", output, re.MULTILINE)
+                if lines != [result["result_line"].encode()]:
+                    raise ValueError(f"{result['case']}: retained RESULT line differs")
             if hashlib.sha256(output).hexdigest() != result["output_sha256"]:
                 raise ValueError(f"{result['case']}: retained output differs from receipt")
         values.append(value)

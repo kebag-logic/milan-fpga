@@ -6,7 +6,7 @@
 from pathlib import Path
 import tempfile
 
-from ci_make_cases import execute, inventory
+from ci_make_cases import build, execute, inventory, receipt_forms
 
 
 def main() -> int:
@@ -17,6 +17,8 @@ def main() -> int:
 all: $(addprefix exec-,$(CASES))
 ci-list:
 	@printf '%s\\n' $(CASES)
+ci-receipts:
+	@$(foreach case,$(CASES),printf '%s\\ttally\\n' '$(case)';)
 build-%:
 	@true
 build-buildfail:
@@ -39,9 +41,28 @@ exec-buildfail:
         cases = inventory(root)
         assert cases == ["good", "failing", "masked", "empty", "uncounted", "buildfail"]
         for name in cases:
-            outcome, _, _ = execute(root, name)
+            rc = build(root, name)
+            outcome, _, _ = execute(root, name) if rc == 0 else ("build-failed", rc, "")
             assert (outcome == "pass") == (name == "good"), (name, outcome)
             print(f"make case control: {name}: {outcome}")
+        assert receipt_forms(root, cases) == dict.fromkeys(cases, "tally")
+        for output in ("RESULT: PASS", "RESULT: FAIL", "", "RESULT: PASS\\nRESULT: PASS"):
+            extra = recipe + "\nexec-result:\n\t@printf '" + output + "\\n'\n"
+            (root / "Makefile").write_text(extra)
+            outcome, _, observed = execute(root, "result", "result-stdout")
+            assert (outcome == "pass") == (output == "RESULT: PASS"), (output, outcome)
+            assert observed == output.replace("\\n", "\n") + "\n"
+            if output == "RESULT: PASS":
+                assert execute(root, "result")[0] == "failed"
+        for rows in ("good\\ttally", "good\\tunknown", "good\\ttally\\ngood\\ttally"):
+            (root / "Makefile").write_text(recipe.split("ci-receipts:")[0] +
+                                         "ci-receipts:\n\t@printf '" + rows + "\\n'\n")
+            try:
+                receipt_forms(root, cases)
+            except ValueError:
+                print("make receipt form control: invalid registration refused")
+            else:
+                raise AssertionError("invalid receipt registration accepted")
         for changed in ("good good", "", "../outside"):
             (root / "Makefile").write_text(recipe.replace("CASES = " + " ".join(cases), "CASES = " + changed))
             try:

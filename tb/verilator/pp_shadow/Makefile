@@ -147,7 +147,13 @@ ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 RUN_CASES = base vid73 crf pending
 run: $(addprefix run-,$(RUN_CASES))
 
-.PHONY: ci-list $(addprefix run-,$(RUN_CASES)) $(addprefix build-,$(RUN_CASES)) $(addprefix exec-,$(RUN_CASES))
+.PHONY: ci-list ci-receipts ci-prepare $(addprefix run-,$(RUN_CASES)) $(addprefix build-,$(RUN_CASES)) $(addprefix exec-,$(RUN_CASES))
+ci-prepare:
+	@true
+
+ci-receipts:
+	@$(foreach case,$(RUN_CASES),printf '%s\ttally\n' '$(case)';)
+
 ci-list:
 	@printf '%s\n' $(RUN_CASES)
 

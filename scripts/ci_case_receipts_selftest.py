@@ -75,9 +75,42 @@ def source_controls() -> None:
         assert receipts.source_identity(root) == identity
 
 
+def result_stdout_controls() -> None:
+    """The declared RESULT form binds the entire stdout and the explicit verdict."""
+    with tempfile.TemporaryDirectory(prefix="stdout-receipts-") as directory:
+        work = Path(directory)
+        names = ["counter"]
+        output = "measured observation\nRESULT: PASS\n"
+        result = {"case": names[0], "outcome": "pass", "returncode": 0,
+                  "result_line": "RESULT: PASS",
+                  "output_sha256": hashlib.sha256(output.encode()).hexdigest()}
+        value = {"schema": receipts.SCHEMA, "suite": "control", "head": "1" * 40,
+                 "tree": "2" * 40, "inventory": names, "shard": None, "results": [result]}
+        inventory = work / "inventory.json"
+        inventory.write_text(json.dumps(names))
+        paths = [work / "reference.json", work / "leg.json"]
+        filename = hashlib.sha256(names[0].encode()).hexdigest() + ".log"
+        for path in paths:
+            path.write_text(json.dumps(value))
+            path.with_suffix(".logs").mkdir()
+            path.with_suffix(".logs").joinpath(filename).write_text(output)
+        command = [sys.executable, str(ROOT / "scripts/ci_case_receipts.py"),
+                   "--inventory", str(inventory), "--suite", "control", "--head", "1" * 40,
+                   "--tree", "2" * 40, "--reference", str(paths[0]), str(paths[1])]
+        subprocess.run(command, check=True)
+        for altered in ("changed observation\nRESULT: PASS\n", "RESULT: FAIL\n"):
+            result["output_sha256"] = hashlib.sha256(altered.encode()).hexdigest()
+            paths[1].write_text(json.dumps(value))
+            paths[1].with_suffix(".logs").joinpath(filename).write_text(altered)
+            ran = subprocess.run(command, capture_output=True, text=True)
+            assert ran.returncode == 1, ran.stdout
+            print("receipt control: changed complete stdout or RESULT refused")
+
+
 def main() -> int:
     """Exercise source identity, inventory union, and output comparisons."""
     source_controls()
+    result_stdout_controls()
     spec = importlib.util.spec_from_file_location("mclk_inventory", DRIVER)
     driver = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = driver
