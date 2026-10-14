@@ -26,9 +26,9 @@ that use allows:
 | Table | Reached | Why no further |
 |---|---|---|
 | `rx_fifo` | full: bursts overflow it; its pointers wrap | - |
-| `tx_fifo` | 27 of 256 beats; its pointers wrap; every lane count 0 to 8 through the decode | admission bounds it to a few frames; the engine's frames end in two, four or eight lanes, so the other counts are driven directly |
+| `tx_fifo` | 25 of 256 beats; its pointers wrap; every lane count 0 to 8 through the decode | admission bounds it to a few frames; the engine's frames end in two, four or eight lanes, so the other counts are driven directly |
 | `ledger` | 3 of 8 entries; every entry is the head in turn | the engine keeps few frames outstanding |
-| `results` | 3 of 8 entries, in the slow-engine phase only; every entry is the head in turn | without that phase the engine takes each result as soon as its dispatch is free, and this stimulus never queues two |
+| `results` | 2 of 8 entries, in the slow-engine phase only; every entry is the head in turn | without that phase the engine takes each result as soon as its dispatch is free, and this stimulus never queues two |
 | `timer` | slots 0 to 5 of 8 | the microcode arms no other slot |
 
 The stimulus is reproducible from a fixed seed. A peer answers each of the

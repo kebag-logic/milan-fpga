@@ -12,13 +12,13 @@
 // require zero mismatches AND the coverage that makes zero informative. How
 // full each table gets is what its use allows, and no more:
 //   rx_fifo  full: bursts overflow it, and its pointers wrap.
-//   tx_fifo  27 of 256 beats: admission bounds it to a few frames. Its
+//   tx_fifo  25 of 256 beats: admission bounds it to a few frames. Its
 //            pointers wrap, and every lane count 0..8 is driven through
 //            its decode directly, because the engine's frames end in two,
 //            four or eight lanes.
 //   ledger   3 of 8 entries: the engine keeps few frames outstanding. Every
 //            entry is the head in turn, so its index wraps.
-//   results  3 of 8 entries, in the slow-engine phase only: without it the
+//   results  2 of 8 entries, in the slow-engine phase only: without it the
 //            engine takes each result as soon as its dispatch is free, and
 //            this stimulus never queues two. Every entry is the head in turn.
 //   timer    slots 0 to 5 of 8: the microcode arms no others.
