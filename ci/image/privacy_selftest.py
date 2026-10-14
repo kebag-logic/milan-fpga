@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import tempfile
 import tarfile
+import zipfile
 
 from build_selftest import refused
 import image_archive
@@ -57,6 +58,9 @@ def provenance_controls(root: Path, policy: privacy.Policy) -> None:
     allowed = []
     privacy.check_file(io.BytesIO(payload), "opt/cpu/source.c", policy, upstream, allowed)
     assert len(allowed) == 1 and allowed[0]["member_sha256"] == hashlib.sha256(payload).hexdigest()
+    whole = []
+    privacy.check_file(io.BytesIO(source.read_bytes()), "opt/cache/public.tar", policy, upstream, whole)
+    assert whole[0]["whole_artifact"] and whole[0]["member_sha256"] == row["sha256"]
     for name, data in (("modified upstream", payload + b"changed"), ("unknown file", payload + b"unknown")):
         refused(lambda: privacy.check_file(io.BytesIO(data), "opt/cpu/source.c", policy, upstream, []), name)
     refused(lambda: privacy.check_file(io.BytesIO(payload), "opt/tsn-gen/source.c", policy, upstream, []),
@@ -97,12 +101,36 @@ def layer_controls(root: Path, policy: privacy.Policy) -> None:
     print("PASS: every protected class and OCI metadata surface; oracle leftovers")
 
 
+def wheel_controls(root: Path, policy: privacy.Policy) -> None:
+    """Prove wheel contents against the complete authenticated containing archive."""
+    payload = b"upstream /home/" + b"fixture-account/example\n"
+    wheel = io.BytesIO()
+    with zipfile.ZipFile(wheel, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("package/module.py", payload)
+    source = root / "wheel-package.tar"
+    source.write_bytes(tar_bytes({"usr/share/python-wheels/fixture.whl": wheel.getvalue()}))
+    row = {"tool": "fixture", "version": "1", "filename": source.name,
+           "url": "https://example.invalid/public/package", "sha256": descriptor(source.read_bytes())["digest"][7:],
+           "size": source.stat().st_size}
+    proof = privacy.provenance({"sources": [row], "packages": []}, root, policy)
+    allowed = []
+    privacy.check_file(io.BytesIO(payload), "opt/python/module.py", policy, proof, allowed)
+    assert allowed and allowed[0]["source_sha256"] == row["sha256"]
+    refused(lambda: privacy.check_file(io.BytesIO(payload + b"changed"), "opt/python/module.py", policy, proof, []),
+            "modified member of an embedded public wheel")
+    source.write_bytes(source.read_bytes() + b"changed")
+    refused(lambda: privacy.provenance({"sources": [row], "packages": []}, root, policy),
+            "modified containing package")
+    print("PASS: embedded wheel provenance remains bound to pinned package bytes")
+
+
 def main() -> int:
     """Run only disposable offline fixtures with no Docker authority."""
     with tempfile.TemporaryDirectory(prefix="image-privacy-") as directory:
         root = Path(directory)
         policy = privacy.Policy()
         provenance_controls(root, policy)
+        wheel_controls(root, policy)
         layer_controls(root, policy)
     return 0
 

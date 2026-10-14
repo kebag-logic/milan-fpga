@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "runtime": [
+    {"package": "sudo", "path": "scripts/act_ci.py", "literal": "require_tool(\"sudo\")", "reason": "The docs workflow's offline runner selftest constructs and checks its isolation prefix."},
     {"package": "clang", "path": "third_party/tsn-c-stack/scripts/check_boundary.py", "literal": "for compiler in ('gcc', 'clang')", "reason": "The workflow's stack boundary gate compiles with both compilers."},
     {"package": "cmake", "path": ".github/workflows/rtl.yml", "literal": "cmake --build", "reason": "The protocol oracle is built with CMake."},
     {"package": "curl", "path": ".github/workflows/elaborate.yml", "literal": "curl -fsSL", "reason": "Workflow downloads use the command-line HTTP client."},

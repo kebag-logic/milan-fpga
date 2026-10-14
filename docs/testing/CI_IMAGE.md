@@ -140,7 +140,7 @@ The manifest and config digests identify the whole image.
 | RV32 | Checked SDK | `rv32-tools` |
 | sv2v | Checked converter | `sv2v-tools` |
 | Scala | Launcher, public artifact cache and bootstrap placements | `sbt-tools` |
-| Oracle | Executable, protocol definitions and licence | `oracle-tools` |
+| Oracle | Executable, shared libraries, protocol definitions and licence | `oracle-tools` |
 | Node | Actions runtime | `node-tools` |
 | GitHub CLI | Workflow selector client | `gh-tools` |
 | Validation | Smoke program and source declarations | `validation-tools` |
@@ -169,8 +169,13 @@ Reports contain hashes and classifications, never protected matches.
 The [privacy ruling](https://github.com/kebag-logic/milan-fpga/pull/738#issuecomment-6162652582)
 allows byte-identical members of pinned public upstream archives.
 Every allowance records the authenticated source and member hashes.
+Embedded wheel members retain their containing package provenance.
 First-party sources receive no upstream allowance.
 The oracle ships no bytecode or build logs.
+Protocol YAML also omits comment-only prose.
+Before writing, its parsed data must remain identical.
+This removes dotted clause citations resembling private addresses.
+Runtime fields and values remain unchanged.
 
 The [patch refinement](https://github.com/kebag-logic/milan-fpga/pull/738#issuecomment-6163057631)
 allows exactly reproduced committed patches, with additional conditions.

@@ -94,7 +94,7 @@ def deb_members(path: Path) -> Iterator[tuple[str, BinaryIO]]:
 def source_members(path: Path) -> Iterator[tuple[str, BinaryIO]]:
     """Support the recipe's public archive formats, without extraction."""
     if path.suffix == ".deb":
-        yield from deb_members(path)
+        yield from embedded_wheels(deb_members(path))
     elif zipfile.is_zipfile(path):
         with zipfile.ZipFile(path) as archive:
             for member in archive.infolist():
@@ -103,7 +103,22 @@ def source_members(path: Path) -> Iterator[tuple[str, BinaryIO]]:
                         yield member.filename, stream
     elif tarfile.is_tarfile(path):
         with path.open("rb") as stream:
-            yield from tar_members(stream)
+            yield from embedded_wheels(tar_members(stream))
+
+
+def embedded_wheels(members: Iterator[tuple[str, BinaryIO]]) -> Iterator[tuple[str, BinaryIO]]:
+    """Authenticate wheel members through their containing pinned package bytes."""
+    for name, stream in members:
+        if not name.endswith(".whl"):
+            yield name, stream
+            continue
+        data = stream.read()
+        yield name, io.BytesIO(data)
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            for member in archive.infolist():
+                if not member.is_dir():
+                    with archive.open(member) as content:
+                        yield name + "!" + member.filename, content
 
 
 def provenance(pins: dict[str, object], cache: Path, policy: Policy) -> dict[str, dict[str, str]]:
@@ -120,6 +135,10 @@ def provenance(pins: dict[str, object], cache: Path, policy: Policy) -> dict[str
         if actual != row["sha256"] or path.stat().st_size != row["size"]:
             raise ValueError("privacy provenance source checksum or size mismatch")
         seen.add(actual)
+        result[actual] = {"tool": row["tool"], "pin": row["version"],
+                          "source_sha256": actual, "member_sha256": actual,
+                          "source_member_id": hashlib.sha256(path.name.encode()).hexdigest(),
+                          "whole_artifact": True}
         for name, stream in source_members(path):
             digest, findings = policy.measure(stream)
             if findings:

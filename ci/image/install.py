@@ -129,6 +129,8 @@ def litex() -> None:
 
 def oracle() -> None:
     """Compile the exact field oracle and its required recursive source closure."""
+    from normalize import oracle_sources
+
     source = unpack("tsn-gen")
     yaml = unpack("rapidyaml", source / "external/rapidyaml")
     core = unpack("c4core", yaml / "ext/c4core")
@@ -141,7 +143,15 @@ def oracle() -> None:
     (destination / "build/traffic-gen").mkdir(parents=True)
     shutil.copyfile(source / "build/traffic-gen/packet_gen", destination / "build/traffic-gen/packet_gen")
     (destination / "build/traffic-gen/packet_gen").chmod(0o755)
+    for library in sorted((source / "build").rglob("*.so*")):
+        target = destination / library.relative_to(source)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if library.is_symlink():
+            target.symlink_to(library.readlink())
+        else:
+            shutil.copyfile(library, target)
     shutil.copytree(source / "protocols", destination / "protocols")
+    oracle_sources(destination / "protocols")
     for name in ("LICENSE", "LICENSE.md", "LICENSE.txt"):
         if (source / name).is_file():
             shutil.copyfile(source / name, destination / name)

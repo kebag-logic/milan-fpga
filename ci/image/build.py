@@ -170,6 +170,9 @@ def layer_records(pins: dict[str, object]) -> list[dict[str, object]]:
         stage = next(part for part in stages if part.splitlines()[0].endswith(f"AS {name}-tools"))
         selected = {"stage": stage, "base": pins["base"], "epoch": SOURCE_DATE_EPOCH,
                     "sources": rows, "normalizer": sha256(HERE / "normalize.py")}
+        parent = stage.split()[0].removesuffix("-tools")
+        if parent in groups:
+            selected["parent_recipe_digest"] = next(row["recipe_digest"] for row in result if row["tool"] == parent)
         if name not in ("system", "gtest", "validation"):
             selected["installer"] = sha256(HERE / "install.py")
         if name == "sbt":
@@ -253,6 +256,8 @@ def record_lock(work: Path, pins: dict[str, object], receipt: dict[str, object])
     if recipe_digest() != recipe:
         raise ValueError("recipe changed during the build; final lock was not written")
     artifact = checked_artifact(work / "image.tar", work, pins)
+    if recipe_digest() != recipe:
+        raise ValueError("recipe changed during artifact verification; final lock was not written")
     if artifact["image_digest"] != receipt["image_digest"] or artifact["image_id"] != receipt["image_id"]:
         raise ValueError("exported image differs from build receipt")
     layers = layer_records(pins)

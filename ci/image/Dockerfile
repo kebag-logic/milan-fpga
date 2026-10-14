@@ -71,7 +71,7 @@ RUN --mount=type=bind,source=recipe/install.py,target=/recipe/install.py \
     --mount=type=bind,source=recipe/sbt-repositories,target=/recipe/sbt-repositories \
     python3 /recipe/install.py sbt
 
-FROM system-tools AS oracle-tools
+FROM python-tools AS oracle-tools
 RUN --mount=type=bind,source=recipe/install.py,target=/recipe/install.py \
     --mount=type=bind,source=recipe/normalize.py,target=/recipe/normalize.py \
     --mount=type=bind,source=recipe/oracle.lock.json,target=/recipe/sources.lock.json \

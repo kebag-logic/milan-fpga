@@ -12,6 +12,20 @@ import struct
 import sys
 
 
+def oracle_sources(root: Path) -> None:
+    """Ship runtime YAML without comment-only prose, proving identical data."""
+    import yaml
+
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or path.suffix not in (".yaml", ".yml"):
+            continue
+        before = path.read_text()
+        after = "".join(line for line in before.splitlines(keepends=True) if not line.lstrip().startswith("#"))
+        if yaml.safe_load(before) != yaml.safe_load(after):
+            raise ValueError("oracle comment removal would change runtime data")
+        path.write_text(after)
+
+
 def java_store(path: Path, epoch: int) -> None:
     """Normalize certificate-entry dates in the distribution's JKS trust store."""
     if not path.exists():

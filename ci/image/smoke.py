@@ -54,7 +54,8 @@ def versions(pins: dict[str, object]) -> None:
                     ("gcov", "gcc-13"), ("make", "make"), ("autoconf", "autoconf"),
                     ("flex", "flex"), ("bison", "bison"), ("automake", "automake"),
                     ("help2man", "help2man"), ("curl", "curl"), ("pkg-config", "pkg-config"),
-                    ("rsvg-convert", "librsvg2-bin"), ("java", "openjdk-17-jre-headless"))
+                    ("rsvg-convert", "librsvg2-bin"), ("java", "openjdk-17-jre-headless"),
+                    ("xz", "xz-utils"), ("sudo", "sudo"))
     for tool, package in distribution:
         expected = package_versions[package].split("+")[0]
         option = "-version" if tool == "java" else "--version"
@@ -114,6 +115,9 @@ def native_smokes(work: Path) -> None:
     run(["help2man", "--no-info", "--output", str(work / "gcc.1"), "gcc"])
     assert (work / "gcc.1").stat().st_size > 100
     assert run(["curl", "--silent", "--fail", source.as_uri()]) == source.read_text()
+    run(["xz", "--keep", str(source)])
+    assert run(["xz", "--decompress", "--stdout", str(source) + ".xz"]) == source.read_text()
+    assert "sudo" in run(["sudo", "--help"])
     assert run(["node", "-e", "require('assert').strictEqual(6*7, 42); console.log('JS_OK')"]).strip() == "JS_OK"
     assert "gh api" in run(["gh", "api", "--help"])
     run(["python3", "-m", "pip", "check"])

@@ -97,6 +97,14 @@ def main() -> int:
     """Keep refusal controls independent of any built image or network."""
     locks()
     privacy_and_normalization()
+    with tempfile.TemporaryDirectory(prefix="oracle-data-") as directory:
+        root = Path(directory)
+        path = root / "fixture.yaml"
+        path.write_text('# upstream prose\nvalue: 42\ntext: "# data"\n')
+        normalize.oracle_sources(root)
+        assert path.read_text() == 'value: 42\ntext: "# data"\n'
+        path.write_text('text: |\n  # this is runtime data\n')
+        refused(lambda: normalize.oracle_sources(root), "comment-like runtime scalar")
     return 0
 
 
