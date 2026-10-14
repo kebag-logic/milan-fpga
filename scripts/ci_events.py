@@ -222,7 +222,7 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                             '"848d926ebd4addacacd294dc84e35d9d4ae8078c"\n'
                             'autoconf\n'
                             './configure --prefix=/opt/verilator\n'
-                            'make -j"$(nproc)"\n'
+                            'make -j"$CI_TOOL_BUILD_JOBS"\n'
                             'sudo make install\n'
                             )},
                  {   'name': 'Put Verilator on PATH and prove the version',
@@ -1277,7 +1277,7 @@ CARRIER_STEP_LISTS = {
              'test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"',
              'autoconf',
              './configure --prefix=/opt/verilator',
-             'make -j"$(nproc)"',
+             'make -j"$CI_TOOL_BUILD_JOBS"',
              'sudo make install',
          )},
         {"name": "Put Verilator on PATH and prove the version",
@@ -2191,7 +2191,7 @@ RTL_VERILATOR_BUILD_SCRIPT = (
              'test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"',
     'autoconf',
     './configure --prefix=/opt/verilator',
-    'make -j"$(nproc)"',
+    'make -j"$CI_TOOL_BUILD_JOBS"',
     'sudo make install',
 )
 RTL_YOSYS_BUILD_SCRIPT = (
@@ -2204,7 +2204,7 @@ RTL_YOSYS_BUILD_SCRIPT = (
     'git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts',
     'make -C /tmp/yosys-src config-gcc',
     "printf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' >> /tmp/yosys-src/Makefile.conf",
-    'make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys',
+    'make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys',
     'sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys',
     'git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV',
     "# runner-owned so the cache action's save and restore are symmetric",

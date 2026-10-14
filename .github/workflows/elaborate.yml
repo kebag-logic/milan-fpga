@@ -23,8 +23,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -246,8 +248,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -418,7 +422,7 @@ jobs:
       - name: Resolve exact package downloads 15
         id: ci_packages_15
         run: |
-          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 75d476c3189fef71fc03124453eee7a9c57cb835618ddc3b4c8dfdd159da7cb8 --directory "$RUNNER_TEMP/ci_packages_15" --output "$GITHUB_OUTPUT"
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_15" --output "$GITHUB_OUTPUT"
         if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
           }}
       - name: Cache exact package downloads 15
@@ -444,7 +448,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
           autoconf
           ./configure --prefix=/opt/verilator
-          make -j"$(nproc)"
+          make -j"$CI_TOOL_BUILD_JOBS"
           sudo make install
         id: ci_step_20
       - name: Put Verilator on PATH and prove the version
@@ -523,8 +527,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -617,8 +623,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -680,8 +688,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -742,8 +752,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"

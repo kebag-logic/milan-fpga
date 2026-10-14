@@ -30,8 +30,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -173,8 +175,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -208,7 +212,7 @@ jobs:
       - name: Resolve exact package downloads 4
         id: ci_packages_4
         run: |
-          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 75d476c3189fef71fc03124453eee7a9c57cb835618ddc3b4c8dfdd159da7cb8 --directory "$RUNNER_TEMP/ci_packages_4" --output "$GITHUB_OUTPUT"
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_4" --output "$GITHUB_OUTPUT"
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
       - name: Cache exact package downloads 4
         uses: actions/cache@v4
@@ -231,7 +235,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
           autoconf
           ./configure --prefix=/opt/verilator
-          make -j"$(nproc)"
+          make -j"$CI_TOOL_BUILD_JOBS"
           sudo make install
         id: ci_step_7
       - name: Put Verilator on PATH and prove the version
@@ -267,7 +271,7 @@ jobs:
       - name: Resolve exact package downloads 8
         id: ci_packages_8
         run: |
-          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe b3e97f74995581d5910e2356723915fd7645a75dbfe71fa71334def0585bbf97 --directory "$RUNNER_TEMP/ci_packages_8" --output "$GITHUB_OUTPUT"
+          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354 --directory "$RUNNER_TEMP/ci_packages_8" --output "$GITHUB_OUTPUT"
         if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
       - name: Cache exact package downloads 8
         uses: actions/cache@v4
@@ -291,7 +295,7 @@ jobs:
           make -C /tmp/yosys-src config-gcc
           printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
             >> /tmp/yosys-src/Makefile.conf
-          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
+          make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
           sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
           git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
           # runner-owned so the cache action's save and restore are symmetric
@@ -422,8 +426,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -468,7 +474,7 @@ jobs:
       - name: Resolve exact package downloads 4
         id: ci_packages_4
         run: |
-          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 75d476c3189fef71fc03124453eee7a9c57cb835618ddc3b4c8dfdd159da7cb8 --directory "$RUNNER_TEMP/ci_packages_4" --output "$GITHUB_OUTPUT"
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_4" --output "$GITHUB_OUTPUT"
         if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
       - name: Cache exact package downloads 4
         uses: actions/cache@v4
@@ -491,7 +497,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
           autoconf
           ./configure --prefix=/opt/verilator
-          make -j"$(nproc)"
+          make -j"$CI_TOOL_BUILD_JOBS"
           sudo make install
         id: ci_step_8
       - name: Put Verilator on PATH and prove the version
@@ -575,8 +581,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -687,8 +695,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -827,8 +837,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -914,8 +926,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -932,7 +946,7 @@ jobs:
       - name: Resolve exact package downloads 2
         id: ci_packages_2
         run: |
-          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe b3e97f74995581d5910e2356723915fd7645a75dbfe71fa71334def0585bbf97 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
       - name: Cache exact package downloads 2
         uses: actions/cache@v4
@@ -956,7 +970,7 @@ jobs:
           make -C /tmp/yosys-src config-gcc
           printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
             >> /tmp/yosys-src/Makefile.conf
-          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
+          make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
           sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
           git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
           # runner-owned so the cache action's save and restore are symmetric
@@ -1011,8 +1025,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -1085,8 +1101,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -1159,8 +1177,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -1233,8 +1253,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -1307,8 +1329,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -1381,8 +1405,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -1472,8 +1498,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -1535,8 +1563,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"
@@ -1610,8 +1640,10 @@ jobs:
           test "$cpus" -gt 0
           campaign=$(( cpus < 4 ? cpus : 4 ))
           simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
           {
             printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
             printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
             printf 'VERILATOR_JOBS=%s\n' "$cpus"
             printf 'SIM_JOBS=%s\n' "$simulations"

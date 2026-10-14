@@ -117,7 +117,7 @@ def cpu_controls() -> None:
                            env={**os.environ, "PATH": str(root) + ":" + os.environ["PATH"],
                                 "GITHUB_ENV": str(output)})
             assert output.read_text().splitlines() == [
-                f"CI_BUILD_JOBS={cpus}", f"CI_CAMPAIGN_JOBS={campaign}",
+                f"CI_BUILD_JOBS={cpus}", f"CI_TOOL_BUILD_JOBS={min(cpus, 8)}", f"CI_CAMPAIGN_JOBS={campaign}",
                 f"VERILATOR_JOBS={cpus}", f"SIM_JOBS={campaign}",
                 "MAKEFLAGS=-j1 --no-print-directory"]
             with patch.object(os, "sched_getaffinity", return_value=set(range(cpus))), \

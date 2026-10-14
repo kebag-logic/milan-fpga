@@ -294,7 +294,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
           autoconf
           ./configure --prefix=/opt/verilator
-          make -j"$(nproc)"
+          make -j"$CI_TOOL_BUILD_JOBS"
           sudo make install
 
       - name: Put Verilator on PATH and prove the version

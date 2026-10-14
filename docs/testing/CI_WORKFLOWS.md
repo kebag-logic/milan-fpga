@@ -2344,14 +2344,32 @@ Resource bounds:
   Workload times are 467.715 and 453.392 seconds, respectively.
   Both execute the JVM with empty CPU metadata and cached dependencies.
   Every memory-event counter is zero. These are sequential container measurements.
-- The largest measured class is capture at 6047100928 bytes (5.632 GiB).
+- Source builds use `CI_TOOL_BUILD_JOBS=min(available CPUs, 8)` independently
+  of simulation and campaign budgets. Sequential shipping-image measurements
+  run one eight-GiB container at a time with CPython 3.12.3 and GCC 13.3.0.
+  Each bounded build returns zero with every memory-event counter zero.
+
+  | Source tool | CPUs | Compiler processes | Peak bytes | Reserve below cap | Seconds |
+  |---|---:|---:|---:|---:|---:|
+  | verilator | 16 | 8 | 4811259904 | 43.99% | 182.656 |
+  | verilator | 12 | 8 | 4793225216 | 44.2% | 197.457 |
+  | yosys | 16 | 8 | 5264482304 | 38.713% | 360.05 |
+  | yosys | 12 | 8 | 5117616128 | 40.423% | 398.142 |
+
+  Every accepted source-build peak stays below six GiB, retaining at least
+  25% of the eight-GiB cap. Unrestricted builds are sizing counterexamples:
+  Yosys at sixteen compilers reached 8589934592 bytes with 174 max events;
+  twelve compilers reached 6816423936 bytes (20.65% reserve).
+  Verilator at sixteen compilers reached 6951862272 bytes (19.07% reserve).
+  Those runs do not justify the shipping resource bound.
+- The largest accepted measured class remains capture at 6047100928 bytes (5.632 GiB).
   The eight-GiB job cap leaves 2542833664 bytes (2.368 GiB),
-  a margin of 42.05% over that measured peak.
+  29.60% of the cap and a margin of 42.05% over that measured peak.
   Four eight-GiB caps plus four GiB overhead equal the 36-GiB slot cap.
   Admission remains `floor((36 - 4) / 8) = 4` jobs.
   Four measured maxima plus overhead total 28483371008 bytes (26.527 GiB).
   That is a sum of separate peaks, not an observed concurrent slot peak.
-  No cap increase or further compiler-budget reduction follows from these samples.
+  The source-build compiler bound changes; container and slot caps do not.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
   which counts only the slice's limit and never a job container's eight-GiB limit
@@ -2642,7 +2660,8 @@ plus that allowance, rather than the shorter hosted builder window.
 Elaboration retains its 1441/593-second hosted gate windows plus 120 seconds.
 
 Yosys compilation now runs once in prerequisite `yosys-tool`.
-Its unchanged cache-miss recipe and exact cache key are preserved.
+Its pinned source and cache-key construction are preserved. Source compilation
+uses the measured compiler bound described above.
 The four synthesis workers download the head-bound archive and prove versions.
 A cache miss therefore adds no source build inside a timed synthesis worker.
 The cold tool projection uses the review's conservative 600-second build estimate
