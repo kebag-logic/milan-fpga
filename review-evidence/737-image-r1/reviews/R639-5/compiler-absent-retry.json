@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "sw/builder/test_firmware_compiler.py",
+    "--absent",
+    "--audit",
+    "${PACKET}/scratch/rv32-absent-retry.jsonl"
+  ],
+  "rc": 0,
+  "seconds": 606.407,
+  "log": "gate-logs/docs-034-retry.log",
+  "initial_timeout_seconds": 540
+}

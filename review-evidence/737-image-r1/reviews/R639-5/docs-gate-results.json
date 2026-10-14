@@ -1,0 +1,1096 @@
+[
+  {
+    "index": 0,
+    "job": "docs-check",
+    "step": "Build the validated HDL reference",
+    "command": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.515,
+    "log": "gate-logs/docs-000.log"
+  },
+  {
+    "index": 1,
+    "job": "docs-check",
+    "step": "Build the validated HDL reference",
+    "command": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "${EVIDENCE}/hdl-reference"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 2.218,
+    "log": "gate-logs/docs-001.log"
+  },
+  {
+    "index": 2,
+    "job": "docs-check",
+    "step": "Link health, wording, dead-reference and local-info gate",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 5.823,
+    "log": "gate-logs/docs-002.log"
+  },
+  {
+    "index": 3,
+    "job": "docs-check",
+    "step": "Added-line em-dash gate",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa7347fc"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 3.17,
+    "log": "gate-logs/docs-003.log"
+  },
+  {
+    "index": 4,
+    "job": "docs-check",
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.114,
+    "log": "gate-logs/docs-004.log"
+  },
+  {
+    "index": 5,
+    "job": "docs-check",
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.114,
+    "log": "gate-logs/docs-005.log"
+  },
+  {
+    "index": 6,
+    "job": "docs-check",
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.365,
+    "log": "gate-logs/docs-006.log"
+  },
+  {
+    "index": 7,
+    "job": "docs-check",
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.364,
+    "log": "gate-logs/docs-007.log"
+  },
+  {
+    "index": 8,
+    "job": "docs-check",
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.515,
+    "log": "gate-logs/docs-008.log"
+  },
+  {
+    "index": 9,
+    "job": "docs-check",
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.565,
+    "log": "gate-logs/docs-009.log"
+  },
+  {
+    "index": 10,
+    "job": "docs-check",
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.465,
+    "log": "gate-logs/docs-010.log"
+  },
+  {
+    "index": 11,
+    "job": "docs-check",
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.565,
+    "log": "gate-logs/docs-011.log"
+  },
+  {
+    "index": 12,
+    "job": "docs-check",
+    "step": "Product solution source-fact gate",
+    "command": [
+      "python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.214,
+    "log": "gate-logs/docs-012.log"
+  },
+  {
+    "index": 13,
+    "job": "docs-check",
+    "step": "Product solution source-fact gate",
+    "command": [
+      "python3",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 2.869,
+    "log": "gate-logs/docs-013.log"
+  },
+  {
+    "index": 14,
+    "job": "docs-check",
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.565,
+    "log": "gate-logs/docs-014.log"
+  },
+  {
+    "index": 15,
+    "job": "docs-check",
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.665,
+    "log": "gate-logs/docs-015.log"
+  },
+  {
+    "index": 16,
+    "job": "docs-check",
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.767,
+    "log": "gate-logs/docs-016.log"
+  },
+  {
+    "index": 17,
+    "job": "docs-check",
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.164,
+    "log": "gate-logs/docs-017.log"
+  },
+  {
+    "index": 18,
+    "job": "docs-check",
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.365,
+    "log": "gate-logs/docs-018.log"
+  },
+  {
+    "index": 19,
+    "job": "docs-check",
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.515,
+    "log": "gate-logs/docs-019.log"
+  },
+  {
+    "index": 20,
+    "job": "docs-check",
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.615,
+    "log": "gate-logs/docs-020.log"
+  },
+  {
+    "index": 21,
+    "job": "docs-check",
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.565,
+    "log": "gate-logs/docs-021.log"
+  },
+  {
+    "index": 22,
+    "job": "docs-check",
+    "step": "Published diagram PNG gate",
+    "command": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.465,
+    "log": "gate-logs/docs-022.log"
+  },
+  {
+    "index": 23,
+    "job": "docs-check",
+    "step": "Published diagram PNG gate",
+    "command": [
+      "python3",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 13.928,
+    "log": "gate-logs/docs-023.log"
+  },
+  {
+    "index": 24,
+    "job": "docs-check",
+    "step": "Milan feature-status consistency gate",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.116,
+    "log": "gate-logs/docs-024.log"
+  },
+  {
+    "index": 25,
+    "job": "docs-check",
+    "step": "Traceability matrix no-drift gate",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.116,
+    "log": "gate-logs/docs-025.log"
+  },
+  {
+    "index": 26,
+    "job": "docs-check",
+    "step": "Imported gPTP documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.364,
+    "log": "gate-logs/docs-026.log"
+  },
+  {
+    "index": 27,
+    "job": "docs-check",
+    "step": "Imported gPTP documentation gate",
+    "command": [
+      "make",
+      "-C",
+      "gptp-processor",
+      "docs"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.016,
+    "log": "gate-logs/docs-027.log"
+  },
+  {
+    "index": 28,
+    "job": "docs-check",
+    "step": "Code-quality measurement self-tests",
+    "command": [
+      "python3",
+      "scripts/measure_control_flow.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.214,
+    "log": "gate-logs/docs-028.log"
+  },
+  {
+    "index": 29,
+    "job": "docs-check",
+    "step": "Code-quality measurement self-tests",
+    "command": [
+      "python3",
+      "scripts/measure_cohesion.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.114,
+    "log": "gate-logs/docs-029.log"
+  },
+  {
+    "index": 30,
+    "job": "docs-check",
+    "step": "Bare-metal scope gate",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 23.425,
+    "log": "gate-logs/docs-030.log"
+  },
+  {
+    "index": 31,
+    "job": "docs-check",
+    "step": "Bare-metal scope gate",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 8.034,
+    "log": "gate-logs/docs-031.log"
+  },
+  {
+    "index": 32,
+    "job": "docs-check",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.971,
+    "log": "gate-logs/docs-032.log"
+  },
+  {
+    "index": 33,
+    "job": "docs-check",
+    "step": "Compiler-absent firmware controls",
+    "command": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 3.38,
+    "log": "gate-logs/docs-033.log"
+  },
+  {
+    "index": 34,
+    "job": "docs-check",
+    "step": "Compiler-absent firmware controls",
+    "command": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--audit",
+      "${EVIDENCE}/rv32-absent.jsonl"
+    ],
+    "rc": 124,
+    "status": "FAILED",
+    "seconds": 540.009,
+    "log": "gate-logs/docs-034.log"
+  },
+  {
+    "index": 35,
+    "job": "docs-check",
+    "step": "End-station builder gates",
+    "command": [
+      "python3",
+      "sw/builder/test_builder.py",
+      "--require-rv32"
+    ],
+    "status": "NOT RUN",
+    "reason": "Explicit review restriction on orchestration self-test/full builder bank"
+  },
+  {
+    "index": 36,
+    "job": "docs-check",
+    "step": "NVM record-space gate",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 2.372,
+    "log": "gate-logs/docs-036.log"
+  },
+  {
+    "index": 37,
+    "job": "docs-check",
+    "step": "NVM record-space gate",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 40.842,
+    "log": "gate-logs/docs-037.log"
+  },
+  {
+    "index": 38,
+    "job": "docs-check",
+    "step": "Capture measurement census and clock gate",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.866,
+    "log": "gate-logs/docs-038.log"
+  },
+  {
+    "index": 39,
+    "job": "docs-check",
+    "step": "Saved-state writer gate",
+    "command": [
+      "python3",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 77.081,
+    "log": "gate-logs/docs-039.log"
+  },
+  {
+    "index": 40,
+    "job": "docs-check",
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.164,
+    "log": "gate-logs/docs-040.log"
+  },
+  {
+    "index": 41,
+    "job": "docs-check",
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.214,
+    "log": "gate-logs/docs-041.log"
+  },
+  {
+    "index": 42,
+    "job": "docs-check",
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "command": [
+      "python3",
+      "sw/litex/iob_pack_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.967,
+    "log": "gate-logs/docs-042.log"
+  },
+  {
+    "index": 43,
+    "job": "docs-check",
+    "step": "RTL source-list drift gate",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.466,
+    "log": "gate-logs/docs-043.log"
+  },
+  {
+    "index": 44,
+    "job": "docs-check",
+    "step": "RTL source-list drift gate",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 2.618,
+    "log": "gate-logs/docs-044.log"
+  },
+  {
+    "index": 45,
+    "job": "docs-check",
+    "step": "Boundary-unit naming ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.515,
+    "log": "gate-logs/docs-045.log"
+  },
+  {
+    "index": 46,
+    "job": "docs-check",
+    "step": "Boundary-unit naming ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.465,
+    "log": "gate-logs/docs-046.log"
+  },
+  {
+    "index": 47,
+    "job": "docs-check",
+    "step": "Port contract gate",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 2.669,
+    "log": "gate-logs/docs-047.log"
+  },
+  {
+    "index": 48,
+    "job": "docs-check",
+    "step": "Port contract gate",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 3.069,
+    "log": "gate-logs/docs-048.log"
+  },
+  {
+    "index": 49,
+    "job": "docs-check",
+    "step": "Fail-fast ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.567,
+    "log": "gate-logs/docs-049.log"
+  },
+  {
+    "index": 50,
+    "job": "docs-check",
+    "step": "Fail-fast ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.567,
+    "log": "gate-logs/docs-050.log"
+  },
+  {
+    "index": 51,
+    "job": "docs-check",
+    "step": "TODO ownership gate",
+    "command": [
+      "python3",
+      "scripts/check_todo_ownership.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.917,
+    "log": "gate-logs/docs-051.log"
+  },
+  {
+    "index": 52,
+    "job": "docs-check",
+    "step": "TODO ownership gate",
+    "command": [
+      "python3",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.867,
+    "log": "gate-logs/docs-052.log"
+  },
+  {
+    "index": 53,
+    "job": "docs-check",
+    "step": "Test-evidence ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 9.884,
+    "log": "gate-logs/docs-053.log"
+  },
+  {
+    "index": 54,
+    "job": "docs-check",
+    "step": "Test-evidence ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 9.231,
+    "log": "gate-logs/docs-054.log"
+  },
+  {
+    "index": 55,
+    "job": "docs-check",
+    "step": "Mechanical hygiene ratchet",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.415,
+    "log": "gate-logs/docs-055.log"
+  },
+  {
+    "index": 56,
+    "job": "docs-check",
+    "step": "Mechanical hygiene ratchet",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.415,
+    "log": "gate-logs/docs-056.log"
+  },
+  {
+    "index": 57,
+    "job": "docs-check",
+    "step": "SystemVerilog idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.415,
+    "log": "gate-logs/docs-057.log"
+  },
+  {
+    "index": 58,
+    "job": "docs-check",
+    "step": "SystemVerilog idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.415,
+    "log": "gate-logs/docs-058.log"
+  },
+  {
+    "index": 59,
+    "job": "docs-check",
+    "step": "C and C++ idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.516,
+    "log": "gate-logs/docs-059.log"
+  },
+  {
+    "index": 60,
+    "job": "docs-check",
+    "step": "C and C++ idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.616,
+    "log": "gate-logs/docs-060.log"
+  },
+  {
+    "index": 61,
+    "job": "docs-check",
+    "step": "Python idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 4.823,
+    "log": "gate-logs/docs-061.log"
+  },
+  {
+    "index": 62,
+    "job": "docs-check",
+    "step": "Python idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 4.622,
+    "log": "gate-logs/docs-062.log"
+  },
+  {
+    "index": 63,
+    "job": "docs-check",
+    "step": "Shell idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.214,
+    "log": "gate-logs/docs-063.log"
+  },
+  {
+    "index": 64,
+    "job": "docs-check",
+    "step": "Shell idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.214,
+    "log": "gate-logs/docs-064.log"
+  },
+  {
+    "index": 65,
+    "job": "docs-check",
+    "step": "CI event and SHA contract gate",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.214,
+    "log": "gate-logs/docs-065.log"
+  },
+  {
+    "index": 66,
+    "job": "docs-check",
+    "step": "CI event and SHA contract gate",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 28.37,
+    "log": "gate-logs/docs-066.log"
+  },
+  {
+    "index": 67,
+    "job": "docs-check",
+    "step": "Local act runner contract gate",
+    "command": [
+      "python3",
+      "scripts/act_ci.py",
+      "--selftest"
+    ],
+    "status": "NOT RUN",
+    "reason": "Explicit review restriction on orchestration self-test/full builder bank"
+  },
+  {
+    "index": 68,
+    "job": "docs-check",
+    "step": "Local act runner contract gate isolated copy",
+    "command": [
+      "python3",
+      "-I",
+      "${EVIDENCE}/act_ci.py",
+      "--selftest",
+      "--worktree",
+      "${CHECKOUT}"
+    ],
+    "status": "NOT RUN",
+    "reason": "Explicit review restriction on orchestration self-test/full builder bank"
+  },
+  {
+    "index": 69,
+    "job": "docs-check",
+    "step": "Doc cited-path gate",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.164,
+    "log": "gate-logs/docs-069.log"
+  },
+  {
+    "index": 70,
+    "job": "docs-check",
+    "step": "Archive integrity gate",
+    "command": [
+      "python3",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.515,
+    "log": "gate-logs/docs-070.log"
+  },
+  {
+    "index": 71,
+    "job": "docs-check",
+    "step": "Archive integrity gate",
+    "command": [
+      "python3",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.065,
+    "log": "gate-logs/docs-071.log"
+  },
+  {
+    "index": 72,
+    "job": "docs-check",
+    "step": "Per-page contents gate",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.216,
+    "log": "gate-logs/docs-072.log"
+  },
+  {
+    "index": 73,
+    "job": "docs-check",
+    "step": "Per-page contents gate",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 4.424,
+    "log": "gate-logs/docs-073.log"
+  },
+  {
+    "index": 74,
+    "job": "docs-check",
+    "step": "Per-page contents gate",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 6.027,
+    "log": "gate-logs/docs-074.log"
+  },
+  {
+    "index": 75,
+    "job": "docs-check",
+    "step": "AEM store generator self-test",
+    "command": [
+      "python3",
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.117,
+    "log": "gate-logs/docs-075.log"
+  },
+  {
+    "index": 76,
+    "job": "docs-check",
+    "step": "Sweep/build shape gate",
+    "command": [
+      "python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 14.981,
+    "log": "gate-logs/docs-076.log"
+  },
+  {
+    "index": 77,
+    "job": "docs-check",
+    "step": "Deploy shape gate",
+    "command": [
+      "python3",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.465,
+    "log": "gate-logs/docs-077.log"
+  },
+  {
+    "index": 78,
+    "job": "docs-check",
+    "step": "Entity shape gate",
+    "command": [
+      "python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 54.236,
+    "log": "gate-logs/docs-078.log"
+  }
+]

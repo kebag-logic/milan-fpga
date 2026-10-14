@@ -1,0 +1,507 @@
+[
+  {
+    "index": 0,
+    "job": "changes",
+    "step": "Classify the change conservatively",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 23.707,
+    "log": "gate-logs/rtl-000.log"
+  },
+  {
+    "index": 1,
+    "job": "verilator-lint",
+    "step": "Run the ratcheted whole-tree lint gate",
+    "command": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check",
+      "--self-test"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 11.82,
+    "log": "gate-logs/rtl-001.log"
+  },
+  {
+    "index": 2,
+    "job": "verilator-lint",
+    "step": "Prove protocol-processor source lists are derived",
+    "command": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.314,
+    "log": "gate-logs/rtl-002.log"
+  },
+  {
+    "index": 3,
+    "job": "bdd-conformance",
+    "step": "Run the specification-facing suite",
+    "command": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 2.217,
+    "log": "gate-logs/rtl-003.log"
+  },
+  {
+    "index": 4,
+    "job": "yosys-elaboration",
+    "step": "Elaborate the integration-heavy tops",
+    "command": [
+      "syn/yosys/run.sh",
+      "--mode",
+      "elaborate",
+      "--no-structural",
+      "--top",
+      "milan_datapath",
+      "--top",
+      "KL_pp_shadow",
+      "--top",
+      "KL_gptp_shadow"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full synthesis bank prohibited; host synthesis executable differs from image pin"
+  },
+  {
+    "index": 5,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/dp_srcs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 12.241,
+    "log": "gate-logs/rtl-005.log"
+  },
+  {
+    "index": 6,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/ooc_tcl_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 467.699,
+    "log": "gate-logs/rtl-006.log"
+  },
+  {
+    "index": 7,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.465,
+    "log": "gate-logs/rtl-007.log"
+  },
+  {
+    "index": 8,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline_mutants.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 5.225,
+    "log": "gate-logs/rtl-008.log"
+  },
+  {
+    "index": 9,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline_reports_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.064,
+    "log": "gate-logs/rtl-009.log"
+  },
+  {
+    "index": 10,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 2.218,
+    "log": "gate-logs/rtl-010.log"
+  },
+  {
+    "index": 11,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate_mutants.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 12.799,
+    "log": "gate-logs/rtl-011.log"
+  },
+  {
+    "index": 12,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 0.064,
+    "log": "gate-logs/rtl-012.log"
+  },
+  {
+    "index": 13,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/dp_srcs.py",
+      "--top",
+      "milan_datapath"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 8.937,
+    "log": "gate-logs/rtl-013.log"
+  },
+  {
+    "index": 14,
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/dp_srcs.py",
+      "--top",
+      "KL_pp_shadow"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 5.027,
+    "log": "gate-logs/rtl-014.log"
+  },
+  {
+    "index": 15,
+    "job": "yosys-elaboration",
+    "step": "Prove ooc.sh generates the ROMs and fails on a failed top",
+    "command": [
+      "python3",
+      "syn/yosys/ooc_selftest.py"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full synthesis bank prohibited; host synthesis executable differs from image pin"
+  },
+  {
+    "index": 16,
+    "job": "yosys-elaboration",
+    "step": "Prove both synthesis flows refuse active elaboration guards",
+    "command": [
+      "python3",
+      "syn/yosys/guard_selftest.py"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full synthesis bank prohibited; host synthesis executable differs from image pin"
+  },
+  {
+    "index": 17,
+    "job": "yosys-elaboration",
+    "step": "Prove the result cache refuses a planted entry",
+    "command": [
+      "python3",
+      "syn/yosys/cache_selftest.py"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full synthesis bank prohibited; host synthesis executable differs from image pin"
+  },
+  {
+    "index": 18,
+    "job": "publication-census",
+    "step": "Run the publication census in every shape the builder builds",
+    "command": [
+      "python3",
+      "sw/mailbox/publication_census.py",
+      "--check",
+      "--selftest",
+      "--jobs",
+      "1"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 19,
+    "job": "firmware-unit",
+    "step": "Prove the tally reads a failing and a crashing test as failures",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/tally_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 4.073,
+    "log": "gate-logs/rtl-019.log"
+  },
+  {
+    "index": 20,
+    "job": "firmware-unit",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.316,
+    "log": "gate-logs/rtl-020.log"
+  },
+  {
+    "index": 21,
+    "job": "firmware-unit",
+    "step": "Run the control-plane firmware suites and RV32 builds",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 22,
+    "job": "firmware-unit",
+    "step": "Run the control-plane firmware suites and RV32 builds",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "0/4"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 23,
+    "job": "firmware-unit",
+    "step": "Run the saved-state store suites and its RV32 build",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "--require-rv32",
+      "--jobs",
+      "4"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 24,
+    "job": "firmware-unit",
+    "step": "Hold the firmware coverage ratchet",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 25,
+    "job": "firmware-unit",
+    "step": "Hold the firmware coverage ratchet",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 26,
+    "job": "firmware-control-mutants",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.317,
+    "log": "gate-logs/rtl-026.log"
+  },
+  {
+    "index": 27,
+    "job": "firmware-control-mutants",
+    "step": "Run the control mutation campaign",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "1/4"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 28,
+    "job": "firmware-aecp-mutants",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.217,
+    "log": "gate-logs/rtl-028.log"
+  },
+  {
+    "index": 29,
+    "job": "firmware-aecp-mutants",
+    "step": "Run the AECP mutation campaign",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "2/4"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 30,
+    "job": "firmware-srp-mutants",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.217,
+    "log": "gate-logs/rtl-030.log"
+  },
+  {
+    "index": 31,
+    "job": "firmware-srp-mutants",
+    "step": "Run both SRP mutation campaigns and pin controls",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "3/4"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 32,
+    "job": "firmware-boundary",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.267,
+    "log": "gate-logs/rtl-032.log"
+  },
+  {
+    "index": 33,
+    "job": "firmware-boundary",
+    "step": "Hold the TSN stack boundary over the firmware builders' compiles",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest",
+      "--without",
+      "verilator"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  },
+  {
+    "index": 34,
+    "job": "firmware-verilator",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "status": "PASS",
+    "seconds": 1.266,
+    "log": "gate-logs/rtl-034.log"
+  },
+  {
+    "index": 35,
+    "job": "firmware-verilator",
+    "step": "Hold the TSN stack boundary over the Verilator builders' compiles",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest",
+      "--only",
+      "verilator"
+    ],
+    "status": "NOT RUN",
+    "reason": "Full native bank left to published receipts; unavailable local reference compiler and test libraries"
+  }
+]

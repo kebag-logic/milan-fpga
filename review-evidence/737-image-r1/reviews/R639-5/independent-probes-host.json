@@ -1,0 +1,231 @@
+[
+  {
+    "case": "make_target_override",
+    "run": "make SCRIPT=hidden.sh",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n",
+      "Makefile": "all: SCRIPT=benign.sh\nall: ; bash $(SCRIPT)\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 0,
+      "output": "CI tool inventory matches workflow installation requests\n"
+    },
+    "--check": {
+      "rc": 0,
+      "output": "CI tool inventory matches workflow installation requests\n"
+    },
+    "real_tool": {
+      "rc": 2,
+      "output": "bash hidden.sh\nhidden.sh: line 1: brand_new_command: command not found\nmake: *** [Makefile:2: all] Error 127\n"
+    }
+  },
+  {
+    "case": "make_environment_memo",
+    "run": "TOOL=echo make; TOOL=brand_new_command make",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n",
+      "Makefile": "TOOL ?= echo\nall: ; $(TOOL) okay\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 0,
+      "output": "CI tool inventory matches workflow installation requests\n"
+    },
+    "--check": {
+      "rc": 0,
+      "output": "CI tool inventory matches workflow installation requests\n"
+    },
+    "real_tool": {
+      "rc": 2,
+      "output": "echo okay\nokay\nbrand_new_command okay\nmake: brand_new_command: No such file or directory\nmake: *** [Makefile:2: all] Error 127\n"
+    }
+  },
+  {
+    "case": "shell_script_environment_memo",
+    "run": "TOOL=echo bash bootstrap.sh; TOOL=brand_new_command bash bootstrap.sh",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n",
+      "bootstrap.sh": "\"$TOOL\" okay\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 0,
+      "output": "CI tool inventory matches workflow installation requests\n"
+    },
+    "--check": {
+      "rc": 0,
+      "output": "CI tool inventory matches workflow installation requests\n"
+    },
+    "real_tool": {
+      "rc": 127,
+      "output": "okay\nbootstrap.sh: line 1: brand_new_command: command not found\n"
+    }
+  },
+  {
+    "case": "make_pattern_directory",
+    "run": "make sub/task.out",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n",
+      "Makefile": "%.out: ; bash $*.sh\n",
+      "sub/task.sh": "brand_new_command\n",
+      "task.sh": "echo okay\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 2,
+      "output": "REFUSED: unclassified command 'brand_new_command' at sub/task.sh:1\n"
+    },
+    "--check": {
+      "rc": 2,
+      "output": "REFUSED: unclassified command 'brand_new_command' at sub/task.sh:1\n"
+    },
+    "real_tool": {
+      "rc": 2,
+      "output": "bash sub/task.sh\nsub/task.sh: line 1: brand_new_command: command not found\nmake: *** [Makefile:1: sub/task.out] Error 127\n"
+    }
+  },
+  {
+    "case": "make_suffix_stem",
+    "run": "make task.sh",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n",
+      "Makefile": "task.sh: ; bash $*.py\n",
+      "task.py": "brand_new_command\n",
+      ".py": "echo okay\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 2,
+      "output": "REFUSED: unsupported script language '.py' at Makefile:1:1\n"
+    },
+    "--check": {
+      "rc": 2,
+      "output": "REFUSED: unsupported script language '.py' at Makefile:1:1\n"
+    },
+    "real_tool": {
+      "rc": 2,
+      "output": "bash task.py\ntask.py: line 1: brand_new_command: command not found\nmake: *** [Makefile:1: task.sh] Error 127\n"
+    }
+  },
+  {
+    "case": "shell_new_construct",
+    "run": "coproc echo okay",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 2,
+      "output": "REFUSED: uncensused shell node 'CoprocClause' at .github/workflows/probe.yml\n"
+    },
+    "--check": {
+      "rc": 2,
+      "output": "REFUSED: uncensused shell node 'CoprocClause' at .github/workflows/probe.yml\n"
+    }
+  },
+  {
+    "case": "make_new_construct",
+    "run": "make",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n",
+      "Makefile": ".ONESHELL:\nall: ; echo okay\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 2,
+      "output": "REFUSED: unsupported Make special or suffix rule '.ONESHELL' at Makefile:1\n"
+    },
+    "--check": {
+      "rc": 2,
+      "output": "REFUSED: unsupported Make special or suffix rule '.ONESHELL' at Makefile:1\n"
+    }
+  },
+  {
+    "case": "python_new_construct",
+    "run": "python3 bootstrap.py",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n",
+      "bootstrap.py": "async def f(): pass\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 2,
+      "output": "REFUSED: uncensused Python node 'AsyncFunctionDef' at bootstrap.py\n"
+    },
+    "--check": {
+      "rc": 2,
+      "output": "REFUSED: uncensused Python node 'AsyncFunctionDef' at bootstrap.py\n"
+    }
+  },
+  {
+    "case": "trap_new_construct",
+    "run": "trap 'coproc echo okay' EXIT",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 2,
+      "output": "REFUSED: uncensused shell node 'CoprocClause' at .github/workflows/probe.yml\n"
+    },
+    "--check": {
+      "rc": 2,
+      "output": "REFUSED: uncensused shell node 'CoprocClause' at .github/workflows/probe.yml\n"
+    }
+  },
+  {
+    "case": "startup_variable",
+    "run": "BASH_ENV=hidden.sh bash benign.sh",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 2,
+      "output": "REFUSED: uncensused shell assignment at .github/workflows/probe.yml\n"
+    },
+    "--check": {
+      "rc": 2,
+      "output": "REFUSED: uncensused shell assignment at .github/workflows/probe.yml\n"
+    }
+  },
+  {
+    "case": "source_unlisted",
+    "run": "source hidden.sh",
+    "files": {
+      "hidden.sh": "brand_new_command\n",
+      "benign.sh": "echo okay\n"
+    },
+    "census_modified": false,
+    "table_modified": false,
+    "--write": {
+      "rc": 2,
+      "output": "REFUSED: uncensused shell source at .github/workflows/probe.yml\n"
+    },
+    "--check": {
+      "rc": 2,
+      "output": "REFUSED: uncensused shell source at .github/workflows/probe.yml\n"
+    }
+  }
+]
