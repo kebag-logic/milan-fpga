@@ -2301,6 +2301,13 @@ Resource bounds:
   3391201280 bytes at twelve. Tied-input and tap-purity checks pass, and
   every memory-event counter is zero. These measurements cover synthesis;
   they do not substitute for the remaining compiler measurements.
+- The firmware control normal phase (`--shard 0/4`), including required RV32
+  linked-image checks, passes with four campaign workers at both widths.
+  At `dafa43202` its peaks were 1365569536 bytes at sixteen CPUs and
+  1372815360 bytes at twelve, with every memory-event counter zero.
+  Generated configuration output used a disposable writable overlay; the
+  candidate source remained read-only. This covers that phase, not the other
+  firmware mutation phases or a full workflow replay.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
   which counts only the slice's limit and never a job container's eight-GiB limit
