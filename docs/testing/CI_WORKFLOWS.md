@@ -2737,6 +2737,9 @@ The collector has a fifteen-minute job limit. Its API reads share one
 600-second budget across all pages and run IDs, leaving five minutes for
 preparation, collection and upload. Individual requests consume that same budget.
 A wait beyond the former three-minute allowance is covered by controls.
+Another control lets one read recover after 480 seconds while the next never
+recovers; collection stops within the shared budget, where separate
+per-request budgets would wait 960 seconds.
 Fork PRs keep
 native matrix cancellation and fail-closed aggregates; they never enter the
 write-token job and do not cancel sibling workflows. There is no privileged

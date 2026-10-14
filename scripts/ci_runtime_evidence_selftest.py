@@ -6,6 +6,7 @@
 import copy
 import ast
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -143,6 +144,65 @@ def observer_collector_controls(root: Path) -> None:
     with patch.object(runtime, "ROOT", root), patch.dict(os.environ, environment), \
             patch.object(sys, "argv", argv), patch.object(runtime.API, "request", return_value={"head_sha": "b" * 40}):
         assert runtime.main() == 1
+
+
+def shared_budget_control(root: Path) -> None:
+    """A late recovery spends the budget that a later failing read cannot restart."""
+    source, _, environment = collector_fixture(root)
+    run = json.dumps({"head_sha": source["head"], "path": ".github/workflows/rtl.yml"}).encode()
+
+    def virtual_reads(action: object) -> tuple[float, list[str]]:
+        """runs/1 recovers on its third attempt; its jobs page never recovers."""
+        clock, opened = [1000.0], []
+        def urlopen(request: object, timeout: float) -> object:
+            """Answer by URL, so each request keeps its own failure sequence."""
+            opened.append(request.full_url.rsplit("/actions/", 1)[1])
+            if opened[-1] == "runs/1" and opened.count("runs/1") == 3:
+                response = io.BytesIO(run)
+                response.headers = {}
+                return response
+            raise HTTPError(request.full_url, 429, "limited", {"Retry-After": "240"}, None)
+        def sleep(seconds: float) -> None:
+            """Advance the real retry loop without waiting on the outage."""
+            clock[0] += seconds
+        with patch("ci_fail_fast.urlopen", side_effect=urlopen), \
+                patch("ci_fail_fast.time.monotonic", side_effect=lambda: clock[0]), \
+                patch("ci_fail_fast.time.time", side_effect=lambda: clock[0]), \
+                patch("ci_fail_fast.time.sleep", side_effect=sleep):
+            action()
+        return clock[0] - 1000, opened
+
+    def unshared() -> None:
+        """The same two reads, each with only its own per-request budget."""
+        api = runtime.API("fixture/project", "fixture")
+        api.request("runs/1")
+        refused_read = None
+        try:
+            api.pages("runs/1/jobs?filter=latest", "jobs")
+        except HTTPError as exc:
+            refused_read = exc
+        assert refused_read is not None, "the jobs page outage must exhaust its retries"
+
+    output = root / "shared.json"
+    argv = ["collector", "collect", "--run", "1", "--artifacts", str(root / "artifacts"),
+            "--output", str(output)]
+    def collector() -> None:
+        """The production collector entry point constructs its own API."""
+        with patch.object(runtime, "ROOT", root), patch.dict(os.environ, environment), \
+                patch.object(sys, "argv", argv):
+            assert runtime.main() == 0
+
+    reference, _ = virtual_reads(unshared)
+    assert reference > RETRY_BUDGET_SECONDS, "injected waits must exceed one shared budget"
+    elapsed, opened = virtual_reads(collector)
+    assert elapsed <= RETRY_BUDGET_SECONDS, f"collector reads took {elapsed}s"
+    assert opened == ["runs/1"] * 3 + ["runs/1/jobs?filter=latest&per_page=100&page=1"]
+    assert Path(environment["GITHUB_OUTPUT"]).read_text() == "observer_error=true\n"
+    document = json.loads(output.read_text())
+    assert not document["complete"]
+    assert set(document["payload"]["results"].values()) == {"unknown"}
+    print(f"Collector shared read budget: {elapsed}s within {RETRY_BUDGET_SECONDS}s; "
+          f"the same reads take {reference}s unshared")
 
 
 def streams(source: dict) -> tuple[list[dict], list[dict]]:
@@ -293,6 +353,7 @@ def main() -> int:
         root = Path(directory)
         skipped_collector_control(root / "skipped")
         observer_collector_controls(root / "observer")
+        shared_budget_control(root / "shared-budget")
         subprocess.run(["git", "init", "-q", str(root)], check=True)
         path = root / PATH
         path.parent.mkdir(parents=True)
