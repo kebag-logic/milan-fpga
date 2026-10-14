@@ -1,0 +1,160 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.667,
+    "log": "ci_gate_workflows_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_case_receipts_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.741,
+    "log": "ci_case_receipts_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_make_cases_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.181,
+    "log": "ci_make_cases_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_maap_cases_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.155,
+    "log": "ci_maap_cases_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_capture_cases_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.127,
+    "log": "ci_capture_cases_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_suite_pieces_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 9.463,
+    "log": "ci_suite_pieces_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_suite_collect_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 3.681,
+    "log": "ci_suite_collect_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_fail_fast_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.066,
+    "log": "ci_fail_fast_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_runtime_evidence_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 1.136,
+    "log": "ci_runtime_evidence_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_install_cache_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.172,
+    "log": "ci_install_cache_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_workflow_plan_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.217,
+    "log": "ci_workflow_plan_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_manifest_selftest.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.063,
+    "log": "ci_manifest_selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.536,
+    "log": "ci_gate_workflows-check.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/generate_ci_evidence_pins.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.054,
+    "log": "generate_ci_evidence_pins-check.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 2.41,
+    "log": "suite_shards-selftest.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 0.695,
+    "log": "ci_events-check.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "seconds": 555.095,
+    "log": "ci_events-selftest.log"
+  }
+]
