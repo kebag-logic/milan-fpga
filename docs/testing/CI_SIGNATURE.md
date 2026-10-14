@@ -9,6 +9,7 @@ Equal documents alone do not authenticate their collectors.
 - **[Payload](#payload)** -- Identify the seven compared evidence sections.
 - **[Excluded observations](#excluded-observations)** -- Keep timing and runner observations outside the signature.
 - **[Collection and authentication](#collection-and-authentication)** -- Require independent collectors and a separate signing key.
+- **[Source plan](#source-plan)** -- Recompute the expected jobs and steps from committed workflow bytes.
 - **[Comparison](#comparison)** -- Refuse changed or incomplete execution evidence.
 - **[Implementation boundary](#implementation-boundary)** -- State the remaining collection and authentication work.
 
@@ -63,6 +64,26 @@ Only the corresponding public key belongs in the repository.
 Signature verification authenticates the local collector's payload digest.
 The source, plan, environment, outcomes, and unions remain independently checked.
 
+## Source plan
+
+The planner reads workflow blobs from the specified commit.
+Working-tree edits cannot redefine those inputs.
+It expands literal matrix axes and every dependency leg.
+It binds each step's complete command or action reference and condition.
+Duplicate keys, aliases, dynamic matrices, ambiguous names, and cycles fail closed.
+
+```sh
+python3 scripts/ci_workflow_plan.py --head <full-commit>
+python3 scripts/ci_workflow_plan.py --manifest collected.json
+python3 scripts/ci_workflow_plan_selftest.py
+```
+
+The manifest check verifies its tree, definitions, and plan against Git objects.
+It is a source-binding check, not an execution or authentication verdict.
+Both collectors must call the same verification before comparison.
+Controls remove a definition or job, replace the tree, and alter commands.
+Each changed collection is refused against its original committed inputs.
+
 ## Comparison
 
 The transport-independent comparison command is:
@@ -92,7 +113,8 @@ It preserves incomplete evidence and returns failure for it.
 It refuses conditional skips until their evaluation evidence is integrated.
 
 Hosted API collection and replay telemetry integration remain required.
-Source-derived plan verification and signing also remain required.
+Source-derived plan verification is available as a separate check.
+Collector integration of that check and signing remain required.
 The digest-pinned image and measured tool lock remain required.
 The comparator alone establishes no authenticated build verdict.
 Existing hosted checks and local gates remain mandatory.
