@@ -1,0 +1,16 @@
+{"config_created": "2026-10-14T07:33:54.062400075+02:00", "env": ["PATH=/opt/node/bin:/opt/gh/bin:/opt/python/bin:/opt/verilator/bin:/opt/yosys/bin:/opt/rv32-sdk/bin:/opt/sv2v/bin:/opt/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", "DEBIAN_FRONTEND=noninteractive", "LANG=C.UTF-8", "LC_ALL=C.UTF-8", "MILAN_RV32_CC=/opt/rv32-sdk/bin/riscv32-linux-gcc", "TSN_GEN_ROOT=/opt/tsn-gen", "VERILATOR_JOBS=2", "COURSIER_CACHE=/opt/sbt-cache/coursier", "SBT_OPTS=-Dsbt.boot.directory=/opt/sbt-cache/boot -Dsbt.global.base=/opt/sbt-cache/global -Dsbt.ivy.home=/opt/sbt-cache/ivy -Dsbt.override.build.repos=true -Dsbt.repository.config=/opt/sbt/repositories"], "labels": {"org.opencontainers.image.version": "24.04"}, "user": null}
+0 edd1ed89f0d4 2026-09-11T11:44:06.020434349Z /bin/sh -c #(nop) ADD file:43d479b270bbaf47965cfc86b37f4c517bda83ddefda6f708f98c3b2b7d15396 in / 
+1 910a34ba257c 2026-10-14T07:28:39.947291613+02:00 RUN /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&  
+2 7ddbd0d24c06 2026-10-14T07:28:41.753770652+02:00 RUN /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&  
+3 5914bbd11bf2 2026-10-14T07:29:04.813385663+02:00 COPY /opt/python /opt/python # buildkit
+4 06c1fc6ca7f2 2026-10-14T07:31:08.915249679+02:00 COPY /opt/verilator /opt/verilator # buildkit
+5 f8d99b0e7248 2026-10-14T07:33:44.847845766+02:00 COPY /opt/yosys /opt/yosys # buildkit
+6 08aafb821a7a 2026-10-14T07:33:47.70560402+02:00 COPY /opt/rv32-sdk /opt/rv32-sdk # buildkit
+7 a0e1c688ec70 2026-10-14T07:33:47.915487386+02:00 COPY /opt/sv2v /opt/sv2v # buildkit
+8 357840d954e6 2026-10-14T07:33:48.651792794+02:00 COPY /opt/sbt /opt/sbt # buildkit
+9 e1c0ea072457 2026-10-14T07:33:49.976253604+02:00 COPY /opt/sbt-cache /opt/sbt-cache # buildkit
+10 5d766fb6017e 2026-10-14T07:33:51.310102278+02:00 COPY /opt/tsn-gen /opt/tsn-gen # buildkit
+11 3add11171949 2026-10-14T07:33:53.200668226+02:00 COPY /opt/node /opt/node # buildkit
+12 b6aef8e1ebec 2026-10-14T07:33:53.709594271+02:00 COPY /opt/gh /opt/gh # buildkit
+13 b261fdcefcf1 2026-10-14T07:33:53.922766815+02:00 COPY recipe/smoke.py recipe/sources.lock.json /opt/ci-image/ # buildkit
+14 3fc69b2d73d8 2026-10-14T07:33:54.062400075+02:00 WORKDIR /work

@@ -1,0 +1,28 @@
+2026-10-14T07:59:53+02:00|0B|CMD ["bash"]
+2026-10-14T07:59:53+02:00|8.19kB|WORKDIR /work
+2026-10-14T07:59:53+02:00|418kB|COPY recipe/smoke.py recipe/sources.lock.json /opt/ci-image/ # buildkit
+2026-10-14T07:59:52+02:00|0B|ENV SBT_OPTS=-Dsbt.boot.directory=/opt/sbt-cache/boot -Dsbt.global.base=/opt/sbt-cache/global -Dsbt.ivy.home=/opt/sbt-cache/ivy -Dsbt.override.build.repos=true -Dsbt.repository.config=/opt/sbt/repositories
+2026-10-14T07:59:52+02:00|0B|ENV COURSIER_CACHE=/opt/sbt-cache/coursier
+2026-10-14T07:59:52+02:00|0B|ENV VERILATOR_JOBS=2
+2026-10-14T07:59:52+02:00|0B|ENV TSN_GEN_ROOT=/opt/tsn-gen
+2026-10-14T07:59:52+02:00|0B|ENV MILAN_RV32_CC=/opt/rv32-sdk/bin/riscv32-linux-gcc
+2026-10-14T07:59:52+02:00|0B|ENV PATH=/opt/node/bin:/opt/gh/bin:/opt/python/bin:/opt/verilator/bin:/opt/yosys/bin:/opt/rv32-sdk/bin:/opt/sv2v/bin:/opt/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+2026-10-14T07:59:52+02:00|43.1MB|COPY /opt/gh /opt/gh # buildkit
+2026-10-14T07:59:52+02:00|213MB|COPY /opt/node /opt/node # buildkit
+2026-10-14T07:59:49+02:00|101MB|COPY /opt/tsn-gen /opt/tsn-gen # buildkit
+2026-10-14T07:59:48+02:00|200MB|COPY /opt/sbt-cache /opt/sbt-cache # buildkit
+2026-10-14T07:59:46+02:00|161MB|COPY /opt/sbt /opt/sbt # buildkit
+2026-10-14T07:59:45+02:00|10.3MB|COPY /opt/sv2v /opt/sv2v # buildkit
+2026-10-14T07:59:45+02:00|544MB|COPY /opt/rv32-sdk /opt/rv32-sdk # buildkit
+2026-10-14T07:59:40+02:00|60.1MB|COPY /opt/yosys /opt/yosys # buildkit
+2026-10-14T07:56:34+02:00|129MB|COPY /opt/verilator /opt/verilator # buildkit
+2026-10-14T07:54:33+02:00|122MB|COPY /opt/python /opt/python # buildkit
+2026-10-14T07:54:11+02:00|7.57MB|RUN /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     rm -rf /var/lib/apt/lists/* /var/cache/apt/* # buildkit
+2026-10-14T07:54:08+02:00|0B|ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+2026-10-14T07:54:08+02:00|1.18GB|RUN /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     rm -rf /var/lib/apt/lists/* /var/cache/apt/* # buildkit
+2026-10-14T07:54:08+02:00|0B|ENV DEBIAN_FRONTEND=noninteractive
+2026-09-11T13:44:06+02:00|0B|/bin/sh -c #(nop)  CMD ["/bin/bash"]
+2026-09-11T13:44:06+02:00|87.6MB|/bin/sh -c #(nop) ADD file:43d479b270bbaf47965cfc86b37f4c517bda83ddefda6f708f98c3b2b7d15396 in / 
+2026-09-11T13:44:03+02:00|0B|/bin/sh -c #(nop)  LABEL org.opencontainers.image.version=24.04
+2026-09-11T13:44:03+02:00|0B|/bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH
+2026-09-11T13:44:03+02:00|0B|/bin/sh -c #(nop)  ARG RELEASE

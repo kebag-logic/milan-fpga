@@ -1,0 +1,45 @@
+VexiiRiscv pin (read from LiteX): 235753e24f2d960e49a0852205bae1400bf22c19 on dev of https://github.com/SpinalHDL/VexiiRiscv.git
+target: /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+--check: nothing done
+check_rc=0
+VexiiRiscv pin (read from LiteX): 235753e24f2d960e49a0852205bae1400bf22c19 on dev of https://github.com/SpinalHDL/VexiiRiscv.git
+target: /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+fatal: destination path '/opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv' already exists and is not an empty directory.
+Traceback (most recent call last):
+  File "/repo/scripts/ci_litex_env.py", line 115, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/repo/scripts/ci_litex_env.py", line 101, in main
+    _run(["git", "clone", "--filter=blob:none", "--no-checkout",
+  File "/repo/scripts/ci_litex_env.py", line 71, in _run
+    subprocess.run(cmd, cwd=cwd, check=True)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', 'clone', '--filter=blob:none', '--no-checkout', 'https://github.com/SpinalHDL/VexiiRiscv.git', '/opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv']' returned non-zero exit status 128.
+place_rc=1
+.
+..
+.github
+.gitignore
+.gitmodules
+.jvmopts
+.mill-version
+LICENSE
+README.md
+build.mill
+build.sbt
+doc
+docker
+ext
+project
+run_docker.sh
+src
+NaxSoftware
+SpinalHDL
+package.mill
+riscv-isa-sim
+rvls
+NaxSoftware: 0 entries
+riscv-isa-sim: 0 entries
+SpinalHDL: 27 entries
+rvls: 7 entries

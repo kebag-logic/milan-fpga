@@ -1,0 +1,77 @@
+[
+    {
+        "Id": "sha256:81b035e829a0725f1e5635c9760d3cb22e2d99988b100c5bb5dc68ea1de275ab",
+        "RepoTags": [
+            "r638-fpga-validation-nocache:aa3be31ce1924fac59d15ba2992f96561c5d8fb4c307c34b28568eae95b1a5fe",
+            "r638-fpga-validation-nocache:aa3be31ce1924fac59d15ba2992f96561c5d8fb4c307c34b28568eae95b1a5fe-validation-tools"
+        ],
+        "RepoDigests": [
+            "r638-fpga-validation-nocache@sha256:81b035e829a0725f1e5635c9760d3cb22e2d99988b100c5bb5dc68ea1de275ab"
+        ],
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2026-10-14T07:59:53.147013859+02:00",
+        "Config": {
+            "Env": [
+                "PATH=/opt/node/bin:/opt/gh/bin:/opt/python/bin:/opt/verilator/bin:/opt/yosys/bin:/opt/rv32-sdk/bin:/opt/sv2v/bin:/opt/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "DEBIAN_FRONTEND=noninteractive",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "MILAN_RV32_CC=/opt/rv32-sdk/bin/riscv32-linux-gcc",
+                "TSN_GEN_ROOT=/opt/tsn-gen",
+                "VERILATOR_JOBS=2",
+                "COURSIER_CACHE=/opt/sbt-cache/coursier",
+                "SBT_OPTS=-Dsbt.boot.directory=/opt/sbt-cache/boot -Dsbt.global.base=/opt/sbt-cache/global -Dsbt.ivy.home=/opt/sbt-cache/ivy -Dsbt.override.build.repos=true -Dsbt.repository.config=/opt/sbt/repositories"
+            ],
+            "Cmd": [
+                "bash"
+            ],
+            "WorkingDir": "/work",
+            "Labels": {
+                "org.opencontainers.image.version": "24.04"
+            },
+            "ArgsEscaped": true
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 3989549585,
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:65e5d715ea720349e6475f91651a0956279fc295a45fd73aa04f1cec046281a1",
+                "sha256:4a99f639a05f2aa83152d676694eb295f1a547930ce8e62af978098b604bf9fe",
+                "sha256:0ad885240bca487c8bf6abc3d5a1def9781cd9adc4d9f75cde01dd9ce23b28f4",
+                "sha256:4a17081bfce7bdfb32961415c9cce130567f2cf0205c34236d3afb940aada485",
+                "sha256:c941590773479072145352a66892f4db9a22e0da9b582e25f21cf6731287df3d",
+                "sha256:dadb1796a8aeaede4ba13a40a184c7dcbc83eee551836070fe66316e2f5a562e",
+                "sha256:aa245e9bfebeeddbeb1caa720fda968ca7848e3a2d45c9cd978888c66d12f372",
+                "sha256:9ff661cbe9eb23e852df53e7e9d523af182ebaef00dff4ce95a26fefcfa26d57",
+                "sha256:911ae2a48ea4ef005afa90eb283d831c5048ac8439deb4b45efb5285e59ba0f7",
+                "sha256:a61a936fd520023d98ee49f8d106c875279d59a6768d6aa3be457a3383ba04da",
+                "sha256:252d4657ebe4ea24b08ffbd03e13c50f1d65b1621c746f88566895a02dd97c1b",
+                "sha256:e41e45fb6b15bc32d1baed4246fc924e9661d84d41c5db4aa2cf009eaba5e129",
+                "sha256:63063c05976a9a6d3fa0a4147fc4d8ba50f48c88da6f96d89681e49120c86c2a",
+                "sha256:e3fe53fc83d846bed5a0450dede94af1da92295addf5f383e366af11e4e36ce4",
+                "sha256:c486c3b4b208c37bb9e935052395f6343d812901e8f961b79dfc8a3d91466f0f"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2026-10-14T06:00:36.774970838Z"
+        },
+        "Descriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:81b035e829a0725f1e5635c9760d3cb22e2d99988b100c5bb5dc68ea1de275ab",
+            "size": 3176,
+            "annotations": {
+                "config.digest": "sha256:6b3a690f1695b4207abe167fec839373ada802f5f2eabc723a065b6295156f9e"
+            }
+        },
+        "Identity": {
+            "Build": [
+                {
+                    "Ref": "lb10tgd0p2pubopqu7gh0bv7v",
+                    "CreatedAt": "2026-10-14T08:00:33.104899205+02:00"
+                }
+            ]
+        }
+    }
+]

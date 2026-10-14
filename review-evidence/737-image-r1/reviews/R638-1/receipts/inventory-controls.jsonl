@@ -1,0 +1,18 @@
+{"kind": "BASELINE", "message": "CI tool inventory matches workflow installation requests", "name": "pristine exact head", "rc": 0, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "added apt tool", "rc": 2, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "removed tool leaves orphan entry", "rc": 2, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "changed pip pin", "rc": 2, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "changed archive sha", "rc": 2, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "changed Verilator env pin", "rc": 2, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "changed requirement hash", "rc": 2, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "changed LiteX git pin", "rc": 2, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: scripts/check_doc_paths.py: script installation needs an explicit pin reader: ['pip', 'install', 'x']", "name": "install in called Python script", "rc": 2, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: scripts/run_litex_sims.sh: shell installation needs an explicit pin reader", "name": "install in called shell script", "rc": 2, "verdict": "PASS"}
+{"kind": "REFUSE", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "orphan inventory entry", "rc": 2, "verdict": "PASS"}
+{"kind": "GAP", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "shell-string subprocess install in called script", "rc": 2, "verdict": "NOTICED"}
+{"kind": "GAP", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "os.system install in called script", "rc": 2, "verdict": "NOTICED"}
+{"kind": "GAP", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "pipx install in workflow run", "rc": 2, "verdict": "NOTICED"}
+{"kind": "GAP", "message": "CI tool inventory matches workflow installation requests", "name": "Makefile recipe install under a workflow-run suite", "rc": 0, "verdict": "MISSED"}
+{"after_write_tools_named_java": [], "kind": "GAP", "message": "REFUSED: tool inventory differs from workflow installation requests", "name": "setup-java action version", "rc": 2, "validate_pins_after_write": "validate_pins accepted", "verdict": "NOTICED"}
+ALL REFUSE CONTROLS PASS
+rc=0

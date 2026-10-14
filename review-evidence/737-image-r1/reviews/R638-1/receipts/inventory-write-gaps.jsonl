@@ -1,0 +1,7 @@
+{"probe": "list subprocess pip install (supported form)", "verdict": "REFUSED", "write_message": "REFUSED: scripts/check_doc_paths.py: script installation needs an explicit pin reader: ['pip', 'install', 'probe-tool']", "write_rc": 2}
+{"check_rc_after_write": 0, "probe": "shell-string subprocess pip install", "recorded": [], "validate_pins": "validate_pins accepted", "verdict": "SILENTLY OMITTED", "write_message": "CI tool inventory matches workflow installation requests", "write_rc": 0}
+{"check_rc_after_write": 0, "probe": "os.system apt-get install", "recorded": [], "validate_pins": "validate_pins accepted", "verdict": "SILENTLY OMITTED", "write_message": "CI tool inventory matches workflow installation requests", "write_rc": 0}
+{"check_rc_after_write": 0, "probe": "pipx install in workflow run", "recorded": [], "validate_pins": "validate_pins accepted", "verdict": "SILENTLY OMITTED", "write_message": "CI tool inventory matches workflow installation requests", "write_rc": 0}
+{"check_rc_after_write": 0, "probe": "Makefile recipe install in a suite run by a workflow", "recorded": [], "validate_pins": "validate_pins accepted", "verdict": "SILENTLY OMITTED", "write_message": "CI tool inventory matches workflow installation requests", "write_rc": 0}
+{"check_rc_after_write": 0, "probe": "setup-java action with a version", "recorded": [], "validate_pins": "validate_pins accepted", "verdict": "SILENTLY OMITTED", "write_message": "CI tool inventory matches workflow installation requests", "write_rc": 0}
+rc=0
