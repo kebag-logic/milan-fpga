@@ -111,6 +111,11 @@ Typed HDL operands accept data paths, never command options.
 Source-list contents remain owned by their reached recipes.
 
 Environment-changing forms require exact source-bound syntax declarations.
+Directory search and interpreter startup variables are refused unless censused.
+Make startup files and flag overrides have the same boundary.
+The allocator's existing `LD_PRELOAD` assignments and unsets are censused exactly.
+Assignments retain their shell scope and expose loader selection as runtime residue.
+That residue does not establish which shared library a runtime path loads.
 These cover existing path additions and environment-file writes.
 The same boundary limits input-reading builtins and `xargs`.
 Literal inline text requires its complete program digest.

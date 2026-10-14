@@ -11,7 +11,12 @@ import re
 from ci_command_table import Refusal
 
 
-SENSITIVE = {'PATH', 'IFS', 'BASH_ENV', 'ENV', 'SHELL', 'MAKEFLAGS', 'MAKE', '.SHELLFLAGS'}
+SENSITIVE = {
+    'PATH', 'IFS', 'CDPATH', 'BASH_ENV', 'ENV', 'BASHOPTS', 'SHELLOPTS', 'BASH_CMDS',
+    'PYTHONPATH', 'PYTHONHOME', 'LD_PRELOAD', 'LD_LIBRARY_PATH',
+    'SHELL', 'MAKEFLAGS', 'GNUMAKEFLAGS', 'MAKEFILES', 'MAKEOVERRIDES', 'MAKE',
+    '.SHELLFLAGS', '.RECIPEPREFIX',
+}
 
 
 def semantic_node(value: object) -> object:

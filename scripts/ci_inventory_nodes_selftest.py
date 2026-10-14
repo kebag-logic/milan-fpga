@@ -146,13 +146,35 @@ def python_controls(fixture: Fixture) -> None:
     fixture.check('new Python node kind', 'uncensused Python node')
 
 
+def startup_controls(fixture: Fixture) -> None:
+    """Uncensused directory, startup and loader variables cannot choose hidden code."""
+    fixture.file('sub/bootstrap.sh', 'echo okay\n')
+    fixture.file('alternate/sub/bootstrap.sh', 'brand_new_command\n')
+    fixture.run('CDPATH=alternate; cd sub; bash bootstrap.sh')
+    fixture.check('uncensused CDPATH search', 'uncensused shell assignment')
+    for name in ('BASHOPTS', 'SHELLOPTS', 'BASH_CMDS', 'PYTHONPATH', 'PYTHONHOME',
+                 'LD_PRELOAD', 'LD_LIBRARY_PATH'):
+        fixture.run(name + '=alternate; echo okay')
+        fixture.check('uncensused startup variable ' + name, 'uncensused shell assignment')
+    fixture.file('Makefile', 'TOOL ?= echo\nall: ; $(TOOL) okay\n')
+    fixture.file('hidden.mk', 'TOOL = brand_new_command\n')
+    fixture.run('MAKEFILES=hidden.mk make')
+    fixture.check('uncensused implicit Make input', 'uncensused shell assignment')
+    fixture.run('unset LD_PRELOAD; echo okay')
+    fixture.check('uncensused loader unset', 'uncensused shell unset')
+    for name in ('GNUMAKEFLAGS', 'MAKEFILES', 'MAKEOVERRIDES', '.RECIPEPREFIX'):
+        fixture.run('make')
+        fixture.file('Makefile', name + ' := alternate\nall: ; echo okay\n')
+        fixture.check('uncensused Make startup variable ' + name, 'uncensused Make assignment')
+
+
 def main() -> int:
     """Run the structural controls without executing candidate commands."""
     data_controls()
     for root in (Path('/src'), Path('/include')):
         value = str(root) + '/third_party/library' + str(root) + '/unit.c'
         assert normalize(value, root) == '${CHECKOUT}/third_party/library' + str(root) + '/unit.c'
-    for controls in (shell_controls, alternative_controls, make_controls, python_controls):
+    for controls in (shell_controls, alternative_controls, make_controls, python_controls, startup_controls):
         with tempfile.TemporaryDirectory(prefix='ci-nodes-') as directory:
             controls(Fixture(Path(directory)))
     return 0

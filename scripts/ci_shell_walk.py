@@ -94,6 +94,8 @@ class Shell:
                     joined = previous + value
                     value = Runtime(joined) if isinstance(previous, Runtime) or isinstance(value, Runtime) else joined
                 self.env[name] = value
+                if name == 'LD_PRELOAD':
+                    self.audit.residue.add(f'{self.location(assignment)}: declared runtime loader selection')
             elif assignment.get('Array'):
                 for item in assignment['Array'].get('Elems', []):
                     if item.get('Value'):
@@ -300,7 +302,7 @@ class Shell:
             raise Refusal(f'uncensused printf -v at {where}')
         elif args[0] == 'unset':
             if any(name in SENSITIVE for name in args[1:]):
-                raise Refusal(f'uncensused special-variable unset at {where}')
+                exact_use(self.audit, node, self.where, 'unset')
             for name in args[1:]:
                 if not re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*', name):
                     raise Refusal(f'uncensused unset operand at {where}')
