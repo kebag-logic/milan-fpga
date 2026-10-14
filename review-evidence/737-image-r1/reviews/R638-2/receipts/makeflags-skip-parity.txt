@@ -1,0 +1,16 @@
+# Hosted docs-check at live dev fa8209889411e8ca95757174c981f720dbcd95a2: run 38516575606, job 115696619496 (conclusion success)
+2026-10-14T05:25:44.8631688Z Version: 20261002.596
+2026-10-14T05:25:44.8641882Z Image: ubuntu-24.04
+2026-10-14T05:25:44.8642519Z Version: 20261004.327.1
+1110:docs-check	2026-10-14T05:34:23.9696544Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is
+1130:docs-check	2026-10-14T05:34:23.9733074Z   [gate 1b] TEXT RULES ONLY, AND WEAKER (no candidate here is the RV32 target, so the -E comparison, the -H measurement and the resolved store census stood down, and what the retired text rules used to refuse -- a t
+1152:docs-check	2026-10-14T05:34:24.4817290Z NOT RUN [gate 1b]: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool i
+1215:docs-check	2026-10-14T05:49:38.9890328Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is
+1223:docs-check	2026-10-14T05:49:38.9918076Z   [gate 1b] TEXT RULES + INSTRUMENTS (an RV32-target compiler answered, so the -E comparison, the -H resolution measurement and the resolved store census graded, and they carry the text rules #408 and #409 retired):
+1635:docs-check	2026-10-14T05:52:19.9359970Z   - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is mis
+# Image (manifest sha256:8cc05a5c...) make and the same probe as test_builder.py make_honours_makeflags_e():
+good.o
+make	4.3-4.1build2
+# Image lock make package:
+['make=4.3-4.1build2']
+# Interpretation: hosted ubuntu-24.04 (20261004.327.1) takes the identical gate-1b NOT RUN skip; image make is Ubuntu noble make 4.3-4.1build2 and the probe prints good.o (construct inert), so the image skip is the same skip, not a coverage loss.

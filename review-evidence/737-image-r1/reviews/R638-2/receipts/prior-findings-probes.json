@@ -1,0 +1,65 @@
+{
+ "inventory": {
+  "R638-1-F3 setup-java": {
+   "write_rc": 2,
+   "err": "REFUSED: unsupported action installation surface: actions/setup-java@v4",
+   "outcome": "REFUSED"
+  },
+  "R638-1-F3 pipx": {
+   "write_rc": 2,
+   "err": "REFUSED: unsupported installation command: pipx install plantedtool==1.0",
+   "outcome": "REFUSED"
+  },
+  "R638-1-F3 Makefile pip": {
+   "write_rc": 2,
+   "err": "REFUSED: tb/verilator/planted/Makefile: Makefile installation needs an explicit pin reader",
+   "outcome": "REFUSED"
+  },
+  "R638-1-F3 shell=True string": {
+   "write_rc": 2,
+   "err": "REFUSED: scripts/planted_boot.py: installation string needs an explicit pin reader",
+   "outcome": "REFUSED"
+  },
+  "R638-1-F3 os.system": {
+   "write_rc": 2,
+   "err": "REFUSED: scripts/planted_boot.py: installation string needs an explicit pin reader",
+   "outcome": "REFUSED"
+  },
+  "R639-1-F2 command variable": {
+   "write_rc": 2,
+   "err": "REFUSED: scripts/planted_boot.py: script installation needs an explicit pin reader: ['pip', 'install', 'plantedtool==1.0']",
+   "outcome": "REFUSED"
+  },
+  "R639-1-F2 shell string python -m pip": {
+   "write_rc": 2,
+   "err": "REFUSED: scripts/planted_boot.py: installation string needs an explicit pin reader",
+   "outcome": "REFUSED"
+  }
+ },
+ "lock": {
+  "empty layers": {
+   "rc": 2,
+   "msg": "REFUSED: image lock layer population differs from recipe"
+  },
+  "invalid layer tool version": {
+   "rc": 2,
+   "msg": "REFUSED: image lock layer recipe mismatch: verilator"
+  },
+  "all-zero image digest": {
+   "rc": 2,
+   "msg": "REFUSED: malformed image identity"
+  },
+  "different platform": {
+   "rc": 2,
+   "msg": "REFUSED: image lock platform or base differs from source pins"
+  },
+  "ubuntu:latest base": {
+   "rc": 2,
+   "msg": "REFUSED: image lock platform or base differs from source pins"
+  },
+  "clean (control)": {
+   "rc": 0,
+   "msg": "PASS: complete recipe consistency; image identity UNVERIFIED without --verify-archive"
+  }
+ }
+}

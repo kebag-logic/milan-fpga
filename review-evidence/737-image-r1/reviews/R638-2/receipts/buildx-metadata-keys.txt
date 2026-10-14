@@ -1,0 +1,9 @@
+# build.py --metadata-file keys with buildx v0.38.0 (latest release, published 2026-10-07)
+full image rebuild metadata keys: ['buildx.build.provenance', 'buildx.build.ref', 'cache.manifest', 'containerimage.descriptor', 'containerimage.digest', 'image.name']
+fresh tiny-image probe metadata keys: ['buildx.build.provenance', 'buildx.build.ref', 'containerimage.descriptor', 'containerimage.digest', 'image.name']
+author cold-build metadata keys (public evidence candidate-a): ['buildx.build.provenance', 'buildx.build.ref', 'cache.manifest', 'containerimage.config.digest', 'containerimage.descriptor', 'containerimage.digest', 'image.name']
+build.py tail:
+  File "<clone>/ci/image/build.py", line 316, in build
+    receipt = {"recipe_sha256": recipe, "stage": args.stage, "image_id": produced["containerimage.config.digest"],
+                                                                         ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'containerimage.config.digest'

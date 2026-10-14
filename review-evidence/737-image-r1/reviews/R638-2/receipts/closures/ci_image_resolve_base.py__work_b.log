@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/repo/ci/image/resolve_base.py", line 51, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/repo/ci/image/resolve_base.py", line 45, in main
+    path.write_text(json.dumps(pins, sort_keys=True, indent=2) + "\n")
+  File "/usr/lib/python3.12/pathlib.py", line 1049, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/repo/ci/image/sources.lock.json'

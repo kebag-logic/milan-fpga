@@ -1,0 +1,8 @@
+rc=0 4s python3 scripts/ci_tool_inventory.py --check
+rc=0 0s python3 scripts/ci_tool_inventory_selftest.py
+rc=0 1s python3 ci/image/build_selftest.py
+rc=0 0s python3 ci/image/integrity_selftest.py
+rc=0 0s python3 ci/image/privacy_selftest.py
+rc=1 0s python3 ci/image/privacy_patch_selftest.py
+rc=0 21s python3 scripts/check_baremetal_only.py --check
+rc=0 7s python3 scripts/check_baremetal_only.py --selftest

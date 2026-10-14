@@ -1,0 +1,19 @@
+# Reviewer cold rebuild at head 18f2df92 (recipe a6fd01e6...), same host, buildx v0.38.0 (checksum-verified, private client config), daemon BuildKit as reported by buildx ls: v0.0.0+unknown
+start_utc 2026-10-14T11:45:44Z
+build.py exit: rc=1 (crash after build: see buildx-metadata-keys.txt)
+wall: real 6m22.375s (from the invoking shell)
+CACHED lines in BuildKit log: 1 (the only one is the base image resolve step):
+15-#4 resolve docker.io/library/ubuntu@sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3 0.0s done
+16:#4 CACHED
+Export lines:
+  #29 exporting manifest sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19 done
+  #29 exporting config sha256:1eac3b02d4109a09c63bbf68893a2695c6380f1ce6d444168a3828c9a83e0b9b done
+  #29 naming to docker.io/library/r638-2-rebuild:a6fd01e6bf2ced24f6a68a33c899199dfda2eb46fe4a0def569542d5c5240b7f-validation-tools done
+Lock image_digest: sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19
+Lock image_id:     sha256:1eac3b02d4109a09c63bbf68893a2695c6380f1ce6d444168a3828c9a83e0b9b
+Longest stages (BuildKit DONE seconds):
+  #17 DONE 49.1s
+  #16 DONE 49.6s
+  #9 DONE 131.9s
+  #7 DONE 143.8s
+  #14 DONE 283.3s

@@ -1,0 +1,776 @@
+{
+ "image_manifest": "sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19",
+ "scans": [
+  {
+   "needles": [
+    {
+     "label": "generic /home/ path",
+     "content_files": 341,
+     "metadata_entries": 0,
+     "layers": [
+      0,
+      1,
+      3,
+      4,
+      7,
+      9,
+      11,
+      12
+     ]
+    },
+    {
+     "label": "generic /srv/ path",
+     "content_files": 2,
+     "metadata_entries": 0,
+     "layers": [
+      1
+     ]
+    },
+    {
+     "label": "generic /data/ path",
+     "content_files": 250,
+     "metadata_entries": 15,
+     "layers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      7,
+      8,
+      11
+     ]
+    },
+    {
+     "label": "build-host review-slot path component",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "build-host management path component",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "build-host name (a generic distribution word)",
+     "content_files": 3,
+     "metadata_entries": 0,
+     "layers": [
+      1,
+      4
+     ]
+    },
+    {
+     "label": "builder account as path component",
+     "content_files": 5,
+     "metadata_entries": 0,
+     "layers": [
+      1,
+      9
+     ]
+    },
+    {
+     "label": "builder account as mail local part",
+     "content_files": 17,
+     "metadata_entries": 0,
+     "layers": [
+      0,
+      1,
+      11
+     ]
+    },
+    {
+     "label": "author identity",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "manager identity",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "registry owner identity",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "owner-associated identifier (not published)",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "GitHub token prefix",
+     "content_files": 5,
+     "metadata_entries": 0,
+     "layers": [
+      9,
+      12
+     ]
+    },
+    {
+     "label": "GitHub fine-grained token prefix",
+     "content_files": 1,
+     "metadata_entries": 0,
+     "layers": [
+      12
+     ]
+    },
+    {
+     "label": "build-host lane scratch path",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "author lane directory",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "generic /root/ path",
+     "content_files": 14,
+     "metadata_entries": 0,
+     "layers": [
+      0,
+      1,
+      3,
+      4,
+      11,
+      12
+     ]
+    },
+    {
+     "label": "word buildkit",
+     "content_files": 7,
+     "metadata_entries": 0,
+     "layers": [
+      1,
+      11
+     ]
+    },
+    {
+     "label": "project organisation word",
+     "content_files": 3,
+     "metadata_entries": 0,
+     "layers": [
+      1,
+      11,
+      13
+     ]
+    },
+    {
+     "label": "author mail domain",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "generic /users/ path",
+     "content_files": 25,
+     "metadata_entries": 0,
+     "layers": [
+      0,
+      1,
+      3,
+      6,
+      7,
+      9,
+      11,
+      12
+     ]
+    },
+    {
+     "label": "RSA private key header",
+     "content_files": 2,
+     "metadata_entries": 0,
+     "layers": [
+      0,
+      1
+     ]
+    },
+    {
+     "label": "OpenSSH private key header",
+     "content_files": 1,
+     "metadata_entries": 0,
+     "layers": [
+      1
+     ]
+    }
+   ],
+   "config_needle_hits": [
+    "word buildkit"
+   ]
+  },
+  {
+   "needles": [
+    {
+     "label": "build-host data path",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "build-host review-slot path",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "builder home path",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "build-host lane scratch path",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "repository name",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "generic /mnt/ path",
+     "content_files": 7,
+     "metadata_entries": 0,
+     "layers": [
+      0,
+      1,
+      3,
+      11
+     ]
+    },
+    {
+     "label": "generic /media/ path",
+     "content_files": 204,
+     "metadata_entries": 0,
+     "layers": [
+      0,
+      1,
+      4,
+      6,
+      7
+     ]
+    },
+    {
+     "label": "agent configuration directory",
+     "content_files": 3,
+     "metadata_entries": 0,
+     "layers": [
+      12
+     ]
+    },
+    {
+     "label": "generic /run/user path",
+     "content_files": 4,
+     "metadata_entries": 0,
+     "layers": [
+      3,
+      12
+     ]
+    },
+    {
+     "label": "builder account assignment",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "builder passwd entry",
+     "content_files": 0,
+     "metadata_entries": 0,
+     "layers": []
+    },
+    {
+     "label": "builder account as a word",
+     "content_files": 293,
+     "metadata_entries": 0,
+     "layers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      7,
+      8,
+      9,
+      11,
+      12
+     ]
+    }
+   ],
+   "config_needle_hits": []
+  }
+ ],
+ "layers": [
+  {
+   "index": 0,
+   "digest": "sha256:edd1ed89f0d443580bd42e5a10cd8736aba5a3438b2a0645c2ebb50119bb0eba",
+   "uid_gid": [
+    [
+     0,
+     0
+    ],
+    [
+     0,
+     8
+    ],
+    [
+     0,
+     42
+    ],
+    [
+     0,
+     43
+    ],
+    [
+     0,
+     50
+    ],
+    [
+     42,
+     0
+    ],
+    [
+     1000,
+     1000
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1518274556,
+   "max_mtime": 1789092629,
+   "regular_files": 2585
+  },
+  {
+   "index": 1,
+   "digest": "sha256:d0069157b863d07eea5fcbfc9ee66b570e10d1aa60777775c3563783966b9737",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 0,
+   "max_mtime": 1791940308,
+   "regular_files": 15004
+  },
+  {
+   "index": 2,
+   "digest": "sha256:24553cea3585e22b395adf775b099eb7aaa2d9454c7781aa55a4b3b1e139fb6a",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 272
+  },
+  {
+   "index": 3,
+   "digest": "sha256:ccf8dd6ad48dc2ccc0aed6480859bd2ecb65398fcb5176854aa543f4c2665a41",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 1639
+  },
+  {
+   "index": 4,
+   "digest": "sha256:72443935f2aac03c176be8c487114571e1c8451482d08014f4c2a94af8ec1768",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 6074
+  },
+  {
+   "index": 5,
+   "digest": "sha256:221d9dbcae4a620737a7865b08d0225f19123404e1dc6f3f6fad718fa6bf54e3",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 127
+  },
+  {
+   "index": 6,
+   "digest": "sha256:abf98b1fd75417049213b62d411bed952b862cebf602f150974c40f3235f5157",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 340
+  },
+  {
+   "index": 7,
+   "digest": "sha256:5f5a5c47cb0db16a41ad0cc057d2383ef989a28172da4e8c7a8a502ea3ab5d3c",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 4908
+  },
+  {
+   "index": 8,
+   "digest": "sha256:dca2e7a4352a8f069098b0e72ba771f4f6f19124795f8c9cbfd2d1c989513536",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 1
+  },
+  {
+   "index": 9,
+   "digest": "sha256:2ea388efe8d5ebebc23b60672941b852b518d7e6622e087bbcb3d73b9000fea1",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 1792
+  },
+  {
+   "index": 10,
+   "digest": "sha256:4f577b318f2252bfd426276bca8e1ab971fb03b925b67f032e11e7029bff511d",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 38
+  },
+  {
+   "index": 11,
+   "digest": "sha256:a1272fb2b0690eaa802dc72c4a6961f166289812dac259f681b77a39db20b28c",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 4750
+  },
+  {
+   "index": 12,
+   "digest": "sha256:083772e48637c9b6c20d769084fd37b53775ad80a051c6963fc6ce61ef60c24e",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 231
+  },
+  {
+   "index": 13,
+   "digest": "sha256:099f3eebdbfde4ae22ef31aeaa95263e4107c9e67659feb6ed2b958c70c58faa",
+   "uid_gid": [
+    [
+     0,
+     0
+    ]
+   ],
+   "uname_gname": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "min_mtime": 1791940308,
+   "max_mtime": 1791940308,
+   "regular_files": 2
+  }
+ ],
+ "config": {
+  "Env": [
+   "PATH=/opt/node/bin:/opt/gh/bin:/opt/python/bin:/opt/verilator/bin:/opt/yosys/bin:/opt/rv32-sdk/bin:/opt/sv2v/bin:/opt/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+   "DEBIAN_FRONTEND=noninteractive",
+   "LANG=C.UTF-8",
+   "LC_ALL=C.UTF-8",
+   "MILAN_RV32_CC=/opt/rv32-sdk/bin/riscv32-linux-gcc",
+   "TSN_GEN_ROOT=/opt/tsn-gen",
+   "COURSIER_CACHE=/opt/sbt/cache/coursier",
+   "SBT_OPTS=-Dsbt.boot.directory=/opt/sbt/cache/boot -Dsbt.global.base=/opt/sbt/cache/global -Dsbt.ivy.home=/opt/sbt/cache/ivy -Dsbt.override.build.repos=true -Dsbt.repository.config=/opt/sbt/repositories"
+  ],
+  "Labels": {
+   "org.opencontainers.image.version": "24.04"
+  },
+  "User": null,
+  "WorkingDir": null,
+  "Cmd": [
+   "bash"
+  ],
+  "Entrypoint": null,
+  "history": [
+   {
+    "created": "2026-09-11T11:44:03.605540158Z",
+    "created_by": "/bin/sh -c #(nop)  ARG RELEASE",
+    "empty_layer": true
+   },
+   {
+    "created": "2026-09-11T11:44:03.646010328Z",
+    "created_by": "/bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH",
+    "empty_layer": true
+   },
+   {
+    "created": "2026-09-11T11:44:03.67741558Z",
+    "created_by": "/bin/sh -c #(nop)  LABEL org.opencontainers.image.version=24.04",
+    "empty_layer": true
+   },
+   {
+    "created": "2026-09-11T11:44:06.020434349Z",
+    "created_by": "/bin/sh -c #(nop) ADD file:43d479b270bbaf47965cfc86b37f4c517bda83ddefda6f708f98c3b2b7d15396 in / "
+   },
+   {
+    "created": "2026-09-11T11:44:06.579973371Z",
+    "created_by": "/bin/sh -c #(nop)  CMD [\"/bin/bash\"]",
+    "empty_layer": true
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ARG SOURCE_DATE_EPOCH=1791940308",
+    "empty_layer": true
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV DEBIAN_FRONTEND=noninteractive",
+    "empty_layer": true
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "RUN |1 SOURCE_DATE_EPOCH=1791940308 /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     python3 /recipe/normalize.py system # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV LANG=C.UTF-8 LC_ALL=C.UTF-8",
+    "empty_layer": true
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "RUN |1 SOURCE_DATE_EPOCH=1791940308 /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     python3 /recipe/normalize.py system # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY --chown=0:0 /opt/python /opt/python # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY --chown=0:0 /opt/litex /opt/python # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/verilator /opt/verilator # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/yosys /opt/yosys # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/rv32-sdk /opt/rv32-sdk # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/sv2v /opt/sv2v # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/sbt /opt/sbt # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/tsn-gen /opt/tsn-gen # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/node /opt/node # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY /opt/gh /opt/gh # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV PATH=/opt/node/bin:/opt/gh/bin:/opt/python/bin:/opt/verilator/bin:/opt/yosys/bin:/opt/rv32-sdk/bin:/opt/sv2v/bin:/opt/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "empty_layer": true
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV MILAN_RV32_CC=/opt/rv32-sdk/bin/riscv32-linux-gcc",
+    "empty_layer": true
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV TSN_GEN_ROOT=/opt/tsn-gen",
+    "empty_layer": true
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV COURSIER_CACHE=/opt/sbt/cache/coursier",
+    "empty_layer": true
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "ENV SBT_OPTS=-Dsbt.boot.directory=/opt/sbt/cache/boot -Dsbt.global.base=/opt/sbt/cache/global -Dsbt.ivy.home=/opt/sbt/cache/ivy -Dsbt.override.build.repos=true -Dsbt.repository.config=/opt/sbt/repositories",
+    "empty_layer": true
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "COPY recipe/smoke.py recipe/sources.lock.json /opt/ci-image/ # buildkit"
+   },
+   {
+    "comment": "buildkit.dockerfile.v0",
+    "created": "2026-10-14T01:11:48Z",
+    "created_by": "CMD [\"bash\"]",
+    "empty_layer": true
+   }
+  ]
+ },
+ "note": "Every content hit is in a file the recipe's own verifier allowed as byte-identical to a pinned public upstream member (verify.log, privacy-report.json), or carries no protected class under privacy.json. All build-host, author, manager, registry-owner and owner-associated needles have zero hits in contents, member metadata and config. Needle strings are not published."
+}

@@ -1,0 +1,9 @@
+--- no identity:
+rc=1
+--- env identity:
+PASS: unreproduced patched postimage refused
+PASS: uncommitted patch change refused
+PASS: identity on committed patch-added line refused
+PASS: changed pinned archive refused
+PASS: exact patched output, unchanged matches, added identity and input authentication
+rc=0

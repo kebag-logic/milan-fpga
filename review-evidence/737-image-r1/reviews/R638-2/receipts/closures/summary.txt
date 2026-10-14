@@ -1,0 +1,8 @@
+rc=0 2s python3 ci/image/resolve_packages.py --cache /work/context/debs
+PASS: 30 used roots resolve to 186 locked packages
+rc=1 1s python3 ci/image/resolve_git.py --cache /work/context
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno -3] Temporary failure in name resolution>
+rc=1 4s python3 ci/image/resolve_base.py /work/base-locked.tar
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '/repo/ci/image/sources.lock.json'

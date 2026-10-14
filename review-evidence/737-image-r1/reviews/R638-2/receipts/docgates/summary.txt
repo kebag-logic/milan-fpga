@@ -1,0 +1,8 @@
+rc=0 6s python3 scripts/docs_check.py
+rc=0 4s python3 scripts/check_em_dash.py --base fa7347fc59173f90e4feec2df207692e6e6e72ec
+rc=0 0s python3 scripts/check_doc_style.py
+rc=2 0s python3 scripts/check_python_idioms.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
