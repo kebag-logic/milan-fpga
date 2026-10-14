@@ -2345,7 +2345,9 @@ Resource bounds:
   Both execute the JVM with empty CPU metadata and cached dependencies.
   Every memory-event counter is zero. These are sequential container measurements.
 - Source builds use `CI_TOOL_BUILD_JOBS=min(available CPUs, 8)` independently
-  of simulation and campaign budgets. Sequential shipping-image measurements
+  of simulation and campaign budgets. The pinned field-oracle
+  build passes the same count to `cmake --build --parallel`; it is bounded but
+  not separately measured. Sequential shipping-image measurements
   run one eight-GiB container at a time with CPython 3.12.3 and GCC 13.3.0.
   Each bounded build returns zero with every memory-event counter zero.
 

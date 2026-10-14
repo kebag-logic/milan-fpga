@@ -558,7 +558,7 @@ ENV_FILE_WRITERS = {
         'git -C "$RUNNER_TEMP/tsn-gen" submodule update --init --depth 1 --recursive external/rapidyaml',
         'cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" '
         '-DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF',
-        'cmake --build "$RUNNER_TEMP/tsn-gen/build" --target packet_gen --parallel',
+        'cmake --build "$RUNNER_TEMP/tsn-gen/build" --target packet_gen --parallel "$CI_TOOL_BUILD_JOBS"',
         'test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"',
         'echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"',
     ),
