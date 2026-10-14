@@ -345,6 +345,7 @@ void srp_mbx_destroy(struct srp_mbx *m)
         for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
             revoked[k] = i->active[k];
             i->active[k] = false;
+            i->listener_present[k] = false;
         }
         (void)mbx_pub_licence(n,0u);
         for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
@@ -579,6 +580,8 @@ static void registrations(void *ctx, const struct mrp_attr_status *status)
         const uint8_t *v = status->attr_val;
         for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
             if (memcmp(i->sources[n].value.stream_id.bytes,v,8) == 0) {
+                // One value per StreamID; Ignore occupies no registrar (35.2.2.7.2).
+                i->listener_present[n] = true;
                 i->registered[n] = v[8] == 2 || v[8] == 3;
             }
         }
@@ -617,6 +620,7 @@ static void snapshot(struct srp_interface *i)
 {
     uint8_t previous[CTRL_SRP_SINKS];
     memset(i->registered,0,sizeof(i->registered));
+    memset(i->listener_present,0,sizeof(i->listener_present));
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         previous[k] = i->sinks[k].desired;
         i->sinks[k].desired = 0;

@@ -24,10 +24,14 @@
 #   make gmstep - run only the #387 GM step re-base leg. The sweep runs it,
 #                 and its acceptance controls, in ../milan_dp_gm_steps, which
 #                 also holds its whole control inventory (gmstep-mutants)
+#   make counters - #726 packet/reset/cadence checks at shipping and largest shapes
+#   make counters-f5 - the same windows through the firmware mailbox fixture
+#   make counters-mutants - named defects plus each check-omission escape
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0
+STACK_DIR ?= ../../../third_party/tsn-c-stack
 # Ordinary simulations only; never derived from the make jobserver.
 SIM_JOBS ?= 2
 RTL_DIR    = ../../../hdl
@@ -538,7 +542,7 @@ ax1x1gptp: ax1x1gptp-build
 ax1x1gptp-extended: AX_GPTP_ARGS = --extended
 ax1x1gptp-extended: ax1x1gptp
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
+run: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
@@ -630,6 +634,8 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 	  ./obj_aclk/Vmilan_dp_aclk
 	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
 	python3 render_mutants.py
+	$(MAKE) counters
+
 # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
 # target stays here so there is only one source/parameter/build recipe.
 
@@ -657,6 +663,29 @@ print-pp-srcs:
 # tb/verilator/<suite>/ directory, which the consumer also is.
 print-dp-vflags:
 	@echo '$(GPTP_OFF_VFLAGS)'
+
+.PHONY: counters counters-f5 counters-mutants stack-pin
+stack-pin:
+	python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin $(STACK_DIR)
+
+counters: | stack-pin
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 1
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 8
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 1 --output-condition frames-only
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 8 --output-condition frames-only
+
+counters-f5: | stack-pin
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --shape 1
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --shape 8
+
+counters-mutants: | stack-pin
+	@set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate tx-nodirty fixed-grid egress-stall; do \
+	  VERILATOR=$(VERILATOR) python3 stream_counters.py --variant $$variant; \
+	done
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --variant egress-stall --shape 8
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant late
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant rate
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep

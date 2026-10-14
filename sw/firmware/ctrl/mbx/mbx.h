@@ -92,7 +92,7 @@ bool mbx_filter_set_bound_talker(unsigned interface, unsigned entry, bool bound,
 // false, writing nothing, for an interface or a sink the contract does not
 // have. The caller writes each value before it sends the response that
 // promises it (docs/ARCHITECTURE_HW_SW_SPLIT.md, section 1).
-//   mbx_pub_da_gate     DA_GATE: bit s, MAAP holds source s's destination address
+//   mbx_pub_da_gate     DA_GATE: bit s, allocated source s satisfies acmp_declaring
 //   mbx_pub_licence     LICENCE: bit s, source s holds its SRP licence
 //   mbx_pub_idle_slope  IDLE_SLOPE: the bandwidth SRP admitted, bits per second
 //   mbx_pub_domain      SR_DOMAIN: the operational SR class A priority and VID,

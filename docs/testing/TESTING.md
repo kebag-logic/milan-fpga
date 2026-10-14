@@ -510,9 +510,13 @@ emits five summary shapes, and 29 of 57 suite logs matched none of them and
 contributed a silent zero — shown by adding 66 assertions to a suite and
 watching the printed total not move). Rerun the sweep for both figures.
 
-With no options the script remains the mandatory serial local sweep. GitHub
-uses five isolated `--shard INDEX/5` workers to reduce wall time, the last of
-them running `milan_dp` alone, then keeps
+With no options the script remains the mandatory serial local sweep. Its
+preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
+worker before its suites. That self-test refuses to start until the selector's
+`SUITE_SECONDS` names every default suite, so a change that adds a suite first
+records a provisional figure for it, by the new-suite steps in the selector's
+docstring. GitHub uses five isolated `--shard INDEX/5` workers to reduce wall
+time, the last of them running `milan_dp` alone, then keeps
 `verilator-suites` as a small aggregate required check. That aggregate compares
 the uploaded log names with the live default suite inventory and
 fails on a missing, unexpected, or multiply-owned suite before trusting the
@@ -696,6 +700,30 @@ a half-depth array, an 8-beat crossing, a one-sided MAC reset, a CSR crossing
 in the MAC reinit domain, a read port one entry ahead, `MilanMAC` without its
 storage call, and arrays that register their read address. Each must fail its
 named check.
+
+`test_ctrl_memory.py` (#640 M8a) grades the split placement's firmware
+memory: [`ctrl_memory.py`](../../sw/litex/ctrl_memory.py)'s bank plan, a
+planted defect for every rule in `ctrl_memory.RULES` refused by that rule
+(the 56.0 RAMB36 budget accepted and 56.5 refused), the real
+`milan_soc.CtrlMemory` in simulation at the largest image's banks across the
+whole decoded window, and a probe linked by
+[`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld), whose rom words
+must equal its `objcopy -O binary` image and whose load segments, emptied or cut
+short, are refused by rule. Its SoC arm runs
+`milan_soc.py`'s own `main()` on the shipping 1x1 config's argv without
+Vivado: the three planted controls (an allocation over budget, a memory-map
+overlap, a staging buffer of another shape), an emptied reset segment and the
+two lone flags are refused, and the split export holds the image's banks and no
+BIOS memory.
+That arm refuses LiteX's firmware data packages, which the `elaborate` job does
+not install, so it grades the same in any interpreter.
+It requires the
+[split control memory](../design/SPLIT_CONTROL_MEMORY.md#3-named-refusals)
+rule table to equal `ctrl_memory.RULES`. Its forty-four mutants each rebuild one
+function or class with a rule or property removed or weakened, and each must
+turn its arm red by name; an arm that fails unmutated grades no mutant. The
+link arm needs an RV32 compiler (`sw/firmware/gtest/fw_rv32.py` finds the
+pinned SDK); without one the member declares a skip.
 
 An access that is never acknowledged must not wedge either bridge or the shared
 bus.
@@ -1386,8 +1414,9 @@ Neither this plan nor its self-test closes #70 or #117.
 
   A documentation-only pull request pays for none of it: every heavy step is
   gated on `scripts/ci_scope.py`, the classifier PR #176 added, and that
-  classifier fails safe - an empty diff or an unresolvable base both come
-  back RTL-relevant. Were the script ever absent the workflow would say so in
+  classifier fails safe - an empty diff comes back RTL-relevant, and on a
+  pull request an unresolvable revision or merge base fails the scope step.
+  Were the script ever absent the workflow would say so in
   its log and elaborate unconditionally rather than guess. The workflow's
   scheduling policy, what makes its check red and what only skips, is the
   `Elaboration` section of [`CI_WORKFLOWS.md`](CI_WORKFLOWS.md).

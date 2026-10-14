@@ -2,10 +2,8 @@
 # exclusions in sw/firmware/gtest/README.md. Written by fw_coverage.py --write, which
 # refuses to record a drop; read by fw_coverage.py --check, which refuses one.
 # file  lines covered/total  branches covered/total
-sw/firmware/ctrl/acmp/acmp.c  lines 742/742  branches 348/348
 sw/firmware/ctrl/acmp/acmp_mbx.c  lines 73/73  branches 26/26
 sw/firmware/ctrl/acmp/acmp_nvm.c  lines 38/38  branches 10/10
-sw/firmware/ctrl/adp/adp.c  lines 204/204  branches 95/95
 sw/firmware/ctrl/adp/adp_mbx.c  lines 83/83  branches 38/38
 sw/firmware/ctrl/aecp/aecp.c  lines 357/357  branches 308/308
 sw/firmware/ctrl/aecp/aecp_commands.c  lines 424/424  branches 362/362
@@ -18,7 +16,6 @@ sw/firmware/ctrl/app/ctrl_app.c  lines 42/42  branches 40/40
 sw/firmware/ctrl/app/ctrl_app_aecp.c  lines 107/107  branches 64/64
 sw/firmware/ctrl/app/ctrl_app_srp.c  lines 82/82  branches 62/62
 sw/firmware/ctrl/loop/ctrl_loop.c  lines 101/101  branches 62/62
-sw/firmware/ctrl/maap/maap.c  lines 209/209  branches 140/140
 sw/firmware/ctrl/maap/maap_csr.c  lines 39/39  branches 18/18
 sw/firmware/ctrl/maap/maap_mbx.c  lines 98/98  branches 60/60
 sw/firmware/ctrl/mbx/mbx.c  lines 189/189  branches 74/74
@@ -27,8 +24,11 @@ sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 10/10  branches 0/0
 sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6
 sw/firmware/ctrl/port/ctrl_pool.c  lines 99/99  branches 60/60
 sw/firmware/ctrl/port/shlan_port.c  lines 22/22  branches 6/6
-sw/firmware/ctrl/srp/srp_mbx.c  lines 515/515  branches 478/478
-sw/firmware/ctrl/wire/wire.h  lines 10/10  branches 2/2
+sw/firmware/ctrl/srp/srp_mbx.c  lines 514/514  branches 478/478
 sw/firmware/ctrl_nvm/nvm_klj2.c  lines 198/198  branches 106/106
 sw/firmware/ctrl_nvm/nvm_store.c  lines 434/434  branches 259/259
 sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 100/100  branches 63/63
+third_party/tsn-c-stack/include/wire.h  lines 10/10  branches 2/2
+third_party/tsn-c-stack/src/acmp.c  lines 742/742  branches 348/348
+third_party/tsn-c-stack/src/adp.c  lines 204/204  branches 95/95
+third_party/tsn-c-stack/src/maap.c  lines 209/209  branches 140/140

@@ -16,7 +16,8 @@ defines H-MAAP; host evidence does not establish target or wire timing.
 
 ## Core
 
-[`maap.c`](maap.c) implements B.3.2/Table B.7 in static storage.
+The TSN stack's [`maap.c`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/src/maap.c)
+(the [submodule](../../../../third_party/tsn-c-stack), #697) implements B.3.2/Table B.7 in static storage.
 Each interface owns an INITIAL, PROBE or DEFEND state and one timer.
 ReserveAddress sends an initial PROBE, then three retransmissions.
 The last retransmission precedes ANNOUNCE and acquisition publication.
@@ -108,21 +109,34 @@ Before using this output, integration must supply that allocation.
 Feed the processor's MAAP face from the firmware allocation,
 or move ACMP onto the core through F3.
 This is a #664 decision 3 default-flip condition.
-For the split placement (lane F-INT), the adapter writes each interface's
-`DA_GATE` in the mailbox's publication block before it reports an
-allocation: bit s open for source s while the range is valid, every bit
-closed before a loss is reported. A PROBE_TX_RESPONSE therefore never
-promises an address the split datapath's talker gate holds closed.
-`maap_mbx_init` refuses more talker sources than the block holds (16).
-The gate is written on the interface that allocated: at two interfaces, an
-allocation on interface 1 alone opens interface 1's gate before its report
-and moves no other (`DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport`).
-`DA_GATE` is address validity only; the processor's `acmp_declaring_o` also
-needs a recent probe or a registered Listener, which lane F3b adds (the
-[design page's choices](../../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)).
-F2 records the dependency; it does not change that wiring.
-F3 composes ACMP on the core beside MAAP, but its talker learns a stream's destination only from the integrator's
-`source` port (`acmp.h`); the app does not feed that port from this allocation.
+For the split placement, `DA_GATE` publishes the ACMP declaration predicate.
+A valid destination needs a fresh probe or registered Listener.
+The probe window is 15 seconds (Milan v1.2 4.3.3.1).
+Its final millisecond is 14999; 15000 is expired.
+Listener Asking Failed counts as demand, separately from `LICENCE`.
+
+The composition binds its ACMP instance through `maap_mbx_bind_acmp`.
+Without that owner, every declaration gate stays closed.
+Each configured source publishes only on its own interface.
+Allocation reports follow their interface's gate write.
+The two-interface tests retain this ordering check.
+Queries also run after every service pass, including idle ticks.
+The composition enables those ticks to observe freshness expiry.
+Gate changes publish even when no transport frame is owed.
+
+The dispatch path caches each `acmp_declaring` answer before entering MAAP.
+Each answer includes the source owner's destination validity and demand.
+ACMP also retires observed probe expiry.
+The range callback combines that snapshot with its current MAAP validity.
+It calls no protocol core.
+If the allocation report makes the source destination valid,
+the gate opens on the next MAAP poll.
+MAAP loss additionally closes the gate before its allocation report.
+Receive and link refreshes keep callback snapshots current.
+They provide freshness within the service pass.
+The same pass's MAAP poll refreshes and republishes changed gates.
+The composition does not replace the integrator's source owner.
+`maap_mbx_init` still refuses counts exceeding the publication block.
 
 ## Service evidence
 
@@ -135,16 +149,19 @@ The required project service limit is 10 ms, below the shared 50 ms ceiling.
 
 A 60-byte send costs 19 mailbox accesses; an arm costs three including the clock read.
 A cancel costs one, filter publication three, and the DA gate one.
-The final probe expiry costs at most 49 accesses: two sends, two arms,
-one cancel and allocation publication (the range filter and `DA_GATE`).
-Receive and per-interface poll callbacks also have a conservative 48-access bound.
+The final probe expiry costs at most 65 accesses: two sends, two arms,
+one cancel, allocation publication, and up to 16 freshness clock reads.
+Receive has a conservative 64-access bound.
+A per-interface poll allows 65 accesses: the existing 48, up to
+16 source queries before entering MAAP, and a changed gate write.
+A query without an answered probe needs no freshness clock read.
 This excludes the allocation callback's separate datapath CSR accesses;
 that callback must remain bounded and nonblocking.
 A standalone MAAP loop pass costs at most
-8*(6+49) + 2*(20+48) + interfaces*48 accesses: 624 for one interface, 672 for two.
+8*(6+65) + 2*(20+64) + interfaces*65 accesses: 801 for one interface, 866 for two.
 The receive bound includes the channel's maximum 64-byte record.
 Composed with ADP and ACMP, a pass costs at most `CTRL_APP_THREE_PASS_MAX` (`ctrl_app.h`):
-1,606 accesses for one interface, 1,685 for two.
+1,783 accesses for one interface, 1,879 for two.
 
 Tests include event and receive backlog, timer wrap, stale tags, link loss,
 short TX stalls and an 11 ms stall that must fail the original bound after recovery.
@@ -179,6 +196,8 @@ python3 sw/firmware/ctrl/test/maap_differential.py --self-test
 
 Use the repository-pinned simulator for the last command.
 Set TMPDIR to disk-backed scratch before running the gates.
+The differential first runs the shared stack pin check, in both modes.
+It refuses a `third_party/tsn-c-stack` checkout off its gitlink or differing from it.
 The differential drives shared probe, per-state conflict, loss and retry stimulus
 through the C core and the parent MAAP engine.
 Annex B is the oracle for both.
@@ -198,7 +217,10 @@ This stimulus does not reach them.
 The differential observes software deadlines and parent frame completion cycles.
 Equal-length frames make completion intervals equal send intervals.
 A send at an arbitrary tick phase observes up to 1 ms less than the parent's draw.
-Varying the start phase reaches both ends of the parent's 518..581 ms draw.
+The sweep programs 1,024 MAC identities before first enable.
+Its isolated parent clock input is held at zero; the datapath suite checks the live PHC seed.
+Both draw endpoints are required within the strict timer bounds.
+A generator ignoring the MAC fails the draw-coverage check.
 Firmware sends span both 511/589 ms guarded draw boundaries.
 Named controls reject 1, 500 and 600 ms probe intervals.
 Separate controls falsify the parent probe bound and count expectations.

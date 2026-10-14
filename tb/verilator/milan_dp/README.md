@@ -21,6 +21,11 @@ Only these two values are accepted, independently of make flags.
 Build recipes, gPTP prerequisites and render mutation phases remain unchanged.
 The mutation driver starts only after every ordinary simulation succeeds.
 
+`run` then invokes `make counters`: four temporary `stream_counters.py`
+elaborations (shapes 1 and 8, `uncertain` and `frames-only`) under `TMPDIR`,
+each printing `RESULT: PASS`.
+See [the stream counter measurements](../../../docs/testing/726_STREAM_COUNTERS.md).
+
 Six `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
 `obj_notify`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
 Each writes `generator.log`, `image.bin`, `image.json`, and eleven builder files.
@@ -90,7 +95,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 
 - **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
 - **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
-- **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
+- **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and the current per-AVTPDU FRAMES_TX law
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
@@ -462,8 +467,9 @@ was a counter question:
    instead of its ACTIVE: Talker Advertise declared, a Listener Ready or Ready
    Failed registered, admitted (Milan v1.2 5.3.7.3). `milan_datapath` now
    requires `pp_cd_srp_active_w` AND `pp_cd_srp_sr_admitted_w` (#551).
-3. **FRAMES_TX read 16 against 34,061 PDUs.** That is the documented
-   semantics, not a defect; see [FRAMES_TX is an interval count](#frames_tx-is-an-interval-count).
+3. **FRAMES_TX read 16 against 34,061 PDUs.** This historical result
+   reflects the superseded interval interpretation.
+   See [the current packet law](#frames_tx-counts-each-transmitted-avtpdu).
 
 `sim_crf_licence.cpp` elaborates `endstation_ax7101_1x1_tdm8`, where the CRF
 output is source uid 1. The processor's millisecond and `KL_maap`'s
@@ -495,9 +501,9 @@ Advertise state are sampled on every cycle.
 | `[C]` | Item 1: 76 s bound across at least three DUT and three switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. Each switch LeaveAll restarts the DUT's leavealltimer (802.1Q-2014 Table 10-5 rLA!, processor issue 108, since processor pin `b2db3a97`): every DUT LeaveAll comes at least 10 s after the switch's preceding one, which is why the phase holds three of each rather than five. |
 | `[D]` | A registered Asking Failed closes the licence; Ready Failed reopens it. |
 | `[E]` | The unbind: the licence closes when the Listener registration ends, inside a fresh probe window, not when the window closes (Run B's last burst ran 9.95 s past its unbind). |
-| `[F]` | Item 3: FRAMES_TX counts observation intervals since STREAM_START, far fewer than the PDUs, and restarts at the next STREAM_START. |
-| `[G]` | Each source and admission phase, with the same TSpec preloaded: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, interval-counter reset or PDU follows. |
-| `[H]` | Matching admitted re-declarations stream and reset interval counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
+| `[F]` | FRAMES_TX follows wire AVTPDUs since STREAM_START, allowing one in-flight completion. The next STREAM_START resets it to the new run. |
+| `[G]` | Each source and admission phase, with the same TSpec preloaded: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, per-run counter reset or PDU follows. |
+| `[H]` | Matching admitted re-declarations stream and reset the per-run counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
 | `[I]` | A refused 20,000-byte TSpec follows an admissible 224-byte TSpec. Both sources and phases require no licence, counter pair, reset or PDU. This is a required default pass with processor #112. |
 | `[J]` | The reverse TSpec change admits 224 bytes after 20,000 bytes. Both sources and phases must stream; logs re-measure ACTIVE-to-licence latency. |
 | `[INV]` | Every cycle: CRF equals ACTIVE AND its real grant. AAF never opens without both terms. |
@@ -583,22 +589,22 @@ station's leavealltimer restarts on a received LeaveAll (processor docs 10
 section 6.5, its issue 108), and `[C]` measures that lag, not the draw's
 upper bound. The silicon rerun of #530 is the acceptance.
 
-### FRAMES_TX is an interval count
+### FRAMES_TX counts each transmitted AVTPDU
 
-Milan v1.2 5.3.7.7 Table 5.4 defines the Stream Output FRAMES_TX as
-"Incremented at the end of every observation interval during which at least
-one Stream Data AVTPDU has been transmitted on this Stream Output", with an
-interval of at most 1 second, "Reset to 0 each time the Talker starts
-streaming". `KL_talker_diag_ctx` implements exactly that with a 1 s interval
-(`DIAG_TICK_CYC_P` = `MILAN_CLK_FREQ_HZ`), and `tb/verilator/tkdiag` grades
-the counter itself. Run B's last burst lasted 15.00 s. It started inside
-one interval and ended inside the sixteenth, and each of those sixteen
-intervals carried PDUs at 500 per second, so FRAMES_TX read 16. The
-#117 findings' item 9 saw it rise by one per 1 s poll and return to 0 at
-each of the four STREAM_STARTs. The PDU total is `CRFT_COUNT` (`0x764`):
-34,061. Table 5.6 in 5.3.8.10 is the Stream Input set, where FRAMES_RX
-lives; it does not define FRAMES_TX. After #530 a continuously bound output
-should read STREAM_START 1 and FRAMES_TX equal to the seconds it has streamed.
+The [2026-10-12 ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6125741685)
+supersedes the original interval interpretation.
+IEEE 1722.1-2021 7.4.42.2.5 Table 7.159 defines the packet total.
+`KL_talker_diag_ctx` counts every transmitted AVTPDU, with 32-bit wrap.
+Milan Table 5.4 still supplies the reset at each start.
+MEDIA_RESET and TIMESTAMP_UNCERTAIN retain their observation intervals.
+
+Run B's recorded 16 counts and 34,061 PDUs remain historical evidence.
+Those measurements describe the old implementation.
+The current `[F]` checks compare FRAMES_TX against wire PDUs.
+They allow one completion still in flight.
+After restart, only the new run's packets count.
+`CRFT_COUNT` remains the transmitter's independent PDU total at `0x764`.
+The `tkdiag` and stream-counter fixtures cover reset and wrap.
 
 ## The #508 GET_STREAM_INFO seam (the GSI section of `obj_notify`)
 
@@ -1154,7 +1160,7 @@ reach the descriptor arbiter as {STREAM_INPUT, `N_STREAMS`} alone. The harness
 records every tuple the arbiter hands over in that window, of any type and at
 any index, so another STREAM_INPUT row, a STREAM_OUTPUT row (the CRF output's
 at the same index included), AVB_INTERFACE 0, CLOCK_DOMAIN 0 or any other tuple
-there fails. Real PDUs of the followed stream then carry FRAMES_RX (interval
+there fails. Real PDUs of the followed stream then carry FRAMES_RX (per-AVTPDU
 law) and STREAM_INTERRUPTED (per-event law) from `0xFFFFFFFF` through zero.
 Last, in a fresh era and with no tally seeded, each of the ten is moved by its
 own engine event to a count no other tally shares. The events are rejected

@@ -38,13 +38,46 @@ class MaapHost : public ::testing::Test {
     mbx_model model{};
     ctrl_loop loop{};
     maap_mbx adapter{};
+    acmp declaration_owner{};
+    acmp_ports declaration_ports{};
+    acmp_env declaration_env{};
     std::array<std::uint64_t, MBX_N_IF> macs{};
     std::array<bool, MBX_N_IF> valid{};
+    // The source owner is independent of MAAP's range validity.
+    std::array<bool, ACMP_MAX_SOURCES> source_valid{};
     // the interface's DA_GATE in the publication block when its allocation was reported
     std::array<std::uint32_t, MBX_N_IF> gate_at_report{};
     std::vector<std::uint64_t> commits;
     // Reference bus: 100 ns per ordered transaction. No measured CPU claim.
     std::uint64_t now_ns = 0;
+
+    static uint32_t declaration_now(void* ctx) {
+        return static_cast<MaapHost*>(ctx)->model.now_ms;
+    }
+    static bool declaration_send(void*, unsigned, const uint8_t*, size_t) { return true; }
+    static void declaration_source(void* ctx, unsigned source, acmp_source_state* state) {
+        auto* r = static_cast<MaapHost*>(ctx);
+        for (const auto& i : r->adapter.ifs)
+            EXPECT_FALSE(i.core.in_call) << "declaration query stays outside MAAP callbacks";
+        state->dest_mac_valid = r->source_valid[source];
+    }
+    static uint32_t expected_gate(unsigned interface) {
+        return MBX_N_IF == 1u ? 0xffu : interface == 0u ? 0x55u : 0xaau;
+    }
+    void listeners(bool present) {
+        for (unsigned source = 0; source < 8; ++source) {
+            ASSERT_TRUE(acmp_listener_registered(&declaration_owner, source % MBX_N_IF, source, present));
+        }
+    }
+    void probe(unsigned source = 0) {
+        std::array<uint8_t, 70> frame{};
+        wire_put_be(frame.data() + 12, 0x22f0u, 2);
+        frame[14] = 0xfcu;
+        frame[17] = 44u;
+        wire_put_be(frame.data() + 34, 1u, 8);
+        wire_put_be(frame.data() + 50, source, 2);
+        acmp_rx(&declaration_owner, source % MBX_N_IF, frame.data(), frame.size());
+    }
 
     static void allocation(void* ctx, unsigned interface, std::uint64_t, std::uint16_t, bool good) {
         auto* r = static_cast<MaapHost*>(ctx);
@@ -65,10 +98,25 @@ class MaapHost : public ::testing::Test {
             r.commits.push_back(r.now_ns);
     }
     void SetUp() override {
+        source_valid.fill(true);
         mbx_model_reset(&model); mbx_model_bind(&model, nullptr, nullptr); mbx_host_trace(trace, this);
         ctrl_loop_init(&loop);
         for (unsigned k = 0; k < MBX_N_IF; ++k) { macs[k] = kMac + k; mbx_model_set_link(&model, k, true); }
         ASSERT_TRUE(maap_mbx_init(&adapter, macs.data(), 8, 2, allocation, this));
+        acmp_config config{};
+        config.entity_id = 1u;
+        config.n_interfaces = MBX_N_IF;
+        config.n_sources = 8u;
+        config.da_fresh_ms = 15000u;
+        for (unsigned source = 0; source < 8; ++source) config.source_interface[source] = source % MBX_N_IF;
+        declaration_ports.ctx = this;
+        declaration_ports.now_ms = declaration_now;
+        declaration_ports.send = declaration_send;
+        declaration_env.ctx = this;
+        declaration_env.source = declaration_source;
+        ASSERT_TRUE(acmp_init(&declaration_owner, &config, &declaration_ports, &declaration_env));
+        listeners(true);
+        maap_mbx_bind_acmp(&adapter, &declaration_owner);
         ASSERT_TRUE(maap_mbx_attach(&adapter, &loop));
         ASSERT_TRUE(ctrl_loop_open(&loop, 1, macs.data()));
         ASSERT_TRUE(maap_mbx_start(&adapter, kBase));
@@ -128,8 +176,8 @@ TEST_F(MaapHost, DaGateIsPublishedBeforeEachAllocationIsReported) {
             << "DA gate closed while the range is only probed, interface " << k;
     }
     acquire();
-    EXPECT_EQ(gate_at_report[0], 0xFFu) << "DA gate opens the eight sources before the allocation is reported";
-    EXPECT_EQ(gate(0), 0xFFu) << "DA gate stays open while the range is held";
+    EXPECT_EQ(gate_at_report[0], expected_gate(0)) << "DA gate opens the eight sources before the allocation is reported";
+    EXPECT_EQ(gate(0), expected_gate(0)) << "DA gate stays open while the range is held";
     ASSERT_TRUE(inject(incoming(2, macs[0])));
     ctrl_loop_service(&loop);
     ASSERT_FALSE(valid[0]) << "a DEFEND to the own MAC takes the range";
@@ -156,8 +204,8 @@ TEST_F(MaapHost, DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport) {
     }
     for (unsigned n = 0; n < 3; ++n) expiry(last);
     ASSERT_TRUE(valid[last]) << "interface " << last << " acquires alone";
-    EXPECT_EQ(gate_at_report[last], 0xFFu) << "DA gate of the acquiring interface opens before its own report";
-    EXPECT_EQ(gate(last), 0xFFu) << "DA gate of the acquiring interface stays open while it holds the range";
+    EXPECT_EQ(gate_at_report[last], expected_gate(last)) << "DA gate of the acquiring interface opens before its own report";
+    EXPECT_EQ(gate(last), expected_gate(last)) << "DA gate of the acquiring interface stays open while it holds the range";
     for (unsigned k = 0; k + 1u < MBX_N_IF; ++k) {
         EXPECT_TRUE(gate(k) == 0u && !valid[k]) << "DA gate of interface " << k << ", which holds no range, stays closed";
     }
@@ -173,8 +221,8 @@ TEST_F(MaapHost, DaGateOfEveryInterfaceOpensBeforeItsOwnReport) {
     }
     for (unsigned k = 0; k < MBX_N_IF; ++k) {
         ASSERT_TRUE(valid[k]) << "interface " << k << " acquires";
-        EXPECT_EQ(gate_at_report[k], 0xFFu) << "DA gate of interface " << k << " opens before its own report";
-        EXPECT_EQ(gate(k), 0xFFu) << "DA gate of interface " << k << " stays open while it holds the range";
+        EXPECT_EQ(gate_at_report[k], expected_gate(k)) << "DA gate of interface " << k << " opens before its own report";
+        EXPECT_EQ(gate(k), expected_gate(k)) << "DA gate of interface " << k << " stays open while it holds the range";
     }
 }
 
@@ -202,6 +250,64 @@ TEST_F(MaapHost, HMaapConflictLossAndRetry) {
     EXPECT_TRUE(service_bound(start)); EXPECT_EQ(adapter.ifs[0].core.conflicts, 2u);
     maap_mbx_stop(&adapter);
     EXPECT_EQ(model.maap_count, 0u) << "release closes range filter";
+}
+
+TEST_F(MaapHost, DaGateFreshProbeDeclaresOnlyItsSource) {
+    listeners(false);
+    acquire();
+    probe();
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(gate(0), 1u) << "fresh probe opens only its configured source";
+}
+
+TEST_F(MaapHost, DaGateListenerDeclaresWithoutProbe) {
+    acquire();
+    EXPECT_EQ(gate(0), expected_gate(0)) << "registered Listener opens the gate without a probe";
+    listeners(false);
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(gate(0), 0u) << "last Listener withdrawal closes a gate without probe demand";
+}
+
+TEST_F(MaapHost, DaGateWithoutDemandStaysClosed) {
+    listeners(false);
+    acquire();
+    EXPECT_EQ(gate_at_report[0], 0u) << "address acquisition alone creates no declaration demand";
+    EXPECT_EQ(gate(0), 0u) << "neither probe nor Listener keeps the gate closed";
+}
+
+TEST_F(MaapHost, DaGateProbeExpiresAtFifteenSeconds) {
+    listeners(false);
+    acquire();
+    probe();
+    ctrl_loop_service(&loop);
+    advance(14999u);
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(gate(0), 1u) << "probe remains fresh before 15000 milliseconds";
+    advance(1u);
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(gate(0), 0u) << "probe expires at 15000 milliseconds without a Listener";
+    advance(1u);
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(gate(0), 0u) << "aged probe cannot keep declaring";
+}
+
+TEST_F(MaapHost, DaGateInvalidDestinationRefusesBothDemandArms) {
+    probe();
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(gate(0), 0u) << "invalid destination keeps fresh probe and Listener demand closed";
+    acquire();
+    maap_mbx_stop(&adapter);
+    EXPECT_EQ(gate_at_report[0], 0u) << "address loss closes demand before the allocation report";
+}
+
+TEST_F(MaapHost, DaGateWaitsForSourceOwnerAfterAllocation) {
+    source_valid.fill(false);
+    acquire();
+    EXPECT_EQ(gate_at_report[0], 0u) << "allocation report cannot replace source destination validity";
+    EXPECT_EQ(gate(0), 0u);
+    source_valid[0] = true;
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(gate(0), 1u) << "next poll publishes the newly valid source only";
 }
 
 TEST_F(MaapHost, HMaapFilterTupleAndRate) {
@@ -423,6 +529,13 @@ TEST_F(MaapHost, CallbackWorkAndEveryOutputCount) {
         maap_mbx_stop(&adapter); mbx_model_reset(&model); ctrl_loop_init(&loop);
         for (unsigned k = 0; k < MBX_N_IF; ++k) mbx_model_set_link(&model, k, true);
         ASSERT_TRUE(maap_mbx_init(&adapter, macs.data(), count, 2, allocation, this));
+        acmp_config config = declaration_owner.cfg;
+        config.n_sources = count;
+        for (unsigned source = 0; source < count; ++source) config.source_interface[source] = 0;
+        ASSERT_TRUE(acmp_init(&declaration_owner, &config, &declaration_ports, &declaration_env));
+        for (unsigned source = 0; source < count; ++source)
+            ASSERT_TRUE(acmp_listener_registered(&declaration_owner, 0, source, true));
+        maap_mbx_bind_acmp(&adapter, &declaration_owner);
         ASSERT_TRUE(maap_mbx_attach(&adapter, &loop));
         ASSERT_TRUE(ctrl_loop_open(&loop, 1, macs.data()));
         ASSERT_TRUE(maap_mbx_start(&adapter, kBase));

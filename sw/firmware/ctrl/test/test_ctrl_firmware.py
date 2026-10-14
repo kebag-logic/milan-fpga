@@ -5,18 +5,22 @@
 
 WHAT IT RUNS. The firmware under sw/firmware/ctrl is portable C11; here it is
 compiled for the host exactly as the target compiles it, against the mailbox
-model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
+model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms. The
+ADP, ACMP and MAAP cores and their own tests are the TSN stack's, from the
+pinned tsn-c-stack submodule (#697), built into the same arms:
 
   model    the mailbox suite (tb/verilator/mbx/suite.hpp, the checks the RTL
            passes through both bus adapters) run on the model, so the model
            the other arms rely on answers to the RTL's expectations;
   port     the lwSRP port layer (static pool, debug sink), the mailbox
            driver and the event loop (test_port_loop.cpp);
-  adp      the ADP core over fake ports, the adapter's tag race and every
-           response path's service-latency bound (test_adp.cpp);
+  adp      the ADP core over fake ports (the stack's tests/test_adp.cpp),
+           the adapter's tag race and every response path's service-latency
+           bound (test_adp.cpp);
   reentry_debug, reentry_release
            synchronous callbacks from every port to every entry, on the same
-           instance and another, asserting or counted and ignored respectively;
+           instance and another, asserting or counted and ignored respectively
+           (the stack's tests/test_adp_reentry.cpp);
   unit     the firmware's own seams on GoogleMock: the mailbox window
            (mbx_hal.h) and lwSRP's port layer (shlan_port.h) under the app's
            composition, the driver's contract and refusals, the adapter's
@@ -33,7 +37,8 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            model: the timers on the interface's slot, the ADP channel's tap,
            every path's service cost (the H-ACMP and H-DISC hooks), owed frames
            and the response before its notification, the adp channel's
-           bound-talker table (test_acmp.cpp, test_acmp_mbx.cpp);
+           bound-talker table (the stack's tests/test_acmp.cpp,
+           test_acmp_mbx.cpp);
   acmpif2  test_acmp_mbx.cpp again, the firmware and the model compiled
            against the contract elaborated for two AVB interfaces (written by
            gen_mailbox.py into the build), so the adapter's per-interface
@@ -88,15 +93,28 @@ partitions instead. Each mode covers the entire table across its partitions.
 --coverage DIR builds the firmware with gcov's instrumentation into DIR and
 runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
 
+--build-only builds and links every arm's binaries (with --coverage, the
+coverage builds) and runs none; it plants nothing and ends BUILT, never PASS.
+The TSN stack boundary gate's builds are such runs (ctrl_configs.BUILDERS):
+the boundary needs the compiles, not the tests (#697).
+
+--shard INDEX/4 schedules the complete gate across four jobs: normal suites,
+control mutants, AECP mutants, and SRP mutants with the pin controls.
+It requires --self-test and cannot narrow coverage or another partition.
+Every sharded run proves exhaustive, disjoint dispatch against the live default.
+
 Usage:
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --slice 2/4
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --coverage <dir> [--lwsrp <lwSRP checkout>]
+    python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --build-only
 
-Exit 0 = every arm passed and every planted defect reddened; 1 = a finding;
-2 = refused (the processor pin, a missing compiler, an extraction marker).
+Exit 0 = every arm passed and every planted defect reddened (with
+--build-only, every binary built); 1 = a finding;
+2 = refused (the processor pin, the tsn-c-stack pin or a modified stack, a
+missing compiler, an extraction marker).
 """
 
 from __future__ import annotations
@@ -118,14 +136,96 @@ import srp_pub_mutants  # noqa: E402
 import aecp_arms  # noqa: E402
 import aecp_mutants  # noqa: E402
 import fw_gtest  # noqa: E402
-from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
+from ctrl_build import CTRL, Refusal, Tree, stack_pin  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
+
+PHASES = ("suites", "control", "aecp", "srp")
+SHARD_COUNT = len(PHASES)
+
+
+def shard_part(text: str) -> tuple[int, int]:
+    """One zero-based member of the complete four-job schedule."""
+    index, _, count = text.partition("/")
+    if not (index.isdigit() and count.isdigit() and int(count) == SHARD_COUNT
+            and 0 <= int(index) < SHARD_COUNT):
+        raise argparse.ArgumentTypeError(f"{text!r} is not INDEX/{SHARD_COUNT} with 0 <= INDEX < {SHARD_COUNT}")
+    return int(index), int(count)
+
+
+def selected_phases(shard: tuple[int, int] | None) -> tuple[str, ...]:
+    """Keep the default complete; each hosted member owns one whole phase."""
+    return PHASES if shard is None else (PHASES[shard[0]],)
+
+
+def run_suites(args: argparse.Namespace, tree: Tree) -> list:
+    """The normal suites, including compiled service bounds and each live shape."""
+    outcomes = [ctrl_arms.arm_service_bounds(tree), ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree),
+                ctrl_arms.arm_adp(tree),
+                ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
+                ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
+                ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
+                ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
+                ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
+                ctrl_arms.arm_srpcmp()]
+    if args.lwsrp is not None:
+        outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
+        for i in (1, 2):
+            outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i))
+            outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, debug=True))
+            for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
+                          "srp_latency.cpp", "srp_walk.cpp"):
+                outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
+        outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
+    outcomes.extend(aecp_arms.all_arms(tree))
+    return outcomes
+
+
+def run_srp_mutants(args: argparse.Namespace, out: Path) -> bool:
+    """Keep both interface campaigns and the dependency pin refusals together."""
+    if args.lwsrp is None:
+        return False
+    lwsrp = args.lwsrp.resolve()
+    failed = srp_mutants.campaign(out / "srp-mutants", lwsrp, args.jobs)
+    complete_srp_table = srp_mutants.DEFECTS
+    try:
+        srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
+                                  if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
+                                                        "p11-", "srp-bound-", "srp-term-",
+                                                        "srp-poll-extra", "srp-send-extra",
+                                                        *srp_pub_mutants.ROUND5)))
+        failed = srp_mutants.campaign(out / "srp-if1-mutants", lwsrp, args.jobs, 1) or failed
+    finally:
+        srp_mutants.DEFECTS = complete_srp_table
+    return ctrl_mutants.lwsrp_pin_arms(out / "mutants", lwsrp) != 0 or failed
+
+
+def run_selected(args: argparse.Namespace, tree: Tree, out: Path) -> bool:
+    """Dispatch complete phases; a failed normal run still prevents mutations."""
+    failed = False
+    for phase in selected_phases(args.shard):
+        if phase == "suites":
+            failed = ctrl_arms.report(run_suites(args, tree))
+            if failed:
+                return True
+        elif args.self_test:
+            if phase == "control":
+                failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs,
+                                               args.slice, args.mutation_shard) or failed
+            elif phase == "aecp":
+                aecp_shard = args.mutation_shard or (args.slice[0] - 1, args.slice[1])
+                failed = aecp_mutants.campaign(out / "aecp-mutants", args.jobs, aecp_shard) or failed
+            elif phase == "srp":
+                failed = run_srp_mutants(args, out) or failed
+            else:
+                raise Refusal(f"unknown firmware phase {phase!r}")
+    return failed
 
 
 def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
     """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
     tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True, jobs=jobs))
     try:
+        print(f"tsn-c-stack at {stack_pin()}")
         cut_reuse(tree.reuse)
         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
                     ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree), ctrl_arms.arm_acmpwalk(tree),
@@ -143,8 +243,13 @@ def coverage(out: Path, lwsrp: Path, jobs: int) -> int:
         print(f"REFUSED: {exc}")
         return 2
     failed = ctrl_arms.report(outcomes)
-    print(f"test_ctrl_firmware coverage run: {'FAIL' if failed else 'PASS'}")
+    print(f"test_ctrl_firmware coverage run: {verdict(failed)}")
     return 1 if failed else 0
+
+
+def verdict(failed: bool) -> str:
+    """FAIL, PASS, or in a build-only run BUILT: it ran nothing, so it passed nothing."""
+    return "FAIL" if failed else "PASS" if fw_gtest.EXECUTION.run else "BUILT"
 
 
 def part(text: str) -> tuple[int, int]:
@@ -162,15 +267,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--lwsrp", type=Path, default=CTRL.parents[2] / "third_party/lwSRP",
                     help="an exact pinned lwSRP checkout (default: the submodule)")
     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
+    ap.add_argument("--shard", type=shard_part, metavar="INDEX/4",
+                    help="with --self-test: one of four exhaustive, disjoint phase partitions")
     ap.add_argument("--mutation-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
                     help="with --self-test: run zero-based INDEX of COUNT mutation partitions")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
     ap.add_argument("--jobs", type=int, default=4, help="parallel compilation jobs (1–4)")
+    ap.add_argument("--build-only", action="store_true",
+                    help="build and link every binary and run none (the TSN stack boundary gate's builds)")
     ap.add_argument("--slice", type=part, default=(1, 1), metavar="K/N",
                     help="with --self-test: plant slice K of N of the defect table")
     args = ap.parse_args(argv)
     args.jobs = min(4, max(1, args.jobs))
+    if args.build_only and args.self_test:
+        ap.error("--build-only runs no test, so it plants no defect: drop --self-test")
+    if args.shard is not None and (not args.self_test or args.coverage is not None
+                                  or args.mutation_shard is not None or args.slice != (1, 1)):
+        ap.error("--shard requires --self-test and excludes --coverage, --mutation-shard and --slice")
+    fw_gtest.EXECUTION.run = not args.build_only
     if args.mutation_shard is not None:
         index, count = args.mutation_shard
         if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
@@ -179,55 +294,21 @@ def main(argv: list[str] | None = None) -> int:
             ap.error("choose either --slice or --mutation-shard")
     if args.coverage is not None:
         return coverage(args.coverage.resolve(), args.lwsrp, args.jobs)
+    if args.shard is not None:
+        from test_ctrl_firmware_shards import run_cases
+        run_cases(sys.modules[__name__])
     print(f"toolchain: {fw_gtest.toolchain()}")
     with tempfile.TemporaryDirectory(prefix="ctrl-fw-") as tmp:
         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
         try:
             tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=args.jobs))
+            print(f"tsn-c-stack at {stack_pin()}")
             cut_reuse(tree.reuse)
-            outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
-                        ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
-                        ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
-                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
-                        ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
-                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
-                        ctrl_arms.arm_srpcmp()]
-            if args.lwsrp is not None:
-                outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
-                for i in (1, 2):
-                    outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i))
-                    outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, debug=True))
-                    for suite in ("srp_rx_retry.cpp", "srp_app.cpp", "test_acmp_mbx.cpp",
-                          "srp_latency.cpp", "srp_walk.cpp"):
-                        outcomes.append(srp_arms.arm_srp(tree, args.lwsrp.resolve(), i, test=suite))
-                outcomes.extend(srp_arms.all_shapes(tree, args.lwsrp.resolve(), args.require_rv32))
-            outcomes.extend(aecp_arms.all_arms(tree))
+            failed = run_selected(args, tree, out)
         except Refusal as exc:
             print(f"REFUSED: {exc}")
             return 2
-        failed = ctrl_arms.report(outcomes)
-        if args.self_test and not failed:
-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs, args.slice, args.mutation_shard)
-            aecp_shard = args.mutation_shard or (args.slice[0] - 1, args.slice[1])
-            failed = aecp_mutants.campaign(out / "aecp-mutants", args.jobs, aecp_shard) or failed
-            if args.lwsrp is not None:
-                failed = srp_mutants.campaign(out / "srp-mutants", args.lwsrp.resolve(), args.jobs) or failed
-                complete_srp_table = srp_mutants.DEFECTS
-                try:
-                    srp_mutants.DEFECTS = tuple(d for d in complete_srp_table
-                                              if d.name.startswith(("four-way-", "binding-", "feedback-", "r10-",
-                                                                    "p11-", "srp-bound-", "srp-term-",
-                                                                    "srp-poll-extra", "srp-send-extra",
-                                                                    *srp_pub_mutants.ROUND5)))
-                    failed = srp_mutants.campaign(out / "srp-if1-mutants", args.lwsrp.resolve(), args.jobs, 1) or failed
-                finally:
-                    srp_mutants.DEFECTS = complete_srp_table
-                try:
-                    failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed
-                except Refusal as exc:
-                    print(f"REFUSED: {exc}")
-                    return 2
-    print(f"test_ctrl_firmware: {'FAIL' if failed else 'PASS'}")
+    print(f"test_ctrl_firmware: {verdict(failed)}")
     return 1 if failed else 0
 
 

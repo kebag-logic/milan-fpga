@@ -50,6 +50,7 @@ struct srp_interface {
     struct srp_sink sinks[CTRL_SRP_SINKS];
     bool admitted[CTRL_SRP_SOURCES];
     bool registered[CTRL_SRP_SOURCES];
+    bool listener_present[CTRL_SRP_SOURCES];
     bool active[CTRL_SRP_SOURCES];
     bool stop_owed[CTRL_SRP_SOURCES];
     uint16_t rx_mark;

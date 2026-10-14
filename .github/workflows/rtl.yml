@@ -99,7 +99,8 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           PR_DRAFT: ${{ github.event.pull_request.draft }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           python3 scripts/ci_scope.py --selftest
@@ -111,12 +112,16 @@ jobs:
             exit 0
           fi
 
-          if [ -n "$PR_BASE_SHA" ] \
-             && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then
-            git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \
+          if [ "${ACT:-false}" = true ]; then
+            # Replay uses the live base fetched and verified by the runner.
+            base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+            git cat-file -e "$base^{commit}"
+            merged="$(git merge-tree --write-tree "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"
+            git diff --no-renames --name-only "refs/remotes/origin/$PR_BASE_REF" "$merged" \
               > "$RUNNER_TEMP/changed-files"
           else
-            git ls-files > "$RUNNER_TEMP/changed-files"
+            git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" \
+              > "$RUNNER_TEMP/changed-files"
           fi
 
           echo "Changed files:"
@@ -158,7 +163,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies
-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
 
       # Record the tree this worker validates beside its evidence, and refuse
       # to start on any other. The record is not a *.log, so suite_tally.py

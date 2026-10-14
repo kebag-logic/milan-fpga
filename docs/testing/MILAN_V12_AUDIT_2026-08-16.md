@@ -215,8 +215,26 @@ updates also produce a per-descriptor dirty pulse, and since 0x0002_0055 the
 root serialises those pulses (AAF Stream Inputs, Stream Outputs, the AVB
 Interface and the Clock Domain) through a lossless round-robin onto the
 processor's counter-change face, whose scheduler pushes `GET_COUNTERS` at most
-once per descriptor per second. The Table 5.22 asynchronous behavior is closed
-for every descriptor the solicited face serves.
+once per descriptor per second.
+
+**2026-10-12 correction, #726:** that maximum-rate check did not prove routine
+refresh. Healthy input TV and FRAMES_RX updates were suppressed at their sources.
+The parent now reports those changes, including the CRF input's per-AVTPDU total.
+All AAF and CRF FRAMES_TX/RX totals count packets with 32-bit wrap.
+TX resets at each talker start; RX resets on not-bound to bound, preserving unbind totals.
+The [counter evidence](726_STREAM_COUNTERS.md) measures every served stream
+at the shipping and largest shapes through the simulated MAC transmit endpoint.
+Milan 5.4.5.2 Table 5.22 spacing stays in the existing scheduler.
+The [Round 6 cadence precision](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6134121887)
+requires spacing and consecutive gaps bounded by 1025 ms.
+The fixture grades every gap from its first notification.
+The fixed service ceiling is 25 ms, including margin.
+It derives from the previously measured 1012.029 ms maximum gap.
+Measured service remains descriptive and cannot enlarge the bound.
+The scheduler's completion stamp causes drift across fixed bins.
+Empty bins are not startup exclusions or refresh failures.
+Measurement-start shifts through one second preserve the verdict.
+Physical comparison remains a merge-turn check.
 
 The declared CRF Media Clock Input was a separate mandatory gap at this audit:
 the appended CRF Stream Input at index `N_STREAMS` returned an empty mask, and
@@ -379,7 +397,8 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
    CRF PDU. `TIMESTAMP_UNCERTAIN` therefore counts transmitted wire state, not
    a later live clock verdict.
 7. Every served Stream Output counter update, including a healthy `FRAMES_TX`
-   interval, asserts the raw per-descriptor dirty source, which the root now
+   interval (each transmitted AVTPDU since #726; see the B4 correction),
+   asserts the raw per-descriptor dirty source, which the root now
    delivers to the processor's rate-limited scheduler (B4). The CRF Stream
    Input counter and dirty connections, open at this audit, closed with #529.
 8. The integration proof now boots each simulation with its matching entity

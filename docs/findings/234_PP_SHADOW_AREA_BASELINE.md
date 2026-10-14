@@ -3,7 +3,9 @@
 Measured 2026-10-03 for issue #234, the first step of the #229 area epic.
 The [2026-10-07 re-baseline](#re-baseline-of-2026-10-07-processor-2ad2f845) records processor pin `2ad2f845` after merging dev `79b086d4` for #682.
 Issue #686 re-recorded the three endpoints on 2026-10-08 after merging dev `291710b1`.
-The [current record](#re-baseline-of-2026-10-08-issues-645-and-647) includes #645 and #647 on their merge of dev `6aa25dec`.
+Issues #645 and #647 [re-recorded them](#re-baseline-of-2026-10-08-issues-645-and-647) on their merge of dev `6aa25dec`.
+Issue #696 [re-recorded them](#re-baseline-of-2026-10-10-issue-696) with its `KL_maap` corrections on its merge of dev `8b61b709`.
+The [current record](#re-baseline-of-2026-10-10-issue-696-first-draw) adds #696's first-draw change on its merge of dev `e8454e27`.
 The later sections preserve combinations A through F as history.
 Those earlier records cover the processor adoption and parent AAF packetizer change.
 This re-baseline preserves the processor pin.
@@ -12,6 +14,8 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 
 ## Contents
 
+- **[Re-baseline of 2026-10-10, issue #696 first draw](#re-baseline-of-2026-10-10-issue-696-first-draw)** -- The current record: #696's first-draw change after its dev merge, remeasured at three endpoints, with unchanged policy, route-corner timing, MAAP slack and input receipts.
+- **[Re-baseline of 2026-10-10, issue #696](#re-baseline-of-2026-10-10-issue-696)** -- The MAAP correction lane's merge with dev remeasured at three endpoints, with unchanged policy, route-corner timing, MAAP slack and input receipts.
 - **[Re-baseline of 2026-10-08, issues #645 and #647](#re-baseline-of-2026-10-08-issues-645-and-647)** -- The reviewed composition remeasured at three endpoints, with unchanged policy, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-07, processor 2ad2f845](#re-baseline-of-2026-10-07-processor-2ad2f845)** -- The same processor after merging dev `79b086d4`, with all three endpoints remeasured, unchanged policy and the complete input-digest provenance.
 - **[Re-baseline of 2026-10-06, processor 2ad2f845](#re-baseline-of-2026-10-06-processor-2ad2f845)** -- The adopted pin on dev `bd884631`, its recorded synthesis worker limit, three measured endpoints, corner timing and declaration-warning counts.
@@ -26,6 +30,154 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Yosys reconciliation](#yosys-reconciliation)** -- The flattened Yosys mapping of the same geometry, and the three contributions that explain its gap to Vivado.
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+
+## Re-baseline of 2026-10-10, issue #696 first draw
+
+This re-baseline follows the [round-6 assignment](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6097504752) and measures lane head `bee1b0d712773de799e50f8d9cfc7a02263651f4`.
+That head holds #696's merge of dev `e8454e2751d05b02ee8e5a571857589ab358ab86` (merge commit `941ba746`) and `KL_maap`'s first-draw change.
+The processor remains `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
+Against the [preceding record](#re-baseline-of-2026-10-10-issue-696) at `0df48637`, each endpoint's inputs differ only in [`KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv).
+The generated top, every other read file, the generics and the memory images are unchanged.
+
+All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`.
+The route keeps the shipping directives, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+Synthesis and implementation finish in one process.
+An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
+The resource gate reports matching measurement identities against the preceding record.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 50,013 | 54,306 | 15,753 | 74 / 27 | 14 | 3,397 | +0.233 | +0.017 |
+| `ooc-1x1` | 23,179 | 19,779 | - | 16 / 3 | 8 | 1,494 | -3.562 | +0.159 |
+| `ooc-8x8` | 30,135 | 27,380 | - | 21 / 5 | 8 | 1,889 | -2.278 | +0.159 |
+
+| Difference from the preceding record | LUT | FF | Slice | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|
+| `route-1x1` | -217 | -2 | -70 | +0.119 | -0.019 |
+| `ooc-1x1` | +0 | +0 | - | +0.000 | +0.000 |
+| `ooc-8x8` | +0 | +0 | - | +0.000 | +0.000 |
+
+Every RAMB36, RAMB18, DSP and CARRY4 difference is zero.
+The standalone wrapper does not instantiate `KL_maap`, so neither standalone endpoint can see the change.
+The shipping route uses 87.5 RAM tiles and leaves 97 slices free.
+Its route-status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS is 0.203 ns above its +0.030 ns floor and rose by 0.119 ns; WHS is 0.017 ns above zero.
+Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.233 | +0.066 |
+| `Slow_85C` | +0.233 | +0.066 |
+| `Fast_0C` | +1.410 | +0.017 |
+| `Fast_85C` | +1.410 | +0.017 |
+
+The worst setup path has 27 logic levels on the 20 ns clock.
+It runs from `u_pp/u_aecp/u_d3/rec_r_reg[3]` to the reset pin of `u_pp/u_aecp/u_d3/deb_cnt_r_reg[29]`, both in the wrapper.
+Its data delay is 18.991 ns: 4.977 ns of logic and 14.014 ns of routing.
+The rebuilt datapath uses 41,299 LUTs, of which the wrapper uses 22,993.
+`KL_maap` uses 468 LUTs and 339 FFs, against 425 and 339 in the preceding record.
+Its worst incoming setup path keeps +3.906 ns of slack, its worst outgoing +5.963 ns, and its worst incoming hold +0.175 ns.
+The worst incoming path has 16 logic levels, from the real-time clock counter through the first draw into the offset register.
+The wrapper moves by +120 LUTs and -6 FFs with its sources unchanged; these are merged-image mapping results.
+Parent resource rows include their descendants and must not be added to them.
+
+Each `pp_resource_gate.py check` passed against the preceding records before `record --write` replaced its endpoint.
+Every tolerance, floor and ceiling remains unchanged.
+The endpoint notes identify the measured lane head rather than the later records-only commit.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `29b603ffb306c3cdc07e7dd2bdb35091dd8a30b22ad6402f4b8a8d48528d8e1a` |
+| `ooc-1x1` | `b2a2e9dfe56b79bfc6748f34dcca5808e1b229fffcdd0ac079685f4b95c0ca15` |
+| `ooc-8x8` | `3b3ed3f9fa6242804f65d9009b59f112deea3d05d6206796e5ba1da9b97391a3` |
+
+All recorded source, header and memory-image bytes were rehashed after measurement.
+No completed measurement log contains a `Synth 8-4445` diagnostic.
+Runs were serial under the exclusive lock, with no competing build in this lane.
+An external stop ended the first 8x8 standalone attempt during synthesis; it was rerun in full and the stopped attempt is not used.
+The largest Vivado memory peak was 7,964 MB, in the route; the service recorded no out-of-memory event.
+The lane's receipts hold executed Tcl, input manifests, gate output and reports, with sizes and digests for artifacts over 200 KB.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---:|---:|---|---:|
+| `route-1x1` | 0 | 52.7 | `d9f952dbd5f1c018261caf58bb11a686c56be6dc63da9e89473a9e4d98ccf185` | 818,672 |
+| `rtl-8x8` | 0 | 1.4 | `6cc79615b73a307b12c60a41f3f500813feb05d0e60b4be0f6b59bf49b568825` | 213,944 |
+| `ooc-1x1` | 0 | 25.5 | `0d620fe35a39f6f4ddc4b1a3b8f1a29cf69117486290c0688e847f57e1dcd57e` | 319,289 |
+| `ooc-8x8` | 0 | 53.2 | `8345a4cd14bf1742c4f87006fe3fbd2b2e53cd68f2868353b9cb7108ba4832fb` | 324,996 |
+
+## Re-baseline of 2026-10-10, issue #696
+
+This re-baseline follows the [manager ruling](https://github.com/kebag-logic/milan-fpga/issues/696#issuecomment-6089712293) and measures merge result `0df486370990fddf9b60096be2f2371150692a10`.
+It merges dev `8b61b70902f3ebf118e56967277e2686731081bd` into `39571196045ddcc881f9ad0957742537175441d6`.
+The processor remains `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
+The preceding records describe #645 and #647 at `a5ca6e5110d515bf5f894f87b94f9bf6f6836bbb`; they omit #696's `KL_maap` corrections and dev's later changes.
+
+All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`.
+The route keeps the shipping directives, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+Synthesis and implementation finish in one process.
+An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
+The resource gate reports matching measurement identities against the #645 record.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 50,230 | 54,308 | 15,823 | 74 / 27 | 14 | 3,397 | +0.114 | +0.036 |
+| `ooc-1x1` | 23,179 | 19,779 | - | 16 / 3 | 8 | 1,494 | -3.562 | +0.159 |
+| `ooc-8x8` | 30,135 | 27,380 | - | 21 / 5 | 8 | 1,889 | -2.278 | +0.159 |
+
+| Difference from #645 | LUT | FF | Slice | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|
+| `route-1x1` | -37 | -105 | +44 | -0.185 | +0.005 |
+| `ooc-1x1` | +0 | +0 | - | +0.000 | +0.000 |
+| `ooc-8x8` | +0 | +0 | - | +0.000 | +0.000 |
+
+Every RAMB36, RAMB18 and DSP difference is zero.
+The shipping route uses 87.5 RAM tiles and leaves 27 slices free.
+Its route-status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS is 0.084 ns above its +0.030 ns floor; WHS is 0.036 ns above zero.
+The WNS fall of 0.185 ns is within the 0.25 ns timing-fall limit.
+Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.114 | +0.102 |
+| `Slow_85C` | +0.114 | +0.102 |
+| `Fast_0C` | +1.518 | +0.036 |
+| `Fast_85C` | +1.518 | +0.036 |
+
+The worst setup path has 16 logic levels, from `milansoc_sdram_zqcs_timer_count1_reg[1]` to `milansoc_sdram_bankmachine1_level_reg[0]`.
+Its data delay is 9.574 ns: 2.279 ns of logic and 7.295 ns of routing.
+Both ends lie in the soft CPU's SDRAM controller, outside `milan_datapath`.
+The rebuilt datapath uses 41,367 LUTs, of which the wrapper uses 22,873.
+`KL_maap` uses 425 LUTs and 339 FFs.
+Its worst incoming setup path keeps +4.037 ns of slack, its worst outgoing +6.719 ns, and its worst incoming hold +0.135 ns.
+The wrapper moves by -472 LUTs and +3 FFs despite the unchanged processor pin; these are merged-image mapping results.
+Parent resource rows include their descendants and must not be added to them.
+
+Before the merge, the same `KL_maap` at `39571196` routed at +0.029 ns WNS, below the floor.
+That path lay inside the soft CPU's DMA write bridge, and that measurement was not recorded.
+
+Each `pp_resource_gate.py check` passed against the preceding records before `record --write` replaced its endpoint.
+Every tolerance, floor and ceiling remains unchanged.
+The endpoint notes identify the merge input rather than the later records-only commit.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `a657424864b80a757be6e87cfee55730474d6a60e6d346c27edd3892446e4fab` |
+| `ooc-1x1` | `80fe5d9017b819d9c13b08f5529be7f26fde2bfb414607c4e3c270b915223d09` |
+| `ooc-8x8` | `cf62186b9d52d5876c8dffa92d46432c428236f1a5396ddb65cd45cc6195a4c4` |
+
+All recorded source, header and memory-image bytes were rehashed after measurement.
+No completed measurement log contains a `Synth 8-4445` diagnostic.
+Runs were serial under the exclusive lock, with no competing build in this lane.
+The largest Vivado memory peak was 8,026 MB, in the route; the service recorded no out-of-memory event.
+The lane's receipts hold executed Tcl, input manifests, gate output and reports, with sizes and digests for artifacts over 200 KB.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---:|---:|---|---:|
+| `route-1x1` | 0 | 50.2 | `2e333d94600d66d1f9710359fa368c932050c0a5cd617b4780462d2a571a5f4e` | 820,111 |
+| `rtl-8x8` | 0 | 1.2 | `edf6e734efa37c1bda6da6a469911d10de6726392976486cdf3ce44f87dded56` | 214,698 |
+| `ooc-1x1` | 0 | 22.3 | `32010da91eb3c06d5393e6643a46e079cb749f16cd97a132be97150592948a30` | 319,329 |
+| `ooc-8x8` | 0 | 43.0 | `9c8b17eddfbfa588e348b0a466f2e0b57e756004236ad8a8ea952e67959c6b08` | 325,020 |
 
 ## Re-baseline of 2026-10-08, issues #645 and #647
 
