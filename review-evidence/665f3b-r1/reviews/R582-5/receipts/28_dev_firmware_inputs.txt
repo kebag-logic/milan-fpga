@@ -1,0 +1,12 @@
+## dev-side (lane..head) paths under sw/, third_party/, hdl/milan/mailbox/, configs/
+sw/firmware/ctrl/maap/README.md
+sw/firmware/ctrl/test/maap_differential.py
+sw/firmware/ctrl/test/test_maap_differential.cpp
+
+Changes:
+
+## are any of them compiled into a firmware image source set? (grep of ctrl_build.py / Makefiles for the names)
+test_maap_differential.cpp: 
+maap_differential.py: 
+README.md: 7032bca5:sw/firmware/ctrl/test/ctrl_build.py 
+note: the only README.md hit is ctrl_build.py:8, a docstring naming sw/firmware/gtest/README.md; no dev-side path is a firmware image source.
