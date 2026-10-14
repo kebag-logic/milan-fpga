@@ -26,6 +26,7 @@
 
 VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0
+MCLK_ARGS ?=
 RTL_DIR = ../../../hdl
 PP_DIR  = ../../../protocol-processor/hdl
 DP      = ../milan_dp
@@ -126,7 +127,7 @@ mclk: mclk-build
 # the clean leg's full sequence and every mutant's short leg as one pool, so
 # the campaign shares the suite's wall clock instead of following it.
 run: mclk-build
-	python3 mclk_mutants.py
+	python3 mclk_mutants.py $(MCLK_ARGS)
 
 clean:
 	rm -rf ltn_rom.hex ucode.hex gen_mclk obj_mclk_aem obj_mclk obj_mclk_mut \
