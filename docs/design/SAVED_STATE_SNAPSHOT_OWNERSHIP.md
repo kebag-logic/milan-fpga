@@ -1623,13 +1623,16 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3336 bytes at 1x1 and 13256 at 8x8.
 
-Timing. MEASURED on 2026-10-12 in the
+Timing. MEASURED on 2026-10-14 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [#671 round-7 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6125761347) requires this remeasurement, at the merge of dev `c6bd08c6` into #671.
-That merge joins the #671 firmware with dev's capture harness, gPTP-processor pin and RTL.
+The [#671 round-8 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6161596895) requires this remeasurement, at the merge of dev `fa820988` into #671.
+That merge brings dev's MAAP and stream frame-counter RTL into the capture SoC.
+The firmware, capture harness, processor pins, clocks and census are unchanged.
+The [#671 round-7 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6125761347) required the previous one, at the merge of dev `c6bd08c6` into #671.
+That merge joined the #671 firmware with dev's capture harness, gPTP-processor pin and RTL.
 The #621 receipt on dev binds the earlier firmware, and the #671 round-5 receipt the earlier harness.
-The [#671 round-5 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6107082416) required the previous one on #671.
+The [#671 round-5 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6107082416) required the one before that on #671.
 Refused boot reads are now compared by a CRC-32 over all but their last four bytes and by those four bytes.
 The [#671 round-4 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6104799677) required the previous one.
 That change distinguished failed judgements from failed re-stages on the console.
@@ -1644,8 +1647,8 @@ Capture-SoC RTL changes on dev moved the timing figures from the receipt before 
 The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required an earlier one.
 The CLOCK_SOURCE NAME records #629 adds grew the census.
 The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required one before that.
-Measured commit: `44416838b90c40536a2104ab1f2bd4ff02268bec`.
-Measured tree: `6bdf8b0dfbeb71dc13051a475b3aede8e7432d41`.
+Measured commit: `f3bb2014d065141930ae1a473c966b419d1040aa`.
+Measured tree: `7a2041b6a0b7ea13c019a3b5be08f0eb3555f8ac`.
 Firmware SHA-256: `497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed`.
 Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
 gPTP-processor pin: `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`.

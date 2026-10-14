@@ -1,6 +1,6 @@
 {
-  "date": "2026-10-12",
-  "base": "44416838b90c40536a2104ab1f2bd4ff02268bec",
+  "date": "2026-10-14",
+  "base": "f3bb2014d065141930ae1a473c966b419d1040aa",
   "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
   "soc_component_revisions": {
     "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
@@ -1357,13 +1357,13 @@
       "margin": 4.698108196472967
     }
   ],
-  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6125761347",
+  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6161596895",
   "processor_pins": {
     "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
     "gptp-processor": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
     "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
   },
-  "tree": "6bdf8b0dfbeb71dc13051a475b3aede8e7432d41",
+  "tree": "7a2041b6a0b7ea13c019a3b5be08f0eb3555f8ac",
   "reproduction_environment": {
     "LITEX_ENV_CC_TRIPLE": "SDK compiler prefix, without -gcc; compiler recorded above",
     "PYTHONHASHSEED": "0",
@@ -1374,6 +1374,6 @@
     "PYTHON": "same interpreter as PRODUCT_PYTHON, used for BIOS post-processing",
     "SCRATCH": "external build directory, outside the repository; one per arm"
   },
-  "provenance": "All six arms measure the merge 44416838 of dev c6bd08c6 into the #671 branch at c7d0ad63: the #671 firmware, whose shipping writer's boot judges each slot on one staged read under a three-read bound, compares two refused reads by their verdict, byte count, a CRC-32 over all but their last four bytes and those four bytes, and holds the writer when a slot's authority is unknown, with dev's capture harness, whose run.py applies the timing bound to production arms only, and dev's RTL. nvm_capture() and the census of #629 are unchanged. Processor pins 2ad2f845 (protocol) and 7dda9c3b (gPTP). All 96 captures repeat the system-cycle counts of the #671 round-5 receipt (bd42818d). The six arms ran in two drivers of three, so at most two builds ran at once; independent simulations overlapped. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
+  "provenance": "All six arms measure the merge f3bb2014 of dev fa820988 into the #671 branch at 9b32002c: the #671 firmware, whose shipping writer's boot judges each slot on one staged read under a three-read bound, compares two refused reads by their verdict, byte count, a CRC-32 over all but their last four bytes and those four bytes, and holds the writer when a slot's authority is unknown, with the unchanged capture harness, whose run.py applies the timing bound to production arms only, and dev's RTL, which changes MAAP and the stream frame counters inside the capture SoC. nvm_capture() and the census of #629 are unchanged. Processor pins 2ad2f845 (protocol) and 7dda9c3b (gPTP). All 96 captures repeat the system-cycle counts of the #671 round-7 receipt (44416838). The six arms ran in two drivers of three, so at most two builds ran at once; independent simulations overlapped. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
   "bios_dispatch_patch_sha256": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f"
 }
