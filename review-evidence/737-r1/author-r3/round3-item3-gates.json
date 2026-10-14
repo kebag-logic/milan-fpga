@@ -1,0 +1,37 @@
+[
+  {
+    "command": "python3 scripts/ci_gate_workflows.py --check",
+    "rc": 0,
+    "seconds": 0.583
+  },
+  {
+    "command": "python3 scripts/ci_events.py --check",
+    "rc": 0,
+    "seconds": 0.754
+  },
+  {
+    "command": "python3 scripts/ci_gate_workflows_selftest.py",
+    "rc": 0,
+    "seconds": 2.425
+  },
+  {
+    "command": "python3 scripts/docs_check.py",
+    "rc": 0,
+    "seconds": 5.314
+  },
+  {
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0,
+    "seconds": 0.056
+  },
+  {
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "seconds": 0.084
+  },
+  {
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0,
+    "seconds": 6.013
+  }
+]

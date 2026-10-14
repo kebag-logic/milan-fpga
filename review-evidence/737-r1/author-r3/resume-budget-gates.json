@@ -1,0 +1,131 @@
+[
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_case_receipts_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_make_cases_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_maap_cases_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_capture_cases_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_suite_pieces_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_suite_collect_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_fail_fast_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_runtime_evidence_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_install_cache_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/generate_ci_evidence_pins.py",
+      "--check"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_workflow_plan_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/ci_manifest_selftest.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/check_sh_idiom.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/check_doc_style.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/check_doc_paths.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "returncode": 0
+  }
+]

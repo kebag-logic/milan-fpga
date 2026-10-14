@@ -1,0 +1,175 @@
+{
+  "source_head_for_resumed_classes": "21bd10cec1a999791c9cd2c6d37c52372fb1504e",
+  "receipts": [
+    {
+      "class": "census",
+      "cpus": 16,
+      "peak_bytes": 5860151296,
+      "receipt": "round2-census-memory-16.json",
+      "sha256": "121a0bcf44021c4a4892bdb6805b0791a5e51a0afc5b8b7c80bc5182a6f604d5"
+    },
+    {
+      "class": "census",
+      "cpus": 12,
+      "peak_bytes": 5201534976,
+      "receipt": "round2-census-memory-12.json",
+      "sha256": "7505fd4343e7ec677e0d601cb2c09be29630652d093c2d7a08b120f6fc112ce8"
+    },
+    {
+      "class": "yosys",
+      "cpus": 16,
+      "peak_bytes": 3745005568,
+      "receipt": "round2-yosys-memory-16.json",
+      "sha256": "d881c36140118e983c94c6e05a753fb8bd9b9def638a07c84e57bf9552bcbceb"
+    },
+    {
+      "class": "yosys",
+      "cpus": 12,
+      "peak_bytes": 3391201280,
+      "receipt": "round2-yosys-memory-12.json",
+      "sha256": "b4c82a1ae457d2adff984587a50ae5dfc1e026d9cee355c38440a224f500335b"
+    },
+    {
+      "class": "firmware",
+      "cpus": 16,
+      "peak_bytes": 1365569536,
+      "receipt": "round2-firmware-memory-16.json",
+      "sha256": "87c41e6018114f0c78855c785cbd5ea5156eae89405a73a1a338fe985448769e"
+    },
+    {
+      "class": "firmware",
+      "cpus": 12,
+      "peak_bytes": 1372815360,
+      "receipt": "round2-firmware-memory-12.json",
+      "sha256": "f41689ba719cdb25427a917c6ece1bedd56117592d8a18bdec4f05a0ab23953f"
+    },
+    {
+      "class": "datapath",
+      "cpus": 16,
+      "peak_bytes": 3349397504,
+      "receipt": "round2-datapath-memory-16.json",
+      "sha256": "3d99ab459973078a9a469ea5125bf229b78ef4aa2c8f0f1a64cb554e4143943e"
+    },
+    {
+      "class": "datapath",
+      "cpus": 12,
+      "peak_bytes": 2697302016,
+      "receipt": "round2-datapath-memory-12.json",
+      "sha256": "ad01c4a48ccf8d0b295c4d0604bc0dfb50476d98dfea35008650ec65fe37687e"
+    },
+    {
+      "class": "capture",
+      "cpus": 16,
+      "peak_bytes": 6047100928,
+      "receipt": "round2-capture-memory-16.json",
+      "sha256": "c4ec53dcfafe1d4d8b6f33a35f8ce8c16ef147afe3da8a2cfcfcfbb90af05cbd"
+    },
+    {
+      "class": "capture",
+      "cpus": 12,
+      "peak_bytes": 5042556928,
+      "receipt": "round2-capture-memory-12.json",
+      "sha256": "62be4fa20e62da835449097312d92c787f0f035c1ec7a68fa4af31414291986d"
+    },
+    {
+      "class": "builder",
+      "cpus": 16,
+      "peak_bytes": 3523665920,
+      "receipt": "round2-builder-memory-16.json",
+      "sha256": "4792936bb1aee637a8a9a834c4b1dcd97fada635a8b96b248a340473eb1c829a"
+    },
+    {
+      "class": "builder",
+      "cpus": 12,
+      "peak_bytes": 3172597760,
+      "receipt": "round2-builder-memory-12.json",
+      "sha256": "5f6926eb9497c243b3c90e5a1fda8c65c5c918ae989d3091c883b94437d40368"
+    },
+    {
+      "class": "litex",
+      "cpus": 16,
+      "peak_bytes": 3745722368,
+      "receipt": "round2-litex-memory-16.json",
+      "sha256": "5d52344371f19aa30e30572fef89837b8d6a71fcbc62d78842f45c78ca41c479"
+    },
+    {
+      "class": "litex",
+      "cpus": 12,
+      "peak_bytes": 3303358464,
+      "receipt": "round2-litex-memory-12.json",
+      "sha256": "d3252dafced7bdc01650c0a7986d2ceb250738907fcd9f71b8be9e1f05015d96"
+    }
+  ],
+  "maximum_measured_peak_bytes": 6047100928,
+  "job_cap_bytes": 8589934592,
+  "job_margin_bytes": 2542833664,
+  "job_margin_percent_of_peak": 42.05,
+  "slot_cap_bytes": 38654705664,
+  "overhead_allowance_bytes": 4294967296,
+  "admission_floor": 4,
+  "four_caps_plus_overhead_bytes": 38654705664,
+  "four_measured_maxima_plus_overhead_bytes": 28483371008,
+  "margin_below_slot_for_that_sum_bytes": 10171334656,
+  "sum_qualification": "Arithmetic sum of separate peaks, not an observed concurrent slot peak.",
+  "successful_resumed_container_timeline": [
+    {
+      "class": "datapath",
+      "cpus": 16,
+      "start": "2026-10-14T16:36:57.36882309Z",
+      "finish": "2026-10-14T16:38:02.746078281Z"
+    },
+    {
+      "class": "datapath",
+      "cpus": 12,
+      "start": "2026-10-14T16:38:24.140947929Z",
+      "finish": "2026-10-14T16:39:39.691993753Z"
+    },
+    {
+      "class": "capture",
+      "cpus": 16,
+      "start": "2026-10-14T16:40:18.684736623Z",
+      "finish": "2026-10-14T16:48:19.221353638Z"
+    },
+    {
+      "class": "capture",
+      "cpus": 12,
+      "start": "2026-10-14T16:48:34.972419341Z",
+      "finish": "2026-10-14T16:56:39.194251444Z"
+    },
+    {
+      "class": "builder",
+      "cpus": 16,
+      "start": "2026-10-14T17:01:00.342897437Z",
+      "finish": "2026-10-14T17:24:06.470322199Z"
+    },
+    {
+      "class": "builder",
+      "cpus": 12,
+      "start": "2026-10-14T17:24:32.449964771Z",
+      "finish": "2026-10-14T17:47:19.425927719Z"
+    },
+    {
+      "class": "litex",
+      "cpus": 16,
+      "start": "2026-10-14T17:47:30.426395007Z",
+      "finish": "2026-10-14T17:55:18.504767847Z"
+    },
+    {
+      "class": "litex",
+      "cpus": 12,
+      "start": "2026-10-14T17:55:33.621462628Z",
+      "finish": "2026-10-14T18:03:07.455885911Z"
+    }
+  ],
+  "successful_resumed_containers_overlap": false,
+  "sampled_service_memory_current_max_bytes": 506015744,
+  "sampled_service_plus_container_current_max_bytes": 5918969856,
+  "sampled_service_max_plus_full_container_cap_bytes": 9095950336,
+  "service_qualification": "Service and Docker cgroups are separate. Samples are not a continuous peak guarantee.",
+  "limits": [
+    "Twelve CPUs is a width benchmark within the assigned die, not aligned fallback admission.",
+    "Builder retains two declared NOT RUN arms, as recorded in both receipts.",
+    "The sixteen-CPU builder configuration comes from its launch command after container removal; state and telemetry were captured before removal.",
+    "Complete concurrent replay, hosted timings and live cancellation remain separate evidence."
+  ]
+}

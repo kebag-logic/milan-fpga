@@ -1,0 +1,87 @@
+{
+  "source_head_at_start": "fec1f17cca0da831e43d0ca6aefd32b8dd1550b9",
+  "source_note": "Only docs/testing/CI_WORKFLOWS.md changed while this measurement ran; synthesis sources and commands were unchanged.",
+  "job_class": "largest weighted synthesis shard",
+  "shard": "0/4",
+  "allocated_cpus": 16,
+  "container_limit_bytes": 8589934592,
+  "memory_peak_bytes": 3745005568,
+  "memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0,
+    "sock_throttled": 0
+  },
+  "returncode": 0,
+  "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "command": "syn/yosys/run.sh --shard 0/4 --results /scratch/results --cache /scratch/cache",
+  "cache": "empty at start",
+  "scope": "one container workload; not a full replay",
+  "memory_peak_gib": 3.488,
+  "seconds_from_boundary_file_timestamps": 471.279,
+  "artifacts": [
+    {
+      "path": "job.env",
+      "bytes": 100,
+      "sha256": "356a5c36e395cb58e19d78fd252c22a1a4919a5452d4aec5fd3af0fd00d64e4b"
+    },
+    {
+      "path": "run.sh",
+      "bytes": 813,
+      "sha256": "f478596e8276783f5369aa583a236a0a20452178e3581353337f211d001313f3"
+    },
+    {
+      "path": "result.rc",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "run.log",
+      "bytes": 3747,
+      "sha256": "a4d8ef5f07e855865571f5ad1e06cea66613f6425d8abfc1c483f5cd3ab6c79a"
+    },
+    {
+      "path": "cpus",
+      "bytes": 3,
+      "sha256": "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
+    },
+    {
+      "path": "memory.events",
+      "bytes": 70,
+      "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+    },
+    {
+      "path": "memory.peak",
+      "bytes": 11,
+      "sha256": "d3915dcff8b82543e658a52890b37b318550c86892cd2a4617b43322c394f4df"
+    },
+    {
+      "path": "results/gate-tied-input.result",
+      "bytes": 49,
+      "sha256": "55387da88c762538eda2457fc62af0eda7bafd699ff8011e9d88869709833d7b"
+    },
+    {
+      "path": "results/top-milan_datapath.result",
+      "bytes": 76,
+      "sha256": "54abb783006ea73621ccef2f2f5c4a6835fe7b28bbac952081257641aafd1a6c"
+    },
+    {
+      "path": "results/gate-tap-purity.result",
+      "bytes": 49,
+      "sha256": "e178d18a3077d0aaf24d3b19ded27b949c94e423746517b8557fbe62074ef976"
+    },
+    {
+      "path": "cache/d814d256d526726bf8b5df5e3464eb1281faf70fb6b2958fdcc448d5e28bd8f7/stat.json",
+      "bytes": 104315,
+      "sha256": "8ea8c202ae19ee5103b476368069a349d22a93a168eb79dd96a9d67de7ef5eb8"
+    },
+    {
+      "path": "cache/d814d256d526726bf8b5df5e3464eb1281faf70fb6b2958fdcc448d5e28bd8f7/record",
+      "bytes": 650,
+      "sha256": "5b6fdf19373af8025992929387a9bca3d8c4e2d6ba9694475cd518ab1a1eef8b"
+    }
+  ]
+}

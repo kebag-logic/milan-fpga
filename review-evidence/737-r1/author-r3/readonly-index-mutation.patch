@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/gptp_txts/gptp_txts_wrap.sv b/tb/verilator/gptp_txts/gptp_txts_wrap.sv
+index 29ba0a12a..ac29a3c70 100644
+--- a/tb/verilator/gptp_txts/gptp_txts_wrap.sv
++++ b/tb/verilator/gptp_txts/gptp_txts_wrap.sv
+@@ -378,7 +378,7 @@ module gptp_txts_wrap #(
+   logic obs_valid_w;
+   //! the fault-injection gate, and nothing else, sits between the exported
+   //! seam and the observer
+-  assign obs_valid_w = phy_sink_v_o & ~obs_bubble_i;
++  assign obs_valid_w = 1'b0;  // MUTATION
+ 
+   KL_gptp_gmii_launch #(
+       .REF_OCTET_P      (8),
