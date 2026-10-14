@@ -20,17 +20,11 @@ import sys
 
 import yaml
 
+from ci_command_table import Audit, Refusal
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = Path("ci/image/tool-inventory.json")
-PATH_WORD = re.compile(r"(?:scripts|sw|syn|docs|avdecc|tools|tb|ci)/[\w./-]+\.(?:py|sh|txt)")
-INSTALL_WORD = re.compile(
-    r"(?:pip\d*|pipx|npm|pnpm|yarn|apt|apt-get|dnf|apk|cargo|gem|brew|conda)"
-    r"\s+(?:[^\n]*\s)?(?:install|add)\b")
-
-
-class Refusal(ValueError):
-    """The workflow contains an installation request we cannot enumerate."""
 
 
 def digest(data: bytes) -> str:
@@ -153,119 +147,31 @@ def shell_installs(run: str, env: dict[str, str], root: Path) -> list[dict[str, 
                 raise Refusal(f"unrecognized release download {url}")
             result.append({"tool": match[1], "kind": "archive", "pin": match[2],
                            "source": url, "sha256": variables.get("sha256")})
-        elif INSTALL_WORD.search(line) and not line.lstrip().startswith("#"):
+        elif words and words[:2] != ["apt-get", "update"]:
             raise Refusal(f"unsupported installation command: {line.strip()}")
     return result
 
 
-def comparison_operand(node: ast.AST, parents: dict[ast.AST, ast.AST]) -> bool:
-    """Literal comparison operands describe tokens; nested calls still execute."""
-    parent = parents.get(node)
-    while isinstance(parent, (ast.List, ast.Tuple)):
-        parent = parents.get(parent)
-    return isinstance(parent, ast.Compare)
-
-
-def script_inputs(run: str, root: Path, found: dict[str, str]) -> None:
-    """Follow literal script references and local imports without executing them.
-
-    Dynamic installation logic is supported only in the two named installers.
-    Their complete source is bound, and their pin derivation is explicit below.
-    Other subprocess installations are refused rather than silently omitted.
-    """
-    pending = list(set(PATH_WORD.findall(run)))
-    while pending:
-        relative = pending.pop()
-        path = root / relative
-        if relative in found or not path.is_file():
-            continue
-        raw = path.read_bytes()
-        found[relative] = digest(raw)
-        if path.suffix not in (".py", ".sh"):
-            continue
-        source = raw.decode()
-        pending.extend(PATH_WORD.findall(source))
-        if path.suffix != ".py":
-            for line in source.splitlines():
-                if line.lstrip().startswith("#"):
-                    continue
-                if INSTALL_WORD.search(line) or re.search(r"\b(?:git\s+clone|curl\s|wget\s)", line):
-                    raise Refusal(f"{relative}: shell installation needs an explicit pin reader")
-            continue
-        tree = ast.parse(source)
-        parents = {child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)}
-        assignments: dict[str, list[ast.expr]] = {}
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Assign):
-                for target in node.targets:
-                    if isinstance(target, ast.Name):
-                        assignments.setdefault(target.id, []).append(node.value)
-
-        def command_strings(node: ast.expr, seen: frozenset[str] = frozenset()) -> list[str]:
-            """Follow literal command variables without executing installer code."""
-            if isinstance(node, ast.Constant) and isinstance(node.value, str):
-                return [node.value]
-            if isinstance(node, ast.Name) and node.id not in seen:
-                return [value for expr in assignments.get(node.id, [])
-                        for value in command_strings(expr, seen | {node.id})]
-            if isinstance(node, (ast.JoinedStr, ast.BinOp)):
-                return [" ".join(child.value for child in ast.walk(node)
-                                 if isinstance(child, ast.Constant) and isinstance(child.value, str))]
-            return []
-
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.Import, ast.ImportFrom)):
-                names = [alias.name for alias in node.names] if isinstance(node, ast.Import) else [node.module or ""]
-                for name in names:
-                    stem = name.replace(".", "/") + ".py"
-                    for candidate in (path.parent / stem, root / stem, root / "scripts" / stem):
-                        if candidate.is_file() and candidate.is_relative_to(root):
-                            pending.append(candidate.relative_to(root).as_posix())
-            # Inspect command data as well as calls: a list assigned to a
-            # variable or passed through a helper still names an installation.
-            if isinstance(node, ast.Call) and node.args:
-                function = node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, "id", "")
-                if function in ("run", "_run", "check_call", "check_output", "Popen", "system", "call"):
-                    if any(INSTALL_WORD.search(value) for value in command_strings(node.args[0])):
-                        raise Refusal(f"{relative}: installation string needs an explicit pin reader")
-            if not isinstance(node, (ast.List, ast.Tuple)):
-                continue
-            if comparison_operand(node, parents):
-                continue
-            tokens = [item.value if isinstance(item, ast.Constant) and isinstance(item.value, str) else "<dynamic>"
-                      for item in node.elts]
-            installs = ("install" in tokens and
-                        any(item in tokens for item in ("pip", "pip3", "pipx", "apt", "apt-get", "npm")))
-            download = tokens[:2] == ["git", "clone"] or tokens[:1] in (["curl"], ["wget"])
-            if tokens[:2] == ["git", "clone"] and "--no-hardlinks" in tokens:
-                # Mutation controls copy the already-pinned local source tree.
-                download = False
-            if (installs or download) and relative != "scripts/ci_litex_env.py":
-                raise Refusal(f"{relative}: script installation needs an explicit pin reader: {tokens}")
-
-
-def make_inputs(root: Path, found: dict[str, str]) -> None:
-    """Refuse installers in first-party recipes, including dynamic suite paths.
-
-    The suite drivers select directories at runtime. Scan their whole owned
-    recipe population so such indirection cannot hide an installation.
-    """
-    for directory in ("tb", "sw", "syn", "scripts"):
-        for path in sorted((root / directory).rglob("*")):
-            if not path.is_file() or (path.name != "Makefile" and path.suffix != ".mk"):
-                continue
-            source = path.read_text()
-            relative = path.relative_to(root).as_posix()
-            found[relative] = digest(source.encode())
-            for line in source.splitlines():
-                if not line.lstrip().startswith("#") and INSTALL_WORD.search(line):
-                    raise Refusal(f"{relative}: Makefile installation needs an explicit pin reader")
+def job_images(body: dict) -> list[dict[str, object]]:
+    """Record every job and service image, refusing moving or unresolved tags."""
+    result = []
+    images = [('container', body['container'])] if 'container' in body else []
+    images.extend((f'service:{name}', value) for name, value in body.get('services', {}).items())
+    for role, value in images:
+        reference = value.get('image') if isinstance(value, dict) else value
+        if not isinstance(reference, str) or not re.fullmatch(r'[^\s$]+@sha256:[0-9a-f]{64}', reference):
+            raise Refusal(f'job {role} image requires an exact digest: {reference!r}')
+        result.append({'tool': reference.split('@')[0], 'kind': 'image', 'pin': reference.split('@')[1],
+                       'source': reference, 'role': role})
+    return result
 
 
 def derive(root: Path) -> dict[str, object]:
     """Derive tool requests with every installing job and step as provenance."""
     records: dict[str, dict[str, object]] = {}
     inputs = {}
+    audit = Audit(root, inputs)
+    audit.install_reader = shell_installs
     workflows = sorted((root / ".github/workflows").glob("*.yml"))
     if not workflows:
         raise Refusal("no workflows found")
@@ -275,18 +181,17 @@ def derive(root: Path) -> dict[str, object]:
         doc = yaml.safe_load(raw)
         inputs[relative] = digest(raw)
         for job, body in doc["jobs"].items():
+            for row in job_images(body):
+                key = json.dumps(row, sort_keys=True)
+                records.setdefault(key, {**row, "installed_by": []})["installed_by"].append(
+                    {"workflow": relative, "job": job, "step": row["role"], "index": -1})
             for index, step in enumerate(body.get("steps", [])):
                 run = step.get("run", "")
                 env = {**doc.get("env", {}), **body.get("env", {}), **step.get("env", {})}
-                rows = shell_installs(run, env, root)
-                script_inputs(run, root, inputs)
-                if re.search(r"python3 scripts/ci_rv32_sdk\.py(?:\s|$)", run):
-                    values = constants(root / "scripts/ci_rv32_sdk.py")
-                    rows.append({"tool": "rv32-sdk", "kind": "installer",
-                                 "pin": values["RELEASE"], "sha256": values["ARCHIVE_SHA256"]})
-                if "python3 scripts/ci_litex_env.py" in run:
-                    rows.append({"tool": "VexiiRiscv", "kind": "derived-git",
-                                 "pin": "litex.soc.cores.cpu.vexiiriscv.core:git_setup"})
+                audit.requests = []
+                audit.env = dict(env)
+                audit.shell(run, relative, root)
+                rows = audit.requests
                 if "sw/litex/patches/apply.sh" in run:
                     for patch in sorted((root / "sw/litex/patches").glob("*.patch")):
                         inputs[patch.relative_to(root).as_posix()] = digest(patch.read_bytes())
@@ -307,8 +212,13 @@ def derive(root: Path) -> dict[str, object]:
                 for row in rows:
                     key = json.dumps(row, sort_keys=True)
                     records.setdefault(key, {**row, "installed_by": []})["installed_by"].append(where)
-    make_inputs(root, inputs)
-    return {"schema": 1, "inputs": dict(sorted(inputs.items())),
+    audit.requests = []
+    for directory in ("tb/verilator",):
+        for path in sorted((root / directory).rglob("*")):
+            if path.is_file() and (path.name == "Makefile" or path.suffix == ".mk"):
+                audit.script(path.relative_to(root).as_posix(), "suite recipe population", root)
+    return {"schema": 2, "inputs": dict(sorted(inputs.items())),
+            "residue": sorted(audit.residue),
             "tools": [records[key] for key in sorted(records)]}
 
 

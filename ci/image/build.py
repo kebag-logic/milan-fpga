@@ -148,7 +148,8 @@ def recipe_inputs() -> dict[str, str]:
                                       "image_lock.py", "image_archive.py", "privacy.py", "privacy.json",
                                       "patch_provenance.py")]
     files += [ROOT / "scripts/ci_rv32_sdk.py", ROOT / "scripts/ci_tool_inventory.py",
-              HERE / "tool-inventory.json", ROOT / "sw/litex/patches/apply.sh"]
+              HERE / "tool-inventory.json", HERE / "command-table.json",
+              ROOT / "scripts/ci_command_table.py", ROOT / "sw/litex/patches/apply.sh"]
     files += sorted((ROOT / "sw/litex/patches").glob("*.patch"))
     return {path.relative_to(ROOT).as_posix(): sha256(path) for path in files}
 

@@ -21,9 +21,21 @@ This lane supplies the image without changing workflows.
 [`tool-inventory.json`](../../ci/image/tool-inventory.json) derives installation requests.
 Each entry names its workflow, job and step.
 [`ci_tool_inventory.py`](../../scripts/ci_tool_inventory.py) reads every workflow.
-It follows literal script references, imports and first-party Makefiles.
-Unknown installers and unsupported installation actions refuse generation.
-Command variables and shell strings receive the same scrutiny.
+It follows executed scripts, local imports and selected Makefile targets.
+The suite driver's owned Makefiles are checked too.
+[`command-table.json`](../../ci/image/command-table.json) classifies the permitted commands.
+Every literal command must have a declared classification.
+Unknown names and unclassified subcommands refuse generation.
+Installers require an explicit tool and pin reader.
+Python subprocess calls include positional and keyword arguments.
+Network-using or subprocess-using Python scripts require reviewed declarations.
+Non-installing declarations include a reason and content SHA-256.
+Installer declarations include their tools, pins and content SHA-256.
+Changed declared scripts refuse generation until reviewed again.
+Job containers and services record immutable image references.
+Moving image tags refuse generation.
+Commands assembled at runtime, including string building, `eval`, `getattr`,
+and indirect shells, remain outside static analysis and enter the residue checklist.
 Changed requests and unused inventory entries fail comparison.
 
 [`sources.lock.json`](../../ci/image/sources.lock.json) resolves those requests.
@@ -71,6 +83,11 @@ Package database comparisons are additional checks.
 
 Use Linux x86-64, Docker, BuildKit and Python 3.12.
 Install Docker buildx v0.38.0 and PyYAML.
+Inventory derivation also requires the pinned shfmt Bash parser.
+Its version, URL, size and checksum live under `host_tools`.
+The source lock records these host prerequisites separately.
+It parses shell syntax without executing candidate scripts.
+This is a host prerequisite, like buildx.
 Use the Docker driver with the containerd image store.
 This setup supports local cache export and image inspection.
 The build authenticates configuration identity from the exported manifest.
@@ -82,6 +99,8 @@ Allow eight compilation workers per native tool stage.
 
 ```sh
 mkdir -p "$IMAGE_WORK"
+export CI_IMAGE_SHFMT="$IMAGE_WORK/shfmt"
+python3 ci/image/prepare_parser.py --output "$CI_IMAGE_SHFMT"
 base=$(python3 -c 'import json; print(json.load(open("ci/image/sources.lock.json"))["base"])')
 docker pull "$base"
 docker image save --output "$IMAGE_WORK/base-locked.tar" "$base"
@@ -191,7 +210,9 @@ Unknown postimages and uncommitted patch changes are refused too.
 
 ## Regenerating source closures
 
-Refresh workflow provenance whenever its inputs change.
+Review new commands before adding their table classifications.
+Review script changes before updating their content hashes.
+Then refresh workflow provenance whenever its inputs change.
 
 ```sh
 python3 scripts/ci_tool_inventory.py --write

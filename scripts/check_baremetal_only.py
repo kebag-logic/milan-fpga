@@ -346,6 +346,40 @@ CI_IMAGE_LOCK_LITERALS = (
     '"util-linux"',
     '"sources/gh_2.102.0_linux_amd64.tar.gz"',
     '"sources/node-v22.23.3-linux-x64.tar.xz"',
+    # #737 round 3: retained package URLs and the pinned host parser.
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/b/binutils/binutils-x86'
+        '-64-linux-gnu_2.42-4ubuntu2.10_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-13/cpp-13-x86-64-'
+        'linux-gnu_13.3.0-6ubuntu2~24.04.1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-defaults/cpp-x86-'
+        '64-linux-gnu_13.2.0-7ubuntu1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-13/g++-13-x86-64-'
+        'linux-gnu_13.3.0-6ubuntu2~24.04.1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-defaults/g++-x86-'
+        '64-linux-gnu_13.2.0-7ubuntu1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-13/gcc-13-x86-64-'
+        'linux-gnu_13.3.0-6ubuntu2~24.04.1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-defaults/gcc-x86-'
+        '64-linux-gnu_13.2.0-7ubuntu1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/l/linux/linux-libc-dev_'
+        '6.8.0-147.147_amd64.deb"'
+    ),
+    '"https://github.com/mvdan/sh/releases/download/v3.11.0/shfmt_v3.11.0_linux_amd64"',
 )
 CI_IMAGE_LOCK_MASK = re.compile("|".join(re.escape(value) for value in CI_IMAGE_LOCK_LITERALS))
 CI_IMAGE_CLIENT_URL = ('"https://download.docker.com/linux/ubuntu/dists/noble/pool/stable/amd64/'
