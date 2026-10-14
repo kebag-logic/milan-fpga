@@ -1,0 +1,27 @@
+CMD ["bash"]|buildkit.dockerfile.v0|0B
+COPY recipe/smoke.py recipe/sources.lock.json /opt/ci-image/ # buildkit|buildkit.dockerfile.v0|451kB
+ENV SBT_OPTS=-Dsbt.boot.directory=/opt/sbt/cache/boot -Dsbt.global.base=/opt/sbt/cache/global -Dsbt.ivy.home=/opt/sbt/cache/ivy -Dsbt.override.build.repos=true -Dsbt.repository.config=/opt/sbt/repositories|buildkit.dockerfile.v0|0B
+ENV COURSIER_CACHE=/opt/sbt/cache/coursier|buildkit.dockerfile.v0|0B
+ENV TSN_GEN_ROOT=/opt/tsn-gen|buildkit.dockerfile.v0|0B
+ENV MILAN_RV32_CC=/opt/rv32-sdk/bin/riscv32-linux-gcc|buildkit.dockerfile.v0|0B
+ENV PATH=/opt/node/bin:/opt/gh/bin:/opt/python/bin:/opt/verilator/bin:/opt/yosys/bin:/opt/rv32-sdk/bin:/opt/sv2v/bin:/opt/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin|buildkit.dockerfile.v0|0B
+COPY /opt/gh /opt/gh # buildkit|buildkit.dockerfile.v0|43.1MB
+COPY /opt/node /opt/node # buildkit|buildkit.dockerfile.v0|213MB
+COPY /opt/tsn-gen /opt/tsn-gen # buildkit|buildkit.dockerfile.v0|9.4MB
+COPY /opt/sbt /opt/sbt # buildkit|buildkit.dockerfile.v0|361MB
+COPY /opt/sv2v /opt/sv2v # buildkit|buildkit.dockerfile.v0|10.3MB
+COPY /opt/rv32-sdk /opt/rv32-sdk # buildkit|buildkit.dockerfile.v0|544MB
+COPY /opt/yosys /opt/yosys # buildkit|buildkit.dockerfile.v0|60.1MB
+COPY /opt/verilator /opt/verilator # buildkit|buildkit.dockerfile.v0|129MB
+COPY --chown=0:0 /opt/litex /opt/python # buildkit|buildkit.dockerfile.v0|106MB
+COPY --chown=0:0 /opt/python /opt/python # buildkit|buildkit.dockerfile.v0|51.1MB
+RUN |1 SOURCE_DATE_EPOCH=1791940308 /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     python3 /recipe/normalize.py system # buildkit|buildkit.dockerfile.v0|7.07MB
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8|buildkit.dockerfile.v0|0B
+RUN |1 SOURCE_DATE_EPOCH=1791940308 /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     python3 /recipe/normalize.py system # buildkit|buildkit.dockerfile.v0|1.17GB
+ENV DEBIAN_FRONTEND=noninteractive|buildkit.dockerfile.v0|0B
+ARG SOURCE_DATE_EPOCH=1791940308|buildkit.dockerfile.v0|0B
+/bin/sh -c #(nop)  CMD ["/bin/bash"]||0B
+/bin/sh -c #(nop) ADD file:43d479b270bbaf47965cfc86b37f4c517bda83ddefda6f708f98c3b2b7d15396 in / ||87.6MB
+/bin/sh -c #(nop)  LABEL org.opencontainers.image.version=24.04||0B
+/bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH||0B
+/bin/sh -c #(nop)  ARG RELEASE||0B

@@ -1,0 +1,167 @@
+ok     B0: expected REFUSED, observed REFUSED: baseline: hidden script followed directly
+         REFUSED: unclassified command 'brand_new_command' at hidden.sh:1 || REFUSED: unclassified command 'brand_new_command' at hidden.sh:1
+ok     B1: expected ACCEPTED, observed ACCEPTED: baseline: benign script accepted
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT W1: expected REFUSED, observed ACCEPTED: step shell: custom shell program runs hidden.sh with the step file
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT W2: expected REFUSED, observed ACCEPTED: workflow defaults.run.shell custom shell runs hidden.sh
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT W3: expected REFUSED, observed ACCEPTED: step env BASH_ENV=hidden.sh: bash sources it before the step body
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT W4: expected REFUSED, observed ACCEPTED: GITHUB_PATH write puts ./tools first; later step "git rev-parse HEAD" runs tools/git
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT W5: expected REFUSED, observed ACCEPTED: PATH=tools:$PATH then "git rev-parse HEAD" runs tools/git
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT X1: expected REFUSED, observed ACCEPTED: xargs appends stdin words to "python3 -m pip install"
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT X2: expected REFUSED, observed ACCEPTED: xargs appends stdin words to "apt-get install -y"
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+ok     X3: expected REFUSED, observed REFUSED: xargs appends stdin path to "bash"
+         REFUSED: unclassified shell invocation at .github/workflows/fixture.yml:1: bash || REFUSED: unclassified shell invocation at .github/workflows/fixture.yml:1: bash
+ok     S1: expected REFUSED, observed REFUSED: shift inside a function moves $1 to the second argument
+         REFUSED: unclassified runtime command name '${1}' at .github/workflows/fixture.yml:1 || REFUSED: unclassified runtime command name '${1}' at .github/workflows/fixture.yml:1
+DEFECT S2: expected REFUSED, observed ACCEPTED: printf -v assigns the variable used as the script path
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT S3: expected REFUSED, observed ACCEPTED: read -r f assigns the variable used as the script path
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT S4: expected REFUSED, observed ACCEPTED: source: assignment in the sourced file reaches the parent
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT S5: expected REFUSED, observed ACCEPTED: source: cd in the sourced file changes the parent directory
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT S6: expected REFUSED, observed ACCEPTED: literal marker text "<dynamic>" in bash -c in an undeclared workflow
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT S7: expected REFUSED, observed ACCEPTED: bare script name uses PATH, not the working directory
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT M1: expected REFUSED, observed ACCEPTED: Make SHELL := ./hidden.sh: make runs every recipe through hidden.sh
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT M2: expected REFUSED, observed ACCEPTED: Make ?= keeps a workflow env value (TOOL=brand_new_command)
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT M2b: expected REFUSED, observed ACCEPTED: Make ?= keeps a shell-exported value (TOOL=brand_new_command)
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT M3: expected REFUSED, observed ACCEPTED: Make $(@D) is the target directory, not empty
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT M4: expected REFUSED, observed ACCEPTED: command-line override propagates to a recursive $(MAKE)
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT Y1: expected REFUSED, observed ACCEPTED: ctypes libc system() executes a command
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT Y2: expected REFUSED, observed ACCEPTED: getattr(os, "system") executes a command in an undeclared script
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT Y3: expected REFUSED, observed ACCEPTED: local package submodule (allow-listed package name) is never followed
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+ok     R638-3-01: expected REFUSED, observed REFUSED: gh extension install
+         REFUSED: unclassified command 'gh extension install example/gh-fixture' at .github/workflows/fixture.yml:1 || REFUSED: unclassified command 'gh extension install example/gh-fixture' at .github/workflows/fixture.yml:1
+ok     R638-3-02: expected REFUSED, observed REFUSED: gh release download
+         REFUSED: unclassified command 'gh release download v1.0 -R example/tool' at .github/workflows/fixture.yml:1 || REFUSED: unclassified command 'gh release download v1.0 -R example/tool' at .github/workflows/fixture.yml:1
+ok     R638-3-03: expected REFUSED, observed REFUSED: git submodule add <url>
+         REFUSED: unclassified git command at .github/workflows/fixture.yml:1: git submodule add https://example.invalid/tool || REFUSED: unclassified git command at .github/workflows/fixture.yml:1: git submodule add https://example.invalid/tool
+ok     R638-3-04: expected REFUSED, observed REFUSED: git config submodule url then update
+         REFUSED: unclassified git command at .github/workflows/fixture.yml:1: git config submodule.x.url https://example.invalid/tool || REFUSED: unclassified git command at .github/workflows/fixture.yml:1: git config submodule.x.url https://example.invalid/tool
+ok     R638-3-05: expected REFUSED, observed REFUSED: git clone host:path
+         REFUSED: unclassified git command at .github/workflows/fixture.yml:1: git clone --no-hardlinks git@host:org/tool.git || REFUSED: unclassified git command at .github/workflows/fixture.yml:1: git clone --no-hardlinks git@host:org/tool.git
+ok     R638-3-06: expected REFUSED, observed REFUSED: git archive --remote
+         REFUSED: unclassified git command at .github/workflows/fixture.yml:1: git archive --remote=https://example.invalid/tool HEAD || REFUSED: unclassified git command at .github/workflows/fixture.yml:1: git archive --remote=https://example.invalid/tool HEAD
+ok     R638-3-07: expected REFUSED, observed REFUSED: python3 heredoc without -
+         REFUSED: unclassified inline interpreter text at .github/workflows/fixture.yml:1 || REFUSED: unclassified inline interpreter text at .github/workflows/fixture.yml:1
+ok     R638-3-08: expected REFUSED, observed REFUSED: python3 -I - heredoc
+         REFUSED: unclassified inline interpreter text at .github/workflows/fixture.yml:1 || REFUSED: unclassified inline interpreter text at .github/workflows/fixture.yml:1
+ok     R638-3-09: expected REFUSED, observed REFUSED: os.popen
+         REFUSED: undeclared executing or network script 'bootstrap.py' || REFUSED: undeclared executing or network script 'bootstrap.py'
+ok     R638-3-10: expected REFUSED, observed REFUSED: os.execvp
+         REFUSED: unclassified Python execution 'os.execvp' at bootstrap.py:2 || REFUSED: unclassified Python execution 'os.execvp' at bootstrap.py:2
+ok     R638-3-11: expected REFUSED, observed REFUSED: os.spawnlp
+         REFUSED: unclassified Python execution 'os.spawnlp' at bootstrap.py:2 || REFUSED: unclassified Python execution 'os.spawnlp' at bootstrap.py:2
+ok     R638-3-12: expected REFUSED, observed REFUSED: asyncio.create_subprocess_exec
+         REFUSED: unclassified Python execution 'asyncio.create_subprocess_exec' at bootstrap.py:2 || REFUSED: unclassified Python execution 'asyncio.create_subprocess_exec' at bootstrap.py:2
+ok     R638-3-13: expected REFUSED, observed REFUSED: pip._internal install
+         REFUSED: undeclared executing or network script 'bootstrap.py' || REFUSED: undeclared executing or network script 'bootstrap.py'
+ok     R638-3-14: expected REFUSED, observed REFUSED: urllib3 import
+         REFUSED: undeclared executing or network script 'bootstrap.py' || REFUSED: undeclared executing or network script 'bootstrap.py'
+ok     R638-3-15: expected REFUSED, observed REFUSED: asyncio.open_connection ssl
+         REFUSED: undeclared executing or network script 'bootstrap.py' || REFUSED: undeclared executing or network script 'bootstrap.py'
+ok     R638-3-16: expected REFUSED, observed REFUSED: pattern-rule prerequisite
+         REFUSED: unclassified command 'npx' at Makefile:3:1 || REFUSED: unclassified command 'npx' at Makefile:3:1
+ok     R638-3-17: expected REFUSED, observed REFUSED: make --directory=fx run
+         REFUSED: unclassified command 'npx' at fx/Makefile:2:1 || REFUSED: unclassified command 'npx' at fx/Makefile:2:1
+ok     R638-3-18: expected REFUSED, observed REFUSED: make with working-directory: fx
+         REFUSED: unclassified command 'npx' at fx/Makefile:2:1 || REFUSED: unclassified command 'npx' at fx/Makefile:2:1
+ok     R638-3-19: expected REFUSED, observed REFUSED: job-level reusable workflow
+         REFUSED: unsupported reusable workflow at .github/workflows/fixture.yml: job gate || REFUSED: unsupported reusable workflow at .github/workflows/fixture.yml: job gate
+ok     R638-3-B1: expected REFUSED, observed REFUSED: echo 'npx' | bash
+         REFUSED: unclassified shell invocation at .github/workflows/fixture.yml:1: bash || REFUSED: unclassified shell invocation at .github/workflows/fixture.yml:1: bash
+ok     R638-3-B2: expected REFUSED, observed REFUSED: bash <<< 'npx'
+         REFUSED: unclassified shell invocation at .github/workflows/fixture.yml:1: bash || REFUSED: unclassified shell invocation at .github/workflows/fixture.yml:1: bash
+ok     R638-3-B3: expected REFUSED, observed REFUSED: alias runner = subprocess.run (undeclared)
+         REFUSED: undeclared executing or network script 'bootstrap.py' || REFUSED: undeclared executing or network script 'bootstrap.py'
+ok     R638-3-B4: expected REFUSED, observed REFUSED: importlib.import_module urllib
+         REFUSED: undeclared executing or network script 'bootstrap.py' || REFUSED: undeclared executing or network script 'bootstrap.py'
+ok     R638-3-I3: expected REFUSED, observed REFUSED: moving container tag
+         REFUSED: job container image requires an exact digest: 'ubuntu:24.04' || REFUSED: job container image requires an exact digest: 'ubuntu:24.04'
+ok     R638-3-I4: expected REFUSED, observed REFUSED: moving service tag
+         REFUSED: job service:db image requires an exact digest: 'postgres:16' || REFUSED: job service:db image requires an exact digest: 'postgres:16'
+ok     R639-3-01: expected REFUSED, observed REFUSED: make --file=install.mk
+         REFUSED: unclassified command 'brand_new_command' at install.mk:2:1 || REFUSED: unclassified command 'brand_new_command' at install.mk:2:1
+ok     R639-3-02: expected REFUSED, observed REFUSED: make -finstall.mk
+         REFUSED: unclassified command 'brand_new_command' at install.mk:2:1 || REFUSED: unclassified command 'brand_new_command' at install.mk:2:1
+ok     R639-3-03: expected REFUSED, observed REFUSED: .DEFAULT_GOAL := install
+         REFUSED: unclassified command 'brand_new_command' at Makefile:5:1 || REFUSED: unclassified command 'brand_new_command' at Makefile:5:1
+ok     R639-3-04: expected REFUSED, observed REFUSED: make install via %: rule
+         REFUSED: unclassified command 'brand_new_command' at Makefile:4:1 || REFUSED: unclassified command 'brand_new_command' at Makefile:4:1
+ok     R639-3-05: expected REFUSED, observed REFUSED: subprocess.run(**{args}) undeclared
+         REFUSED: undeclared executing or network script 'bootstrap.py' || REFUSED: undeclared executing or network script 'bootstrap.py'
+ok     R639-3-07: expected REFUSED, observed REFUSED: working-directory: subdir + bash bootstrap.sh
+         REFUSED: unclassified command 'brand_new_command' at subdir/bootstrap.sh:1 || REFUSED: unclassified command 'brand_new_command' at subdir/bootstrap.sh:1
+ok     R639-3-08: expected REFUSED, observed REFUSED: (cd subdir); bash bootstrap.sh
+         REFUSED: unclassified command 'brand_new_command' at bootstrap.sh:1 || REFUSED: unclassified command 'brand_new_command' at bootstrap.sh:1
+ok     NEW-01: expected REFUSED, observed REFUSED: new command name
+         REFUSED: unclassified command 'brand_new_command' at .github/workflows/fixture.yml:1 || REFUSED: unclassified command 'brand_new_command' at .github/workflows/fixture.yml:1
+ok     NEW-02: expected REFUSED, observed REFUSED: coproc
+         REFUSED: unsupported shell construct 'CoprocClause' at .github/workflows/fixture.yml:1 || REFUSED: unsupported shell construct 'CoprocClause' at .github/workflows/fixture.yml:1
+ok     NEW-03: expected REFUSED, observed REFUSED: [[ ]] test clause
+         REFUSED: unsupported shell construct 'TestClause' at .github/workflows/fixture.yml:1 || REFUSED: unsupported shell construct 'TestClause' at .github/workflows/fixture.yml:1
+ok     NEW-04: expected REFUSED, observed REFUSED: time keyword
+         REFUSED: unsupported shell construct 'TimeClause' at .github/workflows/fixture.yml:1 || REFUSED: unsupported shell construct 'TimeClause' at .github/workflows/fixture.yml:1
+ok     NEW-05: expected REFUSED, observed REFUSED: arithmetic command
+         REFUSED: unsupported shell construct 'ArithmCmd' at .github/workflows/fixture.yml:1 || REFUSED: unsupported shell construct 'ArithmCmd' at .github/workflows/fixture.yml:1
+DEFECT NEW-06: expected REFUSED, observed ACCEPTED: select loop
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+ok     NEW-07: expected REFUSED, observed REFUSED: Make vpath directive
+         REFUSED: unsupported Make construct 'vpath %.c src' at Makefile:1 || REFUSED: unsupported Make construct 'vpath %.c src' at Makefile:1
+ok     NEW-08: expected REFUSED, observed REFUSED: Make ifdef
+         REFUSED: unsupported Make construct 'ifdef X' at Makefile:1 || REFUSED: unsupported Make construct 'ifdef X' at Makefile:1
+ok     NEW-09: expected REFUSED, observed REFUSED: Make $(info)
+         REFUSED: unsupported Make function 'info' at Makefile:2 || REFUSED: unsupported Make function 'info' at Makefile:2
+ok     NEW-10: expected REFUSED, observed REFUSED: Make .ONESHELL
+         REFUSED: unsupported Make special or suffix rule '.ONESHELL' at Makefile:1 || REFUSED: unsupported Make special or suffix rule '.ONESHELL' at Makefile:1
+ok     NEW-11: expected REFUSED, observed REFUSED: Make != shell assignment
+         REFUSED: unsupported Make construct 'X != brand_new_command' at Makefile:1 || REFUSED: unsupported Make construct 'X != brand_new_command' at Makefile:1
+ok     NEW-12: expected REFUSED, observed REFUSED: eval
+         REFUSED: unclassified evaluation command at .github/workflows/fixture.yml:1 || REFUSED: unclassified evaluation command at .github/workflows/fixture.yml:1
+ok     NEW-13: expected REFUSED, observed REFUSED: alias
+         REFUSED: unclassified command 'alias' at .github/workflows/fixture.yml:1 || REFUSED: unclassified command 'alias' at .github/workflows/fixture.yml:1
+ok     VAR-01: expected REFUSED, observed REFUSED: computed .DEFAULT_GOAL
+         REFUSED: computed .DEFAULT_GOAL at Makefile:3 || REFUSED: computed .DEFAULT_GOAL at Makefile:3
+ok     VAR-02: expected REFUSED, observed REFUSED: target matching two pattern rules
+         REFUSED: ambiguous Make pattern for 'obj_t' at Makefile:5 || REFUSED: ambiguous Make pattern for 'obj_t' at Makefile:5
+ok     VAR-03: expected REFUSED, observed REFUSED: subshell cd to computed path
+         REFUSED: unresolved shell cd at .github/workflows/fixture.yml:1 || REFUSED: unresolved shell cd at .github/workflows/fixture.yml:1
+ok     VAR-04: expected REFUSED, observed REFUSED: changed byte of a pinned inline program
+         REFUSED: unclassified inline interpreter text at .github/workflows/fixture.yml:1 || REFUSED: unclassified inline interpreter text at .github/workflows/fixture.yml:1
+ok     VAR-05: expected REFUSED, observed REFUSED: function called from another file
+         REFUSED: unclassified command 'f' at .github/workflows/fixture.yml:1 || REFUSED: unclassified command 'f' at .github/workflows/fixture.yml:1
+ok     VAR-06: expected REFUSED, observed REFUSED: computed $(shell)
+         REFUSED: computed Make shell command at Makefile:1 || REFUSED: computed Make shell command at Makefile:1
+ok     VAR-07: expected REFUSED, observed REFUSED: computed function name
+         REFUSED: unclassified command 'fx' at .github/workflows/fixture.yml:1 || REFUSED: unclassified command 'fx' at .github/workflows/fixture.yml:1
+ok     R638-3-I1/I2: expected ACCEPTED, observed ACCEPTED: container and service digests recorded
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+ok     R639-3-06: expected REFUSED, observed REFUSED: declared script with literal unpacked unclassified command still refused
+         REFUSED: unclassified command 'brand_new_command' at bootstrap.py:2 || REFUSED: unclassified command 'brand_new_command' at bootstrap.py:2
+ok     DECL-01: expected REFUSED, observed REFUSED: changed declared script refused
+         REFUSED: changed declared script 'bootstrap.py' || REFUSED: changed declared script 'bootstrap.py'
+ok     DECL-02: expected REFUSED, observed REFUSED: undeclared network import refused
+         REFUSED: undeclared executing or network script 'bootstrap.py' || REFUSED: undeclared executing or network script 'bootstrap.py'
+ok     DECL-03: expected ACCEPTED, observed ACCEPTED: declared script with classified command accepted
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+DEFECT S8: expected REFUSED, observed ACCEPTED: literal single-quoted 'sub$x' make -C directory treated as runtime residue
+         CI tool inventory matches workflow installation requests || CI tool inventory matches workflow installation requests
+defects: ['W1', 'W2', 'W3', 'W4', 'W5', 'X1', 'X2', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'M1', 'M2', 'M2b', 'M3', 'M4', 'Y1', 'Y2', 'Y3', 'NEW-06', 'S8']
