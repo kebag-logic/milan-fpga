@@ -24,6 +24,14 @@ class Refusal(ValueError):
     """A literal command has no reviewed classification."""
 
 
+class Runtime(str):
+    """Mark a value derived from an expression, never from literal dollar text."""
+
+    def replace(self, old: str, new: str, count: int = -1) -> Runtime:
+        """Retain provenance when normalizing checkout paths."""
+        return Runtime(super().replace(old, new, count))
+
+
 def sha256(path: Path) -> str:
     """Bind a declaration to exact source bytes."""
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -245,7 +253,7 @@ class Audit:
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             return [node.value]
         if isinstance(node, (ast.List, ast.Tuple)):
-            return [[n.value if isinstance(n, ast.Constant) and isinstance(n.value, str) else '<dynamic>'
+            return [[n.value if isinstance(n, ast.Constant) and isinstance(n.value, str) else Runtime('<dynamic>')
                      for n in node.elts]]
         if isinstance(node, ast.Name) and node.id not in seen and node.id in assignments:
             return [value for expr in assignments[node.id]
@@ -271,7 +279,7 @@ class Audit:
         name = words[0]
         if name in self.functions:
             return
-        if '$' in name or '<dynamic>' in name:
+        if isinstance(name, Runtime):
             if not self.table['scripts'].get(where.split(':')[0]):
                 raise Refusal(f'unclassified runtime command name {name!r} at {where}')
             self.residue.add(f'{where}: runtime command name')
@@ -318,7 +326,7 @@ class Audit:
                     if end is None:
                         raise Refusal(f'unterminated find execution at {where}')
                     self.command(rest[:end], where, directory)
-            if not any(self.matches(words[1:], p) for p in row['patterns']):
+            if not any(self.matches(normalized, p) for p in row['patterns']):
                 raise Refusal(f'unclassified find argument form at {where}')
         elif handler == 'python':
             self.python_command(words, where, directory, row)
@@ -333,7 +341,7 @@ class Audit:
         """Match complete argv; runtime slots cannot authorize literal options."""
         if len(args) != len(pattern):
             return False
-        return all(a == p or (p == '<runtime>' and ('$' in a or '<dynamic>' in a))
+        return all(isinstance(a, Runtime) if p == '<runtime>' else a == p
                    for a, p in zip(args, pattern))
 
     def wrapper_command(self, words: list[str], where: str, directory: Path | None, row: dict) -> None:
@@ -435,7 +443,8 @@ class Audit:
             return
         invocation(self, words, where, directory or self.root)
 
-    def makefile(self, path: Path, targets: list[str] | None = None, overrides: dict | None = None) -> None:
+    def makefile(self, path: Path, targets: list[str] | None = None, overrides: dict | None = None,
+                 directory: Path | None = None) -> None:
         """Classify reachable rules using the supported Make semantics."""
         from ci_make_walk import Makefile
-        Makefile(self, path, overrides or {}).walk(targets)
+        Makefile(self, path, overrides or {}, directory).walk(targets)

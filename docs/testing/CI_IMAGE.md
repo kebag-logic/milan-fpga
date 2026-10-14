@@ -62,7 +62,7 @@ Every downloaded JAR and metadata file has its checksum.
 Round four starts from `e6b86814` and its unchanged workflows.
 The census follows scripts, local imports and suite recipes.
 The initial census encountered 69 Makefiles and 214 import names.
-Expanded resolution binds 324 inputs, including previously hidden scripts.
+Expanded resolution binds 328 inputs, including previously hidden scripts.
 All 45 tool records retain their original pins and provenance.
 The command table records individual permitted argument forms.
 This table defines the construct boundary, including refused variants.
@@ -81,11 +81,11 @@ Resolution never executes workflow commands or Make shell expressions.
 | Shell directory changes and subshells | `scripts/run_litex_sims.sh` | Preserve child scope; unresolved directories require content-pinned review. |
 | Shell blocks and conditionals | `.github/workflows/docs.yml` | Inspect every branch; refuse ambiguous following directories. |
 | Shell loops and cases | `sw/litex/patches/apply.sh` | Inspect every body; retain runtime iteration residue. |
-| Shell declarations and functions | `scripts/run_all_suites.sh` | Walk literal same-file calls; refuse undeclared foreign functions. |
+| Shell declarations and functions | `scripts/run_all_suites.sh` | Preserve local/global scope; refuse undeclared foreign functions. |
 | Shell sourced files | `syn/yosys/run.sh` | Follow resolved files; imported functions require content-pinned declarations. |
 | Inline interpreter programs | `.github/workflows/elaborate.yml` | Require interpreter and exact program digest; refuse changed bytes. |
 | Command wrappers | `.github/workflows/rtl.yml` | Parse supported options and classify children; refuse unknown options. |
-| Make options and variable overrides | `tb/verilator/maap/Makefile` | Select file, directory and targets; refuse unsupported options. |
+| Make options and variable overrides | `tb/verilator/maap/Makefile` | Keep file selection separate from recipe directory; refuse unsupported options. |
 | Make first target and default goal | `tb/verilator/tcam/Makefile` | Use literal default goal; refuse computed goals. |
 | Make explicit rules and prerequisites | `tb/verilator/cbs/Makefile` | Traverse selected dependencies; refuse missing targets. |
 | Make single-stem pattern rules | `tb/verilator/nvm_backend/Makefile` | Substitute the unique stem; refuse ambiguous patterns. |
@@ -97,7 +97,7 @@ Resolution never executes workflow commands or Make shell expressions.
 | Make literal shell expressions | `tb/verilator/milan_dp/Makefile` | Classify expanded literal commands; refuse computed executables. |
 | Make conditions and errors | `tb/verilator/capture_coherence/Makefile` | Inspect error-only guards; refuse conditional assignments and other directives. |
 | Make target-specific variables | `tb/verilator/milan_dp/Makefile` | Inherit literal values into prerequisites; refuse computed values. |
-| Make order-only prerequisites | `tb/verilator/mbx/Makefile` | Traverse both dependency classes; refuse missing dependencies. |
+| Make order-only prerequisites | `tb/verilator/mbx/Makefile` | Traverse both classes; exclude order-only entries from automatic variables. |
 | Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Follow resolved arguments; refuse unresolved literal selection. |
 | Python imports and local modules | `scripts/measure_test_evidence_readers.py` | Follow local files; require declarations for execution/network capabilities. |
 | Python positional and keyword calls | `scripts/check_rtl_source_lists.py` | Decode literal argv and keywords; refuse undeclared executors. |
@@ -115,6 +115,10 @@ Their paths never resolve to unrelated literal source files.
 Changing those scripts invalidates the declaration before traversal.
 Known external builds bind to recorded installer destinations.
 Checkout location never creates an external-build allowance.
+Runtime argument slots require expression provenance.
+Literal dollar signs and marker text never acquire that provenance.
+Double-quoted backslashes follow shell quoting rules.
+The reached `awk` programs are exact literal argument entries.
 The sourced allocator fragment exports only its pinned function definitions.
 Unpinned foreign functions remain refused.
 

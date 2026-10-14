@@ -5,7 +5,7 @@
 from pathlib import Path
 import re
 
-from ci_command_table import Refusal, nodes, shell_tree
+from ci_command_table import Refusal, Runtime, nodes, shell_tree
 
 
 class Shell:
@@ -17,17 +17,19 @@ class Shell:
         self.functions = {}
         self.active = set()
         self.env = dict(audit.env)
+        self.locals = []
         self.source = ''
 
     def location(self, node: dict) -> str:
         """Give every refusal and residue a source location."""
         return f"{self.where}:{node.get('Pos', {}).get('Line', 1)}"
 
-    def value(self, node: dict, directory: Path) -> str:
+    def value(self, node: dict, directory: Path, quoted: bool = False) -> str:
         """Resolve literals and simple expansions; walk all nested execution."""
         kind = node.get('Type')
         if kind == 'Lit':
-            return re.sub(r'\\(.)', r'\1', node.get('Value', ''))
+            pattern = r'\\([$`"\\\n])' if quoted else r'\\(.)'
+            return re.sub(pattern, r'\1', node.get('Value', '')).replace('\\\n', '')
         if kind == 'SglQuoted':
             return node.get('Value', '')
         if kind == 'ParamExp':
@@ -41,12 +43,14 @@ class Shell:
                     self.value(child, directory)
             if set(node) - {'Type', 'Pos', 'End', 'Short', 'Dollar', 'Rbrace', 'Param'}:
                 # Parameter operators are data; their nested substitutions were walked.
-                return '${RUNTIME}'
-            return self.env.get(name, '${' + name + '}')
+                return Runtime('${RUNTIME}')
+            return self.env.get(name, Runtime('${' + name + '}'))
         if kind in ('CmdSubst', 'ProcSubst'):
             saved = dict(self.env)
+            functions = dict(self.functions)
             end = self.statements(node.get('Stmts', []), directory)
             self.env = saved
+            self.functions = functions
             calls = [n for n in nodes(node.get('Stmts', [])) if n.get('Type') == 'CallExpr']
             if kind == 'CmdSubst' and calls:
                 last = calls[-1]
@@ -60,14 +64,16 @@ class Shell:
                 if first and first[0].get('Value') in ('dirname', 'realpath') and len(args) == 2:
                     value = Path(self.value(args[1], directory))
                     return str(value.parent if first[0]['Value'] == 'dirname' else (directory / value).resolve())
-            return '${RUNTIME}'
+            return Runtime('${RUNTIME}')
         if kind == 'ArithmExp':
             for child in nodes(node):
                 if child is not node and child.get('Type') in ('CmdSubst', 'ProcSubst'):
                     self.value(child, directory)
-            return '${RUNTIME}'
+            return Runtime('${RUNTIME}')
         if kind in ('DblQuoted', 'Word') or (kind is None and 'Parts' in node):
-            return ''.join(self.value(part, directory) for part in node.get('Parts', []))
+            parts = [self.value(part, directory, quoted or kind == 'DblQuoted') for part in node.get('Parts', [])]
+            value = ''.join(parts)
+            return Runtime(value) if any(isinstance(part, Runtime) for part in parts) else value
         raise Refusal(f'unsupported shell word {kind!r} at {self.location(node)}')
 
     def assignments(self, values: list[dict], directory: Path) -> None:
@@ -82,7 +88,7 @@ class Shell:
                 for item in assignment['Array'].get('Elems', []):
                     if item.get('Value'):
                         self.value(item['Value'], directory)
-                self.env[name] = '${RUNTIME}'
+                self.env[name] = Runtime('${RUNTIME}')
 
     def statements(self, statements: list[dict], directory: Path) -> Path:
         """Sequence statements; a subshell returns the parent's directory."""
@@ -119,6 +125,9 @@ class Shell:
                     option = self.value(item['Value'], directory)
                     if option.startswith('-') and option not in ('-a', '-A', '-gA'):
                         raise Refusal(f'unsupported shell declaration option at {where}')
+                name = item.get('Name', {}).get('Value')
+                if name and self.locals and node['Variant']['Value'] == 'local':
+                    self.locals[-1].setdefault(name, self.env.get(name))
             self.assignments(node.get('Args', []), directory)
             return directory
         if kind == 'FuncDecl':
@@ -127,15 +136,20 @@ class Shell:
             return directory
         if kind in ('Block', 'Subshell'):
             saved = dict(self.env)
+            functions = dict(self.functions)
             result = self.statements(node.get('Stmts', []), directory)
             if kind == 'Subshell':
                 self.env = saved
+                self.functions = functions
                 return directory
             return result
         if kind == 'BinaryCmd':
             return self.binary(node, directory, where)
         if kind == 'IfClause' or (kind is None and 'Then' in node):
-            self.statements(node.get('Cond', []), directory)
+            if not node.get('Cond'):
+                return self.statements(node.get('Then', []), directory)
+            if self.statements(node.get('Cond', []), directory) != directory:
+                raise Refusal(f'ambiguous shell directory in conditional test at {where}')
             before = dict(self.env)
             left = self.statements(node.get('Then', []), directory)
             left_env = dict(self.env)
@@ -143,8 +157,8 @@ class Shell:
             right = self.statement(node['Else'], directory) if node.get('Else') else directory
             if left != right:
                 raise Refusal(f'ambiguous shell directory after conditional at {where}')
-            self.env = {k: v if self.env.get(k) == v else '${RUNTIME}' for k, v in left_env.items()}
-            return directory
+            self.env = {k: v if self.env.get(k) == v else Runtime('${RUNTIME}') for k, v in left_env.items()}
+            return left
         if kind in ('ForClause', 'WhileClause', 'CaseClause'):
             before = dict(self.env)
             if kind == 'ForClause':
@@ -162,7 +176,7 @@ class Shell:
                             raise Refusal(f'ambiguous shell directory after loop at {where}')
                     return directory
                 if loop.get('Name'):
-                    self.env[loop['Name']['Value']] = '${RUNTIME}'
+                    self.env[loop['Name']['Value']] = Runtime('${RUNTIME}')
                 bodies = [node.get('Do', [])]
             elif kind == 'WhileClause':
                 self.statements(node.get('Cond', []), directory)
@@ -173,18 +187,21 @@ class Shell:
             for body in bodies:
                 if self.statements(body, directory) != directory:
                     raise Refusal(f'ambiguous shell directory after loop or case at {where}')
-            self.env = {k: v if self.env.get(k) == v else '${RUNTIME}' for k, v in before.items()}
+            self.env = {k: v if self.env.get(k) == v else Runtime('${RUNTIME}') for k, v in before.items()}
             return directory
         raise Refusal(f'unsupported shell construct {kind!r} at {where}')
 
     def binary(self, node: dict, directory: Path, where: str) -> Path:
         """Keep fallback and pipeline directories separate from successful operands."""
         before = dict(self.env)
+        functions = dict(self.functions)
         left = self.statement(node['X'], directory)
         if node['Op'] == 10:  # The right side of && runs after left succeeds.
             return self.statement(node['Y'], left)
         left_env = dict(self.env)
         self.env = dict(before)
+        if node['Op'] in (12, 13):
+            self.functions = dict(functions)
         right = self.statement(node['Y'], directory)
         if node['Op'] == 11:
             command = node['Y'].get('Cmd', {})
@@ -196,11 +213,12 @@ class Shell:
                 return left
             if left != right:
                 raise Refusal(f'ambiguous shell directory after fallback at {where}')
-            self.env = {key: value if self.env.get(key) == value else '${RUNTIME}'
+            self.env = {key: value if self.env.get(key) == value else Runtime('${RUNTIME}')
                         for key, value in left_env.items()}
             return left
         if node['Op'] in (12, 13):
             self.env = before
+            self.functions = functions
             return directory
         raise Refusal(f'unsupported shell operator at {where}')
 
@@ -216,14 +234,7 @@ class Shell:
                 raise Refusal(f'unclassified interpreter input arguments at {where}')
             return directory
         if args[0] in self.functions:
-            if args[0] in self.active:
-                raise Refusal(f'recursive shell function {args[0]!r} at {where}')
-            self.active.add(args[0])
-            before = dict(self.env)
-            self.env.update({str(i): value for i, value in enumerate(args[1:], 1)})
-            directory = self.statement(self.functions[args[0]], directory)
-            self.env = before
-            self.active.remove(args[0])
+            directory = self.function(args, directory, where)
         elif args[0] == 'trap':
             if len(args) < 3:
                 raise Refusal(f'unsupported shell trap at {where}')
@@ -263,6 +274,29 @@ class Shell:
             self.env = saved
         return directory
 
+    def function(self, args: list[str], directory: Path, where: str) -> Path:
+        """Preserve global assignments while restoring positional and local values."""
+        name = args[0]
+        if name in self.active:
+            raise Refusal(f'recursive shell function {name!r} at {where}')
+        self.active.add(name)
+        scoped = {key: value for key, value in self.env.items() if key.isdigit()}
+        for key in scoped:
+            self.env.pop(key)
+        for index, value in enumerate(args[1:], 1):
+            key = str(index)
+            scoped.setdefault(key, None)
+            self.env[key] = value
+        self.locals.append(scoped)
+        result = self.statement(self.functions[name], directory)
+        for key, value in self.locals.pop().items():
+            if value is None:
+                self.env.pop(key, None)
+            else:
+                self.env[key] = value
+        self.active.remove(name)
+        return result
+
     def run(self, source: str, directory: Path) -> None:
         """Parse one script and audit even functions absent from literal calls."""
         source = re.sub(r'\$\{\{.*?\}\}', '${RUNTIME}', source)
@@ -272,7 +306,5 @@ class Shell:
             if name in self.active:
                 continue
             saved = dict(self.env)
-            self.active.add(name)
-            self.statement(body, directory)
-            self.active.remove(name)
+            self.function([name], directory, self.where)
             self.env = saved

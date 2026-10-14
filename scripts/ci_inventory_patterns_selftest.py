@@ -85,11 +85,16 @@ def command_controls(fixture: Fixture) -> None:
         "python3 -I - <<'END'\nimport urllib.request\nEND",
         'echo ${MISSING:-$(npx fixture)}', 'for ((i=$(npx fixture);i<1;i++)); do true; done',
         'selected=$RUNTIME_FUNCTION; $selected', 'find . -ok npx fixture {} \\;',
+        'sed -n \'1e npx fixture #$\' "$PWD/sw/litex/sweep.sh"',
+        'awk \'BEGIN { system("npx fixture") }; { print $1 }\'',
+        '"\\e\\c\\h\\o" okay',
     ):
         fixture.run(command)
         fixture.check(command.splitlines()[0], 'REFUSED:')
     fixture.run('git rev-parse HEAD')
     fixture.check('recognized Git argv')
+    fixture.run(f"sed -n '1e npx fixture #$' '{fixture.root}/sw/litex/sweep.sh'")
+    fixture.check('literal dollar text cannot match runtime argument', 'unclassified command')
     fixture.run('git rev-parse HEAD --unlisted-option')
     fixture.check('extra Git argument', 'unclassified git')
     fixture.run('sudo --unlisted-option echo okay')
@@ -154,9 +159,21 @@ def shell_controls(fixture: Fixture) -> None:
     fixture.check('terminating fallback preserves successful directory', 'brand_new_command')
     fixture.run('if true; then cd sub; fi; bash bootstrap.sh')
     fixture.check('ambiguous conditional directory', 'ambiguous shell directory')
+    fixture.run('if true; then cd sub; else cd sub; fi; bash bootstrap.sh')
+    fixture.check('common conditional directory persists', 'brand_new_command')
+    fixture.run('if cd sub; then echo okay; fi; bash bootstrap.sh')
+    fixture.check('conditional directory side effect', 'ambiguous shell directory')
     fixture.file('function.sh', 'f() { echo okay; }; f\n')
     fixture.run('bash function.sh')
     fixture.check('same-file function')
+    fixture.run('f() { cd sub; }; (f() { echo okay; }); f; bash bootstrap.sh')
+    fixture.check('subshell function definition does not leak', 'brand_new_command')
+    fixture.run('f() { cd sub; }; { f() { echo okay; }; } | true; f; bash bootstrap.sh')
+    fixture.check('pipeline function definition does not leak', 'brand_new_command')
+    fixture.run('name=bootstrap.sh; f() { name=sub/bootstrap.sh; }; f; bash "$name"')
+    fixture.check('function global assignment persists', 'brand_new_command')
+    fixture.run('name=sub/bootstrap.sh; f() { local name=bootstrap.sh; }; f; bash "$name"')
+    fixture.check('function local assignment is restored', 'brand_new_command')
     fixture.run('bash function.sh; f')
     fixture.check('foreign function', "unclassified command 'f'")
     fixture.run('source missing.sh')
@@ -202,6 +219,13 @@ def make_controls(fixture: Fixture) -> None:
                     'make --directory=sub', 'make -Csub', 'make -C sub'):
         fixture.run(command)
         fixture.check(command, 'brand_new_command')
+    fixture.file('bootstrap.sh', 'brand_new_command\n')
+    fixture.file('sub/bootstrap.sh', 'echo okay\n')
+    fixture.file('sub/selected.mk', 'all:\n\tbash bootstrap.sh\n')
+    fixture.run('make -f sub/selected.mk')
+    fixture.check('selected Makefile preserves invocation directory', 'brand_new_command')
+    fixture.run('make -C sub -f selected.mk')
+    fixture.check('directory option changes recipe directory')
     fixture.run('make', 'sub')
     fixture.check('Make step directory', 'brand_new_command')
     fixture.run('make')
@@ -238,6 +262,11 @@ def make_controls(fixture: Fixture) -> None:
     fixture.check('first ordinary target after special declaration')
     fixture.file('Makefile', 'all: | prepare\n\techo okay\nprepare: ; echo ready\n')
     fixture.check('order-only prerequisite')
+    for automatic in ('$<', '$^'):
+        fixture.file('Makefile', 'all: | bootstrap.sh\n\t' + automatic + '\n')
+        fixture.check('order-only excluded from ' + automatic)
+    fixture.file('Makefile', 'all: ; echo $?\n')
+    fixture.check('uncensused automatic variable', 'unsupported Make automatic')
     fixture.file('Makefile', 'all: TOOL = echo\nall: ; $(TOOL) okay\n')
     fixture.check('target-specific literal variable')
     fixture.file('Makefile', 'all: TOOL = $(RUNTIME)\nall: ; echo okay\n')

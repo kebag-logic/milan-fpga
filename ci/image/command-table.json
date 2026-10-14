@@ -8,6 +8,15 @@
       "handler": "source",
       "patterns": []
     },
+    ":": {
+      "class": "non-installing",
+      "executables": [
+        ":"
+      ],
+      "patterns": [
+        []
+      ]
+    },
     "VKL_aaf_packetizer": {
       "class": "non-installing",
       "executables": [
@@ -738,10 +747,10 @@
         "Vmilan_dp_ax1x1gptp"
       ],
       "patterns": [
-        [],
         [
           "--extended"
-        ]
+        ],
+        []
       ],
       "reason": "Execute the locally compiled validation simulation."
     },
@@ -843,10 +852,10 @@
         "Vmilan_dp_tdm8r"
       ],
       "patterns": [
-        [],
         [
           "<runtime>"
-        ]
+        ],
+        []
       ],
       "reason": "Execute the locally compiled test binary."
     },
@@ -991,13 +1000,13 @@
         "Vphc_step"
       ],
       "patterns": [
-        [],
         [
           "+slew_suite"
         ],
         [
           "+trace_step_ns=150000"
-        ]
+        ],
+        []
       ],
       "reason": "Execute the locally compiled test binary."
     },
@@ -1638,6 +1647,47 @@
         []
       ]
     },
+    "awk": {
+      "class": "non-installing",
+      "executables": [
+        "awk"
+      ],
+      "patterns": [
+        [
+          "-F|",
+          "-v",
+          "<runtime>",
+          "$1 == k { print $2; exit }"
+        ],
+        [
+          "-F|",
+          "-v",
+          "<runtime>",
+          "$1 == k { print $3; exit }"
+        ],
+        [
+          "-v",
+          "<runtime>",
+          "$2 == p { print $1; exit }"
+        ],
+        [
+          "-v",
+          "<runtime>",
+          "\n        BEGIN { on = 0 }\n        {\n            if (!on && match($0, \"(^|[^A-Za-z0-9_])\" mod \"([^A-Za-z0-9_]|$)\")) on = 1\n            if (on) {\n                buf = buf \" \" $0\n                if ($0 ~ /\\);/) { print buf; buf = \"\"; on = 0 }\n            }\n        }"
+        ],
+        [
+          "-v",
+          "<runtime>",
+          "\n        BEGIN { on = 0; depth = 0 }\n        {\n            if (!on && match($0, \"Instance\\\\([ \\t]*\\\"\" mod \"\\\"\")) { on = 1 }\n            if (on) {\n                # the Instance call ends at the line whose running paren\n                # balance returns to zero, so a nested ClockSignal() or a\n                # ~ResetSignal() argument cannot close it early\n                line = $0\n                n = gsub(/\\(/, \"(\", line); depth += n\n                n = gsub(/\\)/, \")\", line); depth -= n\n                print $0\n                if (depth <= 0) { on = 0; depth = 0 }\n            }\n        }"
+        ],
+        [
+          "\n        /^[[:space:]]*module[[:space:]]/ { inhdr = 1 }\n        inhdr {\n            line = $0\n            if (match(line, /(input|output|inout)/)) {\n                dir = substr(line, RSTART, RLENGTH)\n                rest = substr(line, RSTART + RLENGTH)\n                gsub(/\\[[^]]*\\]/, \" \", rest)      # strip widths\n                gsub(/wire|logic|reg|signed|int|unsigned/, \" \", rest)\n                n = split(rest, tok, /[ \\t,()]+/)\n                name = \"\"\n                for (i = 1; i <= n; i++) if (tok[i] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) name = tok[i]\n                if (name != \"\") print dir, name\n            }\n            if (line ~ /\\);/) inhdr = 0\n        }"
+        ],
+        [
+          "{print $2}"
+        ]
+      ]
+    },
     "basename": {
       "class": "non-installing",
       "executables": [
@@ -1763,7 +1813,6 @@
         "cat"
       ],
       "patterns": [
-        [],
         [
           "/opt/yosys/ABC_REV"
         ],
@@ -1792,6 +1841,11 @@
           "/preflight/xvlog_gate.log"
         ],
         [
+          "<runtime>",
+          "<runtime>",
+          "<runtime>"
+        ],
+        [
           "<runtime>"
         ],
         [
@@ -1799,7 +1853,8 @@
         ],
         [
           "obj_ptp/ptp.rc"
-        ]
+        ],
+        []
       ]
     },
     "cc": {
@@ -2064,10 +2119,10 @@
         "date"
       ],
       "patterns": [
-        [],
         [
           "-Is"
-        ]
+        ],
+        []
       ]
     },
     "dirname": {
@@ -2077,6 +2132,9 @@
       ],
       "patterns": [
         [
+          "${CHECKOUT}/scripts/check_tied_inputs.sh"
+        ],
+        [
           "${CHECKOUT}/scripts/run_all_suites.sh"
         ],
         [
@@ -2084,6 +2142,9 @@
         ],
         [
           "${CHECKOUT}/sw/litex/patches/apply.sh"
+        ],
+        [
+          "${CHECKOUT}/syn/yosys/check_tap_purity.sh"
         ],
         [
           "${CHECKOUT}/syn/yosys/run.sh"
@@ -2769,6 +2830,16 @@
       "handler": "find",
       "patterns": [
         [
+          "${CHECKOUT}/hdl",
+          "(",
+          "-name",
+          "*_taps.sv",
+          "-o",
+          "-name",
+          "*_tap_bank.sv",
+          ")"
+        ],
+        [
           "/tmp/sv2v",
           "-name",
           "sv2v",
@@ -2915,6 +2986,13 @@
           "-C",
           "<runtime>",
           "apply",
+          "--check",
+          "<runtime>"
+        ],
+        [
+          "-C",
+          "<runtime>",
+          "apply",
           "--reverse",
           "${CHECKOUT}/sw/litex/patches/apply.sh/${RUNTIME}"
         ],
@@ -2925,6 +3003,14 @@
           "--reverse",
           "--check",
           "${CHECKOUT}/sw/litex/patches/apply.sh/${RUNTIME}"
+        ],
+        [
+          "-C",
+          "<runtime>",
+          "apply",
+          "--reverse",
+          "--check",
+          "<runtime>"
         ],
         [
           "-C",
@@ -2967,11 +3053,6 @@
         [
           "-C",
           "<runtime>",
-          "ls-files"
-        ],
-        [
-          "-C",
-          "<runtime>",
           "ls-files",
           "--",
           "<runtime>"
@@ -2996,6 +3077,11 @@
           "ls-files",
           "-z",
           "*.md"
+        ],
+        [
+          "-C",
+          "<runtime>",
+          "ls-files"
         ],
         [
           "-C",
@@ -3050,6 +3136,11 @@
         [
           "cat-file",
           "-e",
+          "${{ github.event.before }}^{commit}"
+        ],
+        [
+          "cat-file",
+          "-e",
           "<runtime>"
         ],
         [
@@ -3085,7 +3176,21 @@
           "diff",
           "--no-renames",
           "--name-only",
+          "${{ github.event.before }}",
+          "<runtime>"
+        ],
+        [
+          "diff",
+          "--no-renames",
+          "--name-only",
           "<runtime>",
+          "<runtime>"
+        ],
+        [
+          "diff",
+          "--no-renames",
+          "--name-only",
+          "refs/remotes/origin/${{ github.event.pull_request.base.ref }}",
           "<runtime>"
         ],
         [
@@ -3105,10 +3210,13 @@
           "fetch",
           "--quiet",
           "origin",
-          "<runtime>"
+          "${{ github.event.pull_request.base.ref }}"
         ],
         [
-          "ls-files"
+          "fetch",
+          "--quiet",
+          "origin",
+          "<runtime>"
         ],
         [
           "ls-files",
@@ -3127,18 +3235,27 @@
         ],
         [
           "ls-files",
-          "--stage"
+          "--stage",
+          "--recurse-submodules"
         ],
         [
           "ls-files",
-          "--stage",
-          "--recurse-submodules"
+          "--stage"
+        ],
+        [
+          "ls-files"
         ],
         [
           "merge-base",
           "--all",
           "<runtime>",
           "<runtime>"
+        ],
+        [
+          "merge-base",
+          "--all",
+          "refs/remotes/origin/${{ github.event.pull_request.base.ref }}",
+          "${{ github.event.pull_request.head.sha }}"
         ],
         [
           "merge-base",
@@ -3150,6 +3267,12 @@
           "--write-tree",
           "<runtime>",
           "<runtime>"
+        ],
+        [
+          "merge-tree",
+          "--write-tree",
+          "refs/remotes/origin/${{ github.event.pull_request.base.ref }}",
+          "${{ github.event.pull_request.head.sha }}"
         ],
         [
           "rev-parse",
@@ -3184,14 +3307,6 @@
           "--init",
           "third_party/verilog-axis",
           "protocol-processor",
-          "gptp-processor"
-        ],
-        [
-          "submodule",
-          "update",
-          "--init",
-          "third_party/verilog-axis",
-          "protocol-processor",
           "gptp-processor",
           "third_party/lwSRP",
           "third_party/tsn-c-stack"
@@ -3204,6 +3319,14 @@
           "protocol-processor",
           "gptp-processor",
           "third_party/tsn-c-stack"
+        ],
+        [
+          "submodule",
+          "update",
+          "--init",
+          "third_party/verilog-axis",
+          "protocol-processor",
+          "gptp-processor"
         ]
       ]
     },
@@ -3213,6 +3336,14 @@
         "grep"
       ],
       "patterns": [
+        [
+          "-E",
+          "^[A-Za-z_][A-Za-z0-9_]*$"
+        ],
+        [
+          "-E",
+          "^\\s*input\\s"
+        ],
         [
           "-F",
           "<runtime>"
@@ -3232,6 +3363,14 @@
           "<runtime>"
         ],
         [
+          "-c",
+          "."
+        ],
+        [
+          "-cE",
+          "^\\s*input\\s"
+        ],
+        [
           "-h",
           "-e",
           "settle recentre came",
@@ -3240,6 +3379,12 @@
           "-e",
           "FAIL",
           "obj_pullin/pullin_*.log"
+        ],
+        [
+          "-hoE",
+          "<runtime>",
+          "<runtime>",
+          "${CHECKOUT}/sw/litex/milan_sim.py"
         ],
         [
           "-m1",
@@ -3283,16 +3428,33 @@
         ],
         [
           "-oE",
+          "(^|[^A-Za-z0-9_])[io]_[A-Za-z_][A-Za-z0-9_]*[[:space:]]*=[^,]*"
+        ],
+        [
+          "-oE",
           "ERROR:.*",
           "<runtime>"
         ],
         [
-          "-q",
+          "-oE",
+          "\\.[A-Za-z_][A-Za-z0-9_]*[[:space:]]*\\(([^()]|\\([^()]*\\))*\\)"
+        ],
+        [
+          "-oE",
+          "^[[:space:]]*module[[:space:]]+[A-Za-z_][A-Za-z0-9_]*",
           "<runtime>"
+        ],
+        [
+          "-oE",
+          "i_[A-Za-z0-9_]+\\s*=\\s*(0b[01]+|0x[0-9a-fA-F]+|[0-9]+)\\b"
         ],
         [
           "-q",
           "<runtime>",
+          "<runtime>"
+        ],
+        [
+          "-q",
           "<runtime>"
         ],
         [
@@ -3347,6 +3509,11 @@
         ],
         [
           "-q",
+          "^RESULT: PASS$",
+          "<runtime>"
+        ],
+        [
+          "-q",
           "^RESULT: SKIP",
           "<runtime>"
         ],
@@ -3361,6 +3528,30 @@
         [
           "-q",
           "masked verdict"
+        ],
+        [
+          "-qE",
+          "<runtime>"
+        ],
+        [
+          "-qE",
+          "^(0b[01]+|0x[0-9a-fA-F]+|[0-9]+)( +if +.+ +else +(0b[01]+|0x[0-9a-fA-F]+|[0-9]+))?$"
+        ],
+        [
+          "-qE",
+          "rx_axis_fabric\\."
+        ],
+        [
+          "-qE",
+          "t(valid|ready|data|keep|last|user)"
+        ],
+        [
+          "-qx",
+          "<runtime>"
+        ],
+        [
+          "-v",
+          "^$"
         ]
       ]
     },
@@ -3371,11 +3562,11 @@
       ],
       "patterns": [
         [
-          "-1"
-        ],
-        [
           "-1",
           "<runtime>"
+        ],
+        [
+          "-1"
         ],
         [
           "-n",
@@ -3489,14 +3680,14 @@
           "-C",
           "<runtime>",
           "<runtime>",
+          "<runtime>",
+          "<runtime>",
           "<runtime>"
         ],
         [
           "--no-print-directory",
           "-s",
           "-C",
-          "<runtime>",
-          "<runtime>",
           "<runtime>",
           "<runtime>",
           "<runtime>"
@@ -3570,6 +3761,10 @@
         ],
         [
           "-C",
+          "<runtime>"
+        ],
+        [
+          "-C",
           "gptp-processor",
           "docs"
         ],
@@ -3635,13 +3830,6 @@
           "--no-print-directory",
           "-C",
           "../milan_dp",
-          "print-dp-vflags"
-        ],
-        [
-          "-s",
-          "--no-print-directory",
-          "-C",
-          "../milan_dp",
           "print-dp-vflags",
           "VERILATOR_JOBS=2"
         ],
@@ -3650,7 +3838,7 @@
           "--no-print-directory",
           "-C",
           "../milan_dp",
-          "print-srcs"
+          "print-dp-vflags"
         ],
         [
           "-s",
@@ -3668,6 +3856,13 @@
           "print-srcs",
           "TDMRM_SRC=../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv",
           "DP_SRC=../../../hdl/milan/milan_datapath.sv"
+        ],
+        [
+          "-s",
+          "--no-print-directory",
+          "-C",
+          "../milan_dp",
+          "print-srcs"
         ],
         [
           "-s",
@@ -3715,11 +3910,6 @@
         [
           "-s",
           "-C",
-          "<runtime>"
-        ],
-        [
-          "-s",
-          "-C",
           "<runtime>",
           "-o",
           "ltn_rom.hex",
@@ -3735,12 +3925,12 @@
           "-C",
           "<runtime>",
           "<runtime>",
+          "<runtime>",
           "<runtime>"
         ],
         [
           "-s",
           "-C",
-          "<runtime>",
           "<runtime>",
           "<runtime>",
           "<runtime>"
@@ -3759,6 +3949,7 @@
           "<runtime>",
           "build",
           "<runtime>",
+          "<runtime>",
           "<runtime>"
         ],
         [
@@ -3766,7 +3957,6 @@
           "-C",
           "<runtime>",
           "build",
-          "<runtime>",
           "<runtime>",
           "<runtime>"
         ],
@@ -3813,6 +4003,11 @@
         ],
         [
           "-s",
+          "-C",
+          "<runtime>"
+        ],
+        [
+          "-s",
           "-n",
           "-B",
           "-C",
@@ -3829,13 +4024,13 @@
         ],
         [
           "-s",
-          "run"
-        ],
-        [
-          "-s",
           "run",
           "N_CH=7",
           "MDIR=obj_odd"
+        ],
+        [
+          "-s",
+          "run"
         ],
         [
           "<runtime>"
@@ -3895,11 +4090,11 @@
         ],
         [
           "-p",
+          "<runtime>",
           "<runtime>"
         ],
         [
           "-p",
-          "<runtime>",
           "<runtime>"
         ],
         [
@@ -3945,10 +4140,10 @@
         "mktemp"
       ],
       "patterns": [
-        [],
         [
           "-d"
-        ]
+        ],
+        []
       ]
     },
     "mv": {
@@ -5901,6 +6096,10 @@
       "patterns": [
         [
           "-r",
+          "bind"
+        ],
+        [
+          "-r",
           "cand"
         ],
         [
@@ -5909,11 +6108,36 @@
         ],
         [
           "-r",
+          "dir",
+          "name"
+        ],
+        [
+          "-r",
           "emit_d"
         ],
         [
           "-r",
+          "f"
+        ],
+        [
+          "-r",
+          "kw",
+          "_reason",
+          "_rec"
+        ],
+        [
+          "-r",
+          "kw",
+          "val"
+        ],
+        [
+          "-r",
           "name"
+        ],
+        [
+          "-r",
+          "port",
+          "expr"
         ]
       ]
     },
@@ -5990,6 +6214,11 @@
         ],
         [
           "-f",
+          "<runtime>",
+          "<runtime>"
+        ],
+        [
+          "-f",
           "<runtime>"
         ],
         [
@@ -6013,15 +6242,19 @@
         ],
         [
           "-rf",
+          "${RUNTIME}"
+        ],
+        [
+          "-rf",
           ".git"
         ],
         [
           "-rf",
+          "<runtime>",
           "<runtime>"
         ],
         [
           "-rf",
-          "<runtime>",
           "<runtime>"
         ],
         [
@@ -6097,10 +6330,6 @@
           "obj_cov",
           "coverage.dat",
           "cov_annotated"
-        ],
-        [
-          "-rf",
-          "obj_dir"
         ],
         [
           "-rf",
@@ -6230,6 +6459,10 @@
         ],
         [
           "-rf",
+          "obj_dir"
+        ],
+        [
+          "-rf",
           "obj_dir_en",
           "obj_dir_pr"
         ],
@@ -6292,6 +6525,74 @@
       ],
       "patterns": [
         [
+          "-E",
+          "s/\\s*=\\s*/=/"
+        ],
+        [
+          "-E",
+          "s/^[^A-Za-z0-9_]*([io])_([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*=[[:space:]]*(.*)$/\\1|\\2|\\3/"
+        ],
+        [
+          "-E",
+          "s/^\\(//; s/\\)$//"
+        ],
+        [
+          "-E",
+          "s/^\\.([A-Za-z_][A-Za-z0-9_]*)[[:space:]]*\\((.*)\\)$/\\1|\\2/"
+        ],
+        [
+          "-E",
+          "s/^\\s*input\\s+//; s/^(wire|logic|reg)\\s+//; s/^(signed|unsigned)\\s+//; s/^\\[[^]]*\\]\\s*//; s/[,)].*$//; s/\\s+$//; s/^\\s+//"
+        ],
+        [
+          "-E",
+          "s/^\\s+|\\s+$//g"
+        ],
+        [
+          "-E",
+          "s://.*$::"
+        ],
+        [
+          "-e",
+          "s:#.*$::",
+          "${CHECKOUT}/hdl/milan/milan_datapath.sv"
+        ],
+        [
+          "-e",
+          "s:#.*$::",
+          "${CHECKOUT}/sw/litex/milan_soc.py"
+        ],
+        [
+          "-e",
+          "s:#.*$::",
+          "<runtime>"
+        ],
+        [
+          "-e",
+          "s://.*$::",
+          "${CHECKOUT}/hdl/milan/milan_datapath.sv"
+        ],
+        [
+          "-e",
+          "s://.*$::",
+          "${CHECKOUT}/sw/litex/milan_soc.py"
+        ],
+        [
+          "-e",
+          "s://.*$::",
+          "<runtime>"
+        ],
+        [
+          "-n",
+          "/^    ports = dict($/,/^    )$/p",
+          "<runtime>"
+        ],
+        [
+          "-n",
+          "/^module milan_datapath/,/^);/p",
+          "${CHECKOUT}/hdl/milan/milan_datapath.sv"
+        ],
+        [
           "-n",
           "<runtime>",
           "${CHECKOUT}/sw/litex/sweep.sh"
@@ -6299,6 +6600,11 @@
         [
           "-n",
           "s/.*ADP_ENTITY_CAPS_C[[:space:]]*=[[:space:]]*32'h([0-9A-Fa-f_]*).*/1/p",
+          "../../../protocol-processor/hdl/adp/pp_adp_pkg.sv"
+        ],
+        [
+          "-n",
+          "s/.*ADP_ENTITY_CAPS_C[[:space:]]*=[[:space:]]*32'h\\([0-9A-Fa-f_]*\\).*/\\1/p",
           "../../../protocol-processor/hdl/adp/pp_adp_pkg.sv"
         ],
         [
@@ -6324,6 +6630,11 @@
           "-n",
           "s/^pid \\([0-9]*\\).*/\\1/p",
           "<runtime>"
+        ],
+        [
+          "-n",
+          "s|^export PATH=\"\\$HOME/\\([^/\"[:space:]:]*\\)/venv/bin.*|\\1|p",
+          "${CHECKOUT}/sw/litex/sweep.sh"
         ],
         [
           "s/^/         /"
@@ -6436,6 +6747,15 @@
         [
           "20"
         ]
+      ]
+    },
+    "sort": {
+      "class": "non-installing",
+      "executables": [
+        "sort"
+      ],
+      "patterns": [
+        []
       ]
     },
     "source": {
@@ -6613,10 +6933,10 @@
         "tclsh"
       ],
       "patterns": [
-        [],
         [
           "<runtime>"
-        ]
+        ],
+        []
       ]
     },
     "tee": {
@@ -6739,6 +7059,18 @@
           "make",
           "-C",
           "${CHECKOUT}/tb/verilator/${RUNTIME}"
+        ]
+      ]
+    },
+    "tr": {
+      "class": "non-installing",
+      "executables": [
+        "tr"
+      ],
+      "patterns": [
+        [
+          "-s",
+          " "
         ]
       ]
     },

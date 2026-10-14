@@ -70,17 +70,17 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
         raise Refusal(f'unresolved Makefile {filename!r} at {where}')
     if not path.resolve().is_relative_to(audit.root):
         raise Refusal(f'Makefile outside source tree at {where}')
-    audit.makefile(path, targets, overrides)
+    audit.makefile(path, targets, overrides, directory)
 
 
 class Makefile:
     """Select explicit or unique pattern rules and expand their known variables."""
 
-    def __init__(self, audit: object, path: Path, overrides: dict[str, str]) -> None:
+    def __init__(self, audit: object, path: Path, overrides: dict[str, str], directory: Path | None = None) -> None:
         self.audit = audit
         self.path = path.resolve()
         self.relative = self.path.relative_to(audit.root).as_posix()
-        self.directory = self.path.parent
+        self.directory = directory.resolve() if directory is not None else self.path.parent
         self.variables = {'MAKE': 'make', 'CURDIR': str(self.directory)}
         self.simple = {'MAKE', 'CURDIR'}
         self.overrides = overrides
@@ -130,6 +130,8 @@ class Makefile:
                 if match:
                     output.append(self.function(match[1], match[2], seen))
                 elif re.fullmatch(r'[\w.@<>^*?+%-]+', expression):
+                    if expression in ('?', '+', '%'):
+                        raise Refusal(f'unsupported Make automatic variable {expression!r} at {self.where}')
                     output.append(self.variable(expression, seen))
                 else:
                     raise Refusal(f'unsupported Make reference {expression!r} at {self.where}')
@@ -138,7 +140,7 @@ class Makefile:
                 if index + 1 == len(text):
                     raise Refusal(f'trailing Make dollar at {self.where}')
                 name = text[index + 1]
-                if name not in '@<^*?+%':
+                if name not in '@<^*':
                     raise Refusal(f'unsupported Make automatic variable {name!r} at {self.where}')
                 output.append(self.variable(name, seen))
                 index += 2
@@ -364,11 +366,13 @@ class Makefile:
         self.variables.update(self.target_variables.get(target, {}))
         self.simple.update(self.target_variables.get(target, {}))
         dependencies, recipes = rule
+        normal = dependencies[:dependencies.index('|')] if '|' in dependencies else dependencies
+        normal = [d.replace('%', stem) for d in normal]
         dependencies = [d.replace('%', stem) for d in dependencies if d != '|']
         for child in dependencies:
             self.target(child, True)
-        self.variables.update({'@': target, '<': next(iter(dependencies), ''),
-                               '^': ' '.join(dict.fromkeys(dependencies)), '*': stem})
+        self.variables.update({'@': target, '<': next(iter(normal), ''),
+                               '^': ' '.join(dict.fromkeys(normal)), '*': stem})
         self.simple.update(('@', '<', '^', '*'))
         for self.line, recipe in recipes:
             command = self.expand(recipe).replace('\x01', '$')
@@ -377,7 +381,8 @@ class Makefile:
 
     def walk(self, targets: list[str] | None) -> None:
         """Audit all suite recipes or the requested target closure."""
-        key = (self.relative, tuple(targets or []), tuple(sorted(self.overrides.items())), targets is None)
+        key = (self.relative, str(self.directory), tuple(targets or []),
+               tuple(sorted(self.overrides.items())), targets is None)
         if key in self.audit.seen:
             return
         self.audit.seen.add(key)
