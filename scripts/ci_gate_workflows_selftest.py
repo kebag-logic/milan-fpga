@@ -5,9 +5,11 @@
 
 import copy
 import hashlib
+import importlib.util
 import os
 from pathlib import Path
 import subprocess
+import shlex
 import tempfile
 from unittest.mock import patch
 
@@ -17,10 +19,49 @@ from ci_runtime_workflows import cpu_budget_step
 import ci_suite_pieces
 
 
+def child_budget(directory: Path, target: str, budget: int, makefile: Path | None = None) -> None:
+    """Read the actual child recipe, including its expanded compiler arguments."""
+    command = ["make", "--no-print-directory", "-n", "-B", "-C", str(directory)]
+    if makefile is not None:
+        command += ["-f", str(makefile)]
+    result = subprocess.run([*command, target, "VERILATOR=ci-budget-compiler", "MAKEFLAGS="], check=True,
+                            capture_output=True, text=True,
+                            env={**os.environ, "VERILATOR_JOBS": str(budget), "MAKEFLAGS": ""})
+    recipes = [shlex.split(line) for line in result.stdout.replace("\\\n", " ").splitlines()
+               if line.startswith("ci-budget-compiler ")]
+    assert recipes, (directory, target, result.stdout)
+    for recipe in recipes:
+        assert recipe[recipe.index("-j") + 1] == str(budget), (directory, target, recipe)
+
+
+def child_controls(work: Path) -> None:
+    """Every capture child consumes its budget; a literal unlimited child is refused."""
+    spec = importlib.util.spec_from_file_location("capture_budget", ROOT / "tb/verilator/capture_coherence/mutants.py")
+    driver = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(driver)
+    recipes = {(row[0], row[1]) for row in driver.LEGS.values()}
+    recipes.add((driver.HERE, "dp-build"))
+    for width in (4, 12, 16):
+        for directory, target in sorted(recipes):
+            child_budget(directory, target, width // 4)
+        print(f"Capture child recipes: {width} CPUs, {len(recipes)} recipes consume {width // 4} each")
+    makefile = work / "unbounded.mk"
+    text = (driver.MEDIA_NCO / "Makefile").read_text()
+    assert "-j $(VERILATOR_JOBS)" in text
+    makefile.write_text(text.replace("-j $(VERILATOR_JOBS)", "-j 0"))
+    try:
+        child_budget(driver.MEDIA_NCO, "build", 4, makefile)
+    except AssertionError:
+        print("Capture child control: unlimited compiler budget refused")
+    else:
+        raise AssertionError("budget-ignoring child accepted")
+
+
 def cpu_controls() -> None:
     """Execute the emitted shell at hosted, fallback and normal local widths."""
     with tempfile.TemporaryDirectory(prefix="cpu-budgets-") as temporary:
         root = Path(temporary)
+        child_controls(root)
         for cpus, campaign in ((1, 1), (4, 4), (12, 4), (16, 4)):
             (root / "nproc").write_text("#!/bin/sh\nprintf '%s\\n' " + str(cpus) + "\n")
             (root / "nproc").chmod(0o755)
