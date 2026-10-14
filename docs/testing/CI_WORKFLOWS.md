@@ -2627,7 +2627,7 @@ Round-three scheduling isolates the two contract self-tests in `docs-gates-2`.
 The gate inventory still defines membership and exactly-once union coverage.
 Every original control remains; generated mutations regenerate only their
 changed workflow. The full CI-event self-test passes 5,206 arms in 316.686
-seconds on CPython 3.12.3. The isolated runner self-test takes 38.772 seconds.
+seconds on CPython 3.12.3. The complete two-invocation runner contract gate takes 113.654 seconds.
 The added scheduling/evidence controls take 23.699 seconds.
 These local times include competition from the scoped source-build measurement.
 
@@ -2655,7 +2655,7 @@ plus 60 seconds for download, extraction and execution evidence.
 |---|---:|---:|---:|
 | `docs-gates-0` | 922 | 1620 | 698 |
 | `docs-gates-1` | 1506 | 1620 | 114 |
-| `docs-gates-2` | 478 | 1620 | 1142 |
+| `docs-gates-2` | 553 | 1620 | 1067 |
 | `elaborate-gates-0` | 1561 | 1620 | 59 |
 | `elaborate-gates-1` | 713 | 1620 | 907 |
 | `yosys-tool (cold)` | 720 | 1044 | 324 |
