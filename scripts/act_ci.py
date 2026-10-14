@@ -78,7 +78,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 EVIDENCE_HELPERS = {
     "ci_local_manifest.py": "5d914692847656d7da6f3e24907c59d6fc0261695fbfa999f2a8dcb1b107b7dd",
     "ci_manifest.py": "b17e183dc920173abc84b38cb6af2eaffee5b609a08b924092010e0f55f7dfa1",
-    "ci_workflow_plan.py": "d11e226c437bdf8813b7fe22ae4bffc52f08ab5ae0a512182707f02352b68522",
+    "ci_workflow_plan.py": "4d98b26611de437e6b1879543fb2ff20d041e1932434af3b991a5f644e08d933",
 }
 # END EVIDENCE HELPER PINS
 DEFAULT_BASE = "dev"

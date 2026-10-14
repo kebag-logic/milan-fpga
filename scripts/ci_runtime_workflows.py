@@ -8,7 +8,7 @@ import json
 
 import yaml
 
-from ci_workflow_plan import expand_workflow, step_plan, matrix_rows, rendered_name
+from ci_workflow_plan import expand_workflow, step_plan, skipped_matrices
 
 SAME_REPOSITORY = ("${{ github.event_name == 'push' || (github.event_name == 'pull_request' && "
                    "github.event.pull_request.head.repo.full_name == github.repository) }}")
@@ -135,8 +135,7 @@ def generate(name: str, source: dict) -> dict:
     path = ".github/workflows/" + name + ".yml"
     source["jobs"]["ci-manifest"] = collector(name, list(source["jobs"]))
     _, labels = expand_workflow(path, yaml.safe_dump(source))
-    skipped = {job.get("name", job_id): [rendered_name(job_id, job, row) for row in matrix_rows(job)]
-               for job_id, job in source["jobs"].items() if "matrix" in job.get("strategy", {})}
+    skipped = skipped_matrices(source)
     source["jobs"]["ci-fail-fast"] = watcher(list(labels.values()), skipped)
     for job_id, job in source["jobs"].items():
         if job_id != "ci-manifest":

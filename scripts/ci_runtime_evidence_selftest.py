@@ -22,6 +22,73 @@ from ci_runtime_evidence import api_evidence
 from ci_runtime_workflows import SAME_REPOSITORY, generate
 from ci_workflow_plan import committed_plan, expand_workflow, workflow
 from ci_workflow_plan_selftest import PATH, SOURCE, fixture_commit
+from ci_fail_fast import observe, tail_failed, watch
+from ci_gate_workflows import generate as gate_generate, load_template
+import yaml
+
+
+def collector_fixture(root: Path) -> tuple[dict, dict, dict]:
+    """Commit the actual generated RTL graph in an isolated collector checkout."""
+    filename = ".github/workflows/rtl.yml"
+    generated = gate_generate("rtl", load_template(runtime.ROOT, "rtl"))
+    path = root / filename
+    path.parent.mkdir(parents=True)
+    path.write_text(yaml.safe_dump(generated))
+    subprocess.run(["git", "init", "-q", str(root)], check=True)
+    subprocess.run(["git", "-C", str(root), "add", filename], check=True)
+    head = fixture_commit(root, "Create collector graph fixture")
+    source = committed_plan(root, head)
+    event = root / "event.json"
+    event.write_text(json.dumps({"repository": {"full_name": "fixture/project"}}))
+    environment = {"GITHUB_EVENT_PATH": str(event), "GITHUB_EVENT_NAME": "push",
+                   "GITHUB_REPOSITORY": "fixture/project", "GH_TOKEN": "fixture",
+                   "GITHUB_SHA": head, "GITHUB_RUN_ID": "1", "ACT": "false",
+                   "GITHUB_OUTPUT": str(root / "outputs")}
+    return source, generated, environment
+
+
+def skipped_collector_control(root: Path) -> None:
+    """Retained hosted raw names pass watcher, production collector and terminal graph."""
+    source, generated, environment = collector_fixture(root)
+    filename = ".github/workflows/rtl.yml"
+    # Transport shape read from hosted run 38273578232, not execution evidence.
+    raw = [{"name": name + " shard ${{ matrix.shard }}/${{ matrix.total }}",
+            "status": "completed", "conclusion": "skipped", "steps": []}
+           for name in ("Verilator", "Yosys")]
+    observer = next(step for step in generated["jobs"]["ci-fail-fast"]["steps"]
+                    if step.get("id") == "ci_observe")
+    expected = set(json.loads(observer["env"]["EXPECTED_JOBS"]))
+    skipped = json.loads(observer["env"]["SKIPPED_MATRICES"])
+    expanded = {label for rows in skipped.values() for label in rows}
+    jobs = [{"name": label, "status": "completed", "conclusion": "skipped", "steps": []}
+            for label in sorted(expected - expanded)] + raw
+    assert observe(jobs, expected, skipped) == (True, None)
+    output = root / "manifest.json"
+    argv = ["collect", "collect", "--run", "1", "--artifacts", str(root / "artifacts"),
+            "--output", str(output)]
+    with patch.object(runtime, "ROOT", root), patch.dict(os.environ, environment), \
+            patch.object(sys, "argv", argv), \
+            patch.object(runtime.API, "request", return_value={"head_sha": source["head"], "path": filename}), \
+            patch.object(runtime.API, "pages", return_value=jobs):
+        assert runtime.main() == 0
+        assert watch(runtime.API("fixture/project", "fixture"), 1, expected, skipped) == 0
+    document = json.loads(output.read_text())
+    assert not document["complete"]
+    assert set(document["payload"]["results"].values()) == {"skipped"}
+    for key, label in source["labels"].items():
+        if label in expanded:
+            assert all(step["outcome"] == "skipped" for step in document["payload"]["execution"][key])
+    refused(lambda: compare(document, document), "skipped collection equality")
+    assert not tail_failed({job: {"result": "success"} for job in generated["jobs"]["ci-cancel-tail"]["needs"]})
+    for field, value in (("name", "unknown"), ("status", "in_progress"), ("conclusion", "success"),
+                         ("conclusion", "failure"), ("steps", [{"name": "invented"}])):
+        changed = copy.deepcopy(raw)
+        changed[0][field] = value
+        refused(lambda: api_evidence(source, changed, filename), "raw matrix " + field + " " + str(value))
+    expanded_job = {"name": skipped[raw[0]["name"]][0], "conclusion": "skipped", "steps": []}
+    for rows in ([*raw, expanded_job], [expanded_job, *raw], [*raw, raw[0]]):
+        refused(lambda: api_evidence(source, rows, filename), "overlapping raw matrix coverage")
+    print("Skipped matrices: collector entry, watcher and terminal graph PASS; no success fabricated")
 
 
 def streams(source: dict) -> tuple[list[dict], list[dict]]:
@@ -170,6 +237,7 @@ def main() -> int:
     assert generated["jobs"]["workers"]["strategy"]["matrix"] == original_matrix
     with tempfile.TemporaryDirectory(prefix="runtime-evidence-") as directory:
         root = Path(directory)
+        skipped_collector_control(root / "skipped")
         subprocess.run(["git", "init", "-q", str(root)], check=True)
         path = root / PATH
         path.parent.mkdir(parents=True)

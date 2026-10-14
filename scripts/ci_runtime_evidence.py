@@ -127,7 +127,20 @@ def api_evidence(source: dict, jobs: list[dict], path: str) -> tuple[dict, dict]
     execution, results = {}, {}
     labels = {label: key for key, label in source["labels"].items()
               if source["plan"][key]["workflow"] == path}
+    skipped = source.get("skipped", {}).get(path, {})
     for job in jobs:
+        if job["name"] in skipped:
+            if job.get("status") != "completed" or job.get("conclusion") != "skipped" or job.get("steps"):
+                raise ValueError("API returned an invalid unexpanded matrix state")
+            for label in skipped[job["name"]]:
+                key = labels[label]
+                if key in results:
+                    raise ValueError("API expanded and unexpanded matrix jobs overlap")
+                execution[key] = [{"name": step["name"], "outcome": "skipped",
+                                   "skip_reason": source["plan"][key]["condition"]}
+                                  for step in source["plan"][key]["steps"]]
+                results[key] = "skipped"
+            continue
         if job["name"] not in labels:
             raise ValueError("API returned an unplanned job: " + job["name"])
         key = labels[job["name"]]

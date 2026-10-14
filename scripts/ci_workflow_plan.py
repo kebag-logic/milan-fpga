@@ -118,6 +118,12 @@ def step_plan(step: dict) -> dict:
             "condition": condition}
 
 
+def skipped_matrices(source: dict) -> dict:
+    """Map hosted unexpanded matrix names to their declared display identities."""
+    return {job.get("name", job_id): [rendered_name(job_id, job, row) for row in matrix_rows(job)]
+            for job_id, job in source["jobs"].items() if "matrix" in job.get("strategy", {})}
+
+
 def needs(job: dict) -> list[str]:
     """Read dependency identifiers without silently accepting expressions."""
     value = job.get("needs", [])
@@ -185,15 +191,16 @@ def committed_plan(root: Path, head: str) -> dict:
     paths = sorted(name.decode() for name in names if name.endswith((b".yml", b".yaml")))
     if not paths:
         raise ValueError("head has no workflow definitions")
-    definitions, plan, labels = {}, {}, {}
+    definitions, plan, labels, skipped = {}, {}, {}, {}
     for path in paths:
         raw = git("show", head + ":" + path)
         definitions[path] = hashlib.sha256(raw).hexdigest()
         entries, names = expand_workflow(path, raw.decode("utf-8"))
+        skipped[path] = skipped_matrices(workflow(raw.decode("utf-8")))
         plan.update(entries)
         labels.update(names)
     return {"head": head, "tree": git("rev-parse", head + "^{tree}").decode().strip(),
-            "definitions": definitions, "plan": plan, "labels": labels}
+            "definitions": definitions, "plan": plan, "labels": labels, "skipped": skipped}
 
 
 def verify_bound_plan(root: Path, payload: dict) -> dict:
