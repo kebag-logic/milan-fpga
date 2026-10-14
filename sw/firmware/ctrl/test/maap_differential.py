@@ -20,7 +20,7 @@ from ctrl_mutant import MAAP_C
 import fw_gtest
 
 
-def differential(out: Path, ctrl: Path = CTRL, stack: Path = STACK) -> Outcome:
+def differential(out: Path, ctrl: Path = CTRL, stack: Path = STACK, rtl: Path | None = None) -> Outcome:
     """Build the real parent RTL and the stack's C core; grade by the shared test tally."""
     out.mkdir(parents=True, exist_ok=True)
     tree = Tree(ctrl, out, out / "reuse", fw_gtest.Build(jobs=4), stack)
@@ -35,7 +35,7 @@ def differential(out: Path, ctrl: Path = CTRL, stack: Path = STACK) -> Outcome:
             "--top-module", "KL_maap", "-GCLK_FREQ_HZ_P=10000", "-Wno-fatal",
             "--Mdir", str(out / "fabric"), "-CFLAGS", " ".join(flags), *map(str, objs),
             "-LDFLAGS", " ".join(fw_gtest.TEST_LIBS), "-o", str(exe),
-            str(ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(ctrl / "test/test_maap_differential.cpp")]
+            str(rtl or ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(ctrl / "test/test_maap_differential.cpp")]
     result = fw_gtest.run(argv, timeout=570)
     (out / "build.log").write_text(result.stdout + result.stderr, encoding="utf-8")
     if result.returncode != 0:
@@ -48,7 +48,7 @@ def differential(out: Path, ctrl: Path = CTRL, stack: Path = STACK) -> Outcome:
 
 
 def sensitivity(out: Path, pinned: Path = STACK) -> int:
-    """Require every differential case to reject its own planted core defect, planted in a copy of `pinned`."""
+    """Require every differential case to reject its named planted defect."""
     from ctrl_mutants import MUTANTS, caught
 
     cells = [(m.name, m.path, m.old, m.new, f"AllStates/DifferentialCell.SharedConflict/{k}")
@@ -68,6 +68,9 @@ def sensitivity(out: Path, pinned: Path = STACK) -> int:
     cases.append(("parent-probe-count", "test/test_maap_differential.cpp",
                   'ASSERT_EQ(f.frames.size(), 5u) << "Table B.7 parent four',
                   'ASSERT_EQ(f.frames.size(), 4u) << "Table B.7 parent four', timing))
+    cases.append(("parent-ignores-mac", "hdl/ieee1722/maap/KL_maap.sv",
+                  "station_mac_i[31:0] + realtime_ns_i",
+                  "32'hAC61", timing))
     escaped = 0
     for name, path, old, new, test in cases:
         copy = out / name / "ctrl"
@@ -75,13 +78,18 @@ def sensitivity(out: Path, pinned: Path = STACK) -> int:
         shutil.copytree(CTRL, copy, ignore=shutil.ignore_patterns("__pycache__"), dirs_exist_ok=True)
         for part in STACK_PARTS:
             shutil.copytree(pinned / part, stack / part, dirs_exist_ok=True)
+        is_rtl = path.startswith("hdl/")
         source = stack / path.removeprefix(STACK_PREFIX) if path.startswith(STACK_PREFIX) else copy / path
-        original = source.read_text(encoding="utf-8")
+        if is_rtl:
+            source = out / name / "KL_maap.sv"
+        original = (ROOT / path if is_rtl else source).read_text(encoding="utf-8")
         if original.count(old) != 1:
             raise ValueError(f"{name}: differential fixture is not unique")
         source.write_text(original.replace(old, new), encoding="utf-8")
-        outcome = differential(out / name / "build", copy, stack)
-        ok = caught(test, "", outcome)
+        outcome = differential(out / name / "build", copy, stack, source if is_rtl else None)
+        # The draw-coverage check: either end ("lowest draws" or "highest draws").
+        needle = "MAC/phase sampling reaches the parent's " if is_rtl else ""
+        ok = caught(test, needle, outcome)
         print(f"[{'ok' if ok else 'ESCAPED'}] differential mutant {name}: {test}", flush=True)
         escaped += not ok
     print(f"differential mutants: {len(cases) - escaped}/{len(cases)} caught")
