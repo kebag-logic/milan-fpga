@@ -662,7 +662,15 @@ of surfacing as a nightly that silently stopped. `ci_events.py --check` holds
 the assertion in its fail-closed shape. That shape is not only what the step
 says: a check that reads a step's contents and nothing about the conditions
 under which it runs holds the wrong perimeter, which is what #209 found. So it
-is exactly these twelve things:
+is exactly these twelve things in the source workflow contract under
+`.github/ci-templates/`. The generated workflows retain that contract and
+add the exact installation-cache, execution-evidence and failure-cancellation
+steps defined by the generators. `ci_events.py` checks both levels: all
+original negative controls still run against the source contract, and every
+generated job, step, condition, environment and permission must equal the
+generator's output. Thus an extra generated step is accepted only when the
+generator defines it; the numbered source-step counts below are not counts of
+the instrumented job:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
    aside) to three lines: `set -euo pipefail`, one unconditional
@@ -1365,31 +1373,32 @@ docs job only, so the vacuity control has one hosted runner.
 
 [The elaboration workflow](../../.github/workflows/elaborate.yml) runs on every
 pull-request update, on every push to `dev` and `main`, and on manual dispatch.
-It is the one job that installs LiteX. It exists because no other job can
-observe what elaboration hands `Instance("milan_datapath")` (#154): every
+Its two gate workers install the pinned LiteX stack. The builder gate
+observes what elaboration hands `Instance("milan_datapath")` (#154): every
 argv-to-parameter chain used to be proven by source-text greps against
 `sw/litex/milan_soc.py`, and a flag severed on its way to the parameter it
 names read green at two independent hops.
 
 It uses the same change classification as the fast workflow. A docs-only
-change skips every step after the classification and the `elaborate` check
-still completes. A relevant change installs the pinned LiteX of
+change skips the gate workers' product checks and the protected `elaborate`
+aggregate still completes. A relevant change installs the pinned LiteX of
 [`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt), places the
 VexiiRiscv source at the revision LiteX itself pins, applies the patch series
 in [`sw/litex/patches/`](../../sw/litex/patches) with its `apply.sh`, and runs
-`sw/builder/test_builder.py --require-elaboration`: gates 23f, 23g and 23h and
+`sw/builder/test_builder.py --require-elaboration --require-rv32` in worker 0:
+gates 23f, 23g and 23h and
 their mutation arms. Upstream LiteX elaborates no configuration in this tree
 (#185), so the series is a required install step and gate 23h proves the
 installed trees are upstream plus exactly that series.
 
-After those gates the same job installs Verilator and runs
+Independently, worker 1 installs Verilator and runs
 `scripts/run_litex_sims.sh`, the one aggregate that owns the standalone LiteX
 simulations in `sw/litex/` (#297): its inventory is pinned in the runner and
 reconciled against the directory in both directions, so a deleted test cannot
 vanish silently and an unlisted new one is a red run, and its `--selftest`
 executes first - it plants a failing simulation, a masked verdict, a missing
 member, an unlisted extra and a member-declared skip in a sandbox and
-requires the verdict each time. The aggregate reuses the interpreter this job
+requires the verdict each time. The simulation aggregate reuses the interpreter its worker
 just installed and patched; locally the same command runs against any
 interpreter that imports `migen` + `litex` and otherwise declares its skips
 (exit 90), see [TESTING.md section 2](TESTING.md#2-litex-integration-checks---swlitextest_py).
@@ -1399,7 +1408,7 @@ one stimulus through the CONVERTED MAC transmit chain and through the migen
 objects it was converted from, and requires the two pad traces to agree; the
 converted half is a Verilator build and the source half needs the pinned
 LiteX stack, so the comparison needs both tools in one job and this is the
-only job in the tree that carries the stack. Its cache key, build recipe and
+workflow that provisions the complete stack for these gates. Its cache key, build recipe and
 version proof are the ones `rtl.yml` uses, so the two workflows restore one
 artifact and `scripts/ci_events.py --check` refuses a `VERILATOR_VERSION`
 that has drifted in any of the three files that name it. On a host without
@@ -2777,6 +2786,12 @@ python3 scripts/ci_events.py --firmware-census
 
 Run all four phases to reproduce the complete control gate.
 Shard arguments cannot combine with coverage or mutation slicing.
+
+The fast workflow passes `--jobs 4` to the lint, publication-census, saved-state
+and coverage drivers. Python 3.12 reports the host CPU count even inside a
+container with a smaller CPU affinity set; leaving the lint pool implicit can
+start far more front ends than the assigned CPUs. The explicit width preserves
+every check and matches the standard hosted runner while bounding local memory.
 
 ## Failure and cancellation semantics
 

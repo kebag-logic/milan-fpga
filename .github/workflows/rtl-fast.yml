@@ -132,7 +132,7 @@ jobs:
           /opt/verilator/bin/verilator --version
           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
           PATH="/opt/verilator/bin:$PATH" \
-            python3 scripts/lint_rtl.py --check --self-test
+            python3 scripts/lint_rtl.py --check --self-test --jobs 4
         id: ci_step_6
       - name: Prove protocol-processor source lists are derived
         run: python3 scripts/pp_srcs.py --check --selftest
@@ -430,7 +430,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m pip install --quiet pyyaml
-          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"
+          python3 sw/mailbox/publication_census.py --check --selftest --jobs 4
         id: ci_step_10
       - name: Record actual job execution
         id: ci_record
@@ -517,13 +517,13 @@ jobs:
           python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4
         id: ci_step_9
       - name: Run the saved-state store suites and its RV32 build
-        run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+        run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
         id: ci_step_10
       - name: Hold the firmware coverage ratchet
         run: |
           set -euo pipefail
           python3 sw/firmware/gtest/fw_coverage.py --selftest
-          python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
+          python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
         id: ci_step_11
       - name: Record actual job execution
         id: ci_record

@@ -544,7 +544,7 @@ ENV_FILE_WRITERS = {
         'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
         '/opt/verilator/bin/verilator --version',
         '/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"',
-        'PATH="/opt/verilator/bin:$PATH" python3 scripts/lint_rtl.py --check --self-test',
+        'PATH="/opt/verilator/bin:$PATH" python3 scripts/lint_rtl.py --check --self-test --jobs 4',
     ),
     (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version"): (
         'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
@@ -2473,7 +2473,7 @@ RTL_STEP_LISTS = {
          "run": (
              'set -euo pipefail',
              'python3 -m pip install --quiet pyyaml',
-             'python3 sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"',
+             'python3 sw/mailbox/publication_census.py --check --selftest --jobs 4',
          )},
     ),
     (RTL_FAST, FIRMWARE_UNIT_JOB): (
@@ -2506,13 +2506,13 @@ RTL_STEP_LISTS = {
          )},
         {"name": "Run the saved-state store suites and its RV32 build",
          "run": (
-             'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
+             'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4',
          )},
         {"name": "Hold the firmware coverage ratchet",
          "run": (
              'set -euo pipefail',
              'python3 sw/firmware/gtest/fw_coverage.py --selftest',
-             'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"',
+             'python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4',
          )},
     ),
     # #697: the TSN stack's boundary from both sides over the compiles of every builder it judges but those
