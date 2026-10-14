@@ -9,6 +9,53 @@ import tempfile
 import ci_tool_inventory as inventory
 
 
+def comparison_control(root: Path, called: Path, workflow: Path, prefix: str) -> None:
+    """A parser's comparison constants do not execute an installation."""
+    called.write_text('tokens = []\nassert tokens != ["pip", "install"]\n')
+    workflow.write_text(prefix + "      - run: python3 scripts/bootstrap.py\n")
+    assert not inventory.derive(root)["tools"]
+    print("PASS: comparison-only token data is not an installation")
+
+
+def indirect_controls(root: Path, called: Path, workflow: Path, prefix: str) -> None:
+    """Keep command indirection, actions and Makefiles fail-closed."""
+    for source in (
+        'cmd = ["pip", "install", "unlisted"]\nsubprocess.run(cmd)\n',
+        'subprocess.run("python3 -m pip install unlisted", shell=True)\n',
+        'os.system("apt-get install unlisted")\n',
+    ):
+        called.write_text(source)
+        workflow.write_text(prefix + "      - run: python3 scripts/bootstrap.py\n")
+        try:
+            inventory.derive(root)
+        except inventory.Refusal:
+            print("PASS: indirect installation data refused")
+        else:
+            raise AssertionError(source)
+    for step in (
+        "      - uses: actions/setup-java@v4\n        with:\n          java-version: '21'\n",
+        "      - uses: example/bootstrap@v1\n",
+        "      - run: pipx install unlisted\n",
+    ):
+        workflow.write_text(prefix + step)
+        try:
+            inventory.derive(root)
+        except inventory.Refusal:
+            print("PASS: unsupported action or installer refused")
+        else:
+            raise AssertionError(step)
+    makefile = root / "tb/verilator/fixture/Makefile"
+    makefile.parent.mkdir(parents=True)
+    makefile.write_text("all:\n\tpip install unlisted\n")
+    workflow.write_text(prefix + "      - run: make -C tb/verilator/fixture\n")
+    try:
+        inventory.derive(root)
+    except inventory.Refusal:
+        print("PASS: Makefile installation refused")
+    else:
+        raise AssertionError("Makefile installation accepted")
+
+
 def main() -> int:
     """Require additions, removals, pin changes and unknown installs to differ."""
     with tempfile.TemporaryDirectory(prefix="ci-inventory-") as directory:
@@ -56,6 +103,7 @@ def main() -> int:
             raise AssertionError("moving Git requirement accepted")
         called = root / "scripts/bootstrap.py"
         called.parent.mkdir()
+        comparison_control(root, called, workflow, prefix)
         called.write_text('import subprocess\nsubprocess.run(["pip", "install", "unlisted"])\n')
         workflow.write_text(prefix + "      - run: python3 scripts/bootstrap.py\n")
         try:
@@ -73,41 +121,7 @@ def main() -> int:
             print("PASS: an installation hidden in a called shell script is refused")
         else:
             raise AssertionError("called-shell installation accepted")
-        for source in (
-            'cmd = ["pip", "install", "unlisted"]\nsubprocess.run(cmd)\n',
-            'subprocess.run("python3 -m pip install unlisted", shell=True)\n',
-            'os.system("apt-get install unlisted")\n',
-        ):
-            called.write_text(source)
-            workflow.write_text(prefix + "      - run: python3 scripts/bootstrap.py\n")
-            try:
-                inventory.derive(root)
-            except inventory.Refusal:
-                print("PASS: indirect installation data refused")
-            else:
-                raise AssertionError(source)
-        for step in (
-            "      - uses: actions/setup-java@v4\n        with:\n          java-version: '21'\n",
-            "      - uses: example/bootstrap@v1\n",
-            "      - run: pipx install unlisted\n",
-        ):
-            workflow.write_text(prefix + step)
-            try:
-                inventory.derive(root)
-            except inventory.Refusal:
-                print("PASS: unsupported action or installer refused")
-            else:
-                raise AssertionError(step)
-        makefile = root / "tb/verilator/fixture/Makefile"
-        makefile.parent.mkdir(parents=True)
-        makefile.write_text("all:\n\tpip install unlisted\n")
-        workflow.write_text(prefix + "      - run: make -C tb/verilator/fixture\n")
-        try:
-            inventory.derive(root)
-        except inventory.Refusal:
-            print("PASS: Makefile installation refused")
-        else:
-            raise AssertionError("Makefile installation accepted")
+        indirect_controls(root, called, workflow, prefix)
     return 0
 
 

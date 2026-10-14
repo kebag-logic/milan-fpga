@@ -39,13 +39,26 @@ def versions(pins: dict[str, object]) -> None:
     for name in ("migen", "litex", "liteeth", "litedram", "litespi", "litex-boards",
                  "pythondata-cpu-vexiiriscv"):
         print(json.dumps({"package": name, "version": importlib.metadata.version(name)}))
-    checks = ((["verilator", "--version"], "Verilator 5.050"),
-              (["yosys", "-V"], "Yosys 0.66"), (["sv2v", "--version"], "v0.0.12"),
+    source_versions = {row["tool"]: row["version"] for row in pins["sources"]}
+    package_versions = {row["tool"]: row["version"].split(":")[-1].split("-")[0] for row in pins["packages"]}
+    checks = ((["verilator", "--version"], "rev " + source_versions["verilator"]),
+              (["yosys", "-V"], "Yosys " + source_versions["yosys"].removeprefix("v")),
+              (["sv2v", "--version"], source_versions["sv2v"]),
               (["riscv32-linux-gcc", "-dumpfullversion"], "14.3.0"),
               (["sbt", "--script-version"], "1.10.7"),
               (["node", "--version"], "v22.23.3"), (["gh", "--version"], "2.102.0"))
     for argv, expected in checks:
         assert expected in run(argv), (argv, expected)
+    distribution = (("git", "git"), ("cmake", "cmake"), ("ninja", "ninja-build"),
+                    ("gcc", "gcc-13"), ("g++", "g++-13"), ("clang", "clang-18"),
+                    ("gcov", "gcc-13"), ("make", "make"), ("autoconf", "autoconf"),
+                    ("flex", "flex"), ("bison", "bison"), ("automake", "automake"),
+                    ("help2man", "help2man"), ("curl", "curl"), ("pkg-config", "pkg-config"),
+                    ("rsvg-convert", "librsvg2-bin"), ("java", "openjdk-17-jre-headless"))
+    for tool, package in distribution:
+        expected = package_versions[package].split("+")[0]
+        option = "-version" if tool == "java" else "--version"
+        assert expected in run([tool, option]), (tool, expected)
     for argv in (["gcc", "--version"], ["g++", "--version"], ["clang", "--version"],
                  ["gcov", "--version"], ["cmake", "--version"], ["git", "--version"],
                  ["make", "--version"], ["autoconf", "--version"], ["flex", "--version"],

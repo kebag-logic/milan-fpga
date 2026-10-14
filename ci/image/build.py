@@ -19,12 +19,17 @@ import tempfile
 import time
 import urllib.request
 
+import image_archive
+import image_lock
+import privacy
+
 
 ROOT = Path(__file__).resolve().parents[2]
 HERE = Path(__file__).resolve().parent
 STAGES = ("system-tools", "gtest-tools", "python-tools", "litex-tools", "verilator-tools", "yosys-tools",
           "rv32-tools", "sv2v-tools", "sbt-tools", "oracle-tools", "node-tools", "gh-tools", "validation-tools")
 GTEST = {"googletest", "libgtest-dev", "libgmock-dev"}
+SOURCE_DATE_EPOCH = 1791940308
 LAYER_ROOTS = {"verilator": ("verilator",), "yosys": ("yosys",), "rv32": ("rv32-sdk",),
                "sv2v": ("sv2v",), "oracle": ("tsn-gen",), "sbt": ("sbt",),
                "node": ("node",), "gh": ("gh",),
@@ -129,7 +134,9 @@ def verified_download(row: dict[str, object], target: Path) -> None:
 def recipe_inputs() -> dict[str, str]:
     """Bind pins, installers, smoke proof and the existing patch series."""
     files = [HERE / name for name in ("Dockerfile", "install.py", "sources.lock.json",
-                                      "build.py", "smoke.py", "sbt-repositories")]
+                                      "build.py", "smoke.py", "sbt-repositories", "normalize.py",
+                                      "image_lock.py", "image_archive.py", "privacy.py", "privacy.json",
+                                      "patch_provenance.py")]
     files += [ROOT / "scripts/ci_rv32_sdk.py", ROOT / "scripts/ci_tool_inventory.py",
               HERE / "tool-inventory.json", ROOT / "sw/litex/patches/apply.sh"]
     files += sorted((ROOT / "sw/litex/patches").glob("*.patch"))
@@ -147,6 +154,39 @@ def layer_sources(pins: dict[str, object], name: str) -> list[dict[str, object]]
     return [row for row in pins["sources"] if row["tool"] in selected or
             (name == "python" and row.get("kind") == "python") or
             (name == "sbt" and row.get("kind") == "maven")]
+
+
+def layer_records(pins: dict[str, object]) -> list[dict[str, object]]:
+    """Bind each final filesystem layer to its own inputs and installer recipe."""
+    groups = {"system": [row for row in pins["packages"] if row["tool"] not in GTEST],
+              "gtest": [row for row in pins["packages"] if row["tool"] in GTEST]}
+    for name in ("python", "litex", "verilator", "yosys", "rv32", "sv2v", "sbt", "oracle", "node", "gh"):
+        groups[name] = layer_sources(pins, name)
+    groups["validation"] = []
+    dockerfile = (HERE / "Dockerfile").read_text()
+    stages = [part for part in re.split(r"(?m)^FROM ", dockerfile) if part]
+    result = []
+    for name, rows in groups.items():
+        stage = next(part for part in stages if part.splitlines()[0].endswith(f"AS {name}-tools"))
+        selected = {"stage": stage, "base": pins["base"], "epoch": SOURCE_DATE_EPOCH,
+                    "sources": rows, "normalizer": sha256(HERE / "normalize.py")}
+        if name not in ("system", "gtest", "validation"):
+            selected["installer"] = sha256(HERE / "install.py")
+        if name == "sbt":
+            selected["boot"] = pins["sbt_boot"]
+            selected["repositories"] = sha256(HERE / "sbt-repositories")
+        if name == "litex":
+            patches = sorted((ROOT / "sw/litex/patches").glob("*"))
+            selected["patches"] = {p.name: sha256(p) for p in patches if p.is_file()}
+        if name == "rv32":
+            selected["sdk_installer"] = sha256(ROOT / "scripts/ci_rv32_sdk.py")
+        if name == "validation":
+            selected["smoke"] = sha256(HERE / "smoke.py")
+            selected["pins"] = sha256(HERE / "sources.lock.json")
+        result.append({"tool": name, "tools": [{"tool": row["tool"], "version": row["version"],
+                                                "source_digest": row["sha256"]} for row in rows],
+                       "source_digest": image_lock.digest(rows), "recipe_digest": image_lock.digest(selected)})
+    return result
 
 
 def prepare(work: Path, pins: dict[str, object]) -> tuple[Path, str]:
@@ -176,7 +216,7 @@ def prepare(work: Path, pins: dict[str, object]) -> tuple[Path, str]:
             f"{row['sha256']}  debs/{row['filename']}\n" for row in packages))
     stage = context / "recipe"
     stage.mkdir(exist_ok=True)
-    for name in ("install.py", "sources.lock.json", "smoke.py", "sbt-repositories"):
+    for name in ("install.py", "sources.lock.json", "smoke.py", "sbt-repositories", "normalize.py"):
         shutil.copyfile(HERE / name, stage / name)
     for name in ("python", *LAYER_ROOTS):
         manifest = {"sources": layer_sources(pins, name)}
@@ -199,6 +239,36 @@ def prepare(work: Path, pins: dict[str, object]) -> tuple[Path, str]:
     return context, recipe
 
 
+def checked_artifact(path: Path, work: Path, pins: dict[str, object]) -> dict[str, object]:
+    """Re-prove upstream allowances from authenticated public source archives."""
+    upstream = privacy.provenance(pins, work / "context", privacy.Policy())
+    artifact = image_archive.inspect(path, pins["platform"], upstream)
+    (work / "privacy-report.json").write_text(json.dumps(artifact, sort_keys=True, indent=2) + "\n")
+    return artifact
+
+
+def record_lock(work: Path, pins: dict[str, object], receipt: dict[str, object]) -> None:
+    """Write a complete lock only after recipe, image and privacy verification."""
+    recipe = receipt["recipe_sha256"]
+    if recipe_digest() != recipe:
+        raise ValueError("recipe changed during the build; final lock was not written")
+    artifact = checked_artifact(work / "image.tar", work, pins)
+    if artifact["image_digest"] != receipt["image_digest"] or artifact["image_id"] != receipt["image_id"]:
+        raise ValueError("exported image differs from build receipt")
+    layers = layer_records(pins)
+    base_count = len(pins["base_layers"])
+    if artifact["layers"][:base_count] != pins["base_layers"]:
+        raise ValueError("built image base layers differ from the pinned base")
+    for row, measured in zip(layers, artifact["layers"][base_count:], strict=True):
+        row.update(measured)
+    lock = {"schema": 2, "platform": pins["platform"], "base": pins["base"], "base_layers": pins["base_layers"],
+            "recipe_digest": recipe, "image_digest": receipt["image_digest"],
+            "image_id": receipt["image_id"], "layers": layers}
+    image_lock.validate(lock, pins, recipe, layer_records(pins))
+    image_lock.verify_artifact(lock, artifact)
+    (HERE / "image.lock.json").write_text(json.dumps(lock, sort_keys=True, indent=2) + "\n")
+
+
 def build(args: argparse.Namespace, pins: dict[str, object]) -> None:
     """Build foreground; each separately selected stage can reuse the same cache."""
     work = args.work.resolve()
@@ -207,9 +277,16 @@ def build(args: argparse.Namespace, pins: dict[str, object]) -> None:
     if args.check_lock:
         validate_pins(pins)
         lock = json.loads((HERE / "image.lock.json").read_text())
-        if lock["recipe_digest"] != recipe_digest():
-            raise ValueError("image lock does not describe the current recipe")
-        print("PASS: image lock describes the current recipe")
+        image_lock.validate(lock, pins, recipe_digest(), layer_records(pins))
+        if args.verify_archive:
+            image_lock.verify_artifact(lock, checked_artifact(args.verify_archive, work, pins))
+            print("PASS: image identity verified against exported manifest, config and every layer")
+        else:
+            print("PASS: complete recipe consistency; image identity UNVERIFIED without --verify-archive")
+        return
+    if args.record_lock:
+        record_lock(work, pins, json.loads((work / "validation-tools.receipt.json").read_text()))
+        print("PASS: exported image authenticated; final lock recorded")
         return
     context, recipe = prepare(work, pins)
     if args.prepare_only:
@@ -218,33 +295,29 @@ def build(args: argparse.Namespace, pins: dict[str, object]) -> None:
     docker = shlex.split(args.docker_command)
     tag = f"{args.repository}:{recipe}-{args.stage}"
     metadata = work / f"{args.stage}.metadata.json"
-    command = [*docker, "buildx", "build", "--load", "--provenance=false", "--network=none",
+    command = [*docker, "buildx", "build", "--output", "type=image,rewrite-timestamp=true",
+               "--build-arg", f"SOURCE_DATE_EPOCH={SOURCE_DATE_EPOCH}", "--provenance=false", "--network=none",
                "--platform", pins["platform"], "--target", args.stage, "--tag", tag,
                "--metadata-file", str(metadata), "--cache-to", f"type=local,dest={work / 'build-cache'}",
                "--file", str(context / "Dockerfile"), str(context)]
+    if args.no_cache:
+        command.insert(len(docker) + 2, "--no-cache")
     started = time.monotonic()
     with (work / f"{args.stage}.build.log").open("w") as stream:
         subprocess.run(command, check=True, stdout=stream, stderr=subprocess.STDOUT)
     elapsed_ms = round((time.monotonic() - started) * 1000)
     inspected = json.loads(subprocess.check_output([*docker, "image", "inspect", tag], text=True))[0]
     produced = json.loads(metadata.read_text())
-    receipt = {"recipe_sha256": recipe, "stage": args.stage, "image_id": inspected["Id"],
+    receipt = {"recipe_sha256": recipe, "stage": args.stage, "image_id": produced["containerimage.config.digest"],
                "image_digest": produced["containerimage.digest"], "size_bytes": inspected["Size"],
                "build_ms": elapsed_ms, "tag": tag}
     (work / f"{args.stage}.receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
     if args.stage == "validation-tools":
+        archive = work / "image.tar"
+        subprocess.run([*docker, "image", "save", "--output", str(archive), tag], check=True)
+        if not args.defer_lock:
+            record_lock(work, pins, receipt)
         subprocess.run([*docker, "tag", tag, f"{args.repository}:{recipe}"], check=True)
-        groups = {"system": [row for row in pins["packages"] if row["tool"] not in GTEST],
-                  "gtest": [row for row in pins["packages"] if row["tool"] in GTEST]}
-        groups.update({name: layer_sources(pins, name) for name in ("python", *LAYER_ROOTS)})
-        layers = [{"tool": name, "tools": [{"tool": row["tool"], "version": row["version"],
-                                             "source_digest": row["sha256"]} for row in rows],
-                   "source_digest": hashlib.sha256(canonical(rows)).hexdigest(), "recipe_digest": recipe}
-                  for name, rows in groups.items()]
-        lock = {"schema": 1, "platform": pins["platform"], "base": pins["base"],
-                "recipe_digest": recipe, "image_digest": receipt["image_digest"],
-                "image_id": receipt["image_id"], "layers": layers}
-        (HERE / "image.lock.json").write_text(json.dumps(lock, sort_keys=True, indent=2) + "\n")
     print(json.dumps(receipt, sort_keys=True))
 
 
@@ -257,6 +330,10 @@ def main() -> int:
     parser.add_argument("--docker-command", default="docker")
     parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--check-lock", action="store_true")
+    parser.add_argument("--verify-archive", type=Path)
+    parser.add_argument("--no-cache", action="store_true")
+    parser.add_argument("--defer-lock", action="store_true", help="export only; complete with --record-lock")
+    parser.add_argument("--record-lock", action="store_true", help="authenticate an existing build export")
     args = parser.parse_args()
     try:
         build(args, json.loads((HERE / "sources.lock.json").read_text()))

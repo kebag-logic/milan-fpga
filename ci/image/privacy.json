@@ -1,0 +1,149 @@
+{
+  "decision": "https://github.com/kebag-logic/milan-fpga/pull/738#issuecomment-6162652582",
+  "patch_decision": "https://github.com/kebag-logic/milan-fpga/pull/738#issuecomment-6163057631",
+  "rules": [
+    {
+      "class": "absolute-user-path",
+      "needles": [
+        "/home/",
+        "/users/",
+        "/data/"
+      ],
+      "pattern": "(?<![A-Za-z0-9_./-])(?:/home/(?!ubuntu(?:/|[\\x00\\s:]|$))[A-Za-z0-9_.-]+|/Users/[A-Za-z0-9_.-]+|/data/[A-Za-z0-9_.-]+/)"
+    },
+    {
+      "class": "private-address",
+      "needles": [
+        "192.168.",
+        "10.",
+        "172."
+      ],
+      "pattern": "(?<![0-9.])(?:192\\.168\\.[0-9]{1,3}\\.[0-9]{1,3}|10\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}|172\\.(?:1[6-9]|2[0-9]|3[01])\\.[0-9]{1,3}\\.[0-9]{1,3})(?![0-9.])"
+    },
+    {
+      "class": "private-host",
+      "needles": [
+        "\u0061\u006d\u0078-"
+      ],
+      "pattern": "\\b\\x61\\x6d\\x78-[A-Za-z0-9.-]+"
+    },
+    {
+      "class": "credential",
+      "needles": [
+        "ghp_",
+        "gho_",
+        "ghu_",
+        "ghs_",
+        "ghr_",
+        "github_pat_",
+        "AKIA",
+        "-----BEGIN",
+        "http://",
+        "https://"
+      ],
+      "pattern": "(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|AKIA[A-Z0-9]{16}|-----BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY-----|https?://[^\\s/:]+:[^\\s/@]+@)"
+    },
+    {
+      "class": "builder-home",
+      "runtime": "builder-home"
+    },
+    {
+      "class": "builder-account",
+      "runtime": "builder-account"
+    },
+    {
+      "class": "builder-host",
+      "runtime": "builder-host"
+    },
+    {
+      "class": "project-identity",
+      "codepoints": [
+        77,
+        105,
+        115,
+        116,
+        101,
+        114,
+        45,
+        77,
+        45,
+        97,
+        108,
+        116
+      ]
+    },
+    {
+      "class": "project-identity",
+      "codepoints": [
+        97,
+        108,
+        101,
+        120
+      ]
+    },
+    {
+      "class": "project-identity",
+      "codepoints": [
+        104,
+        97,
+        99,
+        107,
+        101,
+        114,
+        109,
+        97,
+        110,
+        45,
+        107,
+        108
+      ]
+    },
+    {
+      "class": "project-identity",
+      "codepoints": [
+        104,
+        97,
+        99,
+        107,
+        101,
+        114,
+        109,
+        97,
+        110,
+        45,
+        107,
+        108,
+        64,
+        107,
+        101,
+        98,
+        97,
+        103,
+        45,
+        108,
+        111,
+        103,
+        105,
+        99,
+        46,
+        99,
+        111,
+        109
+      ]
+    },
+    {
+      "class": "project-identity",
+      "codepoints": [
+        119,
+        97,
+        108,
+        107,
+        105,
+        114,
+        121,
+        101
+      ]
+    }
+  ],
+  "schema": 1
+}

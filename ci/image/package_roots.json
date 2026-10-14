@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "runtime": [
+    {"package": "clang", "path": "third_party/tsn-c-stack/scripts/check_boundary.py", "literal": "for compiler in ('gcc', 'clang')", "reason": "The workflow's stack boundary gate compiles with both compilers."},
+    {"package": "cmake", "path": ".github/workflows/rtl.yml", "literal": "cmake --build", "reason": "The protocol oracle is built with CMake."},
+    {"package": "curl", "path": ".github/workflows/elaborate.yml", "literal": "curl -fsSL", "reason": "Workflow downloads use the command-line HTTP client."},
+    {"package": "ca-certificates", "path": ".github/workflows/elaborate.yml", "literal": "https://github.com/", "reason": "Public HTTPS tool downloads require the system trust store."},
+    {"package": "openjdk-17-jdk-headless", "path": ".github/workflows/elaborate.yml", "literal": "sbt --version", "reason": "The Scala toolchain requires Java 17 and its compiler."},
+    {"package": "unzip", "path": ".github/workflows/elaborate.yml", "literal": "unzip -q -o", "reason": "The converter installation extracts a ZIP archive."}
+  ],
+  "recipe": [
+    {"package": "python3-venv", "path": "ci/image/install.py", "literal": "[\"python3\", \"-m\", \"venv\"", "reason": "The recipe creates the isolated Python prefix."},
+    {"package": "automake", "path": "ci/image/smoke.py", "literal": "[\"automake\", \"--version\"]", "reason": "Retain the existing image smoke's build-system version check."},
+    {"package": "ninja-build", "path": "ci/image/smoke.py", "literal": "[\"cmake\", \"-G\", \"Ninja\"", "reason": "The existing image smoke builds its CMake fixture with Ninja."}
+  ]
+}

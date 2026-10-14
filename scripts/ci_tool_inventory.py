@@ -158,6 +158,14 @@ def shell_installs(run: str, env: dict[str, str], root: Path) -> list[dict[str, 
     return result
 
 
+def comparison_operand(node: ast.AST, parents: dict[ast.AST, ast.AST]) -> bool:
+    """Literal comparison operands describe tokens; nested calls still execute."""
+    parent = parents.get(node)
+    while isinstance(parent, (ast.List, ast.Tuple)):
+        parent = parents.get(parent)
+    return isinstance(parent, ast.Compare)
+
+
 def script_inputs(run: str, root: Path, found: dict[str, str]) -> None:
     """Follow literal script references and local imports without executing them.
 
@@ -185,6 +193,7 @@ def script_inputs(run: str, root: Path, found: dict[str, str]) -> None:
                     raise Refusal(f"{relative}: shell installation needs an explicit pin reader")
             continue
         tree = ast.parse(source)
+        parents = {child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)}
         assignments: dict[str, list[ast.expr]] = {}
         for node in ast.walk(tree):
             if isinstance(node, ast.Assign):
@@ -220,6 +229,8 @@ def script_inputs(run: str, root: Path, found: dict[str, str]) -> None:
                     if any(INSTALL_WORD.search(value) for value in command_strings(node.args[0])):
                         raise Refusal(f"{relative}: installation string needs an explicit pin reader")
             if not isinstance(node, (ast.List, ast.Tuple)):
+                continue
+            if comparison_operand(node, parents):
                 continue
             tokens = [item.value if isinstance(item, ast.Constant) and isinstance(item.value, str) else "<dynamic>"
                       for item in node.elts]

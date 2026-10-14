@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -54,6 +55,7 @@ def unpack(name: str, destination: Path | None = None) -> Path:
 def verilator() -> None:
     """Use the workflow's configuration and bounded compilation parallelism."""
     source = unpack("verilator")
+    os.environ["VERILATOR_SRC_VERSION"] = SOURCES["verilator"]["version"]
     run(["autoconf"], source)
     run(["./configure", "--prefix=/opt/verilator"], source)
     run(["make", "-j8"], source)
@@ -107,20 +109,27 @@ def litex() -> None:
     """Install the workflow's Git pins and apply its unmodified patch series."""
     names = ("migen", "litex", "litedram", "liteeth", "litespi", "litex-boards", "pythondata-cpu-vexiiriscv")
     for name in names:
-        run([PYTHON, "-m", "pip", "install", "--no-index", "--no-deps", "--no-build-isolation",
+        run([PYTHON, "-m", "pip", "install", "--prefix=/opt/litex", "--no-index", "--no-deps", "--no-build-isolation",
              str(unpack(name))])
     destination = subprocess.check_output(
         [PYTHON, "-c", "import pythondata_cpu_vexiiriscv as p; print(p.data_location)"], text=True).strip()
     cpu = unpack("VexiiRiscv", Path(destination) / "ext/VexiiRiscv")
-    unpack("SpinalHDL", cpu / "ext/SpinalHDL")
-    unpack("rvls", cpu / "ext/rvls")
+    placed = {"VexiiRiscv": cpu}
+    pending = [row for row in PINS["sources"] if row.get("parent")]
+    while pending:
+        ready = [row for row in pending if row["parent"] in placed]
+        if not ready:
+            raise ValueError("unresolved recursive CPU source")
+        for row in ready:
+            placed[row["tool"]] = unpack(row["tool"], placed[row["parent"]] / row["path"])
+            pending.remove(row)
     run(["bash", "/recipe/patches/apply.sh"])
     run([PYTHON, "-m", "pip", "check"])
 
 
 def oracle() -> None:
     """Compile the exact field oracle and its required recursive source closure."""
-    source = unpack("tsn-gen", Path("/opt/tsn-gen"))
+    source = unpack("tsn-gen")
     yaml = unpack("rapidyaml", source / "external/rapidyaml")
     core = unpack("c4core", yaml / "ext/c4core")
     for name in ("c4-cmake", "debugbreak", "fast_float"):
@@ -128,13 +137,21 @@ def oracle() -> None:
     run(["cmake", "-S", str(source), "-B", str(source / "build"),
          "-DCMAKE_BUILD_TYPE=Release", "-DENABLE_PARSER_TESTS=OFF"])
     run(["cmake", "--build", str(source / "build"), "--target", "packet_gen", "--parallel", "8"])
+    destination = Path("/opt/tsn-gen")
+    (destination / "build/traffic-gen").mkdir(parents=True)
+    shutil.copyfile(source / "build/traffic-gen/packet_gen", destination / "build/traffic-gen/packet_gen")
+    (destination / "build/traffic-gen/packet_gen").chmod(0o755)
+    shutil.copytree(source / "protocols", destination / "protocols")
+    for name in ("LICENSE", "LICENSE.md", "LICENSE.txt"):
+        if (source / name).is_file():
+            shutil.copyfile(source / name, destination / name)
     Path("/opt/tsn-gen/SOURCE_REV").write_text(SOURCES["tsn-gen"]["version"] + "\n")
 
 
 def sbt() -> None:
     """Install the launcher and its checksummed offline dependency cache."""
     unpack("sbt", Path("/opt/sbt"))
-    cache = Path("/opt/sbt-cache")
+    cache = Path("/opt/sbt/cache")
     by_hash = {}
     for row in PINS["sources"]:
         if row.get("kind") != "maven":
@@ -169,6 +186,7 @@ def main() -> int:
     else:
         installers[name]()
     shutil.rmtree(WORK)
+    run(["python3", "/recipe/normalize.py", "/opt"])
     return 0
 
 
