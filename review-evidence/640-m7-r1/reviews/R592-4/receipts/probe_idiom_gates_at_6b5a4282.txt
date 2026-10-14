@@ -1,0 +1,12 @@
+== probe: gptp-processor checked out AND index gitlink set to 6b5a4282 (pre-fix donor merge); both restored afterwards
+160000 6b5a4282586a3851117674891d1955253e3de452 0	gptp-processor
+-- python3 scripts/check_py_idiom.py
+FAIL: long function 10 > ratchet 9. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+FAIL: undocumented public function 1 > ratchet 0. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+rc=1
+-- python3 scripts/check_cpp_idiom.py
+FAIL: multi-declarator declaration 4 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+rc=1
+restored index: 160000 e4869fd0c42889b2ac806587cc5c78afb1c33461 0	gptp-processor
+restored checkout: e4869fd0c42889b2ac806587cc5c78afb1c33461
+index and worktree equal HEAD

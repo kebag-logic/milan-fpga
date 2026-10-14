@@ -1,0 +1,144 @@
+== lane added/removed lines: (e8454e27..354f7818) vs (fa820988..412e3f6c), per overlapping text file
+DELTA-CHANGED docs/design/AREA_BUDGET.md
+6d5
+< +This table keeps its planning estimates until the week-4 re-measure.
+DELTA-CHANGED docs/design/GPTP_PLANE.md
+1d0
+< -| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md) |
+3c2
+< -| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md) |
+---
+> -| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/HDL_DEVELOPER.md) |
+5c4
+< -| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md) |
+---
+> -| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/MANAGER.md) |
+7c6
+< -| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md) |
+---
+> -| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/INTEGRATION.md) |
+8a8
+> -| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/TEST_DEVELOPER.md) |
+DELTA-CHANGED docs/design/MARK_II_AREA_PLAN.md
+14d13
+< +Against that record, the M7 route passes with no failing endpoint.
+15a15
+> +Against the dev `e8454e27` record, the M7 route passes with no failing endpoint.
+39c39
+< +The base route equals the `route-1x1` record in every gated figure.
+---
+> +The base route equals the `route-1x1` record at dev `e8454e27` in every gated figure; [#696](https://github.com/kebag-logic/milan-fpga/issues/696) has since replaced that record.
+DELTA-CHANGED docs/design/TIME_SYNC.md
+1d0
+< -| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md#step-versus-slew-policy) |
+2a2
+> -| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/INTEGRATION.md#step-versus-slew-policy) |
+DELTA-CHANGED docs/diagrams/PNG_MANIFEST.json
+1,8c1,8
+< -      "raster_sha256": "09cffde74983d366190d9516b3633f75ad6b9fe4cdf0a592f2e4b32d42f306ee",
+< +      "raster_sha256": "5595f2130c02cf4e26fba664268d178a3836c750fab1c9fc3d149e59002db37c",
+< -      "raster_sha256": "e69c8895f9e4646df8259233d28a15cd99f8c39c2dc6328d205522d4936292f8",
+< +      "raster_sha256": "f370bae0b1900cd6cf8ac7a7e84def211ef8332973275ac78e7eaa99d367190f",
+< -      "source_sha256": "013b66762a40084090e9655e6e26dc7b21505aec474b8989b44d15b69fe6838e",
+< +      "source_sha256": "098491841edd36094afabcf45f2416419b5d21af816c10dc61270ed9ab3ddef3",
+< -      "source_sha256": "3e6d5367c0a4eef6dfabaa10c06721dbad699938b766b607e208baca945cf5e9",
+< +      "source_sha256": "4868ef1f616c2a78a8f1e1794cc3a5744aa4c348b6d2ae1b1aa946f07fe27048",
+---
+> +      "raster_sha256": "247c861e7ca5fbaa33a8bd4c7b8f84739d5c1d2c4299752b1be6546ada19f1c0",
+> -      "raster_sha256": "d3930b328dff0643bcffcbc133ba78178375eabac8da28503c5b4ce915f851a7",
+> +      "raster_sha256": "e4405706aeaffabe748566f2a7b7880359f17b568069ad23bb1a47bb1f0f75f3",
+> -      "raster_sha256": "fb45574fc81131cf407d6b4b18297847a61f9a98f26b39a02298f2da302086ab",
+> +      "source_sha256": "48078bf49877f8b3717e1099a1b91139a2d999c540ebe713b27a3e1a61ed3046",
+> +      "source_sha256": "7a6b9199db7eb1ee9bee37b7073c54e0aa9d2606c2789325d2da6387500939b5",
+> -      "source_sha256": "ce433e99018fc69cba68ca55939904f7541617018e49c62d7ccf14ad2a1af98a",
+> -      "source_sha256": "d0d8333bdc92d7f8c45c163b1ec016020714a7dfcd399ad1d011dc2e9a48c036",
+DELTA-CHANGED docs/diagrams/submodule_boundaries.drawio
+1,2c1,2
+< -<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1100" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified
+< +<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1100" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified
+---
+> +<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1210" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1210" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified
+> -<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1210" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1210" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified
+DELTA-CHANGED docs/diagrams/submodule_boundaries.svg
+1d0
+< -<text x="53" y="662" font-size="16" fill="#37474F">pin 5dce647ab5a0</text>
+2a2
+> -<text x="53" y="662" font-size="16" fill="#37474F">pin PIN12</text>
+DELTA-CHANGED docs/diagrams/timesync_chain.drawio
+1d0
+< -<mxfile host="app.diagrams.net"><diagram name="fabric-time"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="Fabric time owners
+2a2
+> -<mxfile host="app.diagrams.net"><diagram name="fabric-time"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="Fabric time owners
+DELTA-CHANGED docs/diagrams/timesync_chain.svg
+1d0
+< -<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin 5dce647ab5a0</text>
+2a2
+> -<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin PIN12</text>
+DELTA-CHANGED docs/guides/gptp/HDL_DEVELOPER.md
+1d0
+< -Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md).
+3c2
+< -![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/diagrams/wavedrom/rx_accept.svg)
+---
+> -Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/HDL_DEVELOPER.md).
+5c4
+< -Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/SOURCE_EVIDENCE.md).
+---
+> -![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/PIN/docs/diagrams/wavedrom/rx_accept.svg)
+7c6
+< -![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/diagrams/wavedrom/tx_backpressure.svg)
+---
+> -Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/SOURCE_EVIDENCE.md).
+8a8
+> -![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/PIN/docs/diagrams/wavedrom/tx_backpressure.svg)
+DELTA-CHANGED docs/guides/gptp/MANAGER.md
+1d0
+< -Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md).
+3c2
+< -Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md).
+---
+> -Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/MANAGER.md).
+4a4
+> -Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/MANAGER.md).
+DELTA-CHANGED docs/guides/gptp/SYSTEM_INTEGRATOR.md
+1d0
+< -Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md).
+2a2
+> -Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/INTEGRATION.md).
+DELTA-CHANGED docs/guides/gptp/TEST_DEVELOPER.md
+1d0
+< -Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md).
+2a2
+> -Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/TEST_DEVELOPER.md).
+DELTA-CHANGED docs/reference/SUBMODULES.md
+1d0
+< -| `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+3c2
+< -- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md)
+---
+> -| `gptp-processor` | `PIN` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+5c4
+< -- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/INTEGRATION.md)
+---
+> -- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/HDL_DEVELOPER.md)
+7c6
+< -- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/MANAGER.md)
+---
+> -- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/INTEGRATION.md)
+9c8
+< -- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md)
+---
+> -- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/MANAGER.md)
+10a10
+> -- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/TEST_DEVELOPER.md)
+same-delta docs/testing/TESTING.md
+DELTA-CHANGED docs/traceability/ieee8021as.md
+1d0
+< -The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/SOURCE_EVIDENCE.md) maps internals.
+2a2
+> -The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/PIN/docs/SOURCE_EVIDENCE.md) maps internals.
+DELTA-CHANGED syn/yosys/rom_digests.tsv
+0a1
+> +6b5a4282586a3851117674891d1955253e3de452	gptp_ucode.hex	a435fba6167238268fa9074dd4645dd03380e56ff1eeea273fd3fc2fcecab9fd
+2a4
+> +PIN	gptp_ucode.hex	a435fba6167238268fa9074dd4645dd03380e56ff1eeea273fd3fc2fcecab9fd

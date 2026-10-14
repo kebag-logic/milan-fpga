@@ -1,0 +1,12 @@
+== old (6b5a4282) selftest
+ooc clock order selftest: PASS (30 arms)
+rc=0
+== new (e4869fd0) selftest
+ooc clock order selftest: PASS (30 arms)
+rc=0
+== probe: new copy with timing_findings returning []
+ooc clock order selftest: wrong period escaped (no finding names 'Clock Summary is')
+rc=1
+== probe: arm list truncated by one (count must drop to 29)
+ooc clock order selftest: PASS (29 arms)
+rc=0

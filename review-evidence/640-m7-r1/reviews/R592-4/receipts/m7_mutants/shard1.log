@@ -1,0 +1,10 @@
+shard 1/4: 7 of 26 controls: rx_fifo_wrong_read_latency, tx_fifo_count_alias, ledger_index_alias, results_write_index, rx_fifo_lane_stuck, timer_deadline_stuck, declaration_stray
+[ ok ] rx_fifo_wrong_read_latency: caught by "rx_fifo lockstep"
+[ ok ] tx_fifo_count_alias: caught by "tx_fifo lockstep"
+[ ok ] ledger_index_alias: caught by "ledger lockstep"
+[ ok ] results_write_index: caught by "results lockstep"
+[ ok ] rx_fifo_lane_stuck: caught by "rx_fifo values: lane"
+[ ok ] timer_deadline_stuck: caught by "timer values: deadline"
+[ ok ] declaration_stray: caught by "values: declarations that name no censused column"
+controls: 7   failures: 0
+RESULT: PASS

@@ -1,0 +1,103 @@
+== parent 412e3f6c parents
+412e3f6c8c402bce63e94c291d2782b5579aaa1d 354f781828d8b4d73037129f297b072320a10f9c fa8209889411e8ca95757174c981f720dbcd95a2
+== recomputed automatic merge of 354f7818 and fa820988 (conflicts)
+8ca71a8b0912aacec945bcc7e23e3035ff94b980
+docs/design/AREA_BUDGET.md
+docs/design/GPTP_PLANE.md
+docs/design/MARK_II_AREA_PLAN.md
+docs/design/TIME_SYNC.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/diagrams/timesync_chain.drawio
+docs/diagrams/timesync_chain.png
+docs/diagrams/timesync_chain.svg
+docs/guides/gptp/HDL_DEVELOPER.md
+docs/guides/gptp/MANAGER.md
+docs/guides/gptp/SYSTEM_INTEGRATOR.md
+docs/guides/gptp/TEST_DEVELOPER.md
+docs/reference/SUBMODULES.md
+docs/traceability/ieee8021as.md
+gptp-processor
+
+Auto-merging docs/design/AREA_BUDGET.md
+CONFLICT (content): Merge conflict in docs/design/AREA_BUDGET.md
+Auto-merging docs/design/GPTP_PLANE.md
+CONFLICT (content): Merge conflict in docs/design/GPTP_PLANE.md
+Auto-merging docs/design/MARK_II_AREA_PLAN.md
+CONFLICT (content): Merge conflict in docs/design/MARK_II_AREA_PLAN.md
+Auto-merging docs/design/TIME_SYNC.md
+CONFLICT (content): Merge conflict in docs/design/TIME_SYNC.md
+Auto-merging docs/diagrams/PNG_MANIFEST.json
+CONFLICT (content): Merge conflict in docs/diagrams/PNG_MANIFEST.json
+Auto-merging docs/diagrams/submodule_boundaries.drawio
+CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.drawio
+warning: Cannot merge binary files: docs/diagrams/submodule_boundaries.png (354f7818 vs. fa820988)
+Auto-merging docs/diagrams/submodule_boundaries.png
+CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.png
+Auto-merging docs/diagrams/submodule_boundaries.svg
+CONFLICT (content): Merge conflict in docs/diagrams/submodule_boundaries.svg
+Auto-merging docs/diagrams/timesync_chain.drawio
+CONFLICT (content): Merge conflict in docs/diagrams/timesync_chain.drawio
+warning: Cannot merge binary files: docs/diagrams/timesync_chain.png (354f7818 vs. fa820988)
+Auto-merging docs/diagrams/timesync_chain.png
+CONFLICT (content): Merge conflict in docs/diagrams/timesync_chain.png
+Auto-merging docs/diagrams/timesync_chain.svg
+CONFLICT (content): Merge conflict in docs/diagrams/timesync_chain.svg
+Auto-merging docs/guides/gptp/HDL_DEVELOPER.md
+CONFLICT (content): Merge conflict in docs/guides/gptp/HDL_DEVELOPER.md
+Auto-merging docs/guides/gptp/MANAGER.md
+CONFLICT (content): Merge conflict in docs/guides/gptp/MANAGER.md
+Auto-merging docs/guides/gptp/SYSTEM_INTEGRATOR.md
+CONFLICT (content): Merge conflict in docs/guides/gptp/SYSTEM_INTEGRATOR.md
+Auto-merging docs/guides/gptp/TEST_DEVELOPER.md
+CONFLICT (content): Merge conflict in docs/guides/gptp/TEST_DEVELOPER.md
+Auto-merging docs/reference/SUBMODULES.md
+CONFLICT (content): Merge conflict in docs/reference/SUBMODULES.md
+Auto-merging docs/testing/TESTING.md
+Auto-merging docs/traceability/ieee8021as.md
+CONFLICT (content): Merge conflict in docs/traceability/ieee8021as.md
+Failed to merge submodule gptp-processor (commits don't follow merge-base)
+CONFLICT (submodule): Merge conflict in gptp-processor
+Auto-merging syn/yosys/rom_digests.tsv
+== files where 412e3f6c differs from the automatic-merge tree 8ca71a8b (all are in the conflict list or the gitlink/ledger)
+M	docs/design/AREA_BUDGET.md
+M	docs/design/GPTP_PLANE.md
+M	docs/design/MARK_II_AREA_PLAN.md
+M	docs/design/TIME_SYNC.md
+M	docs/diagrams/PNG_MANIFEST.json
+M	docs/diagrams/submodule_boundaries.drawio
+M	docs/diagrams/submodule_boundaries.png
+M	docs/diagrams/submodule_boundaries.svg
+M	docs/diagrams/timesync_chain.drawio
+M	docs/diagrams/timesync_chain.png
+M	docs/diagrams/timesync_chain.svg
+M	docs/guides/gptp/HDL_DEVELOPER.md
+M	docs/guides/gptp/MANAGER.md
+M	docs/guides/gptp/SYSTEM_INTEGRATOR.md
+M	docs/guides/gptp/TEST_DEVELOPER.md
+M	docs/reference/SUBMODULES.md
+M	docs/traceability/ieee8021as.md
+M	gptp-processor
+M	syn/yosys/rom_digests.tsv
+== gitlink
+160000 commit e4869fd0c42889b2ac806587cc5c78afb1c33461	gptp-processor
+== lane files not touched by dev: blob at 412e3f6c == blob at 354f7818
+same 127fd4d6b5ff02bbe25d2f421f57303aa50cc0cf docs/traceability/MODULE_MATRIX.md
+same ca071ac41bfd9d7b46b4a85baedf9045beb822f3 hdl/common/README-tests.md
+same 45577317f0e70984403990695864945c2f7802f1 hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+same 3063c1ec2eda8c9a727b8324ee281ffaa251303e hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv
+same c73d0e6949843c4f202da10cfeb7cebccae15e34 hdl/ieee8021as/gptp_plane/README-tests.md
+same 296d92e950d24cbc00a94b4ec10ca6bce22b9f73 hdl/ieee8021as/ptp_timestamp/README-tests.md
+same fc97ef6f95c8810c0c82d8af99fe7c52094d9684 scripts/check_gptp_docs.py
+same 810703540049e57f7adefd77c9e51c6ad4030e6e scripts/gen_one_valued_table.py
+same 3087dbb4df7925f3ee6cc483b3dfac202b72ba28 tb/verilator/gptp_shadow/mutants.py
+same 72fc180e6fd94838f3a114b2a118bb7e97561d16 tb/verilator/gptp_tables/.gitignore
+same 984c5f951111cc4661134efefd1ebe9de0f8f7ff tb/verilator/gptp_tables/gptp_tables_wrap.sv
+same 769259cf937742ca759ec0cf9badc3030d0e60ab tb/verilator/gptp_tables/Makefile
+same cf9a0f65c51254e76c6a78124006a805a52bf7ec tb/verilator/gptp_tables/mutants.py
+same b773bceb3ea8c5f536d0dba272b32d166297ff7b tb/verilator/gptp_tables/one_valued.tsv
+same 69d14fd252ac3ebf9d7f2e9c65a1b731754a69ad tb/verilator/gptp_tables/README.md
+same 57403cf5915eceeaa08c26df0e2b739402296618 tb/verilator/gptp_tables/sim_main.cpp
+same e86379177844c225a6adb3ca47bc8da967e0785d tb/verilator/gptp_tables/waivers.vlt

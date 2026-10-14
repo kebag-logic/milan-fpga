@@ -1,0 +1,30 @@
+== donor 6b5a4282: parents
+6b5a4282586a3851117674891d1955253e3de452 18dd997b2459699e41e5ce9bceca1181e41fa5fe 61d486e9dfbff80739d7ce8cbac587b6f011648d
+== ancestry at e4869fd0
+18dd997b2459699e41e5ce9bceca1181e41fa5fe is an ancestor of e4869fd0
+7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 is an ancestor of e4869fd0
+61d486e9dfbff80739d7ce8cbac587b6f011648d is an ancestor of e4869fd0
+== git merge-tree --write-tree --name-only 18dd997b 61d486e9 (recomputed automatic merge)
+16d3ffe2e1fbf808b16142a0558729ed63b74d83
+docs/MANAGER.md
+
+Auto-merging docs/MANAGER.md
+CONFLICT (content): Merge conflict in docs/MANAGER.md
+== files where recorded merge 6b5a4282 differs from the automatic merge tree
+docs/MANAGER.md
+== e4869fd0 parent and changed files
+e4869fd0c42889b2ac806587cc5c78afb1c33461 6b5a4282586a3851117674891d1955253e3de452
+ docs/MANAGER.md                  |   8 +-
+ syn/ooc/check_ooc_clock.py       | 177 ++++++++++++++++++++-------------------
+ tb/verilator/parser/sim_main.cpp |  14 +++-
+ 3 files changed, 107 insertions(+), 92 deletions(-)
+== lane over FPGA-gPTP main 61d486e9 at e4869fd0
+ docs/MANAGER.md                  |  35 +++++++-
+ hdl/common/KL_gptp_timer.sv      |  18 ++--
+ syn/ooc/check_ooc_clock.py       | 177 ++++++++++++++++++++-------------------
+ tb/verilator/parser/sim_main.cpp |  14 +++-
+ 4 files changed, 146 insertions(+), 98 deletions(-)
+== donor hdl/ new to the parent relative to dev's pin 7dda9c3b
+ hdl/common/KL_gptp_timer.sv   | 18 ++++++++++++------
+ hdl/wire/KL_gptp_rx_parser.sv | 33 ++++++++++++++++++++++++++++++---
+ 2 files changed, 42 insertions(+), 9 deletions(-)

@@ -1,0 +1,26 @@
+rx_fifo_wrong_depth          hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv  -> rx_fifo lockstep
+rx_fifo_wrong_read_latency   hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv  -> rx_fifo lockstep
+rx_fifo_lane_alias           hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv  -> rx_fifo lockstep
+tx_fifo_wrong_depth          hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv  -> tx_fifo lockstep
+tx_fifo_wrong_read_latency   hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv  -> tx_fifo lockstep
+tx_fifo_count_alias          hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv  -> tx_fifo lockstep
+tx_fifo_decode_odd_counts    hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv  -> tx_fifo decode
+ledger_wrong_depth           hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv  -> ledger lockstep
+ledger_wrong_read_latency    hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv  -> ledger lockstep
+ledger_index_alias           hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv  -> ledger lockstep
+results_wrong_depth          hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv  -> results lockstep
+results_wrong_read_latency   hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv  -> results lockstep
+results_index_alias          hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv  -> results lockstep
+results_write_index          hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv  -> results lockstep
+timer_wrong_depth            gptp-processor/hdl/common/KL_gptp_timer.sv  -> timer lockstep
+timer_wrong_read_latency     gptp-processor/hdl/common/KL_gptp_timer.sv  -> timer lockstep
+timer_index_alias            gptp-processor/hdl/common/KL_gptp_timer.sv  -> timer lockstep
+rx_fifo_lane_stuck           hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv  -> rx_fifo values: lane
+tx_fifo_count_stuck          hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv  -> tx_fifo values: count
+ledger_type_stuck            hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv  -> ledger values: type
+results_seq_stuck            hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv  -> results values: seq
+timer_deadline_stuck         gptp-processor/hdl/common/KL_gptp_timer.sv  -> timer values: deadline
+declaration_missing          tb/verilator/gptp_tables/one_valued.tsv  -> ledger values: tag
+declaration_wrong_value      tb/verilator/gptp_tables/one_valued.tsv  -> ledger values: tag
+declaration_many_valued      tb/verilator/gptp_tables/one_valued.tsv  -> ledger values: type
+declaration_stray            tb/verilator/gptp_tables/one_valued.tsv  -> values: declarations that name no censused column
