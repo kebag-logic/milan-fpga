@@ -1,0 +1,160 @@
+{
+  "events-check": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.665
+  },
+  "events-selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 182.589
+  },
+  "generator-check": {
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.565
+  },
+  "evidence-pins": {
+    "command": [
+      "python3",
+      "scripts/generate_ci_evidence_pins.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  "baremetal-check": {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py"
+    ],
+    "rc": 2,
+    "seconds": 0.114
+  },
+  "baremetal-selftest": {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.075
+  },
+  "suite-shards": {
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.117
+  },
+  "gate_workflows": {
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 2.218
+  },
+  "case_receipts": {
+    "command": [
+      "python3",
+      "scripts/ci_case_receipts_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.665
+  },
+  "make_cases": {
+    "command": [
+      "python3",
+      "scripts/ci_make_cases_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.214
+  },
+  "maap_cases": {
+    "command": [
+      "python3",
+      "scripts/ci_maap_cases_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  "capture_cases": {
+    "command": [
+      "python3",
+      "scripts/ci_capture_cases_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  "suite_pieces": {
+    "command": [
+      "python3",
+      "scripts/ci_suite_pieces_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 8.879
+  },
+  "suite_collect": {
+    "command": [
+      "python3",
+      "scripts/ci_suite_collect_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 3.47
+  },
+  "fail_fast": {
+    "command": [
+      "python3",
+      "scripts/ci_fail_fast_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.016
+  },
+  "runtime_evidence": {
+    "command": [
+      "python3",
+      "scripts/ci_runtime_evidence_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 4.371
+  },
+  "install_cache": {
+    "command": [
+      "python3",
+      "scripts/ci_install_cache_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.164
+  },
+  "workflow_plan": {
+    "command": [
+      "python3",
+      "scripts/ci_workflow_plan_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.264
+  },
+  "manifest": {
+    "command": [
+      "python3",
+      "scripts/ci_manifest_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  }
+}

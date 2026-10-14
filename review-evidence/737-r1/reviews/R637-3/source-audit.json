@@ -1,0 +1,94 @@
+{
+  "head": "84ee9ea119b548b4982d2c0988d8753a2ce4d0cf",
+  "tree": "4d44778bb1074178effb49e07480a33d95e8fd6d",
+  "tracked_blobs_byte_and_mode_checked": 1357,
+  "index_matches_tree": true,
+  "gitlinks": [
+    {
+      "path": "external",
+      "pin": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+      "initialized": false
+    },
+    {
+      "path": "gptp-processor",
+      "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9",
+      "initialized": true,
+      "clean": true
+    },
+    {
+      "path": "protocol-processor",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+      "initialized": true,
+      "clean": true
+    },
+    {
+      "path": "third_party/lwSRP",
+      "pin": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348",
+      "initialized": true,
+      "clean": true
+    },
+    {
+      "path": "third_party/tsn-c-stack",
+      "pin": "70936b77dc41981e192438388cd0aced69954f18",
+      "initialized": true,
+      "clean": true
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "initialized": true,
+      "clean": true
+    }
+  ],
+  "status_clean": true,
+  "runner_sha256": "f968f67655ac386ea703248b724c3781b95ec379d3a5287b378e470df81f895c",
+  "runner_ast_unchanged_except_helper_pins": true,
+  "helper_pins": {
+    "ci_local_manifest.py": "5d914692847656d7da6f3e24907c59d6fc0261695fbfa999f2a8dcb1b107b7dd",
+    "ci_manifest.py": "b17e183dc920173abc84b38cb6af2eaffee5b609a08b924092010e0f55f7dfa1",
+    "ci_workflow_plan.py": "4d98b26611de437e6b1879543fb2ff20d041e1932434af3b991a5f644e08d933"
+  },
+  "baremetal_gate_unchanged": true,
+  "go_digest_unchanged": true,
+  "go_archive_at_review_host": "go1.25.0.linux-amd64.tar.gz",
+  "source_builds": [
+    {
+      "class": "verilator",
+      "cpus": 16,
+      "peak_bytes": 4811259904,
+      "reserve_percent": 43.99,
+      "recipe_matches_head": true
+    },
+    {
+      "class": "verilator",
+      "cpus": 12,
+      "peak_bytes": 4793225216,
+      "reserve_percent": 44.2,
+      "recipe_matches_head": true
+    },
+    {
+      "class": "yosys",
+      "cpus": 16,
+      "peak_bytes": 5264482304,
+      "reserve_percent": 38.713,
+      "recipe_matches_head": true
+    },
+    {
+      "class": "yosys",
+      "cpus": 12,
+      "peak_bytes": 5117616128,
+      "reserve_percent": 40.423,
+      "recipe_matches_head": true
+    }
+  ],
+  "source_build_measurements_nonoverlapping": true,
+  "author_exact_head_bank_steps": {
+    "docs": 41,
+    "rtl-fast": 20
+  },
+  "worker_projections_within_own_bounds": 26,
+  "docs_base_arithmetic_seconds": 921.699,
+  "docs_contract_worker_seconds": 552.3399999999999,
+  "docs_workflow_projection_seconds": 1776,
+  "limits": "Static runner audit only; author source measurements and gate receipts are public evidence, not independent reruns or a manager source bank."
+}

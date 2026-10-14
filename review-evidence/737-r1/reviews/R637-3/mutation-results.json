@@ -1,0 +1,20 @@
+{
+  "S1": {
+    "rc": 1,
+    "caught_at_expected_assertion": true,
+    "removed": "outcome not in (\"pass\", \"caught\")",
+    "replacement": "outcome not in (\"pass\", \"caught\", \"failed\")"
+  },
+  "S2": {
+    "rc": 1,
+    "caught_at_expected_assertion": true,
+    "removed": "observed[\"outcome\"] != \"success\" or observed[\"skip_reason\"] is not None",
+    "replacement": "observed[\"outcome\"] not in (\"success\", \"skipped\") or observed[\"skip_reason\"] is not None"
+  },
+  "S4": {
+    "rc": 1,
+    "caught_at_expected_assertion": true,
+    "removed": "len(scopes) != 1 or ",
+    "replacement": ""
+  }
+}

@@ -1,0 +1,74 @@
+ci/act/fail-fast.patch:4: trailing whitespace.
++ 
+ci/act/fail-fast.patch:6: space before tab in indent.
++ 	"context"
+ci/act/fail-fast.patch:8: space before tab in indent.
++ 	"errors"
+ci/act/fail-fast.patch:9: space before tab in indent.
++ 	"fmt"
+ci/act/fail-fast.patch:10: trailing whitespace.
++ 
+ci/act/fail-fast.patch:12: space before tab in indent.
++ 	}
+ci/act/fail-fast.patch:14: trailing whitespace.
++ 
+ci/act/fail-fast.patch:59: space before tab in indent.
++ 	return func(ctx context.Context) error {
+ci/act/fail-fast.patch:60: space before tab in indent.
++ 		return exec(WithLogger(ctx, Logger(ctx).WithField(name, value)))
+ci/act/fail-fast.patch:64: trailing whitespace.
++ 
+ci/act/fail-fast.patch:83: space before tab in indent.
++ 			for _, run := range stage.Runs {
+ci/act/fail-fast.patch:91: space before tab in indent.
++ 				stageExecutor := make([]common.Executor, 0)
+ci/act/fail-fast.patch:92: space before tab in indent.
++ 				job := run.Job()
+ci/act/fail-fast.patch:93: space before tab in indent.
++ 				log.Debugf("Job.Name: %v", job.Name)
+ci/act/fail-fast.patch:95: space before tab in indent.
++ 					if len(matrixes) > 1 {
+ci/act/fail-fast.patch:96: space before tab in indent.
++ 						rc.Name = fmt.Sprintf("%s-%d", rc.Name, i+1)
+ci/act/fail-fast.patch:97: space before tab in indent.
++ 					}
+ci/act/fail-fast.patch:105: space before tab in indent.
++ 						executor, err := rc.Executor()
+ci/act/fail-fast.patch:106: trailing whitespace.
++ 
+ci/act/fail-fast.patch:107: space before tab in indent.
++ 						if err != nil {
+ci/act/fail-fast.patch:108: space before tab in indent.
++ 							return err
+ci/act/fail-fast.patch:109: space before tab in indent.
++ 						}
+ci/act/fail-fast.patch:110: trailing whitespace.
++ 
+ci/act/fail-fast.patch:120: space before tab in indent.
++ 			}
+ci/act/fail-fast.patch:132: trailing whitespace.
++ 
+ci/act/fail-fast.patch:137: space before tab in indent.
++ 			jobContainerNetwork = "host"
+ci/act/fail-fast.patch:138: space before tab in indent.
++ 		}
+ci/act/fail-fast.patch:139: trailing whitespace.
++ 
+ci/act/fail-fast.patch:143: space before tab in indent.
++ 		rc.JobContainer = container.NewContainer(&container.NewContainerInput{
+ci/act/fail-fast.patch:144: space before tab in indent.
++ 			Cmd:            nil,
+ci/act/fail-fast.patch:145: space before tab in indent.
++ 			Entrypoint:     []string{"tail", "-f", "/dev/null"},
+ci/act/fail-fast.patch:147: space before tab in indent.
++ 			Privileged:     rc.Config.Privileged,
+ci/act/fail-fast.patch:148: space before tab in indent.
++ 			UsernsMode:     rc.Config.UsernsMode,
+ci/act/fail-fast.patch:149: space before tab in indent.
++ 			Platform:       rc.Config.ContainerArchitecture,
+ci/act/fail-fast.patch:152: space before tab in indent.
++ 		})
+ci/act/fail-fast.patch:153: space before tab in indent.
++ 		if rc.JobContainer == nil {
+ci/act/fail-fast.patch:154: space before tab in indent.
++ 			return errors.New("Failed to create job container")
