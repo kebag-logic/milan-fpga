@@ -1,0 +1,28 @@
+=== baseline rc=0 treehash=17c085392d133ec7
+
+1
+=== arm_4_total_6 rc=1 treehash=0811065817405e73
+    raise ValueError("template ownership step lacks its dedicated milan_dp arm")
+ValueError: template ownership step lacks its dedicated milan_dp arm
+1
+=== expect_5_total_6 rc=1 treehash=8002177b2f7805ea
+    raise ValueError("template verifier lacks its worker-count expectation")
+ValueError: template verifier lacks its worker-count expectation
+1
+=== total_7_arm_5 rc=1 treehash=d7772149ef1648d7
+    raise ValueError("template ownership step lacks its dedicated milan_dp arm")
+ValueError: template ownership step lacks its dedicated milan_dp arm
+2
+=== arm_duplicated rc=1 treehash=dcc2eeea90c9d27b
+    raise ValueError("template ownership step lacks its dedicated milan_dp arm")
+ValueError: template ownership step lacks its dedicated milan_dp arm
+1
+=== expect_duplicated rc=1 treehash=37e605d94a7f80d2
+    raise ValueError("template verifier lacks its worker-count expectation")
+ValueError: template verifier lacks its worker-count expectation
+1
+=== template_edit_not_regenerated rc=1 treehash=497cf063abce5edc
+.github/workflows/rtl.yml: regenerate the gate jobs
+1
+=== generated_hand_edit rc=1 treehash=0aec13ce766615a0
+.github/workflows/rtl.yml: regenerate the gate jobs

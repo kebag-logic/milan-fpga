@@ -1,0 +1,23 @@
+# files dev changed (fa8209889..f62602531) whose merge blob != dev blob, with whether PR also changed them
+.github/workflows/rtl.yml pr-changed merge==PR
+docs/testing/CI_WORKFLOWS.md pr-changed merge-differs-from-both
+scripts/ci_events.py pr-changed merge-differs-from-both
+scripts/suite_shards.py pr-changed merge-differs-from-both
+sw/builder/test_builder.py pr-changed merge-differs-from-both
+# files PR changed (fa8209889..08adb21af) whose merge blob != PR blob
+.github/ci-templates/rtl.yml
+docs/testing/CI_WORKFLOWS.md
+scripts/ci_events.py
+scripts/ci_suite_workflows.py
+scripts/suite_shards.py
+sw/builder/test_builder.py
+# gitlinks at head
+160000 commit e4869fd0c42889b2ac806587cc5c78afb1c33461	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit e4869fd0c42889b2ac806587cc5c78afb1c33461	gptp-processor
+scripts/ci_events.py dev-delta=6079c646e0e84f35 pr-to-merge-delta=6079c646e0e84f35 IDENTICAL
+sw/builder/test_builder.py dev-delta=c8dbda906073dd8c pr-to-merge-delta=c8dbda906073dd8c IDENTICAL
+scripts/suite_shards.py dev-delta=3a3f9f8464608f39 pr-to-merge-delta=76b4f6eb6228edf1 DIFFERENT
+docs/testing/CI_WORKFLOWS.md dev-delta=d7abc6fe3dc459b6 pr-to-merge-delta=b31cb6e22efa50c2 DIFFERENT

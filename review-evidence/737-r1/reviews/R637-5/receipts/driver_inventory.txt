@@ -1,0 +1,12 @@
+$ scripts/run_all_suites.sh --ci-pieces --shard 3/16 --list
+maap__2
+milan_dp__0
+chmap_capture
+gptp_tables
+tdm_render
+rc=0
+$ scripts/run_all_suites.sh --list | grep -c .
+63
+29:gptp_tables
+     80 1
+units across 16 shards: 80

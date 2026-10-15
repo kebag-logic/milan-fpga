@@ -1,0 +1,36 @@
+regenerate rc=0
+stray arm lines in generated rtl.yml: 1
+generated --require-target-sha expectation:       1 --require-target-sha --expect 4       1 --require-target-sha --expect 6 
+rc=0 python3 scripts/ci_gate_workflows.py --check
+rc=0 python3 scripts/ci_events.py --check
+rc=0 python3 scripts/ci_gate_workflows_selftest.py
+rc=0 python3 scripts/ci_suite_pieces_selftest.py
+rc=0 python3 scripts/ci_suite_collect_selftest.py
+rc=0 python3 scripts/suite_shards.py --selftest
+rc=1 python3 scripts/ci_workflow_plan_selftest.py
+rc=1 python3 scripts/ci_runtime_evidence_selftest.py
+rc=0 scripts/ci_workflow_plan_selftest.py (reverted generator, regenerated)
+plan control: dirty bytes and another head cannot redefine committed inputs
+workflow planner: all controls pass
+rc=0 scripts/ci_runtime_evidence_selftest.py (reverted generator, regenerated)
+no-metadata recorder: actual checkout retained; failure remains failure
+runtime manifest collectors: all controls PASS
+# committed gates with scripts/ci_suite_workflows.py reverted to 08adb21a and workflows regenerated (stray arm lines: 1)
+rc=0 python3 scripts/ci_capture_cases_selftest.py
+rc=0 python3 scripts/ci_case_receipts_selftest.py
+rc=0 python3 scripts/ci_events.py --check
+rc=0 python3 scripts/ci_events.py --selftest
+rc=0 python3 scripts/ci_fail_fast_selftest.py
+rc=0 python3 scripts/ci_gate_workflows.py --check
+rc=0 python3 scripts/ci_gate_workflows_selftest.py
+rc=0 python3 scripts/ci_install_cache_selftest.py
+rc=0 python3 scripts/ci_maap_cases_selftest.py
+rc=0 python3 scripts/ci_make_cases_selftest.py
+rc=0 python3 scripts/ci_manifest_selftest.py
+rc=0 python3 scripts/ci_runtime_evidence_selftest.py
+rc=0 python3 scripts/ci_suite_collect_selftest.py
+rc=0 python3 scripts/ci_suite_pieces_selftest.py
+rc=0 python3 scripts/ci_workflow_plan_selftest.py
+rc=0 python3 scripts/generate_ci_evidence_pins.py --check
+rc=0 python3 scripts/suite_shards.py --selftest
+rc=0 python3 scripts/suite_tally_selftest.py

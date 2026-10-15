@@ -1,0 +1,26 @@
+# head e3d25d964b5bbf0187290d0a357c6a6e4c5afd17
+units=80 parents=63 workers=16
+gptp_tables owner: 3 seconds: 568
+worker  0/16:  1605 s  bound  1620  margin    15  OK  milan_dp__1
+worker  1/16:  1541 s  bound  1620  margin    79  OK  capture_coherence__0 classifier clkvalid csr gptp_shadow shaper_core tsn_fuzz
+worker  2/16:  1572 s  bound  1620  margin    48  OK  milan_dp_mclk__1
+worker  3/16:  1544 s  bound  1620  margin    76  OK  maap__2 milan_dp__0 chmap_capture gptp_tables tdm_render
+worker  4/16:  1540 s  bound  1620  margin    80  OK  milan_dp_mclk__2 datapath fw_service_budget ptp_sync
+worker  5/16:  1539 s  bound  1620  margin    81  OK  milan_dp__3 aaf_latency_tap_bank aaf_latency_taps follow_ring ifg
+worker  6/16:  1539 s  bound  1620  margin    81  OK  milan_dp__2 pp_shadow__1 aes3 lat_history_ring media_nco
+worker  7/16:  1540 s  bound  1620  margin    80  OK  pp_shadow__2 cdc mmcm_servo pcmlpf tcam
+worker  8/16:  1541 s  bound  1620  margin    79  OK  maap__3 milan_dp_render__1 aaf_clock_meter cls mac_rmon tcam_csr
+worker  9/16:  1543 s  bound  1620  margin    77  OK  maap__0 crf_tx gptp_txts mbx milan_dp_gm_steps tdm
+worker 10/16:  1540 s  bound  1620  margin    80  OK  capture_coherence__2 milan_dp_mclk__3 avtp_rxmon avtp_stream chmap_render ptp_ts queues tkdiag
+worker 11/16:  1539 s  bound  1620  margin    81  OK  pp_shadow__3 aaf cbs crf_rx mmcm_servo_autorepair nvm_backend ptp render_setpoint
+worker 12/16:  1539 s  bound  1620  margin    81  OK  capture_coherence__3 milan_dp_render__0 controller_rate gptp_plane pair_fill rx_filter
+worker 13/16:  1538 s  bound  1620  margin    82  OK  maap__1 adp_tx eth_tx_reset link_guard media_grid_align nvm_cosim
+worker 14/16:  1538 s  bound  1620  margin    82  OK  capture_coherence__1 milan_dp_render__2 pp_shadow__0 aaf_audio_loop avtp_parser i2spb
+worker 15/16:  2032 s  bound  2160  margin   128  OK  milan_dp_mclk__0
+# counterfactual: gptp_tables at dev's provisional 1800 s
+units=80 parents=63 workers=16
+gptp_tables owner: 0 seconds: 1800
+worker  0/16:  1922 s  bound  1620  margin  -302  OVER  gptp_tables
+worker  0/16:  1922 s  bound  1620  margin  -302  OVER  gptp_tables
+worker  1/16:  1609 s  bound  1620  margin    11  OK  capture_coherence__1 milan_dp_render__2 pp_shadow__0 avtp_parser avtp_stream cdc queues tsn_fuzz
+worker  3/16:  1607 s  bound  1620  margin    13  OK  capture_coherence__0 maap__1 milan_dp_render__1 chmap_capture link_guard media_grid_align mmcm_servo_autorepair ptp

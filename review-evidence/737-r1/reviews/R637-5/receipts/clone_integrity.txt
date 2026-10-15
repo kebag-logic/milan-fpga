@@ -1,0 +1,12 @@
+# review clone integrity after probes
+HEAD e3d25d964b5bbf0187290d0a357c6a6e4c5afd17 tree 8c2bed598eee7447fe8b93158932407301f92a0a
+status: [0 entries]
+worktree and index match HEAD
+ls-files -s digest 233df8083a81e6e14beb03536e424f5cc27d7f4f470897a8e8c9dfc7fc92fd84
+ls-tree -r HEAD digest 233df8083a81e6e14beb03536e424f5cc27d7f4f470897a8e8c9dfc7fc92fd84
+tracked blobs re-hashed: 1375 entries, mismatches: 0
+ e4869fd0c42889b2ac806587cc5c78afb1c33461 gptp-processor (remotes/origin/main-7-ge4869fd)
+ 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+ignored non-pycache files: 0

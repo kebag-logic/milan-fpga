@@ -1,0 +1,8 @@
+gptp_tables owner worker 3
+accepted: positive fixture; gptp_tables.log collected: True
+refused: missing: ValueError: worker 3: executed suite ownership differs
+refused: moved-to-other-worker: ValueError: worker 0: executed suite ownership differs
+refused: duplicated-on-other-worker: ValueError: worker 0: executed suite ownership differs
+collector passes a FAIL log through (tally judges verdicts)
+accepted: restored fixture
+rc=0
