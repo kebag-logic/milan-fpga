@@ -1,0 +1,218 @@
+{
+ "controls": [
+  {
+   "control": "poll: two planted dups found, each inside its interval",
+   "result": "PASS",
+   "detail": [
+    {
+     "word": "SLIP_LB",
+     "dups": 2,
+     "skips": 0,
+     "s_lo": 1.0,
+     "s_hi": 1.85,
+     "poll_n": 19,
+     "bound": true,
+     "after": {
+      "dups": 210,
+      "skips": 0
+     }
+    },
+    {
+     "word": "SLIP_LB",
+     "dups": 2,
+     "skips": 0,
+     "s_lo": 3.0,
+     "s_hi": 3.85,
+     "poll_n": 23,
+     "bound": true,
+     "after": {
+      "dups": 212,
+      "skips": 0
+     }
+    }
+   ]
+  },
+  {
+   "control": "poll: an unreadable SLIP_LB read is counted, not graded",
+   "result": "PASS",
+   "detail": 1
+  },
+  {
+   "control": "poll: prefill exit after the bind",
+   "result": "PASS",
+   "detail": 0.85
+  },
+  {
+   "control": "tap: peer rate recovered",
+   "result": "PASS",
+   "detail": {
+    "pdus": 31982,
+    "seq_gaps": 1,
+    "span_s": 3.998,
+    "nominal_step_ns": 125000,
+    "rate_ppm": -5.92,
+    "ts_residual_rms_ns": 0.3,
+    "ts_residual_max_ns": 0.5,
+    "arrival_rate_tap_ppm": -5.921,
+    "segments": 2,
+    "first_s": 0.002115,
+    "last_s": 3.999841
+   }
+  },
+  {
+   "control": "tap: DUT AAF and CRF rates recovered",
+   "result": "PASS",
+   "detail": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "control": "tap: delta_ppm recovered",
+   "result": "PASS",
+   "detail": -5.92
+  },
+  {
+   "control": "tap: the lost PDU is a sequence gap, not a rate change",
+   "result": "PASS",
+   "detail": 1
+  },
+  {
+   "control": "tap: first PDU after the bind's response",
+   "result": "PASS",
+   "detail": {
+    "first_pdu_after_response_ms": 0.615,
+    "first_pdu_after_command_ms": 2.115,
+    "first_pdu_phase_us_mod_pdu": 111.766,
+    "phase_us_mod_pdu": {
+     "p50": 99.887,
+     "p01": 88.302,
+     "p99": 111.496
+    },
+    "first_pdu_phase_tick": 0.3648,
+    "phase_tick": {
+     "p50": 0.4323,
+     "p01": 0.0116,
+     "p99": 0.9886
+    },
+    "lateness_us": {
+     "p50": -0.001,
+     "p99": 0.097,
+     "p999": 0.1,
+     "max": 29.898,
+     "min": -0.103
+    }
+   }
+  },
+  {
+   "control": "tap: the bind found on the tap clock, unbind to bind 6 s",
+   "result": "PASS",
+   "detail": 6.0
+  },
+  {
+   "control": "tap: the planted 30 us late PDU is the only PDU later than 10 us, at 1.2 s",
+   "result": "PASS",
+   "detail": [
+    {
+     "s": 1.200013,
+     "late_us": 29.898
+    }
+   ]
+  },
+  {
+   "control": "tap: the planted 30 us late PDU found inside the slip's interval",
+   "result": "PASS",
+   "detail": 29.898
+  },
+  {
+   "control": "tap: arrival phase against the DUT's grid, 34 us planted",
+   "result": "PASS",
+   "detail": {
+    "p50": 34.1,
+    "p01": 34.002,
+    "p99": 34.197
+   }
+  },
+  {
+   "control": "tap: delta 0 at equal rates",
+   "result": "PASS",
+   "detail": 0.0
+  },
+  {
+   "control": "classify: periodic dups at 1/(f_s x 5.92 ppm) with a slower peer are (b)",
+   "result": "PASS",
+   "detail": [
+    "b",
+    "b",
+    "b",
+    "b",
+    "b",
+    "b",
+    "b",
+    "b",
+    "b"
+   ]
+  },
+  {
+   "control": "classify: the same dups with a faster peer are (c)",
+   "result": "PASS",
+   "detail": [
+    "c",
+    "c",
+    "c",
+    "c",
+    "c",
+    "c",
+    "c",
+    "c",
+    "c"
+   ]
+  },
+  {
+   "control": "classify: a lone dup at 0.002 ppm is (c)",
+   "result": "PASS",
+   "detail": {
+    "rate_interval_s": 10416.667,
+    "bound_window_s": 35.5,
+    "rate_slips_expected": 0.0034,
+    "slips": [
+     {
+      "s_lo": 0.5,
+      "s_hi": 1.35,
+      "dups": 2,
+      "skips": 0,
+      "cls": "c",
+      "basis": [
+       "rate interval 10416.7 s exceeds the bound window; direction does not match delta's sign",
+       "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "control": "classify: a lone dup where about 10 are expected is (c)",
+   "result": "FAIL",
+   "detail": {
+    "rate_interval_s": 3.519,
+    "bound_window_s": 35.5,
+    "rate_slips_expected": 10.0877,
+    "slips": [
+     {
+      "s_lo": 0.5,
+      "s_hi": 1.35,
+      "dups": 2,
+      "skips": 0,
+      "cls": "b",
+      "basis": [
+       "rate interval 3.519 s within the bound window 35.5 s; periodic within the poll resolution: True",
+       "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "passed": 16,
+ "total": 17
+}

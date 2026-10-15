@@ -1,0 +1,13 @@
+== python3 scripts/docs_check.py rc=0
+docs_check: 0 finding(s) across 207 md files + 1301 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== python3 scripts/check_doc_style.py rc=0
+documentation style: OK (22 current documents)
+== python3 scripts/gen_toc.py --check rc=2
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== python3 scripts/check_em_dash.py --base f62602531d415d6c1cae1374a3cc2938faf54049 rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== python3 scripts/check_doc_paths.py rc=0
+doc path gate: OK (985 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+== python3 scripts/check_baremetal_only.py --check rc=0
+baremetal-only: OK (0 findings across 1299 tracked first-party file(s))
+== git diff --check base..head rc=0 

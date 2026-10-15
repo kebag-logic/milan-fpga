@@ -1,0 +1,29 @@
+page-evidence tools/cyc_b17.py: bytes OK sha OK
+page-evidence tools/console_poll_b8.py: bytes OK sha OK
+page-evidence tools/ana_b17.py: bytes OK sha OK
+page-evidence tools/summ_b17.py: bytes OK sha OK
+page-evidence controls/b17-ana-controls.json: bytes OK sha OK
+page-evidence summary/cycles.json: bytes OK sha OK
+page-evidence summary/counter-logs.sha256: bytes OK sha OK
+page-evidence restore/census-compare.txt: bytes OK sha OK
+raw-capture c01: page row matches capture-end event: True; remote_equal True removed True
+raw-capture c02: page row matches capture-end event: True; remote_equal True removed True
+raw-capture c03: page row matches capture-end event: True; remote_equal True removed True
+raw-capture c04: page row matches capture-end event: True; remote_equal True removed True
+raw-capture c05: page row matches capture-end event: True; remote_equal True removed True
+raw-capture c06: page row matches capture-end event: True; remote_equal True removed True
+raw-capture c07: page row matches capture-end event: True; remote_equal True removed True
+raw-capture c08: page row matches capture-end event: True; remote_equal True removed True
+raw-capture c09: page row matches capture-end event: True; remote_equal True removed True
+raw-capture c10: page row matches capture-end event: True; remote_equal True removed True
+MANIFEST.json: 98 entries, published-hash mismatches [], redacted on publication ['author/identity-resume/identity-verdict.json']
+c01 long polls (start s from bind, duration s) [(-4.467, 0.395), (1.549, 0.393)]; unbind at -6.014; slip [2.56, 3.138] contains a long poll: False
+c02 long polls (start s from bind, duration s) [(-4.46, 0.403), (1.595, 0.361)]; unbind at -6.015; slip [1.091, 1.956] contains a long poll: True
+c03 long polls (start s from bind, duration s) [(-4.465, 0.398), (1.573, 0.372)]; unbind at -6.014; slip [1.072, 1.945] contains a long poll: True
+c04 long polls (start s from bind, duration s) [(-4.482, 0.426), (1.584, 0.375)]; unbind at -6.014; slip [3.103, 3.681] contains a long poll: False
+c05 long polls (start s from bind, duration s) [(-4.473, 0.415), (1.583, 0.367)]; unbind at -6.017; slip [0.066, 0.643] contains a long poll: False
+c06 long polls (start s from bind, duration s) [(-4.472, 0.406), (1.566, 0.38)]; unbind at -6.013; slip [3.569, 4.146] contains a long poll: False
+c07 long polls (start s from bind, duration s) [(-4.475, 0.389), (1.561, 0.382)]; unbind at -6.032; slip [1.06, 1.943] contains a long poll: True
+c08 long polls (start s from bind, duration s) [(-4.377, 0.306), (1.676, 0.266)]; unbind at -6.013; slip [1.175, 1.942] contains a long poll: True
+c09 long polls (start s from bind, duration s) [(-4.489, 0.425), (1.545, 0.401)]; unbind at -6.012; slip [1.045, 1.946] contains a long poll: True
+c10 long polls (start s from bind, duration s) [(-4.457, 0.389), (1.578, 0.358)]; unbind at -6.015; slip [5.094, 5.671] contains a long poll: False
