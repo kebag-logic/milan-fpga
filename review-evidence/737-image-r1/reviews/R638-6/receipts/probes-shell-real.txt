@@ -1,0 +1,41 @@
+=== M20_abspath_symlink_lexical
+    bash /tmp/w/sub/run.sh
+    /tmp/w/sub/run.sh: line 1: brand_new_command: command not found
+    make: *** [Makefile:1: all] Error 127
+    rc=2
+=== M21_recipe_function_shadow_via_make
+    dirname() { echo sub; }; bash "$(dirname x/run.sh)/run.sh"
+    sub/run.sh: line 1: brand_new_command: command not found
+    make: *** [Makefile:1: all] Error 127
+    rc=2
+=== S10_command_builtin_bypasses_function
+    okay
+    rc=0
+=== S1_function_shadows_dirname
+    sub/run.sh: line 1: brand_new_command: command not found
+    rc=127
+=== S2_function_shadows_cd_in_substitution
+    /tmp/w/run.sh: line 1: brand_new_command: command not found
+    rc=127
+=== S3_function_shadows_pwd
+    sub/run.sh: line 1: brand_new_command: command not found
+    rc=127
+=== S4_function_shadows_cd_statement
+    run.sh: line 1: brand_new_command: command not found
+    rc=127
+=== S5_cd_dash_in_substitution
+    bash: /w
+    /w/run.sh: No such file or directory
+    rc=127
+=== S6_realpath_function
+    sub/run.sh: line 1: brand_new_command: command not found
+    rc=127
+=== S7_function_shadows_echo_command
+    .probe-run.sh: line 1: brand_new_command: command not found
+    rc=127
+=== S8_function_shadows_bash
+    .probe-run.sh: line 1: brand_new_command: command not found
+    rc=127
+=== S9_alias_expansion_noninteractive
+    .probe-run.sh: line 3: brand_new_command: command not found
+    rc=127

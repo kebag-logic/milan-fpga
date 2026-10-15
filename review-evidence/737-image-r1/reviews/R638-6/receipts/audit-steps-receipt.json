@@ -1,0 +1,146 @@
+{
+  "clean": true,
+  "steps": [
+    {
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "python3 scripts/check_baremetal_only.py --check\npython3 scripts/check_baremetal_only.py --selftest\n"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "docs-check: docs.yml step 21: Bare-metal scope gate",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/git",
+        "/usr/bin/python3.12"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "python3 scripts/check_nvm_capture.py"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "docs-check: docs.yml step 27: Capture measurement census and clock gate",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/git",
+        "/usr/bin/python3.12"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "python3 scripts/check_rtl_source_lists.py\npython3 scripts/check_rtl_source_lists.py --selftest\n"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "docs-check: docs.yml step 30: RTL source-list drift gate",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/dirname",
+        "/usr/bin/echo",
+        "/usr/bin/env",
+        "/usr/bin/false",
+        "/usr/bin/git",
+        "/usr/bin/make",
+        "/usr/bin/mkdir",
+        "/usr/bin/mktemp",
+        "/usr/bin/python3.12",
+        "/usr/bin/rm"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "python3 scripts/ci_events.py --check\npython3 scripts/ci_events.py --selftest\n"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "docs-check: docs.yml step 41: CI event and SHA contract gate",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/python3.12"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "python3 scripts/check_nvm_record_space.py\npython3 scripts/check_nvm_record_space.py --self-test\n"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "docs-check: docs.yml step 26: NVM record-space gate",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/git",
+        "/usr/bin/python3.12"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "python3 scripts/pp_srcs.py --check --selftest"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "verilator-lint: rtl-fast.yml step 5: Prove protocol-processor source lists are derived",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/git",
+        "/usr/bin/python3.12"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-e",
+        "-o",
+        "pipefail",
+        "-c",
+        "python3 sw/firmware/gtest/tally_selftest.py"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "firmware-unit: rtl-fast.yml step 3: Prove the tally reads a failing and a crashing test as failures",
+      "programs": [
+        "/tmp/fw-tally.gy0145vx/tally_cases",
+        "/usr/bin/bash",
+        "/usr/bin/pkgconf",
+        "/usr/bin/python3.12",
+        "/usr/bin/x86_64-linux-gnu-as",
+        "/usr/bin/x86_64-linux-gnu-g++-13",
+        "/usr/bin/x86_64-linux-gnu-gcc-13",
+        "/usr/bin/x86_64-linux-gnu-gcov-13",
+        "/usr/bin/x86_64-linux-gnu-ld.bfd",
+        "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+        "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2"
+      ]
+    }
+  ]
+}

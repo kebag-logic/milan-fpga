@@ -1,0 +1,100 @@
+[
+ {
+  "job": "docs-check",
+  "label": "docs.yml step 21: Bare-metal scope gate",
+  "argv": [
+   "bash",
+   "-e",
+   "-o",
+   "pipefail",
+   "-c",
+   "python3 scripts/check_baremetal_only.py --check\npython3 scripts/check_baremetal_only.py --selftest\n"
+  ],
+  "working-directory": ".",
+  "env": {}
+ },
+ {
+  "job": "docs-check",
+  "label": "docs.yml step 27: Capture measurement census and clock gate",
+  "argv": [
+   "bash",
+   "-e",
+   "-o",
+   "pipefail",
+   "-c",
+   "python3 scripts/check_nvm_capture.py"
+  ],
+  "working-directory": ".",
+  "env": {}
+ },
+ {
+  "job": "docs-check",
+  "label": "docs.yml step 30: RTL source-list drift gate",
+  "argv": [
+   "bash",
+   "-e",
+   "-o",
+   "pipefail",
+   "-c",
+   "python3 scripts/check_rtl_source_lists.py\npython3 scripts/check_rtl_source_lists.py --selftest\n"
+  ],
+  "working-directory": ".",
+  "env": {}
+ },
+ {
+  "job": "docs-check",
+  "label": "docs.yml step 41: CI event and SHA contract gate",
+  "argv": [
+   "bash",
+   "-e",
+   "-o",
+   "pipefail",
+   "-c",
+   "python3 scripts/ci_events.py --check\npython3 scripts/ci_events.py --selftest\n"
+  ],
+  "working-directory": ".",
+  "env": {}
+ },
+ {
+  "job": "docs-check",
+  "label": "docs.yml step 26: NVM record-space gate",
+  "argv": [
+   "bash",
+   "-e",
+   "-o",
+   "pipefail",
+   "-c",
+   "python3 scripts/check_nvm_record_space.py\npython3 scripts/check_nvm_record_space.py --self-test\n"
+  ],
+  "working-directory": ".",
+  "env": {}
+ },
+ {
+  "job": "verilator-lint",
+  "label": "rtl-fast.yml step 5: Prove protocol-processor source lists are derived",
+  "argv": [
+   "bash",
+   "-e",
+   "-o",
+   "pipefail",
+   "-c",
+   "python3 scripts/pp_srcs.py --check --selftest"
+  ],
+  "working-directory": ".",
+  "env": {}
+ },
+ {
+  "job": "firmware-unit",
+  "label": "rtl-fast.yml step 3: Prove the tally reads a failing and a crashing test as failures",
+  "argv": [
+   "bash",
+   "-e",
+   "-o",
+   "pipefail",
+   "-c",
+   "python3 sw/firmware/gtest/tally_selftest.py"
+  ],
+  "working-directory": ".",
+  "env": {}
+ }
+]

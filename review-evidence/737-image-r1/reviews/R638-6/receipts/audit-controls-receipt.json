@@ -1,0 +1,121 @@
+{
+  "clean": false,
+  "steps": [
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "printf 'int main(void){return 0;}\\n' > /tmp/s.c && gcc -static -O2 /tmp/s.c -o /tmp/zz_static_probe && /tmp/zz_static_probe"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "control: C1 static binary from a job directory is observed",
+      "programs": [
+        "/tmp/zz_static_probe",
+        "/usr/bin/bash",
+        "/usr/bin/x86_64-linux-gnu-as",
+        "/usr/bin/x86_64-linux-gnu-gcc-13",
+        "/usr/bin/x86_64-linux-gnu-ld.bfd",
+        "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1",
+        "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "/usr/local/bin/zz_static_unlisted"
+      ],
+      "exit_status": 0,
+      "findings": [
+        {
+          "program": "/usr/local/bin/zz_static_unlisted",
+          "reason": "system program not in the command table: zz_static_unlisted"
+        }
+      ],
+      "label": "control: C2 static binary planted in a system directory is caught by name",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/local/bin/zz_static_unlisted"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "pip3 --version"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "control: C3 pip3 (denylisted name) run as a script",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/python3.12"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "python3 -m pip install --no-index --no-deps --target /tmp/zz-target /io/zz_probe_pkg-0.1-py3-none-any.whl && python3 -c 'import sys; sys.path.insert(0, \"/tmp/zz-target\"); import zz_probe_pkg'"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "control: C4 offline pip install of a local wheel",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/python3.12",
+        "/usr/bin/uname"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "npm --version"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "control: C5 npm (denylisted name) run as a script",
+      "programs": [
+        "/opt/node/bin/node",
+        "/usr/bin/bash",
+        "/usr/bin/env"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "/usr/local/bin/zz_unlisted_script"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "control: C6 unlisted shebang script planted in a system directory",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/env",
+        "/usr/bin/python3.12"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "python3 -c 'import urllib.request; urllib.request.urlopen(\"https://pypi.org\", timeout=5)'"
+      ],
+      "exit_status": 1,
+      "findings": [
+        {
+          "program": "<step>",
+          "reason": "step exited 1 (network disabled)"
+        }
+      ],
+      "label": "control: C7 network-needing step",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/python3.12"
+      ]
+    }
+  ]
+}
