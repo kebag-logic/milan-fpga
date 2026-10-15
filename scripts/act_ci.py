@@ -4606,10 +4606,10 @@ class SlotMemory:
         )
 
     def evidence(self) -> dict[str, object]:
-        """The accounting as the evidence directory records it."""
+        """The accounting as the evidence directory records it; `oom_free` says only that no OOM invalidated it."""
         return {"slot": self.slot, "memory_max": SLOT_MEMORY_MAX, "peak": self.peak,
                 "max": self.max_hits, "oom": self.oom, "oom_kill": self.oom_kill,
-                "valid_build": not self.exhausted}
+                "oom_free": not self.exhausted}
 
 
 #: The cgroup2 mount option that would make `memory.events` count only the
@@ -7018,14 +7018,14 @@ def selftest_slot_memory_evidence(tally: SelftestTally, resolved: ValidatedRun, 
                     "hit 37 time(s); 1 OOM kill(s) and 1 OOM event(s) in the slot; valid build: False\n" in output
                     and "PASS at" not in output
                     and recorded == {"slot": 1, "memory_max": SLOT_MEMORY_MAX, "peak": 209715200, "max": 37,
-                                     "oom": 1, "oom_kill": 1, "valid_build": False}
+                                     "oom": 1, "oom_kill": 1, "oom_free": False}
                     and rows[-3:] == ["containers", "volumes", "manifest"])
             else:
                 tally.check(
                     "a slot with no OOM keeps the replay's PASS and records valid accounting beside the manifest",
                     rc == RC_OK and message == "" and "act-ci: docs: PASS" in output
                     and "valid build: False" not in output
-                    and recorded["valid_build"] is True and recorded["oom_kill"] == 0
+                    and recorded["oom_free"] is True and recorded["oom_kill"] == 0
                     and rows[-2:] == ["manifest", "slot-off"])
 
 

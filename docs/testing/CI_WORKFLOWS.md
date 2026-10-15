@@ -2014,7 +2014,7 @@ Sharing, unbooked placement and later movement fail the replay.
 Monitor failure also prevents a successful replay verdict.
 `cpu-placements.json` retains reservations, inspection problems and peak concurrency.
 `slot-memory.json` retains an isolated slot's memory accounting and whether
-it is valid evidence.
+an OOM invalidated it.
 CPU observations remain outside the canonical manifest comparison.
 
 Every generated job reads its own CPU count with `nproc`.
@@ -2508,11 +2508,12 @@ Resource bounds:
   OOM kills of sv2v at container limits, and the runner printed
   `the cap was hit 0 time(s), with no OOM at it`.
 - A nonzero `oom` or `oom_kill` writes `slot-memory.json` with
-  `"valid_build": false` beside the manifest in the evidence directory. The
-  runner prints the slot's accounting ending `valid build: False` and exits 2
-  naming both counts, even when every job passed. The manifest's own
-  completeness reads only job receipts, so `slot-memory.json` decides whether
-  a slot run is valid evidence.
+  `"oom_free": false` beside the manifest in the evidence directory. The
+  field says only whether the slot was free of OOMs; it does not make the
+  manifest complete. The runner prints the slot's accounting ending
+  `valid build: False` and exits 2 naming both counts, even when every job
+  passed. The manifest's completeness does not read the slot's memory events,
+  so `slot-memory.json` and the exit status 2 carry an OOM's invalidity.
 - Unreadable or incomplete events refuse, since no count is then provable.
   So does a cgroup2 mount carrying `memory_localevents`, which would make
   `memory.events` local. An unreadable peak is printed as unrecorded.
