@@ -2354,6 +2354,18 @@ and its cgroup-mount root only in their exact code contexts in
 product document, are still refused, and the gate's self-test proves each of
 those refusals.
 
+The slot's OOM accounting and the census worker bound read the build host's
+memory files, not the product's (#744): the runner's mount table, and the
+census budget step's `MemTotal`, its own cgroup and each `memory.max` above
+it. The gate's `HOST_MEMORY_READS` table declares each such line whole, in its
+one file: `scripts/act_ci.py` (the read and its fixtures),
+`scripts/ci_runtime_workflows.py`, the generated
+`.github/workflows/rtl-fast.yml` and `scripts/ci_gate_workflows_selftest.py`.
+A path is masked only inside its exact declared line. Another path or runtime
+word in the same file, a declared line with text before or after it, a
+different path in the same line, and the same line in another file or a
+product document are still refused, and the self-test proves each refusal.
+
 The uplink uses the absolute `pasta` path from `SAFE_PATH`.
 Its final symlink stays unresolved, preserving the multi-call mode.
 Other host tools keep their resolved paths.
@@ -2493,7 +2505,7 @@ Resource bounds:
   whichever job it hit.
 - Before #744 the runner read the slice's `memory.events.local`, which counts
   only the slice's own limit. In #742's replay it stayed at zero through 210
-  kernel OOM kills of sv2v at container limits, and the runner printed
+  OOM kills of sv2v at container limits, and the runner printed
   `the cap was hit 0 time(s), with no OOM at it`.
 - A nonzero `oom` or `oom_kill` writes `slot-memory.json` with
   `"valid_build": false` beside the manifest in the evidence directory. The
@@ -2509,9 +2521,9 @@ Resource bounds:
   the slot` before teardown. A body that raises keeps its own exception, and
   the line is printed beside it.
 - The runner self-test plants #742's shape: hierarchical kills beside clean
-  local events. It also plants a real kernel's events after one kill, an OOM
-  without a kill, a kill without an OOM event, each malformed input and the
-  local-events mount. One planted kill is driven through the whole
+  local events. It also plants a real host cgroup's events after one kill,
+  an OOM without a kill, a kill without an OOM event, each malformed input
+  and the local-events mount. One planted kill is driven through the whole
   validation path to the refusal and the recorded `slot-memory.json`.
 - A native control OOM-killed a 400 MiB allocation in a 200 MiB scope below
   a 36G slice. The slice's `memory.events` read `oom 1 oom_kill 1`, and its

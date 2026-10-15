@@ -7009,7 +7009,7 @@ def selftest_slot_memory_evidence(tally: SelftestTally, resolved: ValidatedRun, 
             rows = [row[0] for row in log]
             if refused:
                 tally.check(
-                    f"a slot whose events show a real kernel's OOM kill refuses the replay with act rc {status}, "
+                    f"a slot whose events show a real host cgroup's OOM kill refuses the replay with act rc {status}, "
                     "by count and as invalid evidence, after recording it and the manifest",
                     rc is None
                     and message == memory.refusal()
@@ -13302,7 +13302,7 @@ SLOT_MOUNTS = (
     "cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate,"
     "memory_recursiveprot 0 0\n"
 )
-#: A real kernel's memory.events, verbatim, from a capped cgroup in which a
+#: A real host cgroup's memory.events, verbatim, from a capped cgroup in which a
 #: process allocated 400 MiB past a 200 MiB MemoryMax with no swap (#744).
 OOM_KILLED_EVENTS = (
     "low 0\nhigh 0\nmax 37\noom 1\noom_kill 1\noom_group_kill 0\nsock_throttled 0\n"
@@ -14755,9 +14755,9 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
         ("low 0\nhigh 0\nmax 5361\noom 210\noom_kill 210\noom_group_kill 0\n", RC_OK,
          "210 kills at a container's limit below a slice whose own events are clean, "
          "every job passing", "recorded 210 OOM kill(s) and 210 OOM event(s)"),
-        (OOM_KILLED_EVENTS, RC_OK, "a real kernel's events after one OOM kill, every job passing",
+        (OOM_KILLED_EVENTS, RC_OK, "a real host cgroup's events after one OOM kill, every job passing",
          "recorded 1 OOM kill(s) and 1 OOM event(s)"),
-        (OOM_KILLED_EVENTS, RC_FAILED, "a real kernel's events after one OOM kill, a job failing",
+        (OOM_KILLED_EVENTS, RC_FAILED, "a real host cgroup's events after one OOM kill, a job failing",
          "recorded 1 OOM kill(s) and 1 OOM event(s)"),
         ("low 0\nmax 7\noom 1\noom_kill 0\n", RC_OK, "an OOM that killed nothing",
          "recorded 0 OOM kill(s) and 1 OOM event(s)"),
