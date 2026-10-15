@@ -1,0 +1,110 @@
+[
+  {
+    "module": "ci_case_receipts.py",
+    "selftest": "ci_case_receipts_selftest.py",
+    "removed_guard": "outcome not in (\"pass\", \"caught\")",
+    "replacement": "outcome not in (\"pass\", \"caught\", \"failed\")",
+    "results": [
+      {
+        "mutant": false,
+        "rc": 0,
+        "log_sha256": "f5600d381c3f330ca7e3dc65889f456caccf7277169820df3edc001178a51eab",
+        "log_bytes": 1841,
+        "tail": [
+          "receipt control: shard 4/4 refused",
+          "receipt control: shard 0/0 refused",
+          "receipt control: shard 0/32 refused",
+          "receipt control: changed receipt output digest refused",
+          "receipt control: changed checked value and its digest refused by comparison",
+          "case receipt self-test: 31 driver cases, union and comparison controls pass"
+        ]
+      },
+      {
+        "mutant": true,
+        "rc": 1,
+        "log_sha256": "20abaa54833cdccd810b265e2126a993afead2395cc570eb269413bdcc42d91f",
+        "log_bytes": 1856,
+        "tail": [
+          "                     ^^^^^^",
+          "  File \"$VALIDATION_STORAGE/737-a614/round3/fresh-collector/scripts/ci_case_receipts_selftest.py\", line 171, in main",
+          "    refuse(lambda: verify(changed), f\"changed result {key}\")",
+          "  File \"$VALIDATION_STORAGE/737-a614/round3/fresh-collector/scripts/ci_case_receipts_selftest.py\", line 30, in refuse",
+          "    raise AssertionError(f\"receipt control accepted: {label}\")",
+          "AssertionError: receipt control accepted: changed result outcome"
+        ]
+      }
+    ]
+  },
+  {
+    "module": "ci_manifest.py",
+    "selftest": "ci_manifest_selftest.py",
+    "removed_guard": "observed[\"outcome\"] != \"success\" or observed[\"skip_reason\"] is not None",
+    "replacement": "observed[\"outcome\"] not in (\"success\", \"skipped\") or observed[\"skip_reason\"] is not None",
+    "results": [
+      {
+        "mutant": false,
+        "rc": 0,
+        "log_sha256": "50a6458cec689ac5c1b5761968cb33a2f9698710f5c142c05e31a011e007776c",
+        "log_bytes": 1238,
+        "tail": [
+          "two identical skipped-step collections refused",
+          "two identical skipped-step collections refused",
+          "two identical cancelled collections refused",
+          "forged completeness refused",
+          "duplicate JSON key refused",
+          "manifest comparison controls: PASS"
+        ]
+      },
+      {
+        "mutant": true,
+        "rc": 1,
+        "log_sha256": "32d068398360215c97f4fca5ea6d14f8bbbfb6ce3445d64b47656eb9c5e02764",
+        "log_bytes": 1433,
+        "tail": [
+          "  File \"$VALIDATION_STORAGE/737-a614/round3/fresh-collector/scripts/ci_manifest_selftest.py\", line 136, in <module>",
+          "    raise SystemExit(main())",
+          "                     ^^^^^^",
+          "  File \"$VALIDATION_STORAGE/737-a614/round3/fresh-collector/scripts/ci_manifest_selftest.py\", line 97, in main",
+          "    raise AssertionError(\"skipped-step collections accepted\")",
+          "AssertionError: skipped-step collections accepted"
+        ]
+      }
+    ]
+  },
+  {
+    "module": "ci_gate_receipts.py",
+    "selftest": "ci_gate_workflows_selftest.py",
+    "removed_guard": "len(scopes) != 1 or ",
+    "replacement": "",
+    "results": [
+      {
+        "mutant": false,
+        "rc": 0,
+        "log_sha256": "85ca624865b7a047973f9c24dcf8f3e913d2aed9da97e4eecfe9578ff1bb4ace",
+        "log_bytes": 2762,
+        "tail": [
+          "elaborate: refused gate outcome None",
+          "elaborate: refused gate dropped from every leg and claimed inventory",
+          "elaborate: refused individually valid mixed execution scopes",
+          "elaborate: refused contradictory skip scope",
+          "elaborate: 2 source gates retain their complete original steps",
+          "gate workflow and union controls: PASS"
+        ]
+      },
+      {
+        "mutant": true,
+        "rc": 1,
+        "log_sha256": "440829c9371a768713678dbc821a958b2fccd8e618c2aa8e4a64eb22e8cfd9b8",
+        "log_bytes": 3198,
+        "tail": [
+          "                     ^^^^^^",
+          "  File \"$VALIDATION_STORAGE/737-a614/round3/fresh-collector/scripts/ci_gate_workflows_selftest.py\", line 211, in main",
+          "    refuse(\"individually valid mixed execution scopes\", mixed, needs)",
+          "  File \"$VALIDATION_STORAGE/737-a614/round3/fresh-collector/scripts/ci_gate_workflows_selftest.py\", line 181, in refuse",
+          "    raise AssertionError(name + \": accepted \" + label)",
+          "AssertionError: elaborate: accepted individually valid mixed execution scopes"
+        ]
+      }
+    ]
+  }
+]

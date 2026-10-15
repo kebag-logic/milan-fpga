@@ -1,0 +1,100 @@
+{
+ "inputs": {
+  "docs_run": 38601263556,
+  "elaborate_run": 38601263659,
+  "head_hosted": "f6260253",
+  "docs_job": 2682.0,
+  "hosted_builder": 1400.0,
+  "hosted_contract": 37.0,
+  "hosted_runner": 102.0,
+  "hosted_setup_and_gaps": 59.0,
+  "hosted_worker0_gate_sum": 1084.0,
+  "worker0_per_step_larger_sum": 1246.806,
+  "controls": 28.331,
+  "local_builder_round5_bank": 1482.211,
+  "local_builder_round6_alone": 1443.72,
+  "builder_scale": 1.02666,
+  "reference_isolated_gate": 1006.13,
+  "reference_other_gates": 435.32,
+  "measured_legs_beside_each_other": [
+   1098.13,
+   506.263
+  ],
+  "events_step": 316.686,
+  "runner_gate": 113.654,
+  "elaborate_job": 2447.0,
+  "elaboration_gates": 1763.0,
+  "litex_aggregate": 597.0,
+  "verilator_setup": 2.0,
+  "elaboration_alone_round5": 1433.969,
+  "elaboration_legs_round5": [
+   1081.009,
+   495.144
+  ],
+  "elaboration_scale": 1.22945
+ },
+ "formulas": {
+  "docs-gates-0": "setup_and_gaps + sum(max(hosted, local) per worker-0 step) + controls + 60",
+  "docs-gates-0 hosted basis": "docs_job - builder - contract - runner + controls + 60",
+  "docs-gates-1": "120 + max(leg0 measured, isolated gate in the lone run) * scale",
+  "docs-gates-2": "120 + events + runner + 2 + max(leg1 measured, other gates in the lone run) * scale",
+  "scale": "max(hosted builder, round-5 local builder, round-6 lone run) / round-6 lone run",
+  "elaborate-gates-0": "elaborate_job - litex - verilator_setup - gates + leg0 * escale + 60",
+  "elaborate-gates-1": "elaborate_job - gates + leg1 * escale + 60",
+  "escale": "max(hosted gates, lone local run) / lone local run",
+  "workflow": "slowest worker + 270 (60 aggregate, 60 collector, 120 watcher, 30 tail)",
+  "rounding": "each projection rounded up to a whole second"
+ },
+ "exact": {
+  "docs-gates-0": 1394.137,
+  "docs-gates-0 hosted basis": 1231.331,
+  "docs-gates-1": 1247.407,
+  "docs-gates-2": 1072.1,
+  "elaborate-gates-0": 1474.052,
+  "elaborate-gates-1": 1352.757
+ },
+ "rows": {
+  "docs-gates-0": {
+   "projected": 1395,
+   "bound": 1620,
+   "margin": 225,
+   "share_of_limit": 0.5167
+  },
+  "docs-gates-1": {
+   "projected": 1248,
+   "bound": 1620,
+   "margin": 372,
+   "share_of_limit": 0.4622
+  },
+  "docs-gates-2": {
+   "projected": 1073,
+   "bound": 1620,
+   "margin": 547,
+   "share_of_limit": 0.3974
+  },
+  "elaborate-gates-0": {
+   "projected": 1475,
+   "bound": 1620,
+   "margin": 145,
+   "share_of_limit": 0.5463
+  },
+  "elaborate-gates-1": {
+   "projected": 1353,
+   "bound": 1620,
+   "margin": 267,
+   "share_of_limit": 0.5011
+  }
+ },
+ "workflows": {
+  "docs": {
+   "seconds": 1665,
+   "minutes": 27.75,
+   "margin": 135
+  },
+  "elaborate": {
+   "seconds": 1745,
+   "minutes": 29.08,
+   "margin": 55
+  }
+ }
+}

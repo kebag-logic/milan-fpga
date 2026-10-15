@@ -1,0 +1,96 @@
+{
+ "purpose": "The generated Verilator worker that gptp_tables lands on, executed in the shipping image",
+ "head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+ "shard": "3/16",
+ "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+ "container": {
+  "memory": "8g",
+  "cpus": 16,
+  "network": "none"
+ },
+ "steps": [
+  {
+   "step": "Set CPU-derived job budgets",
+   "returncode": 0,
+   "seconds": 0.005,
+   "log_bytes": 0,
+   "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "step": "Record the tree this worker validates",
+   "returncode": 0,
+   "seconds": 0.006,
+   "log_bytes": 52,
+   "log_sha256": "e15e47fd848854a29b5b2a7fa32f7a1048547346734d4ab55c1b30e2229ed36b"
+  },
+  {
+   "step": "Put Verilator on PATH and prove the version",
+   "returncode": 0,
+   "seconds": 0.119,
+   "log_bytes": 108,
+   "log_sha256": "15e456e88763ac144c65dccf371402195aba0dec0d700cd216278f162dbb9319"
+  },
+  {
+   "step": "Prove specialized suite ownership",
+   "returncode": 0,
+   "seconds": 1.768,
+   "log_bytes": 4189,
+   "log_sha256": "5550eeed03ad38c268ca1c8c7cc4897d20ebd5d4f956be9bdb02826d0555ef36"
+  },
+  {
+   "step": "Run this exhaustive suite shard",
+   "returncode": 0,
+   "seconds": 1121.216,
+   "log_bytes": 311,
+   "log_sha256": "c1aad79741fb73bf5170cff1f697e877ebadd0fe1dd402569e11d4cf37a621f9"
+  }
+ ],
+ "steps_not_executed": "checkout, submodule fetch, cache and tool build or install steps (tools come from the image), the field-oracle steps (shard 1 only), and the evidence record/upload steps",
+ "owned_units": [
+  "maap__2",
+  "milan_dp__0",
+  "chmap_capture",
+  "gptp_tables",
+  "tdm_render"
+ ],
+ "tally": "suites: 5 passed: 5 failed: 0 timed out: 0; checks: 5518 in-suite failures: 0",
+ "approximate_windows_from_log_mtimes_seconds": {
+  "maap__2": 253,
+  "milan_dp__0": 249,
+  "chmap_capture": 130,
+  "gptp_tables": 409,
+  "tdm_render": 4
+ },
+ "suite_logs": {
+  "chmap_capture.log": {
+   "bytes": 124766,
+   "sha256": "4d0e1a7695075f86a8f3071457fcb48a3013fff7c0ab015289b75a4ce6d8db59"
+  },
+  "gptp_tables.log": {
+   "bytes": 8289,
+   "sha256": "8570db8acbce44220237e3b78bce94c3bdbed7b6072c4e07f37aaa7b7605684a"
+  },
+  "maap__2.log": {
+   "bytes": 1629,
+   "sha256": "e8c3d60f69f8bf5a1c74d64d69053d2364d9b0d1342abee731ff5c2011f5518a"
+  },
+  "milan_dp__0.log": {
+   "bytes": 622445,
+   "sha256": "c6dd9d0bf03f82e73986e192dc9458c0522825f1e6446809f8465c09ceb4a6a4"
+  },
+  "tdm_render.log": {
+   "bytes": 6302,
+   "sha256": "87d050c72669754f46b6e194e994472cdaa601bc20f6e61f7143fb9d366b2687"
+  }
+ },
+ "memory_peak_bytes": 3919286272,
+ "memory_events": {
+  "low": "0",
+  "high": "0",
+  "max": "0",
+  "oom": "0",
+  "oom_kill": "0",
+  "oom_group_kill": "0",
+  "sock_throttled": "0"
+ }
+}

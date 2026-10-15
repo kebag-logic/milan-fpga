@@ -1,0 +1,35 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "returncode": 0,
+    "seconds": 5.392
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.063
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "returncode": 0,
+    "seconds": 0.097
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "seconds": 6.375
+  }
+]

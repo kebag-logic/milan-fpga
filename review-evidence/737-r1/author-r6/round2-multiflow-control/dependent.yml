@@ -1,0 +1,22 @@
+name: Dependent workflow
+on: push
+jobs:
+  shared:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for attempt in $(seq 1 100); do
+            if test -f "$CONTROL_OUTPUT/long-started"; then
+              echo PREREQUISITE_FINISH
+              exit 0
+            fi
+            sleep 0.1
+          done
+          exit 1
+  dependent:
+    needs: shared
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo DEPENDENT_START
+          touch "$CONTROL_OUTPUT/dependent"

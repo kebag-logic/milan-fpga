@@ -1,0 +1,3 @@
+Round-two validation logs. Large logs have size and SHA-256 only; their complete bytes remain in the assigned scratch directory.
+
+The index records artifacts, not a blanket success verdict. `dispatcher-preflight-mutant.log`, `borrowed-timeout-control.log` and `absolute-budget-control.log` are expected failing planted controls. `firmware-memory-docs.log` records an interpreter environment without the pinned Markdown renderer; `firmware-memory-docs-verified.log` is its passing replacement using the interpreter with that renderer installed. The handoff identifies the actual passing gates and scope limitations.

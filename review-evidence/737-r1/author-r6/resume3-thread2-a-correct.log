@@ -1,0 +1,46 @@
+  [ ok ] boot: the CRF sink is locked (8 clean PDUs)
+  [ ok ] boot: INTERNAL decodes and nothing is followed
+  [ ok ] boot: C1 LOCKED counted the valid clock once got=1 exp=1
+  [ ok ] boot: C1 UNLOCKED has not moved          got=0 exp=0
+  [ ok ] boot: both outputs are emitting
+plan -10.6393 ppm; mode a
+
+[AAF0] INTERNAL -> AAF input 0 (talker -6.0 ppm)
+  [ ok ] AAF0: decodes as AAF listener 0 (and the servo's select)
+  [ ok ] C1: UNLOCKED moves at the switch onto AAF0 got=1 exp=1
+  [ ok ] AAF0: the meter locked on listener 0 (AAFM_STAT {idx, en, locked}) got=5 exp=5
+  [ ok ] AAF0: the servo leaves IDLE once the meter locks
+  [ ok ] C1: LOCKED holds until the servo reads LOCKED got=0 exp=0
+  [ ok ] AAF0: no restart request at the switch (the source change is the restart) got=0 exp=0
+  [ ok ] AAF0: one mr toggle on the AAF output    got=1 exp=1
+  [ ok ] AAF0: one mr toggle on the CRF output    got=1 exp=1
+  at 3 s on AAF0: state 3, trim +0.000 ppm, AAFM_STAT 0x000b0005
+  [ ok ] AAF0: the meter's rate is not valid yet at 3 s got=0 exp=0
+  [ ok ] AAF0: the trim holds until the meter's rate validates
+  AAF0: LOCKED at 6.708 s, trim +4.438 ppm
+  [ ok ] AAF0: the servo reaches LOCKED
+  [ ok ] C1: LOCKED moves when the servo reads LOCKED (AAF0) got=1 exp=1
+  AAF0: media clock -6.0832 ppm over 2 s (talker -6.0, plan -10.6393), trim +4.438
+  [ ok ] AAF0: the media clock follows the talker within 0.5 ppm
+  [ ok ] AAF0: the servo stays LOCKED             got=4 exp=4
+  [ ok ] AAF0: the aligner stays engaged          got=1 exp=1
+  [ ok ] AAF0: zero junction slips while following got=0 exp=0
+
+[CSR] AAFM_STAT 0x8E0 / AAFM_RATE 0x8E4 against the meter
+  AAFM_STAT 0x000b0007 (meter 0x000b0007)
+  [ ok ] CSR: AAFM_STAT reads the meter's status word got=720903 exp=720903
+  [ ok ] CSR: AAFM_STAT {listener 0, en, rate valid, locked} got=7 exp=7
+  [ ok ] CSR: AAFM_STAT data-caused restarts 0 (ideal timestamps) got=0 exp=0
+  largest deviation 11 ns (the offset over 15 spacings: 11.25 ns)
+  [ ok ] CSR: AAFM_STAT largest deviation is the talker's offset over a group (+/-1.5 ns)
+  AAFM_RATE 3072 ns per 512 ms (the talker: 3072.0)
+  [ ok ] CSR: AAFM_RATE reads the talker's planted rate within 2 ns per 512 ms
+
+[ECHO] the followed talker's mr toggle echoes; an unfollowed one's does not
+  [ ok ] echo: the followed AAF0's toggle raises one request got=1 exp=1
+  [ ok ] echo: ...one mr toggle on the AAF output got=1 exp=1
+  [ ok ] echo: ...one mr toggle on the CRF output got=1 exp=1
+  [ ok ] echo: the unfollowed AAF1's toggle raises no request got=0 exp=0
+  [ ok ] echo: ...and toggles no output           got=0 exp=0
+
+[LOSS] one AAF0 PDU lost in every 0.3 s for 3.0 s

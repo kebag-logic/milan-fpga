@@ -1,0 +1,20 @@
+{
+  "command": [
+    "$VALIDATION_STORAGE/737-a614/venv/bin/python",
+    "scripts/ci_make_cases.py",
+    "--suite",
+    "pp_shadow",
+    "--jobs",
+    "2",
+    "--shard",
+    "2/4",
+    "--receipt",
+    "$VALIDATION_STORAGE/737-a614/round2/comparisons/pp_shadow/leg2.json"
+  ],
+  "rc": 0,
+  "seconds": 161.305,
+  "head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+  "tree": "a5eb619c5c9ead508e7189fd77527d84d2c4fdda",
+  "compiler_slots": 2,
+  "cpus": "112-115"
+}

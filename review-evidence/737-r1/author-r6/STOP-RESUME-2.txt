@@ -1,0 +1,17 @@
+[A614] STOP
+Head: 3cc503523343315196028a13d41e895d7ba3d806
+Branch: 737-ci-30min (local; not pushed).
+
+The assignment's STOP condition now applies to the continuous media-clock clean leg A: tb/verilator/milan_dp_mclk/sim_mclk.cpp:1090. It carries one state history through initial lock, following, loss, recovery and accumulated counter checks. Independently resetting or seeding its later rows changes that history; replaying the original prefix preserves the critical path.
+
+The permitted case split is proved: the full 31-case campaign and four shards have identical per-case outcomes and checked-output hashes, and all 16 real mutants remain caught in their owning legs. However, the local critical path only falls from 462.87 s to 434.51 s (6.13%). Scaling the 2034 s hosted baseline gives about 31m49s before setup. The best compiler trial improves standalone A from 428.72 s to 414.49 s (3.32%), still about 30m46s under combined proportional scaling before setup. A stronger optimization alone was slower; two-thread simulation did not finish within the 590 s operational command limit. These are component estimates, not a new hosted measurement or a claim that every possible acceleration is exhausted.
+
+Decision requested: specify an allowed acceleration or decomposition for this stateful case before proceeding past the unchanged-test constraint. Shortening its waits, changing its time scale or replacing the carried history would require an explicit test-design decision. I have not made those changes.
+
+Preserved and committed:
+- 11e6ab17280301941c8111d0e3b268bbb578a997: derived media-clock inventory, optional partitions, source-bound execution receipts and union/comparison controls.
+- 3cc503523343315196028a13d41e895d7ba3d806: suite-owned four-case protocol-shadow inventory and bounded runner. Full/sharded outputs match for all 2184 checks. The original pending-write control passes and its real mutant still fails both K10 and K12.
+
+The production verifier refuses a planted case removed from every leg and every claimed inventory for each split. Dirty-source controls and the touched source-list, evidence-reader, language, hygiene and fail-fast gates pass. Peak service memory was 5218357248 bytes; this is not four-job replay evidence.
+
+HANDOFF.md and PR-BODY.md contain the per-job hosted baselines, actual comparisons, timings, file:line changes and evidence hashes. The worktree is clean. Workflow splits/union jobs, digest-bound caches, the replay CPU/concurrency policy and complete workflow manifests remain unfinished. Nothing is review ready. No timeout, firmware behavior, linked image or assertion expression was changed; no push or PR operation occurred.

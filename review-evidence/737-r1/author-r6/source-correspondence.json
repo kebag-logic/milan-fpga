@@ -1,0 +1,120 @@
+{
+  "candidate_head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+  "candidate_tree": "a5eb619c5c9ead508e7189fd77527d84d2c4fdda",
+  "identical_source_groups": [
+    {
+      "group": "full selected suites",
+      "source_head": "9a76ed5cf99996f433c82bcfde2fdb01fc05d743",
+      "candidate_head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "paths": [
+        "tb",
+        "hdl",
+        "sw",
+        ":(exclude)sw/firmware/ctrl/README.md",
+        "scripts/run_all_suites.sh",
+        "scripts/suite_shards.py",
+        "scripts/ci_suite_collect.py",
+        "scripts/ci_case_receipts.py",
+        "scripts/ci_make_cases.py"
+      ],
+      "identical": true,
+      "difference_bytes": 0,
+      "difference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "group": "datapath and protocol shadow",
+      "source_head": "e06f342f5c35ccd71c1902e32747422245407afa",
+      "candidate_head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "paths": [
+        "tb/verilator/milan_dp",
+        "tb/verilator/pp_shadow",
+        "scripts/ci_make_cases.py",
+        "scripts/ci_case_receipts.py"
+      ],
+      "identical": true,
+      "difference_bytes": 0,
+      "difference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "group": "MAAP and capture",
+      "source_head": "068802530c138eb1fdfaada374de4ecf9cf860a7",
+      "candidate_head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "paths": [
+        "tb/verilator/maap",
+        "tb/verilator/capture_coherence",
+        "scripts/ci_case_receipts.py",
+        "scripts/ci_make_cases.py"
+      ],
+      "identical": true,
+      "difference_bytes": 0,
+      "difference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "group": "media clock driver",
+      "source_head": "9dd0817da6d3f771a3bd1db5eca0f2ba63d0695d",
+      "candidate_head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "paths": [
+        "tb/verilator/milan_dp_mclk"
+      ],
+      "identical": true,
+      "difference_bytes": 0,
+      "difference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "group": "render model and predicates",
+      "source_head": "068802530c138eb1fdfaada374de4ecf9cf860a7",
+      "candidate_head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "paths": [
+        "tb/verilator/milan_dp_render",
+        ":(exclude)tb/verilator/milan_dp_render/Makefile"
+      ],
+      "identical": true,
+      "difference_bytes": 0,
+      "difference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "group": "unchanged product",
+      "source_head": "fa7347fc59173f90e4feec2df207692e6e6e72ec",
+      "candidate_head": "cf9c936697a06e44c41681bcc12dc612a3242eb2",
+      "paths": [
+        "hdl",
+        "sw",
+        ":(exclude)sw/firmware/ctrl/README.md",
+        ".gitmodules",
+        "third_party",
+        "protocol-processor",
+        "gptp-processor"
+      ],
+      "identical": true,
+      "difference_bytes": 0,
+      "difference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "reviewed_receipt_or_scheduling_differences": [
+    {
+      "source_head": "9a76ed5cf99996f433c82bcfde2fdb01fc05d743",
+      "path": "scripts/ci_suite_pieces.py",
+      "source_blob": "ed77e13c688d46fea0af44667fb8120baf2a6544",
+      "candidate_blob": "8d42ff2a3889996c650a5525543ece68f4953f76",
+      "difference": "diff --git a/scripts/ci_suite_pieces.py b/scripts/ci_suite_pieces.py\nindex ed77e13c6..8d42ff2a3 100644\n--- a/scripts/ci_suite_pieces.py\n+++ b/scripts/ci_suite_pieces.py\n@@ -12,6 +12,7 @@ from __future__ import annotations\n import argparse\n import hashlib\n import json\n+import os\n from pathlib import Path\n import subprocess\n import sys\n@@ -39,8 +40,10 @@ def driver(suite: str) -> list[str]:\n         command = [sys.executable, f\"tb/verilator/{suite}/mutants.py\", \"--whole-suite\"]\n         # Sixteen local CPUs must not turn the hosted four-case bank into\n         # sixteen simultaneous model builds inside one bounded job.\n-        return command + ([\"--jobs\", \"4\"] if suite == \"capture_coherence\" else [])\n-    return [sys.executable, \"scripts/ci_make_cases.py\", \"--suite\", suite]\n+        return command + ([\"--jobs\", str(min(4, len(os.sched_getaffinity(0))))]\n+                          if suite == \"capture_coherence\" else [])\n+    return [sys.executable, \"scripts/ci_make_cases.py\", \"--suite\", suite,\n+            \"--jobs\", str(min(2, len(os.sched_getaffinity(0))))]\n \n \n def inventory(suite: str, root: Path = ROOT) -> list[str]:\n@@ -62,7 +65,13 @@ def run(piece: str, destination: Path) -> int:\n                        cwd=ROOT, check=True)\n     command = [*driver(suite), \"--shard\", f\"{leg}/{total}\",\n                \"--receipt\", str(destination / (piece + \".json\"))]\n-    return subprocess.run(command, cwd=ROOT, check=False).returncode\n+    environment = dict(os.environ)\n+    if suite == \"capture_coherence\":\n+        cpus = len(os.sched_getaffinity(0))\n+        jobs = min(4, cpus)\n+        environment[\"VERILATOR_JOBS\"] = str(max(1, cpus // jobs))\n+        environment[\"MAKEFLAGS\"] = \"-j1 --no-print-directory\"\n+    return subprocess.run(command, cwd=ROOT, env=environment, check=False).returncode\n \n \n def union(suite: str, roots: list[Path], output: Path, head: str, tree: str) -> dict:\n",
+      "explanation": "CPU-only scheduling: capture retains four workers at normal/fallback widths and receives a compiler budget divided by that worker count; ordinary case drivers retain two simulation workers. Inventory, shard ownership, subprocess verdict handling and union verification are unchanged. The generated-shell and nested-budget controls execute 1/4/12/16 CPU cases."
+    },
+    {
+      "source_head": "9dd0817da6d3f771a3bd1db5eca0f2ba63d0695d",
+      "path": "scripts/ci_case_receipts.py",
+      "source_blob": "3e33c12b793e6e539c329eb9eeca499bc66c4759",
+      "candidate_blob": "ce6f58ca07c048f2573a92f305cee84602156c7c",
+      "difference": "diff --git a/scripts/ci_case_receipts.py b/scripts/ci_case_receipts.py\nindex 3e33c12b7..ce6f58ca0 100644\n--- a/scripts/ci_case_receipts.py\n+++ b/scripts/ci_case_receipts.py\n@@ -58,9 +58,11 @@ def source_identity(root: Path) -> tuple[str, str]:\n     env = dict(os.environ, GIT_NO_REPLACE_OBJECTS=\"1\")\n \n     def git(directory: Path, *args: str) -> bytes:\n+        \"\"\"Read repository metadata without replacement objects.\"\"\"\n         return subprocess.check_output([\"git\", *args], cwd=directory, env=env)\n \n     def check(directory: Path, revision: str) -> None:\n+        \"\"\"Compare every tracked entry with its committed mode and bytes.\"\"\"\n         entries = git(directory, \"ls-tree\", \"-rz\", revision).split(b\"\\0\")\n         for entry in filter(None, entries):\n             metadata, name = entry.split(b\"\\t\", 1)\n@@ -130,12 +132,15 @@ class Receipt:\n         self.data = {\"schema\": SCHEMA, \"suite\": suite, \"head\": head, \"tree\": tree,\n                      \"inventory\": names, \"shard\": shard, \"results\": self.results}\n \n-    def record(self, name: str, outcome: str, rc: int, output: str) -> None:\n+    def record(self, name: str, outcome: str, rc: int, output: str,\n+               result_line: str | None = None) -> None:\n         \"\"\"Keep the completed case's own status and exact output, including failures.\"\"\"\n         if self.path is None:\n             return\n         self.results.append({\"case\": name, \"outcome\": outcome, \"returncode\": rc,\n                              \"output_sha256\": hashlib.sha256(output.encode()).hexdigest()})\n+        if result_line is not None:\n+            self.results[-1][\"result_line\"] = result_line\n         log_dir = self.path.with_suffix(\".logs\")\n         log_dir.mkdir(parents=True, exist_ok=True)\n         # A digest filename cannot escape the log directory through a case name.\n@@ -179,8 +184,11 @@ def verify(names: list[str], receipts: list[dict], suite: str, head: str, tree:\n             raise ValueError(\"results must be a list\")\n         ran = []\n         for result in results:\n-            if set(result) != {\"case\", \"outcome\", \"returncode\", \"output_sha256\"}:\n+            fields = {\"case\", \"outcome\", \"returncode\", \"output_sha256\"}\n+            if set(result) not in (fields, fields | {\"result_line\"}):\n                 raise ValueError(\"result fields differ from schema\")\n+            if \"result_line\" in result and result[\"result_line\"] != \"RESULT: PASS\":\n+                raise ValueError(\"result-only verdict differs from success\")\n             name = result[\"case\"]\n             if not isinstance(name, str):\n                 raise ValueError(\"case name must be a string\")\n@@ -216,6 +224,10 @@ def read_receipts(paths: list[Path]) -> list[dict]:\n         for result in value[\"results\"]:\n             filename = hashlib.sha256(result[\"case\"].encode()).hexdigest() + \".log\"\n             output = path.with_suffix(\".logs\").joinpath(filename).read_bytes()\n+            if \"result_line\" in result:\n+                lines = re.findall(rb\"^RESULT:.*$\", output, re.MULTILINE)\n+                if lines != [result[\"result_line\"].encode()]:\n+                    raise ValueError(f\"{result['case']}: retained RESULT line differs\")\n             if hashlib.sha256(output).hexdigest() != result[\"output_sha256\"]:\n                 raise ValueError(f\"{result['case']}: retained output differs from receipt\")\n         values.append(value)\n",
+      "explanation": "Added optional RESULT-only receipts for declared counter drivers; media-clock default result shape is unchanged. Final production comparison reread all media-clock stdout."
+    },
+    {
+      "source_head": "068802530c138eb1fdfaada374de4ecf9cf860a7",
+      "path": "tb/verilator/milan_dp_render/Makefile",
+      "source_blob": "356eca061b0552a760eda54e69c4135f23f629bf",
+      "candidate_blob": "018da94e162e8f2e6327f477fae8ebbd9a406824",
+      "difference": "diff --git a/tb/verilator/milan_dp_render/Makefile b/tb/verilator/milan_dp_render/Makefile\nindex 356eca061..018da94e1 100644\n--- a/tb/verilator/milan_dp_render/Makefile\n+++ b/tb/verilator/milan_dp_render/Makefile\n@@ -200,14 +200,14 @@ tdm8render-multi-build: ltn_rom.hex ucode.hex tdm8rm_aemi.bin $(GEN_CSR)\n # check. That is an executable negative arm inside the sweep's wall clock; the\n # gateware and generated-shape mutants, which each need their own\n # elaboration, are the explicit tdm8render-mutants target below.\n-RUN_CASES = ship multi leg-defects\n-run: $(addprefix run-,$(RUN_CASES))\n+CLEAN_CASES = ship multi\n+RUN_CASES = $(CLEAN_CASES) leg-defects\n+run: $(addprefix run-,$(CLEAN_CASES))\n+\t@echo \"======================================================================\"\n+\tpython3 tdm8_render_mutants.py --leg-defects\n \n run-ship: tdm8render\n run-multi: tdm8render-multi\n-run-leg-defects: run-ship run-multi\n-\t@echo \"======================================================================\"\n-\tpython3 tdm8_render_mutants.py --leg-defects\n \n ci-list:\n \t@printf '%s\\n' $(RUN_CASES)\n@@ -230,7 +230,7 @@ exec-multi:\n exec-leg-defects:\n \tpython3 tdm8_render_mutants.py --leg-defects\n \n-.PHONY: ci-list ci-receipts ci-prepare $(addprefix run-,$(RUN_CASES)) \\\n+.PHONY: ci-list ci-receipts ci-prepare $(addprefix run-,$(CLEAN_CASES)) \\\n         $(addprefix build-,$(RUN_CASES)) $(addprefix exec-,$(RUN_CASES))\n \n # THE FULL CAMPAIGN, explicit. The two build prerequisites put the clean\n",
+      "explanation": "Restored direct original run recipe for the unchanged static contract. CI build/exec targets, three-case inventory and model/predicates are unchanged."
+    }
+  ],
+  "boundary_documentation": "The separately rerun boundary gate checks the README pin count of 155 after the added build targets expanded its unchanged derived census."
+}

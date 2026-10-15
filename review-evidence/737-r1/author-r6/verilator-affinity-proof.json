@@ -1,0 +1,24 @@
+{
+  "header_sha256": "c837bb28411b7f767e4ab2d9f69ff3cf2a1e0f27bf1bf7d6a03447def77f066a",
+  "probe_sha256": "1763bad43aadf9b85c6180d0abf63c8ef7475f0bf5a1b4d096cc1f5d5ec99de6",
+  "compile_returncode": 0,
+  "results": [
+    {
+      "affinity_count": 1,
+      "reported_count": 1
+    },
+    {
+      "affinity_count": 4,
+      "reported_count": 4
+    },
+    {
+      "affinity_count": 12,
+      "reported_count": 12
+    },
+    {
+      "affinity_count": 16,
+      "reported_count": 16
+    }
+  ],
+  "interpretation": "The pinned tool default for -j 0 uses process affinity, not the host CPU count. Probe widths are process subsets within the author booking, not replay range reservations."
+}

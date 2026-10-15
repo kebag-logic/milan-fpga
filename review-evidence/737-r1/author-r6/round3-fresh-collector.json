@@ -1,0 +1,35 @@
+{
+  "preparation": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack\n",
+  "submodules": [
+    {
+      "path": "third_party/verilog-axis",
+      "origin": "https://github.com/alexforencich/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    },
+    {
+      "path": "protocol-processor",
+      "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+    },
+    {
+      "path": "gptp-processor",
+      "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+      "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+    },
+    {
+      "path": "third_party/tsn-c-stack",
+      "origin": "https://github.com/kebag-logic/tsn-c-stack.git",
+      "pin": "70936b77dc41981e192438388cd0aced69954f18"
+    }
+  ],
+  "inventories": {
+    "milan_dp": 19,
+    "milan_dp_mclk": 31,
+    "capture_coherence": 31,
+    "maap": 66,
+    "milan_dp_render": 3,
+    "pp_shadow": 4
+  },
+  "result": 0,
+  "scope": "Fresh checkout, generated preparation and production collection; synthetic unions exercise dependency availability only, not suite execution."
+}

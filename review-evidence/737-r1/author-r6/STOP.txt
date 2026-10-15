@@ -1,0 +1,15 @@
+[A614] STOP
+Head: fa7347fc59173f90e4feec2df207692e6e6e72ec
+Branch: 737-ci-30min. No implementation edits or commits; worktree clean.
+
+The round-1 assignment says to stop if a test cannot be sharded without changing it. The existing suite-level sharding boundary cannot meet the target:
+- At 7032bca5, run 38495894214, job 115631699226 ran milan_dp alone for 3245.4671886 s (54m05.467s).
+- Job 115631699198 ran milan_dp_mclk for 2033.1550528 s (33m53.155s).
+- scripts/suite_shards.py:219 derives directory-level inventory; :293 assigns each whole suite to one worker. Increasing to 8, 12, 16, 32 or 64 workers still leaves each intact on one worker.
+- tb/verilator/milan_dp/Makefile:545 embeds its default internal build/run sequence in one recipe. tb/verilator/milan_dp_mclk/mclk_mutants.py:246 constructs and grades the complete campaign without a shard selector.
+
+Decision requested: may this lane refactor these test drivers solely to expose their existing internal execution inventories for sharding and union receipts, preserving every assertion, control, build parameter and complete default invocation? That changes the test drivers, although no change to what their tests check is proposed. The evidence establishes the current selector's limit; it does not prove internal legs are irreducible or require a non-standard runner.
+
+API baseline wall clocks (first job start to last completion): rtl-full 77m29s, elaborate 35m44s, docs 34m00s, rtl-fast 19m03s. Run IDs respectively: 38495894214, 38495894212, 38495894291, 38495894211. All 62 recorded default suites match the current inventory exactly once. The unchanged selector self-test passes on CPython 3.12.3, rc 0.
+
+No cache, CPU/concurrency, memory-cap or manifest changes were made. New union controls, four-job memory measurements and after-run predictions remain pending. HANDOFF.md, PR-BODY.md, all per-job/step baseline measurements and source boundaries are retained in the assigned management output directory. Awaiting the public scope decision before implementation.

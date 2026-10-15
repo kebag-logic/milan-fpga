@@ -1,0 +1,214 @@
+{
+ "head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+ "interpreter": "CPython 3.12.3 (scratch venv with PyYAML)",
+ "controls": [
+  {
+   "control": "pristine",
+   "regenerated": false,
+   "changed": [],
+   "gates": [
+    {
+     "command": "scripts/ci_gate_workflows.py --check",
+     "rc": 0,
+     "tail": []
+    },
+    {
+     "command": "scripts/ci_events.py --check",
+     "rc": 0,
+     "tail": [
+      "note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (2187 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+     ]
+    },
+    {
+     "command": "scripts/ci_gate_workflows_selftest.py",
+     "rc": 0,
+     "tail": [
+      "Builder legs: the docs union judges --require-rv32 alone",
+      "Builder legs: union-level requirements and per-gate equality PASS",
+      "gate workflow and union controls: PASS"
+     ]
+    }
+   ],
+   "selftest_failed": false,
+   "expected_selftest_failure": false,
+   "as_expected": true
+  },
+  {
+   "control": "r1-generator-reverted-to-08adb21a-regenerated",
+   "regenerated": true,
+   "changed": [
+    " M .github/workflows/rtl.yml",
+    " M scripts/ci_suite_workflows.py"
+   ],
+   "gates": [
+    {
+     "command": "scripts/ci_gate_workflows.py --check",
+     "rc": 0,
+     "tail": []
+    },
+    {
+     "command": "scripts/ci_events.py --check",
+     "rc": 0,
+     "tail": [
+      "note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (2187 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+     ]
+    },
+    {
+     "command": "scripts/ci_gate_workflows_selftest.py",
+     "rc": 1,
+     "tail": [
+      "  3) grep -Fx chmap_capture \"$RUNNER_TEMP/owned-suites\" ;;",
+      "  5) test \"$(cat \"$RUNNER_TEMP/owned-suites\")\" = milan_dp ;;",
+      "esac"
+     ]
+    }
+   ],
+   "selftest_failed": true,
+   "expected_selftest_failure": true,
+   "as_expected": true
+  },
+  {
+   "control": "r2-generator-reverted-to-08adb21a-not-regenerated",
+   "regenerated": false,
+   "changed": [
+    " M scripts/ci_suite_workflows.py"
+   ],
+   "gates": [
+    {
+     "command": "scripts/ci_gate_workflows.py --check",
+     "rc": 1,
+     "tail": [
+      ".github/workflows/rtl.yml: regenerate the gate jobs"
+     ]
+    },
+    {
+     "command": "scripts/ci_events.py --check",
+     "rc": 1,
+     "tail": [
+      "note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "  FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps, dependencies and receipts are refused",
+      "ci_events: 1 finding(s) over 2187 contract item(s)"
+     ]
+    },
+    {
+     "command": "scripts/ci_gate_workflows_selftest.py",
+     "rc": 1,
+     "tail": [
+      "  3) grep -Fx chmap_capture \"$RUNNER_TEMP/owned-suites\" ;;",
+      "  5) test \"$(cat \"$RUNNER_TEMP/owned-suites\")\" = milan_dp ;;",
+      "esac"
+     ]
+    }
+   ],
+   "selftest_failed": true,
+   "expected_selftest_failure": true,
+   "as_expected": true
+  },
+  {
+   "control": "p1-arm-left-in-generated-ownership",
+   "regenerated": true,
+   "changed": [
+    " M .github/workflows/rtl.yml",
+    " M scripts/ci_suite_workflows.py"
+   ],
+   "gates": [
+    {
+     "command": "scripts/ci_gate_workflows.py --check",
+     "rc": 0,
+     "tail": []
+    },
+    {
+     "command": "scripts/ci_events.py --check",
+     "rc": 0,
+     "tail": [
+      "note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (2187 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+     ]
+    },
+    {
+     "command": "scripts/ci_gate_workflows_selftest.py",
+     "rc": 1,
+     "tail": [
+      "  3) grep -Fx chmap_capture \"$RUNNER_TEMP/owned-suites\" ;;",
+      "  5) test \"$(cat \"$RUNNER_TEMP/owned-suites\")\" = milan_dp ;;",
+      "esac"
+     ]
+    }
+   ],
+   "selftest_failed": true,
+   "expected_selftest_failure": true,
+   "as_expected": true
+  },
+  {
+   "control": "p2-expect-left-at-template-count",
+   "regenerated": true,
+   "changed": [
+    " M .github/workflows/rtl.yml",
+    " M scripts/ci_suite_workflows.py"
+   ],
+   "gates": [
+    {
+     "command": "scripts/ci_gate_workflows.py --check",
+     "rc": 0,
+     "tail": []
+    },
+    {
+     "command": "scripts/ci_events.py --check",
+     "rc": 0,
+     "tail": [
+      "note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (2187 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+     ]
+    },
+    {
+     "command": "scripts/ci_gate_workflows_selftest.py",
+     "rc": 1,
+     "tail": [
+      "python3 scripts/ci_events.py --require-target-sha --expect 6 \\",
+      "  --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" \\",
+      "  --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\""
+     ]
+    }
+   ],
+   "selftest_failed": true,
+   "expected_selftest_failure": true,
+   "as_expected": true
+  },
+  {
+   "control": "p3-mismatched-template-accepted",
+   "regenerated": true,
+   "changed": [
+    " M scripts/ci_suite_workflows.py"
+   ],
+   "gates": [
+    {
+     "command": "scripts/ci_gate_workflows.py --check",
+     "rc": 0,
+     "tail": []
+    },
+    {
+     "command": "scripts/ci_events.py --check",
+     "rc": 0,
+     "tail": [
+      "note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+      "ci_events: OK (2187 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+     ]
+    },
+    {
+     "command": "scripts/ci_gate_workflows_selftest.py",
+     "rc": 1,
+     "tail": [
+      "  File \"$VALIDATION_STORAGE/737-a614/r6/mut/p3-mismatched-template-accepted/scripts/ci_gate_workflows_selftest.py\", line 132, in suite_generator_controls",
+      "    raise AssertionError(\"suite generator accepted a template \" + label)",
+      "AssertionError: suite generator accepted a template arm index other than its total"
+     ]
+    }
+   ],
+   "selftest_failed": true,
+   "expected_selftest_failure": true,
+   "as_expected": true
+  }
+ ]
+}
