@@ -1,0 +1,246 @@
+{
+  "head": "6918d4f9bee7081a71f94d9090d01c557085658a",
+  "cold_records": {
+    "equal": {
+      "manifest": true,
+      "config": true,
+      "layers": true,
+      "diff_ids": true,
+      "recipe": true
+    },
+    "layer_count": 14,
+    "image_digest": "sha256:86d7aa16e7d2464baf8e0d246434982838c8174de8c8fa610608cce5b23b5e6c",
+    "config": "sha256:62b56e1ab52dce1a1914e8469429c014e69a465e74e0bdb9a7d8bf4a626b2776",
+    "recipe": "54cd38dea89d143d3c4ba40e72971be5de3b16592652658659e670f230ad7a29",
+    "scope": "Public records agree with lock; image archive bytes not inspected by this round."
+  },
+  "builder_groups": {
+    "source_sha256": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47",
+    "invocations": 103,
+    "groups": 9,
+    "exact_cover": true,
+    "background_rc": 0,
+    "background_head": "18f2df92b13cb3f4036b073ed76940187bf10487",
+    "background_image": "sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19",
+    "scope": "Public author evidence at unchanged builder source; no reviewer or manager source bank."
+  },
+  "inventory": {
+    "tool_records": 45,
+    "tools_raw_equal_previous": {
+      "e6b86814": false,
+      "e355f789": false,
+      "4391f353": false
+    },
+    "tools_equal_as_provenance_sets": {
+      "e6b86814": true,
+      "e355f789": true,
+      "4391f353": true
+    },
+    "normalization_note": "One duplicate RV32 docs-check provenance entry was removed; tool pins and provenance sets are unchanged.",
+    "stale_inputs": {
+      "scripts/check_baremetal_only.py": {
+        "recorded": "a402f5167eebaeade7dedef25149aa820856bb29c98d68e45d9bd742c50bffba",
+        "actual": "bc594d821b947ae1c043b4adff8190014ff4a51ad40af7261bbbc57b26d0b519"
+      }
+    }
+  },
+  "audit_coverage": {
+    "entries": 9,
+    "full_docs_commands": 79,
+    "full_rtl_commands": 36,
+    "docs_head": "6918d4f9b",
+    "rtl_head": "6918d4f9b",
+    "missing_nvm_entries": [
+      {
+        "index": 38,
+        "job": "docs-check",
+        "step": "Capture measurement census and clock gate",
+        "command": [
+          "python3",
+          "scripts/check_nvm_capture.py"
+        ],
+        "rc": 0,
+        "seconds": 1.657
+      }
+    ],
+    "scope": "Full gate results have no per-command traced program populations."
+  },
+  "hosted_skip": {
+    "head": "f62602531d415d6c1cae1374a3cc2938faf54049",
+    "job_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38601263556/job/115980812751",
+    "make_package": "| make                   | 4.3-4.1build2                 |",
+    "excerpts": [
+      "2026-10-14T16:48:57.3378253Z Version: 20261004.327.1",
+      "2026-10-14T16:57:46.2882702Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+      "2026-10-14T17:13:34.7561674Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+      "2026-10-14T17:13:50.2752689Z   [gate 11] SKIP: real report not on disk ($RUNNER_CALIBRATION_REPORT) - the calibration gate needs the mf48 build tree",
+      "2026-10-14T17:21:06.2135106Z   - [gate 11] real report not on disk ($RUNNER_CALIBRATION_REPORT) - the calibration gate needs the mf48 build tree"
+    ],
+    "log_sha256": "7de83c0851a9421f8af9690fa9a7908b2506e6572777c0736fffa9d3ca6f9f85",
+    "runner_manifest_sha256": "bb4d9304fcfa12f5fc029af848705b47be323cb3ca980913033ca097a48361b3"
+  },
+  "hosted_exact_head_snapshot": [
+    {
+      "name": "Physical gPTP (nightly and manual)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218203190"
+    },
+    {
+      "name": "Verilator shard 1/6",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202186"
+    },
+    {
+      "name": "Verilator shard 4/6",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202134"
+    },
+    {
+      "name": "Verilator shard 0/6",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202119"
+    },
+    {
+      "name": "Verilator shard 3/6",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202115"
+    },
+    {
+      "name": "Verilator shard 2/6",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202098"
+    },
+    {
+      "name": "Yosys shard 0/4",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202088"
+    },
+    {
+      "name": "Yosys shard 2/4",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202072"
+    },
+    {
+      "name": "Verilator shard 5/6",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202048"
+    },
+    {
+      "name": "Yosys shard 1/4",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202010"
+    },
+    {
+      "name": "Yosys shard 3/4",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116218202003"
+    },
+    {
+      "name": "publication-census",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116218189110"
+    },
+    {
+      "name": "firmware-srp-mutants",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116218189064"
+    },
+    {
+      "name": "firmware-control-mutants",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116218189019"
+    },
+    {
+      "name": "yosys-elaboration",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116218189016"
+    },
+    {
+      "name": "verilator-lint",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116218188989"
+    },
+    {
+      "name": "firmware-verilator",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116218188979"
+    },
+    {
+      "name": "firmware-aecp-mutants",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116218188964"
+    },
+    {
+      "name": "firmware-boundary",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116218188955"
+    },
+    {
+      "name": "firmware-unit",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116218188916"
+    },
+    {
+      "name": "changes",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116217980456"
+    },
+    {
+      "name": "wire-accountability",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295399/job/116217980226"
+    },
+    {
+      "name": "bdd-conformance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295409/job/116217980202"
+    },
+    {
+      "name": "docs-check-no-git",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295399/job/116217980107"
+    },
+    {
+      "name": "docs-check",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295399/job/116217979917"
+    },
+    {
+      "name": "full-ci-gate",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295347/job/116217979893"
+    },
+    {
+      "name": "elaborate",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/38672295356/job/116217979815"
+    }
+  ]
+}

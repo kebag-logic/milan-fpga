@@ -1,0 +1,29 @@
+{
+  "label": "offline harmless installer",
+  "argv": [
+    "$PACKET/scratch/reference/root/usr/bin/python3.12",
+    "-m",
+    "pip",
+    "--isolated",
+    "install",
+    "--disable-pip-version-check",
+    "--no-index",
+    "--no-deps",
+    "--no-compile",
+    "--target",
+    "$PACKET/scratch/pip-probe-wt_rrxbf/installed",
+    "$PACKET/scratch/pip-probe-wt_rrxbf/review_probe-0.0.1-py3-none-any.whl"
+  ],
+  "exit_status": 0,
+  "programs": [
+    "$PACKET/scratch/reference/root/usr/bin/python3.12",
+    "/usr/bin/uname"
+  ],
+  "findings": [],
+  "installed": true,
+  "pip_pin": {
+    "version": "24.0+dfsg-1ubuntu1.3",
+    "sha256": "4b7c50db8f261b208c1d9cde8db148c1f682cc516957b986ada5088cfcee1359",
+    "url": "https://archive.ubuntu.com/ubuntu/pool/universe/p/python-pip/python3-pip-whl_24.0+dfsg-1ubuntu1.3_all.deb"
+  }
+}

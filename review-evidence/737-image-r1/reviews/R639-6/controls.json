@@ -1,0 +1,96 @@
+[
+  {
+    "name": "inventory-check",
+    "argv": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 1.618
+  },
+  {
+    "name": "inventory-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.766
+  },
+  {
+    "name": "patterns-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_inventory_patterns_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 3.02
+  },
+  {
+    "name": "nodes-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_inventory_nodes_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 2.018
+  },
+  {
+    "name": "exact-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_inventory_exact_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.417
+  },
+  {
+    "name": "build-selftest",
+    "argv": [
+      "python3",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.615
+  },
+  {
+    "name": "integrity-selftest",
+    "argv": [
+      "python3",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.615
+  },
+  {
+    "name": "privacy-selftest",
+    "argv": [
+      "python3",
+      "ci/image/privacy_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.615
+  },
+  {
+    "name": "patch-selftest",
+    "argv": [
+      "python3",
+      "ci/image/privacy_patch_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.565
+  },
+  {
+    "name": "lock-check",
+    "argv": [
+      "python3",
+      "ci/image/build.py",
+      "--work",
+      "$PACKET/scratch/lock-check",
+      "--check-lock"
+    ],
+    "rc": 0,
+    "seconds": 0.365
+  }
+]

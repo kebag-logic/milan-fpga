@@ -1,0 +1,242 @@
+[
+  {
+    "name": "make-explicit-stem",
+    "workflow": "make",
+    "files": {
+      "Makefile": "all: probe.c\nprobe.c: ; bash $*bootstrap.sh\n",
+      "bootstrap.sh": "echo SAFE\n",
+      "probebootstrap.sh": "r639_unlisted_command\n"
+    },
+    "modes": [
+      {
+        "mode": "--write",
+        "rc": 0,
+        "output": "CI tool inventory matches workflow installation requests\n"
+      },
+      {
+        "mode": "--check",
+        "rc": 0,
+        "output": "CI tool inventory matches workflow installation requests\n"
+      }
+    ],
+    "real": {
+      "argv": [
+        "$PACKET/scratch/reference/root/usr/bin/make",
+        "--no-print-directory"
+      ],
+      "rc": 0,
+      "stdout": "bash probebootstrap.sh\nR639_REACHED_UNLISTED\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "shell-short-circuit",
+    "workflow": "X=evil.sh; [ -e missing ] && X=benign.sh; bash \"$X\"",
+    "files": {
+      "evil.sh": "r639_unlisted_command\n",
+      "benign.sh": "echo SAFE\n"
+    },
+    "modes": [
+      {
+        "mode": "--write",
+        "rc": 0,
+        "output": "CI tool inventory matches workflow installation requests\n"
+      },
+      {
+        "mode": "--check",
+        "rc": 0,
+        "output": "CI tool inventory matches workflow installation requests\n"
+      }
+    ],
+    "real": {
+      "argv": [
+        "$PACKET/scratch/reference/root/usr/bin/bash",
+        "-c",
+        "X=evil.sh; [ -e missing ] && X=benign.sh; bash \"$X\""
+      ],
+      "rc": 0,
+      "stdout": "R639_REACHED_UNLISTED\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "make-unlisted",
+    "workflow": "make",
+    "files": {
+      "Makefile": "override X = echo\nall: ; $(X) okay\n"
+    },
+    "modes": [
+      {
+        "mode": "--write",
+        "rc": 2,
+        "output": "REFUSED: unsupported Make construct 'override X = echo' at Makefile:1\n"
+      },
+      {
+        "mode": "--check",
+        "rc": 2,
+        "output": "REFUSED: unsupported Make construct 'override X = echo' at Makefile:1\n"
+      }
+    ]
+  },
+  {
+    "name": "shell-unlisted",
+    "workflow": "select x in a; do echo \"$x\"; done",
+    "files": {},
+    "modes": [
+      {
+        "mode": "--write",
+        "rc": 2,
+        "output": "REFUSED: uncensused shell ForClause.Select at .github/workflows/fixture.yml\n"
+      },
+      {
+        "mode": "--check",
+        "rc": 2,
+        "output": "REFUSED: uncensused shell ForClause.Select at .github/workflows/fixture.yml\n"
+      }
+    ]
+  },
+  {
+    "name": "python-unlisted",
+    "workflow": "python3 probe.py",
+    "files": {
+      "probe.py": "async def probe():\n pass\n"
+    },
+    "modes": [
+      {
+        "mode": "--write",
+        "rc": 2,
+        "output": "REFUSED: uncensused Python node 'AsyncFunctionDef' at probe.py\n"
+      },
+      {
+        "mode": "--check",
+        "rc": 2,
+        "output": "REFUSED: uncensused Python node 'AsyncFunctionDef' at probe.py\n"
+      }
+    ]
+  },
+  {
+    "name": "python-network",
+    "workflow": "python3 probe.py",
+    "files": {
+      "probe.py": "import urllib.request\n"
+    },
+    "modes": [
+      {
+        "mode": "--write",
+        "rc": 2,
+        "output": "REFUSED: undeclared executing or network script 'probe.py'\n"
+      },
+      {
+        "mode": "--check",
+        "rc": 2,
+        "output": "REFUSED: undeclared executing or network script 'probe.py'\n"
+      }
+    ]
+  },
+  {
+    "name": "shell-pwd-shadow",
+    "workflow": "pwd() { echo evil; }; cd \"$(cd safe && pwd)\"; bash bootstrap.sh",
+    "files": {
+      "safe/bootstrap.sh": "echo SAFE\n",
+      "evil/bootstrap.sh": "r639_unlisted_command\n"
+    },
+    "modes": [
+      {
+        "mode": "--write",
+        "rc": 0,
+        "output": "CI tool inventory matches workflow installation requests\n"
+      },
+      {
+        "mode": "--check",
+        "rc": 0,
+        "output": "CI tool inventory matches workflow installation requests\n"
+      }
+    ],
+    "real": {
+      "argv": [
+        "$PACKET/scratch/reference/root/usr/bin/bash",
+        "-c",
+        "pwd() { echo evil; }; cd \"$(cd safe && pwd)\"; bash bootstrap.sh"
+      ],
+      "rc": 0,
+      "stdout": "R639_REACHED_UNLISTED\n",
+      "stderr": ""
+    }
+  },
+  {
+    "name": "audit-elf-apt-get",
+    "result": {
+      "label": "ELF apt-get",
+      "argv": [
+        "$PACKET/scratch/audit-8p77vvp6/apt-get"
+      ],
+      "exit_status": 0,
+      "programs": [
+        "$PACKET/scratch/audit-8p77vvp6/apt-get"
+      ],
+      "findings": [
+        {
+          "program": "$PACKET/scratch/audit-8p77vvp6/apt-get",
+          "reason": "installer executed: apt-get"
+        }
+      ]
+    }
+  },
+  {
+    "name": "audit-script-apt-get",
+    "result": {
+      "label": "script apt-get",
+      "argv": [
+        "$PACKET/scratch/audit-8p77vvp6/apt-get"
+      ],
+      "exit_status": 0,
+      "programs": [
+        "/usr/bin/bash"
+      ],
+      "findings": []
+    }
+  },
+  {
+    "name": "audit-elf-r639_unlisted_program",
+    "result": {
+      "label": "ELF r639_unlisted_program",
+      "argv": [
+        "$PACKET/scratch/audit-8p77vvp6/r639_unlisted_program"
+      ],
+      "exit_status": 0,
+      "programs": [
+        "$PACKET/scratch/audit-8p77vvp6/r639_unlisted_program"
+      ],
+      "findings": []
+    }
+  },
+  {
+    "name": "audit-script-r639_unlisted_program",
+    "result": {
+      "label": "script r639_unlisted_program",
+      "argv": [
+        "$PACKET/scratch/audit-8p77vvp6/r639_unlisted_program"
+      ],
+      "exit_status": 0,
+      "programs": [
+        "/usr/bin/bash"
+      ],
+      "findings": []
+    }
+  },
+  {
+    "name": "audit-static",
+    "result": {
+      "label": "static binary",
+      "argv": [
+        "$PACKET/scratch/audit-8p77vvp6/r639_static_probe"
+      ],
+      "exit_status": 0,
+      "programs": [
+        "$PACKET/scratch/audit-8p77vvp6/r639_static_probe"
+      ],
+      "findings": []
+    },
+    "file": "$PACKET/scratch/audit-8p77vvp6/r639_static_probe: ELF 64-bit LSB executable, x86-64, version 1 (GNU/Linux), statically linked, BuildID[sha1]=22c81e46f1e004bf7012ebced4f8636e6f83c5e8, for GNU/Linux 4.4.0, not stripped\n"
+  }
+]
