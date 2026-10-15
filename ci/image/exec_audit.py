@@ -60,13 +60,8 @@ _libc.ptrace.argtypes = [ctypes.c_long, ctypes.c_long, ctypes.c_void_p, ctypes.c
 SYSTEM_ROOTS = ("/usr/", "/bin/", "/sbin/", "/lib/", "/lib64/", "/opt/", "/etc/")
 #: A toolchain program carries a `<arch>-<os>-gnu-` prefix; the plain tool is named.
 MULTIARCH = re.compile(r"^[a-z0-9_]+-[a-z0-9]+-gnu-")
-#: Interpreters, by the options that take a value and the option that names inline text.
 SHELLS = {"bash", "sh", "dash"}
 PYTHONS = {"python", "python3", "python3.12"}
-VALUE_OPTIONS = {"shell": {"-o", "-O", "+O", "+o"}, "python": {"-X", "-W", "--check-hash-based-pycs"},
-                 "perl": {"-I", "-M", "-m"}, "node": {"-r", "--require", "--import"}, "tclsh": set()}
-INLINE = {"shell": {"-c"}, "python": {"-c"}, "perl": {"-e", "-E"}, "node": {"-e", "--eval", "-p", "--print"},
-          "tclsh": set()}
 #: Programs whose `-o` operand is a program the step built.
 BUILDERS = re.compile(r"^(?:[a-z0-9_]+-[a-z0-9]+-[a-z]+-)?(?:cc|c\+\+|gcc|g\+\+|clang|clang\+\+|ld|ld\.bfd|"
                       r"ld\.gold|collect2)(?:-\d+)?$")
@@ -177,6 +172,51 @@ def interpreter(base: str) -> str | None:
     return base if base in ("perl", "node", "tclsh") else None
 
 
+def operands(family: str, words: list[str]) -> tuple[str, str | None, list[str]]:
+    """Read an interpreter's options as it does: what it runs (`script`, `inline`, `module`
+    or `stream`), a module name, and the words from its program operand on."""
+    index = 1
+    while index < len(words):
+        word = words[index]
+        if word == "-":
+            return "stream", None, words[index + 1:]
+        if word == "--":
+            index += 1
+            break
+        if word.startswith("--"):
+            index += 2 if word in ("--rcfile", "--init-file", "--check-hash-based-pycs", "--require", "--import") \
+                else 1
+            if word in ("--eval", "--print"):
+                return "inline", None, words[index:]
+            continue
+        if not (word.startswith("-") or (family == "shell" and word.startswith("+"))) or len(word) < 2:
+            break
+        letters, consumed = word[1:], 0
+        for position, letter in enumerate(letters):
+            rest = letters[position + 1:]
+            if family == "shell":
+                if letter == "c":
+                    return "inline", None, words[index + 1 + consumed:]
+                if letter == "s":
+                    return "stream", None, words[index + 1:]
+                consumed += letter in "oO"
+            elif family == "python" and letter in "cmWX":
+                value = rest or (words[index + 1] if index + 1 < len(words) else "")
+                if letter == "c":
+                    return "inline", None, []
+                if letter == "m":
+                    return "module", value, []
+                consumed = 0 if rest else 1
+                break
+            elif family in ("perl", "node") and letter in ("eEp" if family == "perl" else "ep"):
+                return "inline", None, []
+            elif family in ("perl", "node") and letter in ("IMmr" if family == "perl" else "r"):
+                consumed = 0 if rest else 1
+                break
+        index += 1 + consumed
+    return ("script" if index < len(words) else "stream"), None, words[index:]
+
+
 def invocation(instance: dict[str, object]) -> dict[str, str]:
     """What one exec runs: a program, or an interpreter's script, module, inline or streamed program."""
     program = str(instance["program"])
@@ -185,33 +225,17 @@ def invocation(instance: dict[str, object]) -> dict[str, str]:
     words = list(instance["argv"])
     if family is None:
         return {"kind": "program", "name": base, "path": program, "args": words[1:]}
-    index = 1
-    while index < len(words):
-        word = words[index]
-        if word in INLINE[family]:
-            return {"kind": "inline", "name": base, "path": program}
-        if family == "python" and word == "-m" and index + 1 < len(words):
-            return {"kind": "module", "name": words[index + 1].split(".")[0], "path": words[index + 1]}
-        if family == "python" and word.startswith("-m") and len(word) > 2:
-            return {"kind": "module", "name": word[2:].split(".")[0], "path": word[2:]}
-        if word in VALUE_OPTIONS[family]:
-            index += 2
-            continue
-        if word == "-" or (family == "shell" and word == "-s"):
-            break
-        if word.startswith(("-", "+")) and word != "--":
-            index += 1
-            continue
-        if word == "--":
-            index += 1
-            if index >= len(words):
-                break
-            word = words[index]
-        path = lexical(str(instance["directory"]), word)
-        if word.startswith("/dev/fd/"):
-            return {"kind": "stream", "name": base, "path": word, "stream": instance["streams"].get(word[8:], "")}
-        return {"kind": "script", "name": Path(word).name, "path": path, "args": words[index + 1:]}
-    return {"kind": "stream", "name": base, "path": "<stdin>", "stream": instance["streams"].get("0", "")}
+    kind, module, rest = operands(family, words)
+    if kind == "module":
+        return {"kind": "module", "name": str(module).split(".")[0], "path": str(module)}
+    if kind == "inline":
+        return {"kind": "inline", "name": base, "path": program}
+    if kind == "stream" or rest[0].startswith("/dev/fd/"):
+        link = rest[0][8:] if rest and rest[0].startswith("/dev/fd/") and kind == "script" else "0"
+        return {"kind": "stream", "name": base, "path": rest[0] if link != "0" else "<stdin>",
+                "stream": instance["streams"].get(link, "")}
+    return {"kind": "script", "name": Path(rest[0]).name, "path": lexical(str(instance["directory"]), rest[0]),
+            "args": rest[1:]}
 
 
 def built_output(words: list[str], directory: str) -> str | None:
@@ -284,7 +308,7 @@ def judge(result: dict[str, object], names: dict[str, object], root: Path, start
                     finding(instance, what, f"system script not in the allowlist: {what['name']}")
             elif Path(path).is_relative_to(root) and Path(path).relative_to(root).as_posix() in present:
                 provenance = "checkout"
-            elif Path(path).exists() and Path(path).stat().st_mtime >= started:
+            elif Path(path).exists() and Path(path).stat().st_ctime >= started:  # Created or copied here.
                 provenance = "written during the step"
             else:
                 provenance = "none"

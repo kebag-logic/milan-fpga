@@ -203,7 +203,7 @@ def main() -> int:
             job = step['job']
             reset(root)
             scratch = Path(tempfile.mkdtemp(prefix=f'job-{job}-'))
-            home, temp = scratch / 'home', scratch / 'temp'
+            home, temp = scratch / 'user', scratch / 'temp'
             home.mkdir()
             temp.mkdir()
             job_path, job_env = [], {}
