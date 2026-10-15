@@ -1299,12 +1299,18 @@ def _arms_host_memory_reads(arm):
         for index, line in enumerate(lines):
             label = f"host-memory-read-{path}-{index}"
             token = "/proc" if "/proc" in line else "/sys"
+            # each line is declared for its own file only, not for the other declared files;
+            # a workflow's block scalar holds only an indented line unchanged
+            others = [("declared-file-" + other, other, line) for other in HOST_MEMORY_READS
+                      if other != path and (not other.endswith(".yml") or line[:1] == " ")]
+            assert others and all(line not in HOST_MEMORY_READS[other] for _, other, _ in others), label
             for variant, destination, text in (
                 ("wrong-file", "scripts/other.py", line),
                 ("product-file", PRODUCT_DOCS[0], line),
                 ("prefixed", path, "# " + line),
                 ("trailing", path, line + "  # note"),
                 ("other-path-same-context", path, line.replace(token, token + "/target-only", 1)),
+                *others,
             ):
                 lead = header(destination)
                 planted_line = lead.count("\n") + 1

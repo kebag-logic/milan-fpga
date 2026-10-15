@@ -2363,8 +2363,9 @@ one file: `scripts/act_ci.py` (the read and its fixtures),
 `.github/workflows/rtl-fast.yml` and `scripts/ci_gate_workflows_selftest.py`.
 A path is masked only inside its exact declared line. Another path or runtime
 word in the same file, a declared line with text before or after it, a
-different path in the same line, and the same line in another file or a
-product document are still refused, and the self-test proves each refusal.
+different path in the same line, and the same line in another file, including
+another declared one, or in a product document are still refused, and the
+self-test proves each refusal.
 
 The uplink uses the absolute `pasta` path from `SAFE_PATH`.
 Its final symlink stays unresolved, preserving the multi-call mode.
