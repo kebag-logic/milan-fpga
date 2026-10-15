@@ -1,0 +1,76 @@
+[
+  {
+    "gate": "entity-shape",
+    "command": [
+      "python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "wall_seconds": 53.175,
+    "log": "round5-blocker-entity-shape.log",
+    "size": 27667,
+    "sha256": "c97895e4a7c70244779bf92359a10d8bde69f17d113d831c372674c881398bf5",
+    "raw_size": 27684,
+    "raw_sha256": "edb177558e251b7aefdc14861c0e0472c749a864643f42c22876411d415170aa"
+  },
+  {
+    "gate": "pp-sources",
+    "command": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.263,
+    "log": "round5-blocker-pp-sources.log",
+    "size": 955,
+    "sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a",
+    "raw_size": 955,
+    "raw_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a"
+  },
+  {
+    "gate": "inventory",
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 2,
+    "wall_seconds": 5.418,
+    "log": "round5-blocker-inventory.log",
+    "size": 118,
+    "sha256": "23591f6802150ad763f159eb92af67201fd48189763e1e8c8f4131f28dc8bf94",
+    "raw_size": 118,
+    "raw_sha256": "23591f6802150ad763f159eb92af67201fd48189763e1e8c8f4131f28dc8bf94"
+  },
+  {
+    "gate": "patterns",
+    "command": [
+      "python3",
+      "scripts/ci_inventory_patterns_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 2.301,
+    "log": "round5-blocker-patterns.log",
+    "size": 7208,
+    "sha256": "8bb1d37945ac3f231eaf37ad6c9453d563e3a76b0bd90d511032c3cabbc567ed",
+    "raw_size": 7208,
+    "raw_sha256": "8bb1d37945ac3f231eaf37ad6c9453d563e3a76b0bd90d511032c3cabbc567ed"
+  },
+  {
+    "gate": "inventory-controls",
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.521,
+    "log": "round5-blocker-inventory-controls.log",
+    "size": 2952,
+    "sha256": "d89d7c78461ed5871213cb7c5841d046496e1e49a7e9de7727664778b61ef8bc",
+    "raw_size": 2952,
+    "raw_sha256": "d89d7c78461ed5871213cb7c5841d046496e1e49a7e9de7727664778b61ef8bc"
+  }
+]

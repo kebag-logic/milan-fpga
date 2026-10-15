@@ -1,0 +1,56 @@
+{
+  "buildx.build.provenance": {
+    "builder": {
+      "id": ""
+    },
+    "buildType": "https://mobyproject.org/buildkit@v1",
+    "materials": [
+      {
+        "uri": "pkg:docker/ubuntu?digest=sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3\u0026platform=linux%2Famd64",
+        "digest": {
+          "sha256": "008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3"
+        }
+      }
+    ],
+    "invocation": {
+      "configSource": {
+        "entryPoint": "Dockerfile"
+      },
+      "parameters": {
+        "frontend": "dockerfile.v0",
+        "args": {
+          "build-arg:SOURCE_DATE_EPOCH": "1791940308",
+          "force-network-mode": "none",
+          "no-cache": "",
+          "target": "validation-tools"
+        },
+        "locals": [
+          {
+            "name": "context"
+          },
+          {
+            "name": "dockerfile"
+          }
+        ]
+      },
+      "environment": {
+        "platform": "linux/amd64",
+        "ProvenanceCustomEnv": null
+      }
+    }
+  },
+  "buildx.build.ref": "default/default/y1vl639lsrvp3qesiowap9ydw",
+  "cache.manifest": "{\"mediaType\":\"application/vnd.oci.image.manifest.v1+json\",\"digest\":\"sha256:0fb0d987f786bf87a9ed3c65552e4cb12a1af48f2efd69165a2afa6af6d69987\",\"size\":4956}",
+  "containerimage.config.digest": "sha256:c57d33ec1876eb26c0c61dce0e95d9e8130500c2643c63cc12dacc6c8f4a8e2b",
+  "containerimage.descriptor": {
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "digest": "sha256:0e1dce88a64941d2795259fbc2092b367953195132ff9e4ced539e088f8e939c",
+    "size": 4091,
+    "platform": {
+      "architecture": "amd64",
+      "os": "linux"
+    }
+  },
+  "containerimage.digest": "sha256:0e1dce88a64941d2795259fbc2092b367953195132ff9e4ced539e088f8e939c",
+  "image.name": "docker.io/library/fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+}

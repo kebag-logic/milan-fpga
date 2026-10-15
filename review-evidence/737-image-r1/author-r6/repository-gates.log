@@ -1,0 +1,13 @@
+{"command": ["python3", "scripts/docs_check.py"], "rc": 0, "log": "gate-00.log"}
+{"command": ["python3", "scripts/check_doc_paths.py"], "rc": 0, "log": "gate-01.log"}
+{"command": ["python3", "scripts/check_doc_style.py"], "rc": 0, "log": "gate-02.log"}
+{"command": ["python3", "scripts/check_py_idiom.py"], "rc": 0, "log": "gate-03.log"}
+{"command": ["python3", "scripts/ci_tool_inventory.py", "--check"], "rc": 0, "log": "gate-04.log"}
+{"command": ["python3", "scripts/ci_tool_inventory_selftest.py"], "rc": 0, "log": "gate-05.log"}
+{"command": ["python3", "ci/image/build_selftest.py"], "rc": 0, "log": "gate-06.log"}
+{"command": ["python3", "scripts/gen_toc.py", "--check"], "rc": 0, "log": "gate-07.log"}
+{"command": ["python3", "scripts/gen_toc.py", "--verify-anchors"], "rc": 0, "log": "gate-08.log"}
+{"command": ["python3", "scripts/gen_wavedrom.py", "--selftest"], "rc": 0, "log": "gate-09.log"}
+{"command": ["python3", "scripts/gen_wavedrom.py", "docs/diagrams/wd_axis_backpressure.json", "--background=white", "--check"], "rc": 0, "log": "gate-10.log"}
+{"command": ["python3", "scripts/check_diagram_pngs.py"], "rc": 0, "log": "gate-11.log"}
+{"command": ["python3", "docs/DOC_MAP.gen.py", "--check"], "rc": 0, "log": "gate-12.log"}

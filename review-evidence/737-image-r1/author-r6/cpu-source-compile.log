@@ -1,0 +1,198 @@
+copying runtime jar...
+[info] welcome to sbt 1.10.0 (Ubuntu Java 17.0.20.1)
+[info] loading settings for project vexiiriscv-build from plugins.sbt ...
+[info] loading project definition from /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/project
+[info] compiling 1 Scala source to /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/project/target/scala-2.12/sbt-1.0/classes ...
+[info] Non-compiled module 'compiler-bridge_2.12' for Scala 2.12.19. Compiling...
+[info]   Compilation completed in 5.816s.
+[info] done compiling
+[info] loading settings for project ret from build.sbt ...
+[info] loading settings for project spinalhdl-build from plugin.sbt ...
+[info] loading project definition from /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/project
+[info] compiling 1 Scala source to /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/project/target/scala-2.12/sbt-1.0/classes ...
+[info] done compiling
+/opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/build.sbt:141: warning: method sonatypeRepo in class ResolverFunctions is deprecated (since 1.7.0): Use sonatypeOssRepos instead e.g. `resolvers ++= Resolver.sonatypeOssRepos("snapshots")`
+    resolvers += Resolver.sonatypeRepo("public"),
+                          ^
+[info] loading settings for project all from build.sbt ...
+[info] set current project to VexiiRiscv (in build file:/opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/)
+[info] Executing in batch mode. For better performance use sbt's shell
+fatal: not a git repository (or any of the parent directories): .git
+[info] compiling 2 Scala sources to /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/idslpayload/target/scala-2.12/classes ...
+[info] compiling 17 Scala sources and 10 Java sources to /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/sim/target/scala-2.12/classes ...
+[info] Non-compiled module 'compiler-bridge_2.12' for Scala 2.12.18. Compiling...
+[info]   Compilation completed in 6.124s.
+[warn] three deprecations (since 2.11.0); re-run with -deprecation for details
+[warn] one warning found
+[info] done compiling
+[info] compiling 2 Scala sources to /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/idslplugin/target/scala-2.12/classes ...
+[info] done compiling
+[info] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/sim/src/main/java/spinal/sim/DynamicCompiler.java: DynamicCompiler.java uses or overrides a deprecated API.
+[info] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/sim/src/main/java/spinal/sim/DynamicCompiler.java: Recompile with -Xlint:deprecation for details.
+[info] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/sim/src/main/java/spinal/sim/DynamicCompiler.java: DynamicCompiler.java uses unchecked or unsafe operations.
+[info] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/sim/src/main/java/spinal/sim/DynamicCompiler.java: Recompile with -Xlint:unchecked for details.
+[info] done compiling
+[info] compiling 72 Scala sources and 2 Java sources to /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/target/scala-2.12/classes ...
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/Phase.scala:3135:25: non-variable type argument spinal.core.SpinalEnum in type pattern spinal.core.SpinalEnumCraft[spinal.core.SpinalEnum] is unchecked since it is eliminated by erasure
+[warn]                 case d: SpinalEnumCraft[SpinalEnum] => d.init(d.spinalEnum.elements(0))
+[warn]                         ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/AFix.scala:231:5: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]     roundType match {
+[warn]     ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/Data.scala:387:29: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, outWithNull
+[warn]   def dirString(): String = dir match {
+[warn]                             ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/Data.scala:578:16: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, outWithNull
+[warn]           that.dir match {
+[warn]                ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/SInt.scala:391:5: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]     roundType match {
+[warn]     ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/UInt.scala:273:5: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]     roundType match{
+[warn]     ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/fiber/AsyncThread.scala:81:5: match may not be exhaustive.
+[warn] It would fail on the following input: false
+[warn]     done match {
+[warn]     ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/Phase.scala:1629:31: unreachable code
+[warn]           case e: MemReadSync =>
+[warn]                               ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/Phase.scala:3021:12: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, inout, outWithNull
+[warn]         io.dir match {
+[warn]            ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/PhaseVerilog.scala:483:23: match may not be exhaustive.
+[warn] It would fail on the following input: Nil
+[warn]         val newName = IFlist match {
+[warn]                       ^
+[warn] four deprecations
+[warn] two deprecations (since 2.12.0)
+[warn] 6 deprecations in total; re-run with -deprecation for details
+[warn] three feature warnings; re-run with -feature for details
+[warn] 14 warnings found
+[info] done compiling
+[info] compiling 563 Scala sources to /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/target/scala-2.12/classes ...
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/CrossClock.scala:144:15: non-variable type argument spinal.core.Data in type pattern spinal.lib.BufferCC[spinal.core.Data] is unchecked since it is eliminated by erasure
+[warn]       case c: BufferCC[Data] => {
+[warn]               ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/Utils.scala:671:19: abstract type pattern T is unchecked since it is eliminated by erasure
+[warn]         case bt : T => solveCombDriver(bt)
+[warn]                   ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegInst.scala:94:19: non-variable type argument spinal.core.SpinalEnum in type pattern spinal.core.SpinalEnumCraft[spinal.core.SpinalEnum] is unchecked since it is eliminated by erasure
+[warn]           case t: SpinalEnumCraft[SpinalEnum] => t.init(t.spinalEnum.elements(resetValue.toInt))
+[warn]                   ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/Utils.scala:661:32: unreachable code
+[warn]     case e: MemReadSync => body(e)
+[warn]                                ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:24:55: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]     override def transformers = MappedConnection.this.userMapping match {
+[warn]                                                       ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:34:29: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]       MappedConnection.this.userMapping match {
+[warn]                             ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:48:5: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]     userMapping match {
+[warn]     ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:57:5: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]     userMapping match {
+[warn]     ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegBase.scala:325:7: Exhaustivity analysis reached max recursion depth, not all missing cases are reported.
+[warn] (Please try with scalac -Ypatmat-exhaust-depth 40 or -Ypatmat-exhaust-depth off.)
+[warn]       accType match {
+[warn]       ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegBase.scala:356:7: Exhaustivity analysis reached max recursion depth, not all missing cases are reported.
+[warn] (Please try with scalac -Ypatmat-exhaust-depth 40 or -Ypatmat-exhaust-depth off.)
+[warn]       accType match {
+[warn]       ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegInst.scala:320:21: match may not be exhaustive.
+[warn] It would fail on the following inputs: W1CHS, W1I, W1SHS
+[warn]     val ret: Bits = acc match {
+[warn]                     ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegSlice.scala:35:13: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: spinal.lib.bus.regif.Secure forSome x not in (spinal.lib.bus.regif.Secure.CS, spinal.lib.bus.regif.Secure.MS)))
+[warn]       Option(sec) match {
+[warn]             ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/tilelink/sim/Checker.scala:223:25: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]         inflightC.remove(d.source -> d.address) match {
+[warn]                         ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/tilelink/sim/Checker.scala:239:21: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]     inflightD.remove(e.sink) match {
+[warn]                     ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/dsptool/FixData.scala:30:26: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]       val rounded = this.roundType match {
+[warn]                          ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/eda/TimingExtractor.scala:143:49: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]     case bt : BaseType if bt.isComb => bt.getTag(classOf[ClockDomainTag]) match {
+[warn]                                                 ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/io/InOutVecToBits.scala:22:7: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, inout, outWithNull
+[warn]     e.getDirection match {
+[warn]       ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/io/InOutVecToBits.scala:36:13: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, inout, outWithNull
+[warn]         key.getDirection match {
+[warn]             ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/pipeline/Pipeline.scala:171:22: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in Pipeline.this.ConnectionModel))
+[warn]       stageDriver.get(stage) match {
+[warn]                      ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/system/dma/sg/MemoryCore.scala:112:7: match may not be exhaustive.
+[warn] It would fail on the following input: (true, true)
+[warn]       (p.writes(self).absolutePriority, p.writes(other).absolutePriority) match {
+[warn]       ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/system/dma/sg/MemoryCore.scala:198:7: match may not be exhaustive.
+[warn] It would fail on the following input: (true, true)
+[warn]       (p.reads(self).absolutePriority, p.reads(other).absolutePriority) match {
+[warn]       ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/com/usb/ohci/UsbOhciTilelinkFiber.scala:46:17: comparing values of types spinal.core.ClockDomain and spinal.core.fiber.Handle[spinal.core.ClockDomain] using `==` will always yield false
+[warn]       if(ctrlCd == phyCd) {
+[warn]                 ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/generator/ClockDomainGenerator.scala:272:5: multiline expressions might require enclosing parentheses; a value can be silently discarded when Unit is expected
+[warn]     generator
+[warn]     ^
+[warn] 23 deprecations
+[warn] two deprecations (since 2.12.0)
+[warn] one deprecation (since 2022-12-31)
+[warn] one deprecation (since 2026.12.30)
+[warn] 27 deprecations in total; re-run with -deprecation for details
+[warn] 6 feature warnings; re-run with -feature for details
+[warn] 29 warnings found
+[info] done compiling
+[info] compiling 139 Scala sources and 1 Java source to /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/target/scala-2.12/classes ...
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/TilelinkVexiiRiscvFiber.scala:53:40: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]   def bind(ctrl: InterruptCtrlFiber) = priv match {
+[warn]                                        ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/TilelinkVexiiRiscvFiber.scala:63:47: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]   def bind(clint: TilelinkClintFiber): Unit = priv match {
+[warn]                                               ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/TilelinkVexiiRiscvFiber.scala:78:41: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]   def bind(aplic: TilelinkAPlicFiber) = priv match {
+[warn]                                         ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/TilelinkVexiiRiscvFiber.scala:89:57: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]   def bind(msi: TilelinkImsicTriggerFiber, mode: Int) = priv match {
+[warn]                                                         ^
+[warn] /opt/python/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/src/main/scala/vexiiriscv/fetch/FetchCachelessBridge.scala:105:3: a pure expression does nothing in statement position; multiline expressions may require enclosing parentheses
+[warn]   bus
+[warn]   ^
+[warn] 8 feature warnings; re-run with -feature for details
+[warn] 6 warnings found
+[info] done compiling
+[success] Total time: 72 s (01:12), completed Oct 14, 2026, 5:36:40 AM
