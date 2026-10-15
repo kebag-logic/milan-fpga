@@ -312,9 +312,13 @@ def _loaded(name: str, path: str, words: list[str], directory: str) -> tuple[str
 class Origin:
     """Provenance within one traced job, from what existed as it started and what its toolchain declared."""
 
-    def __init__(self, root: Path, names: dict[str, object] | None = None, watch: bool = True) -> None:
+    def __init__(self, root: Path, names: dict[str, object] | None = None, watch: bool = True,
+                 scratch: tuple[str, ...] = ()) -> None:
         self.root = Path(root)
         names = names or allowlist()
+        # A job-temporary path: under /tmp or the job's own scratch roots, made only of name characters.
+        roots = "|".join(re.escape(root) for root in ("/tmp", *scratch))
+        self.temporary = re.compile(rf"(?:{roots})(?![A-Za-z0-9_.-])(?:/[A-Za-z0-9_.-]+)*".encode())
         self.pinned = dict(names.get("inline_programs", {}))
         self.generated = dict(names.get("generated_programs", {}))
         self.started = snapshot(str(self.root), executable=False)
@@ -331,6 +335,13 @@ class Origin:
         self.texts: set[str] = set()
         self.digests: dict[tuple, str | None] = {}
         self.changed: dict[str, str] = {}
+        # What the static walker read: the inventory's recorded inputs, or, without an inventory, every file.
+        inventory = self.root / "ci/image/tool-inventory.json"
+        followed = json.loads(inventory.read_text())["inputs"] if inventory.is_file() else None
+        self.followed = {path for path in self.started
+                         if followed is None or Path(path).relative_to(self.root).as_posix() in followed}
+        self.writable = {str(self.root / path) for path in names.get("checkout_writes", {})}
+        self.rewritten: dict[str, str] = {}
         self.watch = Watch(self.root) if watch else None
 
     def close(self) -> None:
@@ -354,16 +365,20 @@ class Origin:
         return Path(path).relative_to(self.root).as_posix()
 
     def sweep(self, final: bool = False) -> None:
-        """Record every file present at the job's start whose bytes are no longer those it started with."""
+        """Record every file the walker read whose bytes are no longer those the job started with.
+
+        A file in the reviewed `checkout_writes` list is recorded apart: a step rewrites it on purpose.
+        """
         candidates, lost = self.watch.drain() if self.watch else (set(), False)
         if lost or final:
             candidates |= {path for path, key in self.started.items() if lkey(path) != key}
-        for path in sorted(candidates & set(self.started)):
-            if path in self.changed:
+        for path in sorted(candidates & self.followed):
+            if path in self.changed or path in self.rewritten:
                 continue
             now = self.digest(path) if Path(path).is_file() and not Path(path).is_symlink() else None
             if now != self.checkout[path]:
-                self.changed[path] = "removed or replaced" if now is None else f"sha256 {now}"
+                change = "removed or replaced" if now is None else f"sha256 {now}"
+                (self.rewritten if path in self.writable else self.changed)[path] = change
 
     def image_copy(self, path: str, own: str) -> str | None:
         """The image executable present as the job started that holds this file's bytes."""
@@ -434,7 +449,8 @@ class Origin:
             if own in self.built:
                 builder, output = self.built[own]
                 return f"built by {builder}" if output == path else f"copy of a program built by {builder}"
-            return "generated" if own in self.generated and self.generated[own].get("kind") == "program" else "none"
+            entry = self.generated.get(own, {})
+            return "generated" if entry.get("kind") == "program" else "none"
         if own in self.texts:
             return "step text"
         # A copy of an image executable runs that executable's code, so it is judged as that file, by its name.
@@ -443,9 +459,16 @@ class Origin:
             return f"copy of {original}"
         if own in self.copies:
             return f"copy of {self.relative(self.copies[own])}"
-        if own in self.generated and self.generated[own].get("kind") == "script":
-            return "generated"
-        return "exec-only interpreter" if Path(str(instance["program"])).name in EXEC_ONLY else "none"
+        if Path(str(instance["program"])).name in EXEC_ONLY:
+            return "exec-only interpreter"
+        with open(path, "rb") as stream:
+            data = stream.read()
+        instance["text"] = data[:1 << 20].decode("utf-8", "surrogateescape")  # The step log keeps it for review.
+        # A generated program is identified with its job-temporary paths masked: such a path is made only of
+        # name characters, so it carries no command, and every other byte is exact.
+        instance["sha256_masked"] = masked = hashlib.sha256(self.temporary.sub(b"/tmp/<job>", data)).hexdigest()
+        entry = self.generated.get(masked, {})
+        return "generated" if entry.get("kind") == "script" and entry.get("interpreter") == what["family"] else "none"
 
 
 def _group(pid: int) -> int:
@@ -801,7 +824,7 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
     def finding(instance: dict, what: dict, reason: str) -> None:
         """Name one forbidden or unprovenanced invocation, with the digest of what it ran."""
         findings.append({"invocation": what["name"], "path": what["path"], "argv": instance["argv"], "reason": reason,
-                         "sha256": what.get("sha256") or instance.get("sha256")})
+                         "sha256": what.get("sha256") or instance.get("sha256_masked") or instance.get("sha256")})
 
     for instance in result["instances"]:
         what = invocation(instance)
@@ -875,10 +898,11 @@ def audit_step(entry: dict[str, object], names: dict[str, object], root: Path, e
         if entry.get("text") is not None:
             origin.texts.add(hashlib.sha256(str(entry["text"]).encode()).hexdigest())
         directory = root / str(entry.get("working-directory", "."))
-        reported = set(origin.changed)
+        reported, rewritten = set(origin.changed), set(origin.rewritten)
         result = trace(list(entry["argv"]), directory, {**environment, **entry.get("env", {})}, origin)
         origin.sweep(final=True)
         result["changed"] = {origin.relative(p): c for p, c in origin.changed.items() if p not in reported}
+        result["rewritten"] = sorted(origin.relative(p) for p in origin.rewritten if p not in rewritten)
     finally:
         if own:
             origin.close()
@@ -889,7 +913,8 @@ def audit_step(entry: dict[str, object], names: dict[str, object], root: Path, e
     return {"job": entry["job"], "label": entry["label"], "argv": entry["argv"],
             "working-directory": str(entry.get("working-directory", ".")), "exit_status": result["exit_status"],
             "instances": len(result["instances"]), "instances_sha256": hashlib.sha256(lines).hexdigest(),
-            "population": population, "findings": findings, "clean": not findings}
+            "population": population, "findings": findings, "clean": not findings,
+            **({"checkout_writes": result["rewritten"]} if result["rewritten"] else {})}
 
 
 def receipt(spec: list[dict[str, object]], names: dict[str, object], root: Path,

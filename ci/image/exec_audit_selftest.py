@@ -170,6 +170,12 @@ def provenance(step: Step, base: Path) -> None:
     step("a renamed copy of the image's pip3 script is judged as the pip it reproduces",
          f'cp "$(command -v pip3)" {base}/bin/zz_copied_tool && python3 {base}/bin/zz_copied_tool --version',
          "installer executed: pip")
+    step("a reviewed generated program is accepted with its job-temporary paths masked",
+         f"printf \"import sys\\nprint('{base}/data')\\n\" > {base}/bin/zz_generated.py && "
+         f"python3 {base}/bin/zz_generated.py", None)
+    step("a generated program with one more statement is not the reviewed one",
+         f"printf \"import sys\\nprint('{base}/data')\\nsys.exit(0)\\n\" > {base}/bin/zz_extended.py && "
+         f"python3 {base}/bin/zz_extended.py", "script without provenance: zz_extended.py")
     step("a job-written Python script that is not pinned has no provenance",
          f"printf 'print(2)\\n' > {base}/bin/zz_written.py && python3 {base}/bin/zz_written.py",
          "script without provenance: zz_written.py")
@@ -213,6 +219,10 @@ def checkout(step: Step, base: Path) -> None:
     step("a checkout file an earlier program rewrites is caught though no exec reads it",
          f"printf 'true\\n' > {base}/sourced.sh && . {base}/sourced.sh",
          "checkout file changed during the job: sourced.sh")
+    (base / "zz_reviewed_write.txt").write_text("before\n")
+    report = step("a checkout file in the reviewed write list is recorded, not refused",
+                  f"printf 'after\\n' > {base}/zz_reviewed_write.txt", None)
+    assert report.get("checkout_writes") == ["zz_reviewed_write.txt"], report
     step("a step that fails under the disabled network", "exit 7", "step exited 7")
 
 

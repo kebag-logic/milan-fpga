@@ -339,7 +339,7 @@ def trace_population(args: argparse.Namespace) -> int:
             home.mkdir()
             temp.mkdir()
             job_path, job_env = [], {}
-            origin = exec_audit.Origin(root, names)
+            origin = exec_audit.Origin(root, names, scratch=(str(scratch),))
         commands = Path(tempfile.mkdtemp(dir=temp, prefix='step-'))
         files = {name: commands / name.lower() for name in
                  ('GITHUB_PATH', 'GITHUB_ENV', 'GITHUB_OUTPUT', 'GITHUB_STEP_SUMMARY')}

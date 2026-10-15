@@ -1,5 +1,19 @@
 {
-  "generated_programs": {},
+  "checkout_writes": {
+    "zz_reviewed_write.txt": {
+      "by": "ci/image/exec_audit_selftest.py",
+      "reason": "The audit's own control: a step rewrites a reviewed checkout file."
+    }
+  },
+  "generated_programs": {
+    "c9395495c2a2816dee322bef63c39c67c1656516c484a94b92aac19c2e79bff3": {
+      "generator": "ci/image/exec_audit_selftest.py",
+      "interpreter": "python",
+      "kind": "script",
+      "name": "zz_generated.py",
+      "reason": "The audit's own generated control: prints a job-temporary path and imports nothing else."
+    }
+  },
   "inline_programs": {
     "d287bb7f9d15abdc5b6e98536263815744b6ef21c8f3c839fc434ca70d8efe99": {
       "form": "inline",
