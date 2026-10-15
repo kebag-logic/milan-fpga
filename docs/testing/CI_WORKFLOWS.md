@@ -369,12 +369,14 @@ suite does. Dev registered it at the provisional 1800-second `suite_timeout`
 figure (#640) and gave its added sixth worker the prior maximum overhead, 115
 seconds; dev replaces both after the change's successful hosted run. Here
 its figure is a hosted window: 568 seconds on worker 0/6 of dev run
-38601263345 at `f6260253`, whose suites all passed; the pull-request run
-38538854504 measured 474 seconds. At the provisional figure its worker would
-project 1922 seconds, over the 1620-second bound. The selector places it on
-worker 3, projected at 1544 seconds. The template keeps dev's six-worker
-matrix, its shard 5/6 `milan_dp` ownership arm and its `--expect 6`; the
-generator replaces all three with the sixteen workers.
+38601263345 at `f6260253`, where that worker passed all eight of its suites;
+the pull-request run 38538854504 measured 474 seconds. At the provisional
+figure its worker would project 1922 seconds, over the 1620-second bound. The
+selector places it on worker 3, projected at 1544 seconds. The template keeps
+dev's six-worker matrix, its shard 5/6 `milan_dp` ownership arm and its
+`--expect 6`; the generator replaces the matrix and `--expect` with the
+sixteen workers and removes the arm; the selector's self-test proves that the
+last worker runs `milan_dp_mclk__0` alone.
 
 The selector refuses a missing or extra duration, duplicate ownership, a
 changed specialized owner, or a regular worker projected above 1620 seconds.

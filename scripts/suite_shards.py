@@ -67,8 +67,8 @@ VERILATOR_JOB = "verilator-shards"
 #: workers, except `maap`: #696 lengthens it, measured on its worker 1/5 in
 #: run 38208503834 at 26e2748f (dev's own window was 185 s), and `gptp_tables`
 #: (#713): the larger of its hosted windows, worker 0/6 of dev run 38601263345
-#: at f6260253, whose suites all passed (its pull-request run 38538854504 at
-#: 7fb3664b measured 474 s).
+#: at f6260253, where that worker passed all eight of its suites (its
+#: pull-request run 38538854504 at 7fb3664b measured 474 s).
 SUITE_SECONDS = {
     "aaf": 73,
     "aaf_audio_loop": 6,
