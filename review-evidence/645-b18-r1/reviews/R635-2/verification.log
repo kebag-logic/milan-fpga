@@ -1,0 +1,29 @@
+PASS: exact head/tree; base and previous-head deltas each touch only the findings page
+GITLINK: external efeb541ae5fe1e078332d8462dca2fc2d9cb8db5
+GITLINK: gptp-processor e4869fd0c42889b2ac806587cc5c78afb1c33461
+GITLINK: protocol-processor 2ad2f845dd583f8310075fa2380cb60a04fd091a
+GITLINK: third_party/lwSRP 08ee86e812a0eb5e1dc6cd61b494d8baf3491348
+GITLINK: third_party/tsn-c-stack 70936b77dc41981e192438388cd0aced69954f18
+GITLINK: third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+PASS: 1370 tracked blob bytes/modes and entire index verified; 6 gitlinks match head
+PASS: 200 author/provenance published manifest hashes; reviewer reports excluded
+PASS: 16 provenance files equal the page-linked evidence commit
+PASS: 90 original author files equal the page-named packet location
+PASS: source/tree -> manager-recorded file hashes -> layout AEM hash/CRC -> ordered verified writes -> cold boot/no fallback -> boot line
+LIMIT: bitstream binary absent; its full-file hash is manager-attested. Layout payload hash is a separate hash.
+PASS: 11 identity checks after the recorded cold boot; continuity uses the public manager statement
+COUNTERS: c01 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.997551s last=31.702083s states=0/1
+COUNTERS: c02 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.995866s last=31.839522s states=0/1
+COUNTERS: c03 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.996314s last=31.827462s states=0/1
+COUNTERS: c04 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.997065s last=31.777316s states=0/1
+COUNTERS: c05 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.996756s last=31.881568s states=0/1
+COUNTERS: c06 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.995715s last=31.846273s states=0/1
+COUNTERS: c07 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.996679s last=31.838084s states=0/1
+COUNTERS: c08 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.995646s last=31.774672s states=0/1
+COUNTERS: c09 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.995713s last=31.767889s states=0/1
+COUNTERS: c10 polls=80 SLIP_LB=0 SLIP_TDM=0 first=-7.997574s last=31.700514s states=0/1
+PASS: 800 polls, both baselines, cumulative-counter joins and raw-counter digest; c01/c10 tails covered by later zero reads
+PASS: 20 raw counter payloads: DUT MEDIA_LOCKED and LINK_UP remain 1; named DUT error counters remain 0
+PASS: both unchanged tables match the published summaries, 20 rows
+PASS: author seven-gate receipt names the exact head and 338 added lines
+LIMIT: no new bench run, capture replay, physical calibration, source bank or merge-candidate bank performed.
