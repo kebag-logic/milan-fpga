@@ -1,0 +1,77 @@
+[
+  {
+    "label": "pristine-gate-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 9.231,
+    "expected": 0,
+    "log": "receipts/pristine-gate-selftest.log",
+    "log_sha256": "3c0f50c86f40ee16f579e73c03f28b9c5af5bdb49eecc99fea120c2b13b15854"
+  },
+  {
+    "label": "reverted-regenerate",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py"
+    ],
+    "rc": 0,
+    "seconds": 0.615,
+    "expected": 0,
+    "log": "receipts/reverted-regenerate.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "reverted-freshness",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.615,
+    "expected": 0,
+    "log": "receipts/reverted-freshness.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "reverted-contract",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.766,
+    "expected": 0,
+    "log": "receipts/reverted-contract.log",
+    "log_sha256": "26e156dd9d8b3e67128fef232217249f898c1c49d96951019bad5fb82daa1bd1"
+  },
+  {
+    "label": "reverted-gate-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "rc": 1,
+    "seconds": 0.715,
+    "expected": "nonzero",
+    "log": "receipts/reverted-gate-selftest.log",
+    "log_sha256": "e4aace9a35ad72fddd833ffd684d52c0c0a7c914d0d82b8804e3b1f8aa7a47f7"
+  },
+  {
+    "label": "restored-freshness",
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.615,
+    "expected": 0,
+    "log": "receipts/restored-freshness.log",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

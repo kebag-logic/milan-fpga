@@ -1,0 +1,930 @@
+{
+ "head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+ "source": {
+  "head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+  "submodules": [
+   {
+    "checkout": "validation",
+    "submodule": "third_party/verilog-axis",
+    "origin": "https://github.com/alexforencich/verilog-axis",
+    "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+   },
+   {
+    "checkout": "validation",
+    "submodule": "protocol-processor",
+    "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+    "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+   },
+   {
+    "checkout": "validation",
+    "submodule": "gptp-processor",
+    "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+    "pin": "e4869fd0c42889b2ac806587cc5c78afb1c33461"
+   },
+   {
+    "checkout": "validation",
+    "submodule": "third_party/lwSRP",
+    "origin": "https://github.com/kebag-logic/lwSRP.git",
+    "pin": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348"
+   },
+   {
+    "checkout": "validation",
+    "submodule": "third_party/tsn-c-stack",
+    "origin": "https://github.com/kebag-logic/tsn-c-stack.git",
+    "pin": "70936b77dc41981e192438388cd0aced69954f18"
+   },
+   {
+    "checkout": "validation-fast",
+    "submodule": "third_party/verilog-axis",
+    "origin": "https://github.com/alexforencich/verilog-axis",
+    "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+   },
+   {
+    "checkout": "validation-fast",
+    "submodule": "protocol-processor",
+    "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+    "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+   },
+   {
+    "checkout": "validation-fast",
+    "submodule": "gptp-processor",
+    "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+    "pin": "e4869fd0c42889b2ac806587cc5c78afb1c33461"
+   },
+   {
+    "checkout": "validation-fast",
+    "submodule": "third_party/lwSRP",
+    "origin": "https://github.com/kebag-logic/lwSRP.git",
+    "pin": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348"
+   },
+   {
+    "checkout": "validation-fast",
+    "submodule": "third_party/tsn-c-stack",
+    "origin": "https://github.com/kebag-logic/tsn-c-stack.git",
+    "pin": "70936b77dc41981e192438388cd0aced69954f18"
+   }
+  ]
+ },
+ "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+ "bank_container": {
+  "memory": "8g",
+  "cpuset": "64-79",
+  "network": "none",
+  "environment": [
+   "GITHUB_SHA=e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+   "TMPDIR=/scratch/tmp",
+   "RUNNER_TEMP=/scratch",
+   "PYTHONDONTWRITEBYTECODE=1",
+   "GITHUB_WORKSPACE=$VALIDATION_STORAGE/737-a614/r5/final/validation",
+   "EVENT_NAME=push",
+   "GITHUB_EVENT_NAME=push",
+   "PUSH_BEFORE_SHA=f62602531d415d6c1cae1374a3cc2938faf54049",
+   "GITHUB_OUTPUT=/scratch/github-output",
+   "GITHUB_PATH=/scratch/github-path",
+   "GITHUB_ENV=/scratch/github-env",
+   "CI_BUILD_JOBS=16",
+   "CI_TOOL_BUILD_JOBS=8",
+   "CI_CAMPAIGN_JOBS=4",
+   "VERILATOR_JOBS=4",
+   "SIM_JOBS=1",
+   "MAKEFLAGS=-j1 --no-print-directory",
+   "MILAN_RV32_CC=/opt/rv32-sdk/bin/riscv32-linux-gcc",
+   "VERILATOR_VERSION=v5.050"
+  ],
+  "one_container_at_a_time": true
+ },
+ "docs_check": {
+  "passed": true,
+  "steps": [
+   {
+    "job": "docs-check",
+    "index": 1,
+    "step": "Build the validated HDL reference",
+    "returncode": 0,
+    "seconds": 3.38,
+    "log_bytes": 1047,
+    "log_sha256": "89597a56ee4e11759233274db7907ee663fc19bdd548264052a484210d858fb7",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 7,
+    "step": "Link health, wording, dead-reference and local-info gate",
+    "returncode": 0,
+    "seconds": 6.24,
+    "log_bytes": 128,
+    "log_sha256": "77f88fa7591dafce76d98e2ac940b46ecc631a1a8db98737890b9c548ff81a93",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 8,
+    "step": "Added-line em-dash gate",
+    "returncode": 0,
+    "seconds": 3.275,
+    "log_bytes": 140,
+    "log_sha256": "584f144c37bd3f6a1cdbac3e20070bd334c7eac72c48023d94ac28f6e2574c83",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 9,
+    "step": "Concise audience documentation gate",
+    "returncode": 0,
+    "seconds": 0.809,
+    "log_bytes": 167,
+    "log_sha256": "05d6ef2302a6c0467ad437209233733e93bcb2941539103e26c51b988a28637a",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 10,
+    "step": "Audience diagram no-drift gate",
+    "returncode": 0,
+    "seconds": 1.754,
+    "log_bytes": 242,
+    "log_sha256": "79dce4dc64e4d57851e37c5bac0a829304d65207659bb65049e11b7d0683f069",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 11,
+    "step": "Product solution source-fact gate",
+    "returncode": 0,
+    "seconds": 3.339,
+    "log_bytes": 146,
+    "log_sha256": "9ef43cc924919e10ccb30a9419819d20b849d787a8f37fcabba22e2159d3167d",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 12,
+    "step": "Verified submodule documentation gate",
+    "returncode": 0,
+    "seconds": 1.709,
+    "log_bytes": 227,
+    "log_sha256": "88d83848aecf81453b10dd129f7ebbaf87fc3adbb655fed653ec81b507b84d75",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 13,
+    "step": "HDL timing diagram no-drift gate",
+    "returncode": 0,
+    "seconds": 1.182,
+    "log_bytes": 241,
+    "log_sha256": "af9493d0e4acd65eb64ba2bbe7103a2c6f957ecca650a938cdc18d70396a57ea",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 14,
+    "step": "Published diagram PNG gate",
+    "returncode": 0,
+    "seconds": 9.716,
+    "log_bytes": 125,
+    "log_sha256": "17d1d2360a98e818f8706a8165affff7c873cb06b4fe8db4c48300e103e51c1e",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 15,
+    "step": "Milan feature-status consistency gate",
+    "returncode": 0,
+    "seconds": 1.129,
+    "log_bytes": 1500,
+    "log_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 16,
+    "step": "Traceability matrix no-drift gate",
+    "returncode": 0,
+    "seconds": 1.221,
+    "log_bytes": 118,
+    "log_sha256": "4e782e68ed5c09299d5d990702b634a2358aa1d5cbc2fd822374561e249c2687",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 18,
+    "step": "Imported gPTP documentation gate",
+    "returncode": 0,
+    "seconds": 1.043,
+    "log_bytes": 2593,
+    "log_sha256": "9e8e7e225671bda14dbee73f683ad988a207cfc36f7133e6d74cdf6659dcb43c",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 19,
+    "step": "Code-quality measurement self-tests",
+    "returncode": 0,
+    "seconds": 0.168,
+    "log_bytes": 3293,
+    "log_sha256": "862838344ece59e4179fd4bcfe04f85ee320f0601c325014b2509717db13368b",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 21,
+    "step": "Bare-metal scope gate",
+    "returncode": 0,
+    "seconds": 28.458,
+    "log_bytes": 115,
+    "log_sha256": "dcd558a1a495d3d777c19ca4230532f1e5e48c15548b967b1733bd7797ba5fd7",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 24,
+    "step": "Compiler-absent firmware controls",
+    "returncode": 0,
+    "seconds": 558.646,
+    "log_bytes": 51414,
+    "log_sha256": "3216f258d272daccb6e7e0fa371c6e221b67f5dbf98eda44680d396f40cfd64d",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 25,
+    "step": "End-station builder gates",
+    "returncode": 0,
+    "seconds": 1482.211,
+    "log_bytes": 121217,
+    "log_sha256": "7f99cdfbe6684cb9196274f9e01df42feb63a4aac927dc5e1d2d055e3ac43e58",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 26,
+    "step": "NVM record-space gate",
+    "returncode": 0,
+    "seconds": 49.937,
+    "log_bytes": 9588,
+    "log_sha256": "7969fb65ae1ea9d608146bed63d697587402331dc1efa2c128e61861a7f6493e",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 27,
+    "step": "Capture measurement census and clock gate",
+    "returncode": 0,
+    "seconds": 0.836,
+    "log_bytes": 398,
+    "log_sha256": "7bb472e312a53443576575b4d73f0c971fa708ee029f79cdb9233dec5e33f382",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 28,
+    "step": "Saved-state writer gate",
+    "returncode": 0,
+    "seconds": 174.183,
+    "log_bytes": 23318,
+    "log_sha256": "54d06c17d3e8be218d628e0caf4e610d948f87709e274179c79f52305ae82420",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 29,
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "returncode": 0,
+    "seconds": 2.242,
+    "log_bytes": 4794,
+    "log_sha256": "0d36e3ad97cf5cce5db8f0e3353f9da0bdee976188f40c06353ce41898111a6c",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 30,
+    "step": "RTL source-list drift gate",
+    "returncode": 0,
+    "seconds": 4.102,
+    "log_bytes": 3453,
+    "log_sha256": "be8805dc2fee50eddcf0b966ea5728febdeed2e7b9f288ba358f41c1fe4b7041",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 31,
+    "step": "Boundary-unit naming ratchet",
+    "returncode": 0,
+    "seconds": 0.897,
+    "log_bytes": 40516,
+    "log_sha256": "e589b99fd89329c43bbbe3c3b76266d3024f61bd8c47ee20050bf11c80b06ab7",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 32,
+    "step": "Port contract gate",
+    "returncode": 0,
+    "seconds": 5.705,
+    "log_bytes": 5040,
+    "log_sha256": "f809fa4db01c3f9264983e96ca4923a083c78176a5efd2cc80bb408b2dd41ebb",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 33,
+    "step": "Fail-fast ratchet",
+    "returncode": 0,
+    "seconds": 3.566,
+    "log_bytes": 12564,
+    "log_sha256": "eba611029446f4d5832afe5484e8544403cf7674963287597762f5b970534816",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 34,
+    "step": "TODO ownership gate",
+    "returncode": 0,
+    "seconds": 4.24,
+    "log_bytes": 2745,
+    "log_sha256": "7a60ac21a5bc81dff7c366d8b8184ba23b9784e1ccf34a5ba10f78d7161cecc6",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 35,
+    "step": "Test-evidence ratchet",
+    "returncode": 0,
+    "seconds": 19.569,
+    "log_bytes": 24677,
+    "log_sha256": "e2d8a658becfc48d179b3d4f95d1fbb563cd901e7a6872699e0efc60fbe4607f",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 36,
+    "step": "Mechanical hygiene ratchet",
+    "returncode": 0,
+    "seconds": 0.819,
+    "log_bytes": 3971,
+    "log_sha256": "46de62072d6caffa4b2df46d98481ca958cfd26d0b62bc85a0bd6bc304182955",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 37,
+    "step": "SystemVerilog idiom gate",
+    "returncode": 0,
+    "seconds": 0.838,
+    "log_bytes": 3173,
+    "log_sha256": "ccd900273b796fdfcf74e586f952eadfc9f6f6b1ad448b891183f939a49df728",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 38,
+    "step": "C and C++ idiom gate",
+    "returncode": 0,
+    "seconds": 3.282,
+    "log_bytes": 3909,
+    "log_sha256": "97449cf85ea7ddbdbea7d946d0b0a59367b3cf1073d3daf61679c36f535bcb71",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 39,
+    "step": "Python idiom gate",
+    "returncode": 0,
+    "seconds": 10.123,
+    "log_bytes": 2992,
+    "log_sha256": "f7ef3e6e4be469c25a1579eb77e375b4213a9bf39f290b7c8929dcee8a512475",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 40,
+    "step": "Shell idiom gate",
+    "returncode": 0,
+    "seconds": 0.468,
+    "log_bytes": 2696,
+    "log_sha256": "a57f331056f1f93e369a05fc919fd7d91a98638253282a970a118711a46e20e1",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 41,
+    "step": "CI event and SHA contract gate",
+    "returncode": 0,
+    "seconds": 214.758,
+    "log_bytes": 334714,
+    "log_sha256": "fc26ab279042e21e93e6d8ec4cb197eac3e8e28585718680f45cadf65af70630",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 42,
+    "step": "Local act runner contract gate",
+    "returncode": null,
+    "skipped_by_bank": true
+   },
+   {
+    "job": "docs-check",
+    "index": 43,
+    "step": "Doc cited-path gate",
+    "returncode": 0,
+    "seconds": 0.099,
+    "log_bytes": 85,
+    "log_sha256": "63682156c908a2fd92d1fe5741412c8b2db47ca224a4790a87fce74e01672fac",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 44,
+    "step": "Archive integrity gate",
+    "returncode": 0,
+    "seconds": 0.522,
+    "log_bytes": 128,
+    "log_sha256": "1a15e66a07892f544c4b9bee75201ff9acaf3edd2c37963a780f8473466d50cb",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 45,
+    "step": "Per-page contents gate",
+    "returncode": 0,
+    "seconds": 10.997,
+    "log_bytes": 196,
+    "log_sha256": "5e7dff159285546d655b08d03a92defe294634c3df1bae76894dc489f09f1d71",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 46,
+    "step": "AEM store generator self-test",
+    "returncode": 0,
+    "seconds": 0.08,
+    "log_bytes": 3596,
+    "log_sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 47,
+    "step": "Sweep/build shape gate",
+    "returncode": 0,
+    "seconds": 15.222,
+    "log_bytes": 19742,
+    "log_sha256": "5378acea636cccb618e9dcf0bd118c6b1dc0b22e2bd26e548af9a676bf534929",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 48,
+    "step": "Deploy shape gate",
+    "returncode": 0,
+    "seconds": 0.468,
+    "log_bytes": 9300,
+    "log_sha256": "47379dc23291b0c85138b84df43601d43501cfbb34640cd460834a714cd06669",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 49,
+    "step": "Entity shape gate",
+    "returncode": 0,
+    "seconds": 52.132,
+    "log_bytes": 27728,
+    "log_sha256": "ac7cf5f288cf622489336812c34ed9bd3fd1f9dd05af56fffa50c3453944c9c8",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 50,
+    "step": "CI scheduling and evidence controls",
+    "returncode": 0,
+    "seconds": 23.006,
+    "log_bytes": 109208,
+    "log_sha256": "c241a1218509f3f0d763c41cd4e078d32665bfad8253f2f4222fa9a56a44e001",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "wire-accountability",
+    "index": 2,
+    "step": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+    "returncode": 0,
+    "seconds": 0.792,
+    "log_bytes": 5231,
+    "log_sha256": "7a3a5ddc3349941de2a3624f1fbe4ef271fc0ae43bd9f09cc9658309039fbdbe",
+    "skipped_by_bank": null
+   }
+  ],
+  "memory": {
+   "peak_bytes": 4576628736,
+   "events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "samples": 267
+  },
+  "note": "every non-setup docs-check template step body and wire-accountability; the runner contract gate runs in its own isolated container below"
+ },
+ "docs_check_no_git": {
+  "passed": true,
+  "steps": [
+   {
+    "job": "docs-check-no-git",
+    "index": 1,
+    "step": "Strip git metadata, then run the docs gate",
+    "returncode": 0,
+    "seconds": 7.343,
+    "log_bytes": 225,
+    "log_sha256": "c47b770d456f1363e01f64dd24056301fea6b3497bca26277a58a8e14f71470a",
+    "skipped_by_bank": null
+   }
+  ]
+ },
+ "runner_contract_gate": {
+  "head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+  "rc": 0,
+  "seconds": 101.992,
+  "log_bytes": 116257,
+  "log_sha256": "8e8e5f26fa7f04dc5c741bcf4472c3da05df1914244074960cea746c39c0d00d",
+  "runner_sha256": "f968f67655ac386ea703248b724c3781b95ec379d3a5287b378e470df81f895c",
+  "boundary": "Read-only candidate mount, no network or Docker socket; CPython 3.12.3."
+ },
+ "rtl_fast": {
+  "passed": true,
+  "steps": [
+   {
+    "job": "changes",
+    "index": 1,
+    "step": "Classify the change conservatively",
+    "returncode": 0,
+    "seconds": 19.179,
+    "log_bytes": 20164,
+    "log_sha256": "64c2ae5534a6ba391a0599290cfddd8069f9a9cd4bb6eb81971728006fa2c3dc",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "verilator-lint",
+    "index": 4,
+    "step": "Run the ratcheted whole-tree lint gate",
+    "returncode": 0,
+    "seconds": 23.079,
+    "log_bytes": 14996,
+    "log_sha256": "b60fafa7d4c6c1fd053e38520f85b516e8ec08900c9990b65c4e28edfd3a53de",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "verilator-lint",
+    "index": 5,
+    "step": "Prove protocol-processor source lists are derived",
+    "returncode": 0,
+    "seconds": 0.261,
+    "log_bytes": 955,
+    "log_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "bdd-conformance",
+    "index": 3,
+    "step": "Run the specification-facing suite",
+    "returncode": 0,
+    "seconds": 1.932,
+    "log_bytes": 197349,
+    "log_sha256": "58ec0b68e7b21e877f3da4f70f71b1fa964bebe1bbc47677dbd1a6d607146c51",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "yosys-elaboration",
+    "index": 3,
+    "step": "Build Yosys from source on cache miss",
+    "returncode": null,
+    "skipped_by_bank": true
+   },
+   {
+    "job": "yosys-elaboration",
+    "index": 6,
+    "step": "Elaborate the integration-heavy tops",
+    "returncode": 0,
+    "seconds": 102.322,
+    "log_bytes": 382,
+    "log_sha256": "f034a14993e48c2e315e30da571756377cf29dcdeebae216b9a972b8c34f3dcc",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "yosys-elaboration",
+    "index": 7,
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "returncode": 0,
+    "seconds": 488.469,
+    "log_bytes": 49829,
+    "log_sha256": "7ac89c95f353a3afa960b2e08c9dc1ebb05e33bec59b90fe230bdd1941a4b1d5",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "yosys-elaboration",
+    "index": 8,
+    "step": "Prove ooc.sh generates the ROMs and fails on a failed top",
+    "returncode": 0,
+    "seconds": 29.212,
+    "log_bytes": 43,
+    "log_sha256": "d4febc14ba490cf79a72567d657e1653d21792043ae463564d52c831f69179e0",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "yosys-elaboration",
+    "index": 9,
+    "step": "Prove both synthesis flows refuse active elaboration guards",
+    "returncode": 0,
+    "seconds": 31.987,
+    "log_bytes": 48,
+    "log_sha256": "ef3e088cff19ae241583bce9d81868c00a735f87019056b11a9011a4bb54ba1f",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "yosys-elaboration",
+    "index": 10,
+    "step": "Prove the result cache refuses a planted entry",
+    "returncode": 0,
+    "seconds": 50.974,
+    "log_bytes": 190,
+    "log_sha256": "d8e090cf8c0c656d14381ecbb41901c83ad1870f0f38fed8b382815197e4dfa5",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "publication-census",
+    "index": 3,
+    "step": "Build Yosys from source on cache miss",
+    "returncode": null,
+    "skipped_by_bank": true
+   },
+   {
+    "job": "publication-census",
+    "index": 6,
+    "step": "Run the publication census in every shape the builder builds",
+    "returncode": 0,
+    "seconds": 633.767,
+    "log_bytes": 30314,
+    "log_sha256": "1a6947061363cffb6b3c002c93e781d9917b38898c89ab346a3229c7441780eb",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "firmware-unit",
+    "index": 3,
+    "step": "Prove the tally reads a failing and a crashing test as failures",
+    "returncode": 0,
+    "seconds": 3.344,
+    "log_bytes": 2026,
+    "log_sha256": "7cb98f8c107c611995199df80c0e3dc38bc92f4f2c2cbfb1349b5bb5008da2ee",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "firmware-unit",
+    "index": 6,
+    "step": "Run the control-plane firmware suites and RV32 builds",
+    "returncode": 0,
+    "seconds": 290.462,
+    "log_bytes": 69804,
+    "log_sha256": "4d5c514c7dfb2d5a600749bc96956a7f3bbe034622e306c7f0397e6a993d7d10",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "firmware-unit",
+    "index": 7,
+    "step": "Run the saved-state store suites and its RV32 build",
+    "returncode": 0,
+    "seconds": 92.171,
+    "log_bytes": 4035,
+    "log_sha256": "b5c5ce9d7a176d71bbfd61df884d9ff3504ba59911448969f6a5c08ae3a14740",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "firmware-unit",
+    "index": 8,
+    "step": "Hold the firmware coverage ratchet",
+    "returncode": 0,
+    "seconds": 243.8,
+    "log_bytes": 8194,
+    "log_sha256": "7a0e87c6bc48f1b972f7c33de45a7ca143efad930e8f8f963891be72e22f2006",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "firmware-control-mutants",
+    "index": 5,
+    "step": "Run the control mutation campaign",
+    "returncode": 0,
+    "seconds": 845.07,
+    "log_bytes": 99875,
+    "log_sha256": "d426f8e25a799c1b1551c6c180313c017c23b8141bc013cb4eee5bb06c18c4da",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "firmware-aecp-mutants",
+    "index": 5,
+    "step": "Run the AECP mutation campaign",
+    "returncode": 0,
+    "seconds": 200.752,
+    "log_bytes": 37466,
+    "log_sha256": "9ffd1e329c50ad6bde640132612f959b9dd8d2d7743e57796ae3620e984d6d5b",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "firmware-srp-mutants",
+    "index": 5,
+    "step": "Run both SRP mutation campaigns and pin controls",
+    "returncode": 0,
+    "seconds": 606.595,
+    "log_bytes": 119980,
+    "log_sha256": "65b81f7a61aab02a9cee106928ffdd7401cc56d0e3b2ae475bb7a662a6ee7a6e",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "firmware-boundary",
+    "index": 5,
+    "step": "Hold the TSN stack boundary over the firmware builders' compiles",
+    "returncode": 0,
+    "seconds": 875.336,
+    "log_bytes": 65458,
+    "log_sha256": "1379de78a7069c1c63e91c396e66963b5f394d0c1e786102620fc6d9ab716e35",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "firmware-verilator",
+    "index": 8,
+    "step": "Hold the TSN stack boundary over the Verilator builders' compiles",
+    "returncode": 0,
+    "seconds": 582.181,
+    "log_bytes": 55764,
+    "log_sha256": "e96018a44f30bece89dff4a3577f6915943d921157d23f2fbb2c69af7cc1e4a2",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "rtl-fast",
+    "index": 0,
+    "step": "Require every applicable fast gate to pass",
+    "returncode": 0,
+    "seconds": 0.008,
+    "log_bytes": 363,
+    "log_sha256": "d005264ccb6fff86d2183e1617c8756b48d353076c296f0bc0c07e0bd248d4d8",
+    "skipped_by_bank": null
+   }
+  ],
+  "memory": {
+   "peak_bytes": 6157991936,
+   "events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "samples": 512
+  },
+  "scope_output": "rtl=true",
+  "note": "all twelve jobs; the two source Yosys builds are skipped because the image provides the pinned Yosys"
+ },
+ "worker_3_of_16": "round5-worker-3-of-16.json",
+ "host_gates_at_head": {
+  "head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+  "clean_tree": true,
+  "results": [
+   {
+    "name": "baremetal-only",
+    "command": "python3 scripts/check_baremetal_only.py --check",
+    "rc": 0
+   },
+   {
+    "name": "case-receipts",
+    "command": "python3 scripts/ci_case_receipts_selftest.py",
+    "rc": 0
+   },
+   {
+    "name": "ci-scope",
+    "command": "python3 scripts/ci_scope.py --selftest",
+    "rc": 0
+   },
+   {
+    "name": "diff-check",
+    "command": "git diff --check 08adb21af0a72d839ce30b6c461503dad269d4d6 HEAD",
+    "rc": 0
+   },
+   {
+    "name": "doc-paths",
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0
+   },
+   {
+    "name": "doc-style",
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0
+   },
+   {
+    "name": "docs-check",
+    "command": "python3 scripts/docs_check.py",
+    "rc": 0
+   },
+   {
+    "name": "em-dash-dev",
+    "command": "python3 scripts/check_em_dash.py --base f62602531d415d6c1cae1374a3cc2938faf54049",
+    "rc": 0
+   },
+   {
+    "name": "em-dash-r4",
+    "command": "python3 scripts/check_em_dash.py --base 08adb21af0a72d839ce30b6c461503dad269d4d6",
+    "rc": 0
+   },
+   {
+    "name": "events-check",
+    "command": "python3 scripts/ci_events.py --check",
+    "rc": 0
+   },
+   {
+    "name": "evidence-pins",
+    "command": "python3 scripts/generate_ci_evidence_pins.py --check",
+    "rc": 0
+   },
+   {
+    "name": "fail-fast",
+    "command": "python3 scripts/ci_fail_fast_selftest.py",
+    "rc": 0
+   },
+   {
+    "name": "gate-workflows",
+    "command": "python3 scripts/ci_gate_workflows_selftest.py",
+    "rc": 0
+   },
+   {
+    "name": "generator-check",
+    "command": "python3 scripts/ci_gate_workflows.py --check",
+    "rc": 0
+   },
+   {
+    "name": "hygiene",
+    "command": "python3 scripts/check_hygiene.py",
+    "rc": 0
+   },
+   {
+    "name": "install-cache",
+    "command": "python3 scripts/ci_install_cache_selftest.py",
+    "rc": 0
+   },
+   {
+    "name": "manifest",
+    "command": "python3 scripts/ci_manifest_selftest.py",
+    "rc": 0
+   },
+   {
+    "name": "pp-srcs",
+    "command": "python3 scripts/pp_srcs.py --check --selftest",
+    "rc": 0
+   },
+   {
+    "name": "py-idiom",
+    "command": "python3 scripts/check_py_idiom.py",
+    "rc": 0
+   },
+   {
+    "name": "runtime-evidence",
+    "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+    "rc": 0
+   },
+   {
+    "name": "suite-collect",
+    "command": "python3 scripts/ci_suite_collect_selftest.py",
+    "rc": 0
+   },
+   {
+    "name": "suite-pieces",
+    "command": "python3 scripts/ci_suite_pieces_selftest.py",
+    "rc": 0
+   },
+   {
+    "name": "suite-shards",
+    "command": "python3 scripts/suite_shards.py --selftest",
+    "rc": 0
+   },
+   {
+    "name": "toc",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 0
+   },
+   {
+    "name": "toc-check",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 0
+   },
+   {
+    "name": "workflow-plan",
+    "command": "python3 scripts/ci_workflow_plan_selftest.py",
+    "rc": 0
+   }
+  ]
+ },
+ "superseded_attempts": [
+  "the first runner-gate launch failed on the host before creating its container (launcher interpreter without PyYAML); not evidence"
+ ]
+}

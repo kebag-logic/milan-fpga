@@ -1,0 +1,106 @@
+{
+ "r4_head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+ "r5_head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+ "r4_items": 2186,
+ "r5_items": 2187,
+ "only_or_more_at_r5": [
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 0/6` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 1/6` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 2/6` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 3/6` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 4/6` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 5/6` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` shard denominator matrix `total` must be a singleton equal to the `strategy.matrix.shard` list size, 6 (found [6]): GitHub and act workers must receive the same checked count",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-suites` verifier step must pass --expect 6, the worker matrix size (found 6)",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-suites` verifier step script is not the canonical form derived from its download step and worker matrix: expected exactly ['shopt -s nullglob', 'roots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)', 'python3 scripts/ci_events.py --require-target-sha --expect 6 --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\"'] (found ['shopt -s nullglob', 'roots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)', 'python3 scripts/ci_events.py --require-target-sha --expect 6 --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\"'])",
+   1
+  ]
+ ],
+ "only_or_more_at_r4": [
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 0/5` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 1/5` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 2/5` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 3/5` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` `name` renders `Verilator shard 4/5` for one matrix combination, which is a required check name: a matrix job publishing that name is a second carrier the literal comparison above cannot see",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-shards` shard denominator matrix `total` must be a singleton equal to the `strategy.matrix.shard` list size, 5 (found [5]): GitHub and act workers must receive the same checked count",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-suites` verifier step must pass --expect 5, the worker matrix size (found 5)",
+   1
+  ],
+  [
+   ".github/workflows/rtl.yml",
+   "job `verilator-suites` verifier step script is not the canonical form derived from its download step and worker matrix: expected exactly ['shopt -s nullglob', 'roots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)', 'python3 scripts/ci_events.py --require-target-sha --expect 5 --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\"'] (found ['shopt -s nullglob', 'roots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)', 'python3 scripts/ci_events.py --require-target-sha --expect 5 --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\"'])",
+   1
+  ]
+ ],
+ "method": "scratch wrapper around ci_events.Contract.item over each tree's own --check world",
+ "item_lists": {
+  "items-r4.json": {
+   "bytes": 527979,
+   "sha256": "3eb1a3fda6a9269492983ed57a75846e35fd118b05b28b37272dee6fcf262a9f"
+  },
+  "items-r5.json": {
+   "bytes": 528232,
+   "sha256": "43bce0bae5b413d65609fe46f2c8d36ba9df2545bf372c59ff0022fc9b9121f7"
+  }
+ }
+}

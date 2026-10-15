@@ -1,0 +1,923 @@
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index a6bd4f947..7c793af3f 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -588,11 +588,11 @@ jobs:
+           python3 scripts/ci_rv32_sdk_selftest.py
+           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+         id: ci_step_13
+-      - name: End-station builder gates
++      - name: End-station builder gates, leg 0 of 2
+         run: |
+           python3 -m pip install --quiet pyyaml
+-          python3 sw/builder/test_builder.py --require-rv32
+-        id: gate_25
++          python3 scripts/ci_builder_legs.py run 0 --receipt "$RUNNER_TEMP/gate-results/builder-leg-0.json" -- python3 sw/builder/test_builder.py --require-rv32
++        id: gate_25_0
+       - name: Record executed gate outcomes
+         if: ${{ always() }}
+         env:
+@@ -606,7 +606,9 @@ jobs:
+         uses: actions/upload-artifact@v4
+         with:
+           name: gate-docs-1-${{ github.sha }}
+-          path: ${{ runner.temp }}/gate-results/receipt.json
++          path: |
++            ${{ runner.temp }}/gate-results/receipt.json
++            ${{ runner.temp }}/gate-results/builder-leg-*.json
+           if-no-files-found: error
+         id: ci_step_16
+       - name: Record actual job execution
+@@ -733,6 +735,11 @@ jobs:
+           python3 scripts/ci_rv32_sdk_selftest.py
+           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+         id: ci_step_13
++      - name: End-station builder gates, leg 1 of 2
++        run: |
++          python3 -m pip install --quiet pyyaml
++          python3 scripts/ci_builder_legs.py run 1 --receipt "$RUNNER_TEMP/gate-results/builder-leg-1.json" -- python3 sw/builder/test_builder.py --require-rv32
++        id: gate_25_1
+       - name: CI event and SHA contract gate
+         run: |
+           python3 scripts/ci_events.py --check
+@@ -753,15 +760,17 @@ jobs:
+           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
+         run: |
+           python3 scripts/ci_gate_receipts.py record --workflow docs --leg 2 --output "$RUNNER_TEMP/gate-results/receipt.json"
+-        id: ci_step_16
++        id: ci_step_17
+       - name: Upload executed gate outcomes
+         if: ${{ always() }}
+         uses: actions/upload-artifact@v4
+         with:
+           name: gate-docs-2-${{ github.sha }}
+-          path: ${{ runner.temp }}/gate-results/receipt.json
++          path: |
++            ${{ runner.temp }}/gate-results/receipt.json
++            ${{ runner.temp }}/gate-results/builder-leg-*.json
+           if-no-files-found: error
+-        id: ci_step_17
++        id: ci_step_18
+       - name: Record actual job execution
+         id: ci_record
+         if: ${{ always() }}
+diff --git a/docs/testing/726_STREAM_COUNTERS.md b/docs/testing/726_STREAM_COUNTERS.md
+index b85cf88a8..10c56ad31 100644
+--- a/docs/testing/726_STREAM_COUNTERS.md
++++ b/docs/testing/726_STREAM_COUNTERS.md
+@@ -174,7 +174,8 @@ make -C tb/verilator/milan_dp counters-mutants
+ Clean checks must exit zero.
+ Their `RESULT: PASS` lines also appear in the suite log.
+ Both make exports suppress inherited directory banners explicitly.
+-Hosted shard 4/5 must retain these results in `suite-logs-4`.
++On GitHub these results reach the `milan_dp.log` that the `milan_dp` case union assembles.
++That union joins the four `--ci-pieces` leg logs, and its `suite-union-milan_dp` artifact must retain them.
+ The `before` variant reads the three original counter engines from `c6bd08c6`.
+ Its driver requires named `TX`, `RX` and `CADENCE` failures.
+ Any other failure group, missing group or exit status is rejected.
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index d930c1e60..8c3784d1b 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -369,12 +369,14 @@ suite does. Dev registered it at the provisional 1800-second `suite_timeout`
+ figure (#640) and gave its added sixth worker the prior maximum overhead, 115
+ seconds; dev replaces both after the change's successful hosted run. Here
+ its figure is a hosted window: 568 seconds on worker 0/6 of dev run
+-38601263345 at `f6260253`, whose suites all passed; the pull-request run
+-38538854504 measured 474 seconds. At the provisional figure its worker would
+-project 1922 seconds, over the 1620-second bound. The selector places it on
+-worker 3, projected at 1544 seconds. The template keeps dev's six-worker
+-matrix, its shard 5/6 `milan_dp` ownership arm and its `--expect 6`; the
+-generator replaces all three with the sixteen workers.
++38601263345 at `f6260253`, where that worker passed all eight of its suites;
++the pull-request run 38538854504 measured 474 seconds. At the provisional
++figure its worker would project 1922 seconds, over the 1620-second bound. The
++selector places it on worker 3, projected at 1544 seconds. The template keeps
++dev's six-worker matrix, its shard 5/6 `milan_dp` ownership arm and its
++`--expect 6`; the generator replaces the matrix and `--expect` with the
++sixteen workers and removes the arm; the selector's self-test proves that the
++last worker runs `milan_dp_mclk__0` alone.
+ 
+ The selector refuses a missing or extra duration, duplicate ownership, a
+ changed specialized owner, or a regular worker projected above 1620 seconds.
+@@ -1424,19 +1426,27 @@ gates in inventory order, before its LiteX aggregate.
+ inventory from the driver's `--list`, passes each leg's names to `--gates`
+ and binds the driver's `--receipt` to the head and tree. With no `--gates`,
+ the driver still runs all 103 gates in one process.
++The documentation workflow divides its builder command,
++`python3 sw/builder/test_builder.py --require-rv32`, into the same two legs:
++`docs-gates-1` runs leg 0 and `docs-gates-2` runs leg 1 beside the contract
++self-tests. The step's `pip install` line stays ahead of the leg runner.
+ 
+ A leg holding no elaboration gate would pass `--require-elaboration`
+-vacuously, so both requirements are judged on the union, never per leg. The
+-`elaborate` aggregate refuses unless every gate ran exactly once, in its
+-measured leg, and passed. Each gate that consults the LiteX interpreter must
+-have run in a leg carrying `--require-elaboration`. The bare-metal profile
+-gate must have run in a leg carrying `--require-rv32`. The driver's own
+-`--require-elaboration` verdict is then applied to the union NOT RUN ledger.
++vacuously, so the requirements a divided command carries are judged on the
++union, never per leg. The template command, not any receipt, names them:
++`elaborate` carries both and `docs` carries `--require-rv32` alone. Each
++aggregate refuses unless every gate ran exactly once, in its measured leg,
++and passed, and every leg carried exactly its command's requirements. Under
++`--require-elaboration`, each gate that consults the LiteX interpreter must
++have run in a leg carrying it. The bare-metal profile gate must have run in
++a leg carrying `--require-rv32`. Only under `--require-elaboration` is the
++driver's own elaboration verdict then applied to the union NOT RUN ledger, so
++a docs run without LiteX keeps its recorded skips, as its unsharded run does.
+ The leg runner names those gates itself, rather than reading them from the
+ inventory. A gate deleted from the inventory, lost with its leg, or run
+ without its flag is therefore refused by name.
+-`ci_gate_workflows_selftest.py` plants each of those losses. It also checks
+-the named gates against the driver source.
++`ci_gate_workflows_selftest.py` plants each of those losses for both
++commands. It also checks the named gates against the driver source.
+ 
+ Independently, worker 1 installs Verilator and runs
+ `scripts/run_litex_sims.sh`, the one aggregate that owns the standalone LiteX
+@@ -2676,34 +2686,51 @@ The source inventories are `.github/ci-templates/docs.yml` and
+ `python3 scripts/ci_gate_workflows.py`; the workflow files are generated.
+ The generator preserves every original command, condition and environment.
+ Round-three scheduling isolates the two contract self-tests in `docs-gates-2`.
++Round six divides the docs builder gate into the elaboration legs:
++`docs-gates-1` runs leg 0 and `docs-gates-2` runs leg 1 beside the contract
++self-tests, as described in [Elaboration](#elaboration).
+ The gate inventory still defines membership and exactly-once union coverage.
+ Every original control remains; generated mutations regenerate only their
+ changed workflow. The full CI-event self-test took 316.686 seconds for 5,206
+-arms on CPython 3.12.3. It now passes 5,209 arms, and its whole contract step
+-(check plus self-test) took 201.196 seconds; projections keep the slower figure.
++arms on CPython 3.12.3. It passed 5,212 arms at the merge head `e3d25d96`.
++Leg 1's step on `docs-gates-2` adds three generated-graph arms, so it now
++passes 5,215; projections keep the slower 316.686-second figure.
+ The complete two-invocation runner contract gate takes 113.654 seconds.
+-The added scheduling/evidence controls take 23.699 seconds.
+-These local times include competition from the scoped source-build measurement.
+-
+-The `7032bca5` docs job took 2039 seconds. Its builder took 1065;
+-its contract and runner steps took 37 and 99 respectively.
+-Thus docs worker zero projects at `2039 - 1065 - 37 - 99 + 23.699 + 60`.
+-The last term allows recording/upload overhead; existing setup stays included.
+-Worker two adds both measured self-tests, two seconds for checking,
+-and a conservative 120-second setup/evidence allowance.
+-Worker one uses the larger 1386-second local builder measurement,
+-plus that allowance, rather than the shorter hosted builder window.
+-The `7032bca5` elaboration job took 2144 seconds. Its gate windows took 1441
+-and 593 seconds, and the Verilator setup that only worker one keeps took 3.
+-The 1441-second builder gate now runs as two legs. In the shipping image at
+-sixteen CPUs, the unsharded command took 1292.671 seconds alone, so hosted
+-time is scaled by `1441 / 1292.671`. Leg 0 took 1028.283 seconds and leg 1
+-took 367.305 seconds, measured beside other builder runs on the same CPUs.
+-Contention only lengthens them, so the scaled legs, 1146 and 409 seconds,
+-are conservative; the uncontended per-gate split gives 1054 and 387.
+-By the docs worker zero method, elaboration worker zero projects at
+-`2144 - 593 - 3 - 1441 + 1146 + 60` and worker one at
+-`2144 - 1441 + 409 + 60`.
++The scheduling/evidence controls, with the generated Verilator graph check,
++take 28.331 seconds.
++These local times include competition from other measurements on the same CPUs.
++
++The projections use merged-head inputs: the hosted `f6260253` docs run
++38601263556 and elaboration run 38601263659, and local measurements at the
++merged head. Where a hosted and a local figure differ, the larger is used,
++and each projection is rounded up to a whole second.
++The `f6260253` docs job took 2682 seconds. Its builder took 1400 and its
++contract and runner steps 37 and 102; setup, post steps and gaps took 59.
++Locally, the compiler-absent firmware controls took 558.6 seconds against
++407 hosted, and the saved-state writer 174.2 against 410 hosted.
++Taking each of worker zero's steps at its larger figure gives 1246.806
++seconds, so docs worker zero projects at `59 + 1246.806 + 28.331 + 60`.
++The last term allows recording/upload overhead. The hosted job alone, by
++`2682 - 1400 - 37 - 102 + 28.331 + 60`, would give 1232.
++The docs builder command ran unsharded in the shipping image at sixteen CPUs
++in 1443.720 seconds alone: `test_baremetal_profile_contract` took 1006.130
++seconds and the other 102 gates 435.320. Its legs, measured beside each other
++on the same CPUs, took 1098.130 and 506.263 seconds. The docs bank had
++measured the unsharded builder at 1482.211 seconds, above both that run and
++the hosted 1400, so the legs are scaled by `1482.211 / 1443.720`.
++Worker one projects at `120 + 1098.130 x 1.02666`. Worker two projects at
++`120 + 316.686 + 113.654 + 2 + 506.263 x 1.02666`: both measured self-tests,
++two seconds for checking and its builder leg. The 120-second setup/evidence
++allowance covers the 59 seconds of hosted setup and the recording/upload.
++The `f6260253` elaboration job took 2447 seconds. Its gate windows took 1763
++and 597 seconds, and the Verilator setup that only worker one keeps took 2.
++In the shipping image at the merged head, the unsharded command took 1433.969
++seconds alone, so hosted time is scaled by `1763 / 1433.969`. Leg 0 took
++1081.009 seconds and leg 1 495.144, measured beside each other; the lone
++run's per-gate split gives 972.509 and 460.324, so the projection keeps the
++measured legs. By the docs worker zero method, elaboration worker zero
++projects at `2447 - 597 - 2 - 1763 + 1081.009 x 1763 / 1433.969 + 60` and
++worker one at `2447 - 1763 + 495.144 x 1763 / 1433.969 + 60`.
+ 
+ Yosys compilation now runs once in prerequisite `yosys-tool`.
+ Its pinned source and cache-key construction are preserved. Source compilation
+@@ -2718,11 +2745,11 @@ plus 60 seconds for download, extraction and execution evidence.
+ 
+ | Worker | Projected seconds | Own 60% bound | Margin, seconds |
+ |---|---:|---:|---:|
+-| `docs-gates-0` | 922 | 1620 | 698 |
+-| `docs-gates-1` | 1506 | 1620 | 114 |
+-| `docs-gates-2` | 553 | 1620 | 1067 |
+-| `elaborate-gates-0` | 1313 | 1620 | 307 |
+-| `elaborate-gates-1` | 1172 | 1620 | 448 |
++| `docs-gates-0` | 1395 | 1620 | 225 |
++| `docs-gates-1` | 1248 | 1620 | 372 |
++| `docs-gates-2` | 1073 | 1620 | 547 |
++| `elaborate-gates-0` | 1475 | 1620 | 145 |
++| `elaborate-gates-1` | 1353 | 1620 | 267 |
+ | `yosys-tool (cold)` | 720 | 1044 | 324 |
+ | `yosys-shards 0/4` | 554 | 1044 | 490 |
+ | `yosys-shards 1/4` | 85 | 1044 | 959 |
+@@ -2749,13 +2776,16 @@ Verilator figures already include their 122-second overhead allowance.
+ Worker 3 carries `gptp_tables` at 1544 seconds: 76 inside its bound and 256
+ inside 30 minutes, before downstream collection.
+ The continuous media-clock exception remains explicit at 2032 seconds.
+-Docs now projects at 1506 seconds for its slowest worker.
++Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
+ Allowing 60 seconds each for aggregate and collector, one 120-second
+-watcher interval and 30 seconds for the tail gives 1776 seconds,
+-or about 29.6 minutes. This corrects the earlier 26-minute docs projection.
+-Elaboration projects at 1313 seconds for its slowest worker. The same
++watcher interval and 30 seconds for the tail gives 1665 seconds,
++about 27.8 minutes: 135 seconds inside thirty minutes. With its builder
++undivided, the merged workload put the builder worker at 1602 seconds and
++the workflow at 1872, about 31.2 minutes.
++Elaboration projects at 1475 seconds for its slowest worker. The same
+ 270 seconds of aggregate, collector, watcher and tail allowance gives
+-1583 seconds, about 26.4 minutes. Undivided, worker zero projected at 1608
++1745 seconds, about 29.1 minutes: 55 seconds inside thirty minutes, so its
++two legs are kept. Undivided at `7032bca5`, worker zero projected at 1608
+ seconds and the workflow at 1878, about 31.3 minutes.
+ The collector outage budget is not normal-run duration evidence.
+ Hosted job spans and runner-capacity contention still require coordinating readback.
+@@ -2766,10 +2796,12 @@ template and requires its exact union, with each gate executed once. Receipts
+ bind the full head, tree and template digest. The existing documentation-only
+ elaboration skip remains valid only with a recorded false scope and matching
+ skipped outcomes on both workers. It does not excuse a skipped worker job.
+-Each elaboration worker also uploads its builder leg receipt. When the builder
+-legs ran, the same aggregate step requires their union as described in
+-[Elaboration](#elaboration); when they were skipped, any builder receipt is
+-refused. The union digest of `elaborate` covers both the step outcomes and the
++Each worker that runs a builder leg, both elaboration workers and
++`docs-gates-1` and `docs-gates-2`, also uploads its builder leg receipt. When
++the builder legs ran, the same aggregate step requires their union as
++described in [Elaboration](#elaboration); when elaboration's were skipped, any
++builder receipt is refused. The docs builder has no skip condition. The union
++digests of `docs-check` and `elaborate` cover both the step outcomes and the
+ per-gate builder verdicts.
+ `ci_gate_workflows_selftest.py` drops one gate from every claim, corrupts source
+ identities and plants each unsuccessful job outcome; all must be refused.
+@@ -2943,11 +2975,14 @@ python3 scripts/ci_builder_legs.py run 0 --receipt "$out/leg-0.json" -- \
+   python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+ python3 scripts/ci_builder_legs.py run 1 --receipt "$out/leg-1.json" -- \
+   python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+-python3 scripts/ci_builder_legs.py union --head "$(git rev-parse HEAD)" \
+-  --tree "$(git rev-parse 'HEAD^{tree}')" --reference "$out/ref.json" \
+-  "$out/leg-0.json" "$out/leg-1.json"
++python3 scripts/ci_builder_legs.py union --workflow elaborate \
++  --head "$(git rev-parse HEAD)" --tree "$(git rev-parse 'HEAD^{tree}')" \
++  --reference "$out/ref.json" "$out/leg-0.json" "$out/leg-1.json"
+ ```
+ 
++For the documentation workflow's legs, run the same commands with
++`--require-rv32` alone and judge them with `--workflow docs`.
++
+ The fast Yosys mode is diagnostic only:
+ 
+ ```sh
+diff --git a/docs/testing/RUNNING_TESTS.md b/docs/testing/RUNNING_TESTS.md
+index 9e77c01cc..4266f8339 100644
+--- a/docs/testing/RUNNING_TESTS.md
++++ b/docs/testing/RUNNING_TESTS.md
+@@ -81,16 +81,17 @@ for its supported histories and unresolved cases.
+ The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+ enforces a per-suite wall clock, and refuses to quote a total when a suite's
+ check count cannot be read.
+-The default selection contains 60 suites.
++The default selection contains 63 suites.
+ Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
+ [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The separate `milan_dp_gptp` selection uses
+ 5400 seconds, including compilation, and preserves physical clock and timer
+-rates. CI shards the default selection; the physical job runs nightly and on
+-manual dispatch. Inspect both selections without compiling with:
++rates. CI runs the default selection on sixteen `--ci-pieces` workers; the
++physical job runs nightly and on manual dispatch. Inspect a hosted worker's
++selection and the physical selection without compiling with:
+ 
+ ```sh
+-scripts/run_all_suites.sh --shard 0/5 --list
++scripts/run_all_suites.sh --ci-pieces --shard 0/16 --list
+ scripts/run_all_suites.sh --physical-gptp --list
+ ```
+ 
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 3f74bd295..7f92a589b 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -515,14 +515,20 @@ preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
+ worker before its suites. That self-test refuses to start until the selector's
+ `SUITE_SECONDS` names every default suite, so a change that adds a suite first
+ records a provisional figure for it, by the new-suite steps in the selector's
+-docstring. GitHub uses six isolated `--shard INDEX/6` workers to reduce wall
+-time, the last of them running `milan_dp` alone, then keeps
+-`verilator-suites` as a small aggregate required check. That aggregate compares
+-the uploaded log names with the live default suite inventory and
+-fails on a missing, unexpected, or multiply-owned suite before trusting the
+-combined tally. `scripts/run_all_suites.sh --shard 0/6 --list` shows a worker's
++docstring. GitHub runs sixteen isolated `--ci-pieces --shard INDEX/16`
++workers to reduce wall time. `--ci-pieces` expands six long suites into
++driver-derived case partitions, so `milan_dp` runs as four legs on separate
++workers, and the last worker runs media-clock leg A, `milan_dp_mclk__0`,
++alone. The workflow template's six-worker matrix is generator input only;
++`scripts/ci_gate_workflows.py` writes the sixteen-worker workflow from it
++([CI workflow policy](CI_WORKFLOWS.md#exhaustive-validation)). GitHub then
++keeps `verilator-suites` as a small aggregate required check. That aggregate
++requires every divided suite's case union, compares the uploaded log names with
++the live default suite inventory, and fails on a missing, unexpected, or
++multiply-owned suite before trusting the combined tally.
++`scripts/run_all_suites.sh --ci-pieces --shard 0/16 --list` shows a worker's
+ deterministic selection without building it; sharding is a scheduling detail,
+-not permission to validate only one sixth locally.
++not permission to validate only one sixteenth locally.
+ 
+ > **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
+ > The standing rule was that every round grows it. Thirteen suites — `aecp`,
+diff --git a/scripts/ci_builder_legs.py b/scripts/ci_builder_legs.py
+index f23cdda14..720be77a5 100644
+--- a/scripts/ci_builder_legs.py
++++ b/scripts/ci_builder_legs.py
+@@ -6,8 +6,10 @@
+ The driver owns the ordered gate inventory (``--list``), runs a named subset
+ (``--gates``) and records each gate's verdict and NOT RUN rows
+ (``--receipt``). Only the measured leg boundary and the union proof live here.
+-``--require-elaboration`` and ``--require-rv32`` are judged on the union,
+-never per leg: a leg holding no elaboration gate passes them vacuously.
++The requirement flags the divided template command carries are judged on the
++union, never per leg: a leg holding no elaboration gate passes
++``--require-elaboration`` vacuously. ``docs`` carries ``--require-rv32``
++alone; ``elaborate`` carries both.
+ """
+ 
+ from __future__ import annotations
+@@ -26,8 +28,9 @@ from ci_case_receipts import canonical, source_identity, validate_inventory
+ ROOT = Path(__file__).resolve().parents[1]
+ DRIVER = "sw/builder/test_builder.py"
+ #: Gates measured to need a leg of their own: 945.182 of the 1292.671 seconds
+-#: the unsharded command took in the shipping image at 16 CPUs. Every other
+-#: gate runs in the last leg, in inventory order.
++#: the unsharded elaboration command took in the shipping image at 16 CPUs.
++#: Every other gate runs in the last leg, in inventory order. The docs
++#: command's measured split is recorded in docs/testing/CI_WORKFLOWS.md.
+ ISOLATED = ("test_baremetal_profile_contract",)
+ LEGS = len(ISOLATED) + 1
+ #: The gates each requirement judges, named here rather than read from the
+@@ -60,6 +63,14 @@ def inventory(root: Path = ROOT) -> list[str]:
+     return names
+ 
+ 
++def requirements(command: list[str]) -> list[str]:
++    """The requirement flags of one divided driver command: what its union judges."""
++    flags = [word for word in command if word.startswith("--require-")]
++    if not set(flags) <= set(REQUIRED) or len(set(flags)) != len(flags):
++        raise ValueError("unknown or repeated builder requirement: " + " ".join(flags))
++    return flags
++
++
+ def partition(names: list[str]) -> list[list[str]]:
+     """Each measured gate alone, then every other gate in inventory order."""
+     absent = [name for name in ISOLATED if name not in names]
+@@ -128,8 +139,9 @@ def driver_rows(leg: int | None, driver: dict, expected: list[str], names: list[
+     return rows
+ 
+ 
+-def union(receipts: list[dict], head: str, tree: str, names: list[str] | None = None) -> dict:
+-    """Every gate exactly once, each a pass, with both requirements judged on the union."""
++def union(receipts: list[dict], head: str, tree: str, flags: list[str],
++          names: list[str] | None = None) -> dict:
++    """Every gate exactly once, each a pass, with the command's requirements judged on the union."""
+     names = inventory() if names is None else names
+     validate_inventory(names)
+     legs = partition(names)
+@@ -149,7 +161,8 @@ def union(receipts: list[dict], head: str, tree: str, names: list[str] | None =
+             executed[row["gate"]] = (row, receipt["driver"]["requirements"])
+     # Owners first: a lost leg, a deleted gate or a leg without the flag is
+     # refused naming the gates the requirement no longer judges.
+-    for flag, owners in REQUIRED.items():
++    for flag in flags:
++        owners = REQUIRED[flag]
+         absent = [gate for gate in owners if gate not in names]
+         unrun = [gate for gate in owners if gate in names and gate not in executed]
+         unjudged = [gate for gate in owners if gate in executed and flag not in executed[gate][1]]
+@@ -159,27 +172,30 @@ def union(receipts: list[dict], head: str, tree: str, names: list[str] | None =
+                 raise ValueError(f"{flag} on the union: {', '.join(gates)} {why}")
+     if sorted(seen) != list(range(len(legs))):
+         raise ValueError("missing builder leg")
++    for receipt in receipts:
++        if sorted(receipt["driver"]["requirements"]) != sorted(flags):
++            raise ValueError(f"builder leg {receipt['leg']}: requirement flags differ from its command")
+     ledger = [tuple(item) for name in names for item in executed[name][0]["not_run"]]
+-    if elaboration_verdict(ledger):
++    if "--require-elaboration" in flags and elaboration_verdict(ledger):
+         raise ValueError("--require-elaboration on the union: the ledger holds a toolchain skip")
+     observed = [executed[name][0] for name in names]
+     return {"suite": "builder", "head": head, "tree": tree, "inventory": names,
+             "legs": [{"shard": f"{leg}/{len(legs)}", "cases": cases} for leg, cases in enumerate(legs)],
+-            "requirements": {flag: list(owners) for flag, owners in REQUIRED.items()},
++            "requirements": {flag: list(REQUIRED[flag]) for flag in flags},
+             "not_run": [list(item) for item in ledger], "union": "pass",
+             "verdicts_sha256": hashlib.sha256(canonical(observed)).hexdigest()}
+ 
+ 
+-def compare(reference: dict, receipts: list[dict], head: str, tree: str,
++def compare(reference: dict, receipts: list[dict], head: str, tree: str, flags: list[str],
+             names: list[str] | None = None) -> dict:
+     """Require per-gate verdicts and the NOT RUN ledger to equal one unsharded run."""
+     names = inventory() if names is None else names
+-    result = union(receipts, head, tree, names)
++    result = union(receipts, head, tree, flags, names)
+     if (set(reference) != {"schema", "head", "tree", "leg", "legs", "driver"}
+             or reference["leg"] is not None or (reference["head"], reference["tree"]) != (head, tree)):
+         raise ValueError("reference must be an unsharded run of the same source")
+-    if sorted(reference["driver"]["requirements"]) != sorted(REQUIRED):
+-        raise ValueError("reference must carry both requirements")
++    if sorted(reference["driver"]["requirements"]) != sorted(flags):
++        raise ValueError("reference must carry its command's requirements")
+     rows = driver_rows(None, reference["driver"], names, names)
+     sharded = {row["gate"]: row for receipt in receipts for row in receipt["driver"]["gates"]}
+     for row in rows:
+@@ -198,6 +214,7 @@ def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
+     execute.add_argument("leg", choices=[*map(str, range(LEGS)), "all"])
+     execute.add_argument("--receipt", required=True, type=Path)
+     check = sub.add_parser("union")
++    check.add_argument("--workflow", required=True, choices=("docs", "elaborate"))
+     check.add_argument("--head", required=True)
+     check.add_argument("--tree", required=True)
+     check.add_argument("--reference", type=Path)
+@@ -217,11 +234,14 @@ def main() -> int:
+     try:
+         if args.operation == "run":
+             return run(None if args.leg == "all" else int(args.leg), args.receipt, command)
++        from ci_gate_workflows import builder_command, load_template
++        # The template's divided command, not any receipt, names what the union judges.
++        flags = requirements(builder_command(args.workflow, load_template(ROOT, args.workflow)))
+         receipts = [json.loads(path.read_text()) for path in args.receipts]
+         if args.reference:
+-            result = compare(json.loads(args.reference.read_text()), receipts, args.head, args.tree)
++            result = compare(json.loads(args.reference.read_text()), receipts, args.head, args.tree, flags)
+         else:
+-            result = union(receipts, args.head, args.tree)
++            result = union(receipts, args.head, args.tree, flags)
+         if args.output:
+             args.output.write_bytes(canonical(result) + b"\n")
+         print(f"builder: {len(result['inventory'])} gates exactly once; requirements judged on the union"
+diff --git a/scripts/ci_gate_receipts.py b/scripts/ci_gate_receipts.py
+index 2ea269201..32da6b2e6 100644
+--- a/scripts/ci_gate_receipts.py
++++ b/scripts/ci_gate_receipts.py
+@@ -15,7 +15,8 @@ import re
+ import sys
+ 
+ from ci_case_receipts import source_identity
+-from ci_gate_workflows import CARRIERS, ROOT, TEMPLATES, case_inventory, load_template, worker_id, worker_legs
++from ci_gate_workflows import (CARRIERS, ROOT, TEMPLATES, builder_command, case_inventory, load_template,
++                               worker_id, worker_legs)
+ from ci_manifest import canonical, read, unique_object
+ 
+ SCOPE_CONDITION = "${{ steps.scope.outputs.rtl == 'true' }}"
+@@ -117,8 +118,8 @@ def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
+     if len(scopes) != 1 or sorted(seen) != sorted(inventory) or len(set(seen)) != len(seen):
+         raise ValueError("gate union or scope evidence is inconsistent")
+     if any(divided):
+-        from ci_builder_legs import union
+-        union(builder or [], identity[0], identity[1])
++        from ci_builder_legs import requirements, union
++        union(builder or [], identity[0], identity[1], requirements(builder_command(name, source)))
+     elif builder:
+         raise ValueError("builder leg receipts without an executed builder division")
+     return seen
+@@ -161,8 +162,9 @@ def main() -> int:
+                 observed = sorted([row for receipt in receipts for row in receipt["results"]],
+                                   key=lambda row: row["case"])
+                 if builder:
+-                    from ci_builder_legs import union
+-                    observed = {"steps": observed, "builder": union(builder, *identity)}
++                    from ci_builder_legs import requirements, union
++                    observed = {"steps": observed, "builder": union(
++                        builder, *identity, requirements(builder_command(args.workflow, source)))}
+                 value = {"suite": "gate/" + args.workflow, "head": identity[0], "tree": identity[1],
+                          "inventory": [case["id"] for case in case_inventory(args.workflow, source)],
+                          "legs": [{"shard": str(receipt["leg"]) + "/" + str(len(worker_legs(args.workflow, source))),
+diff --git a/scripts/ci_gate_workflows.py b/scripts/ci_gate_workflows.py
+index 34278595f..b1b74562c 100644
+--- a/scripts/ci_gate_workflows.py
++++ b/scripts/ci_gate_workflows.py
+@@ -12,6 +12,7 @@ from __future__ import annotations
+ import argparse
+ import copy
+ from pathlib import Path
++import shlex
+ 
+ import yaml
+ 
+@@ -20,11 +21,15 @@ ROOT = Path(__file__).resolve().parents[1]
+ CARRIERS = {"docs": "docs-check", "elaborate": "elaborate"}
+ TEMPLATES = {name: ".github/ci-templates/" + name + ".yml"
+              for name in (*CARRIERS, "rtl", "rtl-fast")}
+-LONG_GATE = {"docs": "End-station builder gates", "elaborate": "Standalone LiteX simulation aggregate"}
++LONG_GATE = {"elaborate": "Standalone LiteX simulation aggregate"}
+ CONTRACT_GATES = {"CI event and SHA contract gate", "Local act runner contract gate"}
+-#: The one template command divided by its driver's measured gate legs; leg n
+-#: runs on worker n, under scripts/ci_builder_legs.py.
+-BUILDER_SPLIT = {"elaborate": "Elaboration gates"}
++#: The one template step per workflow whose driver command is divided by its
++#: measured gate legs (scripts/ci_builder_legs.py), and the worker each leg
++#: runs on: the docs legs beside the contract gates, the elaboration legs
++#: beside the LiteX aggregate.
++BUILDER_SPLIT = {"docs": "End-station builder gates", "elaborate": "Elaboration gates"}
++BUILDER_WORKERS = {"docs": (1, 2), "elaborate": (0, 1)}
++DRIVER_COMMAND = "python3 sw/builder/test_builder.py"
+ VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
+                    "Put Verilator on PATH and prove the version"}
+ SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
+@@ -64,6 +69,9 @@ def case_inventory(name: str, template: dict) -> list[dict]:
+     """Derive gate identities and leg membership from the original ordered steps."""
+     from ci_builder_legs import LEGS
+     original = template["jobs"][CARRIERS[name]]["steps"]
++    workers = BUILDER_WORKERS[name]
++    if len(workers) != LEGS:
++        raise ValueError(name + ": builder legs and their workers differ in number")
+     cases = []
+     for index, step in enumerate(original):
+         if setup(step):
+@@ -72,17 +80,17 @@ def case_inventory(name: str, template: dict) -> list[dict]:
+                 "name": step.get("name", "Run " + step.get("uses", "")),
+                 "condition": step.get("if", "success()"),
+                 "leg": (2 if name == "docs" and step.get("name") in CONTRACT_GATES
+-                        else int(step.get("name") == LONG_GATE[name]))}
+-        if step.get("name") != BUILDER_SPLIT.get(name):
++                        else int(name in LONG_GATE and step.get("name") == LONG_GATE[name]))}
++        if step.get("name") != BUILDER_SPLIT[name]:
+             cases.append(case)
+             continue
+-        cases.extend({**case, "id": case["id"] + "_" + str(leg), "leg": leg, "builder": leg,
++        cases.extend({**case, "id": case["id"] + "_" + str(leg), "leg": workers[leg], "builder": leg,
+                       "name": case["name"] + ", leg " + str(leg) + " of " + str(LEGS)}
+                      for leg in range(LEGS))
+-    if (sum(case["name"] == LONG_GATE[name] for case in cases) != 1
++    if (sum(case["name"] == LONG_GATE.get(name) for case in cases) != int(name in LONG_GATE)
+             or not any(case["leg"] == 0 for case in cases)):
+         raise ValueError(name + ": missing or ambiguous measured long gate")
+-    if name in BUILDER_SPLIT and sum("builder" in case for case in cases) != LEGS:
++    if sum("builder" in case for case in cases) != LEGS:
+         raise ValueError(name + ": missing or ambiguous builder gate command")
+     if len({case["name"] for case in cases}) != len(cases):
+         raise ValueError(name + ": duplicate gate names")
+@@ -99,14 +107,31 @@ def worker_id(name: str, leg: int) -> str:
+     return name + "-gates-" + str(leg)
+ 
+ 
++def split_builder_run(step: dict) -> tuple[list[str], str]:
++    """A divided step's preparation lines and its one driver command, which ends it."""
++    *preparation, command = step["run"].strip().split("\n")
++    if (not command.startswith(DRIVER_COMMAND + " ")
++            or any("sw/builder/test_builder.py" in line for line in preparation)):
++        raise ValueError("the divided builder step must end in its one driver command")
++    return preparation, command
++
++
++def builder_command(name: str, template: dict) -> list[str]:
++    """The template's divided driver command; its requirement flags are the union's."""
++    steps = [step for step in template["jobs"][CARRIERS[name]]["steps"]
++             if step.get("name") == BUILDER_SPLIT[name]]
++    if len(steps) != 1:
++        raise ValueError(name + ": missing or ambiguous builder gate command")
++    return shlex.split(split_builder_run(steps[0])[1])
++
++
+ def builder_leg_step(step: dict, case: dict) -> dict:
+-    """The template's own builder command, run for one measured leg with its receipt."""
+-    command = step["run"].strip()
+-    if "\n" in command:
+-        raise ValueError("the divided builder step must be one command")
++    """The template's own builder step, its driver command run for one measured leg with its receipt."""
++    preparation, command = split_builder_run(step)
+     kept = {key: copy.deepcopy(value) for key, value in step.items() if key != "run"}
+     kept["name"] = case["name"]
+-    kept["run"] = ("python3 scripts/ci_builder_legs.py run " + str(case["builder"])
++    kept["run"] = ("".join(line + "\n" for line in preparation)
++                   + "python3 scripts/ci_builder_legs.py run " + str(case["builder"])
+                    + ' --receipt "$RUNNER_TEMP/gate-results/builder-leg-' + str(case["builder"])
+                    + '.json" -- ' + command + "\n")
+     return kept
+@@ -116,7 +141,7 @@ def collection_steps(name: str, leg: int) -> list[dict]:
+     """Observe completed source steps even on failure, then retain the actual evidence."""
+     destination = "$RUNNER_TEMP/gate-results/receipt.json"
+     retained = "${{ runner.temp }}/gate-results/receipt.json"
+-    if name in BUILDER_SPLIT:
++    if leg in BUILDER_WORKERS[name]:
+         retained += "\n${{ runner.temp }}/gate-results/builder-leg-*.json\n"
+     return [
+         {"name": "Record executed gate outcomes", "if": "${{ always() }}",
+diff --git a/scripts/ci_gate_workflows_selftest.py b/scripts/ci_gate_workflows_selftest.py
+index c8610ce71..7a4e09f76 100644
+--- a/scripts/ci_gate_workflows_selftest.py
++++ b/scripts/ci_gate_workflows_selftest.py
+@@ -8,19 +8,21 @@ import hashlib
+ import importlib.util
+ import os
+ from pathlib import Path
++import re
+ import subprocess
+ import shlex
+ import tempfile
+ from unittest.mock import patch
+ 
+ import ast
++from collections.abc import Callable
+ 
+ import ci_builder_legs
+-from ci_builder_legs import LEGS, REQUIRED, compare, partition, union
++from ci_builder_legs import LEGS, REQUIRED, compare, partition, requirements, union
+ from ci_gate_receipts import Collected, StepContext, record, verify
+ from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
+ from ci_runtime_workflows import cpu_budget_step
+-from ci_gate_workflows import BUILDER_SPLIT, builder_leg_step, gate_graph
++from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, builder_command, builder_leg_step, gate_graph
+ import ci_suite_pieces
+ from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
+ 
+@@ -62,9 +64,14 @@ def scheduling_controls() -> None:
+     """Contract gates have their own worker; synthesis workers consume the shared tool."""
+     docs = load_template(ROOT, "docs")
+     cases = case_inventory("docs", docs)
++    leg = "End-station builder gates, leg {} of " + str(LEGS)
++    assert [case["name"] for case in cases if case["leg"] == 1] == [leg.format(0)]
+     assert {case["name"] for case in cases if case["leg"] == 2} == {
+-        "CI event and SHA contract gate", "Local act runner contract gate"}
++        leg.format(1), "CI event and SHA contract gate", "Local act runner contract gate"}
+     assert worker_legs("docs", docs) == [0, 1, 2]
++    assert builder_command("docs", docs)[2:] == ["--require-rv32"]
++    assert builder_command("elaborate", load_template(ROOT, "elaborate"))[2:] == [
++        "--require-elaboration", "--require-rv32"]
+     source = load_template(ROOT, "rtl")
+     generated = gate_graph("rtl", source)["jobs"]
+     tool = generated["yosys-tool"]
+@@ -79,7 +86,51 @@ def scheduling_controls() -> None:
+     upload = next(step for step in tool["steps"] if step.get("name") == "Upload the pinned Yosys build")
+     download = next(step for step in worker["steps"] if step.get("name") == "Download the pinned Yosys build")
+     assert upload["with"]["name"] == download["with"]["name"] == "pinned-yosys-${{ github.sha }}"
+-    print("Scheduling: separate contract worker and dependency-bound Yosys build PASS")
++    print("Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS")
++
++
++def suite_generator_controls() -> None:
++    """The generated Verilator graph keeps no dedicated milan_dp arm and expects its own
++    workers; a template whose arm or expectation disagrees with its own total is refused."""
++    source = load_template(ROOT, "rtl")
++    jobs = generate("rtl", source)["jobs"]
++    matrix = jobs["verilator-shards"]["strategy"]["matrix"]
++    workers = len(matrix["shard"])
++    assert matrix == {"shard": list(range(workers)), "total": [workers]}, matrix
++    ownership, = (step["run"] for step in jobs["verilator-shards"]["steps"]
++                  if step.get("name") == "Prove specialized suite ownership")
++    assert "= milan_dp ;;" not in ownership, ownership
++    verifier, = (step["run"] for step in jobs["verilator-suites"]["steps"]
++                 if step.get("name") == "Require every shard to have validated this run's SHA")
++    assert re.findall(r"--expect (\d+)", verifier) == [str(workers)], verifier
++    total = source["jobs"]["verilator-shards"]["strategy"]["matrix"]["total"][0]
++    arm = str(total - 1) + ') test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
++
++    def planted(job: str, step_name: str, old: str, new: str) -> dict:
++        """One template step's text replaced, every other byte of the template kept."""
++        changed = copy.deepcopy(source)
++        step, = (step for step in changed["jobs"][job]["steps"] if step.get("name") == step_name)
++        assert step["run"].count(old) == 1, (step_name, old)
++        step["run"] = step["run"].replace(old, new)
++        return changed
++
++    recount = copy.deepcopy(source)
++    recount["jobs"]["verilator-shards"]["strategy"]["matrix"] = {
++        "shard": list(range(total + 1)), "total": [total + 1]}
++    for label, template in (
++            ("arm index other than its total", planted(
++                "verilator-shards", "Prove specialized suite ownership", arm, str(total - 2) + arm[1:])),
++            ("--expect other than its total", planted(
++                "verilator-suites", "Require every shard to have validated this run's SHA",
++                "--expect " + str(total) + " ", "--expect " + str(total + 1) + " ")),
++            ("total without its arm and --expect", recount)):
++        try:
++            generate("rtl", template)
++        except ValueError as exc:
++            print("Suite generator refused a template " + label + ": " + str(exc))
++        else:
++            raise AssertionError("suite generator accepted a template " + label)
++    print(f"Suite generator: {workers} workers, no dedicated milan_dp arm, --expect {workers} PASS")
+ 
+ 
+ def child_budget(directory: Path, target: str, budget: int, makefile: Path | None = None) -> None:
+@@ -187,16 +238,18 @@ def builder_controls() -> None:
+     builder_owner_controls()
+     identity = ("a" * 40, "b" * 40)
+     names = ci_builder_legs.inventory()
++    both = list(REQUIRED)
+     good = builder_receipts(identity, names)
+-    assert union(good, *identity, names)["union"] == "pass"
++    assert union(good, *identity, both, names)["union"] == "pass"
+     assert [len(cases) for cases in partition(names)] == [1, len(names) - 1]
+     elaboration = "test_every_recipe_elaborates"
+     rv32 = REQUIRED["--require-rv32"][0]
+ 
+-    def refused(label: str, receipts: list, expected: str, inventory: list[str] = names) -> None:
++    def refused(label: str, receipts: list, expected: str, inventory: list[str] = names,
++                flags: list[str] = both) -> None:
+         """The union must refuse naming the planted gate or obligation."""
+         try:
+-            union(receipts, *identity, inventory)
++            union(receipts, *identity, flags, inventory)
+         except ValueError as exc:
+             assert expected in str(exc), (label, str(exc))
+             print("Builder union refused " + label + ": " + str(exc)[:160])
+@@ -247,23 +300,96 @@ def builder_controls() -> None:
+                             "gates": [row for receipt in good for row in receipt["driver"]["gates"]],
+                             "require_elaboration": 0}}
+     reference["driver"]["gates"].sort(key=lambda row: names.index(row["gate"]))
+-    compare(reference, good, *identity, names)
++    compare(reference, good, *identity, both, names)
+     differs = copy.deepcopy(reference)
+     differs["driver"]["gates"][-1]["not_run"] = [["gate 11", "no report", "row"]]
+     try:
+-        compare(differs, good, *identity, names)
++        compare(differs, good, *identity, both, names)
+     except ValueError as exc:
+         assert names[-1] in str(exc)
+         print("Builder comparison refused a NOT RUN row the legs lack")
+     else:
+         raise AssertionError("comparison accepted an unequal NOT RUN ledger")
++    docs_builder_controls(identity, names, reference, refused)
+     print("Builder legs: union-level requirements and per-gate equality PASS")
+ 
+ 
++def docs_builder_controls(identity: tuple[str, str], names: list[str], reference: dict,
++                          refused: Callable[..., None]) -> None:
++    """The docs command carries --require-rv32 alone; its union judges exactly that."""
++    flags = requirements(builder_command("docs", load_template(ROOT, "docs")))
++    assert flags == ["--require-rv32"]
++    rv32 = REQUIRED["--require-rv32"][0]
++    docs = builder_receipts(identity, names, tuple(flags))
++    assert union(docs, *identity, flags, names)["requirements"] == {"--require-rv32": [rv32]}
++    # Without --require-elaboration a LiteX or toolchain skip is a recorded
++    # NOT RUN row, as in the unsharded docs run; with it, the union refuses.
++    skip = copy.deepcopy(docs)
++    skip[1]["driver"]["gates"][0]["not_run"] = [["gate 23g", "no LiteX here", "toolchain"]]
++    assert union(skip, *identity, flags, names)["not_run"] == [["gate 23g", "no LiteX here", "toolchain"]]
++    elaborate = copy.deepcopy(skip)
++    for receipt in elaborate:
++        receipt["driver"].update(requirements=list(REQUIRED), require_elaboration=0)
++    refused("toolchain skip under the elaboration command", elaborate, "toolchain skip")
++    unjudged = builder_receipts(identity, names, ())
++    refused("docs RV32 gate in a leg without --require-rv32", [unjudged[0], docs[1]], rv32, flags=flags)
++    refused("docs leg without its command's --require-rv32", [docs[0], unjudged[1]], "leg 1: requirement flags",
++            flags=flags)
++    extra = builder_receipts(identity, names, tuple(REQUIRED))
++    refused("docs leg with a requirement its command lacks", [docs[0], extra[1]], "leg 1: requirement flags",
++            flags=flags)
++    for command, label in ((["python3", "x", "--require-rv32", "--require-rv32"], "repeated"),
++                           (["python3", "x", "--require-anything"], "unknown")):
++        try:
++            requirements(command)
++        except ValueError as exc:
++            print("Builder requirements refused a " + label + " flag: " + str(exc))
++        else:
++            raise AssertionError("builder requirements accepted a " + label + " flag")
++    docs_reference = copy.deepcopy(reference)
++    docs_reference["driver"].update(requirements=flags, require_elaboration=None)
++    compare(docs_reference, docs, *identity, flags, names)
++    try:
++        compare(reference, docs, *identity, flags, names)
++    except ValueError as exc:
++        assert "requirements" in str(exc)
++        print("Builder comparison refused a reference run with another command's requirements")
++    else:
++        raise AssertionError("comparison accepted a reference with other requirements")
++    print("Builder legs: the docs union judges --require-rv32 alone")
++
++
++def case_step_controls(name: str, case: dict, generated: dict, original: dict) -> None:
++    """Each gate is its worker's original step; a builder leg adds only its selection."""
++    owned = [step for step in generated["jobs"][worker_id(name, case["leg"])]["steps"]
++             if step.get("id") == case["id"]]
++    assert len(owned) == 1
++    body = copy.deepcopy(owned[0])
++    del body["id"]
++    if "builder" not in case:
++        assert body == original
++        return
++    # The leg runs the template's own step, only adding its selection to the
++    # driver command that ends it.
++    assert body == builder_leg_step(original, case)
++    assert case["leg"] == BUILDER_WORKERS[name][case["builder"]]
++    *preparation, driver = original["run"].strip().split("\n")
++    *kept, line = body["run"].strip().split("\n")
++    assert kept == preparation and line.endswith(" -- " + driver), body["run"]
++    words = shlex.split(line)
++    assert words[:2] == ["python3", "scripts/ci_builder_legs.py"], words
++    parsed, command = ci_builder_legs.parse(words[2:])
++    assert (parsed.operation, parsed.leg, command) == ("run", str(case["builder"]), shlex.split(driver)), words
++    assert parsed.receipt.name == "builder-leg-" + str(case["builder"]) + ".json"
++    assert {key: value for key, value in body.items() if key not in ("name", "run")} == {
++        key: value for key, value in original.items() if key not in ("name", "run")}
++
++
+ def main() -> int:
+     """Drive the production generator and verifier with independent planted losses."""
+     inventory_controls()
+     scheduling_controls()
++    suite_generator_controls()
+     cpu_controls()
+     for name, carrier in CARRIERS.items():
+         source = load_template(ROOT, name)
+@@ -276,30 +402,13 @@ def main() -> int:
+         actual = {case["id"]: {"outcome": "success", "conclusion": "success"} for case in cases}
+         receipts = [record(name, leg, source, identity, digest, StepContext(actual, scope)) for leg in legs]
+         needs = {worker_id(name, leg): {"result": "success"} for leg in legs}
+-        builder = builder_receipts(identity) if name in BUILDER_SPLIT else None
++        flags = requirements(builder_command(name, source))
++        builder = builder_receipts(identity, flags=tuple(flags))
+         assert len(verify(name, source, identity, digest, Collected(receipts, builder), needs)) == len(cases)
+         assert set(generated["jobs"][carrier]["needs"]) == set(needs)
+         original = source["jobs"][carrier]["steps"]
+         for case in cases:
+-            owned = [step for step in generated["jobs"][worker_id(name, case["leg"])]["steps"]
+-                     if step.get("id") == case["id"]]
+-            assert len(owned) == 1
+-            body = copy.deepcopy(owned[0])
+-            del body["id"]
+-            if "builder" in case:
+-                # The leg runs the template's own command, only adding its selection.
+-                assert body == builder_leg_step(original[case["index"]], case)
+-                assert body["run"].endswith(" -- " + original[case["index"]]["run"].strip() + "\n")
+-                words = shlex.split(body["run"])
+-                assert words[:2] == ["python3", "scripts/ci_builder_legs.py"], words
+-                parsed, command = ci_builder_legs.parse(words[2:])
+-                assert (parsed.operation, parsed.leg, command) == (
+-                    "run", str(case["builder"]), shlex.split(original[case["index"]]["run"])), words
+-                assert parsed.receipt.name == "builder-leg-" + str(case["builder"]) + ".json"
+-                assert {key: value for key, value in body.items() if key not in ("name", "run")} == {
+-                    key: value for key, value in original[case["index"]].items() if key not in ("name", "run")}
+-            else:
+-                assert body == original[case["index"]]
++            case_step_controls(name, case, generated, original[case["index"]])
+         for leg in legs:
+             steps = generated["jobs"][worker_id(name, leg)]["steps"]
+             index = {case["id"]: case["index"] for case in cases}
+@@ -338,14 +447,16 @@ def main() -> int:
+             receipt["inventory"].remove(dropped)
+             receipt["results"] = [row for row in receipt["results"] if row["case"] != dropped]
+         refuse("gate dropped from every leg and claimed inventory", changed, needs)
++        refuse("executed builder division without builder receipts", receipts, needs, None)
++        refuse("executed builder division missing a leg receipt", receipts, needs, builder[:1])
++        other = builder_receipts(identity, flags=tuple(sorted(set(REQUIRED) ^ set(flags))))
++        refuse("builder legs run with the other workflow's requirement flags", receipts, needs, other)
+         if name == "elaborate":
+             mixed = copy.deepcopy(receipts)
+             mixed[1]["scope"] = "false"
+             for row in mixed[1]["results"]:
+                 row.update(outcome="skipped", conclusion="skipped")
+             refuse("individually valid mixed execution scopes", mixed, needs)
+-            refuse("executed builder division without builder receipts", receipts, needs, None)
+-            refuse("executed builder division missing a leg receipt", receipts, needs, builder[:1])
+             skipped = {case["id"]: {"outcome": "skipped", "conclusion": "skipped"} for case in cases}
+             receipts = [record(name, leg, source, identity, digest, StepContext(skipped, "false")) for leg in legs]
+             assert len(verify(name, source, identity, digest, Collected(receipts), needs)) == len(cases)
+diff --git a/scripts/suite_shards.py b/scripts/suite_shards.py
+index 6bda1c6cf..dd39346ee 100644
+--- a/scripts/suite_shards.py
++++ b/scripts/suite_shards.py
+@@ -67,8 +67,8 @@ VERILATOR_JOB = "verilator-shards"
+ #: workers, except `maap`: #696 lengthens it, measured on its worker 1/5 in
+ #: run 38208503834 at 26e2748f (dev's own window was 185 s), and `gptp_tables`
+ #: (#713): the larger of its hosted windows, worker 0/6 of dev run 38601263345
+-#: at f6260253, whose suites all passed (its pull-request run 38538854504 at
+-#: 7fb3664b measured 474 s).
++#: at f6260253, where that worker passed all eight of its suites (its
++#: pull-request run 38538854504 at 7fb3664b measured 474 s).
+ SUITE_SECONDS = {
+     "aaf": 73,
+     "aaf_audio_loop": 6,
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 1e6e9ea2f..aaded0dd6 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -444,7 +444,9 @@ The `milan_dp` default retains its twelve existing legs.
+ It also counts 40 setup, audio and missing-response accounting checks.
+ `suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
+ The nightly/manual job runs that selection without sharding.
+-The historical `milan_dp` directory runs alone on hosted shard 4/5 (#444).
++On GitHub the historical `milan_dp` directory runs as four `--ci-pieces` legs (#737).
++Each leg, `milan_dp__0` to `milan_dp__3`, runs on its own worker.
++Before #737 it ran alone on the last hosted worker (#444).
+ The existing `gptp` compressed smoke remains separately counted.
+ The option-OFF and fractional-audio legs retain their original models.
+ 

@@ -1,0 +1,36 @@
+{
+ "head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+ "controls": [
+  {
+   "control": "pristine generator --check",
+   "rc": 0,
+   "expect": 0
+  },
+  {
+   "control": "M1 round-4 literal generator on the six-worker template",
+   "stray_dedicated_arm": true,
+   "stale_expect_6": true,
+   "expect_16": false,
+   "ci_events_check_rc": 0,
+   "note": "the old literals match nothing, so the hosted graph keeps a shard-5 milan_dp proof and --expect 6"
+  },
+  {
+   "control": "M2 template without its dedicated arm",
+   "rc": 1,
+   "expect": "nonzero",
+   "tail": "ValueError: template ownership step lacks its dedicated milan_dp arm"
+  },
+  {
+   "control": "M3 template verifier --expect 7 with six workers",
+   "rc": 1,
+   "expect": "nonzero",
+   "tail": "ValueError: template verifier lacks its worker-count expectation"
+  },
+  {
+   "control": "M4 template arm index 4 with six workers",
+   "rc": 1,
+   "expect": "nonzero",
+   "tail": "ValueError: template ownership step lacks its dedicated milan_dp arm"
+  }
+ ]
+}

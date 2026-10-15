@@ -1,0 +1,71 @@
+{
+  "tree": "$LANES/737-ci30",
+  "head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+  "controls": [
+    {
+      "control": "inventory from the driver's discovery",
+      "pass": true,
+      "detail": "63 default suites, 80 units"
+    },
+    {
+      "control": "placed and within every bound",
+      "pass": true,
+      "detail": "worker 3 at 1544 s, bound 1620 s"
+    },
+    {
+      "control": "no recorded duration is refused",
+      "pass": true,
+      "detail": "gptp_tables: inventory suite with no recorded duration in SUITE_SECONDS (a new suite follo"
+    },
+    {
+      "control": "sharded selection without its duration is refused",
+      "pass": true,
+      "detail": "gptp_tables: inventory suite with no recorded duration in SUITE_SECONDS (a new suite follo"
+    },
+    {
+      "control": "provisional 1800-second figure is refused",
+      "pass": true,
+      "detail": "worker 0/16 is predicted at 1922 s, over 1620 s (60% of timeout-minutes 45); worker 0/16 exceeds the 1620 s CI budget: 1922 s"
+    },
+    {
+      "control": "worker 3's printed --ci-pieces list runs it",
+      "pass": true,
+      "detail": "maap__2 milan_dp__0 chmap_capture gptp_tables tdm_render"
+    },
+    {
+      "control": "collector releases it to the unchanged tally",
+      "pass": true,
+      "detail": "63 physical logs"
+    },
+    {
+      "control": "unchanged tally accepts the complete set",
+      "pass": true,
+      "detail": "checks: 211   in-suite failures: 0"
+    },
+    {
+      "control": "collector refuses its log missing from its owner",
+      "pass": true,
+      "detail": "worker 3: executed suite ownership differs"
+    },
+    {
+      "control": "collector refuses its log on another worker",
+      "pass": true,
+      "detail": "worker 0: executed suite ownership differs"
+    },
+    {
+      "control": "collector refuses its log duplicated on a second worker",
+      "pass": true,
+      "detail": "worker 0: executed suite ownership differs"
+    },
+    {
+      "control": "restored fixture passes again",
+      "pass": true,
+      "detail": "collector rc 0"
+    },
+    {
+      "control": "unchanged tally refuses the set without it",
+      "pass": true,
+      "detail": "d its log\n  The combined check total is not exhaustive and must not be treated as the serial sweep.\n\nThe check total above is INCOMPLETE and must not be quoted."
+    }
+  ]
+}

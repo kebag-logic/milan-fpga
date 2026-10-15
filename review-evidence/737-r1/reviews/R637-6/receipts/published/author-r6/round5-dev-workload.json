@@ -1,0 +1,96 @@
+{
+ "purpose": "Merged dev workload: hosted step windows at the merged dev tip against the 7032bca5 baseline, re-projected by the documented formulas",
+ "runs": {
+  "baseline": {
+   "docs": 38495894291,
+   "elaborate": 38495894212,
+   "head": "7032bca5a51d8d97fcb73d7fc106ca4af21de38e"
+  },
+  "dev": {
+   "docs": 38601263556,
+   "elaborate": 38601263659,
+   "head": "f62602531d415d6c1cae1374a3cc2938faf54049"
+  }
+ },
+ "baseline": {
+  "docs_job": 2039,
+  "builder": 1065,
+  "contract": 37,
+  "runner": 99,
+  "saved_state_writer": 119,
+  "elaborate_job": 2144,
+  "elab_gates": 1441,
+  "litex": 593,
+  "verilator_setup": 3
+ },
+ "dev": {
+  "docs_job": 2682,
+  "builder": 1400,
+  "contract": 37,
+  "runner": 102,
+  "saved_state_writer": 410,
+  "elaborate_job": 2447,
+  "elab_gates": 1763,
+  "litex": 597,
+  "verilator_setup": 3
+ },
+ "formulas": {
+  "docs-gates-0": "docs_job - builder - contract - runner + 23.699 + 60",
+  "docs-gates-1": "max(local builder at the merged head, hosted builder) + 120",
+  "elaborate-gates-0": "elaborate_job - litex - verilator_setup - elab_gates + leg0_scaled + 60",
+  "elaborate-gates-1": "elaborate_job - elab_gates + leg1_scaled + 60"
+ },
+ "docs-gates-0": {
+  "baseline": 922,
+  "dev": 1227
+ },
+ "docs-gates-1_hosted_basis": 1520,
+ "elaborate_uniform_scaling": {
+  "scale": 1.3638,
+  "workers": [
+   1546,
+   1245
+  ]
+ },
+ "elaborate_growth_in_leg1": {
+  "workers": [
+   1290,
+   1475
+  ]
+ },
+ "bound_seconds": 1620,
+ "tail_seconds": 270,
+ "measured_at_merged_head": {
+  "head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+  "docs_builder_local_seconds": 1482.211,
+  "docs-gates-1": {
+   "projected": 1602,
+   "workflow_with_tail": 1872
+  },
+  "elaboration_unsharded_alone_seconds": 1433.969,
+  "elaboration_unsharded_alone_peak_bytes": 4791652352,
+  "elaboration_unsharded_alone_log": {
+   "bytes": 126232,
+   "sha256": "78c1334ac834ee602caab14eae29e68775cb633101c3b3e8d4829509205f3d02"
+  },
+  "per_gate_alone": {
+   "test_baremetal_profile_contract": 972.509,
+   "test_nvm_firmware_shapes": 202.7,
+   "other_101_gates": 257.6
+  },
+  "scale": 1.22945,
+  "legs_beside_each_other_seconds": [
+   1081.009,
+   495.144
+  ],
+  "elaborate_workers_from_contended_legs": [
+   1473,
+   1353
+  ],
+  "elaborate_workers_from_uncontended_split": [
+   1340,
+   1310
+  ],
+  "elaborate_workflow_with_tail": 1743
+ }
+}
