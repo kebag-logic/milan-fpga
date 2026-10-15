@@ -175,10 +175,10 @@ def listed_program(words: list[str]) -> tuple[str, str, list[str]]:
     family = exec_audit.interpreter(Path(words[0]).name)
     if family is None:
         return ('script' if '/' in words[0] else 'name'), words[0], words[1:]
-    kind, module, rest = exec_audit.operands(family, words)
-    if kind == 'script':
-        return 'script', rest[0], rest[1:]
-    return kind, module or Path(words[0]).name, []
+    read = exec_audit.operands(family, words)
+    if read['kind'] == 'script':
+        return 'script', read['rest'][0], read['rest'][1:]
+    return read['kind'], read.get('module') or Path(words[0]).name, []
 
 
 def placeholders(words: list[str]) -> list[str]:
@@ -317,7 +317,7 @@ def trace_population(args: argparse.Namespace) -> int:
     args.logs.mkdir(parents=True, exist_ok=True)
     reached = reached_steps(root)
     receipt_steps, reconciliation = [], []
-    job = None
+    job, origin = None, None
     for number, step in enumerate(reached):
         key = f"{step['workflow']}#{step['job']}#{step['index']}"
         text, reason, removed = image_form(step['name'], step['run'])
@@ -331,13 +331,15 @@ def trace_population(args: argparse.Namespace) -> int:
             continue
         if step['job'] != job:
             job = step['job']
+            if origin is not None:
+                origin.close()
             reset(root)
             scratch = Path(tempfile.mkdtemp(prefix=f'job-{job}-'))
             home, temp = scratch / 'user', scratch / 'temp'
             home.mkdir()
             temp.mkdir()
             job_path, job_env = [], {}
-            origin = exec_audit.Origin(root, exec_audit.checkout_files(root))
+            origin = exec_audit.Origin(root, names)
         commands = Path(tempfile.mkdtemp(dir=temp, prefix='step-'))
         files = {name: commands / name.lower() for name in
                  ('GITHUB_PATH', 'GITHUB_ENV', 'GITHUB_OUTPUT', 'GITHUB_STEP_SUMMARY')}
@@ -353,7 +355,7 @@ def trace_population(args: argparse.Namespace) -> int:
                        **{name: str(path) for name, path in files.items()},
                        **{name: substitute(value, values) for name, value in step['env'].items()}}
         entry = {'job': step['job'], 'label': step['name'], 'argv': ['bash', '-e', str(script)],
-                 'working-directory': step['working-directory']}
+                 'working-directory': step['working-directory'], 'text': text}
         result = exec_audit.audit_step(entry, names, root, environment, args.logs / f'step-{number:03d}.jsonl',
                                        origin)
         result.update({'step': key, 'image_form': reason, 'text_sha256': row['text_sha256'],
@@ -367,6 +369,8 @@ def trace_population(args: argparse.Namespace) -> int:
                 values[f"needs.changes.outputs.{line.split('=', 1)[0]}"] = line.split('=', 1)[1]
         print(f"{'CLEAN' if result['clean'] else 'FINDINGS'}: {key} {step['name']} "
               f"(exit {result['exit_status']}, {result['instances']} execs)", flush=True)
+    if origin is not None:
+        origin.close()
     reset(root)
     traced = {row['step'] for row in reconciliation if row['traced']}
     receipt = {

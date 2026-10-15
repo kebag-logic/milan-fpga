@@ -4,27 +4,40 @@
 
 This is the execution authority for issue #737. The static inventory derives
 which programs the workflows *should* run; this audit records which programs a
-step *does* run. A seccomp filter on the step's process tree turns every `execve`
-and `execveat` into a notification the audit reads before letting the call
-continue, so a static binary is observed like any other, and no process is
-ptraced. Steps run with the container network disabled; a step that needs the
-network fails and its exit status is a finding.
+step *does* run. Its threat model is accidental drift in reviewed source, and
+each guard is closed by construction: an allowlist, or a check that fails closed.
 
-Every exec instance is kept with its full argument vector and directory. Each is
-judged by what it runs, not by the loaded interpreter binary:
+A seccomp filter on the step's process tree turns every `execve`, `execveat` and
+`exit_group` into a notification the audit reads before the call continues, so a
+static binary is observed like any other and no process is ptraced. Steps run
+with the container network disabled; a step that needs the network fails and its
+exit status is a finding.
 
-- an interpreter (`bash`, `sh`, `python3`, `perl`, `node`, `tclsh`) is judged by
-  its script, its `-m` module, or its inline or streamed program;
-- an installer is refused by name, as a program, a script or a module: package
-  managers (`apt*`, `dpkg`, `pip*`, `npm`, `npx`, ...), the installing
-  subcommands of `gem`, `cargo` and `go`, and an interpreter reading its program
-  from a pipe a fetcher writes;
-- a program or script inside the image's own directories must be named in
-  `exec-audit.json`;
-- any other program needs provenance from the traced job: the output (`-o`) of a
-  build program it ran, a byte copy of one, or a file it wrote that copies no
-  program existing before the job. A script needs to be in the checkout when the
-  job starts, or written during the job.
+- **Exec ABI.** A call from any architecture other than x86-64, or through the
+  x32 entry, is refused before it runs and named.
+- **Exec target.** An exec runs only a regular file reached by a path. Its path is
+  resolved component by component as the exec's own lookup resolves it; a target through the
+  process filesystem or `/dev`, a memfd, a deleted file, or a descriptor that is
+  not a path is refused before it runs and named.
+- **Invocations.** Every exec instance is kept with its full argument vector and
+  directory, and judged by what it runs, not by the loaded interpreter binary.
+  Installers are refused by name, as a program, a script or a module.
+- **Interpreter programs.** The program text of `bash`, `python3`, `perl`, `node`
+  and `tclsh`, whether inline (`-c`, `-e`), streamed (stdin, `-`, `/dev/fd/N`) or
+  a file, runs code in-process, so it is accepted only by the digest of its text:
+  a file in the checkout as the job started, a byte copy of one, the step's own
+  text, or a program in the reviewed lists of `exec-audit.json`. Any other is
+  refused by name. `dash` runs nothing in-process (it imports no dynamic loader
+  and has no loadable builtins), so a `dash` program is judged by its execs.
+- **Programs.** A program inside the image's own directories must be named in
+  `exec-audit.json`. Any other program is accepted only with positive provenance:
+  its bytes are the declared output of a toolchain invocation the job traced
+  (`-o`, or `a.out` without one), digested when that invocation ends, so a
+  renamed or installed copy of a build output keeps it; or it is in the reviewed
+  list of generated programs.
+- **The checkout.** A file present when the job starts is digested then. A script
+  whose bytes differ at its exec, and any such file changed during the job, is a
+  finding: what the static walker read is what ran.
 
 `--selftest` runs the controls; `--audit SPEC --output RECEIPT` runs a step spec.
 """
@@ -33,55 +46,75 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+import errno
 import fcntl
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import select
 import socket
+import stat
+import struct
 import sys
 import time
 
+from exec_operands import EXEC_ONLY, PINNABLE, interpreter, operands
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 ALLOWLIST = HERE / "exec-audit.json"
 
-#: A seccomp filter turns every `execve` and `execveat` of the step's process tree into a
-#: user notification. The audit reads what each call names, then lets it continue. No
-#: process is ptraced, so tools that trace themselves, such as LeakSanitizer, still run.
+#: A seccomp filter turns the step's exec and exit calls, and every call it cannot audit, into
+#: a user notification. No process is ptraced, so tools that trace themselves, such as
+#: LeakSanitizer, still run.
 SYS_SECCOMP, PR_SET_NO_NEW_PRIVS = 317, 38
-SET_MODE_FILTER, GET_NOTIF_SIZES, FLAG_NEW_LISTENER = 1, 3, 1 << 3
-NR_EXECVE, NR_EXECVEAT, ARCH_X86_64 = 59, 322, 0xC000003E
+SET_MODE_FILTER, FLAG_NEW_LISTENER = 1, 1 << 3
+NR_EXECVE, NR_EXECVEAT, NR_EXIT_GROUP = 59, 322, 231
+ARCH_X86_64, X32_BIT = 0xC000003E, 0x40000000
+ARCHES = {0x40000003: "i386", ARCH_X86_64: "x86-64"}
 RET_ALLOW, RET_USER_NOTIF, CONTINUE = 0x7FFF0000, 0x7FC00000, 1
 NOTIF_RECV, NOTIF_SEND = 0xC0502100, 0xC0182101
-AT_FDCWD, AT_EMPTY_PATH = -100, 0x1000
-#: Load the arch, allow a foreign one; load the call number; notify on the two exec calls.
-FILTER = ((0x20, 0, 0, 4), (0x15, 0, 4, ARCH_X86_64), (0x20, 0, 0, 0), (0x15, 1, 0, NR_EXECVE),
-          (0x15, 0, 1, NR_EXECVEAT), (0x06, 0, 0, RET_USER_NOTIF), (0x06, 0, 0, RET_ALLOW))
+AT_FDCWD, AT_SYMLINK_NOFOLLOW, AT_EMPTY_PATH = -100, 0x100, 0x1000
+#: Load the architecture: any other than x86-64 is notified, and refused. Load the call
+#: number: an x32 call is notified, and refused; exec and exit calls are notified and
+#: continued once read; everything else is allowed.
+FILTER = ((0x20, 0, 0, 4), (0x15, 0, 6, ARCH_X86_64), (0x20, 0, 0, 0), (0x45, 4, 0, X32_BIT),
+          (0x15, 3, 0, NR_EXECVE), (0x15, 2, 0, NR_EXECVEAT), (0x15, 1, 0, NR_EXIT_GROUP),
+          (0x06, 0, 0, RET_ALLOW), (0x06, 0, 0, RET_USER_NOTIF))
+F_SETPIPE_SZ, F_GETPIPE_SZ, SPLICE_F_NONBLOCK = 1031, 1032, 2
+#: Inotify events that change a checkout file: written, attributes, moved, deleted.
+CHANGES = 0x2 | 0x4 | 0x8 | 0x40 | 0x80 | 0x100 | 0x200 | 0x400 | 0x800
+IN_Q_OVERFLOW, IN_ISDIR = 0x4000, 0x40000000
 
 _libc = ctypes.CDLL(None, use_errno=True)
 _libc.syscall.restype = ctypes.c_long
+_libc.tee.restype = ctypes.c_ssize_t
+_libc.tee.argtypes = (ctypes.c_int, ctypes.c_int, ctypes.c_size_t, ctypes.c_uint)
 
 #: The image's own program directories: a program or script there must be named.
 SYSTEM_ROOTS = ("/usr/", "/bin/", "/sbin/", "/lib/", "/lib64/", "/opt/", "/etc/")
 #: A toolchain program carries an `<arch>-[<vendor>-]<os>-gnu-` prefix, and a cross toolchain's
 #: wrapper runs its real binary under a `.br_real` suffix; the plain tool is named.
 MULTIARCH = re.compile(r"^[a-z0-9_]+(?:-[a-z0-9]+){1,2}-gnu-|\.br_real$")
-SHELLS = {"bash", "sh", "dash"}
-PYTHONS = {"python", "python3", "python3.12"}
-#: Programs whose `-o` operand is a program the step built.
+#: Programs whose declared output (`-o`, or `a.out` when linking without one) is a program the step built.
 BUILDERS = re.compile(r"^(?:[a-z0-9_]+-[a-z0-9]+-[a-z]+-)?(?:cc|c\+\+|gcc|g\+\+|clang|clang\+\+|ld|ld\.bfd|"
                       r"ld\.gold|collect2)(?:-\d+)?$")
 #: Programs that fetch: an interpreter reading its program from their output fetches and executes.
 FETCHERS = {"curl", "wget", "fetch", "aria2c"}
+#: How long a streamed program's writer may keep its pipe open after the interpreter's exec.
+STREAM_WAIT = 60
 
 
-def _record(pid: int, name: str) -> Path:
+def _record(pid: int | str, name: str) -> Path:
     """One entry of a traced process's process record."""
     return Path(f"/proc/{pid}/{name}")
+
+
+#: The process filesystem's root and the device directory: no exec target is reached through them.
+PROCESS_ROOT = str(_record(0, "x").parents[1])
+NON_PATH_ROOTS = (PROCESS_ROOT, "/dev")
 
 
 def _proc(pid: int, name: str) -> str:
@@ -101,7 +134,7 @@ class _Program(ctypes.Structure):
 
 
 def _listen() -> int:
-    """In the step's first process: install the exec filter and return its notification fd."""
+    """In the step's first process: install the filter and return its notification fd."""
     if _libc.prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0):
         raise OSError(ctypes.get_errno(), "no_new_privs")
     rows = (_Filter * len(FILTER))(*[_Filter(*row) for row in FILTER])
@@ -149,133 +182,410 @@ def _vector(pid: int, address: int) -> list[str]:
     return words
 
 
-def _executed(pid: int, number: int, arguments: list[int]) -> tuple[str, list[str]] | None:
-    """The file an exec call names, resolved in the caller's directory, and its argument vector."""
+def _non_path(path: str) -> bool:
+    """Whether a path is the process filesystem or the device directory, or under them."""
+    return any(path == root or path.startswith(root + "/") for root in NON_PATH_ROOTS)
+
+
+def resolve(base: str, name: str, nofollow: bool = False) -> tuple[str, object]:
+    """Resolve a path component by component, as an exec's own lookup resolves its file.
+
+    Returns ("path", physical path), ("errno", code) when the lookup fails as the
+    exec's would, or ("refuse", reason) when the path passes through the process
+    filesystem or `/dev`, where a name can stand for a descriptor and not a file.
+    """
+    pending = name.split("/") if name.startswith("/") else [*base.split("/"), *name.split("/")]
+    current, links = "/", 0
+    while pending:
+        part = pending.pop(0)
+        if part in ("", "."):
+            continue
+        if part == "..":
+            current = str(PurePosixPath(current).parent)
+            continue
+        candidate = str(PurePosixPath(current) / part)
+        if _non_path(candidate):
+            return "refuse", f"exec through {candidate}: not a file on a path"
+        try:
+            status = os.lstat(candidate)
+        except OSError as error:
+            return "errno", error.errno
+        if stat.S_ISLNK(status.st_mode):
+            if nofollow and not any(p not in ("", ".") for p in pending):
+                return "errno", errno.ELOOP
+            links += 1
+            if links > 40:
+                return "errno", errno.ELOOP
+            target = os.readlink(candidate)
+            pending = [*target.split("/"), *pending]
+            current = "/" if target.startswith("/") else current
+            continue
+        if pending and not stat.S_ISDIR(status.st_mode):
+            return "errno", errno.ENOTDIR
+        current = candidate
+    return "path", current
+
+
+def _same_file(path: str, view: Path) -> bool:
+    """Whether a resolved path and the caller's own view of the target are one file."""
+    try:
+        mine, theirs = os.stat(path), os.stat(view)
+    except OSError:
+        return False
+    return (mine.st_dev, mine.st_ino) == (theirs.st_dev, theirs.st_ino)
+
+
+def _target(pid: int, number: int, arguments: list[int]) -> tuple[str, object, list[str]]:
+    """What an exec call names: ("run", (lexical name, physical file), argv), ("errno", code, []) for a
+    call that fails as the exec itself would, or ("refuse", reason, argv) for a target that is not a
+    file on a path. The caller's own view of the target, through its record, must be the same file."""
+    directory = _proc(pid, "cwd")
     if number == NR_EXECVEAT:
-        directory, name, vector, flags = arguments[0], _string(pid, arguments[1]), arguments[2], arguments[4]
-        directory = ctypes.c_int(directory & 0xFFFFFFFF).value
-        if not name and flags & AT_EMPTY_PATH:
-            path = _proc(pid, f"fd/{directory}")
-        else:
-            base = _proc(pid, "cwd") if directory == AT_FDCWD or name.startswith("/") else \
-                _proc(pid, f"fd/{directory}")
-            path = lexical(base, name)
+        handle = ctypes.c_int(arguments[0] & 0xFFFFFFFF).value
+        name, vector, flags = _string(pid, arguments[1]), arguments[2], arguments[4]
     else:
-        path, vector = lexical(_proc(pid, "cwd"), _string(pid, arguments[0])), arguments[1]
-    if not Path(path).is_file() or not os.access(path, os.X_OK):
-        return None  # The call fails; a search through PATH tries several such names.
-    return path, _vector(pid, vector)
+        handle, flags = AT_FDCWD, 0
+        name, vector = _string(pid, arguments[0]), arguments[1]
+    words = _vector(pid, vector)
+    if not name and number == NR_EXECVEAT and flags & AT_EMPTY_PATH:
+        link = _proc(pid, f"fd/{handle}")
+        located = resolve("/", link) if link.startswith("/") else ("refuse", "")
+        if located[0] != "path" or not _same_file(located[1], _record(pid, f"fd/{handle}")):
+            return "refuse", f"exec of a descriptor that is not a file on a path: {link or '<closed>'}", words
+        lexical_name, view = link, _record(pid, f"fd/{handle}")
+    elif not name:
+        return "errno", errno.ENOENT, []
+    else:
+        if name.startswith("/"):
+            base, view = "/", _record(pid, f"root{name}")
+        elif handle == AT_FDCWD:
+            base, view = directory, _record(pid, f"cwd/{name}")
+        else:
+            base, view = _proc(pid, f"fd/{handle}"), _record(pid, f"fd/{handle}/{name}")
+        if not base.startswith("/") or not Path(base).is_dir():
+            return "refuse", f"exec relative to a directory that is not a path: {base or '<closed>'}", words
+        located = resolve(base, name, bool(flags & AT_SYMLINK_NOFOLLOW))
+        if located[0] == "refuse":
+            return "refuse", located[1], words
+        if located[0] == "errno":
+            return "errno", located[1], []
+        lexical_name = lexical(base, name)
+    status = os.stat(located[1])
+    if not stat.S_ISREG(status.st_mode) or not os.access(located[1], os.X_OK):
+        return "errno", errno.EACCES, []
+    if not _same_file(located[1], view):
+        return "refuse", f"exec target resolves differently in the caller: {lexical_name}", words
+    return "run", (lexical_name, located[1]), words
 
 
-def _loaded(path: str, words: list[str]) -> tuple[str, list[str]]:
-    """What runs for an executable file: its interpreter line, with argv built as exec builds it."""
-    for _ in range(4):
+def _loaded(name: str, path: str, words: list[str], directory: str) -> tuple[str, object, list[str]]:
+    """What runs for an executable file: an ELF program, or its interpreter line, with argv built
+    as exec builds it, the file passed by the name the exec gave it.
+
+    ("run", program, argv), ("errno", code, []) or ("refuse", reason, argv).
+    """
+    for _ in range(5):
         try:
             with open(path, "rb") as stream:
                 head = stream.read(256)
-        except OSError:
-            break
+        except OSError as error:
+            return "errno", error.errno, []
+        if head.startswith(b"\x7fELF"):
+            return "run", path, words
         if not head.startswith(b"#!"):
-            break
+            return "errno", errno.ENOEXEC, []  # No handler: nothing runs.
         line = head[2:].split(b"\n", 1)[0].decode("utf-8", "surrogateescape").strip()
         interpreter, _, argument = line.partition(" ")
-        words = [interpreter, *([argument.strip()] if argument.strip() else []), path, *words[1:]]
-        path = interpreter
-    return str(Path(path).resolve()), words
+        located = resolve(directory, interpreter)
+        if located[0] == "refuse":
+            return "refuse", located[1], words
+        if located[0] == "errno":
+            return "errno", located[1], []
+        if not stat.S_ISREG(os.stat(located[1]).st_mode) or not os.access(located[1], os.X_OK):
+            return "errno", errno.EACCES, []
+        words = [interpreter, *([argument.strip()] if argument.strip() else []), name, *words[1:]]
+        name, path = interpreter, located[1]
+    return "errno", errno.ELOOP, []
+
+
+def _snapshot(top: str, executable: bool) -> dict[str, tuple]:
+    """Each regular file under a directory, with the status that proves it unchanged since."""
+    found = {}
+    for base, children, files in Path(top).walk():
+        children[:] = [c for c in children if c != ".git"]
+        for name in files:
+            path = str(base / name)
+            try:
+                status = os.lstat(path)
+            except OSError:
+                continue
+            if stat.S_ISREG(status.st_mode) and (not executable or status.st_mode & 0o111):
+                found[path] = _key(status)
+    return found
+
+
+def _key(status: os.stat_result) -> tuple:
+    """A file's identity and change time: any write to it changes this key."""
+    return status.st_dev, status.st_ino, status.st_size, status.st_mtime_ns, status.st_ctime_ns
+
+
+def _lkey(path: str) -> tuple | None:
+    """The key of a path itself, not what a link names; None once it is gone."""
+    try:
+        return _key(os.lstat(path))
+    except OSError:
+        return None
+
+
+class _Watch:
+    """Inotify on every checkout directory: any change to a file present at the job's start."""
+
+    def __init__(self, root: Path) -> None:
+        self.descriptor = _libc.inotify_init1(os.O_NONBLOCK | os.O_CLOEXEC)
+        self.directories: dict[int, str] = {}
+        if self.descriptor < 0:
+            raise OSError(ctypes.get_errno(), "inotify")
+        for base, children, _ in Path(root).walk():
+            children[:] = [c for c in children if c != ".git"]
+            watch = _libc.inotify_add_watch(self.descriptor, bytes(base), CHANGES)
+            if watch < 0:
+                raise OSError(ctypes.get_errno(), f"inotify watch on {base}")
+            self.directories[watch] = str(base)
+
+    def drain(self) -> tuple[set[str], bool]:
+        """The paths changed since the last drain, and whether events were lost."""
+        changed, lost = set(), False
+        while True:
+            try:
+                data = os.read(self.descriptor, 1 << 16)
+            except BlockingIOError:
+                return changed, lost
+            offset = 0
+            while offset < len(data):
+                watch, mask, _, length = struct.unpack_from("iIII", data, offset)
+                name = data[offset + 16:offset + 16 + length].split(b"\0", 1)[0].decode("utf-8", "surrogateescape")
+                offset += 16 + length
+                if mask & IN_Q_OVERFLOW:
+                    lost = True
+                elif watch in self.directories and name and not mask & IN_ISDIR:
+                    changed.add(str(Path(self.directories[watch]) / name))
+
+    def close(self) -> None:
+        """Stop watching."""
+        os.close(self.descriptor)
 
 
 class Origin:
-    """Provenance within one traced job: build outputs, job-created scripts and program copies."""
+    """Provenance within one traced job, from what existed as it started and what its toolchain declared."""
 
-    def __init__(self, root: Path, present: set[str]) -> None:
-        self.root, self.present = root, present
-        self.started = time.time() - 1
-        self.outputs: dict[str, str] = {}
+    def __init__(self, root: Path, names: dict[str, object] | None = None, watch: bool = True) -> None:
+        self.root = Path(root)
+        names = names or allowlist()
+        self.pinned = dict(names.get("inline_programs", {}))
+        self.generated = dict(names.get("generated_programs", {}))
+        self.started = _snapshot(str(self.root), executable=False)
+        self.checkout = {path: digest(path) for path in self.started}
+        self.copies = {value: path for path, value in sorted(self.checkout.items(), reverse=True) if value}
+        self.system: dict[str, tuple] = {}
+        for top in SYSTEM_ROOTS:
+            self.system.update(_snapshot(top, executable=True))
+        self.system_sizes: dict[int, list[str]] = {}
+        for path, key in sorted(self.system.items()):
+            self.system_sizes.setdefault(key[2], []).append(path)
+        self.pending: dict[int, list[tuple[str, str]]] = {}
+        self.built: dict[str, tuple[str, str]] = {}
+        self.texts: set[str] = set()
         self.digests: dict[tuple, str | None] = {}
-        self.existing: dict[int, list[str]] | None = None
+        self.changed: dict[str, str] = {}
+        self.watch = _Watch(self.root) if watch else None
 
-    def existing_copy(self, path: str, own: str, image: bool = False) -> str | None:
-        """The executable the image (or checkout, unless `image`) held before the job with this file's bytes."""
-        if self.existing is None:
-            self.existing = {}
-            for top in (*SYSTEM_ROOTS, f"{self.root}/"):
-                for base, _, files in os.walk(top):
-                    for name in files:
-                        candidate = f"{base}/{name}"
-                        try:
-                            status = os.lstat(candidate)
-                        except OSError:
-                            continue
-                        if status.st_mode & 0o111 and status.st_ctime < self.started and \
-                                (status.st_mode & 0o170000) == 0o100000:
-                            self.existing.setdefault(status.st_size, []).append(candidate)
-        size = os.stat(path).st_size
-        return next((candidate for candidate in sorted(self.existing.get(size, []))
-                     if (not image or candidate.startswith(SYSTEM_ROOTS)) and self.digest(candidate) == own), None)
+    def close(self) -> None:
+        """End the job: stop watching its checkout."""
+        if self.watch is not None:
+            self.watch.close()
+            self.watch = None
 
     def digest(self, path: str) -> str | None:
-        """Content identity of a program file, cached by its size and modification time."""
+        """Content identity of a file, cached by its identity and change time."""
         try:
-            status = os.stat(path)
+            key = (path, *_key(os.stat(path)))
         except OSError:
             return None
-        key = (path, status.st_size, status.st_mtime_ns)
         if key not in self.digests:
             self.digests[key] = digest(path)
         return self.digests[key]
 
-    def judge(self, instance: dict[str, object]) -> str:
-        """Where what this exec runs came from; record a build program's output."""
-        what = invocation(instance)
+    def relative(self, path: str) -> str:
+        """A checkout path as the receipt names it."""
+        return Path(path).relative_to(self.root).as_posix()
+
+    def sweep(self, final: bool = False) -> None:
+        """Record every file present at the job's start whose bytes are no longer those it started with."""
+        candidates, lost = self.watch.drain() if self.watch else (set(), False)
+        if lost or final:
+            candidates |= {path for path, key in self.started.items() if _lkey(path) != key}
+        for path in sorted(candidates & set(self.started)):
+            if path in self.changed:
+                continue
+            now = self.digest(path) if Path(path).is_file() and not Path(path).is_symlink() else None
+            if now != self.checkout[path]:
+                self.changed[path] = "removed or replaced" if now is None else f"sha256 {now}"
+
+    def image_copy(self, path: str, own: str) -> str | None:
+        """The image executable present as the job started that holds this file's bytes."""
+        size = os.stat(path).st_size
+        for candidate in self.system_sizes.get(size, []):
+            if _lkey(candidate) == self.system[candidate] and self.digest(candidate) == own:
+                return candidate
+        return None
+
+    def started_exec(self, pid: int, instance: dict[str, object]) -> None:
+        """Record a toolchain invocation's declared output, and that file as it stood, to digest when it ends."""
         base = MULTIARCH.sub("", Path(str(instance["program"])).name)
         if BUILDERS.match(base) and (output := built_output(list(instance["argv"]), str(instance["directory"]))):
-            self.outputs[output] = base
-        path = what["path"]
-        if what["kind"] == "script":
-            # A script reached through a link is the file the link names.
-            path = str(Path(path).resolve())
-            instance["script"] = path
-        if what["kind"] not in ("program", "script") or path.startswith(SYSTEM_ROOTS):
-            return "named"
-        if what["kind"] == "program":
-            if path in self.outputs:
-                return f"built by {self.outputs[path]}"
-            own = self.digest(path)
-            if own and own in {self.digest(output) for output in self.outputs}:
-                return "copy of a program the job built"
             try:
-                created = os.stat(path).st_ctime >= self.started
+                before = _key(os.stat(output))
             except OSError:
-                created = False
-            # Written in the job and not a copy of anything that existed before: built from its inputs.
-            return "written during the job" if created and own and not self.existing_copy(path, own) else "none"
+                before = None
+            self.pending.setdefault(_group(pid), []).append((output, base, before))
+
+    def ended(self, pid: int, status: int) -> None:
+        """A process ends: a successful invocation's declared outputs that it wrote are build outputs."""
+        for output, builder, before in self.pending.pop(_group(pid), []):
+            try:
+                now = os.stat(output)
+            except OSError:
+                continue
+            if status == 0 and _key(now) != before and stat.S_ISREG(now.st_mode) and now.st_mode & 0o111 and \
+                    (own := self.digest(output)):
+                self.built.setdefault(own, (builder, output))
+
+    def judge(self, instance: dict[str, object]) -> str:
+        """Where what this exec runs came from."""
+        what = invocation(instance)
+        kind, path = what["kind"], str(what["path"])
+        if kind == "module":
+            return "named"
+        if kind in ("inline", "stream"):
+            family = what["family"]
+            if what["name"] in EXEC_ONLY:
+                return "exec-only interpreter"
+            text = what.get("sha256")
+            if not text:
+                return "unreadable"
+            if text in self.texts:
+                return "step text"
+            entry = self.pinned.get(text)
+            return "pinned" if family in PINNABLE and entry and entry.get("interpreter") == family else "none"
+        if kind == "script":
+            # The interpreter opens its operand from its own directory; a link names the file it runs.
+            located = resolve(str(instance["directory"]), str(what["operand"]))
+            if located[0] == "refuse":
+                return "not a file on a path"
+            if located[0] == "errno":
+                return "absent"  # The interpreter cannot open it, so no code runs from it.
+            path = str(located[1])
+            instance["script"] = path
+        if path.startswith(SYSTEM_ROOTS):
+            return "named"
         if not Path(path).exists():
-            return "absent"  # The interpreter cannot open it, so no code runs from it.
-        if Path(path).is_relative_to(self.root) and Path(path).relative_to(self.root).as_posix() in self.present:
-            return "checkout"
-        try:
-            created = os.stat(path).st_ctime >= self.started  # Created or copied during the job.
-        except OSError:
-            created = False
-        own = self.digest(path) if created else None
-        # A copy of a checkout script is from in-tree inputs. A copy of an image executable runs that
-        # executable's code, so it is judged as that file, by its name.
-        if own and (original := self.existing_copy(path, own, image=True)):
+            return "absent"
+        own = self.digest(path)
+        instance["sha256"] = own
+        if path in self.started:
+            return "checkout" if own == self.checkout[path] else "checkout file changed before it ran"
+        if kind == "program":
+            if own in self.built:
+                builder, output = self.built[own]
+                return f"built by {builder}" if output == path else f"copy of a program built by {builder}"
+            return "generated" if own in self.generated and self.generated[own].get("kind") == "program" else "none"
+        if own in self.texts:
+            return "step text"
+        # A copy of an image executable runs that executable's code, so it is judged as that file, by its name.
+        if own and (original := self.image_copy(path, own)):
             instance["copy"] = original
             return f"copy of {original}"
-        return "written during the job" if own else "none"
+        if own in self.copies:
+            return f"copy of {self.relative(self.copies[own])}"
+        if own in self.generated and self.generated[own].get("kind") == "script":
+            return "generated"
+        return "exec-only interpreter" if Path(str(instance["program"])).name in EXEC_ONLY else "none"
 
 
-def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin | None = None) -> dict[str, object]:
-    """Run one command and keep every exec instance of its whole process tree.
+def _group(pid: int) -> int:
+    """The process a thread belongs to."""
+    try:
+        for line in _record(pid, "status").read_text().splitlines():
+            if line.startswith("Tgid:"):
+                return int(line.split()[1])
+    except (OSError, ValueError):
+        pass
+    return pid
 
-    Each instance records the process, the file the exec named and the program the
-    exec loads for it, the full argument vector as that program receives it, the
-    directory and the stream links an interpreter may read. Provenance is judged at
-    the exec itself, while the file it runs still exists.
-    """
-    origin = origin or Origin(cwd, set())
-    instances: list[dict[str, object]] = []
+
+def _stream_source(pid: int, descriptor: int) -> tuple[str, int | None]:
+    """How to read a streamed program: ("pipe", reopened read end), ("file", offset) or ("none", None)."""
+    link = _proc(pid, f"fd/{descriptor}")
+    if link.startswith("pipe:["):
+        try:
+            reopened = os.open(_record(pid, f"fd/{descriptor}"), os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC)
+        except OSError:
+            return "none", None
+        try:
+            fcntl.fcntl(reopened, F_SETPIPE_SZ, 1 << 20)  # Room for a program of up to 1 MiB.
+        except OSError:
+            pass
+        return "pipe", reopened
+    try:
+        status = os.stat(_record(pid, f"fd/{descriptor}"))
+    except OSError:
+        return "none", None
+    if stat.S_ISREG(status.st_mode) or stat.S_ISCHR(status.st_mode) and link == "/dev/null":
+        for line in _record(pid, f"fdinfo/{descriptor}").read_text().splitlines():
+            if line.startswith("pos:"):
+                return "file", int(line.split()[1])
+    return "none", None
+
+
+def _pipe_text(reopened: int) -> bytes:
+    """Duplicate what a pipe holds without consuming it, once its writers have closed it."""
+    size = fcntl.fcntl(reopened, F_GETPIPE_SZ)
+    reader, writer = os.pipe()
+    try:
+        fcntl.fcntl(writer, F_SETPIPE_SZ, size)
+        copied = _libc.tee(reopened, writer, size, SPLICE_F_NONBLOCK)
+        if copied < 0 and ctypes.get_errno() != errno.EAGAIN:
+            raise OSError(ctypes.get_errno(), "tee")
+        os.close(writer)
+        writer = -1
+        data = b""
+        while chunk := os.read(reader, 1 << 16):
+            data += chunk
+        return data
+    finally:
+        os.close(reader)
+        if writer >= 0:
+            os.close(writer)
+
+
+def _file_text(pid: int, descriptor: int, offset: int) -> bytes:
+    """A streamed program read from a file, from where the interpreter will start reading."""
+    with open(_record(pid, f"fd/{descriptor}"), "rb") as stream:
+        stream.seek(offset)
+        return stream.read(1 << 24)
+
+
+def _respond(listener: int, serial: int, error: int = 0) -> None:
+    """Let a notified call continue, or fail it with an errno before it runs."""
+    response = struct.pack("<QqiI", serial, 0, -error if error else 0, 0 if error else CONTINUE)
+    try:
+        fcntl.ioctl(listener, NOTIF_SEND, bytearray(response), True)
+    except OSError:
+        pass  # The caller died after its notification was read.
+
+
+def _start(argv: list[str], cwd: Path, env: dict[str, str]) -> tuple[int, int]:
+    """Fork the step under the filter; return its process and the filter's notification descriptor."""
     parent, child = socket.socketpair()
     pid = os.fork()
     if pid == 0:
@@ -296,54 +606,157 @@ def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin | None
     if not descriptors:
         os.waitpid(pid, 0)
         raise OSError("the step could not install the exec filter")
-    listener = descriptors[0]
-    poller = select.poll()
-    poller.register(listener, select.POLLIN)
-    exit_status, deadline = None, None
-    try:
+    return pid, descriptors[0]
+
+
+class _Trace:
+    """One step's notifications: each exec instance kept and judged, each refused call kept apart.
+
+    A streamed program read from a pipe is held at its exec until every writer has
+    closed the pipe, so its whole text is read before the interpreter reads any.
+    """
+
+    def __init__(self, listener: int, origin: Origin) -> None:
+        self.listener, self.origin = listener, origin
+        self.instances: list[dict[str, object]] = []
+        self.refused: list[dict[str, object]] = []
+        self.waiting: dict[int, tuple[int, int, dict, float]] = {}
+        self.poller = select.poll()
+        self.poller.register(listener, select.POLLIN)
+
+    def admit(self, serial: int, caller: int, instance: dict, text: bytes | None) -> None:
+        """Judge one exec instance, keep it, and let its call continue."""
+        if text is not None:
+            instance["sha256_text"] = hashlib.sha256(text).hexdigest()
+            instance["text"] = text.decode("utf-8", "surrogateescape")  # The step log keeps it for review.
+        instance["provenance"] = self.origin.judge(instance)
+        self.origin.started_exec(caller, instance)
+        self.instances.append(instance)
+        _respond(self.listener, serial)
+
+    def finish(self, reopened: int) -> None:
+        """A held stream's writers are done, or its wait is over: read it and continue the exec."""
+        serial, caller, instance, _ = self.waiting.pop(reopened)
+        self.poller.unregister(reopened)
+        complete = poll_hangup(reopened)
+        text = _pipe_text(reopened) if complete else None
+        os.close(reopened)
+        if not complete:
+            instance["stream_open"] = True
+        self.admit(serial, caller, instance, text)
+
+    def refuse(self, serial: int, entry: dict[str, object], error: int) -> None:
+        """Fail a call before it runs, and keep why."""
+        if entry not in self.refused:
+            self.refused.append(entry)
+        _respond(self.listener, serial, error)
+
+    def notified(self) -> None:
+        """Read one notification and answer it."""
+        request = bytearray(80)
+        try:
+            fcntl.ioctl(self.listener, NOTIF_RECV, request, True)
+        except OSError:
+            return  # The caller died before its notification was read.
+        serial, caller = int.from_bytes(request[0:8], "little"), int.from_bytes(request[8:12], "little")
+        number, arch = int.from_bytes(request[16:20], "little"), int.from_bytes(request[20:24], "little")
+        arguments = [int.from_bytes(request[32 + 8 * i:40 + 8 * i], "little") for i in range(6)]
+        self.origin.sweep()
+        if arch != ARCH_X86_64 or number & X32_BIT:
+            abi = "x32" if arch == ARCH_X86_64 else ARCHES.get(arch, hex(arch))
+            self.refuse(serial, {"pid": caller, "program": _proc(caller, "exe"),
+                                 "reason": f"{abi} system call refused: {number & ~X32_BIT}"}, errno.EPERM)
+        elif number == NR_EXIT_GROUP:
+            self.origin.ended(caller, arguments[0] & 0xFF)
+            _respond(self.listener, serial)
+        else:
+            self.executed(serial, caller, number, arguments)
+
+    def executed(self, serial: int, caller: int, number: int, arguments: list[int]) -> None:
+        """An exec: refuse a target that is not a file on a path, fail what cannot run, keep what runs."""
+        outcome, value, words = _target(caller, number, arguments)
+        directory = _proc(caller, "cwd")
+        program = None
+        if outcome == "run":
+            outcome, program, words = _loaded(value[0], value[1], words, directory)
+        if outcome == "errno":
+            _respond(self.listener, serial, int(value))
+            return
+        if outcome == "refuse":
+            self.refuse(serial, {"pid": caller, "argv": words, "reason": f"exec refused: {value}"}, errno.EACCES)
+            return
+        streams = {str(n): _proc(caller, f"fd/{n}") for n in (0, 1)}
+        for word in words:
+            if word.startswith("/dev/fd/") and word[8:].isdigit():
+                streams[word[8:]] = _proc(caller, f"fd/{word[8:]}")
+        instance = {"pid": caller, "file": value[0], "program": program, "argv": words,
+                    "directory": directory, "streams": streams}
+        what = invocation(instance)
+        if what["kind"] != "stream" or what["family"] not in PINNABLE or what["name"] in EXEC_ONLY:
+            self.admit(serial, caller, instance, None)
+            return
+        source, handle = _stream_source(caller, int(what["descriptor"]))
+        if source == "pipe" and not poll_hangup(handle):
+            self.waiting[handle] = (serial, caller, instance, time.monotonic() + STREAM_WAIT)
+            self.poller.register(handle, 0)
+            return
+        if source == "pipe":
+            text = _pipe_text(handle)
+            os.close(handle)
+        else:
+            text = _file_text(caller, int(what["descriptor"]), handle) if source == "file" else None
+        self.admit(serial, caller, instance, text)
+
+    def run(self, pid: int) -> int:
+        """Answer notifications until the step and every process it left have ended; return its status."""
+        exit_status, deadline = None, None
         while True:
             if exit_status is None:
                 waited, status = os.waitpid(pid, os.WNOHANG)
                 if waited:
                     exit_status = os.waitstatus_to_exitcode(status)
                     deadline = time.monotonic() + 30  # Processes the step left behind may still exec.
-            events = poller.poll(100)
-            if any(flags & (select.POLLHUP | select.POLLERR) for _, flags in events) and exit_status is not None:
+            events = dict(self.poller.poll(10 if self.waiting else 100))
+            for reopened in [r for r in self.waiting if events.get(r, 0) & (select.POLLHUP | select.POLLERR) or
+                             time.monotonic() > self.waiting[r][3]]:
+                self.finish(reopened)
+            flags = events.get(self.listener, 0)
+            if not self.waiting and (flags & (select.POLLHUP | select.POLLERR) and exit_status is not None or
+                                     deadline is not None and time.monotonic() > deadline):
                 break
-            if deadline is not None and time.monotonic() > deadline:
-                break
-            if not any(flags & select.POLLIN for _, flags in events):
-                continue
-            request = bytearray(80)
-            try:
-                fcntl.ioctl(listener, NOTIF_RECV, request, True)
-            except OSError:
-                continue  # The caller died before its notification was read.
-            serial, caller = int.from_bytes(request[0:8], "little"), int.from_bytes(request[8:12], "little")
-            number = int.from_bytes(request[16:20], "little")
-            arguments = [int.from_bytes(request[32 + 8 * i:40 + 8 * i], "little") for i in range(6)]
-            named = _executed(caller, number, arguments)
-            if named is not None:
-                program, words = _loaded(*named)
-                streams = {str(n): _proc(caller, f"fd/{n}") for n in (0, 1)}
-                for word in words:
-                    if word.startswith("/dev/fd/") and word[8:].isdigit():
-                        streams[word[8:]] = _proc(caller, f"fd/{word[8:]}")
-                instance = {"pid": caller, "file": named[0], "program": program, "argv": words,
-                            "directory": _proc(caller, "cwd"), "streams": streams}
-                instance["provenance"] = origin.judge(instance)
-                instances.append(instance)
-            response = serial.to_bytes(8, "little") + bytes(12) + CONTINUE.to_bytes(4, "little")
-            try:
-                fcntl.ioctl(listener, NOTIF_SEND, bytearray(response), True)
-            except OSError:
-                pass  # The caller died after its notification was read.
+            if flags & select.POLLIN:
+                self.notified()
+        if exit_status is None:
+            _, status = os.waitpid(pid, 0)
+            exit_status = os.waitstatus_to_exitcode(status)
+        return exit_status
+
+
+def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin) -> dict[str, object]:
+    """Run one command and keep every exec instance of its whole process tree.
+
+    Each instance records the process, the file the exec named and the program the
+    exec loads for it, the full argument vector as that program receives it, the
+    directory, the stream links an interpreter may read, and the digest of a
+    streamed program's text. Provenance is judged at the exec itself, while the
+    file it runs still exists. Refused calls are kept apart and never run.
+    """
+    pid, listener = _start(argv, cwd, env)
+    tracer = _Trace(listener, origin)
+    try:
+        exit_status = tracer.run(pid)
     finally:
+        for reopened in list(tracer.waiting):
+            os.close(reopened)
         os.close(listener)
-    if exit_status is None:
-        _, status = os.waitpid(pid, 0)
-        exit_status = os.waitstatus_to_exitcode(status)
-    return {"exit_status": exit_status, "instances": instances}
+    return {"exit_status": exit_status, "instances": tracer.instances, "refused": tracer.refused}
+
+
+def poll_hangup(descriptor: int) -> bool:
+    """Whether a pipe's every writer has closed it."""
+    once = select.poll()
+    once.register(descriptor, 0)
+    return any(flags & select.POLLHUP for _, flags in once.poll(0))
 
 
 def lexical(directory: str, word: str) -> str:
@@ -358,65 +771,11 @@ def lexical(directory: str, word: str) -> str:
 
 
 def allowlist() -> dict[str, object]:
-    """The reviewed program, script and module allowlists and the installer denylists."""
+    """The reviewed program, script, module and program-text allowlists and the installer denylists."""
     return json.loads(ALLOWLIST.read_text())
 
 
-def interpreter(base: str) -> str | None:
-    """The interpreter family of a loaded program, if it is one."""
-    if base in SHELLS:
-        return "shell"
-    if base in PYTHONS:
-        return "python"
-    return base if base in ("perl", "node", "tclsh") else None
-
-
-def operands(family: str, words: list[str]) -> tuple[str, str | None, list[str]]:
-    """Read an interpreter's options as it does: what it runs (`script`, `inline`, `module`
-    or `stream`), a module name, and the words from its program operand on."""
-    index = 1
-    while index < len(words):
-        word = words[index]
-        if word == "-":
-            return "stream", None, words[index + 1:]
-        if word == "--":
-            index += 1
-            break
-        if word.startswith("--"):
-            index += 2 if word in ("--rcfile", "--init-file", "--check-hash-based-pycs", "--require", "--import") \
-                else 1
-            if word in ("--eval", "--print"):
-                return "inline", None, words[index:]
-            continue
-        if not (word.startswith("-") or (family == "shell" and word.startswith("+"))) or len(word) < 2:
-            break
-        letters, consumed = word[1:], 0
-        for position, letter in enumerate(letters):
-            rest = letters[position + 1:]
-            if family == "shell":
-                if letter == "c":
-                    return "inline", None, words[index + 1 + consumed:]
-                if letter == "s":
-                    return "stream", None, words[index + 1:]
-                consumed += letter in "oO"
-            elif family == "python" and letter in "cmWX":
-                value = rest or (words[index + 1] if index + 1 < len(words) else "")
-                if letter == "c":
-                    return "inline", None, []
-                if letter == "m":
-                    return "module", value, []
-                consumed = 0 if rest else 1
-                break
-            elif family in ("perl", "node") and letter in ("eEp" if family == "perl" else "ep"):
-                return "inline", None, []
-            elif family in ("perl", "node") and letter in ("IMmr" if family == "perl" else "r"):
-                consumed = 0 if rest else 1
-                break
-        index += 1 + consumed
-    return ("script" if index < len(words) else "stream"), None, words[index:]
-
-
-def invocation(instance: dict[str, object]) -> dict[str, str]:
+def invocation(instance: dict[str, object]) -> dict[str, object]:
     """What one exec runs: a program, or an interpreter's script, module, inline or streamed program."""
     program = str(instance["program"])
     base = MULTIARCH.sub("", Path(program).name)
@@ -424,31 +783,43 @@ def invocation(instance: dict[str, object]) -> dict[str, str]:
     words = list(instance["argv"])
     if family is None:
         return {"kind": "program", "name": base, "path": program, "args": words[1:]}
-    kind, module, rest = operands(family, words)
+    read = operands(family, words)
+    kind, rest = read["kind"], list(read["rest"])
     if kind == "module":
-        return {"kind": "module", "name": str(module).split(".")[0], "path": str(module)}
+        return {"kind": "module", "name": str(read["module"]).split(".")[0], "path": str(read["module"]),
+                "family": family}
     if kind == "inline":
-        return {"kind": "inline", "name": base, "path": program}
-    if kind == "stream" or rest[0].startswith("/dev/fd/"):
-        link = rest[0][8:] if rest and rest[0].startswith("/dev/fd/") and kind == "script" else "0"
-        return {"kind": "stream", "name": base, "path": rest[0] if link != "0" else "<stdin>",
-                "stream": instance["streams"].get(link, "")}
+        text = read.get("text")
+        return {"kind": "inline", "name": base, "path": program, "family": family,
+                "sha256": hashlib.sha256(text.encode("utf-8", "surrogateescape")).hexdigest()
+                if isinstance(text, str) and family in PINNABLE else None}
+    if kind == "stream" or rest[0].startswith("/dev/fd/") and rest[0][8:].isdigit():
+        descriptor = rest[0][8:] if kind == "script" else "0"
+        return {"kind": "stream", "name": base, "path": rest[0] if descriptor != "0" else "<stdin>",
+                "family": family, "descriptor": descriptor, "stream": instance["streams"].get(descriptor, ""),
+                "sha256": instance.get("sha256_text")}
     return {"kind": "script", "name": Path(rest[0]).name, "path": lexical(str(instance["directory"]), rest[0]),
-            "args": rest[1:]}
+            "operand": rest[0], "args": rest[1:], "family": family}
 
 
 def built_output(words: list[str], directory: str) -> str | None:
-    """The `-o` operand of a build program, resolved in its directory."""
+    """The declared output of a build program, resolved in its directory: `-o`, `--output`, or `a.out`
+    when a driver links (no `-c`, `-S` or `-E`) or `ld` runs without one."""
     for index, word in enumerate(words):
-        operand = words[index + 1] if word == "-o" and index + 1 < len(words) else (
-            word[2:] if word.startswith("-o") and len(word) > 2 and not word.startswith("-o-") else None)
+        operand = words[index + 1] if word in ("-o", "--output") and index + 1 < len(words) else (
+            word[2:] if word.startswith("-o") and len(word) > 2 and not word.startswith("-o-") else
+            word[9:] if word.startswith("--output=") else None)
         if operand:
             return lexical(directory, operand)
+    if len(words) > 1 and not {"-c", "-S", "-E", "-M", "-MM", "--version", "-v", "--help", "-dumpversion",
+                               "-dumpmachine", "-print-prog-name", "-###"} & set(words[1:]) and \
+            not any(w.startswith(("-print-", "-dump", "--print")) for w in words[1:]):
+        return lexical(directory, "a.out")
     return None
 
 
 def digest(path: str) -> str | None:
-    """Content identity of a program file."""
+    """Content identity of a file."""
     try:
         with open(path, "rb") as stream:
             return hashlib.file_digest(stream, "sha256").hexdigest()
@@ -469,8 +840,9 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
     findings = []
 
     def finding(instance: dict, what: dict, reason: str) -> None:
-        """Name one forbidden or unprovenanced invocation."""
-        findings.append({"invocation": what["name"], "path": what["path"], "argv": instance["argv"], "reason": reason})
+        """Name one forbidden or unprovenanced invocation, with the digest of what it ran."""
+        findings.append({"invocation": what["name"], "path": what["path"], "argv": instance["argv"], "reason": reason,
+                         "sha256": what.get("sha256") or instance.get("sha256")})
 
     for instance in result["instances"]:
         what = invocation(instance)
@@ -490,43 +862,67 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
             finding(instance, what, f"installer subcommand executed: {what['name']} {what['args'][0]}")
         if interpreter(base) and base not in programs:
             finding(instance, what, f"interpreter not in the allowlist: {base}")
-        system = what["path"].startswith(SYSTEM_ROOTS)
+        system = str(what["path"]).startswith(SYSTEM_ROOTS)
         if what["kind"] == "program" and system and what["name"] not in programs:
             finding(instance, what, f"system program not in the allowlist: {what['name']}")
         elif what["kind"] == "script" and system and what["name"] not in scripts:
             finding(instance, what, f"system script not in the allowlist: {what['name']}")
+        elif what["kind"] in ("inline", "stream") and provenance == "none":
+            finding(instance, what, f"unpinned {'inline' if what['kind'] == 'inline' else 'streamed'} program: "
+                                    f"{what['name']} {what.get('sha256') or '(text not read)'}")
+        elif what["kind"] == "stream" and provenance == "unreadable":
+            finding(instance, what, f"streamed program not readable at its exec: {what['name']} "
+                                    f"({what.get('stream') or 'no stream'})")
         elif what["kind"] in ("program", "script") and provenance == "none":
             finding(instance, what, f"{what['kind']} without provenance: {what['name']}")
+        elif provenance == "not a file on a path":
+            finding(instance, what, f"script that is not a file on a path: {what['name']}")
+        elif provenance == "checkout file changed before it ran":
+            finding(instance, what, f"checkout file changed before it ran: {what['name']}")
         elif what["kind"] == "module" and what["name"] not in modules:
             finding(instance, what, f"module not in the allowlist: {what['name']}")
+        texts = what["kind"] in ("inline", "stream") and base not in EXEC_ONLY
         key = (what["kind"], what["name"], what["path"] if what["kind"] != "program" or system else "<built>",
-               provenance)
-        population.setdefault(key, {"kind": key[0], "invocation": key[1], "path": key[2], "provenance": key[3],
-                                    "count": 0})["count"] += 1
+               provenance, what.get("sha256") if texts else instance.get("sha256") if provenance == "checkout"
+               else None)
+        row = population.setdefault(key, {"kind": key[0], "invocation": key[1], "path": key[2],
+                                          "provenance": key[3], "count": 0})
+        if key[4]:
+            row["sha256"] = key[4]
+        row["count"] += 1
+    for refusal in result.get("refused", []):
+        findings.append({"invocation": "<refused>", "path": refusal.get("program", ""),
+                         "argv": refusal.get("argv", []), "reason": refusal["reason"]})
+    for path, change in sorted(result.get("changed", {}).items()):
+        findings.append({"invocation": "<checkout>", "path": path, "argv": [],
+                         "reason": f"checkout file changed during the job: {path} ({change})"})
     if result["exit_status"] != 0:
         findings.append({"invocation": "<step>", "path": "", "argv": [],
                          "reason": f"step exited {result['exit_status']} (network disabled)"})
-    return sorted(population.values(), key=lambda row: (row["kind"], row["invocation"], row["path"])), findings
-
-
-def checkout_files(root: Path) -> set[str]:
-    """Every file present in the checkout when a step starts."""
-    present = set()
-    for base, children, files in os.walk(root):
-        children[:] = [c for c in children if c != ".git"]
-        present.update((Path(base) / f).relative_to(root).as_posix() for f in files)
-    return present
+    return sorted(population.values(), key=lambda row: (row["kind"], row["invocation"], row["path"],
+                                                        row.get("sha256", ""))), findings
 
 
 def audit_step(entry: dict[str, object], names: dict[str, object], root: Path, environment: dict[str, str],
                log: Path | None = None, origin: Origin | None = None) -> dict[str, object]:
     """Trace one step, keep its instances, and attach the population and findings.
 
-    A job's steps share one origin, so provenance spans the traced job.
+    A job's steps share one origin, so provenance spans the traced job. The step's
+    own text (`entry["text"]`) is reviewed source: its program is accepted by digest.
     """
-    origin = origin or Origin(root, checkout_files(root))
-    directory = root / str(entry.get("working-directory", "."))
-    result = trace(list(entry["argv"]), directory, {**environment, **entry.get("env", {})}, origin)
+    own = origin is None
+    origin = origin or Origin(root, names)
+    try:
+        if entry.get("text") is not None:
+            origin.texts.add(hashlib.sha256(str(entry["text"]).encode()).hexdigest())
+        directory = root / str(entry.get("working-directory", "."))
+        reported = set(origin.changed)
+        result = trace(list(entry["argv"]), directory, {**environment, **entry.get("env", {})}, origin)
+        origin.sweep(final=True)
+        result["changed"] = {origin.relative(p): c for p, c in origin.changed.items() if p not in reported}
+    finally:
+        if own:
+            origin.close()
     population, findings = judge(result, names)
     lines = "".join(json.dumps(i, sort_keys=True) + "\n" for i in result["instances"]).encode()
     if log is not None:
@@ -551,104 +947,6 @@ def receipt(spec: list[dict[str, object]], names: dict[str, object], root: Path,
     return {"steps": steps, "clean": all(step["clean"] for step in steps)}
 
 
-def selftest(names: dict[str, object]) -> int:
-    """Each control is judged as the audit must judge it, by name."""
-    import shutil
-    import tempfile
-    import zipfile
-    environment = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": os.environ.get("HOME", "/root"),
-                   "LC_ALL": "C.UTF-8", "LANG": "C.UTF-8"}
-    system = Path("/usr/local/bin")
-    with tempfile.TemporaryDirectory(prefix="exec-audit-") as directory:
-        base = Path(directory)
-
-        def step(label: str, command: str, expect: str | None) -> dict:
-            """Audit one control step and require its expected judgment."""
-            report = audit_step({"job": "selftest", "label": label, "argv": ["bash", "-e", "-c", command]},
-                                names, base, environment)
-            reasons = [f["reason"] for f in report["findings"]]
-            if expect is None:
-                assert not reasons, (label, reasons, report["population"])
-            else:
-                assert any(expect in reason for reason in reasons), (label, expect, reasons)
-            print(f"PASS: {label}: " + (f"caught ({expect})" if expect else "clean"))
-            return report
-
-        (base / "static.c").write_text("int main(void) { return 0; }\n")
-        report = step("a static binary the step builds is observed and has provenance",
-                      f"gcc -static -o {base}/static {base}/static.c && {base}/static", None)
-        assert any(row["provenance"].startswith("built by") for row in report["population"]), report["population"]
-        shutil.copy(base / "static", system / "zz_static_probe")
-        step("a static binary planted in a system directory", f"{system}/zz_static_probe",
-             "system program not in the allowlist: zz_static_probe")
-        (system / "zz_static_probe").unlink()
-        step("a scripted installer run by name", "pip3 --version", "installer executed: pip3")
-        step("a scripted package manager run by name", "npm --version", "installer executed: npm")
-        wheel = base / "zz_probe_pkg-0.1-py3-none-any.whl"
-        with zipfile.ZipFile(wheel, "w") as archive:
-            archive.writestr("zz_probe_pkg/__init__.py", "")
-            archive.writestr("zz_probe_pkg-0.1.dist-info/METADATA",
-                             "Metadata-Version: 2.1\nName: zz-probe-pkg\nVersion: 0.1\n")
-            archive.writestr("zz_probe_pkg-0.1.dist-info/WHEEL",
-                             "Wheel-Version: 1.0\nGenerator: fixture\nRoot-Is-Purelib: true\nTag: py3-none-any\n")
-            archive.writestr("zz_probe_pkg-0.1.dist-info/RECORD", "")
-        report = step("a real offline install of a local wheel",
-                      f"python3 -m pip install --no-index --no-deps --disable-pip-version-check --target "
-                      f"{base}/installed {wheel} && test -f {base}/installed/zz_probe_pkg/__init__.py",
-                      "installer module executed: pip")
-        (system / "zz_shebang_probe").write_text("#!/bin/sh\nexit 0\n")
-        (system / "zz_shebang_probe").chmod(0o755)
-        step("an unlisted shebang script in a system directory", "zz_shebang_probe",
-             "system script not in the allowlist: zz_shebang_probe")
-        (system / "zz_shebang_probe").unlink()
-        (base / "bin").mkdir()
-        (base / "bin/apt-get").write_text("#!/bin/sh\nexit 0\n")
-        (base / "bin/apt-get").chmod(0o755)
-        step("a shebang apt-get outside the system directories", f"{base}/bin/apt-get update",
-             "installer executed: apt-get")
-        step("an unlisted program the job copies from the image",
-             f"cp /bin/true {base}/bin/zz_copied_program && {base}/bin/zz_copied_program",
-             "program without provenance: zz_copied_program")
-        step("a renamed copy of the image's pip3 script is judged as the pip it reproduces",
-             f'cp "$(command -v pip3)" {base}/bin/zz_copied_tool && python3 {base}/bin/zz_copied_tool --version',
-             "installer executed: pip")
-        report = step("a stub the job writes with the bytes of the image's initctl is judged as initctl",
-                      f"printf '#!/bin/sh\\nexit 0\\n' > {base}/bin/zz_stub && sh {base}/bin/zz_stub", None)
-        assert any(row["invocation"] == "initctl" for row in report["population"]), report["population"]
-        (base / "fetched.sh").write_text("exit 0\n")
-        step("a fetched program piped to a shell", f"curl -fsS file://{base}/fetched.sh | sh",
-             "fetched program executed by dash")
-        (base / "bin/gem").write_text("#!/bin/sh\nexit 0\n")
-        (base / "bin/gem").chmod(0o755)
-        step("an installing subcommand", f"{base}/bin/gem install zz-probe",
-             "installer subcommand executed: gem install")
-        (base / "checkout.sh").write_text("exit 0\n")
-        step("a link the step makes to a checkout script is judged as that script",
-             f"mkdir -p {base}/shadow && ln -s {base}/checkout.sh {base}/shadow/run.sh && "
-             f"bash {base}/shadow/run.sh", None)
-        step("a link named as an installer is caught by that name",
-             f"ln -s {base}/checkout.sh {base}/shadow/apt-get && bash {base}/shadow/apt-get",
-             "installer executed: apt-get")
-        (base / "tool.py").write_text("print('ok')\n")
-        step("an interpreter given a missing script runs nothing from it",
-             f"python3 {base}/missing.py 2>/dev/null || true", None)
-        step("a permitted interpreter call and a checkout script",
-             f"python3 -c 'print(1)' && python3 {base}/tool.py", None)
-        (base / "built.c").write_text("int main(void) { return 0; }\n")
-        step("a program the job built under a temporary name, then renamed",
-             f"cc -o {base}/renamed.part {base}/built.c && mv {base}/renamed.part {base}/renamed && {base}/renamed",
-             None)
-        step("a program the step built, and an installed copy of it",
-             f"cc -o {base}/built {base}/built.c && {base}/built && install -m 755 {base}/built {base}/copy && "
-             f"{base}/copy", None)
-        (base / "leak.c").write_text("#include <stdlib.h>\nint main(void) { return malloc(1) == 0; }\n")
-        step("a LeakSanitizer build runs its leak check under the audit",
-             f"cc -fsanitize=address -o {base}/leak {base}/leak.c && ! {base}/leak 2>{base}/leak.log && "
-             f"grep -q 'detected memory leaks' {base}/leak.log", None)
-        step("a step that fails under the disabled network", "exit 7", "step exited 7")
-    return 0
-
-
 def main() -> int:
     """Self-test the audit, or run a step spec and write its receipt."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -661,7 +959,8 @@ def main() -> int:
     args = parser.parse_args()
     names = allowlist()
     if args.selftest:
-        return selftest(names)
+        import exec_audit_selftest  # noqa: PLC0415 - the controls load only when they run
+        return exec_audit_selftest.selftest(names)
     report = receipt(json.loads(args.audit.read_text()), names, args.root, args.logs)
     text = json.dumps(report, indent=1, sort_keys=True) + "\n"
     (args.output.write_text(text) if args.output else sys.stdout.write(text))
