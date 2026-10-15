@@ -54,12 +54,14 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import select
+import signal
 import socket
 import stat
 import struct
 import sys
 import time
 
+from exec_files import Watch, key_of, lkey, snapshot
 from exec_operands import EXEC_ONLY, PINNABLE, interpreter, operands
 
 HERE = Path(__file__).resolve().parent
@@ -70,7 +72,8 @@ ALLOWLIST = HERE / "exec-audit.json"
 #: a user notification. No process is ptraced, so tools that trace themselves, such as
 #: LeakSanitizer, still run.
 SYS_SECCOMP, PR_SET_NO_NEW_PRIVS = 317, 38
-SET_MODE_FILTER, FLAG_NEW_LISTENER = 1, 1 << 3
+#: A notified call waits killably once read, so a stop sent to it stays pending until the call returns.
+SET_MODE_FILTER, FLAG_NEW_LISTENER, FLAG_WAIT_KILLABLE_RECV = 1, 1 << 3, 1 << 5
 NR_EXECVE, NR_EXECVEAT, NR_EXIT_GROUP = 59, 322, 231
 ARCH_X86_64, X32_BIT = 0xC000003E, 0x40000000
 ARCHES = {0x40000003: "i386", ARCH_X86_64: "x86-64"}
@@ -84,9 +87,6 @@ FILTER = ((0x20, 0, 0, 4), (0x15, 0, 6, ARCH_X86_64), (0x20, 0, 0, 0), (0x45, 4,
           (0x15, 3, 0, NR_EXECVE), (0x15, 2, 0, NR_EXECVEAT), (0x15, 1, 0, NR_EXIT_GROUP),
           (0x06, 0, 0, RET_ALLOW), (0x06, 0, 0, RET_USER_NOTIF))
 F_SETPIPE_SZ, F_GETPIPE_SZ, SPLICE_F_NONBLOCK = 1031, 1032, 2
-#: Inotify events that change a checkout file: written, attributes, moved, deleted.
-CHANGES = 0x2 | 0x4 | 0x8 | 0x40 | 0x80 | 0x100 | 0x200 | 0x400 | 0x800
-IN_Q_OVERFLOW, IN_ISDIR = 0x4000, 0x40000000
 
 _libc = ctypes.CDLL(None, use_errno=True)
 _libc.syscall.restype = ctypes.c_long
@@ -139,7 +139,8 @@ def _listen() -> int:
         raise OSError(ctypes.get_errno(), "no_new_privs")
     rows = (_Filter * len(FILTER))(*[_Filter(*row) for row in FILTER])
     program = _Program(len(FILTER), rows)
-    listener = _libc.syscall(SYS_SECCOMP, SET_MODE_FILTER, FLAG_NEW_LISTENER, ctypes.byref(program))
+    listener = _libc.syscall(SYS_SECCOMP, SET_MODE_FILTER, FLAG_NEW_LISTENER | FLAG_WAIT_KILLABLE_RECV,
+                             ctypes.byref(program))
     if listener < 0:
         raise OSError(ctypes.get_errno(), "seccomp listener")
     return listener
@@ -308,73 +309,6 @@ def _loaded(name: str, path: str, words: list[str], directory: str) -> tuple[str
     return "errno", errno.ELOOP, []
 
 
-def _snapshot(top: str, executable: bool) -> dict[str, tuple]:
-    """Each regular file under a directory, with the status that proves it unchanged since."""
-    found = {}
-    for base, children, files in Path(top).walk():
-        children[:] = [c for c in children if c != ".git"]
-        for name in files:
-            path = str(base / name)
-            try:
-                status = os.lstat(path)
-            except OSError:
-                continue
-            if stat.S_ISREG(status.st_mode) and (not executable or status.st_mode & 0o111):
-                found[path] = _key(status)
-    return found
-
-
-def _key(status: os.stat_result) -> tuple:
-    """A file's identity and change time: any write to it changes this key."""
-    return status.st_dev, status.st_ino, status.st_size, status.st_mtime_ns, status.st_ctime_ns
-
-
-def _lkey(path: str) -> tuple | None:
-    """The key of a path itself, not what a link names; None once it is gone."""
-    try:
-        return _key(os.lstat(path))
-    except OSError:
-        return None
-
-
-class _Watch:
-    """Inotify on every checkout directory: any change to a file present at the job's start."""
-
-    def __init__(self, root: Path) -> None:
-        self.descriptor = _libc.inotify_init1(os.O_NONBLOCK | os.O_CLOEXEC)
-        self.directories: dict[int, str] = {}
-        if self.descriptor < 0:
-            raise OSError(ctypes.get_errno(), "inotify")
-        for base, children, _ in Path(root).walk():
-            children[:] = [c for c in children if c != ".git"]
-            watch = _libc.inotify_add_watch(self.descriptor, bytes(base), CHANGES)
-            if watch < 0:
-                raise OSError(ctypes.get_errno(), f"inotify watch on {base}")
-            self.directories[watch] = str(base)
-
-    def drain(self) -> tuple[set[str], bool]:
-        """The paths changed since the last drain, and whether events were lost."""
-        changed, lost = set(), False
-        while True:
-            try:
-                data = os.read(self.descriptor, 1 << 16)
-            except BlockingIOError:
-                return changed, lost
-            offset = 0
-            while offset < len(data):
-                watch, mask, _, length = struct.unpack_from("iIII", data, offset)
-                name = data[offset + 16:offset + 16 + length].split(b"\0", 1)[0].decode("utf-8", "surrogateescape")
-                offset += 16 + length
-                if mask & IN_Q_OVERFLOW:
-                    lost = True
-                elif watch in self.directories and name and not mask & IN_ISDIR:
-                    changed.add(str(Path(self.directories[watch]) / name))
-
-    def close(self) -> None:
-        """Stop watching."""
-        os.close(self.descriptor)
-
-
 class Origin:
     """Provenance within one traced job, from what existed as it started and what its toolchain declared."""
 
@@ -383,12 +317,12 @@ class Origin:
         names = names or allowlist()
         self.pinned = dict(names.get("inline_programs", {}))
         self.generated = dict(names.get("generated_programs", {}))
-        self.started = _snapshot(str(self.root), executable=False)
+        self.started = snapshot(str(self.root), executable=False)
         self.checkout = {path: digest(path) for path in self.started}
         self.copies = {value: path for path, value in sorted(self.checkout.items(), reverse=True) if value}
         self.system: dict[str, tuple] = {}
         for top in SYSTEM_ROOTS:
-            self.system.update(_snapshot(top, executable=True))
+            self.system.update(snapshot(top, executable=True))
         self.system_sizes: dict[int, list[str]] = {}
         for path, key in sorted(self.system.items()):
             self.system_sizes.setdefault(key[2], []).append(path)
@@ -397,7 +331,7 @@ class Origin:
         self.texts: set[str] = set()
         self.digests: dict[tuple, str | None] = {}
         self.changed: dict[str, str] = {}
-        self.watch = _Watch(self.root) if watch else None
+        self.watch = Watch(self.root) if watch else None
 
     def close(self) -> None:
         """End the job: stop watching its checkout."""
@@ -408,7 +342,7 @@ class Origin:
     def digest(self, path: str) -> str | None:
         """Content identity of a file, cached by its identity and change time."""
         try:
-            key = (path, *_key(os.stat(path)))
+            key = (path, *key_of(os.stat(path)))
         except OSError:
             return None
         if key not in self.digests:
@@ -423,7 +357,7 @@ class Origin:
         """Record every file present at the job's start whose bytes are no longer those it started with."""
         candidates, lost = self.watch.drain() if self.watch else (set(), False)
         if lost or final:
-            candidates |= {path for path, key in self.started.items() if _lkey(path) != key}
+            candidates |= {path for path, key in self.started.items() if lkey(path) != key}
         for path in sorted(candidates & set(self.started)):
             if path in self.changed:
                 continue
@@ -435,7 +369,7 @@ class Origin:
         """The image executable present as the job started that holds this file's bytes."""
         size = os.stat(path).st_size
         for candidate in self.system_sizes.get(size, []):
-            if _lkey(candidate) == self.system[candidate] and self.digest(candidate) == own:
+            if lkey(candidate) == self.system[candidate] and self.digest(candidate) == own:
                 return candidate
         return None
 
@@ -444,7 +378,7 @@ class Origin:
         base = MULTIARCH.sub("", Path(str(instance["program"])).name)
         if BUILDERS.match(base) and (output := built_output(list(instance["argv"]), str(instance["directory"]))):
             try:
-                before = _key(os.stat(output))
+                before = key_of(os.stat(output))
             except OSError:
                 before = None
             self.pending.setdefault(_group(pid), []).append((output, base, before))
@@ -458,7 +392,7 @@ class Origin:
                 now = os.stat(output)
             except OSError:
                 continue
-            if status == 0 and _key(now) != before and stat.S_ISREG(now.st_mode) and now.st_mode & 0o111 and \
+            if status == 0 and key_of(now) != before and stat.S_ISREG(now.st_mode) and now.st_mode & 0o111 and \
                     (own := self.digest(output)):
                 self.built.setdefault(own, (builder, output))
 
@@ -614,38 +548,46 @@ def _start(argv: list[str], cwd: Path, env: dict[str, str]) -> tuple[int, int]:
 class _Trace:
     """One step's notifications: each exec instance kept and judged, each refused call kept apart.
 
-    A streamed program read from a pipe is held at its exec until every writer has
-    closed the pipe, so its whole text is read before the interpreter reads any.
+    A streamed program read from a pipe whose writers are still open is held: its
+    exec completes with a stop pending, so the interpreter stops before its first
+    instruction, and a parent waiting for the exec (a vfork) can write the program.
+    Once every writer has closed the pipe, its whole text is read without consuming
+    it, and the interpreter continues.
     """
 
     def __init__(self, listener: int, origin: Origin) -> None:
         self.listener, self.origin = listener, origin
         self.instances: list[dict[str, object]] = []
         self.refused: list[dict[str, object]] = []
-        self.waiting: dict[int, tuple[int, int, dict, float]] = {}
+        self.waiting: dict[int, tuple[int, dict, float]] = {}
         self.poller = select.poll()
         self.poller.register(listener, select.POLLIN)
 
-    def admit(self, serial: int, caller: int, instance: dict, text: bytes | None) -> None:
-        """Judge one exec instance, keep it, and let its call continue."""
+    def admit(self, serial: int | None, caller: int, instance: dict, text: bytes | None) -> None:
+        """Judge one exec instance, keep it, and let its call continue unless it already has."""
         if text is not None:
             instance["sha256_text"] = hashlib.sha256(text).hexdigest()
             instance["text"] = text.decode("utf-8", "surrogateescape")  # The step log keeps it for review.
         instance["provenance"] = self.origin.judge(instance)
         self.origin.started_exec(caller, instance)
         self.instances.append(instance)
-        _respond(self.listener, serial)
+        if serial is not None:
+            _respond(self.listener, serial)
 
     def finish(self, reopened: int) -> None:
-        """A held stream's writers are done, or its wait is over: read it and continue the exec."""
-        serial, caller, instance, _ = self.waiting.pop(reopened)
+        """A held stream's writers are done, or its wait is over: read it and let the interpreter run."""
+        caller, instance, _ = self.waiting.pop(reopened)
         self.poller.unregister(reopened)
         complete = poll_hangup(reopened)
         text = _pipe_text(reopened) if complete else None
         os.close(reopened)
         if not complete:
             instance["stream_open"] = True
-        self.admit(serial, caller, instance, text)
+        self.admit(None, caller, instance, text)
+        try:
+            os.kill(caller, signal.SIGCONT)
+        except ProcessLookupError:
+            pass
 
     def refuse(self, serial: int, entry: dict[str, object], error: int) -> None:
         """Fail a call before it runs, and keep why."""
@@ -699,7 +641,10 @@ class _Trace:
             return
         source, handle = _stream_source(caller, int(what["descriptor"]))
         if source == "pipe" and not poll_hangup(handle):
-            self.waiting[handle] = (serial, caller, instance, time.monotonic() + STREAM_WAIT)
+            # The stop stays pending through the exec, which completes: nothing of the program runs yet.
+            os.kill(caller, signal.SIGSTOP)
+            _respond(self.listener, serial)
+            self.waiting[handle] = (caller, instance, time.monotonic() + STREAM_WAIT)
             self.poller.register(handle, 0)
             return
         if source == "pipe":
@@ -720,7 +665,7 @@ class _Trace:
                     deadline = time.monotonic() + 30  # Processes the step left behind may still exec.
             events = dict(self.poller.poll(10 if self.waiting else 100))
             for reopened in [r for r in self.waiting if events.get(r, 0) & (select.POLLHUP | select.POLLERR) or
-                             time.monotonic() > self.waiting[r][3]]:
+                             time.monotonic() > self.waiting[r][2]]:
                 self.finish(reopened)
             flags = events.get(self.listener, 0)
             if not self.waiting and (flags & (select.POLLHUP | select.POLLERR) and exit_status is not None or
@@ -748,8 +693,12 @@ def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin) -> di
     try:
         exit_status = tracer.run(pid)
     finally:
-        for reopened in list(tracer.waiting):
+        for reopened, (caller, _, _) in tracer.waiting.items():
             os.close(reopened)
+            try:
+                os.kill(caller, signal.SIGCONT)
+            except ProcessLookupError:
+                pass
         os.close(listener)
     return {"exit_status": exit_status, "instances": tracer.instances, "refused": tracer.refused}
 

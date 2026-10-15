@@ -10,6 +10,7 @@ Run inside the image as root, with the network disabled (it plants programs in
 
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 import re
@@ -17,10 +18,11 @@ import shlex
 import shutil
 import subprocess
 import tempfile
+import time
 from typing import Callable
 import zipfile
 
-from exec_audit import PROCESS_ROOT, _record, audit_step
+from exec_audit import PROCESS_ROOT, STREAM_WAIT, _record, audit_step
 from exec_operands import EXEC_ONLY
 
 
@@ -123,6 +125,13 @@ def installers_and_programs(step: Step, base: Path) -> None:
     step("a real offline install of a local wheel by a streamed program",
          f"printf '%s\\n' {shlex.quote(streamed)} | python3 - && test -f {base}/streamed/zz_probe_pkg/__init__.py",
          "unpinned streamed program: python3.12")
+    (base / "spawner.py").write_text(
+        "import subprocess, sys\nsubprocess.run([sys.executable, '-'], input='print(3)\\n', text=True, check=True)\n")
+    started = time.monotonic()
+    report = step("a streamed program its spawning parent writes after the exec is read whole",
+                  f"python3 {base}/spawner.py", "unpinned streamed program: python3.12")
+    assert time.monotonic() - started < STREAM_WAIT / 2, "the streamed program waited out its deadline"
+    assert hashlib.sha256(b"print(3)\n").hexdigest() in {f["sha256"] for f in report["findings"]}, report["findings"]
     step("an unpinned bash inline program", "bash -c 'true'", "unpinned inline program: bash")
     (base / "tool.py").write_text("print('ok')\n")
     step("a pinned inline program and a checkout script", f"python3 -c 'print(1)' && python3 {base}/tool.py", None)
