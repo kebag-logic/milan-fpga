@@ -2428,11 +2428,12 @@ Resource bounds:
   peak was 5806784512 bytes (67.6% of the cap), with every memory-event
   counter zero, and its largest process peaked at 1213100 KiB.
 - A second such run, with `/usr/bin/time` around each of its 133 sv2v and
-  141 Yosys runs, passed the same way. 25 of those sv2v runs elaborated the
-  full datapath, 23 of them above 1205884 KiB and the largest at 1212036 KiB.
-  `CENSUS_WORKER_BYTES` is therefore the larger figure, 1213100 KiB or
-  1242214400 bytes. Yosys peaked at 380492 KiB, and the scope at 5569384448
-  bytes.
+  141 Yosys runs, passed the same way. Of those sv2v runs, 10 exited nonzero,
+  120 peaked at 1168056 to 1212036 KiB, and 20 were above 1205884 KiB.
+  The largest of them, 1212036 KiB, was that run's largest process.
+  `CENSUS_WORKER_BYTES` is the larger of the two runs' largest processes,
+  1213100 KiB or 1242214400 bytes. Yosys peaked at 380492 KiB, and the scope
+  at 5569384448 bytes.
 - The same command at `--jobs 16` under the same cap reproduces #742: 113 of
   120 arms failed with sv2v `exit -9`, and the scope recorded 209 OOM kills,
   2298 OOM events and a peak at the cap. These are native measurements, not a
