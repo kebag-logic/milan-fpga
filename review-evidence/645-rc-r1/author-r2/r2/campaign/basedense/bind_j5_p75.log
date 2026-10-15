@@ -1,0 +1,12 @@
+RESULT-645-BIND: B17 cycle 7 phase 0.5859 at INTERNAL: first PDU +54.950 ms after the bind, primed margin 3.680..8.800 us (OUTSIDE B17's window), arms 0 (-1.000 ms after the first PDU), settle recentres 0 (-1.00 ticks after the arm), render recentres 0, SLIP_LB +4 dups +0 skips, slipped frames 0 before the ring acts and 2 after, first burst 24.968 us at +1.3014 s, later 29.140 us, margin after a recentre +1000000000.000..-1000000000.000 ticks, full side +1000000000.000 (1e9: no recentre)
+  info: B17 cycle 7: slip (dup) +1.356466 s after the bind, +0.000116 s from the first burst
+  info: B17 cycle 7: slip (dup) +1.856489 s after the bind, +0.500139 s from the first burst
+  [FAIL] [BIND] B17 cycle 7 at INTERNAL: its first PDU armed the settle recentre once
+  [FAIL] [BIND] B17 cycle 7 at INTERNAL: one settle recentre, 2,048 media ticks after the arming
+  [FAIL] [BIND] B17 cycle 7 at INTERNAL: the render stage counted one recentre got=0 exp=1
+  [FAIL] [BIND] B17 cycle 7 at INTERNAL: no loopback slip after the ring acts got=2 exp=0
+  [FAIL] [BIND] B17 cycle 7 at INTERNAL: the loopback ring is centred after the recentre (margin in (5, 6] ticks)
+  [FAIL] [BIND] B17 cycle 7 at INTERNAL: empty-side margin at least one tick after the recentre
+  [FAIL] [BIND] B17 cycle 7 at INTERNAL: full-side margin at least one tick after the recentre
+== follow_ring: checks: 7   failures: 7 ==
+RESULT: FAIL
