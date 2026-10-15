@@ -246,6 +246,7 @@ def main() -> int:
             home.mkdir()
             temp.mkdir()
             job_path, job_env = [], {}
+            origin = exec_audit.Origin(root, exec_audit.checkout_files(root))
         commands = Path(tempfile.mkdtemp(dir=temp, prefix='step-'))
         files = {name: commands / name.lower() for name in
                  ('GITHUB_PATH', 'GITHUB_ENV', 'GITHUB_OUTPUT', 'GITHUB_STEP_SUMMARY')}
@@ -262,7 +263,8 @@ def main() -> int:
                        **{name: substitute(value, values) for name, value in step['env'].items()}}
         entry = {'job': step['job'], 'label': step['name'], 'argv': ['bash', '-e', str(script)],
                  'working-directory': step['working-directory']}
-        result = exec_audit.audit_step(entry, names, root, environment, args.logs / f'step-{number:03d}.jsonl')
+        result = exec_audit.audit_step(entry, names, root, environment, args.logs / f'step-{number:03d}.jsonl',
+                                       origin)
         result.update({'step': key, 'image_form': reason, 'text_sha256': row['text_sha256']})
         receipt_steps.append(result)
         reconciliation.append({**row, 'traced': True, 'why': reason})

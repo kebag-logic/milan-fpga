@@ -20,8 +20,8 @@ judged by what it runs, not by the loaded interpreter binary:
 - a program or script inside the image's own directories must be named in
   `exec-audit.json`;
 - any other program needs provenance: the output (`-o`) of a build program run
-  earlier in the same traced step, or a byte copy of one. A script needs to be
-  in the checkout when the step starts, or written during the step.
+  earlier in the same traced job, or a byte copy of one. A script needs to be
+  in the checkout when the job starts, or written during the job.
 
 `--selftest` runs the controls; `--audit SPEC --output RECEIPT` runs a step spec.
 """
@@ -98,7 +98,7 @@ def _argv(pid: int) -> list[str]:
 
 
 class Origin:
-    """Provenance within one traced step: build outputs, step-created scripts and program copies."""
+    """Provenance within one traced job: build outputs, job-created scripts and program copies."""
 
     def __init__(self, root: Path, present: set[str]) -> None:
         self.root, self.present = root, present
@@ -139,10 +139,10 @@ class Origin:
         if Path(path).is_relative_to(self.root) and Path(path).relative_to(self.root).as_posix() in self.present:
             return "checkout"
         try:
-            created = os.stat(path).st_ctime >= self.started  # Created or copied during the step.
+            created = os.stat(path).st_ctime >= self.started  # Created or copied during the job.
         except OSError:
             created = False
-        return "written during the step" if created else "none"
+        return "written during the job" if created else "none"
 
 
 def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin | None = None) -> dict[str, object]:
@@ -373,9 +373,12 @@ def checkout_files(root: Path) -> set[str]:
 
 
 def audit_step(entry: dict[str, object], names: dict[str, object], root: Path, environment: dict[str, str],
-               log: Path | None = None) -> dict[str, object]:
-    """Trace one step, keep its instances, and attach the population and findings."""
-    origin = Origin(root, checkout_files(root))
+               log: Path | None = None, origin: Origin | None = None) -> dict[str, object]:
+    """Trace one step, keep its instances, and attach the population and findings.
+
+    A job's steps share one origin, so provenance spans the traced job.
+    """
+    origin = origin or Origin(root, checkout_files(root))
     directory = root / str(entry.get("working-directory", "."))
     result = trace(list(entry["argv"]), directory, {**environment, **entry.get("env", {})}, origin)
     population, findings = judge(result, names)
@@ -475,7 +478,7 @@ def selftest(names: dict[str, object]) -> int:
              f"ln -s {base}/checkout.sh {base}/shadow/apt-get && bash {base}/shadow/apt-get",
              "installer executed: apt-get")
         (base / "tool.py").write_text("print('ok')\n")
-        step("a permitted interpreter call and a step-written script",
+        step("a permitted interpreter call and a checkout script",
              f"python3 -c 'print(1)' && python3 {base}/tool.py", None)
         (base / "built.c").write_text("int main(void) { return 0; }\n")
         step("a program the step built, and an installed copy of it",
