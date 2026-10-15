@@ -1,0 +1,8 @@
+Builds (pinned Verilator 5.050, from the clone at fb5dd3da, outputs outside the clone):
+  make -C tb/verilator/follow_ring build VERILATOR=<pinned 5.050> MDIR=<scratch>/obj_head
+  make -C tb/verilator/follow_ring build VERILATOR=<pinned 5.050> MDIR=<scratch>/obj_base DP_SRC=<f6260253's hdl/milan/milan_datapath.sv, sha256 553be35db215667953502e1f6284405da4f37babcf249b31ab3823f4b4350e11>
+Runs (three in parallel, 224 s wall):
+  obj_head/Vfollow_ring --case bind --jitter-us 5 --any-phase --dwell-s 0.5 --bind-phase 0.312500 --seed 650   -> head_j5_p05 (published fix16/bind_j5_p05)
+  obj_head/Vfollow_ring --case bind --jitter-us 5 --any-phase --dwell-s 0.5 --bind-phase 0.843750 --seed 672   -> head_j5_p27 (published fix32/bind_j5_p27)
+  obj_base/Vfollow_ring --case bind --jitter-us 5 --any-phase --dwell-s 0.5 --bind-phase 0.843750 --seed 672   -> base_j5_p27 (published base32/bind_j5_p27)
+Comparison: ../spotcheck-compare.txt (RESULT-645-BIND and slip info lines, sha256 of the grep, against the published logs)
