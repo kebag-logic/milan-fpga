@@ -1,0 +1,177 @@
+{
+  "source_head": "21bd10cec1a999791c9cd2c6d37c52372fb1504e",
+  "job_class": "litex",
+  "allocated_cpus": 12,
+  "container_limit_bytes": 8589934592,
+  "memory_peak_bytes": 3303358464,
+  "memory_peak_gib": 3.0765,
+  "memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0,
+    "sock_throttled": 0
+  },
+  "returncode": 0,
+  "seconds": 453.392,
+  "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "environment": [
+    "CI_BUILD_JOBS=12",
+    "CI_CAMPAIGN_JOBS=4",
+    "VERILATOR_JOBS=12",
+    "SIM_JOBS=4",
+    "MAKEFLAGS=-j1 --no-print-directory"
+  ],
+  "sampled_max_process_counts": {
+    "bash": 3,
+    "timeout": 1,
+    "python3": 5,
+    "sh": 2,
+    "java": 2,
+    "make": 2,
+    "perl": 1,
+    "verilator_bin": 1,
+    "g++": 1,
+    "cc1plus": 1
+  },
+  "source_scope": "Disposable initialized checkout; tracked source unchanged. One container at a time. Twelve CPUs measures width within the assigned die, not aligned fallback admission.",
+  "artifacts": [
+    {
+      "name": "cold-pad-build.txt",
+      "bytes": 160,
+      "sha256": "850638dcb833ce6941a5061a90777bae678a0dad3e30eb2594cc228471e3251d"
+    },
+    {
+      "name": "container-observation.json",
+      "bytes": 496,
+      "sha256": "718a84ab9ad76de9c5ea5ee09c765c2af11c168ed9e46b7a2bc55d43eb9da93c"
+    },
+    {
+      "name": "cpus",
+      "bytes": 3,
+      "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+    },
+    {
+      "name": "finished",
+      "bytes": 21,
+      "sha256": "a1d25326e2157c6ce41074dc0c26146e50a8237ecacaaa459e01299d9b9a10c6"
+    },
+    {
+      "name": "job.env",
+      "bytes": 100,
+      "sha256": "2cf43a8cb2e93f2f40af17afe4271f579a438d08b0f429a7a2cc2f1709b2fa2a"
+    },
+    {
+      "name": "launch.json",
+      "bytes": 894,
+      "sha256": "aeef8d0f4bfb74ede09812b1f06ca168145166cb199ea1b789c9c740d35a2e85"
+    },
+    {
+      "name": "litex-logs/test_cpu_memory_port_cdc.log",
+      "bytes": 1949,
+      "sha256": "63e160d8132f36c5ca5f8b5192e778e15782a0f8be593f8bce9f9c9ac04d8dbd"
+    },
+    {
+      "name": "litex-logs/test_ctrl_memory.log",
+      "bytes": 21787,
+      "sha256": "6a891eb7e8e811e0be1dbf522221a08e5418bedd9b3566a66dd0cfd04f1076fb"
+    },
+    {
+      "name": "litex-logs/test_gmii_rx_capture.log",
+      "bytes": 357,
+      "sha256": "1423d717eb9bc07ce16ab5d79da86db8235faaad6ccb561048e290f21b858596"
+    },
+    {
+      "name": "litex-logs/test_gptp_tx_timestamp.log",
+      "bytes": 167180,
+      "sha256": "dcdd739efb385679d63e802ae1bff2f5df78e05ffd0ec5dd6f5b2463fb59b192"
+    },
+    {
+      "name": "litex-logs/test_pp_boot_bus_freeze.log",
+      "bytes": 2603,
+      "sha256": "2d4a7be0753b1f4e46c6b023e98bc24910e34471dcbb9a167d1b7c9bdae9a0fd"
+    },
+    {
+      "name": "litex-logs/test_pp_mem_bridge.log",
+      "bytes": 8776,
+      "sha256": "7b3e6b76611ce02437cb159622e72fd03b36981fb0266765ff7896c015d71c23"
+    },
+    {
+      "name": "litex-logs/test_retained_cdc_storage.log",
+      "bytes": 9762,
+      "sha256": "568f37f5569cda35155ea9824dab17d9ff64ff9fc9c7efeb65c468f097ead434"
+    },
+    {
+      "name": "memory.events",
+      "bytes": 70,
+      "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+    },
+    {
+      "name": "memory.peak",
+      "bytes": 11,
+      "sha256": "bb79ad2ea8e12f26cb68f6894da7943e6bb3bd31dd07b15d16335d431c6718b9"
+    },
+    {
+      "name": "result.rc",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "name": "run.log",
+      "bytes": 1119,
+      "sha256": "86249cef7137dc78f46ef02a07284d5327cd19cd803a1fbc045d17960199afc1"
+    },
+    {
+      "name": "run.sh",
+      "bytes": 876,
+      "sha256": "6f0079a762b9709c9c29b17762724addf745955f72710a857b2cf2e6cba858fa"
+    },
+    {
+      "name": "started",
+      "bytes": 21,
+      "sha256": "25079623bffce0f75822f03838dee9f22bab40a7584b9d1416ebea5abeadd0cd"
+    },
+    {
+      "name": "state.json",
+      "bytes": 269,
+      "sha256": "5020083e6905182f236bbdab20a76fb022c5f876692a442b58042e5823af7b50"
+    },
+    {
+      "name": "telemetry.jsonl",
+      "bytes": 21008,
+      "sha256": "722a8fa95449cf049ef1b748854c3cf14b33c8ac2e07ce1259e6b60db3e96821"
+    }
+  ],
+  "sampled_service_memory_current_max": 417185792,
+  "container_observation": {
+    "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+    "memory": 8589934592,
+    "memory_swap": 8589934592,
+    "cpuset": "112-123",
+    "exit_code": 0,
+    "oom_killed": false,
+    "started_at": "2026-10-14T17:55:33.621462628Z",
+    "finished_at": "2026-10-14T18:03:07.455885911Z",
+    "configuration_source": "docker inspect"
+  },
+  "exported_verilator_jobs_for_workload": 12,
+  "campaign_workers": null,
+  "log_tail": [
+    "run_litex_sims selftest: 10 checks: 10 PASS, 0 FAIL",
+    "RESULT: PASS",
+    "PASS     test_cpu_memory_port_cdc",
+    "PASS     test_ctrl_memory",
+    "PASS     test_gmii_rx_capture",
+    "PASS     test_gptp_tx_timestamp",
+    "PASS     test_pp_boot_bus_freeze",
+    "PASS     test_pp_mem_bridge",
+    "PASS     test_retained_cdc_storage",
+    "----------------------------------------------------------------",
+    "simulations: 7   passed: 7   failed: 0   skipped: 0   timed out: 0",
+    "logs: /scratch/litex-logs"
+  ],
+  "provisioning": "Fresh image container, empty CPU metadata; preinstalled dependency caches. Home-relative RV32 selector aliases the pinned SDK. JVM source/cache directories are writable by the checkout owner.",
+  "command": "scripts/run_litex_sims.sh --selftest; scripts/run_litex_sims.sh \"$LITEX_LOGS\""
+}

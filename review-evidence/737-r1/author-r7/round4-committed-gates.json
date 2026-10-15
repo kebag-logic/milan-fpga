@@ -1,0 +1,856 @@
+{
+ "head": "6ab22bca61a76c989ad9fbb94b9cde2639d38ca9",
+ "checkouts": {
+  "head": "6ab22bca61a76c989ad9fbb94b9cde2639d38ca9",
+  "submodules": [
+   {
+    "checkout": "validation3",
+    "submodule": "third_party/verilog-axis",
+    "origin": "https://github.com/alexforencich/verilog-axis",
+    "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+   },
+   {
+    "checkout": "validation3",
+    "submodule": "protocol-processor",
+    "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+    "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+   },
+   {
+    "checkout": "validation3",
+    "submodule": "gptp-processor",
+    "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+    "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+   },
+   {
+    "checkout": "validation3",
+    "submodule": "third_party/lwSRP",
+    "origin": "https://github.com/kebag-logic/lwSRP.git",
+    "pin": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348"
+   },
+   {
+    "checkout": "validation3",
+    "submodule": "third_party/tsn-c-stack",
+    "origin": "https://github.com/kebag-logic/tsn-c-stack.git",
+    "pin": "70936b77dc41981e192438388cd0aced69954f18"
+   }
+  ]
+ },
+ "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+ "bank_boundary": "Fresh --no-local clone at the head, pinned submodules verified by root, origin and gitlink; one 8 GiB container, CPUs 112-127, no network; exact template step bodies; setup steps provided by the image.",
+ "docs_check": {
+  "passed": true,
+  "executed": 39,
+  "not_executed_in_bank": [
+   "End-station builder gates",
+   "Local act runner contract gate"
+  ],
+  "steps": [
+   {
+    "job": "docs-check",
+    "index": 1,
+    "step": "Build the validated HDL reference",
+    "returncode": 0,
+    "seconds": 2.831,
+    "log_bytes": 1047,
+    "log_sha256": "56063d7f10d25053a2d148f72730faba9d188386e6ae7994b425ff091677ec00",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 7,
+    "step": "Link health, wording, dead-reference and local-info gate",
+    "returncode": 0,
+    "seconds": 5.846,
+    "log_bytes": 128,
+    "log_sha256": "0276fde922fe333174ba27ba2c03743f14b5e2a0bfe604d29db34a090bc89b85",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 8,
+    "step": "Added-line em-dash gate",
+    "returncode": 0,
+    "seconds": 3.045,
+    "log_bytes": 140,
+    "log_sha256": "8798bad8e1cddf56b98aa7e48190cceea420249de32a3694e7f7875f9135aa9b",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 9,
+    "step": "Concise audience documentation gate",
+    "returncode": 0,
+    "seconds": 0.758,
+    "log_bytes": 167,
+    "log_sha256": "05d6ef2302a6c0467ad437209233733e93bcb2941539103e26c51b988a28637a",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 10,
+    "step": "Audience diagram no-drift gate",
+    "returncode": 0,
+    "seconds": 1.743,
+    "log_bytes": 242,
+    "log_sha256": "79dce4dc64e4d57851e37c5bac0a829304d65207659bb65049e11b7d0683f069",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 11,
+    "step": "Product solution source-fact gate",
+    "returncode": 0,
+    "seconds": 3.444,
+    "log_bytes": 146,
+    "log_sha256": "9ef43cc924919e10ccb30a9419819d20b849d787a8f37fcabba22e2159d3167d",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 12,
+    "step": "Verified submodule documentation gate",
+    "returncode": 0,
+    "seconds": 1.657,
+    "log_bytes": 227,
+    "log_sha256": "88d83848aecf81453b10dd129f7ebbaf87fc3adbb655fed653ec81b507b84d75",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 13,
+    "step": "HDL timing diagram no-drift gate",
+    "returncode": 0,
+    "seconds": 1.109,
+    "log_bytes": 241,
+    "log_sha256": "af9493d0e4acd65eb64ba2bbe7103a2c6f957ecca650a938cdc18d70396a57ea",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 14,
+    "step": "Published diagram PNG gate",
+    "returncode": 0,
+    "seconds": 8.088,
+    "log_bytes": 125,
+    "log_sha256": "17d1d2360a98e818f8706a8165affff7c873cb06b4fe8db4c48300e103e51c1e",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 15,
+    "step": "Milan feature-status consistency gate",
+    "returncode": 0,
+    "seconds": 1.075,
+    "log_bytes": 1500,
+    "log_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 16,
+    "step": "Traceability matrix no-drift gate",
+    "returncode": 0,
+    "seconds": 1.165,
+    "log_bytes": 118,
+    "log_sha256": "4e782e68ed5c09299d5d990702b634a2358aa1d5cbc2fd822374561e249c2687",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 18,
+    "step": "Imported gPTP documentation gate",
+    "returncode": 0,
+    "seconds": 0.963,
+    "log_bytes": 2593,
+    "log_sha256": "3bd921c483e119b7d296826d566d16122e1eb90635413d337b7457f84da2c3b7",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 19,
+    "step": "Code-quality measurement self-tests",
+    "returncode": 0,
+    "seconds": 0.161,
+    "log_bytes": 3293,
+    "log_sha256": "862838344ece59e4179fd4bcfe04f85ee320f0601c325014b2509717db13368b",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 21,
+    "step": "Bare-metal scope gate",
+    "returncode": 0,
+    "seconds": 28.704,
+    "log_bytes": 115,
+    "log_sha256": "fc6fcba4bc26d87e9509f8b852b6be87ee1d14bb2c804e5f7d5281bec7c18fa1",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 24,
+    "step": "Compiler-absent firmware controls",
+    "returncode": 0,
+    "seconds": 555.264,
+    "log_bytes": 51414,
+    "log_sha256": "3216f258d272daccb6e7e0fa371c6e221b67f5dbf98eda44680d396f40cfd64d",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 25,
+    "step": "End-station builder gates",
+    "returncode": null,
+    "seconds": null,
+    "log_bytes": null,
+    "log_sha256": null,
+    "skipped_by_bank": true
+   },
+   {
+    "job": "docs-check",
+    "index": 26,
+    "step": "NVM record-space gate",
+    "returncode": 0,
+    "seconds": 44.05,
+    "log_bytes": 9588,
+    "log_sha256": "7969fb65ae1ea9d608146bed63d697587402331dc1efa2c128e61861a7f6493e",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 27,
+    "step": "Capture measurement census and clock gate",
+    "returncode": 0,
+    "seconds": 0.85,
+    "log_bytes": 398,
+    "log_sha256": "7bb472e312a53443576575b4d73f0c971fa708ee029f79cdb9233dec5e33f382",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 28,
+    "step": "Saved-state writer gate",
+    "returncode": 0,
+    "seconds": 109.601,
+    "log_bytes": 5189,
+    "log_sha256": "cba18482dbf27c70ee56b28a8fbbe7bfdc2cc49b4644a42daa5ad4db8f6d4972",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 29,
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "returncode": 0,
+    "seconds": 2.66,
+    "log_bytes": 4794,
+    "log_sha256": "0d36e3ad97cf5cce5db8f0e3353f9da0bdee976188f40c06353ce41898111a6c",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 30,
+    "step": "RTL source-list drift gate",
+    "returncode": 0,
+    "seconds": 4.711,
+    "log_bytes": 3453,
+    "log_sha256": "be8805dc2fee50eddcf0b966ea5728febdeed2e7b9f288ba358f41c1fe4b7041",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 31,
+    "step": "Boundary-unit naming ratchet",
+    "returncode": 0,
+    "seconds": 1.028,
+    "log_bytes": 40516,
+    "log_sha256": "e59e133ee553414836cffffae719bcb0d5bf5774aa6708e547cc6f2a56fabf52",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 32,
+    "step": "Port contract gate",
+    "returncode": 0,
+    "seconds": 6.444,
+    "log_bytes": 5040,
+    "log_sha256": "44cabb635affbbd5ea35c4a5e144f5769eb123f8949d6373a29836bbfefad4c1",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 33,
+    "step": "Fail-fast ratchet",
+    "returncode": 0,
+    "seconds": 3.655,
+    "log_bytes": 12564,
+    "log_sha256": "5150bb7895e21dc237b796011d796e5ce3159f6355d44107c62153df76882550",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 34,
+    "step": "TODO ownership gate",
+    "returncode": 0,
+    "seconds": 4.377,
+    "log_bytes": 2745,
+    "log_sha256": "173ec0b7d37ffcc534a4ac1da91a8405abf212eeb348090eddd0b1ccb3cf00c5",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 35,
+    "step": "Test-evidence ratchet",
+    "returncode": 0,
+    "seconds": 20.384,
+    "log_bytes": 24591,
+    "log_sha256": "0c6bc76300bf37683d18553ea38d4ae80d27a2ccd0220f29f5a9a833c7e4520c",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 36,
+    "step": "Mechanical hygiene ratchet",
+    "returncode": 0,
+    "seconds": 1.011,
+    "log_bytes": 3971,
+    "log_sha256": "9cac357d4c06213df7bc67c3833ace43b2647c67fe20bbe38ebcb2288a924984",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 37,
+    "step": "SystemVerilog idiom gate",
+    "returncode": 0,
+    "seconds": 0.915,
+    "log_bytes": 3173,
+    "log_sha256": "ccd900273b796fdfcf74e586f952eadfc9f6f6b1ad448b891183f939a49df728",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 38,
+    "step": "C and C++ idiom gate",
+    "returncode": 0,
+    "seconds": 3.504,
+    "log_bytes": 3909,
+    "log_sha256": "7324eabbd50a20c6df999cc2fc66551cdf6a9e304331f051245fe1e1030d220c",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 39,
+    "step": "Python idiom gate",
+    "returncode": 0,
+    "seconds": 11.702,
+    "log_bytes": 2992,
+    "log_sha256": "74a46e4f80520528f41e0f13626cede17830a5268cbf9fdd2689ae87ba399093",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 40,
+    "step": "Shell idiom gate",
+    "returncode": 0,
+    "seconds": 0.54,
+    "log_bytes": 2696,
+    "log_sha256": "a57f331056f1f93e369a05fc919fd7d91a98638253282a970a118711a46e20e1",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 41,
+    "step": "CI event and SHA contract gate",
+    "returncode": 0,
+    "seconds": 226.575,
+    "log_bytes": 334510,
+    "log_sha256": "585bd8c81754e38676a2c1e109e4e9f7163bce9707997a6f26ee372f864f04c9",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 42,
+    "step": "Local act runner contract gate",
+    "returncode": null,
+    "seconds": null,
+    "log_bytes": null,
+    "log_sha256": null,
+    "skipped_by_bank": true
+   },
+   {
+    "job": "docs-check",
+    "index": 43,
+    "step": "Doc cited-path gate",
+    "returncode": 0,
+    "seconds": 0.099,
+    "log_bytes": 100,
+    "log_sha256": "f541da709661582cd9c33aaf884eaadb3282998649eeb16edb21be221888fcdf",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 44,
+    "step": "Archive integrity gate",
+    "returncode": 0,
+    "seconds": 0.485,
+    "log_bytes": 128,
+    "log_sha256": "1a15e66a07892f544c4b9bee75201ff9acaf3edd2c37963a780f8473466d50cb",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 45,
+    "step": "Per-page contents gate",
+    "returncode": 0,
+    "seconds": 11.62,
+    "log_bytes": 196,
+    "log_sha256": "9d932b778e843a63a8fff30293b23dc7f9f6d3441307ae13c2fea6139bc7c843",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 46,
+    "step": "AEM store generator self-test",
+    "returncode": 0,
+    "seconds": 0.079,
+    "log_bytes": 3596,
+    "log_sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 47,
+    "step": "Sweep/build shape gate",
+    "returncode": 0,
+    "seconds": 13.452,
+    "log_bytes": 19738,
+    "log_sha256": "0d40311ccf4d3bca70d711ab7311b0a269e2c6ab7a42eacc52d13b7dfc2b9914",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 48,
+    "step": "Deploy shape gate",
+    "returncode": 0,
+    "seconds": 0.4,
+    "log_bytes": 9298,
+    "log_sha256": "94f4012aaec6739f3e7e73c5d6ffc85ac1c8b18da0ea9f54b505d9609baecaa2",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 49,
+    "step": "Entity shape gate",
+    "returncode": 0,
+    "seconds": 51.388,
+    "log_bytes": 27718,
+    "log_sha256": "e9f59fab4d0903d9804f3feca35a4d7d7f43a1b0353c59cf38498ec2fea7ac2e",
+    "skipped_by_bank": null
+   },
+   {
+    "job": "docs-check",
+    "index": 50,
+    "step": "CI scheduling and evidence controls",
+    "returncode": 0,
+    "seconds": 23.459,
+    "log_bytes": 106495,
+    "log_sha256": "cc4ff573757c705866d68de6f98dc2e5093a4d6c119d2fe95df2b154c569627d",
+    "skipped_by_bank": null
+   }
+  ]
+ },
+ "docs_check_no_git": {
+  "passed": true,
+  "steps": [
+   {
+    "job": "docs-check-no-git",
+    "index": 1,
+    "step": "Strip git metadata, then run the docs gate",
+    "returncode": 0,
+    "seconds": 8.008,
+    "log_bytes": 225,
+    "log_sha256": "10555482499fd345158f736f4332887c53b1e77a389b3899e3e4d782bf20d9a7",
+    "skipped_by_bank": null
+   }
+  ]
+ },
+ "runner_contract_gate": {
+  "head": "6ab22bca61a76c989ad9fbb94b9cde2639d38ca9",
+  "rc": 0,
+  "seconds": 103.101,
+  "log_bytes": 116257,
+  "log_sha256": "8e8e5f26fa7f04dc5c741bcf4472c3da05df1914244074960cea746c39c0d00d",
+  "runner_sha256": "f968f67655ac386ea703248b724c3781b95ec379d3a5287b378e470df81f895c",
+  "boundary": "Read-only candidate mount, no network or Docker socket; CPython 3.12.3."
+ },
+ "rtl_fast": "No rtl-fast step is touched: .github/ci-templates/rtl-fast.yml and .github/workflows/rtl-fast.yml are byte-identical to 84ee9ea1, and no rtl-fast template step reads a changed file. The changed watcher and collector code is exercised by its self-tests in the docs-check scheduling and evidence controls step.",
+ "focused_gates_by_item": {
+  "final-host-gates": {
+   "head": "6ab22bca61a76c989ad9fbb94b9cde2639d38ca9",
+   "uncommitted": [],
+   "all_zero": true,
+   "results": [
+    {
+     "name": "em-dash-round4-base",
+     "command": "python3 scripts/check_em_dash.py --base 84ee9ea119b548b4982d2c0988d8753a2ce4d0cf",
+     "rc": 0,
+     "seconds": 3.083
+    },
+    {
+     "name": "em-dash-dev-base",
+     "command": "python3 scripts/check_em_dash.py --base fa8209889411e8ca95757174c981f720dbcd95a2",
+     "rc": 0,
+     "seconds": 2.939
+    },
+    {
+     "name": "diff-check",
+     "command": "git diff --check 84ee9ea119b548b4982d2c0988d8753a2ce4d0cf HEAD",
+     "rc": 0,
+     "seconds": 0.011
+    },
+    {
+     "name": "hygiene",
+     "command": "python3 scripts/check_hygiene.py",
+     "rc": 0,
+     "seconds": 0.483
+    }
+   ]
+  },
+  "item1-gates": {
+   "head": "84ee9ea119b548b4982d2c0988d8753a2ce4d0cf",
+   "uncommitted": [
+    " M docs/testing/CI_WORKFLOWS.md",
+    " M scripts/ci_runtime_evidence_selftest.py"
+   ],
+   "all_zero": true,
+   "results": [
+    {
+     "name": "runtime-selftest",
+     "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+     "rc": 0,
+     "seconds": 5.373
+    },
+    {
+     "name": "py-idiom",
+     "command": "python3 scripts/check_py_idiom.py",
+     "rc": 0,
+     "seconds": 5.489
+    },
+    {
+     "name": "docs-check",
+     "command": "python3 scripts/docs_check.py",
+     "rc": 0,
+     "seconds": 5.181
+    },
+    {
+     "name": "em-dash",
+     "command": "python3 scripts/check_em_dash.py --base fa8209889411e8ca95757174c981f720dbcd95a2",
+     "rc": 0,
+     "seconds": 3.036
+    },
+    {
+     "name": "doc-style",
+     "command": "python3 scripts/check_doc_style.py",
+     "rc": 0,
+     "seconds": 0.059
+    },
+    {
+     "name": "doc-paths",
+     "command": "python3 scripts/check_doc_paths.py",
+     "rc": 0,
+     "seconds": 0.09
+    },
+    {
+     "name": "toc",
+     "command": "python3 scripts/gen_toc.py --verify-anchors && python3 scripts/gen_toc.py --check",
+     "rc": 0,
+     "seconds": 10.531
+    }
+   ]
+  },
+  "r1-gates": {
+   "head": "80bdcd69027ad507381dd42f3a1e48e6399eb45d",
+   "uncommitted": [
+    " M docs/testing/CI_WORKFLOWS.md"
+   ],
+   "all_zero": true,
+   "results": [
+    {
+     "name": "docs-check",
+     "command": "python3 scripts/docs_check.py",
+     "rc": 0,
+     "seconds": 4.743
+    },
+    {
+     "name": "doc-style",
+     "command": "python3 scripts/check_doc_style.py",
+     "rc": 0,
+     "seconds": 0.053
+    },
+    {
+     "name": "doc-paths",
+     "command": "python3 scripts/check_doc_paths.py",
+     "rc": 0,
+     "seconds": 0.081
+    },
+    {
+     "name": "em-dash",
+     "command": "python3 scripts/check_em_dash.py --base fa8209889411e8ca95757174c981f720dbcd95a2",
+     "rc": 0,
+     "seconds": 2.685
+    },
+    {
+     "name": "toc",
+     "command": "python3 scripts/gen_toc.py --verify-anchors && python3 scripts/gen_toc.py --check",
+     "rc": 0,
+     "seconds": 9.853
+    },
+    {
+     "name": "events-check",
+     "command": "python3 scripts/ci_events.py --check",
+     "rc": 0,
+     "seconds": 0.804
+    }
+   ]
+  },
+  "s1-gates": {
+   "head": "cadd001374ffc7bb6401a9d49ff550beb66ae1d6",
+   "uncommitted": [
+    " M scripts/ci_gate_workflows_selftest.py"
+   ],
+   "all_zero": true,
+   "results": [
+    {
+     "name": "gate-selftest",
+     "command": "python3 scripts/ci_gate_workflows.py --check && python3 scripts/ci_gate_workflows_selftest.py",
+     "rc": 0,
+     "seconds": 3.022
+    },
+    {
+     "name": "py-idiom",
+     "command": "python3 scripts/check_py_idiom.py",
+     "rc": 0,
+     "seconds": 5.804
+    }
+   ]
+  },
+  "s2-gates": {
+   "head": "6c36e98f030794f07bf9bf8b90a2f8e3053d69ea",
+   "uncommitted": [
+    " M docs/testing/CI_WORKFLOWS.md",
+    " M scripts/ci_fail_fast.py",
+    " M scripts/ci_fail_fast_selftest.py",
+    " M scripts/ci_runtime_evidence.py",
+    " M scripts/ci_runtime_evidence_selftest.py"
+   ],
+   "all_zero": true,
+   "results": [
+    {
+     "name": "fail-fast-selftest",
+     "command": "python3 scripts/ci_fail_fast_selftest.py",
+     "rc": 0,
+     "seconds": 0.958
+    },
+    {
+     "name": "runtime-selftest",
+     "command": "python3 scripts/ci_runtime_evidence_selftest.py",
+     "rc": 0,
+     "seconds": 6.09
+    },
+    {
+     "name": "py-idiom",
+     "command": "python3 scripts/check_py_idiom.py",
+     "rc": 0,
+     "seconds": 5.025
+    },
+    {
+     "name": "pins",
+     "command": "python3 scripts/generate_ci_evidence_pins.py --check",
+     "rc": 0,
+     "seconds": 0.031
+    },
+    {
+     "name": "docs-check",
+     "command": "python3 scripts/docs_check.py",
+     "rc": 0,
+     "seconds": 4.779
+    },
+    {
+     "name": "em-dash",
+     "command": "python3 scripts/check_em_dash.py --base fa8209889411e8ca95757174c981f720dbcd95a2",
+     "rc": 0,
+     "seconds": 2.993
+    },
+    {
+     "name": "doc-style",
+     "command": "python3 scripts/check_doc_style.py",
+     "rc": 0,
+     "seconds": 0.059
+    },
+    {
+     "name": "doc-paths",
+     "command": "python3 scripts/check_doc_paths.py",
+     "rc": 0,
+     "seconds": 0.091
+    },
+    {
+     "name": "toc",
+     "command": "python3 scripts/gen_toc.py --verify-anchors && python3 scripts/gen_toc.py --check",
+     "rc": 0,
+     "seconds": 10.207
+    }
+   ]
+  },
+  "s3-gates": {
+   "head": "4f7c281e75935f1c99c876ec20bbdef03ad23128",
+   "uncommitted": [
+    " M docs/testing/CI_WORKFLOWS.md"
+   ],
+   "all_zero": true,
+   "results": [
+    {
+     "name": "docs-check",
+     "command": "python3 scripts/docs_check.py",
+     "rc": 0,
+     "seconds": 7.125
+    },
+    {
+     "name": "doc-style",
+     "command": "python3 scripts/check_doc_style.py",
+     "rc": 0,
+     "seconds": 0.069
+    },
+    {
+     "name": "doc-paths",
+     "command": "python3 scripts/check_doc_paths.py",
+     "rc": 0,
+     "seconds": 0.099
+    },
+    {
+     "name": "em-dash",
+     "command": "python3 scripts/check_em_dash.py --base fa8209889411e8ca95757174c981f720dbcd95a2",
+     "rc": 0,
+     "seconds": 3.824
+    },
+    {
+     "name": "toc",
+     "command": "python3 scripts/gen_toc.py --verify-anchors && python3 scripts/gen_toc.py --check",
+     "rc": 0,
+     "seconds": 12.256
+    },
+    {
+     "name": "events-check",
+     "command": "python3 scripts/ci_events.py --check",
+     "rc": 0,
+     "seconds": 0.754
+    }
+   ]
+  },
+  "s4-commit-gates": {
+   "head": "81a55f1f4682dc720642eadaa663874753deb854",
+   "uncommitted": [
+    " M .github/ci-templates/rtl.yml",
+    " M .github/workflows/rtl.yml",
+    " M docs/testing/CI_WORKFLOWS.md",
+    " M scripts/ci_events.py"
+   ],
+   "all_zero": true,
+   "results": [
+    {
+     "name": "events-check",
+     "command": "python3 scripts/ci_events.py --check",
+     "rc": 0,
+     "seconds": 0.711
+    },
+    {
+     "name": "docs-check",
+     "command": "python3 scripts/docs_check.py",
+     "rc": 0,
+     "seconds": 4.759
+    },
+    {
+     "name": "doc-style",
+     "command": "python3 scripts/check_doc_style.py",
+     "rc": 0,
+     "seconds": 0.053
+    },
+    {
+     "name": "em-dash",
+     "command": "python3 scripts/check_em_dash.py --base fa8209889411e8ca95757174c981f720dbcd95a2",
+     "rc": 0,
+     "seconds": 2.687
+    },
+    {
+     "name": "toc",
+     "command": "python3 scripts/gen_toc.py --check",
+     "rc": 0,
+     "seconds": 5.385
+    }
+   ]
+  },
+  "s4-gates": {
+   "head": "81a55f1f4682dc720642eadaa663874753deb854",
+   "uncommitted": [
+    " M .github/ci-templates/rtl.yml",
+    " M .github/workflows/rtl.yml",
+    " M docs/testing/CI_WORKFLOWS.md",
+    " M scripts/ci_events.py"
+   ],
+   "all_zero": true,
+   "results": [
+    {
+     "name": "gen-check",
+     "command": "python3 scripts/ci_gate_workflows.py --check",
+     "rc": 0,
+     "seconds": 0.548
+    },
+    {
+     "name": "events-check",
+     "command": "python3 scripts/ci_events.py --check",
+     "rc": 0,
+     "seconds": 0.697
+    },
+    {
+     "name": "py-idiom",
+     "command": "python3 scripts/check_py_idiom.py",
+     "rc": 0,
+     "seconds": 5.071
+    },
+    {
+     "name": "install-cache",
+     "command": "python3 scripts/ci_install_cache_selftest.py",
+     "rc": 0,
+     "seconds": 0.134
+    },
+    {
+     "name": "docs-check",
+     "command": "python3 scripts/docs_check.py",
+     "rc": 0,
+     "seconds": 5.105
+    },
+    {
+     "name": "em-dash",
+     "command": "python3 scripts/check_em_dash.py --base fa8209889411e8ca95757174c981f720dbcd95a2",
+     "rc": 0,
+     "seconds": 2.984
+    },
+    {
+     "name": "doc-style",
+     "command": "python3 scripts/check_doc_style.py",
+     "rc": 0,
+     "seconds": 0.057
+    },
+    {
+     "name": "doc-paths",
+     "command": "python3 scripts/check_doc_paths.py",
+     "rc": 0,
+     "seconds": 0.091
+    },
+    {
+     "name": "toc",
+     "command": "python3 scripts/gen_toc.py --verify-anchors && python3 scripts/gen_toc.py --check",
+     "rc": 0,
+     "seconds": 10.18
+    }
+   ]
+  }
+ }
+}

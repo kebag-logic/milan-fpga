@@ -1,0 +1,27 @@
+[
+  {
+    "command": "python3 scripts/ci_workflow_plan_selftest.py",
+    "rc": 0,
+    "seconds": 0.332
+  },
+  {
+    "command": "python3 scripts/ci_fail_fast_selftest.py",
+    "rc": 0,
+    "seconds": 1.059
+  },
+  {
+    "command": "python3 scripts/ci_gate_workflows.py --check",
+    "rc": 0,
+    "seconds": 0.611
+  },
+  {
+    "command": "python3 scripts/ci_events.py --check",
+    "rc": 0,
+    "seconds": 0.784
+  },
+  {
+    "command": "python3 scripts/check_py_idiom.py",
+    "rc": 0,
+    "seconds": 5.848
+  }
+]

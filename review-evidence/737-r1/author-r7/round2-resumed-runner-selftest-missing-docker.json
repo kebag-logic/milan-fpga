@@ -1,0 +1,18 @@
+{
+  "command": "python3 -I scripts/act_ci.py --selftest --worktree \"$PWD\"",
+  "returncode": 1,
+  "boundary": "Disposable container; no network, Docker socket, credentials or writable candidate mount.",
+  "image": "sha256:86b8939a79909158d76bb05ac1574b7697820663fcc74d5e115ac6a44e58413f",
+  "log_bytes": 36497,
+  "log_sha256": "6e51fc17b7f1eb660260e989593f626401a3ead6acdf8e5985bad6aa2c5ae339",
+  "log_tail": [
+    "    sudo_docker = docker_prefix(True, hostile_context)",
+    "                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "  File \"$LANES/737-ci30/scripts/act_ci.py\", line 2444, in docker_prefix",
+    "    return isolated_command_prefix(require_tool(\"docker\"), use_sudo, env)",
+    "                                   ^^^^^^^^^^^^^^^^^^^^^^",
+    "  File \"$LANES/737-ci30/scripts/act_ci.py\", line 766, in require_tool",
+    "    raise Refusal(f\"required executable is unavailable: {name}\")",
+    "Refusal: required executable is unavailable: docker"
+  ]
+}

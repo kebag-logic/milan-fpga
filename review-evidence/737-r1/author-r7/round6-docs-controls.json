@@ -1,0 +1,423 @@
+{
+ "purpose": "Planted controls for the docs command: each planted defect fails the unsharded run and the leg that owns its gate, the other leg passes; a leg without --require-rv32 is refused by the union",
+ "lane_head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+ "container": {
+  "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "memory": "8g",
+  "cpuset": "112-127",
+  "network": "none",
+  "budget": "CI_BUILD_JOBS=16 CI_TOOL_BUILD_JOBS=8 CI_CAMPAIGN_JOBS=4 VERILATOR_JOBS=16 SIM_JOBS=4"
+ },
+ "method": "Each defect committed only inside a disposable --no-local clone of the lane head, then run through the generated docs leg step body (or the unsharded reference body) exactly",
+ "planted": {
+  "dm1": [
+   {
+    "run": "dm1-unsharded",
+    "source": {
+     "lane_head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+     "run_head": "152a53845e25a332245d4e414bb3b80f0896e613",
+     "tree": "3cde2e3ac3ab0be6b5b2b6b58c05f98ac477ec7d",
+     "mutation": {
+      "label": "boot-order claim reworded (bare-metal profile gate, leg 0)",
+      "path": "docs/integration/BAREMETAL_FIRMWARE.md",
+      "old": "5. After the identity check and AEM verification succeed, set the\n   `PP_CTRL[0]` and legacy",
+      "new": "5. After the identity check and AEM verification succeed, enable the\n   `PP_CTRL[0]` and legacy"
+     },
+     "submodules": [
+      {
+       "submodule": "third_party/verilog-axis",
+       "origin": "https://github.com/alexforencich/verilog-axis",
+       "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      {
+       "submodule": "protocol-processor",
+       "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+       "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      },
+      {
+       "submodule": "gptp-processor",
+       "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+       "pin": "e4869fd0c42889b2ac806587cc5c78afb1c33461"
+      }
+     ]
+    },
+    "step": "python3 -m pip install --quiet pyyaml\npython3 scripts/ci_builder_legs.py run all --receipt \"$RUNNER_TEMP/gate-results/builder-leg-all.json\" -- python3 sw/builder/test_builder.py --require-rv32\n",
+    "returncode": 1,
+    "seconds": 192.632,
+    "gates_started": 14,
+    "last_gate_started": "test_baremetal_profile_contract:",
+    "failure": "AssertionError: under the arm selection line 950 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): bare-metal boot contract lost: After the identity check and AEM verification succeed, set the `PP_CTRL[0]` and legacy `ADP_CTRL[0]` compatibil",
+    "verdict": null,
+    "receipt_written": [],
+    "receipt_digest": {},
+    "memory_peak_bytes": 3654377472,
+    "memory_events": {
+     "low": "0",
+     "high": "0",
+     "max": "0",
+     "oom": "0",
+     "oom_kill": "0",
+     "oom_group_kill": "0",
+     "sock_throttled": "0"
+    },
+    "log": {
+     "bytes": 12205,
+     "sha256": "058c5b90576682b2c291f2e29db356b0c89c3596e580a647354b20d2c1b5e576"
+    }
+   },
+   {
+    "run": "dm1-leg0",
+    "source": {
+     "lane_head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+     "run_head": "44526a98db185f353ee729e30581b9e0e9a8cefe",
+     "tree": "3cde2e3ac3ab0be6b5b2b6b58c05f98ac477ec7d",
+     "mutation": {
+      "label": "boot-order claim reworded (bare-metal profile gate, leg 0)",
+      "path": "docs/integration/BAREMETAL_FIRMWARE.md",
+      "old": "5. After the identity check and AEM verification succeed, set the\n   `PP_CTRL[0]` and legacy",
+      "new": "5. After the identity check and AEM verification succeed, enable the\n   `PP_CTRL[0]` and legacy"
+     },
+     "submodules": [
+      {
+       "submodule": "third_party/verilog-axis",
+       "origin": "https://github.com/alexforencich/verilog-axis",
+       "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      {
+       "submodule": "protocol-processor",
+       "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+       "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      },
+      {
+       "submodule": "gptp-processor",
+       "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+       "pin": "e4869fd0c42889b2ac806587cc5c78afb1c33461"
+      }
+     ]
+    },
+    "step": "python3 -m pip install --quiet pyyaml\npython3 scripts/ci_builder_legs.py run 0 --receipt \"$RUNNER_TEMP/gate-results/builder-leg-0.json\" -- python3 sw/builder/test_builder.py --require-rv32\n",
+    "returncode": 1,
+    "seconds": 10.56,
+    "gates_started": 1,
+    "last_gate_started": "test_baremetal_profile_contract:",
+    "failure": "AssertionError: under the arm selection line 950 `#ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR`: CSR_MILAN_MAC_PHY_MDIO_W_ADDR defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): bare-metal boot contract lost: After the identity check and AEM verification succeed, set the `PP_CTRL[0]` and legacy `ADP_CTRL[0]` compatibil",
+    "verdict": null,
+    "receipt_written": [],
+    "receipt_digest": {},
+    "memory_peak_bytes": 213053440,
+    "memory_events": {
+     "low": "0",
+     "high": "0",
+     "max": "0",
+     "oom": "0",
+     "oom_kill": "0",
+     "oom_group_kill": "0",
+     "sock_throttled": "0"
+    },
+    "log": {
+     "bytes": 2095,
+     "sha256": "374b7baffc223370a4b3add1a988936569d4829c868106c08246fb4c33095ed0"
+    }
+   },
+   {
+    "run": "dm1-leg1",
+    "source": {
+     "lane_head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+     "run_head": "79dc34f25a30f59e9d4b8ec29260dc3ac99f9a75",
+     "tree": "3cde2e3ac3ab0be6b5b2b6b58c05f98ac477ec7d",
+     "mutation": {
+      "label": "boot-order claim reworded (bare-metal profile gate, leg 0)",
+      "path": "docs/integration/BAREMETAL_FIRMWARE.md",
+      "old": "5. After the identity check and AEM verification succeed, set the\n   `PP_CTRL[0]` and legacy",
+      "new": "5. After the identity check and AEM verification succeed, enable the\n   `PP_CTRL[0]` and legacy"
+     },
+     "submodules": [
+      {
+       "submodule": "third_party/verilog-axis",
+       "origin": "https://github.com/alexforencich/verilog-axis",
+       "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      {
+       "submodule": "protocol-processor",
+       "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+       "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      },
+      {
+       "submodule": "gptp-processor",
+       "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+       "pin": "e4869fd0c42889b2ac806587cc5c78afb1c33461"
+      }
+     ]
+    },
+    "step": "python3 -m pip install --quiet pyyaml\npython3 scripts/ci_builder_legs.py run 1 --receipt \"$RUNNER_TEMP/gate-results/builder-leg-1.json\" -- python3 sw/builder/test_builder.py --require-rv32\n",
+    "returncode": 0,
+    "seconds": 493.794,
+    "gates_started": 102,
+    "last_gate_started": "test_name_count_fits_the_nvm_name_block:",
+    "failure": null,
+    "verdict": "ALL GATES PASS EXCEPT 1 NOT RUN",
+    "receipt_written": [
+     "builder-leg-1.json"
+    ],
+    "receipt_digest": {
+     "builder-leg-1.json": {
+      "bytes": 15132,
+      "sha256": "6f75ff7ce088cf229e771b49b77a3c556f8c04a8f1b43e715673f883f8864f4f"
+     }
+    },
+    "memory_peak_bytes": 5206478848,
+    "memory_events": {
+     "low": "0",
+     "high": "0",
+     "max": "0",
+     "oom": "0",
+     "oom_kill": "0",
+     "oom_group_kill": "0",
+     "sock_throttled": "0"
+    },
+    "log": {
+     "bytes": 75351,
+     "sha256": "1af5e870b4d571429ea14e197ac72bd054302da7f37d5a2bc70ca3ecd4f83e56"
+    }
+   }
+  ],
+  "dm2": [
+   {
+    "run": "dm2-unsharded",
+    "source": {
+     "lane_head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+     "run_head": "47c9c4d425d849007aab8feafdde9321a869bd6d",
+     "tree": "fbc55956341f27e83131ab93f52e66e13b7ff220",
+     "mutation": {
+      "label": "FPU refusal removed (SoC option refusal gate, leg 1)",
+      "path": "sw/litex/milan_soc.py",
+      "old": "        if with_fpu:\n            raise ValueError(\"--with-fpu is unsupported by the VexiiRiscv recipe; \"",
+      "new": "        if False:\n            raise ValueError(\"--with-fpu is unsupported by the VexiiRiscv recipe; \""
+     },
+     "submodules": [
+      {
+       "submodule": "third_party/verilog-axis",
+       "origin": "https://github.com/alexforencich/verilog-axis",
+       "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      {
+       "submodule": "protocol-processor",
+       "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+       "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      },
+      {
+       "submodule": "gptp-processor",
+       "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+       "pin": "e4869fd0c42889b2ac806587cc5c78afb1c33461"
+      }
+     ]
+    },
+    "step": "python3 -m pip install --quiet pyyaml\npython3 scripts/ci_builder_legs.py run all --receipt \"$RUNNER_TEMP/gate-results/builder-leg-all.json\" -- python3 sw/builder/test_builder.py --require-rv32\n",
+    "returncode": 1,
+    "seconds": 2.696,
+    "gates_started": 1,
+    "last_gate_started": "test_soc_option_refusals:",
+    "failure": "subprocess.CalledProcessError: Command '['/opt/python/bin/python3', '$VALIDATION_STORAGE/737-a614/r6/runs/dm2-unsharded/source/sw/builder/test_soc_options.py']' returned non-zero exit status 1.",
+    "verdict": null,
+    "receipt_written": [],
+    "receipt_digest": {},
+    "memory_peak_bytes": 151994368,
+    "memory_events": {
+     "low": "0",
+     "high": "0",
+     "max": "0",
+     "oom": "0",
+     "oom_kill": "0",
+     "oom_group_kill": "0",
+     "sock_throttled": "0"
+    },
+    "log": {
+     "bytes": 1696,
+     "sha256": "3a8507c89373b7766b462c9c23636ce96ce7f3be6d6ad1cc53b2ae72ac71b6c7"
+    }
+   },
+   {
+    "run": "dm2-leg0",
+    "source": {
+     "lane_head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+     "run_head": "6da10e6c9640902013d3d71ab37c60ef46404bf6",
+     "tree": "fbc55956341f27e83131ab93f52e66e13b7ff220",
+     "mutation": {
+      "label": "FPU refusal removed (SoC option refusal gate, leg 1)",
+      "path": "sw/litex/milan_soc.py",
+      "old": "        if with_fpu:\n            raise ValueError(\"--with-fpu is unsupported by the VexiiRiscv recipe; \"",
+      "new": "        if False:\n            raise ValueError(\"--with-fpu is unsupported by the VexiiRiscv recipe; \""
+     },
+     "submodules": [
+      {
+       "submodule": "third_party/verilog-axis",
+       "origin": "https://github.com/alexforencich/verilog-axis",
+       "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      {
+       "submodule": "protocol-processor",
+       "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+       "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      },
+      {
+       "submodule": "gptp-processor",
+       "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+       "pin": "e4869fd0c42889b2ac806587cc5c78afb1c33461"
+      }
+     ]
+    },
+    "step": "python3 -m pip install --quiet pyyaml\npython3 scripts/ci_builder_legs.py run 0 --receipt \"$RUNNER_TEMP/gate-results/builder-leg-0.json\" -- python3 sw/builder/test_builder.py --require-rv32\n",
+    "returncode": 0,
+    "seconds": 1150.099,
+    "gates_started": 1,
+    "last_gate_started": "test_baremetal_profile_contract:",
+    "failure": null,
+    "verdict": "ALL GATES PASS EXCEPT 1 NOT RUN",
+    "receipt_written": [
+     "builder-leg-0.json"
+    ],
+    "receipt_digest": {
+     "builder-leg-0.json": {
+      "bytes": 4233,
+      "sha256": "ba0fa33284174f4df2fba96306d3c042f90d975b7e5450f89f4df8768efbfde4"
+     }
+    },
+    "memory_peak_bytes": 620097536,
+    "memory_events": {
+     "low": "0",
+     "high": "0",
+     "max": "0",
+     "oom": "0",
+     "oom_kill": "0",
+     "oom_group_kill": "0",
+     "sock_throttled": "0"
+    },
+    "log": {
+     "bytes": 50644,
+     "sha256": "bc165de3646726a0ef7da3b0ee0d6c6734b612844e4d0a0cae97fede9a0a185e"
+    }
+   },
+   {
+    "run": "dm2-leg1",
+    "source": {
+     "lane_head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+     "run_head": "3b7edf0f924e1cb72a6daf5717949c5f9fb9d9c6",
+     "tree": "fbc55956341f27e83131ab93f52e66e13b7ff220",
+     "mutation": {
+      "label": "FPU refusal removed (SoC option refusal gate, leg 1)",
+      "path": "sw/litex/milan_soc.py",
+      "old": "        if with_fpu:\n            raise ValueError(\"--with-fpu is unsupported by the VexiiRiscv recipe; \"",
+      "new": "        if False:\n            raise ValueError(\"--with-fpu is unsupported by the VexiiRiscv recipe; \""
+     },
+     "submodules": [
+      {
+       "submodule": "third_party/verilog-axis",
+       "origin": "https://github.com/alexforencich/verilog-axis",
+       "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      {
+       "submodule": "protocol-processor",
+       "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+       "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      },
+      {
+       "submodule": "gptp-processor",
+       "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+       "pin": "e4869fd0c42889b2ac806587cc5c78afb1c33461"
+      }
+     ]
+    },
+    "step": "python3 -m pip install --quiet pyyaml\npython3 scripts/ci_builder_legs.py run 1 --receipt \"$RUNNER_TEMP/gate-results/builder-leg-1.json\" -- python3 sw/builder/test_builder.py --require-rv32\n",
+    "returncode": 1,
+    "seconds": 2.653,
+    "gates_started": 1,
+    "last_gate_started": "test_soc_option_refusals:",
+    "failure": "subprocess.CalledProcessError: Command '['/opt/python/bin/python3', '$VALIDATION_STORAGE/737-a614/r6/runs/dm2-leg1/source/sw/builder/test_soc_options.py']' returned non-zero exit status 1.",
+    "verdict": null,
+    "receipt_written": [],
+    "receipt_digest": {},
+    "memory_peak_bytes": 151830528,
+    "memory_events": {
+     "low": "0",
+     "high": "0",
+     "max": "0",
+     "oom": "0",
+     "oom_kill": "0",
+     "oom_group_kill": "0",
+     "sock_throttled": "0"
+    },
+    "log": {
+     "bytes": 1661,
+     "sha256": "2b9795e9dc3ddc802744e2122d6522aa8933d0b2609ea52d3594af65da3d37b7"
+    }
+   }
+  ]
+ },
+ "vacuous_leg": {
+  "run": {
+   "run": "dm3-vacuous-leg0",
+   "source": {
+    "lane_head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+    "run_head": "26838a11cea12ef5ed68572ce79641bcd07b0133",
+    "tree": "668c1d5e6c422373e1089934f657e97377d4d22c",
+    "mutation": null,
+    "submodules": [
+     {
+      "submodule": "third_party/verilog-axis",
+      "origin": "https://github.com/alexforencich/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+     },
+     {
+      "submodule": "protocol-processor",
+      "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+     },
+     {
+      "submodule": "gptp-processor",
+      "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+      "pin": "e4869fd0c42889b2ac806587cc5c78afb1c33461"
+     }
+    ]
+   },
+   "step": "python3 -m pip install --quiet pyyaml\npython3 scripts/ci_builder_legs.py run 0 --receipt \"$RUNNER_TEMP/gate-results/builder-leg-0.json\" -- python3 sw/builder/test_builder.py\n",
+   "returncode": 0,
+   "seconds": 1152.096,
+   "gates_started": 1,
+   "last_gate_started": "test_baremetal_profile_contract:",
+   "failure": null,
+   "verdict": "ALL GATES PASS EXCEPT 1 NOT RUN",
+   "receipt_written": [
+    "builder-leg-0.json"
+   ],
+   "receipt_digest": {
+    "builder-leg-0.json": {
+     "bytes": 4217,
+     "sha256": "d2c70475547c5ad7897a0f5918232be41e0f8b02ff29cf4b84bf39d7186acae3"
+    }
+   },
+   "memory_peak_bytes": 628027392,
+   "memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "log": {
+    "bytes": 50644,
+    "sha256": "99a0ef49f4567f569106cd70fa81b373db99b1a370654ef5f04c441cf858a08d"
+   }
+  },
+  "aggregate_replay": [
+   "record worker 0 rc=0",
+   "record worker 1 rc=0",
+   "record worker 2 rc=0",
+   "gate evidence refused: --require-rv32 on the union: test_baremetal_profile_contract ran only in a leg without the flag",
+   "verify rc=1",
+   "builder legs refused: --require-rv32 on the union: test_baremetal_profile_contract ran only in a leg without the flag",
+   "compare rc=1"
+  ]
+ }
+}

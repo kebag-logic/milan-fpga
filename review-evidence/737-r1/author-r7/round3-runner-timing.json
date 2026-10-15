@@ -1,0 +1,7 @@
+{
+  "command": "python3 scripts/act_ci.py --selftest\ninstall_dir=\"$(mktemp -d)\"\ntrap 'rm -rf \"$install_dir\"' EXIT\ninstall -m 0555 scripts/act_ci.py \"$install_dir/act_ci.py\"\npython3 -I \"$install_dir/act_ci.py\" --selftest --worktree \"$GITHUB_WORKSPACE\"\n",
+  "head": "84ee9ea119b548b4982d2c0988d8753a2ce4d0cf",
+  "rc": 0,
+  "seconds": 103.81,
+  "boundary": "Read-only candidate mount, no network or Docker socket; CPython 3.12.3."
+}

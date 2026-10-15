@@ -1,0 +1,16 @@
+ok   inventory from the driver's discovery: 63 default suites, 80 units
+ok   placed and within every bound: worker 3 at 1544 s, bound 1620 s
+ok   no recorded duration is refused: gptp_tables: inventory suite with no recorded duration in SUITE_SECONDS (a new suite follo
+ok   sharded selection without its duration is refused: gptp_tables: inventory suite with no recorded duration in SUITE_SECONDS (a new suite follo
+ok   provisional 1800-second figure is refused: worker 0/16 is predicted at 1922 s, over 1620 s (60% of timeout-minutes 45); worker 0/16 exceeds the 1620 s CI budget: 1922 s
+ok   worker 3's printed --ci-pieces list runs it: maap__2 milan_dp__0 chmap_capture gptp_tables tdm_render
+ok   collector releases it to the unchanged tally: 63 physical logs
+ok   unchanged tally accepts the complete set: checks: 211   in-suite failures: 0
+ok   collector refuses its log missing from its owner: worker 3: executed suite ownership differs
+ok   collector refuses its log on another worker: worker 0: executed suite ownership differs
+ok   collector refuses its log duplicated on a second worker: worker 0: executed suite ownership differs
+ok   restored fixture passes again: collector rc 0
+ok   unchanged tally refuses the set without it: d its log
+  The combined check total is not exhaustive and must not be treated as the serial sweep.
+
+The check total above is INCOMPLETE and must not be quoted.

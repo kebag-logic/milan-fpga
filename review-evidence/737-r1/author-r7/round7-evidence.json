@@ -1,0 +1,123 @@
+{
+  "head": "fe2e2a543474dd9a932383052bb6fe14bfbbb1fe",
+  "base": "47fd0d3c510000e9412a1613a723b61d4ef2ae4a",
+  "runner_sha256": {
+    "before": "f968f67655ac386ea703248b724c3781b95ec379d3a5287b378e470df81f895c",
+    "after": "7ff18c6a89aeb40c54d44411ffc6ff766fe6aa0f29baf595ba1e2aa833a446fd"
+  },
+  "boundary": "Hosted-runner-like image sha256:2d09d1152abecc5ed7799ead632f263d21ebec1f685809fe99c4e3e8801dadcc, CPython 3.12.3 venv with PyYAML 6.0.2, uid 1000, no network or Docker socket, read-only source mount, 2 GiB, cpuset 48-63; fresh --no-local clone at the head",
+  "runs": {
+    "gate": {
+      "command": "the docs step 'Local act runner contract gate', both invocations, verbatim",
+      "rc": 0,
+      "expected_rc": 0,
+      "seconds": 102.57,
+      "log": {
+        "bytes": 116257,
+        "sha256": "8e8e5f26fa7f04dc5c741bcf4472c3da05df1914244074960cea746c39c0d00d"
+      }
+    },
+    "control4": {
+      "command": "python3 -I scripts/act_ci_small_host_selftest.py",
+      "rc": 0,
+      "expected_rc": 0,
+      "seconds": 69.011,
+      "log": {
+        "bytes": 116407,
+        "sha256": "dff4027b8526311f5a4abf309eaa0be6bb44bf5c6060d3c1f4720e2b2690f9c9"
+      }
+    },
+    "control1": {
+      "command": "python3 -I scripts/act_ci_small_host_selftest.py --cpus 1",
+      "rc": 0,
+      "expected_rc": 0,
+      "seconds": 69.042,
+      "log": {
+        "bytes": 116407,
+        "sha256": "619c97b5bea8dd62cd73f2130693a3054ece9360e2928bfde2b8303f386c435e"
+      }
+    },
+    "control-unfixed": {
+      "command": "python3 -I scripts/act_ci_small_host_selftest.py --runner <47fd0d3c scripts/act_ci.py>",
+      "rc": 1,
+      "expected_rc": 1,
+      "seconds": 85.776,
+      "log": {
+        "bytes": 116620,
+        "sha256": "e191be3e048ba85772afebbad252b051f51e259387e2daff52738e7af5aab598"
+      }
+    }
+  },
+  "controls_step": {
+    "command": "docs 'CI scheduling and evidence controls' step, 14 commands, verbatim, fresh clone with the five pinned submodules",
+    "rc": 0,
+    "seconds": 28,
+    "log": {
+      "bytes": 111302,
+      "sha256": "7706648ba8c8ecd04e6229dec8182cbb4010963dbf1663c48e418a9ac25b5482"
+    }
+  },
+  "ci_events": {
+    "check_rc": 0,
+    "selftest_rc": 0,
+    "seconds": 217,
+    "selftest_summary": "selftest: PASS (2187 contract items, 5215 arms)",
+    "selftest_log": {
+      "bytes": 334721,
+      "sha256": "d5f4b7eeb37091a9f19d478ac9876162a3be80645fb2b672a76426154d3a6e8e"
+    },
+    "note": "selftest log over 200 KB: digest only"
+  },
+  "mutations": {
+    "m3-docs-receipts-dropped": {
+      "after_selftest_rc": 1,
+      "regenerate_rc": 0,
+      "generator_check_rc": 0,
+      "log": {
+        "bytes": 4049,
+        "sha256": "511035aaaef26a8aaf7ba342a7d35b5d77b5d76ccad4df7062c2aa027be7571f"
+      },
+      "before_selftest_rc": 0,
+      "before_log": {
+        "bytes": 8796,
+        "sha256": "3c0f50c86f40ee16f579e73c03f28b9c5af5bdb49eecc99fea120c2b13b15854"
+      }
+    },
+    "m3b-receipts-on-every-worker": {
+      "after_selftest_rc": 1,
+      "regenerate_rc": 0,
+      "generator_check_rc": 0,
+      "log": {
+        "bytes": 4103,
+        "sha256": "6dab17ffc2e713fb55ded4379e1fc697d0136858e13f36cd52f097b229af013b"
+      }
+    },
+    "m6-driver-in-preparation-allowed": {
+      "after_selftest_rc": 1,
+      "regenerate_rc": 0,
+      "generator_check_rc": 0,
+      "log": {
+        "bytes": 2984,
+        "sha256": "9d9b8e34cba25c564dbd7fd404b1427f4551af54a89b8c4cf585508752457cc0"
+      },
+      "before_selftest_rc": 0,
+      "before_log": {
+        "bytes": 8796,
+        "sha256": "3c0f50c86f40ee16f579e73c03f28b9c5af5bdb49eecc99fea120c2b13b15854"
+      }
+    },
+    "m7-driver-end-unchecked": {
+      "after_selftest_rc": 1,
+      "regenerate_rc": 0,
+      "generator_check_rc": 0,
+      "log": {
+        "bytes": 3058,
+        "sha256": "1aff1c9677b925d80e33d72000b44f75bc8b47c779d83caa04511540f79dc862"
+      }
+    },
+    "pristine_rc": [
+      0,
+      0
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "ci_events_selftest": {
+    "returncode": 0,
+    "seconds": 238.817116911,
+    "bytes": 334343,
+    "sha256": "24230359c9416da8023afe369efb6e80c8fa21e9f10cf95be407d35bed812712",
+    "items": 2186,
+    "arms": 5206
+  },
+  "other_passing_commands": [
+    "python3 scripts/ci_gate_workflows.py --check",
+    "python3 scripts/ci_gate_workflows_selftest.py",
+    "python3 scripts/ci_install_cache_selftest.py",
+    "python3 scripts/ci_events.py --check",
+    "python3 scripts/check_py_idiom.py"
+  ],
+  "qualification": "Pre-commit focused checks; committed-head gate evidence is separate."
+}

@@ -1,0 +1,25 @@
+{
+  "source_head": "fec1f17cca0da831e43d0ca6aefd32b8dd1550b9",
+  "job_class": "publication census",
+  "allocated_cpus": 12,
+  "campaign_workers": 4,
+  "container_limit_bytes": 8589934592,
+  "memory_peak_bytes": 5201534976,
+  "memory_peak_gib": 4.844,
+  "memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0,
+    "sock_throttled": 0
+  },
+  "returncode": 0,
+  "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "command": "python3 sw/mailbox/publication_census.py --check --selftest --jobs \"$CI_CAMPAIGN_JOBS\"",
+  "cpu_budget_source": "scripts/ci_runtime_workflows.py:cpu_budget_step",
+  "proof_scope": "one container census command at twelve visible CPUs; not fallback admission alignment or a full four-job replay",
+  "log_sha256": "1f88a1300b21dc7906aefaa8813ca968d9ae853178c4374d550f9cd79716a3d7",
+  "log_bytes": 30049
+}

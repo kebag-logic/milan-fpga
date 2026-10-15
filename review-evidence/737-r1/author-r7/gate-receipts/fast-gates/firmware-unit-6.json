@@ -1,0 +1,8 @@
+{
+  "head": "aa196ae7a",
+  "job": "firmware-unit",
+  "step": "Run the control-plane firmware suites and RV32 builds",
+  "command": "set -euo pipefail\npython3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32\npython3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --shard 0/4\n",
+  "returncode": 0,
+  "milliseconds": 297383
+}

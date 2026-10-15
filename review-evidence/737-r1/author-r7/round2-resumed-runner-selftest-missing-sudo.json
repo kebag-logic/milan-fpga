@@ -1,0 +1,18 @@
+{
+  "command": "python3 -I scripts/act_ci.py --selftest --worktree \"$PWD\"",
+  "returncode": 1,
+  "boundary": "Disposable container; no network, Docker socket, credentials or writable candidate mount.",
+  "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "log_bytes": 17196,
+  "log_sha256": "531190815b5738bdfec8bd454175e54551fce9663bdc7d1c8e33182315365d91",
+  "log_tail": [
+    "    prefix = \" \".join(isolated_command_prefix(\"/trusted/act\", True, controlled_act_environment(first)))",
+    "                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "  File \"$LANES/737-ci30/scripts/act_ci.py\", line 2431, in isolated_command_prefix",
+    "    require_tool(\"sudo\"),",
+    "    ^^^^^^^^^^^^^^^^^^^^",
+    "  File \"$LANES/737-ci30/scripts/act_ci.py\", line 766, in require_tool",
+    "    raise Refusal(f\"required executable is unavailable: {name}\")",
+    "Refusal: required executable is unavailable: sudo"
+  ]
+}

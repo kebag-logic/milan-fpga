@@ -1,0 +1,11 @@
+[i]  8 builds on 1 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+[PASS] the unmutated source still passes the band50 harness
+[PASS] the unmutated source still passes the nco harness
+[PASS] mutant caught (junction): the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the junction counters keyed on the slot-0 write against the tick (the round-1 law) - breaks "[C] walks whose repeat or skip the junction counters did not count"
+[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (band50): RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks "F1: col 0 carries its own pair-0 frame (L)"
+
+8 checks: 8 PASS, 0 FAIL
