@@ -5017,8 +5017,9 @@ stated behaviour, as the assignment sets it:
 | Restore | Done | See [B18: bench as left](#b18-bench-as-left) |
 
 These are operator observations, not review verdicts. Paths such as
-`cycles/c01/poll.jsonl` are in the lane packet, `645-b18-a622`, which the
-manager holds.
+`cycles/c01/poll.jsonl` are in the lane packet, `645-b18-a622`. It is
+published as `review-evidence/645-b18-r1/author` on branch
+`645-b18-review-evidence`, commit `2e913519`.
 
 ### B18: identity and setup
 
@@ -5032,10 +5033,29 @@ manager holds.
 | UART grader | 10 of 10 |
 | Identity gate | PASS, 18:50:11 to 18:50:17 UTC |
 
-VERSION and the AEM CRC did not change from dev `5603c353`. The image's
-identity rests on the manager's flash record, which shows `FLASH_RC=0`, one
-cold power cycle with `POWERCYCLE_RC=0`, and the boot line
-`CSR ID=4d494c4e VERSION=00020060` with AEM 7512 B and CRC `5ba355eb`.
+VERSION and the AEM CRC did not change from dev `5603c353`, so no read on
+the device distinguishes the two images. The image's identity rests on the
+manager's provenance record,
+[`review-evidence/645-b18-r1/manager-provenance`](https://github.com/kebag-logic/milan-fpga/tree/bbc53aabb02a1654812ba2eaa1642f5e36e69ce0/review-evidence/645-b18-r1/manager-provenance)
+at evidence commit `bbc53aab`, with the chain stated in
+[the manager's provenance comment](https://github.com/kebag-logic/milan-fpga/pull/747#issuecomment-6200503436):
+
+- **Source.** The build clone's head is the dev merge
+  `9ef717727e6fdac11ee7f01672fefae948452343`, which carries PR #742.
+- **Build.** Bitstream SHA-256
+  `4b5a391af524cb3b490099381c0fd9e3275383fc51c163a75fb78cdb054ffcca`,
+  3,825,992 bytes, and AEM descriptor SHA-256
+  `4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d`,
+  7,512 bytes.
+- **Install.** `flash.log`, 18:42:24 to 18:44:49 UTC: the AEM and the
+  bitstream each written and verified, `FLASH_RC=0`; one cold power cycle,
+  `POWERCYCLE_RC=0`; BOOTSTS read after it shows normal configuration, no
+  fallback.
+- **Cold boot.** `console-after-flash.log`: the boot line
+  `CSR ID=4d494c4e VERSION=00020060`, with AEM 7512 B and CRC `5ba355eb`.
+- **This lane.** The identity reads above ran from 18:50:11 UTC, after that
+  boot. No flash or power cycle came between the boot and the last cycle's
+  end at 18:59:53 UTC.
 
 As found at 18:50:28 UTC:
 
@@ -5100,7 +5120,8 @@ stated. No change occurred, so the rule was not exercised.
 settle recentre's pending state reach no CSR
 ([register map, `RENDER_STAT`](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state)).
 So the lane cannot see the bind's settle recentre fire. The firing time
-quoted below is the design's: 2,048 ticks, 42.7 ms after the first PDU.
+quoted below is the design's earliest firing time: 2,048 ticks, 42.7 ms
+after the first PDU.
 "Held" rests on `SLIP_LB` alone, as the assignment grades it.
 
 ### B18: the binds
@@ -5119,7 +5140,9 @@ quoted below is the design's: 2,048 ticks, 42.7 ms after the first PDU.
 | c10 | 18:59:10.797 | 80, -8.00 to +31.70 | 0, 0 to 0, 0 | None | Held | 189.988 | 3.26, 25.3 us | 11, 31.2 us | 0 to 0, 1 to 1 | +0.0019 |
 
 `SLIP_LB` read 0 dups and 0 skips in every poll of every cycle, from 8.00 s
-before each bind to its last poll, +31.70 to +31.88 s after it:
+before each bind to its last poll, +31.70 to +31.88 s after it. In c01 and
+c10 the last poll fell 0.05 s short of B17's shortest, +31.75 s, from poll
+timing, and the counter is cumulative over that tail. Across the lane:
 
 - no change while bound before the unbind, while unbound, at the bind or in
   the hold;
@@ -5133,8 +5156,8 @@ grade as B17's class (c). Every bind held.
 
 **The bursts.** In every cycle, no peer PDU arrived more than 10 us late
 between the bind and its first burst over 20 us. That burst came 0.20 to
-4.74 s after the bind, and 32.7 ms to 4.56 s after the design's firing time
-of the bind's settle recentre, the first PDU plus 42.7 ms. To the last poll
+4.74 s after the bind, and 32.7 ms to 4.56 s after the design's earliest
+firing time of the bind's settle recentre, the first PDU plus 42.7 ms. To the last poll
 each cycle carried 9 to 19 such bursts, peaking at 27.3 to 32.0 us, and none
 moved `SLIP_LB`. To the capture's end, about 41.9 s after the bind, there
 were 12 to 22, peaking at 28.0 to 32.0 us; that the later ones slipped
@@ -5249,8 +5272,8 @@ Residuals that no permitted command restores:
   peer following the DUT's CRF, as in B17.
 - The settle recentre's arming and firing cannot be read on silicon, so the
   lane shows that the ring held, not that the recentre fired.
-- In every cycle the first burst over 20 us came after the design's firing
-  time, by 32.7 ms at the least. No burst fell inside a bind's 42.7 ms
+- In every cycle the first burst over 20 us came after the design's earliest
+  firing time, by 32.7 ms at the least. No burst fell inside a bind's 42.7 ms
   arming window, so this lane does not test that window; the design states
   its limit, and #743 tracks the in-window one-pair dup.
 - A change would be timed to its poll interval, about 0.6 s wide, not to the
