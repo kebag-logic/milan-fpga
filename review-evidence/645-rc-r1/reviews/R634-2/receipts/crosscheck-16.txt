@@ -1,0 +1,16 @@
+runs head 32 rc0 32 | base 32 rc0 0
+binds 320
+inside: 177 (head labels); dev labels inside among them: 171
+  head (dups, skips, frames before, frames after): {(0, 0, 0, 0): 177}
+  dev  (dups, skips, slip events): {(2, 0, 1): 177}
+  head arms/settle/render all 1: 177  dev all 0: 177
+  dev exactly one frame at its first burst, nothing else: 177
+  head primed range over inside binds 9.440..23.520 us
+OUTSIDE: 143 (head labels); dev labels inside among them: 0
+  head (dups, skips, frames before, frames after): {(0, 0, 0, 0): 137, (2, 0, 1, 0): 6}
+  dev  (dups, skips, slip events): {(2, 0, 1): 43, (3, 0, 2): 1, (4, 0, 2): 99}
+  head arms/settle/render all 1: 143  dev all 0: 143
+head slips before the first burst: 6 binds 6
+identical on dev (kind and time-after-bind string): 6 of 6
+head frames after the ring acts: 0
+head inside binds with primed low edge < 10 us: 8 ['bind_j5_p05']
