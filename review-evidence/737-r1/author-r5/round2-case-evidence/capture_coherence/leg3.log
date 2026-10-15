@@ -1,0 +1,10 @@
+[i]  7 builds on 1 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: $VALIDATION_STORAGE/737-a614/round2/comparisons/capture-coherence-mutants-epmre1cr/build_break_dp/milan_datapath.sv:8379:15: syntax error, unexpected break, expecting ',' or ';'
+[PASS] the unmutated source still passes the fine harness
+[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+[PASS] mutant caught (junction): the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+[PASS] mutant caught (band): the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+
+7 checks: 7 PASS, 0 FAIL

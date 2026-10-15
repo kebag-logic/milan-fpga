@@ -1,0 +1,1103 @@
+{
+ "qualification": "Exact source step bodies in the shipping job image, one 8 GiB container per bank on CPUs 112-127, no network; setup steps are provisioned by the image. Local evidence only.",
+ "attempts": [
+  {
+   "attempt": "bank-docs-setup-refusal",
+   "head_prefix": "c93c303f",
+   "classification": "setup",
+   "reason": "Same checkout state as the rtl-fast attempt below; the HDL reference refused dirty provenance. After the checkout object store was made self-contained, the same step passed at later heads. Not a gate result.",
+   "steps": [
+    {
+     "head": "c93c303f34a5887c76ac6778778cebbcbc48d399",
+     "job": "docs-check",
+     "index": 1,
+     "step": "Build the validated HDL reference",
+     "returncode": 2,
+     "seconds": 1.17,
+     "log_bytes": 468,
+     "log_sha256": "f53088621f0ec71c06ce2b32434b0848cddcb52564d798d8009b48796d6795d2"
+    }
+   ],
+   "failed_steps": [
+    "docs-check-1"
+   ],
+   "bank_log_bytes": 489,
+   "bank_log_sha256": "b7f67a21c8bd8b15d6f0dddb2a8943b039b48c6aa514315190a3a34b3c5c2efe",
+   "passed_marker": false
+  },
+  {
+   "attempt": "bank-rtl-fast-setup-refusal",
+   "head_prefix": "c93c303f",
+   "classification": "setup",
+   "reason": "The checkout referenced an object alternate that was not mounted in the container; the scope step could not read a tree. Not a gate result.",
+   "steps": [
+    {
+     "head": "c93c303f34a5887c76ac6778778cebbcbc48d399",
+     "job": "changes",
+     "index": 1,
+     "step": "Classify the change conservatively",
+     "returncode": 128,
+     "seconds": 20.318,
+     "log_bytes": 18099,
+     "log_sha256": "5e05e568ef2360d0422d1d25e4797d09a4163b0fdf5c3eadee946edb54615148"
+    }
+   ],
+   "failed_steps": [
+    "changes-1"
+   ],
+   "bank_log_bytes": 4022,
+   "bank_log_sha256": "ea119ef63f703471514b602555a4f31796dbf0db778be085599a7acd1a46bb73",
+   "passed_marker": false
+  },
+  {
+   "attempt": "bank-docs-bbb19cec",
+   "head_prefix": "bbb19cec",
+   "classification": "gate finding",
+   "reason": "Bare-metal scope gate failed with three class-T findings from this lane; fixed in 0fd126de.",
+   "steps": [
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 1,
+     "step": "Build the validated HDL reference",
+     "returncode": 0,
+     "seconds": 2.993,
+     "log_bytes": 781,
+     "log_sha256": "fbb7957e97cc63eb33bc6bcac9a3bbd65decc0cb0a41a514b0c58202b3ebcf52"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 7,
+     "step": "Link health, wording, dead-reference and local-info gate",
+     "returncode": 0,
+     "seconds": 6.159,
+     "log_bytes": 128,
+     "log_sha256": "0276fde922fe333174ba27ba2c03743f14b5e2a0bfe604d29db34a090bc89b85"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 8,
+     "step": "Added-line em-dash gate",
+     "returncode": 0,
+     "seconds": 3.201,
+     "log_bytes": 140,
+     "log_sha256": "4f0bafbddb16fb1c29c9acc698a004db4777dab3af3d3cac0fbc5d69bd9d0b92"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 9,
+     "step": "Concise audience documentation gate",
+     "returncode": 0,
+     "seconds": 0.797,
+     "log_bytes": 167,
+     "log_sha256": "05d6ef2302a6c0467ad437209233733e93bcb2941539103e26c51b988a28637a"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 10,
+     "step": "Audience diagram no-drift gate",
+     "returncode": 0,
+     "seconds": 1.847,
+     "log_bytes": 242,
+     "log_sha256": "79dce4dc64e4d57851e37c5bac0a829304d65207659bb65049e11b7d0683f069"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 11,
+     "step": "Product solution source-fact gate",
+     "returncode": 0,
+     "seconds": 3.573,
+     "log_bytes": 146,
+     "log_sha256": "9ef43cc924919e10ccb30a9419819d20b849d787a8f37fcabba22e2159d3167d"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 12,
+     "step": "Verified submodule documentation gate",
+     "returncode": 0,
+     "seconds": 1.571,
+     "log_bytes": 227,
+     "log_sha256": "88d83848aecf81453b10dd129f7ebbaf87fc3adbb655fed653ec81b507b84d75"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 13,
+     "step": "HDL timing diagram no-drift gate",
+     "returncode": 0,
+     "seconds": 1.156,
+     "log_bytes": 241,
+     "log_sha256": "af9493d0e4acd65eb64ba2bbe7103a2c6f957ecca650a938cdc18d70396a57ea"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 14,
+     "step": "Published diagram PNG gate",
+     "returncode": 0,
+     "seconds": 8.376,
+     "log_bytes": 125,
+     "log_sha256": "17d1d2360a98e818f8706a8165affff7c873cb06b4fe8db4c48300e103e51c1e"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 15,
+     "step": "Milan feature-status consistency gate",
+     "returncode": 0,
+     "seconds": 1.087,
+     "log_bytes": 1500,
+     "log_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 16,
+     "step": "Traceability matrix no-drift gate",
+     "returncode": 0,
+     "seconds": 1.163,
+     "log_bytes": 118,
+     "log_sha256": "4e782e68ed5c09299d5d990702b634a2358aa1d5cbc2fd822374561e249c2687"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 18,
+     "step": "Imported gPTP documentation gate",
+     "returncode": 0,
+     "seconds": 0.982,
+     "log_bytes": 2593,
+     "log_sha256": "3bd921c483e119b7d296826d566d16122e1eb90635413d337b7457f84da2c3b7"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 19,
+     "step": "Code-quality measurement self-tests",
+     "returncode": 0,
+     "seconds": 0.166,
+     "log_bytes": 3293,
+     "log_sha256": "862838344ece59e4179fd4bcfe04f85ee320f0601c325014b2509717db13368b"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check",
+     "index": 21,
+     "step": "Bare-metal scope gate",
+     "returncode": 1,
+     "seconds": 21.521,
+     "log_bytes": 646,
+     "log_sha256": "15b0f3c0bcb45d57fa9cacf7e785f08200c97594f108108c9d27d8fbc7ae8f23"
+    }
+   ],
+   "failed_steps": [
+    "docs-check-21"
+   ],
+   "bank_log_bytes": 952,
+   "bank_log_sha256": "07e52c79d6fd956751755d8db2d11c9be1d58024f19bfe76ff14acb09874e451",
+   "passed_marker": false
+  },
+  {
+   "attempt": "bank-rtl-fast-bbb19cec",
+   "head_prefix": "bbb19cec",
+   "classification": "harness",
+   "reason": "Scratch runner ignored the step working-directory, so behave ran from the repository root. Not a gate result.",
+   "steps": [
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "changes",
+     "index": 1,
+     "step": "Classify the change conservatively",
+     "returncode": 0,
+     "seconds": 21.078,
+     "log_bytes": 20106,
+     "log_sha256": "642c49b671cec2250c43a9c79deb6fb55068d36a4a86600001b83a9711a6adfa"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "verilator-lint",
+     "index": 4,
+     "step": "Run the ratcheted whole-tree lint gate",
+     "returncode": 0,
+     "seconds": 23.303,
+     "log_bytes": 14996,
+     "log_sha256": "64307248d5dcecb9d2345f71df600b76f5712e9109e962c15c02e1b047bd0c75"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "verilator-lint",
+     "index": 5,
+     "step": "Prove protocol-processor source lists are derived",
+     "returncode": 0,
+     "seconds": 0.236,
+     "log_bytes": 955,
+     "log_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a"
+    },
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "bdd-conformance",
+     "index": 3,
+     "step": "Run the specification-facing suite",
+     "returncode": 1,
+     "seconds": 0.14,
+     "log_bytes": 129,
+     "log_sha256": "52162a0e397c7ca22bc670c1a9a9c021ca360264ad44c46d30de38491f11be09"
+    }
+   ],
+   "failed_steps": [
+    "bdd-conformance-3"
+   ],
+   "bank_log_bytes": 225,
+   "bank_log_sha256": "1409d4202ee5464b334b1bc13350e551280e4f721396336fd0bd3bb23c1cf025",
+   "passed_marker": false
+  },
+  {
+   "attempt": "bank-docs-nogit-bbb19cec",
+   "head_prefix": "bbb19cec",
+   "classification": "passed",
+   "reason": "",
+   "steps": [
+    {
+     "head": "bbb19cec8043c200a8a08f26433a06b3866e569a",
+     "job": "docs-check-no-git",
+     "index": 1,
+     "step": "Strip git metadata, then run the docs gate",
+     "returncode": 0,
+     "seconds": 7.313,
+     "log_bytes": 225,
+     "log_sha256": "10555482499fd345158f736f4332887c53b1e77a389b3899e3e4d782bf20d9a7"
+    }
+   ],
+   "failed_steps": [],
+   "bank_log_bytes": 81,
+   "bank_log_sha256": "5be33f3af3ef59f65b1321f92aadec4a7133ec798d9e99167a518c1d3eb63dcf",
+   "passed_marker": true
+  },
+  {
+   "attempt": "bank-docs-0fd126de-jvm-provisioning",
+   "head_prefix": "0fd126de",
+   "classification": "harness",
+   "reason": "Container ran as the checkout owner without the JVM cache ownership and home provisioning used by the round-two builder measurements; sbt could not create its boot lock. Not a gate result.",
+   "steps": [
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 1,
+     "step": "Build the validated HDL reference",
+     "returncode": 0,
+     "seconds": 2.995,
+     "log_bytes": 781,
+     "log_sha256": "da21d1e363e0dc4dec0b03b33b54385e5f2f0f156f65c248804437085604659e"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 7,
+     "step": "Link health, wording, dead-reference and local-info gate",
+     "returncode": 0,
+     "seconds": 6.118,
+     "log_bytes": 128,
+     "log_sha256": "0276fde922fe333174ba27ba2c03743f14b5e2a0bfe604d29db34a090bc89b85"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 8,
+     "step": "Added-line em-dash gate",
+     "returncode": 0,
+     "seconds": 3.132,
+     "log_bytes": 140,
+     "log_sha256": "4f0bafbddb16fb1c29c9acc698a004db4777dab3af3d3cac0fbc5d69bd9d0b92"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 9,
+     "step": "Concise audience documentation gate",
+     "returncode": 0,
+     "seconds": 0.805,
+     "log_bytes": 167,
+     "log_sha256": "05d6ef2302a6c0467ad437209233733e93bcb2941539103e26c51b988a28637a"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 10,
+     "step": "Audience diagram no-drift gate",
+     "returncode": 0,
+     "seconds": 1.651,
+     "log_bytes": 242,
+     "log_sha256": "79dce4dc64e4d57851e37c5bac0a829304d65207659bb65049e11b7d0683f069"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 11,
+     "step": "Product solution source-fact gate",
+     "returncode": 0,
+     "seconds": 3.463,
+     "log_bytes": 146,
+     "log_sha256": "9ef43cc924919e10ccb30a9419819d20b849d787a8f37fcabba22e2159d3167d"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 12,
+     "step": "Verified submodule documentation gate",
+     "returncode": 0,
+     "seconds": 1.548,
+     "log_bytes": 227,
+     "log_sha256": "88d83848aecf81453b10dd129f7ebbaf87fc3adbb655fed653ec81b507b84d75"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 13,
+     "step": "HDL timing diagram no-drift gate",
+     "returncode": 0,
+     "seconds": 0.994,
+     "log_bytes": 241,
+     "log_sha256": "af9493d0e4acd65eb64ba2bbe7103a2c6f957ecca650a938cdc18d70396a57ea"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 14,
+     "step": "Published diagram PNG gate",
+     "returncode": 0,
+     "seconds": 7.85,
+     "log_bytes": 125,
+     "log_sha256": "17d1d2360a98e818f8706a8165affff7c873cb06b4fe8db4c48300e103e51c1e"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 15,
+     "step": "Milan feature-status consistency gate",
+     "returncode": 0,
+     "seconds": 0.96,
+     "log_bytes": 1500,
+     "log_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 16,
+     "step": "Traceability matrix no-drift gate",
+     "returncode": 0,
+     "seconds": 1.035,
+     "log_bytes": 118,
+     "log_sha256": "4e782e68ed5c09299d5d990702b634a2358aa1d5cbc2fd822374561e249c2687"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 18,
+     "step": "Imported gPTP documentation gate",
+     "returncode": 0,
+     "seconds": 0.863,
+     "log_bytes": 2593,
+     "log_sha256": "3bd921c483e119b7d296826d566d16122e1eb90635413d337b7457f84da2c3b7"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 19,
+     "step": "Code-quality measurement self-tests",
+     "returncode": 0,
+     "seconds": 0.143,
+     "log_bytes": 3293,
+     "log_sha256": "862838344ece59e4179fd4bcfe04f85ee320f0601c325014b2509717db13368b"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 21,
+     "step": "Bare-metal scope gate",
+     "returncode": 0,
+     "seconds": 25.786,
+     "log_bytes": 115,
+     "log_sha256": "fc6fcba4bc26d87e9509f8b852b6be87ee1d14bb2c804e5f7d5281bec7c18fa1"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 24,
+     "step": "Compiler-absent firmware controls",
+     "returncode": 0,
+     "seconds": 608.627,
+     "log_bytes": 51414,
+     "log_sha256": "3216f258d272daccb6e7e0fa371c6e221b67f5dbf98eda44680d396f40cfd64d"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 25,
+     "step": "End-station builder gates",
+     "returncode": 1,
+     "seconds": 33.126,
+     "log_bytes": 13281,
+     "log_sha256": "11f732b3dbc2e3f5fbabf91515f0491d49ed58529d612f8990811641993ba368"
+    }
+   ],
+   "failed_steps": [
+    "docs-check-25"
+   ],
+   "bank_log_bytes": 4351,
+   "bank_log_sha256": "fdd05b1aab4b432a9e5c6e5666728d887f8c91427e1793e69f8bda835125fa13",
+   "passed_marker": false
+  },
+  {
+   "attempt": "bank-docs-0fd126de",
+   "head_prefix": "0fd126de",
+   "classification": "passed",
+   "reason": "",
+   "steps": [
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 1,
+     "step": "Build the validated HDL reference",
+     "returncode": 0,
+     "seconds": 3.143,
+     "log_bytes": 1047,
+     "log_sha256": "4385b25d40f05ee795d0e3ea9ac54be4b25c4a525d84cc2678b6bd3040cbea4f"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 7,
+     "step": "Link health, wording, dead-reference and local-info gate",
+     "returncode": 0,
+     "seconds": 6.547,
+     "log_bytes": 128,
+     "log_sha256": "0276fde922fe333174ba27ba2c03743f14b5e2a0bfe604d29db34a090bc89b85"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 8,
+     "step": "Added-line em-dash gate",
+     "returncode": 0,
+     "seconds": 3.751,
+     "log_bytes": 140,
+     "log_sha256": "4f0bafbddb16fb1c29c9acc698a004db4777dab3af3d3cac0fbc5d69bd9d0b92"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 9,
+     "step": "Concise audience documentation gate",
+     "returncode": 0,
+     "seconds": 0.877,
+     "log_bytes": 167,
+     "log_sha256": "05d6ef2302a6c0467ad437209233733e93bcb2941539103e26c51b988a28637a"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 10,
+     "step": "Audience diagram no-drift gate",
+     "returncode": 0,
+     "seconds": 1.843,
+     "log_bytes": 242,
+     "log_sha256": "79dce4dc64e4d57851e37c5bac0a829304d65207659bb65049e11b7d0683f069"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 11,
+     "step": "Product solution source-fact gate",
+     "returncode": 0,
+     "seconds": 4.225,
+     "log_bytes": 146,
+     "log_sha256": "9ef43cc924919e10ccb30a9419819d20b849d787a8f37fcabba22e2159d3167d"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 12,
+     "step": "Verified submodule documentation gate",
+     "returncode": 0,
+     "seconds": 1.703,
+     "log_bytes": 227,
+     "log_sha256": "88d83848aecf81453b10dd129f7ebbaf87fc3adbb655fed653ec81b507b84d75"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 13,
+     "step": "HDL timing diagram no-drift gate",
+     "returncode": 0,
+     "seconds": 1.285,
+     "log_bytes": 241,
+     "log_sha256": "af9493d0e4acd65eb64ba2bbe7103a2c6f957ecca650a938cdc18d70396a57ea"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 14,
+     "step": "Published diagram PNG gate",
+     "returncode": 0,
+     "seconds": 8.571,
+     "log_bytes": 125,
+     "log_sha256": "17d1d2360a98e818f8706a8165affff7c873cb06b4fe8db4c48300e103e51c1e"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 15,
+     "step": "Milan feature-status consistency gate",
+     "returncode": 0,
+     "seconds": 1.172,
+     "log_bytes": 1500,
+     "log_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 16,
+     "step": "Traceability matrix no-drift gate",
+     "returncode": 0,
+     "seconds": 1.248,
+     "log_bytes": 118,
+     "log_sha256": "4e782e68ed5c09299d5d990702b634a2358aa1d5cbc2fd822374561e249c2687"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 18,
+     "step": "Imported gPTP documentation gate",
+     "returncode": 0,
+     "seconds": 1.11,
+     "log_bytes": 2593,
+     "log_sha256": "3bd921c483e119b7d296826d566d16122e1eb90635413d337b7457f84da2c3b7"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 19,
+     "step": "Code-quality measurement self-tests",
+     "returncode": 0,
+     "seconds": 0.19,
+     "log_bytes": 3293,
+     "log_sha256": "862838344ece59e4179fd4bcfe04f85ee320f0601c325014b2509717db13368b"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 21,
+     "step": "Bare-metal scope gate",
+     "returncode": 0,
+     "seconds": 31.067,
+     "log_bytes": 115,
+     "log_sha256": "fc6fcba4bc26d87e9509f8b852b6be87ee1d14bb2c804e5f7d5281bec7c18fa1"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 24,
+     "step": "Compiler-absent firmware controls",
+     "returncode": 0,
+     "seconds": 622.826,
+     "log_bytes": 51414,
+     "log_sha256": "3216f258d272daccb6e7e0fa371c6e221b67f5dbf98eda44680d396f40cfd64d"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 25,
+     "step": "End-station builder gates",
+     "returncode": 0,
+     "seconds": 1411.366,
+     "log_bytes": 103085,
+     "log_sha256": "2e3dacc7055fa14f600833245a21b6f9eeb788983e01c5e902dcfc9e7ac42825"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 26,
+     "step": "NVM record-space gate",
+     "returncode": 0,
+     "seconds": 42.218,
+     "log_bytes": 9588,
+     "log_sha256": "7969fb65ae1ea9d608146bed63d697587402331dc1efa2c128e61861a7f6493e"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 27,
+     "step": "Capture measurement census and clock gate",
+     "returncode": 0,
+     "seconds": 0.776,
+     "log_bytes": 398,
+     "log_sha256": "7bb472e312a53443576575b4d73f0c971fa708ee029f79cdb9233dec5e33f382"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 28,
+     "step": "Saved-state writer gate",
+     "returncode": 0,
+     "seconds": 111.474,
+     "log_bytes": 5189,
+     "log_sha256": "cba18482dbf27c70ee56b28a8fbbe7bfdc2cc49b4644a42daa5ad4db8f6d4972"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 29,
+     "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+     "returncode": 0,
+     "seconds": 2.265,
+     "log_bytes": 4794,
+     "log_sha256": "0d36e3ad97cf5cce5db8f0e3353f9da0bdee976188f40c06353ce41898111a6c"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 30,
+     "step": "RTL source-list drift gate",
+     "returncode": 0,
+     "seconds": 4.142,
+     "log_bytes": 3453,
+     "log_sha256": "be8805dc2fee50eddcf0b966ea5728febdeed2e7b9f288ba358f41c1fe4b7041"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 31,
+     "step": "Boundary-unit naming ratchet",
+     "returncode": 0,
+     "seconds": 0.918,
+     "log_bytes": 40516,
+     "log_sha256": "e59e133ee553414836cffffae719bcb0d5bf5774aa6708e547cc6f2a56fabf52"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 32,
+     "step": "Port contract gate",
+     "returncode": 0,
+     "seconds": 5.746,
+     "log_bytes": 5040,
+     "log_sha256": "44cabb635affbbd5ea35c4a5e144f5769eb123f8949d6373a29836bbfefad4c1"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 33,
+     "step": "Fail-fast ratchet",
+     "returncode": 0,
+     "seconds": 3.329,
+     "log_bytes": 12564,
+     "log_sha256": "5150bb7895e21dc237b796011d796e5ce3159f6355d44107c62153df76882550"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 34,
+     "step": "TODO ownership gate",
+     "returncode": 0,
+     "seconds": 3.813,
+     "log_bytes": 2745,
+     "log_sha256": "173ec0b7d37ffcc534a4ac1da91a8405abf212eeb348090eddd0b1ccb3cf00c5"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 35,
+     "step": "Test-evidence ratchet",
+     "returncode": 0,
+     "seconds": 19.231,
+     "log_bytes": 24591,
+     "log_sha256": "0c6bc76300bf37683d18553ea38d4ae80d27a2ccd0220f29f5a9a833c7e4520c"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 36,
+     "step": "Mechanical hygiene ratchet",
+     "returncode": 0,
+     "seconds": 0.856,
+     "log_bytes": 3971,
+     "log_sha256": "9cac357d4c06213df7bc67c3833ace43b2647c67fe20bbe38ebcb2288a924984"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 37,
+     "step": "SystemVerilog idiom gate",
+     "returncode": 0,
+     "seconds": 0.886,
+     "log_bytes": 3173,
+     "log_sha256": "ccd900273b796fdfcf74e586f952eadfc9f6f6b1ad448b891183f939a49df728"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 38,
+     "step": "C and C++ idiom gate",
+     "returncode": 0,
+     "seconds": 3.412,
+     "log_bytes": 3909,
+     "log_sha256": "7324eabbd50a20c6df999cc2fc66551cdf6a9e304331f051245fe1e1030d220c"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 39,
+     "step": "Python idiom gate",
+     "returncode": 0,
+     "seconds": 10.683,
+     "log_bytes": 2992,
+     "log_sha256": "1b54aa2ad5c65dd73d43868de2ada41ea7b0329375b807a1d8a6995c9f563168"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 40,
+     "step": "Shell idiom gate",
+     "returncode": 0,
+     "seconds": 0.418,
+     "log_bytes": 2696,
+     "log_sha256": "a57f331056f1f93e369a05fc919fd7d91a98638253282a970a118711a46e20e1"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 41,
+     "step": "CI event and SHA contract gate",
+     "returncode": 0,
+     "seconds": 201.196,
+     "log_bytes": 334510,
+     "log_sha256": "585bd8c81754e38676a2c1e109e4e9f7163bce9707997a6f26ee372f864f04c9"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 43,
+     "step": "Doc cited-path gate",
+     "returncode": 0,
+     "seconds": 0.094,
+     "log_bytes": 85,
+     "log_sha256": "7033b54b2784b7b8d9f1fc7da5b907a49ef6b6572f7579790e4ec9d6f48572ed"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 44,
+     "step": "Archive integrity gate",
+     "returncode": 0,
+     "seconds": 0.508,
+     "log_bytes": 128,
+     "log_sha256": "1a15e66a07892f544c4b9bee75201ff9acaf3edd2c37963a780f8473466d50cb"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 45,
+     "step": "Per-page contents gate",
+     "returncode": 0,
+     "seconds": 9.972,
+     "log_bytes": 196,
+     "log_sha256": "9d932b778e843a63a8fff30293b23dc7f9f6d3441307ae13c2fea6139bc7c843"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 46,
+     "step": "AEM store generator self-test",
+     "returncode": 0,
+     "seconds": 0.071,
+     "log_bytes": 3596,
+     "log_sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 47,
+     "step": "Sweep/build shape gate",
+     "returncode": 0,
+     "seconds": 13.043,
+     "log_bytes": 19734,
+     "log_sha256": "6b8674c37c1ab3bf1bebacb804967eef66c25a3052b40d7cb2c659de6bfe8f8b"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 48,
+     "step": "Deploy shape gate",
+     "returncode": 0,
+     "seconds": 0.401,
+     "log_bytes": 9296,
+     "log_sha256": "4bb3e8fbfa2327fba1c1f16b277ec9b1aecd6c7de621cbe7642bb02e07ec46ac"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 49,
+     "step": "Entity shape gate",
+     "returncode": 0,
+     "seconds": 49.205,
+     "log_bytes": 27717,
+     "log_sha256": "5c77d8270857fe471189357e6a17349403823de13cfa4bd44055021a540474ff"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check",
+     "index": 50,
+     "step": "CI scheduling and evidence controls",
+     "returncode": 0,
+     "seconds": 18.805,
+     "log_bytes": 96822,
+     "log_sha256": "8a68d34673d503c95916df1632233bd6290a13eaae28affd1b841548c3840cf5"
+    }
+   ],
+   "failed_steps": [],
+   "bank_log_bytes": 943,
+   "bank_log_sha256": "f9617b1baa8cb56305446ad2d9dbb1a40fe88d39b28ffc4d4b8c937cedc06a3b",
+   "passed_marker": true
+  },
+  {
+   "attempt": "bank-rtl-fast-0fd126de",
+   "head_prefix": "0fd126de",
+   "classification": "passed",
+   "reason": "",
+   "steps": [
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "changes",
+     "index": 1,
+     "step": "Classify the change conservatively",
+     "returncode": 0,
+     "seconds": 20.367,
+     "log_bytes": 20106,
+     "log_sha256": "642c49b671cec2250c43a9c79deb6fb55068d36a4a86600001b83a9711a6adfa"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "verilator-lint",
+     "index": 4,
+     "step": "Run the ratcheted whole-tree lint gate",
+     "returncode": 0,
+     "seconds": 20.55,
+     "log_bytes": 14996,
+     "log_sha256": "64307248d5dcecb9d2345f71df600b76f5712e9109e962c15c02e1b047bd0c75"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "verilator-lint",
+     "index": 5,
+     "step": "Prove protocol-processor source lists are derived",
+     "returncode": 0,
+     "seconds": 0.205,
+     "log_bytes": 955,
+     "log_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "bdd-conformance",
+     "index": 3,
+     "step": "Run the specification-facing suite",
+     "returncode": 0,
+     "seconds": 1.625,
+     "log_bytes": 197349,
+     "log_sha256": "bc73788c3b21b6db2c1bf60df4621866de1d6bb8c2c34375da46e44e0793c8ec"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "yosys-elaboration",
+     "index": 6,
+     "step": "Elaborate the integration-heavy tops",
+     "returncode": 0,
+     "seconds": 106.94,
+     "log_bytes": 382,
+     "log_sha256": "02dbbc438f01561f6519b4634243ca8af18d6d268bd105e38a567dd80246aba1"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "yosys-elaboration",
+     "index": 7,
+     "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+     "returncode": 0,
+     "seconds": 482.139,
+     "log_bytes": 49829,
+     "log_sha256": "335b38413b751a10f76c472ada6d34acf94b81e5d19064b497fa066a2566eea7"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "yosys-elaboration",
+     "index": 8,
+     "step": "Prove ooc.sh generates the ROMs and fails on a failed top",
+     "returncode": 0,
+     "seconds": 27.08,
+     "log_bytes": 43,
+     "log_sha256": "d4febc14ba490cf79a72567d657e1653d21792043ae463564d52c831f69179e0"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "yosys-elaboration",
+     "index": 9,
+     "step": "Prove both synthesis flows refuse active elaboration guards",
+     "returncode": 0,
+     "seconds": 28.549,
+     "log_bytes": 48,
+     "log_sha256": "ef3e088cff19ae241583bce9d81868c00a735f87019056b11a9011a4bb54ba1f"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "yosys-elaboration",
+     "index": 10,
+     "step": "Prove the result cache refuses a planted entry",
+     "returncode": 0,
+     "seconds": 49.529,
+     "log_bytes": 190,
+     "log_sha256": "d8e090cf8c0c656d14381ecbb41901c83ad1870f0f38fed8b382815197e4dfa5"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "publication-census",
+     "index": 6,
+     "step": "Run the publication census in every shape the builder builds",
+     "returncode": 0,
+     "seconds": 639.344,
+     "log_bytes": 30048,
+     "log_sha256": "9c301d0222dedf6603f790e8a8736c6b89129423be01c415bf6bca2c34f7672c"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "firmware-unit",
+     "index": 3,
+     "step": "Prove the tally reads a failing and a crashing test as failures",
+     "returncode": 0,
+     "seconds": 3.172,
+     "log_bytes": 2026,
+     "log_sha256": "7cb98f8c107c611995199df80c0e3dc38bc92f4f2c2cbfb1349b5bb5008da2ee"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "firmware-unit",
+     "index": 6,
+     "step": "Run the control-plane firmware suites and RV32 builds",
+     "returncode": 0,
+     "seconds": 288.795,
+     "log_bytes": 69804,
+     "log_sha256": "6e85d682689a2095abe717791cc8fa9b7d338947704d7f196123f1c13c77bd14"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "firmware-unit",
+     "index": 7,
+     "step": "Run the saved-state store suites and its RV32 build",
+     "returncode": 0,
+     "seconds": 89.34,
+     "log_bytes": 4035,
+     "log_sha256": "b5c5ce9d7a176d71bbfd61df884d9ff3504ba59911448969f6a5c08ae3a14740"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "firmware-unit",
+     "index": 8,
+     "step": "Hold the firmware coverage ratchet",
+     "returncode": 0,
+     "seconds": 244.766,
+     "log_bytes": 8194,
+     "log_sha256": "7a0e87c6bc48f1b972f7c33de45a7ca143efad930e8f8f963891be72e22f2006"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "firmware-control-mutants",
+     "index": 5,
+     "step": "Run the control mutation campaign",
+     "returncode": 0,
+     "seconds": 893.86,
+     "log_bytes": 99875,
+     "log_sha256": "d426f8e25a799c1b1551c6c180313c017c23b8141bc013cb4eee5bb06c18c4da"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "firmware-aecp-mutants",
+     "index": 5,
+     "step": "Run the AECP mutation campaign",
+     "returncode": 0,
+     "seconds": 188.495,
+     "log_bytes": 37466,
+     "log_sha256": "b66b143e51f87177090262f46eaf8d4a0580a06cdd2ead2282e9a265cdd55a0d"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "firmware-srp-mutants",
+     "index": 5,
+     "step": "Run both SRP mutation campaigns and pin controls",
+     "returncode": 0,
+     "seconds": 587.283,
+     "log_bytes": 119980,
+     "log_sha256": "29d220d06aa7b24cba52a38f56f9128c3a38fa09d0ae97b5d83c2310d3187b72"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "firmware-boundary",
+     "index": 5,
+     "step": "Hold the TSN stack boundary over the firmware builders' compiles",
+     "returncode": 0,
+     "seconds": 813.269,
+     "log_bytes": 65458,
+     "log_sha256": "69c817df660625f8249453cb62b9b1504ce4e7d58bc66bd87adcc61f4c79eabd"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "firmware-verilator",
+     "index": 8,
+     "step": "Hold the TSN stack boundary over the Verilator builders' compiles",
+     "returncode": 0,
+     "seconds": 600.311,
+     "log_bytes": 55764,
+     "log_sha256": "2621ebfe9f353445ea18f41373a108128d3a5a1f0494bc617cf799380632ce98"
+    },
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "rtl-fast",
+     "index": 0,
+     "step": "Require every applicable fast gate to pass",
+     "returncode": 0,
+     "seconds": 0.003,
+     "log_bytes": 363,
+     "log_sha256": "d005264ccb6fff86d2183e1617c8756b48d353076c296f0bc0c07e0bd248d4d8"
+    }
+   ],
+   "failed_steps": [],
+   "bank_log_bytes": 608,
+   "bank_log_sha256": "1b67c7838cd2c5017f1d9a12033835e26da1cd9105f59b0a1421efdcd11dad25",
+   "passed_marker": true
+  },
+  {
+   "attempt": "bank-docs-nogit-0fd126de",
+   "head_prefix": "0fd126de",
+   "classification": "passed",
+   "reason": "",
+   "steps": [
+    {
+     "head": "0fd126de427a7de4dbd6de1c3622da6df2e64056",
+     "job": "docs-check-no-git",
+     "index": 1,
+     "step": "Strip git metadata, then run the docs gate",
+     "returncode": 0,
+     "seconds": 7.236,
+     "log_bytes": 225,
+     "log_sha256": "10555482499fd345158f736f4332887c53b1e77a389b3899e3e4d782bf20d9a7"
+    }
+   ],
+   "failed_steps": [],
+   "bank_log_bytes": 81,
+   "bank_log_sha256": "ff5710bcf919ed9343a8ac2ee083d10c81c284f2c1807faa04930c27174761dc",
+   "passed_marker": true
+  }
+ ]
+}

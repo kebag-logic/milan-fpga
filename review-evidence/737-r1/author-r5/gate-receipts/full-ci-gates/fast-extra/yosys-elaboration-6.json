@@ -1,0 +1,8 @@
+{
+  "id": "yosys-elaboration-6",
+  "name": "Elaborate the integration-heavy tops",
+  "body": "syn/yosys/run.sh --mode elaborate --no-structural \\\n  --top milan_datapath \\\n  --top KL_pp_shadow \\\n  --top KL_gptp_shadow\n",
+  "cwd": ".",
+  "returncode": 0,
+  "milliseconds": 112573
+}

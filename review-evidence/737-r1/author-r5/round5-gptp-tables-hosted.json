@@ -1,0 +1,78 @@
+{
+ "purpose": "Hosted windows of the gPTP table suite added by #713, for its SUITE_SECONDS figure",
+ "measurer": "scripts/suite_shards.py --measure at dev f62602531d415d6c1cae1374a3cc2938faf54049 (same reader as the merged tree)",
+ "runs": [
+  {
+   "run": 38538854504,
+   "event": "pull_request",
+   "head": "7fb3664b9b53d0c4caa4b64415dd9cc3e850e4b0",
+   "conclusion": "success",
+   "worker": "Verilator shard 0/6",
+   "job": 115768681874,
+   "gptp_tables_seconds": 474,
+   "all_six_workers_measured": true,
+   "worker_overhead_seconds": "WORKER_OVERHEAD_SECONDS = (81, 110, 86, 108, 83, 81)"
+  },
+  {
+   "run": 38601263345,
+   "event": "push",
+   "head": "f62602531d415d6c1cae1374a3cc2938faf54049",
+   "conclusion": "failure (worker 2/6: milan_dp_gm_steps and milan_dp_mclk TIMEOUT); worker 0/6 passed all 8 suites",
+   "worker": "Verilator shard 0/6",
+   "job": 115981133898,
+   "gptp_tables_seconds": 568
+  }
+ ],
+ "chosen_figure": 568,
+ "rule": "the larger hosted window; neither is the provisional 1800-second suite_timeout figure",
+ "logs": {
+  "logs-713/115768681874.log": {
+   "bytes": 41860,
+   "sha256": "edf0053a1c475902e814db94973096a53f5ffcec2bbcb70c5895f929dcf32237"
+  },
+  "logs-713/115768681889.log": {
+   "bytes": 64120,
+   "sha256": "2b3833336b80a4f40962d770d45346ee0d38d1607ff35fad30212ef924526603"
+  },
+  "logs-713/115768682026.log": {
+   "bytes": 42580,
+   "sha256": "53463f1f2d1116db20939182438c4acb547086b07d326fe29f9fb48b27e2cb98"
+  },
+  "logs-713/115768682102.log": {
+   "bytes": 54551,
+   "sha256": "976dc4581c8c01bce4d72a9c59dece884eba7cffb7919f6636411bb493f179c8"
+  },
+  "logs-713/115768682110.log": {
+   "bytes": 40738,
+   "sha256": "1c675b302645088b194cbce521532b32085065994b19157a341d285abfcad045"
+  },
+  "logs-713/115768682167.log": {
+   "bytes": 42845,
+   "sha256": "41a4de4b96e046ea5c413c9e0c76d09c4617bea65ab75fc4d575ce40959e9fa6"
+  },
+  "logs-dev/115981133858.log": {
+   "bytes": 62625,
+   "sha256": "501f7b98c8b28ab4e264a94f1dbcfe64aeab264aeec3544808efb1b9b10996a5"
+  },
+  "logs-dev/115981133898.log": {
+   "bytes": 40247,
+   "sha256": "0a02e7d5bbee7ab4842bbab0626cb22e1e16f81e86a35998d891fe5fa8de16cd"
+  },
+  "logs-dev/115981133944.log": {
+   "bytes": 53046,
+   "sha256": "41d953494928bd618a921b53287164e89af3622cdbc77e202c308394870cf3cf"
+  },
+  "logs-dev/115981133991.log": {
+   "bytes": 42361,
+   "sha256": "c0e3f84a77aab92c50baab407dc0432328c6163512ee5938396e3e090788792d"
+  },
+  "logs-dev/115981134003.log": {
+   "bytes": 41013,
+   "sha256": "8354d4f65e575dc04a51c660ea00e9e84d1f813540e05430aa5ebd69c682c4e1"
+  },
+  "logs-dev/115981134018.log": {
+   "bytes": 39246,
+   "sha256": "44386f381eb5fc3bdf67f53b7d4e207410eb847c60a4e30b09156442a097dd68"
+  }
+ }
+}

@@ -1,0 +1,146 @@
+{
+ "purpose": "Elaboration builder legs and the unsharded reference at the merged head, run beside each other on one 16-CPU range",
+ "head": "e3d25d964b5bbf0187290d0a357c6a6e4c5afd17",
+ "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+ "container": {
+  "memory": "8g",
+  "cpuset": "64-79",
+  "network": "none"
+ },
+ "runs": {
+  "unsharded_beside_legs": {
+   "command": [
+    "python3",
+    "scripts/ci_builder_legs.py",
+    "run",
+    "all",
+    "--receipt",
+    "/scratch/reference.json",
+    "--",
+    "python3",
+    "sw/builder/test_builder.py",
+    "--require-elaboration",
+    "--require-rv32"
+   ],
+   "returncode": 0,
+   "seconds": 1506.554,
+   "cpus": 16,
+   "memory_peak_bytes": 4705251328,
+   "memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "verdict_lines": [
+    "ALL GATES PASS EXCEPT 2 NOT RUN"
+   ],
+   "timed_log": {
+    "bytes": 126230,
+    "sha256": "0af7a94514c8a66863610421ff07fab39bcf67d9be3d67f2bb858e2c55cf11d6"
+   }
+  },
+  "leg0": {
+   "command": [
+    "python3",
+    "scripts/ci_builder_legs.py",
+    "run",
+    "0",
+    "--receipt",
+    "/scratch/gate-results/builder-leg-0.json",
+    "--",
+    "python3",
+    "sw/builder/test_builder.py",
+    "--require-elaboration",
+    "--require-rv32"
+   ],
+   "returncode": 0,
+   "seconds": 1081.009,
+   "cpus": 16,
+   "memory_peak_bytes": 645799936,
+   "memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "verdict_lines": [
+    "SUBSET: 1 of 103 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs",
+    "ALL GATES PASS EXCEPT 1 NOT RUN"
+   ],
+   "timed_log": {
+    "bytes": 50880,
+    "sha256": "e719c56aaac11307c3620ba6f7abdfc5d08e913df633f33aa3fc70e5663c8fa9"
+   }
+  },
+  "leg1": {
+   "command": [
+    "python3",
+    "scripts/ci_builder_legs.py",
+    "run",
+    "1",
+    "--receipt",
+    "/scratch/gate-results/builder-leg-1.json",
+    "--",
+    "python3",
+    "sw/builder/test_builder.py",
+    "--require-elaboration",
+    "--require-rv32"
+   ],
+   "returncode": 0,
+   "seconds": 495.144,
+   "cpus": 16,
+   "memory_peak_bytes": 5707837440,
+   "memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "verdict_lines": [
+    "SUBSET: 102 of 103 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs",
+    "ALL GATES PASS EXCEPT 1 NOT RUN"
+   ],
+   "timed_log": {
+    "bytes": 75583,
+    "sha256": "3e7153cde3a90f020336376fdc7b3505663183c997d8a3993e29e2cd79129400"
+   }
+  }
+ },
+ "aggregate_replay_log": [
+  "record leg 0 rc=0",
+  "record leg 1 rc=0",
+  "--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 2 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them",
+  "--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 2 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them",
+  "elaborate: 3 source gates exactly once; all worker jobs successful",
+  "verify rc=0",
+  "--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 2 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them",
+  "builder: 103 gates exactly once; requirements judged on the union; equal to the unsharded run",
+  "compare rc=0"
+ ],
+ "builder_union_keys": [
+  "head",
+  "inventory",
+  "legs",
+  "not_run",
+  "requirements",
+  "suite",
+  "tree",
+  "union",
+  "verdicts_sha256"
+ ],
+ "receipts": {
+  "unsharded": "90a42cd8c47cad25204fa2c2af9e48194df9fb2fe9e521e449a3f58abd95a95b",
+  "leg0": "06d7859837a69f8e7c2d6342fae97970c61b19417b336e71781cc980f556c990",
+  "leg1": "1e659d72d1df890b3c93a4269c903374f471346bc6735b54fd119b9fe465a34d"
+ }
+}

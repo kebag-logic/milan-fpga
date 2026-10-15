@@ -1,0 +1,33 @@
+[ok] m3_trap_outside_basis: rc=1
+  named rejection: M3 B.3.6.1 generator period is 2^32-1
+[ok] m3_first_offset_ignores_clock: rc=1
+  named rejection: M3 B.3.6.1 clocks 2^k apart claim different first offsets
+[ok] m4_first_interval_raw_seed_bits: rc=1
+  named rejection: M4 B.3.4 MACs 2^i apart draw different first probe intervals
+[ok] m4_first_offset_nonlinear: rc=1
+  named rejection: M4 first-draw maps learned from the RTL are linear in the seed
+[ok] m6_pending_survives_release: rc=1
+  named rejection: M6 pending response cancelled with allocation
+[ok] m5_level_restarts: rc=1
+  named rejection: M5 B.3.5.9 link return restarts PROBE
+[ok] m8_early_last_accepted: rc=1
+  named rejection: M8 B.2 truncated PROBE-state input has no effect
+[ok] m2_own_requested_start: rc=1
+  named rejection: M2 B.3.6.6 requested start echoes PROBE
+[ok] defend_to_multicast: rc=1
+  named rejection: B.2.1 DEFEND DA = PROBE source (above)
+[ok] probe_base_500: rc=1
+  named rejection: B.3.4.2 probe T > 500 ms (campaign)
+[ok] zero_seed_freezes_the_probe_draw: rc=1
+  named rejection: B.3.4.2 probe T randomized (zero-seed MAC)
+[ok] inclusive_range_start: rc=1
+  named rejection: note b adjacent below: no conflict
+[ok] compare_mac_unreversed: rc=1
+  named rejection: T.B7 rAnnounce!/DEFEND: re-address
+[ok] announce_after_a_timer: rc=1
+  named rejection: T.B7 probeCount!: ANNOUNCE at once (Begin!)
+[ok] own_empty_range_conflicts: rc=1
+  named rejection: note b: this station's empty range never conflicts
+[ok] m3_datapath_ignores_clock: rc=1
+  named rejection: M3 datapath: real-time clock changes probe intervals
+== maap mutants: checks: 16   failures: 0 ==

@@ -1,0 +1,697 @@
+{
+ "purpose": "Round 4 S3: unsharded builder command versus the union of its two measured legs, at one head, in the shipping image",
+ "image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+ "container": {
+  "memory": "8g",
+  "memory_swap": "8g",
+  "cpuset": "112-127",
+  "network": "none",
+  "concurrency": "legs and reference ran beside other builder runs on the same CPUs; contention only lengthens times"
+ },
+ "head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+ "runs": {
+  "e1-unsharded": {
+   "source": {
+    "lane_head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "run_head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "tree": "4c7b693e37b630a635658888ae9c6fbd65cacb83",
+    "mutation": null,
+    "submodules": [
+     {
+      "submodule": "third_party/verilog-axis",
+      "origin": "https://github.com/alexforencich/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+     },
+     {
+      "submodule": "protocol-processor",
+      "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+     },
+     {
+      "submodule": "gptp-processor",
+      "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+      "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+     }
+    ]
+   },
+   "command": [
+    "python3",
+    "scripts/ci_builder_legs.py",
+    "run",
+    "all",
+    "--receipt",
+    "/scratch/reference.json",
+    "--",
+    "python3",
+    "sw/builder/test_builder.py",
+    "--require-elaboration",
+    "--require-rv32"
+   ],
+   "returncode": 0,
+   "seconds": 1394.817,
+   "cpus": 16,
+   "memory_peak_bytes": 3513835520,
+   "memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "verdict": [
+    "ALL GATES PASS EXCEPT 2 NOT RUN"
+   ],
+   "receipt": {
+    "leg": null,
+    "legs": 2,
+    "head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "tree": "4c7b693e37b630a635658888ae9c6fbd65cacb83",
+    "requirements": [
+     "--require-elaboration",
+     "--require-rv32"
+    ],
+    "require_elaboration": 0,
+    "gates": 103,
+    "not_run": [
+     [
+      "gate 1b",
+      "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+      "row"
+     ],
+     [
+      "gate 11",
+      "real report not on disk (/scratch<home-path>/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+      "row"
+     ]
+    ],
+    "bytes": 15555,
+    "sha256": "bbaa81daab18598c174c1f05340c22cbbad815a22f1f1b961a7275caf41c4901"
+   },
+   "log": {
+    "bytes": 107534,
+    "sha256": "dd3ee416187ef07da6620acc87066b9bd0090baca48467a501ce4e288aa4b5bb"
+   }
+  },
+  "e2-leg0": {
+   "source": {
+    "lane_head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "run_head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "tree": "4c7b693e37b630a635658888ae9c6fbd65cacb83",
+    "mutation": null,
+    "submodules": [
+     {
+      "submodule": "third_party/verilog-axis",
+      "origin": "https://github.com/alexforencich/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+     },
+     {
+      "submodule": "protocol-processor",
+      "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+     },
+     {
+      "submodule": "gptp-processor",
+      "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+      "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+     }
+    ]
+   },
+   "command": [
+    "python3",
+    "scripts/ci_builder_legs.py",
+    "run",
+    "0",
+    "--receipt",
+    "/scratch/gate-results/builder-leg-0.json",
+    "--",
+    "python3",
+    "sw/builder/test_builder.py",
+    "--require-elaboration",
+    "--require-rv32"
+   ],
+   "returncode": 0,
+   "seconds": 1028.283,
+   "cpus": 16,
+   "memory_peak_bytes": 615874560,
+   "memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "verdict": [
+    "ALL GATES PASS EXCEPT 1 NOT RUN"
+   ],
+   "receipt": {
+    "leg": 0,
+    "legs": 2,
+    "head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "tree": "4c7b693e37b630a635658888ae9c6fbd65cacb83",
+    "requirements": [
+     "--require-elaboration",
+     "--require-rv32"
+    ],
+    "require_elaboration": 0,
+    "gates": 1,
+    "not_run": [
+     [
+      "gate 1b",
+      "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+      "row"
+     ]
+    ],
+    "bytes": 4254,
+    "sha256": "ba7bf1c65211db6d7b48078345cba8947c4b09035149cc992788ffad4dca7669"
+   },
+   "log": {
+    "bytes": 50879,
+    "sha256": "803eeec7d40212398b5228999aeaf068d9fd6e2e936a25efa011ed2d9a606104"
+   }
+  },
+  "e3-leg1": {
+   "source": {
+    "lane_head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "run_head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "tree": "4c7b693e37b630a635658888ae9c6fbd65cacb83",
+    "mutation": null,
+    "submodules": [
+     {
+      "submodule": "third_party/verilog-axis",
+      "origin": "https://github.com/alexforencich/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+     },
+     {
+      "submodule": "protocol-processor",
+      "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+     },
+     {
+      "submodule": "gptp-processor",
+      "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+      "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+     }
+    ]
+   },
+   "command": [
+    "python3",
+    "scripts/ci_builder_legs.py",
+    "run",
+    "1",
+    "--receipt",
+    "/scratch/gate-results/builder-leg-1.json",
+    "--",
+    "python3",
+    "sw/builder/test_builder.py",
+    "--require-elaboration",
+    "--require-rv32"
+   ],
+   "returncode": 0,
+   "seconds": 367.305,
+   "cpus": 16,
+   "memory_peak_bytes": 3237867520,
+   "memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "verdict": [
+    "ALL GATES PASS EXCEPT 1 NOT RUN"
+   ],
+   "receipt": {
+    "leg": 1,
+    "legs": 2,
+    "head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "tree": "4c7b693e37b630a635658888ae9c6fbd65cacb83",
+    "requirements": [
+     "--require-elaboration",
+     "--require-rv32"
+    ],
+    "require_elaboration": 0,
+    "gates": 102,
+    "not_run": [
+     [
+      "gate 11",
+      "real report not on disk (/scratch<home-path>/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+      "row"
+     ]
+    ],
+    "bytes": 15153,
+    "sha256": "c973175727389aade8888259b5e7e0f7ed47bcbaf55f2ef8244ec0ce4c87db98"
+   },
+   "log": {
+    "bytes": 56952,
+    "sha256": "cb88a3a689f8ea297518e1c2fce0f7bdaf37d4cc233e28327d3b94553e69153e"
+   }
+  },
+  "u-noflag-leg1": {
+   "source": {
+    "lane_head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "run_head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "tree": "4c7b693e37b630a635658888ae9c6fbd65cacb83",
+    "mutation": null,
+    "submodules": [
+     {
+      "submodule": "third_party/verilog-axis",
+      "origin": "https://github.com/alexforencich/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+     },
+     {
+      "submodule": "protocol-processor",
+      "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+      "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+     },
+     {
+      "submodule": "gptp-processor",
+      "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+      "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+     }
+    ]
+   },
+   "command": [
+    "python3",
+    "scripts/ci_builder_legs.py",
+    "run",
+    "1",
+    "--receipt",
+    "/scratch/gate-results/builder-leg-1.json",
+    "--",
+    "python3",
+    "sw/builder/test_builder.py",
+    "--require-rv32"
+   ],
+   "returncode": 0,
+   "seconds": 379.192,
+   "cpus": 16,
+   "memory_peak_bytes": 3479019520,
+   "memory_events": {
+    "low": "0",
+    "high": "0",
+    "max": "0",
+    "oom": "0",
+    "oom_kill": "0",
+    "oom_group_kill": "0",
+    "sock_throttled": "0"
+   },
+   "verdict": [
+    "ALL GATES PASS EXCEPT 1 NOT RUN"
+   ],
+   "receipt": {
+    "leg": 1,
+    "legs": 2,
+    "head": "0838c64f91abb2792d95a5bc6c0f3d38704fad54",
+    "tree": "4c7b693e37b630a635658888ae9c6fbd65cacb83",
+    "requirements": [
+     "--require-rv32"
+    ],
+    "require_elaboration": null,
+    "gates": 102,
+    "not_run": [
+     [
+      "gate 11",
+      "real report not on disk (/scratch<home-path>/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+      "row"
+     ]
+    ],
+    "bytes": 15132,
+    "sha256": "a1e0529d75f00d544292f2df9c28780d72659c0b8af24d031639f9039c4e0f7b"
+   },
+   "log": {
+    "bytes": 56717,
+    "sha256": "f79c99dbd43e569808ac56807c7761e2a3e5c771a6689ccdd4120a9a8741518f"
+   }
+  }
+ },
+ "comparison": {
+  "command": "python3 scripts/ci_builder_legs.py union --head <head> --tree <tree> --reference reference.json builder-leg-0.json builder-leg-1.json",
+  "result": "builder: 103 gates exactly once; requirements judged on the union; equal to the unsharded run",
+  "returncode": 0,
+  "union_legs": [
+   [
+    "0/2",
+    1
+   ],
+   [
+    "1/2",
+    102
+   ]
+  ],
+  "union_not_run": [
+   [
+    "gate 1b",
+    "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+    "row"
+   ],
+   [
+    "gate 11",
+    "real report not on disk (/scratch<home-path>/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+    "row"
+   ]
+  ],
+  "verdicts_sha256": "47dc3c6ac362ed2038a1ff6391ef54334cc0edb665870a0e5d3980ec3216988f"
+ },
+ "aggregate_replay": {
+  "method": "production ci_gate_receipts.py record for both workers (step outcomes success) and verify over the real builder leg receipts, in the artifact layout the aggregate downloads",
+  "verify_returncode": 0,
+  "message": "elaborate: 3 source gates exactly once; all worker jobs successful",
+  "gate_union_inventory": [
+   "gate_14_0",
+   "gate_14_1",
+   "gate_18"
+  ],
+  "gate_union_legs": [
+   {
+    "cases": [
+     "gate_14_0"
+    ],
+    "shard": "0/2"
+   },
+   {
+    "cases": [
+     "gate_14_1",
+     "gate_18"
+    ],
+    "shard": "1/2"
+   }
+  ],
+  "gate_union_verdicts_sha256": "e404db2cd46110ef5084213c083cce6b133c4a6c780c348a48805f7dc6999841"
+ },
+ "printed_output": {
+  "gates": 103,
+  "in_legs": 103,
+  "identical": 96,
+  "identical_after_masking_temp_paths_and_durations": [
+   "test_rom_clock_skip_reaches_the_ledger",
+   "test_clock_crossing_constraints",
+   "test_dynamic_audio_map_overlay",
+   "test_optional_blocks_reach_the_instance",
+   "test_optional_block_instance_gate_bites",
+   "test_clock_plan_reaches_the_instance",
+   "test_clock_plan_instance_gate_bites"
+  ],
+  "differ": []
+ },
+ "printed_output_method": "each gate's stdout segment, time stamps removed; masking only per-run temporary paths and elapsed-second figures",
+ "final_head": {
+  "head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+  "difference_from_0838c64f": "docs/testing/CI_WORKFLOWS.md only",
+  "concurrency": "leg 0 beside the docs-check bank; leg 1 after it; the reference beside the docs bank's last steps, then alone",
+  "runs": {
+   "f-e1-unsharded": {
+    "source": {
+     "lane_head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+     "run_head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+     "tree": "e5cc5d163c974aaf1b6cb888dae9881267d787e6",
+     "mutation": null,
+     "submodules": [
+      {
+       "submodule": "third_party/verilog-axis",
+       "origin": "https://github.com/alexforencich/verilog-axis",
+       "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      {
+       "submodule": "protocol-processor",
+       "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+       "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      },
+      {
+       "submodule": "gptp-processor",
+       "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+       "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+      }
+     ]
+    },
+    "command": [
+     "python3",
+     "scripts/ci_builder_legs.py",
+     "run",
+     "all",
+     "--receipt",
+     "/scratch/reference.json",
+     "--",
+     "python3",
+     "sw/builder/test_builder.py",
+     "--require-elaboration",
+     "--require-rv32"
+    ],
+    "returncode": 0,
+    "seconds": 1311.061,
+    "cpus": 16,
+    "memory_peak_bytes": 3723018240,
+    "memory_events": {
+     "low": "0",
+     "high": "0",
+     "max": "0",
+     "oom": "0",
+     "oom_kill": "0",
+     "oom_group_kill": "0",
+     "sock_throttled": "0"
+    },
+    "verdict": [
+     "ALL GATES PASS EXCEPT 2 NOT RUN"
+    ],
+    "receipt": {
+     "leg": null,
+     "head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+     "tree": "e5cc5d163c974aaf1b6cb888dae9881267d787e6",
+     "requirements": [
+      "--require-elaboration",
+      "--require-rv32"
+     ],
+     "require_elaboration": 0,
+     "gates": 103,
+     "not_run": [
+      [
+       "gate 1b",
+       "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+       "row"
+      ],
+      [
+       "gate 11",
+       "real report not on disk (/scratch<home-path>/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+       "row"
+      ]
+     ],
+     "bytes": 15555,
+     "sha256": "1236af8d09a079544d6620b888d56776203f17c4cd4cf938c567bb96b0b21064"
+    },
+    "log": {
+     "bytes": 107534,
+     "sha256": "4e1fd9c49d5588770649f3bbed747d24063b9df01ae5a6ba90ee60eebf6cb368"
+    }
+   },
+   "f-e2-leg0": {
+    "source": {
+     "lane_head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+     "run_head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+     "tree": "e5cc5d163c974aaf1b6cb888dae9881267d787e6",
+     "mutation": null,
+     "submodules": [
+      {
+       "submodule": "third_party/verilog-axis",
+       "origin": "https://github.com/alexforencich/verilog-axis",
+       "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      {
+       "submodule": "protocol-processor",
+       "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+       "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      },
+      {
+       "submodule": "gptp-processor",
+       "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+       "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+      }
+     ]
+    },
+    "command": [
+     "python3",
+     "scripts/ci_builder_legs.py",
+     "run",
+     "0",
+     "--receipt",
+     "/scratch/gate-results/builder-leg-0.json",
+     "--",
+     "python3",
+     "sw/builder/test_builder.py",
+     "--require-elaboration",
+     "--require-rv32"
+    ],
+    "returncode": 0,
+    "seconds": 984.818,
+    "cpus": 16,
+    "memory_peak_bytes": 619937792,
+    "memory_events": {
+     "low": "0",
+     "high": "0",
+     "max": "0",
+     "oom": "0",
+     "oom_kill": "0",
+     "oom_group_kill": "0",
+     "sock_throttled": "0"
+    },
+    "verdict": [
+     "ALL GATES PASS EXCEPT 1 NOT RUN"
+    ],
+    "receipt": {
+     "leg": 0,
+     "head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+     "tree": "e5cc5d163c974aaf1b6cb888dae9881267d787e6",
+     "requirements": [
+      "--require-elaboration",
+      "--require-rv32"
+     ],
+     "require_elaboration": 0,
+     "gates": 1,
+     "not_run": [
+      [
+       "gate 1b",
+       "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+       "row"
+      ]
+     ],
+     "bytes": 4254,
+     "sha256": "f06b010815ccb630791b92c5308762f60b7446851edfc3144b0bb7314c6c0646"
+    },
+    "log": {
+     "bytes": 50849,
+     "sha256": "62695f5249b614c671b3e8349276316ddf16a81f0a8a494067b720547132c6e0"
+    }
+   },
+   "f-e3-leg1": {
+    "source": {
+     "lane_head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+     "run_head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+     "tree": "e5cc5d163c974aaf1b6cb888dae9881267d787e6",
+     "mutation": null,
+     "submodules": [
+      {
+       "submodule": "third_party/verilog-axis",
+       "origin": "https://github.com/alexforencich/verilog-axis",
+       "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      },
+      {
+       "submodule": "protocol-processor",
+       "origin": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git",
+       "pin": "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      },
+      {
+       "submodule": "gptp-processor",
+       "origin": "https://github.com/Mister-M-alt/FPGA-gPTP.git",
+       "pin": "7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9"
+      }
+     ]
+    },
+    "command": [
+     "python3",
+     "scripts/ci_builder_legs.py",
+     "run",
+     "1",
+     "--receipt",
+     "/scratch/gate-results/builder-leg-1.json",
+     "--",
+     "python3",
+     "sw/builder/test_builder.py",
+     "--require-elaboration",
+     "--require-rv32"
+    ],
+    "returncode": 0,
+    "seconds": 348.095,
+    "cpus": 16,
+    "memory_peak_bytes": 3440762880,
+    "memory_events": {
+     "low": "0",
+     "high": "0",
+     "max": "0",
+     "oom": "0",
+     "oom_kill": "0",
+     "oom_group_kill": "0",
+     "sock_throttled": "0"
+    },
+    "verdict": [
+     "ALL GATES PASS EXCEPT 1 NOT RUN"
+    ],
+    "receipt": {
+     "leg": 1,
+     "head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+     "tree": "e5cc5d163c974aaf1b6cb888dae9881267d787e6",
+     "requirements": [
+      "--require-elaboration",
+      "--require-rv32"
+     ],
+     "require_elaboration": 0,
+     "gates": 102,
+     "not_run": [
+      [
+       "gate 11",
+       "real report not on disk (/scratch<home-path>/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+       "row"
+      ]
+     ],
+     "bytes": 15153,
+     "sha256": "e7f414f37d83254f82ad336233cdfbdc8ca2bff05c77bd93a0f19c504c9a2d8c"
+    },
+    "log": {
+     "bytes": 56952,
+     "sha256": "7deb843c03f748bf1bf46f6ea1e30a2d6768f86bc716b73ef7616f1d5acf0628"
+    }
+   }
+  },
+  "comparison": {
+   "returncode": 0,
+   "result": "builder: 103 gates exactly once; requirements judged on the union; equal to the unsharded run",
+   "union_legs": [
+    [
+     "0/2",
+     1
+    ],
+    [
+     "1/2",
+     102
+    ]
+   ],
+   "union_not_run": [
+    [
+     "gate 1b",
+     "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+     "row"
+    ],
+    [
+     "gate 11",
+     "real report not on disk (/scratch<home-path>/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+     "row"
+    ]
+   ],
+   "verdicts_sha256": "47dc3c6ac362ed2038a1ff6391ef54334cc0edb665870a0e5d3980ec3216988f",
+   "same_verdicts_sha256_as_0838c64f": true
+  },
+  "aggregate_replay": {
+   "verify_returncode": 0,
+   "message": "elaborate: 3 source gates exactly once; all worker jobs successful",
+   "gate_union_verdicts_sha256": "7fb01975536b612d2338dc1d88ccbc1b64fbc45098c966ab3e1fe4a517a4dae8"
+  },
+  "printed_output": {
+   "gates": 103,
+   "in_legs": 103,
+   "identical": 96,
+   "identical_after_masking_temp_paths_and_durations": [
+    "test_rom_clock_skip_reaches_the_ledger",
+    "test_clock_crossing_constraints",
+    "test_dynamic_audio_map_overlay",
+    "test_optional_blocks_reach_the_instance",
+    "test_optional_block_instance_gate_bites",
+    "test_clock_plan_reaches_the_instance",
+    "test_clock_plan_instance_gate_bites"
+   ],
+   "differ": []
+  }
+ }
+}

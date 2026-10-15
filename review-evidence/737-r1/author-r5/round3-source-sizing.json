@@ -1,0 +1,398 @@
+{
+  "compiler_budget": "min(available CPUs, 8)",
+  "accepted": [
+    {
+      "tool": "verilator",
+      "cpu_width": 16,
+      "container": "lane737-r3-verilator-16-j8",
+      "image": "sha256:2d09d1152abecc5ed7799ead632f263d21ebec1f685809fe99c4e3e8801dadcc",
+      "cpus": "112-127",
+      "memory_cap_bytes": 8589934592,
+      "memory_swap_bytes": 8589934592,
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-14T19:42:43.583887543Z",
+        "FinishedAt": "2026-10-14T19:45:46.391544807Z"
+      },
+      "rc": 0,
+      "memory_peak_bytes": 4811259904,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "seconds": 182.656,
+      "margin_cap_percent": 43.99,
+      "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+      "artifacts": {
+        "run.sh": {
+          "bytes": 849,
+          "sha256": "757a0e50efc64d5de8a6829d7cd1d682be3bb152cd674fbdc5a0e740819a7033"
+        },
+        "started": {
+          "bytes": 21,
+          "sha256": "8b2385d8d7ff67a0f9947102829dffae3f5fc52fc7a097471b565a50d15f93cb"
+        },
+        "result.rc": {
+          "bytes": 2,
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "run.log": {
+          "bytes": 162154,
+          "sha256": "676fa4325a7e715213d01a7249aa41b90cfe58860c76eec5c40e7a22e753f034"
+        },
+        "python": {
+          "bytes": 14,
+          "sha256": "5b3e43dc38ca01e3f5a7854ba50d4330864b0c1e0f646650b2c78cf072acc366"
+        },
+        "cpus": {
+          "bytes": 3,
+          "sha256": "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
+        },
+        "recipe.json": {
+          "bytes": 428,
+          "sha256": "6aac45a7fd7dd03c378310671776fdb218ef8617ce72e5a5155478bee983ff99"
+        },
+        "memory.events": {
+          "bytes": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        "launch.json": {
+          "bytes": 508,
+          "sha256": "0bd62872cb8ca2e4c2506d5623d9ffa3969f3954918a6b2841c27dd4d85d50f2"
+        },
+        "memory.peak": {
+          "bytes": 11,
+          "sha256": "a4dff92d1a19d2fcc0ad0927bdfb1773554eafe53edbc42050b12e0bd003de7d"
+        },
+        "finished": {
+          "bytes": 21,
+          "sha256": "3c7a0ab043591ea6b4f410cd1b20897a719d8c515088510d6472c978f545eaab"
+        },
+        "compiler": {
+          "bytes": 246,
+          "sha256": "59d1cbef41d4ae78d5063d525b7aa13d18dc0493ea00537efc19b2ee398cb5a8"
+        }
+      },
+      "recipe": {
+        "step": "Build Verilator from source on cache miss",
+        "source_run_sha256": "1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105",
+        "compiler_jobs": 8,
+        "cpu_width": 16,
+        "worktree_inputs": {
+          ".github/ci-templates/rtl.yml": "50c3d2ba76e48b572dd9e443a6cea4197e6072edd00e094468f51d3bc2245c59",
+          "scripts/ci_runtime_workflows.py": "98c9c212dcb9874ed1a962195c7755f9a67011c72b6fa48211a25e73109d2583"
+        }
+      }
+    },
+    {
+      "tool": "verilator",
+      "cpu_width": 12,
+      "container": "lane737-r3-verilator-12-j8",
+      "image": "sha256:2d09d1152abecc5ed7799ead632f263d21ebec1f685809fe99c4e3e8801dadcc",
+      "cpus": "112-123",
+      "memory_cap_bytes": 8589934592,
+      "memory_swap_bytes": 8589934592,
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-14T19:38:31.539559406Z",
+        "FinishedAt": "2026-10-14T19:41:49.119070068Z"
+      },
+      "rc": 0,
+      "memory_peak_bytes": 4793225216,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "seconds": 197.457,
+      "margin_cap_percent": 44.2,
+      "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+      "artifacts": {
+        "run.sh": {
+          "bytes": 849,
+          "sha256": "757a0e50efc64d5de8a6829d7cd1d682be3bb152cd674fbdc5a0e740819a7033"
+        },
+        "started": {
+          "bytes": 21,
+          "sha256": "287acb395e65b3e3d7956a83bd23bfbf759fb28c2759364ebe5193d2bf1d64be"
+        },
+        "result.rc": {
+          "bytes": 2,
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "run.log": {
+          "bytes": 162154,
+          "sha256": "51b91f37ab943f3ed73e6a33c832e96b9d8c6a117a459cca0e16ab5927430344"
+        },
+        "python": {
+          "bytes": 14,
+          "sha256": "5b3e43dc38ca01e3f5a7854ba50d4330864b0c1e0f646650b2c78cf072acc366"
+        },
+        "cpus": {
+          "bytes": 3,
+          "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+        },
+        "recipe.json": {
+          "bytes": 428,
+          "sha256": "330ee6af71730557d18f9d3b307c58a542e734955f80f3825463847357d71109"
+        },
+        "memory.events": {
+          "bytes": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        "launch.json": {
+          "bytes": 508,
+          "sha256": "41007f0692938e38cc3af339b2ccb0161959a38a9531d5b86165b3b7fb0658ec"
+        },
+        "memory.peak": {
+          "bytes": 11,
+          "sha256": "65d2986af8a41d28c5142b88d4f00c7ca22c9d41901acfeb07646ca42b4d7c65"
+        },
+        "finished": {
+          "bytes": 21,
+          "sha256": "af8c269d2d757c41636008d137260514c8cb64878cbbede8719706c5592e49d6"
+        },
+        "compiler": {
+          "bytes": 246,
+          "sha256": "59d1cbef41d4ae78d5063d525b7aa13d18dc0493ea00537efc19b2ee398cb5a8"
+        }
+      },
+      "recipe": {
+        "step": "Build Verilator from source on cache miss",
+        "source_run_sha256": "1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105",
+        "compiler_jobs": 8,
+        "cpu_width": 12,
+        "worktree_inputs": {
+          ".github/ci-templates/rtl.yml": "50c3d2ba76e48b572dd9e443a6cea4197e6072edd00e094468f51d3bc2245c59",
+          "scripts/ci_runtime_workflows.py": "98c9c212dcb9874ed1a962195c7755f9a67011c72b6fa48211a25e73109d2583"
+        }
+      }
+    },
+    {
+      "tool": "yosys",
+      "cpu_width": 16,
+      "container": "lane737-r3-yosys-16-j8",
+      "image": "sha256:2d09d1152abecc5ed7799ead632f263d21ebec1f685809fe99c4e3e8801dadcc",
+      "cpus": "112-127",
+      "memory_cap_bytes": 8589934592,
+      "memory_swap_bytes": 8589934592,
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-14T19:46:25.71208234Z",
+        "FinishedAt": "2026-10-14T19:52:25.937345703Z"
+      },
+      "rc": 0,
+      "memory_peak_bytes": 5264482304,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "seconds": 360.05,
+      "margin_cap_percent": 38.713,
+      "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+      "artifacts": {
+        "run.sh": {
+          "bytes": 1596,
+          "sha256": "8fb2b145473aa776d320587305fdfb6ff83494d8c8816e260f0386aec6f7dbf0"
+        },
+        "started": {
+          "bytes": 21,
+          "sha256": "b1fccf8517f71de97b87b72b06c183d6610ebf0dc8fd5868e951d1d5755f88bb"
+        },
+        "result.rc": {
+          "bytes": 2,
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "run.log": {
+          "bytes": 1034019,
+          "sha256": "1dd199cec1339d45bbd7b3e67fbb7799da563d9ffe585287a4c7ae90be3f0d45"
+        },
+        "python": {
+          "bytes": 14,
+          "sha256": "5b3e43dc38ca01e3f5a7854ba50d4330864b0c1e0f646650b2c78cf072acc366"
+        },
+        "cpus": {
+          "bytes": 3,
+          "sha256": "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
+        },
+        "recipe.json": {
+          "bytes": 424,
+          "sha256": "7c4cbbca63eb62684fdf7379032c7efac5d7e24e795fa414897279c9f644bf2a"
+        },
+        "memory.events": {
+          "bytes": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        "launch.json": {
+          "bytes": 500,
+          "sha256": "e38063221a21dd743492eb9dab3a60fb348eb2a89d791f968843eb09ff2a206f"
+        },
+        "memory.peak": {
+          "bytes": 11,
+          "sha256": "40e9917c1cce5595bac1b928bff94813f58fa643e08ee5c9c8a3dd985a598924"
+        },
+        "finished": {
+          "bytes": 21,
+          "sha256": "84516cee54913ce4576b8cd1244a548de5e3d1dab99123306e7340874cea5f9f"
+        },
+        "compiler": {
+          "bytes": 246,
+          "sha256": "59d1cbef41d4ae78d5063d525b7aa13d18dc0493ea00537efc19b2ee398cb5a8"
+        }
+      },
+      "recipe": {
+        "step": "Build Yosys from source on cache miss",
+        "source_run_sha256": "36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354",
+        "compiler_jobs": 8,
+        "cpu_width": 16,
+        "worktree_inputs": {
+          ".github/ci-templates/rtl.yml": "50c3d2ba76e48b572dd9e443a6cea4197e6072edd00e094468f51d3bc2245c59",
+          "scripts/ci_runtime_workflows.py": "98c9c212dcb9874ed1a962195c7755f9a67011c72b6fa48211a25e73109d2583"
+        }
+      }
+    },
+    {
+      "tool": "yosys",
+      "cpu_width": 12,
+      "container": "lane737-r3-yosys-12-j8",
+      "image": "sha256:2d09d1152abecc5ed7799ead632f263d21ebec1f685809fe99c4e3e8801dadcc",
+      "cpus": "112-123",
+      "memory_cap_bytes": 8589934592,
+      "memory_swap_bytes": 8589934592,
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-14T19:52:49.366001877Z",
+        "FinishedAt": "2026-10-14T19:59:27.635743564Z"
+      },
+      "rc": 0,
+      "memory_peak_bytes": 5117616128,
+      "memory_events": {
+        "low": 0,
+        "high": 0,
+        "max": 0,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0,
+        "sock_throttled": 0
+      },
+      "seconds": 398.142,
+      "margin_cap_percent": 40.423,
+      "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+      "artifacts": {
+        "run.sh": {
+          "bytes": 1596,
+          "sha256": "8fb2b145473aa776d320587305fdfb6ff83494d8c8816e260f0386aec6f7dbf0"
+        },
+        "started": {
+          "bytes": 21,
+          "sha256": "148e586185525719675c89cdaadcdd5663c21e6f7dd5b70c5a2d4edc76074fba"
+        },
+        "result.rc": {
+          "bytes": 2,
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "run.log": {
+          "bytes": 1034019,
+          "sha256": "95f9e38139897e14bbd7211ee12f78d30a351250cf1b403362f957830e171e4c"
+        },
+        "python": {
+          "bytes": 14,
+          "sha256": "5b3e43dc38ca01e3f5a7854ba50d4330864b0c1e0f646650b2c78cf072acc366"
+        },
+        "cpus": {
+          "bytes": 3,
+          "sha256": "a1fb50e6c86fae1679ef3351296fd6713411a08cf8dd1790a4fd05fae8688164"
+        },
+        "recipe.json": {
+          "bytes": 424,
+          "sha256": "dfb51cc9a460a48cdd8aedf41f510f845e90fac0857a39a4577f65dd1f028050"
+        },
+        "memory.events": {
+          "bytes": 70,
+          "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+        },
+        "launch.json": {
+          "bytes": 500,
+          "sha256": "cce71242489fe84aebd79fa33dd51e4d354610f8a17f31db981ce31d23a2688c"
+        },
+        "memory.peak": {
+          "bytes": 11,
+          "sha256": "efe5695bfce9499520596d16def15d45c9f286b01e3940ce90e7fa4eebcf8c47"
+        },
+        "finished": {
+          "bytes": 21,
+          "sha256": "57705e145f61f1bba2668868acf28cc5c24753eba90dc2911a80bd14cb663d6e"
+        },
+        "compiler": {
+          "bytes": 246,
+          "sha256": "59d1cbef41d4ae78d5063d525b7aa13d18dc0493ea00537efc19b2ee398cb5a8"
+        }
+      },
+      "recipe": {
+        "step": "Build Yosys from source on cache miss",
+        "source_run_sha256": "36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354",
+        "compiler_jobs": 8,
+        "cpu_width": 12,
+        "worktree_inputs": {
+          ".github/ci-templates/rtl.yml": "50c3d2ba76e48b572dd9e443a6cea4197e6072edd00e094468f51d3bc2245c59",
+          "scripts/ci_runtime_workflows.py": "98c9c212dcb9874ed1a962195c7755f9a67011c72b6fa48211a25e73109d2583"
+        }
+      }
+    }
+  ],
+  "largest_accepted_peak_bytes": 6047100928,
+  "cap_bytes": 8589934592,
+  "reserve_bytes": 2542833664,
+  "reserve_cap_percent": 29.602,
+  "slot_bytes": 38654705664,
+  "slot_overhead_bytes": 4294967296,
+  "admitted_jobs": 4,
+  "sum_of_four_peaks_plus_overhead_bytes": 28483371008,
+  "qualification": "Sequential measurements; the sum is not a concurrent observed peak."
+}

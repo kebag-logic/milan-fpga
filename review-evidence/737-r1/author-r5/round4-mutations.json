@@ -1,0 +1,213 @@
+{
+ "head": "6ab22bca61a76c989ad9fbb94b9cde2639d38ca9",
+ "method": "Shared clone of the committed head with read-only links to its initialized submodules; one exact replacement; the named self-test or check must return non-zero, and each pristine copy zero.",
+ "results": [
+  {
+   "mutation": "i1-conditional-prep-accepted",
+   "file": "scripts/ci_suite_workflows.py",
+   "old": "if body.strip() == preparation and \"if\" not in step and not step.get(\"continue-on-error\"):",
+   "new": "if body.strip() == preparation:",
+   "rc": 1,
+   "seconds": 0.202,
+   "log_bytes": 1070,
+   "log_sha256": "970b2fae6aa81b02453fe7cd30b3080fb801f0c279aa443de316ba7cab9886c7",
+   "log_tail": [
+    "  File \"$VALIDATION_STORAGE/737-a614/round4/mutations-final/tree-i1-conditional-prep-accepted/scripts/ci_gate_workflows_selftest.py\", line 54, in refuse_preparation",
+    "    raise AssertionError(\"accepted unprepared inventory reader: \" + label + job_id)",
+    "AssertionError: accepted unprepared inventory reader: docs: if preparation in docs-gates-0"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_gate_workflows_selftest.py"
+  },
+  {
+   "mutation": "i3-no-shared-budget",
+   "file": "scripts/ci_runtime_evidence.py",
+   "old": "API(os.environ[\"GITHUB_REPOSITORY\"], os.environ[\"GH_TOKEN\"], RETRY_BUDGET_SECONDS)",
+   "new": "API(os.environ[\"GITHUB_REPOSITORY\"], os.environ[\"GH_TOKEN\"])",
+   "rc": 1,
+   "seconds": 5.44,
+   "log_bytes": 93207,
+   "log_sha256": "56f2285691369a3f6e3580c2d924b2b05b7c6b3176d72e80bd06d876f1450b3e",
+   "log_tail": [
+    "    assert elapsed <= RETRY_BUDGET_SECONDS, f\"collector reads took {elapsed}s\"",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "AssertionError: collector reads took 960.0s"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_runtime_evidence_selftest.py"
+  },
+  {
+   "mutation": "pristine-contract",
+   "file": ".github/ci-templates/rtl.yml",
+   "old": null,
+   "new": null,
+   "rc": 0,
+   "seconds": 1.287,
+   "log_bytes": 167,
+   "log_sha256": "d3aa7c312869ea4fee65c372596dde6fc452d93116930cc2863013ec5a45ca54",
+   "log_tail": [
+    "  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both",
+    "ci_events: OK (2186 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+   ],
+   "command": "pipefail -c python3 scripts/ci_gate_workflows.py && python3 scripts/ci_events.py --check"
+  },
+  {
+   "mutation": "pristine-fail-fast",
+   "file": "scripts/ci_fail_fast.py",
+   "old": null,
+   "new": null,
+   "rc": 0,
+   "seconds": 1.001,
+   "log_bytes": 839,
+   "log_sha256": "83ad53963e390123d643e75aec0baac6421ba915497a9847b16a0c53ebbb17fc",
+   "log_tail": [
+    "rtl: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS",
+    "rtl-fast: generated graph, collector failure, watcher-tail failure, raw skipped matrices PASS",
+    "fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_fail_fast_selftest.py"
+  },
+  {
+   "mutation": "pristine-gate",
+   "file": "scripts/ci_suite_workflows.py",
+   "old": null,
+   "new": null,
+   "rc": 0,
+   "seconds": 2.308,
+   "log_bytes": 4255,
+   "log_sha256": "ec3b2022954ee32101b1a72b109fcd79dced373f8ffe597b853c9d47484f2ea1",
+   "log_tail": [
+    "elaborate: refused contradictory skip scope",
+    "elaborate: 2 source gates retain their complete original steps",
+    "gate workflow and union controls: PASS"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_gate_workflows_selftest.py"
+  },
+  {
+   "mutation": "pristine-runtime",
+   "file": "scripts/ci_runtime_evidence.py",
+   "old": null,
+   "new": null,
+   "rc": 0,
+   "seconds": 6.179,
+   "log_bytes": 93270,
+   "log_sha256": "d103520d93b2584437ed4e375e949faed9b4d5009ed6cb91d096c59aeaeecb99",
+   "log_tail": [
+    "runtime control refused: changed retained tree",
+    "no-metadata recorder: actual checkout retained; failure remains failure",
+    "runtime manifest collectors: all controls PASS"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_runtime_evidence_selftest.py"
+  },
+  {
+   "mutation": "s2-403-genuine-collector",
+   "file": "scripts/ci_fail_fast.py",
+   "old": "error.code in (403, 429)",
+   "new": "error.code in (429,)",
+   "rc": 1,
+   "seconds": 1.625,
+   "log_bytes": 65771,
+   "log_sha256": "3d28558de02d2d56bc6287db11b7d343407c4f01fbd2350ff1be514f3bbba1f5",
+   "log_tail": [
+    "    assert runtime.main() == 0",
+    "           ^^^^^^^^^^^^^^^^^^^",
+    "AssertionError"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_runtime_evidence_selftest.py"
+  },
+  {
+   "mutation": "s2-403-genuine-watcher",
+   "file": "scripts/ci_fail_fast.py",
+   "old": "error.code in (403, 429)",
+   "new": "error.code in (429,)",
+   "rc": 1,
+   "seconds": 0.105,
+   "log_bytes": 735,
+   "log_sha256": "f347f6fe37eb1508e6775634da10103f23b9046de26d5ca2e799d3a1558b73dd",
+   "log_tail": [
+    "    assert watch(API(\"fixture/project\", \"fixture\"), 1, {\"one\"}, {}) == 0",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "AssertionError"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_fail_fast_selftest.py"
+  },
+  {
+   "mutation": "s2-collector-client-observer",
+   "file": "scripts/ci_runtime_evidence.py",
+   "old": "            if not transient(exc):\n                raise\n",
+   "new": "",
+   "rc": 1,
+   "seconds": 4.093,
+   "log_bytes": 92738,
+   "log_sha256": "c8b795156e93184543a40a3158eb2cc69dce4bd7cbc89b5e9b79c28a14bc0a0d",
+   "log_tail": [
+    "    assert runtime.main() == 1",
+    "           ^^^^^^^^^^^^^^^^^^^",
+    "AssertionError"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_runtime_evidence_selftest.py"
+  },
+  {
+   "mutation": "s2-transport-genuine-collector",
+   "file": "scripts/ci_fail_fast.py",
+   "old": "return not isinstance(error, HTTPError) or error.code in (403, 429) or 500 <= error.code < 600",
+   "new": "return isinstance(error, HTTPError) and (error.code in (403, 429) or 500 <= error.code < 600)",
+   "rc": 1,
+   "seconds": 2.762,
+   "log_bytes": 77397,
+   "log_sha256": "f31bf55701604087d0c84e50b9d15ccc1a179a87e82845fbc0b2a04137e768e4",
+   "log_tail": [
+    "    assert runtime.main() == 0",
+    "           ^^^^^^^^^^^^^^^^^^^",
+    "AssertionError"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_runtime_evidence_selftest.py"
+  },
+  {
+   "mutation": "s2-transport-genuine-watcher",
+   "file": "scripts/ci_fail_fast.py",
+   "old": "return not isinstance(error, HTTPError) or error.code in (403, 429) or 500 <= error.code < 600",
+   "new": "return isinstance(error, HTTPError) and (error.code in (403, 429) or 500 <= error.code < 600)",
+   "rc": 1,
+   "seconds": 0.108,
+   "log_bytes": 2724,
+   "log_sha256": "4df0ee8d5eaf1e6c1b5be7ca5b8a3dcc0f27c5e35b833700b2c069a0debef4f3",
+   "log_tail": [
+    "    print(f\"Watcher read refused: HTTP {exc.code}\")",
+    "                                        ^^^^^^^^",
+    "AttributeError: 'TimeoutError' object has no attribute 'code'"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_fail_fast_selftest.py"
+  },
+  {
+   "mutation": "s2-watcher-client-observer",
+   "file": "scripts/ci_fail_fast.py",
+   "old": "        if isinstance(exc, OSError) and not transient(exc):",
+   "new": "        if False:",
+   "rc": 1,
+   "seconds": 0.11,
+   "log_bytes": 910,
+   "log_sha256": "24679b9aec4d528c46f5a3bdb1e388227ab964e374ded23311dbdc9ebee6b73f",
+   "log_tail": [
+    "    assert watch(API(\"fixture/project\", \"fixture\"), 1, {\"one\"}, {}) == 1",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "AssertionError"
+   ],
+   "command": "PATH=$VALIDATION_STORAGE/737-a614/venv/bin:/usr/bin:/bin python3 scripts/ci_fail_fast_selftest.py"
+  },
+  {
+   "mutation": "s4-unbounded-field-oracle",
+   "file": ".github/ci-templates/rtl.yml",
+   "old": "--target packet_gen --parallel \"$CI_TOOL_BUILD_JOBS\"\n",
+   "new": "--target packet_gen --parallel\n",
+   "rc": 1,
+   "seconds": 1.28,
+   "log_bytes": 948,
+   "log_sha256": "00ae57af1a2ee7d6a9c322ad4cd64fee77cf93808dfc51595a86e3ae1f3439eb",
+   "log_tail": [
+    "  FAIL .github/workflows/rtl.yml: job `verilator-shards` step 12 (`Build the pinned tsn-gen field oracle on its suite owner`) script is not the canonical form: line 6 must be 'cmake --build \"$RUNNER_TEMP/tsn-gen/build\" --target packet_gen --parallel \"$CI_TOOL_BUILD_JOBS\"' (found 'cmake --build \"$RUNNER_TEMP/tsn-gen/build\" --target packet_gen --parallel'); 8 line(s) expected, 8 found",
+    "  FAIL .github/workflows/rtl.yml: recorded writer `Build the pinned tsn-gen field oracle on its suite owner` in job `verilator-shards` script is not the canonical form: line 6 must be 'cmake --build \"$RUNNER_TEMP/tsn-gen/build\" --target packet_gen --parallel \"$CI_TOOL_BUILD_JOBS\"' (found 'cmake --build \"$RUNNER_TEMP/tsn-gen/build\" --target packet_gen --parallel'); 8 line(s) expected, 8 found; the name is not the binding, the script is",
+    "ci_events: 2 finding(s) over 2186 contract item(s)"
+   ],
+   "command": "pipefail -c python3 scripts/ci_gate_workflows.py && python3 scripts/ci_events.py --check"
+  }
+ ]
+}

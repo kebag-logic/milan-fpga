@@ -1,0 +1,16 @@
+[
+  {
+    "kind": "environment refusal, superseded by successful owner-UID launch",
+    "returncode": 2,
+    "reason": "Git refused root reading the checkout owned by a different UID; no source gate ran."
+  },
+  {
+    "kind": "environment refusal, missing home-relative SDK selector",
+    "returncode": 1,
+    "memory_peak_bytes": 4021538816,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+    "reason": "Builder requires its home-relative SDK selector; isolated home omitted the alias to the already pinned SDK. Rerun provisions that selector without changing the gate or compiler.",
+    "log_bytes": 9887,
+    "log_sha256": "3425e72ac2cadb901d70faba5860f32777948c0bfac16326974a9a01b1c08e3e"
+  }
+]
