@@ -1,0 +1,39 @@
+m1-local-events rc=1 selftest: 18 FAILURE(S)
+  FAIL a slot whose events show a real kernel's OOM kill refuses the replay with act rc 0, by count and as invalid evidence, after recording it and the manifest
+  FAIL a slot whose events show a real kernel's OOM kill refuses the replay with act rc 3, by count and as invalid evidence, after recording it and the manifest
+  FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+  FAIL a slot with no OOM passes, printing its peak, its limit hits and both OOM counts, read from the slice's hierarchical memory.events after the mount table and never from its memory.events.local
+  FAIL a slot with 210 kills at a container's limit below a slice whose own events are clean, every job passing is refused by count as invalid evidence, not reported as a verdict, after printing its a
+  FAIL a slot with a real kernel's events after one OOM kill, every job passing is refused by count as invalid evidence, not reported as a verdict, after printing its accounting, and the whole slot is
+  FAIL a slot with a real kernel's events after one OOM kill, a job failing is refused by count as invalid evidence, not reported as a verdict, after printing its accounting, and the whole slot is sti
+  FAIL a slot with an OOM that killed nothing is refused by count as invalid evidence, not reported as a verdict, after printing its accounting, and the whole slot is still torn down and unlocked
+  FAIL a slot with kills counted with no OOM event is refused by count as invalid evidence, not reported as a verdict, after printing its accounting, and the whole slot is still torn down and unlocked
+  FAIL a slot with unreadable events is refused, since no OOM count is provable, not reported as a verdict, and the whole slot is still torn down and unlocked
+  FAIL a slot with malformed events is refused, since no OOM count is provable, not reported as a verdict, and the whole slot is still torn down and unlocked
+  FAIL a slot with events without an oom count is refused, since no OOM count is provable, not reported as a verdict, and the whole slot is still torn down and unlocked
+  FAIL a slot with events without an oom_kill count is refused, since no OOM count is provable, not reported as a verdict, and the whole slot is still torn down and unlocked
+  FAIL a slot with events without a max count is refused, since no OOM count is provable, not reported as a verdict, and the whole slot is still torn down and unlocked
+  FAIL a FAILED run whose slot sat at a limit without an OOM keeps its FAILED, since only an OOM is refused, and reports the peak and how often a limit was hit
+  FAIL a body that raises keeps its own exception, with the slot's accounting (0 OOM kill(s) and 0 OOM event(s) in the slot) printed beside it before teardown, and the slot is torn down
+  FAIL a body that raises keeps its own exception, with the slot's accounting (1 OOM kill(s) and 1 OOM event(s) in the slot) printed beside it before teardown, and the slot is torn down
+  FAIL a body that raises keeps its own exception, with the slot's accounting (cannot prove replay slot 2's memory accounting) printed beside it before teardown, and the slot is torn down
+m2-no-evidence-refusal rc=1 selftest: 2 FAILURE(S)
+  FAIL a slot whose events show a real kernel's OOM kill refuses the replay with act rc 0, by count and as invalid evidence, after recording it and the manifest
+  FAIL a slot whose events show a real kernel's OOM kill refuses the replay with act rc 3, by count and as invalid evidence, after recording it and the manifest
+m3-no-exit-refusal rc=1 selftest: 5 FAILURE(S)
+  FAIL a slot with 210 kills at a container's limit below a slice whose own events are clean, every job passing is refused by count as invalid evidence, not reported as a verdict, after printing its a
+  FAIL a slot with a real kernel's events after one OOM kill, every job passing is refused by count as invalid evidence, not reported as a verdict, after printing its accounting, and the whole slot is
+  FAIL a slot with a real kernel's events after one OOM kill, a job failing is refused by count as invalid evidence, not reported as a verdict, after printing its accounting, and the whole slot is sti
+  FAIL a slot with an OOM that killed nothing is refused by count as invalid evidence, not reported as a verdict, after printing its accounting, and the whole slot is still torn down and unlocked
+  FAIL a slot with kills counted with no OOM event is refused by count as invalid evidence, not reported as a verdict, after printing its accounting, and the whole slot is still torn down and unlocked
+m4-kills-only rc=1 selftest: 1 FAILURE(S)
+  FAIL a slot with an OOM that killed nothing is refused by count as invalid evidence, not reported as a verdict, after printing its accounting, and the whole slot is still torn down and unlocked
+m5-no-localevents-guard rc=1 selftest: 1 FAILURE(S)
+  FAIL a slot with a cgroup2 mount whose events are local is refused, since no OOM count is provable, not reported as a verdict, and the whole slot is still torn down and unlocked
+m6-no-report-beside rc=1 selftest: 3 FAILURE(S)
+  FAIL a body that raises keeps its own exception, with the slot's accounting (0 OOM kill(s) and 0 OOM event(s) in the slot) printed beside it before teardown, and the slot is torn down
+  FAIL a body that raises keeps its own exception, with the slot's accounting (1 OOM kill(s) and 1 OOM event(s) in the slot) printed beside it before teardown, and the slot is torn down
+  FAIL a body that raises keeps its own exception, with the slot's accounting (cannot prove replay slot 2's memory accounting) printed beside it before teardown, and the slot is torn down
+m7-manifest-after-refusal rc=1 selftest: 2 FAILURE(S)
+  FAIL a slot whose events show a real kernel's OOM kill refuses the replay with act rc 0, by count and as invalid evidence, after recording it and the manifest
+  FAIL a slot whose events show a real kernel's OOM kill refuses the replay with act rc 3, by count and as invalid evidence, after recording it and the manifest

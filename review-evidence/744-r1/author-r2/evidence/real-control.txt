@@ -1,0 +1,11 @@
+$VALIDATION_STORAGE/744-a621/bin/real_control.sh: line 7: 311530 Killed                     systemd-run --user --slice=$SL --scope -q -p MemoryMax=200M -p MemorySwapMax=0 -p OOMPolicy=continue $VALIDATION_STORAGE/744-a621/venv/bin/python -c 'b = bytearray(400 * 2**20)'
+allocating job rc=137
+memory.max: 38654705664
+memory.events: low 0 high 0 max 35 oom 1 oom_kill 1 oom_group_kill 0 sock_throttled 0 
+memory.events.local: low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0 sock_throttled 0 
+memory.peak: 210444288
+dev 84f9e300: memory peak 0.2 GiB of its 36G cap; the cap was hit 0 time(s), with no OOM at it
+this head: memory peak 0.2 GiB of its 36G cap; a memory limit in the slot was hit 35 time(s); 1 OOM kill(s) and 1 OOM event(s) in the slot; exhausted=True
+this head: evidence {'slot': 1, 'memory_max': '36G', 'peak': 210444288, 'max': 35, 'oom': 1, 'oom_kill': 1, 'valid_build': False}
+this head: refusal: replay slot 1 recorded 1 OOM kill(s) and 1 OOM event(s) at a memory limit inside it (a job container's 8g or the slot's MemoryMax=36G): memory, not the candidate, decided at least one job, so the evidence is invalid (valid build: False) whichever job it hit and whatever the jobs returned; bound the job's memory and replay it
+reader rc=0
