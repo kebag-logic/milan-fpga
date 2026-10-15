@@ -1,0 +1,29 @@
+# excerpt of csr.log (238936 bytes, SHA-256 in LARGE.sha256): its tally, verdict and FAIL lines
+807:checks: 408   failures: 0
+808:RESULT: PASS
+1254:checks: 408   failures: 0
+1255:RESULT: PASS
+1389:checks: 121   failures: 0
+1390:RESULT: PASS
+1392:checks: 44   failures: 0
+1838:checks: 408   failures: 0
+1839:RESULT: PASS
+1848:== csr_lock: checks: 5   failures: 0 ==
+1849:RESULT: PASS
+1858:== csr_lock: checks: 5   failures: 0 ==
+1859:RESULT: PASS
+2353:checks: 408   failures: 0
+2354:RESULT: PASS
+2358:[PASS] mutant caught (lock1): wrong address decode: IRQ_RAW's live word answers at IRQ_MASK - fails "decode"
+2360:[PASS] mutant caught (lock1): torn snapshot: window CNT3 reads its live counter, not the SNAP word - fails "snapshot-coherence"
+2362:[PASS] mutant caught (lock1): stale snapshot: a listener SNAP after a talker SNAP keeps the POISON kind - fails "snapshot-freshness"
+2364:[PASS] mutant caught (lock8): stale snapshot: an extra listener's burst word keeps its previous kind - fails "snapshot-freshness"
+2366:[PASS] mutant caught (lock1): reset-value drift: the CNT kinds reset to POISON instead of zero - fails "reset-values"
+2368:[PASS] mutant caught (lock1): stage 1: the shadow word is not zeroed under a live or window claim - fails "decode"
+2370:[PASS] mutant caught (lock1): stage 1: the window's range leaf answers 0 instead of the window's word - fails "decode"
+2373:8 checks: 8 PASS, 0 FAIL
+[PASS] mutant caught (lock1): stage 1: the window's range leaf answers 0 instead of the window's word - fails "decode"
+    it failed reset-values, decode, snapshot-coherence, snapshot-freshness, lockstep
+
+8 checks: 8 PASS, 0 FAIL
+make: Leaving directory '$LANES/645-bind-recentre/tb/verilator/csr'

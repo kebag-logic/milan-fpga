@@ -1,0 +1,46 @@
+# excerpt of milan_dp.log (1115375 bytes, SHA-256 in LARGE.sha256): its tally, verdict and FAIL lines
+23:182 checks: 182 PASS, 0 FAIL
+44:182 checks: 182 PASS, 0 FAIL
+437:milan_datapath: 236 checks, 0 failures
+880:checks: 423   failures: 0
+881:RESULT: PASS
+1442:checks: 416   failures: 0
+1443:RESULT: PASS
+1663:checks: 162   failures: 0
+1664:RESULT: PASS
+3368:  [ok]   5.3.8.7 Table 5.6: FRAMES_RX SURVIVED the stop/start pair = 0x1
+3727:checks: 1967   failures: 0
+3728:RESULT: PASS
+5425:  [ok]   5.3.8.7 Table 5.6: FRAMES_RX SURVIVED the stop/start pair = 0x1
+5794:checks: 1969   failures: 0
+5795:RESULT: PASS
+8534:  [ok]   5.3.8.7 Table 5.6: FRAMES_RX SURVIVED the stop/start pair = 0x1
+9767:checks: 3751   failures: 0
+9768:RESULT: PASS
+11473:  [ok]   5.3.8.7 Table 5.6: FRAMES_RX SURVIVED the stop/start pair = 0x1
+11832:checks: 1967   failures: 0
+11833:RESULT: PASS
+12108:milan_datapath: 236 checks, 0 failures
+12156:checks: 33   failures: 0
+12157:RESULT: PASS
+12435:milan_datapath: 233 checks, 0 failures
+12700:media_aclk: 193 checks, 0 failures
+12701:RESULT: PASS
+12716:[PASS] mutant caught (--render-only): prefill target three events high - breaks "RENDER-INT: every PDU's first event inside the law band"
+12721:[PASS] mutant caught (--render-only): recentre pulse ignored - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late)"
+12726:[PASS] mutant caught (--render-only): recentre counted and cleared but not snapped - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early)"
+12731:[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+12734:6 checks: 6 PASS, 0 FAIL
+12742:1x1 clean uncertain run.log: rc=0, failures=0
+12743:RESULT: PASS
+12747:8x8 clean uncertain run.log: rc=0, failures=0
+12748:RESULT: PASS
+12752:1x1 clean frames-only run.log: rc=0, failures=0
+12753:RESULT: PASS
+12757:8x8 clean frames-only run.log: rc=0, failures=0
+12758:RESULT: PASS
+ucode.hex: 2048 words, 89 programs
+8x8 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+make[1]: Leaving directory '$LANES/645-bind-recentre/tb/verilator/milan_dp'
+make: Leaving directory '$LANES/645-bind-recentre/tb/verilator/milan_dp'
