@@ -235,7 +235,7 @@ def cpu_controls() -> None:
 def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: dict[str, str],
                   denied: dict[str, str] | None = None) -> tuple[str | None, list[str]]:
     """CI_CENSUS_JOBS as the emitted shell sets it over proc and cgroup files planted in the new directory root,
-    None if it refused, and its stderr lines with the planted cgroup root named /sys/fs/cgroup again. `denied`
+    None if it refused, and its stderr lines with the planted cgroup root written <cgroups>. `denied`
     makes a planted cgroup's "limit" (memory.max mode 000), its "directory" (mode 000) or its memory.max a
     "non-file" (a directory) unreadable after planting."""
     (root / "bin").mkdir()
@@ -269,7 +269,7 @@ def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: d
     finally:
         for path in reversed(modes):
             path.chmod(0o755)
-    stderr = ran.stderr.replace(str(root / "sys"), "/sys/fs/cgroup").splitlines()
+    stderr = ran.stderr.replace(str(root / "sys"), "<cgroups>").splitlines()
     if ran.returncode:
         assert not output.exists(), ran
         return None, stderr
@@ -312,18 +312,18 @@ def census_controls() -> None:
             ("memory for less than one worker", 16, 61 * gib, "/", {"": str(2**30)}, {}, "1"),
             ("a cgroup without a memory controller", 16, 61 * gib, "/", {}, {}, "16"),
             ("a mode-000 limit", 16, 61 * gib, "/", container, {"": "limit"},
-             "unreadable memory limit in /sys/fs/cgroup"),
+             "unreadable memory limit in <cgroups>"),
             ("a mode-000 ancestor limit", 16, 61 * gib, "/a/b", ancestor, {"a": "limit"},
-             "unreadable memory limit in /sys/fs/cgroup/a"),
+             "unreadable memory limit in <cgroups>/a"),
             ("a mode-000 ancestor cgroup", 16, 61 * gib, "/a/b", ancestor, {"a": "directory"},
-             "unsearchable cgroup /sys/fs/cgroup/a: its memory limit cannot be proved absent"),
+             "unsearchable cgroup <cgroups>/a: its memory limit cannot be proved absent"),
             ("a limit that is not a file", 16, 61 * gib, "/", container, {"": "non-file"},
-             "unreadable memory limit in /sys/fs/cgroup"),
+             "unreadable memory limit in <cgroups>"),
             ("an ancestor limit that is not a file", 16, 61 * gib, "/a/b", ancestor, {"a": "non-file"},
-             "unreadable memory limit in /sys/fs/cgroup/a"),
+             "unreadable memory limit in <cgroups>/a"),
             ("a non-numeric limit", 16, 61 * gib, "/", {"": "garbage"}, {},
-             "non-numeric memory limit in /sys/fs/cgroup: garbage"),
-            ("an empty limit", 16, 61 * gib, "/", {"": ""}, {}, "non-numeric memory limit in /sys/fs/cgroup: "),
+             "non-numeric memory limit in <cgroups>: garbage"),
+            ("an empty limit", 16, 61 * gib, "/", {"": ""}, {}, "non-numeric memory limit in <cgroups>: "),
             ("no MemTotal", 16, None, "/", container, {}, "no MemTotal in kB"),
             ("zero CPUs", 0, 61 * gib, "/", container, {}, "no CPUs: nproc printed 0"),
         ):
