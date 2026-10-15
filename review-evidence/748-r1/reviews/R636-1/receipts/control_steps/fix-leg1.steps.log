@@ -1,0 +1,49 @@
+===== Put a job-private Python environment on PATH
+===== Install LiteX at the pinned revisions
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+===== Place the VexiiRiscv source at the revision LiteX pins
+VexiiRiscv pin (read from LiteX): 235753e24f2d960e49a0852205bae1400bf22c19 on dev of https://github.com/SpinalHDL/VexiiRiscv.git
+target: $PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+Cloning into '$PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv'...
+HEAD is now at 235753e Merge pull request #143 from project-inochi/litex/isamap
+Submodule 'ext/NaxSoftware' (https://github.com/SpinalHDL/NaxSoftware.git) registered for path 'ext/NaxSoftware'
+Submodule 'ext/SpinalHDL' (https://github.com/SpinalHDL/SpinalHDL.git) registered for path 'ext/SpinalHDL'
+Submodule 'ext/riscv-isa-sim' (https://github.com/SpinalHDL/riscv-isa-sim.git) registered for path 'ext/riscv-isa-sim'
+Submodule 'ext/rvls' (https://github.com/SpinalHDL/rvls.git) registered for path 'ext/rvls'
+Cloning into '$PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/NaxSoftware'...
+Cloning into '$PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL'...
+Cloning into '$PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/riscv-isa-sim'...
+Cloning into '$PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/rvls'...
+Submodule path 'ext/NaxSoftware': checked out 'ae0c08016d0581b9ac79a4feb166e7a532369bd4'
+Submodule path 'ext/SpinalHDL': checked out '1097c1df52f6b4ac532e42ff35a9c610f8e9a07c'
+Submodule 'tester/src/test/python/cocotblib' (https://github.com/SpinalHDL/CocotbLib.git) registered for path 'ext/SpinalHDL/tester/src/test/python/cocotblib'
+Cloning into '$PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/tester/src/test/python/cocotblib'...
+Submodule path 'ext/SpinalHDL/tester/src/test/python/cocotblib': checked out 'a98830423924fc89bfebae84cb802fc90d352602'
+Submodule path 'ext/riscv-isa-sim': checked out '924941a37ba7e591a1e87542cc0466262f476a4e'
+Submodule path 'ext/rvls': checked out '94f850e5f7c9a36e5aceb3810d658fffae55b497'
+VexiiRiscv ready at 235753e24f2d960e49a0852205bae1400bf22c19
+===== Apply the toolchain patch series
+[patches] 0002-liteeth-gmii-tx-clk-invert.patch -> $PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0007-liteeth-gmii-rx-capture.patch -> $PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0004-vexiiriscv-baremetal-variant.patch -> $PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0006-bios-dispatch-hook.patch -> $PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] 0005-vexiiriscv-cacheless-litex.patch -> $PACKET/scratch/ctl-fix/elaborate-gates-1/temp/litex-venv/lib/python3.12/site-packages
+[patches]   applied.
+[patches] series applied (5 patches).
+===== gate 23h
+test_toolchain_patches_are_applied:
+  [gate 23h] the 5 patches in sw/litex/patches are the 5 apply.sh applies, and reversing them off this interpreter's trees and re-applying them reproduces all 4 installed files byte for byte, including 1 that two patches share and must therefore compose on ({'gmii.py': ['0002-liteeth-gmii-tx-clk-invert.patch', '0007-liteeth-gmii-rx-capture.patch']}). Upstream LiteX has no `baremetal` VexiiRiscv variant and the revision it pins rejects the --l2-* arguments four configs pass, so this is what lets gates 23f/23g elaborate at all. It says nothing about whether the patches are CORRECT, only that the tree is the one described here
+test_toolchain_patch_gate_bites:
+  [gate 23h mutation] 5/5 fixtures rejected by the production validator, naming a patch the tree genuinely lacked: 5 with exactly one patch reversed out, 0 where a later patch sits on the same hunks so the reachable state is the whole tail - what a half-finished apply.sh leaves. No arm passes by reversing anything twice
+
+SUBSET: 2 of 103 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS

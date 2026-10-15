@@ -1,0 +1,757 @@
+diff --git a/.github/ci-templates/elaborate.yml b/.github/ci-templates/elaborate.yml
+index 5bbb37cd9f..9bb94d48ba 100644
+--- a/.github/ci-templates/elaborate.yml
++++ b/.github/ci-templates/elaborate.yml
+@@ -145,6 +145,22 @@ jobs:
+         with:
+           python-version: '3.12'
+ 
++      # EVERY LATER STEP INSTALLS, FETCHES AND PATCHES IN THIS JOB'S OWN TREE.
++      # setup-python's interpreter lives in the runner's tool cache, and act
++      # mounts that cache into every job container of a run at once. The pip
++      # install, the VexiiRiscv checkout, the cached CPU metadata, the patch
++      # series and the Scala generation all write into the site-packages of
++      # whichever interpreter `python3` names, so two legs on the shared one
++      # reverse and re-apply each other's patches and contend for one git
++      # lock. A venv under RUNNER_TEMP, first on PATH, is private to the job
++      # on every runner, and the tool cache is only read.
++      - name: Put a job-private Python environment on PATH
++        if: ${{ steps.scope.outputs.rtl == 'true' }}
++        run: |
++          set -euo pipefail
++          python3 -m venv "$RUNNER_TEMP/litex-venv"
++          echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"
++
+       # LiteX ships from git, not PyPI, and so does migen: the PyPI migen wheel
+       # and the m-labs git tree share the version number 0.9.2 and are
+       # different code, and only the git one can walk Python 3.11+ bytecode in
+diff --git a/.github/workflows/elaborate.yml b/.github/workflows/elaborate.yml
+index 34c2067055..2151d96c3a 100644
+--- a/.github/workflows/elaborate.yml
++++ b/.github/workflows/elaborate.yml
+@@ -108,6 +108,13 @@ jobs:
+           python-version: '3.12'
+         id: ci_step_7
+         name: Run actions/setup-python@v5
++      - name: Put a job-private Python environment on PATH
++        if: ${{ steps.scope.outputs.rtl == 'true' }}
++        run: |
++          set -euo pipefail
++          python3 -m venv "$RUNNER_TEMP/litex-venv"
++          echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"
++        id: ci_step_8
+       - name: Cache the pinned pip downloads
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         uses: actions/cache@v4
+@@ -115,13 +122,13 @@ jobs:
+           path: ~/.cache/pip
+           key: elaborate-pip-git-pins-${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt') }}-${{
+             hashFiles('.github/workflows/*.yml') }}
+-        id: ci_step_8
++        id: ci_step_9
+       - name: Install LiteX at the pinned revisions
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+           python3 -m pip install --quiet pyyaml
+           python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+-        id: ci_step_9
++        id: ci_step_10
+       - name: Cache the Scala toolchain
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         uses: actions/cache@v4
+@@ -134,7 +141,7 @@ jobs:
+           key: elaborate-sbt-1.10.7-32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6-${{
+             runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
+             }}
+-        id: ci_step_10
++        id: ci_step_11
+       - name: Cache the generated CPU metadata
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         uses: actions/cache@v4
+@@ -143,7 +150,7 @@ jobs:
+           key: elaborate-vexii-${{ hashFiles('configs/*.yaml', 'sw/litex/milan_soc.py', 'sw/litex/build.sh',
+             'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
+             }}
+-        id: ci_step_11
++        id: ci_step_12
+       - name: Install sbt
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+@@ -157,7 +164,7 @@ jobs:
+           echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6  $archive" | sha256sum -c -
+           sudo tar xzf "$archive" -C /opt
+           echo /opt/sbt/bin >> "$GITHUB_PATH"
+-        id: ci_step_12
++        id: ci_step_13
+       - name: Place the VexiiRiscv source at the revision LiteX pins
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+@@ -166,11 +173,11 @@ jobs:
+           cp -n ~/vexii-netlist-args/*.py \
+             "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
+             2>/dev/null || true
+-        id: ci_step_13
++        id: ci_step_14
+       - name: Apply the toolchain patch series
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: sw/litex/patches/apply.sh
+-        id: ci_step_14
++        id: ci_step_15
+       - name: Cache the pinned RV32 SDK
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         uses: actions/cache@v4
+@@ -178,25 +185,25 @@ jobs:
+           path: ~/br-milan-rv32/host
+           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+             hashFiles('scripts/ci_rv32_sdk.py') }}
+-        id: ci_step_15
++        id: ci_step_16
+       - name: Install and verify the pinned RV32 SDK
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+           set -euo pipefail
+           python3 scripts/ci_rv32_sdk_selftest.py
+           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+-        id: ci_step_16
++        id: ci_step_17
+       - name: Elaboration gates, leg 0 of 2
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+           python3 scripts/ci_builder_legs.py run 0 --receipt "$RUNNER_TEMP/gate-results/builder-leg-0.json" -- python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+-        id: gate_14_0
++        id: gate_15_0
+       - name: Keep the generated CPU netlist arguments for the next run
+         if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
+         run: |
+           cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
+             ~/vexii-netlist-args/ 2>/dev/null || true
+-        id: ci_step_18
++        id: ci_step_19
+       - name: Record executed gate outcomes
+         if: ${{ always() }}
+         env:
+@@ -204,7 +211,7 @@ jobs:
+           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
+         run: |
+           python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 0 --output "$RUNNER_TEMP/gate-results/receipt.json"
+-        id: ci_step_19
++        id: ci_step_20
+       - name: Upload executed gate outcomes
+         if: ${{ always() }}
+         uses: actions/upload-artifact@v4
+@@ -214,7 +221,7 @@ jobs:
+             ${{ runner.temp }}/gate-results/receipt.json
+             ${{ runner.temp }}/gate-results/builder-leg-*.json
+           if-no-files-found: error
+-        id: ci_step_20
++        id: ci_step_21
+       - name: Record actual job execution
+         id: ci_record
+         if: ${{ always() }}
+@@ -336,6 +343,13 @@ jobs:
+           python-version: '3.12'
+         id: ci_step_7
+         name: Run actions/setup-python@v5
++      - name: Put a job-private Python environment on PATH
++        if: ${{ steps.scope.outputs.rtl == 'true' }}
++        run: |
++          set -euo pipefail
++          python3 -m venv "$RUNNER_TEMP/litex-venv"
++          echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"
++        id: ci_step_8
+       - name: Cache the pinned pip downloads
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         uses: actions/cache@v4
+@@ -343,13 +357,13 @@ jobs:
+           path: ~/.cache/pip
+           key: elaborate-pip-git-pins-${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt') }}-${{
+             hashFiles('.github/workflows/*.yml') }}
+-        id: ci_step_8
++        id: ci_step_9
+       - name: Install LiteX at the pinned revisions
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+           python3 -m pip install --quiet pyyaml
+           python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+-        id: ci_step_9
++        id: ci_step_10
+       - name: Cache the Scala toolchain
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         uses: actions/cache@v4
+@@ -362,7 +376,7 @@ jobs:
+           key: elaborate-sbt-1.10.7-32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6-${{
+             runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
+             }}
+-        id: ci_step_10
++        id: ci_step_11
+       - name: Cache the generated CPU metadata
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         uses: actions/cache@v4
+@@ -371,7 +385,7 @@ jobs:
+           key: elaborate-vexii-${{ hashFiles('configs/*.yaml', 'sw/litex/milan_soc.py', 'sw/litex/build.sh',
+             'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
+             }}
+-        id: ci_step_11
++        id: ci_step_12
+       - name: Install sbt
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+@@ -385,7 +399,7 @@ jobs:
+           echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6  $archive" | sha256sum -c -
+           sudo tar xzf "$archive" -C /opt
+           echo /opt/sbt/bin >> "$GITHUB_PATH"
+-        id: ci_step_12
++        id: ci_step_13
+       - name: Place the VexiiRiscv source at the revision LiteX pins
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+@@ -394,11 +408,11 @@ jobs:
+           cp -n ~/vexii-netlist-args/*.py \
+             "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
+             2>/dev/null || true
+-        id: ci_step_13
++        id: ci_step_14
+       - name: Apply the toolchain patch series
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: sw/litex/patches/apply.sh
+-        id: ci_step_14
++        id: ci_step_15
+       - name: Cache the pinned RV32 SDK
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         uses: actions/cache@v4
+@@ -406,19 +420,19 @@ jobs:
+           path: ~/br-milan-rv32/host
+           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+             hashFiles('scripts/ci_rv32_sdk.py') }}
+-        id: ci_step_15
++        id: ci_step_16
+       - name: Install and verify the pinned RV32 SDK
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+           set -euo pipefail
+           python3 scripts/ci_rv32_sdk_selftest.py
+           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+-        id: ci_step_16
++        id: ci_step_17
+       - name: Elaboration gates, leg 1 of 2
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+           python3 scripts/ci_builder_legs.py run 1 --receipt "$RUNNER_TEMP/gate-results/builder-leg-1.json" -- python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+-        id: gate_14_1
++        id: gate_15_1
+       - name: Cache the pinned Verilator build
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         id: cache-verilator
+@@ -427,28 +441,28 @@ jobs:
+           path: /opt/verilator
+           key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
+             }}-${{ runner.os }}
+-      - name: Resolve exact package downloads 16
+-        id: ci_packages_16
++      - name: Resolve exact package downloads 17
++        id: ci_packages_17
+         run: |
+-          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_16" --output "$GITHUB_OUTPUT"
++          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_17" --output "$GITHUB_OUTPUT"
+         if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+           }}
+-      - name: Cache exact package downloads 16
++      - name: Cache exact package downloads 17
+         uses: actions/cache@v4
+         with:
+-          path: ${{ runner.temp }}/ci_packages_16
+-          key: ${{ runner.os }}-${{ steps.ci_packages_16.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
++          path: ${{ runner.temp }}/ci_packages_17
++          key: ${{ runner.os }}-${{ steps.ci_packages_17.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+             '.github/workflows/*.yml') }}
+         if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+           }}
+-        id: ci_step_20
++        id: ci_step_21
+       - name: Build Verilator from source on cache miss
+         if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
+           }}
+         run: |
+           set -euo pipefail
+           : # package index prepared above
+-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_16" install -y --no-install-recommends \
++          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_17" install -y --no-install-recommends \
+             git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+           git clone --depth 1 --branch "$VERILATOR_VERSION" \
+             https://github.com/verilator/verilator.git /tmp/verilator-src
+@@ -458,7 +472,7 @@ jobs:
+           ./configure --prefix=/opt/verilator
+           make -j"$CI_TOOL_BUILD_JOBS"
+           sudo make install
+-        id: ci_step_21
++        id: ci_step_22
+       - name: Put Verilator on PATH and prove the version
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+@@ -466,19 +480,19 @@ jobs:
+           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+           /opt/verilator/bin/verilator --version
+           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+-        id: ci_step_22
++        id: ci_step_23
+       - name: Standalone LiteX simulation aggregate
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: |
+           scripts/run_litex_sims.sh --selftest
+           scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
+-        id: gate_18
++        id: gate_19
+       - name: Keep the generated CPU netlist arguments for the next run
+         if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
+         run: |
+           cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
+             ~/vexii-netlist-args/ 2>/dev/null || true
+-        id: ci_step_24
++        id: ci_step_25
+       - name: Record executed gate outcomes
+         if: ${{ always() }}
+         env:
+@@ -486,7 +500,7 @@ jobs:
+           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
+         run: |
+           python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 1 --output "$RUNNER_TEMP/gate-results/receipt.json"
+-        id: ci_step_25
++        id: ci_step_26
+       - name: Upload executed gate outcomes
+         if: ${{ always() }}
+         uses: actions/upload-artifact@v4
+@@ -496,7 +510,7 @@ jobs:
+             ${{ runner.temp }}/gate-results/receipt.json
+             ${{ runner.temp }}/gate-results/builder-leg-*.json
+           if-no-files-found: error
+-        id: ci_step_26
++        id: ci_step_27
+       - name: Record actual job execution
+         id: ci_record
+         if: ${{ always() }}
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index b75bce802d..cf64fc17d6 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -1419,6 +1419,39 @@ in [`sw/litex/patches/`](../../sw/litex/patches) with its `apply.sh`, and runs
+ configuration in this tree (#185), so the series is a required install step
+ and gate 23h proves the installed trees are upstream plus exactly that series.
+ 
++Each gate worker installs, fetches and patches that toolchain in an
++interpreter of its own (#748). `actions/setup-python` resolves Python from the
++runner's tool cache, and `act` mounts one tool-cache volume into every job
++container of a replay, while each job keeps its own `HOME`, `RUNNER_TEMP` and
++workspace. So the step after it creates a venv at `$RUNNER_TEMP/litex-venv`
++from that interpreter and puts it first on `PATH`. The pip install, the
++VexiiRiscv checkout, the cached CPU metadata, the patch series and the Scala
++generation all write into the site-packages of the interpreter `python3`
++names, so they now write only into the job's venv, and the tool cache is only
++read. On the shared site-packages, two legs started together contend for one
++VexiiRiscv clone and its git lock, and one leg reverses the patches the other
++has just applied. `scripts/ci_events.py` pins the step, its script and its
++place before the install, and its mutation arms remove it, move it after the
++install and drop its `PATH` entry.
++
++[`scripts/ci_toolcache_isolation.py`](../../scripts/ci_toolcache_isolation.py)
++is the control, run natively with no container. It copies a CPython
++installation into a planted tool cache and runs both legs' setup steps, read
++from the workflow at a revision, side by side. Each leg has its own home,
++temporary directory, workspace export and environment files, and every step of
++both legs starts together. It passes only when every step of both legs
++passes, each leg's LiteX interpreter and VexiiRiscv checkout are under that
++leg's `RUNNER_TEMP`, gate 23h and its negative control pass in each leg, and
++every path of the tool cache is byte for byte what was planted. `--shared`
++drops the job-private step from both legs, as a revision before it does; that
++run must fail. It needs network access for the pins and the VexiiRiscv clone,
++and PyYAML in the interpreter that runs it:
++
++```sh
++python3 scripts/ci_toolcache_isolation.py --python <CPython prefix> --work <empty directory>
++python3 scripts/ci_toolcache_isolation.py --python <CPython prefix> --work <empty directory> --shared
++```
++
+ That command runs in two measured legs (#737). Worker 0 runs leg 0,
+ `test_baremetal_profile_contract` alone. Worker 1 runs leg 1, the other 102
+ gates in inventory order, before its LiteX aggregate.
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index 2ba6badc17..fbc4c6dde0 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -562,6 +562,15 @@ ENV_FILE_WRITERS = {
+         'test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"',
+         'echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"',
+     ),
++    #: The elaboration job's interpreter: a venv under the job's own
++    #: RUNNER_TEMP, first on PATH, so the LiteX install, the VexiiRiscv
++    #: checkout and the patch series never write into setup-python's
++    #: interpreter, which act shares between concurrent jobs (#748).
++    (ELABORATE, "elaborate", "Put a job-private Python environment on PATH"): (
++        'set -euo pipefail',
++        'python3 -m venv "$RUNNER_TEMP/litex-venv"',
++        'echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"',
++    ),
+     (ELABORATE, "elaborate", "Install sbt"): (
+         'set -euo pipefail',
+         'mkdir -p "$HOME/.cache/milan-sbt"',
+@@ -1205,6 +1214,9 @@ CARRIER_STEP_LISTS = {
+          "run": SV2V_INSTALL},
+         {"uses": "actions/setup-python@v5", "if": BUILDER_IF,
+          "with": {"python-version": "3.12"}},
++        {"name": "Put a job-private Python environment on PATH", "if": BUILDER_IF,
++         "run": ENV_FILE_WRITERS[(ELABORATE, "elaborate",
++                                  "Put a job-private Python environment on PATH")]},
+         {"name": "Cache the pinned pip downloads", "uses": "actions/cache@v4",
+          "if": BUILDER_IF,
+          "with": {"path": "~/.cache/pip",
+@@ -7438,6 +7450,25 @@ def _elab_scope_and_presence_arms() -> list[Arm]:
+     ]
+ 
+ 
++def _private_interpreter_arms() -> list[Arm]:
++    """#748: without the job-private interpreter, or with it first on PATH
++    only after the install, the LiteX install, the VexiiRiscv checkout and the
++    patch series write into the tool cache act shares between jobs again."""
++    return [
++        ("#748 elaborate job-private environment removed",
++         (lambda w: _strip_steps(w, ELABORATE, "elaborate", "litex-venv")),
++         "job `elaborate` must carry exactly 21 steps, in the recorded order (found 20)"),
++        ("#748 elaborate job-private environment after the LiteX install",
++         _m_swap_steps(ELABORATE, "elaborate", 5, 7),
++         "job `elaborate` step 6 must be the step named `Put a job-private Python environment on PATH`"),
++        ("#748 elaborate job-private environment never put on PATH",
++         _m_step_key_any(ELABORATE, "elaborate", "litex-venv", "run",
++                         'set -euo pipefail\npython3 -m venv "$RUNNER_TEMP/litex-venv"\n'),
++         "recorded writer `Put a job-private Python environment on PATH` in job "
++         "`elaborate` script is not the canonical form"),
++    ]
++
++
+ def _carrier_step_list_arms() -> list[Arm]:
+     """#295: the carriers' pinned step lists - insertion of any content,
+     removal, reorder, rename, and the recorded `if` and `with` values."""
+@@ -7459,7 +7490,7 @@ def _carrier_step_list_arms() -> list[Arm]:
+          "job `wire-accountability` must carry exactly 3 steps"),
+         ("#295 elaborate inserted third-party action breaks the sequence",
+          _m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
+-         "job `elaborate` must carry exactly 20 steps"),
++         "job `elaborate` must carry exactly 21 steps"),
+         ("#295 docs-check inserted step of benign content",
+          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
+          "job `docs-check` must carry exactly 51 steps"),
+@@ -7471,7 +7502,7 @@ def _carrier_step_list_arms() -> list[Arm]:
+          "job `docs-check-no-git` must carry exactly 2 steps"),
+         ("#295 elaborate inserted step of benign content",
+          _m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
+-         "job `elaborate` must carry exactly 20 steps"),
++         "job `elaborate` must carry exactly 21 steps"),
+         ("#303 docs-check imported gPTP gate removed",
+          (lambda w: _strip_steps(w, DOCS, "docs-check",
+                                  "check_gptp_docs.py --with-submodule")),
+@@ -7481,7 +7512,7 @@ def _carrier_step_list_arms() -> list[Arm]:
+          "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
+         ("#295 elaborate patch-series step removed",
+          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
+-         "job `elaborate` must carry exactly 20 steps, in the recorded order (found 19)"),
++         "job `elaborate` must carry exactly 21 steps, in the recorded order (found 20)"),
+         ("#295 docs-check recognised steps swapped",
+          _m_swap_steps(DOCS, "docs-check", 43, 44),
+          "job `docs-check` step 45 must be the step named `Archive integrity gate`"),
+@@ -8072,7 +8103,7 @@ def _rv32_sdk_arms() -> list[Arm]:
+     """#504: missing provenance inputs, adoption guards and provisioning refuse."""
+     arms = []
+     for path, jid, count in ((DOCS, "docs-check", 51),
+-                             (ELABORATE, "elaborate", 20),
++                             (ELABORATE, "elaborate", 21),
+                              *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
+                                for job in FIRMWARE_JOBS),
+                              (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 6)):
+@@ -8313,6 +8344,7 @@ def _mutations(pristine: World) -> list[Arm]:
+             + _carrier_gate_step_arms()
+             + _elab_scope_and_presence_arms()
+             + _carrier_step_list_arms()
++            + _private_interpreter_arms()
+             + _carrier_script_arms(pristine)
+             + _rtl_script_arms(pristine)
+             + _sequence_pin_arms(pristine)
+diff --git a/scripts/ci_toolcache_isolation.py b/scripts/ci_toolcache_isolation.py
+new file mode 100644
+index 0000000000..f7ec83d806
+--- /dev/null
++++ b/scripts/ci_toolcache_isolation.py
+@@ -0,0 +1,276 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Run both elaboration legs' toolchain setup at once on one planted tool cache.
++
++act mounts one tool-cache volume into every job container of a replay, while
++each job keeps its own HOME, RUNNER_TEMP and workspace. This control rebuilds
++that sharing in one process tree, with no container: it copies a CPython
++installation into a planted tool cache and runs the setup steps of both
++elaboration legs, read from the workflow at --rev, side by side. Each leg has
++its own home, temporary directory, workspace export and PATH and environment
++files, and every step of both legs starts together, which is when two act jobs
++on one tool cache collide.
++
++The legs are isolated when every step of both passes, each leg's LiteX
++interpreter and VexiiRiscv checkout live under that leg's RUNNER_TEMP, gate
++23h and its negative control pass in each leg, and every path of the tool
++cache is byte for byte what was planted. Anything else exits 1.
++
++--shared drops the job-private environment step from both legs, so both
++install, clone and patch in the tool cache's own site-packages. A --rev that
++predates that step plants the same sharing from its own workflow text.
++
++Run: python3 scripts/ci_toolcache_isolation.py --python <CPython prefix>
++         --work <empty scratch directory> [--rev REV] [--shared]
++         [--pip-cache DIR] [--report FILE]
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import shutil
++import subprocess
++import sys
++import threading
++import time
++
++import yaml
++
++ROOT = Path(__file__).resolve().parents[1]
++WORKFLOW = ".github/workflows/elaborate.yml"
++LEGS = ("elaborate-gates-0", "elaborate-gates-1")
++SETUP_ACTION = "actions/setup-python@"
++PRIVATE_STEP = "Put a job-private Python environment on PATH"
++LAST_STEP = "Apply the toolchain patch series"
++#: The steps between setup-python and the patch series that this control runs.
++RUN = (PRIVATE_STEP, "Install LiteX at the pinned revisions",
++       "Place the VexiiRiscv source at the revision LiteX pins", LAST_STEP)
++#: The other steps of that window, and why each is left out. A step in the
++#: window that is in neither table refuses the run, so a new setup step cannot
++#: be passed over in silence.
++SKIP = {
++    "Cache the pinned pip downloads": "restored by --pip-cache into each leg's own home",
++    "Cache the Scala toolchain": "restores into the leg's home; no step run here reads it",
++    "Cache the generated CPU metadata": "restores into the leg's home; the placement step "
++                                        "creates the directory when it is absent",
++    "Install sbt": "unpacks into /opt/sbt, outside the tool cache, with sudo; "
++                   "no step run here reads it",
++}
++GATES = "test_toolchain_patches_are_applied,test_toolchain_patch_gate_bites"
++BASE_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
++PROBE = ("import sys, litex, pythondata_cpu_vexiiriscv as p; "
++         "print(sys.prefix); print(litex.__file__); print(p.data_location)")
++
++
++def window(job: dict, shared: bool) -> list[dict]:
++    """The leg's steps after setup-python up to the patch series, each accounted for."""
++    names = [step.get("uses", "") for step in job["steps"]]
++    start = next(i for i, uses in enumerate(names) if uses.startswith(SETUP_ACTION)) + 1
++    steps = job["steps"][start:]
++    end = next(i for i, step in enumerate(steps) if step.get("name") == LAST_STEP) + 1
++    chosen = []
++    for step in steps[:end]:
++        name = step.get("name", "")
++        if shared and name == PRIVATE_STEP:
++            continue
++        if name in SKIP:
++            continue
++        if name not in RUN or "run" not in step or "${{" in step["run"]:
++            raise ValueError(f"{name!r}: a setup step this control neither runs nor declares")
++        chosen.append(step)
++    return chosen
++
++
++def manifest(top: Path) -> dict[str, str]:
++    """Every path under `top` with its type, mode and content or link target."""
++    rows = {}
++    for directory, dirs, files in os.walk(top):
++        for name in sorted(dirs + files):
++            path = Path(directory) / name
++            stat = path.lstat()
++            if path.is_symlink():
++                what = "link " + os.readlink(path)
++            elif path.is_dir():
++                what = "dir"
++            else:
++                what = "file " + hashlib.sha256(path.read_bytes()).hexdigest()
++            rows[str(path.relative_to(top))] = f"{stat.st_mode:o} {what}"
++    return rows
++
++
++def plant(python: Path, cache: Path) -> Path:
++    """The tool cache's interpreter directory, laid out as setup-python finds it."""
++    version = subprocess.run([python / "bin/python3", "-c",
++                              "import platform; print(platform.python_version())"],
++                             capture_output=True, text=True, check=True).stdout.strip()
++    home = cache / "Python" / version / "x64"
++    shutil.copytree(python, home, symlinks=True)
++    # A hosted tool-cache interpreter carries no installer lock, so pip accepts it.
++    for marker in home.glob("lib/python3*/EXTERNALLY-MANAGED"):
++        marker.unlink()
++    (cache / "Python" / version / "x64.complete").touch()
++    return home
++
++
++class Leg:
++    """One job: its own home, temporary directory, workspace and step log."""
++
++    def __init__(self, name: str, base: Path, rev: str, interpreter: Path,
++                 pip_cache: Path | None) -> None:
++        self.name, self.base = name, base
++        self.home, self.temp, self.workspace = base / "home", base / "temp", base / "workspace"
++        for path in (self.home, self.temp, self.workspace):
++            path.mkdir(parents=True)
++        if pip_cache:
++            shutil.copytree(pip_cache, self.home / ".cache/pip", symlinks=True)
++        archive = subprocess.run(["git", "-C", str(ROOT), "archive", rev],
++                                 capture_output=True, check=True).stdout
++        subprocess.run(["tar", "-x", "-C", str(self.workspace)], input=archive, check=True)
++        self.paths = [str(interpreter / "bin")]
++        self.env_file, self.path_file = base / "github_env", base / "github_path"
++        self.extra: dict[str, str] = {}
++        self.log = base / "steps.log"
++        self.results: list[dict] = []
++
++    def environment(self) -> dict[str, str]:
++        """The variables a runner gives this job's next step."""
++        env = {"HOME": str(self.home), "RUNNER_TEMP": str(self.temp), "LANG": "C.UTF-8",
++               "GITHUB_ENV": str(self.env_file), "GITHUB_PATH": str(self.path_file),
++               "PIP_CONSTRAINT": str(self.workspace / "ci/constraints-ci.txt"),
++               "PATH": ":".join([*self.paths, BASE_PATH])}
++        env.update(self.extra)
++        return env
++
++    def absorb(self) -> None:
++        """Apply what the last step appended to GITHUB_PATH and GITHUB_ENV, as a runner does."""
++        if self.path_file.exists():
++            for line in self.path_file.read_text().splitlines():
++                if line.strip():
++                    self.paths.insert(0, line.strip())
++            self.path_file.unlink()
++        if self.env_file.exists():
++            for line in self.env_file.read_text().splitlines():
++                if "<<" in line.partition("=")[0]:
++                    raise ValueError(f"{self.name}: multi-line GITHUB_ENV is not modelled")
++                key, _, value = line.partition("=")
++                if key:
++                    self.extra[key] = value
++            self.env_file.unlink()
++
++    def run(self, label: str, argv: list[str]) -> int:
++        """One step, timed, its output kept in the leg's log."""
++        began = time.monotonic()
++        with self.log.open("a") as out:
++            out.write(f"===== {label}\n")
++            out.flush()
++            rc = subprocess.run(argv, cwd=self.workspace, env=self.environment(),
++                                stdout=out, stderr=subprocess.STDOUT, check=False).returncode
++        self.results.append({"step": label, "rc": rc,
++                             "seconds": round(time.monotonic() - began, 1)})
++        self.absorb()
++        return rc
++
++
++def drive(leg: Leg, steps: list[dict], barrier: threading.Barrier) -> None:
++    """Run the steps in order, starting each together with the other leg."""
++    for step in steps:
++        try:
++            barrier.wait()
++        except threading.BrokenBarrierError:
++            pass
++        script = leg.base / "step.sh"
++        script.write_text(step["run"])
++        if leg.run(step["name"], ["bash", "-e", str(script)]) != 0:
++            barrier.abort()
++            return
++    barrier.abort()
++
++
++def verify(leg: Leg, cache: Path) -> list[str]:
++    """Where the leg's interpreter lives, and whether gate 23h holds on its trees."""
++    problems = []
++    probe = subprocess.run(["python3", "-c", PROBE], cwd=leg.workspace,
++                           env=leg.environment(), capture_output=True, text=True, check=False)
++    places = probe.stdout.split()
++    if probe.returncode != 0 or len(places) != 3:
++        return [f"{leg.name}: the LiteX interpreter does not import ({probe.stderr.strip()})"]
++    for place in places:
++        if not Path(place).resolve().is_relative_to(leg.temp.resolve()):
++            problems.append(f"{leg.name}: {place} is not under the leg's RUNNER_TEMP")
++        if Path(place).resolve().is_relative_to(cache.resolve()):
++            problems.append(f"{leg.name}: {place} is inside the shared tool cache")
++    if leg.run("gate 23h", ["python3", "sw/builder/test_builder.py", "--gates", GATES]) != 0:
++        problems.append(f"{leg.name}: gate 23h failed (see {leg.log})")
++    return problems
++
++
++def main() -> int:
++    """Plant the cache, run both legs together, verify each and the cache."""
++    parser = argparse.ArgumentParser(description=__doc__,
++                                     formatter_class=argparse.RawDescriptionHelpFormatter)
++    parser.add_argument("--python", type=Path, required=True,
++                        help="a CPython installation prefix to plant as the tool cache's")
++    parser.add_argument("--work", type=Path, required=True, help="an empty scratch directory")
++    parser.add_argument("--rev", default="HEAD", help="the revision whose workflow and tree run")
++    parser.add_argument("--shared", action="store_true",
++                        help="drop the job-private environment step from both legs")
++    parser.add_argument("--pip-cache", type=Path, help="a pip cache to restore into each home")
++    parser.add_argument("--report", type=Path, help="write the JSON report here")
++    args = parser.parse_args()
++    if args.work.exists() and any(args.work.iterdir()):
++        sys.exit(f"{args.work}: not empty")
++    text = subprocess.run(["git", "-C", str(ROOT), "show", f"{args.rev}:{WORKFLOW}"],
++                          capture_output=True, text=True, check=True).stdout
++    jobs = yaml.safe_load(text)["jobs"]
++    plans = {name: window(jobs[name], args.shared) for name in LEGS}
++    cache = args.work / "toolcache"
++    interpreter = plant(args.python.resolve(), cache)
++    before = manifest(cache)
++    legs = [Leg(name, args.work / name, args.rev, interpreter, args.pip_cache) for name in LEGS]
++    barrier = threading.Barrier(len(legs))
++    began = time.monotonic()
++    threads = [threading.Thread(target=drive, args=(leg, plans[leg.name], barrier))
++               for leg in legs]
++    for thread in threads:
++        thread.start()
++    for thread in threads:
++        thread.join()
++    setup_seconds = round(time.monotonic() - began, 1)
++    problems = []
++    for leg in legs:
++        failed = [row for row in leg.results if row["rc"] != 0]
++        if failed or len(leg.results) != len(plans[leg.name]):
++            problems.append(f"{leg.name}: setup did not pass every step: {leg.results}")
++    for leg in legs:
++        problems.extend(verify(leg, cache))
++    after = manifest(cache)
++    changed = sorted(path for path in before.keys() | after.keys()
++                     if before.get(path) != after.get(path))
++    if changed:
++        problems.append(f"the tool cache changed at {len(changed)} paths, first {changed[:5]}")
++    report = {"rev": subprocess.run(["git", "-C", str(ROOT), "rev-parse", args.rev],
++                                    capture_output=True, text=True, check=True).stdout.strip(),
++              "shared": args.shared, "planted_paths": len(before),
++              "changed_paths": len(changed), "changed_sample": changed[:20],
++              "setup_seconds": setup_seconds,
++              "legs": {leg.name: leg.results for leg in legs},
++              "problems": problems, "isolated": not problems}
++    if args.report:
++        args.report.write_text(json.dumps(report, indent=2) + "\n")
++    for leg in legs:
++        for row in leg.results:
++            print(f"{leg.name}: {row['step']}: rc {row['rc']} in {row['seconds']} s")
++    print(f"tool cache: {len(before)} planted paths, {len(changed)} changed")
++    for problem in problems:
++        print("PROBLEM: " + problem)
++    print("ISOLATED" if not problems else "NOT ISOLATED")
++    return 0 if not problems else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())

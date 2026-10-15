@@ -1,0 +1,16 @@
+===== Install LiteX at the pinned revisions
+
+[notice] A new release of pip is available: 26.2 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+
+[notice] A new release of pip is available: 26.2 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+===== Put a job-private Python environment on PATH
+===== Place the VexiiRiscv source at the revision LiteX pins
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/M1-control/elaborate-gates-0/workspace/scripts/ci_litex_env.py", line 115, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$PACKET/scratch/mut/M1-control/elaborate-gates-0/workspace/scripts/ci_litex_env.py", line 87, in main
+    from pythondata_cpu_vexiiriscv import data_location
+ModuleNotFoundError: No module named 'pythondata_cpu_vexiiriscv'

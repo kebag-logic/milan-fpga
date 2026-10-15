@@ -1,0 +1,4 @@
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/elaborate.yml: job `elaborate` step 6 (`Put a job-private Python environment on PATH`) keys must be exactly name, if, run; missing: if
+  FAIL .github/workflows/elaborate.yml: job `elaborate` step 6 (`Put a job-private Python environment on PATH`) `if` must be exactly `${{ steps.scope.outputs.rtl == 'true' }}` (found ``): any other condition changes when this step runs, and the recorded guard -- a scope answer, a cache miss, a shard's suite ownership or `always()` -- is the one this job legitimately carries
+ci_events: 2 finding(s) over 2199 contract item(s)

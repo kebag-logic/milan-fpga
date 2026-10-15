@@ -1,0 +1,23 @@
+elaborate-gates-0: Install LiteX at the pinned revisions: rc 0 in 30.2 s
+elaborate-gates-0: Place the VexiiRiscv source at the revision LiteX pins: rc 0 in 12.6 s
+elaborate-gates-0: Apply the toolchain patch series: rc 0 in 0.4 s
+elaborate-gates-0: gate 23h: rc 0 in 1.7 s
+elaborate-gates-1: Install LiteX at the pinned revisions: rc 0 in 30.7 s
+elaborate-gates-1: Place the VexiiRiscv source at the revision LiteX pins: rc 1 in 0.1 s
+elaborate-gates-1: gate 23h: rc 0 in 1.6 s
+tool cache: 5386 planted paths, 9296 changed
+PROBLEM: elaborate-gates-1: setup did not pass every step: [{'step': 'Install LiteX at the pinned revisions', 'rc': 0, 'seconds': 30.7}, {'step': 'Place the VexiiRiscv source at the revision LiteX pins', 'rc': 1, 'seconds': 0.1}]
+PROBLEM: elaborate-gates-0: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64 is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-0: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64 is inside the shared tool cache
+PROBLEM: elaborate-gates-0: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64/lib/python3.12/site-packages/litex/__init__.py is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-0: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64/lib/python3.12/site-packages/litex/__init__.py is inside the shared tool cache
+PROBLEM: elaborate-gates-0: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-0: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is inside the shared tool cache
+PROBLEM: elaborate-gates-1: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64 is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-1: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64 is inside the shared tool cache
+PROBLEM: elaborate-gates-1: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64/lib/python3.12/site-packages/litex/__init__.py is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-1: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64/lib/python3.12/site-packages/litex/__init__.py is inside the shared tool cache
+PROBLEM: elaborate-gates-1: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-1: $PACKET/scratch/ctl-dev/toolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is inside the shared tool cache
+PROBLEM: the tool cache changed at 9296 paths, first ['Python/3.12.13/x64/bin/idna', 'Python/3.12.13/x64/bin/litedram_gen', 'Python/3.12.13/x64/bin/liteeth_gen', 'Python/3.12.13/x64/bin/litespi_gen', 'Python/3.12.13/x64/bin/litex_bare_metal_demo']
+NOT ISOLATED
