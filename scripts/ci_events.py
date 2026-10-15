@@ -565,7 +565,7 @@ ENV_FILE_WRITERS = {
     #: The elaboration job's interpreter: a venv under the job's own
     #: RUNNER_TEMP, first on PATH, so the LiteX install, the VexiiRiscv
     #: checkout and the patch series never write into setup-python's
-    #: interpreter, which act shares between concurrent jobs (#748).
+    #: interpreter, which act shares between concurrent jobs (#748; REQ-VER-04).
     (ELABORATE, "elaborate", "Put a job-private Python environment on PATH"): (
         'set -euo pipefail',
         'python3 -m venv "$RUNNER_TEMP/litex-venv"',
@@ -7451,9 +7451,10 @@ def _elab_scope_and_presence_arms() -> list[Arm]:
 
 
 def _private_interpreter_arms() -> list[Arm]:
-    """#748: without the job-private interpreter, or with it first on PATH
-    only after the install, the LiteX install, the VexiiRiscv checkout and the
-    patch series write into the tool cache act shares between jobs again."""
+    """Without the job-private interpreter, or with it first on PATH only
+    after the install, the LiteX install, the VexiiRiscv checkout and the
+    patch series write into the tool cache act shares between jobs again
+    (#748; REQ-VER-04)."""
     return [
         ("#748 elaborate job-private environment removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "litex-venv")),
