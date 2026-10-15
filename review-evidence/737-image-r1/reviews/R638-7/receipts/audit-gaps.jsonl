@@ -1,0 +1,16 @@
+Processing ./zz_probe_pkg-0.1-py3-none-any.whl
+Installing collected packages: zz-probe-pkg
+Successfully installed zz-probe-pkg-0.1
+Processing ./zz_probe_pkg-0.1-py3-none-any.whl
+Installing collected packages: zz-probe-pkg
+Successfully installed zz-probe-pkg-0.1
+Processing ./zz_probe_pkg-0.1-py3-none-any.whl
+Installing collected packages: zz-probe-pkg
+Successfully installed zz-probe-pkg-0.1
+{"case": "control: -m pip local-wheel install", "exit_status": 0, "instances": 3, "findings": ["installer module executed: pip", "module not in the allowlist: pip"], "population": [["inline", "bash", "named"], ["module", "pip", "named"], ["program", "uname", "named"]]}
+{"case": "control: copied unlisted program, direct exec", "exit_status": 0, "instances": 2, "findings": ["program without provenance: zz_hidden"], "population": [["inline", "bash", "named"], ["program", "zz_hidden", "none"]]}
+{"case": "inline python program installs the wheel", "exit_status": 0, "instances": 3, "findings": [], "population": [["inline", "bash", "named"], ["inline", "python3.12", "named"], ["program", "uname", "named"]]}
+{"case": "streamed python program (not from a fetcher) installs the wheel", "exit_status": 0, "instances": 3, "findings": [], "population": [["inline", "bash", "named"], ["program", "uname", "named"], ["stream", "python3.12", "named"]]}
+{"case": "memfd exec (fexecve) of the copied unlisted program", "exit_status": 0, "instances": 2, "findings": [], "population": [["inline", "bash", "named"], ["inline", "python3.12", "named"]]}
+{"case": "int 0x80 (i386 entry) exec of the copied unlisted program", "exit_status": 0, "instances": 7, "findings": [], "population": [["inline", "bash", "named"], ["program", "as", "named"], ["program", "cc1", "named"], ["program", "collect2", "named"], ["program", "gcc", "named"], ["program", "ld", "named"], ["program", "zz_compat", "built by ld"]]}
+{"case": "x32 entry exec of the copied unlisted program", "exit_status": 0, "instances": 7, "findings": [], "population": [["inline", "bash", "named"], ["program", "as", "named"], ["program", "cc1", "named"], ["program", "collect2", "named"], ["program", "gcc", "named"], ["program", "ld", "named"], ["program", "zz_compat", "built by ld"]]}
