@@ -7,6 +7,7 @@ This lane supplies the image without changing workflows.
 ## Contents
 
 - **[Inputs](#inputs)** -- Trace workflow requests to checked public sources.
+- **[Threat model](#threat-model)** -- State what the lane guards against and how each guard closes.
 - **[Reached construct census](#reached-construct-census)** -- Define supported syntax and refused variants.
 - **[Execution audit](#execution-audit)** -- Record the programs each step runs and refuse installers.
 - **[Accepted version changes](#accepted-version-changes)** -- Compare the image with its previous runner.
@@ -57,6 +58,42 @@ Scala dependencies include the pinned CPU generator's requirements.
 The launcher is 1.10.7; that project selects 1.10.0.
 Both versions belong to the same installed toolchain.
 Every downloaded JAR and metadata file has its checksum.
+
+## Threat model
+
+The lane guards against accidental drift in reviewed source.
+A step may start to need a tool the image lacks.
+It may start to fetch, to install, or to read an unpinned input.
+Deliberately evasive code in committed workflows or scripts is a code-review matter.
+Each guard is therefore closed by construction: an allowlist, or a check that fails closed.
+A contrived escape from a guard closed this way is residue, not a defect of the guard.
+
+| Guard | Closed by | Refused control |
+|---|---|---|
+| Accepted shell, Make and Python forms | The census: a shape without a passing differential fixture refuses | `ci_differential_selftest.py` |
+| Workflow `env:` names | The reviewed `workflow_environment` list; hooks and `BASH_FUNC_*` refuse by name | `R638-7-N3a-*` fixtures |
+| Shell tests and `cd` | Nothing is decided from the checkout's state; both paths continue | `R638-7-N3b-*` fixtures |
+| `local` and `declare` | Initializers expand first and locals scope exactly, as in bash; appending forms refuse | `R639-7-F1-*` fixtures |
+| Exec ABI | Every call from another architecture, and every x32 call, is refused before it runs | i386 and x32 trampolines |
+| Exec target | Only a regular file reached by a path runs | memfd, deleted file, descriptor link |
+| Interpreter programs | Inline, streamed and file programs need a reviewed digest | local-wheel installs by `-c` and stdin |
+| Programs outside the image | A traced build output's bytes, or the reviewed generated list | a copied program with a byte appended |
+| The checkout | Each file present at job start keeps its bytes through the job | rewritten and sourced scripts |
+| Network | Steps run with the container network disabled | a failing step |
+
+The remaining limits are named boundaries, each closed by construction:
+
+- Code an accepted entry program loads in-process is part of that program.
+  That covers imports, sourced files, plugins and `enable -f`.
+  The entry is judged; reviewed source governs what it loads.
+- A `dash` program is judged by the execs it makes, since `dash` runs nothing in-process.
+  The audit's self-test checks that the image's `dash` imports no dynamic loader entry.
+- A named program that reads its own input files is judged by its name.
+  That covers `make`, `yosys`, `sbt` and `cmake`; their inputs are reviewed source.
+  Any fetch they attempt fails under the disabled network, and any program they run is judged.
+- The audit looks at the checkout at every exec, every exit and the end of each step.
+  A file changed and restored between two looks is not reported.
+- Runtime assembly in declared scripts is located residue, never a resolved command.
 
 ## Reached construct census
 
@@ -117,6 +154,12 @@ Source-list contents remain owned by their reached recipes.
 
 Environment-changing forms require exact source-bound syntax declarations.
 Directory search and interpreter startup variables are refused unless censused.
+A workflow `env:` name must be in the census's reviewed `workflow_environment` list.
+Each listed name is data the walker expands as a literal or runtime value.
+Exported functions (`BASH_FUNC_*`) and interpreter, loader and tool hooks refuse by name.
+That covers `PERL5OPT`, `NODE_OPTIONS`, `GIT_EXEC_PATH`, `GIT_CONFIG_*` and `PYTHONUSERBASE`.
+It also covers `PYTHONSTARTUP`, `LD_AUDIT` and `HOME`.
+Any other name refuses as unmodelled.
 Make startup files and flag overrides have the same boundary.
 The allocator's existing `LD_PRELOAD` assignments and unsets are censused exactly.
 Assignments retain their shell scope and expose loader selection as runtime residue.
@@ -137,6 +180,7 @@ Unexported shell assignments remain outside Make's environment.
 ### Differential census
 
 The accepted language is a closed census of construct shapes.
+Workflow environment names are a closed list in the same file.
 Each modelled rule of the walker is one shape, recorded where it applies.
 [`syntax-census.json`](../../ci/image/syntax-census.json) lists them under `shapes`.
 The census holds exactly the shapes the current tree uses.
@@ -158,7 +202,9 @@ Generation refuses a receipt measured at another walker.
 A shape is accepted only through its focus fixture meeting its expectation.
 Any other shape refuses by name before generation.
 A new shape enters the census only with its passing fixture.
-Every reviewed round-six probe is also a fixture, refused or resolved identically.
+Every reviewed round-six and round-seven probe is also a fixture, refused or resolved identically.
+A script an earlier program rewrites is walked as committed.
+The execution audit closes that form: a checkout file changed during the job is a finding.
 
 ```sh
 docker run --rm --network none --user 0:0 \
@@ -183,13 +229,20 @@ The shell walker keeps variables, exports, functions, locals and the directory.
 A value differing between paths becomes runtime.
 A directory differing between paths is ambiguous, and any later statement there refuses.
 A test that always succeeds takes only its branch.
-That covers plain assignments, `true`, `:` and `cd` into a checkout directory.
+That covers plain assignments, `true` and `:`.
+Nothing is decided from the checkout's state, since an earlier program can change any path.
+A `cd` or a file test is never certain, so both of its paths continue.
 A failed `cd` changes nothing.
 Under errexit it ends the shell; workflow steps run under it, and `set` changes it.
 Tests suspend errexit, as do negated commands and functions called from tests.
-A test that is one `cd` fails where it started, and a plain one may continue there.
+A test that is one `cd` fails where it started.
+Without errexit any `cd` may continue where it started, so the directory is then ambiguous.
 `exit`, `return`, `break` and `continue` end their path where the shell resumes.
 Loop bodies are walked until no iteration changes another's input.
+`local` and `declare` expand every initializer before creating any local, as bash does.
+A new local hides the visible value and is empty until assigned.
+Re-declaring a local of the same function keeps its value.
+Appending declarations refuse.
 A name defined as a function anywhere in scope is never a builtin or program.
 Where its definition may not have run, the call is declared runtime residue.
 Trap handlers run later, so their variables and directory are unknown.
@@ -245,6 +298,11 @@ Traversal caches key on the complete incoming environment.
 A repeated script or Makefile under new values is walked again.
 
 Command substitution yields a directory only as `$(cd <literal> && pwd)`.
+It does so only where a failed `cd` cannot continue.
+One case is the only substitution of a bare assignment under errexit, whose failure ends the shell.
+The other is a script's own directory, or an ancestor in the checkout, before the script runs a command.
+The shell is reading the script from that directory, so it exists.
+Anywhere else an earlier program may have removed the directory, so the output is runtime.
 That form must be unredirected and its directory must not be a link.
 `$(dirname <literal>)` and `$(realpath <literal>)` are exact functions of the operand.
 None applies when a same-named function is defined anywhere in scope.
@@ -300,58 +358,124 @@ holds the exact-semantics boundary with planted fixtures.
 The inventory derives which programs a step should run.
 The execution audit records which programs a step does run.
 [`exec_audit.py`](../../ci/image/exec_audit.py) installs a seccomp filter on each step.
-Every `execve` and `execveat` becomes a notification the audit reads first.
+Every `execve`, `execveat` and `exit_group` becomes a notification the audit reads first.
 A static binary is observed like any other, and nothing is ptraced.
 LeakSanitizer and other self-tracing tools therefore still run.
 Steps run with the container network disabled.
 A step that needs the network fails, and its exit status is a finding.
 
+The filter fails closed on calls the audit cannot read.
+A call from any architecture other than x86-64 is refused before it runs.
+So is any call through the x32 entry.
+An exec runs only a regular file reached by a path.
+The audit resolves that path component by component, as the exec's own lookup does.
+The caller's own view of the target must then be the same file.
+A target through the process filesystem or `/dev` is refused before it runs.
+So is a memfd, a deleted file, or a descriptor that is not a file on a path.
+A lookup that fails returns the error the exec itself would, and nothing runs.
+Each refusal is a finding, named by its reason.
+
 Every exec instance is kept with its full argument vector and directory.
 Each is judged by what it runs, not by the loaded binary.
-An interpreter is judged by its script, `-m` module, or inline program.
+[`exec_operands.py`](../../ci/image/exec_operands.py) reads each interpreter's options as it does.
+An interpreter is judged by its script, `-m` module, inline or streamed program.
 That covers shells, Python, Perl, Node and Tcl, including shebang scripts.
 [`exec-audit.json`](../../ci/image/exec-audit.json) names permitted programs, scripts and modules.
-It also holds the installer denylists.
+It also holds the installer denylists and the reviewed program lists.
 
 Installers are refused by name, as a program, script or module.
 That covers `apt*`, `dpkg`, `pip*`, `npm`, `npx` and other package managers.
 It covers `gem install`, `cargo install`, `go install` and `go get`.
 An interpreter reading its program from a fetcher's pipe is refused too.
 A program or script in the image's own directories must be named.
-Any other program needs provenance from the same traced job.
-It must be the `-o` output of a build program, or a byte copy of one.
-Otherwise the job must have written it without copying an existing program.
-Another script must be in the checkout when the job starts.
-Otherwise it must have been written during the job.
+
+An interpreter program runs code in-process, so its text is accepted only by digest.
+That holds for `bash`, Python, Perl, Node and Tcl, inline, streamed or from a file.
+An inline program is read from the argument vector.
+A streamed program is read without consuming it, once every writer has closed its pipe.
+One still being written after 60 seconds, or one the audit cannot read, is a finding.
+A program's text is accepted when it is one of these:
+
+- a file in the checkout, unchanged since the job started;
+- a byte copy of such a file;
+- the traced step's own text;
+- an entry of the reviewed `inline_programs` or `generated_programs` list.
+
+Any other is refused by name, with its digest.
+Each reviewed entry names its interpreter, its source and the reason it installs nothing.
+An inline or streamed entry keeps its exact text, or its exact difference from the tracked script it varies.
+A generated program's digest is taken with each job-temporary path masked.
+Such a path lies under `/tmp` or the job's scratch roots and holds only letters, digits, `_`, `.`, `-` and `/`.
+It can carry no command, and every other byte is exact.
+The lists hold 81 inline or streamed programs and 334 generated programs.
+Each generated entry names the tracked test that writes it: mutants, stand-ins and staged copies.
+`dash` imports no dynamic loader and has no loadable builtins.
+It runs nothing in-process, so a `dash` program is judged by the execs it makes.
 A script with the bytes of an image executable runs that file's code.
 It is judged as that file, by its name.
 A missing script operand runs nothing and is recorded as absent.
 
-`--selftest` runs the controls inside the image as root:
+A program outside the image's directories needs positive provenance.
+Its bytes must be those of a declared output of a toolchain invocation the job traced.
+That output is `-o`, `--output`, or `a.out` for a linking driver without either.
+It is digested when that invocation exits successfully, if the invocation wrote it.
+A renamed or installed copy of those bytes keeps that provenance.
+Otherwise the program must be in the reviewed `generated_programs` list.
+Creation time and byte inequality are not evidence.
+
+Every file present in the checkout as the job starts is digested then.
+A script whose bytes differ at its exec is a finding.
+So is any change during the job to a file the static walker read, though no exec reads it.
+Those files are the inventory's recorded inputs.
+An inotify watch on the checkout is read at every notification.
+Every such file is compared again at the end of each step.
+What the static walker read is therefore what ran.
+The reviewed `checkout_writes` list names files a step rewrites on purpose.
+Their changes are recorded in the step's receipt, not refused.
+It holds one entry: the entity shape self-test plants and restores `tb/verilator/csr/Makefile`.
+
+`--selftest` runs the controls of
+[`exec_audit_selftest.py`](../../ci/image/exec_audit_selftest.py) inside the image as root:
 
 ```sh
 docker run --rm --network none --user 0:0 --mount "type=bind,src=$PWD,dst=/work,readonly" \
   --workdir /work "$IMAGE_REFERENCE" python3 ci/image/exec_audit.py --selftest
 ```
 
+Static programs that exec through the i386 and x32 entries are refused before the exec runs.
+An unlisted copy run from a memfd, a deleted file or a descriptor link is refused.
 A real offline local-wheel install is caught as the `pip` module.
+The same install by an inline and by a streamed program is caught as unpinned.
+An unpinned `bash` inline program and an unpinned job-written Python script are caught.
 Scripted `pip3` and `npm`, and a shebang `apt-get`, are caught by name.
 An unlisted shebang script and a static binary in a system directory are caught.
 An unlisted program the job copies from the image has no provenance and is caught.
+So is that copy with one byte appended, and a failed build's declared output.
 A renamed copy of the image's `pip3` script is caught as the `pip` it reproduces.
 A stub with the bytes of the base image's no-op `initctl` is judged as `initctl`.
+A job-written `dash` script and a `dash` inline program stay clean.
 A program built under a temporary name and renamed stays clean.
+So do an installed copy of a build output and an `a.out` built without `-o`.
 A fetched program piped to a shell and `gem install` are caught.
-A permitted interpreter call and a step-built program stay clean.
+A pinned inline program and a checkout script stay clean.
 A step-built static binary is observed, and a failing step is reported.
 A link to a checkout script is judged as that script; one named `apt-get` is caught.
+A checkout script rewritten before it runs is caught at its exec.
+A checkout file rewritten and then sourced is caught though no exec reads it.
+A file in the reviewed write list is recorded, not refused.
+A reviewed generated program is accepted with its temporary paths masked; one more statement is refused.
+A streamed program its spawning parent writes after the exec is read whole, without a deadlock.
+The exec-only interpreter's binary imports no dynamic loader entry.
+An installer subcommand after leading options, such as `cargo +stable -v install`, is caught.
 A LeakSanitizer leak check still runs under the audit.
 
 `--audit SPEC --output RECEIPT --logs DIRECTORY` runs a step spec.
-A spec entry has `job`, `label`, `argv`, and optionally `working-directory` and `env`.
+A spec entry has `job`, `label`, `argv`, and optionally `working-directory`, `env` and `text`.
+`text` is the step's own program, accepted by its digest.
 Each receipt step carries `exit_status`, `instances` and `instances_sha256`.
 It also carries the `population`: each invocation's kind, name, path, provenance and count.
-Its `findings` name the invocation, path, arguments and reason; `clean` holds when none.
+A row for an interpreter program or a checkout script also carries the digest of its text.
+Its `findings` name the invocation, path, arguments, reason and digest; `clean` holds when none.
 The logs keep every instance as one JSON line.
 These fields are the interface the follow-up PR's signed replay consumes.
 
@@ -395,7 +519,7 @@ Every untraced step must also be one the image replaces.
 It spells each GNU toolchain triplet in a path as `<triplet>`.
 The step logs keep every path exactly, and the receipt keeps each log's digest.
 Wiring the audit into every pull request's replay is that follow-up PR's work.
-With it, a hidden installer is caught at the replay whatever the walker accepts.
+With it, every guard of the threat model holds at each pull request's replay.
 Unlisted constructs and unlisted command forms refuse generation.
 Runtime assembly remains subject to the declared residue boundary.
 
