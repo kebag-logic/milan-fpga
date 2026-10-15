@@ -1,0 +1,66 @@
+{
+  "python": "3.12.3",
+  "results": [
+    {
+      "name": "differential-check",
+      "argv": [
+        "python3",
+        "scripts/ci_differential.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.115
+    },
+    {
+      "name": "census-selftest",
+      "argv": [
+        "python3",
+        "scripts/ci_differential_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 79.387
+    },
+    {
+      "name": "baremetal-check",
+      "argv": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 22.515
+    },
+    {
+      "name": "baremetal-selftest",
+      "argv": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 6.877
+    },
+    {
+      "name": "lock-check",
+      "argv": [
+        "python3",
+        "ci/image/build.py",
+        "--work",
+        "<packet>/scratch/build",
+        "--check-lock"
+      ],
+      "rc": 0,
+      "seconds": 0.114
+    },
+    {
+      "name": "inventory-check-last",
+      "argv": [
+        "python3",
+        "scripts/ci_tool_inventory.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 79.8
+    }
+  ]
+}

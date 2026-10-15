@@ -1,0 +1,898 @@
+{
+  "head": "feef7c9fd239ef62b7c6aad301e80a13275e47ef",
+  "source_tree": "4f1e8d01c600c2bdb5ba5ea6ec64a5d5e7f1b808",
+  "image_digest": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059",
+  "recipe": "b3fdd9003ee3ba95176f83d4bfd390c6be94841a10e5dacca2863e6ac056ae68",
+  "cold_builds": [
+    {
+      "recipe_sha256": "b3fdd9003ee3ba95176f83d4bfd390c6be94841a10e5dacca2863e6ac056ae68",
+      "stage": "validation-tools",
+      "image_id": "sha256:a2c4d52af85bc218ddd2d3958a2283f64ab175ec4254960eba891ae2271df1fd",
+      "image_digest": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059",
+      "size_bytes": 3930997226,
+      "build_ms": 473918,
+      "tag": "fpga-validation:b3fdd9003ee3ba95176f83d4bfd390c6be94841a10e5dacca2863e6ac056ae68-validation-tools"
+    },
+    {
+      "recipe_sha256": "b3fdd9003ee3ba95176f83d4bfd390c6be94841a10e5dacca2863e6ac056ae68",
+      "stage": "validation-tools",
+      "image_id": "sha256:a2c4d52af85bc218ddd2d3958a2283f64ab175ec4254960eba891ae2271df1fd",
+      "image_digest": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059",
+      "size_bytes": 3930997226,
+      "build_ms": 424315,
+      "tag": "fpga-validation:b3fdd9003ee3ba95176f83d4bfd390c6be94841a10e5dacca2863e6ac056ae68-validation-tools"
+    }
+  ],
+  "baremetal_declaration_sha256": "3d10365d3c399071b2e41949b2ef813c0b2b4aaf1de432346779328726b54e06",
+  "differential_tools": {
+    "bash": "GNU bash, version 5.2.21(1)-release",
+    "dash": "0.5.12-6ubuntu5",
+    "make": "GNU Make 4.3",
+    "python3": "Python 3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+  },
+  "census_shapes": 177,
+  "fixtures": 188,
+  "prior_probe_receipts": {
+    "R638-6-M1": {
+      "outcome": "refused",
+      "refusal": "unsupported conditional Make body at Makefile:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M10": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M11": {
+      "outcome": "refused",
+      "refusal": "unmodelled Make command-line value for 'FOO' at .github/workflows/fixture.yml:1",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M12": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R638-6-M13": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R638-6-M14": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M15": {
+      "outcome": "refused",
+      "refusal": "unsupported conditional Make body at Makefile:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R638-6-M16": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M17": {
+      "outcome": "refused",
+      "refusal": "unsupported conditional Make body at Makefile:2",
+      "statuses": [
+        2
+      ],
+      "real_count": 0
+    },
+    "R638-6-M18": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R638-6-M19": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M2": {
+      "outcome": "refused",
+      "refusal": "unsupported conditional Make body at Makefile:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M20": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M21": {
+      "outcome": "refused",
+      "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at Makefile:1:1",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M3": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M3b": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M4": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M5": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M6": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M7": {
+      "outcome": "refused",
+      "refusal": "unsupported Make construct 'endef' at Makefile:5",
+      "statuses": [
+        2
+      ],
+      "real_count": 0
+    },
+    "R638-6-M8": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-M9": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R638-6-S1": {
+      "outcome": "refused",
+      "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at .github/workflows/fixture.yml:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-S10": {
+      "outcome": "refused",
+      "refusal": "unclassified command 'cd' at .github/workflows/fixture.yml:1",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-S2": {
+      "outcome": "refused",
+      "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at .github/workflows/fixture.yml:3",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-S3": {
+      "outcome": "refused",
+      "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at .github/workflows/fixture.yml:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-S4": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-S5": {
+      "outcome": "refused",
+      "refusal": "unresolved shell cd at .github/workflows/fixture.yml:3",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-S6": {
+      "outcome": "refused",
+      "refusal": "unclassified runtime command name '${RUNTIME}' at .github/workflows/fixture.yml:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-S7": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-S8": {
+      "outcome": "identical",
+      "refusal": null,
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-S9": {
+      "outcome": "refused",
+      "refusal": "unclassified command 'shopt -s expand_aliases' at .github/workflows/fixture.yml:1",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-PYW1": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-PYW2": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        1
+      ],
+      "real_count": 0
+    },
+    "R638-6-python-PYW3": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-PYW4": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-PYW5": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-PYW6": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-asyncio": {
+      "outcome": "refused",
+      "refusal": "unclassified Python execution 'asyncio.create_subprocess_exec' at main.py:3",
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R638-6-python-compile": {
+      "outcome": "refused",
+      "refusal": "uncensused Python builtin 'compile' at main.py",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-ctypes": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-exec": {
+      "outcome": "refused",
+      "refusal": "uncensused Python builtin 'exec' at main.py",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-execvp": {
+      "outcome": "refused",
+      "refusal": "unclassified Python execution 'os.execvp' at main.py:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-from-alias": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-import-builtin": {
+      "outcome": "refused",
+      "refusal": "uncensused Python builtin '__import__' at main.py",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-import-module": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-pip": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R638-6-python-popen": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-posix-spawnp": {
+      "outcome": "refused",
+      "refusal": "unclassified Python execution 'os.posix_spawnp' at main.py:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-pty": {
+      "outcome": "refused",
+      "refusal": "unclassified Python execution 'pty.spawn' at main.py:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R638-6-python-runpy": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        1
+      ],
+      "real_count": 0
+    },
+    "R638-6-python-socket": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R638-6-python-webbrowser": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'main.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R639-6-make-explicit-stem": {
+      "outcome": "refused",
+      "refusal": "unmodelled Make explicit-rule stem $* at Makefile:2",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R639-6-make-unlisted": {
+      "outcome": "refused",
+      "refusal": "unsupported Make construct 'override X = echo' at Makefile:1",
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R639-6-python-network": {
+      "outcome": "refused",
+      "refusal": "undeclared executing or network script 'probe.py'",
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R639-6-python-unlisted": {
+      "outcome": "refused",
+      "refusal": "uncensused Python node 'AsyncFunctionDef' at probe.py",
+      "statuses": [
+        0
+      ],
+      "real_count": 0
+    },
+    "R639-6-shell-pwd-shadow": {
+      "outcome": "refused",
+      "refusal": "unresolved shell cd at .github/workflows/fixture.yml:1",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R639-6-shell-short-circuit": {
+      "outcome": "refused",
+      "refusal": "unclassified runtime command name '${RUNTIME}' at .github/workflows/fixture.yml:1",
+      "statuses": [
+        0
+      ],
+      "real_count": 1
+    },
+    "R639-6-shell-unlisted": {
+      "outcome": "refused",
+      "refusal": "uncensused shell ForClause.Select at .github/workflows/fixture.yml",
+      "statuses": [
+        1
+      ],
+      "real_count": 0
+    }
+  },
+  "population": {
+    "source": "afdf0ef0c6b25888d40641e6933fe77eec16bd18",
+    "reached": 98,
+    "traced": 94,
+    "instances": 183845,
+    "exit_nonzero": 0,
+    "findings": 0,
+    "omitted": [
+      {
+        "image_form": "The image's Verilator layer replaces the cache and build",
+        "name": "Build Verilator from source on cache miss",
+        "removed": [
+          "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n"
+        ],
+        "step": ".github/workflows/rtl-fast.yml#verilator-lint#3",
+        "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "traced": false,
+        "user": 1000,
+        "why": "The image's Verilator layer replaces the cache and build"
+      },
+      {
+        "image_form": "The image's Yosys layer replaces the cache and build",
+        "name": "Build Yosys from source on cache miss",
+        "removed": [
+          "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+        ],
+        "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#3",
+        "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "traced": false,
+        "user": 1000,
+        "why": "The image's Yosys layer replaces the cache and build"
+      },
+      {
+        "image_form": "The image's Yosys layer replaces the cache and build",
+        "name": "Build Yosys from source on cache miss",
+        "removed": [
+          "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+        ],
+        "step": ".github/workflows/rtl-fast.yml#publication-census#3",
+        "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "traced": false,
+        "user": 1000,
+        "why": "The image's Yosys layer replaces the cache and build"
+      },
+      {
+        "image_form": "The image's Verilator layer replaces the cache and build",
+        "name": "Build Verilator from source on cache miss",
+        "removed": [
+          "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n"
+        ],
+        "step": ".github/workflows/rtl-fast.yml#firmware-verilator#4",
+        "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "traced": false,
+        "user": 1000,
+        "why": "The image's Verilator layer replaces the cache and build"
+      }
+    ],
+    "commands": 115,
+    "argument_differences": [
+      {
+        "job": "docs-check",
+        "listed": [
+          "python3",
+          "scripts/check_em_dash.py",
+          "--base",
+          "fa7347fc"
+        ],
+        "observed": [
+          [
+            "--base",
+            "fa7347fc59173f90e4feec2df207692e6e6e72ec"
+          ]
+        ]
+      },
+      {
+        "job": "publication-census",
+        "listed": [
+          "python3",
+          "sw/mailbox/publication_census.py",
+          "--check",
+          "--selftest",
+          "--jobs",
+          "1"
+        ],
+        "observed": [
+          [
+            "--check",
+            "--selftest",
+            "--jobs",
+            "16"
+          ]
+        ]
+      },
+      {
+        "job": "firmware-unit",
+        "listed": [
+          "python3",
+          "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+          "--require-rv32",
+          "--jobs",
+          "4"
+        ],
+        "observed": [
+          [
+            "--require-rv32",
+            "--jobs",
+            "16"
+          ]
+        ]
+      },
+      {
+        "job": "firmware-unit",
+        "listed": [
+          "python3",
+          "sw/firmware/gtest/fw_coverage.py",
+          "--check",
+          "--jobs",
+          "4"
+        ],
+        "observed": [
+          [
+            "--selftest"
+          ],
+          [
+            "--check",
+            "--jobs",
+            "16"
+          ]
+        ]
+      }
+    ]
+  },
+  "head_retrace_docs": {
+    "steps": 46,
+    "clean": true
+  },
+  "head_retrace_all_author_comparison": {
+    "clean": [
+      true,
+      true
+    ],
+    "commands_equal": true,
+    "committed": "afdf0ef0c6b25888d40641e6933fe77eec16bd18",
+    "differences": [
+      {
+        "instances": [
+          15557,
+          15550
+        ],
+        "step": ".github/workflows/rtl-fast.yml#firmware-verilator#8"
+      },
+      {
+        "instances": [
+          307,
+          306
+        ],
+        "step": ".github/workflows/rtl-fast.yml#publication-census#6"
+      }
+    ],
+    "image_equal": true,
+    "instance_count_differences": 2,
+    "material_differences": 0,
+    "reconciliation_equal": true,
+    "retraced": "feef7c9fd239ef62b7c6aad301e80a13275e47ef",
+    "rows_by_kind_and_provenance": {
+      "committed": {
+        "inline|named": 29,
+        "program|built by ld.bfd": 94,
+        "program|copy of a program the job built": 1,
+        "program|named": 570,
+        "program|written during the job": 2,
+        "script|absent": 1,
+        "script|checkout": 242,
+        "script|copy of": 2,
+        "script|named": 36,
+        "script|written during the job": 987,
+        "stream|named": 5
+      },
+      "retraced": {
+        "inline|named": 29,
+        "program|built by ld.bfd": 94,
+        "program|copy of a program the job built": 1,
+        "program|named": 570,
+        "program|written during the job": 2,
+        "script|absent": 1,
+        "script|checkout": 242,
+        "script|copy of": 2,
+        "script|named": 36,
+        "script|written during the job": 987,
+        "stream|named": 5
+      }
+    },
+    "same_step_set": true,
+    "steps": 94
+  },
+  "final_checks": {
+    "head": "feef7c9fd239ef62b7c6aad301e80a13275e47ef",
+    "python": "3.12.3",
+    "checks": [
+      {
+        "check": "inventory-selftest",
+        "rc": 0,
+        "last": "PASS: missing inventory entry differs"
+      },
+      {
+        "check": "patterns-selftest",
+        "rc": 0,
+        "last": "PASS: unknown Make option: generation and comparison"
+      },
+      {
+        "check": "nodes-selftest",
+        "rc": 0,
+        "last": "PASS: committed external-import allowances name no in-tree module"
+      },
+      {
+        "check": "exact-selftest",
+        "rc": 0,
+        "last": "PASS: only BASH_SOURCE[0] is modelled: generation and comparison"
+      },
+      {
+        "check": "differential-check",
+        "rc": 0,
+        "last": "PASS: 188 differential fixtures meet their expectations; 177 census shapes proven at image sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c0"
+      },
+      {
+        "check": "census-gate-selftest",
+        "rc": 0,
+        "last": "PASS: a shape whose focus fixture did not meet its expectation refuses"
+      },
+      {
+        "check": "build-selftest",
+        "rc": 0,
+        "last": "PASS: source pin change changes recipe identity"
+      },
+      {
+        "check": "integrity-selftest",
+        "rc": 0,
+        "last": "PASS: comment-like runtime scalar refused"
+      },
+      {
+        "check": "privacy-selftest",
+        "rc": 0,
+        "last": "PASS: every protected class and OCI metadata surface; oracle leftovers"
+      },
+      {
+        "check": "privacy-patch-selftest",
+        "rc": 0,
+        "last": "PASS: exact patched output, unchanged matches, added identity and input authentication"
+      },
+      {
+        "check": "baremetal-check",
+        "rc": 0,
+        "last": "baremetal-only: OK (0 findings across 1333 tracked first-party file(s))"
+      },
+      {
+        "check": "baremetal-selftest",
+        "rc": 0,
+        "last": "baremetal-only selftest: PASS (738 arm(s))"
+      },
+      {
+        "check": "idiom",
+        "rc": 0,
+        "last": "  over-long line: 0 <= 0"
+      },
+      {
+        "check": "idiom-selftest",
+        "rc": 0,
+        "last": "54 checks: 54 PASS, 0 FAIL"
+      },
+      {
+        "check": "docs-check",
+        "rc": 0,
+        "last": "docs_check: 0 finding(s) across 207 md files + 1335 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]"
+      },
+      {
+        "check": "doc-style",
+        "rc": 0,
+        "last": "documentation style: OK (22 current documents)"
+      },
+      {
+        "check": "doc-paths",
+        "rc": 0,
+        "last": "doc path gate: OK (1013 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)"
+      },
+      {
+        "check": "em-dash",
+        "rc": 0,
+        "last": "check_em_dash: 0 finding(s) over 706 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [fa7347fc..HEAD]"
+      },
+      {
+        "check": "toc",
+        "rc": 0,
+        "last": "TOC gate: OK (147 page(s) carry an annotated contents list, 17 below the 3-section threshold)"
+      },
+      {
+        "check": "anchors",
+        "rc": 0,
+        "last": "anchor check: 495 existing cross-page fragment links reproduced"
+      },
+      {
+        "check": "hygiene",
+        "rc": 0,
+        "last": "HYGIENE RATCHET: PASS (3 population(s), 1185 file(s))"
+      },
+      {
+        "check": "whitespace",
+        "rc": 0,
+        "last": ""
+      },
+      {
+        "check": "exec-audit-selftest-image",
+        "rc": 0,
+        "last": "PASS: a step that fails under the disabled network: caught (step exited 7)"
+      },
+      {
+        "check": "check-lock-second-export",
+        "rc": 0,
+        "last": "PASS: image identity verified against exported manifest, config and every layer"
+      },
+      {
+        "check": "prepare-only",
+        "rc": 0,
+        "last": "Verified context; recipe sha256:b3fdd9003ee3ba95176f83d4bfd390c6be94841a10e5dacca2863e6ac056ae68"
+      },
+      {
+        "check": "inventory-check-last",
+        "rc": 0,
+        "last": "CI tool inventory matches workflow installation requests"
+      }
+    ]
+  },
+  "merge_shape": {
+    "base": "84f9e3001b7d9b77835c4a9a599dbe6230a8031b",
+    "overlap": [],
+    "rc": 0,
+    "tree": "0bb830f536fac49da96f9cb98097c547bbc2a654",
+    "validation": "shape only; no candidate banks run"
+  },
+  "tools_equal_round6": true,
+  "residue_equal_round6": false,
+  "tool_records": 45,
+  "residue_delta": {
+    "before": 281,
+    "after": 303,
+    "added": [
+      ".github/workflows/elaborate.yml:1: declared inline interpreter program",
+      ".github/workflows/elaborate.yml:4: declared inline interpreter program",
+      "scripts/run_litex_sims.sh:271: declared runtime trap handler",
+      "syn/yosys/malloc.sh:105: declared runtime command name where 'abs_path' is undefined",
+      "syn/yosys/malloc.sh:109: declared runtime command name where 'preload_is_usable' is undefined",
+      "syn/yosys/malloc.sh:111: declared runtime command name where 'preload_refusal' is undefined",
+      "syn/yosys/malloc.sh:126: declared runtime command name where 'ldconfig_path' is undefined",
+      "syn/yosys/malloc.sh:128: declared runtime command name where 'preload_is_usable' is undefined",
+      "syn/yosys/malloc.sh:133: declared runtime command name where 'preload_is_usable' is undefined",
+      "syn/yosys/malloc.sh:159: declared runtime command name where 'select_malloc' is undefined",
+      "syn/yosys/malloc.sh:165: declared runtime command name where 'select_malloc' is undefined",
+      "syn/yosys/malloc.sh:168: declared runtime command name where 'select_malloc' is undefined",
+      "syn/yosys/malloc.sh:174: declared runtime command name where 'select_malloc' is undefined",
+      "syn/yosys/malloc.sh:176: declared runtime command name where 'preload_is_usable' is undefined",
+      "syn/yosys/malloc.sh:181: declared runtime command name where 'select_malloc' is undefined",
+      "syn/yosys/malloc.sh:193: declared runtime command name where 'apply_malloc_env' is undefined",
+      "syn/yosys/malloc.sh:197: declared runtime command name where 'apply_malloc_env' is undefined",
+      "syn/yosys/run.sh:149: declared runtime command name where 'selftest_alloc' is undefined",
+      "syn/yosys/run.sh:411: declared runtime command name where 'select_malloc' is undefined",
+      "syn/yosys/run.sh:608: declared runtime command name where 'apply_malloc_env' is undefined",
+      "syn/yosys/run.sh:616: declared inline interpreter program",
+      "tb/verilator/milan_dp/Makefile:450:1: declared inline interpreter program"
+    ],
+    "removed": []
+  },
+  "payload_layers_changed": [
+    "system",
+    "gtest",
+    "validation"
+  ],
+  "smoke": {
+    "json_records": 133,
+    "command_records": 97,
+    "nonzero": 0,
+    "final_line": "PASS: all image tool families"
+  }
+}

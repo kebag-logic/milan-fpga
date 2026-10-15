@@ -1,0 +1,232 @@
+[
+  {
+    "id": "local-self-reference",
+    "fixture": {
+      "id": "local-self-reference",
+      "run": "X=outer\nf() { local X=\"$X\"; zz_probe \"$X\"; }\nf\n",
+      "expect": "identical",
+      "shapes": []
+    },
+    "walked": {
+      "refusal": null,
+      "resolved": [
+        {
+          "directory": ".",
+          "argv": [
+            [
+              "literal",
+              "zz_probe"
+            ],
+            [
+              "literal",
+              ""
+            ]
+          ]
+        }
+      ],
+      "inspected": [
+        {
+          "directory": ".",
+          "argv": [
+            [
+              "literal",
+              "zz_probe"
+            ],
+            [
+              "literal",
+              ""
+            ]
+          ]
+        }
+      ],
+      "shapes": [
+        "bash:assignment",
+        "bash:block",
+        "bash:call.command",
+        "bash:declaration.local",
+        "bash:function.call",
+        "bash:function.definition",
+        "bash:word.double-quoted",
+        "bash:word.literal",
+        "bash:word.parameter",
+        "cmd:table"
+      ],
+      "residue": []
+    },
+    "actual": [
+      {
+        "directory": ".",
+        "argv": [
+          "zz_probe",
+          "outer"
+        ]
+      }
+    ],
+    "statuses": [
+      0
+    ],
+    "outcome": "mismatch",
+    "shapes_outside_census": []
+  },
+  {
+    "id": "local-redeclaration",
+    "fixture": {
+      "id": "local-redeclaration",
+      "run": "f() { local X=first; local X; zz_probe \"$X\"; }\nf\n",
+      "expect": "identical",
+      "shapes": []
+    },
+    "walked": {
+      "refusal": null,
+      "resolved": [
+        {
+          "directory": ".",
+          "argv": [
+            [
+              "literal",
+              "zz_probe"
+            ],
+            [
+              "literal",
+              ""
+            ]
+          ]
+        }
+      ],
+      "inspected": [
+        {
+          "directory": ".",
+          "argv": [
+            [
+              "literal",
+              "zz_probe"
+            ],
+            [
+              "literal",
+              ""
+            ]
+          ]
+        }
+      ],
+      "shapes": [
+        "bash:assignment",
+        "bash:block",
+        "bash:call.command",
+        "bash:declaration.local",
+        "bash:function.call",
+        "bash:function.definition",
+        "bash:word.double-quoted",
+        "bash:word.literal",
+        "bash:word.parameter",
+        "cmd:table"
+      ],
+      "residue": []
+    },
+    "actual": [
+      {
+        "directory": ".",
+        "argv": [
+          "zz_probe",
+          "first"
+        ]
+      }
+    ],
+    "statuses": [
+      0
+    ],
+    "outcome": "mismatch",
+    "shapes_outside_census": []
+  },
+  {
+    "id": "loop-errexit",
+    "fixture": {
+      "id": "loop-errexit",
+      "run": "set -e\nfor x in one two; do cd missing; set +e; done\nzz_probe end\n",
+      "expect": "identical",
+      "shapes": []
+    },
+    "walked": {
+      "refusal": "unclassified command 'set +e' at .github/workflows/fixture.yml:2",
+      "resolved": [],
+      "inspected": [],
+      "shapes": [
+        "bash:call.command",
+        "bash:cd",
+        "bash:for.words",
+        "bash:set.errexit",
+        "bash:word.literal",
+        "cmd:table"
+      ],
+      "residue": []
+    },
+    "actual": [],
+    "statuses": [
+      1
+    ],
+    "outcome": "refused",
+    "shapes_outside_census": []
+  },
+  {
+    "id": "make-dry-run-plus",
+    "fixture": {
+      "id": "make-dry-run-plus",
+      "run": "make -n\n",
+      "files": {
+        "Makefile": "all:\n\t+zz_probe forced\n"
+      },
+      "expect": "identical",
+      "shapes": []
+    },
+    "walked": {
+      "refusal": null,
+      "resolved": [],
+      "inspected": [
+        {
+          "directory": ".",
+          "argv": [
+            [
+              "literal",
+              "zz_probe"
+            ],
+            [
+              "literal",
+              "forced"
+            ]
+          ]
+        }
+      ],
+      "shapes": [
+        "bash:call.command",
+        "bash:word.literal",
+        "cmd:table",
+        "make:goal.first",
+        "make:invocation",
+        "make:option.n",
+        "make:recipe-line",
+        "make:recipe.dry-run",
+        "make:rule",
+        "sh:call.command",
+        "sh:word.literal"
+      ],
+      "residue": []
+    },
+    "actual": [
+      {
+        "directory": ".",
+        "argv": [
+          "zz_probe",
+          "forced"
+        ]
+      }
+    ],
+    "statuses": [
+      0
+    ],
+    "outcome": "mismatch",
+    "shapes_outside_census": [
+      "make:goal.first",
+      "make:option.n",
+      "make:recipe.dry-run"
+    ]
+  }
+]
