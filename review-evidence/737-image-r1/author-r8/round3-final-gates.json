@@ -1,0 +1,94 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_ms": 22113,
+    "size": 72,
+    "sha256": "acd1aabe325458c3d3ca7a548a39ac189c3f6c960c268b2a5dd0333bbb0d8eba",
+    "log": "round3-final-gates-0.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_ms": 7031,
+    "size": 43,
+    "sha256": "c9bd702425b1fb5c0579a6b7b62884ced69411326f3e43fc0e1ffc8530534b60",
+    "log": "round3-final-gates-1.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 6278,
+    "size": 461,
+    "sha256": "931a5deb8d04b9e11207a77989364edea98afb7ca648911ae01740e59aeec8eb",
+    "log": "round3-final-gates-2.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_ms": 6177,
+    "size": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "log": "round3-final-gates-3.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 5240,
+    "size": 128,
+    "sha256": "451a3356cf866d549ee648808bffb2d0a64ecf620d49a63b38ad927a1882443c",
+    "log": "round3-final-gates-4.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 64,
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "log": "round3-final-gates-5.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 114,
+    "size": 100,
+    "sha256": "76bbdee11e9718f704c6c54425e6e06bff5cb2730d3014b2fdd3d1a8636add62",
+    "log": "round3-final-gates-6.log"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_ms": 32,
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "log": "round3-final-gates-7.log"
+  }
+]

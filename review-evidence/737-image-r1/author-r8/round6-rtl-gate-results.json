@@ -1,0 +1,473 @@
+{
+  "head": "6918d4f9b",
+  "set": "rtl-fast",
+  "user": "uid 1000",
+  "count": 36,
+  "failures": [],
+  "wall_seconds": 6633,
+  "steps": [
+    {
+      "index": 0,
+      "job": "changes",
+      "step": "Classify the change conservatively",
+      "command": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 32.244
+    },
+    {
+      "index": 1,
+      "job": "verilator-lint",
+      "step": "Run the ratcheted whole-tree lint gate",
+      "command": [
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 13.253
+    },
+    {
+      "index": 2,
+      "job": "verilator-lint",
+      "step": "Prove protocol-processor source lists are derived",
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.383
+    },
+    {
+      "index": 3,
+      "job": "bdd-conformance",
+      "step": "Run the specification-facing suite",
+      "command": [
+        "behave",
+        "--no-capture",
+        "-f",
+        "plain"
+      ],
+      "rc": 0,
+      "seconds": 2.877
+    },
+    {
+      "index": 4,
+      "job": "yosys-elaboration",
+      "step": "Elaborate the integration-heavy tops",
+      "command": [
+        "syn/yosys/run.sh",
+        "--mode",
+        "elaborate",
+        "--no-structural",
+        "--top",
+        "milan_datapath",
+        "--top",
+        "KL_pp_shadow",
+        "--top",
+        "KL_gptp_shadow"
+      ],
+      "rc": 0,
+      "seconds": 117.768
+    },
+    {
+      "index": 5,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/dp_srcs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 14.14
+    },
+    {
+      "index": 6,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/ooc_tcl_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 462.182
+    },
+    {
+      "index": 7,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/pp_baseline.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.71
+    },
+    {
+      "index": 8,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/pp_baseline_mutants.py"
+      ],
+      "rc": 0,
+      "seconds": 11.602
+    },
+    {
+      "index": 9,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/pp_baseline_reports_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 0.133
+    },
+    {
+      "index": 10,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 2.571
+    },
+    {
+      "index": 11,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/pp_resource_gate_mutants.py"
+      ],
+      "rc": 0,
+      "seconds": 16.538
+    },
+    {
+      "index": 12,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check-baseline"
+      ],
+      "rc": 0,
+      "seconds": 0.172
+    },
+    {
+      "index": 13,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/dp_srcs.py",
+        "--top",
+        "milan_datapath"
+      ],
+      "rc": 0,
+      "seconds": 9.092
+    },
+    {
+      "index": 14,
+      "job": "yosys-elaboration",
+      "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+      "command": [
+        "python3",
+        "syn/ooc/dp_srcs.py",
+        "--top",
+        "KL_pp_shadow"
+      ],
+      "rc": 0,
+      "seconds": 5.336
+    },
+    {
+      "index": 15,
+      "job": "yosys-elaboration",
+      "step": "Prove ooc.sh generates the ROMs and fails on a failed top",
+      "command": [
+        "python3",
+        "syn/yosys/ooc_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 76.351
+    },
+    {
+      "index": 16,
+      "job": "yosys-elaboration",
+      "step": "Prove both synthesis flows refuse active elaboration guards",
+      "command": [
+        "python3",
+        "syn/yosys/guard_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 55.294
+    },
+    {
+      "index": 17,
+      "job": "yosys-elaboration",
+      "step": "Prove the result cache refuses a planted entry",
+      "command": [
+        "python3",
+        "syn/yosys/cache_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 181.87
+    },
+    {
+      "index": 18,
+      "job": "publication-census",
+      "step": "Run the publication census in every shape the builder builds",
+      "command": [
+        "python3",
+        "sw/mailbox/publication_census.py",
+        "--check",
+        "--selftest",
+        "--jobs",
+        "1"
+      ],
+      "rc": 0,
+      "seconds": 1712.475
+    },
+    {
+      "index": 19,
+      "job": "firmware-unit",
+      "step": "Prove the tally reads a failing and a crashing test as failures",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/tally_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 4.828
+    },
+    {
+      "index": 20,
+      "job": "firmware-unit",
+      "step": "Install and verify the pinned RV32 SDK",
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 1.193
+    },
+    {
+      "index": 21,
+      "job": "firmware-unit",
+      "step": "Run the control-plane firmware suites and RV32 builds",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_rv32_selftest.py",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "seconds": 7.863
+    },
+    {
+      "index": 22,
+      "job": "firmware-unit",
+      "step": "Run the control-plane firmware suites and RV32 builds",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--jobs",
+        "4",
+        "--shard",
+        "0/4"
+      ],
+      "rc": 0,
+      "seconds": 281.338
+    },
+    {
+      "index": 23,
+      "job": "firmware-unit",
+      "step": "Run the saved-state store suites and its RV32 build",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+        "--require-rv32",
+        "--jobs",
+        "4"
+      ],
+      "rc": 0,
+      "seconds": 84.663
+    },
+    {
+      "index": 24,
+      "job": "firmware-unit",
+      "step": "Hold the firmware coverage ratchet",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.613
+    },
+    {
+      "index": 25,
+      "job": "firmware-unit",
+      "step": "Hold the firmware coverage ratchet",
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--check",
+        "--jobs",
+        "4"
+      ],
+      "rc": 0,
+      "seconds": 258.377
+    },
+    {
+      "index": 26,
+      "job": "firmware-control-mutants",
+      "step": "Install and verify the pinned RV32 SDK",
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 1.318
+    },
+    {
+      "index": 27,
+      "job": "firmware-control-mutants",
+      "step": "Run the control mutation campaign",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--jobs",
+        "4",
+        "--shard",
+        "1/4"
+      ],
+      "rc": 0,
+      "seconds": 806.228
+    },
+    {
+      "index": 28,
+      "job": "firmware-aecp-mutants",
+      "step": "Install and verify the pinned RV32 SDK",
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 1.182
+    },
+    {
+      "index": 29,
+      "job": "firmware-aecp-mutants",
+      "step": "Run the AECP mutation campaign",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--jobs",
+        "4",
+        "--shard",
+        "2/4"
+      ],
+      "rc": 0,
+      "seconds": 270.053
+    },
+    {
+      "index": 30,
+      "job": "firmware-srp-mutants",
+      "step": "Install and verify the pinned RV32 SDK",
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 1.143
+    },
+    {
+      "index": 31,
+      "job": "firmware-srp-mutants",
+      "step": "Run both SRP mutation campaigns and pin controls",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--jobs",
+        "4",
+        "--shard",
+        "3/4"
+      ],
+      "rc": 0,
+      "seconds": 671.484
+    },
+    {
+      "index": 32,
+      "job": "firmware-boundary",
+      "step": "Install and verify the pinned RV32 SDK",
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 1.034
+    },
+    {
+      "index": 33,
+      "job": "firmware-boundary",
+      "step": "Hold the TSN stack boundary over the firmware builders' compiles",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/ctrl_boundary.py",
+        "--require-rv32",
+        "--selftest",
+        "--without",
+        "verilator"
+      ],
+      "rc": 0,
+      "seconds": 933.442
+    },
+    {
+      "index": 34,
+      "job": "firmware-verilator",
+      "step": "Install and verify the pinned RV32 SDK",
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 1.016
+    },
+    {
+      "index": 35,
+      "job": "firmware-verilator",
+      "step": "Hold the TSN stack boundary over the Verilator builders' compiles",
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/ctrl_boundary.py",
+        "--require-rv32",
+        "--selftest",
+        "--only",
+        "verilator"
+      ],
+      "rc": 0,
+      "seconds": 591.967
+    }
+  ]
+}

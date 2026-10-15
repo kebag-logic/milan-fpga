@@ -1,0 +1,163 @@
+[
+  {
+    "gate": "inventory",
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 8.813,
+    "log": "round4-source-candidate-inventory.log",
+    "size": 57,
+    "sha256": "411ed8dc1549d45856fad29e98880aab66f615fc2fb4bf58b5e149074f49dcb7"
+  },
+  {
+    "gate": "original-controls",
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.503,
+    "log": "round4-source-candidate-original-controls.log",
+    "size": 2952,
+    "sha256": "d89d7c78461ed5871213cb7c5841d046496e1e49a7e9de7727664778b61ef8bc"
+  },
+  {
+    "gate": "pattern-controls",
+    "command": [
+      "python3",
+      "scripts/ci_inventory_patterns_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 2.429,
+    "log": "round4-source-candidate-pattern-controls.log",
+    "size": 7208,
+    "sha256": "8bb1d37945ac3f231eaf37ad6c9453d563e3a76b0bd90d511032c3cabbc567ed"
+  },
+  {
+    "gate": "idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 6.103,
+    "log": "round4-source-candidate-idiom.log",
+    "size": 461,
+    "sha256": "117d4aa20a2fa5666e72a726f4ef4eb34e0ec2d044f5989c876fa35cc455a8e9"
+  },
+  {
+    "gate": "idiom-controls",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "wall_seconds": 5.794,
+    "log": "round4-source-candidate-idiom-controls.log",
+    "size": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"
+  },
+  {
+    "gate": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 22.425,
+    "log": "round4-source-candidate-baremetal.log",
+    "size": 72,
+    "sha256": "cb7b9ba29cf6847c419772be945c3ba310fcbab0f3daad568626e5e3fa6219a5"
+  },
+  {
+    "gate": "baremetal-controls",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "wall_seconds": 6.771,
+    "log": "round4-source-candidate-baremetal-controls.log",
+    "size": 43,
+    "sha256": "c9bd702425b1fb5c0579a6b7b62884ced69411326f3e43fc0e1ffc8530534b60"
+  },
+  {
+    "gate": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 5.311,
+    "log": "round4-source-candidate-docs.log",
+    "size": 128,
+    "sha256": "8a5dce31a23a64c69ad8291fb307a73b1278e6f95c9cde640c7874ffa03e283b"
+  },
+  {
+    "gate": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.056,
+    "log": "round4-source-candidate-doc-style.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "gate": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.089,
+    "log": "round4-source-candidate-doc-paths.log",
+    "size": 101,
+    "sha256": "029c9eb698d3e4ad51fba17ff03b55bccfaf41999a9f63b5b54a60a06c7fef80"
+  },
+  {
+    "gate": "whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.023,
+    "log": "round4-source-candidate-whitespace.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "gate": "build-controls",
+    "command": [
+      "python3",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.176,
+    "log": "round4-source-candidate-build-controls.log",
+    "size": 615,
+    "sha256": "efe62d2f8a700872dba1805b8eea924cad6d351ea72ec93f53c5e12cc38102a2"
+  },
+  {
+    "gate": "lock-controls",
+    "command": [
+      "python3",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.18,
+    "log": "round4-source-candidate-lock-controls.log",
+    "size": 651,
+    "sha256": "3735a04ecabe9492395fceeb1f41fa0f67bad9ea476ad3d317449a3560557065"
+  }
+]

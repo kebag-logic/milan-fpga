@@ -1,0 +1,5056 @@
+{
+ "clean": false,
+ "image": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059",
+ "reached": 98,
+ "reconciliation": [
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Build the validated HDL reference",
+   "removed": [
+    "python3 -m pip install --quiet --require-hashes \\\n  -r tools/hdl_reference/requirements.txt"
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#1",
+   "text_sha256": "8f3ea069b5c9fdc2a628a8b12e7734e4854244d16983df699fb306ef06b5d9d8",
+   "traced": true,
+   "why": "Installation the image's layers supply is removed"
+  },
+  {
+   "image_form": "PyYAML is in the image's Python layer",
+   "name": "Install the python gate dependencies",
+   "removed": [
+    "python3 -m pip install --quiet pyyaml"
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#3",
+   "text_sha256": "91c2317794371c8c6d8acc6f9d7c7385b96eefd112d777ae1d4cd2dcae1631b2",
+   "traced": true,
+   "why": "PyYAML is in the image's Python layer"
+  },
+  {
+   "image_form": "The locked renderer is in the image's Python layer",
+   "name": "Install the pinned Markdown renderer",
+   "removed": [
+    "python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \\\n  --require-hashes -r tools/markdown/requirements.txt\n"
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#5",
+   "text_sha256": "4e06213bc2f1350be0b8ff1cff41ec4a5f2542d18c016bbf54616decefa67f32",
+   "traced": true,
+   "why": "The locked renderer is in the image's Python layer"
+  },
+  {
+   "image_form": "The SVG renderer and wavedrom are in the image",
+   "name": "Install diagram gate dependencies",
+   "removed": [
+    "sudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends librsvg2-bin\npython3 -m pip install --quiet wavedrom==2.0.3.post3\n"
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#6",
+   "text_sha256": "d0bfaa44488dc3c5b65943aa50b10f114a94b7ba8f80fdd325340ec32825f829",
+   "traced": true,
+   "why": "The SVG renderer and wavedrom are in the image"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Link health, wording, dead-reference and local-info gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#7",
+   "text_sha256": "95adb94b38a49ec47c1a1a728b65a8882a8f4f73dcba4a52ac3c2ae20898495d",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Added-line em-dash gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#8",
+   "text_sha256": "5589b3e85bc17426273e0fbf497fac96e600da9525795e576a4acd89731bca3d",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Concise audience documentation gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#9",
+   "text_sha256": "a4a9e8e04e33cd7f012c5437a371f07bc088b437675abe9ed45e00d7abf9880f",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Audience diagram no-drift gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#10",
+   "text_sha256": "fc0a3ba5a2e09b4f0951341fb724db7142c365d4d7fc556b1c81a872b314579a",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Product solution source-fact gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#11",
+   "text_sha256": "9a3b19048b6518a93588be1055298c735ba053a99fc772c06a339d1440af0215",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Verified submodule documentation gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#12",
+   "text_sha256": "e65b618564ed692d7d1547c2fa639934c6211fe361a2bcec74c7cf643ff62288",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "HDL timing diagram no-drift gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#13",
+   "text_sha256": "86f93dcb06918aa111e81d82be575174bbdae8f8978dd6875296007e491bffe0",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Published diagram PNG gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#14",
+   "text_sha256": "0ab5cb0e4aa2cda24f73cc4d562dd86828cedbd8567383a9fe31588b1438332d",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Milan feature-status consistency gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#15",
+   "text_sha256": "d147744787d803f172ee189d1b68da713c2a44edd5e6cc2f6ab9bd7b67c099a0",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Traceability matrix no-drift gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#16",
+   "text_sha256": "c44e282213a03fa948a1d0182cb782b9c56700583063814db587459e729f8747",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch the builder source dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#17",
+   "text_sha256": "605834c000ae3346d8f579bcb795b74f7a9501be285976f7e1d5bbcfc067c7c1",
+   "traced": true,
+   "why": "The checkout supplies these submodules before the job"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Imported gPTP documentation gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#18",
+   "text_sha256": "1420bd61cc641c7e1079d6ea8c12ab8611668d9bcd417887a1b0c3783e329b58",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Code-quality measurement self-tests",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#19",
+   "text_sha256": "dffa3e7cd0c9bf0af9a230f3fcffd8e2c35cc6b09f4ce9f1dddd9bdd1cdbb28a",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "The checked sv2v is the image's sv2v layer",
+   "name": "Install the pinned sv2v release",
+   "removed": [
+    "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n"
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#20",
+   "text_sha256": "8506053db49f236c82a5d0dc29464908e552ec46fdf5dec09ec34d342c3aa9d5",
+   "traced": true,
+   "why": "The checked sv2v is the image's sv2v layer"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Bare-metal scope gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#21",
+   "text_sha256": "43949fc003274d206f9fec0996797ebd1a972bb6ba459dc49c45ad47ba21999c",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "The documented RV32 adoption form",
+   "name": "Install and verify the pinned RV32 SDK",
+   "removed": [
+    "set -euo pipefail\npython3 scripts/ci_rv32_sdk_selftest.py\npython3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"\n"
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#23",
+   "text_sha256": "f47f921c63383574b3e4e1fc3c490722146467a21f3729aa9e555e0603a31631",
+   "traced": true,
+   "why": "The documented RV32 adoption form"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Compiler-absent firmware controls",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#24",
+   "text_sha256": "c662dbf247464e23f88a9afc86c3df07414a66048683299b56fb8955426ee944",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "End-station builder gates",
+   "removed": [
+    "python3 -m pip install --quiet pyyaml"
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#25",
+   "text_sha256": "88f485b9d07b05cbd9ae682c70eaead98283b92c0876efea663cdf1a645c4203",
+   "traced": true,
+   "why": "Installation the image's layers supply is removed"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "NVM record-space gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#26",
+   "text_sha256": "8842c423db84e9022672705fca5b23aea56fd65ebb581e411e57fd0761df8a2e",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Capture measurement census and clock gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#27",
+   "text_sha256": "cd8ab4f663ae0f13dbe49175dc646614ddca9e543ed2ca2aef8dedfa38a2ac2f",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Saved-state writer gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#28",
+   "text_sha256": "acdd5be67ef5c2f55b1b6f67327d2cea25f492e0ea7bd2a50a01dbf7855f6e15",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#29",
+   "text_sha256": "17ac8ee0681d58649b34ffc0634212f970d6b0cb1fbe63fc5604b953794033a4",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "RTL source-list drift gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#30",
+   "text_sha256": "bc702efe072ebe6130640345f40d62f1ad23f58a21aae4b04225e493f7c49af7",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Boundary-unit naming ratchet",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#31",
+   "text_sha256": "5cda07bbdccdeaecda8290fd62b124cbf016c5b587a27925ecdf23e3efa4e43b",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Port contract gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#32",
+   "text_sha256": "0bcc27a61b65ba48e26442e62afbb1c5d87eeab646e8cc419582bf67cb8cf535",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Fail-fast ratchet",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#33",
+   "text_sha256": "b4bf12519b4043cd18acb386f843c89cd6a60b3c12656f595efaeb169032a266",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "TODO ownership gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#34",
+   "text_sha256": "13d51fd1cbcb2d0bd734f5142aa3438ba12c95ce540cc4400106f9946456ad95",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Test-evidence ratchet",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#35",
+   "text_sha256": "e40e92eb3fe34ff82d8526180255cbbcaf43eb28308171de36e76010a374325b",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Mechanical hygiene ratchet",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#36",
+   "text_sha256": "ddae99cc3c93153b806ece4cc6db9332c0008339773173fb3bceff906ae86ffd",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "SystemVerilog idiom gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#37",
+   "text_sha256": "18adc03418636df9ed25a42e21820e4ea3398fd0816349bfa03256631214271d",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "C and C++ idiom gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#38",
+   "text_sha256": "18b86bebcf2881330ca6aa5a375ba8d264e7fe471cacc15f0f58d68393ad4984",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Python idiom gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#39",
+   "text_sha256": "48ef3a9a724268d1bd9beb46e6bfec629719ea7db3ae5f80186d28a8773d0d0d",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Shell idiom gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#40",
+   "text_sha256": "a8e3b8f78ec34398992312408173cbbef4bf5b18ecb5be1aa8a6568c5797ac5b",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "CI event and SHA contract gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#41",
+   "text_sha256": "0704860d0056e4df8cb5594cf50ddb816ee4c5250e1cb988c04f4e478b570740",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Local act runner contract gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#42",
+   "text_sha256": "0fb3835d1be8537d55f87db57231e9dfbed47c54064ef18d8cddb073f6d2e8da",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Doc cited-path gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#43",
+   "text_sha256": "75caa85822c37db517f98bbce8f8ff4649d5e7523d3701eb23222ea606842f51",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Archive integrity gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#44",
+   "text_sha256": "6c9605a3490fd7d5ca3e937df37b55041ef2220acecda66180ec53681de1f276",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Per-page contents gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#45",
+   "text_sha256": "16edb17647fcca6d0c9abfd27932b78450d146fa58ea2a53f39b570ac2e3220b",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "AEM store generator self-test",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#46",
+   "text_sha256": "b8e244f65d840bcc832f0287861f0cc8f352a5a4a3bd1389594363fa01a041b2",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Sweep/build shape gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#47",
+   "text_sha256": "efac7c7666b785896f59ae6c3ca0648e617883202a527c8c4b80ddb45b2735e1",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Deploy shape gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#48",
+   "text_sha256": "74c060bfb313f3f878bb4d3f188aa0f06adeb859b1b816ae7de21ea09352996b",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Entity shape gate",
+   "removed": [],
+   "step": ".github/workflows/docs.yml#docs-check#49",
+   "text_sha256": "85ee6241773d6c40e8a696f6f8b1ec6f096f92d2933119321e64a7038ff0c5f9",
+   "traced": true,
+   "why": "verbatim"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Classify the change conservatively",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#changes#1",
+   "text_sha256": "329b7111e943d1e0cd7b3891cf221a81fdb62c1f5ba3c99784fa4ff6e4e7a237",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch RTL dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#verilator-lint#1",
+   "text_sha256": "605834c000ae3346d8f579bcb795b74f7a9501be285976f7e1d5bbcfc067c7c1",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The image's Verilator layer replaces the cache and build",
+   "name": "Build Verilator from source on cache miss",
+   "removed": [
+    "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#verilator-lint#3",
+   "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Run the ratcheted whole-tree lint gate",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#verilator-lint#4",
+   "text_sha256": "ea2ff8f8ae5f708d171b8b6470ad629a77816688f117df5f72da19dd96058a4f",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Prove protocol-processor source lists are derived",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#verilator-lint#5",
+   "text_sha256": "91cd62c74d182e5e7d2f4e1b2c350c4949bccacb4eaf4db0f1b3942c7a7cee95",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch the processor model inputs",
+   "removed": [
+    "git submodule update --init protocol-processor gptp-processor"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#bdd-conformance#1",
+   "text_sha256": "0139220e88f7e70f5630904a3f18ca5ad5dfc2fad5e0ad9fd25e678d0be74fd1",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "behave is in the image's Python layer",
+   "name": "Install behave",
+   "removed": [
+    "python3 -m pip install --quiet behave"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#bdd-conformance#2",
+   "text_sha256": "a2f26733712bdeabf047eb51061e99e1313cd135c0fb134f9f9a4aa9a4c95959",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Run the specification-facing suite",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#bdd-conformance#3",
+   "text_sha256": "e06196e68346b988a04aed0b8a179f1fc634254ecbf97676ce509b8af23c38d2",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch RTL dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#1",
+   "text_sha256": "605834c000ae3346d8f579bcb795b74f7a9501be285976f7e1d5bbcfc067c7c1",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The image's Yosys layer replaces the cache and build",
+   "name": "Build Yosys from source on cache miss",
+   "removed": [
+    "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#3",
+   "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Install the pinned Yosys and prove the version",
+   "removed": [
+    "sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#4",
+   "text_sha256": "b4ed65f6c3bc2a7578c06dc4c80d66d62c1092391ad5d7095d1e7d5fd9587221",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checked sv2v is the image's sv2v layer",
+   "name": "Install the pinned sv2v release",
+   "removed": [
+    "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#5",
+   "text_sha256": "8506053db49f236c82a5d0dc29464908e552ec46fdf5dec09ec34d342c3aa9d5",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Elaborate the integration-heavy tops",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#6",
+   "text_sha256": "b034c192fef15d57ad64195e084ec24c6b196d48f61d8f98d3b87a4460e1750c",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#7",
+   "text_sha256": "dab5cf626551cb9e2fdcb58a7be85bbff5cb66aea80a74aeea1cfede7e915cca",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#8",
+   "text_sha256": "b4e80a3f521467fbe4bfd232a3e116ce57c27ac0ce4631901b758922a9b3fa08",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Prove both synthesis flows refuse active elaboration guards",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#9",
+   "text_sha256": "99e346884f90f2a71ccd8359408df6f416e5a44efd54932e0a94ef4c415fc839",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Prove the result cache refuses a planted entry",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#10",
+   "text_sha256": "66b163a00d692128f3a091516bef2bb8afbc22101c6be09521790d8b54d399c7",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch RTL dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#publication-census#1",
+   "text_sha256": "605834c000ae3346d8f579bcb795b74f7a9501be285976f7e1d5bbcfc067c7c1",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The image's Yosys layer replaces the cache and build",
+   "name": "Build Yosys from source on cache miss",
+   "removed": [
+    "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#publication-census#3",
+   "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Install the pinned Yosys and prove the version",
+   "removed": [
+    "sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#publication-census#4",
+   "text_sha256": "b4ed65f6c3bc2a7578c06dc4c80d66d62c1092391ad5d7095d1e7d5fd9587221",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checked sv2v is the image's sv2v layer",
+   "name": "Install the pinned sv2v release",
+   "removed": [
+    "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#publication-census#5",
+   "text_sha256": "8506053db49f236c82a5d0dc29464908e552ec46fdf5dec09ec34d342c3aa9d5",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Run the publication census in every shape the builder builds",
+   "removed": [
+    "python3 -m pip install --quiet pyyaml"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#publication-census#6",
+   "text_sha256": "fc4e16740b2a1f5f7afba2b7ca9a5606338f7188bf87f1b02fe92625e793d730",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch RTL dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-unit#1",
+   "text_sha256": "5e5b3778bc6576edf65e45bd06fcf83b7a22cc02427ab920e607e3af316ec9cb",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "removed": [
+    "sudo apt-get update -qq",
+    "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+    "python3 -m pip install --quiet pyyaml"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-unit#2",
+   "text_sha256": "2e19e5c19fb2d5cd37dc20d99088abcea86443e1e6959f670f05060a898fa5e8",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Prove the tally reads a failing and a crashing test as failures",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-unit#3",
+   "text_sha256": "f4106601f0439680f34ba6605aea93555770165b05f1866df90415c9be6e0cd3",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The documented RV32 adoption form",
+   "name": "Install and verify the pinned RV32 SDK",
+   "removed": [
+    "set -euo pipefail\npython3 scripts/ci_rv32_sdk_selftest.py\npython3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-unit#5",
+   "text_sha256": "f47f921c63383574b3e4e1fc3c490722146467a21f3729aa9e555e0603a31631",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Run the control-plane firmware suites and RV32 builds",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-unit#6",
+   "text_sha256": "6e7282a10903156499aea0e19872168b8d8523364fe15dbc5b1ce1d9c5cbb17f",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Run the saved-state store suites and its RV32 build",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-unit#7",
+   "text_sha256": "db14847723957acceb4b54e81a7ca150a826a26753a65d8cab06e1049bc20a0e",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Hold the firmware coverage ratchet",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-unit#8",
+   "text_sha256": "d1fc5a57d7ff57978c11078cda724c87de6826f0098af8c538b9dd1744114347",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch RTL dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-control-mutants#1",
+   "text_sha256": "5e5b3778bc6576edf65e45bd06fcf83b7a22cc02427ab920e607e3af316ec9cb",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "removed": [
+    "sudo apt-get update -qq",
+    "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+    "python3 -m pip install --quiet pyyaml"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-control-mutants#2",
+   "text_sha256": "2e19e5c19fb2d5cd37dc20d99088abcea86443e1e6959f670f05060a898fa5e8",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The documented RV32 adoption form",
+   "name": "Install and verify the pinned RV32 SDK",
+   "removed": [
+    "set -euo pipefail\npython3 scripts/ci_rv32_sdk_selftest.py\npython3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-control-mutants#4",
+   "text_sha256": "f47f921c63383574b3e4e1fc3c490722146467a21f3729aa9e555e0603a31631",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Run the control mutation campaign",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-control-mutants#5",
+   "text_sha256": "959ee1480e36bf72b51fc9f4e992416c96616f203b73aac2c984a41c4070907c",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch RTL dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-aecp-mutants#1",
+   "text_sha256": "5e5b3778bc6576edf65e45bd06fcf83b7a22cc02427ab920e607e3af316ec9cb",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "removed": [
+    "sudo apt-get update -qq",
+    "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+    "python3 -m pip install --quiet pyyaml"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-aecp-mutants#2",
+   "text_sha256": "2e19e5c19fb2d5cd37dc20d99088abcea86443e1e6959f670f05060a898fa5e8",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The documented RV32 adoption form",
+   "name": "Install and verify the pinned RV32 SDK",
+   "removed": [
+    "set -euo pipefail\npython3 scripts/ci_rv32_sdk_selftest.py\npython3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-aecp-mutants#4",
+   "text_sha256": "f47f921c63383574b3e4e1fc3c490722146467a21f3729aa9e555e0603a31631",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Run the AECP mutation campaign",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-aecp-mutants#5",
+   "text_sha256": "ba8f0d06af88ec358663c9ba446c545b9289fd1673a136aea0cb8de3f9b35ce7",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch RTL dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-srp-mutants#1",
+   "text_sha256": "5e5b3778bc6576edf65e45bd06fcf83b7a22cc02427ab920e607e3af316ec9cb",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "removed": [
+    "sudo apt-get update -qq",
+    "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+    "python3 -m pip install --quiet pyyaml"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-srp-mutants#2",
+   "text_sha256": "2e19e5c19fb2d5cd37dc20d99088abcea86443e1e6959f670f05060a898fa5e8",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The documented RV32 adoption form",
+   "name": "Install and verify the pinned RV32 SDK",
+   "removed": [
+    "set -euo pipefail\npython3 scripts/ci_rv32_sdk_selftest.py\npython3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-srp-mutants#4",
+   "text_sha256": "f47f921c63383574b3e4e1fc3c490722146467a21f3729aa9e555e0603a31631",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Run both SRP mutation campaigns and pin controls",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-srp-mutants#5",
+   "text_sha256": "027d6e98a7c94e2724dfdbb3f95763b77d4a1781dac666d79662d3c596672b97",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch RTL dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-boundary#1",
+   "text_sha256": "5e5b3778bc6576edf65e45bd06fcf83b7a22cc02427ab920e607e3af316ec9cb",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "removed": [
+    "sudo apt-get update -qq",
+    "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+    "python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-boundary#2",
+   "text_sha256": "e48c671cd42b6c20d3a32a86c64ce7c39cac3b24b62e93f4b66f50b5bc576ef3",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The documented RV32 adoption form",
+   "name": "Install and verify the pinned RV32 SDK",
+   "removed": [
+    "set -euo pipefail\npython3 scripts/ci_rv32_sdk_selftest.py\npython3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-boundary#4",
+   "text_sha256": "f47f921c63383574b3e4e1fc3c490722146467a21f3729aa9e555e0603a31631",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Hold the TSN stack boundary over the firmware builders' compiles",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-boundary#5",
+   "text_sha256": "cace1b09ee7b824ed53f23851df824687ae9861fd989d66199811777ee8895fa",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The checkout supplies these submodules before the job",
+   "name": "Fetch RTL dependencies",
+   "removed": [
+    "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-verilator#1",
+   "text_sha256": "5e5b3778bc6576edf65e45bd06fcf83b7a22cc02427ab920e607e3af316ec9cb",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "Installation the image's layers supply is removed",
+   "name": "Install GoogleTest and GoogleMock and print the versions",
+   "removed": [
+    "sudo apt-get update -qq",
+    "sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev",
+    "python3 -m pip install --quiet pyyaml"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-verilator#2",
+   "text_sha256": "e48c671cd42b6c20d3a32a86c64ce7c39cac3b24b62e93f4b66f50b5bc576ef3",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The image's Verilator layer replaces the cache and build",
+   "name": "Build Verilator from source on cache miss",
+   "removed": [
+    "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-verilator#4",
+   "text_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Put Verilator on PATH and prove the version",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-verilator#5",
+   "text_sha256": "9d56d2b896bde238d3adfedae0ef2592bb4f5b743fce2bb2ed6c11b706de1ef0",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "The documented RV32 adoption form",
+   "name": "Install and verify the pinned RV32 SDK",
+   "removed": [
+    "set -euo pipefail\npython3 scripts/ci_rv32_sdk_selftest.py\npython3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"\n"
+   ],
+   "step": ".github/workflows/rtl-fast.yml#firmware-verilator#7",
+   "text_sha256": "f47f921c63383574b3e4e1fc3c490722146467a21f3729aa9e555e0603a31631",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Hold the TSN stack boundary over the Verilator builders' compiles",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#firmware-verilator#8",
+   "text_sha256": "dbc1948b3ad7358fd9de416849e8d348de3906cfedbf92f957adcdc35dea0273",
+   "traced": false,
+   "why": "not selected in this run"
+  },
+  {
+   "image_form": "verbatim",
+   "name": "Require every applicable fast gate to pass",
+   "removed": [],
+   "step": ".github/workflows/rtl-fast.yml#rtl-fast#0",
+   "text_sha256": "5d1b931e107e0624d5f509e905e73016aa3f40b2224979ce879f6eb72ff15aa5",
+   "traced": false,
+   "why": "not selected in this run"
+  }
+ ],
+ "schema": 1,
+ "source": {
+  "base": "fa7347fc59173f90e4feec2df207692e6e6e72ec",
+  "checkout": "/work",
+  "commit": "afdf0ef0c6b25888d40641e6933fe77eec16bd18",
+  "submodules": [
+   "-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external",
+   " 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor (7dda9c3)",
+   " 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)",
+   " 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)",
+   " 405dc68310a18f669049ffc10cc23eef7300dcff third_party/tsn-c-stack (milan-fpga-697-pin-405dc683)",
+   " 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)"
+  ],
+  "tree": "eb1df07b1f3b267a9100b82517ad5dd804233830"
+ },
+ "steps": [
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-eo4m3l0h/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "Installation the image's layers supply is removed",
+   "instances": 5,
+   "instances_sha256": "051f0d8f6527d2c45b572c5d6f2cbd561a4e1f6094b7833522d4cd330b5438a2",
+   "job": "docs-check",
+   "label": "Build the validated HDL reference",
+   "log": "step-000.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "gen_hdl_reference.py",
+     "kind": "script",
+     "path": "/work/scripts/gen_hdl_reference.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-eo4m3l0h/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#1",
+   "text_sha256": "8f3ea069b5c9fdc2a628a8b12e7734e4854244d16983df699fb306ef06b5d9d8",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-o1e0m3x9/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "PyYAML is in the image's Python layer",
+   "instances": 2,
+   "instances_sha256": "0f160d4d9f2194d4812ac0e58ec5ebba6c9b4da66f5eff812576023c3a1c4cf1",
+   "job": "docs-check",
+   "label": "Install the python gate dependencies",
+   "log": "step-001.jsonl",
+   "population": [
+    {
+     "count": 1,
+     "invocation": "python3.12",
+     "kind": "inline",
+     "path": "/usr/bin/python3.12",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-o1e0m3x9/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#3",
+   "text_sha256": "91c2317794371c8c6d8acc6f9d7c7385b96eefd112d777ae1d4cd2dcae1631b2",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-dy5w150d/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "The locked renderer is in the image's Python layer",
+   "instances": 2,
+   "instances_sha256": "5848b356096f04d6a4855e3dcc198c8065ef282dc9c7c7943f69512544b6dee8",
+   "job": "docs-check",
+   "label": "Install the pinned Markdown renderer",
+   "log": "step-002.jsonl",
+   "population": [
+    {
+     "count": 1,
+     "invocation": "python3.12",
+     "kind": "inline",
+     "path": "/usr/bin/python3.12",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-dy5w150d/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#5",
+   "text_sha256": "4e06213bc2f1350be0b8ff1cff41ec4a5f2542d18c016bbf54616decefa67f32",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-iddknwpk/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "The SVG renderer and wavedrom are in the image",
+   "instances": 3,
+   "instances_sha256": "e95e3ede9d1c0844ac60903335a15f0fd091d0808c7a200b4e27434b318dbf33",
+   "job": "docs-check",
+   "label": "Install diagram gate dependencies",
+   "log": "step-003.jsonl",
+   "population": [
+    {
+     "count": 1,
+     "invocation": "python3.12",
+     "kind": "inline",
+     "path": "/usr/bin/python3.12",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "rsvg-convert",
+     "kind": "program",
+     "path": "/usr/bin/rsvg-convert",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-iddknwpk/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#6",
+   "text_sha256": "d0bfaa44488dc3c5b65943aa50b10f114a94b7ba8f80fdd325340ec32825f829",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-kocb3a7p/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 4,
+   "instances_sha256": "60524a06ff654949048bdebaca541c2c4f77c0b77f2bf9742a8df4e58abba310",
+   "job": "docs-check",
+   "label": "Link health, wording, dead-reference and local-info gate",
+   "log": "step-004.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "docs_check.py",
+     "kind": "script",
+     "path": "/work/scripts/docs_check.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-kocb3a7p/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#7",
+   "text_sha256": "95adb94b38a49ec47c1a1a728b65a8882a8f4f73dcba4a52ac3c2ae20898495d",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-3wmy3o4_/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 1286,
+   "instances_sha256": "4524a955b5604ece8f7585aca3a55e0158b8759eb9475542c5702355f1932550",
+   "job": "docs-check",
+   "label": "Added-line em-dash gate",
+   "log": "step-005.jsonl",
+   "population": [
+    {
+     "count": 1244,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 40,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "check_em_dash.py",
+     "kind": "script",
+     "path": "/work/scripts/check_em_dash.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-3wmy3o4_/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#8",
+   "text_sha256": "5589b3e85bc17426273e0fbf497fac96e600da9525795e576a4acd89731bca3d",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-trcnh02j/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 14,
+   "instances_sha256": "f767d9b9b9929a5fe1a8c199fae7602beb4f6e526c8e5ceeb0214f6a1947537f",
+   "job": "docs-check",
+   "label": "Concise audience documentation gate",
+   "log": "step-006.jsonl",
+   "population": [
+    {
+     "count": 8,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_doc_style.py",
+     "kind": "script",
+     "path": "/work/scripts/check_doc_style.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "check_gptp_docs.py",
+     "kind": "script",
+     "path": "/work/scripts/check_gptp_docs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-trcnh02j/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#9",
+   "text_sha256": "a4a9e8e04e33cd7f012c5437a371f07bc088b437675abe9ed45e00d7abf9880f",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-japhapun/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 11,
+   "instances_sha256": "06a9b519e4f7f6c3ed181d50995aa8448dce09f7294e011461187d7b044c8e0d",
+   "job": "docs-check",
+   "label": "Audience diagram no-drift gate",
+   "log": "step-007.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "rsvg-convert",
+     "kind": "program",
+     "path": "/usr/bin/rsvg-convert",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "DOC_MAP.gen.py",
+     "kind": "script",
+     "path": "/work/docs/DOC_MAP.gen.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-japhapun/step.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 2,
+     "invocation": "timesync_chain.gen.py",
+     "kind": "script",
+     "path": "/work/docs/diagrams/timesync_chain.gen.py",
+     "provenance": "checkout"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#10",
+   "text_sha256": "fc0a3ba5a2e09b4f0951341fb724db7142c365d4d7fc556b1c81a872b314579a",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-gzjw9j31/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 3,
+   "instances_sha256": "0c6721ed0a0837de996d1a459b3119314e37a89850ee014f9dbd6573b78e38a0",
+   "job": "docs-check",
+   "label": "Product solution source-fact gate",
+   "log": "step-008.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "check_solution_docs.py",
+     "kind": "script",
+     "path": "/work/scripts/check_solution_docs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-gzjw9j31/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#11",
+   "text_sha256": "9a3b19048b6518a93588be1055298c735ba053a99fc772c06a339d1440af0215",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-hakdhrj5/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 33,
+   "instances_sha256": "c08d9e44f8c96834baa9fd435e96d9a71bb8d8c9dcfba6b1ebff7c9b937f5612",
+   "job": "docs-check",
+   "label": "Verified submodule documentation gate",
+   "log": "step-009.jsonl",
+   "population": [
+    {
+     "count": 24,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 3,
+     "invocation": "rsvg-convert",
+     "kind": "program",
+     "path": "/usr/bin/rsvg-convert",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_submodule_docs.py",
+     "kind": "script",
+     "path": "/work/scripts/check_submodule_docs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-hakdhrj5/step.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 3,
+     "invocation": "submodule_boundaries.gen.py",
+     "kind": "script",
+     "path": "/work/docs/diagrams/submodule_boundaries.gen.py",
+     "provenance": "checkout"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#12",
+   "text_sha256": "e65b618564ed692d7d1547c2fa639934c6211fe361a2bcec74c7cf643ff62288",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-knr2jzk3/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 8,
+   "instances_sha256": "d0498e100032206bbce54dd826cf14cebcca40d016283fe4665fbbd01a87c4c3",
+   "job": "docs-check",
+   "label": "HDL timing diagram no-drift gate",
+   "log": "step-010.jsonl",
+   "population": [
+    {
+     "count": 3,
+     "invocation": "rsvg-convert",
+     "kind": "program",
+     "path": "/usr/bin/rsvg-convert",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "gen_wavedrom.py",
+     "kind": "script",
+     "path": "/work/scripts/gen_wavedrom.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-knr2jzk3/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#13",
+   "text_sha256": "86f93dcb06918aa111e81d82be575174bbdae8f8978dd6875296007e491bffe0",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-qxb_mvai/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 3,
+   "instances_sha256": "68d288509b5f96d1615f6bf32770e9fc1a475c7d16aabe0ecc547aff1e68f424",
+   "job": "docs-check",
+   "label": "Published diagram PNG gate",
+   "log": "step-011.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "check_diagram_pngs.py",
+     "kind": "script",
+     "path": "/work/scripts/check_diagram_pngs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-qxb_mvai/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#14",
+   "text_sha256": "0ab5cb0e4aa2cda24f73cc4d562dd86828cedbd8567383a9fe31588b1438332d",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-o2wln6y0/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 3,
+   "instances_sha256": "a210c857b4f83e1624ea9f6b28ec50298aee63da028d934c079f9f7b58171a4a",
+   "job": "docs-check",
+   "label": "Milan feature-status consistency gate",
+   "log": "step-012.jsonl",
+   "population": [
+    {
+     "count": 1,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "check_feature_status.py",
+     "kind": "script",
+     "path": "/work/scripts/check_feature_status.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-o2wln6y0/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#15",
+   "text_sha256": "d147744787d803f172ee189d1b68da713c2a44edd5e6cc2f6ab9bd7b67c099a0",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-okjvmob9/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 2,
+   "instances_sha256": "098a7a56019a808b8eb5b5bcb1ee29b9c21b6fb9026bd8e44192ad7a3fa3ef96",
+   "job": "docs-check",
+   "label": "Traceability matrix no-drift gate",
+   "log": "step-013.jsonl",
+   "population": [
+    {
+     "count": 1,
+     "invocation": "gen_module_matrix.py",
+     "kind": "script",
+     "path": "/work/docs/traceability/gen_module_matrix.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-okjvmob9/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#16",
+   "text_sha256": "c44e282213a03fa948a1d0182cb782b9c56700583063814db587459e729f8747",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-mcz0yvs1/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "The checkout supplies these submodules before the job",
+   "instances": 29,
+   "instances_sha256": "d426d1e4f3c2a43e0ab7138f3e0ed8cfad49174bea95a252f493bb99addcd94c",
+   "job": "docs-check",
+   "label": "Fetch the builder source dependencies",
+   "log": "step-014.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 18,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 3,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-mcz0yvs1/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#17",
+   "text_sha256": "605834c000ae3346d8f579bcb795b74f7a9501be285976f7e1d5bbcfc067c7c1",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-imhz0k0s/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 12,
+   "instances_sha256": "f846db88805a4859b362f251a4c4874b94a86edfa09236227bc29fb1f981a626",
+   "job": "docs-check",
+   "label": "Imported gPTP documentation gate",
+   "log": "step-015.jsonl",
+   "population": [
+    {
+     "count": 3,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "make",
+     "kind": "program",
+     "path": "/usr/bin/make",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_docs.py",
+     "kind": "script",
+     "path": "/work/gptp-processor/scripts/check_docs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "check_gptp_docs.py",
+     "kind": "script",
+     "path": "/work/scripts/check_gptp_docs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "check_source_evidence.py",
+     "kind": "script",
+     "path": "/work/gptp-processor/scripts/check_source_evidence.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "generate_diagrams.py",
+     "kind": "script",
+     "path": "/work/gptp-processor/scripts/generate_diagrams.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-imhz0k0s/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#18",
+   "text_sha256": "1420bd61cc641c7e1079d6ea8c12ab8611668d9bcd417887a1b0c3783e329b58",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-to47ltpa/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 29,
+   "instances_sha256": "288f07904cefb1b1eb12176c8b3d70cb621c7ebd1be05cc8453f986217f0d828",
+   "job": "docs-check",
+   "label": "Code-quality measurement self-tests",
+   "log": "step-016.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 3,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 14,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 3,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "measure_cohesion.py",
+     "kind": "script",
+     "path": "/work/scripts/measure_cohesion.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "measure_control_flow.py",
+     "kind": "script",
+     "path": "/work/scripts/measure_control_flow.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-to47ltpa/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#19",
+   "text_sha256": "dffa3e7cd0c9bf0af9a230f3fcffd8e2c35cc6b09f4ce9f1dddd9bdd1cdbb28a",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-bh25rj9p/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "The checked sv2v is the image's sv2v layer",
+   "instances": 2,
+   "instances_sha256": "577a44a3c64841c8662fd6ac4455d26cce23691cf273d5be294b4ef69a0e87a6",
+   "job": "docs-check",
+   "label": "Install the pinned sv2v release",
+   "log": "step-017.jsonl",
+   "population": [
+    {
+     "count": 1,
+     "invocation": "sv2v",
+     "kind": "program",
+     "path": "/opt/sv2v/bin/sv2v",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-bh25rj9p/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#20",
+   "text_sha256": "8506053db49f236c82a5d0dc29464908e552ec46fdf5dec09ec34d342c3aa9d5",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-d55w6ffp/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 2213,
+   "instances_sha256": "0e57635f9bd7820cb4ed20dd93504dc8e98a5d347332733bc5daf85e4859589e",
+   "job": "docs-check",
+   "label": "Bare-metal scope gate",
+   "log": "step-018.jsonl",
+   "population": [
+    {
+     "count": 2210,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_baremetal_only.py",
+     "kind": "script",
+     "path": "/work/scripts/check_baremetal_only.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-d55w6ffp/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#21",
+   "text_sha256": "43949fc003274d206f9fec0996797ebd1a972bb6ba459dc49c45ad47ba21999c",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-2u0uasxr/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "The documented RV32 adoption form",
+   "instances": 407,
+   "instances_sha256": "bc9cec83be96c0927e122586154e5f518c451fb7d8f1725599ef51934119af97",
+   "job": "docs-check",
+   "label": "Install and verify the pinned RV32 SDK",
+   "log": "step-019.jsonl",
+   "population": [
+    {
+     "count": 168,
+     "invocation": "dirname",
+     "kind": "program",
+     "path": "/usr/bin/dirname",
+     "provenance": "named"
+    },
+    {
+     "count": 5,
+     "invocation": "gcc",
+     "kind": "program",
+     "path": "/opt/rv32-sdk/bin/riscv32-buildroot-linux-gnu-gcc.br_real",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "ln",
+     "kind": "program",
+     "path": "/usr/bin/ln",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "mkdir",
+     "kind": "program",
+     "path": "/usr/bin/mkdir",
+     "provenance": "named"
+    },
+    {
+     "count": 19,
+     "invocation": "tar",
+     "kind": "program",
+     "path": "/usr/bin/tar",
+     "provenance": "named"
+    },
+    {
+     "count": 5,
+     "invocation": "toolchain-wrapper",
+     "kind": "program",
+     "path": "/opt/rv32-sdk/bin/toolchain-wrapper",
+     "provenance": "named"
+    },
+    {
+     "count": 19,
+     "invocation": "xz",
+     "kind": "program",
+     "path": "/usr/bin/xz",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_rv32_sdk.py",
+     "kind": "script",
+     "path": "/work/scripts/ci_rv32_sdk.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_rv32_sdk_selftest.py",
+     "kind": "script",
+     "path": "/work/scripts/ci_rv32_sdk_selftest.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-2lfnjsqm/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-5u6qfadn/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-_0p7igr4/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-b6cfymhh/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-cumxpe18/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-dnz04iew/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-fzgyqd7r/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-h7jpuupk/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-lf5hvew7/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 12,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-m4df3rr1/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 12,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-mn89lrho/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 20,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-oiombptq/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-q2_n63yw/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-we7pcofi/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-xcoypsgt/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-yevx1sdk/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 8,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-z6gyufjv/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 12,
+     "invocation": "fixture-gcc",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-z7mbe88d/installed/bin/fixture-gcc",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-2lfnjsqm/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-5u6qfadn/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-_0p7igr4/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-b6cfymhh/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-cumxpe18/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-dnz04iew/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-fzgyqd7r/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-h7jpuupk/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-lf5hvew7/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-m4df3rr1/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-mn89lrho/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-oiombptq/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-q2_n63yw/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-we7pcofi/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-xcoypsgt/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-yevx1sdk/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-z6gyufjv/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "relocate-sdk.sh",
+     "kind": "script",
+     "path": "/tmp/rv32-installer-test-z7mbe88d/installed/relocate-sdk.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-2u0uasxr/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#23",
+   "text_sha256": "f47f921c63383574b3e4e1fc3c490722146467a21f3729aa9e555e0603a31631",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-vlcu_lon/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 1404,
+   "instances_sha256": "be0439246568c0832f45fa82f1e7f5b2e669edefbc3b5972aeb61368112ca294",
+   "job": "docs-check",
+   "label": "Compiler-absent firmware controls",
+   "log": "step-020.jsonl",
+   "population": [
+    {
+     "count": 110,
+     "invocation": "dash",
+     "kind": "inline",
+     "path": "/usr/bin/dash",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "python3.12",
+     "kind": "inline",
+     "path": "/usr/bin/python3.12",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "cc1",
+     "kind": "program",
+     "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "echo",
+     "kind": "program",
+     "path": "/usr/bin/echo",
+     "provenance": "named"
+    },
+    {
+     "count": 55,
+     "invocation": "env",
+     "kind": "program",
+     "path": "/usr/bin/env",
+     "provenance": "named"
+    },
+    {
+     "count": 14,
+     "invocation": "gcc-13",
+     "kind": "program",
+     "path": "/usr/bin/x86_64-linux-gnu-gcc-13",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 1031,
+     "invocation": "make",
+     "kind": "program",
+     "path": "/usr/bin/make",
+     "provenance": "named"
+    },
+    {
+     "count": 110,
+     "invocation": "verilator_bin",
+     "kind": "program",
+     "path": "/opt/verilator/bin/verilator_bin",
+     "provenance": "named"
+    },
+    {
+     "count": 17,
+     "invocation": "gen_gptp_ucode.py",
+     "kind": "script",
+     "path": "/work/gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "pp_srcs.py",
+     "kind": "script",
+     "path": "/work/scripts/pp_srcs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-vlcu_lon/step.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 2,
+     "invocation": "test_firmware_compiler.py",
+     "kind": "script",
+     "path": "/work/sw/builder/test_firmware_compiler.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 55,
+     "invocation": "verilator",
+     "kind": "script",
+     "path": "/opt/verilator/bin/verilator",
+     "provenance": "named"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#24",
+   "text_sha256": "c662dbf247464e23f88a9afc86c3df07414a66048683299b56fb8955426ee944",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-mies_faj/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "Installation the image's layers supply is removed",
+   "instances": 21970,
+   "instances_sha256": "00b70f5a315ebce014e4fb910123d3519337dbab2ad3b13be9886dda686cf10f",
+   "job": "docs-check",
+   "label": "End-station builder gates",
+   "log": "step-021.jsonl",
+   "population": [
+    {
+     "count": 118,
+     "invocation": "dash",
+     "kind": "inline",
+     "path": "/usr/bin/dash",
+     "provenance": "named"
+    },
+    {
+     "count": 149,
+     "invocation": "python3.12",
+     "kind": "inline",
+     "path": "/usr/bin/python3.12",
+     "provenance": "named"
+    },
+    {
+     "count": 322,
+     "invocation": "as",
+     "kind": "program",
+     "path": "/opt/rv32-sdk/riscv32-buildroot-linux-gnu/bin/as",
+     "provenance": "named"
+    },
+    {
+     "count": 105,
+     "invocation": "as",
+     "kind": "program",
+     "path": "/usr/bin/x86_64-linux-gnu-as",
+     "provenance": "named"
+    },
+    {
+     "count": 172,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "cat",
+     "kind": "program",
+     "path": "/usr/bin/cat",
+     "provenance": "named"
+    },
+    {
+     "count": 10304,
+     "invocation": "cc1",
+     "kind": "program",
+     "path": "/opt/rv32-sdk/libexec/gcc/riscv32-buildroot-linux-gnu/14.3.0/cc1",
+     "provenance": "named"
+    },
+    {
+     "count": 105,
+     "invocation": "cc1",
+     "kind": "program",
+     "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1",
+     "provenance": "named"
+    },
+    {
+     "count": 62,
+     "invocation": "chmod",
+     "kind": "program",
+     "path": "/usr/bin/chmod",
+     "provenance": "named"
+    },
+    {
+     "count": 118,
+     "invocation": "cmp",
+     "kind": "program",
+     "path": "/usr/bin/cmp",
+     "provenance": "named"
+    },
+    {
+     "count": 322,
+     "invocation": "collect2",
+     "kind": "program",
+     "path": "/opt/rv32-sdk/libexec/gcc/riscv32-buildroot-linux-gnu/14.3.0/collect2",
+     "provenance": "named"
+    },
+    {
+     "count": 60,
+     "invocation": "collect2",
+     "kind": "program",
+     "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2",
+     "provenance": "named"
+    },
+    {
+     "count": 189,
+     "invocation": "cp",
+     "kind": "program",
+     "path": "/usr/bin/cp",
+     "provenance": "named"
+    },
+    {
+     "count": 38,
+     "invocation": "date",
+     "kind": "program",
+     "path": "/usr/bin/date",
+     "provenance": "named"
+    },
+    {
+     "count": 109,
+     "invocation": "dirname",
+     "kind": "program",
+     "path": "/usr/bin/dirname",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "echo",
+     "kind": "program",
+     "path": "/usr/bin/echo",
+     "provenance": "named"
+    },
+    {
+     "count": 118,
+     "invocation": "env",
+     "kind": "program",
+     "path": "/usr/bin/env",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "expr",
+     "kind": "program",
+     "path": "/usr/bin/expr",
+     "provenance": "named"
+    },
+    {
+     "count": 18,
+     "invocation": "fabric_host",
+     "kind": "program",
+     "path": "<built>",
+     "provenance": "built by ld.bfd"
+    },
+    {
+     "count": 631,
+     "invocation": "fw",
+     "kind": "program",
+     "path": "<built>",
+     "provenance": "built by ld.bfd"
+    },
+    {
+     "count": 2472,
+     "invocation": "gcc",
+     "kind": "program",
+     "path": "/opt/rv32-sdk/bin/riscv32-buildroot-linux-gnu-gcc.br_real",
+     "provenance": "named"
+    },
+    {
+     "count": 126,
+     "invocation": "gcc-13",
+     "kind": "program",
+     "path": "/usr/bin/x86_64-linux-gnu-gcc-13",
+     "provenance": "named"
+    },
+    {
+     "count": 340,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 58,
+     "invocation": "grep",
+     "kind": "program",
+     "path": "/usr/bin/grep",
+     "provenance": "named"
+    },
+    {
+     "count": 35,
+     "invocation": "head",
+     "kind": "program",
+     "path": "/usr/bin/head",
+     "provenance": "named"
+    },
+    {
+     "count": 9,
+     "invocation": "java",
+     "kind": "program",
+     "path": "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+     "provenance": "named"
+    },
+    {
+     "count": 11,
+     "invocation": "jspawnhelper",
+     "kind": "program",
+     "path": "/usr/lib/jvm/java-17-openjdk-amd64/lib/jspawnhelper",
+     "provenance": "named"
+    },
+    {
+     "count": 322,
+     "invocation": "ld",
+     "kind": "program",
+     "path": "/opt/rv32-sdk/riscv32-buildroot-linux-gnu/bin/ld",
+     "provenance": "named"
+    },
+    {
+     "count": 60,
+     "invocation": "ld.bfd",
+     "kind": "program",
+     "path": "/usr/bin/x86_64-linux-gnu-ld.bfd",
+     "provenance": "named"
+    },
+    {
+     "count": 3,
+     "invocation": "ldconfig.real",
+     "kind": "program",
+     "path": "/usr/sbin/ldconfig.real",
+     "provenance": "named"
+    },
+    {
+     "count": 32,
+     "invocation": "ls",
+     "kind": "program",
+     "path": "/usr/bin/ls",
+     "provenance": "named"
+    },
+    {
+     "count": 1538,
+     "invocation": "make",
+     "kind": "program",
+     "path": "/usr/bin/make",
+     "provenance": "named"
+    },
+    {
+     "count": 43,
+     "invocation": "mkdir",
+     "kind": "program",
+     "path": "/usr/bin/mkdir",
+     "provenance": "named"
+    },
+    {
+     "count": 75,
+     "invocation": "mktemp",
+     "kind": "program",
+     "path": "/usr/bin/mktemp",
+     "provenance": "named"
+    },
+    {
+     "count": 5,
+     "invocation": "objcopy",
+     "kind": "program",
+     "path": "/usr/bin/x86_64-linux-gnu-objcopy",
+     "provenance": "named"
+    },
+    {
+     "count": 5,
+     "invocation": "phy",
+     "kind": "program",
+     "path": "<built>",
+     "provenance": "built by ld.bfd"
+    },
+    {
+     "count": 2,
+     "invocation": "ps",
+     "kind": "program",
+     "path": "/usr/bin/ps",
+     "provenance": "named"
+    },
+    {
+     "count": 44,
+     "invocation": "realpath",
+     "kind": "program",
+     "path": "/usr/bin/realpath",
+     "provenance": "named"
+    },
+    {
+     "count": 76,
+     "invocation": "rm",
+     "kind": "program",
+     "path": "/usr/bin/rm",
+     "provenance": "named"
+    },
+    {
+     "count": 14,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 28,
+     "invocation": "stat",
+     "kind": "program",
+     "path": "/usr/bin/stat",
+     "provenance": "named"
+    },
+    {
+     "count": 23,
+     "invocation": "tclsh8.6",
+     "kind": "program",
+     "path": "/usr/bin/tclsh8.6",
+     "provenance": "named"
+    },
+    {
+     "count": 2472,
+     "invocation": "toolchain-wrapper",
+     "kind": "program",
+     "path": "/opt/rv32-sdk/bin/toolchain-wrapper",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "touch",
+     "kind": "program",
+     "path": "/usr/bin/touch",
+     "provenance": "named"
+    },
+    {
+     "count": 31,
+     "invocation": "tr",
+     "kind": "program",
+     "path": "/usr/bin/tr",
+     "provenance": "named"
+    },
+    {
+     "count": 3,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 116,
+     "invocation": "verilator_bin",
+     "kind": "program",
+     "path": "/opt/verilator/bin/verilator_bin",
+     "provenance": "named"
+    },
+    {
+     "count": 38,
+     "invocation": "build.sh",
+     "kind": "script",
+     "path": "/work/sw/litex/build.sh",
+     "provenance": "checkout"
+    },
+    {
+     "count": 37,
+     "invocation": "check_entity_shape.py",
+     "kind": "script",
+     "path": "/work/scripts/check_entity_shape.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 19,
+     "invocation": "check_gptp_owner_pair.py",
+     "kind": "script",
+     "path": "/work/sw/litex/check_gptp_owner_pair.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "cp",
+     "kind": "script",
+     "path": "/tmp/tmpdeuem9w_/partial/cp",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 2,
+     "invocation": "cp",
+     "kind": "script",
+     "path": "/tmp/tmpdeuem9w_/restore-silent/cp",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 2,
+     "invocation": "cp",
+     "kind": "script",
+     "path": "/tmp/tmpdeuem9w_/restore/cp",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "cp",
+     "kind": "script",
+     "path": "/tmp/tmpdeuem9w_/silent/cp",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 2,
+     "invocation": "cp",
+     "kind": "script",
+     "path": "/tmp/tmpdeuem9w_/snapshot/cp",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 26,
+     "invocation": "deploy.sh",
+     "kind": "script",
+     "path": "/work/sw/litex/deploy.sh",
+     "provenance": "checkout"
+    },
+    {
+     "count": 62,
+     "invocation": "endstation_builder.py",
+     "kind": "script",
+     "path": "/work/sw/builder/endstation_builder.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 126,
+     "invocation": "fixture-python",
+     "kind": "script",
+     "path": "/tmp/tmpvdw1enz7/bin/fixture-python",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 9,
+     "invocation": "gen_aem_store.py",
+     "kind": "script",
+     "path": "/work/avdecc/gen_aem_store.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 33,
+     "invocation": "gen_aemi_image.py",
+     "kind": "script",
+     "path": "/work/avdecc/gen_aemi_image.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 244,
+     "invocation": "gen_gptp_ucode.py",
+     "kind": "script",
+     "path": "/work/gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 70,
+     "invocation": "gen_ltn_rom.py",
+     "kind": "script",
+     "path": "/work/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 70,
+     "invocation": "gen_ucode.py",
+     "kind": "script",
+     "path": "/work/protocol-processor/hdl/aecp/ucode/gen_ucode.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 3,
+     "invocation": "ldconfig",
+     "kind": "script",
+     "path": "/usr/sbin/ldconfig",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "mktemp",
+     "kind": "script",
+     "path": "/tmp/tmpdeuem9w_/mktemp/mktemp",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 34,
+     "invocation": "openFPGALoader",
+     "kind": "script",
+     "path": "/tmp/tmpvdw1enz7/bin/openFPGALoader",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 4,
+     "invocation": "pp_srcs.py",
+     "kind": "script",
+     "path": "/work/scripts/pp_srcs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "python3",
+     "kind": "script",
+     "path": "/tmp/sweep-venv-ba18jo61/litex-milan/venv/bin/python3",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 58,
+     "invocation": "qspi_owner_transition.py",
+     "kind": "script",
+     "path": "/work/sw/litex/qspi_owner_transition.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "sbt",
+     "kind": "script",
+     "path": "/opt/sbt/bin/sbt",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-mies_faj/step.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "sweep.sh",
+     "kind": "script",
+     "path": "/work/sw/litex/sweep.sh",
+     "provenance": "checkout"
+    },
+    {
+     "count": 22,
+     "invocation": "sweep_extra.sh",
+     "kind": "script",
+     "path": "/work/sw/litex/sweep_extra.sh",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "sweep_opts_arty.sh",
+     "kind": "script",
+     "path": "/work/configs/generated/sweep_opts_arty.sh",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "sweep_opts_ax7101.sh",
+     "kind": "script",
+     "path": "/work/configs/generated/sweep_opts_ax7101.sh",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "test_builder.py",
+     "kind": "script",
+     "path": "/work/sw/builder/test_builder.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "test_clock_constraints.py",
+     "kind": "script",
+     "path": "/work/sw/builder/test_clock_constraints.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "test_nvm_firmware.py",
+     "kind": "script",
+     "path": "/work/sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "test_phy_firmware.py",
+     "kind": "script",
+     "path": "/work/sw/firmware/nvm_hosttest/test_phy_firmware.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 4,
+     "invocation": "test_shipping_clock_constraints.py",
+     "kind": "script",
+     "path": "/work/sw/builder/test_shipping_clock_constraints.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "test_soc_options.py",
+     "kind": "script",
+     "path": "/work/sw/builder/test_soc_options.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 58,
+     "invocation": "verilator",
+     "kind": "script",
+     "path": "/opt/verilator/bin/verilator",
+     "provenance": "named"
+    },
+    {
+     "count": 136,
+     "invocation": "python3.12",
+     "kind": "stream",
+     "path": "<stdin>",
+     "provenance": "named"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#25",
+   "text_sha256": "88f485b9d07b05cbd9ae682c70eaead98283b92c0876efea663cdf1a645c4203",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-8wyz46tt/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 415,
+   "instances_sha256": "2148183e6ad34aa6b57ab10fbda5df05359332f49d0679a3f5a3957835a5499b",
+   "job": "docs-check",
+   "label": "NVM record-space gate",
+   "log": "step-022.jsonl",
+   "population": [
+    {
+     "count": 46,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 23,
+     "invocation": "check_nvm_record_space.py",
+     "kind": "script",
+     "path": "/work/scripts/check_nvm_record_space.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 115,
+     "invocation": "endstation_builder.py",
+     "kind": "script",
+     "path": "/work/sw/builder/endstation_builder.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 115,
+     "invocation": "gen_aemi_image.py",
+     "kind": "script",
+     "path": "/work/avdecc/gen_aemi_image.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 115,
+     "invocation": "gen_gptp_ucode.py",
+     "kind": "script",
+     "path": "/work/gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-8wyz46tt/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#26",
+   "text_sha256": "8842c423db84e9022672705fca5b23aea56fd65ebb581e411e57fd0761df8a2e",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-e71g9g2v/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 10,
+   "instances_sha256": "091ee37919c70397354d1feee87afb7244eb16c68df7fecdafe7d6db180fc659",
+   "job": "docs-check",
+   "label": "Capture measurement census and clock gate",
+   "log": "step-023.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "check_nvm_capture.py",
+     "kind": "script",
+     "path": "/work/scripts/check_nvm_capture.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "endstation_builder.py",
+     "kind": "script",
+     "path": "/work/sw/builder/endstation_builder.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "gen_aemi_image.py",
+     "kind": "script",
+     "path": "/work/avdecc/gen_aemi_image.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "gen_gptp_ucode.py",
+     "kind": "script",
+     "path": "/work/gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-e71g9g2v/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#27",
+   "text_sha256": "cd8ab4f663ae0f13dbe49175dc646614ddca9e543ed2ca2aef8dedfa38a2ac2f",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-gc4v1zkn/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 1132,
+   "instances_sha256": "2a4deb0c80c58a441e19c5888d9718366de6d30755105c158a85ae2a0a472e63",
+   "job": "docs-check",
+   "label": "Saved-state writer gate",
+   "log": "step-024.jsonl",
+   "population": [
+    {
+     "count": 69,
+     "invocation": "as",
+     "kind": "program",
+     "path": "/usr/bin/x86_64-linux-gnu-as",
+     "provenance": "named"
+    },
+    {
+     "count": 69,
+     "invocation": "cc1",
+     "kind": "program",
+     "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1",
+     "provenance": "named"
+    },
+    {
+     "count": 42,
+     "invocation": "collect2",
+     "kind": "program",
+     "path": "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2",
+     "provenance": "named"
+    },
+    {
+     "count": 631,
+     "invocation": "fw",
+     "kind": "program",
+     "path": "<built>",
+     "provenance": "built by ld.bfd"
+    },
+    {
+     "count": 106,
+     "invocation": "gcc-13",
+     "kind": "program",
+     "path": "/usr/bin/x86_64-linux-gnu-gcc-13",
+     "provenance": "named"
+    },
+    {
+     "count": 64,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 42,
+     "invocation": "ld.bfd",
+     "kind": "program",
+     "path": "/usr/bin/x86_64-linux-gnu-ld.bfd",
+     "provenance": "named"
+    },
+    {
+     "count": 5,
+     "invocation": "objcopy",
+     "kind": "program",
+     "path": "/usr/bin/x86_64-linux-gnu-objcopy",
+     "provenance": "named"
+    },
+    {
+     "count": 5,
+     "invocation": "phy",
+     "kind": "program",
+     "path": "<built>",
+     "provenance": "built by ld.bfd"
+    },
+    {
+     "count": 32,
+     "invocation": "endstation_builder.py",
+     "kind": "script",
+     "path": "/work/sw/builder/endstation_builder.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 32,
+     "invocation": "gen_aemi_image.py",
+     "kind": "script",
+     "path": "/work/avdecc/gen_aemi_image.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 32,
+     "invocation": "gen_gptp_ucode.py",
+     "kind": "script",
+     "path": "/work/gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-gc4v1zkn/step.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "test_nvm_firmware.py",
+     "kind": "script",
+     "path": "/work/sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "test_phy_firmware.py",
+     "kind": "script",
+     "path": "/work/sw/firmware/nvm_hosttest/test_phy_firmware.py",
+     "provenance": "checkout"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#28",
+   "text_sha256": "acdd5be67ef5c2f55b1b6f67327d2cea25f492e0ea7bd2a50a01dbf7855f6e15",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-24h8uxv0/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 488,
+   "instances_sha256": "05fe6c25ac9d3c25b7e54e9aee83612d0cae9dcbfb2965441d8de09ea98c6403",
+   "job": "docs-check",
+   "label": "SoC source-list gate (Vivado would fail 40 min in without this)",
+   "log": "step-025.jsonl",
+   "population": [
+    {
+     "count": 484,
+     "invocation": "tclsh8.6",
+     "kind": "program",
+     "path": "/usr/bin/tclsh8.6",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_soc_sources.py",
+     "kind": "script",
+     "path": "/work/scripts/check_soc_sources.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "iob_pack_selftest.py",
+     "kind": "script",
+     "path": "/work/sw/litex/iob_pack_selftest.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-24h8uxv0/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#29",
+   "text_sha256": "17ac8ee0681d58649b34ffc0634212f970d6b0cb1fbe63fc5604b953794033a4",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-np3xatrl/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 125,
+   "instances_sha256": "1705258952f976d1250e2c8576974496e955dfdd437bb13cf5aa04f415e13f6c",
+   "job": "docs-check",
+   "label": "RTL source-list drift gate",
+   "log": "step-026.jsonl",
+   "population": [
+    {
+     "count": 5,
+     "invocation": "bash",
+     "kind": "inline",
+     "path": "/usr/bin/bash",
+     "provenance": "named"
+    },
+    {
+     "count": 8,
+     "invocation": "python3.12",
+     "kind": "inline",
+     "path": "/usr/bin/python3.12",
+     "provenance": "named"
+    },
+    {
+     "count": 16,
+     "invocation": "dirname",
+     "kind": "program",
+     "path": "/usr/bin/dirname",
+     "provenance": "named"
+    },
+    {
+     "count": 12,
+     "invocation": "echo",
+     "kind": "program",
+     "path": "/usr/bin/echo",
+     "provenance": "named"
+    },
+    {
+     "count": 8,
+     "invocation": "env",
+     "kind": "program",
+     "path": "/usr/bin/env",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "false",
+     "kind": "program",
+     "path": "/usr/bin/false",
+     "provenance": "named"
+    },
+    {
+     "count": 21,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 14,
+     "invocation": "make",
+     "kind": "program",
+     "path": "/usr/bin/make",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "mkdir",
+     "kind": "program",
+     "path": "/usr/bin/mkdir",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "mktemp",
+     "kind": "program",
+     "path": "/usr/bin/mktemp",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "rm",
+     "kind": "program",
+     "path": "/usr/bin/rm",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": ".selftest-28367-ooc.sh",
+     "kind": "script",
+     "path": "/work/syn/yosys/.selftest-28367-ooc.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": ".selftest-28367-run.sh",
+     "kind": "script",
+     "path": "/work/syn/yosys/.selftest-28367-run.sh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 2,
+     "invocation": "check_rtl_source_lists.py",
+     "kind": "script",
+     "path": "/work/scripts/check_rtl_source_lists.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 3,
+     "invocation": "ooc.sh",
+     "kind": "script",
+     "path": "/work/syn/yosys/ooc.sh",
+     "provenance": "checkout"
+    },
+    {
+     "count": 16,
+     "invocation": "pp_srcs.py",
+     "kind": "script",
+     "path": "/work/scripts/pp_srcs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 3,
+     "invocation": "run.sh",
+     "kind": "script",
+     "path": "/work/syn/yosys/run.sh",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-np3xatrl/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#30",
+   "text_sha256": "bc702efe072ebe6130640345f40d62f1ad23f58a21aae4b04225e493f7c49af7",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-l87pjguk/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 55,
+   "instances_sha256": "3d17408307904559c68af2210f1c9f61407bc8532d0a419a8403c5833d94c030",
+   "job": "docs-check",
+   "label": "Boundary-unit naming ratchet",
+   "log": "step-027.jsonl",
+   "population": [
+    {
+     "count": 4,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 28,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "measure_naming.py",
+     "kind": "script",
+     "path": "/work/scripts/measure_naming.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-l87pjguk/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#31",
+   "text_sha256": "5cda07bbdccdeaecda8290fd62b124cbf016c5b587a27925ecdf23e3efa4e43b",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-qin_6c52/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 133,
+   "instances_sha256": "9e666b4fd6d05842095136b833d03f286f4d2bebfc60586be6617ecd749bc025",
+   "job": "docs-check",
+   "label": "Port contract gate",
+   "log": "step-028.jsonl",
+   "population": [
+    {
+     "count": 10,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 15,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 70,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 10,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 15,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 5,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_port_contracts.py",
+     "kind": "script",
+     "path": "/work/scripts/check_port_contracts.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 5,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-qin_6c52/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#32",
+   "text_sha256": "0bcc27a61b65ba48e26442e62afbb1c5d87eeab646e8cc419582bf67cb8cf535",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-80bj5scu/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 159,
+   "instances_sha256": "345d0b9f2651f1190ad57e7e6c1fc65e7bc247897b29f0f37aff388cd05edff0",
+   "job": "docs-check",
+   "label": "Fail-fast ratchet",
+   "log": "step-029.jsonl",
+   "population": [
+    {
+     "count": 12,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 18,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 84,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 12,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 18,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "measure_fail_fast.py",
+     "kind": "script",
+     "path": "/work/scripts/measure_fail_fast.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-80bj5scu/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#33",
+   "text_sha256": "b4bf12519b4043cd18acb386f843c89cd6a60b3c12656f595efaeb169032a266",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-9pbetvc3/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 56,
+   "instances_sha256": "37d32fb387ffedc281e063b59243a6080cbd3fce2ffbff0c9203428de95dcdec",
+   "job": "docs-check",
+   "label": "TODO ownership gate",
+   "log": "step-030.jsonl",
+   "population": [
+    {
+     "count": 4,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 28,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 3,
+     "invocation": "check_todo_ownership.py",
+     "kind": "script",
+     "path": "/work/scripts/check_todo_ownership.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-9pbetvc3/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#34",
+   "text_sha256": "13d51fd1cbcb2d0bd734f5142aa3438ba12c95ce540cc4400106f9946456ad95",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-6u0mog7r/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 237,
+   "instances_sha256": "db76e843287d8f1f85fe3d3f926875e2a73b0863a69ee10a6bc27020227f0b7d",
+   "job": "docs-check",
+   "label": "Test-evidence ratchet",
+   "log": "step-031.jsonl",
+   "population": [
+    {
+     "count": 18,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 27,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 126,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 18,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 27,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 9,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 9,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "measure_test_evidence.py",
+     "kind": "script",
+     "path": "/work/scripts/measure_test_evidence.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-6u0mog7r/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#35",
+   "text_sha256": "e40e92eb3fe34ff82d8526180255cbbcaf43eb28308171de36e76010a374325b",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-y13bo7s5/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 55,
+   "instances_sha256": "7065b6d74075dace95542d47e83ba320f091db0d9de08880c84999228ae93653",
+   "job": "docs-check",
+   "label": "Mechanical hygiene ratchet",
+   "log": "step-032.jsonl",
+   "population": [
+    {
+     "count": 4,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 28,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_hygiene.py",
+     "kind": "script",
+     "path": "/work/scripts/check_hygiene.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-y13bo7s5/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#36",
+   "text_sha256": "ddae99cc3c93153b806ece4cc6db9332c0008339773173fb3bceff906ae86ffd",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-986nawo4/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 55,
+   "instances_sha256": "f4a053bef1fb882e3e239795126ffcdbbb3d35f0c668262cdd4738ff1d57ecf3",
+   "job": "docs-check",
+   "label": "SystemVerilog idiom gate",
+   "log": "step-033.jsonl",
+   "population": [
+    {
+     "count": 4,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 28,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_sv_idiom.py",
+     "kind": "script",
+     "path": "/work/scripts/check_sv_idiom.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-986nawo4/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#37",
+   "text_sha256": "18adc03418636df9ed25a42e21820e4ea3398fd0816349bfa03256631214271d",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-8cs7qsdo/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 159,
+   "instances_sha256": "2f9281c446f005cc7b7a5093572273a189605bdd5b9538a6cb5887f7d5495a67",
+   "job": "docs-check",
+   "label": "C and C++ idiom gate",
+   "log": "step-034.jsonl",
+   "population": [
+    {
+     "count": 12,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 18,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 84,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 12,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 18,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_cpp_idiom.py",
+     "kind": "script",
+     "path": "/work/scripts/check_cpp_idiom.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 6,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-8cs7qsdo/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#38",
+   "text_sha256": "18b86bebcf2881330ca6aa5a375ba8d264e7fe471cacc15f0f58d68393ad4984",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-y9fpk5jf/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 55,
+   "instances_sha256": "58caf46fa0aaa7b3365cb22bc0f3bc30922b3da7acb653b1695dbf20649930d2",
+   "job": "docs-check",
+   "label": "Python idiom gate",
+   "log": "step-035.jsonl",
+   "population": [
+    {
+     "count": 4,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 28,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_py_idiom.py",
+     "kind": "script",
+     "path": "/work/scripts/check_py_idiom.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-y9fpk5jf/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#39",
+   "text_sha256": "48ef3a9a724268d1bd9beb46e6bfec629719ea7db3ae5f80186d28a8773d0d0d",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-jc1qmpcv/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 57,
+   "instances_sha256": "a7a3ec10fe11442e1df69af8ad905feef2544ec4fc9943007e6bd398531e6067",
+   "job": "docs-check",
+   "label": "Shell idiom gate",
+   "log": "step-036.jsonl",
+   "population": [
+    {
+     "count": 4,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 8,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 28,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 4,
+     "invocation": "git-sh-i18n--envsubst",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git-sh-i18n--envsubst",
+     "provenance": "named"
+    },
+    {
+     "count": 6,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "uname",
+     "kind": "program",
+     "path": "/usr/bin/uname",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_sh_idiom.py",
+     "kind": "script",
+     "path": "/work/scripts/check_sh_idiom.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 2,
+     "invocation": "git-submodule",
+     "kind": "script",
+     "path": "/usr/lib/git-core/git-submodule",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-jc1qmpcv/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#40",
+   "text_sha256": "a8e3b8f78ec34398992312408173cbbef4bf5b18ecb5be1aa8a6568c5797ac5b",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-pliftj8r/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 3,
+   "instances_sha256": "65451702ab19f6a14f9f1d54b4c4de2d9fcab25e63e881459f51f89e06a6675c",
+   "job": "docs-check",
+   "label": "CI event and SHA contract gate",
+   "log": "step-037.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "ci_events.py",
+     "kind": "script",
+     "path": "/work/scripts/ci_events.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-pliftj8r/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#41",
+   "text_sha256": "0704860d0056e4df8cb5594cf50ddb816ee4c5250e1cb988c04f4e478b570740",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-r9evnab1/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 3207,
+   "instances_sha256": "38ab9b3f954bdd8059ec05fc0187f599e98107ee1a7108d7d0dbd9b6b2752c7a",
+   "job": "docs-check",
+   "label": "Local act runner contract gate",
+   "log": "step-038.jsonl",
+   "population": [
+    {
+     "count": 224,
+     "invocation": "bash",
+     "kind": "inline",
+     "path": "/usr/bin/bash",
+     "provenance": "named"
+    },
+    {
+     "count": 9,
+     "invocation": "dash",
+     "kind": "inline",
+     "path": "/usr/bin/dash",
+     "provenance": "named"
+    },
+    {
+     "count": 51,
+     "invocation": "python3.12",
+     "kind": "inline",
+     "path": "/usr/bin/python3.12",
+     "provenance": "named"
+    },
+    {
+     "count": 2351,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 161,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/lib/git-core/git",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "install",
+     "kind": "program",
+     "path": "/usr/bin/install",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "mktemp",
+     "kind": "program",
+     "path": "/usr/bin/mktemp",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "rm",
+     "kind": "program",
+     "path": "/usr/bin/rm",
+     "provenance": "named"
+    },
+    {
+     "count": 152,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 3,
+     "invocation": "sleep",
+     "kind": "program",
+     "path": "/usr/bin/sleep",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "act_ci.py",
+     "kind": "script",
+     "path": "/tmp/act-ci-flat-selftest-vxxaxmgu/act_ci.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "act_ci.py",
+     "kind": "script",
+     "path": "/tmp/tmp.Mr6W9qSWoO/act_ci.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "act_ci.py",
+     "kind": "script",
+     "path": "/work/scripts/act_ci.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 54,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/act-ci-scope-selftest-4bfiiwlz/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 54,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/act-ci-scope-selftest-emy214on/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 54,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/act-ci-scope-selftest-pcs7e_xg/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 54,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/act-ci-scope-selftest-q7_aegms/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/scope-environment-1r14gnpc/fixture/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/scope-environment-2ser1r93/fixture/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/scope-environment-5km4esaq/fixture/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/scope-environment-7166ysv3/fixture/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/scope-environment-7b89dzao/fixture/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/scope-environment-7p9oemdj/fixture/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/scope-environment-cl4zols6/fixture/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "ci_scope.py",
+     "kind": "script",
+     "path": "/tmp/scope-environment-weg1o9xc/fixture/scripts/ci_scope.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "gh",
+     "kind": "script",
+     "path": "/tmp/act-ci-capture-signal-selftest-6mzad0p5/entry-bin/gh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "gh",
+     "kind": "script",
+     "path": "/tmp/act-ci-capture-signal-selftest-9d2c67nn/entry-bin/gh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "gh",
+     "kind": "script",
+     "path": "/tmp/act-ci-capture-signal-selftest-mm2g_9vb/entry-bin/gh",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 3,
+     "invocation": "git-remote-https",
+     "kind": "script",
+     "path": "/tmp/act-ci-capture-signal-selftest-6mzad0p5/git-exec/git-remote-https",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 3,
+     "invocation": "git-remote-https",
+     "kind": "script",
+     "path": "/tmp/act-ci-capture-signal-selftest-9d2c67nn/git-exec/git-remote-https",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 3,
+     "invocation": "git-remote-https",
+     "kind": "script",
+     "path": "/tmp/act-ci-capture-signal-selftest-mm2g_9vb/git-exec/git-remote-https",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 3,
+     "invocation": "noncooperative-tree.py",
+     "kind": "script",
+     "path": "/tmp/act-ci-capture-signal-selftest-6mzad0p5/noncooperative-tree.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 3,
+     "invocation": "noncooperative-tree.py",
+     "kind": "script",
+     "path": "/tmp/act-ci-capture-signal-selftest-9d2c67nn/noncooperative-tree.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 3,
+     "invocation": "noncooperative-tree.py",
+     "kind": "script",
+     "path": "/tmp/act-ci-capture-signal-selftest-mm2g_9vb/noncooperative-tree.py",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "passt",
+     "kind": "script",
+     "path": "/tmp/act-ci-tool-path-selftest-f1hs6_ur/trusted/passt",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "passt",
+     "kind": "script",
+     "path": "/tmp/act-ci-tool-path-selftest-ho9vabl8/trusted/passt",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "passt",
+     "kind": "script",
+     "path": "/tmp/act-ci-tool-path-selftest-kcfeei4p/trusted/passt",
+     "provenance": "written during the job"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-r9evnab1/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#42",
+   "text_sha256": "0fb3835d1be8537d55f87db57231e9dfbed47c54064ef18d8cddb073f6d2e8da",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-rcepetxo/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 3,
+   "instances_sha256": "114ee2deef3499e71516b31d81b2ef137abf311503bfceeeb0c0f10fc10c72ba",
+   "job": "docs-check",
+   "label": "Doc cited-path gate",
+   "log": "step-039.jsonl",
+   "population": [
+    {
+     "count": 1,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "check_doc_paths.py",
+     "kind": "script",
+     "path": "/work/scripts/check_doc_paths.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-rcepetxo/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#43",
+   "text_sha256": "75caa85822c37db517f98bbce8f8ff4649d5e7523d3701eb23222ea606842f51",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-plpqpsce/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 4,
+   "instances_sha256": "a6e65e7182374af4722c69c5dbbbd19bbbe81bcae0eee8220b6a1db7b1b4c916",
+   "job": "docs-check",
+   "label": "Archive integrity gate",
+   "log": "step-040.jsonl",
+   "population": [
+    {
+     "count": 1,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 2,
+     "invocation": "check_archive.py",
+     "kind": "script",
+     "path": "/work/scripts/check_archive.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-plpqpsce/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#44",
+   "text_sha256": "6c9605a3490fd7d5ca3e937df37b55041ef2220acecda66180ec53681de1f276",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-slrwlsvy/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 6,
+   "instances_sha256": "347adeb7af94f778de055e540aa2b021c8cc48fae42fb2c024c62a999a8b03cc",
+   "job": "docs-check",
+   "label": "Per-page contents gate",
+   "log": "step-041.jsonl",
+   "population": [
+    {
+     "count": 2,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 3,
+     "invocation": "gen_toc.py",
+     "kind": "script",
+     "path": "/work/scripts/gen_toc.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-slrwlsvy/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#45",
+   "text_sha256": "16edb17647fcca6d0c9abfd27932b78450d146fa58ea2a53f39b570ac2e3220b",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-4mlbqred/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 2,
+   "instances_sha256": "0b5188ad8fb09965da4460c704104adb805d77cc2d2abf10ae097abde235036b",
+   "job": "docs-check",
+   "label": "AEM store generator self-test",
+   "log": "step-042.jsonl",
+   "population": [
+    {
+     "count": 1,
+     "invocation": "gen_aem_store.py",
+     "kind": "script",
+     "path": "/work/avdecc/gen_aem_store.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-4mlbqred/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#46",
+   "text_sha256": "b8e244f65d840bcc832f0287861f0cc8f352a5a4a3bd1389594363fa01a041b2",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-h7zf3r0w/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 624,
+   "instances_sha256": "924ae5337d09ab62977efaaaa54fd61acc85c332d7aaa4de96bc0f65d24372fc",
+   "job": "docs-check",
+   "label": "Sweep/build shape gate",
+   "log": "step-043.jsonl",
+   "population": [
+    {
+     "count": 36,
+     "invocation": "bash",
+     "kind": "inline",
+     "path": "/usr/bin/bash",
+     "provenance": "named"
+    },
+    {
+     "count": 28,
+     "invocation": "python3.12",
+     "kind": "inline",
+     "path": "/usr/bin/python3.12",
+     "provenance": "named"
+    },
+    {
+     "count": 113,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 128,
+     "invocation": "cmp",
+     "kind": "program",
+     "path": "/usr/bin/cmp",
+     "provenance": "named"
+    },
+    {
+     "count": 64,
+     "invocation": "cp",
+     "kind": "program",
+     "path": "/usr/bin/cp",
+     "provenance": "named"
+    },
+    {
+     "count": 36,
+     "invocation": "date",
+     "kind": "program",
+     "path": "/usr/bin/date",
+     "provenance": "named"
+    },
+    {
+     "count": 36,
+     "invocation": "dirname",
+     "kind": "program",
+     "path": "/usr/bin/dirname",
+     "provenance": "named"
+    },
+    {
+     "count": 32,
+     "invocation": "mktemp",
+     "kind": "program",
+     "path": "/usr/bin/mktemp",
+     "provenance": "named"
+    },
+    {
+     "count": 32,
+     "invocation": "rm",
+     "kind": "program",
+     "path": "/usr/bin/rm",
+     "provenance": "named"
+    },
+    {
+     "count": 25,
+     "invocation": "tr",
+     "kind": "program",
+     "path": "/usr/bin/tr",
+     "provenance": "named"
+    },
+    {
+     "count": 32,
+     "invocation": "check_entity_shape.py",
+     "kind": "script",
+     "path": "/work/scripts/check_entity_shape.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "check_sweep_shape.py",
+     "kind": "script",
+     "path": "/work/scripts/check_sweep_shape.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 32,
+     "invocation": "endstation_builder.py",
+     "kind": "script",
+     "path": "/work/sw/builder/endstation_builder.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 28,
+     "invocation": "gen_gptp_ucode.py",
+     "kind": "script",
+     "path": "/work/gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-h7zf3r0w/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#47",
+   "text_sha256": "efac7c7666b785896f59ae6c3ca0648e617883202a527c8c4b80ddb45b2735e1",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-qu2u8gpe/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 95,
+   "instances_sha256": "1543fbbad76980492dd4f555d02a51dceaf1b57a15b7c9024c38e196ca9172cb",
+   "job": "docs-check",
+   "label": "Deploy shape gate",
+   "log": "step-044.jsonl",
+   "population": [
+    {
+     "count": 8,
+     "invocation": "bash",
+     "kind": "inline",
+     "path": "/usr/bin/bash",
+     "provenance": "named"
+    },
+    {
+     "count": 14,
+     "invocation": "basename",
+     "kind": "program",
+     "path": "/usr/bin/basename",
+     "provenance": "named"
+    },
+    {
+     "count": 8,
+     "invocation": "dirname",
+     "kind": "program",
+     "path": "/usr/bin/dirname",
+     "provenance": "named"
+    },
+    {
+     "count": 7,
+     "invocation": "grep",
+     "kind": "program",
+     "path": "/usr/bin/grep",
+     "provenance": "named"
+    },
+    {
+     "count": 24,
+     "invocation": "head",
+     "kind": "program",
+     "path": "/usr/bin/head",
+     "provenance": "named"
+    },
+    {
+     "count": 24,
+     "invocation": "ls",
+     "kind": "program",
+     "path": "/usr/bin/ls",
+     "provenance": "named"
+    },
+    {
+     "count": 8,
+     "invocation": "realpath",
+     "kind": "program",
+     "path": "/usr/bin/realpath",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "check_deploy_shape.py",
+     "kind": "script",
+     "path": "/work/scripts/check_deploy_shape.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-qu2u8gpe/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#48",
+   "text_sha256": "74c060bfb313f3f878bb4d3f188aa0f06adeb859b1b816ae7de21ea09352996b",
+   "working-directory": "."
+  },
+  {
+   "argv": [
+    "bash",
+    "-e",
+    "/out/scratch/job-docs-check-3vmwmgsz/temp/step-3dxa5aaq/step.sh"
+   ],
+   "clean": true,
+   "exit_status": 0,
+   "findings": [],
+   "image_form": "verbatim",
+   "instances": 2404,
+   "instances_sha256": "e47e0f6be7f088361fa4807125b2f5fca11851dc56652af9470473d98aa8733d",
+   "job": "docs-check",
+   "label": "Entity shape gate",
+   "log": "step-045.jsonl",
+   "population": [
+    {
+     "count": 498,
+     "invocation": "dash",
+     "kind": "inline",
+     "path": "/usr/bin/dash",
+     "provenance": "named"
+    },
+    {
+     "count": 265,
+     "invocation": "python3.12",
+     "kind": "inline",
+     "path": "/usr/bin/python3.12",
+     "provenance": "named"
+    },
+    {
+     "count": 157,
+     "invocation": "echo",
+     "kind": "program",
+     "path": "/usr/bin/echo",
+     "provenance": "named"
+    },
+    {
+     "count": 282,
+     "invocation": "git",
+     "kind": "program",
+     "path": "/usr/bin/git",
+     "provenance": "named"
+    },
+    {
+     "count": 549,
+     "invocation": "make",
+     "kind": "program",
+     "path": "/usr/bin/make",
+     "provenance": "named"
+    },
+    {
+     "count": 276,
+     "invocation": "pwd",
+     "kind": "program",
+     "path": "/usr/bin/pwd",
+     "provenance": "named"
+    },
+    {
+     "count": 110,
+     "invocation": "sed",
+     "kind": "program",
+     "path": "/usr/bin/sed",
+     "provenance": "named"
+    },
+    {
+     "count": 1,
+     "invocation": "check_entity_shape.py",
+     "kind": "script",
+     "path": "/work/scripts/check_entity_shape.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 265,
+     "invocation": "pp_srcs.py",
+     "kind": "script",
+     "path": "/work/scripts/pp_srcs.py",
+     "provenance": "checkout"
+    },
+    {
+     "count": 1,
+     "invocation": "step.sh",
+     "kind": "script",
+     "path": "/out/scratch/job-docs-check-3vmwmgsz/temp/step-3dxa5aaq/step.sh",
+     "provenance": "written during the job"
+    }
+   ],
+   "step": ".github/workflows/docs.yml#docs-check#49",
+   "text_sha256": "85ee6241773d6c40e8a696f6f8b1ec6f096f92d2933119321e64a7038ff0c5f9",
+   "working-directory": "."
+  }
+ ],
+ "tools": {
+  "python3": "3.12.3"
+ },
+ "traced": 46,
+ "user": 0
+}
