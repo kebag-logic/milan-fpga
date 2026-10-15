@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "ci/image/build.py",
+    "--work",
+    "candidate-b",
+    "--check-lock",
+    "--verify-archive",
+    "candidate-b/image.tar"
+  ],
+  "rc": 0,
+  "stdout": "PASS: image identity verified against exported manifest, config and every layer",
+  "head": "18f2df92b13cb3f4036b073ed76940187bf10487",
+  "image_digest": "sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19"
+}

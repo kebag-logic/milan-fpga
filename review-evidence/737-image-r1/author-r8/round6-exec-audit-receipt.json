@@ -1,0 +1,145 @@
+{
+  "clean": true,
+  "steps": [
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "printf 'int main(){return 0;}\\n' > /tmp/probe.cpp && g++ -O2 -std=c++17 /tmp/probe.cpp -o /tmp/probe && /tmp/probe"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "setup: trivial g++ compile grounds the compiler helpers",
+      "programs": [
+        "/tmp/probe",
+        "/usr/bin/bash",
+        "/usr/bin/x86_64-linux-gnu-as",
+        "/usr/bin/x86_64-linux-gnu-g++-13",
+        "/usr/bin/x86_64-linux-gnu-ld.bfd",
+        "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+        "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "verilator --version"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "verilator-lint: Verilator version",
+      "programs": [
+        "/opt/verilator/bin/verilator_bin",
+        "/usr/bin/bash",
+        "/usr/bin/dash",
+        "/usr/bin/env",
+        "/usr/bin/perl"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "yosys -V"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "yosys-elaboration: Yosys version",
+      "programs": [
+        "/opt/yosys/bin/yosys",
+        "/usr/bin/bash"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "sv2v --version"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "yosys-elaboration: sv2v version",
+      "programs": [
+        "/opt/sv2v/bin/sv2v",
+        "/usr/bin/bash"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "docs-check: Bare-metal scope gate self-test",
+      "programs": [
+        "/usr/bin/git",
+        "/usr/bin/python3.12"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/check_soc_sources.py",
+        "--selftest"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "docs-check: SoC source-list gate self-test",
+      "programs": [
+        "/usr/bin/python3.12"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--selftest"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "docs-check: Audience diagram no-drift gate self-test",
+      "programs": [
+        "/usr/bin/python3.12",
+        "/usr/bin/rsvg-convert"
+      ]
+    },
+    {
+      "argv": [
+        "python3",
+        "sw/firmware/gtest/tally_selftest.py"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "firmware-unit: Firmware tally self-test",
+      "programs": [
+        "/tmp/fw-tally.xr91mqr2/tally_cases",
+        "/usr/bin/pkgconf",
+        "/usr/bin/python3.12",
+        "/usr/bin/x86_64-linux-gnu-as",
+        "/usr/bin/x86_64-linux-gnu-g++-13",
+        "/usr/bin/x86_64-linux-gnu-gcc-13",
+        "/usr/bin/x86_64-linux-gnu-gcov-13",
+        "/usr/bin/x86_64-linux-gnu-ld.bfd",
+        "/usr/libexec/gcc/x86_64-linux-gnu/13/cc1plus",
+        "/usr/libexec/gcc/x86_64-linux-gnu/13/collect2"
+      ]
+    },
+    {
+      "argv": [
+        "bash",
+        "-c",
+        "behave --version"
+      ],
+      "exit_status": 0,
+      "findings": [],
+      "label": "bdd-conformance: behave version",
+      "programs": [
+        "/usr/bin/bash",
+        "/usr/bin/python3.12"
+      ]
+    }
+  ]
+}

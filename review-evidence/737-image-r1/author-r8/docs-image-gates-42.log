@@ -1,0 +1,50 @@
+Traceback (most recent call last):
+  File "$LANES/737-image/scripts/check_rtl_source_lists.py", line 691, in mutated_copy
+    copy.write_text(mutated)
+  File "/usr/lib/python3.12/pathlib.py", line 1049, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '$LANES/737-image/syn/yosys/.selftest-1-run.sh'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$LANES/737-image/scripts/check_rtl_source_lists.py", line 770, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$LANES/737-image/scripts/check_rtl_source_lists.py", line 724, in main
+[PASS] the closure is non-empty
+[PASS] the closure resolves every module it names
+[PASS] every `include in the closure resolves to a file
+[PASS] the closure is transitive, not one hop
+[PASS] a declared child needs no approved naming prefix
+[PASS] package dependencies are part of the file closure
+[PASS] interface dependencies are part of the file closure
+[PASS] a module sharing another module's file needs no entry of its own
+[PASS] a column-0 instantiation is followed (traffic_class_map at column 0)
+[PASS] a column-0 instantiation under a non-blank line is followed
+[PASS] a tab-indented instantiation under a non-blank line is followed
+[PASS] an arrayed instance is followed
+[PASS] an interface used through a modport not named master/slave/monitor is followed
+[PASS] an instantiation inside an included body is followed
+[PASS] every consumer answered, so the arms below grade all of them
+    return selftest()
+           ^^^^^^^^^^
+  File "$LANES/737-image/scripts/check_rtl_source_lists.py", line 711, in selftest
+    return run_arms()
+           ^^^^^^^^^^
+  File "$LANES/737-image/scripts/check_rtl_source_lists_selftest.py", line 411, in run_arms
+    _arms_consumer_mutation(ck, need, rows)
+  File "$LANES/737-image/scripts/check_rtl_source_lists_selftest.py", line 187, in _arms_consumer_mutation
+    with mutated_copy(c, Path(victim).name) as copy:
+  File "/usr/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "$LANES/737-image/scripts/check_rtl_source_lists.py", line 695, in mutated_copy
+    copy.unlink(missing_ok=True)
+  File "/usr/lib/python3.12/pathlib.py", line 1344, in unlink
+    os.unlink(self)
+OSError: [Errno 30] Read-only file system: '$LANES/737-image/syn/yosys/.selftest-1-run.sh'
