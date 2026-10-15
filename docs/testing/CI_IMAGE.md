@@ -339,6 +339,24 @@ It also carries the `population`: each invocation's kind, name, path, provenance
 Its `findings` name the invocation, path, arguments and reason; `clean` holds when none.
 The logs keep every instance as one JSON line.
 These fields are the interface the follow-up PR's signed replay consumes.
+
+[`audit_population.py`](../../ci/image/audit_population.py) traces the reached population.
+That is every run step of the `docs-check` job and of every rtl-fast job.
+Each runs as the hosted runner runs it, from a clean checkout per job.
+The runner context, `GITHUB_PATH` and `GITHUB_ENV` carry between a job's steps.
+An installation or fetch step the image replaces runs in its recorded image form.
+A cache-miss build step the image replaces is named in the reconciliation.
+The receipt records source and image identity, every step's result, and the reconciliation.
+
+```sh
+docker run --rm --network none --user 1000:1000 \
+  --mount "type=bind,src=$CHECKOUT,dst=/work" --mount "type=bind,src=$IMAGE_WORK,dst=/out" \
+  -e TMPDIR=/out/scratch --workdir /work "$IMAGE_REFERENCE" \
+  python3 ci/image/audit_population.py --image "$IMAGE_DIGEST" --base "$BASE_COMMIT" \
+  --output /out/exec-audit-receipt.json --logs /out/exec-logs
+```
+
+`$CHECKOUT` is a clean clone with the five fetched submodules initialized.
 Wiring the audit into every pull request's replay is that follow-up PR's work.
 With it, a hidden installer is caught at the replay whatever the walker accepts.
 Unlisted constructs and unlisted command forms refuse generation.
