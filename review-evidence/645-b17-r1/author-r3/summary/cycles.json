@@ -1,0 +1,2519 @@
+{
+ "lane": {
+  "cycles": 10,
+  "slips": 10,
+  "classes": {
+   "a": 0,
+   "b": 0,
+   "c": 10
+  },
+  "slip_lb": [
+   {
+    "dups": 208,
+    "skips": 0
+   },
+   {
+    "dups": 228,
+    "skips": 0
+   }
+  ],
+  "counter_continuity": {
+   "start_baseline": {
+    "dups": 208,
+    "skips": 0
+   },
+   "end_baseline": {
+    "dups": 228,
+    "skips": 0
+   },
+   "joins_equal": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "windows": {
+   "last_poll": "bursts starting no later than the end of the cycle's last poll",
+   "hold": "no later than the 32 s hold",
+   "capture": "to the end of the capture, about 41.9 s after the bind"
+  },
+  "delta_resolution_ppm": 0.0001,
+  "counter_logs_manifest_sha256": "a1d415300d55cfc2c14178493a244edab56446bbfa3aa860721e8b39819c7848",
+  "poller_sha256": [
+   "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7"
+  ],
+  "tool_sha256": [
+   "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17"
+  ],
+  "rounding_ties": 0
+ },
+ "cycles": [
+  {
+   "cycle": "c01",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050383.700573,
+   "bind_utc": "07:46:23.700",
+   "unbind_to_bind_s": 6.013901948928833,
+   "unbind_to_bind_tap_s": 6.0139,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -7.995903968811035,
+   "last_poll_s": 31.772624969482422,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5000700950622559,
+    0.5100870132446289
+   ],
+   "slip_lb_first": {
+    "dups": 208,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 210,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.16348500000000002,
+    "prefill_exit_by_s": 0.6253340244293213,
+    "prefill_exit_first_post_poll": false,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.6253340244293213,
+    "converged_polls_after_exit": 0,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     8,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.5473520755767822,
+     "start_from_bind_s": -4.466549873352051,
+     "took_s": 0.39542198181152344
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.562994956970215,
+     "start_from_bind_s": 1.5490930080413818,
+     "took_s": 0.3934140205383301
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 2.5598700046539307,
+     "s_hi": 3.137584924697876,
+     "width_s": 0.5777149200439453,
+     "polls_left_s": 28.635040044784546,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 104166.7 s exceeds the bound window",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 28.833,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 28.833,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 13,
+       "peak_us": 28.691,
+       "larger_than_slipping": false
+      },
+      "hold": {
+       "bursts": 14,
+       "peak_us": 28.691,
+       "larger_than_slipping": false
+      },
+      "capture": {
+       "bursts": 20,
+       "peak_us": 28.691,
+       "larger_than_slipping": false
+      }
+     },
+     "long_poll_in_interval": false
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 5.0097,
+    "peer-aaf": 5.0095,
+    "dut-crf": 5.0097
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": -0.0002,
+   "rate_interval_s": 104166.66666666667,
+   "bound_window_s": 33.755,
+   "rate_slips_expected": 0.0003,
+   "first_pdu_after_bind_ms": 163.485,
+   "phase_us_mod_pdu": {
+    "p50": 1.431,
+    "p01": 0.109,
+    "p99": 124.832
+   },
+   "lateness_us": {
+    "p50": -0.04,
+    "p99": 2.649,
+    "p999": 5.511,
+    "max": 28.833,
+    "min": -2.529
+   },
+   "late_bursts": {
+    "last_poll": 14,
+    "hold": 15,
+    "capture": 21
+   },
+   "late_burst_pdus": [
+    4,
+    12
+   ],
+   "late_burst_times_s": [
+    2.816925,
+    3.546806,
+    5.817336,
+    6.817474,
+    8.817751,
+    13.546939,
+    13.707192,
+    14.818581,
+    15.81872,
+    18.819134,
+    19.819396,
+    23.546947,
+    26.820238,
+    28.820514,
+    31.820929,
+    33.448329,
+    33.547078,
+    33.807205,
+    33.821205,
+    34.821343,
+    38.821897
+   ],
+   "peer_gap": {
+    "frames": 776304,
+    "unbind_s": -6.013933064,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 399650,
+      "runs": [
+       {
+        "first_s": -8.081373653,
+        "last_s": 41.875410515,
+        "pdus": 399650
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 351636,
+      "runs": [
+       {
+        "first_s": -8.081370997,
+        "last_s": -5.838342219,
+        "pdus": 17945
+       },
+       {
+        "first_s": 0.163485344,
+        "last_s": 41.875286587,
+        "pdus": 333691
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24978,
+      "runs": [
+       {
+        "first_s": -8.079804138,
+        "last_s": 41.87485501,
+        "pdus": 24978
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -5.838342219,
+    "peer_first_after_bind_s": 0.163485344,
+    "peer_pdus_before_bind": 17945
+   },
+   "capture": {
+    "file": "645-b17-c01.pcap",
+    "bytes": 86846116,
+    "sha256": "019dcc3a8f631c061606a6ad5f50f98386c8aba50133744c2fa1871e3692363f",
+    "summary": [
+     "776304 packets captured",
+     "777142 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  },
+  {
+   "cycle": "c02",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050470.970741,
+   "bind_utc": "07:47:50.970",
+   "unbind_to_bind_s": 6.015139102935791,
+   "unbind_to_bind_tap_s": 6.0151,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -7.995989084243774,
+   "last_poll_s": 31.82830786705017,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5000641345977783,
+    0.5100798606872559
+   ],
+   "slip_lb_first": {
+    "dups": 210,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 212,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.09353600000000001,
+    "prefill_exit_by_s": 0.16488099098205566,
+    "prefill_exit_first_post_poll": true,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.6679098606109619,
+    "converged_polls_after_exit": 1,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     8,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.5551390647888184,
+     "start_from_bind_s": -4.460000038146973,
+     "took_s": 0.40282607078552246
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.610223054885864,
+     "start_from_bind_s": 1.5950839519500732,
+     "took_s": 0.36082005500793457
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 1.0912010669708252,
+     "s_hi": 1.9559040069580078,
+     "width_s": 0.8647029399871826,
+     "polls_left_s": 29.872403860092163,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 34722.2 s exceeds the bound window; direction does not match delta's sign",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 25.009,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 25.009,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 8,
+       "peak_us": 28.365,
+       "larger_than_slipping": true
+      },
+      "hold": {
+       "bursts": 8,
+       "peak_us": 28.365,
+       "larger_than_slipping": true
+      },
+      "capture": {
+       "bursts": 10,
+       "peak_us": 28.365,
+       "larger_than_slipping": true
+      }
+     },
+     "long_poll_in_interval": true
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 5.0084,
+    "peer-aaf": 5.009,
+    "dut-crf": 5.0084
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": 0.0006,
+   "rate_interval_s": 34722.222222222226,
+   "bound_window_s": 33.809,
+   "rate_slips_expected": 0.001,
+   "first_pdu_after_bind_ms": 93.536,
+   "phase_us_mod_pdu": {
+    "p50": 1.405,
+    "p01": 0.102,
+    "p99": 124.847
+   },
+   "lateness_us": {
+    "p50": -0.037,
+    "p99": 2.607,
+    "p999": 4.448,
+    "max": 28.365,
+    "min": -2.438
+   },
+   "late_bursts": {
+    "last_poll": 9,
+    "hold": 9,
+    "capture": 11
+   },
+   "late_burst_pdus": [
+    4,
+    9
+   ],
+   "late_burst_times_s": [
+    1.558583,
+    6.17852,
+    6.537524,
+    6.559152,
+    9.559563,
+    11.559839,
+    12.559978,
+    16.438031,
+    22.561485,
+    36.277541,
+    36.437795
+   ],
+   "peer_gap": {
+    "frames": 774651,
+    "unbind_s": -6.01514245,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 398848,
+      "runs": [
+       {
+        "first_s": -8.037945263,
+        "last_s": 41.818587583,
+        "pdus": 398848
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 350835,
+      "runs": [
+       {
+        "first_s": -8.037944183,
+        "last_s": -5.908290375,
+        "pdus": 17038
+       },
+       {
+        "first_s": 0.093535963,
+        "last_s": 41.818588119,
+        "pdus": 333797
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24928,
+      "runs": [
+       {
+        "first_s": -8.036875748,
+        "last_s": 41.817782085,
+        "pdus": 24928
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -5.908290375,
+    "peer_first_after_bind_s": 0.093535963,
+    "peer_pdus_before_bind": 17038
+   },
+   "capture": {
+    "file": "645-b17-c02.pcap",
+    "bytes": 86661180,
+    "sha256": "328f19fc43eaf07d0a15a37b1e2c2f2c1ded6f795228497bf6d8b4c6f049158a",
+    "summary": [
+     "774651 packets captured",
+     "775490 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  },
+  {
+   "cycle": "c03",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050522.707515,
+   "bind_utc": "07:48:42.707",
+   "unbind_to_bind_s": 6.0139570236206055,
+   "unbind_to_bind_tap_s": 6.014,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -7.992857933044434,
+   "last_poll_s": 31.750711917877197,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5000929832458496,
+    0.5100870132446289
+   ],
+   "slip_lb_first": {
+    "dups": 212,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 214,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.156762,
+    "prefill_exit_by_s": 0.648914098739624,
+    "prefill_exit_first_post_poll": false,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.648914098739624,
+    "converged_polls_after_exit": 0,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     8,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.5494170188903809,
+     "start_from_bind_s": -4.464540004730225,
+     "took_s": 0.39763307571411133
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.586838006973267,
+     "start_from_bind_s": 1.5728809833526611,
+     "took_s": 0.3722259998321533
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 1.0723860263824463,
+     "s_hi": 1.9451069831848145,
+     "width_s": 0.8727209568023682,
+     "polls_left_s": 29.805604934692383,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 41666.7 s exceeds the bound window",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 26.326,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 26.326,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 12,
+       "peak_us": 28.713,
+       "larger_than_slipping": true
+      },
+      "hold": {
+       "bursts": 13,
+       "peak_us": 28.713,
+       "larger_than_slipping": true
+      },
+      "capture": {
+       "bursts": 18,
+       "peak_us": 28.713,
+       "larger_than_slipping": true
+      }
+     },
+     "long_poll_in_interval": true
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 5.0161,
+    "peer-aaf": 5.0156,
+    "dut-crf": 5.0161
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": -0.0005,
+   "rate_interval_s": 41666.666666666664,
+   "bound_window_s": 33.73,
+   "rate_slips_expected": 0.0008,
+   "first_pdu_after_bind_ms": 156.762,
+   "phase_us_mod_pdu": {
+    "p50": 1.418,
+    "p01": 0.104,
+    "p99": 124.838
+   },
+   "lateness_us": {
+    "p50": -0.04,
+    "p99": 2.647,
+    "p999": 5.115,
+    "max": 28.713,
+    "min": -2.443
+   },
+   "late_bursts": {
+    "last_poll": 13,
+    "hold": 14,
+    "capture": 19
+   },
+   "late_burst_pdus": [
+    4,
+    8
+   ],
+   "late_burst_times_s": [
+    1.828687,
+    4.540847,
+    4.701224,
+    5.829238,
+    14.442227,
+    14.701605,
+    14.801108,
+    17.830896,
+    21.831451,
+    24.701364,
+    25.832006,
+    28.832417,
+    30.832693,
+    31.832832,
+    33.833109,
+    34.578995,
+    34.833248,
+    37.833661,
+    41.834216
+   ],
+   "peer_gap": {
+    "frames": 776303,
+    "unbind_s": -6.01395661,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 399648,
+      "runs": [
+       {
+        "first_s": -8.066846438,
+        "last_s": 41.889688062,
+        "pdus": 399648
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 351635,
+      "runs": [
+       {
+        "first_s": -8.066844414,
+        "last_s": -5.844941054,
+        "pdus": 17776
+       },
+       {
+        "first_s": 0.156761888,
+        "last_s": 41.889564093,
+        "pdus": 333859
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24978,
+      "runs": [
+       {
+        "first_s": -8.065026914,
+        "last_s": 41.889632565,
+        "pdus": 24978
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -5.844941054,
+    "peer_first_after_bind_s": 0.156761888,
+    "peer_pdus_before_bind": 17776
+   },
+   "capture": {
+    "file": "645-b17-c03.pcap",
+    "bytes": 86846000,
+    "sha256": "4d38639105727830173ed66c389d3008bf84c95b2af78be53107c9a09d018cbb",
+    "summary": [
+     "776303 packets captured",
+     "777145 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  },
+  {
+   "cycle": "c04",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050574.411658,
+   "bind_utc": "07:49:34.411",
+   "unbind_to_bind_s": 6.013873100280762,
+   "unbind_to_bind_tap_s": 6.0139,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -7.997422933578491,
+   "last_poll_s": 31.832618951797485,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5000650882720947,
+    0.5101308822631836
+   ],
+   "slip_lb_first": {
+    "dups": 214,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 216,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.05275,
+    "prefill_exit_by_s": 0.13955092430114746,
+    "prefill_exit_first_post_poll": true,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.6454050540924072,
+    "converged_polls_after_exit": 1,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     8,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.5314750671386719,
+     "start_from_bind_s": -4.48239803314209,
+     "took_s": 0.42622900009155273
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.598330974578857,
+     "start_from_bind_s": 1.5844578742980957,
+     "took_s": 0.3754410743713379
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 3.102825880050659,
+     "s_hi": 3.681230068206787,
+     "width_s": 0.5784041881561279,
+     "polls_left_s": 28.1513888835907,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 12254.9 s exceeds the bound window",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 29.309,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 29.309,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 10,
+       "peak_us": 30.071,
+       "larger_than_slipping": true
+      },
+      "hold": {
+       "bursts": 10,
+       "peak_us": 30.071,
+       "larger_than_slipping": true
+      },
+      "capture": {
+       "bursts": 14,
+       "peak_us": 30.071,
+       "larger_than_slipping": true
+      }
+     },
+     "long_poll_in_interval": false
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 5.0005,
+    "peer-aaf": 4.9988,
+    "dut-crf": 5.0005
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": -0.0017,
+   "rate_interval_s": 12254.901960784315,
+   "bound_window_s": 33.816,
+   "rate_slips_expected": 0.0028,
+   "first_pdu_after_bind_ms": 52.75,
+   "phase_us_mod_pdu": {
+    "p50": 1.429,
+    "p01": 0.11,
+    "p99": 124.832
+   },
+   "lateness_us": {
+    "p50": -0.039,
+    "p99": 2.651,
+    "p999": 4.638,
+    "max": 30.071,
+    "min": -2.424
+   },
+   "late_bursts": {
+    "last_poll": 11,
+    "hold": 11,
+    "capture": 15
+   },
+   "late_burst_pdus": [
+    4,
+    10
+   ],
+   "late_burst_times_s": [
+    3.197322,
+    6.132107,
+    7.132245,
+    7.967011,
+    8.132385,
+    12.99745,
+    19.133904,
+    22.737952,
+    24.134598,
+    27.13501,
+    31.135562,
+    32.997589,
+    33.135839,
+    34.135976,
+    39.619049
+   ],
+   "peer_gap": {
+    "frames": 776300,
+    "unbind_s": -6.013866634,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 399649,
+      "runs": [
+       {
+        "first_s": -8.063107228,
+        "last_s": 41.893551721,
+        "pdus": 399649
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 351635,
+      "runs": [
+       {
+        "first_s": -8.063106188,
+        "last_s": -5.949078482,
+        "pdus": 16913
+       },
+       {
+        "first_s": 0.052749845,
+        "last_s": 41.893427673,
+        "pdus": 334722
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24978,
+      "runs": [
+       {
+        "first_s": -8.062537723,
+        "last_s": 41.892121198,
+        "pdus": 24978
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -5.949078482,
+    "peer_first_after_bind_s": 0.052749845,
+    "peer_pdus_before_bind": 16913
+   },
+   "capture": {
+    "file": "645-b17-c04.pcap",
+    "bytes": 86845676,
+    "sha256": "6725cf3fa2bca94755925defccfcaad7c39c2d3835574f976f24fa35784affd7",
+    "summary": [
+     "776300 packets captured",
+     "777141 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  },
+  {
+   "cycle": "c05",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050660.05656,
+   "bind_utc": "07:51:00.056",
+   "unbind_to_bind_s": 6.016849994659424,
+   "unbind_to_bind_tap_s": 6.0169,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -8.00000810623169,
+   "last_poll_s": 31.837007999420166,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5000810623168945,
+    0.5101220607757568
+   ],
+   "slip_lb_first": {
+    "dups": 216,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 218,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.007854,
+    "prefill_exit_by_s": 0.13759994506835938,
+    "prefill_exit_first_post_poll": true,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.6434688568115234,
+    "converged_polls_after_exit": 1,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     8,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.5443289279937744,
+     "start_from_bind_s": -4.472521066665649,
+     "took_s": 0.41457104682922363
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.5997278690338135,
+     "start_from_bind_s": 1.5828778743743896,
+     "took_s": 0.36748504638671875
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 0.0659029483795166,
+     "s_hi": 0.6434688568115234,
+     "width_s": 0.5775659084320068,
+     "polls_left_s": 31.193539142608643,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 104166.7 s exceeds the bound window; direction does not match delta's sign",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 24.565,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 24.565,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 18,
+       "peak_us": 29.323,
+       "larger_than_slipping": true
+      },
+      "hold": {
+       "bursts": 18,
+       "peak_us": 29.323,
+       "larger_than_slipping": true
+      },
+      "capture": {
+       "bursts": 21,
+       "peak_us": 30.26,
+       "larger_than_slipping": true
+      }
+     },
+     "long_poll_in_interval": false
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 5.0065,
+    "peer-aaf": 5.0067,
+    "dut-crf": 5.0065
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": 0.0002,
+   "rate_interval_s": 104166.66666666667,
+   "bound_window_s": 33.82,
+   "rate_slips_expected": 0.0003,
+   "first_pdu_after_bind_ms": 7.854,
+   "phase_us_mod_pdu": {
+    "p50": 1.438,
+    "p01": 0.111,
+    "p99": 124.839
+   },
+   "lateness_us": {
+    "p50": -0.037,
+    "p99": 2.651,
+    "p999": 5.757,
+    "max": 30.26,
+    "min": -2.433
+   },
+   "late_bursts": {
+    "last_poll": 19,
+    "hold": 19,
+    "capture": 22
+   },
+   "late_burst_pdus": [
+    3,
+    8
+   ],
+   "late_burst_times_s": [
+    0.101631,
+    2.498289,
+    4.16231,
+    4.498691,
+    5.498708,
+    7.353103,
+    7.499105,
+    9.499256,
+    10.499395,
+    14.499948,
+    15.500086,
+    17.353236,
+    17.453115,
+    18.500499,
+    26.501605,
+    27.192991,
+    27.355244,
+    28.501881,
+    30.502158,
+    37.353373,
+    37.503131,
+    39.070771
+   ],
+   "peer_gap": {
+    "frames": 776305,
+    "unbind_s": -6.016860667,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 399650,
+      "runs": [
+       {
+        "first_s": -8.094877487,
+        "last_s": 41.861906547,
+        "pdus": 399650
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 351637,
+      "runs": [
+       {
+        "first_s": -8.094876111,
+        "last_s": -5.993848508,
+        "pdus": 16809
+       },
+       {
+        "first_s": 0.007854458,
+        "last_s": 41.861782435,
+        "pdus": 334828
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24978,
+      "runs": [
+       {
+        "first_s": -8.09443299,
+        "last_s": 41.860226023,
+        "pdus": 24978
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -5.993848508,
+    "peer_first_after_bind_s": 0.007854458,
+    "peer_pdus_before_bind": 16809
+   },
+   "capture": {
+    "file": "645-b17-c05.pcap",
+    "bytes": 86846228,
+    "sha256": "8159378df090185909bccf6272ecc89bf1a33b13305ab034b60ede065bd6dcb1",
+    "summary": [
+     "776305 packets captured",
+     "777144 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  },
+  {
+   "cycle": "c06",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050711.933039,
+   "bind_utc": "07:51:51.933",
+   "unbind_to_bind_s": 6.012508869171143,
+   "unbind_to_bind_tap_s": 6.0125,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -7.9925010204315186,
+   "last_poll_s": 31.825554132461548,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5001180171966553,
+    0.5101499557495117
+   ],
+   "slip_lb_first": {
+    "dups": 218,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 220,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.131486,
+    "prefill_exit_by_s": 0.6427831649780273,
+    "prefill_exit_first_post_poll": false,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.6427831649780273,
+    "converged_polls_after_exit": 0,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     8,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.540700912475586,
+     "start_from_bind_s": -4.471807956695557,
+     "took_s": 0.4062919616699219
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.5789759159088135,
+     "start_from_bind_s": 1.566467046737671,
+     "took_s": 0.3800089359283447
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 3.5688910484313965,
+     "s_hi": 4.145791053771973,
+     "width_s": 0.5769000053405762,
+     "polls_left_s": 27.679763078689575,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 13020.8 s exceeds the bound window; direction does not match delta's sign",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 25.84,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 25.84,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 10,
+       "peak_us": 28.475,
+       "larger_than_slipping": true
+      },
+      "hold": {
+       "bursts": 10,
+       "peak_us": 28.475,
+       "larger_than_slipping": true
+      },
+      "capture": {
+       "bursts": 12,
+       "peak_us": 28.475,
+       "larger_than_slipping": true
+      }
+     },
+     "long_poll_in_interval": false
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 5.0093,
+    "peer-aaf": 5.0109,
+    "dut-crf": 5.0093
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": 0.0016,
+   "rate_interval_s": 13020.833333333334,
+   "bound_window_s": 33.806,
+   "rate_slips_expected": 0.0026,
+   "first_pdu_after_bind_ms": 131.486,
+   "phase_us_mod_pdu": {
+    "p50": 1.429,
+    "p01": 0.105,
+    "p99": 124.844
+   },
+   "lateness_us": {
+    "p50": -0.032,
+    "p99": 2.641,
+    "p999": 4.521,
+    "max": 28.475,
+    "min": -2.58
+   },
+   "late_bursts": {
+    "last_poll": 11,
+    "hold": 11,
+    "capture": 13
+   },
+   "late_burst_pdus": [
+    4,
+    6
+   ],
+   "late_burst_times_s": [
+    3.628934,
+    5.217957,
+    9.629765,
+    11.06528,
+    15.576967,
+    19.631145,
+    21.279418,
+    25.217469,
+    25.477099,
+    25.577098,
+    28.632388,
+    35.477229,
+    39.633909
+   ],
+   "peer_gap": {
+    "frames": 776303,
+    "unbind_s": -6.012525229,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 399649,
+      "runs": [
+       {
+        "first_s": -8.063372717,
+        "last_s": 41.893286394,
+        "pdus": 399649
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 351635,
+      "runs": [
+       {
+        "first_s": -8.063370805,
+        "last_s": -5.870342275,
+        "pdus": 17545
+       },
+       {
+        "first_s": 0.131485648,
+        "last_s": 41.89316233,
+        "pdus": 334090
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24978,
+      "runs": [
+       {
+        "first_s": -8.06230321,
+        "last_s": 41.892355864,
+        "pdus": 24978
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -5.870342275,
+    "peer_first_after_bind_s": 0.131485648,
+    "peer_pdus_before_bind": 17545
+   },
+   "capture": {
+    "file": "645-b17-c06.pcap",
+    "bytes": 86846000,
+    "sha256": "500d3338cf74ec2abb574e0fb446fb761b142eaaac5d8c969e1efb3b6b96583c",
+    "summary": [
+     "776303 packets captured",
+     "777143 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  },
+  {
+   "cycle": "c07",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050763.809563,
+   "bind_utc": "07:52:43.809",
+   "unbind_to_bind_s": 6.031883955001831,
+   "unbind_to_bind_tap_s": 6.0319,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -8.01085901260376,
+   "last_poll_s": 31.839709997177124,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5000739097595215,
+    0.5149588584899902
+   ],
+   "slip_lb_first": {
+    "dups": 220,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 222,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.054945,
+    "prefill_exit_by_s": 0.12272119522094727,
+    "prefill_exit_first_post_poll": true,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.6368050575256348,
+    "converged_polls_after_exit": 1,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     8,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.557239055633545,
+     "start_from_bind_s": -4.474644899368286,
+     "took_s": 0.38912391662597656
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.59273099899292,
+     "start_from_bind_s": 1.5608470439910889,
+     "took_s": 0.3820631504058838
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 1.0598411560058594,
+     "s_hi": 1.9429101943969727,
+     "width_s": 0.8830690383911133,
+     "polls_left_s": 29.89679980278015,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 104166.7 s exceeds the bound window; direction does not match delta's sign",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 24.968,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 24.968,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 17,
+       "peak_us": 29.14,
+       "larger_than_slipping": true
+      },
+      "hold": {
+       "bursts": 17,
+       "peak_us": 29.14,
+       "larger_than_slipping": true
+      },
+      "capture": {
+       "bursts": 21,
+       "peak_us": 29.14,
+       "larger_than_slipping": true
+      }
+     },
+     "long_poll_in_interval": true
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 5.003,
+    "peer-aaf": 5.0032,
+    "dut-crf": 5.003
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": 0.0002,
+   "rate_interval_s": 104166.66666666667,
+   "bound_window_s": 33.819,
+   "rate_slips_expected": 0.0003,
+   "first_pdu_after_bind_ms": 54.945,
+   "phase_us_mod_pdu": {
+    "p50": 1.411,
+    "p01": 0.105,
+    "p99": 124.852
+   },
+   "lateness_us": {
+    "p50": -0.043,
+    "p99": 2.636,
+    "p999": 5.935,
+    "max": 29.14,
+    "min": -2.446
+   },
+   "late_bursts": {
+    "last_poll": 18,
+    "hold": 18,
+    "capture": 22
+   },
+   "late_burst_pdus": [
+    4,
+    10
+   ],
+   "late_burst_times_s": [
+    1.356364,
+    3.145263,
+    3.342643,
+    3.60077,
+    4.759533,
+    8.76009,
+    10.760488,
+    12.760639,
+    13.341149,
+    13.440525,
+    14.760917,
+    16.761193,
+    20.761746,
+    23.342029,
+    23.44078,
+    24.762297,
+    25.762436,
+    28.762851,
+    32.763405,
+    33.440789,
+    38.764233,
+    40.764509
+   ],
+   "peer_gap": {
+    "frames": 776304,
+    "unbind_s": -6.031890576,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 399650,
+      "runs": [
+       {
+        "first_s": -8.13203761,
+        "last_s": 41.824746274,
+        "pdus": 399650
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 351637,
+      "runs": [
+       {
+        "first_s": -8.132036153,
+        "last_s": -5.946757854,
+        "pdus": 17483
+       },
+       {
+        "first_s": 0.054945059,
+        "last_s": 41.824623226,
+        "pdus": 334154
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24978,
+      "runs": [
+       {
+        "first_s": -8.130218093,
+        "last_s": 41.824440778,
+        "pdus": 24978
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -5.946757854,
+    "peer_first_after_bind_s": 0.054945059,
+    "peer_pdus_before_bind": 17483
+   },
+   "capture": {
+    "file": "645-b17-c07.pcap",
+    "bytes": 86846120,
+    "sha256": "9607736ee9247db85922c9e4d5385445c696b2bec0e0096022098524e0f94003",
+    "summary": [
+     "776304 packets captured",
+     "777142 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  },
+  {
+   "cycle": "c08",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050820.237493,
+   "bind_utc": "07:53:40.237",
+   "unbind_to_bind_s": 6.012637138366699,
+   "unbind_to_bind_tap_s": 6.0126,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -7.99370002746582,
+   "last_poll_s": 31.92682385444641,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5000619888305664,
+    0.5816750526428223
+   ],
+   "slip_lb_first": {
+    "dups": 222,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 224,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.028539000000000002,
+    "prefill_exit_by_s": 0.24857807159423828,
+    "prefill_exit_first_post_poll": true,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.24857807159423828,
+    "converged_polls_after_exit": 0,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     8,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.6358320713043213,
+     "start_from_bind_s": -4.376805067062378,
+     "took_s": 0.30639004707336426
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.688552141189575,
+     "start_from_bind_s": 1.675915002822876,
+     "took_s": 0.2657449245452881
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 1.174980878829956,
+     "s_hi": 1.941659927368164,
+     "width_s": 0.766679048538208,
+     "polls_left_s": 29.985163927078247,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 69444.4 s exceeds the bound window; direction does not match delta's sign",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 25.581,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 25.581,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 17,
+       "peak_us": 27.092,
+       "larger_than_slipping": true
+      },
+      "hold": {
+       "bursts": 17,
+       "peak_us": 27.092,
+       "larger_than_slipping": true
+      },
+      "capture": {
+       "bursts": 23,
+       "peak_us": 27.575,
+       "larger_than_slipping": true
+      }
+     },
+     "long_poll_in_interval": true
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 5.0017,
+    "peer-aaf": 5.002,
+    "dut-crf": 5.0017
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": 0.0003,
+   "rate_interval_s": 69444.44444444445,
+   "bound_window_s": 33.908,
+   "rate_slips_expected": 0.0005,
+   "first_pdu_after_bind_ms": 28.539,
+   "phase_us_mod_pdu": {
+    "p50": 1.45,
+    "p01": 0.113,
+    "p99": 124.826
+   },
+   "lateness_us": {
+    "p50": -0.034,
+    "p99": 2.643,
+    "p999": 6.139,
+    "max": 27.575,
+    "min": -2.5
+   },
+   "late_bursts": {
+    "last_poll": 18,
+    "hold": 18,
+    "capture": 24
+   },
+   "late_burst_pdus": [
+    4,
+    6
+   ],
+   "late_burst_times_s": [
+    1.338706,
+    5.339259,
+    6.913531,
+    6.915032,
+    7.173534,
+    9.339813,
+    13.340365,
+    14.340503,
+    16.914286,
+    17.013039,
+    17.173667,
+    20.341333,
+    21.341472,
+    24.341885,
+    25.342023,
+    26.342286,
+    27.173422,
+    29.342577,
+    34.343267,
+    37.013305,
+    37.173432,
+    37.273306,
+    37.373306,
+    39.343958
+   ],
+   "peer_gap": {
+    "frames": 814991,
+    "unbind_s": -6.012640245,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 399653,
+      "runs": [
+       {
+        "first_s": -8.051443742,
+        "last_s": 41.905715264,
+        "pdus": 399653
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 390321,
+      "runs": [
+       {
+        "first_s": -8.051443542,
+        "last_s": -1.13797614,
+        "pdus": 55308
+       },
+       {
+        "first_s": 0.028538629,
+        "last_s": 41.905592,
+        "pdus": 335013
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24978,
+      "runs": [
+       {
+        "first_s": -8.049499217,
+        "last_s": 41.905159742,
+        "pdus": 24978
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -1.13797614,
+    "peer_first_after_bind_s": 0.028538629,
+    "peer_pdus_before_bind": 55308
+   },
+   "capture": {
+    "file": "645-b17-c08.pcap",
+    "bytes": 91179068,
+    "sha256": "4ecbb7a649aaedee7fa344cadad3c90792a2bbdcf0511432c48da1f3f5cf8ea5",
+    "summary": [
+     "814991 packets captured",
+     "815829 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  },
+  {
+   "cycle": "c09",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050872.303391,
+   "bind_utc": "07:54:32.303",
+   "unbind_to_bind_s": 6.011717081069946,
+   "unbind_to_bind_tap_s": 6.0117,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -7.995107889175415,
+   "last_poll_s": 31.78484010696411,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5000729560852051,
+    0.5101101398468018
+   ],
+   "slip_lb_first": {
+    "dups": 224,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 226,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.16124000000000002,
+    "prefill_exit_by_s": 0.6217629909515381,
+    "prefill_exit_first_post_poll": false,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.6217629909515381,
+    "converged_polls_after_exit": 0,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     9,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.5225460529327393,
+     "start_from_bind_s": -4.489171028137207,
+     "took_s": 0.4250810146331787
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.556972026824951,
+     "start_from_bind_s": 1.5452549457550049,
+     "took_s": 0.4007570743560791
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 1.0448329448699951,
+     "s_hi": 1.946012020111084,
+     "width_s": 0.9011790752410889,
+     "polls_left_s": 29.838828086853027,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 208333.3 s exceeds the bound window; direction does not match delta's sign",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 25.128,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 25.128,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 12,
+       "peak_us": 29.528,
+       "larger_than_slipping": true
+      },
+      "hold": {
+       "bursts": 12,
+       "peak_us": 29.528,
+       "larger_than_slipping": true
+      },
+      "capture": {
+       "bursts": 18,
+       "peak_us": 29.528,
+       "larger_than_slipping": true
+      }
+     },
+     "long_poll_in_interval": true
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 4.9928,
+    "peer-aaf": 4.9929,
+    "dut-crf": 4.9928
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": 0.0001,
+   "rate_interval_s": 208333.33333333334,
+   "bound_window_s": 33.768,
+   "rate_slips_expected": 0.0002,
+   "first_pdu_after_bind_ms": 161.24,
+   "phase_us_mod_pdu": {
+    "p50": 1.431,
+    "p01": 0.109,
+    "p99": 124.837
+   },
+   "lateness_us": {
+    "p50": -0.037,
+    "p99": 2.635,
+    "p999": 5.094,
+    "max": 29.528,
+    "min": -2.422
+   },
+   "late_bursts": {
+    "last_poll": 13,
+    "hold": 13,
+    "capture": 19
+   },
+   "late_burst_pdus": [
+    4,
+    7
+   ],
+   "late_burst_times_s": [
+    1.279781,
+    2.27992,
+    3.280062,
+    5.307584,
+    6.280473,
+    13.28144,
+    15.107715,
+    15.307592,
+    19.282272,
+    20.282407,
+    21.282545,
+    22.282684,
+    26.283236,
+    34.284342,
+    34.848974,
+    35.107856,
+    35.207855,
+    38.284894,
+    39.978917
+   ],
+   "peer_gap": {
+    "frames": 776308,
+    "unbind_s": -6.011730654,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 399650,
+      "runs": [
+       {
+        "first_s": -8.109119084,
+        "last_s": 41.847664535,
+        "pdus": 399650
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 351638,
+      "runs": [
+       {
+        "first_s": -8.10911762,
+        "last_s": -5.84046365,
+        "pdus": 18150
+       },
+       {
+        "first_s": 0.161239907,
+        "last_s": 41.847665943,
+        "pdus": 333488
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24978,
+      "runs": [
+       {
+        "first_s": -8.108799588,
+        "last_s": 41.84585901,
+        "pdus": 24978
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -5.84046365,
+    "peer_first_after_bind_s": 0.161239907,
+    "peer_pdus_before_bind": 18150
+   },
+   "capture": {
+    "file": "645-b17-c09.pcap",
+    "bytes": 86846560,
+    "sha256": "7bca6618f877ac5b2ef0e7752e8bb3970560764b8362b3b7d57c31f8332cb3cd",
+    "summary": [
+     "776308 packets captured",
+     "777146 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  },
+  {
+   "cycle": "c10",
+   "tool_sha256": "12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17",
+   "poller_sha256": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+   "t_bind_local": 1792050924.165118,
+   "bind_utc": "07:55:24.165",
+   "unbind_to_bind_s": 6.01453709602356,
+   "unbind_to_bind_tap_s": 6.0145,
+   "unbind_status": 0,
+   "bind_status": 0,
+   "format_check": [
+    {
+     "talker_fmt": "0205022001006000",
+     "listener_fmt": "0205022001006000",
+     "set": null
+    }
+   ],
+   "states": {
+    "start": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    },
+    "end": {
+     "clk_dut": 0,
+     "clk_peer": 1,
+     "rx_dut_0": {
+      "conn_count": 1,
+      "talker": "peer",
+      "talker_uid": 0,
+      "flags": "0x0002",
+      "status": 0
+     }
+    }
+   },
+   "polls": 80,
+   "first_poll_s": -7.995090961456299,
+   "last_poll_s": 31.80445098876953,
+   "hold_s": 32.0,
+   "poll_spacing_s": [
+    0.5000720024108887,
+    0.5101339817047119
+   ],
+   "slip_lb_first": {
+    "dups": 226,
+    "skips": 0
+   },
+   "slip_lb_last": {
+    "dups": 228,
+    "skips": 0
+   },
+   "slip_tdm_static": true,
+   "servo_states": [
+    0
+   ],
+   "aafm_stat_values": [
+    "00000000"
+   ],
+   "settle_boundary": "undefined: no poll read LOCKED (MCSRV_STAT state IDLE throughout)",
+   "render": {
+    "prefill_exit_after_s": 0.101128,
+    "prefill_exit_by_s": 0.6534919738769531,
+    "prefill_exit_first_post_poll": false,
+    "lower_bound_is_first_pdu": true,
+    "converged_by_s": 0.6534919738769531,
+    "converged_polls_after_exit": 0,
+    "held_to_last_poll": true,
+    "fill_from_exit": [
+     8,
+     14
+    ],
+    "rails": [
+     11
+    ]
+   },
+   "long_polls": [
+    {
+     "n": 7,
+     "start_from_unbind_s": 1.5572302341461182,
+     "start_from_bind_s": -4.457306861877441,
+     "took_s": 0.3886289596557617
+    },
+    {
+     "n": 19,
+     "start_from_unbind_s": 7.592429161071777,
+     "start_from_bind_s": 1.5778920650482178,
+     "took_s": 0.35756397247314453
+    }
+   ],
+   "slips": [
+    {
+     "s_lo": 5.0941081047058105,
+     "s_hi": 5.671092987060547,
+     "width_s": 0.5769848823547363,
+     "polls_left_s": 26.133358001708984,
+     "dups": 2,
+     "skips": 0,
+     "cls": "c",
+     "basis": [
+      "rate interval 34722.2 s exceeds the bound window; direction does not match delta's sign",
+      "(a) not shown: no CLOCK_SOURCE change in the cycle, and the aligner's state and the recentre count are not exposed by any CSR on this image"
+     ],
+     "lateness_max_in_interval_us": 26.869,
+     "first_burst_in_interval": true,
+     "slipping_burst_peak_us": 26.869,
+     "lateness_max_before_interval_us": null,
+     "after": {
+      "last_poll": {
+       "bursts": 8,
+       "peak_us": 27.813,
+       "larger_than_slipping": true
+      },
+      "hold": {
+       "bursts": 8,
+       "peak_us": 27.813,
+       "larger_than_slipping": true
+      },
+      "capture": {
+       "bursts": 12,
+       "peak_us": 27.813,
+       "larger_than_slipping": true
+      }
+     },
+     "long_poll_in_interval": false
+    }
+   ],
+   "rates_ppm": {
+    "dut-aaf": 4.9978,
+    "peer-aaf": 4.9984,
+    "dut-crf": 4.9978
+   },
+   "seq_gaps": {
+    "dut-aaf": 0,
+    "peer-aaf": 0,
+    "dut-crf": 0
+   },
+   "delta_ppm": 0.0006,
+   "rate_interval_s": 34722.222222222226,
+   "bound_window_s": 33.784,
+   "rate_slips_expected": 0.001,
+   "first_pdu_after_bind_ms": 101.128,
+   "phase_us_mod_pdu": {
+    "p50": 1.431,
+    "p01": 0.108,
+    "p99": 124.835
+   },
+   "lateness_us": {
+    "p50": -0.031,
+    "p99": 2.6,
+    "p999": 4.494,
+    "max": 27.813,
+    "min": -2.436
+   },
+   "late_bursts": {
+    "last_poll": 9,
+    "hold": 9,
+    "capture": 13
+   },
+   "late_burst_pdus": [
+    4,
+    5
+   ],
+   "late_burst_times_s": [
+    5.425726,
+    11.42643,
+    15.426983,
+    18.831777,
+    19.427536,
+    22.42795,
+    23.44634,
+    25.428365,
+    30.429055,
+    33.246468,
+    33.44647,
+    35.429747,
+    39.430299
+   ],
+   "peer_gap": {
+    "frames": 776304,
+    "unbind_s": -6.014529682,
+    "streams": {
+     "dut-aaf": {
+      "pdus": 399650,
+      "runs": [
+       {
+        "first_s": -8.062979128,
+        "last_s": 41.893804734,
+        "pdus": 399650
+       }
+      ]
+     },
+     "peer-aaf": {
+      "pdus": 351635,
+      "runs": [
+       {
+        "first_s": -8.062976872,
+        "last_s": -5.900824144,
+        "pdus": 17298
+       },
+       {
+        "first_s": 0.101127996,
+        "last_s": 41.893679958,
+        "pdus": 334337
+       }
+      ]
+     },
+     "dut-crf": {
+      "pdus": 24978,
+      "runs": [
+       {
+        "first_s": -8.061909621,
+        "last_s": 41.892749203,
+        "pdus": 24978
+       }
+      ]
+     }
+    },
+    "peer_last_before_bind_s": -5.900824144,
+    "peer_first_after_bind_s": 0.101127996,
+    "peer_pdus_before_bind": 17298
+   },
+   "capture": {
+    "file": "645-b17-c10.pcap",
+    "bytes": 86846116,
+    "sha256": "268350e3fbd14f249eaa885da4f86b9795662f0b14db98750659d2b94df8a996",
+    "summary": [
+     "776304 packets captured",
+     "777142 packets received by filter",
+     "0 packets dropped by kernel"
+    ],
+    "removed_from_tap": true
+   },
+   "ended_bound_as_found": true,
+   "clk_dut_end": 0
+  }
+ ]
+}

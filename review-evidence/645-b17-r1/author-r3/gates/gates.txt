@@ -1,0 +1,15 @@
+HEAD 56d008f68f445156a9bdd81eb32f8d5353cc7a7f
+== python scripts/docs_check.py rc=0
+docs_check: 0 finding(s) across 207 md files + 1301 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== python scripts/check_doc_style.py rc=0
+documentation style: OK (22 current documents)
+== python scripts/gen_toc.py --check rc=0
+TOC gate: OK (146 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+== python scripts/check_em_dash.py --base f6260253 rc=0
+check_em_dash: 0 finding(s) over 301 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [f6260253..HEAD]
+== python scripts/check_doc_paths.py rc=0
+doc path gate: OK (985 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+== python scripts/check_baremetal_only.py --check rc=0
+baremetal-only: OK (0 findings across 1299 tracked first-party file(s))
+== git diff --check f6260253 HEAD rc=0
+== git diff --check rc=0
