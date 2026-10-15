@@ -105,6 +105,11 @@ PROBE = ("import sys, litex, pythondata_cpu_vexiiriscv as p; "
          "print(sys.prefix); print(litex.__file__); print(p.data_location)")
 
 
+def shell(step: dict) -> bool:
+    """Whether the step is a script this control can run: text, with no expression in it."""
+    return isinstance(step.get("run"), str) and "${{" not in step["run"]
+
+
 def window(job: dict, shared: bool) -> list[dict]:
     """The leg's steps after setup-python up to the patch series, each accounted for."""
     names = [step.get("uses", "") for step in job["steps"]]
@@ -118,8 +123,8 @@ def window(job: dict, shared: bool) -> list[dict]:
             continue
         if name in SKIP:
             continue
-        if name not in RUN or "run" not in step or "${{" in step["run"]:
-            raise ValueError(f"{name!r}: a setup step this control neither runs nor declares")
+        if name not in RUN or not shell(step):
+            raise ValueError(f"{name!r}: a setup step this control neither declares nor can run as a script")
         chosen.append(step)
     return chosen
 
@@ -134,11 +139,11 @@ def tail(job: dict) -> list[dict]:
         name = step.get("name", "")
         if name.startswith(tuple(TAIL_SKIP)):
             continue
-        if not name.startswith(TAIL_RUN) or "run" not in step or "${{" in step["run"]:
-            raise ValueError(f"{name!r}: a gate-leg step this control neither runs nor declares")
+        if not name.startswith(TAIL_RUN) or not shell(step):
+            raise ValueError(f"{name!r}: a gate-leg step this control neither declares nor can run as a script")
         chosen.append(step)
-    if "${{" in chosen[0]["run"]:
-        raise ValueError(f"{BUDGET_STEP!r}: reads an expression this control cannot supply")
+    if not shell(chosen[0]):
+        raise ValueError(f"{BUDGET_STEP!r}: not a script this control can run")
     return chosen
 
 
