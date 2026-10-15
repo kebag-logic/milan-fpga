@@ -1446,7 +1446,11 @@ The leg runner names those gates itself, rather than reading them from the
 inventory. A gate deleted from the inventory, lost with its leg, or run
 without its flag is therefore refused by name.
 `ci_gate_workflows_selftest.py` plants each of those losses for both
-commands. It also checks the named gates against the driver source.
+commands. It also checks the named gates against the driver source. It
+requires that exactly the workers running a builder leg upload
+`builder-leg-*.json`. For both templates it plants a divided step that runs
+the driver in a preparation line, and one whose last line is not the driver;
+the generator must refuse each.
 
 Independently, worker 1 installs Verilator and runs
 `scripts/run_litex_sims.sh`, the one aggregate that owns the standalone LiteX

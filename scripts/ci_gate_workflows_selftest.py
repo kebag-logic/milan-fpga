@@ -22,7 +22,8 @@ from ci_builder_legs import LEGS, REQUIRED, compare, partition, requirements, un
 from ci_gate_receipts import Collected, StepContext, record, verify
 from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
 from ci_runtime_workflows import cpu_budget_step
-from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, builder_command, builder_leg_step, gate_graph
+from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, DRIVER_COMMAND, builder_command, builder_leg_step
+from ci_gate_workflows import gate_graph
 import ci_suite_pieces
 from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
 
@@ -87,6 +88,30 @@ def scheduling_controls() -> None:
     download = next(step for step in worker["steps"] if step.get("name") == "Download the pinned Yosys build")
     assert upload["with"]["name"] == download["with"]["name"] == "pinned-yosys-${{ github.sha }}"
     print("Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS")
+
+
+def builder_split_controls() -> None:
+    """A divided builder step must end in its one driver command and run it nowhere else."""
+    for name in BUILDER_SPLIT:
+        source = load_template(ROOT, name)
+        step, = (step for step in source["jobs"][CARRIERS[name]]["steps"] if step.get("name") == BUILDER_SPLIT[name])
+        *preparation, driver = step["run"].strip().split("\n")
+        for label, run in (
+                ("driver in a preparation line", "\n".join([*preparation, driver + " --list", driver]) + "\n"),
+                ("last line not the driver", "\n".join([*preparation, "true"]) + "\n")):
+            changed = copy.deepcopy(source)
+            planted, = (item for item in changed["jobs"][CARRIERS[name]]["steps"]
+                        if item.get("name") == BUILDER_SPLIT[name])
+            planted["run"] = run
+            # Each plant breaks one condition alone: two driver lines, or none.
+            assert run.count(DRIVER_COMMAND) == (2 if "preparation" in label else 0), (name, label)
+            try:
+                generate(name, changed)
+            except ValueError as exc:
+                assert "one driver command" in str(exc), (name, label, str(exc))
+                print("Builder split refused the " + name + " template with its " + label)
+            else:
+                raise AssertionError("builder split accepted the " + name + " template with its " + label)
 
 
 def suite_generator_controls() -> None:
@@ -389,6 +414,7 @@ def main() -> int:
     """Drive the production generator and verifier with independent planted losses."""
     inventory_controls()
     scheduling_controls()
+    builder_split_controls()
     suite_generator_controls()
     cpu_controls()
     for name, carrier in CARRIERS.items():
@@ -415,6 +441,14 @@ def main() -> int:
             source_order = [index[step["id"]] for step in steps if step.get("id") in index]
             assert source_order == sorted(source_order)
             assert len(source_order) == sum(case["leg"] == leg for case in cases)
+        # Exactly the workers that run a builder leg retain its receipt.
+        owners = {case["leg"] for case in cases if "builder" in case}
+        assert owners == set(BUILDER_WORKERS[name]), (name, owners)
+        for leg in legs:
+            upload, = (step for step in generated["jobs"][worker_id(name, leg)]["steps"]
+                       if step.get("name") == "Upload executed gate outcomes")
+            retained = "builder-leg-*.json" in upload["with"]["path"]
+            assert retained == (leg in owners), (name, leg, upload["with"]["path"])
         def refuse(label: str, records: list, jobs: dict, legs_builder: list | None = builder) -> None:
             """Every damaged collection must reach the production refusal path."""
             try:
