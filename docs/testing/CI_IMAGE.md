@@ -316,6 +316,7 @@ An interpreter reading its program from a fetcher's pipe is refused too.
 A program or script in the image's own directories must be named.
 Any other program needs provenance from the same traced job.
 It must be the `-o` output of a build program, or a byte copy of one.
+Otherwise the job must have written it without copying an existing program.
 Another script must be in the checkout when the job starts.
 Otherwise it must have been written during the job.
 A missing script operand runs nothing and is recorded as absent.
@@ -330,7 +331,8 @@ docker run --rm --network none --user 0:0 --mount "type=bind,src=$PWD,dst=/work,
 A real offline local-wheel install is caught as the `pip` module.
 Scripted `pip3` and `npm`, and a shebang `apt-get`, are caught by name.
 An unlisted shebang script and a static binary in a system directory are caught.
-A copied unlisted program has no provenance and is caught.
+An unlisted program the job copies from the image has no provenance and is caught.
+A program built under a temporary name and renamed stays clean.
 A fetched program piped to a shell and `gem install` are caught.
 A permitted interpreter call and a step-built program stay clean.
 A step-built static binary is observed, and a failing step is reported.

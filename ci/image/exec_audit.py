@@ -21,9 +21,10 @@ judged by what it runs, not by the loaded interpreter binary:
   from a pipe a fetcher writes;
 - a program or script inside the image's own directories must be named in
   `exec-audit.json`;
-- any other program needs provenance: the output (`-o`) of a build program run
-  earlier in the same traced job, or a byte copy of one. A script needs to be
-  in the checkout when the job starts, or written during the job.
+- any other program needs provenance from the traced job: the output (`-o`) of a
+  build program it ran, a byte copy of one, or a file it wrote that copies no
+  program existing before the job. A script needs to be in the checkout when the
+  job starts, or written during the job.
 
 `--selftest` runs the controls; `--audit SPEC --output RECEIPT` runs a step spec.
 """
@@ -191,6 +192,25 @@ class Origin:
         self.started = time.time() - 1
         self.outputs: dict[str, str] = {}
         self.digests: dict[tuple, str | None] = {}
+        self.existing: dict[int, list[str]] | None = None
+
+    def copies_existing(self, path: str, own: str) -> bool:
+        """Whether a program's bytes copy an executable the image or checkout held before the job."""
+        if self.existing is None:
+            self.existing = {}
+            for top in (*SYSTEM_ROOTS, f"{self.root}/"):
+                for base, _, files in os.walk(top):
+                    for name in files:
+                        candidate = f"{base}/{name}"
+                        try:
+                            status = os.lstat(candidate)
+                        except OSError:
+                            continue
+                        if status.st_mode & 0o111 and status.st_ctime < self.started and \
+                                (status.st_mode & 0o170000) == 0o100000:
+                            self.existing.setdefault(status.st_size, []).append(candidate)
+        size = os.stat(path).st_size
+        return any(self.digest(candidate) == own for candidate in self.existing.get(size, []))
 
     def digest(self, path: str) -> str | None:
         """Content identity of a program file, cached by its size and modification time."""
@@ -220,8 +240,14 @@ class Origin:
             if path in self.outputs:
                 return f"built by {self.outputs[path]}"
             own = self.digest(path)
-            built = {self.digest(output) for output in self.outputs}
-            return "copy of a program the step built" if own and own in built else "none"
+            if own and own in {self.digest(output) for output in self.outputs}:
+                return "copy of a program the job built"
+            try:
+                created = os.stat(path).st_ctime >= self.started
+            except OSError:
+                created = False
+            # Written in the job and not a copy of anything that existed before: built from its inputs.
+            return "written during the job" if created and own and not self.copies_existing(path, own) else "none"
         if not Path(path).exists():
             return "absent"  # The interpreter cannot open it, so no code runs from it.
         if Path(path).is_relative_to(self.root) and Path(path).relative_to(self.root).as_posix() in self.present:
@@ -573,8 +599,8 @@ def selftest(names: dict[str, object]) -> int:
         (base / "bin/apt-get").chmod(0o755)
         step("a shebang apt-get outside the system directories", f"{base}/bin/apt-get update",
              "installer executed: apt-get")
-        shutil.copy("/bin/true", base / "bin/zz_copied_program")
-        step("a copied unlisted program", f"{base}/bin/zz_copied_program",
+        step("an unlisted program the job copies from the image",
+             f"cp /bin/true {base}/bin/zz_copied_program && {base}/bin/zz_copied_program",
              "program without provenance: zz_copied_program")
         (base / "fetched.sh").write_text("exit 0\n")
         step("a fetched program piped to a shell", f"curl -fsS file://{base}/fetched.sh | sh",
@@ -596,6 +622,9 @@ def selftest(names: dict[str, object]) -> int:
         step("a permitted interpreter call and a checkout script",
              f"python3 -c 'print(1)' && python3 {base}/tool.py", None)
         (base / "built.c").write_text("int main(void) { return 0; }\n")
+        step("a program the job built under a temporary name, then renamed",
+             f"cc -o {base}/renamed.part {base}/built.c && mv {base}/renamed.part {base}/renamed && {base}/renamed",
+             None)
         step("a program the step built, and an installed copy of it",
              f"cc -o {base}/built {base}/built.c && {base}/built && install -m 755 {base}/built {base}/copy && "
              f"{base}/copy", None)
