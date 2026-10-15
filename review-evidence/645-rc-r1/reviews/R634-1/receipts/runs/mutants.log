@@ -1,0 +1,25 @@
+[MUTANT] HIGH-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] NO-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] SINGLE-DROP: SURVIVED by "LRC: ten left drops five excess events on both pairs"
+did not build (rc 2)
+make: *** <packet>/scratch/tree-head/tb/verilator/chmap_capture: No such file or directory.  Stop.
+
+[MUTANT] HELD-DUP: SURVIVED by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter" and "SPAN: no action counted as a duplicate"
+did not build (rc 2)
+make: *** <packet>/scratch/tree-head/tb/verilator/chmap_capture: No such file or directory.  Stop.
+
+[MUTANT] STARVED-HELD-DUP: SURVIVED by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter"
+did not build (rc 2)
+make: *** <packet>/scratch/tree-head/tb/verilator/chmap_capture: No such file or directory.  Stop.
+
+[MUTANT] NO-RECOVERY: caught by "[PULLIN] exactly one settle recentre from the transient to the hold's end"
+[MUTANT] NO-SETTLE: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] QUIET-ARM: caught by "[STEADY] INTERNAL without a hold has no pending settle"
+[MUTANT] RENDER-ONLY: caught by "[B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)"
+[MUTANT] EARLY: caught by "[B8] the render stage is on its law after the settle recentre"
+[MUTANT] NO-BIND-ARM: caught by "[BIND] B17 cycle 5 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 4 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 9 at INTERNAL: no SLIP_LB change across the cycle"
+[MUTANT] OVERSHOOT: caught by "[B8] no loopback slip after the settle recentre"
+[MUTANT] W1: caught by "[SW] AAF to CRF: the switch moved the loopback margin less than 0.1 tick before its settle"
+[MUTANT] BIND-RISE: caught by "[BIND] B17 cycle 4 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 9 at INTERNAL: no SLIP_LB change across the cycle"
+[MUTANT] FOLLOWING-ARM: caught by "[BIND-FOLLOW] B17 cycle 5 under CRF following: the bind armed no settle recentre"
+follow_ring mutants: 12/15 caught

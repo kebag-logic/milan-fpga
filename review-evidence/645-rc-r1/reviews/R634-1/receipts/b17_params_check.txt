@@ -1,0 +1,11 @@
+c01 derived first_pdu_ms=163.485 burst_s=2.6534 burst_us=28.833 later_us=28.691 | table (163.485, 2.6534, 28.833, 28.691) MATCH | max late before first burst none-listed | slip 2.56..3.138 s, first burst at 2.8169 s from bind, n=7
+c02 derived first_pdu_ms=93.536 burst_s=1.4650 burst_us=25.009 later_us=28.365 | table (93.536, 1.465, 25.009, 28.365) MATCH | max late before first burst none-listed | slip 1.091..1.956 s, first burst at 1.5586 s from bind, n=4
+c03 derived first_pdu_ms=156.762 burst_s=1.6719 burst_us=26.326 later_us=28.713 | table (156.762, 1.6719, 26.326, 28.713) MATCH | max late before first burst none-listed | slip 1.072..1.945 s, first burst at 1.8287 s from bind, n=5
+c04 derived first_pdu_ms=52.75 burst_s=3.1446 burst_us=29.309 later_us=30.071 | table (52.75, 3.1446, 29.309, 30.071) MATCH | max late before first burst none-listed | slip 3.103..3.681 s, first burst at 3.1973 s from bind, n=7
+c05 derived first_pdu_ms=7.854 burst_s=0.0938 burst_us=24.565 later_us=30.26 | table (7.854, 0.0938, 24.565, 30.26) MATCH | max late before first burst none-listed | slip 0.066..0.643 s, first burst at 0.1016 s from bind, n=4
+c06 derived first_pdu_ms=131.486 burst_s=3.4974 burst_us=25.84 later_us=28.475 | table (131.486, 3.4974, 25.84, 28.475) MATCH | max late before first burst none-listed | slip 3.569..4.146 s, first burst at 3.6289 s from bind, n=5
+c07 derived first_pdu_ms=54.945 burst_s=1.3014 burst_us=24.968 later_us=29.14 | table (54.945, 1.3014, 24.968, 29.14) MATCH | max late before first burst none-listed | slip 1.06..1.943 s, first burst at 1.3564 s from bind, n=4
+c08 derived first_pdu_ms=28.539 burst_s=1.3102 burst_us=25.581 later_us=27.575 | table (28.539, 1.3102, 25.581, 27.575) MATCH | max late before first burst none-listed | slip 1.175..1.942 s, first burst at 1.3387 s from bind, n=5
+c09 derived first_pdu_ms=161.24 burst_s=1.1185 burst_us=25.128 later_us=29.528 | table (161.24, 1.1185, 25.128, 29.528) MATCH | max late before first burst none-listed | slip 1.045..1.946 s, first burst at 1.2798 s from bind, n=4
+c10 derived first_pdu_ms=101.128 burst_s=5.3246 burst_us=26.869 later_us=27.813 | table (101.128, 5.3246, 26.869, 27.813) MATCH | max late before first burst none-listed | slip 5.094..5.671 s, first burst at 5.4257 s from bind, n=5
+RESULT PASS

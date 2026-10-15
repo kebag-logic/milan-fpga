@@ -1,0 +1,20 @@
+EDGE same-cycle rise+tlast arms: 0 (expect 0) PASS
+EDGE next tlast then arms: 1 (expect 1) PASS
+EDGE one action: 1 (expect 1) PASS
+EDGE other stream's PDU arms: 0 (expect 0) PASS
+EDGE own stream's PDU arms: 1 (expect 1) PASS
+EDGE one action: 1 (expect 1) PASS
+EDGE ticks from 2nd arm to fire (dwell restarted): 1 (expect 1) PASS
+EDGE one action for two binds: 1 (expect 1) PASS
+EDGE bind arm restarts a pending dwell (ticks to fire ~2048): 1 (expect 1) PASS
+EDGE pending change + bind = one action: 1 (expect 1) PASS
+EDGE info: fall in the tlast's own cycle arms: 1 (the capture un-primes on that flush)
+EDGE bind under following, PDU after the switch to INTERNAL re-arms: 1 (expect 1) PASS
+EDGE one action: 1 (expect 1) PASS
+EDGE reset clears the wait: 0 (expect 0) PASS
+EDGE RESULT PASS fails=0
+- edge_probe.sv:234: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 3us; walltime 0.292 s; speed 11.162 us/s
+- Verilator: cpu 0.291 s on 1 threads; allocated 7 MB
+rc=0
