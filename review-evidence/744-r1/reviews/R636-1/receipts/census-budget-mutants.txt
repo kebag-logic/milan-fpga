@@ -1,0 +1,10 @@
+no-headroom: selftest rc=1 KILLED :: AssertionError: ('act job container', '6', '4')
+leaf-only: selftest rc=1 KILLED :: AssertionError: /sys/fs/cgroup
+max-not-min: selftest rc=1 KILLED :: AssertionError: ('act job container', '16', '4')
+no-nproc-cap: selftest rc=1 KILLED :: AssertionError: ('hosted runner without a cgroup limit', '9', '4')
+no-floor-one: selftest rc=1 KILLED :: AssertionError: ('memory for less than one worker', '0', '1')
+garbage-ignored: selftest rc=1 KILLED :: AssertionError: ('an unreadable limit', '16', None)
+memtotal-ignored: selftest rc=1 KILLED :: AssertionError: ("host memory below its cgroup's", '4', '2')
+step-not-added: selftest rc=1 KILLED :: AssertionError: []
+step-after-census: selftest rc=1 KILLED :: AssertionError
+leaf-only-walk: selftest rc=1 KILLED :: AssertionError: ('a lower ancestor limit', '16', '2')

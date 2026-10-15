@@ -1,0 +1,15 @@
+g01-gate-workflows-check	0	0.7s	python3 scripts/ci_gate_workflows.py --check
+g02-gate-workflows-selftest	0	9.5s	python3 scripts/ci_gate_workflows_selftest.py
+g03-ci-events-check	0	0.9s	python3 scripts/ci_events.py --check
+g04-ci-events-selftest	0	198.6s	python3 scripts/ci_events.py --selftest
+g05-em-dash	2	0.8s	python3 scripts/check_em_dash.py --base 84f9e3001b7d9b77835c4a9a599dbe6230a8031b
+g06-docs-check	0	7.3s	python3 scripts/docs_check.py
+g07-toc-check	2	0.1s	python3 scripts/gen_toc.py --check
+g08-toc-anchors	2	0.1s	python3 scripts/gen_toc.py --verify-anchors
+g09-doc-style	0	0.1s	python3 scripts/check_doc_style.py
+g10-doc-paths	0	0.1s	python3 scripts/check_doc_paths.py
+g11-py-idiom	0	5.7s	python3 scripts/check_py_idiom.py
+g12-sh-idiom	0	0.4s	python3 scripts/check_sh_idiom.py
+g13-hygiene	0	0.6s	python3 scripts/check_hygiene.py --check
+g14-runtime-evidence-selftest	0	6.1s	python3 scripts/ci_runtime_evidence_selftest.py
+g15-manifest-selftest	0	0.1s	python3 scripts/ci_manifest_selftest.py

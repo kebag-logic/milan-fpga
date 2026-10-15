@@ -1,0 +1,68 @@
+refused docs: missing inventory preparation in docs-gates-0
+refused docs: if preparation in docs-gates-0
+refused docs: continue-on-error preparation in docs-gates-0
+refused docs: missing inventory preparation in ci-manifest
+refused docs: if preparation in ci-manifest
+refused docs: continue-on-error preparation in ci-manifest
+refused elaborate: missing inventory preparation in ci-manifest
+refused elaborate: if preparation in ci-manifest
+refused elaborate: continue-on-error preparation in ci-manifest
+refused rtl: missing inventory preparation in verilator-shards
+refused rtl: if preparation in verilator-shards
+refused rtl: continue-on-error preparation in verilator-shards
+refused rtl: missing inventory preparation in verilator-suites
+refused rtl: if preparation in verilator-suites
+refused rtl: continue-on-error preparation in verilator-suites
+refused rtl: missing inventory preparation in union-milan_dp
+refused rtl: if preparation in union-milan_dp
+refused rtl: continue-on-error preparation in union-milan_dp
+refused rtl: missing inventory preparation in union-milan_dp_mclk
+refused rtl: if preparation in union-milan_dp_mclk
+refused rtl: continue-on-error preparation in union-milan_dp_mclk
+refused rtl: missing inventory preparation in union-capture_coherence
+refused rtl: if preparation in union-capture_coherence
+refused rtl: continue-on-error preparation in union-capture_coherence
+refused rtl: missing inventory preparation in union-maap
+refused rtl: if preparation in union-maap
+refused rtl: continue-on-error preparation in union-maap
+refused rtl: missing inventory preparation in union-milan_dp_render
+refused rtl: if preparation in union-milan_dp_render
+refused rtl: continue-on-error preparation in union-milan_dp_render
+refused rtl: missing inventory preparation in union-pp_shadow
+refused rtl: if preparation in union-pp_shadow
+refused rtl: continue-on-error preparation in union-pp_shadow
+refused rtl: missing inventory preparation in ci-manifest
+refused rtl: if preparation in ci-manifest
+refused rtl: continue-on-error preparation in ci-manifest
+refused rtl-fast: missing inventory preparation in ci-manifest
+refused rtl-fast: if preparation in ci-manifest
+refused rtl-fast: continue-on-error preparation in ci-manifest
+Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS
+Builder split refused the docs template with its driver in a preparation line
+Builder split refused the docs template with its last line not the driver
+Builder split refused the elaborate template with its driver in a preparation line
+Builder split refused the elaborate template with its last line not the driver
+Suite generator refused a template arm index other than its total: template ownership step lacks its dedicated milan_dp arm
+Suite generator refused a template --expect other than its total: template verifier lacks its worker-count expectation
+Suite generator refused a template total without its arm and --expect: template ownership step lacks its dedicated milan_dp arm
+Suite generator: 16 workers, no dedicated milan_dp arm, --expect 16 PASS
+Capture child recipes: 4 CPUs, 4 recipes consume 1 each
+Capture child recipes: 12 CPUs, 4 recipes consume 3 each
+Capture child recipes: 16 CPUs, 4 recipes consume 4 each
+Capture child control: unlimited compiler budget refused
+CPU budgets: 1 cores; 1 campaigns; nested builds bounded
+CPU budgets: 4 cores; 4 campaigns; nested builds bounded
+CPU budgets: 12 cores; 4 campaigns; nested builds bounded
+CPU budgets: 16 cores; 4 campaigns; nested builds bounded
+Census budget: act job container: 4 worker(s)
+Traceback (most recent call last):
+  File "$REVIEWS/r636-1-744/scripts/ci_gate_workflows_selftest.py", line 579, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/r636-1-744/scripts/ci_gate_workflows_selftest.py", line 489, in main
+    census_controls()
+    ~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/r636-1-744/scripts/ci_gate_workflows_selftest.py", line 289, in census_controls
+    assert got == want, (described, got, want)
+           ^^^^^^^^^^^
+AssertionError: ('hosted runner without a cgroup limit', '9', '4')

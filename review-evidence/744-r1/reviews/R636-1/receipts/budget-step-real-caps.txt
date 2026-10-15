@@ -1,0 +1,12 @@
+== systemd-run --user --scope MemoryMax=8G MemorySwapMax=0
+census workers: 4 of 16 CPU(s) within 8589934592 bytes of memory
+rc=0 env: CI_CENSUS_JOBS=4
+== systemd-run --user --scope MemoryMax=4G MemorySwapMax=0
+census workers: 2 of 16 CPU(s) within 4294967296 bytes of memory
+rc=0 env: CI_CENSUS_JOBS=2
+== systemd-run --user --scope MemoryMax=2G MemorySwapMax=0
+census workers: 1 of 16 CPU(s) within 2147483648 bytes of memory
+rc=0 env: CI_CENSUS_JOBS=1
+== this review unit (no extra scope)
+census workers: 6 of 16 CPU(s) within 12884901888 bytes of memory
+rc=0 env: CI_CENSUS_JOBS=6
