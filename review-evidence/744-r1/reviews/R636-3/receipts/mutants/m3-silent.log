@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0, "scripts"); import ci_gate_workflows_selftest as t; t.census_controls(); print("census_controls PASS")
+                                                                                       ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/744-r636-3-packet/scratch/mut/m3-silent/scripts/ci_gate_workflows_selftest.py", line 339, in census_controls
+    assert got is None and stderr[-1:] == [want], (described, got, stderr, want)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('no MemTotal', None, ['bash: line 5: test: : integer expected'], 'no MemTotal in kB')
+Census budget: act job container: 4 worker(s)
+Census budget: hosted runner without a cgroup limit: 4 worker(s)
+Census budget: host memory below its cgroup's: 2 worker(s)
+Census budget: a lower ancestor limit: 2 worker(s)
+Census budget: fewer CPUs than memory allows: 2 worker(s)
+Census budget: memory for less than one worker: 1 worker(s)
+Census budget: a cgroup without a memory controller: 16 worker(s)
+Census budget: a mode-000 limit: refused: unreadable memory limit in <cgroups>
+Census budget: a mode-000 ancestor limit: refused: unreadable memory limit in <cgroups>/a
+Census budget: a mode-000 ancestor cgroup: refused: unsearchable cgroup <cgroups>/a: its memory limit cannot be proved absent
+Census budget: a limit that is not a file: refused: unreadable memory limit in <cgroups>
+Census budget: an ancestor limit that is not a file: refused: unreadable memory limit in <cgroups>/a
+Census budget: a non-numeric limit: refused: non-numeric memory limit in <cgroups>: garbage
+Census budget: an empty limit: refused: non-numeric memory limit in <cgroups>: 
