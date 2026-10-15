@@ -1,0 +1,14 @@
+census workers: 4 of 16 CPU(s) within 8589934592 bytes of memory
+CI_CENSUS_JOBS=4
+
+publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+== publication census: 6 shape(s), checks: 234   failures: 0 ==
+25 class-D net(s) from the wrapper cell's ports, 4 unread; 39 read(s) of 21 class-D net(s) in each shape; RESULT: PASS
+publication census: 6 shape(s) elaborated and classified in 89 s at --jobs 4
+selftest: 0 of 120 arm(s) failed; 120 arm(s) and their rules' removals in 502 s at --jobs 4
+mutations: 0 of 31 rule(s) no arm proves
+cgroup: /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/run-p192875-i17154134.scope
+memory.max: 8589934592  memory.swap.max: 0
+memory.peak: 5806784512
+memory.events: low 0 high 0 max 0 oom 0 oom_kill 0 oom_group_kill 0 sock_throttled 0 
+rc: 0
