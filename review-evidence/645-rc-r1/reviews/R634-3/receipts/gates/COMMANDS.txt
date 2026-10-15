@@ -1,0 +1,23 @@
+# Run from the candidate clone at c66904a5b810a05527e8831eda5152f09f441bbe (tree 8979dd5a).
+# Markdown-reading gates use a disposable venv holding tools/markdown/requirements.txt
+# installed with --require-hashes (cffi 2.1.1, cmarkgfm 2025.10.22, html5lib 1.1,
+# pycparser 3.0, six 1.17.0, webencodings 0.6.1). A first attempt with the system
+# interpreter refused gen_toc and check_em_dash for the missing pinned renderer;
+# those logs were overwritten by the pinned-environment reruns below.
+# Each gate's stdout+stderr is <name>.log and its exit status <name>.rc.
+docs_check              python3 scripts/docs_check.py                  (pinned env)
+doc_style               python3 scripts/check_doc_style.py             (pinned env)
+gen_toc_check           python3 scripts/gen_toc.py --check             (pinned env)
+gen_toc_anchors         python3 scripts/gen_toc.py --verify-anchors    (pinned env)
+em_dash_dev             python3 scripts/check_em_dash.py --base 84f9e3001b7d9b77835c4a9a599dbe6230a8031b (pinned env)
+em_dash_pr_src          python3 scripts/check_em_dash.py --base f62602531d415d6c1cae1374a3cc2938faf54049 (pinned env)
+doc_paths               python3 scripts/check_doc_paths.py
+baremetal               python3 scripts/check_baremetal_only.py --check
+ci_events_check         python3 scripts/ci_events.py --check
+ci_events_selftest      python3 scripts/ci_events.py --selftest
+suite_shards_selftest   python3 scripts/suite_shards.py --selftest
+measure_evidence_check  python3 scripts/measure_test_evidence.py --check
+ci_gate_workflows_check python3 scripts/ci_gate_workflows.py --check
+evidence_pins_check     python3 scripts/generate_ci_evidence_pins.py --check
+diff_check              git diff --check 84f9e3001 HEAD
+diff_check_pr           git diff --check 84f9e3001 fb5dd3dab
