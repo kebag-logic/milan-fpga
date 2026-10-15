@@ -5,10 +5,13 @@
 The walker keeps the state the shell keeps: variables, exported names, functions,
 local scopes and the working directory. Where a construct leaves that state
 undecided, every reachable alternative is joined: a value that differs between
-paths is a runtime value, never a literal, and a directory that differs refuses.
-`exit`, `return`, `break` and `continue` end their path, and its state joins
-where the shell resumes. Words expand as the shell expands them, including field
-splitting and pathname expansion. Each modelled rule is a census shape.
+paths is a runtime value, never a literal, and a directory that differs is
+ambiguous, so any later statement there refuses. A failed `cd` changes nothing:
+it ends the shell under errexit, which tests suspend, and otherwise continues
+where it started. `exit`, `return`, `break` and `continue` end their path, and
+its state joins where the shell resumes. Words expand as the shell expands them,
+including field splitting and pathname expansion. Each modelled rule is a census
+shape.
 """
 
 from dataclasses import dataclass, field
@@ -16,7 +19,7 @@ from pathlib import Path
 import re
 
 from ci_command_table import Fields, Refusal, Runtime, _normpath, nodes, shell_tree, sha256
-from ci_syntax import SENSITIVE, exact_use, shell_nodes
+from ci_syntax import SENSITIVE, assigned_names, exact_use, function_names, shell_nodes
 
 
 RUNTIME = Runtime('${RUNTIME}')
@@ -27,10 +30,10 @@ SUBSTITUTIONS = ('cd', 'pwd', 'dirname', 'realpath')
 WALKER_BUILTINS = {'cd', 'source', '.', 'trap', 'read', 'unset', 'shift', 'exit', 'return', 'break', 'continue'}
 #: Parser node fields that carry no value of their own.
 PARAMETER_PLAIN = {'Type', 'Pos', 'End', 'Short', 'Dollar', 'Rbrace', 'Param'}
-#: Arithmetic operators that assign: `=`, `++` and `--`.
-ARITHMETIC_ASSIGNMENTS = (74, 36, 37)
 IFS = ' \t\n'
 MISSING = object()
+#: The directory after paths that continue in different directories; nothing resolves under it.
+AMBIGUOUS = Path('/${AMBIGUOUS_DIRECTORY}')
 
 
 def posix_dirname(value: str) -> str:
@@ -41,37 +44,29 @@ def posix_dirname(value: str) -> str:
     return stripped.rpartition('/')[0].rstrip('/') or '/'
 
 
+def errexit_option(args: list[str]) -> bool | None:
+    """The errexit setting `set` leaves, read as the shell reads its options; None when it names none.
+
+    A runtime operand may set anything, so errexit is then not known to hold.
+    """
+    result, words = None, iter(args[1:])
+    for word in words:
+        if isinstance(word, Runtime):
+            return False
+        if word == '--' or word[:1] not in ('-', '+') or len(word) < 2:
+            break
+        for letter in word[1:]:
+            option = 'errexit' if letter == 'e' else next(words, None) if letter == 'o' else None
+            if isinstance(option, Runtime):
+                return False
+            if option == 'errexit':
+                result = word[0] == '-'
+    return result
+
+
 def glob_pattern(text: str) -> bool:
     """Whether unquoted text is a pathname pattern: `*`, `?` or a closed bracket expression."""
     return bool(re.search(r'[*?]|\[[^]]*\]', text))
-
-
-def function_names(tree: object) -> set[str]:
-    """Every function a parsed program can define, wherever the definition stands."""
-    return {node['Name']['Value'] for node in nodes(tree) if node.get('Type') == 'FuncDecl'}
-
-
-def assigned_names(tree: object) -> set[str]:
-    """Every variable a construct can assign, including loop, read and arithmetic targets."""
-    names = set()
-    for node in nodes(tree):
-        kind = node.get('Type')
-        if kind in ('CallExpr', 'DeclClause'):
-            for item in node.get('Assigns', []) + (node.get('Args', []) if kind == 'DeclClause' else []):
-                if item.get('Name'):
-                    names.add(item['Name']['Value'])
-        if kind == 'CallExpr':
-            words = [part.get('Value') for arg in node.get('Args', []) for part in arg.get('Parts', [])[:1]]
-            if words[:1] == ['read']:
-                names.update(word for word in words[1:] if word and re.fullmatch(r'[A-Za-z_]\w*', word))
-        if kind == 'WordIter' and node.get('Name'):
-            names.add(node['Name']['Value'])
-        if kind in ('BinaryArithm', 'UnaryArithm') and node.get('Op') in ARITHMETIC_ASSIGNMENTS:
-            for part in nodes(node.get('X', {})):
-                if part.get('Type') == 'Lit' and re.fullmatch(r'[A-Za-z_]\w*', part.get('Value', '')):
-                    names.add(part['Value'])
-                    break
-    return names
 
 
 @dataclass
@@ -89,7 +84,11 @@ class Shell:
     def __init__(self, audit: object, where: str, argv0: str | None = None, dialect: str = 'bash') -> None:
         self.audit = audit
         self.where = where
-        self.dialect = dialect
+        # A workflow step's shell is `bash -e`; any other shell starts without errexit.
+        self.dialect, _, flags = dialect.partition(' ')
+        self.errexit = flags == '-e'
+        self.suspended = 0  # Inside a test, where the shell ignores errexit.
+        self.test_call, self.tested_cd, self.ambiguity = None, False, ''
         self.invocation_source = where.split(':')[0]
         # $0 and BASH_SOURCE are the exact words that named each executed or sourced file.
         self.argv0 = argv0
@@ -117,24 +116,25 @@ class Shell:
     def capture(self) -> tuple:
         """Copy the state one path carries."""
         return (dict(self.env), set(self.exported), {k: list(v) for k, v in self.functions.items()},
-                [dict(scope) for scope in self.locals])
+                [dict(scope) for scope in self.locals], self.errexit)
 
     def restore(self, state: tuple) -> None:
         """Continue from a captured state."""
-        env, exported, functions, scopes = state
+        env, exported, functions, scopes, self.errexit = state
         self.env, self.exported = dict(env), set(exported)
         self.functions = {k: list(v) for k, v in functions.items()}
         self.locals = [dict(scope) for scope in scopes]
 
     def join(self, paths: list[tuple], construct: str, where: str) -> Path | None:
-        """Continue from every reachable path: differing values are runtime, differing directories refuse."""
+        """Continue from every reachable path: differing values are runtime, differing directories ambiguous."""
         live = [(state, directory) for state, directory in paths if directory is not None]
         if not live:
             if paths:
                 self.restore(paths[0][0])
             return None
+        directory = live[0][1]
         if len({directory for _, directory in live}) > 1:
-            raise Refusal(f'ambiguous shell directory after {construct} at {where}')
+            self.ambiguity, directory = f'{construct} at {where}', AMBIGUOUS
         states = [state for state, _ in live]
         env = {}
         for key in set().union(*(state[0] for state in states)):
@@ -161,8 +161,9 @@ class Shell:
                 same = all(v is not MISSING and v == values[0] and type(v) is type(values[0]) for v in values)
                 merged[key] = values[0] if same else RUNTIME  # Local on some paths only.
             scopes.append(merged)
-        self.restore((env, exported, functions, scopes))
-        return live[0][1]
+        # Errexit set on some paths only is not known to hold: a failed `cd` may continue.
+        self.restore((env, exported, functions, scopes, all(state[4] for state in states)))
+        return directory
 
     def escape(self, kind: str, directory: Path, where: str) -> None:
         """Record the state with which a path leaves its construct; the path then ends."""
@@ -173,7 +174,8 @@ class Shell:
             if kind == 'exit':
                 continue
             if frame.kind in targets[kind]:
-                (frame.resumes if kind == 'continue' else frame.states).append((self.capture(), directory))
+                if not self.audit.inspecting:  # A path that never runs leaves no state behind.
+                    (frame.resumes if kind == 'continue' else frame.states).append((self.capture(), directory))
                 return
             if frame.kind != 'loop':
                 break
@@ -442,29 +444,63 @@ class Shell:
             directory = self.statement(statement, directory)
         return directory
 
-    def certain(self, statement: dict, directory: Path) -> bool:
-        """Whether a statement always succeeds.
+    def enterable(self, target: Path) -> bool:
+        """Whether `cd` into a target cannot fail: a directory the checkout holds, reached without a link.
 
-        That is a plain assignment, `true` or `:`, or `cd` into an existing directory.
+        Git creates checkout directories searchable by their owner; a path outside the
+        checkout depends on the runner's filesystem.
         """
+        return target.is_relative_to(self.audit.root) and target.is_dir() and target == target.resolve()
+
+    def certain(self, statement: dict, directory: Path) -> bool:
+        """Whether a statement always succeeds: a plain assignment, `true`, `:` or an enterable `cd`."""
         node = statement.get('Cmd', {})
-        if set(statement) - PLAIN or node.get('Type') != 'CallExpr':
+        if set(statement) - PLAIN or node.get('Type') != 'CallExpr' or node.get('Assigns') and node.get('Args'):
             return False
-        if any(child.get('Type') in ('CmdSubst', 'ProcSubst', 'ArithmExp') for child in nodes(node)):
+        if any(child.get('Type') in ('ProcSubst', 'ArithmExp') for child in nodes(node)):
             return False
-        args = node.get('Args', [])
-        if not args:
-            return True
-        if any(part.get('Type') not in ('Lit', 'SglQuoted') for word in args for part in word.get('Parts', [])):
-            return False
-        words = [self.value(word, directory) for word in args]
-        if words[0] in self.names or node.get('Assigns'):
+        if not node.get('Args'):  # An assignment fails only through a failed command substitution.
+            return not any(child.get('Type') == 'CmdSubst' for child in nodes(node))
+        words = [value for word in node['Args'] for value in self.fields(word, directory)]
+        if any(isinstance(word, Runtime) for word in words) or words[0] in self.names:
             return False
         if words in (['true'], [':']):
             return True
-        target = Path(_normpath(str(directory / words[1]))) if words[0] == 'cd' and len(words) == 2 and \
-            not words[1].startswith('-') else None
-        return target is not None and target.is_dir() and target == target.resolve()
+        return len(words) == 2 and words[0] == 'cd' and not words[1].startswith('-') and \
+            self.enterable(Path(_normpath(str(directory / words[1]))))
+
+    def test(self, statements: list[dict], directory: Path) -> tuple[Path | None, Path | None]:
+        """Walk a test with errexit suspended; return where its success and failure paths continue.
+
+        The last statement decides. A failed `cd` changes nothing, so when that statement
+        is one `cd`, the failure path continues where the `cd` started.
+        """
+        self.suspended += 1
+        try:
+            before = self.statements(statements[:-1], directory)
+            if before is None or not statements:
+                return before, before
+            saved = self.test_call, self.tested_cd
+            self.test_call, self.tested_cd = statements[-1].get('Cmd'), False
+            try:
+                success = self.statement(statements[-1], before)
+                tested_cd = self.tested_cd
+            finally:
+                self.test_call, self.tested_cd = saved
+        finally:
+            self.suspended -= 1
+        failure = before if tested_cd and success is not None else success
+        return (failure, success) if statements[-1].get('Negated') else (success, failure)
+
+    def inspect(self, statement: dict, directory: Path) -> None:
+        """Classify the commands of a statement that never runs; it changes no state."""
+        saved = self.capture()
+        self.audit.inspecting += 1
+        try:
+            self.framed('subshell', lambda: self.statement(statement, directory))
+        finally:
+            self.audit.inspecting -= 1
+            self.restore(saved)
 
     def statement(self, statement: dict, directory: Path) -> Path | None:
         """Classify each supported compound form, refusing unknown nodes."""
@@ -472,10 +508,18 @@ class Shell:
         kind = node.get('Type')
         where = self.location(node)
         inline = None
+        if directory == AMBIGUOUS:
+            raise Refusal(f'ambiguous shell directory after {self.ambiguity}, used at {where}')
         if statement.get('Background'):
             raise Refusal(f'uncensused shell background operator at {where}')
         if statement.get('Negated'):
             self.shape('negation', node)
+            self.suspended += 1  # The shell ignores errexit for a negated command.
+            try:
+                return self.statement({key: value for key, value in statement.items() if key != 'Negated'},
+                                      directory)
+            finally:
+                self.suspended -= 1
         for redirect in statement.get('Redirs', []):
             self.shape('redirect', redirect)
             if any(n.get('Type') == 'ParamExp' and n['Param']['Value'] in ('GITHUB_PATH', 'GITHUB_ENV')
@@ -568,23 +612,19 @@ class Shell:
         self.shape('if', node)
         condition = node.get('Cond', [])
         certain = len(condition) == 1 and self.certain(condition[0], directory)
-        tested = self.statements(condition, directory)
-        if tested is None:
+        success, failure = self.test(condition, directory)
+        if success is None and failure is None:
             return None
         after = self.capture()
-        then = self.statements(node.get('Then', []), tested)
+        then = self.statements(node.get('Then', []), success)
         paths = [(self.capture(), then)]
         self.restore(after)
         if certain:  # The test always succeeds: the other branch is inspected, never taken.
             if node.get('Else'):
-                self.audit.inspecting += 1
-                try:
-                    self.statement(node['Else'], tested)
-                finally:
-                    self.audit.inspecting -= 1
+                self.inspect(node['Else'], success)
             self.restore(paths[0][0])
             return then
-        otherwise = self.statement(node['Else'], tested) if node.get('Else') else tested
+        otherwise = self.statement(node['Else'], failure) if node.get('Else') else failure
         paths.append((self.capture(), otherwise))
         return self.join(paths, 'conditional', where)
 
@@ -622,12 +662,15 @@ class Shell:
                     self.env[loop['Name']['Value']] = value
                 def body() -> Path | None:
                     """One iteration: the test of a while loop, then the body."""
+                    start = directory
                     if kind == 'WhileClause':
-                        tested = self.statements(node.get('Cond', []), directory)
-                        leaving.append((self.capture(), tested))
-                        if tested is None:
+                        start, failure = self.test(node.get('Cond', []), directory)
+                        if node.get('Until'):
+                            start, failure = failure, start
+                        leaving.append((self.capture(), failure))
+                        if start is None:
                             return None
-                    return self.statements(node.get('Do', []), directory)
+                    return self.statements(node.get('Do', []), start)
                 frame, result = self.framed('loop', body)
                 ends.append((self.capture(), result))
                 ends.extend(frame.resumes)  # `continue` starts the next iteration.
@@ -643,9 +686,9 @@ class Shell:
                     changed.add(key)
             if not changed:
                 break
-            env, exported, functions, scopes = entry
+            env, exported, functions, scopes, errexit = entry
             entry = ({**env, **{key: RUNTIME for key in changed}}, exported | {k for s, _ in ends for k in s[1]},
-                     functions, scopes)
+                     functions, scopes, errexit)
         paths = list(leaving)
         if kind != 'WhileClause':
             paths += ends
@@ -666,22 +709,22 @@ class Shell:
         if node['Op'] not in (10, 11):
             raise Refusal(f'unsupported shell operator at {where}')
         certain = self.certain(node['X'], directory)
-        left = self.statement(node['X'], directory)
-        if left is None:
+        success, failure = self.test([node['X']], directory)
+        if success is None:
             return None
         after = self.capture()
-        right = self.statement(node['Y'], left)
         if node['Op'] == 10:
             self.shape('and', node)
+            right = self.statement(node['Y'], success)
             if certain:
                 return right
-            paths = [(after, left), (self.capture(), right)]
-            return self.join(paths, '&&', where)
+            return self.join([(after, failure), (self.capture(), right)], '&&', where)
         self.shape('or', node)
-        if certain:
-            self.restore(after)
-            return left
-        return self.join([(after, left), (self.capture(), right)], '||', where)
+        if certain:  # The right side never runs.
+            self.inspect(node['Y'], success)
+            return success
+        right = self.statement(node['Y'], failure)
+        return self.join([(after, success), (self.capture(), right)], '||', where)
 
     def call(self, node: dict, directory: Path, where: str, inline: str | None) -> Path | None:
         """Execute no commands; resolve the lexical effects of a simple call."""
@@ -725,10 +768,13 @@ class Shell:
     def builtin(self, args: list[str], node: dict, directory: Path, where: str, prefix: set) -> Path | None:
         """The walker's own builtins, then the command table."""
         name = args[0]
+        if name == 'set' and (errexit := errexit_option(args)) is not None:
+            self.shape('set.errexit', node)
+            self.errexit = errexit
         if name == 'trap':
             self.trap(args, where)
         elif name == 'cd':
-            return self.change_directory(args, directory, where)
+            return self.change_directory(args, directory, where, node)
         elif name in ('source', '.'):
             if self.dialect == 'sh' and name == 'source':
                 raise Refusal(f'uncensused POSIX shell source at {where}')
@@ -777,8 +823,13 @@ class Shell:
                 return None  # The shell is replaced by the command.
         return directory
 
-    def change_directory(self, args: list[str], directory: Path, where: str) -> Path:
-        """`cd` to one literal operand, followed lexically; options, `-` and links refuse."""
+    def change_directory(self, args: list[str], directory: Path, where: str, node: dict) -> Path:
+        """`cd` to one literal operand, followed lexically; options, `-` and links refuse.
+
+        The path continues in the target. When the `cd` can fail and errexit does not end
+        the shell, it may also continue where it started: the directory is then ambiguous,
+        unless this `cd` is the test whose failure path its caller continues.
+        """
         operands = args[1:]
         if operands[:1] == ['--']:
             operands = operands[1:]
@@ -798,6 +849,11 @@ class Shell:
         logical = Path(_normpath(str(directory / operand)))
         if logical.exists() and logical != logical.resolve():
             raise Refusal(f'unmodelled shell cd through a symbolic link at {where}')
+        if node is self.test_call:
+            self.tested_cd = True
+        elif not self.enterable(logical) and not (self.errexit and not self.suspended):
+            self.ambiguity = f'a cd that can fail at {where}'
+            return AMBIGUOUS
         return logical
 
     def trap(self, args: list[str], where: str) -> None:

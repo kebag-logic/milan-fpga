@@ -181,9 +181,13 @@ Ambiguous state is never a literal.
 The shell walker keeps variables, exports, functions, locals and the directory.
 `&&`, `||`, conditionals, cases and loops join every reachable path.
 A value differing between paths becomes runtime.
-A directory differing between paths refuses.
+A directory differing between paths is ambiguous, and any later statement there refuses.
 A test that always succeeds takes only its branch.
-That covers plain assignments, `true`, `:` and `cd` into an existing directory.
+That covers plain assignments, `true`, `:` and `cd` into a checkout directory.
+A failed `cd` changes nothing.
+Under errexit it ends the shell; workflow steps run under it, and `set` changes it.
+Tests suspend errexit, as do negated commands and functions called from tests.
+A test that is one `cd` fails where it started, and a plain one may continue there.
 `exit`, `return`, `break` and `continue` end their path where the shell resumes.
 Loop bodies are walked until no iteration changes another's input.
 A name defined as a function anywhere in scope is never a builtin or program.

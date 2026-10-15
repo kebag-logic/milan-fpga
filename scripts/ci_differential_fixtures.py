@@ -34,6 +34,9 @@ def python(name: str, shapes: list[str], files: dict, run: str = 'python3 main.p
 EXECUTE = "import subprocess\nsubprocess.run(['zz_probe', '{}'])\n"
 OK = 'zz_probe ok\n'
 EVIL = 'zz_probe hidden\n'
+#: A directory that exists in one variant only, so a `cd` into it can fail.
+MADE = 'if [ "$V" = 1 ]; then mkdir -p obj_fw; fi\n'
+EITHER = [{'V': '1'}, {'V': '0'}]
 
 FIXTURES = [
     # Bash words and simple commands.
@@ -79,6 +82,27 @@ FIXTURES = [
     shell('bash-if', ['bash:if'],
           'if [ "$V" = 1 ]; then X=one; zz_probe then; else X=two; zz_probe else; fi\nzz_probe "$X"\n',
           variants=[{'V': '1'}, {'V': '2'}]),
+    shell('bash-if-certain', [],
+          'if cd sub; then X=then; else X=else; fi\nzz_probe "$X"\n'
+          'if true; then zz_probe true; else zz_probe never; fi\n', files={'sub/.keep': ''}),
+    shell('bash-if-outside', [], 'if cd /tmp; then X=moved; fi\nzz_probe "$X"\n', expect='refused'),
+    # A failed cd changes nothing: under errexit it ends the shell; in a test it continues where it started.
+    shell('bash-cd-test-fails', [], 'cd missing && true\nzz_probe here\n', expect='refused'),
+    shell('bash-cd-test-last', [], MADE + 'cd obj_fw && zz_probe in-obj-fw\n',
+          variants=EITHER),
+    shell('bash-or-certain', [], 'cd sub || zz_probe never\nzz_probe after\n', files={'sub/.keep': ''}),
+    shell('bash-negated-cd', [], 'if ! cd missing; then zz_probe failed; fi\n'),
+    shell('bash-errexit-cd', [], MADE + 'cd obj_fw\nzz_probe in-obj-fw\n',
+          variants=EITHER),
+    shell('bash-set-errexit', ['bash:set.errexit'], 'bash run.sh\n',
+          files={'run.sh': 'set -euo pipefail\n' + MADE + 'cd obj_fw\nzz_probe in-obj-fw\n'},
+          variants=EITHER),
+    shell('bash-no-errexit-cd', [], 'bash run.sh\n',
+          files={'run.sh': MADE + 'cd obj_fw\nzz_probe after\n'},
+          variants=EITHER, expect='refused'),
+    shell('bash-set-plus-e', [], 'set +e\ncd missing\nzz_probe after\n', expect='refused'),
+    shell('bash-function-in-test', [], 'f() {\n  cd missing\n  zz_probe in-f\n}\nf || true\n',
+          expect='refused'),
     shell('bash-case', ['bash:case'],
           'case "$V" in\n  a) X=1; zz_probe a ;;\n  *) zz_probe other ;;\nesac\nzz_probe "$X"\n',
           variants=[{'V': 'a'}, {'V': 'b'}]),
@@ -228,6 +252,12 @@ FIXTURES = [
     make('sh-prefix-assignment', ['sh:call.prefix-assignment'], 'all: ; X=inner bash child.sh\n',
          files={'child.sh': 'zz_probe "$X"\n'}),
     make('sh-cd', ['sh:cd'], 'all: ; cd sub && zz_probe here\n', files={'sub/.keep': ''}),
+    make('sh-cd-test-last', [], 'all: ; if [ "$$V" = 1 ]; then mkdir -p obj_fw; fi; cd obj_fw && zz_probe in\n',
+         variants=EITHER),
+    make('sh-cd-test-fails', [], 'all: ; cd missing && true; zz_probe here\n', expect='refused'),
+    make('sh-plain-cd', [], 'all: ; cd missing; zz_probe here\n', expect='refused'),
+    make('sh-set-errexit', ['sh:set.errexit'],
+         'all: ; @set -e; if [ "$$V" = 1 ]; then mkdir -p obj_fw; fi; cd obj_fw; zz_probe in\n', variants=EITHER),
     # Python.
     python('py-script', ['cmd:python.script', 'py:program', 'py:capability.declared', 'py:exec.argv'],
            {'main.py': EXECUTE.format('argv')}, declare=['main.py']),

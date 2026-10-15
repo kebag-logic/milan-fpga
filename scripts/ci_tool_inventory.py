@@ -208,7 +208,7 @@ def derive(root: Path) -> dict[str, object]:
                     'working-directory', doc.get('defaults', {}).get('run', {}).get('working-directory', '.')))
                 if not isinstance(working, str) or '$' in working:
                     raise Refusal(f'unresolved workflow working-directory at {relative}: job {job}')
-                audit.shell(run, relative, root / working)
+                audit.shell(run, relative, root / working, dialect='bash -e')  # The runner's default shell.
                 rows = audit.requests
                 if "sw/litex/patches/apply.sh" in run:
                     for patch in sorted((root / "sw/litex/patches").glob("*.patch")):

@@ -8,7 +8,7 @@ import hashlib
 import json
 import re
 
-from ci_command_table import Refusal
+from ci_command_table import Refusal, nodes
 
 
 SENSITIVE = {
@@ -17,6 +17,9 @@ SENSITIVE = {
     'SHELL', 'MAKEFLAGS', 'GNUMAKEFLAGS', 'MAKEFILES', 'MAKEOVERRIDES', 'MAKE',
     '.SHELLFLAGS', '.RECIPEPREFIX',
 }
+
+#: Arithmetic operators that assign: `=`, `++` and `--`.
+ARITHMETIC_ASSIGNMENTS = (74, 36, 37)
 
 
 def semantic_node(value: object) -> object:
@@ -81,3 +84,31 @@ def python_nodes(audit: object, tree: ast.AST, where: str) -> None:
                 raise Refusal(f'uncensused Python builtin {node.id!r} at {where}')
             if node.id.startswith('__') and node.id not in audit.census['python_special_names']:
                 raise Refusal(f'uncensused Python special name {node.id!r} at {where}')
+
+
+def function_names(tree: object) -> set[str]:
+    """Every function a parsed program can define, wherever the definition stands."""
+    return {node['Name']['Value'] for node in nodes(tree) if node.get('Type') == 'FuncDecl'}
+
+
+def assigned_names(tree: object) -> set[str]:
+    """Every variable a construct can assign, including loop, read and arithmetic targets."""
+    names = set()
+    for node in nodes(tree):
+        kind = node.get('Type')
+        if kind in ('CallExpr', 'DeclClause'):
+            for item in node.get('Assigns', []) + (node.get('Args', []) if kind == 'DeclClause' else []):
+                if item.get('Name'):
+                    names.add(item['Name']['Value'])
+        if kind == 'CallExpr':
+            words = [part.get('Value') for arg in node.get('Args', []) for part in arg.get('Parts', [])[:1]]
+            if words[:1] == ['read']:
+                names.update(word for word in words[1:] if word and re.fullmatch(r'[A-Za-z_]\w*', word))
+        if kind == 'WordIter' and node.get('Name'):
+            names.add(node['Name']['Value'])
+        if kind in ('BinaryArithm', 'UnaryArithm') and node.get('Op') in ARITHMETIC_ASSIGNMENTS:
+            for part in nodes(node.get('X', {})):
+                if part.get('Type') == 'Lit' and re.fullmatch(r'[A-Za-z_]\w*', part.get('Value', '')):
+                    names.add(part['Value'])
+                    break
+    return names

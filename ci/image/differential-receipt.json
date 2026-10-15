@@ -1,5 +1,5 @@
 {
- "binding": "8bc7da8d9fec518b08ca6464849ef0f35d7e1400431413db4acdbbd657bcbcef",
+ "binding": "f5975e97b7695189b5a3b2255ca6633d71296c3dff6bcb7d88a8ff9fa5aaf235",
  "fixtures": {
   "R638-6-M1": {
    "expect": "refused",
@@ -2595,6 +2595,81 @@
     }
    ]
   },
+  "bash-cd-test-fails": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "here"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "ambiguous shell directory after && at .github/workflows/fixture.yml:1, used at .github/workflows/fixture.yml:2",
+   "residue": [],
+   "sha256": "d5d7403dc01920911647e2ec1c0921a1bd2975bab8de2ab814566856e15052ab",
+   "shapes": [
+    "bash:and",
+    "bash:call.command",
+    "bash:cd",
+    "bash:word.literal",
+    "cmd:data"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "bash-cd-test-last": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-obj-fw"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "80754e3a5d6a71a22602522b49fa9bdd50e69a19bbf9e16ad0131c1ec0d37e85",
+   "shapes": [
+    "bash:and",
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-obj-fw"
+      ]
+     ],
+     "directory": "obj_fw"
+    }
+   ]
+  },
   "bash-command": {
    "expect": "identical",
    "inspected": [],
@@ -2806,6 +2881,52 @@
     }
    ]
   },
+  "bash-errexit-cd": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-obj-fw"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "60c953a1de85ff3f43fe0a93d6a38f7dcdce499f71a7dec3b7c9e752c943d5bf",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-obj-fw"
+      ]
+     ],
+     "directory": "obj_fw"
+    }
+   ]
+  },
   "bash-exit": {
    "expect": "identical",
    "inspected": [
@@ -2962,6 +3083,34 @@
      "directory": "."
     }
    ]
+  },
+  "bash-function-in-test": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-f"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "ambiguous shell directory after a cd that can fail at .github/workflows/fixture.yml:2, used at .github/workflows/fixture.yml:3",
+   "residue": [],
+   "sha256": "2e649ff9b6833e7bd3834ac62bdebfeff3d690bc84ce918aa16afe164a31cce5",
+   "shapes": [
+    "bash:block",
+    "bash:cd",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
   },
   "bash-function-partly-defined": {
    "expect": "residue",
@@ -3201,6 +3350,113 @@
     }
    ]
   },
+  "bash-if-certain": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "never"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "then"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "true"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "3651de19b69b232af178ebc6201db20851b42eedb09c6569c77319d9cc286391",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "then"
+      ]
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "true"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ]
+  },
+  "bash-if-outside": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "moved"
+     ],
+     "directory": null
+    }
+   ],
+   "refusal": "ambiguous shell directory after conditional at .github/workflows/fixture.yml:1, used at .github/workflows/fixture.yml:2",
+   "residue": [],
+   "sha256": "5a8aba3f53d479503cb2b1f07afe327a2d5e7399490c830349bdc5aa5a8829b8",
+   "shapes": [
+    "bash:assignment",
+    "bash:cd",
+    "bash:if",
+    "bash:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
   "bash-loop-escapes": {
    "expect": "identical",
    "inspected": [],
@@ -3242,6 +3498,49 @@
       ],
       [
        "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-negated-cd": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "failed"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "e4a81346a3d65f23058fe9bdd2d0c7c9edd2d6e1784603cf0faa610bbca89fed",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:negation",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "failed"
       ]
      ],
      "directory": "."
@@ -3314,6 +3613,39 @@
     }
    ]
   },
+  "bash-no-errexit-cd": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "after"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": "ambiguous shell directory after a cd that can fail at run.sh:2, used at run.sh:3",
+   "residue": [],
+   "sha256": "7c4dde3d14ca7a1f2c0d3b13194d7333f5f841072c46bc921ef639f947f679bb",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": []
+  },
   "bash-or": {
    "expect": "identical",
    "inspected": [],
@@ -3374,6 +3706,62 @@
       [
        "literal",
        "in-sub"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ]
+  },
+  "bash-or-certain": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "never"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "after"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "2a59aace5dd29afea9ccc775d998f5d9e0d586b3887cf625185630ad0b4d82e5",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:or",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "after"
       ]
      ],
      "directory": "sub"
@@ -3855,6 +4243,80 @@
     }
    ]
   },
+  "bash-set-errexit": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-obj-fw"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "a205da024fb6b72aaa39d670b1ead3a1ad16558406995fcd3dae549cd2001073",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:set.errexit",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-obj-fw"
+      ]
+     ],
+     "directory": "obj_fw"
+    }
+   ]
+  },
+  "bash-set-plus-e": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "after"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified command 'set +e' at .github/workflows/fixture.yml:1",
+   "residue": [],
+   "sha256": "93432088d2298698ed6ea9b326984a1de9a6feec0e170904ac05c46de3c2db7a",
+   "shapes": [
+    "bash:call.command",
+    "bash:set.errexit",
+    "bash:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
   "bash-source": {
    "expect": "identical",
    "inspected": [],
@@ -4225,7 +4687,7 @@
     {
      "argv": [
       "zz_probe",
-      "/tmp/tmp.umb5dbsWP2"
+      "/tmp/tmp.WcULY0zKl6"
      ],
      "directory": "."
     }
@@ -6003,14 +6465,14 @@
     {
      "argv": [
       "zz_probe",
-      "b"
+      "a"
      ],
      "directory": "."
     },
     {
      "argv": [
       "zz_probe",
-      "a"
+      "b"
      ],
      "directory": "."
     }
@@ -7276,6 +7738,95 @@
     }
    ]
   },
+  "sh-cd-test-fails": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "here"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "ambiguous shell directory after && at Makefile:1:1, used at Makefile:1:1",
+   "residue": [],
+   "sha256": "3cdb8d0202fa5c731630942954e4bc5080aa518d49a14d8e73d56d5c57eae0dd",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:and",
+    "sh:call.command",
+    "sh:cd",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "sh-cd-test-last": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "52104cf2a9b35e248e6f16e175dbd8a1d059216433e0a591550ad5e135b8e2ff",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:and",
+    "sh:call.command",
+    "sh:cd",
+    "sh:if",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in"
+      ]
+     ],
+     "directory": "obj_fw"
+    }
+   ]
+  },
   "sh-command-substitution": {
    "expect": "identical",
    "inspected": [],
@@ -7805,6 +8356,38 @@
     }
    ]
   },
+  "sh-plain-cd": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "here"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "ambiguous shell directory after a cd that can fail at Makefile:1:1, used at Makefile:1:1",
+   "residue": [],
+   "sha256": "57da5200c88301a65fd4ec10e6ac490336348ea37b91f5285043b3e484d5f42b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:cd",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
   "sh-prefix-assignment": {
    "expect": "identical",
    "inspected": [],
@@ -7956,6 +8539,60 @@
       ]
      ],
      "directory": "."
+    }
+   ]
+  },
+  "sh-set-errexit": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "96c0b30bfaa65d549f08107b8497848325acae5a0aa0c401b853591fce197b52",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:cd",
+    "sh:if",
+    "sh:set.errexit",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in"
+      ]
+     ],
+     "directory": "obj_fw"
     }
    ]
   },
