@@ -371,11 +371,18 @@ docker run --rm --network none \
   python3 ci/image/audit_population.py --image "$IMAGE_DIGEST" --base "$BASE_COMMIT" \
   --output /out/docs.json --logs /out/docs-logs --only docs-check
 python3 ci/image/audit_population.py --merge "$IMAGE_WORK/rtl.json" "$IMAGE_WORK/docs.json" \
+  --commands $GATE_COMMAND_LISTS --merge-logs "$IMAGE_WORK/rtl-logs" "$IMAGE_WORK/docs-logs" \
   --output ci/image/exec-audit-receipt.json
 ```
 
 Each checkout is a clean clone with the five fetched submodules initialized.
 The root run's checkout belongs to root, so Git trusts it.
+Each `--commands` list holds the gate commands as `{"steps": [{"job", "step", "command"}]}`.
+The merge finds every listed command among the exec instances of its traced step.
+An instance matches when it runs the listed script, module or program.
+Where no match has the listed arguments, the observed ones are kept beside them.
+The receipt is clean only if every step is clean and every listed command was observed.
+Every untraced step must also be one the image replaces.
 Wiring the audit into every pull request's replay is that follow-up PR's work.
 With it, a hidden installer is caught at the replay whatever the walker accepts.
 Unlisted constructs and unlisted command forms refuse generation.

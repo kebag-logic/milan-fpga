@@ -14,7 +14,7 @@ installation and fetch lines that the image or the checkout supplies are removed
 and the documented adoption lines replace them. A cache-miss build step the
 image replaces is not run; the reconciliation names it with its reason.
 
-    python3 ci/image/audit_population.py --image DIGEST --output RECEIPT --logs DIRECTORY
+    python3 ci/image/audit_population.py --image DIGEST --base COMMIT --output RECEIPT --logs DIRECTORY
 
 The receipt holds each step's exit status, invocation population and findings,
 the source and image identity, and the reconciliation of traced and reached steps.
@@ -166,26 +166,66 @@ def git(root: Path, *args: str) -> str:
     return subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True, text=True).stdout.strip()
 
 
-def shape(words: list[str]) -> list[str]:
-    """An argument vector compared by program name, with absolute paths as placeholders."""
-    return [Path(words[0]).name if words else ''] + ['<path>' if w.startswith('/') else w for w in words[1:]]
+def listed_program(words: list[str]) -> tuple[str, str, list[str]]:
+    """What a listed command runs, read as the audit reads an exec: kind, operand and arguments."""
+    family = exec_audit.interpreter(Path(words[0]).name)
+    if family is None:
+        return ('script' if '/' in words[0] else 'name'), words[0], words[1:]
+    kind, module, rest = exec_audit.operands(family, words)
+    if kind == 'script':
+        return 'script', rest[0], rest[1:]
+    return kind, module or Path(words[0]).name, []
 
 
-def commands(listed: list[Path], logs: list[Path], steps: list[dict]) -> list[dict]:
-    """Find each listed (job, step, command) among the exec instances of its traced step."""
+def placeholders(words: list[str]) -> list[str]:
+    """Arguments with absolute paths as placeholders, since every run has its own temporary paths."""
+    return ['<path>' if word.startswith('/') else word for word in words]
+
+
+def observed_arguments(instance: dict, program: tuple[str, str, list[str]], directory: str) -> list[str] | None:
+    """The arguments of an exec instance that runs the listed program, or None when it runs another."""
+    kind, operand, _ = program
+    seen = exec_audit.invocation(instance)
+    if kind == 'script' and seen['kind'] == 'script':
+        # A listed absolute path is the listing run's own temporary copy: only its name is comparable.
+        matched = seen['name'] == Path(operand).name if operand.startswith('/') else \
+            seen['path'] == exec_audit.lexical(directory, operand)
+    elif kind == 'name':
+        matched = seen['kind'] in ('program', 'script') and seen['name'] == operand
+    else:
+        matched = seen['kind'] == kind and seen['path' if kind == 'module' else 'name'] == operand
+    return list(seen.get('args', [])) if matched else None
+
+
+def commands(listed: list[Path], logs: list[Path], steps: list[dict], checkout: str) -> list[dict]:
+    """Find each listed (job, step, command) among the exec instances of its traced step.
+
+    A listed step names a traced step, or extends that name with a qualifier for another
+    command of the step. An instance matches when it runs the listed script, module or
+    program. Arguments are compared with absolute paths as placeholders; when no matching
+    instance has the listed arguments, the observed ones are kept beside the listed ones.
+    """
     rows = []
     for path in listed:
         for entry in json.loads(path.read_text())['steps']:
-            traced = [s for s in steps if s['job'] == entry['job'] and s['label'] == entry['step']]
-            seen = 0
+            traced = sorted((s for s in steps if s['job'] == entry['job'] and
+                             (s['label'] == entry['step'] or entry['step'].startswith(s['label'] + ' '))),
+                            key=lambda s: -len(s['label']))[:1]
+            program = listed_program(entry['command'])
+            found: list[list[str]] = []
             for step in traced:
-                for directory in logs:
-                    log = directory / step.get('log', '')
-                    if log.is_file():
-                        seen += sum(shape(json.loads(line)['argv']) == shape(entry['command'])
-                                    for line in log.read_text().splitlines())
-            rows.append({'job': entry['job'], 'step': entry['step'], 'command': entry['command'],
-                         'traced_step': traced[0]['step'] if traced else None, 'instances': seen})
+                directory = exec_audit.lexical(checkout, step['working-directory'])
+                log = next((d / step['log'] for d in logs if (d / step['log']).is_file()), None)
+                for line in log.read_text().splitlines() if log else []:
+                    arguments = observed_arguments(json.loads(line), program, directory)
+                    if arguments is not None:
+                        found.append(arguments)
+            row = {'job': entry['job'], 'step': entry['step'], 'command': entry['command'],
+                   'traced_step': traced[0]['step'] if traced else None, 'instances': len(found),
+                   'arguments': 'listed' if placeholders(program[2]) in map(placeholders, found) else 'observed'}
+            if found and row['arguments'] == 'observed':
+                row['observed'] = [list(variant) for variant in dict.fromkeys(map(tuple, found))][:3]
+            rows.append(row)
     return rows
 
 
@@ -211,7 +251,7 @@ def merge(parts: list[Path], output: Path, listed: list[Path], logs: list[Path])
               'steps': steps, 'traced': sum(row['traced'] for row in reconciliation)}
     merged.pop('user', None)
     replaced = {reason for reason, _ in REPLACED.values()}
-    merged['commands'] = commands(listed, logs, steps)
+    merged['commands'] = commands(listed, logs, steps, first['source']['checkout'])
     merged['clean'] = all(step['clean'] for step in steps) and \
         all(row['traced'] or row['why'] in replaced for row in reconciliation) and \
         all(row['instances'] for row in merged['commands'])
@@ -219,7 +259,8 @@ def merge(parts: list[Path], output: Path, listed: list[Path], logs: list[Path])
     print(f"{merged['traced']} of {merged['reached']} reached steps traced; "
           f"{sum(not s['clean'] for s in steps)} with findings; "
           f"{sum(bool(r['instances']) for r in merged['commands'])} of {len(merged['commands'])} "
-          "listed commands observed")
+          f"listed commands observed, {sum(r['arguments'] == 'listed' for r in merged['commands'])} "
+          "with the listed arguments")
     return 0 if merged['clean'] else 1
 
 
@@ -316,6 +357,7 @@ def trace_population(args: argparse.Namespace) -> int:
     receipt = {
         'schema': 1,
         'source': {'commit': head, 'tree': git(root, 'rev-parse', 'HEAD^{tree}'), 'base': args.base,
+                   'checkout': str(root),
                    'submodules': git(root, 'submodule', 'status').splitlines()},
         'image': args.image, 'user': os.getuid(),
         'tools': {'python3': sys.version.split()[0]},
