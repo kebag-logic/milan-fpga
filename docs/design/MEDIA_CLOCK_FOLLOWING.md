@@ -1087,7 +1087,7 @@ the at-switch render recentre exactly as it was (`milan_datapath.sv`
 
 | Term | Value |
 |---|---|
-| Armed by | a change of the selected CLOCK_SOURCE index; the aligner's re-engagement; and, while none is pending, an aligner excursion past the two-axis-cycle quiet band outside recovery, which is how a pull-in under a running stream arms it |
+| Armed by | a change of the selected CLOCK_SOURCE index; the aligner's re-engagement; at INTERNAL, a listener bind's first PDU, the accepted `tlast` beat that primes the stream's loopback queue ([A bind at INTERNAL](#a-bind-at-internal), bench lane B17); and, while none is pending, an aligner excursion past the two-axis-cycle quiet band outside recovery, which is how a pull-in under a running stream arms it |
 | Fires under following | once the servo has read LOCKED for 8 of its 512 ms windows running (196,608 media ticks, 4.096 s, from the servo's own window constant `MCSRV_WIN_LOG2_C`). The PI's phase tail falls about 0.64 a window, so 3 % of what was left at LOCKED is left at the recentre. A build with the servo pruned (`MCSERVO_P` = 0) never reads LOCKED, so there the ceiling fires it |
 | Fires at INTERNAL | once the engaged aligner has rested inside both its 1/64-sample settle band and the two-axis-cycle quiet band for 2,048 ticks running, or has remained disengaged for the same 2,048 ticks (no pull to wait out). An excursion while the recentre is pending restarts that run |
 | Ceiling | 2^20 media ticks (21.8 s) from the arming, whatever the loops do |
@@ -1184,8 +1184,8 @@ later than the former 8-event target. That cost falls on the capture
 crossbar's diagnostic loopback, a received stream's channels re-sent by
 the DUT's talker. The declared AAF presentation path, listener render law,
 and rule that render latency equals the presentation time offset are
-unchanged. A bind still primes the ring where its first PDU lands; the
-next settle recentre centres it.
+unchanged. A bind primes the ring where its first PDU lands; at INTERNAL the
+bind's settle recentre centres it ([A bind at INTERNAL](#a-bind-at-internal)).
 
 #### The declared transient
 
@@ -1260,6 +1260,88 @@ zero slips from the decision PDU's end and at least one tick of margin on
 both sides. INTERNAL pull-in campaigns retain the same zero-slip bar.
 A 64-PDU reference window was rejected by the ruling: it delays the
 loopback action by about 8 ms and establishes no arrival bound.
+
+#### A bind at INTERNAL
+
+Ruled on #645
+([design round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)),
+from bench lane B17 ([PR #741](https://github.com/kebag-logic/milan-fpga/pull/741),
+[its report](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187529947)).
+
+**What B17 measured.** On the dev `5603c353` image the DUT was on INTERNAL
+and the reference peer followed the DUT's CRF, so the two clocks were within
+0.0017 ppm. Each of 10 binds of the peer's AAF talker to the DUT's
+STREAM_INPUT 0 slipped the loopback ring one frame (`SLIP_LB` +2 dups), 0.07
+to 5.67 s after the bind. Each slip fell at the bind's first burst of PDUs
+more than 20 us late, peaking at 24.6 to 29.3 us. No PDU more than 10 us late
+came before it, and the 10 to 23 later bursts, up to 30.3 us, slipped
+nothing.
+
+**Why.** A bound stream's first PDU primes its loopback queue where it lands
+(`KL_chan_map_capture`, PRIME). Pops start at the first media tick after its
+accepted `tlast`, so a PDU's first event pops less than about a tick after it
+lands, by a margin the arrival phase sets. At INTERNAL nothing armed the
+settle recentre at a bind, so the ring kept that margin until a burst later
+than it arrived. The dup it caused moved the ring a tick further from its
+empty edge, which is why no later burst slipped it again. B17's bursts bound
+the primed margin: above 10 us, since nothing that late slipped it; below
+24.565 us, its smallest slipping burst; and above 30.26 - 20.83 = 9.43 us,
+since a 30.26 us burst after the slip passed.
+
+**The arm.** Each LOOP stream waits from its bind's rise (`KL_stream_table`
+`bind_rise_o`) for its first accepted `tlast` beat, the beat that primes its
+queue. At INTERNAL that beat arms the settle recentre (`milan_datapath.sv`
+`settle_bind_arm_w`), which fires by the unchanged "Fires at INTERNAL" rule:
+2,048 settled or disengaged ticks (42.7 ms) after the beat, with the 21.8 s
+ceiling. The ring acts at the stream's next PDU, holding up to five pops:
+the declared discontinuity of the bind, counted in `recentres_o` and not in
+`SLIP_LB`. An unbind before the first PDU ends the wait with no arm. A later
+PDU, another stream's PDU, or a PDU with no bind before it arms nothing, and
+a shape without the loopback lane (`LOOPBACK_P` = 0, as the shipping 8x8
+shape builds) has no arm. The arm is the first PDU, not the bind's rise:
+B17's first PDUs came 7.9 to 163.5 ms after the bind's command, and a
+recentre 42.7 ms after the rise would find the queue unprimed, which ignores
+it.
+
+**Under following nothing changes.** There the beat ends the wait and arms
+nothing; the switch rules alone arm the settle recentre. A bind under
+following therefore still primes the ring where its first PDU lands, and
+nothing centres it until the next settle recentre. In `follow_ring` under
+CRF following, B17's cycle-5 burst slips such a ring one frame, as a bind at
+INTERNAL did before this arm. This is a limit of the ruled scope, stated
+here; it is not declared as bounded behaviour.
+
+**Every stream takes it.** The settle recentre is one pulse to the render
+stage and to every stream's loopback queues. On a shape with more than one
+listener stream and the loopback lane, a bind at INTERNAL therefore also
+recentres the other running streams: a ring at its target moves nothing,
+and one that has drifted takes the declared step. The render stage counts
+one recentre per stream at its next PDU end. The shipping 1x1 TDM8 shape has
+one listener stream.
+
+**Measured in `follow_ring`.** The bind case replays B17's cycles: the first
+PDU's delay after the bind, the first burst's time after that PDU and its
+peak, then the largest later burst. A burst's later PDUs each arrive
+1.538 us less late, the mean slope of B17's ten first bursts. `sweep-bind`
+runs all ten cycles with the first PDU at 16 phases across one media tick,
+without lateness and with uniform 0 to 5 us (B17's lateness p99.9 was 4.4 to
+6.1 us): 320 binds, 169 of them priming the ring inside B17's window.
+
+- **Without the arm** (dev `f6260253`'s datapath): each of the 169 in-window
+  binds slips the ring exactly one frame, at its first burst, as at the bench.
+  The 151 binds outside the window slip once or, 100 of them, twice.
+- **With it:** every one of the 320 binds gets one arm at its first PDU, one
+  settle recentre 2,047.0 to 2,048.0 ticks later and one counted render
+  recentre, and no bind slips the ring after it acts. The 169 in-window binds
+  move neither `SLIP_LB` counter. After the recentre the ring's empty-side
+  margin is at least 3.48 ticks and its full-side margin at least 4.88.
+- **The arming window.** Six of the 151 out-of-window binds slip once before
+  the recentre acts, all with 0 to 5 us of lateness at the two phases that
+  prime the ring nearest its empty edge (3.8 and 2.6 us without lateness),
+  each within about 2 ms of the first PDU. For the 42.7 ms between the arm
+  and the firing the ring keeps its primed margin. At the bench that margin
+  was above 10 us, and B17 saw no PDU more than 10 us late before a burst.
+  This is a limit of the ruled firing rule, stated here and not declared.
 
 ### Lock loss, holdover and restart
 
@@ -1542,7 +1624,7 @@ pass.
 | `tb/verilator/milan_dp_render`, `[LAW]` (#643) | INTERNAL with the aligner engaged (A2-a), after its settled report: engaged with the error inside 1/64 sample for 2,048 ticks, within the 32,768-tick ceiling. Then a fresh stream at the INTERNAL grid's own cadence at each of 18 feed phases, a phase being a fixed delay after an observed media tick: 16 over one tick, plus +927 and +1,156 | The report arrives within the ceiling, counted from the start of `[LAW]`'s own wait, and holds through every phase. Every phase is gradable: no PDU end has a pop within the ambiguity window below, and that margin is a check. At every PDU end the fill is exactly the setpoint plus that PDU, 14 events; every first event pops inside (8, 9] ticks of its PDU end, plus the pop pulse's one-cycle register | A2-a removed (`mga_sel_w` without `int_clk_selected_r`): the aligner is never engaged at INTERNAL, so all 18 phases fail their settled check. Separately, the render setpoint one event low, and one event high: all 18 phases fail both the fill and the band check |
 | Same, `tdm8render-law-boundary` | The same phases one cycle apart over +/-40 cycles of the feed phase where a PDU end meets a pop, located from the +0 phase's own offsets, in three histories: the leg's own ascending scan, the band descending, and each phase within 12 cycles of it alone | Every phase is graded and passes, or is not gradable and fails nothing; each scan holds both kinds. Every window's nearest-pop range and walk is printed, and the largest walk beside the one the suite states | The render setpoint one event low, and one event high: no graded phase passes, and every graded phase fails both law checks |
 | Same, `[PULLIN]` (#647, the [settle recentre](#settle-recentre)) and `tdm8render-pullin` | INTERNAL after the settled report, a fresh stream at a `[LAW]` feed phase on the law, then T14's serial-clock hold (5,200 cycles, folded to half a sample) under the running stream, and up to 2 s of it for the settle recentre, the aligner traced every 64 ms. The explicit `tdm8render-pullin` target runs the standing phase, +1,562, after the full serial/CRF/LAW history (`--with-pullin`), plus all 18 `[LAW]` phases after boot, one leg each. The default target omits `[PULLIN]` | On the law before the hold; exactly one settle recentre after it, the one render recentre pulse since the hold and the one the stage executed; `SLIP_LB` static from it on; on the law again after it, at every phase the ambiguity window can grade (the standing phase must be gradable) | The settle recentre never pulses: the standing phase leaves the law after the hold |
-| `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring and render stage, with `milan_datapath`'s decode, reference mux, A2-a select, #386 trigger, settle recentre and render recentre set copied verbatim. Lane B8 uses both peer offsets, -11.02 and +0.82 ppm against the DUT's -5.1 ppm INTERNAL clock. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock. `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us, 2 us plus a 1e-4 tail of 0 to 24 us, and 0 to 60 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us. `small_pulls.py` adds fine holds, a no-hold leg and two pulls on each side of recovery; `quiet_distributions.py` requires all 128 phases and complete signed histograms; `settle_control.py` checks the controller at all four axis rates | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred (nominal margin in (5, 6] ticks), with at least one tick on both the empty and full sides, the render stage on its law at every gradable phase. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre. | `mutants.py`: the settle recentre never pulses (the pull-in leaves the law); it reaches the render stage only (the loopback ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (the render stage leaves its law after the set); W1, a switch through servo IDLE (the ring moves more than 0.1 tick); OVERSHOOT, the loopback target one past the depth (a drop a PDU after the decision, which a 1 ms grace would have hidden); SINGLE-DROP, an incomplete full-side action; HELD-DUP, every held pop counted as a dup (the walk before a pair's first commit, the `[LRC]` counter check and the span counter check fail); STARVED-HELD-DUP, a held pop counted only on a still-empty pair (that walk and the `[LRC]` counter check fail); NO-ARM, a missed fine boundary; NO-RECOVERY, two actions from one hold; HIGH-ARM, a missed +9-cycle peak; QUIET-ARM, pending correction without a hold |
+| `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring and render stage, with `milan_datapath`'s decode, reference mux, A2-a select, #386 trigger, settle recentre and render recentre set copied verbatim. Lane B8 uses both peer offsets, -11.02 and +0.82 ppm against the DUT's -5.1 ppm INTERNAL clock. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock; `bind`: bench lane B17's cycles 5, 4 and 9 at INTERNAL as measured, with uniform 0 to 5 us of lateness, then cycle 5 under CRF following ([A bind at INTERNAL](#a-bind-at-internal)). `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us, 2 us plus a 1e-4 tail of 0 to 24 us, and 0 to 60 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us; `sweep-bind`: all ten B17 cycles at 16 first-PDU phases over one tick, without lateness and with 0 to 5 us. `small_pulls.py` adds fine holds, a no-hold leg and two pulls on each side of recovery; `quiet_distributions.py` requires all 128 phases and complete signed histograms; `settle_control.py` checks the controller at all four axis rates | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred (nominal margin in (5, 6] ticks), with at least one tick on both the empty and full sides, the render stage on its law at every gradable phase. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre. At INTERNAL each bind's first PDU arms one settle recentre, which fires 2,048 ticks later and the render stage counts once; no `SLIP_LB` change through B17's bursts; the ring centred after it. Under following a bind arms nothing. | `mutants.py`: the settle recentre never pulses (the pull-in leaves the law); it reaches the render stage only (the loopback ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (the render stage leaves its law after the set); W1, a switch through servo IDLE (the ring moves more than 0.1 tick); OVERSHOOT, the loopback target one past the depth (a drop a PDU after the decision, which a 1 ms grace would have hidden); SINGLE-DROP, an incomplete full-side action; HELD-DUP, every held pop counted as a dup (the walk before a pair's first commit, the `[LRC]` counter check and the span counter check fail); STARVED-HELD-DUP, a held pop counted only on a still-empty pair (that walk and the `[LRC]` counter check fail); NO-ARM, a missed fine boundary; NO-RECOVERY, two actions from one hold; HIGH-ARM, a missed +9-cycle peak; QUIET-ARM, pending correction without a hold; NO-BIND-ARM, the bind arm removed (every bind slips at B17's first burst); BIND-RISE, the arm at the bind's rise (cycles 4 and 9, whose first PDUs come after the 42.7 ms recentre, slip); FOLLOWING-ARM, the arm ungated under following (a bind under CRF following arms) |
 | `tb/verilator/chmap_capture`, `[LRC]` | One 4-channel stream of the LOOP bucket, its six-event PDUs at one beat per cycle, `lb_recentre_i` pulsed before a PDU starting with none, four, five, six or ten events of the previous PDU left; none left with a walk between the PDU's first beat and the second pair's first commit, and the same stimulus without the pulse; unprimed; flushed after the pulse; the pulse on a PDU's first beat | None left holds five pops, four holds one pop, five moves nothing, six drops one and ten drops five, on both pairs in lockstep; the following PDU proves the action occurs once; an unprimed stream ignores the pulse, a flush cancels it, a pulse on a PDU's first beat acts at the next PDU; neither slip counter moves, including for a held walk on a pair still empty because its first commit of the PDU has not landed, where the same walk without the pulse counts one dup | (the module's own leg; the integration's planted controls are follow_ring's) |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
 
@@ -1788,4 +1870,6 @@ After M2, #645 and #647 added the [settle recentre](#settle-recentre)
 the "one #386 recentre" of a switch above is still the at-switch one, and
 the settle recentre follows it once the plane has settled. Its suites are
 the `follow_ring`, `[PULLIN]` and `[LRC]` rows of the
-[simulation plan](#simulation).
+[simulation plan](#simulation). #645's bind round then added the arm at a
+listener bind's first PDU at INTERNAL ([A bind at INTERNAL](#a-bind-at-internal)),
+graded by `follow_ring`'s `bind` leg and `settle_control.py`.
