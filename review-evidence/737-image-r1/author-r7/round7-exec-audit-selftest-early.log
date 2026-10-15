@@ -1,0 +1,25 @@
+pip 24.0 from /opt/python/lib/python3.12/site-packages/pip (python 3.12)
+10.9.9
+Processing ./zz_probe_pkg-0.1-py3-none-any.whl
+Installing collected packages: zz-probe-pkg
+Successfully installed zz-probe-pkg-0.1
+1
+ok
+PASS: a static binary the step builds is observed and has provenance: clean
+PASS: a static binary planted in a system directory: caught (system program not in the allowlist: zz_static_probe)
+PASS: a scripted installer run by name: caught (installer executed: pip3)
+PASS: a scripted package manager run by name: caught (installer executed: npm)
+PASS: a real offline install of a local wheel: caught (installer module executed: pip)
+PASS: an unlisted shebang script in a system directory: caught (system script not in the allowlist: zz_shebang_probe)
+PASS: a shebang apt-get outside the system directories: caught (installer executed: apt-get)
+PASS: an unlisted program the job copies from the image: caught (program without provenance: zz_copied_program)
+PASS: a fetched program piped to a shell: caught (fetched program executed by dash)
+PASS: an installing subcommand: caught (installer subcommand executed: gem install)
+PASS: a link the step makes to a checkout script is judged as that script: clean
+PASS: a link named as an installer is caught by that name: caught (installer executed: apt-get)
+PASS: an interpreter given a missing script runs nothing from it: clean
+PASS: a permitted interpreter call and a checkout script: clean
+PASS: a program the job built under a temporary name, then renamed: clean
+PASS: a program the step built, and an installed copy of it: clean
+PASS: a LeakSanitizer build runs its leak check under the audit: clean
+PASS: a step that fails under the disabled network: caught (step exited 7)

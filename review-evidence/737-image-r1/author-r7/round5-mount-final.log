@@ -1,0 +1,70 @@
+['python3', '/src/scripts/ci_tool_inventory.py', '--root', '/src', '--check']
+CI tool inventory matches workflow installation requests
+['python3', '/include/scripts/ci_tool_inventory.py', '--root', '/include', '--check']
+CI tool inventory matches workflow installation requests
+PASS: typed data operands and variable source populations
+PASS: literal-dollar loop element: generation and comparison
+PASS: sourced directory: generation and comparison
+PASS: sourced variable: generation and comparison
+PASS: source hidden.sh: generation and comparison
+PASS: cd sub & bash bootstrap.sh: generation and comparison
+PASS: if true; then f() { brand_new_command; }; else f() { echo okay; }; fi; f: generation and comparison
+PASS: name=bootstrap.sh; printf -v name '%s' hidden.sh; bash "$name": generation and comparison
+PASS: name=bootstrap.sh; read -r name <<< hidden.sh; bash "$name": generation and comparison
+PASS: echo "$PWD/tools" >> "$GITHUB_PATH"; git rev-parse HEAD: generation and comparison
+PASS: echo "PATH=tools" >> "$GITHUB_ENV": generation and comparison
+PASS: export PATH="tools:$PATH"; git rev-parse HEAD: generation and comparison
+PASS: PATH="sub:$PATH" bootstrap.sh: generation and comparison
+PASS: IFS=x; echo okay: generation and comparison
+PASS: BASH_ENV=hidden.sh bash bootstrap.sh: generation and comparison
+PASS: ENV=hidden.sh sh bootstrap.sh: generation and comparison
+PASS: echo evilpkg | xargs python3 -m pip install: generation and comparison
+PASS: echo evilpkg | sudo xargs apt-get install -y: generation and comparison
+PASS: bash -c 'brand_new_command <dynamic>': generation and comparison
+PASS: bash -c 'echo "<dynamic>"; brand_new_command': generation and comparison
+PASS: coproc echo okay: generation and comparison
+PASS: select value in one two; do echo okay; done: generation and comparison
+PASS: trap 'coproc echo okay' EXIT: generation and comparison
+PASS: echo ${!name}: generation and comparison
+PASS: echo $((value ** 2)): generation and comparison
+PASS: printf -v value %s hidden.sh: generation and comparison
+PASS: env PATH=tools bash bootstrap.sh: generation and comparison
+PASS: exec brand_new_command: generation and comparison
+PASS: step shell selection: generation and comparison
+PASS: job shell selection: generation and comparison
+PASS: workflow shell selection: generation and comparison
+PASS: workflow startup file: generation and comparison
+PASS: censused first function alternative: generation and comparison
+PASS: Make assignment SHELL: generation and comparison
+PASS: Make assignment .SHELLFLAGS: generation and comparison
+PASS: Make assignment MAKEFLAGS: generation and comparison
+PASS: Make assignment MAKE: generation and comparison
+PASS: Make override SHELL: generation and comparison
+PASS: Make override MAKEFLAGS: generation and comparison
+PASS: Make override MAKE: generation and comparison
+PASS: Make environment default: generation and comparison
+PASS: Make exported default: generation and comparison
+PASS: unexported shell variable stays private: generation and comparison
+PASS: automatic directory form: generation and comparison
+PASS: recursive Make override: generation and comparison
+PASS: literal dollar directory: generation and comparison
+PASS: foreign-function capability: generation and comparison
+PASS: foreign-function capability: generation and comparison
+PASS: local shadow initializer: generation and comparison
+PASS: local package member: generation and comparison
+PASS: declared importer does not cover initializer: generation and comparison
+PASS: new Python node kind: generation and comparison
+PASS: uncensused CDPATH search: generation and comparison
+PASS: uncensused startup variable BASHOPTS: generation and comparison
+PASS: uncensused startup variable SHELLOPTS: generation and comparison
+PASS: uncensused startup variable BASH_CMDS: generation and comparison
+PASS: uncensused startup variable PYTHONPATH: generation and comparison
+PASS: uncensused startup variable PYTHONHOME: generation and comparison
+PASS: uncensused startup variable LD_PRELOAD: generation and comparison
+PASS: uncensused startup variable LD_LIBRARY_PATH: generation and comparison
+PASS: uncensused implicit Make input: generation and comparison
+PASS: uncensused loader unset: generation and comparison
+PASS: uncensused Make startup variable GNUMAKEFLAGS: generation and comparison
+PASS: uncensused Make startup variable MAKEFILES: generation and comparison
+PASS: uncensused Make startup variable MAKEOVERRIDES: generation and comparison
+PASS: uncensused Make startup variable .RECIPEPREFIX: generation and comparison

@@ -1,0 +1,920 @@
+{
+  "status": "Every extracted docs-check Python command has a passing invocation; this is not a full-workflow or final-image-only verdict",
+  "original_commands": 76,
+  "initial_successes": 65,
+  "successful_replacements": 11,
+  "rows": [
+    {
+      "original_index": 0,
+      "command": [
+        "python3",
+        "scripts/gen_hdl_reference.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 0,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 1,
+      "command": [
+        "python3",
+        "scripts/gen_hdl_reference.py",
+        "--output",
+        "evidence/hdl-reference"
+      ],
+      "passing_receipt_file": "final-docs.json",
+      "passing_receipt_index": 6,
+      "rc": 0,
+      "image_reference": "fpga-validation@sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19"
+    },
+    {
+      "original_index": 2,
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 2,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 3,
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "fa7347fc"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 3,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 4,
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 4,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 5,
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 5,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 6,
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 6,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 7,
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 7,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 8,
+      "command": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 8,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 9,
+      "command": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 9,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 10,
+      "command": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 10,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 11,
+      "command": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 11,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 12,
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 12,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 13,
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 13,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 14,
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 14,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 15,
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 15,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 16,
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 16,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 17,
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 17,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 18,
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 18,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 19,
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_axis_backpressure.json",
+        "--background=white",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 19,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 20,
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_cdc_handshake.json",
+        "--background=white",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 20,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 21,
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_gptp_pdelay.json",
+        "--background=white",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 21,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 22,
+      "command": [
+        "python3",
+        "scripts/check_diagram_pngs.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 22,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 23,
+      "command": [
+        "python3",
+        "scripts/check_diagram_pngs.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 23,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 24,
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py",
+        "--self-test"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 24,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 25,
+      "command": [
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 25,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 26,
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--with-submodule"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 26,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 27,
+      "command": [
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 27,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 28,
+      "command": [
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 28,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 29,
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 29,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 30,
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 30,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 31,
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 31,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 32,
+      "command": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "final-docs.json",
+      "passing_receipt_index": 7,
+      "rc": 0,
+      "image_reference": "fpga-validation@sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19"
+    },
+    {
+      "original_index": 33,
+      "command": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--absent",
+        "--audit",
+        "evidence/rv32-absent.jsonl"
+      ],
+      "passing_receipt_file": "docs-absent-retry.json",
+      "passing_receipt_index": 0,
+      "rc": 0,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    },
+    {
+      "original_index": 34,
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "passing_receipt_file": "docs-fixtures-retry.json",
+      "passing_receipt_index": 0,
+      "rc": 0,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    },
+    {
+      "original_index": 35,
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py",
+        "--self-test"
+      ],
+      "passing_receipt_file": "docs-fixtures-retry.json",
+      "passing_receipt_index": 1,
+      "rc": 0,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    },
+    {
+      "original_index": 36,
+      "command": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "passing_receipt_file": "docs-fixtures-retry.json",
+      "passing_receipt_index": 2,
+      "rc": 0,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    },
+    {
+      "original_index": 37,
+      "command": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "passing_receipt_file": "docs-fixtures-retry.json",
+      "passing_receipt_index": 3,
+      "rc": 0,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    },
+    {
+      "original_index": 38,
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 38,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 39,
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 39,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 40,
+      "command": [
+        "python3",
+        "sw/litex/iob_pack_selftest.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 40,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 41,
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 41,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 42,
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-fixtures-retry.json",
+      "passing_receipt_index": 4,
+      "rc": 0,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    },
+    {
+      "original_index": 43,
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 43,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 44,
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 44,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 45,
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 45,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 46,
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 46,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 47,
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 47,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 48,
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 48,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 49,
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 49,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 50,
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 50,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 51,
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 51,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 52,
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 52,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 53,
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 53,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 54,
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 54,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 55,
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 55,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 56,
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 56,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 57,
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 57,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 58,
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 58,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 59,
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 59,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 60,
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 60,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 61,
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 61,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 62,
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 62,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 63,
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 63,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 64,
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 64,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 65,
+      "command": [
+        "python3",
+        "scripts/act_ci.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "client-dependency.json",
+      "passing_receipt_index": 0,
+      "rc": 0,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    },
+    {
+      "original_index": 66,
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 66,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 67,
+      "command": [
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 67,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 68,
+      "command": [
+        "python3",
+        "scripts/check_archive.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 68,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 69,
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--selftest"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 69,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 70,
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 70,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 71,
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 71,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 72,
+      "command": [
+        "python3",
+        "avdecc/gen_aem_store.py",
+        "--self-test"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 72,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 73,
+      "command": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "passing_receipt_file": "docs-fixtures-retry.json",
+      "passing_receipt_index": 5,
+      "rc": 0,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    },
+    {
+      "original_index": 74,
+      "command": [
+        "python3",
+        "scripts/check_deploy_shape.py",
+        "--self-test"
+      ],
+      "passing_receipt_file": "docs-image-gates.json",
+      "passing_receipt_index": 74,
+      "rc": 0,
+      "image_reference": "fpga-validation:8acf7cf62d2ff085b2164ddb4b5b3e6dccd11ceb476a5c920e4944c97d987e5d-validation-tools"
+    },
+    {
+      "original_index": 75,
+      "command": [
+        "python3",
+        "scripts/check_entity_shape.py",
+        "--self-test"
+      ],
+      "passing_receipt_file": "docs-fixtures-retry.json",
+      "passing_receipt_index": 6,
+      "rc": 0,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    }
+  ],
+  "limitations": [
+    "Earlier image receipts are preserved and explicitly identify their image; they are not relabeled as final-image runs.",
+    "The compiler-absent gate deliberately records two NOT RUN arms; it does not replace compiler-backed validation.",
+    "The required compiler-backed builder function remains incomplete; see builder-validation.json."
+  ],
+  "final_documentation_receipts": "final-docs.json",
+  "gptp_documentation_receipt": {
+    "file": "docs-fixtures-retry.json",
+    "index": 7
+  }
+}
