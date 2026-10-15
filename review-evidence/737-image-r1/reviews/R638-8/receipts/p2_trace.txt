@@ -1,0 +1,12 @@
+PERL-E-RAN
+{"step": "perl -e inline, unpinned", "exit": 0, "clean": true, "findings": [], "provenance": ["step text", "unreadable"]}
+PERL-LE-RAN
+{"step": "perl -le inline, unpinned", "exit": 0, "clean": true, "findings": [], "provenance": ["absent", "step text"]}
+NODE-E-RAN
+{"step": "node -e inline, unpinned", "exit": 0, "clean": true, "findings": [], "provenance": ["step text", "unreadable"]}
+NESTED-BASH-RAN
+{"step": "control: bash -c unpinned (nested)", "exit": 0, "clean": false, "findings": ["unpinned inline program: bash c43f480a63e86f9df918a24d19feaf8778dcbf8ed1411433e5b8a75535e5961f"], "provenance": ["none", "step text"]}
+$REVIEWS/737-image-r638-8-packet/scratch/p2
+{"step": "control: appended copy under /tmp-like path", "exit": 0, "clean": false, "findings": ["program without provenance: zz_appended"], "provenance": ["named", "none", "step text"]}
+$REVIEWS/737-image-r638-8-packet/scratch/p2
+{"step": "appended copy under a system root with a listed name", "exit": 0, "clean": true, "findings": [], "provenance": ["named", "step text"]}

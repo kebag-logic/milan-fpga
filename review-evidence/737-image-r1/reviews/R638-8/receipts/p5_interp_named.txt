@@ -1,0 +1,6 @@
+RENAMED-BASH-RAN
+5.3.20(1)-release
+{"step": "(a) bash copied and renamed dash runs an unpinned -c program", "clean": true, "findings": [], "rows": [["inline", "bash", "step text"], ["inline", "dash", "exec-only interpreter"], ["program", "cp", "named"]]}
+{"step": "(b) unprovenanced binary named python3 given a checkout script", "clean": true, "findings": [], "rows": [["inline", "bash", "step text"], ["program", "cp", "named"], ["script", "tool.py", "checkout"]]}
+$REVIEWS/737-image-r638-8-packet/scratch/p5
+{"step": "(c) control: the same appended copy under its own name", "clean": false, "findings": ["program without provenance: zz_appended"], "rows": [["inline", "bash", "step text"], ["program", "cp", "named"], ["program", "zz_appended", "none"]]}
