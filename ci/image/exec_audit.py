@@ -96,12 +96,58 @@ def _argv(pid: int) -> list[str]:
     return [part.decode("utf-8", "surrogateescape") for part in raw.split(b"\0")[:-1]]
 
 
-def trace(argv: list[str], cwd: Path, env: dict[str, str]) -> dict[str, object]:
+class Origin:
+    """Provenance within one traced step: build outputs, step-created scripts and program copies."""
+
+    def __init__(self, root: Path, present: set[str]) -> None:
+        self.root, self.present = root, present
+        self.started = time.time() - 1
+        self.outputs: dict[str, str] = {}
+        self.digests: dict[tuple, str | None] = {}
+
+    def digest(self, path: str) -> str | None:
+        """Content identity of a program file, cached by its size and modification time."""
+        try:
+            status = os.stat(path)
+        except OSError:
+            return None
+        key = (path, status.st_size, status.st_mtime_ns)
+        if key not in self.digests:
+            self.digests[key] = digest(path)
+        return self.digests[key]
+
+    def judge(self, instance: dict[str, object]) -> str:
+        """Where what this exec runs came from; record a build program's output."""
+        what = invocation(instance)
+        base = MULTIARCH.sub("", Path(str(instance["program"])).name)
+        if BUILDERS.match(base) and (output := built_output(list(instance["argv"]), str(instance["directory"]))):
+            self.outputs[output] = base
+        path = what["path"]
+        if what["kind"] not in ("program", "script") or path.startswith(SYSTEM_ROOTS):
+            return "named"
+        if what["kind"] == "program":
+            if path in self.outputs:
+                return f"built by {self.outputs[path]}"
+            own = self.digest(path)
+            built = {self.digest(output) for output in self.outputs}
+            return "copy of a program the step built" if own and own in built else "none"
+        if Path(path).is_relative_to(self.root) and Path(path).relative_to(self.root).as_posix() in self.present:
+            return "checkout"
+        try:
+            created = os.stat(path).st_ctime >= self.started  # Created or copied during the step.
+        except OSError:
+            created = False
+        return "written during the step" if created else "none"
+
+
+def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin | None = None) -> dict[str, object]:
     """Run one command, following its whole process tree, and keep every exec instance.
 
     Each instance records the process, the program it loaded, the full
     argument vector, the directory and the stream links an interpreter may read.
+    Provenance is judged at the exec itself, while the file it runs still exists.
     """
+    origin = origin or Origin(cwd, set())
     instances: list[dict[str, object]] = []
     pid = os.fork()
     if pid == 0:
@@ -139,8 +185,10 @@ def trace(argv: list[str], cwd: Path, env: dict[str, str]) -> dict[str, object]:
             for word in words:
                 if word.startswith("/dev/fd/") and word[8:].isdigit():
                     streams[word[8:]] = _proc(waited, f"fd/{word[8:]}")
-            instances.append({"pid": waited, "program": _proc(waited, "exe") or "<gone>", "argv": words,
-                              "directory": _proc(waited, "cwd"), "streams": streams})
+            instance = {"pid": waited, "program": _proc(waited, "exe") or "<gone>", "argv": words,
+                        "directory": _proc(waited, "cwd"), "streams": streams}
+            instance["provenance"] = origin.judge(instance)
+            instances.append(instance)
         elif signal_number not in (signal.SIGTRAP, signal.SIGSTOP, signal.SIGCONT):
             deliver = signal_number  # pass a real signal through, never the trap stops
         _ptrace(CONT, waited, deliver)
@@ -257,8 +305,7 @@ def digest(path: str) -> str | None:
         return None
 
 
-def judge(result: dict[str, object], names: dict[str, object], root: Path, started: float,
-          present: set[str]) -> tuple[list[dict], list[dict]]:
+def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dict], list[dict]]:
     """Classify every exec instance; return the invocation population and its findings."""
     programs = set(names["programs"])
     scripts = set(names["scripts"])
@@ -267,7 +314,6 @@ def judge(result: dict[str, object], names: dict[str, object], root: Path, start
     subcommands = {key: set(value) for key, value in names["installer_subcommands"].items()}
     fetched = {i["streams"].get("1") for i in result["instances"]
                if Path(str(i["program"])).name in FETCHERS and str(i["streams"].get("1", "")).startswith("pipe:")}
-    outputs: dict[str, str] = {}
     population: dict[tuple, dict] = {}
     findings = []
 
@@ -277,9 +323,8 @@ def judge(result: dict[str, object], names: dict[str, object], root: Path, start
 
     for instance in result["instances"]:
         what = invocation(instance)
-        words = list(instance["argv"])
         base = MULTIARCH.sub("", Path(str(instance["program"])).name)
-        provenance = "named"
+        provenance = str(instance.get("provenance", "none"))
         if what["kind"] in ("program", "script") and what["name"] in installers:
             finding(instance, what, f"installer executed: {what['name']}")
         elif what["kind"] == "module" and what["name"] in names["installer_modules"]:
@@ -290,35 +335,17 @@ def judge(result: dict[str, object], names: dict[str, object], root: Path, start
             finding(instance, what, f"installer subcommand executed: {what['name']} {what['args'][0]}")
         if interpreter(base) and base not in programs:
             finding(instance, what, f"interpreter not in the allowlist: {base}")
-        if what["kind"] == "program":
-            if what["path"].startswith(SYSTEM_ROOTS):
-                if what["name"] not in programs:
-                    finding(instance, what, f"system program not in the allowlist: {what['name']}")
-            elif what["path"] in outputs:
-                provenance = f"built by {outputs[what['path']]}"
-            elif (copy := digest(what["path"])) and copy in {digest(p) for p in outputs}:
-                provenance = "copy of a program the step built"
-            else:
-                provenance = "none"
-                finding(instance, what, f"program without provenance: {what['name']}")
-        elif what["kind"] == "script":
-            path = what["path"]
-            if path.startswith(SYSTEM_ROOTS):
-                if what["name"] not in scripts:
-                    finding(instance, what, f"system script not in the allowlist: {what['name']}")
-            elif Path(path).is_relative_to(root) and Path(path).relative_to(root).as_posix() in present:
-                provenance = "checkout"
-            elif Path(path).exists() and Path(path).stat().st_ctime >= started:  # Created or copied here.
-                provenance = "written during the step"
-            else:
-                provenance = "none"
-                finding(instance, what, f"script without provenance: {what['name']}")
+        system = what["path"].startswith(SYSTEM_ROOTS)
+        if what["kind"] == "program" and system and what["name"] not in programs:
+            finding(instance, what, f"system program not in the allowlist: {what['name']}")
+        elif what["kind"] == "script" and system and what["name"] not in scripts:
+            finding(instance, what, f"system script not in the allowlist: {what['name']}")
+        elif what["kind"] in ("program", "script") and provenance == "none":
+            finding(instance, what, f"{what['kind']} without provenance: {what['name']}")
         elif what["kind"] == "module" and what["name"] not in modules:
             finding(instance, what, f"module not in the allowlist: {what['name']}")
-        if BUILDERS.match(base) and (output := built_output(words, str(instance["directory"]))):
-            outputs[output] = base
-        key = (what["kind"], what["name"], what["path"] if what["kind"] != "program" or
-               what["path"].startswith(SYSTEM_ROOTS) else "<built>", provenance)
+        key = (what["kind"], what["name"], what["path"] if what["kind"] != "program" or system else "<built>",
+               provenance)
         population.setdefault(key, {"kind": key[0], "invocation": key[1], "path": key[2], "provenance": key[3],
                                     "count": 0})["count"] += 1
     if result["exit_status"] != 0:
@@ -339,11 +366,10 @@ def checkout_files(root: Path) -> set[str]:
 def audit_step(entry: dict[str, object], names: dict[str, object], root: Path, environment: dict[str, str],
                log: Path | None = None) -> dict[str, object]:
     """Trace one step, keep its instances, and attach the population and findings."""
-    present = checkout_files(root)
-    started = time.time() - 1
+    origin = Origin(root, checkout_files(root))
     directory = root / str(entry.get("working-directory", "."))
-    result = trace(list(entry["argv"]), directory, {**environment, **entry.get("env", {})})
-    population, findings = judge(result, names, root, started, present)
+    result = trace(list(entry["argv"]), directory, {**environment, **entry.get("env", {})}, origin)
+    population, findings = judge(result, names)
     lines = "".join(json.dumps(i, sort_keys=True) + "\n" for i in result["instances"]).encode()
     if log is not None:
         log.write_bytes(lines)
