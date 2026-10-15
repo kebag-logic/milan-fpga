@@ -1,0 +1,29 @@
+1	0	68.8s	python3 scripts/act_ci.py --selftest
+2	0	32.5s	install_dir="$(mktemp -d)"; trap 'rm -rf "$install_dir"' EXIT; install -m 0555 scripts/act_ci.py "$install_dir/act_ci.py"; python3 -I "$install_dir/act_ci.py" --selftest --worktree "$PWD"
+3	0	0.8s	python3 scripts/ci_events.py --check
+4	0	222.9s	python3 scripts/ci_events.py --selftest
+5	0	0.6s	python3 scripts/ci_gate_workflows.py --check
+6	0	8.5s	python3 scripts/ci_gate_workflows_selftest.py
+7	0	0.5s	python3 scripts/ci_case_receipts_selftest.py
+8	0	0.1s	python3 scripts/ci_make_cases_selftest.py
+9	0	0.1s	python3 scripts/ci_maap_cases_selftest.py
+10	0	0.1s	python3 scripts/ci_capture_cases_selftest.py
+11	0	7.3s	python3 scripts/ci_suite_pieces_selftest.py
+12	0	2.8s	python3 scripts/ci_suite_collect_selftest.py
+13	0	1.1s	python3 scripts/ci_fail_fast_selftest.py
+14	0	6.8s	python3 scripts/ci_runtime_evidence_selftest.py
+15	0	0.1s	python3 scripts/ci_install_cache_selftest.py
+16	0	0.0s	python3 scripts/generate_ci_evidence_pins.py --check
+17	0	0.2s	python3 scripts/ci_workflow_plan_selftest.py
+18	0	0.0s	python3 scripts/ci_manifest_selftest.py
+19	0	5.8s	python3 scripts/check_py_idiom.py
+20	0	5.8s	python3 scripts/check_py_idiom.py --selftest
+21	0	0.2s	python3 scripts/check_sh_idiom.py
+22	0	0.2s	python3 scripts/check_sh_idiom.py --selftest
+23	0	0.5s	python3 scripts/check_hygiene.py --check
+24	0	0.5s	python3 scripts/check_hygiene.py --selftest
+25	0	1.8s	python3 scripts/measure_fail_fast.py --check
+26	0	10.9s	python3 scripts/measure_test_evidence.py --check
+27	0	2.1s	python3 scripts/check_todo_ownership.py
+28	0	2.1s	python3 scripts/check_todo_ownership.py --selftest
+29	0	0.5s	python3 scripts/measure_naming.py --check

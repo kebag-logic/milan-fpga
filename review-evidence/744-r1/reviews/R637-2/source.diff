@@ -1,0 +1,1286 @@
+diff --git a/.github/ci-templates/rtl-fast.yml b/.github/ci-templates/rtl-fast.yml
+index 355941225..2041f47a8 100644
+--- a/.github/ci-templates/rtl-fast.yml
++++ b/.github/ci-templates/rtl-fast.yml
+@@ -249,9 +249,10 @@ jobs:
+   # configs/*.yaml with its generated header and parameters), must be a block
+   # field, CSR read-back or the processor's own answer face. Its self-test
+   # elaborates one planted copy per defect, then removes each of the census's
+-  # rules in turn. A job of its own, on every core of its runner, with the
+-  # Yosys cache and sv2v release of yosys-elaboration (#665, comment
+-  # 6100024293).
++  # rules in turn. A job of its own, with the Yosys cache and sv2v release of
++  # yosys-elaboration (#665, comment 6100024293). Its workers are bounded by
++  # the job's memory, never above its CPUs: the generator's census budget step
++  # sets CI_CENSUS_JOBS from a measured per-sv2v peak (#744).
+   publication-census:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+@@ -312,7 +313,7 @@ jobs:
+         run: |
+           set -euo pipefail
+           python3 -m pip install --quiet pyyaml
+-          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CAMPAIGN_JOBS"
++          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"
+ 
+   # The bare-metal control-plane firmware's host unit tests (#665 lane FT):
+   # the GoogleTest suites of sw/firmware/ctrl and sw/firmware/ctrl_nvm at
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index 31c5e496b..fcd42484d 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -429,6 +429,39 @@ jobs:
+             printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+           } >> "$GITHUB_ENV"
+         id: ci_step_1
++      - name: Set memory-derived census workers
++        run: |
++          set -euo pipefail
++          cpus="$(nproc)"
++          test "$cpus" -gt 0
++          kib="$(awk '$1 == "MemTotal:" && $3 == "kB" { print $2 }' /proc/meminfo)"
++          test "$kib" -gt 0
++          memory=$(( kib * 1024 ))
++          cgroup="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup)"
++          cgroup="${cgroup%/}"
++          while :; do
++            if [ -d "$cgroup" ] && [ ! -x "$cgroup" ]; then
++              echo "unsearchable cgroup $cgroup: its memory limit cannot be proved absent" >&2; exit 1
++            fi
++            if [ -e "$cgroup/memory.max" ]; then
++              if ! limit="$(cat "$cgroup/memory.max")"; then
++                echo "unreadable memory limit in $cgroup" >&2; exit 1
++              fi
++              case "$limit" in
++                max) ;;
++                ''|*[!0-9]*) echo "non-numeric memory limit in $cgroup: $limit" >&2; exit 1 ;;
++                *) if [ "$limit" -lt "$memory" ]; then memory="$limit"; fi ;;
++              esac
++            fi
++            if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi
++            cgroup="${cgroup%/*}"
++          done
++          census=$(( memory * 2 / (3 * 1242214400) ))
++          census=$(( census < cpus ? census : cpus ))
++          census=$(( census > 0 ? census : 1 ))
++          echo "census workers: $census of $cpus CPU(s) within $memory bytes of memory"
++          printf 'CI_CENSUS_JOBS=%s\n' "$census" >> "$GITHUB_ENV"
++        id: ci_step_2
+       - name: Cache exact Python downloads
+         uses: actions/cache@v4
+         with:
+@@ -436,10 +469,10 @@ jobs:
+           key: python-cpython3.12.3-${{ hashFiles('ci/constraints-ci.txt', 'tools/*/requirements.txt',
+             'sw/litex/litex_pins.txt') }}-${{ hashFiles('scripts/ci_install*.py', '.github/workflows/*.yml')
+             }}-${{ runner.os }}
+-        id: ci_step_2
++        id: ci_step_3
+       - name: Fetch RTL dependencies
+         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+-        id: ci_step_3
++        id: ci_step_4
+       - name: Cache the pinned Yosys build
+         id: cache-yosys
+         uses: actions/cache@v4
+@@ -459,7 +492,7 @@ jobs:
+           key: ${{ runner.os }}-${{ steps.ci_packages_3.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+             '.github/workflows/*.yml') }}
+         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+-        id: ci_step_6
++        id: ci_step_7
+       - name: Build Yosys from source on cache miss
+         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+         run: |
+@@ -479,7 +512,7 @@ jobs:
+           git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+           # runner-owned so the cache action's save and restore are symmetric
+           sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+-        id: ci_step_7
++        id: ci_step_8
+       - name: Install the pinned Yosys and prove the version
+         run: |
+           set -euo pipefail
+@@ -488,14 +521,14 @@ jobs:
+           echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+           yosys -V
+           yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+-        id: ci_step_8
++        id: ci_step_9
+       - name: Cache verified sv2v archive
+         uses: actions/cache@v4
+         with:
+           path: ${{ runner.temp }}/ci-sv2v-cache
+           key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
+             '.github/workflows/*.yml') }}-${{ runner.os }}
+-        id: ci_step_9
++        id: ci_step_10
+       - name: Install the pinned sv2v release
+         run: |
+           set -euo pipefail
+@@ -510,13 +543,13 @@ jobs:
+           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+             /usr/local/bin/sv2v
+           sv2v --version
+-        id: ci_step_10
++        id: ci_step_11
+       - name: Run the publication census in every shape the builder builds
+         run: |
+           set -euo pipefail
+           python3 -m pip install --quiet pyyaml
+-          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CAMPAIGN_JOBS"
+-        id: ci_step_11
++          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"
++        id: ci_step_12
+       - name: Record actual job execution
+         id: ci_record
+         if: ${{ always() }}
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index eb076cd6a..3f2fe7494 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -1030,9 +1030,9 @@ removes each rule in turn, judges that rule's arms again, and fails unless
+ every one is accepted; it fails too on a rule no arm names, and on a name
+ `census_rules.py` and the census's code do not both hold, so a rule added
+ without a plant fails CI. The census runs in `rtl-fast`'s own
+-`publication-census` job, on every core of its runner, with the same Yosys
+-cache and sv2v release as `yosys-elaboration`, and by `make census` in the
+-mailbox bench.
++`publication-census` job, with as many workers as the job's memory holds
++and never more than its CPUs (#744), with the same Yosys cache and sv2v
++release as `yosys-elaboration`, and by `make census` in the mailbox bench.
+ 
+ The idle slope's one read is status, for LWSRP_SLOPE: no shaper consumes it,
+ and the block carries it as ruled. The census covers the class-D face and the
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index b75bce802..1068b25a5 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -307,7 +307,7 @@ resolve. It does not replace generic synthesis and must not be reported as a
+ portability pass.
+ 
+ The mailbox publication census runs in a job of its own, `publication-census`
+-(`sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"`,
++(`sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"`,
+ #665, comment 6100024293), which installs the pinned Yosys from the same
+ cache key as `yosys-elaboration` and the same pinned sv2v release. It
+ elaborates `milan_datapath` with the recipe `syn/yosys/run.sh --emit
+@@ -316,8 +316,10 @@ each `configs/*.yaml` with its generated header and the parameters
+ `endstation_builder.datapath_params()` states), refuses an sv2v or a Yosys
+ other than the versions `rtl-fast.yml` pins, and follows every class-D value
+ the datapath reads through each netlist. Its self-test elaborates one planted
+-copy per defect, then removes each of the census's rules in turn, on every
+-core of the runner. The aggregate `rtl-fast` requires the job. The mailbox suite's
++copy per defect, then removes each of the census's rules in turn, with
++`CI_CENSUS_JOBS` workers: as many as the job's memory holds, never more than
++its CPUs (see the resource bounds under
++[Parallel replay slots](#parallel-replay-slots)). The aggregate `rtl-fast` requires the job. The mailbox suite's
+ `make census` runs it locally; the suite's default `make` does not, because
+ the Verilator worker that owns that suite has no Yosys.
+ 
+@@ -2011,6 +2013,8 @@ A read-only daemon monitor independently checks container placement.
+ Sharing, unbooked placement and later movement fail the replay.
+ Monitor failure also prevents a successful replay verdict.
+ `cpu-placements.json` retains reservations, inspection problems and peak concurrency.
++`slot-memory.json` retains an isolated slot's memory accounting and whether
++an OOM invalidated it.
+ CPU observations remain outside the canonical manifest comparison.
+ 
+ Every generated job reads its own CPU count with `nproc`.
+@@ -2019,6 +2023,30 @@ Existing `-j 0` recipes use Verilator 5.050's process-affinity default.
+ They therefore see the container's booked CPU count.
+ Campaign pools use the smaller of that count and four.
+ CPU allocation alone therefore cannot expand those pools beyond four.
++The publication census is bounded by memory instead (#744). The generator
++gives each job whose steps name `CI_CENSUS_JOBS`, today only
++`publication-census`, a `Set memory-derived census workers` step after the
++CPU budget step. It takes the job's memory M as the smaller of `MemTotal`
++and every numeric `memory.max` from the job's own cgroup up to the root
++the job can see, so an act job container reads its eight-GiB limit and a
++hosted runner without a cgroup limit reads its RAM. It then sets
++`CI_CENSUS_JOBS` to `min(nproc, floor(2 * M / (3 * 1242214400)))`, and to
++one when that is zero. The constant is `CENSUS_WORKER_BYTES` in
++`scripts/ci_runtime_workflows.py`, the measured sv2v peak given below; the
++other third of M is headroom for the driver, the Yosys that follows each
++sv2v, and the page cache. Only an absent `memory.max` means that cgroup
++sets no limit. One that is present but cannot be read, at the job's cgroup
++or at any ancestor, fails the step before `CI_CENSUS_JOBS` is written, and
++so does a cgroup directory on the walk that cannot be searched. A
++non-numeric limit, a missing `MemTotal` or zero CPUs also fail the step.
++`scripts/ci_gate_workflows_selftest.py` executes the emitted shell over
++planted meminfo and cgroup files: four workers in an eight-GiB container at
++sixteen CPUs and on a four-CPU hosted runner, two under a lower ancestor
++limit, two at two CPUs, one below one worker's memory, and sixteen with no
++memory controller. It refuses a mode-000 limit at the leaf and at an
++ancestor, a mode-000 ancestor cgroup, a limit that is a directory, and each
++non-numeric or missing input. Root reads through mode 000, so as root the
++three mode-000 cases print a loud skip; the directory cases still run.
+ Simulation pools use the same bound; case drivers retain their two-run cap.
+ Outer suite make invocations remain serial to preserve shared build ownership.
+ The compiler inside the selected build receives the CPU budget.
+@@ -2326,6 +2354,18 @@ and its cgroup-mount root only in their exact code contexts in
+ product document, are still refused, and the gate's self-test proves each of
+ those refusals.
+ 
++The slot's OOM accounting and the census worker bound read the build host's
++memory files, not the product's (#744): the runner's mount table, and the
++census budget step's `MemTotal`, its own cgroup and each `memory.max` above
++it. The gate's `HOST_MEMORY_READS` table declares each such line whole, in its
++one file: `scripts/act_ci.py` (the read and its fixtures),
++`scripts/ci_runtime_workflows.py`, the generated
++`.github/workflows/rtl-fast.yml` and `scripts/ci_gate_workflows_selftest.py`.
++A path is masked only inside its exact declared line. Another path or runtime
++word in the same file, a declared line with text before or after it, a
++different path in the same line, and the same line in another file or a
++product document are still refused, and the self-test proves each refusal.
++
+ The uplink uses the absolute `pasta` path from `SAFE_PATH`.
+ Its final symlink stays unresolved, preserving the multi-call mode.
+ Other host tools keep their resolved paths.
+@@ -2371,7 +2411,31 @@ Resource bounds:
+   Complete concurrent replay remains a separate coordinating check. The runner does
+   not rewrite an older candidate's command that explicitly requests sixteen
+   census workers; that older command exhausted the eight-GiB cap in the
+-  coordinating replay reported on #737.
++  coordinating replay reported on #737. Such a replay is now refused by its
++  OOM count (below).
++- The census memory bound was measured at the `84f9e300` datapath (#744),
++  natively on the shared host with CPython 3.12.3, sv2v v0.0.12 and Yosys 0.66.
++  `/usr/bin/time -v` wrapped each tool of one `--check --jobs 1` run over the
++  six shapes. sv2v peaked at 1167000 to 1205884 KiB per shape. Yosys peaked
++  at 386824 KiB.
++- The self-test's arms run sv2v on the same datapath, and some peak higher.
++  The emitted budget step and census command ran in a transient cgroup scope
++  at `MemoryMax=8G` and `MemorySwapMax=0`, the job container's bound. The
++  step chose four workers of sixteen CPUs. The census passed 234 checks, 0 of
++  120 arms failed and all 31 rules were proved, in 591 seconds. The scope's
++  peak was 5806784512 bytes (67.6% of the cap), with every memory-event
++  counter zero, and its largest process peaked at 1213100 KiB.
++- A second such run, with `/usr/bin/time` around each of its 133 sv2v and
++  141 Yosys runs, passed the same way. 25 of those sv2v runs elaborated the
++  full datapath, 23 of them above 1205884 KiB and the largest at 1212036 KiB.
++  `CENSUS_WORKER_BYTES` is therefore the larger figure, 1213100 KiB or
++  1242214400 bytes. Yosys peaked at 380492 KiB, and the scope at 5569384448
++  bytes.
++- The same command at `--jobs 16` under the same cap reproduces #742: 113 of
++  120 arms failed with sv2v `exit -9`, and the scope recorded 209 OOM kills,
++  2298 OOM events and a peak at the cap. These are native measurements, not a
++  replay. The four-job act replay at the lane's head is the coordinating
++  receipt.
+ - The largest synthesis shard (0/4, `milan_datapath`) also passes with empty
+   result caches at both widths: 3745005568-byte peak at sixteen CPUs and
+   3391201280 bytes at twelve. Tied-input and tap-purity checks pass, and
+@@ -2439,26 +2503,53 @@ Resource bounds:
+   Four measured maxima plus overhead total 28483371008 bytes (26.527 GiB).
+   That is a sum of separate peaks, not an observed concurrent slot peak.
+   The source-build compiler bound changes; container and slot caps do not.
+-- A run with an OOM at the slot cap is refused, never reported as a verdict.
+-  After the workflows, the runner reads the slice's own `memory.events.local`,
+-  which counts only the slice's limit and never a job container's eight-GiB limit
+-  below it. Any `oom` there is exit 2 naming the cap, so an OOM at the cap
+-  cannot pass for the candidate's `FAILED`.
+-- That OOM is all the runner detects. Before one, the host reclaims memory
+-  at the cap, which can slow a job until its workflow times out. No `oom` is
++- A run with any OOM inside its slot is refused, never reported as a verdict
++  (#744). After the job containers are removed, while the slice still exists
++  and before the manifest is written, the runner reads the slice's
++  hierarchical `memory.events` and its `memory.peak`. There `oom` and
++  `oom_kill` count every cgroup below the slice. So a kill at one job
++  container's eight-GiB limit counts as well as one at the slot's own cap,
++  whichever job it hit.
++- Before #744 the runner read the slice's `memory.events.local`, which counts
++  only the slice's own limit. In #742's replay it stayed at zero through 210
++  OOM kills of sv2v at container limits, and the runner printed
++  `the cap was hit 0 time(s), with no OOM at it`.
++- A nonzero `oom` or `oom_kill` writes `slot-memory.json` with
++  `"oom_free": false` beside the manifest in the evidence directory. The
++  field says only whether the slot was free of OOMs; it does not make the
++  manifest complete. The runner prints the slot's accounting ending
++  `valid build: False` and exits 2 naming both counts, even when every job
++  passed. The manifest's completeness does not read the slot's memory events,
++  so `slot-memory.json` and the exit status 2 carry an OOM's invalidity.
++- Unreadable or incomplete events refuse, since no count is then provable.
++  So does a cgroup2 mount carrying `memory_localevents`, which would make
++  `memory.events` local. An unreadable peak is printed as unrecorded.
++- Every slot run prints `memory peak <P> GiB of its 36G cap; a memory limit
++  in the slot was hit <N> time(s); <K> OOM kill(s) and <E> OOM event(s) in
++  the slot` before teardown. A body that raises keeps its own exception, and
++  the line is printed beside it.
++- The runner self-test plants #742's shape: hierarchical kills beside clean
++  local events. It also plants a real host cgroup's events after one kill,
++  an OOM without a kill, a kill without an OOM event, each malformed input
++  and the local-events mount. One planted kill is driven through the whole
++  validation path to the refusal and the recorded `slot-memory.json`.
++- A native control OOM-killed a 400 MiB allocation in a 200 MiB scope below
++  a 36G slice. The slice's `memory.events` read `oom 1 oom_kill 1`, and its
++  `memory.events.local` read zero. `dev`'s reader printed `the cap was hit 0
++  time(s), with no OOM at it`; this reader refused with both counts.
++- An OOM is all the runner detects. Before one, the host reclaims memory
++  at a limit, which can slow a job until its workflow times out. No `oom` is
+   raised either for an allocation that fails without trying the OOM killer,
+   such as a large contiguous one or one whose caller asked not to retry. A
+   run hurt either way keeps its verdict, so a slot's `FAILED` can still be
+-  the cap's. After the workflows the runner prints the slice's memory peak
+-  and its `max` count, the number of times usage hit the cap. Usage includes
+-  cached file data, which the host reclaims at the cap as a matter of
+-  course, so a long run can show a nonzero count with no harm done. Those
+-  two numbers are the only sign of such harm, so replay a slot `FAILED` with
+-  a nonzero count in slot 0 before attributing it to the candidate. The cap's
+-  effect on the shipping workflows has not been measured yet; the run logs of
+-  the live proof below record each slot's peak and count.
+-- Slot 0 keeps only its per-container bounds. Whoever allocates slots keeps
+-  the concurrent caps, plus what slot 0 uses, within host RAM.
++  memory's. The `max` count is how often usage reached any limit in the
++  slot. Usage includes cached file data, which the host reclaims at a limit
++  as a matter of course, so a long run can show a nonzero count with no harm
++  done. Replay a slot `FAILED` with a nonzero count in slot 0 before
++  attributing it to the candidate.
++- Slot 0 keeps only its per-container bounds and has no slice to read, so an
++  OOM there is not counted. Whoever allocates slots keeps the concurrent caps,
++  plus what slot 0 uses, within host RAM.
+ 
+ `--slot-root` (default `/var/lib/milan-act-ci`) holds every isolated slot's
+ persistent data-root. It and every directory above it, from `/` down, must be
+@@ -2718,8 +2809,10 @@ The gate inventory still defines membership and exactly-once union coverage.
+ Every original control remains; generated mutations regenerate only their
+ changed workflow. The full CI-event self-test took 316.686 seconds for 5,206
+ arms on CPython 3.12.3. It passed 5,212 arms at the merge head `e3d25d96`.
+-Leg 1's step on `docs-gates-2` adds three generated-graph arms, so it now
+-passes 5,215; projections keep the slower 316.686-second figure.
++Leg 1's step on `docs-gates-2` adds three generated-graph arms, so it
++passed 5,215 at `84f9e300`. The census budget step on `publication-census`
++adds three more, 5,218 (#744); projections keep the slower 316.686-second
++figure.
+ The complete two-invocation runner contract gate takes 113.654 seconds.
+ The scheduling/evidence controls, with the generated Verilator graph check,
+ take 28.331 seconds.
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index 58b9b054a..dc3ebeeb4 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -152,13 +152,13 @@ SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
+ #: together - may hold in memory, with no swap beyond it (unit-property size
+ #: syntax). Four eight-GiB job caps leave four GiB for service overhead.
+ #: A slot that overruns is killed inside its own slice rather than starving the
+-#: host or a sibling slot. Hosted runners have no such aggregate cap, so a run
+-#: in which the cap caused an OOM is refused rather than reported as a verdict
+-#: (require_slot_memory_cap_unexhausted). That is all it detects: reclaim at the
+-#: cap, and an allocation that fails there without an OOM, still yield a
+-#: verdict, and each slot run prints only its peak and how often the cap was
+-#: hit. Its effect on the shipping workflows is unmeasured. Slot 0 keeps only
+-#: the per-container bound it had.
++#: host or a sibling slot. A run with any OOM inside the slice, at this cap or
++#: at a job container's CONTAINER_MEMORY below it, is refused rather than
++#: reported as a verdict (SlotMemory, read from the slice's hierarchical
++#: memory.events before teardown). That is all it detects: reclaim at a limit,
++#: and an allocation that fails there without an OOM, still yield a verdict,
++#: and each slot run prints its peak and how often a limit was hit. Slot 0
++#: keeps only the per-container bound it had, with no slice to read.
+ SLOT_MEMORY_MAX = "36G"
+ SLOT_COMMAND_TIMEOUT_SECONDS = 60
+ #: A slot daemon's start job (until dockerd reports ready) and its stop job
+@@ -4563,46 +4563,101 @@ def release_replay_slot(lease: SlotLease, *, host: SlotHost) -> None:
+         )
+ 
+ 
+-def require_slot_memory_cap_unexhausted(slot: ReplaySlot, host: SlotHost) -> str:
+-    """The slot's memory report; a Refusal when the slot's own cap caused an OOM while the body ran, or cannot be read.
++@dataclass(frozen=True)
++class SlotMemory:
++    """One isolated slot's memory accounting, read from its slice while the slice still exists.
++
++    The counts are the slice's hierarchical `memory.events`, which include
++    every cgroup below it: `oom` and `oom_kill` count an OOM at a job
++    container's CONTAINER_MEMORY limit as well as one at the slice's own
++    SLOT_MEMORY_MAX, whichever job it hit, and `max` counts how often usage
++    reached any of those limits. `peak` is the slice's `memory.peak` in
++    bytes, None when unreadable.
++    """
++
++    slot: int
++    oom: int
++    oom_kill: int
++    max_hits: int
++    peak: int | None
++
++    @property
++    def exhausted(self) -> bool:
++        """Whether memory, not the candidate, decided at least one job in the slot."""
++        return bool(self.oom or self.oom_kill)
+ 
+-    `memory.events.local` counts only the slice's own limit, never a job
+-    container's CONTAINER_MEMORY limit below it, so a nonzero `oom` there means
+-    the slot cap, which hosted runners do not have, decided the run. That
+-    verdict is not the candidate's, so it is refused rather than reported.
++    def report(self) -> str:
++        """The one-line accounting every slot run prints."""
++        peak = "unrecorded" if self.peak is None else f"{self.peak / 2**30:.1f} GiB"
++        return (
++            f"memory peak {peak} of its {SLOT_MEMORY_MAX} cap; a memory limit in the slot "
++            f"was hit {self.max_hits} time(s); {self.oom_kill} OOM kill(s) and {self.oom} "
++            "OOM event(s) in the slot"
++        )
++
++    def refusal(self) -> str:
++        """Why an exhausted slot's evidence is invalid."""
++        return (
++            f"replay slot {self.slot} recorded {self.oom_kill} OOM kill(s) and {self.oom} "
++            f"OOM event(s) at a memory limit inside it (a job container's {CONTAINER_MEMORY} "
++            f"or the slot's MemoryMax={SLOT_MEMORY_MAX}): memory, not the candidate, decided "
++            "at least one job, so the evidence is invalid (valid build: False) whichever "
++            "job it hit and whatever the jobs returned; bound the job's memory and replay it"
++        )
+ 
+-    Nothing else is refused. The slice counts under `max` each time usage hit
+-    the cap and memory was reclaimed instead, which can slow a job into a
+-    timeout, and no `oom` is raised for an allocation that fails without trying
+-    the OOM killer. Such a run keeps its verdict, so the report gives the peak
+-    and the `max` count and claims no more than those two numbers.
++    def evidence(self) -> dict[str, object]:
++        """The accounting as the evidence directory records it; `oom_free` says only that no OOM invalidated it."""
++        return {"slot": self.slot, "memory_max": SLOT_MEMORY_MAX, "peak": self.peak,
++                "max": self.max_hits, "oom": self.oom, "oom_kill": self.oom_kill,
++                "oom_free": not self.exhausted}
++
++
++#: The cgroup2 mount option that would make `memory.events` count only the
++#: cgroup itself, which would hide every kill below the slice.
++LOCAL_EVENTS_OPTION = "memory_localevents"
++PROC_MOUNTS = pathlib.Path("/proc/self/mounts")
++
++
++def read_slot_memory(slot: ReplaySlot, host: SlotHost) -> SlotMemory:
++    """The slice's own `memory.events` and `memory.peak`; a Refusal when the counts cannot be proved.
++
++    Only the counts decide anything, so an unreadable peak is reported as
++    unrecorded, while unreadable or incomplete events, or a cgroup2 mount
++    whose `memory.events` is local, refuse: no OOM count is then provable.
+     """
+     cgroup = CGROUP_ROOT / slot.slice_unit
++    cannot = f"cannot prove replay slot {slot.number}'s memory accounting"
+     try:
++        mounts = [line.split() for line in host.read_text(PROC_MOUNTS).splitlines()]
++        options = [words[3].split(",") for words in mounts
++                   if len(words) > 3 and words[1] == str(CGROUP_ROOT) and words[2] == "cgroup2"]
+         events = dict(
+-            line.split() for line in host.read_text(cgroup / "memory.events.local").splitlines()
++            line.split() for line in host.read_text(cgroup / "memory.events").splitlines()
+         )
+-        exhausted = int(events["oom"])
+-        hits = int(events["max"])
++        oom, kills, hits = int(events["oom"]), int(events["oom_kill"]), int(events["max"])
+     except (OSError, ValueError, KeyError) as exc:
++        raise Refusal(f"{cannot}: {exc}") from exc
++    if len(options) != 1:
++        raise Refusal(f"{cannot}: {len(options)} cgroup2 mount(s) at {CGROUP_ROOT}")
++    if LOCAL_EVENTS_OPTION in options[0]:
+         raise Refusal(
+-            f"cannot prove replay slot {slot.number}'s memory cap never ran out: {exc}"
+-        ) from exc
+-    if exhausted:
+-        raise Refusal(
+-            f"replay slot {slot.number} ran out of its own memory cap "
+-            f"(MemoryMax={SLOT_MEMORY_MAX}) {exhausted} time(s): the slot cap, not the "
+-            "candidate, decided this run, so its verdict is refused; replay it in "
+-            "slot 0 or with fewer slots at once"
++            f"{cannot}: cgroup2 is mounted with {LOCAL_EVENTS_OPTION}, so the slice's "
++            "memory.events would not count a kill below it"
+         )
+     try:
+-        peak = f"{int(host.read_text(cgroup / 'memory.peak')) / 2**30:.1f} GiB"
++        peak: int | None = int(host.read_text(cgroup / "memory.peak"))
+     except (OSError, ValueError):
+-        peak = "unrecorded"
+-    return (
+-        f"memory peak {peak} of its {SLOT_MEMORY_MAX} cap; the cap was hit {hits} "
+-        "time(s), with no OOM at it"
+-    )
++        peak = None
++    return SlotMemory(slot.number, oom, kills, hits, peak)
++
++
++def report_slot_memory_beside(slot: ReplaySlot, host: SlotHost) -> None:
++    """Print the slot's accounting next to a body's own exception, which it never replaces."""
++    try:
++        line = read_slot_memory(slot, host).report()
++    except Refusal as exc:
++        line = str(exc)
++    print(f"act-ci: slot {slot.number}: {line}", flush=True)
+ 
+ 
+ @contextlib.contextmanager
+@@ -4612,15 +4667,17 @@ def replay_slot(
+     context: CommandContext,
+     scratch: pathlib.Path,
+     host: SlotHost = SlotHost(),
+-) -> Iterator[None]:
++) -> Iterator[Callable[[], SlotMemory | None]]:
+     """Run the body against `slot`'s daemon: none to start for slot 0, one owned for this invocation otherwise.
+ 
+-    After a body that returns, an isolated slot proves its memory cap caused
+-    no OOM and prints its peak and how often the cap was hit; a body that
+-    raises keeps its own exception.
++    The body receives the slot's meter: read_slot_memory for an isolated
++    slot, None for slot 0, which has no slice. Before teardown removes the
++    slice, an isolated slot always prints its accounting. After a body that
++    returns, any OOM in the slot is then a Refusal; a body that raises keeps
++    its own exception, with the accounting printed beside it.
+     """
+     if not slot.isolated:
+-        yield
++        yield lambda: None
+         return
+     if not context.use_sudo or slot_of_environment(context.env) != slot.number:
+         raise Refusal(
+@@ -4636,11 +4693,15 @@ def replay_slot(
+             f"memory {SLOT_MEMORY_MAX}, uplinks {','.join(lease.uplinks)}",
+             flush=True,
+         )
+-        yield
+-        print(
+-            f"act-ci: slot {slot.number}: {require_slot_memory_cap_unexhausted(slot, host)}",
+-            flush=True,
+-        )
++        try:
++            yield lambda: read_slot_memory(slot, host)
++        except BaseException:
++            report_slot_memory_beside(slot, host)
++            raise
++        memory = read_slot_memory(slot, host)
++        print(f"act-ci: slot {slot.number}: {memory.report()}", flush=True)
++        if memory.exhausted:
++            raise Refusal(memory.refusal())
+     finally:
+         if not lease.released:
+             with blocked_cleanup_signals():
+@@ -5670,6 +5731,8 @@ class WorkflowPlan:
+     dry_run: bool
+     cpu_ranges: tuple[str, ...] = ()
+     evidence_directory: pathlib.Path | None = None
++    #: The replay slot's meter (replay_slot); None for slot 0.
++    slot_memory: Callable[[], SlotMemory | None] = lambda: None
+ 
+ 
+ def check_run_integrity(
+@@ -5877,8 +5940,17 @@ def execute_workflows(
+     leftover_volumes = cleanup_act_job_volumes(boundary, observed_volumes, context=context)
+     if moved.problems:
+         raise Refusal("CPU placement audit failed: " + "; ".join(moved.problems))
++    # Every job container is gone, so no later kill can belong to a job: read
++    # the slot's accounting before the manifest, which cannot see it.
++    memory = plan.slot_memory()
++    if memory is not None and plan.evidence_directory is not None:
++        (plan.evidence_directory / "slot-memory.json").write_text(
++            json.dumps(memory.evidence(), sort_keys=True) + "\n")
+     if plan.evidence_directory is not None:
+         emit_local_manifest(run, layout, events, artifacts, plan.evidence_directory, result != 0)
++    if memory is not None and memory.exhausted:
++        print(f"act-ci: slot {memory.slot}: {memory.report()}; valid build: False", flush=True)
++        raise Refusal(memory.refusal())
+     if leftovers or leftover_volumes:
+         raise Refusal(f"act left {leftovers} owned container(s) and {len(leftover_volumes)} job volume(s) "
+                       "after the combined replay; the runner removed them and refuses the run")
+@@ -5926,7 +5998,7 @@ def run_validation(
+         env = controlled_act_environment(layout, slot.number)
+         context = CommandContext(use_sudo=use_sudo, cwd=layout.invocation, env=env)
+         validate_isolation_layout(layout)
+-        with replay_slot(slot, context=context, scratch=layout.temporary):
++        with replay_slot(slot, context=context, scratch=layout.temporary) as slot_memory:
+             prefix = (
+                 act_prefix(act_binary, use_sudo, env)
+                 if dry_run
+@@ -5951,6 +6023,7 @@ def run_validation(
+                 dry_run=dry_run,
+                 cpu_ranges=cpu_ranges,
+                 evidence_directory=launch.evidence_directory,
++                slot_memory=slot_memory,
+             )
+             with temporary_docker_boundary(
+                 planned_boundary,
+@@ -6744,11 +6817,14 @@ def workflow_control_fakes(
+ 
+ @dataclass(frozen=True)
+ class PlantedRun:
+-    """What a workflow-control run plants besides leftovers: act's exit status, and each CPU-range record's contents."""
++    """What a workflow-control run plants besides leftovers: act's exit status, each CPU-range record's contents,
++    and the slot's memory accounting with the evidence directory it is recorded in."""
+ 
+     act_returncode: int = 0
+     cpu_outcomes: Mapping[str, str] = field(default_factory=dict)
+     cpu_problems: Sequence[str] = ()
++    slot_memory: SlotMemory | None = None
++    evidence_directory: pathlib.Path | None = None
+ 
+ 
+ def run_workflow_control(
+@@ -6765,8 +6841,10 @@ def run_workflow_control(
+     Every faked call lands in one ordered log so the gate-before-spawn and
+     containers-before-volumes orders are measured, not assumed. act exits
+     with `planted`'s status, and each workflow's CPU-range record carries its
+-    container outcomes and problems. The printed text holds stdout and stderr
+-    together.
++    container outcomes and problems. A planted slot accounting is what the
++    slot's meter returns, and the manifest collector into its evidence
++    directory is logged rather than run. The printed text holds stdout and
++    stderr together.
+     """
+     log: list[tuple[str, ...]] = []
+     boundaries: list[DockerBoundary] = []
+@@ -6793,6 +6871,17 @@ def run_workflow_control(
+     fakes["job_cpu_range_monitor"] = cpu_range_monitor_stand_in(
+         log, planted.cpu_outcomes, planted.cpu_problems
+     )
++    fakes["emit_local_manifest"] = lambda *_args, **_kwargs: log.append(("manifest",))
++    if planted.slot_memory is not None:
++
++        @contextlib.contextmanager
++        def metered_slot(*_args: object, **_kwargs: object) -> Iterator[Callable[[], SlotMemory | None]]:
++            """A slot whose meter returns the planted accounting."""
++            log.append(("slot-on",))
++            yield lambda: planted.slot_memory
++            log.append(("slot-off",))
++
++        fakes["replay_slot"] = metered_slot
+     with mock.patch.multiple(sys.modules[__name__], **fakes), mock.patch.object(
+         os, "cpu_count", return_value=512
+     ):
+@@ -6802,7 +6891,8 @@ def run_workflow_control(
+                     resolved,
+                     ("docs", "elaborate"),
+                     shipping_root,
+-                    launch=LaunchOptions("/trusted/act", use_sudo=False, dry_run=False),
++                    launch=LaunchOptions("/trusted/act", use_sudo=False, dry_run=False,
++                                         evidence_directory=planted.evidence_directory),
+                 )
+         except Refusal as exc:
+             message = str(exc)
+@@ -6898,6 +6988,47 @@ def selftest_cpu_range_warnings(tally: SelftestTally, resolved: ValidatedRun, sh
+                     and [row[0] for row in log][-2:] == ["containers", "volumes"])
+ 
+ 
++def selftest_slot_memory_evidence(tally: SelftestTally, resolved: ValidatedRun, shipping_root: pathlib.Path) -> None:
++    """Planted control: a job killed at a memory limit refuses the replay and records invalid evidence,
++    whatever act returned."""
++    slot = ReplaySlot(1, pathlib.Path("/srv/slots"))
++    planted_host = FakeSlotHost(slot)
++    planted_host.memory_events = OOM_KILLED_EVENTS
++    planted_host.memory_peak = "209715200\n"
++    killed = read_slot_memory(slot, planted_host.seams())
++    clean = SlotMemory(1, 0, 0, 37, 209715200)
++    with tempfile.TemporaryDirectory(prefix="act-ci-slot-memory-") as scratch:
++        for case, (memory, status, refused) in enumerate(((killed, RC_OK, True), (killed, 3, True),
++                                                          (clean, RC_OK, False))):
++            evidence = pathlib.Path(scratch) / f"evidence-{case}"
++            evidence.mkdir()
++            rc, message, output, log, _leased = run_workflow_control(
++                resolved, shipping_root, leftover_volumes=(),
++                planted=PlantedRun(status, slot_memory=memory, evidence_directory=evidence))
++            recorded = json.loads((evidence / "slot-memory.json").read_text(encoding="utf-8"))
++            rows = [row[0] for row in log]
++            if refused:
++                tally.check(
++                    f"a slot whose events show a real host cgroup's OOM kill refuses the replay with act rc {status}, "
++                    "by count and as invalid evidence, after recording it and the manifest",
++                    rc is None
++                    and message == memory.refusal()
++                    and "recorded 1 OOM kill(s) and 1 OOM event(s)" in message
++                    and "act-ci: slot 1: memory peak 0.2 GiB of its 36G cap; a memory limit in the slot was "
++                    "hit 37 time(s); 1 OOM kill(s) and 1 OOM event(s) in the slot; valid build: False\n" in output
++                    and "PASS at" not in output
++                    and recorded == {"slot": 1, "memory_max": SLOT_MEMORY_MAX, "peak": 209715200, "max": 37,
++                                     "oom": 1, "oom_kill": 1, "oom_free": False}
++                    and rows[-3:] == ["containers", "volumes", "manifest"])
++            else:
++                tally.check(
++                    "a slot with no OOM keeps the replay's PASS and records valid accounting beside the manifest",
++                    rc == RC_OK and message == "" and "act-ci: docs: PASS" in output
++                    and "valid build: False" not in output
++                    and recorded["oom_free"] is True and recorded["oom_kill"] == 0
++                    and rows[-2:] == ["manifest", "slot-off"])
++
++
+ 
+ def trusted_runner_message(
+     resolved: ValidatedRun,
+@@ -13164,6 +13295,20 @@ def fake_host_tool(name: str) -> str:
+     return f"/usr/bin/{name}"
+ 
+ 
++#: The host's mount table as the slot arms plant it: one cgroup2 hierarchy at
++#: CGROUP_ROOT, whose memory.events are hierarchical.
++SLOT_MOUNTS = (
++    "proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\n"
++    "cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate,"
++    "memory_recursiveprot 0 0\n"
++)
++#: A real host cgroup's memory.events, verbatim, from a capped cgroup in which a
++#: process allocated 400 MiB past a 200 MiB MemoryMax with no swap (#744).
++OOM_KILLED_EVENTS = (
++    "low 0\nhigh 0\nmax 37\noom 1\noom_kill 1\noom_group_kill 0\nsock_throttled 0\n"
++)
++
++
+ class FakeSlotHost:
+     """A host that answers every slot command from a small resource model and records each one.
+ 
+@@ -13209,7 +13354,11 @@ class FakeSlotHost:
+             "-6": "[]\n",
+         }
+         self.memory_events: str | None = "low 0\nhigh 0\nmax 3\noom 0\noom_kill 0\n"
++        # The slice's own non-hierarchical counts, clean in every scenario:
++        # a reader of this file would miss every kill below the slice.
++        self.local_events = "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\n"
+         self.memory_peak: str | None = "13421772800\n"
++        self.mounts: str | None = SLOT_MOUNTS
+         self.root_stats: dict[pathlib.Path, os.stat_result] = {}
+         self.body_failure: BaseException | None = None
+         self.body_verdict = RC_OK
+@@ -13388,11 +13537,13 @@ class FakeSlotHost:
+         )
+ 
+     def read_text(self, path: pathlib.Path) -> str:
+-        """The slice's memory file at `path`; an unreadable one raises as the real read would."""
++        """The slice's memory file, or the mount table, at `path`; an unreadable one raises as the real read would."""
+         cgroup = CGROUP_ROOT / self.slot.slice_unit
+         contents = {
+-            cgroup / "memory.events.local": self.memory_events,
++            cgroup / "memory.events": self.memory_events,
++            cgroup / "memory.events.local": self.local_events,
+             cgroup / "memory.peak": self.memory_peak,
++            PROC_MOUNTS: self.mounts,
+         }[path]
+         self.keys.append(f"read-{path.name}")
+         if contents is None:
+@@ -13440,7 +13591,8 @@ SLOT_ACQUISITION_KINDS = [
+     "docker-info",
+ ]
+ SLOT_TEARDOWN_KINDS = [
+-    "read-memory.events.local",
++    "read-mounts",
++    "read-memory.events",
+     "read-memory.peak",
+     "stop-daemon",
+     "show-LoadState-daemon",
+@@ -14580,48 +14732,89 @@ def selftest_slot_wiring(tally: SelftestTally) -> None:
+ 
+ 
+ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
+-    """Arms: an OOM at a slot's own cap is refused; its peak and cap hits are printed; teardown always runs."""
++    """Arms: any OOM in a slot, at its cap or a container's, is refused by count, and so is an unprovable count;
++    teardown always runs."""
+     check = tally.check
+     slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
+     host = FakeSlotHost(slot)
+     outcome, entry = drive_fake_slot(host, layout)
+     check(
+-        "a slot whose cap caused no OOM passes, printing its peak and how often the cap "
+-        "was hit, and reads only the slice's own events, never those of a container's "
+-        "limit below it",
++        "a slot with no OOM passes, printing its peak, its limit hits and both OOM "
++        "counts, read from the slice's hierarchical memory.events after the mount "
++        "table and never from its memory.events.local",
+         outcome == ""
+-        and "act-ci: slot 2: memory peak 12.5 GiB of its 36G cap; the cap was hit 3 "
+-        "time(s), with no OOM at it\n" in host.transcript
+-        and host.keys[entry : entry + 2] == ["read-memory.events.local", "read-memory.peak"],
+-    )
+-    for events, described, named in (
+-        ("low 0\nmax 9\noom 2\noom_kill 2\n", "a cap that ran out twice",
+-         "ran out of its own memory cap (MemoryMax=36G) 2 time(s)"),
+-        # The slice runs no process itself, so the kill is counted in the
+-        # victim's own cgroup below it and the slice's own oom_kill stays 0.
+-        ("low 0\nhigh 0\nmax 7\noom 1\noom_kill 0\noom_group_kill 0\n",
+-         "one OOM at its cap and no kill in its own events",
+-         "ran out of its own memory cap (MemoryMax=36G) 1 time(s)"),
+-        (None, "unreadable events", "cannot prove replay slot 2's memory cap never ran out"),
+-        ("oom\n", "malformed events", "cannot prove replay slot 2's memory cap never ran out"),
+-        ("low 0\nmax 0\n", "events without an oom count",
+-         "cannot prove replay slot 2's memory cap never ran out"),
+-        ("low 0\noom 0\n", "events without a max count",
+-         "cannot prove replay slot 2's memory cap never ran out"),
++        and "act-ci: slot 2: memory peak 12.5 GiB of its 36G cap; a memory limit in "
++        "the slot was hit 3 time(s); 0 OOM kill(s) and 0 OOM event(s) in the slot\n"
++        in host.transcript
++        and host.keys[entry : entry + 3] == ["read-mounts", "read-memory.events", "read-memory.peak"]
++        and "read-memory.events.local" not in host.keys,
++    )
++    for events, verdict, described, named in (
++        # #742: kills at a job container's limit below the slice, with the
++        # slice's own memory.events.local clean and every job passing.
++        ("low 0\nhigh 0\nmax 5361\noom 210\noom_kill 210\noom_group_kill 0\n", RC_OK,
++         "210 kills at a container's limit below a slice whose own events are clean, "
++         "every job passing", "recorded 210 OOM kill(s) and 210 OOM event(s)"),
++        (OOM_KILLED_EVENTS, RC_OK, "a real host cgroup's events after one OOM kill, every job passing",
++         "recorded 1 OOM kill(s) and 1 OOM event(s)"),
++        (OOM_KILLED_EVENTS, RC_FAILED, "a real host cgroup's events after one OOM kill, a job failing",
++         "recorded 1 OOM kill(s) and 1 OOM event(s)"),
++        ("low 0\nmax 7\noom 1\noom_kill 0\n", RC_OK, "an OOM that killed nothing",
++         "recorded 0 OOM kill(s) and 1 OOM event(s)"),
++        ("low 0\nmax 0\noom 0\noom_kill 2\n", RC_OK, "kills counted with no OOM event",
++         "recorded 2 OOM kill(s) and 0 OOM event(s)"),
++    ):
++        host = FakeSlotHost(slot)
++        host.memory_events = events
++        host.body_verdict = verdict
++        outcome, entry = drive_fake_slot(host, layout)
++        check(
++            f"a slot with {described} is refused by count as invalid evidence, not "
++            "reported as a verdict, after printing its accounting, and the whole slot "
++            "is still torn down and unlocked",
++            outcome.startswith("Refusal")
++            and named in outcome
++            and "valid build: False" in outcome
++            and named.removeprefix("recorded ") + " in the slot\n" in host.transcript
++            and SLOT_REMOVALS.issubset(host.keys[entry:])
++            and host.state == set()
++            and host.keys[-1] == "unlock-99",
++        )
++    unprovable = "cannot prove replay slot 2's memory accounting"
++    for events, mounts, described, named in (
++        (None, SLOT_MOUNTS, "unreadable events", unprovable),
++        ("oom\n", SLOT_MOUNTS, "malformed events", unprovable),
++        ("low 0\nmax 0\noom_kill 0\n", SLOT_MOUNTS, "events without an oom count", unprovable),
++        ("low 0\nmax 0\noom 0\n", SLOT_MOUNTS, "events without an oom_kill count", unprovable),
++        ("low 0\noom 0\noom_kill 0\n", SLOT_MOUNTS, "events without a max count", unprovable),
++        ("low 0\nmax 0\noom 0\noom_kill 0\n", None, "an unreadable mount table", unprovable),
++        ("low 0\nmax 0\noom 0\noom_kill 0\n", "proc /proc proc rw 0 0\n",
++         "no cgroup2 hierarchy at the cgroup root", "0 cgroup2 mount(s) at /sys/fs/cgroup"),
++        ("low 0\nmax 0\noom 0\noom_kill 0\n", SLOT_MOUNTS.replace("memory_recursiveprot", "memory_localevents"),
++         "a cgroup2 mount whose events are local", "mounted with memory_localevents"),
+     ):
+         host = FakeSlotHost(slot)
+         host.memory_events = events
++        host.mounts = mounts
+         outcome, entry = drive_fake_slot(host, layout)
+         check(
+-            f"a slot with {described} is refused naming its cap, not reported as a "
+-            "verdict, and the whole slot is still torn down and unlocked",
++            f"a slot with {described} is refused, since no OOM count is provable, not "
++            "reported as a verdict, and the whole slot is still torn down and unlocked",
+             outcome.startswith("Refusal")
++            and unprovable in outcome
+             and named in outcome
+             and "memory peak" not in host.transcript
+             and SLOT_REMOVALS.issubset(host.keys[entry:])
+             and host.state == set()
+             and host.keys[-1] == "unlock-99",
+         )
++
++
++def selftest_slot_memory_report(tally: SelftestTally, layout: RunLayout) -> None:
++    """Arms: a slot's accounting is printed whatever the body did, and only an OOM refuses."""
++    check = tally.check
++    slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
++    unprovable = "cannot prove replay slot 2's memory accounting"
+     host = FakeSlotHost(slot)
+     host.memory_peak = None
+     outcome, _entry = drive_fake_slot(host, layout)
+@@ -14635,24 +14828,33 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
+     host.body_verdict = RC_FAILED
+     outcome, _entry = drive_fake_slot(host, layout)
+     check(
+-        "a FAILED run whose slice sat at its cap without an OOM keeps its FAILED, since "
+-        "only an OOM is refused, and reports the peak at the cap and how often it was hit",
++        "a FAILED run whose slot sat at a limit without an OOM keeps its FAILED, since "
++        "only an OOM is refused, and reports the peak and how often a limit was hit",
+         outcome == ""
+         and host.verdict == RC_FAILED
+-        and "act-ci: slot 2: memory peak 36.0 GiB of its 36G cap; the cap was hit 5361 "
+-        "time(s), with no OOM at it\n" in host.transcript,
+-    )
+-    host = FakeSlotHost(slot)
+-    host.body_failure = Refusal("the body failed")
+-    outcome, _entry = drive_fake_slot(host, layout)
+-    check(
+-        "a body that raises keeps its own exception: the cap is not read over it, and "
+-        "the slot is torn down",
+-        outcome == "Refusal: the body failed"
+-        and not any(key.startswith("read-") for key in host.keys)
+-        and host.state == set()
+-        and host.keys[-1] == "unlock-99",
+-    )
++        and "act-ci: slot 2: memory peak 36.0 GiB of its 36G cap; a memory limit in the "
++        "slot was hit 5361 time(s); 0 OOM kill(s) and 0 OOM event(s) in the slot\n"
++        in host.transcript,
++    )
++    for events, printed in (
++        ("low 0\nhigh 0\nmax 3\noom 0\noom_kill 0\n", "0 OOM kill(s) and 0 OOM event(s) in the slot"),
++        (OOM_KILLED_EVENTS, "1 OOM kill(s) and 1 OOM event(s) in the slot"),
++        (None, unprovable),
++    ):
++        host = FakeSlotHost(slot)
++        host.memory_events = events
++        host.body_failure = Refusal("the body failed")
++        outcome, entry = drive_fake_slot(host, layout)
++        check(
++            "a body that raises keeps its own exception, with the slot's accounting "
++            f"({printed}) printed beside it before teardown, and the slot is torn down",
++            outcome == "Refusal: the body failed"
++            and "act-ci: slot 2: " in host.transcript
++            and printed in host.transcript
++            and host.keys[entry : entry + 2] == ["read-mounts", "read-memory.events"]
++            and host.state == set()
++            and host.keys[-1] == "unlock-99",
++        )
+ 
+ 
+ def selftest_live_gate_slot(tally: SelftestTally) -> None:
+@@ -14884,6 +15086,7 @@ def selftest_slot_stages(tally: SelftestTally, docker: DockerFixture) -> None:
+     selftest_slot_teardown_queries(tally, docker.layout)
+     selftest_slot_teardown_signals(tally, docker.layout)
+     selftest_slot_memory_cap(tally, docker.layout)
++    selftest_slot_memory_report(tally, docker.layout)
+     selftest_slot_guards(tally, docker.layout)
+     selftest_slot_root(tally)
+     selftest_slot_lock(tally)
+@@ -15112,6 +15315,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
+     selftest_dry_run_cpu_ranges(tally, resolved, shipping_root)
+     selftest_workflow_order(tally, resolved, shipping_root)
+     selftest_cpu_range_warnings(tally, resolved, shipping_root)
++    selftest_slot_memory_evidence(tally, resolved, shipping_root)
+     selftest_action_launch_order(tally, resolved, shipping_root)
+     selftest_trusted_runner(tally, fixture, resolved)
+     selftest_wiring_pins(tally)
+diff --git a/scripts/check_baremetal_only.py b/scripts/check_baremetal_only.py
+index 1d85befdf..560b1f6cc 100644
+--- a/scripts/check_baremetal_only.py
++++ b/scripts/check_baremetal_only.py
+@@ -53,7 +53,10 @@ R. retired target RUNTIME/service surface: the former helper services and
+    example are masked only in their exact host-tool files. The act runner's
+    host process inventory and its policy paragraph have literal, file-pinned
+    masks under #376's recorded host-tooling decision, and so does the
+-   runner's one build-host cgroup-mount root (#532).
++   runner's one build-host cgroup-mount root (#532). #744's build-host memory
++   reads (the runner's mount table and fixtures, the census budget step in its
++   generator, generated workflow and self-test) are declared as whole lines in
++   ``HOST_MEMORY_READS``, each masked only inside its exact line and file.
+ P. retired PRODUCT PATH: a tracked first-party path itself cannot retain an
+    OS tree, target service, host-audio plane or retired target-driver-tree
+    name while carrying clean (or binary) contents. Path scanning uses the
+@@ -353,6 +356,58 @@ HOST_RUNTIME_MASKS = {
+         r'(?= and os\.pidfd_open; nothing was run"\))'),
+ }
+ 
++# #744, decided in M1 on PR #745: the act slot's OOM accounting and the census
++# worker bound read the BUILD HOST's memory files, never the product target's:
++# the runner's mount table and its fixtures, and the census budget step's
++# MemTotal, its own cgroup and each memory.max above it, in the generator, the
++# workflow generated from it and its self-test. Each line is declared whole, in
++# its one file. A path is masked only inside its exact line, so any other path
++# or runtime word in the same file, a line with text before or after it, and the
++# same line in another file or a product document are still refused.
++HOST_MEMORY_READS = {
++    "scripts/act_ci.py": (
++        'PROC_MOUNTS = pathlib.Path("/proc/self/mounts")',
++        '    "proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\\n"',
++        '    "cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate,"',
++        '        ("low 0\\nmax 0\\noom 0\\noom_kill 0\\n", "proc /proc proc rw 0 0\\n",',
++        '         "no cgroup2 hierarchy at the cgroup root", "0 cgroup2 mount(s) at /sys/fs/cgroup"),',
++    ),
++    "scripts/ci_runtime_workflows.py": (
++        'kib="$(awk \'$1 == "MemTotal:" && $3 == "kB" { print $2 }\' /proc/meminfo)"',
++        'cgroup="/sys/fs/cgroup$(sed -n \'s/^0:://p\' /proc/self/cgroup)"',
++        '  if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi',
++    ),
++    ".github/workflows/rtl-fast.yml": (
++        '          kib="$(awk \'$1 == "MemTotal:" && $3 == "kB" { print $2 }\' /proc/meminfo)"',
++        '          cgroup="/sys/fs/cgroup$(sed -n \'s/^0:://p\' /proc/self/cgroup)"',
++        '            if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi',
++    ),
++    "scripts/ci_gate_workflows_selftest.py": (
++        '    for real, planted, count in (("/proc/meminfo", root / "meminfo", 1),',
++        '                                 ("/proc/self/cgroup", root / "self-cgroup", 1),',
++        '                                 ("/sys/fs/cgroup", root / "sys", 2)):',
++    ),
++}
++
++
++def declared_line_mask(lines: tuple[str, ...]) -> str:
++    """Each target path in each declared line, bound to the whole line around it."""
++    return "|".join(
++        f"(?<=^{re.escape(line[:m.start()])}){re.escape(m.group(0))}(?={re.escape(line[m.end():])}$)"
++        for line in lines for m in TARGET_OS_PATH_RE.finditer(line))
++
++
++def with_declared_lines(masks: dict[str, re.Pattern], declared: dict[str, tuple[str, ...]]) -> dict[str, re.Pattern]:
++    """`masks`, each declared file's expression extended by its declared lines."""
++    merged = dict(masks)
++    for path, lines in declared.items():
++        known = merged.get(path)
++        merged[path] = re.compile(("" if known is None else known.pattern + "|") + declared_line_mask(lines))
++    return merged
++
++
++HOST_RUNTIME_MASKS = with_declared_lines(HOST_RUNTIME_MASKS, HOST_MEMORY_READS)
++
+ # Class H: concrete names and phrases that carried the removed target host
+ # plane. These are deliberately more specific than generic ``DMA`` or
+ # ``driver``, which remain valid vocabulary for verification and buses. In
+@@ -1216,6 +1271,47 @@ def _arms_host_tooling_masks(arm):
+             '<text>rootfs</text></svg>\n'), True, "[T]")
+ 
+ 
++def _arms_host_memory_reads(arm):
++    """#744's host memory reads are clean only as their whole declared lines in their own files."""
++    def plant(root: pathlib.Path, path: str, text: str) -> None:
++        """Write `text` at `path` in the scratch tree."""
++        target = root / path
++        target.parent.mkdir(parents=True, exist_ok=True)
++        target.write_text(text)
++
++    homes = dict(HOST_MEMORY_READS)
++    # the runner policy paragraph's own masked line, the fifth file M1 names
++    homes["docs/testing/CI_WORKFLOWS.md"] = ("`/proc/<pid>/stat` state is `Z`",)
++    def header(path: str) -> str:
++        """What makes the declared lines a parseable file: a workflow's are one block scalar."""
++        return "run: |\n" if path.endswith(".yml") else ""
++
++    for path, lines in homes.items():
++        whole = header(path) + "".join(line + "\n" for line in lines)
++        extra_line = whole.count("\n") + 1
++        arm(f"host-memory-reads-allowed-{path}", lambda r, p=path, t=whole: plant(r, p, t), False)
++        # M1's negative control: an unrelated new reference in the same file is still refused
++        for extra in ("cat /proc/cpuinfo", "ls /sys/class/net", "the target kernel"):
++            arm(f"host-memory-reads-unrelated-{path}-{extra}",
++                lambda r, p=path, t=whole + "  " + extra + "\n": plant(r, p, t),
++                True, f"{path}:{extra_line}: [R]")
++    for path, lines in HOST_MEMORY_READS.items():
++        for index, line in enumerate(lines):
++            label = f"host-memory-read-{path}-{index}"
++            token = "/proc" if "/proc" in line else "/sys"
++            for variant, destination, text in (
++                ("wrong-file", "scripts/other.py", line),
++                ("product-file", PRODUCT_DOCS[0], line),
++                ("prefixed", path, "# " + line),
++                ("trailing", path, line + "  # note"),
++                ("other-path-same-context", path, line.replace(token, token + "/target-only", 1)),
++            ):
++                lead = header(destination)
++                planted_line = lead.count("\n") + 1
++                arm(f"{label}-{variant}", lambda r, p=destination, t=lead + text: plant(r, p, t + "\n"),
++                    True, f"{destination}:{planted_line}: [R]")
++
++
+ def _sim_pool_host_fixtures() -> dict[str, tuple[str, ...]]:
+     """Literal source lines from #517, independent of the mask expressions.
+ 
+@@ -1613,7 +1709,7 @@ def selftest() -> tuple[list[str], int]:
+     bench = _Bench()
+     for group in (_arms_control_and_terms, _arms_target_runtime, _arms_cancellation_process_masks,
+                   _arms_retired_surfaces, _arms_host_tooling_masks,
+-                  _arms_act_slot_masks, _arms_sim_pool_host_masks,
++                  _arms_act_slot_masks, _arms_host_memory_reads, _arms_sim_pool_host_masks,
+                   _arms_product_and_paths, _arms_build_configuration,
+                   _arms_image_mask_and_options, _arms_parsed_configs):
+         group(bench.arm)
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index 2ba6badc1..4f5da70ea 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -2473,7 +2473,7 @@ RTL_STEP_LISTS = {
+          "run": (
+              'set -euo pipefail',
+              'python3 -m pip install --quiet pyyaml',
+-             'python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CAMPAIGN_JOBS"',
++             'python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"',
+          )},
+     ),
+     (RTL_FAST, FIRMWARE_UNIT_JOB): (
+diff --git a/scripts/ci_gate_workflows_selftest.py b/scripts/ci_gate_workflows_selftest.py
+index 88a55b67b..4453ce118 100644
+--- a/scripts/ci_gate_workflows_selftest.py
++++ b/scripts/ci_gate_workflows_selftest.py
+@@ -21,7 +21,7 @@ import ci_builder_legs
+ from ci_builder_legs import LEGS, REQUIRED, compare, partition, requirements, union
+ from ci_gate_receipts import Collected, StepContext, record, verify
+ from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
+-from ci_runtime_workflows import cpu_budget_step
++from ci_runtime_workflows import CENSUS_WORKER_BYTES, census_budget_step, cpu_budget_step
+ from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, DRIVER_COMMAND, builder_command, builder_leg_step
+ from ci_gate_workflows import gate_graph
+ import ci_suite_pieces
+@@ -232,6 +232,112 @@ def cpu_controls() -> None:
+             assert sum(step.get("name") == cpu_budget_step()["name"] for step in job["steps"]) == 1
+ 
+ 
++def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: dict[str, str],
++                  denied: dict[str, str] | None = None) -> str | None:
++    """CI_CENSUS_JOBS as the emitted shell sets it over proc and cgroup files planted in the new directory root;
++    None if it refused. `denied` makes a planted cgroup's "limit" (memory.max mode 000), its "directory" (mode 000)
++    or its memory.max a "non-file" (a directory) unreadable after planting."""
++    (root / "bin").mkdir()
++    (root / "bin" / "nproc").write_text("#!/bin/sh\nprintf '%s\\n' " + str(cpus) + "\n")
++    (root / "bin" / "nproc").chmod(0o755)
++    (root / "meminfo").write_text("MemFree:         1024 kB\n"
++                                  + ("" if kib is None else f"MemTotal:       {kib} kB\n"))
++    (root / "self-cgroup").write_text("0::" + cgroup + "\n")
++    for directory, limit in limits.items():
++        (root / "sys" / directory).mkdir(parents=True, exist_ok=True)
++        if (denied or {}).get(directory) == "non-file":
++            (root / "sys" / directory / "memory.max").mkdir()
++        else:
++            (root / "sys" / directory / "memory.max").write_text(limit + "\n")
++    (root / "sys").mkdir(exist_ok=True)
++    script = census_budget_step()["run"]
++    for real, planted, count in (("/proc/meminfo", root / "meminfo", 1),
++                                 ("/proc/self/cgroup", root / "self-cgroup", 1),
++                                 ("/sys/fs/cgroup", root / "sys", 2)):
++        assert script.count(real) == count, real
++        script = script.replace(real, str(planted))
++    modes = [(root / "sys" / directory / ("memory.max" if how == "limit" else ""))
++             for directory, how in (denied or {}).items() if how != "non-file"]
++    for path in modes:
++        path.chmod(0)
++    output = root / "census.env"
++    try:
++        ran = subprocess.run(["bash", "-c", script], check=False, capture_output=True, text=True,
++                             env={**os.environ, "PATH": str(root / "bin") + ":" + os.environ["PATH"],
++                                  "GITHUB_ENV": str(output)})
++    finally:
++        for path in reversed(modes):
++            path.chmod(0o755)
++    if ran.returncode:
++        assert not output.exists(), ran
++        return None
++    lines = output.read_text().splitlines()
++    assert len(lines) == 1 and lines[0].startswith("CI_CENSUS_JOBS="), lines
++    return lines[0].removeprefix("CI_CENSUS_JOBS=")
++
++
++def mode_zero_denies(root: Path) -> bool:
++    """Whether mode 000 denies this process a read: root's CAP_DAC_OVERRIDE reads through it."""
++    probe = root / "mode-zero-probe"
++    probe.write_text("probe\n")
++    probe.chmod(0)
++    try:
++        probe.read_text()
++    except PermissionError:
++        return True
++    finally:
++        probe.chmod(0o644)
++    return False
++
++
++def census_controls() -> None:
++    """Execute the emitted census budget shell: bounded by the job's memory, never above nproc,
++    refusing a limit that is present but unreadable or non-numeric."""
++    gib = 1024 * 1024
++    container = {"": str(8 * 2**30)}
++    hosted = {"": "max", "system.slice": "max", "system.slice/runner.service": "max"}
++    ancestor = {"": "max", "a": str(4 * 2**30), "a/b": "max"}
++    with tempfile.TemporaryDirectory(prefix="census-budgets-") as temporary:
++        root = Path(temporary)
++        denies = mode_zero_denies(root)
++        for described, cpus, kib, cgroup, limits, denied, want in (
++            # #742: sixteen CPUs in an eight-GiB act job container on a 61 GiB host.
++            ("act job container", 16, 61 * gib, "/", container, {}, "4"),
++            ("hosted runner without a cgroup limit", 4, 16 * gib, "/system.slice/runner.service", hosted, {}, "4"),
++            ("host memory below its cgroup's", 16, 4 * gib, "/", container, {}, "2"),
++            ("a lower ancestor limit", 16, 61 * gib, "/a/b", ancestor, {}, "2"),
++            ("fewer CPUs than memory allows", 2, 61 * gib, "/", container, {}, "2"),
++            ("memory for less than one worker", 16, 61 * gib, "/", {"": str(2**30)}, {}, "1"),
++            ("a cgroup without a memory controller", 16, 61 * gib, "/", {}, {}, "16"),
++            ("a mode-000 limit", 16, 61 * gib, "/", container, {"": "limit"}, None),
++            ("a mode-000 ancestor limit", 16, 61 * gib, "/a/b", ancestor, {"a": "limit"}, None),
++            ("a mode-000 ancestor cgroup", 16, 61 * gib, "/a/b", ancestor, {"a": "directory"}, None),
++            ("a limit that is not a file", 16, 61 * gib, "/", container, {"": "non-file"}, None),
++            ("an ancestor limit that is not a file", 16, 61 * gib, "/a/b", ancestor, {"a": "non-file"}, None),
++            ("a non-numeric limit", 16, 61 * gib, "/", {"": "garbage"}, {}, None),
++            ("an empty limit", 16, 61 * gib, "/", {"": ""}, {}, None),
++            ("no MemTotal", 16, None, "/", container, {}, None),
++            ("zero CPUs", 0, 61 * gib, "/", container, {}, None),
++        ):
++            if not denies and any(how != "non-file" for how in denied.values()):
++                print(f"Census budget: {described}: LOUD SKIP - running as root, where mode 000 does not deny a read")
++                continue
++            got = census_budget(Path(tempfile.mkdtemp(dir=root)), cpus, kib, cgroup, limits, denied)
++            assert got == want, (described, got, want)
++            print(f"Census budget: {described}: {'refused' if got is None else got + ' worker(s)'}")
++    assert 4 * CENSUS_WORKER_BYTES * 3 <= 2 * 8 * 2**30 < 5 * CENSUS_WORKER_BYTES * 3
++    owners = [(name, job_id) for name in ("docs", "elaborate", "rtl", "rtl-fast")
++              for job_id, job in generate(name, load_template(ROOT, name))["jobs"].items()
++              if any(step.get("name") == census_budget_step()["name"] for step in job["steps"])]
++    assert owners == [("rtl-fast", "publication-census")], owners
++    steps = generate("rtl-fast", load_template(ROOT, "rtl-fast"))["jobs"]["publication-census"]["steps"]
++    names = [step.get("name") for step in steps]
++    census = next(i for i, step in enumerate(steps) if "publication_census.py" in step.get("run", ""))
++    assert names.index(census_budget_step()["name"]) < census
++    assert '--jobs "$CI_CENSUS_JOBS"' in steps[census]["run"] and "CI_CAMPAIGN_JOBS" not in steps[census]["run"]
++    print("Census budget: only publication-census sets CI_CENSUS_JOBS, before its census")
++
++
+ def builder_receipts(identity: tuple[str, str], names: list[str] | None = None,
+                      flags: tuple[str, ...] = tuple(REQUIRED)) -> list[dict]:
+     """Passing leg receipts in the shape the leg runner binds around the driver's own."""
+@@ -417,6 +523,7 @@ def main() -> int:
+     builder_split_controls()
+     suite_generator_controls()
+     cpu_controls()
++    census_controls()
+     for name, carrier in CARRIERS.items():
+         source = load_template(ROOT, name)
+         generated = generate(name, source)
+diff --git a/scripts/ci_runtime_workflows.py b/scripts/ci_runtime_workflows.py
+index 3dd1e973c..f82bd878e 100644
+--- a/scripts/ci_runtime_workflows.py
++++ b/scripts/ci_runtime_workflows.py
+@@ -44,6 +44,51 @@ tool_build=$(( cpus < 8 ? cpus : 8 ))
+ """}
+ 
+ 
++#: One publication census worker's resident peak: the largest sv2v v0.0.12 front
++#: end at the datapath of #744 under /usr/bin/time, over the six shapes and the
++#: self-test's arms, 1213100 KiB (the shapes alone peaked at 1205884 KiB). A
++#: worker runs one sv2v, then one smaller Yosys, at a time.
++CENSUS_WORKER_BYTES = 1242214400
++
++
++def census_budget_step() -> dict:
++    """Bound census workers by the job's memory: two thirds of it per measured worker peak, never above nproc.
++
++    Only an absent memory.max means no limit; one present but unreadable, or a cgroup that cannot be searched,
++    refuses before CI_CENSUS_JOBS is written."""
++    return {"name": "Set memory-derived census workers", "run": """set -euo pipefail
++cpus="$(nproc)"
++test "$cpus" -gt 0
++kib="$(awk '$1 == "MemTotal:" && $3 == "kB" { print $2 }' /proc/meminfo)"
++test "$kib" -gt 0
++memory=$(( kib * 1024 ))
++cgroup="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup)"
++cgroup="${cgroup%/}"
++while :; do
++  if [ -d "$cgroup" ] && [ ! -x "$cgroup" ]; then
++    echo "unsearchable cgroup $cgroup: its memory limit cannot be proved absent" >&2; exit 1
++  fi
++  if [ -e "$cgroup/memory.max" ]; then
++    if ! limit="$(cat "$cgroup/memory.max")"; then
++      echo "unreadable memory limit in $cgroup" >&2; exit 1
++    fi
++    case "$limit" in
++      max) ;;
++      ''|*[!0-9]*) echo "non-numeric memory limit in $cgroup: $limit" >&2; exit 1 ;;
++      *) if [ "$limit" -lt "$memory" ]; then memory="$limit"; fi ;;
++    esac
++  fi
++  if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi
++  cgroup="${cgroup%/*}"
++done
++census=$(( memory * 2 / (3 * """ + str(CENSUS_WORKER_BYTES) + """) ))
++census=$(( census < cpus ? census : cpus ))
++census=$(( census > 0 ? census : 1 ))
++echo "census workers: $census of $cpus CPU(s) within $memory bytes of memory"
++printf 'CI_CENSUS_JOBS=%s\\n' "$census" >> "$GITHUB_ENV"
++"""}
++
++
+ def instrument(path: str, job_id: str, job: dict) -> None:
+     """Assign stable IDs without modifying any existing test command or condition."""
+     if not any(step.get("uses", "").startswith("actions/checkout@") for step in job["steps"]):
+@@ -51,6 +96,8 @@ def instrument(path: str, job_id: str, job: dict) -> None:
+     checkout = next(i for i, step in enumerate(job["steps"])
+                     if step.get("uses", "").startswith("actions/checkout@"))
+     job["steps"].insert(checkout + 1, cpu_budget_step())
++    if any("$CI_CENSUS_JOBS" in step.get("run", "") for step in job["steps"]):
++        job["steps"].insert(checkout + 2, census_budget_step())
+     identity = ""
+     if path == ".github/workflows/docs.yml" and job_id == "docs-check-no-git":
+         job["steps"].insert(1, {

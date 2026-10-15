@@ -1,0 +1,13 @@
+Published exact-head docs receipts: 47/47 rc 0; clean status before and after
+Bare-metal gate: 0 findings; self-test: 790 arms
+Census budget: 16 executed cases, none skipped, plus workflow ownership assertion
+Mask mutations: all six caught (one deletion is caught by --check, not its shrinking self-test)
+Budget mutations: old -r and missing searchability guard caught; cat-status mutant survives because the numeric-input guard still refuses its empty output
+sv2v runs 133 peak KiB 1212036
+yosys runs 141 peak KiB 380492
+Earlier capped self-test maximum: 1213100 KiB; current constant: 1242214400 bytes
+Native OOM receipt predates oom_free rename; exact-head runner receipt and source assert the new field
+Builder leg 1: calibration NOT RUN; not physical evidence
+No-git docs receipt: inventory parity skipped as expected without metadata
+Public snapshot: docs-gates-0 and bare-metal step executed successfully; remaining hosted completion pending
+No four-job exact-head replay receipt was present in the retrieved public PR comments

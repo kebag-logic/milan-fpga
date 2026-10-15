@@ -1,0 +1,524 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index c0d2223fb..fcd42484d 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -440,18 +440,23 @@ jobs:
+           cgroup="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup)"
+           cgroup="${cgroup%/}"
+           while :; do
+-            if [ -r "$cgroup/memory.max" ]; then
+-              limit="$(cat "$cgroup/memory.max")"
++            if [ -d "$cgroup" ] && [ ! -x "$cgroup" ]; then
++              echo "unsearchable cgroup $cgroup: its memory limit cannot be proved absent" >&2; exit 1
++            fi
++            if [ -e "$cgroup/memory.max" ]; then
++              if ! limit="$(cat "$cgroup/memory.max")"; then
++                echo "unreadable memory limit in $cgroup" >&2; exit 1
++              fi
+               case "$limit" in
+                 max) ;;
+-                ''|*[!0-9]*) echo "unreadable memory limit in $cgroup: $limit" >&2; exit 1 ;;
++                ''|*[!0-9]*) echo "non-numeric memory limit in $cgroup: $limit" >&2; exit 1 ;;
+                 *) if [ "$limit" -lt "$memory" ]; then memory="$limit"; fi ;;
+               esac
+             fi
+             if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi
+             cgroup="${cgroup%/*}"
+           done
+-          census=$(( memory * 2 / (3 * 1234825216) ))
++          census=$(( memory * 2 / (3 * 1242214400) ))
+           census=$(( census < cpus ? census : cpus ))
+           census=$(( census > 0 ? census : 1 ))
+           echo "census workers: $census of $cpus CPU(s) within $memory bytes of memory"
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 563483ced..1068b25a5 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -2014,7 +2014,7 @@ Sharing, unbooked placement and later movement fail the replay.
+ Monitor failure also prevents a successful replay verdict.
+ `cpu-placements.json` retains reservations, inspection problems and peak concurrency.
+ `slot-memory.json` retains an isolated slot's memory accounting and whether
+-it is valid evidence.
++an OOM invalidated it.
+ CPU observations remain outside the canonical manifest comparison.
+ 
+ Every generated job reads its own CPU count with `nproc`.
+@@ -2030,16 +2030,23 @@ CPU budget step. It takes the job's memory M as the smaller of `MemTotal`
+ and every numeric `memory.max` from the job's own cgroup up to the root
+ the job can see, so an act job container reads its eight-GiB limit and a
+ hosted runner without a cgroup limit reads its RAM. It then sets
+-`CI_CENSUS_JOBS` to `min(nproc, floor(2 * M / (3 * 1234825216)))`, and to
++`CI_CENSUS_JOBS` to `min(nproc, floor(2 * M / (3 * 1242214400)))`, and to
+ one when that is zero. The constant is `CENSUS_WORKER_BYTES` in
+ `scripts/ci_runtime_workflows.py`, the measured sv2v peak given below; the
+ other third of M is headroom for the driver, the Yosys that follows each
+-sv2v, and the page cache. An unreadable limit, a missing `MemTotal` or zero
+-CPUs fail the step. `scripts/ci_gate_workflows_selftest.py` executes the
+-emitted shell over planted `/proc` and cgroup files: four workers in an
+-eight-GiB container at sixteen CPUs and on a four-CPU hosted runner, two
+-under a lower ancestor limit, two at two CPUs, one below one worker's
+-memory, and a refusal for each unreadable input.
++sv2v, and the page cache. Only an absent `memory.max` means that cgroup
++sets no limit. One that is present but cannot be read, at the job's cgroup
++or at any ancestor, fails the step before `CI_CENSUS_JOBS` is written, and
++so does a cgroup directory on the walk that cannot be searched. A
++non-numeric limit, a missing `MemTotal` or zero CPUs also fail the step.
++`scripts/ci_gate_workflows_selftest.py` executes the emitted shell over
++planted meminfo and cgroup files: four workers in an eight-GiB container at
++sixteen CPUs and on a four-CPU hosted runner, two under a lower ancestor
++limit, two at two CPUs, one below one worker's memory, and sixteen with no
++memory controller. It refuses a mode-000 limit at the leaf and at an
++ancestor, a mode-000 ancestor cgroup, a limit that is a directory, and each
++non-numeric or missing input. Root reads through mode 000, so as root the
++three mode-000 cases print a loud skip; the directory cases still run.
+ Simulation pools use the same bound; case drivers retain their two-run cap.
+ Outer suite make invocations remain serial to preserve shared build ownership.
+ The compiler inside the selected build receives the CPU budget.
+@@ -2347,6 +2354,18 @@ and its cgroup-mount root only in their exact code contexts in
+ product document, are still refused, and the gate's self-test proves each of
+ those refusals.
+ 
++The slot's OOM accounting and the census worker bound read the build host's
++memory files, not the product's (#744): the runner's mount table, and the
++census budget step's `MemTotal`, its own cgroup and each `memory.max` above
++it. The gate's `HOST_MEMORY_READS` table declares each such line whole, in its
++one file: `scripts/act_ci.py` (the read and its fixtures),
++`scripts/ci_runtime_workflows.py`, the generated
++`.github/workflows/rtl-fast.yml` and `scripts/ci_gate_workflows_selftest.py`.
++A path is masked only inside its exact declared line. Another path or runtime
++word in the same file, a declared line with text before or after it, a
++different path in the same line, and the same line in another file or a
++product document are still refused, and the self-test proves each refusal.
++
+ The uplink uses the absolute `pasta` path from `SAFE_PATH`.
+ Its final symlink stays unresolved, preserving the multi-call mode.
+ Other host tools keep their resolved paths.
+@@ -2397,14 +2416,21 @@ Resource bounds:
+ - The census memory bound was measured at the `84f9e300` datapath (#744),
+   natively on the shared host with CPython 3.12.3, sv2v v0.0.12 and Yosys 0.66.
+   `/usr/bin/time -v` wrapped each tool of one `--check --jobs 1` run over the
+-  six shapes. sv2v peaked at 1167000 to 1205884 KiB per shape, so the largest
+-  is 1234825216 bytes, `CENSUS_WORKER_BYTES`. Yosys peaked at 386824 KiB.
+-- The emitted budget step and census command then ran in a transient cgroup
+-  scope at `MemoryMax=8G` and `MemorySwapMax=0`, the job container's bound.
+-  The step chose four workers of sixteen CPUs. The census passed 234 checks,
+-  0 of 120 arms failed and all 31 rules were proved, in 591 seconds. The
+-  scope's peak was 5806784512 bytes (67.6% of the cap), with every
+-  memory-event counter zero.
++  six shapes. sv2v peaked at 1167000 to 1205884 KiB per shape. Yosys peaked
++  at 386824 KiB.
++- The self-test's arms run sv2v on the same datapath, and some peak higher.
++  The emitted budget step and census command ran in a transient cgroup scope
++  at `MemoryMax=8G` and `MemorySwapMax=0`, the job container's bound. The
++  step chose four workers of sixteen CPUs. The census passed 234 checks, 0 of
++  120 arms failed and all 31 rules were proved, in 591 seconds. The scope's
++  peak was 5806784512 bytes (67.6% of the cap), with every memory-event
++  counter zero, and its largest process peaked at 1213100 KiB.
++- A second such run, with `/usr/bin/time` around each of its 133 sv2v and
++  141 Yosys runs, passed the same way. 25 of those sv2v runs elaborated the
++  full datapath, 23 of them above 1205884 KiB and the largest at 1212036 KiB.
++  `CENSUS_WORKER_BYTES` is therefore the larger figure, 1213100 KiB or
++  1242214400 bytes. Yosys peaked at 380492 KiB, and the scope at 5569384448
++  bytes.
+ - The same command at `--jobs 16` under the same cap reproduces #742: 113 of
+   120 arms failed with sv2v `exit -9`, and the scope recorded 209 OOM kills,
+   2298 OOM events and a peak at the cap. These are native measurements, not a
+@@ -2486,14 +2512,15 @@ Resource bounds:
+   whichever job it hit.
+ - Before #744 the runner read the slice's `memory.events.local`, which counts
+   only the slice's own limit. In #742's replay it stayed at zero through 210
+-  kernel OOM kills of sv2v at container limits, and the runner printed
++  OOM kills of sv2v at container limits, and the runner printed
+   `the cap was hit 0 time(s), with no OOM at it`.
+ - A nonzero `oom` or `oom_kill` writes `slot-memory.json` with
+-  `"valid_build": false` beside the manifest in the evidence directory. The
+-  runner prints the slot's accounting ending `valid build: False` and exits 2
+-  naming both counts, even when every job passed. The manifest's own
+-  completeness reads only job receipts, so `slot-memory.json` decides whether
+-  a slot run is valid evidence.
++  `"oom_free": false` beside the manifest in the evidence directory. The
++  field says only whether the slot was free of OOMs; it does not make the
++  manifest complete. The runner prints the slot's accounting ending
++  `valid build: False` and exits 2 naming both counts, even when every job
++  passed. The manifest's completeness does not read the slot's memory events,
++  so `slot-memory.json` and the exit status 2 carry an OOM's invalidity.
+ - Unreadable or incomplete events refuse, since no count is then provable.
+   So does a cgroup2 mount carrying `memory_localevents`, which would make
+   `memory.events` local. An unreadable peak is printed as unrecorded.
+@@ -2502,9 +2529,9 @@ Resource bounds:
+   the slot` before teardown. A body that raises keeps its own exception, and
+   the line is printed beside it.
+ - The runner self-test plants #742's shape: hierarchical kills beside clean
+-  local events. It also plants a real kernel's events after one kill, an OOM
+-  without a kill, a kill without an OOM event, each malformed input and the
+-  local-events mount. One planted kill is driven through the whole
++  local events. It also plants a real host cgroup's events after one kill,
++  an OOM without a kill, a kill without an OOM event, each malformed input
++  and the local-events mount. One planted kill is driven through the whole
+   validation path to the refusal and the recorded `slot-memory.json`.
+ - A native control OOM-killed a 400 MiB allocation in a 200 MiB scope below
+   a 36G slice. The slice's `memory.events` read `oom 1 oom_kill 1`, and its
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index d6b29e4d4..dc3ebeeb4 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -4606,10 +4606,10 @@ class SlotMemory:
+         )
+ 
+     def evidence(self) -> dict[str, object]:
+-        """The accounting as the evidence directory records it."""
++        """The accounting as the evidence directory records it; `oom_free` says only that no OOM invalidated it."""
+         return {"slot": self.slot, "memory_max": SLOT_MEMORY_MAX, "peak": self.peak,
+                 "max": self.max_hits, "oom": self.oom, "oom_kill": self.oom_kill,
+-                "valid_build": not self.exhausted}
++                "oom_free": not self.exhausted}
+ 
+ 
+ #: The cgroup2 mount option that would make `memory.events` count only the
+@@ -7009,7 +7009,7 @@ def selftest_slot_memory_evidence(tally: SelftestTally, resolved: ValidatedRun,
+             rows = [row[0] for row in log]
+             if refused:
+                 tally.check(
+-                    f"a slot whose events show a real kernel's OOM kill refuses the replay with act rc {status}, "
++                    f"a slot whose events show a real host cgroup's OOM kill refuses the replay with act rc {status}, "
+                     "by count and as invalid evidence, after recording it and the manifest",
+                     rc is None
+                     and message == memory.refusal()
+@@ -7018,14 +7018,14 @@ def selftest_slot_memory_evidence(tally: SelftestTally, resolved: ValidatedRun,
+                     "hit 37 time(s); 1 OOM kill(s) and 1 OOM event(s) in the slot; valid build: False\n" in output
+                     and "PASS at" not in output
+                     and recorded == {"slot": 1, "memory_max": SLOT_MEMORY_MAX, "peak": 209715200, "max": 37,
+-                                     "oom": 1, "oom_kill": 1, "valid_build": False}
++                                     "oom": 1, "oom_kill": 1, "oom_free": False}
+                     and rows[-3:] == ["containers", "volumes", "manifest"])
+             else:
+                 tally.check(
+                     "a slot with no OOM keeps the replay's PASS and records valid accounting beside the manifest",
+                     rc == RC_OK and message == "" and "act-ci: docs: PASS" in output
+                     and "valid build: False" not in output
+-                    and recorded["valid_build"] is True and recorded["oom_kill"] == 0
++                    and recorded["oom_free"] is True and recorded["oom_kill"] == 0
+                     and rows[-2:] == ["manifest", "slot-off"])
+ 
+ 
+@@ -13302,7 +13302,7 @@ SLOT_MOUNTS = (
+     "cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate,"
+     "memory_recursiveprot 0 0\n"
+ )
+-#: A real kernel's memory.events, verbatim, from a capped cgroup in which a
++#: A real host cgroup's memory.events, verbatim, from a capped cgroup in which a
+ #: process allocated 400 MiB past a 200 MiB MemoryMax with no swap (#744).
+ OOM_KILLED_EVENTS = (
+     "low 0\nhigh 0\nmax 37\noom 1\noom_kill 1\noom_group_kill 0\nsock_throttled 0\n"
+@@ -14755,9 +14755,9 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
+         ("low 0\nhigh 0\nmax 5361\noom 210\noom_kill 210\noom_group_kill 0\n", RC_OK,
+          "210 kills at a container's limit below a slice whose own events are clean, "
+          "every job passing", "recorded 210 OOM kill(s) and 210 OOM event(s)"),
+-        (OOM_KILLED_EVENTS, RC_OK, "a real kernel's events after one OOM kill, every job passing",
++        (OOM_KILLED_EVENTS, RC_OK, "a real host cgroup's events after one OOM kill, every job passing",
+          "recorded 1 OOM kill(s) and 1 OOM event(s)"),
+-        (OOM_KILLED_EVENTS, RC_FAILED, "a real kernel's events after one OOM kill, a job failing",
++        (OOM_KILLED_EVENTS, RC_FAILED, "a real host cgroup's events after one OOM kill, a job failing",
+          "recorded 1 OOM kill(s) and 1 OOM event(s)"),
+         ("low 0\nmax 7\noom 1\noom_kill 0\n", RC_OK, "an OOM that killed nothing",
+          "recorded 0 OOM kill(s) and 1 OOM event(s)"),
+diff --git a/scripts/check_baremetal_only.py b/scripts/check_baremetal_only.py
+index 1d85befdf..560b1f6cc 100644
+--- a/scripts/check_baremetal_only.py
++++ b/scripts/check_baremetal_only.py
+@@ -53,7 +53,10 @@ R. retired target RUNTIME/service surface: the former helper services and
+    example are masked only in their exact host-tool files. The act runner's
+    host process inventory and its policy paragraph have literal, file-pinned
+    masks under #376's recorded host-tooling decision, and so does the
+-   runner's one build-host cgroup-mount root (#532).
++   runner's one build-host cgroup-mount root (#532). #744's build-host memory
++   reads (the runner's mount table and fixtures, the census budget step in its
++   generator, generated workflow and self-test) are declared as whole lines in
++   ``HOST_MEMORY_READS``, each masked only inside its exact line and file.
+ P. retired PRODUCT PATH: a tracked first-party path itself cannot retain an
+    OS tree, target service, host-audio plane or retired target-driver-tree
+    name while carrying clean (or binary) contents. Path scanning uses the
+@@ -353,6 +356,58 @@ HOST_RUNTIME_MASKS = {
+         r'(?= and os\.pidfd_open; nothing was run"\))'),
+ }
+ 
++# #744, decided in M1 on PR #745: the act slot's OOM accounting and the census
++# worker bound read the BUILD HOST's memory files, never the product target's:
++# the runner's mount table and its fixtures, and the census budget step's
++# MemTotal, its own cgroup and each memory.max above it, in the generator, the
++# workflow generated from it and its self-test. Each line is declared whole, in
++# its one file. A path is masked only inside its exact line, so any other path
++# or runtime word in the same file, a line with text before or after it, and the
++# same line in another file or a product document are still refused.
++HOST_MEMORY_READS = {
++    "scripts/act_ci.py": (
++        'PROC_MOUNTS = pathlib.Path("/proc/self/mounts")',
++        '    "proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\\n"',
++        '    "cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate,"',
++        '        ("low 0\\nmax 0\\noom 0\\noom_kill 0\\n", "proc /proc proc rw 0 0\\n",',
++        '         "no cgroup2 hierarchy at the cgroup root", "0 cgroup2 mount(s) at /sys/fs/cgroup"),',
++    ),
++    "scripts/ci_runtime_workflows.py": (
++        'kib="$(awk \'$1 == "MemTotal:" && $3 == "kB" { print $2 }\' /proc/meminfo)"',
++        'cgroup="/sys/fs/cgroup$(sed -n \'s/^0:://p\' /proc/self/cgroup)"',
++        '  if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi',
++    ),
++    ".github/workflows/rtl-fast.yml": (
++        '          kib="$(awk \'$1 == "MemTotal:" && $3 == "kB" { print $2 }\' /proc/meminfo)"',
++        '          cgroup="/sys/fs/cgroup$(sed -n \'s/^0:://p\' /proc/self/cgroup)"',
++        '            if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi',
++    ),
++    "scripts/ci_gate_workflows_selftest.py": (
++        '    for real, planted, count in (("/proc/meminfo", root / "meminfo", 1),',
++        '                                 ("/proc/self/cgroup", root / "self-cgroup", 1),',
++        '                                 ("/sys/fs/cgroup", root / "sys", 2)):',
++    ),
++}
++
++
++def declared_line_mask(lines: tuple[str, ...]) -> str:
++    """Each target path in each declared line, bound to the whole line around it."""
++    return "|".join(
++        f"(?<=^{re.escape(line[:m.start()])}){re.escape(m.group(0))}(?={re.escape(line[m.end():])}$)"
++        for line in lines for m in TARGET_OS_PATH_RE.finditer(line))
++
++
++def with_declared_lines(masks: dict[str, re.Pattern], declared: dict[str, tuple[str, ...]]) -> dict[str, re.Pattern]:
++    """`masks`, each declared file's expression extended by its declared lines."""
++    merged = dict(masks)
++    for path, lines in declared.items():
++        known = merged.get(path)
++        merged[path] = re.compile(("" if known is None else known.pattern + "|") + declared_line_mask(lines))
++    return merged
++
++
++HOST_RUNTIME_MASKS = with_declared_lines(HOST_RUNTIME_MASKS, HOST_MEMORY_READS)
++
+ # Class H: concrete names and phrases that carried the removed target host
+ # plane. These are deliberately more specific than generic ``DMA`` or
+ # ``driver``, which remain valid vocabulary for verification and buses. In
+@@ -1216,6 +1271,47 @@ def _arms_host_tooling_masks(arm):
+             '<text>rootfs</text></svg>\n'), True, "[T]")
+ 
+ 
++def _arms_host_memory_reads(arm):
++    """#744's host memory reads are clean only as their whole declared lines in their own files."""
++    def plant(root: pathlib.Path, path: str, text: str) -> None:
++        """Write `text` at `path` in the scratch tree."""
++        target = root / path
++        target.parent.mkdir(parents=True, exist_ok=True)
++        target.write_text(text)
++
++    homes = dict(HOST_MEMORY_READS)
++    # the runner policy paragraph's own masked line, the fifth file M1 names
++    homes["docs/testing/CI_WORKFLOWS.md"] = ("`/proc/<pid>/stat` state is `Z`",)
++    def header(path: str) -> str:
++        """What makes the declared lines a parseable file: a workflow's are one block scalar."""
++        return "run: |\n" if path.endswith(".yml") else ""
++
++    for path, lines in homes.items():
++        whole = header(path) + "".join(line + "\n" for line in lines)
++        extra_line = whole.count("\n") + 1
++        arm(f"host-memory-reads-allowed-{path}", lambda r, p=path, t=whole: plant(r, p, t), False)
++        # M1's negative control: an unrelated new reference in the same file is still refused
++        for extra in ("cat /proc/cpuinfo", "ls /sys/class/net", "the target kernel"):
++            arm(f"host-memory-reads-unrelated-{path}-{extra}",
++                lambda r, p=path, t=whole + "  " + extra + "\n": plant(r, p, t),
++                True, f"{path}:{extra_line}: [R]")
++    for path, lines in HOST_MEMORY_READS.items():
++        for index, line in enumerate(lines):
++            label = f"host-memory-read-{path}-{index}"
++            token = "/proc" if "/proc" in line else "/sys"
++            for variant, destination, text in (
++                ("wrong-file", "scripts/other.py", line),
++                ("product-file", PRODUCT_DOCS[0], line),
++                ("prefixed", path, "# " + line),
++                ("trailing", path, line + "  # note"),
++                ("other-path-same-context", path, line.replace(token, token + "/target-only", 1)),
++            ):
++                lead = header(destination)
++                planted_line = lead.count("\n") + 1
++                arm(f"{label}-{variant}", lambda r, p=destination, t=lead + text: plant(r, p, t + "\n"),
++                    True, f"{destination}:{planted_line}: [R]")
++
++
+ def _sim_pool_host_fixtures() -> dict[str, tuple[str, ...]]:
+     """Literal source lines from #517, independent of the mask expressions.
+ 
+@@ -1613,7 +1709,7 @@ def selftest() -> tuple[list[str], int]:
+     bench = _Bench()
+     for group in (_arms_control_and_terms, _arms_target_runtime, _arms_cancellation_process_masks,
+                   _arms_retired_surfaces, _arms_host_tooling_masks,
+-                  _arms_act_slot_masks, _arms_sim_pool_host_masks,
++                  _arms_act_slot_masks, _arms_host_memory_reads, _arms_sim_pool_host_masks,
+                   _arms_product_and_paths, _arms_build_configuration,
+                   _arms_image_mask_and_options, _arms_parsed_configs):
+         group(bench.arm)
+diff --git a/scripts/ci_gate_workflows_selftest.py b/scripts/ci_gate_workflows_selftest.py
+index 75db4367b..4453ce118 100644
+--- a/scripts/ci_gate_workflows_selftest.py
++++ b/scripts/ci_gate_workflows_selftest.py
+@@ -232,9 +232,11 @@ def cpu_controls() -> None:
+             assert sum(step.get("name") == cpu_budget_step()["name"] for step in job["steps"]) == 1
+ 
+ 
+-def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: dict[str, str]) -> str | None:
++def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: dict[str, str],
++                  denied: dict[str, str] | None = None) -> str | None:
+     """CI_CENSUS_JOBS as the emitted shell sets it over proc and cgroup files planted in the new directory root;
+-    None if it refused."""
++    None if it refused. `denied` makes a planted cgroup's "limit" (memory.max mode 000), its "directory" (mode 000)
++    or its memory.max a "non-file" (a directory) unreadable after planting."""
+     (root / "bin").mkdir()
+     (root / "bin" / "nproc").write_text("#!/bin/sh\nprintf '%s\\n' " + str(cpus) + "\n")
+     (root / "bin" / "nproc").chmod(0o755)
+@@ -243,7 +245,10 @@ def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: d
+     (root / "self-cgroup").write_text("0::" + cgroup + "\n")
+     for directory, limit in limits.items():
+         (root / "sys" / directory).mkdir(parents=True, exist_ok=True)
+-        (root / "sys" / directory / "memory.max").write_text(limit + "\n")
++        if (denied or {}).get(directory) == "non-file":
++            (root / "sys" / directory / "memory.max").mkdir()
++        else:
++            (root / "sys" / directory / "memory.max").write_text(limit + "\n")
+     (root / "sys").mkdir(exist_ok=True)
+     script = census_budget_step()["run"]
+     for real, planted, count in (("/proc/meminfo", root / "meminfo", 1),
+@@ -251,10 +256,18 @@ def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: d
+                                  ("/sys/fs/cgroup", root / "sys", 2)):
+         assert script.count(real) == count, real
+         script = script.replace(real, str(planted))
++    modes = [(root / "sys" / directory / ("memory.max" if how == "limit" else ""))
++             for directory, how in (denied or {}).items() if how != "non-file"]
++    for path in modes:
++        path.chmod(0)
+     output = root / "census.env"
+-    ran = subprocess.run(["bash", "-c", script], check=False, capture_output=True, text=True,
+-                         env={**os.environ, "PATH": str(root / "bin") + ":" + os.environ["PATH"],
+-                              "GITHUB_ENV": str(output)})
++    try:
++        ran = subprocess.run(["bash", "-c", script], check=False, capture_output=True, text=True,
++                             env={**os.environ, "PATH": str(root / "bin") + ":" + os.environ["PATH"],
++                                  "GITHUB_ENV": str(output)})
++    finally:
++        for path in reversed(modes):
++            path.chmod(0o755)
+     if ran.returncode:
+         assert not output.exists(), ran
+         return None
+@@ -263,29 +276,53 @@ def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: d
+     return lines[0].removeprefix("CI_CENSUS_JOBS=")
+ 
+ 
++def mode_zero_denies(root: Path) -> bool:
++    """Whether mode 000 denies this process a read: root's CAP_DAC_OVERRIDE reads through it."""
++    probe = root / "mode-zero-probe"
++    probe.write_text("probe\n")
++    probe.chmod(0)
++    try:
++        probe.read_text()
++    except PermissionError:
++        return True
++    finally:
++        probe.chmod(0o644)
++    return False
++
++
+ def census_controls() -> None:
+     """Execute the emitted census budget shell: bounded by the job's memory, never above nproc,
+-    refusing the unreadable."""
++    refusing a limit that is present but unreadable or non-numeric."""
+     gib = 1024 * 1024
+     container = {"": str(8 * 2**30)}
+     hosted = {"": "max", "system.slice": "max", "system.slice/runner.service": "max"}
++    ancestor = {"": "max", "a": str(4 * 2**30), "a/b": "max"}
+     with tempfile.TemporaryDirectory(prefix="census-budgets-") as temporary:
+         root = Path(temporary)
+-        for described, cpus, kib, cgroup, limits, want in (
++        denies = mode_zero_denies(root)
++        for described, cpus, kib, cgroup, limits, denied, want in (
+             # #742: sixteen CPUs in an eight-GiB act job container on a 61 GiB host.
+-            ("act job container", 16, 61 * gib, "/", container, "4"),
+-            ("hosted runner without a cgroup limit", 4, 16 * gib, "/system.slice/runner.service", hosted, "4"),
+-            ("host memory below its cgroup's", 16, 4 * gib, "/", container, "2"),
+-            ("a lower ancestor limit", 16, 61 * gib, "/a/b", {"": "max", "a": str(4 * 2**30), "a/b": "max"}, "2"),
+-            ("fewer CPUs than memory allows", 2, 61 * gib, "/", container, "2"),
+-            ("memory for less than one worker", 16, 61 * gib, "/", {"": str(2**30)}, "1"),
+-            ("a cgroup without a memory controller", 16, 61 * gib, "/", {}, "16"),
+-            ("an unreadable limit", 16, 61 * gib, "/", {"": "garbage"}, None),
+-            ("an empty limit", 16, 61 * gib, "/", {"": ""}, None),
+-            ("no MemTotal", 16, None, "/", container, None),
+-            ("zero CPUs", 0, 61 * gib, "/", container, None),
++            ("act job container", 16, 61 * gib, "/", container, {}, "4"),
++            ("hosted runner without a cgroup limit", 4, 16 * gib, "/system.slice/runner.service", hosted, {}, "4"),
++            ("host memory below its cgroup's", 16, 4 * gib, "/", container, {}, "2"),
++            ("a lower ancestor limit", 16, 61 * gib, "/a/b", ancestor, {}, "2"),
++            ("fewer CPUs than memory allows", 2, 61 * gib, "/", container, {}, "2"),
++            ("memory for less than one worker", 16, 61 * gib, "/", {"": str(2**30)}, {}, "1"),
++            ("a cgroup without a memory controller", 16, 61 * gib, "/", {}, {}, "16"),
++            ("a mode-000 limit", 16, 61 * gib, "/", container, {"": "limit"}, None),
++            ("a mode-000 ancestor limit", 16, 61 * gib, "/a/b", ancestor, {"a": "limit"}, None),
++            ("a mode-000 ancestor cgroup", 16, 61 * gib, "/a/b", ancestor, {"a": "directory"}, None),
++            ("a limit that is not a file", 16, 61 * gib, "/", container, {"": "non-file"}, None),
++            ("an ancestor limit that is not a file", 16, 61 * gib, "/a/b", ancestor, {"a": "non-file"}, None),
++            ("a non-numeric limit", 16, 61 * gib, "/", {"": "garbage"}, {}, None),
++            ("an empty limit", 16, 61 * gib, "/", {"": ""}, {}, None),
++            ("no MemTotal", 16, None, "/", container, {}, None),
++            ("zero CPUs", 0, 61 * gib, "/", container, {}, None),
+         ):
+-            got = census_budget(Path(tempfile.mkdtemp(dir=root)), cpus, kib, cgroup, limits)
++            if not denies and any(how != "non-file" for how in denied.values()):
++                print(f"Census budget: {described}: LOUD SKIP - running as root, where mode 000 does not deny a read")
++                continue
++            got = census_budget(Path(tempfile.mkdtemp(dir=root)), cpus, kib, cgroup, limits, denied)
+             assert got == want, (described, got, want)
+             print(f"Census budget: {described}: {'refused' if got is None else got + ' worker(s)'}")
+     assert 4 * CENSUS_WORKER_BYTES * 3 <= 2 * 8 * 2**30 < 5 * CENSUS_WORKER_BYTES * 3
+diff --git a/scripts/ci_runtime_workflows.py b/scripts/ci_runtime_workflows.py
+index 625b21271..f82bd878e 100644
+--- a/scripts/ci_runtime_workflows.py
++++ b/scripts/ci_runtime_workflows.py
+@@ -44,14 +44,18 @@ tool_build=$(( cpus < 8 ? cpus : 8 ))
+ """}
+ 
+ 
+-#: One publication census worker's resident peak: the largest of the six
+-#: shapes' sv2v v0.0.12 front ends at the datapath of #744, 1205884 KiB under
+-#: /usr/bin/time -v. A worker runs one sv2v, then one smaller Yosys, at a time.
+-CENSUS_WORKER_BYTES = 1234825216
++#: One publication census worker's resident peak: the largest sv2v v0.0.12 front
++#: end at the datapath of #744 under /usr/bin/time, over the six shapes and the
++#: self-test's arms, 1213100 KiB (the shapes alone peaked at 1205884 KiB). A
++#: worker runs one sv2v, then one smaller Yosys, at a time.
++CENSUS_WORKER_BYTES = 1242214400
+ 
+ 
+ def census_budget_step() -> dict:
+-    """Bound census workers by the job's memory: two thirds of it per measured worker peak, never above nproc."""
++    """Bound census workers by the job's memory: two thirds of it per measured worker peak, never above nproc.
++
++    Only an absent memory.max means no limit; one present but unreadable, or a cgroup that cannot be searched,
++    refuses before CI_CENSUS_JOBS is written."""
+     return {"name": "Set memory-derived census workers", "run": """set -euo pipefail
+ cpus="$(nproc)"
+ test "$cpus" -gt 0
+@@ -61,11 +65,16 @@ memory=$(( kib * 1024 ))
+ cgroup="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup)"
+ cgroup="${cgroup%/}"
+ while :; do
+-  if [ -r "$cgroup/memory.max" ]; then
+-    limit="$(cat "$cgroup/memory.max")"
++  if [ -d "$cgroup" ] && [ ! -x "$cgroup" ]; then
++    echo "unsearchable cgroup $cgroup: its memory limit cannot be proved absent" >&2; exit 1
++  fi
++  if [ -e "$cgroup/memory.max" ]; then
++    if ! limit="$(cat "$cgroup/memory.max")"; then
++      echo "unreadable memory limit in $cgroup" >&2; exit 1
++    fi
+     case "$limit" in
+       max) ;;
+-      ''|*[!0-9]*) echo "unreadable memory limit in $cgroup: $limit" >&2; exit 1 ;;
++      ''|*[!0-9]*) echo "non-numeric memory limit in $cgroup: $limit" >&2; exit 1 ;;
+       *) if [ "$limit" -lt "$memory" ]; then memory="$limit"; fi ;;
+     esac
+   fi

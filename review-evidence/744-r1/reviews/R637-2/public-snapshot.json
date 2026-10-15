@@ -1,0 +1,1289 @@
+{
+  "observed_at": "2026-10-15T19:43:07.299186+00:00",
+  "head": "43a25fa7eba4d7ed7d2bb757aa42b973bd24c76e",
+  "docs_run": 38794076964,
+  "jobs": [
+    {
+      "id": 116625786313,
+      "name": "docs-gates-2",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-15T19:27:42Z",
+          "completed_at": "2026-10-15T19:27:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-15T19:27:43Z",
+          "completed_at": "2026-10-15T19:28:06Z"
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-15T19:28:06Z",
+          "completed_at": "2026-10-15T19:28:06Z"
+        },
+        {
+          "name": "Cache exact Python downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-15T19:28:06Z",
+          "completed_at": "2026-10-15T19:28:07Z"
+        },
+        {
+          "name": "Install the python gate dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-15T19:28:07Z",
+          "completed_at": "2026-10-15T19:28:10Z"
+        },
+        {
+          "name": "Cache the pinned Markdown renderer downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-15T19:28:10Z",
+          "completed_at": "2026-10-15T19:28:11Z"
+        },
+        {
+          "name": "Install the pinned Markdown renderer",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-15T19:28:11Z",
+          "completed_at": "2026-10-15T19:28:13Z"
+        },
+        {
+          "name": "Resolve exact package downloads 4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-15T19:28:13Z",
+          "completed_at": "2026-10-15T19:28:23Z"
+        },
+        {
+          "name": "Cache exact package downloads 4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-15T19:28:23Z",
+          "completed_at": "2026-10-15T19:28:24Z"
+        },
+        {
+          "name": "Install diagram gate dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-15T19:28:24Z",
+          "completed_at": "2026-10-15T19:28:37Z"
+        },
+        {
+          "name": "Fetch the builder source dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-15T19:28:37Z",
+          "completed_at": "2026-10-15T19:28:41Z"
+        },
+        {
+          "name": "Cache verified sv2v archive",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-15T19:28:41Z",
+          "completed_at": "2026-10-15T19:28:41Z"
+        },
+        {
+          "name": "Install the pinned sv2v release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-15T19:28:41Z",
+          "completed_at": "2026-10-15T19:28:42Z"
+        },
+        {
+          "name": "Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-15T19:28:42Z",
+          "completed_at": "2026-10-15T19:28:45Z"
+        },
+        {
+          "name": "Install and verify the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-15T19:28:45Z",
+          "completed_at": "2026-10-15T19:28:46Z"
+        },
+        {
+          "name": "End-station builder gates, leg 1 of 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-10-15T19:28:46Z",
+          "completed_at": "2026-10-15T19:35:40Z"
+        },
+        {
+          "name": "CI event and SHA contract gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-10-15T19:35:40Z",
+          "completed_at": "2026-10-15T19:38:56Z"
+        },
+        {
+          "name": "Local act runner contract gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-15T19:38:56Z",
+          "completed_at": "2026-10-15T19:40:36Z"
+        },
+        {
+          "name": "Record executed gate outcomes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-15T19:40:36Z",
+          "completed_at": "2026-10-15T19:40:36Z"
+        },
+        {
+          "name": "Upload executed gate outcomes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-10-15T19:40:36Z",
+          "completed_at": "2026-10-15T19:40:37Z"
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-15T19:40:37Z",
+          "completed_at": "2026-10-15T19:40:40Z"
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-10-15T19:40:40Z",
+          "completed_at": "2026-10-15T19:40:40Z"
+        },
+        {
+          "name": "Post Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 39,
+          "started_at": "2026-10-15T19:40:40Z",
+          "completed_at": "2026-10-15T19:40:41Z"
+        },
+        {
+          "name": "Post Cache verified sv2v archive",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 40,
+          "started_at": "2026-10-15T19:40:41Z",
+          "completed_at": "2026-10-15T19:40:41Z"
+        },
+        {
+          "name": "Post Cache exact package downloads 4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 41,
+          "started_at": "2026-10-15T19:40:41Z",
+          "completed_at": "2026-10-15T19:40:41Z"
+        },
+        {
+          "name": "Post Cache the pinned Markdown renderer downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 42,
+          "started_at": "2026-10-15T19:40:41Z",
+          "completed_at": "2026-10-15T19:40:42Z"
+        },
+        {
+          "name": "Post Cache exact Python downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 43,
+          "started_at": "2026-10-15T19:40:42Z",
+          "completed_at": "2026-10-15T19:40:42Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 44,
+          "started_at": "2026-10-15T19:40:42Z",
+          "completed_at": "2026-10-15T19:40:42Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 45,
+          "started_at": "2026-10-15T19:40:42Z",
+          "completed_at": "2026-10-15T19:40:42Z"
+        }
+      ]
+    },
+    {
+      "id": 116625786455,
+      "name": "docs-check-no-git",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-15T19:27:43Z",
+          "completed_at": "2026-10-15T19:27:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-15T19:27:44Z",
+          "completed_at": "2026-10-15T19:27:46Z"
+        },
+        {
+          "name": "Retain checkout identity before removing metadata",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-15T19:27:46Z",
+          "completed_at": "2026-10-15T19:27:47Z"
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-15T19:27:47Z",
+          "completed_at": "2026-10-15T19:27:47Z"
+        },
+        {
+          "name": "Strip git metadata, then run the docs gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-15T19:27:47Z",
+          "completed_at": "2026-10-15T19:27:53Z"
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-15T19:27:53Z",
+          "completed_at": "2026-10-15T19:27:54Z"
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-15T19:27:54Z",
+          "completed_at": "2026-10-15T19:27:55Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-15T19:27:55Z",
+          "completed_at": "2026-10-15T19:27:55Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-15T19:27:55Z",
+          "completed_at": "2026-10-15T19:27:55Z"
+        }
+      ]
+    },
+    {
+      "id": 116625786477,
+      "name": "docs-gates-1",
+      "status": "in_progress",
+      "conclusion": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-15T19:27:42Z",
+          "completed_at": "2026-10-15T19:27:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-15T19:27:43Z",
+          "completed_at": "2026-10-15T19:28:02Z"
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-15T19:28:02Z",
+          "completed_at": "2026-10-15T19:28:02Z"
+        },
+        {
+          "name": "Cache exact Python downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-15T19:28:02Z",
+          "completed_at": "2026-10-15T19:28:03Z"
+        },
+        {
+          "name": "Install the python gate dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-15T19:28:03Z",
+          "completed_at": "2026-10-15T19:28:06Z"
+        },
+        {
+          "name": "Cache the pinned Markdown renderer downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-15T19:28:06Z",
+          "completed_at": "2026-10-15T19:28:07Z"
+        },
+        {
+          "name": "Install the pinned Markdown renderer",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-15T19:28:07Z",
+          "completed_at": "2026-10-15T19:28:08Z"
+        },
+        {
+          "name": "Resolve exact package downloads 4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-15T19:28:08Z",
+          "completed_at": "2026-10-15T19:28:13Z"
+        },
+        {
+          "name": "Cache exact package downloads 4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-15T19:28:13Z",
+          "completed_at": "2026-10-15T19:28:14Z"
+        },
+        {
+          "name": "Install diagram gate dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-15T19:28:14Z",
+          "completed_at": "2026-10-15T19:28:23Z"
+        },
+        {
+          "name": "Fetch the builder source dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-15T19:28:23Z",
+          "completed_at": "2026-10-15T19:28:26Z"
+        },
+        {
+          "name": "Cache verified sv2v archive",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-15T19:28:26Z",
+          "completed_at": "2026-10-15T19:28:26Z"
+        },
+        {
+          "name": "Install the pinned sv2v release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-15T19:28:26Z",
+          "completed_at": "2026-10-15T19:28:27Z"
+        },
+        {
+          "name": "Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-15T19:28:27Z",
+          "completed_at": "2026-10-15T19:28:29Z"
+        },
+        {
+          "name": "Install and verify the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-15T19:28:29Z",
+          "completed_at": "2026-10-15T19:28:31Z"
+        },
+        {
+          "name": "End-station builder gates, leg 0 of 2",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 16,
+          "started_at": "2026-10-15T19:28:31Z",
+          "completed_at": null
+        },
+        {
+          "name": "Record executed gate outcomes",
+          "status": "pending",
+          "conclusion": null,
+          "number": 17,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Upload executed gate outcomes",
+          "status": "pending",
+          "conclusion": null,
+          "number": 18,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 19,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 20,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache the pinned RV32 SDK",
+          "status": "pending",
+          "conclusion": null,
+          "number": 35,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache verified sv2v archive",
+          "status": "pending",
+          "conclusion": null,
+          "number": 36,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache exact package downloads 4",
+          "status": "pending",
+          "conclusion": null,
+          "number": 37,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache the pinned Markdown renderer downloads",
+          "status": "pending",
+          "conclusion": null,
+          "number": 38,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Cache exact Python downloads",
+          "status": "pending",
+          "conclusion": null,
+          "number": 39,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "pending",
+          "conclusion": null,
+          "number": 40,
+          "started_at": null,
+          "completed_at": null
+        }
+      ]
+    },
+    {
+      "id": 116625786541,
+      "name": "wire-accountability",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-15T19:27:42Z",
+          "completed_at": "2026-10-15T19:27:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-15T19:27:43Z",
+          "completed_at": "2026-10-15T19:27:46Z"
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-15T19:27:46Z",
+          "completed_at": "2026-10-15T19:27:46Z"
+        },
+        {
+          "name": "Cache exact Python downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-15T19:27:46Z",
+          "completed_at": "2026-10-15T19:27:46Z"
+        },
+        {
+          "name": "Fetch the engine authority the builder derives from",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-15T19:27:46Z",
+          "completed_at": "2026-10-15T19:27:47Z"
+        },
+        {
+          "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-15T19:27:47Z",
+          "completed_at": "2026-10-15T19:27:50Z"
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-15T19:27:50Z",
+          "completed_at": "2026-10-15T19:27:51Z"
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-15T19:27:51Z",
+          "completed_at": "2026-10-15T19:27:52Z"
+        },
+        {
+          "name": "Post Cache exact Python downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-15T19:27:52Z",
+          "completed_at": "2026-10-15T19:27:53Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-10-15T19:27:53Z",
+          "completed_at": "2026-10-15T19:27:53Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-10-15T19:27:53Z",
+          "completed_at": "2026-10-15T19:27:53Z"
+        }
+      ]
+    },
+    {
+      "id": 116625786622,
+      "name": "Fail fast across this head",
+      "status": "in_progress",
+      "conclusion": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-15T19:27:42Z",
+          "completed_at": "2026-10-15T19:27:43Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-15T19:27:43Z",
+          "completed_at": "2026-10-15T19:27:46Z"
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-15T19:27:46Z",
+          "completed_at": "2026-10-15T19:27:46Z"
+        },
+        {
+          "name": "Observe the first failed job",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 4,
+          "started_at": "2026-10-15T19:27:46Z",
+          "completed_at": null
+        },
+        {
+          "name": "Cancel this run and sibling workflows",
+          "status": "pending",
+          "conclusion": null,
+          "number": 5,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 6,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 7,
+          "started_at": null,
+          "completed_at": null
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "pending",
+          "conclusion": null,
+          "number": 14,
+          "started_at": null,
+          "completed_at": null
+        }
+      ]
+    },
+    {
+      "id": 116625786754,
+      "name": "docs-gates-0",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-15T19:27:43Z",
+          "completed_at": "2026-10-15T19:27:44Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-15T19:27:44Z",
+          "completed_at": "2026-10-15T19:28:04Z"
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-15T19:28:04Z",
+          "completed_at": "2026-10-15T19:28:04Z"
+        },
+        {
+          "name": "Cache exact Python downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-15T19:28:04Z",
+          "completed_at": "2026-10-15T19:28:06Z"
+        },
+        {
+          "name": "Build the validated HDL reference",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-15T19:28:06Z",
+          "completed_at": "2026-10-15T19:28:09Z"
+        },
+        {
+          "name": "Upload the HDL reference HTML",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-15T19:28:09Z",
+          "completed_at": "2026-10-15T19:28:11Z"
+        },
+        {
+          "name": "Install the python gate dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-15T19:28:11Z",
+          "completed_at": "2026-10-15T19:28:11Z"
+        },
+        {
+          "name": "Cache the pinned Markdown renderer downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-15T19:28:11Z",
+          "completed_at": "2026-10-15T19:28:12Z"
+        },
+        {
+          "name": "Install the pinned Markdown renderer",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-15T19:28:12Z",
+          "completed_at": "2026-10-15T19:28:12Z"
+        },
+        {
+          "name": "Resolve exact package downloads 6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-10-15T19:28:12Z",
+          "completed_at": "2026-10-15T19:28:19Z"
+        },
+        {
+          "name": "Cache exact package downloads 6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-15T19:28:19Z",
+          "completed_at": "2026-10-15T19:28:19Z"
+        },
+        {
+          "name": "Install diagram gate dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-15T19:28:19Z",
+          "completed_at": "2026-10-15T19:28:28Z"
+        },
+        {
+          "name": "Link health, wording, dead-reference and local-info gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-15T19:28:28Z",
+          "completed_at": "2026-10-15T19:28:32Z"
+        },
+        {
+          "name": "Added-line em-dash gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-15T19:28:32Z",
+          "completed_at": "2026-10-15T19:28:35Z"
+        },
+        {
+          "name": "Concise audience documentation gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-15T19:28:35Z",
+          "completed_at": "2026-10-15T19:28:35Z"
+        },
+        {
+          "name": "Audience diagram no-drift gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-10-15T19:28:35Z",
+          "completed_at": "2026-10-15T19:28:37Z"
+        },
+        {
+          "name": "Product solution source-fact gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-10-15T19:28:37Z",
+          "completed_at": "2026-10-15T19:28:40Z"
+        },
+        {
+          "name": "Verified submodule documentation gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 18,
+          "started_at": "2026-10-15T19:28:40Z",
+          "completed_at": "2026-10-15T19:28:41Z"
+        },
+        {
+          "name": "HDL timing diagram no-drift gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19,
+          "started_at": "2026-10-15T19:28:41Z",
+          "completed_at": "2026-10-15T19:28:42Z"
+        },
+        {
+          "name": "Published diagram PNG gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20,
+          "started_at": "2026-10-15T19:28:42Z",
+          "completed_at": "2026-10-15T19:28:49Z"
+        },
+        {
+          "name": "Milan feature-status consistency gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21,
+          "started_at": "2026-10-15T19:28:49Z",
+          "completed_at": "2026-10-15T19:28:49Z"
+        },
+        {
+          "name": "Traceability matrix no-drift gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22,
+          "started_at": "2026-10-15T19:28:49Z",
+          "completed_at": "2026-10-15T19:28:50Z"
+        },
+        {
+          "name": "Fetch the builder source dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23,
+          "started_at": "2026-10-15T19:28:50Z",
+          "completed_at": "2026-10-15T19:28:52Z"
+        },
+        {
+          "name": "Imported gPTP documentation gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24,
+          "started_at": "2026-10-15T19:28:52Z",
+          "completed_at": "2026-10-15T19:28:53Z"
+        },
+        {
+          "name": "Code-quality measurement self-tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-10-15T19:28:53Z",
+          "completed_at": "2026-10-15T19:28:53Z"
+        },
+        {
+          "name": "Cache verified sv2v archive",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 26,
+          "started_at": "2026-10-15T19:28:53Z",
+          "completed_at": "2026-10-15T19:28:53Z"
+        },
+        {
+          "name": "Install the pinned sv2v release",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27,
+          "started_at": "2026-10-15T19:28:53Z",
+          "completed_at": "2026-10-15T19:28:54Z"
+        },
+        {
+          "name": "Bare-metal scope gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 28,
+          "started_at": "2026-10-15T19:28:54Z",
+          "completed_at": "2026-10-15T19:29:14Z"
+        },
+        {
+          "name": "Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 29,
+          "started_at": "2026-10-15T19:29:14Z",
+          "completed_at": "2026-10-15T19:29:18Z"
+        },
+        {
+          "name": "Install and verify the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 30,
+          "started_at": "2026-10-15T19:29:18Z",
+          "completed_at": "2026-10-15T19:29:19Z"
+        },
+        {
+          "name": "Compiler-absent firmware controls",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 31,
+          "started_at": "2026-10-15T19:29:19Z",
+          "completed_at": "2026-10-15T19:33:07Z"
+        },
+        {
+          "name": "NVM record-space gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 32,
+          "started_at": "2026-10-15T19:33:07Z",
+          "completed_at": "2026-10-15T19:33:35Z"
+        },
+        {
+          "name": "Capture measurement census and clock gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 33,
+          "started_at": "2026-10-15T19:33:35Z",
+          "completed_at": "2026-10-15T19:33:35Z"
+        },
+        {
+          "name": "Saved-state writer gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 34,
+          "started_at": "2026-10-15T19:33:35Z",
+          "completed_at": "2026-10-15T19:37:57Z"
+        },
+        {
+          "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 35,
+          "started_at": "2026-10-15T19:37:57Z",
+          "completed_at": "2026-10-15T19:37:59Z"
+        },
+        {
+          "name": "RTL source-list drift gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 36,
+          "started_at": "2026-10-15T19:37:59Z",
+          "completed_at": "2026-10-15T19:38:03Z"
+        },
+        {
+          "name": "Boundary-unit naming ratchet",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 37,
+          "started_at": "2026-10-15T19:38:03Z",
+          "completed_at": "2026-10-15T19:38:03Z"
+        },
+        {
+          "name": "Port contract gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 38,
+          "started_at": "2026-10-15T19:38:03Z",
+          "completed_at": "2026-10-15T19:38:08Z"
+        },
+        {
+          "name": "Fail-fast ratchet",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 39,
+          "started_at": "2026-10-15T19:38:08Z",
+          "completed_at": "2026-10-15T19:38:10Z"
+        },
+        {
+          "name": "TODO ownership gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 40,
+          "started_at": "2026-10-15T19:38:10Z",
+          "completed_at": "2026-10-15T19:38:13Z"
+        },
+        {
+          "name": "Test-evidence ratchet",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 41,
+          "started_at": "2026-10-15T19:38:13Z",
+          "completed_at": "2026-10-15T19:38:26Z"
+        },
+        {
+          "name": "Mechanical hygiene ratchet",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 42,
+          "started_at": "2026-10-15T19:38:26Z",
+          "completed_at": "2026-10-15T19:38:27Z"
+        },
+        {
+          "name": "SystemVerilog idiom gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 43,
+          "started_at": "2026-10-15T19:38:27Z",
+          "completed_at": "2026-10-15T19:38:27Z"
+        },
+        {
+          "name": "C and C++ idiom gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 44,
+          "started_at": "2026-10-15T19:38:27Z",
+          "completed_at": "2026-10-15T19:38:29Z"
+        },
+        {
+          "name": "Python idiom gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 45,
+          "started_at": "2026-10-15T19:38:29Z",
+          "completed_at": "2026-10-15T19:38:37Z"
+        },
+        {
+          "name": "Shell idiom gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 46,
+          "started_at": "2026-10-15T19:38:37Z",
+          "completed_at": "2026-10-15T19:38:37Z"
+        },
+        {
+          "name": "Doc cited-path gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 47,
+          "started_at": "2026-10-15T19:38:37Z",
+          "completed_at": "2026-10-15T19:38:38Z"
+        },
+        {
+          "name": "Archive integrity gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 48,
+          "started_at": "2026-10-15T19:38:38Z",
+          "completed_at": "2026-10-15T19:38:38Z"
+        },
+        {
+          "name": "Per-page contents gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 49,
+          "started_at": "2026-10-15T19:38:38Z",
+          "completed_at": "2026-10-15T19:38:47Z"
+        },
+        {
+          "name": "AEM store generator self-test",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 50,
+          "started_at": "2026-10-15T19:38:47Z",
+          "completed_at": "2026-10-15T19:38:47Z"
+        },
+        {
+          "name": "Sweep/build shape gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 51,
+          "started_at": "2026-10-15T19:38:47Z",
+          "completed_at": "2026-10-15T19:38:56Z"
+        },
+        {
+          "name": "Deploy shape gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 52,
+          "started_at": "2026-10-15T19:38:56Z",
+          "completed_at": "2026-10-15T19:38:56Z"
+        },
+        {
+          "name": "Entity shape gate",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 53,
+          "started_at": "2026-10-15T19:38:56Z",
+          "completed_at": "2026-10-15T19:39:35Z"
+        },
+        {
+          "name": "Fetch inventory dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 54,
+          "started_at": "2026-10-15T19:39:35Z",
+          "completed_at": "2026-10-15T19:39:35Z"
+        },
+        {
+          "name": "CI scheduling and evidence controls",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 55,
+          "started_at": "2026-10-15T19:39:35Z",
+          "completed_at": "2026-10-15T19:39:56Z"
+        },
+        {
+          "name": "Record executed gate outcomes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 56,
+          "started_at": "2026-10-15T19:39:56Z",
+          "completed_at": "2026-10-15T19:39:56Z"
+        },
+        {
+          "name": "Upload executed gate outcomes",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 57,
+          "started_at": "2026-10-15T19:39:56Z",
+          "completed_at": "2026-10-15T19:39:57Z"
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 58,
+          "started_at": "2026-10-15T19:39:57Z",
+          "completed_at": "2026-10-15T19:39:57Z"
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 59,
+          "started_at": "2026-10-15T19:39:57Z",
+          "completed_at": "2026-10-15T19:39:59Z"
+        },
+        {
+          "name": "Post Cache the pinned RV32 SDK",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 113,
+          "started_at": "2026-10-15T19:39:59Z",
+          "completed_at": "2026-10-15T19:39:59Z"
+        },
+        {
+          "name": "Post Cache verified sv2v archive",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 114,
+          "started_at": "2026-10-15T19:39:59Z",
+          "completed_at": "2026-10-15T19:40:00Z"
+        },
+        {
+          "name": "Post Cache exact package downloads 6",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 115,
+          "started_at": "2026-10-15T19:40:00Z",
+          "completed_at": "2026-10-15T19:40:00Z"
+        },
+        {
+          "name": "Post Cache the pinned Markdown renderer downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 116,
+          "started_at": "2026-10-15T19:40:00Z",
+          "completed_at": "2026-10-15T19:40:02Z"
+        },
+        {
+          "name": "Post Cache exact Python downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 117,
+          "started_at": "2026-10-15T19:40:02Z",
+          "completed_at": "2026-10-15T19:40:02Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 118,
+          "started_at": "2026-10-15T19:40:02Z",
+          "completed_at": "2026-10-15T19:40:02Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 119,
+          "started_at": "2026-10-15T19:40:02Z",
+          "completed_at": "2026-10-15T19:40:02Z"
+        }
+      ]
+    }
+  ],
+  "formal_reviews": 0,
+  "inline_review_comments": 0,
+  "manager_replay_receipt_found": false,
+  "pr_comment_ids": [
+    6198782395,
+    6198991710,
+    6199082046,
+    6199187632,
+    6199224923,
+    6200534438,
+    6200656548
+  ],
+  "runs": [
+    {
+      "id": 38794077092,
+      "name": "rtl-full",
+      "status": "queued",
+      "conclusion": null,
+      "head_sha": "43a25fa7eba4d7ed7d2bb757aa42b973bd24c76e"
+    },
+    {
+      "id": 38794077148,
+      "name": "rtl-fast",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "43a25fa7eba4d7ed7d2bb757aa42b973bd24c76e"
+    },
+    {
+      "id": 38794076964,
+      "name": "docs",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "43a25fa7eba4d7ed7d2bb757aa42b973bd24c76e"
+    },
+    {
+      "id": 38794077041,
+      "name": "elaborate",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "43a25fa7eba4d7ed7d2bb757aa42b973bd24c76e"
+    }
+  ]
+}
