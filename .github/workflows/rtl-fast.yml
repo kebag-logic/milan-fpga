@@ -456,7 +456,7 @@ jobs:
             if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi
             cgroup="${cgroup%/*}"
           done
-          census=$(( memory * 2 / (3 * 1234825216) ))
+          census=$(( memory * 2 / (3 * 1242214400) ))
           census=$(( census < cpus ? census : cpus ))
           census=$(( census > 0 ? census : 1 ))
           echo "census workers: $census of $cpus CPU(s) within $memory bytes of memory"

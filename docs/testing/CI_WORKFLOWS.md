@@ -2030,7 +2030,7 @@ CPU budget step. It takes the job's memory M as the smaller of `MemTotal`
 and every numeric `memory.max` from the job's own cgroup up to the root
 the job can see, so an act job container reads its eight-GiB limit and a
 hosted runner without a cgroup limit reads its RAM. It then sets
-`CI_CENSUS_JOBS` to `min(nproc, floor(2 * M / (3 * 1234825216)))`, and to
+`CI_CENSUS_JOBS` to `min(nproc, floor(2 * M / (3 * 1242214400)))`, and to
 one when that is zero. The constant is `CENSUS_WORKER_BYTES` in
 `scripts/ci_runtime_workflows.py`, the measured sv2v peak given below; the
 other third of M is headroom for the driver, the Yosys that follows each
@@ -2416,14 +2416,21 @@ Resource bounds:
 - The census memory bound was measured at the `84f9e300` datapath (#744),
   natively on the shared host with CPython 3.12.3, sv2v v0.0.12 and Yosys 0.66.
   `/usr/bin/time -v` wrapped each tool of one `--check --jobs 1` run over the
-  six shapes. sv2v peaked at 1167000 to 1205884 KiB per shape, so the largest
-  is 1234825216 bytes, `CENSUS_WORKER_BYTES`. Yosys peaked at 386824 KiB.
-- The emitted budget step and census command then ran in a transient cgroup
-  scope at `MemoryMax=8G` and `MemorySwapMax=0`, the job container's bound.
-  The step chose four workers of sixteen CPUs. The census passed 234 checks,
-  0 of 120 arms failed and all 31 rules were proved, in 591 seconds. The
-  scope's peak was 5806784512 bytes (67.6% of the cap), with every
-  memory-event counter zero.
+  six shapes. sv2v peaked at 1167000 to 1205884 KiB per shape. Yosys peaked
+  at 386824 KiB.
+- The self-test's arms run sv2v on the same datapath, and some peak higher.
+  The emitted budget step and census command ran in a transient cgroup scope
+  at `MemoryMax=8G` and `MemorySwapMax=0`, the job container's bound. The
+  step chose four workers of sixteen CPUs. The census passed 234 checks, 0 of
+  120 arms failed and all 31 rules were proved, in 591 seconds. The scope's
+  peak was 5806784512 bytes (67.6% of the cap), with every memory-event
+  counter zero, and its largest process peaked at 1213100 KiB.
+- A second such run, with `/usr/bin/time` around each of its 133 sv2v and
+  141 Yosys runs, passed the same way. 25 of those sv2v runs elaborated the
+  full datapath, 23 of them above 1205884 KiB and the largest at 1212036 KiB.
+  `CENSUS_WORKER_BYTES` is therefore the larger figure, 1213100 KiB or
+  1242214400 bytes. Yosys peaked at 380492 KiB, and the scope at 5569384448
+  bytes.
 - The same command at `--jobs 16` under the same cap reproduces #742: 113 of
   120 arms failed with sv2v `exit -9`, and the scope recorded 209 OOM kills,
   2298 OOM events and a peak at the cap. These are native measurements, not a

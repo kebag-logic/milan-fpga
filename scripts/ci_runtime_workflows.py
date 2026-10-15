@@ -44,10 +44,11 @@ tool_build=$(( cpus < 8 ? cpus : 8 ))
 """}
 
 
-#: One publication census worker's resident peak: the largest of the six
-#: shapes' sv2v v0.0.12 front ends at the datapath of #744, 1205884 KiB under
-#: /usr/bin/time -v. A worker runs one sv2v, then one smaller Yosys, at a time.
-CENSUS_WORKER_BYTES = 1234825216
+#: One publication census worker's resident peak: the largest sv2v v0.0.12 front
+#: end at the datapath of #744 under /usr/bin/time, over the six shapes and the
+#: self-test's arms, 1213100 KiB (the shapes alone peaked at 1205884 KiB). A
+#: worker runs one sv2v, then one smaller Yosys, at a time.
+CENSUS_WORKER_BYTES = 1242214400
 
 
 def census_budget_step() -> dict:
