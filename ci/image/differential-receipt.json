@@ -1,5 +1,5 @@
 {
- "binding": "cb9fd602cdf8d7368c11e4adca91169ba0404e959e270c93fa6581c60344df3b",
+ "binding": "c68890193ada703196e04f2a9805f683492dd9cf158c9d78af82f50f8e76b2dc",
  "fixtures": {
   "R638-6-M1": {
    "expect": "refused",
@@ -1272,21 +1272,30 @@
    "expect": "refused",
    "inspected": [],
    "outcome": "refused",
-   "real": [],
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pyw2"
+     ],
+     "directory": "."
+    }
+   ],
    "refusal": "undeclared executing or network script 'main.py'",
    "residue": [],
-   "sha256": "2623afdb17c574406ba3b5754b07372293f568919b3db2d37fb960f4f881781e",
+   "sha256": "b55afcd731f0c39ddb1a0202671cceed81dbd61ea2275c04b9d7eb29cbb3b2ae",
    "shapes": [
     "bash:call.command",
     "bash:word.literal",
     "cmd:python.script",
     "py:capability.declared",
+    "py:capability.import",
     "py:capability.namespace",
     "py:import.external",
     "py:program"
    ],
    "statuses": [
-    1
+    0
    ],
    "walker": []
   },
@@ -5557,7 +5566,7 @@
     {
      "argv": [
       "zz_probe",
-      "/tmp/tmp.RauDtyLp6U"
+      "/tmp/tmp.d0cgl7YqIl"
      ],
      "directory": "."
     }
@@ -7405,14 +7414,14 @@
     {
      "argv": [
       "zz_probe",
-      "b"
+      "a"
      ],
      "directory": "."
     },
     {
      "argv": [
       "zz_probe",
-      "a"
+      "b"
      ],
      "directory": "."
     }

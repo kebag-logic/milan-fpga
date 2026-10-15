@@ -451,7 +451,9 @@ class Origin:
 
     def ended(self, pid: int, status: int) -> None:
         """A process ends: a successful invocation's declared outputs that it wrote are build outputs."""
-        for output, builder, before in self.pending.pop(_group(pid), []):
+        if not self.pending:
+            return
+        for output, builder, before in self.pending.pop(pid if pid in self.pending else _group(pid), []):
             try:
                 now = os.stat(output)
             except OSError:
@@ -802,6 +804,14 @@ def invocation(instance: dict[str, object]) -> dict[str, object]:
             "operand": rest[0], "args": rest[1:], "family": family}
 
 
+def subcommand(args: list[str]) -> str | None:
+    """A tool's subcommand: its first operand after options, `+toolchain` and option values."""
+    index = 0
+    while index < len(args) and args[index][:1] in ("-", "+"):
+        index += 2 if args[index] in ("-C", "--config", "-Z", "--color", "--manifest-path") else 1
+    return args[index] if index < len(args) else None
+
+
 def built_output(words: list[str], directory: str) -> str | None:
     """The declared output of a build program, resolved in its directory: `-o`, `--output`, or `a.out`
     when a driver links (no `-c`, `-S` or `-E`) or `ld` runs without one."""
@@ -858,8 +868,8 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
             finding(instance, what, f"installer module executed: {what['name']}")
         elif what["kind"] == "stream" and what.get("stream") in fetched:
             finding(instance, what, f"fetched program executed by {what['name']}")
-        elif what.get("args") and what["args"][0] in subcommands.get(what["name"], ()):
-            finding(instance, what, f"installer subcommand executed: {what['name']} {what['args'][0]}")
+        elif (command := subcommand(what.get("args", []))) in subcommands.get(what["name"], ()):
+            finding(instance, what, f"installer subcommand executed: {what['name']} {command}")
         if interpreter(base) and base not in programs:
             finding(instance, what, f"interpreter not in the allowlist: {base}")
         system = str(what["path"]).startswith(SYSTEM_ROOTS)

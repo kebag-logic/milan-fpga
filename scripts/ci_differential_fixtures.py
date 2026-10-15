@@ -369,7 +369,7 @@ R638_SHELL = [
 # R638-6 Python capability probes, each in an undeclared program.
 R638_PYTHON = [
     ('PYW1', "import sys\nsys.modules['os'].system('zz_probe pyw1')\n"),
-    ('PYW2', "import sys\nsys.modules['subprocess'].run(['zz_probe', 'pyw2'])\n"),
+    ('PYW2', "import subprocess\nimport sys\nsys.modules['subprocess'].run(['zz_probe', 'pyw2'])\n"),
     ('PYW3', "import os\ngetattr(os, 'sys' + 'tem')('zz_probe pyw3')\n"),
     ('PYW4', "import os\nos.__dict__['system']('zz_probe pyw4')\n"),
     ('PYW5', "import builtins\ngetattr(builtins, 'ex' + 'ec')(\"import os; os.system('zz_probe pyw5')\")\n"),
@@ -391,7 +391,7 @@ R638_PYTHON = [
     ('webbrowser', "import webbrowser\n"),
     ('popen', "import os\nos.popen('zz_probe popen').read()\n"),
 ]
-EXECUTES = {'PYW1', 'PYW3', 'PYW4', 'PYW5', 'PYW6', 'import-builtin', 'exec', 'compile', 'from-alias',
+EXECUTES = {'PYW1', 'PYW2', 'PYW3', 'PYW4', 'PYW5', 'PYW6', 'import-builtin', 'exec', 'compile', 'from-alias',
             'import-module', 'ctypes', 'posix-spawnp', 'execvp', 'pty', 'popen'}
 # R639-6 walker probes.
 R639 = [

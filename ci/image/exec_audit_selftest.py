@@ -12,13 +12,16 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import re
 import shlex
 import shutil
+import subprocess
 import tempfile
 from typing import Callable
 import zipfile
 
 from exec_audit import PROCESS_ROOT, _record, audit_step
+from exec_operands import EXEC_ONLY
 
 
 #: Controls for the exec ABI: an x86-64 program that execs through the i386 or the x32 entry.
@@ -92,6 +95,12 @@ def abi_and_target(step: Step, base: Path) -> None:
 
 def installers_and_programs(step: Step, base: Path) -> None:
     """Installers by name, module, inline or streamed program; interpreter programs by digest only."""
+    for interpreter in EXEC_ONLY:
+        path = shutil.which(interpreter)
+        symbols = subprocess.run(["readelf", "--dyn-syms", "--wide", str(Path(path).resolve())],
+                                 capture_output=True, text=True, check=True).stdout
+        assert not re.search(r"\bdl(?:m)?open\b", symbols), f"{interpreter} imports a dynamic loader entry"
+        print(f"PASS: the exec-only interpreter {interpreter} imports no dynamic loader entry")
     step("a scripted installer run by name", "pip3 --version", "installer executed: pip3")
     step("a scripted package manager run by name", "npm --version", "installer executed: npm")
     wheel = base / "zz_probe_pkg-0.1-py3-none-any.whl"
@@ -135,6 +144,10 @@ def installers_and_programs(step: Step, base: Path) -> None:
     (base / "bin/gem").write_text("#!/bin/sh\nexit 0\n")
     (base / "bin/gem").chmod(0o755)
     step("an installing subcommand", f"{base}/bin/gem install zz-probe", "installer subcommand executed: gem install")
+    (base / "bin/cargo").write_text("#!/bin/sh\nexit 0\n")
+    (base / "bin/cargo").chmod(0o755)
+    step("an installing subcommand after leading options", f"{base}/bin/cargo +stable -v install zz-probe",
+         "installer subcommand executed: cargo install")
 
 
 def provenance(step: Step, base: Path) -> None:
