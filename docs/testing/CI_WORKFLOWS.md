@@ -1438,18 +1438,29 @@ install and drop its `PATH` entry.
 is the control, run natively with no container. It copies a CPython
 installation into a planted tool cache and runs both legs' setup steps, read
 from the workflow at a revision, side by side. Each leg has its own home,
-temporary directory, workspace export and environment files, and every step of
-both legs starts together. It passes only when every step of both legs
-passes, each leg's LiteX interpreter and VexiiRiscv checkout are under that
-leg's `RUNNER_TEMP`, gate 23h and its negative control pass in each leg, and
-every path of the tool cache is byte for byte what was planted. `--shared`
-drops the job-private step from both legs, as a revision before it does; that
-run must fail. It needs network access for the pins and the VexiiRiscv clone,
-and PyYAML in the interpreter that runs it:
+temporary directory, workspace and environment files, and every step of both
+legs starts together. It passes only when every step of both legs passes, each
+leg's LiteX interpreter and VexiiRiscv checkout are under that leg's
+`RUNNER_TEMP`, gate 23h and its negative control each ran and passed in each
+leg, and every path of the tool cache is byte for byte what was planted. The
+patch checks are read from the driver's `--receipt`, not its exit code: the
+driver records a check that finds no interpreter importing `migen`, `litex`
+and `litex_boards` as NOT RUN and still exits 0, and the control refuses that
+by the check's name. `--shared` drops the job-private step from both legs, as
+a revision before it does; that run must fail. `--gate-legs` then runs each
+leg's elaboration gate step, both started together, before the final
+comparison, so the Scala generation is inside it too; it needs the three
+source dependencies initialised in the checkout, an installed RV32 SDK
+(`--rv32-sdk`) and `sv2v` and `sbt` on `--tool-dir` or the system `PATH`. The
+report records a hash of the planted and of the final tool-cache manifest.
+`--work` may be relative or absolute; every path argument is made absolute
+before anything is derived from it. The control needs network access for the
+pins and the VexiiRiscv clone, and PyYAML in the interpreter that runs it:
 
 ```sh
 python3 scripts/ci_toolcache_isolation.py --python <CPython prefix> --work <empty directory>
 python3 scripts/ci_toolcache_isolation.py --python <CPython prefix> --work <empty directory> --shared
+python3 scripts/ci_toolcache_isolation.py --python <CPython prefix> --work <empty directory> --gate-legs --rv32-sdk <SDK directory> --tool-dir <sv2v directory>
 ```
 
 That command runs in two measured legs (#737). Worker 0 runs leg 0,
