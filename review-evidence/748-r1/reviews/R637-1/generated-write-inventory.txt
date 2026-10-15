@@ -1,0 +1,407 @@
+.github/workflows/docs.yml:wire-accountability:Fetch the engine authority the builder derives from
+git submodule update --init gptp-processor
+
+.github/workflows/docs.yml:wire-accountability:Advertised-vs-emitted gate (green since 2026-07-28, item 00)
+python3 -m pip install --quiet pyyaml
+python3 scripts/check_wire_accountability.py --self-test
+
+
+.github/workflows/docs.yml:docs-gates-0:Build the validated HDL reference
+set -euo pipefail
+python3 -m pip install --quiet --require-hashes \
+  -r tools/hdl_reference/requirements.txt
+python3 scripts/gen_hdl_reference.py --selftest
+python3 scripts/gen_hdl_reference.py \
+  --output "$RUNNER_TEMP/milan-hdl-reference"
+
+
+.github/workflows/docs.yml:docs-gates-0:Install the python gate dependencies
+.github/workflows/docs.yml:docs-gates-1:Install the python gate dependencies
+.github/workflows/docs.yml:docs-gates-2:Install the python gate dependencies
+python3 -m pip install --quiet pyyaml
+
+.github/workflows/docs.yml:docs-gates-0:Install the pinned Markdown renderer
+.github/workflows/docs.yml:docs-gates-1:Install the pinned Markdown renderer
+.github/workflows/docs.yml:docs-gates-2:Install the pinned Markdown renderer
+python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \
+  --require-hashes -r tools/markdown/requirements.txt
+
+
+.github/workflows/docs.yml:docs-gates-0:Install diagram gate dependencies
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_6" install -y --no-install-recommends librsvg2-bin
+python3 -m pip install --quiet wavedrom==2.0.3.post3
+
+
+.github/workflows/docs.yml:docs-gates-0:Fetch the builder source dependencies
+.github/workflows/docs.yml:docs-gates-1:Fetch the builder source dependencies
+.github/workflows/docs.yml:docs-gates-2:Fetch the builder source dependencies
+.github/workflows/elaborate.yml:elaborate-gates-0:Fetch the source dependencies the elaboration reads
+.github/workflows/elaborate.yml:elaborate-gates-1:Fetch the source dependencies the elaboration reads
+.github/workflows/rtl-fast.yml:verilator-lint:Fetch RTL dependencies
+.github/workflows/rtl-fast.yml:yosys-elaboration:Fetch RTL dependencies
+.github/workflows/rtl-fast.yml:publication-census:Fetch RTL dependencies
+.github/workflows/rtl.yml:yosys-shards:Fetch RTL dependencies
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+
+.github/workflows/docs.yml:docs-gates-0:Install the pinned sv2v release
+.github/workflows/docs.yml:docs-gates-1:Install the pinned sv2v release
+.github/workflows/docs.yml:docs-gates-2:Install the pinned sv2v release
+.github/workflows/elaborate.yml:elaborate-gates-0:Install the pinned sv2v release
+.github/workflows/elaborate.yml:elaborate-gates-1:Install the pinned sv2v release
+.github/workflows/rtl-fast.yml:yosys-elaboration:Install the pinned sv2v release
+.github/workflows/rtl-fast.yml:publication-census:Install the pinned sv2v release
+.github/workflows/rtl.yml:verilator-shards:Install sv2v for the netlist-level suite owner
+.github/workflows/rtl.yml:yosys-shards:Install the pinned sv2v release
+set -euo pipefail
+ver=v0.0.12
+sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
+url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+mkdir -p "$RUNNER_TEMP/ci-sv2v-cache"
+archive="$RUNNER_TEMP/ci-sv2v-cache/sv2v.zip"
+if [ ! -f "$archive" ]; then curl -fsSL "$url" -o "$archive"; fi
+echo "${sha256}  $archive" | sha256sum -c -
+unzip -q -o "$archive" -d /tmp/sv2v
+sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+  /usr/local/bin/sv2v
+sv2v --version
+
+
+.github/workflows/docs.yml:docs-gates-0:Install and verify the pinned RV32 SDK
+.github/workflows/docs.yml:docs-gates-1:Install and verify the pinned RV32 SDK
+.github/workflows/docs.yml:docs-gates-2:Install and verify the pinned RV32 SDK
+.github/workflows/elaborate.yml:elaborate-gates-0:Install and verify the pinned RV32 SDK
+.github/workflows/elaborate.yml:elaborate-gates-1:Install and verify the pinned RV32 SDK
+.github/workflows/rtl-fast.yml:firmware-unit:Install and verify the pinned RV32 SDK
+.github/workflows/rtl-fast.yml:firmware-control-mutants:Install and verify the pinned RV32 SDK
+.github/workflows/rtl-fast.yml:firmware-aecp-mutants:Install and verify the pinned RV32 SDK
+.github/workflows/rtl-fast.yml:firmware-srp-mutants:Install and verify the pinned RV32 SDK
+.github/workflows/rtl-fast.yml:firmware-boundary:Install and verify the pinned RV32 SDK
+.github/workflows/rtl-fast.yml:firmware-verilator:Install and verify the pinned RV32 SDK
+set -euo pipefail
+python3 scripts/ci_rv32_sdk_selftest.py
+python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+
+.github/workflows/docs.yml:docs-gates-0:SoC source-list gate (Vivado would fail 40 min in without this)
+python3 scripts/check_soc_sources.py
+python3 scripts/check_soc_sources.py --selftest
+command -v tclsh >/dev/null || {
+  sudo apt-get update -qq
+  sudo apt-get install -y --no-install-recommends tcl
+}
+python3 sw/litex/iob_pack_selftest.py
+
+
+.github/workflows/docs.yml:docs-gates-0:Fetch inventory dependencies
+.github/workflows/docs.yml:ci-manifest:Fetch inventory dependencies
+.github/workflows/elaborate.yml:ci-manifest:Fetch inventory dependencies
+.github/workflows/rtl-fast.yml:ci-manifest:Fetch inventory dependencies
+.github/workflows/rtl.yml:verilator-suites:Fetch inventory dependencies
+.github/workflows/rtl.yml:union-milan_dp:Fetch inventory dependencies
+.github/workflows/rtl.yml:union-milan_dp_mclk:Fetch inventory dependencies
+.github/workflows/rtl.yml:union-capture_coherence:Fetch inventory dependencies
+.github/workflows/rtl.yml:union-maap:Fetch inventory dependencies
+.github/workflows/rtl.yml:union-milan_dp_render:Fetch inventory dependencies
+.github/workflows/rtl.yml:union-pp_shadow:Fetch inventory dependencies
+.github/workflows/rtl.yml:ci-manifest:Fetch inventory dependencies
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+
+
+.github/workflows/docs.yml:docs-gates-1:Install diagram gate dependencies
+.github/workflows/docs.yml:docs-gates-2:Install diagram gate dependencies
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_4" install -y --no-install-recommends librsvg2-bin
+python3 -m pip install --quiet wavedrom==2.0.3.post3
+
+
+.github/workflows/docs.yml:docs-gates-1:End-station builder gates, leg 0 of 2
+python3 -m pip install --quiet pyyaml
+python3 scripts/ci_builder_legs.py run 0 --receipt "$RUNNER_TEMP/gate-results/builder-leg-0.json" -- python3 sw/builder/test_builder.py --require-rv32
+
+
+.github/workflows/docs.yml:docs-gates-2:End-station builder gates, leg 1 of 2
+python3 -m pip install --quiet pyyaml
+python3 scripts/ci_builder_legs.py run 1 --receipt "$RUNNER_TEMP/gate-results/builder-leg-1.json" -- python3 sw/builder/test_builder.py --require-rv32
+
+
+.github/workflows/docs.yml:docs-check:Install the pinned evidence reader
+.github/workflows/docs.yml:ci-manifest:Install the pinned evidence reader
+.github/workflows/elaborate.yml:elaborate:Install the pinned evidence reader
+.github/workflows/elaborate.yml:ci-manifest:Install the pinned evidence reader
+.github/workflows/rtl-fast.yml:ci-manifest:Install the pinned evidence reader
+.github/workflows/rtl.yml:ci-manifest:Install the pinned evidence reader
+python3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt
+
+
+.github/workflows/elaborate.yml:elaborate-gates-0:Put a job-private Python environment on PATH
+.github/workflows/elaborate.yml:elaborate-gates-1:Put a job-private Python environment on PATH
+set -euo pipefail
+python3 -m venv "$RUNNER_TEMP/litex-venv"
+echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"
+
+
+.github/workflows/elaborate.yml:elaborate-gates-0:Install LiteX at the pinned revisions
+.github/workflows/elaborate.yml:elaborate-gates-1:Install LiteX at the pinned revisions
+python3 -m pip install --quiet pyyaml
+python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+
+
+.github/workflows/elaborate.yml:elaborate-gates-0:Install sbt
+.github/workflows/elaborate.yml:elaborate-gates-1:Install sbt
+set -euo pipefail
+mkdir -p "$HOME/.cache/milan-sbt"
+archive="$HOME/.cache/milan-sbt/sbt-1.10.7.tgz"
+if [ ! -f "$archive" ]; then
+  curl -fsSL --retry 3 -o "$archive" \
+    https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz
+fi
+echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6  $archive" | sha256sum -c -
+sudo tar xzf "$archive" -C /opt
+echo /opt/sbt/bin >> "$GITHUB_PATH"
+
+
+.github/workflows/elaborate.yml:elaborate-gates-0:Place the VexiiRiscv source at the revision LiteX pins
+.github/workflows/elaborate.yml:elaborate-gates-1:Place the VexiiRiscv source at the revision LiteX pins
+python3 scripts/ci_litex_env.py
+mkdir -p ~/vexii-netlist-args
+cp -n ~/vexii-netlist-args/*.py \
+  "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
+  2>/dev/null || true
+
+
+.github/workflows/elaborate.yml:elaborate-gates-0:Apply the toolchain patch series
+.github/workflows/elaborate.yml:elaborate-gates-1:Apply the toolchain patch series
+sw/litex/patches/apply.sh
+
+.github/workflows/elaborate.yml:elaborate-gates-0:Keep the generated CPU netlist arguments for the next run
+.github/workflows/elaborate.yml:elaborate-gates-1:Keep the generated CPU netlist arguments for the next run
+cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
+  ~/vexii-netlist-args/ 2>/dev/null || true
+
+
+.github/workflows/elaborate.yml:elaborate-gates-1:Build Verilator from source on cache miss
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_17" install -y --no-install-recommends \
+  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+git clone --depth 1 --branch "$VERILATOR_VERSION" \
+  https://github.com/verilator/verilator.git /tmp/verilator-src
+cd /tmp/verilator-src
+test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
+autoconf
+./configure --prefix=/opt/verilator
+make -j"$CI_TOOL_BUILD_JOBS"
+sudo make install
+
+
+.github/workflows/rtl-fast.yml:verilator-lint:Build Verilator from source on cache miss
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_3" install -y --no-install-recommends \
+  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+git clone --depth 1 --branch "$VERILATOR_VERSION" \
+  https://github.com/verilator/verilator.git /tmp/verilator-src
+cd /tmp/verilator-src
+test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
+autoconf
+./configure --prefix=/opt/verilator
+make -j"$CI_TOOL_BUILD_JOBS"
+sudo make install
+
+
+.github/workflows/rtl-fast.yml:bdd-conformance:Fetch the processor model inputs
+git submodule update --init protocol-processor gptp-processor
+
+.github/workflows/rtl-fast.yml:bdd-conformance:Install behave
+python3 -m pip install --quiet behave
+
+.github/workflows/rtl-fast.yml:yosys-elaboration:Build Yosys from source on cache miss
+.github/workflows/rtl-fast.yml:publication-census:Build Yosys from source on cache miss
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_3" install -y --no-install-recommends \
+  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+git clone --depth 1 --branch "$YOSYS_VERSION" \
+  https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
+git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+make -C /tmp/yosys-src config-gcc
+printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+  >> /tmp/yosys-src/Makefile.conf
+make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+# runner-owned so the cache action's save and restore are symmetric
+sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+
+
+.github/workflows/rtl-fast.yml:yosys-elaboration:Prove the OOC read sets come from run.sh and refuse a bad one
+set -euo pipefail
+command -v tclsh >/dev/null || {
+  sudo apt-get update -qq
+  sudo apt-get install -y --no-install-recommends tcl
+}
+python3 syn/ooc/dp_srcs.py --selftest
+python3 syn/ooc/ooc_tcl_selftest.py
+python3 syn/ooc/pp_baseline.py --selftest
+python3 syn/ooc/pp_baseline_mutants.py
+python3 syn/ooc/pp_baseline_reports_selftest.py
+python3 syn/ooc/pp_resource_gate.py --selftest
+python3 syn/ooc/pp_resource_gate_mutants.py
+python3 syn/ooc/pp_resource_gate.py check-baseline
+python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
+python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
+
+
+.github/workflows/rtl-fast.yml:publication-census:Run the publication census in every shape the builder builds
+set -euo pipefail
+python3 -m pip install --quiet pyyaml
+python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CAMPAIGN_JOBS"
+
+
+.github/workflows/rtl-fast.yml:firmware-unit:Fetch RTL dependencies
+.github/workflows/rtl-fast.yml:firmware-control-mutants:Fetch RTL dependencies
+.github/workflows/rtl-fast.yml:firmware-aecp-mutants:Fetch RTL dependencies
+.github/workflows/rtl-fast.yml:firmware-srp-mutants:Fetch RTL dependencies
+.github/workflows/rtl-fast.yml:firmware-boundary:Fetch RTL dependencies
+.github/workflows/rtl-fast.yml:firmware-verilator:Fetch RTL dependencies
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+
+.github/workflows/rtl-fast.yml:firmware-unit:Install GoogleTest and GoogleMock and print the versions
+.github/workflows/rtl-fast.yml:firmware-control-mutants:Install GoogleTest and GoogleMock and print the versions
+.github/workflows/rtl-fast.yml:firmware-aecp-mutants:Install GoogleTest and GoogleMock and print the versions
+.github/workflows/rtl-fast.yml:firmware-srp-mutants:Install GoogleTest and GoogleMock and print the versions
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev
+python3 -m pip install --quiet pyyaml
+dpkg-query -W libgtest-dev libgmock-dev
+g++ --version | head -n 1
+gcov --version | head -n 1
+
+
+.github/workflows/rtl-fast.yml:firmware-boundary:Install GoogleTest and GoogleMock and print the versions
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev
+python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt
+dpkg-query -W libgtest-dev libgmock-dev
+g++ --version | head -n 1
+
+
+.github/workflows/rtl-fast.yml:firmware-verilator:Install GoogleTest and GoogleMock and print the versions
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends libgtest-dev libgmock-dev
+python3 -m pip install --quiet pyyaml
+dpkg-query -W libgtest-dev libgmock-dev
+g++ --version | head -n 1
+
+
+.github/workflows/rtl-fast.yml:firmware-verilator:Build Verilator from source on cache miss
+.github/workflows/rtl.yml:verilator-shards:Build Verilator from source on cache miss
+.github/workflows/rtl.yml:physical-gptp:Build Verilator from source on cache miss
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_4" install -y --no-install-recommends \
+  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+git clone --depth 1 --branch "$VERILATOR_VERSION" \
+  https://github.com/verilator/verilator.git /tmp/verilator-src
+cd /tmp/verilator-src
+test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"
+autoconf
+./configure --prefix=/opt/verilator
+make -j"$CI_TOOL_BUILD_JOBS"
+sudo make install
+
+
+.github/workflows/rtl.yml:full-ci-gate:Hold every workflow file to its contract
+python3 -m pip install --quiet pyyaml
+python3 scripts/ci_events.py --check
+
+
+.github/workflows/rtl.yml:verilator-shards:Fetch RTL dependencies
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+
+.github/workflows/rtl.yml:verilator-shards:Build Yosys from source on cache miss
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_8" install -y --no-install-recommends \
+  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+git clone --depth 1 --branch "$YOSYS_VERSION" \
+  https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
+git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+make -C /tmp/yosys-src config-gcc
+printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+  >> /tmp/yosys-src/Makefile.conf
+make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+# runner-owned so the cache action's save and restore are symmetric
+sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+
+
+.github/workflows/rtl.yml:verilator-shards:Install the pinned Yosys and prove the version
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_9" install -y --no-install-recommends libjemalloc2
+sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+test -x /opt/yosys/bin/yosys-abc
+echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+yosys -V
+yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+
+
+.github/workflows/rtl.yml:verilator-shards:Build the pinned tsn-gen field oracle on its suite owner
+set -euo pipefail
+if [ ! -d "$RUNNER_TEMP/tsn-gen/.git" ]; then
+git clone --filter=blob:none \
+  https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"
+fi
+git -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"
+git -C "$RUNNER_TEMP/tsn-gen" submodule update \
+  --init --depth 1 --recursive external/rapidyaml
+cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" \
+  -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF
+cmake --build "$RUNNER_TEMP/tsn-gen/build" \
+  --target packet_gen --parallel "$CI_TOOL_BUILD_JOBS"
+test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"
+echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"
+
+
+.github/workflows/rtl.yml:physical-gptp:Fetch RTL dependencies
+set -euo pipefail
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+python3 -m pip install --quiet pyyaml
+
+
+.github/workflows/rtl.yml:yosys-shards:Install the pinned Yosys and prove the version
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_5" install -y --no-install-recommends libjemalloc2
+sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+test -x /opt/yosys/bin/yosys-abc
+echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+yosys -V
+yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+
+
+.github/workflows/rtl.yml:yosys-tool:Build Yosys from source on cache miss
+set -euo pipefail
+: # package index prepared above
+sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends \
+  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+git clone --depth 1 --branch "$YOSYS_VERSION" \
+  https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
+git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+make -C /tmp/yosys-src config-gcc
+printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+  >> /tmp/yosys-src/Makefile.conf
+make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+# runner-owned so the cache action's save and restore are symmetric
+sudo chown -R "$(id -u):$(id -g)" /opt/yosys

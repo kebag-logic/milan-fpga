@@ -1,0 +1,19 @@
+{
+  "work_argument": "run",
+  "step_results": [
+    {
+      "step": "no-op step",
+      "rc": 1,
+      "seconds": 0.0
+    }
+  ],
+  "log": "===== no-op step\nbash: run/leg/step.sh: No such file or directory\n",
+  "absolute_step_results": [
+    {
+      "step": "no-op step",
+      "rc": 0,
+      "seconds": 0.0
+    }
+  ]
+}
+REPRODUCED: relative --work creates a step path relative to the caller, then opens it relative to the workspace

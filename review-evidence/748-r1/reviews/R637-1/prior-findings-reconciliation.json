@@ -1,0 +1,50 @@
+{
+  "independent_verdict_written_before_readback_sha256": "c53f421785af6668d2c73d09b590b8e0fd1f67f1802d8105dbd6bb749a6031a3",
+  "queried_at": "2026-10-15T22:07:47.525610+00:00",
+  "head": "c48bfe38b25f002d24898cec265520b9fc1a7111",
+  "readback": [
+    {
+      "endpoint": "issues/749/comments",
+      "returned_count": 3,
+      "review_findings": [
+        {
+          "url": "https://github.com/kebag-logic/milan-fpga/pull/749#issuecomment-6203272953",
+          "identified_items": [
+            {
+              "id": "R636-1/F1",
+              "severity": "RESIDUE",
+              "lenses": [
+                "Conformance",
+                "Docs"
+              ],
+              "disposition": "RETAINED: PR inventory parenthesis still omits LiteX pins in rtl-fast firmware-boundary; expand the parenthesis as requested."
+            },
+            {
+              "id": "R636-1/F2",
+              "severity": "SUGGESTION",
+              "lenses": [
+                "Tests"
+              ],
+              "disposition": "RETAINED OPTIONAL: published evidence contains no post-builder cache comparison receipt."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "issues/748/comments",
+      "returned_count": 3,
+      "review_findings": []
+    },
+    {
+      "endpoint": "pulls/749/reviews",
+      "returned_count": 0,
+      "review_findings": []
+    },
+    {
+      "endpoint": "pulls/749/comments",
+      "returned_count": 0,
+      "review_findings": []
+    }
+  ]
+}

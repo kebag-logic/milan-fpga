@@ -1,0 +1,3 @@
+without litex-boards; patches deliberately absent: []
+with litex-boards; same absent patches: ['fault-fixture: gate 23h failed (see <scratch>/leg/steps.log)']
+REPRODUCED: verify() accepts skipped gate 23h and rejects the same unpatched tree when its dependency is available

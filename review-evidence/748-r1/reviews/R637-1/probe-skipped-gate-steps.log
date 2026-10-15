@@ -1,0 +1,30 @@
+===== Install pinned packages except litex-boards
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+===== gate 23h
+test_toolchain_patches_are_applied:
+  [gate 23h] SKIP: no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+test_toolchain_patch_gate_bites:
+  [gate 23h mutation] SKIP: no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+
+SUBSET: 2 of 103 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+
+2 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 23h] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+  - [gate 23h mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+ALL GATES PASS EXCEPT 2 NOT RUN
+===== Restore pinned litex-boards
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+===== gate 23h
+test_toolchain_patches_are_applied:
+Traceback (most recent call last):
+  File "<scratch>/leg/workspace/sw/builder/test_builder.py", line 29274, in <module>
+    fn()
+  File "<scratch>/leg/workspace/sw/builder/test_builder.py", line 24491, in test_toolchain_patches_are_applied
+    assert not problems, "gate 23h:\n  " + "\n  ".join(problems)
+           ^^^^^^^^^^^^
+AssertionError: gate 23h:
+  0005-vexiiriscv-cacheless-litex.patch: pythondata_cpu_vexiiriscv has no pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/litex/Soc.scala at all

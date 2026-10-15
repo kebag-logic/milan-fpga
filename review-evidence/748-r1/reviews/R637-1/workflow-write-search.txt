@@ -1,0 +1,268 @@
+.github/ci-templates/rtl.yml:29:  # built from the upstream tag with its bundled ABC submodule, cached, and
+.github/ci-templates/rtl.yml:44:      - uses: actions/checkout@v4
+.github/ci-templates/rtl.yml:94:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/rtl.yml:164:      - uses: actions/checkout@v4
+.github/ci-templates/rtl.yml:166:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+.github/ci-templates/rtl.yml:186:        id: cache-verilator
+.github/ci-templates/rtl.yml:187:        uses: actions/cache@v4
+.github/ci-templates/rtl.yml:189:          path: /opt/verilator
+.github/ci-templates/rtl.yml:192:      - name: Build Verilator from source on cache miss
+.github/ci-templates/rtl.yml:193:        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+.github/ci-templates/rtl.yml:196:          sudo apt-get update -qq
+.github/ci-templates/rtl.yml:197:          sudo apt-get install -y --no-install-recommends \
+.github/ci-templates/rtl.yml:199:          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+.github/ci-templates/rtl.yml:204:          ./configure --prefix=/opt/verilator
+.github/ci-templates/rtl.yml:210:          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+.github/ci-templates/rtl.yml:211:          /opt/verilator/bin/verilator --version
+.github/ci-templates/rtl.yml:212:          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+.github/ci-templates/rtl.yml:233:        id: cache-yosys
+.github/ci-templates/rtl.yml:234:        uses: actions/cache@v4
+.github/ci-templates/rtl.yml:236:          path: /opt/yosys
+.github/ci-templates/rtl.yml:239:      - name: Build Yosys from source on cache miss
+.github/ci-templates/rtl.yml:240:        if: ${{ matrix.shard == 3 && steps.cache-yosys.outputs.cache-hit != 'true' }}
+.github/ci-templates/rtl.yml:243:          sudo apt-get update -qq
+.github/ci-templates/rtl.yml:244:          sudo apt-get install -y --no-install-recommends \
+.github/ci-templates/rtl.yml:246:          git clone --depth 1 --branch "$YOSYS_VERSION" \
+.github/ci-templates/rtl.yml:253:          make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+.github/ci-templates/rtl.yml:254:          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+.github/ci-templates/rtl.yml:255:          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+.github/ci-templates/rtl.yml:256:          # runner-owned so the cache action's save and restore are symmetric
+.github/ci-templates/rtl.yml:257:          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+.github/ci-templates/rtl.yml:263:          sudo apt-get update -qq
+.github/ci-templates/rtl.yml:264:          sudo apt-get install -y --no-install-recommends libjemalloc2
+.github/ci-templates/rtl.yml:265:          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+.github/ci-templates/rtl.yml:266:          test -x /opt/yosys/bin/yosys-abc
+.github/ci-templates/rtl.yml:267:          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+.github/ci-templates/rtl.yml:278:          curl -fsSL "$url" -o /tmp/sv2v.zip
+.github/ci-templates/rtl.yml:289:          git clone --filter=blob:none \
+.github/ci-templates/rtl.yml:299:          echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"
+.github/ci-templates/rtl.yml:308:        uses: actions/upload-artifact@v4
+.github/ci-templates/rtl.yml:323:      - uses: actions/checkout@v4
+.github/ci-templates/rtl.yml:327:          git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+.github/ci-templates/rtl.yml:328:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/rtl.yml:343:        id: cache-verilator
+.github/ci-templates/rtl.yml:344:        uses: actions/cache@v4
+.github/ci-templates/rtl.yml:346:          path: /opt/verilator
+.github/ci-templates/rtl.yml:348:      - name: Build Verilator from source on cache miss
+.github/ci-templates/rtl.yml:349:        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+.github/ci-templates/rtl.yml:352:          sudo apt-get update -qq
+.github/ci-templates/rtl.yml:353:          sudo apt-get install -y --no-install-recommends \
+.github/ci-templates/rtl.yml:355:          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+.github/ci-templates/rtl.yml:360:          ./configure --prefix=/opt/verilator
+.github/ci-templates/rtl.yml:366:          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+.github/ci-templates/rtl.yml:367:          /opt/verilator/bin/verilator --version
+.github/ci-templates/rtl.yml:368:          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+.github/ci-templates/rtl.yml:388:        uses: actions/upload-artifact@v4
+.github/ci-templates/rtl.yml:406:      - uses: actions/checkout@v4
+.github/ci-templates/rtl.yml:410:        uses: actions/download-artifact@v4
+.github/ci-templates/rtl.yml:469:      - uses: actions/checkout@v4
+.github/ci-templates/rtl.yml:471:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+.github/ci-templates/rtl.yml:491:      # upstream tag on a cache miss with its bundled ABC submodule - the
+.github/ci-templates/rtl.yml:492:      # commit the tag pins, recorded in /opt/yosys/ABC_REV and printed on
+.github/ci-templates/rtl.yml:499:        id: cache-yosys
+.github/ci-templates/rtl.yml:500:        uses: actions/cache@v4
+.github/ci-templates/rtl.yml:502:          path: /opt/yosys
+.github/ci-templates/rtl.yml:505:      - name: Build Yosys from source on cache miss
+.github/ci-templates/rtl.yml:506:        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+.github/ci-templates/rtl.yml:509:          sudo apt-get update -qq
+.github/ci-templates/rtl.yml:510:          sudo apt-get install -y --no-install-recommends \
+.github/ci-templates/rtl.yml:512:          git clone --depth 1 --branch "$YOSYS_VERSION" \
+.github/ci-templates/rtl.yml:519:          make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+.github/ci-templates/rtl.yml:520:          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+.github/ci-templates/rtl.yml:521:          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+.github/ci-templates/rtl.yml:522:          # runner-owned so the cache action's save and restore are symmetric
+.github/ci-templates/rtl.yml:523:          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+.github/ci-templates/rtl.yml:528:          sudo apt-get update -qq
+.github/ci-templates/rtl.yml:529:          sudo apt-get install -y --no-install-recommends libjemalloc2
+.github/ci-templates/rtl.yml:530:          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+.github/ci-templates/rtl.yml:531:          test -x /opt/yosys/bin/yosys-abc
+.github/ci-templates/rtl.yml:532:          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+.github/ci-templates/rtl.yml:541:          curl -fsSL "$url" -o /tmp/sv2v.zip
+.github/ci-templates/rtl.yml:550:      # in syn/yosys/README.md under "The result cache". Everything else
+.github/ci-templates/rtl.yml:551:      # runs as it always has. The trust boundary is GitHub's own cache scoping: a
+.github/ci-templates/rtl.yml:552:      # pull-request run can restore caches created on its branch or on `dev`
+.github/ci-templates/rtl.yml:554:      # and the cache it saves under its own head SHA is readable by that
+.github/ci-templates/rtl.yml:558:      - name: Restore the portability result cache seeded from dev
+.github/ci-templates/rtl.yml:559:        uses: actions/cache@v4
+.github/ci-templates/rtl.yml:561:          path: ${{ runner.temp }}/yosys-result-cache
+.github/ci-templates/rtl.yml:568:            --cache "$RUNNER_TEMP/yosys-result-cache"
+.github/ci-templates/rtl.yml:571:        uses: actions/upload-artifact@v4
+.github/ci-templates/rtl.yml:582:    # action cache can race when both first initialize download-artifact.
+.github/ci-templates/rtl.yml:589:      - uses: actions/checkout@v4
+.github/ci-templates/rtl.yml:593:        uses: actions/download-artifact@v4
+.github/ci-templates/rtl-fast.yml:31:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:83:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:85:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+.github/ci-templates/rtl-fast.yml:88:        id: cache-verilator
+.github/ci-templates/rtl-fast.yml:89:        uses: actions/cache@v4
+.github/ci-templates/rtl-fast.yml:91:          path: /opt/verilator
+.github/ci-templates/rtl-fast.yml:94:      - name: Build Verilator from source on cache miss
+.github/ci-templates/rtl-fast.yml:95:        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+.github/ci-templates/rtl-fast.yml:98:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:99:          sudo apt-get install -y --no-install-recommends \
+.github/ci-templates/rtl-fast.yml:101:          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+.github/ci-templates/rtl-fast.yml:106:          ./configure --prefix=/opt/verilator
+.github/ci-templates/rtl-fast.yml:112:          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+.github/ci-templates/rtl-fast.yml:113:          /opt/verilator/bin/verilator --version
+.github/ci-templates/rtl-fast.yml:114:          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+.github/ci-templates/rtl-fast.yml:115:          PATH="/opt/verilator/bin:$PATH" \
+.github/ci-templates/rtl-fast.yml:125:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:127:        run: git submodule update --init protocol-processor gptp-processor
+.github/ci-templates/rtl-fast.yml:129:        run: python3 -m pip install --quiet behave
+.github/ci-templates/rtl-fast.yml:140:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:142:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+.github/ci-templates/rtl-fast.yml:144:      # version, built from the upstream tag with its bundled ABC on a cache
+.github/ci-templates/rtl-fast.yml:149:        id: cache-yosys
+.github/ci-templates/rtl-fast.yml:150:        uses: actions/cache@v4
+.github/ci-templates/rtl-fast.yml:152:          path: /opt/yosys
+.github/ci-templates/rtl-fast.yml:155:      - name: Build Yosys from source on cache miss
+.github/ci-templates/rtl-fast.yml:156:        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+.github/ci-templates/rtl-fast.yml:159:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:160:          sudo apt-get install -y --no-install-recommends \
+.github/ci-templates/rtl-fast.yml:162:          git clone --depth 1 --branch "$YOSYS_VERSION" \
+.github/ci-templates/rtl-fast.yml:169:          make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+.github/ci-templates/rtl-fast.yml:170:          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+.github/ci-templates/rtl-fast.yml:171:          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+.github/ci-templates/rtl-fast.yml:172:          # runner-owned so the cache action's save and restore are symmetric
+.github/ci-templates/rtl-fast.yml:173:          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+.github/ci-templates/rtl-fast.yml:178:          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+.github/ci-templates/rtl-fast.yml:179:          test -x /opt/yosys/bin/yosys-abc
+.github/ci-templates/rtl-fast.yml:180:          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+.github/ci-templates/rtl-fast.yml:189:          curl -fsSL "$url" -o /tmp/sv2v.zip
+.github/ci-templates/rtl-fast.yml:215:            sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:216:            sudo apt-get install -y --no-install-recommends tcl
+.github/ci-templates/rtl-fast.yml:239:      # The result cache's hit rule (#350), driven against the real run.sh
+.github/ci-templates/rtl-fast.yml:243:      - name: Prove the result cache refuses a planted entry
+.github/ci-templates/rtl-fast.yml:244:        run: python3 syn/yosys/cache_selftest.py
+.github/ci-templates/rtl-fast.yml:253:  # Yosys cache and sv2v release of yosys-elaboration (#665, comment
+.github/ci-templates/rtl-fast.yml:261:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:263:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+.github/ci-templates/rtl-fast.yml:265:        id: cache-yosys
+.github/ci-templates/rtl-fast.yml:266:        uses: actions/cache@v4
+.github/ci-templates/rtl-fast.yml:268:          path: /opt/yosys
+.github/ci-templates/rtl-fast.yml:271:      - name: Build Yosys from source on cache miss
+.github/ci-templates/rtl-fast.yml:272:        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+.github/ci-templates/rtl-fast.yml:275:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:276:          sudo apt-get install -y --no-install-recommends \
+.github/ci-templates/rtl-fast.yml:278:          git clone --depth 1 --branch "$YOSYS_VERSION" \
+.github/ci-templates/rtl-fast.yml:285:          make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+.github/ci-templates/rtl-fast.yml:286:          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+.github/ci-templates/rtl-fast.yml:287:          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+.github/ci-templates/rtl-fast.yml:288:          # runner-owned so the cache action's save and restore are symmetric
+.github/ci-templates/rtl-fast.yml:289:          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+.github/ci-templates/rtl-fast.yml:294:          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+.github/ci-templates/rtl-fast.yml:295:          test -x /opt/yosys/bin/yosys-abc
+.github/ci-templates/rtl-fast.yml:296:          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+.github/ci-templates/rtl-fast.yml:305:          curl -fsSL "$url" -o /tmp/sv2v.zip
+.github/ci-templates/rtl-fast.yml:314:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/rtl-fast.yml:336:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:338:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+.github/ci-templates/rtl-fast.yml:343:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:344:          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+.github/ci-templates/rtl-fast.yml:345:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/rtl-fast.yml:354:        uses: actions/cache@v4
+.github/ci-templates/rtl-fast.yml:385:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:387:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+.github/ci-templates/rtl-fast.yml:392:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:393:          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+.github/ci-templates/rtl-fast.yml:394:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/rtl-fast.yml:400:        uses: actions/cache@v4
+.github/ci-templates/rtl-fast.yml:419:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:421:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+.github/ci-templates/rtl-fast.yml:426:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:427:          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+.github/ci-templates/rtl-fast.yml:428:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/rtl-fast.yml:434:        uses: actions/cache@v4
+.github/ci-templates/rtl-fast.yml:453:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:455:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+.github/ci-templates/rtl-fast.yml:460:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:461:          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+.github/ci-templates/rtl-fast.yml:462:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/rtl-fast.yml:468:        uses: actions/cache@v4
+.github/ci-templates/rtl-fast.yml:502:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:504:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+.github/ci-templates/rtl-fast.yml:509:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:510:          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+.github/ci-templates/rtl-fast.yml:511:          python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt
+.github/ci-templates/rtl-fast.yml:516:        uses: actions/cache@v4
+.github/ci-templates/rtl-fast.yml:541:      - uses: actions/checkout@v4
+.github/ci-templates/rtl-fast.yml:543:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP third_party/tsn-c-stack
+.github/ci-templates/rtl-fast.yml:548:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:549:          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+.github/ci-templates/rtl-fast.yml:550:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/rtl-fast.yml:555:        id: cache-verilator
+.github/ci-templates/rtl-fast.yml:556:        uses: actions/cache@v4
+.github/ci-templates/rtl-fast.yml:558:          path: /opt/verilator
+.github/ci-templates/rtl-fast.yml:561:      - name: Build Verilator from source on cache miss
+.github/ci-templates/rtl-fast.yml:562:        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+.github/ci-templates/rtl-fast.yml:565:          sudo apt-get update -qq
+.github/ci-templates/rtl-fast.yml:566:          sudo apt-get install -y --no-install-recommends \
+.github/ci-templates/rtl-fast.yml:568:          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+.github/ci-templates/rtl-fast.yml:573:          ./configure --prefix=/opt/verilator
+.github/ci-templates/rtl-fast.yml:580:          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+.github/ci-templates/rtl-fast.yml:581:          /opt/verilator/bin/verilator --version
+.github/ci-templates/rtl-fast.yml:582:          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+.github/ci-templates/rtl-fast.yml:585:        uses: actions/cache@v4
+.github/ci-templates/elaborate.yml:54:  # The same pin rtl.yml carries, under the same cache key, so the two
+.github/ci-templates/elaborate.yml:73:      - uses: actions/checkout@v4
+.github/ci-templates/elaborate.yml:124:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+.github/ci-templates/elaborate.yml:136:          curl -fsSL "$url" -o /tmp/sv2v.zip
+.github/ci-templates/elaborate.yml:143:      - uses: actions/setup-python@v5
+.github/ci-templates/elaborate.yml:149:      # setup-python's interpreter lives in the runner's tool cache, and act
+.github/ci-templates/elaborate.yml:150:      # mounts that cache into every job container of a run at once. The pip
+.github/ci-templates/elaborate.yml:151:      # install, the VexiiRiscv checkout, the cached CPU metadata, the patch
+.github/ci-templates/elaborate.yml:156:      # on every runner, and the tool cache is only read.
+.github/ci-templates/elaborate.yml:162:          echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"
+.github/ci-templates/elaborate.yml:172:      # cold runner; the pip cache is keyed on the pin file and installation recipe, so it never
+.github/ci-templates/elaborate.yml:176:        uses: actions/cache@v4
+.github/ci-templates/elaborate.yml:178:          path: ~/.cache/pip
+.github/ci-templates/elaborate.yml:183:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/elaborate.yml:184:          python3 -m pip install --quiet -r sw/litex/litex_pins.txt
+.github/ci-templates/elaborate.yml:188:      # the only reason this job needs a JVM at all, and the result caches: a
+.github/ci-templates/elaborate.yml:192:      # to share across every revision, and the cache requires exact source and recipe digests. The
+.github/ci-templates/elaborate.yml:197:      # covers the Scala source. So a cache entry made before a pin or patch
+.github/ci-templates/elaborate.yml:204:        uses: actions/cache@v4
+.github/ci-templates/elaborate.yml:207:            ~/.cache/coursier
+.github/ci-templates/elaborate.yml:210:            ~/.cache/milan-sbt
+.github/ci-templates/elaborate.yml:220:        uses: actions/cache@v4
+.github/ci-templates/elaborate.yml:229:          mkdir -p "$HOME/.cache/milan-sbt"
+.github/ci-templates/elaborate.yml:230:          archive="$HOME/.cache/milan-sbt/sbt-1.10.7.tgz"
+.github/ci-templates/elaborate.yml:232:            curl -fsSL --retry 3 -o "$archive" \
+.github/ci-templates/elaborate.yml:236:          sudo tar xzf "$archive" -C /opt
+.github/ci-templates/elaborate.yml:237:          echo /opt/sbt/bin >> "$GITHUB_PATH"
+.github/ci-templates/elaborate.yml:269:        uses: actions/cache@v4
+.github/ci-templates/elaborate.yml:294:        id: cache-verilator
+.github/ci-templates/elaborate.yml:295:        uses: actions/cache@v4
+.github/ci-templates/elaborate.yml:297:          path: /opt/verilator
+.github/ci-templates/elaborate.yml:300:      - name: Build Verilator from source on cache miss
+.github/ci-templates/elaborate.yml:301:        if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true' }}
+.github/ci-templates/elaborate.yml:304:          sudo apt-get update -qq
+.github/ci-templates/elaborate.yml:305:          sudo apt-get install -y --no-install-recommends \
+.github/ci-templates/elaborate.yml:307:          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+.github/ci-templates/elaborate.yml:312:          ./configure --prefix=/opt/verilator
+.github/ci-templates/elaborate.yml:320:          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+.github/ci-templates/elaborate.yml:321:          /opt/verilator/bin/verilator --version
+.github/ci-templates/elaborate.yml:322:          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+.github/ci-templates/docs.yml:18:      - uses: actions/checkout@v4
+.github/ci-templates/docs.yml:29:          python3 -m pip install --quiet --require-hashes \
+.github/ci-templates/docs.yml:35:        uses: actions/upload-artifact@v4
+.github/ci-templates/docs.yml:45:        run: python3 -m pip install --quiet pyyaml
+.github/ci-templates/docs.yml:50:      # gates refuse another release by name. The download cache is keyed by
+.github/ci-templates/docs.yml:53:        uses: actions/cache@v4
+.github/ci-templates/docs.yml:55:          path: ~/.cache/milan-markdown-pip
+.github/ci-templates/docs.yml:59:          python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \
+.github/ci-templates/docs.yml:63:          sudo apt-get update -qq
+.github/ci-templates/docs.yml:64:          sudo apt-get install -y --no-install-recommends librsvg2-bin
+.github/ci-templates/docs.yml:65:          python3 -m pip install --quiet wavedrom==2.0.3.post3
+.github/ci-templates/docs.yml:144:        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+.github/ci-templates/docs.yml:175:          curl -fsSL "$url" -o /tmp/sv2v.zip
+.github/ci-templates/docs.yml:188:        uses: actions/cache@v4
+.github/ci-templates/docs.yml:204:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/docs.yml:246:            sudo apt-get update -qq
+.github/ci-templates/docs.yml:247:            sudo apt-get install -y --no-install-recommends tcl
+.github/ci-templates/docs.yml:434:      # queue geometry, and cache size). --self-test also proves a wrong value IS rejected.
+.github/ci-templates/docs.yml:469:          python3 scripts/ci_install_cache_selftest.py
+.github/ci-templates/docs.yml:498:      - uses: actions/checkout@v4
+.github/ci-templates/docs.yml:500:        run: git submodule update --init gptp-processor
+.github/ci-templates/docs.yml:503:          python3 -m pip install --quiet pyyaml
+.github/ci-templates/docs.yml:512:      - uses: actions/checkout@v4
