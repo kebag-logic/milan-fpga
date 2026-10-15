@@ -1,0 +1,219 @@
+=== flash-pair build_ax7101_eppo_tdm8dev9ef71772 over build_ax7101_eppo_tdm8dev5603c353, 2026-10-15T18:42:24Z
+--- preflight STAT (read only)
+empty
+Jtag frequency : requested 6.00MHz    -> real 6.00MHz   
+Register raw value: 0x501079fc
+CRC Error       No CRC error
+Part Secured    0x0
+MMCM lock       0x1
+DCI match       0x1
+EOS             0x1
+GTS CFG B       0x1
+GWE             0x1
+GHIGH B         0x1
+MODE            0x1
+INIT Complete   0x1
+INIT B          0x1
+Release Done    0x1
+Done            0x1
+ID Error        No ID error
+DEC Error       0x0
+XADC Over temp  0x0
+STARTUP State   0x4
+Reserved        0x0
+BUS Width       x1
+Reserved        0xa
+--- flash-pair
+== flash-pair [ax7101] LIVE OWNER-STATE PROOF + ORDERED VERIFIED SET ==
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem           7512 B  -> flash @ 0x400000  (budget 65536 B, from /tmp/tmp.9hm8uTIrP1/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: /tmp/tmp.9hm8uTIrP1/target/flashboot_layout.json (bound to /tmp/tmp.9hm8uTIrP1/target/gateware/target.bit and /tmp/tmp.9hm8uTIrP1/target/aem_desc.bin, xlen 32)
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem           7512 B  -> flash @ 0x400000  (budget 65536 B, from /tmp/tmp.9hm8uTIrP1/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] prove live QSPI bitstream on serial 210512180081 (3825788 B)
+empty
+Jtag frequency : requested 6.00MHz    -> real 6.00MHz   
+Use: /usr/share/openFPGALoader/spiOverJtag_xc7a100tfgg484.bit.gz
+load program
+Load SRAM: [==================================================] 100.00%
+
+Done
+Shift IR 35
+ir: 1 isc_done 1 isc_ena 0 init 1 done 1
+jtag_chain_len: 1
+SOJ version: 2.000000
+JEDEC ID: 0x20ba18
+Detected: micron N25Q128_3V 256 sectors size: 128Mb
+dump flash (May take time)
+Open dump file DONE
+Read flash : [=======                                           ] 12.15%
+Read flash : [=============                                     ] 24.31%
+Read flash : [===================                               ] 36.48%
+Read flash : [=========================                         ] 48.66%
+Read flash : [===============================                   ] 60.82%
+Read flash : [=====================================             ] 72.96%
+Read flash : [===========================================       ] 85.09%
+Read flash : [================================================= ] 97.23%
+Read flash : [===================================================] 100.00%
+
+Done
+[deploy] live bit identity: installed artifact; fabric -> fabric; images-first
+[deploy] write+verify aem @ 0x400000
+empty
+write to flash
+Jtag frequency : requested 6.00MHz    -> real 6.00MHz   
+Open file DONE
+Parse file DONE
+Use: /usr/share/openFPGALoader/spiOverJtag_xc7a100tfgg484.bit.gz
+load program
+Load SRAM: [==================================================] 100.00%
+
+Done
+Shift IR 35
+ir: 1 isc_done 1 isc_ena 0 init 1 done 1
+jtag_chain_len: 1
+SOJ version: 2.000000
+JEDEC ID: 0x20ba18
+Detected: micron N25Q128_3V 256 sectors size: 128Mb
+00400000 00000000 00000000 00
+start addr: 00400000, end_addr: 00410000
+Erasing: [==================================================] 100.00%
+
+Done
+Writing: [==================================================] 100.00%
+
+Done
+Verifying write (May take time)
+Reading: [==================================================] 100.00%
+
+Done
+[deploy] write+verify bitstream @ 0x000000: /tmp/tmp.9hm8uTIrP1/target/gateware/target.bit
+empty
+write to flash
+Jtag frequency : requested 6.00MHz    -> real 6.00MHz   
+Open file DONE
+Parse file DONE
+Use: /usr/share/openFPGALoader/spiOverJtag_xc7a100tfgg484.bit.gz
+load program
+Load SRAM: [==================================================] 100.00%
+
+Done
+Shift IR 35
+ir: 1 isc_done 1 isc_ena 0 init 1 done 1
+jtag_chain_len: 1
+SOJ version: 2.000000
+JEDEC ID: 0x20ba18
+Detected: micron N25Q128_3V 256 sectors size: 128Mb
+00000000 00000000 00000000 00
+start addr: 00000000, end_addr: 003b0000
+Erasing: [=======                                           ] 13.69%
+Erasing: [===============                                   ] 29.09%
+Erasing: [=======================                           ] 44.49%
+Erasing: [==============================                    ] 59.89%
+Erasing: [======================================            ] 75.29%
+Erasing: [==============================================    ] 90.70%
+Erasing: [==================================================] 100.00%
+
+Done
+Writing: [                                                  ] 0.00%
+Writing: [===                                               ] 5.49%
+Writing: [======                                            ] 10.96%
+Writing: [=========                                         ] 16.34%
+Writing: [===========                                       ] 21.71%
+Writing: [==============                                    ] 27.16%
+Writing: [=================                                 ] 32.65%
+Writing: [====================                              ] 38.20%
+Writing: [======================                            ] 43.72%
+Writing: [=========================                         ] 49.18%
+Writing: [============================                      ] 54.76%
+Writing: [===============================                   ] 60.32%
+Writing: [=================================                 ] 65.82%
+Writing: [====================================              ] 71.40%
+Writing: [=======================================           ] 76.96%
+Writing: [==========================================        ] 82.50%
+Writing: [============================================      ] 87.91%
+Writing: [===============================================   ] 93.27%
+Writing: [==================================================] 98.63%
+Writing: [===================================================] 100.00%
+
+Done
+Verifying write (May take time)
+Reading: [=======                                           ] 12.58%
+Reading: [=============                                     ] 25.08%
+Reading: [===================                               ] 37.33%
+Reading: [=========================                         ] 49.59%
+Reading: [================================                  ] 62.16%
+Reading: [======================================            ] 74.50%
+Reading: [============================================      ] 87.41%
+Reading: [===================================================] 100.00%
+
+Done
+[deploy] flash-pair done. Power-cycle to boot the verified owner set.
+FLASH_RC=0
+--- console capture + cold power cycle
+OUT0 -> OFF
+  OUT0  OFF
+OUT0 -> ON
+  OUT0  ON
+---
+  OUT0  ON
+  OUT1  ON
+  OUT2  ON
+  OUT3  ON
+  OUT4  ON
+  OUT5  ON
+  OUT6  ON
+POWERCYCLE_RC=0
+--- BOOTSTS / STAT after the cold boot (read only)
+empty
+Jtag frequency : requested 6.00MHz    -> real 6.00MHz   
+Register raw value: 0x1
+VALID 0         0x1
+FALLBACK 0      Normal configuration
+IPROG 0         0x0
+WTO Error 0     0x0
+ID Error 0      0x0
+CRC Error 0     0x0
+WRAP Error 0    0x0
+HMAC Error 0    0x0
+VALID 1         0x0
+FALLBACK 1      Normal configuration
+IPROG 1         0x0
+WTO Error 1     0x0
+ID Error 1      0x0
+CRC Error 1     0x0
+WRAP Error 1    0x0
+HMAC Error 1    0x0
+empty
+Jtag frequency : requested 6.00MHz    -> real 6.00MHz   
+Register raw value: 0x501079fc
+CRC Error       No CRC error
+Part Secured    0x0
+MMCM lock       0x1
+DCI match       0x1
+EOS             0x1
+GTS CFG B       0x1
+GWE             0x1
+GHIGH B         0x1
+MODE            0x1
+INIT Complete   0x1
+INIT B          0x1
+Release Done    0x1
+Done            0x1
+ID Error        No ID error
+DEC Error       0x0
+XADC Over temp  0x0
+STARTUP State   0x4
+Reserved        0x0
+BUS Width       x1
+Reserved        0xa
+--- console lines
+ BIOS CRC passed (b61c1b79)
+ BIOS CRC passed (b61c1b79)
+Milan baremetal: CSR ID=4d494c4e VERSION=00020060, RV32I machine mode, no MMU/cache.
+Milan baremetal: AEM 7512 B copied QSPI +0x00400000 -> 0x7f700000, CRC 5ba355eb.
+Milan baremetal: fabric entity enabled; UART diagnostics ready.
+=== done 2026-10-15T18:44:49Z
