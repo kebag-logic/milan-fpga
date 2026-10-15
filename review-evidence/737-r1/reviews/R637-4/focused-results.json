@@ -1,0 +1,96 @@
+[
+  {
+    "name": "gate-workflows",
+    "argv": [
+      "python3",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 5.073
+  },
+  {
+    "name": "runtime-evidence",
+    "argv": [
+      "python3",
+      "scripts/ci_runtime_evidence_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 5.324
+  },
+  {
+    "name": "fail-fast",
+    "argv": [
+      "python3",
+      "scripts/ci_fail_fast_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.915
+  },
+  {
+    "name": "generator-check",
+    "argv": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.565
+  },
+  {
+    "name": "events-check",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.665
+  },
+  {
+    "name": "events-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 200.965
+  },
+  {
+    "name": "evidence-pins",
+    "argv": [
+      "python3",
+      "scripts/generate_ci_evidence_pins.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "manifest",
+    "argv": [
+      "python3",
+      "scripts/ci_manifest_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "workflow-plan",
+    "argv": [
+      "python3",
+      "scripts/ci_workflow_plan_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.214
+  },
+  {
+    "name": "case-receipts",
+    "argv": [
+      "python3",
+      "scripts/ci_case_receipts_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 0.665
+  }
+]

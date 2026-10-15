@@ -1,0 +1,42 @@
+{
+  "head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+  "tree": "e5cc5d163c974aaf1b6cb888dae9881267d787e6",
+  "per_gate_rows_equal": 103,
+  "leg_sizes": [
+    1,
+    102
+  ],
+  "not_run_rows_equal": 2,
+  "not_run_gate_ids": [
+    "gate 1b",
+    "gate 11"
+  ],
+  "production_union": "PASS",
+  "production_aggregate": "PASS (synthetic successful step contexts with real published builder receipts)",
+  "nonflag_leg_refusal": "--require-elaboration on the union: test_soc_option_refusals, test_commercial_timing_grade, test_clock_crossing_constraints, test_gptp_plane_reaches_the_instance, test_gptp_plane_instance_gate_bites, test_optional_blocks_reach_the_instance, test_optional_block_instance_gate_bites, test_clock_plan_reaches_the_instance, test_clock_plan_instance_gate_bites, test_datapath_params_match_the_instance, test_datapath_params_gate_bites, test_every_recipe_elaborates, test_recipe_smoke_gate_bites, test_toolchain_patches_are_applied, test_toolchain_patch_gate_bites ran only in a leg without the flag",
+  "published_receipt_verdict_digest": "003e9b0c438eae6cba6532698d8349998c3283de4883df2a41cd50b9d2c573e1",
+  "original_execution_verdict_digest": "47dc3c6ac362ed2038a1ff6391ef54334cc0edb665870a0e5d3980ec3216988f",
+  "digest_note": "Public receipts redact the calibration path; public-byte digest differs from the original execution digest. Equality was rerun on published bytes, not claimed to reproduce the original byte digest.",
+  "author_execution_seconds": {
+    "f-e1-unsharded": 1311.061,
+    "f-e2-leg0": 984.818,
+    "f-e3-leg1": 348.095
+  },
+  "author_image": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+  "baseline_run": 38495894212,
+  "baseline_seconds": 2144,
+  "baseline_builder_seconds": 1441,
+  "scale": 1.1147461341671623,
+  "projected_workers_seconds": [
+    1313,
+    1172
+  ],
+  "worker_bound_seconds": 1620,
+  "margins_seconds": [
+    307,
+    448
+  ],
+  "projected_workflow_seconds": 1583,
+  "projected_workflow_minutes": 26.383333333333333,
+  "limits": "No full builder bank or shipping image was executed by this reviewer. Timing is a projection, not exact-head hosted evidence."
+}

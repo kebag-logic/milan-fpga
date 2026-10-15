@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+    runpy.run_path(str(root/'scripts'/(test+'.py')),run_name='__main__')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "$REVIEW_ROOT/scripts/ci_fail_fast_selftest.py", line 195, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEW_ROOT/scripts/ci_fail_fast_selftest.py", line 137, in main
+    observer_controls()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEW_ROOT/scripts/ci_fail_fast_selftest.py", line 51, in observer_controls
+    assert watch(API("fixture/project", "fixture"), 1, {"one"}, {}) == 1
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Observer unavailable: TimeoutError
+Observer unavailable: URLError
+Observer unavailable: HTTPError

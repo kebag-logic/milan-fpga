@@ -1,0 +1,83 @@
+[
+  {
+    "mutation": "i3-no-shared-budget",
+    "module": "ci_runtime_evidence",
+    "old": "API(os.environ[\"GITHUB_REPOSITORY\"], os.environ[\"GH_TOKEN\"], RETRY_BUDGET_SECONDS)",
+    "new": "API(os.environ[\"GITHUB_REPOSITORY\"], os.environ[\"GH_TOKEN\"])",
+    "selftest": "ci_runtime_evidence_selftest",
+    "rc": 1,
+    "seconds": 5.274
+  },
+  {
+    "mutation": "i1-conditional-prep-accepted",
+    "module": "ci_suite_workflows",
+    "old": "if body.strip() == preparation and \"if\" not in step and not step.get(\"continue-on-error\"):",
+    "new": "if body.strip() == preparation:",
+    "selftest": "ci_gate_workflows_selftest",
+    "rc": 1,
+    "seconds": 0.265
+  },
+  {
+    "mutation": "watcher-client-observer",
+    "module": "ci_fail_fast",
+    "old": "if isinstance(exc, OSError) and not transient(exc):",
+    "new": "if False:",
+    "selftest": "ci_fail_fast_selftest",
+    "rc": 1,
+    "seconds": 0.165
+  },
+  {
+    "mutation": "collector-client-observer",
+    "module": "ci_runtime_evidence",
+    "old": "            if not transient(exc):\n                raise\n",
+    "new": "",
+    "selftest": "ci_runtime_evidence_selftest",
+    "rc": 1,
+    "seconds": 3.922
+  },
+  {
+    "mutation": "watcher-403-genuine",
+    "module": "ci_fail_fast",
+    "old": "error.code in (403, 429)",
+    "new": "error.code in (429,)",
+    "selftest": "ci_fail_fast_selftest",
+    "rc": 1,
+    "seconds": 0.164
+  },
+  {
+    "mutation": "collector-403-genuine",
+    "module": "ci_fail_fast",
+    "old": "error.code in (403, 429)",
+    "new": "error.code in (429,)",
+    "selftest": "ci_runtime_evidence_selftest",
+    "rc": 1,
+    "seconds": 1.617
+  },
+  {
+    "mutation": "builder-owner-refusal-removed",
+    "module": "ci_builder_legs",
+    "old": "            if gates:\n                raise ValueError(f\"{flag} on the union",
+    "new": "            if False:\n                raise ValueError(f\"{flag} on the union",
+    "selftest": "ci_gate_workflows_selftest",
+    "rc": 1,
+    "seconds": 6.276
+  },
+  {
+    "mutation": "builder-ledger-unjudged",
+    "module": "ci_builder_legs",
+    "old": "    if elaboration_verdict(ledger):",
+    "new": "    if False:",
+    "selftest": "ci_gate_workflows_selftest",
+    "rc": 1,
+    "seconds": 5.875
+  },
+  {
+    "mutation": "builder-receipt-inventory-trusted",
+    "module": "ci_builder_legs",
+    "old": "    if driver[\"inventory\"] != names:",
+    "new": "    if False:",
+    "selftest": "ci_gate_workflows_selftest",
+    "rc": 1,
+    "seconds": 6.176
+  }
+]

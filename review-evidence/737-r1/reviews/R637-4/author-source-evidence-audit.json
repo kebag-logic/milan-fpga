@@ -1,0 +1,76 @@
+{
+  "head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+  "source": "author-r4/round4-s3-final-gates.json",
+  "docs_executed_steps": 40,
+  "all_executed_docs_steps_rc_zero": true,
+  "separate_step": [
+    "Local act runner contract gate"
+  ],
+  "builder_step": [
+    {
+      "index": 25,
+      "step": "End-station builder gates",
+      "returncode": 0,
+      "seconds": 1363.253,
+      "log_bytes": 103084,
+      "log_sha256": "c26ffa716e65cadc7111d796f54e7cdcb1c19a9118b1b57c8871d5d94bc4e991",
+      "skipped_by_bank": null
+    }
+  ],
+  "no_git": [
+    {
+      "index": 1,
+      "step": "Strip git metadata, then run the docs gate",
+      "returncode": 0,
+      "seconds": 6.509,
+      "log_bytes": 225,
+      "log_sha256": "f2fefc3dafb1b0d9f5523991e9a8dccc81462b843df1619fd9d0753cf556cb49",
+      "skipped_by_bank": null
+    }
+  ],
+  "runner_receipt_rc": 0,
+  "runner_receipt_seconds": 104.526,
+  "qualification": "Author source-head bank evidence only; no coordinating source bank claimed. Runner step omitted from the bank and run separately in its isolated boundary.",
+  "author_planted_controls": {
+    "m1-boot-claim": {
+      "owning_leg": 0,
+      "runs": {
+        "m1-unsharded": {
+          "rc": 1,
+          "gate": "test_baremetal_profile_contract:",
+          "receipt_written": false
+        },
+        "m1-leg0": {
+          "rc": 1,
+          "gate": "test_baremetal_profile_contract:",
+          "receipt_written": false
+        },
+        "m1-leg1": {
+          "rc": 0,
+          "gate": "test_name_count_fits_the_nvm_name_block:",
+          "receipt_written": true
+        }
+      }
+    },
+    "m2-fpu-refusal": {
+      "owning_leg": 1,
+      "runs": {
+        "m2-unsharded": {
+          "rc": 1,
+          "gate": "test_soc_option_refusals:",
+          "receipt_written": false
+        },
+        "m2-leg1": {
+          "rc": 1,
+          "gate": "test_soc_option_refusals:",
+          "receipt_written": false
+        },
+        "m2-leg0": {
+          "rc": 0,
+          "gate": "test_baremetal_profile_contract:",
+          "receipt_written": true
+        }
+      }
+    }
+  }
+}

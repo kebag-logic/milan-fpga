@@ -1,0 +1,8 @@
+{
+  "mutation": "s4-unbounded-field-oracle",
+  "pristine_findings": 0,
+  "mutated_findings": [
+    ".github/workflows/rtl.yml: job `verilator-shards` step 12 (`Build the pinned tsn-gen field oracle on its suite owner`) script is not the canonical form: line 6 must be 'cmake --build \"$RUNNER_TEMP/tsn-gen/build\" --target packet_gen --parallel \"$CI_TOOL_BUILD_JOBS\"' (found 'cmake --build \"$RUNNER_TEMP/tsn-gen/build\" --target packet_gen --parallel'); 8 line(s) expected, 8 found",
+    ".github/workflows/rtl.yml: recorded writer `Build the pinned tsn-gen field oracle on its suite owner` in job `verilator-shards` script is not the canonical form: line 6 must be 'cmake --build \"$RUNNER_TEMP/tsn-gen/build\" --target packet_gen --parallel \"$CI_TOOL_BUILD_JOBS\"' (found 'cmake --build \"$RUNNER_TEMP/tsn-gen/build\" --target packet_gen --parallel'); 8 line(s) expected, 8 found; the name is not the binding, the script is"
+  ]
+}

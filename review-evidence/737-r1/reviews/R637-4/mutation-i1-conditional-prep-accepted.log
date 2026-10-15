@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+    runpy.run_path(str(root/'scripts'/(test+'.py')),run_name='__main__')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "$REVIEW_ROOT/scripts/ci_gate_workflows_selftest.py", line 364, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEW_ROOT/scripts/ci_gate_workflows_selftest.py", line 265, in main
+    inventory_controls()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEW_ROOT/scripts/ci_gate_workflows_selftest.py", line 47, in inventory_controls
+    refuse_preparation(changed, job_id, name + ": " + next(iter(planted)) + " preparation in ")
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEW_ROOT/scripts/ci_gate_workflows_selftest.py", line 58, in refuse_preparation
+    raise AssertionError("accepted unprepared inventory reader: " + label + job_id)
+AssertionError: accepted unprepared inventory reader: docs: if preparation in docs-gates-0
+refused docs: missing inventory preparation in docs-gates-0

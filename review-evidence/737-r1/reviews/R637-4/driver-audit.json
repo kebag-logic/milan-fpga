@@ -1,0 +1,15 @@
+{
+  "gate_function_bytes_unchanged": 335,
+  "all_pre_entrypoint_code_ast_unchanged": true,
+  "inventory_count": 103,
+  "ordered_inventory_unchanged": true,
+  "default_entrypoint_controls": {
+    "[]": "identical baseline/default execution order, ledger, stdout, status (instrumented gates)",
+    "['--require-elaboration']": "identical baseline/default execution order, ledger, stdout, status (instrumented gates)",
+    "['--require-elaboration', '--require-rv32']": "identical baseline/default execution order, ledger, stdout, status (instrumented gates)"
+  },
+  "invalid_selection_controls": 5,
+  "subset_receipt_control": "PASS",
+  "failed_gate_no_receipt": "PASS",
+  "limit": "Entry-point controls use inert call-recording gate functions; they do not execute the full builder bank."
+}
