@@ -1741,6 +1741,27 @@ A sibling import planted outside the scope-event graph must fail.
 The docs workflow also runs the documented flat installation directly.
 Its contract pins the empty temporary directory, mode and invocation.
 
+The self-test books the synthetic CPU ranges `0-15` to `48-63`, and the range
+parser refuses a range that ends at or past `os.cpu_count()`. So every arm
+that reaches the parser patches the count it needs; an arm that did not
+passed on a large workstation and failed on the four-CPU hosted runner. A
+committed control removes that dependence on the host:
+
+```sh
+python3 -I scripts/act_ci_small_host_selftest.py
+```
+
+It installs the runner read-only and runs its self-test in an isolated child
+whose `os.cpu_count()` reports 4 (`--cpus` chooses 1 to 63), then runs the
+same self-test on a copy whose `main` no longer contains its PR run in the
+cleanup-signal handlers. The first must pass. The second must fail its
+main-entry probe after reaching the repository lookup, not by refusing its CPU
+booking. The isolated child skips only the flat-install launcher, whose fresh
+interpreter the forced count cannot reach. Every other arm runs under it. The
+control needs the gate's own prerequisites, including PyYAML and an installed
+`sudo`, as on the hosted runner. The hosted gate itself runs on four CPUs, so this control is a local
+command and is not a separate CI step.
+
 The reviewer's audit of those exact installed bytes is the trust anchor. The
 runner's check of `--trusted-install-sha256` is self-attestation and detects
 drift after that audit; it cannot establish that substituted runner code is
