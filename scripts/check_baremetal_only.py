@@ -356,7 +356,7 @@ HOST_RUNTIME_MASKS = {
         r'(?= and os\.pidfd_open; nothing was run"\))'),
 }
 
-# #744, decided in M1 on PR #745: the act slot's OOM accounting and the census
+# #744: the act slot's OOM accounting and the census
 # worker bound read the BUILD HOST's memory files, never the product target's:
 # the runner's mount table and its fixtures, and the census budget step's
 # MemTotal, its own cgroup and each memory.max above it, in the generator, the
@@ -1280,7 +1280,7 @@ def _arms_host_memory_reads(arm):
         target.write_text(text)
 
     homes = dict(HOST_MEMORY_READS)
-    # the runner policy paragraph's own masked line, the fifth file M1 names
+    # the runner policy paragraph's own masked line, the fifth file with a host path
     homes["docs/testing/CI_WORKFLOWS.md"] = ("`/proc/<pid>/stat` state is `Z`",)
     def header(path: str) -> str:
         """What makes the declared lines a parseable file: a workflow's are one block scalar."""
@@ -1290,7 +1290,7 @@ def _arms_host_memory_reads(arm):
         whole = header(path) + "".join(line + "\n" for line in lines)
         extra_line = whole.count("\n") + 1
         arm(f"host-memory-reads-allowed-{path}", lambda r, p=path, t=whole: plant(r, p, t), False)
-        # M1's negative control: an unrelated new reference in the same file is still refused
+        # an unrelated new reference in the same file is still refused
         for extra in ("cat /proc/cpuinfo", "ls /sys/class/net", "the target kernel"):
             arm(f"host-memory-reads-unrelated-{path}-{extra}",
                 lambda r, p=path, t=whole + "  " + extra + "\n": plant(r, p, t),
