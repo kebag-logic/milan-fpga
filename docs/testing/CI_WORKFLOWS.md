@@ -1426,19 +1426,27 @@ gates in inventory order, before its LiteX aggregate.
 inventory from the driver's `--list`, passes each leg's names to `--gates`
 and binds the driver's `--receipt` to the head and tree. With no `--gates`,
 the driver still runs all 103 gates in one process.
+The documentation workflow divides its builder command,
+`python3 sw/builder/test_builder.py --require-rv32`, into the same two legs:
+`docs-gates-1` runs leg 0 and `docs-gates-2` runs leg 1 beside the contract
+self-tests. The step's `pip install` line stays ahead of the leg runner.
 
 A leg holding no elaboration gate would pass `--require-elaboration`
-vacuously, so both requirements are judged on the union, never per leg. The
-`elaborate` aggregate refuses unless every gate ran exactly once, in its
-measured leg, and passed. Each gate that consults the LiteX interpreter must
-have run in a leg carrying `--require-elaboration`. The bare-metal profile
-gate must have run in a leg carrying `--require-rv32`. The driver's own
-`--require-elaboration` verdict is then applied to the union NOT RUN ledger.
+vacuously, so the requirements a divided command carries are judged on the
+union, never per leg. The template command, not any receipt, names them:
+`elaborate` carries both and `docs` carries `--require-rv32` alone. Each
+aggregate refuses unless every gate ran exactly once, in its measured leg,
+and passed, and every leg carried exactly its command's requirements. Under
+`--require-elaboration`, each gate that consults the LiteX interpreter must
+have run in a leg carrying it. The bare-metal profile gate must have run in
+a leg carrying `--require-rv32`. Only under `--require-elaboration` is the
+driver's own elaboration verdict then applied to the union NOT RUN ledger, so
+a docs run without LiteX keeps its recorded skips, as its unsharded run does.
 The leg runner names those gates itself, rather than reading them from the
 inventory. A gate deleted from the inventory, lost with its leg, or run
 without its flag is therefore refused by name.
-`ci_gate_workflows_selftest.py` plants each of those losses. It also checks
-the named gates against the driver source.
+`ci_gate_workflows_selftest.py` plants each of those losses for both
+commands. It also checks the named gates against the driver source.
 
 Independently, worker 1 installs Verilator and runs
 `scripts/run_litex_sims.sh`, the one aggregate that owns the standalone LiteX
@@ -2678,34 +2686,51 @@ The source inventories are `.github/ci-templates/docs.yml` and
 `python3 scripts/ci_gate_workflows.py`; the workflow files are generated.
 The generator preserves every original command, condition and environment.
 Round-three scheduling isolates the two contract self-tests in `docs-gates-2`.
+Round six divides the docs builder gate into the elaboration legs:
+`docs-gates-1` runs leg 0 and `docs-gates-2` runs leg 1 beside the contract
+self-tests, as described in [Elaboration](#elaboration).
 The gate inventory still defines membership and exactly-once union coverage.
 Every original control remains; generated mutations regenerate only their
 changed workflow. The full CI-event self-test took 316.686 seconds for 5,206
-arms on CPython 3.12.3. It now passes 5,209 arms, and its whole contract step
-(check plus self-test) took 201.196 seconds; projections keep the slower figure.
+arms on CPython 3.12.3. It passed 5,212 arms at the merge head `e3d25d96`.
+Leg 1's step on `docs-gates-2` adds three generated-graph arms, so it now
+passes 5,215; projections keep the slower 316.686-second figure.
 The complete two-invocation runner contract gate takes 113.654 seconds.
-The added scheduling/evidence controls take 23.699 seconds.
-These local times include competition from the scoped source-build measurement.
+The scheduling/evidence controls, with the generated Verilator graph check,
+take 28.331 seconds.
+These local times include competition from other measurements on the same CPUs.
 
-The `7032bca5` docs job took 2039 seconds. Its builder took 1065;
-its contract and runner steps took 37 and 99 respectively.
-Thus docs worker zero projects at `2039 - 1065 - 37 - 99 + 23.699 + 60`.
-The last term allows recording/upload overhead; existing setup stays included.
-Worker two adds both measured self-tests, two seconds for checking,
-and a conservative 120-second setup/evidence allowance.
-Worker one uses the larger 1386-second local builder measurement,
-plus that allowance, rather than the shorter hosted builder window.
-The `7032bca5` elaboration job took 2144 seconds. Its gate windows took 1441
-and 593 seconds, and the Verilator setup that only worker one keeps took 3.
-The 1441-second builder gate now runs as two legs. In the shipping image at
-sixteen CPUs, the unsharded command took 1292.671 seconds alone, so hosted
-time is scaled by `1441 / 1292.671`. Leg 0 took 1028.283 seconds and leg 1
-took 367.305 seconds, measured beside other builder runs on the same CPUs.
-Contention only lengthens them, so the scaled legs, 1146 and 409 seconds,
-are conservative; the uncontended per-gate split gives 1054 and 387.
-By the docs worker zero method, elaboration worker zero projects at
-`2144 - 593 - 3 - 1441 + 1146 + 60` and worker one at
-`2144 - 1441 + 409 + 60`.
+The projections use merged-head inputs: the hosted `f6260253` docs run
+38601263556 and elaboration run 38601263659, and local measurements at the
+merged head. Where a hosted and a local figure differ, the larger is used,
+and each projection is rounded up to a whole second.
+The `f6260253` docs job took 2682 seconds. Its builder took 1400 and its
+contract and runner steps 37 and 102; setup, post steps and gaps took 59.
+Locally, the compiler-absent firmware controls took 558.6 seconds against
+407 hosted, and the saved-state writer 174.2 against 410 hosted.
+Taking each of worker zero's steps at its larger figure gives 1246.806
+seconds, so docs worker zero projects at `59 + 1246.806 + 28.331 + 60`.
+The last term allows recording/upload overhead. The hosted job alone, by
+`2682 - 1400 - 37 - 102 + 28.331 + 60`, would give 1232.
+The docs builder command ran unsharded in the shipping image at sixteen CPUs
+in 1443.720 seconds alone: `test_baremetal_profile_contract` took 1006.130
+seconds and the other 102 gates 435.320. Its legs, measured beside each other
+on the same CPUs, took 1098.130 and 506.263 seconds. The docs bank had
+measured the unsharded builder at 1482.211 seconds, above both that run and
+the hosted 1400, so the legs are scaled by `1482.211 / 1443.720`.
+Worker one projects at `120 + 1098.130 x 1.02666`. Worker two projects at
+`120 + 316.686 + 113.654 + 2 + 506.263 x 1.02666`: both measured self-tests,
+two seconds for checking and its builder leg. The 120-second setup/evidence
+allowance covers the 59 seconds of hosted setup and the recording/upload.
+The `f6260253` elaboration job took 2447 seconds. Its gate windows took 1763
+and 597 seconds, and the Verilator setup that only worker one keeps took 2.
+In the shipping image at the merged head, the unsharded command took 1433.969
+seconds alone, so hosted time is scaled by `1763 / 1433.969`. Leg 0 took
+1081.009 seconds and leg 1 495.144, measured beside each other; the lone
+run's per-gate split gives 972.509 and 460.324, so the projection keeps the
+measured legs. By the docs worker zero method, elaboration worker zero
+projects at `2447 - 597 - 2 - 1763 + 1081.009 x 1763 / 1433.969 + 60` and
+worker one at `2447 - 1763 + 495.144 x 1763 / 1433.969 + 60`.
 
 Yosys compilation now runs once in prerequisite `yosys-tool`.
 Its pinned source and cache-key construction are preserved. Source compilation
@@ -2720,11 +2745,11 @@ plus 60 seconds for download, extraction and execution evidence.
 
 | Worker | Projected seconds | Own 60% bound | Margin, seconds |
 |---|---:|---:|---:|
-| `docs-gates-0` | 922 | 1620 | 698 |
-| `docs-gates-1` | 1506 | 1620 | 114 |
-| `docs-gates-2` | 553 | 1620 | 1067 |
-| `elaborate-gates-0` | 1313 | 1620 | 307 |
-| `elaborate-gates-1` | 1172 | 1620 | 448 |
+| `docs-gates-0` | 1395 | 1620 | 225 |
+| `docs-gates-1` | 1248 | 1620 | 372 |
+| `docs-gates-2` | 1073 | 1620 | 547 |
+| `elaborate-gates-0` | 1475 | 1620 | 145 |
+| `elaborate-gates-1` | 1353 | 1620 | 267 |
 | `yosys-tool (cold)` | 720 | 1044 | 324 |
 | `yosys-shards 0/4` | 554 | 1044 | 490 |
 | `yosys-shards 1/4` | 85 | 1044 | 959 |
@@ -2751,13 +2776,16 @@ Verilator figures already include their 122-second overhead allowance.
 Worker 3 carries `gptp_tables` at 1544 seconds: 76 inside its bound and 256
 inside 30 minutes, before downstream collection.
 The continuous media-clock exception remains explicit at 2032 seconds.
-Docs now projects at 1506 seconds for its slowest worker.
+Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
 Allowing 60 seconds each for aggregate and collector, one 120-second
-watcher interval and 30 seconds for the tail gives 1776 seconds,
-or about 29.6 minutes. This corrects the earlier 26-minute docs projection.
-Elaboration projects at 1313 seconds for its slowest worker. The same
+watcher interval and 30 seconds for the tail gives 1665 seconds,
+about 27.8 minutes: 135 seconds inside thirty minutes. With its builder
+undivided, the merged workload put the builder worker at 1602 seconds and
+the workflow at 1872, about 31.2 minutes.
+Elaboration projects at 1475 seconds for its slowest worker. The same
 270 seconds of aggregate, collector, watcher and tail allowance gives
-1583 seconds, about 26.4 minutes. Undivided, worker zero projected at 1608
+1745 seconds, about 29.1 minutes: 55 seconds inside thirty minutes, so its
+two legs are kept. Undivided at `7032bca5`, worker zero projected at 1608
 seconds and the workflow at 1878, about 31.3 minutes.
 The collector outage budget is not normal-run duration evidence.
 Hosted job spans and runner-capacity contention still require coordinating readback.
@@ -2768,10 +2796,12 @@ template and requires its exact union, with each gate executed once. Receipts
 bind the full head, tree and template digest. The existing documentation-only
 elaboration skip remains valid only with a recorded false scope and matching
 skipped outcomes on both workers. It does not excuse a skipped worker job.
-Each elaboration worker also uploads its builder leg receipt. When the builder
-legs ran, the same aggregate step requires their union as described in
-[Elaboration](#elaboration); when they were skipped, any builder receipt is
-refused. The union digest of `elaborate` covers both the step outcomes and the
+Each worker that runs a builder leg, both elaboration workers and
+`docs-gates-1` and `docs-gates-2`, also uploads its builder leg receipt. When
+the builder legs ran, the same aggregate step requires their union as
+described in [Elaboration](#elaboration); when elaboration's were skipped, any
+builder receipt is refused. The docs builder has no skip condition. The union
+digests of `docs-check` and `elaborate` cover both the step outcomes and the
 per-gate builder verdicts.
 `ci_gate_workflows_selftest.py` drops one gate from every claim, corrupts source
 identities and plants each unsuccessful job outcome; all must be refused.
@@ -2945,10 +2975,13 @@ python3 scripts/ci_builder_legs.py run 0 --receipt "$out/leg-0.json" -- \
   python3 sw/builder/test_builder.py --require-elaboration --require-rv32
 python3 scripts/ci_builder_legs.py run 1 --receipt "$out/leg-1.json" -- \
   python3 sw/builder/test_builder.py --require-elaboration --require-rv32
-python3 scripts/ci_builder_legs.py union --head "$(git rev-parse HEAD)" \
-  --tree "$(git rev-parse 'HEAD^{tree}')" --reference "$out/ref.json" \
-  "$out/leg-0.json" "$out/leg-1.json"
+python3 scripts/ci_builder_legs.py union --workflow elaborate \
+  --head "$(git rev-parse HEAD)" --tree "$(git rev-parse 'HEAD^{tree}')" \
+  --reference "$out/ref.json" "$out/leg-0.json" "$out/leg-1.json"
 ```
+
+For the documentation workflow's legs, run the same commands with
+`--require-rv32` alone and judge them with `--workflow docs`.
 
 The fast Yosys mode is diagnostic only:
 
