@@ -14,13 +14,14 @@ import tempfile
 from unittest.mock import patch
 
 import ast
+from collections.abc import Callable
 
 import ci_builder_legs
-from ci_builder_legs import LEGS, REQUIRED, compare, partition, union
+from ci_builder_legs import LEGS, REQUIRED, compare, partition, requirements, union
 from ci_gate_receipts import Collected, StepContext, record, verify
 from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
 from ci_runtime_workflows import cpu_budget_step
-from ci_gate_workflows import BUILDER_SPLIT, builder_leg_step, gate_graph
+from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, builder_command, builder_leg_step, gate_graph
 import ci_suite_pieces
 from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
 
@@ -62,9 +63,14 @@ def scheduling_controls() -> None:
     """Contract gates have their own worker; synthesis workers consume the shared tool."""
     docs = load_template(ROOT, "docs")
     cases = case_inventory("docs", docs)
+    leg = "End-station builder gates, leg {} of " + str(LEGS)
+    assert [case["name"] for case in cases if case["leg"] == 1] == [leg.format(0)]
     assert {case["name"] for case in cases if case["leg"] == 2} == {
-        "CI event and SHA contract gate", "Local act runner contract gate"}
+        leg.format(1), "CI event and SHA contract gate", "Local act runner contract gate"}
     assert worker_legs("docs", docs) == [0, 1, 2]
+    assert builder_command("docs", docs)[2:] == ["--require-rv32"]
+    assert builder_command("elaborate", load_template(ROOT, "elaborate"))[2:] == [
+        "--require-elaboration", "--require-rv32"]
     source = load_template(ROOT, "rtl")
     generated = gate_graph("rtl", source)["jobs"]
     tool = generated["yosys-tool"]
@@ -79,7 +85,7 @@ def scheduling_controls() -> None:
     upload = next(step for step in tool["steps"] if step.get("name") == "Upload the pinned Yosys build")
     download = next(step for step in worker["steps"] if step.get("name") == "Download the pinned Yosys build")
     assert upload["with"]["name"] == download["with"]["name"] == "pinned-yosys-${{ github.sha }}"
-    print("Scheduling: separate contract worker and dependency-bound Yosys build PASS")
+    print("Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS")
 
 
 def child_budget(directory: Path, target: str, budget: int, makefile: Path | None = None) -> None:
@@ -187,16 +193,18 @@ def builder_controls() -> None:
     builder_owner_controls()
     identity = ("a" * 40, "b" * 40)
     names = ci_builder_legs.inventory()
+    both = list(REQUIRED)
     good = builder_receipts(identity, names)
-    assert union(good, *identity, names)["union"] == "pass"
+    assert union(good, *identity, both, names)["union"] == "pass"
     assert [len(cases) for cases in partition(names)] == [1, len(names) - 1]
     elaboration = "test_every_recipe_elaborates"
     rv32 = REQUIRED["--require-rv32"][0]
 
-    def refused(label: str, receipts: list, expected: str, inventory: list[str] = names) -> None:
+    def refused(label: str, receipts: list, expected: str, inventory: list[str] = names,
+                flags: list[str] = both) -> None:
         """The union must refuse naming the planted gate or obligation."""
         try:
-            union(receipts, *identity, inventory)
+            union(receipts, *identity, flags, inventory)
         except ValueError as exc:
             assert expected in str(exc), (label, str(exc))
             print("Builder union refused " + label + ": " + str(exc)[:160])
@@ -247,17 +255,89 @@ def builder_controls() -> None:
                             "gates": [row for receipt in good for row in receipt["driver"]["gates"]],
                             "require_elaboration": 0}}
     reference["driver"]["gates"].sort(key=lambda row: names.index(row["gate"]))
-    compare(reference, good, *identity, names)
+    compare(reference, good, *identity, both, names)
     differs = copy.deepcopy(reference)
     differs["driver"]["gates"][-1]["not_run"] = [["gate 11", "no report", "row"]]
     try:
-        compare(differs, good, *identity, names)
+        compare(differs, good, *identity, both, names)
     except ValueError as exc:
         assert names[-1] in str(exc)
         print("Builder comparison refused a NOT RUN row the legs lack")
     else:
         raise AssertionError("comparison accepted an unequal NOT RUN ledger")
+    docs_builder_controls(identity, names, reference, refused)
     print("Builder legs: union-level requirements and per-gate equality PASS")
+
+
+def docs_builder_controls(identity: tuple[str, str], names: list[str], reference: dict,
+                          refused: Callable[..., None]) -> None:
+    """The docs command carries --require-rv32 alone; its union judges exactly that."""
+    flags = requirements(builder_command("docs", load_template(ROOT, "docs")))
+    assert flags == ["--require-rv32"]
+    rv32 = REQUIRED["--require-rv32"][0]
+    docs = builder_receipts(identity, names, tuple(flags))
+    assert union(docs, *identity, flags, names)["requirements"] == {"--require-rv32": [rv32]}
+    # Without --require-elaboration a LiteX or toolchain skip is a recorded
+    # NOT RUN row, as in the unsharded docs run; with it, the union refuses.
+    skip = copy.deepcopy(docs)
+    skip[1]["driver"]["gates"][0]["not_run"] = [["gate 23g", "no LiteX here", "toolchain"]]
+    assert union(skip, *identity, flags, names)["not_run"] == [["gate 23g", "no LiteX here", "toolchain"]]
+    elaborate = copy.deepcopy(skip)
+    for receipt in elaborate:
+        receipt["driver"].update(requirements=list(REQUIRED), require_elaboration=0)
+    refused("toolchain skip under the elaboration command", elaborate, "toolchain skip")
+    unjudged = builder_receipts(identity, names, ())
+    refused("docs RV32 gate in a leg without --require-rv32", [unjudged[0], docs[1]], rv32, flags=flags)
+    refused("docs leg without its command's --require-rv32", [docs[0], unjudged[1]], "leg 1: requirement flags",
+            flags=flags)
+    extra = builder_receipts(identity, names, tuple(REQUIRED))
+    refused("docs leg with a requirement its command lacks", [docs[0], extra[1]], "leg 1: requirement flags",
+            flags=flags)
+    for command, label in ((["python3", "x", "--require-rv32", "--require-rv32"], "repeated"),
+                           (["python3", "x", "--require-anything"], "unknown")):
+        try:
+            requirements(command)
+        except ValueError as exc:
+            print("Builder requirements refused a " + label + " flag: " + str(exc))
+        else:
+            raise AssertionError("builder requirements accepted a " + label + " flag")
+    docs_reference = copy.deepcopy(reference)
+    docs_reference["driver"].update(requirements=flags, require_elaboration=None)
+    compare(docs_reference, docs, *identity, flags, names)
+    try:
+        compare(reference, docs, *identity, flags, names)
+    except ValueError as exc:
+        assert "requirements" in str(exc)
+        print("Builder comparison refused a reference run with another command's requirements")
+    else:
+        raise AssertionError("comparison accepted a reference with other requirements")
+    print("Builder legs: the docs union judges --require-rv32 alone")
+
+
+def case_step_controls(name: str, case: dict, generated: dict, original: dict) -> None:
+    """Each gate is its worker's original step; a builder leg adds only its selection."""
+    owned = [step for step in generated["jobs"][worker_id(name, case["leg"])]["steps"]
+             if step.get("id") == case["id"]]
+    assert len(owned) == 1
+    body = copy.deepcopy(owned[0])
+    del body["id"]
+    if "builder" not in case:
+        assert body == original
+        return
+    # The leg runs the template's own step, only adding its selection to the
+    # driver command that ends it.
+    assert body == builder_leg_step(original, case)
+    assert case["leg"] == BUILDER_WORKERS[name][case["builder"]]
+    *preparation, driver = original["run"].strip().split("\n")
+    *kept, line = body["run"].strip().split("\n")
+    assert kept == preparation and line.endswith(" -- " + driver), body["run"]
+    words = shlex.split(line)
+    assert words[:2] == ["python3", "scripts/ci_builder_legs.py"], words
+    parsed, command = ci_builder_legs.parse(words[2:])
+    assert (parsed.operation, parsed.leg, command) == ("run", str(case["builder"]), shlex.split(driver)), words
+    assert parsed.receipt.name == "builder-leg-" + str(case["builder"]) + ".json"
+    assert {key: value for key, value in body.items() if key not in ("name", "run")} == {
+        key: value for key, value in original.items() if key not in ("name", "run")}
 
 
 def main() -> int:
@@ -276,30 +356,13 @@ def main() -> int:
         actual = {case["id"]: {"outcome": "success", "conclusion": "success"} for case in cases}
         receipts = [record(name, leg, source, identity, digest, StepContext(actual, scope)) for leg in legs]
         needs = {worker_id(name, leg): {"result": "success"} for leg in legs}
-        builder = builder_receipts(identity) if name in BUILDER_SPLIT else None
+        flags = requirements(builder_command(name, source))
+        builder = builder_receipts(identity, flags=tuple(flags))
         assert len(verify(name, source, identity, digest, Collected(receipts, builder), needs)) == len(cases)
         assert set(generated["jobs"][carrier]["needs"]) == set(needs)
         original = source["jobs"][carrier]["steps"]
         for case in cases:
-            owned = [step for step in generated["jobs"][worker_id(name, case["leg"])]["steps"]
-                     if step.get("id") == case["id"]]
-            assert len(owned) == 1
-            body = copy.deepcopy(owned[0])
-            del body["id"]
-            if "builder" in case:
-                # The leg runs the template's own command, only adding its selection.
-                assert body == builder_leg_step(original[case["index"]], case)
-                assert body["run"].endswith(" -- " + original[case["index"]]["run"].strip() + "\n")
-                words = shlex.split(body["run"])
-                assert words[:2] == ["python3", "scripts/ci_builder_legs.py"], words
-                parsed, command = ci_builder_legs.parse(words[2:])
-                assert (parsed.operation, parsed.leg, command) == (
-                    "run", str(case["builder"]), shlex.split(original[case["index"]]["run"])), words
-                assert parsed.receipt.name == "builder-leg-" + str(case["builder"]) + ".json"
-                assert {key: value for key, value in body.items() if key not in ("name", "run")} == {
-                    key: value for key, value in original[case["index"]].items() if key not in ("name", "run")}
-            else:
-                assert body == original[case["index"]]
+            case_step_controls(name, case, generated, original[case["index"]])
         for leg in legs:
             steps = generated["jobs"][worker_id(name, leg)]["steps"]
             index = {case["id"]: case["index"] for case in cases}
@@ -338,14 +401,16 @@ def main() -> int:
             receipt["inventory"].remove(dropped)
             receipt["results"] = [row for row in receipt["results"] if row["case"] != dropped]
         refuse("gate dropped from every leg and claimed inventory", changed, needs)
+        refuse("executed builder division without builder receipts", receipts, needs, None)
+        refuse("executed builder division missing a leg receipt", receipts, needs, builder[:1])
+        other = builder_receipts(identity, flags=tuple(sorted(set(REQUIRED) ^ set(flags))))
+        refuse("builder legs run with the other workflow's requirement flags", receipts, needs, other)
         if name == "elaborate":
             mixed = copy.deepcopy(receipts)
             mixed[1]["scope"] = "false"
             for row in mixed[1]["results"]:
                 row.update(outcome="skipped", conclusion="skipped")
             refuse("individually valid mixed execution scopes", mixed, needs)
-            refuse("executed builder division without builder receipts", receipts, needs, None)
-            refuse("executed builder division missing a leg receipt", receipts, needs, builder[:1])
             skipped = {case["id"]: {"outcome": "skipped", "conclusion": "skipped"} for case in cases}
             receipts = [record(name, leg, source, identity, digest, StepContext(skipped, "false")) for leg in legs]
             assert len(verify(name, source, identity, digest, Collected(receipts), needs)) == len(cases)

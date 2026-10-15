@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import copy
 from pathlib import Path
+import shlex
 
 import yaml
 
@@ -20,11 +21,15 @@ ROOT = Path(__file__).resolve().parents[1]
 CARRIERS = {"docs": "docs-check", "elaborate": "elaborate"}
 TEMPLATES = {name: ".github/ci-templates/" + name + ".yml"
              for name in (*CARRIERS, "rtl", "rtl-fast")}
-LONG_GATE = {"docs": "End-station builder gates", "elaborate": "Standalone LiteX simulation aggregate"}
+LONG_GATE = {"elaborate": "Standalone LiteX simulation aggregate"}
 CONTRACT_GATES = {"CI event and SHA contract gate", "Local act runner contract gate"}
-#: The one template command divided by its driver's measured gate legs; leg n
-#: runs on worker n, under scripts/ci_builder_legs.py.
-BUILDER_SPLIT = {"elaborate": "Elaboration gates"}
+#: The one template step per workflow whose driver command is divided by its
+#: measured gate legs (scripts/ci_builder_legs.py), and the worker each leg
+#: runs on: the docs legs beside the contract gates, the elaboration legs
+#: beside the LiteX aggregate.
+BUILDER_SPLIT = {"docs": "End-station builder gates", "elaborate": "Elaboration gates"}
+BUILDER_WORKERS = {"docs": (1, 2), "elaborate": (0, 1)}
+DRIVER_COMMAND = "python3 sw/builder/test_builder.py"
 VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
                    "Put Verilator on PATH and prove the version"}
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
@@ -64,6 +69,9 @@ def case_inventory(name: str, template: dict) -> list[dict]:
     """Derive gate identities and leg membership from the original ordered steps."""
     from ci_builder_legs import LEGS
     original = template["jobs"][CARRIERS[name]]["steps"]
+    workers = BUILDER_WORKERS[name]
+    if len(workers) != LEGS:
+        raise ValueError(name + ": builder legs and their workers differ in number")
     cases = []
     for index, step in enumerate(original):
         if setup(step):
@@ -72,17 +80,17 @@ def case_inventory(name: str, template: dict) -> list[dict]:
                 "name": step.get("name", "Run " + step.get("uses", "")),
                 "condition": step.get("if", "success()"),
                 "leg": (2 if name == "docs" and step.get("name") in CONTRACT_GATES
-                        else int(step.get("name") == LONG_GATE[name]))}
-        if step.get("name") != BUILDER_SPLIT.get(name):
+                        else int(name in LONG_GATE and step.get("name") == LONG_GATE[name]))}
+        if step.get("name") != BUILDER_SPLIT[name]:
             cases.append(case)
             continue
-        cases.extend({**case, "id": case["id"] + "_" + str(leg), "leg": leg, "builder": leg,
+        cases.extend({**case, "id": case["id"] + "_" + str(leg), "leg": workers[leg], "builder": leg,
                       "name": case["name"] + ", leg " + str(leg) + " of " + str(LEGS)}
                      for leg in range(LEGS))
-    if (sum(case["name"] == LONG_GATE[name] for case in cases) != 1
+    if (sum(case["name"] == LONG_GATE.get(name) for case in cases) != int(name in LONG_GATE)
             or not any(case["leg"] == 0 for case in cases)):
         raise ValueError(name + ": missing or ambiguous measured long gate")
-    if name in BUILDER_SPLIT and sum("builder" in case for case in cases) != LEGS:
+    if sum("builder" in case for case in cases) != LEGS:
         raise ValueError(name + ": missing or ambiguous builder gate command")
     if len({case["name"] for case in cases}) != len(cases):
         raise ValueError(name + ": duplicate gate names")
@@ -99,14 +107,31 @@ def worker_id(name: str, leg: int) -> str:
     return name + "-gates-" + str(leg)
 
 
+def split_builder_run(step: dict) -> tuple[list[str], str]:
+    """A divided step's preparation lines and its one driver command, which ends it."""
+    *preparation, command = step["run"].strip().split("\n")
+    if (not command.startswith(DRIVER_COMMAND + " ")
+            or any("sw/builder/test_builder.py" in line for line in preparation)):
+        raise ValueError("the divided builder step must end in its one driver command")
+    return preparation, command
+
+
+def builder_command(name: str, template: dict) -> list[str]:
+    """The template's divided driver command; its requirement flags are the union's."""
+    steps = [step for step in template["jobs"][CARRIERS[name]]["steps"]
+             if step.get("name") == BUILDER_SPLIT[name]]
+    if len(steps) != 1:
+        raise ValueError(name + ": missing or ambiguous builder gate command")
+    return shlex.split(split_builder_run(steps[0])[1])
+
+
 def builder_leg_step(step: dict, case: dict) -> dict:
-    """The template's own builder command, run for one measured leg with its receipt."""
-    command = step["run"].strip()
-    if "\n" in command:
-        raise ValueError("the divided builder step must be one command")
+    """The template's own builder step, its driver command run for one measured leg with its receipt."""
+    preparation, command = split_builder_run(step)
     kept = {key: copy.deepcopy(value) for key, value in step.items() if key != "run"}
     kept["name"] = case["name"]
-    kept["run"] = ("python3 scripts/ci_builder_legs.py run " + str(case["builder"])
+    kept["run"] = ("".join(line + "\n" for line in preparation)
+                   + "python3 scripts/ci_builder_legs.py run " + str(case["builder"])
                    + ' --receipt "$RUNNER_TEMP/gate-results/builder-leg-' + str(case["builder"])
                    + '.json" -- ' + command + "\n")
     return kept
@@ -116,7 +141,7 @@ def collection_steps(name: str, leg: int) -> list[dict]:
     """Observe completed source steps even on failure, then retain the actual evidence."""
     destination = "$RUNNER_TEMP/gate-results/receipt.json"
     retained = "${{ runner.temp }}/gate-results/receipt.json"
-    if name in BUILDER_SPLIT:
+    if leg in BUILDER_WORKERS[name]:
         retained += "\n${{ runner.temp }}/gate-results/builder-leg-*.json\n"
     return [
         {"name": "Record executed gate outcomes", "if": "${{ always() }}",

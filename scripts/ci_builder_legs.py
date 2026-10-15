@@ -6,8 +6,10 @@
 The driver owns the ordered gate inventory (``--list``), runs a named subset
 (``--gates``) and records each gate's verdict and NOT RUN rows
 (``--receipt``). Only the measured leg boundary and the union proof live here.
-``--require-elaboration`` and ``--require-rv32`` are judged on the union,
-never per leg: a leg holding no elaboration gate passes them vacuously.
+The requirement flags the divided template command carries are judged on the
+union, never per leg: a leg holding no elaboration gate passes
+``--require-elaboration`` vacuously. ``docs`` carries ``--require-rv32``
+alone; ``elaborate`` carries both.
 """
 
 from __future__ import annotations
@@ -26,8 +28,9 @@ from ci_case_receipts import canonical, source_identity, validate_inventory
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = "sw/builder/test_builder.py"
 #: Gates measured to need a leg of their own: 945.182 of the 1292.671 seconds
-#: the unsharded command took in the shipping image at 16 CPUs. Every other
-#: gate runs in the last leg, in inventory order.
+#: the unsharded elaboration command took in the shipping image at 16 CPUs.
+#: Every other gate runs in the last leg, in inventory order. The docs
+#: command's measured split is recorded in docs/testing/CI_WORKFLOWS.md.
 ISOLATED = ("test_baremetal_profile_contract",)
 LEGS = len(ISOLATED) + 1
 #: The gates each requirement judges, named here rather than read from the
@@ -58,6 +61,14 @@ def inventory(root: Path = ROOT) -> list[str]:
     names = json.loads(result.stdout)
     validate_inventory(names)
     return names
+
+
+def requirements(command: list[str]) -> list[str]:
+    """The requirement flags of one divided driver command: what its union judges."""
+    flags = [word for word in command if word.startswith("--require-")]
+    if not set(flags) <= set(REQUIRED) or len(set(flags)) != len(flags):
+        raise ValueError("unknown or repeated builder requirement: " + " ".join(flags))
+    return flags
 
 
 def partition(names: list[str]) -> list[list[str]]:
@@ -128,8 +139,9 @@ def driver_rows(leg: int | None, driver: dict, expected: list[str], names: list[
     return rows
 
 
-def union(receipts: list[dict], head: str, tree: str, names: list[str] | None = None) -> dict:
-    """Every gate exactly once, each a pass, with both requirements judged on the union."""
+def union(receipts: list[dict], head: str, tree: str, flags: list[str],
+          names: list[str] | None = None) -> dict:
+    """Every gate exactly once, each a pass, with the command's requirements judged on the union."""
     names = inventory() if names is None else names
     validate_inventory(names)
     legs = partition(names)
@@ -149,7 +161,8 @@ def union(receipts: list[dict], head: str, tree: str, names: list[str] | None = 
             executed[row["gate"]] = (row, receipt["driver"]["requirements"])
     # Owners first: a lost leg, a deleted gate or a leg without the flag is
     # refused naming the gates the requirement no longer judges.
-    for flag, owners in REQUIRED.items():
+    for flag in flags:
+        owners = REQUIRED[flag]
         absent = [gate for gate in owners if gate not in names]
         unrun = [gate for gate in owners if gate in names and gate not in executed]
         unjudged = [gate for gate in owners if gate in executed and flag not in executed[gate][1]]
@@ -159,27 +172,30 @@ def union(receipts: list[dict], head: str, tree: str, names: list[str] | None = 
                 raise ValueError(f"{flag} on the union: {', '.join(gates)} {why}")
     if sorted(seen) != list(range(len(legs))):
         raise ValueError("missing builder leg")
+    for receipt in receipts:
+        if sorted(receipt["driver"]["requirements"]) != sorted(flags):
+            raise ValueError(f"builder leg {receipt['leg']}: requirement flags differ from its command")
     ledger = [tuple(item) for name in names for item in executed[name][0]["not_run"]]
-    if elaboration_verdict(ledger):
+    if "--require-elaboration" in flags and elaboration_verdict(ledger):
         raise ValueError("--require-elaboration on the union: the ledger holds a toolchain skip")
     observed = [executed[name][0] for name in names]
     return {"suite": "builder", "head": head, "tree": tree, "inventory": names,
             "legs": [{"shard": f"{leg}/{len(legs)}", "cases": cases} for leg, cases in enumerate(legs)],
-            "requirements": {flag: list(owners) for flag, owners in REQUIRED.items()},
+            "requirements": {flag: list(REQUIRED[flag]) for flag in flags},
             "not_run": [list(item) for item in ledger], "union": "pass",
             "verdicts_sha256": hashlib.sha256(canonical(observed)).hexdigest()}
 
 
-def compare(reference: dict, receipts: list[dict], head: str, tree: str,
+def compare(reference: dict, receipts: list[dict], head: str, tree: str, flags: list[str],
             names: list[str] | None = None) -> dict:
     """Require per-gate verdicts and the NOT RUN ledger to equal one unsharded run."""
     names = inventory() if names is None else names
-    result = union(receipts, head, tree, names)
+    result = union(receipts, head, tree, flags, names)
     if (set(reference) != {"schema", "head", "tree", "leg", "legs", "driver"}
             or reference["leg"] is not None or (reference["head"], reference["tree"]) != (head, tree)):
         raise ValueError("reference must be an unsharded run of the same source")
-    if sorted(reference["driver"]["requirements"]) != sorted(REQUIRED):
-        raise ValueError("reference must carry both requirements")
+    if sorted(reference["driver"]["requirements"]) != sorted(flags):
+        raise ValueError("reference must carry its command's requirements")
     rows = driver_rows(None, reference["driver"], names, names)
     sharded = {row["gate"]: row for receipt in receipts for row in receipt["driver"]["gates"]}
     for row in rows:
@@ -198,6 +214,7 @@ def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     execute.add_argument("leg", choices=[*map(str, range(LEGS)), "all"])
     execute.add_argument("--receipt", required=True, type=Path)
     check = sub.add_parser("union")
+    check.add_argument("--workflow", required=True, choices=("docs", "elaborate"))
     check.add_argument("--head", required=True)
     check.add_argument("--tree", required=True)
     check.add_argument("--reference", type=Path)
@@ -217,11 +234,14 @@ def main() -> int:
     try:
         if args.operation == "run":
             return run(None if args.leg == "all" else int(args.leg), args.receipt, command)
+        from ci_gate_workflows import builder_command, load_template
+        # The template's divided command, not any receipt, names what the union judges.
+        flags = requirements(builder_command(args.workflow, load_template(ROOT, args.workflow)))
         receipts = [json.loads(path.read_text()) for path in args.receipts]
         if args.reference:
-            result = compare(json.loads(args.reference.read_text()), receipts, args.head, args.tree)
+            result = compare(json.loads(args.reference.read_text()), receipts, args.head, args.tree, flags)
         else:
-            result = union(receipts, args.head, args.tree)
+            result = union(receipts, args.head, args.tree, flags)
         if args.output:
             args.output.write_bytes(canonical(result) + b"\n")
         print(f"builder: {len(result['inventory'])} gates exactly once; requirements judged on the union"

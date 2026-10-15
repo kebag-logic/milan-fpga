@@ -588,11 +588,11 @@ jobs:
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
         id: ci_step_13
-      - name: End-station builder gates
+      - name: End-station builder gates, leg 0 of 2
         run: |
           python3 -m pip install --quiet pyyaml
-          python3 sw/builder/test_builder.py --require-rv32
-        id: gate_25
+          python3 scripts/ci_builder_legs.py run 0 --receipt "$RUNNER_TEMP/gate-results/builder-leg-0.json" -- python3 sw/builder/test_builder.py --require-rv32
+        id: gate_25_0
       - name: Record executed gate outcomes
         if: ${{ always() }}
         env:
@@ -606,7 +606,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gate-docs-1-${{ github.sha }}
-          path: ${{ runner.temp }}/gate-results/receipt.json
+          path: |
+            ${{ runner.temp }}/gate-results/receipt.json
+            ${{ runner.temp }}/gate-results/builder-leg-*.json
           if-no-files-found: error
         id: ci_step_16
       - name: Record actual job execution
@@ -733,6 +735,11 @@ jobs:
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
         id: ci_step_13
+      - name: End-station builder gates, leg 1 of 2
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 scripts/ci_builder_legs.py run 1 --receipt "$RUNNER_TEMP/gate-results/builder-leg-1.json" -- python3 sw/builder/test_builder.py --require-rv32
+        id: gate_25_1
       - name: CI event and SHA contract gate
         run: |
           python3 scripts/ci_events.py --check
@@ -753,15 +760,17 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow docs --leg 2 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_16
+        id: ci_step_17
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: gate-docs-2-${{ github.sha }}
-          path: ${{ runner.temp }}/gate-results/receipt.json
+          path: |
+            ${{ runner.temp }}/gate-results/receipt.json
+            ${{ runner.temp }}/gate-results/builder-leg-*.json
           if-no-files-found: error
-        id: ci_step_17
+        id: ci_step_18
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}

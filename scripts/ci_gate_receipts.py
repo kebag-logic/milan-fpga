@@ -15,7 +15,8 @@ import re
 import sys
 
 from ci_case_receipts import source_identity
-from ci_gate_workflows import CARRIERS, ROOT, TEMPLATES, case_inventory, load_template, worker_id, worker_legs
+from ci_gate_workflows import (CARRIERS, ROOT, TEMPLATES, builder_command, case_inventory, load_template,
+                               worker_id, worker_legs)
 from ci_manifest import canonical, read, unique_object
 
 SCOPE_CONDITION = "${{ steps.scope.outputs.rtl == 'true' }}"
@@ -117,8 +118,8 @@ def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
     if len(scopes) != 1 or sorted(seen) != sorted(inventory) or len(set(seen)) != len(seen):
         raise ValueError("gate union or scope evidence is inconsistent")
     if any(divided):
-        from ci_builder_legs import union
-        union(builder or [], identity[0], identity[1])
+        from ci_builder_legs import requirements, union
+        union(builder or [], identity[0], identity[1], requirements(builder_command(name, source)))
     elif builder:
         raise ValueError("builder leg receipts without an executed builder division")
     return seen
@@ -161,8 +162,9 @@ def main() -> int:
                 observed = sorted([row for receipt in receipts for row in receipt["results"]],
                                   key=lambda row: row["case"])
                 if builder:
-                    from ci_builder_legs import union
-                    observed = {"steps": observed, "builder": union(builder, *identity)}
+                    from ci_builder_legs import requirements, union
+                    observed = {"steps": observed, "builder": union(
+                        builder, *identity, requirements(builder_command(args.workflow, source)))}
                 value = {"suite": "gate/" + args.workflow, "head": identity[0], "tree": identity[1],
                          "inventory": [case["id"] for case in case_inventory(args.workflow, source)],
                          "legs": [{"shard": str(receipt["leg"]) + "/" + str(len(worker_legs(args.workflow, source))),
