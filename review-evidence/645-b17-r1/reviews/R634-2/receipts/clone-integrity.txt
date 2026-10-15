@@ -1,0 +1,32 @@
+== head and tree
+b2891a8f29598fff1865f855991ad4c1505e35a3
+bf503993f9c6375a32d8652e810168883a4e3316
+== status lines (tracked+untracked)
+0
+worktree and index equal HEAD
+== tree written from index equals HEAD tree
+bf503993f9c6375a32d8652e810168883a4e3316
+== gitlinks at HEAD vs base f6260253
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e4869fd0c42889b2ac806587cc5c78afb1c33461	gptp-processor
+160000 commit 2ad2f845dd583f8310075fa2380cb60a04fd091a	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+55735cbfaeb0b1696cd1e26a43b998403f158c3cce55cc5b94fb803e7782ec31  -
+55735cbfaeb0b1696cd1e26a43b998403f158c3cce55cc5b94fb803e7782ec31  -
+== files changed base..head and r1..head
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+== r2 hunks (new-file line ranges)
+@@ -4645,2 +4645,5 @@ These are operator observations, not review verdicts. Paths such as
+@@ -4713,2 +4716,3 @@ stage's `recentres_o` reaches no CSR. `RENDER_STAT` carries rails, converged,
+@@ -4740,0 +4745,21 @@ least one slip expected in the bound window. Anything else is (c).
+@@ -4773,2 +4798,2 @@ byte-identical.
+@@ -4789,0 +4815,3 @@ the ten cycles `SLIP_LB` went from 208 to 228 dups, and nothing else moved it:
+@@ -4793,2 +4821,28 @@ In every poll `MCSRV_STAT` read state IDLE and `AAFM_STAT` read 0, as INTERNAL
+@@ -4815,2 +4869,4 @@ was therefore at least 12,255 s, against a bound window of about 34 s, so a
+@@ -4829,16 +4885,22 @@ that prime it:
+@@ -4877 +4939,2 @@ Residuals that no permitted command restores:
+@@ -4906 +4969,4 @@ transcripts.
+@@ -4908 +4974,4 @@ transcripts.
