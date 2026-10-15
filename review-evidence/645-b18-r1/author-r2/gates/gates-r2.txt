@@ -1,0 +1,21 @@
+head b3f7a696713a96b42265e08a8c3a04a430b7b5ed
+== scripts/docs_check.py
+docs_check: 0 finding(s) across 208 md files + 1346 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== scripts/gen_toc.py --check
+TOC gate: OK (147 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0
+== scripts/check_em_dash.py --base 9ef71772
+check_em_dash: 0 finding(s) over 338 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [9ef71772..HEAD]
+rc=0
+== scripts/check_doc_paths.py
+doc path gate: OK (989 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0
+== scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 1344 tracked first-party file(s))
+rc=0
+== git diff --check 9ef71772 HEAD
+rc=0

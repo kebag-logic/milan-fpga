@@ -1,0 +1,184 @@
+{
+ "cycles": 10,
+ "held": 10,
+ "residual_743": 0,
+ "class_c": 0,
+ "other": 0,
+ "slip_lb": [
+  {
+   "dups": 0,
+   "skips": 0
+  },
+  {
+   "dups": 0,
+   "skips": 0
+  }
+ ],
+ "counter_joins": [
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true,
+  true
+ ],
+ "clock_source_changes": 0,
+ "polls": [
+  80
+ ],
+ "missing_reads": 0,
+ "first_poll_s": "-8.00 to -8.00",
+ "last_poll_s": "31.70 to 31.88",
+ "poll_word_changes": {
+  "SLIP_LB": 0,
+  "SLIP_TDM": 0,
+  "RENDER_STAT": 504,
+  "MCSRV_STAT": 0,
+  "AAFM_STAT": 0,
+  "AAFM_RATE": 0,
+  "CRF_CTRL": 0,
+  "CRF_RATE": 0
+ },
+ "poll_word_values": {
+  "SLIP_LB": [
+   "00000000"
+  ],
+  "SLIP_TDM": [
+   "00000000"
+  ],
+  "MCSRV_STAT": [
+   "00000020"
+  ],
+  "AAFM_STAT": [
+   "00000000"
+  ],
+  "AAFM_RATE": [
+   "00000000"
+  ],
+  "CRF_CTRL": [
+   "00000000"
+  ],
+  "CRF_RATE": [
+   "00000000"
+  ]
+ },
+ "servo_states": [
+  0
+ ],
+ "first_pdu_ms": [
+  20.959,
+  192.267
+ ],
+ "arm_fires_ms_design": [
+  63.62566666666666,
+  234.93366666666665
+ ],
+ "first_burst_s": [
+  0.202941,
+  4.735105
+ ],
+ "first_burst_peak_us": [
+  24.918,
+  28.989
+ ],
+ "bursts_to_last_poll": [
+  9,
+  19
+ ],
+ "bursts_to_capture": [
+  12,
+  22
+ ],
+ "peak_to_last_poll_us": [
+  27.321,
+  31.995
+ ],
+ "peak_to_capture_us": [
+  28.007,
+  31.995
+ ],
+ "over_10us_before_arm": 0,
+ "first_over_10us_s": [
+  0.202941,
+  4.735105
+ ],
+ "lateness_p999_us": [
+  4.511,
+  5.88
+ ],
+ "delta_ppm": [
+  -0.0009,
+  0.0019
+ ],
+ "peer_rate_ppm": [
+  4.8707,
+  4.9237
+ ],
+ "dut_rate_ppm": [
+  4.8698,
+  4.9218
+ ],
+ "phase_p50_us": [
+  1.292,
+  1.323
+ ],
+ "prefill_exit_by_s": [
+  0.1086571216583252,
+  0.6703181266784668
+ ],
+ "converged_by_s": [
+  0.5921330451965332,
+  0.6703181266784668
+ ],
+ "fill": [
+  8,
+  14
+ ],
+ "rails": [
+  0
+ ],
+ "seq_gaps": 0,
+ "b17_slips": 10,
+ "b17_first_pdu_ms": [
+  7.854,
+  163.485
+ ],
+ "tools": {
+  "cyc_b18.py": "d41d0480ba17fdedd8ee73d5ee2ae973180bdda1e55a3d814a408790aa4e76e6",
+  "console_poll_b8.py": "1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7",
+  "ana_b17.py": "299d4f55441e147bf6d27b5b51242d3384157e4905d27f6ed1064398f05f9468",
+  "summ_b18.py": "58079de03eb01b3074e8dad9e1f03b7d420d92b5feed4f99b85e53d9d18139f9"
+ },
+ "failed_checks": []
+}
+| Cycle | Bind, UTC | Polls, s from the bind | `SLIP_LB` dups, skips | Change | Grade | First peer PDU, ms | First burst over 20 us: s, peak | Bursts to the last poll, peak | CLOCK_SOURCE DUT, peer | delta_ppm |
+|---|---|---|---|---|---|---|---|---|---|---|
+| c01 | 18:50:56.251 | 80, -8.00 to +31.70 | 0, 0 to 0, 0 | None | Held | 135.267 | 4.74, 25.7 us | 17, 29.3 us | 0 to 0, 1 to 1 | +0.0009 |
+| c02 | 18:51:59.961 | 80, -8.00 to +31.84 | 0, 0 to 0, 0 | None | Held | 25.015 | 4.03, 25.1 us | 11, 32.0 us | 0 to 0, 1 to 1 | -0.0008 |
+| c03 | 18:52:51.821 | 80, -8.00 to +31.83 | 0, 0 to 0, 0 | None | Held | 165.076 | 0.38, 25.8 us | 9, 28.4 us | 0 to 0, 1 to 1 | +0.0012 |
+| c04 | 18:53:43.565 | 80, -8.00 to +31.78 | 0, 0 to 0, 0 | None | Held | 20.959 | 0.44, 26.2 us | 11, 28.9 us | 0 to 0, 1 to 1 | 0.0000 |
+| c05 | 18:54:46.633 | 80, -8.00 to +31.88 | 0, 0 to 0, 0 | None | Held | 153.259 | 2.38, 25.7 us | 10, 27.3 us | 0 to 0, 1 to 1 | -0.0004 |
+| c06 | 18:55:38.529 | 80, -8.00 to +31.85 | 0, 0 to 0, 0 | None | Held | 57.238 | 2.50, 29.0 us | 11, 29.0 us | 0 to 0, 1 to 1 | +0.0005 |
+| c07 | 18:56:30.394 | 80, -8.00 to +31.84 | 0, 0 to 0, 0 | None | Held | 192.267 | 2.64, 26.8 us | 9, 31.1 us | 0 to 0, 1 to 1 | -0.0009 |
+| c08 | 18:57:27.295 | 80, -8.00 to +31.77 | 0, 0 to 0, 0 | None | Held | 91.662 | 0.20, 27.6 us | 19, 31.5 us | 0 to 0, 1 to 1 | +0.0002 |
+| c09 | 18:58:19.017 | 80, -8.00 to +31.77 | 0, 0 to 0, 0 | None | Held | 170.932 | 0.25, 24.9 us | 13, 28.0 us | 0 to 0, 1 to 1 | +0.0004 |
+| c10 | 18:59:10.797 | 80, -8.00 to +31.70 | 0, 0 to 0, 0 | None | Held | 189.988 | 3.26, 25.3 us | 11, 31.2 us | 0 to 0, 1 to 1 | +0.0019 |
+
+| Cycle | B17 bind, UTC | B17 first peer PDU, ms | B17 slip: s from the bind, count | B17 first burst: s, peak | B18 first peer PDU, ms | B18 `SLIP_LB` change | B18 first burst: s, peak |
+|---|---|---|---|---|---|---|---|
+| c01 | 07:46:23.700 | 163.485 | 2.56 to 3.14, +2 dups | 2.82, 28.8 us | 135.267 | None | 4.74, 25.7 us |
+| c02 | 07:47:50.970 | 93.536 | 1.09 to 1.96, +2 dups | 1.56, 25.0 us | 25.015 | None | 4.03, 25.1 us |
+| c03 | 07:48:42.707 | 156.762 | 1.07 to 1.95, +2 dups | 1.83, 26.3 us | 165.076 | None | 0.38, 25.8 us |
+| c04 | 07:49:34.411 | 52.750 | 3.10 to 3.68, +2 dups | 3.20, 29.3 us | 20.959 | None | 0.44, 26.2 us |
+| c05 | 07:51:00.056 | 7.854 | 0.07 to 0.64, +2 dups | 0.10, 24.6 us | 153.259 | None | 2.38, 25.7 us |
+| c06 | 07:51:51.933 | 131.486 | 3.57 to 4.15, +2 dups | 3.63, 25.8 us | 57.238 | None | 2.50, 29.0 us |
+| c07 | 07:52:43.809 | 54.945 | 1.06 to 1.94, +2 dups | 1.36, 25.0 us | 192.267 | None | 2.64, 26.8 us |
+| c08 | 07:53:40.237 | 28.539 | 1.17 to 1.94, +2 dups | 1.34, 25.6 us | 91.662 | None | 0.20, 27.6 us |
+| c09 | 07:54:32.303 | 161.240 | 1.04 to 1.95, +2 dups | 1.28, 25.1 us | 170.932 | None | 0.25, 24.9 us |
+| c10 | 07:55:24.165 | 101.128 | 5.09 to 5.67, +2 dups | 5.43, 26.9 us | 189.988 | None | 3.26, 25.3 us |
+

@@ -1,0 +1,29 @@
+HEAD 480c5e916f8bf711c47e1985ba3efe2b2471bdda
+PINNED_PYTHON scripts/docs_check.py
+docs_check: 0 finding(s) across 208 md files + 1346 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+RC=0
+
+PINNED_PYTHON scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+RC=0
+
+PINNED_PYTHON scripts/gen_toc.py --check
+TOC gate: OK (147 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+RC=0
+
+PINNED_PYTHON scripts/check_em_dash.py --base 9ef71772
+check_em_dash: 0 finding(s) over 315 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [9ef71772..HEAD]
+RC=0
+
+PINNED_PYTHON scripts/check_doc_paths.py
+doc path gate: OK (989 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+RC=0
+
+python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 1344 tracked first-party file(s))
+RC=0
+
+git diff --check 9ef71772 HEAD
+RC=0
+git diff --check
+RC=0
