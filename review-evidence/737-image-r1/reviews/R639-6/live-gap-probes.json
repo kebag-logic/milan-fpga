@@ -1,0 +1,25 @@
+[
+  {
+    "target": null,
+    "status": "ACCEPTED",
+    "tools_equal": true,
+    "tool_count": 45,
+    "live_inputs": {
+      "tb/verilator/nvm_capture_cpu/run.py": "c230cb3e6289bf991554b8d967e0993ec7860e119afb44579580c339a8191659",
+      "sw/litex/flash_map.py": "d24c0040eb938ab7942e8acdaabd4177b1f1aed42c9187042e19f8393a530ddd"
+    }
+  },
+  {
+    "target": "tb/verilator/nvm_capture_cpu/run.py",
+    "status": "REFUSED",
+    "message": "changed declared script 'tb/verilator/nvm_capture_cpu/run.py'"
+  },
+  {
+    "target": "sw/litex/flash_map.py",
+    "status": "REFUSED",
+    "message": "undeclared executing or network script 'sw/litex/flash_map.py'"
+  },
+  {
+    "external_allowance_invariant": "PASS"
+  }
+]
