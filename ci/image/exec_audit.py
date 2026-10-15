@@ -58,8 +58,9 @@ _libc.ptrace.argtypes = [ctypes.c_long, ctypes.c_long, ctypes.c_void_p, ctypes.c
 
 #: The image's own program directories: a program or script there must be named.
 SYSTEM_ROOTS = ("/usr/", "/bin/", "/sbin/", "/lib/", "/lib64/", "/opt/", "/etc/")
-#: A toolchain program carries a `<arch>-<os>-gnu-` prefix; the plain tool is named.
-MULTIARCH = re.compile(r"^[a-z0-9_]+-[a-z0-9]+-gnu-")
+#: A toolchain program carries an `<arch>-[<vendor>-]<os>-gnu-` prefix, and a cross toolchain's
+#: wrapper runs its real binary under a `.br_real` suffix; the plain tool is named.
+MULTIARCH = re.compile(r"^[a-z0-9_]+(?:-[a-z0-9]+){1,2}-gnu-|\.br_real$")
 SHELLS = {"bash", "sh", "dash"}
 PYTHONS = {"python", "python3", "python3.12"}
 #: Programs whose `-o` operand is a program the step built.

@@ -88,7 +88,8 @@ def image_form(name: str, run: str) -> tuple[str | None, str, list[str]]:
                 [run])
     kept, removed = [], []
     for group in logical(run):
-        (removed if group[0].strip().startswith(REMOVED) else kept).append('\n'.join(group))
+        # Only a top-level line is removed; an indented fallback keeps its block, which the image never takes.
+        (removed if group[0].startswith(REMOVED) else kept).append('\n'.join(group))
     if removed:
         return '\n'.join(kept) + '\n', "Installation the image's layers supply is removed", removed
     return run, 'verbatim', []
@@ -165,16 +166,51 @@ def git(root: Path, *args: str) -> str:
     return subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True, text=True).stdout.strip()
 
 
+def merge(parts: list[Path], output: Path) -> int:
+    """Combine receipts traced as different users at one source and image into one receipt."""
+    receipts = [json.loads(part.read_text()) for part in parts]
+    first = receipts[0]
+    if any(r['source'] != first['source'] or r['image'] != first['image'] for r in receipts):
+        print('REFUSED: the receipts name different sources or images', file=sys.stderr)
+        return 2
+    rows: dict[str, dict] = {}
+    for receipt in receipts:
+        for row in receipt['reconciliation']:
+            if row['traced'] and rows.get(row['step'], {}).get('traced'):
+                print(f"REFUSED: {row['step']} traced twice", file=sys.stderr)
+                return 2
+            if row['traced'] or row['step'] not in rows:
+                rows[row['step']] = {**row, 'user': receipt.get('user')}
+    order = [row['step'] for row in first['reconciliation']]
+    steps = sorted((step for receipt in receipts for step in receipt['steps']), key=lambda s: order.index(s['step']))
+    reconciliation = [rows[key] for key in order]
+    merged = {**first, 'users': [r.get('user') for r in receipts], 'reconciliation': reconciliation,
+              'steps': steps, 'traced': sum(row['traced'] for row in reconciliation)}
+    merged.pop('user', None)
+    replaced = {reason for reason, _ in REPLACED.values()}
+    merged['clean'] = all(step['clean'] for step in steps) and \
+        all(row['traced'] or row['why'] in replaced for row in reconciliation)
+    output.write_text(json.dumps(merged, indent=1, sort_keys=True) + '\n')
+    print(f"{merged['traced']} of {merged['reached']} reached steps traced; "
+          f"{sum(not s['clean'] for s in steps)} with findings")
+    return 0 if merged['clean'] else 1
+
+
 def main() -> int:
     """Trace the reached population and write the receipt."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--image', required=True, help='the image manifest digest this runs in')
-    parser.add_argument('--base', required=True, help='the commit the push is judged against')
+    parser.add_argument('--image', help='the image manifest digest this runs in')
+    parser.add_argument('--base', help='the commit the push is judged against')
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--logs', type=Path, required=True)
+    parser.add_argument('--logs', type=Path)
     parser.add_argument('--root', type=Path, default=ROOT)
     parser.add_argument('--only', nargs='*', default=[], help='jobs to trace (all when empty)')
+    parser.add_argument('--merge', nargs='+', type=Path, help='receipts to combine into --output')
     args = parser.parse_args()
+    if args.merge:
+        return merge(args.merge, args.output)
+    if not (args.image and args.base and args.logs):
+        parser.error('--image, --base and --logs are required to trace')
     root = args.root.resolve()
     if git(root, 'status', '--porcelain', '--untracked-files=normal'):
         print('REFUSED: the traced checkout must be clean', file=sys.stderr)
@@ -184,6 +220,9 @@ def main() -> int:
     values = {'github.event_name': 'push', 'github.event.before': args.base, 'github.sha': head,
               'github.event.pull_request.base.ref': '', 'github.event.pull_request.head.sha': ''}
     base_path = os.environ['PATH']
+    # A job container inherits the image's environment; the harness's own settings are not passed on.
+    inherited = {key: value for key, value in os.environ.items()
+                 if key not in ('TMPDIR', 'PYTHONDONTWRITEBYTECODE', 'HOSTNAME', 'HOME', 'PATH')}
     args.logs.mkdir(parents=True, exist_ok=True)
     reached = reached_steps(root)
     receipt_steps, reconciliation = [], []
@@ -214,7 +253,8 @@ def main() -> int:
             path.touch()
         script = commands / 'step.sh'
         script.write_text(text)
-        environment = {'PATH': ':'.join([*reversed(job_path), base_path]), 'HOME': str(home), 'CI': 'true',
+        environment = {**inherited, 'PATH': ':'.join([*reversed(job_path), base_path]), 'HOME': str(home),
+                       'CI': 'true',
                        'GITHUB_ACTIONS': 'true', 'GITHUB_WORKSPACE': str(root), 'GITHUB_SHA': head,
                        'GITHUB_EVENT_NAME': 'push', 'RUNNER_TEMP': str(temp),
                        'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8', **job_env,
@@ -239,7 +279,7 @@ def main() -> int:
         'schema': 1,
         'source': {'commit': head, 'tree': git(root, 'rev-parse', 'HEAD^{tree}'), 'base': args.base,
                    'submodules': git(root, 'submodule', 'status').splitlines()},
-        'image': args.image,
+        'image': args.image, 'user': os.getuid(),
         'tools': {'python3': sys.version.split()[0]},
         'reached': len(reached), 'traced': len(traced),
         'reconciliation': reconciliation,

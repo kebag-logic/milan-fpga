@@ -347,16 +347,28 @@ The runner context, `GITHUB_PATH` and `GITHUB_ENV` carry between a job's steps.
 An installation or fetch step the image replaces runs in its recorded image form.
 A cache-miss build step the image replaces is named in the reconciliation.
 The receipt records source and image identity, every step's result, and the reconciliation.
+Each job inherits the image's environment, as a job container does.
+The rtl-fast jobs run as uid 1000, since a synthesis self-test refuses root.
+The `docs-check` job runs as the image's default user, root.
+A merge combines the two receipts, refusing differing sources or images.
 
 ```sh
 docker run --rm --network none --user 1000:1000 \
   --mount "type=bind,src=$CHECKOUT,dst=/work" --mount "type=bind,src=$IMAGE_WORK,dst=/out" \
   -e TMPDIR=/out/scratch --workdir /work "$IMAGE_REFERENCE" \
   python3 ci/image/audit_population.py --image "$IMAGE_DIGEST" --base "$BASE_COMMIT" \
-  --output /out/exec-audit-receipt.json --logs /out/exec-logs
+  --output /out/rtl.json --logs /out/rtl-logs --only $RTL_FAST_JOBS
+docker run --rm --network none \
+  --mount "type=bind,src=$DOCS_CHECKOUT,dst=/work" --mount "type=bind,src=$IMAGE_WORK,dst=/out" \
+  -e TMPDIR=/out/scratch --workdir /work "$IMAGE_REFERENCE" \
+  python3 ci/image/audit_population.py --image "$IMAGE_DIGEST" --base "$BASE_COMMIT" \
+  --output /out/docs.json --logs /out/docs-logs --only docs-check
+python3 ci/image/audit_population.py --merge "$IMAGE_WORK/rtl.json" "$IMAGE_WORK/docs.json" \
+  --output ci/image/exec-audit-receipt.json
 ```
 
-`$CHECKOUT` is a clean clone with the five fetched submodules initialized.
+Each checkout is a clean clone with the five fetched submodules initialized.
+The root run's checkout belongs to root, so Git trusts it.
 Wiring the audit into every pull request's replay is that follow-up PR's work.
 With it, a hidden installer is caught at the replay whatever the walker accepts.
 Unlisted constructs and unlisted command forms refuse generation.
