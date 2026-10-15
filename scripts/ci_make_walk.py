@@ -17,6 +17,44 @@ UNMODELLED = {'VPATH', 'GPATH', 'MAKEFILE_LIST', 'MAKE_RESTARTS', 'MAKE_TERMOUT'
 #: The one censused MAKEFLAGS line: it removes the recorded built-in rules.
 NO_BUILTIN_RULES = 'MAKEFLAGS += -r'
 NAME = re.compile(r'[A-Za-z_][A-Za-z0-9_]*')
+#: Flags make passes to a child through MAKEFLAGS that the walker reads: silent, dry run,
+#: always remake, no built-in rules and print directory. Others refuse.
+LETTERS = set('sBnrw')
+#: Variables make itself sets in a recipe's environment.
+MAKE_EXPORTS = {'MAKEFLAGS', 'MAKELEVEL', 'MFLAGS'}
+
+
+class MakeFlags(str):
+    """The MAKEFLAGS a make passes to its recipes, with the flags and variables it encodes."""
+
+    def __new__(cls, letters: frozenset, overrides: dict) -> 'MakeFlags':
+        variables = ' '.join(f'{key}={value}' for key, value in sorted(overrides.items()))
+        text = ''.join(sorted(letters)) + (' -- ' + variables if variables else '')
+        result = super().__new__(cls, text)
+        result.letters, result.overrides = frozenset(letters), dict(overrides)
+        return result
+
+
+def inherited_flags(value: str | None, where: str) -> tuple[frozenset, dict]:
+    """Read the MAKEFLAGS a child make receives: its flag letters and command-line variables."""
+    if value is None:
+        return frozenset(), {}
+    if isinstance(value, MakeFlags):
+        return value.letters, value.overrides
+    if dynamic(value):
+        raise Refusal(f'unmodelled runtime MAKEFLAGS at {where}')
+    head, separator, tail = (' ' + value).partition(' -- ')
+    words = head.split()
+    letters = set(words[0]) if words and not words[0].startswith('-') else set()
+    if letters - LETTERS or any(not re.fullmatch(r'--no-print-directory', w) for w in words[1 if letters else 0:]):
+        raise Refusal(f'unmodelled MAKEFLAGS {value!r} at {where}')
+    overrides = {}
+    for word in tail.split():
+        if '=' not in word or '\\' in word:
+            raise Refusal(f'unmodelled MAKEFLAGS variable {word!r} at {where}')
+        key, _, text = word.partition('=')
+        overrides[key] = text
+    return frozenset(letters), overrides
 
 
 def dynamic(value: str) -> bool:
@@ -96,6 +134,20 @@ def split_order(dependencies: list[str]) -> tuple[list[str], list[str]]:
     return dependencies[:index], [d for d in dependencies[index + 1:] if d != '|']
 
 
+def make_abspath(name: str, start: str) -> str:
+    """GNU Make 4.3's `abspath`: lexical, so `..` never follows a link, and separators collapse."""
+    parts = [] if name.startswith('/') else [p for p in start.split('/') if p]
+    for part in name.split('/'):
+        if part in ('', '.'):
+            continue
+        if part == '..':
+            if parts:
+                parts.pop()
+            continue
+        parts.append(part)
+    return '/' + '/'.join(parts)
+
+
 def builtin_database(audit: object) -> dict:
     """Load the recorded built-in rules and defaults once per derivation."""
     if audit.make_builtins is None:
@@ -109,7 +161,11 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
     filename = 'Makefile'
     file_selected = False
     targets = []
-    overrides = dict(audit.make_overrides)
+    letters, inherited = inherited_flags(audit.exported_env.get('MAKEFLAGS'), where)
+    letters, overrides = set(letters), dict(inherited)
+    level = audit.exported_env.get('MAKELEVEL', '0')
+    if dynamic(level) or not level.isdigit():
+        raise Refusal(f'unmodelled MAKELEVEL {level!r} at {where}')
     runtime_directory = any(directory.is_relative_to(p) for p in audit.runtime_directories)
     rest = iter(words[1:])
     for token in rest:
@@ -117,6 +173,7 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
             value = next(rest, None)
             if value is None:
                 raise Refusal(f'missing make option operand at {where}')
+            audit.shape('make:option.' + ('directory' if token in ('-C', '--directory') else 'file'), where)
             if token in ('-C', '--directory'):
                 runtime_directory |= dynamic(value)
                 directory = directory / value
@@ -127,6 +184,7 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
                 file_selected = True
         elif token.startswith(('--file=', '--directory=')) or token.startswith(('-C', '-f')):
             value = token.split('=', 1)[1] if '=' in token else token[2:]
+            audit.shape('make:option.' + ('directory' if token.startswith(('-C', '--directory=')) else 'file'), where)
             if token.startswith(('-C', '--directory=')):
                 runtime_directory |= dynamic(value)
                 directory = directory / value
@@ -139,18 +197,24 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
             value = next(rest, None)
             if value is None or not (value.isdigit() or dynamic(value)):
                 raise Refusal(f'unsupported make jobs at {where}')
+            audit.shape('make:option.jobs', where)
         elif re.fullmatch(r'-j(?:[0-9]+|\$\{RUNTIME\})', token):
-            pass
+            audit.shape('make:option.jobs', where)
         elif token in ('-s', '--no-print-directory', '-n', '-B'):
-            pass
+            audit.shape(f'make:option.{token.lstrip("-")}', where)
+            letters |= {token[1]} if len(token) == 2 else set()
         elif token.startswith('-'):
             raise Refusal(f'unsupported make option {token!r} at {where}')
         elif re.match(r'^\w+=', token):
             key, value = token.split('=', 1)
             if key in SENSITIVE or key in UNMODELLED:
                 raise Refusal(f'uncensused Make override {key!r} at {where}')
+            if not dynamic(token) and re.search(r'[$\\\s]', value):
+                raise Refusal(f'unmodelled Make command-line value for {key!r} at {where}')
+            audit.shape('make:option.variable', where)
             overrides[key] = Runtime(value) if dynamic(token) else value
         else:
+            audit.shape('make:option.goal', where)
             targets.append(token)
     if runtime_directory or dynamic(filename) or any(dynamic(t) for t in targets):
         audit.residue.add(f'{where}: runtime Makefile selection')
@@ -165,13 +229,16 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
         raise Refusal(f'unresolved Makefile {filename!r} at {where}')
     if not path.resolve().is_relative_to(audit.root):
         raise Refusal(f'Makefile outside source tree at {where}')
-    audit.makefile(path, targets, overrides, directory)
+    audit.shape('make:invocation' + ('.inherited-flags' if 'MAKEFLAGS' in audit.exported_env else ''), where)
+    audit.makefile(path, targets, overrides, directory, (frozenset(letters), int(level)))
 
 
 class Makefile:
     """Select explicit or unique pattern rules and expand their known variables."""
 
-    def __init__(self, audit: object, path: Path, overrides: dict[str, str], directory: Path | None = None) -> None:
+    def __init__(self, audit: object, path: Path, overrides: dict[str, str], directory: Path | None = None,
+                 flags: tuple = (frozenset(), 0)) -> None:
+        letters, level = flags
         self.audit = audit
         self.path = path.resolve()
         self.relative = self.path.relative_to(audit.root).as_posix()
@@ -182,18 +249,24 @@ class Makefile:
         # Precedence, lowest first: make's defaults, the environment, the command line.
         self.variables = {name: row['value'] for name, row in defaults.items()}
         self.simple = {name for name, row in defaults.items() if row['flavor'] == 'simple'}
-        self.environment = set(audit.exported_env)
+        self.environment = set(audit.exported_env) - MAKE_EXPORTS
         for name, value in audit.exported_env.items():
-            if not dynamic(value) and '$' in value:
+            if name not in MAKE_EXPORTS and not dynamic(value) and '$' in value:
                 raise Refusal(f'unmodelled Make reference in environment value {name!r} for {self.relative}')
-        self.variables.update(audit.exported_env)
-        self.simple.update(audit.exported_env)
-        self.variables.update({'MAKE': 'make', 'CURDIR': str(self.directory), 'MAKELEVEL': str(audit.make_level)})
+        # Environment and command-line values are recursive variables, as in make.
+        self.variables.update({name: audit.exported_env[name] for name in self.environment})
+        self.simple.difference_update(self.environment)
+        # GNU Make 4.3 runs $(shell) in the environment make itself received.
+        self.startup = dict(audit.exported_env)
+        self.level, self.letters = level, letters
+        self.variables.update({'MAKE': 'make', 'CURDIR': str(self.directory), 'MAKELEVEL': str(level)})
         self.simple.update(('MAKE', 'CURDIR', 'MAKELEVEL'))
         self.overrides = overrides
         self.variables.update(overrides)
-        self.simple.update(overrides)
-        self.no_builtin_rules = audit.make_no_builtin_rules
+        self.simple.difference_update(overrides)
+        self.call_arguments = 0
+        self.stem = None
+        self.no_builtin_rules = 'r' in letters
         self.rules = {}
         self.target_variables = {}
         self.phony = set()
@@ -209,6 +282,10 @@ class Makefile:
         """Report the source line that owns expansion or selection."""
         return f'{self.relative}:{self.line}'
 
+    def shape(self, name: str) -> None:
+        """Every rule applied below is a census shape with a differential fixture."""
+        self.audit.shape(f'make:{name}', self.where)
+
     def variable(self, name: str, seen: frozenset[str]) -> str:
         """Apply recursive versus immediate assignment semantics."""
         if name in seen:
@@ -217,7 +294,22 @@ class Makefile:
                 name.startswith('.') and name not in self.audit.census['make']['special_variables']):
             raise Refusal(f'unmodelled Make variable {name!r} at {self.where}')
         if name == '.SHELLSTATUS':
+            self.shape('variable.shell-status')
             return Runtime('${RUNTIME}')  # The status of the last parse-time shell.
+        if name == '*' and self.stem is None:
+            raise Refusal(f'unmodelled Make explicit-rule stem $* at {self.where}')
+        if name in ('@', '<', '^', '*'):
+            self.shape(f'automatic.{name}')
+        elif name in ('MAKE', 'CURDIR', 'MAKELEVEL', 'MAKECMDGOALS'):
+            self.shape(f'variable.{name}')
+        elif name.isdigit():
+            self.shape('call.argument')
+        elif name in self.overrides:
+            self.shape('variable.command-line')
+        elif name in self.environment:
+            self.shape('variable.environment')
+        else:
+            self.shape('variable.reference')
         value = self.variables.get(name, '')
         return value if name in self.simple else self.expand(value, seen | {name})
 
@@ -305,36 +397,45 @@ class Makefile:
         if name not in self.audit.census['make']['functions']:
             raise Refusal(f'unsupported Make function {name!r} at {self.where}')
         raw = self.arguments(text)
-        if name in ('call', 'foreach'):
-            if name == 'call':
-                macro = self.expand(raw[0], seen)
-                if macro not in self.variables:
-                    raise Refusal(f'undefined Make macro {macro!r} at {self.where}')
-                bindings = {str(i): self.expand(v, seen) for i, v in enumerate(raw[1:], 1)}
-                body = self.variables[macro]
-                values = [bindings]
-            else:
-                if len(raw) != 3 or not re.fullmatch(r'\w+', raw[0]):
-                    raise Refusal(f'unsupported Make foreach at {self.where}')
-                values = [{raw[0]: v} for v in self.expand(raw[1], seen).split()]
-                body = raw[2]
+        self.shape(f'function.{name}')
+        if name == 'call':
+            # GNU Make 4.3 func_call: $(0) is the name; arguments an outer call bound
+            # beyond this call's count are blank; the body is the variable's own value.
+            names = self.expand(raw[0], seen).split()
+            if len(names) != 1 or names[0] in self.audit.census['make']['functions'] or names[0] not in self.variables:
+                raise Refusal(f'undefined or unmodelled Make macro {raw[0]!r} at {self.where}')
+            bindings = {'0': names[0], **{str(i): self.expand(v, seen) for i, v in enumerate(raw[1:], 1)}}
+            bindings.update({str(i): '' for i in range(len(raw), self.call_arguments)})
+            saved, simple, outer = dict(self.variables), set(self.simple), self.call_arguments
+            self.variables.update(bindings)
+            self.simple.update(bindings)
+            self.call_arguments = max(len(raw), outer)
+            try:
+                return self.variable(names[0], seen)
+            finally:
+                self.variables, self.simple, self.call_arguments = saved, simple, outer
+        if name == 'foreach':
+            if len(raw) != 3 or not re.fullmatch(r'\w+', raw[0]):
+                raise Refusal(f'unsupported Make foreach at {self.where}')
             saved, simple = dict(self.variables), set(self.simple)
             result = []
-            for bindings in values:
-                self.variables.update(bindings)
-                self.simple.update(bindings)
-                result.append(self.expand(body, seen))
+            for value in self.expand(raw[1], seen).split():
+                self.variables[raw[0]] = value
+                self.simple.add(raw[0])
+                result.append(self.expand(raw[2], seen))
             self.variables, self.simple = saved, simple
             return ' '.join(result)
         if name == 'if' and len(raw) not in (2, 3):
             raise Refusal(f'unsupported Make if arguments at {self.where}')
+        if name in ('if', 'and'):
+            return self.lazy(name, raw, seen)
         args = [self.expand(arg, seen) for arg in raw]
         if name == 'shell':
             command = ','.join(args).replace('\x01', '$')
             # Literal command structure is mandatory; runtime data remains data.
             if re.match(r'\s*(?:\$|<dynamic>)', command):
                 raise Refusal(f'computed Make shell command at {self.where}')
-            self.recipe_shell(command)
+            self.recipe_shell(command, dict(self.startup))
             return Runtime('${RUNTIME}')
         if name == 'error':
             return ''  # Error paths execute no command; conditions are audited both ways.
@@ -343,20 +444,15 @@ class Makefile:
         if name == 'firstword':
             return next(iter(','.join(args).split()), '')
         if name == 'abspath':
-            return ' '.join(str((self.directory / p).resolve()) for p in ','.join(args).split())
+            return ' '.join(make_abspath(p, str(self.directory)) for p in ','.join(args).split())
         if name == 'wildcard':
-            return ' '.join(p if Path(pattern).is_absolute() else str(Path(p).relative_to(self.directory, walk_up=True))
-                            for pattern in ','.join(args).split()
-                            for p in sorted(glob.glob(str(self.directory / pattern))))
-        if name in ('if', 'and'):
-            if any(dynamic(a) for a in args):
-                return Runtime('${RUNTIME}')
-            if name == 'if':
-                return args[1] if args[0].strip() else (args[2] if len(args) > 2 else '')
-            return args[-1] if all(a.strip() for a in args) else ''
-        if name == 'subst' and len(args) == 3:
+            return ' '.join(p for pattern in ','.join(args).split()
+                            for p in sorted(glob.glob(pattern, root_dir=self.directory)))
+        if any('\\' in arg for arg in args[:2]) and name in ('subst', 'patsubst', 'filter', 'filter-out'):
+            raise Refusal(f'unmodelled escaped Make pattern at {self.where}')
+        if name == 'subst' and len(args) == 3 and args[0]:
             return args[2].replace(args[0], args[1])
-        if name == 'patsubst' and len(args) == 3:
+        if name == 'patsubst' and len(args) == 3 and args[1].count('%') <= args[0].count('%') <= 1:
             return ' '.join(args[1].replace('%', stem) if (stem := self.match(args[0], item)) is not None
                             else item for item in args[2].split())
         if name in ('filter', 'filter-out') and len(args) == 2:
@@ -366,17 +462,47 @@ class Makefile:
             return ' '.join(args[0] + item for item in args[1].split())
         raise Refusal(f'unsupported Make function {name!r} at {self.where}')
 
-    def recipe_environment(self) -> dict[str, str]:
-        """A recipe inherits the environment and command-line names at their current make values."""
-        return {name: self.variable(name, frozenset()) for name in sorted(self.environment | set(self.overrides))}
+    def lazy(self, name: str, raw: list[str], seen: frozenset[str]) -> str:
+        """`$(if)` and `$(and)` expand arguments in order and stop where make stops.
 
-    def recipe_shell(self, command: str) -> None:
-        """Walk a recipe or parse-time shell in make's exact child environment."""
+        A runtime condition selects at run time: every branch is walked and the value is runtime.
+        """
+        if name == 'if':
+            condition = self.expand(raw[0], seen)
+            branches = raw[1:]
+            if dynamic(condition):
+                for branch in branches:
+                    self.expand(branch, seen)
+                return Runtime('${RUNTIME}')
+            selected = branches[0] if condition.strip() else (branches[1] if len(branches) > 1 else '')
+            return self.expand(selected, seen)
+        value = ''
+        for argument in raw:
+            value = self.expand(argument, seen)
+            if dynamic(value):
+                for rest in raw[raw.index(argument) + 1:]:
+                    self.expand(rest, seen)
+                return Runtime('${RUNTIME}')
+            if not value.strip():
+                return ''
+        return value
+
+    def recipe_environment(self) -> dict[str, str]:
+        """A recipe inherits environment and command-line names at their current values, and make's own flags."""
+        names = sorted(self.environment | set(self.overrides))
+        environment = {name: self.variable(name, frozenset()) for name in names}
+        letters = set(self.letters) | ({'r'} if self.no_builtin_rules else set())
+        environment['MAKEFLAGS'] = MakeFlags(frozenset(letters), self.overrides)
+        environment['MAKELEVEL'] = str(self.level + 1)
+        return environment
+
+    def recipe_shell(self, command: str, environment: dict | None = None) -> None:
+        """Walk a recipe or parse-time shell under /bin/sh in make's exact child environment."""
         saved = self.audit.env, self.audit.exported_env
-        environment = self.recipe_environment()
+        environment = self.recipe_environment() if environment is None else environment
         self.audit.env, self.audit.exported_env = dict(environment), dict(environment)
         try:
-            self.audit.shell(command, self.where, self.directory)
+            self.audit.shell(command, self.where, self.directory, dialect='sh')
         finally:
             self.audit.env, self.audit.exported_env = saved
 
@@ -390,9 +516,11 @@ class Makefile:
             value = value.strip()
             if operator != ':=' or not re.fullmatch(r'[\w./-]+', value):
                 raise Refusal(f'computed .DEFAULT_GOAL at {self.where}')
+            self.shape('default-goal')
             self.default = value
         elif name.startswith('.'):
             raise Refusal(f'unsupported Make special variable {name!r} at {self.where}')
+        self.shape(f'assignment.{operator}')
         if name in self.overrides or (operator == '?=' and name in self.variables):
             return
         if operator == ':=' or (operator == '+=' and name in self.simple):
@@ -427,11 +555,12 @@ class Makefile:
         """Record one canonical rule; target-specific values must be literal and plain."""
         colon = top_level(line, ':')
         names, rest = line[:colon], line[colon + 1:]
-        if top_level(rest, ':') >= 0:
+        semicolon = top_level(rest, ';')
+        if top_level(rest if semicolon < 0 else rest[:semicolon], ':') >= 0:
             raise Refusal(f'unsupported Make rule at {self.where}')
         equals = top_level(rest, '=')
-        semicolon = top_level(rest, ';')
         if equals >= 0 and (semicolon < 0 or equals < semicolon):
+            self.shape('target-specific')
             self.target_specific(names, rest, equals)
             return []
         dependencies, separator, inline = rest.partition(';') if semicolon >= 0 else (rest, '', '')
@@ -451,10 +580,12 @@ class Makefile:
                 self.first = name
             resolved = self.expand(dependencies).split()
             if name == '.PHONY':
+                self.shape('phony')
                 self.phony.update(resolved)
             self.mentioned.update(n for n in [name, *resolved] if '%' not in n and n != '|')
             self.rules.setdefault(name, ([], []))[0].extend(resolved)
             if separator:
+                self.shape('inline-recipe')
                 self.rules[name][1].append((self.line, inline))
         return current
 
@@ -496,12 +627,14 @@ class Makefile:
                     body.extend(physical)  # A definition keeps its text, continuations included.
                 continue
             if first.startswith('\t') and current:
+                self.shape('recipe-line')
                 # Make expands every tab-led line of a rule, comments included.
                 recipe = '\n'.join([physical[0][1:], *(p.removeprefix('\t') for p in physical[1:])])
                 for target in current:
                     self.rules[target][1].append((self.line, recipe.lstrip(' \t@+-')))
                 continue
-            line = uncommented(condensed(physical), self.where)
+            joined = condensed(physical)
+            line = uncommented(joined, self.where)
             stripped = line.strip()
             if not stripped:
                 continue
@@ -509,13 +642,16 @@ class Makefile:
                 raise Refusal(f'unowned Make recipe at {self.where}')
             if first[0] in ' \t':
                 raise Refusal(f'non-canonical indented Make line {stripped!r} at {self.where}')
-            if condition_depth and not stripped.startswith(('$(error ', 'ifeq ', 'ifneq ', 'endif', 'else')):
+            if condition_depth and not (stripped in ('else', 'endif') or
+                                        stripped.startswith(('$(error ', 'ifeq ', 'ifneq '))):
                 raise Refusal(f'unsupported conditional Make body at {self.where}')
             if line == NO_BUILTIN_RULES:
+                self.shape('no-builtin-rules')
                 self.no_builtin_rules = True
                 current = []
                 continue
             if stripped.startswith('define '):
+                self.shape('define')
                 current = []
                 definition = stripped[7:].strip()
                 if definition in SENSITIVE or definition in UNMODELLED:
@@ -525,6 +661,7 @@ class Makefile:
                 body = []
                 continue
             if stripped.startswith(('ifeq ', 'ifneq ')):
+                self.shape('conditional')
                 condition_depth += 1
                 self.expand(stripped)
                 continue
@@ -546,7 +683,12 @@ class Makefile:
                 self.assignment(*assignment)
                 continue
             if top_level(line, ':') >= 0:
-                current = self.rule(line)
+                self.shape('rule')
+                # A rule's text after its first unquoted ';' is a recipe line: make passes it on, '#' included.
+                cut = top_level(joined, '#;')
+                if cut >= 0 and joined[cut] == ';' and len(physical) > 1:
+                    raise Refusal(f'unmodelled continued inline Make recipe at {self.where}')
+                current = self.rule(joined if cut >= 0 and joined[cut] == ';' else line)
                 continue
             raise Refusal(f'unsupported Make construct {stripped!r} at {self.where}')
         if condition_depth:
@@ -586,7 +728,7 @@ class Makefile:
         if target in self.visited:
             return
         self.visited.add(target)
-        stem = ''
+        stem = None  # An explicit rule's $* depends on the suffix list: not modelled.
         rule = self.rules.get(target)
         if rule is None or (not rule[1] and target not in self.phony):
             builtin = self.builtin_rule(target)
@@ -600,6 +742,7 @@ class Makefile:
             if len(matches) > 1:
                 raise Refusal(f'ambiguous Make pattern for {target!r} at {self.where}')
             if matches:
+                self.shape('pattern-rule')
                 pattern, (stem, implicit) = matches[0]
                 # An implicit rule's prerequisites come first in $< and $^, as in make.
                 normal, order = split_order(implicit)
@@ -608,6 +751,7 @@ class Makefile:
             elif explicit is not None:
                 rule = explicit
             elif prerequisite and (self.directory / target).exists():
+                self.shape('prerequisite-file')
                 return
             else:
                 raise Refusal(f'unresolved Make target {target!r} at {self.where}')
@@ -620,17 +764,34 @@ class Makefile:
         self.variables.update(specific)
         self.simple.update(specific)
         dependencies, recipes = rule
+        if '|' in dependencies:
+            self.shape('order-only')
         normal = dependencies[:dependencies.index('|')] if '|' in dependencies else dependencies
         dependencies = [d for d in dependencies if d != '|']
         for child in dependencies:
             self.target(child, True)
         self.variables.update({'@': target, '<': next(iter(normal), ''),
-                               '^': ' '.join(dict.fromkeys(normal)), '*': stem})
+                               '^': ' '.join(dict.fromkeys(normal)), '*': stem or ''})
         self.simple.update(('@', '<', '^', '*'))
-        for self.line, recipe in recipes:
-            # Make runs each unescaped line of an expanded recipe in its own shell.
-            for command in recipe_lines(self.expand(recipe).replace('\x01', '$')):
-                self.recipe_shell(command.lstrip(' \t@+-'))
+        saved_stem, self.stem = self.stem, stem
+        try:
+            for self.line, recipe in recipes:
+                # Make runs each unescaped line of an expanded recipe in its own shell.
+                lines = recipe_lines(self.expand(recipe).replace('\x01', '$'))
+                if len(lines) > 1:
+                    self.shape('recipe-lines')
+                # Under -n make prints a line instead of running it, unless it names $(MAKE) or starts with +.
+                runs = 'n' not in self.letters or re.search(r'\$[({]MAKE[)}]', recipe) or \
+                    recipe.lstrip(' \t@-').startswith('+')
+                for command in lines:
+                    self.shape('recipe' if runs else 'recipe.dry-run')
+                    self.audit.inspecting += not runs
+                    try:
+                        self.recipe_shell(command.lstrip(' \t@+-'))
+                    finally:
+                        self.audit.inspecting -= not runs
+        finally:
+            self.stem = saved_stem
         self.variables, self.simple = saved, simple
 
     def walk(self, targets: list[str] | None) -> None:
@@ -640,16 +801,11 @@ class Makefile:
         if key in self.audit.seen:
             return
         self.audit.seen.add(key)
-        previous = self.audit.make_overrides, self.audit.make_level, self.audit.make_no_builtin_rules
         self.variables['MAKECMDGOALS'] = ' '.join(targets or [])
         self.simple.add('MAKECMDGOALS')
         self.parse()
-        self.audit.make_overrides = self.overrides
-        self.audit.make_level += 1
-        self.audit.make_no_builtin_rules = self.no_builtin_rules
-        try:
-            selected = [t for t in self.rules if t != '.PHONY' and '%' not in t] if targets is None else targets
-            for target in selected or [self.default or self.first or '']:
-                self.target(target)
-        finally:
-            self.audit.make_overrides, self.audit.make_level, self.audit.make_no_builtin_rules = previous
+        selected = [t for t in self.rules if t != '.PHONY' and '%' not in t] if targets is None else targets
+        if targets is not None:
+            self.shape('goal.' + ('command-line' if targets else 'default' if self.default else 'first'))
+        for target in selected or [self.default or self.first or '']:
+            self.target(target)

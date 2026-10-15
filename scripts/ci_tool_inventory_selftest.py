@@ -10,6 +10,10 @@ from pathlib import Path
 import tempfile
 
 import ci_tool_inventory as inventory
+import ci_command_table
+
+# Walker semantics are tested without the census gate; ci_differential_selftest.py holds the gate.
+ci_command_table.GATE = False
 
 
 def comparison_control(root: Path, called: Path, workflow: Path, prefix: str) -> None:

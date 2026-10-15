@@ -8,7 +8,8 @@
     {"package": "curl", "path": ".github/workflows/elaborate.yml", "literal": "curl -fsSL", "reason": "Workflow downloads use the command-line HTTP client."},
     {"package": "ca-certificates", "path": ".github/workflows/elaborate.yml", "literal": "https://github.com/", "reason": "Public HTTPS tool downloads require the system trust store."},
     {"package": "openjdk-17-jdk-headless", "path": ".github/workflows/elaborate.yml", "literal": "sbt --version", "reason": "The Scala toolchain requires Java 17 and its compiler."},
-    {"package": "unzip", "path": ".github/workflows/elaborate.yml", "literal": "unzip -q -o", "reason": "The converter installation extracts a ZIP archive."}
+    {"package": "unzip", "path": ".github/workflows/elaborate.yml", "literal": "unzip -q -o", "reason": "The converter installation extracts a ZIP archive."},
+    {"package": "time", "path": ".github/workflows/rtl.yml", "literal": "/usr/bin/time -f", "reason": "The physical gPTP suite step records its wall time and exit status through GNU time."}
   ],
   "recipe": [
     {"package": "xz-utils", "path": "scripts/ci_rv32_sdk.py", "literal": "[\"tar\", \"-xJf\"", "reason": "The existing SDK installer extracts its checked XZ archive through tar."},

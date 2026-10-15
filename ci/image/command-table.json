@@ -13084,6 +13084,11 @@
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
       "sha256": "6e2efe35c4b5b2e327f737bd354d38dc9f3518f750e1c63b7bc32329693a1036"
     },
+    "scripts/check_nvm_capture.py": {
+      "class": "reviewed non-installing",
+      "reason": "Reflection on its own or an in-tree module namespace (sys.modules, getattr, setattr) for test patching; executes and installs nothing.",
+      "sha256": "50ca5b0751d8de6f4bdf68931da14ac4d162b0b8b3cc89ba26e9949f6c3af3fb"
+    },
     "scripts/check_nvm_record_space.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
@@ -13183,6 +13188,11 @@
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
       "sha256": "71012ddd058d47932adcd4013fcbea4078cf71e24f9ff2b4415f063e8e9fb84b"
+    },
+    "scripts/gen_hdl_reference_selftest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Reflection on its own or an in-tree module namespace (sys.modules, getattr, setattr) for test patching; executes and installs nothing.",
+      "sha256": "6f808a510e05ac943125d9dfc19ccb0abbe4565df67af3d713332eed72720a6a"
     },
     "scripts/gen_toc.py": {
       "class": "reviewed non-installing",
@@ -13319,6 +13329,11 @@
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
       "sha256": "295a2dcedf704cdd25c9f7e8bf11c49b053f78587116d8718a26d916390dfe3a"
     },
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py": {
+      "class": "reviewed non-installing",
+      "reason": "Reflection on its own or an in-tree module namespace (sys.modules, getattr, setattr) for test patching; executes and installs nothing.",
+      "sha256": "2580bf394f204b2adee6ed9d2a49effd82090ae54f14853b5eb15ad1bcbb08f7"
+    },
     "sw/firmware/ctrl_nvm/test/nvm_rv32.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
@@ -13433,6 +13448,11 @@
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
       "sha256": "71a4a2f221bc10ff845274a082c8a273fe28e51a3e81d284e16ab878e147fab8"
+    },
+    "syn/ooc/pp_resource_gate_selftest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Reflection on its own or an in-tree module namespace (sys.modules, getattr, setattr) for test patching; executes and installs nothing.",
+      "sha256": "9e0ddcd0d9ec5ddd63e838b391ba9e7026d7e078e9c1c856d7dd42003035247f"
     },
     "syn/yosys/cache_selftest.py": {
       "class": "reviewed non-installing",

@@ -60,6 +60,9 @@ def versions(pins: dict[str, object]) -> None:
         expected = package_versions[package].rsplit("really", 1)[-1].split("+")[0]
         option = "-version" if tool == "java" else "--version"
         assert expected in run([tool, option]), (tool, expected)
+    # The distribution's GNU time reports no version number; its package pin and behaviour are checked.
+    assert package_versions["time"] == "1.9" and "GNU Time" in run(["/usr/bin/time", "--version"])
+    assert "status=0" in run(["/usr/bin/time", "-f", "status=%x", "true"])
     for argv in (["gcc", "--version"], ["g++", "--version"], ["clang", "--version"],
                  ["gcov", "--version"], ["cmake", "--version"], ["git", "--version"],
                  ["make", "--version"], ["autoconf", "--version"], ["flex", "--version"],

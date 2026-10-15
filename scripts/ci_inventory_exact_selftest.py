@@ -45,7 +45,7 @@ def canonical_controls(fixture: Fixture) -> None:
             ('all: ; echo $(MAKEFILE_LIST)\n', "unmodelled Make variable 'MAKEFILE_LIST'"),
             ('all:\n\t# $(shell brand_new_command)\n\techo okay\n', "unclassified command 'brand_new_command'"),
             ('DIR = sub   # trailing blanks stay in the value\nall: ; bash $(DIR)/bootstrap.sh\n',
-             "unresolved script 'sub'"),
+             "unsupported script language 'sub'"),
             ('define STEPS\ncd sub\nbash bootstrap.sh\nendef\nall: ; $(STEPS)\n', None),
             ('X = echo \\\n    okay\nall: ; $(X)\n', None)):
         fixture.file('Makefile', text)

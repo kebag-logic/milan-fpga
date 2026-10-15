@@ -74,15 +74,15 @@ Resolution never executes workflow commands or Make shell expressions.
 | Workflow commands and environment | `.github/workflows/rtl.yml` | Resolve literal environment values; refuse unknown command forms. |
 | Workflow working directories | `.github/workflows/rtl-fast.yml` | Step overrides job and workflow defaults; refuse unresolved directories. |
 | Actions, containers and services | `.github/workflows/docs.yml` | Classify actions; require image digests; refuse reusable jobs. |
-| Shell sequences and pipelines | `.github/workflows/elaborate.yml` | Walk every operand; refuse unclassified commands. |
+| Shell sequences and pipelines | `.github/workflows/elaborate.yml` | Join `&&`/`||` paths; pipeline parts are subshells. |
 | Shell redirections and data heredocs | `syn/yosys/run.sh` | Walk substitutions; refuse unpinned interpreter input. |
 | Shell literal assignments and arrays | `scripts/run_all_suites.sh` | Retain literals; record runtime values; refuse computed function calls. |
-| Shell parameter and arithmetic expansion | `scripts/run_litex_sims.sh` | Walk nested execution; refuse unsupported expansion syntax. |
+| Shell parameter and arithmetic expansion | `scripts/run_litex_sims.sh` | Split, glob and tilde as the shell does; operators are runtime. |
 | Shell command and process substitution | `syn/yosys/malloc.sh` | Walk child scope; only exact unredirected shapes yield a value; other output is runtime. |
 | Shell directory changes and subshells | `scripts/run_litex_sims.sh` | Preserve child scope; unresolved directories require content-pinned review. |
-| Shell blocks and conditionals | `.github/workflows/docs.yml` | Inspect every branch; refuse ambiguous following directories. |
-| Shell loops and cases | `sw/litex/patches/apply.sh` | Inspect every body; retain runtime iteration residue. |
-| Shell declarations and functions | `scripts/run_all_suites.sh` | Preserve local/global scope and every censused function alternative. |
+| Shell blocks and conditionals | `.github/workflows/docs.yml` | Join every reachable branch; refuse differing directories. |
+| Shell loops and cases | `sw/litex/patches/apply.sh` | Walk bodies to a fixed point; join `break` and `continue` states. |
+| Shell declarations and functions | `scripts/run_all_suites.sh` | Restore locals on every exit; a function name is never a command. |
 | Shell sourced files | `syn/yosys/run.sh` | Follow exact censused calls in caller scope; refuse other calls and computed paths. |
 | Inline interpreter programs | `.github/workflows/elaborate.yml` | Require interpreter and exact program digest; refuse changed bytes. |
 | Command wrappers | `.github/workflows/rtl.yml` | Parse supported options and classify children; refuse unknown options. |
@@ -99,9 +99,9 @@ Resolution never executes workflow commands or Make shell expressions.
 | Make conditions and errors | `tb/verilator/capture_coherence/Makefile` | Inspect error-only guards; refuse conditional assignments and other directives. |
 | Make target-specific variables | `tb/verilator/milan_dp/Makefile` | Literal `=` and `:=` for exact targets; refuse command-line collisions. |
 | Make order-only prerequisites | `tb/verilator/mbx/Makefile` | Traverse both classes; exclude order-only entries from automatic variables. |
-| Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Inherit command-line overrides; refuse interpreter-selection overrides. |
+| Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Pass flags and command-line variables through `MAKEFLAGS`, as make does. |
 | Make recipe environment | `tb/verilator/maap/integration.mk` | Export inherited and command-line names at their current values, as make does. |
-| Python imports and local modules | `scripts/check_nvm_capture.py` | Follow every in-tree portion on the process search path; refuse compiled modules. |
+| Python imports and local modules | `scripts/check_nvm_capture.py` | Follow every in-tree portion on the search path; several are alternatives. |
 | Python search-path insertions | `sw/firmware/gtest/fw_rv32_selftest.py` | Resolve literal entries, imported constants and call arguments; open the path otherwise. |
 | Python module loaders | `sw/builder/endstation_builder.py` | Follow literal `runpy` and file-location targets; runtime targets are declared capabilities. |
 | Python positional and keyword calls | `scripts/check_rtl_source_lists.py` | Decode literal argv and keywords; refuse undeclared executors. |
@@ -109,6 +109,7 @@ Resolution never executes workflow commands or Make shell expressions.
 
 [`syntax-census.json`](../../ci/image/syntax-census.json) enumerates accepted syntax nodes.
 Its fields include operators, special variables and Python builtins.
+Its `shapes` section is the differential census below.
 Unknown nodes and fields refuse before command classification.
 The command table separately bounds executable options and subcommands.
 Typed HDL operands accept data paths, never command options.
@@ -133,14 +134,93 @@ Background statements, alternate workflow shells and interpreter overrides refus
 Make defaults respect exported environment values and command-line overrides.
 Unexported shell assignments remain outside Make's environment.
 
-The walker accepts only constructs it resolves with the real tool's semantics.
-Everything else refuses by name before generation.
+### Differential census
+
+The accepted language is a closed census of construct shapes.
+Each modelled rule of the walker is one shape, recorded where it applies.
+[`syntax-census.json`](../../ci/image/syntax-census.json) lists them under `shapes`.
+The census holds exactly the shapes the current tree uses.
+Each shape names its focus fixture in
+[`ci_differential_fixtures.py`](../../scripts/ci_differential_fixtures.py).
+[`ci_differential.py`](../../scripts/ci_differential.py) runs each fixture twice.
+The walker resolves it statically, observing a sentinel command.
+The image's GNU Make 4.3, bash 5.2.21, dash or CPython 3.12.3 runs it offline.
+A stub records each real sentinel's directory and arguments.
+Both results must agree, or the walker must refuse by name.
+A runtime slot matches one argument.
+An unquoted runtime expansion matches any number.
+Runtime residue in a declared script may cover what the walker leaves unresolved.
+Detection shapes must refuse an undeclared program the real tool shows executing.
+
+[`differential-receipt.json`](../../ci/image/differential-receipt.json) records every outcome.
+It binds the walker sources, the fixtures and the census shapes.
+Generation refuses a receipt measured at another walker.
+A shape is accepted only through its focus fixture meeting its expectation.
+Any other shape refuses by name before generation.
+A new shape enters the census only with its passing fixture.
+Every reviewed round-six probe is also a fixture, refused or resolved identically.
+
+```sh
+docker run --rm --network none --user 0:0 \
+  --mount "type=bind,src=$PWD,dst=/work,readonly" \
+  --mount "type=bind,src=$IMAGE_WORK,dst=/out" \
+  --mount "type=bind,src=$CI_IMAGE_SHFMT,dst=/shfmt,readonly" \
+  -e CI_IMAGE_SHFMT=/shfmt --workdir /work "$IMAGE_REFERENCE" \
+  python3 scripts/ci_differential.py --run --image "$IMAGE_DIGEST" --receipt /out/receipt.json
+python3 scripts/ci_differential.py --write-census
+python3 scripts/ci_differential.py --check
+python3 scripts/ci_differential_selftest.py
+```
+
+The harness runs as root so the `sudo` wrapper fixture can run.
+Copy the receipt to `ci/image/differential-receipt.json` before the check.
+
+### Exact resolution
+
+Ambiguous state is never a literal.
+The shell walker keeps variables, exports, functions, locals and the directory.
+`&&`, `||`, conditionals, cases and loops join every reachable path.
+A value differing between paths becomes runtime.
+A directory differing between paths refuses.
+A test that always succeeds takes only its branch.
+That covers plain assignments, `true`, `:` and `cd` into an existing directory.
+`exit`, `return`, `break` and `continue` end their path where the shell resumes.
+Loop bodies are walked until no iteration changes another's input.
+A name defined as a function anywhere in scope is never a builtin or program.
+Where its definition may not have run, the call is declared runtime residue.
+Trap handlers run later, so their variables and directory are unknown.
+Unreachable statements and uncalled functions are inspected, never claimed to run.
+
+Words expand as the shell expands them.
+Unquoted expansions split at blanks and expand pathnames.
+`"$@"` and unquoted runtime values stand for any number of fields.
+Tilde prefixes are runtime.
+Brace expansion refuses.
+Prefix assignments apply after the command's words expand.
+`source` needs a slash, since a bare name searches `PATH`.
+Recipes, `$(shell)`, `sh -c` and Python shell strings parse as POSIX `sh`.
+A script run directly is read as its first line names.
+A Python string without `shell=True` names one program.
+`find -exec {}` and `xargs` input are runtime arguments.
+
 Make lines are read as GNU Make reads them.
 Assignments start in column zero with a censused operator.
 Indented lines, `!=`, double-colon forms and escaped line ends refuse.
+Conditional bodies admit only the exact directive words.
 Tab-led lines in a rule are recipes, comments included.
+Text after a rule's first unquoted `;` is a recipe, `#` included.
 Each unescaped line of an expanded recipe runs in its own shell.
 Values keep make's whitespace, including blanks before a comment.
+Environment and command-line values are recursive variables.
+`$(call)` binds `$(0)` and blanks an outer call's later arguments.
+A simple macro's value is not expanded again.
+`$(if)` and `$(and)` expand only what make expands.
+`$(abspath)` is lexical, as make computes it.
+`$*` refuses outside an implicit rule.
+`$(shell)` sees make's starting environment.
+A recipe sees `MAKEFLAGS` and `MAKELEVEL` as make sets them.
+Its flags and command-line variables reach a child make only through `MAKEFLAGS`.
+Under `-n` only lines naming `$(MAKE)` or starting with `+` run.
 [`make-builtins.json`](../../ci/image/make-builtins.json) records the image's built-in rules and defaults.
 [`make_builtins.py`](../../ci/image/make_builtins.py) regenerates it inside the image:
 
@@ -157,12 +237,14 @@ Pattern-specific, grouped and multiple-target pattern rules refuse.
 `VPATH`, `GPATH` and make-maintained list variables refuse.
 
 A child process starts from its exported environment alone.
-Traversal caches key on the complete incoming environment and Make state.
+Traversal caches key on the complete incoming environment.
 A repeated script or Makefile under new values is walked again.
 
 Command substitution yields a directory only as `$(cd <literal> && pwd)`.
 That form must be unredirected and its directory must not be a link.
 `$(dirname <literal>)` and `$(realpath <literal>)` are exact functions of the operand.
+None applies when a same-named function is defined anywhere in scope.
+`cd -` and `cd` options refuse.
 Their tests compare the dirname model with the image's coreutils.
 `$0` and `${BASH_SOURCE[0]}` are the exact words that named the file.
 Any other substitution output is a runtime value under the residue rules.
@@ -178,6 +260,11 @@ No allowance may name a module the checkout supplies.
 Compiled in-tree modules and child programs under a changed `PYTHONPATH` refuse.
 Initializers and selected members receive independent capability checks.
 Foreign-function imports require reviewed content declarations.
+Namespace reflection is an execution capability requiring a declaration.
+That covers `sys.modules`, reflective attributes such as `__dict__` and `__globals__`.
+It also covers executing builtins reached through `builtins`, and `getattr` on a module.
+A name with several in-tree portions on the path follows each as an alternative.
+`python3 -I` starts the path without the script's directory.
 
 The tree also pins two additional interpreter forms.
 The synthesis driver reads statistics through a Python heredoc.
@@ -252,6 +339,8 @@ The image's Verilator reports `rev v5.050`.
 Its revision no longer depends on the build date.
 Node 22.23.3 and GitHub CLI 2.102.0 retain runner parity.
 Clang 18.1.3 and system CPython 3.12.3 retain parity too.
+GNU time 1.9 retains parity for `/usr/bin/time` in `rtl.yml` and `milan_dp/Makefile`.
+Its distribution build reports no version number, so smoke checks its package and behaviour.
 Smoke checks compare binaries' version output against locked versions.
 Package database comparisons are additional checks.
 

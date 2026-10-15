@@ -45,10 +45,10 @@ def shell_controls(fixture: Fixture) -> None:
     fixture.run("for path in 'sub$x/bootstrap.sh'; do bash \"$path\"; done")
     fixture.check('literal-dollar loop element', 'brand_new_command')
     fixture.file('fragment.sh', 'cd sub\n')
-    fixture.run('source fragment.sh; bash bootstrap.sh')
+    fixture.run('source ./fragment.sh; bash bootstrap.sh')
     fixture.check('sourced directory', 'brand_new_command')
     fixture.file('fragment.sh', 'name=hidden.sh\n')
-    fixture.run('name=bootstrap.sh; source fragment.sh; bash "$name"')
+    fixture.run('name=bootstrap.sh; source ./fragment.sh; bash "$name"')
     fixture.check('sourced variable', 'brand_new_command')
     for command in (
         'source hidden.sh',

@@ -12,6 +12,10 @@ import sys
 import tempfile
 
 import ci_tool_inventory as inventory
+import ci_command_table
+
+# Walker semantics are tested without the census gate; ci_differential_selftest.py holds the gate.
+ci_command_table.GATE = False
 from ci_command_table import Audit, shell_tree
 from ci_syntax import semantic_node
 
@@ -24,12 +28,13 @@ class Fixture:
         self.workflow = root / '.github/workflows/fixture.yml'
         self.workflow.parent.mkdir(parents=True)
         (root / 'ci/image').mkdir(parents=True)
-        for name in ('command-table.json', 'sources.lock.json', 'syntax-census.json', 'make-builtins.json'):
+        for name in ('command-table.json', 'sources.lock.json', 'syntax-census.json', 'make-builtins.json',
+                     'differential-receipt.json'):
             shutil.copyfile(inventory.ROOT / 'ci/image' / name, root / 'ci/image' / name)
         self.table = json.loads((root / 'ci/image/command-table.json').read_text())
         # The existing source-scope controls use this exact reviewed fixture call.
         audit = Audit(root, {})
-        call = shell_tree('source fragment.sh', audit.parser)['Stmts'][0]['Cmd']
+        call = shell_tree('source ./fragment.sh', audit.parser)['Stmts'][0]['Cmd']
         raw = json.dumps(semantic_node(call), sort_keys=True, separators=(',', ':')).encode()
         audit.census['shell_exact_uses'][hashlib.sha256(raw).hexdigest()] = {
             'sources': ['.github/workflows/fixture.yml'], 'kinds': ['source']}
@@ -163,15 +168,19 @@ def shell_controls(fixture: Fixture) -> None:
     fixture.run('{ cd sub; }; bash bootstrap.sh')
     fixture.check('block preserves parent scope', 'brand_new_command')
     fixture.run('cd sub || cd elsewhere; bash bootstrap.sh')
-    fixture.check('fallback cannot inherit successful directory', 'ambiguous shell directory')
+    fixture.check('cd into an existing directory succeeds; its fallback never runs', 'brand_new_command')
+    fixture.run('cd "$UNKNOWN" || cd sub; bash bootstrap.sh')
+    fixture.check('a fallback after an uncertain cd leaves the directory ambiguous', 'unresolved shell cd')
     fixture.run('cd sub || exit 2; bash bootstrap.sh')
     fixture.check('terminating fallback preserves successful directory', 'brand_new_command')
     fixture.run('if true; then cd sub; fi; bash bootstrap.sh')
+    fixture.check('a test that always succeeds takes its branch', 'brand_new_command')
+    fixture.run('if [ -e "$UNKNOWN" ]; then cd sub; fi; bash bootstrap.sh')
     fixture.check('ambiguous conditional directory', 'ambiguous shell directory')
     fixture.run('if true; then cd sub; else cd sub; fi; bash bootstrap.sh')
     fixture.check('common conditional directory persists', 'brand_new_command')
     fixture.run('if cd sub; then echo okay; fi; bash bootstrap.sh')
-    fixture.check('conditional directory side effect', 'ambiguous shell directory')
+    fixture.check('cd into an existing directory as a test persists', 'brand_new_command')
     fixture.file('function.sh', 'f() { echo okay; }; f\n')
     fixture.run('bash function.sh')
     fixture.check('same-file function')
@@ -185,14 +194,16 @@ def shell_controls(fixture: Fixture) -> None:
     fixture.check('function local assignment is restored', 'brand_new_command')
     fixture.run('bash function.sh; f')
     fixture.check('foreign function', "unclassified command 'f'")
-    fixture.run('source missing.sh')
+    fixture.run('source ./missing.sh')
     fixture.check('missing sourced file', 'unresolved script')
     fixture.file('fragment.sh', 'echo okay\n')
-    fixture.run('source fragment.sh')
+    fixture.run('source ./fragment.sh')
     fixture.check('followed source')
+    fixture.run('source fragment.sh')
+    fixture.check('a slash-free source operand searches PATH', 'uncensused shell source path search')
     fixture.file('fragment.sh', 'g() { echo okay; }\n')
     fixture.declare('fragment.sh')
-    fixture.run('source fragment.sh; g')
+    fixture.run('source ./fragment.sh; g')
     fixture.check('pinned imported function')
     fixture.file('fragment.sh', 'g() { echo changed; }\n')
     fixture.check('changed imported function', 'changed declared script')
@@ -264,7 +275,7 @@ def make_controls(fixture: Fixture) -> None:
                  'all: $(foreach v,$(WORDS),obj_$(v))\nobj_%:\n\t$(call SAY,$*)\n')
     fixture.check('macro list and automatic stem')
     fixture.file('Makefile', 'all:\n\t$(call MISSING,value)\n')
-    fixture.check('undefined macro', 'undefined Make macro')
+    fixture.check('undefined macro', 'undefined or unmodelled Make macro')
     fixture.file('Makefile', 'all: ; echo $!\n')
     fixture.check('unsupported automatic variable', 'unsupported Make automatic')
     fixture.file('Makefile', '.PHONY: all\nall: ; echo okay\n')
