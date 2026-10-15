@@ -1,0 +1,17 @@
+[
+  {
+    "command": "isolated-python scripts/gen_toc.py --check",
+    "rc": 0,
+    "output": "TOC gate: OK (147 page(s) carry an annotated contents list, 18 below the 3-section threshold)\n"
+  },
+  {
+    "command": "isolated-python scripts/check_em_dash.py --base 9ef71772",
+    "rc": 0,
+    "output": "check_em_dash: 0 finding(s) over 315 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [9ef71772..HEAD]\n"
+  },
+  {
+    "command": "isolated-python scripts/check_doc_style.py",
+    "rc": 0,
+    "output": "documentation style: OK (22 current documents)\n"
+  }
+]

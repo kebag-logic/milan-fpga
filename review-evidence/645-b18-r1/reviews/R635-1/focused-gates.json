@@ -1,0 +1,27 @@
+[
+  {
+    "command": "python3 scripts/docs_check.py",
+    "rc": 0,
+    "output": "docs_check: 0 finding(s) across 208 md files + 1346 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]\n"
+  },
+  {
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0,
+    "output": "doc path gate: OK (989 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)\n"
+  },
+  {
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 2,
+    "output": "gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt\n"
+  },
+  {
+    "command": "python3 scripts/check_em_dash.py --base 9ef71772",
+    "rc": 2,
+    "output": "check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt\n"
+  },
+  {
+    "command": "git diff --check 9ef71772 HEAD",
+    "rc": 0,
+    "output": ""
+  }
+]

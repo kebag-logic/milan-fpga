@@ -1,0 +1,28 @@
+Publication manifest: 90 files match
+Findings evidence table: 13 sizes and SHA-256 values match
+Unchanged console_poll_b8.py: 1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7
+Unchanged ana_b17.py: 299d4f55441e147bf6d27b5b51242d3384157e4905d27f6ed1064398f05f9468
+Unchanged peer_gap_b17.py: 93c62e302f1a117b3c8a3e7c76aff716d68ffa303bbd68c7bbda426229897621
+Cycle runner AST: equal after three path substitutions; two explanatory comment lines added
+cycle | polls | first s | last s | old last s | first burst s | peak us | burst count | margin after design firing ms
+c01 | 80 | -7.997551 | 31.702083 | 31.772625 | 4.735105 | 25.691 | 17 | 4557.171333
+c02 | 80 | -7.995866 | 31.839522 | 31.828308 | 4.033344 | 25.143 | 11 | 3965.662333
+c03 | 80 | -7.996314 | 31.827462 | 31.750712 | 0.379980 | 25.796 | 9 | 172.237333
+c04 | 80 | -7.997065 | 31.777316 | 31.832619 | 0.442866 | 26.198 | 11 | 379.240333
+c05 | 80 | -7.996756 | 31.881568 | 31.837008 | 2.383942 | 25.662 | 10 | 2188.016333
+c06 | 80 | -7.995715 | 31.846273 | 31.825554 | 2.495050 | 28.989 | 11 | 2395.145333
+c07 | 80 | -7.996679 | 31.838084 | 31.839710 | 2.637078 | 26.777 | 9 | 2402.144333
+c08 | 80 | -7.995646 | 31.774672 | 31.926824 | 0.202941 | 27.626 | 19 | 68.612333
+c09 | 80 | -7.995713 | 31.767889 | 31.784840 | 0.246334 | 24.918 | 13 | 32.735333
+c10 | 80 | -7.997574 | 31.700514 | 31.804451 | 3.256555 | 25.313 | 11 | 3023.900333
+Counter digest: 2c5e8d6ff8220cb16a9a3d0535279dfd7f04b5642c9aee2d9f97cdefcd939bdb
+800 readable polls: SLIP_LB and SLIP_TDM zero; only RENDER_STAT varies
+First burst minus design firing: min 32.735333 ms; max 4557.171333 ms
+Restore: 45/46 census records equal; sole difference propagation delay 382 -> 388 ns
+Baselines: slip words zero; NVM sequence 315 -> 335, commits 0 -> 20, no pending write
+Four ATDECC identity fields: byte-identical to B17 raw ENTITY reply
+Control detected: one-pair dup
+Control detected: one-frame dup
+Control detected: skip
+Control detected: saturated constant counter
+RECEIPT AUDIT PASS; flash provenance and raw capture availability remain separate evidence questions
