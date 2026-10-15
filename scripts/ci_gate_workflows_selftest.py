@@ -290,6 +290,12 @@ def main() -> int:
                 # The leg runs the template's own command, only adding its selection.
                 assert body == builder_leg_step(original[case["index"]], case)
                 assert body["run"].endswith(" -- " + original[case["index"]]["run"].strip() + "\n")
+                words = shlex.split(body["run"])
+                assert words[:2] == ["python3", "scripts/ci_builder_legs.py"], words
+                parsed, command = ci_builder_legs.parse(words[2:])
+                assert (parsed.operation, parsed.leg, command) == (
+                    "run", str(case["builder"]), shlex.split(original[case["index"]]["run"])), words
+                assert parsed.receipt.name == "builder-leg-" + str(case["builder"]) + ".json"
                 assert {key: value for key, value in body.items() if key not in ("name", "run")} == {
                     key: value for key, value in original[case["index"]].items() if key not in ("name", "run")}
             else:

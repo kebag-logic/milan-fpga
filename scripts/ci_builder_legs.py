@@ -190,24 +190,32 @@ def compare(reference: dict, receipts: list[dict], head: str, tree: str,
     return result
 
 
-def main() -> int:
-    """Run one leg, or verify a union, optionally against an unsharded reference."""
+def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
+    """Own options before the first `--`; the driver command, unparsed, after it."""
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="operation", required=True)
     execute = sub.add_parser("run")
     execute.add_argument("leg", choices=[*map(str, range(LEGS)), "all"])
     execute.add_argument("--receipt", required=True, type=Path)
-    execute.add_argument("command", nargs=argparse.REMAINDER)
     check = sub.add_parser("union")
     check.add_argument("--head", required=True)
     check.add_argument("--tree", required=True)
     check.add_argument("--reference", type=Path)
     check.add_argument("--output", type=Path)
     check.add_argument("receipts", nargs="+", type=Path)
-    args = parser.parse_args()
+    split = argv.index("--") if "--" in argv else len(argv)
+    args = parser.parse_args(argv[:split])
+    command = argv[split + 1:]
+    if (args.operation == "run") != bool(command):
+        parser.error("a leg needs its driver command after `--`, and only a leg takes one")
+    return args, command
+
+
+def main() -> int:
+    """Run one leg, or verify a union, optionally against an unsharded reference."""
+    args, command = parse(sys.argv[1:])
     try:
         if args.operation == "run":
-            command = args.command[1:] if args.command[:1] == ["--"] else args.command
             return run(None if args.leg == "all" else int(args.leg), args.receipt, command)
         receipts = [json.loads(path.read_text()) for path in args.receipts]
         if args.reference:
