@@ -444,7 +444,9 @@ The `milan_dp` default retains its twelve existing legs.
 It also counts 40 setup, audio and missing-response accounting checks.
 `suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
 The nightly/manual job runs that selection without sharding.
-The historical `milan_dp` directory runs alone on hosted shard 4/5 (#444).
+On GitHub the historical `milan_dp` directory runs as four `--ci-pieces` legs (#737).
+Each leg, `milan_dp__0` to `milan_dp__3`, runs on its own worker.
+Before #737 it ran alone on the last hosted worker (#444).
 The existing `gptp` compressed smoke remains separately counted.
 The option-OFF and fractional-audio legs retain their original models.
 
