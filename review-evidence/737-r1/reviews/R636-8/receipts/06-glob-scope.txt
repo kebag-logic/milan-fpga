@@ -1,0 +1,31 @@
+### glob semantics probe (hypothetical paths, head attrs)
+ci/act/fail-fast.patch: whitespace: unset
+ci/act/new.patch: whitespace: unset
+ci/act/.patch: whitespace: unset
+ci/act/sub/x.patch: whitespace: unspecified
+ci/act/x.patch.go: whitespace: unspecified
+ci/act/x.diff: whitespace: unspecified
+ci/act/fail-fast.go: whitespace: unspecified
+ci/x.patch: whitespace: unspecified
+ci/act.patch: whitespace: unspecified
+x/ci/act/y.patch: whitespace: unspecified
+CI/act/y.patch: whitespace: unspecified
+ci/act/y.PATCH: whitespace: unspecified
+ci/act/cpu_ranges.go: whitespace: unspecified
+scripts/build_ci_act.py: whitespace: unspecified
+.gitattributes: whitespace: unspecified
+### same probe with parent attrs (fe2e2a54)
+ci/act/fail-fast.patch: whitespace: unspecified
+ci/act/new.patch: whitespace: unspecified
+### tracked paths whose whitespace attr differs between parent and head attrs
+42c42
+< ci/act/fail-fast.patch: whitespace: unspecified
+---
+> ci/act/fail-fast.patch: whitespace: unset
+diff rc=1
+### nested .gitattributes files at head
+.gitattributes
+### repo-local config affecting whitespace
+cfg rc=1 (1 = none set)
+### info/attributes
+ls: cannot access '.git/info/attributes': No such file or directory

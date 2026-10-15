@@ -1,0 +1,16 @@
+### pinned constants at head
+25:ACT_COMMIT = "4f411281417e88660bea1c1a1749aa71ae0bd60f"
+26:ACT_SHA256 = "0d151c0a14455ea2ee1d2bff5258aadef9ac96e35f9756e6bcd8af323780ae98"
+curl rc=0
+### archive sha256 (must equal ACT_SHA256)
+0d151c0a14455ea2ee1d2bff5258aadef9ac96e35f9756e6bcd8af323780ae98
+tar rc=0
+### patch input sha256 (blob at head)
+7182699a726258e068992a9cb14237f27487c0b633d643ff8305c80fe289edb4
+GNU patch 2.8
+checking file pkg/common/executor.go
+checking file pkg/runner/runner.go
+checking file pkg/runner/run_context.go
+patch --dry-run rc=0
+patch apply rc=0
+0

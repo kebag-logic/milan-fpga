@@ -1,0 +1,33 @@
+### distinct paths flagged, fe2e2a54 attrs vs dev
+     37 ci/act/fail-fast.patch
+### flagged line count
+37
+### same with pathspec excluding the patch (parent attrs)
+rc=0
+### blob of ci/act/fail-fast.patch at each rev
+100644 blob 197702fa1678e9d3d69a7de0d931c019b70aa3c8	ci/act/fail-fast.patch
+100644 blob 197702fa1678e9d3d69a7de0d931c019b70aa3c8	ci/act/fail-fast.patch
+### ci/act directory at head
+100644 blob 7137251b63c43162115c4370197b8eebcfeae94e	ci/act/cpu_ranges.go
+100644 blob 4d23bade9807aa692f4450dc56e7fb8d8123ebcc	ci/act/cpu_ranges_test.go
+100644 blob 71ef40bc88a60cd2ca884295f169f8be934d9714	ci/act/dependency_executor.go
+100644 blob 03085db5f913028ff44121413e657ee46cf3645a	ci/act/dependency_executor_test.go
+100644 blob 197702fa1678e9d3d69a7de0d931c019b70aa3c8	ci/act/fail-fast.patch
+100644 blob 6d6462f9ebc7c7105e472d6f6a022ce7094deea6	ci/act/job_admission.go
+100644 blob 5063e1a81d43eb6646148ffd162c1ff0192783cd	ci/act/parallel_executor_test.go
+### every tracked path at head matching ci/act/*.patch via check-attr (attr-source head)
+ci/act/fail-fast.patch: whitespace: unset
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch: whitespace: unset
+sw/litex/patches/0004-vexiiriscv-baremetal-variant.patch: whitespace: unset
+sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch: whitespace: unset
+sw/litex/patches/0006-bios-dispatch-hook.patch: whitespace: unset
+sw/litex/patches/0007-liteeth-gmii-rx-capture.patch: whitespace: unset
+### all *.patch tracked at head
+ci/act/fail-fast.patch
+sw/litex/liteeth-ax42-ext-reset.patch
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch
+sw/litex/patches/0004-vexiiriscv-baremetal-variant.patch
+sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch
+sw/litex/patches/0006-bios-dispatch-hook.patch
+sw/litex/patches/0007-liteeth-gmii-rx-capture.patch
+### git exit-status note: --check failure sets bit 02

@@ -1,0 +1,24 @@
+## git show --stat --format=fuller 30f7b0ef
+30f7b0ef9d7ab073dccd9bda1130a630aef633b1
+fe2e2a543474dd9a932383052bb6fe14bfbbb1fe
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Committer: hackerman-kl
+Exempt the vendored act patch from whitespace checks
+
+
+ .gitattributes | 1 +
+ 1 file changed, 1 insertion(+)
+## diff fe2e2a54..30f7b0ef (full)
+diff --git a/.gitattributes b/.gitattributes
+index 187cad540..137263407 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -1 +1,2 @@
+ sw/litex/patches/*.patch -whitespace
++ci/act/*.patch -whitespace
+## name-status
+M	.gitattributes
+## raw
+:100644 100644 187cad540 137263407 M	.gitattributes
+## parent check
+fe2e2a543474dd9a932383052bb6fe14bfbbb1fe
