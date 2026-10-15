@@ -1,0 +1,163 @@
+[
+  {
+    "gate": "inventory",
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 2,
+    "wall_seconds": 8.513,
+    "log": "round4-source-inventory.log",
+    "size": 68,
+    "sha256": "c126ded0ab3b4bf2b43ee87cdbdfc18ff0e5b6f688ce149fb0e07677b4479252"
+  },
+  {
+    "gate": "original-controls",
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.53,
+    "log": "round4-source-original-controls.log",
+    "size": 2952,
+    "sha256": "d89d7c78461ed5871213cb7c5841d046496e1e49a7e9de7727664778b61ef8bc"
+  },
+  {
+    "gate": "pattern-controls",
+    "command": [
+      "python3",
+      "scripts/ci_inventory_patterns_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 1.982,
+    "log": "round4-source-pattern-controls.log",
+    "size": 5905,
+    "sha256": "f7f9041379a411460bab84d82ebb9d851c0a6dd4c2c80c1e59cabdcd63ed8620"
+  },
+  {
+    "gate": "idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 1,
+    "wall_seconds": 5.926,
+    "log": "round4-source-idiom.log",
+    "size": 118,
+    "sha256": "2d702c03f253b64f61fd13478ce7b49a39ce7547d0d45ed72c841fae8a76f7ff"
+  },
+  {
+    "gate": "idiom-controls",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "wall_seconds": 5.847,
+    "log": "round4-source-idiom-controls.log",
+    "size": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"
+  },
+  {
+    "gate": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 23.434,
+    "log": "round4-source-baremetal.log",
+    "size": 72,
+    "sha256": "cb7b9ba29cf6847c419772be945c3ba310fcbab0f3daad568626e5e3fa6219a5"
+  },
+  {
+    "gate": "baremetal-controls",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "wall_seconds": 7.026,
+    "log": "round4-source-baremetal-controls.log",
+    "size": 43,
+    "sha256": "c9bd702425b1fb5c0579a6b7b62884ced69411326f3e43fc0e1ffc8530534b60"
+  },
+  {
+    "gate": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 5.627,
+    "log": "round4-source-docs.log",
+    "size": 128,
+    "sha256": "8a5dce31a23a64c69ad8291fb307a73b1278e6f95c9cde640c7874ffa03e283b"
+  },
+  {
+    "gate": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.058,
+    "log": "round4-source-doc-style.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "gate": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.093,
+    "log": "round4-source-doc-paths.log",
+    "size": 101,
+    "sha256": "029c9eb698d3e4ad51fba17ff03b55bccfaf41999a9f63b5b54a60a06c7fef80"
+  },
+  {
+    "gate": "whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.021,
+    "log": "round4-source-whitespace.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "gate": "build-controls",
+    "command": [
+      "python3",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.181,
+    "log": "round4-source-build-controls.log",
+    "size": 615,
+    "sha256": "efe62d2f8a700872dba1805b8eea924cad6d351ea72ec93f53c5e12cc38102a2"
+  },
+  {
+    "gate": "lock-controls",
+    "command": [
+      "python3",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.188,
+    "log": "round4-source-lock-controls.log",
+    "size": 651,
+    "sha256": "3735a04ecabe9492395fceeb1f41fa0f67bad9ea476ad3d317449a3560557065"
+  }
+]

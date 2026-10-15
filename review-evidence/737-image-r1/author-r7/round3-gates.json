@@ -1,0 +1,174 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_ms": 5777,
+    "size": 57,
+    "sha256": "411ed8dc1549d45856fad29e98880aab66f615fc2fb4bf58b5e149074f49dcb7",
+    "log": "round3-gates-0.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 365,
+    "size": 1952,
+    "sha256": "a20f75ce1e97afd75ce03dc20a6605f8c1b57d1f4ed56a94b3555e0721b7e7a1",
+    "log": "round3-gates-1.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 215,
+    "size": 615,
+    "sha256": "efe62d2f8a700872dba1805b8eea924cad6d351ea72ec93f53c5e12cc38102a2",
+    "log": "round3-gates-2.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 215,
+    "size": 651,
+    "sha256": "3735a04ecabe9492395fceeb1f41fa0f67bad9ea476ad3d317449a3560557065",
+    "log": "round3-gates-3.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 215,
+    "size": 2677,
+    "sha256": "4ddcab58c6fe06d6dc5f793ae04fe563d45488971342845888275de2f69b9eab",
+    "log": "round3-gates-4.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_patch_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 214,
+    "size": 261,
+    "sha256": "ee1b0dbe77d02f50497ab0d607ac8ce4cc9107873bdcd301e09c62257e9c295d",
+    "log": "round3-gates-5.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 1,
+    "elapsed_ms": 22857,
+    "size": 2152,
+    "sha256": "125a3caa0746bf60172a375ea8606a489cfbe897dc4e78476369fd5e6c4d3f7d",
+    "log": "round3-gates-6.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_ms": 7532,
+    "size": 43,
+    "sha256": "c9bd702425b1fb5c0579a6b7b62884ced69411326f3e43fc0e1ffc8530534b60",
+    "log": "round3-gates-7.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 6677,
+    "size": 461,
+    "sha256": "da0ac9658178d0979482b1a772983046bc739442540d1b6f8da66eed27b3b7c9",
+    "log": "round3-gates-8.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_ms": 5776,
+    "size": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "log": "round3-gates-9.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 5524,
+    "size": 128,
+    "sha256": "451a3356cf866d549ee648808bffb2d0a64ecf620d49a63b38ad927a1882443c",
+    "log": "round3-gates-10.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 64,
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "log": "round3-gates-11.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "18f2df92"
+    ],
+    "rc": 2,
+    "elapsed_ms": 916,
+    "size": 163,
+    "sha256": "06541123d43c489a433ab9aa0d3755197cb89716a91ac69e0faff9588c3592bd",
+    "log": "round3-gates-12.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "elapsed_ms": 114,
+    "size": 165,
+    "sha256": "73ae4c76fba1c3c9a7a6b99a8e961e4fe8134397cf77951ff64a37039a85a8e1",
+    "log": "round3-gates-13.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 114,
+    "size": 100,
+    "sha256": "76bbdee11e9718f704c6c54425e6e06bff5cb2730d3014b2fdd3d1a8636add62",
+    "log": "round3-gates-14.log"
+  }
+]

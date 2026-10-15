@@ -1,0 +1,707 @@
+[
+  {
+    "step": "Build the validated HDL reference",
+    "command": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Build the validated HDL reference",
+    "command": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "${EVIDENCE}/hdl-reference"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Link health, wording, dead-reference and local-info gate",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Added-line em-dash gate",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa7347fc"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Product solution source-fact gate",
+    "command": [
+      "python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Product solution source-fact gate",
+    "command": [
+      "python3",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Published diagram PNG gate",
+    "command": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Published diagram PNG gate",
+    "command": [
+      "python3",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Milan feature-status consistency gate",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Traceability matrix no-drift gate",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Imported gPTP documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "job": "docs-check",
+    "step": "Imported gPTP documentation gate",
+    "command": [
+      "make",
+      "-C",
+      "gptp-processor",
+      "docs"
+    ]
+  },
+  {
+    "step": "Code-quality measurement self-tests",
+    "command": [
+      "python3",
+      "scripts/measure_control_flow.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Code-quality measurement self-tests",
+    "command": [
+      "python3",
+      "scripts/measure_cohesion.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Bare-metal scope gate",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Bare-metal scope gate",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Compiler-absent firmware controls",
+    "command": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Compiler-absent firmware controls",
+    "command": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--audit",
+      "${EVIDENCE}/rv32-absent.jsonl"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "job": "docs-check",
+    "step": "End-station builder gates",
+    "command": [
+      "python3",
+      "sw/builder/test_builder.py",
+      "--require-rv32"
+    ]
+  },
+  {
+    "step": "NVM record-space gate",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "NVM record-space gate",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Capture measurement census and clock gate",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Saved-state writer gate",
+    "command": [
+      "python3",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "command": [
+      "python3",
+      "sw/litex/iob_pack_selftest.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "RTL source-list drift gate",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "RTL source-list drift gate",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Boundary-unit naming ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Boundary-unit naming ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Port contract gate",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Port contract gate",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Fail-fast ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Fail-fast ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "TODO ownership gate",
+    "command": [
+      "python3",
+      "scripts/check_todo_ownership.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "TODO ownership gate",
+    "command": [
+      "python3",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Test-evidence ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Test-evidence ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Mechanical hygiene ratchet",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Mechanical hygiene ratchet",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "SystemVerilog idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "SystemVerilog idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "C and C++ idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "C and C++ idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Python idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Python idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Shell idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Shell idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "CI event and SHA contract gate",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "CI event and SHA contract gate",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Local act runner contract gate",
+    "command": [
+      "python3",
+      "scripts/act_ci.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "job": "docs-check",
+    "step": "Local act runner contract gate isolated copy",
+    "command": [
+      "python3",
+      "-I",
+      "${EVIDENCE}/act_ci.py",
+      "--selftest",
+      "--worktree",
+      "${CHECKOUT}"
+    ]
+  },
+  {
+    "step": "Doc cited-path gate",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Archive integrity gate",
+    "command": [
+      "python3",
+      "scripts/check_archive.py"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Archive integrity gate",
+    "command": [
+      "python3",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Per-page contents gate",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Per-page contents gate",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Per-page contents gate",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "AEM store generator self-test",
+    "command": [
+      "python3",
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Sweep/build shape gate",
+    "command": [
+      "python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Deploy shape gate",
+    "command": [
+      "python3",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "job": "docs-check"
+  },
+  {
+    "step": "Entity shape gate",
+    "command": [
+      "python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "job": "docs-check"
+  }
+]

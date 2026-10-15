@@ -1,0 +1,11 @@
+[A615] STOP — PR #738, head da5594321c7a3558ac8ad1ef5e147a77ac15356f.
+
+The privacy ruling 6162652582 resolves pristine third-party files, but the required existing patch series leaves a further conflict. `.github/workflows/elaborate.yml:243` applies `sw/litex/patches/apply.sh`; its `0005-vexiiriscv-cacheless-litex.patch` modifies `Soc.scala` while retaining the three upstream user paths (original lines 825–827; patched lines 855–857). The ruling explicitly says “A modified copy, or a file not present upstream, gets no allowance.”
+
+A disposable reproduction authenticated the public CPU archive at `235753e24f2d960e49a0852205bae1400bf22c19`, applied the existing patch unchanged (rc 0), allowed the pristine file, and refused the patched file. Original SHA-256: `f38fcdcdbbb732bfef644442a3e9284bd13ccc8f429c4f91e2920d6b7528790f`. Patched SHA-256: `cb265cb820512b517312c3488100331b9794fd2bb2f1416228e238c73ce04ebb`. Patch SHA-256: `e464f6a7adf5c643961808f2dfadd00e4c431caf613bb9d71ab3be90f98dcab0`. No protected strings are reproduced.
+
+A decision is needed for unchanged upstream spans within the required patched file, or a specific permitted redaction and its effect on workflow-tree equality. Neither interpretation was assumed; the patch remains unchanged.
+
+The draft bare-metal check also returns 1 with nine findings: new OCI/normalizer Python literals outside the authorized lock/document masks, plus one missing exact distribution-package literal. No exemption was broadened. Nine focused checks pass, including the new privacy controls, inventory/builder/integrity controls, Python idiom gate, bare-metal selftest, documentation privacy gate and Scala closure comparison; whitespace is clean. This is not image acceptance.
+
+HANDOFF.md, PR-BODY.md, the portable conflict probe, redacted hashes and final gate receipts are current in the assigned packet. All starting and resumed drafts remain uncommitted. No new commit cleared the complete gate set; head is unchanged. No new cold builds, final image smoke, push or PR edit occurred.

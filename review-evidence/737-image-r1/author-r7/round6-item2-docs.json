@@ -1,0 +1,136 @@
+[
+  {
+    "gate": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 5.364,
+    "log": "round6-item2-docs-docs.log",
+    "size": 128,
+    "sha256": "167d402e2da80a9c616ca57432803a1a6e7980da7cac05b0ad0f20f6f7cec5d1",
+    "raw_size": 128,
+    "raw_sha256": "167d402e2da80a9c616ca57432803a1a6e7980da7cac05b0ad0f20f6f7cec5d1"
+  },
+  {
+    "gate": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.052,
+    "log": "round6-item2-docs-doc-style.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "raw_size": 47,
+    "raw_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "gate": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.085,
+    "log": "round6-item2-docs-doc-paths.log",
+    "size": 101,
+    "sha256": "e230d564c5e5ec13443724b74ed839e9a4ad61923d7befe30152a45a177afe03",
+    "raw_size": 101,
+    "raw_sha256": "e230d564c5e5ec13443724b74ed839e9a4ad61923d7befe30152a45a177afe03"
+  },
+  {
+    "gate": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 1,
+    "wall_seconds": 6.109,
+    "log": "round6-item2-docs-toc.log",
+    "size": 328,
+    "sha256": "6d729e49bbce6826836dd7147c565f59489a8b2d8e57214dc93fd8887140bd35",
+    "raw_size": 328,
+    "raw_sha256": "6d729e49bbce6826836dd7147c565f59489a8b2d8e57214dc93fd8887140bd35"
+  },
+  {
+    "gate": "anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "wall_seconds": 4.166,
+    "log": "round6-item2-docs-anchors.log",
+    "size": 64,
+    "sha256": "1a3ecfc7cc0a7214647f3df8f7ccf726f652a8bfb8fd9dd48ce410acd9c6ad84",
+    "raw_size": 64,
+    "raw_sha256": "1a3ecfc7cc0a7214647f3df8f7ccf726f652a8bfb8fd9dd48ce410acd9c6ad84"
+  },
+  {
+    "gate": "punctuation",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa7347fc"
+    ],
+    "rc": 0,
+    "wall_seconds": 3.001,
+    "log": "round6-item2-docs-punctuation.log",
+    "size": 140,
+    "sha256": "77ef9764e4e1623b7022b0a661c788d20e442323ad8e097b1b6603a5507851ff",
+    "raw_size": 140,
+    "raw_sha256": "77ef9764e4e1623b7022b0a661c788d20e442323ad8e097b1b6603a5507851ff"
+  },
+  {
+    "gate": "hygiene",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.461,
+    "log": "round6-item2-docs-hygiene.log",
+    "size": 2000,
+    "sha256": "98d2345fd104d54301f91f20b81b4e47c96c17b1e8658a2401243ad35f6f7d37",
+    "raw_size": 2000,
+    "raw_sha256": "98d2345fd104d54301f91f20b81b4e47c96c17b1e8658a2401243ad35f6f7d37"
+  },
+  {
+    "gate": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 22.301,
+    "log": "round6-item2-docs-baremetal.log",
+    "size": 72,
+    "sha256": "f23a85f40c46e70fcbdbd19310c9b342f9a3e062544e42580295a66ff080caf8",
+    "raw_size": 72,
+    "raw_sha256": "f23a85f40c46e70fcbdbd19310c9b342f9a3e062544e42580295a66ff080caf8"
+  },
+  {
+    "gate": "whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "fa7347fc"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.027,
+    "log": "round6-item2-docs-whitespace.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_size": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

@@ -1,0 +1,1418 @@
+[
+  {
+    "step": "Build the validated HDL reference",
+    "command": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.51,
+    "log": "round5-docs-000.log",
+    "size": 393,
+    "sha256": "0364e9bbb04d7c180ed178b00e33d8d90b0b06195f96384c774984602bf7a688",
+    "index": 0,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 393,
+    "packet_sha256": "0364e9bbb04d7c180ed178b00e33d8d90b0b06195f96384c774984602bf7a688"
+  },
+  {
+    "step": "Build the validated HDL reference",
+    "command": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "${EVIDENCE}/hdl-reference"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 2.301,
+    "log": "round5-docs-001.log",
+    "size": 382,
+    "sha256": "3dea5bae137d4d2b7a2c8c2e3a8fd171c1a8523ca203fee0d05f95e5c853d816",
+    "index": 1,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 382,
+    "packet_sha256": "3dea5bae137d4d2b7a2c8c2e3a8fd171c1a8523ca203fee0d05f95e5c853d816"
+  },
+  {
+    "step": "Link health, wording, dead-reference and local-info gate",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 6.338,
+    "log": "round5-docs-002.log",
+    "size": 128,
+    "sha256": "a4200ad3134ce30187bba3719bb4be91fa6290b865bdb75f55c33fa57e7229ce",
+    "index": 2,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 128,
+    "packet_sha256": "a4200ad3134ce30187bba3719bb4be91fa6290b865bdb75f55c33fa57e7229ce"
+  },
+  {
+    "step": "Added-line em-dash gate",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa7347fc"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 3.854,
+    "log": "round5-docs-003.log",
+    "size": 140,
+    "sha256": "4be14742257be2e4482bcf678b97c16fed7a461ef4d442a62f01ad5a240a7154",
+    "index": 3,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 140,
+    "packet_sha256": "4be14742257be2e4482bcf678b97c16fed7a461ef4d442a62f01ad5a240a7154"
+  },
+  {
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.165,
+    "log": "round5-docs-004.log",
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "index": 4,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 47,
+    "packet_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.146,
+    "log": "round5-docs-005.log",
+    "size": 33,
+    "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "index": 5,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 33,
+    "packet_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"
+  },
+  {
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.375,
+    "log": "round5-docs-006.log",
+    "size": 41,
+    "sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d",
+    "index": 6,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 41,
+    "packet_sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d"
+  },
+  {
+    "step": "Concise audience documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.409,
+    "log": "round5-docs-007.log",
+    "size": 46,
+    "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e",
+    "index": 7,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 46,
+    "packet_sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e"
+  },
+  {
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.632,
+    "log": "round5-docs-008.log",
+    "size": 61,
+    "sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16",
+    "index": 8,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 61,
+    "packet_sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16"
+  },
+  {
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.607,
+    "log": "round5-docs-009.log",
+    "size": 60,
+    "sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9",
+    "index": 9,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 60,
+    "packet_sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9"
+  },
+  {
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.528,
+    "log": "round5-docs-010.log",
+    "size": 60,
+    "sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4",
+    "index": 10,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 60,
+    "packet_sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4"
+  },
+  {
+    "step": "Audience diagram no-drift gate",
+    "command": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.625,
+    "log": "round5-docs-011.log",
+    "size": 61,
+    "sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa",
+    "index": 11,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 61,
+    "packet_sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa"
+  },
+  {
+    "step": "Product solution source-fact gate",
+    "command": [
+      "python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.247,
+    "log": "round5-docs-012.log",
+    "size": 87,
+    "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+    "index": 12,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 87,
+    "packet_sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42"
+  },
+  {
+    "step": "Product solution source-fact gate",
+    "command": [
+      "python3",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 3.324,
+    "log": "round5-docs-013.log",
+    "size": 59,
+    "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30",
+    "index": 13,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 59,
+    "packet_sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30"
+  },
+  {
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.662,
+    "log": "round5-docs-014.log",
+    "size": 54,
+    "sha256": "4f2d621c17d265a6e2851eaa978fe81af61cf6bbf152cce8ab90ba77b4f91e18",
+    "index": 14,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 54,
+    "packet_sha256": "4f2d621c17d265a6e2851eaa978fe81af61cf6bbf152cce8ab90ba77b4f91e18"
+  },
+  {
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.781,
+    "log": "round5-docs-015.log",
+    "size": 60,
+    "sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889",
+    "index": 15,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 60,
+    "packet_sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889"
+  },
+  {
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.88,
+    "log": "round5-docs-016.log",
+    "size": 47,
+    "sha256": "c4bbf250ee33a3cc538cbbf1028e693c8acc058adc782d1f1feef249cd2faa0b",
+    "index": 16,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 47,
+    "packet_sha256": "c4bbf250ee33a3cc538cbbf1028e693c8acc058adc782d1f1feef249cd2faa0b"
+  },
+  {
+    "step": "Verified submodule documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.219,
+    "log": "round5-docs-017.log",
+    "size": 66,
+    "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+    "index": 17,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 66,
+    "packet_sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b"
+  },
+  {
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.525,
+    "log": "round5-docs-018.log",
+    "size": 77,
+    "sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42",
+    "index": 18,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 77,
+    "packet_sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42"
+  },
+  {
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.659,
+    "log": "round5-docs-019.log",
+    "size": 58,
+    "sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3",
+    "index": 19,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 58,
+    "packet_sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3"
+  },
+  {
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.74,
+    "log": "round5-docs-020.log",
+    "size": 54,
+    "sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5",
+    "index": 20,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 54,
+    "packet_sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5"
+  },
+  {
+    "step": "HDL timing diagram no-drift gate",
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.701,
+    "log": "round5-docs-021.log",
+    "size": 52,
+    "sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9",
+    "index": 21,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 52,
+    "packet_sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9"
+  },
+  {
+    "step": "Published diagram PNG gate",
+    "command": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.527,
+    "log": "round5-docs-022.log",
+    "size": 66,
+    "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51",
+    "index": 22,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 66,
+    "packet_sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51"
+  },
+  {
+    "step": "Published diagram PNG gate",
+    "command": [
+      "python3",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 8.057,
+    "log": "round5-docs-023.log",
+    "size": 59,
+    "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5",
+    "index": 23,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 59,
+    "packet_sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5"
+  },
+  {
+    "step": "Milan feature-status consistency gate",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.314,
+    "log": "round5-docs-024.log",
+    "size": 1500,
+    "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "index": 24,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 1500,
+    "packet_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+  },
+  {
+    "step": "Traceability matrix no-drift gate",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.249,
+    "log": "round5-docs-025.log",
+    "size": 118,
+    "sha256": "4e782e68ed5c09299d5d990702b634a2358aa1d5cbc2fd822374561e249c2687",
+    "index": 25,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 118,
+    "packet_sha256": "4e782e68ed5c09299d5d990702b634a2358aa1d5cbc2fd822374561e249c2687"
+  },
+  {
+    "step": "Imported gPTP documentation gate",
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.489,
+    "log": "round5-docs-026.log",
+    "size": 66,
+    "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41",
+    "index": 26,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 66,
+    "packet_sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41"
+  },
+  {
+    "job": "docs-check",
+    "step": "Imported gPTP documentation gate",
+    "command": [
+      "make",
+      "-C",
+      "gptp-processor",
+      "docs"
+    ],
+    "rc": 0,
+    "seconds": 1.613,
+    "log": "round5-docs-027.log",
+    "size": 2622,
+    "sha256": "99d843175a0ba10506aef49e06fabacc36746c902a060b81e346d4de0b3bdef9",
+    "index": 27,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 2622,
+    "packet_sha256": "99d843175a0ba10506aef49e06fabacc36746c902a060b81e346d4de0b3bdef9"
+  },
+  {
+    "step": "Code-quality measurement self-tests",
+    "command": [
+      "python3",
+      "scripts/measure_control_flow.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.317,
+    "log": "round5-docs-028.log",
+    "size": 2565,
+    "sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b",
+    "index": 28,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 2565,
+    "packet_sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b"
+  },
+  {
+    "step": "Code-quality measurement self-tests",
+    "command": [
+      "python3",
+      "scripts/measure_cohesion.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.18,
+    "log": "round5-docs-029.log",
+    "size": 728,
+    "sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363",
+    "index": 29,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 728,
+    "packet_sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363"
+  },
+  {
+    "step": "Bare-metal scope gate",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 22.461,
+    "log": "round5-docs-030.log",
+    "size": 72,
+    "sha256": "310e99130fcbcf4c2ae8c50743ffc584349a66be8933bd2cb281f1365c810e2b",
+    "index": 30,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 72,
+    "packet_sha256": "310e99130fcbcf4c2ae8c50743ffc584349a66be8933bd2cb281f1365c810e2b"
+  },
+  {
+    "step": "Bare-metal scope gate",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 8.068,
+    "log": "round5-docs-031.log",
+    "size": 149,
+    "sha256": "e1ca8d7186bb4693a3f15b84838d8c345223fa123bbdb6aea6c39515a3e313ef",
+    "index": 31,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 149,
+    "packet_sha256": "e1ca8d7186bb4693a3f15b84838d8c345223fa123bbdb6aea6c39515a3e313ef"
+  },
+  {
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.45,
+    "log": "round5-docs-032.log",
+    "size": 5927,
+    "sha256": "58a9a0b46cdf4c375e211630c4ce26bc447cc1d544e99e17d4f6339f4069b331",
+    "index": 32,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 5927,
+    "packet_sha256": "58a9a0b46cdf4c375e211630c4ce26bc447cc1d544e99e17d4f6339f4069b331"
+  },
+  {
+    "step": "Compiler-absent firmware controls",
+    "command": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 3.79,
+    "log": "round5-docs-033.log",
+    "size": 138,
+    "sha256": "f6da142138888df7ecd9ef31e7b86895260648309005e1400148d78004e385d7",
+    "index": 33,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 138,
+    "packet_sha256": "f6da142138888df7ecd9ef31e7b86895260648309005e1400148d78004e385d7"
+  },
+  {
+    "step": "Compiler-absent firmware controls",
+    "command": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--audit",
+      "${EVIDENCE}/rv32-absent.jsonl"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 591.498,
+    "log": "round5-docs-034.log",
+    "size": 51276,
+    "sha256": "5e4501ac1dcdf2865fe7d5442974212d1cba21a16d86424cec8db74e715c070d",
+    "index": 34,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 51276,
+    "packet_sha256": "5e4501ac1dcdf2865fe7d5442974212d1cba21a16d86424cec8db74e715c070d"
+  },
+  {
+    "job": "docs-check",
+    "step": "End-station builder gates",
+    "command": [
+      "python3",
+      "sw/builder/test_builder.py",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 1503.427,
+    "log": "round5-docs-035.log",
+    "size": 102820,
+    "sha256": "8ff88e147d3e3758386641c1a7896ca7c0892a91c660c074d5a5f357054376c0",
+    "index": 35,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 102820,
+    "packet_sha256": "8ff88e147d3e3758386641c1a7896ca7c0892a91c660c074d5a5f357054376c0"
+  },
+  {
+    "step": "NVM record-space gate",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 3.893,
+    "log": "round5-docs-036.log",
+    "size": 2578,
+    "sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0",
+    "index": 36,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 2578,
+    "packet_sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0"
+  },
+  {
+    "step": "NVM record-space gate",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 80.471,
+    "log": "round5-docs-037.log",
+    "size": 7010,
+    "sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6",
+    "index": 37,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 7010,
+    "packet_sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6"
+  },
+  {
+    "step": "Capture measurement census and clock gate",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.759,
+    "log": "round5-docs-038.log",
+    "size": 398,
+    "sha256": "7bb472e312a53443576575b4d73f0c971fa708ee029f79cdb9233dec5e33f382",
+    "index": 38,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 398,
+    "packet_sha256": "7bb472e312a53443576575b4d73f0c971fa708ee029f79cdb9233dec5e33f382"
+  },
+  {
+    "step": "Saved-state writer gate",
+    "command": [
+      "python3",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 126.118,
+    "log": "round5-docs-039.log",
+    "size": 5189,
+    "sha256": "cba18482dbf27c70ee56b28a8fbbe7bfdc2cc49b4644a42daa5ad4db8f6d4972",
+    "index": 39,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 5189,
+    "packet_sha256": "cba18482dbf27c70ee56b28a8fbbe7bfdc2cc49b4644a42daa5ad4db8f6d4972"
+  },
+  {
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.153,
+    "log": "round5-docs-040.log",
+    "size": 85,
+    "sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033",
+    "index": 40,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 85,
+    "packet_sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033"
+  },
+  {
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.257,
+    "log": "round5-docs-041.log",
+    "size": 1501,
+    "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+    "index": 41,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 1501,
+    "packet_sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0"
+  },
+  {
+    "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "command": [
+      "python3",
+      "sw/litex/iob_pack_selftest.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 2.15,
+    "log": "round5-docs-042.log",
+    "size": 3208,
+    "sha256": "36285e124542418c660615cce715d7a1479327c9e1d849139a46b86f00868f3f",
+    "index": 42,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 3208,
+    "packet_sha256": "36285e124542418c660615cce715d7a1479327c9e1d849139a46b86f00868f3f"
+  },
+  {
+    "step": "RTL source-list drift gate",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.764,
+    "log": "round5-docs-043.log",
+    "size": 153,
+    "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+    "index": 43,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 153,
+    "packet_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95"
+  },
+  {
+    "step": "RTL source-list drift gate",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 3.504,
+    "log": "round5-docs-044.log",
+    "size": 3300,
+    "sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+    "index": 44,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 3300,
+    "packet_sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d"
+  },
+  {
+    "step": "Boundary-unit naming ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.537,
+    "log": "round5-docs-045.log",
+    "size": 36490,
+    "sha256": "0eba77eb46f6c0138fa1737b1687057d0e6cf94975572eb9e4d5eaf44c366532",
+    "index": 45,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 36490,
+    "packet_sha256": "0eba77eb46f6c0138fa1737b1687057d0e6cf94975572eb9e4d5eaf44c366532"
+  },
+  {
+    "step": "Boundary-unit naming ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.572,
+    "log": "round5-docs-046.log",
+    "size": 4026,
+    "sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02",
+    "index": 46,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 4026,
+    "packet_sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02"
+  },
+  {
+    "step": "Port contract gate",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 2.993,
+    "log": "round5-docs-047.log",
+    "size": 421,
+    "sha256": "5321ea832856fa411c5393a2df509527d039d3c2bfd53488c1718de1f7248d37",
+    "index": 47,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 421,
+    "packet_sha256": "5321ea832856fa411c5393a2df509527d039d3c2bfd53488c1718de1f7248d37"
+  },
+  {
+    "step": "Port contract gate",
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 3.377,
+    "log": "round5-docs-048.log",
+    "size": 4619,
+    "sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e",
+    "index": 48,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 4619,
+    "packet_sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e"
+  },
+  {
+    "step": "Fail-fast ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.859,
+    "log": "round5-docs-049.log",
+    "size": 5967,
+    "sha256": "092c164f60c5501c636e33d5798c3ae57e1231d414417ee97aa3cb89d2069661",
+    "index": 49,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 5967,
+    "packet_sha256": "092c164f60c5501c636e33d5798c3ae57e1231d414417ee97aa3cb89d2069661"
+  },
+  {
+    "step": "Fail-fast ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.787,
+    "log": "round5-docs-050.log",
+    "size": 6597,
+    "sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a",
+    "index": 50,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 6597,
+    "packet_sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a"
+  },
+  {
+    "step": "TODO ownership gate",
+    "command": [
+      "python3",
+      "scripts/check_todo_ownership.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 2.191,
+    "log": "round5-docs-051.log",
+    "size": 161,
+    "sha256": "6479f613158aaddefa8811723caa4a4cc32f6c97ee27a004ee32c7248f3ff9ef",
+    "index": 51,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 161,
+    "packet_sha256": "6479f613158aaddefa8811723caa4a4cc32f6c97ee27a004ee32c7248f3ff9ef"
+  },
+  {
+    "step": "TODO ownership gate",
+    "command": [
+      "python3",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 2.279,
+    "log": "round5-docs-052.log",
+    "size": 2584,
+    "sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b",
+    "index": 52,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 2584,
+    "packet_sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b"
+  },
+  {
+    "step": "Test-evidence ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 10.209,
+    "log": "round5-docs-053.log",
+    "size": 18702,
+    "sha256": "009f3b7314c8a6eac7b8055060264ee4013ee35ae266763fea815a1dcce97c24",
+    "index": 53,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 18702,
+    "packet_sha256": "009f3b7314c8a6eac7b8055060264ee4013ee35ae266763fea815a1dcce97c24"
+  },
+  {
+    "step": "Test-evidence ratchet",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 10.582,
+    "log": "round5-docs-054.log",
+    "size": 5895,
+    "sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+    "index": 54,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 5895,
+    "packet_sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2"
+  },
+  {
+    "step": "Mechanical hygiene ratchet",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.533,
+    "log": "round5-docs-055.log",
+    "size": 2000,
+    "sha256": "b564cb492f2d13c22b035c98da42cf8b5805e209cc2baa010c8cabfd3f559a9a",
+    "index": 55,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 2000,
+    "packet_sha256": "b564cb492f2d13c22b035c98da42cf8b5805e209cc2baa010c8cabfd3f559a9a"
+  },
+  {
+    "step": "Mechanical hygiene ratchet",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.533,
+    "log": "round5-docs-056.log",
+    "size": 1847,
+    "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+    "index": 56,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 1847,
+    "packet_sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8"
+  },
+  {
+    "step": "SystemVerilog idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.483,
+    "log": "round5-docs-057.log",
+    "size": 218,
+    "sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167",
+    "index": 57,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 218,
+    "packet_sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167"
+  },
+  {
+    "step": "SystemVerilog idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.486,
+    "log": "round5-docs-058.log",
+    "size": 2955,
+    "sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b",
+    "index": 58,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 2955,
+    "packet_sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b"
+  },
+  {
+    "step": "C and C++ idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.776,
+    "log": "round5-docs-059.log",
+    "size": 316,
+    "sha256": "414bb86b6f7f8cc9ad775b573d2e2b094a79cdaf0a64846174fc51542cadd994",
+    "index": 59,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 316,
+    "packet_sha256": "414bb86b6f7f8cc9ad775b573d2e2b094a79cdaf0a64846174fc51542cadd994"
+  },
+  {
+    "step": "C and C++ idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.916,
+    "log": "round5-docs-060.log",
+    "size": 3593,
+    "sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9",
+    "index": 60,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 3593,
+    "packet_sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9"
+  },
+  {
+    "step": "Python idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 5.485,
+    "log": "round5-docs-061.log",
+    "size": 461,
+    "sha256": "a65089a66cc6cbfd2f66d205243adbdb6969f16bb516616d5c31886db6139b72",
+    "index": 61,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 461,
+    "packet_sha256": "a65089a66cc6cbfd2f66d205243adbdb6969f16bb516616d5c31886db6139b72"
+  },
+  {
+    "step": "Python idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 5.3,
+    "log": "round5-docs-062.log",
+    "size": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "index": 62,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 2531,
+    "packet_sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"
+  },
+  {
+    "step": "Shell idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.234,
+    "log": "round5-docs-063.log",
+    "size": 235,
+    "sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+    "index": 63,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 235,
+    "packet_sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9"
+  },
+  {
+    "step": "Shell idiom gate",
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.243,
+    "log": "round5-docs-064.log",
+    "size": 2461,
+    "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+    "index": 64,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 2461,
+    "packet_sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57"
+  },
+  {
+    "step": "CI event and SHA contract gate",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.254,
+    "log": "round5-docs-065.log",
+    "size": 167,
+    "sha256": "cbf7f2bb4fa19ca31b60e6e86d022a8f00176c252a015526d8ef299bd1933eb1",
+    "index": 65,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 167,
+    "packet_sha256": "cbf7f2bb4fa19ca31b60e6e86d022a8f00176c252a015526d8ef299bd1933eb1"
+  },
+  {
+    "step": "CI event and SHA contract gate",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 31.575,
+    "log": "scratch only: docs-work/gate-066.log",
+    "size": 201887,
+    "sha256": "0333415b3af1f64240a56e5f674aeaa8dbcbabc237c62db549705e8f63673b96",
+    "index": 66,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": null,
+    "packet_sha256": null
+  },
+  {
+    "step": "Local act runner contract gate",
+    "command": [
+      "python3",
+      "scripts/act_ci.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 69.31,
+    "log": "round5-docs-067.log",
+    "size": 59315,
+    "sha256": "7fe40cb699366f29ad00bf52dd6a07bcabf726567a4fa3f723b8571a6ba68a13",
+    "index": 67,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 59315,
+    "packet_sha256": "7fe40cb699366f29ad00bf52dd6a07bcabf726567a4fa3f723b8571a6ba68a13"
+  },
+  {
+    "job": "docs-check",
+    "step": "Local act runner contract gate isolated copy",
+    "command": [
+      "python3",
+      "-I",
+      "${EVIDENCE}/act_ci.py",
+      "--selftest",
+      "--worktree",
+      "${CHECKOUT}"
+    ],
+    "rc": 0,
+    "seconds": 32.016,
+    "log": "round5-docs-068.log",
+    "size": 59168,
+    "sha256": "6a28c53acbded43c63ca0ec57eb4fb5f58c1f0826a0a6d8a8bd539d364f6debe",
+    "index": 68,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 59168,
+    "packet_sha256": "6a28c53acbded43c63ca0ec57eb4fb5f58c1f0826a0a6d8a8bd539d364f6debe"
+  },
+  {
+    "step": "Doc cited-path gate",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.087,
+    "log": "round5-docs-069.log",
+    "size": 86,
+    "sha256": "3dfdf705928b9925f8a5816d7df69bae2bb846ec838f27e245805b26bc475ac4",
+    "index": 69,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 86,
+    "packet_sha256": "3dfdf705928b9925f8a5816d7df69bae2bb846ec838f27e245805b26bc475ac4"
+  },
+  {
+    "step": "Archive integrity gate",
+    "command": [
+      "python3",
+      "scripts/check_archive.py"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.4,
+    "log": "round5-docs-070.log",
+    "size": 93,
+    "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+    "index": 70,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 93,
+    "packet_sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+  },
+  {
+    "step": "Archive integrity gate",
+    "command": [
+      "python3",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.047,
+    "log": "round5-docs-071.log",
+    "size": 35,
+    "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a",
+    "index": 71,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 35,
+    "packet_sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a"
+  },
+  {
+    "step": "Per-page contents gate",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 1.031,
+    "log": "round5-docs-072.log",
+    "size": 38,
+    "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+    "index": 72,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 38,
+    "packet_sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32"
+  },
+  {
+    "step": "Per-page contents gate",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 3.902,
+    "log": "round5-docs-073.log",
+    "size": 64,
+    "sha256": "1a3ecfc7cc0a7214647f3df8f7ccf726f652a8bfb8fd9dd48ce410acd9c6ad84",
+    "index": 73,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 64,
+    "packet_sha256": "1a3ecfc7cc0a7214647f3df8f7ccf726f652a8bfb8fd9dd48ce410acd9c6ad84"
+  },
+  {
+    "step": "Per-page contents gate",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 6.023,
+    "log": "round5-docs-074.log",
+    "size": 94,
+    "sha256": "53ec021bdb8ff494f697e86dfa7d077b40f800902370da8506fc8a692b4d54ac",
+    "index": 74,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 94,
+    "packet_sha256": "53ec021bdb8ff494f697e86dfa7d077b40f800902370da8506fc8a692b4d54ac"
+  },
+  {
+    "step": "AEM store generator self-test",
+    "command": [
+      "python3",
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.072,
+    "log": "round5-docs-075.log",
+    "size": 3596,
+    "sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+    "index": 75,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 3596,
+    "packet_sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022"
+  },
+  {
+    "step": "Sweep/build shape gate",
+    "command": [
+      "python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 14.195,
+    "log": "round5-docs-076.log",
+    "size": 19586,
+    "sha256": "d5d92ba39fe4b760f11b98312012949083df297ec568f097337fd39c1b6f05e7",
+    "index": 76,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 19586,
+    "packet_sha256": "d5d92ba39fe4b760f11b98312012949083df297ec568f097337fd39c1b6f05e7"
+  },
+  {
+    "step": "Deploy shape gate",
+    "command": [
+      "python3",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 0.45,
+    "log": "round5-docs-077.log",
+    "size": 9222,
+    "sha256": "2227e4a5d86323459ab781d3106a69d7cd8b1a21744deff4c6c1187738cb97bc",
+    "index": 77,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 9222,
+    "packet_sha256": "2227e4a5d86323459ab781d3106a69d7cd8b1a21744deff4c6c1187738cb97bc"
+  },
+  {
+    "step": "Entity shape gate",
+    "command": [
+      "python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "job": "docs-check",
+    "rc": 0,
+    "seconds": 52.923,
+    "log": "round5-docs-078.log",
+    "size": 27635,
+    "sha256": "85945977dc53abdcb277a71aa8011c6f49ec660474b18b1588ec340e8b0f3dde",
+    "index": 78,
+    "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f",
+    "packet_bytes": 27635,
+    "packet_sha256": "85945977dc53abdcb277a71aa8011c6f49ec660474b18b1588ec340e8b0f3dde"
+  }
+]

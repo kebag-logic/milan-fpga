@@ -1,0 +1,32 @@
+{
+ "head": "feef7c9fd239ef62b7c6aad301e80a13275e47ef",
+ "python": "3.12.3",
+ "checks": [
+  {"check": "inventory-selftest", "rc": 0, "last": "PASS: missing inventory entry differs"},
+  {"check": "patterns-selftest", "rc": 0, "last": "PASS: unknown Make option: generation and comparison"},
+  {"check": "nodes-selftest", "rc": 0, "last": "PASS: committed external-import allowances name no in-tree module"},
+  {"check": "exact-selftest", "rc": 0, "last": "PASS: only BASH_SOURCE[0] is modelled: generation and comparison"},
+  {"check": "differential-check", "rc": 0, "last": "PASS: 188 differential fixtures meet their expectations; 177 census shapes proven at image sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c0"},
+  {"check": "census-gate-selftest", "rc": 0, "last": "PASS: a shape whose focus fixture did not meet its expectation refuses"},
+  {"check": "build-selftest", "rc": 0, "last": "PASS: source pin change changes recipe identity"},
+  {"check": "integrity-selftest", "rc": 0, "last": "PASS: comment-like runtime scalar refused"},
+  {"check": "privacy-selftest", "rc": 0, "last": "PASS: every protected class and OCI metadata surface; oracle leftovers"},
+  {"check": "privacy-patch-selftest", "rc": 0, "last": "PASS: exact patched output, unchanged matches, added identity and input authentication"},
+  {"check": "baremetal-check", "rc": 0, "last": "baremetal-only: OK (0 findings across 1333 tracked first-party file(s))"},
+  {"check": "baremetal-selftest", "rc": 0, "last": "baremetal-only selftest: PASS (738 arm(s))"},
+  {"check": "idiom", "rc": 0, "last": "  over-long line: 0 <= 0"},
+  {"check": "idiom-selftest", "rc": 0, "last": "54 checks: 54 PASS, 0 FAIL"},
+  {"check": "docs-check", "rc": 0, "last": "docs_check: 0 finding(s) across 207 md files + 1335 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]"},
+  {"check": "doc-style", "rc": 0, "last": "documentation style: OK (22 current documents)"},
+  {"check": "doc-paths", "rc": 0, "last": "doc path gate: OK (1013 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)"},
+  {"check": "em-dash", "rc": 0, "last": "check_em_dash: 0 finding(s) over 706 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [fa7347fc..HEAD]"},
+  {"check": "toc", "rc": 0, "last": "TOC gate: OK (147 page(s) carry an annotated contents list, 17 below the 3-section threshold)"},
+  {"check": "anchors", "rc": 0, "last": "anchor check: 495 existing cross-page fragment links reproduced"},
+  {"check": "hygiene", "rc": 0, "last": "HYGIENE RATCHET: PASS (3 population(s), 1185 file(s))"},
+  {"check": "whitespace", "rc": 0, "last": ""},
+  {"check": "exec-audit-selftest-image", "rc": 0, "last": "PASS: a step that fails under the disabled network: caught (step exited 7)"},
+  {"check": "check-lock-second-export", "rc": 0, "last": "PASS: image identity verified against exported manifest, config and every layer"},
+  {"check": "prepare-only", "rc": 0, "last": "Verified context; recipe sha256:b3fdd9003ee3ba95176f83d4bfd390c6be94841a10e5dacca2863e6ac056ae68"},
+  {"check": "inventory-check-last", "rc": 0, "last": "CI tool inventory matches workflow installation requests"}
+ ]
+}
