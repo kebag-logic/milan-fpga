@@ -97,14 +97,19 @@ def generate(source: dict) -> dict:
     source = copy.deepcopy(source)
     total = len(WORKER_OVERHEAD_SECONDS)
     worker = source["jobs"]["verilator-shards"]
+    # The template's own worker count names its dedicated milan_dp arm and verifier.
+    template_total = worker["strategy"]["matrix"]["total"][0]
+    dedicated_arm = (str(template_total - 1)
+                     + ') test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;\n')
+    template_expect = "--expect " + str(template_total)
     worker["strategy"]["matrix"] = {"shard": list(range(total)), "total": [total]}
     for step in worker["steps"]:
         if step.get("name") == "Prove specialized suite ownership":
-            step["run"] = step["run"].replace("--shard", "--ci-pieces --shard").replace(
-                '            4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;\n', "")
             # Literal block indentation is removed by YAML; match the parsed body.
-            step["run"] = step["run"].replace(
-                '  4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;\n', "")
+            if step["run"].count("  " + dedicated_arm) != 1:
+                raise ValueError("template ownership step lacks its dedicated milan_dp arm")
+            step["run"] = step["run"].replace("--shard", "--ci-pieces --shard").replace(
+                "  " + dedicated_arm, "")
         if step.get("name") == "Run this exhaustive suite shard":
             step["run"] = step["run"].replace("--shard", "--ci-pieces --shard")
     worker["timeout-minutes"] = "${{ matrix.shard == " + str(total - 1) + " && 60 || 45 }}"
@@ -118,7 +123,9 @@ def generate(source: dict) -> dict:
     # The original aggregate still verifies every worker's target SHA first.
     for step in aggregate["steps"]:
         if step.get("name") == "Require every shard to have validated this run's SHA":
-            step["run"] = step["run"].replace("--expect 5", "--expect " + str(total))
+            if step["run"].count(template_expect + " ") != 1:
+                raise ValueError("template verifier lacks its worker-count expectation")
+            step["run"] = step["run"].replace(template_expect + " ", "--expect " + str(total) + " ")
         if step.get("name") == "Prove exhaustive ownership and tally every log":
             step["run"] = """python3 scripts/ci_suite_collect.py \
   --workers "$RUNNER_TEMP/all-suite-logs" --unions "$RUNNER_TEMP/suite-unions" \

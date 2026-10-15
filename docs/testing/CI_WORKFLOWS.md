@@ -345,8 +345,8 @@ The workflow keeps the public aggregate names `verilator-suites` and
 relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
-Verilator schedules 79 units on sixteen native matrix workers. The ordinary
-serial command still runs the original 62 suites. CI expands six long suites
+Verilator schedules 80 units on sixteen native matrix workers. The ordinary
+serial command still runs the original 63 suites. CI expands six long suites
 into driver-derived case partitions: `milan_dp` (four legs), `milan_dp_mclk`
 (four), `capture_coherence` (four), `maap` (four), `milan_dp_render` (three), and
 `pp_shadow` (four). The source drivers enumerate 19, 31, 31, 66, 3 and 4 units,
@@ -363,6 +363,18 @@ exception; the coordinating role measures the actual hosted head before the
 owner decides any remaining acceleration. Regular workers have 45-minute
 limits; leg A retains a 60-minute allowance within its former 120-minute job
 limit. The separate nightly physical-rate job keeps its existing deadline.
+
+`gptp_tables` (#713) joins the balanced inventory whole, as every unsplit
+suite does. Dev registered it at the provisional 1800-second `suite_timeout`
+figure (#640) and gave its added sixth worker the prior maximum overhead, 115
+seconds; dev replaces both after the change's successful hosted run. Here
+its figure is a hosted window: 568 seconds on worker 0/6 of dev run
+38601263345 at `f6260253`, whose suites all passed; the pull-request run
+38538854504 measured 474 seconds. At the provisional figure its worker would
+project 1922 seconds, over the 1620-second bound. The selector places it on
+worker 3, projected at 1544 seconds. The template keeps dev's six-worker
+matrix, its shard 5/6 `milan_dp` ownership arm and its `--expect 6`; the
+generator replaces all three with the sixteen workers.
 
 The selector refuses a missing or extra duration, duplicate ownership, a
 changed specialized owner, or a regular worker projected above 1620 seconds.
@@ -1354,8 +1366,8 @@ passes `--shard ${{ matrix.shard }}/${{ matrix.total }}` and names itself the
 same way. `--check` requires that singleton to equal the shard-list length and
 derives the aggregate's `--expect` from the list. It refuses a missing or stale
 total and any literal or `strategy.job-total` denominator in a script or job
-name. With a matrix of five and a stale total of four, the check fails before
-shard 4/5's suites or tops can be omitted while the artifact counts agree.
+name. With a matrix of seven and a stale total of six, the check fails before
+shard 6/7's suites or tops can be omitted while the artifact counts agree.
 
 The aggregates refuse, and the check fails rather than skips:
 

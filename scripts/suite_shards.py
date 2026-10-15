@@ -65,7 +65,10 @@ VERILATOR_JOB = "verilator-shards"
 #: #727: hosted seconds per default suite, rounded up, by the rule in the
 #: module docstring. Dev run 38217650945 at c6bd08c6, all five Verilator
 #: workers, except `maap`: #696 lengthens it, measured on its worker 1/5 in
-#: run 38208503834 at 26e2748f (dev's own window was 185 s).
+#: run 38208503834 at 26e2748f (dev's own window was 185 s), and `gptp_tables`
+#: (#713): the larger of its hosted windows, worker 0/6 of dev run 38601263345
+#: at f6260253, whose suites all passed (its pull-request run 38538854504 at
+#: 7fb3664b measured 474 s).
 SUITE_SECONDS = {
     "aaf": 73,
     "aaf_audio_loop": 6,
@@ -95,6 +98,7 @@ SUITE_SECONDS = {
     "fw_service_budget": 2,
     "gptp_plane": 784,
     "gptp_shadow": 393,
+    "gptp_tables": 568,
     "gptp_txts": 72,
     "i2spb": 6,
     "ifg": 6,
@@ -866,8 +870,8 @@ def head_selftest() -> int:
         return len(problems) + len(provisional)
 
     # The run-time half is the workflow's ownership step: tsn-gen and
-    # Yosys/sv2v are installed on workers 1 and 3, and worker 4 must run
-    # milan_dp alone, so a rule that moves any of them must fail here. The
+    # Yosys/sv2v are installed on workers 1 and 3, and the last worker must run
+    # milan_dp_mclk__0 alone, so a rule that moves any of them must fail here. The
     # balance alone can put a suite on its owner by chance, so each
     # specialized suite is also planted as the lightest and the heaviest.
     owners, _ = balance(suites, len(load))

@@ -69,8 +69,10 @@ time, and the page's section 18 derives the real copy time separately.
 
 The writer restart of W1 to W4 is modelled by returning every file-scope
 variable of the writer to its initial value and running its boot again.
-`run_cases.py` refuses to build it unless it names every such variable, so a
-new static cannot survive the modelled reset unnoticed. NOTHING ELSE of a CPU
+`run_cases.py` builds it with the restart model the host gate's check 13 also
+boots ([`writer_restart.py`](../../../sw/firmware/nvm_hosttest/writer_restart.py)),
+which refuses unless it names every such variable, so a new static cannot
+survive the modelled reset unnoticed. NOTHING ELSE of a CPU
 reset is modelled -- not the boot code's memory initialisation, not the memory
 holding the live window, not the bus fabric -- so those four cases ASSUME
 obligation O4 of the page and cannot test it.

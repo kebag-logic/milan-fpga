@@ -2000,7 +2000,7 @@ def check_physical_gptp(c: Contract, wf: YamlMap, policy: str) -> None:
 #: #444: the Verilator workers' ownership proof, pinned verbatim after
 #: whitespace normalization like the decision step. Its `case` arms are the
 #: run-time half of suite_shards.py's landmarks: the tsn-gen and Yosys/sv2v
-#: installs are keyed to shards 1 and 3, and shard 4 is milan_dp's own worker.
+#: installs are keyed to shards 1 and 3, and shard 5 is milan_dp's own worker.
 #: An arm dropped or widened here lets an assignment drift run green on a
 #: worker that no longer owns what it installs, or on a milan_dp worker that
 #: runs more than milan_dp.
@@ -2015,7 +2015,7 @@ CANONICAL_OWNERSHIP_SCRIPT = (
     'case "$SHARD" in',
     '1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;',
     '3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;',
-    '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;',
+    '5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;',
     "esac",
 )
 
@@ -2290,7 +2290,7 @@ RTL_STEP_LISTS = {
          "run": (
              'shopt -s nullglob',
              'roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)',
-             'python3 scripts/ci_events.py --require-target-sha --expect 5 --sha '
+             'python3 scripts/ci_events.py --require-target-sha --expect 6 --sha '
              'gate="$GATE_SHA" --sha run="$GITHUB_SHA" --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"',
          )},
         {"name": VERILATOR_TALLY_STEP, "if": ALWAYS_IF,
@@ -5352,25 +5352,25 @@ def _m_shard_denominator_stale(w: World) -> None:
     # O9: the matrix grows, the restated denominator does not.
     shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
         "shard"]
-    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
-    _restate_shards(w, "verilator-shards", "5")
-    shard.append(5)
+    assert shard == [0, 1, 2, 3, 4, 5], "fixture drift: verilator-shards matrix"
+    _restate_shards(w, "verilator-shards", "6")
+    shard.append(6)
 
 
 def _m_dedicated_worker_dropped(w: World) -> None:
-    """#444: milan_dp's own worker leaves the matrix, `total` stays five."""
+    """#444: milan_dp's own worker leaves the matrix, `total` stays six."""
     shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
         "shard"]
-    assert shard[-1] == 4, "fixture drift: verilator-shards matrix"
+    assert shard[-1] == 5, "fixture drift: verilator-shards matrix"
     shard.pop()
 
 
 def _m_dedicated_worker_reverted(w: World) -> None:
-    """#444: the matrix and its `total` return to four, `--expect` stays."""
+    """#444: the matrix and its `total` return to five, `--expect` stays."""
     matrix = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"]
-    assert matrix["shard"][-1] == 4, "fixture drift: verilator-shards matrix"
+    assert matrix["shard"][-1] == 5, "fixture drift: verilator-shards matrix"
     matrix["shard"].pop()
-    matrix["total"] = [4]
+    matrix["total"] = [5]
 
 
 def _ownership_step(w: World) -> YamlMap:
@@ -5382,15 +5382,15 @@ def _ownership_step(w: World) -> YamlMap:
 
 
 def _m_ownership_dedicated_arm_dropped(w: World) -> None:
-    """#444: the proof that shard 4 runs milan_dp alone is deleted."""
+    """#444: the proof that shard 5 runs milan_dp alone is deleted."""
     s = _ownership_step(w)
-    arm = '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
+    arm = '5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
     assert arm in s["run"], "fixture drift: no dedicated ownership arm"
     s["run"] = "\n".join(l for l in s["run"].splitlines() if arm not in l)
 
 
 def _m_ownership_dedicated_arm_widened(w: World) -> None:
-    """#444: shard 4 need only include milan_dp, not run it alone."""
+    """#444: shard 5 need only include milan_dp, not run it alone."""
     s = _ownership_step(w)
     alone = 'test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp'
     assert alone in s["run"], "fixture drift: no dedicated ownership arm"
@@ -5458,12 +5458,12 @@ _DECIDE_INVISIBLES = (
 )
 
 
-#: #444: judging the Verilator workers without the fifth. The combined
-#: result still reddens, but only when a log from workers 0 to 3 shows a
-#: failure, so a milan_dp TIMEOUT on shard 4 turns green.
-_FOUR_WORKER_RESULT = (
+#: #444: judging the Verilator workers without the sixth. The combined
+#: result still reddens, but only when a log from workers 0 to 4 shows a
+#: failure, so a milan_dp TIMEOUT on shard 5 turns green.
+_FIVE_WORKER_RESULT = (
     'if [ "$SHARD_RESULT" != success ]; then\n'
-    "  for shard in 0 1 2 3; do\n"
+    "  for shard in 0 1 2 3 4; do\n"
     "    if grep -rqs -e TIMEOUT -e FAIL "
     '"$RUNNER_TEMP/all-suite-logs/suite-logs-$shard"; then\n'
     '      echo "one or more Verilator workers ended: $SHARD_RESULT" >&2\n'
@@ -5493,14 +5493,14 @@ def _m_shard_denominator_wrong(w: World) -> None:
 def _m_shard_name_stale(w: World) -> None:
     """verilator-shards' name restates a stale denominator."""
     job = jobs(w[RTL_FULL])["verilator-shards"]
-    job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "3")
+    job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "4")
 
 
 def _m_shard_matrix_include(w: World) -> None:
     """verilator-shards' matrix gains an `include`."""
     jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
         "include"
-    ] = [{"shard": 4, "total": 5}]
+    ] = [{"shard": 5, "total": 6}]
 
 
 def _m_shard_matrix_exclude(w: World) -> None:
@@ -5584,16 +5584,16 @@ def _m_verify_expect_wrong(w: World) -> None:
 def _m_verify_expect_missing(w: World) -> None:
     """verilator-suites' verifier passes no `--expect`."""
     s = _verify_step(w, "verilator-suites")
-    assert "--expect 5 " in s["run"]
-    s["run"] = s["run"].replace("--expect 5 ", "")
+    assert "--expect 6 " in s["run"]
+    s["run"] = s["run"].replace("--expect 6 ", "")
 
 
 def _m_matrix_grows_expect_stays(w: World) -> None:
     """verilator-shards' matrix grows, the verifier's `--expect` does not."""
     shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
         "shard"]
-    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
-    shard.append(5)
+    assert shard == [0, 1, 2, 3, 4, 5], "fixture drift: verilator-shards matrix"
+    shard.append(6)
 
 
 def _m_aggregate_if_loosened(w: World) -> None:
@@ -6235,7 +6235,7 @@ def _gate_escape_arms() -> list[Arm]:
         ("R4 verifier without --expect", _m_verify_expect_missing,
          "no --expect"),
         ("R4 matrix grows, --expect stays", _m_matrix_grows_expect_stays,
-         "--expect 6"),
+         "--expect 7"),
         ("aggregate job if loosened", _m_aggregate_if_loosened,
          "`if` must be exactly"),
         ("aggregate job if dropped", _m_aggregate_if_dropped,
@@ -6530,13 +6530,13 @@ def _aggregate_script_arms() -> list[Arm]:
          _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP,
                              "exit 1", "exit 0"),
          f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
-        ("#444 the Verilator worker-result step judges workers 0 to 3 only",
+        ("#444 the Verilator worker-result step judges workers 0 to 4 only",
          _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP, "",
-                             _FOUR_WORKER_RESULT),
+                             _FIVE_WORKER_RESULT),
          f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
-        ("#444 the Verilator tally globs workers 0 to 3 only",
+        ("#444 the Verilator tally globs workers 0 to 4 only",
          _m_aggregate_script("verilator-suites", VERILATOR_TALLY_STEP,
-                             "suite-logs-*)", "suite-logs-[0-3])"),
+                             "suite-logs-*)", "suite-logs-[0-4])"),
          f"`{VERILATOR_TALLY_STEP}` step script of `verilator-suites`"),
         ("#444 the Verilator tally is replaced by true",
          _m_aggregate_script("verilator-suites", VERILATOR_TALLY_STEP, "",
@@ -6634,12 +6634,12 @@ def _shard_and_fast_arms() -> list[Arm]:
          "must not define `include` or `exclude`"),
         ("O9e sharded matrix excludes a worker", _m_shard_matrix_exclude,
          "must not define `include` or `exclude`"),
-        # #444: milan_dp's dedicated fifth worker, its run-time proof and the
+        # #444: milan_dp's dedicated sixth worker, its run-time proof and the
         # gate's docs-only line are each refused when removed.
         ("#444 the dedicated milan_dp worker leaves the matrix",
          _m_dedicated_worker_dropped, "shard denominator matrix `total`"),
-        ("#444 the matrix and total return to four, --expect stays",
-         _m_dedicated_worker_reverted, "--expect 4"),
+        ("#444 the matrix and total return to five, --expect stays",
+         _m_dedicated_worker_reverted, "--expect 5"),
         ("#444 ownership proof loses the dedicated milan_dp arm",
          _m_ownership_dedicated_arm_dropped,
          f"`{OWNERSHIP_STEP}` step script is not the canonical form"),
