@@ -40,6 +40,10 @@ def main() -> int:
     """The receipt meets every expectation; the gate refuses what it does not prove."""
     assert ci_differential.check() == 0
     assert ci_command_table.GATE
+    census = json.loads(ci_differential.CENSUS.read_text())['shapes']
+    used = ci_differential.tree_shapes()
+    assert set(census) == set(used), (sorted(set(census) - set(used)), sorted(set(used) - set(census)))
+    print(f'PASS: the census is exactly the {len(used)} shapes the tree applies')
     with tempfile.TemporaryDirectory(prefix='ci-gate-') as directory:
         root = Path(directory)
         (root / 'ci/image').mkdir(parents=True)
