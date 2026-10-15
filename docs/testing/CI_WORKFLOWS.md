@@ -2034,12 +2034,19 @@ hosted runner without a cgroup limit reads its RAM. It then sets
 one when that is zero. The constant is `CENSUS_WORKER_BYTES` in
 `scripts/ci_runtime_workflows.py`, the measured sv2v peak given below; the
 other third of M is headroom for the driver, the Yosys that follows each
-sv2v, and the page cache. An unreadable limit, a missing `MemTotal` or zero
-CPUs fail the step. `scripts/ci_gate_workflows_selftest.py` executes the
-emitted shell over planted `/proc` and cgroup files: four workers in an
-eight-GiB container at sixteen CPUs and on a four-CPU hosted runner, two
-under a lower ancestor limit, two at two CPUs, one below one worker's
-memory, and a refusal for each unreadable input.
+sv2v, and the page cache. Only an absent `memory.max` means that cgroup
+sets no limit. One that is present but cannot be read, at the job's cgroup
+or at any ancestor, fails the step before `CI_CENSUS_JOBS` is written, and
+so does a cgroup directory on the walk that cannot be searched. A
+non-numeric limit, a missing `MemTotal` or zero CPUs also fail the step.
+`scripts/ci_gate_workflows_selftest.py` executes the emitted shell over
+planted meminfo and cgroup files: four workers in an eight-GiB container at
+sixteen CPUs and on a four-CPU hosted runner, two under a lower ancestor
+limit, two at two CPUs, one below one worker's memory, and sixteen with no
+memory controller. It refuses a mode-000 limit at the leaf and at an
+ancestor, a mode-000 ancestor cgroup, a limit that is a directory, and each
+non-numeric or missing input. Root reads through mode 000, so as root the
+three mode-000 cases print a loud skip; the directory cases still run.
 Simulation pools use the same bound; case drivers retain their two-run cap.
 Outer suite make invocations remain serial to preserve shared build ownership.
 The compiler inside the selected build receives the CPU budget.

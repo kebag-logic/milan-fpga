@@ -51,7 +51,10 @@ CENSUS_WORKER_BYTES = 1234825216
 
 
 def census_budget_step() -> dict:
-    """Bound census workers by the job's memory: two thirds of it per measured worker peak, never above nproc."""
+    """Bound census workers by the job's memory: two thirds of it per measured worker peak, never above nproc.
+
+    Only an absent memory.max means no limit; one present but unreadable, or a cgroup that cannot be searched,
+    refuses before CI_CENSUS_JOBS is written."""
     return {"name": "Set memory-derived census workers", "run": """set -euo pipefail
 cpus="$(nproc)"
 test "$cpus" -gt 0
@@ -61,11 +64,16 @@ memory=$(( kib * 1024 ))
 cgroup="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup)"
 cgroup="${cgroup%/}"
 while :; do
-  if [ -r "$cgroup/memory.max" ]; then
-    limit="$(cat "$cgroup/memory.max")"
+  if [ -d "$cgroup" ] && [ ! -x "$cgroup" ]; then
+    echo "unsearchable cgroup $cgroup: its memory limit cannot be proved absent" >&2; exit 1
+  fi
+  if [ -e "$cgroup/memory.max" ]; then
+    if ! limit="$(cat "$cgroup/memory.max")"; then
+      echo "unreadable memory limit in $cgroup" >&2; exit 1
+    fi
     case "$limit" in
       max) ;;
-      ''|*[!0-9]*) echo "unreadable memory limit in $cgroup: $limit" >&2; exit 1 ;;
+      ''|*[!0-9]*) echo "non-numeric memory limit in $cgroup: $limit" >&2; exit 1 ;;
       *) if [ "$limit" -lt "$memory" ]; then memory="$limit"; fi ;;
     esac
   fi

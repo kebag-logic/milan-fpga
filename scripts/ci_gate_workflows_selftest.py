@@ -232,9 +232,11 @@ def cpu_controls() -> None:
             assert sum(step.get("name") == cpu_budget_step()["name"] for step in job["steps"]) == 1
 
 
-def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: dict[str, str]) -> str | None:
+def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: dict[str, str],
+                  denied: dict[str, str] | None = None) -> str | None:
     """CI_CENSUS_JOBS as the emitted shell sets it over proc and cgroup files planted in the new directory root;
-    None if it refused."""
+    None if it refused. `denied` makes a planted cgroup's "limit" (memory.max mode 000), its "directory" (mode 000)
+    or its memory.max a "non-file" (a directory) unreadable after planting."""
     (root / "bin").mkdir()
     (root / "bin" / "nproc").write_text("#!/bin/sh\nprintf '%s\\n' " + str(cpus) + "\n")
     (root / "bin" / "nproc").chmod(0o755)
@@ -243,7 +245,10 @@ def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: d
     (root / "self-cgroup").write_text("0::" + cgroup + "\n")
     for directory, limit in limits.items():
         (root / "sys" / directory).mkdir(parents=True, exist_ok=True)
-        (root / "sys" / directory / "memory.max").write_text(limit + "\n")
+        if (denied or {}).get(directory) == "non-file":
+            (root / "sys" / directory / "memory.max").mkdir()
+        else:
+            (root / "sys" / directory / "memory.max").write_text(limit + "\n")
     (root / "sys").mkdir(exist_ok=True)
     script = census_budget_step()["run"]
     for real, planted, count in (("/proc/meminfo", root / "meminfo", 1),
@@ -251,10 +256,18 @@ def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: d
                                  ("/sys/fs/cgroup", root / "sys", 2)):
         assert script.count(real) == count, real
         script = script.replace(real, str(planted))
+    modes = [(root / "sys" / directory / ("memory.max" if how == "limit" else ""))
+             for directory, how in (denied or {}).items() if how != "non-file"]
+    for path in modes:
+        path.chmod(0)
     output = root / "census.env"
-    ran = subprocess.run(["bash", "-c", script], check=False, capture_output=True, text=True,
-                         env={**os.environ, "PATH": str(root / "bin") + ":" + os.environ["PATH"],
-                              "GITHUB_ENV": str(output)})
+    try:
+        ran = subprocess.run(["bash", "-c", script], check=False, capture_output=True, text=True,
+                             env={**os.environ, "PATH": str(root / "bin") + ":" + os.environ["PATH"],
+                                  "GITHUB_ENV": str(output)})
+    finally:
+        for path in reversed(modes):
+            path.chmod(0o755)
     if ran.returncode:
         assert not output.exists(), ran
         return None
@@ -263,29 +276,53 @@ def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: d
     return lines[0].removeprefix("CI_CENSUS_JOBS=")
 
 
+def mode_zero_denies(root: Path) -> bool:
+    """Whether mode 000 denies this process a read: root's CAP_DAC_OVERRIDE reads through it."""
+    probe = root / "mode-zero-probe"
+    probe.write_text("probe\n")
+    probe.chmod(0)
+    try:
+        probe.read_text()
+    except PermissionError:
+        return True
+    finally:
+        probe.chmod(0o644)
+    return False
+
+
 def census_controls() -> None:
     """Execute the emitted census budget shell: bounded by the job's memory, never above nproc,
-    refusing the unreadable."""
+    refusing a limit that is present but unreadable or non-numeric."""
     gib = 1024 * 1024
     container = {"": str(8 * 2**30)}
     hosted = {"": "max", "system.slice": "max", "system.slice/runner.service": "max"}
+    ancestor = {"": "max", "a": str(4 * 2**30), "a/b": "max"}
     with tempfile.TemporaryDirectory(prefix="census-budgets-") as temporary:
         root = Path(temporary)
-        for described, cpus, kib, cgroup, limits, want in (
+        denies = mode_zero_denies(root)
+        for described, cpus, kib, cgroup, limits, denied, want in (
             # #742: sixteen CPUs in an eight-GiB act job container on a 61 GiB host.
-            ("act job container", 16, 61 * gib, "/", container, "4"),
-            ("hosted runner without a cgroup limit", 4, 16 * gib, "/system.slice/runner.service", hosted, "4"),
-            ("host memory below its cgroup's", 16, 4 * gib, "/", container, "2"),
-            ("a lower ancestor limit", 16, 61 * gib, "/a/b", {"": "max", "a": str(4 * 2**30), "a/b": "max"}, "2"),
-            ("fewer CPUs than memory allows", 2, 61 * gib, "/", container, "2"),
-            ("memory for less than one worker", 16, 61 * gib, "/", {"": str(2**30)}, "1"),
-            ("a cgroup without a memory controller", 16, 61 * gib, "/", {}, "16"),
-            ("an unreadable limit", 16, 61 * gib, "/", {"": "garbage"}, None),
-            ("an empty limit", 16, 61 * gib, "/", {"": ""}, None),
-            ("no MemTotal", 16, None, "/", container, None),
-            ("zero CPUs", 0, 61 * gib, "/", container, None),
+            ("act job container", 16, 61 * gib, "/", container, {}, "4"),
+            ("hosted runner without a cgroup limit", 4, 16 * gib, "/system.slice/runner.service", hosted, {}, "4"),
+            ("host memory below its cgroup's", 16, 4 * gib, "/", container, {}, "2"),
+            ("a lower ancestor limit", 16, 61 * gib, "/a/b", ancestor, {}, "2"),
+            ("fewer CPUs than memory allows", 2, 61 * gib, "/", container, {}, "2"),
+            ("memory for less than one worker", 16, 61 * gib, "/", {"": str(2**30)}, {}, "1"),
+            ("a cgroup without a memory controller", 16, 61 * gib, "/", {}, {}, "16"),
+            ("a mode-000 limit", 16, 61 * gib, "/", container, {"": "limit"}, None),
+            ("a mode-000 ancestor limit", 16, 61 * gib, "/a/b", ancestor, {"a": "limit"}, None),
+            ("a mode-000 ancestor cgroup", 16, 61 * gib, "/a/b", ancestor, {"a": "directory"}, None),
+            ("a limit that is not a file", 16, 61 * gib, "/", container, {"": "non-file"}, None),
+            ("an ancestor limit that is not a file", 16, 61 * gib, "/a/b", ancestor, {"a": "non-file"}, None),
+            ("a non-numeric limit", 16, 61 * gib, "/", {"": "garbage"}, {}, None),
+            ("an empty limit", 16, 61 * gib, "/", {"": ""}, {}, None),
+            ("no MemTotal", 16, None, "/", container, {}, None),
+            ("zero CPUs", 0, 61 * gib, "/", container, {}, None),
         ):
-            got = census_budget(Path(tempfile.mkdtemp(dir=root)), cpus, kib, cgroup, limits)
+            if not denies and any(how != "non-file" for how in denied.values()):
+                print(f"Census budget: {described}: LOUD SKIP - running as root, where mode 000 does not deny a read")
+                continue
+            got = census_budget(Path(tempfile.mkdtemp(dir=root)), cpus, kib, cgroup, limits, denied)
             assert got == want, (described, got, want)
             print(f"Census budget: {described}: {'refused' if got is None else got + ' worker(s)'}")
     assert 4 * CENSUS_WORKER_BYTES * 3 <= 2 * 8 * 2**30 < 5 * CENSUS_WORKER_BYTES * 3
