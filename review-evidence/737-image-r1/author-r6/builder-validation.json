@@ -1,0 +1,125 @@
+{
+  "head": "18f2df92b13cb3f4036b073ed76940187bf10487",
+  "status": "REVIEW READY: compiler-backed campaign completed; existing mf48 and inert MAKEFLAGS arms NOT RUN",
+  "source_sha256": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47",
+  "driver": "builder-groups.py",
+  "require_rv32": true,
+  "defined_function_invocations": 103,
+  "returned_function_invocations": 103,
+  "completed_groups": [
+    {
+      "group": 0,
+      "receipt": "builder-group-0-0.receipt.json",
+      "functions": "builder-functions-0.json",
+      "rc": 0,
+      "elapsed_ms": 191400
+    },
+    {
+      "group": 1,
+      "receipt": "builder-home-background.receipt.json",
+      "functions": "builder-functions-1.json",
+      "rc": 0,
+      "elapsed_ms": 1014708
+    },
+    {
+      "group": 2,
+      "receipt": "builder-group-2-0.receipt.json",
+      "functions": "builder-functions-2.json",
+      "rc": 0,
+      "elapsed_ms": 160890
+    },
+    {
+      "group": 3,
+      "receipt": "builder-group-3-0.receipt.json",
+      "functions": "builder-functions-3.json",
+      "rc": 0,
+      "elapsed_ms": 10833
+    },
+    {
+      "group": 4,
+      "receipt": "builder-group-4-0.receipt.json",
+      "functions": "builder-functions-4.json",
+      "rc": 0,
+      "elapsed_ms": 174282
+    },
+    {
+      "group": 5,
+      "receipt": "builder-group-5-0.receipt.json",
+      "functions": "builder-functions-5.json",
+      "rc": 0,
+      "elapsed_ms": 106061
+    },
+    {
+      "group": 6,
+      "receipt": "builder-group-6-0.receipt.json",
+      "functions": "builder-functions-6.json",
+      "rc": 0,
+      "elapsed_ms": 109503
+    },
+    {
+      "group": 7,
+      "receipt": "builder-group-7-0.receipt.json",
+      "functions": "builder-functions-7.json",
+      "rc": 0,
+      "elapsed_ms": 9282
+    },
+    {
+      "group": 8,
+      "receipt": "builder-group-8-0.receipt.json",
+      "functions": "builder-functions-8.json",
+      "rc": 0,
+      "elapsed_ms": 128760
+    }
+  ],
+  "recorded_skips": [
+    {
+      "group": 2,
+      "record": [
+        "gate 11",
+        "real report not on disk ($VALIDATION_STORAGE/737-a615/container-home/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree",
+        "row"
+      ]
+    },
+    {
+      "group": 1,
+      "record": [
+        "gate 1b",
+        "the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make",
+        "row"
+      ]
+    }
+  ],
+  "missing": [],
+  "timed_out_attempts": [
+    {
+      "receipt": "builder-compiler-timeout-0.receipt.json",
+      "bound_seconds": 580,
+      "elapsed_ms": 582227,
+      "rc": 124,
+      "image_reference": "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools"
+    },
+    {
+      "receipt": "builder-group-1-0.receipt.json",
+      "bound_seconds": 590,
+      "elapsed_ms": 590546,
+      "rc": 124,
+      "image_reference": "fpga-validation:a6fd01e6bf2ced24f6a68a33c899199dfda2eb46fe4a0def569542d5c5240b7f-validation-tools"
+    }
+  ],
+  "limitation": "All 103 unchanged function invocations returned across nine groups, each command rc 0. This is grouped execution, not a monolithic builder invocation. The existing mf48 resource-calibration arm remains NOT RUN because its Vivado utilization report is absent; the public ruling accepts this existing hosted skip. The MAKEFLAGS += -e mutation is also NOT RUN because this make does not re-read MAKEFLAGS mid-parse, so the mutation is inert; the gate explicitly reports that no tool is missing.",
+  "background_attempt": {
+    "receipt": "builder-background.receipt.json",
+    "rc": 1,
+    "elapsed_ms": 3302,
+    "timeout": null,
+    "compiler_backed_campaign_completed": false
+  },
+  "corrected_background_attempt": {
+    "receipt": "builder-home-background.receipt.json",
+    "rc": 0,
+    "elapsed_ms": 1014708,
+    "timeout": null,
+    "compiler_backed_campaign_completed": true,
+    "preflight": "builder-home-preflight.json"
+  }
+}

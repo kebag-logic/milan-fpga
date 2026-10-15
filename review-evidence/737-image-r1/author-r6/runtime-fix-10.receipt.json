@@ -1,0 +1,31 @@
+{
+  "command": [
+    "sudo",
+    "-n",
+    "-u",
+    "alex",
+    "-g",
+    "docker",
+    "docker",
+    "run",
+    "--rm",
+    "--network",
+    "none",
+    "--mount",
+    "type=bind,src=$LANES/737-image,dst=/tree,readonly",
+    "--mount",
+    "type=bind,src=$VALIDATION_STORAGE/737-a615/context/debs,dst=/debs,readonly",
+    "--workdir",
+    "/tree",
+    "fpga-validation:e97ae5579fc4822b0aa72ddcb97bd65b48283f86faf5040c3b0de172b003fb7d-validation-tools",
+    "python3",
+    "ci/image/resolve_packages.py",
+    "--cache",
+    "/debs"
+  ],
+  "rc": 0,
+  "elapsed_ms": 4727,
+  "size": 51,
+  "sha256": "2a6124d2ef606d544924cf770f60c94c7f0c421930b1e0628918c795e69e9075",
+  "log": "runtime-fix-10.log"
+}

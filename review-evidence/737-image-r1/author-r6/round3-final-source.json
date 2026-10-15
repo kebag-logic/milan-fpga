@@ -1,0 +1,38 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_ms": 5940,
+    "size": 57,
+    "sha256": "411ed8dc1549d45856fad29e98880aab66f615fc2fb4bf58b5e149074f49dcb7",
+    "log": "round3-final-source-0.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 415,
+    "size": 2952,
+    "sha256": "d89d7c78461ed5871213cb7c5841d046496e1e49a7e9de7727664778b61ef8bc",
+    "log": "round3-final-source-1.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/resolve_packages.py",
+      "--cache",
+      "$VALIDATION_STORAGE/737-a615/round3/cold-a/context/debs"
+    ],
+    "rc": 1,
+    "elapsed_ms": 64,
+    "size": 1770,
+    "sha256": "a4f6cd06fee0b66447a50c67dd25865293410e634954e5394d60b0cc98720ae2",
+    "log": "round3-final-source-2.log"
+  }
+]

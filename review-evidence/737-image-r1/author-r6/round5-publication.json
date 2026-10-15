@@ -1,0 +1,18 @@
+{
+  "job": "publication-census",
+  "step": "Run the publication census in every shape the builder builds",
+  "command": [
+    "python3",
+    "sw/mailbox/publication_census.py",
+    "--check",
+    "--selftest",
+    "--jobs",
+    "1"
+  ],
+  "rc": 0,
+  "seconds": 2227.666,
+  "log": "round5-publication.log",
+  "size": 30050,
+  "sha256": "7f45424f8f8a79a7aa61ba3627e05af754c129462905a6bf677c88041fc227ce",
+  "head": "605e312dd26ca3a0c565d942dc23bf73c6cc6f9f"
+}
