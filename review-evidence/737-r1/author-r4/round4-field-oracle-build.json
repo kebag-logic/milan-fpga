@@ -1,0 +1,53 @@
+{
+ "head": "6ab22bca61a76c989ad9fbb94b9cde2639d38ca9",
+ "step": "rtl.yml verilator-shards: Build the pinned tsn-gen field oracle on its suite owner (generated body, unchanged)",
+ "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+ "container": {
+  "memory": 8589934592,
+  "cpuset": "112-127",
+  "network": "none"
+ },
+ "cpus": 16,
+ "ci_tool_build_jobs": 8,
+ "tsn_gen_rev": "deca300c9eb4863fa13383b45ba6cb6fd0828671",
+ "returncode": 0,
+ "build_seconds": 17.355,
+ "memory_peak_bytes": 836313088,
+ "memory_events": {
+  "low": "0",
+  "high": "0",
+  "max": "0",
+  "oom": "0",
+  "oom_kill": "0",
+  "oom_group_kill": "0",
+  "sock_throttled": "0"
+ },
+ "qualification": "The pinned checkout was fetched on the host first, so the step took its existing-checkout path and its clone line did not execute; container networking is unavailable on this host. Configure, bounded build and executable check ran inside the container.",
+ "artifacts": [
+  {
+   "name": "run.sh",
+   "bytes": 691,
+   "sha256": "0cee5f2fd61825bb983f786df6b71cb250ccaed0eaf9b42bbdd75e4c4d191059"
+  },
+  {
+   "name": "budget.sh",
+   "bytes": 446,
+   "sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+  },
+  {
+   "name": "build.sh",
+   "bytes": 658,
+   "sha256": "a890537b4d9e33284cda9dbb5676049284c105056213a8cd0937e1f478704957"
+  },
+  {
+   "name": "run.log",
+   "bytes": 5079,
+   "sha256": "98f8d7100efddd823523934b92e1bae1b8f2731b7cb8cc9af7dd2ae7a926403c"
+  },
+  {
+   "name": "github-env",
+   "bytes": 158,
+   "sha256": "3e308adbdee431f6c65bbd2aa652f4605a5e0c4e2e36ad4eb428a12e1c0d9684"
+  }
+ ]
+}

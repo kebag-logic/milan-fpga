@@ -1,0 +1,7 @@
+{
+  "inventory_command": "syn/yosys/run.sh --list",
+  "tally_command": "python3 scripts/yosys_tally.py <results-0> <results-1> <results-2> <results-3> --expected <expected-tops> --require-structural",
+  "returncode": 0,
+  "result": "Yosys evidence: expected=58 observed=58 errors=0\n",
+  "limitations": "Raw result directories were produced by the recorded local shard commands. Hosted TARGET_SHA step was not executed in this measurement; no hosted exact-head aggregate claim is made."
+}

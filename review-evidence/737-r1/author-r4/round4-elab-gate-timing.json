@@ -1,0 +1,567 @@
+{
+ "purpose": "Per-gate durations of the unchanged elaboration gate, to size a further elaboration worker (round 4, S3)",
+ "source_head": "4f7c281e75935f1c99c876ec20bbdef03ad23128",
+ "command": "python3 -u sw/builder/test_builder.py --require-elaboration --require-rv32 (under a line-stamping wrapper)",
+ "image_digest": "sha256:94128cff4711ebfe6d3c5ac10bf88cdc9bac5caff4f4b28fc873fc83897d8427",
+ "container": {
+  "memory": 8589934592,
+  "memory_swap": 8589934592,
+  "cpuset": "112-127",
+  "network": "none",
+  "started_at": "2026-10-14T23:57:49.054486471Z",
+  "finished_at": "2026-10-15T00:19:22.238401962Z",
+  "exit_code": 0,
+  "oom_killed": false
+ },
+ "environment": [
+  "CI_BUILD_JOBS=16",
+  "CI_TOOL_BUILD_JOBS=8",
+  "CI_CAMPAIGN_JOBS=4",
+  "VERILATOR_JOBS=16",
+  "SIM_JOBS=4",
+  "MAKEFLAGS=-j1",
+  "--no-print-directory"
+ ],
+ "returncode": 0,
+ "memory_peak_bytes": 3717427200,
+ "memory_events": {
+  "low": "0",
+  "high": "0",
+  "max": "0",
+  "oom": "0",
+  "oom_kill": "0",
+  "oom_group_kill": "0",
+  "sock_throttled": "0"
+ },
+ "verdict": "ALL GATES PASS EXCEPT 2 NOT RUN",
+ "total_seconds": 1292.671,
+ "gate_count": 103,
+ "largest": [
+  {
+   "gate": "test_baremetal_profile_contract",
+   "start": 139.807,
+   "seconds": 945.182
+  },
+  {
+   "gate": "test_nvm_firmware_shapes",
+   "start": 1180.371,
+   "seconds": 110.852
+  },
+  {
+   "gate": "test_clock_crossing_constraints",
+   "start": 30.376,
+   "seconds": 108.94
+  },
+  {
+   "gate": "test_soc_option_refusals",
+   "start": 0.35,
+   "seconds": 18.452
+  },
+  {
+   "gate": "test_optional_block_instance_gate_bites",
+   "start": 1121.369,
+   "seconds": 13.138
+  },
+  {
+   "gate": "test_clock_plan_instance_gate_bites",
+   "start": 1137.969,
+   "seconds": 10.993
+  },
+  {
+   "gate": "test_gptp_plane_reaches_the_instance",
+   "start": 1093.733,
+   "seconds": 7.505
+  },
+  {
+   "gate": "test_qspi_owner_transition_completed_write_prefixes",
+   "start": 1086.504,
+   "seconds": 7.229
+  }
+ ],
+ "contiguous_two": {
+  "after_gate": "test_baremetal_profile_contract",
+  "legs_seconds": [
+   1084.639,
+   207.682
+  ]
+ },
+ "contiguous_three": {
+  "after_gates": [
+   "test_all_configs_build",
+   "test_baremetal_profile_contract"
+  ],
+  "legs_seconds": [
+   139.457,
+   945.182,
+   207.682
+  ]
+ },
+ "longest_first": {
+  "2": [
+   945.182,
+   347.139
+  ],
+  "3": [
+   945.182,
+   173.569,
+   173.57
+  ]
+ },
+ "gates": [
+  {
+   "gate": "test_soc_option_refusals",
+   "seconds": 18.452
+  },
+  {
+   "gate": "test_commercial_timing_grade",
+   "seconds": 0.361
+  },
+  {
+   "gate": "test_baremetal_clock_contract",
+   "seconds": 0.563
+  },
+  {
+   "gate": "test_rom_clock_contract",
+   "seconds": 1.223
+  },
+  {
+   "gate": "test_rom_clock_skip_reaches_the_ledger",
+   "seconds": 0.575
+  },
+  {
+   "gate": "test_extra_sweep_clocks",
+   "seconds": 1.718
+  },
+  {
+   "gate": "test_tap_clock_docs",
+   "seconds": 0.044
+  },
+  {
+   "gate": "test_sim_clock",
+   "seconds": 0.246
+  },
+  {
+   "gate": "test_extra_sweep_invocation",
+   "seconds": 0.796
+  },
+  {
+   "gate": "test_builder_clock_source",
+   "seconds": 0.318
+  },
+  {
+   "gate": "test_declaration_contracts",
+   "seconds": 5.73
+  },
+  {
+   "gate": "test_clock_crossing_constraints",
+   "seconds": 108.94
+  },
+  {
+   "gate": "test_all_configs_build",
+   "seconds": 0.491
+  },
+  {
+   "gate": "test_baremetal_profile_contract",
+   "seconds": 945.182
+  },
+  {
+   "gate": "test_gptp_product_default_and_legacy_option",
+   "seconds": 1.446
+  },
+  {
+   "gate": "test_gptp_launch_observer_seam",
+   "seconds": 0.069
+  },
+  {
+   "gate": "test_qspi_owner_transition_completed_write_prefixes",
+   "seconds": 7.229
+  },
+  {
+   "gate": "test_gptp_plane_reaches_the_instance",
+   "seconds": 7.505
+  },
+  {
+   "gate": "test_gptp_plane_instance_gate_bites",
+   "seconds": 5.806
+  },
+  {
+   "gate": "test_current_shape_matches_sweep_flags",
+   "seconds": 0.19
+  },
+  {
+   "gate": "test_current_shape_matches_gen_aem_store",
+   "seconds": 0.065
+  },
+  {
+   "gate": "test_capability_marks",
+   "seconds": 0.405
+  },
+  {
+   "gate": "test_bad_configs_rejected",
+   "seconds": 0.046
+  },
+  {
+   "gate": "test_port_layout_invariants",
+   "seconds": 0.229
+  },
+  {
+   "gate": "test_both_policies_valid",
+   "seconds": 0.694
+  },
+  {
+   "gate": "test_model_id_hashing",
+   "seconds": 0.112
+  },
+  {
+   "gate": "test_sweep_opts_fragments",
+   "seconds": 0.158
+  },
+  {
+   "gate": "test_gen_aem_store_consumes_overlay",
+   "seconds": 0.375
+  },
+  {
+   "gate": "test_resource_calibration",
+   "seconds": 0.0
+  },
+  {
+   "gate": "test_resource_determinism",
+   "seconds": 0.169
+  },
+  {
+   "gate": "test_resource_verdicts",
+   "seconds": 0.241
+  },
+  {
+   "gate": "test_milan_723_crf_output_rule",
+   "seconds": 0.108
+  },
+  {
+   "gate": "test_crf_output_overlay_structure",
+   "seconds": 0.255
+  },
+  {
+   "gate": "test_gen_aem_store_crf_output_overlay",
+   "seconds": 0.139
+  },
+  {
+   "gate": "test_clock_sources_follow_the_fabric",
+   "seconds": 0.59
+  },
+  {
+   "gate": "test_dynamic_map_topology_reaches_shape_header",
+   "seconds": 0.033
+  },
+  {
+   "gate": "test_shipping_channel_map_table",
+   "seconds": 0.014
+  },
+  {
+   "gate": "test_dynamic_audio_map_overlay",
+   "seconds": 1.083
+  },
+  {
+   "gate": "test_lwsrp_reset_words_match_rtl",
+   "seconds": 0.068
+  },
+  {
+   "gate": "test_lwsrp_class_constants_match_rtl",
+   "seconds": 0.132
+  },
+  {
+   "gate": "test_lwsrp_tspec_and_params",
+   "seconds": 0.52
+  },
+  {
+   "gate": "test_lwsrp_rejects",
+   "seconds": 0.103
+  },
+  {
+   "gate": "test_platform_gateware_shape",
+   "seconds": 0.447
+  },
+  {
+   "gate": "test_csr_defaults_header_consumed",
+   "seconds": 0.067
+  },
+  {
+   "gate": "test_csr_defaults_rejects",
+   "seconds": 0.058
+  },
+  {
+   "gate": "test_aes3_interface_switch",
+   "seconds": 0.8
+  },
+  {
+   "gate": "test_aes3_rejects",
+   "seconds": 0.057
+  },
+  {
+   "gate": "test_cbs_reset_table_single_source",
+   "seconds": 0.002
+  },
+  {
+   "gate": "test_optional_blocks_default_present",
+   "seconds": 0.264
+  },
+  {
+   "gate": "test_optional_block_gates_bite",
+   "seconds": 0.326
+  },
+  {
+   "gate": "test_optional_block_prune_accounting",
+   "seconds": 0.172
+  },
+  {
+   "gate": "test_optional_block_names_reach_the_rtl",
+   "seconds": 0.075
+  },
+  {
+   "gate": "test_optional_block_consumption_gate_bites",
+   "seconds": 0.514
+  },
+  {
+   "gate": "test_optional_blocks_reach_the_instance",
+   "seconds": 5.814
+  },
+  {
+   "gate": "test_optional_block_instance_gate_bites",
+   "seconds": 13.138
+  },
+  {
+   "gate": "test_clock_plan_reaches_the_instance",
+   "seconds": 3.462
+  },
+  {
+   "gate": "test_clock_plan_instance_gate_bites",
+   "seconds": 10.993
+  },
+  {
+   "gate": "test_datapath_params_match_the_instance",
+   "seconds": 4.396
+  },
+  {
+   "gate": "test_datapath_params_gate_bites",
+   "seconds": 2.372
+  },
+  {
+   "gate": "test_every_recipe_elaborates",
+   "seconds": 5.098
+  },
+  {
+   "gate": "test_recipe_smoke_gate_bites",
+   "seconds": 2.276
+  },
+  {
+   "gate": "test_recipe_skip_classifier_bites",
+   "seconds": 0.0
+  },
+  {
+   "gate": "test_build_sh_argv_follows_the_config",
+   "seconds": 0.741
+  },
+  {
+   "gate": "test_build_sh_grades_its_own_bindings",
+   "seconds": 2.333
+  },
+  {
+   "gate": "test_build_sh_dry_run_leaves_the_tracked_tree",
+   "seconds": 0.341
+  },
+  {
+   "gate": "test_build_sh_refuses_a_preservation_it_cannot_complete",
+   "seconds": 2.47
+  },
+  {
+   "gate": "test_toolchain_patches_are_applied",
+   "seconds": 0.309
+  },
+  {
+   "gate": "test_toolchain_patch_gate_bites",
+   "seconds": 0.764
+  },
+  {
+   "gate": "test_tdm_master_binding_reaches_the_pins",
+   "seconds": 0.006
+  },
+  {
+   "gate": "test_tdm_master_binding_gate_bites",
+   "seconds": 0.008
+  },
+  {
+   "gate": "test_front_end_routing_per_board",
+   "seconds": 0.409
+  },
+  {
+   "gate": "test_front_end_routing_gate_bites",
+   "seconds": 0.36
+  },
+  {
+   "gate": "test_i2s_pair_blend_binding",
+   "seconds": 0.046
+  },
+  {
+   "gate": "test_i2s_pair_blend_gate_bites",
+   "seconds": 0.006
+  },
+  {
+   "gate": "test_firmware_version_derived_from_rtl",
+   "seconds": 0.254
+  },
+  {
+   "gate": "test_d8_role_pools",
+   "seconds": 0.844
+  },
+  {
+   "gate": "test_d8_role_pools_reject",
+   "seconds": 0.179
+  },
+  {
+   "gate": "test_prune_guard_hop_gate_bites",
+   "seconds": 0.053
+  },
+  {
+   "gate": "test_d10_cluster_names",
+   "seconds": 0.534
+  },
+  {
+   "gate": "test_d10_cluster_namer_paths",
+   "seconds": 0.187
+  },
+  {
+   "gate": "test_d10_names_reach_the_rom",
+   "seconds": 0.184
+  },
+  {
+   "gate": "test_gptp_domain_is_one_source",
+   "seconds": 0.099
+  },
+  {
+   "gate": "test_gptp_dataset_matches_engine_announce",
+   "seconds": 0.091
+  },
+  {
+   "gate": "test_pp_window_contract",
+   "seconds": 0.381
+  },
+  {
+   "gate": "test_image_identity_is_baked",
+   "seconds": 0.07
+  },
+  {
+   "gate": "test_image_name_table_matches_descriptors",
+   "seconds": 0.103
+  },
+  {
+   "gate": "test_schema_12_keys_reach_the_image",
+   "seconds": 0.26
+  },
+  {
+   "gate": "test_schema_12_refusals",
+   "seconds": 0.329
+  },
+  {
+   "gate": "test_schema_11_configs_accepted_unchanged",
+   "seconds": 0.25
+  },
+  {
+   "gate": "test_milan_base_formats_are_rate_complete",
+   "seconds": 0.381
+  },
+  {
+   "gate": "test_per_row_format_facts_are_per_row",
+   "seconds": 0.046
+  },
+  {
+   "gate": "test_builder_doc_key_map",
+   "seconds": 0.319
+  },
+  {
+   "gate": "test_boot_policy_follows_the_declaration",
+   "seconds": 4.91
+  },
+  {
+   "gate": "test_nvm_firmware_shapes",
+   "seconds": 110.852
+  },
+  {
+   "gate": "test_gptp_latency_corrections_are_declared_and_carried",
+   "seconds": 0.142
+  },
+  {
+   "gate": "test_audio_unit_rates_loader_contract",
+   "seconds": 0.081
+  },
+  {
+   "gate": "test_audio_unit_shipping_rates",
+   "seconds": 0.07
+  },
+  {
+   "gate": "test_shipping_image_contract",
+   "seconds": 0.113
+  },
+  {
+   "gate": "test_soc_shipping_image_contract",
+   "seconds": 0.157
+  },
+  {
+   "gate": "test_shipping_image_contract_presence",
+   "seconds": 0.012
+  },
+  {
+   "gate": "test_pp_shadow_audio_unit_rates_match_config",
+   "seconds": 0.013
+  },
+  {
+   "gate": "test_descriptor_fields_name_this_device",
+   "seconds": 0.096
+  },
+  {
+   "gate": "test_name_count_fits_the_nvm_name_block",
+   "seconds": 0.764
+  }
+ ],
+ "artifacts": [
+  {
+   "name": "timed.log",
+   "bytes": 107534,
+   "sha256": "ac2d43f1c832ccc1079a8c895bdf4481faa6f76ac502d9bb918abc0c5ae5116d"
+  },
+  {
+   "name": "run.log",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "name": "run.sh",
+   "bytes": 905,
+   "sha256": "50be98194c3b03e6d30e56feac2394f0c0d8e625975d55f17dfa3c4f3076d269"
+  },
+  {
+   "name": "timed.py",
+   "bytes": 664,
+   "sha256": "dc3a7fbf6267fa6af712448142ade434a320b0fb03bbca3000a09bde99f8da8e"
+  },
+  {
+   "name": "job.env",
+   "bytes": 121,
+   "sha256": "7fd4180638a9aab7d6aaa96a3af53c24a01a93b66bf5c6330675c09e8cf0435b"
+  },
+  {
+   "name": "memory.peak",
+   "bytes": 11,
+   "sha256": "87c93008b9c09b91aee5b35da8bea1d1e7ffc53be2a3f0f2538cb8d209e66313"
+  },
+  {
+   "name": "memory.events",
+   "bytes": 70,
+   "sha256": "0a2d4e7982066cc7dc914627e7b195ccba88b82a5a996201809e529142d2f380"
+  },
+  {
+   "name": "result.rc",
+   "bytes": 2,
+   "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+  }
+ ],
+ "scope": "Local shipping-image measurement at one width, not a hosted timing; source tree identical to the round-4 head in sw/, hdl/, configs/ and the three elaboration submodules."
+}

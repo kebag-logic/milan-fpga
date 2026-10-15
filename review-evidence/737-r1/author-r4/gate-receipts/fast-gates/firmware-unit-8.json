@@ -1,0 +1,8 @@
+{
+  "head": "aa196ae7a",
+  "job": "firmware-unit",
+  "step": "Hold the firmware coverage ratchet",
+  "command": "set -euo pipefail\npython3 sw/firmware/gtest/fw_coverage.py --selftest\npython3 sw/firmware/gtest/fw_coverage.py --check --jobs 4\n",
+  "returncode": 0,
+  "milliseconds": 234396
+}

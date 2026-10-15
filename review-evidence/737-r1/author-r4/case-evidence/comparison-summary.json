@@ -1,0 +1,80 @@
+[
+  {
+    "suite": "milan_dp_mclk",
+    "head": "9dd0817da6d3f771a3bd1db5eca0f2ba63d0695d",
+    "tree": "400014889795f67503735b59ce2a997ae1906de4",
+    "cases": 31,
+    "legs": 4,
+    "comparison_rc": 0,
+    "dropped_case": "mutant/tu/15",
+    "drop_control_rc": 1,
+    "drop_refusal": "case union refused: receipt inventory differs",
+    "changed_output_control_rc": 1,
+    "changed_output_refusal": "case union refused: leg/a/0: sharded outcome or checked output differs"
+  },
+  {
+    "suite": "milan_dp",
+    "head": "e06f342f5c35ccd71c1902e32747422245407afa",
+    "tree": "08e519e1979acd33aba9c56a3cdafc4aac08adcc",
+    "cases": 19,
+    "legs": 4,
+    "comparison_rc": 0,
+    "dropped_case": "render-mutants",
+    "drop_control_rc": 1,
+    "drop_refusal": "case union refused: receipt inventory differs",
+    "changed_output_control_rc": 1,
+    "changed_output_refusal": "case union refused: gptp: sharded outcome or checked output differs"
+  },
+  {
+    "suite": "maap",
+    "head": "068802530c138eb1fdfaada374de4ecf9cf860a7",
+    "tree": "ce96a8156417177f36e83abfe0d7f35a2e52dc30",
+    "cases": 66,
+    "legs": 4,
+    "comparison_rc": 0,
+    "dropped_case": "m3_datapath_first_offset_ignores_clock",
+    "drop_control_rc": 1,
+    "drop_refusal": "case union refused: receipt inventory differs",
+    "changed_output_control_rc": 1,
+    "changed_output_refusal": "case union refused: standalone: sharded outcome or checked output differs"
+  },
+  {
+    "suite": "capture_coherence",
+    "head": "068802530c138eb1fdfaada374de4ecf9cf860a7",
+    "tree": "ce96a8156417177f36e83abfe0d7f35a2e52dc30",
+    "cases": 31,
+    "legs": 4,
+    "comparison_rc": 0,
+    "dropped_case": "mutant/chmap/the frame closes on the bucket's last pair whatever the frame length",
+    "drop_control_rc": 1,
+    "drop_refusal": "case union refused: receipt inventory differs",
+    "changed_output_control_rc": 1,
+    "changed_output_refusal": "case union refused: standalone/junction: sharded outcome or checked output differs"
+  },
+  {
+    "suite": "milan_dp_render",
+    "head": "068802530c138eb1fdfaada374de4ecf9cf860a7",
+    "tree": "ce96a8156417177f36e83abfe0d7f35a2e52dc30",
+    "cases": 3,
+    "legs": 3,
+    "comparison_rc": 0,
+    "dropped_case": "leg-defects",
+    "drop_control_rc": 1,
+    "drop_refusal": "case union refused: receipt inventory differs",
+    "changed_output_control_rc": 1,
+    "changed_output_refusal": "case union refused: ship: sharded outcome or checked output differs"
+  },
+  {
+    "suite": "pp_shadow",
+    "head": "e06f342f5c35ccd71c1902e32747422245407afa",
+    "tree": "08e519e1979acd33aba9c56a3cdafc4aac08adcc",
+    "cases": 4,
+    "legs": 4,
+    "comparison_rc": 0,
+    "dropped_case": "pending",
+    "drop_control_rc": 1,
+    "drop_refusal": "case union refused: receipt inventory differs",
+    "changed_output_control_rc": 1,
+    "changed_output_refusal": "case union refused: base: sharded outcome or checked output differs"
+  }
+]

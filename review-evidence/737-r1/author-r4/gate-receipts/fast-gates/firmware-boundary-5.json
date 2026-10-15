@@ -1,0 +1,9 @@
+{
+  "head": "aa196ae7a",
+  "documentation_patch": "sw/firmware/ctrl/README.md pin census 120 to 155",
+  "job": "firmware-boundary",
+  "step": "Hold the TSN stack boundary over the firmware builders' compiles",
+  "command": "python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator",
+  "returncode": 0,
+  "milliseconds": 838934
+}

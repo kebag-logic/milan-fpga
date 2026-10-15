@@ -1,0 +1,26 @@
+{
+  "case": {
+    "case": "leg/a/0",
+    "outcome": "pass",
+    "output_sha256": "b00c3af91e757d0d1466dfa9e2a9d72f5235fc28c31427b7c3e53b328dc9557e",
+    "returncode": 0
+  },
+  "experiments": [
+    {
+      "name": "mclk-speed-a",
+      "output_sha256": "b00c3af91e757d0d1466dfa9e2a9d72f5235fc28c31427b7c3e53b328dc9557e",
+      "same_output": true
+    },
+    {
+      "name": "mclk-clang-a",
+      "output_sha256": "b00c3af91e757d0d1466dfa9e2a9d72f5235fc28c31427b7c3e53b328dc9557e",
+      "same_output": true
+    }
+  ],
+  "thread_experiment": {
+    "name": "mclk-thread-a",
+    "returncode": 124,
+    "operational_limit_seconds": 590,
+    "complete": false
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "head": "7032bca5a51d8d97fcb73d7fc106ca4af21de38e",
+  "method": "API job logs adapted with two tab-separated fields for the unchanged suite_shards.measure_log reader; suite windows rounded up to seconds.",
+  "baseline_inventory_count": 62,
+  "inventory_matches_current_head": true,
+  "workers": [
+    {
+      "worker": 0,
+      "total_workers": 5,
+      "seconds_by_suite": {
+        "aaf": 76,
+        "avtp_parser": 27,
+        "capture_coherence": 1715,
+        "cdc": 6,
+        "crf_tx": 6,
+        "gptp_plane": 780,
+        "ifg": 6,
+        "link_guard": 8,
+        "mac_rmon": 11,
+        "media_grid_align": 256,
+        "mmcm_servo": 1152,
+        "nvm_backend": 36,
+        "pcmlpf": 6,
+        "rx_filter": 17,
+        "tdm": 6
+      },
+      "overhead_seconds": 86
+    },
+    {
+      "worker": 1,
+      "total_workers": 5,
+      "seconds_by_suite": {
+        "aaf_audio_loop": 6,
+        "aaf_latency_tap_bank": 11,
+        "adp_tx": 11,
+        "aes3": 6,
+        "classifier": 6,
+        "csr": 308,
+        "eth_tx_reset": 6,
+        "follow_ring": 1226,
+        "fw_service_budget": 2,
+        "gptp_txts": 69,
+        "maap": 1302,
+        "milan_dp_gm_steps": 854,
+        "mmcm_servo_autorepair": 6,
+        "ptp_ts": 124,
+        "shaper_core": 6,
+        "tsn_fuzz": 57
+      },
+      "overhead_seconds": 122
+    },
+    {
+      "worker": 2,
+      "total_workers": 5,
+      "seconds_by_suite": {
+        "aaf_clock_meter": 1060,
+        "aaf_latency_taps": 6,
+        "avtp_rxmon": 76,
+        "cbs": 6,
+        "clkvalid": 17,
+        "cls": 6,
+        "i2spb": 6,
+        "milan_dp_mclk": 2034,
+        "nvm_cosim": 777,
+        "pair_fill": 6,
+        "ptp": 25,
+        "ptp_sync": 11,
+        "render_setpoint": 92,
+        "tcam_csr": 6
+      },
+      "overhead_seconds": 88
+    },
+    {
+      "worker": 3,
+      "total_workers": 5,
+      "seconds_by_suite": {
+        "avtp_stream": 13,
+        "chmap_capture": 165,
+        "chmap_render": 6,
+        "controller_rate": 8,
+        "crf_rx": 750,
+        "datapath": 6,
+        "gptp_shadow": 340,
+        "lat_history_ring": 6,
+        "mbx": 77,
+        "media_nco": 17,
+        "milan_dp_render": 1035,
+        "pp_shadow": 1029,
+        "queues": 6,
+        "tcam": 27,
+        "tdm_render": 6,
+        "tkdiag": 28
+      },
+      "overhead_seconds": 97
+    },
+    {
+      "worker": 4,
+      "total_workers": 5,
+      "seconds_by_suite": {
+        "milan_dp": 3246
+      },
+      "overhead_seconds": 84
+    }
+  ]
+}

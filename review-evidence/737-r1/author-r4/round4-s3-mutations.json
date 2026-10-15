@@ -1,0 +1,142 @@
+{
+ "head": "08adb21af0a72d839ce30b6c461503dad269d4d6",
+ "method": "Shared clone of the committed head with read-only links to its initialized submodules; one exact replacement; python3 scripts/ci_gate_workflows_selftest.py must return non-zero for each mutation and zero for each pristine copy (CPython 3.12.3, pinned pyyaml)",
+ "earlier_run": "the same nine at 0838c64f with identical return codes",
+ "results": [
+  {
+   "mutation": "pristine-builder-legs",
+   "file": "scripts/ci_builder_legs.py",
+   "old": null,
+   "new": null,
+   "rc": 0,
+   "seconds": 5.693,
+   "log_bytes": 6968,
+   "log_sha256": "5467bdb8263b04141870ea2607c5f70889c24973749300126afd2259b710e532",
+   "log_tail": [
+    "Builder comparison refused a NOT RUN row the legs lack",
+    "Builder legs: union-level requirements and per-gate equality PASS",
+    "gate workflow and union controls: PASS"
+   ]
+  },
+  {
+   "mutation": "pristine-driver",
+   "file": "sw/builder/test_builder.py",
+   "old": null,
+   "new": null,
+   "rc": 0,
+   "seconds": 5.412,
+   "log_bytes": 6968,
+   "log_sha256": "5467bdb8263b04141870ea2607c5f70889c24973749300126afd2259b710e532",
+   "log_tail": [
+    "Builder comparison refused a NOT RUN row the legs lack",
+    "Builder legs: union-level requirements and per-gate equality PASS",
+    "gate workflow and union controls: PASS"
+   ]
+  },
+  {
+   "mutation": "b1-elaboration-owner-unnamed",
+   "file": "scripts/ci_builder_legs.py",
+   "old": "\"test_datapath_params_gate_bites\", \"test_every_recipe_elaborates\",",
+   "new": "\"test_datapath_params_gate_bites\",",
+   "rc": 1,
+   "seconds": 4.852,
+   "log_bytes": 5455,
+   "log_sha256": "3999f85dba300d1ea29d63fd614121d9ec9e7923413ad90b90f4598271476b29",
+   "log_tail": [
+    "    assert litex == set(REQUIRED[\"--require-elaboration\"]), sorted(litex ^ set(REQUIRED[\"--require-elaboration\"]))",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "AssertionError: ['test_every_recipe_elaborates']"
+   ]
+  },
+  {
+   "mutation": "b2-owner-check-removed",
+   "file": "scripts/ci_builder_legs.py",
+   "old": "            if gates:\n                raise ValueError(f\"{flag} on the union",
+   "new": "            if False:\n                raise ValueError(f\"{flag} on the union",
+   "rc": 1,
+   "seconds": 5.293,
+   "log_bytes": 5528,
+   "log_sha256": "0c21225ea9416c9c91b1ce5f3dabff8c3b5445827af89da6c9e9ebdef53bf7ed",
+   "log_tail": [
+    "  File \"$VALIDATION_STORAGE/737-a614/r4s3/mutations-final/tree-b2-owner-check-removed/scripts/ci_gate_workflows_selftest.py\", line 204, in refused",
+    "    raise AssertionError(\"builder union accepted \" + label)",
+    "AssertionError: builder union accepted elaboration gate deleted from the inventory"
+   ]
+  },
+  {
+   "mutation": "b3-union-ledger-not-judged",
+   "file": "scripts/ci_builder_legs.py",
+   "old": "    if elaboration_verdict(ledger):",
+   "new": "    if False:",
+   "rc": 1,
+   "seconds": 5.231,
+   "log_bytes": 6488,
+   "log_sha256": "f35048ac466501fb533e4977090c50aa031d65950d8c5bb74a178de80e04e16b",
+   "log_tail": [
+    "  File \"$VALIDATION_STORAGE/737-a614/r4s3/mutations-final/tree-b3-union-ledger-not-judged/scripts/ci_gate_workflows_selftest.py\", line 204, in refused",
+    "    raise AssertionError(\"builder union accepted \" + label)",
+    "AssertionError: builder union accepted toolchain skip under a passing leg verdict"
+   ]
+  },
+  {
+   "mutation": "b4-receipt-defines-inventory",
+   "file": "scripts/ci_builder_legs.py",
+   "old": "    if driver[\"inventory\"] != names:",
+   "new": "    if False:",
+   "rc": 1,
+   "seconds": 5.282,
+   "log_bytes": 7383,
+   "log_sha256": "6d3b90acd84730c3115f253ccc246e38b4d55c365401e1852fc1bd169340f935",
+   "log_tail": [
+    "  File \"$VALIDATION_STORAGE/737-a614/r4s3/mutations-final/tree-b4-receipt-defines-inventory/scripts/ci_gate_workflows_selftest.py\", line 204, in refused",
+    "    raise AssertionError(\"builder union accepted \" + label)",
+    "AssertionError: builder union accepted changed driver inventory"
+   ]
+  },
+  {
+   "mutation": "b5-aggregate-skips-builder-union",
+   "file": "scripts/ci_gate_receipts.py",
+   "old": "    if any(divided):",
+   "new": "    if False:",
+   "rc": 1,
+   "seconds": 2.703,
+   "log_bytes": 4290,
+   "log_sha256": "8f126ee41ec434c596cb98d17ce4336e6ada8fbb15980d82568225f35b685e6a",
+   "log_tail": [
+    "  File \"$VALIDATION_STORAGE/737-a614/r4s3/mutations-final/tree-b5-aggregate-skips-builder-union/scripts/ci_gate_receipts.py\", line 123, in verify",
+    "    raise ValueError(\"builder leg receipts without an executed builder division\")",
+    "ValueError: builder leg receipts without an executed builder division"
+   ]
+  },
+  {
+   "mutation": "b6-generated-leg-without-separator",
+   "file": "scripts/ci_gate_workflows.py",
+   "old": "'.json\" -- ' + command",
+   "new": "'.json\" ' + command",
+   "rc": 1,
+   "seconds": 3.623,
+   "log_bytes": 4043,
+   "log_sha256": "3bf44a072130397ffd1cb4f79f2fa2d5001e12227df4a5771078509c3f4ceb86",
+   "log_tail": [
+    "    assert body[\"run\"].endswith(\" -- \" + original[case[\"index\"]][\"run\"].strip() + \"\\n\")",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "AssertionError"
+   ]
+  },
+  {
+   "mutation": "d1-elaboration-gate-deleted-from-inventory",
+   "file": "sw/builder/test_builder.py",
+   "old": "               test_every_recipe_elaborates,\n",
+   "new": "",
+   "rc": 1,
+   "seconds": 3.821,
+   "log_bytes": 4550,
+   "log_sha256": "71c1d6f3b1127f69bc6f5b3c4c4392d4d6849203d392f3036926cae7f34acb7d",
+   "log_tail": [
+    "  File \"$VALIDATION_STORAGE/737-a614/r4s3/mutations-final/tree-d1-elaboration-gate-deleted-from-inventory/scripts/ci_builder_legs.py\", line 159, in union",
+    "    raise ValueError(f\"{flag} on the union: {', '.join(gates)} {why}\")",
+    "ValueError: --require-elaboration on the union: test_every_recipe_elaborates absent from the driver inventory"
+   ]
+  }
+ ]
+}

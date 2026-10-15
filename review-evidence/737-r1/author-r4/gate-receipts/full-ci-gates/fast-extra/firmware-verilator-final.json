@@ -1,0 +1,18 @@
+{
+  "head": "97488b829",
+  "documentation_patch": "pin census 120 to 155",
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_boundary.py",
+    "--require-rv32",
+    "--selftest",
+    "--only",
+    "verilator"
+  ],
+  "returncode": 0,
+  "milliseconds": 776447,
+  "memory": {
+    "memory.peak": "2439032832\n",
+    "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n"
+  }
+}
