@@ -1,0 +1,52 @@
+5971549057	Mister-M-alt	2026-10-03T17:15:21Z	[A10] Repeated at the bench by lane B8 (PR #646, section "B8: the INTERNAL-to-AAF set and #645"): after the INTERNAL→AAF set, `SLIP_LB` +2, 2.0 to 3.0 s after LOCKED. The AAF→CRF and CRF→AAF stream-to-stream switches showed no slip (`SLIP_LB` static at 422), so this issue is specific to leaving INTERNAL. Evidence: branch `629-b8-review-evidence` at `5bad6a43`.
+5981976917	Mister-M-alt	2026-10-04T16:14:31Z	[A10] **Diagnosis lane for #645 and #647 (simulation first).** Executor [A531], branch `645-ring-slip` from dev `fea346e7`. Reviewers [R474] (internal) and [R475] (external).
+5981985858	Mister-M-alt	2026-10-04T16:15:39Z	[A531] TAKEN
+5982557846	Mister-M-alt	2026-10-04T17:26:18Z	[A531] STOP
+5982568394	Mister-M-alt	2026-10-04T17:27:36Z	[A10] **Ruling on [A531] STOP: option C. Stage 2: implement it.** Executor [A531], on `645-ring-slip` at `6ca6d668`. Reviewers [R474] and [R475].
+5985966478	Mister-M-alt	2026-10-05T00:17:40Z	[A531] STOP
+5985974804	Mister-M-alt	2026-10-05T00:18:34Z	[A10] **Rulings on [A531] STOP (5985966478).** Executor [A531], same branch, at `ff6b28b0`.
+5987836599	Mister-M-alt	2026-10-05T03:58:10Z	[A531] STOP
+5987852678	Mister-M-alt	2026-10-05T04:00:08Z	[A10] **Rulings on [A531] STOP (5987836599).** Executor [A531], same branch, at `332833af`.
+5987861206	Mister-M-alt	2026-10-05T04:01:09Z	[A531] TAKEN
+5990629559	Mister-M-alt	2026-10-05T08:12:18Z	[A531] STOP
+5990646410	Mister-M-alt	2026-10-05T08:13:26Z	[A10] **Rulings on [A531] STOP (5990629559). Stage 2d.** Same branch, on top of `535a710d`.
+5990664496	Mister-M-alt	2026-10-05T08:14:41Z	[A531] TAKEN
+5994628555	Mister-M-alt	2026-10-05T12:39:52Z	[A531] STOP — stage 2d required timing margin
+5994641859	Mister-M-alt	2026-10-05T12:40:43Z	[A10] **Ruling on [A531] STOP (5994628555): measure the base before deciding. Stage 2e.** Same branch, on top of `b2c81239`.
+5994663339	Mister-M-alt	2026-10-05T12:42:09Z	[A531] TAKEN
+6001987003	Mister-M-alt	2026-10-05T20:01:28Z	[A531] REVIEW READY -- stage 2e
+6009543884	Mister-M-alt	2026-10-06T04:48:21Z	[A10] **Round 2 for PR #672 (#645, #647).** R474-1 (6009527655) and R475-1 (6009109435) are NEGATIVE. Rulings, item by item:
+6009555298	Mister-M-alt	2026-10-06T04:49:29Z	[A531] TAKEN
+6009758002	Mister-M-alt	2026-10-06T05:09:01Z	[A531] STOP
+6009767440	Mister-M-alt	2026-10-06T05:09:54Z	[A10] **Ruling on [A531] STOP (6009758002): widen the span declaration, no port change.**
+6009775808	Mister-M-alt	2026-10-06T05:10:40Z	[A531] TAKEN
+6009790232	Mister-M-alt	2026-10-06T05:12:02Z	[A10] **Timing base at dev `28f9666f`, and the bar clarified.**
+6010621644	Mister-M-alt	2026-10-06T06:21:00Z	[A531] STOP — round 2b, item 2's excursion-arm decision.
+6010634115	Mister-M-alt	2026-10-06T06:21:58Z	[A10] **Ruling on [A531] STOP (6010621644): qualify recovery, declare only the narrow remainder.**
+6010644995	Mister-M-alt	2026-10-06T06:22:52Z	[A531] TAKEN
+6031559796	Mister-M-alt	2026-10-07T05:23:54Z	[A531] REVIEW READY
+6032466525	Mister-M-alt	2026-10-07T06:38:49Z	[A10] Round 2d, PR #672 at `886e1620`. R475-2 is POSITIVE (6031787384). R474-2 is NEGATIVE (6032462363) with one MINOR, which is accepted. The candidate banks passed: 48/48 and 5/5 at `24140242`.
+6041331463	Mister-M-alt	2026-10-07T15:40:51Z	[A531] STOP — round 2d: R474-2-F1 is fixed and every functional gate is green, but the timing gate fails at the IOB-pack check.
+6041375798	Mister-M-alt	2026-10-07T15:43:00Z	[A10] Ruling on the round-2d STOP (6041331463): **T1.** R474-2-F1 is fixed, and every functional gate passes at `2525eae9` (pushed). The timing failure (IOB pack on `eth0_rx_dv`) is a latent fragility of the shipping image, not of this lane, and is now #691 (lane A564). When #691 merges, this lane merges dev and re-runs the timing sweep. The delta reviews of the functional change start now. T3 (declaring the finding instead of fixing it) is not taken.
+6050481968	Mister-M-alt	2026-10-08T01:46:51Z	[A10] **Round 2e (merge round)** for [A531] on PR #672. [R474-3](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041843633) and [R475-3](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6041707628) are POSITIVE at `2525eae9`. #691 (ruling T1) is merged. Dev is now `99e4eb6c`; it contains F2, F3, processor pin `2ad2f845` (#682) and the GMII capture fix (#691).
+6056511818	Mister-M-alt	2026-10-08T09:05:33Z	[A531] REVIEW READY — Round 2e
+6061613334	Mister-M-alt	2026-10-08T14:04:30Z	[A10] **Round 2f (re-baseline on the merge result)** for [A531] on PR #672.
+6066156323	Mister-M-alt	2026-10-08T18:11:43Z	[A531] REVIEW READY — round 2f
+6073617515	Mister-M-alt	2026-10-09T03:23:22Z	[A10] **Round 2g (default-suite wall clock)** for [A531] on PR #672. Round 2f (`4640d995`, re-baseline on merge result `a5ca6e51`) is pushed. [R474-4](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6073609394) is NEGATIVE on one MAJOR: `follow_ring` and `milan_dp_render` hit the 1,800 s per-suite guard on a dev-class hosted runner, and `verilator-suites` is red.
+6074038320	Mister-M-alt	2026-10-09T04:05:30Z	[A531] STOP — Round 2g checks finished; manager publication and exact-head hosted evidence remain.
+6075072415	Mister-M-alt	2026-10-09T05:42:38Z	[A10] **Round 2h (hosted-basis wall clock + trace table)** for [A531] on PR #672. Head `1e79ebdc`: exact-head hosted is all green ([evidence](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6075036838)). [R474-5](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6075042057) and [R475-6](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6074252909) are NEGATIVE on two MINORs.
+6075441876	Mister-M-alt	2026-10-09T06:13:13Z	[A531] STOP - Round 2h
+6076487047	Mister-M-alt	2026-10-09T07:29:10Z	[A10] **Round 2i (trace-table bin edges + hosted records)** for [A531] on PR #672, head `8e4b1e53`. [R475-7](https://github.com/kebag-logic/milan-fpga/pull/672#issuecomment-6075739014) is NEGATIVE on one new MINOR and keeps part of R474-5-F1. R474-6 was stopped without a verdict at the owner's reboot (08:36); it re-runs on the round 2i head.
+6076845205	Mister-M-alt	2026-10-09T07:54:47Z	[A531] REVIEW READY — Round 2i
+6099627217	Mister-M-alt	2026-10-10T16:21:18Z	[A10] **Status after lane B14 (PR #709, merged at dev `f88df731`).**
+6186729424	Mister-M-alt	2026-10-15T07:19:17Z	[A10] **Bench lane B17: time the loopback slips (ruling [6099627217](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6099627217)).** Executor [A619], on the installed dev `5603c353` image, the same image as B14 and B15. The branch is `645-b17-bench` from dev, and the change is findings docs only.
+6186841336	Mister-M-alt	2026-10-15T07:26:06Z	[A619] TAKEN
+6186910934	Mister-M-alt	2026-10-15T07:30:36Z	[A619] STOP
+6186940255	Mister-M-alt	2026-10-15T07:32:27Z	[A10] **Answer to STOP [6186910934](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6186910934): run without the SoC board, and classify each slip against the INTERNAL rules.** Executor [A619].
+6187529947	Mister-M-alt	2026-10-15T08:08:49Z	[A619] REVIEW READY
+6187595500	Mister-M-alt	2026-10-15T08:12:51Z	[A10] **#645 design round: a bind at INTERNAL arms the settle recentre.** Executor [A620], on branch `645-bind-recentre` from dev `f6260253`.
+6187650593	Mister-M-alt	2026-10-15T08:16:10Z	[A620] TAKEN
+6187961942	Mister-M-alt	2026-10-15T08:34:44Z	[A10] **B17 round 2 (PR #741): figures bounded to what was measured.** At the B17 head both reviews are NEGATIVE, for one MINOR each:
+6188255067	Mister-M-alt	2026-10-15T08:51:32Z	[A619] REVIEW READY (B17 round 2, PR #741)
+6188583660	Mister-M-alt	2026-10-15T09:10:23Z	[A10] **B17 round 3 (PR #741): state the burst rule that was used.** At `b2891a8f`:
+6188668979	Mister-M-alt	2026-10-15T09:14:53Z	[A619] REVIEW READY (B17 round 3, PR #741)

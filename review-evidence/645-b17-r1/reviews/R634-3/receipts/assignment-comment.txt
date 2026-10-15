@@ -1,0 +1,12 @@
+Mister-M-alt 2026-10-15T09:10:23Z
+[A10] **B17 round 3 (PR #741): state the burst rule that was used.** At `b2891a8f`:
+
+- R635-2 is **POSITIVE** ([6188485255](https://github.com/kebag-logic/milan-fpga/pull/741#issuecomment-6188485255));
+- R634-2 is NEGATIVE for one MINOR ([6188562281](https://github.com/kebag-logic/milan-fpga/pull/741#issuecomment-6188562281)).
+
+Executor [A619]. Recorded data only.
+
+**R634-2-F1.** Make the burst definition and the printed figures agree. *Decision:* state the grouping the tool used and drop "consecutive". A burst is PDUs more than 20 us late, grouped while less than 1 ms apart, with 3 to 12 such PDUs each. Keep the printed ranges, and make the PR body bullet follow the page. Then `scripts/burst_definition_probe.py` (from the R634-2 packet) or the lane's tool reproduces every printed burst figure under the stated rule.
+
+Under the owner's single re-reviewer rule, only R634 re-checks this delta. Post REVIEW READY (or STOP) with the head. Do not push.
+
