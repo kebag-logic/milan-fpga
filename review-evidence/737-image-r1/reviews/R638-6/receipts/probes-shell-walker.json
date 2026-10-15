@@ -1,0 +1,264 @@
+[
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "sub/run.sh": "brand_new_command\n",
+   "x/run.sh": "echo okay\n"
+  },
+  "probe": "S1_function_shadows_dirname",
+  "run": "dirname() { echo sub; }\nbash \"$(dirname x/run.sh)/run.sh\"",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified runtime command name '${RUNTIME}/run.sh' at .github/workflows/fixture.yml:3"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "run.sh": "brand_new_command\n",
+   "scripts/run.sh": "echo okay\n"
+  },
+  "probe": "S2_function_shadows_cd_in_substitution",
+  "run": "cd() { :; }\nd=\"$(cd scripts && pwd)\"\nbash \"$d/run.sh\"",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified runtime command name '${RUNTIME}/run.sh' at .github/workflows/fixture.yml:3"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "scripts/run.sh": "echo okay\n",
+   "sub/run.sh": "brand_new_command\n"
+  },
+  "probe": "S3_function_shadows_pwd",
+  "run": "pwd() { echo sub; }\nbash \"$(cd scripts && pwd)/run.sh\"",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at run.sh:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "run.sh": "brand_new_command\n",
+   "scripts/run.sh": "echo okay\n"
+  },
+  "probe": "S4_function_shadows_cd_statement",
+  "run": "cd() { :; }\ncd scripts\nbash run.sh",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at run.sh:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "-/run.sh": "echo okay\n",
+   "run.sh": "brand_new_command\n"
+  },
+  "probe": "S5_cd_dash_in_substitution",
+  "run": "bash \"$(cd - && pwd)/run.sh\"",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "sub/run.sh": "brand_new_command\n",
+   "x/run.sh": "echo okay\n"
+  },
+  "probe": "S6_realpath_function",
+  "run": "realpath() { echo sub/run.sh; }\nbash \"$(realpath x/run.sh)\"",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at .github/workflows/fixture.yml:1"
+   ]
+  ],
+  "env": null,
+  "files": {},
+  "probe": "S7_function_shadows_echo_command",
+  "run": "echo() { brand_new_command; }\necho okay",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at .github/workflows/fixture.yml:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at .github/workflows/fixture.yml:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "run.sh": "echo okay\n"
+  },
+  "probe": "S8_function_shadows_bash",
+  "run": "bash() { brand_new_command; }\nbash run.sh",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at .github/workflows/fixture.yml:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'shopt -s expand_aliases' at .github/workflows/fixture.yml:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "run.sh": "echo okay\n"
+  },
+  "probe": "S9_alias_expansion_noninteractive",
+  "run": "shopt -s expand_aliases\nalias bash=brand_new_command\nbash run.sh",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'shopt -s expand_aliases' at .github/workflows/fixture.yml:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'cd' at .github/workflows/fixture.yml:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "run.sh": "brand_new_command\n",
+   "scripts/run.sh": "echo okay\n"
+  },
+  "probe": "S10_command_builtin_bypasses_function",
+  "run": "command cd scripts\nbash run.sh",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'cd' at .github/workflows/fixture.yml:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'ln -s ../other/deep sub/link' at .github/workflows/fixture.yml:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all: ; bash $(abspath sub/link/../run.sh)\n",
+   "other/deep/.keep": "",
+   "other/run.sh": "echo okay\n",
+   "sub/run.sh": "brand_new_command\n"
+  },
+  "probe": "M20_abspath_symlink_lexical",
+  "run": "ln -s ../other/deep sub/link 2>/dev/null || true; make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'ln -s ../other/deep sub/link' at .github/workflows/fixture.yml:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all: ; dirname() { echo sub; }; bash \"$$(dirname x/run.sh)/run.sh\"\n",
+   "sub/run.sh": "brand_new_command\n",
+   "x/run.sh": "echo okay\n"
+  },
+  "probe": "M21_recipe_function_shadow_via_make",
+  "run": "make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ }
+]

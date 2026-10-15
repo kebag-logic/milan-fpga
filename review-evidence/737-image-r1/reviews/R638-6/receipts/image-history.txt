@@ -1,0 +1,27 @@
+CMD ["bash"]
+COPY recipe/smoke.py recipe/sources.lock.json /opt/ci-image/ # buildkit
+ENV SBT_OPTS=-Dsbt.boot.directory=/opt/sbt/cache/boot -Dsbt.global.base=/opt/sbt/cache/global -Dsbt.ivy.home=/opt/sbt/cache/ivy -Dsbt.override.build.repos=true -Dsbt.repository.config=/opt/sbt/repositories
+ENV COURSIER_CACHE=/opt/sbt/cache/coursier
+ENV TSN_GEN_ROOT=/opt/tsn-gen
+ENV MILAN_RV32_CC=/opt/rv32-sdk/bin/riscv32-linux-gcc
+ENV PATH=/opt/node/bin:/opt/gh/bin:/opt/python/bin:/opt/verilator/bin:/opt/yosys/bin:/opt/rv32-sdk/bin:/opt/sv2v/bin:/opt/sbt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+COPY /opt/gh /opt/gh # buildkit
+COPY /opt/node /opt/node # buildkit
+COPY /opt/tsn-gen /opt/tsn-gen # buildkit
+COPY /opt/sbt /opt/sbt # buildkit
+COPY /opt/sv2v /opt/sv2v # buildkit
+COPY /opt/rv32-sdk /opt/rv32-sdk # buildkit
+COPY /opt/yosys /opt/yosys # buildkit
+COPY /opt/verilator /opt/verilator # buildkit
+COPY --chown=0:0 /opt/litex /opt/python # buildkit
+COPY --chown=0:0 /opt/python /opt/python # buildkit
+RUN |1 SOURCE_DATE_EPOCH=1791940308 /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     python3 /recipe/normalize.py system # buildkit
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+RUN |1 SOURCE_DATE_EPOCH=1791940308 /bin/sh -c cd / && sha256sum --check /debs.sha256 &&     apt-get install -y --no-install-recommends /debs/*.deb &&     python3 /recipe/normalize.py system # buildkit
+ENV DEBIAN_FRONTEND=noninteractive
+ARG SOURCE_DATE_EPOCH=1791940308
+/bin/sh -c #(nop)  CMD ["/bin/bash"]
+/bin/sh -c #(nop) ADD file:43d479b270bbaf47965cfc86b37f4c517bda83ddefda6f708f98c3b2b7d15396 in / 
+/bin/sh -c #(nop)  LABEL org.opencontainers.image.version=24.04
+/bin/sh -c #(nop)  ARG LAUNCHPAD_BUILD_ARCH
+/bin/sh -c #(nop)  ARG RELEASE

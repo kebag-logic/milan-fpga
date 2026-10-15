@@ -1,0 +1,100 @@
+=== M10_default_goal_after_rules
+    brand_new_command
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:2: second] Error 127
+    rc=2
+=== M11_commandline_recursive_override
+    brand_new_command okay
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:2: all] Error 127
+    rc=2
+=== M12_hash_inside_reference
+    echo #bc ; brand_new_command
+    
+    rc=0
+=== M13_override_after_target_variable_env
+    echo okay
+    okay
+    rc=0
+=== M14_empty_recipe_semicolon_then_tab
+    brand_new_command
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:2: all] Error 127
+    rc=2
+=== M15_conditional_rule_line
+    echo okay
+    okay
+    rc=0
+=== M16_recipe_after_blank_and_comment
+    echo okay
+    okay
+    brand_new_command
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:3: all] Error 127
+    rc=2
+=== M17_variable_named_like_directive_prefix_rule
+    make: *** No rule to make target 'elsewhere', needed by 'all'.  Stop.
+    rc=2
+=== M18_make_n_flag
+    make -C sub
+    make[1]: Entering directory '/tmp/w/sub'
+    brand_new_command
+    make[1]: Leaving directory '/tmp/w/sub'
+    rc=0
+=== M19_target_specific_on_second_rule_line
+    brand_new_command okay
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:3: dep] Error 127
+    rc=2
+=== M1_else_prefixed_assignment_in_conditional
+    brand_new_command
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:4: all] Error 127
+    rc=2
+=== M2_endif_prefixed_assignment_in_conditional
+    brand_new_command
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:4: all] Error 127
+    rc=2
+=== M3b_env_variable_append_flavor_exported_shell
+    echo ; brand_new_command okay
+    
+    /bin/sh: 1: brand_new_command: not found
+    make: *** [Makefile:3: all] Error 127
+    rc=2
+=== M3_env_variable_append_flavor
+    echo ; brand_new_command okay
+    
+    /bin/sh: 1: brand_new_command: not found
+    make: *** [Makefile:3: all] Error 127
+    rc=2
+=== M4_call_zero_binding
+    brand_new_command
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:2: all] Error 127
+    rc=2
+=== M5_nested_call_argument_shadowing
+    brand_new_command okay
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:3: all] Error 127
+    rc=2
+=== M6_target_specific_inheritance
+    brand_new_command okay
+    make: brand_new_command: No such file or directory
+    make: *** [Makefile:3: dep] Error 127
+    rc=2
+=== M7_tab_endef
+    echo a
+    a
+    endef
+    make: endef: No such file or directory
+    make: *** [Makefile:6: all] Error 127
+    rc=2
+=== M8_wildcard_order
+    bash a.sh
+    okay
+    rc=0
+=== M9_if_unselected_branch
+    echo okay
+    okay
+    rc=0

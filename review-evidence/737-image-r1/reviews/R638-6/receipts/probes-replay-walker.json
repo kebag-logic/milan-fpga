@@ -1,0 +1,176 @@
+[
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: non-canonical indented Make line 'CMD = brand_new_command' at Makefile:2"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "CMD = echo ok\n CMD = brand_new_command # note:\nall: ; $(CMD)\n"
+  },
+  "probe": "P3b_leading_space_assignment",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: non-canonical indented Make line 'CMD = brand_new_command' at Makefile:2"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: uncensused Make assignment operator '!=' at Makefile:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "X != brand_new_command >&2; echo a:\nall: ; echo okay\n"
+  },
+  "probe": "P6b_bang_assignment",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: uncensused Make assignment operator '!=' at Makefile:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: built-in implicit rule '%: %.c' may apply to 'probe_builtin' in Makefile"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "CC = brand_new_command ; cc\nprobe_builtin: probe_builtin.c\n",
+   "probe_builtin.c": "int main(void){return 0;}\n"
+  },
+  "probe": "P4_builtin_implicit_rule",
+  "run": "make probe_builtin",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: built-in implicit rule '%: %.c' may apply to 'probe_builtin' in Makefile"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at probe_evil.sh:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "probe.out: benign.sh\n%.out: %_evil.sh\n\tbash $<\n",
+   "benign.sh": "echo okay\n",
+   "probe_evil.sh": "brand_new_command\n"
+  },
+  "probe": "P5_implicit_dollar_less",
+  "run": "make probe.out",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at probe_evil.sh:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unresolved shell cd at .github/workflows/fixture.yml:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "scripts/zz_probe_cwd.py": "VALUE = 1\n",
+   "zz_probe_cwd.py": "import subprocess\nsubprocess.run([\"brand_new_command\"])\n"
+  },
+  "probe": "P7_redirected_pwd",
+  "run": "cd \"$(cd scripts && pwd > /dev/null)\"; python3 zz_probe_cwd.py",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unresolved shell cd at .github/workflows/fixture.yml:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: target-specific 'SCRIPT' for 'all' is overridden by a command-line value in Makefile"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all: SCRIPT=benign.sh\nall: ; bash $(SCRIPT)\n",
+   "benign.sh": "echo okay\n",
+   "hidden.sh": "brand_new_command\n"
+  },
+  "probe": "R639_make_target_override",
+  "run": "make SCRIPT=hidden.sh",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: target-specific 'SCRIPT' for 'all' is overridden by a command-line value in Makefile"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:2:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "TOOL ?= echo\nall: ; $(TOOL) okay\n"
+  },
+  "probe": "R639_make_environment_memo",
+  "run": "TOOL=echo make; TOOL=brand_new_command make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:2:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at bootstrap.sh:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "bootstrap.sh": "\"$TOOL\" okay\n"
+  },
+  "probe": "R639_shell_script_environment_memo",
+  "run": "TOOL=echo bash bootstrap.sh; TOOL=brand_new_command bash bootstrap.sh",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at bootstrap.sh:1"
+   ]
+  ]
+ }
+]

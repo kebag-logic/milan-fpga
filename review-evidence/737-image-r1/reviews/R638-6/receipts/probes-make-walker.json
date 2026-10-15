@@ -1,0 +1,427 @@
+[
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "ifeq (a,b)\nelseX = echo\nendif\nall: ; $(elseX) brand_new_command\n"
+  },
+  "probe": "M1_else_prefixed_assignment_in_conditional",
+  "run": "make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "ifeq (a,b)\nendifX = echo\nendif\nall: ; $(endifX) brand_new_command\n"
+  },
+  "probe": "M2_endif_prefixed_assignment_in_conditional",
+  "run": "make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": {
+   "FOO": "echo"
+  },
+  "files": {
+   "Makefile": "FOO += $(BAR)\nBAR = ; brand_new_command\nall: ; $(FOO) okay\n"
+  },
+  "probe": "M3_env_variable_append_flavor",
+  "run": "make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "FOO += $(BAR)\nBAR = ; brand_new_command\nall: ; $(FOO) okay\n"
+  },
+  "probe": "M3b_env_variable_append_flavor_exported_shell",
+  "run": "export FOO=echo; make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "RUN = $(if $(0),,echo) brand_new_command\nall: ; $(call RUN)\n"
+  },
+  "probe": "M4_call_zero_binding",
+  "run": "make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "inner = $(if $(2),echo,brand_new_command) okay\nouter = $(call inner,x)\nall: ; $(call outer,a,b)\n"
+  },
+  "probe": "M5_nested_call_argument_shadowing",
+  "run": "make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:3:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all: X = brand_new_command\nall: dep ; @echo done\ndep: ; $(X) okay\n"
+  },
+  "probe": "M6_target_specific_inheritance",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:3:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unsupported Make construct 'endef' at Makefile:5"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "define X\necho a\n\tendef\nY = brand_new_command\nendef\nall: ; $(X) $(Y)\n"
+  },
+  "probe": "M7_tab_endef",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unsupported Make construct 'endef' at Makefile:5"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all: ; bash $(firstword $(wildcard *.sh))\n",
+   "a.sh": "echo okay\n",
+   "b.sh": "brand_new_command\n"
+  },
+  "probe": "M8_wildcard_order",
+  "run": "make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:1:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all: ; $(if x,echo,$(shell brand_new_command)) okay\n"
+  },
+  "probe": "M9_if_unselected_branch",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:1:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:2:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "first: ; echo okay\nsecond: ; brand_new_command\n.DEFAULT_GOAL := second\n"
+  },
+  "probe": "M10_default_goal_after_rules",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:2:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'BAR' at Makefile:2:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "BAR = brand_new_command\nall: ; $(FOO) okay\n"
+  },
+  "probe": "M11_commandline_recursive_override",
+  "run": "make 'FOO=$(BAR)'",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'BAR' at Makefile:2:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "X := $(subst a,#,abc)\nall: ; echo $(X) ; brand_new_command\n"
+  },
+  "probe": "M12_hash_inside_reference",
+  "run": "make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all: TOOL = echo\nall: ; $(TOOL) okay\n"
+  },
+  "probe": "M13_override_after_target_variable_env",
+  "run": "TOOL=brand_new_command make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:2:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all: ;\n\tbrand_new_command\n"
+  },
+  "probe": "M14_empty_recipe_semicolon_then_tab",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:2:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "ifeq (a,b)\nelse: ; echo\nendif\nall: ; echo okay\n"
+  },
+  "probe": "M15_conditional_rule_line",
+  "run": "make",
+  "tools": [],
+  "write": [
+   0,
+   [
+    "CI tool inventory matches workflow installation requests"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:5:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all:\n\techo okay\n\n# c\n\tbrand_new_command\n"
+  },
+  "probe": "M16_recipe_after_blank_and_comment",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:5:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:2:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "ifeq (a,b)\nelsewhere: ; brand_new_command\nendif\nall: elsewhere ; echo okay\n"
+  },
+  "probe": "M17_variable_named_like_directive_prefix_rule",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:2:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at sub/Makefile:1:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "all: ; $(MAKE) -C sub\n",
+   "sub/Makefile": "all: ; brand_new_command\n"
+  },
+  "probe": "M18_make_n_flag",
+  "run": "make -n",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at sub/Makefile:1:1"
+   ]
+  ]
+ },
+ {
+  "check": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:3:1"
+   ]
+  ],
+  "env": null,
+  "files": {
+   "Makefile": "X = echo\nall: dep\ndep: ; $(X) okay\nall: X = brand_new_command\n"
+  },
+  "probe": "M19_target_specific_on_second_rule_line",
+  "run": "make",
+  "tools": null,
+  "write": [
+   2,
+   [
+    "REFUSED: unclassified command 'brand_new_command' at Makefile:3:1"
+   ]
+  ]
+ }
+]

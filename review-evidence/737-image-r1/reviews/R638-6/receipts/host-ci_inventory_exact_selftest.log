@@ -1,0 +1,46 @@
+PASS: canonical Make: CMD = echo ok: generation and comparison
+PASS: canonical Make: X != sudo apt-get install -y cowsay >&2; echo a:: generation and comparison
+PASS: canonical Make: X ::= echo: generation and comparison
+PASS: canonical Make: all:: ; echo okay: generation and comparison
+PASS: canonical Make: X = a\#b: generation and comparison
+PASS: canonical Make: X = a\\: generation and comparison
+PASS: canonical Make: VPATH = sub: generation and comparison
+PASS: canonical Make: all: ; echo $(MAKEFILE_LIST): generation and comparison
+PASS: canonical Make: all:: generation and comparison
+PASS: canonical Make: DIR = sub   # trailing blanks stay in the value: generation and comparison
+PASS: canonical Make: define STEPS: generation and comparison
+PASS: canonical Make: X = echo \: generation and comparison
+PASS: each expanded recipe line runs in its own shell: generation and comparison
+PASS: Make rule: make probe_builtin: CC = sudo apt-get install -y cowsay ; cc: generation and comparison
+PASS: Make rule: make: all: gen.c ; echo okay: generation and comparison
+PASS: Make rule: make probe_builtin: MAKEFLAGS += -r: generation and comparison
+PASS: Make rule: make: MAKEFLAGS += -R: generation and comparison
+PASS: Make rule: make probe.out: probe.out: benign.sh: generation and comparison
+PASS: Make rule: make: all: sub/eat.out: generation and comparison
+PASS: Make rule: make: all: x.a: generation and comparison
+PASS: Make rule: make: all: x: generation and comparison
+PASS: Make rule: make: %.o: %.c: generation and comparison
+PASS: Make rule: make: %.o: X = echo: generation and comparison
+PASS: Make rule: make: all: X ?= echo: generation and comparison
+PASS: Make rule: make SCRIPT=probe_evil.sh: all: SCRIPT=benign.sh: generation and comparison
+PASS: Make rule: make: CXX ?= brand_new_command: generation and comparison
+PASS: target-specific value beats the environment, as in make: generation and comparison
+PASS: repeated Make under a new environment: generation and comparison
+PASS: repeated script under a new environment: generation and comparison
+PASS: repeated script under the same environment: generation and comparison
+PASS: an unexported variable stays in its own shell: generation and comparison
+PASS: a recipe inherits the makefile value of an environment name: generation and comparison
+PASS: a recipe inherits command-line values: generation and comparison
+PASS: dirname model equals the image coreutils for every recorded operand
+PASS: substitution: cd "$(cd scripts && pwd > /dev/null)"; python3 zz_probe_cwd.py: generation and comparison
+PASS: substitution: cd "$(cd scripts; pwd)"; python3 zz_probe_cwd.py: generation and comparison
+PASS: substitution: cd "$(echo x; pwd)"; python3 zz_probe_cwd.py: generation and comparison
+PASS: substitution: cd "$(cd sub && pwd)"; bash bootstrap.sh: generation and comparison
+PASS: substitution: bash "$(dirname sub/bootstrap.sh)/bootstrap.sh": generation and comparison
+PASS: substitution: bash "$(realpath sub/bootstrap.sh)": generation and comparison
+PASS: $0 is the exact invocation word: generation and comparison
+PASS: only BASH_SOURCE[0] is modelled: generation and comparison
+
+real	0m0.888s
+user	0m0.715s
+sys	0m0.203s
