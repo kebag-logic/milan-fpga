@@ -1,0 +1,14 @@
+refused docs: missing inventory preparation in docs-gates-0
+Traceback (most recent call last):
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_gate_workflows_selftest.py", line 364, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_gate_workflows_selftest.py", line 265, in main
+    inventory_controls()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_gate_workflows_selftest.py", line 47, in inventory_controls
+    refuse_preparation(changed, job_id, name + ": " + next(iter(planted)) + " preparation in ")
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_gate_workflows_selftest.py", line 58, in refuse_preparation
+    raise AssertionError("accepted unprepared inventory reader: " + label + job_id)
+AssertionError: accepted unprepared inventory reader: docs: if preparation in docs-gates-0

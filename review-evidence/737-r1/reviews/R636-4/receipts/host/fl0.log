@@ -1,0 +1,34 @@
+test_baremetal_profile_contract:
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEWS/737-r636-4-packet/scratch/fl0/sw/builder/test_builder.py", line 29272, in <module>
+    fn()
+    ~~^^
+  File "$REVIEWS/737-r636-4-packet/scratch/fl0/sw/builder/test_builder.py", line 5122, in test_baremetal_profile_contract
+    assert not instruments_down, \
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: --require-rv32: the hosted firmware instruments must run
+Command exited with non-zero status 1
+	Command being timed: "python3 scripts/ci_builder_legs.py run 0 --receipt $REVIEWS/737-r636-4-packet/receipts/host/fl0.json -- python3 sw/builder/test_builder.py --require-elaboration --require-rv32"
+	User time (seconds): 1.37
+	System time (seconds): 0.39
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:01.78
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 92820
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 79555
+	Voluntary context switches: 236
+	Involuntary context switches: 15
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 3288
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

@@ -1,0 +1,12 @@
+rc=0 :: python3 scripts/docs_check.py :: docs_check: 0 finding(s) across 207 md files + 1334 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=2 :: python3 scripts/check_em_dash.py --base 84ee9ea119b548b4982d2c0988d8753a2ce4d0cf :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requiremen
+rc=2 :: python3 scripts/check_em_dash.py --base fa7347fc59173f90e4feec2df207692e6e6e72ec :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requiremen
+rc=0 :: python3 scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+rc=0 :: python3 scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc=0 :: python3 scripts/check_doc_paths.py :: doc path gate: OK (986 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=2 :: python3 scripts/gen_toc.py --verify-anchors :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirem
+rc=2 :: python3 scripts/gen_toc.py --check :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirem
+rc=0 :: python3(pinned renderer venv) scripts/check_em_dash.py --base 84ee9ea119b548b4982d2c0988d8753a2ce4d0cf :: check_em_dash: 0 finding(s) over 75 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [84ee9ea1..HEAD]
+rc=0 :: python3(pinned renderer venv) scripts/check_em_dash.py --base fa7347fc59173f90e4feec2df207692e6e6e72ec :: check_em_dash: 0 finding(s) over 810 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [fa7347fc..HEAD]
+rc=0 :: python3(pinned renderer venv) scripts/gen_toc.py --verify-anchors :: anchor check: 494 existing cross-page fragment links reproduced
+rc=0 :: python3(pinned renderer venv) scripts/gen_toc.py --check :: TOC gate: OK (147 page(s) carry an annotated contents list, 17 below the 3-section threshold)

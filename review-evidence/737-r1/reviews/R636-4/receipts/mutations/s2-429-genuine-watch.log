@@ -1,0 +1,13 @@
+Observer unavailable: HTTPError
+Watcher read refused: HTTP 429
+Traceback (most recent call last):
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast_selftest.py", line 195, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast_selftest.py", line 137, in main
+    observer_controls()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast_selftest.py", line 33, in observer_controls
+    assert watch(API("fixture/project", "fixture"), 1, {"one"}, {}) == 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

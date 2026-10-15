@@ -1,0 +1,8 @@
+inventory 103 first=test_soc_option_refusals second=test_commercial_timing_grade last=test_name_count_fits_the_nvm_name_block
+unknown rc=1 :: --gates: ['test_no_such_gate'] is not distinct inventory names in inventory order (see --list)
+repeated rc=1 :: --gates: ['test_soc_option_refusals', 'test_soc_option_refusals'] is not distinct inventory names in inventory order (see --list)
+out-of-order rc=1 :: --gates: ['test_commercial_timing_grade', 'test_soc_option_refusals'] is not distinct inventory names in inventory order (see --list)
+empty rc=1 :: --gates: [''] is not distinct inventory names in inventory order (see --list)
+missing-value rc=1 :: --gates: [] is not distinct inventory names in inventory order (see --list)
+flag-as-value rc=1 :: --gates: ['--receipt'] is not distinct inventory names in inventory order (see --list)
+known-and-unknown rc=1 :: --gates: ['test_soc_option_refusals', 'test_no_such_gate'] is not distinct inventory names in inventory order (see --list)

@@ -1,0 +1,42 @@
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Observer unavailable: HTTPError
+Traceback (most recent call last):
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast.py", line 88, in request
+    with urlopen(request, timeout=min(30, remaining) if method == "GET" else 30) as response:
+         ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+TimeoutError: timeout
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast_selftest.py", line 195, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast_selftest.py", line 137, in main
+    observer_controls()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast_selftest.py", line 33, in observer_controls
+    assert watch(API("fixture/project", "fixture"), 1, {"one"}, {}) == 0
+           ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast.py", line 145, in watch
+    complete, failed = observe(api.pages(f"runs/{run_id}/jobs?filter=latest", "jobs"), expected, skipped)
+                               ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast.py", line 108, in pages
+    batch = self.request(path + joiner + f"per_page=100&page={page}")[field]
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast.py", line 94, in request
+    if method != "GET" or not transient(exc) or attempt == READ_ATTEMPTS - 1:
+                              ~~~~~~~~~^^^^^
+  File "$REVIEWS/737-r636-4-packet/scratch/mut/scripts/ci_fail_fast.py", line 47, in transient
+    return error.code in (403, 429) or 500 <= error.code < 600
+           ^^^^^^^^^^
+AttributeError: 'TimeoutError' object has no attribute 'code'
