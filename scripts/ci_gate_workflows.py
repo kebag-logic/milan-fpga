@@ -22,6 +22,9 @@ TEMPLATES = {name: ".github/ci-templates/" + name + ".yml"
              for name in (*CARRIERS, "rtl", "rtl-fast")}
 LONG_GATE = {"docs": "End-station builder gates", "elaborate": "Standalone LiteX simulation aggregate"}
 CONTRACT_GATES = {"CI event and SHA contract gate", "Local act runner contract gate"}
+#: The one template command divided by its driver's measured gate legs; leg n
+#: runs on worker n, under scripts/ci_builder_legs.py.
+BUILDER_SPLIT = {"elaborate": "Elaboration gates"}
 VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
                    "Put Verilator on PATH and prove the version"}
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
@@ -59,15 +62,28 @@ def setup(step: dict) -> bool:
 
 def case_inventory(name: str, template: dict) -> list[dict]:
     """Derive gate identities and leg membership from the original ordered steps."""
+    from ci_builder_legs import LEGS
     original = template["jobs"][CARRIERS[name]]["steps"]
-    cases = [{"id": "gate_" + str(index), "index": index,
-              "name": step.get("name", "Run " + step.get("uses", "")),
-              "condition": step.get("if", "success()"),
-              "leg": (2 if name == "docs" and step.get("name") in CONTRACT_GATES
-                      else int(step.get("name") == LONG_GATE[name]))}
-             for index, step in enumerate(original) if not setup(step)]
-    if sum(case["leg"] == 1 for case in cases) != 1 or not any(case["leg"] == 0 for case in cases):
+    cases = []
+    for index, step in enumerate(original):
+        if setup(step):
+            continue
+        case = {"id": "gate_" + str(index), "index": index,
+                "name": step.get("name", "Run " + step.get("uses", "")),
+                "condition": step.get("if", "success()"),
+                "leg": (2 if name == "docs" and step.get("name") in CONTRACT_GATES
+                        else int(step.get("name") == LONG_GATE[name]))}
+        if step.get("name") != BUILDER_SPLIT.get(name):
+            cases.append(case)
+            continue
+        cases.extend({**case, "id": case["id"] + "_" + str(leg), "leg": leg, "builder": leg,
+                      "name": case["name"] + ", leg " + str(leg) + " of " + str(LEGS)}
+                     for leg in range(LEGS))
+    if (sum(case["name"] == LONG_GATE[name] for case in cases) != 1
+            or not any(case["leg"] == 0 for case in cases)):
         raise ValueError(name + ": missing or ambiguous measured long gate")
+    if name in BUILDER_SPLIT and sum("builder" in case for case in cases) != LEGS:
+        raise ValueError(name + ": missing or ambiguous builder gate command")
     if len({case["name"] for case in cases}) != len(cases):
         raise ValueError(name + ": duplicate gate names")
     return cases
@@ -83,9 +99,25 @@ def worker_id(name: str, leg: int) -> str:
     return name + "-gates-" + str(leg)
 
 
+def builder_leg_step(step: dict, case: dict) -> dict:
+    """The template's own builder command, run for one measured leg with its receipt."""
+    command = step["run"].strip()
+    if "\n" in command:
+        raise ValueError("the divided builder step must be one command")
+    kept = {key: copy.deepcopy(value) for key, value in step.items() if key != "run"}
+    kept["name"] = case["name"]
+    kept["run"] = ("python3 scripts/ci_builder_legs.py run " + str(case["builder"])
+                   + ' --receipt "$RUNNER_TEMP/gate-results/builder-leg-' + str(case["builder"])
+                   + '.json" -- ' + command + "\n")
+    return kept
+
+
 def collection_steps(name: str, leg: int) -> list[dict]:
     """Observe completed source steps even on failure, then retain the actual evidence."""
     destination = "$RUNNER_TEMP/gate-results/receipt.json"
+    retained = "${{ runner.temp }}/gate-results/receipt.json"
+    if name in BUILDER_SPLIT:
+        retained += "\n${{ runner.temp }}/gate-results/builder-leg-*.json\n"
     return [
         {"name": "Record executed gate outcomes", "if": "${{ always() }}",
          "env": {"CI_GATE_STEPS": "${{ toJSON(steps) }}",
@@ -95,8 +127,7 @@ def collection_steps(name: str, leg: int) -> list[dict]:
         {"name": "Upload executed gate outcomes", "if": "${{ always() }}",
          "uses": "actions/upload-artifact@v4",
          "with": {"name": "gate-" + name + "-" + str(leg) + "-${{ github.sha }}",
-                  "path": "${{ runner.temp }}/gate-results/receipt.json",
-                  "if-no-files-found": "error"}},
+                  "path": retained, "if-no-files-found": "error"}},
     ]
 
 
@@ -135,18 +166,21 @@ def gate_graph(name: str, template: dict) -> dict:
             return suite_workflows(source)
         return source
     original = source["jobs"].pop(CARRIERS[name])
-    cases = {case["index"]: case for case in case_inventory(name, template)}
+    cases: dict[int, list[dict]] = {}
+    for case in case_inventory(name, template):
+        cases.setdefault(case["index"], []).append(case)
     for leg in worker_legs(name, template):
         worker = {key: copy.deepcopy(value) for key, value in original.items() if key != "steps"}
         worker["timeout-minutes"] = 45
         worker["steps"] = []
         for index, step in enumerate(original["steps"]):
-            case = cases.get(index)
-            if case and case["leg"] != leg:
+            owned = [case for case in cases.get(index, []) if case["leg"] == leg]
+            if index in cases and not owned:
                 continue
             if name == "elaborate" and step.get("name") in VERILATOR_SETUP and leg != 1:
                 continue
-            kept = copy.deepcopy(step)
+            case = owned[0] if owned else None
+            kept = builder_leg_step(step, case) if case and "builder" in case else copy.deepcopy(step)
             if case:
                 if "id" in kept:
                     raise ValueError(name + ": gate already has an output identifier")

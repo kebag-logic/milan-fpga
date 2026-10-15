@@ -13,10 +13,14 @@ import shlex
 import tempfile
 from unittest.mock import patch
 
-from ci_gate_receipts import StepContext, record, verify
+import ast
+
+import ci_builder_legs
+from ci_builder_legs import LEGS, REQUIRED, compare, partition, union
+from ci_gate_receipts import Collected, StepContext, record, verify
 from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
 from ci_runtime_workflows import cpu_budget_step
-from ci_gate_workflows import gate_graph
+from ci_gate_workflows import BUILDER_SPLIT, builder_leg_step, gate_graph
 import ci_suite_pieces
 from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
 
@@ -152,6 +156,110 @@ def cpu_controls() -> None:
             assert sum(step.get("name") == cpu_budget_step()["name"] for step in job["steps"]) == 1
 
 
+def builder_receipts(identity: tuple[str, str], names: list[str] | None = None,
+                     flags: tuple[str, ...] = tuple(REQUIRED)) -> list[dict]:
+    """Passing leg receipts in the shape the leg runner binds around the driver's own."""
+    names = ci_builder_legs.inventory() if names is None else names
+    legs = partition(names)
+    return [{"schema": 1, "head": identity[0], "tree": identity[1], "leg": leg, "legs": len(legs),
+             "driver": {"inventory": names, "selected": cases, "requirements": list(flags),
+                        "gates": [{"gate": gate, "verdict": "pass", "not_run": []} for gate in cases],
+                        "require_elaboration": 0 if "--require-elaboration" in flags else None}}
+            for leg, cases in enumerate(legs)]
+
+
+def builder_owner_controls() -> None:
+    """The named requirement owners are exactly the driver gates that read each requirement."""
+    tree = ast.parse((ROOT / ci_builder_legs.DRIVER).read_text())
+    gates = {node.name: node for node in tree.body
+             if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")}
+    litex = {name for name, node in gates.items()
+             if any(isinstance(item, ast.Name) and item.id == "_litex_or_skip" for item in ast.walk(node))}
+    rv32 = {name for name, node in gates.items()
+            if any(isinstance(item, ast.Constant) and item.value == "--require-rv32" for item in ast.walk(node))}
+    assert litex == set(REQUIRED["--require-elaboration"]), sorted(litex ^ set(REQUIRED["--require-elaboration"]))
+    assert rv32 == set(REQUIRED["--require-rv32"]), sorted(rv32)
+    print(f"Builder owners: {len(litex)} LiteX-consulting gates and {len(rv32)} RV32 gate named")
+
+
+def builder_controls() -> None:
+    """Judge the requirements on the union; each planted loss is refused by name."""
+    builder_owner_controls()
+    identity = ("a" * 40, "b" * 40)
+    names = ci_builder_legs.inventory()
+    good = builder_receipts(identity, names)
+    assert union(good, *identity, names)["union"] == "pass"
+    assert [len(cases) for cases in partition(names)] == [1, len(names) - 1]
+    elaboration = "test_every_recipe_elaborates"
+    rv32 = REQUIRED["--require-rv32"][0]
+
+    def refused(label: str, receipts: list, expected: str, inventory: list[str] = names) -> None:
+        """The union must refuse naming the planted gate or obligation."""
+        try:
+            union(receipts, *identity, inventory)
+        except ValueError as exc:
+            assert expected in str(exc), (label, str(exc))
+            print("Builder union refused " + label + ": " + str(exc)[:160])
+        else:
+            raise AssertionError("builder union accepted " + label)
+
+    deleted = [name for name in names if name != elaboration]
+    refused("elaboration gate deleted from the inventory",
+            builder_receipts(identity, deleted), elaboration + " absent", deleted)
+    refused("elaboration leg lost", good[:1], elaboration)
+    skipped = copy.deepcopy(good)
+    skipped[1]["driver"]["gates"] = [row for row in skipped[1]["driver"]["gates"] if row["gate"] != elaboration]
+    refused("elaboration gate skipped inside its leg", skipped, elaboration)
+    with patch.object(ci_builder_legs, "ISOLATED", (rv32, elaboration)), \
+            patch.object(ci_builder_legs, "LEGS", 3):
+        moved = builder_receipts(identity, names)
+        refused("elaboration gate moved to a leg that never ran", [moved[0], moved[2]], elaboration)
+    vacuous = builder_receipts(identity, names, ("--require-rv32",))
+    refused("elaboration gates in a leg without --require-elaboration", [good[0], vacuous[1]], elaboration)
+    unjudged = builder_receipts(identity, names, ("--require-elaboration",))
+    refused("RV32 gate in a leg without --require-rv32", [unjudged[0], good[1]], rv32)
+    forged = copy.deepcopy(good)
+    forged[0]["driver"]["gates"][0]["not_run"] = [["gate 23g", "stock VexiiRiscv", "toolchain"]]
+    refused("toolchain skip under a passing leg verdict", forged, "toolchain skip")
+    own = copy.deepcopy(good)
+    own[1]["driver"]["require_elaboration"] = 1
+    refused("leg whose own elaboration verdict failed", own, "did not pass")
+    for label, edit, expected in (
+            ("failed gate verdict",
+             lambda value: value[1]["driver"]["gates"][0].update(verdict="fail"), "did not pass"),
+            ("changed selection", lambda value: value[0]["driver"]["selected"].append(names[0]), "selection"),
+            ("duplicated leg", lambda value: value.append(copy.deepcopy(value[0])), "duplicated"),
+            ("changed head", lambda value: value[0].update(head="c" * 40), "source identity"),
+            ("changed driver inventory", lambda value: value[1]["driver"]["inventory"].pop(), "inventory"),
+            ("unknown requirement", lambda value: value[0]["driver"]["requirements"].append("--x"), "flags")):
+        changed = copy.deepcopy(good)
+        edit(changed)
+        refused(label, changed, expected)
+    try:
+        partition([name for name in names if name != rv32])
+    except ValueError as exc:
+        assert rv32 in str(exc)
+        print("Builder partition refused a measured gate absent from the inventory")
+    else:
+        raise AssertionError("partition accepted a lost measured gate")
+    reference = {"schema": 1, "head": identity[0], "tree": identity[1], "leg": None, "legs": LEGS,
+                 "driver": {"inventory": names, "selected": names, "requirements": list(REQUIRED),
+                            "gates": [row for receipt in good for row in receipt["driver"]["gates"]],
+                            "require_elaboration": 0}}
+    reference["driver"]["gates"].sort(key=lambda row: names.index(row["gate"]))
+    compare(reference, good, *identity, names)
+    differs = copy.deepcopy(reference)
+    differs["driver"]["gates"][-1]["not_run"] = [["gate 11", "no report", "row"]]
+    try:
+        compare(differs, good, *identity, names)
+    except ValueError as exc:
+        assert names[-1] in str(exc)
+        print("Builder comparison refused a NOT RUN row the legs lack")
+    else:
+        raise AssertionError("comparison accepted an unequal NOT RUN ledger")
+    print("Builder legs: union-level requirements and per-gate equality PASS")
+
+
 def main() -> int:
     """Drive the production generator and verifier with independent planted losses."""
     inventory_controls()
@@ -168,7 +276,8 @@ def main() -> int:
         actual = {case["id"]: {"outcome": "success", "conclusion": "success"} for case in cases}
         receipts = [record(name, leg, source, identity, digest, StepContext(actual, scope)) for leg in legs]
         needs = {worker_id(name, leg): {"result": "success"} for leg in legs}
-        assert len(verify(name, source, identity, digest, receipts, needs)) == len(cases)
+        builder = builder_receipts(identity) if name in BUILDER_SPLIT else None
+        assert len(verify(name, source, identity, digest, Collected(receipts, builder), needs)) == len(cases)
         assert set(generated["jobs"][carrier]["needs"]) == set(needs)
         original = source["jobs"][carrier]["steps"]
         for case in cases:
@@ -177,16 +286,24 @@ def main() -> int:
             assert len(owned) == 1
             body = copy.deepcopy(owned[0])
             del body["id"]
-            assert body == original[case["index"]]
+            if "builder" in case:
+                # The leg runs the template's own command, only adding its selection.
+                assert body == builder_leg_step(original[case["index"]], case)
+                assert body["run"].endswith(" -- " + original[case["index"]]["run"].strip() + "\n")
+                assert {key: value for key, value in body.items() if key not in ("name", "run")} == {
+                    key: value for key, value in original[case["index"]].items() if key not in ("name", "run")}
+            else:
+                assert body == original[case["index"]]
         for leg in legs:
             steps = generated["jobs"][worker_id(name, leg)]["steps"]
-            source_order = [original.index({k: v for k, v in step.items() if k != "id"})
-                            for step in steps if str(step.get("id", "")).startswith("gate_")]
+            index = {case["id"]: case["index"] for case in cases}
+            source_order = [index[step["id"]] for step in steps if step.get("id") in index]
             assert source_order == sorted(source_order)
-        def refuse(label: str, records: list, jobs: dict) -> None:
+            assert len(source_order) == sum(case["leg"] == leg for case in cases)
+        def refuse(label: str, records: list, jobs: dict, legs_builder: list | None = builder) -> None:
             """Every damaged collection must reach the production refusal path."""
             try:
-                verify(name, source, identity, digest, records, jobs)
+                verify(name, source, identity, digest, Collected(records, legs_builder), jobs)
             except (ValueError, KeyError, TypeError):
                 print(name + ": refused " + label)
             else:
@@ -221,13 +338,18 @@ def main() -> int:
             for row in mixed[1]["results"]:
                 row.update(outcome="skipped", conclusion="skipped")
             refuse("individually valid mixed execution scopes", mixed, needs)
+            refuse("executed builder division without builder receipts", receipts, needs, None)
+            refuse("executed builder division missing a leg receipt", receipts, needs, builder[:1])
             skipped = {case["id"]: {"outcome": "skipped", "conclusion": "skipped"} for case in cases}
             receipts = [record(name, leg, source, identity, digest, StepContext(skipped, "false")) for leg in legs]
-            assert len(verify(name, source, identity, digest, receipts, needs)) == len(cases)
+            assert len(verify(name, source, identity, digest, Collected(receipts), needs)) == len(cases)
+            refuse("builder receipts from a skipped builder division", receipts, needs, builder)
             receipts[0]["scope"] = "true"
-            refuse("contradictory skip scope", receipts, needs)
-        assert len(cases) == sum(not setup(step) for step in original)
+            refuse("contradictory skip scope", receipts, needs, None)
+        assert len({case["index"] for case in cases}) == sum(not setup(step) for step in original)
+        assert sum("builder" in case for case in cases) == (LEGS if name in BUILDER_SPLIT else 0)
         print(f"{name}: {len(cases)} source gates retain their complete original steps")
+    builder_controls()
     print("gate workflow and union controls: PASS")
     return 0
 

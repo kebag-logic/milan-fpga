@@ -186,10 +186,11 @@ jobs:
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
         id: ci_step_16
-      - name: Elaboration gates
+      - name: Elaboration gates, leg 0 of 2
         if: ${{ steps.scope.outputs.rtl == 'true' }}
-        run: python3 sw/builder/test_builder.py --require-elaboration --require-rv32
-        id: gate_14
+        run: |
+          python3 scripts/ci_builder_legs.py run 0 --receipt "$RUNNER_TEMP/gate-results/builder-leg-0.json" -- python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+        id: gate_14_0
       - name: Keep the generated CPU netlist arguments for the next run
         if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
         run: |
@@ -209,7 +210,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gate-elaborate-0-${{ github.sha }}
-          path: ${{ runner.temp }}/gate-results/receipt.json
+          path: |
+            ${{ runner.temp }}/gate-results/receipt.json
+            ${{ runner.temp }}/gate-results/builder-leg-*.json
           if-no-files-found: error
         id: ci_step_20
       - name: Record actual job execution
@@ -411,6 +414,11 @@ jobs:
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
         id: ci_step_16
+      - name: Elaboration gates, leg 1 of 2
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          python3 scripts/ci_builder_legs.py run 1 --receipt "$RUNNER_TEMP/gate-results/builder-leg-1.json" -- python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+        id: gate_14_1
       - name: Cache the pinned Verilator build
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         id: cache-verilator
@@ -419,28 +427,28 @@ jobs:
           path: /opt/verilator
           key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml')
             }}-${{ runner.os }}
-      - name: Resolve exact package downloads 15
-        id: ci_packages_15
+      - name: Resolve exact package downloads 16
+        id: ci_packages_16
         run: |
-          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_15" --output "$GITHUB_OUTPUT"
+          python3 scripts/ci_install_cache.py --packages autoconf bison flex g++ git help2man libfl-dev libfl2 make perl python3 --recipe 1cc10e1d1d8fc7d092d50d9ae6a14a66863d9358039e093056cbe083a83cc105 --directory "$RUNNER_TEMP/ci_packages_16" --output "$GITHUB_OUTPUT"
         if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
           }}
-      - name: Cache exact package downloads 15
+      - name: Cache exact package downloads 16
         uses: actions/cache@v4
         with:
-          path: ${{ runner.temp }}/ci_packages_15
-          key: ${{ runner.os }}-${{ steps.ci_packages_15.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+          path: ${{ runner.temp }}/ci_packages_16
+          key: ${{ runner.os }}-${{ steps.ci_packages_16.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}
         if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
           }}
-        id: ci_step_19
+        id: ci_step_20
       - name: Build Verilator from source on cache miss
         if: ${{ steps.scope.outputs.rtl == 'true' && steps.cache-verilator.outputs.cache-hit != 'true'
           }}
         run: |
           set -euo pipefail
           : # package index prepared above
-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_15" install -y --no-install-recommends \
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_16" install -y --no-install-recommends \
             git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
           git clone --depth 1 --branch "$VERILATOR_VERSION" \
             https://github.com/verilator/verilator.git /tmp/verilator-src
@@ -450,7 +458,7 @@ jobs:
           ./configure --prefix=/opt/verilator
           make -j"$CI_TOOL_BUILD_JOBS"
           sudo make install
-        id: ci_step_20
+        id: ci_step_21
       - name: Put Verilator on PATH and prove the version
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
@@ -458,7 +466,7 @@ jobs:
           echo "/opt/verilator/bin" >> "$GITHUB_PATH"
           /opt/verilator/bin/verilator --version
           /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
-        id: ci_step_21
+        id: ci_step_22
       - name: Standalone LiteX simulation aggregate
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
@@ -470,7 +478,7 @@ jobs:
         run: |
           cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
             ~/vexii-netlist-args/ 2>/dev/null || true
-        id: ci_step_23
+        id: ci_step_24
       - name: Record executed gate outcomes
         if: ${{ always() }}
         env:
@@ -478,15 +486,17 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 1 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_24
+        id: ci_step_25
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: gate-elaborate-1-${{ github.sha }}
-          path: ${{ runner.temp }}/gate-results/receipt.json
+          path: |
+            ${{ runner.temp }}/gate-results/receipt.json
+            ${{ runner.temp }}/gate-results/builder-leg-*.json
           if-no-files-found: error
-        id: ci_step_25
+        id: ci_step_26
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}

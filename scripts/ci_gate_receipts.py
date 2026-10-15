@@ -23,6 +23,14 @@ SHA = re.compile(r"[0-9a-f]{40}\Z")
 
 
 @dataclass(frozen=True)
+class Collected:
+    """Downloaded worker receipts, with the builder leg receipts where that command is divided."""
+
+    receipts: list[dict]
+    builder: list[dict] | None = None
+
+
+@dataclass(frozen=True)
 class StepContext:
     """Actual step outcomes and the existing scope step's recorded output."""
 
@@ -51,8 +59,13 @@ def record(name: str, leg: int, source: dict, identity: tuple[str, str], digest:
 
 
 def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
-           receipts: list[dict], needs: dict) -> list[str]:
-    """Require each source gate once and every dependent job successful, with exact source binding."""
+           collected: Collected, needs: dict) -> list[str]:
+    """Require each source gate once and every dependent job successful, with exact source binding.
+
+    Where the builder command is divided, its executed legs must also form the
+    builder union, and a skipped division may leave no builder receipt.
+    """
+    receipts, builder = collected.receipts, collected.builder
     legs = worker_legs(name, source)
     expected_jobs = {worker_id(name, leg) for leg in legs}
     if set(needs) != expected_jobs:
@@ -66,6 +79,7 @@ def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
     inventory = [case["id"] for case in cases]
     seen = []
     scopes = set()
+    divided = []
     for document in receipts:
         expected = {"schema", "workflow", "leg", "head", "tree", "template_sha256", "inventory", "scope", "results"}
         if set(document) != expected or type(document["schema"]) is not int or document["schema"] != 1:
@@ -98,8 +112,15 @@ def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
             elif name == "elaborate" and scope != "true":
                 raise ValueError("executed elaboration has inconsistent scope evidence")
             seen.append(case["id"])
+            if "builder" in case:
+                divided.append(result == ("success", "success"))
     if len(scopes) != 1 or sorted(seen) != sorted(inventory) or len(set(seen)) != len(seen):
         raise ValueError("gate union or scope evidence is inconsistent")
+    if any(divided):
+        from ci_builder_legs import union
+        union(builder or [], identity[0], identity[1])
+    elif builder:
+        raise ValueError("builder leg receipts without an executed builder division")
     return seen
 
 
@@ -133,11 +154,15 @@ def main() -> int:
                 stream.write(canonical(value) + b"\n")
         else:
             receipts = [read(path) for path in sorted(args.root.rglob("receipt.json"))]
+            builder = [read(path) for path in sorted(args.root.rglob("builder-leg-*.json"))]
             needs = json.loads(os.environ["CI_GATE_NEEDS"], object_pairs_hook=unique_object)
-            names = verify(args.workflow, source, identity, digest, receipts, needs)
+            names = verify(args.workflow, source, identity, digest, Collected(receipts, builder), needs)
             if args.output:
                 observed = sorted([row for receipt in receipts for row in receipt["results"]],
                                   key=lambda row: row["case"])
+                if builder:
+                    from ci_builder_legs import union
+                    observed = {"steps": observed, "builder": union(builder, *identity)}
                 value = {"suite": "gate/" + args.workflow, "head": identity[0], "tree": identity[1],
                          "inventory": [case["id"] for case in case_inventory(args.workflow, source)],
                          "legs": [{"shard": str(receipt["leg"]) + "/" + str(len(worker_legs(args.workflow, source))),
