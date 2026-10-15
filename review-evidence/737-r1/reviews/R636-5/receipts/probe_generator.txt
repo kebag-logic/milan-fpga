@@ -1,0 +1,10 @@
+control: head bytes | generator_rc=0 () | ci_events_rc=0
+stale arm index (total 6, arm 4) | generator_rc=1 (ValueError: template ownership step lacks its dedicated milan_dp arm) | ci_events_rc=1
+arm deleted | generator_rc=1 (ValueError: template ownership step lacks its dedicated milan_dp arm) | ci_events_rc=1
+expect mismatched (--expect 5) | generator_rc=1 (ValueError: template verifier lacks its worker-count expectation) | ci_events_rc=1
+total 7 without arm/expect | generator_rc=1 (ValueError: template ownership step lacks its dedicated milan_dp arm) | ci_events_rc=1
+consistent recount (total 7, shard 0-6, arm 6, --expect 7) | generator_rc=0 () | ci_events_rc=1
+duplicate arm (arm 5 twice) | generator_rc=1 (ValueError: template ownership step lacks its dedicated milan_dp arm) | ci_events_rc=1
+extra stale arm 4 beside arm 5 | generator_rc=1 (regenerate the gate jobs) | ci_events_rc=1
+hand-edited generated workflow (--expect 15) | generator_rc=1 (regenerate the gate jobs) | ci_events_rc=1
+restored: generator_rc=0 ci_events_rc=0
