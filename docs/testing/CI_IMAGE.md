@@ -671,8 +671,7 @@ It never downloads.
 The SDK cache step before it is removed.
 The CI event contract changes in the same lane.
 `RV32_INSTALL` and `RV32_CACHE_WITH` in `scripts/ci_events.py` pin the old step and cache.
-Create the link in a fresh job home.
-An existing destination must already resolve to `/opt/rv32-sdk`.
+The `ln -s` step fails if the destination exists, so it runs only in a fresh job home.
 The image supplies the SDK at that immutable location.
 No compiler change is required.
 
