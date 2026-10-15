@@ -1,0 +1,330 @@
+diff --git a/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md b/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+index 2a41e89a0..b0db719b5 100644
+--- a/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
++++ b/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+@@ -90,6 +90,7 @@ These are operator observations, not review verdicts.
+ - **[Dev 5603c353, 2026-10-10: lane B15](#dev-5603c353-2026-10-10-lane-b15)** -- Where Direction B's tone is lost: four points captured at once, the tone absent in the peer's own talker stream, the DUT's TDM output equal to what it receives, a positive control on the same taps, the tone source and the peer read only, the #629 acceptance, limits and hashes.
+ - **[Dev 5603c353, 2026-10-12: lane B16](#dev-5603c353-2026-10-12-lane-b16)** -- The reference peer's own loopback as the positive reference: the bind never forms a stream because the peer's probe of its own talker goes unanswered, so the lane stops at step 2; the tone source read only, with a route changed since lane B15, the controls, the acceptance of #629, limits and hashes. Then B16b, after the ruling: the tone present at the peer's talker and carried sample-exact to the DUT's TDM output, B0's grade by THD+N and SNR, with each loss attributed to a stage, directly inside the taps' overlap and by inference beyond it, the tone source changed during the lane, and B-CRF and B-AAF stopped for a decision. Then B16c, after the second ruling: the peer set to its internal source and back, each read back; B-CRF and B-AAF graded by THD+N and SNR at the four points, every block at the floor, no discontinuity, three of lane B6's four terms met and its timed ratio not run, the following record, the acceptance of #629, limits and hashes. Then round 2: the figures corrected against their receipts, and reduced receipts of the console poll, the tone source's reads and B0's overlap, bound to the raw hashes. Then round 3: a figures check that recomputes every figure of the section from its receipt, and the corrections it found. Then round 4: where the packet is published, and the check's exemptions narrowed to identifiers, with figures inside links and quoted phrases claimed by rows. Then round 5: the check accounts for every digit, and a number before its unit is a measurement that only a row can claim, however it is written. Then round 6: the check reads the text as a reader sees it, an identifier counts only before a closed list of what may follow it, so a unit or any other word directly after an identifier makes it a measurement, and a figure for several cases is recomputed from each case's own receipt. Then round 7: the check refuses any line of its text that holds markup, in code too, and drops nothing, and the section's table markers are removed. Then round 8: the check reads its text through the repository's pinned Markdown parser, judges only the visible text it yields, and refuses any construct off a closed allowlist, in the index row too. Then round 9: each construct judged by the lines its source spans rather than the end the parser reports, a paragraph whose lines the parser misplaces refused, and lines counted as the parser counts them. Then round 10: a block refused where the parser gives a node in it no position, an e-mail autolink among them, and where the digits a reader sees in it differ from those the check read.
+ - **[Dev 5603c353, 2026-10-15: lane B17](#dev-5603c353-2026-10-15-lane-b17)** -- #645's loopback slips timed through ten binds of the reference peer's talker with the DUT on INTERNAL: one slip per bind, 0.07 to 5.67 s after it, each at the first late arrival burst and none later in the hold; every slip class (c) under the ruling, so #645 stays open; the rate offset, the bind priming, the controls, the restore, limits and hashes.
++- **[Dev 9ef71772, 2026-10-15: lane B18](#dev-9ef71772-2026-10-15-lane-b18)** -- #645's acceptance repeat of lane B17's ten binds on the image that carries PR #742: every bind held, with `SLIP_LB` at 0 in every poll, no #743 residual and no CLOCK_SOURCE change, through first late bursts like those that slipped each of B17's binds; the comparison with B17, the counters, the restore, limits and hashes.
+ 
+ ## Identity and setup
+ 
+@@ -4977,3 +4978,317 @@ transcripts.
+ | `summary/peer-gap.json` | 7,657 | `b8f7de8c6a88cceef076fcfbc90ea326526663457b39984981220879d928f9b2` |
+ | `summary/counter-logs.sha256` (the raw counter log digest: the SHA-256 of each `cycles/cNN/poll.jsonl`) | 880 | `a1d415300d55cfc2c14178493a244edab56446bbfa3aa860721e8b39819c7848` |
+ | `restore/census-compare.txt` | 369 | `66d9ed5b2c68796bdec9ad5c0178e8a48fe388018da5eae53df8a2675994ffd2` |
++
++## Dev 9ef71772, 2026-10-15: lane B18
++
++Refs #645. Operator [A622], 2026-10-15, under the
++[bench lane B18 assignment](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6199691564),
++the acceptance repeat of
++[lane B17](#dev-5603c353-2026-10-15-lane-b17) that the
++[design round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)
++names. The image is the manager's build of dev `9ef71772`, which carries
++PR #742: at INTERNAL, a listener bind's first PDU arms the settle recentre
++([A bind at INTERNAL](../design/MEDIA_CLOCK_FOLLOWING.md#a-bind-at-internal)).
++It was flashed and cold-booted once before the lane. No flash, JTAG reload
++or power cycle occurred in the lane, and the SoC board was not used.
++
++The lane ran B17's method unchanged: ten unbind and re-bind cycles of the
++reference peer's AAF talker to the DUT's STREAM_INPUT 0, with the DUT on
++INTERNAL, from the state as found. Each bind was graded against PR #742's
++stated behaviour, as the assignment sets it:
++
++- a bind **holds** if `SLIP_LB` does not change across the cycle;
++- a one-pair dup (+1) at the first PDU is the pre-existing residual that
++  #743 tracks, not a #645 slip;
++- a one-frame slip (+2) at a later burst is B17's class (c), the defect
++  PR #742 targets.
++
++| #645 item | Verdict | Evidence |
++|---|---|---|
++| Identity gate, dev `9ef71772` | PASS | See [B18: identity and setup](#b18-identity-and-setup) |
++| Probe state | As found | B17's: the DUT on CLOCK_SOURCE 0, INTERNAL, with its STREAM_INPUT 0 bound to the peer's AAF talker |
++| Ten bind cycles, polled every 0.5 s from 8.00 s before each bind to at least 31.70 s after it | Done | 80 polls per cycle, none unreadable. See [B18: method](#b18-method) |
++| Binds held | 10 of 10 | `SLIP_LB` read 0 dups and 0 skips in all 800 polls and at both baselines. See [B18: the binds](#b18-the-binds) |
++| #743 residual (+1 at the first PDU) | 0 | No `SLIP_LB` change of any size |
++| B17's class (c) (+2 at a later burst) | 0 | Each cycle's first burst over 20 us peaked at 24.9 to 29.0 us, against the 24.6 to 29.3 us bursts that slipped B17's binds. See [B18: comparison with lane B17](#b18-comparison-with-lane-b17) |
++| CLOCK_SOURCE changes | 0 | The DUT read 0 and the peer 1 at the start and end of every cycle |
++| Counters that moved | Listed | See [B18: counters and clock sources](#b18-counters-and-clock-sources) |
++| #645 under the ruling | Close condition met | Every bind at INTERNAL held, and no #743 residual occurred |
++| Restore | Done | See [B18: bench as left](#b18-bench-as-left) |
++
++These are operator observations, not review verdicts. Paths such as
++`cycles/c01/poll.jsonl` are in the lane packet, `645-b18-a622`, which the
++manager holds.
++
++### B18: identity and setup
++
++| Identity check | Result |
++|---|---|
++| Over ATDECC, the live ENTITY descriptor | entity_id `020000fffe000001`, entity name "Milan FPGA 1x1 TDM8", firmware_version "2.96.0", serial "AX7101-0001": the values B17 recorded |
++| Console `milan_status` | ID `4d494c4e`, VERSION `0x00020060` |
++| AEM image CRC32 in QSPI, 7,512 bytes | `5ba355eb` |
++| Live ENTITY and CONFIGURATION | Byte-equal to the QSPI AEM bytes, 312 and 106 bytes |
++| Clock sources of #629 | CLOCK_SOURCE 0 INTERNAL, 1 on STREAM_INPUT 1, 2 on STREAM_INPUT 0; CLOCK_SOURCE 3 answers NO_SUCH_DESCRIPTOR; CLOCK_DOMAIN 0 lists 0, 1 and 2 and reads 0 |
++| UART grader | 10 of 10 |
++| Identity gate | PASS, 18:50:11 to 18:50:17 UTC |
++
++VERSION and the AEM CRC did not change from dev `5603c353`. The image's
++identity rests on the manager's flash record, which shows `FLASH_RC=0`, one
++cold power cycle with `POWERCYCLE_RC=0`, and the boot line
++`CSR ID=4d494c4e VERSION=00020060` with AEM 7512 B and CRC `5ba355eb`.
++
++As found at 18:50:28 UTC:
++
++- **DUT.** CLOCK_SOURCE 0, servo IDLE. STREAM_INPUT 0 bound to the reference
++  peer's AAF talker, flags `0x0002`, at the talker's format
++  `0205022001006000`; STREAM_INPUT 1 unbound. STREAM_PORT_INPUT 0 with four
++  mappings and STREAM_PORT_OUTPUT 0 with eight. `SLIP_LB` 0 dups and 0
++  skips, and `SLIP_TDM` 0: the counters start at 0 after the cold boot.
++  `RENDER_STAT` `0x0000020a`, converged at fill 10. NVM image seq 315,
++  `pend=0`.
++- **Reference peer.** Its STREAM_INPUT 0 and its CRF input bound to the DUT's
++  AAF and CRF talkers, flags `0x0082`. Its CLOCK_DOMAIN on CLOCK_SOURCE 1,
++  following the DUT's CRF, as in B17.
++- **Controller host.** No gPTP daemon and no staging.
++
++This is B17's probe state, and each cycle's own start check confirmed it.
++
++### B18: method
++
++**The cycle** (`tools/cyc_b18.py`). It is B17's `cyc_b17.py` with only its
++raw directory, its staging directory and its capture name changed. Each
++cycle is one locked action:
++
++1. Read both clock sources and the DUT's STREAM_INPUT 0, and change nothing
++   unless the probe state holds.
++2. Start a 50 s capture on the passive tap on the DUT's link, AVTP and ACMP
++   frames only, 96 bytes of each, and the console poll.
++3. At 2 s, unbind the peer's STREAM_OUTPUT 0 from the DUT's STREAM_INPUT 0.
++4. Apply the binding rule: read the talker's and the listener's formats.
++   They were equal, `0205022001006000`, in all ten cycles, so none was set.
++5. At 6 s after the unbind, bind again, and hold 32 s.
++6. Read the end state and the counters, and stop.
++
++The unbind and the bind answered SUCCESS in every cycle, with no retry. Each
++cycle ended bound as found, with flags `0x0002` and both clock sources
++unchanged.
++
++**The poll** (`tools/console_poll_b8.py`, lane B8's, unchanged, SHA-256
++`1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7`). Every
++0.5 s it reads the words B17 read: `SLIP_LB`, `SLIP_TDM`, `RENDER_STAT`,
++`MCSRV_STAT`, `AAFM_STAT`, `AAFM_RATE`, `CRF_CTRL` and `CRF_RATE`, read-only
++over the console. A change would be timed from the start of the poll before
++it to the end of the poll that saw it. The cycle also reads GET_COUNTERS at
++its start and end, for the DUT's STREAM_INPUT 0 and AVB_INTERFACE 0 and the
++peer's STREAM_OUTPUT 0. Each cycle's poll is its raw counter log,
++`cycles/cNN/poll.jsonl`.
++
++**The grading.** `tools/ana_b17.py`, B17's, unchanged, reads each poll and
++capture. `tools/summ_b18.py` grades each cycle against PR #742 and compares
++it with B17's ten, reading B17's packet. It keeps B17's rules: B17's time
++base, the seconds from the bind's CONNECT_RX command; every poll figure
++computed from the raw counter log and rounded once; a tap figure printed
++only where no rounding tie hides a dropped digit; B17's bursts, PDUs more
++than 20 us late against a line fitted to the post-bind arrivals, grouped
++while less than 1 ms apart; and the cumulative counter. A +1 change would
++count as the #743 residual if its poll interval held the first peer PDU
++after the bind and ended no later than the first PDU more than 20 us late.
++The poll cannot resolve the assignment's "about 3 ms", as the lane's TAKEN
++stated. No change occurred, so the rule was not exercised.
++
++**What no CSR exposes.** As on B17's image, the render recentre count and the
++settle recentre's pending state reach no CSR
++([register map, `RENDER_STAT`](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state)).
++So the lane cannot see the bind's settle recentre fire. The firing time
++quoted below is the design's: 2,048 ticks, 42.7 ms after the first PDU.
++"Held" rests on `SLIP_LB` alone, as the assignment grades it.
++
++### B18: the binds
++
++| Cycle | Bind, UTC | Polls, s from the bind | `SLIP_LB` dups, skips | Change | Grade | First peer PDU, ms | First burst over 20 us: s, peak | Bursts to the last poll, peak | CLOCK_SOURCE DUT, peer | delta_ppm |
++|---|---|---|---|---|---|---|---|---|---|---|
++| c01 | 18:50:56.251 | 80, -8.00 to +31.70 | 0, 0 to 0, 0 | None | Held | 135.267 | 4.74, 25.7 us | 17, 29.3 us | 0 to 0, 1 to 1 | +0.0009 |
++| c02 | 18:51:59.961 | 80, -8.00 to +31.84 | 0, 0 to 0, 0 | None | Held | 25.015 | 4.03, 25.1 us | 11, 32.0 us | 0 to 0, 1 to 1 | -0.0008 |
++| c03 | 18:52:51.821 | 80, -8.00 to +31.83 | 0, 0 to 0, 0 | None | Held | 165.076 | 0.38, 25.8 us | 9, 28.4 us | 0 to 0, 1 to 1 | +0.0012 |
++| c04 | 18:53:43.565 | 80, -8.00 to +31.78 | 0, 0 to 0, 0 | None | Held | 20.959 | 0.44, 26.2 us | 11, 28.9 us | 0 to 0, 1 to 1 | 0.0000 |
++| c05 | 18:54:46.633 | 80, -8.00 to +31.88 | 0, 0 to 0, 0 | None | Held | 153.259 | 2.38, 25.7 us | 10, 27.3 us | 0 to 0, 1 to 1 | -0.0004 |
++| c06 | 18:55:38.529 | 80, -8.00 to +31.85 | 0, 0 to 0, 0 | None | Held | 57.238 | 2.50, 29.0 us | 11, 29.0 us | 0 to 0, 1 to 1 | +0.0005 |
++| c07 | 18:56:30.394 | 80, -8.00 to +31.84 | 0, 0 to 0, 0 | None | Held | 192.267 | 2.64, 26.8 us | 9, 31.1 us | 0 to 0, 1 to 1 | -0.0009 |
++| c08 | 18:57:27.295 | 80, -8.00 to +31.77 | 0, 0 to 0, 0 | None | Held | 91.662 | 0.20, 27.6 us | 19, 31.5 us | 0 to 0, 1 to 1 | +0.0002 |
++| c09 | 18:58:19.017 | 80, -8.00 to +31.77 | 0, 0 to 0, 0 | None | Held | 170.932 | 0.25, 24.9 us | 13, 28.0 us | 0 to 0, 1 to 1 | +0.0004 |
++| c10 | 18:59:10.797 | 80, -8.00 to +31.70 | 0, 0 to 0, 0 | None | Held | 189.988 | 3.26, 25.3 us | 11, 31.2 us | 0 to 0, 1 to 1 | +0.0019 |
++
++`SLIP_LB` read 0 dups and 0 skips in every poll of every cycle, from 8.00 s
++before each bind to its last poll, +31.70 to +31.88 s after it:
++
++- no change while bound before the unbind, while unbound, at the bind or in
++  the hold;
++- no change between one cycle's last poll and the next cycle's first, or
++  after c10's last poll: the start baseline, every cycle's first and last
++  read and the end baseline all read 0;
++- `SLIP_TDM` read 0 throughout.
++
++So no cycle has a +1 to grade as the #743 residual, and none has a +2 to
++grade as B17's class (c). Every bind held.
++
++**The bursts.** In every cycle, no peer PDU arrived more than 10 us late
++between the bind and its first burst over 20 us. That burst came 0.20 to
++4.74 s after the bind, and 32.7 ms to 4.56 s after the design's firing time
++of the bind's settle recentre, the first PDU plus 42.7 ms. To the last poll
++each cycle carried 9 to 19 such bursts, peaking at 27.3 to 32.0 us, and none
++moved `SLIP_LB`. To the capture's end, about 41.9 s after the bind, there
++were 12 to 22, peaking at 28.0 to 32.0 us; that the later ones slipped
++nothing rests on the cumulative counter. The arrival lateness's 99.9th
++percentile was 4.5 to 5.9 us.
++
++**The rate offset.** delta_ppm, measured as B17 did from the AAF
++presentation timestamps on the tap, stayed within -0.0009 to +0.0019 ppm.
++The peer's AAF stream ran +4.87 to +4.92 ppm against gPTP time, with the
++peer following the DUT's CRF.
++
++**Other words.** In every poll `MCSRV_STAT` read `0x00000020`, state IDLE,
++and `AAFM_STAT`, `AAFM_RATE`, `CRF_CTRL` and `CRF_RATE` read 0, as INTERNAL
++gives. `RENDER_STAT` was the only polled word that moved. It read prefill
++with fill 0 from the first poll after each unbind. After each bind it read
++prefill 0 by 0.11 to 0.67 s, the end of the first poll that read it, and
++converged by 0.59 to 0.67 s. Fill stayed 8 to 14 and converged held to the
++last poll. Its rail count stayed 0.
++
++**c01's capture.** It holds 814,740 frames, 38,434 to 40,085 more than each
++of the other nine, which hold 774,655 to 776,306. The peer's own AAF stream
++kept arriving on the DUT's link for 4.95 s after the unbind's command,
++against 0.002 to 0.18 s in the other nine cycles (`tools/peer_gap_b17.py`,
++B17's, unchanged). B17's c08 showed the same, 4.87 s. The DUT read prefill
++with fill 0 from the first poll after the unbind, and `SLIP_LB` did not
++move.
++
++### B18: comparison with lane B17
++
++The same method on the image before PR #742 and on the image after it, ten
++binds each:
++
++| Cycle | B17 bind, UTC | B17 first peer PDU, ms | B17 slip: s from the bind, count | B17 first burst: s, peak | B18 first peer PDU, ms | B18 `SLIP_LB` change | B18 first burst: s, peak |
++|---|---|---|---|---|---|---|---|
++| c01 | 07:46:23.700 | 163.485 | 2.56 to 3.14, +2 dups | 2.82, 28.8 us | 135.267 | None | 4.74, 25.7 us |
++| c02 | 07:47:50.970 | 93.536 | 1.09 to 1.96, +2 dups | 1.56, 25.0 us | 25.015 | None | 4.03, 25.1 us |
++| c03 | 07:48:42.707 | 156.762 | 1.07 to 1.95, +2 dups | 1.83, 26.3 us | 165.076 | None | 0.38, 25.8 us |
++| c04 | 07:49:34.411 | 52.750 | 3.10 to 3.68, +2 dups | 3.20, 29.3 us | 20.959 | None | 0.44, 26.2 us |
++| c05 | 07:51:00.056 | 7.854 | 0.07 to 0.64, +2 dups | 0.10, 24.6 us | 153.259 | None | 2.38, 25.7 us |
++| c06 | 07:51:51.933 | 131.486 | 3.57 to 4.15, +2 dups | 3.63, 25.8 us | 57.238 | None | 2.50, 29.0 us |
++| c07 | 07:52:43.809 | 54.945 | 1.06 to 1.94, +2 dups | 1.36, 25.0 us | 192.267 | None | 2.64, 26.8 us |
++| c08 | 07:53:40.237 | 28.539 | 1.17 to 1.94, +2 dups | 1.34, 25.6 us | 91.662 | None | 0.20, 27.6 us |
++| c09 | 07:54:32.303 | 161.240 | 1.04 to 1.95, +2 dups | 1.28, 25.1 us | 170.932 | None | 0.25, 24.9 us |
++| c10 | 07:55:24.165 | 101.128 | 5.09 to 5.67, +2 dups | 5.43, 26.9 us | 189.988 | None | 3.26, 25.3 us |
++
++B17's slip intervals are recomputed here from B17's raw counter logs and
++rounded once, and they equal B17's table. B17's bursts use the same rule.
++
++| Quantity | B17, dev `5603c353` | B18, dev `9ef71772` |
++|---|---|---|
++| Binds that moved `SLIP_LB` | 10 of 10, +2 dups each | 0 of 10 |
++| `SLIP_LB` across the lane | 208 to 228 dups | 0 to 0 |
++| First peer PDU after the bind | 7.9 to 163.5 ms | 21.0 to 192.3 ms |
++| First burst over 20 us: time after the bind | 0.10 to 5.43 s | 0.20 to 4.74 s |
++| First burst over 20 us: peak | 24.6 to 29.3 us | 24.9 to 29.0 us |
++| delta_ppm | -0.0017 to +0.0016 | -0.0009 to +0.0019 |
++| CLOCK_SOURCE changes | 0 | 0 |
++
++Each B18 bind met a first late burst in the range of the bursts that
++slipped each B17 bind, at a similar time after the bind and with the peer on
++the same clock, and none slipped. The later bursts, up to 32.0 us, were
++larger than any B17 recorded, 30.3 us, and slipped nothing either. That is
++the behaviour PR #742 states. The lane cannot see the recentre itself, so
++this is the counter's result, not a measurement of the recentre.
++
++### B18: counters and clock sources
++
++**CLOCK_SOURCE.** No change. Each cycle read the DUT's CLOCK_SOURCE 0 and
++the peer's 1 at its start and its end and set none, and the baselines read
++the same.
++
++**The polled words.** Only `RENDER_STAT` moved, as above; `SLIP_LB`,
++`SLIP_TDM`, `MCSRV_STAT`, `AAFM_STAT`, `AAFM_RATE`, `CRF_CTRL` and
++`CRF_RATE` held one value each through all 800 polls.
++
++**GET_COUNTERS, start to end of each cycle** (`summary/counters.md`):
++
++| Entity and descriptor | Counter | In every cycle |
++|---|---|---|
++| DUT STREAM_INPUT 0 | TIMESTAMP_VALID, FRAMES_RX | Lower at the end: both restart at the re-bind and count the hold, ending at 254,507 to 255,904 and 247,981 to 254,370 |
++| DUT STREAM_INPUT 0 | MEDIA_LOCKED | 1 at both reads; did not move |
++| DUT STREAM_INPUT 0 | MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, TIMESTAMP_NOT_VALID, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP | 0; did not move |
++| DUT AVB_INTERFACE 0 | every valid counter | Did not move |
++| Peer STREAM_OUTPUT 0 | STREAM_START, STREAM_STOP | +1 each, from the unbind and the bind |
++| Peer STREAM_OUTPUT 0 | FRAMES_TX | Counts on |
++
++The restart of FRAMES_RX at the bind is the receive counter law in the
++counter-law note at the top of this page. No sequence gap occurred in the
++peer's AAF stream or the DUT's AAF and CRF streams on the tap.
++
++### B18: bench as left
++
++| State | As left |
++|---|---|
++| DUT stream state | STREAM_INPUT 0 bound to the peer's AAF talker, flags `0x0002`, at `0205022001006000`; STREAM_INPUT 1 unbound; both maps as found; CLOCK_SOURCE 0; all read back |
++| DUT counters | `SLIP_LB` 0, `SLIP_TDM` 0, servo IDLE |
++| Reference peer | Its bindings, formats and CLOCK_DOMAIN source as found |
++| Census, start against end | 45 of 46 entries equal; the other is the DUT's live propagation delay, 382 to 388 ns |
++| Controller host | No task process; staging removed |
++| Tap host | No capture file left; each was removed after its copy's hash matched |
++
++Residuals that no permitted command restores:
++
++- **DUT NVM persistence** advanced through the ten unbinds and binds: image
++  seq 315 to 335, commits 0 to 20, `pend=0`, `VD_OK`.
++- **The peer's STREAM_OUTPUT 0** STREAM_START and STREAM_STOP counters, +10
++  each.
++
++### B18: limits
++
++- Ten binds, each held 32 s, on one DUT against one reference peer, with the
++  peer following the DUT's CRF, as in B17.
++- The settle recentre's arming and firing cannot be read on silicon, so the
++  lane shows that the ring held, not that the recentre fired.
++- In every cycle the first burst over 20 us came after the design's firing
++  time, by 32.7 ms at the least. No burst fell inside a bind's 42.7 ms
++  arming window, so this lane does not test that window; the design states
++  its limit, and #743 tracks the in-window one-pair dup.
++- A change would be timed to its poll interval, about 0.6 s wide, not to the
++  event.
++- Under following a bind arms nothing; this lane binds at INTERNAL only.
++- Printed precision is not calibrated accuracy.
++
++### B18: artifact hashes
++
++The raw tap captures stay outside the lane packet, on the bench host. The
++packet's `RAW-ARTIFACTS.json` records each one, with the controller
++transcripts.
++
++| Cycle | Raw file | Bytes | SHA-256 |
++|---|---|---|---|
++| c01 | `645-b18-c01.pcap` | 91,150,952 | `ea133ea81bfa09f175ec31fe6762e4d17081c33c591a58fd112e10a1d90b67c8` |
++| c02 | `645-b18-c02.pcap` | 86,846,228 | `97051411837e214b60b836cc9eb8a4eff0478688088fa0c25a262204cef54672` |
++| c03 | `645-b18-c03.pcap` | 86,686,804 | `bc4fb076a47979107f05b163a1a684ad28c3a5fc58a36ee14ceb9684512f0c44` |
++| c04 | `645-b18-c04.pcap` | 86,846,340 | `6d06858ace7bbdbb48ff1c3c14fef8d1926e1d5d7e47ea24a4fec6a082d460e4` |
++| c05 | `645-b18-c05.pcap` | 86,746,992 | `b5c2950b4961e13edcea8c5838a43bea6f2de0135f3d71a2c3ef4c881b0d4aee` |
++| c06 | `645-b18-c06.pcap` | 86,661,628 | `22b77b48370f49245fee07ebda71b26dccdd997b9d3084723818faea0bb022ce` |
++| c07 | `645-b18-c07.pcap` | 86,666,912 | `9551abd7e85a08e4e297be54c89259990dcb0212f197c428b25b436c217f63f6` |
++| c08 | `645-b18-c08.pcap` | 86,846,116 | `2eb0df823b87bdfa29502434258a9183bc8eec890e27e212d8c1bf8c1131bf89` |
++| c09 | `645-b18-c09.pcap` | 86,846,116 | `09c6ca9d1d1fcddf9a9ad52dc4ac27c48d9a26c1bbf1167bdb887cd1d16fe759` |
++| c10 | `645-b18-c10.pcap` | 86,666,916 | `92ff4b0b7e19e2516b553b567ee21d72d7cb276906cceddf16684353dc92f744` |
++
++| Evidence file | Bytes | SHA-256 |
++|---|---|---|
++| `tools/cyc_b18.py` (the cycle runner, as run) | 14,525 | `d41d0480ba17fdedd8ee73d5ee2ae973180bdda1e55a3d814a408790aa4e76e6` |
++| `tools/console_poll_b8.py` (the poller) | 4,345 | `1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7` |
++| `tools/ana_b17.py` (the grading, B17's, unchanged) | 28,705 | `299d4f55441e147bf6d27b5b51242d3384157e4905d27f6ed1064398f05f9468` |
++| `tools/summ_b18.py` (the grade against PR #742, the comparison and the digest) | 21,589 | `58079de03eb01b3074e8dad9e1f03b7d420d92b5feed4f99b85e53d9d18139f9` |
++| `tools/peer_gap_b17.py` (B17's, unchanged) | 1,940 | `93c62e302f1a117b3c8a3e7c76aff716d68ffa303bbd68c7bbda426229897621` |
++| `summary/cycles.json` (every cycle's figures and the lane totals) | 47,474 | `d5f802991927acbc088482b94e9f15efa18faff70901d034561a7d054cbfe1e5` |
++| `summary/table.md` (the binds table) | 1,661 | `2f9329c599617206bff9bec983879613dbc46789154f3c38ea33c10eb385917a` |
++| `summary/compare.md` (the comparison table) | 1,272 | `b453fd725631621ec11c04091711bb41e3953b3c63c62836ba6255536ea61924` |
++| `summary/counters.md` (every GET_COUNTERS value that moved) | 3,096 | `8c63aa7821e27ea7b539c7468efd898b8191df6237443fe55d37e8b6c72507e1` |
++| `summary/peer-gap.json` | 7,733 | `b0dcac66af8954a094920f71750d2ee2bd7fbe8da9d105eaf9d0c0f7387a4fa1` |
++| `summary/counter-logs.sha256` (the raw counter log digest: the SHA-256 of each `cycles/cNN/poll.jsonl`) | 880 | `2c5e8d6ff8220cb16a9a3d0535279dfd7f04b5642c9aee2d9f97cdefcd939bdb` |
++| `identity/identity-verdict.txt` | 1,532 | `4634ee944266589d6be3a9a1f90c93cd58c003b4d9fc60a341d43e46d7ff2130` |
++| `restore/census-compare.txt` | 369 | `241169e2e1f7c15ef8c677f5b556544a022830e42ed6ad6491f27dc58d9a332d` |
