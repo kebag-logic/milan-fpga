@@ -1,0 +1,162 @@
+[
+  {
+    "case": "perl",
+    "actual_output": "marker-perl\n",
+    "instance": {
+      "program": "/usr/bin/perl",
+      "argv": [
+        "/usr/bin/perl",
+        "-e",
+        "print \"marker-perl\\n\""
+      ],
+      "directory": "$REVIEWS/737-image-r639-8-packet/scratch/inline",
+      "streams": {},
+      "provenance": "unreadable"
+    },
+    "population": [
+      {
+        "kind": "inline",
+        "invocation": "perl",
+        "path": "/usr/bin/perl",
+        "provenance": "unreadable",
+        "count": 1
+      }
+    ],
+    "findings": []
+  },
+  {
+    "case": "node",
+    "actual_output": "marker-node\n",
+    "instance": {
+      "program": "/usr/bin/node",
+      "argv": [
+        "node",
+        "-e",
+        "console.log(\"marker-node\")"
+      ],
+      "directory": "$REVIEWS/737-image-r639-8-packet/scratch/inline",
+      "streams": {},
+      "provenance": "unreadable"
+    },
+    "population": [
+      {
+        "kind": "inline",
+        "invocation": "node",
+        "path": "/usr/bin/node",
+        "provenance": "unreadable",
+        "count": 1
+      }
+    ],
+    "findings": []
+  },
+  {
+    "case": "python",
+    "actual_output": "marker-python\n",
+    "instance": {
+      "program": "/usr/bin/python3.12",
+      "argv": [
+        "python3.12",
+        "-c",
+        "print(\"marker-python\")"
+      ],
+      "directory": "$REVIEWS/737-image-r639-8-packet/scratch/inline",
+      "streams": {},
+      "provenance": "none"
+    },
+    "population": [
+      {
+        "kind": "inline",
+        "invocation": "python3.12",
+        "path": "/usr/bin/python3.12",
+        "provenance": "none",
+        "count": 1,
+        "sha256": "90befc694fa2a2bd84c929ebbf39b2ab5c5e1653693731b97198465ee182e312"
+      }
+    ],
+    "findings": [
+      {
+        "invocation": "python3.12",
+        "path": "/usr/bin/python3.12",
+        "argv": [
+          "python3.12",
+          "-c",
+          "print(\"marker-python\")"
+        ],
+        "reason": "unpinned inline program: python3.12 90befc694fa2a2bd84c929ebbf39b2ab5c5e1653693731b97198465ee182e312",
+        "sha256": "90befc694fa2a2bd84c929ebbf39b2ab5c5e1653693731b97198465ee182e312"
+      }
+    ]
+  },
+  {
+    "case": "actual-traced-perl",
+    "report": {
+      "job": "inline-probe",
+      "label": "unlisted Perl inline",
+      "argv": [
+        "/bin/bash",
+        "-e",
+        "-c",
+        "perl -e 'print \"marker-traced-perl\\n\"' "
+      ],
+      "working-directory": ".",
+      "exit_status": 0,
+      "instances": 2,
+      "instances_sha256": "ad592907ab728f5a9114ef7dbcc6dd01ec38c3039fcce6f5969f50e3790f2f2e",
+      "population": [
+        {
+          "kind": "inline",
+          "invocation": "bash",
+          "path": "/usr/bin/bash",
+          "provenance": "step text",
+          "count": 1,
+          "sha256": "1ca6ae5154576a13b189b41da1eeda86288a7ea984ce6bf2b06ce4dd59bb0181"
+        },
+        {
+          "kind": "inline",
+          "invocation": "perl",
+          "path": "/usr/bin/perl",
+          "provenance": "unreadable",
+          "count": 1
+        }
+      ],
+      "findings": [],
+      "clean": true
+    }
+  },
+  {
+    "case": "actual-traced-tcl",
+    "report": {
+      "job": "inline-probe",
+      "label": "unlisted Tcl stdin",
+      "argv": [
+        "/bin/bash",
+        "-e",
+        "-c",
+        "printf 'puts marker-traced-tcl\\n' | tclsh"
+      ],
+      "working-directory": ".",
+      "exit_status": 0,
+      "instances": 2,
+      "instances_sha256": "edc5be377677b31a68c624b0d8ebc4101d83ee8efece883eee763b46a1f1ccf3",
+      "population": [
+        {
+          "kind": "inline",
+          "invocation": "bash",
+          "path": "/usr/bin/bash",
+          "provenance": "step text",
+          "count": 1,
+          "sha256": "1acba46bae67388212740691bea96492c6b35406d1f3f5ac0c26063ddf66ab6d"
+        },
+        {
+          "kind": "program",
+          "invocation": "tclsh8.6",
+          "path": "/usr/bin/tclsh8.6",
+          "provenance": "named",
+          "count": 1
+        }
+      ],
+      "findings": [],
+      "clean": true
+    }
+  }
+]

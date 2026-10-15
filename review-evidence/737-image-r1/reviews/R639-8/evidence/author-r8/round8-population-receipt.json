@@ -1,0 +1,96 @@
+{
+ "committed_receipt": {
+  "bytes": 531052,
+  "checkout_writes": [
+   [
+    ".github/workflows/docs.yml#docs-check#49",
+    [
+     "tb/verilator/csr/Makefile"
+    ]
+   ]
+  ],
+  "clean": true,
+  "commands": {
+   "listed": 115,
+   "observed": 115,
+   "with_listed_arguments": 111
+  },
+  "commit": "1c4d722cb1d0279f0ec44b0fbe87c810adfb9267",
+  "image": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059",
+  "instances": 183834,
+  "path": "ci/image/exec-audit-receipt.json",
+  "reached": 98,
+  "sha256": "9f3ff9084c89d68c63c2b5d6b0ca88672b773facb58c32ba1370db8a7a87cd1c",
+  "source": {
+   "base": "fa7347fc59173f90e4feec2df207692e6e6e72ec",
+   "checkout": "/work",
+   "commit": "c2531c6346238750cdb92e11a6464b905b1a3323",
+   "submodules": [
+    "-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external",
+    " 7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9 gptp-processor (7dda9c3)",
+    " 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)",
+    " 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)",
+    " 405dc68310a18f669049ffc10cc23eef7300dcff third_party/tsn-c-stack (milan-fpga-697-pin-405dc683)",
+    " 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)"
+   ],
+   "tree": "69b94ed62cee74e45a4d11d3bdd30d1f2b1e3650"
+  },
+  "traced": 94,
+  "untraced": [
+   {
+    "name": "Build Verilator from source on cache miss",
+    "step": ".github/workflows/rtl-fast.yml#verilator-lint#3",
+    "why": "The image's Verilator layer replaces the cache and build"
+   },
+   {
+    "name": "Build Yosys from source on cache miss",
+    "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#3",
+    "why": "The image's Yosys layer replaces the cache and build"
+   },
+   {
+    "name": "Build Yosys from source on cache miss",
+    "step": ".github/workflows/rtl-fast.yml#publication-census#3",
+    "why": "The image's Yosys layer replaces the cache and build"
+   },
+   {
+    "name": "Build Verilator from source on cache miss",
+    "step": ".github/workflows/rtl-fast.yml#firmware-verilator#4",
+    "why": "The image's Verilator layer replaces the cache and build"
+   }
+  ],
+  "users": [
+   1000,
+   0
+  ]
+ },
+ "docs-logs": {
+  "bytes": 25964623,
+  "files": 46,
+  "manifest_sha256": "371c0598e4f11624a1904cc97181269a4439bf15e9aa65888094b992321ecfe0"
+ },
+ "docs.json": {
+  "bytes": 161459,
+  "exit_statuses": [
+   0
+  ],
+  "sha256": "443ef22e55a72b9ca09dcadf19c84874d50eca453aed31e9363a93418d380df8",
+  "steps_with_findings": 0,
+  "traced": 46,
+  "user": 0
+ },
+ "rtl-logs": {
+  "bytes": 202671356,
+  "files": 48,
+  "manifest_sha256": "8a97f1406d2c8e69c5a9ce6fd8a84d3bc1024872a5d3a6e94a81f5a5a4261234"
+ },
+ "rtl.json": {
+  "bytes": 376700,
+  "exit_statuses": [
+   0
+  ],
+  "sha256": "3f34f0d097ab05fe1dabac9c60ac11bd5edebf55d1aac21a37532bd32d22d6b8",
+  "steps_with_findings": 0,
+  "traced": 48,
+  "user": 1000
+ }
+}
