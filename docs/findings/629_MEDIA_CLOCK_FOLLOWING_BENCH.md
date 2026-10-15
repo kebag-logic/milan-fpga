@@ -4887,7 +4887,7 @@ that prime it:
 | First peer PDU on the DUT's link after the bind's command | The bind | 7.9 to 163.5 ms |
 | Arrival phase against the DUT's own transmit grid, median, modulo one PDU | The whole post-bind stream | 1.405 to 1.450 us |
 | Arrival lateness against a line fitted to the arrivals, 99.9th percentile | The whole post-bind stream | 4.4 to 6.1 us |
-| Bursts of PDUs over 20 us late per cycle, 3 to 12 consecutive PDUs each | To the last poll | 9 to 19 |
+| Bursts of PDUs over 20 us late per cycle, grouped while less than 1 ms apart, 3 to 12 such PDUs each | To the last poll | 9 to 19 |
 | The same | To the capture's end, about 41.9 s after the bind | 11 to 24 |
 | Largest lateness in the slip's interval | The slip's interval | 24.6 to 29.3 us |
 | Bursts after the slip | To the last poll | 8 to 18 |
@@ -4966,14 +4966,14 @@ transcripts.
 | `tools/cyc_b17.py` (the cycle runner, as run) | 14,306 | `12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17` |
 | `tools/console_poll_b8.py` (the poller) | 4,345 | `1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7` |
 | `tools/ana_b17.py` (the grading, as run for every summary) | 28,705 | `299d4f55441e147bf6d27b5b51242d3384157e4905d27f6ed1064398f05f9468` |
-| `tools/summ_b17.py` (round 2: the table, the windows, the printed figures and the digest) | 20,088 | `bbd9d87ef31f0f1bfe46b0ccfac591eee4ee661815d57c72c0e14d65f6533471` |
+| `tools/summ_b17.py` (round 3: the table, the windows, the printed figures and the digest) | 20,127 | `6e3335558430775f481e0fce56dcbfaffee494134eeec03a0d14e7e9717b5652` |
 | `tools/summ_b17_r1.py` (round 1, kept) | 6,825 | `c0a05002be469161c236e3444d2674104c0708a23d974a808db7ca8ca5fc4b4d` |
 | `tools/peer_gap_b17.py` (the peer's stream around each unbind and bind, from the raw captures) | 1,940 | `93c62e302f1a117b3c8a3e7c76aff716d68ffa303bbd68c7bbda426229897621` |
 | `tools/check_b17_page.py` (this section against the raw counter logs and the summary) | 4,644 | `a11a6d18d9d3769fff35a4d8d25942741f10ad22ba1cedfec645e383c9763167` |
 | `controls/b17-ana-controls.json` | 4,436 | `54825df7145ca69dca9bb359b9a4b233530889d12b3072c3054358831de3c879` |
 | `summary/cycles.json` (every cycle's figures, round 2) | 54,944 | `a126c97ab419f0ad5ba6e0cd8bffccd8b1013610876415859919275d9c2c3a9e` |
 | `summary/figures.json` (every lane figure as printed, and the rounding check of each tap figure) | 6,328 | `545e828bbc44484b06d12fd635e01c1d221a25be1b642acefbf505dcb31ec729` |
-| `summary/priming.md` (the bind-priming table) | 935 | `f7576161f3296ea8eeefb01f21efcdf930c0f7b7e16047d20a3ae0ab12debd65` |
+| `summary/priming.md` (the bind-priming table) | 964 | `0aaef1c5ecd37982cb15712d627d08f1b4b6c0f1d8308ff8f7d3e144eb8d0ddc` |
 | `summary/peer-gap.json` | 7,657 | `b8f7de8c6a88cceef076fcfbc90ea326526663457b39984981220879d928f9b2` |
 | `summary/counter-logs.sha256` (the raw counter log digest: the SHA-256 of each `cycles/cNN/poll.jsonl`) | 880 | `a1d415300d55cfc2c14178493a244edab56446bbfa3aa860721e8b39819c7848` |
 | `restore/census-compare.txt` | 369 | `66d9ed5b2c68796bdec9ad5c0178e8a48fe388018da5eae53df8a2675994ffd2` |
