@@ -2729,23 +2729,25 @@ plus 60 seconds for download, extraction and execution evidence.
 | `yosys-shards 2/4` | 92 | 1044 | 952 |
 | `yosys-shards 3/4` | 91 | 1044 | 953 |
 | `verilator-shards 0/16` | 1605 | 1620 | 15 |
-| `verilator-shards 1/16` | 1495 | 1620 | 125 |
+| `verilator-shards 1/16` | 1541 | 1620 | 79 |
 | `verilator-shards 2/16` | 1572 | 1620 | 48 |
-| `verilator-shards 3/16` | 1494 | 1620 | 126 |
-| `verilator-shards 4/16` | 1521 | 1620 | 99 |
-| `verilator-shards 5/16` | 1492 | 1620 | 128 |
-| `verilator-shards 6/16` | 1495 | 1620 | 125 |
-| `verilator-shards 7/16` | 1498 | 1620 | 122 |
-| `verilator-shards 8/16` | 1493 | 1620 | 127 |
-| `verilator-shards 9/16` | 1493 | 1620 | 127 |
-| `verilator-shards 10/16` | 1497 | 1620 | 123 |
-| `verilator-shards 11/16` | 1497 | 1620 | 123 |
-| `verilator-shards 12/16` | 1493 | 1620 | 127 |
-| `verilator-shards 13/16` | 1491 | 1620 | 129 |
-| `verilator-shards 14/16` | 1494 | 1620 | 126 |
+| `verilator-shards 3/16` | 1544 | 1620 | 76 |
+| `verilator-shards 4/16` | 1540 | 1620 | 80 |
+| `verilator-shards 5/16` | 1539 | 1620 | 81 |
+| `verilator-shards 6/16` | 1539 | 1620 | 81 |
+| `verilator-shards 7/16` | 1540 | 1620 | 80 |
+| `verilator-shards 8/16` | 1541 | 1620 | 79 |
+| `verilator-shards 9/16` | 1543 | 1620 | 77 |
+| `verilator-shards 10/16` | 1540 | 1620 | 80 |
+| `verilator-shards 11/16` | 1539 | 1620 | 81 |
+| `verilator-shards 12/16` | 1539 | 1620 | 81 |
+| `verilator-shards 13/16` | 1538 | 1620 | 82 |
+| `verilator-shards 14/16` | 1538 | 1620 | 82 |
 | `verilator-shards 15/16` | 2032 | 2160 | 128 |
 
 Verilator figures already include their 122-second overhead allowance.
+Worker 3 carries `gptp_tables` at 1544 seconds: 76 inside its bound and 256
+inside 30 minutes, before downstream collection.
 The continuous media-clock exception remains explicit at 2032 seconds.
 Docs now projects at 1506 seconds for its slowest worker.
 Allowing 60 seconds each for aggregate and collector, one 120-second
