@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Run follow_ring's two campaigns across their phase sweeps, in parallel.
+"""Run follow_ring's three campaigns across their phase sweeps, in parallel.
 
   sweep.py b8     [--jobs N] [--phases K] [--jitter-us J ...] [--hold-s S]
                   [--switch-hold-s S]
   sweep.py pullin [--jobs N] [--phases K] [--hold-us U ...]
+  sweep.py bind   [--jobs N] [--phases K] [--jitter-us J ...]
 
 b8 (#645, and #647 at each source change): lane B8's INTERNAL-to-AAF set at
 K places in one INTERNAL beat (the loopback ring's margin at the set, and the
@@ -16,6 +17,13 @@ across them), at each listed arrival jitter, with an optional rare tail
 pullin (#647): one serial-clock hold under a running stream at INTERNAL, with
 the stream's arrival latency at K places across one media tick (the feed's
 phase against the grid), for each listed hold length.
+
+bind (#645, bench lane B17): B17's ten bind cycles at INTERNAL, with each
+bind's first PDU at K places across one media tick, at each listed arrival
+jitter. Every run grades one settle recentre per bind, no loopback slip after
+the ring acts and, at a phase whose primed margin lies in B17's window, no
+SLIP_LB change at all; a phase the window excludes is reported, with its slips
+before the ring acts (--any-phase).
 
 Every run grades the settle law (sim_main.cpp): one settle recentre per
 transient, after 8 LOCKED windows under following; slips before it within the
@@ -46,14 +54,14 @@ def run(exe: Path, out: Path, name: str, args: list[str]) -> tuple[str, int, lis
     with log.open("w") as fh:
         rc = subprocess.run(argv, stdout=fh, stderr=subprocess.STDOUT, check=False).returncode
     (out / f"{name}.rc").write_text(f"{rc}\n")
-    found = re.findall(r"^RESULT-6\d\d(?:-SW)?: .*$", log.read_text(), re.M)
+    found = re.findall(r"^RESULT-6\d\d(?:-SW|-BIND)?: .*$", log.read_text(), re.M)
     return name, rc, found
 
 
 def main() -> int:
     """Build the run list, run it on a pool, write the table."""
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("case", choices=("b8", "pullin"))
+    ap.add_argument("case", choices=("b8", "pullin", "bind"))
     ap.add_argument("--exe", type=Path, default=Path("obj_dir/Vfollow_ring"))
     ap.add_argument("--out", type=Path, default=Path("obj_dir/sweep"))
     ap.add_argument("--jobs", type=int, default=4)
@@ -82,6 +90,12 @@ def main() -> int:
                               "--hold-s", f"{a.hold_s:g}", "--switch-hold-s", f"{a.switch_hold_s:g}",
                               "--latency-us", f"{a.latency_us:g}", "--seed", str(645 + k),
                               "--allow-ungradable", *a.extra]))
+    elif a.case == "bind":
+        for jit in a.jitter_us:
+            for k in range(a.phases):
+                runs.append((f"bind_j{jit:g}_p{k:02d}",
+                             ["--case", "bind", "--bind-phase", f"{k / a.phases:.6f}", "--jitter-us",
+                              f"{jit:g}", "--seed", str(645 + k), "--any-phase", *a.extra]))
     else:
         for hold in a.hold_us:
             for k in range(a.phases):

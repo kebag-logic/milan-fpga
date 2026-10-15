@@ -50,6 +50,17 @@ HIGH-ARM: raise the arm above the one-quantum pull's +9-cycle peak. Its
 QUIET-ARM: set the quiet band to zero. Quantisation noise then arms a
   pending correction in an undisturbed running stream.
 
+NO-BIND-ARM: a listener bind's first PDU arms nothing (#645, bench lane B17).
+  At INTERNAL each bind's ring keeps the margin its first PDU primed, and
+  B17's first burst slips it one frame: every bind leg cycle must fail its
+  SLIP_LB check.
+BIND-RISE: the bind's rise arms in place of its first PDU. The recentre then
+  fires 2,048 ticks (42.7 ms) after the bind, before the first PDU of B17's
+  cycles 4 (53 ms) and 9 (161 ms) primes the ring, which ignores it unprimed,
+  so B17's burst slips both.
+FOLLOWING-ARM: the bind arm loses its INTERNAL gate. A bind under CRF
+  following then arms the settle recentre, which only the switch rules may.
+
 Exit 0 = every mutant built and was killed by its named check.
 """
 
@@ -67,6 +78,16 @@ CAPTURE = HERE / "../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv"
 B8 = ["--case", "b8", "--dwell-s", "1.0", "--set-phase", "0.0", "--hold-s", "16"]
 SMALL_PULLIN = ["--case", "pullin", "--hold-us", "42.64", "--latency-us", "204.4", "--after-s", "1.5"]
 PULLIN = ["--case", "pullin", "--latency-us", "210.42", "--after-s", "1.5"]
+BIND = ["--case", "bind", "--b17-cycles", "5,4,9", "--bind-phase", "0.125", "--jitter-us", "5",
+        "--dwell-s", "0.5"]
+BIND_ARM = "  wire settle_bind_arm_w = !follow_sel_r && (|settle_bind_pdu_w);\n"
+
+
+def bind_slip(cycle: int) -> str:
+    """The bind leg's SLIP_LB check for one of B17's cycles."""
+    return f"[BIND] B17 cycle {cycle} at INTERNAL: no SLIP_LB change across the cycle"
+
+
 
 #: (name, wrapper define or None, [(shipped text, planted text)] in the datapath,
 #:  [(shipped text, planted text)] in the capture crossbar, leg, the check or
@@ -125,6 +146,17 @@ MUTANTS: tuple[Mutant, ...] = (
      [("  localparam int unsigned LB_TARGET_C  = (LB_QDEPTH_C + 6) / 2;\n",
        "  localparam int unsigned LB_TARGET_C  = LB_QDEPTH_C + 1;\n")],
      B8, "[B8] no loopback slip after the settle recentre"),
+    ("NO-BIND-ARM", None,
+     [("                      settle_bind_arm_w ||\n", "")], [],
+     BIND, (bind_slip(5), bind_slip(4), bind_slip(9))),
+    ("BIND-RISE", None,
+     [(BIND_ARM, "  wire settle_bind_arm_w = !follow_sel_r && (|strtbl_bind_rise_w[LB_STREAMS_C-1:0]);\n")], [],
+     BIND, (bind_slip(4), bind_slip(9))),
+    ("FOLLOWING-ARM", None,
+     [(BIND_ARM, "  wire settle_bind_arm_w = (|settle_bind_pdu_w);\n")], [],
+     ["--case", "bind", "--b17-cycles", "5", "--bind-phase", "0.125", "--jitter-us", "5", "--dwell-s", "0.5",
+      "--follow-binds", "1"],
+     "[BIND-FOLLOW] B17 cycle 5 under CRF following: the bind armed no settle recentre"),
 )
 
 

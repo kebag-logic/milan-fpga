@@ -6,7 +6,10 @@
 This is a controller test with one media tick per stimulus edge, not a
 physical-clock simulation. It checks quiet noise, action count, interrupted
 recovery dwell, a new pull after recovery, reset, source-change priority,
-disengaged INTERNAL dwell, the LOCKED dwell and the independent ceiling.
+disengaged INTERNAL dwell, the LOCKED dwell, the independent ceiling, and
+the bind arm (#645, lane B17): a bind's first PDU arms at INTERNAL, even in
+recovery, and a PDU without a bind, a later PDU, another stream's PDU, an
+unbound stream's PDU and a bind under following arm nothing.
 The physical follow_ring campaigns separately establish the measured band.
 """
 
@@ -26,6 +29,10 @@ logic media_tick_p=1;
 logic settle_recentre_p_r;
 localparam int unsigned MILAN_CLK_FREQ_HZ=AXIS_RATE;
 localparam int unsigned MCSRV_WIN_LOG2_C=9;
+localparam int LB_STREAMS_C=1;
+logic lb_tap_tvalid_w=0, lb_tap_tlast_w=0;
+logic [3:0] lb_tap_tuser_w=0;
+logic [LB_STREAMS_C-1:0] strtbl_bind_rise_w=0, strtbl_bind_fall_w=0;
 """
 DRIVER = """
 integer actions=0;
@@ -38,6 +45,13 @@ task reset_control;
   axis_resetn=0; tick(); axis_resetn=1;
   if (settle_pend_r || settle_recover_r || settle_recentre_p_r)
     $fatal(1, "reset did not clear control");
+endtask
+task pdu_end(input logic [3:0] stream);
+  lb_tap_tuser_w=stream; lb_tap_tvalid_w=1; lb_tap_tlast_w=1; tick();
+  lb_tap_tvalid_w=0; lb_tap_tlast_w=0; lb_tap_tuser_w=0;
+endtask
+task bind_rise;
+  strtbl_bind_rise_w=1; tick(); strtbl_bind_rise_w=0;
 endtask
 task wait_action(input integer limit);
   integer before_count;
@@ -98,6 +112,30 @@ initial begin
     if (actions!=before_count) $fatal(1, "disengaged INTERNAL acted without dwell");
     wait_action(3);
   end
+  // #645 lane B17: a bind's first PDU arms at INTERNAL, here in recovery.
+  if (!settle_recover_r) $fatal(1, "the bind arm is not exercised in recovery");
+  pdu_end(0);
+  if (settle_pend_r) $fatal(1, "a PDU without a bind armed");
+  bind_rise();
+  if (settle_pend_r) $fatal(1, "the bind armed before its first PDU");
+  lb_tap_tvalid_w=1; tick(); lb_tap_tvalid_w=0;
+  if (settle_pend_r) $fatal(1, "a beat before the PDU's end armed");
+  pdu_end(1);
+  if (settle_pend_r) $fatal(1, "another stream's PDU armed");
+  pdu_end(0);
+  if (!settle_pend_r) $fatal(1, "the bind's first PDU did not arm");
+  wait_action(2050);
+  pdu_end(0);
+  if (settle_pend_r) $fatal(1, "a later PDU armed again");
+  bind_rise();
+  strtbl_bind_fall_w=1; tick(); strtbl_bind_fall_w=0;
+  pdu_end(0);
+  if (settle_pend_r) $fatal(1, "an unbound stream's PDU armed");
+  // Under following the switch rules alone arm.
+  media_clk_src_r=1; follow_sel_r=1; mga_engaged_w=1; mcsrv_locked_w=1; tick();
+  wait_action(196610);
+  bind_rise(); pdu_end(0);
+  if (settle_pend_r) $fatal(1, "a bind under following armed");
   $display("SETTLE CONTROL PASS: axis_hz=%0d actions=%0d", MILAN_CLK_FREQ_HZ, actions);
   $finish;
 end

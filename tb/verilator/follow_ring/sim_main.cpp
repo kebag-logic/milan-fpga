@@ -51,7 +51,23 @@
 // to the declared bound; after it neither ring may move: no loopback slip,
 // the loopback ring centred, the render stage on its law.
 //
-// Usage: Vfollow_ring [--case b8|pullin] [options]   (see usage())
+// THE BIND CASE (#645, bench lane B17, PR #741). At INTERNAL, with the peer
+// on the DUT's own clock (B17's delta was within 0.0017 ppm), each of B17's
+// ten bind cycles is replayed: an unbind, then a bind whose first PDU lands
+// at --bind-phase of a media tick, B17's delay after the bind, then B17's
+// first burst over 20 us late, and a later burst at B17's largest later
+// peak. B17's cycle 5 bounds the margin its bind primed: below 24.565 us,
+// the peak of the burst that slipped it, and above 30.260 - 20.833 = 9.427
+// us, since the dup moved the ring a tick off its empty edge and a 30.260 us
+// burst after it slipped nothing. Graded per bind: one settle recentre,
+// armed by the bind's first PDU and fired 2,048 ticks later (the INTERNAL
+// rule), executed once by the render stage, and no SLIP_LB change. At some
+// first-PDU phases inside that window, finer than sweep-bind's 16, a bind
+// takes a one-pair dup before the ring acts; dev's datapath takes it too,
+// the arm does not remove it, and #743 owns it. --follow-binds then repeats
+// the cycles under CRF following, where a bind must arm nothing.
+//
+// Usage: Vfollow_ring [--case b8|pullin|bind] [options]   (see usage())
 
 #include "../../common/verilator_harness.hpp"
 #include "../mmcm_servo/mmcm_model.h"
@@ -129,6 +145,43 @@ constexpr double kTickUs = 1e6 / 48000.0;
 //! phase by about 0.02 tick; W1 (through IDLE) moves it by tenths
 constexpr double kW2DriftTicks = 0.1;
 
+//! BENCH LANE B17, per bind cycle (PR #741's packet,
+//! review-evidence/645-b17-r1/author/summary/cNN.json): the peer's first PDU
+//! after the bind's CONNECT_RX command; the first PDU burst over 20 us late,
+//! its time from that first PDU and its peak; and the largest later burst,
+//! none of which slipped the ring again.
+struct B17Cycle {
+    int cycle;
+    double first_pdu_ms;
+    double burst_s;
+    double burst_us;
+    double later_us;
+};
+constexpr std::array<B17Cycle, 10> kB17 = {{
+    {1, 163.485, 2.6534, 28.833, 28.691},
+    {2, 93.536, 1.4650, 25.009, 28.365},
+    {3, 156.762, 1.6719, 26.326, 28.713},
+    {4, 52.750, 3.1446, 29.309, 30.071},
+    {5, 7.854, 0.0938, 24.565, 30.260},
+    {6, 131.486, 3.4974, 25.840, 28.475},
+    {7, 54.945, 1.3014, 24.968, 29.140},
+    {8, 28.539, 1.3102, 25.581, 27.575},
+    {9, 161.240, 1.1185, 25.128, 29.528},
+    {10, 101.128, 5.3246, 26.869, 27.813},
+}};
+//! a burst's consecutive PDUs each arrive this much less late: the mean
+//! least-squares slope of B17's ten first bursts (1.468 to 1.664)
+constexpr double kB17DecayUs = 1.538;
+//! the margin B17's cycle 5 primed lies between these: its first burst
+//! slipped the ring at a 24.565 us peak; the dup moved the ring one tick off
+//! its empty edge, and its 30.260 us later burst then slipped nothing, so the
+//! margin was above 30.260 - 20.833 = 9.427 us. (B17's reader lists only PDUs
+//! over 10 us late; that none came before a first burst bounds nothing.)
+constexpr double kB17MarginLoUs = kB17[4].later_us - kTickUs;
+constexpr double kB17MarginHiUs = kB17[4].burst_us;
+//! the INTERNAL rule: the aligner rested in its band for 2,048 media ticks
+constexpr double kInternalSettleTicks = 2048.0;
+
 struct Options {
     std::string scenario = "b8";
     double peer_ppm = -11.02;                     //! the peer against gPTP
@@ -158,6 +211,18 @@ struct Options {
     //! a planted control: one harness recentre pulse into the render stage,
     //! this long after the hold (pullin) or after LOCKED (b8); < 0 = none
     double inject_s = -1.0;
+    //! bind: the B17 cycles replayed (1..10), the first PDU's arrival in a
+    //! media tick, the unbound dwell, the later burst after the first, the
+    //! hold after it, and the cycles repeated under CRF following
+    std::vector<int> b17_cycles{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    double bind_phase = 0.25;
+    double unbound_s = 0.2;
+    double later_after_s = 0.5;
+    double bind_hold_s = 0.3;
+    int follow_binds = 0;
+    //! a phase sweep crosses phases B17's window excludes: report those, and
+    //! their slips before the ring acts, not fail them
+    bool any_phase = false;
     std::string trace;                            //! per-PDU CSV
     std::string servo_trace;                      //! per-window CSV
     std::string grid_trace;                       //! per-millisecond CSV: the aligner and the settle
@@ -170,6 +235,12 @@ void usage() {
         "Vfollow_ring --case pullin  INTERNAL, a talker on the DUT's own clock (unless\n"
         "                            --peer-ppm names another), one\n"
         "                            serial-clock hold, the render stage before and after\n"
+        "Vfollow_ring --case bind    INTERNAL, a talker on the DUT's own clock, bench lane\n"
+        "                            B17's bind cycles (--b17-cycles 1,5,...), each graded\n"
+        "  --bind-phase F (0..1 of a media tick) --unbound-s S --later-after-s S\n"
+        "  --bind-hold-s S --follow-binds K (the first K cycles again under CRF)\n"
+        "  --any-phase (a phase outside B17's primed window, and its slips before the ring\n"
+        "              acts, are reported, not failed)\n"
         "  --peer-ppm P --dut-ppm D --latency-us L --jitter-us J --tail-us T --tail-p P\n"
         "  --seed N --start-s S\n"
         "  --dwell-s S --set-phase F (0..1 of one INTERNAL beat) --hold-s S\n"
@@ -207,13 +278,33 @@ bool parse(int argc, char** argv, Options& o) {
         else if (a == "--second-inside-recovery") o.second_inside_recovery = true;
         else if (a == "--allow-ungradable") o.allow_ungradable = true;
         else if (a == "--inject-recentre-s" && has) num(o.inject_s);
+        else if (a == "--b17-cycles" && has) {
+            o.b17_cycles.clear();
+            for (const char* p = argv[++i]; *p;) {
+                char* end = nullptr;
+                const long c = std::strtol(p, &end, 10);
+                if (end == p || c < 1 || c > static_cast<long>(kB17.size())) return false;
+                o.b17_cycles.push_back(static_cast<int>(c));
+                p = (*end == ',') ? end + 1 : end;
+                if (*end != ',' && *end != '\0') return false;
+            }
+        }
+        else if (a == "--bind-phase" && has) num(o.bind_phase);
+        else if (a == "--unbound-s" && has) num(o.unbound_s);
+        else if (a == "--later-after-s" && has) num(o.later_after_s);
+        else if (a == "--bind-hold-s" && has) num(o.bind_hold_s);
+        else if (a == "--follow-binds" && has)
+            o.follow_binds = static_cast<int>(std::strtol(argv[++i], nullptr, 10));
+        else if (a == "--any-phase") o.any_phase = true;
         else if (a == "--trace" && has) o.trace = argv[++i];
         else if (a == "--servo-trace" && has) o.servo_trace = argv[++i];
         else if (a == "--grid-trace" && has) o.grid_trace = argv[++i];
         else if (a.rfind("+verilator", 0) == 0) continue;
         else return false;
     }
-    return o.scenario == "b8" || o.scenario == "pullin";
+    return o.scenario == "b8" || o.scenario == "pullin" ||
+           (o.scenario == "bind" && !o.b17_cycles.empty() && o.bind_phase >= 0.0 && o.bind_phase < 1.0 &&
+            o.follow_binds >= 0 && o.follow_binds <= static_cast<int>(o.b17_cycles.size()));
 }
 
 //! One PDU of the followed stream, from its arrival to its two ring readings.
@@ -260,10 +351,48 @@ class Bench {
     void start_talkers(double at_s) {
         t0_ns_ = at_s * 1e9;
         talking_ = true;
+        aaf_on_ = true;
+        aaf_base_ns_ = t0_ns_;
+        aaf_base_n_ = 0;
         aaf_n_ = 0;
         crf_n_ = 0;
         next_arrival_fs_ = arrival_fs(0);
         next_crf_fs_ = (t0_ns_ + opt.latency_us * 1e3) * 1e6;
+    }
+
+    //! bind: the unbind, between two PDUs: the AAF talker's PDUs stop
+    //! reaching the listener and the stream table's bind fall flushes its
+    //! LOOP queues and the render stage (the CRF talker carries on)
+    void unbind() {
+        while (beat_ >= 0) run_for(1e-6);
+        aaf_on_ = false;
+        fall_req_ = true;
+        run_for(1e-6);
+    }
+
+    //! bind: the bind's rise now, and its first PDU's media instant such
+    //! that it arrives `phase` of a media tick after the first tick at least
+    //! `delay_s` from now; its later PDUs follow at the peer's spacing
+    void bind(double delay_s, double phase) {
+        rise_req_ = true;
+        run_for(delay_s - kTickFs * 1e-15);
+        const double tick_fs = kTickFs / (1.0 + opt.dut_ppm * 1e-6);
+        const uint64_t ticks0 = media_ticks_;
+        while (media_ticks_ == ticks0) run_for(1e-7);
+        const double first_fs = last_tick_fs_ + phase * tick_fs;
+        aaf_base_n_ = aaf_n_;
+        aaf_base_ns_ = first_fs * 1e-6 - opt.latency_us * 1e3;
+        push_count_ = aaf_n_ * 6;
+        bursts_.clear();
+        aaf_on_ = true;
+        next_arrival_fs_ = arrival_fs(aaf_n_);
+        if (next_arrival_fs_ <= t_fs_) next_arrival_fs_ = t_fs_ + 1.0;
+    }
+
+    //! bind: a burst of late PDUs from the first one due at `at_s`: `peak_us`
+    //! late, each next one `decay_us` less (B17's shape)
+    void add_burst(double at_s, double peak_us, double decay_us) {
+        bursts_.push_back(Burst{at_s * 1e9, peak_us * 1e3, decay_us * 1e3, 0, false});
     }
 
     void select(uint16_t src) {
@@ -326,9 +455,24 @@ class Bench {
 
     // the peer
     bool talking_ = false;
+    bool aaf_on_ = false;                         //! the AAF talker bound (bind case)
     double t0_ns_ = 0.0;
+    double aaf_base_ns_ = 0.0;                    //! the media instant of PDU aaf_base_n_
+    uint64_t aaf_base_n_ = 0;
     uint64_t aaf_n_ = 0;
     uint64_t crf_n_ = 0;
+    struct Burst {
+        double at_ns;
+        double peak_ns;
+        double decay_ns;
+        uint64_t n0;
+        bool started;
+    };
+    std::vector<Burst> bursts_;
+    bool rise_req_ = false;                       //! a bind rise on the next edge
+    bool fall_req_ = false;                       //! a bind fall on the next edge
+    uint64_t media_ticks_ = 0;
+    double last_tick_fs_ = 0.0;
     double next_arrival_fs_ = 0.0;
     double next_crf_fs_ = 0.0;
     int beat_ = -1;                               //! the payload beat in flight
@@ -369,9 +513,20 @@ class Bench {
     uint8_t pp_seq_q_ = 0;
     bool locked_seen_ = false;
 
+    double tx_ns(uint64_t n) const {
+        return aaf_base_ns_ + static_cast<double>(n - aaf_base_n_) * aaf_space_ns_;
+    }
+
     double arrival_fs(uint64_t n) {
-        const double tx = t0_ns_ + static_cast<double>(n) * aaf_space_ns_;
+        const double tx = tx_ns(n);
         double lat = opt.latency_us * 1e3;
+        for (auto& b : bursts_) {
+            if (!b.started && tx + opt.latency_us * 1e3 >= b.at_ns) {
+                b.started = true;
+                b.n0 = n;
+            }
+            if (b.started) lat += std::max(0.0, b.peak_ns - static_cast<double>(n - b.n0) * b.decay_ns);
+        }
         if (opt.jitter_us > 0.0) {
             std::uniform_real_distribution<double> u(0.0, opt.jitter_us * 1e3);
             lat += u(rng_);
@@ -420,10 +575,14 @@ class Bench {
         dut->crf_frame_p_i = 0;
         dut->pcm_tvalid_i = 0;
         dut->pcm_tlast_i = 0;
+        dut->bind_rise_i = rise_req_;
+        dut->bind_fall_i = fall_req_;
+        rise_req_ = false;
+        fall_req_ = false;
         if (!talking_) return;
-        if (beat_ < 0 && t_fs_ >= next_arrival_fs_) {
+        if (aaf_on_ && beat_ < 0 && t_fs_ >= next_arrival_fs_) {
             const uint64_t n = aaf_n_++;
-            const double tx = t0_ns_ + static_cast<double>(n) * aaf_space_ns_;
+            const double tx = tx_ns(n);
             dut->aaf_match_p_i = 1;
             dut->aaf_seq_i = static_cast<uint8_t>(n & 0xFF);
             dut->aaf_ts_i = static_cast<uint32_t>(static_cast<uint64_t>(std::floor(tx + kPresNs)));
@@ -487,6 +646,10 @@ class Bench {
         watch_servo();
         watch_grid();
         auto* r = dut->rootp;
+        if (r->follow_ring_wrap__DOT__media_tick_p) {
+            ++media_ticks_;
+            last_tick_fs_ = t_fs_;
+        }
         if (r->follow_ring_wrap__DOT__media_tick_p && r->follow_ring_wrap__DOT__mga_engaged_w)
             grid_samples.push_back({now_s(), static_cast<int16_t>(r->follow_ring_wrap__DOT__mga_err_w),
                                     bool(r->follow_ring_wrap__DOT__settle_pend_r)});
@@ -525,6 +688,14 @@ class Bench {
         const uint8_t rd = r->follow_ring_wrap__DOT__chan_map_capture__DOT__q_rd_r[0];
         const uint16_t sk = dut->lb_skip_o;
         const uint16_t dp = dut->lb_dup_o;
+        //! a bind fall on this edge emptied the queue and zeroed its pointers:
+        //! what was queued is gone, not read
+        if (dut->bind_fall_i) {
+            q_.clear();
+            slot_freed_fs_.fill(NAN);
+            q_wr_q_ = wr;
+            q_rd_q_ = rd;
+        }
         //! Observe pop before push, as the queue composes a same-cycle pair.
         //! Every freed slot carries its actual read time, including a drop.
         const int reads = (rd - q_rd_q_) & (kLoopDepth - 1);
@@ -1070,6 +1241,170 @@ int run_pullin(Bench& b, const Options& o, milan::tb::Checker& ck) {
     return 0;
 }
 
+//! What one bind cycle left, from its unbind to the next.
+struct BindCycle {
+    double t_bind = 0.0;
+    double t_first = -1.0;                        //! the bind's first PDU's arrival
+    double t_burst = -1.0;                        //! B17's first burst
+    double t_end = 0.0;
+    int arms = 0;                                 //! settle arms in [bind, end)
+    double t_arm = -1.0;
+    int pulses = 0;
+    double t_settle = -1.0;
+    int render_acts = 0;
+    int dups = 0;                                 //! SLIP_LB's two counters, raw
+    int skips = 0;
+    double t_act = -1.0;                          //! the loopback ring has acted
+    //! slipped frames before the ring acts (from the bind) and after it; with
+    //! no recentre, the instant the INTERNAL rule would have acted divides them
+    int pre_slips = 0;
+    int post_slips = 0;
+    Range primed;                                 //! the margin the bind primed
+    bool in_window = false;                       //! ...inside B17's
+    Range after;
+    Range full_after;
+};
+
+//! One bind cycle (B17's `c`): unbind, the unbound dwell, the bind with its
+//! first PDU at `phase`, B17's first burst and the later one, the hold.
+BindCycle run_bind_cycle(Bench& b, const Options& o, const B17Cycle& c) {
+    BindCycle k;
+    const unsigned dup0 = b.dut->lb_dup_o;
+    const unsigned skip0 = b.dut->lb_skip_o;
+    b.unbind();
+    b.run_for(o.unbound_s);
+    k.t_bind = b.now_s();
+    const size_t first = b.pdus.size();
+    b.bind(c.first_pdu_ms * 1e-3, o.bind_phase);
+    while (b.pdus.size() == first) b.run_for(1e-6);
+    k.t_first = b.pdus[first].arrive_s;
+    k.t_burst = k.t_first + c.burst_s;
+    b.add_burst(k.t_burst, c.burst_us, kB17DecayUs);
+    b.add_burst(k.t_burst + o.later_after_s, c.later_us, kB17DecayUs);
+    b.run_until((k.t_burst + o.later_after_s + o.bind_hold_s) * 1e15);
+    k.t_end = b.now_s();
+    k.arms = count_in(b.recovery.arms, k.t_bind, k.t_end);
+    k.t_arm = first_at_or_after(b.recovery.arms, k.t_bind);
+    k.pulses = count_in(b.settle_times, k.t_bind, k.t_end);
+    k.t_settle = first_at_or_after(b.settle_times, k.t_bind);
+    k.render_acts = count_in(b.recentre_times, k.t_bind, k.t_end);
+    k.dups = static_cast<int>(b.dut->lb_dup_o - dup0);
+    k.skips = static_cast<int>(b.dut->lb_skip_o - skip0);
+    if (k.t_settle > 0.0 && k.t_settle < k.t_end) {
+        for (const auto& p : b.pdus) {
+            if (p.arrive_s > k.t_settle) {
+                k.t_act = p.arrive_s + kPduEndS;
+                break;
+            }
+        }
+    }
+    const double split = k.t_act > 0.0
+        ? k.t_act : k.t_first + kPduEndS + (kInternalSettleTicks + 12.0) * kTickFs * 1e-15;
+    k.pre_slips = count_in(b.dup_times, k.t_bind, split) + count_in(b.skip_times, k.t_bind, split);
+    k.post_slips = count_in(b.dup_times, split, k.t_end) + count_in(b.skip_times, split, k.t_end);
+    //! without a recentre the priming holds until the first burst; so it does
+    //! when the pulse came before the first PDU, which an unprimed ring ignores
+    const double primed_end = k.t_settle > k.t_first ? std::min(k.t_settle, k.t_burst) : k.t_burst;
+    k.primed = margin_range(b, k.t_first, primed_end);
+    if (k.t_act > 0.0) {
+        k.after = margin_range(b, k.t_act, k.t_end);
+        for (const auto& p : b.pdus) {
+            if (p.arrive_s >= k.t_act && p.arrive_s < k.t_end && !std::isnan(p.full_margin_ticks))
+                k.full_after.take(p.full_margin_ticks);
+        }
+    }
+    k.in_window = k.primed.lo <= k.primed.hi && k.primed.lo * kTickUs > kB17MarginLoUs &&
+                  k.primed.hi * kTickUs < kB17MarginHiUs;
+    std::printf("RESULT-645-BIND: B17 cycle %d phase %.4f %s: first PDU %+.3f ms after the bind, primed margin "
+                "%.3f..%.3f us (%s B17's window), arms %d (%+.3f ms after the first PDU), settle recentres %d "
+                "(%.2f ticks after the arm), render recentres %d, SLIP_LB %+d dups %+d skips, slipped frames "
+                "%d before the ring acts and %d after, first burst %.3f us at %+.4f s, later %.3f us, "
+                "margin after a recentre %+.3f..%+.3f ticks, full side %+.3f (1e9: no recentre)\n",
+                c.cycle, o.bind_phase, b.dut->clk_src_idx_i != kSrcInternal ? "under CRF following" : "at INTERNAL",
+                (k.t_first - k.t_bind) * 1e3, k.primed.lo * kTickUs, k.primed.hi * kTickUs,
+                k.in_window ? "inside" : "OUTSIDE", k.arms, k.t_arm > 0.0 ? (k.t_arm - k.t_first) * 1e3 : -1.0,
+                k.pulses, k.t_settle > 0.0 && k.t_arm > 0.0 ? (k.t_settle - k.t_arm) * 1e15 / kTickFs : -1.0,
+                k.render_acts, k.dups, k.skips, k.pre_slips, k.post_slips, c.burst_us, k.t_burst - k.t_first,
+                c.later_us, k.after.lo, k.after.hi, k.full_after.lo);
+    //! each slipped frame against the first burst, as B17 timed them
+    for (const auto* v : {&b.dup_times, &b.skip_times}) {
+        for (const double t : *v) {
+            if (t >= k.t_bind && t < k.t_end) {
+                std::printf("  info: B17 cycle %d: slip (%s) %+.6f s after the bind, %+.6f s from the first burst\n",
+                            c.cycle, v == &b.dup_times ? "dup" : "skip", t - k.t_bind, t - k.t_burst);
+            }
+        }
+    }
+    return k;
+}
+
+int run_bind(Bench& b, const Options& o, milan::tb::Checker& ck) {
+    b.start_talkers(o.start_s);
+    b.run_until((o.start_s + o.dwell_s) * 1e15);
+    char w[240];
+    for (const int n : o.b17_cycles) {
+        const B17Cycle& c = kB17[static_cast<size_t>(n - 1)];
+        const BindCycle k = run_bind_cycle(b, o, c);
+        char tag[80];
+        std::snprintf(tag, sizeof tag, "[BIND] B17 cycle %d at INTERNAL:", c.cycle);
+        if (!o.any_phase) {
+            std::snprintf(w, sizeof w, "%s the bind primed the ring inside B17's window (%.3f to %.3f us)", tag,
+                          kB17MarginLoUs, kB17MarginHiUs);
+            ck.that(w, k.in_window);
+        }
+        std::snprintf(w, sizeof w, "%s its first PDU armed the settle recentre once", tag);
+        ck.that(w, k.arms == 1 && k.t_arm >= k.t_first && k.t_arm <= k.t_first + kPduEndS);
+        std::snprintf(w, sizeof w, "%s one settle recentre, 2,048 media ticks after the arming", tag);
+        const double after_arm = (k.t_settle - k.t_arm) * 1e15 / kTickFs;
+        ck.that(w, k.pulses == 1 && k.t_arm > 0.0 && after_arm > kInternalSettleTicks - 1.0 &&
+                       after_arm <= kInternalSettleTicks + 1.0);
+        std::snprintf(w, sizeof w, "%s the render stage counted one recentre", tag);
+        ck.dec(w, static_cast<uint64_t>(k.render_acts), 1);
+        //! a phase B17's window excludes primes the ring closer to its edge than
+        //! B17 saw, so its slips before the ring acts are reported (--any-phase);
+        //! inside the window none is allowed, and after the action none anywhere
+        if (!o.any_phase || k.in_window) {
+            std::snprintf(w, sizeof w, "%s no SLIP_LB change across the cycle", tag);
+            ck.dec(w, static_cast<uint64_t>(k.dups + k.skips), 0);
+        }
+        std::snprintf(w, sizeof w, "%s no loopback slip after the ring acts", tag);
+        ck.dec(w, static_cast<uint64_t>(k.post_slips), 0);
+        std::snprintf(w, sizeof w, "%s the loopback ring is centred after the recentre (margin in (5, 6] ticks)",
+                      tag);
+        ck.that(w, k.after.hi > kCentredLo && k.after.hi <= kCentredHi + o.jitter_us / kTickUs + 0.005);
+        std::snprintf(w, sizeof w, "%s empty-side margin at least one tick after the recentre", tag);
+        ck.that(w, k.after.lo >= 1.0 && k.after.lo < 1e9);
+        std::snprintf(w, sizeof w, "%s full-side margin at least one tick after the recentre", tag);
+        ck.that(w, k.full_after.lo >= 1.0 && k.full_after.lo < 1e9);
+    }
+    if (o.follow_binds == 0) return 0;
+    //! under following the switch rules alone arm: a bind arms nothing, and
+    //! its ring keeps the phase its first PDU primed
+    b.first_locked_s = -1.0;
+    b.select(kSrcCrf);
+    const double t_sw = b.now_s();
+    while (first_at_or_after(b.settle_times, t_sw) < t_sw && b.now_s() < t_sw + 20.0) b.run_for(1e-3);
+    const double t_sw_settle = first_at_or_after(b.settle_times, t_sw);
+    std::printf("  info: [BIND-FOLLOW] CRF: LOCKED %.3f s, settle recentre %.3f s after the switch\n",
+                b.first_locked_s - t_sw, t_sw_settle - t_sw);
+    ck.that("[BIND-FOLLOW] the switch to CRF locked and settled before the binds",
+            b.first_locked_s > t_sw && t_sw_settle > b.first_locked_s);
+    b.run_for(0.1);
+    for (int i = 0; i < o.follow_binds; ++i) {
+        const B17Cycle& c = kB17[static_cast<size_t>(o.b17_cycles[static_cast<size_t>(i)] - 1)];
+        const BindCycle k = run_bind_cycle(b, o, c);
+        char tag[80];
+        std::snprintf(tag, sizeof tag, "[BIND-FOLLOW] B17 cycle %d under CRF following:", c.cycle);
+        std::snprintf(w, sizeof w, "%s the bind armed no settle recentre", tag);
+        ck.dec(w, static_cast<uint64_t>(k.arms), 0);
+        std::snprintf(w, sizeof w, "%s no settle recentre from the bind to the next unbind", tag);
+        ck.dec(w, static_cast<uint64_t>(k.pulses), 0);
+        std::printf("  info: %s SLIP_LB %+d dups %+d skips: the switch rules alone arm under following\n", tag,
+                    k.dups, k.skips);
+    }
+    return 0;
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -1081,7 +1416,7 @@ int main(int argc, char** argv) {
     }
     //! the pull-in case grades a stream that does not drift: unless named,
     //! its talker runs on the DUT's own INTERNAL clock
-    if (o.scenario == "pullin" && !o.peer_given) o.peer_ppm = o.dut_ppm;
+    if ((o.scenario == "pullin" || o.scenario == "bind") && !o.peer_given) o.peer_ppm = o.dut_ppm;
     const milan::tb::Model<Vfollow_ring_wrap> model;
     milan::tb::Checker ck{"follow_ring"};
     Bench b{model.get(), o};
@@ -1102,6 +1437,7 @@ int main(int argc, char** argv) {
     b.grid_trace = gt;
     b.reset();
     if (o.scenario == "pullin") run_pullin(b, o, ck);
+    else if (o.scenario == "bind") run_bind(b, o, ck);
     else run_b8(b, o, ck);
     if (st) std::fclose(st);
     if (gt) std::fclose(gt);
