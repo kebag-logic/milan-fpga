@@ -562,6 +562,15 @@ ENV_FILE_WRITERS = {
         'test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"',
         'echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"',
     ),
+    #: The elaboration job's interpreter: a venv under the job's own
+    #: RUNNER_TEMP, first on PATH, so the LiteX install, the VexiiRiscv
+    #: checkout and the patch series never write into setup-python's
+    #: interpreter, which act shares between concurrent jobs (#748).
+    (ELABORATE, "elaborate", "Put a job-private Python environment on PATH"): (
+        'set -euo pipefail',
+        'python3 -m venv "$RUNNER_TEMP/litex-venv"',
+        'echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"',
+    ),
     (ELABORATE, "elaborate", "Install sbt"): (
         'set -euo pipefail',
         'mkdir -p "$HOME/.cache/milan-sbt"',
@@ -1205,6 +1214,9 @@ CARRIER_STEP_LISTS = {
          "run": SV2V_INSTALL},
         {"uses": "actions/setup-python@v5", "if": BUILDER_IF,
          "with": {"python-version": "3.12"}},
+        {"name": "Put a job-private Python environment on PATH", "if": BUILDER_IF,
+         "run": ENV_FILE_WRITERS[(ELABORATE, "elaborate",
+                                  "Put a job-private Python environment on PATH")]},
         {"name": "Cache the pinned pip downloads", "uses": "actions/cache@v4",
          "if": BUILDER_IF,
          "with": {"path": "~/.cache/pip",
@@ -7459,7 +7471,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `wire-accountability` must carry exactly 3 steps"),
         ("#295 elaborate inserted third-party action breaks the sequence",
          _m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
-         "job `elaborate` must carry exactly 20 steps"),
+         "job `elaborate` must carry exactly 21 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
          "job `docs-check` must carry exactly 51 steps"),
@@ -7471,7 +7483,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `docs-check-no-git` must carry exactly 2 steps"),
         ("#295 elaborate inserted step of benign content",
          _m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
-         "job `elaborate` must carry exactly 20 steps"),
+         "job `elaborate` must carry exactly 21 steps"),
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
@@ -7481,13 +7493,27 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
-         "job `elaborate` must carry exactly 20 steps, in the recorded order (found 19)"),
+         "job `elaborate` must carry exactly 21 steps, in the recorded order (found 20)"),
         ("#295 docs-check recognised steps swapped",
          _m_swap_steps(DOCS, "docs-check", 43, 44),
          "job `docs-check` step 45 must be the step named `Archive integrity gate`"),
         ("#295 elaborate scope and fetch steps swapped",
          _m_swap_steps(ELABORATE, "elaborate", 1, 2),
          "job `elaborate` step 2 must be the step named `Decide whether this head needs an elaboration`"),
+        # #748: without the job-private interpreter, or with it first on PATH
+        # only after the install, the LiteX install, the VexiiRiscv checkout
+        # and the patch series write into the shared tool cache again.
+        ("#748 elaborate job-private environment removed",
+         (lambda w: _strip_steps(w, ELABORATE, "elaborate", "litex-venv")),
+         "job `elaborate` must carry exactly 21 steps, in the recorded order (found 20)"),
+        ("#748 elaborate job-private environment after the LiteX install",
+         _m_swap_steps(ELABORATE, "elaborate", 5, 7),
+         "job `elaborate` step 6 must be the step named `Put a job-private Python environment on PATH`"),
+        ("#748 elaborate job-private environment never put on PATH",
+         _m_step_key_any(ELABORATE, "elaborate", "litex-venv", "run",
+                         'set -euo pipefail\npython3 -m venv "$RUNNER_TEMP/litex-venv"\n'),
+         "recorded writer `Put a job-private Python environment on PATH` in job "
+         "`elaborate` script is not the canonical form"),
         ("#295 docs-check recognised step renamed",
          _m_rename_step(DOCS, "docs-check", "Doc cited-path gate", "Cited-path gate"),
          "job `docs-check` step 44 must be the step named `Doc cited-path gate`"),
@@ -8072,7 +8098,7 @@ def _rv32_sdk_arms() -> list[Arm]:
     """#504: missing provenance inputs, adoption guards and provisioning refuse."""
     arms = []
     for path, jid, count in ((DOCS, "docs-check", 51),
-                             (ELABORATE, "elaborate", 20),
+                             (ELABORATE, "elaborate", 21),
                              *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
                                for job in FIRMWARE_JOBS),
                              (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 6)):
