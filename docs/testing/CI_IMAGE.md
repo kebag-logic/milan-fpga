@@ -391,6 +391,9 @@ An instance matches when it runs the listed script, module or program.
 Where no match has the listed arguments, the observed ones are kept beside them.
 The receipt is clean only if every step is clean and every listed command was observed.
 Every untraced step must also be one the image replaces.
+[`exec-audit-receipt.json`](../../ci/image/exec-audit-receipt.json) is the committed receipt.
+It spells each GNU toolchain triplet in a path as `<triplet>`.
+The step logs keep every path exactly, and the receipt keeps each log's digest.
 Wiring the audit into every pull request's replay is that follow-up PR's work.
 With it, a hidden installer is caught at the replay whatever the walker accepts.
 Unlisted constructs and unlisted command forms refuse generation.

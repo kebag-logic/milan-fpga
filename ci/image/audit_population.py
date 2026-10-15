@@ -64,6 +64,10 @@ REPLACED = {
 }
 #: Fetch steps: the checkout supplies these submodules before the job; the image form proves it offline.
 FETCH = re.compile(r'^git submodule update --init (.+)$')
+#: Toolchain paths in the image carry a GNU packaging triplet. The committed receipt spells each as
+#: `<triplet>` (its directory tells the host toolchain from the SDK); the step logs keep every path
+#: exactly, and the receipt keeps their digests.
+TRIPLET = re.compile(r'(?<![A-Za-z0-9])[a-z0-9_]+(?:-[a-z0-9]+){1,2}-gnu(?![A-Za-z0-9])')
 
 
 def logical(text: str) -> list[list[str]]:
@@ -229,6 +233,17 @@ def commands(listed: list[Path], logs: list[Path], steps: list[dict], checkout: 
     return rows
 
 
+def untripled(value: object) -> object:
+    """A receipt value with each toolchain triplet spelled `<triplet>`."""
+    if isinstance(value, str):
+        return TRIPLET.sub('<triplet>', value)
+    if isinstance(value, list):
+        return [untripled(item) for item in value]
+    if isinstance(value, dict):
+        return {key: untripled(item) for key, item in value.items()}
+    return value
+
+
 def merge(parts: list[Path], output: Path, listed: list[Path], logs: list[Path]) -> int:
     """Combine receipts traced as different users at one source and image into one receipt."""
     receipts = [json.loads(part.read_text()) for part in parts]
@@ -255,7 +270,7 @@ def merge(parts: list[Path], output: Path, listed: list[Path], logs: list[Path])
     merged['clean'] = all(step['clean'] for step in steps) and \
         all(row['traced'] or row['why'] in replaced for row in reconciliation) and \
         all(row['instances'] for row in merged['commands'])
-    output.write_text(json.dumps(merged, indent=1, sort_keys=True) + '\n')
+    output.write_text(json.dumps(untripled(merged), indent=1, sort_keys=True) + '\n')
     print(f"{merged['traced']} of {merged['reached']} reached steps traced; "
           f"{sum(not s['clean'] for s in steps)} with findings; "
           f"{sum(bool(r['instances']) for r in merged['commands'])} of {len(merged['commands'])} "
