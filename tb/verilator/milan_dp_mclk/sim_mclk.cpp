@@ -1174,6 +1174,7 @@ int main(int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         const std::string a = argv[i];
         if (a.rfind("--", 0) == 0) mode = a.substr(2);
+        if (a == "+MCLK_CHECK_VALUES=1") check.echo_passes();
     }
     h.run(mode);
     return check.report();

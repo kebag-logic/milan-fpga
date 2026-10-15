@@ -10,10 +10,11 @@
 # Requires: verilator (>= 5.0), a C++17 compiler. No Xilinx tools needed.
 
 VERILATOR ?= verilator
+VERILATOR_JOBS ?= 0
 RTL_DIR    = ../../../hdl
 TOP        = media_nco_wrap
 
-VFLAGS = --cc --exe --build -j 0 \
+VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          --top-module $(TOP) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \

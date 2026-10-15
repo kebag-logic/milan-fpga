@@ -200,11 +200,16 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                      'id': 'cache-verilator',
                      'uses': 'actions/cache@v4',
                      'with': {   'path': '/opt/verilator',
-                                 'key': 'verilator-${{ env.VERILATOR_VERSION }}-${{ '
-                                        'runner.os }}'}},
+                                 'key': (
+                                        'verilator-${{ env.VERILATOR_VERSION }}-'
+                                        '848d926ebd4addacacd294dc84e35d9d4ae8078c-'
+                                        "${{ hashFiles('.github/workflows/*.yml') }}-"
+                                        '${{ runner.os }}'
+                                        )}},
                  {   'name': 'Build Verilator from source on cache miss',
                      'if': "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}",
-                     'run': 'set -euo pipefail\n'
+                     'run': (
+                            'set -euo pipefail\n'
                             'sudo apt-get update -qq\n'
                             'sudo apt-get install -y --no-install-recommends \\\n'
                             '  git make autoconf g++ flex bison libfl2 libfl-dev help2man '
@@ -213,10 +218,13 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                             '  https://github.com/verilator/verilator.git '
                             '/tmp/verilator-src\n'
                             'cd /tmp/verilator-src\n'
+                            'test "$(git rev-parse HEAD)" = '
+                            '"848d926ebd4addacacd294dc84e35d9d4ae8078c"\n'
                             'autoconf\n'
                             './configure --prefix=/opt/verilator\n'
-                            'make -j"$(nproc)"\n'
-                            'sudo make install\n'},
+                            'make -j"$CI_TOOL_BUILD_JOBS"\n'
+                            'sudo make install\n'
+                            )},
                  {   'name': 'Put Verilator on PATH and prove the version',
                      'run': 'set -euo pipefail\n'
                             'echo "/opt/verilator/bin" >> "$GITHUB_PATH"\n'
@@ -232,7 +240,7 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                      'run': 'set -euo pipefail\n'
                             "/usr/bin/time -f 'driver_wall_seconds=%e driver_exit_status=%x' "
                             '\\\n'
-                            '  env -u SUITE_TIMEOUT VERILATOR_JOBS=4 \\\n'
+                            '  env -u SUITE_TIMEOUT VERILATOR_JOBS="$CI_BUILD_JOBS" \\\n'
                             '  scripts/run_all_suites.sh "$RUNNER_TEMP/physical-gptp-logs" '
                             '--physical-gptp\n'
                             'python3 scripts/suite_tally.py '
@@ -536,7 +544,7 @@ ENV_FILE_WRITERS = {
         'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
         '/opt/verilator/bin/verilator --version',
         '/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"',
-        'PATH="/opt/verilator/bin:$PATH" python3 scripts/lint_rtl.py --check --self-test',
+        'PATH="/opt/verilator/bin:$PATH" python3 scripts/lint_rtl.py --check --self-test --jobs "$CI_CAMPAIGN_JOBS"',
     ),
     (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version"): (
         'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
@@ -550,14 +558,19 @@ ENV_FILE_WRITERS = {
         'git -C "$RUNNER_TEMP/tsn-gen" submodule update --init --depth 1 --recursive external/rapidyaml',
         'cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" '
         '-DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF',
-        'cmake --build "$RUNNER_TEMP/tsn-gen/build" --target packet_gen --parallel',
+        'cmake --build "$RUNNER_TEMP/tsn-gen/build" --target packet_gen --parallel "$CI_TOOL_BUILD_JOBS"',
         'test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"',
         'echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"',
     ),
     (ELABORATE, "elaborate", "Install sbt"): (
-        'sbt --version >/dev/null 2>&1 && exit 0',
-        'curl -fsSL --retry 3 -o /tmp/sbt.tgz https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz',
-        'sudo tar xzf /tmp/sbt.tgz -C /opt',
+        'set -euo pipefail',
+        'mkdir -p "$HOME/.cache/milan-sbt"',
+        'archive="$HOME/.cache/milan-sbt/sbt-1.10.7.tgz"',
+        'if [ ! -f "$archive" ]; then',
+        'curl -fsSL --retry 3 -o "$archive" https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz',
+        'fi',
+        'echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6 $archive" | sha256sum -c -',
+        'sudo tar xzf "$archive" -C /opt',
         'echo /opt/sbt/bin >> "$GITHUB_PATH"',
     ),
 }
@@ -936,8 +949,9 @@ CARRIER_STEP_LISTS = {
         {"name": "Cache the pinned Markdown renderer downloads",
          "uses": "actions/cache@v4",
          "with": {"path": "~/.cache/milan-markdown-pip",
-                  "key": "markdown-renderer-pip-${{ runner.os }}-"
-                         "${{ hashFiles('tools/markdown/requirements.txt') }}"}},
+                  "key": "markdown-renderer-pip-cmarkgfm2025.10.22-html5lib1.1-${{ runner.os }}-"
+                         "${{ hashFiles('tools/markdown/requirements.txt') }}-"
+                         "${{ hashFiles('.github/workflows/*.yml') }}"}},
         {"name": "Install the pinned Markdown renderer",
          "run": (
              'python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip '
@@ -1142,6 +1156,23 @@ CARRIER_STEP_LISTS = {
          "run": (
              'python3 scripts/check_entity_shape.py --self-test',
          )},
+        {"name": "CI scheduling and evidence controls",
+         "run": (
+             'python3 scripts/ci_gate_workflows.py --check',
+             'python3 scripts/ci_gate_workflows_selftest.py',
+             'python3 scripts/ci_case_receipts_selftest.py',
+             'python3 scripts/ci_make_cases_selftest.py',
+             'python3 scripts/ci_maap_cases_selftest.py',
+             'python3 scripts/ci_capture_cases_selftest.py',
+             'python3 scripts/ci_suite_pieces_selftest.py',
+             'python3 scripts/ci_suite_collect_selftest.py',
+             'python3 scripts/ci_fail_fast_selftest.py',
+             'python3 scripts/ci_runtime_evidence_selftest.py',
+             'python3 scripts/ci_install_cache_selftest.py',
+             'python3 scripts/generate_ci_evidence_pins.py --check',
+             'python3 scripts/ci_workflow_plan_selftest.py',
+             'python3 scripts/ci_manifest_selftest.py',
+         )},
     ),
     (DOCS, "wire-accountability"): (
         {"uses": "actions/checkout@v4"},
@@ -1177,9 +1208,9 @@ CARRIER_STEP_LISTS = {
         {"name": "Cache the pinned pip downloads", "uses": "actions/cache@v4",
          "if": BUILDER_IF,
          "with": {"path": "~/.cache/pip",
-                  "key": "elaborate-pip-${{ runner.os }}-"
-                         "${{ hashFiles('sw/litex/litex_pins.txt') }}",
-                  "restore-keys": "elaborate-pip-${{ runner.os }}-"}},
+                  "key": "elaborate-pip-git-pins-${{ runner.os }}-"
+                         "${{ hashFiles('sw/litex/litex_pins.txt') }}-"
+                         "${{ hashFiles('.github/workflows/*.yml') }}"}},
         {"name": "Install LiteX at the pinned revisions", "if": BUILDER_IF,
          "run": (
              'python3 -m pip install --quiet pyyaml',
@@ -1187,16 +1218,18 @@ CARRIER_STEP_LISTS = {
          )},
         {"name": "Cache the Scala toolchain", "uses": "actions/cache@v4",
          "if": BUILDER_IF,
-         "with": {"path": "~/.cache/coursier\n~/.sbt\n~/.ivy2\n",
-                  "key": "elaborate-sbt-${{ runner.os }}",
-                  "restore-keys": "elaborate-sbt-"}},
+         "with": {"path": "~/.cache/coursier\n~/.sbt\n~/.ivy2\n~/.cache/milan-sbt\n",
+                  "key": "elaborate-sbt-1.10.7-"
+                         "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6-"
+                         "${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-"
+                         "${{ hashFiles('.github/workflows/*.yml') }}"}},
         {"name": "Cache the generated CPU metadata", "uses": "actions/cache@v4",
          "if": BUILDER_IF,
          "with": {"path": "~/vexii-netlist-args",
                   "key": "elaborate-vexii-${{ hashFiles('configs/*.yaml', "
                          "'sw/litex/milan_soc.py', 'sw/litex/build.sh', "
                          "'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', "
-                         "'sw/litex/patches/**') }}"}},
+                         "'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml') }}"}},
         {"name": "Install sbt", "if": BUILDER_IF,
          "run": ENV_FILE_WRITERS[(ELABORATE, "elaborate", 'Install sbt')]},
         {"name": "Place the VexiiRiscv source at the revision LiteX pins",
@@ -1224,8 +1257,12 @@ CARRIER_STEP_LISTS = {
         {"name": "Cache the pinned Verilator build", "uses": "actions/cache@v4",
          "id": "cache-verilator", "if": BUILDER_IF,
          "with": {"path": "/opt/verilator",
-                  "key": "verilator-${{ env.VERILATOR_VERSION }}-"
-                         "${{ runner.os }}"}},
+                  "key": (
+                         'verilator-${{ env.VERILATOR_VERSION }}-'
+                         '848d926ebd4addacacd294dc84e35d9d4ae8078c-'
+                         "${{ hashFiles('.github/workflows/*.yml') }}-"
+                         '${{ runner.os }}'
+                         )}},
         {"name": "Build Verilator from source on cache miss",
          "if": "${{ steps.scope.outputs.rtl == 'true' && "
                "steps.cache-verilator.outputs.cache-hit != 'true' }}",
@@ -1237,9 +1274,10 @@ CARRIER_STEP_LISTS = {
              'git clone --depth 1 --branch "$VERILATOR_VERSION" '
              'https://github.com/verilator/verilator.git /tmp/verilator-src',
              'cd /tmp/verilator-src',
+             'test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"',
              'autoconf',
              './configure --prefix=/opt/verilator',
-             'make -j"$(nproc)"',
+             'make -j"$CI_TOOL_BUILD_JOBS"',
              'sudo make install',
          )},
         {"name": "Put Verilator on PATH and prove the version",
@@ -1461,6 +1499,8 @@ class CannotRun(Exception):
     """An input the check cannot judge: missing, unparseable, no pyyaml."""
 
 
+from ci_gate_workflows import TEMPLATES, generate as generate_gate_workflow
+
 # --------------------------------------------------------------------------
 # Loading
 # --------------------------------------------------------------------------
@@ -1498,7 +1538,7 @@ def read_tree(root: pathlib.Path) -> dict[str, str]:
     every other workflow file the directory holds: the inventory decides
     what is held, the directory decides what GitHub runs."""
     world = {}
-    for rel in FILES:
+    for rel in (*FILES, *TEMPLATES.values()):
         path = root / rel
         try:
             world[rel] = path.read_text(encoding="utf-8")
@@ -1526,6 +1566,10 @@ def parse_world(world: World) -> World:
             raise CannotRun(f"{rel}: missing")
         parsed[rel] = (load_yaml(world[rel], rel) if rel in WORKFLOWS
                        else world[rel])
+    for rel in TEMPLATES.values():
+        if rel not in world:
+            raise CannotRun(f"{rel}: missing gate inventory template")
+        parsed[rel] = load_yaml(world[rel], rel)
     for rel in extra_workflows(world):
         parsed[rel] = (world[rel] if isinstance(world[rel], dict)
                        else load_yaml(world[rel], rel))
@@ -2091,11 +2135,21 @@ RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache"
 #: Every run entry also records its canonical normalized script (#439).
 VERILATOR_CACHE_WITH = {
     "path": "/opt/verilator",
-    "key": "verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}",
+    "key": (
+           'verilator-${{ env.VERILATOR_VERSION }}-'
+           '848d926ebd4addacacd294dc84e35d9d4ae8078c-'
+           "${{ hashFiles('.github/workflows/*.yml') }}-"
+           '${{ runner.os }}'
+           ),
 }
 YOSYS_CACHE_WITH = {
     "path": "/opt/yosys",
-    "key": "yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}",
+    "key": (
+           'yosys-${{ env.YOSYS_VERSION }}-'
+           '86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-'
+           "${{ hashFiles('.github/workflows/*.yml') }}-"
+           '${{ runner.os }}'
+           ),
 }
 VERILATOR_CACHE_MISS_IF = "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}"
 YOSYS_CACHE_MISS_IF = "${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"
@@ -2134,9 +2188,10 @@ RTL_VERILATOR_BUILD_SCRIPT = (
     'git clone --depth 1 --branch "$VERILATOR_VERSION" '
     'https://github.com/verilator/verilator.git /tmp/verilator-src',
     'cd /tmp/verilator-src',
+             'test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"',
     'autoconf',
     './configure --prefix=/opt/verilator',
-    'make -j"$(nproc)"',
+    'make -j"$CI_TOOL_BUILD_JOBS"',
     'sudo make install',
 )
 RTL_YOSYS_BUILD_SCRIPT = (
@@ -2145,10 +2200,11 @@ RTL_YOSYS_BUILD_SCRIPT = (
     'sudo apt-get install -y --no-install-recommends git make g++ bison flex libfl-dev '
     'pkg-config zlib1g-dev python3',
     'git clone --depth 1 --branch "$YOSYS_VERSION" https://github.com/YosysHQ/yosys.git /tmp/yosys-src',
+    'test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"',
     'git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts',
     'make -C /tmp/yosys-src config-gcc',
     "printf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' >> /tmp/yosys-src/Makefile.conf",
-    'make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys',
+    'make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys',
     'sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys',
     'git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV',
     "# runner-owned so the cache action's save and restore are symmetric",
@@ -2417,7 +2473,7 @@ RTL_STEP_LISTS = {
          "run": (
              'set -euo pipefail',
              'python3 -m pip install --quiet pyyaml',
-             'python3 sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"',
+             'python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CAMPAIGN_JOBS"',
          )},
     ),
     (RTL_FAST, FIRMWARE_UNIT_JOB): (
@@ -2446,17 +2502,18 @@ RTL_STEP_LISTS = {
          "run": (
              'set -euo pipefail',
              'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
-             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
+             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test '
+             '--jobs "$CI_CAMPAIGN_JOBS"',
          )},
         {"name": "Run the saved-state store suites and its RV32 build",
          "run": (
-             'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
+             'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$CI_CAMPAIGN_JOBS"',
          )},
         {"name": "Hold the firmware coverage ratchet",
          "run": (
              'set -euo pipefail',
              'python3 sw/firmware/gtest/fw_coverage.py --selftest',
-             'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"',
+             'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$CI_CAMPAIGN_JOBS"',
          )},
     ),
     # #697: the TSN stack's boundary from both sides over the compiles of every builder it judges but those
@@ -4303,9 +4360,9 @@ def check_sequence_pin_coverage(c: Contract, parsed: World,
                    "job pinned by nothing")
 
 
-def check(parsed: World) -> Contract:
-    """The whole contract over a parsed world. Returns a Contract."""
-    c = Contract()
+def check_semantic(parsed: World, c: Contract | None = None) -> Contract:
+    """Apply every original command, environment, event and source-binding assertion."""
+    c = Contract() if c is None else c
     check_rtl_full(c, parsed[RTL_FULL], parsed[POLICY])
     check_physical_gptp(c, parsed[RTL_FULL], parsed[POLICY])
     check_ownership_step(c, parsed[RTL_FULL])
@@ -4321,6 +4378,43 @@ def check(parsed: World) -> Contract:
         check_env_files(c, rel, parsed[rel])
     check_global_carriers(c, parsed)
     return c
+
+
+class SemanticWorld(dict):
+    """An internal test fixture over original commands, never constructed by YAML parsing."""
+
+
+def check_generated_workflow(parsed: World, c: Contract, name: str) -> None:
+    """Compare one actual generated graph with its complete source-derived definition."""
+    path = ".github/workflows/" + name + ".yml"
+    source = parsed.get(TEMPLATES[name])
+    try:
+        expected = generate_gate_workflow(name, source)
+    except (KeyError, TypeError, ValueError) as exc:
+        c.item(False, path, f"gate inventory cannot generate its jobs: {exc}")
+        return
+    c.item(parsed[path] == expected, path,
+           "generated gate jobs must match their complete inventory and aggregate: "
+           "every original body, binding, condition and checkout is preserved; "
+           "missing or additional steps, dependencies and receipts are refused")
+
+
+def project_gate_templates(parsed: World, c: Contract) -> SemanticWorld:
+    """Hold generated jobs to their complete source, then apply the original command contract."""
+    projected = SemanticWorld(copy.deepcopy(parsed))
+    for name, rel in TEMPLATES.items():
+        path = ".github/workflows/" + name + ".yml"
+        check_generated_workflow(parsed, c, name)
+        projected[path] = copy.deepcopy(parsed.get(rel))
+    return projected
+
+
+def check(parsed: World) -> Contract:
+    """Check the actual generated graph and every original semantic assertion."""
+    if isinstance(parsed, SemanticWorld):
+        return check_semantic(parsed)
+    c = Contract()
+    return check_semantic(project_gate_templates(parsed, c), c)
 
 
 # --------------------------------------------------------------------------
@@ -7354,7 +7448,7 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "job `docs-check` must carry exactly 50 steps"),
+         "job `docs-check` must carry exactly 51 steps"),
         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check-no-git",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
@@ -7368,7 +7462,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `elaborate` must carry exactly 20 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
-         "job `docs-check` must carry exactly 50 steps"),
+         "job `docs-check` must carry exactly 51 steps"),
         ("#295 wire-accountability inserted step of benign content",
          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
          "job `wire-accountability` must carry exactly 3 steps"),
@@ -7381,10 +7475,10 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
-         "job `docs-check` must carry exactly 50 steps, in the recorded order (found 49)"),
+         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
         ("#295 docs-check recognised step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
-         "job `docs-check` must carry exactly 50 steps, in the recorded order (found 49)"),
+         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
          "job `elaborate` must carry exactly 20 steps, in the recorded order (found 19)"),
@@ -7402,7 +7496,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "(`Bare-metal scope gate`) must carry no `if`"),
         ("#559 capture measurement gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_nvm_capture.py")),
-         "job `docs-check` must carry exactly 50 steps, in the recorded order (found 49)"),
+         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
         ("#559 capture measurement gate reordered",
          _m_swap_steps(DOCS, "docs-check", 26, 27),
          "job `docs-check` step 28 must be the step named `Capture measurement census and clock gate`"),
@@ -7442,7 +7536,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
         ("#378 em-dash gate step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
-         "job `docs-check` must carry exactly 50 steps, in the recorded order (found 49)"),
+         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
     ]
 
 
@@ -7977,7 +8071,7 @@ RV32_REQUIRED_STEPS = {
 def _rv32_sdk_arms() -> list[Arm]:
     """#504: missing provenance inputs, adoption guards and provisioning refuse."""
     arms = []
-    for path, jid, count in ((DOCS, "docs-check", 50),
+    for path, jid, count in ((DOCS, "docs-check", 51),
                              (ELABORATE, "elaborate", 20),
                              *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
                                for job in FIRMWARE_JOBS),
@@ -8107,6 +8201,58 @@ def _rtl_script_arms(pristine: World) -> list[Arm]:
     return arms
 
 
+def _tool_cache_arms(pristine: World) -> list[Arm]:
+    """Every tool build cache requires its version, source and recipe digest."""
+    arms = []
+    sources = {"Verilator": "848d926ebd4addacacd294dc84e35d9d4ae8078c",
+               "Yosys": "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"}
+    recipe = "${{ hashFiles('.github/workflows/*.yml') }}"
+    for path in (RTL_FULL, RTL_FAST, ELABORATE):
+        for jid, job in pristine[path]["jobs"].items():
+            for step in job.get("steps", []):
+                for tool, source in sources.items():
+                    name = f"Cache the pinned {tool} build"
+                    if step.get("name") != name:
+                        continue
+                    key = step["with"]["key"]
+                    version = "${{ env." + tool.upper() + "_VERSION }}"
+                    for label, fragment in (("version", version), ("source", source),
+                                            ("recipe", recipe)):
+                        if fragment not in key:
+                            raise ValueError(f"{path}/{jid}: missing {label} in cache control")
+                        arms.append((f"{jid} {tool} cache missing {label}",
+                                     _m_with_key(path, jid, name, "key", key.replace(fragment, "")),
+                                     f"(`{name}`) `with` must be exactly"))
+    return arms
+
+
+def _install_cache_arms(pristine: World) -> list[Arm]:
+    """Removing a version, source or installation recipe invalidates every install cache key."""
+    fields = (
+        (DOCS, "docs-check", "Cache the pinned Markdown renderer downloads",
+         "cmarkgfm2025.10.22-html5lib1.1", "${{ hashFiles('tools/markdown/requirements.txt') }}"),
+        (ELABORATE, "elaborate", "Cache the pinned pip downloads", "git-pins",
+         "${{ hashFiles('sw/litex/litex_pins.txt') }}"),
+        (ELABORATE, "elaborate", "Cache the Scala toolchain", "1.10.7",
+         "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6"),
+    )
+    arms = []
+    recipe = "${{ hashFiles('.github/workflows/*.yml') }}"
+    for path, jid, name, version, source in fields:
+        step = next(step for step in pristine[path]["jobs"][jid]["steps"] if step.get("name") == name)
+        key = step["with"]["key"]
+        for label, fragment in (("version", version), ("source", source), ("recipe", recipe)):
+            if fragment not in key:
+                raise ValueError(name + ": missing cache " + label)
+            arms.append((name + " missing " + label,
+                         _m_with_key(path, jid, name, "key", key.replace(fragment, "")),
+                         f"(`{name}`) `with` must be exactly"))
+        arms.append((name + " broad fallback",
+                     _m_with_key(path, jid, name, "restore-keys", "unbound-"),
+                     f"(`{name}`) `with` must be exactly"))
+    return arms
+
+
 def _firmware_layout_arms() -> list[Arm]:
     """The new census and budget checks must catch their own planted defects."""
     arms = [
@@ -8153,6 +8299,8 @@ def _mutations(pristine: World) -> list[Arm]:
             + _aggregate_script_arms()
             + _docs_builder_arms()
             + _rv32_sdk_arms()
+            + _tool_cache_arms(pristine)
+            + _install_cache_arms(pristine)
             + _firmware_layout_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()
@@ -8294,7 +8442,7 @@ def _selftest_on_disk(root: pathlib.Path) -> tuple[list[str], int]:
                               encoding="utf-8")
             findings = check(parse_world(read_tree(tree))).findings
             arms += 1
-            if any(want in f for f in findings):
+            if any("generated gate jobs must match" in f for f in findings):
                 print(f"  ok   caught: #295 duplicate `{jid}:` mapping ON "
                       f"DISK in {rel} (last one wins)")
             else:
@@ -8677,6 +8825,46 @@ def _selftest_default_branch() -> tuple[list[str], int]:
     return problems, arms
 
 
+def _selftest_generated_gates(pristine: World) -> tuple[list[str], int]:
+    """The actual graph refuses missing, reordered, weakened and additional worker or aggregate steps."""
+    problems, arms = [], 0
+    for name in TEMPLATES:
+        path = ".github/workflows/" + name + ".yml"
+        for jid, job in jobs(pristine[path]).items():
+            mutations = [
+                ("missing job", lambda world: jobs(world[path]).pop(jid)),
+                ("conditional job", lambda world: jobs(world[path])[jid].update({"if": "false"})),
+                ("masked job", lambda world: jobs(world[path])[jid].update({"continue-on-error": True})),
+                ("host environment", lambda world: jobs(world[path])[jid].update({"env": {"BASH_ENV": "bad"}})),
+            ]
+            for index, _step in enumerate(steps(job)):
+                mutations += [
+                    (f"missing step {index}", lambda world, at=index: jobs(world[path])[jid]["steps"].pop(at)),
+                    (f"changed step {index}", lambda world, at=index:
+                     jobs(world[path])[jid]["steps"][at].update({"if": "false"})),
+                    (f"changed body {index}", lambda world, at=index:
+                     jobs(world[path])[jid]["steps"][at].update({"run": "true"})),
+                ]
+                if _step.get("uses") == "actions/cache@v4":
+                    for field, value in (("key", "unbound"), ("restore-keys", "unbound-"),
+                                         ("path", "~/.unrelated-cache")):
+                        mutations.append((f"cache {index} altered {field}",
+                                          lambda world, at=index, field=field, value=value:
+                                          jobs(world[path])[jid]["steps"][at]["with"].update({field: value})))
+            for label, mutate in mutations:
+                world = dict(pristine)
+                world[path] = copy.deepcopy(pristine[path])
+                mutate(world)
+                arms += 1
+                contract = Contract()
+                check_generated_workflow(world, contract, name)
+                if contract.findings:
+                    print(f"  ok   generated gates: {name} {jid} {label}")
+                else:
+                    problems.append(f"generated gate control survived: {name} {jid} {label}")
+    return problems, arms
+
+
 def selftest(root: pathlib.Path) -> int:
     """`--selftest`: the gate's own proof, stage by stage in the order it
     prints. Returns the exit code: 0 when every arm bit, 1 when any did not,
@@ -8690,6 +8878,8 @@ def selftest(root: pathlib.Path) -> int:
         print(f"selftest: cannot load the pristine tree: {exc}")
         return RC_CANNOT_RUN
     clean = check(pristine)
+    generated_pristine = pristine
+    pristine = project_gate_templates(pristine, Contract())
     if clean.findings:
         problems.append("pristine tree is not clean: " +
                         "; ".join(clean.findings))
@@ -8701,7 +8891,8 @@ def selftest(root: pathlib.Path) -> int:
     # tuple calls them left to right, so what is printed and what is counted
     # stay in the order the arms were written.
     checked_arms = 0
-    for found, arms in (_selftest_arms(pristine),
+    for found, arms in (_selftest_generated_gates(generated_pristine),
+                        _selftest_arms(pristine),
                         _selftest_cannot_run(root),
                         _selftest_on_disk(root),
                         _selftest_records(),

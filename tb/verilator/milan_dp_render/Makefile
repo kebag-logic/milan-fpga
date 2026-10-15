@@ -200,9 +200,38 @@ tdm8render-multi-build: ltn_rom.hex ucode.hex tdm8rm_aemi.bin $(GEN_CSR)
 # check. That is an executable negative arm inside the sweep's wall clock; the
 # gateware and generated-shape mutants, which each need their own
 # elaboration, are the explicit tdm8render-mutants target below.
-run: tdm8render tdm8render-multi
+CLEAN_CASES = ship multi
+RUN_CASES = $(CLEAN_CASES) leg-defects
+run: $(addprefix run-,$(CLEAN_CASES))
 	@echo "======================================================================"
 	python3 tdm8_render_mutants.py --leg-defects
+
+run-ship: tdm8render
+run-multi: tdm8render-multi
+
+ci-list:
+	@printf '%s\n' $(RUN_CASES)
+
+ci-receipts:
+	@$(foreach case,$(RUN_CASES),printf '%s\ttally\n' '$(case)';)
+
+ci-prepare: ltn_rom.hex ucode.hex tdm8r_aemi.bin tdm8rm_aemi.bin $(GEN_CSR) $(SHAPE_AX1_F)
+
+build-ship: tdm8render-build
+build-multi: tdm8render-multi-build
+build-leg-defects: tdm8render-build tdm8render-multi-build
+
+exec-ship:
+	./$(TDM8R_MDIR)/Vmilan_dp_tdm8r
+
+exec-multi:
+	./$(TDM8RM_MDIR)/Vmilan_dp_tdm8rm
+
+exec-leg-defects:
+	python3 tdm8_render_mutants.py --leg-defects
+
+.PHONY: ci-list ci-receipts ci-prepare $(addprefix run-,$(CLEAN_CASES)) \
+        $(addprefix build-,$(RUN_CASES)) $(addprefix exec-,$(RUN_CASES))
 
 # THE FULL CAMPAIGN, explicit. The two build prerequisites put the clean
 # positive controls on disk first, where the runner's LEGS table looks for

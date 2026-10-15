@@ -81,16 +81,17 @@ for its supported histories and unresolved cases.
 The runner discovers suites from the filesystem, serializes whole-tree sweeps,
 enforces a per-suite wall clock, and refuses to quote a total when a suite's
 check count cannot be read.
-The default selection contains 60 suites.
+The default selection contains 63 suites.
 Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The separate `milan_dp_gptp` selection uses
 5400 seconds, including compilation, and preserves physical clock and timer
-rates. CI shards the default selection; the physical job runs nightly and on
-manual dispatch. Inspect both selections without compiling with:
+rates. CI runs the default selection on sixteen `--ci-pieces` workers; the
+physical job runs nightly and on manual dispatch. Inspect a hosted worker's
+selection and the physical selection without compiling with:
 
 ```sh
-scripts/run_all_suites.sh --shard 0/5 --list
+scripts/run_all_suites.sh --ci-pieces --shard 0/16 --list
 scripts/run_all_suites.sh --physical-gptp --list
 ```
 

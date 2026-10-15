@@ -146,6 +146,14 @@ def scope_script(shipping: Path, workflow: str, job: str, step_id: str) -> str:
     text = (shipping / ".github/workflows" / workflow).read_text()
     _, found, tail = text.partition(f"  {job}:\n")
     assert found, f"missing scope job: {workflow}"
+    # Bound the selected job before locating its scope; another worker must
+    # never supply a missing scope body on behalf of this one.
+    job_lines = []
+    for line in tail.splitlines():
+        if line.strip() and not line.startswith("    "):
+            break
+        job_lines.append(line)
+    tail = "\n".join(job_lines) + "\n"
     _, found, tail = tail.partition(f"        id: {step_id}\n")
     assert found, f"missing scope step: {workflow}"
     _, found, tail = tail.partition("        run: |\n")
@@ -285,7 +293,8 @@ def selftest(shipping: Path) -> int:
         for workflow, job, step in (
                 ("rtl.yml", "full-ci-gate", "gate"),
                 ("rtl-fast.yml", "changes", "scope"),
-                ("elaborate.yml", "elaborate", "scope")):
+                ("elaborate.yml", "elaborate-gates-0", "scope"),
+                ("elaborate.yml", "elaborate-gates-1", "scope")):
             script = scope_script(shipping, workflow, job, step)
             for case in cases:
                 merge = merge_checkout(root, case)

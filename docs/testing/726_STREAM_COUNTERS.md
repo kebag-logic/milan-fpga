@@ -174,7 +174,8 @@ make -C tb/verilator/milan_dp counters-mutants
 Clean checks must exit zero.
 Their `RESULT: PASS` lines also appear in the suite log.
 Both make exports suppress inherited directory banners explicitly.
-Hosted shard 4/5 must retain these results in `suite-logs-4`.
+On GitHub these results reach the `milan_dp.log` that the `milan_dp` case union assembles.
+That union joins the four `--ci-pieces` leg logs, and its `suite-union-milan_dp` artifact must retain them.
 The `before` variant reads the three original counter engines from `c6bd08c6`.
 Its driver requires named `TX`, `RX` and `CADENCE` failures.
 Any other failure group, missing group or exit status is rejected.

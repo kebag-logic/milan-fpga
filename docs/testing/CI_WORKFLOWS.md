@@ -10,13 +10,14 @@ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 - **[Exhaustive validation](#exhaustive-validation)** -- When the full Verilator and Yosys inventories run and how exact-head evidence is preserved.
 - **[Nightly and manual dispatch](#nightly-and-manual-dispatch)** -- The cron on the tip of `dev`, how to start a run by hand, and the two situations in which an agent should.
 - **[One authoritative SHA](#one-authoritative-sha)** -- How every job of a run is pinned to one tree, what the workers record, what the aggregates refuse, and the gate that holds the files to this page.
-- **[Elaboration](#elaboration)** -- The one job that installs LiteX and observes what elaboration hands the datapath Instance, and what makes it red.
+- **[Elaboration](#elaboration)** -- The two gate workers that install LiteX, check elaboration and run its simulations, and what makes the aggregate red.
 - **[Pull-request state](#pull-request-state)** -- How draft and ready states control hosted long jobs without changing local responsibilities.
 - **[Act-first local replication](#act-first-local-replication)** -- The required exact-head local response while hosted Actions runs in parallel.
 - **[Protected merge bar](#protected-merge-bar)** -- The active `dev` ruleset, its seven exact required contexts, and why its update policy is loose.
 - **[Issue closing on merge](#issue-closing-on-merge)** -- What `Closes #N` does now that `dev` is the default branch, and what still waits for containment.
 - **[Local commands](#local-commands)** -- The serial commands that remain the authoritative developer-side gates.
 - **[Failure and cancellation semantics](#failure-and-cancellation-semantics)** -- How missing artifacts, superseded commits, and resumed work are handled.
+- **[Source-tool cache provenance](#source-tool-cache-provenance)** -- Bind installations to release, source, and recipe digests.
 
 ## Fast feedback
 
@@ -344,43 +345,68 @@ The workflow keeps the public aggregate names `verilator-suites` and
 relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
-Verilator runs the default suite inventory on six workers. Five split the
-inventory by recorded duration (#727); the sixth, shard 5/6, runs
-`milan_dp` alone (#444). A worker runs its suites one at a time, so the dedicated
-worker changes no suite's deadline. It takes the other suites of the old
-shard 0/4 off `milan_dp`'s path: that shard carried `milan_dp` plus eleven
-suites and set the context's latency at 1745-2514 s, of which the eleven took
-492-725 s.
+Verilator schedules 80 units on sixteen native matrix workers. The ordinary
+serial command still runs the original 63 suites. CI expands six long suites
+into driver-derived case partitions: `milan_dp` (four legs), `milan_dp_mclk`
+(four), `capture_coherence` (four), `maap` (four), `milan_dp_render` (three), and
+`pp_shadow` (four). The source drivers enumerate 19, 31, 31, 66, 3 and 4 units,
+respectively. A unit can carry several original checks; it is never split by
+resetting a carried history. No test predicate or per-suite timeout changes.
 
-`scripts/suite_shards.py` records each default suite's hosted duration and
-each worker's job overhead. Historical figures come from one dev run, except
-`maap`, which keeps #696's pull-request figure until measured on dev.
-`gptp_tables` uses the provisional 1800-second suite timeout (#640).
-Its added worker uses the prior maximum overhead, 115 seconds.
-Replace both provisional figures after the change's successful hosted run.
-The selector places the longest suite on the least-loaded worker.
-Its self-test refuses a suite without a duration and a
-duration without a suite.
-It also refuses any worker predicted above 60% of the job's
-`timeout-minutes`, which it reads from `rtl.yml`. The selector's docstring
-gives the refresh procedure, and the steps for a change that adds a suite: a
-provisional figure from `run_all_suites.sh`'s `suite_timeout`, a worker added
-if a prediction then exceeds 60%, and the figure replaced from the change's
-own hosted run. On dev `c6bd08c6` the old hash put worker 1/5 at
-104 minutes, and #696's head reached its 120-minute timeout there.
+`scripts/suite_shards.py` assigns the longest measured pieces first. It pins
+`tsn_fuzz` to worker 1 and `chmap_capture` to worker 3 for their specialized
+installs. Worker 15 owns only media-clock leg A, whose continuous history is
+indivisible under #737's ruling. Fifteen workers project at most 1605 seconds
+including a conservative 122-second setup allowance. Leg A projects to 1910
+seconds before setup and 2032 seconds with it. This is the explicit round-one
+exception; the coordinating role measures the actual hosted head before the
+owner decides any remaining acceleration. Regular workers have 45-minute
+limits; leg A retains a 60-minute allowance within its former 120-minute job
+limit. The separate nightly physical-rate job keeps its existing deadline.
 
-The aggregate rejects missing, unexpected, or duplicate suite logs before it
-trusts the combined tally, and requires all six workers. Specialized
-dependencies are installed only by their stable owners: `tsn_fuzz` owns the
-pinned packet generator, and `chmap_capture` owns the Yosys/sv2v netlist leg.
-The shard selector pins those owners and the dedicated worker, its self-test
-proves them, and the workers' ownership step proves them again at run time;
-`ci_events.py` pins that step's script. It pins the aggregate's tally script
-and its worker-result script the same way, and the Yosys aggregate's two
-twins. The worker-result step is the only step that turns a failed or
-timed-out worker red: a killed suite's partial log still tallies and its SHA
-record still verifies, so on both hosted `milan_dp` timeouts only that step
-failed.
+`gptp_tables` (#713) joins the balanced inventory whole, as every unsplit
+suite does. Dev registered it at the provisional 1800-second `suite_timeout`
+figure (#640) and gave its added sixth worker the prior maximum overhead, 115
+seconds; dev replaces both after the change's successful hosted run. Here
+its figure is a hosted window: 568 seconds on worker 0/6 of dev run
+38601263345 at `f6260253`, where that worker passed all eight of its suites;
+the pull-request run 38538854504 measured 474 seconds. At the provisional
+figure its worker would project 1922 seconds, over the 1620-second bound. The
+selector places it on worker 3, projected at 1544 seconds. The template keeps
+dev's six-worker matrix, its shard 5/6 `milan_dp` ownership arm and its
+`--expect 6`; the generator replaces the matrix and `--expect` with the
+sixteen workers and removes the arm; the selector's self-test proves that the
+last worker runs `milan_dp_mclk__0` alone.
+
+The selector refuses a missing or extra duration, duplicate ownership, a
+changed specialized owner, or a regular worker projected above 1620 seconds.
+Its existing 60%-of-deadline control applies separately to each worker's own
+timeout: 1620 seconds for regular workers, 2160 seconds for leg A. Controls
+plant a shorter regular timeout and a 1621-second ordinary worker under a
+deliberately wide timeout; each must fail its respective bound. The figures for split suites apportion baseline
+`7032bca5` windows using measured local leg durations; they are predictions,
+not measurements of the resulting hosted graph. Refresh them from the next
+complete hosted run. The ordinary unsharded scheduling mode remains available.
+
+Every selected leg writes source-bound case receipts. Each of six union jobs
+waits for the native worker matrix, independently enumerates its suite's
+current driver inventory, and requires every case exactly once. Dropping a
+case from every leg and every claimed inventory still fails against that fresh
+inventory. The union checks verdicts and checked-output digests, then assembles
+the original physical suite log. The final `verilator-suites` aggregate requires
+all sixteen workers and all six unions. It rechecks raw case evidence against
+the union artifact, proves every original log's ownership and exact head, then
+runs the unchanged tally. Missing, duplicated, extra, failed, cancelled or
+skipped workers cannot release the protected context.
+
+Round-two comparisons on #737 use public PR head
+`cf9c936697a06e44c41681bcc12dc612a3242eb2`: six unsharded references and
+23 shard legs cover all 154 driver-enumerated units. The production receipt
+reader accepts equal outcomes, return codes and checked-output digests for
+every suite. Dropping a case from every claim is refused; changing an
+observation differs from its reference. These native runs establish case
+equivalence at that public head, not hosted timing or unchanged product inputs
+after the required dev merge. The merged candidate still needs its full replay.
 
 Every Verilator worker also initializes `third_party/tsn-c-stack`: the `mbx`
 suite's co-simulation links the firmware's ADP, ACMP and MAAP cores, which
@@ -490,7 +516,7 @@ That historical budget left 1140.1 s: 31.7%, approximately 32%.
 These historical samples do not measure the corrected candidate.
 The five default gmstep controls stayed in `run` (#602) until #621.
 The additional controls stay in the explicit `gmstep-mutants` campaign.
-The hosted shards allow 120 minutes; #673's envelopes appear above.
+Those historical hosted shards allowed 120 minutes; #737's current limits appear above.
 If later exact-head margin falls below 10%, split further.
 
 #621 split further. Its small-step phase took the gmstep leg from 48 s to
@@ -516,7 +542,7 @@ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
 PR and push events exclude this job from execution.
 Physical regressions therefore report nightly, outside the required PR aggregate.
-The six default workers retain every other suite.
+The sixteen default workers retain every other suite.
 
 The physical suite has a 5400-second build-and-run deadline.
 Its separate four-core `ubuntu-latest` job permits 120 minutes total.
@@ -665,7 +691,15 @@ of surfacing as a nightly that silently stopped. `ci_events.py --check` holds
 the assertion in its fail-closed shape. That shape is not only what the step
 says: a check that reads a step's contents and nothing about the conditions
 under which it runs holds the wrong perimeter, which is what #209 found. So it
-is exactly these twelve things:
+is exactly these twelve things in the source workflow contract under
+`.github/ci-templates/`. The generated workflows retain that contract and
+add the exact installation-cache, execution-evidence and failure-cancellation
+steps defined by the generators. `ci_events.py` checks both levels: all
+original negative controls still run against the source contract, and every
+generated job, step, condition, environment and permission must equal the
+generator's output. Thus an extra generated step is accepted only when the
+generator defines it; the numbered source-step counts below are not counts of
+the instrumented job:
 
 1. **The script text.** The step's `run:` is pinned verbatim (whitespace
    aside) to three lines: `set -euo pipefail`, one unconditional
@@ -1319,7 +1353,7 @@ validates one tree. The workflow makes that explicit and machine-checked
   reads it;
 - both aggregates run `scripts/ci_events.py --require-target-sha` over the
   downloaded shards before they tally anything, passing `--expect` the
-  worker matrix size, six for Verilator and four for Yosys,
+  worker matrix size (`--expect 16` for Verilator, `--expect 4` for Yosys)
   and exactly three sources, `--sha gate="$GATE_SHA"`
   (the gate's `target_sha` through the step env), `--sha run="$GITHUB_SHA"`
   and `--sha checkout="$(git rev-parse HEAD)"`, and print the SHA in their
@@ -1368,31 +1402,64 @@ docs job only, so the vacuity control has one hosted runner.
 
 [The elaboration workflow](../../.github/workflows/elaborate.yml) runs on every
 pull-request update, on every push to `dev` and `main`, and on manual dispatch.
-It is the one job that installs LiteX. It exists because no other job can
-observe what elaboration hands `Instance("milan_datapath")` (#154): every
+Its two gate workers install the pinned LiteX stack. The builder gate
+observes what elaboration hands `Instance("milan_datapath")` (#154): every
 argv-to-parameter chain used to be proven by source-text greps against
 `sw/litex/milan_soc.py`, and a flag severed on its way to the parameter it
 names read green at two independent hops.
 
 It uses the same change classification as the fast workflow. A docs-only
-change skips every step after the classification and the `elaborate` check
-still completes. A relevant change installs the pinned LiteX of
+change skips the gate workers' product checks and the protected `elaborate`
+aggregate still completes. A relevant change installs the pinned LiteX of
 [`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt), places the
 VexiiRiscv source at the revision LiteX itself pins, applies the patch series
 in [`sw/litex/patches/`](../../sw/litex/patches) with its `apply.sh`, and runs
-`sw/builder/test_builder.py --require-elaboration`: gates 23f, 23g and 23h and
-their mutation arms. Upstream LiteX elaborates no configuration in this tree
-(#185), so the series is a required install step and gate 23h proves the
-installed trees are upstream plus exactly that series.
+`sw/builder/test_builder.py --require-elaboration --require-rv32`: gates 23f,
+23g and 23h and their mutation arms. Upstream LiteX elaborates no
+configuration in this tree (#185), so the series is a required install step
+and gate 23h proves the installed trees are upstream plus exactly that series.
 
-After those gates the same job installs Verilator and runs
+That command runs in two measured legs (#737). Worker 0 runs leg 0,
+`test_baremetal_profile_contract` alone. Worker 1 runs leg 1, the other 102
+gates in inventory order, before its LiteX aggregate.
+[`scripts/ci_builder_legs.py`](../../scripts/ci_builder_legs.py) reads the
+inventory from the driver's `--list`, passes each leg's names to `--gates`
+and binds the driver's `--receipt` to the head and tree. With no `--gates`,
+the driver still runs all 103 gates in one process.
+The documentation workflow divides its builder command,
+`python3 sw/builder/test_builder.py --require-rv32`, into the same two legs:
+`docs-gates-1` runs leg 0 and `docs-gates-2` runs leg 1 beside the contract
+self-tests. The step's `pip install` line stays ahead of the leg runner.
+
+A leg holding no elaboration gate would pass `--require-elaboration`
+vacuously, so the requirements a divided command carries are judged on the
+union, never per leg. The template command, not any receipt, names them:
+`elaborate` carries both and `docs` carries `--require-rv32` alone. Each
+aggregate refuses unless every gate ran exactly once, in its measured leg,
+and passed, and every leg carried exactly its command's requirements. Under
+`--require-elaboration`, each gate that consults the LiteX interpreter must
+have run in a leg carrying it. The bare-metal profile gate must have run in
+a leg carrying `--require-rv32`. Only under `--require-elaboration` is the
+driver's own elaboration verdict then applied to the union NOT RUN ledger, so
+a docs run without LiteX keeps its recorded skips, as its unsharded run does.
+The leg runner names those gates itself, rather than reading them from the
+inventory. A gate deleted from the inventory, lost with its leg, or run
+without its flag is therefore refused by name.
+`ci_gate_workflows_selftest.py` plants each of those losses for both
+commands. It also checks the named gates against the driver source. It
+requires that exactly the workers running a builder leg upload
+`builder-leg-*.json`. For both templates it plants a divided step that runs
+the driver in a preparation line, and one whose last line is not the driver;
+the generator must refuse each.
+
+Independently, worker 1 installs Verilator and runs
 `scripts/run_litex_sims.sh`, the one aggregate that owns the standalone LiteX
 simulations in `sw/litex/` (#297): its inventory is pinned in the runner and
 reconciled against the directory in both directions, so a deleted test cannot
 vanish silently and an unlisted new one is a red run, and its `--selftest`
 executes first - it plants a failing simulation, a masked verdict, a missing
 member, an unlisted extra and a member-declared skip in a sandbox and
-requires the verdict each time. The aggregate reuses the interpreter this job
+requires the verdict each time. The simulation aggregate reuses the interpreter its worker
 just installed and patched; locally the same command runs against any
 interpreter that imports `migen` + `litex` and otherwise declares its skips
 (exit 90), see [TESTING.md section 2](TESTING.md#2-litex-integration-checks---swlitextest_py).
@@ -1402,7 +1469,7 @@ one stimulus through the CONVERTED MAC transmit chain and through the migen
 objects it was converted from, and requires the two pad traces to agree; the
 converted half is a Verilator build and the source half needs the pinned
 LiteX stack, so the comparison needs both tools in one job and this is the
-only job in the tree that carries the stack. Its cache key, build recipe and
+workflow that provisions the complete stack for these gates. Its cache key, build recipe and
 version proof are the ones `rtl.yml` uses, so the two workflows restore one
 artifact and `scripts/ci_events.py --check` refuses a `VERILATOR_VERSION`
 that has drifted in any of the three files that name it. On a host without
@@ -1558,12 +1625,10 @@ No step ran this self-test before, so it rotted unseen.
 It reads first-party files only and needs no submodule.
 `CARRIER_STEP_LISTS` pins this step the same way (#407).
 
-Three caches, deliberately split. The Scala toolchain is content-addressed
-and keeps a broad fallback. The pip download cache is keyed on the pin file
-with a prefix fallback and runs only under the RTL scope, safe because the
-pins are full-SHA git revisions: pip keys the wheels it builds from them on
-the exact URL and SHA, so a cache entry can only save the rebuild, never
-substitute a revision. The generated CPU metadata keeps neither fallback: its key hashes
+Three caches have separate keys and no prefix restore fallback. The Scala
+toolchain key binds its version, source and build recipe. The pip download
+cache binds its pin file and installation recipe and runs only under the RTL
+scope. Its pins are full-SHA git revisions. The generated CPU metadata key hashes
 the configs, `milan_soc.py`, `build.sh`, `sweep.sh`, the pins and the patch
 series, because LiteX names those files from the CPU arguments alone and
 skips the generator whenever the file exists, so a stale entry would
@@ -1639,7 +1704,7 @@ security code: from the candidate worktree, execute only the copy in a
 separate, clean worktree at the validation base:
 
 ```sh
-python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number> --cpu-ranges "$BOOKED_CPU_RANGES"
 ```
 
 Never invoke `scripts/act_ci.py` from the candidate worktree as the host-side
@@ -1666,7 +1731,7 @@ install -m 0555 <candidate>/scripts/act_ci.py <audited-install>/act_ci.py
 sha256sum <audited-install>/act_ci.py
 python3 -I <audited-install>/act_ci.py --selftest \
   --worktree <candidate>
-python3 -I <audited-install>/act_ci.py --pr <number> \
+python3 -I <audited-install>/act_ci.py --pr <number> --cpu-ranges "$BOOKED_CPU_RANGES" \
   --repo kebag-logic/milan-fpga --worktree <candidate> \
   --trusted-install-sha256 <recorded-64-hex-digest>
 ```
@@ -1679,6 +1744,27 @@ The isolated child skips only that launcher, preventing recursion.
 A sibling import planted outside the scope-event graph must fail.
 The docs workflow also runs the documented flat installation directly.
 Its contract pins the empty temporary directory, mode and invocation.
+
+The self-test books the synthetic CPU ranges `0-15` to `48-63`, and the range
+parser refuses a range that ends at or past `os.cpu_count()`. So every arm
+that reaches the parser patches the count it needs; an arm that did not
+passed on a large workstation and failed on the four-CPU hosted runner. A
+committed control removes that dependence on the host:
+
+```sh
+python3 -I scripts/act_ci_small_host_selftest.py
+```
+
+It installs the runner read-only and runs its self-test in an isolated child
+whose `os.cpu_count()` reports 4 (`--cpus` chooses 1 to 63), then runs the
+same self-test on a copy whose `main` no longer contains its PR run in the
+cleanup-signal handlers. The first must pass. The second must fail its
+main-entry probe after reaching the repository lookup, not by refusing its CPU
+booking. The isolated child skips only the flat-install launcher, whose fresh
+interpreter the forced count cannot reach. Every other arm runs under it. The
+control needs the gate's own prerequisites, including PyYAML and an installed
+`sudo`, as on the hosted runner. The hosted gate itself runs on four CPUs, so this control is a local
+command and is not a separate CI step.
 
 The reviewer's audit of those exact installed bytes is the trust anchor. The
 runner's check of `--trusted-install-sha256` is self-attestation and detects
@@ -1741,7 +1827,7 @@ whose privileged child would create a labelled volume two seconds later, then
 proves the whole CLI group is absent and the mutation never occurs:
 
 ```sh
-python3 -I <audited-install>/act_ci.py --interrupt-selftest \
+python3 -I <audited-install>/act_ci.py --interrupt-selftest --cpu-ranges "$BOOKED_CPU_RANGES" \
   --act-bin <absolute-act-0.2.89> [--sudo]
 ```
 
@@ -1772,7 +1858,7 @@ admissibility under the trusted sandbox, the transcript grading and both
 command shapes.
 
 ```sh
-python3 -I <audited-install>/act_ci.py --boundary-selftest \
+python3 -I <audited-install>/act_ci.py --boundary-selftest --cpu-ranges "$BOOKED_CPU_RANGES" \
   --act-bin <absolute-act-0.2.89> [--sudo]
 ```
 
@@ -1903,176 +1989,76 @@ unpredictable ownership token as a container label, never bind-mounts the
 operator's worktree, and supplies no privileged flag. Candidate workflow code
 consequently runs only in the disposable job boundary.
 
-The same `--container-options` word also bounds every job container to a CPU
-set of `min(host CPUs, 4)` cores (`--cpuset-cpus=0-3` on a large host;
-`CONTAINER_CPU_LIMIT`; an isolated replay slot N uses its own block instead)
-until the runner moves it to a range of its own, as described below, and to
-16 GB of memory with no swap beyond it
-(`--memory=16g --memory-swap=16g`; `CONTAINER_MEMORY`). Hosted
-`ubuntu-latest` runners have 4 vCPUs and 16 GB, so `rtl-fast`'s
-`make -j"$(nproc)"` Verilator and Yosys builds are hosted-shaped: `nproc`
-follows the container's cpuset, and in an unbounded container on a 128-vCPU
-host they started 128 compilers and exhausted host memory; at sixteen, four
-matrix legs still exhausted a 72 GB host. A job that needs more than 16 GB
-fails hosted too; a bounded container fails the replica instead of the host.
-Hosted jobs also each get their own runner, while a replica's jobs share one
-host, so `act` starts one of a stage's jobs at a time (`--concurrent-jobs 1`;
-`CONCURRENT_JOB_LIMIT`): with the CPU set alone, an `rtl-full` replica
-launched all eight shard jobs together, each building its toolchain. That flag
-bounds jobs, not matrix legs, which `act` runs `strategy.max-parallel` wide
-(default 4) inside one job's slot, so each of `rtl.yml`'s sharded jobs (six
-Verilator workers, four Yosys workers) still fans out to at most four
-containers at once, each held to 16 GB: at most 64 GB at once.
+Every local job gets an exclusively booked CPU range.
+The manager supplies these through `--cpu-ranges`.
+For example, `0-15,16-31,32-47,48-63` books four ranges.
+This example is not a host allocation table.
+The manager prevents overlap with other host work.
+Each normal range contains sixteen CPUs, aligned to sixteen.
+The fallback width is `FALLBACK_CPU_LIMIT=12`, aligned to twelve.
+Missing, overlapping, unaligned and unavailable ranges are refused.
+Eight-CPU ranges remain refused under the current owner ruling.
+Daemon slot numbers never determine CPU numbers.
 
-`act` gives every job container of a run that one options word, so the word
-alone puts every concurrent matrix leg on the same four CPUs. Before #730 an
-`rtl-full` replay ran four shard legs together on `0-3`, a quarter of a hosted
-runner each, while the rest of the host stayed idle. The word's CPU set is
-therefore only a staging range. While `act` runs, the runner reads the
-daemon's container events for its own ownership label (`docker events`, in a
-process group of its own). As each job container is created, the runner
-reserves the lowest of the slot's job ranges that no container holds, and
-moves the container there with `docker container update --cpuset-cpus`. Each
-range is `CONTAINER_CPU_LIMIT` CPUs wide, so a leg's `nproc` is the hosted
-runner's 4 before and after the move, and the memory bound is unchanged. The
-job ranges follow the staging range: slot 0 stages on `0-3` and moves up to
-four containers to `4-7`, `8-11`, `12-15` and `16-19`.
+The dispatcher reserves a free range before executing a job.
+Docker creates that job container directly on its reserved range.
+No staging range or later CPU update exists.
+A job waits until an admission token becomes available.
+Its range stays reserved until the job's cleanup finishes.
+Failed cleanup cancels admission before any range can be reused.
+The run records each job's range in its scheduler events.
+A read-only daemon monitor independently checks container placement.
+Sharing, unbooked placement and later movement fail the replay.
+Monitor failure also prevents a successful replay verdict.
+`cpu-placements.json` retains reservations, inspection problems and peak concurrency.
+CPU observations remain outside the canonical manifest comparison.
 
-A reservation lasts until the container's `destroy` event, or until
-`docker container inspect` shows that the daemon no longer has the container.
-A `die` frees nothing, because a stopped container keeps its CPU set and can
-start again. `act` removes each leg's container (`--rm`) before its worker
-takes the next leg, so a finished leg's range is free for the next one. A move
-whose command failed or timed out keeps its range reserved as well, because the
-daemon may have applied it or may still apply it. Where a container runs is
-read from its CPU set as `docker container inspect` reports it, never inferred
-from the events that arrived. The runner reads it after each move, at each
-`start`, at an `update` of a container not yet seen on its range, and for every
-holder when no range is free. A holder the daemon no longer has then frees its
-range.
+Every generated job reads its own CPU count with `nproc`.
+Tool builds use that count for `make -j`; Verilator uses `VERILATOR_JOBS`.
+Existing `-j 0` recipes use Verilator 5.050's process-affinity default.
+They therefore see the container's booked CPU count.
+Campaign pools use the smaller of that count and four.
+CPU allocation alone therefore cannot expand those pools beyond four.
+Simulation pools use the same bound; case drivers retain their two-run cap.
+Outer suite make invocations remain serial to preserve shared build ownership.
+The compiler inside the selected build receives the CPU budget.
+The capture campaign divides that budget among its active build workers.
+Controls execute the generated shell at one, four, twelve and sixteen CPUs.
+They refuse zero CPUs and prove nested build budgets do not exceed the range.
 
-The number of ranges a run uses comes from the workflows it replays, not from
-a setting. A matrix job runs `strategy.max-parallel` containers at once, or
-`act`'s default of 4 when it names none, and a job without a matrix runs one.
-At most `CONCURRENT_JOB_LIMIT` jobs of a stage run together, so a workflow's
-concurrency is that many of its widest jobs added up. The shipping `rtl-full`
-derives 4, because its shard jobs name no `max-parallel`; `docs`, `elaborate`
-and `rtl-fast` derive 1. A `max-parallel` the runner cannot read as `act` does,
-such as an expression, refuses the run. Every slot is spaced for
-`CONCURRENT_JOB_LIMIT` times `act`'s default width, which is four job ranges,
-so a slot's CPUs depend on its number alone, whatever it replays. A run that
-derives more is refused rather than sharing CPUs. A host without the CPUs for
-the ranges a run derives refuses the run on every slot, slot 0 included, before
-the slot is entered. The run prints the plan before its boundary is created,
-for example on slot 0:
+One scheduler serves every selected, byte-identical workflow file.
+`CONCURRENT_JOB_LIMIT=4` bounds admissions across workflows and nested matrices.
+The pinned dispatcher is `0.2.89+milan-ci5`.
+Vanilla dispatchers lack this combined admission and placement contract.
+Each job waits only for its declared dependencies and a free range.
+An unrelated job in an earlier plan stage cannot hold it back.
+The dependency control keeps an independent job running until a ready
+dependent job starts, so a stage barrier fails the control.
+The build recipe verifies upstream source and compiler digests.
+It runs original upstream controls and repeated race-enabled controls.
+Controls prove nonoverlap, stable placement and failed-cleanup refusal.
+Missing, insufficient and too-small ranges are independently refused.
+The first failed job stops further admissions and cancels siblings.
+Successful controls require every scheduled job to complete.
+Hosted matrices retain `fail-fast: true`, including fork PRs.
 
-```text
-act-ci: job container CPUs: up to 4 at once (max-parallel, CONCURRENT_JOB_LIMIT 1);
-  each created on --cpuset-cpus=0-3, then moved to a free one of --cpuset-cpus=4-7
-  --cpuset-cpus=8-11 --cpuset-cpus=12-15 --cpuset-cpus=16-19
-```
+Each container has an eight-GiB limit, with no additional swap.
+Four containers plus four-GiB overhead fit the 36-GiB slot cap.
+The host now has 61 GB, shared with other work.
+This policy leaves headroom without reserving all remaining host memory.
+Measured peaks and their limits appear under resource bounds below.
+Higher concurrency requires a new measured memory allocation.
+The current runner deliberately keeps four as its maximum.
 
-The runner prints that plan as one line, wrapped here. After each workflow it
-prints one line on what its job containers got, also wrapped here:
-
-```text
-act-ci: rtl-full: CPU ranges: <n> job container(s) created: <m> seen on a range
-  of their own by docker inspect, <g> removed before that, <s> never seen on one;
-  at most <k> held a range at once
-```
-
-A container left on the staging range is printed as a warning and never
-changes a verdict. That happens when a move fails or cannot be confirmed, when
-more containers hold or need a range than there are ranges, or when the event
-stream ended early. Such a container keeps the same `nproc`, so it costs
-replica time, not fidelity. On every exit the event stream's process group is
-walked down the same containment ladder as `act`'s, and the monitor's reader is
-joined and proven ended, before the Docker boundary is torn down. That holds
-when the containment, its leader reap or the join itself fails: the runner
-finishes every step first.
-
-The monitor blocks `CLEANUP_SIGNALS` with `signal.pthread_sigmask` before yielding.
-Its reader inherits that mask when started.
-Other runner workers also start with these signals blocked.
-The act boundary temporarily unblocks them so act remains interruptible.
-The live interrupt probe opens the same temporary signal window.
-Its exit restores the mask before returning to the monitor.
-Closing the normal boundary preserves any already-propagating failure.
-An interrupt during restoration cannot replace that failure.
-The runner restores the hold before monitor cleanup.
-It prints the later signal beside the failure:
-
-```text
-act-ci: act boundary closing was interrupted (...); the failure already propagating is kept
-```
-
-The mask covers the transition into cleanup and every cleanup step.
-Containment, reader completion, dead-thread proof and pipe finalization finish first.
-Only then does the monitor restore the incoming mask.
-A held signal is delivered then, with status `128 + signal`.
-An earlier body failure keeps precedence over that signal.
-The signal is printed beside that earlier failure as
-`act-ci: CPU-range monitor cleanup was interrupted (...); the failure already propagating is kept`.
-Without an earlier failure, a held signal keeps its conventional status.
-Any cleanup error is printed beside that signal.
-
-Throughout, the first failure wins. An interrupt or a
-failure that was already unwinding through the monitor keeps going, so
-`SIGINT`, `SIGTERM` and `SIGHUP` keep their `128 + signal` exit status and
-diagnostic. Each cleanup failure is printed beside it as
-`act-ci: CPU-range monitor cleanup also failed: ...`. With no earlier failure,
-the first cleanup failure is raised, and any later one is printed the same
-way. A reader still running after its bounded wait is
-printed as a containment hold, and teardown waits for it. The effect on a
-replay's wall clock is not measured yet (#730).
-
-The bounds are replica-shape decisions, not trust-boundary ones; the offline
-self-test pins the word's four tokens in order, the CPU ceiling for host
-counts above, at, and below the limit, the memory and swap limits, the single
-`--concurrent-jobs` value, and the surviving ownership label. For the job
-ranges it pins:
-
-- the concurrency each job and workflow derives, including the
-  `CONCURRENT_JOB_LIMIT` sum, and each `max-parallel` it refuses;
-- each slot's ranges, and the refusal of a host without them on every slot:
-  slot 0 below, at and above the boundary for one and for four containers;
-- a disjointness proof with every slot from 0 to 63 at its most concurrency.
-  The proof fails on two planted overlaps: across slots, the one-range-per-slot
-  spacing used before #730; within a slot, every leg on one range. A staging
-  range planted onto a job range is refused;
-- the monitor's record against a model daemon that holds each container's CPU
-  set, checked after every event. Four legs get four ranges. A container that
-  died keeps its range and starts again on it after another was created. A
-  destroy frees a range. Each of these keeps its range reserved: a move applied
-  before its command timed out, a move that completes after another container
-  was created, a move and a read that both time out, and a refused move. With
-  every range held, an inspect frees the range of a container removed without
-  its event and keeps a stopped one's. Foreign, malformed and repeated events
-  move nothing;
-- the monitor's event filter, and its `--since` second against a stubbed
-  clock. Its containment, reader join and closed pipe hold after a body that
-  returns, raises or ends on a signal while the reader is still moving a
-  container. They hold after a failed leader reap, poll or join, and when the
-  stream or the reader cannot start. A failed join is retried while the reader
-  still runs after the pause. A reader that outlives a shortened bounded wait
-  is held for, printed and recorded. Containment runs with the cleanup signals
-  blocked, and a reader whose read fails records a problem;
-- signals at cleanup entry and every step through mask release.
-  Each arrives with a reader moving a container during shutdown.
-  Signals target the main thread and the whole process.
-  Every case requires containment, joined reader and closed pipe before teardown.
-  Conventional status, diagnostic and restored signal masks are required.
-  Act remains interruptible; a pending signal prevents its start.
-  The live interrupt probe's window is also checked offline;
-- which failure wins. A body failure, and a real `SIGINT`, `SIGTERM` and
-  `SIGHUP`, each followed by a failed reap, keep their outcome, exit status and
-  diagnostic, with the reap failure printed beside them. With no earlier
-  failure, a reap failure and then a join failure raise the reap's;
-- a run whose monitor left a container on the staging range: each workflow
-  prints its summary and one warning per problem, and the verdict follows
-  `act`'s exit alone;
-- a dry run of the shipping `rtl-full` printing every range, in slot 0 and in
-  slot 3.
+The placement monitor retains the audited signal-safe cleanup boundary.
+Cleanup signals remain blocked while its reader is being joined.
+The execution boundary opens its signal window during execution.
+Every exit contains the event process and closes its pipe.
+The reader must end before Docker boundary teardown starts.
+A delayed inspection exercises that ordering in the offline controls.
+Signals retain conventional status and cannot replace an earlier failure.
+The existing containment, failed-reap and interrupted-join controls remain required.
+Dry runs print manager-booked ranges for every daemon slot.
 
 Every run and SHA gets fresh action/workspace, Actions-cache, artifact, event,
 configuration, and input directories. `act` 0.2.89 also hard-codes the global
@@ -2234,7 +2220,7 @@ Docker teardown remains paused until absence is actually established, with the
 PGID and operator recovery action printed. Docker-daemon-owned containers are
 independently contained by the same verified cleanup.
 
-The sharded exhaustive workers (six Verilator, four Yosys) carry their
+The sharded exhaustive workers (sixteen Verilator, four Yosys) carry their
 checked denominator through the singleton `matrix.total` dimension.
 `scripts/ci_events.py` proves that value
 equals the `matrix.shard` list length and that every job name and shard command
@@ -2258,7 +2244,7 @@ as described above. `--slot N` runs a replay against a daemon of its own
 instead (#532):
 
 ```sh
-python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number> --sudo --slot 1
+python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number> --cpu-ranges "$BOOKED_CPU_RANGES" --sudo --slot 1
 ```
 
 Slot 0 is the default and means the default local daemon, so a command without
@@ -2281,7 +2267,7 @@ them:
   at startup, and nothing of the slot is touched.
 - The network namespace `milan-act-slot-N`.
 - The top-level slice `milan_act_slot_N.slice`, capped as a runtime property
-  at `MemoryMax=24G` with no swap (`SLOT_MEMORY_MAX`).
+  at `MemoryMax=36G` with no swap (`SLOT_MEMORY_MAX`).
 - The uplink unit `milan-act-slot-N-net.service`. `pasta` configures the
   namespace from the host's addresses and gives it outbound connectivity
   through socket-level NAT. It forwards no port in either direction and does
@@ -2358,30 +2344,104 @@ replay in one slot cannot collide with a replay in another.
 
 Resource bounds:
 
-- Slot N owns the CPUs `20N` to `20N+19`: a staging range of
-  `CONTAINER_CPU_LIMIT` CPUs, then four job ranges of the same width, one per
-  concurrent job container, as described above. Its job containers are
-  created on `20N` to `20N+3` and moved to their own ranges from `20N+4`. Slot
-  0 stages on `0-3` and uses `4-19`. A host without a slot's staging range
-  refuses the slot. A host without the job ranges a run derives refuses the
-  run before the slot is entered, slot 0 included. On a 128-CPU host, any
-  shipping workflow fits in slots 1 to 5, and slot 6 holds workflows that
-  derive one container. A replay started by a runner from before #730 still
-  puts slot N on `4N` to `4N+3`, which meets these blocks, so run every
-  concurrent slot from one runner version.
-- `--memory`, `--memory-swap`, `--concurrent-jobs` and the matrix width are
-  unchanged, so each job container is shaped as described above and only its
-  CPUs differ.
-- The slot as a whole is not hosted-shaped. The slice cap bounds everything
-  in the slot together at 24G, while hosted runners give each job its own
-  16 GB machine and slot 0 allows up to four 16 GB matrix legs at once
-  (64 GB). rtl-full's sharded jobs can therefore meet the slot cap where
-  neither slot 0 nor hosted would. When reclaim cannot keep a slot under the
-  cap, the OOM killer acts inside that slot's slice, without taking memory
-  from the host or from another slot.
+- CPU ranges are explicitly booked through `--cpu-ranges`.
+  Slots isolate daemon resources, not host CPU allocations.
+  Every concurrent replay must receive disjoint booked ranges.
+- Four containers at eight GiB plus four GiB for daemon and service overhead
+  fit the isolated slot's 36 GiB cap. This leaves room on the 61 GB shared
+  host, but is not a reservation of all remaining host memory. Slot 0 has
+  per-container limits; only isolated slots enforce the aggregate slice cap.
+- Four concurrent real Yosys shards at sixteen CPUs each passed with cgroup
+  peaks of 2635010048, 1635954688, 889298944 and 646090752 bytes. The sum of
+  peaks, 5806354432 bytes, bounds that sample at 5.41 GiB. No memory-limit or
+  OOM event occurred. An earlier two-GiB trial killed the largest shard, so
+  that cap was rejected. This sample validates the proposed workload budget;
+  it does not prove an upper bound for every future compiler or campaign.
+- The publication census at four driver workers passed in 558.192 seconds
+  with a cgroup peak of 5738594304 bytes (5.34 GiB) and no memory-limit or
+  OOM event. Its earlier four-GiB trial killed an elaborator; the eight-GiB
+  job cap accommodates this larger measured peak.
+- Round-two census measurements at `fec1f17cc` used the emitted CPU budget
+  step and eight-GiB containers. At sixteen CPUs the peak was 5860151296
+  bytes (5.46 GiB); at twelve it was 5201534976 bytes (4.84 GiB). Both passed
+  234 normal checks, all 120 planted arms and all 31 rule-removal controls,
+  with every memory-event counter zero. Both retained four campaign workers.
+  This validates that command at those widths, not the whole replay.
+  Scoped compiler and capture measurements are recorded below.
+  Complete concurrent replay remains a separate coordinating check. The runner does
+  not rewrite an older candidate's command that explicitly requests sixteen
+  census workers; that older command exhausted the eight-GiB cap in the
+  coordinating replay reported on #737.
+- The largest synthesis shard (0/4, `milan_datapath`) also passes with empty
+  result caches at both widths: 3745005568-byte peak at sixteen CPUs and
+  3391201280 bytes at twelve. Tied-input and tap-purity checks pass, and
+  every memory-event counter is zero. These measurements cover synthesis;
+  they do not substitute for measurements of other job classes.
+- The firmware control normal phase (`--shard 0/4`), including required RV32
+  linked-image checks, passes with four campaign workers at both widths.
+  At `dafa43202` its peaks were 1365569536 bytes at sixteen CPUs and
+  1372815360 bytes at twelve, with every memory-event counter zero.
+  Generated configuration output used a disposable writable overlay; the
+  candidate source remained read-only. This covers that phase, not the other
+  firmware mutation phases or a full workflow replay.
+- Scoped datapath measurements at `21bd10cec` build the eight-stream shape.
+  Both widths compile from empty object directories, then run unchanged assertions.
+  Sixteen compiler workers peak at 3349397504 bytes (3.12 GiB).
+  Twelve workers peak at 2697302016 bytes (2.51 GiB).
+  Both pass 3,751 checks with zero memory-event counters.
+  Each container retains the eight-GiB memory and swap ceiling.
+  These sequential measurements cover that model, not concurrent replay admission.
+- The full capture campaign also passes at both shipped widths.
+  Four builds share sixteen compiler processes, or twelve at fallback width.
+  Sampling observes all four builds and both complete compiler budgets.
+  Peaks are 6047100928 bytes and 5042556928 bytes, respectively.
+  Both runs pass all 32 checks with zero memory-event counters.
+  Their elapsed workload times are 480.432 and 484.113 seconds.
+  One eight-GiB container runs at a time, including all mutants.
+- The builder runs with required RV32 and elaboration instruments at both widths.
+  Sixteen CPUs peak at 3523665920 bytes; twelve peak at 3172597760 bytes.
+  Both return zero, with every memory-event counter zero and actual JVM execution.
+  Workload times are 1385.762 and 1366.174 seconds, respectively.
+  Two existing arms remain NOT RUN: an inert Make environment mutation
+  and the absent physical calibration report. Neither result covers those arms.
+  Each fresh container starts with empty CPU metadata and cached dependencies.
+- The standalone LiteX aggregate passes all seven simulations at both widths.
+  Its ten runner controls pass, with no skipped or timed-out simulations.
+  Sixteen CPUs peak at 3745722368 bytes; twelve peak at 3303358464 bytes.
+  Workload times are 467.715 and 453.392 seconds, respectively.
+  Both execute the JVM with empty CPU metadata and cached dependencies.
+  Every memory-event counter is zero. These are sequential container measurements.
+- The Yosys and Verilator source builds use `CI_TOOL_BUILD_JOBS=min(available CPUs, 8)`
+  independently of simulation and campaign budgets. The pinned field-oracle
+  build passes the same count to `cmake --build --parallel`; it is bounded but
+  not separately measured. Sequential shipping-image measurements
+  run one eight-GiB container at a time with CPython 3.12.3 and GCC 13.3.0.
+  Each bounded build returns zero with every memory-event counter zero.
+
+  | Source tool | CPUs | Compiler processes | Peak bytes | Reserve below cap | Seconds |
+  |---|---:|---:|---:|---:|---:|
+  | verilator | 16 | 8 | 4811259904 | 43.99% | 182.656 |
+  | verilator | 12 | 8 | 4793225216 | 44.2% | 197.457 |
+  | yosys | 16 | 8 | 5264482304 | 38.713% | 360.05 |
+  | yosys | 12 | 8 | 5117616128 | 40.423% | 398.142 |
+
+  Every accepted source-build peak stays below six GiB, retaining at least
+  25% of the eight-GiB cap. Unrestricted builds are sizing counterexamples:
+  Yosys at sixteen compilers reached 8589934592 bytes with 174 max events;
+  twelve compilers reached 6816423936 bytes (20.65% reserve).
+  Verilator at sixteen compilers reached 6951862272 bytes (19.07% reserve).
+  Those runs do not justify the shipping resource bound.
+- The largest accepted measured class remains capture at 6047100928 bytes (5.632 GiB).
+  The eight-GiB job cap leaves 2542833664 bytes (2.368 GiB),
+  29.60% of the cap and a margin of 42.05% over that measured peak.
+  Four eight-GiB caps plus four GiB overhead equal the 36-GiB slot cap.
+  Admission remains `floor((36 - 4) / 8) = 4` jobs.
+  Four measured maxima plus overhead total 28483371008 bytes (26.527 GiB).
+  That is a sum of separate peaks, not an observed concurrent slot peak.
+  The source-build compiler bound changes; container and slot caps do not.
 - A run with an OOM at the slot cap is refused, never reported as a verdict.
   After the workflows, the runner reads the slice's own `memory.events.local`,
-  which counts only the slice's limit and never a job container's 16 GB limit
+  which counts only the slice's limit and never a job container's eight-GiB limit
   below it. Any `oom` there is exit 2 naming the cap, so an OOM at the cap
   cannot pass for the candidate's `FAILED`.
 - That OOM is all the runner detects. Before one, the host reclaims memory
@@ -2567,18 +2627,19 @@ scripts/act_slot_proof.sh --runner <audited-install>/act_ci.py \
   --pr-a <number> --worktree-a <clean-checkout-at-its-head> \
   --pr-b <number> --worktree-b <clean-checkout-at-its-head> \
   --slot-a 1 --slot-root-a <slot-root> --slot-b 2 --slot-root-b <slot-root> \
+  --cpu-ranges-a "$BOOKED_CPU_RANGES_A" --cpu-ranges-b "$BOOKED_CPU_RANGES_B" \
   [--workflow <name>]... [--probe-image <local-image-with-python3>]
 ```
 
 The offline self-test of the runner pins:
 
-- slot selection and its range, and the CPU boundary at the host's last CPU;
+- externally booked aligned CPU ranges and the host CPU boundary;
 - the inherited-endpoint refusal, for each variable, in the PR run, the dry run
   and both live self-tests, before any collaborator runs;
 - slot 0's environment, prefixes and act command, unchanged;
 - slot N's derived names, which are disjoint across slots and identical for
-  one slot, together with its endpoint parser, its namespace prefix and its
-  CPUs, which no other slot shares even at the most concurrency;
+  one slot, together with its endpoint parser and namespace prefix;
+- disjoint per-job CPU bookings, retained from creation through cleanup;
 - the uplink, daemon, firewall and every other host command and query, word
   for word, and the uplink discovery: which default routes count, and its
   refusals of no route, loopback, an unquotable name, malformed output and a
@@ -2636,11 +2697,236 @@ would otherwise satisfy the ruleset. Do not add workflow-level `paths`,
 never starts leaves its required name pending. The three documentation jobs
 are independent required siblings, so a failure in `wire-accountability` or
 `docs-check-no-git` blocks the PR even when `docs-check` itself succeeds.
-`scripts/ci_events.py --check` holds each of them, and `elaborate`, to the
-same rule as the RTL jobs (#261): the job whose id is the required name
-carries it, carries no `needs`, `if`, `continue-on-error` or `defaults`, and
-exactly one job carries each name; the gate steps inside those jobs, their
-shape and their presence, are pinned too (item 11 — landed by #295).
+`scripts/ci_events.py --check` pins the complete generated job graphs and
+the original ordered gate commands. Exactly one job carries each required name.
+The independent `wire-accountability` and `docs-check-no-git` jobs retain their
+unconditional execution. `docs-check` and `elaborate` are fail-closed aggregates
+over three docs workers and two elaboration workers. Their `always()` condition
+also runs the verifier after
+a dependency fails or is cancelled. Missing, failed, cancelled and skipped
+worker jobs all fail the aggregate.
+
+The source inventories are `.github/ci-templates/docs.yml` and
+`.github/ci-templates/elaborate.yml`. Edit those templates and run
+`python3 scripts/ci_gate_workflows.py`; the workflow files are generated.
+The generator preserves every original command, condition and environment.
+Round-three scheduling isolates the two contract self-tests in `docs-gates-2`.
+Round six divides the docs builder gate into the elaboration legs:
+`docs-gates-1` runs leg 0 and `docs-gates-2` runs leg 1 beside the contract
+self-tests, as described in [Elaboration](#elaboration).
+The gate inventory still defines membership and exactly-once union coverage.
+Every original control remains; generated mutations regenerate only their
+changed workflow. The full CI-event self-test took 316.686 seconds for 5,206
+arms on CPython 3.12.3. It passed 5,212 arms at the merge head `e3d25d96`.
+Leg 1's step on `docs-gates-2` adds three generated-graph arms, so it now
+passes 5,215; projections keep the slower 316.686-second figure.
+The complete two-invocation runner contract gate takes 113.654 seconds.
+The scheduling/evidence controls, with the generated Verilator graph check,
+take 28.331 seconds.
+These local times include competition from other measurements on the same CPUs.
+
+The projections use merged-head inputs: the hosted `f6260253` docs run
+38601263556 and elaboration run 38601263659, and local measurements at the
+merged head. Where a hosted and a local figure differ, the larger is used,
+and each projection is rounded up to a whole second.
+The `f6260253` docs job took 2682 seconds. Its builder took 1400 and its
+contract and runner steps 37 and 102; setup, post steps and gaps took 59.
+Locally, the compiler-absent firmware controls took 558.6 seconds against
+407 hosted, and the saved-state writer 174.2 against 410 hosted.
+Taking each of worker zero's steps at its larger figure gives 1246.806
+seconds, so docs worker zero projects at `59 + 1246.806 + 28.331 + 60`.
+The last term allows recording/upload overhead. The hosted job alone, by
+`2682 - 1400 - 37 - 102 + 28.331 + 60`, would give 1232.
+The docs builder command ran unsharded in the shipping image at sixteen CPUs
+in 1443.720 seconds alone: `test_baremetal_profile_contract` took 1006.130
+seconds and the other 102 gates 435.320. Its legs, measured beside each other
+on the same CPUs, took 1098.130 and 506.263 seconds. The docs bank had
+measured the unsharded builder at 1482.211 seconds, above both that run and
+the hosted 1400, so the legs are scaled by `1482.211 / 1443.720`.
+Worker one projects at `120 + 1098.130 x 1.02666`. Worker two projects at
+`120 + 316.686 + 113.654 + 2 + 506.263 x 1.02666`: both measured self-tests,
+two seconds for checking and its builder leg. The 120-second setup/evidence
+allowance covers the 59 seconds of hosted setup and the recording/upload.
+The `f6260253` elaboration job took 2447 seconds. Its gate windows took 1763
+and 597 seconds, and the Verilator setup that only worker one keeps took 2.
+In the shipping image at the merged head, the unsharded command took 1433.969
+seconds alone, so hosted time is scaled by `1763 / 1433.969`. Leg 0 took
+1081.009 seconds and leg 1 495.144, measured beside each other; the lone
+run's per-gate split gives 972.509 and 460.324, so the projection keeps the
+measured legs. By the docs worker zero method, elaboration worker zero
+projects at `2447 - 597 - 2 - 1763 + 1081.009 x 1763 / 1433.969 + 60` and
+worker one at `2447 - 1763 + 495.144 x 1763 / 1433.969 + 60`.
+
+Yosys compilation now runs once in prerequisite `yosys-tool`.
+Its pinned source and cache-key construction are preserved. Source compilation
+uses the measured compiler bound described above.
+The four synthesis workers download the head-bound archive and prove versions.
+A cache miss therefore adds no source build inside a timed synthesis worker.
+The cold tool projection uses the review's conservative 600-second build estimate
+plus 120 seconds; the bounded sixteen-CPU local build measured 360.05 seconds.
+This is a projection for standard hosted runners, not a hosted cold-build result.
+Synthesis workers retain their measured 494/25/32/31-second baseline windows,
+plus 60 seconds for download, extraction and execution evidence.
+
+| Worker | Projected seconds | Own 60% bound | Margin, seconds |
+|---|---:|---:|---:|
+| `docs-gates-0` | 1395 | 1620 | 225 |
+| `docs-gates-1` | 1248 | 1620 | 372 |
+| `docs-gates-2` | 1073 | 1620 | 547 |
+| `elaborate-gates-0` | 1475 | 1620 | 145 |
+| `elaborate-gates-1` | 1353 | 1620 | 267 |
+| `yosys-tool (cold)` | 720 | 1044 | 324 |
+| `yosys-shards 0/4` | 554 | 1044 | 490 |
+| `yosys-shards 1/4` | 85 | 1044 | 959 |
+| `yosys-shards 2/4` | 92 | 1044 | 952 |
+| `yosys-shards 3/4` | 91 | 1044 | 953 |
+| `verilator-shards 0/16` | 1605 | 1620 | 15 |
+| `verilator-shards 1/16` | 1541 | 1620 | 79 |
+| `verilator-shards 2/16` | 1572 | 1620 | 48 |
+| `verilator-shards 3/16` | 1544 | 1620 | 76 |
+| `verilator-shards 4/16` | 1540 | 1620 | 80 |
+| `verilator-shards 5/16` | 1539 | 1620 | 81 |
+| `verilator-shards 6/16` | 1539 | 1620 | 81 |
+| `verilator-shards 7/16` | 1540 | 1620 | 80 |
+| `verilator-shards 8/16` | 1541 | 1620 | 79 |
+| `verilator-shards 9/16` | 1543 | 1620 | 77 |
+| `verilator-shards 10/16` | 1540 | 1620 | 80 |
+| `verilator-shards 11/16` | 1539 | 1620 | 81 |
+| `verilator-shards 12/16` | 1539 | 1620 | 81 |
+| `verilator-shards 13/16` | 1538 | 1620 | 82 |
+| `verilator-shards 14/16` | 1538 | 1620 | 82 |
+| `verilator-shards 15/16` | 2032 | 2160 | 128 |
+
+Verilator figures already include their 122-second overhead allowance.
+Worker 3 carries `gptp_tables` at 1544 seconds: 76 inside its bound and 256
+inside 30 minutes, before downstream collection.
+The continuous media-clock exception remains explicit at 2032 seconds.
+Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
+Allowing 60 seconds each for aggregate and collector, one 120-second
+watcher interval and 30 seconds for the tail gives 1665 seconds,
+about 27.8 minutes: 135 seconds inside thirty minutes. With its builder
+undivided, the merged workload put the builder worker at 1602 seconds and
+the workflow at 1872, about 31.2 minutes.
+Elaboration projects at 1475 seconds for its slowest worker. The same
+270 seconds of aggregate, collector, watcher and tail allowance gives
+1745 seconds, about 29.1 minutes: 55 seconds inside thirty minutes, so its
+two legs are kept. Undivided at `7032bca5`, worker zero projected at 1608
+seconds and the workflow at 1878, about 31.3 minutes.
+The collector outage budget is not normal-run duration evidence.
+Hosted job spans and runner-capacity contention still require coordinating readback.
+
+Each worker records the source gate IDs and the actual step outcomes reported
+by the workflow runtime. The aggregate recomputes the inventory from the same
+template and requires its exact union, with each gate executed once. Receipts
+bind the full head, tree and template digest. The existing documentation-only
+elaboration skip remains valid only with a recorded false scope and matching
+skipped outcomes on both workers. It does not excuse a skipped worker job.
+Each worker that runs a builder leg, both elaboration workers and
+`docs-gates-1` and `docs-gates-2`, also uploads its builder leg receipt. When
+the builder legs ran, the same aggregate step requires their union as
+described in [Elaboration](#elaboration); when elaboration's were skipped, any
+builder receipt is refused. The docs builder has no skip condition. The union
+digests of `docs-check` and `elaborate` cover both the step outcomes and the
+per-gate builder verdicts.
+`ci_gate_workflows_selftest.py` drops one gate from every claim, corrupts source
+identities and plants each unsuccessful job outcome; all must be refused.
+The CI contract applies its original negative controls to the template steps
+and separately mutates every generated worker and aggregate step.
+
+Each workflow has a same-repository failure watcher and a terminal failure guard.
+Only those two guarded jobs request `actions: write`, on a push or a PR whose
+head belongs to this repository. The watcher reads actual job outcomes,
+including the manifest collector, and cancels active runs of all four workflows
+at the same head after a confirmed failure. The collector needs the original
+jobs but not the watcher, so collection failures cannot hide behind a cycle.
+The terminal guard needs the watcher and collector and catches failures in their
+final evidence steps. Observer-only failures end successfully with an explicit
+`observer_only_error` output. Watcher and collector read outages never authorize
+cancellation. A genuine collection, recording or upload failure still does.
+The collector retains unknown results and an explicit observer-error receipt.
+That manifest remains incomplete and cannot pass build or equality acceptance.
+The collector has a fifteen-minute job limit. Its API reads share one
+600-second budget across all pages and run IDs, leaving five minutes for
+preparation, collection and upload. Individual requests consume that same budget.
+A wait beyond the former three-minute allowance is covered by controls.
+Another control lets one read recover after 480 seconds while the next never
+recovers; collection stops within the shared budget, where separate
+per-request budgets would wait 960 seconds.
+Fork PRs keep
+native matrix cancellation and fail-closed aggregates; they never enter the
+write-token job and do not cancel sibling workflows. There is no privileged
+`workflow_run` controller. A cancellation may interrupt artifact upload; missing
+evidence stays incomplete and can never compare as a valid build.
+
+The watcher and collector accept a skipped matrix's raw expression name only when the API
+reports that job completed and skipped. Its expansion comes from the generated
+matrix; expanded and unexpanded results cannot both cover the same leg.
+The collector records each covered leg as skipped, never successful.
+Controls retain the raw matrix names observed in run `38273578232`.
+Each first-failure conclusion has a separate control: failure, cancelled,
+timed_out and action_required.
+
+Polling uses a 120-second interval. Four workflows use 120 polls per hour per
+head; four concurrent heads use 480, leaving 520 of the documented
+[1000 requests per hour per repository](https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api)
+for collection, startup, retries and other operations when each job list fits
+one page. Pagination adds requests and is never truncated. Read errors use at
+most four attempts and a 600-second retry budget, with exponential backoff.
+Both Retry-After and X-RateLimit-Reset are honored; a reset beyond the budget
+ends observation without cancellation. HTTP 403, 429, 5xx and timeouts never
+become failed-job conclusions. Other transport errors that outlast the retries
+count as exhaustion. Any other HTTP status, such as 400, 401 or 404, is not
+retried. It fails the watcher or collector, and that failure still cancels.
+A successful response with no remaining quota
+also delays the next read until reset. More concurrent work can exhaust the
+shared allowance; the observer then reports unavailable rather than cancelling
+healthy jobs. Detection latency is normally at most one polling interval plus
+API latency, and can be longer during backoff.
+
+Local replay uses one scheduler and stops its execution group at the first
+failed job before cleaning owned containers and volumes. A queued job cannot
+enter after failure. Repeated nested-matrix controls prove the global limit,
+no later admission and joined cleanup; the no-failure control runs every leg.
+Transport controls prove same-head sibling selection, fork zero-write behavior,
+actual step/job mapping, cancellation and refusal of identical incomplete
+manifests. See [CI execution signatures](CI_SIGNATURE.md) for the collector
+schema, trusted helper pins and the remaining round-two authentication work.
+
+The install caches have no broad fallback. Markdown downloads bind the renderer
+versions, the hash-pinned requirements and the workflow recipe digest. LiteX
+downloads bind the exact Git revisions in `litex_pins.txt` and the recipe digest.
+The Scala cache binds sbt 1.10.7, the release archive SHA-256, the LiteX pins and
+patches, and the recipe digest. The sbt archive is verified before extraction,
+including after a cache hit. Generated CPU metadata also binds the workflow
+recipe, in addition to the existing configuration, source, pin and patch inputs.
+The workflow-file hash is conservative: an unrelated workflow edit may miss
+the cache, but a changed installation command cannot reuse its predecessor.
+
+The install-cache generator also covers every ordinary Python download,
+verified sv2v archive and pinned field-oracle build. `ci/constraints-ci.txt`
+fixes CPython 3.12 x86_64 hosted-runner package URLs with exact versions and SHA-256;
+`PIP_CONSTRAINT` applies them without changing any gate command. The download
+cache key binds that complete source list, the existing requirements and LiteX
+pins, and the generator/workflow recipe. sv2v's archive is verified on every
+use, including cache hits. Its key binds v0.0.12 and the archive SHA-256. The
+field-oracle cache binds its exact Git revision and the installation recipe;
+the original checkout, submodule initialization and build still execute.
+
+Distribution installs retain their existing package selection. Before each
+ordinary install, `ci_install_cache.py` refreshes the package index and asks
+APT for its exact download plan. The key contains separate digests of the
+resolved versions, every archive URL/size/SHA-256, and the original install
+recipe, plus the generator/workflow digest. Installation uses that prepared
+index and a private archive directory; APT still verifies every archive.
+The earlier index-update command is replaced only because preparation already
+ran it. A conditional package fallback embedded inside a test remains intact.
+Package metadata and resolver failures refuse setup. The install-cache controls
+change each identity component and reject missing source hashes, duplicates,
+broad fallback keys and changed cache paths. Test command bodies and their
+conditions remain byte-identical under this transformation.
+
+The cache controls remove each version, source and recipe component and add a
+broad fallback; every altered key must be refused.
 
 ## Issue closing on merge
 
@@ -2681,8 +2967,8 @@ syn/yosys/run.sh
 Useful read-only inspection commands are:
 
 ```sh
-scripts/run_all_suites.sh --shard 0/6 --list
-scripts/run_all_suites.sh --shard 5/6 --list   # milan_dp alone
+scripts/run_all_suites.sh --ci-pieces --shard 0/16 --list
+scripts/run_all_suites.sh --ci-pieces --shard 15/16 --list   # continuous media-clock history
 syn/yosys/run.sh --list
 syn/yosys/run.sh --shard 0/4 --list
 ```
@@ -2701,6 +2987,26 @@ LiteX; without one they skip and the verdict says so:
 MILAN_LITEX_PYTHON=$HOME/litex-milan/venv/bin/python3 \
   python3 sw/builder/test_builder.py --require-elaboration
 ```
+
+To compare the hosted legs with one unsharded run at a clean committed head,
+record the reference and both legs outside the tree, then judge their union
+against it:
+
+```sh
+out="$(mktemp -d)"
+python3 scripts/ci_builder_legs.py run all --receipt "$out/ref.json" -- \
+  python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+python3 scripts/ci_builder_legs.py run 0 --receipt "$out/leg-0.json" -- \
+  python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+python3 scripts/ci_builder_legs.py run 1 --receipt "$out/leg-1.json" -- \
+  python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+python3 scripts/ci_builder_legs.py union --workflow elaborate \
+  --head "$(git rev-parse HEAD)" --tree "$(git rev-parse 'HEAD^{tree}')" \
+  --reference "$out/ref.json" "$out/leg-0.json" "$out/leg-1.json"
+```
+
+For the documentation workflow's legs, run the same commands with
+`--require-rv32` alone and judge them with `--workflow docs`.
 
 The fast Yosys mode is diagnostic only:
 
@@ -2740,6 +3046,11 @@ python3 scripts/ci_events.py --firmware-census
 Run all four phases to reproduce the complete control gate.
 Shard arguments cannot combine with coverage or mutation slicing.
 
+The fast workflow derives `--jobs` from its visible CPU count, capped at four,
+for lint, publication census, saved state and coverage. Python 3.12 reports the
+host CPU count even inside a container with a smaller affinity set. Using
+`nproc` and an explicit pool width preserves every check while bounding memory.
+
 ## Failure and cancellation semantics
 
 A worker is not trusted merely because an aggregate job was able to download
@@ -2761,3 +3072,21 @@ Pushes cannot cancel physical evidence without starting a replacement.
 Push validation on `dev` checks the actual merge result. It complements, but
 does not replace, the explicit post-merge containment check required by
 [CONTRIBUTING.md](../../CONTRIBUTING.md).
+
+## Source-tool cache provenance
+
+Verilator and Yosys cache keys include three provenance inputs.
+The release version remains explicit in workflow environment variables.
+An immutable source commit follows that version in each key.
+The build verifies that commit before configuration or compilation.
+The recipe digest covers every committed workflow definition.
+Operating-system identity also separates these cached installations.
+No fallback restores another version, source, or recipe.
+The CI contract pins these complete cache keys.
+Its controls remove each provenance input and require refusal.
+
+Verilator v5.050 uses source commit `848d926ebd4addacacd294dc84e35d9d4ae8078c`.
+Yosys v0.66 uses source commit `86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51`.
+These are Git object digests, verified after the release checkout.
+A changed workflow invalidates the recipe digest automatically.
+Cache hits still require the existing installed-version checks.
