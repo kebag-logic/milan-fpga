@@ -1400,11 +1400,31 @@ aggregate still completes. A relevant change installs the pinned LiteX of
 [`sw/litex/litex_pins.txt`](../../sw/litex/litex_pins.txt), places the
 VexiiRiscv source at the revision LiteX itself pins, applies the patch series
 in [`sw/litex/patches/`](../../sw/litex/patches) with its `apply.sh`, and runs
-`sw/builder/test_builder.py --require-elaboration --require-rv32` in worker 0:
-gates 23f, 23g and 23h and
-their mutation arms. Upstream LiteX elaborates no configuration in this tree
-(#185), so the series is a required install step and gate 23h proves the
-installed trees are upstream plus exactly that series.
+`sw/builder/test_builder.py --require-elaboration --require-rv32`: gates 23f,
+23g and 23h and their mutation arms. Upstream LiteX elaborates no
+configuration in this tree (#185), so the series is a required install step
+and gate 23h proves the installed trees are upstream plus exactly that series.
+
+That command runs in two measured legs (#737). Worker 0 runs leg 0,
+`test_baremetal_profile_contract` alone. Worker 1 runs leg 1, the other 102
+gates in inventory order, before its LiteX aggregate.
+[`scripts/ci_builder_legs.py`](../../scripts/ci_builder_legs.py) reads the
+inventory from the driver's `--list`, passes each leg's names to `--gates`
+and binds the driver's `--receipt` to the head and tree. With no `--gates`,
+the driver still runs all 103 gates in one process.
+
+A leg holding no elaboration gate would pass `--require-elaboration`
+vacuously, so both requirements are judged on the union, never per leg. The
+`elaborate` aggregate refuses unless every gate ran exactly once, in its
+measured leg, and passed. Each gate that consults the LiteX interpreter must
+have run in a leg carrying `--require-elaboration`. The bare-metal profile
+gate must have run in a leg carrying `--require-rv32`. The driver's own
+`--require-elaboration` verdict is then applied to the union NOT RUN ledger.
+The leg runner names those gates itself, rather than reading them from the
+inventory. A gate deleted from the inventory, lost with its leg, or run
+without its flag is therefore refused by name.
+`ci_gate_workflows_selftest.py` plants each of those losses. It also checks
+the named gates against the driver source.
 
 Independently, worker 1 installs Verilator and runs
 `scripts/run_litex_sims.sh`, the one aggregate that owns the standalone LiteX
@@ -2663,8 +2683,15 @@ Worker one uses the larger 1386-second local builder measurement,
 plus that allowance, rather than the shorter hosted builder window.
 The `7032bca5` elaboration job took 2144 seconds. Its gate windows took 1441
 and 593 seconds, and the Verilator setup that only worker one keeps took 3.
+The 1441-second builder gate now runs as two legs. In the shipping image at
+sixteen CPUs, the unsharded command took 1292.671 seconds alone, so hosted
+time is scaled by `1441 / 1292.671`. Leg 0 took 1028.283 seconds and leg 1
+took 367.305 seconds, measured beside other builder runs on the same CPUs.
+Contention only lengthens them, so the scaled legs, 1146 and 409 seconds,
+are conservative; the uncontended per-gate split gives 1054 and 387.
 By the docs worker zero method, elaboration worker zero projects at
-`2144 - 593 - 3 + 60` and worker one at `2144 - 1441 + 60`.
+`2144 - 593 - 3 - 1441 + 1146 + 60` and worker one at
+`2144 - 1441 + 409 + 60`.
 
 Yosys compilation now runs once in prerequisite `yosys-tool`.
 Its pinned source and cache-key construction are preserved. Source compilation
@@ -2682,8 +2709,8 @@ plus 60 seconds for download, extraction and execution evidence.
 | `docs-gates-0` | 922 | 1620 | 698 |
 | `docs-gates-1` | 1506 | 1620 | 114 |
 | `docs-gates-2` | 553 | 1620 | 1067 |
-| `elaborate-gates-0` | 1608 | 1620 | 12 |
-| `elaborate-gates-1` | 763 | 1620 | 857 |
+| `elaborate-gates-0` | 1313 | 1620 | 307 |
+| `elaborate-gates-1` | 1172 | 1620 | 448 |
 | `yosys-tool (cold)` | 720 | 1044 | 324 |
 | `yosys-shards 0/4` | 554 | 1044 | 490 |
 | `yosys-shards 1/4` | 85 | 1044 | 959 |
@@ -2712,12 +2739,10 @@ Docs now projects at 1506 seconds for its slowest worker.
 Allowing 60 seconds each for aggregate and collector, one 120-second
 watcher interval and 30 seconds for the tail gives 1776 seconds,
 or about 29.6 minutes. This corrects the earlier 26-minute docs projection.
-Elaboration projects at 1608 seconds for its slowest worker. The same
+Elaboration projects at 1313 seconds for its slowest worker. The same
 270 seconds of aggregate, collector, watcher and tail allowance gives
-1878 seconds, about 31.3 minutes, above thirty minutes. Worker zero's
-1441-second gate is one `sw/builder/test_builder.py` invocation, so no
-existing step can move to another worker. Dividing it needs that driver
-to expose shards.
+1583 seconds, about 26.4 minutes. Undivided, worker zero projected at 1608
+seconds and the workflow at 1878, about 31.3 minutes.
 The collector outage budget is not normal-run duration evidence.
 Hosted job spans and runner-capacity contention still require coordinating readback.
 
@@ -2727,6 +2752,11 @@ template and requires its exact union, with each gate executed once. Receipts
 bind the full head, tree and template digest. The existing documentation-only
 elaboration skip remains valid only with a recorded false scope and matching
 skipped outcomes on both workers. It does not excuse a skipped worker job.
+Each elaboration worker also uploads its builder leg receipt. When the builder
+legs ran, the same aggregate step requires their union as described in
+[Elaboration](#elaboration); when they were skipped, any builder receipt is
+refused. The union digest of `elaborate` covers both the step outcomes and the
+per-gate builder verdicts.
 `ci_gate_workflows_selftest.py` drops one gate from every claim, corrupts source
 identities and plants each unsuccessful job outcome; all must be refused.
 The CI contract applies its original negative controls to the template steps
@@ -2885,6 +2915,23 @@ LiteX; without one they skip and the verdict says so:
 ```sh
 MILAN_LITEX_PYTHON=$HOME/litex-milan/venv/bin/python3 \
   python3 sw/builder/test_builder.py --require-elaboration
+```
+
+To compare the hosted legs with one unsharded run at a clean committed head,
+record the reference and both legs outside the tree, then judge their union
+against it:
+
+```sh
+out="$(mktemp -d)"
+python3 scripts/ci_builder_legs.py run all --receipt "$out/ref.json" -- \
+  python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+python3 scripts/ci_builder_legs.py run 0 --receipt "$out/leg-0.json" -- \
+  python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+python3 scripts/ci_builder_legs.py run 1 --receipt "$out/leg-1.json" -- \
+  python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+python3 scripts/ci_builder_legs.py union --head "$(git rev-parse HEAD)" \
+  --tree "$(git rev-parse 'HEAD^{tree}')" --reference "$out/ref.json" \
+  "$out/leg-0.json" "$out/leg-1.json"
 ```
 
 The fast Yosys mode is diagnostic only:
