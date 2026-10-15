@@ -1,0 +1,31 @@
+# per-file blob equality: candidate HEAD vs PR source head fb5dd3da, for the PR's 12 files
+docs/design/MEDIA_CLOCK_FOLLOWING.md HEAD=752b9d36ca2e9263863d67e6fb09331047becf5a PR=752b9d36ca2e9263863d67e6fb09331047becf5a EQUAL
+docs/design/TIME_SYNC.md HEAD=7cf6eb2fdc1d403a4cbcb8a8313d3dc1791e5751 PR=7cf6eb2fdc1d403a4cbcb8a8313d3dc1791e5751 EQUAL
+docs/reference/REGISTER_MAP.md HEAD=61d7ca245ae16ec624bac8f0a0a35a7316533849 PR=61d7ca245ae16ec624bac8f0a0a35a7316533849 EQUAL
+docs/testing/TESTING.md HEAD=d3f91f2f001d65dec0d11c54ed294a47f61d8928 PR=0c530fbf4a03102c06c7fb2f0b5f3e658b7d0114 DIFFER
+hdl/milan/milan_datapath.sv HEAD=d7069d14818d2ebf90dbab4c317a5f9b876d2fef PR=d7069d14818d2ebf90dbab4c317a5f9b876d2fef EQUAL
+scripts/measure_test_evidence_readers.py HEAD=d30d131fb06c6582f1906d7cbb8d416f2e59159c PR=d30d131fb06c6582f1906d7cbb8d416f2e59159c EQUAL
+tb/verilator/follow_ring/Makefile HEAD=3f4cea5b71c64fdab7117aa883af4d66725e6f9a PR=3f4cea5b71c64fdab7117aa883af4d66725e6f9a EQUAL
+tb/verilator/follow_ring/follow_ring_wrap.sv HEAD=88b27d81d4ff01d2a8854154f0ead7501a8cf0cc PR=88b27d81d4ff01d2a8854154f0ead7501a8cf0cc EQUAL
+tb/verilator/follow_ring/mutants.py HEAD=5999f31e840367187255b21fe48ac65d7a0de41c PR=5999f31e840367187255b21fe48ac65d7a0de41c EQUAL
+tb/verilator/follow_ring/settle_control.py HEAD=860733277dd5a2ce7b217aa8149580bf06e4dcd0 PR=860733277dd5a2ce7b217aa8149580bf06e4dcd0 EQUAL
+tb/verilator/follow_ring/sim_main.cpp HEAD=203cd30f6a7ab5c28f66cd13bda6d85221432403 PR=203cd30f6a7ab5c28f66cd13bda6d85221432403 EQUAL
+tb/verilator/follow_ring/sweep.py HEAD=e59856a3f8925f6a0e9ec0f692b32f3a9411cd3b PR=e59856a3f8925f6a0e9ec0f692b32f3a9411cd3b EQUAL
+# dev-changed files: candidate vs dev 84f9e300
+DIFFER docs/testing/TESTING.md
+77 dev files, 1 differ from dev
+# patch-id: PR delta vs composition delta, per file
+docs/design/MEDIA_CLOCK_FOLLOWING.md SAME-PATCH
+docs/design/TIME_SYNC.md SAME-PATCH
+docs/reference/REGISTER_MAP.md SAME-PATCH
+docs/testing/TESTING.md SAME-PATCH
+hdl/milan/milan_datapath.sv SAME-PATCH
+scripts/measure_test_evidence_readers.py SAME-PATCH
+tb/verilator/follow_ring/Makefile SAME-PATCH
+tb/verilator/follow_ring/follow_ring_wrap.sv SAME-PATCH
+tb/verilator/follow_ring/mutants.py SAME-PATCH
+tb/verilator/follow_ring/settle_control.py SAME-PATCH
+tb/verilator/follow_ring/sim_main.cpp SAME-PATCH
+tb/verilator/follow_ring/sweep.py SAME-PATCH
+# merge-tree recompute
+merge-tree(84f9e300,fb5dd3da)=8979dd5abcb94b5af62c492f72343369dba6a64e candidate-tree=8979dd5abcb94b5af62c492f72343369dba6a64e
