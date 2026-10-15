@@ -1,0 +1,4 @@
+old -r test (denied read = absent): selftest rc 1 -> CAUGHT; AssertionError: ('a mode-000 limit', '16', None)
+no unsearchable-directory refusal: selftest rc 1 -> CAUGHT; AssertionError: ('a mode-000 ancestor cgroup', '16', None)
+cat failure ignored: selftest rc 0 -> SURVIVED; 
+restored

@@ -1,0 +1,10 @@
+# reviewer's sv2v_recount.py (sha256 5615f052b77e94b60e7cd6236428ba262b770ece1d269081673ab8a33a9862c4) on evidence/r2/sv2v-rss-selftest.log
+sha256 d91554a61e0896a6b108fc2fa664a0c4037482e63ff26c3f4c97739df4a43f75
+sv2v runs: 133 | exited nonzero: 10
+largest: 1212036 KiB
+above 1205884 KiB (round-1 constant): 20
+at or above 1000000 KiB: 120
+at or above 1100000 KiB: 120
+below 1000000 KiB: [15836, 15920, 15928, 757352, 758408, 759284, 759392, 760320, 760332, 760476, 762404, 970408, 972388]
+documented: 25 elaborated the full datapath, 23 of them above 1205884 KiB, largest 1212036 KiB
+# own check, same log: the 120 runs at or above 1000000 KiB span 1168056 to 1212036 KiB; the script's 'documented:' line is its fixed text of the round-2 doc

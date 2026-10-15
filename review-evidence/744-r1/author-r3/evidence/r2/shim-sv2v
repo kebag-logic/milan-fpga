@@ -1,0 +1,2 @@
+#!/bin/bash
+exec /usr/bin/time -a -o $VALIDATION_STORAGE/744-a621/meas2/sv2v-rss.log -f "%M KiB %e s sv2v" $VALIDATION_TOOLS/sv2v-v0.0.12/sv2v "$@"

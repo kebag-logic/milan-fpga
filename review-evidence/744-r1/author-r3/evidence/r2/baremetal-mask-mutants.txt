@@ -1,0 +1,19 @@
+declarations not merged: CAUGHT
+  --check rc 1 (15 line(s); first:   - .github/workflows/rtl-fast.yml:437: [R] prohibited target runtime/service surface '/proc': 'kib="$(awk \'$1 == "MemTotal:" && $3 == "kB" { print $)
+  --selftest rc 2 (18 line(s); first:   - [host-memory-reads-allowed-scripts/act_ci.py] clean fixture flagged:)
+token masked anywhere in the declared files (no line binding): CAUGHT
+  --check rc 0 (1 line(s); first: baremetal-only: OK (0 findings across 1344 tracked first-party file(s)))
+  --selftest rc 2 (59 line(s); first:   - [runner-host-inventory-does-not-launder-scripts/act_ci.py] caught, but not by the right class: wanted '[R]' in)
+prefix not anchored to line start: CAUGHT
+  --check rc 0 (1 line(s); first: baremetal-only: OK (0 findings across 1344 tracked first-party file(s)))
+  --selftest rc 2 (14 line(s); first:   - [host-memory-read-scripts/act_ci.py-0-prefixed] planted defect not caught)
+suffix not anchored to line end: CAUGHT
+  --check rc 0 (1 line(s); first: baremetal-only: OK (0 findings across 1344 tracked first-party file(s)))
+  --selftest rc 2 (14 line(s); first:   - [host-memory-read-scripts/act_ci.py-0-trailing] planted defect not caught)
+whole path component masked (to end of line): CAUGHT
+  --check rc 0 (1 line(s); first: baremetal-only: OK (0 findings across 1344 tracked first-party file(s)))
+  --selftest rc 2 (28 line(s); first:   - [host-memory-read-scripts/act_ci.py-0-trailing] planted defect not caught)
+one declared runner line dropped: CAUGHT
+  --check rc 1 (2 line(s); first:   - scripts/act_ci.py:4618: [R] prohibited target runtime/service surface '/proc': 'PROC_MOUNTS = pathlib.Path("/proc/self/mounts")' (#259: no target )
+  --selftest rc 0 (1 line(s); first: baremetal-only selftest: PASS (785 arm(s)))
+restored: True

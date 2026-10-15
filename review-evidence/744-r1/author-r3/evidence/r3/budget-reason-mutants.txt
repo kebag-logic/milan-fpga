@@ -1,0 +1,6 @@
+# budget-shell mutants against ci_gate_workflows_selftest.py at the round-3 worktree (each restored after; cmp-verified)
+cat-failure-ignored: selftest rc=1; AssertionError: ('a mode-000 limit', None, ['cat: <cgroups>/memory.max: Permission denied', 'non-numeric memory limit in <cgroups>: '], 'unreadable memory limit in <cgroups>')
+cat-failure-true: selftest rc=1; AssertionError: ('a mode-000 limit', None, ['cat: <cgroups>/memory.max: Permission denied', 'non-numeric memory limit in <cgroups>: '], 'unreadable memory limit in <cgroups>')
+no-cpu-reason: selftest rc=1; AssertionError: ('zero CPUs', None, [], 'no CPUs: nproc printed 0')
+no-memtotal-reason: selftest rc=1; AssertionError: ('no MemTotal', None, ['bash: line 5: test: : integer expected'], 'no MemTotal in kB')
+unsearchable-dropped: selftest rc=1; AssertionError: ('a mode-000 ancestor cgroup', '16', [], 'unsearchable cgroup <cgroups>/a: its memory limit cannot be proved absent')
