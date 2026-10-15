@@ -167,7 +167,7 @@ def _executed(pid: int, number: int, arguments: list[int]) -> tuple[str, list[st
 
 
 def _loaded(path: str, words: list[str]) -> tuple[str, list[str]]:
-    """What the kernel runs for an executable file: its interpreter line, as the kernel builds argv."""
+    """What runs for an executable file: its interpreter line, with argv built as exec builds it."""
     for _ in range(4):
         try:
             with open(path, "rb") as stream:
@@ -235,7 +235,7 @@ def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin | None
     """Run one command and keep every exec instance of its whole process tree.
 
     Each instance records the process, the file the exec named and the program the
-    kernel loads for it, the full argument vector as that program receives it, the
+    exec loads for it, the full argument vector as that program receives it, the
     directory and the stream links an interpreter may read. Provenance is judged at
     the exec itself, while the file it runs still exists.
     """
