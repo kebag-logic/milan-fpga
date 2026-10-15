@@ -20,21 +20,30 @@ exit status is a finding.
   process filesystem or `/dev`, a memfd, a deleted file, or a descriptor that is
   not a path is refused before it runs and named.
 - **Invocations.** Every exec instance is kept with its full argument vector and
-  directory, and judged by what it runs, not by the loaded interpreter binary.
-  Installers are refused by name, as a program, a script or a module.
-- **Interpreter programs.** The program text of `bash`, `python3`, `perl`, `node`
-  and `tclsh`, whether inline (`-c`, `-e`), streamed (stdin, `-`, `/dev/fd/N`) or
-  a file, runs code in-process, so it is accepted only by the digest of its text:
-  a file in the checkout as the job started, a byte copy of one, the step's own
-  text, or a program in the reviewed lists of `exec-audit.json`. Any other is
-  refused by name. `dash` runs nothing in-process (it imports no dynamic loader
-  and has no loadable builtins), so a `dash` program is judged by its execs.
-- **Programs.** A program inside the image's own directories must be named in
-  `exec-audit.json`. Any other program is accepted only with positive provenance:
-  its bytes are the declared output of a toolchain invocation the job traced
-  (`-o`, or `a.out` without one), digested when that invocation ends, so a
-  renamed or installed copy of a build output keeps it; or it is in the reviewed
-  list of generated programs.
+  directory, and judged by what it runs: the program, and an interpreter's own
+  program too. Installers are refused by name, as a program, a script or a module.
+- **Programs.** A program is the file an exec loads, after any `#!` lines. It is
+  the image's own program only if its path is in the job-start snapshot of the
+  image's directories and the file there still has that key; it must then be
+  named in `exec-audit.json`. Any other program, whatever its name or directory,
+  needs positive provenance: its bytes are the declared output of a toolchain
+  invocation the job traced (`-o`, or `a.out` without one), digested when that
+  invocation ends, so a renamed or installed copy of a build output keeps it; or
+  it is in the reviewed list of generated programs.
+- **Interpreters.** An interpreter is an image program whose file the image names
+  for its family (`bash`, `python3`, `perl`, `node`, `tclsh` and their installed
+  spellings), or any image program holding such a file's bytes. Its program runs
+  code in-process, so it is judged by its source:
+  - a file program: an image file named in `exec-audit.json`; a checkout file
+    unchanged since the job started, or a byte copy of one; a job-written copy of
+    an image executable, judged as that file; the step's own text; or a reviewed
+    generated program;
+  - an inline (`-c`, `-e`) or streamed (stdin, `-`, `/dev/fd/N`) program: the
+    step's own text, or a reviewed inline program of that interpreter.
+  Any other program, one whose text cannot be read, and any option the operand
+  readers do not model, is refused by name. The image's own `dash` file loads no
+  further code (it imports no dynamic loader and has no loadable builtins), so a
+  program that file runs is judged by the execs it makes.
 - **The checkout.** A file present when the job starts is digested then. A script
   whose bytes differ at its exec, and any such file changed during the job, is a
   finding: what the static walker read is what ran.
@@ -61,8 +70,8 @@ import struct
 import sys
 import time
 
-from exec_files import Watch, key_of, lkey, snapshot
-from exec_operands import EXEC_ONLY, PINNABLE, interpreter, operands
+from exec_files import Image, Watch, digest, key_of, lkey, snapshot
+from exec_operands import BUILDERS, MULTIARCH, built_output, interpreter, invocation, lexical, operands, subcommand
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
@@ -93,14 +102,9 @@ _libc.syscall.restype = ctypes.c_long
 _libc.tee.restype = ctypes.c_ssize_t
 _libc.tee.argtypes = (ctypes.c_int, ctypes.c_int, ctypes.c_size_t, ctypes.c_uint)
 
-#: The image's own program directories: a program or script there must be named.
+#: The image's own program directories, snapshotted as a job starts: a program or script the image held
+#: there, and holds still, must be named.
 SYSTEM_ROOTS = ("/usr/", "/bin/", "/sbin/", "/lib/", "/lib64/", "/opt/", "/etc/")
-#: A toolchain program carries an `<arch>-[<vendor>-]<os>-gnu-` prefix, and a cross toolchain's
-#: wrapper runs its real binary under a `.br_real` suffix; the plain tool is named.
-MULTIARCH = re.compile(r"^[a-z0-9_]+(?:-[a-z0-9]+){1,2}-gnu-|\.br_real$")
-#: Programs whose declared output (`-o`, or `a.out` when linking without one) is a program the step built.
-BUILDERS = re.compile(r"^(?:[a-z0-9_]+-[a-z0-9]+-[a-z]+-)?(?:cc|c\+\+|gcc|g\+\+|clang|clang\+\+|ld|ld\.bfd|"
-                      r"ld\.gold|collect2)(?:-\d+)?$")
 #: Programs that fetch: an interpreter reading its program from their output fetches and executes.
 FETCHERS = {"curl", "wget", "fetch", "aria2c"}
 #: How long a streamed program's writer may keep its pipe open after the interpreter's exec.
@@ -313,7 +317,7 @@ class Origin:
     """Provenance within one traced job, from what existed as it started and what its toolchain declared."""
 
     def __init__(self, root: Path, names: dict[str, object] | None = None, watch: bool = True,
-                 scratch: tuple[str, ...] = ()) -> None:
+                 scratch: tuple[str, ...] = (), image: Image | None = None) -> None:
         self.root = Path(root)
         names = names or allowlist()
         # A job-temporary path: under /tmp or the job's own scratch roots, made only of name characters.
@@ -324,12 +328,8 @@ class Origin:
         self.started = snapshot(str(self.root), executable=False)
         self.checkout = {path: digest(path) for path in self.started}
         self.copies = {value: path for path, value in sorted(self.checkout.items(), reverse=True) if value}
-        self.system: dict[str, tuple] = {}
-        for top in SYSTEM_ROOTS:
-            self.system.update(snapshot(top, executable=True))
-        self.system_sizes: dict[int, list[str]] = {}
-        for path, key in sorted(self.system.items()):
-            self.system_sizes.setdefault(key[2], []).append(path)
+        # A job starts from the image as it was built: one snapshot serves every job of a traced run.
+        self.image = image or Image(SYSTEM_ROOTS)
         self.pending: dict[int, list[tuple[str, str]]] = {}
         self.built: dict[str, tuple[str, str]] = {}
         self.texts: set[str] = set()
@@ -383,10 +383,22 @@ class Origin:
     def image_copy(self, path: str, own: str) -> str | None:
         """The image executable present as the job started that holds this file's bytes."""
         size = os.stat(path).st_size
-        for candidate in self.system_sizes.get(size, []):
-            if lkey(candidate) == self.system[candidate] and self.digest(candidate) == own:
+        for candidate in self.image.sizes.get(size, []):
+            if self.image.held(candidate) and self.digest(candidate) == own:
                 return candidate
         return None
+
+    def identify(self, instance: dict[str, object]) -> None:
+        """Mark an exec's program as the image's own file, and as an image interpreter, by its file's identity."""
+        key = self.image.held(str(instance["program"]))
+        if key is None:
+            return
+        instance["image"] = True
+        family, exec_only = self.image.families.get(key[:2], (None, False))
+        if family:
+            instance["family"] = family
+        if exec_only:
+            instance["exec_only"] = True
 
     def started_exec(self, pid: int, instance: dict[str, object]) -> None:
         """Record a toolchain invocation's declared output, and that file as it stood, to digest when it ends."""
@@ -415,11 +427,12 @@ class Origin:
         """Where what this exec runs came from."""
         what = invocation(instance)
         kind, path = what["kind"], str(what["path"])
+        if kind == "refused":
+            return "refused"
         if kind == "module":
             return "named"
         if kind in ("inline", "stream"):
-            family = what["family"]
-            if what["name"] in EXEC_ONLY:
+            if instance.get("exec_only"):
                 return "exec-only interpreter"
             text = what.get("sha256")
             if not text:
@@ -427,7 +440,7 @@ class Origin:
             if text in self.texts:
                 return "step text"
             entry = self.pinned.get(text)
-            return "pinned" if family in PINNABLE and entry and entry.get("interpreter") == family else "none"
+            return "pinned" if entry and entry.get("interpreter") == what["family"] else "none"
         if kind == "script":
             # The interpreter opens its operand from its own directory; a link names the file it runs.
             located = resolve(str(instance["directory"]), str(what["operand"]))
@@ -437,20 +450,21 @@ class Origin:
                 return "absent"  # The interpreter cannot open it, so no code runs from it.
             path = str(located[1])
             instance["script"] = path
-        if path.startswith(SYSTEM_ROOTS):
-            return "named"
+        # The image's own file, by its identity: its path in the job-start snapshot, unchanged since.
+        if instance.get("image") if kind == "program" else self.image.held(path):
+            return "image"
         if not Path(path).exists():
             return "absent"
         own = self.digest(path)
         instance["sha256"] = own
-        if path in self.started:
-            return "checkout" if own == self.checkout[path] else "checkout file changed before it ran"
         if kind == "program":
             if own in self.built:
                 builder, output = self.built[own]
                 return f"built by {builder}" if output == path else f"copy of a program built by {builder}"
             entry = self.generated.get(own, {})
             return "generated" if entry.get("kind") == "program" else "none"
+        if path in self.started:
+            return "checkout" if own == self.checkout[path] else "checkout file changed before it ran"
         if own in self.texts:
             return "step text"
         # A copy of an image executable runs that executable's code, so it is judged as that file, by its name.
@@ -459,7 +473,7 @@ class Origin:
             return f"copy of {original}"
         if own in self.copies:
             return f"copy of {self.relative(self.copies[own])}"
-        if Path(str(instance["program"])).name in EXEC_ONLY:
+        if instance.get("exec_only"):
             return "exec-only interpreter"
         with open(path, "rb") as stream:
             data = stream.read()
@@ -469,6 +483,15 @@ class Origin:
         instance["sha256_masked"] = masked = hashlib.sha256(self.temporary.sub(b"/tmp/<job>", data)).hexdigest()
         entry = self.generated.get(masked, {})
         return "generated" if entry.get("kind") == "script" and entry.get("interpreter") == what["family"] else "none"
+
+
+def _streams(pid: int, words: list[str]) -> dict[str, str]:
+    """The stream links an interpreter may read its program from: stdin, stdout and named descriptors."""
+    streams = {str(n): _proc(pid, f"fd/{n}") for n in (0, 1)}
+    for word in words:
+        if word.startswith("/dev/fd/") and word[8:].isdigit():
+            streams[word[8:]] = _proc(pid, f"fd/{word[8:]}")
+    return streams
 
 
 def _group(pid: int) -> int:
@@ -652,14 +675,11 @@ class _Trace:
         if outcome == "refuse":
             self.refuse(serial, {"pid": caller, "argv": words, "reason": f"exec refused: {value}"}, errno.EACCES)
             return
-        streams = {str(n): _proc(caller, f"fd/{n}") for n in (0, 1)}
-        for word in words:
-            if word.startswith("/dev/fd/") and word[8:].isdigit():
-                streams[word[8:]] = _proc(caller, f"fd/{word[8:]}")
         instance = {"pid": caller, "file": value[0], "program": program, "argv": words,
-                    "directory": directory, "streams": streams}
+                    "directory": directory, "streams": _streams(caller, words)}
+        self.origin.identify(instance)
         what = invocation(instance)
-        if what["kind"] != "stream" or what["family"] not in PINNABLE or what["name"] in EXEC_ONLY:
+        if what["kind"] != "stream" or instance.get("exec_only"):
             self.admit(serial, caller, instance, None)
             return
         source, handle = _stream_source(caller, int(what["descriptor"]))
@@ -733,80 +753,9 @@ def poll_hangup(descriptor: int) -> bool:
     return any(flags & select.POLLHUP for _, flags in once.poll(0))
 
 
-def lexical(directory: str, word: str) -> str:
-    """Join a word to a directory and fold `.` and `..` textually, as the exec saw the path."""
-    parts: list[str] = []
-    for part in (word if word.startswith("/") else f"{directory}/{word}").split("/"):
-        if part == "..":
-            parts = parts[:-1]
-        elif part not in ("", "."):
-            parts.append(part)
-    return "/" + "/".join(parts)
-
-
 def allowlist() -> dict[str, object]:
     """The reviewed program, script, module and program-text allowlists and the installer denylists."""
     return json.loads(ALLOWLIST.read_text())
-
-
-def invocation(instance: dict[str, object]) -> dict[str, object]:
-    """What one exec runs: a program, or an interpreter's script, module, inline or streamed program."""
-    program = str(instance["program"])
-    base = MULTIARCH.sub("", Path(program).name)
-    family = interpreter(base)
-    words = list(instance["argv"])
-    if family is None:
-        return {"kind": "program", "name": base, "path": program, "args": words[1:]}
-    read = operands(family, words)
-    kind, rest = read["kind"], list(read["rest"])
-    if kind == "module":
-        return {"kind": "module", "name": str(read["module"]).split(".")[0], "path": str(read["module"]),
-                "family": family}
-    if kind == "inline":
-        text = read.get("text")
-        return {"kind": "inline", "name": base, "path": program, "family": family,
-                "sha256": hashlib.sha256(text.encode("utf-8", "surrogateescape")).hexdigest()
-                if isinstance(text, str) and family in PINNABLE else None}
-    if kind == "stream" or rest[0].startswith("/dev/fd/") and rest[0][8:].isdigit():
-        descriptor = rest[0][8:] if kind == "script" else "0"
-        return {"kind": "stream", "name": base, "path": rest[0] if descriptor != "0" else "<stdin>",
-                "family": family, "descriptor": descriptor, "stream": instance["streams"].get(descriptor, ""),
-                "sha256": instance.get("sha256_text")}
-    return {"kind": "script", "name": Path(rest[0]).name, "path": lexical(str(instance["directory"]), rest[0]),
-            "operand": rest[0], "args": rest[1:], "family": family}
-
-
-def subcommand(args: list[str]) -> str | None:
-    """A tool's subcommand: its first operand after options, `+toolchain` and option values."""
-    index = 0
-    while index < len(args) and args[index][:1] in ("-", "+"):
-        index += 2 if args[index] in ("-C", "--config", "-Z", "--color", "--manifest-path") else 1
-    return args[index] if index < len(args) else None
-
-
-def built_output(words: list[str], directory: str) -> str | None:
-    """The declared output of a build program, resolved in its directory: `-o`, `--output`, or `a.out`
-    when a driver links (no `-c`, `-S` or `-E`) or `ld` runs without one."""
-    for index, word in enumerate(words):
-        operand = words[index + 1] if word in ("-o", "--output") and index + 1 < len(words) else (
-            word[2:] if word.startswith("-o") and len(word) > 2 and not word.startswith("-o-") else
-            word[9:] if word.startswith("--output=") else None)
-        if operand:
-            return lexical(directory, operand)
-    if len(words) > 1 and not {"-c", "-S", "-E", "-M", "-MM", "--version", "-v", "--help", "-dumpversion",
-                               "-dumpmachine", "-print-prog-name", "-###"} & set(words[1:]) and \
-            not any(w.startswith(("-print-", "-dump", "--print")) for w in words[1:]):
-        return lexical(directory, "a.out")
-    return None
-
-
-def digest(path: str) -> str | None:
-    """Content identity of a file."""
-    try:
-        with open(path, "rb") as stream:
-            return hashlib.file_digest(stream, "sha256").hexdigest()
-    except OSError:
-        return None
 
 
 def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dict], list[dict]]:
@@ -834,6 +783,7 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
             what = {**what, "path": judged, "alias": what["name"], "name": Path(judged).name}
         base = MULTIARCH.sub("", Path(str(instance["program"])).name)
         provenance = str(instance.get("provenance", "none"))
+        image = provenance == "image" or bool(instance.get("copy"))
         if what["kind"] in ("program", "script") and {what["name"], what.get("alias")} & installers:
             finding(instance, what, f"installer executed: {(({what['name'], what.get('alias')} & installers)).pop()}")
         elif what["kind"] == "module" and what["name"] in names["installer_modules"]:
@@ -842,19 +792,20 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
             finding(instance, what, f"fetched program executed by {what['name']}")
         elif (command := subcommand(what.get("args", []))) in subcommands.get(what["name"], ()):
             finding(instance, what, f"installer subcommand executed: {what['name']} {command}")
-        if interpreter(base) and base not in programs:
+        if instance.get("family") and base not in programs:
             finding(instance, what, f"interpreter not in the allowlist: {base}")
-        system = str(what["path"]).startswith(SYSTEM_ROOTS)
-        if what["kind"] == "program" and system and what["name"] not in programs:
-            finding(instance, what, f"system program not in the allowlist: {what['name']}")
-        elif what["kind"] == "script" and system and what["name"] not in scripts:
-            finding(instance, what, f"system script not in the allowlist: {what['name']}")
+        if what["kind"] == "refused":
+            finding(instance, what, f"interpreter command line refused: {what['reason']}")
+        elif what["kind"] == "program" and image and what["name"] not in programs:
+            finding(instance, what, f"image program not in the allowlist: {what['name']}")
+        elif what["kind"] == "script" and image and what["name"] not in scripts:
+            finding(instance, what, f"image script not in the allowlist: {what['name']}")
         elif what["kind"] in ("inline", "stream") and provenance == "none":
             finding(instance, what, f"unpinned {'inline' if what['kind'] == 'inline' else 'streamed'} program: "
-                                    f"{what['name']} {what.get('sha256') or '(text not read)'}")
-        elif what["kind"] == "stream" and provenance == "unreadable":
-            finding(instance, what, f"streamed program not readable at its exec: {what['name']} "
-                                    f"({what.get('stream') or 'no stream'})")
+                                    f"{what['name']} {what.get('sha256')}")
+        elif what["kind"] in ("inline", "stream") and provenance == "unreadable":
+            finding(instance, what, f"{'inline' if what['kind'] == 'inline' else 'streamed'} program not readable "
+                                    f"at its exec: {what['name']} ({what.get('stream') or 'no stream'})")
         elif what["kind"] in ("program", "script") and provenance == "none":
             finding(instance, what, f"{what['kind']} without provenance: {what['name']}")
         elif provenance == "not a file on a path":
@@ -863,8 +814,8 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
             finding(instance, what, f"checkout file changed before it ran: {what['name']}")
         elif what["kind"] == "module" and what["name"] not in modules:
             finding(instance, what, f"module not in the allowlist: {what['name']}")
-        texts = what["kind"] in ("inline", "stream") and base not in EXEC_ONLY
-        key = (what["kind"], what["name"], what["path"] if what["kind"] != "program" or system else "<built>",
+        texts = what["kind"] in ("inline", "stream") and provenance != "exec-only interpreter"
+        key = (what["kind"], what["name"], what["path"] if what["kind"] != "program" or image else "<built>",
                provenance, what.get("sha256") if texts else instance.get("sha256") if provenance == "checkout"
                else None)
         row = population.setdefault(key, {"kind": key[0], "invocation": key[1], "path": key[2],

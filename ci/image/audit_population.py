@@ -318,6 +318,8 @@ def trace_population(args: argparse.Namespace) -> int:
     reached = reached_steps(root)
     receipt_steps, reconciliation = [], []
     job, origin = None, None
+    # Each job starts from the image as built: the image's own files are snapshotted once, before any job.
+    image = exec_audit.Image(exec_audit.SYSTEM_ROOTS)
     for number, step in enumerate(reached):
         key = f"{step['workflow']}#{step['job']}#{step['index']}"
         text, reason, removed = image_form(step['name'], step['run'])
@@ -339,7 +341,7 @@ def trace_population(args: argparse.Namespace) -> int:
             home.mkdir()
             temp.mkdir()
             job_path, job_env = [], {}
-            origin = exec_audit.Origin(root, names, scratch=(str(scratch),))
+            origin = exec_audit.Origin(root, names, scratch=(str(scratch),), image=image)
         commands = Path(tempfile.mkdtemp(dir=temp, prefix='step-'))
         files = {name: commands / name.lower() for name in
                  ('GITHUB_PATH', 'GITHUB_ENV', 'GITHUB_OUTPUT', 'GITHUB_STEP_SUMMARY')}

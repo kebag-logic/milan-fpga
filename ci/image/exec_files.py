@@ -4,16 +4,21 @@
 
 A snapshot keeps each file's identity and change time, which any write changes,
 so an unchanged key proves unchanged bytes. The watch reports every change to a
-file in a directory of the checkout as it started (exec_audit.py, `Origin`).
+file in a directory of the checkout as it started (exec_audit.py, `Origin`). The
+image snapshot keeps the image's own executables, and its interpreters by the
+identity of their files.
 """
 
 from __future__ import annotations
 
 import ctypes
+import hashlib
 import os
 from pathlib import Path
 import stat
 import struct
+
+from exec_operands import EXEC_ONLY, interpreter
 
 
 LIBC = ctypes.CDLL(None, use_errno=True)
@@ -87,3 +92,60 @@ class Watch:
     def close(self) -> None:
         """Stop watching."""
         os.close(self.descriptor)
+
+
+def digest(path: str) -> str | None:
+    """Content identity of a file."""
+    try:
+        with open(path, "rb") as stream:
+            return hashlib.file_digest(stream, "sha256").hexdigest()
+    except OSError:
+        return None
+
+
+def _elf(path: str) -> bool:
+    """Whether a file is an ELF program."""
+    try:
+        with open(path, "rb") as stream:
+            return stream.read(4) == b"\x7fELF"
+    except OSError:
+        return False
+
+
+class Image:
+    """The image's own executables as a job starts, and its interpreters by the identity of their files."""
+
+    def __init__(self, roots: tuple[str, ...]) -> None:
+        self.files: dict[str, tuple] = {}
+        for top in roots:
+            self.files.update(snapshot(top, executable=True))
+        self.sizes: dict[int, list[str]] = {}
+        for path, key in sorted(self.files.items()):
+            self.sizes.setdefault(key[2], []).append(path)
+        self.digests: dict[tuple, str | None] = {}
+        # An interpreter is a file the image names for its family; a file named `dash` loads no further code.
+        self.families: dict[tuple, tuple[str, bool]] = {}
+        for path, key in sorted(self.files.items()):
+            name = Path(path).name
+            if (family := interpreter(name)) and _elf(path):
+                known = self.families.get(key[:2], (family, False))
+                self.families[key[:2]] = (known[0], known[1] or name in EXEC_ONLY)
+        # Any other image file holding an interpreter's bytes is that interpreter, whatever its name.
+        seeds = {key[:2]: path for path, key in sorted(self.files.items()) if key[:2] in self.families}
+        for identity, seed in sorted(seeds.items()):
+            for candidate in self.sizes.get(self.files[seed][2], []):
+                other = self.files[candidate][:2]
+                if other not in self.families and self.digest(candidate) == self.digest(seed):
+                    self.families[other] = self.families[identity]
+
+    def digest(self, path: str) -> str | None:
+        """Content identity of an image file, cached by its key."""
+        key = (path, self.files.get(path))
+        if key not in self.digests:
+            self.digests[key] = digest(path)
+        return self.digests[key]
+
+    def held(self, path: str) -> tuple | None:
+        """The job-start key of a path the image held, if the file there is still that file."""
+        key = self.files.get(path)
+        return key if key is not None and lkey(path) == key else None

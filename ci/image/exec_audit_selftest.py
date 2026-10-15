@@ -6,6 +6,9 @@ Run inside the image as root, with the network disabled (it plants programs in
 `/usr/local/bin` and removes them):
 
     python3 ci/image/exec_audit.py --selftest
+
+The controls' own reviewed entries (`CONTROLS`) are added to the reviewed lists
+for these steps only; the production lists in `exec-audit.json` hold none of them.
 """
 
 from __future__ import annotations
@@ -24,6 +27,26 @@ import zipfile
 
 from exec_audit import PROCESS_ROOT, STREAM_WAIT, _record, audit_step
 from exec_operands import EXEC_ONLY
+
+NOTHING = "it installs and fetches nothing."
+#: The controls' own reviewed entries, by list: each is accepted only in these controls.
+CONTROLS = {
+    "inline_programs": {
+        hashlib.sha256(text.encode()).hexdigest(): {
+            "form": form, "interpreter": family, "source": "ci/image/exec_audit_selftest.py", "text": text,
+            "reason": f"The audit's own pinned {family} control: it prints a constant; {NOTHING}"}
+        for text, family, form in (("print(1)", "python", "inline"), ("print q(pinned-perl)\n", "perl", "inline"),
+                                   ('console.log("pinned-node")', "node", "inline"),
+                                   ("puts pinned-tcl\n", "tclsh", "stream"))},
+    "generated_programs": {
+        hashlib.sha256(b"import sys\nprint('/tmp/<job>')\n").hexdigest(): {
+            "generator": "ci/image/exec_audit_selftest.py", "interpreter": "python", "kind": "script",
+            "name": "zz_generated.py", "reason": f"The audit's own generated control: it prints a job-temporary path; "
+                                                 f"{NOTHING}"}},
+    "checkout_writes": {
+        "zz_reviewed_write.txt": {"by": "ci/image/exec_audit_selftest.py",
+                                  "reason": "The audit's own control: a step rewrites a reviewed checkout file."}},
+}
 
 
 #: Controls for the exec ABI: an x86-64 program that execs through the i386 or the x32 entry.
@@ -75,8 +98,8 @@ def abi_and_target(step: Step, base: Path) -> None:
                   f"gcc -static -o {base}/static {base}/static.c && {base}/static", None)
     assert any(row["provenance"].startswith("built by") for row in report["population"]), report["population"]
     shutil.copy(base / "static", SYSTEM / "zz_static_probe")
-    step("a static binary planted in a system directory", f"{SYSTEM}/zz_static_probe",
-         "system program not in the allowlist: zz_static_probe")
+    step("a static binary planted in an image directory before the job", f"{SYSTEM}/zz_static_probe",
+         "image program not in the allowlist: zz_static_probe")
     (SYSTEM / "zz_static_probe").unlink()
     marker = base / "marker"
     (base / "marker-stub").write_text(f"#!/bin/sh\ntouch {marker}\n")
@@ -139,8 +162,8 @@ def installers_and_programs(step: Step, base: Path) -> None:
          f"python3 {base}/missing.py 2>/dev/null || true", None)
     (SYSTEM / "zz_shebang_probe").write_text("#!/bin/sh\nexit 0\n")
     (SYSTEM / "zz_shebang_probe").chmod(0o755)
-    step("an unlisted shebang script in a system directory", "zz_shebang_probe",
-         "system script not in the allowlist: zz_shebang_probe")
+    step("an unlisted shebang script in an image directory before the job", "zz_shebang_probe",
+         "image script not in the allowlist: zz_shebang_probe")
     (SYSTEM / "zz_shebang_probe").unlink()
     (base / "bin").mkdir()
     (base / "bin/apt-get").write_text("#!/bin/sh\nexit 0\n")
@@ -160,7 +183,21 @@ def installers_and_programs(step: Step, base: Path) -> None:
 
 
 def provenance(step: Step, base: Path) -> None:
-    """A program needs a traced build output's bytes; a copy, changed or not, of anything else is refused."""
+    """A program is the image's own file by its identity, or needs a traced build output's bytes; a copy,
+    changed or not, of anything else is refused, whatever its name or directory."""
+    try:
+        step("a copied image program with a byte appended, installed in an image directory under a listed name",
+             f"cp /usr/bin/printenv {SYSTEM}/cp && printf '\\0' >> {SYSTEM}/cp && {SYSTEM}/cp HOME",
+             "program without provenance: cp")
+    finally:
+        (SYSTEM / "cp").unlink(missing_ok=True)
+    (base / "tool.py").write_text("print('ok')\n")
+    step("a copied image program with a byte appended, named python3, given a checkout script",
+         f"cp /usr/bin/true {base}/bin/python3 && printf '\\0' >> {base}/bin/python3 && "
+         f"{base}/bin/python3 {base}/tool.py", "program without provenance: python3")
+    step("a copy of bash named dash, given an inline program",
+         f"cp /usr/bin/bash {base}/bin/dash && {base}/bin/dash -c 'echo renamed; shopt -s extglob'",
+         "program without provenance: dash")
     step("an unlisted program the job copies from the image",
          f"cp /bin/true {base}/bin/zz_copied_program && {base}/bin/zz_copied_program",
          "program without provenance: zz_copied_program")
@@ -226,8 +263,57 @@ def checkout(step: Step, base: Path) -> None:
     step("a step that fails under the disabled network", "exit 7", "step exited 7")
 
 
+def text_digest(text: str) -> str:
+    """The digest an unpinned program's finding names."""
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def interpreter_programs(step: Step, base: Path) -> None:
+    """Every image interpreter, under every installed spelling, reaches a text digest or a named refusal."""
+    for command, expect, text in (
+            ("perl -e 'print qq(PERL-E\\n)'", "unpinned inline program: perl", "print qq(PERL-E\\n)\n"),
+            ("perl -le 'print q(PERL-LE)'", "unpinned inline program: perl", "print q(PERL-LE)\n"),
+            ("perl -wE 'say q(PERL-WE)'", "unpinned inline program: perl", "say q(PERL-WE)\n"),
+            ("perl -l012e 'print q(PERL-L012E);' -e 'print q(2)'", "unpinned inline program: perl",
+             "print q(PERL-L012E);\nprint q(2)\n"),
+            ("node -e 'console.log(\"NODE-E\")'", "unpinned inline program: node", 'console.log("NODE-E")'),
+            ("node --eval='console.log(\"NODE-EVAL\")'", "unpinned inline program: node", 'console.log("NODE-EVAL")'),
+            ("node -p -e '\"NODE-P\"'", "unpinned inline program: node", '"NODE-P"'),
+            ("printf 'puts TCL-STREAM\\n' | tclsh", "unpinned streamed program: tclsh8.6", "puts TCL-STREAM\n"),
+            ("printf 'puts TCL-VERSIONED\\n' | tclsh8.6", "unpinned streamed program: tclsh8.6",
+             "puts TCL-VERSIONED\n"),
+            ("printf 'print(4)\\n' | python3", "unpinned streamed program: python3.12", "print(4)\n")):
+        report = step(f"an unlisted program text is refused: {command}", f"{command} >/dev/null", expect)
+        assert [f.get("sha256") for f in report["findings"]] == [text_digest(text)], (command, report["findings"])
+    step("pinned Perl, Node and Tcl texts are accepted",
+         "perl -le 'print q(pinned-perl)' && node -e 'console.log(\"pinned-node\")' && "
+         "printf 'puts pinned-tcl\\n' | tclsh8.6", None)
+    (base / "tool.pl").write_text("print qq(ok\\n);\n")
+    (base / "tool.tcl").write_text("puts ok\n")
+    (base / "tool.js").write_text("console.log('ok');\n")
+    step("checkout scripts run by Perl, Node and Tcl, after switches", f"perl -w -I {base} {base}/tool.pl && "
+         f"node {base}/tool.js && tclsh -encoding utf-8 {base}/tool.tcl && tclsh8.6 {base}/tool.tcl", None)
+    step("an installed spelling the allowlist does not name", "perl5.38.2 -e 1",
+         "interpreter not in the allowlist: perl5.38.2")
+    for command, expect in (("perl -MPOSIX -e 1", "perl switch -M is not modelled"),
+                            ("perl -x -e 1", "perl switch -x is not modelled"),
+                            ("node -r fs -e 1", "node option -r is not modelled"),
+                            ("node -i -e 1", "node option -i is not modelled"),
+                            ("bash -i -c true", "shell option -i reads code from start files"),
+                            ("bash --login -c true", "shell option --login reads code from start files"),
+                            ("python3 -i -c 1", "python option -i is not modelled")):
+        step(f"a command line the readers do not model is refused: {command}",
+             f"{command} </dev/null >/dev/null 2>&1 || true", f"interpreter command line refused: {expect}")
+    (base / "socket_stream.py").write_text(
+        "import socket, subprocess\nreader, writer = socket.socketpair()\nwriter.sendall(b'print(5)\\n')\n"
+        "writer.close()\nsubprocess.run(['python3', '-'], stdin=reader, check=True)\n")
+    step("a streamed program the audit cannot read is refused", f"python3 {base}/socket_stream.py",
+         "streamed program not readable at its exec: python3.12")
+
+
 def selftest(names: dict[str, object]) -> int:
     """Each control is judged as the audit must judge it, by name."""
+    names = {**names, **{key: {**names.get(key, {}), **entries} for key, entries in CONTROLS.items()}}
     environment = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": os.environ.get("HOME", "/root"),
                    "LC_ALL": "C.UTF-8", "LANG": "C.UTF-8"}
     with tempfile.TemporaryDirectory(prefix="exec-audit-") as directory:
@@ -245,6 +331,6 @@ def selftest(names: dict[str, object]) -> int:
             print(f"PASS: {label}: " + (f"caught ({expect})" if expect else "clean"))
             return report
 
-        for group in (abi_and_target, installers_and_programs, provenance, checkout):
+        for group in (abi_and_target, installers_and_programs, interpreter_programs, provenance, checkout):
             group(step, base)
     return 0
