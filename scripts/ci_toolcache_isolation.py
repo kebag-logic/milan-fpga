@@ -124,7 +124,8 @@ def window(job: dict, shared: bool) -> list[dict]:
         if name in SKIP:
             continue
         if name not in RUN or not shell(step):
-            raise ValueError(f"{name!r}: a setup step this control neither declares nor can run as a script")
+            raise ValueError(f"{name!r}: a setup step this control neither declares "
+                             "nor can run as a script")
         chosen.append(step)
     return chosen
 
@@ -140,7 +141,8 @@ def tail(job: dict) -> list[dict]:
         if name.startswith(tuple(TAIL_SKIP)):
             continue
         if not name.startswith(TAIL_RUN) or not shell(step):
-            raise ValueError(f"{name!r}: a gate-leg step this control neither declares nor can run as a script")
+            raise ValueError(f"{name!r}: a gate-leg step this control neither declares "
+                             "nor can run as a script")
         chosen.append(step)
     if not shell(chosen[0]):
         raise ValueError(f"{BUDGET_STEP!r}: not a script this control can run")
