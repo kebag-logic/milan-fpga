@@ -4,9 +4,11 @@
 
 This is the execution authority for issue #737. The static inventory derives
 which programs the workflows *should* run; this audit records which programs a
-step *does* run, by following `execve` with `ptrace`, so a static binary is
-observed like any other. Steps run with the container network disabled; a step
-that needs the network fails and its exit status is a finding.
+step *does* run. A seccomp filter on the step's process tree turns every `execve`
+and `execveat` into a notification the audit reads before letting the call
+continue, so a static binary is observed like any other, and no process is
+ptraced. Steps run with the container network disabled; a step that needs the
+network fails and its exit status is a finding.
 
 Every exec instance is kept with its full argument vector and directory. Each is
 judged by what it runs, not by the loaded interpreter binary:
@@ -30,12 +32,14 @@ from __future__ import annotations
 
 import argparse
 import ctypes
+import fcntl
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
-import signal
+import select
+import socket
 import sys
 import time
 
@@ -44,17 +48,21 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 ALLOWLIST = HERE / "exec-audit.json"
 
-#: ptrace requests and the options that stop a tracee on exec and on each new
-#: child; PTRACE_O_EXITKILL reaps the tree if the tracer dies.
-TRACEME, CONT, GETEVENTMSG, SETOPTIONS = 0, 7, 0x4201, 0x4200
-O_TRACEFORK, O_TRACEVFORK, O_TRACECLONE, O_TRACEEXEC, O_EXITKILL = 0x2, 0x4, 0x8, 0x10, 0x100000
-OPTIONS = O_TRACEFORK | O_TRACEVFORK | O_TRACECLONE | O_TRACEEXEC | O_EXITKILL
-EVENT_FORK, EVENT_VFORK, EVENT_CLONE, EVENT_EXEC = 1, 2, 3, 4
-WALL = 0x40000000
+#: A seccomp filter turns every `execve` and `execveat` of the step's process tree into a
+#: user notification. The audit reads what each call names, then lets it continue. No
+#: process is ptraced, so tools that trace themselves, such as LeakSanitizer, still run.
+SYS_SECCOMP, PR_SET_NO_NEW_PRIVS = 317, 38
+SET_MODE_FILTER, GET_NOTIF_SIZES, FLAG_NEW_LISTENER = 1, 3, 1 << 3
+NR_EXECVE, NR_EXECVEAT, ARCH_X86_64 = 59, 322, 0xC000003E
+RET_ALLOW, RET_USER_NOTIF, CONTINUE = 0x7FFF0000, 0x7FC00000, 1
+NOTIF_RECV, NOTIF_SEND = 0xC0502100, 0xC0182101
+AT_FDCWD, AT_EMPTY_PATH = -100, 0x1000
+#: Load the arch, allow a foreign one; load the call number; notify on the two exec calls.
+FILTER = ((0x20, 0, 0, 4), (0x15, 0, 4, ARCH_X86_64), (0x20, 0, 0, 0), (0x15, 1, 0, NR_EXECVE),
+          (0x15, 0, 1, NR_EXECVEAT), (0x06, 0, 0, RET_USER_NOTIF), (0x06, 0, 0, RET_ALLOW))
 
 _libc = ctypes.CDLL(None, use_errno=True)
-_libc.ptrace.restype = ctypes.c_long
-_libc.ptrace.argtypes = [ctypes.c_long, ctypes.c_long, ctypes.c_void_p, ctypes.c_void_p]
+_libc.syscall.restype = ctypes.c_long
 
 #: The image's own program directories: a program or script there must be named.
 SYSTEM_ROOTS = ("/usr/", "/bin/", "/sbin/", "/lib/", "/lib64/", "/opt/", "/etc/")
@@ -70,11 +78,6 @@ BUILDERS = re.compile(r"^(?:[a-z0-9_]+-[a-z0-9]+-[a-z]+-)?(?:cc|c\+\+|gcc|g\+\+|
 FETCHERS = {"curl", "wget", "fetch", "aria2c"}
 
 
-def _ptrace(request: int, pid: int, data: int = 0) -> int:
-    """Issue one ptrace request; a vanished tracee is not an error for the tracer."""
-    return _libc.ptrace(request, pid, None, ctypes.c_void_p(data))
-
-
 def _record(pid: int, name: str) -> Path:
     """One entry of a traced process's process record."""
     return Path(f"/proc/{pid}/{name}")
@@ -88,13 +91,96 @@ def _proc(pid: int, name: str) -> str:
         return ""
 
 
-def _argv(pid: int) -> list[str]:
-    """The exact argument vector of a traced process, read at its exec stop."""
+class _Filter(ctypes.Structure):
+    _fields_ = [("code", ctypes.c_uint16), ("jt", ctypes.c_uint8), ("jf", ctypes.c_uint8), ("k", ctypes.c_uint32)]
+
+
+class _Program(ctypes.Structure):
+    _fields_ = [("len", ctypes.c_uint16), ("filter", ctypes.POINTER(_Filter))]
+
+
+def _listen() -> int:
+    """In the step's first process: install the exec filter and return its notification fd."""
+    if _libc.prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0):
+        raise OSError(ctypes.get_errno(), "no_new_privs")
+    rows = (_Filter * len(FILTER))(*[_Filter(*row) for row in FILTER])
+    program = _Program(len(FILTER), rows)
+    listener = _libc.syscall(SYS_SECCOMP, SET_MODE_FILTER, FLAG_NEW_LISTENER, ctypes.byref(program))
+    if listener < 0:
+        raise OSError(ctypes.get_errno(), "seccomp listener")
+    return listener
+
+
+def _memory(pid: int, address: int, size: int) -> bytes:
+    """Read a stopped caller's memory; a vanished caller reads empty."""
     try:
-        raw = _record(pid, "cmdline").read_bytes()
+        descriptor = os.open(_record(pid, "mem"), os.O_RDONLY)
     except OSError:
-        return []
-    return [part.decode("utf-8", "surrogateescape") for part in raw.split(b"\0")[:-1]]
+        return b""
+    try:
+        return os.pread(descriptor, size, address)
+    except OSError:
+        return b""
+    finally:
+        os.close(descriptor)
+
+
+def _string(pid: int, address: int) -> str:
+    """One NUL-terminated string of the caller."""
+    data = b""
+    while address and b"\0" not in data and len(data) < 1 << 20:
+        chunk = _memory(pid, address + len(data), 4096)
+        if not chunk:
+            break
+        data += chunk
+    return data.split(b"\0", 1)[0].decode("utf-8", "surrogateescape")
+
+
+def _vector(pid: int, address: int) -> list[str]:
+    """A NULL-terminated array of string pointers of the caller."""
+    words, index = [], 0
+    while address and index < 1 << 16:
+        raw = _memory(pid, address + 8 * index, 8)
+        if len(raw) < 8 or not (pointer := int.from_bytes(raw, "little")):
+            break
+        words.append(_string(pid, pointer))
+        index += 1
+    return words
+
+
+def _executed(pid: int, number: int, arguments: list[int]) -> tuple[str, list[str]] | None:
+    """The file an exec call names, resolved in the caller's directory, and its argument vector."""
+    if number == NR_EXECVEAT:
+        directory, name, vector, flags = arguments[0], _string(pid, arguments[1]), arguments[2], arguments[4]
+        directory = ctypes.c_int(directory & 0xFFFFFFFF).value
+        if not name and flags & AT_EMPTY_PATH:
+            path = _proc(pid, f"fd/{directory}")
+        else:
+            base = _proc(pid, "cwd") if directory == AT_FDCWD or name.startswith("/") else \
+                _proc(pid, f"fd/{directory}")
+            path = lexical(base, name)
+    else:
+        path, vector = lexical(_proc(pid, "cwd"), _string(pid, arguments[0])), arguments[1]
+    if not Path(path).is_file() or not os.access(path, os.X_OK):
+        return None  # The call fails; a search through PATH tries several such names.
+    return path, _vector(pid, vector)
+
+
+def _loaded(path: str, words: list[str]) -> tuple[str, list[str]]:
+    """What the kernel runs for an executable file: its interpreter line, as the kernel builds argv."""
+    for _ in range(4):
+        try:
+            with open(path, "rb") as stream:
+                head = stream.read(256)
+        except OSError:
+            break
+        if not head.startswith(b"#!"):
+            break
+        line = head[2:].split(b"\n", 1)[0].decode("utf-8", "surrogateescape").strip()
+        interpreter, _, argument = line.partition(" ")
+        words = [interpreter, *([argument.strip()] if argument.strip() else []), path, *words[1:]]
+        path = interpreter
+    return str(Path(path).resolve()), words
 
 
 class Origin:
@@ -146,58 +232,83 @@ class Origin:
 
 
 def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin | None = None) -> dict[str, object]:
-    """Run one command, following its whole process tree, and keep every exec instance.
+    """Run one command and keep every exec instance of its whole process tree.
 
-    Each instance records the process, the program it loaded, the full
-    argument vector, the directory and the stream links an interpreter may read.
-    Provenance is judged at the exec itself, while the file it runs still exists.
+    Each instance records the process, the file the exec named and the program the
+    kernel loads for it, the full argument vector as that program receives it, the
+    directory and the stream links an interpreter may read. Provenance is judged at
+    the exec itself, while the file it runs still exists.
     """
     origin = origin or Origin(cwd, set())
     instances: list[dict[str, object]] = []
+    parent, child = socket.socketpair()
     pid = os.fork()
     if pid == 0:
         try:
-            _ptrace(TRACEME, 0)
+            parent.close()
+            listener = _listen()
+            socket.send_fds(child, [b"x"], [listener])
+            # The step never holds the descriptor, so it cannot answer its own notifications.
+            os.close(listener)
+            child.close()
             os.chdir(cwd)
-            signal.raise_signal(signal.SIGSTOP)
             os.execvpe(argv[0], argv, env)
-        except BaseException:  # noqa: BLE001 - the child must never return to the tracer
+        except BaseException:  # noqa: BLE001 - the child must never return to the auditor
             os._exit(127)
-    os.waitpid(pid, 0)
-    _ptrace(SETOPTIONS, pid, OPTIONS)
-    _ptrace(CONT, pid)
-    alive = {pid}
-    exit_status = None
-    while alive:
-        try:
-            waited, status = os.waitpid(-1, WALL)
-        except ChildProcessError:
-            break
-        if os.WIFEXITED(status) or os.WIFSIGNALED(status):
-            alive.discard(waited)
-            if waited == pid:
-                exit_status = os.waitstatus_to_exitcode(status)
-            continue
-        signal_number, event = os.WSTOPSIG(status), status >> 16
-        deliver = 0
-        if signal_number == signal.SIGTRAP and event in (EVENT_FORK, EVENT_VFORK, EVENT_CLONE):
-            child = ctypes.c_ulong()
-            _libc.ptrace(GETEVENTMSG, waited, None, ctypes.addressof(child))
-            alive.add(child.value)
-        elif signal_number == signal.SIGTRAP and event == EVENT_EXEC:
-            words = _argv(waited)
-            streams = {str(n): _proc(waited, f"fd/{n}") for n in (0, 1)}
-            for word in words:
-                if word.startswith("/dev/fd/") and word[8:].isdigit():
-                    streams[word[8:]] = _proc(waited, f"fd/{word[8:]}")
-            instance = {"pid": waited, "program": _proc(waited, "exe") or "<gone>", "argv": words,
-                        "directory": _proc(waited, "cwd"), "streams": streams}
-            instance["provenance"] = origin.judge(instance)
-            instances.append(instance)
-        elif signal_number not in (signal.SIGTRAP, signal.SIGSTOP, signal.SIGCONT):
-            deliver = signal_number  # pass a real signal through, never the trap stops
-        _ptrace(CONT, waited, deliver)
-    return {"exit_status": 0 if exit_status is None else exit_status, "instances": instances}
+    child.close()
+    _, descriptors, _, _ = socket.recv_fds(parent, 1, 1)
+    parent.close()
+    if not descriptors:
+        os.waitpid(pid, 0)
+        raise OSError("the step could not install the exec filter")
+    listener = descriptors[0]
+    poller = select.poll()
+    poller.register(listener, select.POLLIN)
+    exit_status, deadline = None, None
+    try:
+        while True:
+            if exit_status is None:
+                waited, status = os.waitpid(pid, os.WNOHANG)
+                if waited:
+                    exit_status = os.waitstatus_to_exitcode(status)
+                    deadline = time.monotonic() + 30  # Processes the step left behind may still exec.
+            events = poller.poll(100)
+            if any(flags & (select.POLLHUP | select.POLLERR) for _, flags in events) and exit_status is not None:
+                break
+            if deadline is not None and time.monotonic() > deadline:
+                break
+            if not any(flags & select.POLLIN for _, flags in events):
+                continue
+            request = bytearray(80)
+            try:
+                fcntl.ioctl(listener, NOTIF_RECV, request, True)
+            except OSError:
+                continue  # The caller died before its notification was read.
+            serial, caller = int.from_bytes(request[0:8], "little"), int.from_bytes(request[8:12], "little")
+            number = int.from_bytes(request[16:20], "little")
+            arguments = [int.from_bytes(request[32 + 8 * i:40 + 8 * i], "little") for i in range(6)]
+            named = _executed(caller, number, arguments)
+            if named is not None:
+                program, words = _loaded(*named)
+                streams = {str(n): _proc(caller, f"fd/{n}") for n in (0, 1)}
+                for word in words:
+                    if word.startswith("/dev/fd/") and word[8:].isdigit():
+                        streams[word[8:]] = _proc(caller, f"fd/{word[8:]}")
+                instance = {"pid": caller, "file": named[0], "program": program, "argv": words,
+                            "directory": _proc(caller, "cwd"), "streams": streams}
+                instance["provenance"] = origin.judge(instance)
+                instances.append(instance)
+            response = serial.to_bytes(8, "little") + bytes(12) + CONTINUE.to_bytes(4, "little")
+            try:
+                fcntl.ioctl(listener, NOTIF_SEND, bytearray(response), True)
+            except OSError:
+                pass  # The caller died after its notification was read.
+    finally:
+        os.close(listener)
+    if exit_status is None:
+        _, status = os.waitpid(pid, 0)
+        exit_status = os.waitstatus_to_exitcode(status)
+    return {"exit_status": exit_status, "instances": instances}
 
 
 def lexical(directory: str, word: str) -> str:
@@ -484,6 +595,10 @@ def selftest(names: dict[str, object]) -> int:
         step("a program the step built, and an installed copy of it",
              f"cc -o {base}/built {base}/built.c && {base}/built && install -m 755 {base}/built {base}/copy && "
              f"{base}/copy", None)
+        (base / "leak.c").write_text("#include <stdlib.h>\nint main(void) { return malloc(1) == 0; }\n")
+        step("a LeakSanitizer build runs its leak check under the audit",
+             f"cc -fsanitize=address -o {base}/leak {base}/leak.c && ! {base}/leak 2>{base}/leak.log && "
+             f"grep -q 'detected memory leaks' {base}/leak.log", None)
         step("a step that fails under the disabled network", "exit 7", "step exited 7")
     return 0
 

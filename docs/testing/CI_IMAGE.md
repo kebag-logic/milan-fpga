@@ -295,8 +295,10 @@ holds the exact-semantics boundary with planted fixtures.
 
 The inventory derives which programs a step should run.
 The execution audit records which programs a step does run.
-[`exec_audit.py`](../../ci/image/exec_audit.py) follows `execve` with `ptrace`.
-A static binary is observed like any other.
+[`exec_audit.py`](../../ci/image/exec_audit.py) installs a seccomp filter on each step.
+Every `execve` and `execveat` becomes a notification the audit reads first.
+A static binary is observed like any other, and nothing is ptraced.
+LeakSanitizer and other self-tracing tools therefore still run.
 Steps run with the container network disabled.
 A step that needs the network fails, and its exit status is a finding.
 
@@ -331,6 +333,8 @@ A copied unlisted program has no provenance and is caught.
 A fetched program piped to a shell and `gem install` are caught.
 A permitted interpreter call and a step-built program stay clean.
 A step-built static binary is observed, and a failing step is reported.
+A link to a checkout script is judged as that script; one named `apt-get` is caught.
+A LeakSanitizer leak check still runs under the audit.
 
 `--audit SPEC --output RECEIPT --logs DIRECTORY` runs a step spec.
 A spec entry has `job`, `label`, `argv`, and optionally `working-directory` and `env`.
