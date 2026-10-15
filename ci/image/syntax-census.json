@@ -282,6 +282,7 @@
     "bash:word.arithmetic": "bash-arithmetic",
     "bash:word.bash-source": "bash-bash-source",
     "bash:word.cd-pwd": "bash-cd-pwd",
+    "bash:word.cd-pwd.script-directory": "bash-cd-pwd-script-directory",
     "bash:word.command-substitution": "bash-command-substitution",
     "bash:word.dirname": "bash-dirname",
     "bash:word.double-quoted": "bash-quotes",
@@ -1202,5 +1203,32 @@
     "-s",
     "-x",
     "-z"
-  ]
+  ],
+  "workflow_environment": {
+    "BDD_CONFORMANCE_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "CHANGES_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "EVENT_NAME": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "FIRMWARE_AECP_MUTANTS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_BOUNDARY_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_CONTROL_MUTANTS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_SRP_MUTANTS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_UNIT_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_VERILATOR_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "GATE_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "GH_TOKEN": "The hosted token the gh client reads as a credential; a runtime value, never code.",
+    "PR_BASE_REF": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "PR_DRAFT": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "PR_HEAD_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "PUBLICATION_CENSUS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "PUSH_BEFORE_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "SHARD": "The matrix shard a suite driver reads as data; a runtime value, never code.",
+    "SHARDS": "The matrix shard count a suite driver reads as data; a literal, never code.",
+    "SHARD_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "TARGET_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "TSN_GEN_REV": "The pinned generator revision the workflow steps expand; a literal, never code.",
+    "VERILATOR_LINT_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "VERILATOR_VERSION": "The pinned Verilator tag the workflow steps expand; a literal, never code.",
+    "YOSYS_ELABORATION_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "YOSYS_VERSION": "The pinned Yosys tag the workflow steps expand; a literal, never code."
+  }
 }

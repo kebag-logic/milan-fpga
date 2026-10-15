@@ -84,6 +84,12 @@ def shell_controls(fixture: Fixture) -> None:
     fixture.workflow.write_text(yaml.safe_dump({'jobs': {'gate': {'steps': [
         {'run': 'echo okay', 'env': {'BASH_ENV': 'hidden.sh'}}]}}}))
     fixture.check('workflow startup file', 'workflow environment')
+    for name, refusal in (('BASH_FUNC_echo%%', 'exported shell function'), ('PERL5OPT', 'interpreter hook'),
+                          ('GIT_CONFIG_KEY_0', 'interpreter hook'), ('HOME', 'interpreter hook'),
+                          ('ZZ_UNMODELLED', 'unmodelled workflow environment name')):
+        fixture.workflow.write_text(yaml.safe_dump({'jobs': {'gate': {'steps': [
+            {'run': 'echo okay', 'env': {name: '() { brand_new_command; }'}}]}}}))
+        fixture.check(f'workflow environment {name}', refusal)
 
 
 def alternative_controls(fixture: Fixture) -> None:
@@ -113,6 +119,7 @@ def make_controls(fixture: Fixture) -> None:
         fixture.run('make ' + variable + '=./hidden.sh')
         fixture.check('Make override ' + variable, 'uncensused Make')
     fixture.file('Makefile', 'TOOL ?= echo\nall: ; $(TOOL) okay\n')
+    fixture.environment(['TOOL'])
     fixture.workflow.write_text(yaml.safe_dump({'jobs': {'gate': {'steps': [
         {'run': 'make', 'env': {'TOOL': 'brand_new_command'}}]}}}))
     fixture.check('Make environment default', 'brand_new_command')

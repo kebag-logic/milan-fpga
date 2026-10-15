@@ -19,7 +19,8 @@ from pathlib import Path
 import re
 
 from ci_command_table import Fields, Refusal, Runtime, _normpath, nodes, shell_tree, sha256
-from ci_syntax import SENSITIVE, assigned_names, exact_use, function_names, shell_nodes
+from ci_syntax import (SENSITIVE, assigned_names, errexit_option, exact_use, function_names, glob_pattern,
+                       posix_dirname, shell_nodes, top_substitutions)
 
 
 RUNTIME = Runtime('${RUNTIME}')
@@ -34,39 +35,6 @@ IFS = ' \t\n'
 MISSING = object()
 #: The directory after paths that continue in different directories; nothing resolves under it.
 AMBIGUOUS = Path('/${AMBIGUOUS_DIRECTORY}')
-
-
-def posix_dirname(value: str) -> str:
-    """The image's coreutils dirname of one operand; its self-test holds the reference outputs."""
-    stripped = value.rstrip('/')
-    if not value or '/' not in stripped:
-        return '/' if value and not stripped else '.'
-    return stripped.rpartition('/')[0].rstrip('/') or '/'
-
-
-def errexit_option(args: list[str]) -> bool | None:
-    """The errexit setting `set` leaves, read as the shell reads its options; None when it names none.
-
-    A runtime operand may set anything, so errexit is then not known to hold.
-    """
-    result, words = None, iter(args[1:])
-    for word in words:
-        if isinstance(word, Runtime):
-            return False
-        if word == '--' or word[:1] not in ('-', '+') or len(word) < 2:
-            break
-        for letter in word[1:]:
-            option = 'errexit' if letter == 'e' else next(words, None) if letter == 'o' else None
-            if isinstance(option, Runtime):
-                return False
-            if option == 'errexit':
-                result = word[0] == '-'
-    return result
-
-
-def glob_pattern(text: str) -> bool:
-    """Whether unquoted text is a pathname pattern: `*`, `?` or a closed bracket expression."""
-    return bool(re.search(r'[*?]|\[[^]]*\]', text))
 
 
 @dataclass
@@ -102,6 +70,10 @@ class Shell:
         self.exported = set(audit.exported_env)
         self.locals = []
         self.frames = []
+        # A substitution whose failure ends the shell, and a script file that has run nothing yet:
+        # the two contexts in which `$(cd <literal> && pwd)` yields its directory.
+        self.failure_ends = False
+        self.quiet = argv0 is not None
 
     def location(self, node: dict) -> str:
         """Give every refusal and residue a source location."""
@@ -215,16 +187,13 @@ class Shell:
         if kind == 'ParamExp':
             return self.parameter(node, directory)
         if kind in ('CmdSubst', 'ProcSubst'):
-            end = None
-            def walk() -> None:
-                """The substitution's statements, in a subshell."""
-                nonlocal end
-                end = self.statements(node.get('Stmts', []), directory)
-            self.isolated(walk)
+            context = (self.failure_ends, self.quiet)
+            self.failure_ends = False  # A nested substitution's failure never ends the shell.
+            self.isolated(lambda: self.statements(node.get('Stmts', []), directory))
             if kind == 'ProcSubst':
                 self.shape('word.process-substitution', node)
                 return RUNTIME
-            return self.exact_substitution(node, directory, end)
+            return self.exact_substitution(node, directory, *context)
         if kind == 'ArithmExp':
             self.shape('word.arithmetic', node)
             self.arithmetic(node, directory)
@@ -353,12 +322,15 @@ class Shell:
             return None
         return values
 
-    def exact_substitution(self, node: dict, directory: Path, end: Path | None) -> str:
+    def exact_substitution(self, node: dict, directory: Path, failure_ends: bool, quiet: bool) -> str:
         """Exact shapes only; any other substitution output is a runtime value.
 
-        `$(cd <literal> && pwd)` is the one shape that yields a directory. `$(dirname
-        <literal>)` and `$(realpath <literal>)` are exact functions of their operand.
-        None applies when a function of the same name is defined anywhere in scope.
+        `$(cd <literal> && pwd)` yields its directory only where a failed `cd` cannot continue:
+        as the one substitution of a bare assignment under errexit, whose failure ends the shell;
+        or, in a script that has run nothing yet, for its own directory or an ancestor in the
+        checkout, which exist while the shell reads the script. Elsewhere an earlier program may
+        have removed it. `$(dirname <literal>)` and `$(realpath <literal>)` are exact functions
+        of their operand. None applies when a function of that name is defined anywhere in scope.
         """
         statements = node.get('Stmts', [])
         if len(statements) != 1 or set(statements[0]) - PLAIN or self.names & set(SUBSTITUTIONS):
@@ -386,10 +358,13 @@ class Shell:
             self.shape('word.command-substitution', node)
             return RUNTIME
         logical = Path(_normpath(str(directory / change[1])))
-        if not logical.is_dir() or logical != logical.resolve() or end != logical:
+        script = (self.audit.root / self.invocation_source).parent
+        own = quiet and self.where.split(':')[0] == self.invocation_source and \
+            logical.is_relative_to(self.audit.root) and (script == logical or script.is_relative_to(logical))
+        if not logical.is_dir() or logical != logical.resolve() or not (failure_ends or own):
             self.shape('word.command-substitution', node)
-            return RUNTIME  # A missing or symlinked directory is not modelled.
-        self.shape('word.cd-pwd', node)
+            return RUNTIME  # A directory that may be missing, or a symlinked one, is not modelled.
+        self.shape('word.cd-pwd' if failure_ends else 'word.cd-pwd.script-directory', node)
         return str(logical)
 
     # Statements
@@ -444,16 +419,12 @@ class Shell:
             directory = self.statement(statement, directory)
         return directory
 
-    def enterable(self, target: Path) -> bool:
-        """Whether `cd` into a target cannot fail: a directory the checkout holds, reached without a link.
-
-        Git creates checkout directories searchable by their owner; a path outside the
-        checkout depends on the runner's filesystem.
-        """
-        return target.is_relative_to(self.audit.root) and target.is_dir() and target == target.resolve()
-
     def certain(self, statement: dict, directory: Path) -> bool:
-        """Whether a statement always succeeds: a plain assignment, `true`, `:` or an enterable `cd`."""
+        """Whether a statement always succeeds: a plain assignment, `true` or `:`.
+
+        Nothing is decided from the checkout's state: an earlier program can change
+        any path, so a `cd` or a file test is never certain, and both paths continue.
+        """
         node = statement.get('Cmd', {})
         if set(statement) - PLAIN or node.get('Type') != 'CallExpr' or node.get('Assigns') and node.get('Args'):
             return False
@@ -464,10 +435,7 @@ class Shell:
         words = [value for word in node['Args'] for value in self.fields(word, directory)]
         if any(isinstance(word, Runtime) for word in words) or words[0] in self.names:
             return False
-        if words in (['true'], [':']):
-            return True
-        return len(words) == 2 and words[0] == 'cd' and not words[1].startswith('-') and \
-            self.enterable(Path(_normpath(str(directory / words[1]))))
+        return words in (['true'], [':'])
 
     def test(self, statements: list[dict], directory: Path) -> tuple[Path | None, Path | None]:
         """Walk a test with errexit suspended; return where its success and failure paths continue.
@@ -595,15 +563,46 @@ class Shell:
                 raise Refusal(f'uncensused shell local outside a function at {where}')
             scoped = False
         self.shape(f'declaration.{variant}' + ('-global' if variant == 'declare' and not scoped else ''), node)
-        for item in node.get('Args', []):
-            name = item.get('Name', {}).get('Value')
-            if name and variant == 'export':
+        # Bash expands every word of a declaration before the builtin runs: each initializer sees the
+        # variables as they stood before it, never a local this declaration creates.
+        values = [(item['Name']['Value'], self.declared_value(item, directory))
+                  for item in node.get('Args', []) if item.get('Name')]
+        for name, value in values:
+            if variant == 'export':
                 self.exported.add(name)
-            if name and scoped:
-                self.locals[-1].setdefault(name, self.env.get(name, MISSING))
-                self.env[name] = ''  # A new local is empty until assigned.
-        self.assignments(node.get('Args', []), directory)
+            if scoped and name not in self.locals[-1]:
+                # A new local hides the visible value; without an initializer it is unset.
+                self.locals[-1][name] = self.env.get(name, MISSING)
+                self.env[name] = ''
+            if value is not None:
+                self.env[name] = value
+            if name == 'LD_PRELOAD' and value is not None:
+                self.audit.residue.add(f'{self.location(node)}: declared runtime loader selection')
         return directory
+
+    def declared_value(self, item: dict, directory: Path) -> str | None:
+        """One declaration item's initializer, expanded now; None when it has none, which leaves a
+        local this function already declared unchanged."""
+        if item.get('Append'):
+            raise Refusal(f'unmodelled appending declaration at {self.location(item)}')
+        if item.get('Value') and item.get('Index'):
+            self.shape('assignment.index', item)
+            self.value(item['Index'], directory) if item['Index'].get('Parts') else None
+            self.assignment_value(item['Value'], directory)
+            return Runtime('${RUNTIME}')
+        if item.get('Value'):
+            self.shape('assignment', item)
+            return self.assignment_value(item['Value'], directory)
+        if item.get('Array'):
+            self.shape('assignment.array', item)
+            for element in item['Array'].get('Elems', []):
+                if element.get('Value'):
+                    self.value(element['Value'], directory)
+            return Runtime('${RUNTIME}')
+        if item.get('Naked'):
+            return None
+        self.shape('assignment', item)
+        return ''
 
     def conditional(self, node: dict, directory: Path, where: str) -> Path | None:
         """Join both branches; a missing branch continues from the test."""
@@ -734,8 +733,16 @@ class Shell:
         # Words expand before the command's own assignments take effect, as in the shell.
         args = [value for word in node.get('Args', []) for value in self.fields(word, directory)]
         if not args:
-            self.assignments(assigns, directory)
+            # A bare assignment's status is its last substitution's: with one, a failure ends an errexit shell.
+            self.failure_ends = len(assigns) == 1 and len(top_substitutions(assigns[0].get('Value'))) == 1 and \
+                self.errexit and not self.suspended
+            try:
+                self.assignments(assigns, directory)
+            finally:
+                self.failure_ends = False
             return directory
+        if isinstance(args[0], Runtime) or args[0] != 'set':
+            self.quiet = False  # A command has run: it may have changed any path.
         if inline is not None:
             if len(args) < 2 or args[1] != '-':
                 raise Refusal(f'unclassified interpreter input arguments at {where}')
@@ -851,7 +858,8 @@ class Shell:
             raise Refusal(f'unmodelled shell cd through a symbolic link at {where}')
         if node is self.test_call:
             self.tested_cd = True
-        elif not self.enterable(logical) and not (self.errexit and not self.suspended):
+        elif not (self.errexit and not self.suspended):
+            # Any cd can fail, whatever the checkout holds now: without errexit it may continue here.
             self.ambiguity = f'a cd that can fail at {where}'
             return AMBIGUOUS
         return logical

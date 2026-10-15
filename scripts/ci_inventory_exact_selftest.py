@@ -24,6 +24,7 @@ DIRNAME = {'': '.', '/': '/', '//': '/', '///': '/', 'a': '.', 'a/': '.', 'a/b':
 def step(fixture: Fixture, command: str, env: dict | None = None) -> None:
     """Install one run step, optionally with step environment values."""
     body = {'run': command, **({'env': env} if env else {})}
+    fixture.environment(sorted(env or {}))
     fixture.workflow.write_text(yaml.safe_dump({'jobs': {'gate': {'steps': [body]}}}))
 
 
@@ -128,12 +129,13 @@ def substitution_controls(fixture: Fixture) -> None:
             ('cd "$(cd scripts && pwd > /dev/null)"; python3 zz_probe_cwd.py', 'unresolved shell cd'),
             ('cd "$(cd scripts; pwd)"; python3 zz_probe_cwd.py', 'unresolved shell cd'),
             ('cd "$(echo x; pwd)"; python3 zz_probe_cwd.py', 'unresolved shell cd'),
-            ('cd "$(cd sub && pwd)"; bash bootstrap.sh', "unclassified command 'brand_new_command'"),
+            ('X="$(cd sub && pwd)"; cd "$X"; bash bootstrap.sh', "unclassified command 'brand_new_command'"),
+            ('cd "$(cd sub && pwd)"; bash bootstrap.sh', 'unresolved shell cd'),
             ('bash "$(dirname sub/bootstrap.sh)/bootstrap.sh"', "unclassified command 'brand_new_command'"),
             ('bash "$(realpath sub/bootstrap.sh)"', "unclassified command 'brand_new_command'")):
         fixture.run(command)
         fixture.check('substitution: ' + command, refusal)
-    fixture.file('scripts/run.sh', 'cd sub\nbash "$(dirname "$0")/x.sh"\n')
+    fixture.file('scripts/run.sh', 'set -e\ncd sub\nbash "$(dirname "$0")/x.sh"\n')
     fixture.file('scripts/x.sh', 'echo okay\n')
     fixture.file('sub/scripts/x.sh', 'brand_new_command\n')
     fixture.run('bash scripts/run.sh')

@@ -1,5 +1,5 @@
 {
- "binding": "f5975e97b7695189b5a3b2255ca6633d71296c3dff6bcb7d88a8ff9fa5aaf235",
+ "binding": "cb9fd602cdf8d7368c11e4adca91169ba0404e959e270c93fa6581c60344df3b",
  "fixtures": {
   "R638-6-M1": {
    "expect": "refused",
@@ -519,7 +519,7 @@
    ],
    "refusal": null,
    "residue": [],
-   "sha256": "713a86e1df427f25c429ce99c9cc35d45fbc47adf1c7d414c92f590f918e360a",
+   "sha256": "aca88549b2cdae5bbf9f50da66cae354c7cec44ef4340c9d3445bff45f1e5227",
    "shapes": [
     "bash:call.command",
     "bash:word.literal",
@@ -1796,6 +1796,325 @@
    ],
    "walker": []
   },
+  "R638-7-N3a-GIT_CONFIG_COUNT": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'GIT_CONFIG_COUNT' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "f63d84a0c733f080383d540ffd042758432bc0535e0730429cfbf1a0652cd393",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-GIT_CONFIG_KEY_0": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'GIT_CONFIG_KEY_0' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "cebaf73a4db03531e0c46bb241af7be532b6261664fbf4ec4d6f87d4069c718a",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-GIT_EXEC_PATH": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'GIT_EXEC_PATH' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "595e0d66e31bd33886cb1fa426fd739798b5855c1b49dcd6107ada3a8cc65213",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-HOME": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'HOME' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "ee9928509ee1ab8d488bfa3fd697ac8836352f0a6f55204a52c73f1684419c59",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-LD_AUDIT": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'LD_AUDIT' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "47070de5dde8fdefa94256f30d7be69089ca80004c7c7b57d65b03c8bb0594c8",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-NODE_OPTIONS": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'NODE_OPTIONS' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "99d4f9ed46daa6ca1637cc19db2392a492bceee8b8b32a39424226a2aec27577",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-PERL5OPT": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'PERL5OPT' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "c4f644fbc3ddd09bb0ceb119293d8ba524f682577f38fe14cb007d66089f6cd1",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-PYTHONSTARTUP": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'PYTHONSTARTUP' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "4c8a76cfdbb238e5edef81803f6093adef807ba3f1f4e6e96d822d81dc8572dc",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-PYTHONUSERBASE": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'PYTHONUSERBASE' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "99532565457e7e82c9ac8be160dda836fc2f9b975987e79b4820673e95f63b0a",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-exported-function": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "exported shell function in workflow environment 'BASH_FUNC_echo%%' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "5a91771fd910eef9fad76b36beeea8e31492e3e343b9096bf2a1e0122349cf1c",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-unmodelled-name": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unmodelled workflow environment name 'ZZ_UNMODELLED' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "3614fdd3355a74979c993b12f597821e5f51f2c10b68a52751d0bb30e14bafe7",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3b-if": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "sub"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "other"
+     ],
+     "directory": "other"
+    }
+   ],
+   "refusal": "ambiguous shell directory after conditional at .github/workflows/fixture.yml:2, used at .github/workflows/fixture.yml:3",
+   "residue": [],
+   "sha256": "58e94d7baa4d495da1ea8b1c3cb3d9238f549c96c2182e4eaff58919f6a4f9e8",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3b-or": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "sub"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "other"
+     ],
+     "directory": "other"
+    }
+   ],
+   "refusal": "ambiguous shell directory after || at .github/workflows/fixture.yml:2, used at .github/workflows/fixture.yml:3",
+   "residue": [],
+   "sha256": "03b638ab8d6782ba671d5d2ccfc8c0fe71a127d7012b4cd73a05d8a5ee9f8014",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:or",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": []
+  },
   "R639-6-make-explicit-stem": {
    "expect": "refused",
    "inspected": [],
@@ -1961,6 +2280,528 @@
    ],
    "walker": []
   },
+  "R639-7-F1-appending": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "uncensused shell Args.Append at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "7e41ef167661d20093788c39dcc88618be76528908b0ce15898e8219c97e4d9d",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R639-7-F1-declare": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "outer"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "83fbb4d17bf3870390294099312c4f09a0d77fc0b6a2c8a9c6a2bdc29fef0a73",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.declare",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-initializer": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "db5bb21234310e60c4254671b8caf0b37e9915c1557ada3e88a567a180c02f17",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-nested-scope": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "mid"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "y"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "mid"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "y"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "mid"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "y"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "9c1318014665c4de8979b4c000f44349868ae34b26095f1a92d499b3915b2411",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "mid"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "y"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "mid"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-new-local": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "x"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "x"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "outer"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "3db9251a13c5b757e171b984e4cb215e160d464c464dec7884948c5e77f08226",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "x"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-redeclared-local": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "first"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "first"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "0fbd6e2f8ae90f4639100609d096a5c5c868aa247b495430e7462ed855c5689e",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "first"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-words-first": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ],
+      [
+       "literal",
+       "1"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "outer",
+      "1"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "outer"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "3c5019548468e201d05e9319cbb7e43535f48868becc9d185d9f71b0fa0d99f9",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ],
+      [
+       "literal",
+       "1"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
   "bash-and": {
    "expect": "identical",
    "inspected": [],
@@ -1985,7 +2826,7 @@
       "zz_probe",
       "after"
      ],
-     "directory": "sub"
+     "directory": "."
     },
     {
      "argv": [
@@ -1997,12 +2838,13 @@
    ],
    "refusal": null,
    "residue": [],
-   "sha256": "a5a8eec6112a2539784cea29f49224ec5863585587add8a4b5a4c4337f5b2c29",
+   "sha256": "97500793e66d426cc036e7729eefaa94bac38dc173b38c3f62f5c6e64e306db7",
    "shapes": [
     "bash:and",
     "bash:assignment",
     "bash:call.command",
     "bash:cd",
+    "bash:subshell",
     "bash:word.double-quoted",
     "bash:word.literal",
     "bash:word.parameter",
@@ -2050,7 +2892,7 @@
        "after"
       ]
      ],
-     "directory": "sub"
+     "directory": "."
     }
    ]
   },
@@ -2520,14 +3362,16 @@
    ],
    "refusal": null,
    "residue": [],
-   "sha256": "67638191aa90fe51dbc9f333310fdf88b41f01692a477cbe298b2f5dca92efc4",
+   "sha256": "4cad41bc9ccbf31c5f28551fe7967299cd49100aa3445482fa7ebf509825a62b",
    "shapes": [
     "bash:and",
+    "bash:assignment",
     "bash:call.command",
     "bash:cd",
     "bash:word.cd-pwd",
     "bash:word.double-quoted",
     "bash:word.literal",
+    "bash:word.parameter",
     "cmd:table"
    ],
    "statuses": [
@@ -2543,6 +3387,92 @@
       [
        "literal",
        "<fixture>/sub"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-cd-pwd-after-a-program": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}/run2.sh' at run.sh:3",
+   "residue": [],
+   "sha256": "9b8203fcb2a49ac9eb3e695ddad82eff946ec48e3e00377d6dab08777f76ed71",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:call.command",
+    "bash:cd",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:python.script",
+    "cmd:shell.script.bash",
+    "cmd:table",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0,
+    127
+   ],
+   "walker": []
+  },
+  "bash-cd-pwd-script-directory": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "<fixture>"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "03325064628687764c40101ed769bf622e3a61a0b118f09b9e99f88ed04c4d53",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:call.command",
+    "bash:cd",
+    "bash:word.bash-source",
+    "bash:word.cd-pwd.script-directory",
+    "bash:word.dirname",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "<fixture>"
       ]
      ],
      "directory": "."
@@ -3351,23 +4281,9 @@
    ]
   },
   "bash-if-certain": {
-   "expect": "identical",
-   "inspected": [
-    {
-     "argv": [
-      [
-       "literal",
-       "zz_probe"
-      ],
-      [
-       "literal",
-       "never"
-      ]
-     ],
-     "directory": "sub"
-    }
-   ],
-   "outcome": "identical",
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
    "real": [
     {
      "argv": [
@@ -3384,51 +4300,19 @@
      "directory": "sub"
     }
    ],
-   "refusal": null,
+   "refusal": "ambiguous shell directory after conditional at .github/workflows/fixture.yml:1, used at .github/workflows/fixture.yml:2",
    "residue": [],
-   "sha256": "3651de19b69b232af178ebc6201db20851b42eedb09c6569c77319d9cc286391",
+   "sha256": "4ad5db2173439b77274ef80d519803e03f207099050d92e6df6a72ca2af5bf5c",
    "shapes": [
     "bash:assignment",
-    "bash:call.command",
     "bash:cd",
     "bash:if",
-    "bash:word.double-quoted",
-    "bash:word.literal",
-    "bash:word.parameter",
-    "cmd:data",
-    "cmd:table"
+    "bash:word.literal"
    ],
    "statuses": [
     0
    ],
-   "walker": [
-    {
-     "argv": [
-      [
-       "literal",
-       "zz_probe"
-      ],
-      [
-       "literal",
-       "then"
-      ]
-     ],
-     "directory": "sub"
-    },
-    {
-     "argv": [
-      [
-       "literal",
-       "zz_probe"
-      ],
-      [
-       "literal",
-       "true"
-      ]
-     ],
-     "directory": "sub"
-    }
-   ]
+   "walker": []
   },
   "bash-if-outside": {
    "expect": "refused",
@@ -3713,23 +4597,9 @@
    ]
   },
   "bash-or-certain": {
-   "expect": "identical",
-   "inspected": [
-    {
-     "argv": [
-      [
-       "literal",
-       "zz_probe"
-      ],
-      [
-       "literal",
-       "never"
-      ]
-     ],
-     "directory": "sub"
-    }
-   ],
-   "outcome": "identical",
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
    "real": [
     {
      "argv": [
@@ -3739,9 +4609,9 @@
      "directory": "sub"
     }
    ],
-   "refusal": null,
+   "refusal": "ambiguous shell directory after || at .github/workflows/fixture.yml:1, used at .github/workflows/fixture.yml:2",
    "residue": [],
-   "sha256": "2a59aace5dd29afea9ccc775d998f5d9e0d586b3887cf625185630ad0b4d82e5",
+   "sha256": "85eb42f5961ba5a25712bd56e1484ba1fdf1263e1892719f5983acdace051377",
    "shapes": [
     "bash:call.command",
     "bash:cd",
@@ -3761,10 +4631,10 @@
       ],
       [
        "literal",
-       "after"
+       "never"
       ]
      ],
-     "directory": "sub"
+     "directory": "."
     }
    ]
   },
@@ -4687,7 +5557,7 @@
     {
      "argv": [
       "zz_probe",
-      "/tmp/tmp.WcULY0zKl6"
+      "/tmp/tmp.RauDtyLp6U"
      ],
      "directory": "."
     }
@@ -4712,6 +5582,76 @@
     0
    ],
    "walker": []
+  },
+  "bash-true-certain": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "never"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "never"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "true"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "7310299889226434113cb4e4106e1d3e64c0144a923cc134c98f0d3191c8ed47",
+   "shapes": [
+    "bash:call.command",
+    "bash:if",
+    "bash:or",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "true"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
   },
   "bash-unset": {
    "expect": "identical",
@@ -6465,14 +7405,14 @@
     {
      "argv": [
       "zz_probe",
-      "a"
+      "b"
      ],
      "directory": "."
     },
     {
      "argv": [
       "zz_probe",
-      "b"
+      "a"
      ],
      "directory": "."
     }
@@ -7584,7 +8524,7 @@
    ],
    "refusal": null,
    "residue": [],
-   "sha256": "9b8b5dae31d98fd900b2334336aa1066b2a0337351c7a3d1191e1957306d5c07",
+   "sha256": "91594505b17c9e7ca92c4533f1c701143d06adc92f8ae7240a6c1821f1eb9a98",
    "shapes": [
     "bash:call.command",
     "bash:word.literal",
@@ -7594,6 +8534,7 @@
     "make:invocation",
     "make:recipe",
     "make:rule",
+    "sh:and",
     "sh:block",
     "sh:call.command",
     "sh:cd",

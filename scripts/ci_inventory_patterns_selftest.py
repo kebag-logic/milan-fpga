@@ -54,6 +54,12 @@ class Fixture:
             step['working-directory'] = directory
         self.workflow.write_text(yaml.safe_dump({'jobs': {'gate': {'steps': [step]}}}))
 
+    def environment(self, names: list[str]) -> None:
+        """Review workflow `env:` names solely to test what the walker does with their values."""
+        census = json.loads((self.root / 'ci/image/syntax-census.json').read_text())
+        census['workflow_environment'].update({name: 'Fixture environment control.' for name in names})
+        self.file('ci/image/syntax-census.json', inventory.serialized(census))
+
     def declare(self, name: str) -> None:
         """Pin a reviewed fixture solely to test the classification boundary."""
         self.table['scripts'][name] = {
@@ -168,7 +174,8 @@ def shell_controls(fixture: Fixture) -> None:
     fixture.run('{ cd sub; }; bash bootstrap.sh')
     fixture.check('block preserves parent scope', 'brand_new_command')
     fixture.run('cd sub || cd elsewhere; bash bootstrap.sh')
-    fixture.check('cd into an existing directory succeeds; its fallback never runs', 'brand_new_command')
+    fixture.check('a cd into an existing directory is never certain: its fallback is followed',
+                  'ambiguous shell directory')
     fixture.run('cd "$UNKNOWN" || cd sub; bash bootstrap.sh')
     fixture.check('a fallback after an uncertain cd leaves the directory ambiguous', 'unresolved shell cd')
     fixture.run('cd sub || exit 2; bash bootstrap.sh')
@@ -180,7 +187,7 @@ def shell_controls(fixture: Fixture) -> None:
     fixture.run('if true; then cd sub; else cd sub; fi; bash bootstrap.sh')
     fixture.check('common conditional directory persists', 'brand_new_command')
     fixture.run('if cd sub; then echo okay; fi; bash bootstrap.sh')
-    fixture.check('cd into an existing directory as a test persists', 'brand_new_command')
+    fixture.check('a cd test is never certain: both paths continue', 'ambiguous shell directory')
     fixture.file('function.sh', 'f() { echo okay; }; f\n')
     fixture.run('bash function.sh')
     fixture.check('same-file function')

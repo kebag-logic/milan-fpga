@@ -8,7 +8,7 @@ import hashlib
 import json
 import re
 
-from ci_command_table import Refusal, nodes
+from ci_command_table import Refusal, Runtime, nodes
 
 
 SENSITIVE = {
@@ -17,6 +17,36 @@ SENSITIVE = {
     'SHELL', 'MAKEFLAGS', 'GNUMAKEFLAGS', 'MAKEFILES', 'MAKEOVERRIDES', 'MAKE',
     '.SHELLFLAGS', '.RECIPEPREFIX',
 }
+
+#: Variables that make an interpreter or loader run code it was not given: refused by name in a
+#: workflow `env:`, before the allowlist below is consulted.
+HOOKS = {
+    'PERL5OPT', 'PERL5LIB', 'PERLLIB', 'NODE_OPTIONS', 'NODE_PATH', 'GIT_EXEC_PATH', 'GIT_CONFIG',
+    'GIT_CONFIG_COUNT', 'GIT_CONFIG_GLOBAL', 'GIT_CONFIG_SYSTEM', 'GIT_CONFIG_PARAMETERS', 'GIT_SSH',
+    'GIT_SSH_COMMAND', 'GIT_ASKPASS', 'GIT_EDITOR', 'GIT_PAGER', 'GIT_EXTERNAL_DIFF', 'PYTHONUSERBASE',
+    'PYTHONSTARTUP', 'PYTHONINSPECT', 'PYTHONSAFEPATH', 'PYTHONNOUSERSITE', 'PYTHONEXECUTABLE',
+    'PYTHONPLATLIBDIR', 'PYTHONWARNINGS', 'PYTHONBREAKPOINT', 'LD_AUDIT', 'LD_LIBRARY_PATH', 'LD_PRELOAD',
+    'HOME', 'XDG_CONFIG_HOME', 'TMPDIR', 'SHELL', 'POSIXLY_CORRECT', 'PROMPT_COMMAND', 'PS4', 'GLOBIGNORE',
+    'BASH_XTRACEFD', 'BASH_LOADABLES_PATH', 'BASH_COMPAT', 'INPUTRC', 'MAKELEVEL', 'GCC_EXEC_PREFIX',
+    'COMPILER_PATH', 'LIBRARY_PATH', 'CPATH', 'C_INCLUDE_PATH', 'CPLUS_INCLUDE_PATH', 'CC', 'CXX', 'CFLAGS',
+    'CXXFLAGS', 'LDFLAGS', 'CPPFLAGS', 'VERILATOR_ROOT', 'JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS',
+}
+
+
+def workflow_environment(census: dict, env: dict, where: str) -> None:
+    """A workflow `env:` name is accepted only if the walker models it: the census's reviewed names.
+
+    Exported shell functions (`BASH_FUNC_*`) and interpreter, loader and tool hooks
+    are refused by name; any other name outside the allowlist is refused as unmodelled.
+    """
+    for name in sorted(env):
+        if name.startswith('BASH_FUNC_'):
+            raise Refusal(f'exported shell function in workflow environment {name!r} at {where}')
+        if name in SENSITIVE or name in HOOKS or name.startswith(('GIT_CONFIG_', 'LD_')):
+            raise Refusal(f'interpreter hook in workflow environment {name!r} at {where}')
+        if name not in census.get('workflow_environment', {}):
+            raise Refusal(f'unmodelled workflow environment name {name!r} at {where}')
+
 
 #: Arithmetic operators that assign: `=`, `++` and `--`.
 ARITHMETIC_ASSIGNMENTS = (74, 36, 37)
@@ -112,3 +142,50 @@ def assigned_names(tree: object) -> set[str]:
                     names.add(part['Value'])
                     break
     return names
+
+
+def posix_dirname(value: str) -> str:
+    """The image's coreutils dirname of one operand; its self-test holds the reference outputs."""
+    stripped = value.rstrip('/')
+    if not value or '/' not in stripped:
+        return '/' if value and not stripped else '.'
+    return stripped.rpartition('/')[0].rstrip('/') or '/'
+
+
+def errexit_option(args: list[str]) -> bool | None:
+    """The errexit setting `set` leaves, read as the shell reads its options; None when it names none.
+
+    A runtime operand may set anything, so errexit is then not known to hold.
+    """
+    result, words = None, iter(args[1:])
+    for word in words:
+        if isinstance(word, Runtime):
+            return False
+        if word == '--' or word[:1] not in ('-', '+') or len(word) < 2:
+            break
+        for letter in word[1:]:
+            option = 'errexit' if letter == 'e' else next(words, None) if letter == 'o' else None
+            if isinstance(option, Runtime):
+                return False
+            if option == 'errexit':
+                result = word[0] == '-'
+    return result
+
+
+def top_substitutions(word: dict | None) -> list[dict]:
+    """The command substitutions a word performs itself, not those nested inside them."""
+    found, pending = [], list((word or {}).get('Parts', []))
+    while pending:
+        part = pending.pop()
+        if part.get('Type') == 'CmdSubst':
+            found.append(part)
+        elif part.get('Type') == 'DblQuoted':
+            pending.extend(part.get('Parts', []))
+        elif part.get('Type') in ('ParamExp', 'ArithmExp', 'ProcSubst'):
+            found.extend(n for n in nodes(part) if n.get('Type') == 'CmdSubst')
+    return found
+
+
+def glob_pattern(text: str) -> bool:
+    """Whether unquoted text is a pathname pattern: `*`, `?` or a closed bracket expression."""
+    return bool(re.search(r'[*?]|\[[^]]*\]', text))

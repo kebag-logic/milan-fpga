@@ -21,7 +21,7 @@ import sys
 import yaml
 
 from ci_command_table import Audit, Refusal, Runtime
-from ci_syntax import SENSITIVE
+from ci_syntax import workflow_environment
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -198,8 +198,7 @@ def derive(root: Path) -> dict[str, object]:
                     'shell', doc.get('defaults', {}).get('run', {}).get('shell')))
                 if shell is not None:
                     raise Refusal(f'uncensused workflow shell {shell!r} at {relative}')
-                if set(env) & SENSITIVE:
-                    raise Refusal(f'uncensused workflow environment {sorted(set(env) & SENSITIVE)} at {relative}')
+                workflow_environment(audit.census, env, relative)
                 audit.requests = []
                 audit.env = {k: Runtime(v) if isinstance(v, str) and '${{' in v else str(v)
                              for k, v in env.items()}

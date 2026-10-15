@@ -122,6 +122,8 @@ def build(fixture: dict, tree: Path) -> None:
             table['inline'][f'{interpreter}:{pin}'] = {'class': 'non-installing', 'reason': 'Differential fixture.'}
     (tree / 'ci/image/command-table.json').write_text(ci_tool_inventory.serialized(table))
     census = json.loads((tree / 'ci/image/syntax-census.json').read_text())
+    for name in fixture.get('workflow_environment', []):
+        census['workflow_environment'][name] = 'Differential fixture.'
     for kind, sources in fixture.get('exact_uses', {}).items():
         for text in sources:
             statement = ci_command_table.shell_tree(text, Path(os.environ['CI_IMAGE_SHFMT']))['Stmts'][0]

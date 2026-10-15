@@ -34,6 +34,8 @@ def python(name: str, shapes: list[str], files: dict, run: str = 'python3 main.p
 EXECUTE = "import subprocess\nsubprocess.run(['zz_probe', '{}'])\n"
 OK = 'zz_probe ok\n'
 EVIL = 'zz_probe hidden\n'
+#: An undeclared program that changes no command but removes a directory in one variant.
+CLEAN = "import os\nimport shutil\nif os.environ.get('RM'):\n    shutil.rmtree('sub')\n"
 #: A directory that exists in one variant only, so a `cd` into it can fail.
 MADE = 'if [ "$V" = 1 ]; then mkdir -p obj_fw; fi\n'
 EITHER = [{'V': '1'}, {'V': '0'}]
@@ -68,10 +70,18 @@ FIXTURES = [
           patterns={'dirname': [['sub/x.sh']]}),
     shell('bash-realpath', ['bash:word.realpath'], 'zz_probe "$(realpath sub/x.sh)"\n',
           files={'sub/x.sh': ''}, patterns={'realpath': [['sub/x.sh']]}),
-    shell('bash-cd-pwd', ['bash:word.cd-pwd'], 'zz_probe "$(cd sub && pwd)"\n', files={'sub/.keep': ''}),
+    shell('bash-cd-pwd', ['bash:word.cd-pwd'], 'X="$(cd sub && pwd)"\nzz_probe "$X"\n', files={'sub/.keep': ''}),
+    # A script's own directory exists while the shell reads the script, until a command runs.
+    shell('bash-cd-pwd-script-directory', ['bash:word.cd-pwd.script-directory'], 'bash sub/run.sh\n',
+          files={'sub/run.sh': 'set -u\nROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"\nzz_probe "$ROOT"\n'},
+          patterns={'dirname': [['sub/run.sh']]}),
+    # After a program has run, the directory may be gone: the output is a runtime value.
+    shell('bash-cd-pwd-after-a-program', [], 'bash run.sh\n', expect='refused', executes=True,
+          files={'run.sh': 'python3 clean.py\nX="$(cd sub && pwd)"\nbash "$X/run2.sh"\n',
+                 'clean.py': CLEAN, 'sub/run2.sh': OK}, variants=[{}, {'RM': '1'}]),
     # Bash state: every reachable path, joined.
     shell('bash-and', ['bash:and'],
-          'X=start\n[ -e "$FLAG" ] && X=flagged\nzz_probe "$X"\ncd sub && zz_probe in-sub\nzz_probe after\n',
+          'X=start\n[ -e "$FLAG" ] && X=flagged\nzz_probe "$X"\n(cd sub && zz_probe in-sub)\nzz_probe after\n',
           files={'sub/.keep': ''}, variants=[{'FLAG': 'missing'}, {'FLAG': 'sub'}]),
     shell('bash-or', ['bash:or'], 'X=a\n[ -e missing ] || X=b\nzz_probe "$X"\ncd sub || exit 1\nzz_probe in-sub\n',
           files={'sub/.keep': ''}),
@@ -82,15 +92,19 @@ FIXTURES = [
     shell('bash-if', ['bash:if'],
           'if [ "$V" = 1 ]; then X=one; zz_probe then; else X=two; zz_probe else; fi\nzz_probe "$X"\n',
           variants=[{'V': '1'}, {'V': '2'}]),
+    # A cd is never certain, whatever the checkout holds: both paths continue, and differ.
     shell('bash-if-certain', [],
           'if cd sub; then X=then; else X=else; fi\nzz_probe "$X"\n'
-          'if true; then zz_probe true; else zz_probe never; fi\n', files={'sub/.keep': ''}),
+          'if true; then zz_probe true; else zz_probe never; fi\n', files={'sub/.keep': ''}, expect='refused',
+          refusal='ambiguous shell directory'),
     shell('bash-if-outside', [], 'if cd /tmp; then X=moved; fi\nzz_probe "$X"\n', expect='refused'),
     # A failed cd changes nothing: under errexit it ends the shell; in a test it continues where it started.
     shell('bash-cd-test-fails', [], 'cd missing && true\nzz_probe here\n', expect='refused'),
     shell('bash-cd-test-last', [], MADE + 'cd obj_fw && zz_probe in-obj-fw\n',
           variants=EITHER),
-    shell('bash-or-certain', [], 'cd sub || zz_probe never\nzz_probe after\n', files={'sub/.keep': ''}),
+    shell('bash-or-certain', [], 'cd sub || zz_probe never\nzz_probe after\n', files={'sub/.keep': ''},
+          expect='refused', refusal='ambiguous shell directory'),
+    shell('bash-true-certain', [], 'if true; then zz_probe true; else zz_probe never; fi\n: || zz_probe never\n'),
     shell('bash-negated-cd', [], 'if ! cd missing; then zz_probe failed; fi\n'),
     shell('bash-errexit-cd', [], MADE + 'cd obj_fw\nzz_probe in-obj-fw\n',
           variants=EITHER),
@@ -233,7 +247,7 @@ FIXTURES = [
          variants=[{'F': 'missing'}, {'F': 'Makefile'}]),
     make('sh-or', ['sh:or'], 'all: ; X=a; [ -e missing ] || X=b; zz_probe "$$X"\n'),
     make('sh-pipe', ['sh:pipe'], 'all: ; echo x | zz_probe piped\n'),
-    make('sh-block', ['sh:block'], 'all: ; { cd sub; zz_probe in-sub; }\n', files={'sub/.keep': ''}),
+    make('sh-block', ['sh:block'], 'all: ; { cd sub && zz_probe in-sub; }\n', files={'sub/.keep': ''}),
     make('sh-if', ['sh:if'], 'all: ; if [ "$$V" = 1 ]; then zz_probe one; else zz_probe two; fi\n',
          variants=[{'V': '1'}, {'V': '2'}]),
     make('sh-case', ['sh:case'], 'all: ; case "$$V" in a) zz_probe a ;; *) zz_probe other ;; esac\n',
@@ -303,7 +317,7 @@ R638_MAKE = [
     ('M2', 'refused', {'Makefile': 'ifeq (a,b)\nendifX = echo\nendif\nall: ; $(endifX) zz_probe hidden\n'},
      'make\n', {}),
     ('M3', 'identical', {'Makefile': 'FOO += $(BAR)\nBAR = ; zz_probe hidden\nall: ; $(FOO) okay\n'}, 'make\n',
-     {'env': {'FOO': 'echo'}}),
+     {'env': {'FOO': 'echo'}, 'workflow_environment': ['FOO']}),
     ('M3b', 'identical', {'Makefile': 'FOO += $(BAR)\nBAR = ; zz_probe hidden\nall: ; $(FOO) okay\n'},
      'export FOO=echo; make\n', {}),
     ('M4', 'identical', {'Makefile': 'RUN = $(if $(0),,echo) zz_probe hidden\nall: ; $(call RUN)\n'}, 'make\n', {}),
@@ -406,3 +420,38 @@ FIXTURES += [{'id': f'R639-6-{name}', 'shapes': [], 'expect': expect, 'files': f
               'probe': f'R639-6 {name}', 'executes': name in ('make-explicit-stem', 'shell-short-circuit',
                                                               'shell-pwd-shadow')}
              for name, expect, files, run in R639]
+
+# R638-7 and R639-7 probes: workflow environment, checkout state, and local declarations.
+HOOK_NAMES = ('PERL5OPT', 'NODE_OPTIONS', 'GIT_EXEC_PATH', 'GIT_CONFIG_COUNT', 'GIT_CONFIG_KEY_0', 'PYTHONUSERBASE',
+              'PYTHONSTARTUP', 'LD_AUDIT', 'HOME')
+#: Two scripts a `cd` chooses between, and a program that removes one directory in one variant.
+BRANCHES = {'clean.py': CLEAN, 'sub/run.sh': 'zz_probe sub\n', 'other/run.sh': 'zz_probe other\n'}
+ROUND7 = [
+    ('R638-7-N3a-exported-function', 'refused', {}, 'echo ok\n',
+     {'env': {'BASH_FUNC_echo%%': '() { zz_probe hidden; }'}, 'refusal': 'exported shell function'}),
+    ('R638-7-N3a-unmodelled-name', 'refused', {}, 'zz_probe ok\n',
+     {'env': {'ZZ_UNMODELLED': 'x'}, 'refusal': 'unmodelled workflow environment name'}),
+    *[(f'R638-7-N3a-{name}', 'refused', {}, 'zz_probe ok\n',
+       {'env': {name: 'x'}, 'refusal': 'interpreter hook in workflow environment'}) for name in HOOK_NAMES],
+    ('R638-7-N3b-if', 'refused', BRANCHES,
+     'python3 clean.py\nif cd sub; then :; else cd other; fi\nbash run.sh\n',
+     {'variants': [{}, {'RM': '1'}], 'refusal': 'ambiguous shell directory'}),
+    ('R638-7-N3b-or', 'refused', BRANCHES,
+     'python3 clean.py\ncd sub || cd other\nbash run.sh\n',
+     {'variants': [{}, {'RM': '1'}], 'refusal': 'ambiguous shell directory'}),
+    ('R639-7-F1-initializer', 'identical', {'bootstrap.sh': 'true\n', 'evilbootstrap.sh': EVIL},
+     'X=evil\nf() { local X="$X"; bash "${X}bootstrap.sh"; }\nf\n', {}),
+    ('R639-7-F1-redeclared-local', 'identical', {}, 'f() { local X=first; local X; zz_probe "$X"; }\nf\n', {}),
+    ('R639-7-F1-new-local', 'identical', {}, 'X=outer\nf() { local X; zz_probe "x$X"; }\nf\nzz_probe "$X"\n', {}),
+    ('R639-7-F1-words-first', 'identical', {},
+     'X=outer\nf() { local X=1 Y="$X"; zz_probe "$Y" "$X"; }\nf\nzz_probe "$X"\n', {}),
+    ('R639-7-F1-declare', 'identical', {}, 'X=outer\nf() { declare X="$X"; zz_probe "$X"; X=inner; }\nf\n'
+     'zz_probe "$X"\n', {}),
+    ('R639-7-F1-nested-scope', 'identical', {},
+     'X=outer\ng() { zz_probe "$X"; local X; zz_probe "y$X"; }\nf() { local X=mid; g; zz_probe "$X"; }\nf\n', {}),
+    ('R639-7-F1-appending', 'refused', {}, 'f() { local X+=a; zz_probe "$X"; }\nf\n',
+     {'refusal': 'uncensused shell Args.Append'}),
+]
+FIXTURES += [{'id': name, 'shapes': [], 'expect': expect, 'files': files, 'run': run, 'probe': name,
+              'executes': expect == 'refused', **more}
+             for name, expect, files, run, more in ROUND7]
