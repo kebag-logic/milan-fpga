@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import os
 from pathlib import Path
+import re
 import subprocess
 import shlex
 import tempfile
@@ -86,6 +87,50 @@ def scheduling_controls() -> None:
     download = next(step for step in worker["steps"] if step.get("name") == "Download the pinned Yosys build")
     assert upload["with"]["name"] == download["with"]["name"] == "pinned-yosys-${{ github.sha }}"
     print("Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS")
+
+
+def suite_generator_controls() -> None:
+    """The generated Verilator graph keeps no dedicated milan_dp arm and expects its own
+    workers; a template whose arm or expectation disagrees with its own total is refused."""
+    source = load_template(ROOT, "rtl")
+    jobs = generate("rtl", source)["jobs"]
+    matrix = jobs["verilator-shards"]["strategy"]["matrix"]
+    workers = len(matrix["shard"])
+    assert matrix == {"shard": list(range(workers)), "total": [workers]}, matrix
+    ownership, = (step["run"] for step in jobs["verilator-shards"]["steps"]
+                  if step.get("name") == "Prove specialized suite ownership")
+    assert "= milan_dp ;;" not in ownership, ownership
+    verifier, = (step["run"] for step in jobs["verilator-suites"]["steps"]
+                 if step.get("name") == "Require every shard to have validated this run's SHA")
+    assert re.findall(r"--expect (\d+)", verifier) == [str(workers)], verifier
+    total = source["jobs"]["verilator-shards"]["strategy"]["matrix"]["total"][0]
+    arm = str(total - 1) + ') test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
+
+    def planted(job: str, step_name: str, old: str, new: str) -> dict:
+        """One template step's text replaced, every other byte of the template kept."""
+        changed = copy.deepcopy(source)
+        step, = (step for step in changed["jobs"][job]["steps"] if step.get("name") == step_name)
+        assert step["run"].count(old) == 1, (step_name, old)
+        step["run"] = step["run"].replace(old, new)
+        return changed
+
+    recount = copy.deepcopy(source)
+    recount["jobs"]["verilator-shards"]["strategy"]["matrix"] = {
+        "shard": list(range(total + 1)), "total": [total + 1]}
+    for label, template in (
+            ("arm index other than its total", planted(
+                "verilator-shards", "Prove specialized suite ownership", arm, str(total - 2) + arm[1:])),
+            ("--expect other than its total", planted(
+                "verilator-suites", "Require every shard to have validated this run's SHA",
+                "--expect " + str(total) + " ", "--expect " + str(total + 1) + " ")),
+            ("total without its arm and --expect", recount)):
+        try:
+            generate("rtl", template)
+        except ValueError as exc:
+            print("Suite generator refused a template " + label + ": " + str(exc))
+        else:
+            raise AssertionError("suite generator accepted a template " + label)
+    print(f"Suite generator: {workers} workers, no dedicated milan_dp arm, --expect {workers} PASS")
 
 
 def child_budget(directory: Path, target: str, budget: int, makefile: Path | None = None) -> None:
@@ -344,6 +389,7 @@ def main() -> int:
     """Drive the production generator and verifier with independent planted losses."""
     inventory_controls()
     scheduling_controls()
+    suite_generator_controls()
     cpu_controls()
     for name, carrier in CARRIERS.items():
         source = load_template(ROOT, name)
