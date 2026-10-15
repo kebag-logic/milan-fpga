@@ -1,0 +1,6 @@
+{"case": "readable-8GiB", "export": "CI_CENSUS_JOBS=4", "rc": 0, "stderr": "", "stdout": "census workers: 4 of 16 CPU(s) within 8589934592 bytes of memory"}
+{"case": "unreadable-8GiB", "export": "CI_CENSUS_JOBS=16", "rc": 0, "stderr": "", "stdout": "census workers: 16 of 16 CPU(s) within 65498251264 bytes of memory"}
+{"case": "unreadable-ancestor-4GiB", "export": "CI_CENSUS_JOBS=16", "rc": 0, "stderr": "", "stdout": "census workers: 16 of 16 CPU(s) within 65498251264 bytes of memory"}
+{"case": "garbage-limit", "export": null, "rc": 1, "stderr": "unreadable memory limit in <fixture>/sys: garbage", "stdout": ""}
+{"case": "missing-controller", "export": "CI_CENSUS_JOBS=16", "rc": 0, "stderr": "", "stdout": "census workers: 16 of 16 CPU(s) within 65498251264 bytes of memory"}
+REPRODUCED: unreadable existing leaf and ancestor limits are silently skipped; successful exports use host memory.

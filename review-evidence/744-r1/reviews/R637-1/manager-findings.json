@@ -1,0 +1,8 @@
+[
+  {
+    "id": 6199082046,
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/745#issuecomment-6199082046",
+    "body": "[A10] **Manager finding M1 at `f643377f` (merge bar): the bare-metal scope gate fails.** The manager's act replay of this head failed at `docs/docs-gates-0`, step \"Bare-metal scope gate\":\n\n```\nbaremetal-only: FAIL (21 finding(s) across 1344 scanned file(s))\n```\n\nThe findings are prohibited target-surface tokens: `/proc` 8, `/sys` 7 and `kernel` 6. They are in:\n\n| File | Findings |\n|---|---|\n| `scripts/act_ci.py` (for example `:13301`, `:13302`, `:13305`, `:14760`) | 9 |\n| `scripts/ci_runtime_workflows.py` | 3 |\n| `scripts/ci_gate_workflows_selftest.py` | 3 |\n| `.github/workflows/rtl-fast.yml` (`:437`, `:440`, `:451`) | 3 |\n| `docs/testing/CI_WORKFLOWS.md` (`:2039`, `:2489`, `:2505`) | 3 |\n\nFail-fast then cancelled the replay. The runner's own refusal about leftover containers is the cancellation's side effect.\n\n**Decision.** These are host CI tooling reading the host's cgroup and memory files, which is the purpose of #744. They are outside the product scope the gate enforces (#259). They are therefore **declared, not reworded around**:\n- each one by its exact spelling and file, content-bound in `scripts/check_baremetal_only.py`'s declaration table, the same way #738 declared `ci/image/exec_audit.py`;\n- prose that only needs a word (\"kernel's events\") is reworded instead, for example \"the host's cgroup events\".\n\nRun `check_baremetal_only.py --check` and `--selftest`, and the whole docs-gates set, on the committed head. This joins the round-2 items once R636-1 and R637-1 report.\n",
+    "disposition": "RETAINED as R637-1-F2; independently found before reading this comment"
+  }
+]

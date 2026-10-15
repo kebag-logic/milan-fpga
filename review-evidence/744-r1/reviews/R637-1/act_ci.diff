@@ -1,0 +1,587 @@
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index 58b9b054a..d6b29e4d4 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -152,13 +152,13 @@ SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
+ #: together - may hold in memory, with no swap beyond it (unit-property size
+ #: syntax). Four eight-GiB job caps leave four GiB for service overhead.
+ #: A slot that overruns is killed inside its own slice rather than starving the
+-#: host or a sibling slot. Hosted runners have no such aggregate cap, so a run
+-#: in which the cap caused an OOM is refused rather than reported as a verdict
+-#: (require_slot_memory_cap_unexhausted). That is all it detects: reclaim at the
+-#: cap, and an allocation that fails there without an OOM, still yield a
+-#: verdict, and each slot run prints only its peak and how often the cap was
+-#: hit. Its effect on the shipping workflows is unmeasured. Slot 0 keeps only
+-#: the per-container bound it had.
++#: host or a sibling slot. A run with any OOM inside the slice, at this cap or
++#: at a job container's CONTAINER_MEMORY below it, is refused rather than
++#: reported as a verdict (SlotMemory, read from the slice's hierarchical
++#: memory.events before teardown). That is all it detects: reclaim at a limit,
++#: and an allocation that fails there without an OOM, still yield a verdict,
++#: and each slot run prints its peak and how often a limit was hit. Slot 0
++#: keeps only the per-container bound it had, with no slice to read.
+ SLOT_MEMORY_MAX = "36G"
+ SLOT_COMMAND_TIMEOUT_SECONDS = 60
+ #: A slot daemon's start job (until dockerd reports ready) and its stop job
+@@ -4563,46 +4563,101 @@ def release_replay_slot(lease: SlotLease, *, host: SlotHost) -> None:
+         )
+ 
+ 
+-def require_slot_memory_cap_unexhausted(slot: ReplaySlot, host: SlotHost) -> str:
+-    """The slot's memory report; a Refusal when the slot's own cap caused an OOM while the body ran, or cannot be read.
++@dataclass(frozen=True)
++class SlotMemory:
++    """One isolated slot's memory accounting, read from its slice while the slice still exists.
++
++    The counts are the slice's hierarchical `memory.events`, which include
++    every cgroup below it: `oom` and `oom_kill` count an OOM at a job
++    container's CONTAINER_MEMORY limit as well as one at the slice's own
++    SLOT_MEMORY_MAX, whichever job it hit, and `max` counts how often usage
++    reached any of those limits. `peak` is the slice's `memory.peak` in
++    bytes, None when unreadable.
++    """
++
++    slot: int
++    oom: int
++    oom_kill: int
++    max_hits: int
++    peak: int | None
++
++    @property
++    def exhausted(self) -> bool:
++        """Whether memory, not the candidate, decided at least one job in the slot."""
++        return bool(self.oom or self.oom_kill)
+ 
+-    `memory.events.local` counts only the slice's own limit, never a job
+-    container's CONTAINER_MEMORY limit below it, so a nonzero `oom` there means
+-    the slot cap, which hosted runners do not have, decided the run. That
+-    verdict is not the candidate's, so it is refused rather than reported.
++    def report(self) -> str:
++        """The one-line accounting every slot run prints."""
++        peak = "unrecorded" if self.peak is None else f"{self.peak / 2**30:.1f} GiB"
++        return (
++            f"memory peak {peak} of its {SLOT_MEMORY_MAX} cap; a memory limit in the slot "
++            f"was hit {self.max_hits} time(s); {self.oom_kill} OOM kill(s) and {self.oom} "
++            "OOM event(s) in the slot"
++        )
++
++    def refusal(self) -> str:
++        """Why an exhausted slot's evidence is invalid."""
++        return (
++            f"replay slot {self.slot} recorded {self.oom_kill} OOM kill(s) and {self.oom} "
++            f"OOM event(s) at a memory limit inside it (a job container's {CONTAINER_MEMORY} "
++            f"or the slot's MemoryMax={SLOT_MEMORY_MAX}): memory, not the candidate, decided "
++            "at least one job, so the evidence is invalid (valid build: False) whichever "
++            "job it hit and whatever the jobs returned; bound the job's memory and replay it"
++        )
+ 
+-    Nothing else is refused. The slice counts under `max` each time usage hit
+-    the cap and memory was reclaimed instead, which can slow a job into a
+-    timeout, and no `oom` is raised for an allocation that fails without trying
+-    the OOM killer. Such a run keeps its verdict, so the report gives the peak
+-    and the `max` count and claims no more than those two numbers.
++    def evidence(self) -> dict[str, object]:
++        """The accounting as the evidence directory records it."""
++        return {"slot": self.slot, "memory_max": SLOT_MEMORY_MAX, "peak": self.peak,
++                "max": self.max_hits, "oom": self.oom, "oom_kill": self.oom_kill,
++                "valid_build": not self.exhausted}
++
++
++#: The cgroup2 mount option that would make `memory.events` count only the
++#: cgroup itself, which would hide every kill below the slice.
++LOCAL_EVENTS_OPTION = "memory_localevents"
++PROC_MOUNTS = pathlib.Path("/proc/self/mounts")
++
++
++def read_slot_memory(slot: ReplaySlot, host: SlotHost) -> SlotMemory:
++    """The slice's own `memory.events` and `memory.peak`; a Refusal when the counts cannot be proved.
++
++    Only the counts decide anything, so an unreadable peak is reported as
++    unrecorded, while unreadable or incomplete events, or a cgroup2 mount
++    whose `memory.events` is local, refuse: no OOM count is then provable.
+     """
+     cgroup = CGROUP_ROOT / slot.slice_unit
++    cannot = f"cannot prove replay slot {slot.number}'s memory accounting"
+     try:
++        mounts = [line.split() for line in host.read_text(PROC_MOUNTS).splitlines()]
++        options = [words[3].split(",") for words in mounts
++                   if len(words) > 3 and words[1] == str(CGROUP_ROOT) and words[2] == "cgroup2"]
+         events = dict(
+-            line.split() for line in host.read_text(cgroup / "memory.events.local").splitlines()
++            line.split() for line in host.read_text(cgroup / "memory.events").splitlines()
+         )
+-        exhausted = int(events["oom"])
+-        hits = int(events["max"])
++        oom, kills, hits = int(events["oom"]), int(events["oom_kill"]), int(events["max"])
+     except (OSError, ValueError, KeyError) as exc:
++        raise Refusal(f"{cannot}: {exc}") from exc
++    if len(options) != 1:
++        raise Refusal(f"{cannot}: {len(options)} cgroup2 mount(s) at {CGROUP_ROOT}")
++    if LOCAL_EVENTS_OPTION in options[0]:
+         raise Refusal(
+-            f"cannot prove replay slot {slot.number}'s memory cap never ran out: {exc}"
+-        ) from exc
+-    if exhausted:
+-        raise Refusal(
+-            f"replay slot {slot.number} ran out of its own memory cap "
+-            f"(MemoryMax={SLOT_MEMORY_MAX}) {exhausted} time(s): the slot cap, not the "
+-            "candidate, decided this run, so its verdict is refused; replay it in "
+-            "slot 0 or with fewer slots at once"
++            f"{cannot}: cgroup2 is mounted with {LOCAL_EVENTS_OPTION}, so the slice's "
++            "memory.events would not count a kill below it"
+         )
+     try:
+-        peak = f"{int(host.read_text(cgroup / 'memory.peak')) / 2**30:.1f} GiB"
++        peak: int | None = int(host.read_text(cgroup / "memory.peak"))
+     except (OSError, ValueError):
+-        peak = "unrecorded"
+-    return (
+-        f"memory peak {peak} of its {SLOT_MEMORY_MAX} cap; the cap was hit {hits} "
+-        "time(s), with no OOM at it"
+-    )
++        peak = None
++    return SlotMemory(slot.number, oom, kills, hits, peak)
++
++
++def report_slot_memory_beside(slot: ReplaySlot, host: SlotHost) -> None:
++    """Print the slot's accounting next to a body's own exception, which it never replaces."""
++    try:
++        line = read_slot_memory(slot, host).report()
++    except Refusal as exc:
++        line = str(exc)
++    print(f"act-ci: slot {slot.number}: {line}", flush=True)
+ 
+ 
+ @contextlib.contextmanager
+@@ -4612,15 +4667,17 @@ def replay_slot(
+     context: CommandContext,
+     scratch: pathlib.Path,
+     host: SlotHost = SlotHost(),
+-) -> Iterator[None]:
++) -> Iterator[Callable[[], SlotMemory | None]]:
+     """Run the body against `slot`'s daemon: none to start for slot 0, one owned for this invocation otherwise.
+ 
+-    After a body that returns, an isolated slot proves its memory cap caused
+-    no OOM and prints its peak and how often the cap was hit; a body that
+-    raises keeps its own exception.
++    The body receives the slot's meter: read_slot_memory for an isolated
++    slot, None for slot 0, which has no slice. Before teardown removes the
++    slice, an isolated slot always prints its accounting. After a body that
++    returns, any OOM in the slot is then a Refusal; a body that raises keeps
++    its own exception, with the accounting printed beside it.
+     """
+     if not slot.isolated:
+-        yield
++        yield lambda: None
+         return
+     if not context.use_sudo or slot_of_environment(context.env) != slot.number:
+         raise Refusal(
+@@ -4636,11 +4693,15 @@ def replay_slot(
+             f"memory {SLOT_MEMORY_MAX}, uplinks {','.join(lease.uplinks)}",
+             flush=True,
+         )
+-        yield
+-        print(
+-            f"act-ci: slot {slot.number}: {require_slot_memory_cap_unexhausted(slot, host)}",
+-            flush=True,
+-        )
++        try:
++            yield lambda: read_slot_memory(slot, host)
++        except BaseException:
++            report_slot_memory_beside(slot, host)
++            raise
++        memory = read_slot_memory(slot, host)
++        print(f"act-ci: slot {slot.number}: {memory.report()}", flush=True)
++        if memory.exhausted:
++            raise Refusal(memory.refusal())
+     finally:
+         if not lease.released:
+             with blocked_cleanup_signals():
+@@ -5670,6 +5731,8 @@ class WorkflowPlan:
+     dry_run: bool
+     cpu_ranges: tuple[str, ...] = ()
+     evidence_directory: pathlib.Path | None = None
++    #: The replay slot's meter (replay_slot); None for slot 0.
++    slot_memory: Callable[[], SlotMemory | None] = lambda: None
+ 
+ 
+ def check_run_integrity(
+@@ -5877,8 +5940,17 @@ def execute_workflows(
+     leftover_volumes = cleanup_act_job_volumes(boundary, observed_volumes, context=context)
+     if moved.problems:
+         raise Refusal("CPU placement audit failed: " + "; ".join(moved.problems))
++    # Every job container is gone, so no later kill can belong to a job: read
++    # the slot's accounting before the manifest, which cannot see it.
++    memory = plan.slot_memory()
++    if memory is not None and plan.evidence_directory is not None:
++        (plan.evidence_directory / "slot-memory.json").write_text(
++            json.dumps(memory.evidence(), sort_keys=True) + "\n")
+     if plan.evidence_directory is not None:
+         emit_local_manifest(run, layout, events, artifacts, plan.evidence_directory, result != 0)
++    if memory is not None and memory.exhausted:
++        print(f"act-ci: slot {memory.slot}: {memory.report()}; valid build: False", flush=True)
++        raise Refusal(memory.refusal())
+     if leftovers or leftover_volumes:
+         raise Refusal(f"act left {leftovers} owned container(s) and {len(leftover_volumes)} job volume(s) "
+                       "after the combined replay; the runner removed them and refuses the run")
+@@ -5926,7 +5998,7 @@ def run_validation(
+         env = controlled_act_environment(layout, slot.number)
+         context = CommandContext(use_sudo=use_sudo, cwd=layout.invocation, env=env)
+         validate_isolation_layout(layout)
+-        with replay_slot(slot, context=context, scratch=layout.temporary):
++        with replay_slot(slot, context=context, scratch=layout.temporary) as slot_memory:
+             prefix = (
+                 act_prefix(act_binary, use_sudo, env)
+                 if dry_run
+@@ -5951,6 +6023,7 @@ def run_validation(
+                 dry_run=dry_run,
+                 cpu_ranges=cpu_ranges,
+                 evidence_directory=launch.evidence_directory,
++                slot_memory=slot_memory,
+             )
+             with temporary_docker_boundary(
+                 planned_boundary,
+@@ -6744,11 +6817,14 @@ def workflow_control_fakes(
+ 
+ @dataclass(frozen=True)
+ class PlantedRun:
+-    """What a workflow-control run plants besides leftovers: act's exit status, and each CPU-range record's contents."""
++    """What a workflow-control run plants besides leftovers: act's exit status, each CPU-range record's contents,
++    and the slot's memory accounting with the evidence directory it is recorded in."""
+ 
+     act_returncode: int = 0
+     cpu_outcomes: Mapping[str, str] = field(default_factory=dict)
+     cpu_problems: Sequence[str] = ()
++    slot_memory: SlotMemory | None = None
++    evidence_directory: pathlib.Path | None = None
+ 
+ 
+ def run_workflow_control(
+@@ -6765,8 +6841,10 @@ def run_workflow_control(
+     Every faked call lands in one ordered log so the gate-before-spawn and
+     containers-before-volumes orders are measured, not assumed. act exits
+     with `planted`'s status, and each workflow's CPU-range record carries its
+-    container outcomes and problems. The printed text holds stdout and stderr
+-    together.
++    container outcomes and problems. A planted slot accounting is what the
++    slot's meter returns, and the manifest collector into its evidence
++    directory is logged rather than run. The printed text holds stdout and
++    stderr together.
+     """
+     log: list[tuple[str, ...]] = []
+     boundaries: list[DockerBoundary] = []
+@@ -6793,6 +6871,17 @@ def run_workflow_control(
+     fakes["job_cpu_range_monitor"] = cpu_range_monitor_stand_in(
+         log, planted.cpu_outcomes, planted.cpu_problems
+     )
++    fakes["emit_local_manifest"] = lambda *_args, **_kwargs: log.append(("manifest",))
++    if planted.slot_memory is not None:
++
++        @contextlib.contextmanager
++        def metered_slot(*_args: object, **_kwargs: object) -> Iterator[Callable[[], SlotMemory | None]]:
++            """A slot whose meter returns the planted accounting."""
++            log.append(("slot-on",))
++            yield lambda: planted.slot_memory
++            log.append(("slot-off",))
++
++        fakes["replay_slot"] = metered_slot
+     with mock.patch.multiple(sys.modules[__name__], **fakes), mock.patch.object(
+         os, "cpu_count", return_value=512
+     ):
+@@ -6802,7 +6891,8 @@ def run_workflow_control(
+                     resolved,
+                     ("docs", "elaborate"),
+                     shipping_root,
+-                    launch=LaunchOptions("/trusted/act", use_sudo=False, dry_run=False),
++                    launch=LaunchOptions("/trusted/act", use_sudo=False, dry_run=False,
++                                         evidence_directory=planted.evidence_directory),
+                 )
+         except Refusal as exc:
+             message = str(exc)
+@@ -6898,6 +6988,47 @@ def selftest_cpu_range_warnings(tally: SelftestTally, resolved: ValidatedRun, sh
+                     and [row[0] for row in log][-2:] == ["containers", "volumes"])
+ 
+ 
++def selftest_slot_memory_evidence(tally: SelftestTally, resolved: ValidatedRun, shipping_root: pathlib.Path) -> None:
++    """Planted control: a job killed at a memory limit refuses the replay and records invalid evidence,
++    whatever act returned."""
++    slot = ReplaySlot(1, pathlib.Path("/srv/slots"))
++    planted_host = FakeSlotHost(slot)
++    planted_host.memory_events = OOM_KILLED_EVENTS
++    planted_host.memory_peak = "209715200\n"
++    killed = read_slot_memory(slot, planted_host.seams())
++    clean = SlotMemory(1, 0, 0, 37, 209715200)
++    with tempfile.TemporaryDirectory(prefix="act-ci-slot-memory-") as scratch:
++        for case, (memory, status, refused) in enumerate(((killed, RC_OK, True), (killed, 3, True),
++                                                          (clean, RC_OK, False))):
++            evidence = pathlib.Path(scratch) / f"evidence-{case}"
++            evidence.mkdir()
++            rc, message, output, log, _leased = run_workflow_control(
++                resolved, shipping_root, leftover_volumes=(),
++                planted=PlantedRun(status, slot_memory=memory, evidence_directory=evidence))
++            recorded = json.loads((evidence / "slot-memory.json").read_text(encoding="utf-8"))
++            rows = [row[0] for row in log]
++            if refused:
++                tally.check(
++                    f"a slot whose events show a real kernel's OOM kill refuses the replay with act rc {status}, "
++                    "by count and as invalid evidence, after recording it and the manifest",
++                    rc is None
++                    and message == memory.refusal()
++                    and "recorded 1 OOM kill(s) and 1 OOM event(s)" in message
++                    and "act-ci: slot 1: memory peak 0.2 GiB of its 36G cap; a memory limit in the slot was "
++                    "hit 37 time(s); 1 OOM kill(s) and 1 OOM event(s) in the slot; valid build: False\n" in output
++                    and "PASS at" not in output
++                    and recorded == {"slot": 1, "memory_max": SLOT_MEMORY_MAX, "peak": 209715200, "max": 37,
++                                     "oom": 1, "oom_kill": 1, "valid_build": False}
++                    and rows[-3:] == ["containers", "volumes", "manifest"])
++            else:
++                tally.check(
++                    "a slot with no OOM keeps the replay's PASS and records valid accounting beside the manifest",
++                    rc == RC_OK and message == "" and "act-ci: docs: PASS" in output
++                    and "valid build: False" not in output
++                    and recorded["valid_build"] is True and recorded["oom_kill"] == 0
++                    and rows[-2:] == ["manifest", "slot-off"])
++
++
+ 
+ def trusted_runner_message(
+     resolved: ValidatedRun,
+@@ -13164,6 +13295,20 @@ def fake_host_tool(name: str) -> str:
+     return f"/usr/bin/{name}"
+ 
+ 
++#: The host's mount table as the slot arms plant it: one cgroup2 hierarchy at
++#: CGROUP_ROOT, whose memory.events are hierarchical.
++SLOT_MOUNTS = (
++    "proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\n"
++    "cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate,"
++    "memory_recursiveprot 0 0\n"
++)
++#: A real kernel's memory.events, verbatim, from a capped cgroup in which a
++#: process allocated 400 MiB past a 200 MiB MemoryMax with no swap (#744).
++OOM_KILLED_EVENTS = (
++    "low 0\nhigh 0\nmax 37\noom 1\noom_kill 1\noom_group_kill 0\nsock_throttled 0\n"
++)
++
++
+ class FakeSlotHost:
+     """A host that answers every slot command from a small resource model and records each one.
+ 
+@@ -13209,7 +13354,11 @@ class FakeSlotHost:
+             "-6": "[]\n",
+         }
+         self.memory_events: str | None = "low 0\nhigh 0\nmax 3\noom 0\noom_kill 0\n"
++        # The slice's own non-hierarchical counts, clean in every scenario:
++        # a reader of this file would miss every kill below the slice.
++        self.local_events = "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\n"
+         self.memory_peak: str | None = "13421772800\n"
++        self.mounts: str | None = SLOT_MOUNTS
+         self.root_stats: dict[pathlib.Path, os.stat_result] = {}
+         self.body_failure: BaseException | None = None
+         self.body_verdict = RC_OK
+@@ -13388,11 +13537,13 @@ class FakeSlotHost:
+         )
+ 
+     def read_text(self, path: pathlib.Path) -> str:
+-        """The slice's memory file at `path`; an unreadable one raises as the real read would."""
++        """The slice's memory file, or the mount table, at `path`; an unreadable one raises as the real read would."""
+         cgroup = CGROUP_ROOT / self.slot.slice_unit
+         contents = {
+-            cgroup / "memory.events.local": self.memory_events,
++            cgroup / "memory.events": self.memory_events,
++            cgroup / "memory.events.local": self.local_events,
+             cgroup / "memory.peak": self.memory_peak,
++            PROC_MOUNTS: self.mounts,
+         }[path]
+         self.keys.append(f"read-{path.name}")
+         if contents is None:
+@@ -13440,7 +13591,8 @@ SLOT_ACQUISITION_KINDS = [
+     "docker-info",
+ ]
+ SLOT_TEARDOWN_KINDS = [
+-    "read-memory.events.local",
++    "read-mounts",
++    "read-memory.events",
+     "read-memory.peak",
+     "stop-daemon",
+     "show-LoadState-daemon",
+@@ -14580,48 +14732,89 @@ def selftest_slot_wiring(tally: SelftestTally) -> None:
+ 
+ 
+ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
+-    """Arms: an OOM at a slot's own cap is refused; its peak and cap hits are printed; teardown always runs."""
++    """Arms: any OOM in a slot, at its cap or a container's, is refused by count, and so is an unprovable count;
++    teardown always runs."""
+     check = tally.check
+     slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
+     host = FakeSlotHost(slot)
+     outcome, entry = drive_fake_slot(host, layout)
+     check(
+-        "a slot whose cap caused no OOM passes, printing its peak and how often the cap "
+-        "was hit, and reads only the slice's own events, never those of a container's "
+-        "limit below it",
++        "a slot with no OOM passes, printing its peak, its limit hits and both OOM "
++        "counts, read from the slice's hierarchical memory.events after the mount "
++        "table and never from its memory.events.local",
+         outcome == ""
+-        and "act-ci: slot 2: memory peak 12.5 GiB of its 36G cap; the cap was hit 3 "
+-        "time(s), with no OOM at it\n" in host.transcript
+-        and host.keys[entry : entry + 2] == ["read-memory.events.local", "read-memory.peak"],
+-    )
+-    for events, described, named in (
+-        ("low 0\nmax 9\noom 2\noom_kill 2\n", "a cap that ran out twice",
+-         "ran out of its own memory cap (MemoryMax=36G) 2 time(s)"),
+-        # The slice runs no process itself, so the kill is counted in the
+-        # victim's own cgroup below it and the slice's own oom_kill stays 0.
+-        ("low 0\nhigh 0\nmax 7\noom 1\noom_kill 0\noom_group_kill 0\n",
+-         "one OOM at its cap and no kill in its own events",
+-         "ran out of its own memory cap (MemoryMax=36G) 1 time(s)"),
+-        (None, "unreadable events", "cannot prove replay slot 2's memory cap never ran out"),
+-        ("oom\n", "malformed events", "cannot prove replay slot 2's memory cap never ran out"),
+-        ("low 0\nmax 0\n", "events without an oom count",
+-         "cannot prove replay slot 2's memory cap never ran out"),
+-        ("low 0\noom 0\n", "events without a max count",
+-         "cannot prove replay slot 2's memory cap never ran out"),
++        and "act-ci: slot 2: memory peak 12.5 GiB of its 36G cap; a memory limit in "
++        "the slot was hit 3 time(s); 0 OOM kill(s) and 0 OOM event(s) in the slot\n"
++        in host.transcript
++        and host.keys[entry : entry + 3] == ["read-mounts", "read-memory.events", "read-memory.peak"]
++        and "read-memory.events.local" not in host.keys,
++    )
++    for events, verdict, described, named in (
++        # #742: kills at a job container's limit below the slice, with the
++        # slice's own memory.events.local clean and every job passing.
++        ("low 0\nhigh 0\nmax 5361\noom 210\noom_kill 210\noom_group_kill 0\n", RC_OK,
++         "210 kills at a container's limit below a slice whose own events are clean, "
++         "every job passing", "recorded 210 OOM kill(s) and 210 OOM event(s)"),
++        (OOM_KILLED_EVENTS, RC_OK, "a real kernel's events after one OOM kill, every job passing",
++         "recorded 1 OOM kill(s) and 1 OOM event(s)"),
++        (OOM_KILLED_EVENTS, RC_FAILED, "a real kernel's events after one OOM kill, a job failing",
++         "recorded 1 OOM kill(s) and 1 OOM event(s)"),
++        ("low 0\nmax 7\noom 1\noom_kill 0\n", RC_OK, "an OOM that killed nothing",
++         "recorded 0 OOM kill(s) and 1 OOM event(s)"),
++        ("low 0\nmax 0\noom 0\noom_kill 2\n", RC_OK, "kills counted with no OOM event",
++         "recorded 2 OOM kill(s) and 0 OOM event(s)"),
++    ):
++        host = FakeSlotHost(slot)
++        host.memory_events = events
++        host.body_verdict = verdict
++        outcome, entry = drive_fake_slot(host, layout)
++        check(
++            f"a slot with {described} is refused by count as invalid evidence, not "
++            "reported as a verdict, after printing its accounting, and the whole slot "
++            "is still torn down and unlocked",
++            outcome.startswith("Refusal")
++            and named in outcome
++            and "valid build: False" in outcome
++            and named.removeprefix("recorded ") + " in the slot\n" in host.transcript
++            and SLOT_REMOVALS.issubset(host.keys[entry:])
++            and host.state == set()
++            and host.keys[-1] == "unlock-99",
++        )
++    unprovable = "cannot prove replay slot 2's memory accounting"
++    for events, mounts, described, named in (
++        (None, SLOT_MOUNTS, "unreadable events", unprovable),
++        ("oom\n", SLOT_MOUNTS, "malformed events", unprovable),
++        ("low 0\nmax 0\noom_kill 0\n", SLOT_MOUNTS, "events without an oom count", unprovable),
++        ("low 0\nmax 0\noom 0\n", SLOT_MOUNTS, "events without an oom_kill count", unprovable),
++        ("low 0\noom 0\noom_kill 0\n", SLOT_MOUNTS, "events without a max count", unprovable),
++        ("low 0\nmax 0\noom 0\noom_kill 0\n", None, "an unreadable mount table", unprovable),
++        ("low 0\nmax 0\noom 0\noom_kill 0\n", "proc /proc proc rw 0 0\n",
++         "no cgroup2 hierarchy at the cgroup root", "0 cgroup2 mount(s) at /sys/fs/cgroup"),
++        ("low 0\nmax 0\noom 0\noom_kill 0\n", SLOT_MOUNTS.replace("memory_recursiveprot", "memory_localevents"),
++         "a cgroup2 mount whose events are local", "mounted with memory_localevents"),
+     ):
+         host = FakeSlotHost(slot)
+         host.memory_events = events
++        host.mounts = mounts
+         outcome, entry = drive_fake_slot(host, layout)
+         check(
+-            f"a slot with {described} is refused naming its cap, not reported as a "
+-            "verdict, and the whole slot is still torn down and unlocked",
++            f"a slot with {described} is refused, since no OOM count is provable, not "
++            "reported as a verdict, and the whole slot is still torn down and unlocked",
+             outcome.startswith("Refusal")
++            and unprovable in outcome
+             and named in outcome
+             and "memory peak" not in host.transcript
+             and SLOT_REMOVALS.issubset(host.keys[entry:])
+             and host.state == set()
+             and host.keys[-1] == "unlock-99",
+         )
++
++
++def selftest_slot_memory_report(tally: SelftestTally, layout: RunLayout) -> None:
++    """Arms: a slot's accounting is printed whatever the body did, and only an OOM refuses."""
++    check = tally.check
++    slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
++    unprovable = "cannot prove replay slot 2's memory accounting"
+     host = FakeSlotHost(slot)
+     host.memory_peak = None
+     outcome, _entry = drive_fake_slot(host, layout)
+@@ -14635,24 +14828,33 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
+     host.body_verdict = RC_FAILED
+     outcome, _entry = drive_fake_slot(host, layout)
+     check(
+-        "a FAILED run whose slice sat at its cap without an OOM keeps its FAILED, since "
+-        "only an OOM is refused, and reports the peak at the cap and how often it was hit",
++        "a FAILED run whose slot sat at a limit without an OOM keeps its FAILED, since "
++        "only an OOM is refused, and reports the peak and how often a limit was hit",
+         outcome == ""
+         and host.verdict == RC_FAILED
+-        and "act-ci: slot 2: memory peak 36.0 GiB of its 36G cap; the cap was hit 5361 "
+-        "time(s), with no OOM at it\n" in host.transcript,
+-    )
+-    host = FakeSlotHost(slot)
+-    host.body_failure = Refusal("the body failed")
+-    outcome, _entry = drive_fake_slot(host, layout)
+-    check(
+-        "a body that raises keeps its own exception: the cap is not read over it, and "
+-        "the slot is torn down",
+-        outcome == "Refusal: the body failed"
+-        and not any(key.startswith("read-") for key in host.keys)
+-        and host.state == set()
+-        and host.keys[-1] == "unlock-99",
+-    )
++        and "act-ci: slot 2: memory peak 36.0 GiB of its 36G cap; a memory limit in the "
++        "slot was hit 5361 time(s); 0 OOM kill(s) and 0 OOM event(s) in the slot\n"
++        in host.transcript,
++    )
++    for events, printed in (
++        ("low 0\nhigh 0\nmax 3\noom 0\noom_kill 0\n", "0 OOM kill(s) and 0 OOM event(s) in the slot"),
++        (OOM_KILLED_EVENTS, "1 OOM kill(s) and 1 OOM event(s) in the slot"),
++        (None, unprovable),
++    ):
++        host = FakeSlotHost(slot)
++        host.memory_events = events
++        host.body_failure = Refusal("the body failed")
++        outcome, entry = drive_fake_slot(host, layout)
++        check(
++            "a body that raises keeps its own exception, with the slot's accounting "
++            f"({printed}) printed beside it before teardown, and the slot is torn down",
++            outcome == "Refusal: the body failed"
++            and "act-ci: slot 2: " in host.transcript
++            and printed in host.transcript
++            and host.keys[entry : entry + 2] == ["read-mounts", "read-memory.events"]
++            and host.state == set()
++            and host.keys[-1] == "unlock-99",
++        )
+ 
+ 
+ def selftest_live_gate_slot(tally: SelftestTally) -> None:
+@@ -14884,6 +15086,7 @@ def selftest_slot_stages(tally: SelftestTally, docker: DockerFixture) -> None:
+     selftest_slot_teardown_queries(tally, docker.layout)
+     selftest_slot_teardown_signals(tally, docker.layout)
+     selftest_slot_memory_cap(tally, docker.layout)
++    selftest_slot_memory_report(tally, docker.layout)
+     selftest_slot_guards(tally, docker.layout)
+     selftest_slot_root(tally)
+     selftest_slot_lock(tally)
+@@ -15112,6 +15315,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
+     selftest_dry_run_cpu_ranges(tally, resolved, shipping_root)
+     selftest_workflow_order(tally, resolved, shipping_root)
+     selftest_cpu_range_warnings(tally, resolved, shipping_root)
++    selftest_slot_memory_evidence(tally, resolved, shipping_root)
+     selftest_action_launch_order(tally, resolved, shipping_root)
+     selftest_trusted_runner(tally, fixture, resolved)
+     selftest_wiring_pins(tally)
