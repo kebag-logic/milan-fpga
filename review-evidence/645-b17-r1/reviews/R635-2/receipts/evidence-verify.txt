@@ -1,0 +1,38 @@
+evidence commit 5b67fa6b253d109cec545b6a37b6e39cd1c7c32c (refs/heads/645-b17-review-evidence), extracted review-evidence/645-b17-r1
+## author-r2/MANIFEST.sha256 check (non-OK lines)
+./identity-resume/identity-verdict.json: FAILED
+sha256sum: ./tools/__pycache__/ana_b17.cpython-314.pyc: No such file or directory
+./tools/__pycache__/ana_b17.cpython-314.pyc: FAILED open or read
+sha256sum: WARNING: 1 listed file could not be read
+sha256sum: WARNING: 1 computed checksum did NOT match
+OK lines: 111 of 113
+note: identity-resume/identity-verdict.json listed in top-level MANIFEST.json as path_redacted=true (original bc704fb3..., published 64fae695...); __pycache__ entry not published
+## counter-logs.sha256
+cycles/c01/poll.jsonl: OK
+cycles/c02/poll.jsonl: OK
+cycles/c03/poll.jsonl: OK
+cycles/c04/poll.jsonl: OK
+cycles/c05/poll.jsonl: OK
+cycles/c06/poll.jsonl: OK
+cycles/c07/poll.jsonl: OK
+cycles/c08/poll.jsonl: OK
+cycles/c09/poll.jsonl: OK
+cycles/c10/poll.jsonl: OK
+## page artifact-hash table rows (size sha256 path) recomputed
+14306 12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17 tools/cyc_b17.py
+4345 1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7 tools/console_poll_b8.py
+28705 299d4f55441e147bf6d27b5b51242d3384157e4905d27f6ed1064398f05f9468 tools/ana_b17.py
+20088 bbd9d87ef31f0f1bfe46b0ccfac591eee4ee661815d57c72c0e14d65f6533471 tools/summ_b17.py
+6825 c0a05002be469161c236e3444d2674104c0708a23d974a808db7ca8ca5fc4b4d tools/summ_b17_r1.py
+1940 93c62e302f1a117b3c8a3e7c76aff716d68ffa303bbd68c7bbda426229897621 tools/peer_gap_b17.py
+4644 a11a6d18d9d3769fff35a4d8d25942741f10ad22ba1cedfec645e383c9763167 tools/check_b17_page.py
+4436 54825df7145ca69dca9bb359b9a4b233530889d12b3072c3054358831de3c879 controls/b17-ana-controls.json
+54944 a126c97ab419f0ad5ba6e0cd8bffccd8b1013610876415859919275d9c2c3a9e summary/cycles.json
+6328 545e828bbc44484b06d12fd635e01c1d221a25be1b642acefbf505dcb31ec729 summary/figures.json
+935 f7576161f3296ea8eeefb01f21efcdf930c0f7b7e16047d20a3ae0ab12debd65 summary/priming.md
+7657 b8f7de8c6a88cceef076fcfbc90ea326526663457b39984981220879d928f9b2 summary/peer-gap.json
+880 a1d415300d55cfc2c14178493a244edab56446bbfa3aa860721e8b39819c7848 summary/counter-logs.sha256
+369 66d9ed5b2c68796bdec9ad5c0178e8a48fe388018da5eae53df8a2675994ffd2 restore/census-compare.txt
+## baselines
+0x900008d4  d0 00 00 00 00 00 00 00 0d 02 0b 00              ............    
+0x900008d4  e4 00 00 00 00 00 00 00 0b 02 0b 00              ............    

@@ -1,0 +1,197 @@
+diff --git a/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md b/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+index d6f1db701..a9af27a2e 100644
+--- a/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
++++ b/docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+@@ -4642,8 +4642,11 @@ bind.
+ | Restore | Done | See [B17: bench as left](#b17-bench-as-left) |
+ 
+ These are operator observations, not review verdicts. Paths such as
+-`cycles/c01/poll.jsonl` are in the lane packet, `645-b17-a619`, which the
+-manager holds; this lane did not publish it.
++`cycles/c01/poll.jsonl` are in the lane packet, `645-b17-a619`. Its first
++round is published as `review-evidence/645-b17-r1/author` on branch
++`645-b17-review-evidence`, commit `35cc1ae4`. The second round's tools and
++summary, named in [B17: artifact hashes](#b17-artifact-hashes), are in the
++packet the manager holds.
+ 
+ ### B17: identity and setup
+ 
+@@ -4710,8 +4713,9 @@ poll is its raw counter log, `cycles/cNN/poll.jsonl`.
+ **What no CSR exposes.** The resume ruling also asks for the render recentre
+ count and the aligner's engaged and settled state. On this image the render
+ stage's `recentres_o` reaches no CSR. `RENDER_STAT` carries rails, converged,
+-prefill and fill only (`hdl/milan/milan_datapath.sv:6810-6812`, the same at
+-`5603c353`), and the register map keeps recentre counters as verification taps
++prefill and fill only (`hdl/milan/milan_datapath.sv:6810-6812` at dev
++`f6260253`; the same assignment at `:6797-6799` in `5603c353`), and the
++register map keeps recentre counters as verification taps
+ ([register map, `RENDER_STAT`](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state)).
+ The grid aligner's engaged state and the settle recentre's pending state have no CSR either. The poll reads
+ every word that bears on them: `RENDER_STAT`, and `MCSRV_STAT`, which is the
+@@ -4738,6 +4742,27 @@ and not yet fired. (b) needs slips periodic at the rate-offset interval within
+ the poll resolution, in the direction the sign of delta_ppm gives, with at
+ least one slip expected in the bound window. Anything else is (c).
+ 
++**Printed figures** (`tools/summ_b17.py`). Every poll figure is computed from
++the raw counter log and the bind's instant and rounded once when printed:
++the poll coverage, the slip intervals, the polls left after a slip and the
++`RENDER_STAT` brackets. A tap figure comes from the grade, which keeps 3 or
++4 decimals. It is printed only where no rounding tie makes the printed digit
++depend on the digits the grade dropped; no figure here sits on one. A time of
++day is a clock reading, truncated, not rounded. delta_ppm is the difference
++of the two graded rates, each rounded once to 4 decimals, so it is resolved
++to 0.0001 ppm. `tools/check_b17_page.py` recomputes every poll cell of the
++slips table from the raw counter logs and compares this section with the
++summary.
++
++**Windows after a slip.** The counter is read only to each cycle's last
++poll, +31.75 to +31.93 s after the bind. A figure "to the last poll" counts
++what starts no later than the end of that poll. The 32 s hold gives the same
++ranges. The capture runs on to about 41.9 s after the bind. That nothing
++slipped after the last poll rests on the cumulative counter, not on a poll:
++c01's first `SLIP_LB` read equals the start baseline, 208, each later
++cycle's first read equals the previous cycle's last, and c10's last equals
++the end baseline, 228.
++
+ **Controls.** `tools/ana_b17.py control` grades synthetic polls and synthetic
+ tap captures, 17 checks, all passed:
+ 
+@@ -4770,8 +4795,8 @@ byte-identical.
+ | c05 | 07:51:00.056 | Undefined (servo IDLE) | 80, -8.00 to +31.84 | 216 to 218 | 0.07 to 0.64, +2 dups, 0 skips | No boundary | (c) | +0.0002, 104,167 s | 24.6 us |
+ | c06 | 07:51:51.933 | Undefined (servo IDLE) | 80, -7.99 to +31.83 | 218 to 220 | 3.57 to 4.15, +2 dups, 0 skips | No boundary | (c) | +0.0016, 13,021 s | 25.8 us |
+ | c07 | 07:52:43.809 | Undefined (servo IDLE) | 80, -8.01 to +31.84 | 220 to 222 | 1.06 to 1.94, +2 dups, 0 skips | No boundary | (c) | +0.0002, 104,167 s | 25.0 us |
+-| c08 | 07:53:40.237 | Undefined (servo IDLE) | 80, -7.99 to +31.93 | 222 to 224 | 1.18 to 1.94, +2 dups, 0 skips | No boundary | (c) | +0.0003, 69,444 s | 25.6 us |
+-| c09 | 07:54:32.303 | Undefined (servo IDLE) | 80, -8.00 to +31.79 | 224 to 226 | 1.04 to 1.95, +2 dups, 0 skips | No boundary | (c) | +0.0001, 208,333 s | 25.1 us |
++| c08 | 07:53:40.237 | Undefined (servo IDLE) | 80, -7.99 to +31.93 | 222 to 224 | 1.17 to 1.94, +2 dups, 0 skips | No boundary | (c) | +0.0003, 69,444 s | 25.6 us |
++| c09 | 07:54:32.303 | Undefined (servo IDLE) | 80, -8.00 to +31.78 | 224 to 226 | 1.04 to 1.95, +2 dups, 0 skips | No boundary | (c) | +0.0001, 208,333 s | 25.1 us |
+ | c10 | 07:55:24.165 | Undefined (servo IDLE) | 80, -8.00 to +31.80 | 226 to 228 | 5.09 to 5.67, +2 dups, 0 skips | No boundary | (c) | +0.0006, 34,722 s | 26.9 us |
+ 
+ Lane B14 defines the settle boundary as the first poll that saw LOCKED, plus
+@@ -4787,11 +4812,40 @@ the ten cycles `SLIP_LB` went from 208 to 228 dups, and nothing else moved it:
+ - no change in the 2 s bound before each unbind, or while unbound;
+ - no change after the slip, through the 26.1 to 31.2 s of polls left in each
+   hold;
++- no change between one cycle's last poll and the next cycle's first, or
++  after c10's last poll: the cumulative counter in
++  [B17: method](#b17-method);
+ - `SLIP_TDM` read 0 throughout.
+ 
+ In every poll `MCSRV_STAT` read state IDLE and `AAFM_STAT` read 0, as INTERNAL
+-gives. `RENDER_STAT` left prefill 0.12 to 0.65 s after each bind and read fill
+-8 to 14, converged, from then on. Its rail count stayed 11.
++gives. `RENDER_STAT` is read once inside each poll, so its changes are
++bracketed, not timed. It read prefill 0 by 0.12 to 0.65 s after each bind:
++the end of the first poll that read prefill 0. The exit itself lies between
++the first peer PDU after the bind, 7.9 to 163.5 ms after it, and that end. In
++c02, c04, c05, c07 and c08 that poll was the first after the bind, so only
++the first peer PDU bounds the exit from below; in c05 the bracket is 0.008
++to 0.138 s. Fill read 8 to 14 from that poll on. Converged read 1 from that
++poll in six cycles, and from the next one, by 0.64 to 0.67 s, in c02, c04,
++c05 and c07. Both held to the last poll. Its rail count stayed 11.
++
++**Polls that took longer.** In every cycle two polls took 0.27 to 0.43 s,
++against at most 0.14 s for every other poll. One started 1.52 to 1.64 s after
++the unbind and one 1.55 to 1.68 s after the bind. That is consistent with
++firmware work after each ACMP change, such as the saved-state commit listed
++under [B17: bench as left](#b17-bench-as-left); the lane did not identify it.
++The second lies inside five slip intervals, c02, c03, c07, c08 and c09, and
++outside the other five, so it does not line up with the slips. The intervals
++stay valid, because each runs from the start of the poll before the change to
++the end of the poll that saw it.
++
++**c08's capture.** It holds 814,991 frames, 38,683 to 40,340 more than each
++of the other nine, which hold 774,651 to 776,308. Almost all of the extra
++frames are the peer's own AAF stream. On the DUT's link it kept arriving for
++4.87 s after the unbind's command, until 1.14 s before the bind, against 0.02
++to 0.18 s in the other nine cycles. No other stream appears in any capture. The unbind answered SUCCESS,
++and from the first poll after it the DUT's `RENDER_STAT` read prefill with
++fill 0, as in the other cycles, and `SLIP_LB` did not move. The capture kept
++AVTP and ACMP frames only, so it does not record why the stream continued.
+ 
+ ### B17: classification
+ 
+@@ -4812,8 +4866,10 @@ states. So no slip is shown to fall between an arming and its firing.
+ peer following the DUT's CRF. The peer's AAF stream and the DUT's AAF and CRF
+ streams all ran +4.99 to +5.02 ppm against gPTP time. The rate-offset interval
+ was therefore at least 12,255 s, against a bound window of about 34 s, so a
+-rate offset accounts for at most 0.003 slips in a cycle. A rate offset would
+-also slip at that interval through the hold, not once at each bind.
++rate offset accounts for at most 0.003 slips in a cycle. delta_ppm is resolved
++to 0.0001 ppm, and at that resolution the interval is still at least 11,574 s.
++A rate offset would also slip at that interval through the hold, not once at
++each bind.
+ 
+ **(c).** All ten. Under the ruling, #645 stays open with the cycle, the time
+ and the counters in [B17: the slips](#b17-the-slips). The aligner's state is
+@@ -4826,22 +4882,28 @@ the next settle recentre centres it
+ ([settle recentre](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre)). The tap shows the arrivals
+ that prime it:
+ 
+-| Quantity | Range over the ten cycles |
+-|---|---|
+-| First peer PDU on the DUT's link after the bind's command | 7.9 to 163.5 ms |
+-| Arrival phase against the DUT's own transmit grid, median, modulo one PDU | 1.405 to 1.450 us |
+-| Arrival lateness against a line fitted to the arrivals, 99.9th percentile | 4.4 to 6.1 us |
+-| Bursts of PDUs over 20 us late per cycle, 3 to 12 consecutive PDUs each | 11 to 24 |
+-| Largest lateness in the slip's interval | 24.6 to 29.3 us |
+-| Largest lateness after the slip, in the same hold | 27.6 to 30.3 us |
+-
+-In every cycle, no peer PDU arrived more than 10 us late between the bind and
+-the slip's interval, and the first burst over 20 us fell inside that interval.
+-The 10 to 23 bursts after it slipped nothing. In nine of the ten cycles one of
+-those later bursts was later than the burst that slipped. The arrival phase is
+-the same in every cycle, because the peer's talker follows the DUT's CRF. It
+-is measured on the tap, so it leaves out the DUT's fixed receive and transmit
+-latencies.
++| Quantity | Window | Range over the ten cycles |
++|---|---|---|
++| First peer PDU on the DUT's link after the bind's command | The bind | 7.9 to 163.5 ms |
++| Arrival phase against the DUT's own transmit grid, median, modulo one PDU | The whole post-bind stream | 1.405 to 1.450 us |
++| Arrival lateness against a line fitted to the arrivals, 99.9th percentile | The whole post-bind stream | 4.4 to 6.1 us |
++| Bursts of PDUs over 20 us late per cycle, 3 to 12 consecutive PDUs each | To the last poll | 9 to 19 |
++| The same | To the capture's end, about 41.9 s after the bind | 11 to 24 |
++| Largest lateness in the slip's interval | The slip's interval | 24.6 to 29.3 us |
++| Bursts after the slip | To the last poll | 8 to 18 |
++| Largest lateness after the slip | To the last poll | 27.1 to 30.1 us |
++| Bursts after the slip | To the capture's end | 10 to 23 |
++| Largest lateness after the slip | To the capture's end | 27.6 to 30.3 us |
++
++The windows are those of [B17: method](#b17-method). In every cycle, no peer
++PDU arrived more than 10 us late between the bind and the slip's interval, and
++the first burst over 20 us fell inside that interval. To the last poll, the 8
++to 18 bursts after it, up to 30.1 us, left `SLIP_LB` unchanged. In nine of the
++ten cycles one of them was later than the burst that slipped. The 2 to 7
++further bursts per cycle, to the capture's end, slipped nothing either; that
++rests on the cumulative counter. The arrival phase is the same in every cycle,
++as expected with the peer's talker following the DUT's CRF. It is measured on
++the tap, so it leaves out the DUT's fixed receive and transmit latencies.
+ 
+ This is consistent with the design statement above together with the arm
+ terms. A bind at INTERNAL arms no settle recentre, so the ring stays where the
+@@ -4874,7 +4936,8 @@ Residuals that no permitted command restores:
+ - On this image the recentre count and the aligner's state cannot be read on
+   silicon. So (a) can be shown only through a CLOCK_SOURCE change, and none
+   was made.
+-- A slip is timed to its poll interval, 0.58 to 0.90 s wide, not to the event.
++- A slip is timed to its poll interval, 0.58 to 0.90 s wide, not to the event,
++  and a `RENDER_STAT` change is bracketed by its polls in the same way.
+ - Rates come from presentation timestamps in gPTP time. The tap's own clock
+   only orders and times arrivals, and lateness is relative to a fitted line.
+ - Printed precision is not calibrated accuracy.
+@@ -4903,8 +4966,14 @@ transcripts.
+ | `tools/cyc_b17.py` (the cycle runner, as run) | 14,306 | `12ec02fe06f3ec5970fd46a4b17e81a97bed51334af7b41a8358231fa5555f17` |
+ | `tools/console_poll_b8.py` (the poller) | 4,345 | `1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7` |
+ | `tools/ana_b17.py` (the grading, as run for every summary) | 28,705 | `299d4f55441e147bf6d27b5b51242d3384157e4905d27f6ed1064398f05f9468` |
+-| `tools/summ_b17.py` (the table and the digest) | 6,825 | `c0a05002be469161c236e3444d2674104c0708a23d974a808db7ca8ca5fc4b4d` |
++| `tools/summ_b17.py` (round 2: the table, the windows, the printed figures and the digest) | 20,088 | `bbd9d87ef31f0f1bfe46b0ccfac591eee4ee661815d57c72c0e14d65f6533471` |
++| `tools/summ_b17_r1.py` (round 1, kept) | 6,825 | `c0a05002be469161c236e3444d2674104c0708a23d974a808db7ca8ca5fc4b4d` |
++| `tools/peer_gap_b17.py` (the peer's stream around each unbind and bind, from the raw captures) | 1,940 | `93c62e302f1a117b3c8a3e7c76aff716d68ffa303bbd68c7bbda426229897621` |
++| `tools/check_b17_page.py` (this section against the raw counter logs and the summary) | 4,644 | `a11a6d18d9d3769fff35a4d8d25942741f10ad22ba1cedfec645e383c9763167` |
+ | `controls/b17-ana-controls.json` | 4,436 | `54825df7145ca69dca9bb359b9a4b233530889d12b3072c3054358831de3c879` |
+-| `summary/cycles.json` (every cycle's figures) | 36,677 | `bf24acfdd0f966af7b185ec3b2ac53079b203778af3675aedfdd8e76d68e37a9` |
++| `summary/cycles.json` (every cycle's figures, round 2) | 54,944 | `a126c97ab419f0ad5ba6e0cd8bffccd8b1013610876415859919275d9c2c3a9e` |
++| `summary/figures.json` (every lane figure as printed, and the rounding check of each tap figure) | 6,328 | `545e828bbc44484b06d12fd635e01c1d221a25be1b642acefbf505dcb31ec729` |
++| `summary/priming.md` (the bind-priming table) | 935 | `f7576161f3296ea8eeefb01f21efcdf930c0f7b7e16047d20a3ae0ab12debd65` |
++| `summary/peer-gap.json` | 7,657 | `b8f7de8c6a88cceef076fcfbc90ea326526663457b39984981220879d928f9b2` |
+ | `summary/counter-logs.sha256` (the raw counter log digest: the SHA-256 of each `cycles/cNN/poll.jsonl`) | 880 | `a1d415300d55cfc2c14178493a244edab56446bbfa3aa860721e8b39819c7848` |
+ | `restore/census-compare.txt` | 369 | `66d9ed5b2c68796bdec9ad5c0178e8a48fe388018da5eae53df8a2675994ffd2` |
