@@ -194,8 +194,8 @@ class Origin:
         self.digests: dict[tuple, str | None] = {}
         self.existing: dict[int, list[str]] | None = None
 
-    def copies_existing(self, path: str, own: str) -> bool:
-        """Whether a program's bytes copy an executable the image or checkout held before the job."""
+    def copies_existing(self, path: str, own: str, image: bool = False) -> bool:
+        """Whether a file's bytes copy an executable the image (or checkout, unless `image`) held before the job."""
         if self.existing is None:
             self.existing = {}
             for top in (*SYSTEM_ROOTS, f"{self.root}/"):
@@ -210,7 +210,8 @@ class Origin:
                                 (status.st_mode & 0o170000) == 0o100000:
                             self.existing.setdefault(status.st_size, []).append(candidate)
         size = os.stat(path).st_size
-        return any(self.digest(candidate) == own for candidate in self.existing.get(size, []))
+        return any(self.digest(candidate) == own for candidate in self.existing.get(size, [])
+                   if not image or candidate.startswith(SYSTEM_ROOTS))
 
     def digest(self, path: str) -> str | None:
         """Content identity of a program file, cached by its size and modification time."""
@@ -256,7 +257,9 @@ class Origin:
             created = os.stat(path).st_ctime >= self.started  # Created or copied during the job.
         except OSError:
             created = False
-        return "written during the job" if created else "none"
+        own = self.digest(path) if created else None
+        # A copy of a checkout script is from in-tree inputs; a copy of an image executable is not.
+        return "written during the job" if own and not self.copies_existing(path, own, image=True) else "none"
 
 
 def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin | None = None) -> dict[str, object]:
@@ -602,6 +605,9 @@ def selftest(names: dict[str, object]) -> int:
         step("an unlisted program the job copies from the image",
              f"cp /bin/true {base}/bin/zz_copied_program && {base}/bin/zz_copied_program",
              "program without provenance: zz_copied_program")
+        step("a renamed copy of the image's pip3 script",
+             f'cp "$(command -v pip3)" {base}/bin/zz_copied_tool && python3 {base}/bin/zz_copied_tool --version',
+             "script without provenance: zz_copied_tool")
         (base / "fetched.sh").write_text("exit 0\n")
         step("a fetched program piped to a shell", f"curl -fsS file://{base}/fetched.sh | sh",
              "fetched program executed by dash")
