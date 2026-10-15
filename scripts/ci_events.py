@@ -7450,6 +7450,25 @@ def _elab_scope_and_presence_arms() -> list[Arm]:
     ]
 
 
+def _private_interpreter_arms() -> list[Arm]:
+    """#748: without the job-private interpreter, or with it first on PATH
+    only after the install, the LiteX install, the VexiiRiscv checkout and the
+    patch series write into the tool cache act shares between jobs again."""
+    return [
+        ("#748 elaborate job-private environment removed",
+         (lambda w: _strip_steps(w, ELABORATE, "elaborate", "litex-venv")),
+         "job `elaborate` must carry exactly 21 steps, in the recorded order (found 20)"),
+        ("#748 elaborate job-private environment after the LiteX install",
+         _m_swap_steps(ELABORATE, "elaborate", 5, 7),
+         "job `elaborate` step 6 must be the step named `Put a job-private Python environment on PATH`"),
+        ("#748 elaborate job-private environment never put on PATH",
+         _m_step_key_any(ELABORATE, "elaborate", "litex-venv", "run",
+                         'set -euo pipefail\npython3 -m venv "$RUNNER_TEMP/litex-venv"\n'),
+         "recorded writer `Put a job-private Python environment on PATH` in job "
+         "`elaborate` script is not the canonical form"),
+    ]
+
+
 def _carrier_step_list_arms() -> list[Arm]:
     """#295: the carriers' pinned step lists - insertion of any content,
     removal, reorder, rename, and the recorded `if` and `with` values."""
@@ -7500,20 +7519,6 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#295 elaborate scope and fetch steps swapped",
          _m_swap_steps(ELABORATE, "elaborate", 1, 2),
          "job `elaborate` step 2 must be the step named `Decide whether this head needs an elaboration`"),
-        # #748: without the job-private interpreter, or with it first on PATH
-        # only after the install, the LiteX install, the VexiiRiscv checkout
-        # and the patch series write into the shared tool cache again.
-        ("#748 elaborate job-private environment removed",
-         (lambda w: _strip_steps(w, ELABORATE, "elaborate", "litex-venv")),
-         "job `elaborate` must carry exactly 21 steps, in the recorded order (found 20)"),
-        ("#748 elaborate job-private environment after the LiteX install",
-         _m_swap_steps(ELABORATE, "elaborate", 5, 7),
-         "job `elaborate` step 6 must be the step named `Put a job-private Python environment on PATH`"),
-        ("#748 elaborate job-private environment never put on PATH",
-         _m_step_key_any(ELABORATE, "elaborate", "litex-venv", "run",
-                         'set -euo pipefail\npython3 -m venv "$RUNNER_TEMP/litex-venv"\n'),
-         "recorded writer `Put a job-private Python environment on PATH` in job "
-         "`elaborate` script is not the canonical form"),
         ("#295 docs-check recognised step renamed",
          _m_rename_step(DOCS, "docs-check", "Doc cited-path gate", "Cited-path gate"),
          "job `docs-check` step 44 must be the step named `Doc cited-path gate`"),
@@ -8339,6 +8344,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _carrier_gate_step_arms()
             + _elab_scope_and_presence_arms()
             + _carrier_step_list_arms()
+            + _private_interpreter_arms()
             + _carrier_script_arms(pristine)
             + _rtl_script_arms(pristine)
             + _sequence_pin_arms(pristine)
