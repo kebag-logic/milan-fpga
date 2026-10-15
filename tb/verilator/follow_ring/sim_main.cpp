@@ -56,12 +56,16 @@
 // ten bind cycles is replayed: an unbind, then a bind whose first PDU lands
 // at --bind-phase of a media tick, B17's delay after the bind, then B17's
 // first burst over 20 us late, and a later burst at B17's largest later
-// peak. B17 bounds the margin its binds primed: no PDU over 10 us late
-// slipped it before the first burst, and the smallest burst that did peaked
-// at 24.565 us. Graded per bind: one settle recentre, armed by the bind's
-// first PDU and fired 2,048 ticks later (the INTERNAL rule), executed once by
-// the render stage, and no SLIP_LB change. --follow-binds then repeats the
-// cycles under CRF following, where a bind must arm nothing.
+// peak. B17's cycle 5 bounds the margin its bind primed: below 24.565 us,
+// the peak of the burst that slipped it, and above 30.260 - 20.833 = 9.427
+// us, since the dup moved the ring a tick off its empty edge and a 30.260 us
+// burst after it slipped nothing. Graded per bind: one settle recentre,
+// armed by the bind's first PDU and fired 2,048 ticks later (the INTERNAL
+// rule), executed once by the render stage, and no SLIP_LB change. At some
+// first-PDU phases inside that window, finer than sweep-bind's 16, a bind
+// takes a one-pair dup before the ring acts; dev's datapath takes it too,
+// the arm does not remove it, and #743 owns it. --follow-binds then repeats
+// the cycles under CRF following, where a bind must arm nothing.
 //
 // Usage: Vfollow_ring [--case b8|pullin|bind] [options]   (see usage())
 
@@ -168,11 +172,13 @@ constexpr std::array<B17Cycle, 10> kB17 = {{
 //! a burst's consecutive PDUs each arrive this much less late: the mean
 //! least-squares slope of B17's ten first bursts (1.468 to 1.664)
 constexpr double kB17DecayUs = 1.538;
-//! the margin B17's binds primed lies between these: no PDU over 10 us late
-//! slipped the ring before its first burst, and the smallest burst that did
-//! peaked at 24.565 us (cycle 5)
-constexpr double kB17MarginLoUs = 10.0;
-constexpr double kB17MarginHiUs = 24.565;
+//! the margin B17's cycle 5 primed lies between these: its first burst
+//! slipped the ring at a 24.565 us peak; the dup moved the ring one tick off
+//! its empty edge, and its 30.260 us later burst then slipped nothing, so the
+//! margin was above 30.260 - 20.833 = 9.427 us. (B17's reader lists only PDUs
+//! over 10 us late; that none came before a first burst bounds nothing.)
+constexpr double kB17MarginLoUs = kB17[4].later_us - kTickUs;
+constexpr double kB17MarginHiUs = kB17[4].burst_us;
 //! the INTERNAL rule: the aligner rested in its band for 2,048 media ticks
 constexpr double kInternalSettleTicks = 2048.0;
 
