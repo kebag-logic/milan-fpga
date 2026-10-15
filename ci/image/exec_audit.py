@@ -18,7 +18,10 @@ exit status is a finding.
 - **Exec target.** An exec runs only a regular file reached by a path. Its path is
   resolved component by component as the exec's own lookup resolves it; a target through the
   process filesystem or `/dev`, a memfd, a deleted file, or a descriptor that is
-  not a path is refused before it runs and named.
+  not a path is refused before it runs and named. A lookup or load that fails
+  returns the exec's own error, and nothing runs; where the calling `bash` then
+  runs a text file without a `#!` line itself, with no exec, that file is judged
+  as a script of that `bash`.
 - **Invocations.** Every exec instance is kept with its full argument vector and
   directory, and judged by what it runs: the program, and an interpreter's own
   program too. Installers are refused by name, as a program, a script or a module.
@@ -105,6 +108,11 @@ _libc.tee.argtypes = (ctypes.c_int, ctypes.c_int, ctypes.c_size_t, ctypes.c_uint
 #: The image's own program directories, snapshotted as a job starts: a program or script the image held
 #: there, and holds still, must be named.
 SYSTEM_ROOTS = ("/usr/", "/bin/", "/sbin/", "/lib/", "/lib64/", "/opt/", "/etc/")
+#: Image shells that run a text file an exec cannot load in their own process, with no exec (bash's
+#: `shell_execve`); `dash` execs `/bin/sh` on such a file instead, which the audit sees.
+FALLBACK_SHELLS = {"bash"}
+#: How much of such a file bash reads to decide that it is not a binary file.
+FALLBACK_SAMPLE = 128
 #: Programs that fetch: an interpreter reading its program from their output fetches and executes.
 FETCHERS = {"curl", "wget", "fetch", "aria2c"}
 #: How long a streamed program's writer may keep its pipe open after the interpreter's exec.
@@ -275,7 +283,10 @@ def _target(pid: int, number: int, arguments: list[int]) -> tuple[str, object, l
         if located[0] == "errno":
             return "errno", located[1], []
         lexical_name = lexical(base, name)
-    status = os.stat(located[1])
+    try:
+        status = os.stat(located[1])
+    except OSError as error:
+        return "errno", error.errno, []
     if not stat.S_ISREG(status.st_mode) or not os.access(located[1], os.X_OK):
         return "errno", errno.EACCES, []
     if not _same_file(located[1], view):
@@ -306,7 +317,11 @@ def _loaded(name: str, path: str, words: list[str], directory: str) -> tuple[str
             return "refuse", located[1], words
         if located[0] == "errno":
             return "errno", located[1], []
-        if not stat.S_ISREG(os.stat(located[1]).st_mode) or not os.access(located[1], os.X_OK):
+        try:
+            status = os.stat(located[1])
+        except OSError as error:
+            return "errno", error.errno, []
+        if not stat.S_ISREG(status.st_mode) or not os.access(located[1], os.X_OK):
             return "errno", errno.EACCES, []
         words = [interpreter, *([argument.strip()] if argument.strip() else []), name, *words[1:]]
         name, path = interpreter, located[1]
@@ -621,17 +636,27 @@ class _Trace:
             _respond(self.listener, serial)
 
     def finish(self, reopened: int) -> None:
-        """A held stream's writers are done, or its wait is over: read it and let the interpreter run."""
+        """A held stream's writers are done, or its wait is over: read it and let the interpreter run.
+
+        A held program the audit cannot judge never runs: its interpreter is killed.
+        """
         caller, instance, _ = self.waiting.pop(reopened)
         self.poller.unregister(reopened)
-        complete = poll_hangup(reopened)
-        text = _pipe_text(reopened) if complete else None
-        os.close(reopened)
-        if not complete:
-            instance["stream_open"] = True
-        self.admit(None, caller, instance, text)
         try:
-            os.kill(caller, signal.SIGCONT)
+            complete = poll_hangup(reopened)
+            text = _pipe_text(reopened) if complete else None
+            if not complete:
+                instance["stream_open"] = True
+            self.admit(None, caller, instance, text)
+            resume = signal.SIGCONT
+        except Exception as error:  # noqa: BLE001 - a program the audit cannot judge does not run
+            self.refused.append({"pid": caller, "argv": instance["argv"],
+                                 "reason": f"exec not judged: {type(error).__name__}: {error}"})
+            resume = signal.SIGKILL
+        finally:
+            os.close(reopened)
+        try:
+            os.kill(caller, resume)
         except ProcessLookupError:
             pass
 
@@ -660,23 +685,37 @@ class _Trace:
             self.origin.ended(caller, arguments[0] & 0xFF)
             _respond(self.listener, serial)
         else:
-            self.executed(serial, caller, number, arguments)
+            try:
+                self.executed(serial, caller, number, arguments)
+            except Exception as error:  # noqa: BLE001 - an exec the audit cannot judge is refused, never run
+                self.refuse(serial, {"pid": caller, "program": _proc(caller, "exe"),
+                                     "reason": f"exec not judged: {type(error).__name__}: {error}"}, errno.EACCES)
 
     def executed(self, serial: int, caller: int, number: int, arguments: list[int]) -> None:
-        """An exec: refuse a target that is not a file on a path, fail what cannot run, keep what runs."""
-        outcome, value, words = _target(caller, number, arguments)
-        directory = _proc(caller, "cwd")
-        program = None
-        if outcome == "run":
-            outcome, program, words = _loaded(value[0], value[1], words, directory)
+        """An exec: refuse a target that is not a file on a path, fail what cannot run, keep what runs.
+
+        The target the call names and what its file loads are kept apart: a load that fails returns
+        its own error, or its own reason for a refusal, and the target stays the file the call named.
+        """
+        outcome, target, words = _target(caller, number, arguments)
         if outcome == "errno":
-            _respond(self.listener, serial, int(value))
+            _respond(self.listener, serial, int(target))
             return
         if outcome == "refuse":
-            self.refuse(serial, {"pid": caller, "argv": words, "reason": f"exec refused: {value}"}, errno.EACCES)
+            self.refuse(serial, {"pid": caller, "argv": words, "reason": f"exec refused: {target}"}, errno.EACCES)
             return
-        instance = {"pid": caller, "file": value[0], "program": program, "argv": words,
-                    "directory": directory, "streams": _streams(caller, words)}
+        directory = _proc(caller, "cwd")
+        loaded, program, argv = _loaded(target[0], target[1], words, directory)
+        if loaded == "errno":
+            if program == errno.ENOEXEC:
+                self.fallback(caller, target, words, directory)
+            _respond(self.listener, serial, int(program))
+            return
+        if loaded == "refuse":
+            self.refuse(serial, {"pid": caller, "argv": words, "reason": f"exec refused: {program}"}, errno.EACCES)
+            return
+        instance = {"pid": caller, "file": target[0], "program": program, "argv": argv,
+                    "directory": directory, "streams": _streams(caller, argv)}
         self.origin.identify(instance)
         what = invocation(instance)
         if what["kind"] != "stream" or instance.get("exec_only"):
@@ -696,6 +735,31 @@ class _Trace:
         else:
             text = _file_text(caller, int(what["descriptor"]), handle) if source == "file" else None
         self.admit(serial, caller, instance, text)
+
+    def fallback(self, caller: int, target: tuple[str, str], words: list[str], directory: str) -> None:
+        """A file an exec cannot load: where the caller is the image's bash, bash runs a text file itself,
+        in the calling process, with no exec. That file is then judged as a script of that bash.
+
+        As bash's `shell_execve` decides: an empty file runs nothing, and a file whose first line (two
+        lines after `#!`) holds a NUL within its first 128 bytes is a binary file bash refuses.
+        """
+        shell = {"program": _proc(caller, "exe"), "argv": []}
+        self.origin.identify(shell)
+        if shell.get("family") != "shell" or Path(str(shell["program"])).name not in FALLBACK_SHELLS:
+            return
+        try:
+            with open(target[1], "rb") as stream:
+                sample = stream.read(FALLBACK_SAMPLE)
+        except OSError:
+            return
+        lines = 2 if sample.startswith(b"#!") else 1
+        if not sample or sample.startswith(b"\x7fELF") or b"\0" in b"\n".join(sample.split(b"\n")[:lines]):
+            return
+        instance = {"pid": caller, "file": target[0], "program": shell["program"],
+                    "argv": [Path(str(shell["program"])).name, target[0], *words[1:]], "directory": directory,
+                    "streams": _streams(caller, []), "fallback": "a text file an exec cannot load, run by bash"}
+        self.origin.identify(instance)
+        self.admit(None, caller, instance, None)
 
     def run(self, pid: int) -> int:
         """Answer notifications until the step and every process it left have ended; return its status."""

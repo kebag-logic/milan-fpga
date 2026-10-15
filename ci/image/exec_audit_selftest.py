@@ -311,6 +311,30 @@ def interpreter_programs(step: Step, base: Path) -> None:
          "streamed program not readable at its exec: python3.12")
 
 
+def loader_errors(step: Step, base: Path) -> None:
+    """A load that fails returns its own error and names its own reason; bash's in-process fallback is judged."""
+    (base / "noshebang.sh").write_text("echo checkout-fallback\n")
+    (base / "noshebang.sh").chmod(0o755)
+    step("a checkout text file without #! that bash runs itself is a checkout script", f"{base}/noshebang.sh", None)
+    report = step("a job-written text file without #! that bash runs itself is judged as a bash script",
+                  f"printf 'echo fallback\\n' > {base}/bin/zz_noshebang && chmod +x {base}/bin/zz_noshebang && "
+                  f"{base}/bin/zz_noshebang", "script without provenance: zz_noshebang")
+    assert any(row["invocation"] == "zz_noshebang" and row["kind"] == "script" for row in report["population"])
+    report = step("dash runs a text file without #! by an exec of /bin/sh, which the audit judges",
+                  f"printf 'true\\n' > {base}/bin/zz_dash_fallback && chmod +x {base}/bin/zz_dash_fallback && "
+                  f"sh -c '{base}/bin/zz_dash_fallback; true'", None)
+    assert any(row["invocation"] == "zz_dash_fallback" for row in report["population"]), report["population"]
+    step("a binary file bash refuses to run is not judged as a script",
+         f"printf 'zz\\0\\n' > {base}/bin/zz_binary && chmod +x {base}/bin/zz_binary && "
+         f"! {base}/bin/zz_binary 2>/dev/null", None)
+    step("a missing #! interpreter fails as the exec fails, and nothing runs",
+         f"printf '#!/nonexistent/zz_interpreter\\n' > {base}/bin/zz_missing && chmod +x {base}/bin/zz_missing && "
+         f"! {base}/bin/zz_missing 2>/dev/null", None)
+    step("a #! interpreter through the process filesystem is refused with its own reason",
+         f"printf '#!{PROCESS_ROOT}/self/exe\\n' > {base}/bin/zz_refused && chmod +x {base}/bin/zz_refused && "
+         f"! {base}/bin/zz_refused 2>/dev/null", f"exec refused: exec through {PROCESS_ROOT}: not a file on a path")
+
+
 def selftest(names: dict[str, object]) -> int:
     """Each control is judged as the audit must judge it, by name."""
     names = {**names, **{key: {**names.get(key, {}), **entries} for key, entries in CONTROLS.items()}}
@@ -331,6 +355,7 @@ def selftest(names: dict[str, object]) -> int:
             print(f"PASS: {label}: " + (f"caught ({expect})" if expect else "clean"))
             return report
 
-        for group in (abi_and_target, installers_and_programs, interpreter_programs, provenance, checkout):
+        for group in (abi_and_target, installers_and_programs, interpreter_programs, provenance, loader_errors,
+                      checkout):
             group(step, base)
     return 0
