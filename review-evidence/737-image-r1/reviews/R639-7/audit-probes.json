@@ -1,0 +1,472 @@
+[
+  {
+    "label": "explicit-module-control",
+    "exit_status": 0,
+    "instances": [
+      {
+        "pid": 3444468,
+        "file": "<python-bin>/python3",
+        "program": "<python-bin>/python3.12",
+        "argv": [
+          "<python-bin>/python3",
+          "-m",
+          "pip",
+          "install",
+          "--no-index",
+          "--no-deps",
+          "--no-compile",
+          "--disable-pip-version-check",
+          "--target",
+          "<probe>/installed",
+          "<probe>/zz_probe_pkg-0.1-py3-none-any.whl"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "named"
+      },
+      {
+        "pid": 3444494,
+        "file": "/usr/bin/uname",
+        "program": "/usr/bin/uname",
+        "argv": [
+          "uname",
+          "-rs"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "pipe:[68312857]"
+        },
+        "provenance": "named"
+      }
+    ],
+    "population": [
+      {
+        "kind": "module",
+        "invocation": "pip",
+        "path": "pip",
+        "provenance": "named",
+        "count": 1
+      },
+      {
+        "kind": "program",
+        "invocation": "uname",
+        "path": "/usr/bin/uname",
+        "provenance": "named",
+        "count": 1
+      }
+    ],
+    "findings": [
+      {
+        "invocation": "pip",
+        "path": "pip",
+        "argv": [
+          "<python-bin>/python3",
+          "-m",
+          "pip",
+          "install",
+          "--no-index",
+          "--no-deps",
+          "--no-compile",
+          "--disable-pip-version-check",
+          "--target",
+          "<probe>/installed",
+          "<probe>/zz_probe_pkg-0.1-py3-none-any.whl"
+        ],
+        "reason": "installer module executed: pip"
+      },
+      {
+        "invocation": "pip",
+        "path": "pip",
+        "argv": [
+          "<python-bin>/python3",
+          "-m",
+          "pip",
+          "install",
+          "--no-index",
+          "--no-deps",
+          "--no-compile",
+          "--disable-pip-version-check",
+          "--target",
+          "<probe>/installed",
+          "<probe>/zz_probe_pkg-0.1-py3-none-any.whl"
+        ],
+        "reason": "module not in the allowlist: pip"
+      }
+    ]
+  },
+  {
+    "label": "inline-local-wheel",
+    "exit_status": 0,
+    "instances": [
+      {
+        "pid": 3444509,
+        "file": "<python-bin>/python3",
+        "program": "<python-bin>/python3.12",
+        "argv": [
+          "<python-bin>/python3",
+          "-c",
+          "from pip._internal.cli.main import main; raise SystemExit(main(['install', '--no-index', '--no-deps', '--no-compile', '--disable-pip-version-check', '--target', '<probe>/inline-installed', '<probe>/zz_probe_pkg-0.1-py3-none-any.whl']))"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "named"
+      },
+      {
+        "pid": 3444561,
+        "file": "/usr/bin/uname",
+        "program": "/usr/bin/uname",
+        "argv": [
+          "uname",
+          "-rs"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "pipe:[68550811]"
+        },
+        "provenance": "named"
+      }
+    ],
+    "population": [
+      {
+        "kind": "inline",
+        "invocation": "python3.12",
+        "path": "<python-bin>/python3.12",
+        "provenance": "named",
+        "count": 1
+      },
+      {
+        "kind": "program",
+        "invocation": "uname",
+        "path": "/usr/bin/uname",
+        "provenance": "named",
+        "count": 1
+      }
+    ],
+    "findings": [],
+    "installed": true
+  },
+  {
+    "label": "direct-installer-name-control",
+    "exit_status": 0,
+    "instances": [
+      {
+        "pid": 3444585,
+        "file": "<probe>/apt-get",
+        "program": "/usr/bin/bash",
+        "argv": [
+          "/bin/sh",
+          "<probe>/apt-get",
+          "--version"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "script": "<probe>/apt-get",
+        "provenance": "checkout"
+      }
+    ],
+    "population": [
+      {
+        "kind": "script",
+        "invocation": "apt-get",
+        "path": "<probe>/apt-get",
+        "provenance": "checkout",
+        "count": 1
+      }
+    ],
+    "findings": [
+      {
+        "invocation": "apt-get",
+        "path": "<probe>/apt-get",
+        "argv": [
+          "/bin/sh",
+          "<probe>/apt-get",
+          "--version"
+        ],
+        "reason": "installer executed: apt-get"
+      }
+    ]
+  },
+  {
+    "label": "compat-exec",
+    "exit_status": 0,
+    "instances": [
+      {
+        "pid": 3444586,
+        "file": "/usr/bin/bash",
+        "program": "/usr/bin/bash",
+        "argv": [
+          "bash",
+          "-e",
+          "-c",
+          "as --32 -o probe.o probe.s; ld -m elf_i386 -o trampoline probe.o; ./trampoline"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "named"
+      },
+      {
+        "pid": 3444598,
+        "file": "/usr/bin/as",
+        "program": "/usr/bin/as",
+        "argv": [
+          "as",
+          "--32",
+          "-o",
+          "probe.o",
+          "probe.s"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "named"
+      },
+      {
+        "pid": 3444601,
+        "file": "/usr/bin/ld",
+        "program": "/usr/bin/ld",
+        "argv": [
+          "ld",
+          "-m",
+          "elf_i386",
+          "-o",
+          "trampoline",
+          "probe.o"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "named"
+      },
+      {
+        "pid": 3444586,
+        "file": "<probe>/trampoline",
+        "program": "<probe>/trampoline",
+        "argv": [
+          "./trampoline"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "built by ld"
+      }
+    ],
+    "population": [
+      {
+        "kind": "inline",
+        "invocation": "bash",
+        "path": "/usr/bin/bash",
+        "provenance": "named",
+        "count": 1
+      },
+      {
+        "kind": "program",
+        "invocation": "as",
+        "path": "/usr/bin/as",
+        "provenance": "named",
+        "count": 1
+      },
+      {
+        "kind": "program",
+        "invocation": "ld",
+        "path": "/usr/bin/ld",
+        "provenance": "named",
+        "count": 1
+      },
+      {
+        "kind": "program",
+        "invocation": "trampoline",
+        "path": "<built>",
+        "provenance": "built by ld",
+        "count": 1
+      }
+    ],
+    "findings": [],
+    "installer_stub_ran": true
+  },
+  {
+    "label": "copied-elf-control",
+    "exit_status": 0,
+    "instances": [
+      {
+        "pid": 3444602,
+        "file": "/usr/bin/bash",
+        "program": "/usr/bin/bash",
+        "argv": [
+          "bash",
+          "-e",
+          "-c",
+          "cp /usr/bin/printenv unlisted; ./unlisted --version"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "named"
+      },
+      {
+        "pid": 3444603,
+        "file": "/usr/bin/cp",
+        "program": "/usr/bin/cp",
+        "argv": [
+          "cp",
+          "/usr/bin/printenv",
+          "unlisted"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "named"
+      },
+      {
+        "pid": 3444602,
+        "file": "<probe>/unlisted",
+        "program": "<probe>/unlisted",
+        "argv": [
+          "./unlisted",
+          "--version"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "none"
+      }
+    ],
+    "population": [
+      {
+        "kind": "inline",
+        "invocation": "bash",
+        "path": "/usr/bin/bash",
+        "provenance": "named",
+        "count": 1
+      },
+      {
+        "kind": "program",
+        "invocation": "cp",
+        "path": "/usr/bin/cp",
+        "provenance": "named",
+        "count": 1
+      },
+      {
+        "kind": "program",
+        "invocation": "unlisted",
+        "path": "<built>",
+        "provenance": "none",
+        "count": 1
+      }
+    ],
+    "findings": [
+      {
+        "invocation": "unlisted",
+        "path": "<probe>/unlisted",
+        "argv": [
+          "./unlisted",
+          "--version"
+        ],
+        "reason": "program without provenance: unlisted"
+      }
+    ]
+  },
+  {
+    "label": "modified-copied-elf",
+    "exit_status": 0,
+    "instances": [
+      {
+        "pid": 3444820,
+        "file": "/usr/bin/bash",
+        "program": "/usr/bin/bash",
+        "argv": [
+          "bash",
+          "-e",
+          "-c",
+          "cp /usr/bin/printenv unlisted2; printf '\\0' >> unlisted2; ./unlisted2 --version"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "named"
+      },
+      {
+        "pid": 3444825,
+        "file": "/usr/bin/cp",
+        "program": "/usr/bin/cp",
+        "argv": [
+          "cp",
+          "/usr/bin/printenv",
+          "unlisted2"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "named"
+      },
+      {
+        "pid": 3444820,
+        "file": "<probe>/unlisted2",
+        "program": "<probe>/unlisted2",
+        "argv": [
+          "./unlisted2",
+          "--version"
+        ],
+        "directory": "<probe>",
+        "streams": {
+          "0": "/dev/null",
+          "1": "<packet>/scratch/audit-probe-run.log"
+        },
+        "provenance": "written during the job"
+      }
+    ],
+    "population": [
+      {
+        "kind": "inline",
+        "invocation": "bash",
+        "path": "/usr/bin/bash",
+        "provenance": "named",
+        "count": 1
+      },
+      {
+        "kind": "program",
+        "invocation": "cp",
+        "path": "/usr/bin/cp",
+        "provenance": "named",
+        "count": 1
+      },
+      {
+        "kind": "program",
+        "invocation": "unlisted2",
+        "path": "<built>",
+        "provenance": "written during the job",
+        "count": 1
+      }
+    ],
+    "findings": []
+  }
+]
