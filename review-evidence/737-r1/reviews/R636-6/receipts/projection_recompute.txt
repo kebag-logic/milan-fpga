@@ -1,0 +1,11 @@
+hosted docs job 2682 builder 1400 contract 37 runner 102
+hosted elaborate job 2447 gates 1763 litex 597 verilator setup 2
+docs-gates-0                 exact  1394.137 rounded  1395 share 0.5167 OK (bound 1620)
+docs-gates-0 (hosted basis)  exact  1231.331 rounded  1232 share 0.4563 OK (bound 1620)
+docs-gates-1                 exact  1247.407 rounded  1248 share 0.4622 OK (bound 1620)
+docs-gates-2                 exact  1072.100 rounded  1073 share 0.3974 OK (bound 1620)
+elaborate-gates-0            exact  1474.052 rounded  1475 share 0.5463 OK (bound 1620)
+elaborate-gates-1            exact  1352.757 rounded  1353 share 0.5011 OK (bound 1620)
+workflow docs: 1665 s = 27.75 min, margin 135 s, OK
+workflow elaborate: 1745 s = 29.08 min, margin 55 s, OK
+sensitivity: elaborate-gates-0 with contended 1193 s leg -> 1612 s, workflow 1882 s

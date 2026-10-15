@@ -1,0 +1,30 @@
+# hosted docs run 38700974399 (head e3d25d964b5b), job docs-gates-2 116308789608, runner contract gate lines
+docs-gates-2	UNKNOWN STEP	2026-10-15T07:49:13.8175596Z selftest: PASS (2187 contract items, 5212 arms)
+docs-gates-2	UNKNOWN STEP	2026-10-15T07:49:57.0026410Z   FAIL flat isolated full selftest uses the explicit shipping worktree
+docs-gates-2	UNKNOWN STEP	2026-10-15T07:49:57.0229236Z   FAIL production main contains an interrupted early repository lookup
+docs-gates-2	UNKNOWN STEP	2026-10-15T07:49:57.0293564Z selftest: 1 FAILURE(S)
+docs-gates-2	UNKNOWN STEP	2026-10-15T07:49:57.0295232Z act-ci: REFUSED: CPU range 0-15 exceeds this host's 4 CPUs
+docs-gates-2	UNKNOWN STEP	2026-10-15T07:50:25.6350958Z act-ci: REFUSED: CPU range 0-15 exceeds this host's 4 CPUs
+docs-gates-2	UNKNOWN STEP	2026-10-15T07:50:36.2901698Z   FAIL production main contains an interrupted early repository lookup
+docs-gates-2	UNKNOWN STEP	2026-10-15T07:50:37.0653029Z selftest: 2 FAILURE(S)
+docs-gates-2	UNKNOWN STEP	2026-10-15T07:50:37.0793259Z ##[error]Process completed with exit code 1.
+
+# hosted docs run 38720602454 (head 47fd0d3c5100), job docs-gates-2 116373922720, runner contract gate lines
+2026-10-15T10:37:39.9737079Z   FAIL flat isolated full selftest uses the explicit shipping worktree
+2026-10-15T10:37:39.9981615Z   FAIL production main contains an interrupted early repository lookup
+2026-10-15T10:37:40.0037166Z selftest: 1 FAILURE(S)
+2026-10-15T10:37:40.0038558Z act-ci: REFUSED: CPU range 0-15 exceeds this host's 4 CPUs
+2026-10-15T10:38:08.7843040Z act-ci: REFUSED: CPU range 0-15 exceeds this host's 4 CPUs
+2026-10-15T10:38:19.4285567Z   FAIL production main contains an interrupted early repository lookup
+2026-10-15T10:38:20.1673683Z selftest: 2 FAILURE(S)
+2026-10-15T10:38:20.1802991Z ##[error]Process completed with exit code 1.
+
+# source: scripts/act_ci.py at 47fd0d3c
+4675:def parse_cpu_ranges(raw: str | None) -> tuple[str, ...]:
+4691:        if last >= host_cpus:
+4692:            raise Refusal(f"CPU range {text} exceeds this host's {host_cpus} CPUs")
+12180:            return main([str(pathlib.Path(__file__)), "--pr", "1", "--cpu-ranges", ",".join(BOOKED_CPU_RANGES.get())])
+12183:        "production main contains an interrupted early repository lookup",
+15089:                           contextvars.ContextVar("test_cpu_ranges", default=("0-15", "16-31", "32-47", "48-63"))):
+# introduced by: 8eab741af Pin replay jobs at creation on externally booked CPU ranges
+# dev f6260253 act_ci.py has parse_cpu_ranges: 0

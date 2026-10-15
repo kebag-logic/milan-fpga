@@ -1,0 +1,30 @@
+38720602454 47fd0d3c5100 docs-gates-0                 cancelled  632.0
+    step  34 Saved-state writer gate                       cancelled  60 s
+38720602454 47fd0d3c5100 docs-gates-1                 cancelled  633.0
+    step  16 End-station builder gates, leg 0 of 2         cancelled  579 s
+38720602454 47fd0d3c5100 Fail fast across this head   cancelled  617.0
+    step   4 Observe the first failed job                  failure    603 s
+38720602454 47fd0d3c5100 wire-accountability          success    15.0
+38720602454 47fd0d3c5100 docs-check-no-git            success    14.0
+38720602454 47fd0d3c5100 docs-gates-2                 failure    547.0
+    step  16 End-station builder gates, leg 1 of 2         success    287 s
+    step  17 CI event and SHA contract gate                success    132 s
+    step  18 Local act runner contract gate                failure    84 s
+38720602454 47fd0d3c5100 docs-check                   failure    29.0
+    step   8 Require every gate exactly once               failure    0 s
+38720602454 47fd0d3c5100 Collect CI manifest          success    42.0
+38720602454 47fd0d3c5100 Cancel late CI failures      success    6.0
+38720602303 47fd0d3c5100 elaborate-gates-1            cancelled  627.0
+    step  11 Install LiteX at the pinned revisions         success    24 s
+    step  15 Place the VexiiRiscv source at the revision LiteX pins success    4 s
+    step  19 Elaboration gates, leg 1 of 2                 cancelled  537 s
+38720602303 47fd0d3c5100 elaborate-gates-0            cancelled  630.0
+    step  11 Install LiteX at the pinned revisions         success    23 s
+    step  15 Place the VexiiRiscv source at the revision LiteX pins success    5 s
+    step  19 Elaboration gates, leg 0 of 2                 cancelled  542 s
+38720602303 47fd0d3c5100 Fail fast across this head   cancelled  626.0
+    step   4 Observe the first failed job                  cancelled  615 s
+38720602303 47fd0d3c5100 elaborate                    failure    32.0
+    step   8 Require every gate exactly once               failure    0 s
+38720602303 47fd0d3c5100 Collect CI manifest          success    40.0
+38720602303 47fd0d3c5100 Cancel late CI failures      success    8.0

@@ -1,0 +1,50 @@
+refused docs: missing inventory preparation in docs-gates-0
+refused docs: if preparation in docs-gates-0
+refused docs: continue-on-error preparation in docs-gates-0
+refused docs: missing inventory preparation in ci-manifest
+refused docs: if preparation in ci-manifest
+refused docs: continue-on-error preparation in ci-manifest
+refused elaborate: missing inventory preparation in ci-manifest
+refused elaborate: if preparation in ci-manifest
+refused elaborate: continue-on-error preparation in ci-manifest
+refused rtl: missing inventory preparation in verilator-shards
+refused rtl: if preparation in verilator-shards
+refused rtl: continue-on-error preparation in verilator-shards
+refused rtl: missing inventory preparation in verilator-suites
+refused rtl: if preparation in verilator-suites
+refused rtl: continue-on-error preparation in verilator-suites
+refused rtl: missing inventory preparation in union-milan_dp
+refused rtl: if preparation in union-milan_dp
+refused rtl: continue-on-error preparation in union-milan_dp
+refused rtl: missing inventory preparation in union-milan_dp_mclk
+refused rtl: if preparation in union-milan_dp_mclk
+refused rtl: continue-on-error preparation in union-milan_dp_mclk
+refused rtl: missing inventory preparation in union-capture_coherence
+refused rtl: if preparation in union-capture_coherence
+refused rtl: continue-on-error preparation in union-capture_coherence
+refused rtl: missing inventory preparation in union-maap
+refused rtl: if preparation in union-maap
+refused rtl: continue-on-error preparation in union-maap
+refused rtl: missing inventory preparation in union-milan_dp_render
+refused rtl: if preparation in union-milan_dp_render
+refused rtl: continue-on-error preparation in union-milan_dp_render
+refused rtl: missing inventory preparation in union-pp_shadow
+refused rtl: if preparation in union-pp_shadow
+refused rtl: continue-on-error preparation in union-pp_shadow
+refused rtl: missing inventory preparation in ci-manifest
+refused rtl: if preparation in ci-manifest
+refused rtl: continue-on-error preparation in ci-manifest
+refused rtl-fast: missing inventory preparation in ci-manifest
+refused rtl-fast: if preparation in ci-manifest
+refused rtl-fast: continue-on-error preparation in ci-manifest
+Traceback (most recent call last):
+  File "$REVIEWS/r636-6-737/scripts/ci_gate_workflows_selftest.py", line 475, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/r636-6-737/scripts/ci_gate_workflows_selftest.py", line 391, in main
+    scheduling_controls()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/r636-6-737/scripts/ci_gate_workflows_selftest.py", line 68, in scheduling_controls
+    assert [case["name"] for case in cases if case["leg"] == 1] == [leg.format(0)]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

@@ -1,0 +1,21 @@
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index 0d4113105..73bcab74f 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -258,6 +258,7 @@ jobs:
+           case "$SHARD" in
+             1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;
+             3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
++            5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;
+           esac
+         id: ci_step_9
+       - name: Cache the pinned Yosys build for the netlist-level suite owner
+@@ -616,7 +617,7 @@ jobs:
+         run: |
+           shopt -s nullglob
+           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
+-          python3 scripts/ci_events.py --require-target-sha --expect 16 \
++          python3 scripts/ci_events.py --require-target-sha --expect 6 \
+             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
+             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
+         id: ci_step_5

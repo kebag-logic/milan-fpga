@@ -1,0 +1,26 @@
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index 7c793af3f..2b743962a 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -606,9 +606,7 @@ jobs:
+         uses: actions/upload-artifact@v4
+         with:
+           name: gate-docs-1-${{ github.sha }}
+-          path: |
+-            ${{ runner.temp }}/gate-results/receipt.json
+-            ${{ runner.temp }}/gate-results/builder-leg-*.json
++          path: ${{ runner.temp }}/gate-results/receipt.json
+           if-no-files-found: error
+         id: ci_step_16
+       - name: Record actual job execution
+@@ -766,9 +764,7 @@ jobs:
+         uses: actions/upload-artifact@v4
+         with:
+           name: gate-docs-2-${{ github.sha }}
+-          path: |
+-            ${{ runner.temp }}/gate-results/receipt.json
+-            ${{ runner.temp }}/gate-results/builder-leg-*.json
++          path: ${{ runner.temp }}/gate-results/receipt.json
+           if-no-files-found: error
+         id: ci_step_18
+       - name: Record actual job execution

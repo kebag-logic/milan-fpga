@@ -1,0 +1,1240 @@
+﻿2026-10-15T10:36:56.5736279Z ##[group]Run python3 scripts/act_ci.py --selftest
+2026-10-15T10:36:56.5736663Z ^[[36;1mpython3 scripts/act_ci.py --selftest^[[0m
+2026-10-15T10:36:56.5736945Z ^[[36;1minstall_dir="$(mktemp -d)"^[[0m
+2026-10-15T10:36:56.5737202Z ^[[36;1mtrap 'rm -rf "$install_dir"' EXIT^[[0m
+2026-10-15T10:36:56.5737541Z ^[[36;1minstall -m 0555 scripts/act_ci.py "$install_dir/act_ci.py"^[[0m
+2026-10-15T10:36:56.5737999Z ^[[36;1mpython3 -I "$install_dir/act_ci.py" --selftest --worktree "$GITHUB_WORKSPACE"^[[0m
+2026-10-15T10:36:56.5803948Z shell: /usr/bin/bash -e {0}
+2026-10-15T10:36:56.5804120Z env:
+2026-10-15T10:36:56.5804340Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-10-15T10:36:56.5804570Z   CI_BUILD_JOBS: 4
+2026-10-15T10:36:56.5804697Z   CI_TOOL_BUILD_JOBS: 4
+2026-10-15T10:36:56.5804824Z   CI_CAMPAIGN_JOBS: 4
+2026-10-15T10:36:56.5804946Z   VERILATOR_JOBS: 4
+2026-10-15T10:36:56.5805064Z   SIM_JOBS: 4
+2026-10-15T10:36:56.5805192Z   MAKEFLAGS: -j1 --no-print-directory
+2026-10-15T10:36:56.5805369Z ##[endgroup]
+2026-10-15T10:37:39.9717999Z   ok   ready event is selected for a non-draft PR
+2026-10-15T10:37:39.9718488Z   ok   event pins the exact head and base
+2026-10-15T10:37:39.9718811Z   ok   event names the repository default branch without private markers
+2026-10-15T10:37:39.9719185Z   ok   draft event uses synchronize and preserves draft=true
+2026-10-15T10:37:39.9719555Z   ok   a stale recorded base oid resolves to the live dev tip and proceeds
+2026-10-15T10:37:39.9719928Z   ok   the stale-base note prints the recorded and live base SHAs
+2026-10-15T10:37:39.9720341Z   ok   a recorded base oid matching the live tip resolves unchanged
+2026-10-15T10:37:39.9720690Z   ok   an invalid live-tip lookup result is refused
+2026-10-15T10:37:39.9721351Z   ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+2026-10-15T10:37:39.9721884Z   ok   a head moved between metadata lookup and fetch is refused naming the head
+2026-10-15T10:37:39.9722387Z   ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+2026-10-15T10:37:39.9722860Z   ok   the event retains the recorded base oid as metadata
+2026-10-15T10:37:39.9723219Z   ok   the recorded payload oid is not the fetched live scope base
+2026-10-15T10:37:39.9723550Z   ok   scope fixture isolates ambient signing
+2026-10-15T10:37:39.9723833Z   ok   scope fixture isolates ambient gitdir
+2026-10-15T10:37:39.9724177Z   ok   scope event stale-base docs rtl.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9724633Z   ok   scope event stale-base docs rtl-fast.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9725106Z   ok   scope event stale-base docs elaborate.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9725597Z   ok   scope event B16 shape rtl.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+2026-10-15T10:37:39.9726138Z   ok   scope event B16 shape rtl-fast.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+2026-10-15T10:37:39.9726693Z   ok   scope event B16 shape elaborate.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+2026-10-15T10:37:39.9727179Z   ok   scope event stale-base RTL rtl.yml: hosted = replay = ['hdl/pr.sv']
+2026-10-15T10:37:39.9727597Z   ok   scope event stale-base RTL rtl-fast.yml: hosted = replay = ['hdl/pr.sv']
+2026-10-15T10:37:39.9727873Z   ok   scope event stale-base RTL elaborate.yml: hosted = replay = ['hdl/pr.sv']
+2026-10-15T10:37:39.9728160Z   ok   scope event submodule pointer rtl.yml: hosted = replay = ['docs/pointer.md']
+2026-10-15T10:37:39.9728711Z   ok   scope event submodule pointer rtl-fast.yml: hosted = replay = ['docs/pointer.md']
+2026-10-15T10:37:39.9729025Z   ok   scope event submodule pointer elaborate.yml: hosted = replay = ['docs/pointer.md']
+2026-10-15T10:37:39.9729294Z   ok   scope event empty delta rtl.yml: hosted = replay = []
+2026-10-15T10:37:39.9729518Z   ok   scope event empty delta rtl-fast.yml: hosted = replay = []
+2026-10-15T10:37:39.9729751Z   ok   scope event empty delta elaborate.yml: hosted = replay = []
+2026-10-15T10:37:39.9730183Z   ok   scope event REV rtl.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9730458Z   ok   scope event REV rtl-fast.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9730741Z   ok   scope event REV elaborate.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9731348Z   ok   scope event REV+E rtl.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9731770Z   ok   scope event REV+E rtl-fast.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9732225Z   ok   scope event REV+E elaborate.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9732661Z   ok   scope event identical-on-dev rtl.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9733092Z   ok   scope event identical-on-dev rtl-fast.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9733537Z   ok   scope event identical-on-dev elaborate.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9734028Z   ok   scope event base-side rename rtl.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+2026-10-15T10:37:39.9734571Z   ok   scope event base-side rename rtl-fast.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+2026-10-15T10:37:39.9735302Z   ok   scope event base-side rename elaborate.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+2026-10-15T10:37:39.9735744Z   ok   classifier selftest accumulates the history result
+2026-10-15T10:37:39.9736070Z   ok   classifier history wiring rejects removed result
+2026-10-15T10:37:39.9736394Z   ok   classifier history wiring rejects discarded result
+2026-10-15T10:37:39.9736714Z   ok   classifier history wiring rejects zeroed result
+2026-10-15T10:37:39.9737079Z   FAIL flat isolated full selftest uses the explicit shipping worktree
+2026-10-15T10:37:39.9737437Z   ok   ready event is selected for a non-draft PR
+2026-10-15T10:37:39.9737717Z   ok   event pins the exact head and base
+2026-10-15T10:37:39.9738056Z   ok   event names the repository default branch without private markers
+2026-10-15T10:37:39.9738444Z   ok   draft event uses synchronize and preserves draft=true
+2026-10-15T10:37:39.9738822Z   ok   a stale recorded base oid resolves to the live dev tip and proceeds
+2026-10-15T10:37:39.9739219Z   ok   the stale-base note prints the recorded and live base SHAs
+2026-10-15T10:37:39.9739582Z   ok   a recorded base oid matching the live tip resolves unchanged
+2026-10-15T10:37:39.9739911Z   ok   an invalid live-tip lookup result is refused
+2026-10-15T10:37:39.9740344Z   ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+2026-10-15T10:37:39.9740846Z   ok   a head moved between metadata lookup and fetch is refused naming the head
+2026-10-15T10:37:39.9741475Z   ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+2026-10-15T10:37:39.9741917Z   ok   the event retains the recorded base oid as metadata
+2026-10-15T10:37:39.9742269Z   ok   the recorded payload oid is not the fetched live scope base
+2026-10-15T10:37:39.9742594Z   ok   scope fixture isolates ambient signing
+2026-10-15T10:37:39.9742869Z   ok   scope fixture isolates ambient gitdir
+2026-10-15T10:37:39.9743223Z   ok   scope event stale-base docs rtl.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9743683Z   ok   scope event stale-base docs rtl-fast.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9744155Z   ok   scope event stale-base docs elaborate.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9744815Z   ok   scope event B16 shape rtl.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+2026-10-15T10:37:39.9745369Z   ok   scope event B16 shape rtl-fast.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+2026-10-15T10:37:39.9745944Z   ok   scope event B16 shape elaborate.yml: hosted = replay = ['docs/findings/README.md', 'docs/note.md']
+2026-10-15T10:37:39.9746567Z   ok   scope event stale-base RTL rtl.yml: hosted = replay = ['hdl/pr.sv']
+2026-10-15T10:37:39.9746999Z   ok   scope event stale-base RTL rtl-fast.yml: hosted = replay = ['hdl/pr.sv']
+2026-10-15T10:37:39.9747452Z   ok   scope event stale-base RTL elaborate.yml: hosted = replay = ['hdl/pr.sv']
+2026-10-15T10:37:39.9747924Z   ok   scope event submodule pointer rtl.yml: hosted = replay = ['docs/pointer.md']
+2026-10-15T10:37:39.9748443Z   ok   scope event submodule pointer rtl-fast.yml: hosted = replay = ['docs/pointer.md']
+2026-10-15T10:37:39.9748958Z   ok   scope event submodule pointer elaborate.yml: hosted = replay = ['docs/pointer.md']
+2026-10-15T10:37:39.9749399Z   ok   scope event empty delta rtl.yml: hosted = replay = []
+2026-10-15T10:37:39.9749756Z   ok   scope event empty delta rtl-fast.yml: hosted = replay = []
+2026-10-15T10:37:39.9750134Z   ok   scope event empty delta elaborate.yml: hosted = replay = []
+2026-10-15T10:37:39.9750539Z   ok   scope event REV rtl.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9751099Z   ok   scope event REV rtl-fast.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9751564Z   ok   scope event REV elaborate.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9752018Z   ok   scope event REV+E rtl.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9752462Z   ok   scope event REV+E rtl-fast.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9752933Z   ok   scope event REV+E elaborate.yml: hosted = replay = ['docs/note.md', 'hdl/x.sv']
+2026-10-15T10:37:39.9753410Z   ok   scope event identical-on-dev rtl.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9753870Z   ok   scope event identical-on-dev rtl-fast.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9754415Z   ok   scope event identical-on-dev elaborate.yml: hosted = replay = ['docs/note.md']
+2026-10-15T10:37:39.9754930Z   ok   scope event base-side rename rtl.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+2026-10-15T10:37:39.9755476Z   ok   scope event base-side rename rtl-fast.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+2026-10-15T10:37:39.9756061Z   ok   scope event base-side rename elaborate.yml: hosted = replay = ['docs/reference/REGISTER_MAP.md']
+2026-10-15T10:37:39.9756531Z   ok   classifier selftest accumulates the history result
+2026-10-15T10:37:39.9756867Z   ok   classifier history wiring rejects removed result
+2026-10-15T10:37:39.9757194Z   ok   classifier history wiring rejects discarded result
+2026-10-15T10:37:39.9757526Z   ok   classifier history wiring rejects zeroed result
+2026-10-15T10:37:39.9757948Z   ok   the normal validation path prints the resolved base and enters its Docker boundary
+2026-10-15T10:37:39.9758441Z   ok   the normal validation path leases the selected workflow's act job volumes
+2026-10-15T10:37:39.9758940Z   ok   dry-run prints the job bound and the bounded container options as one quoted argv word
+2026-10-15T10:37:39.9759684Z   ok   an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+2026-10-15T10:37:39.9760307Z   ok   slot 0 uses external ranges without staging
+2026-10-15T10:37:39.9760610Z   ok   slot 3 uses external ranges without staging
+2026-10-15T10:37:39.9761517Z   ok   a two-workflow run leases both, and starts the CPU-range monitor, gates, spawns, stops the monitor, cleans containers, then reconciles volumes, once for the shared scheduler in that order
+2026-10-15T10:37:39.9762310Z   ok   the shared CPU-range monitor receives both independent jobs' disjoint ranges
+2026-10-15T10:37:39.9762930Z   ok   volumes observed on a workflow's containers reach that workflow's reconciliation
+2026-10-15T10:37:39.9763395Z   ok   a job volume act left after a workflow refuses the run after removal
+2026-10-15T10:37:39.9763857Z   ok   a leftover container refuses the run only after that workflow's volumes were reconciled
+2026-10-15T10:37:39.9764458Z   ok   a boundary that does not lease the selected workflow refuses before act
+2026-10-15T10:37:39.9764878Z   ok   placement failure refuses after cleanup with scheduler rc 0
+2026-10-15T10:37:39.9765273Z   ok   placement failure refuses after cleanup with scheduler rc 3
+2026-10-15T10:37:39.9765829Z   ok   the action cache is populated exactly once per run, before the Docker boundary exists and before the first act launch
+2026-10-15T10:37:39.9766411Z   ok   two workflows sharing two actions produce one clone each, in sorted order
+2026-10-15T10:37:39.9766897Z   ok   the clones in the real sequence carry the run's own credential-free git environment
+2026-10-15T10:37:39.9767412Z   ok   a failing clone refuses the run naming the action, before any boundary or act launch
+2026-10-15T10:37:39.9767924Z   ok   a trusted worktree at the live tip is accepted while the recorded base oid is stale
+2026-10-15T10:37:39.9768558Z   ok   the runner's own bytes - that file, in the trusted root, at the validation base and not the recorded oid - are what is verified
+2026-10-15T10:37:39.9769203Z   ok   a trusted worktree at the stale recorded base is refused naming the loaded head and the live tip
+2026-10-15T10:37:39.9769821Z   ok   a dirty trusted worktree is refused for being dirty, before the base comparison and before any bytes are read
+2026-10-15T10:37:39.9770515Z   ok   a trusted worktree carrying replacement refs is refused for those, before the base comparison and before any bytes are read
+2026-10-15T10:37:39.9771382Z   ok   the fixture's validated base ref is the constant the fetch targets, so the resolve and the fetch name one ref
+2026-10-15T10:37:39.9772206Z   ok   production constructs the validated run exactly once, in the audited resolve, so no second construction can bind the recorded oid as the validation base
+2026-10-15T10:37:39.9773009Z   ok   the trusted-runner check defaults to reading the real checkout state and verifying real bytes
+2026-10-15T10:37:39.9773512Z   ok   the resolve defaults to the real remote lookup and a flushed note
+2026-10-15T10:37:39.9773936Z   ok   a validated run cannot be built on anything but a full commit SHA
+2026-10-15T10:37:39.9774495Z   ok   the resolve re-checks the repository name it interpolates, rather than inheriting the check from main's ordering
+2026-10-15T10:37:39.9775044Z   ok   and re-checks the base ref it interpolates, for the same reason
+2026-10-15T10:37:39.9775410Z   ok   a well-formed ls-remote reply yields the tip
+2026-10-15T10:37:39.9775729Z   ok   an ls-remote reply naming no ref is refused
+2026-10-15T10:37:39.9776041Z   ok   an ls-remote reply naming another ref is refused
+2026-10-15T10:37:39.9776548Z   ok   a ref merely ending in the wanted name is ignored, so one pushed branch or tag cannot refuse every run of the gate
+2026-10-15T10:37:39.9777073Z   ok   an ls-remote reply carrying the wanted ref twice is refused
+2026-10-15T10:37:39.9777441Z   ok   an ls-remote reply line carrying no ref at all is refused
+2026-10-15T10:37:39.9777786Z   ok   all selects each workflow once in stable order
+2026-10-15T10:37:39.9778105Z   ok   explicit workflow selection de-duplicates
+2026-10-15T10:37:39.9778393Z   ok   all plus another workflow is refused
+2026-10-15T10:37:39.9778665Z   ok   cross-repository candidate is refused
+2026-10-15T10:37:39.9778938Z   ok   non-open pull request is refused
+2026-10-15T10:37:39.9779199Z   ok   non-dev pull request is refused
+2026-10-15T10:37:39.9779453Z   ok   malformed GitHub metadata is refused
+2026-10-15T10:37:39.9779768Z   ok   act command selects the real strict exhaustive workflow
+2026-10-15T10:37:39.9780130Z   ok   candidate checkout is copied from immutable materialization
+2026-10-15T10:37:39.9780649Z   ok   job containers receive no Docker socket or host network
+2026-10-15T10:37:39.9781152Z   ok   artifact and cache servers bind only to the bridge gateway
+2026-10-15T10:37:39.9781669Z   ok   job container options are one argv word: the ownership label, the CPU set, then the memory and swap limits
+2026-10-15T10:37:39.9782200Z   ok   act starts at most 4 jobs of a stage at once, stated exactly once
+2026-10-15T10:37:39.9782695Z   ok   only an explicitly empty GitHub token reaches candidate jobs
+2026-10-15T10:37:39.9783077Z   ok   every ambient act input is replaced by an explicit empty file
+2026-10-15T10:37:39.9783465Z   ok   artifact uploads receive a real isolated listener port
+2026-10-15T10:37:39.9783872Z   ok   act reads the pre-populated per-head action cache offline, exactly once
+2026-10-15T10:37:39.9784299Z   ok   one scheduler receives both original workflow byte streams
+2026-10-15T10:37:39.9784636Z   ok   changed private workflow bytes are refused
+2026-10-15T10:37:39.9784936Z   ok   an extra private workflow is refused
+2026-10-15T10:37:39.9785218Z   ok   a missing selected workflow is refused
+2026-10-15T10:37:39.9785501Z   ok   a selected workflow symlink is refused
+2026-10-15T10:37:39.9785811Z   ok   command output cannot forge a scheduler failure
+2026-10-15T10:37:39.9786196Z   ok   an actual setup start records admission before its first step completes
+2026-10-15T10:37:39.9786685Z   ok   the first failed job is retained before interrupting and reaping the execution group
+2026-10-15T10:37:39.9787147Z   ok   booked ranges and named fallback reach creation scheduler
+2026-10-15T10:37:39.9787482Z   ok   no staging affinity or privileged job
+2026-10-15T10:37:39.9787756Z   ok   invalid or missing CPU ranges None
+2026-10-15T10:37:39.9788022Z   ok   invalid or missing CPU ranges ''
+2026-10-15T10:37:39.9788293Z   ok   invalid or missing CPU ranges '0-7'
+2026-10-15T10:37:39.9788566Z   ok   invalid or missing CPU ranges '1-16'
+2026-10-15T10:37:39.9788863Z   ok   invalid or missing CPU ranges '0-15,12-23'
+2026-10-15T10:37:39.9789161Z   ok   invalid or missing CPU ranges '0-15,0-15'
+2026-10-15T10:37:39.9789453Z   ok   invalid or missing CPU ranges '128-143'
+2026-10-15T10:37:39.9789736Z   ok   invalid or missing CPU ranges '00-15'
+2026-10-15T10:37:39.9790017Z   ok   invalid or missing CPU ranges '0-15,'
+2026-10-15T10:37:39.9790290Z   ok   invalid or missing CPU ranges '-1-14'
+2026-10-15T10:37:39.9790586Z   ok   booked ranges accepted: 0-15,16-31,32-47,48-63
+2026-10-15T10:37:39.9790900Z   ok   booked ranges accepted: 0-11,12-23,24-35,36-47
+2026-10-15T10:37:39.9791311Z   ok   booked ranges accepted: 0-15,24-35
+2026-10-15T10:37:39.9791571Z   ok   fallback has one named setting
+2026-10-15T10:37:39.9791844Z   ok   slot number cannot relocate booked CPUs
+2026-10-15T10:37:39.9792130Z   ok   too few booked ranges for concurrent jobs
+2026-10-15T10:37:39.9792408Z   ok   no implicit host CPU allocation
+2026-10-15T10:37:39.9792671Z   ok   unsupported job admission width
+2026-10-15T10:37:39.9792934Z   ok   unsupported job admission width
+2026-10-15T10:37:39.9793250Z   ok   two initial ranges stay disjoint across stop and restart
+2026-10-15T10:37:39.9793570Z   ok   concurrent CPU sharing refuses
+2026-10-15T10:37:39.9793827Z   ok   move after creation refuses
+2026-10-15T10:37:39.9794078Z   ok   unpinned start refuses
+2026-10-15T10:37:39.9794314Z   ok   only removal releases range
+2026-10-15T10:37:39.9794589Z   ok   foreign and malformed events inspect nothing
+2026-10-15T10:37:39.9795224Z   ok   the monitor streams container events from a second before act, filtered to this boundary's owner label and the five actions it reads, in a session of its own
+2026-10-15T10:37:39.9796144Z   ok   after its body the monitor walks the stream's group down the containment ladder once, joins its reader with every line applied, and closes the pipe
+2026-10-15T10:37:39.9796899Z   ok   a body that raises still has the stream contained before the exception reaches the Docker boundary
+2026-10-15T10:37:39.9797772Z   ok   a stream whose poll fails is still contained once, its reader joined and its pipe closed, and the failed poll is a problem, not a verdict
+2026-10-15T10:37:39.9798435Z   ok   an event stream that ended before act is reported as a problem, not a verdict
+2026-10-15T10:37:39.9798884Z   ok   a run without job ranges starts no monitor and inspects nothing
+2026-10-15T10:37:39.9799641Z   ok   a reader still inspecting a container when the body returns is joined, its inspection finished and the stream ended by containment, before the monitor lets the Docker boundary unwind
+2026-10-15T10:37:39.9800848Z   ok   a containment whose leader reap fails still has the busy reader joined and the pipe closed before the monitor exits, and with no earlier failure the reap failure is what it raises
+2026-10-15T10:37:39.9802066Z   ok   a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed beside it
+2026-10-15T10:37:39.9803024Z   ok   a body ended by a termination signal still joins the busy reader before the signal reaches the Docker boundary, and the runner exits 143 after cleanup
+2026-10-15T10:37:39.9803996Z   ok   a SIGINT that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 130 with its interrupt diagnostic, and the reap failure is printed beside it
+2026-10-15T10:37:39.9805059Z   ok   a SIGTERM that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 143 with its interrupt diagnostic, and the reap failure is printed beside it
+2026-10-15T10:37:39.9806093Z   ok   a SIGHUP that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 129 with its interrupt diagnostic, and the reap failure is printed beside it
+2026-10-15T10:37:39.9807034Z   ok   a stream that cannot start is a Refusal with nothing to contain; a reader that cannot start still has the started stream contained and its pipe closed
+2026-10-15T10:37:39.9807953Z   ok   a reader join that fails is retried while the reader still runs after the pause, and the join failure is raised only once the reader has ended, with the pipe closed
+2026-10-15T10:37:39.9808877Z   ok   with no failure already propagating, a reap failure and then a join failure raise the first, the reap's, once the reader has ended, and print the join failure beside it
+2026-10-15T10:37:39.9809807Z   ok   with an interrupt already propagating, the same reap and join failures leave it to propagate once the reader has ended, and both are printed beside it, in order
+2026-10-15T10:37:39.9810794Z   ok   a reader still running when its bounded wait (patched to 0.05 s) expires is held for, not abandoned: the hold is printed and recorded, and the join returns only once the reader has ended
+2026-10-15T10:37:39.9811965Z   ok   the stream's containment runs with the cleanup signals blocked, and a reader whose read fails records the failure as a problem rather than raising it
+2026-10-15T10:37:39.9812932Z   ok   a first SIGINT at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5637, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 130
+2026-10-15T10:37:39.9813975Z   ok   a first SIGTERM at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5637, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 143
+2026-10-15T10:37:39.9815035Z   ok   a first SIGHUP at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5637, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 129
+2026-10-15T10:37:39.9816551Z   ok   a first signal at each of the 198 steps from the body's end through the mask's release, sent to the main thread and to the whole process, waits for the containment, the reader's join and the pipe close, and exits 128 + the signal; the steps include contextlib's exit, the cleanup entry, stop_job_cpu_range_monitor, the reader join and the release
+2026-10-15T10:37:39.9818374Z   ok   a first SIGTERM held at the cleanup entry, then a reap that fails: the busy reader is joined first, the runner exits 143 with its interrupt diagnostic, and the reap failure is printed beside it, as for a SIGTERM that ends the body
+2026-10-15T10:37:39.9819563Z   ok   a body failure, then a first SIGTERM held at the cleanup entry: the busy reader is joined first, the body's failure is what the monitor raises, and the signal is printed beside it
+2026-10-15T10:37:39.9820515Z   ok   job containers are held to 8g of memory and the same swap ceiling, one limit each, in Docker size syntax
+2026-10-15T10:37:39.9821181Z   ok   container options preserve label, memory and swap in order
+2026-10-15T10:37:39.9821597Z   ok   a boundary without a job-volume lease cannot build an act command
+2026-10-15T10:37:39.9822010Z   ok   artifact-server port zero is refused rather than advertised
+2026-10-15T10:37:39.9822390Z   ok   a missing bridge gateway cannot produce an act command
+2026-10-15T10:37:39.9822762Z   ok   a boundary without an exclusive tool cache cannot run act
+2026-10-15T10:37:39.9823124Z   ok   a boundary with an unseeded tool cache cannot run act
+2026-10-15T10:37:39.9823603Z   ok   the collector yields each remote action once, sorted, skipping local and docker:// steps
+2026-10-15T10:37:39.9824205Z   ok   an action is cloned into the directory act 0.2.89 derives from its uses: string, from act's exact clone URL
+2026-10-15T10:37:39.9824786Z   ok   a uses: string that is neither local, docker://, nor owner/repo@ref is refused
+2026-10-15T10:37:39.9825373Z   ok   the clone is a full credential-free HTTPS clone, a tag-first resolve, then a detached checkout of the resolved SHA
+2026-10-15T10:37:39.9826044Z   ok   every action git call runs with the runner's no-prompt, no-helper, HTTPS-only environment and no token
+2026-10-15T10:37:39.9826596Z   ok   a ref is resolved the way act duck-types it: tag, then origin branch, then SHA
+2026-10-15T10:37:39.9827000Z   ok   a failing clone is a Refusal naming the action
+2026-10-15T10:37:39.9827349Z   ok   dry-run prints the planned action set and clones nothing
+2026-10-15T10:37:39.9827923Z   ok   the materialiser re-checks each action against the audited set rather than inheriting the sandbox scan's position in the sequence
+2026-10-15T10:37:39.9828475Z   ok   and that refusal reaches git for nothing
+2026-10-15T10:37:39.9828826Z   ok   the materialiser defaults to the real tracked capture boundary
+2026-10-15T10:37:39.9829565Z   ok   the plants occupy every operator-environment name the boundary must withhold, each credential file carries the planted token, and both recorders are executable and silent
+2026-10-15T10:37:39.9830410Z   ok   no plant reaches the runner's git environment, act's environment, or the sudo prefix by construction
+2026-10-15T10:37:39.9831370Z   ok   the probe workflow passes the trusted sandbox, leases its own job-volume prefix, maps the token secret, reports every check in both states, and carries no plant but the token marker
+2026-10-15T10:37:39.9832535Z   ok   grading: an all-absent transcript passes the boundary arm and fails the leaky arm on the three discriminators; all-visible the reverse; an unreported check fails both; `other` fails the boundary arm
+2026-10-15T10:37:39.9833298Z   ok   the boundary command is refused as a leaky arm
+2026-10-15T10:37:39.9833622Z   ok   the leaky command is refused as a boundary arm
+2026-10-15T10:37:39.9834408Z   ok   the boundary command carries the empty token, the disabled socket and the owned network; the leaky command drops exactly those, sources the token from the environment, and keeps the ownership label and the event
+2026-10-15T10:37:39.9835313Z   ok   a boundary command that already lacks the owned network cannot be turned into a leaky arm
+2026-10-15T10:37:39.9835813Z   ok   a sudo boundary command that keeps the operator environment is refused
+2026-10-15T10:37:39.9836464Z   ok   under sudo the leaky command starts act from the planted environment, not an emptied one, and the boundary command without its `-i` is refused
+2026-10-15T10:37:39.9837282Z   ok   the transcript Popen appends the child's output where the grader reads it
+2026-10-15T10:37:39.9837771Z   ok   a failing child whose group drains within the grace yields its last stderr line
+2026-10-15T10:37:39.9838168Z   ok   a probe clone that succeeds is refused
+2026-10-15T10:37:39.9838481Z   ok   the zombie probe records its descendant and group
+2026-10-15T10:37:39.9838975Z   ok   an unreaped zombie in the probe group does not prevent draining
+2026-10-15T10:37:39.9839345Z   ok   the zombie probe is reaped after its drain check
+2026-10-15T10:37:39.9839672Z   ok   the live probe records its descendant and group
+2026-10-15T10:37:39.9840066Z   ok   a live grandchild that outlives the grace is refused and its group killed
+2026-10-15T10:37:39.9840537Z   ok   the scan inventory omits the new same-group child and its old parent is gone
+2026-10-15T10:37:39.9841204Z   ok   a child forked during inspection is refused after the grace and its group killed
+2026-10-15T10:37:39.9841721Z   ok   both changing foreign PIDs are confirmed nonmembers in their frozen inventories
+2026-10-15T10:37:39.9842225Z   ok   confirmed foreign churn drains a zombie-only probe within the unchanged grace
+2026-10-15T10:37:39.9842659Z   ok   the foreign-churn probe is reaped after its drain check
+2026-10-15T10:37:39.9843073Z   ok   proc parsing ignores a zombie even with parentheses and spaces in its name
+2026-10-15T10:37:39.9843485Z   ok   live members count only in their own probe group
+2026-10-15T10:37:39.9843879Z   ok   a PID vanishing between listing and reading is not a survivor or an error
+2026-10-15T10:37:39.9844258Z   ok   an unanswerable proc stat record is refused
+2026-10-15T10:37:39.9844563Z   ok   an unanswerable proc stat record is refused
+2026-10-15T10:37:39.9844936Z   ok   a proven foreign process is skipped before its inaccessible stat is read
+2026-10-15T10:37:39.9845398Z   ok   a PID gone before membership lookup is skipped without reading its stat
+2026-10-15T10:37:39.9845783Z   ok   an unreadable member stat record is refused
+2026-10-15T10:37:39.9846082Z   ok   an unanswerable membership lookup is refused
+2026-10-15T10:37:39.9846401Z   ok   an inspection refusal resumes the frozen group
+2026-10-15T10:37:39.9846711Z   ok   an unavailable proc inventory is refused
+2026-10-15T10:37:39.9847090Z   ok   a probe clone that has not finished within its timeout is killed and refused
+2026-10-15T10:37:39.9847504Z   ok   the labeled ephemeral act tool cache is accepted
+2026-10-15T10:37:39.9847836Z   ok   a tool-cache volume owned by another run is refused
+2026-10-15T10:37:39.9848216Z   ok   a pre-existing unowned tool cache is refused with label guidance
+2026-10-15T10:37:39.9848588Z   ok   rollback never removes an unowned tool-cache volume
+2026-10-15T10:37:39.9848931Z   ok   a rival winning the tool-cache create race is refused
+2026-10-15T10:37:39.9849288Z   ok   create-race rollback never removes the rival's volume
+2026-10-15T10:37:39.9849658Z   ok   tool-cache cleanup refuses when the volume survives removal
+2026-10-15T10:37:39.9850038Z   ok   surviving-volume control exercised the removal request
+2026-10-15T10:37:39.9850394Z   ok   a post-accept volume-create timeout is reconciled
+2026-10-15T10:37:39.9850761Z   ok   post-accept volume rollback removes and verifies its resource
+2026-10-15T10:37:39.9851320Z   ok   a failed setup rollback is surfaced rather than reported clean
+2026-10-15T10:37:39.9851729Z   ok   tool-cache failure cannot suppress independent network teardown
+2026-10-15T10:37:39.9852145Z   ok   a post-accept network-create timeout reconciles both resources
+2026-10-15T10:37:39.9852556Z   ok   network rollback failure is surfaced while cache cleanup continues
+2026-10-15T10:37:39.9852953Z   ok   a post-accept KeyboardInterrupt reconciles both resources
+2026-10-15T10:37:39.9853347Z   ok   a signal after cache return but before network create is reconciled
+2026-10-15T10:37:39.9853744Z   ok   the cold tool cache is seeded exactly once before sibling jobs
+2026-10-15T10:37:39.9854379Z   ok   an unpopulated seed refuses the boundary and reconciles it
+2026-10-15T10:37:39.9854758Z   ok   stable rollback catches delayed Docker daemon mutations
+2026-10-15T10:37:39.9855192Z   ok   no --slot selects slot 0, the default local daemon, which owns no slot resource
+2026-10-15T10:37:39.9855596Z   ok   replay slot -1 is outside 0-63 and refused
+2026-10-15T10:37:39.9855898Z   ok   replay slot 64 is outside 0-63 and refused
+2026-10-15T10:37:39.9856367Z   ok   replay slot True is outside 0-63 and refused
+2026-10-15T10:37:39.9856741Z   ok   an isolated slot without --sudo is refused: it starts its own daemon
+2026-10-15T10:37:39.9857189Z   ok   --slot-root with slot 0 is refused: the default daemon has no slot root
+2026-10-15T10:37:39.9857588Z   ok   slot selection is independent of CPU placement
+2026-10-15T10:37:39.9857937Z   ok   an isolated slot derives every host name from its number
+2026-10-15T10:37:39.9858549Z   ok   no two slots share a namespace, unit, socket, slice, table, lock, data-root or address pool, and one slot's names are identical every time
+2026-10-15T10:37:39.9859196Z   ok   slot 0's controlled environment is unchanged: no Docker endpoint at all
+2026-10-15T10:37:39.9859621Z   ok   an isolated slot's environment adds exactly its own socket
+2026-10-15T10:37:39.9860186Z   ok   an isolated slot's sudo Docker and act prefixes enter its namespace identically, differing only in the executable
+2026-10-15T10:37:39.9860714Z   ok   slot 0's sudo prefix enters no namespace
+2026-10-15T10:37:39.9861221Z   ok   an isolated slot's endpoint without sudo is refused by the prefix
+2026-10-15T10:37:39.9861669Z   ok   a Docker endpoint that is no slot socket is refused: unix:///var/run/docker.sock
+2026-10-15T10:37:39.9862139Z   ok   the endpoint parser itself refuses unix:///var/run/docker.sock
+2026-10-15T10:37:39.9862613Z   ok   a Docker endpoint that is no slot socket is refused: tcp://127.0.0.1:2375
+2026-10-15T10:37:39.9863042Z   ok   the endpoint parser itself refuses tcp://127.0.0.1:2375
+2026-10-15T10:37:39.9863526Z   ok   a Docker endpoint that is no slot socket is refused: unix:///run/milan-act-slot-0/docker.sock
+2026-10-15T10:37:39.9864108Z   ok   the endpoint parser itself refuses unix:///run/milan-act-slot-0/docker.sock
+2026-10-15T10:37:39.9864650Z   ok   a Docker endpoint that is no slot socket is refused: unix:///run/milan-act-slot-64/docker.sock
+2026-10-15T10:37:39.9865206Z   ok   the endpoint parser itself refuses unix:///run/milan-act-slot-64/docker.sock
+2026-10-15T10:37:39.9865691Z   ok   DOCKER_CONTEXT in the controlled environment is refused by the prefix
+2026-10-15T10:37:39.9866155Z   ok   DOCKER_CONFIG in the controlled environment is refused by the prefix
+2026-10-15T10:37:39.9866741Z   ok   an inherited DOCKER_CONFIG refuses the PR run, dry run and both live self-tests before any collaborator runs
+2026-10-15T10:37:39.9867425Z   ok   an inherited DOCKER_CONTEXT refuses the PR run, dry run and both live self-tests before any collaborator runs
+2026-10-15T10:37:39.9868062Z   ok   an inherited DOCKER_HOST refuses the PR run, dry run and both live self-tests before any collaborator runs
+2026-10-15T10:37:39.9868608Z   ok   the same modes in a clean environment reach their first collaborator
+2026-10-15T10:37:39.9869071Z   ok   the refusal names the replacement: --slot, never an inherited endpoint
+2026-10-15T10:37:39.9869446Z   ok   --selftest with --slot is a usage error
+2026-10-15T10:37:39.9869855Z   ok   --boundary-selftest in an isolated slot is refused before act is resolved
+2026-10-15T10:37:39.9870343Z   ok   a PR run in an isolated slot without --sudo is refused before any collaborator
+2026-10-15T10:37:39.9870817Z   ok   --slot-root without an isolated slot is refused before any collaborator
+2026-10-15T10:37:39.9871435Z   ok   pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+2026-10-15T10:37:39.9871983Z   ok   the invoked pasta symlink still resolves to its executable identity
+2026-10-15T10:37:39.9872413Z   ok   every other slot host tool still resolves its final symlink
+2026-10-15T10:37:39.9872964Z   ok   the slot uplink's fake multi-call executable observes the invoked name pasta
+2026-10-15T10:37:39.9873444Z   ok   missing SAFE_PATH pasta refuses despite the ambient PATH impostor
+2026-10-15T10:37:39.9873812Z   ok   a dangling pasta symlink refuses
+2026-10-15T10:37:39.9874098Z   ok   a non-executable pasta target refuses
+2026-10-15T10:37:39.9874651Z   ok   the uplink is socket-level NAT in the slot namespace: no inbound or outbound port forward and no gateway mapped to host loopback
+2026-10-15T10:37:39.9875661Z   ok   the slot daemon runs in the slot namespace and slice with its own containerd, data-root, exec-root, socket, address pool, no host configuration and both labels
+2026-10-15T10:37:39.9876664Z   ok   the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses and out of any interface but the uplinks, created whole or not at all
+2026-10-15T10:37:39.9877297Z   ok   the slot firewall refuses no uplink
+2026-10-15T10:37:39.9877621Z   ok   the slot firewall refuses loopback as the uplink
+2026-10-15T10:37:39.9877967Z   ok   the slot firewall refuses a duplicated uplink
+2026-10-15T10:37:39.9878360Z   ok   the slot firewall refuses an uplink name that would leave its quotes
+2026-10-15T10:37:39.9878790Z   ok   the slot firewall refuses an uplink name over 15 characters
+2026-10-15T10:37:39.9879407Z   ok   the uplinks are every unicast default route's interface, IPv4 then IPv6, each once, with multipath next hops and no unreachable default
+2026-10-15T10:37:39.9880010Z   ok   a host with no default route is refused before any slot resource
+2026-10-15T10:37:39.9880439Z   ok   a host whose only default is unreachable is refused before any slot resource
+2026-10-15T10:37:39.9880894Z   ok   a default route naming no interface is refused before any slot resource
+2026-10-15T10:37:39.9881513Z   ok   a default route through loopback is refused before any slot resource
+2026-10-15T10:37:39.9881959Z   ok   an unquotable interface name is refused before any slot resource
+2026-10-15T10:37:39.9882391Z   ok   malformed route output is refused before any slot resource
+2026-10-15T10:37:39.9882805Z   ok   a route list of non-objects is refused before any slot resource
+2026-10-15T10:37:39.9883218Z   ok   a malformed multipath route is refused before any slot resource
+2026-10-15T10:37:39.9883638Z   ok   a default-route query that fails is refused, never read as no route
+2026-10-15T10:37:39.9884060Z   ok   container options preserve the label and memory limits
+2026-10-15T10:37:39.9884460Z   ok   daemon slot numbering cannot change booked creation affinity
+2026-10-15T10:37:39.9884915Z   ok   a boundary planned for one slot is not created through another slot's daemon
+2026-10-15T10:37:39.9885317Z   ok   that refusal precedes every Docker call
+2026-10-15T10:37:39.9885620Z   ok   a boundary cannot be planned in slot 64
+2026-10-15T10:37:39.9886244Z   ok   acquisition locks the slot, proves it clean, then creates the namespace, memory cap, uplink, firewall and daemon in that order and verifies the daemon
+2026-10-15T10:37:39.9887213Z   ok   teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+2026-10-15T10:37:39.9887994Z   ok   the firewall loaded is exactly the slot's rules, allowing the host's default-route interface as its only uplink
+2026-10-15T10:37:39.9888690Z   ok   the firewall allows exactly the interfaces this host's default routes use, and the slot announces them
+2026-10-15T10:37:39.9889351Z   ok   the queries, namespace, memory cap, firewall and every teardown command are pinned word for word
+2026-10-15T10:37:39.9889825Z   ok   slot 0 runs no slot command and takes no lock
+2026-10-15T10:37:39.9890277Z   ok   an isolated slot whose context carries another slot's endpoint is refused before its lock
+2026-10-15T10:37:39.9890818Z   ok   an isolated slot whose context carries no endpoint is refused before its lock
+2026-10-15T10:37:39.9891377Z   ok   a slot another invocation holds is refused before any host command
+2026-10-15T10:37:39.9891953Z   ok   a host missing any slot tool is refused before the lock or any mutation
+2026-10-15T10:37:39.9892569Z   ok   a failed netns-add refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:37:39.9893296Z   ok   a failed lo-up refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:37:39.9894109Z   ok   a failed slice-cap refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:37:39.9894855Z   ok   a failed uplink-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:37:39.9895587Z   ok   a failed control-group refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:37:39.9896376Z   ok   a failed firewall-create refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:37:39.9897159Z   ok   a failed daemon-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:37:39.9897907Z   ok   a failed docker-info refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:37:39.9898566Z   ok   a slot daemon reporting another invocation's token refuses and the slot is torn down
+2026-10-15T10:37:39.9899104Z   ok   a slot daemon reporting another data-root refuses and the slot is torn down
+2026-10-15T10:37:39.9899595Z   ok   a slot daemon reporting malformed identity refuses and the slot is torn down
+2026-10-15T10:37:39.9900151Z   ok   an interrupt during the daemon start still tears the whole slot down and propagates the interrupt
+2026-10-15T10:37:39.9901288Z   ok   each residue of a dead invocation (namespace, runtime directory, uplink pidfile, daemon unit, uplink unit, active slice, table) refuses before any mutation, is named with the recovery commands and survives untouched
+2026-10-15T10:37:39.9902309Z   ok   a daemon unit left in any state but the absent one (masked, error, bad-setting) is residue, not a clean slot
+2026-10-15T10:37:39.9902975Z   ok   a uplink unit left in any state but the absent one (masked, error, bad-setting) is residue, not a clean slot
+2026-10-15T10:37:39.9903747Z   ok   a slice unit left in any state but the absent one (failed, activating, deactivating, reloading, maintenance) is residue, not a clean slot
+2026-10-15T10:37:39.9904543Z   ok   a residue query that cannot answer (show-LoadState-daemon) refuses the slot before any mutation instead of reading as absent
+2026-10-15T10:37:39.9905304Z   ok   a residue query that cannot answer (show-LoadState-uplink) refuses the slot before any mutation instead of reading as absent
+2026-10-15T10:37:39.9906059Z   ok   a residue query that cannot answer (show-ActiveState-slice) refuses the slot before any mutation instead of reading as absent
+2026-10-15T10:37:39.9906793Z   ok   a residue query that cannot answer (firewall-query) refuses the slot before any mutation instead of reading as absent
+2026-10-15T10:37:39.9907564Z   ok   a surviving daemon unit makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:37:39.9908433Z   ok   a surviving runtime directory makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:37:39.9909300Z   ok   a surviving uplink unit makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:37:39.9910156Z   ok   a surviving uplink PID file makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:37:39.9911155Z   ok   a surviving active slice makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:37:39.9911994Z   ok   a surviving slice cgroup makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:37:39.9912919Z   ok   a surviving memory cap makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:37:39.9913759Z   ok   a surviving firewall table makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:37:39.9914694Z   ok   a surviving namespace makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:37:39.9915427Z   ok   a daemon stop that cannot even run still leaves the slice stop to end the daemon and proves the rest absent
+2026-10-15T10:37:39.9916002Z   ok   a table delete that cannot even run is still proved absent or reported
+2026-10-15T10:37:39.9916471Z   ok   unwritable firewall rules refuse the slot and roll back what was built
+2026-10-15T10:37:39.9917187Z   ok   a teardown proof whose query cannot answer (show-LoadState-daemon@2) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:37:39.9918139Z   ok   a teardown proof whose query cannot answer (show-LoadState-uplink@2) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:37:39.9919081Z   ok   a teardown proof whose query cannot answer (show-ActiveState-slice@2) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:37:39.9920021Z   ok   a teardown proof whose query cannot answer (show-DropInPaths-slice) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:37:39.9921357Z   ok   a teardown proof whose query cannot answer (firewall-query@2) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:37:39.9922061Z   ok   every slot teardown command runs with SIGINT, SIGTERM and SIGHUP blocked, so a repeated signal cannot cut it short, while acquisition ran with them unblocked
+2026-10-15T10:37:39.9922639Z   ok   a slot whose cap caused no OOM passes, printing its peak and how often the cap was hit, and reads only the slice's own events, never those of a container's limit below it
+2026-10-15T10:37:39.9923175Z   ok   a slot with a cap that ran out twice is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:37:39.9923694Z   ok   a slot with one OOM at its cap and no kill in its own events is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:37:39.9924205Z   ok   a slot with unreadable events is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:37:39.9924666Z   ok   a slot with malformed events is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:37:39.9925142Z   ok   a slot with events without an oom count is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:37:39.9925633Z   ok   a slot with events without a max count is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:37:39.9926005Z   ok   an unreadable peak is reported as unrecorded and refuses nothing
+2026-10-15T10:37:39.9926403Z   ok   a FAILED run whose slice sat at its cap without an OOM keeps its FAILED, since only an OOM is refused, and reports the peak at the cap and how often it was hit
+2026-10-15T10:37:39.9926858Z   ok   a body that raises keeps its own exception: the cap is not read over it, and the slot is torn down
+2026-10-15T10:37:39.9927211Z   ok   acquiring a slot whose root has a user-owned parent refuses before the lock or any host command
+2026-10-15T10:37:39.9927557Z   ok   acquiring a slot whose root has a symlink as the root refuses before the lock or any host command
+2026-10-15T10:37:39.9927987Z   ok   a dangling symlink occupies a slot path, as a file does; only nothing is absent
+2026-10-15T10:37:39.9928253Z   ok   a root-owned 0755 directory is an acceptable slot root
+2026-10-15T10:37:39.9928446Z   ok   a relative slot root is refused
+2026-10-15T10:37:39.9928609Z   ok   a slot root through '..' is refused
+2026-10-15T10:37:39.9928770Z   ok   a missing slot root is refused
+2026-10-15T10:37:39.9928925Z   ok   a symlinked slot root is refused
+2026-10-15T10:37:39.9929172Z   ok   a slot root owned by a user is refused
+2026-10-15T10:37:39.9929345Z   ok   a group-writable slot root is refused
+2026-10-15T10:37:39.9929519Z   ok   an other-writable slot root is refused
+2026-10-15T10:37:39.9929725Z   ok   a missing slot root's refusal names the one-time creation command
+2026-10-15T10:37:39.9930097Z   ok   a slot root whose every ancestor is a root-owned 0755 directory is accepted, and each component from / down is inspected without following it
+2026-10-15T10:37:39.9930478Z   ok   a slot root under a symlinked parent is refused, naming that component
+2026-10-15T10:37:39.9930772Z   ok   a slot root under a symlinked top-level directory is refused, naming that component
+2026-10-15T10:37:39.9931265Z   ok   a slot root under a parent owned by a user is refused, naming that component
+2026-10-15T10:37:39.9931547Z   ok   a slot root under a group-writable parent is refused, naming that component
+2026-10-15T10:37:39.9931865Z   ok   a slot root under a sticky other-writable parent such as /tmp is refused, naming that component
+2026-10-15T10:37:39.9932199Z   ok   a slot root under a parent that is not a directory is refused, naming that component
+2026-10-15T10:37:39.9932502Z   ok   a slot root whose parent is missing is refused with the one-time creation command
+2026-10-15T10:37:39.9932761Z   ok   a second acquisition of a held slot lock is refused
+2026-10-15T10:37:39.9933000Z   ok   a released slot lock is acquired again, and the file is only ever touched
+2026-10-15T10:37:39.9933235Z   ok   a slot lock owned by anyone but root is refused
+2026-10-15T10:37:39.9933435Z   ok   a slot lock path that is a symlink is not followed
+2026-10-15T10:37:39.9933782Z   ok   the slot lifecycle defaults to real privileged commands, path probes, the real lock, the real Docker CLI, the real clock and real file reads
+2026-10-15T10:37:39.9934246Z   ok   the production slot lock accepts only a root-owned file: its owner default is the literal 0, never the invoking user
+2026-10-15T10:37:39.9934685Z   ok   a slot host command runs as `sudo -n --`, never prompting, from / with only a fixed PATH and locale, under the default bound
+2026-10-15T10:37:39.9934998Z   ok   a slot host command that timed out is a Refusal
+2026-10-15T10:37:39.9935202Z   ok   a slot host command that cannot run probe is a Refusal
+2026-10-15T10:37:39.9935502Z   ok   --interrupt-selftest --slot 2 runs the live gate in slot 2 on its slot root, never silently in slot 0
+2026-10-15T10:37:39.9935846Z   ok   the live gate enters its slot, with that slot's own endpoint, before it resolves act
+2026-10-15T10:37:39.9936123Z   ok   two heads receive different writable action/workflow caches
+2026-10-15T10:37:39.9936349Z   ok   a cache entry written by head A is absent from head B
+2026-10-15T10:37:39.9936589Z   ok   controlled act environment drops tokens, agents, and runtime secrets
+2026-10-15T10:37:39.9936825Z   ok   a fake ambient Docker current context is excluded
+2026-10-15T10:37:39.9937048Z   ok   sudo Docker and act share the same explicit isolated environment
+2026-10-15T10:37:39.9937297Z   ok   sudo act groups are privileged-signalled from the first signal
+2026-10-15T10:37:39.9937531Z   ok   sudo process-group absence uses privileged kill zero
+2026-10-15T10:37:39.9937783Z   ok   Docker teardown waits through kill/inspection failure for PGID absence
+2026-10-15T10:37:39.9938038Z   ok   the first handled signal latches and repeats stay harmless
+2026-10-15T10:37:39.9938256Z   ok   SIGINT handler avoids the Python signal-mask race
+2026-10-15T10:37:39.9938469Z   ok   a first signal during cleanup is delivered only afterward
+2026-10-15T10:37:39.9938810Z   ok   worker threads cannot intercept a signal before cleanup finishes
+2026-10-15T10:37:39.9939055Z   ok   a first signal during monitor join waits for proven termination
+2026-10-15T10:37:39.9939277Z   ok   monitor start failure becomes a cleanup refusal
+2026-10-15T10:37:39.9939482Z   ok   registered monitor start failure is a cleanup refusal
+2026-10-15T10:37:39.9939802Z   ok   registered monitor start failure is reported without an invalid join
+2026-10-15T10:37:39.9940064Z   ok   a worker-thread CLI timeout kills its blocked-mask process group
+2026-10-15T10:37:39.9940309Z   ok   act configuration roots and invocation directory are per-run
+2026-10-15T10:37:39.9940520Z   ok   hostile private input actrc is refused
+2026-10-15T10:37:39.9940695Z   ok   hostile private input .actrc is refused
+2026-10-15T10:37:39.9940870Z   ok   hostile private input .actrc is refused
+2026-10-15T10:37:39.9941190Z   ok   hostile private input .env is refused
+2026-10-15T10:37:39.9941372Z   ok   hostile private input .secrets is refused
+2026-10-15T10:37:39.9941550Z   ok   hostile private input .vars is refused
+2026-10-15T10:37:39.9941723Z   ok   hostile private input .input is refused
+2026-10-15T10:37:39.9941901Z   ok   a nonempty explicit secret file is refused
+2026-10-15T10:37:39.9942098Z   ok   durable evidence is a fresh private directory
+2026-10-15T10:37:39.9942282Z   ok   existing evidence destination refuses
+2026-10-15T10:37:39.9942454Z   ok   evidence inside the candidate refuses
+2026-10-15T10:37:39.9942630Z   ok   evidence through a candidate alias refuses
+2026-10-15T10:37:39.9942821Z   ok   collector staging binds exact read-only bytes
+2026-10-15T10:37:39.9943019Z   ok   changed collector helper refuses before execution
+2026-10-15T10:37:39.9943219Z   ok   linked collector helper refuses before execution
+2026-10-15T10:37:39.9943448Z   ok   stopped boundary and container-network children are owned exactly
+2026-10-15T10:37:39.9943679Z   ok   unrelated containers are excluded from cleanup
+2026-10-15T10:37:39.9943911Z   ok   the live-container inspector verifies the effective tool-cache mount
+2026-10-15T10:37:39.9944194Z   ok   cancellation during the final container inspect stops the monitor inventory
+2026-10-15T10:37:39.9961818Z   ok   an owned container on a different tool-cache volume is refused
+2026-10-15T10:37:39.9962153Z   ok   the act job-volume name mirror reproduces a live act 0.2.89 volume name
+2026-10-15T10:37:39.9962438Z   ok   job workspace and environment volumes fall inside their workflow lease
+2026-10-15T10:37:39.9962829Z   ok   the tool cache, foreign act jobs, and near-miss names stay unleased
+2026-10-15T10:37:39.9963222Z   ok   workflow names sanitize the way act builds container names
+2026-10-15T10:37:39.9963568Z   ok   malformed job-volume lease prefix 'act-docs' is refused
+2026-10-15T10:37:39.9963900Z   ok   malformed job-volume lease prefix 'docs-' is refused
+2026-10-15T10:37:39.9964250Z   ok   malformed job-volume lease prefix 'act--docs-' is refused
+2026-10-15T10:37:39.9964607Z   ok   malformed job-volume lease prefix 'act-docs--' is refused
+2026-10-15T10:37:39.9964930Z   ok   malformed job-volume lease prefix '' is refused
+2026-10-15T10:37:39.9965252Z   ok   a workflow without a name cannot lease act job volumes
+2026-10-15T10:37:39.9965577Z   ok   a blank workflow name cannot lease act job volumes
+2026-10-15T10:37:39.9965961Z   ok   a pre-existing in-scope act job volume refuses acquisition before any mutation
+2026-10-15T10:37:39.9966385Z   ok   act job volumes outside the lease do not block acquisition
+2026-10-15T10:37:39.9966782Z   ok   a boundary without a job-volume lease cannot pass the acquisition gate
+2026-10-15T10:37:39.9967161Z   ok   a lone in-scope twin 237d234b refuses acquisition
+2026-10-15T10:37:39.9967478Z   ok   a lone in-scope twin 234b-env refuses acquisition
+2026-10-15T10:37:39.9967880Z   ok   the lease prefix is what act's own name builder produces for every leasable name
+2026-10-15T10:37:39.9968298Z   ok   a name whose separators act keeps doubled is unleasable
+2026-10-15T10:37:39.9968851Z   ok   the YAML null literal 'null' cannot lease act job volumes
+2026-10-15T10:37:39.9969075Z   ok   the YAML null literal 'NULL' cannot lease act job volumes
+2026-10-15T10:37:39.9969295Z   ok   the YAML null literal '~' cannot lease act job volumes
+2026-10-15T10:37:39.9969536Z   ok   a volume record is None only when Docker names the volume as missing
+2026-10-15T10:37:39.9969853Z   ok   a volume record for another name is refused
+2026-10-15T10:37:39.9970039Z   ok   a malformed volume record is refused
+2026-10-15T10:37:39.9970237Z   ok   a volume inspection failing for another reason is refused
+2026-10-15T10:37:39.9970451Z   ok   a malformed volume inventory refuses acquisition
+2026-10-15T10:37:39.9970695Z   ok   a lease never matches a name that merely contains or re-cases its prefix
+2026-10-15T10:37:39.9971278Z   ok   interrupt cleanup removes the observed job volumes and an in-scope orphan while rival, re-cased, embedding, and bystander volumes survive
+2026-10-15T10:37:39.9971738Z   ok   a bystander container and its volume are neither observed nor removed, and a bind mount is not a volume
+2026-10-15T10:37:39.9972056Z   ok   reconciliation never overrides the removal's absence window
+2026-10-15T10:37:39.9972321Z   ok   the absence window is the daemon constant for the real CLI and zero for fakes
+2026-10-15T10:37:39.9972610Z   ok   job-volume removal never forces and follows every container removal
+2026-10-15T10:37:39.9972882Z   ok   a job volume another container still holds is preserved and reported
+2026-10-15T10:37:39.9973159Z   ok   a job volume surviving its removal is reported rather than certified absent
+2026-10-15T10:37:39.9973516Z   ok   a volume an owned container mounted outside the lease is preserved and reported as lease drift, act-shaped or not
+2026-10-15T10:37:39.9973863Z   ok   an anonymous volume on an owned container is neither drift nor a target
+2026-10-15T10:37:39.9974138Z   ok   an absence probe that fails is reported as unverifiable, never as absent
+2026-10-15T10:37:39.9974420Z   ok   an in-scope volume the final inventory still lists is a reported survivor
+2026-10-15T10:37:39.9974702Z   ok   a failed volume inventory before reconciliation is reported, not skipped
+2026-10-15T10:37:39.9974979Z   ok   a failed volume inventory after reconciliation is reported, not certified
+2026-10-15T10:37:39.9975251Z   ok   a job volume reappearing inside the absence window is a reported survivor
+2026-10-15T10:37:39.9975530Z   ok   the absence window probed more than once before the volume reappeared
+2026-10-15T10:37:39.9975785Z   ok   a job volume absent for the whole window is certified removed
+2026-10-15T10:37:39.9976037Z   ok   malformed owned-container mount metadata fails container cleanup
+2026-10-15T10:37:39.9976309Z   ok   the job-volume name pattern is act's: no underscore, at most 63 stem bytes
+2026-10-15T10:37:39.9976568Z   ok   a workflow name whose prefix act would trim is refused
+2026-10-15T10:37:39.9976795Z   ok   a missing-volume report must name the volume it is about
+2026-10-15T10:37:39.9977138Z   ok   a job volume act left after a workflow is removed and reported as leftover; an observed name the daemon no longer holds is not
+2026-10-15T10:37:39.9977470Z   ok   reconciliation without a lease scope is refused
+2026-10-15T10:37:39.9977673Z   ok   act version parser accepts the tested version
+2026-10-15T10:37:39.9977901Z   ok   the upstream dispatcher cannot claim atomic fail-fast admission
+2026-10-15T10:37:39.9978152Z   ok   a different scheduling patch cannot satisfy the runtime pin
+2026-10-15T10:37:39.9978359Z   ok   the audited act version is accepted
+2026-10-15T10:37:39.9978538Z   ok   an unaudited newer act version is refused
+2026-10-15T10:37:39.9978714Z   ok   unparseable act version is refused
+2026-10-15T10:37:39.9978936Z   ok   a signal after spawn but before Popen return terminates the stored group
+2026-10-15T10:37:39.9979194Z   ok   a successful act leader cannot leave a live process group
+2026-10-15T10:37:39.9979436Z   ok   a successful host-command leader cannot leave a live process group
+2026-10-15T10:37:39.9979806Z   ok   a repeat signal inside a tracked cleanup command cannot abort the tail
+2026-10-15T10:37:39.9980064Z   ok   a timed-out sudo Docker CLI is contained before rollback begins
+2026-10-15T10:37:39.9980319Z   ok   spawned children inherit no cleanup-signal mask and honor SIGTERM
+2026-10-15T10:37:39.9980566Z   ok   process-directed SIGINT contains a captured child tree
+2026-10-15T10:37:39.9980878Z   ok   process-directed SIGTERM contains a captured child tree
+2026-10-15T10:37:39.9981372Z   ok   process-directed SIGHUP contains a captured child tree
+2026-10-15T10:37:39.9981615Z   FAIL production main contains an interrupted early repository lookup
+2026-10-15T10:37:39.9981868Z   ok   process-directed SIGINT contains a Git remote-helper tree
+2026-10-15T10:37:39.9982104Z   ok   process-directed SIGTERM contains a Git remote-helper tree
+2026-10-15T10:37:39.9982339Z   ok   process-directed SIGHUP contains a Git remote-helper tree
+2026-10-15T10:37:39.9982584Z   ok   remote head SHA movement across an act process is refused
+2026-10-15T10:37:39.9982805Z   ok   remote state movement across an act process is refused
+2026-10-15T10:37:39.9983033Z   ok   remote draft state movement across an act process is refused
+2026-10-15T10:37:39.9983267Z   ok   remote base ref movement across an act process is refused
+2026-10-15T10:37:39.9983907Z act-ci: NOTE: recorded base oid moved from 1111111111111111111111111111111111111111 to 5555555555555555555555555555555555555555 during validation; the validation base is the live dev tip resolved at invocation and the unchanged exact-head evidence for 2222222222222222222222222222222222222222 remains valid
+2026-10-15T10:37:39.9984585Z   ok   recorded base oid movement is noted without discarding exact-head evidence
+2026-10-15T10:37:39.9985062Z   ok   inside the CPU-range monitor's hold, act's boundary runs act with INT, TERM and HUP unblocked, so a SIGTERM during act raises at once, and the hold is back after the boundary raises or returns
+2026-10-15T10:37:39.9985615Z   ok   a SIGHUP held before act's boundary is delivered as the boundary opens, before act starts, and the hold is back after it
+2026-10-15T10:37:39.9986290Z   ok   first SIGINT during act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=130, started=[set()], stderr='act-ci: interrupted by SIGINT after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9987204Z   ok   first SIGINT pending before act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=130, started=[], stderr='act-ci: interrupted by SIGINT after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9988105Z   ok   first SIGTERM during act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=143, started=[set()], stderr='act-ci: interrupted by SIGTERM after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9989010Z   ok   first SIGTERM pending before act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=143, started=[], stderr='act-ci: interrupted by SIGTERM after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9989906Z   ok   first SIGHUP during act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=129, started=[set()], stderr='act-ci: interrupted by SIGHUP after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9990805Z   ok   first SIGHUP pending before act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=129, started=[], stderr='act-ci: interrupted by SIGHUP after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9992041Z   ok   first SIGINT at act closing restore line 5317, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=130, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9993566Z   ok   first SIGINT at act closing restore line 5317, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9995218Z   ok   first SIGINT at act closing restore line 5317, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9996633Z   ok   first SIGINT at act closing restore line 5336, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=130, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9998052Z   ok   first SIGINT at act closing restore line 5336, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:39.9999569Z   ok   first SIGINT at act closing restore line 5336, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0001104Z   ok   first SIGTERM at act closing restore line 5317, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=143, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0002523Z   ok   first SIGTERM at act closing restore line 5317, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0004042Z   ok   first SIGTERM at act closing restore line 5317, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0005535Z   ok   first SIGTERM at act closing restore line 5336, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=143, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0007022Z   ok   first SIGTERM at act closing restore line 5336, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0008573Z   ok   first SIGTERM at act closing restore line 5336, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0009979Z   ok   first SIGHUP at act closing restore line 5317, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=129, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0011516Z   ok   first SIGHUP at act closing restore line 5317, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0013038Z   ok   first SIGHUP at act closing restore line 5317, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0014442Z   ok   first SIGHUP at act closing restore line 5336, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=129, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0015851Z   ok   first SIGHUP at act closing restore line 5336, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0017364Z   ok   first SIGHUP at act closing restore line 5336, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:37:40.0018498Z   ok   the live interruption probe unblocks INT, TERM and HUP inside the CPU monitor's hold, takes its expected SIGINT immediately, and restores the hold before returning
+2026-10-15T10:37:40.0018925Z   ok   a signal after run-directory creation reconciles the accepted path
+2026-10-15T10:37:40.0019254Z   ok   a post-create run-directory stat failure is reconciled
+2026-10-15T10:37:40.0019481Z   ok   the stat-failure path is absent after acquisition rollback
+2026-10-15T10:37:40.0019697Z   ok   sudo chown failure cannot report cleanup success
+2026-10-15T10:37:40.0019892Z   ok   sudo chown launch failure is a cleanup refusal
+2026-10-15T10:37:40.0020103Z   ok   content-pinned immutable runner installation is accepted
+2026-10-15T10:37:40.0020329Z   ok   installed runner with the wrong content pin is refused
+2026-10-15T10:37:40.0020551Z   ok   runner installed inside the candidate worktree is refused
+2026-10-15T10:37:40.0020782Z   ok   bootstrap install requires explicit repository and worktree
+2026-10-15T10:37:40.0021122Z   ok   bootstrap accepts both explicit identity arguments
+2026-10-15T10:37:40.0021339Z   ok   directory removal failure cannot report cleanup success
+2026-10-15T10:37:40.0021578Z   ok   broken replacement symlink cannot masquerade as completed cleanup
+2026-10-15T10:37:40.0021818Z   ok   assume-unchanged cannot hide selected workflow bytes
+2026-10-15T10:37:40.0022031Z   ok   skip-worktree cannot hide selected workflow bytes
+2026-10-15T10:37:40.0022239Z   ok   an index flag cannot hide a selected workflow symlink
+2026-10-15T10:37:40.0022472Z   ok   replacement object is refused even when HEAD text is unchanged
+2026-10-15T10:37:40.0022720Z   ok   the trusted manifest includes exactly the six approved entries
+2026-10-15T10:37:40.0022941Z   ok   the exact trusted submodule manifest is accepted
+2026-10-15T10:37:40.0023236Z   ok   materialization fetches all five public pins including lwSRP and tsn-c-stack and excludes external
+2026-10-15T10:37:40.0023526Z   ok   candidate that drops lwSRP is refused before fetch
+2026-10-15T10:37:40.0023746Z   ok   drops lwSRP control catches candidate-controlled trust
+2026-10-15T10:37:40.0023969Z   ok   candidate that duplicates lwSRP is refused before fetch
+2026-10-15T10:37:40.0024191Z   ok   candidate that adds another lwSRP is refused before fetch
+2026-10-15T10:37:40.0024431Z   ok   adds another lwSRP control catches candidate-controlled trust
+2026-10-15T10:37:40.0024659Z   ok   candidate that redirects lwSRP is refused before fetch
+2026-10-15T10:37:40.0024883Z   ok   candidate that drops lwSRP gitlink is refused before fetch
+2026-10-15T10:37:40.0025108Z   ok   candidate that adds lwSRP gitlink is refused before fetch
+2026-10-15T10:37:40.0025332Z   ok   candidate that drops tsn-c-stack is refused before fetch
+2026-10-15T10:37:40.0025565Z   ok   candidate that redirects tsn-c-stack is refused before fetch
+2026-10-15T10:37:40.0025811Z   ok   candidate that drops tsn-c-stack gitlink is refused before fetch
+2026-10-15T10:37:40.0026063Z   ok   candidate that adds tsn-c-stack gitlink is refused before fetch
+2026-10-15T10:37:40.0026297Z   ok   candidate submodule URL changes are refused before fetch
+2026-10-15T10:37:40.0026525Z   ok   candidate submodule update commands are refused before fetch
+2026-10-15T10:37:40.0026754Z   ok   candidate gitlink path changes are refused before fetch
+2026-10-15T10:37:40.0026974Z   ok   Git disables every protocol except credential-free HTTPS
+2026-10-15T10:37:40.0027174Z   ok   self-hosted runner authority is refused
+2026-10-15T10:37:40.0027343Z   ok   a missing runner label is refused
+2026-10-15T10:37:40.0027503Z   ok   a nonliteral runner label is refused
+2026-10-15T10:37:40.0027670Z   ok   job container authority is refused
+2026-10-15T10:37:40.0027837Z   ok   service container authority is refused
+2026-10-15T10:37:40.0028009Z   ok   reusable workflow authority is refused
+2026-10-15T10:37:40.0028364Z   ok   step-level action docker://alpine:3.20 is refused before act
+2026-10-15T10:37:40.0028603Z   ok   step-level action example/setup@v1 is refused before act
+2026-10-15T10:37:40.0028836Z   ok   step-level action actions/checkout@v5 is refused before act
+2026-10-15T10:37:40.0029066Z   ok   step-level action ./local-action is refused before act
+2026-10-15T10:37:40.0029383Z   ok   a workflow without a declared name cannot lease act job volumes
+2026-10-15T10:37:40.0029653Z   ok   a workflow name that is a hyphen-prefix of another cannot share a lease
+2026-10-15T10:37:40.0029915Z   ok   either overlapping workflow alone still leases its own volumes
+2026-10-15T10:37:40.0030139Z   ok   workflow reads do not follow a candidate symlink
+2026-10-15T10:37:40.0030335Z   ok   workflow reads reject a FIFO without blocking
+2026-10-15T10:37:40.0030539Z   ok   workflow reads reject a host device before reading it
+2026-10-15T10:37:40.0030770Z   ok   workflow reads reject an oversized regular file before parsing
+2026-10-15T10:37:40.0031174Z   ok   shipping workflows satisfy the sandbox policy
+2026-10-15T10:37:40.0031390Z   ok   shipping workflows lease act job volumes by declared name
+2026-10-15T10:37:40.0031711Z   ok   no shipping workflow name is a hyphen-prefix of another, so a rival workflow's volumes stay outside every lease
+2026-10-15T10:37:40.0032078Z   ok   a job without a matrix runs one container, with or without a strategy or a max-parallel
+2026-10-15T10:37:40.0032439Z   ok   a matrix job runs act's default 4 wide, or its literal max-parallel, never below one, as act 0.2.89 does
+2026-10-15T10:37:40.0032766Z   ok   a strategy that is not a mapping is refused: the concurrency cannot be derived
+2026-10-15T10:37:40.0033053Z   ok   an expression max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:37:40.0033326Z   ok   a negative max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:37:40.0033591Z   ok   a fractional max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:37:40.0033869Z   ok   a seven-digit max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:37:40.0034128Z   ok   a list max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:37:40.0034372Z   ok   all selected workflows share the 1-job limit in every order
+2026-10-15T10:37:40.0034589Z   ok   a single small workflow does not invent 1 jobs
+2026-10-15T10:37:40.0034802Z   ok   all selected workflows share the 2-job limit in every order
+2026-10-15T10:37:40.0035015Z   ok   a single small workflow does not invent 2 jobs
+2026-10-15T10:37:40.0035223Z   ok   all selected workflows share the 3-job limit in every order
+2026-10-15T10:37:40.0035433Z   ok   a single small workflow does not invent 3 jobs
+2026-10-15T10:37:40.0035640Z   ok   all selected workflows share the 4-job limit in every order
+2026-10-15T10:37:40.0035845Z   ok   a single small workflow does not invent 4 jobs
+2026-10-15T10:37:40.0036062Z   ok   nested matrix width 1 shares the global four-job admission gate
+2026-10-15T10:37:40.0036306Z   ok   nested matrix width 4 shares the global four-job admission gate
+2026-10-15T10:37:40.0036546Z   ok   nested matrix width 9 shares the global four-job admission gate
+2026-10-15T10:37:40.0036878Z   ok   every shipping workflow derives 1 to 4 concurrent containers, and rtl-full's matrix legs run more than one at once
+2026-10-15T10:37:40.0037166Z selftest: 1 FAILURE(S)
+2026-10-15T10:37:40.0037322Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:37:40.0037502Z act-ci: interrupted by SIGHUP after cleanup
+2026-10-15T10:37:40.0037680Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:37:40.0037855Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:37:40.0038024Z act-ci: interrupted by SIGINT after cleanup
+2026-10-15T10:37:40.0038196Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:37:40.0038365Z act-ci: interrupted by SIGHUP after cleanup
+2026-10-15T10:37:40.0038558Z act-ci: REFUSED: CPU range 0-15 exceeds this host's 4 CPUs
+2026-10-15T10:37:40.0039025Z process-directed signal probe detail: signal=SIGTERM runner=34621 recorded=None runner_status=2 group_absent=False parent_pgrp=1867
+2026-10-15T10:37:40.0039355Z act-ci: interrupted by SIGINT after cleanup
+2026-10-15T10:37:40.0039529Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:37:40.0039700Z act-ci: interrupted by SIGHUP after cleanup
+2026-10-15T10:37:45.3319300Z 
+2026-10-15T10:37:45.3320042Z   ok   flat isolated selftest rejects a sibling import outside scope events
+2026-10-15T10:37:45.3320525Z   ok   the normal validation path prints the resolved base and enters its Docker boundary
+2026-10-15T10:37:45.3320837Z   ok   the normal validation path leases the selected workflow's act job volumes
+2026-10-15T10:37:45.3321345Z   ok   dry-run prints the job bound and the bounded container options as one quoted argv word
+2026-10-15T10:37:45.3321797Z   ok   an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+2026-10-15T10:37:45.3322212Z   ok   slot 0 uses external ranges without staging
+2026-10-15T10:37:45.3322402Z   ok   slot 3 uses external ranges without staging
+2026-10-15T10:37:45.3322829Z   ok   a two-workflow run leases both, and starts the CPU-range monitor, gates, spawns, stops the monitor, cleans containers, then reconciles volumes, once for the shared scheduler in that order
+2026-10-15T10:37:45.3323325Z   ok   the shared CPU-range monitor receives both independent jobs' disjoint ranges
+2026-10-15T10:37:45.3323627Z   ok   volumes observed on a workflow's containers reach that workflow's reconciliation
+2026-10-15T10:37:45.3323912Z   ok   a job volume act left after a workflow refuses the run after removal
+2026-10-15T10:37:45.3324201Z   ok   a leftover container refuses the run only after that workflow's volumes were reconciled
+2026-10-15T10:37:45.3324495Z   ok   a boundary that does not lease the selected workflow refuses before act
+2026-10-15T10:37:45.3324755Z   ok   placement failure refuses after cleanup with scheduler rc 0
+2026-10-15T10:37:45.3324986Z   ok   placement failure refuses after cleanup with scheduler rc 3
+2026-10-15T10:37:45.3325320Z   ok   the action cache is populated exactly once per run, before the Docker boundary exists and before the first act launch
+2026-10-15T10:37:45.3325668Z   ok   two workflows sharing two actions produce one clone each, in sorted order
+2026-10-15T10:37:45.3325966Z   ok   the clones in the real sequence carry the run's own credential-free git environment
+2026-10-15T10:37:45.3326276Z   ok   a failing clone refuses the run naming the action, before any boundary or act launch
+2026-10-15T10:37:45.3326583Z   ok   a trusted worktree at the live tip is accepted while the recorded base oid is stale
+2026-10-15T10:37:45.3326964Z   ok   the runner's own bytes - that file, in the trusted root, at the validation base and not the recorded oid - are what is verified
+2026-10-15T10:37:45.3327357Z   ok   a trusted worktree at the stale recorded base is refused naming the loaded head and the live tip
+2026-10-15T10:37:45.3327735Z   ok   a dirty trusted worktree is refused for being dirty, before the base comparison and before any bytes are read
+2026-10-15T10:37:45.3328154Z   ok   a trusted worktree carrying replacement refs is refused for those, before the base comparison and before any bytes are read
+2026-10-15T10:37:45.3328572Z   ok   the fixture's validated base ref is the constant the fetch targets, so the resolve and the fetch name one ref
+2026-10-15T10:37:45.3329042Z   ok   production constructs the validated run exactly once, in the audited resolve, so no second construction can bind the recorded oid as the validation base
+2026-10-15T10:37:45.3329490Z   ok   the trusted-runner check defaults to reading the real checkout state and verifying real bytes
+2026-10-15T10:37:45.3329790Z   ok   the resolve defaults to the real remote lookup and a flushed note
+2026-10-15T10:37:45.3330036Z   ok   a validated run cannot be built on anything but a full commit SHA
+2026-10-15T10:37:45.3330774Z   ok   the resolve re-checks the repository name it interpolates, rather than inheriting the check from main's ordering
+2026-10-15T10:37:45.3331307Z   ok   and re-checks the base ref it interpolates, for the same reason
+2026-10-15T10:37:45.3331528Z   ok   a well-formed ls-remote reply yields the tip
+2026-10-15T10:37:45.3331721Z   ok   an ls-remote reply naming no ref is refused
+2026-10-15T10:37:45.3332024Z   ok   an ls-remote reply naming another ref is refused
+2026-10-15T10:37:45.3332325Z   ok   a ref merely ending in the wanted name is ignored, so one pushed branch or tag cannot refuse every run of the gate
+2026-10-15T10:37:45.3332641Z   ok   an ls-remote reply carrying the wanted ref twice is refused
+2026-10-15T10:37:45.3332866Z   ok   an ls-remote reply line carrying no ref at all is refused
+2026-10-15T10:37:45.3333071Z   ok   all selects each workflow once in stable order
+2026-10-15T10:37:45.3333260Z   ok   explicit workflow selection de-duplicates
+2026-10-15T10:37:45.3333445Z   ok   all plus another workflow is refused
+2026-10-15T10:37:45.3333616Z   ok   cross-repository candidate is refused
+2026-10-15T10:37:45.3333781Z   ok   non-open pull request is refused
+2026-10-15T10:37:45.3333943Z   ok   non-dev pull request is refused
+2026-10-15T10:37:45.3334102Z   ok   malformed GitHub metadata is refused
+2026-10-15T10:37:45.3334293Z   ok   act command selects the real strict exhaustive workflow
+2026-10-15T10:37:45.3334523Z   ok   candidate checkout is copied from immutable materialization
+2026-10-15T10:37:45.3334748Z   ok   job containers receive no Docker socket or host network
+2026-10-15T10:37:45.3334972Z   ok   artifact and cache servers bind only to the bridge gateway
+2026-10-15T10:37:45.3335279Z   ok   job container options are one argv word: the ownership label, the CPU set, then the memory and swap limits
+2026-10-15T10:37:45.3335598Z   ok   act starts at most 4 jobs of a stage at once, stated exactly once
+2026-10-15T10:37:45.3335840Z   ok   only an explicitly empty GitHub token reaches candidate jobs
+2026-10-15T10:37:45.3336074Z   ok   every ambient act input is replaced by an explicit empty file
+2026-10-15T10:37:45.3336307Z   ok   artifact uploads receive a real isolated listener port
+2026-10-15T10:37:45.3336553Z   ok   act reads the pre-populated per-head action cache offline, exactly once
+2026-10-15T10:37:45.3336807Z   ok   one scheduler receives both original workflow byte streams
+2026-10-15T10:37:45.3337017Z   ok   changed private workflow bytes are refused
+2026-10-15T10:37:45.3337193Z   ok   an extra private workflow is refused
+2026-10-15T10:37:45.3337365Z   ok   a missing selected workflow is refused
+2026-10-15T10:37:45.3337535Z   ok   a selected workflow symlink is refused
+2026-10-15T10:37:45.3337721Z   ok   command output cannot forge a scheduler failure
+2026-10-15T10:37:45.3337952Z   ok   an actual setup start records admission before its first step completes
+2026-10-15T10:37:45.3338249Z   ok   the first failed job is retained before interrupting and reaping the execution group
+2026-10-15T10:37:45.3338529Z   ok   booked ranges and named fallback reach creation scheduler
+2026-10-15T10:37:45.3338727Z   ok   no staging affinity or privileged job
+2026-10-15T10:37:45.3338897Z   ok   invalid or missing CPU ranges None
+2026-10-15T10:37:45.3339056Z   ok   invalid or missing CPU ranges ''
+2026-10-15T10:37:45.3339215Z   ok   invalid or missing CPU ranges '0-7'
+2026-10-15T10:37:45.3339385Z   ok   invalid or missing CPU ranges '1-16'
+2026-10-15T10:37:45.3339555Z   ok   invalid or missing CPU ranges '0-15,12-23'
+2026-10-15T10:37:45.3339733Z   ok   invalid or missing CPU ranges '0-15,0-15'
+2026-10-15T10:37:45.3339912Z   ok   invalid or missing CPU ranges '128-143'
+2026-10-15T10:37:45.3340080Z   ok   invalid or missing CPU ranges '00-15'
+2026-10-15T10:37:45.3340246Z   ok   invalid or missing CPU ranges '0-15,'
+2026-10-15T10:37:45.3340413Z   ok   invalid or missing CPU ranges '-1-14'
+2026-10-15T10:37:45.3340589Z   ok   booked ranges accepted: 0-15,16-31,32-47,48-63
+2026-10-15T10:37:45.3340879Z   ok   booked ranges accepted: 0-11,12-23,24-35,36-47
+2026-10-15T10:37:45.3341193Z   ok   booked ranges accepted: 0-15,24-35
+2026-10-15T10:37:45.3341354Z   ok   fallback has one named setting
+2026-10-15T10:37:45.3341516Z   ok   slot number cannot relocate booked CPUs
+2026-10-15T10:37:45.3341694Z   ok   too few booked ranges for concurrent jobs
+2026-10-15T10:37:45.3341868Z   ok   no implicit host CPU allocation
+2026-10-15T10:37:45.3342109Z   ok   unsupported job admission width
+2026-10-15T10:37:45.3342265Z   ok   unsupported job admission width
+2026-10-15T10:37:45.3342454Z   ok   two initial ranges stay disjoint across stop and restart
+2026-10-15T10:37:45.3342651Z   ok   concurrent CPU sharing refuses
+2026-10-15T10:37:45.3342807Z   ok   move after creation refuses
+2026-10-15T10:37:45.3342959Z   ok   unpinned start refuses
+2026-10-15T10:37:45.3343102Z   ok   only removal releases range
+2026-10-15T10:37:45.3343288Z   ok   foreign and malformed events inspect nothing
+2026-10-15T10:37:45.3343668Z   ok   the monitor streams container events from a second before act, filtered to this boundary's owner label and the five actions it reads, in a session of its own
+2026-10-15T10:37:45.3344210Z   ok   after its body the monitor walks the stream's group down the containment ladder once, joins its reader with every line applied, and closes the pipe
+2026-10-15T10:37:45.3344653Z   ok   a body that raises still has the stream contained before the exception reaches the Docker boundary
+2026-10-15T10:37:45.3345076Z   ok   a stream whose poll fails is still contained once, its reader joined and its pipe closed, and the failed poll is a problem, not a verdict
+2026-10-15T10:37:45.3345460Z   ok   an event stream that ended before act is reported as a problem, not a verdict
+2026-10-15T10:37:45.3345724Z   ok   a run without job ranges starts no monitor and inspects nothing
+2026-10-15T10:37:45.3346171Z   ok   a reader still inspecting a container when the body returns is joined, its inspection finished and the stream ended by containment, before the monitor lets the Docker boundary unwind
+2026-10-15T10:37:45.3346809Z   ok   a containment whose leader reap fails still has the busy reader joined and the pipe closed before the monitor exits, and with no earlier failure the reap failure is what it raises
+2026-10-15T10:37:45.3347416Z   ok   a body that raises and a reap that fails together still join the busy reader first; the body's failure is what the monitor raises, and the reap failure is printed beside it
+2026-10-15T10:37:45.3347980Z   ok   a body ended by a termination signal still joins the busy reader before the signal reaches the Docker boundary, and the runner exits 143 after cleanup
+2026-10-15T10:37:45.3348556Z   ok   a SIGINT that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 130 with its interrupt diagnostic, and the reap failure is printed beside it
+2026-10-15T10:37:45.3349176Z   ok   a SIGTERM that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 143 with its interrupt diagnostic, and the reap failure is printed beside it
+2026-10-15T10:38:07.8914497Z   ok   a SIGHUP that ends the body, then a reap that fails, still joins the busy reader first; the runner exits 129 with its interrupt diagnostic, and the reap failure is printed beside it
+2026-10-15T10:38:07.8915190Z   ok   a stream that cannot start is a Refusal with nothing to contain; a reader that cannot start still has the started stream contained and its pipe closed
+2026-10-15T10:38:07.8915776Z   ok   a reader join that fails is retried while the reader still runs after the pause, and the join failure is raised only once the reader has ended, with the pipe closed
+2026-10-15T10:38:07.8916350Z   ok   with no failure already propagating, a reap failure and then a join failure raise the first, the reap's, once the reader has ended, and print the join failure beside it
+2026-10-15T10:38:07.8916916Z   ok   with an interrupt already propagating, the same reap and join failures leave it to propagate once the reader has ended, and both are printed beside it, in order
+2026-10-15T10:38:07.8917894Z   ok   a reader still running when its bounded wait (patched to 0.05 s) expires is held for, not abandoned: the hold is printed and recorded, and the join returns only once the reader has ended
+2026-10-15T10:38:07.8918468Z   ok   the stream's containment runs with the cleanup signals blocked, and a reader whose read fails records the failure as a problem rather than raising it
+2026-10-15T10:38:07.8919150Z   ok   a first SIGINT at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5637, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 130
+2026-10-15T10:38:07.8919769Z   ok   a first SIGTERM at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5637, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 143
+2026-10-15T10:38:07.8920383Z   ok   a first SIGHUP at the monitor's cleanup entry (act_ci.py:job_cpu_range_monitor:5637, R633-4's point) waits for the containment, the busy reader's join and the pipe close, then exits 129
+2026-10-15T10:38:07.8921476Z   ok   a first signal at each of the 198 steps from the body's end through the mask's release, sent to the main thread and to the whole process, waits for the containment, the reader's join and the pipe close, and exits 128 + the signal; the steps include contextlib's exit, the cleanup entry, stop_job_cpu_range_monitor, the reader join and the release
+2026-10-15T10:38:07.8922465Z   ok   a first SIGTERM held at the cleanup entry, then a reap that fails: the busy reader is joined first, the runner exits 143 with its interrupt diagnostic, and the reap failure is printed beside it, as for a SIGTERM that ends the body
+2026-10-15T10:38:07.8923157Z   ok   a body failure, then a first SIGTERM held at the cleanup entry: the busy reader is joined first, the body's failure is what the monitor raises, and the signal is printed beside it
+2026-10-15T10:38:07.8923647Z   ok   job containers are held to 8g of memory and the same swap ceiling, one limit each, in Docker size syntax
+2026-10-15T10:38:07.8923971Z   ok   container options preserve label, memory and swap in order
+2026-10-15T10:38:07.8924215Z   ok   a boundary without a job-volume lease cannot build an act command
+2026-10-15T10:38:07.8924462Z   ok   artifact-server port zero is refused rather than advertised
+2026-10-15T10:38:07.8924697Z   ok   a missing bridge gateway cannot produce an act command
+2026-10-15T10:38:07.8924915Z   ok   a boundary without an exclusive tool cache cannot run act
+2026-10-15T10:38:07.8925131Z   ok   a boundary with an unseeded tool cache cannot run act
+2026-10-15T10:38:07.8925400Z   ok   the collector yields each remote action once, sorted, skipping local and docker:// steps
+2026-10-15T10:38:07.8925758Z   ok   an action is cloned into the directory act 0.2.89 derives from its uses: string, from act's exact clone URL
+2026-10-15T10:38:07.8926107Z   ok   a uses: string that is neither local, docker://, nor owner/repo@ref is refused
+2026-10-15T10:38:07.8926463Z   ok   the clone is a full credential-free HTTPS clone, a tag-first resolve, then a detached checkout of the resolved SHA
+2026-10-15T10:38:07.8926859Z   ok   every action git call runs with the runner's no-prompt, no-helper, HTTPS-only environment and no token
+2026-10-15T10:38:07.8927187Z   ok   a ref is resolved the way act duck-types it: tag, then origin branch, then SHA
+2026-10-15T10:38:07.8927432Z   ok   a failing clone is a Refusal naming the action
+2026-10-15T10:38:07.8927639Z   ok   dry-run prints the planned action set and clones nothing
+2026-10-15T10:38:07.8927986Z   ok   the materialiser re-checks each action against the audited set rather than inheriting the sandbox scan's position in the sequence
+2026-10-15T10:38:07.8928313Z   ok   and that refusal reaches git for nothing
+2026-10-15T10:38:07.8928521Z   ok   the materialiser defaults to the real tracked capture boundary
+2026-10-15T10:38:07.8929049Z   ok   the plants occupy every operator-environment name the boundary must withhold, each credential file carries the planted token, and both recorders are executable and silent
+2026-10-15T10:38:07.8929538Z   ok   no plant reaches the runner's git environment, act's environment, or the sudo prefix by construction
+2026-10-15T10:38:07.8930038Z   ok   the probe workflow passes the trusted sandbox, leases its own job-volume prefix, maps the token secret, reports every check in both states, and carries no plant but the token marker
+2026-10-15T10:38:07.8930790Z   ok   grading: an all-absent transcript passes the boundary arm and fails the leaky arm on the three discriminators; all-visible the reverse; an unreported check fails both; `other` fails the boundary arm
+2026-10-15T10:38:07.8931598Z   ok   the boundary command is refused as a leaky arm
+2026-10-15T10:38:07.8931790Z   ok   the leaky command is refused as a boundary arm
+2026-10-15T10:38:07.8932245Z   ok   the boundary command carries the empty token, the disabled socket and the owned network; the leaky command drops exactly those, sources the token from the environment, and keeps the ownership label and the event
+2026-10-15T10:38:07.8932774Z   ok   a boundary command that already lacks the owned network cannot be turned into a leaky arm
+2026-10-15T10:38:07.8933071Z   ok   a sudo boundary command that keeps the operator environment is refused
+2026-10-15T10:38:07.8933454Z   ok   under sudo the leaky command starts act from the planted environment, not an emptied one, and the boundary command without its `-i` is refused
+2026-10-15T10:38:07.8933847Z   ok   the transcript Popen appends the child's output where the grader reads it
+2026-10-15T10:38:07.8934132Z   ok   a failing child whose group drains within the grace yields its last stderr line
+2026-10-15T10:38:07.8934371Z   ok   a probe clone that succeeds is refused
+2026-10-15T10:38:07.8934559Z   ok   the zombie probe records its descendant and group
+2026-10-15T10:38:07.8934780Z   ok   an unreaped zombie in the probe group does not prevent draining
+2026-10-15T10:38:07.8935003Z   ok   the zombie probe is reaped after its drain check
+2026-10-15T10:38:07.8935196Z   ok   the live probe records its descendant and group
+2026-10-15T10:38:07.8935428Z   ok   a live grandchild that outlives the grace is refused and its group killed
+2026-10-15T10:38:07.8935708Z   ok   the scan inventory omits the new same-group child and its old parent is gone
+2026-10-15T10:38:07.8936004Z   ok   a child forked during inspection is refused after the grace and its group killed
+2026-10-15T10:38:07.8936304Z   ok   both changing foreign PIDs are confirmed nonmembers in their frozen inventories
+2026-10-15T10:38:07.8936596Z   ok   confirmed foreign churn drains a zombie-only probe within the unchanged grace
+2026-10-15T10:38:07.8936859Z   ok   the foreign-churn probe is reaped after its drain check
+2026-10-15T10:38:07.8937106Z   ok   proc parsing ignores a zombie even with parentheses and spaces in its name
+2026-10-15T10:38:07.8937348Z   ok   live members count only in their own probe group
+2026-10-15T10:38:07.8937581Z   ok   a PID vanishing between listing and reading is not a survivor or an error
+2026-10-15T10:38:07.8937812Z   ok   an unanswerable proc stat record is refused
+2026-10-15T10:38:07.8937997Z   ok   an unanswerable proc stat record is refused
+2026-10-15T10:38:07.8938221Z   ok   a proven foreign process is skipped before its inaccessible stat is read
+2026-10-15T10:38:07.8938499Z   ok   a PID gone before membership lookup is skipped without reading its stat
+2026-10-15T10:38:07.8938722Z   ok   an unreadable member stat record is refused
+2026-10-15T10:38:07.8938905Z   ok   an unanswerable membership lookup is refused
+2026-10-15T10:38:07.8939099Z   ok   an inspection refusal resumes the frozen group
+2026-10-15T10:38:07.8939282Z   ok   an unavailable proc inventory is refused
+2026-10-15T10:38:07.8939507Z   ok   a probe clone that has not finished within its timeout is killed and refused
+2026-10-15T10:38:07.8939748Z   ok   the labeled ephemeral act tool cache is accepted
+2026-10-15T10:38:07.8940045Z   ok   a tool-cache volume owned by another run is refused
+2026-10-15T10:38:07.8940273Z   ok   a pre-existing unowned tool cache is refused with label guidance
+2026-10-15T10:38:07.8940499Z   ok   rollback never removes an unowned tool-cache volume
+2026-10-15T10:38:07.8940710Z   ok   a rival winning the tool-cache create race is refused
+2026-10-15T10:38:07.8940919Z   ok   create-race rollback never removes the rival's volume
+2026-10-15T10:38:07.8941418Z   ok   tool-cache cleanup refuses when the volume survives removal
+2026-10-15T10:38:07.8941645Z   ok   surviving-volume control exercised the removal request
+2026-10-15T10:38:07.8941854Z   ok   a post-accept volume-create timeout is reconciled
+2026-10-15T10:38:07.8942075Z   ok   post-accept volume rollback removes and verifies its resource
+2026-10-15T10:38:07.8942315Z   ok   a failed setup rollback is surfaced rather than reported clean
+2026-10-15T10:38:07.8942554Z   ok   tool-cache failure cannot suppress independent network teardown
+2026-10-15T10:38:07.8942803Z   ok   a post-accept network-create timeout reconciles both resources
+2026-10-15T10:38:07.8943049Z   ok   network rollback failure is surfaced while cache cleanup continues
+2026-10-15T10:38:07.8943294Z   ok   a post-accept KeyboardInterrupt reconciles both resources
+2026-10-15T10:38:07.8943530Z   ok   a signal after cache return but before network create is reconciled
+2026-10-15T10:38:07.8943778Z   ok   the cold tool cache is seeded exactly once before sibling jobs
+2026-10-15T10:38:07.8944010Z   ok   an unpopulated seed refuses the boundary and reconciles it
+2026-10-15T10:38:07.8944232Z   ok   stable rollback catches delayed Docker daemon mutations
+2026-10-15T10:38:07.9283666Z   ok   no --slot selects slot 0, the default local daemon, which owns no slot resource
+2026-10-15T10:38:07.9285086Z   ok   replay slot -1 is outside 0-63 and refused
+2026-10-15T10:38:07.9285403Z   ok   replay slot 64 is outside 0-63 and refused
+2026-10-15T10:38:07.9285686Z   ok   replay slot True is outside 0-63 and refused
+2026-10-15T10:38:07.9286069Z   ok   an isolated slot without --sudo is refused: it starts its own daemon
+2026-10-15T10:38:07.9286480Z   ok   --slot-root with slot 0 is refused: the default daemon has no slot root
+2026-10-15T10:38:07.9286894Z   ok   slot selection is independent of CPU placement
+2026-10-15T10:38:07.9287225Z   ok   an isolated slot derives every host name from its number
+2026-10-15T10:38:07.9287800Z   ok   no two slots share a namespace, unit, socket, slice, table, lock, data-root or address pool, and one slot's names are identical every time
+2026-10-15T10:38:07.9288405Z   ok   slot 0's controlled environment is unchanged: no Docker endpoint at all
+2026-10-15T10:38:07.9288802Z   ok   an isolated slot's environment adds exactly its own socket
+2026-10-15T10:38:07.9289305Z   ok   an isolated slot's sudo Docker and act prefixes enter its namespace identically, differing only in the executable
+2026-10-15T10:38:07.9289778Z   ok   slot 0's sudo prefix enters no namespace
+2026-10-15T10:38:07.9290116Z   ok   an isolated slot's endpoint without sudo is refused by the prefix
+2026-10-15T10:38:07.9290543Z   ok   a Docker endpoint that is no slot socket is refused: unix:///var/run/docker.sock
+2026-10-15T10:38:07.9291111Z   ok   the endpoint parser itself refuses unix:///var/run/docker.sock
+2026-10-15T10:38:07.9291531Z   ok   a Docker endpoint that is no slot socket is refused: tcp://127.0.0.1:2375
+2026-10-15T10:38:07.9291924Z   ok   the endpoint parser itself refuses tcp://127.0.0.1:2375
+2026-10-15T10:38:07.9292503Z   ok   a Docker endpoint that is no slot socket is refused: unix:///run/milan-act-slot-0/docker.sock
+2026-10-15T10:38:07.9292999Z   ok   the endpoint parser itself refuses unix:///run/milan-act-slot-0/docker.sock
+2026-10-15T10:38:07.9293449Z   ok   a Docker endpoint that is no slot socket is refused: unix:///run/milan-act-slot-64/docker.sock
+2026-10-15T10:38:07.9293764Z   ok   the endpoint parser itself refuses unix:///run/milan-act-slot-64/docker.sock
+2026-10-15T10:38:07.9294251Z   ok   DOCKER_CONTEXT in the controlled environment is refused by the prefix
+2026-10-15T10:38:07.9294515Z   ok   DOCKER_CONFIG in the controlled environment is refused by the prefix
+2026-10-15T10:38:07.9294840Z   ok   an inherited DOCKER_CONFIG refuses the PR run, dry run and both live self-tests before any collaborator runs
+2026-10-15T10:38:07.9295227Z   ok   an inherited DOCKER_CONTEXT refuses the PR run, dry run and both live self-tests before any collaborator runs
+2026-10-15T10:38:07.9295846Z   ok   an inherited DOCKER_HOST refuses the PR run, dry run and both live self-tests before any collaborator runs
+2026-10-15T10:38:07.9296167Z   ok   the same modes in a clean environment reach their first collaborator
+2026-10-15T10:38:07.9296436Z   ok   the refusal names the replacement: --slot, never an inherited endpoint
+2026-10-15T10:38:07.9296664Z   ok   --selftest with --slot is a usage error
+2026-10-15T10:38:07.9296894Z   ok   --boundary-selftest in an isolated slot is refused before act is resolved
+2026-10-15T10:38:07.9297182Z   ok   a PR run in an isolated slot without --sudo is refused before any collaborator
+2026-10-15T10:38:07.9297459Z   ok   --slot-root without an isolated slot is refused before any collaborator
+2026-10-15T10:38:07.9297740Z   ok   pasta keeps its absolute SAFE_PATH spelling despite an ambient PATH impostor
+2026-10-15T10:38:07.9298013Z   ok   the invoked pasta symlink still resolves to its executable identity
+2026-10-15T10:38:07.9298261Z   ok   every other slot host tool still resolves its final symlink
+2026-10-15T10:38:07.9298544Z   ok   the slot uplink's fake multi-call executable observes the invoked name pasta
+2026-10-15T10:38:07.9298841Z   ok   missing SAFE_PATH pasta refuses despite the ambient PATH impostor
+2026-10-15T10:38:07.9299050Z   ok   a dangling pasta symlink refuses
+2026-10-15T10:38:07.9299218Z   ok   a non-executable pasta target refuses
+2026-10-15T10:38:07.9299533Z   ok   the uplink is socket-level NAT in the slot namespace: no inbound or outbound port forward and no gateway mapped to host loopback
+2026-10-15T10:38:07.9300053Z   ok   the slot daemon runs in the slot namespace and slice with its own containerd, data-root, exec-root, socket, address pool, no host configuration and both labels
+2026-10-15T10:38:07.9300622Z   ok   the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses and out of any interface but the uplinks, created whole or not at all
+2026-10-15T10:38:07.9301137Z   ok   the slot firewall refuses no uplink
+2026-10-15T10:38:07.9301422Z   ok   the slot firewall refuses loopback as the uplink
+2026-10-15T10:38:07.9301725Z   ok   the slot firewall refuses a duplicated uplink
+2026-10-15T10:38:07.9302070Z   ok   the slot firewall refuses an uplink name that would leave its quotes
+2026-10-15T10:38:07.9302313Z   ok   the slot firewall refuses an uplink name over 15 characters
+2026-10-15T10:38:07.9302666Z   ok   the uplinks are every unicast default route's interface, IPv4 then IPv6, each once, with multipath next hops and no unreachable default
+2026-10-15T10:38:07.9303027Z   ok   a host with no default route is refused before any slot resource
+2026-10-15T10:38:07.9303285Z   ok   a host whose only default is unreachable is refused before any slot resource
+2026-10-15T10:38:07.9303562Z   ok   a default route naming no interface is refused before any slot resource
+2026-10-15T10:38:07.9303824Z   ok   a default route through loopback is refused before any slot resource
+2026-10-15T10:38:07.9304080Z   ok   an unquotable interface name is refused before any slot resource
+2026-10-15T10:38:07.9304319Z   ok   malformed route output is refused before any slot resource
+2026-10-15T10:38:07.9304550Z   ok   a route list of non-objects is refused before any slot resource
+2026-10-15T10:38:07.9304790Z   ok   a malformed multipath route is refused before any slot resource
+2026-10-15T10:38:07.9305035Z   ok   a default-route query that fails is refused, never read as no route
+2026-10-15T10:38:07.9305278Z   ok   container options preserve the label and memory limits
+2026-10-15T10:38:07.9305614Z   ok   daemon slot numbering cannot change booked creation affinity
+2026-10-15T10:38:07.9305870Z   ok   a boundary planned for one slot is not created through another slot's daemon
+2026-10-15T10:38:07.9306106Z   ok   that refusal precedes every Docker call
+2026-10-15T10:38:07.9306309Z   ok   a boundary cannot be planned in slot 64
+2026-10-15T10:38:07.9306839Z   ok   acquisition locks the slot, proves it clean, then creates the namespace, memory cap, uplink, firewall and daemon in that order and verifies the daemon
+2026-10-15T10:38:07.9307420Z   ok   teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+2026-10-15T10:38:07.9307847Z   ok   the firewall loaded is exactly the slot's rules, allowing the host's default-route interface as its only uplink
+2026-10-15T10:38:07.9308237Z   ok   the firewall allows exactly the interfaces this host's default routes use, and the slot announces them
+2026-10-15T10:38:07.9308607Z   ok   the queries, namespace, memory cap, firewall and every teardown command are pinned word for word
+2026-10-15T10:38:07.9308882Z   ok   slot 0 runs no slot command and takes no lock
+2026-10-15T10:38:07.9309140Z   ok   an isolated slot whose context carries another slot's endpoint is refused before its lock
+2026-10-15T10:38:07.9309449Z   ok   an isolated slot whose context carries no endpoint is refused before its lock
+2026-10-15T10:38:07.9309720Z   ok   a slot another invocation holds is refused before any host command
+2026-10-15T10:38:07.9309976Z   ok   a host missing any slot tool is refused before the lock or any mutation
+2026-10-15T10:38:07.9310430Z   ok   a failed netns-add refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:38:07.9310834Z   ok   a failed lo-up refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:38:07.9311350Z   ok   a failed slice-cap refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:38:07.9311769Z   ok   a failed uplink-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:38:07.9312195Z   ok   a failed control-group refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:38:07.9312623Z   ok   a failed firewall-create refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:38:07.9313067Z   ok   a failed daemon-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:38:07.9313482Z   ok   a failed docker-info refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-10-15T10:38:07.9313846Z   ok   a slot daemon reporting another invocation's token refuses and the slot is torn down
+2026-10-15T10:38:07.9314146Z   ok   a slot daemon reporting another data-root refuses and the slot is torn down
+2026-10-15T10:38:07.9314428Z   ok   a slot daemon reporting malformed identity refuses and the slot is torn down
+2026-10-15T10:38:07.9314751Z   ok   an interrupt during the daemon start still tears the whole slot down and propagates the interrupt
+2026-10-15T10:38:07.9315312Z   ok   each residue of a dead invocation (namespace, runtime directory, uplink pidfile, daemon unit, uplink unit, active slice, table) refuses before any mutation, is named with the recovery commands and survives untouched
+2026-10-15T10:38:07.9315886Z   ok   a daemon unit left in any state but the absent one (masked, error, bad-setting) is residue, not a clean slot
+2026-10-15T10:38:07.9316263Z   ok   a uplink unit left in any state but the absent one (masked, error, bad-setting) is residue, not a clean slot
+2026-10-15T10:38:07.9316691Z   ok   a slice unit left in any state but the absent one (failed, activating, deactivating, reloading, maintenance) is residue, not a clean slot
+2026-10-15T10:38:07.9317267Z   ok   a residue query that cannot answer (show-LoadState-daemon) refuses the slot before any mutation instead of reading as absent
+2026-10-15T10:38:07.9317722Z   ok   a residue query that cannot answer (show-LoadState-uplink) refuses the slot before any mutation instead of reading as absent
+2026-10-15T10:38:07.9797962Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:38:08.0000071Z act-ci: interrupted by SIGHUP after cleanup
+2026-10-15T10:38:08.1554804Z   ok   a residue query that cannot answer (show-ActiveState-slice) refuses the slot before any mutation instead of reading as absent
+2026-10-15T10:38:08.1555614Z   ok   a residue query that cannot answer (firewall-query) refuses the slot before any mutation instead of reading as absent
+2026-10-15T10:38:08.1556335Z   ok   a surviving daemon unit makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:38:08.1557092Z   ok   a surviving runtime directory makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:38:08.1557880Z   ok   a surviving uplink unit makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:38:08.1558377Z   ok   a surviving uplink PID file makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:38:08.1559025Z   ok   a surviving active slice makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:38:08.1559488Z   ok   a surviving slice cgroup makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:38:08.1559981Z   ok   a surviving memory cap makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:38:08.1560714Z   ok   a surviving firewall table makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:38:08.1561609Z   ok   a surviving namespace makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-10-15T10:38:08.1562288Z   ok   a daemon stop that cannot even run still leaves the slice stop to end the daemon and proves the rest absent
+2026-10-15T10:38:08.1562806Z   ok   a table delete that cannot even run is still proved absent or reported
+2026-10-15T10:38:08.1563296Z   ok   unwritable firewall rules refuse the slot and roll back what was built
+2026-10-15T10:38:08.1563942Z   ok   a teardown proof whose query cannot answer (show-LoadState-daemon@2) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:38:08.1564788Z   ok   a teardown proof whose query cannot answer (show-LoadState-uplink@2) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:38:08.1565628Z   ok   a teardown proof whose query cannot answer (show-ActiveState-slice@2) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:38:08.1566450Z   ok   a teardown proof whose query cannot answer (show-DropInPaths-slice) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:38:08.1567077Z   ok   a teardown proof whose query cannot answer (firewall-query@2) refuses the run, naming the query, while every removal and the unlock still run
+2026-10-15T10:38:08.1567867Z   ok   every slot teardown command runs with SIGINT, SIGTERM and SIGHUP blocked, so a repeated signal cannot cut it short, while acquisition ran with them unblocked
+2026-10-15T10:38:08.1568767Z   ok   a slot whose cap caused no OOM passes, printing its peak and how often the cap was hit, and reads only the slice's own events, never those of a container's limit below it
+2026-10-15T10:38:08.1569642Z   ok   a slot with a cap that ran out twice is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:38:08.1570889Z   ok   a slot with one OOM at its cap and no kill in its own events is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:38:08.1571876Z   ok   a slot with unreadable events is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:38:08.1572785Z   ok   a slot with malformed events is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:38:08.1573609Z   ok   a slot with events without an oom count is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:38:08.1574432Z   ok   a slot with events without a max count is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-10-15T10:38:08.1575054Z   ok   an unreadable peak is reported as unrecorded and refuses nothing
+2026-10-15T10:38:08.1575735Z   ok   a FAILED run whose slice sat at its cap without an OOM keeps its FAILED, since only an OOM is refused, and reports the peak at the cap and how often it was hit
+2026-10-15T10:38:08.1576441Z   ok   a body that raises keeps its own exception: the cap is not read over it, and the slot is torn down
+2026-10-15T10:38:08.1577031Z   ok   acquiring a slot whose root has a user-owned parent refuses before the lock or any host command
+2026-10-15T10:38:08.1577599Z   ok   acquiring a slot whose root has a symlink as the root refuses before the lock or any host command
+2026-10-15T10:38:08.1578145Z   ok   a dangling symlink occupies a slot path, as a file does; only nothing is absent
+2026-10-15T10:38:08.1578597Z   ok   a root-owned 0755 directory is an acceptable slot root
+2026-10-15T10:38:08.1578919Z   ok   a relative slot root is refused
+2026-10-15T10:38:08.1579189Z   ok   a slot root through '..' is refused
+2026-10-15T10:38:08.1579460Z   ok   a missing slot root is refused
+2026-10-15T10:38:08.1579710Z   ok   a symlinked slot root is refused
+2026-10-15T10:38:08.1579988Z   ok   a slot root owned by a user is refused
+2026-10-15T10:38:08.1580281Z   ok   a group-writable slot root is refused
+2026-10-15T10:38:08.1580562Z   ok   an other-writable slot root is refused
+2026-10-15T10:38:08.1580906Z   ok   a missing slot root's refusal names the one-time creation command
+2026-10-15T10:38:08.1581675Z   ok   a slot root whose every ancestor is a root-owned 0755 directory is accepted, and each component from / down is inspected without following it
+2026-10-15T10:38:08.1582345Z   ok   a slot root under a symlinked parent is refused, naming that component
+2026-10-15T10:38:08.1582838Z   ok   a slot root under a symlinked top-level directory is refused, naming that component
+2026-10-15T10:38:08.1583344Z   ok   a slot root under a parent owned by a user is refused, naming that component
+2026-10-15T10:38:08.1583834Z   ok   a slot root under a group-writable parent is refused, naming that component
+2026-10-15T10:38:08.1584384Z   ok   a slot root under a sticky other-writable parent such as /tmp is refused, naming that component
+2026-10-15T10:38:08.1584952Z   ok   a slot root under a parent that is not a directory is refused, naming that component
+2026-10-15T10:38:08.1585461Z   ok   a slot root whose parent is missing is refused with the one-time creation command
+2026-10-15T10:38:08.1585896Z   ok   a second acquisition of a held slot lock is refused
+2026-10-15T10:38:08.1586313Z   ok   a released slot lock is acquired again, and the file is only ever touched
+2026-10-15T10:38:08.1586713Z   ok   a slot lock owned by anyone but root is refused
+2026-10-15T10:38:08.1587055Z   ok   a slot lock path that is a symlink is not followed
+2026-10-15T10:38:08.1587652Z   ok   the slot lifecycle defaults to real privileged commands, path probes, the real lock, the real Docker CLI, the real clock and real file reads
+2026-10-15T10:38:08.1588468Z   ok   the production slot lock accepts only a root-owned file: its owner default is the literal 0, never the invoking user
+2026-10-15T10:38:08.1589366Z   ok   a slot host command runs as `sudo -n --`, never prompting, from / with only a fixed PATH and locale, under the default bound
+2026-10-15T10:38:08.1589905Z   ok   a slot host command that timed out is a Refusal
+2026-10-15T10:38:08.1590258Z   ok   a slot host command that cannot run probe is a Refusal
+2026-10-15T10:38:08.1590871Z   ok   --interrupt-selftest --slot 2 runs the live gate in slot 2 on its slot root, never silently in slot 0
+2026-10-15T10:38:08.1591580Z   ok   the live gate enters its slot, with that slot's own endpoint, before it resolves act
+2026-10-15T10:38:08.1592048Z   ok   two heads receive different writable action/workflow caches
+2026-10-15T10:38:08.1592432Z   ok   a cache entry written by head A is absent from head B
+2026-10-15T10:38:08.1592847Z   ok   controlled act environment drops tokens, agents, and runtime secrets
+2026-10-15T10:38:08.1593255Z   ok   a fake ambient Docker current context is excluded
+2026-10-15T10:38:08.1593644Z   ok   sudo Docker and act share the same explicit isolated environment
+2026-10-15T10:38:08.1594066Z   ok   sudo act groups are privileged-signalled from the first signal
+2026-10-15T10:38:08.1594466Z   ok   sudo process-group absence uses privileged kill zero
+2026-10-15T10:38:08.1594885Z   ok   Docker teardown waits through kill/inspection failure for PGID absence
+2026-10-15T10:38:08.1595329Z   ok   the first handled signal latches and repeats stay harmless
+2026-10-15T10:38:08.1595701Z   ok   SIGINT handler avoids the Python signal-mask race
+2026-10-15T10:38:08.1596065Z   ok   a first signal during cleanup is delivered only afterward
+2026-10-15T10:38:08.1596471Z   ok   worker threads cannot intercept a signal before cleanup finishes
+2026-10-15T10:38:08.1596899Z   ok   a first signal during monitor join waits for proven termination
+2026-10-15T10:38:08.1597269Z   ok   monitor start failure becomes a cleanup refusal
+2026-10-15T10:38:08.1597614Z   ok   registered monitor start failure is a cleanup refusal
+2026-10-15T10:38:08.1598019Z   ok   registered monitor start failure is reported without an invalid join
+2026-10-15T10:38:08.1598466Z   ok   a worker-thread CLI timeout kills its blocked-mask process group
+2026-10-15T10:38:08.1598882Z   ok   act configuration roots and invocation directory are per-run
+2026-10-15T10:38:08.1599233Z   ok   hostile private input actrc is refused
+2026-10-15T10:38:08.1599531Z   ok   hostile private input .actrc is refused
+2026-10-15T10:38:08.1599814Z   ok   hostile private input .actrc is refused
+2026-10-15T10:38:08.1600091Z   ok   hostile private input .env is refused
+2026-10-15T10:38:08.1600367Z   ok   hostile private input .secrets is refused
+2026-10-15T10:38:08.1600649Z   ok   hostile private input .vars is refused
+2026-10-15T10:38:08.1600917Z   ok   hostile private input .input is refused
+2026-10-15T10:38:08.1601585Z   ok   a nonempty explicit secret file is refused
+2026-10-15T10:38:08.1610628Z   ok   durable evidence is a fresh private directory
+2026-10-15T10:38:08.1610955Z   ok   existing evidence destination refuses
+2026-10-15T10:38:08.1611370Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:38:08.1611652Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:38:08.3275036Z act-ci: interrupted by SIGINT after cleanup
+2026-10-15T10:38:08.5296324Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:38:08.7315768Z act-ci: interrupted by SIGHUP after cleanup
+2026-10-15T10:38:08.7843040Z act-ci: REFUSED: CPU range 0-15 exceeds this host's 4 CPUs
+2026-10-15T10:38:18.8140355Z process-directed signal probe detail: signal=SIGTERM runner=36011 recorded=None runner_status=2 group_absent=False parent_pgrp=1867
+2026-10-15T10:38:18.9712073Z act-ci: interrupted by SIGINT after cleanup
+2026-10-15T10:38:19.1733061Z act-ci: interrupted by SIGTERM after cleanup
+2026-10-15T10:38:19.3752954Z act-ci: interrupted by SIGHUP after cleanup
+2026-10-15T10:38:19.4265987Z   ok   evidence inside the candidate refuses
+2026-10-15T10:38:19.4266670Z   ok   evidence through a candidate alias refuses
+2026-10-15T10:38:19.4266880Z   ok   collector staging binds exact read-only bytes
+2026-10-15T10:38:19.4267087Z   ok   changed collector helper refuses before execution
+2026-10-15T10:38:19.4267292Z   ok   linked collector helper refuses before execution
+2026-10-15T10:38:19.4267529Z   ok   stopped boundary and container-network children are owned exactly
+2026-10-15T10:38:19.4267890Z   ok   unrelated containers are excluded from cleanup
+2026-10-15T10:38:19.4268128Z   ok   the live-container inspector verifies the effective tool-cache mount
+2026-10-15T10:38:19.4268411Z   ok   cancellation during the final container inspect stops the monitor inventory
+2026-10-15T10:38:19.4268682Z   ok   an owned container on a different tool-cache volume is refused
+2026-10-15T10:38:19.4268941Z   ok   the act job-volume name mirror reproduces a live act 0.2.89 volume name
+2026-10-15T10:38:19.4269217Z   ok   job workspace and environment volumes fall inside their workflow lease
+2026-10-15T10:38:19.4269489Z   ok   the tool cache, foreign act jobs, and near-miss names stay unleased
+2026-10-15T10:38:19.4269732Z   ok   workflow names sanitize the way act builds container names
+2026-10-15T10:38:19.4269967Z   ok   malformed job-volume lease prefix 'act-docs' is refused
+2026-10-15T10:38:19.4270189Z   ok   malformed job-volume lease prefix 'docs-' is refused
+2026-10-15T10:38:19.4270412Z   ok   malformed job-volume lease prefix 'act--docs-' is refused
+2026-10-15T10:38:19.4270648Z   ok   malformed job-volume lease prefix 'act-docs--' is refused
+2026-10-15T10:38:19.4270860Z   ok   malformed job-volume lease prefix '' is refused
+2026-10-15T10:38:19.4271257Z   ok   a workflow without a name cannot lease act job volumes
+2026-10-15T10:38:19.4271473Z   ok   a blank workflow name cannot lease act job volumes
+2026-10-15T10:38:19.4271744Z   ok   a pre-existing in-scope act job volume refuses acquisition before any mutation
+2026-10-15T10:38:19.4272014Z   ok   act job volumes outside the lease do not block acquisition
+2026-10-15T10:38:19.4272268Z   ok   a boundary without a job-volume lease cannot pass the acquisition gate
+2026-10-15T10:38:19.4272506Z   ok   a lone in-scope twin 237d234b refuses acquisition
+2026-10-15T10:38:19.4272709Z   ok   a lone in-scope twin 234b-env refuses acquisition
+2026-10-15T10:38:19.4272950Z   ok   the lease prefix is what act's own name builder produces for every leasable name
+2026-10-15T10:38:19.4273222Z   ok   a name whose separators act keeps doubled is unleasable
+2026-10-15T10:38:19.4273441Z   ok   the YAML null literal 'null' cannot lease act job volumes
+2026-10-15T10:38:19.4273659Z   ok   the YAML null literal 'NULL' cannot lease act job volumes
+2026-10-15T10:38:19.4273878Z   ok   the YAML null literal '~' cannot lease act job volumes
+2026-10-15T10:38:19.4274110Z   ok   a volume record is None only when Docker names the volume as missing
+2026-10-15T10:38:19.4274352Z   ok   a volume record for another name is refused
+2026-10-15T10:38:19.4274530Z   ok   a malformed volume record is refused
+2026-10-15T10:38:19.4274726Z   ok   a volume inspection failing for another reason is refused
+2026-10-15T10:38:19.4274938Z   ok   a malformed volume inventory refuses acquisition
+2026-10-15T10:38:19.4275174Z   ok   a lease never matches a name that merely contains or re-cases its prefix
+2026-10-15T10:38:19.4275564Z   ok   interrupt cleanup removes the observed job volumes and an in-scope orphan while rival, re-cased, embedding, and bystander volumes survive
+2026-10-15T10:38:19.4276005Z   ok   a bystander container and its volume are neither observed nor removed, and a bind mount is not a volume
+2026-10-15T10:38:19.4276316Z   ok   reconciliation never overrides the removal's absence window
+2026-10-15T10:38:19.4276579Z   ok   the absence window is the daemon constant for the real CLI and zero for fakes
+2026-10-15T10:38:19.4276856Z   ok   job-volume removal never forces and follows every container removal
+2026-10-15T10:38:19.4277117Z   ok   a job volume another container still holds is preserved and reported
+2026-10-15T10:38:19.4277495Z   ok   a job volume surviving its removal is reported rather than certified absent
+2026-10-15T10:38:19.4277844Z   ok   a volume an owned container mounted outside the lease is preserved and reported as lease drift, act-shaped or not
+2026-10-15T10:38:19.4278188Z   ok   an anonymous volume on an owned container is neither drift nor a target
+2026-10-15T10:38:19.4278456Z   ok   an absence probe that fails is reported as unverifiable, never as absent
+2026-10-15T10:38:19.4278818Z   ok   an in-scope volume the final inventory still lists is a reported survivor
+2026-10-15T10:38:19.4279106Z   ok   a failed volume inventory before reconciliation is reported, not skipped
+2026-10-15T10:38:19.4279381Z   ok   a failed volume inventory after reconciliation is reported, not certified
+2026-10-15T10:38:19.4279654Z   ok   a job volume reappearing inside the absence window is a reported survivor
+2026-10-15T10:38:19.4279922Z   ok   the absence window probed more than once before the volume reappeared
+2026-10-15T10:38:19.4280182Z   ok   a job volume absent for the whole window is certified removed
+2026-10-15T10:38:19.4280429Z   ok   malformed owned-container mount metadata fails container cleanup
+2026-10-15T10:38:19.4280706Z   ok   the job-volume name pattern is act's: no underscore, at most 63 stem bytes
+2026-10-15T10:38:19.4280954Z   ok   a workflow name whose prefix act would trim is refused
+2026-10-15T10:38:19.4281266Z   ok   a missing-volume report must name the volume it is about
+2026-10-15T10:38:19.4281601Z   ok   a job volume act left after a workflow is removed and reported as leftover; an observed name the daemon no longer holds is not
+2026-10-15T10:38:19.4281925Z   ok   reconciliation without a lease scope is refused
+2026-10-15T10:38:19.4282127Z   ok   act version parser accepts the tested version
+2026-10-15T10:38:19.4282349Z   ok   the upstream dispatcher cannot claim atomic fail-fast admission
+2026-10-15T10:38:19.4282591Z   ok   a different scheduling patch cannot satisfy the runtime pin
+2026-10-15T10:38:19.4282804Z   ok   the audited act version is accepted
+2026-10-15T10:38:19.4282975Z   ok   an unaudited newer act version is refused
+2026-10-15T10:38:19.4283163Z   ok   unparseable act version is refused
+2026-10-15T10:38:19.4283388Z   ok   a signal after spawn but before Popen return terminates the stored group
+2026-10-15T10:38:19.4283637Z   ok   a successful act leader cannot leave a live process group
+2026-10-15T10:38:19.4283876Z   ok   a successful host-command leader cannot leave a live process group
+2026-10-15T10:38:19.4284136Z   ok   a repeat signal inside a tracked cleanup command cannot abort the tail
+2026-10-15T10:38:19.4284395Z   ok   a timed-out sudo Docker CLI is contained before rollback begins
+2026-10-15T10:38:19.4284642Z   ok   spawned children inherit no cleanup-signal mask and honor SIGTERM
+2026-10-15T10:38:19.4284890Z   ok   process-directed SIGINT contains a captured child tree
+2026-10-15T10:38:19.4285109Z   ok   process-directed SIGTERM contains a captured child tree
+2026-10-15T10:38:19.4285333Z   ok   process-directed SIGHUP contains a captured child tree
+2026-10-15T10:38:19.4285567Z   FAIL production main contains an interrupted early repository lookup
+2026-10-15T10:38:19.4285812Z   ok   process-directed SIGINT contains a Git remote-helper tree
+2026-10-15T10:38:19.4286039Z   ok   process-directed SIGTERM contains a Git remote-helper tree
+2026-10-15T10:38:19.4286267Z   ok   process-directed SIGHUP contains a Git remote-helper tree
+2026-10-15T10:38:19.4286493Z   ok   remote head SHA movement across an act process is refused
+2026-10-15T10:38:19.4286707Z   ok   remote state movement across an act process is refused
+2026-10-15T10:38:19.4286931Z   ok   remote draft state movement across an act process is refused
+2026-10-15T10:38:19.4287154Z   ok   remote base ref movement across an act process is refused
+2026-10-15T10:38:19.4287779Z act-ci: NOTE: recorded base oid moved from 1111111111111111111111111111111111111111 to 5555555555555555555555555555555555555555 during validation; the validation base is the live dev tip resolved at invocation and the unchanged exact-head evidence for 2222222222222222222222222222222222222222 remains valid
+2026-10-15T10:38:19.5530226Z   ok   recorded base oid movement is noted without discarding exact-head evidence
+2026-10-15T10:38:19.5530801Z   ok   inside the CPU-range monitor's hold, act's boundary runs act with INT, TERM and HUP unblocked, so a SIGTERM during act raises at once, and the hold is back after the boundary raises or returns
+2026-10-15T10:38:19.5531823Z   ok   a SIGHUP held before act's boundary is delivered as the boundary opens, before act starts, and the hold is back after it
+2026-10-15T10:38:19.5532503Z   ok   first SIGINT during act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=130, started=[set()], stderr='act-ci: interrupted by SIGINT after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5533437Z   ok   first SIGINT pending before act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=130, started=[], stderr='act-ci: interrupted by SIGINT after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5534350Z   ok   first SIGTERM during act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=143, started=[set()], stderr='act-ci: interrupted by SIGTERM after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5535277Z   ok   first SIGTERM pending before act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=143, started=[], stderr='act-ci: interrupted by SIGTERM after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5536173Z   ok   first SIGHUP during act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=129, started=[set()], stderr='act-ci: interrupted by SIGHUP after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5537097Z   ok   first SIGHUP pending before act, no earlier failure: conventional status and only the interrupt diagnostic, cleanup complete (outcome=129, started=[], stderr='act-ci: interrupted by SIGHUP after cleanup\n', trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5538205Z   ok   first SIGINT at act closing restore line 5317, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=130, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5539616Z   ok   first SIGINT at act closing restore line 5317, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5541231Z   ok   first SIGINT at act closing restore line 5317, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5542629Z   ok   first SIGINT at act closing restore line 5336, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=130, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5544151Z   ok   first SIGINT at act closing restore line 5336, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5545743Z   ok   first SIGINT at act closing restore line 5336, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5547171Z   ok   first SIGTERM at act closing restore line 5317, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=143, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5548587Z   ok   first SIGTERM at act closing restore line 5317, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5550097Z   ok   first SIGTERM at act closing restore line 5317, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5551714Z   ok   first SIGTERM at act closing restore line 5336, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=143, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5553113Z   ok   first SIGTERM at act closing restore line 5336, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5554625Z   ok   first SIGTERM at act closing restore line 5336, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5556021Z   ok   first SIGHUP at act closing restore line 5317, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=129, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:19.5557521Z   ok   first SIGHUP at act closing restore line 5317, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:20.1635108Z   ok   first SIGHUP at act closing restore line 5317, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:20.1637579Z   ok   first SIGHUP at act closing restore line 5336, earlier NoneType: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=129, fired=[None], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:20.1639815Z   ok   first SIGHUP at act closing restore line 5336, earlier Refusal: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=Refusal('original integrity failure'), fired=[Refusal('original integrity failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:20.1642386Z   ok   first SIGHUP at act closing restore line 5336, earlier RuntimeError: preserves outcome and completes containment, reader completion and pipe close before teardown (outcome=RuntimeError('original failure'), fired=[RuntimeError('original failure')], masks=[set(), {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}, {<Signals.SIGHUP: 1>, <Signals.SIGINT: 2>, <Signals.SIGTERM: 15>}], trail=['contained', 'stream ended', 'outer teardown'])
+2026-10-15T10:38:20.1644001Z   ok   the live interruption probe unblocks INT, TERM and HUP inside the CPU monitor's hold, takes its expected SIGINT immediately, and restores the hold before returning
+2026-10-15T10:38:20.1644657Z   ok   a signal after run-directory creation reconciles the accepted path
+2026-10-15T10:38:20.1645053Z   ok   a post-create run-directory stat failure is reconciled
+2026-10-15T10:38:20.1645396Z   ok   the stat-failure path is absent after acquisition rollback
+2026-10-15T10:38:20.1645730Z   ok   sudo chown failure cannot report cleanup success
+2026-10-15T10:38:20.1646032Z   ok   sudo chown launch failure is a cleanup refusal
+2026-10-15T10:38:20.1646350Z   ok   content-pinned immutable runner installation is accepted
+2026-10-15T10:38:20.1646691Z   ok   installed runner with the wrong content pin is refused
+2026-10-15T10:38:20.1647028Z   ok   runner installed inside the candidate worktree is refused
+2026-10-15T10:38:20.1647393Z   ok   bootstrap install requires explicit repository and worktree
+2026-10-15T10:38:20.1647732Z   ok   bootstrap accepts both explicit identity arguments
+2026-10-15T10:38:20.1648057Z   ok   directory removal failure cannot report cleanup success
+2026-10-15T10:38:20.1648418Z   ok   broken replacement symlink cannot masquerade as completed cleanup
+2026-10-15T10:38:20.1648777Z   ok   assume-unchanged cannot hide selected workflow bytes
+2026-10-15T10:38:20.1649539Z   ok   skip-worktree cannot hide selected workflow bytes
+2026-10-15T10:38:20.1649857Z   ok   an index flag cannot hide a selected workflow symlink
+2026-10-15T10:38:20.1650216Z   ok   replacement object is refused even when HEAD text is unchanged
+2026-10-15T10:38:20.1650589Z   ok   the trusted manifest includes exactly the six approved entries
+2026-10-15T10:38:20.1650910Z   ok   the exact trusted submodule manifest is accepted
+2026-10-15T10:38:20.1651583Z   ok   materialization fetches all five public pins including lwSRP and tsn-c-stack and excludes external
+2026-10-15T10:38:20.1652010Z   ok   candidate that drops lwSRP is refused before fetch
+2026-10-15T10:38:20.1652319Z   ok   drops lwSRP control catches candidate-controlled trust
+2026-10-15T10:38:20.1652672Z   ok   candidate that duplicates lwSRP is refused before fetch
+2026-10-15T10:38:20.1653042Z   ok   candidate that adds another lwSRP is refused before fetch
+2026-10-15T10:38:20.1653422Z   ok   adds another lwSRP control catches candidate-controlled trust
+2026-10-15T10:38:20.1653798Z   ok   candidate that redirects lwSRP is refused before fetch
+2026-10-15T10:38:20.1654165Z   ok   candidate that drops lwSRP gitlink is refused before fetch
+2026-10-15T10:38:20.1654537Z   ok   candidate that adds lwSRP gitlink is refused before fetch
+2026-10-15T10:38:20.1654904Z   ok   candidate that drops tsn-c-stack is refused before fetch
+2026-10-15T10:38:20.1655279Z   ok   candidate that redirects tsn-c-stack is refused before fetch
+2026-10-15T10:38:20.1655676Z   ok   candidate that drops tsn-c-stack gitlink is refused before fetch
+2026-10-15T10:38:20.1656082Z   ok   candidate that adds tsn-c-stack gitlink is refused before fetch
+2026-10-15T10:38:20.1656464Z   ok   candidate submodule URL changes are refused before fetch
+2026-10-15T10:38:20.1656841Z   ok   candidate submodule update commands are refused before fetch
+2026-10-15T10:38:20.1657214Z   ok   candidate gitlink path changes are refused before fetch
+2026-10-15T10:38:20.1657581Z   ok   Git disables every protocol except credential-free HTTPS
+2026-10-15T10:38:20.1657907Z   ok   self-hosted runner authority is refused
+2026-10-15T10:38:20.1658188Z   ok   a missing runner label is refused
+2026-10-15T10:38:20.1658451Z   ok   a nonliteral runner label is refused
+2026-10-15T10:38:20.1658720Z   ok   job container authority is refused
+2026-10-15T10:38:20.1658997Z   ok   service container authority is refused
+2026-10-15T10:38:20.1659280Z   ok   reusable workflow authority is refused
+2026-10-15T10:38:20.1659643Z   ok   step-level action docker://alpine:3.20 is refused before act
+2026-10-15T10:38:20.1660027Z   ok   step-level action example/setup@v1 is refused before act
+2026-10-15T10:38:20.1660416Z   ok   step-level action actions/checkout@v5 is refused before act
+2026-10-15T10:38:20.1660785Z   ok   step-level action ./local-action is refused before act
+2026-10-15T10:38:20.1661247Z   ok   a workflow without a declared name cannot lease act job volumes
+2026-10-15T10:38:20.1661642Z   ok   a workflow name that is a hyphen-prefix of another cannot share a lease
+2026-10-15T10:38:20.1662050Z   ok   either overlapping workflow alone still leases its own volumes
+2026-10-15T10:38:20.1662402Z   ok   workflow reads do not follow a candidate symlink
+2026-10-15T10:38:20.1662718Z   ok   workflow reads reject a FIFO without blocking
+2026-10-15T10:38:20.1663034Z   ok   workflow reads reject a host device before reading it
+2026-10-15T10:38:20.1663401Z   ok   workflow reads reject an oversized regular file before parsing
+2026-10-15T10:38:20.1663751Z   ok   shipping workflows satisfy the sandbox policy
+2026-10-15T10:38:20.1664080Z   ok   shipping workflows lease act job volumes by declared name
+2026-10-15T10:38:20.1664563Z   ok   no shipping workflow name is a hyphen-prefix of another, so a rival workflow's volumes stay outside every lease
+2026-10-15T10:38:20.1665094Z   ok   a job without a matrix runs one container, with or without a strategy or a max-parallel
+2026-10-15T10:38:20.1665603Z   ok   a matrix job runs act's default 4 wide, or its literal max-parallel, never below one, as act 0.2.89 does
+2026-10-15T10:38:20.1666249Z   ok   a strategy that is not a mapping is refused: the concurrency cannot be derived
+2026-10-15T10:38:20.1666681Z   ok   an expression max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:38:20.1667159Z   ok   a negative max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:38:20.1667694Z   ok   a fractional max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:38:20.1668146Z   ok   a seven-digit max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:38:20.1668568Z   ok   a list max-parallel is refused: the concurrency cannot be derived
+2026-10-15T10:38:20.1668953Z   ok   all selected workflows share the 1-job limit in every order
+2026-10-15T10:38:20.1669351Z   ok   a single small workflow does not invent 1 jobs
+2026-10-15T10:38:20.1669678Z   ok   all selected workflows share the 2-job limit in every order
+2026-10-15T10:38:20.1670033Z   ok   a single small workflow does not invent 2 jobs
+2026-10-15T10:38:20.1670376Z   ok   all selected workflows share the 3-job limit in every order
+2026-10-15T10:38:20.1670716Z   ok   a single small workflow does not invent 3 jobs
+2026-10-15T10:38:20.1671162Z   ok   all selected workflows share the 4-job limit in every order
+2026-10-15T10:38:20.1671501Z   ok   a single small workflow does not invent 4 jobs
+2026-10-15T10:38:20.1671861Z   ok   nested matrix width 1 shares the global four-job admission gate
+2026-10-15T10:38:20.1672263Z   ok   nested matrix width 4 shares the global four-job admission gate
+2026-10-15T10:38:20.1672657Z   ok   nested matrix width 9 shares the global four-job admission gate
+2026-10-15T10:38:20.1673204Z   ok   every shipping workflow derives 1 to 4 concurrent containers, and rtl-full's matrix legs run more than one at once
+2026-10-15T10:38:20.1673683Z selftest: 2 FAILURE(S)
+2026-10-15T10:38:20.1802991Z ##[error]Process completed with exit code 1.

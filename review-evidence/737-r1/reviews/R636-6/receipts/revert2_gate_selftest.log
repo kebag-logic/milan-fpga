@@ -1,0 +1,62 @@
+refused docs: missing inventory preparation in docs-gates-0
+refused docs: if preparation in docs-gates-0
+refused docs: continue-on-error preparation in docs-gates-0
+refused docs: missing inventory preparation in ci-manifest
+refused docs: if preparation in ci-manifest
+refused docs: continue-on-error preparation in ci-manifest
+refused elaborate: missing inventory preparation in ci-manifest
+refused elaborate: if preparation in ci-manifest
+refused elaborate: continue-on-error preparation in ci-manifest
+refused rtl: missing inventory preparation in verilator-shards
+refused rtl: if preparation in verilator-shards
+refused rtl: continue-on-error preparation in verilator-shards
+refused rtl: missing inventory preparation in verilator-suites
+refused rtl: if preparation in verilator-suites
+refused rtl: continue-on-error preparation in verilator-suites
+refused rtl: missing inventory preparation in union-milan_dp
+refused rtl: if preparation in union-milan_dp
+refused rtl: continue-on-error preparation in union-milan_dp
+refused rtl: missing inventory preparation in union-milan_dp_mclk
+refused rtl: if preparation in union-milan_dp_mclk
+refused rtl: continue-on-error preparation in union-milan_dp_mclk
+refused rtl: missing inventory preparation in union-capture_coherence
+refused rtl: if preparation in union-capture_coherence
+refused rtl: continue-on-error preparation in union-capture_coherence
+refused rtl: missing inventory preparation in union-maap
+refused rtl: if preparation in union-maap
+refused rtl: continue-on-error preparation in union-maap
+refused rtl: missing inventory preparation in union-milan_dp_render
+refused rtl: if preparation in union-milan_dp_render
+refused rtl: continue-on-error preparation in union-milan_dp_render
+refused rtl: missing inventory preparation in union-pp_shadow
+refused rtl: if preparation in union-pp_shadow
+refused rtl: continue-on-error preparation in union-pp_shadow
+refused rtl: missing inventory preparation in ci-manifest
+refused rtl: if preparation in ci-manifest
+refused rtl: continue-on-error preparation in ci-manifest
+refused rtl-fast: missing inventory preparation in ci-manifest
+refused rtl-fast: if preparation in ci-manifest
+refused rtl-fast: continue-on-error preparation in ci-manifest
+Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS
+Traceback (most recent call last):
+  File "$REVIEWS/737-r636-6-packet/scratch/revert/scripts/ci_gate_workflows_selftest.py", line 475, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/737-r636-6-packet/scratch/revert/scripts/ci_gate_workflows_selftest.py", line 392, in main
+    suite_generator_controls()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/737-r636-6-packet/scratch/revert/scripts/ci_gate_workflows_selftest.py", line 102, in suite_generator_controls
+    assert "= milan_dp ;;" not in ownership, ownership
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: set -euo pipefail
+python3 scripts/suite_shards.py --selftest
+scripts/run_all_suites.sh --ci-pieces --shard "$SHARD/$SHARDS" --list \
+  > "$RUNNER_TEMP/owned-suites"
+echo "Shard $SHARD owns:"
+sed 's/^/  /' "$RUNNER_TEMP/owned-suites"
+case "$SHARD" in
+  1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;
+  3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;
+  5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;
+esac
+
