@@ -1,0 +1,71 @@
+PUBLIC MANIFEST: 370 executable-evidence files verified against published hashes
+SOURCE HEAD 2639eecf3f94aa1a8be5c922058a05f0a48b1933; BASE f62602531d415d6c1cae1374a3cc2938faf54049; EVIDENCE a86dc902d332e27ce093f5f56ccdaa5e46f9ce90; B17 bdb96b6685751a424fbbdc952726f33efd17282a
+B17 PARAMETERS: cycle first_delay_ms burst_after_first_s first_peak_us later_peak_us decay_us/PDU
+1.0 163.485 2.6534 28.833 28.691 1.649094 summary_sha256=c9911eb258f19cc2bc3de25093bfb5fe54b83b27ece8d5b9aed3fb8dc3604f43
+2.0 93.536 1.465 25.009 28.365 1.475218 summary_sha256=8e75e5ffc5829c2c738314bc847203b01df7ada904e9e6948dfed9ec2c03bc46
+3.0 156.762 1.6719 26.326 28.713 1.467920 summary_sha256=40c80de6169c7012b7d24b6728b3cb157d5801613e1aa55669b24993b2110c15
+4.0 52.75 3.1446 29.309 30.071 1.513451 summary_sha256=689559a59299df6ff0568e2f1ca444e4b108df71c1286b63af695158ab22394e
+5.0 7.854 0.0938 24.565 30.26 1.545600 summary_sha256=d6ac7f517d4e9314967be971446b67af3ab644e9850afe09e7b910537e1d3e2b
+6.0 131.486 3.4974 25.84 28.475 1.468895 summary_sha256=94eb2bd4a43b6f3e08b1fd0493973a8e3db5e9826e56276a516615f21b3ef7c9
+7.0 54.945 1.3014 24.968 29.14 1.476055 summary_sha256=6120191cba2a0edc94285d907358a20abdb46c319bb4f6b7cddfabf425d079b7
+8.0 28.539 1.3102 25.581 27.575 1.628230 summary_sha256=1c1bbff7c698c53167b63d018e7682f337f2863c390527458e3de3667bdb1067
+9.0 161.24 1.1185 25.128 29.528 1.492109 summary_sha256=530febf476e3bef365298231585afd8aec1b9ea234d7b19991c79146867d9827
+10.0 101.128 5.3246 26.869 27.813 1.664255 summary_sha256=fb29af061c192798ac13cbf25df7ca4b473b57f89e17ca7a92c14500965f4986
+Mean decay 1.538083; rounded 1.538; p99.9 range 4.448..6.139 us
+BOUND AUDIT: B17 late_pdus contains ONLY lateness > 10 us (ana_b17.py:51,333-336).
+An empty pre-burst list does not establish an exercised 10-us non-slipping arrival.
+The no-second-slip inference for cycle 5 is 30.260 - 1e6/48000 = 9.426667 us, not >10 us.
+BOUND COUNTEREXAMPLE: author/campaign/base/bind_j0_p09.log
+RESULT-645-BIND: B17 cycle 1 phase 0.5625 at INTERNAL: first PDU +163.492 ms after the bind, primed margin 9.120..9.280 us (OUTSIDE B17's window), arms 0 (-1.000 ms after the first PDU), settle recentres 0 (-1.00 ticks after the arm), render recentres 0, SLIP_LB +2 dups +0 skips, slipped frames 0 before the ring acts and 1 after, first burst 28.833 us at +2.6534 s, later 28.691 us, margin after a recentre +1000000000.000..-1000000000.000 ticks, full side +1000000000.000 (1e9: no recentre)
+BASE {"runs_rc0": 0, "runs": 32, "binds": 320, "inside": 169, "outside": 151, "arms": 0, "settles": 0, "renders": 0, "dups": 839, "skips": 0, "pre": 6, "post": 414}
+FIX {"runs_rc0": 32, "runs": 32, "binds": 320, "inside": 169, "outside": 151, "arms": 320, "settles": 320, "renders": 320, "dups": 12, "skips": 0, "pre": 6, "post": 0}
+FIX EXTREMA ticks 2047.02..2048.02 empty 3.479 full 4.884
+EARLY SLIP campaign/fix/bind_j5_p13.log cycle 2 after_first_ms 0.754
+EARLY SLIP campaign/fix/bind_j5_p13.log cycle 5 after_first_ms 2.127
+EARLY SLIP campaign/fix/bind_j5_p13.log cycle 8 after_first_ms 0.253
+EARLY SLIP campaign/fix/bind_j5_p13.log cycle 9 after_first_ms 0.629
+EARLY SLIP campaign/fix/bind_j5_p13.log cycle 10 after_first_ms 0.129
+EARLY SLIP campaign/fix/bind_j5_p14.log cycle 3 after_first_ms 0.378
+[MUTANT] NO-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] NO-RECOVERY: caught by "[PULLIN] exactly one settle recentre from the transient to the hold's end"
+[MUTANT] QUIET-ARM: caught by "[STEADY] INTERNAL without a hold has no pending settle"
+[MUTANT] HIGH-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] NO-SETTLE: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] SINGLE-DROP: caught by "LRC: ten left drops five excess events on both pairs"
+[MUTANT] STARVED-HELD-DUP: caught by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter"
+[MUTANT] HELD-DUP: caught by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter" and "SPAN: no action counted as a duplicate"
+[MUTANT] RENDER-ONLY: caught by "[B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)"
+[MUTANT] EARLY: caught by "[B8] the render stage is on its law after the settle recentre"
+[MUTANT] OVERSHOOT: caught by "[B8] no loopback slip after the settle recentre"
+[MUTANT] NO-BIND-ARM: caught by "[BIND] B17 cycle 5 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 4 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 9 at INTERNAL: no SLIP_LB change across the cycle"
+[MUTANT] BIND-RISE: caught by "[BIND] B17 cycle 4 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 9 at INTERNAL: no SLIP_LB change across the cycle"
+[MUTANT] FOLLOWING-ARM: caught by "[BIND-FOLLOW] B17 cycle 5 under CRF following: the bind armed no settle recentre"
+[MUTANT] W1: caught by "[SW] AAF to CRF: the switch moved the loopback margin less than 0.1 tick before its settle"
+AREA OOC (LUT/FF; no whole-image or placement claim)
+base_n1 73 93
+head_n1 76 94
+base_n8 73 93
+head_n8 85 101
+head_off 73 93
+WALL CLOCK five rc=0 secs=857.648 load=19.66 21.17 34.57
+four rc=0 secs=800.859 load=29.53 22.21 26.92
+Fifth leg cost 7.091011%; historical-hosted projection 1193.208045 s
+SUITE TALLY
+suite                        checks   failures  tallies
+avtp_parser                     11201          0        5
+capture_coherence               21194          0        3
+chmap_capture                     847          0        5
+csr                              1815          0        9
+follow_ring                        96          0        3
+mbx                              2123          0        6
+milan_dp                        11956          0       15
+milan_dp_gm_steps                 196          0        2
+milan_dp_mclk                     168          0        4
+milan_dp_render                   342          0        3
+pp_shadow                        2184          0        4
+
+checks: 52122   in-suite failures: 0
+
+suites receipts 16 nonzero {'author/suites/milan_dp.simjobs4-refused.rc': 2}
+gates receipts 28 nonzero {}
+AUDIT COMPLETE: numerical sweep claims reproduced; priming-bound derivation is unsupported as stated.
