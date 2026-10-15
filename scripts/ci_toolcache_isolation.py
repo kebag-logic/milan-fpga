@@ -9,7 +9,8 @@ that sharing in one process tree, with no container: it copies a CPython
 installation into a planted tool cache and runs the setup steps of both
 elaboration legs, read from the workflow at --rev, side by side. Each leg has
 its own home, temporary directory, workspace export and PATH and environment
-files, and every step of both legs starts together, as the two act jobs did.
+files, and every step of both legs starts together, which is when two act jobs
+on one tool cache collide.
 
 The legs are isolated when every step of both passes, each leg's LiteX
 interpreter and VexiiRiscv checkout live under that leg's RUNNER_TEMP, gate
