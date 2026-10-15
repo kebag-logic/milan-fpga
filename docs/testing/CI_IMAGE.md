@@ -322,7 +322,9 @@ Any other program needs provenance from the same traced job.
 It must be the `-o` output of a build program, or a byte copy of one.
 Otherwise the job must have written it without copying an existing program.
 Another script must be in the checkout when the job starts.
-Otherwise it must have been written during the job, and not as a copy of an image executable.
+Otherwise it must have been written during the job.
+A script with the bytes of an image executable runs that file's code.
+It is judged as that file, by its name.
 A missing script operand runs nothing and is recorded as absent.
 
 `--selftest` runs the controls inside the image as root:
@@ -336,7 +338,8 @@ A real offline local-wheel install is caught as the `pip` module.
 Scripted `pip3` and `npm`, and a shebang `apt-get`, are caught by name.
 An unlisted shebang script and a static binary in a system directory are caught.
 An unlisted program the job copies from the image has no provenance and is caught.
-So is a renamed copy of the image's `pip3` script.
+A renamed copy of the image's `pip3` script is caught as the `pip` it reproduces.
+A stub with the bytes of the base image's no-op `initctl` is judged as `initctl`.
 A program built under a temporary name and renamed stays clean.
 A fetched program piped to a shell and `gem install` are caught.
 A permitted interpreter call and a step-built program stay clean.

@@ -194,8 +194,8 @@ class Origin:
         self.digests: dict[tuple, str | None] = {}
         self.existing: dict[int, list[str]] | None = None
 
-    def copies_existing(self, path: str, own: str, image: bool = False) -> bool:
-        """Whether a file's bytes copy an executable the image (or checkout, unless `image`) held before the job."""
+    def existing_copy(self, path: str, own: str, image: bool = False) -> str | None:
+        """The executable the image (or checkout, unless `image`) held before the job with this file's bytes."""
         if self.existing is None:
             self.existing = {}
             for top in (*SYSTEM_ROOTS, f"{self.root}/"):
@@ -210,8 +210,8 @@ class Origin:
                                 (status.st_mode & 0o170000) == 0o100000:
                             self.existing.setdefault(status.st_size, []).append(candidate)
         size = os.stat(path).st_size
-        return any(self.digest(candidate) == own for candidate in self.existing.get(size, [])
-                   if not image or candidate.startswith(SYSTEM_ROOTS))
+        return next((candidate for candidate in sorted(self.existing.get(size, []))
+                     if (not image or candidate.startswith(SYSTEM_ROOTS)) and self.digest(candidate) == own), None)
 
     def digest(self, path: str) -> str | None:
         """Content identity of a program file, cached by its size and modification time."""
@@ -248,7 +248,7 @@ class Origin:
             except OSError:
                 created = False
             # Written in the job and not a copy of anything that existed before: built from its inputs.
-            return "written during the job" if created and own and not self.copies_existing(path, own) else "none"
+            return "written during the job" if created and own and not self.existing_copy(path, own) else "none"
         if not Path(path).exists():
             return "absent"  # The interpreter cannot open it, so no code runs from it.
         if Path(path).is_relative_to(self.root) and Path(path).relative_to(self.root).as_posix() in self.present:
@@ -258,8 +258,12 @@ class Origin:
         except OSError:
             created = False
         own = self.digest(path) if created else None
-        # A copy of a checkout script is from in-tree inputs; a copy of an image executable is not.
-        return "written during the job" if own and not self.copies_existing(path, own, image=True) else "none"
+        # A copy of a checkout script is from in-tree inputs. A copy of an image executable runs that
+        # executable's code, so it is judged as that file, by its name.
+        if own and (original := self.existing_copy(path, own, image=True)):
+            instance["copy"] = original
+            return f"copy of {original}"
+        return "written during the job" if own else "none"
 
 
 def trace(argv: list[str], cwd: Path, env: dict[str, str], origin: Origin | None = None) -> dict[str, object]:
@@ -471,9 +475,9 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
     for instance in result["instances"]:
         what = invocation(instance)
         if what["kind"] == "script" and instance.get("script"):
-            # Judge the file a link names, and its name, alongside the name it was run by.
-            what = {**what, "path": instance["script"], "alias": what["name"],
-                    "name": Path(instance["script"]).name}
+            # Judge the file a link names, or the image file a copy reproduces, alongside the name it was run by.
+            judged = str(instance.get("copy") or instance["script"])
+            what = {**what, "path": judged, "alias": what["name"], "name": Path(judged).name}
         base = MULTIARCH.sub("", Path(str(instance["program"])).name)
         provenance = str(instance.get("provenance", "none"))
         if what["kind"] in ("program", "script") and {what["name"], what.get("alias")} & installers:
@@ -605,9 +609,12 @@ def selftest(names: dict[str, object]) -> int:
         step("an unlisted program the job copies from the image",
              f"cp /bin/true {base}/bin/zz_copied_program && {base}/bin/zz_copied_program",
              "program without provenance: zz_copied_program")
-        step("a renamed copy of the image's pip3 script",
+        step("a renamed copy of the image's pip3 script is judged as the pip it reproduces",
              f'cp "$(command -v pip3)" {base}/bin/zz_copied_tool && python3 {base}/bin/zz_copied_tool --version',
-             "script without provenance: zz_copied_tool")
+             "installer executed: pip")
+        report = step("a stub the job writes with the bytes of the image's initctl is judged as initctl",
+                      f"printf '#!/bin/sh\\nexit 0\\n' > {base}/bin/zz_stub && sh {base}/bin/zz_stub", None)
+        assert any(row["invocation"] == "initctl" for row in report["population"]), report["population"]
         (base / "fetched.sh").write_text("exit 0\n")
         step("a fetched program piped to a shell", f"curl -fsS file://{base}/fetched.sh | sh",
              "fetched program executed by dash")
