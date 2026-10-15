@@ -1,0 +1,7 @@
+{"case": "perl -e", "kind": "inline", "provenance": "unreadable", "findings": []}
+{"case": "perl -le", "kind": "script", "provenance": "absent", "findings": []}
+{"case": "perl -E", "kind": "inline", "provenance": "unreadable", "findings": []}
+{"case": "node -e", "kind": "inline", "provenance": "unreadable", "findings": []}
+{"case": "node --eval=", "kind": "stream", "provenance": "unreadable", "findings": ["streamed program not readable at its exec: node (/dev/null)"]}
+{"case": "python3 -c (ctl)", "kind": "inline", "provenance": "none", "findings": ["unpinned inline program: python3 fc92339e2c864d8fc1782834ede5e96beb34e096745cdb559c3a8bb67fbfae7c"]}
+{"case": "bash -c (ctl)", "kind": "inline", "provenance": "none", "findings": ["unpinned inline program: bash 45382cfbc265e35b2ef2673da4d7480158216156b3a293809c612312b799c059"]}

@@ -1,0 +1,23 @@
+{"control": "i386 trampoline", "expect": "i386 system call refused: 11", "met": true, "findings": ["i386 system call refused: 11", "step exited 99 (network disabled)"]}
+{"marker_ran_after": "i386", "value": false}
+{"control": "x32 trampoline", "expect": "x32 system call refused: 520", "met": true, "findings": ["x32 system call refused: 520", "step exited 99 (network disabled)"]}
+{"marker_ran_after": "x32", "value": false}
+{"control": "static build output runs clean", "expect": null, "met": true, "findings": []}
+Traceback (most recent call last):
+  File "$REVIEWS/737-image-r638-8-packet/scratch/p4/non_path.py", line 8, in <module>
+    os.execve(descriptor, ["zz_hidden"], {})
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 3
+{"control": "non-path memfd", "expect": "exec of a descriptor that is not a file on a path: /memfd:zz_hidden", "met": true, "findings": ["system program not in the allowlist: python3.14", "exec refused: exec of a descriptor that is not a file on a path: /memfd:zz_hidden (deleted)", "step exited 1 (network disabled)"]}
+Traceback (most recent call last):
+  File "$REVIEWS/737-image-r638-8-packet/scratch/p4/non_path.py", line 14, in <module>
+    os.execve(descriptor, ["zz_deleted"], {})
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 3
+{"control": "non-path deleted", "expect": "exec of a descriptor that is not a file on a path", "met": true, "findings": ["system program not in the allowlist: python3.14", "exec refused: exec of a descriptor that is not a file on a path: $REVIEWS/737-image-r638-8-packet/scratch/p4/zz_deleted (deleted)", "step exited 1 (network disabled)"]}
+Traceback (most recent call last):
+  File "$REVIEWS/737-image-r638-8-packet/scratch/p4/non_path.py", line 17, in <module>
+    os.execv(f"{self_fds}/{descriptor}", ["zz_linked"])
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied
+{"control": "non-path linked", "expect": "exec through /proc: not a file on a path", "met": true, "findings": ["system program not in the allowlist: python3.14", "exec refused: exec through /proc: not a file on a path", "step exited 1 (network disabled)"]}
