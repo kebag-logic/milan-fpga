@@ -220,7 +220,7 @@ def checkout(workspace: Path, rev: str, paths: list[str]) -> None:
 class Leg:
     """One job: its own home, temporary directory, workspace and step log."""
 
-    def __init__(self, name: str, base: Path, rev: str, interpreter: Path,
+    def __init__(self, name: str, base: Path, interpreter: Path,
                  args: argparse.Namespace, paths: list[str] | None) -> None:
         self.name, self.base = name, base
         self.home, self.temp, self.workspace = base / "home", base / "temp", base / "workspace"
@@ -230,11 +230,11 @@ class Leg:
             shutil.copytree(args.pip_cache, self.home / ".cache/pip", symlinks=True)
         if paths is None:
             self.workspace.mkdir()
-            archive = subprocess.run(["git", "-C", str(ROOT), "archive", rev],
+            archive = subprocess.run(["git", "-C", str(ROOT), "archive", args.rev],
                                      capture_output=True, check=True).stdout
             subprocess.run(["tar", "-x", "-C", str(self.workspace)], input=archive, check=True)
         else:
-            checkout(self.workspace, rev, paths)
+            checkout(self.workspace, args.rev, paths)
             (self.home / "br-milan-rv32").symlink_to(args.rv32_sdk)
         self.paths = [str(interpreter / "bin")]
         self.tools = [str(path) for path in args.tool_dir]
@@ -370,7 +370,7 @@ def verify(leg: Leg, cache: Path) -> tuple[dict[str, str], list[str]]:
 
 
 def arguments() -> argparse.Namespace:
-    """The command line, with every path made absolute before anything uses it."""
+    """The command line, with every path made absolute and --rev a commit before use."""
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--python", type=Path, required=True,
@@ -399,16 +399,18 @@ def arguments() -> argparse.Namespace:
         parser.error("--gate-legs needs --rv32-sdk naming an installed SDK directory")
     if args.work.exists() and any(args.work.iterdir()):
         parser.error(f"--work {args.work}: not empty")
+    found = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--verify", "--quiet",
+                            f"{args.rev}^{{commit}}"], capture_output=True, text=True, check=False)
+    if found.returncode != 0:
+        parser.error(f"--rev {args.rev}: not a commit")
+    args.rev = found.stdout.strip()
     return args
 
 
 def main() -> int:
     """Plant the cache, run both legs together, verify each and the cache."""
     args = arguments()
-    rev = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--verify",
-                          f"{args.rev}^{{commit}}"],
-                         capture_output=True, text=True, check=True).stdout.strip()
-    text = subprocess.run(["git", "-C", str(ROOT), "show", f"{rev}:{WORKFLOW}"],
+    text = subprocess.run(["git", "-C", str(ROOT), "show", f"{args.rev}:{WORKFLOW}"],
                           capture_output=True, text=True, check=True).stdout
     jobs = yaml.safe_load(text)["jobs"]
     plans = {name: window(jobs[name], args.shared) for name in LEGS}
@@ -416,7 +418,7 @@ def main() -> int:
     cache = args.work / "toolcache"
     interpreter = plant(args.python, cache)
     before = manifest(cache)
-    legs = [Leg(name, args.work / name, rev, interpreter, args,
+    legs = [Leg(name, args.work / name, interpreter, args,
                 modules(jobs[name]) if args.gate_legs else None) for name in LEGS]
     setup_seconds, problems = together(legs, plans)
     status = {}
@@ -434,7 +436,7 @@ def main() -> int:
                      if before.get(path) != after.get(path))
     if changed:
         problems.append(f"the tool cache changed at {len(changed)} paths, first {changed[:5]}")
-    report = {"rev": rev, "shared": args.shared, "gate_legs": args.gate_legs,
+    report = {"rev": args.rev, "shared": args.shared, "gate_legs": args.gate_legs,
               "planted_paths": len(before), "changed_paths": len(changed),
               "planted_manifest_sha256": digest(before), "final_manifest_sha256": digest(after),
               "changed_sample": changed[:20],
