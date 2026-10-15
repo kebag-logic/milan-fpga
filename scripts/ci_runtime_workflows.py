@@ -58,9 +58,9 @@ def census_budget_step() -> dict:
     refuses before CI_CENSUS_JOBS is written."""
     return {"name": "Set memory-derived census workers", "run": """set -euo pipefail
 cpus="$(nproc)"
-test "$cpus" -gt 0
+test "$cpus" -gt 0 || { echo "no CPUs: nproc printed $cpus" >&2; exit 1; }
 kib="$(awk '$1 == "MemTotal:" && $3 == "kB" { print $2 }' /proc/meminfo)"
-test "$kib" -gt 0
+test "$kib" -gt 0 || { echo "no MemTotal in kB" >&2; exit 1; }
 memory=$(( kib * 1024 ))
 cgroup="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup)"
 cgroup="${cgroup%/}"

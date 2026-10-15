@@ -2045,7 +2045,8 @@ sixteen CPUs and on a four-CPU hosted runner, two under a lower ancestor
 limit, two at two CPUs, one below one worker's memory, and sixteen with no
 memory controller. It refuses a mode-000 limit at the leaf and at an
 ancestor, a mode-000 ancestor cgroup, a limit that is a directory, and each
-non-numeric or missing input. Root reads through mode 000, so as root the
+non-numeric or missing input, and each refusal must print its own reason as
+the step's last error line. Root reads through mode 000, so as root the
 three mode-000 cases print a loud skip; the directory cases still run.
 Simulation pools use the same bound; case drivers retain their two-run cap.
 Outer suite make invocations remain serial to preserve shared build ownership.

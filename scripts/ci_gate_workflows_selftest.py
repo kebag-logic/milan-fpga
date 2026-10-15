@@ -233,10 +233,11 @@ def cpu_controls() -> None:
 
 
 def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: dict[str, str],
-                  denied: dict[str, str] | None = None) -> str | None:
-    """CI_CENSUS_JOBS as the emitted shell sets it over proc and cgroup files planted in the new directory root;
-    None if it refused. `denied` makes a planted cgroup's "limit" (memory.max mode 000), its "directory" (mode 000)
-    or its memory.max a "non-file" (a directory) unreadable after planting."""
+                  denied: dict[str, str] | None = None) -> tuple[str | None, list[str]]:
+    """CI_CENSUS_JOBS as the emitted shell sets it over proc and cgroup files planted in the new directory root,
+    None if it refused, and its stderr lines with the planted cgroup root named /sys/fs/cgroup again. `denied`
+    makes a planted cgroup's "limit" (memory.max mode 000), its "directory" (mode 000) or its memory.max a
+    "non-file" (a directory) unreadable after planting."""
     (root / "bin").mkdir()
     (root / "bin" / "nproc").write_text("#!/bin/sh\nprintf '%s\\n' " + str(cpus) + "\n")
     (root / "bin" / "nproc").chmod(0o755)
@@ -268,12 +269,13 @@ def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: d
     finally:
         for path in reversed(modes):
             path.chmod(0o755)
+    stderr = ran.stderr.replace(str(root / "sys"), "/sys/fs/cgroup").splitlines()
     if ran.returncode:
         assert not output.exists(), ran
-        return None
+        return None, stderr
     lines = output.read_text().splitlines()
     assert len(lines) == 1 and lines[0].startswith("CI_CENSUS_JOBS="), lines
-    return lines[0].removeprefix("CI_CENSUS_JOBS=")
+    return lines[0].removeprefix("CI_CENSUS_JOBS="), stderr
 
 
 def mode_zero_denies(root: Path) -> bool:
@@ -292,7 +294,7 @@ def mode_zero_denies(root: Path) -> bool:
 
 def census_controls() -> None:
     """Execute the emitted census budget shell: bounded by the job's memory, never above nproc,
-    refusing a limit that is present but unreadable or non-numeric."""
+    refusing a limit that is present but unreadable or non-numeric, each refusal for its own stated reason."""
     gib = 1024 * 1024
     container = {"": str(8 * 2**30)}
     hosted = {"": "max", "system.slice": "max", "system.slice/runner.service": "max"}
@@ -309,22 +311,33 @@ def census_controls() -> None:
             ("fewer CPUs than memory allows", 2, 61 * gib, "/", container, {}, "2"),
             ("memory for less than one worker", 16, 61 * gib, "/", {"": str(2**30)}, {}, "1"),
             ("a cgroup without a memory controller", 16, 61 * gib, "/", {}, {}, "16"),
-            ("a mode-000 limit", 16, 61 * gib, "/", container, {"": "limit"}, None),
-            ("a mode-000 ancestor limit", 16, 61 * gib, "/a/b", ancestor, {"a": "limit"}, None),
-            ("a mode-000 ancestor cgroup", 16, 61 * gib, "/a/b", ancestor, {"a": "directory"}, None),
-            ("a limit that is not a file", 16, 61 * gib, "/", container, {"": "non-file"}, None),
-            ("an ancestor limit that is not a file", 16, 61 * gib, "/a/b", ancestor, {"a": "non-file"}, None),
-            ("a non-numeric limit", 16, 61 * gib, "/", {"": "garbage"}, {}, None),
-            ("an empty limit", 16, 61 * gib, "/", {"": ""}, {}, None),
-            ("no MemTotal", 16, None, "/", container, {}, None),
-            ("zero CPUs", 0, 61 * gib, "/", container, {}, None),
+            ("a mode-000 limit", 16, 61 * gib, "/", container, {"": "limit"},
+             "unreadable memory limit in /sys/fs/cgroup"),
+            ("a mode-000 ancestor limit", 16, 61 * gib, "/a/b", ancestor, {"a": "limit"},
+             "unreadable memory limit in /sys/fs/cgroup/a"),
+            ("a mode-000 ancestor cgroup", 16, 61 * gib, "/a/b", ancestor, {"a": "directory"},
+             "unsearchable cgroup /sys/fs/cgroup/a: its memory limit cannot be proved absent"),
+            ("a limit that is not a file", 16, 61 * gib, "/", container, {"": "non-file"},
+             "unreadable memory limit in /sys/fs/cgroup"),
+            ("an ancestor limit that is not a file", 16, 61 * gib, "/a/b", ancestor, {"a": "non-file"},
+             "unreadable memory limit in /sys/fs/cgroup/a"),
+            ("a non-numeric limit", 16, 61 * gib, "/", {"": "garbage"}, {},
+             "non-numeric memory limit in /sys/fs/cgroup: garbage"),
+            ("an empty limit", 16, 61 * gib, "/", {"": ""}, {}, "non-numeric memory limit in /sys/fs/cgroup: "),
+            ("no MemTotal", 16, None, "/", container, {}, "no MemTotal in kB"),
+            ("zero CPUs", 0, 61 * gib, "/", container, {}, "no CPUs: nproc printed 0"),
         ):
             if not denies and any(how != "non-file" for how in denied.values()):
                 print(f"Census budget: {described}: LOUD SKIP - running as root, where mode 000 does not deny a read")
                 continue
-            got = census_budget(Path(tempfile.mkdtemp(dir=root)), cpus, kib, cgroup, limits, denied)
-            assert got == want, (described, got, want)
-            print(f"Census budget: {described}: {'refused' if got is None else got + ' worker(s)'}")
+            got, stderr = census_budget(Path(tempfile.mkdtemp(dir=root)), cpus, kib, cgroup, limits, denied)
+            if want.isdigit():
+                assert (got, stderr) == (want, []), (described, got, stderr, want)
+                print(f"Census budget: {described}: {got} worker(s)")
+            else:
+                # the refusal is this case's own, not one an earlier step made for another reason
+                assert got is None and stderr[-1:] == [want], (described, got, stderr, want)
+                print(f"Census budget: {described}: refused: {want}")
     assert 4 * CENSUS_WORKER_BYTES * 3 <= 2 * 8 * 2**30 < 5 * CENSUS_WORKER_BYTES * 3
     owners = [(name, job_id) for name in ("docs", "elaborate", "rtl", "rtl-fast")
               for job_id, job in generate(name, load_template(ROOT, name))["jobs"].items()
