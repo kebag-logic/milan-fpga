@@ -21,7 +21,7 @@ import ci_builder_legs
 from ci_builder_legs import LEGS, REQUIRED, compare, partition, requirements, union
 from ci_gate_receipts import Collected, StepContext, record, verify
 from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
-from ci_runtime_workflows import cpu_budget_step
+from ci_runtime_workflows import CENSUS_WORKER_BYTES, census_budget_step, cpu_budget_step
 from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, DRIVER_COMMAND, builder_command, builder_leg_step
 from ci_gate_workflows import gate_graph
 import ci_suite_pieces
@@ -232,6 +232,75 @@ def cpu_controls() -> None:
             assert sum(step.get("name") == cpu_budget_step()["name"] for step in job["steps"]) == 1
 
 
+def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: dict[str, str]) -> str | None:
+    """CI_CENSUS_JOBS as the emitted shell sets it over proc and cgroup files planted in the new directory root;
+    None if it refused."""
+    (root / "bin").mkdir()
+    (root / "bin" / "nproc").write_text("#!/bin/sh\nprintf '%s\\n' " + str(cpus) + "\n")
+    (root / "bin" / "nproc").chmod(0o755)
+    (root / "meminfo").write_text("MemFree:         1024 kB\n"
+                                  + ("" if kib is None else f"MemTotal:       {kib} kB\n"))
+    (root / "self-cgroup").write_text("0::" + cgroup + "\n")
+    for directory, limit in limits.items():
+        (root / "sys" / directory).mkdir(parents=True, exist_ok=True)
+        (root / "sys" / directory / "memory.max").write_text(limit + "\n")
+    (root / "sys").mkdir(exist_ok=True)
+    script = census_budget_step()["run"]
+    for real, planted, count in (("/proc/meminfo", root / "meminfo", 1),
+                                 ("/proc/self/cgroup", root / "self-cgroup", 1),
+                                 ("/sys/fs/cgroup", root / "sys", 2)):
+        assert script.count(real) == count, real
+        script = script.replace(real, str(planted))
+    output = root / "census.env"
+    ran = subprocess.run(["bash", "-c", script], check=False, capture_output=True, text=True,
+                         env={**os.environ, "PATH": str(root / "bin") + ":" + os.environ["PATH"],
+                              "GITHUB_ENV": str(output)})
+    if ran.returncode:
+        assert not output.exists(), ran
+        return None
+    lines = output.read_text().splitlines()
+    assert len(lines) == 1 and lines[0].startswith("CI_CENSUS_JOBS="), lines
+    return lines[0].removeprefix("CI_CENSUS_JOBS=")
+
+
+def census_controls() -> None:
+    """Execute the emitted census budget shell: bounded by the job's memory, never above nproc,
+    refusing the unreadable."""
+    gib = 1024 * 1024
+    container = {"": str(8 * 2**30)}
+    hosted = {"": "max", "system.slice": "max", "system.slice/runner.service": "max"}
+    with tempfile.TemporaryDirectory(prefix="census-budgets-") as temporary:
+        root = Path(temporary)
+        for described, cpus, kib, cgroup, limits, want in (
+            # #742: sixteen CPUs in an eight-GiB act job container on a 61 GiB host.
+            ("act job container", 16, 61 * gib, "/", container, "4"),
+            ("hosted runner without a cgroup limit", 4, 16 * gib, "/system.slice/runner.service", hosted, "4"),
+            ("host memory below its cgroup's", 16, 4 * gib, "/", container, "2"),
+            ("a lower ancestor limit", 16, 61 * gib, "/a/b", {"": "max", "a": str(4 * 2**30), "a/b": "max"}, "2"),
+            ("fewer CPUs than memory allows", 2, 61 * gib, "/", container, "2"),
+            ("memory for less than one worker", 16, 61 * gib, "/", {"": str(2**30)}, "1"),
+            ("a cgroup without a memory controller", 16, 61 * gib, "/", {}, "16"),
+            ("an unreadable limit", 16, 61 * gib, "/", {"": "garbage"}, None),
+            ("an empty limit", 16, 61 * gib, "/", {"": ""}, None),
+            ("no MemTotal", 16, None, "/", container, None),
+            ("zero CPUs", 0, 61 * gib, "/", container, None),
+        ):
+            got = census_budget(Path(tempfile.mkdtemp(dir=root)), cpus, kib, cgroup, limits)
+            assert got == want, (described, got, want)
+            print(f"Census budget: {described}: {'refused' if got is None else got + ' worker(s)'}")
+    assert 4 * CENSUS_WORKER_BYTES * 3 <= 2 * 8 * 2**30 < 5 * CENSUS_WORKER_BYTES * 3
+    owners = [(name, job_id) for name in ("docs", "elaborate", "rtl", "rtl-fast")
+              for job_id, job in generate(name, load_template(ROOT, name))["jobs"].items()
+              if any(step.get("name") == census_budget_step()["name"] for step in job["steps"])]
+    assert owners == [("rtl-fast", "publication-census")], owners
+    steps = generate("rtl-fast", load_template(ROOT, "rtl-fast"))["jobs"]["publication-census"]["steps"]
+    names = [step.get("name") for step in steps]
+    census = next(i for i, step in enumerate(steps) if "publication_census.py" in step.get("run", ""))
+    assert names.index(census_budget_step()["name"]) < census
+    assert '--jobs "$CI_CENSUS_JOBS"' in steps[census]["run"] and "CI_CAMPAIGN_JOBS" not in steps[census]["run"]
+    print("Census budget: only publication-census sets CI_CENSUS_JOBS, before its census")
+
+
 def builder_receipts(identity: tuple[str, str], names: list[str] | None = None,
                      flags: tuple[str, ...] = tuple(REQUIRED)) -> list[dict]:
     """Passing leg receipts in the shape the leg runner binds around the driver's own."""
@@ -417,6 +486,7 @@ def main() -> int:
     builder_split_controls()
     suite_generator_controls()
     cpu_controls()
+    census_controls()
     for name, carrier in CARRIERS.items():
         source = load_template(ROOT, name)
         generated = generate(name, source)

@@ -44,6 +44,42 @@ tool_build=$(( cpus < 8 ? cpus : 8 ))
 """}
 
 
+#: One publication census worker's resident peak: the largest of the six
+#: shapes' sv2v v0.0.12 front ends at the datapath of #744, 1205884 KiB under
+#: /usr/bin/time -v. A worker runs one sv2v, then one smaller Yosys, at a time.
+CENSUS_WORKER_BYTES = 1234825216
+
+
+def census_budget_step() -> dict:
+    """Bound census workers by the job's memory: two thirds of it per measured worker peak, never above nproc."""
+    return {"name": "Set memory-derived census workers", "run": """set -euo pipefail
+cpus="$(nproc)"
+test "$cpus" -gt 0
+kib="$(awk '$1 == "MemTotal:" && $3 == "kB" { print $2 }' /proc/meminfo)"
+test "$kib" -gt 0
+memory=$(( kib * 1024 ))
+cgroup="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup)"
+cgroup="${cgroup%/}"
+while :; do
+  if [ -r "$cgroup/memory.max" ]; then
+    limit="$(cat "$cgroup/memory.max")"
+    case "$limit" in
+      max) ;;
+      ''|*[!0-9]*) echo "unreadable memory limit in $cgroup: $limit" >&2; exit 1 ;;
+      *) if [ "$limit" -lt "$memory" ]; then memory="$limit"; fi ;;
+    esac
+  fi
+  if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi
+  cgroup="${cgroup%/*}"
+done
+census=$(( memory * 2 / (3 * """ + str(CENSUS_WORKER_BYTES) + """) ))
+census=$(( census < cpus ? census : cpus ))
+census=$(( census > 0 ? census : 1 ))
+echo "census workers: $census of $cpus CPU(s) within $memory bytes of memory"
+printf 'CI_CENSUS_JOBS=%s\\n' "$census" >> "$GITHUB_ENV"
+"""}
+
+
 def instrument(path: str, job_id: str, job: dict) -> None:
     """Assign stable IDs without modifying any existing test command or condition."""
     if not any(step.get("uses", "").startswith("actions/checkout@") for step in job["steps"]):
@@ -51,6 +87,8 @@ def instrument(path: str, job_id: str, job: dict) -> None:
     checkout = next(i for i, step in enumerate(job["steps"])
                     if step.get("uses", "").startswith("actions/checkout@"))
     job["steps"].insert(checkout + 1, cpu_budget_step())
+    if any("$CI_CENSUS_JOBS" in step.get("run", "") for step in job["steps"]):
+        job["steps"].insert(checkout + 2, census_budget_step())
     identity = ""
     if path == ".github/workflows/docs.yml" and job_id == "docs-check-no-git":
         job["steps"].insert(1, {
