@@ -222,6 +222,8 @@ class Origin:
             own = self.digest(path)
             built = {self.digest(output) for output in self.outputs}
             return "copy of a program the step built" if own and own in built else "none"
+        if not Path(path).exists():
+            return "absent"  # The interpreter cannot open it, so no code runs from it.
         if Path(path).is_relative_to(self.root) and Path(path).relative_to(self.root).as_posix() in self.present:
             return "checkout"
         try:
@@ -589,6 +591,8 @@ def selftest(names: dict[str, object]) -> int:
              f"ln -s {base}/checkout.sh {base}/shadow/apt-get && bash {base}/shadow/apt-get",
              "installer executed: apt-get")
         (base / "tool.py").write_text("print('ok')\n")
+        step("an interpreter given a missing script runs nothing from it",
+             f"python3 {base}/missing.py 2>/dev/null || true", None)
         step("a permitted interpreter call and a checkout script",
              f"python3 -c 'print(1)' && python3 {base}/tool.py", None)
         (base / "built.c").write_text("int main(void) { return 0; }\n")

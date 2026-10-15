@@ -318,6 +318,7 @@ Any other program needs provenance from the same traced job.
 It must be the `-o` output of a build program, or a byte copy of one.
 Another script must be in the checkout when the job starts.
 Otherwise it must have been written during the job.
+A missing script operand runs nothing and is recorded as absent.
 
 `--selftest` runs the controls inside the image as root:
 
