@@ -293,30 +293,56 @@ holds the exact-semantics boundary with planted fixtures.
 
 ## Execution audit
 
-The inventory derives which programs a step should run; the execution audit
-records which programs a step does run.
-[`exec_audit.py`](../../ci/image/exec_audit.py) follows `execve` with `ptrace`,
-so a static binary is observed like any other.
+The inventory derives which programs a step should run.
+The execution audit records which programs a step does run.
+[`exec_audit.py`](../../ci/image/exec_audit.py) follows `execve` with `ptrace`.
+A static binary is observed like any other.
 Steps run with the container network disabled.
-A step that needs the network fails and is caught by its exit status.
-A step is rejected when it runs a program the allowlist does not name, or a
-package manager or installer.
-[`exec-audit.json`](../../ci/image/exec-audit.json) is that allowlist: the
-inventory's command executables, the helper programs they spawn, and the
-interpreters, with the installer denylist.
-A program built by the job runs from outside the image's own directories and is
-recorded, not refused; a system program must be named.
-`python3 ci/image/exec_audit.py --selftest` plants an installer and an unlisted
-system program and shows each caught by name.
-`python3 ci/image/exec_audit.py --audit SPEC --output RECEIPT` runs the steps in
-a JSON spec and writes the per-step program set and findings.
-A spec entry has `job`, `label`, `argv` and an optional `working-directory` and
-`env`; that shape is the interface the follow-up PR's signed replay consumes.
-Wiring the audit into every pull request's replay is that follow-up PR's work;
-with it a hidden installer is caught at the replay whatever the walker accepts.
+A step that needs the network fails, and its exit status is a finding.
+
+Every exec instance is kept with its full argument vector and directory.
+Each is judged by what it runs, not by the loaded binary.
+An interpreter is judged by its script, `-m` module, or inline program.
+That covers shells, Python, Perl, Node and Tcl, including shebang scripts.
+[`exec-audit.json`](../../ci/image/exec-audit.json) names permitted programs, scripts and modules.
+It also holds the installer denylists.
+
+Installers are refused by name, as a program, script or module.
+That covers `apt*`, `dpkg`, `pip*`, `npm`, `npx` and other package managers.
+It covers `gem install`, `cargo install`, `go install` and `go get`.
+An interpreter reading its program from a fetcher's pipe is refused too.
+A program or script in the image's own directories must be named.
+Any other program needs provenance from the same traced step.
+It must be the `-o` output of a build program, or a byte copy of one.
+Another script must be in the checkout when the step starts.
+Otherwise it must have been written during the step.
+
+`--selftest` runs the controls inside the image as root:
+
+```sh
+docker run --rm --network none --user 0:0 --mount "type=bind,src=$PWD,dst=/work,readonly" \
+  --workdir /work "$IMAGE_REFERENCE" python3 ci/image/exec_audit.py --selftest
+```
+
+A real offline local-wheel install is caught as the `pip` module.
+Scripted `pip3` and `npm`, and a shebang `apt-get`, are caught by name.
+An unlisted shebang script and a static binary in a system directory are caught.
+A copied unlisted program has no provenance and is caught.
+A fetched program piped to a shell and `gem install` are caught.
+A permitted interpreter call and a step-built program stay clean.
+A step-built static binary is observed, and a failing step is reported.
+
+`--audit SPEC --output RECEIPT --logs DIRECTORY` runs a step spec.
+A spec entry has `job`, `label`, `argv`, and optionally `working-directory` and `env`.
+Each receipt step carries `exit_status`, `instances` and `instances_sha256`.
+It also carries the `population`: each invocation's kind, name, path, provenance and count.
+Its `findings` name the invocation, path, arguments and reason; `clean` holds when none.
+The logs keep every instance as one JSON line.
+These fields are the interface the follow-up PR's signed replay consumes.
+Wiring the audit into every pull request's replay is that follow-up PR's work.
+With it, a hidden installer is caught at the replay whatever the walker accepts.
 Unlisted constructs and unlisted command forms refuse generation.
 Runtime assembly remains subject to the declared residue boundary.
-
 
 ## Accepted version changes
 
