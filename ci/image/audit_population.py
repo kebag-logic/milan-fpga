@@ -166,7 +166,30 @@ def git(root: Path, *args: str) -> str:
     return subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True, text=True).stdout.strip()
 
 
-def merge(parts: list[Path], output: Path) -> int:
+def shape(words: list[str]) -> list[str]:
+    """An argument vector compared by program name, with absolute paths as placeholders."""
+    return [Path(words[0]).name if words else ''] + ['<path>' if w.startswith('/') else w for w in words[1:]]
+
+
+def commands(listed: list[Path], logs: list[Path], steps: list[dict]) -> list[dict]:
+    """Find each listed (job, step, command) among the exec instances of its traced step."""
+    rows = []
+    for path in listed:
+        for entry in json.loads(path.read_text())['steps']:
+            traced = [s for s in steps if s['job'] == entry['job'] and s['label'] == entry['step']]
+            seen = 0
+            for step in traced:
+                for directory in logs:
+                    log = directory / step.get('log', '')
+                    if log.is_file():
+                        seen += sum(shape(json.loads(line)['argv']) == shape(entry['command'])
+                                    for line in log.read_text().splitlines())
+            rows.append({'job': entry['job'], 'step': entry['step'], 'command': entry['command'],
+                         'traced_step': traced[0]['step'] if traced else None, 'instances': seen})
+    return rows
+
+
+def merge(parts: list[Path], output: Path, listed: list[Path], logs: list[Path]) -> int:
     """Combine receipts traced as different users at one source and image into one receipt."""
     receipts = [json.loads(part.read_text()) for part in parts]
     first = receipts[0]
@@ -188,11 +211,15 @@ def merge(parts: list[Path], output: Path) -> int:
               'steps': steps, 'traced': sum(row['traced'] for row in reconciliation)}
     merged.pop('user', None)
     replaced = {reason for reason, _ in REPLACED.values()}
+    merged['commands'] = commands(listed, logs, steps)
     merged['clean'] = all(step['clean'] for step in steps) and \
-        all(row['traced'] or row['why'] in replaced for row in reconciliation)
+        all(row['traced'] or row['why'] in replaced for row in reconciliation) and \
+        all(row['instances'] for row in merged['commands'])
     output.write_text(json.dumps(merged, indent=1, sort_keys=True) + '\n')
     print(f"{merged['traced']} of {merged['reached']} reached steps traced; "
-          f"{sum(not s['clean'] for s in steps)} with findings")
+          f"{sum(not s['clean'] for s in steps)} with findings; "
+          f"{sum(bool(r['instances']) for r in merged['commands'])} of {len(merged['commands'])} "
+          "listed commands observed")
     return 0 if merged['clean'] else 1
 
 
@@ -206,11 +233,19 @@ def main() -> int:
     parser.add_argument('--root', type=Path, default=ROOT)
     parser.add_argument('--only', nargs='*', default=[], help='jobs to trace (all when empty)')
     parser.add_argument('--merge', nargs='+', type=Path, help='receipts to combine into --output')
+    parser.add_argument('--commands', nargs='*', type=Path, default=[],
+                        help='command lists, each {"steps": [{"job", "step", "command"}]}, to find when merging')
+    parser.add_argument('--merge-logs', nargs='*', type=Path, default=[], help='the merged receipts\' log directories')
     args = parser.parse_args()
     if args.merge:
-        return merge(args.merge, args.output)
+        return merge(args.merge, args.output, args.commands, args.merge_logs)
     if not (args.image and args.base and args.logs):
         parser.error('--image, --base and --logs are required to trace')
+    return trace_population(args)
+
+
+def trace_population(args: argparse.Namespace) -> int:
+    """Trace every selected reached step in order and write the receipt."""
     root = args.root.resolve()
     if git(root, 'status', '--porcelain', '--untracked-files=normal'):
         print('REFUSED: the traced checkout must be clean', file=sys.stderr)
@@ -265,7 +300,8 @@ def main() -> int:
                  'working-directory': step['working-directory']}
         result = exec_audit.audit_step(entry, names, root, environment, args.logs / f'step-{number:03d}.jsonl',
                                        origin)
-        result.update({'step': key, 'image_form': reason, 'text_sha256': row['text_sha256']})
+        result.update({'step': key, 'image_form': reason, 'text_sha256': row['text_sha256'],
+                       'log': f'step-{number:03d}.jsonl'})
         receipt_steps.append(result)
         reconciliation.append({**row, 'traced': True, 'why': reason})
         job_path += [line for line in file_commands(files['GITHUB_PATH']) if line]
