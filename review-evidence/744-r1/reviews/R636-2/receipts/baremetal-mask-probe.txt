@@ -1,0 +1,16 @@
+SURVIVED: lines pooled across the declared files
+  --check rc 0: baremetal-only: OK (0 findings across 1344 tracked first-party file(s)) (1 line(s))
+  --selftest rc 0: baremetal-only selftest: PASS (790 arm(s)) (1 line(s))
+CAUGHT: declared lines accepted in every file
+  --check rc 0: baremetal-only: OK (0 findings across 1344 tracked first-party file(s)) (1 line(s))
+  --selftest rc 2: - [host-memory-read-scripts/act_ci.py-0-wrong-file] planted defect not caught (28 line(s))
+CAUGHT: declared lines accepted in a product document
+  --check rc 0: baremetal-only: OK (0 findings across 1344 tracked first-party file(s)) (1 line(s))
+  --selftest rc 2: - [host-memory-read-scripts/act_ci.py-0-product-file] planted defect not caught (14 line(s))
+CAUGHT: second path on a line masked unbound
+  --check rc 0: baremetal-only: OK (0 findings across 1344 tracked first-party file(s)) (1 line(s))
+  --selftest rc 2: - [act-slot-cgroup-root-wrong-context] planted defect not caught (14 line(s))
+CAUGHT: earlier per-file mask replaced, not extended
+  --check rc 1: - scripts/act_ci.py:176: [R] prohibited target runtime/service surface '/sys': 'CGROUP_ROOT = pathlib.Path("/sys/fs/cgroup")' (#259: no target OS or retired hel (5 line(s))
+  --selftest rc 2: - [runner-host-inventory-allowed-scripts/act_ci.py] clean fixture flagged: (4 line(s))
+restored: True

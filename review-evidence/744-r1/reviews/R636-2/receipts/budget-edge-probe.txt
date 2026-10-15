@@ -1,0 +1,7 @@
+mode 000 denies a read here: True
+ok: leaf cgroup itself mode 000: got None, want None
+ok: unsearchable cgroup two levels above the leaf: got None, want None
+ok: mode-000 limit two levels above the leaf: got None, want None
+ok: readable 8 GiB two levels above the leaf: got '4', want '4'
+ok: 4 GiB host below an 8 GiB limit: got '2', want '2'
+observed: a dangling memory.max symlink at the leaf: got '16' (treated as absent)
