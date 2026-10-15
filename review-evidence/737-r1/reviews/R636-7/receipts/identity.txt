@@ -1,0 +1,14 @@
+HEAD fe2e2a543474dd9a932383052bb6fe14bfbbb1fe tree 08b7735bbb462b55bd3dfbdd179c1c4a9ab99151
+runner blob 58b9b054a228447fb469d0435442692132c6ee18 worktree-hash 58b9b054a228447fb469d0435442692132c6ee18
+runner sha256 head: 7ff18c6a89aeb40c54d44411ffc6ff766fe6aa0f29baf595ba1e2aa833a446fd  -
+runner sha256 47fd0d3c: f968f67655ac386ea703248b724c3781b95ec379d3a5287b378e470df81f895c  -
+runner sha256 fa7347fc (source base): 506155c11334eeccdb210a0001f41c2b0d9ceb5bd95b41887d1bb5422255882a  -
+files changed 47fd0d3c..HEAD:
+M	docs/testing/CI_WORKFLOWS.md
+M	scripts/act_ci.py
+A	scripts/act_ci_small_host_selftest.py
+M	scripts/ci_gate_workflows_selftest.py
+.github changed 47fd0d3c..HEAD: []
+act_ci.py hunks:
+@@ -12171 +12171,3 @@ def selftest_main_entry_probe(tally: SelftestTally, capture_probe_root: pathlib.
+@@ -12176 +12178 @@ def selftest_main_entry_probe(tally: SelftestTally, capture_probe_root: pathlib.

@@ -1,0 +1,21 @@
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index bb3ef59bb..58b9b054a 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -12168,12 +12168,14 @@ def selftest_main_entry_probe(tally: SelftestTally, capture_probe_root: pathlib.
+     def run_main_entry_probe() -> int:
+         """Run production main against a stub gh that reports its PIDs."""
+         # This runs in the forked probe child, which os._exit discards, so
+-        # the module attribute is patched in place rather than rebound.
++        # the module attribute is patched in place rather than rebound. The
++        # synthetic booking ends at CPU 63, so the host count is patched as
++        # in the other main-path probes; a smaller host would refuse it.
+         with mock.patch.object(
+             sys.modules[__name__],
+             "SAFE_PATH",
+             f"{entry_helper_root}:{original_safe_path}",
+-        ):
++        ), mock.patch.object(os, "cpu_count", return_value=512):
+             os.environ["ACT_CI_PIDFILE"] = str(entry_ready)
+             for name in INHERITED_DOCKER_VARIABLES:
+                 os.environ.pop(name, None)

@@ -1,0 +1,241 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 8c3784d1b..b75bce802 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -1446,7 +1446,11 @@ The leg runner names those gates itself, rather than reading them from the
+ inventory. A gate deleted from the inventory, lost with its leg, or run
+ without its flag is therefore refused by name.
+ `ci_gate_workflows_selftest.py` plants each of those losses for both
+-commands. It also checks the named gates against the driver source.
++commands. It also checks the named gates against the driver source. It
++requires that exactly the workers running a builder leg upload
++`builder-leg-*.json`. For both templates it plants a divided step that runs
++the driver in a preparation line, and one whose last line is not the driver;
++the generator must refuse each.
+ 
+ Independently, worker 1 installs Verilator and runs
+ `scripts/run_litex_sims.sh`, the one aggregate that owns the standalone LiteX
+@@ -1741,6 +1745,27 @@ A sibling import planted outside the scope-event graph must fail.
+ The docs workflow also runs the documented flat installation directly.
+ Its contract pins the empty temporary directory, mode and invocation.
+ 
++The self-test books the synthetic CPU ranges `0-15` to `48-63`, and the range
++parser refuses a range that ends at or past `os.cpu_count()`. So every arm
++that reaches the parser patches the count it needs; an arm that did not
++passed on a large workstation and failed on the four-CPU hosted runner. A
++committed control removes that dependence on the host:
++
++```sh
++python3 -I scripts/act_ci_small_host_selftest.py
++```
++
++It installs the runner read-only and runs its self-test in an isolated child
++whose `os.cpu_count()` reports 4 (`--cpus` chooses 1 to 63), then runs the
++same self-test on a copy whose `main` no longer contains its PR run in the
++cleanup-signal handlers. The first must pass. The second must fail its
++main-entry probe after reaching the repository lookup, not by refusing its CPU
++booking. The isolated child skips only the flat-install launcher, whose fresh
++interpreter the forced count cannot reach. Every other arm runs under it. The
++control needs the gate's own prerequisites, including PyYAML and an installed
++`sudo`, as on the hosted runner. The hosted gate itself runs on four CPUs, so this control is a local
++command and is not a separate CI step.
++
+ The reviewer's audit of those exact installed bytes is the trust anchor. The
+ runner's check of `--trusted-install-sha256` is self-attestation and detects
+ drift after that audit; it cannot establish that substituted runner code is
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index bb3ef59bb..58b9b054a 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -12168,12 +12168,14 @@ def selftest_main_entry_probe(tally: SelftestTally, capture_probe_root: pathlib.
+     def run_main_entry_probe() -> int:
+         """Run production main against a stub gh that reports its PIDs."""
+         # This runs in the forked probe child, which os._exit discards, so
+-        # the module attribute is patched in place rather than rebound.
++        # the module attribute is patched in place rather than rebound. The
++        # synthetic booking ends at CPU 63, so the host count is patched as
++        # in the other main-path probes; a smaller host would refuse it.
+         with mock.patch.object(
+             sys.modules[__name__],
+             "SAFE_PATH",
+             f"{entry_helper_root}:{original_safe_path}",
+-        ):
++        ), mock.patch.object(os, "cpu_count", return_value=512):
+             os.environ["ACT_CI_PIDFILE"] = str(entry_ready)
+             for name in INHERITED_DOCKER_VARIABLES:
+                 os.environ.pop(name, None)
+diff --git a/scripts/act_ci_small_host_selftest.py b/scripts/act_ci_small_host_selftest.py
+new file mode 100644
+index 000000000..6b972bdd7
+--- /dev/null
++++ b/scripts/act_ci_small_host_selftest.py
+@@ -0,0 +1,101 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Control: the runner self-test passes on a host with fewer CPUs than it books.
++
++The runner self-test books the synthetic CPU ranges 0-15 to 48-63, and the
++production range parser refuses any range that ends at or past
++`os.cpu_count()`. So every self-test arm that reaches that parser must pin
++the count it needs. An arm that does not passes on a large workstation and
++fails on GitHub's four-CPU standard runner, which is how the main-entry probe
++failed the hosted docs gate (R636-6-F1).
++
++This control runs an installed copy of the runner's self-test in a child
++interpreter whose `os.cpu_count()` is forced below the highest booked CPU, so
++its result no longer depends on the host it runs on. It then runs the same
++self-test on a copy whose production `main` no longer contains its PR run in
++the cleanup-signal handlers. That copy must fail on the main-entry probe
++after reaching the lookup, not by refusing its CPU booking: forcing the count
++must not make that probe vacuous.
++
++The child runs isolated, exactly as the hosted gate's second invocation runs
++the runner. A non-isolated self-test would also launch its flat-install child,
++a fresh interpreter the forced count cannot reach. The isolated run skips only
++that launcher, and executes every other arm under the forced count.
++
++    python3 -I scripts/act_ci_small_host_selftest.py
++"""
++
++import argparse
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++
++ROOT = Path(__file__).resolve().parents[1]
++RUNNER = ROOT / "scripts" / "act_ci.py"
++#: The last CPU of the self-test's synthetic booking (`selftest_configured`).
++HIGHEST_BOOKED_CPU = 63
++ENTRY_PROBE = "FAIL production main contains an interrupted early repository lookup"
++CONTAINED = "        return run_with_cleanup_signals(execute_pr_run)\n"
++UNCONTAINED = "        return execute_pr_run()\n"
++CPU_REFUSAL = "exceeds this host's"
++#: Forces the count, then runs the runner as `__main__`, the way `python3 -I` would.
++BOOTSTRAP = (
++    "import os, runpy, sys\n"
++    "cpus = int(sys.argv[1])\n"
++    "os.cpu_count = lambda: cpus\n"
++    "print('forced os.cpu_count() =', os.cpu_count(), flush=True)\n"
++    "sys.argv = sys.argv[2:]\n"
++    "runpy.run_path(sys.argv[0], run_name='__main__')\n"
++)
++
++
++def run_selftest(source: str, worktree: Path, cpus: int) -> subprocess.CompletedProcess:
++    """Install `source` read-only and run its self-test isolated, with `cpus` CPUs reported."""
++    with tempfile.TemporaryDirectory(prefix="act-ci-small-host-") as raw:
++        installed = Path(raw) / "act_ci.py"
++        installed.write_text(source, encoding="utf-8")
++        installed.chmod(0o555)
++        result = subprocess.run(
++            [sys.executable, "-I", "-c", BOOTSTRAP, str(cpus), str(installed),
++             "--selftest", "--worktree", str(worktree)],
++            cwd=raw, capture_output=True, text=True, check=False,
++        )
++    print(result.stdout + result.stderr, end="")
++    return result
++
++
++def main() -> int:
++    """Require the clean self-test to pass, and the planted copy to fail its entry probe."""
++    parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
++    parser.add_argument("--cpus", type=int, default=4, help="the CPU count the child reports (default 4)")
++    parser.add_argument("--runner", type=Path, default=RUNNER, help="the runner to test (default this tree's)")
++    parser.add_argument("--worktree", type=Path, default=ROOT, help="the shipping worktree (default this tree)")
++    args = parser.parse_args()
++    if not 1 <= args.cpus <= HIGHEST_BOOKED_CPU:
++        parser.error(f"--cpus must be 1 to {HIGHEST_BOOKED_CPU}: the booking must exceed the forced count")
++    source = args.runner.read_text(encoding="utf-8")
++    if source.count(CONTAINED) != 1:
++        print("FAIL the runner's main does not end in one contained PR run to plant against")
++        return 1
++    worktree = args.worktree.expanduser().resolve()
++    failures = 0
++    clean = run_selftest(source, worktree, args.cpus)
++    if clean.returncode or "selftest: PASS" not in clean.stdout:
++        print(f"FAIL runner self-test at {args.cpus} CPUs (rc {clean.returncode})")
++        failures += 1
++    else:
++        print(f"ok   runner self-test passes at {args.cpus} CPUs")
++    planted = run_selftest(source.replace(CONTAINED, UNCONTAINED), worktree, args.cpus)
++    if planted.returncode and ENTRY_PROBE in planted.stdout and CPU_REFUSAL not in planted.stderr:
++        print(f"ok   uncontained entry lookup fails the main-entry probe at {args.cpus} CPUs")
++    else:
++        print(f"FAIL uncontained entry lookup at {args.cpus} CPUs was not caught by the main-entry probe")
++        failures += 1
++    print("small-host runner control: " + ("PASS" if not failures else f"{failures} FAILURE(S)"))
++    return 1 if failures else 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/scripts/ci_gate_workflows_selftest.py b/scripts/ci_gate_workflows_selftest.py
+index 7a4e09f76..88a55b67b 100644
+--- a/scripts/ci_gate_workflows_selftest.py
++++ b/scripts/ci_gate_workflows_selftest.py
+@@ -22,7 +22,8 @@ from ci_builder_legs import LEGS, REQUIRED, compare, partition, requirements, un
+ from ci_gate_receipts import Collected, StepContext, record, verify
+ from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
+ from ci_runtime_workflows import cpu_budget_step
+-from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, builder_command, builder_leg_step, gate_graph
++from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, DRIVER_COMMAND, builder_command, builder_leg_step
++from ci_gate_workflows import gate_graph
+ import ci_suite_pieces
+ from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
+ 
+@@ -89,6 +90,30 @@ def scheduling_controls() -> None:
+     print("Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS")
+ 
+ 
++def builder_split_controls() -> None:
++    """A divided builder step must end in its one driver command and run it nowhere else."""
++    for name in BUILDER_SPLIT:
++        source = load_template(ROOT, name)
++        step, = (step for step in source["jobs"][CARRIERS[name]]["steps"] if step.get("name") == BUILDER_SPLIT[name])
++        *preparation, driver = step["run"].strip().split("\n")
++        for label, run in (
++                ("driver in a preparation line", "\n".join([*preparation, driver + " --list", driver]) + "\n"),
++                ("last line not the driver", "\n".join([*preparation, "true"]) + "\n")):
++            changed = copy.deepcopy(source)
++            planted, = (item for item in changed["jobs"][CARRIERS[name]]["steps"]
++                        if item.get("name") == BUILDER_SPLIT[name])
++            planted["run"] = run
++            # Each plant breaks one condition alone: two driver lines, or none.
++            assert run.count(DRIVER_COMMAND) == (2 if "preparation" in label else 0), (name, label)
++            try:
++                generate(name, changed)
++            except ValueError as exc:
++                assert "one driver command" in str(exc), (name, label, str(exc))
++                print("Builder split refused the " + name + " template with its " + label)
++            else:
++                raise AssertionError("builder split accepted the " + name + " template with its " + label)
++
++
+ def suite_generator_controls() -> None:
+     """The generated Verilator graph keeps no dedicated milan_dp arm and expects its own
+     workers; a template whose arm or expectation disagrees with its own total is refused."""
+@@ -389,6 +414,7 @@ def main() -> int:
+     """Drive the production generator and verifier with independent planted losses."""
+     inventory_controls()
+     scheduling_controls()
++    builder_split_controls()
+     suite_generator_controls()
+     cpu_controls()
+     for name, carrier in CARRIERS.items():
+@@ -415,6 +441,14 @@ def main() -> int:
+             source_order = [index[step["id"]] for step in steps if step.get("id") in index]
+             assert source_order == sorted(source_order)
+             assert len(source_order) == sum(case["leg"] == leg for case in cases)
++        # Exactly the workers that run a builder leg retain its receipt.
++        owners = {case["leg"] for case in cases if "builder" in case}
++        assert owners == set(BUILDER_WORKERS[name]), (name, owners)
++        for leg in legs:
++            upload, = (step for step in generated["jobs"][worker_id(name, leg)]["steps"]
++                       if step.get("name") == "Upload executed gate outcomes")
++            retained = "builder-leg-*.json" in upload["with"]["path"]
++            assert retained == (leg in owners), (name, leg, upload["with"]["path"])
+         def refuse(label: str, records: list, jobs: dict, legs_builder: list | None = builder) -> None:
+             """Every damaged collection must reach the production refusal path."""
+             try:

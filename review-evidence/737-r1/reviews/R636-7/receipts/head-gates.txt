@@ -1,0 +1,25 @@
+$ python3 scripts/check_em_dash.py --base 47fd0d3c510000e9412a1613a723b61d4ef2ae4a
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 scripts/check_em_dash.py --base fa7347fc59173f90e4feec2df207692e6e6e72ec
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+$ python3 scripts/check_hygiene.py --check
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 1199 file(s))
+rc=0
+$ python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+$ python3 scripts/ci_gate_workflows.py --check
+
+rc=0
+$ python3 -m py_compile scripts/act_ci_small_host_selftest.py
+
+rc=0
+$ git diff --check 47fd0d3c510000e9412a1613a723b61d4ef2ae4a fe2e2a543474dd9a932383052bb6fe14bfbbb1fe
+
+rc=0
+$ added-line U+2014 scan 47fd0d3c..fe2e2a54 (fallback for the renderer-dependent em-dash gate)
+0

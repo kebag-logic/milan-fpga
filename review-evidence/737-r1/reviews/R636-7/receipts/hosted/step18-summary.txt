@@ -1,0 +1,13 @@
+step-18 window lines 6513-7760 of $REVIEWS/737-r636-7-packet/receipts/hosted/job-116401304536-docs-gates-2.log
+FAIL lines: 0
+REFUSED lines: 0
+ok lines: 1194
+2026-10-15T11:47:40.7610056Z ##[group]Run python3 scripts/act_ci.py --selftest
+2026-10-15T11:48:17.7021265Z   ok   flat isolated full selftest uses the explicit shipping worktree
+2026-10-15T11:48:17.7021596Z   ok   flat isolated selftest rejects a sibling import outside scope events
+2026-10-15T11:48:43.8827810Z   ok   production main contains an interrupted early repository lookup
+2026-10-15T11:48:44.7055885Z selftest: PASS
+2026-10-15T11:49:14.6472208Z   ok   production main contains an interrupted early repository lookup
+2026-10-15T11:49:15.5052419Z selftest: PASS
+2026-10-15T11:49:15.5287945Z ##[group]Run python3 scripts/ci_gate_receipts.py record --workflow docs --leg 2 --output "$RUNNER_TEMP/gate-res
+hosted CPU count line: 2026-10-15T11:39:27.4189389Z   CI_BUILD_JOBS: 4
