@@ -1,0 +1,59 @@
+Candidate fb5dd3dabd8f63cc83ff91323a76ce3adaeca89c tree 77e1321b1c9684e8899a85710296eb75af7ddf48
+Delta paths: docs/design/MEDIA_CLOCK_FOLLOWING.md, tb/verilator/follow_ring/sim_main.cpp
+All hdl/ entries unchanged since 2639eecf3f94aa1a8be5c922058a05f0a48b1933
+
+B17 bounds from late-PDU records, retaining the published observation scope:
+c01: first=28.833, later=28.691, lower=7.857667, upper=28.833 us
+c02: first=25.009, later=28.365, lower=7.531667, upper=25.009 us
+c03: first=26.326, later=28.713, lower=7.879667, upper=26.326 us
+c04: first=29.309, later=30.071, lower=9.237667, upper=29.309 us
+c05: first=24.565, later=30.260, lower=9.426667, upper=24.565 us
+c06: first=25.840, later=28.475, lower=7.641667, upper=25.840 us
+c07: first=24.968, later=29.140, lower=8.306667, upper=24.968 us
+c08: first=25.581, later=27.575, lower=6.741667, upper=25.581 us
+c09: first=25.128, later=29.528, lower=8.694667, upper=25.128 us
+c10: first=26.869, later=27.813, lower=6.979667, upper=26.869 us
+All nine other cycle intervals contain c05; 10 us is unused in bound calculation.
+
+Grid 16: 320 binds; head rc0 32/32, base rc0 0/32
+Head-defined cohorts: inside 177 (0 +1-dup cases), outside 143 (6 +2-dup cases)
+All early slip kind/time records equal on both datapaths to printed microsecond; zero head post-action slips.
+Out-of-window slip phases: [0.8125, 0.875]
+Out-of-window latest early slip ms: 2.1279999999999912
+Paired base result: all 177 head-inside cases +2 at first burst; outside raw dup/skip counts {(2, 0): 43, (4, 0): 99, (3, 0): 1}
+Base own longer pre-burst interval classifies 171 inside; paired table uses head membership.
+Newly in-window cases: [('bind_j5_p05', 1), ('bind_j5_p05', 2), ('bind_j5_p05', 3), ('bind_j5_p05', 4), ('bind_j5_p05', 5), ('bind_j5_p05', 6), ('bind_j5_p05', 7), ('bind_j5_p05', 10)] lowest margin 9.44
+Head minimum empty/full margins: 3.479 4.884
+Head tick range: 2047.02 2048.02
+
+Grid 32: 320 binds; head rc0 31/32, base rc0 0/32
+Head-defined cohorts: inside 151 (1 +1-dup cases), outside 169 (19 +2-dup cases)
+All early slip kind/time records equal on both datapaths to printed microsecond; zero head post-action slips.
+Out-of-window slip phases: [0.78125, 0.8125, 0.84375, 0.875]
+Out-of-window latest early slip ms: 2.5040000000000617
+In-window residual: ('bind_j5_p27', 7) phase 0.84375 dups 1 ms [0.12699999999998823]
+
+Grid dense: 256 binds; head rc0 254/256, base rc0 0/256
+Head-defined cohorts: inside 140 (2 +1-dup cases), outside 116 (6 +2-dup cases)
+All early slip kind/time records equal on both datapaths to printed microsecond; zero head post-action slips.
+Out-of-window slip phases: [0.773438, 0.789062, 0.796875, 0.828125, 0.851562, 0.859375]
+Out-of-window latest early slip ms: 2.8769999999997964
+In-window residual: ('bind_j5_p114', 7) phase 0.890625 dups 1 ms [0.12699999999998823]
+In-window residual: ('bind_j5_p119', 7) phase 0.929688 dups 1 ms [0.25199999999991896]
+
+Published suite fr_default : rc0
+settle control 100000000 Hz: PASS
+settle control 25000000 Hz: PASS
+settle control 6250000 Hz: PASS
+settle control 50000000 Hz: PASS
+== follow_ring: checks: 18   failures: 0 ==
+== follow_ring: checks: 30   failures: 0 ==
+== follow_ring: checks: 48   failures: 0 ==
+
+Published suite fr_mutants : rc0
+[MUTANT] NO-BIND-ARM: caught by "[BIND] B17 cycle 5 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 4 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 9 at INTERNAL: no SLIP_LB change across the cycle"
+[MUTANT] BIND-RISE: caught by "[BIND] B17 cycle 4 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 9 at INTERNAL: no SLIP_LB change across the cycle"
+[MUTANT] FOLLOWING-ARM: caught by "[BIND-FOLLOW] B17 cycle 5 under CRF following: the bind armed no settle recentre"
+follow_ring mutants: 15/15 caught
+
+PASS: all receipt assertions; no design/simulation rerun.

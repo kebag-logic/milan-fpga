@@ -1,0 +1,75 @@
+r2/gates/check_baremetal_only.mdvenv-refused.rc: rc=2
+r2/gates/check_baremetal_only.rc: rc=0
+r2/gates/check_cpp_idiom.rc: rc=0
+r2/gates/check_doc_paths.rc: rc=0
+r2/gates/check_doc_style.rc: rc=0
+r2/gates/check_em_dash.rc: rc=0
+r2/gates/check_feature_status.rc: rc=0
+r2/gates/check_gptp_docs.rc: rc=0
+r2/gates/check_hygiene.rc: rc=0
+r2/gates/check_py_idiom.rc: rc=0
+r2/gates/check_todo_ownership.rc: rc=0
+r2/gates/diff_check.rc: rc=0
+r2/gates/docs_check.rc: rc=0
+r2/gates/gen_module_matrix.rc: rc=0
+r2/gates/gen_toc_anchors.rc: rc=0
+r2/gates/gen_toc_check.rc: rc=0
+r2/gates/measure_fail_fast.rc: rc=0
+r2/gates/measure_naming.rc: rc=0
+r2/gates/measure_test_evidence.rc: rc=0
+r2/gates/measure_test_evidence_selftest.rc: rc=0
+
+ARTIFACT r2/suites/fr_default.log
+settle control 100000000 Hz: PASS
+settle control 25000000 Hz: PASS
+settle control 6250000 Hz: PASS
+settle control 50000000 Hz: PASS
+== follow_ring: checks: 18   failures: 0 ==
+RESULT: PASS
+== follow_ring: checks: 30   failures: 0 ==
+RESULT: PASS
+  info: settle to the hold's end   [  15.851,   21.098) s: ring slips 0+0, margin +5.545..+5.560 ticks; render n 41972 fill 14..14 (off-law 0), delay 8.456..8.463 (out of band 0), end-to-pop clearance 0.456 ticks
+== follow_ring: checks: 48   failures: 0 ==
+RESULT: PASS
+
+ARTIFACT r2/suites/fr_mutants.log
+[MUTANT] NO-SETTLE: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] HELD-DUP: caught by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter" and "SPAN: no action counted as a duplicate"
+[MUTANT] STARVED-HELD-DUP: caught by "LRC: that held walk on a still-empty pair counts no dup" and "LRC: no recentre moved the dup counter"
+[MUTANT] SINGLE-DROP: caught by "LRC: ten left drops five excess events on both pairs"
+[MUTANT] QUIET-ARM: caught by "[STEADY] INTERNAL without a hold has no pending settle"
+[MUTANT] NO-RECOVERY: caught by "[PULLIN] exactly one settle recentre from the transient to the hold's end"
+[MUTANT] HIGH-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] NO-ARM: caught by "[PULLIN] the render stage is on its law after the settle recentre"
+[MUTANT] EARLY: caught by "[B8] the render stage is on its law after the settle recentre"
+[MUTANT] NO-BIND-ARM: caught by "[BIND] B17 cycle 5 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 4 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 9 at INTERNAL: no SLIP_LB change across the cycle"
+[MUTANT] BIND-RISE: caught by "[BIND] B17 cycle 4 at INTERNAL: no SLIP_LB change across the cycle" and "[BIND] B17 cycle 9 at INTERNAL: no SLIP_LB change across the cycle"
+[MUTANT] RENDER-ONLY: caught by "[B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)"
+[MUTANT] FOLLOWING-ARM: caught by "[BIND-FOLLOW] B17 cycle 5 under CRF following: the bind armed no settle recentre"
+[MUTANT] OVERSHOOT: caught by "[B8] no loopback slip after the settle recentre"
+[MUTANT] W1: caught by "[SW] AAF to CRF: the switch moved the loopback margin less than 0.1 tick before its settle"
+follow_ring mutants: 15/15 caught
+
+ARTIFACT tally/tally.txt
+suite                        checks   failures  tallies
+checks: 52122   in-suite failures: 0
+
+ARTIFACT area/base_n1.vivado.util.txt
+| Slice LUTs*             |   73 |     0 |          0 |     63400 |  0.12 |
+|   LUT as Logic          |   73 |     0 |          0 |     63400 |  0.12 |
+| Slice Registers         |   93 |     0 |          0 |    126800 |  0.07 |
+
+ARTIFACT area/head_n1.vivado.util.txt
+| Slice LUTs*             |   76 |     0 |          0 |     63400 |  0.12 |
+|   LUT as Logic          |   76 |     0 |          0 |     63400 |  0.12 |
+| Slice Registers         |   94 |     0 |          0 |    126800 |  0.07 |
+
+ARTIFACT area/base_n8.vivado.util.txt
+| Slice LUTs*             |   73 |     0 |          0 |     63400 |  0.12 |
+|   LUT as Logic          |   73 |     0 |          0 |     63400 |  0.12 |
+| Slice Registers         |   93 |     0 |          0 |    126800 |  0.07 |
+
+ARTIFACT area/head_n8.vivado.util.txt
+| Slice LUTs*             |   85 |     0 |          0 |     63400 |  0.13 |
+|   LUT as Logic          |   85 |     0 |          0 |     63400 |  0.13 |
+| Slice Registers         |  101 |     0 |          0 |    126800 |  0.08 |
