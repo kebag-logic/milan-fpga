@@ -124,6 +124,10 @@ class Origin:
         if BUILDERS.match(base) and (output := built_output(list(instance["argv"]), str(instance["directory"]))):
             self.outputs[output] = base
         path = what["path"]
+        if what["kind"] == "script":
+            # A script reached through a link is the file the link names.
+            path = str(Path(path).resolve())
+            instance["script"] = path
         if what["kind"] not in ("program", "script") or path.startswith(SYSTEM_ROOTS):
             return "named"
         if what["kind"] == "program":
@@ -324,10 +328,14 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
 
     for instance in result["instances"]:
         what = invocation(instance)
+        if what["kind"] == "script" and instance.get("script"):
+            # Judge the file a link names, and its name, alongside the name it was run by.
+            what = {**what, "path": instance["script"], "alias": what["name"],
+                    "name": Path(instance["script"]).name}
         base = MULTIARCH.sub("", Path(str(instance["program"])).name)
         provenance = str(instance.get("provenance", "none"))
-        if what["kind"] in ("program", "script") and what["name"] in installers:
-            finding(instance, what, f"installer executed: {what['name']}")
+        if what["kind"] in ("program", "script") and {what["name"], what.get("alias")} & installers:
+            finding(instance, what, f"installer executed: {(({what['name'], what.get('alias')} & installers)).pop()}")
         elif what["kind"] == "module" and what["name"] in names["installer_modules"]:
             finding(instance, what, f"installer module executed: {what['name']}")
         elif what["kind"] == "stream" and what.get("stream") in fetched:
@@ -459,6 +467,13 @@ def selftest(names: dict[str, object]) -> int:
         (base / "bin/gem").chmod(0o755)
         step("an installing subcommand", f"{base}/bin/gem install zz-probe",
              "installer subcommand executed: gem install")
+        (base / "checkout.sh").write_text("exit 0\n")
+        step("a link the step makes to a checkout script is judged as that script",
+             f"mkdir -p {base}/shadow && ln -s {base}/checkout.sh {base}/shadow/run.sh && "
+             f"bash {base}/shadow/run.sh", None)
+        step("a link named as an installer is caught by that name",
+             f"ln -s {base}/checkout.sh {base}/shadow/apt-get && bash {base}/shadow/apt-get",
+             "installer executed: apt-get")
         (base / "tool.py").write_text("print('ok')\n")
         step("a permitted interpreter call and a step-written script",
              f"python3 -c 'print(1)' && python3 {base}/tool.py", None)
