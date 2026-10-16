@@ -1,0 +1,33 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+reuse: pp_acmp_reuse.inc // at the pin 2cbed0a987c1e68402658d69459ab7e5aa571adc (blob 47dcf5f6523eb23c6862a464233a3e418684006b); DO NOT EDIT, it is rewritten on every run.
+reuse: pp_adp_reuse.inc // at the pin 2cbed0a987c1e68402658d69459ab7e5aa571adc (blob 2b98f3467aaec731053773bb4a8b5ac537b4fb33); DO NOT EDIT, it is rewritten on every run.
+reuse: pp_disc_reuse.inc // at the pin 2cbed0a987c1e68402658d69459ab7e5aa571adc (blob 2b98f3467aaec731053773bb4a8b5ac537b4fb33); DO NOT EDIT, it is rewritten on every run.
+reuse: pp_talker_reuse.inc // at the pin 2cbed0a987c1e68402658d69459ab7e5aa571adc (blob 82826ed4903667ea0a0ee13cc74491ef40e7f6bc); DO NOT EDIT, it is rewritten on every run.
+[FAIL] arm acmpwalk
+    ST_NOAUTH
+    Which is: 16
+    13
+    [FAIL] ListenerScenario.LD3TheLockRefusalStatus: LD3 which is 13, TALKER_MISBEHAVING in IEEE 1722.1-2021 Table 8-3
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_UNB: LD1 UNBIND x UNB: the processor echoes the command's talker fields
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWA: LD1 UNBIND x PWA: the processor echoes the command's talker fields
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWD: LD1 UNBIND x PWD: the processor echoes the command's talker fields
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWR: LD1 UNBIND x PWR: the processor echoes the command's talker fields
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PW2: LD1 UNBIND x PW2: the processor echoes the command's talker fields
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWT: LD1 UNBIND x PWT: the processor echoes the command's talker fields
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SNR: LD1 UNBIND x SNR: the processor echoes the command's talker fields
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SOK: LD1 UNBIND x SOK: the processor echoes the command's talker fields
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LD2 TMR_RETRY x PWT (talker discovered): the processor zeroes the status the retry was for
+    == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 10 ==
+    RESULT: FAIL
+    verdict: FAIL (its tallies report 10 failure(s) across 127 checks, exit 1)
+acmpwalk_only: FAIL
