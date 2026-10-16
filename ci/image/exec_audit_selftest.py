@@ -37,7 +37,7 @@ CONTROLS = {
             "reason": f"The audit's own pinned {family} control: it prints a constant; {NOTHING}"}
         for text, family, form in (("print(1)", "python", "inline"), ("print q(pinned-perl)\n", "perl", "inline"),
                                    ('console.log("pinned-node")', "node", "inline"),
-                                   ("puts pinned-tcl\n", "tclsh", "stream"))},
+                                   ("puts pinned-tcl\n", "tclsh", "stream"), ("puts /tmp/<job>\n", "tclsh", "stream"))},
     "generated_programs": {
         hashlib.sha256(b"import sys\nprint('/tmp/<job>')\n").hexdigest(): {
             "generator": "ci/image/exec_audit_selftest.py", "interpreter": "python", "kind": "script",
@@ -288,6 +288,11 @@ def interpreter_programs(step: Step, base: Path) -> None:
     step("pinned Perl, Node and Tcl texts are accepted",
          "perl -le 'print q(pinned-perl)' && node -e 'console.log(\"pinned-node\")' && "
          "printf 'puts pinned-tcl\\n' | tclsh8.6", None)
+    step("a pinned streamed text is accepted with its job-temporary path masked",
+         f"printf 'puts {base}/report\\n' | tclsh", None)
+    report = step("a job-temporary path with a .. component is not masked past it",
+                  f"printf 'puts {base}/../report\\n' | tclsh", "unpinned streamed program: tclsh8.6")
+    assert [f.get("sha256") for f in report["findings"]] == [text_digest("puts /tmp/<job>/../report\n")], report
     (base / "tool.pl").write_text("print qq(ok\\n);\n")
     (base / "tool.tcl").write_text("puts ok\n")
     (base / "tool.js").write_text("console.log('ok');\n")

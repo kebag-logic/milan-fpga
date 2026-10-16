@@ -335,9 +335,11 @@ class Origin:
                  scratch: tuple[str, ...] = (), image: Image | None = None) -> None:
         self.root = Path(root)
         names = names or allowlist()
-        # A job-temporary path: under /tmp or the job's own scratch roots, made only of name characters.
+        # A job-temporary path: under /tmp or the job's own scratch roots, made only of name characters,
+        # with no `.` or `..` component, so it names a job-temporary file and carries no command.
         roots = "|".join(re.escape(root) for root in ("/tmp", *scratch))
-        self.temporary = re.compile(rf"(?:{roots})(?![A-Za-z0-9_.-])(?:/[A-Za-z0-9_.-]+)*".encode())
+        self.temporary = re.compile(rf"(?:{roots})(?![A-Za-z0-9_.-])(?:/(?!\.\.?(?![A-Za-z0-9_.-]))[A-Za-z0-9_.-]+)*"
+                                    .encode())
         self.pinned = dict(names.get("inline_programs", {}))
         self.generated = dict(names.get("generated_programs", {}))
         self.started = snapshot(str(self.root), executable=False)
@@ -395,6 +397,10 @@ class Origin:
                 change = "removed or replaced" if now is None else f"sha256 {now}"
                 (self.rewritten if path in self.writable else self.changed)[path] = change
 
+    def masked(self, data: bytes) -> str:
+        """The digest of a program text with each job-temporary path masked."""
+        return hashlib.sha256(self.temporary.sub(b"/tmp/<job>", data)).hexdigest()
+
     def image_copy(self, path: str, own: str) -> str | None:
         """The image executable present as the job started that holds this file's bytes."""
         size = os.stat(path).st_size
@@ -449,12 +455,14 @@ class Origin:
         if kind in ("inline", "stream"):
             if instance.get("exec_only"):
                 return "exec-only interpreter"
-            text = what.get("sha256")
-            if not text:
+            text = what["text"] if kind == "inline" else instance.get("text")
+            if text is None or not what.get("sha256"):
                 return "unreadable"
-            if text in self.texts:
+            if what["sha256"] in self.texts:
                 return "step text"
-            entry = self.pinned.get(text)
+            # A program text is identified as a generated program is: its job-temporary paths masked.
+            instance["sha256_masked"] = masked = self.masked(str(text).encode("utf-8", "surrogateescape"))
+            entry = self.pinned.get(masked)
             return "pinned" if entry and entry.get("interpreter") == what["family"] else "none"
         if kind == "script":
             # The interpreter opens its operand from its own directory; a link names the file it runs.
@@ -495,7 +503,7 @@ class Origin:
         instance["text"] = data[:1 << 20].decode("utf-8", "surrogateescape")  # The step log keeps it for review.
         # A generated program is identified with its job-temporary paths masked: such a path is made only of
         # name characters, so it carries no command, and every other byte is exact.
-        instance["sha256_masked"] = masked = hashlib.sha256(self.temporary.sub(b"/tmp/<job>", data)).hexdigest()
+        instance["sha256_masked"] = masked = self.masked(data)
         entry = self.generated.get(masked, {})
         return "generated" if entry.get("kind") == "script" and entry.get("interpreter") == what["family"] else "none"
 
@@ -837,7 +845,7 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
     def finding(instance: dict, what: dict, reason: str) -> None:
         """Name one forbidden or unprovenanced invocation, with the digest of what it ran."""
         findings.append({"invocation": what["name"], "path": what["path"], "argv": instance["argv"], "reason": reason,
-                         "sha256": what.get("sha256") or instance.get("sha256_masked") or instance.get("sha256")})
+                         "sha256": instance.get("sha256_masked") or what.get("sha256") or instance.get("sha256")})
 
     for instance in result["instances"]:
         what = invocation(instance)
@@ -866,7 +874,7 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
             finding(instance, what, f"image script not in the allowlist: {what['name']}")
         elif what["kind"] in ("inline", "stream") and provenance == "none":
             finding(instance, what, f"unpinned {'inline' if what['kind'] == 'inline' else 'streamed'} program: "
-                                    f"{what['name']} {what.get('sha256')}")
+                                    f"{what['name']} {instance.get('sha256_masked')}")
         elif what["kind"] in ("inline", "stream") and provenance == "unreadable":
             finding(instance, what, f"{'inline' if what['kind'] == 'inline' else 'streamed'} program not readable "
                                     f"at its exec: {what['name']} ({what.get('stream') or 'no stream'})")
@@ -880,8 +888,8 @@ def judge(result: dict[str, object], names: dict[str, object]) -> tuple[list[dic
             finding(instance, what, f"module not in the allowlist: {what['name']}")
         texts = what["kind"] in ("inline", "stream") and provenance != "exec-only interpreter"
         key = (what["kind"], what["name"], what["path"] if what["kind"] != "program" or image else "<built>",
-               provenance, what.get("sha256") if texts else instance.get("sha256") if provenance == "checkout"
-               else None)
+               provenance, instance.get("sha256_masked") or what.get("sha256") if texts else instance.get("sha256")
+               if provenance == "checkout" else None)
         row = population.setdefault(key, {"kind": key[0], "invocation": key[1], "path": key[2],
                                           "provenance": key[3], "count": 0})
         if key[4]:

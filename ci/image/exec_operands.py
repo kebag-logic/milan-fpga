@@ -278,7 +278,7 @@ def invocation(instance: dict[str, object]) -> dict[str, object]:
         return {"kind": "module", "name": str(read["module"]).split(".")[0], "path": str(read["module"]),
                 "family": family}
     if kind == "inline":
-        return {"kind": "inline", "name": base, "path": program, "family": family,
+        return {"kind": "inline", "name": base, "path": program, "family": family, "text": read["text"],
                 "sha256": hashlib.sha256(str(read["text"]).encode("utf-8", "surrogateescape")).hexdigest()}
     if kind == "stream" or rest[0].startswith("/dev/fd/") and rest[0][8:].isdigit():
         descriptor = rest[0][8:] if kind == "script" else "0"
