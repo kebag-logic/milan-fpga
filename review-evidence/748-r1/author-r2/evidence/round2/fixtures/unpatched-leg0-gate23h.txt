@@ -1,0 +1,10 @@
+===== gate 23h
+test_toolchain_patches_are_applied:
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/748-a623/r2/fx/unpatched/run/elaborate-gates-0/workspace/sw/builder/test_builder.py", line 29274, in <module>
+    fn()
+  File "$VALIDATION_STORAGE/748-a623/r2/fx/unpatched/run/elaborate-gates-0/workspace/sw/builder/test_builder.py", line 24491, in test_toolchain_patches_are_applied
+    assert not problems, "gate 23h:\n  " + "\n  ".join(problems)
+           ^^^^^^^^^^^^
+AssertionError: gate 23h:
+  0005-vexiiriscv-cacheless-litex.patch: does not reverse out of the live pythondata_cpu_vexiiriscv, so that tree is not upstream plus this series. Either the patch was never applied (run sw/litex/patches/apply.sh), the file drifted (re-diff per sw/litex/patches/README.md), or the series TEXT changed since this tree was patched - reverse the previous text first, as the README's migration note says

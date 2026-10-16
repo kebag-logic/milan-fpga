@@ -1,0 +1,22 @@
+diff --git a/.github/workflows/elaborate.yml b/.github/workflows/elaborate.yml
+index 2151d96c3a..b42c1177d9 100644
+--- a/.github/workflows/elaborate.yml
++++ b/.github/workflows/elaborate.yml
+@@ -176,7 +176,7 @@ jobs:
+         id: ci_step_14
+       - name: Apply the toolchain patch series
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+-        run: sw/litex/patches/apply.sh
++        run: echo the patch series is withheld
+         id: ci_step_15
+       - name: Cache the pinned RV32 SDK
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+@@ -411,7 +411,7 @@ jobs:
+         id: ci_step_14
+       - name: Apply the toolchain patch series
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+-        run: sw/litex/patches/apply.sh
++        run: echo the patch series is withheld
+         id: ci_step_15
+       - name: Cache the pinned RV32 SDK
+         if: ${{ steps.scope.outputs.rtl == 'true' }}

@@ -1,0 +1,8 @@
+  [gate 1b] gPTP ROM changes with station MAC and priority1; the bare-metal fabric clock is fixed by the build contract
+  [gate 1b] the 7 engine-pinned gptp fields REFUSE a divergent config value, naming field, both values and gen_gptp_ucode.py as the authority
+  [gate 1b] 8/8 incompatible CPU/cache/flash profiles rejected before SoC generation
+
+SUBSET: 1 of 103 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+--require-elaboration: every elaboration arm ran
+===== Keep the generated CPU netlist arguments for the next run

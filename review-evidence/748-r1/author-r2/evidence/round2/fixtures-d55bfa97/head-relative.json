@@ -1,0 +1,80 @@
+{
+  "rev": "d55bfa976617daec2914f2e94296b4ffbed94ade",
+  "shared": false,
+  "gate_legs": false,
+  "planted_paths": 6303,
+  "changed_paths": 0,
+  "planted_manifest_sha256": "871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36",
+  "final_manifest_sha256": "871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36",
+  "changed_sample": [],
+  "setup_seconds": 48.2,
+  "gate_leg_seconds": null,
+  "patch_checks": {
+    "elaborate-gates-0": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    },
+    "elaborate-gates-1": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    }
+  },
+  "legs": {
+    "elaborate-gates-0": [
+      {
+        "step": "Put a job-private Python environment on PATH",
+        "rc": 0,
+        "seconds": 2.4
+      },
+      {
+        "step": "Install LiteX at the pinned revisions",
+        "rc": 0,
+        "seconds": 33.0
+      },
+      {
+        "step": "Place the VexiiRiscv source at the revision LiteX pins",
+        "rc": 0,
+        "seconds": 10.4
+      },
+      {
+        "step": "Apply the toolchain patch series",
+        "rc": 0,
+        "seconds": 0.3
+      },
+      {
+        "step": "gate 23h",
+        "rc": 0,
+        "seconds": 1.7
+      }
+    ],
+    "elaborate-gates-1": [
+      {
+        "step": "Put a job-private Python environment on PATH",
+        "rc": 0,
+        "seconds": 2.4
+      },
+      {
+        "step": "Install LiteX at the pinned revisions",
+        "rc": 0,
+        "seconds": 34.0
+      },
+      {
+        "step": "Place the VexiiRiscv source at the revision LiteX pins",
+        "rc": 0,
+        "seconds": 11.5
+      },
+      {
+        "step": "Apply the toolchain patch series",
+        "rc": 0,
+        "seconds": 0.3
+      },
+      {
+        "step": "gate 23h",
+        "rc": 0,
+        "seconds": 1.8
+      }
+    ]
+  },
+  "problems": [],
+  "isolated": true
+}

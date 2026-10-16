@@ -1,0 +1,20 @@
+elaborate-gates-0: Put a job-private Python environment on PATH: rc 0 in 2.5 s
+elaborate-gates-0: Install LiteX at the pinned revisions: rc 0 in 33.5 s
+elaborate-gates-0: Place the VexiiRiscv source at the revision LiteX pins: rc 0 in 11.5 s
+elaborate-gates-0: Apply the toolchain patch series: rc 0 in 0.4 s
+elaborate-gates-0: gate 23h: rc 0 in 0.4 s
+elaborate-gates-0: test_toolchain_patches_are_applied: NOT RUN: [gate 23h] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+elaborate-gates-0: test_toolchain_patch_gate_bites: NOT RUN: [gate 23h mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+elaborate-gates-1: Put a job-private Python environment on PATH: rc 0 in 2.5 s
+elaborate-gates-1: Install LiteX at the pinned revisions: rc 0 in 33.5 s
+elaborate-gates-1: Place the VexiiRiscv source at the revision LiteX pins: rc 0 in 11.0 s
+elaborate-gates-1: Apply the toolchain patch series: rc 0 in 0.4 s
+elaborate-gates-1: gate 23h: rc 0 in 0.4 s
+elaborate-gates-1: test_toolchain_patches_are_applied: NOT RUN: [gate 23h] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+elaborate-gates-1: test_toolchain_patch_gate_bites: NOT RUN: [gate 23h mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+tool cache: 6303 planted paths, 0 changed; manifest 871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36 planted, 871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36 final
+PROBLEM: elaborate-gates-0: test_toolchain_patches_are_applied NOT RUN: [gate 23h] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+PROBLEM: elaborate-gates-0: test_toolchain_patch_gate_bites NOT RUN: [gate 23h mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+PROBLEM: elaborate-gates-1: test_toolchain_patches_are_applied NOT RUN: [gate 23h] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+PROBLEM: elaborate-gates-1: test_toolchain_patch_gate_bites NOT RUN: [gate 23h mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+NOT ISOLATED

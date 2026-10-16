@@ -1,0 +1,12 @@
+===== gate 23h
+test_toolchain_patches_are_applied:
+  [gate 23h] SKIP: no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+test_toolchain_patch_gate_bites:
+  [gate 23h mutation] SKIP: no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+
+SUBSET: 2 of 103 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+
+2 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 23h] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+  - [gate 23h mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks
+ALL GATES PASS EXCEPT 2 NOT RUN

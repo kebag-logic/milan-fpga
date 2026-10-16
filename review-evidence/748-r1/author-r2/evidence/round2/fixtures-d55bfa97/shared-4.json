@@ -1,0 +1,101 @@
+{
+  "rev": "d55bfa976617daec2914f2e94296b4ffbed94ade",
+  "shared": true,
+  "gate_legs": false,
+  "planted_paths": 6303,
+  "changed_paths": 9296,
+  "planted_manifest_sha256": "871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36",
+  "final_manifest_sha256": "62538ee39da1b56aacab74792bba1a2eaf72077ca22fe0a61810f3f8f0786d8d",
+  "changed_sample": [
+    "Python/3.12.3/x64/bin/idna",
+    "Python/3.12.3/x64/bin/litedram_gen",
+    "Python/3.12.3/x64/bin/liteeth_gen",
+    "Python/3.12.3/x64/bin/litespi_gen",
+    "Python/3.12.3/x64/bin/litex_bare_metal_demo",
+    "Python/3.12.3/x64/bin/litex_build_bundle",
+    "Python/3.12.3/x64/bin/litex_cli",
+    "Python/3.12.3/x64/bin/litex_contributors",
+    "Python/3.12.3/x64/bin/litex_json2dts_linux",
+    "Python/3.12.3/x64/bin/litex_json2dts_zephyr",
+    "Python/3.12.3/x64/bin/litex_json2renode",
+    "Python/3.12.3/x64/bin/litex_periph_gen",
+    "Python/3.12.3/x64/bin/litex_read_verilog",
+    "Python/3.12.3/x64/bin/litex_remote_build",
+    "Python/3.12.3/x64/bin/litex_server",
+    "Python/3.12.3/x64/bin/litex_sim",
+    "Python/3.12.3/x64/bin/litex_soc_gen",
+    "Python/3.12.3/x64/bin/litex_term",
+    "Python/3.12.3/x64/bin/normalizer",
+    "Python/3.12.3/x64/bin/pyserial-miniterm"
+  ],
+  "setup_seconds": 48.0,
+  "gate_leg_seconds": null,
+  "patch_checks": {
+    "elaborate-gates-0": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    },
+    "elaborate-gates-1": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    }
+  },
+  "legs": {
+    "elaborate-gates-0": [
+      {
+        "step": "Install LiteX at the pinned revisions",
+        "rc": 0,
+        "seconds": 34.7
+      },
+      {
+        "step": "Place the VexiiRiscv source at the revision LiteX pins",
+        "rc": 0,
+        "seconds": 13.0
+      },
+      {
+        "step": "Apply the toolchain patch series",
+        "rc": 0,
+        "seconds": 0.4
+      },
+      {
+        "step": "gate 23h",
+        "rc": 0,
+        "seconds": 1.7
+      }
+    ],
+    "elaborate-gates-1": [
+      {
+        "step": "Install LiteX at the pinned revisions",
+        "rc": 0,
+        "seconds": 34.6
+      },
+      {
+        "step": "Place the VexiiRiscv source at the revision LiteX pins",
+        "rc": 1,
+        "seconds": 0.1
+      },
+      {
+        "step": "gate 23h",
+        "rc": 0,
+        "seconds": 1.8
+      }
+    ]
+  },
+  "problems": [
+    "elaborate-gates-1: not every step passed: [{'step': 'Install LiteX at the pinned revisions', 'rc': 0, 'seconds': 34.6}, {'step': 'Place the VexiiRiscv source at the revision LiteX pins', 'rc': 1, 'seconds': 0.1}]",
+    "elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64 is not under the leg's RUNNER_TEMP",
+    "elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64 is inside the shared tool cache",
+    "elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/litex/__init__.py is not under the leg's RUNNER_TEMP",
+    "elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/litex/__init__.py is inside the shared tool cache",
+    "elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is not under the leg's RUNNER_TEMP",
+    "elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is inside the shared tool cache",
+    "elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64 is not under the leg's RUNNER_TEMP",
+    "elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64 is inside the shared tool cache",
+    "elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/litex/__init__.py is not under the leg's RUNNER_TEMP",
+    "elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/litex/__init__.py is inside the shared tool cache",
+    "elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is not under the leg's RUNNER_TEMP",
+    "elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is inside the shared tool cache",
+    "the tool cache changed at 9296 paths, first ['Python/3.12.3/x64/bin/idna', 'Python/3.12.3/x64/bin/litedram_gen', 'Python/3.12.3/x64/bin/liteeth_gen', 'Python/3.12.3/x64/bin/litespi_gen', 'Python/3.12.3/x64/bin/litex_bare_metal_demo']"
+  ],
+  "isolated": false
+}

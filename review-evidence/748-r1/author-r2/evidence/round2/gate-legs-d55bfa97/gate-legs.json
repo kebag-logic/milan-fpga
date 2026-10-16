@@ -1,0 +1,110 @@
+{
+  "rev": "d55bfa976617daec2914f2e94296b4ffbed94ade",
+  "shared": false,
+  "gate_legs": true,
+  "planted_paths": 6303,
+  "changed_paths": 0,
+  "planted_manifest_sha256": "871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36",
+  "final_manifest_sha256": "871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36",
+  "changed_sample": [],
+  "setup_seconds": 49.1,
+  "gate_leg_seconds": 973.2,
+  "patch_checks": {
+    "elaborate-gates-0": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    },
+    "elaborate-gates-1": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    }
+  },
+  "legs": {
+    "elaborate-gates-0": [
+      {
+        "step": "Put a job-private Python environment on PATH",
+        "rc": 0,
+        "seconds": 2.5
+      },
+      {
+        "step": "Install LiteX at the pinned revisions",
+        "rc": 0,
+        "seconds": 34.6
+      },
+      {
+        "step": "Place the VexiiRiscv source at the revision LiteX pins",
+        "rc": 0,
+        "seconds": 11.6
+      },
+      {
+        "step": "Apply the toolchain patch series",
+        "rc": 0,
+        "seconds": 0.3
+      },
+      {
+        "step": "gate 23h",
+        "rc": 0,
+        "seconds": 1.7
+      },
+      {
+        "step": "Set CPU-derived job budgets",
+        "rc": 0,
+        "seconds": 0.0
+      },
+      {
+        "step": "Elaboration gates, leg 0 of 2",
+        "rc": 0,
+        "seconds": 973.1
+      },
+      {
+        "step": "Keep the generated CPU netlist arguments for the next run",
+        "rc": 0,
+        "seconds": 0.0
+      }
+    ],
+    "elaborate-gates-1": [
+      {
+        "step": "Put a job-private Python environment on PATH",
+        "rc": 0,
+        "seconds": 2.5
+      },
+      {
+        "step": "Install LiteX at the pinned revisions",
+        "rc": 0,
+        "seconds": 34.6
+      },
+      {
+        "step": "Place the VexiiRiscv source at the revision LiteX pins",
+        "rc": 0,
+        "seconds": 11.4
+      },
+      {
+        "step": "Apply the toolchain patch series",
+        "rc": 0,
+        "seconds": 0.3
+      },
+      {
+        "step": "gate 23h",
+        "rc": 0,
+        "seconds": 1.7
+      },
+      {
+        "step": "Set CPU-derived job budgets",
+        "rc": 0,
+        "seconds": 0.0
+      },
+      {
+        "step": "Elaboration gates, leg 1 of 2",
+        "rc": 0,
+        "seconds": 432.6
+      },
+      {
+        "step": "Keep the generated CPU netlist arguments for the next run",
+        "rc": 0,
+        "seconds": 0.0
+      }
+    ]
+  },
+  "problems": [],
+  "isolated": true
+}
