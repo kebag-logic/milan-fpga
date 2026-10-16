@@ -1,0 +1,52 @@
+# added non-Markdown lines in HEAD^1..HEAD (the merge delta onto the PR) matching lane/round/reviewer/comment-ID patterns
+74:+  //! #645, bench lane B17: A LISTENER BIND'S FIRST PDU AT INTERNAL. The
+79:+  //! one frame: once in each of B17's 10 binds. Each LOOP stream waits from
+608:+#   make bind    - bench lane B17's binds at INTERNAL, each graded on its
+610:+#   make sweep-b8 / sweep-pullin / sweep-bind - the #645 / #647 / B17
+627:+# bind (#645, bench lane B17): three of B17's ten bind cycles as measured -
+631:+# phase that primes the ring mid B17's window and uniform 0 to 5 us lateness
+632:+# (B17's p99.9 was 4.4 to 6.1 us); then cycle 5 under CRF following.
+637:+# sweep-bind: all ten B17 cycles as measured, the first PDU at 16 phases of
+638:+# a media tick, without lateness and with B17's 0 to 5 us envelope
+649:+  //! what the settle recentre's bind arm (#645, lane B17) reads: the LOOP
+660:+NO-BIND-ARM: a listener bind's first PDU arms nothing (#645, bench lane B17).
+662:+  B17's first burst slips it one frame: every bind leg cycle must fail its
+665:+  fires 2,048 ticks (42.7 ms) after the bind, before the first PDU of B17's
+667:+  so B17's burst slips both.
+677:+    """The bind leg's SLIP_LB check for one of B17's cycles."""
+678:+    return f"[BIND] B17 cycle {cycle} at INTERNAL: no SLIP_LB change across the cycle"
+691:+     "[BIND-FOLLOW] B17 cycle 5 under CRF following: the bind armed no settle recentre"),
+694:+the bind arm (#645, lane B17): a bind's first PDU arms at INTERNAL, even in
+708:+  // #645 lane B17: a bind's first PDU arms at INTERNAL, here in recovery.
+733:+// THE BIND CASE (#645, bench lane B17, PR #741). At INTERNAL, with the peer
+734:+// on the DUT's own clock (B17's delta was within 0.0017 ppm), each of B17's
+736:+// at --bind-phase of a media tick, B17's delay after the bind, then B17's
+737:+// first burst over 20 us late, and a later burst at B17's largest later
+738:+// peak. B17's cycle 5 bounds the margin its bind primed: below 24.565 us,
+750:+//! BENCH LANE B17, per bind cycle (PR #741's packet,
+775:+//! least-squares slope of B17's ten first bursts (1.468 to 1.664)
+777:+//! the margin B17's cycle 5 primed lies between these: its first burst
+780:+//! margin was above 30.260 - 20.833 = 9.427 us. (B17's reader lists only PDUs
+787:+    //! bind: the B17 cycles replayed (1..10), the first PDU's arrival in a
+796:+    //! a phase sweep crosses phases B17's window excludes: report those, and
+799:+        "Vfollow_ring --case bind    INTERNAL, a talker on the DUT's own clock, bench lane\n"
+800:+        "                            B17's bind cycles (--b17-cycles 1,5,...), each graded\n"
+803:+        "  --any-phase (a phase outside B17's primed window, and its slips before the ring\n"
+859:+    //! late, each next one `decay_us` less (B17's shape)
+913:+    double t_burst = -1.0;                        //! B17's first burst
+928:+    bool in_window = false;                       //! ...inside B17's
+933:+//! One bind cycle (B17's `c`): unbind, the unbound dwell, the bind with its
+934:+//! first PDU at `phase`, B17's first burst and the later one, the hold.
+983:+    std::printf("RESULT-645-BIND: B17 cycle %d phase %.4f %s: first PDU %+.3f ms after the bind, primed margin "
+984:+                "%.3f..%.3f us (%s B17's window), arms %d (%+.3f ms after the first PDU), settle recentres %d "
+994:+    //! each slipped frame against the first burst, as B17 timed them
+998:+                std::printf("  info: B17 cycle %d: slip (%s) %+.6f s after the bind, %+.6f s from the first burst\n",
+1014:+        std::snprintf(tag, sizeof tag, "[BIND] B17 cycle %d at INTERNAL:", c.cycle);
+1016:+            std::snprintf(w, sizeof w, "%s the bind primed the ring inside B17's window (%.3f to %.3f us)", tag,
+1028:+        //! a phase B17's window excludes primes the ring closer to its edge than
+1029:+        //! B17 saw, so its slips before the ring acts are reported (--any-phase);
+1062:+        std::snprintf(tag, sizeof tag, "[BIND-FOLLOW] B17 cycle %d under CRF following:", c.cycle);
+1078:+bind (#645, bench lane B17): B17's ten bind cycles at INTERNAL, with each
+1081:+the ring acts and, at a phase whose primed margin lies in B17's window, no
+# same patterns: are these lines already on dev 734eb780 (i.e. not introduced by the merge)?
+0

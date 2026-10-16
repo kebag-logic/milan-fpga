@@ -1,0 +1,33 @@
+# files changed HEAD^1..HEAD vs base..dev (diff of lists, empty = equal)
+rc=0
+# files changed HEAD^2..HEAD vs base..PR
+rc=0
+# single-side files: blob at HEAD equals the touching side's blob
+OK dev .github/ci-templates/elaborate.yml
+OK dev .github/workflows/elaborate.yml
+OK dev docs/design/MEDIA_CLOCK_FOLLOWING.md
+OK dev docs/design/TIME_SYNC.md
+OK dev docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md
+OK dev docs/reference/REGISTER_MAP.md
+OK dev docs/testing/TESTING.md
+OK dev hdl/milan/milan_datapath.sv
+OK dev scripts/ci_toolcache_isolation.py
+OK dev scripts/measure_test_evidence_readers.py
+OK dev tb/verilator/follow_ring/Makefile
+OK dev tb/verilator/follow_ring/follow_ring_wrap.sv
+OK dev tb/verilator/follow_ring/mutants.py
+OK dev tb/verilator/follow_ring/settle_control.py
+OK dev tb/verilator/follow_ring/sim_main.cpp
+OK dev tb/verilator/follow_ring/sweep.py
+OK pr .github/ci-templates/rtl-fast.yml
+OK pr .github/workflows/rtl-fast.yml
+OK pr docs/design/MAILBOX_SPLIT.md
+OK pr scripts/act_ci.py
+OK pr scripts/check_baremetal_only.py
+OK pr scripts/ci_gate_workflows_selftest.py
+OK pr scripts/ci_runtime_workflows.py
+# both-side files: patch identity (dev side diff == PR-parent..HEAD diff, PR side diff == dev-parent..HEAD diff), by patch-id
+scripts/ci_events.py dev-side a3d94a02b23c8b89a987980f4c2603ee1a64a94e merged-onto-PR a3d94a02b23c8b89a987980f4c2603ee1a64a94e EQUAL
+scripts/ci_events.py pr-side 4e9e6494bdfce791f9caba2b4986cb28caaa8c49 merged-onto-dev 4e9e6494bdfce791f9caba2b4986cb28caaa8c49 EQUAL
+docs/testing/CI_WORKFLOWS.md dev-side 10f62872cdd1e8447258ba29548bca6e0a5c430b merged-onto-PR 10f62872cdd1e8447258ba29548bca6e0a5c430b EQUAL
+docs/testing/CI_WORKFLOWS.md pr-side 7d9fdd5607345663dc198cadb1b6eb7ed21b48e8 merged-onto-dev 7d9fdd5607345663dc198cadb1b6eb7ed21b48e8 EQUAL
