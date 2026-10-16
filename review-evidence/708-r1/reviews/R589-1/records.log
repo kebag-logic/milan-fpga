@@ -1,0 +1,19 @@
+PASS port census generator is byte-identical
+PASS naming generator is byte-identical
+PASS ROM generator ltn_rom.hex 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+PASS ROM generator ucode.hex 518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8
+PASS public archive checksums 57
+PASS unchanged resource policy and flow identity route-1x1
+PASS unchanged resource policy and flow identity ooc-1x1
+PASS unchanged resource policy and flow identity ooc-8x8
+PASS published manifest bound to head route-1x1 122 repository inputs; generated input hashes are author receipts
+PASS published manifest bound to head ooc-1x1 119 repository inputs; generated input hashes are author receipts
+PASS published manifest bound to head ooc-8x8 119 repository inputs; generated input hashes are author receipts
+PASS base/candidate export: six processor files only; all six memory images equal
+protocol-processor/hdl/acmp/pp_acmp_pkg.sv
+protocol-processor/hdl/acmp/KL_acmp_talker.sv
+protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv
+protocol-processor/hdl/aecp/KL_aecp_notify.sv
+protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv
+protocol-processor/hdl/top/protocol_processor_top.sv
+PASS firmware source unchanged 497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed

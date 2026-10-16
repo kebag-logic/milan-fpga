@@ -1,0 +1,446 @@
+[==========] Running 127 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from ListenerScenario
+[ RUN      ] ListenerScenario.LD3TheLockRefusalStatus
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:534: Failure
+Expected equality of these values:
+  ST_NOAUTH
+    Which is: 13
+  16
+LD3 which is 16, CONTROLLER_NOT_AUTHORIZED in IEEE 1722.1-2021 Table 8-3, not 13
+
+  [FAIL] ListenerScenario.LD3TheLockRefusalStatus: LD3 which is 16, CONTROLLER_NOT_AUTHORIZED in IEEE 1722.1-2021 Table 8-3, not 13
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:537: Failure
+Expected equality of these values:
+  std::memcmp(fk.sent[0].bytes.data() + spec::HEADER_BYTES, e.frames[0].b, PDU_BYTES)
+    Which is: 24
+  0
+LD3 and the two refusals agree byte for byte
+
+  [FAIL] ListenerScenario.LD3TheLockRefusalStatus: LD3 and the two refusals agree byte for byte
+[  FAILED  ] ListenerScenario.LD3TheLockRefusalStatus (0 ms)
+[ RUN      ] ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages
+[       OK ] ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages (0 ms)
+[----------] 2 tests from ListenerScenario (0 ms total)
+
+[----------] 4 tests from TalkerWalk
+[ RUN      ] TalkerWalk.TW1ProbeTheFlagLawAndTheSource
+[       OK ] TalkerWalk.TW1ProbeTheFlagLawAndTheSource (0 ms)
+[ RUN      ] TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive
+[       OK ] TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive (0 ms)
+[ RUN      ] TalkerWalk.TW3DisconnectAndGetTxConnection
+[       OK ] TalkerWalk.TW3DisconnectAndGetTxConnection (0 ms)
+[ RUN      ] TalkerWalk.TW4TheInterfaceAndTheStatelessProperty
+[       OK ] TalkerWalk.TW4TheInterfaceAndTheStatelessProperty (0 ms)
+[----------] 4 tests from TalkerWalk (0 ms total)
+
+[----------] 88 tests from Table530/ListenerWalk
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_SAME_PWA
+[       OK ] Table530/ListenerWalk.Graded/BIND_SAME_PWA (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_SAME_PWD
+[       OK ] Table530/ListenerWalk.Graded/BIND_SAME_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_SAME_PWR
+[       OK ] Table530/ListenerWalk.Graded/BIND_SAME_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_SAME_PW2
+[       OK ] Table530/ListenerWalk.Graded/BIND_SAME_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_SAME_PWT
+[       OK ] Table530/ListenerWalk.Graded/BIND_SAME_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_SAME_SNR
+[       OK ] Table530/ListenerWalk.Graded/BIND_SAME_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_SAME_SOK
+[       OK ] Table530/ListenerWalk.Graded/BIND_SAME_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_NEW_UNB
+[       OK ] Table530/ListenerWalk.Graded/BIND_NEW_UNB (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_NEW_PWA
+[       OK ] Table530/ListenerWalk.Graded/BIND_NEW_PWA (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_NEW_PWD
+[       OK ] Table530/ListenerWalk.Graded/BIND_NEW_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_NEW_PWR
+[       OK ] Table530/ListenerWalk.Graded/BIND_NEW_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_NEW_PW2
+[       OK ] Table530/ListenerWalk.Graded/BIND_NEW_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_NEW_PWT
+[       OK ] Table530/ListenerWalk.Graded/BIND_NEW_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_NEW_SNR
+[       OK ] Table530/ListenerWalk.Graded/BIND_NEW_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/BIND_NEW_SOK
+[       OK ] Table530/ListenerWalk.Graded/BIND_NEW_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/UNBIND_UNB
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:438: Failure
+Value of: wire_be64(f.b + 20) == 0u && wire_be16(f.b + 36) == 0u
+  Actual: false
+Expected: true
+LD1 UNBIND x UNB: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_UNB: LD1 UNBIND x UNB: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:451: Failure
+Expected equality of these values:
+  std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+  0
+LW UNBIND x UNB: frame 0 byte for byte
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_UNB: LW UNBIND x UNB: frame 0 byte for byte
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_UNB, where GetParam() = (2, 0, false) (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/UNBIND_PWA
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:438: Failure
+Value of: wire_be64(f.b + 20) == 0u && wire_be16(f.b + 36) == 0u
+  Actual: false
+Expected: true
+LD1 UNBIND x PWA: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWA: LD1 UNBIND x PWA: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:451: Failure
+Expected equality of these values:
+  std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+  0
+LW UNBIND x PWA: frame 0 byte for byte
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWA: LW UNBIND x PWA: frame 0 byte for byte
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PWA, where GetParam() = (2, 1, false) (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/UNBIND_PWD
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:438: Failure
+Value of: wire_be64(f.b + 20) == 0u && wire_be16(f.b + 36) == 0u
+  Actual: false
+Expected: true
+LD1 UNBIND x PWD: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWD: LD1 UNBIND x PWD: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:451: Failure
+Expected equality of these values:
+  std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+  0
+LW UNBIND x PWD: frame 0 byte for byte
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWD: LW UNBIND x PWD: frame 0 byte for byte
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PWD, where GetParam() = (2, 2, false) (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/UNBIND_PWR
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:438: Failure
+Value of: wire_be64(f.b + 20) == 0u && wire_be16(f.b + 36) == 0u
+  Actual: false
+Expected: true
+LD1 UNBIND x PWR: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWR: LD1 UNBIND x PWR: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:451: Failure
+Expected equality of these values:
+  std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+  0
+LW UNBIND x PWR: frame 0 byte for byte
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWR: LW UNBIND x PWR: frame 0 byte for byte
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PWR, where GetParam() = (2, 3, false) (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/UNBIND_PW2
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:438: Failure
+Value of: wire_be64(f.b + 20) == 0u && wire_be16(f.b + 36) == 0u
+  Actual: false
+Expected: true
+LD1 UNBIND x PW2: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PW2: LD1 UNBIND x PW2: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:451: Failure
+Expected equality of these values:
+  std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+  0
+LW UNBIND x PW2: frame 0 byte for byte
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PW2: LW UNBIND x PW2: frame 0 byte for byte
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PW2, where GetParam() = (2, 4, false) (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/UNBIND_PWT
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:438: Failure
+Value of: wire_be64(f.b + 20) == 0u && wire_be16(f.b + 36) == 0u
+  Actual: false
+Expected: true
+LD1 UNBIND x PWT: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWT: LD1 UNBIND x PWT: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:451: Failure
+Expected equality of these values:
+  std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+  0
+LW UNBIND x PWT: frame 0 byte for byte
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWT: LW UNBIND x PWT: frame 0 byte for byte
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PWT, where GetParam() = (2, 5, false) (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/UNBIND_SNR
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:438: Failure
+Value of: wire_be64(f.b + 20) == 0u && wire_be16(f.b + 36) == 0u
+  Actual: false
+Expected: true
+LD1 UNBIND x SNR: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_SNR: LD1 UNBIND x SNR: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:451: Failure
+Expected equality of these values:
+  std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+  0
+LW UNBIND x SNR: frame 0 byte for byte
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_SNR: LW UNBIND x SNR: frame 0 byte for byte
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_SNR, where GetParam() = (2, 6, false) (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/UNBIND_SOK
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:438: Failure
+Value of: wire_be64(f.b + 20) == 0u && wire_be16(f.b + 36) == 0u
+  Actual: false
+Expected: true
+LD1 UNBIND x SOK: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_SOK: LD1 UNBIND x SOK: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:451: Failure
+Expected equality of these values:
+  std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+  0
+LW UNBIND x SOK: frame 0 byte for byte
+
+  [FAIL] Table530/ListenerWalk.Graded/UNBIND_SOK: LW UNBIND x SOK: frame 0 byte for byte
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_SOK, where GetParam() = (2, 7, false) (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/GETRX_UNB
+[       OK ] Table530/ListenerWalk.Graded/GETRX_UNB (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/GETRX_PWA
+[       OK ] Table530/ListenerWalk.Graded/GETRX_PWA (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/GETRX_PWD
+[       OK ] Table530/ListenerWalk.Graded/GETRX_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/GETRX_PWR
+[       OK ] Table530/ListenerWalk.Graded/GETRX_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/GETRX_PW2
+[       OK ] Table530/ListenerWalk.Graded/GETRX_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/GETRX_PWT
+[       OK ] Table530/ListenerWalk.Graded/GETRX_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/GETRX_SNR
+[       OK ] Table530/ListenerWalk.Graded/GETRX_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/GETRX_SOK
+[       OK ] Table530/ListenerWalk.Graded/GETRX_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_OK_UNB
+[       OK ] Table530/ListenerWalk.Graded/PROBE_OK_UNB (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_OK_PWA
+[       OK ] Table530/ListenerWalk.Graded/PROBE_OK_PWA (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_OK_PWD
+[       OK ] Table530/ListenerWalk.Graded/PROBE_OK_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_OK_PWR
+[       OK ] Table530/ListenerWalk.Graded/PROBE_OK_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_OK_PW2
+[       OK ] Table530/ListenerWalk.Graded/PROBE_OK_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_OK_PWT
+[       OK ] Table530/ListenerWalk.Graded/PROBE_OK_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_OK_SNR
+[       OK ] Table530/ListenerWalk.Graded/PROBE_OK_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_OK_SOK
+[       OK ] Table530/ListenerWalk.Graded/PROBE_OK_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_FAIL_UNB
+[       OK ] Table530/ListenerWalk.Graded/PROBE_FAIL_UNB (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_FAIL_PWA
+[       OK ] Table530/ListenerWalk.Graded/PROBE_FAIL_PWA (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_FAIL_PWD
+[       OK ] Table530/ListenerWalk.Graded/PROBE_FAIL_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_FAIL_PWR
+[       OK ] Table530/ListenerWalk.Graded/PROBE_FAIL_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_FAIL_PW2
+[       OK ] Table530/ListenerWalk.Graded/PROBE_FAIL_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_FAIL_PWT
+[       OK ] Table530/ListenerWalk.Graded/PROBE_FAIL_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_FAIL_SNR
+[       OK ] Table530/ListenerWalk.Graded/PROBE_FAIL_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/PROBE_FAIL_SOK
+[       OK ] Table530/ListenerWalk.Graded/PROBE_FAIL_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_DELAY_PWD
+[       OK ] Table530/ListenerWalk.Graded/TMR_DELAY_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_CMD_UNB
+[       OK ] Table530/ListenerWalk.Graded/TMR_CMD_UNB (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_CMD_PWA
+[       OK ] Table530/ListenerWalk.Graded/TMR_CMD_PWA (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_CMD_PWR
+[       OK ] Table530/ListenerWalk.Graded/TMR_CMD_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_CMD_PW2
+[       OK ] Table530/ListenerWalk.Graded/TMR_CMD_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_CMD_SOK
+[       OK ] Table530/ListenerWalk.Graded/TMR_CMD_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_RETRY_PWT
+[       OK ] Table530/ListenerWalk.Graded/TMR_RETRY_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_NOTK_SNR
+[       OK ] Table530/ListenerWalk.Graded/TMR_NOTK_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DISC_UNB
+[       OK ] Table530/ListenerWalk.Graded/TK_DISC_UNB (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DISC_PWA
+[       OK ] Table530/ListenerWalk.Graded/TK_DISC_PWA (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DISC_PWD
+[       OK ] Table530/ListenerWalk.Graded/TK_DISC_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DISC_PWR
+[       OK ] Table530/ListenerWalk.Graded/TK_DISC_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DISC_PW2
+[       OK ] Table530/ListenerWalk.Graded/TK_DISC_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DISC_PWT
+[       OK ] Table530/ListenerWalk.Graded/TK_DISC_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DISC_SNR
+[       OK ] Table530/ListenerWalk.Graded/TK_DISC_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DISC_SOK
+[       OK ] Table530/ListenerWalk.Graded/TK_DISC_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DEP_PWD
+[       OK ] Table530/ListenerWalk.Graded/TK_DEP_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DEP_PWR
+[       OK ] Table530/ListenerWalk.Graded/TK_DEP_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DEP_PW2
+[       OK ] Table530/ListenerWalk.Graded/TK_DEP_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DEP_PWT
+[       OK ] Table530/ListenerWalk.Graded/TK_DEP_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DEP_SNR
+[       OK ] Table530/ListenerWalk.Graded/TK_DEP_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_DEP_SOK
+[       OK ] Table530/ListenerWalk.Graded/TK_DEP_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_REG_UNB
+[       OK ] Table530/ListenerWalk.Graded/TK_REG_UNB (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_REG_PWA
+[       OK ] Table530/ListenerWalk.Graded/TK_REG_PWA (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_REG_PWD
+[       OK ] Table530/ListenerWalk.Graded/TK_REG_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_REG_PWR
+[       OK ] Table530/ListenerWalk.Graded/TK_REG_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_REG_PW2
+[       OK ] Table530/ListenerWalk.Graded/TK_REG_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_REG_PWT
+[       OK ] Table530/ListenerWalk.Graded/TK_REG_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_REG_SNR
+[       OK ] Table530/ListenerWalk.Graded/TK_REG_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_REG_SOK
+[       OK ] Table530/ListenerWalk.Graded/TK_REG_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_UNREG_UNB
+[       OK ] Table530/ListenerWalk.Graded/TK_UNREG_UNB (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_UNREG_PWA
+[       OK ] Table530/ListenerWalk.Graded/TK_UNREG_PWA (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_UNREG_PWD
+[       OK ] Table530/ListenerWalk.Graded/TK_UNREG_PWD (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_UNREG_PWR
+[       OK ] Table530/ListenerWalk.Graded/TK_UNREG_PWR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_UNREG_PW2
+[       OK ] Table530/ListenerWalk.Graded/TK_UNREG_PW2 (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_UNREG_PWT
+[       OK ] Table530/ListenerWalk.Graded/TK_UNREG_PWT (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_UNREG_SNR
+[       OK ] Table530/ListenerWalk.Graded/TK_UNREG_SNR (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_UNREG_SOK
+[       OK ] Table530/ListenerWalk.Graded/TK_UNREG_SOK (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:445: Failure
+Value of: w.before.acmpsta == ST_NOBW && w.m.rec[k].acmpsta == w.before.acmpsta
+  Actual: false
+Expected: true
+LD2 TMR_RETRY x PWT (talker discovered): the processor keeps the status the retry was for (5.5.3.5.30 step 2)
+
+  [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LD2 TMR_RETRY x PWT (talker discovered): the processor keeps the status the retry was for (5.5.3.5.30 step 2)
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:462: Failure
+Value of: g.sm == r.sm && g.pbsta == r.pbsta && g.acmpsta == r.acmpsta
+  Actual: false
+Expected: true
+LW TMR_RETRY x PWT (talker discovered): state, probing and ACMP status PWD 2 5 want PWD 2 0
+
+  [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LW TMR_RETRY x PWT (talker discovered): state, probing and ACMP status PWD 2 5 want PWD 2 0
+$CHECKOUT/sw/firmware/ctrl/test/acmp_walk.cpp:486: Failure
+Expected equality of these values:
+  fk.count(Call::CHANGED) != 0u
+    Which is: false
+  !(items(w.before) == items(r))
+    Which is: true
+LW TMR_RETRY x PWT (talker discovered): notified exactly when a Table 5.22 item moved
+
+  [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LW TMR_RETRY x PWT (talker discovered): notified exactly when a Table 5.22 item moved
+[  FAILED  ] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc, where GetParam() = (8, 5, true) (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TMR_NOTK_SNR_disc
+[       OK ] Table530/ListenerWalk.Graded/TMR_NOTK_SNR_disc (0 ms)
+[ RUN      ] Table530/ListenerWalk.Graded/TK_UNREG_SOK_disc
+[       OK ] Table530/ListenerWalk.Graded/TK_UNREG_SOK_disc (0 ms)
+[----------] 88 tests from Table530/ListenerWalk (0 ms total)
+
+[----------] 33 tests from Table554/DiscoveryWalk
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__unbound
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__unbound
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__unbound
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__unbound
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_domain_mismatch__index____last__unbound
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_domain_mismatch__index____last__unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_domain_mismatch__index____last__TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_domain_mismatch__index____last__TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_domain_mismatch__index____last__TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_domain_mismatch__index____last__TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_interface_index_differs__unbound
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_interface_index_differs__unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_interface_index_differs__TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_interface_index_differs__TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/AVAILABLE_interface_index_differs__TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/AVAILABLE_interface_index_differs__TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_matches__unbound
+[       OK ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_matches__unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_matches__TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_matches__TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_matches__TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_matches__TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__unbound
+[       OK ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/TMR_NO_ADP_unbound
+[       OK ] Table554/DiscoveryWalk.Graded/TMR_NO_ADP_unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/TMR_NO_ADP_TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/TMR_NO_ADP_TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/TMR_NO_ADP_TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/TMR_NO_ADP_TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/UNBIND_unbound
+[       OK ] Table554/DiscoveryWalk.Graded/UNBIND_unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/UNBIND_TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/UNBIND_TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/UNBIND_TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/UNBIND_TK_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/BIND_unbound
+[       OK ] Table554/DiscoveryWalk.Graded/BIND_unbound (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/BIND_TK_NOT_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/BIND_TK_NOT_DISCOVERED (0 ms)
+[ RUN      ] Table554/DiscoveryWalk.Graded/BIND_TK_DISCOVERED
+[       OK ] Table554/DiscoveryWalk.Graded/BIND_TK_DISCOVERED (0 ms)
+[----------] 33 tests from Table554/DiscoveryWalk (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 127 tests from 4 test suites ran. (1 ms total)
+[  PASSED  ] 117 tests.
+[  FAILED  ] 10 tests, listed below:
+[  FAILED  ] ListenerScenario.LD3TheLockRefusalStatus
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_UNB, where GetParam() = (2, 0, false)
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PWA, where GetParam() = (2, 1, false)
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PWD, where GetParam() = (2, 2, false)
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PWR, where GetParam() = (2, 3, false)
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PW2, where GetParam() = (2, 4, false)
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_PWT, where GetParam() = (2, 5, false)
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_SNR, where GetParam() = (2, 6, false)
+[  FAILED  ] Table530/ListenerWalk.Graded/UNBIND_SOK, where GetParam() = (2, 7, false)
+[  FAILED  ] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc, where GetParam() = (8, 5, true)
+
+10 FAILED TESTS
+== ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 10 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 10 failure(s) across 127 checks, exit 1)
