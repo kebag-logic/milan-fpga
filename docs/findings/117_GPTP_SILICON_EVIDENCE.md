@@ -818,7 +818,7 @@ bench hosts; intervals come from the tap clock.*
 | | resulting stream state, three cycles with the CRF binding | PASS: one stream restart per return, every PDU after it with `tu=0`, and the peer's CRF listener locked again |
 | | reference peer's own recovery time | NOT RUN: the peer's own link was not captured |
 | 3. Publication words and `tu` are fabric-owned | steady state against the wire | PASS: every word agrees with the wire and the controller view over 300 s |
-| | transition, six losses and returns | PASS: each CSR edge follows its wire cause within one 0.25 s console sample, and the first `tu=1` CRF PDU lies in the interval where `CLKV_STAT[0]` rose |
+| | transition, six losses and returns | PASS under the [stated time base](#b19-method), for every admissible read-to-PHC offset (10.9 to 19.7 ms) and placement error. For the 24 graded CSR edges the wire cause or receipt timeout lies between the last read that showed the old value and the first read that showed the new one. In cycles 1 to 3 the first `tu=1` CRF PDU lies in the interval where `CLKV_STAT[0]` rose. Eleven of these 27 lie within 25 ms of a boundary, the closest by 0.66 ms; see [box 3](#box-3-publication-words-against-the-wire) |
 | 4. Protocol rows | la_avdecc counters probe, parity with the reference peer | PASS: identical transcripts, both CLEAN with 0 complaints |
 | | FRAMES_TX and FRAMES_RX per AVTPDU (#726, PR #729) | PASS: FRAMES_TX equals the CRF PDUs on the wire, and every talker and listener pair counts at the stream's packet rate |
 | | headless la_avdecc enumeration, three runs | PASS: `IEEE17221` and `MILAN` every run, 0 complaints and 0 query errors for the DUT |
@@ -864,6 +864,10 @@ Each action held the bench lock for its own window only.
   - Once a second the controller host reads GET_AVB_INFO and GET_COUNTERS of the DUT (AVB_INTERFACE 0, Stream Input 0, Stream Outputs 0 and 1, CLOCK_DOMAIN 0) and of the peer (AVB_INTERFACE 0, Stream Inputs 0 and 8, Stream Output 0, CLOCK_DOMAIN 0), and the ACMP state of every bound listener. It logs ADP and its own carrier every 0.1 s, and captures its own port.
   - Before and after each action the power strip is read; the switched outlet must change and nothing else.
 - **Time base for box 3.** Each `milan_status` sample prints the DUT PHC read with `CLKV_STAT`. Each DUT Pdelay_Resp_Follow_Up on the wire carries the DUT PHC at its response, which the tap stamps. A sample is placed on the tap clock through the nearest such response, at most 3 s away in PHC time. That placement disagreed with the cross-host clock offsets by 24 to 52 ms per action, so those offsets are used only to reject a pairing across a PHC step, and to move the few samples taken while the link was dark by the same action's measured error.
+  - **Read-to-PHC offset.** The placement gives the PHC read, time p. The status handler reads GM, parent, peer delay, path and `CLKV_STAT` first, prints two lines and only then reads the PHC (`sw/firmware/milan_baremetal/milan_baremetal.c:1896-1938`). So the publication words were read at p - d. The two lines are N = 271 or 272 bytes as sent, each newline going out as two bytes. The console sends one byte per 86.8 us (10 bits at the build's 115,200 baud, `configs/endstation_ax7101_1x1_tdm8.yaml:51`). Its LiteX driver (`a1e1c36`, the build's banner) stores up to 144 bytes before the handler blocks: a 128-entry software ring holding 127, a 16-deep hardware FIFO and its output register.
+  - **The offset's bounds.** At most 14 bytes were queued when the handler started: the echo of the command and its newline, since the poller sends a command only after reading the previous prompt. Then d is at least (N - 145) bytes, 10.9 ms. It is at most (14 + N - 143) bytes plus the record's idle time plus 1 ms of formatting, 16.5 to 19.7 ms per action. The idle time is bounded per record by its elapsed time less the time to send all its bytes; every one of the 2,880 records gave a non-negative value, as the baud model requires.
+  - **Placement error.** The DUT PHC ran 7.4 to 8.4 ppm from the tap clock over every pair of its Pdelay responses, so a sample placed through the PHC is off by at most 0.075 ms, rounding included. A sample placed by the calibrated offset also carries that offset's spread in the same action, at most 1.32 ms.
+  - **Criterion.** An edge seen between sample a (old value) and sample b (new value) happened between their reads. Its wire cause must lie after the latest admissible read of a and no later than the earliest admissible read of b, with no processing allowance. The first `tu=1` CRF PDU is an effect of the `CLKV_STAT[0]` rise, so it may trail the earliest read of b by one PDU period, 2 ms. The packet's `r2_box3_grade.py` applies it to every graded edge and fails on any breach; its 13 planted controls give their expected verdicts.
 - **Recovery** runs from the switch's first post-boot Announce on the DUT link to "all-good": the first placed sample from which GM is the switch with sync 1, asCapable 1 and `tu` 0 in every later sample.
 - **Tools.** Lane B1's runner, analyzer, console poller and controller agent, lane B18's identity and census tools, A202's turnaround script and A373's enumeration probe, adapted for paths, the stream set and the analyses above. Their hashes are in the packet's `tools/ORIGIN.sha256` and `MANIFEST.sha256`.
 
@@ -927,7 +931,9 @@ none came from 5 s until "on". The controller host's port lost carrier at
 Every other outlet read unchanged.
 
 Seconds after the "off" command; console times are DUT-PHC placements of
-the first sample showing the new value.
+the first sample showing the new value. Each sample's words were read 10.9
+to 19.7 ms before its PHC read (the box 3 time base), so every recovery
+below is shorter by that much; no grade moves.
 
 | Cycle | CRF binding | Off for | DUT sync 0, `tu` 1 | DUT GM = itself | DUT asCapable 0 | Switch first frame | Switch first Announce | DUT asCapable 1 | DUT GM = switch | DUT all-good | Recovery | 5 s bound |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
@@ -938,7 +944,7 @@ the first sample showing the new value.
 | 5 | no | 21.12 | 1.74 | 3.49 | 6.24 | 39.05 | 40.25 | 40.25 | 40.50 | 40.75 | **0.50** | PASS |
 | 6 | no | 21.18 | 1.47 | 3.47 | 6.22 | 38.99 | 40.26 | 40.24 | 40.49 | 40.74 | **0.47** | PASS |
 
-- **Loss.** Sync and `tu` went 0.15 to 0.59 s after the switch's last Sync, around the 375 ms receipt timeout. The DUT named itself grandmaster 2.78 to 3.26 s after the last Announce, the 3 s timeout. asCapable cleared 4.77 to 5.23 s after the last Pdelay response the DUT received.
+- **Loss.** Under the box 3 time base, the two reads that bracket each edge lie within these spans. Sync and `tu`: 0.13 to 0.58 s after the switch's last Sync, around the 375 ms receipt timeout. The DUT naming itself grandmaster: 2.76 to 3.25 s after the last Announce, the 3 s timeout. asCapable clearing: 4.75 to 5.22 s after the last Pdelay response the DUT received.
 - **Absent.** GM and parent `020000fffe000001`, path count 1, `SYNC=0`, `TU=1`, `RST_EPOCH` 1.
 - **Return.** In cycles 2 and 4 to 6 the DUT was asCapable before the switch's first Announce and adopted that Announce. In cycles 1 and 3 the first Announce came first, and the DUT adopted the next, 1.01 s later; that interval is the whole spread of the recovery times. Between asCapable and adoption the DUT sent 2 to 6 Syncs as master in five cycles, and in cycle 3 one Announce naming itself (priority1 248).
 - **Counters.** Per cycle the DUT's GPTP_GM_CHANGED rose by 2 and its LINK_UP and LINK_DOWN by 1 each; the peer's GPTP_GM_CHANGED rose by 2. `CLKV_TUCNT` rose by 40 to 42 per cycle, the 1 s intervals of a 38.8 to 40.3 s span with `tu=1`.
@@ -964,20 +970,47 @@ observation 12 records.
 
 | Transition | Console CSR | Wire cause, every cycle | Controller |
 |---|---|---|---|
-| Sync loss, `tu` 1 | `CLKV_STAT` sync 0, `tu` 1 and holdover set, in the interval 0.15 to 0.59 s after the cause | the switch's last Sync; in cycles 1 to 3 the first `tu=1` CRF PDU (1.462 to 1.545 s) lies inside the interval where `CLKV_STAT[0]` rose | inside the partition |
-| Grandmaster loss | GM and parent `020000fffe000001`, path generation +1, holdover set again, 2.78 to 3.26 s after the cause | the switch's last Announce | the first reachable GET_AVB_INFO names `020000fffe000001` in five cycles |
-| asCapable loss | `CLKV_STAT[16]` 0, 4.77 to 5.23 s after the cause | the last Pdelay response the DUT received | AS_CAPABLE clear at the first reachable poll in cycles 1, 2 and 5 |
-| asCapable return | `CLKV_STAT[16]` 1, peer delay 369 to 391 ns | the DUT's second completed Pdelay exchange lies inside the console interval in all six cycles | |
-| Grandmaster return | GM and parent `3cc0c6fffefe0210`, generation +1, holdover set, in the first sample 0.13 to 0.26 s after the cause | the Announce the DUT accepted; it lies inside the console interval in cycles 1, 2, 4 and 6, and 9.1 and 3.7 ms before the last sample still naming the DUT in cycles 3 and 5 | GET_AVB_INFO names the switch at the next poll; GPTP_GM_CHANGED +2 per cycle, one per CSR identity edge |
-| `tu` clear | `CLKV_STAT[0]` 0, one or two intervals after the adoption, the holdover of at least 0.25 s | in cycles 1 to 3 emission resumes 3.3 to 4.3 s later, every PDU `tu=0` | |
+| Sync loss, `tu` 1 | `CLKV_STAT` sync 0, `tu` 1 and holdover set, between reads 0.13 to 0.58 s after the switch's last Sync | the sync receipt timeout, the last Sync plus 0.375 s, lies inside the bracket in all six cycles; in cycles 1 to 3 the first `tu=1` CRF PDU (1.462 to 1.545 s) lies inside the interval where `CLKV_STAT[0]` rose | inside the partition |
+| Grandmaster loss | GM and parent `020000fffe000001`, path generation +1, holdover set again, between reads 2.76 to 3.25 s after the switch's last Announce | the announce receipt timeout, the last Announce plus 3 s, lies inside the bracket in all six cycles | the first reachable GET_AVB_INFO names `020000fffe000001` in five cycles |
+| asCapable loss | `CLKV_STAT[16]` 0, between reads 4.75 to 5.22 s after the cause | the last Pdelay response the DUT received; no single wire instant, so not graded to one bracket | AS_CAPABLE clear at the first reachable poll in cycles 1, 2 and 5 |
+| asCapable return | `CLKV_STAT[16]` 1, peer delay 369 to 391 ns | the DUT's second completed Pdelay exchange lies inside the bracket in all six cycles | |
+| Grandmaster return | GM and parent `3cc0c6fffefe0210`, generation +1, holdover set, in the first sample, read 0.12 to 0.25 s after the cause | the Announce the DUT accepted lies inside the bracket in all six cycles. At the PHC read without the offset it fell 9.1 and 3.7 ms before the last sample still naming the DUT in cycles 3 and 5 | GET_AVB_INFO names the switch at the next poll; GPTP_GM_CHANGED +2 per cycle, one per CSR identity edge |
+| `tu` clear | `CLKV_STAT[0]` 0, one or two intervals after the adoption; the two brackets allow a holdover of 0.25 s or more in all six cycles | in cycles 1 to 3 emission resumes 3.3 to 4.3 s later, every PDU `tu=0` | |
 | `tu` intervals | `CLKV_TUCNT` +40 to +42 per cycle | | |
 
-Verdict: PASS. Every loss edge and every return edge lies in the console
-interval that holds its wire cause or its receipt timeout. The adoption of
-the switch shows in the first sample 0.13 to 0.26 s after the accepted
-Announce, a few milliseconds of processing included. 2,099 of 2,880 samples
-were placed through the DUT PHC and the rest by the calibrated offset. No
-DUT CSR was written.
+Verdict: PASS, from the grader's output (`round2/box3-grade.json`). All 27
+graded edges meet the [stated criterion](#b19-method): six each of sync
+loss, grandmaster loss, asCapable return and grandmaster return, and the
+first `tu=1` CRF PDU in cycles 1 to 3. Without the read-to-PHC offset, three
+edges fell outside their brackets: the cycle 1 grandmaster loss by 10.2 ms,
+and the cycle 3 and 5 grandmaster returns by 9.1 and 3.7 ms. The offset of at
+least 10.9 ms places all three inside, with no processing allowance. 2,099 of
+2,880 samples were placed through the DUT PHC and the rest by the calibrated
+offset. No DUT CSR was written.
+
+The eleven edges within 25 ms of a bracket boundary, closest first. A lower
+margin is the cause's lead over the latest admissible read of the last old
+sample. An upper margin is the earliest admissible read of the first new
+sample's lead over the cause.
+
+| Cycle | Edge | Cause (s) | Bracket at the PHC read (s) | Placement | Binding margin (ms) | Without the offset (ms) |
+|---:|---|---:|---|---|---|---|
+| 1 | grandmaster loss | 3.4734 | 3.4836 to 3.7338 | PHC, then calibrated | lower 0.66 | lower -10.2 |
+| 3 | grandmaster return | 41.2436 | 41.2527 to 41.5027 | PHC | lower 1.76 | lower -9.1 |
+| 4 | grandmaster loss | 3.7232 | 3.4989 to 3.7489 | PHC | upper 6.94 | upper 25.7 |
+| 3 | sync loss | 1.4614 | 1.2358 to 1.4858 | PHC | upper 7.06 | upper 24.4 |
+| 5 | grandmaster return | 40.2482 | 40.2519 to 40.5020 | PHC | lower 7.16 | lower -3.7 |
+| 3 | first `tu=1` CRF PDU | 1.4615 | 1.2358 to 1.4858 | PHC | upper 8.96, with the 2 ms PDU allowance | upper 24.3 |
+| 6 | sync loss | 1.4407 | 1.2195 to 1.4697 | PHC | upper 9.18 | upper 29.0 |
+| 4 | asCapable return | 39.9852 | 39.7639 to 40.0140 | PHC | upper 10.04 | upper 28.8 |
+| 6 | asCapable return | 39.9896 | 39.9875 to 40.2376 | PHC | lower 13.05 | lower 2.1 |
+| 5 | grandmaster loss | 3.4542 | 3.2361 to 3.4863 | PHC | upper 14.68 | upper 32.1 |
+| 4 | grandmaster return | 40.2691 | 40.2641 to 40.5141 | PHC | lower 15.86 | lower 5.0 |
+
+The closest, the cycle 1 grandmaster loss, holds by 0.66 ms only because d is
+at least 10.9 ms. That lower bound rests on the console's 144-byte store. A
+store more than 7 bytes larger would breach it. The other 26 edges hold by
+1.76 ms or more.
 
 ### B19: box 4 protocol rows
 
