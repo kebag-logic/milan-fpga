@@ -30,6 +30,12 @@ The suite driver's owned Makefiles are checked too.
 Commands match complete argument patterns or bounded handlers.
 Unknown names, subcommands and argument forms refuse generation.
 Installers require an explicit tool and pin reader.
+A step's `PIP_CONSTRAINT` is read only as `${{ github.workspace }}/<file>`, a checkout file.
+Each of its lines must be an exact `name @ URL#sha256=` archive.
+It pins an unpinned request, as pip does, and must agree with a pinned one; any other form refuses.
+A package cache directory on `apt-get install` changes where archives are kept, not what installs.
+`ci_install_cache.py` downloads, without installing, what the next step installs; that step's request names them.
+`python3 -m venv DIR` requests nothing: the environment holds the interpreter's bundled pip.
 Python capability detection precedes argument decoding.
 Literal keyword dictionaries and function aliases remain classified.
 Execution-capable or network-using Python scripts require reviewed declarations.
@@ -98,6 +104,8 @@ The remaining limits are named boundaries, each closed by construction:
   A file changed and restored between two looks is not reported.
 - An exec target is judged when its call is notified, before the call looks it up again.
   A file replaced between the two looks is not reported.
+- An interpreter's script is judged when its exec is notified, before the interpreter opens it.
+  A job-written file replaced between the two is not reported.
 - Runtime assembly in declared scripts is located residue, never a resolved command.
 
 ## Reached construct census
@@ -106,7 +114,9 @@ Round five retains the `e6b86814` tool requests.
 The census follows scripts, local imports and suite recipes.
 The initial census encountered 69 Makefiles and 214 import names.
 The generated inventory records every followed input digest.
-All 45 tool records retain their original pins and provenance.
+All 45 earlier tool requests keep their pins; their provenance follows the merged workflows.
+The CI constraints file pins the earlier unpinned PyYAML and behave requests, as pip does.
+The evidence reader's hashed PyYAML request is a 46th record with the same pin.
 The command table records individual permitted argument forms.
 This table defines the construct boundary, including refused variants.
 Resolution never executes workflow commands or Make shell expressions.
@@ -123,6 +133,7 @@ Resolution never executes workflow commands or Make shell expressions.
 | Shell command and process substitution | `syn/yosys/malloc.sh` | Walk child scope; only exact unredirected shapes yield a value; other output is runtime. |
 | Shell directory changes and subshells | `scripts/run_litex_sims.sh` | Preserve child scope; unresolved directories require content-pinned review. |
 | Shell blocks and conditionals | `.github/workflows/docs.yml` | Join every reachable branch; refuse differing directories. |
+| Shell `[[ ]]` tests | `scripts/run_all_suites.sh` | Decide nothing; walk their words; refuse arithmetic comparisons. |
 | Shell loops and cases | `sw/litex/patches/apply.sh` | Walk bodies to a fixed point; join `break` and `continue` states. |
 | Shell declarations and functions | `scripts/run_all_suites.sh` | Restore locals on every exit; a function name is never a command. |
 | Shell sourced files | `syn/yosys/run.sh` | Follow exact censused calls in caller scope; refuse other calls and computed paths. |
@@ -132,17 +143,20 @@ Resolution never executes workflow commands or Make shell expressions.
 | Make first target and default goal | `tb/verilator/tcam/Makefile` | Use literal default goal; refuse computed goals. |
 | Make explicit rules and prerequisites | `tb/verilator/cbs/Makefile` | Traverse selected dependencies; refuse missing targets and applicable built-in rules. |
 | Make single-stem pattern rules | `tb/verilator/nvm_backend/Makefile` | Match file names with their directory, as make does; refuse ambiguous patterns. |
+| Make static pattern rules | `tb/verilator/milan_dp/Makefile` | One explicit rule per listed target, with its own `$*` stem; refuse unmatched targets. |
 | Make variable assignment and expansion | `tb/verilator/milan_dp/Makefile` | Read only column-zero assignments with censused operators; refuse other spellings. |
+| Make computed names and escaped `#` | `tb/verilator/milan_dp/Makefile` | Expand a reference's name first; one backslash quotes `#`; refuse longer runs. |
+| Make expansion lines and `eval` | `tb/verilator/milan_dp/Makefile` | A whole-line `foreach` or `eval` expands to nothing; `eval` sets one literal assignment; refuse it elsewhere. |
 | Make multiline definitions and calls | `tb/verilator/milan_dp/Makefile` | Expand declared macros and literal call arguments; refuse undefined macros. |
 | Make automatic variables | `tb/verilator/nvm_backend/Makefile` | Implicit prerequisites come first, as in make; refuse directory/file modifiers. |
 | Make string and list functions | `tb/verilator/nvm_backend/Makefile` | Resolve `foreach`, `call`, `subst`, `patsubst`, filters and prefixes. |
-| Make path and selection functions | `tb/verilator/milan_dp/Makefile` | Resolve `abspath`, `wildcard`, `firstword`, `strip`, `if`, `and`. |
+| Make path and selection functions | `tb/verilator/milan_dp/Makefile` | Resolve `abspath`, `wildcard`, `firstword`, `strip`, `if`, `and`, `or`. |
 | Make literal shell expressions | `tb/verilator/milan_dp/Makefile` | Classify expanded literal commands; refuse computed executables. |
 | Make conditions and errors | `tb/verilator/capture_coherence/Makefile` | Inspect error-only guards; refuse conditional assignments and other directives. |
 | Make target-specific variables | `tb/verilator/milan_dp/Makefile` | Literal `=` and `:=` for exact targets; refuse command-line collisions. |
 | Make order-only prerequisites | `tb/verilator/mbx/Makefile` | Traverse both classes; exclude order-only entries from automatic variables. |
 | Make recursive invocations | `tb/verilator/milan_dp/Makefile` | Pass flags and command-line variables through `MAKEFLAGS`, as make does. |
-| Make recipe environment | `tb/verilator/maap/integration.mk` | Export inherited and command-line names at their current values, as make does. |
+| Make recipe environment | `tb/verilator/maap/integration.mk` | Export inherited and command-line names at their current values; a runner-substituted value passes unchanged, as make does. |
 | Python imports and local modules | `scripts/check_nvm_capture.py` | Follow every in-tree portion on the search path; several are alternatives. |
 | Python search-path insertions | `sw/firmware/gtest/fw_rv32_selftest.py` | Resolve literal entries, imported constants and call arguments; open the path otherwise. |
 | Python module loaders | `sw/builder/endstation_builder.py` | Follow literal `runpy` and file-location targets; runtime targets are declared capabilities. |
@@ -155,6 +169,8 @@ Its `shapes` section is the differential census below.
 Unknown nodes and fields refuse before command classification.
 The command table separately bounds executable options and subcommands.
 Typed HDL operands accept data paths, never command options.
+A fixed program's data slot takes one literal file, never an option or a runtime word.
+So the table records the program, not the host file it reads.
 Source-list contents remain owned by their reached recipes.
 
 Environment-changing forms require exact source-bound syntax declarations.
@@ -532,16 +548,26 @@ The logs keep every instance as one JSON line.
 These fields are the interface the follow-up PR's signed replay consumes.
 
 [`audit_population.py`](../../ci/image/audit_population.py) traces the reached population.
-That is every run step of the `docs-check` job and of every rtl-fast job.
-Each runs as the hosted runner runs it, from a clean checkout per job.
+That is every run step of the docs gate legs and their `docs-check` union job.
+It is also every run step of the rtl-fast jobs, and of the elaboration legs and their `elaborate` union job.
+The `ci-manifest`, `ci-fail-fast` and `ci-cancel-tail` jobs observe and cancel runs through the GitHub API.
+They need the network by design; the reconciliation names their steps, untraced.
+Each step runs as the hosted runner runs it, from a clean checkout per job.
 The runner context, `GITHUB_PATH` and `GITHUB_ENV` carry between a job's steps.
+A later step reads the `steps` context: each earlier step's outcome and outputs.
+A later job reads the `needs` context: each needed job's result and outputs.
+An uploaded artifact is what a later job of the same workflow downloads, by name or pattern.
+Each upload and download is recorded, and a failed one makes the receipt unclean.
 An installation or fetch step the image replaces runs in its recorded image form.
+The job-private Python environment is the image's Python layer, as the documented adoption has it.
+The LiteX placement step runs `ci_litex_env.py --check`, and the patch series runs as committed.
 A cache-miss build step the image replaces is named in the reconciliation.
 The receipt records source and image identity, every step's result, and the reconciliation.
 Each job inherits the image's environment, as a job container does.
 The rtl-fast jobs run as uid 1000, since a synthesis self-test refuses root.
-The `docs-check` job runs as the image's default user, root.
-A merge combines the two receipts, refusing differing sources or images.
+The docs and elaboration jobs run as the image's default user, root.
+The patch series rewrites the image's LiteX tree, which only root may write.
+A merge combines the receipts, refusing differing sources or images.
 
 ```sh
 docker run --rm --network none --user 1000:1000 \
@@ -553,7 +579,7 @@ docker run --rm --network none \
   --mount "type=bind,src=$DOCS_CHECKOUT,dst=/work" --mount "type=bind,src=$IMAGE_WORK,dst=/out" \
   -e TMPDIR=/out/scratch --workdir /work "$IMAGE_REFERENCE" \
   python3 ci/image/audit_population.py --image "$IMAGE_DIGEST" --base "$BASE_COMMIT" \
-  --output /out/docs.json --logs /out/docs-logs --only docs-check
+  --output /out/docs.json --logs /out/docs-logs --only $DOCS_AND_ELABORATION_JOBS
 python3 ci/image/audit_population.py --merge "$IMAGE_WORK/rtl.json" "$IMAGE_WORK/docs.json" \
   --commands $GATE_COMMAND_LISTS --merge-logs "$IMAGE_WORK/rtl-logs" "$IMAGE_WORK/docs-logs" \
   --output ci/image/exec-audit-receipt.json
