@@ -1070,8 +1070,11 @@ No cause is assigned to these.
 
 The private bench packet `117-b19-a624` holds every tool, per-action event
 log, analysis and summary, with `MANIFEST.sha256`. Its `RAW-ARTIFACTS.json`
-lists all 151 raw files (108,011,178 bytes) by size and SHA-256. The 54
-over 200,000 bytes are kept outside it in the operator's cold storage.
+lists all 151 raw files (108,011,178 bytes) by size and SHA-256. All 151,
+the 54 over 200,000 bytes included, are in the project's durable cold
+archive. The [manager's receipt](https://github.com/kebag-logic/milan-fpga/pull/751#issuecomment-6208612856)
+re-verified every SHA-256 at the retained location: 151 equal, 0 differ,
+0 missing. Every large-file row below is one of those 54.
 
 | Artifact | Bytes | SHA-256 |
 |---|---:|---|

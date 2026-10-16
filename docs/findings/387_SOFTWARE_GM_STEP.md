@@ -499,9 +499,11 @@ These are recorded without a verdict.
 
 ### B19: artifact hashes
 
-The raw files are in the private bench packet `117-b19-a624`
-(`RAW-ARTIFACTS.json`, sizes and SHA-256). Files over 200,000 bytes are
-kept outside it in the operator's cold storage.
+The raw files are listed in the private bench packet `117-b19-a624`
+(`RAW-ARTIFACTS.json`, sizes and SHA-256). All 151, the files over 200,000
+bytes included, are in the project's durable cold archive. The
+[manager's receipt](https://github.com/kebag-logic/milan-fpga/pull/751#issuecomment-6208612856)
+re-verified every SHA-256 there: 151 equal, 0 differ, 0 missing.
 
 | Item | SHA-256 |
 |---|---|
