@@ -1,0 +1,11 @@
+# F4 receipts: where the 54 large raws are
+## page text
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:1038:over 200,000 bytes are kept outside it in the operator's cold storage.
+docs/findings/387_SOFTWARE_GM_STEP.md:306:Raw captures are retained in private cold storage, keyed by the SHA-256 values in the table below.
+docs/findings/387_SOFTWARE_GM_STEP.md:476:kept outside it in the operator's cold storage.
+## published packet RAW-ARTIFACTS.json note
+Raw files kept outside the packet under /tmp/a624/raw (not copied when over 200,000 bytes). Each action's small files are also in bench/<action>/ (firstreach: bench/firstreach/).
+files 151 over 200000 B 54 path prefixes ['/tmp/a624', '/tmp/a624/raw']
+## HANDOFF.md
+8:- Packet: this directory. Large raw captures stay under /tmp/a624/raw (listed in RAW-ARTIFACTS.json); private endpoints under /tmp/a624/priv (not in the packet).
+162:| RAW-ARTIFACTS.json | all 151 raw files (108,011,178 bytes) by path, size and SHA-256; the 54 over 200 KB stay under /tmp/a624/raw |

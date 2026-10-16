@@ -1,0 +1,19 @@
+# F5 receipts: the software grandmaster's clock identity
+## committed page line (exact head)
+445:The takeover Announce named <16-hex-digit identity withheld; present at this head>, priority1 240, stepsRemoved
+## the published packet replaces that identity with a host placeholder in:
+bench/gm01/analysis.json
+bench/gm02/analysis.json
+bench/gm03/analysis.json
+bench/gm04/analysis.json
+bench/gm05/analysis.json
+summary/gm-steps.json
+## and the same identity is NOT present in those redacted files (count):
+0
+## at the base, docs/ carries no instance of it:
+0
+## related controller identifiers already in tracked non-doc files at the base:
+tb/tools/avdecc_ctl.py
+tb/verilator/milan_dp/reference/stream_output_counters_response.hex
+tb/verilator/milan_dp/sim_gmstep.cpp
+tb/verilator/tsn_fuzz/wire.py

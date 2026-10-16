@@ -1,0 +1,11 @@
+baseline (published analyses)                              PASS 10/10 failing []
+mutant: console sample asCapable 0                         PASS 9/10 failing [('gm03', 'takeover', False, ['no_ascapable_loss'])]
+mutant: second console tu episode                          PASS 9/10 failing [('gm03', 'takeover', False, ['one_tu'])]
+mutant: GPTP_GM_CHANGED +2                                 PASS 9/10 failing [('gm03', 'takeover', False, ['one_gm_changed'])]
+mutant: DUT CRF mr toggle                                  PASS 8/10 failing [('gm03', 'takeover', False, ['no_mr_change']), ('gm03', 'release', False, ['no_mr_change'])]
+mutant: peer CRF MEDIA_UNLOCKED +1                         PASS 9/10 failing [('gm03', 'takeover', False, ['no_listener_unlock'])]
+mutant: controller poll asCapable 0 (field the grader never reads) PASS 10/10 failing []
+restored                                                   PASS 10/10 failing []
+gm-steps.md reproduced byte-identical
+gm-steps.json equal to published (redacted) copy: True
+B19 page per-step rows 10 reproduced tool rows 10 byte-equal (after 3.55->3.550 print width) 10
