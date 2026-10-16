@@ -285,6 +285,11 @@ def interpreter_programs(step: Step, base: Path) -> None:
             ("printf 'print(4)\\n' | python3", "unpinned streamed program: python3.12", "print(4)\n")):
         report = step(f"an unlisted program text is refused: {command}", f"{command} >/dev/null", expect)
         assert [f.get("sha256") for f in report["findings"]] == [text_digest(text)], (command, report["findings"])
+    step("an exact version query runs no program", "python3 --version && python3 -V && node --version && "
+         "node -v && printf 'print(5)\\n' | python3 --version >/dev/null", None)
+    report = step("a version flag with a program is judged by its program",
+                  "python3 --version -c 'print(6)' >/dev/null", "unpinned inline program: python3.12")
+    assert [f.get("sha256") for f in report["findings"]] == [text_digest("print(6)")], report["findings"]
     step("pinned Perl, Node and Tcl texts are accepted",
          "perl -le 'print q(pinned-perl)' && node -e 'console.log(\"pinned-node\")' && "
          "printf 'puts pinned-tcl\\n' | tclsh8.6", None)

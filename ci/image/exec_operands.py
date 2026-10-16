@@ -241,6 +241,10 @@ READERS = {"shell": shell_operands, "python": python_operands, "perl": perl_oper
            "tclsh": tcl_operands}
 
 
+#: The exact argument vectors with which an interpreter prints its version and runs nothing else.
+VERSION_QUERIES = {"python": (["--version"], ["-V"]), "node": (["--version"], ["-v"])}
+
+
 def operands(family: str, words: list[str]) -> dict[str, object]:
     """What an interpreter runs: `script`, `inline`, `module`, `stream` or `refused`, with its text, module
     and operands."""
@@ -269,6 +273,9 @@ def invocation(instance: dict[str, object]) -> dict[str, object]:
     family = instance.get("family")
     words = list(instance["argv"])
     if family is None:
+        return {"kind": "program", "name": base, "path": program, "args": words[1:]}
+    if words[1:] in VERSION_QUERIES.get(str(family), ()):
+        # The interpreter prints its version and exits, before it reads any program or stdin.
         return {"kind": "program", "name": base, "path": program, "args": words[1:]}
     read = operands(str(family), words)
     kind, rest = read["kind"], list(read["rest"])
