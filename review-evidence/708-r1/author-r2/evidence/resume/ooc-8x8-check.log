@@ -1,0 +1,21 @@
+endpoint ooc-8x8: $VALIDATION_STORAGE/708-a585/meas/cand2/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              30135       30211        76  ok
+FF               27380       27451        71  ok
+RAMB36              21          21         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp: LUT +76, FF +71
+  wrapper: LUT +76, FF +71
+  u_pp/u_aecp/u_resp: LUT -88, FF +0
+  u_pp/u_srp: LUT +84, FF +0
+  u_pp/u_listener: LUT +65, FF +8
+  u_pp/u_talker: LUT -62, FF +0
+  u_pp/u_srp/u_listener: LUT +57, FF +0
+  u_pp/u_notify: LUT +13, FF +18
+  u_pp/u_originator: LUT -26, FF +0
+  u_pp/u_aecp/u_ucpu: LUT -21, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT +21, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT -20, FF +0
+RESULT: PASS
