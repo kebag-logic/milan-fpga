@@ -287,6 +287,11 @@ read as the presence of one.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
      python3 sw/builder/test_builder.py --require-elaboration   (the CI job)
+     python3 sw/builder/test_builder.py --list   (the ordered gate inventory)
+     python3 sw/builder/test_builder.py --gates a,b --receipt r.json   (one leg)
+The hosted elaboration job runs its gates in measured legs, and
+scripts/ci_builder_legs.py judges --require-elaboration and --require-rv32
+on their union.
 """
 
 from __future__ import annotations
@@ -28834,9 +28839,11 @@ def test_boot_policy_follows_the_declaration() -> None:
 
 def test_nvm_firmware_shapes() -> None:
     """Compile and grade the saved-state writer for every generated shape."""
+    # A hosted runner took 594 s before #671's generated read-fault windows;
+    # the larger campaign needs room beyond the former 600 s limit.
     subprocess.run(
         [sys.executable, str(ROOT / "sw/firmware/nvm_hosttest/test_nvm_firmware.py"),
-         "--self-test"], check=True, cwd=ROOT, timeout=600)
+         "--self-test"], check=True, cwd=ROOT, timeout=1200)
 
 
 def test_soc_option_refusals() -> None:
@@ -29148,7 +29155,37 @@ if __name__ == "__main__":
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
         sys.exit(0)
-    for fn in (test_soc_option_refusals, test_commercial_timing_grade,
+
+    def _gate_run_list(bank: dict[str, list[str]],
+                       gates: tuple[Callable[[], None], ...]) -> list[Callable[[], None]]:
+        """The run list's gates to run, in its order (#737).
+
+        `--list` prints the ordered inventory and exits; `--gates a,b` runs
+        that subsequence; with neither, every gate runs, as before.  `bank`
+        keeps the inventory and the selection for `--receipt`, which records
+        each gate's verdict and the NOT RUN rows it added, so that legs run
+        in separate hosted jobs can be proved equal to one unsharded run.
+        """
+        names = [gate.__name__ for gate in gates]
+        if "--list" in sys.argv:
+            print(json.dumps(names))
+            sys.exit(0)
+        chosen = names
+        if "--gates" in sys.argv:
+            at = sys.argv.index("--gates") + 1
+            chosen = sys.argv[at].split(",") if at < len(sys.argv) else []
+            # Inventory order only: a leg is a subsequence of the unsharded run.
+            if not chosen or [name for name in names if name in chosen] != chosen:
+                sys.exit(f"--gates: {chosen!r} is not distinct inventory names "
+                         "in inventory order (see --list)")
+        bank.update(inventory=names, selected=chosen)
+        return [gate for gate in gates if gate.__name__ in chosen]
+
+    receipt = (sys.argv[sys.argv.index("--receipt") + 1]
+               if "--receipt" in sys.argv else None)
+    bank: dict[str, list[str]] = {}
+    ledger = []
+    for fn in _gate_run_list(bank, (test_soc_option_refusals, test_commercial_timing_grade,
                test_baremetal_clock_contract, test_rom_clock_contract, test_rom_clock_skip_reaches_the_ledger,
                test_extra_sweep_clocks, test_tap_clock_docs,
                test_sim_clock, test_extra_sweep_invocation, test_builder_clock_source,
@@ -29231,9 +29268,20 @@ if __name__ == "__main__":
                test_soc_shipping_image_contract, test_shipping_image_contract_presence,
                test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device,
-               test_name_count_fits_the_nvm_name_block):
+               test_name_count_fits_the_nvm_name_block)):
         print(f"{fn.__name__}:")
+        before = len(SKIPPED)
         fn()
+        ledger.append({"gate": fn.__name__, "verdict": "pass",
+                       "not_run": [list(row) for row in SKIPPED[before:]]})
+    # A leg holding no elaboration gate would pass --require-elaboration
+    # vacuously, so a subset's verdict says so and leaves both requirements
+    # to the union of the legs (scripts/ci_builder_legs.py).
+    if bank["selected"] != bank["inventory"]:
+        print(f"\nSUBSET: {len(bank['selected'])} of {len(bank['inventory'])} "
+              "gates ran; this verdict covers only them, and "
+              "--require-elaboration and --require-rv32 are judged on the "
+              "union of the legs")
     # The verdict names what did not run.  Printing SKIP inside a gate and
     # then printing ALL GATES PASS here is how a reviewer severed the
     # --fabric-gptp chain at two hops and read a green both times (#154).
@@ -29249,5 +29297,16 @@ if __name__ == "__main__":
     # elaborate from reporting a green when its LiteX install broke.  Rows a
     # gate declined for a recorded reason still pass; "there is no LiteX
     # here" and "this VexiiRiscv is unpatched" do not.
-    if "--require-elaboration" in sys.argv:
-        sys.exit(_require_elaboration_verdict(SKIPPED))
+    required = [flag for flag in ("--require-elaboration", "--require-rv32")
+                if flag in sys.argv]
+    status = (_require_elaboration_verdict(SKIPPED)
+              if "--require-elaboration" in required else None)
+    # Written only after every selected gate returned: a gate that raised
+    # leaves no receipt, and a union missing a leg's receipt refuses.
+    if receipt is not None:
+        with open(receipt, "x", encoding="utf-8") as stream:
+            json.dump({**bank, "requirements": required, "gates": ledger,
+                       "require_elaboration": status}, stream)
+            stream.write("\n")
+    if status is not None:
+        sys.exit(status)

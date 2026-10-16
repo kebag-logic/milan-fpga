@@ -35,8 +35,10 @@ APP_ACMP_THEN_MAAP = ("\tif (cfg->acmp != NULL &&\n"
                       "\t    (!acmp_mbx_init(&app->acmp, cfg->acmp, cfg->acmp_env, CTRL_APP_ACMP_FIRST_SLOT) ||\n"
                       "\t     !acmp_mbx_attach(&app->acmp, &app->loop))) {\n\t\treturn false;\n\t}\n"
                       "\treturn cfg->maap_allocation == NULL || maap_compose(app, cfg);\n")
-MAAP_INIT = ("\treturn maap_mbx_init(&app->maap, mac, count, CTRL_APP_MAAP_FIRST_SLOT, cfg->maap_allocation, "
-             "cfg->maap_ctx) &&\n\t       maap_mbx_attach(&app->maap, &app->loop);\n")
+MAAP_INIT = ("\tif (!maap_mbx_init(&app->maap, mac, count, CTRL_APP_MAAP_FIRST_SLOT, cfg->maap_allocation, "
+             "cfg->maap_ctx)) {\n\t\treturn false;\n\t}\n"
+             "\tmaap_mbx_bind_acmp(&app->maap, cfg->acmp != NULL ? &app->acmp.acmp : NULL);\n"
+             "\treturn maap_mbx_attach(&app->maap, &app->loop);\n")
 U6 = "AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen"
 U7 = "AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened"
 F6 = "AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound"
@@ -362,8 +364,8 @@ MUTANTS = (
            "\t\tacmp_mbx_attach(&app->acmp, &app->loop));\n",
            "acmp", U6, "U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll",
            (("acmp", U7, "U7 before MAAP attaches"),)),
-    Mutant("app-maap-started-in-compose", APP, "\t       maap_mbx_attach(&app->maap, &app->loop);\n}",
-           "\t       maap_mbx_attach(&app->maap, &app->loop) && maap_mbx_start(&app->maap, preferred);\n}",
+    Mutant("app-maap-started-in-compose", APP, "\treturn maap_mbx_attach(&app->maap, &app->loop);\n}",
+           "\treturn maap_mbx_attach(&app->maap, &app->loop) && maap_mbx_start(&app->maap, preferred);\n}",
            "acmp", U6, "U6 composing the three touches no mailbox register"),
     Mutant("app-maap-never-started", APP, "\t\t(void)maap_mbx_start(&app->maap, cfg->maap_preferred);\n", "",
            "acmp", U6, "U6 MAAP probes from the open", (("maap", EXPLICIT, ""),)),

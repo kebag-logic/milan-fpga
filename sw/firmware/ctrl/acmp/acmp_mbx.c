@@ -99,7 +99,10 @@ bool acmp_mbx_init(struct acmp_mbx *m, const struct acmp_config *cfg, const stru
 	for (unsigned k = 0; k < MBX_N_IF; ++k) {
 		m->ifs[k].slot = (uint8_t)(first_slot + k);
 	}
-	return acmp_init(&m->acmp, cfg, &m->ports, env);
+	struct acmp_config config = *cfg;
+	// Milan v1.2 4.3.3.1: the mailbox placement uses T-SRP-DAFRESH.
+	config.da_fresh_ms = 15000u;
+	return acmp_init(&m->acmp, &config, &m->ports, env);
 }
 
 static void on_frame(void *ctx, const struct mbx_frame *f)

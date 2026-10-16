@@ -64,10 +64,12 @@ TOP_LEVEL_SUFFIXES = [".md"]
 #: policy to the area budget's table. The mailbox contract generator's
 #: --check compares its reference page with what it emits (#665 F0). The
 #: split control memory test (elaborate's LiteX aggregate) holds its rule
-#: table to ctrl_memory.RULES (#640).
+#: table to ctrl_memory.RULES (#640). ctrl_service_bounds.py (firmware-unit)
+#: checks the mailbox service figures against compiled headers (#665 F3b).
 GATE_READ_DOCS = [
     "docs/AAF_LATENCY_TAPS.md",
     "docs/design/AREA_BUDGET.md",
+    "docs/design/MAILBOX_SPLIT.md",
     "docs/design/SPLIT_CONTROL_MEMORY.md",
     "docs/reference/MAILBOX_CONTRACT.md",
     "docs/reference/REGISTER_MAP.md",
@@ -287,6 +289,8 @@ def _cases() -> list[Case]:
         (["docs/design/AREA_BUDGET.md"], True),
         # The page the mailbox contract generator's --check compares (#665).
         (["docs/reference/MAILBOX_CONTRACT.md"], True),
+        # The page whose service figures ctrl_service_bounds.py reads (#665).
+        (["docs/design/MAILBOX_SPLIT.md"], True),
         # The page whose rule table the split control memory test reads (#640).
         (["docs/design/SPLIT_CONTROL_MEMORY.md"], True),
         # Under docs/, a generator, a manifest, a budget or other non-prose.

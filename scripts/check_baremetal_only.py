@@ -53,7 +53,10 @@ R. retired target RUNTIME/service surface: the former helper services and
    example are masked only in their exact host-tool files. The act runner's
    host process inventory and its policy paragraph have literal, file-pinned
    masks under #376's recorded host-tooling decision, and so does the
-   runner's one build-host cgroup-mount root (#532).
+   runner's one build-host cgroup-mount root (#532). #744's build-host memory
+   reads (the runner's mount table and fixtures, the census budget step in its
+   generator, generated workflow and self-test) are declared as whole lines in
+   ``HOST_MEMORY_READS``, each masked only inside its exact line and file.
 P. retired PRODUCT PATH: a tracked first-party path itself cannot retain an
    OS tree, target service, host-audio plane or retired target-driver-tree
    name while carrying clean (or binary) contents. Path scanning uses the
@@ -461,6 +464,58 @@ HOST_RUNTIME_MASKS = {
         r'|(?<=print\("\[FAIL\] these arms need  )/proc'
         r'(?= and os\.pidfd_open; nothing was run"\))'),
 }
+
+# #744: the act slot's OOM accounting and the census
+# worker bound read the BUILD HOST's memory files, never the product target's:
+# the runner's mount table and its fixtures, and the census budget step's
+# MemTotal, its own cgroup and each memory.max above it, in the generator, the
+# workflow generated from it and its self-test. Each line is declared whole, in
+# its one file. A path is masked only inside its exact line, so any other path
+# or runtime word in the same file, a line with text before or after it, and the
+# same line in another file or a product document are still refused.
+HOST_MEMORY_READS = {
+    "scripts/act_ci.py": (
+        'PROC_MOUNTS = pathlib.Path("/proc/self/mounts")',
+        '    "proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0\\n"',
+        '    "cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate,"',
+        '        ("low 0\\nmax 0\\noom 0\\noom_kill 0\\n", "proc /proc proc rw 0 0\\n",',
+        '         "no cgroup2 hierarchy at the cgroup root", "0 cgroup2 mount(s) at /sys/fs/cgroup"),',
+    ),
+    "scripts/ci_runtime_workflows.py": (
+        'kib="$(awk \'$1 == "MemTotal:" && $3 == "kB" { print $2 }\' /proc/meminfo)"',
+        'cgroup="/sys/fs/cgroup$(sed -n \'s/^0:://p\' /proc/self/cgroup)"',
+        '  if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi',
+    ),
+    ".github/workflows/rtl-fast.yml": (
+        '          kib="$(awk \'$1 == "MemTotal:" && $3 == "kB" { print $2 }\' /proc/meminfo)"',
+        '          cgroup="/sys/fs/cgroup$(sed -n \'s/^0:://p\' /proc/self/cgroup)"',
+        '            if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi',
+    ),
+    "scripts/ci_gate_workflows_selftest.py": (
+        '    for real, planted, count in (("/proc/meminfo", root / "meminfo", 1),',
+        '                                 ("/proc/self/cgroup", root / "self-cgroup", 1),',
+        '                                 ("/sys/fs/cgroup", root / "sys", 2)):',
+    ),
+}
+
+
+def declared_line_mask(lines: tuple[str, ...]) -> str:
+    """Each target path in each declared line, bound to the whole line around it."""
+    return "|".join(
+        f"(?<=^{re.escape(line[:m.start()])}){re.escape(m.group(0))}(?={re.escape(line[m.end():])}$)"
+        for line in lines for m in TARGET_OS_PATH_RE.finditer(line))
+
+
+def with_declared_lines(masks: dict[str, re.Pattern], declared: dict[str, tuple[str, ...]]) -> dict[str, re.Pattern]:
+    """`masks`, each declared file's expression extended by its declared lines."""
+    merged = dict(masks)
+    for path, lines in declared.items():
+        known = merged.get(path)
+        merged[path] = re.compile(("" if known is None else known.pattern + "|") + declared_line_mask(lines))
+    return merged
+
+
+HOST_RUNTIME_MASKS = with_declared_lines(HOST_RUNTIME_MASKS, HOST_MEMORY_READS)
 
 # Class H: concrete names and phrases that carried the removed target host
 # plane. These are deliberately more specific than generic ``DMA`` or
@@ -1359,6 +1414,52 @@ def _arms_image_host_masks(arm, plant_runner_path):
                 lambda r, p=path, s=payload: plant_runner_path(r, p, s + " systemd"), True)
 
 
+def _arms_host_memory_reads(arm):
+    """#744's host memory reads are clean only as their whole declared lines in their own files."""
+    def plant(root: pathlib.Path, path: str, text: str) -> None:
+        """Write `text` at `path` in the scratch tree."""
+        target = root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text)
+
+    homes = dict(HOST_MEMORY_READS)
+    # the runner policy paragraph's own masked line, the fifth file with a host path
+    homes["docs/testing/CI_WORKFLOWS.md"] = ("`/proc/<pid>/stat` state is `Z`",)
+    def header(path: str) -> str:
+        """What makes the declared lines a parseable file: a workflow's are one block scalar."""
+        return "run: |\n" if path.endswith(".yml") else ""
+
+    for path, lines in homes.items():
+        whole = header(path) + "".join(line + "\n" for line in lines)
+        extra_line = whole.count("\n") + 1
+        arm(f"host-memory-reads-allowed-{path}", lambda r, p=path, t=whole: plant(r, p, t), False)
+        # an unrelated new reference in the same file is still refused
+        for extra in ("cat /proc/cpuinfo", "ls /sys/class/net", "the target kernel"):
+            arm(f"host-memory-reads-unrelated-{path}-{extra}",
+                lambda r, p=path, t=whole + "  " + extra + "\n": plant(r, p, t),
+                True, f"{path}:{extra_line}: [R]")
+    for path, lines in HOST_MEMORY_READS.items():
+        for index, line in enumerate(lines):
+            label = f"host-memory-read-{path}-{index}"
+            token = "/proc" if "/proc" in line else "/sys"
+            # each line is declared for its own file only, not for the other declared files;
+            # a workflow's block scalar holds only an indented line unchanged
+            others = [("declared-file-" + other, other, line) for other in HOST_MEMORY_READS
+                      if other != path and (not other.endswith(".yml") or line[:1] == " ")]
+            assert others and all(line not in HOST_MEMORY_READS[other] for _, other, _ in others), label
+            for variant, destination, text in (
+                ("wrong-file", "scripts/other.py", line),
+                ("product-file", PRODUCT_DOCS[0], line),
+                ("prefixed", path, "# " + line),
+                ("trailing", path, line + "  # note"),
+                ("other-path-same-context", path, line.replace(token, token + "/target-only", 1)),
+                *others,
+            ):
+                lead = header(destination)
+                planted_line = lead.count("\n") + 1
+                arm(f"{label}-{variant}", lambda r, p=destination, t=lead + text: plant(r, p, t + "\n"),
+                    True, f"{destination}:{planted_line}: [R]")
+
 
 def _sim_pool_host_fixtures() -> dict[str, tuple[str, ...]]:
     """Literal source lines from #517, independent of the mask expressions.
@@ -1757,7 +1858,7 @@ def selftest() -> tuple[list[str], int]:
     bench = _Bench()
     for group in (_arms_control_and_terms, _arms_target_runtime, _arms_cancellation_process_masks,
                   _arms_retired_surfaces, _arms_host_tooling_masks,
-                  _arms_act_slot_masks, _arms_sim_pool_host_masks,
+                  _arms_act_slot_masks, _arms_host_memory_reads, _arms_sim_pool_host_masks,
                   _arms_product_and_paths, _arms_build_configuration,
                   _arms_image_mask_and_options, _arms_parsed_configs):
         group(bench.arm)

@@ -100,7 +100,7 @@ flowchart LR
    After every pushed PR head, start the supported local workflow replica:
 
    ```bash
-   python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number>
+   python3 -I /absolute/path/to/trusted-dev/scripts/act_ci.py --pr <number> --cpu-ranges "$BOOKED_CPU_RANGES"
    ```
 
    Run that command from the candidate worktree, but load the script only from

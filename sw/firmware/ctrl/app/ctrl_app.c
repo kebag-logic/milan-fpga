@@ -25,8 +25,11 @@ static bool maap_compose(struct ctrl_app *app, const struct ctrl_app_config *cfg
 	    preferred > MAAP_POOL_BASE + MAAP_POOL_SIZE - count)) {
 		return false;
 	}
-	return maap_mbx_init(&app->maap, mac, count, CTRL_APP_MAAP_FIRST_SLOT, cfg->maap_allocation, cfg->maap_ctx) &&
-	       maap_mbx_attach(&app->maap, &app->loop);
+	if (!maap_mbx_init(&app->maap, mac, count, CTRL_APP_MAAP_FIRST_SLOT, cfg->maap_allocation, cfg->maap_ctx)) {
+		return false;
+	}
+	maap_mbx_bind_acmp(&app->maap, cfg->acmp != NULL ? &app->acmp.acmp : NULL);
+	return maap_mbx_attach(&app->maap, &app->loop);
 }
 
 bool ctrl_app_compose(struct ctrl_app *app, const struct ctrl_app_config *cfg)
@@ -72,6 +75,10 @@ bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 	// (maap_mbx.h); compose refused a preferred range it would refuse
 	if (cfg->maap_allocation != NULL) {
 		(void)maap_mbx_start(&app->maap, cfg->maap_preferred);
+		if (cfg->acmp != NULL) {
+			// Poll the declaration predicate even without transport work.
+			mbx_tick_enable(true);
+		}
 	}
 	return true;
 }

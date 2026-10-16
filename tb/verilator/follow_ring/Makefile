@@ -7,16 +7,19 @@
 # capture crossbar LOOP bucket and render setpoint stage, with
 # milan_datapath's own glue between them, the #645 settle recentre included,
 # copied verbatim by dp_glue.py.
-#   make         - the four standing legs (run)
+#   make         - the five standing legs (run)
 #   make build   - build the harness (MDIR, default obj_dir)
 #   make b8      - lane B8's INTERNAL-to-AAF set, then AAF to CRF and back,
 #                  each graded on its settle recentre
 #   make pullin  - one serial-clock hold under a running stream at INTERNAL,
 #                  graded on its settle recentre
+#   make bind    - bench lane B17's binds at INTERNAL, each graded on its
+#                  settle recentre, then one under CRF following
 #   make mutants - every planted defect must fail its named check
-#   make sweep-b8 / sweep-pullin - the #645 / #647 campaigns across their
-#                  phase sweeps (sweep.py; SWEEP_JOBS at a time), every run
-#                  graded on the settle law; exit 0 only when every run passed
+#   make sweep-b8 / sweep-pullin / sweep-bind - the #645 / #647 / B17
+#                  campaigns across their phase sweeps (sweep.py; SWEEP_JOBS
+#                  at a time), every run graded on the settle law; exit 0
+#                  only when every run passed
 #   make clean   - remove build artifacts
 #
 # DEFAULT WALL CLOCK (#645, 2026-10-09): measured at 8e4b1e53 on the
@@ -24,15 +27,19 @@
 # Sequential make -C, successive verdict timestamps including build time:
 # 1114.2 s PASS, leaving 325.8 s to 1440 s and 685.8 s to the 1800 s guard.
 # Cold replica: env -u MAKEFLAGS taskset -c 32-35 make -C
-# tb/verilator/follow_ring; serial outer make, 437.204 s. The four standing
-# legs run in a bounded four-job sub-make with one shared b8/pullin build.
+# tb/verilator/follow_ring; serial outer make, 437.204 s. The standing
+# legs run in a bounded four-job sub-make with one shared b8/pullin/bind build.
 # Historical ratio: 1422.5 / 800.2 rounded up to 1.78, from 1e79ebdc
 # (run 37882435947, job 113665137864). Its replica projection was 778.2 s,
 # not a hosted measurement: margins 661.8 s to 1440 s and 1021.8 s to 1800 s.
 # The replica meets 708 s; the measured hosted window meets 1260 s.
 # Later heads still require hosted acceptance. TESTING.md links all receipts.
-# The twelve rebuilt controls remain in make mutants, owned by the manager
-# merge bank in TESTING.md; the four default legs retain all their checks.
+# The fifteen rebuilt controls remain in make mutants, owned by the manager
+# merge bank in TESTING.md; the five default legs retain all their checks.
+# #645's bind round added the fifth leg, bind: cold on one four-CPU set of
+# a slower host, the five legs took 857.6 s and the four earlier legs
+# 800.9 s, so it costs 7.1 % and projects the hosted window to 1193.2 s
+# (TESTING.md). That is a projection; hosted acceptance is still owed.
 #
 # CLK_HZ is the ONE value for the wrapper's axis clock and the harness's
 # wheel: derive, never mirror. The aligner's gains scale with it (the
@@ -75,13 +82,13 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module follow_ring_wrap \
          -Wno-EOFNEWLINE \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=$(CLK_HZ) -DFRAME_DIV_TB=$(FRAME_DIV)"
 
-.PHONY: all run build b8 pullin small-pullin settle-control mutants sweep-b8 sweep-pullin clean
+.PHONY: all run build b8 pullin bind small-pullin settle-control mutants sweep-b8 sweep-pullin sweep-bind clean
 all: run
-# The sweep invokes serial outer make. Give these four independent legs a
-# bounded pool even there; b8 and pullin share one build in this sub-make.
-# An outer -jN cannot expand the pool past four leg jobs.
+# The sweep invokes serial outer make. Give these five independent legs a
+# bounded pool even there; b8, pullin and bind share one build in this
+# sub-make. An outer -jN cannot expand the pool past four leg jobs.
 run:
-	+$(MAKE) -j4 b8 pullin small-pullin settle-control
+	+$(MAKE) -j4 b8 pullin bind small-pullin settle-control
 
 build:
 	mkdir -p $(MDIR)
@@ -99,6 +106,16 @@ b8: build
 
 pullin: build
 	$(abspath $(MDIR))/Vfollow_ring --case pullin --latency-us 210.42 --after-s 1.5
+
+# bind (#645, bench lane B17): three of B17's ten bind cycles as measured -
+# 5 (its burst 94 ms after the first PDU, the earliest and the smallest that
+# slipped, then the largest later one), 4 (the largest first burst) and 9
+# (the latest first PDU, 161 ms after the bind) - with the first PDU at the
+# phase that primes the ring mid B17's window and uniform 0 to 5 us lateness
+# (B17's p99.9 was 4.4 to 6.1 us); then cycle 5 under CRF following.
+bind: build
+	$(abspath $(MDIR))/Vfollow_ring --case bind --b17-cycles 5,4,9 --bind-phase 0.125 --jitter-us 5 \
+	  --dwell-s 0.5 --follow-binds 1
 
 # The review's sub-arm pull is gradable on both sides of the law boundary
 # at 25 MHz. Audio edges resolve 1/64 sample, with the real 1 ms servo tick.
@@ -123,6 +140,12 @@ sweep-b8: build
 sweep-pullin: build
 	python3 sweep.py pullin --exe $(MDIR)/Vfollow_ring --out $(MDIR)/sweep --jobs $(SWEEP_JOBS) \
 	  --hold-us 52 56
+
+# sweep-bind: all ten B17 cycles as measured, the first PDU at 16 phases of
+# a media tick, without lateness and with B17's 0 to 5 us envelope
+sweep-bind: build
+	python3 sweep.py bind --exe $(MDIR)/Vfollow_ring --out $(MDIR)/sweep --jobs $(SWEEP_JOBS) \
+	  --jitter-us 0 5 --extra --dwell-s 0.5
 
 clean:
 	rm -rf obj_dir obj_mut __pycache__

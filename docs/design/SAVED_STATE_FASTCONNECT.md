@@ -125,7 +125,7 @@ Implementation and historical evidence remain explicitly distinguished below.
 | The backing store | **DECIDED HERE, both halves built** | sections 3 and 8; the firmware half validates a slot into the window, heartbeats, commits the image into the journal slots and acknowledges; the board proof (a commit observed on the bench, a power cycle, a restore) is the remaining work item |
 | The backend's area | **MEASURED**, on the shipping module | section 8.3: 993 LUT-equivalents / 377 FF OOC worst case for `KL_nvm_backend`, against 35 LUT / 21 FF for the responder it replaced, by the recipe in 8.3; the post-place delta is still owed by the bitstream build |
 | The backend does what it is priced for | **DRIVEN**, the shipping source | `tb/verilator/nvm_backend`: 417 checks at 8x8 and 146 at 1x1 against a byte-exact KLJ2 image, plus four negative controls that must each go RED; `tb/verilator/pp_shadow` grades the integration through the CSR window |
-| The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts and the heartbeat through a 3 s erase; four planted writer defects must each redden |
+| The writer does what section 6.2 and section 9 require | **DRIVEN**, the shipping translation unit, on a host model | `sw/firmware/nvm_hosttest`: per shipped shape, the staged and committed containers equal the Python encoder's byte for byte, the verdict printed for every refusal equals `klj2_decode`'s, the A/B rule, the debounce, the three transaction verdicts, the heartbeat through a 3 s erase and the boot read faults of #671; twenty-three planted writer defects must each redden |
 | The liveness and commit deadlines | **DECIDED HERE**, gated | section 9.4, and check 7 of `scripts/check_nvm_record_space.py` |
 
 **Reconciliation pin.** Parent `c0723222` pins processor
@@ -777,6 +777,32 @@ On equal sequences slot A is offered.
 The [#665 tie decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153) settles it.
 The shipping writer, and every saved state already on a device, use A.
 The writers never write equal sequences, so a tie arises only after a fault.
+
+**A slot that could not be read is not a slot that failed section 6.2.**
+That is the [#665 decision 2](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153),
+which [#671](https://github.com/kebag-logic/milan-fpga/issues/671) applies to the shipping writer.
+Take A valid at sequence s > 1, B blank, and a transient fault on the boot read of A.
+If A is then taken as refused, the next commit restarts at sequence 1.
+The bare-metal store writes it to B, and the next clean boot prefers A at s, so that commit is lost.
+The shipping writer writes it over A, so the saved state is lost.
+So a slot refused by a media read fault leaves the authority unknown.
+The read is retried within a bound.
+Until every slot has been read without a media fault, nothing is persisted, and the status says so.
+A slot whose bytes read cleanly but fail section 6.2 is not authoritative.
+No sequence is ever taken from bytes that were not validated.
+Both writers read a slot through the memory-mapped QSPI window, which always returns bytes.
+So a media fault shows only as two reads of one slot that return different bytes.
+A refusal or a blank verdict stands only when two of at most three reads return the same bytes.
+The shipping writer calls two refused reads the same when their verdicts, their byte counts,
+a CRC-32 over all of their bytes but the last four, and those last four bytes are all equal.
+A CRC-32 over a whole container and the trailer that closes it is one constant.
+So a digest over every byte would call any two such containers the same, however they differ.
+The shipping writer's host suite gives each of the four terms two reads that differ in it alone, and a control that removes it.
+The picked slot is read again and must pass under the sequence it was picked by.
+The bare-metal store's [Boot section](../../sw/firmware/ctrl_nvm/README.md#boot) states the rule.
+The shipping writer's is in the [firmware page](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
+A fault that returns the same wrong bytes twice cannot be told from a refusal of those bytes.
+That limit is stated in both suites.
 
 At every instant of the write sequence at least one slot holds a complete image
 whose CRC closes. Power can be removed at any point. This is the guarantee the

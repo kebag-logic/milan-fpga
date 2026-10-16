@@ -722,8 +722,15 @@ the backend publishes, never on an assumption about the previous boot.
   refuse a RELOAD anyway. It strobes RELEASE, which ends any capture the
   previous run left open and hands that capture's work back to dirty_live; it
   re-derives the authoritative slot and the sequence from the media,
-  publishes them and resumes service. It does not re-run a restore walk the
-  fabric has already sequenced.
+  publishes them and resumes service, unless a slot is left unread in that
+  re-derivation, with no standing verdict or picked and not read back as
+  judged: the writer then publishes and HOLDS until reset, as on a cold boot
+  ([#671](https://github.com/kebag-logic/milan-fpga/issues/671)). What it
+  publishes is that re-derivation's verdict and sequence, which with the
+  newer slot unread are the older slot's, over a window it does not reload;
+  the backend holds both as evidence only, and `nvm_backed` falls once the
+  held writer stops answering the liveness deadline. It does not re-run a
+  restore walk the fabric has already sequenced.
 - **Load pending 0 with load accepted 0** (revision d; the terminal state
   above): the writer does NOT re-attach. No window load was accepted in this
   boot, so nothing in it may be captured or committed, and a re-attach could
@@ -1616,20 +1623,35 @@ Memory shape: the stage holds one container.
 [Section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
 derives 3336 bytes at 1x1 and 13256 at 8x8.
 
-Timing. MEASURED on 2026-10-09 in the
+Timing. MEASURED on 2026-10-14 in the
 [product CPU capture harness](../../tb/verilator/nvm_capture_cpu/README.md).
 The [capture procedure](https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112) governs the matrix.
-The [#621 final ruling](https://github.com/kebag-logic/milan-fpga/issues/621#issuecomment-6089776382) requires this remeasurement, at the #629 census.
-The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required the previous one.
-The CLOCK_SOURCE NAME records #629 adds grow the census.
-The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required the one before it.
-Measured commit: `034e2e30f225f3fcd755cac8ad01c60dda5b366a`.
-Measured tree: `a5d1a1b02212c04de89292893fcf022b39620848`.
-Firmware SHA-256: `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`.
+The [#671 round-8 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6161596895) requires this remeasurement, at the merge of dev `fa820988` into #671.
+That merge brings dev's MAAP and stream frame-counter RTL into the capture SoC.
+The firmware, capture harness, processor pins, clocks and census are unchanged.
+The [#671 round-7 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6125761347) required the previous one, at the merge of dev `c6bd08c6` into #671.
+That merge joined the #671 firmware with dev's capture harness, gPTP-processor pin and RTL.
+The #621 receipt on dev binds the earlier firmware, and the #671 round-5 receipt the earlier harness.
+The [#671 round-5 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6107082416) required the one before that on #671.
+Refused boot reads are now compared by a CRC-32 over all but their last four bytes and by those four bytes.
+The [#671 round-4 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6104799677) required the previous one.
+That change distinguished failed judgements from failed re-stages on the console.
+The [#671 round-3 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6103025987) required the one before.
+That change named a held writer restart on the console.
+The [#671 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6100704879) required the previous one, for the console report of the writer's hold.
+The [#671 assignment](https://github.com/kebag-logic/milan-fpga/issues/671#issuecomment-6098494890) required the one before, for the boot read-fault rule.
+In parallel, on dev, the [#621 final ruling](https://github.com/kebag-logic/milan-fpga/issues/621#issuecomment-6089776382) required a remeasurement of the firmware before #671, at the #629 census.
+That receipt measured commit `034e2e30f225f3fcd755cac8ad01c60dda5b366a`, tree `a5d1a1b02212c04de89292893fcf022b39620848`, firmware SHA-256 `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3`, protocol-processor pin `2ad2f845dd583f8310075fa2380cb60a04fd091a` and gPTP-processor pin `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`.
+The #621 base, `5603c353` with gPTP pin `5dce647a`, writes byte-identical capture logs.
+Capture-SoC RTL changes on dev moved the timing figures from the receipt before it; a dev 8x8 configuration change moved only its recorded configuration hash.
+The [#629 round-2 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634) required an earlier one.
+The CLOCK_SOURCE NAME records #629 adds grew the census.
+The [#70 AEM-first ruling](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5894183475) required one before that.
+Measured commit: `f3bb2014d065141930ae1a473c966b419d1040aa`.
+Measured tree: `7a2041b6a0b7ea13c019a3b5be08f0eb3555f8ac`.
+Firmware SHA-256: `497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed`.
 Protocol-processor pin: `2ad2f845dd583f8310075fa2380cb60a04fd091a`.
 gPTP-processor pin: `7dda9c3b4d65cbbb28f72a34e1ee0efe368695d9`.
-The #621 base, `5603c353` with gPTP pin `5dce647a`, writes byte-identical capture logs.
-Capture-SoC RTL changes on dev moved the timing figures from the previous receipt; a dev 8x8 configuration change moved only its recorded configuration hash.
 The receipt's BIOS patch digest is informational provenance.
 Native service receipts also bind the installed build inputs.
 **Hold sizing uses the writer's actual clock.**
@@ -1642,20 +1664,33 @@ The backend retains its nominal 50 ms hold.
 Its free-running millisecond tick gives a 49 ms guaranteed floor.
 The first tick can arrive immediately after ARM.
 The acceptance limit is therefore 24.5 ms, half that floor.
-**The worst 8x8 measurement is 13.86318 ms.**
+**The worst 8x8 measurement is 13.86328 ms.**
 Its floor ratio is 3.5345x.
-The margin to 24.5 ms is 10.63682 ms.
-The previous census measured 13.23352 ms.
+The margin to 24.5 ms is 10.63672 ms.
+The previous #671 receipt measured 13.86328 ms, and so did the one before it, at the same census.
+All 96 captures repeat the previous #671 receipt's system-cycle counts.
+The #621 receipt on dev measured 13.86318 ms, a 3.5345x floor ratio and a 10.63682 ms margin, at the same census.
+The census before #629 measured 13.23352 ms.
 The historical pre-word-copy maximum was 24.30246 ms, at that census.
 The word-copy remedy gained 11.06894 ms of margin there.
-Firmware, hold behavior and the measured paths are unchanged.
-The record census grows: 8x8 from 156 to 164 records, 12,634 to 13,210 bytes.
-At 1x1 it grows from 53 to 54 records, 3,218 to 3,290 bytes.
-The receipt binds the same firmware and the new census.
+The firmware changed in its boot path and its console report of the writer's hold only; `nvm_capture()`, the backend's capture hold and the census are unchanged.
+The census is 164 records and 13,210 bytes at 8x8, 54 and 3,290 at 1x1.
+The receipt binds the new firmware and the unchanged census.
 
 Each point contains 16 captures per traffic arm.
 The published maximum includes every capture in both arms.
-The 1x1 maximum is 3.96728 ms (12.3510x floor ratio).
+The 1x1 maximum is 3.96548 ms (12.3566x floor ratio).
+
+| Shape | CPU / system MHz, basis | Traffic | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
+|---|---|---|---|---|
+| 1x1 | 50 / 100, contract | ON | 3.96020 to 3.96548 | 12.3566x |
+| 1x1 | 50 / 100, contract | OFF | 3.90676 to 3.92034 | 12.4989x |
+| 8x8 | 50 / 100, contract | ON | 13.84828 to 13.86328 | 3.5345x |
+| 8x8 | 50 / 100, contract | OFF | 13.67538 to 13.68956 | 3.5794x |
+| 8x8 | 100 / 100, non-contract | ON | 10.41235 to 10.42973 | 4.6981x |
+| 8x8 | 100 / 100, non-contract | OFF | 10.41246 to 10.41566 | 4.7045x |
+
+The #621 receipt on dev, at the same census and clocks:
 
 | Shape | CPU / system MHz, basis | Traffic | Elapsed ms, minimum to maximum | 49 ms / arm maximum |
 |---|---|---|---|---|
@@ -1810,13 +1845,15 @@ Physical timing and memory ordering remain UNRESOLVED 6.
    [Section 18](#18-cost) gives the current receipt's identities and six maxima.
    Both shapes use the contract's 50 MHz CPU and aligned edges.
    Each has 16 captures per traffic arm, ON and OFF.
-   The worst 8x8 copy is 13.86318 ms across both arms.
+   The worst 8x8 copy is 13.86328 ms across both arms.
    It covers 13,210 bytes and 164 records, including output maps.
    Its ratio to the guaranteed 49 ms floor is 3.5345x.
-   The 24.5 ms margin is 10.63682 ms.
+   The 24.5 ms margin is 10.63672 ms.
+   The previous #671 receipt measured 13.86328 ms, with a 10.63672 ms margin.
+   The #621 receipt on dev measured 13.86318 ms, with a 10.63682 ms margin.
    At the previous census the word-copy remedy gained 11.06894 ms over historical byte copying.
    The unchanged nominal 50 ms hold is retained conditionally.
-   The 1x1 maximum is 3.96728 ms (12.3510x floor ratio).
+   The 1x1 maximum is 3.96548 ms (12.3566x floor ratio).
    Both intervals include the complete record walk and attestation.
    The 100 MHz 8x8 comparison is non-contract: 10.42973 ms maximum.
    [#565](https://github.com/kebag-logic/milan-fpga/issues/565) reconciles the configured clock with the contract.

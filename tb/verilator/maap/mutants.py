@@ -19,14 +19,20 @@ its failures; a compiler error or abnormal exit never counts. A clean build
 runs first as the positive control.
 """
 
+import argparse
+import json
 import os
 import signal
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RTL = HERE / "../../../hdl/ieee1722/maap/KL_maap.sv"
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+from ci_case_receipts import Receipt, partition
+
 
 BEGIN_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
                "            state_r      <= PROBE_S;\n          end")
@@ -205,7 +211,7 @@ DATAPATH_MUTANTS = (
 
 
 def run_case(work: Path, name: str, source: str, failure: str | None,
-             integration: bool = False) -> bool:
+             integration: bool = False, receipt: Receipt | None = None) -> bool:
     """A compiler error or abnormal termination never counts as a kill."""
     rtl = work / f"{name}.sv"
     rtl.write_text(source)
@@ -221,6 +227,8 @@ def run_case(work: Path, name: str, source: str, failure: str | None,
     if result.returncode:
         print(result.stdout[-2000:] + result.stderr[-2000:])
         print(f"[ESCAPED] {name}: compilation failed")
+        if receipt:
+            receipt.record(name, "build-failed", result.returncode, result.stdout + result.stderr)
         return False
     executable = "maap_integration" if integration else "VKL_maap_sim"
     result = subprocess.run([str(mdir / executable)], cwd=mdir,
@@ -230,6 +238,9 @@ def run_case(work: Path, name: str, source: str, failure: str | None,
         passed = result.returncode == 0 and " 0 failures" in output
     else:
         passed = result.returncode == 1 and f"[FAIL] {failure}" in output
+    if receipt:
+        outcome = ("pass" if failure is None else "caught") if passed else "failed"
+        receipt.record(name, outcome, result.returncode, output)
     print(f"[{'ok' if passed else 'ESCAPED'}] {name}: rc={result.returncode}", flush=True)
     if passed and failure is not None:
         # The sweep judges this campaign's verdict, not expected DUT failures.
@@ -239,38 +250,96 @@ def run_case(work: Path, name: str, source: str, failure: str | None,
     return passed
 
 
+def run_inventory(whole_suite: bool = False) -> list[str]:
+    """The original standalone harness, clean controls and mutation registrations."""
+    prefix = ["standalone"] if whole_suite else []
+    return prefix + ["clean"] + [m[0] for m in MUTANTS] + ["m4_datapath_clean"] + [
+        m[0] for m in DATAPATH_MUTANTS]
+
+
+def standalone(receipt: Receipt) -> bool:
+    """Run the default Makefile's original build and harness without build-log receipts."""
+    made = subprocess.run(["make", "-s", "-C", str(HERE), "build"], check=False)
+    if made.returncode:
+        receipt.record("standalone", "build-failed", made.returncode, "standalone build failed\n")
+        return False
+    result = subprocess.run(["make", "-s", "--no-print-directory", "-C", str(HERE),
+                             "exec-standalone"], cwd=HERE,
+                            capture_output=True, text=True, check=False)
+    output = result.stdout + result.stderr
+    sys.stdout.write(output)
+    # This is the existing Makefile run target's process status, with no new predicate.
+    receipt.record("standalone", "pass" if result.returncode == 0 else "failed",
+                   result.returncode, output)
+    return result.returncode == 0
+
+
+def campaign(work: Path, selected: list[str], receipt: Receipt) -> list[bool]:
+    """Schedule the registered source replacements with their unchanged predicates."""
+    source = RTL.read_text()
+    results = []
+    if "standalone" in selected:
+        results.append(standalone(receipt))
+        if not results[-1]:
+            return results
+    if "clean" in selected:
+        results.append(run_case(work, "clean", source, None, receipt=receipt))
+        if not results[-1]:
+            return results
+    for name, _, anchor, replacement, failure in MUTANTS:
+        if name not in selected:
+            continue
+        if source.count(anchor) != 1:
+            print(f"[ESCAPED] {name}: expected exactly one mutation anchor")
+            receipt.record(name, "failed", 1, "expected exactly one mutation anchor\n")
+            results.append(False)
+            continue
+        results.append(run_case(work, name, source.replace(anchor, replacement), failure,
+                                receipt=receipt))
+    if "m4_datapath_clean" in selected:
+        results.append(run_case(work, "m4_datapath_clean", source, None, True, receipt))
+    for name, anchor, replacement, failure in DATAPATH_MUTANTS:
+        if name not in selected:
+            continue
+        if source.count(anchor) != 1:
+            print(f"[ESCAPED] {name}: expected exactly one mutation anchor")
+            receipt.record(name, "failed", 1, "expected exactly one mutation anchor\n")
+            results.append(False)
+            continue
+        results.append(run_case(work, name, source.replace(anchor, replacement), failure, True, receipt))
+    return results
+
+
 def main() -> int:
-    """Run the clean control and every mutant; fail if any defect escapes."""
+    """Run the original full campaign, or selected cases with executed receipts."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--list", action="store_true")
+    parser.add_argument("--whole-suite", action="store_true")
+    parser.add_argument("--shard")
+    parser.add_argument("--receipt", type=Path)
+    args = parser.parse_args()
+    names = run_inventory(args.whole_suite)
+    if args.list:
+        print(json.dumps(names))
+        return 0
+    try:
+        selected = partition(names, args.shard)
+        receipt = Receipt(HERE.parents[2], "maap", names, args.shard, args.receipt)
+    except (ValueError, OSError) as exc:
+        parser.error(str(exc))
     def interrupted(_signum: int, _frame: object) -> None:
         """Unwind temporary storage when the caller stops the campaign."""
         raise SystemExit(143)
-
     signal.signal(signal.SIGTERM, interrupted)
-    source = RTL.read_text()
     items = {item for _, item, _, _, _ in MUTANTS if isinstance(item, int)} - {SUPPORTING}
     if items != {1, 2, 3, 4}:
         print(f"[ESCAPED] campaign: #686 items without a mutant: {sorted({1, 2, 3, 4} - items)}")
         return 1
     with tempfile.TemporaryDirectory(prefix="maap-mutants-") as directory:
-        work = Path(directory)
-        results = [run_case(work, "clean", source, None)]
-        if not results[0]:
-            return 1
-        for name, _, anchor, replacement, failure in MUTANTS:
-            if source.count(anchor) != 1:
-                print(f"[ESCAPED] {name}: expected exactly one mutation anchor")
-                results.append(False)
-                continue
-            results.append(run_case(work, name, source.replace(anchor, replacement), failure))
-        results.append(run_case(work, "m4_datapath_clean", source, None, True))
-        for name, anchor, replacement, failure in DATAPATH_MUTANTS:
-            if source.count(anchor) != 1:
-                print(f"[ESCAPED] {name}: expected exactly one mutation anchor")
-                results.append(False)
-                continue
-            results.append(run_case(work, name, source.replace(anchor, replacement), failure, True))
+        results = campaign(Path(directory), selected, receipt)
     failures = sum(not passed for passed in results)
     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")
+    receipt.finish()
     return 1 if failures else 0
 
 

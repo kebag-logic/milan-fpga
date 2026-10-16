@@ -190,10 +190,10 @@ NO_GRAFTS = str(Path(os.devnull) / "no-grafts")
 #: superproject's refused keys (SUPERPROJECT_REFUSED).
 GIT_ENVIRONMENT = {"GIT_NO_REPLACE_OBJECTS": "1", "GIT_GRAFT_FILE": NO_GRAFTS, "GIT_CONFIG_NOSYSTEM": "1",
                    "GIT_CONFIG_GLOBAL": os.devnull, "GIT_NO_LAZY_FETCH": "1"}
-#: The one setting the helper gives Git on its command line: core.fsmonitor off, defence in depth behind the
-#: judgements of both repositories' own configuration (configured, superproject_configured), each of which refuses
-#: core.fsmonitor by name.
-HELPER_CONFIG = "core.fsmonitor=false"
+#: No automatic maintenance may outlive a scratch-clone command and race its removal.
+NO_MAINTENANCE = ("gc.auto=0", "maintenance.auto=false")
+#: Command settings: no fsmonitor, and no detached maintenance in any pin-proof or control call.
+HELPER_CONFIG = ("core.fsmonitor=false", *NO_MAINTENANCE)
 #: The configuration the stack's own repository may hold, its allowlist (configured): the keys Git writes itself for
 #: a clone and for a submodule, each as its family (family), `*` standing for any named subsection; a key whose
 #: subsection is empty is in no family listed. None names a program or a store. Every other key is refused by its name
@@ -415,7 +415,8 @@ def git(directory: Path, *args: str, stdin: str | None = None) -> GitRun:
     proof's audit hook lets start while the proof runs (audited): GIT, with git_env's environment, the whole of it,
     and HELPER_CONFIG, so that Git starts no fsmonitor a repository's own configuration names to read an index."""
     import subprocess
-    res = subprocess.run(["git", "-c", HELPER_CONFIG, "-C", str(directory), *args], executable=GIT,
+    config = [arg for setting in HELPER_CONFIG for arg in ("-c", setting)]
+    res = subprocess.run(["git", *config, "-C", str(directory), *args], executable=GIT,
                          input=None if stdin is None else stdin.encode(errors="surrogateescape"), capture_output=True,
                          check=False, env=git_env())
     return GitRun(res.returncode, res.stdout.decode(errors="surrogateescape"),
@@ -546,13 +547,14 @@ def configured(stack: Path) -> None:
     """Refuse the stack's repository whose configuration holds a key outside STACK_CONFIG's families (family), by
     the key's name and scope, before the proof reads any object of it. What is judged is all the configuration Git
     reads for the proof's commands there (configuration): the repository's own and its work tree's, which may hold
-    keys of STACK_CONFIG's families only, and the helper's own setting (HELPER_CONFIG), the one key its command line
-    gives. No system or global file is read (GIT_ENVIRONMENT), so a key of either scope is refused too. So the
+    keys of STACK_CONFIG's families or the exact NO_MAINTENANCE settings, and the helper's command settings
+    (HELPER_CONFIG). No system or global file is read (GIT_ENVIRONMENT), so a key of either scope is refused too. The
     stack's configuration holds Git's own bookkeeping of a clone and a submodule only, and no key of it names a
     program, a promisor remote or its transport."""
     refused = [f"{key} ({scope})" for scope, section, subsection, variable, key, value in configuration(stack)
-               if not (scope in ("local", "worktree") and family(section, subsection, variable) in STACK_CONFIG or
-                       scope == "command" and f"{key}={value}" == HELPER_CONFIG)]
+               if not (scope in ("local", "worktree") and
+                       (family(section, subsection, variable) in STACK_CONFIG or f"{key}={value}" in NO_MAINTENANCE) or
+                       scope == "command" and f"{key}={value}" in HELPER_CONFIG)]
     if refused:
         raise Refusal(UNLISTED + ", ".join(sorted(refused)))
 
@@ -567,7 +569,7 @@ def superproject_configured(root: Path) -> None:
     gitlink is read, and names no fsmonitor; its other keys are not judged."""
     refused = [f"{key} ({scope})" for scope, section, _, variable, key, value in configuration(root)
                if f"{section}.{variable}" in SUPERPROJECT_REFUSED and
-               not (scope == "command" and f"{key}={value}" == HELPER_CONFIG)]
+               not (scope == "command" and f"{key}={value}" in HELPER_CONFIG)]
     if refused:
         raise Refusal(SUPERPROJECT_KEYS + ", ".join(sorted(refused)))
 

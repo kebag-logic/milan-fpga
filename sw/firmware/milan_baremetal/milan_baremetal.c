@@ -358,6 +358,12 @@ typedef char nvm_own_words_is_eight[(NVM_OWN_WORDS == 8u) ? 1 : -1];
  * is accepted; a refusal means something outside that sequence wrote the
  * window, and each repeat re-bases and reloads from the start (section 5.3). */
 #define NVM_LOAD_TRIES         4u
+/* How many times the boot reads one slot before its verdict stands, and how
+ * many times it re-stages the slot it picked (#671). The memory-mapped read
+ * always returns bytes, so a media fault shows only as two reads of one slot
+ * that return different bytes: the rule and the bound of
+ * sw/firmware/ctrl_nvm/README.md, Boot items 3 and 9. */
+#define NVM_READ_TRIES         3u
 
 void set_idle_hook(void (*fptr)(void));
 void bios_dispatch_hook_required(void);
@@ -389,6 +395,26 @@ struct nvm_cap {
 	uint32_t id;
 	int ok;
 };
+
+/*
+ * One read of a journal slot into the private stage (#671): its section 6.2
+ * verdict, the sequence it names when that verdict is VD_OK and 0 otherwise
+ * (no generation is ever taken from bytes that failed validation), and for a
+ * refusal the count of bytes the read delivered, a CRC-32 over all of them but
+ * the last four, and those four whole. The verdict is judged on exactly those
+ * bytes, so two reads that return the same bytes are judged alike, and two
+ * that do not were not both read cleanly.
+ */
+struct nvm_read {
+	unsigned int vd;
+	uint32_t seq;
+	uint32_t digest;
+	uint32_t tail;
+	uint32_t bytes;
+};
+/* A slot is read whole into the stage, so the stage must hold the longest
+ * container rule 3 admits. */
+typedef char nvm_slot_fits_stage[(NVM_SLOT_BYTES <= MILAN_NVM_IMAGE_MAX) ? 1 : -1];
 
 static const uint8_t nvm_mapin_entries[16] = {
 	MILAN_NVM_MAPIN_ENTRIES_0, MILAN_NVM_MAPIN_ENTRIES_1, MILAN_NVM_MAPIN_ENTRIES_2, MILAN_NVM_MAPIN_ENTRIES_3,
@@ -443,6 +469,22 @@ static unsigned int nvm_captures_refused;
 static unsigned int nvm_acks_refused;
 static uint64_t nvm_hb_last;
 static uint64_t nvm_dirty_since;
+/* Slots that gave no standing verdict this boot, or that were picked and
+ * never read back as they were judged (bit 0 A, bit 1 B). Their authority is
+ * unknown, so a writer that would go live is HELD until reset instead (#671). */
+static unsigned int nvm_unread;
+/* Of those, the slots that were judged and picked and then did not read back
+ * as judged, so the console names that cause and not a missing verdict. */
+static unsigned int nvm_unstaged;
+/* The writer is HELD (nvm_go_live()): it would have gone live with a slot
+ * UNREAD. A boot that retires the writer for another cause may leave a slot
+ * unread too, and the console then names that cause, not the slot. */
+static int nvm_held;
+/* Boot reads whose bytes differed from every earlier read of the slot, and
+ * re-stages that did not read back as judged. A floor: a refused read that a
+ * later read of the slot outvotes with VD_OK is not counted, as in
+ * sw/firmware/ctrl_nvm. */
+static unsigned int nvm_read_faults;
 
 /*
  * The live window and the private stage. Macros rather than helpers on
@@ -599,6 +641,23 @@ static struct nvm_rec nvm_frame(const volatile uint8_t *p, uint32_t room)
 	return rec;
 }
 
+/* Section 6.2 tests 1 to 3, which the 40 header bytes decide alone: VD_OK
+ * when the container must be read on to be judged. */
+static unsigned int nvm_validate_head(const volatile uint8_t *img)
+{
+	uint32_t img_len = nvm_rd32(img + 16);
+
+	if (nvm_all_erased(img, KLJ2_HDR))
+		return VD_BLANK;
+	if (nvm_rd32(img) != KLJ2_MAGIC)
+		return VD_MAGIC;
+	if ((nvm_rd32(img + 4) >> 16) != (KLJ2_FMT_VER >> 16))
+		return VD_VER;
+	if (img_len < KLJ2_HDR + KLJ2_TRAILER || img_len > NVM_SLOT_BYTES)
+		return VD_LEN;
+	return VD_OK;
+}
+
 /*
  * The section 6.2 acceptance order over a container at `img`, read through
  * whatever face holds it (the flash mapping or the staged window). Zero
@@ -608,23 +667,17 @@ static struct nvm_rec nvm_frame(const volatile uint8_t *p, uint32_t room)
  */
 static unsigned int nvm_validate(const volatile uint8_t *img)
 {
-	uint32_t img_len;
+	uint32_t img_len = nvm_rd32(img + 16);
 	uint32_t nrec;
 	uint32_t pos;
 	uint32_t end;
 	uint32_t i;
 	unsigned int seen = 0;
+	unsigned int vd = nvm_validate_head(img);
 	int last = -1;
 
-	if (nvm_all_erased(img, KLJ2_HDR))
-		return VD_BLANK;
-	if (nvm_rd32(img) != KLJ2_MAGIC)
-		return VD_MAGIC;
-	if ((nvm_rd32(img + 4) >> 16) != (KLJ2_FMT_VER >> 16))
-		return VD_VER;
-	img_len = nvm_rd32(img + 16);
-	if (img_len < KLJ2_HDR + KLJ2_TRAILER || img_len > NVM_SLOT_BYTES)
-		return VD_LEN;
+	if (vd != VD_OK)
+		return vd;
 	if (nvm_crc32(img, img_len - KLJ2_TRAILER) !=
 	    nvm_rd32(img + img_len - KLJ2_TRAILER))
 		return VD_CRC;
@@ -677,6 +730,110 @@ static unsigned int nvm_validate(const volatile uint8_t *img)
 static uint32_t nvm_seq_of(const volatile uint8_t *img)
 {
 	return nvm_rd32(img + 8);
+}
+
+/*
+ * One read of the slot at `slot` into the private stage, judged there (#671).
+ * The slot is read once, the header first and then, when the header does not
+ * decide the verdict, the rest of the container, so the CRC, the records and
+ * the sequence all come from the same bytes. The stage is free at boot, and
+ * a capture refills it from the start (nvm_prefill_stage()).
+ */
+static struct nvm_read nvm_read_slot(uint32_t slot)
+{
+	struct nvm_read rd = {VD_LEN, 0u, 0u, 0u, KLJ2_HDR};
+	const volatile uint8_t *src = nvm_slot(slot);
+	uint32_t i;
+
+	for (i = 0; i < KLJ2_HDR; ++i)
+		NVM_STG[i] = src[i];
+	rd.vd = nvm_validate_head(NVM_STG);
+	if (rd.vd == VD_OK) {
+		/* rule 3 bounds the length, and the stage holds a slot */
+		rd.bytes = nvm_rd32(NVM_STG + 16);
+		for (i = KLJ2_HDR; i < NVM_SLOT_BYTES; ++i) {
+			if (i >= rd.bytes) {
+				break;
+			}
+			NVM_STG[i] = src[i];
+		}
+		rd.vd = nvm_validate(NVM_STG);
+	}
+	if (rd.vd == VD_OK) {
+		rd.seq = nvm_seq_of(NVM_STG);
+	} else {
+		/* Not one CRC-32 over every byte: over a container and the
+		 * trailer that closes it, that is the same constant for every
+		 * such container, however its bytes differ (R603-4-F1). */
+		rd.digest = nvm_crc32(NVM_STG, rd.bytes - KLJ2_TRAILER);
+		rd.tail = nvm_rd32(NVM_STG + rd.bytes - KLJ2_TRAILER);
+	}
+	return rd;
+}
+
+/* Whether two refused reads of one slot returned the same bytes: as many,
+ * the same CRC-32 over all but the last four, and the same last four. */
+static int nvm_reads_agree(struct nvm_read a, struct nvm_read b)
+{
+	return a.vd == b.vd && a.bytes == b.bytes && a.digest == b.digest &&
+	       a.tail == b.tail;
+}
+
+/*
+ * The slot's verdict, from at most NVM_READ_TRIES reads of it (#671; #665
+ * decision 2 and round 4). OK stands on one read: its CRC-32 covers every
+ * byte, the sequence included. Any other verdict, BLANK included, stands
+ * only when two reads return the same bytes. A read that went wrong looks
+ * like a refusal or a blank slot, and taking it for one would let the next
+ * commit restart the sequence below a container a later clean boot prefers.
+ * Two reads whose bytes differ are a media fault, and the slot is read
+ * again. A slot with no standing verdict is UNREAD: VD_LEN (rule 4, it did
+ * not deliver its bytes), no sequence, and the writer is held.
+ */
+static struct nvm_read nvm_judge_slot(uint32_t slot)
+{
+	struct nvm_read first = {VD_LEN, 0u, 0u, 0u, 0u};
+	struct nvm_read second = first;
+	struct nvm_read rd;
+	unsigned int n;
+
+	for (n = 0; n < NVM_READ_TRIES; ++n) {
+		rd = nvm_read_slot(slot);
+		if (rd.vd == VD_OK || (n >= 1u && nvm_reads_agree(first, rd)) ||
+		    (n >= 2u && nvm_reads_agree(second, rd)))
+			return rd;
+		if (n == 0u) {
+			first = rd;
+		} else {
+			/* other bytes than every earlier read */
+			nvm_read_faults++;
+			second = rd;
+		}
+	}
+	nvm_unread |= (slot == NVM_SLOT_A) ? 1u : 2u;
+	rd.vd = VD_LEN;
+	rd.seq = 0u;
+	return rd;
+}
+
+/*
+ * The picked slot into the stage again, judged again with its CRC, under the
+ * sequence it was picked by (#671): what is loaded and published is what was
+ * proven. A re-stage that is refused or names another sequence is a media
+ * fault and is tried again, NVM_READ_TRIES in all. 1 when one passes.
+ */
+static int nvm_restage(uint32_t slot, uint32_t seq)
+{
+	struct nvm_read rd;
+	unsigned int n;
+
+	for (n = 0; n < NVM_READ_TRIES; ++n) {
+		rd = nvm_read_slot(slot);
+		if (rd.vd == VD_OK && rd.seq == seq)
+			return 1;
+		nvm_read_faults++;
+	}
+	return 0;
 }
 
 /* The ten little-endian header words of section 6.1, word 2 (the sequence)
@@ -1384,22 +1541,18 @@ static void nvm_restore_walk(void)
 	milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) & ~0x2u);
 }
 
-/* The live window becomes the chosen verified slot, or the blank image when
- * no slot was ever accepted. */
+/* The live window becomes the chosen slot as it was proven, the bytes
+ * nvm_restage() left in the stage, or the blank image when no slot was
+ * accepted. Never a fresh read of the slot: what is loaded is what was
+ * judged (#671). */
 static void nvm_fill_window(uint32_t chosen)
 {
 	unsigned int i;
 
-	if (chosen != NVM_SLOT_NONE) {
-		const volatile uint8_t *src = nvm_slot(chosen);
-
-		for (i = 0; i < NVM_IMG_LEN; ++i)
-			NVM_IMG[i] = src[i];
-	} else {
+	if (chosen == NVM_SLOT_NONE)
 		nvm_stage_blank_image();
-		for (i = 0; i < NVM_IMG_LEN; ++i)
-			NVM_IMG[i] = NVM_STG[i];
-	}
+	for (i = 0; i < NVM_IMG_LEN; ++i)
+		NVM_IMG[i] = NVM_STG[i];
 }
 
 /*
@@ -1417,6 +1570,45 @@ static int nvm_load_window(uint32_t chosen)
 	__asm__ volatile("fence rw, rw" ::: "memory");
 	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELOAD);
 	return !(milan_read(MILAN_PP_NVM_STAT) & NVM_RD_RELOAD_REF);
+}
+
+/* Each UNREAD slot and why, for the console: no standing verdict in its
+ * judgement's reads, or judged and then not read back as judged in its
+ * re-stage's. */
+static void nvm_print_unread(void)
+{
+	unsigned int bit;
+
+	for (bit = 1u; bit <= 2u; bit <<= 1) {
+		if (nvm_unread & bit)
+			printf("%sslot %c %s in %u reads", (bit == 2u && (nvm_unread & 1u)) ? " and " : "",
+			       (bit == 1u) ? 'A' : 'B', (nvm_unstaged & bit) ?
+			       "did not read back as it was judged" : "gave no standing verdict",
+			       NVM_READ_TRIES);
+	}
+}
+
+/*
+ * The writer goes live, unless a slot is UNREAD (#671, #665 decision 2): its
+ * authority is unknown, it may hold a newer container than any slot that was
+ * read, and a commit could restart the sequence below one a later clean boot
+ * prefers. Then the writer is HELD until reset, as a retired writer is: it
+ * captures, erases and writes nothing of its own (the operator's explicit
+ * `milan_nvm wipe` still erases both slots), the console's commit is
+ * refused, and it stops answering the liveness deadline, so nvm_backed never
+ * claims the changes it will not keep. The next reset reads every slot again.
+ */
+static void nvm_go_live(void)
+{
+	if (!nvm_unread) {
+		nvm_ready = 1;
+		return;
+	}
+	nvm_retired = 1;
+	nvm_held = 1;
+	printf("Milan NVM: ");
+	nvm_print_unread();
+	printf("; its authority is unknown, so the writer is HELD until reset and nothing is persisted.\n");
 }
 
 /*
@@ -1437,7 +1629,8 @@ static int nvm_load_window(uint32_t chosen)
  *   window load it accepted, so the writer RE-ATTACHES: it never re-bases,
  *   loads or RELOADs (the backend would refuse the RELOAD anyway), releases
  *   whatever capture the previous run left open, which hands the captured
- *   work back, and publishes the sequence the media holds.
+ *   work back, and publishes the sequence the media holds. A slot UNREAD in
+ *   that re-derivation HOLDS it, as on a cold boot (#671).
  *
  *   [3] 0 with [2] 0: no window load was ever accepted in this boot, so
  *   nothing in it may be captured or committed (the backend arms no capture
@@ -1447,6 +1640,8 @@ static int nvm_load_window(uint32_t chosen)
  */
 static void nvm_boot(void)
 {
+	struct nvm_read rd_a;
+	struct nvm_read rd_b;
 	uint32_t seq_a;
 	uint32_t seq_b;
 	uint32_t chosen;
@@ -1471,11 +1666,28 @@ static void nvm_boot(void)
 		return;
 	}
 	nvm_started = 1;
-	nvm_verdict_a = nvm_validate(nvm_slot(NVM_SLOT_A));
-	nvm_verdict_b = nvm_validate(nvm_slot(NVM_SLOT_B));
-	seq_a = (nvm_verdict_a == VD_OK) ? nvm_seq_of(nvm_slot(NVM_SLOT_A)) : 0;
-	seq_b = (nvm_verdict_b == VD_OK) ? nvm_seq_of(nvm_slot(NVM_SLOT_B)) : 0;
+	rd_a = nvm_judge_slot(NVM_SLOT_A);
+	rd_b = nvm_judge_slot(NVM_SLOT_B);
+	nvm_verdict_a = rd_a.vd;
+	nvm_verdict_b = rd_b.vd;
+	seq_a = rd_a.seq;
+	seq_b = rd_b.seq;
 	chosen = nvm_pick_slot(nvm_verdict_a, seq_a, nvm_verdict_b, seq_b);
+	/* section 7: offer the newer; a slot that does not read back as it was
+	 * judged is UNREAD, and the other is offered */
+	while (chosen != NVM_SLOT_NONE &&
+	       !nvm_restage(chosen, (chosen == NVM_SLOT_A) ? seq_a : seq_b)) {
+		nvm_unstaged |= (chosen == NVM_SLOT_A) ? 1u : 2u;
+		nvm_unread |= (chosen == NVM_SLOT_A) ? 1u : 2u;
+		if (chosen == NVM_SLOT_A) {
+			nvm_verdict_a = VD_LEN;
+			seq_a = 0;
+		} else {
+			nvm_verdict_b = VD_LEN;
+			seq_b = 0;
+		}
+		chosen = nvm_pick_slot(nvm_verdict_a, seq_a, nvm_verdict_b, seq_b);
+	}
 	if (chosen != NVM_SLOT_NONE) {
 		nvm_seq = (chosen == NVM_SLOT_A) ? seq_a : seq_b;
 		verdict = VD_OK;
@@ -1506,8 +1718,9 @@ static void nvm_boot(void)
 	} else if (!(stat & NVM_RD_LOAD_PEND)) {
 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
 		nvm_publish(verdict);
-		nvm_ready = 1;
-		printf("Milan NVM: writer restarted on a live backend; re-attached, the window is not reloaded.\n");
+		nvm_go_live();
+		printf("Milan NVM: writer restarted on a live backend; %s, the window is not reloaded.\n",
+		       nvm_held ? "re-attached and HELD" : "re-attached");
 	} else if (milan_read(MILAN_PP_STAT) & MILAN_PP_STAT_RESTORE_DONE) {
 		/* the writer rule that goes with the backend's window-live term:
 		 * load pending 1 with the restore walk ALREADY SEQUENCED is not a
@@ -1542,7 +1755,7 @@ static void nvm_boot(void)
 			 * record in it is a completed record, owned by the last
 			 * verified state */
 			nvm_publish(verdict);
-			nvm_ready = 1;
+			nvm_go_live();
 			if (tries > 1)
 				printf("Milan NVM: the backend refused %u window load(s); accepted at attempt %u.\n",
 				       tries - 1u, tries);
@@ -1566,7 +1779,7 @@ static void nvm_boot(void)
 	if (!nvm_restore_ended())
 		nvm_restore_walk();
 	stat = milan_read(MILAN_PP_STAT);
-	printf("Milan NVM: slot A %s seq %lu, slot B %s seq %lu; offered %c seq %lu (%s), %u B at 0x%08x; walk done=%lu fail=%lu blank=%lu backed=%lu closed=%lu rolled_back=%lu cause=%lu/%lu.\n",
+	printf("Milan NVM: slot A %s seq %lu, slot B %s seq %lu; offered %c seq %lu (%s), %u B at 0x%08x; walk done=%lu fail=%lu blank=%lu backed=%lu closed=%lu rolled_back=%lu cause=%lu/%lu; read faults=%u unread=%u.\n",
 	       nvm_verdict_name[nvm_verdict_a], (unsigned long)seq_a,
 	       nvm_verdict_name[nvm_verdict_b], (unsigned long)seq_b,
 	       nvm_slot_letter(chosen), (unsigned long)nvm_seq,
@@ -1575,7 +1788,8 @@ static void nvm_boot(void)
 	       (unsigned long)((stat >> 2) & 1u), (unsigned long)((stat >> 3) & 1u),
 	       (unsigned long)((stat >> 7) & 1u), (unsigned long)((stat >> 6) & 1u),
 	       (unsigned long)((stat >> 16) & 1u), (unsigned long)((stat >> 17) & 1u),
-	       (unsigned long)((stat >> 18) & 7u), (unsigned long)((stat >> 21) & 3u));
+	       (unsigned long)((stat >> 18) & 7u), (unsigned long)((stat >> 21) & 3u),
+	       nvm_read_faults, nvm_unread);
 	set_idle_hook(nvm_service);
 }
 
@@ -1749,8 +1963,8 @@ static void nvm_print_status(void)
 	       nvm_slot_letter(nvm_auth_slot), (unsigned long)nvm_seq,
 	       (unsigned int)NVM_N_REC, (unsigned int)NVM_IMG_LEN,
 	       (unsigned int)MILAN_NVM_LIVE_BASE,
-	       nvm_ready ? "writer live" : (nvm_retired ? "writer retired"
-						       : "writer disabled"));
+	       nvm_ready ? "writer live" : (nvm_held ? "writer HELD, a slot unread at boot" :
+				    (nvm_retired ? "writer retired" : "writer disabled")));
 	printf("NVM: PP_NVM_STAT=%08lx backed=%lu dirty=%lu stale=%lu valid=%lu commit_busy=%lu dev_busy=%lu pend=%lu unres=%lu load_pend=%lu load_acc=%lu reload_ref=%lu verdict=%s; commits ok=%u failed=%u captures refused=%u acks refused=%u last=%s\n",
 	       (unsigned long)stat,
 	       (unsigned long)((stat >> 6) & 1u), (unsigned long)((stat >> 8) & 1u),
@@ -1787,10 +2001,15 @@ static void milan_nvm_handler(int nb_params, char **params)
 		return;
 	}
 	if (nb_params == 1 && nvm_arg_is(params[0], "commit")) {
-		if (!nvm_ready)
+		if (nvm_held) {
+			printf("NVM: refused; ");
+			nvm_print_unread();
+			printf(" at boot, the writer is HELD until reset.\n");
+		} else if (!nvm_ready) {
 			printf("NVM: the writer is disabled on this build.\n");
-		else
+		} else {
 			nvm_commit("console");
+		}
 		return;
 	}
 	if (nb_params == 1 && nvm_arg_is(params[0], "wipe")) {

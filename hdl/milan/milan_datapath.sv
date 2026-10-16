@@ -6585,8 +6585,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! plane has settled and goes to both rings: the render stage and the
   //! capture crossbar's LOOP queues (settle_recentre_p_r, declared at that
   //! instance). Armed by a change of the selected index, by the aligner's
-  //! re-engagement, and, outside recovery, by an aligner excursion past
-  //! the quiet band (a pull-in under a running stream). SETTLED means:
+  //! re-engagement, at INTERNAL by a listener bind's first PDU (below), and,
+  //! outside recovery, by an aligner excursion past the quiet band (a
+  //! pull-in under a running stream). SETTLED means:
   //! under a followed source, the servo LOCKED for SETTLE_LOCK_WIN_C windows
   //! running, since the frequency-only loop's phase tail falls about 0.64 a
   //! window; at INTERNAL, the aligner inside the settle band for
@@ -6612,9 +6613,34 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   logic [SETTLE_CEIL_LOG2_C:0] settle_ceil_ticks_r;
   wire settle_exc_w = mga_engaged_w &&
                       (mga_err_abs_w > 16'(signed'(SETTLE_EXC_ERR_C)));
+  //! #645, bench lane B17: A LISTENER BIND'S FIRST PDU AT INTERNAL. The
+  //! capture crossbar's LOOP queue primes where a bound stream's first PDU
+  //! lands (KL_chan_map_capture PRIME: its accepted tlast beat), and at
+  //! INTERNAL no other term arms this recentre, so the ring kept that phase,
+  //! within a tick of its empty edge, until the first late burst slipped it
+  //! one frame: once in each of B17's 10 binds. Each LOOP stream waits from
+  //! its bind's rise for that beat, and at INTERNAL the beat arms the
+  //! recentre, which then fires as every INTERNAL arming does. Under
+  //! following the beat only ends the wait, so the switch rules alone arm
+  //! there; an unbind ends it too. No LOOP feed (LOOPBACK_P = 0), no arm.
+  logic [LB_STREAMS_C-1:0] settle_bind_wait_r;
+  logic [LB_STREAMS_C-1:0] settle_bind_pdu_w;
+  always_comb begin : settle_bind_pdu
+    for (int s = 0; s < LB_STREAMS_C; s++) begin
+      settle_bind_pdu_w[s] = settle_bind_wait_r[s] && lb_tap_tvalid_w &&
+                             lb_tap_tlast_w && (32'(lb_tap_tuser_w) == s);
+    end
+  end : settle_bind_pdu
+  wire settle_bind_arm_w = !follow_sel_r && (|settle_bind_pdu_w);
+  always_ff @(posedge axis_clk) begin : g_settle_bind_wait
+    if (!axis_resetn) settle_bind_wait_r <= '0;
+    else settle_bind_wait_r <= (settle_bind_wait_r | strtbl_bind_rise_w[LB_STREAMS_C-1:0]) &
+                               ~settle_bind_pdu_w & ~strtbl_bind_fall_w[LB_STREAMS_C-1:0];
+  end : g_settle_bind_wait
   //! the #386 block's registered copies give the change and re-engagement
   wire settle_arm_w = (media_clk_src_r != src_recentre_q_r) ||
                       (mga_engaged_w && !mga_engaged_q_r) ||
+                      settle_bind_arm_w ||
                       (settle_exc_w && !settle_pend_r && !settle_recover_r);
   wire settle_steady_w = follow_sel_r
                          ? mcsrv_locked_w

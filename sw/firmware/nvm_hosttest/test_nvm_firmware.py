@@ -42,19 +42,40 @@ WHAT IT GRADES, per shipped shape, all on bytes:
  10. `milan_nvm wipe` erases both slots;
  11. an open record beside an unaligned closed predecessor keeps its staged
      bytes while the predecessor's change commits byte-identically;
- 12. rejected shape/identity startup never heartbeats under console input.
+ 12. rejected shape/identity startup never heartbeats under console input;
+ 13. a boot read fault leaves the authority unknown (#671): every fault
+     window starting within the boot's read bound, one read long to one past
+     the per-loop bound, and the whole boot (`read_fault_cases.fault_cases`,
+     on the cold boot and on a writer restart without a fabric reset,
+     `writer_restart.py`), over a header, sequence or record-area byte, the
+     blank or older slot's, an entity or record-area byte under a CRC closed
+     over the faulty bytes, an all-0xFF read, the other slot's container, or
+     two reads differing in one term of the refused-read comparison alone,
+     one slot valid and the other blank or both valid, both ways round, is
+     followed by a change, its commit and a clean reboot. The boot line
+     names each slot as its bytes read or UNREAD and offers the newer slot it
+     accepts, the window is that slot's container byte for byte (a restart
+     leaves it as it was), and every saved record and the change survive, or
+     the writer was HELD, persisted nothing and named each unread slot and
+     why; the reads and the hold are the model's (`read_fault_cases.expect`);
+ 14. a cleanly read but refused slot names no generation: with no slot
+     accepted, the first commit is at sequence 1.
 
-NEGATIVE CONTROLS. `--self-test` plants five writer defects into a copy of
-the firmware, one at a time, and requires the suite to redden on each: the
-ascending-id check removed, the heartbeat dropped from the erase poll loop,
-the read-back verify skipped, the erased-record rule accepting a header
-alone, and a word copy crossing into an open neighbour. A control that stays
-green is reported as the finding it is.
+NEGATIVE CONTROLS. `--self-test` plants twenty-three writer defects into a
+copy of the firmware, one at a time, and requires the suite to redden on
+each: the ascending-id check removed, the heartbeat dropped from the erase
+poll loop, the read-back verify skipped, the erased-record rule accepting a
+header alone, a word copy crossing into an open neighbour, and eighteen #671
+defects, each planted into the first shape and both product shapes and
+caught there by its own named finding (`read_fault_cases.READ_FAULT_MUTATIONS`
+says what each is; four drop one term each of `read_fault_cases.COMPARISON`,
+which must be the firmware's, each term with a class and a control).
 
 Usage:
     sw/firmware/nvm_hosttest/test_nvm_firmware.py            # every shipped shape
     sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
     sw/firmware/nvm_hosttest/test_nvm_firmware.py --config configs/endstation_ax7101_8x8.yaml
+    sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test --jobs 4
 
 Exit 0 = every check passed (and every control reddened), 1 = a finding,
 2 = the harness could not be built or run.
@@ -63,13 +84,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import struct
 import subprocess
 import sys
 import tempfile
+import threading
 import zlib
-from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -87,6 +111,11 @@ from nvm_shape import (binding_base, build, firmware_constants,  # noqa: E402
 from check_nvm_record_space import expected_payloads          # noqa: E402
 from flash_map import literal                                  # noqa: E402
 from boot_policy import fabric_constants                       # noqa: E402
+from read_fault_cases import (BOTH_VALID_SEQS, FAULT_SEQS, HELD_LINE, PRODUCT_SHAPES,  # noqa: E402
+                              READ_FAULT_MUTATIONS, RETIRE_CAUSES, UNREAD_RE, FaultCase, comparison_findings,
+                              comparison_self_test, expect, fault_cases, hold_findings, line_findings,
+                              read_findings, restart_findings)
+from writer_restart import host_restart                        # noqa: E402
 
 FIRMWARE = ROOT / "sw/firmware/milan_baremetal/milan_baremetal.c"
 HARNESS = HERE / "nvm_host.c"
@@ -144,6 +173,8 @@ class Bench:
     work: Path
     frames: dict[int, bytes]
     expect: dict
+    #: the threads check 13 walks its cases on
+    jobs: int = 1
 
     @property
     def img_len(self) -> int:
@@ -198,11 +229,12 @@ def constants_header(shape: Shape, donor: Donor,
 
 
 def compile_bench(work: Path, firmware_text: str, header: str) -> Path:
-    """Build the harness and the (fence-blanked) firmware into `work`."""
+    """Build the harness and the (fence-blanked) firmware, with the writer's
+    CPU-only reset appended (`writer_restart.host_restart`), into `work`."""
     (work / "generated").mkdir(parents=True, exist_ok=True)
     (work / "generated/soc.h").write_text(header)
     fw = work / "milan_baremetal.c"
-    fw.write_text(FENCE_RE.sub("(void)0;", firmware_text))
+    fw.write_text(FENCE_RE.sub("(void)0;", firmware_text) + host_restart(firmware_text))
     common = ["gcc", "-std=gnu11", "-O1", "-g", "-Wall", "-Wextra", "-Werror",
               f"-I{work}", f"-I{STUBS}"]
     host_defs = [f"-DNVM_HOST_JOURNAL_OFFSET=0x{JOURNAL:x}u",
@@ -245,11 +277,13 @@ def run(bench: Bench, *args: str) -> tuple[str, dict[str, int], re.Match | None]
     if r.returncode:
         raise SystemExit(f"harness failed ({r.returncode}): {' '.join(args)}\n"
                          f"{r.stdout}\n{r.stderr}")
-    summary = {}
-    for line in SUMMARY_RE.findall(r.stdout):
-        if line.startswith("hb="):
-            summary = {k: int(v) for k, v in (kv.split("=") for kv in line.split())}
-    return r.stdout, summary, BOOT_RE.search(r.stdout)
+    return r.stdout, host_state(r.stdout), BOOT_RE.search(r.stdout)
+
+
+def host_state(text: str) -> dict[str, int]:
+    """The last HOST summary in a transcript, field by field."""
+    lines = [x for x in SUMMARY_RE.findall(text) if x.startswith("hb=")]
+    return {k: int(v) for k, v in (kv.split("=") for kv in lines[-1].split())} if lines else {}
 
 
 def slot_file(bench: Bench, name: str, blob: bytes) -> str:
@@ -573,21 +607,290 @@ def grade_partial_ownership(bench: Bench) -> list[str]:
     return findings
 
 
-GRADES = (grade_blank_boot, grade_restore_change_commit, grade_ab_rule,
-          grade_parity, grade_failures, grade_liveness,
-          grade_snapshot_contract, grade_partial_ownership)
+@dataclass
+class FaultRun:
+    """Check 13's fixtures on one shape: the containers its slots hold, the
+    change made after the faulty boot and after the recovery, and every
+    record each clean reboot must restore."""
+
+    containers: dict[tuple[int, bool], bytes]   # (seq, the older one) -> container
+    off: int                                    # the changed record in the container
+    key: tuple                                  # the changed record, as klj2_decode names it
+    changes: tuple[bytes, bytes]
+    want: tuple[dict, dict, dict]               # the saved records, then with each change
 
 
-def grade(bench: Bench) -> list[str]:
-    """Every check for one shape."""
+def fault_run(bench: Bench) -> FaultRun:
+    """The newer container is the shape's records; the older one, a sequence
+    below it, differs in the last two names, so a boot that falls back to it
+    is told apart by more than the record a change rewrites."""
+    rid = max(bench.frames)                          # the last name record
+    older = dict(bench.frames)
+    for r, base in ((rid, 0x11), (rid - 1, 0x67)):
+        older[r] = frame_record(r, bytes((base + j) & 0xFF for j in range(len(bench.frames[r]) - REC_HDR)),
+                                bench.donor.layout)
+    plen = len(bench.frames[rid]) - REC_HDR
+    changes = tuple(frame_record(rid, bytes((b + j) & 0xFF for j in range(plen)), bench.donor.layout)
+                    for b in (0x40, 0x21))
+    saved = klj2_decode(bench.assemble(bench.frames, 1), bench.donor, bench.ident, bench.expect)[1]
+    key = ("NAME", rid - 0x80)
+    containers = {}
+    for seq in FAULT_SEQS + BOTH_VALID_SEQS:
+        containers[(seq, False)] = bench.assemble(bench.frames, seq)
+        containers[(seq, True)] = bench.assemble(older, (seq - 1) & 0xFFFF_FFFF)
+    return FaultRun(containers, KLJ2_HDR + bench.offsets()[rid], key, changes,
+                    (saved, {**saved, key: changes[0][REC_HDR:]}, {**saved, key: changes[1][REC_HDR:]}))
+
+
+def restored(bench: Bench, path: Path, want: dict, key: tuple) -> tuple[bytes | None, int]:
+    """The record `key` in the window a boot loaded, and how many of the
+    other records in `want` that window does not hold as `want` says."""
+    vd, applied = klj2_decode(path.read_bytes()[:bench.img_len], bench.donor,
+                              bench.ident, bench.expect)
+    if vd != VD_OK:
+        return None, len(want) - 1
+    return applied.get(key), sum(1 for k, v in want.items() if k != key and applied.get(k) != v)
+
+
+def boot_findings(bench: Bench, case: FaultCase, boot: re.Match, unread: int,
+                  slots: dict[str, bytes], ddr: Path) -> list[str]:
+    """What the faulty boot's own line and window must show: each slot as
+    its bytes read, or UNREAD; the offer the slots its line accepts make; and
+    a window holding that offer's container byte for byte, or the blank
+    image when there is none."""
+    f = line_findings(case, boot, unread)
+    got = boot.group(5)
+    image = slots[got][:bench.img_len] if got in slots else \
+        bench.assemble(bench.erased_frames(), 0)
+    window = ddr.read_bytes()[:bench.img_len]
+    if window != image:
+        vd = bench.verdict(window)
+        f.append(f"{case.name}: the window holds another valid container than the one the boot "
+                 f"offered ({got}), at seq {struct.unpack_from('<I', window, 8)[0]:#x}"
+                 if vd == VD_OK else
+                 f"{case.name}: the window the boot loaded is not the container it judged: it "
+                 f"reads {VERDICT_NAME[vd]}")
+    return f
+
+
+def reboot_findings(bench: Bench, fr: FaultRun, name: str, held: bool, w: Path,
+                    seen: dict | None = None) -> list[str]:
+    """The clean reboot after a faulty boot. Every saved record and the
+    change survive it, or the faulty boot held and it restores every saved
+    record; a held case then runs on through a change, its commit and
+    another clean reboot, which must restore that change and the rest. The
+    harness is deterministic, so `seen` keeps each reboot's findings by the
+    slots it boots, and a case leaving the same slots is not booted again."""
+    key = (held, (w / "rf_a1.bin").read_bytes(), (w / "rf_b1.bin").read_bytes())
+    if seen is not None and key in seen:
+        return [f"{name}: {x}" for x in seen[key]]
+    tail = ("--change", f"{fr.off}:{fr.changes[1].hex()}", "--idle-ms", "1500",
+            "--dump-slot-a", str(w / "rf_a2.bin"), "--dump-slot-b", str(w / "rf_b2.bin")) \
+        if held else ()
+    out, s, boot = run(bench, "--slot-a", str(w / "rf_a1.bin"), "--slot-b", str(w / "rf_b1.bin"),
+                       "--boot", "--dump-ddr", str(w / "rf_ddr1.bin"), *tail)
+    f = []
+    _check(f, boot is not None and HELD_LINE not in out and boot.group(5) != "-",
+           f"the clean reboot did not offer a slot: {boot and boot.group(0)}")
+    if not held:
+        got, lost = restored(bench, w / "rf_ddr1.bin", fr.want[1], fr.key)
+        _check(f, got == fr.want[1][fr.key],
+               f"the change committed after the faulty boot was lost on the clean reboot: "
+               f"it restored {got and got[:4].hex()}, want {fr.want[1][fr.key][:4].hex()}")
+        _check(f, lost == 0, f"{lost} other saved record(s) did not survive the faulty "
+                             "boot's commit and the clean reboot")
+    else:
+        got, lost = restored(bench, w / "rf_ddr1.bin", fr.want[0], fr.key)
+        _check(f, got == fr.want[0][fr.key] and lost == 0,
+               f"the held boot changed the saved state: the clean reboot restored "
+               f"{got and got[:4].hex()}, want the saved {fr.want[0][fr.key][:4].hex()}, and "
+               f"{lost} other saved record(s) differ")
+        _check(f, s.get("acks") == 1, f"the writer did not recover on the clean reboot: {s}")
+        run(bench, "--slot-a", str(w / "rf_a2.bin"), "--slot-b", str(w / "rf_b2.bin"),
+            "--boot", "--dump-ddr", str(w / "rf_ddr2.bin"))
+        got, lost = restored(bench, w / "rf_ddr2.bin", fr.want[2], fr.key)
+        _check(f, got == fr.want[2][fr.key],
+               "the change committed after the recovery was lost on the clean reboot")
+        _check(f, lost == 0, f"{lost} other saved record(s) did not survive the recovery")
+    if seen is not None:
+        seen[key] = f
+    return [f"{name}: {x}" for x in f]
+
+
+def grade_restart_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path,
+                       tail: tuple[str, ...], seen: dict | None = None) -> list[str]:
+    """One check-13 case on a writer restart: a clean cold boot, the fault
+    armed for the restart's own reads, the restart with the fabric kept,
+    then `tail` (a change, the debounce, the slots dumped) and the clean
+    reboot. A re-attach never reloads the window."""
+    out, s, _ = run(bench, "--slot-a", str(w / "rf_a.bin"), "--slot-b", str(w / "rf_b.bin"), "--boot",
+                    "--idle-ms", "100", "--dump-ddr", str(w / "rf_ddr0.bin"), *case.fault, "--restart",
+                    "--dump-ddr", str(w / "rf_ddr_r.bin"), *tail)
+    restart = out.split("HOST restarting\n", 1)[1].split("HOST restarted\n", 1)[0]
+    f, held = restart_findings(case, restart, BOOT_RE.search(restart), host_state(restart), s)
+    if (w / "rf_ddr_r.bin").read_bytes() != (w / "rf_ddr0.bin").read_bytes():
+        f.append(f"{case.name}: the writer restart reloaded the window it re-attached to")
+    return f + reboot_findings(bench, fr, case.name, held, w, seen)
+
+
+def grade_fault_case(bench: Bench, fr: FaultRun, case: FaultCase, w: Path,
+                     seen: dict | None = None) -> list[str]:
+    """One check-13 case, its files in `w`: the faulty boot (or restart), a
+    real change, the debounce commit, then the clean reboot (`seen`, as
+    `reboot_findings` keeps it)."""
+    newer = fr.containers[(case.seq, False)]
+    other = fr.containers[(case.seq, True)] if case.older else b"\xff" * SLOT
+    slots = {case.valid.upper(): newer, case.other.upper(): other}
+    (w / "rf_a.bin").write_bytes(slots["A"])
+    (w / "rf_b.bin").write_bytes(slots["B"])
+    # a restart the model holds idles past T-NVM-WRITER-ALIVE, so its claim lapses
+    tail = ("--change", f"{fr.off}:{fr.changes[0].hex()}",
+            "--idle-ms", "3000" if case.restart and expect(case).unread else "1500",
+            "--dump-slot-a", str(w / "rf_a1.bin"), "--dump-slot-b", str(w / "rf_b1.bin"))
+    if case.restart:
+        return grade_restart_case(bench, fr, case, w, tail, seen)
+    out, s, boot = run(bench, "--slot-a", str(w / "rf_a.bin"), "--slot-b", str(w / "rf_b.bin"),
+                       *case.fault, "--boot", "--dump-ddr", str(w / "rf_ddr0.bin"), *tail)
+    name = case.name
+    f = read_findings(case, s.get("boot_reads", 0))
+    if boot is None:
+        return f + [f"{name}: the faulty boot printed no boot line"]
+    tally = UNREAD_RE.search(out)
+    unread = int(tally.group(2)) if tally else 0
+    held = HELD_LINE in out
+    f += boot_findings(bench, case, boot, unread, slots, w / "rf_ddr0.bin") + hold_findings(case, held, unread, out)
+    if held:
+        _check(f, s.get("erases") == 0 and s.get("programs") == 0 and
+               s.get("starts") == 0 and s.get("acks") == 0 and s.get("backed") == 0
+               and s.get("dirty") == 1 and s.get("hb") == 0,
+               f"{name}: the held writer persisted something or claimed backing: {s}")
+        _check(f, unread != 0, f"{name}: the boot line did not name the unread slot")
+    else:
+        _check(f, s.get("acks") == 1 and s.get("dirty") == 0,
+               f"{name}: the change was neither committed nor refused: {s}")
+    return f + reboot_findings(bench, fr, name, held, w, seen)
+
+
+def grade_read_faults(bench: Bench, until: str = "") -> list[str]:
+    """Check 13 (#671): a boot read fault leaves the authority unknown.
+
+    The shipping writer reads a slot through the memory-mapped window, which
+    always returns bytes, so a media fault can only return wrong ones. Each
+    case (read_fault_cases.fault_cases) boots with a valid container in one
+    slot and a blank or older one in the other, plants a read fault, makes a
+    real change and lets the debounce commit it, then boots again clean.
+    The faulty boot's line, offer and window must be what its reads proved,
+    and every saved record and the change survive the reboot, or the faulty
+    boot HELD, persisted nothing, said so, and the reboot restores every
+    saved record. `bench.jobs` threads walk the cases, each in a directory
+    of its own; `until` stops the walk at the first finding with its words.
+    """
+    fr = fault_run(bench)
+    cases = fault_cases(KLJ2_HDR + (bench.img_len - KLJ2_HDR - KLJ2_TRAILER) // 2)
+    found, seen = threading.Event(), {}
+
+    def walk(k: int) -> list[tuple[int, list[str]]]:
+        """Every bench.jobs-th case from the k-th, until a named finding."""
+        w = bench.work / f"rf{k}"
+        w.mkdir(exist_ok=True)
+        done = []
+        for i in range(k, len(cases), bench.jobs):
+            if found.is_set():
+                break
+            got = grade_fault_case(bench, fr, cases[i], w, seen)
+            if until and any(until in item for item in got):
+                found.set()
+            done.append((i, got))
+        return done
+
+    with ThreadPoolExecutor(max_workers=bench.jobs) as pool:
+        walked = sorted(x for part in pool.map(walk, range(bench.jobs)) for x in part)
+    f = [item for _, got in walked for item in got]
+    return f if found.is_set() else f + grade_hold_console(bench)
+
+
+def grade_hold_console(bench: Bench) -> list[str]:
+    """Check 13's console. A held writer refuses the console's commit and
+    reports the hold; the operator's explicit wipe still erases both slots,
+    as for a retired writer; and a writer that retires with a slot unread,
+    for any cause RETIRE_CAUSES names, names the retire, not the slot."""
+    f = []
+    w = bench.work
+    held = ("--slot-a", slot_file(bench, "rf_a.bin", bench.assemble(bench.frames, 0x5A5A5)),
+            "--slot-b", slot_file(bench, "rf_b.bin", b"\xff" * SLOT),
+            "--read-fault", "a:0:0:64", "--boot")
+    out, s, _ = run(bench, *held, "--uart", "milan_nvm commit", "--uart", "milan_nvm",
+                    "--idle-ms", "3000")
+    _check(f, "refused; slot A gave no standing verdict in 3 reads at boot" in out and
+           "writer HELD" in out and "unread=1." in out and s.get("erases") == 0 and
+           s.get("acks") == 0 and s.get("backed") == 0,
+           f"the held writer did not refuse the console's commit and report the hold: {s}")
+    _, s, _ = run(bench, *held, "--uart", "milan_nvm wipe",
+                  "--dump-slot-a", str(w / "rf_a1.bin"), "--dump-slot-b", str(w / "rf_b1.bin"))
+    _check(f, s.get("erases") == 2 and (w / "rf_a1.bin").read_bytes() == b"\xff" * SLOT
+           and (w / "rf_b1.bin").read_bytes() == b"\xff" * SLOT,
+           f"the operator's wipe did not erase both slots while the writer was held: {s}")
+    for cause, opts, line, state in RETIRE_CAUSES:
+        out, s, _ = run(bench, *opts, *held, "--uart", "milan_nvm commit", "--uart", "milan_nvm")
+        _check(f, "unread=1." in out and line in out and state in out and "writer HELD" not in out
+               and "gave no standing verdict" not in out and HELD_LINE not in out,
+               f"a writer retired by {cause} with a slot unread named the slot on the console, "
+               f"not the retire: {s}")
+    return f
+
+
+def grade_refused_generation(bench: Bench) -> list[str]:
+    """Check 14 (#671): a slot whose bytes read cleanly but fail validation is
+    not authoritative and names no generation. With the other slot blank, no
+    slot is accepted, and the first commit after a change is at sequence 1,
+    whatever the refused slot's header says."""
+    f = []
+    golden = bench.assemble(bench.frames, 0x5A5A5)
+    foreign = reseal(golden[:20] + struct.pack("<I", 0xDEAD_0001) + golden[24:])
+    torn = golden[:KLJ2_HDR + 1] + bytes([golden[KLJ2_HDR + 1] ^ 1]) + golden[KLJ2_HDR + 2:]
+    rid = max(bench.frames)
+    new = frame_record(rid, bytes((0x40 + j) & 0xFF for j in range(len(bench.frames[rid]) - REC_HDR)),
+                       bench.donor.layout)
+    blank = b"\xff" * SLOT
+    for label, refused in (("foreign entity", foreign), ("bad CRC", torn)):
+        for where in "ab":
+            a, b = (refused, blank) if where == "a" else (blank, refused)
+            name = f"slot {where.upper()} refused ({label})"
+            out, s, boot = run(bench, "--slot-a", slot_file(bench, "rg_a.bin", a),
+                               "--slot-b", slot_file(bench, "rg_b.bin", b), "--boot",
+                               "--change", f"{KLJ2_HDR + bench.offsets()[rid]}:{new.hex()}",
+                               "--idle-ms", "1500", "--dump-slot-a", str(bench.work / "rg_a1.bin"))
+            seq_seen = boot and boot.group(2 if where == "a" else 4)
+            _check(f, boot is not None and boot.group(5) == "-" and seq_seen == "0",
+                   f"{name}: a generation was taken from a refused slot: the boot line "
+                   f"reports {boot and boot.group(0)}")
+            got = (bench.work / "rg_a1.bin").read_bytes()[:bench.img_len]
+            committed = struct.unpack_from("<I", got, 8)[0]
+            _check(f, s.get("acks") == 1 and bench.verdict(got) == VD_OK and committed == 1,
+                   f"{name}: a generation was taken from a refused slot: the first commit "
+                   f"is at seq {committed:#x}, want 1: {s}")
+    return f
+
+
+#: checks 1 to 12, which the first five planted defects are graded by
+WRITER_GRADES = (grade_blank_boot, grade_restore_change_commit, grade_ab_rule,
+                 grade_parity, grade_failures, grade_liveness,
+                 grade_snapshot_contract, grade_partial_ownership)
+#: checks 13 and 14 (#671), which the read-fault defects are graded by
+READ_FAULT_GRADES = (grade_read_faults, grade_refused_generation)
+GRADES = WRITER_GRADES + READ_FAULT_GRADES
+
+
+def grade(bench: Bench, grades: tuple = GRADES) -> list[str]:
+    """Every check in `grades` for one shape."""
     findings = []
-    for g in GRADES:
+    for g in grades:
         findings += [f"{bench.cfg.stem}: {x}" for x in g(bench)]
     return findings
 
 
 def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
-    """Each planted defect must redden the suite; a green control is a finding."""
+    """Each planted writer defect must redden checks 1 to 12; a green control is a finding."""
     findings = []
     for label, (old, new) in MUTATIONS.items():
         if firmware_text.count(old) != 1:
@@ -596,14 +899,50 @@ def self_test(cfg: Path, work: Path, firmware_text: str) -> list[str]:
         sub = work / label
         sub.mkdir(parents=True)
         bench = make_bench(cfg, sub, firmware_text.replace(old, new))
-        got = grade(bench)
+        got = grade(bench, WRITER_GRADES)
         if label == "edge_cross" and not any("open record changed across unaligned" in item for item in got):
             findings.append("self-test: edge_cross missed its named partial ownership assertion")
         if not got:
             findings.append(f"self-test: the {label} defect was NOT caught")
         else:
-            print(f"  self-test OK: {label:<22} caught by {len(got)} finding(s); "
-                  f"first: {got[0]}")
+            print(f"  self-test OK: {label:<22} caught by {len(got)} finding(s); first: {got[0]}")
+    return findings
+
+
+def replant(bench: Bench, work: Path, firmware_text: str) -> Bench:
+    """`bench` with another firmware text compiled into `work`; the shape
+    and its generated constants are reused, not rebuilt."""
+    work.mkdir(parents=True)
+    header = (bench.work / "generated/soc.h").read_text()
+    return replace(bench, binary=compile_bench(work, firmware_text, header), work=work)
+
+
+def self_test_read_faults(benches: list[Bench], work: Path, firmware_text: str) -> list[str]:
+    """Each #671 defect, planted into a copy of the firmware on every bench,
+    must be caught by a finding carrying its own words. Check 14 runs first,
+    and check 13 stops at the first named finding."""
+    findings = []
+    for label, (pairs, words) in READ_FAULT_MUTATIONS.items():
+        planted = firmware_text
+        for old, new in pairs:
+            if planted.count(old) != 1:
+                findings.append(f"self-test: the {label} plant no longer matches the firmware")
+                break
+            planted = planted.replace(old, new)
+        else:
+            for bench in benches:
+                pb = replant(bench, work / label / bench.cfg.stem, planted)
+                got = grade_refused_generation(pb)
+                if not any(words in item for item in got):
+                    got += grade_read_faults(pb, until=words)
+                named = [item for item in got if words in item]
+                if not named:
+                    findings.append(f"self-test: the {label} defect was NOT caught on "
+                                    f"{bench.cfg.stem} by a finding naming {words!r} "
+                                    f"({len(got)} other finding(s))")
+                else:
+                    print(f"  self-test OK: {label:<28} {bench.cfg.stem:<27} caught by "
+                          f"{len(named)} named finding(s); first: {named[0]}")
     return findings
 
 
@@ -614,6 +953,8 @@ def main() -> int:
                     help="configs to grade (default: every configs/endstation_*.yaml)")
     ap.add_argument("--self-test", action="store_true",
                     help="also plant each writer defect and require a finding")
+    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4,
+                    help="threads check 13 walks its cases on")
     a = ap.parse_args()
     cfgs = a.config or sorted((ROOT / "configs").glob("endstation_*.yaml"))
     firmware_text = FIRMWARE.read_text()
@@ -621,12 +962,15 @@ def main() -> int:
     import test_disabled_writer as disabled
 
     findings = []
+    benches = []
     with tempfile.TemporaryDirectory(prefix="nvmfw.") as tmp:
         for cfg in cfgs:
             work = Path(tmp) / cfg.stem
             work.mkdir()
-            bench = make_bench(cfg, work, firmware_text)
-            got = grade(bench)
+            bench = replace(make_bench(cfg, work, firmware_text), jobs=max(1, a.jobs))
+            benches.append(bench)
+            cases = fault_cases(KLJ2_HDR + (bench.img_len - KLJ2_HDR - KLJ2_TRAILER) // 2)
+            got = grade(bench) + comparison_findings(firmware_text, cases)
             got += disabled.grade(cfg, work / "disabled", firmware_text)
             got += bootwalk.grade(cfg, work / "boot-walk", firmware_text, bench)
             disabled.check_link_guard(bench)
@@ -635,6 +979,10 @@ def main() -> int:
                   f"{'OK' if not got else f'{len(got)} finding(s)'}")
         if a.self_test and not findings:
             findings += self_test(cfgs[0], Path(tmp) / "selftest", firmware_text)
+            findings += self_test_read_faults(
+                [b for b in benches if b is benches[0] or b.cfg.stem in PRODUCT_SHAPES],
+                Path(tmp) / "read-fault-mutant", firmware_text)
+            findings += comparison_self_test(firmware_text, cases)
             findings += disabled.self_test(cfgs[0], Path(tmp) / "disabled-mutant", firmware_text)
             findings += bootwalk.self_test(cfgs[0], Path(tmp) / "boot-walk-mutant", firmware_text)
             subprocess.run([sys.executable, str(HERE / "test_phy_firmware.py")],

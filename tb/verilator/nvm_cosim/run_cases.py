@@ -69,6 +69,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "sw" / "firmware" / "nvm_hosttest"))
 import test_nvm_firmware as ref   # noqa: E402  (the repository's own host gate)
+from writer_restart import host_restart   # noqa: E402  (the writer's CPU-only reset, shared with it)
 from cosim_oracle import CLK_HZ, Run, ShapeInfo, T_HOLD_MS   # noqa: E402
 from cosim_case_map import (     # noqa: E402
     CHECKS, CONTRACT_ONLY, CORE_8X8, DEPENDENT, POWER_CYCLE, PROD_MUST_FAIL,
@@ -174,37 +175,6 @@ def host_firmware(text: str, fences: int) -> str:
     if text.count(FENCE_RW) != fences:
         raise SystemExit(f"expected {fences} rw fences, found {text.count(FENCE_RW)}")
     return text.replace(FENCE_RW, "(void)0;")
-
-
-#: the writer's file-scope state and its initial value: what a CPU-only reset
-#: gives back (the C start-up zeroes .bss and reloads .data)
-WRITER_STATICS = {"nvm_started": "0", "nvm_ready": "0", "nvm_retired": "0", "nvm_in_commit": "0", "nvm_seq": "0",
-                  "nvm_auth_slot": "NVM_SLOT_NONE", "nvm_verdict_a": "0",
-                  "nvm_verdict_b": "0", "nvm_last_verdict": "0", "nvm_commits_ok": "0",
-                  "nvm_commits_failed": "0", "nvm_captures_refused": "0",
-                  "nvm_acks_refused": "0", "nvm_hb_last": "0", "nvm_dirty_since": "0"}
-
-
-def host_restart(text: str) -> str:
-    """HOST MODEL ONLY, appended to the host build of the writer: a CPU-only
-    reset, the writer's restart without a fabric reset. Refuses unless it
-    names every file-scope variable of the writer, so a new one cannot
-    survive the modelled reset unnoticed. NOTHING ELSE of a CPU reset is
-    modelled -- not the boot code's memory initialisation, not the memory
-    holding the live window, not the bus fabric -- so W1 to W4 ASSUME
-    obligation O4 of the contract page and cannot test it."""
-    found = set(re.findall(r"^static (?:int|uint32_t|uint64_t|unsigned int) (nvm_\w+)(?: = [^;(]+)?;$",
-                           text, re.M))
-    if found != set(WRITER_STATICS):
-        raise SystemExit(f"writer statics {sorted(found)} != restart model {sorted(WRITER_STATICS)}")
-    body = "".join(f"\t{k} = {v};\n" for k, v in WRITER_STATICS.items())
-    return ("\n/* HOST MODEL ONLY, appended by run_cases.py: a CPU-only reset of the\n"
-            " * writer. The fabric, the backend and the media keep their state; every\n"
-            " * static of the writer returns to its initial value and the writer boots\n"
-            " * again. */\n"
-            "void nvm_host_writer_restart(void);\n"
-            "void nvm_host_writer_restart(void)\n{\n" + body +
-            "\tset_idle_hook(0);\n\tnvm_boot();\n}\n")
 
 
 # -------------------------------------------------------------------- builds
