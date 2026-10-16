@@ -25,7 +25,7 @@ import time
 from typing import Callable
 import zipfile
 
-from exec_audit import PROCESS_ROOT, STREAM_WAIT, _record, audit_step
+from exec_audit import PROCESS_ROOT, STREAM_WAIT, Origin, _record, audit_step
 from exec_operands import EXEC_ONLY
 
 NOTHING = "it installs and fetches nothing."
@@ -316,6 +316,23 @@ def interpreter_programs(step: Step, base: Path) -> None:
          "streamed program not readable at its exec: python3.12")
 
 
+def masks(step: Step, base: Path) -> None:
+    """A program text names a job-written checkout file like a job-temporary one; a file the checkout held stays."""
+    with tempfile.TemporaryDirectory(prefix="zz-checkout-", dir="/var/tmp") as directory:
+        root = Path(directory)
+        (root / "sub").mkdir()
+        (root / "sub/held.tcl").write_text("puts held\n")
+        origin = Origin(root, CONTROLS, watch=False)
+        for text, expect in ((f"source {{{root}/sub/held.tcl}}", f"source {{{root}/sub/held.tcl}}"),
+                             (f"source {{{root}/sub/.mut-x1y2z3.tcl}}", f"source {{{root}/sub/<job>}}"),
+                             (f"source {{{root}/new/deep.tcl}}", f"source {{{root}/<job>}}"),
+                             (f"source {{{root}/sub/../held.tcl}}", f"source {{{root}/sub/../held.tcl}}"),
+                             ("source {/tmp/zz/a.tcl}", "source {/tmp/<job>}"),
+                             ("source {/var/tmp/zz/a.tcl}", "source {/var/tmp/zz/a.tcl}")):
+            assert origin.masked(text.encode()) == text_digest(expect), (text, expect)
+    print("PASS: a job-written checkout path in a program text is masked; a held file, `..` and /var/tmp stay")
+
+
 def loader_errors(step: Step, base: Path) -> None:
     """A load that fails returns its own error and names its own reason; bash's in-process fallback is judged."""
     (base / "noshebang.sh").write_text("echo checkout-fallback\n")
@@ -360,7 +377,7 @@ def selftest(names: dict[str, object]) -> int:
             print(f"PASS: {label}: " + (f"caught ({expect})" if expect else "clean"))
             return report
 
-        for group in (abi_and_target, installers_and_programs, interpreter_programs, provenance, loader_errors,
-                      checkout):
+        for group in (abi_and_target, installers_and_programs, interpreter_programs, provenance, masks,
+                      loader_errors, checkout):
             group(step, base)
     return 0

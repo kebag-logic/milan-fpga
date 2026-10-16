@@ -43,6 +43,15 @@ def snapshot(top: str, executable: bool) -> dict[str, tuple]:
     return found
 
 
+def directories(top: str) -> set[str]:
+    """Every directory under a directory, as a snapshot walks it."""
+    found = set()
+    for base, children, _ in Path(top).walk():
+        children[:] = [c for c in children if c != ".git"]
+        found.add(str(base))
+    return found
+
+
 def key_of(status: os.stat_result) -> tuple:
     """A file's identity and change time: any write to it changes this key."""
     return status.st_dev, status.st_ino, status.st_size, status.st_mtime_ns, status.st_ctime_ns

@@ -73,7 +73,7 @@ import struct
 import sys
 import time
 
-from exec_files import Image, Watch, digest, key_of, lkey, snapshot
+from exec_files import Image, Watch, digest, directories, key_of, lkey, snapshot
 from exec_operands import BUILDERS, MULTIARCH, built_output, interpreter, invocation, lexical, operands, subcommand
 
 HERE = Path(__file__).resolve().parent
@@ -115,6 +115,10 @@ FALLBACK_SHELLS = {"bash"}
 FALLBACK_SAMPLE = 128
 #: Programs that fetch: an interpreter reading its program from their output fetches and executes.
 FETCHERS = {"curl", "wget", "fetch", "aria2c"}
+#: A masked path starts a word: at the start of a text, or after a blank, quote, bracket or separator.
+WORD = r"""(?<![^\s'"(){}\[\]=:,;<>|&`])"""
+#: One masked path component: name characters only, and never `.` or `..`.
+COMPONENT = r"/(?!\.\.?(?![A-Za-z0-9_.-]))[A-Za-z0-9_.-]+"
 #: How long a streamed program's writer may keep its pipe open after the interpreter's exec.
 STREAM_WAIT = 60
 
@@ -335,14 +339,17 @@ class Origin:
                  scratch: tuple[str, ...] = (), image: Image | None = None) -> None:
         self.root = Path(root)
         names = names or allowlist()
-        # A job-temporary path: under /tmp or the job's own scratch roots, made only of name characters,
+        # A job-temporary path: a word starting at /tmp or a job scratch root, made only of name characters,
         # with no `.` or `..` component, so it names a job-temporary file and carries no command.
         roots = "|".join(re.escape(root) for root in ("/tmp", *scratch))
-        self.temporary = re.compile(rf"(?:{roots})(?![A-Za-z0-9_.-])(?:/(?!\.\.?(?![A-Za-z0-9_.-]))[A-Za-z0-9_.-]+)*"
-                                    .encode())
+        self.temporary = re.compile(rf"{WORD}(?:{roots})(?![A-Za-z0-9_.-])(?:{COMPONENT})*".encode())
         self.pinned = dict(names.get("inline_programs", {}))
         self.generated = dict(names.get("generated_programs", {}))
         self.started = snapshot(str(self.root), executable=False)
+        # The checkout's files and directories as the job started: a checkout path below them names a file the
+        # job wrote, which a program text may name like a job-temporary one.
+        self.present = {str(self.root), *self.started, *directories(str(self.root))}
+        self.written = re.compile(rf"{WORD}{re.escape(str(self.root))}(?:{COMPONENT})+".encode())
         self.checkout = {path: digest(path) for path in self.started}
         self.copies = {value: path for path, value in sorted(self.checkout.items(), reverse=True) if value}
         # A job starts from the image as it was built: one snapshot serves every job of a traced run.
@@ -398,8 +405,16 @@ class Origin:
                 (self.rewritten if path in self.writable else self.changed)[path] = change
 
     def masked(self, data: bytes) -> str:
-        """The digest of a program text with each job-temporary path masked."""
-        return hashlib.sha256(self.temporary.sub(b"/tmp/<job>", data)).hexdigest()
+        """The digest of a program text with each job-temporary path masked, and each checkout path masked
+        below the part the checkout held as the job started."""
+        return hashlib.sha256(self.written.sub(self.held, self.temporary.sub(b"/tmp/<job>", data))).hexdigest()
+
+    def held(self, match: re.Match) -> bytes:
+        """A checkout path in a program text, kept up to what the checkout held as the job started."""
+        path = held = match.group(0).decode("utf-8", "surrogateescape")
+        while held not in self.present:
+            held = held.rsplit("/", 1)[0]
+        return match.group(0) if held == path else f"{held}/<job>".encode("utf-8", "surrogateescape")
 
     def image_copy(self, path: str, own: str) -> str | None:
         """The image executable present as the job started that holds this file's bytes."""
