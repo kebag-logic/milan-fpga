@@ -568,6 +568,7 @@ The rtl-fast jobs run as uid 1000, since a synthesis self-test refuses root.
 The docs and elaboration jobs run as the image's default user, root.
 The patch series rewrites the image's LiteX tree, which only root may write.
 A merge combines the receipts, refusing differing sources or images.
+Each step's row comes from the run that selected its job, so a replaced step keeps its reason.
 
 ```sh
 docker run --rm --network none --user 1000:1000 \

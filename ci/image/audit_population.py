@@ -52,6 +52,8 @@ WORKFLOWS = (('.github/workflows/docs.yml', ('docs-gates-0', 'docs-gates-1', 'do
 #: Jobs that observe, collect and cancel workflow runs through the GitHub API: never traced offline.
 ORCHESTRATION = ('ci-manifest', 'ci-fail-fast', 'ci-cancel-tail')
 ORCHESTRATED = 'Run orchestration through the GitHub API, which needs the network by design'
+#: A step of a job another run of a merge traces: the merge keeps that run's row.
+UNSELECTED = 'not selected in this run'
 #: Logical lines whose work the image or the checkout already supplies.
 REMOVED = ('python3 -m pip install ', 'sudo apt-get update', 'sudo apt-get install ',
            'sudo apt-get -o Dir::Cache::archives=', 'python3 scripts/ci_install_cache.py ',
@@ -327,7 +329,8 @@ def merge(parts: list[Path], output: Path, listed: list[Path], logs: list[Path])
             if row['traced'] and rows.get(row['step'], {}).get('traced'):
                 print(f"REFUSED: {row['step']} traced twice", file=sys.stderr)
                 return 2
-            if row['traced'] or row['step'] not in rows:
+            # The run that selected a step's job decides its row, traced or untraced with its reason.
+            if row['traced'] or rows.get(row['step'], {}).get('why', UNSELECTED) == UNSELECTED:
                 rows[row['step']] = {**row, 'user': receipt.get('user')}
     order = [row['step'] for row in first['reconciliation']]
     steps = sorted((step for receipt in receipts for step in receipt['steps']), key=lambda s: order.index(s['step']))
@@ -451,7 +454,7 @@ def trace_population(args: argparse.Namespace) -> int:
                 reconciliation.append({**row, 'traced': False, 'why': ORCHESTRATED})
                 continue
             if not selected:
-                reconciliation.append({**row, 'traced': False, 'why': 'not selected in this run'})
+                reconciliation.append({**row, 'traced': False, 'why': UNSELECTED})
                 continue
         elif step['orchestration'] or not selected:
             continue
