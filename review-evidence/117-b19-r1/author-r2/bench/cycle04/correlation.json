@@ -1,0 +1,336 @@
+{
+ "name": "cycle04",
+ "T0": 1792123241.5358503,
+ "samples": 480,
+ "placed_by_phc": 351,
+ "calibration_s": 0.0235,
+ "coarse_minus_placed_ms": [
+  23.5,
+  23.5,
+  24.7
+ ],
+ "edges": {
+  "gm": [
+   {
+    "to": "020000fffe000001",
+    "last_before": 3.4989,
+    "first_after": 3.7489,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": "3cc0c6fffefe0210",
+    "last_before": 40.2641,
+    "first_after": 40.5141,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "parent": [
+   {
+    "to": "020000fffe000001",
+    "last_before": 3.4989,
+    "first_after": 3.7489,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": "3cc0c6fffefe0210",
+    "last_before": 40.2641,
+    "first_after": 40.5141,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "sync": [
+   {
+    "to": "0",
+    "last_before": 1.498,
+    "first_after": 1.7481,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": "1",
+    "last_before": 40.2641,
+    "first_after": 40.5141,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "asCapable": [
+   {
+    "to": "0",
+    "last_before": 5.7498,
+    "first_after": 5.9999,
+    "how": [
+     "calibrated",
+     "calibrated"
+    ]
+   },
+   {
+    "to": "1",
+    "last_before": 39.7639,
+    "first_after": 40.014,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "tu": [
+   {
+    "to": "1",
+    "last_before": 1.498,
+    "first_after": 1.7481,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": "0",
+    "last_before": 40.7643,
+    "first_after": 41.0143,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "holdover": [
+   {
+    "to": 1,
+    "last_before": 1.498,
+    "first_after": 1.7481,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": 0,
+    "last_before": 1.7481,
+    "first_after": 1.9982,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": 1,
+    "last_before": 3.4989,
+    "first_after": 3.7489,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": 0,
+    "last_before": 3.9991,
+    "first_after": 4.2492,
+    "how": [
+     "calibrated",
+     "calibrated"
+    ]
+   },
+   {
+    "to": 1,
+    "last_before": 40.2641,
+    "first_after": 40.5141,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": 0,
+    "last_before": 40.7643,
+    "first_after": 41.0143,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "path_gen": [
+   {
+    "to": "8",
+    "last_before": 3.4989,
+    "first_after": 3.7489,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": "9",
+    "last_before": 40.2641,
+    "first_after": 40.5141,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "path_count": []
+ },
+ "pdelay_ns_range": [
+  371,
+  389
+ ],
+ "wire": {
+  "switch_last_sync": 1.1531,
+  "switch_last_announce": 0.7232,
+  "switch_last_pdelay_resp": 0.9836,
+  "switch_first_frame": 39.0155,
+  "switch_announces_after_return": [
+   [
+    40.2691,
+    "3cc0c6fffefe0210",
+    246,
+    [
+     [
+      "PathTrace",
+      [
+       "3cc0c6fffefe0210"
+      ]
+     ]
+    ]
+   ],
+   [
+    41.2777,
+    "3cc0c6fffefe0210",
+    246,
+    [
+     [
+      "PathTrace",
+      [
+       "3cc0c6fffefe0210"
+      ]
+     ]
+    ]
+   ],
+   [
+    42.2785,
+    "3cc0c6fffefe0210",
+    246,
+    [
+     [
+      "PathTrace",
+      [
+       "3cc0c6fffefe0210"
+      ]
+     ]
+    ]
+   ],
+   [
+    43.2788,
+    "3cc0c6fffefe0210",
+    246,
+    [
+     [
+      "PathTrace",
+      [
+       "3cc0c6fffefe0210"
+      ]
+     ]
+    ]
+   ]
+  ],
+  "switch_first_sync": 40.269,
+  "dut_completed_pdelay_after_return": [
+   39.0161,
+   39.9852,
+   40.9846,
+   41.9848
+  ],
+  "dut_master_frames": {
+   "syncs": 2,
+   "announces": [],
+   "first": 40.0989,
+   "last": 40.2239
+  },
+  "dut_adp": [
+   [
+    41.0259,
+    "3cc0c6fffefe0210"
+   ],
+   [
+    49.947,
+    "3cc0c6fffefe0210"
+   ],
+   [
+    56.348,
+    "3cc0c6fffefe0210"
+   ],
+   [
+    64.797,
+    "3cc0c6fffefe0210"
+   ],
+   [
+    73.644,
+    "3cc0c6fffefe0210"
+   ],
+   [
+    80.484,
+    "3cc0c6fffefe0210"
+   ]
+  ],
+  "crf_tu_edges": [],
+  "crf_mr_values": [],
+  "crf_tu1_pdus": 0,
+  "crf_gaps_over_100ms": [],
+  "crf_first": null,
+  "crf_last": null
+ },
+ "crf_tu_vs_csr": [],
+ "controller_dut_avb": [
+  [
+   -9.884,
+   "SUCCESS",
+   "3cc0c6fffefe0210",
+   1
+  ],
+  [
+   36.9236,
+   "TIMEOUT",
+   null,
+   null
+  ],
+  [
+   40.9278,
+   "SUCCESS",
+   "3cc0c6fffefe0210",
+   1
+  ]
+ ],
+ "controller_dut_gm_changed": [
+  [
+   -9.8838,
+   6
+  ],
+  [
+   40.9279,
+   8
+  ]
+ ],
+ "clkv_tucnt": [
+  133,
+  173
+ ],
+ "tu1_span_s": 39.016
+}

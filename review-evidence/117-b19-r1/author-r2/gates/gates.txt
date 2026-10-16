@@ -1,0 +1,11 @@
+gate-1 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: md-venv python scripts/docs_check.py
+gate-2 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: md-venv python scripts/check_doc_style.py
+gate-3 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: md-venv python scripts/gen_toc.py --check
+gate-4 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: md-venv python scripts/check_em_dash.py --base 734eb780
+gate-5 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: md-venv python scripts/check_doc_paths.py
+gate-6 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: python3 scripts/ci_scope.py --selftest
+gate-7 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: python3 scripts/check_baremetal_only.py --check
+gate-8 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: python3 scripts/check_feature_status.py --self-test
+gate-9 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: git diff --check
+gate-10 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: git diff --check 734eb780 HEAD
+gate-11 rc=0 cwd=$LANES/117-b19-bench head=18b98bbcecf478b903610a07667f232d944d6feb cmd: md-venv python scripts/gen_toc.py --verify-anchors

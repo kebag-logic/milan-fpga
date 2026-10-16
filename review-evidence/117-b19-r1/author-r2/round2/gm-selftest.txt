@@ -1,0 +1,10 @@
+ok  FAIL got FAIL  planted DUT poll with asCapable 0 in the takeover window
+ok  PASS got PASS  the same planted poll does not leak into the release window
+ok  PASS got PASS  an unanswered poll is counted as unanswered, not as asCapable 0
+ok  PASS got PASS  first asserted sample one sample before the step bracket is kept
+ok  FAIL got FAIL  the round-1 search from the bracket start drops it (the control can fail)
+ok  PASS got PASS  rise at exactly 27 s counts in the release window, not the takeover
+ok  FAIL got FAIL  a second console tu episode in the window
+ok  PASS got PASS  steady clear skips a clear run broken within 2 s
+ok  PASS got PASS  gm01 takeover tu set equals the analysis health history
+selftest: 9 of 9 controls behave

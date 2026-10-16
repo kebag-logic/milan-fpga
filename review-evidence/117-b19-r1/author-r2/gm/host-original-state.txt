@@ -1,0 +1,31 @@
+LOCK 2026-10-16T04:10:25.008Z
+f798c63330ef976c16dbf4b8a26242d684eb897ff2c98f61b56d8faa42b50413  gm.cfg
+f1e59efb5843a288a102b6a9bc6f492a2b33e32ca6deea555a817e7cd049948c  slave.cfg
+c29b72c7116fb3389e2e3aa7d5f0c2fd0ddb0d846f54b98418c930d060ccdb4e  lptp/hwstamp_ctl
+ea44d7799a0f7b4dc6a9d3c50f1edf146f98a2efe6053255290f0bfcdc4a002d  lptp/phc_ctl
+25247f3a744532f02e84638915c14922a19c8da8add52c81f5e88e3418dae7bd  lptp/ptp4l
+current settings:
+tx_type 0
+rx_filter 0
+HWSTAMP_RC=0
+phc_ctl[516303.803]: clock time is 1792123806.458303870 or Fri Oct 16 04:10:06 2026
+
+phc_ctl[516303.803]: clock frequency offset is 0.000000ppb
+phc_ctl[516303.803]: offset from CLOCK_REALTIME is 20150276694ns
+
+PHC_RC=0
+<controller-host-id>
+ptp0
+pgrep_rc=1
+pgrep2_rc=1
+ls: cannot access '/var/run/ptp4l*': No such file or directory
+ls: cannot access '/var/run/timemaster': No such file or directory
+2026-10-16T04:10:26.641102616
+phc_ctl[516323.849]: clock time is 1792123826.504189550 or Fri Oct 16 04:10:26 2026
+
+phc_ctl[516323.850]: clock frequency offset is 0.000000ppb
+phc_ctl[516323.850]: offset from CLOCK_REALTIME is 20151038282ns
+
+PHC2_RC=0
+RC=0
+UNLOCK 2026-10-16T04:10:45.214Z

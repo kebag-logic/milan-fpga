@@ -1,0 +1,399 @@
+{
+ "name": "cycle01",
+ "T0": 1792122788.9300017,
+ "samples": 480,
+ "placed_by_phc": 349,
+ "calibration_s": 0.0394,
+ "coarse_minus_placed_ms": [
+  39.3,
+  39.4,
+  39.9
+ ],
+ "edges": {
+  "gm": [
+   {
+    "to": "020000fffe000001",
+    "last_before": 3.4836,
+    "first_after": 3.7338,
+    "how": [
+     "phc",
+     "calibrated"
+    ]
+   },
+   {
+    "to": "3cc0c6fffefe0210",
+    "last_before": 41.2497,
+    "first_after": 41.4998,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "parent": [
+   {
+    "to": "020000fffe000001",
+    "last_before": 3.4836,
+    "first_after": 3.7338,
+    "how": [
+     "phc",
+     "calibrated"
+    ]
+   },
+   {
+    "to": "3cc0c6fffefe0210",
+    "last_before": 41.2497,
+    "first_after": 41.4998,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "sync": [
+   {
+    "to": "0",
+    "last_before": 1.4827,
+    "first_after": 1.7329,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": "1",
+    "last_before": 41.2497,
+    "first_after": 41.4998,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "asCapable": [
+   {
+    "to": "0",
+    "last_before": 5.4845,
+    "first_after": 5.7347,
+    "how": [
+     "calibrated",
+     "calibrated"
+    ]
+   },
+   {
+    "to": "1",
+    "last_before": 40.4994,
+    "first_after": 40.7495,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "tu": [
+   {
+    "to": "1",
+    "last_before": 1.4827,
+    "first_after": 1.7329,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": "0",
+    "last_before": 41.4998,
+    "first_after": 41.7499,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "holdover": [
+   {
+    "to": 1,
+    "last_before": 1.4827,
+    "first_after": 1.7329,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": 0,
+    "last_before": 1.7329,
+    "first_after": 1.9829,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": 1,
+    "last_before": 3.4836,
+    "first_after": 3.7338,
+    "how": [
+     "phc",
+     "calibrated"
+    ]
+   },
+   {
+    "to": 0,
+    "last_before": 3.7338,
+    "first_after": 3.9839,
+    "how": [
+     "calibrated",
+     "calibrated"
+    ]
+   },
+   {
+    "to": 1,
+    "last_before": 41.2497,
+    "first_after": 41.4998,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   {
+    "to": 0,
+    "last_before": 41.4998,
+    "first_after": 41.7499,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "path_gen": [
+   {
+    "to": "2",
+    "last_before": 3.4836,
+    "first_after": 3.7338,
+    "how": [
+     "phc",
+     "calibrated"
+    ]
+   },
+   {
+    "to": "3",
+    "last_before": 41.2497,
+    "first_after": 41.4998,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   }
+  ],
+  "path_count": []
+ },
+ "pdelay_ns_range": [
+  374,
+  389
+ ],
+ "wire": {
+  "switch_last_sync": 1.1533,
+  "switch_last_announce": 0.4734,
+  "switch_last_pdelay_resp": 0.573,
+  "switch_first_frame": 39.2516,
+  "switch_announces_after_return": [
+   [
+    40.2569,
+    "3cc0c6fffefe0210",
+    246,
+    [
+     [
+      "PathTrace",
+      [
+       "3cc0c6fffefe0210"
+      ]
+     ]
+    ]
+   ],
+   [
+    41.2647,
+    "3cc0c6fffefe0210",
+    246,
+    [
+     [
+      "PathTrace",
+      [
+       "3cc0c6fffefe0210"
+      ]
+     ]
+    ]
+   ],
+   [
+    42.2655,
+    "3cc0c6fffefe0210",
+    246,
+    [
+     [
+      "PathTrace",
+      [
+       "3cc0c6fffefe0210"
+      ]
+     ]
+    ]
+   ],
+   [
+    43.2663,
+    "3cc0c6fffefe0210",
+    246,
+    [
+     [
+      "PathTrace",
+      [
+       "3cc0c6fffefe0210"
+      ]
+     ]
+    ]
+   ]
+  ],
+  "switch_first_sync": 40.2743,
+  "dut_completed_pdelay_after_return": [
+   39.5736,
+   40.5736,
+   41.5736,
+   42.5737
+  ],
+  "dut_master_frames": {
+   "syncs": 6,
+   "announces": [],
+   "first": 40.5993,
+   "last": 41.2243
+  },
+  "dut_adp": [
+   [
+    40.0482,
+    "020000fffe000001"
+   ],
+   [
+    43.8703,
+    "3cc0c6fffefe0210"
+   ],
+   [
+    50.9633,
+    "3cc0c6fffefe0210"
+   ],
+   [
+    57.2533,
+    "3cc0c6fffefe0210"
+   ],
+   [
+    65.6523,
+    "3cc0c6fffefe0210"
+   ],
+   [
+    73.7123,
+    "3cc0c6fffefe0210"
+   ]
+  ],
+  "crf_tu_edges": [
+   {
+    "to": 1,
+    "last_before": 1.527,
+    "first_after": 1.529
+   },
+   {
+    "to": 0,
+    "last_before": 2.121,
+    "first_after": 45.7456
+   }
+  ],
+  "crf_mr_values": [
+   0
+  ],
+  "crf_tu1_pdus": 297,
+  "crf_gaps_over_100ms": [
+   [
+    2.121,
+    43.6246
+   ]
+  ],
+  "crf_first": -9.9332,
+  "crf_last": 109.0764
+ },
+ "crf_tu_vs_csr": [
+  {
+   "wire": {
+    "to": 1,
+    "last_before": 1.527,
+    "first_after": 1.529
+   },
+   "csr": {
+    "to": "1",
+    "last_before": 1.4827,
+    "first_after": 1.7329,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   "wire_inside": true
+  },
+  {
+   "wire": {
+    "to": 0,
+    "last_before": 2.121,
+    "first_after": 45.7456
+   },
+   "csr": {
+    "to": "0",
+    "last_before": 41.4998,
+    "first_after": 41.7499,
+    "how": [
+     "phc",
+     "phc"
+    ]
+   },
+   "wire_inside": false
+  }
+ ],
+ "controller_dut_avb": [
+  [
+   -9.8816,
+   "SUCCESS",
+   "3cc0c6fffefe0210",
+   1
+  ],
+  [
+   36.926,
+   "TIMEOUT",
+   null,
+   null
+  ],
+  [
+   39.3304,
+   "SUCCESS",
+   "020000fffe000001",
+   0
+  ],
+  [
+   41.3309,
+   "SUCCESS",
+   "3cc0c6fffefe0210",
+   1
+  ]
+ ],
+ "controller_dut_gm_changed": [
+  [
+   -9.8814,
+   0
+  ],
+  [
+   39.3306,
+   1
+  ],
+  [
+   41.3311,
+   2
+  ]
+ ],
+ "clkv_tucnt": [
+  10,
+  51
+ ],
+ "tu1_span_s": 39.767
+}
