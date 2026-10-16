@@ -371,6 +371,14 @@ installed on 2026-10-15. It carries PR #707, the #621 correction: a phase
 step invalidates rate history and keeps the last valid link delay. The
 identity gate, the switch cycles and the rest of the session are in the
 [#117 findings](117_GPTP_SILICON_EVIDENCE.md#2026-10-16-bench-lane-b19-on-dev-9ef71772).
+No read on the device distinguishes this image from dev `5603c353`, so its
+identity rests on the
+[provenance record](https://github.com/kebag-logic/milan-fpga/tree/bbc53aabb02a1654812ba2eaa1642f5e36e69ce0/review-evidence/645-b18-r1/manager-provenance)
+(bitstream SHA-256 `4b5a391af524cb3b490099381c0fd9e3275383fc51c163a75fb78cdb054ffcca`,
+AEM descriptor SHA-256 `4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d`).
+Its continuity to this session is the
+[manager's receipt](https://github.com/kebag-logic/milan-fpga/pull/751#issuecomment-6208623939)
+(item 8), as the [#117 image paragraph](117_GPTP_SILICON_EVIDENCE.md#b19-image-identity-and-setup) states.
 Everything above this section is the dated record of dev `13eda870`.
 
 | Acceptance | Verdict | Evidence |
