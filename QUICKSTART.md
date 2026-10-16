@@ -306,8 +306,9 @@ On top of track 1 you additionally need:
 
 ```sh
 python3 -m venv ~/litex-milan/venv && . ~/litex-milan/venv/bin/activate
-curl -sSL https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py \
-     | python - --init --install --config=full
+python3 -m pip install -r sw/litex/litex_pins.txt   # the pinned LiteX, not master
+python3 scripts/ci_litex_env.py                     # the VexiiRiscv source LiteX pins
+sw/litex/patches/apply.sh                           # the product patch series
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 cd sw/litex && ./build.sh ax7101          # or: ./build.sh arty
 ```

@@ -224,7 +224,7 @@ submodule content, so the datapath testbenches will not build from a zip.
 | `riscv64-elf-gcc` + binutils + newlib | `pacman -S riscv64-elf-gcc riscv64-elf-binutils riscv64-elf-newlib` | BIOS + firmware | ✅ to build gateware |
 | `jdk17` + `sbt` | `pacman -S jdk17-openjdk sbt` | generate the VexiiRiscv/NaxRiscv core (SpinalHDL, in Scala) | ✅ to build gateware |
 | `meson ninja cmake` | `pacman -S meson ninja cmake` | build tooling | ✅ to build gateware |
-| Python 3 + the **LiteX venv** | `litex_setup.py` -- see [Section 6 of QUICKSTART.md](QUICKSTART.md#6-track-3--build-a-bitstream-vivado) | SoC elaboration (LiteX/Migen, installed from git) | ✅ to build gateware |
+| Python 3 + the **LiteX venv** | the pins in `sw/litex/litex_pins.txt` plus `sw/litex/patches` -- see [Section 6 of QUICKSTART.md](QUICKSTART.md#6-track-3--build-a-bitstream-vivado) | SoC elaboration (LiteX/Migen, pinned git revisions) | ✅ to build gateware |
 | **Vivado 2026.1** with Artix-7 | Xilinx installer | place & route → `.bit` | ⬦ **proprietary**; only to build a bitstream |
 | `openFPGALoader` | `pacman -S openfpgaloader` | flash the board over JTAG | ⬦ only to flash hardware |
 
@@ -252,8 +252,9 @@ python3 scripts/lint_rtl.py --check      # RTL lint over all of hdl/, ratcheted
 
 # 5 · build a real bitstream — needs the tier-3 toolchain + Vivado
 python3 -m venv ~/litex-milan/venv && . ~/litex-milan/venv/bin/activate
-curl -sSL https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py \
-     | python - --init --install --config=full
+python3 -m pip install -r sw/litex/litex_pins.txt   # the pinned LiteX, not master
+python3 scripts/ci_litex_env.py                     # the VexiiRiscv source LiteX pins
+sw/litex/patches/apply.sh                           # the product patch series
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 cd sw/litex && ./build.sh ax7101
 ```
