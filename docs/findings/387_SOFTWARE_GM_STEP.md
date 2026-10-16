@@ -25,6 +25,7 @@ The [switch-cycle page](599_394_E1_LINK_CYCLES.md) records the same session's li
 - **[Other observations](#other-observations)** -- Counters and peer behaviour recorded without a verdict.
 - **[Restore](#restore)** -- The original grandmaster, streams and controller host restored, and the DUT's saved-state residue.
 - **[Artifact hashes](#artifact-hashes)** -- Tool, configuration and raw-capture identities, and where the raw captures are kept.
+- **[2026-10-16: bench lane B19 on dev 9ef71772](#2026-10-16-bench-lane-b19-on-dev-9ef71772)** -- The same recipe on the image with the #621 correction: ten steps on a locked CRF stream, each with one `tu` event and no asCapable loss.
 
 ## Stimulus
 
@@ -357,3 +358,166 @@ The two port logs are named by role; the packet's per-run index matches them by 
 | gm05 | `events.jsonl` | 4121 | `bdfbfbfef6b47670c31e6102efbf78b944dc23c30f150357ead05c2cfcc03a60` |
 | gm05 | alignment port log | 3455 | `e8eddea557e3fb3572922a324286ca17db160b146f074a414e4e2341e1e4bd46` |
 | gm05 | grandmaster port log | 553 | `2de4be8f78691f3727c1ee89ac37979a338e03f713d575ae910e1c7e0fd4a870` |
+
+## 2026-10-16: bench lane B19 on dev `9ef71772`
+
+Refs #387, Refs #621 and Refs #117. Operator [A624], measured 2026-10-16
+between 04:10 and 04:31 UTC, under the
+[B19 assignment](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-6207451080)
+(item 5). These are operator measurements, not review verdicts.
+
+The image is dev `9ef717727e6fdac11ee7f01672fefae948452343`, the one
+installed on 2026-10-15. It carries PR #707, the #621 correction: a phase
+step invalidates rate history and keeps the last valid link delay. The
+identity gate, the switch cycles and the rest of the session are in the
+[#117 findings](117_GPTP_SILICON_EVIDENCE.md#2026-10-16-bench-lane-b19-on-dev-9ef71772).
+Everything above this section is the dated record of dev `13eda870`.
+
+| Acceptance | Verdict | Evidence |
+|---|---|---|
+| #621 item 3: five grandmaster steps with no asCapable loss | PASS | Five takeovers and five releases stepped the DUT PHC by +9.987 ms and -10.003 to -10.005 ms. asCapable never cleared: 0 of 2,399 console samples and 0 of 600 controller polls. The published peer delay stayed 373 to 392 ns. |
+| #387 item 4, the wire and counter observables | PASS | Each of the ten edges gave one `tu` episode on the console and on the DUT's CRF PDUs. GPTP_GM_CHANGED rose by exactly 1. The outgoing `mr` never changed, the talkers' and the peer's CRF listener's MEDIA_RESET stayed flat, and no listener counted MEDIA_UNLOCKED. |
+| #387 item 4, the counted render re-base | Not graded here | By the [assignment's decision](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-6207451080) the re-base count has no register, so the `milan_dp_gm_steps` simulation carries it. |
+
+Against the 2026-09-29 run on dev `13eda870`, the 2.0 s asCapable loss after
+every step is gone. So are the second and third `tu` episodes and the
+GPTP_GM_CHANGED count of 3 per edge.
+
+### B19: stimulus and setup
+
+- **Recipe.** Lane B1's, as [Stimulus](#stimulus) describes, with the same configurations (hashes below). The open-source reference gPTP implementation, release 4.4, was built in a temporary directory on the controller host from the same hash-checked tarball, without its optional authentication backends. Its port and clock-control programs came out byte-identical to lane B1's.
+- **Each run.** A never-grandmaster port (`gmCapable 0`) aligned the host's hardware clock with the switch for 40 s; it converged to at most 7 ns in every run. Then that clock was advanced by 10 ms, 100 times the 100 us locked step threshold. A grandmaster instance with priority1 240 against the switch's 246 announced for 50 s, and then stopped; the switch timed it out and became grandmaster again.
+- **Streams.** The as-found bindings ran throughout. The DUT's CRF Stream Output 1 fed the peer's CRF Stream Input 8, locked, and that input is the peer's selected clock source. Both music AAF streams ran too: the DUT's Stream Input 0 from the peer, and the peer's Stream Input 0 from the DUT. The DUT stayed on INTERNAL.
+- **Deviation from lane B1.** Lane B1 also bound the peer's CRF output to the DUT and selected it as the DUT's clock source. Here the peer already follows the DUT's CRF, so that binding with that selection would close a media-clock loop, and it was not made. The DUT's CRF servo therefore stayed IDLE (`MCSRV_STAT` state 0, no discards); the assignment's grades do not include it.
+- **Controller host.** Found, 04:10:25 UTC: no gPTP daemon, hardware timestamping off (tx 0, rx 0), clock frequency offset 0 ppb, CLOCK_REALTIME 20.150 s ahead of the clock. Restored, 04:30:10 UTC: the same state, the clock back on its found trajectory within 4.5 us; the build and every script removed.
+
+### B19: method and grades
+
+Times are seconds after each run's software-grandmaster start. The console
+was polled every 0.25 s, the controller read GET_COUNTERS and the ACMP
+states each second, and the tap recorded the DUT link, as on the
+[#117 page](117_GPTP_SILICON_EVIDENCE.md#b19-method). Each run splits at
+27 s: the takeover edge before, the release edge after. An edge passes only
+if all six hold:
+
+| Grade | Observable |
+|---|---|
+| One `tu` event | one rise of `tu` in the console samples, and one `tu=1` episode on the DUT's CRF PDUs |
+| No asCapable loss | no console sample and no controller poll with asCapable 0 |
+| One GM_CHANGED | the DUT's GPTP_GM_CHANGED rises by exactly 1 |
+| No `mr` change | the DUT's CRF PDUs keep one `mr` value |
+| MEDIA_RESET flat | MEDIA_RESET +0 on the DUT's AAF and CRF talkers and on the peer's CRF listener |
+| No listener unlock | MEDIA_UNLOCKED +0 on the DUT's AAF listener and both peer listeners |
+
+The DUT PHC step comes from the wire: the DUT's Pdelay responses carry its
+PHC at the switch's request. The grandmaster time step comes from the Sync
+and Follow_Up pairs forwarded to the DUT.
+
+### B19: per-step results
+
+| Run | Edge | DUT PHC step | GM time step | `tu` rises (console / CRF) | `tu` set / steady clear | asCapable 0 samples | GM_CHANGED | `mr` changes | MEDIA_RESET DUT AAF / CRF talker, peer CRF listener | MEDIA_UNLOCKED DUT / peer CRF / peer AAF | Grade |
+|---|---|---|---|---|---|---:|---:|---:|---|---|---|
+| 1 | takeover | +9.987 ms | +9.994 ms | 1 / 1 | 4.006 / 4.288 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 1 | release | -10.003 ms | -9.995 ms | 1 / 1 | 50.527 / 51.059 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 2 | takeover | +9.987 ms | +9.995 ms | 1 / 1 | 3.755 / 4.037 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 2 | release | -10.004 ms | -9.996 ms | 1 / 1 | 50.773 / 51.055 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 3 | takeover | +9.987 ms | +9.995 ms | 1 / 1 | 3.505 / 4.037 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 3 | release | -10.004 ms | -9.996 ms | 1 / 1 | 50.774 / 51.056 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 4 | takeover | +9.987 ms | +9.994 ms | 1 / 1 | 4.005 / 4.287 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 4 | release | -10.005 ms | -9.997 ms | 1 / 1 | 50.522 / 51.054 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 5 | takeover | +9.987 ms | +9.995 ms | 1 / 1 | 3.550 / 4.332 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 5 | release | -10.004 ms | -9.996 ms | 1 / 1 | 50.699 / 50.981 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+
+- "`tu` set" is the first console sample with `tu` set; "steady clear" is the first from which sync 1, asCapable 1 and `tu` 0 hold for 2 s. The DUT was steady again 0.28 to 0.78 s after `tu` rose; on dev `13eda870` it took 3.00 to 4.53 s.
+- On the wire the DUT's `tu=1` episode lasted 0.38 to 0.68 s per edge, 189 to 343 PDUs at 500 PDU/s. It began with the new grandmaster's first Announce on the DUT link.
+- The DUT's CRF never paused: the largest gap in any run was 2 ms, and `CRFT_CTRL` read `0x3002e3`, licensed, in every sample.
+
+Per run, over both edges:
+
+| Run | Takeover Announce | Last software-GM Announce | Release Announce | `CLKV_TUCNT` | DUT GPTP_GM_CHANGED | DUT CRF `tu=1` PDUs | Peer CRF listener TIMESTAMP_UNCERTAIN |
+|---|---:|---:|---:|---|---|---:|---:|
+| 1 | 3.611 | 49.670 | 50.399 | 253 to 255 | 12 to 14 | 432 | +432 |
+| 2 | 3.562 | 49.651 | 50.470 | 255 to 257 | 14 to 16 | 436 | +436 |
+| 3 | 3.409 | 49.539 | 50.449 | 257 to 260 | 16 to 18 | 500 | +500 |
+| 4 | 3.755 | 49.841 | 50.411 | 260 to 263 | 18 to 20 | 492 | +492 |
+| 5 | 3.341 | 49.448 | 50.399 | 263 to 265 | 20 to 22 | 532 | +532 |
+
+The takeover Announce named the controller host's clock identity, priority1 240, stepsRemoved
+1. The release Announce named the switch, `3cc0c6fffefe0210`, priority1 246,
+stepsRemoved 0.
+
+### B19: contract check
+
+| Element | Decided reaction to one step | Observed over ten steps |
+|---|---|---|
+| asCapable (#621) | A PHC step keeps asCapable and a valid link delay | Kept in every sample; peer delay 373 to 392 ns throughout |
+| Step policy | A locked servo steps above 100 us; a GM change keeps it locked | Each 10 ms offset stepped once; no other step followed |
+| `tu` | Rises on the step; clears after at least 0.25 s of holdover | One episode per edge, set 0.28 to 0.78 s |
+| Outgoing `mr` | Unchanged for a PHC-only step ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | 0 changes on the DUT's CRF output; DUT AAF talker MEDIA_RESET +0 |
+| Talker MEDIA_RESET | No step-only increment | +0 on both DUT talkers at every edge |
+| Listeners | A licensed stream keeps streaming (REQ-PTP-08) | MEDIA_UNLOCKED +0 on the DUT's listener and both peer listeners |
+| GPTP_GM_CHANGED | One per grandmaster change | +1 at every edge, on the DUT and on the peer |
+| Render re-base | One counted re-base per step | Not graded on the bench: the simulation carries it |
+
+### B19: other observations
+
+These are recorded without a verdict.
+
+- **The peer's AAF talker toggled `mr`.** Its MEDIA_RESET rose by 2 at every edge, and the DUT's AAF listener counted MEDIA_RESET +1 per edge from that stream. The DUT's own talkers counted none.
+- **Presentation counters.** The DUT's AAF listener counted LATE_TIMESTAMP +1 at each takeover and EARLY_TIMESTAMP +1 at four of the five releases. It counted TIMESTAMP_UNCERTAIN +1 per edge (+2 at two edges whose episode crossed a counter interval).
+- **Interval counters.** The DUT talkers' TIMESTAMP_UNCERTAIN, its CLOCK_DOMAIN LOCKED and UNLOCKED and `CLKV_TUCNT` rose by 1 per edge, or by 2 where the episode crossed a 1 s interval.
+- **A console artifact.** In run 5, one console sample came back late at 1.5 to 2.1 s. The step detector saw a cancelling +4.98 ms and -5.02 ms pair there, with no wire jump, no `tu` and no holdover: a timing artifact, not a step.
+- **One clock read failed.** After run 3's measurement, the runner's closing clock read of the capture server failed once (an SSH error), so its last outlet read and copy were done by hand at 04:19:51 UTC, all outlets on. The runner then gained a retry for that read.
+
+### B19: artifact hashes
+
+The raw files are in the private bench packet `117-b19-a624`
+(`RAW-ARTIFACTS.json`, sizes and SHA-256). Files over 200,000 bytes are
+kept outside it in the operator's cold storage.
+
+| Item | SHA-256 |
+|---|---|
+| Reference gPTP implementation 4.4, source tarball, 277,069 bytes | `61757bc0a58d789b8fcbdddf56c88a0230597184a70dcb2ac05b4c6b619f7d5c` |
+| Its gPTP port program as built | `25247f3a744532f02e84638915c14922a19c8da8add52c81f5e88e3418dae7bd` |
+| Its clock-control program as built | `ea44d7799a0f7b4dc6a9d3c50f1edf146f98a2efe6053255290f0bfcdc4a002d` |
+| Its timestamping-control program as built | `c29b72c7116fb3389e2e3aa7d5f0c2fd0ddb0d846f54b98418c930d060ccdb4e` |
+| Grandmaster configuration | `f798c63330ef976c16dbf4b8a26242d684eb897ff2c98f61b56d8faa42b50413` |
+| Alignment configuration | `f1e59efb5843a288a102b6a9bc6f492a2b33e32ca6deea555a817e7cd049948c` |
+| `a624_action.py`, runs 1 to 3 | `9da7bbaf555558439f32fec79b31473d1bd52cb7ce577d2b3d624d1efdd94eee` |
+| `a624_action.py`, runs 4 and 5 (the clock-read retry) | `433d6fb7be417308e710f096648df7249c54ddf94628a467f8473e93975c0152` |
+| `a624_analyze.py`, analysis | `61823723b1e74d59bdd6a81a061ca9d747cf89544585668a944ebbaea276f4c6` |
+| `gm_summary.py`, grades and tables | `3aea02fb088366fa76b98fc3f7108c08b052134acdd0a740415170480c9e92d3` |
+| `phc_restore_b19.py`, controller clock restore | `7cb9158eb87170f9597c49af2d1dad7d0e5537d7e353b751d49dc9e26072e7be` |
+
+| Run | Raw artifact | Bytes | SHA-256 |
+|---|---|---:|---|
+| gm01 | `console.jsonl` | 1124715 | `41e7a7561b9adbdb4bc28fa157f4cbc4cd1a8bf3ea69c1301aa510f4516732bb` |
+| gm01 | `controller.jsonl` | 804812 | `b9df838ed047bf8289849f02e7c0bb6fe665a4cb43b3e7c588cae495a2043706` |
+| gm01 | `controller-wire.pcap` | 532174 | `ebcd44a63fc413488df32cb7b24e499ce432300f89a200cbf139539794de4d57` |
+| gm01 | `tap.pcap` | 7118045 | `2835c80d698a30ebd3fdf4ccc313904dc47755c2169c103210e54ec50708ea6a` |
+| gm01 | alignment port log | 3448 | `d48d6f8bb6f5229a3426429aeaf38f946baba20af1974ad3e2e0a9649f2c3d3b` |
+| gm01 | grandmaster port log | 485 | `a004b07387650c2d9bd6e97bc3a2462ca7f62ecc86bee2962801eaea485593e1` |
+| gm02 | `console.jsonl` | 1124300 | `7a00c5a3e8b9c132d1458d45937f13f0b694098ca9cd157bcf2b40eccc33a4c5` |
+| gm02 | `controller.jsonl` | 804963 | `e2359da22c1b916dea9510c1d9aa7e4a0c6748bb2d178971945f13b635b1e842` |
+| gm02 | `controller-wire.pcap` | 538132 | `095f20c2bdd90f75fc6b4d64888b44698047c400dc6164e4f11bdb0f74e5b648` |
+| gm02 | `tap.pcap` | 7120986 | `8315c5657debe48af7dc3b884db7a87c3271956726789c9764e70ebd7d7c9b23` |
+| gm02 | alignment port log | 3501 | `4c5b7b36a9d34157e81d6e692c76ae8eb808989f2d9d9118543e93b1ba187f42` |
+| gm02 | grandmaster port log | 560 | `1daa680a589c35b7ba42d271093d94fc69b7b0911f5612538b2ea4ffb7e46916` |
+| gm03 | `console.jsonl` | 1124324 | `12ba0197888fcaa0160534b084a42681a9f3960528fd97203569c3bbd8a93eae` |
+| gm03 | `controller.jsonl` | 806075 | `1ce9332e74422d72a055898fc0f96ad1af95065fb316a09d1eea009034c4d5ee` |
+| gm03 | `controller-wire.pcap` | 532670 | `768a373a58db1265d048117f0570d264b6c33345ceb5115570d60270ce7a3b89` |
+| gm03 | `tap.pcap` | 7114571 | `4c84baf24a4582cdb8371d93c7ee627c0e310ee3f4d4b5b39a49240094dbd073` |
+| gm03 | alignment port log | 3501 | `05f2c169756ee3e2395fb3786b604ab20c0496f7891fad62398cbc9c2381e60d` |
+| gm03 | grandmaster port log | 560 | `108f8c7ad5c2f0b1bce897345a9be6157f5d6e950dd5da1fad8a5d32235e9d1f` |
+| gm04 | `console.jsonl` | 1124257 | `b7e311f3a541daaf4acd3753b922e2244c64b4ce665f1115358dcbe64d5a3593` |
+| gm04 | `controller.jsonl` | 805436 | `774fb6621fe0419a8c980b98751a664ae9d633ae1b5a234fc5d0ddab9a313e37` |
+| gm04 | `controller-wire.pcap` | 538497 | `14e5b4ad9d45af503b3db42fe0525672f1d2e284505338cd50b6460bfe5348f2` |
+| gm04 | `tap.pcap` | 7125680 | `996279bdd13a51f859003ecf634d0a981f8e6d6b0cb7a85166343e57f290cb6c` |
+| gm04 | alignment port log | 3501 | `e93bffc7fa14079b046d043b5ee5e65d8d15154ffb188c65fad5336761452c6f` |
+| gm04 | grandmaster port log | 560 | `076f47e6f7c78851b6c982064d882afb75afe845bebde11d671faf7b90d8f691` |
+| gm05 | `console.jsonl` | 1121876 | `d9ea75c22fdd99f4653fb473aaf37e77d4983de9c3906fe44aa007a5a1a05c8c` |
+| gm05 | `controller.jsonl` | 805626 | `1d1b7fec79e8872bee783946a81ad7196a9f842d58db65911d867a5d1291883b` |
+| gm05 | `controller-wire.pcap` | 536447 | `f9de48c7a5f4281cca1d08da557574e5717dfb4da01569773671b1023f70e151` |
+| gm05 | `tap.pcap` | 7116950 | `09d5b6bce3ddaa67e970557f8e46ee0ec85c87df4809fe73e319e77b77203254` |
+| gm05 | alignment port log | 3424 | `b0c88e85f4395b72a963ea82cf8c1c7b5ee42ec2ba06b6518d4e444c8299d2a5` |
+| gm05 | grandmaster port log | 485 | `6f2610444091b41b69a12ae8b8e1b8073a8e43636bb41d8b802d3675a0bfdd5a` |
