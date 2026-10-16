@@ -519,6 +519,8 @@ re-verified every SHA-256 there: 151 equal, 0 differ, 0 missing.
 | `a624_analyze.py`, analysis | `61823723b1e74d59bdd6a81a061ca9d747cf89544585668a944ebbaea276f4c6` |
 | `gm_summary.py`, grades and tables | `3aea02fb088366fa76b98fc3f7108c08b052134acdd0a740415170480c9e92d3` |
 | `phc_restore_b19.py`, controller clock restore | `7cb9158eb87170f9597c49af2d1dad7d0e5537d7e353b751d49dc9e26072e7be` |
+| `r2_gm.py`, round 2: `tu` times, the controller-poll arm and its controls (14,307 bytes) | `74339e80c508bd2d527418f7e3e0d0937095f6bc3eb3f6adad25273c9a531e3c` |
+| `round2/gm-steps-r2.json`, round 2: ten of ten PASS (11,538 bytes) | `96b8fd2812ffea93d6c8188c09dc2d42f81b20542bebb8a3ce1a8e433259ace5` |
 
 | Run | Raw artifact | Bytes | SHA-256 |
 |---|---|---:|---|

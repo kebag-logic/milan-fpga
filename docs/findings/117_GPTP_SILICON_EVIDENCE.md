@@ -1074,7 +1074,7 @@ lists all 151 raw files (108,011,178 bytes) by size and SHA-256. All 151,
 the 54 over 200,000 bytes included, are in the project's durable cold
 archive. The [manager's receipt](https://github.com/kebag-logic/milan-fpga/pull/751#issuecomment-6208612856)
 re-verified every SHA-256 at the retained location: 151 equal, 0 differ,
-0 missing. Every large-file row below is one of those 54.
+0 missing. Every row below over 200,000 bytes is one of those 54.
 
 | Artifact | Bytes | SHA-256 |
 |---|---:|---|
@@ -1090,3 +1090,15 @@ re-verified every SHA-256 at the retained location: 151 equal, 0 differ,
 | cycle 4: tap, console, controller | 454,528; 1,124,300; 529,196 | `e02017d91669091a0924d03b7f514b360a243977504921f40ea574d687e2badc`, `44faab52ab2e0c6bcc806ac5f018e47c0da515da69573d115d37b2e228a2d67a`, `bc43d5cc0daae10e409f73cc6088d1e30c6cc11c58028430fe962903e51e36eb` |
 | cycle 5: tap, console, controller | 459,140; 1,124,631; 535,939 | `ca0b683de5792387f7e20f0525db90019ba7504eff70b8dfc4abad62e00c460d`, `a89c4a3eb4c610c8e855f088b36ab72ee466a50b0d4a266b217c4395b69dd934`, `b71c4a38ee055c3d4d00498675d2cce3fa3e2cc751f40c89fc83ec8af1d9e336` |
 | cycle 6: tap, console, controller | 462,225; 1,124,852; 529,950 | `a36f52dd1bd586be68436a4ee0a7b959557be23c4db72b2d57b4b32df331e6e0`, `306e7d0e1701bd819c15d726f48aea19a71ab5082e8c14d4ba5fe61b5989316f`, `236235c2e5ed11e0012634f64d28c8c7a90650c0f00f9652e51a427f67a5f9e2` |
+
+Round 2 (2026-10-16, no bench access) added these tools and outputs to the
+packet. Each tool reads the archived raws, given by path.
+
+| Artifact | Bytes | SHA-256 |
+|---|---:|---|
+| `r2_box3_model.py`, the box 3 time-base model | 6,191 | `c289d4c5a864422f40d0a4a2d67c4dafc24eb04917f1a0dc21866d69413e8c40` |
+| `round2/box3-model.json` | 3,715 | `3786f109f143fa3a204a794107c98561de6d0406e644ecf56ffae5b48ae06e24` |
+| `r2_box3_grade.py`, the box 3 grader and its controls | 11,164 | `5ee112fa58b12b77a5a38e165abcaeb2566e667dbc32f9cb8ee0a4aba89794b0` |
+| `round2/box3-grade.json`, 27 of 27 PASS | 11,966 | `b7023e8dfd762ff44303505e02e45ceaf3e59746e71892799696a870e9b917b0` |
+| `r2_box4.py`, the receive-counter figures | 2,620 | `678823a6d17c8c3d853431e2c52b86fbfba0a2f6983c26ce641bfd274f5aeaf4` |
+| `round2/box4-derivations.json` | 2,903 | `82e89e0a2b4892481011a42e682807bfccd3858e3d98e2a3e4a559e2b220247b` |
