@@ -1,0 +1,8 @@
+g1 rc=0 cmd: md-venv python scripts/docs_check.py
+g2 rc=0 cmd: md-venv python scripts/check_doc_style.py
+g3 rc=0 cmd: md-venv python scripts/gen_toc.py --check
+g4 rc=0 cmd: md-venv python scripts/check_em_dash.py --base 734eb780dc93896a5961cd95180f79475a401650
+g5 rc=0 cmd: md-venv python scripts/check_doc_paths.py
+g11 rc=0 cmd: md-venv python scripts/gen_toc.py --verify-anchors
+g9 rc=0 cmd: git diff --check
+g10 rc=0 cmd: git diff --check 734eb780dc93896a5961cd95180f79475a401650 HEAD
