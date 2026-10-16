@@ -1,0 +1,30 @@
+ce3dd4bd333de58f2fa56657c660934215a0652c
+== prepare-a 02:03:14
+prepare-a rc=0
+CI tool inventory matches workflow installation requests
+Verified context; recipe sha256:53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa
+== build-a 02:05:13
+build-a rc=0
+CI tool inventory matches workflow installation requests
+{"build_ms": 411216, "image_digest": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059", "image_id": "sha256:a2c4d52af85bc218ddd2d3958a2283f64ab175ec4254960eba891ae2271df1fd", "recipe_sha256": "53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa", "size_bytes": 3930997226, "stage": "validation-tools", "tag": "fpga-validation:53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa-validation-tools"}
+e6dc7a492df0dd9ff255d22e887cc07b32a8874360990b3ebe2cb30ee96f6207  $VALIDATION_STORAGE/737-a615/round9-cold-a/base-locked.tar
+== record-a 02:13:42
+record-a rc=0
+PASS: exported image authenticated; final lock recorded
+== build-b 02:16:55
+build-b rc=0
+CI tool inventory matches workflow installation requests
+{"build_ms": 493323, "image_digest": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059", "image_id": "sha256:a2c4d52af85bc218ddd2d3958a2283f64ab175ec4254960eba891ae2271df1fd", "recipe_sha256": "53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa", "size_bytes": 3930997226, "stage": "validation-tools", "tag": "fpga-validation:53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa-validation-tools"}
+e6dc7a492df0dd9ff255d22e887cc07b32a8874360990b3ebe2cb30ee96f6207  $VALIDATION_STORAGE/737-a615/round9-cold-b/base-locked.tar
+== verify-b 02:27:24
+verify-b rc=0
+PASS: image identity verified against exported manifest, config and every layer
+== done 02:30:41
+CI tool inventory matches workflow installation requests
+Verified context; recipe sha256:53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa
+CI tool inventory matches workflow installation requests
+{"build_ms": 411216, "image_digest": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059", "image_id": "sha256:a2c4d52af85bc218ddd2d3958a2283f64ab175ec4254960eba891ae2271df1fd", "recipe_sha256": "53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa", "size_bytes": 3930997226, "stage": "validation-tools", "tag": "fpga-validation:53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa-validation-tools"}
+PASS: exported image authenticated; final lock recorded
+CI tool inventory matches workflow installation requests
+{"build_ms": 493323, "image_digest": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059", "image_id": "sha256:a2c4d52af85bc218ddd2d3958a2283f64ab175ec4254960eba891ae2271df1fd", "recipe_sha256": "53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa", "size_bytes": 3930997226, "stage": "validation-tools", "tag": "fpga-validation:53fb5abd7dc664e8ce168e7c08d5f4b5b09503905ff03fd3fbdf80b394ba2bfa-validation-tools"}
+PASS: image identity verified against exported manifest, config and every layer
