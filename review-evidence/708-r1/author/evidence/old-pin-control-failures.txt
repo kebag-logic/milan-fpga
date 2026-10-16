@@ -1,0 +1,23 @@
+[FAIL] arm acmpwalk
+    [FAIL] ListenerScenario.LD3TheLockRefusalStatus: LD3 which is 16, CONTROLLER_NOT_AUTHORIZED in IEEE 1722.1-2021 Table 8-3, not 13
+    [FAIL] ListenerScenario.LD3TheLockRefusalStatus: LD3 and the two refusals agree byte for byte
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_UNB: LD1 UNBIND x UNB: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_UNB: LW UNBIND x UNB: frame 0 byte for byte
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWA: LD1 UNBIND x PWA: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWA: LW UNBIND x PWA: frame 0 byte for byte
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWD: LD1 UNBIND x PWD: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWD: LW UNBIND x PWD: frame 0 byte for byte
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWR: LD1 UNBIND x PWR: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWR: LW UNBIND x PWR: frame 0 byte for byte
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PW2: LD1 UNBIND x PW2: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PW2: LW UNBIND x PW2: frame 0 byte for byte
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWT: LD1 UNBIND x PWT: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWT: LW UNBIND x PWT: frame 0 byte for byte
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SNR: LD1 UNBIND x SNR: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SNR: LW UNBIND x SNR: frame 0 byte for byte
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SOK: LD1 UNBIND x SOK: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SOK: LW UNBIND x SOK: frame 0 byte for byte
+    [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LD2 TMR_RETRY x PWT (talker discovered): the processor keeps the status the retry was for (5.5.3.5.30 step 2)
+    [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LW TMR_RETRY x PWT (talker discovered): state, probing and ACMP status PWD 2 5 want PWD 2 0
+    [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LW TMR_RETRY x PWT (talker discovered): notified exactly when a Table 5.22 item moved
+rc=1

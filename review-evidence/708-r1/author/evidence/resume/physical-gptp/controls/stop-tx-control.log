@@ -1,0 +1,53 @@
+ax1x1gptp PHYSICAL: 50 MHz, 782/1591 audio, 200 MHz auxiliary; negative_control=0 extended=0
+  [ ok ] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) got=0x4 exp=0x4
+  [ ok ] PHC reset increment is 20 ns             got=0x14000000 exp=0x14000000
+  [ ok ] advertised talker geometry AAF plus CRF  got=0x48010002 exp=0x48010002
+  [ ok ] advertised listener geometry AAF plus CRF got=0x48010002 exp=0x48010002
+  [ ok ] software cannot manufacture gPTP health  got=0x1 exp=0x1
+  [ ok ] software cannot manufacture peer delay   got=0x0 exp=0x0
+  [ ok ] unlicensed talker gate closed            got=0x0 exp=0x0
+  [ ok ] listener override eight-channel format   got=0x2006000 exp=0x2006000
+  [ ok ] diagnostic talker bypass opens gate      got=0x8 exp=0x8
+TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+  [ ok ] audio ratio 782/1591 within one quantized edge
+  [ ok ] 200 MHz auxiliary clock has four rising edges per Milan cycle
+  [ ok ] TDM8 master captures four pairs per frame
+  [ ok ] TDM8 FSYNC period follows audio divided by 512
+  [ ok ] PHC advances 20 ns per modeled cycle before Sync selection got=200840 exp=200840
+AUDIO arm=initial payload deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+AUDIO arm=admission withheld after traffic deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=0 samples=0 bad_payload=0 bad_order=0
+  [FAIL] both eight-channel packet directions active
+  [FAIL] all eight channel payloads match the supplied ramp
+NOT RUN: audio sample order, no duplicates or gaps (no comparisons in this window; uncounted)
+NOT RUN: AAF packet sequence order (no comparisons in this window; uncounted)
+NOT RUN: AAF uncertainty matches public stable state (no comparisons in this window; uncounted)
+  [FAIL] Pdelay_Req TX flags: frames observed     got=0 exp=1
+  [ ok ] all monitored audio payload errors, excluding declared warm-up got=0 exp=0
+  [ ok ] all monitored audio sample ordering errors got=0 exp=0
+  [ ok ] all monitored AAF packet sequence errors got=0 exp=0
+  [ ok ] every emitted audio PDU has its capture order plan got=0 exp=0
+NOT RUN: declared recentre checks (no decisions; uncounted)
+RECENTRE totals decisions=0 completed=0 planted=0
+AUDIO comparisons payload=9024 sample_order=1127 packet_sequence=266
+NOT RUN TO COMPLETION: first Pdelay exchange
+NOT RUN TO COMPLETION: acquisition and public coherence
+NOT RUN TO COMPLETION: healthy audio
+NOT RUN TO COMPLETION: backpressure
+NOT RUN TO COMPLETION: loss and recovery
+NOT RUN TO COMPLETION: reset and reacquisition
+simulated_duration_seconds=0.063427760 cycles=3171388
+clock_audio_hz=24575738.529227 clock_axis_hz=50000000 clock_ps_hz=200000000 PHC_increment_ns=20
+NOT RUN: licensed ACMP/SRP streaming; physical TDM render; CRF recovery; multiple-responder cease; PHY/MAC calibration; CPU/DDR; physical compliance
+NOT RUN: warm-up payload comparisons during first 10 ms of each reset epoch
+exit_status=1 negative_control=0
+== ax1x1gptp physical: checks: 26   failures: 3 ==
+RESULT: FAIL
