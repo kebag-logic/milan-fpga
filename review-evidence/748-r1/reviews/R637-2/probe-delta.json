@@ -1,0 +1,135 @@
+[
+  {
+    "case": "complete receipt",
+    "status": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    },
+    "problems": []
+  },
+  {
+    "case": "NOT RUN test_toolchain_patches_are_applied",
+    "status": {
+      "test_toolchain_patches_are_applied": "NOT RUN: [arm] missing litex_boards",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    },
+    "problems": [
+      "probe: test_toolchain_patches_are_applied NOT RUN: [arm] missing litex_boards"
+    ]
+  },
+  {
+    "case": "missing check test_toolchain_patches_are_applied",
+    "status": {
+      "test_toolchain_patches_are_applied": "did not run",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    },
+    "problems": [
+      "probe: test_toolchain_patches_are_applied did not run"
+    ]
+  },
+  {
+    "case": "NOT RUN test_toolchain_patch_gate_bites",
+    "status": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "NOT RUN: [arm] missing litex_boards"
+    },
+    "problems": [
+      "probe: test_toolchain_patch_gate_bites NOT RUN: [arm] missing litex_boards"
+    ]
+  },
+  {
+    "case": "missing check test_toolchain_patch_gate_bites",
+    "status": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "did not run"
+    },
+    "problems": [
+      "probe: test_toolchain_patch_gate_bites did not run"
+    ]
+  },
+  {
+    "case": "missing receipt",
+    "status": {
+      "test_toolchain_patches_are_applied": "no receipt",
+      "test_toolchain_patch_gate_bites": "no receipt"
+    },
+    "problems": [
+      "probe: gate 23h wrote no receipt (rc 0), so neither patch check is known to have run"
+    ]
+  },
+  {
+    "case": "nonzero exit despite complete receipt",
+    "status": {
+      "test_toolchain_patches_are_applied": "ran and passed",
+      "test_toolchain_patch_gate_bites": "ran and passed"
+    },
+    "problems": [
+      "probe: gate 23h exited 7"
+    ]
+  },
+  {
+    "case": "malformed receipt refuses with error"
+  },
+  {
+    "case": "real selected builder checks: exit zero but named NOT RUN refusal",
+    "status": {
+      "test_toolchain_patches_are_applied": "NOT RUN: [gate 23h] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks",
+      "test_toolchain_patch_gate_bites": "NOT RUN: [gate 23h mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks"
+    },
+    "problems": [
+      "missing-dependency: test_toolchain_patches_are_applied NOT RUN: [gate 23h] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks",
+      "missing-dependency: test_toolchain_patch_gate_bites NOT RUN: [gate 23h mutation] no interpreter here can import migen + litex + litex_boards, so NO argv -> Instance parameter chain was observed in this run (point MILAN_LITEX_PYTHON at one, or run scripts/ci_litex_env.py). Gate 23d holds the argv -> MilanSoC half structurally, by the SPELLING of the statements it walks"
+    ]
+  },
+  {
+    "case": "argument boundary relative",
+    "all_paths_absolute": true,
+    "rev": "2e83841675e4e1439c413c9ca11b4a123898a60e"
+  },
+  {
+    "case": "argument boundary absolute",
+    "all_paths_absolute": true,
+    "rev": "2e83841675e4e1439c413c9ca11b4a123898a60e"
+  },
+  {
+    "case": "actual CLI bad revision with relative --work",
+    "rc": 2,
+    "no_work_created": true
+  },
+  {
+    "case": "actual CLI bad revision with absolute --work",
+    "rc": 2,
+    "no_work_created": true
+  },
+  {
+    "case": "elaborate-gates-0 nontext setup named refusal"
+  },
+  {
+    "case": "elaborate-gates-0 nontext tail named refusal"
+  },
+  {
+    "case": "elaborate-gates-0 current setup, shared control, and tail accounted",
+    "modules": [
+      "third_party/verilog-axis",
+      "protocol-processor",
+      "gptp-processor"
+    ]
+  },
+  {
+    "case": "elaborate-gates-1 nontext setup named refusal"
+  },
+  {
+    "case": "elaborate-gates-1 nontext tail named refusal"
+  },
+  {
+    "case": "elaborate-gates-1 current setup, shared control, and tail accounted",
+    "modules": [
+      "third_party/verilog-axis",
+      "protocol-processor",
+      "gptp-processor"
+    ]
+  },
+  {
+    "case": "generated workflow byte-identical to previously reviewed head"
+  }
+]

@@ -1,0 +1,27 @@
+elaborate-gates-0: Install LiteX at the pinned revisions: rc 0 in 35.4 s
+elaborate-gates-0: Place the VexiiRiscv source at the revision LiteX pins: rc 1 in 0.1 s
+elaborate-gates-0: gate 23h: rc 0 in 1.8 s
+elaborate-gates-0: test_toolchain_patches_are_applied: ran and passed
+elaborate-gates-0: test_toolchain_patch_gate_bites: ran and passed
+elaborate-gates-1: Install LiteX at the pinned revisions: rc 0 in 35.7 s
+elaborate-gates-1: Place the VexiiRiscv source at the revision LiteX pins: rc 0 in 13.3 s
+elaborate-gates-1: Apply the toolchain patch series: rc 0 in 0.4 s
+elaborate-gates-1: gate 23h: rc 0 in 1.8 s
+elaborate-gates-1: test_toolchain_patches_are_applied: ran and passed
+elaborate-gates-1: test_toolchain_patch_gate_bites: ran and passed
+tool cache: 6303 planted paths, 9296 changed; manifest 871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36 planted, 2f31856dfe99028b026ba28295fb3d50813abdec563b6e89d82f2bc74b19890b final
+PROBLEM: elaborate-gates-0: not every step passed: [{'step': 'Install LiteX at the pinned revisions', 'rc': 0, 'seconds': 35.4}, {'step': 'Place the VexiiRiscv source at the revision LiteX pins', 'rc': 1, 'seconds': 0.1}]
+PROBLEM: elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64 is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64 is inside the shared tool cache
+PROBLEM: elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/litex/__init__.py is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/litex/__init__.py is inside the shared tool cache
+PROBLEM: elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-0: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is inside the shared tool cache
+PROBLEM: elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64 is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64 is inside the shared tool cache
+PROBLEM: elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/litex/__init__.py is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/litex/__init__.py is inside the shared tool cache
+PROBLEM: elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is not under the leg's RUNNER_TEMP
+PROBLEM: elaborate-gates-1: $VALIDATION_STORAGE/748-a623/r2/fx/shared-4/run/toolcache/Python/3.12.3/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog is inside the shared tool cache
+PROBLEM: the tool cache changed at 9296 paths, first ['Python/3.12.3/x64/bin/idna', 'Python/3.12.3/x64/bin/litedram_gen', 'Python/3.12.3/x64/bin/liteeth_gen', 'Python/3.12.3/x64/bin/litespi_gen', 'Python/3.12.3/x64/bin/litex_bare_metal_demo']
+NOT ISOLATED

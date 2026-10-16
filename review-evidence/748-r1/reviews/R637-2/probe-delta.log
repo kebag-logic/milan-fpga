@@ -1,0 +1,21 @@
+PASS complete receipt
+PASS NOT RUN test_toolchain_patches_are_applied
+PASS missing check test_toolchain_patches_are_applied
+PASS NOT RUN test_toolchain_patch_gate_bites
+PASS missing check test_toolchain_patch_gate_bites
+PASS missing receipt
+PASS nonzero exit despite complete receipt
+PASS malformed receipt refuses with error
+PASS real selected builder checks: exit zero but named NOT RUN refusal
+PASS argument boundary relative
+PASS argument boundary absolute
+PASS actual CLI bad revision with relative --work
+PASS actual CLI bad revision with absolute --work
+PASS elaborate-gates-0 nontext setup named refusal
+PASS elaborate-gates-0 nontext tail named refusal
+PASS elaborate-gates-0 current setup, shared control, and tail accounted
+PASS elaborate-gates-1 nontext setup named refusal
+PASS elaborate-gates-1 nontext tail named refusal
+PASS elaborate-gates-1 current setup, shared control, and tail accounted
+PASS generated workflow byte-identical to previously reviewed head
+PASS: 20 focused checks

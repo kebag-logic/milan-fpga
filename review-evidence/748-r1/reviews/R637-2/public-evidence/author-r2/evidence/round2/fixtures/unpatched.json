@@ -1,0 +1,83 @@
+{
+  "rev": "2982f11549ded5207b0955ff76ef4a63d83feff1",
+  "shared": false,
+  "gate_legs": false,
+  "planted_paths": 6303,
+  "changed_paths": 0,
+  "planted_manifest_sha256": "871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36",
+  "final_manifest_sha256": "871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36",
+  "changed_sample": [],
+  "setup_seconds": 51.2,
+  "gate_leg_seconds": null,
+  "patch_checks": {
+    "elaborate-gates-0": {
+      "test_toolchain_patches_are_applied": "no receipt",
+      "test_toolchain_patch_gate_bites": "no receipt"
+    },
+    "elaborate-gates-1": {
+      "test_toolchain_patches_are_applied": "no receipt",
+      "test_toolchain_patch_gate_bites": "no receipt"
+    }
+  },
+  "legs": {
+    "elaborate-gates-0": [
+      {
+        "step": "Put a job-private Python environment on PATH",
+        "rc": 0,
+        "seconds": 2.3
+      },
+      {
+        "step": "Install LiteX at the pinned revisions",
+        "rc": 0,
+        "seconds": 36.8
+      },
+      {
+        "step": "Place the VexiiRiscv source at the revision LiteX pins",
+        "rc": 0,
+        "seconds": 12.1
+      },
+      {
+        "step": "Apply the toolchain patch series",
+        "rc": 0,
+        "seconds": 0.0
+      },
+      {
+        "step": "gate 23h",
+        "rc": 1,
+        "seconds": 0.9
+      }
+    ],
+    "elaborate-gates-1": [
+      {
+        "step": "Put a job-private Python environment on PATH",
+        "rc": 0,
+        "seconds": 2.3
+      },
+      {
+        "step": "Install LiteX at the pinned revisions",
+        "rc": 0,
+        "seconds": 35.2
+      },
+      {
+        "step": "Place the VexiiRiscv source at the revision LiteX pins",
+        "rc": 0,
+        "seconds": 10.9
+      },
+      {
+        "step": "Apply the toolchain patch series",
+        "rc": 0,
+        "seconds": 0.0
+      },
+      {
+        "step": "gate 23h",
+        "rc": 1,
+        "seconds": 0.9
+      }
+    ]
+  },
+  "problems": [
+    "elaborate-gates-0: gate 23h wrote no receipt (rc 1), so neither patch check is known to have run",
+    "elaborate-gates-1: gate 23h wrote no receipt (rc 1), so neither patch check is known to have run"
+  ],
+  "isolated": false
+}

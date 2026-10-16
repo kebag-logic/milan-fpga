@@ -1,0 +1,59 @@
+{
+  "fixtures": [
+    {
+      "case": "head-relative",
+      "rev": "2e83841675e4e1439c413c9ca11b4a123898a60e",
+      "rc": 0,
+      "isolated": true,
+      "changed_paths": 0
+    },
+    {
+      "case": "head-absolute",
+      "rev": "2e83841675e4e1439c413c9ca11b4a123898a60e",
+      "rc": 0,
+      "isolated": true,
+      "changed_paths": 0
+    },
+    {
+      "case": "missing-dep",
+      "rev": "578b2add9ab65f0f78fba285e3683c21fa1bbc26",
+      "rc": 1,
+      "isolated": false,
+      "changed_paths": 0
+    },
+    {
+      "case": "missing-dep-unpatched",
+      "rev": "9ade0d83c7186737aa59f5308742ed3ccf20d7bf",
+      "rc": 1,
+      "isolated": false,
+      "changed_paths": 0
+    },
+    {
+      "case": "unpatched",
+      "rev": "2982f11549ded5207b0955ff76ef4a63d83feff1",
+      "rc": 1,
+      "isolated": false,
+      "changed_paths": 0
+    },
+    {
+      "case": "shared-4",
+      "rev": "2e83841675e4e1439c413c9ca11b4a123898a60e",
+      "rc": 1,
+      "isolated": false,
+      "changed_paths": 9296
+    },
+    {
+      "case": "dev-race-3",
+      "rev": "9ef717727e6fdac11ee7f01672fefae948452343",
+      "rc": 1,
+      "isolated": false,
+      "changed_paths": 9296
+    }
+  ],
+  "gate_legs_exact_head_and_tree": true,
+  "cache_paths": 6303,
+  "cache_manifest_sha256": "871f9aea2b89f393b82fcd49ecb9aa6797cd669a75e5b3d601d74a5aba678d36",
+  "gate_leg_seconds": 939.6,
+  "docs_rows_rc_zero": 46,
+  "basis": "Published author execution receipts; no manager source execution inferred"
+}

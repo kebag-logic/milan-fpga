@@ -1,0 +1,79 @@
+{
+  "head": "2e83841675e4e1439c413c9ca11b4a123898a60e",
+  "order": "Independent verdict and ledger written before prior public review findings were read",
+  "findings": [
+    {
+      "id": "R637-1-F01",
+      "severity": "MAJOR",
+      "lenses": [
+        "Conformance",
+        "Robustness",
+        "Tests",
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": [
+        "scripts/ci_toolcache_isolation.py:321-369",
+        "probe-delta.json",
+        "public-evidence/author-r2/evidence/round2/fixtures/"
+      ]
+    },
+    {
+      "id": "R637-1-F02",
+      "severity": "MINOR",
+      "lenses": [
+        "Robustness",
+        "Tests"
+      ],
+      "status": "RESOLVED",
+      "evidence": [
+        "scripts/ci_toolcache_isolation.py:372-407",
+        "probe-delta.json",
+        "public-evidence/author-r2/evidence/round2/fixtures/head-relative.json",
+        "public-evidence/author-r2/evidence/round2/fixtures/head-absolute.json"
+      ]
+    },
+    {
+      "id": "R637-1-F03",
+      "severity": "RESIDUE",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": [
+        ".github/ci-templates/elaborate.yml:156",
+        "scripts/ci_toolcache_isolation.py:13",
+        "scripts/ci_events.py:569",
+        "scripts/ci_events.py:7457",
+        "generated-check.rc"
+      ]
+    },
+    {
+      "id": "R636-1-F1",
+      "severity": "RESIDUE",
+      "lenses": [
+        "Conformance",
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": [
+        "PR #749 body Inventory row: docs, rtl-fast, rtl pip installation; includes LiteX pins in firmware-boundary"
+      ]
+    },
+    {
+      "id": "R636-1-F2",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Tests"
+      ],
+      "status": "RESOLVED (accepted scope)",
+      "evidence": [
+        "scripts/ci_toolcache_isolation.py:431-441",
+        "public-evidence/author-r2/evidence/round2/gate-legs/gate-legs.json",
+        "author-builder-union.json"
+      ]
+    }
+  ],
+  "submitted_reviews": [],
+  "inline_review_comments": []
+}

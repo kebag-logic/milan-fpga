@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/748-a623/r2/fx/unpatched/repo/scripts/ci_toolcache_isolation.py", line 454, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$VALIDATION_STORAGE/748-a623/r2/fx/unpatched/repo/scripts/ci_toolcache_isolation.py", line 407, in main
+    plans = {name: window(jobs[name], args.shared) for name in LEGS}
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/748-a623/r2/fx/unpatched/repo/scripts/ci_toolcache_isolation.py", line 121, in window
+    if name not in RUN or "run" not in step or "${{" in step["run"]:
+                                               ^^^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'bool' is not iterable
