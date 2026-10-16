@@ -48,6 +48,32 @@ def workflow_environment(census: dict, env: dict, where: str) -> None:
             raise Refusal(f'unmodelled workflow environment name {name!r} at {where}')
 
 
+#: `[[ ]]` arithmetic comparisons `-eq`, `-ne`, `-le`, `-ge`, `-lt` and `-gt` evaluate their operands as expressions.
+TEST_ARITHMETIC = {116, 117, 118, 119, 120, 121}
+
+
+def test_clause(shell: object, node: dict, directory: object, where: str) -> object:
+    """`[[ ]]` decides nothing from its words: both paths continue where it started.
+
+    Its words expand without splitting or pathname expansion, and each substitution
+    in them is walked. An arithmetic comparison refuses by name. Any other construct
+    the walker does not dispatch refuses as unsupported.
+    """
+    if node.get('Type') != 'TestClause':
+        raise Refusal(f"unsupported shell construct {node.get('Type')!r} at {where}")
+    shell.shape('test-clause', node)
+    pending = [node['X']]
+    while pending:
+        item = pending.pop()
+        if item.get('Type') in ('BinaryTest', 'UnaryTest', 'ParenTest'):
+            if item.get('Op') in TEST_ARITHMETIC:
+                raise Refusal(f'unmodelled arithmetic comparison in [[ ]] at {where}')
+            pending.extend(item[key] for key in ('X', 'Y') if key in item)
+        else:
+            shell.value(item, directory, True)
+    return directory
+
+
 #: Arithmetic operators that assign: `=`, `++` and `--`.
 ARITHMETIC_ASSIGNMENTS = (74, 36, 37)
 

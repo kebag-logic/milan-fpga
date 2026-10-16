@@ -40,7 +40,7 @@ def canonical_controls(fixture: Fixture) -> None:
              "uncensused Make assignment operator '!='"),
             ('X ::= echo\nall: ; echo okay\n', 'uncensused Make double-colon form'),
             ('all:: ; echo okay\n', 'uncensused Make double-colon form'),
-            ('X = a\\#b\nall: ; echo $(X)\n', 'unmodelled escaped Make number sign'),
+            ('X = a\\\\#b\nall: ; echo $(X)\n', 'unmodelled escaped Make number sign'),
             ('X = a\\\\\nall: ; echo okay\n', 'unmodelled escaped Make line end'),
             ('VPATH = sub\nall: ; echo okay\n', "uncensused Make assignment 'VPATH'"),
             ('all: ; echo $(MAKEFILE_LIST)\n', "unmodelled Make variable 'MAKEFILE_LIST'"),

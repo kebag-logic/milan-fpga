@@ -1,9 +1,9 @@
 {
   "inputs": {
-    ".github/workflows/docs.yml": "e344032c0038d6cc563255b75751a63cb099165d744e4dd29f47199597c55566",
-    ".github/workflows/elaborate.yml": "f750e883a13244a89e9969f3dc742332268b6ca1a540bfa9cc4f273cd28a2b66",
-    ".github/workflows/rtl-fast.yml": "de7c27f5ecf251ad1c00287f51f1b346590ca13459f6c5e7c0c02dc54b83dfef",
-    ".github/workflows/rtl.yml": "bb66f846e5626adf4b800799d832f4142cb7c11558a65729c932b3352e3dd8a0",
+    ".github/workflows/docs.yml": "f4222f818a34f0e4e92d8c5f24fb01911739640d49dce8cc241f46c497aea879",
+    ".github/workflows/elaborate.yml": "767bfdfad712163efbe6ec2d0211512aaaafae2d2042b2467c1d2e41a0358d05",
+    ".github/workflows/rtl-fast.yml": "5758f0dd581e4f9f1bf511175fc42df0a8806df0236c3497a48356005fd5affd",
+    ".github/workflows/rtl.yml": "2434c502b775193a1638dea702c2f419de89066906c9ff8361d2e75391e6cdad",
     "avdecc/aem_assemble.py": "afdfad0a991d0f6e22b32825ed2e08ce3f81bea866c620ce93057b5f93eaca9e",
     "avdecc/aem_descriptors.py": "e279883f449e7079487cee1c28b2fe1909411735f94b931bea4cc009d30fbbcc",
     "avdecc/aem_emit.py": "697c46bd4575b5306101b2b44928ca40634500c12bfbd654a61a82b8eb8cd970",
@@ -11,16 +11,17 @@
     "avdecc/aem_specs.py": "324ecf045e930e4cec2fbc89c76abbbdcc7e76302121f3eaccfd8871072effba",
     "avdecc/gen_aem_store.py": "9d04942b73734fb9d1e5de30b2f0f687e54423cca6b647b98ee55e72b9d633a4",
     "avdecc/gen_aemi_image.py": "a8e9616711358f436d6af5f762dc017900311de5b5371f45f5fedbb31c08376c",
-    "ci/image/command-table.json": "50a531d79f0323d3bb5323a64f97ec0ec6a5cb06d3ad09d79f525c3ed4553765",
-    "ci/image/differential-receipt.json": "d648e5a25094136ed792451e72888c33bce5d79235279526136e43de5d56e3ba",
+    "ci/constraints-ci.txt": "a0b20a1df6e831386d5d5241d3b839f5572e4c7cfd20bbf2231ee81c8f7bede5",
+    "ci/image/command-table.json": "c9bd5d355c4d3213a558f8e8ea095c8daf184535a65a84b518b7d2346e8b02a0",
+    "ci/image/differential-receipt.json": "9e18703b86e1011545f5555f17941c79b5e3738d511b2aacb090672983bd0c8f",
     "ci/image/make-builtins.json": "70d43efc879f93e97c2e59bcff3fa28a9be858877c2e7ffd3c4fa5d362aa74c4",
-    "ci/image/sources.lock.json": "ef450d20026f4ea9d48b2b7b84a9c501dd66564e2995e893089311bbb6a1330b",
-    "ci/image/syntax-census.json": "41cb9002f0b4c02ff0b00a13b32cd2db4b952d6244d3f1a1234ad02b25b47363",
+    "ci/image/sources.lock.json": "8bfa41bcf1e3b5e7a1efaec6d68c2f8b249e52f73b2980034af5721659db96a8",
+    "ci/image/syntax-census.json": "6e3d553752dae52ae5e63eb27fbc817a55ef13724f155d7d17f669e68c78a654",
     "docs/DOC_MAP.gen.py": "8c82ad3bc8739106e3926870c1fe6505ee2abfa2c045b6e3c63d999d43baf79d",
     "docs/diagrams/submodule_boundaries.gen.py": "f8c7b46d924cf221e5e7437759a19b1489643af33c7862a1fd873c82d4ba6250",
     "docs/diagrams/timesync_chain.gen.py": "16653618cf2e4f63008256ef9b2db2d6e398bd3cbabf20bc76f577028f2251d5",
     "docs/traceability/gen_module_matrix.py": "913156fac7b0594076eae73776a955fa2fefdd6b7d36bc20e6efb1bf65af74be",
-    "gptp-processor/Makefile": "48e18ab259d576e638cb75b4fa26e2bc5372e815343962d4635229df60dc73ef",
+    "gptp-processor/Makefile": "9336ffa6963369df48d9a08850bc378de43a67971ca49395294479beba21733e",
     "gptp-processor/hdl/ucode/gen_gptp_ucode.py": "0993554fadf54fbf250d96afac37eb103fccab6465a1df6ebaeca69c1acb2c2f",
     "gptp-processor/scripts/check_docs.py": "f84ff9c5931ca80e84541d09dee1aa34a7f80121fdecbdee612d7d9a260b0630",
     "gptp-processor/scripts/check_source_evidence.py": "b0033dea608f9321275012b458ae81bd96c73867e91d6a4a8ed695c9d135dcf3",
@@ -28,9 +29,9 @@
     "protocol-processor/hdl/acmp/rom/gen_ltn_rom.py": "a0d1c1c7a6ddb8b573b2b03a976088e46902aee06f4d98f9e14929289c395b45",
     "protocol-processor/hdl/aecp/desc/gen_desc_image.py": "1291e4eeb5dfc17e7b8219fa53f571253ffbbac52c640190fe536fc704491a53",
     "protocol-processor/hdl/aecp/ucode/gen_ucode.py": "b1dd0f22b496fa01d86e2f5df2c627340cd91c6c914b69e9cbc5491249098592",
-    "scripts/act_ci.py": "506155c11334eeccdb210a0001f41c2b0d9ceb5bd95b41887d1bb5422255882a",
+    "scripts/act_ci.py": "b8a786cec30be9eff9f2e72c6b59e21c06d27e1f36e055a7929c3cc3b59e3ba8",
     "scripts/check_archive.py": "93fd7299971e4e0eb5fdaa9744646f010ea6b999ad399392af1618605d7c3474",
-    "scripts/check_baremetal_only.py": "3d10365d3c399071b2e41949b2ef813c0b2b4aaf1de432346779328726b54e06",
+    "scripts/check_baremetal_only.py": "c720ca99e5af3b49d402c1ab1b1a614812ca642975d3656145366cd342397080",
     "scripts/check_cpp_idiom.py": "a059f01c0f8f69edb7de540004ce27b168c4e8d53a5c79c0238b0d5bb9f5f228",
     "scripts/check_deploy_shape.py": "c2f8b81bb7ddfe70712de41a4577af110e98571f1e3d2061023a8dc700946724",
     "scripts/check_diagram_pngs.py": "1deeda1cb6b3831f5abafc898175684828ef16eb9243054975c8ed3ed5d3bafc",
@@ -40,7 +41,7 @@
     "scripts/check_entity_shape.py": "cf1bbec221f4511204d99737d280f10ca4db416750c21d42cf44bed31613aed5",
     "scripts/check_feature_status.py": "24d5510893b5360dfe30e6b1bc57172072eb6ab4534a53a10db3903143447ceb",
     "scripts/check_feature_status_selftest.py": "a12fa5f2f4feb05fae587b5aceb93bc16110f0286a3454b237d7e38039d27bb3",
-    "scripts/check_gptp_docs.py": "6e2efe35c4b5b2e327f737bd354d38dc9f3518f750e1c63b7bc32329693a1036",
+    "scripts/check_gptp_docs.py": "74db03ad29eeb6c127b2335d4221ef4f319d417deff03d9067580af0866aee72",
     "scripts/check_hygiene.py": "eb873a759fe309791fd1bd9ae46d9cff5cb099c8ee7fe3a1538e80d98488dd0b",
     "scripts/check_nvm_capture.py": "50ca5b0751d8de6f4bdf68931da14ac4d162b0b8b3cc89ba26e9949f6c3af3fb",
     "scripts/check_nvm_record_space.py": "1e59ce154bdf7b30c70cf36550604b053ada24c77b32b18d25236117630c4e07",
@@ -58,18 +59,47 @@
     "scripts/check_tied_inputs.sh": "ff6cfb77c16690c720544e12c20c1365dc55f6cf970a9bcdb5a9ccbfc31938b6",
     "scripts/check_todo_ownership.py": "b534a9c972edc624780b1216c6ce941502abe7171a92841ff055a0e1258a71ca",
     "scripts/check_wire_accountability.py": "5075eb353ab6365e6cb3647a6254a167e62c024938cc9e1ed93d41d2510759f7",
-    "scripts/ci_events.py": "2aa09c44dcf6d6d111e9cdb205f340ee6a40df9dcad17380590d2d785fb8957b",
+    "scripts/ci_builder_legs.py": "2a2f6b09b25f14462e7de74e46a2b89e8b122bc264fa067534cc7eef618fd09c",
+    "scripts/ci_capture_cases_selftest.py": "ba527f187bd4aeadfd0c453d246db57b5088d1318eb808fb3ef9b9af0ff7d0ad",
+    "scripts/ci_case_receipts.py": "efac0cb54d3214d96be0be059d0e3e0133d96b416c6beff1ec54865a5f57038b",
+    "scripts/ci_case_receipts_selftest.py": "c0543fba6e86b2360212559ed8d35b7c106430199b32a749e97b07a157041777",
+    "scripts/ci_events.py": "bfcd69ec0c32aa6e950b01974a9812e432c539eb0ec934dc4a8007fdaa635adc",
+    "scripts/ci_fail_fast.py": "12dd150a1faa2c39287768d3f9e6e72ed0c637b4bc9c5be675656fe0a9f90315",
+    "scripts/ci_fail_fast_selftest.py": "420abba6f128d2eaacafdd53962782cd728ffb8aea71e72a271acedeac0d3e16",
+    "scripts/ci_gate_receipts.py": "74426f666314743607df024f40b120e55a65bab9420dff983fb0aa28a270c33b",
+    "scripts/ci_gate_workflows.py": "0f32cbca1279f34a5904e68843866d77c3bb8b8e9000c3f8c59130701ca2a7e3",
+    "scripts/ci_gate_workflows_selftest.py": "7e399a455a6e1ac2a931b6536aea41c9ad246bd93a1113c475352e7c225f0cf4",
+    "scripts/ci_install_cache.py": "47de8689c6566371bacbbcbaf845c78acb099f7a697e0d9df761c9947b25c475",
+    "scripts/ci_install_cache_selftest.py": "8d0d30963112145a99dc4dd3e0cabf3fe08d3312d7249149171ac1fd0392a826",
+    "scripts/ci_install_workflows.py": "a9bf3a8b666fa5a7ef190f621c92a59ec1fcaf324f62a4d9b1e24f38ab622d10",
     "scripts/ci_litex_env.py": "1eae035eb04f023045f2fe80e1f8f89ac205c0eda6ef41c78d9ed7eee865443d",
+    "scripts/ci_local_manifest.py": "5d914692847656d7da6f3e24907c59d6fc0261695fbfa999f2a8dcb1b107b7dd",
+    "scripts/ci_maap_cases_selftest.py": "4837c28a2e5f8a2879d41e070daa3cca1f5b2ae342d9427c51e7d4e1728f4b06",
+    "scripts/ci_make_cases.py": "4191327e26c6a05222255a9f3e6c11db2e2b1d01d5413ebda505c7fd56748ed7",
+    "scripts/ci_make_cases_selftest.py": "e3ed839905f0238da92db6a0c8c50f24358372b4a2a1d30e2d08622f5271c78f",
+    "scripts/ci_manifest.py": "b17e183dc920173abc84b38cb6af2eaffee5b609a08b924092010e0f55f7dfa1",
+    "scripts/ci_manifest_selftest.py": "acfd08393cb4c73e33111e93845fe65cdc116c9f0a30687c8761155e8cd3b037",
+    "scripts/ci_runtime_evidence.py": "82272f5e4c19ddf238f173ae378d1222974029300f944ac1156e8a7361271633",
+    "scripts/ci_runtime_evidence_selftest.py": "4eee4ae31fa0b812717298137dc6a30394f6b2c80ac73408d2a4d798d80bc218",
+    "scripts/ci_runtime_workflows.py": "ec8788b3b4779678dddc179993caf1417373dd8b0363944995f98809acb7a393",
     "scripts/ci_rv32_sdk.py": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4",
     "scripts/ci_rv32_sdk_selftest.py": "97bc5c8687de37e61caf833f4ec76d9a1ae57f3441e44541622625309f30faae",
-    "scripts/ci_scope.py": "d091ccd7d60562db374ad4b0b7f09b81620d8c4f08d73da886351d1d75c13455",
-    "scripts/ci_scope_history.py": "343b272084271c9a8b2d4cf35071b08e9307084fde12aea7c828b5026d0c91b8",
+    "scripts/ci_scope.py": "bbc369c06a61700b772a47af851d575b03e429cd71109613c47bf8902fa2b860",
+    "scripts/ci_scope_history.py": "77204f6425a21537dfda3d07d2502cfca0f41425ab1904a0f3839f7944c52a57",
+    "scripts/ci_suite_collect.py": "20b9fb220ee56a6a34105d2c9e3828c604eb508776951c87375805405cd2e2e3",
+    "scripts/ci_suite_collect_selftest.py": "6d9205fae961a53187b0ec387a003d115f085aa40f654e6828cce369502c55c1",
+    "scripts/ci_suite_pieces.py": "b53c97f4bcc09d08c90b3cb21a0ee6c8ec2f0e4bb5f7053a451f78df798d9eac",
+    "scripts/ci_suite_pieces_selftest.py": "dd6d9bed213fd03d2062503ab49612f2fd41fc0c49bbd1576a9fdc05e40cb3a9",
+    "scripts/ci_suite_workflows.py": "a816605417bb999e7c4a55523c956930df5278be9598839bc6ebc2b05798d7d7",
+    "scripts/ci_workflow_plan.py": "4d98b26611de437e6b1879543fb2ff20d041e1932434af3b991a5f644e08d933",
+    "scripts/ci_workflow_plan_selftest.py": "9efd257db3a9e414b03ee3bba9bab93706d975c4a96ae26183cece0cefe3dee8",
     "scripts/code_quality_scope.py": "4497818d6444cc1ea7aefc002d1b32675f206e07988cbf6b19708b08409de14b",
     "scripts/docs_check.py": "3c1359e6e9e72734ca780c4dca65ed6bbb0cba6aed37b86dafe012c3ec9ad081",
     "scripts/entity_shape_selftest.py": "a7069c49e07d21fb5e19a174ce6e8f89458185a90c5bbf6b0e70580a9ab1b0cd",
     "scripts/gen_hdl_reference.py": "71012ddd058d47932adcd4013fcbea4078cf71e24f9ff2b4415f063e8e9fb84b",
     "scripts/gen_hdl_reference_comments.py": "0fb94acdee7473d2ee02f4f663a78c6614b593533039489c1493b7a41c0d68fe",
     "scripts/gen_hdl_reference_selftest.py": "6f808a510e05ac943125d9dfc19ccb0abbe4565df67af3d713332eed72720a6a",
+    "scripts/gen_one_valued_table.py": "e7bf3ee9b8394f17ccce31333e89cc8bfb75bd460681fb198cd55613fec04230",
     "scripts/gen_toc.py": "31983930e622d1b6b833781911bf6295cf828b2ce7875915671e7a6d10ac781a",
     "scripts/gen_toc_cases.py": "8a23ea7e029c2ee7193f057ee68415276c30e3465dccaa31a77f67c8c1732a9b",
     "scripts/gen_toc_closer_cases.py": "ae15ecdd49fac916b2bbfbb24044b775390935c47e04a53de87aba24c07c5c26",
@@ -77,6 +107,7 @@
     "scripts/gen_toc_renderer_cases.py": "387e09ea8378215a6c6c799e8ecc2bd078fdda54313388bb0e8211b3c967853d",
     "scripts/gen_toc_shape_cases.py": "f0b7a9d7a4a1d0950f5aba0976a5fd0ad47eff9807205429e16439ed3071b201",
     "scripts/gen_wavedrom.py": "89fd19b46e457d65b012019a352a3d0c86847cc14f8fc512489fff17a04ec73b",
+    "scripts/generate_ci_evidence_pins.py": "671d174e5fb186c422b805d70bbb6f9e582b9121757d704211258662a6b3b51a",
     "scripts/lint_rtl.py": "8fd9a8755c97a1b780128978171ea1dc126c2286c238ce1c4c9c2c8bc01b64a7",
     "scripts/lint_rtl_policy.py": "c4275dfdc351ea131143d663856ae8402feea0a4559a09195a3a5718656154e4",
     "scripts/measure_cohesion.py": "428005c44dde64d294b4230800bbf18c46e703d25f398e84d50c59e46bc44042",
@@ -85,7 +116,7 @@
     "scripts/measure_fail_fast_selftest.py": "399b7201c69b81501018567a3f293441d33693271a39bfe3f59256bfe4ed7f22",
     "scripts/measure_naming.py": "72ba179a94942c2f861cdac21fa8d20068815f98c595936bcd3b1739326b8c29",
     "scripts/measure_test_evidence.py": "3cd7510a725e172eeb7a3ed9ee861978e78d00ec94e8f4c9080e8063395421d5",
-    "scripts/measure_test_evidence_readers.py": "b9f2d6579b83515a0af6be90971078f38a6cf07385f87a38a8bbe5a484474db8",
+    "scripts/measure_test_evidence_readers.py": "58aba60471256eaafab31a2765151d80ebc8c5689b5c4875e311710dac84c4cd",
     "scripts/measure_test_evidence_selftest.py": "c1836e531f0e72431373ab32a655983be70f287ace023acd1134dbc129e9eafb",
     "scripts/nvm_allocation_table.py": "9f6ef0c68b59997da4eec67208185902a99d1cd9c97b2040077715bd1a9c57c1",
     "scripts/nvm_contract.py": "0099b98113c0eaacea982e8c2d1d2b40c98f689195ddf5179b1bd5a09f87f2d2",
@@ -96,10 +127,10 @@
     "scripts/png_artifact.py": "a68fe3cc7ab3ec2813c9efe5d8e6da0fafe734523570110ac7464e87b0a26c5c",
     "scripts/pp_srcs.py": "af84950a79c2ac3c8624d60a3b62d14f0256029f3d22c3129f10fa1556485366",
     "scripts/process_test_support.py": "2158fd48fec71ef2f0e81afd4ca675831797377621ad0aa289fffebed16be7e7",
-    "scripts/run_all_suites.sh": "b36a1a6f50a1652c31cfa12717b4f86c5db13d6ed7b65fa3486414cd0a699eca",
+    "scripts/run_all_suites.sh": "c4309d6e3fe7dddbeaad2983ec6b03275a2838d8fc0078b4162a7f5b47a957bd",
     "scripts/run_litex_sims.sh": "91299632461ecc67f6681def2d6ed50cd92bd5d34e493ec29bdba5c990b11d36",
     "scripts/shape_consumer_inventory.py": "1c1b439da8d6fa1a08551bc658b1573b02160fd32042828a1ae8e7af95ac3188",
-    "scripts/suite_shards.py": "59e476532c7db7d77d738d487621d57220996432a2ea8219b198bdd7438eecb4",
+    "scripts/suite_shards.py": "bebb10ede436a2dd291bdcd2ceb396ae7a16d1597d88ae798bf6f98fa39b6bc3",
     "scripts/suite_tally.py": "e0b81c18d78d6e631d4ebdb5fd2304dafdd1f183a8ecc9caedd8c22293867d3d",
     "scripts/suite_tally_selftest.py": "bee6e7595d6ac4c37b2b81aad3278653ef6c5baacc347945b8c1206e70b26734",
     "scripts/sv_ports.py": "ac078b64144afc94ec13d9ce8a721b87b205b8037024aad657d8f9fcf60cd1ba",
@@ -107,38 +138,40 @@
     "scripts/yosys_shards.py": "c138978a8dade057a2861e64dcf27b8cf4c0a91423564430f925bd51b17437b2",
     "scripts/yosys_tally.py": "e22346eee58de56594cdc6c419d2f4edb541f12efa3b60ca475c565094096bf4",
     "sw/builder/endstation_builder.py": "84878e539e61c1e2f1f057c63ea390ce6e707d475d1d68d4816ae917c9e3fcc6",
-    "sw/builder/test_builder.py": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47",
+    "sw/builder/test_builder.py": "e6c3c1097eabb3836d2c40f61f25283afabe09e947fd40568e227790987745dd",
     "sw/builder/test_clock_contract.py": "72b872129176fa5febce098b6c9e24721bdc21b29180addf4169745279b453da",
     "sw/builder/test_declarations.py": "36f78e0f9c355f98f988ba18aa9616d94ef72dfc7db17f84224a85cad216c440",
     "sw/builder/test_firmware_compiler.py": "afaf37bf3eb4b77e3e9dafe6d92557c38c087dd713d4adedc79f325ced25a308",
     "sw/builder/test_timing_grade.py": "93a4b2bcbe9f8c074de8a996fb2afeaa1b7b2c3fd70e19cb08a46a02340cc6a2",
-    "sw/firmware/ctrl/test/acmp_mutants.py": "7e1f7729b4316c87b1ef2bcd58441d4b792c255b09438e6b0f7c28a7625437c9",
-    "sw/firmware/ctrl/test/acmp_review_mutants.py": "6dec84362d28e3cfa1ddd474bba1a990cf0e46ecc0738188f8f03376415f5aab",
+    "sw/firmware/ctrl/test/acmp_mutants.py": "b34475bf4cc9bc26a891f0e541102c38dd185010c98e963f4fe70fab43644148",
+    "sw/firmware/ctrl/test/acmp_review_mutants.py": "e487811dabff4cd846fda44436eaddc4d8f489e1214251e7d7d4060338fc1848",
     "sw/firmware/ctrl/test/aecp_arms.py": "33c3c60ad505af511d0c9fdc342743c85deb519ac5f3f2919b7c31035792915e",
     "sw/firmware/ctrl/test/aecp_mutants.py": "b3f94ef03f97cdda14462a70f363e91f018f61d8170757ebd05278e0b6bef469",
-    "sw/firmware/ctrl/test/ctrl_arms.py": "fd48045166e3350ada8789336bbb1ae1e40cdd654eac97bc60481f5c01bf6728",
+    "sw/firmware/ctrl/test/ctrl_arms.py": "8e277a85f472f2d1d85d8ec3b4998bdd38e8c36bd7a4164fb48a8048ac95cd87",
     "sw/firmware/ctrl/test/ctrl_boundary.py": "4f8ab247cd2651565f660aef08a83b1fddcaa962140234acafed369f03a68754",
-    "sw/firmware/ctrl/test/ctrl_build.py": "5c58336a106a2916658d4a159a855bf2bb6b69793fb48f3ca7670d18233436e8",
+    "sw/firmware/ctrl/test/ctrl_build.py": "b397c2f30d79e51729a66ee66aa4583b3b55dba5e97b5615a881a4b87a805e7d",
     "sw/firmware/ctrl/test/ctrl_capture.py": "042309998d3df72df1cc780f2a2fdfedc7834483b4b9f5d28c79bc02f2acbbed",
-    "sw/firmware/ctrl/test/ctrl_configs.py": "a63cd10b62552874c5b89a77bf744dfd48db705b1da4fb22bd994eb8605c8703",
+    "sw/firmware/ctrl/test/ctrl_configs.py": "489d127020c0fa1eccb67422fddb6a327d19fefde43367fe9fb21af1e68d7127",
     "sw/firmware/ctrl/test/ctrl_expand.py": "56b7e65faa96276c8a003235077e5198d0475da18b63cf3fdebfe993fdb4cfdf",
     "sw/firmware/ctrl/test/ctrl_image.py": "2529f555d1d4cf68b76f3a21c0f230f2e861f8d8180d9fdd6430b802fe4fd180",
     "sw/firmware/ctrl/test/ctrl_mutant.py": "8eec84198a837772d1f46b8168b85e0dffe5d5fb2f66c29d8da242edd14c0dff",
-    "sw/firmware/ctrl/test/ctrl_mutants.py": "0bb172bc21ae9872e3df25cb67bd5a449c478c425d163c6a8a182b8503e9add3",
-    "sw/firmware/ctrl/test/ctrl_pin.py": "29655ccced9242b55ffa52cbbe2816b360c14fab64a699b151c18e6fa81a85e5",
+    "sw/firmware/ctrl/test/ctrl_mutants.py": "ed47898de7bd7a573ed62a554e0b6c590fca4eaf1d44d70d358763ee67c8cf24",
+    "sw/firmware/ctrl/test/ctrl_pin.py": "72a039bb7b5eaa2a629523b7492fa25526980006c6f8b5fcc430c2fe0feb7c89",
     "sw/firmware/ctrl/test/ctrl_pin_bench.py": "b502ef220a48821e936fd383015eecc30ae43e0f31b07401174752a650f4feed",
-    "sw/firmware/ctrl/test/ctrl_pin_env.py": "0b107e0cd6f364683107408d36763b1412f2b908112f043ffb4c7bd11668952a",
-    "sw/firmware/ctrl/test/ctrl_pin_store.py": "f484574738b286e1ba030ed57c7f561796b546e2c0863bfdaa02f2ce926bb175",
+    "sw/firmware/ctrl/test/ctrl_pin_env.py": "b4269c38b81bf1440d905792b7a30e700637e59df409b1f264e8cb560050b9a7",
+    "sw/firmware/ctrl/test/ctrl_pin_lifecycle.py": "9df36e6c648c379285b61d7ed2ba82d419889e19a2c10d7025c06cca575c6ce5",
+    "sw/firmware/ctrl/test/ctrl_pin_store.py": "bd16efcd2704a0ae6a0218dbbc799bdad8f8ce7186f3a0c336306c998e57aa04",
     "sw/firmware/ctrl/test/ctrl_plants.py": "f8240958e3f542b36986ceca548198134b69305cead13b9839e484a2f82a923d",
     "sw/firmware/ctrl/test/ctrl_reuse.py": "859a2909be1ac4051881d78e76f2ebd2f7db0613b2ac7f126aeb46c7f131ab1c",
     "sw/firmware/ctrl/test/ctrl_runs.py": "295a2dcedf704cdd25c9f7e8bf11c49b053f78587116d8718a26d916390dfe3a",
+    "sw/firmware/ctrl/test/ctrl_service_bounds.py": "12681cb1867131055afabe4edb8579e0eed4380e8f241d1c1cc8afeb4c1b0e27",
     "sw/firmware/ctrl/test/ctrl_shim.py": "cd3dcd3eeadb0c74d7ce3093dd65feb76ca4dff564458ca4eda0b6901a355747",
-    "sw/firmware/ctrl/test/maap_mutants.py": "677d628c04cbea147262a43978a927a8422547fd9365473c1226024932ec5673",
+    "sw/firmware/ctrl/test/maap_mutants.py": "83977663a2ef5dab75d76cc0e6c41079ca1c62db45de0d653590c2726e47fc3a",
     "sw/firmware/ctrl/test/srp_arms.py": "1d8cb50ee993d3783fdc15982ba2d0b421566d8993a809fc01471503adf2a070",
-    "sw/firmware/ctrl/test/srp_mutants.py": "fc0e051d3c216a0cc85a56f723a07ae686e5d091e4fa4b0d53d4a6eb9d0da324",
+    "sw/firmware/ctrl/test/srp_mutants.py": "9b65cb2c231997691ba790d749f9b585cce836145e3d2a3c55ebf4fc3c4dbca7",
     "sw/firmware/ctrl/test/srp_pub_mutants.py": "16dd08132ac7700fcfeaf3ae00bd991cfe9220f6a76525b6851f9a6bdd981f82",
     "sw/firmware/ctrl/test/srp_reuse.py": "df24f26d4c3f40ff91777aacf9282bdf4ac96bcebcb7bc4176a59cfe09537848",
-    "sw/firmware/ctrl/test/test_ctrl_firmware.py": "2580bf394f204b2adee6ed9d2a49effd82090ae54f14853b5eb15ad1bcbb08f7",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py": "688f7b0138251c58c769bf284e8fd10fb2dd8df0cf380e4983046172b7770e1d",
     "sw/firmware/ctrl/test/test_ctrl_firmware_shards.py": "ace9ad3f2ab0b235153d9595210b66951696cd9bee05381a7f5ce37cff5bc360",
     "sw/firmware/ctrl_nvm/test/nvm_bench.py": "1d39ad0605d33f4d746123351f492a97f99365d0c2c01f3a4e4a6d6c9b218cc7",
     "sw/firmware/ctrl_nvm/test/nvm_fixture.py": "a6321436ea726f7ff3c81ce5c384dcb03f7af2f999d5973f0a8708a702ffc414",
@@ -151,9 +184,11 @@
     "sw/firmware/gtest/fw_rv32.py": "d6668d68d95bfb1b36e09adfda70e4d8132a0877a877628ce2b333ff9f8ac61b",
     "sw/firmware/gtest/fw_rv32_selftest.py": "caf11ba221ade3a7fc7d41b4295e59480e8494964f3f2cb5a380b4385a1b3c8e",
     "sw/firmware/gtest/tally_selftest.py": "b9c41af743b95c06fd6c841e2f5efc318ca3e96319e72d2d47bb18ab3f33b691",
+    "sw/firmware/nvm_hosttest/read_fault_cases.py": "a33ed8984ef84ad4e237ffb14b9a0cbd8a48c26331f731d74a57870266d924f4",
     "sw/firmware/nvm_hosttest/test_boot_walk.py": "3e2fa485c35c4b5471e52e224be255b911cb131e401097061c391205822983e3",
     "sw/firmware/nvm_hosttest/test_disabled_writer.py": "445193e50b225c26d59c4cd588da58acf510d08d67d7197779e0b26812eaea37",
-    "sw/firmware/nvm_hosttest/test_nvm_firmware.py": "72e290af4df6bd93c153ab5726cc67252cf73e993374d068104f95544f19b163",
+    "sw/firmware/nvm_hosttest/test_nvm_firmware.py": "6ea367e554858040c8033febe6a90664bf8ef5a5384e6ae4c4e9025ee3a75ddb",
+    "sw/firmware/nvm_hosttest/writer_restart.py": "69090b401421968be3bd1380eaf48c244ec6f5a8ce57e7dcd3406f7e72d025e8",
     "sw/litex/boot_policy.py": "b305f5d5e5ccece45daf1eebb7cc37661cc68b1307a2d30b529abe73ad00a9fe",
     "sw/litex/check_gptp_owner_pair.py": "abadf68ddf2e181d365ca7c66a34f9603957214fa59c86594aad9a1893d22ffb",
     "sw/litex/clock_constraints.py": "c23112045cd9a89ed18c45a9776d26652cd54fb2829f364f6aef67e230520c5e",
@@ -181,7 +216,7 @@
     "sw/mailbox/mailbox_emit.py": "e14d9eb010744522750fdbdfc41ea5f5edd3b10cd2f4d35b72edce3547485bd1",
     "sw/mailbox/mailbox_model.py": "8b6054e1640aef721402477a52a4ff79a508393e41ac05ab9098681fbf26cd51",
     "sw/mailbox/mailbox_skeleton.py": "741fbbbde3ec9a06065455b4610123d656933f401188e9e430d8008ebe05da66",
-    "sw/mailbox/publication_census.py": "cbc6cef4211f197c289603faca4e519762c7be41f2d62f72e3b56ec3a9ef974e",
+    "sw/mailbox/publication_census.py": "ce29ced654427b368c082798e76cbbf2c07bd067e5d1a5664da3a0e95c416f4c",
     "syn/ooc/dp_srcs.py": "24a1eac22008ea9b82bef38724a44af9e35089919314a299341825eb90658080",
     "syn/ooc/ooc_tcl_arms.py": "08b5ab1abaab4af4c4c6d87229b0f39e3f82d98674f5391be19de60aff83f44e",
     "syn/ooc/ooc_tcl_harness.py": "a7af322bbeca523e55464c8427ad5dd920c41c1affd3d21f3b7c20d720fffc9f",
@@ -222,9 +257,9 @@
     "tb/verilator/avtp_rxmon/cov_gate.py": "010aa6c26bb8f95e54256c60a3dd9ccb2cabb4910a1a0b6b4c753ff91fac921c",
     "tb/verilator/avtp_rxmon/lockstep_mutants.py": "5eee4b345c3cd3a6baba38607ddce4089150143da790056bcaee0eaabd19b66c",
     "tb/verilator/avtp_stream/Makefile": "6706ab4059d8f5f35857be3913064ad3ce43994a312a04d53965dd822c025915",
-    "tb/verilator/capture_coherence/Makefile": "4d418bba758793d25b427936873f8b1e56d0568a1f98db2c27a9551d0de190ed",
+    "tb/verilator/capture_coherence/Makefile": "f3c46787a8c3d5435aa03e14c09c1b7687f57f27eb75c2800d3ab4f205b4de34",
     "tb/verilator/capture_coherence/mga_keepoff.py": "14110e28c07ec5d6f53e010386d85985563865f88eb944d122fa13bd8993702c",
-    "tb/verilator/capture_coherence/mutants.py": "743aa9d28f92d9b6c0fb3c4c3447ec8fe881959f81c1b2353a2a5d1d4919f530",
+    "tb/verilator/capture_coherence/mutants.py": "2ec38db213e9a8050d2c0b76aef073e7361d16eb52616f9616f321aa79298cc7",
     "tb/verilator/cbs/Makefile": "041b310a31473f37a04c861c216003dc0c1ab48dac5dd4cf077b4663ba7de92c",
     "tb/verilator/cdc/Makefile": "384a63202d769db968cbd4c91fce29b7ec220d8a5be9a0b6fce4d575b6623139",
     "tb/verilator/chmap_capture/Makefile": "3d6204bf97c45efb444026d855d0f4cf2b22b5bc81bd0d34a711a1d6cdf776c2",
@@ -242,12 +277,12 @@
     "tb/verilator/csr/lock_mutants.py": "98173e54bcaf9b8be1d21f6b33b8e472ed496867c4ef0829b37a625594dee282",
     "tb/verilator/datapath/Makefile": "8e74239f28ec7bcb4c6eb82cfc6f6e619703a3e248b3c6802db9e336bef99254",
     "tb/verilator/eth_tx_reset/Makefile": "da63ad89a091d04c62c81d46f848ab945090a5fec79d45207ff509c1bb2396d1",
-    "tb/verilator/follow_ring/Makefile": "f748d51c10f680be9465806813dcbe98f5749b9fc6c894278733de2a1976b7d7",
+    "tb/verilator/follow_ring/Makefile": "f08176fa21b8990c862d532aa7e8e6d4ae8c430f07bb91bc136e581038f59948",
     "tb/verilator/follow_ring/dp_glue.py": "9746de413f064506e5e17907d9a76ef01cb55016101bb65ad8000cd4a42911f3",
-    "tb/verilator/follow_ring/mutants.py": "36c9fec967d2e0418f9b9f5a4ebc9f0a7356e22aa88bbd96a3bab320be4e4abf",
-    "tb/verilator/follow_ring/settle_control.py": "b3198b73b49f37dce4e90a3a011c69fef46fc75c52970574fa0f2ecf44aca798",
+    "tb/verilator/follow_ring/mutants.py": "06f821c10c67e267c72f93400c056bb3f28b041120749e49231cdedc5458b8fe",
+    "tb/verilator/follow_ring/settle_control.py": "07201d2d026f4e5e4e2fa2b21fc39755db0dad0da26b86e5871e5c1954be25f1",
     "tb/verilator/follow_ring/small_pulls.py": "4c94e29226680eb745859a412bd94821f031d56890be1a8077b01055496f50e6",
-    "tb/verilator/follow_ring/sweep.py": "495740856ae152f17fa07eab0057c5175bb50300e78cc7faa41fd47c5c826a3b",
+    "tb/verilator/follow_ring/sweep.py": "4aa4ed5b3e7ab20fbfad3a89abb046c814d69117064121f68aeaf83d055de612",
     "tb/verilator/fw_service_budget/Makefile": "25a80f33238fbed8aa84c3ca87f3df31d62d0b8e65c23134e44e0c1dd469f685",
     "tb/verilator/fw_service_budget/build.py": "c3daeac7698fb6e4e9c310c30118dfb6f44ed9cbc2906909903e621fa331d44d",
     "tb/verilator/fw_service_budget/phy.py": "16d8518d6f18d1ada142db1b029df27070435af6dc76363f285fa89c8b0cc341",
@@ -255,24 +290,26 @@
     "tb/verilator/gptp_plane/Makefile": "d0150670e23dd546008f32d43faac2a4b97a2239b351a6d1651ec9ba5bec0cef",
     "tb/verilator/gptp_plane/phc_step.py": "ae4e9f6457d1c99c45e0734486954fed15ca5443204cd9fcce57bd083add2cbc",
     "tb/verilator/gptp_shadow/Makefile": "c4a44c8223d3488089b5508dab13d505b3d3b8faecc5de785cd36b622688bc3c",
-    "tb/verilator/gptp_shadow/mutants.py": "c00e396d6e9314ee1ecd6d65c74fc1120c7a5ceb44998e4fb61c62535f3f74aa",
+    "tb/verilator/gptp_shadow/mutants.py": "bcbf285f02af077e3e363baa8ff4a33d8d6c64949cd9d72efc391844886d8ab5",
     "tb/verilator/gptp_shadow/private_inputs.py": "b887ec3400bea6c1c6b2dcd220e61078addf1d53bf8f5eacd416e47593c8892b",
     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": "79d913de2057413326c8f9feee785d65b3206272022afb6bf2cb3fdb8477ee36",
+    "tb/verilator/gptp_tables/Makefile": "b21b0503497a18831074dc4f99108a8149f84beb199800ab6b47ca6d47b67776",
+    "tb/verilator/gptp_tables/mutants.py": "c2e7cab57e000a73805190aa960d5277ef745c282ae9924220e91198a0c6594d",
     "tb/verilator/gptp_txts/Makefile": "2e794559c3ea8d0886331b466e924d96e8d9afbc480d6b79896eee1dd4b65c57",
     "tb/verilator/gptp_txts/mutants.py": "f3034fcca946ebe304d93c6f3d103182e4cac85f09c589239155383432a29ccb",
     "tb/verilator/i2spb/Makefile": "be2159da927082fb08575a3417854b320fff399305a62b1aece9af2ac475d2fd",
     "tb/verilator/ifg/Makefile": "0fa8879c345976b49cdaee2f37cc84ca19081b2234bc6914741af6247fd4647d",
     "tb/verilator/lat_history_ring/Makefile": "45ed3aa7633174a06dc31ca53005ddfbfb52aaddd345fc0a8e0dcb9564f4c26b",
     "tb/verilator/link_guard/Makefile": "df35525309a6205de6da55e0e917a906027beec4ebbc5b806e7f1e7dd0fce664",
-    "tb/verilator/maap/Makefile": "eb267ccaf1a9aa92fb90917344885ef14386c1abb772abb6318e184229e1785e",
+    "tb/verilator/maap/Makefile": "d1753dd052e749bf1016ffeb3f2cd5b41315c842c933dba90733228e49b44640",
     "tb/verilator/maap/integration.mk": "d635cc861f9ceca8448ed070162e10a4076a9df9b973b8c01bb732e9bf593bd0",
-    "tb/verilator/maap/mutants.py": "576e4a2b4e42d3ad5e1c60418d25df10d60c485a61353d0398c92df19545aaaa",
+    "tb/verilator/maap/mutants.py": "c148e39c803aae0f8f5ca80f20f471da4af51185a7b3dd98aa7b07f56bd1b5ed",
     "tb/verilator/mac_rmon/Makefile": "976d0279dec241a564a76fd5c15cd5aaf039c1593cdcdeded42e13fc2388e5af",
     "tb/verilator/mbx/Makefile": "4891b99c6652aeac2c15eea427c5b3cefcf51c2f360ad645170f38de961f1e6e",
     "tb/verilator/mbx/mutants.py": "6c36722baa3376419767e0318e4ae9e24f57a82e224e40d640c39715abf4c720",
     "tb/verilator/media_grid_align/Makefile": "2848449cbb92f1a5d05a6fb93c0b37d97828ae9e885dff3a7f790f16abd4bb74",
-    "tb/verilator/media_nco/Makefile": "254f1b3d3e32b2f5ccdd51dd68e2d9cff40a5fd710ea665a833d459718cc40fe",
-    "tb/verilator/milan_dp/Makefile": "597ff7c937c9947c8594bfc4f914d0c3501c604f7572b98fb6ce422cf42e3821",
+    "tb/verilator/media_nco/Makefile": "694e1149c542a08c1f5e0938234c2c199bfb224975155070efeb4a98917a54da",
+    "tb/verilator/milan_dp/Makefile": "499f2d6faa18f9591a20b18c979f10f7b9ccfba6e177a76cde8459bdafd4c4f3",
     "tb/verilator/milan_dp/crflic_mutants.py": "ce4c4ff18e0c577797bf2353a95b253e51c1f4757d908bfdf7026697d7619fb2",
     "tb/verilator/milan_dp/dynmap_mutants.py": "ddf16502767e41752d792ebaabe529fd0a93be14a2ce4d4228762b30236009bf",
     "tb/verilator/milan_dp/gen_divergent_shape.py": "59a5d0d780e515ae803074dbbe8fac5136b4e9bed59faffe5bf846a33ffa8854",
@@ -288,10 +325,10 @@
     "tb/verilator/milan_dp_gptp/Makefile": "56455fbf697ed944b44b93ed84cc7c1369d6b2f3a46d8e6b2003216f505209b6",
     "tb/verilator/milan_dp_gptp/verify_abort.py": "f6570e53ff07e25f85426286956f52776eab2d3c9b8bb6f12f5c4884dcf3a1f8",
     "tb/verilator/milan_dp_gptp/verify_recentres.py": "8346f2e57ab38b8c69602cfc933380a91b2e8ba085ae4236820bd5b031b4e0c8",
-    "tb/verilator/milan_dp_mclk/Makefile": "6a143702d01493e347b402a201a88b88334c59bacefb977cb0fcc02e871c960e",
+    "tb/verilator/milan_dp_mclk/Makefile": "40b2b0103b1ae281c57aea36eda4bf1e31c70e385c0291050099d55507be951e",
     "tb/verilator/milan_dp_mclk/gen_mclk_shape.py": "359d4346ad51ee9c20af0dd58a439b90b8d7142b5cec9076eb18808e16bac172",
-    "tb/verilator/milan_dp_mclk/mclk_mutants.py": "9daf59e55513901b3f311a709bfc764647f424b8060309749ddf8e018ed6b88e",
-    "tb/verilator/milan_dp_render/Makefile": "238ea8e20527240c9888650395d27c067f5c5d124270926725a331576f2250fa",
+    "tb/verilator/milan_dp_mclk/mclk_mutants.py": "d0ef22ea72e3e261f9fc785c915b4a0f9944d57a41113215b75052b0de6e6b30",
+    "tb/verilator/milan_dp_render/Makefile": "5062cb6e96d0b841bda68e53fa81b7afc22dd33b91b8b97e0e0b5c49f043c0bf",
     "tb/verilator/milan_dp_render/gen_tdm8r_multi_shape.py": "c52df10a39807e28fc7c0a0e42bc10aaf6641901ff8b48101f644e9ae0fb7886",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py": "f64a3496d20de18ecf8682b562341ee28871c8e4b6cb339eca691a02350c3663",
     "tb/verilator/mmcm_servo/Makefile": "20b9feade2460927ad2eac733700481cd9ac351f760edab0f013da8cfe49af0b",
@@ -308,10 +345,10 @@
     "tb/verilator/nvm_cosim/cosim_case_map.py": "bba6b1bcdbb4b71df4b357f7db2f1a7178eabeee25eb096f143d8f6e78a93066",
     "tb/verilator/nvm_cosim/cosim_checks.py": "4c8ee60a6595f67261a801eaef8b162db803df7f53afe72e6d74b4910df3732b",
     "tb/verilator/nvm_cosim/cosim_oracle.py": "5519ff0c08fdb05e1fb62b438390c5fadb230ed6d7f5da19916e4459468a4c34",
-    "tb/verilator/nvm_cosim/run_cases.py": "0fdbc7ccccc029a745c2764eac182786155c60572df95255fa21c9ceee393d42",
+    "tb/verilator/nvm_cosim/run_cases.py": "d59675e2006a749ddae3195931d55033367ccc18e03eacc554bb263f83123c88",
     "tb/verilator/pair_fill/Makefile": "70f3c368643d397071e0753063d918d99327fe8d3e8216b84fac38b081e909c9",
     "tb/verilator/pcmlpf/Makefile": "8648723e56d4e95adb3e2506ae2f9e58ce2047da32030f0701807707a0393e2f",
-    "tb/verilator/pp_shadow/Makefile": "774284a016a605cc5dc4d6817b2cba8b3cb9a0ed099c37531b141c2c556bb92a",
+    "tb/verilator/pp_shadow/Makefile": "1ec6e57a5caacbe891751230b0f0c6d23e9de537fe043a0b5f300a224f9cb258",
     "tb/verilator/pp_shadow/pending_mutant.py": "65f78dc41ef645549482cf53b76f08fb9078079a7887319d25759ad358d2d63f",
     "tb/verilator/ptp/Makefile": "122f45f4af31b1a936c46451aff9607129349b28fdeb9d679fef31e157812376",
     "tb/verilator/ptp_sync/Makefile": "df1ca72583268d0db52fd0c34dd97043c2f664926f3ea00d33cb145da9f75c2c",
@@ -345,6 +382,7 @@
   "residue": [
     ".github/workflows/elaborate.yml:1: declared inline interpreter program",
     ".github/workflows/elaborate.yml:4: declared inline interpreter program",
+    ".github/workflows/rtl.yml:1: declared inline interpreter program",
     "docs/diagrams/submodule_boundaries.gen.py:147: declared runtime git subcommand",
     "gptp-processor/scripts/generate_diagrams.py:113: Python command assembled at runtime",
     "protocol-processor/hdl/aecp/desc/gen_desc_image.py:136: runtime Python module loading",
@@ -352,20 +390,20 @@
     "protocol-processor/hdl/aecp/desc/gen_desc_image.py:141: runtime Python module loading",
     "protocol-processor/hdl/aecp/desc/gen_desc_image.py:606: runtime Python execution or lookup",
     "protocol-processor/hdl/aecp/desc/gen_desc_image.py:607: runtime Python execution or lookup",
-    "scripts/act_ci.py:12239: runtime command name",
-    "scripts/act_ci.py:12258: runtime command name",
-    "scripts/act_ci.py:14222: Python command assembled at runtime",
-    "scripts/act_ci.py:16506: runtime Python execution or lookup",
-    "scripts/act_ci.py:16746: Python command assembled at runtime",
-    "scripts/act_ci.py:16746: runtime Python keyword unpacking",
-    "scripts/act_ci.py:16746: runtime command name",
-    "scripts/act_ci.py:16883: Python command assembled at runtime",
-    "scripts/act_ci.py:5229: runtime command name",
-    "scripts/act_ci.py:6232: declared runtime git subcommand",
-    "scripts/act_ci.py:6378: declared runtime shell program",
-    "scripts/act_ci.py:6498: runtime command name",
-    "scripts/act_ci.py:888: runtime Python execution or lookup",
-    "scripts/act_ci.py:9491: runtime command name",
+    "scripts/act_ci.py:11951: runtime command name",
+    "scripts/act_ci.py:11970: runtime command name",
+    "scripts/act_ci.py:13949: Python command assembled at runtime",
+    "scripts/act_ci.py:16365: runtime Python execution or lookup",
+    "scripts/act_ci.py:16605: Python command assembled at runtime",
+    "scripts/act_ci.py:16605: runtime Python keyword unpacking",
+    "scripts/act_ci.py:16605: runtime command name",
+    "scripts/act_ci.py:16742: Python command assembled at runtime",
+    "scripts/act_ci.py:5246: runtime command name",
+    "scripts/act_ci.py:6296: declared runtime git subcommand",
+    "scripts/act_ci.py:6451: declared runtime shell program",
+    "scripts/act_ci.py:6571: runtime command name",
+    "scripts/act_ci.py:870: runtime Python execution or lookup",
+    "scripts/act_ci.py:9198: runtime command name",
     "scripts/check_deploy_shape.py:150: Python command assembled at runtime",
     "scripts/check_em_dash.py:136: declared runtime git subcommand",
     "scripts/check_gptp_docs.py:832: Python command assembled at runtime",
@@ -379,8 +417,42 @@
     "scripts/check_submodule_docs.py:46: declared runtime git subcommand",
     "scripts/check_sweep_shape.py:356: Python command assembled at runtime",
     "scripts/check_todo_ownership.py:533: runtime command name",
-    "scripts/ci_scope_history.py:178: declared runtime shell program",
+    "scripts/ci_builder_legs.py:110: runtime Python execution or lookup",
+    "scripts/ci_builder_legs.py:59: runtime command name",
+    "scripts/ci_builder_legs.py:93: runtime command name",
+    "scripts/ci_capture_cases_selftest.py:31: runtime Python module loading",
+    "scripts/ci_capture_cases_selftest.py:32: runtime Python module loading",
+    "scripts/ci_case_receipts.py:62: declared runtime git subcommand",
+    "scripts/ci_case_receipts_selftest.py:103: runtime command name",
+    "scripts/ci_case_receipts_selftest.py:108: runtime command name",
+    "scripts/ci_case_receipts_selftest.py:118: runtime Python module loading",
+    "scripts/ci_case_receipts_selftest.py:120: runtime Python module loading",
+    "scripts/ci_case_receipts_selftest.py:122: runtime command name",
+    "scripts/ci_case_receipts_selftest.py:195: runtime command name",
+    "scripts/ci_case_receipts_selftest.py:202: runtime command name",
+    "scripts/ci_case_receipts_selftest.py:41: declared runtime git subcommand",
+    "scripts/ci_gate_workflows_selftest.py:166: runtime command name",
+    "scripts/ci_gate_workflows_selftest.py:179: runtime Python module loading",
+    "scripts/ci_gate_workflows_selftest.py:180: runtime Python module loading",
+    "scripts/ci_gate_workflows_selftest.py:208: declared runtime shell program",
+    "scripts/ci_gate_workflows_selftest.py:225: declared runtime shell program",
+    "scripts/ci_gate_workflows_selftest.py:266: declared runtime shell program",
+    "scripts/ci_maap_cases_selftest.py:32: runtime Python module loading",
+    "scripts/ci_maap_cases_selftest.py:33: runtime Python module loading",
+    "scripts/ci_make_cases.py:32: runtime Makefile selection",
+    "scripts/ci_make_cases.py:43: runtime Makefile selection",
+    "scripts/ci_make_cases.py:55: runtime command name",
+    "scripts/ci_make_cases.py:73: runtime Makefile selection",
+    "scripts/ci_make_cases.py:98: runtime Makefile selection",
+    "scripts/ci_runtime_evidence.py:48: runtime command name",
+    "scripts/ci_runtime_evidence_selftest.py:311: runtime command name",
+    "scripts/ci_runtime_evidence_selftest.py:315: runtime command name",
+    "scripts/ci_scope_history.py:186: declared runtime shell program",
     "scripts/ci_scope_history.py:41: declared runtime git subcommand",
+    "scripts/ci_suite_pieces.py:52: runtime command name",
+    "scripts/ci_suite_pieces.py:64: runtime Makefile selection",
+    "scripts/ci_suite_pieces.py:74: runtime command name",
+    "scripts/ci_workflow_plan_selftest.py:106: declared runtime git subcommand",
     "scripts/entity_shape_selftest.py:432: declared runtime Make invocation",
     "scripts/entity_shape_selftest.py:434: runtime command name",
     "scripts/gen_hdl_reference.py:282: runtime Python execution or lookup",
@@ -403,66 +475,66 @@
     "scripts/png_artifact.py:402: runtime command name",
     "scripts/process_test_support.py:186: Python command assembled at runtime",
     "scripts/process_test_support.py:88: declared runtime git subcommand",
-    "scripts/run_all_suites.sh:176: runtime command name",
     "scripts/run_all_suites.sh:179: runtime command name",
-    "scripts/run_all_suites.sh:259: runtime command name",
-    "scripts/run_all_suites.sh:394: runtime Makefile selection",
+    "scripts/run_all_suites.sh:182: runtime command name",
+    "scripts/run_all_suites.sh:262: runtime command name",
+    "scripts/run_all_suites.sh:404: runtime Makefile selection",
     "scripts/run_litex_sims.sh:112: runtime command name",
     "scripts/run_litex_sims.sh:199: runtime command name",
     "scripts/run_litex_sims.sh:271: declared runtime trap handler",
     "scripts/run_litex_sims.sh:294: runtime command name",
     "scripts/shape_consumer_inventory.py:172: declared runtime Make invocation",
     "scripts/shape_consumer_inventory.py:197: declared runtime Make invocation",
-    "scripts/suite_shards.py:871: runtime command name",
+    "scripts/suite_shards.py:905: runtime command name",
     "scripts/test_suite_cancellation.py:170: runtime command name",
     "sw/builder/endstation_builder.py:5871: runtime command name",
-    "sw/builder/test_builder.py:10903: Python command assembled at runtime",
-    "sw/builder/test_builder.py:12250: runtime Makefile selection",
-    "sw/builder/test_builder.py:12269: runtime Makefile selection",
-    "sw/builder/test_builder.py:12352: Python command assembled at runtime",
-    "sw/builder/test_builder.py:18471: Python command assembled at runtime",
-    "sw/builder/test_builder.py:18471: runtime command name",
-    "sw/builder/test_builder.py:19190: runtime command name",
-    "sw/builder/test_builder.py:19229: runtime command name",
-    "sw/builder/test_builder.py:19235: runtime command name",
-    "sw/builder/test_builder.py:19481: runtime command name",
-    "sw/builder/test_builder.py:20013: runtime command name",
-    "sw/builder/test_builder.py:20127: runtime command name",
-    "sw/builder/test_builder.py:20198: runtime command name",
-    "sw/builder/test_builder.py:20252: runtime command name",
-    "sw/builder/test_builder.py:22645: runtime command name",
-    "sw/builder/test_builder.py:22719: runtime command name",
-    "sw/builder/test_builder.py:22885: Python command assembled at runtime",
-    "sw/builder/test_builder.py:23910: runtime script path",
-    "sw/builder/test_builder.py:24026: Python command assembled at runtime",
-    "sw/builder/test_builder.py:24336: runtime command name",
-    "sw/builder/test_builder.py:25211: runtime command name",
-    "sw/builder/test_builder.py:26656: runtime command name",
-    "sw/builder/test_builder.py:27397: runtime Python execution or lookup",
-    "sw/builder/test_builder.py:27463: runtime Python execution or lookup",
-    "sw/builder/test_builder.py:27482: runtime Python execution or lookup",
-    "sw/builder/test_builder.py:27503: runtime Python execution or lookup",
-    "sw/builder/test_builder.py:27504: runtime Python execution or lookup",
-    "sw/builder/test_builder.py:27848: runtime command name",
-    "sw/builder/test_builder.py:27854: runtime command name",
-    "sw/builder/test_builder.py:28480: runtime Python module loading",
-    "sw/builder/test_builder.py:28481: runtime Python module loading",
-    "sw/builder/test_builder.py:28484: runtime Python module loading",
-    "sw/builder/test_builder.py:28837: runtime command name",
-    "sw/builder/test_builder.py:28846: runtime command name",
-    "sw/builder/test_builder.py:28854: runtime command name",
-    "sw/builder/test_builder.py:29077: runtime command name",
-    "sw/builder/test_builder.py:3847: runtime Python execution or lookup",
-    "sw/builder/test_builder.py:4500: runtime command name",
-    "sw/builder/test_builder.py:4924: runtime command name",
-    "sw/builder/test_builder.py:5123: runtime command name",
-    "sw/builder/test_builder.py:5344: runtime command name",
-    "sw/builder/test_builder.py:5613: runtime command name",
-    "sw/builder/test_builder.py:6441: runtime command name",
-    "sw/builder/test_builder.py:6852: runtime command name",
-    "sw/builder/test_builder.py:6902: Python command assembled at runtime",
-    "sw/builder/test_builder.py:6902: runtime command name",
-    "sw/builder/test_builder.py:8074: Python command assembled at runtime",
+    "sw/builder/test_builder.py:10908: Python command assembled at runtime",
+    "sw/builder/test_builder.py:12255: runtime Makefile selection",
+    "sw/builder/test_builder.py:12274: runtime Makefile selection",
+    "sw/builder/test_builder.py:12357: Python command assembled at runtime",
+    "sw/builder/test_builder.py:18476: Python command assembled at runtime",
+    "sw/builder/test_builder.py:18476: runtime command name",
+    "sw/builder/test_builder.py:19195: runtime command name",
+    "sw/builder/test_builder.py:19234: runtime command name",
+    "sw/builder/test_builder.py:19240: runtime command name",
+    "sw/builder/test_builder.py:19486: runtime command name",
+    "sw/builder/test_builder.py:20018: runtime command name",
+    "sw/builder/test_builder.py:20132: runtime command name",
+    "sw/builder/test_builder.py:20203: runtime command name",
+    "sw/builder/test_builder.py:20257: runtime command name",
+    "sw/builder/test_builder.py:22650: runtime command name",
+    "sw/builder/test_builder.py:22724: runtime command name",
+    "sw/builder/test_builder.py:22890: Python command assembled at runtime",
+    "sw/builder/test_builder.py:23915: runtime script path",
+    "sw/builder/test_builder.py:24031: Python command assembled at runtime",
+    "sw/builder/test_builder.py:24341: runtime command name",
+    "sw/builder/test_builder.py:25216: runtime command name",
+    "sw/builder/test_builder.py:26661: runtime command name",
+    "sw/builder/test_builder.py:27402: runtime Python execution or lookup",
+    "sw/builder/test_builder.py:27468: runtime Python execution or lookup",
+    "sw/builder/test_builder.py:27487: runtime Python execution or lookup",
+    "sw/builder/test_builder.py:27508: runtime Python execution or lookup",
+    "sw/builder/test_builder.py:27509: runtime Python execution or lookup",
+    "sw/builder/test_builder.py:27853: runtime command name",
+    "sw/builder/test_builder.py:27859: runtime command name",
+    "sw/builder/test_builder.py:28485: runtime Python module loading",
+    "sw/builder/test_builder.py:28486: runtime Python module loading",
+    "sw/builder/test_builder.py:28489: runtime Python module loading",
+    "sw/builder/test_builder.py:28844: runtime command name",
+    "sw/builder/test_builder.py:28853: runtime command name",
+    "sw/builder/test_builder.py:28861: runtime command name",
+    "sw/builder/test_builder.py:29084: runtime command name",
+    "sw/builder/test_builder.py:3852: runtime Python execution or lookup",
+    "sw/builder/test_builder.py:4505: runtime command name",
+    "sw/builder/test_builder.py:4929: runtime command name",
+    "sw/builder/test_builder.py:5128: runtime command name",
+    "sw/builder/test_builder.py:5349: runtime command name",
+    "sw/builder/test_builder.py:5618: runtime command name",
+    "sw/builder/test_builder.py:6446: runtime command name",
+    "sw/builder/test_builder.py:6857: runtime command name",
+    "sw/builder/test_builder.py:6907: Python command assembled at runtime",
+    "sw/builder/test_builder.py:6907: runtime command name",
+    "sw/builder/test_builder.py:8079: Python command assembled at runtime",
     "sw/builder/test_clock_contract.py:145: Python command assembled at runtime",
     "sw/builder/test_clock_contract.py:157: Python command assembled at runtime",
     "sw/builder/test_clock_contract.py:224: runtime script path",
@@ -475,12 +547,12 @@
     "sw/builder/test_timing_grade.py:160: runtime command name",
     "sw/builder/test_timing_grade.py:180: runtime command name",
     "sw/firmware/ctrl/test/aecp_arms.py:150: runtime Python execution or lookup",
-    "sw/firmware/ctrl/test/ctrl_build.py:418: Python command assembled at runtime",
-    "sw/firmware/ctrl/test/ctrl_build.py:418: declared runtime git subcommand",
+    "sw/firmware/ctrl/test/ctrl_build.py:419: Python command assembled at runtime",
+    "sw/firmware/ctrl/test/ctrl_build.py:419: declared runtime git subcommand",
     "sw/firmware/ctrl/test/ctrl_capture.py:180: runtime command name",
     "sw/firmware/ctrl/test/ctrl_capture.py:268: Python command assembled at runtime",
     "sw/firmware/ctrl/test/ctrl_capture.py:268: runtime Python keyword unpacking",
-    "sw/firmware/ctrl/test/ctrl_configs.py:199: Python command assembled at runtime",
+    "sw/firmware/ctrl/test/ctrl_configs.py:200: Python command assembled at runtime",
     "sw/firmware/ctrl/test/ctrl_expand.py:242: Python command assembled at runtime",
     "sw/firmware/ctrl/test/ctrl_image.py:150: Python command assembled at runtime",
     "sw/firmware/ctrl/test/ctrl_reuse.py:54: declared runtime git subcommand",
@@ -492,9 +564,9 @@
     "sw/firmware/gtest/fw_gtest.py:118: Python command assembled at runtime",
     "sw/firmware/gtest/tally_selftest.py:189: runtime command name",
     "sw/firmware/gtest/tally_selftest.py:198: runtime command name",
-    "sw/firmware/nvm_hosttest/test_nvm_firmware.py:217: Python command assembled at runtime",
-    "sw/firmware/nvm_hosttest/test_nvm_firmware.py:243: runtime command name",
-    "sw/firmware/nvm_hosttest/test_nvm_firmware.py:640: runtime command name",
+    "sw/firmware/nvm_hosttest/test_nvm_firmware.py:249: Python command assembled at runtime",
+    "sw/firmware/nvm_hosttest/test_nvm_firmware.py:275: runtime command name",
+    "sw/firmware/nvm_hosttest/test_nvm_firmware.py:988: runtime command name",
     "sw/litex/iob_pack_selftest.py:611: runtime command name",
     "sw/litex/milan_soc.py:1007: runtime command name",
     "sw/litex/milan_soc.py:1955: runtime Python execution or lookup",
@@ -564,18 +636,18 @@
     "tb/verilator/aaf_clock_meter/mutants.py:258: runtime command name",
     "tb/verilator/avtp_rxmon/lockstep_mutants.py:119: runtime command name",
     "tb/verilator/avtp_rxmon/lockstep_mutants.py:96: declared runtime Make invocation",
-    "tb/verilator/capture_coherence/mutants.py:281: Python command assembled at runtime",
+    "tb/verilator/capture_coherence/mutants.py:286: Python command assembled at runtime",
     "tb/verilator/chmap_capture/lockstep_mutants.py:101: runtime command name",
     "tb/verilator/chmap_capture/lockstep_mutants.py:78: declared runtime Make invocation",
     "tb/verilator/crf_rx/mutants.py:51: runtime command name",
     "tb/verilator/crf_rx/mutants.py:58: runtime command name",
     "tb/verilator/csr/lock_mutants.py:107: runtime command name",
     "tb/verilator/csr/lock_mutants.py:86: declared runtime Make invocation",
-    "tb/verilator/follow_ring/mutants.py:162: declared runtime Make invocation",
-    "tb/verilator/follow_ring/mutants.py:170: runtime command name",
-    "tb/verilator/follow_ring/settle_control.py:121: Python command assembled at runtime",
+    "tb/verilator/follow_ring/mutants.py:194: declared runtime Make invocation",
+    "tb/verilator/follow_ring/mutants.py:202: runtime command name",
+    "tb/verilator/follow_ring/settle_control.py:159: Python command assembled at runtime",
     "tb/verilator/follow_ring/small_pulls.py:57: runtime command name",
-    "tb/verilator/follow_ring/sweep.py:47: runtime command name",
+    "tb/verilator/follow_ring/sweep.py:55: runtime command name",
     "tb/verilator/fw_service_budget/build.py:156: runtime command name",
     "tb/verilator/fw_service_budget/build.py:88: runtime Python execution or lookup",
     "tb/verilator/fw_service_budget/run.py:650: runtime command name",
@@ -584,13 +656,16 @@
     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py:103: runtime Makefile selection",
     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py:343: declared runtime Make invocation",
     "tb/verilator/gptp_txts/mutants.py:125: runtime Makefile selection",
-    "tb/verilator/maap/mutants.py:215: declared runtime Make invocation",
-    "tb/verilator/maap/mutants.py:226: runtime command name",
+    "tb/verilator/maap/mutants.py:221: declared runtime Make invocation",
+    "tb/verilator/maap/mutants.py:234: runtime command name",
+    "tb/verilator/maap/mutants.py:262: runtime Makefile selection",
+    "tb/verilator/maap/mutants.py:266: runtime Makefile selection",
     "tb/verilator/mbx/mutants.py:489: runtime Makefile selection",
     "tb/verilator/mbx/mutants.py:497: runtime command name",
     "tb/verilator/mbx/mutants.py:515: Python command assembled at runtime",
     "tb/verilator/mbx/mutants.py:518: runtime command name",
-    "tb/verilator/milan_dp/Makefile:450:1: declared inline interpreter program",
+    "tb/verilator/milan_dp/Makefile:460:1: declared inline interpreter program",
+    "tb/verilator/milan_dp/Makefile:724:1: declared inline interpreter program",
     "tb/verilator/milan_dp/crflic_mutants.py:101: runtime command name",
     "tb/verilator/milan_dp/crflic_mutants.py:86: declared runtime Make invocation",
     "tb/verilator/milan_dp/dynmap_mutants.py:169: declared runtime Make invocation",
@@ -616,10 +691,12 @@
     "tb/verilator/milan_dp_gptp/verify_abort.py:30: runtime command name",
     "tb/verilator/milan_dp_gptp/verify_abort.py:64: runtime command name",
     "tb/verilator/milan_dp_gptp/verify_recentres.py:15: runtime command name",
-    "tb/verilator/milan_dp_mclk/mclk_mutants.py:207: declared runtime Make invocation",
-    "tb/verilator/milan_dp_mclk/mclk_mutants.py:207: runtime command name",
-    "tb/verilator/milan_dp_mclk/mclk_mutants.py:219: declared runtime Make invocation",
-    "tb/verilator/milan_dp_mclk/mclk_mutants.py:219: runtime command name",
+    "tb/verilator/milan_dp_mclk/mclk_mutants.py:210: Python command assembled at runtime",
+    "tb/verilator/milan_dp_mclk/mclk_mutants.py:210: declared runtime Make invocation",
+    "tb/verilator/milan_dp_mclk/mclk_mutants.py:210: runtime command name",
+    "tb/verilator/milan_dp_mclk/mclk_mutants.py:224: Python command assembled at runtime",
+    "tb/verilator/milan_dp_mclk/mclk_mutants.py:224: declared runtime Make invocation",
+    "tb/verilator/milan_dp_mclk/mclk_mutants.py:224: runtime command name",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py:506: declared runtime Make invocation",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py:522: Python command assembled at runtime",
     "tb/verilator/mmcm_servo/slew_mutants.py:59: declared runtime Make invocation",
@@ -627,8 +704,8 @@
     "tb/verilator/nvm_capture_cpu/run.py:185: runtime command name",
     "tb/verilator/nvm_capture_cpu/run.py:31: runtime command name",
     "tb/verilator/nvm_capture_cpu/soc.py:54: runtime Python execution or lookup",
-    "tb/verilator/nvm_cosim/run_cases.py:314: runtime command name",
-    "tb/verilator/nvm_cosim/run_cases.py:87: runtime command name",
+    "tb/verilator/nvm_cosim/run_cases.py:284: runtime command name",
+    "tb/verilator/nvm_cosim/run_cases.py:88: runtime command name",
     "tb/verilator/pp_shadow/pending_mutant.py:25: declared runtime Make invocation",
     "tb/verilator/pp_shadow/pending_mutant.py:54: runtime Makefile selection",
     "tb/verilator/ptp_ts/sva_campaign.py:260: declared runtime Make invocation",
@@ -652,9 +729,15 @@
     {
       "installed_by": [
         {
-          "index": 4,
-          "job": "elaborate",
-          "step": "actions/setup-python@v5",
+          "index": 7,
+          "job": "elaborate-gates-0",
+          "step": "Run actions/setup-python@v5",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 7,
+          "job": "elaborate-gates-1",
+          "step": "Run actions/setup-python@v5",
           "workflow": ".github/workflows/elaborate.yml"
         }
       ],
@@ -665,31 +748,31 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
@@ -702,56 +785,56 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -763,56 +846,56 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -824,56 +907,56 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -885,56 +968,56 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -946,31 +1029,31 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
@@ -983,56 +1066,56 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -1044,31 +1127,31 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
@@ -1081,37 +1164,37 @@
     {
       "installed_by": [
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-unit",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-control-mutants",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-aecp-mutants",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-srp-mutants",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-verilator",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1124,37 +1207,37 @@
     {
       "installed_by": [
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-unit",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-control-mutants",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-aecp-mutants",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-srp-mutants",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-verilator",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1167,13 +1250,13 @@
     {
       "installed_by": [
         {
-          "index": 9,
+          "index": 16,
           "job": "verilator-shards",
           "step": "Install the pinned Yosys and prove the version",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 5,
+          "index": 8,
           "job": "yosys-shards",
           "step": "Install the pinned Yosys and prove the version",
           "workflow": ".github/workflows/rtl.yml"
@@ -1186,8 +1269,20 @@
     {
       "installed_by": [
         {
-          "index": 6,
-          "job": "docs-check",
+          "index": 10,
+          "job": "docs-gates-0",
+          "step": "Install diagram gate dependencies",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 8,
+          "job": "docs-gates-1",
+          "step": "Install diagram gate dependencies",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 8,
+          "job": "docs-gates-2",
           "step": "Install diagram gate dependencies",
           "workflow": ".github/workflows/docs.yml"
         }
@@ -1199,56 +1294,56 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -1260,31 +1355,31 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
@@ -1297,26 +1392,26 @@
     {
       "installed_by": [
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -1328,56 +1423,56 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -1389,13 +1484,13 @@
     {
       "installed_by": [
         {
-          "index": 29,
-          "job": "docs-check",
+          "index": 33,
+          "job": "docs-gates-0",
           "step": "SoC source-list gate (Vivado would fail 40 min in without this)",
           "workflow": ".github/workflows/docs.yml"
         },
         {
-          "index": 7,
+          "index": 11,
           "job": "yosys-elaboration",
           "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1408,26 +1503,26 @@
     {
       "installed_by": [
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -1439,37 +1534,55 @@
     {
       "installed_by": [
         {
-          "index": 20,
-          "job": "docs-check",
+          "index": 25,
+          "job": "docs-gates-0",
           "step": "Install the pinned sv2v release",
           "workflow": ".github/workflows/docs.yml"
         },
         {
-          "index": 3,
-          "job": "elaborate",
+          "index": 11,
+          "job": "docs-gates-1",
+          "step": "Install the pinned sv2v release",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 11,
+          "job": "docs-gates-2",
+          "step": "Install the pinned sv2v release",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 6,
+          "job": "elaborate-gates-0",
           "step": "Install the pinned sv2v release",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 5,
+          "index": 6,
+          "job": "elaborate-gates-1",
+          "step": "Install the pinned sv2v release",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 9,
           "job": "yosys-elaboration",
           "step": "Install the pinned sv2v release",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 5,
+          "index": 11,
           "job": "publication-census",
           "step": "Install the pinned sv2v release",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 10,
+          "index": 18,
           "job": "verilator-shards",
           "step": "Install sv2v for the netlist-level suite owner",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 6,
+          "index": 10,
           "job": "yosys-shards",
           "step": "Install the pinned sv2v release",
           "workflow": ".github/workflows/rtl.yml"
@@ -1484,8 +1597,14 @@
     {
       "installed_by": [
         {
-          "index": 9,
-          "job": "elaborate",
+          "index": 13,
+          "job": "elaborate-gates-0",
+          "step": "Install sbt",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 13,
+          "job": "elaborate-gates-1",
           "step": "Install sbt",
           "workflow": ".github/workflows/elaborate.yml"
         }
@@ -1499,8 +1618,14 @@
     {
       "installed_by": [
         {
-          "index": 10,
-          "job": "elaborate",
+          "index": 14,
+          "job": "elaborate-gates-0",
+          "step": "Place the VexiiRiscv source at the revision LiteX pins",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 14,
+          "job": "elaborate-gates-1",
           "step": "Place the VexiiRiscv source at the revision LiteX pins",
           "workflow": ".github/workflows/elaborate.yml"
         }
@@ -1512,13 +1637,19 @@
     {
       "installed_by": [
         {
-          "index": 6,
-          "job": "elaborate",
+          "index": 10,
+          "job": "elaborate-gates-0",
           "step": "Install LiteX at the pinned revisions",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 2,
+          "index": 10,
+          "job": "elaborate-gates-1",
+          "step": "Install LiteX at the pinned revisions",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1532,13 +1663,19 @@
     {
       "installed_by": [
         {
-          "index": 6,
-          "job": "elaborate",
+          "index": 10,
+          "job": "elaborate-gates-0",
           "step": "Install LiteX at the pinned revisions",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 2,
+          "index": 10,
+          "job": "elaborate-gates-1",
+          "step": "Install LiteX at the pinned revisions",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1552,13 +1689,19 @@
     {
       "installed_by": [
         {
-          "index": 6,
-          "job": "elaborate",
+          "index": 10,
+          "job": "elaborate-gates-0",
           "step": "Install LiteX at the pinned revisions",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 2,
+          "index": 10,
+          "job": "elaborate-gates-1",
+          "step": "Install LiteX at the pinned revisions",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1572,13 +1715,19 @@
     {
       "installed_by": [
         {
-          "index": 6,
-          "job": "elaborate",
+          "index": 10,
+          "job": "elaborate-gates-0",
           "step": "Install LiteX at the pinned revisions",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 2,
+          "index": 10,
+          "job": "elaborate-gates-1",
+          "step": "Install LiteX at the pinned revisions",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1592,13 +1741,19 @@
     {
       "installed_by": [
         {
-          "index": 6,
-          "job": "elaborate",
+          "index": 10,
+          "job": "elaborate-gates-0",
           "step": "Install LiteX at the pinned revisions",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 2,
+          "index": 10,
+          "job": "elaborate-gates-1",
+          "step": "Install LiteX at the pinned revisions",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1612,13 +1767,19 @@
     {
       "installed_by": [
         {
-          "index": 6,
-          "job": "elaborate",
+          "index": 10,
+          "job": "elaborate-gates-0",
           "step": "Install LiteX at the pinned revisions",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 2,
+          "index": 10,
+          "job": "elaborate-gates-1",
+          "step": "Install LiteX at the pinned revisions",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1632,7 +1793,7 @@
     {
       "installed_by": [
         {
-          "index": 11,
+          "index": 20,
           "job": "verilator-shards",
           "step": "Build the pinned tsn-gen field oracle on its suite owner",
           "workflow": ".github/workflows/rtl.yml"
@@ -1646,13 +1807,19 @@
     {
       "installed_by": [
         {
-          "index": 6,
-          "job": "elaborate",
+          "index": 10,
+          "job": "elaborate-gates-0",
           "step": "Install LiteX at the pinned revisions",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 2,
+          "index": 10,
+          "job": "elaborate-gates-1",
+          "step": "Install LiteX at the pinned revisions",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1666,26 +1833,26 @@
     {
       "installed_by": [
         {
-          "index": 3,
+          "index": 6,
           "job": "yosys-elaboration",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 8,
           "job": "publication-census",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 8,
+          "index": 13,
           "job": "verilator-shards",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
-          "job": "yosys-shards",
+          "index": 5,
+          "job": "yosys-tool",
           "step": "Build Yosys from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         }
@@ -1698,31 +1865,31 @@
     {
       "installed_by": [
         {
-          "index": 16,
-          "job": "elaborate",
+          "index": 22,
+          "job": "elaborate-gates-1",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 3,
+          "index": 6,
           "job": "verilator-lint",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
           "job": "firmware-verilator",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 7,
           "job": "verilator-shards",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "physical-gptp",
           "step": "Build Verilator from source on cache miss",
           "workflow": ".github/workflows/rtl.yml"
@@ -1736,55 +1903,73 @@
     {
       "installed_by": [
         {
-          "index": 23,
-          "job": "docs-check",
+          "index": 28,
+          "job": "docs-gates-0",
           "step": "Install and verify the pinned RV32 SDK",
           "workflow": ".github/workflows/docs.yml"
         },
         {
-          "index": 24,
-          "job": "docs-check",
+          "index": 29,
+          "job": "docs-gates-0",
           "step": "Compiler-absent firmware controls",
           "workflow": ".github/workflows/docs.yml"
         },
         {
           "index": 13,
-          "job": "elaborate",
+          "job": "docs-gates-1",
+          "step": "Install and verify the pinned RV32 SDK",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 13,
+          "job": "docs-gates-2",
+          "step": "Install and verify the pinned RV32 SDK",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 17,
+          "job": "elaborate-gates-0",
           "step": "Install and verify the pinned RV32 SDK",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 5,
+          "index": 17,
+          "job": "elaborate-gates-1",
+          "step": "Install and verify the pinned RV32 SDK",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 9,
           "job": "firmware-unit",
           "step": "Install and verify the pinned RV32 SDK",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "firmware-control-mutants",
           "step": "Install and verify the pinned RV32 SDK",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "firmware-aecp-mutants",
           "step": "Install and verify the pinned RV32 SDK",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "firmware-srp-mutants",
           "step": "Install and verify the pinned RV32 SDK",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 8,
           "job": "firmware-boundary",
           "step": "Install and verify the pinned RV32 SDK",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 7,
+          "index": 13,
           "job": "firmware-verilator",
           "step": "Install and verify the pinned RV32 SDK",
           "workflow": ".github/workflows/rtl-fast.yml"
@@ -1798,8 +1983,20 @@
     {
       "installed_by": [
         {
+          "index": 7,
+          "job": "docs-gates-0",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
           "index": 5,
-          "job": "docs-check",
+          "job": "docs-gates-1",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "docs-gates-2",
           "step": "Install the pinned Markdown renderer",
           "workflow": ".github/workflows/docs.yml"
         }
@@ -1814,8 +2011,20 @@
     {
       "installed_by": [
         {
+          "index": 7,
+          "job": "docs-gates-0",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
           "index": 5,
-          "job": "docs-check",
+          "job": "docs-gates-1",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "docs-gates-2",
           "step": "Install the pinned Markdown renderer",
           "workflow": ".github/workflows/docs.yml"
         }
@@ -1830,8 +2039,20 @@
     {
       "installed_by": [
         {
+          "index": 7,
+          "job": "docs-gates-0",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
           "index": 5,
-          "job": "docs-check",
+          "job": "docs-gates-1",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "docs-gates-2",
           "step": "Install the pinned Markdown renderer",
           "workflow": ".github/workflows/docs.yml"
         }
@@ -1846,8 +2067,24 @@
     {
       "installed_by": [
         {
-          "index": 1,
-          "job": "docs-check",
+          "index": 4,
+          "job": "bdd-conformance",
+          "step": "Install behave",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        }
+      ],
+      "kind": "pip",
+      "pin": "1.3.3",
+      "sha256": [
+        "89bdb62af8fb9f147ce245736a5de69f025e5edfb66f1fbe16c5007493f842c0"
+      ],
+      "tool": "behave"
+    },
+    {
+      "installed_by": [
+        {
+          "index": 3,
+          "job": "docs-gates-0",
           "step": "Build the validated HDL reference",
           "workflow": ".github/workflows/docs.yml"
         }
@@ -1896,8 +2133,20 @@
     {
       "installed_by": [
         {
-          "index": 6,
-          "job": "docs-check",
+          "index": 10,
+          "job": "docs-gates-0",
+          "step": "Install diagram gate dependencies",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 8,
+          "job": "docs-gates-1",
+          "step": "Install diagram gate dependencies",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 8,
+          "job": "docs-gates-2",
           "step": "Install diagram gate dependencies",
           "workflow": ".github/workflows/docs.yml"
         }
@@ -1909,8 +2158,20 @@
     {
       "installed_by": [
         {
+          "index": 7,
+          "job": "docs-gates-0",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
           "index": 5,
-          "job": "docs-check",
+          "job": "docs-gates-1",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "docs-gates-2",
           "step": "Install the pinned Markdown renderer",
           "workflow": ".github/workflows/docs.yml"
         }
@@ -1926,8 +2187,20 @@
     {
       "installed_by": [
         {
+          "index": 7,
+          "job": "docs-gates-0",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
           "index": 5,
-          "job": "docs-check",
+          "job": "docs-gates-1",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "docs-gates-2",
           "step": "Install the pinned Markdown renderer",
           "workflow": ".github/workflows/docs.yml"
         }
@@ -1943,8 +2216,20 @@
     {
       "installed_by": [
         {
+          "index": 7,
+          "job": "docs-gates-0",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
           "index": 5,
-          "job": "docs-check",
+          "job": "docs-gates-1",
+          "step": "Install the pinned Markdown renderer",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "docs-gates-2",
           "step": "Install the pinned Markdown renderer",
           "workflow": ".github/workflows/docs.yml"
         }
@@ -1959,105 +2244,166 @@
     {
       "installed_by": [
         {
-          "index": 2,
-          "job": "bdd-conformance",
-          "step": "Install behave",
+          "index": 4,
+          "job": "docs-check",
+          "step": "Install the pinned evidence reader",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 4,
+          "job": "ci-manifest",
+          "step": "Install the pinned evidence reader",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 4,
+          "job": "elaborate",
+          "step": "Install the pinned evidence reader",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 4,
+          "job": "ci-manifest",
+          "step": "Install the pinned evidence reader",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 4,
+          "job": "ci-manifest",
+          "step": "Install the pinned evidence reader",
           "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 4,
+          "job": "ci-manifest",
+          "step": "Install the pinned evidence reader",
+          "workflow": ".github/workflows/rtl.yml"
         }
       ],
       "kind": "pip",
-      "pin": null,
-      "tool": "behave"
+      "pin": "6.0.2",
+      "sha256": [
+        "80bab7bfc629882493af4aa31a4cfa43a4c57c83813253626916b8c7ada83476",
+        "d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e"
+      ],
+      "tool": "pyyaml"
     },
     {
       "installed_by": [
         {
-          "index": 3,
-          "job": "docs-check",
-          "step": "Install the python gate dependencies",
-          "workflow": ".github/workflows/docs.yml"
-        },
-        {
-          "index": 25,
-          "job": "docs-check",
-          "step": "End-station builder gates",
-          "workflow": ".github/workflows/docs.yml"
-        },
-        {
-          "index": 2,
+          "index": 4,
           "job": "wire-accountability",
           "step": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
           "workflow": ".github/workflows/docs.yml"
         },
         {
-          "index": 6,
-          "job": "elaborate",
+          "index": 5,
+          "job": "docs-gates-0",
+          "step": "Install the python gate dependencies",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 3,
+          "job": "docs-gates-1",
+          "step": "Install the python gate dependencies",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 14,
+          "job": "docs-gates-1",
+          "step": "End-station builder gates, leg 0 of 2",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 3,
+          "job": "docs-gates-2",
+          "step": "Install the python gate dependencies",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 14,
+          "job": "docs-gates-2",
+          "step": "End-station builder gates, leg 1 of 2",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 10,
+          "job": "elaborate-gates-0",
           "step": "Install LiteX at the pinned revisions",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 6,
+          "index": 10,
+          "job": "elaborate-gates-1",
+          "step": "Install LiteX at the pinned revisions",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 12,
           "job": "publication-census",
           "step": "Run the publication census in every shape the builder builds",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-unit",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-control-mutants",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-aecp-mutants",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-srp-mutants",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-boundary",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 6,
           "job": "firmware-verilator",
           "step": "Install GoogleTest and GoogleMock and print the versions",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 5,
           "job": "full-ci-gate",
           "step": "Hold every workflow file to its contract",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 1,
+          "index": 3,
           "job": "physical-gptp",
           "step": "Fetch RTL dependencies",
           "workflow": ".github/workflows/rtl.yml"
         }
       ],
       "kind": "pip",
-      "pin": null,
+      "pin": "6.0.2",
+      "sha256": [
+        "80bab7bfc629882493af4aa31a4cfa43a4c57c83813253626916b8c7ada83476"
+      ],
       "tool": "pyyaml"
     },
     {
       "installed_by": [
         {
-          "index": 2,
+          "index": 4,
           "job": "full-ci-gate",
           "step": "Assert the repository default branch is dev",
           "workflow": ".github/workflows/rtl.yml"
@@ -2071,302 +2417,1250 @@
       "installed_by": [
         {
           "index": 0,
-          "job": "docs-check",
-          "step": "actions/checkout@v4",
+          "job": "wire-accountability",
+          "step": "Run actions/checkout@v4",
           "workflow": ".github/workflows/docs.yml"
         },
         {
           "index": 2,
-          "job": "docs-check",
-          "step": "Upload the HDL reference HTML",
-          "workflow": ".github/workflows/docs.yml"
-        },
-        {
-          "index": 4,
-          "job": "docs-check",
-          "step": "Cache the pinned Markdown renderer downloads",
-          "workflow": ".github/workflows/docs.yml"
-        },
-        {
-          "index": 22,
-          "job": "docs-check",
-          "step": "Cache the pinned RV32 SDK",
-          "workflow": ".github/workflows/docs.yml"
-        },
-        {
-          "index": 0,
           "job": "wire-accountability",
-          "step": "actions/checkout@v4",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 6,
+          "job": "wire-accountability",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/docs.yml"
         },
         {
           "index": 0,
           "job": "docs-check-no-git",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "docs-check-no-git",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "docs-gates-0",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 2,
+          "job": "docs-gates-0",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 4,
+          "job": "docs-gates-0",
+          "step": "Upload the HDL reference HTML",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 6,
+          "job": "docs-gates-0",
+          "step": "Cache the pinned Markdown renderer downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 9,
+          "job": "docs-gates-0",
+          "step": "Cache exact package downloads 6",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 24,
+          "job": "docs-gates-0",
+          "step": "Cache verified sv2v archive",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 27,
+          "job": "docs-gates-0",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 55,
+          "job": "docs-gates-0",
+          "step": "Upload executed gate outcomes",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 57,
+          "job": "docs-gates-0",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "docs-gates-1",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 2,
+          "job": "docs-gates-1",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 4,
+          "job": "docs-gates-1",
+          "step": "Cache the pinned Markdown renderer downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 7,
+          "job": "docs-gates-1",
+          "step": "Cache exact package downloads 4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 10,
+          "job": "docs-gates-1",
+          "step": "Cache verified sv2v archive",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 12,
+          "job": "docs-gates-1",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 16,
+          "job": "docs-gates-1",
+          "step": "Upload executed gate outcomes",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 18,
+          "job": "docs-gates-1",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "docs-gates-2",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 2,
+          "job": "docs-gates-2",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 4,
+          "job": "docs-gates-2",
+          "step": "Cache the pinned Markdown renderer downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 7,
+          "job": "docs-gates-2",
+          "step": "Cache exact package downloads 4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 10,
+          "job": "docs-gates-2",
+          "step": "Cache verified sv2v archive",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 12,
+          "job": "docs-gates-2",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 18,
+          "job": "docs-gates-2",
+          "step": "Upload executed gate outcomes",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 20,
+          "job": "docs-gates-2",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "docs-check",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 2,
+          "job": "docs-check",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 3,
+          "job": "docs-check",
+          "step": "Cache pinned evidence reader downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "docs-check",
+          "step": "Download executed gate outcomes",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 7,
+          "job": "docs-check",
+          "step": "Upload verified gate union",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 9,
+          "job": "docs-check",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-manifest",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 3,
+          "job": "ci-manifest",
+          "step": "Cache pinned evidence reader downloads",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "ci-manifest",
+          "step": "Download completed execution artifacts",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 7,
+          "job": "ci-manifest",
+          "step": "Upload canonical CI manifest",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-fail-fast",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 5,
+          "job": "ci-fail-fast",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/docs.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-cancel-tail",
           "step": "actions/checkout@v4",
           "workflow": ".github/workflows/docs.yml"
         },
         {
           "index": 0,
-          "job": "elaborate",
-          "step": "actions/checkout@v4",
+          "job": "elaborate-gates-0",
+          "step": "Run actions/checkout@v4",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 4,
+          "index": 2,
+          "job": "elaborate-gates-0",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 5,
+          "job": "elaborate-gates-0",
+          "step": "Cache verified sv2v archive",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 7,
+          "job": "elaborate-gates-0",
+          "step": "Run actions/setup-python@v5",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 9,
+          "job": "elaborate-gates-0",
+          "step": "Cache the pinned pip downloads",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 11,
+          "job": "elaborate-gates-0",
+          "step": "Cache the Scala toolchain",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 12,
+          "job": "elaborate-gates-0",
+          "step": "Cache the generated CPU metadata",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 16,
+          "job": "elaborate-gates-0",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 21,
+          "job": "elaborate-gates-0",
+          "step": "Upload executed gate outcomes",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 23,
+          "job": "elaborate-gates-0",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 0,
+          "job": "elaborate-gates-1",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 2,
+          "job": "elaborate-gates-1",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 5,
+          "job": "elaborate-gates-1",
+          "step": "Cache verified sv2v archive",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 7,
+          "job": "elaborate-gates-1",
+          "step": "Run actions/setup-python@v5",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 9,
+          "job": "elaborate-gates-1",
+          "step": "Cache the pinned pip downloads",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 11,
+          "job": "elaborate-gates-1",
+          "step": "Cache the Scala toolchain",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 12,
+          "job": "elaborate-gates-1",
+          "step": "Cache the generated CPU metadata",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 16,
+          "job": "elaborate-gates-1",
+          "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 19,
+          "job": "elaborate-gates-1",
+          "step": "Cache the pinned Verilator build",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 21,
+          "job": "elaborate-gates-1",
+          "step": "Cache exact package downloads 17",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 27,
+          "job": "elaborate-gates-1",
+          "step": "Upload executed gate outcomes",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 29,
+          "job": "elaborate-gates-1",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 0,
           "job": "elaborate",
-          "step": "actions/setup-python@v5",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 2,
+          "job": "elaborate",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 3,
+          "job": "elaborate",
+          "step": "Cache pinned evidence reader downloads",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
           "index": 5,
           "job": "elaborate",
-          "step": "Cache the pinned pip downloads",
+          "step": "Download executed gate outcomes",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
           "index": 7,
           "job": "elaborate",
-          "step": "Cache the Scala toolchain",
+          "step": "Upload verified gate union",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 8,
+          "index": 9,
           "job": "elaborate",
-          "step": "Cache the generated CPU metadata",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 12,
-          "job": "elaborate",
-          "step": "Cache the pinned RV32 SDK",
+          "index": 0,
+          "job": "ci-manifest",
+          "step": "actions/checkout@v4",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
-          "index": 15,
-          "job": "elaborate",
-          "step": "Cache the pinned Verilator build",
+          "index": 3,
+          "job": "ci-manifest",
+          "step": "Cache pinned evidence reader downloads",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 5,
+          "job": "ci-manifest",
+          "step": "Download completed execution artifacts",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 7,
+          "job": "ci-manifest",
+          "step": "Upload canonical CI manifest",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-fail-fast",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 5,
+          "job": "ci-fail-fast",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/elaborate.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-cancel-tail",
+          "step": "actions/checkout@v4",
           "workflow": ".github/workflows/elaborate.yml"
         },
         {
           "index": 0,
           "job": "changes",
-          "step": "actions/checkout@v4",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 4,
+          "job": "changes",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
           "index": 0,
           "job": "verilator-lint",
-          "step": "actions/checkout@v4",
+          "step": "Run actions/checkout@v4",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 3,
           "job": "verilator-lint",
           "step": "Cache the pinned Verilator build",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
+          "job": "verilator-lint",
+          "step": "Cache exact package downloads 3",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 10,
+          "job": "verilator-lint",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
           "index": 0,
           "job": "bdd-conformance",
-          "step": "actions/checkout@v4",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 2,
+          "job": "bdd-conformance",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 7,
+          "job": "bdd-conformance",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
           "index": 0,
           "job": "yosys-elaboration",
-          "step": "actions/checkout@v4",
+          "step": "Run actions/checkout@v4",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 3,
           "job": "yosys-elaboration",
           "step": "Cache the pinned Yosys build",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 0,
-          "job": "publication-census",
-          "step": "actions/checkout@v4",
+          "index": 5,
+          "job": "yosys-elaboration",
+          "step": "Cache exact package downloads 3",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 2,
+          "index": 8,
+          "job": "yosys-elaboration",
+          "step": "Cache verified sv2v archive",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 16,
+          "job": "yosys-elaboration",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "publication-census",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 3,
+          "job": "publication-census",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
           "job": "publication-census",
           "step": "Cache the pinned Yosys build",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 0,
-          "job": "firmware-unit",
-          "step": "actions/checkout@v4",
+          "index": 7,
+          "job": "publication-census",
+          "step": "Cache exact package downloads 3",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 4,
+          "index": 10,
+          "job": "publication-census",
+          "step": "Cache verified sv2v archive",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 14,
+          "job": "publication-census",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "firmware-unit",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 2,
+          "job": "firmware-unit",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
+          "job": "firmware-unit",
+          "step": "Cache exact package downloads 2",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 8,
           "job": "firmware-unit",
           "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 14,
+          "job": "firmware-unit",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
           "index": 0,
           "job": "firmware-control-mutants",
-          "step": "actions/checkout@v4",
+          "step": "Run actions/checkout@v4",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 2,
+          "job": "firmware-control-mutants",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
+          "job": "firmware-control-mutants",
+          "step": "Cache exact package downloads 2",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 7,
           "job": "firmware-control-mutants",
           "step": "Cache the pinned RV32 SDK",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 0,
-          "job": "firmware-aecp-mutants",
-          "step": "actions/checkout@v4",
+          "index": 11,
+          "job": "firmware-control-mutants",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 0,
+          "job": "firmware-aecp-mutants",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 2,
+          "job": "firmware-aecp-mutants",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
+          "job": "firmware-aecp-mutants",
+          "step": "Cache exact package downloads 2",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 7,
           "job": "firmware-aecp-mutants",
           "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 11,
+          "job": "firmware-aecp-mutants",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
           "index": 0,
           "job": "firmware-srp-mutants",
-          "step": "actions/checkout@v4",
+          "step": "Run actions/checkout@v4",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 2,
+          "job": "firmware-srp-mutants",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
+          "job": "firmware-srp-mutants",
+          "step": "Cache exact package downloads 2",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 7,
           "job": "firmware-srp-mutants",
           "step": "Cache the pinned RV32 SDK",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 0,
-          "job": "firmware-boundary",
-          "step": "actions/checkout@v4",
+          "index": 11,
+          "job": "firmware-srp-mutants",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 0,
+          "job": "firmware-boundary",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 2,
+          "job": "firmware-boundary",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
+          "job": "firmware-boundary",
+          "step": "Cache exact package downloads 2",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 7,
           "job": "firmware-boundary",
           "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 11,
+          "job": "firmware-boundary",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
           "index": 0,
           "job": "firmware-verilator",
-          "step": "actions/checkout@v4",
+          "step": "Run actions/checkout@v4",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 3,
+          "index": 2,
+          "job": "firmware-verilator",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
+          "job": "firmware-verilator",
+          "step": "Cache exact package downloads 2",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 7,
           "job": "firmware-verilator",
           "step": "Cache the pinned Verilator build",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
-          "index": 6,
+          "index": 9,
+          "job": "firmware-verilator",
+          "step": "Cache exact package downloads 4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 12,
           "job": "firmware-verilator",
           "step": "Cache the pinned RV32 SDK",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 16,
+          "job": "firmware-verilator",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "rtl-fast",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 4,
+          "job": "rtl-fast",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-manifest",
+          "step": "actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 3,
+          "job": "ci-manifest",
+          "step": "Cache pinned evidence reader downloads",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
+          "job": "ci-manifest",
+          "step": "Download completed execution artifacts",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 7,
+          "job": "ci-manifest",
+          "step": "Upload canonical CI manifest",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-fail-fast",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 5,
+          "job": "ci-fail-fast",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl-fast.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-cancel-tail",
+          "step": "actions/checkout@v4",
           "workflow": ".github/workflows/rtl-fast.yml"
         },
         {
           "index": 0,
           "job": "full-ci-gate",
-          "step": "actions/checkout@v4",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 2,
+          "job": "full-ci-gate",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 8,
+          "job": "full-ci-gate",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
           "index": 0,
           "job": "verilator-shards",
-          "step": "actions/checkout@v4",
+          "step": "Run actions/checkout@v4",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 3,
+          "index": 4,
           "job": "verilator-shards",
           "step": "Cache the pinned Verilator build",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 7,
+          "index": 6,
+          "job": "verilator-shards",
+          "step": "Cache exact package downloads 4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 10,
           "job": "verilator-shards",
           "step": "Cache the pinned Yosys build for the netlist-level suite owner",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 13,
+          "index": 12,
+          "job": "verilator-shards",
+          "step": "Cache exact package downloads 8",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 15,
+          "job": "verilator-shards",
+          "step": "Cache exact package downloads 9",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 17,
+          "job": "verilator-shards",
+          "step": "Cache verified sv2v archive",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 19,
+          "job": "verilator-shards",
+          "step": "Cache pinned field oracle build",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 22,
           "job": "verilator-shards",
           "step": "Upload this shard's suite logs",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 0,
-          "job": "physical-gptp",
-          "step": "actions/checkout@v4",
+          "index": 24,
+          "job": "verilator-shards",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 3,
+          "index": 0,
+          "job": "physical-gptp",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 2,
+          "job": "physical-gptp",
+          "step": "Cache exact Python downloads",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 5,
           "job": "physical-gptp",
           "step": "Cache the pinned Verilator build",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 8,
+          "index": 7,
+          "job": "physical-gptp",
+          "step": "Cache exact package downloads 4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 12,
           "job": "physical-gptp",
           "step": "Upload the physical suite evidence",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 0,
-          "job": "verilator-suites",
-          "step": "actions/checkout@v4",
+          "index": 14,
+          "job": "physical-gptp",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 1,
+          "index": 0,
+          "job": "verilator-suites",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
           "job": "verilator-suites",
           "step": "Download every shard's logs",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 0,
-          "job": "yosys-shards",
-          "step": "actions/checkout@v4",
+          "index": 4,
+          "job": "verilator-suites",
+          "step": "Download verified suite unions",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 3,
+          "index": 10,
+          "job": "verilator-suites",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
           "job": "yosys-shards",
-          "step": "Cache the pinned Yosys build",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 4,
+          "job": "yosys-shards",
+          "step": "Download the pinned Yosys build",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
           "index": 7,
           "job": "yosys-shards",
-          "step": "Restore the portability result cache seeded from dev",
+          "step": "Cache exact package downloads 5",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
           "index": 9,
           "job": "yosys-shards",
+          "step": "Cache verified sv2v archive",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 11,
+          "job": "yosys-shards",
+          "step": "Restore the portability result cache seeded from dev",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 13,
+          "job": "yosys-shards",
           "step": "Upload per-top and structural evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 15,
+          "job": "yosys-shards",
+          "step": "Upload actual job execution",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
           "index": 0,
           "job": "yosys-portability",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 2,
+          "job": "yosys-portability",
+          "step": "Download every shard's evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "yosys-portability",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "yosys-tool",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 2,
+          "job": "yosys-tool",
+          "step": "Cache the pinned Yosys build",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 4,
+          "job": "yosys-tool",
+          "step": "Cache exact package downloads 2",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "yosys-tool",
+          "step": "Upload the pinned Yosys build",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 9,
+          "job": "yosys-tool",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "union-milan_dp",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
+          "job": "union-milan_dp",
+          "step": "Download executed case evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 5,
+          "job": "union-milan_dp",
+          "step": "Upload verified suite union",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "union-milan_dp",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "union-milan_dp_mclk",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
+          "job": "union-milan_dp_mclk",
+          "step": "Download executed case evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 5,
+          "job": "union-milan_dp_mclk",
+          "step": "Upload verified suite union",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "union-milan_dp_mclk",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "union-capture_coherence",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
+          "job": "union-capture_coherence",
+          "step": "Download executed case evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 5,
+          "job": "union-capture_coherence",
+          "step": "Upload verified suite union",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "union-capture_coherence",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "union-maap",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
+          "job": "union-maap",
+          "step": "Download executed case evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 5,
+          "job": "union-maap",
+          "step": "Upload verified suite union",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "union-maap",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "union-milan_dp_render",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
+          "job": "union-milan_dp_render",
+          "step": "Download executed case evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 5,
+          "job": "union-milan_dp_render",
+          "step": "Upload verified suite union",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "union-milan_dp_render",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "union-pp_shadow",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 3,
+          "job": "union-pp_shadow",
+          "step": "Download executed case evidence",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 5,
+          "job": "union-pp_shadow",
+          "step": "Upload verified suite union",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "union-pp_shadow",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-manifest",
           "step": "actions/checkout@v4",
           "workflow": ".github/workflows/rtl.yml"
         },
         {
-          "index": 1,
-          "job": "yosys-portability",
-          "step": "Download every shard's evidence",
+          "index": 3,
+          "job": "ci-manifest",
+          "step": "Cache pinned evidence reader downloads",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 5,
+          "job": "ci-manifest",
+          "step": "Download completed execution artifacts",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 7,
+          "job": "ci-manifest",
+          "step": "Upload canonical CI manifest",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-fail-fast",
+          "step": "Run actions/checkout@v4",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 5,
+          "job": "ci-fail-fast",
+          "step": "Upload actual job execution",
+          "workflow": ".github/workflows/rtl.yml"
+        },
+        {
+          "index": 0,
+          "job": "ci-cancel-tail",
+          "step": "actions/checkout@v4",
           "workflow": ".github/workflows/rtl.yml"
         }
       ],

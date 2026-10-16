@@ -58,6 +58,10 @@ FIXTURES = [
     shell('bash-arithmetic', ['bash:for.arithmetic', 'bash:word.arithmetic'],
           'for ((i = 0; i < 2; i++)); do zz_probe "$i"; done\nzz_probe $((1 + 1))\n'),
     shell('bash-split-runtime', ['bash:word.split-runtime'], 'zz_probe $(echo c d) end\n'),
+    # Ternary, comparison and grouped arithmetic, numeric tests and suffix removal are runtime data.
+    shell('bash-arithmetic-operators', [],
+          'N=$(nproc)\nX=$(( N < 4 ? N : 4 ))\nY=$(( N > 0 ? N * 2 / (3 * 1) : 1 ))\n'
+          'test "$N" -lt 100000 && zz_probe below\nzz_probe "$X" "$Y" "${PWD%/}" "${PWD%/*}"\n'),
     shell('bash-split-literal', [], 'X="a b"\nzz_probe $X "$X"\n'),
     shell('bash-pathname-expansion', ['bash:word.pathname-expansion'], 'zz_probe g/*.txt\n',
           files={'g/a.txt': '', 'g/b.txt': ''}),
@@ -133,6 +137,13 @@ FIXTURES = [
     shell('bash-case', ['bash:case'],
           'case "$V" in\n  a) X=1; zz_probe a ;;\n  *) zz_probe other ;;\nesac\nzz_probe "$X"\n',
           variants=[{'V': 'a'}, {'V': 'b'}]),
+    # `[[ ]]` decides nothing: both branches continue, and each variant takes one.
+    shell('bash-test-clause', ['bash:test-clause'],
+          'if [[ "$V" == *__* ]]; then zz_probe pieces; else zz_probe make; fi\n'
+          '[[ "$V" == a* ]] && zz_probe starts-a\nzz_probe after\n',
+          variants=[{'V': 'a__b'}, {'V': 'ab'}, {'V': 'x'}]),
+    shell('bash-test-clause-arithmetic', [], 'V=2\n[[ "$V" -lt 3 ]] && zz_probe small\n', expect='refused',
+          refusal='uncensused shell operator BinaryTest'),
     shell('bash-negation', ['bash:negation'],
           'if ! [ -e "$F" ]; then zz_probe absent; else zz_probe present; fi\n',
           variants=[{'F': 'missing'}, {'F': '.'}]),
@@ -253,6 +264,28 @@ FIXTURES = [
          files={'w/1.txt': '', 'w/2.txt': ''}),
     make('make-order-only', ['make:order-only'], 'all: | dir\n\tzz_probe x $^\ndir: ; zz_probe made-dir\n'),
     make('make-target-specific', ['make:target-specific'], 'all: X = ts\nall: ; zz_probe $(X)\n'),
+    # The environment reaches make as recursive variables; one a recipe does not change reaches its shell
+    # unchanged, so a runner-substituted value stays opaque text.
+    make('make-environment', ['make:variable.environment'],
+         'all: ; zz_probe $(FROM_ENV) "$$FROM_ENV" "$$FROM_RUNNER"\n',
+         env={'FROM_ENV': 'value', 'FROM_RUNNER': '${{ github.workspace }}/c.txt'},
+         workflow_environment=['FROM_ENV', 'FROM_RUNNER']),
+    # GNU Make 4.3 func_or: an argument is stripped before it expands; the first non-empty expansion wins.
+    make('make-or', ['make:function.or'],
+         'E =\nSP := $(E) $(E)\nall: ; zz_probe "[$(or $(E), ,first)]" "[$(or $(SP),x)]" "[$(or $(E),$(E))]"\n'),
+    make('make-eval', ['make:expansion-line', 'make:function.eval'],
+         'CASES = a b-c\n$(foreach case,$(CASES),$(eval R_$(case) = r-$(case)))\nR_b-c += more\n'
+         'all: ; zz_probe $(R_a) $(R_b-c)\n'),
+    make('make-computed-reference', ['make:computed-reference'],
+         'K = b\nV_b = vb\nall: ; zz_probe $(V_$(K)) "$(foreach k,a b,<$(V_$(k))>)"\n'),
+    make('make-static-pattern-rule', ['make:static-pattern-rule'],
+         'CASES = one two\nall: $(addprefix run-,$(CASES))\n'
+         '$(addprefix run-,$(CASES)): run-%: build-%\n\tzz_probe $@ $< $*\nbuild-%: ; zz_probe build $*\n'),
+    # One backslash quotes a number sign in a makefile line, and is removed.
+    make('make-eval-in-recipe', [], 'all: ; zz_probe ok$(eval X = 1)\n', expect='refused',
+         refusal='unmodelled Make eval outside a parse-time line'),
+    make('make-escaped-number-sign', [], 'X = a\\#b\nall: ; zz_probe "$(X)" # recipe text\n'),
+    make('make-runtime-jobs', [], 'all: a b\na: ; zz_probe a\nb: ; zz_probe b\n', run='N=$(nproc)\nmake -j"$N"\n'),
     # POSIX shell recipes, run by /bin/sh (dash).
     make('sh-quotes', ['sh:word.single-quoted', 'sh:word.double-quoted'], 'all: ; zz_probe \'a b\' "c d"\n'),
     make('sh-assignment', ['sh:assignment', 'sh:word.parameter'], 'all: ; X=a; zz_probe "$$X"\n'),

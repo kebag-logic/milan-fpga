@@ -546,6 +546,20 @@
         ],
         [
           "--case",
+          "bind",
+          "--b17-cycles",
+          "5,4,9",
+          "--bind-phase",
+          "0.125",
+          "--jitter-us",
+          "5",
+          "--dwell-s",
+          "0.5",
+          "--follow-binds",
+          "1"
+        ],
+        [
+          "--case",
           "pullin",
           "--latency-us",
           "210.42",
@@ -587,6 +601,19 @@
         []
       ],
       "reason": "Execute a locally built test binary; no tool installation."
+    },
+    "Vgptp_tables_sim": {
+      "class": "non-installing",
+      "executables": [
+        "./obj_dir/Vgptp_tables_sim",
+        "Vgptp_tables_sim"
+      ],
+      "patterns": [
+        [
+          "one_valued.tsv"
+        ]
+      ],
+      "reason": "Execute the locally compiled test binary."
     },
     "Vgptp_txts_sim": {
       "class": "non-installing",
@@ -769,6 +796,7 @@
       "class": "non-installing",
       "executables": [
         "${CHECKOUT}/tb/verilator/milan_dp/obj_dynmap/Vmilan_dp_dynmap",
+        "./obj_dynmap/Vmilan_dp_dynmap",
         "Vmilan_dp_dynmap"
       ],
       "patterns": [
@@ -823,11 +851,77 @@
       ],
       "reason": "Execute the locally compiled test binary."
     },
+    "Vmilan_dp_nolpf": {
+      "class": "non-installing",
+      "executables": [
+        "./obj_nolpf/Vmilan_dp_nolpf",
+        "Vmilan_dp_nolpf"
+      ],
+      "patterns": [
+        []
+      ],
+      "reason": "Execute the locally compiled test binary."
+    },
     "Vmilan_dp_notify": {
       "class": "non-installing",
       "executables": [
         "./obj_notify/Vmilan_dp_notify",
         "Vmilan_dp_notify"
+      ],
+      "patterns": [
+        []
+      ],
+      "reason": "Execute the locally compiled test binary."
+    },
+    "Vmilan_dp_nxn": {
+      "class": "non-installing",
+      "executables": [
+        "./obj_nxn/Vmilan_dp_nxn",
+        "Vmilan_dp_nxn"
+      ],
+      "patterns": [
+        []
+      ],
+      "reason": "Execute the locally compiled test binary."
+    },
+    "Vmilan_dp_nxn4c": {
+      "class": "non-installing",
+      "executables": [
+        "./obj_nxn4c/Vmilan_dp_nxn4c",
+        "Vmilan_dp_nxn4c"
+      ],
+      "patterns": [
+        []
+      ],
+      "reason": "Execute the locally compiled test binary."
+    },
+    "Vmilan_dp_nxn8": {
+      "class": "non-installing",
+      "executables": [
+        "./obj_nxn8/Vmilan_dp_nxn8",
+        "Vmilan_dp_nxn8"
+      ],
+      "patterns": [
+        []
+      ],
+      "reason": "Execute the locally compiled test binary."
+    },
+    "Vmilan_dp_nxndv": {
+      "class": "non-installing",
+      "executables": [
+        "./obj_nxndv/Vmilan_dp_nxndv",
+        "Vmilan_dp_nxndv"
+      ],
+      "patterns": [
+        []
+      ],
+      "reason": "Execute the locally compiled test binary."
+    },
+    "Vmilan_dp_prune": {
+      "class": "non-installing",
+      "executables": [
+        "./obj_prune/Vmilan_dp_prune",
+        "Vmilan_dp_prune"
       ],
       "patterns": [
         []
@@ -1654,6 +1748,12 @@
       ],
       "patterns": [
         [
+          "$1 == \"MemTotal:\" && $3 == \"kB\" { print $2 }",
+          {
+            "data_file": true
+          }
+        ],
+        [
           "-F|",
           "-v",
           "<runtime>",
@@ -1954,6 +2054,14 @@
         "cmake"
       ],
       "patterns": [
+        [
+          "--build",
+          "<runtime>",
+          "--target",
+          "packet_gen",
+          "--parallel",
+          "<runtime>"
+        ],
         [
           "--build",
           "<runtime>",
@@ -2966,6 +3074,29 @@
           "<runtime>"
         ],
         [
+          "--no-replace-objects",
+          "-C",
+          "<runtime>",
+          "<runtime>"
+        ],
+        [
+          "--no-replace-objects",
+          "-C",
+          "<runtime>",
+          "show",
+          "<runtime>"
+        ],
+        [
+          "--no-replace-objects",
+          "<runtime>"
+        ],
+        [
+          "-C",
+          "/tmp/yosys-src",
+          "rev-parse",
+          "HEAD"
+        ],
+        [
           "-C",
           "/tmp/yosys-src",
           "submodule",
@@ -2992,6 +3123,12 @@
           "<runtime>",
           "add",
           "-A"
+        ],
+        [
+          "-C",
+          "<runtime>",
+          "add",
+          "<runtime>"
         ],
         [
           "-C",
@@ -3059,6 +3196,13 @@
         [
           "-C",
           "<runtime>",
+          "cat-file",
+          "commit",
+          "HEAD"
+        ],
+        [
+          "-C",
+          "<runtime>",
           "check-ignore",
           "--stdin"
         ],
@@ -3067,6 +3211,15 @@
           "<runtime>",
           "checkout",
           "deca300c9eb4863fa13383b45ba6cb6fd0828671"
+        ],
+        [
+          "-C",
+          "<runtime>",
+          "hash-object",
+          "-w",
+          "-t",
+          "commit",
+          "--stdin"
         ],
         [
           "-C",
@@ -3137,6 +3290,18 @@
           "external/rapidyaml"
         ],
         [
+          "-C",
+          "<runtime>",
+          "update-ref",
+          "HEAD",
+          "<runtime>"
+        ],
+        [
+          "-C",
+          "<runtime>",
+          "write-tree"
+        ],
+        [
           "-c",
           "<runtime>",
           "-C",
@@ -3150,6 +3315,12 @@
           "user.name=Scope fixture",
           "-c",
           "user.email=scope@example.invalid",
+          "-C",
+          "<runtime>",
+          "<runtime>"
+        ],
+        [
+          "<runtime>",
           "-C",
           "<runtime>",
           "<runtime>"
@@ -3243,6 +3414,11 @@
           "<runtime>"
         ],
         [
+          "init",
+          "-q",
+          "<runtime>"
+        ],
+        [
           "ls-files",
           "*.sv"
         ],
@@ -3301,6 +3477,10 @@
         [
           "rev-parse",
           "HEAD"
+        ],
+        [
+          "rev-parse",
+          "HEAD^{tree}"
         ],
         [
           "show",
@@ -4716,6 +4896,14 @@
             "-m",
             "pip",
             "install"
+          ]
+        },
+        {
+          "class": "installer",
+          "pin_reader": "job-private environment from the interpreter's bundled pip",
+          "prefix": [
+            "-m",
+            "venv"
           ]
         }
       ],
@@ -6660,6 +6848,13 @@
         ],
         [
           "-n",
+          "s/^0:://p",
+          {
+            "data_file": true
+          }
+        ],
+        [
+          "-n",
           "s/^RESULT: SKIP[[:space:]]*//p",
           "<runtime>"
         ],
@@ -6957,6 +7152,25 @@
       ],
       "patterns": [
         [
+          "-C",
+          "/opt",
+          "-czf",
+          "${RUNNER_TEMP}/yosys.tar.gz",
+          "yosys"
+        ],
+        [
+          "-C",
+          "/opt",
+          "-xzf",
+          "${RUNNER_TEMP}/yosys-tool/yosys.tar.gz"
+        ],
+        [
+          "xzf",
+          "${HOME}/.cache/milan-sbt/sbt-1.10.7.tgz",
+          "-C",
+          "/opt"
+        ],
+        [
           "xzf",
           "/tmp/sbt.tgz",
           "-C",
@@ -7164,6 +7378,13 @@
         "unzip"
       ],
       "patterns": [
+        [
+          "-q",
+          "-o",
+          "${RUNNER_TEMP}/ci-sv2v-cache/sv2v.zip",
+          "-d",
+          "/tmp/sv2v"
+        ],
         [
           "-q",
           "-o",
@@ -9699,6 +9920,66 @@
           "-j",
           "0",
           "--top-module",
+          "KL_crf_rx",
+          "--public-flat-rw",
+          "-GCLK_FREQ_HZ_P=200000",
+          "-GIVAL_CYC_P=200",
+          "-GMAXTT_NS_P=2000000",
+          "-GEARLY_MARGIN_NS_P=10000000",
+          "-Wall",
+          "-Wno-fatal",
+          "-Werror-UNDRIVEN",
+          "-Wno-DECLFILENAME",
+          "-Wno-UNUSEDSIGNAL",
+          "-Wno-WIDTHEXPAND",
+          "-Wno-WIDTHTRUNC",
+          "-Wno-UNUSEDPARAM",
+          "-Wno-EOFNEWLINE",
+          "-CFLAGS",
+          "-std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra",
+          "-Mdir",
+          "obj_discontinuity",
+          "../../../hdl/ieee1722/crf/KL_crf_rx.sv",
+          "sim_discontinuity.cpp",
+          "-o",
+          "Vdiscontinuity"
+        ],
+        [
+          "--cc",
+          "--exe",
+          "--build",
+          "-j",
+          "0",
+          "--top-module",
+          "KL_crf_rx",
+          "--public-flat-rw",
+          "-GCLK_FREQ_HZ_P=200000",
+          "-GIVAL_CYC_P=200",
+          "-GMAXTT_NS_P=2000000",
+          "-GEARLY_MARGIN_NS_P=10000000",
+          "-Wall",
+          "-Wno-fatal",
+          "-Werror-UNDRIVEN",
+          "-Wno-DECLFILENAME",
+          "-Wno-UNUSEDSIGNAL",
+          "-Wno-WIDTHEXPAND",
+          "-Wno-WIDTHTRUNC",
+          "-Wno-UNUSEDPARAM",
+          "-Wno-EOFNEWLINE",
+          "-CFLAGS",
+          "-std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra",
+          "../../../hdl/ieee1722/crf/KL_crf_rx.sv",
+          "sim_main.cpp",
+          "-o",
+          "Vcrf_rx_sim"
+        ],
+        [
+          "--cc",
+          "--exe",
+          "--build",
+          "-j",
+          "0",
+          "--top-module",
           "KL_crf_tx",
           "-Wall",
           "-Wno-fatal",
@@ -9994,6 +10275,72 @@
           "sim_main.cpp",
           "-o",
           "Vclkv_real"
+        ],
+        [
+          "--cc",
+          "--exe",
+          "--build",
+          "-j",
+          "0",
+          "--top-module",
+          "KL_render_setpoint",
+          "-GN_STREAMS_P=2",
+          "-GN_CH_P=7",
+          "-GDEPTH_LOG2_P=5",
+          "-GPDU_EVENTS_P=6",
+          "-GSETPOINT_EVT_P=8",
+          "-GCONV_BAND_EVT_P=3",
+          "-GRESET_BAND_EVT_P=6",
+          "-GCLK_FREQ_HZ_P=100000",
+          "-Wall",
+          "-Wno-fatal",
+          "-Wno-DECLFILENAME",
+          "-Wno-UNUSEDSIGNAL",
+          "-Wno-WIDTHEXPAND",
+          "-Wno-WIDTHTRUNC",
+          "-Wno-UNUSEDPARAM",
+          "-Wno-EOFNEWLINE",
+          "-CFLAGS",
+          "-std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=7 -DDEPTH_LOG2_TB=5 -DPDU_EVENTS_TB=6 -DSETPOINT_TB=8 -DCONV_BAND_TB=3 -DRESET_BAND_TB=6 -DCLK_HZ_TB=100000",
+          "--Mdir",
+          "obj_odd",
+          "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv",
+          "sim_main.cpp",
+          "-o",
+          "VKL_render_setpoint_sim"
+        ],
+        [
+          "--cc",
+          "--exe",
+          "--build",
+          "-j",
+          "0",
+          "--top-module",
+          "KL_render_setpoint",
+          "-GN_STREAMS_P=2",
+          "-GN_CH_P=8",
+          "-GDEPTH_LOG2_P=5",
+          "-GPDU_EVENTS_P=6",
+          "-GSETPOINT_EVT_P=8",
+          "-GCONV_BAND_EVT_P=3",
+          "-GRESET_BAND_EVT_P=6",
+          "-GCLK_FREQ_HZ_P=100000",
+          "-Wall",
+          "-Wno-fatal",
+          "-Wno-DECLFILENAME",
+          "-Wno-UNUSEDSIGNAL",
+          "-Wno-WIDTHEXPAND",
+          "-Wno-WIDTHTRUNC",
+          "-Wno-UNUSEDPARAM",
+          "-Wno-EOFNEWLINE",
+          "-CFLAGS",
+          "-std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DDEPTH_LOG2_TB=5 -DPDU_EVENTS_TB=6 -DSETPOINT_TB=8 -DCONV_BAND_TB=3 -DRESET_BAND_TB=6 -DCLK_HZ_TB=100000",
+          "--Mdir",
+          "obj_dir",
+          "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv",
+          "sim_main.cpp",
+          "-o",
+          "VKL_render_setpoint_sim"
         ],
         [
           "--cc",
@@ -10811,6 +11158,54 @@
           "-j",
           "0",
           "--top-module",
+          "gptp_tables_wrap",
+          "-Wall",
+          "-Wno-fatal",
+          "-Wno-DECLFILENAME",
+          "-Wno-UNUSEDSIGNAL",
+          "-Wno-WIDTHEXPAND",
+          "-Wno-WIDTHTRUNC",
+          "-Wno-UNUSEDPARAM",
+          "-Wno-TIMESCALEMOD",
+          "-Wno-GENUNNAMED",
+          "-Wno-PROCASSINIT",
+          "-Wno-SELRANGE",
+          "-Wno-PINCONNECTEMPTY",
+          "-Wno-PINMISSING",
+          "-GUCODE_HEX_P=\"gptp_ucode.hex\"",
+          "-GCLK_HZ_P=2000000",
+          "-CFLAGS",
+          "-std=c++17 -O2 -I${CHECKOUT}/tb/verilator/gptp_tables -Wall -Wextra",
+          "waivers.vlt",
+          "gptp_tables_wrap.sv",
+          "../gptp_shadow/gptp_shadow_wrap.sv",
+          "../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+          "../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+          "../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+          "../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+          "../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+          "../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+          "../../../hdl/common/KL_link_guard.sv",
+          "../../../hdl/common/cdc_pulse.sv",
+          "../../../hdl/common/cdc_handshake.sv",
+          "../../../third_party/verilog-axis/rtl/axis_fifo.v",
+          "../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+          "../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+          "../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+          "../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+          "../../../gptp-processor/hdl/common/KL_gptp_timer.sv",
+          "../../../gptp-processor/hdl/top/KL_gptp_engine.sv",
+          "sim_main.cpp",
+          "-o",
+          "Vgptp_tables_sim"
+        ],
+        [
+          "--cc",
+          "--exe",
+          "--build",
+          "-j",
+          "0",
+          "--top-module",
           "gptp_txts_wrap",
           "-Wall",
           "-Wno-fatal",
@@ -11352,6 +11747,44 @@
           "sim_table.cpp",
           "-o",
           "Vstream_table_sim"
+        ],
+        [
+          "--cc",
+          "--exe",
+          "--build",
+          "-j",
+          "0",
+          "--top-module",
+          "tb_mbx_top",
+          "-Wall",
+          "-Wno-fatal",
+          "-Werror-USERERROR",
+          "-Werror-PINMISSING",
+          "-Werror-UNDRIVEN",
+          "-Wno-DECLFILENAME",
+          "-Wno-UNUSEDPARAM",
+          "-Wno-UNUSEDSIGNAL",
+          "-CFLAGS",
+          "-std=c++17 -O2 -Wall -Wextra -I${CHECKOUT}/sw/firmware/ctrl/mbx",
+          "-GHOST_P=0",
+          "--Mdir",
+          "obj_cosim",
+          "../../../hdl/milan/mailbox/KL_mbx_pkg.sv",
+          "../../../hdl/milan/mailbox/KL_mbx_ring.sv",
+          "../../../hdl/milan/mailbox/KL_mbx_rx.sv",
+          "../../../hdl/milan/mailbox/KL_mbx_tx.sv",
+          "../../../hdl/milan/mailbox/KL_mbx_evt.sv",
+          "../../../hdl/milan/mailbox/KL_mbx.sv",
+          "../../../hdl/milan/mailbox/KL_mbx_wb.sv",
+          "../../../hdl/milan/mailbox/KL_mbx_axil.sv",
+          "tb_mbx_top.sv",
+          "cosim_main.cpp",
+          "-CFLAGS",
+          "-Wall -Wextra -I${CHECKOUT}/sw/firmware/ctrl/mbx -I${CHECKOUT}/sw/firmware/ctrl/host -I${CHECKOUT}/sw/firmware/ctrl/port -I${CHECKOUT}/sw/firmware/ctrl/loop -I${CHECKOUT}/sw/firmware/ctrl/adp -I${CHECKOUT}/sw/firmware/ctrl/maap -I${CHECKOUT}/sw/firmware/ctrl/acmp -I${CHECKOUT}/sw/firmware/ctrl/app -I${CHECKOUT}/third_party/tsn-c-stack/include -I${CHECKOUT}/sw/firmware/ctrl_nvm",
+          "-LDFLAGS",
+          "${CHECKOUT}/tb/verilator/mbx/obj_fw/libctrlfw.a",
+          "-o",
+          "Vmbx_cosim"
         ],
         [
           "--cc",
@@ -12242,6 +12675,33 @@
           "<runtime>"
         ],
         [
+          "--cc",
+          "--exe",
+          "--build",
+          "-j",
+          "8",
+          "-Wno-fatal",
+          "-Werror-USERERROR",
+          "-Wno-BLKANDNBLK",
+          "-Wno-WIDTH",
+          "-Wno-COMBDLY",
+          "-Wno-CASEINCOMPLETE",
+          "--top-module",
+          "sim",
+          "--Mdir",
+          "<runtime>",
+          "-O3",
+          "--output-split",
+          "5000",
+          "--output-split-cfuncs",
+          "500",
+          "-CFLAGS",
+          "<runtime>",
+          "<runtime>",
+          "<runtime>",
+          "<runtime>"
+        ],
+        [
           "--lint-only",
           "-Wall",
           "--top-module",
@@ -12638,197 +13098,6 @@
           "sim_nxn.cpp",
           "-o",
           "Vmilan_dp_dynmap"
-        ],
-        [
-          "--cc",
-          "--exe",
-          "--build",
-          "-j",
-          "8",
-          "-Wno-fatal",
-          "-Werror-USERERROR",
-          "-Wno-BLKANDNBLK",
-          "-Wno-WIDTH",
-          "-Wno-COMBDLY",
-          "-Wno-CASEINCOMPLETE",
-          "--top-module",
-          "sim",
-          "--Mdir",
-          "<runtime>",
-          "-O3",
-          "--output-split",
-          "5000",
-          "--output-split-cfuncs",
-          "500",
-          "-CFLAGS",
-          "<runtime>",
-          "<runtime>",
-          "<runtime>",
-          "<runtime>"
-        ],
-        [
-          "--cc",
-          "--exe",
-          "--build",
-          "-j",
-          "0",
-          "--top-module",
-          "KL_crf_rx",
-          "--public-flat-rw",
-          "-GCLK_FREQ_HZ_P=200000",
-          "-GIVAL_CYC_P=200",
-          "-GMAXTT_NS_P=2000000",
-          "-GEARLY_MARGIN_NS_P=10000000",
-          "-Wall",
-          "-Wno-fatal",
-          "-Werror-UNDRIVEN",
-          "-Wno-DECLFILENAME",
-          "-Wno-UNUSEDSIGNAL",
-          "-Wno-WIDTHEXPAND",
-          "-Wno-WIDTHTRUNC",
-          "-Wno-UNUSEDPARAM",
-          "-Wno-EOFNEWLINE",
-          "-CFLAGS",
-          "-std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra",
-          "../../../hdl/ieee1722/crf/KL_crf_rx.sv",
-          "sim_main.cpp",
-          "-o",
-          "Vcrf_rx_sim"
-        ],
-        [
-          "--cc",
-          "--exe",
-          "--build",
-          "-j",
-          "0",
-          "--top-module",
-          "KL_crf_rx",
-          "--public-flat-rw",
-          "-GCLK_FREQ_HZ_P=200000",
-          "-GIVAL_CYC_P=200",
-          "-GMAXTT_NS_P=2000000",
-          "-GEARLY_MARGIN_NS_P=10000000",
-          "-Wall",
-          "-Wno-fatal",
-          "-Werror-UNDRIVEN",
-          "-Wno-DECLFILENAME",
-          "-Wno-UNUSEDSIGNAL",
-          "-Wno-WIDTHEXPAND",
-          "-Wno-WIDTHTRUNC",
-          "-Wno-UNUSEDPARAM",
-          "-Wno-EOFNEWLINE",
-          "-CFLAGS",
-          "-std=c++17 -O2 -DIVAL_CYC_C=200u -DMAXTT_NS_C=2000000u -DEARLY_M_NS_C=10000000u -Wall -Wextra",
-          "-Mdir",
-          "obj_discontinuity",
-          "../../../hdl/ieee1722/crf/KL_crf_rx.sv",
-          "sim_discontinuity.cpp",
-          "-o",
-          "Vdiscontinuity"
-        ],
-        [
-          "--cc",
-          "--exe",
-          "--build",
-          "-j",
-          "0",
-          "--top-module",
-          "tb_mbx_top",
-          "-Wall",
-          "-Wno-fatal",
-          "-Werror-USERERROR",
-          "-Werror-PINMISSING",
-          "-Werror-UNDRIVEN",
-          "-Wno-DECLFILENAME",
-          "-Wno-UNUSEDPARAM",
-          "-Wno-UNUSEDSIGNAL",
-          "-CFLAGS",
-          "-std=c++17 -O2 -Wall -Wextra -I${CHECKOUT}/sw/firmware/ctrl/mbx",
-          "-GHOST_P=0",
-          "--Mdir",
-          "obj_cosim",
-          "../../../hdl/milan/mailbox/KL_mbx_pkg.sv",
-          "../../../hdl/milan/mailbox/KL_mbx_ring.sv",
-          "../../../hdl/milan/mailbox/KL_mbx_rx.sv",
-          "../../../hdl/milan/mailbox/KL_mbx_tx.sv",
-          "../../../hdl/milan/mailbox/KL_mbx_evt.sv",
-          "../../../hdl/milan/mailbox/KL_mbx.sv",
-          "../../../hdl/milan/mailbox/KL_mbx_wb.sv",
-          "../../../hdl/milan/mailbox/KL_mbx_axil.sv",
-          "tb_mbx_top.sv",
-          "cosim_main.cpp",
-          "-CFLAGS",
-          "-Wall -Wextra -I${CHECKOUT}/sw/firmware/ctrl/mbx -I${CHECKOUT}/sw/firmware/ctrl/host -I${CHECKOUT}/sw/firmware/ctrl/port -I${CHECKOUT}/sw/firmware/ctrl/loop -I${CHECKOUT}/sw/firmware/ctrl/adp -I${CHECKOUT}/sw/firmware/ctrl/maap -I${CHECKOUT}/sw/firmware/ctrl/acmp -I${CHECKOUT}/sw/firmware/ctrl/app -I${CHECKOUT}/third_party/tsn-c-stack/include -I${CHECKOUT}/sw/firmware/ctrl_nvm",
-          "-LDFLAGS",
-          "${CHECKOUT}/tb/verilator/mbx/obj_fw/libctrlfw.a",
-          "-o",
-          "Vmbx_cosim"
-        ],
-        [
-          "--cc",
-          "--exe",
-          "--build",
-          "-j",
-          "0",
-          "--top-module",
-          "KL_render_setpoint",
-          "-GN_STREAMS_P=2",
-          "-GN_CH_P=8",
-          "-GDEPTH_LOG2_P=5",
-          "-GPDU_EVENTS_P=6",
-          "-GSETPOINT_EVT_P=8",
-          "-GCONV_BAND_EVT_P=3",
-          "-GRESET_BAND_EVT_P=6",
-          "-GCLK_FREQ_HZ_P=100000",
-          "-Wall",
-          "-Wno-fatal",
-          "-Wno-DECLFILENAME",
-          "-Wno-UNUSEDSIGNAL",
-          "-Wno-WIDTHEXPAND",
-          "-Wno-WIDTHTRUNC",
-          "-Wno-UNUSEDPARAM",
-          "-Wno-EOFNEWLINE",
-          "-CFLAGS",
-          "-std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DDEPTH_LOG2_TB=5 -DPDU_EVENTS_TB=6 -DSETPOINT_TB=8 -DCONV_BAND_TB=3 -DRESET_BAND_TB=6 -DCLK_HZ_TB=100000",
-          "--Mdir",
-          "obj_dir",
-          "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv",
-          "sim_main.cpp",
-          "-o",
-          "VKL_render_setpoint_sim"
-        ],
-        [
-          "--cc",
-          "--exe",
-          "--build",
-          "-j",
-          "0",
-          "--top-module",
-          "KL_render_setpoint",
-          "-GN_STREAMS_P=2",
-          "-GN_CH_P=7",
-          "-GDEPTH_LOG2_P=5",
-          "-GPDU_EVENTS_P=6",
-          "-GSETPOINT_EVT_P=8",
-          "-GCONV_BAND_EVT_P=3",
-          "-GRESET_BAND_EVT_P=6",
-          "-GCLK_FREQ_HZ_P=100000",
-          "-Wall",
-          "-Wno-fatal",
-          "-Wno-DECLFILENAME",
-          "-Wno-UNUSEDSIGNAL",
-          "-Wno-WIDTHEXPAND",
-          "-Wno-WIDTHTRUNC",
-          "-Wno-UNUSEDPARAM",
-          "-Wno-EOFNEWLINE",
-          "-CFLAGS",
-          "-std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=7 -DDEPTH_LOG2_TB=5 -DPDU_EVENTS_TB=6 -DSETPOINT_TB=8 -DCONV_BAND_TB=3 -DRESET_BAND_TB=6 -DCLK_HZ_TB=100000",
-          "--Mdir",
-          "obj_odd",
-          "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv",
-          "sim_main.cpp",
-          "-o",
-          "VKL_render_setpoint_sim"
         ]
       ]
     },
@@ -12913,6 +13182,16 @@
       "reason": "Read the simulation clock from the followed recipe module.",
       "text": "import runpy, sys; print(runpy.run_path(sys.argv[1])[\"CPU_HZ\"])"
     },
+    "python3:25804af4bd31c27528254d556cdc8e16b7cc56c69e461633cbb65d3ac7a2aff9": {
+      "class": "non-installing",
+      "reason": "Assert from the needs context that every case job succeeded; reads data only; installs nothing.",
+      "text": "import json, os\nneeds = json.loads(os.environ['CASE_NEEDS'])\nassert all(row['result'] == 'success' for row in needs.values()), needs\n"
+    },
+    "python3:36e127eaad4459ef2a4d3d8928ac8281c93f9f3bbdc7a67202b98d0ce14b93db": {
+      "class": "non-installing",
+      "reason": "Assert from the needs context that every union leg succeeded; reads data only; installs nothing.",
+      "text": "import json, os\nneeds = json.loads(os.environ['UNION_NEEDS'])\nassert all(row['result'] == 'success' for row in needs.values()), needs\n"
+    },
     "python3:390f18706a9f5c1f6e25d2f1e57dc6178ff109f143c68ed546b8efa8e4672388": {
       "class": "non-installing",
       "reason": "Read installed package location for the pinned CPU generator; installs nothing.",
@@ -12922,6 +13201,11 @@
       "class": "non-installing",
       "reason": "Read synthesis statistics; validate a nonnegative cell count.",
       "text": "import json\nimport sys\n\ntry:\n    with open(sys.argv[1], encoding=\"utf-8\") as handle:\n        value = json.load(handle)[\"design\"][\"num_cells\"]\nexcept (OSError, ValueError, KeyError):\n    raise SystemExit(1)\nif isinstance(value, int) and not isinstance(value, bool) and value >= 0:\n    print(value)\nelse:\n    raise SystemExit(1)\n"
+    },
+    "python3:c85af5b87997a3f798e241d35f30c190d77d1ba2c09c0cad8d27e9e51dce08df": {
+      "class": "non-installing",
+      "reason": "Run the in-tree render mutation driver, the same module this Makefile runs as a script, with a stderr phase log; installs nothing.",
+      "text": "import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))"
     },
     "sh:732908b7fdd5dcbfc20b4053b3e33d92f0210efbd2dc7246fefe79bfd30623b4": {
       "class": "non-installing",
@@ -13047,7 +13331,7 @@
     "scripts/act_ci.py": {
       "class": "reviewed non-installing",
       "reason": "Validation self-test uses local sockets and subprocess fixtures; host orchestration installs no tools.",
-      "sha256": "506155c11334eeccdb210a0001f41c2b0d9ceb5bd95b41887d1bb5422255882a"
+      "sha256": "b8a786cec30be9eff9f2e72c6b59e21c06d27e1f36e055a7929c3cc3b59e3ba8"
     },
     "scripts/check_archive.py": {
       "class": "reviewed non-installing",
@@ -13057,7 +13341,7 @@
     "scripts/check_baremetal_only.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "3d10365d3c399071b2e41949b2ef813c0b2b4aaf1de432346779328726b54e06"
+      "sha256": "c720ca99e5af3b49d402c1ab1b1a614812ca642975d3656145366cd342397080"
     },
     "scripts/check_deploy_shape.py": {
       "class": "reviewed non-installing",
@@ -13082,7 +13366,7 @@
     "scripts/check_gptp_docs.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "6e2efe35c4b5b2e327f737bd354d38dc9f3518f750e1c63b7bc32329693a1036"
+      "sha256": "74db03ad29eeb6c127b2335d4221ef4f319d417deff03d9067580af0866aee72"
     },
     "scripts/check_nvm_capture.py": {
       "class": "reviewed non-installing",
@@ -13134,6 +13418,47 @@
       "reason": "Wire accountability gate runs local validation and generated evidence checks.",
       "sha256": "5075eb353ab6365e6cb3647a6254a167e62c024938cc9e1ed93d41d2510759f7"
     },
+    "scripts/ci_builder_legs.py": {
+      "class": "reviewed non-installing",
+      "reason": "Runs the builder driver's listed gates in measured legs and judges their union; invokes the local driver only; installs nothing.",
+      "sha256": "2a2f6b09b25f14462e7de74e46a2b89e8b122bc264fa067534cc7eef618fd09c"
+    },
+    "scripts/ci_capture_cases_selftest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Controls for the capture campaign scheduler, loading the in-tree mutant module by path; runs no command and installs nothing.",
+      "sha256": "ba527f187bd4aeadfd0c453d246db57b5088d1318eb808fb3ef9b9af0ff7d0ad"
+    },
+    "scripts/ci_case_receipts.py": {
+      "class": "reviewed non-installing",
+      "reason": "Reads Git source identities and submodule origins to bind case receipts; reads only; installs nothing.",
+      "sha256": "efac0cb54d3214d96be0be059d0e3e0133d96b416c6beff1ec54865a5f57038b"
+    },
+    "scripts/ci_case_receipts_selftest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Controls for case receipts: local Git fixtures and the local suite driver; installs nothing.",
+      "sha256": "c0543fba6e86b2360212559ed8d35b7c106430199b32a749e97b07a157041777"
+    },
+    "scripts/ci_fail_fast.py": {
+      "class": "reviewed non-installing",
+      "reason": "Observes and cancels this workflow run through the GitHub Actions API; network use by design, run only by the orchestration jobs; installs nothing.",
+      "sha256": "12dd150a1faa2c39287768d3f9e6e72ed0c637b4bc9c5be675656fe0a9f90315"
+    },
+    "scripts/ci_fail_fast_selftest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Controls for the fail-fast watcher against an in-process fake API; no network; installs nothing.",
+      "sha256": "420abba6f128d2eaacafdd53962782cd728ffb8aea71e72a271acedeac0d3e16"
+    },
+    "scripts/ci_gate_workflows_selftest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Controls for the generated gate workflows: runs the budget step text and local make recipes with stand-in compilers; installs nothing.",
+      "sha256": "7e399a455a6e1ac2a931b6536aea41c9ad246bd93a1113c475352e7c225f0cf4"
+    },
+    "scripts/ci_install_cache.py": {
+      "class": "installer",
+      "reason": "Downloads, without installing, the distribution packages named on its command line into a step cache directory; the packages are requested where the following step installs them.",
+      "sha256": "47de8689c6566371bacbbcbaf845c78acb099f7a697e0d9df761c9947b25c475",
+      "tools": []
+    },
     "scripts/ci_litex_env.py": {
       "class": "installer",
       "reason": "Places the CPU source revision selected by the pinned LiteX package.",
@@ -13145,6 +13470,31 @@
           "tool": "VexiiRiscv"
         }
       ]
+    },
+    "scripts/ci_local_manifest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Builds the local run manifest from committed workflow blobs read through Git; reads only; installs nothing.",
+      "sha256": "5d914692847656d7da6f3e24907c59d6fc0261695fbfa999f2a8dcb1b107b7dd"
+    },
+    "scripts/ci_maap_cases_selftest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Controls for the MAAP case driver with patched process results; runs nothing real and installs nothing.",
+      "sha256": "4837c28a2e5f8a2879d41e070daa3cca1f5b2ae342d9427c51e7d4e1728f4b06"
+    },
+    "scripts/ci_make_cases.py": {
+      "class": "reviewed non-installing",
+      "reason": "Runs a suite's own make targets (ci-list, ci-receipts, exec-*) to schedule and record its cases; installs nothing.",
+      "sha256": "4191327e26c6a05222255a9f3e6c11db2e2b1d01d5413ebda505c7fd56748ed7"
+    },
+    "scripts/ci_runtime_evidence.py": {
+      "class": "reviewed non-installing",
+      "reason": "Records step outcomes and the measured tool versions (python3, verilator, yosys, make, g++, node --version) and reads committed identities through Git; installs nothing.",
+      "sha256": "82272f5e4c19ddf238f173ae378d1222974029300f944ac1156e8a7361271633"
+    },
+    "scripts/ci_runtime_evidence_selftest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Controls for runtime evidence: local Git fixtures and planted tool stand-ins; no network; installs nothing.",
+      "sha256": "4eee4ae31fa0b812717298137dc6a30394f6b2c80ac73408d2a4d798d80bc218"
     },
     "scripts/ci_rv32_sdk.py": {
       "class": "installer",
@@ -13162,12 +13512,27 @@
     "scripts/ci_scope.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "d091ccd7d60562db374ad4b0b7f09b81620d8c4f08d73da886351d1d75c13455"
+      "sha256": "bbc369c06a61700b772a47af851d575b03e429cd71109613c47bf8902fa2b860"
     },
     "scripts/ci_scope_history.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "343b272084271c9a8b2d4cf35071b08e9307084fde12aea7c828b5026d0c91b8"
+      "sha256": "77204f6425a21537dfda3d07d2502cfca0f41425ab1904a0f3839f7944c52a57"
+    },
+    "scripts/ci_suite_pieces.py": {
+      "class": "reviewed non-installing",
+      "reason": "Runs one piece of a suite through its own driver or make target, with the receipt directory it names; installs nothing.",
+      "sha256": "b53c97f4bcc09d08c90b3cb21a0ee6c8ec2f0e4bb5f7053a451f78df798d9eac"
+    },
+    "scripts/ci_workflow_plan.py": {
+      "class": "reviewed non-installing",
+      "reason": "Reads the committed workflow definitions through Git to expand the run plan; reads only; installs nothing.",
+      "sha256": "4d98b26611de437e6b1879543fb2ff20d041e1932434af3b991a5f644e08d933"
+    },
+    "scripts/ci_workflow_plan_selftest.py": {
+      "class": "reviewed non-installing",
+      "reason": "Controls for the run plan: writes fixture Git objects in a scratch repository with the source commit's attribution; installs nothing.",
+      "sha256": "9efd257db3a9e414b03ee3bba9bab93706d975c4a96ae26183cece0cefe3dee8"
     },
     "scripts/code_quality_scope.py": {
       "class": "reviewed non-installing",
@@ -13242,7 +13607,7 @@
     "scripts/run_all_suites.sh": {
       "class": "reviewed non-installing",
       "reason": "Validation driver: runtime test directories and function arguments install no tools.",
-      "sha256": "b36a1a6f50a1652c31cfa12717b4f86c5db13d6ed7b65fa3486414cd0a699eca"
+      "sha256": "c4309d6e3fe7dddbeaad2983ec6b03275a2838d8fc0078b4162a7f5b47a957bd"
     },
     "scripts/run_litex_sims.sh": {
       "class": "reviewed non-installing",
@@ -13257,7 +13622,7 @@
     "scripts/suite_shards.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "59e476532c7db7d77d738d487621d57220996432a2ea8219b198bdd7438eecb4"
+      "sha256": "bebb10ede436a2dd291bdcd2ceb396ae7a16d1597d88ae798bf6f98fa39b6bc3"
     },
     "scripts/test_suite_cancellation.py": {
       "class": "reviewed non-installing",
@@ -13272,7 +13637,7 @@
     "sw/builder/test_builder.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47"
+      "sha256": "e6c3c1097eabb3836d2c40f61f25283afabe09e947fd40568e227790987745dd"
     },
     "sw/builder/test_clock_contract.py": {
       "class": "reviewed non-installing",
@@ -13292,12 +13657,12 @@
     "sw/firmware/ctrl/test/ctrl_arms.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "fd48045166e3350ada8789336bbb1ae1e40cdd654eac97bc60481f5c01bf6728"
+      "sha256": "8e277a85f472f2d1d85d8ec3b4998bdd38e8c36bd7a4164fb48a8048ac95cd87"
     },
     "sw/firmware/ctrl/test/ctrl_build.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "5c58336a106a2916658d4a159a855bf2bb6b69793fb48f3ca7670d18233436e8"
+      "sha256": "b397c2f30d79e51729a66ee66aa4583b3b55dba5e97b5615a881a4b87a805e7d"
     },
     "sw/firmware/ctrl/test/ctrl_capture.py": {
       "class": "reviewed non-installing",
@@ -13307,7 +13672,7 @@
     "sw/firmware/ctrl/test/ctrl_configs.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "a63cd10b62552874c5b89a77bf744dfd48db705b1da4fb22bd994eb8605c8703"
+      "sha256": "489d127020c0fa1eccb67422fddb6a327d19fefde43367fe9fb21af1e68d7127"
     },
     "sw/firmware/ctrl/test/ctrl_expand.py": {
       "class": "reviewed non-installing",
@@ -13332,7 +13697,7 @@
     "sw/firmware/ctrl/test/test_ctrl_firmware.py": {
       "class": "reviewed non-installing",
       "reason": "Reflection on its own or an in-tree module namespace (sys.modules, getattr, setattr) for test patching; executes and installs nothing.",
-      "sha256": "2580bf394f204b2adee6ed9d2a49effd82090ae54f14853b5eb15ad1bcbb08f7"
+      "sha256": "688f7b0138251c58c769bf284e8fd10fb2dd8df0cf380e4983046172b7770e1d"
     },
     "sw/firmware/ctrl_nvm/test/nvm_rv32.py": {
       "class": "reviewed non-installing",
@@ -13372,7 +13737,7 @@
     "sw/firmware/nvm_hosttest/test_nvm_firmware.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "72e290af4df6bd93c153ab5726cc67252cf73e993374d068104f95544f19b163"
+      "sha256": "6ea367e554858040c8033febe6a90664bf8ef5a5384e6ae4c4e9025ee3a75ddb"
     },
     "sw/litex/clock_constraints.py": {
       "class": "reviewed non-installing",
@@ -13422,7 +13787,7 @@
     "sw/mailbox/publication_census.py": {
       "class": "reviewed non-installing",
       "reason": "Parallel netlist census workers validate publication ownership; no installation.",
-      "sha256": "cbc6cef4211f197c289603faca4e519762c7be41f2d62f72e3b56ec3a9ef974e"
+      "sha256": "ce29ced654427b368c082798e76cbbf2c07bd067e5d1a5664da3a0e95c416f4c"
     },
     "syn/ooc/dp_srcs.py": {
       "class": "reviewed non-installing",
@@ -13502,7 +13867,7 @@
     "tb/verilator/capture_coherence/mutants.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "743aa9d28f92d9b6c0fb3c4c3447ec8fe881959f81c1b2353a2a5d1d4919f530"
+      "sha256": "2ec38db213e9a8050d2c0b76aef073e7361d16eb52616f9616f321aa79298cc7"
     },
     "tb/verilator/chmap_capture/lockstep_mutants.py": {
       "class": "reviewed non-installing",
@@ -13522,12 +13887,12 @@
     "tb/verilator/follow_ring/mutants.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "36c9fec967d2e0418f9b9f5a4ebc9f0a7356e22aa88bbd96a3bab320be4e4abf"
+      "sha256": "06f821c10c67e267c72f93400c056bb3f28b041120749e49231cdedc5458b8fe"
     },
     "tb/verilator/follow_ring/settle_control.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "b3198b73b49f37dce4e90a3a011c69fef46fc75c52970574fa0f2ecf44aca798"
+      "sha256": "07201d2d026f4e5e4e2fa2b21fc39755db0dad0da26b86e5871e5c1954be25f1"
     },
     "tb/verilator/follow_ring/small_pulls.py": {
       "class": "reviewed non-installing",
@@ -13537,7 +13902,7 @@
     "tb/verilator/follow_ring/sweep.py": {
       "class": "reviewed non-installing",
       "reason": "Runs existing compilers or simulation binaries for local validation; installs nothing.",
-      "sha256": "495740856ae152f17fa07eab0057c5175bb50300e78cc7faa41fd47c5c826a3b"
+      "sha256": "4aa4ed5b3e7ab20fbfad3a89abb046c814d69117064121f68aeaf83d055de612"
     },
     "tb/verilator/fw_service_budget/build.py": {
       "class": "reviewed non-installing",
@@ -13567,7 +13932,7 @@
     "tb/verilator/maap/mutants.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "576e4a2b4e42d3ad5e1c60418d25df10d60c485a61353d0398c92df19545aaaa"
+      "sha256": "c148e39c803aae0f8f5ca80f20f471da4af51185a7b3dd98aa7b07f56bd1b5ed"
     },
     "tb/verilator/mbx/mutants.py": {
       "class": "reviewed non-installing",
@@ -13627,7 +13992,7 @@
     "tb/verilator/milan_dp_mclk/mclk_mutants.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "9daf59e55513901b3f311a709bfc764647f424b8060309749ddf8e018ed6b88e"
+      "sha256": "d0ef22ea72e3e261f9fc785c915b4a0f9944d57a41113215b75052b0de6e6b30"
     },
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py": {
       "class": "reviewed non-installing",
@@ -13652,7 +14017,7 @@
     "tb/verilator/nvm_cosim/run_cases.py": {
       "class": "reviewed non-installing",
       "reason": "Build and execute firmware and RTL co-simulation cases; no installation.",
-      "sha256": "0fdbc7ccccc029a745c2764eac182786155c60572df95255fa21c9ceee393d42"
+      "sha256": "d59675e2006a749ddae3195931d55033367ccc18e03eacc554bb263f83123c88"
     },
     "tb/verilator/pp_shadow/pending_mutant.py": {
       "class": "reviewed non-installing",

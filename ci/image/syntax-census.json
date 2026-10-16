@@ -35,7 +35,9 @@
       "patsubst",
       "filter",
       "filter-out",
-      "addprefix"
+      "addprefix",
+      "or",
+      "eval"
     ],
     "special_targets": [
       ".PHONY"
@@ -274,6 +276,7 @@
     "bash:shift": "bash-special-parameters",
     "bash:source": "bash-source",
     "bash:subshell": "bash-subshell",
+    "bash:test-clause": "bash-test-clause",
     "bash:trap": "bash-trap",
     "bash:trap.runtime": "bash-trap-runtime",
     "bash:unset": "bash-unset",
@@ -327,19 +330,23 @@
     "make:automatic.<": "make-pattern-rule",
     "make:automatic.@": "make-pattern-rule",
     "make:call.argument": "make-call",
+    "make:computed-reference": "make-computed-reference",
     "make:conditional": "make-conditional",
     "make:default-goal": "make-default-goal",
     "make:define": "make-define",
+    "make:expansion-line": "make-eval",
     "make:function.abspath": "make-functions",
     "make:function.addprefix": "make-functions",
     "make:function.and": "make-functions",
     "make:function.call": "make-call",
     "make:function.error": "make-conditional",
+    "make:function.eval": "make-eval",
     "make:function.filter": "make-functions",
     "make:function.filter-out": "make-functions",
     "make:function.firstword": "make-functions",
     "make:function.foreach": "make-functions",
     "make:function.if": "make-functions",
+    "make:function.or": "make-or",
     "make:function.patsubst": "make-functions",
     "make:function.shell": "make-shell-status",
     "make:function.strip": "make-functions",
@@ -363,10 +370,12 @@
     "make:recipe": "make-basic",
     "make:recipe-line": "make-basic",
     "make:rule": "make-basic",
+    "make:static-pattern-rule": "make-static-pattern-rule",
     "make:target-specific": "make-target-specific",
     "make:variable.CURDIR": "make-curdir",
     "make:variable.MAKE": "make-recursive-flags",
     "make:variable.command-line": "make-command-line",
+    "make:variable.environment": "make-environment",
     "make:variable.reference": "make-assignments",
     "make:variable.shell-status": "make-shell-status",
     "py:capability.declared": "py-script",
@@ -568,6 +577,25 @@
         "tb/verilator/milan_dp_render/Makefile"
       ]
     },
+    "51a0d5842c1d96a099057cc6d94002960ef0ae2bc183ab46ed150dbb6818df48": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/rtl-fast.yml"
+      ]
+    },
+    "60153d5a58184386178f5d271a702f000c90066b52a98791ef6bb90bef6100f9": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/docs.yml",
+        ".github/workflows/elaborate.yml",
+        ".github/workflows/rtl-fast.yml",
+        ".github/workflows/rtl.yml"
+      ]
+    },
     "60ece17a20bf347bd1c367ef14c129c4d3c01ecb71bf478af72695a2a8f1eee0": {
       "kinds": [
         "assignment"
@@ -677,6 +705,14 @@
         "syn/yosys/malloc.sh"
       ]
     },
+    "c0cc9cc5472e48d02925c4df2ade52f6da22db0df8b0cbce0ebef5fa48fcc480": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/elaborate.yml"
+      ]
+    },
     "cc3a9824c341161b033cba51493bf3a80387e3c0b4c3b69546daffd4e88571fb": {
       "kinds": [
         "assignment"
@@ -693,6 +729,14 @@
         ".github/workflows/elaborate.yml",
         ".github/workflows/rtl-fast.yml",
         ".github/workflows/rtl.yml"
+      ]
+    },
+    "e22f5a65396c167bd5c51d9ebcea95dbbf32ac9f0c74eedb8500929889d28c12": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        ".github/workflows/rtl-fast.yml"
       ]
     },
     "f536444edb4a76a4924b5e6de63316fd818d6e0d1fada2353051ab671927347f": {
@@ -749,6 +793,15 @@
       "Y"
     ],
     "BinaryCmd": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Type",
+      "X",
+      "Y"
+    ],
+    "BinaryTest": [
       "End",
       "Op",
       "OpPos",
@@ -969,6 +1022,14 @@
       "Short",
       "Type"
     ],
+    "ParenArithm": [
+      "End",
+      "Lparen",
+      "Pos",
+      "Rparen",
+      "Type",
+      "X"
+    ],
     "Patterns": [
       "End",
       "Parts",
@@ -1022,6 +1083,14 @@
       "Rparen",
       "Stmts",
       "Type"
+    ],
+    "TestClause": [
+      "End",
+      "Left",
+      "Pos",
+      "Right",
+      "Type",
+      "X"
     ],
     "Then": [
       "Cmd",
@@ -1137,20 +1206,28 @@
     "BinaryArithm.Op": [
       38,
       43,
+      54,
       56,
       68,
       70,
-      74
+      72,
+      74,
+      85,
+      87
     ],
     "BinaryCmd.Op": [
       10,
       11,
       12
     ],
+    "BinaryTest.Op": [
+      40
+    ],
     "Exp.Op": [
       68,
       70,
       71,
+      76,
       77,
       78,
       79
@@ -1196,6 +1273,7 @@
     "-f",
     "-ge",
     "-gt",
+    "-lt",
     "-n",
     "-ne",
     "-ot",
@@ -1206,8 +1284,17 @@
   ],
   "workflow_environment": {
     "BDD_CONFORMANCE_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "CASE_NEEDS": "The needs context a gate script parses as JSON; a runtime value, never code.",
     "CHANGES_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "CI_GATE_NEEDS": "The needs context a gate script parses as JSON; a runtime value, never code.",
+    "CI_GATE_SCOPE": "A scope step output a gate receipt compares with a literal; a runtime value, never code.",
+    "CI_GATE_STEPS": "The steps context an evidence script parses as JSON; a runtime value, never code.",
+    "CI_JOB_RESULT": "The job status an evidence script records as data; a runtime value, never code.",
+    "CI_MATRIX": "The matrix context an evidence script parses as JSON; a runtime value, never code.",
+    "CI_STEP_RESULTS": "The steps context an evidence script parses as JSON; a runtime value, never code.",
+    "CI_TAIL_NEEDS": "The needs context a gate script parses as JSON; a runtime value, never code.",
     "EVENT_NAME": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "EXPECTED_JOBS": "The generated job-name list the fail-fast watcher parses as JSON; a literal, never code.",
     "FIRMWARE_AECP_MUTANTS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
     "FIRMWARE_BOUNDARY_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
     "FIRMWARE_CONTROL_MUTANTS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
@@ -1216,6 +1303,7 @@
     "FIRMWARE_VERILATOR_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
     "GATE_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
     "GH_TOKEN": "The hosted token the gh client reads as a credential; a runtime value, never code.",
+    "PIP_CONSTRAINT": "The checkout constraints file pip reads as data; the pin reader resolves each request through it; a runtime path, never code.",
     "PR_BASE_REF": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
     "PR_DRAFT": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
     "PR_HEAD_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
@@ -1224,8 +1312,10 @@
     "SHARD": "The matrix shard a suite driver reads as data; a runtime value, never code.",
     "SHARDS": "The matrix shard count a suite driver reads as data; a literal, never code.",
     "SHARD_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "SKIPPED_MATRICES": "The generated skipped-matrix map the fail-fast watcher parses as JSON; a literal, never code.",
     "TARGET_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
     "TSN_GEN_REV": "The pinned generator revision the workflow steps expand; a literal, never code.",
+    "UNION_NEEDS": "The needs context a gate script parses as JSON; a runtime value, never code.",
     "VERILATOR_LINT_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
     "VERILATOR_VERSION": "The pinned Verilator tag the workflow steps expand; a literal, never code.",
     "YOSYS_ELABORATION_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",

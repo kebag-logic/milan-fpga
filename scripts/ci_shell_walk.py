@@ -20,7 +20,7 @@ import re
 
 from ci_command_table import Fields, Refusal, Runtime, _normpath, nodes, shell_tree, sha256
 from ci_syntax import (SENSITIVE, assigned_names, errexit_option, exact_use, function_names, glob_pattern,
-                       posix_dirname, shell_nodes, top_substitutions)
+                       posix_dirname, shell_nodes, test_clause, top_substitutions)
 
 
 RUNTIME = Runtime('${RUNTIME}')
@@ -543,7 +543,7 @@ class Shell:
                 result = self.statements(item.get('Stmts', []), directory)
                 paths.append((self.capture(), result))
             return self.join(paths, 'case', where)
-        raise Refusal(f'unsupported shell construct {kind!r} at {where}')
+        return test_clause(self, node, directory, where)  # `[[ ]]`; any other construct refuses.
 
     def declaration(self, node: dict, directory: Path, where: str) -> Path:
         """`local`, `declare` and `export`; inside a function `declare` is local, as in bash."""

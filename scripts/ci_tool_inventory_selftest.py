@@ -142,6 +142,42 @@ def closed_controls(root: Path, workflow: Path, prefix: str) -> None:
     print("PASS: missing inventory entry differs")
 
 
+def refused(command: str, env: dict[str, str], root: Path, label: str) -> None:
+    """One install line the pin readers must refuse by name."""
+    try:
+        inventory.shell_installs(command, env, root)
+    except inventory.Refusal:
+        print(f"PASS: {label} refused")
+    else:
+        raise AssertionError(label)
+
+
+def constraint_controls(root: Path) -> None:
+    """PIP_CONSTRAINT pins a request as pip does; every other constraint form refuses."""
+    path = root / "ci/constraints-test.txt"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    wheel = "https://files.pythonhosted.org/packages/ab/cd/Example_Tool-1.2-py3-none-any.whl"
+    path.write_text(f"# Example 1.2\nExample_Tool @ {wheel}#sha256={'b' * 64}\n")
+    env = {"PIP_CONSTRAINT": "${{ github.workspace }}/ci/constraints-test.txt"}
+    rows = inventory.shell_installs("python3 -m pip install --quiet example-tool", env, root)
+    assert rows == [{"tool": "example-tool", "kind": "pip", "pin": "1.2", "sha256": ["b" * 64]}], rows
+    assert inventory.shell_installs("python3 -m pip install example-tool==1.2", env, root)[0]["pin"] == "1.2"
+    print("PASS: a constraint pins an unpinned request and agrees with a pinned one")
+    refused("python3 -m pip install example-tool==2.0", env, root, "a request conflicting with its constraint")
+    for value in ("/abs/ci/constraints-test.txt", "${{ github.workspace }}/../constraints-test.txt",
+                  "${{ github.workspace }}/ci/missing.txt", "${{ runner.temp }}/constraints-test.txt"):
+        refused("python3 -m pip install example-tool", {"PIP_CONSTRAINT": value}, root, f"PIP_CONSTRAINT {value}")
+    path.write_text("example-tool>=1\n")
+    refused("python3 -m pip install example-tool", env, root, "a constraint that is not an exact archive")
+    assert inventory.shell_installs("python3 -m venv ${RUNNER_TEMP}/env", {}, root) == []
+    refused("python3 -m venv --system-site-packages ${RUNNER_TEMP}/env", {}, root, "a venv option")
+    rows = inventory.shell_installs(
+        "sudo apt-get -o Dir::Cache::archives=${RUNNER_TEMP}/packages install -y example", {}, root)
+    assert rows == [{"tool": "example", "kind": "apt", "pin": None}], rows
+    refused("sudo apt-get -o Dir::Etc::sourcelist=/tmp/list install -y example", {}, root, "another apt option")
+    print("PASS: a venv requests nothing; a package cache directory installs what install names")
+
+
 def main() -> int:
     """Require additions, removals, pin changes and unknown installs to differ."""
     with tempfile.TemporaryDirectory(prefix="ci-inventory-") as directory:
@@ -192,6 +228,7 @@ def main() -> int:
             print("PASS: moving Git requirement refused")
         else:
             raise AssertionError("moving Git requirement accepted")
+        constraint_controls(root)
         called = root / "scripts/bootstrap.py"
         called.parent.mkdir()
         comparison_control(root, called, workflow, prefix)

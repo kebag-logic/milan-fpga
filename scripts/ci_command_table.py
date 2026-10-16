@@ -376,7 +376,10 @@ class Audit(PythonWalk):
         if not args:
             return False
         argument = args[0]
-        if isinstance(expected, dict):
+        if isinstance(expected, dict) and expected == {'data_file': True}:
+            # A fixed program's input file is data; the table never copies a host path.
+            accepted = not isinstance(argument, Runtime) and not argument.startswith('-') and argument != ''
+        elif isinstance(expected, dict):
             suffix = expected.get('data_path')
             accepted = (set(expected) == {'data_path'} and suffix in ('.sv', '.svh') and
                         not isinstance(argument, Runtime) and not argument.startswith('-') and

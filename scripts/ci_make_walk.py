@@ -7,7 +7,7 @@ import glob
 import json
 import re
 
-from ci_command_table import Refusal, Runtime, sha256
+from ci_command_table import Fields, Refusal, Runtime, sha256
 from ci_syntax import SENSITIVE
 
 
@@ -16,7 +16,7 @@ BUILTINS = Path('ci/image/make-builtins.json')
 UNMODELLED = {'VPATH', 'GPATH', 'MAKEFILE_LIST', 'MAKE_RESTARTS', 'MAKE_TERMOUT', 'MAKE_TERMERR'}
 #: The one censused MAKEFLAGS line: it removes the recorded built-in rules.
 NO_BUILTIN_RULES = 'MAKEFLAGS += -r'
-NAME = re.compile(r'[A-Za-z_][A-Za-z0-9_]*')
+NAME = re.compile(r'[A-Za-z_][A-Za-z0-9_-]*')  # GNU Make also accepts `-` within a name.
 #: Flags make passes to a child through MAKEFLAGS that the walker reads: silent, dry run,
 #: always remake, no built-in rules and print directory. Others refuse.
 LETTERS = set('sBnrw')
@@ -82,6 +82,16 @@ def top_level(text: str, characters: str) -> int:
     return -1
 
 
+def closing(text: str) -> int:
+    """Where the reference opening `text` closes, or -1 when it never does."""
+    depth = 0
+    for index, char in enumerate(text[1:], 1):
+        depth += (char == '(') - (char == ')')
+        if not depth:
+            return index
+    return -1
+
+
 def logical_lines(text: str, where: str) -> list[tuple[int, list[str]]]:
     """Group physical lines joined by an odd number of trailing backslashes."""
     result, current, start = [], [], 0
@@ -106,11 +116,18 @@ def condensed(lines: list[str]) -> str:
 
 
 def uncommented(text: str, where: str) -> str:
-    """Drop a comment; escaped number signs are not modelled."""
+    """Drop a comment. As in make, one backslash before `#` quotes it and is removed; longer runs refuse."""
+    start = 0
+    while (index := top_level(text[start:], '#')) >= 0:
+        index += start
+        if text[index - 1:index] != '\\':
+            return text[:index]
+        if text[index - 2:index - 1] == '\\':
+            raise Refusal(f'unmodelled escaped Make number sign at {where}')
+        text, start = text[:index - 1] + text[index:], index
     if '\\#' in text:
         raise Refusal(f'unmodelled escaped Make number sign at {where}')
-    index = top_level(text, '#')
-    return text if index < 0 else text[:index]
+    return text
 
 
 def recipe_lines(text: str) -> list[str]:
@@ -198,7 +215,9 @@ def invocation(audit: object, words: list[str], where: str, directory: Path) -> 
             if value is None or not (value.isdigit() or dynamic(value)):
                 raise Refusal(f'unsupported make jobs at {where}')
             audit.shape('make:option.jobs', where)
-        elif re.fullmatch(r'-j(?:[0-9]+|\$\{RUNTIME\})', token):
+        elif re.fullmatch(r'-j(?:[0-9]+|\$\{RUNTIME\})', token) or (
+                re.fullmatch(r'-j\$\{\w+\}', token) and dynamic(token) and not isinstance(token, Fields)):
+            # A quoted runtime job count is one argument: make reads it as the count, never as options.
             audit.shape('make:option.jobs', where)
         elif token in ('-s', '--no-print-directory', '-n', '-B'):
             audit.shape(f'make:option.{token.lstrip("-")}', where)
@@ -266,6 +285,8 @@ class Makefile:
         self.simple.difference_update(overrides)
         self.call_arguments = 0
         self.stem = None
+        self.reading = False  # Within a parse-time expansion line, where `$(eval)` is modelled.
+        self.static_stems: dict[str, str] = {}
         self.no_builtin_rules = 'r' in letters
         self.rules = {}
         self.target_variables = {}
@@ -311,6 +332,8 @@ class Makefile:
         else:
             self.shape('variable.reference')
         value = self.variables.get(name, '')
+        if name in self.environment and dynamic(value) and value == self.startup.get(name):
+            return value  # A runner-substituted value is opaque text: it holds no Make reference.
         return value if name in self.simple else self.expand(value, seen | {name})
 
     def expand(self, text: str, seen: frozenset[str] = frozenset()) -> str:
@@ -335,6 +358,13 @@ class Makefile:
                 match = re.match(r'([\w-]+)\s+(.*)', expression, re.S)
                 if match:
                     output.append(self.function(match[1], match[2], seen))
+                elif '$' in expression and not re.search(r'\s', expression):
+                    # A computed name: make expands the reference text, then reads that variable.
+                    name = self.expand(expression, seen)
+                    if dynamic(name) or not NAME.fullmatch(name):
+                        raise Refusal(f'unresolved computed Make reference {expression!r} at {self.where}')
+                    self.shape('computed-reference')
+                    output.append(self.variable(name, seen))
                 elif re.fullmatch(r'[\w.@<>^*?+%-]+', expression):
                     if re.fullmatch(r'[@<>^*?+%][DF]', expression):
                         raise Refusal(f'unsupported Make automatic variable {expression!r} at {self.where}')
@@ -417,18 +447,26 @@ class Makefile:
         if name == 'foreach':
             if len(raw) != 3 or not re.fullmatch(r'\w+', raw[0]):
                 raise Refusal(f'unsupported Make foreach at {self.where}')
-            saved, simple = dict(self.variables), set(self.simple)
+            # Only the loop variable is bound and restored, as in make: an `$(eval)` in the body persists.
+            saved, simple = self.variables.get(raw[0]), raw[0] in self.simple
             result = []
             for value in self.expand(raw[1], seen).split():
                 self.variables[raw[0]] = value
                 self.simple.add(raw[0])
                 result.append(self.expand(raw[2], seen))
-            self.variables, self.simple = saved, simple
+            if saved is None:
+                self.variables.pop(raw[0], None)
+            else:
+                self.variables[raw[0]] = saved
+            if not simple:
+                self.simple.discard(raw[0])
             return ' '.join(result)
         if name == 'if' and len(raw) not in (2, 3):
             raise Refusal(f'unsupported Make if arguments at {self.where}')
-        if name in ('if', 'and'):
+        if name in ('if', 'and', 'or'):
             return self.lazy(name, raw, seen)
+        if name == 'eval':
+            return self.evaluate(','.join(raw), seen)
         args = [self.expand(arg, seen) for arg in raw]
         if name == 'shell':
             command = ','.join(args).replace('\x01', '$')
@@ -462,8 +500,30 @@ class Makefile:
             return ' '.join(args[0] + item for item in args[1].split())
         raise Refusal(f'unsupported Make function {name!r} at {self.where}')
 
+    def expansion_line(self, line: str) -> None:
+        """A line that is one expansion: make expands it, then reads what remains, here nothing."""
+        self.shape('expansion-line')
+        self.reading = True
+        try:
+            if self.expand(line).strip():
+                raise Refusal(f'unmodelled Make expansion line {line!r} at {self.where}')
+        finally:
+            self.reading = False
+
+    def evaluate(self, text: str, seen: frozenset[str]) -> str:
+        """`$(eval)` while make reads its makefile: the expanded text must be one literal assignment."""
+        if not self.reading:
+            raise Refusal(f'unmodelled Make eval outside a parse-time line at {self.where}')
+        line = self.expand(text, seen)
+        if dynamic(line) or '\x01' in line or '\n' in line or not (assignment := self.classify(line)):
+            raise Refusal(f'unmodelled Make eval text {text!r} at {self.where}')
+        if assignment[0] in SENSITIVE or assignment[0] in UNMODELLED or '$' in assignment[2]:
+            raise Refusal(f'unmodelled Make eval assignment {line!r} at {self.where}')
+        self.assignment(*assignment)
+        return ''
+
     def lazy(self, name: str, raw: list[str], seen: frozenset[str]) -> str:
-        """`$(if)` and `$(and)` expand arguments in order and stop where make stops.
+        """`$(if)`, `$(and)` and `$(or)` expand arguments in order and stop where make stops.
 
         A runtime condition selects at run time: every branch is walked and the value is runtime.
         """
@@ -477,6 +537,17 @@ class Makefile:
             selected = branches[0] if condition.strip() else (branches[1] if len(branches) > 1 else '')
             return self.expand(selected, seen)
         value = ''
+        if name == 'or':
+            # GNU Make 4.3 func_or: each argument is stripped, then expanded; the first non-empty one is the value.
+            for index, argument in enumerate(raw):
+                value = self.expand(argument.strip(' \t\n'), seen) if argument.strip(' \t\n') else ''
+                if dynamic(value):
+                    for rest in raw[index + 1:]:
+                        self.expand(rest, seen)
+                    return Runtime('${RUNTIME}')
+                if value:
+                    return value
+            return ''
         for argument in raw:
             value = self.expand(argument, seen)
             if dynamic(value):
@@ -556,8 +627,9 @@ class Makefile:
         colon = top_level(line, ':')
         names, rest = line[:colon], line[colon + 1:]
         semicolon = top_level(rest, ';')
-        if top_level(rest if semicolon < 0 else rest[:semicolon], ':') >= 0:
-            raise Refusal(f'unsupported Make rule at {self.where}')
+        second = top_level(rest if semicolon < 0 else rest[:semicolon], ':')
+        if second >= 0:
+            return self.static_rule(names, rest, second, semicolon)
         equals = top_level(rest, '=')
         if equals >= 0 and (semicolon < 0 or equals < semicolon):
             self.shape('target-specific')
@@ -587,6 +659,27 @@ class Makefile:
             if separator:
                 self.shape('inline-recipe')
                 self.rules[name][1].append((self.line, inline))
+        return current
+
+    def static_rule(self, names: str, rest: str, colon: int, semicolon: int) -> list[str]:
+        """`TARGETS: PATTERN: PREREQUISITES`: one explicit rule per target, with its own stem for `$*`."""
+        pattern = rest[:colon].strip(' \t')
+        prerequisites = rest[colon + 1:semicolon if semicolon >= 0 else len(rest)]
+        targets = self.expand(names)
+        if semicolon >= 0 or dynamic(targets) or '$' in targets or pattern.count('%') != 1 or '$' in pattern:
+            raise Refusal(f'unsupported Make static pattern rule at {self.where}')
+        self.shape('static-pattern-rule')
+        current = targets.split()
+        for target in current:
+            stem = self.match(pattern, target)
+            if stem is None or target in self.rules or target.startswith('.') or '%' in target:
+                raise Refusal(f'unmodelled static pattern target {target!r} at {self.where}')
+            resolved = [word.replace('%', stem, 1) for word in self.expand(prerequisites).split()]
+            if self.first is None:
+                self.first = target
+            self.static_stems[target] = stem
+            self.mentioned.update(n for n in [target, *resolved] if n != '|')
+            self.rules[target] = (resolved, [])
         return current
 
     def target_specific(self, names: str, rest: str, equals: int) -> None:
@@ -673,6 +766,9 @@ class Makefile:
             if stripped.startswith('$(error '):
                 self.expand(stripped)
                 continue
+            if re.match(r'\$\((?:foreach|eval) ', stripped) and closing(stripped) == len(stripped) - 1:
+                self.expansion_line(stripped)
+                continue
             words = stripped.split()
             if words[0] in ('include', '-include', 'sinclude', 'override', 'export', 'unexport', 'undefine',
                             'private', 'vpath', 'load', '-load', 'endef'):
@@ -728,7 +824,8 @@ class Makefile:
         if target in self.visited:
             return
         self.visited.add(target)
-        stem = None  # An explicit rule's $* depends on the suffix list: not modelled.
+        # An explicit rule's $* depends on the suffix list: not modelled. A static pattern rule's is its stem.
+        stem = self.static_stems.get(target)
         rule = self.rules.get(target)
         if rule is None or (not rule[1] and target not in self.phony):
             builtin = self.builtin_rule(target)

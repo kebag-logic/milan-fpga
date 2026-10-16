@@ -67,6 +67,57 @@ def requirement_lines(path: Path) -> list[dict[str, object]]:
     return rows
 
 
+def canonical_name(name: str) -> str:
+    """Compare package names as pip does: case-folded, with runs of `-`, `_` and `.` equal."""
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def constraint_path(env: dict[str, str], root: Path) -> Path | None:
+    """The checkout file `PIP_CONSTRAINT` names, accepted only as `${{ github.workspace }}/<path>`."""
+    value = env.get("PIP_CONSTRAINT")
+    if value is None:
+        return None
+    match = re.fullmatch(r"\$\{\{ github\.workspace \}\}/((?:[\w-][\w.-]*/)*[\w-][\w.-]*)", value)
+    if match is None or not (root / match[1]).is_file():
+        raise Refusal(f"unmodelled PIP_CONSTRAINT value {value!r}")
+    return root / match[1]
+
+
+def constraints(path: Path | None) -> dict[str, dict[str, object]]:
+    """Read a constraints file of exact `name @ URL#sha256=` lines; refuse every other form."""
+    if path is None:
+        return {}
+    result = {}
+    for line in path.read_text().splitlines():
+        if not line.strip() or line.startswith("#"):
+            continue
+        match = re.fullmatch(r"([A-Za-z0-9][\w.-]*) @ (https://files\.pythonhosted\.org/packages/"
+                             r"[0-9a-f/]+/([^/#]+))#sha256=([0-9a-f]{64})", line)
+        if match is None:
+            raise Refusal(f"{path.name}: unsupported constraint {line}")
+        name = canonical_name(match[1])
+        if match[3].endswith(".whl"):
+            parts = match[3].split("-")[:2]
+        else:
+            parts = match[3].removesuffix(".tar.gz").rsplit("-", 1)
+        if len(parts) != 2 or canonical_name(parts[0]) != name or name in result:
+            raise Refusal(f"{path.name}: unsupported constraint {line}")
+        result[name] = {"pin": parts[1], "sha256": match[4]}
+    return result
+
+
+def constrained(row: dict[str, object], pins: dict[str, dict[str, object]]) -> dict[str, object]:
+    """Apply a constraint as pip does: it fixes an unpinned request and must agree with a pinned one."""
+    pin = pins.get(canonical_name(str(row["tool"])))
+    if row["kind"] != "pip" or pin is None:
+        return row
+    if row["pin"] is None:
+        return {**row, "pin": pin["pin"], "sha256": [pin["sha256"]]}
+    if row["pin"] != pin["pin"] or ("sha256" in row and pin["sha256"] not in row["sha256"]):
+        raise Refusal(f"pip request {row['tool']}=={row['pin']} conflicts with its constraint")
+    return row
+
+
 def package_words(words: list[str], root: Path) -> list[dict[str, object]]:
     """Enumerate pip requests, including every referenced requirements file."""
     result = []
@@ -78,7 +129,7 @@ def package_words(words: list[str], root: Path) -> list[dict[str, object]]:
             result.extend(requirement_lines(root / words[i]))
         elif word in ("--cache-dir", "--index-url"):
             i += 1
-        elif word in ("--quiet", "-q", "--require-hashes"):
+        elif word in ("--quiet", "-q", "--require-hashes", "--no-deps"):
             pass
         elif word.startswith("-"):
             raise Refusal(f"unsupported pip option {word}")
@@ -112,6 +163,11 @@ def shell_installs(run: str, env: dict[str, str], root: Path) -> list[dict[str, 
         words = shlex.split(line, comments=True)
         if words and words[0] == "sudo":
             words = words[1:]
+        if words[:2] == ["apt-get", "-o"] and len(words) > 3 and words[3] == "install":
+            # A download cache directory changes where archives are kept, never what installs.
+            if not re.fullmatch(r"Dir::Cache::archives=\$\{RUNNER_TEMP\}/[\w-]+", words[2]):
+                raise Refusal(f"unsupported apt option {words[2]}")
+            words = ["apt-get", *words[3:]]
         if words[:2] == ["apt-get", "install"]:
             for word in words[2:]:
                 if word in ("-y", "--no-install-recommends"):
@@ -120,8 +176,13 @@ def shell_installs(run: str, env: dict[str, str], root: Path) -> list[dict[str, 
                 if not re.fullmatch(r"[a-z0-9][a-z0-9+.-]*", name):
                     raise Refusal(f"unsupported apt request {word}")
                 result.append({"tool": name, "kind": "apt", "pin": pin or None})
+        elif words[:3] == ["python3", "-m", "venv"]:
+            # The environment holds the interpreter's own bundled pip; it fetches and requests nothing.
+            if len(words) != 4 or words[3].startswith("-"):
+                raise Refusal(f"unsupported venv form {line.strip()}")
         elif words[:4] == ["python3", "-m", "pip", "install"]:
-            result.extend(package_words(words[4:], root))
+            pins = constraints(constraint_path(env, root))
+            result.extend(constrained(row, pins) for row in package_words(words[4:], root))
         elif words[:2] == ["git", "clone"]:
             urls = [word for word in words if word.startswith("https://")]
             if len(urls) != 1:
@@ -199,6 +260,9 @@ def derive(root: Path) -> dict[str, object]:
                 if shell is not None:
                     raise Refusal(f'uncensused workflow shell {shell!r} at {relative}')
                 workflow_environment(audit.census, env, relative)
+                constraint = constraint_path(env, root)
+                if constraint is not None:
+                    inputs[constraint.relative_to(root).as_posix()] = digest(constraint.read_bytes())
                 audit.requests = []
                 audit.env = {k: Runtime(v) if isinstance(v, str) and '${{' in v else str(v)
                              for k, v in env.items()}

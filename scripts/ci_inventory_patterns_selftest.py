@@ -123,6 +123,14 @@ def command_controls(fixture: Fixture) -> None:
     fixture.check('wrapper child classification')
     fixture.workflow.write_text('jobs:\n  gate:\n    uses: example/tools/.github/workflows/install.yml@main\n')
     fixture.check('reusable job', 'reusable workflow')
+    # A fixed program's data slot takes one literal file, never an option, a runtime word or a second file.
+    program = '$1 == "MemTotal:" && $3 == "kB" { print $2 }'
+    fixture.run(f"awk '{program}' data-file")
+    fixture.check('a fixed program reads a literal data file')
+    for operand, label in (('-f other.awk', 'an option'), ('"$RUNTIME_FILE"', 'a runtime word'),
+                           ('data-file other-file', 'a second file')):
+        fixture.run(f"awk '{program}' {operand}")
+        fixture.check(f'a fixed program with {label} in its data slot', 'unclassified command')
 
 
 def python_controls(fixture: Fixture) -> None:
@@ -274,8 +282,10 @@ def make_controls(fixture: Fixture) -> None:
     fixture.check('computed Make shell', 'computed Make shell')
     fixture.file('Makefile', 'TOOL = brand_new_command\nall:\n\t$(TOOL)\n')
     fixture.check('literal command variable', 'brand_new_command')
-    fixture.file('Makefile', 'VALUE := $(eval anything)\nall: ; echo okay\n')
+    fixture.file('Makefile', 'VALUE := $(info anything)\nall: ; echo okay\n')
     fixture.check('unsupported Make function', 'unsupported Make function')
+    fixture.file('Makefile', 'VALUE := $(eval anything)\nall: ; echo okay\n')
+    fixture.check('Make eval in an assignment', 'unmodelled Make eval outside a parse-time line')
     fixture.file('Makefile', 'include install.mk\nall: ; echo okay\n')
     fixture.check('unsupported include', 'unsupported Make construct')
     fixture.file('Makefile', 'define SAY\necho $(1)\nendef\nWORDS = one two\nWORDS += three\n'
