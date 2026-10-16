@@ -1,0 +1,26 @@
+endpoint route-1x1: $VALIDATION_STORAGE/708-a585/meas/cand2/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              50013       49613      -400  ok, below the baseline
+FF               54306       52353     -1953  ok, below the baseline
+SLICE            15753       15725       -28  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          25        -2  ok, below the baseline
+DSP                 14          14         0  ok
+WNS_ns           0.233       0.215    -0.018  ok
+WHS_ns           0.017       0.036     0.019  ok
+route status: complete, no unrouted net and no routing error
+re-baseline recommended: FF, RAMB18 improved by more than the tolerance; record the accepted measurement so later growth is judged from it
+sub-block movements, not gated:
+  wrapper: LUT +121, FF +22
+  u_pp: LUT +96, FF +22
+  u_pp/u_aecp/u_dyn: LUT -113, FF +0
+  u_pp/u_listener: LUT +100, FF +12
+  u_pp/u_talker: LUT +51, FF +0
+  u_pp/u_srp/u_encoder: LUT -32, FF +9
+  u_pp/u_notify: LUT -20, FF -19
+  u_pp/u_originator: LUT -39, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +33, FF +0
+  u_pp/u_aecp: LUT -31, FF +0
+  u_pp/u_aecp/u_d3: LUT +30, FF +0
+  u_pp/u_rx_validator: LUT -29, FF +0
+RESULT: PASS
