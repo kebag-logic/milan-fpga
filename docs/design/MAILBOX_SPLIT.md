@@ -781,10 +781,11 @@ firmware: its F05.3 model of Table 5.30 in lock step (88 cells), its Table
 None remains. Up to processor `2ad2f845` the walk asserted four differences,
 filed as processor issue
 [#168](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168),
-and normalised the first two before comparing. Processor `2cbed0a9`, adopted
-by [#708](https://github.com/kebag-logic/milan-fpga/issues/708), answers as
-the firmware does, so frames and records are compared raw. Each former
-difference is now a check that fails if the processor's old answer returns:
+and normalised the first two in the walk and the third's status byte in its
+scenario before comparing. Processor `2cbed0a9`, adopted by
+[#708](https://github.com/kebag-logic/milan-fpga/issues/708), answers as the
+firmware does, so frames and records are compared raw. Each former difference
+is now a check that fails if the processor's old answer returns:
 
 - LD1, UNBIND_RX_RESPONSE's talker fields: 0 in both frames (Milan v1.2
   Table 5.36); an echo of the command's fields fails it.

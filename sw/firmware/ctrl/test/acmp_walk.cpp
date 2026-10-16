@@ -40,10 +40,11 @@
 // timer the processor injects a spurious expiry and so does this walk.
 //
 // THE FORMER DIFFERENCES. Up to processor 2ad2f845 the processor differed in
-// four places (processor issue #168), and this walk normalised LD1 and LD2
-// before comparing. Processor 2cbed0a9 follows the clauses the firmware
-// follows, so the frames and records are compared raw, and each check below
-// is a control that fails if the processor's old answer returns:
+// four places (processor issue #168), and this walk normalised LD1 and LD2 in
+// the walk, and LD3's status byte in its scenario, before comparing.
+// Processor 2cbed0a9 follows the clauses the firmware follows, so the frames
+// and records are compared raw, and each check below is a control that fails
+// if the processor's old answer returns:
 //   LD1  UNBIND_RX_RESPONSE: talker_entity_id and talker_unique_id are 0 in
 //        the processor's frame (Milan v1.2 Table 5.36), as in the firmware's;
 //        an echo of the command's talker fields fails it;
@@ -61,7 +62,7 @@
 //        2cbed0a9 ("TD1 invalid disconnect"). 5.5.2.7 summarises
 //        DISCONNECT_TX as always succeeding; it is an overview that defers to
 //        5.5.4, and 5.5.4.2, the normative procedure, validates the source
-//        first, so it governs (#665, comment 6030067436).
+//        first, so it governs (#665).
 // Everything else agrees.
 //
 // THE DISCOVERY WALK (DW) drives every cell of the processor's Table 5.54
