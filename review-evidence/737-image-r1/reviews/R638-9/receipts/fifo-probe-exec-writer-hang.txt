@@ -1,0 +1,4 @@
+Variant: the first writer was `cat ok.sh > pipe` (an exec); the probe step otherwise as scripts/fifo_probe.py.
+Output:
+bash: /tmp/zz-r638-9-fifo: No such file or directory
+rc=124 (timeout 600 s: the audit blocked reading the pipe while the writer's own exec of cat waited for the audit)
