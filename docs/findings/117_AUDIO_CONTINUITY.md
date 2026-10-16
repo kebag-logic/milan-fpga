@@ -59,6 +59,7 @@ bound is #75's 1 s.
 - **[Restore](#restore)** -- The bench as left and the one residual.
 - **[Limits](#limits)** -- What this run does not show.
 - **[Artifact hashes](#artifact-hashes)** -- Where the three packets are published, and the raw capture and tool identities.
+- **[2026-10-16: bench lane B21 on dev 9ef71772](#2026-10-16-bench-lane-b21-on-dev-9ef71772)** -- The capture-path self-test on the current image, why both directions stopped, where lane B5's losses now stand, and the hashes.
 
 ## Identity and setup
 
@@ -550,3 +551,226 @@ computes the figures round 3 adds from the same published inputs: which skips
 the stall alignment covers, the 1 ms steps against clear positions, the
 planted control's linearity and the descriptor reads the survey sent. It also
 reads the ordinals around the window's zero frames from the local graded pair.
+
+## 2026-10-16: bench lane B21 on dev 9ef71772
+
+Refs #117. Operator [A625], measured 2026-10-16, under the
+[bench lane B21 assignment](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-6208207821).
+The image is dev `9ef71772`, as installed on 2026-10-15 and as lanes B18 and
+B19 proved it. It was not flashed, reset or power-cycled. The lane base is
+dev `4a9b5a2a74fe793a637745fd3ccf51ad2eaf93b4`.
+
+The lane STOPPED after step 1. The capture-path self-test was not clean in
+either 10-minute window, and the SoC board's console stood at a login prompt,
+so neither direction ran. The sections above, lane B5's record on the
+`ec0cc0c1` image, are unchanged.
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| Identity gate | PASS, 11 of 11, at the start and at the end | See [B21: identity and as found](#b21-identity-and-as-found). |
+| Step 1, capture-path self-test | NOT CLEAN, in both 630 s windows | The capture path lost 336 and 10,945 frames, every loss a whole number of 1 ms USB frames, inside stall episodes. Lane B5's 3.00 s stall recurrence is absent. See [B21: capture-path self-test](#b21-capture-path-self-test). |
+| Step 2, Direction A with both taps and the DUT CSRs | NOT RUN, STOP | Step 1 is not clean, and the pattern source needs a root shell on the SoC board. See [B21: directions A and B](#b21-directions-a-and-b). |
+| Step 3, Direction B | NOT RUN, STOP | The same two reasons; its capture point is the SoC board. |
+| #117 audio continuity row | Not graded on this image; not passed | Lane B5's losses outside the capture path stay unplaced. See [B21: what a debug trace would need to show](#b21-what-a-debug-trace-would-need-to-show). |
+
+These are operator measurements, not review verdicts.
+
+### B21: identity and as found
+
+Lane B19's identity method ran, with only its environment and staging
+changed, at 04:56:04 UTC and again at 05:29:44 UTC. Both passed 11 of 11:
+
+- console `ID=4d494c4e VERSION=00020060`;
+- AEM CRC32 `5ba355eb` over its 7,512 bytes;
+- live ENTITY and CONFIGURATION byte-equal to the QSPI AEM bytes;
+- entity `020000fffe000001`, firmware `2.96.0`;
+- clock sources 0 INTERNAL, 1 CRF on STREAM_INPUT 1, 2 on STREAM_INPUT 0;
+- UART grader 10 of 10, and ADP model `001bc5c1935893e1`.
+
+As found at 04:56:25 UTC:
+
+| State | As found |
+|---|---|
+| DUT STREAM_OUTPUT 0 to the reference peer's STREAM_INPUT 0 | Bound, both formats `0205022002006000` |
+| DUT STREAM_OUTPUT 1, the CRF talker | Bound to the reference peer's CRF input, which the peer selects as its media clock source |
+| Reference peer STREAM_OUTPUT 0 to DUT STREAM_INPUT 0 | Bound, both formats `0205022001006000` |
+| DUT clock source | 0, INTERNAL, 48 kHz |
+| DUT audio maps | STREAM_PORT_INPUT 0: 4 mappings; STREAM_PORT_OUTPUT 0: 8 identity mappings |
+| `SLIP_LB`, `SLIP_TDM`, `RENDER_STAT` | `0x0000FFFF` (dups at the ceiling), `0x00000000`, `0x0000020C` (fill 12, converged, 0 rails) |
+| DUT saved state | Image seq 335, `VD_OK`, `pend=0` |
+| SoC board console | A `login:` prompt, not a root shell |
+
+The SoC board check is one read-only command through lane B5's console
+runner. Its readiness line reached the login prompt as a login name. A 75 s
+passive read, which wrote nothing, saw login's own 60 s timeout return the
+console to `login:`. No credential was typed, held or stored.
+
+### B21: capture-path self-test
+
+**Method.** No loopback inside the external capture can be set and restored
+in software: the capture exposes no mixer control to the bench host. So the
+self-test is the deficit-only one the assignment allows.
+
+- The external capture ran alone, with no DUT, peer, SoC board or controller
+  action. Its input carried one constant word throughout, so content was not
+  graded.
+- The reader is lane B5's (`run_a.py`), with its capture format, a period of
+  480 frames and a buffer of 24,000. It stamps every read with the frames
+  delivered and the bench host's monotonic clock.
+- The analysis imports `b5_attrib.py` unchanged for its definitions. A stall
+  is a read interval over 15 ms. The delivery deficit is the host time at
+  48 kHz less the frames delivered. A loss inside the capture path after
+  sampling raises its floor for good. The floor test compares 11 reads on
+  each side and resolves about 4 frames.
+- Two changes. The deficit counts the frames each read delivered: a read
+  after a stall can deliver more than one period, and B5's window held none.
+  The drift over one floor test is the median step, which the steps cannot
+  pull.
+- A sampler read the bench host's CPU counters, steal time included, and
+  every interrupt row at 20 Hz. The second run also read the pressure stall
+  totals and the compaction and allocation-stall counters.
+
+| Run | Window, UTC | Seconds | Reads | Stalls over 15 ms | Longest read, ms | Stall spacings of 2.99 to 3.02 s | Stall episodes | Losses | Frames lost | 1 ms steps, no loss signature | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `st-long` | 05:01:20 to 05:11:51 | 630.0 | 63,002 | 11 | 23.2 | 0 | 2 | 2 | 336 | 11 | Not clean |
+| `st-long2` | 05:15:22 to 05:25:53 | 630.1 | 62,934 | 123 | 88.4 | 0 | 16 | 18 | 10,945 | 13 | Not clean |
+
+Lane B5's window, for comparison, held 220 stalls, one every 3.00 s.
+
+**What the losses are.** Every floor step larger than 1 ms is a whole number
+of milliseconds, within 0.02 ms. `st-long` lost 4 and 3 ms. `st-long2` lost
+2 to 88 ms per event, 228 ms in all. A millisecond is one USB frame, 48
+frames of audio. Every loss falls in a stall episode.
+
+The capture sits on one USB host controller, which interrupts once per USB
+frame, 1,000 times a second. Each figure below is that controller's
+interrupt shortfall over 2 s around an event, against the count its own rate
+predicts. The pressure figures are milliseconds per second, `st-long2` only.
+
+| Event class | `st-long`: events, median shortfall | `st-long2`: events, median shortfall, largest | `st-long2`: I/O full, memory full, CPU some, medians |
+|---|---|---|---|
+| Losses | 2, +13.6 | 18, +21.3, +103.0 | 5.39, 0.00, 0.45 |
+| 1 ms steps | 11, +0.6 | 13, -0.2, +26.8 | 5.90, 0.00, 0.36 |
+| Stalls with no step | 10, +6.6 | 82, -0.8, +102.9 | 5.62, 0.00, 0.42 |
+| 300 clear control times | +0.6, largest +4.5 | -1.2, largest +7.8 | 5.51, 0.00, 0.28 |
+
+- **The losses belong to the recording side.** Each comes with frame
+  interrupts missing from the capture's USB host controller. The bench host's
+  CPU, memory and I/O pressure at the losses equal their control values.
+  Steal time was 0.003% and 0.008% of CPU time, at most 6 ticks across any
+  stall. So the cause lies below the load the bench host can see, for
+  example in interrupt delivery to that controller. Its source was not found
+  on the bench host, and no host configuration was changed: that change is
+  the manager's.
+- **No 3.00 s recurrence.** No two stalls are 2.99 to 3.02 s apart. The
+  episodes come irregularly, 2 in `st-long` and 16 in `st-long2`.
+- **No loss under 1 ms.** In 1,260 s the capture path lost no block smaller
+  than one USB frame, though the floor test would see one of 6 frames. A
+  drop at the capture's input leaves no deficit trace, so this test cannot
+  see one.
+- **The 1 ms steps.** They come about every 60 s: in `st-long`, 8 of the 10
+  spacings between them are 60.19 to 60.33 s. They carry no interrupt
+  shortfall. Lane B5's content saw seven such steps with no frame missing.
+  They are not attributed.
+
+Step 1's condition to go on, a clean 10-minute window, was not met.
+
+### B21: directions A and B
+
+NOT RUN. The lane stopped before step 2, for two reasons.
+
+- Step 1's window was not clean, and the assignment goes on only after a
+  clean one.
+- Direction A plays the first-light pattern into McASP0 from a root shell on
+  the SoC board. Direction B records McASP0 there. The board's console stood
+  at a login prompt, and the lane holds no credential. The board's USB audio
+  bridge resamples, so it cannot carry a bit-exact grade.
+
+Both bindings were in place as found, so neither direction would have needed
+a bind. Neither tap was opened.
+
+Two DUT reads frame the lane, 04:56:25 and 05:29:50 UTC, while the as-found
+streams ran. `SLIP_TDM` read 0 at both, and `RENDER_STAT` read converged with
+0 rails at both. `SLIP_LB` stood at its ceiling and carries no rate. These
+are two reads, not a graded window.
+
+| Lane B5 loss class | Placement after B21 |
+|---|---|
+| Skips of 60 frames or more, 236 stall-aligned | Recording side, as lane B5 inferred. With no DUT or peer in the path, the capture path still loses frames in stall episodes. Today the episodes are irregular and each loss is whole USB frames; lane B5's stalls came every 3.00 s. |
+| The three unaligned skips of 72, 78 and 108 frames | Not placed. They are 1.5, 1.625 and 2.25 ms, not whole USB frames, so they do not match the self-test's loss signature. |
+| Skips of 2 to 59 frames | Not placed. The capture path lost no block under 1 ms in 1,260 s, so the self-test does not reproduce them. They lie at the capture's input or upstream of it. |
+| One-frame drops every 1.266 s | Not re-tested. The peer now follows the DUT's CRF, the state Direction A would test. |
+| Whole-frame repeats at the INTERNAL beat | Not graded. `SLIP_TDM` read 0 at both reads. |
+
+### B21: what a debug trace would need to show
+
+Step 5 is the manager's decision. If Direction A runs and a skip is still
+unplaced, a trace port would need these records, each time-stamped on the
+DUT's gPTP time:
+
+- per AAF PDU the talker sends: stream ID, sequence number, `avtp_timestamp`,
+  and the TDM frame ordinal of its first sample at the capture handoff;
+- per TDM frame close and media-tick snapshot: the events `SLIP_TDM` counts,
+  each with its frame ordinal;
+- per AAF PDU the listener receives: sequence number, `avtp_timestamp`, and
+  the render stage's prefill, rail and underrun events.
+
+### B21: restore
+
+| State | As left |
+|---|---|
+| Stream states, formats, maps and clock sources | End census equals the start in 45 of 46 entries; the other is the DUT's live propagation delay |
+| DUT console words | Equal to the start but for live counters; `SLIP_TDM` 0, `SLIP_LB` `0x0000FFFF`, NVM line unchanged |
+| DUT synchronization | SYNC=1, ASCAPABLE=1, TU=0, grandmaster unchanged; UART grader 10 of 10 |
+| Outlets | All on, as found; none switched |
+| SoC board | Console at `login:`, as found |
+| Controller host | No gPTP daemon or task process; staging removed |
+| Taps | Not used |
+
+Everything sent to the DUT and the peer was a read: console reads and
+ATDECC reads. Nothing in the controller host's or the bench host's
+configuration changed. The SoC board received only the console runner's
+carriage return and readiness line, which login took as a name and timed
+out.
+
+### B21: limits
+
+- The self-test is deficit-only. Its input was constant, so it shows loss
+  inside the capture path, not at its input.
+- Two windows on one morning. The stall episodes came irregularly, and their
+  rate differed thirtyfold between the windows.
+- The interrupt and pressure figures place the losses below the bench host's
+  visible load. They do not name the cause.
+- No direction ran on this image, so lane B5's figures are the latest graded
+  ones.
+
+### B21: artifact hashes
+
+Packet `117-b21-a625` holds the tools, the per-action records, the analysis
+outputs, the derived read records, `RAW-ARTIFACTS.json`, `HANDOFF.md` and
+`MANIFEST.sha256`; its publication is the manager's. Raw files stay outside
+the tree and the packet, each identified by size and SHA-256.
+
+| Artifact | Bytes | SHA-256 |
+|---|---|---|
+| `st-long` read-time record | 1512096 | `7a1876381494ecd0b6ad626c57e7d81da8716d11a07a5b41f7306a12a0ea783a` |
+| `st-long` derived read record, uint16 | 126004 | `fc3fcf7e4528652c93b1b13d65d9e7a231bb547ee193f5741d79828d0839f9ad` |
+| `st-long` captured pair | 181451676 | `6026490a18c0f769560e17a6f3f48ade47331f0f87dfa26440539330a14e60ca` |
+| `st-long` host samples | 301388550 | `5bf9238d04b296673521c4ee1c2d5b389d29db1251d3812b1254f3e200ab2f9b` |
+| `st-long2` read-time record | 1510464 | `5f798357ae75af4c089dcc89c3d5308a202eec9661a06e42b90b20fe788435d1` |
+| `st-long2` derived read record, uint32 | 251736 | `58a24e98eb74fc9fa3ffd01e5a1d588c68056c324bcc6d1299128921b0561bee` |
+| `st-long2` captured pair | 181391256 | `67805c6fedb2b67d4eb07b7f4f590e978db0a8519f844ab04a1d3f11417405e4` |
+| `st-long2` host samples | 306299498 | `d96ecf3bdd48228706f8601dee15d709e6ecf3384e8a00a2020d6b8119b34457` |
+
+The `st-long2` record needs uint32, because one read interval reached
+88.4 ms. The packet carries it gzip-compressed.
+
+| Tool | Role | SHA-256 |
+|---|---|---|
+| `selftest_b21.py` | the self-test: lane B5's reader and capture command, the sampler, snapshots | `a2d4c087458e07bcaf9648171b01823b169b07eec7556ae3f01d49d51ce1808f` |
+| `host_sampler_b21.py` | the 20 Hz host sampler, as run for `st-long2` | `fac96057c6205ce8a0cb00ded62c482925033ca4245e3de4232d398e1204d6b6` |
+| `host_sampler_b21_st-long_asrun.py` | the sampler as run for `st-long`, without the pressure counters | `371903a0e0332afaf0694e4e06696964bfa7430607c99dccb8b79c979f65f1f8` |
+| `b21_selftest_ana.py` | the read record, stalls, floor steps, interrupt and pressure classes | `6e95b6b99f63597a182110d6a8343d4bc937d5cc44dc6390a4e4e7b0963b0b98` |
+| `b5_attrib.py` | lane B5's definitions, imported unchanged | `f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40` |
+| `b5_round3.py` | carried from the evidence archive at `9006c78e`; not run, because it grades content | `415ef1b0e7d26cb821235fe22c81b23a42035afb73b4baef3cf24bd08099ac4d` |
+| `run_a.py` | lane B5's run tool, whose reader `selftest_b21.py` copies | `dcc616aea7842b8b1a574d2e9ba2647e71f344d95ee4473ae2c369802e686ad6` |
