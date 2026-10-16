@@ -196,7 +196,7 @@ The issue's list does not name them.
 | #69, AVB interface count | [165](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/165) | The top gains parameter `N_AVB_IF_P`, default 1, and input `rx_if_index_i`, default 0; `KL_pp_shadow` keeps both defaults, so one interface changes no cell |
 | #163, transmit-arbiter cone | [166](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166) | The withdraw mask is registered, so a cancellation reaches the arbiter one clock later; no port, parameter or register change |
 | #167, coincident cancellations | [169](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/169) | A probe cancellation that coincides with a TIME_LIMITED drain is sent on the next idle cycle rather than dropped; no port, parameter or register change |
-| #168, ACMP response fields | [171](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171) | UNBIND_RX_RESPONSE carries zero talker identifiers (Milan v1.2 Table 5.36), status survives retries (5.5.3.5.30 step 2), lock refusals are 16 (IEEE 1722.1-2021 Table 8-3), an invalid DISCONNECT_TX source is TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2, Table 5.44), and listener records keep 16 VLAN bits; the [firmware ACMP walk](../design/MAILBOX_SPLIT.md#differences-from-the-processor) now compares raw bytes |
+| #168, ACMP response fields | [171](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171) | UNBIND_RX_RESPONSE carries zero talker identifiers (Milan v1.2 Table 5.36), status survives retries (5.5.3.5.30 step 2), lock refusals are 16 (IEEE 1722.1-2021 Table 8-3), an invalid DISCONNECT_TX source is TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2, Table 5.44), and the processor serves the full 16-bit received VLAN in STREAM_INPUT GET_STREAM_INFO selector 6 and in GET_RX_STATE_RESPONSE; the [firmware ACMP walk](../design/MAILBOX_SPLIT.md#differences-from-the-processor) now compares raw bytes |
 | #170, saved names | [172](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/172) | Tests and documentation only; the parent's test-evidence readers classify the processor's new name-state mutation driver |
 
 Both processor ROM digests match the `2ad2f845` rows.
@@ -205,9 +205,17 @@ The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) is re-baselined 
 
 Its shipping route keeps +0.215 ns WNS.
 
-The parent's `acmp_bound_vlan_o` keeps 12 bits per sink.
+The processor now serves STREAM_INPUT GET_STREAM_INFO selector 6's `stream_vlan_id`.
 
-Only the processor's internal record widens to 16.
+A settled input reports all 16 received bits.
+
+An unsettled input reports 0.
+
+GET_RX_STATE_RESPONSE also carries the full 16 bits.
+
+The parent's selector-6 input VLAN halfword is no longer used.
+
+The parent's `acmp_bound_vlan_o` keeps 12 bits per sink.
 
 The ROM ledger records current and earlier pins.
 
