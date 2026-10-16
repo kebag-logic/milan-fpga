@@ -1,0 +1,76 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+reuse: pp_acmp_reuse.inc // at the pin 2ad2f845dd583f8310075fa2380cb60a04fd091a (blob 3bb7e3dc5a992fa58db47cd46c9a4787c5edbd0a); DO NOT EDIT, it is rewritten on every run.
+reuse: pp_adp_reuse.inc // at the pin 2ad2f845dd583f8310075fa2380cb60a04fd091a (blob be6d49af35e91e8fb7c00f56a4b96350977b996c); DO NOT EDIT, it is rewritten on every run.
+reuse: pp_disc_reuse.inc // at the pin 2ad2f845dd583f8310075fa2380cb60a04fd091a (blob be6d49af35e91e8fb7c00f56a4b96350977b996c); DO NOT EDIT, it is rewritten on every run.
+reuse: pp_talker_reuse.inc // at the pin 2ad2f845dd583f8310075fa2380cb60a04fd091a (blob ec71065f21f92ccd9778d89f566a50a6e9c5dfb7); DO NOT EDIT, it is rewritten on every run.
+[FAIL] arm acmpwalk
+    ST_NOAUTH
+    Which is: 13
+    16
+    [FAIL] ListenerScenario.LD3TheLockRefusalStatus: LD3 which is 16, CONTROLLER_NOT_AUTHORIZED in IEEE 1722.1-2021 Table 8-3, not 13
+    std::memcmp(fk.sent[0].bytes.data() + spec::HEADER_BYTES, e.frames[0].b, PDU_BYTES)
+    Which is: 24
+    0
+    [FAIL] ListenerScenario.LD3TheLockRefusalStatus: LD3 and the two refusals agree byte for byte
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_UNB: LD1 UNBIND x UNB: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+    0
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_UNB: LW UNBIND x UNB: frame 0 byte for byte
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWA: LD1 UNBIND x PWA: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+    0
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWA: LW UNBIND x PWA: frame 0 byte for byte
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWD: LD1 UNBIND x PWD: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+    0
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWD: LW UNBIND x PWD: frame 0 byte for byte
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWR: LD1 UNBIND x PWR: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+    0
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWR: LW UNBIND x PWR: frame 0 byte for byte
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PW2: LD1 UNBIND x PW2: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+    0
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PW2: LW UNBIND x PW2: frame 0 byte for byte
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWT: LD1 UNBIND x PWT: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+    0
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_PWT: LW UNBIND x PWT: frame 0 byte for byte
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SNR: LD1 UNBIND x SNR: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+    0
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SNR: LW UNBIND x SNR: frame 0 byte for byte
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SOK: LD1 UNBIND x SOK: the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo
+    std::memcmp(fk.sent[i].bytes.data() + spec::HEADER_BYTES, e.frames[i].b, PDU_BYTES)
+    Which is: -34
+    0
+    [FAIL] Table530/ListenerWalk.Graded/UNBIND_SOK: LW UNBIND x SOK: frame 0 byte for byte
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LD2 TMR_RETRY x PWT (talker discovered): the processor keeps the status the retry was for (5.5.3.5.30 step 2)
+    Actual: false
+    [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LW TMR_RETRY x PWT (talker discovered): state, probing and ACMP status PWD 2 5 want PWD 2 0
+    fk.count(Call::CHANGED) != 0u
+    Which is: false
+    !(items(w.before) == items(r))
+    Which is: true
+    [FAIL] Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc: LW TMR_RETRY x PWT (talker discovered): notified exactly when a Table 5.22 item moved
+    == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 10 ==
+    RESULT: FAIL
+    verdict: FAIL (its tallies report 10 failure(s) across 127 checks, exit 1)
+acmpwalk_only: FAIL
