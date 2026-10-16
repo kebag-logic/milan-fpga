@@ -1,0 +1,52 @@
+Bracket boundary and outside controls: PASS
+Published manifest: 249 files; 0 hash failures
+Raw-index structure: dict
+identity 11/11 PASS; terminal PASS present: True
+identity-end 11/11 PASS; terminal PASS present: True
+Power cycles: [('cycle01', 4), ('cycle02', 4), ('cycle03', 4), ('cycle04', 4), ('cycle05', 4), ('cycle06', 4), ('firstreach', 0)]
+Cycle 1: recovery=1.4930s; bound_5s=True
+  sync loss bracket=[1.4827,1.7329] timeout=1.5283 inside=True
+  gm loss bracket=[3.4836,3.7338] timeout=3.4734 inside=False
+  asCapable loss bracket=[5.4845,5.7347] timeout=5.5730 inside=True
+  GM return bracket=[41.2497,41.4998] Announce=41.2647; inside=True; first_sample_minus_cause=0.2351s
+  First CRF tu=1 is inside the reported console bracket: PASS
+Cycle 2: recovery=0.6322s; bound_5s=True
+  sync loss bracket=[1.4842,1.7343] timeout=1.5428 inside=True
+  gm loss bracket=[3.2349,3.4851] timeout=3.3129 inside=True
+  asCapable loss bracket=[5.2357,5.4858] timeout=5.3550 inside=True
+  GM return bracket=[40.2499,40.5000] Announce=40.3680; inside=True; first_sample_minus_cause=0.1320s
+  First CRF tu=1 is inside the reported console bracket: PASS
+Cycle 3: recovery=1.7680s; bound_5s=True
+  sync loss bracket=[1.2358,1.4858] timeout=1.4614 inside=True
+  gm loss bracket=[3.7367,3.9868] timeout=3.9065 inside=True
+  asCapable loss bracket=[5.4875,5.7375] timeout=5.6942 inside=True
+  GM return bracket=[41.2527,41.5027] Announce=41.2436; inside=False; first_sample_minus_cause=0.2591s
+  First CRF tu=1 is inside the reported console bracket: PASS
+Cycle 4: recovery=0.7452s; bound_5s=True
+  sync loss bracket=[1.4980,1.7481] timeout=1.5281 inside=True
+  gm loss bracket=[3.4989,3.7489] timeout=3.7232 inside=True
+  asCapable loss bracket=[5.7498,5.9999] timeout=5.9836 inside=True
+  GM return bracket=[40.2641,40.5141] Announce=40.2691; inside=True; first_sample_minus_cause=0.2450s
+Cycle 5: recovery=0.5039s; bound_5s=True
+  sync loss bracket=[1.4853,1.7354] timeout=1.5891 inside=True
+  gm loss bracket=[3.2361,3.4863] timeout=3.4542 inside=True
+  asCapable loss bracket=[5.9875,6.2376] timeout=6.0501 inside=True
+  GM return bracket=[40.2519,40.5020] Announce=40.2482; inside=False; first_sample_minus_cause=0.2538s
+Cycle 6: recovery=0.4735s; bound_5s=True
+  sync loss bracket=[1.2195,1.4697] timeout=1.4407 inside=True
+  gm loss bracket=[3.2204,3.4705] timeout=3.3858 inside=True
+  asCapable loss bracket=[5.9718,6.2219] timeout=5.9889 inside=True
+  GM return bracket=[40.2376,40.4877] Announce=40.2643; inside=True; first_sample_minus_cause=0.2234s
+gm01 takeover: first_tu_sample=3.756; published_tu_set=4.006; clear_sample=4.256; published_steady_clear=4.288; six_grades=True
+gm01 release: first_tu_sample=50.527; published_tu_set=50.527; clear_sample=51.027; published_steady_clear=51.059; six_grades=True
+gm02 takeover: first_tu_sample=3.755; published_tu_set=3.755; clear_sample=4.005; published_steady_clear=4.037; six_grades=True
+gm02 release: first_tu_sample=50.523; published_tu_set=50.773; clear_sample=51.023; published_steady_clear=51.055; six_grades=True
+gm03 takeover: first_tu_sample=3.505; published_tu_set=3.505; clear_sample=4.006; published_steady_clear=4.037; six_grades=True
+gm03 release: first_tu_sample=50.524; published_tu_set=50.774; clear_sample=51.024; published_steady_clear=51.056; six_grades=True
+gm04 takeover: first_tu_sample=4.005; published_tu_set=4.005; clear_sample=4.255; published_steady_clear=4.287; six_grades=True
+gm04 release: first_tu_sample=50.522; published_tu_set=50.522; clear_sample=51.022; published_steady_clear=51.054; six_grades=True
+gm05 takeover: first_tu_sample=3.550; published_tu_set=3.550; clear_sample=4.300; published_steady_clear=4.332; six_grades=True
+gm05 release: first_tu_sample=50.449; published_tu_set=50.699; clear_sample=50.949; published_steady_clear=50.981; six_grades=True
+First-tu-sample mismatches: 4 [('gm01', 'takeover'), ('gm02', 'release'), ('gm03', 'release'), ('gm05', 'release')]
+Privacy: docs/findings/387_SOFTWARE_GM_STEP.md:445: literal controller clock identity present=True; value withheld
+Audit completed; discrepancies are findings, not a packet integrity failure.

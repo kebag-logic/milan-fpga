@@ -1,0 +1,18 @@
+Raw index: 151 files; 108011178 bytes; 54 files over 200000 bytes
+identity offline replay RC=0; verdict byte-identical
+identity CRC mismatch control RC=1; rejected
+identity-end offline replay RC=0; verdict byte-identical
+identity-end CRC mismatch control RC=1; rejected
+Census comparison byte-identical: {'a_entries': 46, 'b_entries': 46} {'same': 41, 'compared': 46}
+Census differing row 3 fields ['dmac']
+Census differing row 4 fields ['dmac']
+Census differing row 8 fields ['payload']
+Census differing row 15 fields ['dmac']
+Census differing row 23 fields ['dmac']
+Outlets: starting and closing readbacks byte-identical
+Counters probes: one differing line (line 4, target identity); all result lines byte-equal
+Enumeration 1 DUT complaints=0; descriptors=42; compatibility flags agree
+Enumeration 2 DUT complaints=0; descriptors=42; compatibility flags agree
+Enumeration 3 DUT complaints=0; descriptors=42; compatibility flags agree
+Provenance: source, AEM hash/size/CRC, verified image writes and successful cold cycle agree
+Support checks complete; all operations offline and inside disposable scratch.
