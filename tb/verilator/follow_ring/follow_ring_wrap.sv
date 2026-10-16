@@ -20,9 +20,10 @@
                 and one-cycle-late tick, the #386 settled-grid trigger, the
                 #645 settle recentre and the render stage's recentre set - is
                 copied verbatim out of milan_datapath.sv by dp_glue.py at
-                build time, never restated here. The one binding restated is
-                the settle pulse into the LOOP bucket's lb_recentre_i, as
-                milan_datapath binds it on its one listener stream.
+                build time, never restated here. The bindings restated are
+                the settle pulse into the LOOP bucket's lb_recentre_i, and
+                the LOOP tap and bind edges the settle's bind arm reads, as
+                milan_datapath binds them on its one listener stream.
 
                 Scaled, and why (the harness header states the arithmetic):
                   * clk_i is CLK_HZ_P (6.25 MHz, an eighth of the shipping
@@ -82,6 +83,7 @@ module follow_ring_wrap #(
   input  wire         pcm_tvalid_i,
   input  wire         pcm_tlast_i,
   input  wire [3:0]   pcm_chans_i,     //! the wire channels_per_frame
+  input  wire         bind_rise_i,     //! STREAM_INPUT 0's not-bound to bound pulse
   input  wire         bind_fall_i,     //! STREAM_INPUT 0's bind wipe pulse
   //! harness control only: an extra recentre pulse into the render stage,
   //! ORed beside the datapath's own (a planted control, never a design path)
@@ -157,6 +159,16 @@ module follow_ring_wrap #(
   //! the settle recentre's pulse (milan_datapath declares it at the capture
   //! crossbar's instance, ahead of the glue that drives it)
   logic              settle_recentre_p_r /* verilator public_flat_rd */;
+  //! what the settle recentre's bind arm (#645, lane B17) reads: the LOOP
+  //! bucket's tap and the stream table's bind edges, on the one listener
+  //! stream. A leg that raises no bind rise stands for a stream bound long
+  //! before it starts.
+  localparam int LB_STREAMS_C = N_STREAMS;
+  wire                 lb_tap_tvalid_w    = pcm_tvalid_i;
+  wire                 lb_tap_tlast_w     = pcm_tlast_i;
+  wire [3:0]           lb_tap_tuser_w     = 4'd0;
+  wire [N_STREAMS-1:0] strtbl_bind_rise_w = bind_rise_i;
+  wire [N_STREAMS-1:0] strtbl_bind_fall_w = bind_fall_i;
 
   //! milan_datapath's glue, copied verbatim by dp_glue.py at build time
   `include "dp_glue.svh"

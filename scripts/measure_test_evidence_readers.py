@@ -101,7 +101,8 @@ DUT_READER_DISPOSITIONS = {
     "tb/verilator/follow_ring/mutants.py":
         "mutation campaign; it plants the #645 ruling's settle-recentre controls (no pulse, "
         "the band in place of 8 LOCKED windows, removed excursion arm, removed recovery "
-        "qualification, missed fine pull and quiet-noise arm) into a copy of the "
+        "qualification, missed fine pull, quiet-noise arm, and the bind arm removed, keyed "
+        "on the bind's rise or ungated under following) into a copy of the "
         "datapath, overshoot and single-drop into a copy of the capture crossbar, and the "
         "render-only and W1 bindings by define; each must fail its named wire or law check. "
         "It is the explicit mutants target, outside the default sweep",
@@ -109,7 +110,8 @@ DUT_READER_DISPOSITIONS = {
         "controller harness; it copies the shipping recentre control verbatim for "
         "compilation at four axis rates, then applies independent stimuli and "
         "hard-coded expectations for quiet noise, recovery dwell, reset, source "
-        "priority, LOCKED dwell and ceiling; it reads no expected value from the text",
+        "priority, LOCKED dwell, ceiling and the bind arm; it reads no expected value "
+        "from the text",
     "tb/verilator/gptp_plane/phc_step.py":
         "mutation campaign; it generates each arm's ROM from the donor microcode generator, planting "
         "one of six named defects from its own table (a stale rate window, a measured crossing "
