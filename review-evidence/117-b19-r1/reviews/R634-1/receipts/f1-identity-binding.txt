@@ -1,0 +1,21 @@
+# F1 identity binding receipts (exact head 18b98bbc)
+## B19 image paragraph and provenance links on the two pages
+835:- **Image.** Dev `9ef717727e6fdac11ee7f01672fefae948452343`, flashed on 2026-10-15 at 18:44 UTC with `FLASH_RC=0` and cold-booted, as lane B18 recorded with the flash log and PR #747's provenance record. It was not flashed or reloaded here.
+links to the provenance record (bbc53aab / manager-provenance / 6200503436) on 117 and 387 pages:
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:0
+docs/findings/387_SOFTWARE_GM_STEP.md:0
+bitstream SHA-256 4b5a391a on 117 and 387 pages:
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:0
+docs/findings/387_SOFTWARE_GM_STEP.md:0
+## B18 section states the reads do not distinguish the image
+VERSION and the AEM CRC did not change from dev `5603c353`, so no read on
+the device distinguishes the two images. The image's identity rests on the
+manager's provenance record,
+[`review-evidence/645-b18-r1/manager-provenance`](https://github.com/kebag-logic/milan-fpga/tree/bbc53aabb02a1654812ba2eaa1642f5e36e69ce0/review-evidence/645-b18-r1/manager-provenance)
+## VERSION 0x0002_0060 already carried by an earlier image on the 117 page
+`ff9950bcc396341f0156829ea1a2bf371abeaad0`),
+`configs/endstation_ax7101_1x1_tdm8.yaml`, seed `asl` (routed WNS +0.194 ns),
+`VERSION` `0x0002_0060`. The manager flashed it with `flash-pair` and a cold
+## Provenance coverage ends at the end of B18 (manager comment 6200503436, item 5)
+No flash or power cycle came between step 3 and the end of B18 at 18:59:53
+## B19 identity gate windows (packet identity/, identity-end/): 03:37:20-03:37:26 and 04:30:48-04:30:53 UTC; first power action 03:42:18.25 UTC (bench/firstreach/events.jsonl t=1792122138.2547)

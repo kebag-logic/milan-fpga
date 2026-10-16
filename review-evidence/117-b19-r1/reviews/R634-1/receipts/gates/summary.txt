@@ -1,0 +1,11 @@
+docs_check rc=0
+check_doc_style rc=0
+gen_toc_check rc=0
+gen_toc_verify_anchors rc=0
+check_em_dash rc=0
+check_doc_paths rc=0
+check_feature_status rc=0
+diff_check rc=0
+check_baremetal_only rc=2 (first run: interpreter lacked pyyaml; environment, not the head)
+ci_scope_selftest rc=0
+check_baremetal_only rc=0 (rerun with pyyaml)

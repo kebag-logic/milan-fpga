@@ -1,0 +1,32 @@
+# F3 receipts: figures stated as evidence with no published derivation
+## gm_summary.py documents a controller-poll arm:
+7:  no asCapable loss  no console sample and no controller poll with asCapable 0
+## its code counts asCapable 0 only in console health:
+41:        asc0 = sum(1 for x in a["health"] if win(x[0]) and "asc0" in x[1])
+## a624_analyze.py reads only the GM identity from GET_AVB_INFO:
+143:S["dut_avb_gm"] = changes([(r["local_t"], r["response"].get("decoded", {}).get("gm")) for r in ctrl
+## keys present in bench/gm01/analysis.json (no per-poll AS_CAPABLE, no PDELAY_NS series):
+['T0', 'T0_is', 'announce_gm', 'bindings', 'carrier', 'clkv_tucnt_first_last', 'clock_half_rtt_s', 'clock_offset_s', 'console_samples', 'counter_endpoints', 'counter_transitions', 'crf_ctrl', 'crft_count_first_last', 'dut_avb_gm', 'dut_pdelay_pairs', 'dut_phc_wire_jumps', 'events', 'far_sync_pairs', 'far_time_jumps', 'gm', 'gm_end', 'gm_hold_s', 'gm_start', 'health', 'holdover', 'host_gm_first_announce', 'host_gm_last_announce', 'link_counters', 'link_status_csr', 'linkg_stat', 'mac_status', 'mac_status_values', 'max_console_gap_s', 'name', 'peer_available_index', 'per_step', 'phc_discontinuities', 'reset_epochs', 'servo', 'switch_gm_first_announce_after', 'tap_anchor_spread_s', 'tap_records', 'wire']
+## page lines
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:988:| FRAMES_TX per AVTPDU, 299 s (retention window) | the DUT's CRF output counted 149,514 against 149,499 CRF PDUs on the wire, the 15-PDU difference insid
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:993:- **The receive totals.** The DUT's AAF listener counts its FRAMES_RX at the interval commit, as the [counter evidence](../testing/726_STREAM_COUNTERS.md
+docs/findings/387_SOFTWARE_GM_STEP.md:378:| #621 item 3: five grandmaster steps with no asCapable loss | PASS | Five takeovers and five releases stepped the DUT PHC by +9.987 ms and -10.003 to -10.005
+docs/findings/387_SOFTWARE_GM_STEP.md:453:| asCapable (#621) | A PHC step keeps asCapable and a valid link delay | Kept in every sample; peer delay 373 to 392 ns throughout |
+## packet files carrying 149513 or 7925 as a whole value (excluding HANDOFF): none
+## (substring hits only: a timestamp fraction in bench/cycle03/events.jsonl and a digit run in firstreach/analysis.json)
+## avtpdu-parity.json (the only box-4 parity output):
+{
+ "name": "retention",
+ "window_s": 299.03,
+ "crf_frames_tx_delta": 149514,
+ "crf_wire_pdus": 149499,
+ "difference": 15,
+ "rates_per_s": {
+  "DUT AAF talker FRAMES_TX": 7999.89,
+  "peer AAF listener (input 0) FRAMES_RX": 7999.89,
+  "peer AAF talker FRAMES_TX": 7999.89,
+  "DUT AAF listener (input 0) FRAMES_RX": 7999.11,
+  "DUT CRF talker FRAMES_TX": 500.0,
+  "peer CRF listener (input 8) FRAMES_RX": 499.99
+ }
+}
