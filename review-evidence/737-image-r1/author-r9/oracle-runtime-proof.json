@@ -1,0 +1,29 @@
+[
+  {
+    "command": [
+      "/opt/tsn-gen/build/traffic-gen/packet_gen",
+      "--version"
+    ],
+    "rc": 0,
+    "stdout": "packet_gen 0.1.0\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/opt/tsn-gen/build/traffic-gen/packet_gen",
+      "--yaml-dir",
+      "/opt/tsn-gen/protocols/application/1722_1/aecp",
+      "--interface",
+      "atdecc_aecp_acquire_entity::AECP_ACQUIRE_ENTITY::AECP_ACQUIRE_ENTITY_IF",
+      "--count",
+      "1",
+      "--seed",
+      "42",
+      "--output",
+      "json"
+    ],
+    "rc": 0,
+    "stdout": "{\"fields\":{\"message_type\":1,\"status\":8,\"control_data_length\":36,\"target_entity_id\":2513787319205155662,\"controller_entity_id\":16662371453428439381,\"sequence_id\":6164,\"u\":1,\"command_type\":0,\"acquire_entity_flags\":1073741824,\"owner_id\":7199227068870524257,\"descriptor_type\":0,\"descriptor_index\":34321},\"hex\":\"1402422e2c43f8a1ad34ee73ca28e4d361955181480004000000063e8cae041677d61000086110\"}\n",
+    "stderr": ""
+  }
+]

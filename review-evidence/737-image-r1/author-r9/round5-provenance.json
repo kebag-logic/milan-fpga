@@ -1,0 +1,104 @@
+[
+  {
+    "gate": "pp-sources",
+    "command": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.237,
+    "log": "round5-provenance-pp-sources.log",
+    "size": 955,
+    "sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a",
+    "raw_size": 955,
+    "raw_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a"
+  },
+  {
+    "gate": "inventory",
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 2,
+    "wall_seconds": 11.319,
+    "log": "round5-provenance-inventory.log",
+    "size": 68,
+    "sha256": "c126ded0ab3b4bf2b43ee87cdbdfc18ff0e5b6f688ce149fb0e07677b4479252",
+    "raw_size": 68,
+    "raw_sha256": "c126ded0ab3b4bf2b43ee87cdbdfc18ff0e5b6f688ce149fb0e07677b4479252"
+  },
+  {
+    "gate": "patterns",
+    "command": [
+      "python3",
+      "scripts/ci_inventory_patterns_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 2.42,
+    "log": "round5-provenance-patterns.log",
+    "size": 7208,
+    "sha256": "8bb1d37945ac3f231eaf37ad6c9453d563e3a76b0bd90d511032c3cabbc567ed",
+    "raw_size": 7208,
+    "raw_sha256": "8bb1d37945ac3f231eaf37ad6c9453d563e3a76b0bd90d511032c3cabbc567ed"
+  },
+  {
+    "gate": "inventory-controls",
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.522,
+    "log": "round5-provenance-inventory-controls.log",
+    "size": 2952,
+    "sha256": "d89d7c78461ed5871213cb7c5841d046496e1e49a7e9de7727664778b61ef8bc",
+    "raw_size": 2952,
+    "raw_sha256": "d89d7c78461ed5871213cb7c5841d046496e1e49a7e9de7727664778b61ef8bc"
+  },
+  {
+    "gate": "data-controls",
+    "command": [
+      "python3",
+      "scripts/ci_inventory_nodes_selftest.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 1.037,
+    "log": "round5-provenance-data-controls.log",
+    "size": 3179,
+    "sha256": "a3d510877b3e0ea7e55d605e381adbbc5208629f438e02d3d166831154ecf9dc",
+    "raw_size": 3179,
+    "raw_sha256": "a3d510877b3e0ea7e55d605e381adbbc5208629f438e02d3d166831154ecf9dc"
+  },
+  {
+    "gate": "idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "wall_seconds": 5.774,
+    "log": "round5-provenance-idiom.log",
+    "size": 461,
+    "sha256": "1461c3cb58225e123ea7be58a5cef85e3952b3980055d15b06bbe7e654dc98ee",
+    "raw_size": 461,
+    "raw_sha256": "1461c3cb58225e123ea7be58a5cef85e3952b3980055d15b06bbe7e654dc98ee"
+  },
+  {
+    "gate": "whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.022,
+    "log": "round5-provenance-whitespace.log",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_size": 0,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

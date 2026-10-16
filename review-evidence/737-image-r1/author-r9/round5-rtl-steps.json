@@ -1,0 +1,358 @@
+[
+  {
+    "job": "changes",
+    "step": "Classify the change conservatively",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ]
+  },
+  {
+    "job": "verilator-lint",
+    "step": "Run the ratcheted whole-tree lint gate",
+    "command": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check",
+      "--self-test"
+    ]
+  },
+  {
+    "job": "verilator-lint",
+    "step": "Prove protocol-processor source lists are derived",
+    "command": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ]
+  },
+  {
+    "job": "bdd-conformance",
+    "step": "Run the specification-facing suite",
+    "command": [
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "directory": "tests"
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Elaborate the integration-heavy tops",
+    "command": [
+      "syn/yosys/run.sh",
+      "--mode",
+      "elaborate",
+      "--no-structural",
+      "--top",
+      "milan_datapath",
+      "--top",
+      "KL_pp_shadow",
+      "--top",
+      "KL_gptp_shadow"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/dp_srcs.py",
+      "--selftest"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/ooc_tcl_selftest.py"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline.py",
+      "--selftest"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline_mutants.py"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_baseline_reports_selftest.py"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "--selftest"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate_mutants.py"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/dp_srcs.py",
+      "--top",
+      "milan_datapath"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "command": [
+      "python3",
+      "syn/ooc/dp_srcs.py",
+      "--top",
+      "KL_pp_shadow"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove ooc.sh generates the ROMs and fails on a failed top",
+    "command": [
+      "python3",
+      "syn/yosys/ooc_selftest.py"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove both synthesis flows refuse active elaboration guards",
+    "command": [
+      "python3",
+      "syn/yosys/guard_selftest.py"
+    ]
+  },
+  {
+    "job": "yosys-elaboration",
+    "step": "Prove the result cache refuses a planted entry",
+    "command": [
+      "python3",
+      "syn/yosys/cache_selftest.py"
+    ]
+  },
+  {
+    "job": "publication-census",
+    "step": "Run the publication census in every shape the builder builds",
+    "command": [
+      "python3",
+      "sw/mailbox/publication_census.py",
+      "--check",
+      "--selftest",
+      "--jobs",
+      "1"
+    ]
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Prove the tally reads a failing and a crashing test as failures",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/tally_selftest.py"
+    ]
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ]
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Run the control-plane firmware suites and RV32 builds",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ]
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Run the control-plane firmware suites and RV32 builds",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "0/4"
+    ]
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Run the saved-state store suites and its RV32 build",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "--require-rv32",
+      "--jobs",
+      "4"
+    ]
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Hold the firmware coverage ratchet",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ]
+  },
+  {
+    "job": "firmware-unit",
+    "step": "Hold the firmware coverage ratchet",
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4"
+    ]
+  },
+  {
+    "job": "firmware-control-mutants",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ]
+  },
+  {
+    "job": "firmware-control-mutants",
+    "step": "Run the control mutation campaign",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "1/4"
+    ]
+  },
+  {
+    "job": "firmware-aecp-mutants",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ]
+  },
+  {
+    "job": "firmware-aecp-mutants",
+    "step": "Run the AECP mutation campaign",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "2/4"
+    ]
+  },
+  {
+    "job": "firmware-srp-mutants",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ]
+  },
+  {
+    "job": "firmware-srp-mutants",
+    "step": "Run both SRP mutation campaigns and pin controls",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--jobs",
+      "4",
+      "--shard",
+      "3/4"
+    ]
+  },
+  {
+    "job": "firmware-boundary",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ]
+  },
+  {
+    "job": "firmware-boundary",
+    "step": "Hold the TSN stack boundary over the firmware builders' compiles",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest",
+      "--without",
+      "verilator"
+    ]
+  },
+  {
+    "job": "firmware-verilator",
+    "step": "Install and verify the pinned RV32 SDK",
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ]
+  },
+  {
+    "job": "firmware-verilator",
+    "step": "Hold the TSN stack boundary over the Verilator builders' compiles",
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/ctrl_boundary.py",
+      "--require-rv32",
+      "--selftest",
+      "--only",
+      "verilator"
+    ]
+  }
+]

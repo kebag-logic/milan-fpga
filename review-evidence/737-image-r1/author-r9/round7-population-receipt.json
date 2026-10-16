@@ -1,0 +1,144 @@
+{
+ "argument_differences": [
+  {
+   "job": "docs-check",
+   "listed": [
+    "python3",
+    "scripts/check_em_dash.py",
+    "--base",
+    "fa7347fc"
+   ],
+   "observed": [
+    [
+     "--base",
+     "fa7347fc59173f90e4feec2df207692e6e6e72ec"
+    ]
+   ]
+  },
+  {
+   "job": "publication-census",
+   "listed": [
+    "python3",
+    "sw/mailbox/publication_census.py",
+    "--check",
+    "--selftest",
+    "--jobs",
+    "1"
+   ],
+   "observed": [
+    [
+     "--check",
+     "--selftest",
+     "--jobs",
+     "16"
+    ]
+   ]
+  },
+  {
+   "job": "firmware-unit",
+   "listed": [
+    "python3",
+    "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+    "--require-rv32",
+    "--jobs",
+    "4"
+   ],
+   "observed": [
+    [
+     "--require-rv32",
+     "--jobs",
+     "16"
+    ]
+   ]
+  },
+  {
+   "job": "firmware-unit",
+   "listed": [
+    "python3",
+    "sw/firmware/gtest/fw_coverage.py",
+    "--check",
+    "--jobs",
+    "4"
+   ],
+   "observed": [
+    [
+     "--selftest"
+    ],
+    [
+     "--check",
+     "--jobs",
+     "16"
+    ]
+   ]
+  }
+ ],
+ "clean": true,
+ "committed_receipt": {
+  "bytes": 498278,
+  "commit": "feef7c9fd239ef62b7c6aad301e80a13275e47ef",
+  "path": "ci/image/exec-audit-receipt.json",
+  "sha256": "a67553ae7187afcfc445801d49e977f0e8e7e9a0ef476592da4708817e47bba2"
+ },
+ "findings": 0,
+ "image": "sha256:98a316549753d63e8b4118dc0f85af3e3813d667485817ee96f6dd597ba1c059",
+ "instances": 183845,
+ "listed_commands": 115,
+ "listed_observed": 115,
+ "listed_with_listed_arguments": 111,
+ "merge_command": "python3 ci/image/audit_population.py --merge rtl.json docs.json --commands round6-docs-gate-results.json round6-rtl-gate-results.json --merge-logs rtl-logs docs-logs --output ci/image/exec-audit-receipt.json",
+ "merge_output": "94 of 98 reached steps traced; 0 with findings; 115 of 115 listed commands observed, 111 with the listed arguments",
+ "reached": 98,
+ "scratch_inputs": {
+  "docs-run.log": {
+   "bytes": 682643,
+   "sha256": "374cae3f1e20e77aaac883eb5c928c3b75b9de7f83f192fe0d4426c0fae2f24c"
+  },
+  "docs.json": {
+   "bytes": 142954,
+   "sha256": "f7790f9b867a6b6c5fc9e0c5104e91009d0d56f713465cf848040855c52b30ce"
+  },
+  "rtl-run.log": {
+   "bytes": 798769,
+   "sha256": "1a241b4345f746156760d82459f07764eb84e0a4fd925e5cbb438537105a5bde"
+  },
+  "rtl.json": {
+   "bytes": 362431,
+   "sha256": "81d75f838f42655f423f9357bdd58b4f6f3bae9ad3dc2d76275426a0063814df"
+  }
+ },
+ "scratch_logs": {
+  "docs-logs": {
+   "bytes": 24395515,
+   "files": 46
+  },
+  "rtl-logs": {
+   "bytes": 186705311,
+   "files": 48
+  }
+ },
+ "steps_exit_nonzero": 0,
+ "traced": 94,
+ "traced_source": "afdf0ef0c6b25888d40641e6933fe77eec16bd18",
+ "untraced": [
+  {
+   "step": ".github/workflows/rtl-fast.yml#verilator-lint#3",
+   "why": "The image's Verilator layer replaces the cache and build"
+  },
+  {
+   "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#3",
+   "why": "The image's Yosys layer replaces the cache and build"
+  },
+  {
+   "step": ".github/workflows/rtl-fast.yml#publication-census#3",
+   "why": "The image's Yosys layer replaces the cache and build"
+  },
+  {
+   "step": ".github/workflows/rtl-fast.yml#firmware-verilator#4",
+   "why": "The image's Verilator layer replaces the cache and build"
+  }
+ ],
+ "users": [
+  1000,
+  0
+ ]
+}

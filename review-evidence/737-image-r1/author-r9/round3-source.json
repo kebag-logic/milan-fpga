@@ -1,0 +1,149 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory.py",
+      "--check"
+    ],
+    "rc": 2,
+    "elapsed_ms": 465,
+    "size": 67,
+    "sha256": "c49605138d45cc49a1f99a43d1bcdbae94d0fa4a20cdf40de0d79be0e9698ea3",
+    "log": "round3-source-0.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_tool_inventory_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 415,
+    "size": 1952,
+    "sha256": "a20f75ce1e97afd75ce03dc20a6605f8c1b57d1f4ed56a94b3555e0721b7e7a1",
+    "log": "round3-source-1.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/build_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 214,
+    "size": 615,
+    "sha256": "efe62d2f8a700872dba1805b8eea924cad6d351ea72ec93f53c5e12cc38102a2",
+    "log": "round3-source-2.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/integrity_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 215,
+    "size": 651,
+    "sha256": "3735a04ecabe9492395fceeb1f41fa0f67bad9ea476ad3d317449a3560557065",
+    "log": "round3-source-3.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 214,
+    "size": 2677,
+    "sha256": "4ddcab58c6fe06d6dc5f793ae04fe563d45488971342845888275de2f69b9eab",
+    "log": "round3-source-4.log"
+  },
+  {
+    "command": [
+      "python3",
+      "ci/image/privacy_patch_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 164,
+    "size": 261,
+    "sha256": "ee1b0dbe77d02f50497ab0d607ac8ce4cc9107873bdcd301e09c62257e9c295d",
+    "log": "round3-source-5.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_ms": 22317,
+    "size": 72,
+    "sha256": "acd1aabe325458c3d3ca7a548a39ac189c3f6c960c268b2a5dd0333bbb0d8eba",
+    "log": "round3-source-6.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_ms": 6876,
+    "size": 43,
+    "sha256": "c9bd702425b1fb5c0579a6b7b62884ced69411326f3e43fc0e1ffc8530534b60",
+    "log": "round3-source-7.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 5924,
+    "size": 461,
+    "sha256": "d749b997113fe655ddbb1fcf049468a0ef49796a43cb2acc4e9a4a0b39b14f36",
+    "log": "round3-source-8.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_ms": 6025,
+    "size": 2531,
+    "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "log": "round3-source-9.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 5323,
+    "size": 128,
+    "sha256": "451a3356cf866d549ee648808bffb2d0a64ecf620d49a63b38ad927a1882443c",
+    "log": "round3-source-10.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 64,
+    "size": 47,
+    "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "log": "round3-source-11.log"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "elapsed_ms": 114,
+    "size": 100,
+    "sha256": "76bbdee11e9718f704c6c54425e6e06bff5cb2730d3014b2fdd3d1a8636add62",
+    "log": "round3-source-12.log"
+  }
+]

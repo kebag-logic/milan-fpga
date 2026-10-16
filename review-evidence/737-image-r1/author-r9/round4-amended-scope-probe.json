@@ -1,0 +1,80 @@
+{
+  "result": "remaining scope conflicts reproduced",
+  "authority": [
+    6170435035,
+    6170543242
+  ],
+  "inventory_sha256": "98e78e9a5d5b8d04df7b44c96805cb15cbee03fb7d41713e0012a17009ebfe30",
+  "findings": [
+    {
+      "path": "tb/verilator/capture_coherence/Makefile",
+      "line": 69,
+      "text": ".DEFAULT_GOAL := all",
+      "sha256": "4d418bba758793d25b427936873f8b1e56d0568a1f98db2c27a9551d0de190ed",
+      "required_refusal": ".DEFAULT_GOAL"
+    },
+    {
+      "path": "tb/verilator/gptp_plane/Makefile",
+      "line": 24,
+      "text": ".DEFAULT_GOAL := all",
+      "sha256": "d0150670e23dd546008f32d43faac2a4b97a2239b351a6d1651ec9ba5bec0cef",
+      "required_refusal": ".DEFAULT_GOAL"
+    },
+    {
+      "path": "tb/verilator/milan_dp_mclk/Makefile",
+      "line": 97,
+      "text": ".DEFAULT_GOAL := all",
+      "sha256": "6a143702d01493e347b402a201a88b88334c59bacefb977cb0fcc02e871c960e",
+      "required_refusal": ".DEFAULT_GOAL"
+    },
+    {
+      "path": "tb/verilator/milan_dp_render/Makefile",
+      "line": 143,
+      "text": ".DEFAULT_GOAL := all",
+      "sha256": "238ea8e20527240c9888650395d27c067f5c5d124270926725a331576f2250fa",
+      "required_refusal": ".DEFAULT_GOAL"
+    },
+    {
+      "path": "tb/verilator/nvm_backend/Makefile",
+      "line": 96,
+      "text": "obj_mut_%/Vnvm: $(BACKEND) sim_main.cpp mutate.py",
+      "sha256": "25d81595e11ba9538db86302229cde82f09d88c62b48c84743d85e57efd5633b",
+      "required_refusal": "pattern rule"
+    },
+    {
+      "path": "tb/verilator/render_setpoint/Makefile",
+      "line": 60,
+      "text": ".DEFAULT_GOAL := all",
+      "sha256": "a22b12f0b5df38f99ee36bb95196f8913242a3fef2cdca60b18ac9228a7b25d8",
+      "required_refusal": ".DEFAULT_GOAL"
+    },
+    {
+      "path": "tb/verilator/tcam/Makefile",
+      "line": 23,
+      "text": ".DEFAULT_GOAL := all",
+      "sha256": "dd0a8233ecf4c9d7268cd94f9e8f4ce0ada2af5cbe53acd1439cfdb8d2606995",
+      "required_refusal": ".DEFAULT_GOAL"
+    },
+    {
+      "path": "scripts/run_litex_sims.sh",
+      "line": 199,
+      "sha256": "91299632461ecc67f6681def2d6ed50cd92bd5d34e493ec29bdba5c990b11d36",
+      "calls": [
+        [
+          "cd",
+          "${SIM_DIR}"
+        ],
+        [
+          "timeout",
+          "-k",
+          "10",
+          "${TMO}",
+          "${py}",
+          "${t}.py"
+        ]
+      ],
+      "required_refusal": "subshell containing cd"
+    }
+  ],
+  "candidate_programs_executed": false
+}

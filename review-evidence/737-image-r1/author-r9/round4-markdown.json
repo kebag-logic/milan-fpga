@@ -1,0 +1,42 @@
+[
+  {
+    "gate": "contents",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 6.262,
+    "log": "round4-markdown-contents.log",
+    "size": 94,
+    "sha256": "53ec021bdb8ff494f697e86dfa7d077b40f800902370da8506fc8a692b4d54ac"
+  },
+  {
+    "gate": "punctuation",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "e6b86814"
+    ],
+    "rc": 0,
+    "wall_seconds": 3.388,
+    "log": "round4-markdown-punctuation.log",
+    "size": 139,
+    "sha256": "9b04df2f3374e512f1db2c721775de8dbff634584b4c1e9b55e7e19a908124e3"
+  },
+  {
+    "gate": "punctuation-controls",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "wall_seconds": 3.399,
+    "log": "round4-markdown-punctuation-controls.log",
+    "size": 42,
+    "sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a"
+  }
+]

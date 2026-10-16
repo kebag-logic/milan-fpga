@@ -1,0 +1,63 @@
+PASS: gh extension install example/fixture: generation and comparison
+PASS: gh release download v1 -R example/tool: generation and comparison
+PASS: git submodule add https://example.invalid/tool: generation and comparison
+PASS: git config submodule.x.url https://example.invalid/tool: generation and comparison
+PASS: git clone --no-hardlinks git@host:org/tool.git: generation and comparison
+PASS: git archive --remote=https://example.invalid/tool HEAD: generation and comparison
+PASS: /unclassified/git rev-parse HEAD: generation and comparison
+PASS: node -e "require('https')": generation and comparison
+PASS: java -jar download.jar: generation and comparison
+PASS: cmake --install build: generation and comparison
+PASS: sbt "install fixture": generation and comparison
+PASS: eval "echo okay": generation and comparison
+PASS: bash -c "npx fixture": generation and comparison
+PASS: echo 'npx fixture' | bash: generation and comparison
+PASS: bash <<< 'npx fixture': generation and comparison
+PASS: python3 <<'END': generation and comparison
+PASS: python3 -I - <<'END': generation and comparison
+PASS: echo ${MISSING:-$(npx fixture)}: generation and comparison
+PASS: for ((i=$(npx fixture);i<1;i++)); do true; done: generation and comparison
+PASS: selected=$RUNTIME_FUNCTION; $selected: generation and comparison
+PASS: find . -ok npx fixture {} \;: generation and comparison
+PASS: recognized Git argv: generation and comparison
+PASS: extra Git argument: generation and comparison
+PASS: unknown wrapper option: generation and comparison
+PASS: wrapper child classification: generation and comparison
+PASS: reusable job: generation and comparison
+PASS: import os: generation and comparison
+PASS: import os: generation and comparison
+PASS: import os: generation and comparison
+PASS: import os: generation and comparison
+PASS: import asyncio: generation and comparison
+PASS: import pty: generation and comparison
+PASS: import pip._internal: generation and comparison
+PASS: import urllib3: generation and comparison
+PASS: import asyncio, ssl: generation and comparison
+PASS: import subprocess: generation and comparison
+PASS: import subprocess: generation and comparison
+PASS: import importlib: generation and comparison
+PASS: declared literal unpacking or alias: generation and comparison
+PASS: declared literal unpacking or alias: generation and comparison
+PASS: declared keyword command: generation and comparison
+PASS: changed declaration: generation and comparison
+PASS: step working directory: generation and comparison
+PASS: subshell does not leak directory: generation and comparison
+PASS: subshell child directory: generation and comparison
+PASS: top-level directory persists: generation and comparison
+PASS: computed subshell directory: generation and comparison
+PASS: block preserves parent scope: generation and comparison
+PASS: fallback cannot inherit successful directory: generation and comparison
+PASS: terminating fallback preserves successful directory: generation and comparison
+PASS: ambiguous conditional directory: generation and comparison
+Traceback (most recent call last):
+  File "<checkout>/scripts/ci_inventory_patterns_selftest.py", line 289, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "<checkout>/scripts/ci_inventory_patterns_selftest.py", line 284, in main
+    controls(Fixture(Path(directory)))
+  File "<checkout>/scripts/ci_inventory_patterns_selftest.py", line 158, in shell_controls
+    fixture.check('common conditional directory persists', 'brand_new_command')
+  File "<checkout>/scripts/ci_inventory_patterns_selftest.py", line 67, in check
+    assert rc == 2 and refusal in output.getvalue(), (name, mode, output.getvalue())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('common conditional directory persists', '--write', 'REFUSED: ambiguous shell directory after conditional at .github/workflows/fixture.yml:1\n')

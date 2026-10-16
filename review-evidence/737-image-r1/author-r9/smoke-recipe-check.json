@@ -1,0 +1,37 @@
+[
+  {
+    "command": [
+      "sudo",
+      "-n",
+      "-u",
+      "alex",
+      "-g",
+      "docker",
+      "docker",
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "-e",
+      "TMPDIR=/scratch",
+      "-e",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "-e",
+      "VERILATOR_JOBS=2",
+      "--mount",
+      "type=bind,src=$VALIDATION_STORAGE/737-a615,dst=/scratch",
+      "--mount",
+      "type=bind,src=$LANES/737-image/ci/image,dst=/recipe,readonly",
+      "fpga-validation:1f54a9abfb4fe7e5602354fee5961789fa1aa439959cbb75aa5608cbb094ee61-validation-tools",
+      "python3",
+      "/recipe/smoke.py",
+      "--work",
+      "/scratch/final-smoke"
+    ],
+    "rc": 0,
+    "elapsed_ms": 27819,
+    "size": 67437,
+    "sha256": "f76104fc705bf40851a36a36d5de49c29d555833b25d687e0add809eed14b3cf",
+    "log": "smoke-recipe-check-0.log"
+  }
+]

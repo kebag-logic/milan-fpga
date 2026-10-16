@@ -1,0 +1,108 @@
+[
+  {
+    "gate": "naming",
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.594,
+    "log": "round5-startup-ratchets-naming.log",
+    "size": 36490,
+    "sha256": "0eba77eb46f6c0138fa1737b1687057d0e6cf94975572eb9e4d5eaf44c366532",
+    "raw_size": 36490,
+    "raw_sha256": "0eba77eb46f6c0138fa1737b1687057d0e6cf94975572eb9e4d5eaf44c366532"
+  },
+  {
+    "gate": "fail-fast",
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 1.886,
+    "log": "round5-startup-ratchets-fail-fast.log",
+    "size": 5967,
+    "sha256": "092c164f60c5501c636e33d5798c3ae57e1231d414417ee97aa3cb89d2069661",
+    "raw_size": 5967,
+    "raw_sha256": "092c164f60c5501c636e33d5798c3ae57e1231d414417ee97aa3cb89d2069661"
+  },
+  {
+    "gate": "test-evidence",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 10.783,
+    "log": "round5-startup-ratchets-test-evidence.log",
+    "size": 18702,
+    "sha256": "009f3b7314c8a6eac7b8055060264ee4013ee35ae266763fea815a1dcce97c24",
+    "raw_size": 18702,
+    "raw_sha256": "009f3b7314c8a6eac7b8055060264ee4013ee35ae266763fea815a1dcce97c24"
+  },
+  {
+    "gate": "hygiene",
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 0.59,
+    "log": "round5-startup-ratchets-hygiene.log",
+    "size": 2000,
+    "sha256": "b564cb492f2d13c22b035c98da42cf8b5805e209cc2baa010c8cabfd3f559a9a",
+    "raw_size": 2000,
+    "raw_sha256": "b564cb492f2d13c22b035c98da42cf8b5805e209cc2baa010c8cabfd3f559a9a"
+  },
+  {
+    "gate": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "wall_seconds": 6.8,
+    "log": "round5-startup-ratchets-toc.log",
+    "size": 94,
+    "sha256": "53ec021bdb8ff494f697e86dfa7d077b40f800902370da8506fc8a692b4d54ac",
+    "raw_size": 94,
+    "raw_sha256": "53ec021bdb8ff494f697e86dfa7d077b40f800902370da8506fc8a692b4d54ac"
+  },
+  {
+    "gate": "anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "wall_seconds": 4.524,
+    "log": "round5-startup-ratchets-anchors.log",
+    "size": 64,
+    "sha256": "1a3ecfc7cc0a7214647f3df8f7ccf726f652a8bfb8fd9dd48ce410acd9c6ad84",
+    "raw_size": 64,
+    "raw_sha256": "1a3ecfc7cc0a7214647f3df8f7ccf726f652a8bfb8fd9dd48ce410acd9c6ad84"
+  },
+  {
+    "gate": "punctuation",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa7347fc"
+    ],
+    "rc": 0,
+    "wall_seconds": 3.415,
+    "log": "round5-startup-ratchets-punctuation.log",
+    "size": 140,
+    "sha256": "839b3af03d435c18ba96a876f87e88b09f572fb386ea789a3378d59349746250",
+    "raw_size": 140,
+    "raw_sha256": "839b3af03d435c18ba96a876f87e88b09f572fb386ea789a3378d59349746250"
+  }
+]
