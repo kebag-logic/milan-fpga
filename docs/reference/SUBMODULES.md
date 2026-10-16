@@ -201,6 +201,10 @@ The issue's list does not name them.
 
 Both processor ROM digests match the `2ad2f845` rows.
 
+The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) is re-baselined at this pin.
+
+Its shipping route keeps +0.215 ns WNS.
+
 The parent's `acmp_bound_vlan_o` keeps 12 bits per sink.
 
 Only the processor's internal record widens to 16.
