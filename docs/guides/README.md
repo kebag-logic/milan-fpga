@@ -13,10 +13,12 @@ flowchart TD
     START --> TEST[Create verification]
     START --> JOIN[Integrate the system]
     START --> PLAN[Assess delivery]
+    START --> SHIP[Install a board]
     CODE --> DEV[Implementation developer]
     TEST --> VER[Verification developer]
     JOIN --> INT[System integrator]
     PLAN --> MGR[Project manager]
+    SHIP --> DEP[Board deployment]
 ```
 
 | Role | Start here | Expected outcome |
@@ -25,6 +27,7 @@ flowchart TD
 | Verification developer | [Verification developer](VERIFICATION_DEVELOPER.md) | Reproducible defect evidence |
 | System integrator | [System integrator](SYSTEM_INTEGRATOR.md) | A correctly wired deployment |
 | Project manager | [Project manager](PROJECT_MANAGER.md) | An evidence-based status decision |
+| Board installer | [Board deployment](BOARD_DEPLOYMENT.md) | A flashed board with its own identity |
 
 ## Shared foundations
 
