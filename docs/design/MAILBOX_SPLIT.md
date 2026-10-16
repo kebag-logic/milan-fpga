@@ -1030,9 +1030,9 @@ removes each rule in turn, judges that rule's arms again, and fails unless
 every one is accepted; it fails too on a rule no arm names, and on a name
 `census_rules.py` and the census's code do not both hold, so a rule added
 without a plant fails CI. The census runs in `rtl-fast`'s own
-`publication-census` job, on every core of its runner, with the same Yosys
-cache and sv2v release as `yosys-elaboration`, and by `make census` in the
-mailbox bench.
+`publication-census` job, with as many workers as the job's memory holds
+and never more than its CPUs (#744), with the same Yosys cache and sv2v
+release as `yosys-elaboration`, and by `make census` in the mailbox bench.
 
 The idle slope's one read is status, for LWSRP_SLOPE: no shaper consumes it,
 and the block carries it as ruled. The census covers the class-D face and the

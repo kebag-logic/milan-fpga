@@ -307,7 +307,7 @@ resolve. It does not replace generic synthesis and must not be reported as a
 portability pass.
 
 The mailbox publication census runs in a job of its own, `publication-census`
-(`sw/mailbox/publication_census.py --check --selftest --jobs "$(nproc)"`,
+(`sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"`,
 #665, comment 6100024293), which installs the pinned Yosys from the same
 cache key as `yosys-elaboration` and the same pinned sv2v release. It
 elaborates `milan_datapath` with the recipe `syn/yosys/run.sh --emit
@@ -316,8 +316,10 @@ each `configs/*.yaml` with its generated header and the parameters
 `endstation_builder.datapath_params()` states), refuses an sv2v or a Yosys
 other than the versions `rtl-fast.yml` pins, and follows every class-D value
 the datapath reads through each netlist. Its self-test elaborates one planted
-copy per defect, then removes each of the census's rules in turn, on every
-core of the runner. The aggregate `rtl-fast` requires the job. The mailbox suite's
+copy per defect, then removes each of the census's rules in turn, with
+`CI_CENSUS_JOBS` workers: as many as the job's memory holds, never more than
+its CPUs (see the resource bounds under
+[Parallel replay slots](#parallel-replay-slots)). The aggregate `rtl-fast` requires the job. The mailbox suite's
 `make census` runs it locally; the suite's default `make` does not, because
 the Verilator worker that owns that suite has no Yosys.
 
@@ -2055,6 +2057,8 @@ A read-only daemon monitor independently checks container placement.
 Sharing, unbooked placement and later movement fail the replay.
 Monitor failure also prevents a successful replay verdict.
 `cpu-placements.json` retains reservations, inspection problems and peak concurrency.
+`slot-memory.json` retains an isolated slot's memory accounting and whether
+an OOM invalidated it.
 CPU observations remain outside the canonical manifest comparison.
 
 Every generated job reads its own CPU count with `nproc`.
@@ -2063,6 +2067,31 @@ Existing `-j 0` recipes use Verilator 5.050's process-affinity default.
 They therefore see the container's booked CPU count.
 Campaign pools use the smaller of that count and four.
 CPU allocation alone therefore cannot expand those pools beyond four.
+The publication census is bounded by memory instead (#744). The generator
+gives each job whose steps name `CI_CENSUS_JOBS`, today only
+`publication-census`, a `Set memory-derived census workers` step after the
+CPU budget step. It takes the job's memory M as the smaller of `MemTotal`
+and every numeric `memory.max` from the job's own cgroup up to the root
+the job can see, so an act job container reads its eight-GiB limit and a
+hosted runner without a cgroup limit reads its RAM. It then sets
+`CI_CENSUS_JOBS` to `min(nproc, floor(2 * M / (3 * 1242214400)))`, and to
+one when that is zero. The constant is `CENSUS_WORKER_BYTES` in
+`scripts/ci_runtime_workflows.py`, the measured sv2v peak given below; the
+other third of M is headroom for the driver, the Yosys that follows each
+sv2v, and the page cache. Only an absent `memory.max` means that cgroup
+sets no limit. One that is present but cannot be read, at the job's cgroup
+or at any ancestor, fails the step before `CI_CENSUS_JOBS` is written, and
+so does a cgroup directory on the walk that cannot be searched. A
+non-numeric limit, a missing `MemTotal` or zero CPUs also fail the step.
+`scripts/ci_gate_workflows_selftest.py` executes the emitted shell over
+planted meminfo and cgroup files: four workers in an eight-GiB container at
+sixteen CPUs and on a four-CPU hosted runner, two under a lower ancestor
+limit, two at two CPUs, one below one worker's memory, and sixteen with no
+memory controller. It refuses a mode-000 limit at the leaf and at an
+ancestor, a mode-000 ancestor cgroup, a limit that is a directory, and each
+non-numeric or missing input, and each refusal must print its own reason as
+the step's last error line. Root reads through mode 000, so as root the
+three mode-000 cases print a loud skip; the directory cases still run.
 Simulation pools use the same bound; case drivers retain their two-run cap.
 Outer suite make invocations remain serial to preserve shared build ownership.
 The compiler inside the selected build receives the CPU budget.
@@ -2370,6 +2399,19 @@ and its cgroup-mount root only in their exact code contexts in
 product document, are still refused, and the gate's self-test proves each of
 those refusals.
 
+The slot's OOM accounting and the census worker bound read the build host's
+memory files, not the product's (#744): the runner's mount table, and the
+census budget step's `MemTotal`, its own cgroup and each `memory.max` above
+it. The gate's `HOST_MEMORY_READS` table declares each such line whole, in its
+one file: `scripts/act_ci.py` (the read and its fixtures),
+`scripts/ci_runtime_workflows.py`, the generated
+`.github/workflows/rtl-fast.yml` and `scripts/ci_gate_workflows_selftest.py`.
+A path is masked only inside its exact declared line. Another path or runtime
+word in the same file, a declared line with text before or after it, a
+different path in the same line, and the same line in another file, including
+another declared one, or in a product document are still refused, and the
+self-test proves each refusal.
+
 The uplink uses the absolute `pasta` path from `SAFE_PATH`.
 Its final symlink stays unresolved, preserving the multi-call mode.
 Other host tools keep their resolved paths.
@@ -2415,7 +2457,32 @@ Resource bounds:
   Complete concurrent replay remains a separate coordinating check. The runner does
   not rewrite an older candidate's command that explicitly requests sixteen
   census workers; that older command exhausted the eight-GiB cap in the
-  coordinating replay reported on #737.
+  coordinating replay reported on #737. Such a replay is now refused by its
+  OOM count (below).
+- The census memory bound was measured at the `84f9e300` datapath (#744),
+  natively on the shared host with CPython 3.12.3, sv2v v0.0.12 and Yosys 0.66.
+  `/usr/bin/time -v` wrapped each tool of one `--check --jobs 1` run over the
+  six shapes. sv2v peaked at 1167000 to 1205884 KiB per shape. Yosys peaked
+  at 386824 KiB.
+- The self-test's arms run sv2v on the same datapath, and some peak higher.
+  The emitted budget step and census command ran in a transient cgroup scope
+  at `MemoryMax=8G` and `MemorySwapMax=0`, the job container's bound. The
+  step chose four workers of sixteen CPUs. The census passed 234 checks, 0 of
+  120 arms failed and all 31 rules were proved, in 591 seconds. The scope's
+  peak was 5806784512 bytes (67.6% of the cap), with every memory-event
+  counter zero, and its largest process peaked at 1213100 KiB.
+- A second such run, with `/usr/bin/time` around each of its 133 sv2v and
+  141 Yosys runs, passed the same way. Of those sv2v runs, 10 exited nonzero,
+  120 peaked at 1168056 to 1212036 KiB, and 20 were above 1205884 KiB.
+  The largest of them, 1212036 KiB, was that run's largest process.
+  `CENSUS_WORKER_BYTES` is the larger of the two runs' largest processes,
+  1213100 KiB or 1242214400 bytes. Yosys peaked at 380492 KiB, and the scope
+  at 5569384448 bytes.
+- The same command at `--jobs 16` under the same cap reproduces #742: 113 of
+  120 arms failed with sv2v `exit -9`, and the scope recorded 209 OOM kills,
+  2298 OOM events and a peak at the cap. These are native measurements, not a
+  replay. The four-job act replay at the lane's head is the coordinating
+  receipt.
 - The largest synthesis shard (0/4, `milan_datapath`) also passes with empty
   result caches at both widths: 3745005568-byte peak at sixteen CPUs and
   3391201280 bytes at twelve. Tied-input and tap-purity checks pass, and
@@ -2483,26 +2550,53 @@ Resource bounds:
   Four measured maxima plus overhead total 28483371008 bytes (26.527 GiB).
   That is a sum of separate peaks, not an observed concurrent slot peak.
   The source-build compiler bound changes; container and slot caps do not.
-- A run with an OOM at the slot cap is refused, never reported as a verdict.
-  After the workflows, the runner reads the slice's own `memory.events.local`,
-  which counts only the slice's limit and never a job container's eight-GiB limit
-  below it. Any `oom` there is exit 2 naming the cap, so an OOM at the cap
-  cannot pass for the candidate's `FAILED`.
-- That OOM is all the runner detects. Before one, the host reclaims memory
-  at the cap, which can slow a job until its workflow times out. No `oom` is
+- A run with any OOM inside its slot is refused, never reported as a verdict
+  (#744). After the job containers are removed, while the slice still exists
+  and before the manifest is written, the runner reads the slice's
+  hierarchical `memory.events` and its `memory.peak`. There `oom` and
+  `oom_kill` count every cgroup below the slice. So a kill at one job
+  container's eight-GiB limit counts as well as one at the slot's own cap,
+  whichever job it hit.
+- Before #744 the runner read the slice's `memory.events.local`, which counts
+  only the slice's own limit. In #742's replay it stayed at zero through 210
+  OOM kills of sv2v at container limits, and the runner printed
+  `the cap was hit 0 time(s), with no OOM at it`.
+- A nonzero `oom` or `oom_kill` writes `slot-memory.json` with
+  `"oom_free": false` beside the manifest in the evidence directory. The
+  field says only whether the slot was free of OOMs; it does not make the
+  manifest complete. The runner prints the slot's accounting ending
+  `valid build: False` and exits 2 naming both counts, even when every job
+  passed. The manifest's completeness does not read the slot's memory events,
+  so `slot-memory.json` and the exit status 2 carry an OOM's invalidity.
+- Unreadable or incomplete events refuse, since no count is then provable.
+  So does a cgroup2 mount carrying `memory_localevents`, which would make
+  `memory.events` local. An unreadable peak is printed as unrecorded.
+- Every slot run prints `memory peak <P> GiB of its 36G cap; a memory limit
+  in the slot was hit <N> time(s); <K> OOM kill(s) and <E> OOM event(s) in
+  the slot` before teardown. A body that raises keeps its own exception, and
+  the line is printed beside it.
+- The runner self-test plants #742's shape: hierarchical kills beside clean
+  local events. It also plants a real host cgroup's events after one kill,
+  an OOM without a kill, a kill without an OOM event, each malformed input
+  and the local-events mount. One planted kill is driven through the whole
+  validation path to the refusal and the recorded `slot-memory.json`.
+- A native control OOM-killed a 400 MiB allocation in a 200 MiB scope below
+  a 36G slice. The slice's `memory.events` read `oom 1 oom_kill 1`, and its
+  `memory.events.local` read zero. `dev`'s reader printed `the cap was hit 0
+  time(s), with no OOM at it`; this reader refused with both counts.
+- An OOM is all the runner detects. Before one, the host reclaims memory
+  at a limit, which can slow a job until its workflow times out. No `oom` is
   raised either for an allocation that fails without trying the OOM killer,
   such as a large contiguous one or one whose caller asked not to retry. A
   run hurt either way keeps its verdict, so a slot's `FAILED` can still be
-  the cap's. After the workflows the runner prints the slice's memory peak
-  and its `max` count, the number of times usage hit the cap. Usage includes
-  cached file data, which the host reclaims at the cap as a matter of
-  course, so a long run can show a nonzero count with no harm done. Those
-  two numbers are the only sign of such harm, so replay a slot `FAILED` with
-  a nonzero count in slot 0 before attributing it to the candidate. The cap's
-  effect on the shipping workflows has not been measured yet; the run logs of
-  the live proof below record each slot's peak and count.
-- Slot 0 keeps only its per-container bounds. Whoever allocates slots keeps
-  the concurrent caps, plus what slot 0 uses, within host RAM.
+  memory's. The `max` count is how often usage reached any limit in the
+  slot. Usage includes cached file data, which the host reclaims at a limit
+  as a matter of course, so a long run can show a nonzero count with no harm
+  done. Replay a slot `FAILED` with a nonzero count in slot 0 before
+  attributing it to the candidate.
+- Slot 0 keeps only its per-container bounds and has no slice to read, so an
+  OOM there is not counted. Whoever allocates slots keeps the concurrent caps,
+  plus what slot 0 uses, within host RAM.
 
 `--slot-root` (default `/var/lib/milan-act-ci`) holds every isolated slot's
 persistent data-root. It and every directory above it, from `/` down, must be
@@ -2762,8 +2856,10 @@ The gate inventory still defines membership and exactly-once union coverage.
 Every original control remains; generated mutations regenerate only their
 changed workflow. The full CI-event self-test took 316.686 seconds for 5,206
 arms on CPython 3.12.3. It passed 5,212 arms at the merge head `e3d25d96`.
-Leg 1's step on `docs-gates-2` adds three generated-graph arms, so it now
-passes 5,215; projections keep the slower 316.686-second figure.
+Leg 1's step on `docs-gates-2` adds three generated-graph arms, so it
+passed 5,215 at `84f9e300`. The census budget step on `publication-census`
+adds three more, 5,218 (#744); projections keep the slower 316.686-second
+figure.
 The complete two-invocation runner contract gate takes 113.654 seconds.
 The scheduling/evidence controls, with the generated Verilator graph check,
 take 28.331 seconds.

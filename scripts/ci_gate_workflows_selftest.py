@@ -21,7 +21,7 @@ import ci_builder_legs
 from ci_builder_legs import LEGS, REQUIRED, compare, partition, requirements, union
 from ci_gate_receipts import Collected, StepContext, record, verify
 from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
-from ci_runtime_workflows import cpu_budget_step
+from ci_runtime_workflows import CENSUS_WORKER_BYTES, census_budget_step, cpu_budget_step
 from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, DRIVER_COMMAND, builder_command, builder_leg_step
 from ci_gate_workflows import gate_graph
 import ci_suite_pieces
@@ -232,6 +232,125 @@ def cpu_controls() -> None:
             assert sum(step.get("name") == cpu_budget_step()["name"] for step in job["steps"]) == 1
 
 
+def census_budget(root: Path, cpus: int, kib: int | None, cgroup: str, limits: dict[str, str],
+                  denied: dict[str, str] | None = None) -> tuple[str | None, list[str]]:
+    """CI_CENSUS_JOBS as the emitted shell sets it over proc and cgroup files planted in the new directory root,
+    None if it refused, and its stderr lines with the planted cgroup root written <cgroups>. `denied`
+    makes a planted cgroup's "limit" (memory.max mode 000), its "directory" (mode 000) or its memory.max a
+    "non-file" (a directory) unreadable after planting."""
+    (root / "bin").mkdir()
+    (root / "bin" / "nproc").write_text("#!/bin/sh\nprintf '%s\\n' " + str(cpus) + "\n")
+    (root / "bin" / "nproc").chmod(0o755)
+    (root / "meminfo").write_text("MemFree:         1024 kB\n"
+                                  + ("" if kib is None else f"MemTotal:       {kib} kB\n"))
+    (root / "self-cgroup").write_text("0::" + cgroup + "\n")
+    for directory, limit in limits.items():
+        (root / "sys" / directory).mkdir(parents=True, exist_ok=True)
+        if (denied or {}).get(directory) == "non-file":
+            (root / "sys" / directory / "memory.max").mkdir()
+        else:
+            (root / "sys" / directory / "memory.max").write_text(limit + "\n")
+    (root / "sys").mkdir(exist_ok=True)
+    script = census_budget_step()["run"]
+    for real, planted, count in (("/proc/meminfo", root / "meminfo", 1),
+                                 ("/proc/self/cgroup", root / "self-cgroup", 1),
+                                 ("/sys/fs/cgroup", root / "sys", 2)):
+        assert script.count(real) == count, real
+        script = script.replace(real, str(planted))
+    modes = [(root / "sys" / directory / ("memory.max" if how == "limit" else ""))
+             for directory, how in (denied or {}).items() if how != "non-file"]
+    for path in modes:
+        path.chmod(0)
+    output = root / "census.env"
+    try:
+        ran = subprocess.run(["bash", "-c", script], check=False, capture_output=True, text=True,
+                             env={**os.environ, "PATH": str(root / "bin") + ":" + os.environ["PATH"],
+                                  "GITHUB_ENV": str(output)})
+    finally:
+        for path in reversed(modes):
+            path.chmod(0o755)
+    stderr = ran.stderr.replace(str(root / "sys"), "<cgroups>").splitlines()
+    if ran.returncode:
+        assert not output.exists(), ran
+        return None, stderr
+    lines = output.read_text().splitlines()
+    assert len(lines) == 1 and lines[0].startswith("CI_CENSUS_JOBS="), lines
+    return lines[0].removeprefix("CI_CENSUS_JOBS="), stderr
+
+
+def mode_zero_denies(root: Path) -> bool:
+    """Whether mode 000 denies this process a read: root's CAP_DAC_OVERRIDE reads through it."""
+    probe = root / "mode-zero-probe"
+    probe.write_text("probe\n")
+    probe.chmod(0)
+    try:
+        probe.read_text()
+    except PermissionError:
+        return True
+    finally:
+        probe.chmod(0o644)
+    return False
+
+
+def census_controls() -> None:
+    """Execute the emitted census budget shell: bounded by the job's memory, never above nproc,
+    refusing a limit that is present but unreadable or non-numeric, each refusal for its own stated reason."""
+    gib = 1024 * 1024
+    container = {"": str(8 * 2**30)}
+    hosted = {"": "max", "system.slice": "max", "system.slice/runner.service": "max"}
+    ancestor = {"": "max", "a": str(4 * 2**30), "a/b": "max"}
+    with tempfile.TemporaryDirectory(prefix="census-budgets-") as temporary:
+        root = Path(temporary)
+        denies = mode_zero_denies(root)
+        for described, cpus, kib, cgroup, limits, denied, want in (
+            # #742: sixteen CPUs in an eight-GiB act job container on a 61 GiB host.
+            ("act job container", 16, 61 * gib, "/", container, {}, "4"),
+            ("hosted runner without a cgroup limit", 4, 16 * gib, "/system.slice/runner.service", hosted, {}, "4"),
+            ("host memory below its cgroup's", 16, 4 * gib, "/", container, {}, "2"),
+            ("a lower ancestor limit", 16, 61 * gib, "/a/b", ancestor, {}, "2"),
+            ("fewer CPUs than memory allows", 2, 61 * gib, "/", container, {}, "2"),
+            ("memory for less than one worker", 16, 61 * gib, "/", {"": str(2**30)}, {}, "1"),
+            ("a cgroup without a memory controller", 16, 61 * gib, "/", {}, {}, "16"),
+            ("a mode-000 limit", 16, 61 * gib, "/", container, {"": "limit"},
+             "unreadable memory limit in <cgroups>"),
+            ("a mode-000 ancestor limit", 16, 61 * gib, "/a/b", ancestor, {"a": "limit"},
+             "unreadable memory limit in <cgroups>/a"),
+            ("a mode-000 ancestor cgroup", 16, 61 * gib, "/a/b", ancestor, {"a": "directory"},
+             "unsearchable cgroup <cgroups>/a: its memory limit cannot be proved absent"),
+            ("a limit that is not a file", 16, 61 * gib, "/", container, {"": "non-file"},
+             "unreadable memory limit in <cgroups>"),
+            ("an ancestor limit that is not a file", 16, 61 * gib, "/a/b", ancestor, {"a": "non-file"},
+             "unreadable memory limit in <cgroups>/a"),
+            ("a non-numeric limit", 16, 61 * gib, "/", {"": "garbage"}, {},
+             "non-numeric memory limit in <cgroups>: garbage"),
+            ("an empty limit", 16, 61 * gib, "/", {"": ""}, {}, "non-numeric memory limit in <cgroups>: "),
+            ("no MemTotal", 16, None, "/", container, {}, "no MemTotal in kB"),
+            ("zero CPUs", 0, 61 * gib, "/", container, {}, "no CPUs: nproc printed 0"),
+        ):
+            if not denies and any(how != "non-file" for how in denied.values()):
+                print(f"Census budget: {described}: LOUD SKIP - running as root, where mode 000 does not deny a read")
+                continue
+            got, stderr = census_budget(Path(tempfile.mkdtemp(dir=root)), cpus, kib, cgroup, limits, denied)
+            if want.isdigit():
+                assert (got, stderr) == (want, []), (described, got, stderr, want)
+                print(f"Census budget: {described}: {got} worker(s)")
+            else:
+                # the refusal is this case's own, not one an earlier step made for another reason
+                assert got is None and stderr[-1:] == [want], (described, got, stderr, want)
+                print(f"Census budget: {described}: refused: {want}")
+    assert 4 * CENSUS_WORKER_BYTES * 3 <= 2 * 8 * 2**30 < 5 * CENSUS_WORKER_BYTES * 3
+    owners = [(name, job_id) for name in ("docs", "elaborate", "rtl", "rtl-fast")
+              for job_id, job in generate(name, load_template(ROOT, name))["jobs"].items()
+              if any(step.get("name") == census_budget_step()["name"] for step in job["steps"])]
+    assert owners == [("rtl-fast", "publication-census")], owners
+    steps = generate("rtl-fast", load_template(ROOT, "rtl-fast"))["jobs"]["publication-census"]["steps"]
+    names = [step.get("name") for step in steps]
+    census = next(i for i, step in enumerate(steps) if "publication_census.py" in step.get("run", ""))
+    assert names.index(census_budget_step()["name"]) < census
+    assert '--jobs "$CI_CENSUS_JOBS"' in steps[census]["run"] and "CI_CAMPAIGN_JOBS" not in steps[census]["run"]
+    print("Census budget: only publication-census sets CI_CENSUS_JOBS, before its census")
+
+
 def builder_receipts(identity: tuple[str, str], names: list[str] | None = None,
                      flags: tuple[str, ...] = tuple(REQUIRED)) -> list[dict]:
     """Passing leg receipts in the shape the leg runner binds around the driver's own."""
@@ -417,6 +536,7 @@ def main() -> int:
     builder_split_controls()
     suite_generator_controls()
     cpu_controls()
+    census_controls()
     for name, carrier in CARRIERS.items():
         source = load_template(ROOT, name)
         generated = generate(name, source)

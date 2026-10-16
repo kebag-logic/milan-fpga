@@ -249,9 +249,10 @@ jobs:
   # configs/*.yaml with its generated header and parameters), must be a block
   # field, CSR read-back or the processor's own answer face. Its self-test
   # elaborates one planted copy per defect, then removes each of the census's
-  # rules in turn. A job of its own, on every core of its runner, with the
-  # Yosys cache and sv2v release of yosys-elaboration (#665, comment
-  # 6100024293).
+  # rules in turn. A job of its own, with the Yosys cache and sv2v release of
+  # yosys-elaboration (#665, comment 6100024293). Its workers are bounded by
+  # the job's memory, never above its CPUs: the generator's census budget step
+  # sets CI_CENSUS_JOBS from a measured per-sv2v peak (#744).
   publication-census:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -312,7 +313,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m pip install --quiet pyyaml
-          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CAMPAIGN_JOBS"
+          python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"
 
   # The bare-metal control-plane firmware's host unit tests (#665 lane FT):
   # the GoogleTest suites of sw/firmware/ctrl and sw/firmware/ctrl_nvm at

@@ -44,6 +44,51 @@ tool_build=$(( cpus < 8 ? cpus : 8 ))
 """}
 
 
+#: One publication census worker's resident peak: the largest sv2v v0.0.12 front
+#: end at the datapath of #744 under /usr/bin/time, over the six shapes and the
+#: self-test's arms, 1213100 KiB (the shapes alone peaked at 1205884 KiB). A
+#: worker runs one sv2v, then one smaller Yosys, at a time.
+CENSUS_WORKER_BYTES = 1242214400
+
+
+def census_budget_step() -> dict:
+    """Bound census workers by the job's memory: two thirds of it per measured worker peak, never above nproc.
+
+    Only an absent memory.max means no limit; one present but unreadable, or a cgroup that cannot be searched,
+    refuses before CI_CENSUS_JOBS is written."""
+    return {"name": "Set memory-derived census workers", "run": """set -euo pipefail
+cpus="$(nproc)"
+test "$cpus" -gt 0 || { echo "no CPUs: nproc printed $cpus" >&2; exit 1; }
+kib="$(awk '$1 == "MemTotal:" && $3 == "kB" { print $2 }' /proc/meminfo)"
+test "$kib" -gt 0 || { echo "no MemTotal in kB" >&2; exit 1; }
+memory=$(( kib * 1024 ))
+cgroup="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/self/cgroup)"
+cgroup="${cgroup%/}"
+while :; do
+  if [ -d "$cgroup" ] && [ ! -x "$cgroup" ]; then
+    echo "unsearchable cgroup $cgroup: its memory limit cannot be proved absent" >&2; exit 1
+  fi
+  if [ -e "$cgroup/memory.max" ]; then
+    if ! limit="$(cat "$cgroup/memory.max")"; then
+      echo "unreadable memory limit in $cgroup" >&2; exit 1
+    fi
+    case "$limit" in
+      max) ;;
+      ''|*[!0-9]*) echo "non-numeric memory limit in $cgroup: $limit" >&2; exit 1 ;;
+      *) if [ "$limit" -lt "$memory" ]; then memory="$limit"; fi ;;
+    esac
+  fi
+  if [ "$cgroup" = /sys/fs/cgroup ]; then break; fi
+  cgroup="${cgroup%/*}"
+done
+census=$(( memory * 2 / (3 * """ + str(CENSUS_WORKER_BYTES) + """) ))
+census=$(( census < cpus ? census : cpus ))
+census=$(( census > 0 ? census : 1 ))
+echo "census workers: $census of $cpus CPU(s) within $memory bytes of memory"
+printf 'CI_CENSUS_JOBS=%s\\n' "$census" >> "$GITHUB_ENV"
+"""}
+
+
 def instrument(path: str, job_id: str, job: dict) -> None:
     """Assign stable IDs without modifying any existing test command or condition."""
     if not any(step.get("uses", "").startswith("actions/checkout@") for step in job["steps"]):
@@ -51,6 +96,8 @@ def instrument(path: str, job_id: str, job: dict) -> None:
     checkout = next(i for i, step in enumerate(job["steps"])
                     if step.get("uses", "").startswith("actions/checkout@"))
     job["steps"].insert(checkout + 1, cpu_budget_step())
+    if any("$CI_CENSUS_JOBS" in step.get("run", "") for step in job["steps"]):
+        job["steps"].insert(checkout + 2, census_budget_step())
     identity = ""
     if path == ".github/workflows/docs.yml" and job_id == "docs-check-no-git":
         job["steps"].insert(1, {
