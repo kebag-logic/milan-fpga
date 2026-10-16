@@ -18,7 +18,7 @@ Use this path to install an AX7101 board.
 - An ALINX AX7101 board with its power supply.
 - The board's JTAG cable, a Digilent FT232H.
 - A USB serial adapter on the board console.
-- A Linux PC.
+- A PC that runs the tools below.
 - An AVB switch and a Milan controller, such as Hive.
 
 ## Choose your path
