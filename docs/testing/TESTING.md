@@ -147,7 +147,7 @@ is generated (Section 0.1).
 
 | Layer | Needs |
 |---|---|
-| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Suites that elaborate Forencich cores read `third_party/verilog-axis`; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow` and `tsn_fuzz` elaborate the gPTP processor, and both `milan_datapath` suites parse its sources even with the fabric gPTP plane off. No vendor tools are required |
+| Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`. Suites that elaborate Forencich cores read `third_party/verilog-axis`; `pp_shadow` and `milan_dp` elaborate the processor through `milan_datapath`; `gptp_plane`, `gptp_shadow`, `gptp_tables` and `tsn_fuzz` elaborate the gPTP processor, and both `milan_datapath` suites parse its sources even with the fabric gPTP plane off. No vendor tools are required |
 | Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same three submodules |
 | LiteX / SoC elaboration | a LiteX Python environment ([Section 7 of ../litex/LITEX_SOC.md](../litex/LITEX_SOC.md#7-reproducibility---versions)) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
@@ -268,14 +268,14 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 |---|---|---|
 | #502 live-write pending, late-mark control | `make -C tb/verilator/pp_shadow pending-mutant` | Authors and reviewers changing `KL_pp_shadow.sv`, the map-edit owner in `milan_datapath.sv`, the processor name-write export, or `tb/verilator/pp_shadow/{sim_main.cpp,pending_probes.vlt,pending_mutant.py,Makefile}` |
 | #443 render CSR controls (`render_csr_controls.py`) | `make -C tb/verilator/milan_dp render-csr-controls` | Authors and reviewers changing `render_status_w`, its connections in `milan_datapath.sv`, the `RENDER_STAT` decode or selection in `milan_csr.sv`, the taps in `KL_render_setpoint.sv`, `sim_aclk.cpp` or this campaign |
-| #645/#647 settle recentre, twelve rebuilt controls | `make -C tb/verilator/follow_ring mutants SWEEP_JOBS=4` | Manager merge bank; authors and reviewers changing the media-clock plane, capture ring or this harness |
+| #645/#647 settle recentre, fifteen rebuilt controls | `make -C tb/verilator/follow_ring mutants SWEEP_JOBS=4` | Manager merge bank; authors and reviewers changing the media-clock plane, capture ring or this harness |
 | #647 render pull-in, eighteen boot phases and the standing phase after serial/CRF/LAW | `cd tb/verilator/milan_dp_render && make tdm8render-pullin PULLIN_JOBS=6` | Manager merge bank; authors and reviewers changing the settle recentre, render path or this harness |
 | #447/#657 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | Manager merge bank; authors and reviewers changing `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header, `sim_tdm8_render.cpp` or this campaign |
 | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
 | #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
 | #653 unbind order and Table 5.6 pair, the five unbind mutants | `make -C tb/verilator/milan_dp unb-mutants` | the change's own validation, and every reviewer of a change that touches the unbind arm of `KL_crf_rx.sv`, the bind-fall unlock of `KL_avtp_rx_monitor_ctx.sv`, the processor's ACMP TX lane or bound-view debounce, or the `[UNB]` section of `sim_nxn.cpp` |
 | #658 power-on audio maps, the 13 planted controls (on the `dynmap` leg: an empty reset, no clip after the restore, no output clip, no crossbar writer, and the boot window's guard arms: the CSR hold at all four sites and at each store alone, the CLOSED terminal, the sweep after the terminal, its drain clock and the edit face's wait; the empty reset again under the listener and talker end-to-end legs) | `make -C tb/verilator/milan_dp dynmap-mutants` | the change's own validation, and every reviewer of a change that touches the map stores, their reset or the boot window in `milan_datapath.sv`, `gen_nvm_window.py` or the `[DYNMAP]` section of `sim_nxn.cpp` |
-| #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, extra identity re-base and missing step re-base |
+| #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls, each gmstep control on the whole leg, the #621 phase included | `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, extra identity re-base and missing step re-base |
 | #545 servo slew: eight defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
 
 The default sweep still runs both render legs and the leg-side defect arms,
@@ -301,9 +301,9 @@ These supply the historical ratios used by the projections below.
 | `milan_dp_render` | 1093.9 | 346.1 s | 706.1 s |
 
 The [round 2h ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6075072415)
-requires all four `follow_ring` legs to overlap within the default target.
+requires all `follow_ring` legs to overlap within the default target, four then and five since #645's bind round.
 A four-job sub-make bounds the leg pool under serial and parallel outer make.
-The `b8` and `pullin` legs share one build; fine pulls retain their own clock.
+The `b8`, `pullin` and `bind` legs share one build; fine pulls retain their own clock.
 No leg or check leaves the default.
 
 Cold replicas on 2026-10-09 used the sweep's serial outer invocation,
@@ -342,6 +342,26 @@ Unchanged render code took 1093.9 s at `1e79ebdc`.
 The later window is about 11% longer.
 These measurements cover `8e4b1e53`; later heads still require hosted acceptance.
 That requires `follow_ring` within 1260 s and successful `verilator-suites`.
+
+#645's [bind round](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6187595500)
+added a fifth default leg, `bind`, bench lane B17's binds at INTERNAL.
+It was measured cold, back to back, on one four-CPU set with independent jobs on the host's other CPUs:
+
+```sh
+env -u MAKEFLAGS taskset -c 0-3 make -C tb/verilator/follow_ring
+env -u MAKEFLAGS taskset -c 0-3 make -C tb/verilator/follow_ring -j4 b8 pullin small-pullin settle-control
+```
+
+| Bind round replica | Seconds |
+|---|---:|
+| `follow_ring`: the five legs, the default | 857.6 |
+| The four earlier legs alone | 800.9 |
+
+The fifth leg costs 7.1 %.
+That host is slower than the round 2h replica host and does not reproduce its 437.2 s.
+So the projection scales the measured hosted window by the ratio, not by either absolute:
+1114.2 s x 1.0709 is 1193.2 s, 66.8 s under 1260 s and 246.8 s under 1440 s.
+It is a projection; the new head still requires hosted acceptance.
 The guard stays at 1800 s; its 80% line stays at 1440 s.
 Independent validation jobs ran alongside these replicas on disjoint CPUs.
 The render default retains all eighteen `[LAW]` phases with no behavior change.
@@ -399,15 +419,17 @@ The #653 `[UNB]` unbind checks run there too.
 The #443 render CSR checks stay in `obj_aclk`.
 Their focused `notify`, `gsi-mutants`, `unb-mutants` and `render-csr-controls` targets remain available.
 The #658 `dynmap` leg runs in the pool; its focused `dynmap` and `dynmap-mutants` targets remain available.
-The `gptp`, `gptp-lat` and `gmstep` prerequisites run before the ordinary pool.
-The render-law and default GM-step mutation controls run after it succeeds.
+The `gptp` and `gptp-lat` prerequisites run before the ordinary pool.
+The render-law mutation controls run after it succeeds.
+The `gmstep` leg and its default controls left `run` for wall clock (#621).
+They run in the `milan_dp_gm_steps` suite, through this suite's `gmstep` recipe.
 Explicit mutation campaigns above retain their separate targets and full inventories.
 
 **The processor submodules serve more suites than name them.**
 `milan_datapath` instantiates `KL_pp_shadow` unconditionally, so `pp_shadow`
 and `milan_dp` resolve `protocol-processor/hdl`. Both of them also resolve
-`gptp-processor/hdl`, as do `gptp_plane`, `gptp_shadow` and `tsn_fuzz`:
-`milan_dp` keeps one source list for all of its legs, and `pp_shadow` takes
+`gptp-processor/hdl`, as do `gptp_plane`, `gptp_shadow`, `gptp_tables` and
+`tsn_fuzz`: `milan_dp` keeps one source list for all of its legs, and `pp_shadow` takes
 that same list from `make -C ../milan_dp print-srcs`, so a suite can need a
 submodule its own Makefile never names. Grepping the Makefiles is therefore
 not the census; the expanded recipe is, so read it with `make -n` in the suite
@@ -508,15 +530,25 @@ emits five summary shapes, and 29 of 57 suite logs matched none of them and
 contributed a silent zero — shown by adding 66 assertions to a suite and
 watching the printed total not move). Rerun the sweep for both figures.
 
-With no options the script remains the mandatory serial local sweep. GitHub
-uses five isolated `--shard INDEX/5` workers to reduce wall time, the last of
-them running `milan_dp` alone, then keeps
-`verilator-suites` as a small aggregate required check. That aggregate compares
-the uploaded log names with the live default suite inventory and
-fails on a missing, unexpected, or multiply-owned suite before trusting the
-combined tally. `scripts/run_all_suites.sh --shard 0/5 --list` shows a worker's
+With no options the script remains the mandatory serial local sweep. Its
+preflight runs `scripts/suite_shards.py --selftest`, and so does every hosted
+worker before its suites. That self-test refuses to start until the selector's
+`SUITE_SECONDS` names every default suite, so a change that adds a suite first
+records a provisional figure for it, by the new-suite steps in the selector's
+docstring. GitHub runs sixteen isolated `--ci-pieces --shard INDEX/16`
+workers to reduce wall time. `--ci-pieces` expands six long suites into
+driver-derived case partitions, so `milan_dp` runs as four legs on separate
+workers, and the last worker runs media-clock leg A, `milan_dp_mclk__0`,
+alone. The workflow template's six-worker matrix is generator input only;
+`scripts/ci_gate_workflows.py` writes the sixteen-worker workflow from it
+([CI workflow policy](CI_WORKFLOWS.md#exhaustive-validation)). GitHub then
+keeps `verilator-suites` as a small aggregate required check. That aggregate
+requires every divided suite's case union, compares the uploaded log names with
+the live default suite inventory, and fails on a missing, unexpected, or
+multiply-owned suite before trusting the combined tally.
+`scripts/run_all_suites.sh --ci-pieces --shard 0/16 --list` shows a worker's
 deterministic selection without building it; sharding is a scheduling detail,
-not permission to validate only one fifth locally.
+not permission to validate only one sixteenth locally.
 
 > **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
 > The standing rule was that every round grows it. Thirteen suites — `aecp`,
@@ -579,12 +611,12 @@ verdicts and for check counts.
 | [`tb/verilator/adp_tx`](../../tb/verilator/adp_tx) | `adp_tx_arbiter` — the generic 2-in-1-out AXIS arbiter, which SURVIVED the control-plane deletion because the data lane uses it too |
 | [`tb/verilator/aes3`](../../tb/verilator/aes3) | the AES3/S-PDIF ser/des family |
 | [`tb/verilator/avtp_parser`](../../tb/verilator/avtp_parser) | the listener ACCEPT VERDICT at every shipping shape; carries the entry-0 blocker guard (T6) |
-| [`tb/verilator/avtp_rxmon`](../../tb/verilator/avtp_rxmon) | — |
+| [`tb/verilator/avtp_rxmon`](../../tb/verilator/avtp_rxmon) | the flat `KL_avtp_rx_monitor` and the N=4 `KL_avtp_rx_monitor_ctx` stack, then the #640 M6 lockstep leg: the context engine beside its pre-change reference (`reference/`, the module of dev `e8454e27` with only its name changed) at N=1 and N=8. Every output and one GET_COUNTERS read are compared in every cycle, and four read-modify-write hazards carry their own oracles: same-stream back-to-back updates, an update colliding with a read, wrap, and a reset during an update. `lockstep_mutants.py` requires a lost increment, a torn read, a wrong stream index and a missed reset each to fail its named check |
 | [`tb/verilator/avtp_stream`](../../tb/verilator/avtp_stream) | — |
 | [`tb/verilator/capture_coherence`](../../tb/verilator/capture_coherence) | **#617, every Talker AAF column carries one TDM frame.** The junction leg binds the real TDM8 master, media NCO, grid aligner, `KL_chan_map_capture` and packetizer at the shipping 1x1 TDM8 shape and a 50 MHz axis clock, shifts the #451 pattern into the TDM data pin off the master's own bclk and fsync, and decodes every AAF column: one whole beat of the true 391/1591 plan and several of +/-1000 ppm plans at INTERNAL, then CRF: locks at sixteen phases on the true plan and at four on +/-50 ppm plans, and the aligner's engagement PLACED against the walk's crossing (calibrated per plan) every cycle across +/-32 of it and every 16 round the frame on the true plan, every 4 across the +/-50 ppm acquisition band, every quarter cycle at 64 sub-step phases across the crossing at -50 ppm (where the aligner's trim updates land on the NCO's terminal count), and the approach to the settled lock at +/-80 and +/-100 ppm (the converged lock is recorded in longer runs). The wrapper binds `milan_datapath`'s own keep-off declaration, copied out of the datapath source at build time, and the build refuses a datapath whose aligner instance binds anything else. It grades the columns, each walk's frame against the frame its tick takes (no added sample of latency), continuity, beat crossings and the CRF law (slips only while an engagement acquires, net zero, none in the lock; the engagement window derived from the relative rate), the junction counters against each walk's own repeat or skip, and prints the #451 torn-state table and each pair's sample age. The `dp` leg runs the same bench through the whole `milan_datapath` on the shipping shape, reading the frames at the MAC, with its own placed band. `mutants.py` then builds in parallel, one build per CPU, and requires twenty defects each to fail a named check: the per-pair hold law of `ce550952`, an unsnapshotted walk, a first-pair close, a late publish, an unwritten stage, a walk ignoring the coincidence law, the round-1 snapshot instant, the round-1 counter law, the round-1 aligner binding (in the wrapper and in `milan_datapath`), the default keep-off, an undelayed aligner tick, `milan_datapath`'s keep-off halved to 128 cycles (the +/-50 ppm bands), a literal keep-off bound to `milan_datapath`'s aligner (refused by the build), the NCO's `==` terminal compare (in `media_nco` check 10 and under the sub-cycle sweep), a one-pair frame length in `milan_datapath`, a close that ignores the frame length (`chmap_capture` [F1]), and a queued tick that snapshots never or at the tick (`chmap_capture` [Q]). The dp recipe must also build under an inherited `MAKEFLAGS=w`, and a planted syntax error must print its compiler error: a failed build prints the tail of its own make and compiler output |
 | [`tb/verilator/cbs`](../../tb/verilator/cbs) | CBS arithmetic vs a fixed-point replica and an ideal 802.1Qav model |
 | [`tb/verilator/cdc`](../../tb/verilator/cdc) | — |
-| [`tb/verilator/chmap_capture`](../../tb/verilator/chmap_capture) | — |
+| [`tb/verilator/chmap_capture`](../../tb/verilator/chmap_capture) | `KL_chan_map_capture` against the real packetizer (routing, remap, loopback replay, TDM frames) and the [NC] netlist decode pin, then the #640 M6 lockstep leg: the crossbar beside its pre-change reference (`reference/`, the module of dev `e8454e27` with only its name changed) at 4 and 32 pair slots, every output compared in every cycle. The source table resolves every entry class by value, and back-to-back loopback beats on mono, three- and eight-channel wires replay every event once, in order. `lockstep_mutants.py` requires a row decode that drops the half bit, a beat bank whose write slot never advances and a swapped commit form each to fail its named check |
 | [`tb/verilator/chmap_render`](../../tb/verilator/chmap_render) | — |
 | [`tb/verilator/classifier`](../../tb/verilator/classifier) | — |
 | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
@@ -595,9 +627,10 @@ verdicts and for check counts.
 | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** - that leg drove the old control-plane windows live. The `obj_pps` leg re-runs the same harness with `PPS_P=1` (#260): the 0x548 block decodes in every build, but `PTP_PPS_CTRL[0]`, its RO built bit `[16]` and `PTP_PPS_WIDTH` are gated, so the default leg grades the **UNSUPPORTED** arm (a structural zero at `o_pps_enable` whatever software writes) and this one grades the supported arm, from one set of expectations rather than two that drift |
 | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
 | [`tb/verilator/eth_tx_reset`](../../tb/verilator/eth_tx_reset) | — |
-| [`tb/verilator/follow_ring`](../../tb/verilator/follow_ring) | **#645 and #647**: the media-clock plane and the two listener rings it paces, the capture crossbar's loopback ring that `SLIP_LB` counts and the #386 render stage, on the real AAF meter, CRF receiver, servo, NCO and aligner. `milan_datapath`'s own decode, reference-mux, A2-a, #386 settle, settle-recentre and render-recentre glue is copied verbatim by `dp_glue.py`. The axis clock is 6.25 MHz with the aligner's gains scaled to keep its loop in sample units, and nothing is time-compressed. Every leg grades the [settle recentre](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre): one per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred and the render stage on its law. `make` runs four legs: lane B8's INTERNAL-to-AAF set and its two stream-to-stream switches (each also slips nothing and moves the ring under 0.1 tick before its settle recentre), an INTERNAL serial-clock hold, the fine/paired pulls and the controller at four clock rates. The explicit `make mutants` runs `mutants.py`: the settle recentre never pulsing, reaching the render stage only, firing on the aligner's band instead of 8 LOCKED windows, W1 (a switch through servo IDLE), and OVERSHOOT (the loopback target one past the depth, planted in a `CMAP_SRC` copy of the capture crossbar), each failing a named check; the full list of twelve, with the check each must fail, is the controls column of the [test plan](../design/MEDIA_CLOCK_FOLLOWING.md#simulation). `make sweep-b8` (16 set phases at no lateness, 0 to 5 us and 0 to 60 us), `sweep.py b8 --jitter-us 2 --tail-us 24 --tail-p 1e-4` (the rare tail) `sweep.py b8 --jitter-us 60` (the ruled 0 to 60 us envelope) and `make sweep-pullin` (16 feed phases at holds of 52 and 56 us) are the campaigns: every run graded, a window #643's ambiguity window cannot grade reported rather than failed. Every arrival campaign requires at least one tick on both the empty side (first-event push to pop) and the full side (slot freed to reused), for the ruled 16-entry ring with target 11. |
+| [`tb/verilator/follow_ring`](../../tb/verilator/follow_ring) | **#645 and #647**: the media-clock plane and the two listener rings it paces, the capture crossbar's loopback ring that `SLIP_LB` counts and the #386 render stage, on the real AAF meter, CRF receiver, servo, NCO and aligner. `milan_datapath`'s own decode, reference-mux, A2-a, #386 settle, settle-recentre and render-recentre glue is copied verbatim by `dp_glue.py`. The axis clock is 6.25 MHz with the aligner's gains scaled to keep its loop in sample units, and nothing is time-compressed. Every leg grades the [settle recentre](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre): one per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred and the render stage on its law. `make` runs five legs: lane B8's INTERNAL-to-AAF set and its two stream-to-stream switches (each also slips nothing and moves the ring under 0.1 tick before its settle recentre), an INTERNAL serial-clock hold, bench lane B17's binds at INTERNAL (three of its ten cycles as measured, each bind's first PDU arming one settle recentre 2,048 ticks before it fires, no `SLIP_LB` change through B17's late bursts, the ring centred after it, then one bind under CRF following that arms nothing), the fine/paired pulls and the controller at four clock rates, the bind arm included. The explicit `make mutants` runs `mutants.py`: the settle recentre never pulsing, reaching the render stage only, firing on the aligner's band instead of 8 LOCKED windows, W1 (a switch through servo IDLE), OVERSHOOT (the loopback target one past the depth, planted in a `CMAP_SRC` copy of the capture crossbar), and the bind arm removed, keyed on the bind's rise instead of its first PDU, or ungated under following, each failing a named check; the full list of fifteen, with the check each must fail, is the controls column of the [test plan](../design/MEDIA_CLOCK_FOLLOWING.md#simulation). `make sweep-b8` (16 set phases at no lateness, 0 to 5 us and 0 to 60 us), `sweep.py b8 --jitter-us 2 --tail-us 24 --tail-p 1e-4` (the rare tail) `sweep.py b8 --jitter-us 60` (the ruled 0 to 60 us envelope) and `make sweep-pullin` (16 feed phases at holds of 52 and 56 us) and `make sweep-bind` (all ten B17 cycles at 16 first-PDU phases, without lateness and with 0 to 5 us) are the campaigns: every run graded, a window #643's ambiguity window cannot grade reported rather than failed. Every arrival campaign requires at least one tick on both the empty side (first-event push to pop) and the full side (slot freed to reused), for the ruled 16-entry ring with target 11. |
 | [`tb/verilator/gptp_plane`](../../tb/verilator/gptp_plane) | the plane's servo closed over the REAL `timestamp_counter`: an engine rate write becomes a counter addend and a phase write becomes a step |
 | [`tb/verilator/gptp_shadow`](../../tb/verilator/gptp_shadow) | the plane slice: RX tap, TX lane, pairing, publication, and since #360 the ledger's own laws - a record that is not this frame's, the seal that waits for the observer's echo, an aged head that is not retired, and the recovery demand that only a completed episode discharges. `make` runs the suite then `mutants.py`, which also RECORDS the defects this slice cannot see and where each is carried instead |
+| [`tb/verilator/gptp_tables`](../../tb/verilator/gptp_tables) | **#640 lane M7**: the five plane tables that changed storage form - the two frame FIFOs' lane fields, and the egress ledger, result queue and timer deadlines in distributed RAM - each compared every cycle, inside the real slice, with a reference in its previous form, under a protocol peer and a seeded mix of bursts, stalls, held records and warm resets. A test-only slow-engine phase holds results in their queue, and every transmit lane count 0 to 8 is driven through the plane's decode. A value census prints each column's distinct values; a column with one value must be declared, with its reason, in `one_valued.tsv`, from which `scripts/gen_one_valued_table.py` writes the README's limits table. `make` checks that table, runs the suite, then `mutants.py`, which plants a wrong depth, a wrong read latency and an index alias in each table, plus a result written at the queue's head, odd lane counts decoded short, one undeclared column of each table stuck at one value and four wrong declaration lists, and requires each control's own named check to fail |
 | [`tb/verilator/gptp_txts`](../../tb/verilator/gptp_txts) | **the gPTP egress timestamp closed loop** (#360): the donor engine, the plane, the ledger, the PHC, the launch observer, the link guard and the SHIPPING MAC TRANSMIT CHAIN, converted from `sw/litex/milan_soc.py` by `sw/litex/gen_mac_tx_model.py`. It grades the time the plane returns against an independent oracle that counts octets at the PADS, at the product's 125:50 clock ratio with a swept phase, and measures the retired capture in the same run. `make` runs the suite then `mutants.py`; a stale converted chain is a red before anything is compiled |
 | [`tb/verilator/i2spb`](../../tb/verilator/i2spb) | — |
 | [`tb/verilator/ifg`](../../tb/verilator/ifg) | — |
@@ -608,6 +641,7 @@ verdicts and for check counts.
 | [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery. Since #74 item 2 the real `KL_chan_map_capture` counters grade a lock raced onto the tick from either side, a held and a surplus frame there, and one free-running passage each way, with two mutants that must fail |
 | [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. Since #74 `KL_media_grid_align` steers it under a followed source, and since #629 (A2-a) at INTERNAL too; it free-runs only while the aligner is disengaged. Check 10 (#617) moves the trim on every cycle around the terminal count, every end move on both shapes: one tick per period, no counter wrap |
 | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule, and every leg parses the `gptp-processor` sources |
+| [`tb/verilator/milan_dp_gm_steps`](../../tb/verilator/milan_dp_gm_steps) | **#387, #602 and #621, the GM step leg and its five acceptance controls**, split out of `milan_dp` for wall clock: `make -C tb/verilator/milan_dp_gm_steps`. `milan_dp`'s `gmstep` recipe runs the clean leg with every phase once. `gmstep_mutants.py --no-small-steps` then plants the five controls, each on the leg without its #621 phase, which holds none of their named checks. Its README tabulates the native per-leg times that moved it |
 | [`tb/verilator/milan_dp_mclk`](../../tb/verilator/milan_dp_mclk) | **#629 at the root**: the `milan_datapath` rows of the [media-clock following design](../design/MEDIA_CLOCK_FOLLOWING.md#simulation)'s test plan on a two-stream TDM8 elaboration at the true audio clock ratio, the servo closed through a modelled MMCM fine phase shift. Leg A follows AAF input 0 within 0.5 ppm, with the CSR words, the echo, a loss leg, a lock loss and the followed talker's `tu` edges; leg C takes W2 onto the CRF input and follows it; leg B the CRF lock loss, the switch rows (one onto a talker silent past the meter's timeout) and INTERNAL with the aligner engaged (A2-a). `mclk_mutants.py` runs the three legs (A, B, C) beside sixteen named mutants planted once as mutant schemata, among them the meter's `tu` taken from the `tv` net |
 | [`tb/verilator/milan_dp_render` `tdm8render`](../../tb/verilator/milan_dp_render) | **#447, the shipping TDM8 render lane end to end**: `make -C tb/verilator/milan_dp_render tdm8render`. Binds listener 0 over ACMP, programs a no-fixed-point permutation through the real dynamic `ADD_AUDIO_MAPPINGS` path, grades `GET_AUDIO_MAP` and the render RAM readback against its OWN issued route record, feeds channel-distinct AAF through the real acceptance/depacketizer/setpoint/crossbar chain, and decodes `tdm_bclk_o`/`tdm_fsync_o`/`tdm_dout_o` with a pin-only receiver that reads no DUT internal. It grades every 24-bit word and every 8-bit pad against an IMMUTABLE injection record, measures the commit-to-pin terms from registered events, and exercises the render epoch over a reset with the serial clock stopped, a reset inside the frame, a reset ON the frame wrap, a reset while a round trip is outstanding, a bind loss, a map write inside the closed epoch and a rebind. It grades the GRACEFUL FLUSH BOUNDARY from the pins as its own property: the last frame before digital silence must be a complete frame carrying one media event's identity in every routed slot, which is the whole-frame half of the flush contract that the silence checks cannot see. Every one of those states an EXACT epoch count - one counted reopening per event, two for two bind falls inside one round trip - counts the adapter's commits between a reset release and the reopening with the feed still running, and derives the first eligible media event from the preserved prefill rule instead of searching for it. Its `[CRF]` phase then selects this shape's CRF `CLOCK_SOURCE` through a real `SET_CLOCK_SOURCE` on the same AECP face, UNDER the running stream, feeds a real CRF stream into the provisioned sink and decodes the same pins again: the settled-grid recentre fires exactly once, the setpoint law holds under CRF, and the commit-to-pin walk is stopped under CRF. Since #629's A2-a INTERNAL is aligned too: its window may not walk at the divider plan's `+10.64` ppm, and back at INTERNAL after the deselect the walk stays stopped. That window opens while the aligner is still pulling the grid in after T14's serial-clock hold, so since #643 the setpoint law at INTERNAL is the `[LAW]` phase's: it waits for the aligner's settled report (engaged, error inside 1/64 sample for 2048 ticks, within the 32768-tick ceiling counted from the start of that wait), then starts a fresh stream at each of eighteen feed phases against an observed media tick, sixteen over one tick plus +927 and +1156. Each phase must hold the settled report throughout, read a fill of exactly 14 events (the setpoint plus that PDU) at every PDU end and pop every first event inside (8, 9] ticks of it, plus the pop pulse's one-cycle register. Each phase must also be gradable, with no PDU end within the 9-cycle ambiguity window of a pop, and that margin is a check. Both laws are graded at the render stage's own reference, the PDU end, under the ambiguity window the [media-clock following test plan](../design/MEDIA_CLOCK_FOLLOWING.md#simulation) measures and states. Its `[PULLIN]` phase (#647) runs a fresh stream at a `[LAW]` feed phase through T14's serial-clock hold and grades it again after the [settle recentre](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre): one settle recentre, the stage's one recentre since the hold, `SLIP_LB` static from it on, and the law. The default leg omits this long phase. The explicit `tdm8render-pullin` target preserves its standing phase after the full serial/CRF/LAW history (`--with-pullin`) and runs all eighteen boot phases, `PULLIN_JOBS` legs at a time, from inside the suite directory |
 | [`tb/verilator/milan_dp_render` `tdm8render-multi`](../../tb/verilator/milan_dp_render) | **#447 on a TWO-STREAM shape**: `make -C tb/verilator/milan_dp_render tdm8render-multi`. `gen_tdm8r_multi_shape.py` writes a second end-station config and the real builder derives its shape header and entity image, because two properties are unobservable on the one-stream shipping image. It binds both listeners and grades the STREAM-QUALIFIED epoch mask in both directions - a bind fall on a stream the lane does not render leaves the commit gate open for every cycle of the window, and the same fall on a stream the lane DOES render closes it, flushes to digital silence and reopens on a fresh post-flush event - and grades the three cluster-key classes (projected, in-range NONPHYSICAL, out of range) on BOTH the render RAM and the AECP protocol store |
@@ -677,6 +711,46 @@ gets is in the `sys` domain behind an AXI clock-domain crossing that carries
 every channel exactly between a 50 MHz-shaped source and a 100 MHz-shaped
 sink, while the pre-#359 direct connection across the same clocks loses or
 duplicates beats.
+
+`test_retained_cdc_storage.py` (#640 lane M2) covers the seven retained SoC
+crossing arrays: both MAC crossings and the five CSR channel FIFOs, built by
+`milan_soc` with their RAM-friendly storage. The MAC crossings come from a
+`MilanMAC` itself. Each runs beside a stock LiteX crossing of the documented
+depth, on the same stimulus, at two clock ratios, in the read form the SoC's
+Verilog gives it. Every handshake and valid beat must match on every edge.
+The checks also grade order, capacity, a reset with beats in flight, and the
+storage split. With every framing flag read, the Verilog that migen's and
+LiteX's emitters write must read each block-RAM array through a register of
+its own, the condition for Vivado to keep it in block RAM.
+Seven controls each plant one defect into a scratch copy of `milan_soc.py`:
+a half-depth array, an 8-beat crossing, a one-sided MAC reset, a CSR crossing
+in the MAC reinit domain, a read port one entry ahead, `MilanMAC` without its
+storage call, and arrays that register their read address. Each must fail its
+named check.
+
+`test_ctrl_memory.py` (#640 M8a) grades the split placement's firmware
+memory: [`ctrl_memory.py`](../../sw/litex/ctrl_memory.py)'s bank plan, a
+planted defect for every rule in `ctrl_memory.RULES` refused by that rule
+(the 56.0 RAMB36 budget accepted and 56.5 refused), the real
+`milan_soc.CtrlMemory` in simulation at the largest image's banks across the
+whole decoded window, and a probe linked by
+[`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld), whose rom words
+must equal its `objcopy -O binary` image and whose load segments, emptied or cut
+short, are refused by rule. Its SoC arm runs
+`milan_soc.py`'s own `main()` on the shipping 1x1 config's argv without
+Vivado: the three planted controls (an allocation over budget, a memory-map
+overlap, a staging buffer of another shape), an emptied reset segment and the
+two lone flags are refused, and the split export holds the image's banks and no
+BIOS memory.
+That arm refuses LiteX's firmware data packages, which the `elaborate` job does
+not install, so it grades the same in any interpreter.
+It requires the
+[split control memory](../design/SPLIT_CONTROL_MEMORY.md#3-named-refusals)
+rule table to equal `ctrl_memory.RULES`. Its forty-four mutants each rebuild one
+function or class with a rule or property removed or weakened, and each must
+turn its arm red by name; an arm that fails unmutated grades no mutant. The
+link arm needs an RV32 compiler (`sw/firmware/gtest/fw_rv32.py` finds the
+pinned SDK); without one the member declares a skip.
 
 An access that is never acknowledged must not wedge either bridge or the shared
 bus.
@@ -1367,8 +1441,9 @@ Neither this plan nor its self-test closes #70 or #117.
 
   A documentation-only pull request pays for none of it: every heavy step is
   gated on `scripts/ci_scope.py`, the classifier PR #176 added, and that
-  classifier fails safe - an empty diff or an unresolvable base both come
-  back RTL-relevant. Were the script ever absent the workflow would say so in
+  classifier fails safe - an empty diff comes back RTL-relevant, and on a
+  pull request an unresolvable revision or merge base fails the scope step.
+  Were the script ever absent the workflow would say so in
   its log and elaborate unconditionally rather than guess. The workflow's
   scheduling policy, what makes its check red and what only skips, is the
   `Elaboration` section of [`CI_WORKFLOWS.md`](CI_WORKFLOWS.md).

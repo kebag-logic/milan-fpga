@@ -76,6 +76,7 @@ Publish conflicts before continuing.
 | Review saved-state materialization | [Materialization contract, accepted](design/SAVED_STATE_MATERIALIZATION.md) |
 | Review Mark II placement and timing | [Split architecture](ARCHITECTURE_HW_SW_SPLIT.md) |
 | Review the firmware mailbox | [Packet mailbox split, F0](design/MAILBOX_SPLIT.md) |
+| Review the split placement's firmware memory | [Split control memory, M8a-1](design/SPLIT_CONTROL_MEMORY.md) |
 
 ## Verification
 
@@ -89,6 +90,7 @@ Publish conflicts before continuing.
 | Run behavior tests | [Behavior tests](../tests/README.md) |
 | Run or extend the firmware's host unit tests | [Firmware GoogleTest harness](../sw/firmware/gtest/README.md) |
 | Understand simulation boundaries | [Simulation guide](testing/SIMULATION.md) |
+| Check stream counters | [Packet and notification measurements](testing/726_STREAM_COUNTERS.md) |
 | Trace modules into tests | [Generated module matrix](traceability/MODULE_MATRIX.md) |
 | Check the per-clause compliance position | [Compliance matrix](reference/MILAN_COMPLIANCE_MATRIX.md) |
 | Review documentation health | [Documentation audit](DOCUMENTATION_AUDIT.md) |

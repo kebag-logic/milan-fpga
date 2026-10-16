@@ -28,6 +28,7 @@
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
+VERILATOR_JOBS ?= 0
 RTL_DIR    = ../../../hdl
 PP_DIR     = ../../../protocol-processor/hdl
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
@@ -87,7 +88,7 @@ CAPS_D     = -DPP_ADP_ENTITY_CAPS_C=0x$(subst _,,$(CAPS_RAW))u
 # Waivers for VENDORED and PINNED code live in waivers.vlt, scoped to the one
 # rule and the one file that earn them. That is different in kind from a global
 # -Wno-X, which would silence the same finding in RTL we wrote.
-VFLAGS = --cc --exe --build -j 0 \
+VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          --top-module $(TOP) \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/common/csr +incdir+$(RTL_DIR)/common/eth_event_counter \
          +incdir+$(RTL_DIR)/ieee17221/adp +incdir+$(RTL_DIR)/ieee8021q/ts \
@@ -142,31 +143,54 @@ ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 # hdl/ieee17221/acmp/acmp_pkg.sv are DELETED with the plane they belonged to, so
 # the consumer side of the collision set is permanently empty and the guard can
 # never fire again. A check that cannot fail is not a check.
-run: run-base run-vid73 run-crf run-pending
+# One inventory feeds the default run and the CI selector.
+RUN_CASES = base vid73 crf pending
+run: $(addprefix run-,$(RUN_CASES))
 
-run-base: ltn_rom.hex ucode.hex $(GEN_ALL)
+.PHONY: ci-list ci-receipts ci-prepare $(addprefix run-,$(RUN_CASES)) $(addprefix build-,$(RUN_CASES)) $(addprefix exec-,$(RUN_CASES))
+ci-prepare:
+	@true
+
+ci-receipts:
+	@$(foreach case,$(RUN_CASES),printf '%s\ttally\n' '$(case)';)
+
+ci-list:
+	@printf '%s\n' $(RUN_CASES)
+
+$(addprefix run-,$(RUN_CASES)): run-%: build-%
+	$(MAKE) --no-print-directory exec-$*
+
+build-base: ltn_rom.hex ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir $(BUILD_DIR) $(DP_SRCS) $(CPP) -o Vpp_shadow_sim
+
+exec-base:
 	$(BUILD_DIR)/Vpp_shadow_sim $(SIM_ARGS)
 
 # Both headers come from committed fixture inputs and the builder emitters.
 # Expectations are independent literals, so a dropped binding cannot agree
 # merely because both the harness and every donor default happen to say 2.
-run-vid73: ltn_rom.hex ucode.hex
+build-vid73: ltn_rom.hex ucode.hex
 	python3 ../../common/gen_declaration_fixture.py fixtures/vid73.yaml obj_vid73/fixture
 	$(VERILATOR) +incdir+obj_vid73/fixture $(VFLAGS) --Mdir obj_vid73 \
 	  -CFLAGS "-DDECLARATION_VID=73 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_vid73
+
+exec-vid73:
 	./obj_vid73/Vpp_vid73
 
-run-crf: ltn_rom.hex ucode.hex
+build-crf: ltn_rom.hex ucode.hex
 	python3 ../../common/gen_declaration_fixture.py fixtures/crf_on.yaml obj_crf/fixture
 	$(VERILATOR) +incdir+obj_crf/fixture $(VFLAGS) --Mdir obj_crf \
 	  -CFLAGS "-DDECLARATION_OUTPUTS=2 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_crf
+
+exec-crf:
 	./obj_crf/Vpp_crf $(SIM_ARGS)
 
-run-pending: ltn_rom.hex ucode.hex
+build-pending: ltn_rom.hex ucode.hex
 	python3 ../../common/gen_declaration_fixture.py fixtures/pending.yaml obj_pending/fixture
 	$(VERILATOR) +incdir+obj_pending/fixture $(VFLAGS) --Mdir $(PENDING_BUILD_DIR) \
 	  -CFLAGS "-DPENDING_OUTPUT_DYNAMIC=1 -Wall -Wextra" $(DP_SRCS) $(CPP) -o Vpp_pending
+
+exec-pending:
 	$(PENDING_BUILD_DIR)/Vpp_pending --pending-only
 
 pending-mutant:

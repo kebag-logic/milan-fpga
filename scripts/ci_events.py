@@ -126,6 +126,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import json
 import itertools
 import pathlib
 import re
@@ -199,11 +200,16 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                      'id': 'cache-verilator',
                      'uses': 'actions/cache@v4',
                      'with': {   'path': '/opt/verilator',
-                                 'key': 'verilator-${{ env.VERILATOR_VERSION }}-${{ '
-                                        'runner.os }}'}},
+                                 'key': (
+                                        'verilator-${{ env.VERILATOR_VERSION }}-'
+                                        '848d926ebd4addacacd294dc84e35d9d4ae8078c-'
+                                        "${{ hashFiles('.github/workflows/*.yml') }}-"
+                                        '${{ runner.os }}'
+                                        )}},
                  {   'name': 'Build Verilator from source on cache miss',
                      'if': "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}",
-                     'run': 'set -euo pipefail\n'
+                     'run': (
+                            'set -euo pipefail\n'
                             'sudo apt-get update -qq\n'
                             'sudo apt-get install -y --no-install-recommends \\\n'
                             '  git make autoconf g++ flex bison libfl2 libfl-dev help2man '
@@ -212,10 +218,13 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                             '  https://github.com/verilator/verilator.git '
                             '/tmp/verilator-src\n'
                             'cd /tmp/verilator-src\n'
+                            'test "$(git rev-parse HEAD)" = '
+                            '"848d926ebd4addacacd294dc84e35d9d4ae8078c"\n'
                             'autoconf\n'
                             './configure --prefix=/opt/verilator\n'
-                            'make -j"$(nproc)"\n'
-                            'sudo make install\n'},
+                            'make -j"$CI_TOOL_BUILD_JOBS"\n'
+                            'sudo make install\n'
+                            )},
                  {   'name': 'Put Verilator on PATH and prove the version',
                      'run': 'set -euo pipefail\n'
                             'echo "/opt/verilator/bin" >> "$GITHUB_PATH"\n'
@@ -231,7 +240,7 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
                      'run': 'set -euo pipefail\n'
                             "/usr/bin/time -f 'driver_wall_seconds=%e driver_exit_status=%x' "
                             '\\\n'
-                            '  env -u SUITE_TIMEOUT VERILATOR_JOBS=4 \\\n'
+                            '  env -u SUITE_TIMEOUT VERILATOR_JOBS="$CI_BUILD_JOBS" \\\n'
                             '  scripts/run_all_suites.sh "$RUNNER_TEMP/physical-gptp-logs" '
                             '--physical-gptp\n'
                             'python3 scripts/suite_tally.py '
@@ -349,14 +358,13 @@ VERIFY_STEP_IF = "${{ always() }}"
 #: Every pinned step's `env`, as the BINDING each name must carry, never the
 #: name alone ([R0] on PR #239). Holding the names while leaving the
 #: expressions free held nothing where it mattered: `PR_DRAFT: "true"` is
-#: valid workflow YAML, keeps all three pinned names and all four pinned
+#: valid workflow YAML, keeps all four pinned names and all four pinned
 #: keys, and makes a ready RTL pull request publish `run_full=false`. Both
 #: worker matrices then skip, both aggregates skip under their documented
 #: no-op exception, and a skipped required context satisfies the ruleset, so
-#: the run is a false green rather than a refusal. `PR_BASE_SHA:
-#: ${{ github.sha }}` (a diff of a commit against itself, so `rtl=false`) and
-#: `EVENT_NAME: pull_request` (a push, schedule or dispatch run taking the
-#: pull-request branch) reach the same place by the same route. So the
+#: the run is a false green rather than a refusal. A rebound PR_BASE_REF
+#: changes the replay's live-base lookup, and PR_HEAD_SHA its endpoint.
+#: `EVENT_NAME: pull_request` makes a non-PR run take the PR path. So the
 #: mapping is the contract and pinned_step_keys compares the value: there is
 #: no longer any way to pin an env name in this file without saying what it
 #: must be bound to. GATE_SHA is derived from the job and the output it
@@ -397,7 +405,8 @@ DECIDE_STEP_KEYS = ("name", "id", "env", "run")
 DECIDE_STEP_ENV = {
     "EVENT_NAME": "${{ github.event_name }}",
     "PR_DRAFT": "${{ github.event.pull_request.draft }}",
-    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+    "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+    "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}",
 }
 #: The decision step's script, pinned verbatim after whitespace
 #: normalization, exactly as the default-branch step's is. The bindings above
@@ -418,13 +427,17 @@ CANONICAL_DECIDE_SCRIPT = (
     'echo "Non-PR event: exhaustive validation required."',
     "exit 0",
     "fi",
-    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
-    "2>/dev/null; then",
-    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
-    '> "$RUNNER_TEMP/changed-files"',
-    "else",
-    'git ls-files > "$RUNNER_TEMP/changed-files"',
-    "fi",
+    'if [ "${ACT:-false}" = true ]; then',
+    '# Replay uses the live base fetched and verified by the runner.',
+    'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git cat-file -e "$base^{commit}"',
+    'merged="$(git merge-tree --write-tree '
+    '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git diff --no-renames --name-only '
+    '"refs/remotes/origin/$PR_BASE_REF" "$merged" > "$RUNNER_TEMP/changed-files"',
+    'else',
+    'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
+    'fi',
     'echo "Changed files:"',
     "sed 's/^/ /' \"$RUNNER_TEMP/changed-files\"",
     'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
@@ -531,7 +544,7 @@ ENV_FILE_WRITERS = {
         'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
         '/opt/verilator/bin/verilator --version',
         '/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"',
-        'PATH="/opt/verilator/bin:$PATH" python3 scripts/lint_rtl.py --check --self-test',
+        'PATH="/opt/verilator/bin:$PATH" python3 scripts/lint_rtl.py --check --self-test --jobs "$CI_CAMPAIGN_JOBS"',
     ),
     (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version"): (
         'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
@@ -545,14 +558,28 @@ ENV_FILE_WRITERS = {
         'git -C "$RUNNER_TEMP/tsn-gen" submodule update --init --depth 1 --recursive external/rapidyaml',
         'cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" '
         '-DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF',
-        'cmake --build "$RUNNER_TEMP/tsn-gen/build" --target packet_gen --parallel',
+        'cmake --build "$RUNNER_TEMP/tsn-gen/build" --target packet_gen --parallel "$CI_TOOL_BUILD_JOBS"',
         'test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"',
         'echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"',
     ),
+    #: The elaboration job's interpreter: a venv under the job's own
+    #: RUNNER_TEMP, first on PATH, so the LiteX install, the VexiiRiscv
+    #: checkout and the patch series never write into setup-python's
+    #: interpreter, which act shares between concurrent jobs (#748; REQ-VER-04).
+    (ELABORATE, "elaborate", "Put a job-private Python environment on PATH"): (
+        'set -euo pipefail',
+        'python3 -m venv "$RUNNER_TEMP/litex-venv"',
+        'echo "$RUNNER_TEMP/litex-venv/bin" >> "$GITHUB_PATH"',
+    ),
     (ELABORATE, "elaborate", "Install sbt"): (
-        'sbt --version >/dev/null 2>&1 && exit 0',
-        'curl -fsSL --retry 3 -o /tmp/sbt.tgz https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz',
-        'sudo tar xzf /tmp/sbt.tgz -C /opt',
+        'set -euo pipefail',
+        'mkdir -p "$HOME/.cache/milan-sbt"',
+        'archive="$HOME/.cache/milan-sbt/sbt-1.10.7.tgz"',
+        'if [ ! -f "$archive" ]; then',
+        'curl -fsSL --retry 3 -o "$archive" https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz',
+        'fi',
+        'echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6 $archive" | sha256sum -c -',
+        'sudo tar xzf "$archive" -C /opt',
         'echo /opt/sbt/bin >> "$GITHUB_PATH"',
     ),
 }
@@ -564,6 +591,10 @@ ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove 
 #: recipe for putting this tool on PATH, so a reviewer comparing the three
 #: reads one thing and a hostile line has nowhere quiet to sit.
 ENV_FILE_WRITERS[(ELABORATE, "elaborate", "Put Verilator on PATH and prove the version")] = \
+    ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")]
+#: #697: the fast job that judges the TSN stack boundary over the Verilator builders' compiles puts the same
+#: pinned Verilator on PATH by the physical job's script, whose pipefail keeps the version assertion's verdict.
+ENV_FILE_WRITERS[(RTL_FAST, "firmware-verilator", "Put Verilator on PATH and prove the version")] = \
     ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")]
 
 #: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
@@ -580,18 +611,21 @@ RECORDED_ACTIONS = frozenset({
 #: The pinned steps bind these exactly elsewhere; this table closes the
 #: unpinned steps too, and a job absent from it may carry none.
 INHERITED_STEP_ENV = {
-    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_SHA", "PR_DRAFT"),
+    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_REF", "PR_DRAFT", "PR_HEAD_SHA"),
     (RTL_FULL, "verilator-shards"): ("SHARD", "SHARDS", "TARGET_SHA"),
     (RTL_FULL, PHYSICAL_GPTP_JOB): ("TARGET_SHA",),
     (RTL_FULL, "verilator-suites"): ("GATE_SHA", "SHARD_RESULT"),
     (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
     (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
-    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
-    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
-                             "FIRMWARE_UNIT_RESULT",
+    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA", "PUSH_BEFORE_SHA"),
+    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT", "FIRMWARE_BOUNDARY_RESULT",
+                             "FIRMWARE_UNIT_RESULT", "FIRMWARE_VERILATOR_RESULT",
+                             "FIRMWARE_CONTROL_MUTANTS_RESULT", "FIRMWARE_AECP_MUTANTS_RESULT",
+                             "FIRMWARE_SRP_MUTANTS_RESULT",
+                             "PUBLICATION_CENSUS_RESULT",
                              "VERILATOR_LINT_RESULT",
                              "YOSYS_ELABORATION_RESULT"),
-    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
+    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_REF", "PR_HEAD_SHA"),
     (DOCS, "docs-check"): ("EVENT_NAME", "PR_BASE_REF", "PUSH_BEFORE_SHA"),
 }
 #: The shard denominator a worker passes and states in its display name.
@@ -683,6 +717,13 @@ def rendered_names(job: YamlMap) -> list[str] | None:
             name))
     return out
 ACT_CI_SELFTEST = "python3 scripts/act_ci.py --selftest"
+ACT_CI_SELFTEST_SCRIPT = (
+    ACT_CI_SELFTEST,
+    'install_dir="$(mktemp -d)"',
+    'trap \'rm -rf "$install_dir"\' EXIT',
+    'install -m 0555 scripts/act_ci.py "$install_dir/act_ci.py"',
+    'python3 -I "$install_dir/act_ci.py" --selftest --worktree "$GITHUB_WORKSPACE"',
+)
 #: ``test_builder.py`` invokes both processor-image/source gates and the
 #: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
 #: shipping AXIS primitives by path, so both hosted jobs which call the
@@ -840,13 +881,17 @@ CANONICAL_ELAB_SCOPE_SCRIPT = (
     'echo "rtl=true" >> "$GITHUB_OUTPUT"',
     "exit 0",
     "fi",
-    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
-    "2>/dev/null; then",
-    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
-    '> "$RUNNER_TEMP/changed"',
-    "else",
-    'git ls-files > "$RUNNER_TEMP/changed"',
-    "fi",
+    'if [ "${ACT:-false}" = true ]; then',
+    '# Replay uses the live base fetched and verified by the runner.',
+    'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git cat-file -e "$base^{commit}"',
+    'merged="$(git merge-tree --write-tree '
+    '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git diff --no-renames --name-only '
+    '"refs/remotes/origin/$PR_BASE_REF" "$merged" > "$RUNNER_TEMP/changed"',
+    'else',
+    'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed"',
+    'fi',
     'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" '
     '>> "$GITHUB_OUTPUT"',
 )
@@ -913,8 +958,9 @@ CARRIER_STEP_LISTS = {
         {"name": "Cache the pinned Markdown renderer downloads",
          "uses": "actions/cache@v4",
          "with": {"path": "~/.cache/milan-markdown-pip",
-                  "key": "markdown-renderer-pip-${{ runner.os }}-"
-                         "${{ hashFiles('tools/markdown/requirements.txt') }}"}},
+                  "key": "markdown-renderer-pip-cmarkgfm2025.10.22-html5lib1.1-${{ runner.os }}-"
+                         "${{ hashFiles('tools/markdown/requirements.txt') }}-"
+                         "${{ hashFiles('.github/workflows/*.yml') }}"}},
         {"name": "Install the pinned Markdown renderer",
          "run": (
              'python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip '
@@ -1087,7 +1133,7 @@ CARRIER_STEP_LISTS = {
         {"name": "CI event and SHA contract gate",
          "run": CANONICAL_DOCS_GATE_SCRIPT},
         {"name": "Local act runner contract gate",
-         "run": (ACT_CI_SELFTEST,)},
+         "run": ACT_CI_SELFTEST_SCRIPT},
         {"name": "Doc cited-path gate",
          "run": (
              'python3 scripts/check_doc_paths.py',
@@ -1119,6 +1165,23 @@ CARRIER_STEP_LISTS = {
          "run": (
              'python3 scripts/check_entity_shape.py --self-test',
          )},
+        {"name": "CI scheduling and evidence controls",
+         "run": (
+             'python3 scripts/ci_gate_workflows.py --check',
+             'python3 scripts/ci_gate_workflows_selftest.py',
+             'python3 scripts/ci_case_receipts_selftest.py',
+             'python3 scripts/ci_make_cases_selftest.py',
+             'python3 scripts/ci_maap_cases_selftest.py',
+             'python3 scripts/ci_capture_cases_selftest.py',
+             'python3 scripts/ci_suite_pieces_selftest.py',
+             'python3 scripts/ci_suite_collect_selftest.py',
+             'python3 scripts/ci_fail_fast_selftest.py',
+             'python3 scripts/ci_runtime_evidence_selftest.py',
+             'python3 scripts/ci_install_cache_selftest.py',
+             'python3 scripts/generate_ci_evidence_pins.py --check',
+             'python3 scripts/ci_workflow_plan_selftest.py',
+             'python3 scripts/ci_manifest_selftest.py',
+         )},
     ),
     (DOCS, "wire-accountability"): (
         {"uses": "actions/checkout@v4"},
@@ -1141,7 +1204,8 @@ CARRIER_STEP_LISTS = {
         {"name": "Decide whether this head needs an elaboration",
          "id": ELAB_SCOPE_STEP_ID,
          "env": {"EVENT_NAME": "${{ github.event_name }}",
-                 "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}"},
+                 "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+                 "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}"},
          "run": CANONICAL_ELAB_SCOPE_SCRIPT},
         {"name": "Fetch the source dependencies the elaboration reads",
          "if": BUILDER_IF,
@@ -1150,12 +1214,15 @@ CARRIER_STEP_LISTS = {
          "run": SV2V_INSTALL},
         {"uses": "actions/setup-python@v5", "if": BUILDER_IF,
          "with": {"python-version": "3.12"}},
+        {"name": "Put a job-private Python environment on PATH", "if": BUILDER_IF,
+         "run": ENV_FILE_WRITERS[(ELABORATE, "elaborate",
+                                  "Put a job-private Python environment on PATH")]},
         {"name": "Cache the pinned pip downloads", "uses": "actions/cache@v4",
          "if": BUILDER_IF,
          "with": {"path": "~/.cache/pip",
-                  "key": "elaborate-pip-${{ runner.os }}-"
-                         "${{ hashFiles('sw/litex/litex_pins.txt') }}",
-                  "restore-keys": "elaborate-pip-${{ runner.os }}-"}},
+                  "key": "elaborate-pip-git-pins-${{ runner.os }}-"
+                         "${{ hashFiles('sw/litex/litex_pins.txt') }}-"
+                         "${{ hashFiles('.github/workflows/*.yml') }}"}},
         {"name": "Install LiteX at the pinned revisions", "if": BUILDER_IF,
          "run": (
              'python3 -m pip install --quiet pyyaml',
@@ -1163,16 +1230,18 @@ CARRIER_STEP_LISTS = {
          )},
         {"name": "Cache the Scala toolchain", "uses": "actions/cache@v4",
          "if": BUILDER_IF,
-         "with": {"path": "~/.cache/coursier\n~/.sbt\n~/.ivy2\n",
-                  "key": "elaborate-sbt-${{ runner.os }}",
-                  "restore-keys": "elaborate-sbt-"}},
+         "with": {"path": "~/.cache/coursier\n~/.sbt\n~/.ivy2\n~/.cache/milan-sbt\n",
+                  "key": "elaborate-sbt-1.10.7-"
+                         "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6-"
+                         "${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-"
+                         "${{ hashFiles('.github/workflows/*.yml') }}"}},
         {"name": "Cache the generated CPU metadata", "uses": "actions/cache@v4",
          "if": BUILDER_IF,
          "with": {"path": "~/vexii-netlist-args",
                   "key": "elaborate-vexii-${{ hashFiles('configs/*.yaml', "
                          "'sw/litex/milan_soc.py', 'sw/litex/build.sh', "
                          "'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', "
-                         "'sw/litex/patches/**') }}"}},
+                         "'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml') }}"}},
         {"name": "Install sbt", "if": BUILDER_IF,
          "run": ENV_FILE_WRITERS[(ELABORATE, "elaborate", 'Install sbt')]},
         {"name": "Place the VexiiRiscv source at the revision LiteX pins",
@@ -1200,8 +1269,12 @@ CARRIER_STEP_LISTS = {
         {"name": "Cache the pinned Verilator build", "uses": "actions/cache@v4",
          "id": "cache-verilator", "if": BUILDER_IF,
          "with": {"path": "/opt/verilator",
-                  "key": "verilator-${{ env.VERILATOR_VERSION }}-"
-                         "${{ runner.os }}"}},
+                  "key": (
+                         'verilator-${{ env.VERILATOR_VERSION }}-'
+                         '848d926ebd4addacacd294dc84e35d9d4ae8078c-'
+                         "${{ hashFiles('.github/workflows/*.yml') }}-"
+                         '${{ runner.os }}'
+                         )}},
         {"name": "Build Verilator from source on cache miss",
          "if": "${{ steps.scope.outputs.rtl == 'true' && "
                "steps.cache-verilator.outputs.cache-hit != 'true' }}",
@@ -1213,9 +1286,10 @@ CARRIER_STEP_LISTS = {
              'git clone --depth 1 --branch "$VERILATOR_VERSION" '
              'https://github.com/verilator/verilator.git /tmp/verilator-src',
              'cd /tmp/verilator-src',
+             'test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"',
              'autoconf',
              './configure --prefix=/opt/verilator',
-             'make -j"$(nproc)"',
+             'make -j"$CI_TOOL_BUILD_JOBS"',
              'sudo make install',
          )},
         {"name": "Put Verilator on PATH and prove the version",
@@ -1253,6 +1327,20 @@ GUARD_SELFTEST = "python3 syn/yosys/guard_selftest.py"
 OOC_SH_SELFTEST_JOB = "yosys-elaboration"
 #: #665 lane FT: the fast job that runs the bare-metal firmware's host suites.
 FIRMWARE_UNIT_JOB = "firmware-unit"
+FIRMWARE_JOBS = (FIRMWARE_UNIT_JOB, "firmware-control-mutants",
+                 "firmware-aecp-mutants", "firmware-srp-mutants")
+FIRMWARE_JOB_IF = "${{ needs.changes.outputs.rtl == 'true' }}"
+FIRMWARE_PHASE_STEPS = ("Run the control-plane firmware suites and RV32 builds",
+                        "Run the control mutation campaign", "Run the AECP mutation campaign",
+                        "Run both SRP mutation campaigns and pin controls")
+#: #697: the fast job that judges the TSN stack boundary over the compiles of every other builder it judges, each
+#: run by its builds (ctrl_configs.BUILDERS), not its suites.
+FIRMWARE_BOUNDARY_JOB = "firmware-boundary"
+#: #697: the fast job that judges the TSN stack boundary over the compiles of the builders that need Verilator.
+FIRMWARE_VERILATOR_JOB = "firmware-verilator"
+#: #665 F-INT: the fast job that runs the mailbox publication census in every
+#: shape the builder builds, on its own runner (comment 6100024293).
+CENSUS_JOB = "publication-census"
 OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
 #: ...and it must NAME the submodule. Holding the bare verb alone let the
 #: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
@@ -1268,27 +1356,36 @@ FAST_CHECKOUT_WITH = {"fetch-depth": "0"}
 FAST_SCOPE_STEP_KEYS = ("name", "id", "env", "run")
 FAST_SCOPE_STEP_ENV = {
     "EVENT_NAME": "${{ github.event_name }}",
-    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+    "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+    "PR_HEAD_SHA": "${{ github.event.pull_request.head.sha }}",
     "PUSH_BEFORE_SHA": "${{ github.event.before }}",
 }
 CANONICAL_FAST_SCOPE_SCRIPT = (
     "set -euo pipefail",
     "python3 scripts/ci_scope.py --selftest",
-    'base=""',
     'if [ "$EVENT_NAME" = pull_request ]; then',
-    'base="$PR_BASE_SHA"',
-    "else",
+    'if [ "${ACT:-false}" = true ]; then',
+    '# Replay uses the live base fetched and verified by the runner.',
+    'base="$(git merge-base --all "refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git cat-file -e "$base^{commit}"',
+    'merged="$(git merge-tree --write-tree '
+    '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA")"',
+    'git diff --no-renames --name-only '
+    '"refs/remotes/origin/$PR_BASE_REF" "$merged" > "$RUNNER_TEMP/changed-files"',
+    'else',
+    'git diff --no-renames --name-only "$GITHUB_SHA^1" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
+    'fi',
+    'else',
     'base="$PUSH_BEFORE_SHA"',
-    "fi",
     'if [ -n "$base" ] && [ "$base" != '
     '0000000000000000000000000000000000000000 ] && '
     'git cat-file -e "$base^{commit}" 2>/dev/null; then',
-    'git diff --no-renames --name-only "$base" "$GITHUB_SHA" > '
-    '"$RUNNER_TEMP/changed-files"',
-    "else",
-    "# An unknown base must never turn a real change into docs-only.",
+    'git diff --no-renames --name-only "$base" "$GITHUB_SHA" > "$RUNNER_TEMP/changed-files"',
+    'else',
+    '# An unknown base must never turn a real change into docs-only.',
     'git ls-files > "$RUNNER_TEMP/changed-files"',
-    "fi",
+    'fi',
+    'fi',
     'echo "Changed files:"',
     'sed \'s/^/ /\' "$RUNNER_TEMP/changed-files"',
     'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
@@ -1414,6 +1511,8 @@ class CannotRun(Exception):
     """An input the check cannot judge: missing, unparseable, no pyyaml."""
 
 
+from ci_gate_workflows import TEMPLATES, generate as generate_gate_workflow
+
 # --------------------------------------------------------------------------
 # Loading
 # --------------------------------------------------------------------------
@@ -1451,7 +1550,7 @@ def read_tree(root: pathlib.Path) -> dict[str, str]:
     every other workflow file the directory holds: the inventory decides
     what is held, the directory decides what GitHub runs."""
     world = {}
-    for rel in FILES:
+    for rel in (*FILES, *TEMPLATES.values()):
         path = root / rel
         try:
             world[rel] = path.read_text(encoding="utf-8")
@@ -1479,6 +1578,10 @@ def parse_world(world: World) -> World:
             raise CannotRun(f"{rel}: missing")
         parsed[rel] = (load_yaml(world[rel], rel) if rel in WORKFLOWS
                        else world[rel])
+    for rel in TEMPLATES.values():
+        if rel not in world:
+            raise CannotRun(f"{rel}: missing gate inventory template")
+        parsed[rel] = load_yaml(world[rel], rel)
     for rel in extra_workflows(world):
         parsed[rel] = (world[rel] if isinstance(world[rel], dict)
                        else load_yaml(world[rel], rel))
@@ -1909,7 +2012,7 @@ def check_physical_gptp(c: Contract, wf: YamlMap, policy: str) -> None:
 #: #444: the Verilator workers' ownership proof, pinned verbatim after
 #: whitespace normalization like the decision step. Its `case` arms are the
 #: run-time half of suite_shards.py's landmarks: the tsn-gen and Yosys/sv2v
-#: installs are keyed to shards 1 and 3, and shard 4 is milan_dp's own worker.
+#: installs are keyed to shards 1 and 3, and shard 5 is milan_dp's own worker.
 #: An arm dropped or widened here lets an assignment drift run green on a
 #: worker that no longer owns what it installs, or on a milan_dp worker that
 #: runs more than milan_dp.
@@ -1924,7 +2027,7 @@ CANONICAL_OWNERSHIP_SCRIPT = (
     'case "$SHARD" in',
     '1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;',
     '3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;',
-    '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;',
+    '5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;',
     "esac",
 )
 
@@ -2044,11 +2147,21 @@ RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache"
 #: Every run entry also records its canonical normalized script (#439).
 VERILATOR_CACHE_WITH = {
     "path": "/opt/verilator",
-    "key": "verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}",
+    "key": (
+           'verilator-${{ env.VERILATOR_VERSION }}-'
+           '848d926ebd4addacacd294dc84e35d9d4ae8078c-'
+           "${{ hashFiles('.github/workflows/*.yml') }}-"
+           '${{ runner.os }}'
+           ),
 }
 YOSYS_CACHE_WITH = {
     "path": "/opt/yosys",
-    "key": "yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}",
+    "key": (
+           'yosys-${{ env.YOSYS_VERSION }}-'
+           '86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-'
+           "${{ hashFiles('.github/workflows/*.yml') }}-"
+           '${{ runner.os }}'
+           ),
 }
 VERILATOR_CACHE_MISS_IF = "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}"
 YOSYS_CACHE_MISS_IF = "${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"
@@ -2087,9 +2200,10 @@ RTL_VERILATOR_BUILD_SCRIPT = (
     'git clone --depth 1 --branch "$VERILATOR_VERSION" '
     'https://github.com/verilator/verilator.git /tmp/verilator-src',
     'cd /tmp/verilator-src',
+             'test "$(git rev-parse HEAD)" = "848d926ebd4addacacd294dc84e35d9d4ae8078c"',
     'autoconf',
     './configure --prefix=/opt/verilator',
-    'make -j"$(nproc)"',
+    'make -j"$CI_TOOL_BUILD_JOBS"',
     'sudo make install',
 )
 RTL_YOSYS_BUILD_SCRIPT = (
@@ -2098,10 +2212,11 @@ RTL_YOSYS_BUILD_SCRIPT = (
     'sudo apt-get install -y --no-install-recommends git make g++ bison flex libfl-dev '
     'pkg-config zlib1g-dev python3',
     'git clone --depth 1 --branch "$YOSYS_VERSION" https://github.com/YosysHQ/yosys.git /tmp/yosys-src',
+    'test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"',
     'git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts',
     'make -C /tmp/yosys-src config-gcc',
     "printf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' >> /tmp/yosys-src/Makefile.conf",
-    'make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys',
+    'make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys',
     'sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys',
     'git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV',
     "# runner-owned so the cache action's save and restore are symmetric",
@@ -2122,7 +2237,7 @@ RTL_STEP_LISTS = {
     (RTL_FULL, "verilator-shards"): (
         {"uses": "actions/checkout@v4"},
         {"name": "Fetch RTL dependencies",
-         "run": RTL_FETCH_SCRIPT},
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/tsn-c-stack",)},
         {"name": "Record the tree this worker validates",
          "env": TARGET_SHA_STEP_ENV,
          "run": (
@@ -2187,7 +2302,7 @@ RTL_STEP_LISTS = {
          "run": (
              'shopt -s nullglob',
              'roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)',
-             'python3 scripts/ci_events.py --require-target-sha --expect 5 --sha '
+             'python3 scripts/ci_events.py --require-target-sha --expect 6 --sha '
              'gate="$GATE_SHA" --sha run="$GITHUB_SHA" --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"',
          )},
         {"name": VERILATOR_TALLY_STEP, "if": ALWAYS_IF,
@@ -2346,10 +2461,37 @@ RTL_STEP_LISTS = {
     ),
     # #665 lanes FT/F4: the pinned SDK precedes the required freestanding
     # control builds. SRP uses the exact lwSRP submodule and mutation campaign.
+    (RTL_FAST, CENSUS_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies",
+         "run": RTL_FETCH_SCRIPT},
+        {"name": "Cache the pinned Yosys build", "id": "cache-yosys",
+         "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
+        {"name": "Build Yosys from source on cache miss",
+         "if": YOSYS_CACHE_MISS_IF,
+         "run": RTL_YOSYS_BUILD_SCRIPT},
+        {"name": "Install the pinned Yosys and prove the version",
+         "run": (
+             'set -euo pipefail',
+             'sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/',
+             'test -x /opt/yosys/bin/yosys-abc',
+             'echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"',
+             'yosys -V',
+             'yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"',
+         )},
+        {"name": "Install the pinned sv2v release",
+         "run": SV2V_INSTALL},
+        {"name": "Run the publication census in every shape the builder builds",
+         "run": (
+             'set -euo pipefail',
+             'python3 -m pip install --quiet pyyaml',
+             'python3 sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CAMPAIGN_JOBS"',
+         )},
+    ),
     (RTL_FAST, FIRMWARE_UNIT_JOB): (
         {"uses": "actions/checkout@v4"},
         {"name": "Fetch RTL dependencies",
-         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP",)},
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP third_party/tsn-c-stack",)},
         {"name": "Install GoogleTest and GoogleMock and print the versions",
          "run": (
              'set -euo pipefail',
@@ -2372,20 +2514,93 @@ RTL_STEP_LISTS = {
          "run": (
              'set -euo pipefail',
              'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
-             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4',
+             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test '
+             '--jobs "$CI_CAMPAIGN_JOBS"',
          )},
         {"name": "Run the saved-state store suites and its RV32 build",
          "run": (
-             'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
+             'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$CI_CAMPAIGN_JOBS"',
          )},
         {"name": "Hold the firmware coverage ratchet",
          "run": (
              'set -euo pipefail',
              'python3 sw/firmware/gtest/fw_coverage.py --selftest',
-             'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"',
+             'python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$CI_CAMPAIGN_JOBS"',
+         )},
+    ),
+    # #697: the TSN stack's boundary from both sides over the compiles of every builder it judges but those
+    # that need Verilator, each run by its builds and not its suites under the gate's own capture (the gate
+    # reads them from its own known set, ctrl_configs.BUILDERS), its controls and the stack's own gate; the job
+    # has no Verilator, so the builders needing it are named and left out.
+    (RTL_FAST, FIRMWARE_BOUNDARY_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies",
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP third_party/tsn-c-stack",)},
+        {"name": "Install GoogleTest and GoogleMock and print the versions",
+         "run": (
+             'set -euo pipefail',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
+             'python3 -m pip install --quiet pyyaml -r sw/litex/litex_pins.txt',
+             'dpkg-query -W libgtest-dev libgmock-dev',
+             'g++ --version | head -n 1',
+         )},
+        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+         "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK",
+         "run": RV32_INSTALL},
+        {"name": "Hold the TSN stack boundary over the firmware builders' compiles",
+         "run": (
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator',
+         )},
+    ),
+    # #697: the same boundary over the compiles only the builders that need Verilator make, each run by its own
+    # commands under the gate's own capture, with the pinned Verilator from the cache verilator-lint shares.
+    (RTL_FAST, FIRMWARE_VERILATOR_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies",
+         "run": (RTL_FETCH_SCRIPT[0] + " third_party/lwSRP third_party/tsn-c-stack",)},
+        {"name": "Install GoogleTest and GoogleMock and print the versions",
+         "run": (
+             'set -euo pipefail',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev',
+             'python3 -m pip install --quiet pyyaml',
+             'dpkg-query -W libgtest-dev libgmock-dev',
+             'g++ --version | head -n 1',
+         )},
+        {"name": "Cache the pinned Verilator build", "id": "cache-verilator",
+         "uses": "actions/cache@v4", "with": VERILATOR_CACHE_WITH},
+        {"name": "Build Verilator from source on cache miss",
+         "if": VERILATOR_CACHE_MISS_IF,
+         "run": RTL_VERILATOR_BUILD_SCRIPT},
+        {"name": "Put Verilator on PATH and prove the version",
+         "run": ENV_FILE_WRITERS[(RTL_FAST, FIRMWARE_VERILATOR_JOB,
+                                  "Put Verilator on PATH and prove the version")]},
+        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+         "with": RV32_CACHE_WITH},
+        {"name": "Install and verify the pinned RV32 SDK",
+         "run": RV32_INSTALL},
+        {"name": "Hold the TSN stack boundary over the Verilator builders' compiles",
+         "run": (
+             'python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator',
          )},
     ),
 }
+# Preserve the pre-split recipe as the command census's source (#716).
+# Only shard arguments change. Setup may repeat, but every command and guard
+# survives in the union. Runtime dispatch separately proves suite ownership.
+FIRMWARE_BASE_STEPS = RTL_STEP_LISTS[(RTL_FAST, FIRMWARE_UNIT_JOB)]
+for firmware_index, firmware_job in enumerate(FIRMWARE_JOBS):
+    firmware_command = FIRMWARE_BASE_STEPS[6]["run"][-1] + f" --shard {firmware_index}/4"
+    if firmware_index == 0:
+        firmware_steps = list(FIRMWARE_BASE_STEPS)
+        firmware_steps[6] = {**firmware_steps[6], "run": (*firmware_steps[6]["run"][:-1], firmware_command)}
+    else:
+        firmware_steps = [*FIRMWARE_BASE_STEPS[:3], *FIRMWARE_BASE_STEPS[4:6],
+                          {"name": FIRMWARE_PHASE_STEPS[firmware_index], "run": (firmware_command,)}]
+    RTL_STEP_LISTS[(RTL_FAST, firmware_job)] = tuple(firmware_steps)
+
 #: The other four jobs of the two RTL files, recorded in the same shape so
 #: that whether a job is pinned is a COMPARISON and never a claim: the gate
 #: job (item 4, #209), the physical leg, the fast selector and the fast
@@ -3535,6 +3750,47 @@ def check_fast_ooc_sh_selftest(c: Contract, wf: YamlMap) -> None:
            "setup, proving nothing)")
 
 
+def firmware_census(wf: YamlMap) -> list[dict[str, str]]:
+    """Generate every firmware command with its job and step conditions."""
+    rows = []
+    for jid in FIRMWARE_JOBS:
+        job = jobs(wf).get(jid, {})
+        for step in steps(job):
+            run = step.get("run", "")
+            if isinstance(run, (tuple, list)):
+                run = "\n".join(run)
+            for line in normalize_script(run):
+                rows.append({"job": jid, "step": step.get("name", ""), "command": line,
+                             "job_if": str(job.get("if", "success()")),
+                             "step_if": str(step.get("if", "success()"))})
+    return rows
+
+
+def firmware_commands(rows: list[dict[str, str]]) -> set[tuple[str, str, str]]:
+    """Collapse repeated setup; only the four new shard arguments are ignored."""
+    return {(re.sub(r" --shard [0-3]/4$", "", row["command"]), row["job_if"], row["step_if"])
+            for row in rows}
+
+
+def firmware_baseline_census() -> list[dict[str, str]]:
+    """Render the original job's recorded commands through the same generator."""
+    return firmware_census({"jobs": {FIRMWARE_UNIT_JOB: {
+        "if": FIRMWARE_JOB_IF, "steps": list(FIRMWARE_BASE_STEPS)}}})
+
+
+def check_firmware_layout(c: Contract, wf: YamlMap, policy: str) -> None:
+    """Hold the unchanged command population and all four documented budgets."""
+    want = firmware_commands(firmware_baseline_census())
+    got = firmware_commands(firmware_census(wf))
+    c.item(got == want, RTL_FAST,
+           f"firmware command census differs: missing={sorted(want - got)}, added={sorted(got - want)}")
+    for jid in FIRMWARE_JOBS:
+        c.item(jobs(wf).get(jid, {}).get("timeout-minutes") == 45, RTL_FAST,
+               f"firmware job `{jid}` timeout must remain 45 minutes")
+        row = f"| `{jid}` | 45 min | 1890 s | 1620 s |"
+        c.item(row in policy, POLICY, f"firmware budget row must state `{row}`")
+
+
 def check_rtl_fast(c: Contract, wf: YamlMap) -> None:
     """Everything rtl-fast.yml owes: triggers, concurrency, one carrier per
     public name, the selector, the verdict, the ooc.sh self-test and the
@@ -3966,9 +4222,9 @@ def check_docs(c: Contract, wf: YamlMap) -> None:
     act_selftests = [s for s in steps(docs_job)
                      if tuple(normalize_script(
                          s.get("run") if isinstance(s.get("run"), str) else ""
-                     )) == (ACT_CI_SELFTEST,)]
+                     )) == ACT_CI_SELFTEST_SCRIPT]
     c.item(len(act_selftests) == 1, DOCS,
-           f"job `docs-check` must run `{ACT_CI_SELFTEST}` exactly once "
+           f"job `docs-check` must run `{ACT_CI_SELFTEST}` and the flat isolated install exactly once "
            f"(found {len(act_selftests)}): the runner's refusal and cleanup "
            "controls are not a hosted gate unless the required docs context "
            "executes their negative controls")
@@ -4116,14 +4372,15 @@ def check_sequence_pin_coverage(c: Contract, parsed: World,
                    "job pinned by nothing")
 
 
-def check(parsed: World) -> Contract:
-    """The whole contract over a parsed world. Returns a Contract."""
-    c = Contract()
+def check_semantic(parsed: World, c: Contract | None = None) -> Contract:
+    """Apply every original command, environment, event and source-binding assertion."""
+    c = Contract() if c is None else c
     check_rtl_full(c, parsed[RTL_FULL], parsed[POLICY])
     check_physical_gptp(c, parsed[RTL_FULL], parsed[POLICY])
     check_ownership_step(c, parsed[RTL_FULL])
     check_aggregate_scripts(c, parsed[RTL_FULL])
     check_rtl_fast(c, parsed[RTL_FAST])
+    check_firmware_layout(c, parsed[RTL_FAST], parsed[POLICY])
     check_sequence_pin_coverage(c, parsed)
     check_docs(c, parsed[DOCS])
     check_elaborate(c, parsed[ELABORATE])
@@ -4133,6 +4390,43 @@ def check(parsed: World) -> Contract:
         check_env_files(c, rel, parsed[rel])
     check_global_carriers(c, parsed)
     return c
+
+
+class SemanticWorld(dict):
+    """An internal test fixture over original commands, never constructed by YAML parsing."""
+
+
+def check_generated_workflow(parsed: World, c: Contract, name: str) -> None:
+    """Compare one actual generated graph with its complete source-derived definition."""
+    path = ".github/workflows/" + name + ".yml"
+    source = parsed.get(TEMPLATES[name])
+    try:
+        expected = generate_gate_workflow(name, source)
+    except (KeyError, TypeError, ValueError) as exc:
+        c.item(False, path, f"gate inventory cannot generate its jobs: {exc}")
+        return
+    c.item(parsed[path] == expected, path,
+           "generated gate jobs must match their complete inventory and aggregate: "
+           "every original body, binding, condition and checkout is preserved; "
+           "missing or additional steps, dependencies and receipts are refused")
+
+
+def project_gate_templates(parsed: World, c: Contract) -> SemanticWorld:
+    """Hold generated jobs to their complete source, then apply the original command contract."""
+    projected = SemanticWorld(copy.deepcopy(parsed))
+    for name, rel in TEMPLATES.items():
+        path = ".github/workflows/" + name + ".yml"
+        check_generated_workflow(parsed, c, name)
+        projected[path] = copy.deepcopy(parsed.get(rel))
+    return projected
+
+
+def check(parsed: World) -> Contract:
+    """Check the actual generated graph and every original semantic assertion."""
+    if isinstance(parsed, SemanticWorld):
+        return check_semantic(parsed)
+    c = Contract()
+    return check_semantic(project_gate_templates(parsed, c), c)
 
 
 # --------------------------------------------------------------------------
@@ -4829,8 +5123,8 @@ def _m_workflow_env_gh_host(w: World) -> None:
 
 
 def _m_decide_env_missing(w: World) -> None:
-    """Drop PR_BASE_SHA from the decision step's env."""
-    del _decide_step(w)["env"]["PR_BASE_SHA"]
+    """Drop PR_BASE_REF from the decision step's env."""
+    del _decide_step(w)["env"]["PR_BASE_REF"]
 
 
 def _m_decide_script_no_op(w: World) -> None:
@@ -5070,25 +5364,25 @@ def _m_shard_denominator_stale(w: World) -> None:
     # O9: the matrix grows, the restated denominator does not.
     shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
         "shard"]
-    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
-    _restate_shards(w, "verilator-shards", "5")
-    shard.append(5)
+    assert shard == [0, 1, 2, 3, 4, 5], "fixture drift: verilator-shards matrix"
+    _restate_shards(w, "verilator-shards", "6")
+    shard.append(6)
 
 
 def _m_dedicated_worker_dropped(w: World) -> None:
-    """#444: milan_dp's own worker leaves the matrix, `total` stays five."""
+    """#444: milan_dp's own worker leaves the matrix, `total` stays six."""
     shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
         "shard"]
-    assert shard[-1] == 4, "fixture drift: verilator-shards matrix"
+    assert shard[-1] == 5, "fixture drift: verilator-shards matrix"
     shard.pop()
 
 
 def _m_dedicated_worker_reverted(w: World) -> None:
-    """#444: the matrix and its `total` return to four, `--expect` stays."""
+    """#444: the matrix and its `total` return to five, `--expect` stays."""
     matrix = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"]
-    assert matrix["shard"][-1] == 4, "fixture drift: verilator-shards matrix"
+    assert matrix["shard"][-1] == 5, "fixture drift: verilator-shards matrix"
     matrix["shard"].pop()
-    matrix["total"] = [4]
+    matrix["total"] = [5]
 
 
 def _ownership_step(w: World) -> YamlMap:
@@ -5100,15 +5394,15 @@ def _ownership_step(w: World) -> YamlMap:
 
 
 def _m_ownership_dedicated_arm_dropped(w: World) -> None:
-    """#444: the proof that shard 4 runs milan_dp alone is deleted."""
+    """#444: the proof that shard 5 runs milan_dp alone is deleted."""
     s = _ownership_step(w)
-    arm = '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
+    arm = '5) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
     assert arm in s["run"], "fixture drift: no dedicated ownership arm"
     s["run"] = "\n".join(l for l in s["run"].splitlines() if arm not in l)
 
 
 def _m_ownership_dedicated_arm_widened(w: World) -> None:
-    """#444: shard 4 need only include milan_dp, not run it alone."""
+    """#444: shard 5 need only include milan_dp, not run it alone."""
     s = _ownership_step(w)
     alone = 'test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp'
     assert alone in s["run"], "fixture drift: no dedicated ownership arm"
@@ -5176,12 +5470,12 @@ _DECIDE_INVISIBLES = (
 )
 
 
-#: #444: judging the Verilator workers without the fifth. The combined
-#: result still reddens, but only when a log from workers 0 to 3 shows a
-#: failure, so a milan_dp TIMEOUT on shard 4 turns green.
-_FOUR_WORKER_RESULT = (
+#: #444: judging the Verilator workers without the sixth. The combined
+#: result still reddens, but only when a log from workers 0 to 4 shows a
+#: failure, so a milan_dp TIMEOUT on shard 5 turns green.
+_FIVE_WORKER_RESULT = (
     'if [ "$SHARD_RESULT" != success ]; then\n'
-    "  for shard in 0 1 2 3; do\n"
+    "  for shard in 0 1 2 3 4; do\n"
     "    if grep -rqs -e TIMEOUT -e FAIL "
     '"$RUNNER_TEMP/all-suite-logs/suite-logs-$shard"; then\n'
     '      echo "one or more Verilator workers ended: $SHARD_RESULT" >&2\n'
@@ -5211,14 +5505,14 @@ def _m_shard_denominator_wrong(w: World) -> None:
 def _m_shard_name_stale(w: World) -> None:
     """verilator-shards' name restates a stale denominator."""
     job = jobs(w[RTL_FULL])["verilator-shards"]
-    job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "3")
+    job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "4")
 
 
 def _m_shard_matrix_include(w: World) -> None:
     """verilator-shards' matrix gains an `include`."""
     jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
         "include"
-    ] = [{"shard": 4, "total": 5}]
+    ] = [{"shard": 5, "total": 6}]
 
 
 def _m_shard_matrix_exclude(w: World) -> None:
@@ -5302,16 +5596,16 @@ def _m_verify_expect_wrong(w: World) -> None:
 def _m_verify_expect_missing(w: World) -> None:
     """verilator-suites' verifier passes no `--expect`."""
     s = _verify_step(w, "verilator-suites")
-    assert "--expect 5 " in s["run"]
-    s["run"] = s["run"].replace("--expect 5 ", "")
+    assert "--expect 6 " in s["run"]
+    s["run"] = s["run"].replace("--expect 6 ", "")
 
 
 def _m_matrix_grows_expect_stays(w: World) -> None:
     """verilator-shards' matrix grows, the verifier's `--expect` does not."""
     shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
         "shard"]
-    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
-    shard.append(5)
+    assert shard == [0, 1, 2, 3, 4, 5], "fixture drift: verilator-shards matrix"
+    shard.append(6)
 
 
 def _m_aggregate_if_loosened(w: World) -> None:
@@ -5370,7 +5664,7 @@ def _docs_act_selftest_step(w: World) -> YamlMap:
     found = [s for s in steps(job)
              if tuple(normalize_script(
                  s.get("run") if isinstance(s.get("run"), str) else ""
-             )) == (ACT_CI_SELFTEST,)]
+             )) == ACT_CI_SELFTEST_SCRIPT]
     assert len(found) == 1, (
         "fixture drift: no unique act_ci.py self-test step")
     return found[0]
@@ -5953,7 +6247,7 @@ def _gate_escape_arms() -> list[Arm]:
         ("R4 verifier without --expect", _m_verify_expect_missing,
          "no --expect"),
         ("R4 matrix grows, --expect stays", _m_matrix_grows_expect_stays,
-         "--expect 6"),
+         "--expect 7"),
         ("aggregate job if loosened", _m_aggregate_if_loosened,
          "`if` must be exactly"),
         ("aggregate job if dropped", _m_aggregate_if_dropped,
@@ -6005,16 +6299,16 @@ def _gate_condition_arms() -> list[Arm]:
         ("decision step working-directory",
          _set_step_key(_decide_step, "working-directory", "/tmp"),
          "surplus: working-directory"),
-        ("decision step loses PR_BASE_SHA", _m_decide_env_missing,
-         "missing: PR_BASE_SHA"),
+        ("decision step loses PR_BASE_REF", _m_decide_env_missing,
+         "missing: PR_BASE_REF"),
         # #209 O15/O16: the decision step's env bound to another source, and
         # its script rewritten, each leaving every pinned name and key alone.
         ("O15 decision step PR_DRAFT forced true",
          _set_env_key(_decide_step, "PR_DRAFT", "true"),
          "must bind `PR_DRAFT`"),
-        ("O15b decision step PR_BASE_SHA rebound to this run's own SHA",
-         _set_env_key(_decide_step, "PR_BASE_SHA", "${{ github.sha }}"),
-         "must bind `PR_BASE_SHA`"),
+        ("O15b decision step PR_BASE_REF rebound to this run's own SHA",
+         _set_env_key(_decide_step, "PR_BASE_REF", "${{ github.sha }}"),
+         "must bind `PR_BASE_REF`"),
         ("O15c decision step EVENT_NAME hard-coded to pull_request",
          _set_env_key(_decide_step, "EVENT_NAME", "pull_request"),
          "must bind `EVENT_NAME`"),
@@ -6248,13 +6542,13 @@ def _aggregate_script_arms() -> list[Arm]:
          _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP,
                              "exit 1", "exit 0"),
          f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
-        ("#444 the Verilator worker-result step judges workers 0 to 3 only",
+        ("#444 the Verilator worker-result step judges workers 0 to 4 only",
          _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP, "",
-                             _FOUR_WORKER_RESULT),
+                             _FIVE_WORKER_RESULT),
          f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
-        ("#444 the Verilator tally globs workers 0 to 3 only",
+        ("#444 the Verilator tally globs workers 0 to 4 only",
          _m_aggregate_script("verilator-suites", VERILATOR_TALLY_STEP,
-                             "suite-logs-*)", "suite-logs-[0-3])"),
+                             "suite-logs-*)", "suite-logs-[0-4])"),
          f"`{VERILATOR_TALLY_STEP}` step script of `verilator-suites`"),
         ("#444 the Verilator tally is replaced by true",
          _m_aggregate_script("verilator-suites", VERILATOR_TALLY_STEP, "",
@@ -6310,6 +6604,25 @@ def _invisible_whitespace_arms() -> list[Arm]:
         arms.append((f"#444 {title} detects renames in its changed-path list",
                      _m_step_text(get, "git diff --no-renames --name-only",
                                   "git diff --name-only"), want))
+    for title, get, want in (
+            ("full", _decide_step, "the decision step script is not the canonical form"),
+            ("fast", _fast_scope_step, "the fast selector scope script is not the canonical form"),
+            ("elaborate", _elab_scope_step, "the elaborate scope step script is not the canonical form")):
+        for label, old, new in (
+                ("hosted frozen base", '"$GITHUB_SHA^1" "$GITHUB_SHA"',
+                 '"$PR_BASE_SHA...$PR_HEAD_SHA"'),
+                ("replay endpoint trees", '"refs/remotes/origin/$PR_BASE_REF" "$merged"',
+                 '"refs/remotes/origin/$PR_BASE_REF" "$PR_HEAD_SHA"'),
+                ("replay omits merge composition", '"refs/remotes/origin/$PR_BASE_REF" "$merged"',
+                 '"$base" "$PR_HEAD_SHA"'),
+                ("hosted always takes replay path", '"${ACT:-false}" = true',
+                 '"true" = true'),
+                ("ambiguous replay merge base", "git merge-base --all", "git merge-base")):
+            arms.append((f"#734 {title} {label}",
+                         _m_step_text(get, old, new), want))
+        arms.append((f"#734 {title} scope head rebound to the merge commit",
+                     _set_env_key(get, "PR_HEAD_SHA", "${{ github.sha }}"),
+                     "must bind `PR_HEAD_SHA`"))
     return arms
 
 
@@ -6333,12 +6646,12 @@ def _shard_and_fast_arms() -> list[Arm]:
          "must not define `include` or `exclude`"),
         ("O9e sharded matrix excludes a worker", _m_shard_matrix_exclude,
          "must not define `include` or `exclude`"),
-        # #444: milan_dp's dedicated fifth worker, its run-time proof and the
+        # #444: milan_dp's dedicated sixth worker, its run-time proof and the
         # gate's docs-only line are each refused when removed.
         ("#444 the dedicated milan_dp worker leaves the matrix",
          _m_dedicated_worker_dropped, "shard denominator matrix `total`"),
-        ("#444 the matrix and total return to four, --expect stays",
-         _m_dedicated_worker_reverted, "--expect 4"),
+        ("#444 the matrix and total return to five, --expect stays",
+         _m_dedicated_worker_reverted, "--expect 5"),
         ("#444 ownership proof loses the dedicated milan_dp arm",
          _m_ownership_dedicated_arm_dropped,
          f"`{OWNERSHIP_STEP}` step script is not the canonical form"),
@@ -6403,6 +6716,17 @@ def _docs_builder_arms() -> list[Arm]:
         ("docs only parses the local act runner self-test",
          _m_docs_act_selftest_key("shell", "bash -n {0}"),
          "must carry no `shell`"),
+        ("docs runs only the ordinary local runner self-test",
+         _m_docs_act_selftest_key("run", ACT_CI_SELFTEST), "flat isolated install"),
+        ("docs flat runner allows non-isolated imports",
+         _m_docs_act_selftest_key("run", "\n".join(ACT_CI_SELFTEST_SCRIPT).replace("python3 -I", "python3")),
+         "flat isolated install"),
+        ("docs flat runner installs a writable file",
+         _m_docs_act_selftest_key("run", "\n".join(ACT_CI_SELFTEST_SCRIPT).replace("0555", "0755")),
+         "flat isolated install"),
+        ("docs flat runner omits its shipping worktree",
+         _m_docs_act_selftest_key("run", "\n".join(ACT_CI_SELFTEST_SCRIPT).replace(
+             ' --worktree "$GITHUB_WORKSPACE"', "")), "flat isolated install"),
         ("docs builder omits verilog-axis",
          _m_builder_drop_submodule(DOCS, "docs-check",
                                   "third_party/verilog-axis"),
@@ -6730,7 +7054,7 @@ def _contract_step_and_env_arms() -> list[Arm]:
          "['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']"),
         ("#261 elaborate builder-call step-level BASH_ENV",
          _m_step_env(ELABORATE, "elaborate", BUILDER_CALL, "BASH_ENV"),
-         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_SHA']"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_REF', 'PR_HEAD_SHA']"),
         ("#261 wire-accountability gate step-level BASH_ENV",
          _m_step_env(DOCS, "wire-accountability", "check_wire_accountability", "BASH_ENV"),
          "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
@@ -7092,9 +7416,9 @@ def _elab_scope_and_presence_arms() -> list[Arm]:
         ("#295 elaborate scope step EVENT_NAME hard-coded",
          _set_env_key(_elab_scope_step, "EVENT_NAME", "pull_request"),
          "must bind `EVENT_NAME`"),
-        ("#295 elaborate scope step PR_BASE_SHA rebound to this run's SHA",
-         _set_env_key(_elab_scope_step, "PR_BASE_SHA", "${{ github.sha }}"),
-         "must bind `PR_BASE_SHA`"),
+        ("#295 elaborate scope step PR_BASE_REF rebound to this run's SHA",
+         _set_env_key(_elab_scope_step, "PR_BASE_REF", "${{ github.sha }}"),
+         "must bind `PR_BASE_REF`"),
         ("#295 elaborate scope step removed", _m_scope_step_removed,
          f"must carry exactly one step with `id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
         # #295 presence: the stub-id evasion and a duplicate mapping's
@@ -7126,6 +7450,26 @@ def _elab_scope_and_presence_arms() -> list[Arm]:
     ]
 
 
+def _private_interpreter_arms() -> list[Arm]:
+    """Without the job-private interpreter, or with it first on PATH only
+    after the install, the LiteX install, the VexiiRiscv checkout and the
+    patch series write into the tool cache act shares between jobs again
+    (#748; REQ-VER-04)."""
+    return [
+        ("#748 elaborate job-private environment removed",
+         (lambda w: _strip_steps(w, ELABORATE, "elaborate", "litex-venv")),
+         "job `elaborate` must carry exactly 21 steps, in the recorded order (found 20)"),
+        ("#748 elaborate job-private environment after the LiteX install",
+         _m_swap_steps(ELABORATE, "elaborate", 5, 7),
+         "job `elaborate` step 6 must be the step named `Put a job-private Python environment on PATH`"),
+        ("#748 elaborate job-private environment never put on PATH",
+         _m_step_key_any(ELABORATE, "elaborate", "litex-venv", "run",
+                         'set -euo pipefail\npython3 -m venv "$RUNNER_TEMP/litex-venv"\n'),
+         "recorded writer `Put a job-private Python environment on PATH` in job "
+         "`elaborate` script is not the canonical form"),
+    ]
+
+
 def _carrier_step_list_arms() -> list[Arm]:
     """#295: the carriers' pinned step lists - insertion of any content,
     removal, reorder, rename, and the recorded `if` and `with` values."""
@@ -7136,7 +7480,7 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "job `docs-check` must carry exactly 50 steps"),
+         "job `docs-check` must carry exactly 51 steps"),
         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check-no-git",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
@@ -7147,10 +7491,10 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `wire-accountability` must carry exactly 3 steps"),
         ("#295 elaborate inserted third-party action breaks the sequence",
          _m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
-         "job `elaborate` must carry exactly 20 steps"),
+         "job `elaborate` must carry exactly 21 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
-         "job `docs-check` must carry exactly 50 steps"),
+         "job `docs-check` must carry exactly 51 steps"),
         ("#295 wire-accountability inserted step of benign content",
          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
          "job `wire-accountability` must carry exactly 3 steps"),
@@ -7159,17 +7503,17 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `docs-check-no-git` must carry exactly 2 steps"),
         ("#295 elaborate inserted step of benign content",
          _m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
-         "job `elaborate` must carry exactly 20 steps"),
+         "job `elaborate` must carry exactly 21 steps"),
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
-         "job `docs-check` must carry exactly 50 steps, in the recorded order (found 49)"),
+         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
         ("#295 docs-check recognised step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
-         "job `docs-check` must carry exactly 50 steps, in the recorded order (found 49)"),
+         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
-         "job `elaborate` must carry exactly 20 steps, in the recorded order (found 19)"),
+         "job `elaborate` must carry exactly 21 steps, in the recorded order (found 20)"),
         ("#295 docs-check recognised steps swapped",
          _m_swap_steps(DOCS, "docs-check", 43, 44),
          "job `docs-check` step 45 must be the step named `Archive integrity gate`"),
@@ -7184,7 +7528,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "(`Bare-metal scope gate`) must carry no `if`"),
         ("#559 capture measurement gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_nvm_capture.py")),
-         "job `docs-check` must carry exactly 50 steps, in the recorded order (found 49)"),
+         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
         ("#559 capture measurement gate reordered",
          _m_swap_steps(DOCS, "docs-check", 26, 27),
          "job `docs-check` step 28 must be the step named `Capture measurement census and clock gate`"),
@@ -7224,7 +7568,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
         ("#378 em-dash gate step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
-         "job `docs-check` must carry exactly 50 steps, in the recorded order (found 49)"),
+         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
     ]
 
 
@@ -7743,12 +8087,27 @@ def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
     return edits
 
 
+#: The fast firmware jobs' steps whose builders must refuse, never skip, a missing RV32 compiler.
+RV32_REQUIRED_STEPS = {
+    FIRMWARE_UNIT_JOB: (
+        ("test_ctrl_firmware.py", FIRMWARE_PHASE_STEPS[0]),
+        ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build"),
+    ),
+    **{jid: (("test_ctrl_firmware.py", step),) for jid, step in zip(FIRMWARE_JOBS[1:], FIRMWARE_PHASE_STEPS[1:])},
+    FIRMWARE_BOUNDARY_JOB: (
+        ("ctrl_boundary.py", "Hold the TSN stack boundary over the firmware builders' compiles"),
+    ),
+}
+
+
 def _rv32_sdk_arms() -> list[Arm]:
     """#504: missing provenance inputs, adoption guards and provisioning refuse."""
     arms = []
-    for path, jid, count in ((DOCS, "docs-check", 50),
-                             (ELABORATE, "elaborate", 20),
-                             (RTL_FAST, FIRMWARE_UNIT_JOB, 9)):
+    for path, jid, count in ((DOCS, "docs-check", 51),
+                             (ELABORATE, "elaborate", 21),
+                             *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
+                               for job in FIRMWARE_JOBS),
+                             (RTL_FAST, FIRMWARE_BOUNDARY_JOB, 6)):
         for label, key, value in (
                 ("digest", "key", RV32_CACHE_WITH["key"].replace(
                     "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
@@ -7769,9 +8128,7 @@ def _rv32_sdk_arms() -> list[Arm]:
                      "(`Install and verify the pinned RV32 SDK`)"))
         if path == RTL_FAST:
             # Each missing compiler must refuse, never silently skip a build.
-            for script, step_name in (
-                    ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
-                    ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build")):
+            for script, step_name in RV32_REQUIRED_STEPS[jid]:
                 suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
                 arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
                              _m_step_key_any(path, jid, script, "run",
@@ -7876,6 +8233,79 @@ def _rtl_script_arms(pristine: World) -> list[Arm]:
     return arms
 
 
+def _tool_cache_arms(pristine: World) -> list[Arm]:
+    """Every tool build cache requires its version, source and recipe digest."""
+    arms = []
+    sources = {"Verilator": "848d926ebd4addacacd294dc84e35d9d4ae8078c",
+               "Yosys": "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"}
+    recipe = "${{ hashFiles('.github/workflows/*.yml') }}"
+    for path in (RTL_FULL, RTL_FAST, ELABORATE):
+        for jid, job in pristine[path]["jobs"].items():
+            for step in job.get("steps", []):
+                for tool, source in sources.items():
+                    name = f"Cache the pinned {tool} build"
+                    if step.get("name") != name:
+                        continue
+                    key = step["with"]["key"]
+                    version = "${{ env." + tool.upper() + "_VERSION }}"
+                    for label, fragment in (("version", version), ("source", source),
+                                            ("recipe", recipe)):
+                        if fragment not in key:
+                            raise ValueError(f"{path}/{jid}: missing {label} in cache control")
+                        arms.append((f"{jid} {tool} cache missing {label}",
+                                     _m_with_key(path, jid, name, "key", key.replace(fragment, "")),
+                                     f"(`{name}`) `with` must be exactly"))
+    return arms
+
+
+def _install_cache_arms(pristine: World) -> list[Arm]:
+    """Removing a version, source or installation recipe invalidates every install cache key."""
+    fields = (
+        (DOCS, "docs-check", "Cache the pinned Markdown renderer downloads",
+         "cmarkgfm2025.10.22-html5lib1.1", "${{ hashFiles('tools/markdown/requirements.txt') }}"),
+        (ELABORATE, "elaborate", "Cache the pinned pip downloads", "git-pins",
+         "${{ hashFiles('sw/litex/litex_pins.txt') }}"),
+        (ELABORATE, "elaborate", "Cache the Scala toolchain", "1.10.7",
+         "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6"),
+    )
+    arms = []
+    recipe = "${{ hashFiles('.github/workflows/*.yml') }}"
+    for path, jid, name, version, source in fields:
+        step = next(step for step in pristine[path]["jobs"][jid]["steps"] if step.get("name") == name)
+        key = step["with"]["key"]
+        for label, fragment in (("version", version), ("source", source), ("recipe", recipe)):
+            if fragment not in key:
+                raise ValueError(name + ": missing cache " + label)
+            arms.append((name + " missing " + label,
+                         _m_with_key(path, jid, name, "key", key.replace(fragment, "")),
+                         f"(`{name}`) `with` must be exactly"))
+        arms.append((name + " broad fallback",
+                     _m_with_key(path, jid, name, "restore-keys", "unbound-"),
+                     f"(`{name}`) `with` must be exactly"))
+    return arms
+
+
+def _firmware_layout_arms() -> list[Arm]:
+    """The new census and budget checks must catch their own planted defects."""
+    arms = [
+        ("firmware command census omission",
+         _m_step_key_any(RTL_FAST, FIRMWARE_UNIT_JOB, "tally_selftest.py", "run", "true"),
+         "firmware command census differs"),
+        ("firmware command census condition",
+         _m_step_key_any(RTL_FAST, FIRMWARE_UNIT_JOB, "tally_selftest.py", "if", False),
+         "firmware command census differs"),
+    ]
+    for jid in FIRMWARE_JOBS:
+        arms.append((f"firmware {jid} timeout raised",
+                     _m_job_key_any(RTL_FAST, jid, "timeout-minutes", 46),
+                     f"firmware job `{jid}` timeout must remain 45 minutes"))
+        row = f"| `{jid}` | 45 min | 1890 s | 1620 s |"
+        arms.append((f"firmware {jid} budget absent",
+                     lambda w, row=row: w.__setitem__(POLICY, w[POLICY].replace(row, "")),
+                     f"firmware budget row must state `{row}`"))
+    return arms
+
+
 def _mutations(pristine: World) -> list[Arm]:
     """(name, mutate(parsed_world), expected finding fragment), every arm.
 
@@ -7901,6 +8331,9 @@ def _mutations(pristine: World) -> list[Arm]:
             + _aggregate_script_arms()
             + _docs_builder_arms()
             + _rv32_sdk_arms()
+            + _tool_cache_arms(pristine)
+            + _install_cache_arms(pristine)
+            + _firmware_layout_arms()
             + _docs_carrier_arms()
             + _elaborate_arms()
             + _decoy_name_arms()
@@ -7912,6 +8345,7 @@ def _mutations(pristine: World) -> list[Arm]:
             + _carrier_gate_step_arms()
             + _elab_scope_and_presence_arms()
             + _carrier_step_list_arms()
+            + _private_interpreter_arms()
             + _carrier_script_arms(pristine)
             + _rtl_script_arms(pristine)
             + _sequence_pin_arms(pristine)
@@ -8041,7 +8475,7 @@ def _selftest_on_disk(root: pathlib.Path) -> tuple[list[str], int]:
                               encoding="utf-8")
             findings = check(parse_world(read_tree(tree))).findings
             arms += 1
-            if any(want in f for f in findings):
+            if any("generated gate jobs must match" in f for f in findings):
                 print(f"  ok   caught: #295 duplicate `{jid}:` mapping ON "
                       f"DISK in {rel} (last one wins)")
             else:
@@ -8424,6 +8858,46 @@ def _selftest_default_branch() -> tuple[list[str], int]:
     return problems, arms
 
 
+def _selftest_generated_gates(pristine: World) -> tuple[list[str], int]:
+    """The actual graph refuses missing, reordered, weakened and additional worker or aggregate steps."""
+    problems, arms = [], 0
+    for name in TEMPLATES:
+        path = ".github/workflows/" + name + ".yml"
+        for jid, job in jobs(pristine[path]).items():
+            mutations = [
+                ("missing job", lambda world: jobs(world[path]).pop(jid)),
+                ("conditional job", lambda world: jobs(world[path])[jid].update({"if": "false"})),
+                ("masked job", lambda world: jobs(world[path])[jid].update({"continue-on-error": True})),
+                ("host environment", lambda world: jobs(world[path])[jid].update({"env": {"BASH_ENV": "bad"}})),
+            ]
+            for index, _step in enumerate(steps(job)):
+                mutations += [
+                    (f"missing step {index}", lambda world, at=index: jobs(world[path])[jid]["steps"].pop(at)),
+                    (f"changed step {index}", lambda world, at=index:
+                     jobs(world[path])[jid]["steps"][at].update({"if": "false"})),
+                    (f"changed body {index}", lambda world, at=index:
+                     jobs(world[path])[jid]["steps"][at].update({"run": "true"})),
+                ]
+                if _step.get("uses") == "actions/cache@v4":
+                    for field, value in (("key", "unbound"), ("restore-keys", "unbound-"),
+                                         ("path", "~/.unrelated-cache")):
+                        mutations.append((f"cache {index} altered {field}",
+                                          lambda world, at=index, field=field, value=value:
+                                          jobs(world[path])[jid]["steps"][at]["with"].update({field: value})))
+            for label, mutate in mutations:
+                world = dict(pristine)
+                world[path] = copy.deepcopy(pristine[path])
+                mutate(world)
+                arms += 1
+                contract = Contract()
+                check_generated_workflow(world, contract, name)
+                if contract.findings:
+                    print(f"  ok   generated gates: {name} {jid} {label}")
+                else:
+                    problems.append(f"generated gate control survived: {name} {jid} {label}")
+    return problems, arms
+
+
 def selftest(root: pathlib.Path) -> int:
     """`--selftest`: the gate's own proof, stage by stage in the order it
     prints. Returns the exit code: 0 when every arm bit, 1 when any did not,
@@ -8437,6 +8911,8 @@ def selftest(root: pathlib.Path) -> int:
         print(f"selftest: cannot load the pristine tree: {exc}")
         return RC_CANNOT_RUN
     clean = check(pristine)
+    generated_pristine = pristine
+    pristine = project_gate_templates(pristine, Contract())
     if clean.findings:
         problems.append("pristine tree is not clean: " +
                         "; ".join(clean.findings))
@@ -8448,7 +8924,8 @@ def selftest(root: pathlib.Path) -> int:
     # tuple calls them left to right, so what is printed and what is counted
     # stay in the order the arms were written.
     checked_arms = 0
-    for found, arms in (_selftest_arms(pristine),
+    for found, arms in (_selftest_generated_gates(generated_pristine),
+                        _selftest_arms(pristine),
                         _selftest_cannot_run(root),
                         _selftest_on_disk(root),
                         _selftest_records(),
@@ -8552,6 +9029,8 @@ def main(argv: Sequence[str]) -> int:
                       help="the live tree against the contract")
     mode.add_argument("--selftest", action="store_true",
                       help="mutation arms over in-memory copies")
+    mode.add_argument("--firmware-census", action="store_true",
+                      help="generate original and current firmware commands with their conditions")
     mode.add_argument("--require-target-sha", action="store_true",
                       help="verify every shard's TARGET_SHA record")
     mode.add_argument("--require-default-branch", action="store_true",
@@ -8573,6 +9052,17 @@ def main(argv: Sequence[str]) -> int:
     parser.add_argument("roots", nargs="*",
                         help="shard evidence directories (--require-target-sha)")
     args = parser.parse_args(argv[1:])
+    if args.firmware_census:
+        try:
+            parsed = parse_world(read_tree(args.root))
+        except CannotRun as exc:
+            print(f"ci_events: cannot run: {exc}")
+            return RC_CANNOT_RUN
+        before = firmware_baseline_census()
+        after = firmware_census(parsed[RTL_FAST])
+        preserved = firmware_commands(before) == firmware_commands(after)
+        print(json.dumps({"before": before, "after": after, "preserved": preserved}, indent=2))
+        return RC_OK if preserved else RC_FINDING
     if args.check:
         return run_check(args.root)
     if args.selftest:

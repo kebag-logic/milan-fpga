@@ -7,6 +7,9 @@ of the contract between the fabric and the bare-metal control-plane firmware.
 The split integrates before P3; milestone 13 retains the hard-core port.
 Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware the host
 tests and the co-simulation build; no image links that firmware yet.
+Lane F-INT adds the [publication block](#the-publication-block) (contract
+2.2), where the firmware owner writes the class-D state the split placement's
+datapath reads; nothing reads it until the placement switch lands.
 The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
 All-fabric stays the shipping default until F2 to F5 acceptance.
 That acceptance covers all streams, counters and the audio soak.
@@ -27,6 +30,7 @@ define the interface. The numbers live in one place, the generated
 - **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
 - **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four differences from the processor.
+- **[The publication block](#the-publication-block)** -- The class-D state the firmware owner publishes for the split placement's datapath: the layout, the stream_id behind SID_VALID, each writer and the response it precedes, the two semantic choices, and the service cost.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter and the bound-talker term added, the term in distributed RAM against its target, and the recipe.
@@ -106,8 +110,8 @@ Every register, record header word and event word is one 32-bit value whose
 fields sit at fixed bit positions, so its meaning never depends on the host's
 byte order. Frame bytes travel four to a ring word in little-endian lanes:
 frame byte k is ring word k/4, bits 8*(k%4)+7 down to 8*(k%4). Wire fields
-inside a frame keep network order, and the firmware's wire layer
-([`wire.h`](../../sw/firmware/ctrl/wire/wire.h)) reads them byte by byte. A
+inside a frame keep network order, and the TSN stack's wire layer
+([`wire.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/wire.h)) reads them byte by byte. A
 big-endian hard core reads the same values as the RISC-V.
 
 ## Rings, records and events
@@ -292,7 +296,7 @@ flowchart TB
   window base from the SoC's generated memory map (`CTRL_MBX_BASE`); the host
   implementation drives the mailbox model and counts every access.
 - **lwSRP's port layer** is provided here, with lwSRP's own prototypes, as
-  of lwSRP `9197193e47a6bb1c45a56d90a18c1784123aba44` (fetched from
+  of lwSRP `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` (fetched from
   `https://github.com/kebag-logic/lwSRP` and checked out at that revision;
   the host test's lwSRP arm refuses another revision or an edited `src/`):
   `shlan_malloc`, `shlan_calloc` and `shlan_free` on a static block pool, and
@@ -323,7 +327,8 @@ flowchart TB
   there (`CTRL_MBX_WFI`, which also needs the SoC's `ctrl_mbx` interrupt
   source and the CPU's interrupt mask enabled) never strands an owed frame.
 - **A protocol is a ports-and-adapters module**, as lwSRP is. The ADP core
-  ([`adp.h`](../../sw/firmware/ctrl/adp/adp.h)) knows no mailbox: it calls a
+  ([`adp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/adp.h), the
+  [TSN stack's](../../third_party/tsn-c-stack) since #697) knows no mailbox: it calls a
   send port, one timer per interface, the gPTP pair, the link level and a
   seed. The mailbox adapter maps those onto the driver; a test maps them onto
   fakes.
@@ -513,11 +518,13 @@ simulation and is left open (see [Open items](#open-items)).
 
 Lane F3 runs Milan v1.2 5.5 (connection management) and 5.6.4 (the listener's
 discovery machine) on the core, over IEEE 1722.1-2021's ACMPDU (8.2.1) at
-Milan's 56 bytes (5.5.2.2). It is three units in
-[`sw/firmware/ctrl/acmp`](../../sw/firmware/ctrl/acmp), each citing its
-clauses in its header ([module page](../../sw/firmware/ctrl/README.md#the-acmp-module)):
+Milan's 56 bytes (5.5.2.2). It is three units, each citing its clauses in
+its header ([module page](../../sw/firmware/ctrl/README.md#the-acmp-module)):
+the core in the [TSN stack](../../third_party/tsn-c-stack) (#697), the
+adapter and the binding owner in
+[`sw/firmware/ctrl/acmp`](../../sw/firmware/ctrl/acmp).
 
-- **The core** ([`acmp.h`](../../sw/firmware/ctrl/acmp/acmp.h)) knows no
+- **The core** ([`acmp.h`](https://github.com/kebag-logic/tsn-c-stack/blob/70936b77dc41981e192438388cd0aced69954f18/include/acmp.h)) knows no
   mailbox. It implements every listener transition of Table 5.30 (5.5.3.5.1
   to 5.5.3.5.48) per sink, the talker's answers of 5.5.4, the discovery
   machine of Table 5.54 (5.6.4.5.1 to 5.6.4.5.4), the timers of Tables 5.26
@@ -637,13 +644,14 @@ defect that adds accesses to its path.
 
 | Path | Bound | Measured | Response |
 |---|---:|---:|---|
-| BIND_RX | 76 | 76 | response, PROBE_TX, TMR_NO_RESP armed, the talker admitted |
-| UNBIND_RX | 49 | 49 | response, timer stopped, the talker withdrawn |
+| BIND_RX | 77 | 77 | binding published, response, PROBE_TX, TMR_NO_RESP armed, the talker admitted |
+| UNBIND_RX | 50 | 50 | binding published, response, timer stopped, the talker withdrawn |
 | GET_RX_STATE | 47 | 47 | response |
-| PROBE_TX_RESPONSE | 28 | 28 | TMR_NO_TK or TMR_RETRY armed |
-| PROBE_TX, GET_TX_STATE, DISCONNECT_TX, GET_TX_CONNECTION | 47 | 47 | response |
+| PROBE_TX_RESPONSE | 32 | 28 to 32 | TMR_NO_TK armed and the stream published, or TMR_RETRY armed |
+| PROBE_TX | 48 | 48 | response and accepted-probe freshness timestamp |
+| GET_TX_STATE, DISCONNECT_TX, GET_TX_CONNECTION | 48 | 47 | response |
 | TMR_DELAY, or the first TMR_NO_RESP | 35 | 35 | PROBE_TX, the clock read after it, TMR_NO_RESP armed |
-| the second TMR_NO_RESP, TMR_RETRY, TMR_NO_TK | 13 | 12 to 13 | the next timer armed |
+| the second TMR_NO_RESP, TMR_RETRY, TMR_NO_TK | 14 | 12 to 14 | the next timer armed; a TMR_NO_TK publishes the binding without its stream |
 | ENTITY_AVAILABLE from its RX_HEAD (H-DISC) | 35 | 35 | TMR_DELAY armed |
 | ENTITY_DEPARTING from its RX_HEAD (H-DISC) | 30 | 29 | timer stopped or re-armed |
 | TMR_NO_ADP (H-DISC) | 12 | 12 | TK_NOT_DISCOVERED, timer re-armed |
@@ -652,13 +660,14 @@ The H-DISC rows are measured from the record the model's filter commits (its
 RX_HEAD), through the bound-talker term, at one interface and, in the
 `acmpif2` arm, at each of two.
 
-A pass of the composition costs at most 1,012 accesses (`ACMP_MBX_PASS_MAX`).
-That covers 8 events at 6 + 31 + 4, sixteen sinks' due timers at one probe
-each and the clock read after it (23), 2 adp records at 36 + 7, 2 acmp
-records at 36 + 51, ADP's poll at 31 and one owed ACMP frame at 25 (a
-probe's: the clock and its TMR_NO_RESP). ADP's records and events are served
-by the same passes, so the ADP figures above (407 a pass) hold for ADP alone.
-With ACMP composed, ADP's figures take the same pass count at 1,012.
+A pass of the composition costs at most 1,030 accesses (`ACMP_MBX_PASS_MAX`;
+1,012 before the publication block). That covers 8 events at 6 + 31 + 4,
+sixteen sinks' due timers at one probe each, the clock read after it and one
+`BINDING` write (24), 2 adp records at 36 + 7, 2 acmp records at 36 + 52 (a
+BIND's `BINDING` write included), ADP's poll at 31 and one owed ACMP frame at
+25 (a probe's: the clock and its TMR_NO_RESP). ADP's records and events are
+served by the same passes, so the ADP figures above (407 a pass) hold for ADP
+alone. With ACMP composed, ADP's figures take the same pass count at 1,030.
 
 The bound with a backlog counts from a pass already running when the input
 arrived, under A1 to A4. T_svc is 10 ms. The ceiling is 20 ms: 10 % of the
@@ -669,18 +678,19 @@ The access times are the bound's time over its accesses, rounded down.
 
 | Input | Taken by pass | Bound, accesses | Access time for T_svc | for the ceiling | Measured on the model |
 |---|---:|---:|---:|---:|---|
-| an event behind 15 others | 2 | 3,036 | 3.29 us | 6.58 us | every event by pass 2; worst pass 193 accesses |
-| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 11,132 | 0.89 us | 1.79 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 22,264 | 0.44 us | 0.89 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
-| a response with 7 frames owed ahead of it | 8, after the room returns | 9,108 | 1.09 us | 2.19 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
+| an event behind 15 others | 2 | 3,090 | 3.23 us | 6.47 us | every event by pass 2; worst pass 193 accesses |
+| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 11,330 | 0.88 us | 1.76 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 22,660 | 0.44 us | 0.88 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 9,270 | 1.07 us | 2.15 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
 
 The access time is not measured (A4). At F0's assumed 1 us per access every
 path's own figure is under 0.1 ms, and an event's backlog bound fits T_svc.
 The bounds behind a full acmp ring or a full adp ring do not fit T_svc at
 that figure, and the adp one also exceeds the ceiling. The owed-frame bound,
-9,108 accesses (8,865 before round 2 added the probe's timer to a poll, and
-8,964 before round 4 added the clock read after each probe sent at once),
-fits T_svc at that figure: 9.108 ms, the time waiting for room excluded. The
+9,270 accesses (8,865 before round 2 added the probe's timer to a poll,
+8,964 before round 4 added the clock read after each probe sent at once, and
+9,108 before the publication block), fits T_svc at that figure: 9.27 ms, the
+time waiting for room excluded. The
 bounds charge every pass with every term at its maximum at once (sixteen
 sinks each probing, eight events each at ADP's costliest action), which the
 measured backlogs stay far below. Whether these paths meet T_svc on the
@@ -689,40 +699,43 @@ shipping core is open until the access time is measured (see
 composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
 with margin) needs the datapath tap and is not measured here.
 
-With lane F2's MAAP composed as well, a pass costs at most 1,580 accesses
-(`CTRL_APP_THREE_PASS_MAX`; 1,659 at two interfaces). MAAP adds its costliest
-action on each of the 8 events (48), its 2 records of the maap channel
-(20 + 48) and its poll (48). Each input is taken by the same pass as above,
-so each bound is that pass count, plus one, times 1,580:
+With MAAP and F3b freshness publication composed as well, a pass costs at most
+1,783 accesses (`CTRL_APP_THREE_PASS_MAX`; 1,879 at two interfaces).
+MAAP adds each of eight event callbacks at 65 accesses, two records at
+20 + 64, and each interface's poll at 65. These bounds fund up to sixteen
+source freshness reads in the dispatch path, outside every MAAP callback.
+Each input has the same pass count as above.
 
 | Input | Taken by pass | Bound with MAAP, accesses | Access time for T_svc | for the ceiling |
 |---|---:|---:|---:|---:|
-| an event behind 15 others | 2 | 4,740 | 2.10 us | 4.21 us |
-| an ACMP command behind a full acmp ring | 10 | 17,380 | 0.57 us | 1.15 us |
-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 34,760 | 0.28 us | 0.57 us |
-| a response with 7 frames owed ahead of it | 8, after the room returns | 14,220 | 0.70 us | 1.40 us |
+| an event behind 15 others | 2 | 5,349 | 1.86 us | 3.73 us |
+| an ACMP command behind a full acmp ring | 10 | 19,613 | 0.50 us | 1.01 us |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 39,226 | 0.25 us | 0.50 us |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 16,047 | 0.62 us | 1.24 us |
 
 On the model, 15 events, 12 acmp records and 7 maap records behind them
 take a worst pass of 231 accesses (233 at two interfaces), every record and
 event within 10 passes (`test_acmp_mbx.cpp` F6).
 
 At F0's assumed 1 us per access, only the event bound still fits T_svc
-(4.74 ms). The owed-frame bound, which fits it without MAAP, no longer does
-(14.22 ms, under the ceiling); the bound behind a full acmp ring stays
-under the ceiling (17.38 ms), and the one behind a full adp ring exceeds it
-(34.76 ms).
+(5.35 ms). The owed-frame bound, which fits it without MAAP, no longer does
+(16.05 ms, under the ceiling); the bound behind a full acmp ring stays
+under the ceiling (19.61 ms), and the one behind a full adp ring exceeds it
+(39.23 ms).
 
-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,224
-accesses at one interface and 4,073 at two. `ACMP_MBX_PASS_MAX` already
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,523
+accesses at one interface and 4,429 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
 includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
 sets of event-record reads: the eight shared records are each read once.
-Add `CTRL_APP_SRP_FEEDBACK_MAX`: six accesses per sink, at most 16 sinks.
+Add `CTRL_APP_SRP_FEEDBACK_MAX`: seven accesses per sink, at most 16 sinks.
 Registration followed by withdrawal can stop or re-arm two timers.
-Withdrawal can also read the clock and initial random seed.
+Withdrawal can also read the clock and initial random seed, and publishes
+the sink's binding without its stream.
 Kind updates preserve state and require no additional mailbox access.
-`srp_bounds.h` derives SRP's 1,596 / 2,366 accesses from the maximum frame,
-two transmit calls per interface, bounded reception, link reconciliation and
-retry clocks. lwSRP sends at most one frame per call. Its centisecond callbacks
+`srp_bounds.h` derives SRP's 1,676 / 2,486 accesses from the maximum frame,
+two transmit calls per interface, bounded reception, link reconciliation,
+retry clocks and the publication term (a reset's five writes, an adoption's
+three, two licence changes for each of 16 sources: 40 per interface). lwSRP sends at most one frame per call. Its centisecond callbacks
 make no mailbox access. The composition now queues ACMP's binding requests
 per sink and delivers them in a fifth poll after SRP service returns.
 It preserves the configured interface, retries transient refusals, and supersedes
@@ -739,14 +752,17 @@ Target calibration must include both costs; this table bounds mailbox accesses o
 
 | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
 |---|---:|---:|---:|
-| an event behind 15 others | 2 | 9,672 / 12,219 | 1.03 / 0.81 us |
-| an ACMP command behind a full acmp ring | 10 | 35,464 / 44,803 | 0.28 / 0.22 us |
-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 70,928 / 89,606 | 0.14 / 0.11 us |
-| a response with 7 frames owed ahead of it | 8, after room returns | 29,016 / 36,657 | 0.34 / 0.27 us |
+| an event behind 15 others | 2 | 10,569 / 13,287 | 0.94 / 0.75 us |
+| an ACMP command behind a full acmp ring | 10 | 38,753 / 48,719 | 0.25 / 0.20 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 77,506 / 97,438 | 0.12 / 0.10 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 31,707 / 39,861 | 0.31 / 0.25 us |
 
-At 1 us per access, only the one-interface event envelope fits T_svc = 10 ms;
-the two-interface event envelope and the other rows do not. The 20 ms ACMP
+At 1 us per access, event envelopes are 10.569 / 13.287 ms.
+Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
 ceiling still covers both event envelopes, but none of the other rows.
+The firmware gate compiles these header bounds at both interface counts.
+It checks each product and conservatively rounded access-time threshold.
+Its controls spoil each table cell and the event-time conclusion.
 No target timing acceptance is claimed. Backpressure and retained SRP input
 consume their original service interval; a retry or a normative wait never
 starts a new allowance. SRP can defer its own reception behind events or owed
@@ -788,23 +804,314 @@ difference is now a check that fails if the processor's old answer returns:
   the source first. SUCCESS without a state change applies to a valid source
   (the ruling on #665, comment 6030067436).
 
+## The publication block
+
+In the split placement the fabric datapath can no longer read the protocol
+processor's class-D outputs: the firmware owns ADP, ACMP, MAAP and SRP. The
+ruling on [#665 (6088423771)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6088423771),
+decision 2 (a), puts every class-D value the datapath reads on the wire in a
+block of the mailbox window, contract 2.2
+([reference](../reference/MAILBOX_CONTRACT.md#interface-publication-registers)).
+Firmware writes each value before the response that promises it
+([placement contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule)). The
+datapath of the split placement reads the block through `KL_mbx`'s `pub_*_o`
+ports by a static, build-time selection, which the placement switch adds
+after F5. The all-fabric build carries no mailbox, so it is unchanged; the
+`--ctrl-mailbox` SoC names the ports and leaves them unread.
+
+| Value | Register, interface i | Writer | Written before | Processor output it stands for |
+|---|---|---|---|---|
+| talker DA gate, bit s | `DA_GATE.OPEN` | MAAP adapter, its range port | the allocation is reported, which a PROBE_TX_RESPONSE then promises (Milan v1.2 5.5.4.1) | `acmp_declaring_o`: valid DA and fresh probe or registered Listener |
+| listener bound, sink k | `BINDING.BOUND` | ACMP core's publish port, through its adapter | any frame of the entry: the BIND_RX and UNBIND_RX responses | `acmp_bound_o` |
+| listener started, sink k | `BINDING.STARTED` | the same | the BIND_RX response that echoes STREAMING_WAIT; a START_STREAMING or STOP_STREAMING is published before the notifier and before `acmp_set_started` returns to F5's bridge (`ctrl_app_aecp.c`), whose response leaves a loop pass later | the wrapper's `aecp_strm_started_o`, which the ACMP binding record owns |
+| bound stream_id, sink k | `SID_LO`, `SID_HI`, `BINDING.SID_VALID` | the same | the end of the settling entry, before the notifier; any later GET_RX_STATE response | `acmp_bound_sid_o` |
+| SRP stream gate, bit s | `LICENCE.ACTIVE` | SRP adapter | each licence report, revocations by a reset or by destroy included | `srp_active_o` AND `srp_sr_admitted_o` |
+| Talker declared, bit s | `TALKER_DECL.DECLARED` | SRP adapter | the declarations it describes, at participant creation and Domain adoption; cleared before a reset or destroy removes them | `srp_tk_decl_state_o` other than NONE |
+| idle slope | `IDLE_SLOPE.BPS` | SRP adapter | the declarations it admits, at participant creation and Domain adoption | `srp_sum_slope_bps_o` |
+| SR class A Domain | `SR_DOMAIN` VID, PRIORITY, ADOPTED | SRP adapter | the Domain and Talker declarations that carry it | `srp_domain_adopted_o`, `class_a_prio_o`, `class_a_vid_o` |
+
+ADP owns no value the split datapath consumes: its `available_index` reaches
+only CSR status and the AEM face. F5's AECP owner serves that face: it reads
+ENTITY's `available_index` from the ADP owner (`ctrl_app_aecp.c`), as it
+answers GET_STREAM_INFO (the ruling).
+
+The list is not kept by hand. The first version copied one from a review
+comment, and it missed the started level and the Talker declarations (the
+round-3 ruling on [#665 (6092086337)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6092086337)).
+[`publication_census.py`](../../sw/mailbox/publication_census.py) derives it
+from `milan_datapath.sv` as an elaborator builds it, never from its text (the
+round-6 assignment on
+[#665 (6097292237)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6097292237)),
+in every shape the builder builds (the round-7 assignment on
+[#665 (6100024293)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6100024293)),
+and it fails closed (the round-4 assignment on
+[#665 (6094461419)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6094461419)).
+
+[`census_elab.py`](../../sw/mailbox/census_elab.py) elaborates the datapath
+with the recipe of CI's Yosys gate, which
+`syn/yosys/run.sh --emit milan_datapath` prints: its defines, its include
+directories (a shape's header slot among them) and its sources. sv2v lowers
+the SystemVerilog and Yosys elaborates the result, both at the versions
+`rtl-fast.yml` pins (Yosys `v0.66`, sv2v `v0.0.12`); the census refuses any
+other version of either, naming both pins and both versions it found.
+
+It does so once per shape, and the shapes are every one the builder builds:
+
+- the recipe's own: the module's default parameters, the define `SYNTHESIS`
+  and the all-fabric header `configs/generated/endstation_arty_current`;
+- one per `configs/*.yaml`, in name order: its generated header directory
+  `configs/generated/<name>` and that directory's `gen/`, in place of the
+  recipe's header slot, as `milan_soc.py --entity-gen-dir` puts both ahead of
+  the tracked include directories; the integer parameters
+  `endstation_builder.datapath_params()` states for it; and `SYNTHESIS`, the
+  one define a build sees (`milan_soc.py` adds none, and Vivado's synthesis
+  defines that one).
+
+The parameters come from the builder alone. `test_builder.py` gate 23m runs
+`milan_soc.py` on every configuration and requires the integer parameters it
+hands `Instance("milan_datapath")` to be exactly what the builder states. The
+three it leaves at their defaults are the ROM image paths, which only the
+processor and gPTP wrappers read. Arm D of `scripts/check_entity_shape.py`
+holds each generated header to what the builder generates. A configuration
+added to `configs/` is elaborated with no edit to the census. At this head
+the six shapes are these; every configuration also binds its 50 MHz datapath
+clock and its processor memory window:
+
+| Shape | Streams | Front end | Other bindings |
+|---|---|---|---|
+| the recipe's | 1 | I2S | the module's defaults |
+| `endstation_arty_current` | 1 | I2S | none |
+| `endstation_arty_4x4` | 4 | TDM8 master, I2S pair blended | 4-channel talkers |
+| `endstation_arty_8ch` | 4 | TDM8 master, I2S pair blended | 8-channel talkers |
+| `endstation_ax7101_1x1_tdm8` | 1 | TDM8 master, 8-slot render | 8-channel talkers, the loopback lane, I2S playback and its filter pruned, the gPTP latencies |
+| `endstation_ax7101_8x8` | 8 | TDM32 master | 8-channel talkers, the latency taps, I2S playback, its filter and the datapath probes pruned, the gPTP latencies |
+
+The hierarchy is kept. Every module but the datapath is read as a blackbox,
+so the processor wrapper, the CSR block and every other instance stay cells
+whose ports have directions. The datapath is read deferred and bound to the
+shape's parameters by `hierarchy -check -chparam`, which refuses an unknown
+module or port. The passes `proc` runs, in its order, turn every process into
+cells, with two changes that keep a read under the name the source gave it:
+
+- `insbuf` turns every connection into a buffer cell before `proc_prune`,
+  before `proc_dff` and after the last pass, because those two passes
+  otherwise rename a read to its net's driver;
+- proc's closing `opt_expr` is not run, because it folds away a read that a
+  constant of this shape masks (the CRF talker's C-TAG enable is one), and
+  the census keeps every cell the elaborator produced.
+
+Yosys writes the netlist as JSON: every cell with its type, its ports'
+directions and the bits each port connects, and every net's name. With no
+connection left, each bit has one name, and the census checks that.
+
+The census reads only that netlist, so the way a read is written does not
+matter. A procedural block with or without `begin`, an `if`, a `case`, a
+compound assignment, an event control, a function or a task, a port
+connected by name, by position, by `.name` or by `.*`, a macro from any file,
+a struct member and an escaped name all elaborate to the cells they mean.
+What the front end or the elaborator refuses, the census refuses:
+
+- an `alias` and an `iff` event qualifier, which sv2v does not parse;
+- a hierarchical reference, which the datapath's `default_nettype none`
+  makes an undeclared name;
+- an undefined module, port or macro, and an include the front end cannot
+  find.
+
+One form is refused before elaboration. sv2v reads `//` or `/*` inside an
+escaped name as a comment and can drop a read without an error, so no file
+the front end can read may hold an escaped name containing either.
+
+The population is the set of nets the processor wrapper cell's class-D
+output ports drive. The census lists the class-D outputs of `KL_pp_shadow`,
+and that list must equal the outputs the wrapper declares under its class-D
+section headings (`hdl/milan/KL_pp_shadow.sv`): the elaborated wrapper names
+every output, and its port list places each under a heading. The started
+level, `aecp_strm_started_o`, joins them by the round-3 ruling. The datapath
+must hold one `KL_pp_shadow` cell, named `pp_shadow`, and each of these
+fails:
+
+- a class-D port left unconnected or omitted;
+- a class-D port that drives part of a net, or more than one net;
+- two class-D ports that drive one net;
+- a second driver of a population net: an `assign`, a declaration's
+  initialiser or another cell's output;
+- a class-D output the list does not name, or a listed one the wrapper's
+  class-D sections no longer declare.
+
+No bit of the datapath may have two drivers at all.
+
+A read is where a population net's value first lands in a named net. From
+the net's bits the census follows every cell they enter (the buffer of an
+assignment, an operator, a multiplexer, a flop, a latch) to the bits that
+cell drives, until it reaches a net with a name from the source. That net is
+the read's consumer. When an instance's input comes first, the consumer is
+that `instance.port`.
+
+A read's cone decides its kind. The cone is everything the consumer's bits
+reach, through every cell and every named net. A cell leads from each of its
+input bits to all of its output bits, so no cell's function is trusted to
+drop a dependency, and a memory's write leads to its reads. Only two
+terminals end a cone, each named by cell and port, never by a port's name:
+
+- an input of the CSR cell `csr` that the census's `CSR_READBACK` lists,
+  read back as status;
+- an input of the wrapper cell `pp_shadow` that its `PROCESSOR_FACE` lists,
+  the wrapper's GET_STREAM_INFO and GET_AVB_INFO answer face.
+
+Every other input of every cell, those two included, every datapath output,
+and a cell with no output (a print or an assertion) are the wire. Each read
+must then be one of three kinds:
+
+- read on the wire, and carried by the block field the census names, which
+  the contract must define;
+- read back as CSR status only: its cone reaches the read-back face and
+  nothing else;
+- the wrapper's own GET_STREAM_INFO and GET_AVB_INFO answers: its cone
+  reaches the answer face and nothing else. These need no publication (the
+  ruling, decision 2). F5's AECP owner answers both from firmware state. A
+  STREAM_INPUT's bound, stream_id, destination MAC, VLAN, started and
+  registration fields come from the ACMP view (`ctrl_app_aecp.c`). The rest
+  come through the platform's `stream` and `avb` ports (`aecp.h`): a
+  STREAM_OUTPUT's fields, MSRP latency and failure, and the Domain's
+  priority and VLAN. None reads the block.
+
+In any shape, a read the census does not map fails, and so does a row no
+read matches, a field read whose cone reaches no wire, a status or
+answer-face read whose cone reaches the wire, and a status read whose cone
+reaches the wrapper. Across the shapes, a population, an unread net, a read
+or a read's classes of cone end (the wire, CSR read-back, the answer face)
+that is not the same in every shape fails. Which CSR input or which
+instance's input a cone ends at is not compared: from four streams up, the
+AAF stream gate also reaches the CSR read-back input `i_tlk_lobs_v`, which no
+one-stream shape builds. At this head every shape has the same 25 population
+nets and the same 39 reads, and four nets are unread. Of the 39 reads, 10 are
+on the wire and map to the block, 14 are CSR status, and 15 are the answer
+face: the same reads and kinds the text census counted before.
+
+[`census_rules.py`](../../sw/mailbox/census_rules.py) names every rule above,
+the shapes' and the tools' included, 31 in all, and the census enforces each
+only where it tests that name.
+
+The census's self-test
+([`census_selftest.py`](../../sw/mailbox/census_selftest.py)) elaborates a
+planted copy for each of 116 defects, plants two more in its table, and
+requires each refused by its own words: a cone plant by its read's row and
+the port it reaches, a refused form by the tool's words. A plant whose branch
+only another shape builds is elaborated in the first shape that binds what it
+needs: R583-5's reads under `N_STREAMS > 1`, in a loop with no iteration at
+one stream and under `LOOPBACK_P != 0`, R582-5's arm B and its arm E (a
+status consumer added to the stream gate of streams 1 and up), a read under
+a constant of a multi-stream shape's header, and a field read that reaches
+CSR read-back in the multi-stream shapes alone. The plants include every
+probe review rounds 2 to 5 found escaping, each beside its plain-assign
+control:
+
+- a class-D output wired under another name;
+- a case item label, ports by position and by `.name`, a function's return
+  and an event control;
+- an input port named like an output;
+- a procedural block with no outer `begin`, an event control nesting
+  parentheses, an `iff` qualifier, a compound assignment and an `alias`;
+- a macro defined in an included file, escaped names, and a declaration's
+  initialiser as a second driver.
+
+A wildcard `.*` connection, a memory, a print and the CSR or wrapper ports
+outside their faces are planted too, and so is one defect for each rule no
+probe reached: a status read on a new datapath output, a status read into the
+answer face's change strobe, a field read whose wire is cut, a second driver
+of a net outside the population, two class-D ports on one net, the wrapper's
+or the CSR block's cell renamed, a class-D output named twice in the port
+list, the started port renamed, and an sv2v or a Yosys off its pin.
+
+Each arm names the rule whose removal must let it through. The self-test then
+removes each rule in turn, judges that rule's arms again, and fails unless
+every one is accepted; it fails too on a rule no arm names, and on a name
+`census_rules.py` and the census's code do not both hold, so a rule added
+without a plant fails CI. The census runs in `rtl-fast`'s own
+`publication-census` job, on every core of its runner, with the same Yosys
+cache and sv2v release as `yosys-elaboration`, and by `make census` in the
+mailbox bench.
+
+The idle slope's one read is status, for LWSRP_SLOPE: no shaper consumes it,
+and the block carries it as ruled. The census covers the class-D face and the
+started level. The wrapper's other faces the datapath reads (its AECP settings, and
+its counter and audio-map requests) belong to AECP. F5's owner now holds the
+settings and the audio maps, and reaches the platform through its ports
+(`aecp.h`): `changed` to apply a setting or a map, `format` for the
+SET_STREAM_FORMAT verdict, `counters` to read the counters. The placement
+switch must connect each face to the split build through them.
+
+Interface i's block starts at `0x800 + 0x200 * i`: the five interface
+registers, then sink k's entry at `+0x100 + 0x10 * k`. Every register resets
+to 0. A hole, the fourth word of an entry and the block of an interface the
+build does not have read 0 and take no write; a partial strobe is refused and
+counted in `BUS_ERR` like any other. The stream_id is two words, so the
+driver (`mbx_pub_sink`) writes `BINDING` with `SID_VALID` clear, then
+`SID_LO` and `SID_HI`, then `BINDING` with it set, and the datapath takes
+`pub_sid_o` only while `pub_sid_valid_o` is set: a half-written stream_id
+never reaches it. A move of the bound or started level alone, with the
+stream_id unchanged, is one write of `BINDING` that keeps `SID_VALID`
+(`mbx_pub_sink_binding`): a START_STREAMING or STOP_STREAMING never takes a
+settled stream off the datapath. Gating each bit in the block instead would cost 1,024 AND
+gates once a consumer reads the port; the valid bit costs one wire a sink.
+
+Three choices are the firmware's, and the placement switch's comparison sees
+them:
+
+- The stream_id is the stream the sink listens to: from the PROBE_TX_RESPONSE
+  that settles it until SRP stops (5.5.3.5.18 step 4 to 5.5.3.5.36 step 1,
+  and an unbind, a re-bind or a withdrawal), as the core's GET_RX_STATE
+  reports it. The processor holds the last settled stream_id until the unbind.
+- `LICENCE` is the firmware's licence, which already requires the admission
+  ([SRP](../../sw/firmware/ctrl/srp/README.md)); `SR_DOMAIN.ADOPTED` follows
+  the processor's F10.2 rule: set by the first received Domain that differs
+  from the declared one, cleared by a link restart.
+- `TALKER_DECL` is the firmware's declarations. The SRP adapter declares
+  every source from participant creation, as a Talker Failed until MAAP
+  allocates its address (`declare_sources`). The processor declares a source
+  only once its DA gate opens (`KL_srp_talker_fsm.sv`, the record
+  capture). The CRF talker's C-TAG reads this level. Its frames leave under
+  the licence, which needs a declaration in both placements, unless policing
+  is off (the AAF bypass or lwSRP disabled): then the split build tags CRF
+  frames that the processor build sends untagged until its DA gate opens.
+
+Every publication is counted in its path's bound. ACMP: a BIND_RX or an
+UNBIND_RX writes `BINDING` once, its started level included (77 and 50), a
+settling PROBE_TX_RESPONSE writes the stream's four words (32), and a
+TMR_NO_TK writes `BINDING` once (14 when it also makes the run's first
+TMR_DELAY draw); a START_STREAMING or STOP_STREAMING writes `BINDING` once,
+in F5's bridge, and the composed path commits its response within F5's 10 ms
+service target (at most 50 accesses, 1,005,100 ns with F5's allowance).
+MAAP: an allocation report writes `DA_GATE` once. Its action costs up to
+65 accesses, including the dispatch path's freshness queries. SRP: a reset writes
+`LICENCE` and `TALKER_DECL` before
+it destroys the participants, then `SR_DOMAIN`, `IDLE_SLOPE` and
+`TALKER_DECL` as it declares again (five; an event is 6), an adoption writes
+`SR_DOMAIN`, `IDLE_SLOPE` and `TALKER_DECL`, and each licence change
+`LICENCE` (`SRP_MBX_PUB_POLL_MAX`, 40 per interface). Each figure is measured
+on the host model.
+
 ## Verification
 
 | Evidence | What it shows |
 |---|---|
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 382 checks through the Wishbone adapter and the same 382 through the AXI4-Lite adapter (384 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
+| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | the 39 reads of the 25 class-D nets, classified from the netlist of each of the six shapes the builder builds and the same in all; its 118 plants, each refused by its own words; each of its 31 rules removed in turn, each letting its arms through |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 402 checks through the Wishbone adapter and the same 402 through the AXI4-Lite adapter (404 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
 | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
 | the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
-| the same suite on the host model | the 369 of the RTL's 382 checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface and sink; each field on its own `pub_*_o` output, a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
+| the same suite on the host model | the 389 of the RTL's 402 checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
 | the processor's ADP walk, reused | 36 cells of the processor suite's own Table 5.51 transcription and its own frame builder, cut from the pinned submodule at build time, drive the firmware through the model |
 | the processor's ACMP expectations, reused | its F05.3 model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, cut from the pinned submodule at build time; frames and records compared raw, the four former differences each a check that fails if it returns ([above](#differences-from-the-processor)) |
 | the binding owner on lane F1's store | on the host flash model at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, an unread slot refusing persistence, a refused record and the roll-back |
-| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; five of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
+| the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, a call back from the port refused, and the started level before the BIND_RX response that echoes STREAMING_WAIT and before a START_STREAMING or STOP_STREAMING is reported (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model, a started move as one `BINDING` write that keeps the stream (`B10` to `B12`), a bound or started move with no settled stream written as `BINDING` alone with `SID_VALID` clear, over the stream an unbind left in `SID_LO` and `SID_HI` (`B13`), and, composed with F5's AECP owner, a START_STREAMING and a STOP_STREAMING each moving the started level in one `BINDING` write before its response's TX_HEAD, within F5's service target (`App.StartAndStopPublishTheStartedLevelBeforeTheirResponse`, two plants in [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py) that F5's own tests let through); MAAP's DA gate before each allocation report, on the allocating interface alone at two interfaces (`DaGate*`); SRP's licence before each report, its Domain, slope and Talker declarations before every MRPDU that carries them, read at each record's commit, the Talker declarations published again by a Domain adoption and held after it, the declarations withdrawn before a reset or destroy removes them, and none published by a re-creation refused at any one of its allocations, a source's join among them (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
+| the placement switch's SRP comparator, the firmware gate's `srpcmp` arm | [`srp_wire_compare.py`](../../sw/firmware/ctrl/test/srp_wire_compare.py), an independent IEEE 802.1Q Clause 10.8 decoder and transmit-opportunity comparator, which the placement switch compares the two placements' SRP frames with (the ruling of comment 6088423771 keeps it for that switch). Its self-test runs in every firmware gate run, so it cannot rot first: its five named controls, and its 18 named planted wire and comparison defects each present and caught (a report missing any of them fails the arm), among them a dropped, an extra and a duplicated declaration, a wrong attribute or FourPacked event and every malformed length and EndMark |
+| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; six of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
 
 ## Default build
 
@@ -819,6 +1126,13 @@ the netlist's name and hands each region to the CPU generator
 list, so a switch-on build carries a different `VexiiRiscvLitex_<hash>` from
 the shipping one. The datapath side is held
 idle in F0.
+
+Since #640 M8a-1 the switch also selects the split placement's firmware
+memory: it requires `--ctrl-firmware <elf>`, builds no BIOS ROM or BIOS SRAM,
+and builds `rom` and `sram` block RAM from that image, with the firmware
+owning the reset entry. See
+[Split placement control memory](SPLIT_CONTROL_MEMORY.md). Off, nothing
+changes, and the default export is digest-identical again.
 
 The proof is a gateware export (no Vivado) of every shipped config, with the
 base and the head `milan_soc.py`, compared after removing the run's
@@ -970,6 +1284,35 @@ memories, hence the shift registers. Routing the read-back through the
 answer multiplexer the rings use, from a register, saved 15 LUTs for 34
 flip-flops in an earlier version and was not kept.
 
+The publication block (lane F-INT, contract 2.2,
+[above](#the-publication-block)) was measured with the same recipe beside its
+base `7c1b52be`, whose figures repeated round 3's column above exactly: first
+on 2026-10-09, then again on 2026-10-10 once it carried the started levels
+and the Talker declarations:
+
+| Block | LUT before | LUT first | LUT now | FF before | FF first | FF now |
+|---|---:|---:|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,481 | 1,520 | 1,516 | 1,155 | 1,155 | 1,155 |
+| `KL_mbx` registers, decode, read mux | 294 | 647 | 665 | 532 | 1,668 | 1,700 |
+| `KL_mbx_evt` | 702 | 669 | 666 | 978 | 978 | 978 |
+| `KL_mbx_tx` | 488 | 493 | 507 | 280 | 280 | 280 |
+| `KL_mbx_wb` | 122 | 203 | 211 | 1 | 1 | 1 |
+| **Total** | **3,102** | **3,548** | **3,585** | **2,946** | **4,082** | **4,114** |
+
+It now costs 483 LUT and 1,168 FF. The flip-flops are the block's storage at
+one interface, exactly: `DA_GATE`, `LICENCE` and `TALKER_DECL` (16 each),
+`IDLE_SLOPE` (32), `SR_DOMAIN`'s VID, PRIORITY and ADOPTED (16), and sixteen
+sink entries of `SID_LO`, `SID_HI`, `BOUND`, `SID_VALID` and `STARTED` (67
+each, 1,072). The LUTs are the decode and the read-back of eight registers
+over sixteen entries; Vivado combines them across the hierarchy, so the
+`KL_mbx_wb` row grows and the rows of unchanged blocks move. The block RAM is
+unchanged, with no DSP. WNS is +0.151 ns at 10 ns (+0.329 ns at the first
+measurement, +0.402 ns before), with all 7,568 nets routed. The bench
+top exports every `pub_*_o` port; the switch-on SoC leaves them unread, but
+the registers stay for their read-back. This is the block's own recipe: the
+whole-image M0s measurement of #640 needs the split image, which the
+placement switch builds.
+
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
   hdl/milan/mailbox/KL_mbx_rx.sv hdl/milan/mailbox/KL_mbx_tx.sv hdl/milan/mailbox/KL_mbx_evt.sv \
@@ -988,18 +1331,20 @@ report_timing_summary -delay_type max
 
 - **The datapath tap.** The skeleton's ingress and egress byte streams, link
   levels and grandmaster inputs are held idle; the lanes that move a protocol
-  connect them, with the clock crossing the datapath needs.
+  connect them, with the clock crossing the datapath needs. The publication
+  block's `pub_*_o` ports are unread until the placement switch (#665 F-INT,
+  after F5) selects them for the split datapath.
 - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
   has a PDU transmit hook in the public pin used by F4; its frames enter
   the SRP channel's transmit ring as header plus MRPDU. Target integration
   of the stream owners remains separate from the host composition.
 - **CPU cycles.** The latency bounds are counted in mailbox accesses; the
   cycle figure on the shipping core waits for the switch-on SoC in the CPU
-  simulation. ACMP's backlog bounds fit T_svc only at 0.89 us per access or
+  simulation. ACMP's backlog bounds fit T_svc only at 0.88 us per access or
   less, and H-DISC's behind a full adp ring at 0.44 us: the table's access
   times for T_svc ([ACMP service latency](#acmp-service-latency)). With MAAP
-  composed as well they are 0.57 us and 0.28 us. With SRP they are 0.29 us
-  and 0.14 us at one interface, or 0.22 us and 0.11 us at two interfaces.
+  composed as well they are 0.56 us and 0.28 us. With SRP they are 0.27 us
+  and 0.13 us at one interface, or 0.21 us and 0.10 us at two interfaces.
 - **ACMP's wire round trip** (H-ACMP, under 200 ms with margin) waits for the
   datapath tap.
 - **The bound-talker term's area** is 57 LUTs over its target of 300

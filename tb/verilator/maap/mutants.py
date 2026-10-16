@@ -9,7 +9,9 @@ for every station MAC), item 3 B.3.2 Table B.7 notes b and d (ANNOUNCE
 conflict detection), item 4 Table B.7 (four PROBEs, the first at once, the
 ANNOUNCE at once). Item 0 marks a supporting change that grades no item's
 own clause (frame integrity on the wire, the DEFEND overlap, this station's
-empty range); it does not count toward the item guard. Each mutant is
+empty range); it does not count toward the item guard. The #696 items M1 to
+M8 carry their own mutants, named by item; DATAPATH_MUTANTS run the real
+CSR-to-MAAP path. Each mutant is
 an exact source replacement whose anchor must occur exactly once, applied to
 a scratch copy: no checkout file is edited. A mutant counts as killed only
 when its build succeeds, the harness exits 1, and the named check is among
@@ -17,25 +19,121 @@ its failures; a compiler error or abnormal exit never counts. A clean build
 runs first as the positive control.
 """
 
+import argparse
+import json
 import os
 import signal
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RTL = HERE / "../../../hdl/ieee1722/maap/KL_maap.sv"
+sys.path.insert(0, str(HERE.parents[2] / "scripts"))
+from ci_case_receipts import Receipt, partition
+
 
 BEGIN_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
                "            state_r      <= PROBE_S;\n          end")
 RESTART_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at once\n"
-                 "            state_r      <= PROBE_S;\n            conflicts_o")
+                 "            state_r      <= PROBE_S;\n            if (restart_w)")
 CELL = "((state_r == PROBE_S) || !mac_lower_w)"
-SEED = "(mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w"
+SEED = "(mac_seed_w == 32'h0) ? 32'hACE1 : mac_seed_w"
+#: the first Begin! draw; R558-6's p7 restores the pre-#696 expression
+FIRST_DRAW = ("rand_offset(rng_seeded_r ? lfsr_next_w[15:0]\n"
+              "                                                                    "
+              ": offset_fold(seed_next_w), count_i)")
+PRE_696_FIRST_DRAW = "rand_offset(lfsr_next_w[15:0], count_i)"
+FIRST_FOLD = "offset_fold(seed_next_w), count_i)"
+PROBE_DRAW = "{10'd0, probe_fold(lfsr_next_w)}"
 SUPPORTING = 0
 
 #: (name, #686 item or SUPPORTING, anchor, replacement, the check that must fail)
 MUTANTS = (
+    ("m3_short_period", "M3",
+     "lfsr_step = {s[30:0], s[31] ^ s[21] ^ s[1] ^ s[0]};",
+     "lfsr_step = {16'd0, s[14:0], s[15] ^ s[14] ^ s[12] ^ s[3]};",
+     "M3 B.3.6.1 generator period is 2^32-1"),
+    ("m3_trap_outside_basis", "M3",
+     "lfsr_next_w = lfsr_step(lfsr_r);",
+     "lfsr_next_w = (lfsr_r == 32'h12345678) ? 32'd0 : lfsr_step(lfsr_r);",
+     "M3 B.3.6.1 generator period is 2^32-1"),
+    ("m3_ignores_clock", "M3", "station_mac_i[31:0] + realtime_ns_i",
+     "station_mac_i[31:0]", "M3 B.3.6.1 first enable seeds MAC plus clock"),
+    ("m3_xors_clock", "M3", "station_mac_i[31:0] + realtime_ns_i",
+     "station_mac_i[31:0] ^ realtime_ns_i", "M3 B.3.6.1 first enable seeds MAC plus clock"),
+    ("m3_reseeds_after_release", "M3", "enable_i && !rng_seeded_r", "enable_i",
+     "M3 Release/Begin retains the generator sequence"),
+    ("m3_first_offset_ignores_clock", "M3", FIRST_FOLD,
+     "offset_fold(lfsr_step(station_mac_i[31:0])), count_i)",
+     "M3 B.3.6.1 clocks 2^k apart claim different first offsets"),
+    ("m4_first_offset_ignores_seed", "M4", FIRST_DRAW, PRE_696_FIRST_DRAW,
+     "M4 B.3.6.1 adjacent MACs claim disjoint first blocks"),
+    ("m4_first_offset_raw_seed_bits", "M4", FIRST_FOLD, "enable_seed_w[15:0], count_i)",
+     "M4 B.3.6.1 adjacent MACs claim disjoint first blocks"),
+    ("m4_first_offset_drops_seed_high_half", "M4", FIRST_FOLD,
+     "offset_fold({16'd0, seed_next_w[15:0]}), count_i)",
+     "M4 B.3.6.1 MACs 2^i apart (16 <= i <= 31) claim disjoint first blocks"),
+    ("m4_first_interval_raw_seed_bits", "M4", PROBE_DRAW, "{10'd0, lfsr_r[5:0]}",
+     "M4 B.3.4 MACs 2^i apart draw different first probe intervals"),
+    # Defects that every sampled first-draw pair survives (R559-6's q3, q9 and
+    # q1, and a nonlinear first fold); section [13] must see each for every seed.
+    ("m4_offset_row0_bit_drop", "M4", "32'h1040_0000, 32'h0000_0081",
+     "32'h1040_0000, 32'h0000_0080",
+     "M4 B.3.6.1 seed bits 16..31 map one-to-one onto the first offset word"),
+    ("m4_offset_row6_bit_drop", "M4", "32'h8008_0040", "32'h8000_0040",
+     "M4 B.3.6.1 every seed pair 2^i apart claims disjoint first blocks of 1..8"),
+    ("m4_probe_fold_unstepped", "M4", PROBE_DRAW, "{10'd0, probe_fold(lfsr_r)}",
+     "M4 B.3.4 every seed pair 2^i apart draws different first probe intervals"),
+    ("m4_first_offset_nonlinear", "M4", FIRST_FOLD,
+     "offset_fold(seed_next_w) ^ {15'd0, &seed_next_w[1:0]}, count_i)",
+     "M4 first-draw maps learned from the RTL are linear in the seed"),
+    # A probe row that repeats an offset row ties the two first draws together.
+    ("m4_probe_row_repeats_offset_row", "M4", "32'h0000_0409, 32'h2420_0880",
+     "32'h0000_0409, 32'h0000_0081",
+     "M4 B.3.6.1 first offset word and first probe draw are independent"),
+    ("m6_overwrite_active_response", "M6",
+     "&& !(tx_busy_r && tx_msg_r == MSG_DEFEND_C)", "",
+     "M6 occupied response buffer preserves active DEFEND"),
+    ("m6_replace_pending_response", "M6",
+     "probe_hit_w && !defend_pending_r", "probe_hit_w",
+     "M6 pending response preserves prober and requested range"),
+    ("m6_pending_survives_release", "M6",
+     "if (!enable_i || restart_w || port_operational_p)", "if (1'b0)",
+     "M6 pending response cancelled with allocation"),
+    ("m6_drop_busy_probe", "M6", "if (save_probe_w) begin", "if (1'b0) begin",
+     "M6 busy PROBE gets DEFEND after wire is free"),
+    ("m6_pending_source_not_saved", "M6", "tx_dst_r        <= rx_src_r;",
+     "tx_dst_r        <= 48'd0;", "M6 pending response preserves prober and requested range"),
+    ("m5_ignore_link_return", "M5", "else if (restart_w || port_operational_p)", "else if (restart_w)",
+     "M5 B.3.5.9 link return revokes and reprobes"),
+    ("m5_level_restarts", "M5", "port_operational_i && !port_operational_r",
+     "port_operational_i", "M5 B.3.5.9 link return restarts PROBE"),
+    ("m5_restart_on_link_loss", "M5", "port_operational_i && !port_operational_r",
+     "!port_operational_i && port_operational_r",
+     "M5 B.3.5.9 link loss is no event; return reprobes"),
+    ("m1_probe_no_compare", "M1", "(state_r == PROBE_S) && !mac_lower_w",
+     "(state_r == PROBE_S)", "M1 rProbe/PROBE lower MAC keeps range"),
+    ("m1_defend_no_compare", "M1", "((state_r != ANNOUNCE_S) || !mac_lower_w)",
+     "1'b1", "M1 rDefend/DEFEND lower MAC keeps range"),
+    ("m8_early_last_accepted", "M8", "(rbeat_r >= 3'd5)", "1'b1",
+     "M8 B.2 truncated PROBE-state input has no effect"),
+    ("m8_missing_bytes_accepted", "M8", "&& rx_bytes_valid_r && rx_beat_complete_w", "",
+     "M8 B.2 truncated DEFEND-state input has no effect"),
+    ("m7_accept_invalid_seed", "M7", " && seed_in_pool_w", "",
+     "M7 Table B.9 invalid supplied range refused"),
+    ("m7_reject_valid_boundary", "M7", "seed_end_w <= {1'b0, POOL_SIZE_C}",
+     "seed_end_w < {1'b0, POOL_SIZE_C}",
+     "M7 Table B.9 valid supplied boundary retained"),
+    ("m2_own_requested_start", "M2", "tx_defend_off_r <= rx_start_r;",
+     "tx_defend_off_r <= offset_r;", "M2 B.3.6.6 requested start echoes PROBE"),
+    ("m2_echo_overlap_start", "M2", "tx_defend_off_r <= rx_start_r;",
+     "tx_defend_off_r <= conf_start_w;",
+     "M2 B.3.6.6 requested start echoes a PROBE starting below ours"),
+    ("m2_own_requested_count", "M2", "tx_cnt_r        <= rx_cnt_r;",
+     "tx_cnt_r        <= {8'd0, count_i};",
+     "M2 B.3.6.6 requested count echoes all 16 bits"),
     ("cdl_28", 1, "CDL_C          = 8'd16;", "CDL_C          = 8'd28;",
      "B.2.1 cdl 16 (Begin! PROBE 1)"),
     ("defend_to_multicast", 1, "(tx_msg_r == MSG_DEFEND_C) ? tx_dst_r",
@@ -44,7 +142,7 @@ MUTANTS = (
      "B.2.1 DEFEND DA latched at send"),
     ("every_frame_to_the_prober", 1, "(tx_msg_r == MSG_DEFEND_C) ? tx_dst_r",
      "1'b1 ? tx_dst_r", "B.2.1 PROBE DA multicast (Begin! 1)"),
-    ("probe_draw_7_bits", 2, "{10'd0, lfsr_r[5:0]}", "{9'd0, lfsr_r[6:0]}",
+    ("probe_draw_7_bits", 2, PROBE_DRAW, "{9'd0, lfsr_r[0], probe_fold(lfsr_next_w)}",
      "B.3.4.2 probe T < 600 ms (campaign)"),
     ("probe_base_500", 2, "PROBE_MIN_MS_C    = 518;", "PROBE_MIN_MS_C    = 500;",
      "B.3.4.2 probe T > 500 ms (campaign)"),
@@ -84,7 +182,7 @@ MUTANTS = (
      "                timer_ms_r <= announce_iv_w;\n",
      "T.B7 probeCount!: ANNOUNCE at once (Begin!)"),
     ("restart_rewrites_the_frame_on_the_wire", SUPPORTING,
-     "f[30] = tx_off_r[15:8]; f[31] = tx_off_r[7:0];",
+     "f[30] = requested_start[15:8]; f[31] = requested_start[7:0];",
      "f[30] = offset_r[15:8]; f[31] = offset_r[7:0];", "frame on the wire keeps its offset"),
     ("overlap_count_to_our_end", SUPPORTING, "16'(conf_end_w - {1'b0, conf_start_w})",
      "16'(our_end_w - {1'b0, conf_start_w})", "B.2.8 conflict_count = overlap (below)"),
@@ -95,28 +193,54 @@ MUTANTS = (
      "note b: this station's empty range never conflicts"),
 )
 
+#: (name, anchor, replacement, the integration check that must fail)
+DATAPATH_MUTANTS = (
+    ("m4_reset_time_sampling", "      lfsr_r       <= 32'hACE1;\n      rng_seeded_r <= 1'b0;",
+     "      lfsr_r       <= enable_seed_w;\n      rng_seeded_r <= 1'b1;",
+     "M4 datapath: programmed MAC changes probe intervals"),
+    ("m5_datapath_ignores_link", "else if (restart_w || port_operational_p)", "else if (restart_w)",
+     "M5 datapath: link return starts four fresh PROBEs"),
+    ("m3_datapath_ignores_clock", "station_mac_i[31:0] + realtime_ns_i", "station_mac_i[31:0]",
+     "M3 datapath: real-time clock changes probe intervals"),
+    ("m4_datapath_first_offset_ignores_seed", FIRST_DRAW, PRE_696_FIRST_DRAW,
+     "M4 datapath: fixed adjacent MAC pair claims disjoint first blocks"),
+    ("m3_datapath_first_offset_ignores_clock", FIRST_FOLD,
+     "offset_fold(lfsr_step(station_mac_i[31:0])), count_i)",
+     "M3 datapath: fixed PHC time pair claims different first offsets"),
+)
 
-def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
+
+def run_case(work: Path, name: str, source: str, failure: str | None,
+             integration: bool = False, receipt: Receipt | None = None) -> bool:
     """A compiler error or abnormal termination never counts as a kill."""
     rtl = work / f"{name}.sv"
     rtl.write_text(source)
     mdir = work / f"obj_{name}"
+    target = "integration-build" if integration else "build"
+    directory = "DP_MDIR" if integration else "MDIR"
     result = subprocess.run(
-        ["make", "-s", "-C", str(HERE), "build", f"MAAP_RTL={rtl}", f"MDIR={mdir}",
+        ["make", "-j8", "-s", "-C", str(HERE), target, f"MAAP_RTL={rtl}",
+         f"{directory}={mdir}",
          f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}",
          f"VERILATOR_JOBS={os.environ.get('VERILATOR_JOBS', '0')}"],
         capture_output=True, text=True, check=False)
     if result.returncode:
         print(result.stdout[-2000:] + result.stderr[-2000:])
         print(f"[ESCAPED] {name}: compilation failed")
+        if receipt:
+            receipt.record(name, "build-failed", result.returncode, result.stdout + result.stderr)
         return False
-    result = subprocess.run([str(mdir / "VKL_maap_sim")],
+    executable = "maap_integration" if integration else "VKL_maap_sim"
+    result = subprocess.run([str(mdir / executable)], cwd=mdir,
                             capture_output=True, text=True, check=False)
     output = result.stdout + result.stderr
     if failure is None:
         passed = result.returncode == 0 and " 0 failures" in output
     else:
         passed = result.returncode == 1 and f"[FAIL] {failure}" in output
+    if receipt:
+        outcome = ("pass" if failure is None else "caught") if passed else "failed"
+        receipt.record(name, outcome, result.returncode, output)
     print(f"[{'ok' if passed else 'ESCAPED'}] {name}: rc={result.returncode}", flush=True)
     if passed and failure is not None:
         # The sweep judges this campaign's verdict, not expected DUT failures.
@@ -126,31 +250,96 @@ def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
     return passed
 
 
+def run_inventory(whole_suite: bool = False) -> list[str]:
+    """The original standalone harness, clean controls and mutation registrations."""
+    prefix = ["standalone"] if whole_suite else []
+    return prefix + ["clean"] + [m[0] for m in MUTANTS] + ["m4_datapath_clean"] + [
+        m[0] for m in DATAPATH_MUTANTS]
+
+
+def standalone(receipt: Receipt) -> bool:
+    """Run the default Makefile's original build and harness without build-log receipts."""
+    made = subprocess.run(["make", "-s", "-C", str(HERE), "build"], check=False)
+    if made.returncode:
+        receipt.record("standalone", "build-failed", made.returncode, "standalone build failed\n")
+        return False
+    result = subprocess.run(["make", "-s", "--no-print-directory", "-C", str(HERE),
+                             "exec-standalone"], cwd=HERE,
+                            capture_output=True, text=True, check=False)
+    output = result.stdout + result.stderr
+    sys.stdout.write(output)
+    # This is the existing Makefile run target's process status, with no new predicate.
+    receipt.record("standalone", "pass" if result.returncode == 0 else "failed",
+                   result.returncode, output)
+    return result.returncode == 0
+
+
+def campaign(work: Path, selected: list[str], receipt: Receipt) -> list[bool]:
+    """Schedule the registered source replacements with their unchanged predicates."""
+    source = RTL.read_text()
+    results = []
+    if "standalone" in selected:
+        results.append(standalone(receipt))
+        if not results[-1]:
+            return results
+    if "clean" in selected:
+        results.append(run_case(work, "clean", source, None, receipt=receipt))
+        if not results[-1]:
+            return results
+    for name, _, anchor, replacement, failure in MUTANTS:
+        if name not in selected:
+            continue
+        if source.count(anchor) != 1:
+            print(f"[ESCAPED] {name}: expected exactly one mutation anchor")
+            receipt.record(name, "failed", 1, "expected exactly one mutation anchor\n")
+            results.append(False)
+            continue
+        results.append(run_case(work, name, source.replace(anchor, replacement), failure,
+                                receipt=receipt))
+    if "m4_datapath_clean" in selected:
+        results.append(run_case(work, "m4_datapath_clean", source, None, True, receipt))
+    for name, anchor, replacement, failure in DATAPATH_MUTANTS:
+        if name not in selected:
+            continue
+        if source.count(anchor) != 1:
+            print(f"[ESCAPED] {name}: expected exactly one mutation anchor")
+            receipt.record(name, "failed", 1, "expected exactly one mutation anchor\n")
+            results.append(False)
+            continue
+        results.append(run_case(work, name, source.replace(anchor, replacement), failure, True, receipt))
+    return results
+
+
 def main() -> int:
-    """Run the clean control and every mutant; fail if any defect escapes."""
+    """Run the original full campaign, or selected cases with executed receipts."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--list", action="store_true")
+    parser.add_argument("--whole-suite", action="store_true")
+    parser.add_argument("--shard")
+    parser.add_argument("--receipt", type=Path)
+    args = parser.parse_args()
+    names = run_inventory(args.whole_suite)
+    if args.list:
+        print(json.dumps(names))
+        return 0
+    try:
+        selected = partition(names, args.shard)
+        receipt = Receipt(HERE.parents[2], "maap", names, args.shard, args.receipt)
+    except (ValueError, OSError) as exc:
+        parser.error(str(exc))
     def interrupted(_signum: int, _frame: object) -> None:
         """Unwind temporary storage when the caller stops the campaign."""
         raise SystemExit(143)
-
     signal.signal(signal.SIGTERM, interrupted)
-    source = RTL.read_text()
-    items = {item for _, item, _, _, _ in MUTANTS} - {SUPPORTING}
+    items = {item for _, item, _, _, _ in MUTANTS if isinstance(item, int)} - {SUPPORTING}
     if items != {1, 2, 3, 4}:
         print(f"[ESCAPED] campaign: #686 items without a mutant: {sorted({1, 2, 3, 4} - items)}")
         return 1
     with tempfile.TemporaryDirectory(prefix="maap-mutants-") as directory:
-        work = Path(directory)
-        results = [run_case(work, "clean", source, None)]
-        if not results[0]:
-            return 1
-        for name, _, anchor, replacement, failure in MUTANTS:
-            if source.count(anchor) != 1:
-                print(f"[ESCAPED] {name}: expected exactly one mutation anchor")
-                results.append(False)
-                continue
-            results.append(run_case(work, name, source.replace(anchor, replacement), failure))
+        results = campaign(Path(directory), selected, receipt)
     failures = sum(not passed for passed in results)
     print(f"== maap mutants: checks: {len(results)}   failures: {failures} ==")
+    receipt.finish()
     return 1 if failures else 0
 
 

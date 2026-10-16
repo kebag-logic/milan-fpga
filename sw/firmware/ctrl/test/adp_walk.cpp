@@ -192,6 +192,7 @@ void Walk::apply(int col, int row) {
             pp::putbe(f.data() + 12, 0x22F0, 2);
             f[14] = 0xFA;
             f[15] = 2;
+            pp::putbe(f.data() + 16, 56u, 2);
             pp::putbe(f.data() + 18, row == pp::R_DISC0 ? 0u : (row == pp::R_DISCOWN ? pp::EID : kForeign), 8);
             static_cast<void>(mbx_model_rx(m(), f.data(), f.size(), 0));
             break;

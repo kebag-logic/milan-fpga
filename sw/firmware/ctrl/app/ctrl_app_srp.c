@@ -50,6 +50,12 @@ static void request(void *ctx, unsigned sink, const struct acmp_stream *stream)
 static bool deliver(void *ctx)
 {
     struct ctrl_app *app = ctx;
+    for (unsigned source = 0; source < app->acmp.acmp.cfg.n_sources; ++source) {
+        unsigned interface = app->acmp.acmp.cfg.source_interface[source];
+        bool present = app->srp->loop == &app->loop && source < CTRL_SRP_SOURCES &&
+                       app->srp->ifs[interface].listener_present[source];
+        (void)acmp_listener_registered(&app->acmp.acmp,interface,source,present);
+    }
     // Destroy detaches SRP. The caller stops service before releasing storage.
     if (app->srp->loop != &app->loop) {
         return false;

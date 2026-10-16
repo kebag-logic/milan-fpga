@@ -67,6 +67,7 @@ usage() {
   cat <<'EOF'
 usage: act_slot_proof.sh --runner ABS --sha256 HEX --act-bin ABS --logs DIR
          --pr-a N --worktree-a DIR --pr-b N --worktree-b DIR
+         --cpu-ranges-a RANGES --cpu-ranges-b RANGES
          [--slot-a N] [--slot-root-a DIR] [--slot-b N] [--slot-root-b DIR]
          [--serial-slot N] [--repo OWNER/REPO] [--workflow NAME]...
          [--probe-image IMAGE] [--probe-name HOST] [--poll-seconds S]
@@ -76,6 +77,7 @@ EOF
 
 runner="" sha="" act_bin="" logs="" repo="kebag-logic/milan-fpga"
 pr_a="" worktree_a="" pr_b="" worktree_b=""
+cpu_ranges_a="" cpu_ranges_b=""
 slot_a=1 slot_b=2 serial_slot=0 poll_seconds=5
 slot_root_a=/var/lib/milan-act-ci slot_root_b=/var/lib/milan-act-ci
 probe_image=catthehacker/ubuntu:full-latest probe_name=github.com
@@ -95,6 +97,8 @@ parse_arguments() {
       --worktree-a) worktree_a=$2 ;;
       --pr-b) pr_b=$2 ;;
       --worktree-b) worktree_b=$2 ;;
+      --cpu-ranges-a) cpu_ranges_a=$2 ;;
+      --cpu-ranges-b) cpu_ranges_b=$2 ;;
       --slot-a) slot_a=$2 ;;
       --slot-b) slot_b=$2 ;;
       --slot-root-a) slot_root_a=$2 ;;
@@ -109,7 +113,7 @@ parse_arguments() {
     shift 2
   done
   for required in "$runner" "$sha" "$act_bin" "$logs" "$pr_a" "$worktree_a" \
-    "$pr_b" "$worktree_b"; do
+    "$pr_b" "$worktree_b" "$cpu_ranges_a" "$cpu_ranges_b"; do
     if [ -z "$required" ]; then usage >&2; exit 2; fi
   done
   for number in "$slot_a" "$slot_b" "$serial_slot"; do
@@ -156,12 +160,13 @@ selected_workflows() {
 
 # replay LABEL PR WORKTREE SLOT: one PR run; its log, status and verdict.
 replay() {
-  local label=$1 pr=$2 worktree=$3 slot=$4 status
+  local label=$1 pr=$2 worktree=$3 slot=$4 status cpus=$cpu_ranges_a
+  if [ "$slot" -eq "$slot_b" ]; then cpus=$cpu_ranges_b; fi
   local -a slot_args=()
   if [ "$slot" -ne 0 ]; then slot_args=(--slot "$slot" --slot-root "$(slot_root "$slot")"); fi
   if (cd "$worktree" && python3 -I "$runner" --pr "$pr" --repo "$repo" \
     --worktree "$worktree" --trusted-install-sha256 "$sha" --act-bin "$act_bin" \
-    --sudo "${workflow_args[@]}" "${slot_args[@]}") >"$logs/$label.log" 2>&1; then
+    --cpu-ranges "$cpus" --sudo "${workflow_args[@]}" "${slot_args[@]}") >"$logs/$label.log" 2>&1; then
     status=0
   else
     status=$?
@@ -235,7 +240,7 @@ await_holder() {
 interrupt_gate() {
   local log=$logs/interrupt-$slot_a.log
   if (cd "$logs" && python3 -I "$runner" --interrupt-selftest --act-bin "$act_bin" \
-    --sudo --slot "$slot_a" --slot-root "$slot_root_a") >"$log" 2>&1 \
+    --cpu-ranges "$cpu_ranges_a" --sudo --slot "$slot_a" --slot-root "$slot_root_a") >"$log" 2>&1 \
     && grep -q '^interrupt-selftest: PASS ' "$log" \
     && grep -q "^interrupt-selftest: slot $slot_a: " "$log"; then
     record PASS "interrupt self-test in slot $slot_a, whose slot the runner then tore down and proved absent"
@@ -390,6 +395,7 @@ def await_path(path):
             return
         time.sleep(0.05)
 slot = value("--slot", "0")
+assert value("--cpu-ranges", "") == ("16-31" if slot == "2" else "0-15")
 if "--interrupt-selftest" in args:
     if "interrupt-no-pass" not in faults:
         print("interrupt-selftest: PASS (stand-in)")
@@ -580,6 +586,7 @@ selftest_case() {
     bash "$0" --runner "$runner" --sha256 "$digest" \
     --act-bin /nonexistent/act --logs "$case_dir/logs" --pr-a 21 --worktree-a "$case_dir/wt-a" \
     --pr-b "$pr_b_case" --worktree-b "$case_dir/wt-b" --slot-a "$slot_a_case" \
+    --cpu-ranges-a 0-15 --cpu-ranges-b 16-31 \
     --slot-b "$slot_b_case" --poll-seconds 0.05 >"$case_dir/out" 2>&1 || status=$?
   if [ "$want_status" = 2 ]; then graded=$case_dir/out; fi
   if [ "$status" = "$want_status" ] && grep -q -F -- "$want_line" "$graded" \

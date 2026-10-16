@@ -181,6 +181,8 @@ Named controls change bytes, records, CPU and configured clocks.
 Timing controls check half-floor equality and one tick beyond it.
 A slower OFF fixture must determine the published maximum.
 A planted grader excluding OFF must fail that fixture.
+Every receipt arm is graded as production, even one that names a control.
+A planted arm claiming the byte-only control must still fail the bound.
 All controls execute before the ordinary gate verdict.
 These explicit mutations must each exit nonzero:
 
@@ -189,4 +191,5 @@ python3 scripts/check_nvm_capture.py --mutation bytes
 python3 scripts/check_nvm_capture.py --mutation records
 python3 scripts/check_nvm_capture.py --mutation clock
 python3 scripts/check_nvm_capture.py --mutation ignore-off-timing
+python3 scripts/check_nvm_capture.py --mutation receipt-opt-out
 ```

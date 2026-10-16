@@ -1,0 +1,11 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+//
+// The wrapper forces three plane nets from the bench (`result_slow` and
+// `decode_force` in gptp_tables_wrap.sv). Verilator reports each force as a
+// second driver at the net's own declaration in the plane, so the waiver is
+// scoped to that file and to those three nets, not to the rule.
+`verilator_config
+lint_off -rule MULTIDRIVEN -file "*/KL_gptp_shadow.sv" -match "*'eng_txts_valid_w'"
+lint_off -rule MULTIDRIVEN -file "*/KL_gptp_shadow.sv" -match "*'eng_txts_ready_w'"
+lint_off -rule MULTIDRIVEN -file "*/KL_gptp_shadow.sv" -match "*'txf_cnt_w'"

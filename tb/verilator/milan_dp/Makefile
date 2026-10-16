@@ -21,15 +21,17 @@
 #                 a format change under Milan 5.4.2.7 and a restored format
 #   make dynmap-mutants - that leg's planted controls (dynmap_mutants.py),
 #                 outside the sweep's deadline
-#   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
-#                 the acceptance's controls of it (gmstep_mutants.py)
-#   make gmstep-mutants - that leg's whole control inventory, with five
-#                 controls of the option-off leg's #602 PHC-only mr exclusions, outside
-#                 the sweep's deadline
+#   make gmstep - run only the #387 GM step re-base leg. The sweep runs it,
+#                 and its acceptance controls, in ../milan_dp_gm_steps, which
+#                 also holds its whole control inventory (gmstep-mutants)
+#   make counters - #726 packet/reset/cadence checks at shipping and largest shapes
+#   make counters-f5 - the same windows through the firmware mailbox fixture
+#   make counters-mutants - named defects plus each check-omission escape
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0
+STACK_DIR ?= ../../../third_party/tsn-c-stack
 # Ordinary simulations only; never derived from the make jobserver.
 SIM_JOBS ?= 2
 RTL_DIR    = ../../../hdl
@@ -215,7 +217,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -362,22 +364,30 @@ $(SHAPE_DV_F): gen_divergent_shape.py $(SHAPE_4x4_F) ../../../sw/builder/endstat
 # tick the counter really advances by; without it KL_gptp_txret refuses the
 # 500 ns the compressed clock implies, at elaboration, rather than
 # reconstructing every timestamp from a period nothing runs at.
-gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+gptp: build-gptp
+	$(MAKE) --no-print-directory exec-gptp
+
+build-gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir obj_gptp \
 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
 	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
+
+exec-gptp:
 	./obj_gptp/Vmilan_dp_gptp
 
 # issue #387 acceptance 3: the `gptp` leg's elaboration, driven through a
 # grandmaster change that steps the PHC by 1.5 s while the AAF listener is
 # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
-# model). `run` runs it and then its negative controls, gmstep_mutants.py,
-# which build mutated copies through this same recipe (GMSTEP_MDIR and
-# DP_SRC, CLKV_SRC, RSP_SRC or MCR_SRC overridden); the sweep plants the five
-# controls the #387/#602 acceptances name, and gmstep-mutants below the whole
-# inventory. The AEM image is the shipping config's. GMSTEP_FEED_DELAY idles
-# that many fabric cycles before the peer's media feed starts, which moves
-# the accept phase against the media tick; the leg must pass at every delay.
+# model). The ../milan_dp_gm_steps suite runs it and then its negative
+# controls, ../milan_dp_gm_steps/gmstep_mutants.py, which build mutated copies
+# through this same recipe (GMSTEP_MDIR and DP_SRC, CLKV_SRC, RSP_SRC or
+# MCR_SRC overridden); the sweep plants the five controls the #387/#602
+# acceptances name, and that suite's gmstep-mutants target the whole
+# inventory. `run` here no longer runs the leg (#621): its #621 phase made it
+# the costliest leg on this suite's worker. The AEM image is the shipping
+# config's. GMSTEP_FEED_DELAY idles that many fabric cycles before the peer's
+# media feed starts, which moves the accept phase against the media tick; the
+# leg must pass at every delay.
 GMSTEP_MDIR ?= obj_gmstep
 GMSTEP_FEED_DELAY ?= 0
 gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
@@ -389,11 +399,6 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 
 gmstep: gmstep-build
 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
-
-# An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md): the
-# gmstep leg's whole control inventory, one datapath elaboration per control.
-gmstep-mutants: gmstep
-	python3 gmstep_mutants.py --all
 
 # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
 # target above leaves both constants at their zero defaults and therefore
@@ -412,20 +417,26 @@ gmstep-mutants: gmstep
 # any figure in the RTL.
 GPTP_LAT_ING = 296
 GPTP_LAT_EGR = 104
-gptp-lat: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+gptp-lat: build-gptp-lat
+	$(MAKE) --no-print-directory exec-gptp-lat
+
+build-gptp-lat: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir obj_gptplat \
 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
 	  -GGPTP_INGRESS_LAT_NS_P=$(GPTP_LAT_ING) \
 	  -GGPTP_EGRESS_LAT_NS_P=$(GPTP_LAT_EGR) \
 	  -CFLAGS "-DGPTP_LAT_ING_TB=$(GPTP_LAT_ING) -DGPTP_LAT_EGR_TB=$(GPTP_LAT_EGR) -Wall -Wextra" \
 	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptplat
+
+exec-gptp-lat:
 	./obj_gptplat/Vmilan_dp_gptplat
 
 # Focused ownerless boundary: the same 1x1 harness used by the broad suite,
 # with the gPTP product plane structurally absent and every legacy write inert.
-# Its build alone, into OPTOFF_MDIR, is what gmstep_mutants.py rebuilds with
-# a MUTATED datapath (DP_SRC) for its option-off controls (#602: a PHC-only
-# re-base leaves mr and MEDIA_RESET unchanged).
+# Its build alone, into OPTOFF_MDIR, is what ../milan_dp_gm_steps/
+# gmstep_mutants.py rebuilds with a MUTATED datapath (DP_SRC) for its
+# option-off controls (#602: a PHC-only re-base leaves mr and MEDIA_RESET
+# unchanged).
 OPTOFF_MDIR ?= obj_dir
 option-off-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir $(OPTOFF_MDIR) $(SRCS) $(CPP) -o Vmilan_dp_sim
@@ -541,13 +552,70 @@ ax1x1gptp: ax1x1gptp-build
 ax1x1gptp-extended: AX_GPTP_ARGS = --extended
 ax1x1gptp-extended: ax1x1gptp
 
-run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat gmstep
+# One inventory owns default execution and CI selection.
+COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
+PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
+ORDINARY_CASES = base notify crflic dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk
+SUFFIX_CASES = render-mutants
+CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
+$(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
+RECEIPT_render-mutants = tally-stdout
+RUN_CASES = $(PREFIX_CASES) $(ORDINARY_CASES) $(SUFFIX_CASES)
+CASE_OPTIONS_base = ./obj_dir/Vmilan_dp_sim
+CASE_OPTIONS_notify = --banner "---- Milan 5.4.5 notifications and the \#508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" ./$(NOTIFY_MDIR)/Vmilan_dp_notify
+CASE_OPTIONS_crflic = --banner "---- \#530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" ./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+CASE_OPTIONS_dynmap = --banner "---- \#658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----" ./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
+CASE_OPTIONS_nxn = ./obj_nxn/Vmilan_dp_nxn
+CASE_OPTIONS_nxndv = --banner "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----" ./obj_nxndv/Vmilan_dp_nxndv
+CASE_OPTIONS_nxn8 = ./obj_nxn8/Vmilan_dp_nxn8
+CASE_OPTIONS_nxn4c = --banner "---- the shipping Arty shape: 4 streams x 4 wire channels ----" ./obj_nxn4c/Vmilan_dp_nxn4c
+CASE_OPTIONS_nolpf = --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----" ./obj_nolpf/Vmilan_dp_nolpf
+CASE_OPTIONS_prune = --banner "---- all six tier-1 blocks pruned ----" ./obj_prune/Vmilan_dp_prune
+CASE_OPTIONS_ax1x1 = --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" ./obj_ax1x1/Vmilan_dp_ax1x1
+CASE_OPTIONS_aclk = --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" ./obj_aclk/Vmilan_dp_aclk
+
+# Keep the original ordered build and bounded simulation phases.
+# Each selected CI invocation prepares shared inputs before building cases.
+run: ci-prepare
+	$(MAKE) --no-print-directory $(addprefix run-,$(PREFIX_CASES))
+	$(foreach case,$(ORDINARY_CASES),$(MAKE) --no-print-directory build-$(case) &&) true
+	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" $(foreach case,$(ORDINARY_CASES),$(CASE_OPTIONS_$(case)))
+	python3 render_mutants.py
+
+ci-prepare: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+
+ci-receipts:
+	@$(foreach case,$(RUN_CASES),printf '%s\t%s\n' '$(case)' '$(or $(RECEIPT_$(case)),tally)';)
+
+.PHONY: $(addprefix run-,$(RUN_CASES))
+$(addprefix run-,$(RUN_CASES)): run-%: build-%
+	$(MAKE) --no-print-directory exec-$*
+
+.PHONY: ci-list ci-receipts ci-prepare $(addprefix build-,$(RUN_CASES)) $(addprefix exec-,$(RUN_CASES))
+ci-list:
+	@printf '%s\n' $(RUN_CASES)
+
+build-base: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
+
+exec-base:
+	./obj_dir/Vmilan_dp_sim
+
+build-nxn: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
+
+exec-nxn:
+	./obj_nxn/Vmilan_dp_nxn
+
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
 # 96 kHz base - same channel count as row 0, so the ONLY discriminator is
 # the base, which is precisely what a row-0 lookup regression would miss
+build-nxndv: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(VERILATOR) $(SHAPE_DV) $(DP_VFLAGS) --Mdir obj_nxndv -GN_STREAMS=4 -CFLAGS "-DNSTREAMS_TB=4 -DDIVERGENT_TB=1 -I$(CURDIR)/gen_divergent -Wall -Wextra" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxndv
+
+exec-nxndv:
+	./obj_nxndv/Vmilan_dp_nxndv
+
 # obj_nxn8 is the ONLY leg that elaborates the task #65 loopback lane
 # (-GLOOPBACK_P=1, paired with -DLOOPBACK_TB so the C++ side knows which
 # gateware it is driving). The other two sim_nxn legs run with the lane OFF
@@ -557,7 +625,12 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 # -DLB_SEQ_FIXED: the 0x0036 loop-source paced-replay law is IN - [T68]
 # asserts zero dup / zero skip / whole-ramp / clean tail instead of the
 # pre-fix stair signature.
+build-nxn8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(VERILATOR) $(SHAPE_8x8) $(DP_VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+
+exec-nxn8:
+	./obj_nxn8/Vmilan_dp_nxn8
+
 # THE SHIPPING ARTY SHAPE, and until 2026-07-30 nothing in the suite
 # elaborated it. obj_nxn above builds endstation_arty_4x4's ENTITY (4 streams)
 # but leaves TALKER_WIRE_CHANS_P at its default 2, so every leg ran with the
@@ -568,28 +641,48 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 # from-reset TSpec bite in sim_nxn.cpp only has teeth here: it compares the
 # declared MaxFrameSize against the emitted MSDU, and at width 2 both sides
 # agree even with the defect present.
+build-nxn4c: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(VERILATOR) $(SHAPE_4x4) $(DP_VFLAGS) --Mdir obj_nxn4c -GN_STREAMS=4 \
 	  -GTALKER_WIRE_CHANS_P=4 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 \
 	  -GAUDIO_IF_I2S_PAIR_P=1 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn4c
+
+exec-nxn4c:
+	./obj_nxn4c/Vmilan_dp_nxn4c
+
 # LPF_P=0 is the SPENT area lever (docs/design/AREA_BUDGET.md): the
 # ax7101 shipping argv carries --no-render-lpf, so the pruned shape is a
 # SHIPPING shape and has to be in the suite. The claim being proved is
 # "no digital acceptance surface moves" - so this leg runs the SAME
 # self-checking harness, unchanged, and every check must give the same
 # answer. It does not merely elaborate: it re-runs the whole legacy leg.
+build-nolpf: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir obj_nolpf -GLPF_P=0 $(SRCS) $(CPP) -o Vmilan_dp_nolpf
+
+exec-nolpf:
+	./obj_nolpf/Vmilan_dp_nolpf
+
 # obj_prune is the OTHER direction: all six tier-1 blocks pruned at once, on a
 # dedicated harness that proves the inert values are STRUCTURAL zeros rather
 # than not-armed-yet zeros. The two legs answer different questions and both
 # stay.
+build-prune: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir obj_prune $(PRUNE_G) $(SRCS) sim_prune.cpp -o Vmilan_dp_prune
+
+exec-prune:
+	./obj_prune/Vmilan_dp_prune
+
 # THE SHIPPING ALINX SHAPE, byte for byte the cfg_ax7101 argv in
 # sw/litex/build.sh: 1 stream, 8 wire channels off a TDM8 MASTER front end,
 # the loopback lane backed, I2S playback and the render LPF both PRUNED.
 # Every one of those had desk coverage on its
 # own; the combination - which is the only combination that ever reaches a
 # board - had none, and three defects were living in it.
+build-ax1x1: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(AX1X1_BUILD)
+
+exec-ax1x1:
+	./obj_ax1x1/Vmilan_dp_ax1x1
+
 # THE SAME SHIPPING SHAPE, CLOCKED HONESTLY. Every other leg toggles
 # clk_audio_i/clk_tdm_i 1:1 with axis_clk, so the 391/1591 divider plan that
 # puts the TDM word clock -10.6393 ppm from the AAF packet grid does not exist
@@ -599,42 +692,57 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 # rather than an #ifdef through sim_nxn's 380-odd checks: none of those care
 # about the audio clock's rate, and re-clocking them to find out would be a
 # large blast radius for no gain.
+build-aclk: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(ACLK_BUILD)
-	@echo "======================================================================"
+
+exec-aclk:
+	./obj_aclk/Vmilan_dp_aclk
+
 # Milan 5.4.5 TIMED (issue #69) and the #508 [GSI] section: NOTIFY_BUILD
 # above states the recipe; the real-time legs run [NOTIFY] untimed.
+build-notify: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(NOTIFY_BUILD)
+
+exec-notify:
+	./$(NOTIFY_MDIR)/Vmilan_dp_notify
+
+build-crflic: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(CRFLIC_BUILD)
+
+exec-crflic:
+	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+
+build-dynmap: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(DYNMAP_BUILD)
-# The write audit found only unique milan_nxn_* scratch directories, and
-# obj_dynmap's unique milan_nvm_* window; no ordinary legs share a written
-# path. Frame-dump presence serializes the set.
-	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" \
-	  ./obj_dir/Vmilan_dp_sim \
-	  --banner "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" \
-	  ./$(NOTIFY_MDIR)/Vmilan_dp_notify \
-	  --banner "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" \
-	  ./$(CRFLIC_MDIR)/Vmilan_dp_crflic \
-	  --banner "---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----" \
-	  ./$(DYNMAP_MDIR)/Vmilan_dp_dynmap \
-	  ./obj_nxn/Vmilan_dp_nxn \
-	  --banner "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----" \
-	  ./obj_nxndv/Vmilan_dp_nxndv \
-	  ./obj_nxn8/Vmilan_dp_nxn8 \
-	  --banner "---- the shipping Arty shape: 4 streams x 4 wire channels ----" \
-	  ./obj_nxn4c/Vmilan_dp_nxn4c \
-	  --banner "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----" \
-	  ./obj_nolpf/Vmilan_dp_nolpf \
-	  --banner "---- all six tier-1 blocks pruned ----" \
-	  ./obj_prune/Vmilan_dp_prune \
-	  --banner "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----" \
-	  ./obj_ax1x1/Vmilan_dp_ax1x1 \
-	  --banner "---- the same shape at the TRUE clk_audio ratio (391/1591) ----" \
-	  ./obj_aclk/Vmilan_dp_aclk
-	@echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
-	python3 render_mutants.py
-	@echo "---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----"
-	python3 gmstep_mutants.py
+
+exec-dynmap:
+	./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
+
+build-render-mutants: build-aclk
+
+exec-render-mutants:
+	$(CASE_COMMAND_render-mutants)
+
+build-counters-1: stack-pin
+
+exec-counters-1:
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 1
+
+build-counters-1-frames: stack-pin
+
+exec-counters-1-frames:
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 1 --output-condition frames-only
+
+build-counters-8: stack-pin
+
+exec-counters-8:
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 8
+
+build-counters-8-frames: stack-pin
+
+exec-counters-8-frames:
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 8 --output-condition frames-only
+
 # The physical-rate leg has its own milan_dp_gptp suite deadline. Its focused
 # target stays here so there is only one source/parameter/build recipe.
 
@@ -662,6 +770,29 @@ print-pp-srcs:
 # tb/verilator/<suite>/ directory, which the consumer also is.
 print-dp-vflags:
 	@echo '$(GPTP_OFF_VFLAGS)'
+
+.PHONY: counters counters-f5 counters-mutants stack-pin
+stack-pin:
+	python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin $(STACK_DIR)
+
+counters: | stack-pin
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 1
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 8
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 1 --output-condition frames-only
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --shape 8 --output-condition frames-only
+
+counters-f5: | stack-pin
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --shape 1
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --shape 8
+
+counters-mutants: | stack-pin
+	@set -e; for variant in tx-interval rx-interval tx-reset aaf-reset crf-reset rx-saturation late rate tx-nodirty fixed-grid egress-stall; do \
+	  VERILATOR=$(VERILATOR) python3 stream_counters.py --variant $$variant; \
+	done
+	VERILATOR=$(VERILATOR) python3 stream_counters.py --variant egress-stall --shape 8
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant late
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant rate
+	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep

@@ -287,6 +287,11 @@ read as the presence of one.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
      python3 sw/builder/test_builder.py --require-elaboration   (the CI job)
+     python3 sw/builder/test_builder.py --list   (the ordered gate inventory)
+     python3 sw/builder/test_builder.py --gates a,b --receipt r.json   (one leg)
+The hosted elaboration job runs its gates in measured legs, and
+scripts/ci_builder_legs.py judges --require-elaboration and --require-rv32
+on their union.
 """
 
 from __future__ import annotations
@@ -23343,6 +23348,94 @@ def test_clock_plan_instance_gate_bites() -> None:
           f"and a parameter passed at the default")
 
 
+# ============================================================== gate 23m ====
+#  THE BUILDER'S STATEMENT OF EACH SHAPE'S DATAPATH PARAMETERS (#665).
+#
+#  sw/mailbox/publication_census.py elaborates milan_datapath at every
+#  config's shape, with the parameters eb.datapath_params() states and never
+#  from a list of its own.  That function is the builder saying what the SoC
+#  will bind, so this gate runs the SoC: for every config, the integer p_*
+#  keywords milan_soc.py hands Instance("milan_datapath") for the config's
+#  own argv must be exactly eb.datapath_params(cfg), and every keyword the
+#  builder leaves out must be text (a ROM image path, which only the
+#  processor and gPTP wrappers read).  A parameter the SoC starts passing,
+#  or a derivation that moves on either side, turns it red.
+
+
+def _datapath_param_contract(got, cfgs):
+    """Every disagreement between the live Instance keywords and eb.datapath_params()."""
+    bad = []
+    for name, cfg in cfgs.items():
+        row = got.get(name) or {"error": "case not run"}
+        if "params" not in row:
+            bad.append(f"{name}: never reached the datapath Instance: "
+                       f"{_why_failed(row)}")
+            continue
+        live = {k[2:]: v for k, v in row["params"].items()
+                if not isinstance(v, str)}
+        want = eb.datapath_params(cfg)
+        bad += [f"{name}: the SoC binds {k}={live.get(k, '<absent>')!r}, the "
+                f"builder states {want.get(k, '<absent>')!r}"
+                for k in sorted(set(live) | set(want))
+                if live.get(k) != want.get(k)]
+    return bad
+
+
+def test_datapath_params_match_the_instance() -> None:
+    """gate 23m - eb.datapath_params() is what every config's SoC binds."""
+    python = _litex_or_skip("gate 23m")
+    if python is None:
+        return
+    cfgs, runs = {}, []
+    for name in CONFIGS:
+        cfgs[name], argv = _config_argv(name)
+        runs.append((name, argv))
+    t0 = time.time()
+    bad = _datapath_param_contract(_instance_params(python, runs), cfgs)
+    assert not bad, "gate 23m:\n  " + "\n  ".join(bad)
+    print(f"  [gate 23m] {len(runs)} real milan_soc.py elaborations in "
+          f"{time.time() - t0:.0f} s: for every config the integer "
+          f'parameters Instance("milan_datapath") receives are exactly '
+          f"eb.datapath_params(), the shapes the publication census "
+          f"elaborates; every other keyword is a ROM image path")
+
+
+#: Each cut moves one keyword of one config's Instance; gate 23m must name it.
+DATAPATH_PARAM_MUTATIONS = (
+    ("the loopback lane stops reaching LOOPBACK_P",
+     [('        dp_params["p_LOOPBACK_P"] = 1',
+       '        dp_params["p_LOOPBACK_P"] = 0', 1)],
+     "ax7101_1x1_tdm8", "LOOPBACK_P"),
+    ("N_STREAMS reaches the Instance one short",
+     [("p_N_STREAMS=int(num_streams),", "p_N_STREAMS=int(num_streams) - 1,", 1)],
+     "arty_4x4", "N_STREAMS"),
+    ("the SoC binds a parameter the builder does not state",
+     [("    if loopback_lane:\n",
+       '    dp_params["p_PROBE_EXTRA_P"] = 1\n    if loopback_lane:\n', 1)],
+     "arty_current", "PROBE_EXTRA_P"),
+)
+
+
+def test_datapath_params_gate_bites() -> None:
+    """Gate 23m negative controls: a moved, short or extra keyword turns it red."""
+    python = _litex_or_skip("gate 23m mutation")
+    if python is None:
+        return
+    t0 = time.time()
+    for why, mutations, name, param in DATAPATH_PARAM_MUTATIONS:
+        cfg, argv = _config_argv(name)
+        bad = _datapath_param_contract(
+            _instance_params(python, [(name, argv)], mutations), {name: cfg})
+        assert any(line.startswith(f"{name}: the SoC binds {param}=")
+                   for line in bad), (
+            f"gate 23m accepted a milan_soc.py in which {why}: {bad}")
+    print(f"  [gate 23m mutation] {len(DATAPATH_PARAM_MUTATIONS)}/"
+          f"{len(DATAPATH_PARAM_MUTATIONS)} cuts rejected in "
+          f"{time.time() - t0:.0f} s, each naming its keyword: a binding "
+          f"dropped to 0, a value one short, and a keyword the builder does "
+          f"not state")
+
+
 #  gate 23g (issue #156) - EVERY SHIPPED RECIPE CAN ACTUALLY RUN.
 #
 #  Every shape gate this repo has compares a recipe's argv against the config
@@ -28746,9 +28839,11 @@ def test_boot_policy_follows_the_declaration() -> None:
 
 def test_nvm_firmware_shapes() -> None:
     """Compile and grade the saved-state writer for every generated shape."""
+    # A hosted runner took 594 s before #671's generated read-fault windows;
+    # the larger campaign needs room beyond the former 600 s limit.
     subprocess.run(
         [sys.executable, str(ROOT / "sw/firmware/nvm_hosttest/test_nvm_firmware.py"),
-         "--self-test"], check=True, cwd=ROOT, timeout=600)
+         "--self-test"], check=True, cwd=ROOT, timeout=1200)
 
 
 def test_soc_option_refusals() -> None:
@@ -29060,7 +29155,37 @@ if __name__ == "__main__":
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
         sys.exit(0)
-    for fn in (test_soc_option_refusals, test_commercial_timing_grade,
+
+    def _gate_run_list(bank: dict[str, list[str]],
+                       gates: tuple[Callable[[], None], ...]) -> list[Callable[[], None]]:
+        """The run list's gates to run, in its order (#737).
+
+        `--list` prints the ordered inventory and exits; `--gates a,b` runs
+        that subsequence; with neither, every gate runs, as before.  `bank`
+        keeps the inventory and the selection for `--receipt`, which records
+        each gate's verdict and the NOT RUN rows it added, so that legs run
+        in separate hosted jobs can be proved equal to one unsharded run.
+        """
+        names = [gate.__name__ for gate in gates]
+        if "--list" in sys.argv:
+            print(json.dumps(names))
+            sys.exit(0)
+        chosen = names
+        if "--gates" in sys.argv:
+            at = sys.argv.index("--gates") + 1
+            chosen = sys.argv[at].split(",") if at < len(sys.argv) else []
+            # Inventory order only: a leg is a subsequence of the unsharded run.
+            if not chosen or [name for name in names if name in chosen] != chosen:
+                sys.exit(f"--gates: {chosen!r} is not distinct inventory names "
+                         "in inventory order (see --list)")
+        bank.update(inventory=names, selected=chosen)
+        return [gate for gate in gates if gate.__name__ in chosen]
+
+    receipt = (sys.argv[sys.argv.index("--receipt") + 1]
+               if "--receipt" in sys.argv else None)
+    bank: dict[str, list[str]] = {}
+    ledger = []
+    for fn in _gate_run_list(bank, (test_soc_option_refusals, test_commercial_timing_grade,
                test_baremetal_clock_contract, test_rom_clock_contract, test_rom_clock_skip_reaches_the_ledger,
                test_extra_sweep_clocks, test_tap_clock_docs,
                test_sim_clock, test_extra_sweep_invocation, test_builder_clock_source,
@@ -29101,6 +29226,8 @@ if __name__ == "__main__":
                test_optional_block_instance_gate_bites,
                test_clock_plan_reaches_the_instance,
                test_clock_plan_instance_gate_bites,
+               test_datapath_params_match_the_instance,
+               test_datapath_params_gate_bites,
                test_every_recipe_elaborates,
                test_recipe_smoke_gate_bites,
                test_recipe_skip_classifier_bites,
@@ -29141,9 +29268,20 @@ if __name__ == "__main__":
                test_soc_shipping_image_contract, test_shipping_image_contract_presence,
                test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device,
-               test_name_count_fits_the_nvm_name_block):
+               test_name_count_fits_the_nvm_name_block)):
         print(f"{fn.__name__}:")
+        before = len(SKIPPED)
         fn()
+        ledger.append({"gate": fn.__name__, "verdict": "pass",
+                       "not_run": [list(row) for row in SKIPPED[before:]]})
+    # A leg holding no elaboration gate would pass --require-elaboration
+    # vacuously, so a subset's verdict says so and leaves both requirements
+    # to the union of the legs (scripts/ci_builder_legs.py).
+    if bank["selected"] != bank["inventory"]:
+        print(f"\nSUBSET: {len(bank['selected'])} of {len(bank['inventory'])} "
+              "gates ran; this verdict covers only them, and "
+              "--require-elaboration and --require-rv32 are judged on the "
+              "union of the legs")
     # The verdict names what did not run.  Printing SKIP inside a gate and
     # then printing ALL GATES PASS here is how a reviewer severed the
     # --fabric-gptp chain at two hops and read a green both times (#154).
@@ -29159,5 +29297,16 @@ if __name__ == "__main__":
     # elaborate from reporting a green when its LiteX install broke.  Rows a
     # gate declined for a recorded reason still pass; "there is no LiteX
     # here" and "this VexiiRiscv is unpatched" do not.
-    if "--require-elaboration" in sys.argv:
-        sys.exit(_require_elaboration_verdict(SKIPPED))
+    required = [flag for flag in ("--require-elaboration", "--require-rv32")
+                if flag in sys.argv]
+    status = (_require_elaboration_verdict(SKIPPED)
+              if "--require-elaboration" in required else None)
+    # Written only after every selected gate returned: a gate that raised
+    # leaves no receipt, and a union missing a leg's receipt refuses.
+    if receipt is not None:
+        with open(receipt, "x", encoding="utf-8") as stream:
+            json.dump({**bank, "requirements": required, "gates": ledger,
+                       "require_elaboration": status}, stream)
+            stream.write("\n")
+    if status is not None:
+        sys.exit(status)

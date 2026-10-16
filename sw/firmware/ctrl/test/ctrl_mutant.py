@@ -7,6 +7,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+#: The stack's files the tables plant into (#697): tsn-c-stack's sources and
+#: public headers, named with ctrl_build.STACK_PREFIX. Every other path is the
+#: ctrl tree's.
+ADP_C = "tsn-c-stack/src/adp.c"
+ACMP_C = "tsn-c-stack/src/acmp.c"
+ACMP_H = "tsn-c-stack/include/acmp.h"
+MAAP_C = "tsn-c-stack/src/maap.c"
+MAAP_H = "tsn-c-stack/include/maap.h"
+
 
 @dataclass(frozen=True)
 class Mutant:

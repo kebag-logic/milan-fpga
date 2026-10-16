@@ -145,7 +145,12 @@ they are not discovered by surprise:
    the root's lossless descriptor arbiter. Every declared STREAM_INPUT bank
    is live the same way, the CRF Media Clock Input's complete Table 5.16 bank
    included since #529 (see the `0x738` group), and a stopped CRF sink keeps
-   observing and counting (#97).
+   observing and counting (#97). Under the 2026-10-12 #726 ruling,
+   FRAMES_TX and FRAMES_RX count AVTPDUs with 32-bit wrap. TX resets at
+   talker start; RX resets on not-bound to bound and survives unbind.
+   Healthy counter updates also mark their descriptor dirty. See the
+   [counter measurements](../testing/726_STREAM_COUNTERS.md) for the
+   per-recipient spacing check and fixed 1025 ms refresh bound.
 
 Memory-mapped control/status registers for the Milan TSN NIC. This is the
 **stable ABI** shared by the HDL ([`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv)), the bare-metal
@@ -861,7 +866,10 @@ counters `KL_crf_rx` keeps. `milan_datapath.sv` serves them full width, each
 wrapping at 32 bits, on the solicited GET_COUNTERS gather face for the declared
 CRF Media Clock Input at STREAM_INPUT index `N_STREAMS`. It also delivers the
 engine's dirty pulse to the rate-limited Table 5.22 scheduler as that same
-descriptor (#529).
+descriptor (#529). FRAMES_RX counts every accepted AVTPDU, including routine
+healthy traffic, under IEEE 1722.1-2021 Table 7.157 and the #726 ruling.
+It resets on not-bound to bound and retains its value on unbind.
+The six anomaly counters keep their observation intervals.
 
 | Quadlet (block offset) | Counter | `KL_crf_rx` output |
 |---|---|---|
@@ -908,7 +916,7 @@ evidence that closes it. Every `[CTRS-CRF]` check named here runs on the
    offsets, `0xF3F` (above). `[CTRS-CRF]` grades the SUCCESS response (cdl
    148) from reset, and the mask `0xF3F` with every unclaimed quadlet zero
    from reset, after the not-bound to bound wipe and after the event arm. It
-   drives the 32-bit wrap of FRAMES_RX (interval law) and STREAM_INTERRUPTED
+   drives the 32-bit wrap of FRAMES_RX (per-AVTPDU law) and STREAM_INTERRUPTED
    (per-event law) with real PDUs, and requires NO_SUCH_DESCRIPTOR with an
    empty body at `N_STREAMS + 1`.
 3. *"Connect the CRF dirty source to the rate-limited Table 5.22
@@ -952,7 +960,7 @@ truthful, only the cadence stretches
 | `0x758` | `CRFT_SIDHI` | RW | `0` | stream_id `[63:32]`, same AUTO rule (the pair is tested together) |
 | `0x75C` | `CRFT_DMLO` | RW | `0` | CRF stream dest MAC `[31:0]` (same packing as `AAF_DM*`). **Reset 0 = AUTO:** the MAAP block slot `base + N_STREAMS`, one past the audio talkers -- when CRF output is declared, `MAAP_CTRL` claims `N_STREAMS+1`; otherwise it claims exactly `N_STREAMS`. A non-zero pair wins outright |
 | `0x760` | `CRFT_DMHI` | RW | `0` | dest MAC `[47:32]` in `[15:0]`, same AUTO rule |
-| `0x764` | `CRFT_COUNT` | RO | `0` | CRF PDUs emitted: the PDU total. It is not the output's FRAMES_TX. That Milan v1.2 5.3.7.7 Table 5.4 counter, served by GET_COUNTERS, advances once per observation interval (1 s) in which at least one PDU was transmitted, and restarts at each STREAM_START, so a 15 s burst reads 16 there and about 7,500 here (#530 item 3) |
+| `0x764` | `CRFT_COUNT` | RO | `0` | Raw CRF PDUs emitted since reset. GET_COUNTERS FRAMES_TX counts the same transmitted AVTPDUs but resets at every talker start; both wrap at 32 bits. IEEE 1722.1-2021 7.4.42.2.5 Table 7.159 and the [2026-10-12 ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6125741685) replace the former occupied-interval interpretation. MEDIA_RESET and TIMESTAMP_UNCERTAIN retain their interval law. |
 
 ### 0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO
 
@@ -1867,7 +1875,7 @@ These two words are that evidence on silicon.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (a media tick finds a pair's queue empty: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). The unit is one dup per fed and primed pair per tick, so a lane of `LB_PAIRS_C` pairs counts `LB_PAIRS_C` per slipped beat (4 on the shipping 1x1x8 lane, 32 on an 8x8 elaboration); a lane never fed counts nothing. The #645 settle recentre's own held pops or dropped events count in neither half: it is the declared discontinuity of a source change or a pull-in ([design](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre)), so a word static from it on is the acceptance state |
+| `0x8D4` | `SLIP_LB` | RO | `0` | `[15:0]` loopback-ring dups (a media tick finds a pair's queue empty: the hold repeats the last event), `[31:16]` loopback-ring skips (queue full at a push: the oldest event dropped). The unit is one dup per fed and primed pair per tick, so a lane of `LB_PAIRS_C` pairs counts `LB_PAIRS_C` per slipped beat (4 on the shipping 1x1x8 lane, 32 on an 8x8 elaboration); a lane never fed counts nothing. The #645 settle recentre's own held pops or dropped events count in neither half: it is the declared discontinuity of a source change, a pull-in or a listener bind at INTERNAL ([design](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre)), so a word static from it on is the acceptance state |
 | `0x8D8` | `SLIP_TDM` | RO | `0` | `[15:0]` TDM-junction dups (a walk snapshot with no frame closed since the last one: the talker repeats a TDM frame), `[31:16]` TDM-junction skips (a frame close over an unread frame: no talker walk reads it). One event per frame, gated on the first physical frame. The frame close is the strobe of the frame's last pair (`CMAP_TDM_FRAME_PAIRS_C`); before #617 the marker was the slot-0 strobe and the consume the tick |
 
 **The counting law, and the ceiling.** A loopback pair is *fed* by its first

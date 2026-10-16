@@ -41,6 +41,7 @@ from __future__ import annotations
 import argparse
 import ast
 import contextlib
+import contextvars
 import ctypes
 import fcntl
 import hashlib
@@ -48,6 +49,7 @@ import io
 import inspect
 import io
 import ipaddress
+import itertools
 import json
 import os
 import pathlib
@@ -63,6 +65,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import textwrap
 import time
 from dataclasses import dataclass, field, fields, replace
 from typing import Callable, Iterable, Iterator, Mapping, Sequence
@@ -71,9 +74,17 @@ from unittest import mock
 
 RC_OK, RC_FAILED, RC_REFUSED = 0, 1, 2
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+# BEGIN EVIDENCE HELPER PINS
+EVIDENCE_HELPERS = {
+    "ci_local_manifest.py": "5d914692847656d7da6f3e24907c59d6fc0261695fbfa999f2a8dcb1b107b7dd",
+    "ci_manifest.py": "b17e183dc920173abc84b38cb6af2eaffee5b609a08b924092010e0f55f7dfa1",
+    "ci_workflow_plan.py": "4d98b26611de437e6b1879543fb2ff20d041e1932434af3b991a5f644e08d933",
+}
+# END EVIDENCE HELPER PINS
 DEFAULT_BASE = "dev"
 RUNNER_IMAGE = "catthehacker/ubuntu:full-latest"
 SUPPORTED_ACT_VERSION = (0, 2, 89)
+REQUIRED_ACT_BUILD = "0.2.89+milan-ci5"
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 REPOSITORY_RE = re.compile(
     r"^[A-Za-z0-9](?:[A-Za-z0-9_.-]{0,98}[A-Za-z0-9])?/"
@@ -86,35 +97,26 @@ MAX_CHECKED_FILE_BYTES = 4 * 1024 * 1024
 MAX_GITMODULES_BYTES = 64 * 1024
 DOCKER_ID_RE = re.compile(r"^[0-9a-f]{64}$")
 DOCKER_OWNER_LABEL = "org.kebag-logic.milan-act-ci.owner"
-#: The most host CPUs one job container may schedule onto. Hosted
-#: ``ubuntu-latest`` runners have 4 vCPUs, so a workflow step written as
-#: ``make -j"$(nproc)"`` (the Verilator and Yosys builds in rtl-fast) is a
-#: hosted-shaped assumption: ``nproc`` reads the scheduler affinity, which
-#: follows the container's cpuset, so an unbounded container starts one
-#: compiler per host core - 128 on a 128-vCPU host, which exhausted the host's
-#: memory and had the harness kill the replica. Four is the hosted runner's
-#: own count, so a job's ``-j$(nproc)`` builds exactly what it builds hosted;
-#: sixteen was tried first and four matrix legs at sixteen compilers each
-#: still exhausted a 72 GB host. This is a replica-shape decision, not a
-#: trust-boundary one; the cost is replica time, never fidelity.
-CONTAINER_CPU_LIMIT = 4
-#: The memory one job container may take, applied as both ``--memory`` and
-#: ``--memory-swap`` so the bound includes swap. Hosted ``ubuntu-latest``
-#: runners have 16 GB, so a job that needs more fails hosted too; a bounded
-#: container fails the replica instead of the host, which eight unbounded
-#: ``-j$(nproc)`` toolchain builds had nearly exhausted. Docker size syntax.
-CONTAINER_MEMORY = "16g"
-#: The jobs of one workflow stage act starts at once. Hosted jobs each get
-#: their own runner; on one host the replica's jobs share it, and with the
-#: CPU set alone an rtl-full replica launched all eight shard jobs together,
-#: each building its toolchain. The flag bounds jobs, not matrix legs: act
-#: runs a matrix job's legs ``strategy.max-parallel`` wide (default 4)
-#: inside that job's slot, so one job at a time still lets each of
-#: rtl-full's sharded jobs fan out to four containers, each held to
-#: CONTAINER_MEMORY: at most 64 GB at once. Below one, act falls back to
-#: one job per host CPU. A replica-shape decision, as above; the hosted
-#: runner gives every job its own machine.
-CONCURRENT_JOB_LIMIT = 1
+#: Each job receives a distinct sixteen-CPU scheduler affinity. Source matrices
+#: are materialized as concrete jobs, so the four-job scheduler limit is global
+#: across the selected workflows, without a second nested matrix multiplier.
+CONTAINER_CPU_LIMIT = 16
+FALLBACK_CPU_LIMIT = 12
+BOOKED_CPU_RANGES: contextvars.ContextVar[tuple[str, ...]] = contextvars.ContextVar(
+    "booked_cpu_ranges", default=())
+#: Four eight-GiB containers fit below the slot's aggregate cap. Swap is included
+#: in the same bound; exhaustion fails the replay rather than expanding the host.
+CONTAINER_MEMORY = "8g"
+CONCURRENT_JOB_LIMIT = 4
+#: act 0.2.89's own matrix width when a job names no ``strategy.max-parallel``
+#: (pkg/model/workflow.go, Strategy.GetMaxParallel); a job without a matrix
+#: runs one container. A fact of the pinned act, like SUPPORTED_ACT_VERSION,
+#: not of any workflow.
+ACT_DEFAULT_MAX_PARALLEL = 4
+#: One admission token owns one manager-booked range until job cleanup ends.
+SLOT_JOB_RANGES = CONCURRENT_JOB_LIMIT
+#: Read-only auditing includes updates so a later move cannot pass silently.
+JOB_CPU_RANGE_EVENTS = ("create", "update", "start", "die", "destroy")
 ACT_TOOLCACHE_VOLUME = "act-toolcache"
 ACT_TOOLCACHE_TARGET = "/opt/hostedtoolcache"
 ACT_TOOLCACHE_SEED_SUFFIX = "-toolcache-seed"
@@ -148,8 +150,8 @@ DEFAULT_SLOT_ROOT = pathlib.Path("/var/lib/milan-act-ci")
 SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
 #: What one isolated slot - its daemon, containerd and job containers
 #: together - may hold in memory, with no swap beyond it (unit-property size
-#: syntax). Four matrix legs at CONTAINER_MEMORY each could reach 64 GB, so a
-#: slot that overruns is killed inside its own slice rather than starving the
+#: syntax). Four eight-GiB job caps leave four GiB for service overhead.
+#: A slot that overruns is killed inside its own slice rather than starving the
 #: host or a sibling slot. Hosted runners have no such aggregate cap, so a run
 #: in which the cap caused an OOM is refused rather than reported as a verdict
 #: (require_slot_memory_cap_unexhausted). That is all it detects: reclaim at the
@@ -157,7 +159,7 @@ SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
 #: verdict, and each slot run prints only its peak and how often the cap was
 #: hit. Its effect on the shipping workflows is unmeasured. Slot 0 keeps only
 #: the per-container bound it had.
-SLOT_MEMORY_MAX = "24G"
+SLOT_MEMORY_MAX = "36G"
 SLOT_COMMAND_TIMEOUT_SECONDS = 60
 #: A slot daemon's start job (until dockerd reports ready) and its stop job
 #: (dockerd stops its containers first), bounded by the service manager itself.
@@ -231,6 +233,11 @@ TRUSTED_SUBMODULES = (
         "third_party/lwSRP",
         "https://github.com/kebag-logic/lwSRP.git",
     ),
+    (
+        "third_party/tsn-c-stack",
+        "third_party/tsn-c-stack",
+        "https://github.com/kebag-logic/tsn-c-stack.git",
+    ),
 )
 REQUIRED_SUBMODULES = tuple(
     path for name, path, _url in TRUSTED_SUBMODULES if name != "external"
@@ -252,6 +259,52 @@ class TerminationRequest(BaseException):
     def __init__(self, signum: int) -> None:
         self.signum = signum
         super().__init__(signal.Signals(signum).name)
+
+    @staticmethod
+    @contextlib.contextmanager
+    def delivered_after(
+        released: Iterable[int], primary: BaseException | None, cleanup: str
+    ) -> Iterator[None]:
+        """Run `cleanup` inside its caller's hold of the cleanup signals, then deliver one held meanwhile (#730).
+
+        The exit restores `released`, the mask from before the hold, so a
+        signal held during the cleanup is raised there and nowhere earlier.
+        Round 3's first failure still wins: a `primary` already propagating
+        into the cleanup is kept, and the signal is printed beside it.
+        Without one the signal propagates with its conventional exit status,
+        and a failure of the cleanup itself, which it displaces, is printed
+        beside it.
+        """
+        failure: BaseException | None = None
+        try:
+            yield
+        except BaseException as exc:
+            failure = exc
+            raise
+        finally:
+            try:
+                signal.pthread_sigmask(signal.SIG_SETMASK, released)
+            except BaseException as delivered:
+                beside = delivered if primary is not None else failure
+                try:
+                    if beside is delivered:
+                        print(
+                            f"act-ci: {cleanup} was interrupted ({type(delivered).__name__}: "
+                            f"{delivered}); the failure already propagating is kept",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+                    elif beside is not None:
+                        print(
+                            f"act-ci: {cleanup} also failed: {type(beside).__name__}: {beside}",
+                            file=sys.stderr,
+                            flush=True,
+                        )
+                except Exception:
+                    # Diagnostics have no authority to replace what propagates.
+                    pass
+                if primary is None:
+                    raise
 
 
 @dataclass
@@ -680,6 +733,7 @@ class LaunchOptions:
     use_sudo: bool
     dry_run: bool
     slot: ReplaySlot = ReplaySlot(0)
+    evidence_directory: pathlib.Path | None = None
 
 
 @dataclass(frozen=True)
@@ -1043,6 +1097,13 @@ def require_supported_act_version(version: tuple[int, int, int]) -> None:
             f"act {got} is not the audited version {want}; review its Docker "
             "tool-cache behavior before changing the pin"
         )
+
+
+def require_supported_act_build(text: str) -> None:
+    """The scheduling patch is part of the runtime pin, not an optional performance setting."""
+    require_supported_act_version(parse_act_version(text))
+    if text.strip() != "act version " + REQUIRED_ACT_BUILD:
+        raise Refusal("act lacks atomic fail-fast admission; build scripts/build_ci_act.py's pinned dispatcher")
 
 
 def resolve_act_binary(value: str) -> str:
@@ -1626,7 +1687,6 @@ def select_slot(
         raise Refusal(
             f"replay slot {slot.number} runs its own Docker daemon and requires --sudo"
         )
-    container_cpuset(slot.number)
     return slot
 
 
@@ -2021,6 +2081,50 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
                     )
 
 
+def job_container_width(job: Mapping[str, object], where: str) -> int:
+    """The job containers act 0.2.89 runs at once for one job: one, or its matrix's max-parallel.
+
+    act runs min(max-parallel, legs) of a matrix job's legs at once, and never
+    fewer than one. The leg count is not read, so a matrix job's width is that
+    number's upper bound. A strategy or max-parallel this cannot read as act
+    does (anything but a mapping, a literal decimal integer) is a Refusal.
+    """
+    strategy = job.get("strategy")
+    if strategy is None:
+        return 1
+    if not isinstance(strategy, dict):
+        raise Refusal(
+            f"{where} has a strategy that is not a mapping; its concurrency cannot "
+            "be derived"
+        )
+    if "matrix" not in strategy:
+        return 1
+    raw = strategy.get("max-parallel")
+    if raw is None:
+        return ACT_DEFAULT_MAX_PARALLEL
+    if not isinstance(raw, str) or re.fullmatch(r"[0-9]{1,6}", raw) is None:
+        raise Refusal(
+            f"{where} max-parallel {raw!r} is not a literal integer; its "
+            "concurrency cannot be derived"
+        )
+    return max(1, int(raw))
+
+
+def replay_container_concurrency(root: pathlib.Path, workflows: Sequence[str]) -> int:
+    """Bound actual matrix legs across workflows with the patched shared admission gate."""
+    count = 0
+    for workflow in workflows:
+        relative = WORKFLOWS[workflow]
+        jobs = load_workflow(root, relative).get("jobs")
+        if not isinstance(jobs, dict) or not jobs:
+            raise Refusal(f"workflow has no jobs mapping: {relative}")
+        for job_id, job in jobs.items():
+            if not isinstance(job, dict):
+                raise Refusal(f"workflow {relative} has a malformed job")
+            count += job_container_width(job, f"workflow {relative} job {job_id}")
+    return min(CONCURRENT_JOB_LIMIT, count)
+
+
 def parse_action_reference(spec: str) -> RemoteAction | None:
     """The remote action `spec` names; None for a `./` local or `docker://` step; any other shape is a Refusal."""
     if spec.startswith("./") or spec.startswith("docker://"):
@@ -2256,24 +2360,23 @@ def is_leased_act_job_volume(boundary: DockerBoundary, name: str) -> bool:
 def build_event(run: ValidatedRun) -> dict[str, object]:
     """The smallest pull_request payload every repository workflow consumes.
 
-    The base SHA is the RECORDED base oid, because this payload's only
-    consumer is scope classification and hosted receives the recorded value.
-    All three scope steps (`rtl.yml`, `rtl-fast.yml`, `elaborate.yml`) run a
-    two-argument `git diff <base> <head>` - a tree comparison, not a
-    merge-base one - so handing them a different base makes the local replica
-    classify a different file set than the hosted run it exists to predict,
-    in BOTH directions: a file the head and the live tip now agree on drops
-    out of the diff, and `ci_scope.is_rtl_relevant` fails safe only on a
-    wholly EMPTY list, not on a docs-only remainder. A stacked PR whose own
-    changes are documentation would then report PASS locally having run no
-    RTL job while hosted ran the sweep ([R3] on PR #336; the equality this
-    lane replaced made the divergence impossible, so it is this lane's to
-    avoid). The fetch is full-history, so the recorded oid is present in the
-    materialized checkout and the two diffs are identical.
+    Hosted scope compares the synthetic merge with its first parent, the
+    live base that job builds on. Replay checks out the PR head instead,
+    so with ACT=true the three selectors resolve the payload's base ref to
+    refs/remotes/origin/<base-ref>, fetched and verified by
+    materialize_remote_head against run.validation_base. After requiring a
+    unique merge base, they compose live and head with merge-tree --write-tree
+    and compare live to that tree, never the frozen recorded base oid.
+    This matches hosted paths even when dev renamed a page into a gate-read
+    path or independently made the same RTL edit. A head-only merge-base
+    diff can miss the renamed gate input, so it cannot stand in for composition.
+    Missing or multiple merge bases and merge conflicts refuse classification. Full-history
+    checkouts preserve the ancestry. A lane that merges newer dev and restores
+    its RTL therefore stays relevant, while stale-base docs stay docs-only.
+    The merge-train candidate banks validate composition before every merge.
 
-    The trust properties stay on the validation base, where they belong:
-    which commit the trusted worktree must be at, and which commit the fetch
-    must return. Neither reads this payload.
+    The trust and fetch checks still read run.validation_base directly.
+    The recorded oid remains metadata for diagnostics, not a scope input.
     """
     pr = run.pr
     repository = run.repository
@@ -4529,7 +4632,7 @@ def replay_slot(
         acquire_replay_slot(lease, context=context, scratch=scratch, host=host)
         print(
             f"act-ci: slot {slot.number}: own daemon {slot.docker_host}, "
-            f"data-root {slot.data_root}, CPUs {container_cpuset(slot.number)}, "
+            f"data-root {slot.data_root}, externally booked CPU ranges, "
             f"memory {SLOT_MEMORY_MAX}, uplinks {','.join(lease.uplinks)}",
             flush=True,
         )
@@ -4549,26 +4652,67 @@ def act_prefix(act_binary: str, use_sudo: bool, env: Mapping[str, str]) -> list[
     return isolated_command_prefix(act_binary, use_sudo, env)
 
 
-def container_cpuset(slot: int = 0) -> str:
-    """The `--cpuset-cpus` range one job container of `slot` gets.
 
-    Slot 0 keeps `0-<n-1>` for n = min(host CPUs, CONTAINER_CPU_LIMIT). An
-    isolated slot N owns CONTAINER_CPU_LIMIT CPUs of its own from
-    N * CONTAINER_CPU_LIMIT, so no two slots schedule onto one CPU; a host
-    without those CPUs is a Refusal.
-    """
+
+
+
+
+
+def cpu_range_overlaps(named: Sequence[tuple[str, str]]) -> list[str]:
+    """Each CPU two `(owner, "first-last")` ranges share, as `<owner> and <owner> share CPU <n>`; [] if disjoint."""
+    holders: dict[int, str] = {}
+    shared: list[str] = []
+    for owner, text in named:
+        first, last = (int(part) for part in text.split("-"))
+        for cpu in range(first, last + 1):
+            if cpu in holders:
+                shared.append(f"{holders[cpu]} and {owner} share CPU {cpu}")
+            else:
+                holders[cpu] = owner
+    return shared
+
+
+def parse_cpu_ranges(raw: str | None) -> tuple[str, ...]:
+    """Validate externally booked ranges; never derive placement from a slot number."""
+    if not raw:
+        raise Refusal("missing --cpu-ranges: manager-booked ranges are required")
+    ranges = tuple(raw.split(","))
     host_cpus = os.cpu_count() or 1
-    if ReplaySlot(slot).number == 0:
-        bound = min(host_cpus, CONTAINER_CPU_LIMIT)
-        return f"0-{bound - 1}"
-    first = slot * CONTAINER_CPU_LIMIT
-    last = first + CONTAINER_CPU_LIMIT - 1
-    if last >= host_cpus:
-        raise Refusal(
-            f"replay slot {slot} needs CPUs {first}-{last}, but this host has "
-            f"{host_cpus}"
-        )
-    return f"{first}-{last}"
+    for text in ranges:
+        if not re.fullmatch(r"(?:0|[1-9][0-9]*)-(?:0|[1-9][0-9]*)", text):
+            raise Refusal("invalid CPU range: " + text)
+        first, last = map(int, text.split("-"))
+        width = last - first + 1
+        if width not in (CONTAINER_CPU_LIMIT, FALLBACK_CPU_LIMIT):
+            raise Refusal(f"CPU range {text} has unsupported width {width}; need "
+                          f"{CONTAINER_CPU_LIMIT} or {FALLBACK_CPU_LIMIT}")
+        if first % width:
+            raise Refusal("CPU range is not aligned to its width: " + text)
+        if last >= host_cpus:
+            raise Refusal(f"CPU range {text} exceeds this host's {host_cpus} CPUs")
+    shared = cpu_range_overlaps([(str(i), span) for i, span in enumerate(ranges)])
+    if shared:
+        raise Refusal("CPU ranges overlap: " + shared[0])
+    return ranges
+
+
+def job_cpu_ranges(slot: int, concurrency: int) -> tuple[str, ...]:
+    """Select explicitly booked ranges for the bounded admission width."""
+    ReplaySlot(slot)
+    ranges = parse_cpu_ranges(",".join(BOOKED_CPU_RANGES.get()))
+    if not 1 <= concurrency <= CONCURRENT_JOB_LIMIT:
+        raise Refusal("unsupported concurrent job count: " + str(concurrency))
+    if len(ranges) < concurrency:
+        raise Refusal(f"insufficient CPU ranges: {concurrency} jobs need distinct ranges")
+    return ranges[:CONCURRENT_JOB_LIMIT]
+
+
+
+def describe_job_cpu_ranges(slot: int, concurrency: int, ranges: Sequence[str]) -> str:
+    """Report creation-time affinity, independent of daemon slot numbering."""
+    return (f"act-ci: slot {slot}: up to {concurrency} concurrent jobs; "
+            "created directly on reserved CPU ranges: " + ",".join(ranges))
+
 
 
 def build_act_command(
@@ -4641,10 +4785,11 @@ def build_act_command(
         "--container-daemon-socket",
         "-",
         "--concurrent-jobs",
-        str(CONCURRENT_JOB_LIMIT),
+        str(min(CONCURRENT_JOB_LIMIT, len(BOOKED_CPU_RANGES.get()))),
+        "--env", "MILAN_CI_CPU_RANGES=" + ",".join(BOOKED_CPU_RANGES.get()),
+        "--env", "MILAN_CI_FALLBACK_CPUS=" + str(FALLBACK_CPU_LIMIT),
         "--container-options",
         f"--label={DOCKER_OWNER_LABEL}={boundary.token} "
-        f"--cpuset-cpus={container_cpuset(boundary.slot)} "
         f"--memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}",
         "--network",
         boundary.name,
@@ -4794,6 +4939,7 @@ class ProcessSeams:
     terminate_group: Callable[..., None] = terminate_act_process_group
     group_exists: Callable[..., bool] | None = None
     before_terminate_group: Callable[[], None] | None = None
+    observe: Callable[[str], None] | None = None
 
 
 def run_act_process(
@@ -4816,14 +4962,22 @@ def run_act_process(
         # assignment. Caught dispositions reset on exec, so unlike a blocked
         # mask this does not prevent the act child receiving INT/TERM/HUP.
         with deferred_cleanup_signal_delivery():
+            capture_options = ({"stdout": subprocess.PIPE, "stderr": subprocess.STDOUT, "text": True}
+                               if seams.observe is not None else {})
             process = popen(
                 command,
                 cwd=context.cwd,
                 env=dict(context.env),
                 start_new_session=True,
+                **capture_options,
             )
         if started is not None:
             started(process.pid)
+        if seams.observe is not None:
+            if process.stdout is None:
+                raise Refusal("structured execution stream is unavailable")
+            for line in process.stdout:
+                seams.observe(line)
         returncode = process.wait()
         check_group = group_exists or process_group_exists
         if check_group(process.pid, use_sudo=context.use_sudo):
@@ -5092,8 +5246,7 @@ def require_runtime(
         env=env,
         description="act version check",
     )
-    version = parse_act_version(version_text)
-    require_supported_act_version(version)
+    require_supported_act_build(version_text)
 
     run_docker(
         ["info", "--format", "{{.ServerVersion}}"],
@@ -5130,30 +5283,384 @@ def execute_act_boundary(
     ``seams.pre_spawn`` runs after every other pre-spawn check and immediately
     before the process starts; the lease gate lives there so no round trip
     separates its inventory from act's first mount.
+
+    act stays interruptible inside a caller's hold of the cleanup signals,
+    the CPU-range monitor's: they are unblocked for the whole boundary, so a
+    held one is delivered on entry. Closing the window preserves an active
+    failure if a signal interrupts the first restore; the final restore
+    completes before the monitor receives either outcome (#730).
     """
-    require_live_pull_request(run.pr, run.repository, seams.query)
-    integrity_check()
-    if seams.pre_spawn is not None:
-        seams.pre_spawn()
+    held = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    primary: BaseException | None = None
     try:
-        result = seams.run_process(
-            command,
-            context=replace(context, env=dict(context.env)),
+        try:
+            signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+            require_live_pull_request(run.pr, run.repository, seams.query)
+            integrity_check()
+            if seams.pre_spawn is not None:
+                seams.pre_spawn()
+            try:
+                result = seams.run_process(
+                    command,
+                    context=replace(context, env=dict(context.env)),
+                    check=False,
+                )
+            except OSError as exc:
+                raise Refusal(f"cannot start act: {exc}") from exc
+            require_live_pull_request(run.pr, run.repository, seams.query)
+            integrity_check()
+            return result.returncode
+        except BaseException as exc:
+            primary = exc
+            raise
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, held)
+    except TerminationRequest as delivered:
+        # The first restore can itself be interrupted before it blocks.
+        # The latch defers repeats; restore the hold before any diagnostic.
+        signal.pthread_sigmask(signal.SIG_SETMASK, held)
+        if primary is None or primary is delivered:
+            raise
+        try:
+            print(
+                f"act-ci: act boundary closing was interrupted ({type(delivered).__name__}: "
+                f"{delivered}); the failure already propagating is kept",
+                file=sys.stderr,
+                flush=True,
+            )
+        except Exception:
+            # Diagnostics have no authority to replace what propagates.
+            pass
+        raise primary
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK, held)
+
+
+@dataclass
+class JobCpuRanges:
+    """Read-only CPU placement audit; the dispatcher owns creation and admission."""
+
+    boundary: DockerBoundary
+    ranges: tuple[str, ...]
+    read_cpus: Callable[[str], subprocess.CompletedProcess[str]]
+    held: dict[str, int] = field(default_factory=dict)
+    placements: dict[str, str] = field(default_factory=dict)
+    outcome: dict[str, str] = field(default_factory=dict)
+    most_at_once: int = 0
+    problems: list[str] = field(default_factory=list)
+
+    def parse(self, line: str) -> tuple[str, str] | None:
+        """(action, container ID) of one owned container's event line; anything else is recorded as a problem."""
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            self.problems.append(f"unreadable Docker event line {line.strip()[:80]!r}")
+            return None
+        actor = event.get("Actor") if isinstance(event, dict) else None
+        action = event.get("Action") if isinstance(event, dict) else None
+        container_id = actor.get("ID") if isinstance(actor, dict) else None
+        attributes = actor.get("Attributes") if isinstance(actor, dict) else None
+        if (
+            not isinstance(event, dict)
+            or event.get("Type") != "container"
+            or action not in JOB_CPU_RANGE_EVENTS
+            or not isinstance(container_id, str)
+            or not DOCKER_ID_RE.fullmatch(container_id)
+            or not isinstance(attributes, dict)
+        ):
+            self.problems.append(f"malformed Docker event line {line.strip()[:80]!r}")
+            return None
+        if attributes.get(DOCKER_OWNER_LABEL) != self.boundary.token:
+            self.problems.append(
+                f"Docker reported container {container_id[:12]}, which this boundary does not own"
+            )
+            return None
+        return action, container_id
+
+    def effective_cpus(self, container_id: str) -> str | None:
+        """The container's cpuset as the daemon holds it; None once the daemon has no such container.
+
+        An inspect that fails or times out proves nothing, so it is a Refusal.
+        """
+        result = self.read_cpus(container_id)
+        if result.returncode == 0:
+            return (result.stdout or "").strip()
+        if "No such container" in (result.stderr or ""):
+            return None
+        detail = (result.stderr or "").strip().splitlines()
+        raise Refusal("docker container inspect failed" + (f": {detail[-1]}" if detail else ""))
+
+    def release(self, container_id: str) -> None:
+        """Only proven removal releases an observed range."""
+        self.held.pop(container_id, None)
+
+    def check(self, container_id: str) -> None:
+        """Inspect initial and later placement without issuing any mutation."""
+        try:
+            cpus = self.effective_cpus(container_id)
+        except Refusal as exc:
+            self.problems.append(str(exc))
+            return
+        if cpus is None:
+            self.release(container_id)
+            self.outcome.setdefault(container_id, "gone")
+            return
+        if cpus not in self.ranges:
+            self.problems.append(f"job container {container_id[:12]} has unbooked CPU range {cpus!r}")
+            self.outcome[container_id] = "invalid"
+            return
+        index = self.ranges.index(cpus)
+        if container_id in self.held and self.held[container_id] != index:
+            self.problems.append(f"job container {container_id[:12]} moved after creation")
+            return
+        for holder in list(self.held):
+            if holder != container_id and self.held[holder] == index:
+                # A queued destroy event may trail a completed removal.
+                if self.effective_cpus(holder) is None:
+                    self.release(holder)
+                else:
+                    self.problems.append(f"job containers share CPU range {cpus}")
+                    return
+        self.held[container_id] = index
+        self.placements[container_id] = cpus
+        self.outcome[container_id] = "verified"
+        self.most_at_once = max(self.most_at_once, len(self.held))
+
+    def observe(self, line: str) -> None:
+        """Audit one owned event; updates are checked but never requested."""
+        event = self.parse(line)
+        if event is None:
+            return
+        action, container_id = event
+        if action == "destroy":
+            self.release(container_id)
+        elif action in ("create", "start", "update"):
+            self.check(container_id)
+
+    @property
+    def created(self) -> int:
+        """Owned job containers observed by the monitor."""
+        return len(self.outcome)
+
+    @property
+    def verified(self) -> int:
+        """Containers whose actual cpuset matched their original reservation."""
+        return sum(1 for each in self.outcome.values() if each == "verified")
+
+    def summary(self) -> str:
+        """Report inspection coverage and peak simultaneous reservations."""
+        gone = sum(1 for each in self.outcome.values() if each == "gone")
+        return (f"{self.created} job container(s) created: {self.verified} verified, "
+                f"{gone} removed before inspection; at most {self.most_at_once} held a range at once")
+
+
+def read_job_cpu_events(process: subprocess.Popen[str], record: JobCpuRanges) -> None:
+    """Feed every line of the event stream to `record` until it ends; a reader failure is recorded, never raised."""
+    try:
+        for line in process.stdout or ():
+            if line.strip():
+                record.observe(line)
+    except Exception as exc:
+        record.problems.append(f"the CPU-range monitor stopped reading events: {exc}")
+
+
+def join_job_cpu_reader(
+    reader: threading.Thread, record: JobCpuRanges, stream_group: int
+) -> BaseException | None:
+    """Wait until the monitor's reader has provably ended; the first join failure, for the caller to raise after.
+
+    Each of the reader's inspections is bounded on its own. A reader still
+    running after the bounded wait is a problem and a printed containment
+    hold, and the wait goes on: Docker teardown never overlaps an inspection in
+    flight, and a failed join proves nothing about the thread.
+    """
+    failure: BaseException | None = None
+    timeout: float | None = DOCKER_COMMAND_TIMEOUT + 10
+    while True:
+        try:
+            reader.join(timeout=timeout)
+        except Exception as exc:
+            failure = failure or exc
+            time.sleep(0.25)
+        if not reader.is_alive():
+            return failure
+        if timeout is not None:
+            timeout = None
+            record.problems.append("the CPU-range monitor survived its bounded shutdown")
+            try:
+                print(
+                    "act-ci: containment hold for the CPU-range monitor's reader (event "
+                    f"stream process group {stream_group}); Docker teardown is paused "
+                    "until it ends",
+                    file=sys.stderr,
+                    flush=True,
+                )
+            except Exception:
+                # Diagnostics have no authority to release containment.
+                pass
+
+
+def stop_job_cpu_range_monitor(
+    process: subprocess.Popen[str],
+    reader: threading.Thread | None,
+    record: JobCpuRanges,
+    *,
+    context: CommandContext,
+    seams: ProcessSeams,
+    primary: BaseException | None = None,
+) -> None:
+    """End the event stream's whole process group, then join its reader, before the Docker boundary can unwind.
+
+    Each step runs whatever an earlier one raised: a failed containment or
+    leader reap still has the reader joined, proven ended, and its pipe
+    closed. Only then is a failure surfaced, and the first one wins. A
+    `primary` already propagating, an interrupt or the body's own failure,
+    is left for the caller to re-raise with its exit status and diagnostic,
+    and every cleanup failure is printed beside it. Without one, the first
+    cleanup failure is raised and each later one printed.
+    """
+    failures: list[BaseException] = []
+    with blocked_cleanup_signals():
+        try:
+            ended_early = process.poll() is not None
+        except Exception as exc:
+            ended_early = False
+            record.problems.append(f"cannot tell whether the Docker event stream ended early: {exc}")
+        try:
+            seams.terminate_group(
+                process,
+                use_sudo=context.use_sudo,
+                primary=Refusal("the CPU-range monitor is stopping"),
+            )
+        except BaseException as exc:
+            failures.append(exc)
+        if reader is not None and reader.ident is not None:
+            failure = join_job_cpu_reader(reader, record, process.pid)
+            if failure is not None:
+                failures.append(failure)
+        try:
+            if process.stdout is not None:
+                process.stdout.close()
+        except Exception as exc:
+            failures.append(exc)
+        if ended_early:
+            record.problems.append(
+                f"the Docker event stream ended before act did (exit {process.returncode}); "
+                "later container placements were not observed"
+            )
+        for later in failures if primary is not None else failures[1:]:
+            try:
+                print(
+                    f"act-ci: CPU-range monitor cleanup also failed: {type(later).__name__}: {later}",
+                    file=sys.stderr,
+                    flush=True,
+                )
+            except Exception:
+                # Diagnostics have no authority to replace the first failure.
+                pass
+    if primary is not None:
+        return
+    if failures:
+        raise failures[0]
+
+
+@contextlib.contextmanager
+def job_cpu_range_monitor(
+    boundary: DockerBoundary,
+    ranges: Sequence[str],
+    *,
+    context: CommandContext,
+    seams: ProcessSeams = ProcessSeams(),
+) -> Iterator[JobCpuRanges]:
+    """Audit placement while preserving the existing signal-safe event cleanup."""
+
+    def read_cpus(container_id: str) -> subprocess.CompletedProcess[str]:
+        """Read one owned container's effective cpuset."""
+        return run_docker(
+            ["container", "inspect", "--format", "{{.HostConfig.CpusetCpus}}", container_id],
+            context=context,
+            description="job container CPU-range read",
             check=False,
         )
-    except OSError as exc:
-        raise Refusal(f"cannot start act: {exc}") from exc
-    require_live_pull_request(run.pr, run.repository, seams.query)
-    integrity_check()
-    return result.returncode
+
+    record = JobCpuRanges(boundary, tuple(ranges), read_cpus)
+    if not ranges:
+        yield record
+        return
+    command = [
+        *docker_prefix(context.use_sudo, context.env),
+        "events",
+        "--since",
+        str(int(time.time()) - 1),
+        "--format",
+        "{{json .}}",
+        "--filter",
+        "type=container",
+        "--filter",
+        f"label={DOCKER_OWNER_LABEL}={boundary.token}",
+        *(word for name in JOB_CPU_RANGE_EVENTS for word in ("--filter", f"event={name}")),
+    ]
+    process: subprocess.Popen[str] | None = None
+    reader: threading.Thread | None = None
+    primary: BaseException | None = None
+    released = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    with blocked_cleanup_signals():
+        held = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    try:
+        try:
+            with deferred_cleanup_signal_delivery():
+                process = seams.popen(
+                    command,
+                    cwd=context.cwd,
+                    env=dict(context.env),
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
+                )
+        except OSError as exc:
+            raise Refusal(f"cannot start the CPU-range monitor: {exc}") from exc
+        # Held from here, by one C call, so the body's end has no unmasked point.
+        signal.pthread_sigmask(signal.SIG_BLOCK, held)
+        reader = threading.Thread(
+            target=read_job_cpu_events,
+            args=(process, record),
+            name="act-ci-cpu-range-monitor",
+            daemon=True,
+        )
+        start_cleanup_thread_or_refuse(reader, "CPU-range monitor")
+        yield record
+    except BaseException as exc:
+        primary = exc
+        raise
+    finally:
+        with TerminationRequest.delivered_after(released, primary, "CPU-range monitor cleanup"):
+            if process is not None:
+                stop_job_cpu_range_monitor(
+                    process, reader, record, context=context, seams=seams, primary=primary
+                )
+
+
+def report_job_cpu_ranges(workflow: str, record: JobCpuRanges) -> None:
+    """Print what `workflow`'s job containers got, and each problem as a warning; nothing for a run without ranges."""
+    if not record.ranges:
+        return
+    print(f"act-ci: {workflow}: CPU ranges: {record.summary()}", flush=True)
+    for problem in record.problems:
+        print(
+            f"act-ci: WARNING: {workflow}: CPU ranges: {problem}",
+            file=sys.stderr,
+            flush=True,
+        )
 
 
 @dataclass(frozen=True)
 class WorkflowPlan:
     """What one validation run executes: the selection it came from, and how each workflow is launched.
 
-    The five travel together from `run_validation` into the helpers it hoists,
-    so a reader checks one value rather than five more keywords.
+    The six travel together from `run_validation` into the helpers it hoists,
+    so a reader checks one value rather than six more keywords. `cpu_ranges`
+    are booked externally and assigned before container creation.
     """
 
     workflows: Sequence[str]
@@ -5161,6 +5668,8 @@ class WorkflowPlan:
     job_volume_scope: Mapping[str, str]
     prefix: Sequence[str]
     dry_run: bool
+    cpu_ranges: tuple[str, ...] = ()
+    evidence_directory: pathlib.Path | None = None
 
 
 def check_run_integrity(
@@ -5176,6 +5685,137 @@ def check_run_integrity(
     )
 
 
+class JobFailed(Refusal):
+    """The first observed job failure, after its durable execution event was written."""
+
+
+@dataclass
+class ReplayEvents:
+    """Retain scheduler observations; ordinary command output cannot forge a verdict."""
+
+    path: pathlib.Path
+    first_failure: str | None = None
+    outcomes: dict[str, str] = field(default_factory=dict)
+
+    def observe(self, line: str) -> None:
+        """Record structured step/job results and interrupt on the first failed job."""
+        print(line, end="", flush=True)
+        try:
+            value = json.loads(line)
+        except (ValueError, TypeError):
+            return
+        if not isinstance(value, dict) or value.get("raw_output") or value.get("dryrun"):
+            return
+        started = (value.get("stepid") == ["--setup-job"]
+                   and value.get("msg") == "\u2b50 Run Set up job")
+        if "stepResult" not in value and "jobResult" not in value and "cpuRange" not in value and not started:
+            return
+        job = value.get("job")
+        if not isinstance(job, str) or not job.strip() or not isinstance(value.get("jobID"), str):
+            raise Refusal("scheduler result lacks a job identity")
+        row = {key: value[key] for key in ("job", "jobID", "matrix", "step", "stepID", "stage",
+                                           "stepResult", "jobResult", "cpuRange") if key in value}
+        row["job"] = job.strip()
+        if started:
+            row["jobStarted"] = True
+        with self.path.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n")
+            stream.flush()
+        if "jobResult" in row:
+            self.outcomes[row["job"]] = row["jobResult"]
+            if row["jobResult"] not in ("success", "skipped"):
+                self.first_failure = row["job"]
+                raise JobFailed("first failed job: " + row["job"])
+
+
+def workflow_selection(layout: RunLayout, workflows: Sequence[str]) -> pathlib.Path:
+    """Stage byte-identical workflow files outside the checkout for one shared scheduler."""
+    directory = layout.temporary / "selected-workflows"
+    directory.mkdir()
+    for name in workflows:
+        source = layout.checkout / WORKFLOWS[name]
+        target = directory / source.name
+        with target.open("xb") as stream:
+            stream.write(source.read_bytes())
+        target.chmod(0o444)
+    return directory
+
+
+def verify_workflow_selection(layout: RunLayout, workflows: Sequence[str], directory: pathlib.Path) -> None:
+    """Refuse changed bytes, extra files or symlinks in the private selection."""
+    expected = {pathlib.Path(WORKFLOWS[name]).name for name in workflows}
+    if directory.is_symlink() or {path.name for path in directory.iterdir()} != expected:
+        raise Refusal("private workflow selection inventory differs")
+    for name in workflows:
+        source = layout.checkout / WORKFLOWS[name]
+        target = directory / source.name
+        if not stat.S_ISREG(target.lstat().st_mode) or target.read_bytes() != source.read_bytes():
+            raise Refusal("private workflow selection differs: " + source.name)
+
+
+def prepare_evidence_directory(requested: pathlib.Path | None, candidate: pathlib.Path) -> pathlib.Path:
+    """Create a private durable destination, refusing the candidate tree or an existing target."""
+    if requested is None:
+        directory = pathlib.Path(tempfile.mkdtemp(prefix="act-ci-evidence-")).resolve()
+        if directory.is_relative_to(candidate):
+            directory.rmdir()
+            raise Refusal("evidence directory must be outside the candidate tree")
+        return directory
+    directory = requested.expanduser().absolute()
+    if directory.resolve().is_relative_to(candidate):
+        raise Refusal("evidence directory must be outside the candidate tree")
+    try:
+        directory.mkdir(mode=0o700)
+    except OSError as exc:
+        raise Refusal("evidence directory must be a new writable directory") from exc
+    return directory.resolve()
+
+
+def stage_evidence_helpers(source: pathlib.Path, readers: pathlib.Path,
+                           pins: Mapping[str, str]) -> None:
+    """Copy verified bytes, never links or imported modules, into a fresh private directory."""
+    readers.mkdir()
+    for name, digest in pins.items():
+        path = source / name
+        if path.is_symlink() or not path.is_file():
+            raise Refusal("pinned evidence helper is unavailable: " + name)
+        raw = path.read_bytes()
+        if hashlib.sha256(raw).hexdigest() != digest:
+            raise Refusal("pinned evidence helper differs: " + name)
+        target = readers / name
+        target.write_bytes(raw)
+        target.chmod(0o444)
+
+
+def emit_local_manifest(run: ValidatedRun, layout: RunLayout, events: ReplayEvents,
+                        artifacts: pathlib.Path, output: pathlib.Path, failed: bool) -> None:
+    """Run only digest-pinned reader code; candidate workflows and ZIP members remain data."""
+    readers = layout.temporary / "evidence-readers"
+    stage_evidence_helpers(pathlib.Path(__file__).resolve().parent, readers, EVIDENCE_HELPERS)
+    pins = readers / "pins.json"
+    pins.write_text(json.dumps(EVIDENCE_HELPERS))
+    subject = {"repository": run.repository, "head": run.pr.head_sha, "event": "pull_request",
+               "tree": git_capture(layout.checkout, ["rev-parse", "HEAD^{tree}"],
+                                   description="read manifest tree", home=layout.home),
+               "base": run.validation_base,
+               "merge_base": git_capture(layout.checkout, ["merge-base", run.validation_base, run.pr.head_sha],
+                                         description="read manifest ancestry", home=layout.home)}
+    subject_path = readers / "subject.json"
+    subject_path.write_text(json.dumps(subject))
+    saved_events = output / "act-execution.jsonl"
+    saved_events.write_bytes(events.path.read_bytes() if events.path.exists() else b"")
+    command = [sys.executable, "-I", "-X", "pycache_prefix=" + str(readers / "bytecode"),
+               str(readers / "ci_local_manifest.py"), "--pins", str(pins), "--root", str(layout.checkout),
+               "--subject", str(subject_path), "--events", str(saved_events), "--artifacts", str(artifacts),
+               "--output", str(output / "ci-manifest.json")]
+    if failed:
+        command.append("--failed")
+    collected = capture(command, cwd=layout.invocation, env=controlled_act_environment(layout),
+                        description="collect actual local execution manifest")
+    print("act-ci: " + collected)
+    print("act-ci: durable execution evidence: " + str(output))
+
+
 def execute_workflows(
     run: ValidatedRun,
     layout: RunLayout,
@@ -5184,73 +5824,71 @@ def execute_workflows(
     *,
     context: CommandContext,
 ) -> int:
-    """Run each selected workflow inside `boundary`; RC_FAILED at the first failure."""
-    pr = run.pr
-    repository = run.repository
-
-    def integrity_check() -> None:
-        """Re-verify the isolation layout and both checkouts."""
-        check_run_integrity(run, layout, plan)
-
+    """Run all selected workflows through one four-job scheduler and one cleanup boundary."""
     for workflow in plan.workflows:
         if plan.job_volume_scope[workflow] not in boundary.job_volume_prefixes:
-            raise Refusal(
-                f"Docker boundary does not lease the act job volumes "
-                f"of {workflow}"
-            )
-        inspect_docker_boundary(
-            boundary,
-            context=context,
-        )
-        artifact_port = allocate_tcp_port()
-        command = build_act_command(
-            plan.prefix, workflow, layout, artifact_port, boundary
-        )
-        if plan.dry_run:
-            print(f"act-ci: {workflow}: {shlex.join(command)}")
-            continue
-        print(
-            f"act-ci: running {workflow} ({WORKFLOWS[workflow]})",
-            flush=True,
-        )
+            raise Refusal(f"Docker boundary does not lease the act job volumes of {workflow}")
+    selection = workflow_selection(layout, plan.workflows)
 
-        def lease_gate() -> None:
-            """The acquisition gate ran before a seed that can take
-            minutes; prove the lease is still empty at the spawn."""
-            require_act_job_volumes_absent(boundary, context=context)
+    def integrity_check() -> None:
+        """Re-verify both checkouts, isolation inputs and every copied workflow byte."""
+        check_run_integrity(run, layout, plan)
+        verify_workflow_selection(layout, plan.workflows, selection)
 
-        result = execute_act_boundary(
-            command,
-            run=run,
-            context=context,
-            integrity_check=integrity_check,
-            seams=SpawnSeams(pre_spawn=lease_gate),
-        )
-        observed_volumes: list[str] = []
-        leftovers = cleanup_owned_containers(
-            boundary,
-            context=context,
-            observed_volumes=observed_volumes,
-        )
-        # Reconcile before refusing: drift observed on a leftover
-        # container is reported here or never.
-        leftover_volumes = cleanup_act_job_volumes(
-            boundary,
-            observed_volumes,
-            context=context,
-        )
-        if leftovers or leftover_volumes:
-            raise Refusal(
-                f"act left {leftovers} owned container(s) and "
-                f"{len(leftover_volumes)} job volume(s) after {workflow}; "
-                "the runner removed them and refuses the run"
-            )
-        if result != 0:
-            print(f"act-ci: {workflow}: FAILED ({result})", file=sys.stderr)
-            return RC_FAILED
-        print(f"act-ci: {workflow}: PASS at {pr.head_sha}")
-    require_live_pull_request(pr, repository)
+    inspect_docker_boundary(boundary, context=context)
+    command = build_act_command(plan.prefix, plan.workflows[0], layout, allocate_tcp_port(), boundary)
+    command[command.index("--workflows") + 1] = str(selection)
+    artifacts = layout.artifacts / "combined"
+    artifacts.mkdir()
+    command[command.index("--artifact-server-path") + 1] = str(artifacts)
+    command.append("--json")
+    command.append("--verbose")
+    if plan.dry_run:
+        integrity_check()
+        print(f"act-ci: combined {','.join(plan.workflows)}: {shlex.join(command)}")
+        return RC_OK
+    print(f"act-ci: running {','.join(plan.workflows)} together at {run.pr.head_sha}", flush=True)
+    events = ReplayEvents(layout.temporary / "act-execution.jsonl")
+
+    def observed_process(argv: Sequence[str], **kwargs: object) -> subprocess.CompletedProcess[object]:
+        """Observe the real scheduler stream inside the existing process-group boundary."""
+        return run_act_process(argv, seams=ProcessSeams(observe=events.observe), **kwargs)
+
+    def lease_gate() -> None:
+        """Nothing may acquire any selected workflow's volumes between validation and spawn."""
+        require_act_job_volumes_absent(boundary, context=context)
+
+    with job_cpu_range_monitor(boundary, plan.cpu_ranges, context=context) as moved:
+        try:
+            result = execute_act_boundary(command, run=run, context=context, integrity_check=integrity_check,
+                                          seams=SpawnSeams(pre_spawn=lease_gate, run_process=observed_process))
+        except JobFailed as exc:
+            print("act-ci: " + str(exc) + "; cancelling the complete replay", file=sys.stderr)
+            result = RC_FAILED
+    report_job_cpu_ranges("combined", moved)
+    if moved.problems:
+        result = RC_FAILED
+    if plan.evidence_directory is not None:
+        (plan.evidence_directory / "cpu-placements.json").write_text(json.dumps(
+            {"ranges": list(plan.cpu_ranges), "placements": moved.placements,
+             "problems": moved.problems, "peak_jobs": moved.most_at_once}, sort_keys=True) + "\n")
+    observed_volumes: list[str] = []
+    leftovers = cleanup_owned_containers(boundary, context=context, observed_volumes=observed_volumes)
+    leftover_volumes = cleanup_act_job_volumes(boundary, observed_volumes, context=context)
+    if moved.problems:
+        raise Refusal("CPU placement audit failed: " + "; ".join(moved.problems))
+    if plan.evidence_directory is not None:
+        emit_local_manifest(run, layout, events, artifacts, plan.evidence_directory, result != 0)
+    if leftovers or leftover_volumes:
+        raise Refusal(f"act left {leftovers} owned container(s) and {len(leftover_volumes)} job volume(s) "
+                      "after the combined replay; the runner removed them and refuses the run")
+    require_live_pull_request(run.pr, run.repository)
     integrity_check()
+    if result != 0:
+        print(f"act-ci: combined replay: FAILED ({result})", file=sys.stderr)
+        return RC_FAILED
+    for workflow in plan.workflows:
+        print(f"act-ci: {workflow}: PASS at {run.pr.head_sha}")
     return RC_OK
 
 
@@ -5275,6 +5913,8 @@ def run_validation(
         validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         validate_workflow_sandbox(layout.checkout, workflows)
         job_volume_scope = workflow_job_volume_scope(layout.checkout, workflows)
+        concurrency = replay_container_concurrency(layout.checkout, workflows)
+        cpu_ranges = job_cpu_ranges(slot.number, concurrency)
         initialize_required_submodules(layout.checkout, layout.home)
         validate_checkout(pr, layout.checkout, workflows, label="materialized checkout")
         require_live_pull_request(pr, repository)
@@ -5301,6 +5941,7 @@ def run_validation(
                 f"recorded base oid {pr.base_sha}), draft={str(pr.draft).lower()}"
             )
             print("act-ci: credentials=none docker-socket=none caches=ephemeral")
+            print(describe_job_cpu_ranges(slot.number, concurrency, cpu_ranges))
             materialize_workflow_actions(layout, workflows, dry_run=dry_run)
             plan = WorkflowPlan(
                 workflows=workflows,
@@ -5308,6 +5949,8 @@ def run_validation(
                 job_volume_scope=job_volume_scope,
                 prefix=prefix,
                 dry_run=dry_run,
+                cpu_ranges=cpu_ranges,
+                evidence_directory=launch.evidence_directory,
             )
             with temporary_docker_boundary(
                 planned_boundary,
@@ -5544,21 +6187,327 @@ def selftest_fetch_window(
     stale_event = build_event(resolved)
     stale_event_pr = stale_event["pull_request"]
     assert isinstance(stale_event_pr, dict)
-    #: [R3] on PR #336: the payload feeds scope classification and nothing
-    #: else, and hosted receives the RECORDED oid, so the replica must too or
-    #: its verdict stops predicting the run it stands in for. The trust
-    #: checks read resolved.validation_base and never this payload, so the
-    #: two arms below pin the split in both directions.
     check(
-        "the event carries the recorded base oid, so the local replica "
-        "classifies the same file set hosted does",
+        "the event retains the recorded base oid as metadata",
         stale_event_pr["base"]["sha"] == pr.base_sha,
     )
     check(
-        "and that is not the validation base, so the payload cannot be "
-        "mistaken for the commit the trust checks read",
+        "the recorded payload oid is not the fetched live scope base",
         stale_event_pr["base"]["sha"] != resolved.validation_base,
     )
+
+
+def scope_fixture_environment(root: pathlib.Path) -> dict[str, str]:
+    """Isolate fixture Git and shell children from every caller Git setting."""
+    home = root / ".scope-home"
+    home.mkdir(exist_ok=True)
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("GIT_") and key not in ("HOME", "XDG_CONFIG_HOME")}
+    env.update(HOME=str(home), XDG_CONFIG_HOME=str(home),
+               GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_SYSTEM=os.devnull,
+               GIT_CONFIG_NOSYSTEM="1", GIT_TERMINAL_PROMPT="0",
+               GIT_AUTHOR_NAME="Scope fixture", GIT_AUTHOR_EMAIL="scope@example.invalid",
+               GIT_COMMITTER_NAME="Scope fixture", GIT_COMMITTER_EMAIL="scope@example.invalid",
+               GIT_AUTHOR_DATE="2001-01-01T00:00:00+0000",
+               GIT_COMMITTER_DATE="2001-01-01T00:00:00+0000",
+               GIT_CONFIG_COUNT="4", GIT_CONFIG_KEY_0="commit.gpgsign",
+               GIT_CONFIG_VALUE_0="false", GIT_CONFIG_KEY_1="core.hooksPath",
+               GIT_CONFIG_VALUE_1=os.devnull, GIT_CONFIG_KEY_2="maintenance.auto",
+               GIT_CONFIG_VALUE_2="false", GIT_CONFIG_KEY_3="gc.auto",
+               GIT_CONFIG_VALUE_3="0")
+    return env
+
+
+def scope_fixture_git(root: pathlib.Path, *args: str) -> str:
+    """Run Git only in the disposable fixture, with no external hooks."""
+    return subprocess.check_output(
+        ["git", "-c", "core.hooksPath=/dev/null", "-c", "user.name=Scope fixture",
+         "-c", "user.email=scope@example.invalid", "-C", str(root), *args],
+        text=True, stderr=subprocess.STDOUT, env=scope_fixture_environment(root),
+    ).strip()
+
+
+def scope_fixture_commit_file(root: pathlib.Path, parent: str, path: str, text: str) -> str:
+    """Commit one independent change from parent."""
+    scope_fixture_git(root, "checkout", "--quiet", "--detach", parent)
+    target = root / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(text, encoding="utf-8")
+    scope_fixture_git(root, "add", path)
+    scope_fixture_git(root, "commit", "--quiet", "-m", "Scope control")
+    return scope_fixture_git(root, "rev-parse", "HEAD")
+
+
+@dataclass(frozen=True)
+class ScopeEventCase:
+    """A PR history with independent changed-path and relevance oracles."""
+
+    label: str
+    recorded: str
+    live: str
+    head: str
+    paths: list[str]
+    rtl: str
+
+
+def scope_fixture_history(root: pathlib.Path, shipping: pathlib.Path) -> list[ScopeEventCase]:
+    """Forked PRs and lanes that merge newer dev, restore RTL, then edit docs."""
+    scope_fixture_git(root, "init", "--quiet")
+    (root / "scripts").mkdir()
+    classifier, _info = read_regular_file_bounded(
+        shipping, "scripts/ci_scope.py", maximum=MAX_CHECKED_FILE_BYTES,
+        description="scope fixture classifier",
+    )
+    (root / "scripts/ci_scope.py").write_bytes(classifier)
+    (root / "hdl").mkdir()
+    (root / "hdl/x.sv").write_text("// original RTL\n", encoding="utf-8")
+    (root / "docs").mkdir()
+    page = "".join(f"line {number}\n" for number in range(40))
+    (root / "docs/page.md").write_text(page, encoding="utf-8")
+    # A documentation-shaped gitlink exposes removal of the explicit pointer rule.
+    (root / ".gitmodules").write_text(
+        '[submodule "pointer"]\n\tpath = docs/pointer.md\n'
+        '\turl = https://example.invalid/pointer.git\n', encoding="utf-8")
+    scope_fixture_git(root, "add", ".")
+    scope_fixture_git(root, "commit", "--quiet", "-m", "Initial scope fixture")
+    pointer = scope_fixture_git(root, "rev-parse", "HEAD")
+    scope_fixture_git(root, "update-index", "--add", "--cacheinfo", f"160000,{pointer},docs/pointer.md")
+    scope_fixture_git(root, "commit", "--quiet", "-m", "Pointer baseline")
+    common = scope_fixture_git(root, "rev-parse", "HEAD")
+    recorded = scope_fixture_commit_file(root, common, "scripts/base.py", "base = 1\n")
+    live = scope_fixture_commit_file(root, recorded, "hdl/base.sv", "// base change\n")
+    docs = scope_fixture_commit_file(root, common, "docs/note.md", "PR documentation\n")
+    b16 = scope_fixture_commit_file(root, docs, "docs/findings/README.md", "Finding index\n")
+    rtl = scope_fixture_commit_file(root, common, "hdl/pr.sv", "// PR change\n")
+    scope_fixture_git(root, "checkout", "--quiet", "--detach", common)
+    scope_fixture_git(root, "update-index", "--cacheinfo", f"160000,{recorded},docs/pointer.md")
+    scope_fixture_git(root, "commit", "--quiet", "-m", "Pointer control")
+    moved = scope_fixture_git(root, "rev-parse", "HEAD")
+    newer = scope_fixture_commit_file(root, common, "hdl/x.sv", "// newer dev RTL\n")
+    scope_fixture_git(root, "checkout", "--quiet", "--detach", docs)
+    scope_fixture_git(root, "merge", "--quiet", "--no-ff", "--no-edit", newer)
+    restored = scope_fixture_commit_file(root, scope_fixture_git(root, "rev-parse", "HEAD"),
+                           "hdl/x.sv", "// original RTL\n")
+    restored = scope_fixture_commit_file(root, restored, "docs/note.md", "Final PR documentation\n")
+    later = scope_fixture_commit_file(root, newer, "hdl/later.sv", "// unrelated dev RTL\n")
+    shared_head = scope_fixture_commit_file(root, docs, "hdl/shared.sv", "// shared change\n")
+    shared_live = scope_fixture_commit_file(root, live, "hdl/shared.sv", "// shared change\n")
+    scope_fixture_git(root, "checkout", "--quiet", "--detach", live)
+    (root / "docs/reference").mkdir(exist_ok=True)
+    scope_fixture_git(root, "mv", "docs/page.md", "docs/reference/REGISTER_MAP.md")
+    scope_fixture_git(root, "commit", "--quiet", "-m", "Base renames gate-read page")
+    renamed = scope_fixture_git(root, "rev-parse", "HEAD")
+    edited = scope_fixture_commit_file(root, common, "docs/page.md", page.replace("line 20", "line twenty"))
+    return [
+        ScopeEventCase("stale-base docs", recorded, live, docs, ["docs/note.md"], "false"),
+        ScopeEventCase("B16 shape", recorded, live, b16,
+                  ["docs/findings/README.md", "docs/note.md"], "false"),
+        ScopeEventCase("stale-base RTL", recorded, live, rtl, ["hdl/pr.sv"], "true"),
+        ScopeEventCase("submodule pointer", recorded, live, moved, ["docs/pointer.md"], "true"),
+        ScopeEventCase("empty delta", recorded, live, common, [], "true"),
+        ScopeEventCase("REV", common, newer, restored, ["docs/note.md", "hdl/x.sv"], "true"),
+        ScopeEventCase("REV+E", common, later, restored, ["docs/note.md", "hdl/x.sv"], "true"),
+        ScopeEventCase("identical-on-dev", recorded, shared_live, shared_head, ["docs/note.md"], "false"),
+        ScopeEventCase("base-side rename", recorded, renamed, edited,
+                  ["docs/reference/REGISTER_MAP.md"], "true"),
+    ]
+
+
+
+def scope_fixture_merge_checkout(root: pathlib.Path, case: ScopeEventCase) -> str:
+    """Build a synthetic merge with the live base as first parent, even for no delta."""
+    scope_fixture_git(root, "checkout", "--quiet", "--detach", case.live)
+    scope_fixture_git(root, "merge", "--quiet", "--no-ff", "--no-edit", case.head)
+    merge = scope_fixture_git(root, "rev-parse", "HEAD")
+    if merge == case.live:
+        merge = scope_fixture_git(root, "commit-tree", f"{merge}^{{tree}}", "-p", case.live,
+                    "-p", case.head, "-m", "Empty PR merge")
+        scope_fixture_git(root, "checkout", "--quiet", "--detach", merge)
+    return merge
+
+
+def scope_fixture_scope_script(shipping: pathlib.Path, workflow: str, job: str, step_id: str) -> str:
+    """Read the actual workflow body, omitting only its recursive selftest call."""
+    # Scope runs before dependency installation; the fixture needs only the
+    # literal block shape independently pinned by ci_events.py.
+    raw, _info = read_regular_file_bounded(
+        shipping, ".github/workflows/" + workflow, maximum=MAX_WORKFLOW_BYTES,
+        description="scope fixture workflow",
+    )
+    text = raw.decode("utf-8")
+    owners = [job]
+    if workflow == "elaborate.yml" and job == "elaborate":
+        owners = re.findall(r"^  (elaborate-gates-[0-9]+):$", text, re.MULTILINE)
+        assert len(owners) == 2 and len(set(owners)) == 2, "missing elaboration scope owner"
+    scripts = []
+    for owner in owners:
+        _, found, tail = text.partition(f"  {owner}:\n")
+        assert found, f"missing scope job: {workflow}/{owner}"
+        tail = re.split(r"^  [A-Za-z0-9_-]+:\s*$", tail, maxsplit=1, flags=re.MULTILINE)[0]
+        _, found, tail = tail.partition(f"        id: {step_id}\n")
+        assert found, f"missing scope step: {workflow}/{owner}"
+        _, found, tail = tail.partition("        run: |\n")
+        assert found, f"missing scope script: {workflow}/{owner}"
+        lines = []
+        for line in tail.splitlines():
+            if line.strip() and not line.startswith("          "):
+                break
+            lines.append(line)
+        scripts.append(textwrap.dedent("\n".join(lines)))
+    assert len(set(scripts)) == 1, "scope owners execute different commands"
+    script = scripts[0]
+    proof = "python3 scripts/ci_scope.py --selftest"
+    assert script.count(proof) == 1, "scope selftest wiring changed"
+    return script.replace(proof, ":")
+
+
+def scope_fixture_execute(root: pathlib.Path, script: str, recorded: str, head: str,
+            checked_out: str, *, inputs: dict[str, str] | None = None) -> tuple[list[str], str]:
+    """Execute one shipping scope body and read both its paths and output."""
+    with tempfile.TemporaryDirectory(prefix="scope-output-") as raw:
+        work = pathlib.Path(raw)
+        output = work / "output"
+        env = dict(scope_fixture_environment(root), ACT="false", EVENT_NAME="pull_request",
+                   PR_BASE_SHA=recorded, PR_BASE_REF="dev",
+                   PR_HEAD_SHA=head, GITHUB_SHA=checked_out, PR_DRAFT="false",
+                   PUSH_BEFORE_SHA=recorded, GITHUB_OUTPUT=str(output), RUNNER_TEMP=raw)
+        env.update(inputs or {})
+        # Use the interpreter running the gate for the workflow's python3.
+        (work / "python3").symlink_to(sys.executable)
+        env["PATH"] = raw + os.pathsep + env["PATH"]
+        subprocess.run(["bash", "-euo", "pipefail", "-c", script], cwd=root,
+                       env=env, check=True, capture_output=True, text=True)
+        changed = next(work.glob("changed*"))
+        verdicts = dict(line.split("=", 1) for line in output.read_text().splitlines())
+        return changed.read_text().splitlines(), verdicts["rtl"]
+
+
+
+def scope_fixture_environment_control(shipping: pathlib.Path, poison: str) -> bool:
+    """Exercise real history and shell Git with hostile caller settings."""
+    with tempfile.TemporaryDirectory(prefix="scope-environment-") as raw:
+        work = pathlib.Path(raw)
+        victim = work / "victim"
+        victim.mkdir()
+        scope_fixture_git(victim, "init", "--quiet")
+        scope_fixture_git(victim, "commit", "--quiet", "--allow-empty", "-m", "Victim")
+        before = {str(path.relative_to(victim)): path.read_bytes()
+                  for path in (victim / ".git").rglob("*") if path.is_file()}
+        caller_home = work / "caller"
+        caller_home.mkdir()
+        config = caller_home / ".gitconfig"
+        config.write_text("[commit]\n\tgpgsign = true\n", encoding="utf-8")
+        inherited = {"HOME": str(caller_home), "GIT_CONFIG_GLOBAL": str(config),
+                     "GIT_CONFIG_SYSTEM": str(config), "GIT_AUTHOR_NAME": "Wrong author",
+                     "GIT_COMMITTER_DATE": "2002-02-02T00:00:00+0000"}
+        if poison == "gitdir":
+            inherited.update(GIT_DIR=str(victim / ".git"), GIT_WORK_TREE=str(victim),
+                             GIT_INDEX_FILE=str(victim / ".git/index"))
+        root = work / "fixture"
+        root.mkdir()
+        with mock.patch.dict(os.environ, inherited):
+            case = scope_fixture_history(root, shipping)[0]
+            merge = scope_fixture_merge_checkout(root, case)
+            script = scope_fixture_scope_script(shipping, "rtl-fast.yml", "changes", "scope")
+            result = scope_fixture_execute(root, script, case.recorded, case.head, merge)
+            identity = scope_fixture_git(root, "show", "-s", "--format=%an|%cn|%at|%ct", merge)
+        after = {str(path.relative_to(victim)): path.read_bytes()
+                 for path in (victim / ".git").rglob("*") if path.is_file()}
+        return (result == (case.paths, case.rtl) and before == after
+                and identity == "Scope fixture|Scope fixture|978307200|978307200")
+
+
+
+def selftest_scope_event(
+    tally: SelftestTally, fixture: SelftestFixture, shipping_root: pathlib.Path
+) -> None:
+    """Execute hosted and live-base replay scope from the production event builder."""
+
+    for poison in ("signing", "gitdir"):
+        tally.check(f"scope fixture isolates ambient {poison}",
+                    scope_fixture_environment_control(shipping_root, poison))
+    with tempfile.TemporaryDirectory(prefix="act-ci-scope-selftest-") as raw:
+        repo = pathlib.Path(raw)
+        for case in scope_fixture_history(repo, shipping_root):
+            pr = replace(fixture.pr, base_sha=case.recorded, head_sha=case.head)
+            resolved = resolve_validation_base(
+                pr, fixture.repository, query_tip=lambda _repo, _ref: case.live,
+                emit=lambda _note: None,
+            )
+            event = build_event(resolved)
+            payload = event["pull_request"]
+            assert isinstance(payload, dict)
+            for workflow, job, step in (
+                    ("rtl.yml", "full-ci-gate", "gate"),
+                    ("rtl-fast.yml", "changes", "scope"),
+                    ("elaborate.yml", "elaborate", "scope")):
+                script = scope_fixture_scope_script(shipping_root, workflow, job, step)
+                merge = scope_fixture_merge_checkout(repo, case)
+                hosted = scope_fixture_execute(repo, script, case.recorded, case.head, merge)
+                scope_fixture_git(repo, "checkout", "--quiet", "--detach", case.head)
+                scope_fixture_git(repo, "update-ref", "refs/remotes/origin/dev", resolved.validation_base)
+                replay = scope_fixture_execute(repo, script, payload["base"]["sha"],
+                                 payload["head"]["sha"], case.head,
+                                 inputs={"ACT": "true", "PR_BASE_REF": payload["base"]["ref"]})
+                tally.check(
+                    f"scope event {case.label} {workflow}: hosted = replay = {case.paths}",
+                    hosted == replay == (case.paths, case.rtl),
+                )
+
+
+def scope_history_wired(source: str) -> bool:
+    """Require the classifier selftest to call history and accumulate its failures."""
+    expected = ast.dump(ast.parse("failures += history_selftest(ROOT)").body[0])
+    functions = [node for node in ast.parse(source).body
+                 if isinstance(node, ast.FunctionDef) and node.name == "selftest"]
+    return (len(functions) == 1
+            and sum(ast.dump(node) == expected for node in functions[0].body) == 1)
+
+
+def selftest_scope_history_wiring(tally: SelftestTally, shipping_root: pathlib.Path) -> None:
+    """Independently pin the executed history population and kill disconnections."""
+    raw, _info = read_regular_file_bounded(
+        shipping_root, "scripts/ci_scope.py", maximum=MAX_CHECKED_FILE_BYTES,
+        description="scope history wiring",
+    )
+    source = raw.decode("utf-8")
+    call = "failures += history_selftest(ROOT)"
+    tally.check("classifier selftest accumulates the history result", scope_history_wired(source))
+    for label, replacement in (("removed", "pass"), ("discarded", "history_selftest(ROOT)"),
+                               ("zeroed", "failures += 0 * history_selftest(ROOT)")):
+        tally.check(f"classifier history wiring rejects {label} result",
+                    not scope_history_wired(source.replace(call, replacement)))
+
+
+def selftest_flat_install(tally: SelftestTally, shipping_root: pathlib.Path) -> None:
+    """Run the complete selftest from one non-writable file under isolated Python."""
+    # The isolated child executes every other arm; only this launcher is skipped.
+    if sys.flags.isolated:
+        return
+    with tempfile.TemporaryDirectory(prefix="act-ci-flat-selftest-") as raw:
+        installed = pathlib.Path(raw) / "act_ci.py"
+        source = pathlib.Path(__file__).read_text(encoding="utf-8")
+        anchor = '    """Independently pin the executed history population and kill disconnections."""\n'
+        assert source.count(anchor) == 1
+        for sibling_import in (False, True):
+            if installed.exists():
+                installed.chmod(0o755)
+            planted = source.replace(anchor, anchor + "    import ci_scope_history\n")
+            installed.write_text(planted if sibling_import else source, encoding="utf-8")
+            installed.chmod(0o555)
+            result = subprocess.run(
+                [sys.executable, "-I", str(installed), "--selftest", "--worktree", str(shipping_root)],
+                cwd=raw, capture_output=True, text=True, check=False,
+            )
+            if sibling_import:
+                tally.check("flat isolated selftest rejects a sibling import outside scope events",
+                            result.returncode != 0
+                            and "No module named 'ci_scope_history'" in result.stderr)
+            else:
+                tally.check("flat isolated full selftest uses the explicit shipping worktree",
+                            result.returncode == 0 and "selftest: PASS" in result.stdout)
+                if result.returncode:
+                    print(result.stdout + result.stderr)
 
 
 def materialize_for_transcript(
@@ -5622,7 +6571,7 @@ def selftest_validation_transcript(
         inspect_docker_boundary=lambda *_args, **_kwargs: None,
         temporary_docker_boundary=dry_boundary,
         allocate_tcp_port=lambda: 43210,
-    ):
+    ), mock.patch.object(os, "cpu_count", return_value=512):
         try:
             with contextlib.redirect_stdout(transcript):
                 transcript_rc = run_validation(
@@ -5644,7 +6593,7 @@ def selftest_validation_transcript(
         and transcript_rc == RC_OK
         and expected_base_line in transcript.getvalue().splitlines()
         and len(dry_boundaries) == 1
-        and "act-ci: docs:" in transcript.getvalue(),
+        and "act-ci: combined docs:" in transcript.getvalue(),
     )
     check(
         "the normal validation path leases the selected workflow's act job volumes",
@@ -5654,13 +6603,49 @@ def selftest_validation_transcript(
     check(
         "dry-run prints the job bound and the bounded container options as "
         "one quoted argv word",
-        f" --concurrent-jobs {CONCURRENT_JOB_LIMIT} --container-options "
+        f" --concurrent-jobs {CONCURRENT_JOB_LIMIT} "
+        in transcript.getvalue()
+        and " --container-options "
         f"'--label={DOCKER_OWNER_LABEL}="
         in transcript.getvalue()
-        and f" --cpuset-cpus={container_cpuset()} --memory={CONTAINER_MEMORY}"
+        and f" --memory={CONTAINER_MEMORY}"
         f" --memory-swap={CONTAINER_MEMORY}'" in transcript.getvalue(),
     )
 
+
+
+def cpu_range_monitor_stand_in(
+    log: list[tuple[str, ...]],
+    outcomes: Mapping[str, str] | None = None,
+    problems: Sequence[str] = (),
+) -> Callable[..., contextlib.AbstractContextManager[JobCpuRanges]]:
+    """A job_cpu_range_monitor stand-in that starts nothing and records ("cpus-on", *ranges), then ("cpus-off",).
+
+    Its record carries the planted container `outcomes` and `problems`, as
+    the record of a run whose container placements were verified or refused
+    would.
+    """
+
+    @contextlib.contextmanager
+    def monitor(
+        boundary: DockerBoundary, ranges: Sequence[str], **_kwargs: object
+    ) -> Iterator[JobCpuRanges]:
+        """Record the monitor around its body, however the body ends."""
+        log.append(("cpus-on", *ranges))
+        record = JobCpuRanges(
+            boundary,
+            tuple(ranges),
+            lambda *_args: docker_completed([]),
+        )
+        record.outcome.update(outcomes or {})
+        record.most_at_once = record.verified
+        record.problems.extend(problems)
+        try:
+            yield record
+        finally:
+            log.append(("cpus-off",))
+
+    return monitor
 
 
 def workflow_control_fakes(
@@ -5750,10 +6735,20 @@ def workflow_control_fakes(
             ("gate",)
         ),
         "execute_act_boundary": execute,
+        "job_cpu_range_monitor": cpu_range_monitor_stand_in(log),
         "cleanup_owned_containers": containers,
         "cleanup_act_job_volumes": volumes,
     }
 
+
+
+@dataclass(frozen=True)
+class PlantedRun:
+    """What a workflow-control run plants besides leftovers: act's exit status, and each CPU-range record's contents."""
+
+    act_returncode: int = 0
+    cpu_outcomes: Mapping[str, str] = field(default_factory=dict)
+    cpu_problems: Sequence[str] = ()
 
 
 def run_workflow_control(
@@ -5763,30 +6758,46 @@ def run_workflow_control(
     leftover_volumes: Sequence[str],
     leftover_containers: int = 0,
     leased_prefixes: tuple[str, ...] | None = None,
+    planted: PlantedRun = PlantedRun(),
 ) -> tuple[int | None, str, str, list[tuple[str, ...]], tuple[str, ...]]:
-    """Drive execute_workflows through the real spawn boundary.
+    """Drive execute_workflows through the real spawn boundary on a 128-CPU host.
 
     Every faked call lands in one ordered log so the gate-before-spawn and
-    containers-before-volumes orders are measured, not assumed.
+    containers-before-volumes orders are measured, not assumed. act exits
+    with `planted`'s status, and each workflow's CPU-range record carries its
+    container outcomes and problems. The printed text holds stdout and stderr
+    together.
     """
     log: list[tuple[str, ...]] = []
     boundaries: list[DockerBoundary] = []
     output = io.StringIO()
     message = ""
     rc: int | None = None
-    with mock.patch.multiple(
-        sys.modules[__name__],
-        **workflow_control_fakes(
-            resolved,
-            log,
-            boundaries,
-            leased_prefixes=leased_prefixes,
-            leftover_containers=leftover_containers,
-            leftover_volumes=leftover_volumes,
-        ),
+    fakes = workflow_control_fakes(
+        resolved,
+        log,
+        boundaries,
+        leased_prefixes=leased_prefixes,
+        leftover_containers=leftover_containers,
+        leftover_volumes=leftover_volumes,
+    )
+    spawn_boundary = fakes["execute_act_boundary"]
+    assert callable(spawn_boundary)
+
+    def exits_as_planted(command: Sequence[str], **kwargs: object) -> int:
+        """The faked spawn boundary, then act's planted exit status."""
+        spawn_boundary(command, **kwargs)
+        return planted.act_returncode
+
+    fakes["execute_act_boundary"] = exits_as_planted
+    fakes["job_cpu_range_monitor"] = cpu_range_monitor_stand_in(
+        log, planted.cpu_outcomes, planted.cpu_problems
+    )
+    with mock.patch.multiple(sys.modules[__name__], **fakes), mock.patch.object(
+        os, "cpu_count", return_value=512
     ):
         try:
-            with contextlib.redirect_stdout(output):
+            with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
                 rc = run_validation(
                     resolved,
                     ("docs", "elaborate"),
@@ -5805,32 +6816,35 @@ def selftest_workflow_order(
     resolved: ValidatedRun,
     shipping_root: pathlib.Path,
 ) -> None:
-    """Arms: each workflow gates, spawns, cleans containers, then reconciles its own job volumes."""
+    """Arms: the combined run leases every workflow and preserves the complete cleanup order."""
     check = tally.check
     clean_rc, clean_message, clean_output, clean_log, clean_leased = (
         run_workflow_control(
             resolved, shipping_root, leftover_volumes=()
         )
     )
-    ordered = ["gate", "spawn", "containers", "volumes"]
+    ordered = ["cpus-on", "gate", "spawn", "cpus-off", "containers", "volumes"]
     check(
-        "a two-workflow run leases both, and gates, spawns, cleans containers, "
-        "then reconciles volumes, once per workflow in that order",
+        "a two-workflow run leases both, and starts the CPU-range monitor, gates, "
+        "spawns, stops the monitor, cleans containers, then reconciles volumes, "
+        "once for the shared scheduler in that order",
         clean_rc == RC_OK
         and clean_message == ""
         and "act-ci: docs: PASS" in clean_output
         and "act-ci: elaborate: PASS" in clean_output
-        and [entry[0] for entry in clean_log] == ordered + ordered
-        and clean_log[1] == ("spawn", "docs.yml")
-        and clean_log[5] == ("spawn", "elaborate.yml")
+        and [entry[0] for entry in clean_log] == ordered
+        and clean_log[2] == ("spawn", "selected-workflows")
         and clean_leased == ("act-docs-", "act-elaborate-"),
+    )
+    check(
+        "the shared CPU-range monitor receives both independent jobs' disjoint ranges",
+        clean_log[0] == ("cpus-on", "0-15", "16-31", "32-47", "48-63"),
     )
     check(
         "volumes observed on a workflow's containers reach that workflow's "
         "reconciliation",
-        len(clean_log) == 8
-        and clean_log[3] == ("volumes", "act-docs-observed-" + "0" * 64)
-        and clean_log[7] == ("volumes", "act-docs-observed-" + "0" * 64),
+        len(clean_log) == 6
+        and clean_log[5] == ("volumes", "act-docs-observed-" + "0" * 64),
     )
     leftover_rc, leftover_message, _leftover_output, _leftover_log, _l = (
         run_workflow_control(
@@ -5842,7 +6856,7 @@ def selftest_workflow_order(
     check(
         "a job volume act left after a workflow refuses the run after removal",
         leftover_rc is None
-        and "job volume(s) after docs" in leftover_message
+        and "job volume(s) after the combined replay" in leftover_message
         and "refuses the run" in leftover_message,
     )
     stranded_rc, stranded_message, _stranded_output, stranded_log, _s = (
@@ -5871,6 +6885,18 @@ def selftest_workflow_order(
         and "does not lease the act job volumes of docs" in unleased_message
         and not any(entry[0] == "spawn" for entry in unleased_log),
     )
+
+
+def selftest_cpu_range_warnings(tally: SelftestTally, resolved: ValidatedRun, shipping_root: pathlib.Path) -> None:
+    """Placement audit failures cannot leave a successful workflow verdict."""
+    for status in (0, 3):
+        rc, message, output, log, _leased = run_workflow_control(
+            resolved, shipping_root, leftover_volumes=(),
+            planted=PlantedRun(status, {"a" * 64: "invalid"}, ("unbooked CPU range",)))
+        tally.check(f"placement failure refuses after cleanup with scheduler rc {status}",
+                    rc is None and "CPU placement audit failed" in message and "PASS at" not in output
+                    and [row[0] for row in log][-2:] == ["containers", "volumes"])
+
 
 
 def trusted_runner_message(
@@ -6273,7 +7299,6 @@ def selftest_act_command(tally: SelftestTally, docker: DockerFixture) -> None:
         command.count("--container-options") == 1
         and command[command.index("--container-options") + 1]
         == f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token} "
-        f"--cpuset-cpus={container_cpuset()} "
         f"--memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}",
     )
     #: Hosted jobs each get their own runner; a replica's jobs share one
@@ -6321,53 +7346,16 @@ def selftest_act_command(tally: SelftestTally, docker: DockerFixture) -> None:
 
 
 def selftest_container_cpu_bound(tally: SelftestTally, docker: DockerFixture) -> None:
-    """Arms: the job container's cpuset is bounded by CONTAINER_CPU_LIMIT and keeps the ownership label."""
-    check = tally.check
-    selftest_boundary = docker.boundary
-    cpuset_re = re.compile(r"^--cpuset-cpus=0-(\d+)$")
+    """Creation affinity is passed to the pinned dispatcher, never a staging cpuset."""
+    command = build_act_command(["act"], "rtl-fast", docker.layout, docker.port, docker.boundary)
+    options = shlex.split(command[command.index("--container-options") + 1])
+    tally.check("booked ranges and named fallback reach creation scheduler",
+                "MILAN_CI_CPU_RANGES=" + ",".join(BOOKED_CPU_RANGES.get()) in command
+                and "MILAN_CI_FALLBACK_CPUS=" + str(FALLBACK_CPU_LIMIT) in command)
+    tally.check("no staging affinity or privileged job", not any("cpuset" in word for word in options)
+                and options[0] == f"--label={DOCKER_OWNER_LABEL}={docker.boundary.token}"
+                and "--privileged" not in command)
 
-    def cpuset_words(host_cpus: int | None) -> list[str]:
-        """The cpuset words of a command built on a host reporting `host_cpus`."""
-        with mock.patch.object(os, "cpu_count", return_value=host_cpus):
-            command = build_act_command(
-                ["act"], "rtl-fast", docker.layout, docker.port, selftest_boundary
-            )
-        words = shlex.split(command[command.index("--container-options") + 1])
-        return [word for word in words if word.startswith("--cpuset-cpus=")]
-
-    def bound_of(host_cpus: int | None) -> int | None:
-        """The CPU count a `0-<n-1>` cpuset word encodes, or None when the word is malformed."""
-        words = cpuset_words(host_cpus)
-        match = cpuset_re.match(words[0]) if len(words) == 1 else None
-        return int(match.group(1)) + 1 if match else None
-
-    #: rtl-fast's ``make -j"$(nproc)"`` Verilator build ran 128 compilers
-    #: inside an unbounded container on a 128-vCPU host and exhausted its
-    #: memory; hosted runners have 4 vCPUs. ``nproc`` follows the cpuset.
-    check(
-        "job containers get a cpuset of 0-<n-1> for n = min(host CPUs, "
-        f"{CONTAINER_CPU_LIMIT})",
-        bound_of(128) == CONTAINER_CPU_LIMIT
-        and bound_of(CONTAINER_CPU_LIMIT + 1) == CONTAINER_CPU_LIMIT
-        and bound_of(4) == 4
-        and bound_of(1) == 1
-        and bound_of(None) == 1
-        and bound_of(os.cpu_count())
-        == min(os.cpu_count() or 1, CONTAINER_CPU_LIMIT),
-    )
-    label_command = build_act_command(
-        ["act"], "rtl-fast", docker.layout, docker.port, selftest_boundary
-    )
-    option_words = shlex.split(
-        label_command[label_command.index("--container-options") + 1]
-    )
-    check(
-        "the CPU bound leaves the unpredictable ownership label in the same "
-        "container options word",
-        option_words[0] == f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token}"
-        and option_words[1] == f"--cpuset-cpus={container_cpuset()}"
-        and "--privileged" not in label_command,
-    )
 
 
 def selftest_container_memory_bound(tally: SelftestTally, docker: DockerFixture) -> None:
@@ -6391,15 +7379,974 @@ def selftest_container_memory_bound(tally: SelftestTally, docker: DockerFixture)
         and re.fullmatch(r"[1-9][0-9]*[kmg]", CONTAINER_MEMORY) is not None,
     )
     check(
-        "the container options word splits into exactly four tokens: label, "
-        "cpuset, memory, memory-swap, in that order",
+        "container options preserve label, memory and swap in order",
         option_words
         == [
             f"--label={DOCKER_OWNER_LABEL}={selftest_boundary.token}",
-            f"--cpuset-cpus={container_cpuset()}",
             f"--memory={CONTAINER_MEMORY}",
             f"--memory-swap={CONTAINER_MEMORY}",
         ],
+    )
+
+
+def write_concurrency_workflow(root: pathlib.Path, workflow: str, jobs: str) -> None:
+    """Write `workflow`'s file under `root` with the given ``jobs:`` body, indented two spaces."""
+    path = root / WORKFLOWS[workflow]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"name: {workflow}\non: pull_request\njobs:\n{jobs}", encoding="utf-8")
+
+
+def selftest_job_concurrency(tally: SelftestTally, shipping_root: pathlib.Path) -> None:
+    """Arms: a replay's concurrent job containers come from max-parallel and CONCURRENT_JOB_LIMIT (#730)."""
+    check = tally.check
+    refused = tally.refused
+    matrix = {"matrix": {"shard": ["0", "1", "2", "3", "4"]}}
+    check(
+        "a job without a matrix runs one container, with or without a strategy or a max-parallel",
+        job_container_width({}, "j") == 1
+        and job_container_width({"strategy": {"fail-fast": "false"}}, "j") == 1
+        and job_container_width({"strategy": {"max-parallel": "3"}}, "j") == 1,
+    )
+    check(
+        f"a matrix job runs act's default {ACT_DEFAULT_MAX_PARALLEL} wide, or its literal "
+        "max-parallel, never below one, as act 0.2.89 does",
+        job_container_width({"strategy": matrix}, "j") == ACT_DEFAULT_MAX_PARALLEL
+        and job_container_width({"strategy": {**matrix, "max-parallel": "2"}}, "j") == 2
+        and job_container_width({"strategy": {**matrix, "max-parallel": "0"}}, "j") == 1
+        and job_container_width({"strategy": {**matrix, "max-parallel": "9"}}, "j") == 9,
+    )
+    for label, strategy in (
+        ("a strategy that is not a mapping", "fail-fast"),
+        ("an expression max-parallel", {**matrix, "max-parallel": "${{ inputs.width }}"}),
+        ("a negative max-parallel", {**matrix, "max-parallel": "-1"}),
+        ("a fractional max-parallel", {**matrix, "max-parallel": "1.5"}),
+        ("a seven-digit max-parallel", {**matrix, "max-parallel": "1234567"}),
+        ("a list max-parallel", {**matrix, "max-parallel": ["2"]}),
+    ):
+        refused(
+            f"{label} is refused: the concurrency cannot be derived",
+            lambda strategy=strategy: job_container_width({"strategy": strategy}, "j"),
+        )
+    plain = "    runs-on: ubuntu-latest\n    steps:\n      - run: true\n"
+    orders = list(itertools.permutations(("docs", "rtl-fast", "rtl-full")))
+    with tempfile.TemporaryDirectory(prefix="act-ci-concurrency-") as raw:
+        root = pathlib.Path(raw)
+        write_concurrency_workflow(root, "rtl-full", "".join(f"  job{n}:\n{plain}" for n in range(3)))
+        write_concurrency_workflow(root, "rtl-fast", "".join(f"  job{n}:\n{plain}" for n in range(2)))
+        write_concurrency_workflow(root, "docs", f"  only:\n{plain}")
+        for limit in (1, 2, 3, 4):
+            with mock.patch.object(sys.modules[__name__], "CONCURRENT_JOB_LIMIT", limit):
+                check(f"all selected workflows share the {limit}-job limit in every order",
+                      {replay_container_concurrency(root, order) for order in orders} == {limit})
+                check(f"a single small workflow does not invent {limit} jobs",
+                      replay_container_concurrency(root, ("docs",)) == 1
+                      and replay_container_concurrency(root, ("rtl-fast",)) == min(limit, 2))
+        for maximum in (1, 4, 9):
+            write_concurrency_workflow(root, "rtl-full", f"  matrix:\n{plain}    strategy:\n"
+                                       f"      max-parallel: {maximum}\n      matrix:\n        n: [1, 2]\n")
+            check(f"nested matrix width {maximum} shares the global four-job admission gate",
+                  replay_container_concurrency(root, ("rtl-full",)) == min(maximum, CONCURRENT_JOB_LIMIT))
+    shipping = {name: replay_container_concurrency(shipping_root, (name,)) for name in WORKFLOWS}
+    check(
+        f"every shipping workflow derives 1 to {SLOT_JOB_RANGES} concurrent containers, and "
+        "rtl-full's matrix legs run more than one at once",
+        all(1 <= each <= SLOT_JOB_RANGES for each in shipping.values())
+        and shipping["rtl-full"] > 1,
+    )
+
+
+
+
+
+
+
+
+def selftest_job_cpu_ranges(tally: SelftestTally) -> None:
+    """Prove supplied range alignment, width, availability and disjointness."""
+    with mock.patch.object(os, "cpu_count", return_value=128):
+        for raw in (None, "", "0-7", "1-16", "0-15,12-23", "0-15,0-15", "128-143", "00-15", "0-15,", "-1-14"):
+            tally.refused(f"invalid or missing CPU ranges {raw!r}", lambda raw=raw: parse_cpu_ranges(raw))
+        for raw in ("0-15,16-31,32-47,48-63", "0-11,12-23,24-35,36-47", "0-15,24-35"):
+            tally.check("booked ranges accepted: " + raw, parse_cpu_ranges(raw) == tuple(raw.split(",")))
+        tally.check("fallback has one named setting", FALLBACK_CPU_LIMIT == 12)
+        tally.check("slot number cannot relocate booked CPUs", job_cpu_ranges(0, 4) == job_cpu_ranges(63, 4))
+        with mock.patch.object(sys.modules[__name__], "BOOKED_CPU_RANGES",
+                               contextvars.ContextVar("test_cpu_ranges", default=("0-15",))):
+            tally.refused("too few booked ranges for concurrent jobs", lambda: job_cpu_ranges(0, 4))
+        with mock.patch.object(sys.modules[__name__], "BOOKED_CPU_RANGES",
+                               contextvars.ContextVar("test_cpu_ranges", default=())):
+            tally.refused("no implicit host CPU allocation", lambda: job_cpu_ranges(0, 1))
+        for count in (0, 5):
+            tally.refused("unsupported job admission width", lambda count=count: job_cpu_ranges(0, count))
+
+
+
+def docker_event_line(action: str, container_id: str, token: str) -> str:
+    """One ``docker events --format '{{json .}}'`` line about a container whose owner label is `token`."""
+    actor = {"ID": container_id, "Attributes": {DOCKER_OWNER_LABEL: token, "name": "act-job"}}
+    return json.dumps({"Type": "container", "Action": action, "Actor": actor}) + "\n"
+
+
+
+
+
+
+
+
+
+
+
+def selftest_job_cpu_record(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Audit initial placement, stop/restart ownership and actual illegal moves."""
+    cpus: dict[str, str] = {}
+    reads: list[str] = []
+    def inspect(container: str) -> subprocess.CompletedProcess[str]:
+        """Model only inspect; this collaborator cannot move a container."""
+        reads.append(container)
+        return (docker_completed([], stdout=cpus[container] + "\n") if container in cpus else
+                docker_completed([], 1, stderr="No such container"))
+    record = JobCpuRanges(docker.boundary, ("0-15", "16-31"), inspect)
+    def event(action: str, name: str) -> None:
+        """Deliver an owned event with an independently specified actual cpuset."""
+        record.observe(docker_event_line(action, name * 64, docker.boundary.token))
+    cpus["a" * 64] = "0-15"; event("create", "a"); event("die", "a")
+    cpus["b" * 64] = "16-31"; event("create", "b"); event("start", "a")
+    tally.check("two initial ranges stay disjoint across stop and restart", not record.problems
+                and record.verified == 2 and record.most_at_once == 2 and len(record.held) == 2)
+    cpus["c" * 64] = "0-15"; event("create", "c")
+    tally.check("concurrent CPU sharing refuses", record.problems == ["job containers share CPU range 0-15"])
+    record.problems.clear(); cpus.pop("c" * 64)
+    cpus["a" * 64] = "16-31"; event("update", "a")
+    tally.check("move after creation refuses", any("moved after creation" in p for p in record.problems))
+    record.problems.clear(); cpus["a" * 64] = ""; event("start", "a")
+    tally.check("unpinned start refuses", any("unbooked CPU" in p for p in record.problems))
+    record.problems.clear(); cpus.pop("a" * 64); event("destroy", "a")
+    cpus["c" * 64] = "0-15"; event("create", "c")
+    tally.check("only removal releases range", not record.problems and len(record.held) == 2)
+    before = len(reads)
+    record.observe(docker_event_line("create", "d" * 64, "foreign")); record.observe("{}")
+    tally.check("foreign and malformed events inspect nothing", len(reads) == before and len(record.problems) == 2)
+
+
+
+
+
+
+class HeldEventPipe:
+    """An event pipe whose lines arrive only once `after` is set, and which ends only once `contained` is set.
+
+    A real ``docker events`` stream runs until its process group is killed,
+    so a monitor that joins its reader before containment, or not at all,
+    shows in `trail`: ``stream ended`` after containment, ``stream gave up``
+    when containment never came.
+    """
+
+    def __init__(
+        self, lines: Sequence[str], after: threading.Event, contained: threading.Event, trail: list[str]
+    ) -> None:
+        self.lines = list(lines)
+        self.after = after
+        self.contained = contained
+        self.trail = trail
+        self.closed = False
+
+    def __iter__(self) -> Iterator[str]:
+        """Each line once `after` is set, then the end once `contained` is."""
+        self.after.wait(5)
+        yield from self.lines
+        self.trail.append("stream ended" if self.contained.wait(5) else "stream gave up")
+
+    def close(self) -> None:
+        """Close the stand-in pipe."""
+        self.closed = True
+
+
+class FakeEventStream:
+    """A ``docker events`` stand-in: stdout replays fixed lines; poll() reports `exited`, None while running.
+
+    With `after` set, stdout is a HeldEventPipe and runs until the monitor
+    contains the stream. A `poll_error` is raised by every poll(). `trail`
+    records, in order, what the stream and the monitor around it did, and
+    `stderr` what the runner printed there while the monitor ran.
+    """
+
+    def __init__(
+        self,
+        lines: Sequence[str],
+        exited: int | None = None,
+        *,
+        after: threading.Event | None = None,
+        trail: list[str] | None = None,
+        poll_error: Exception | None = None,
+    ) -> None:
+        self.contained = threading.Event()
+        self.trail = trail if trail is not None else []
+        self.stderr = ""
+        self.stdout: io.StringIO | HeldEventPipe = (
+            io.StringIO("".join(lines))
+            if after is None
+            else HeldEventPipe(lines, after, self.contained, self.trail)
+        )
+        self.pid = 424242
+        self.returncode = exited
+        self.poll_error = poll_error
+
+    def poll(self) -> int | None:
+        """The stand-in's exit status, or None while it is meant to be running."""
+        if self.poll_error is not None:
+            raise self.poll_error
+        return self.returncode
+
+
+def drive_job_cpu_monitor(
+    docker: DockerFixture,
+    ranges: Sequence[str],
+    stream: FakeEventStream,
+    body: Callable[[], None],
+    *,
+    reap_failure: Exception | None = None,
+    read_seconds: float = 0.0,
+) -> tuple[list[tuple[Sequence[str], dict[str, object]]], list[str], JobCpuRanges | None, str]:
+    """Run job_cpu_range_monitor around `body` with a fake stream; (spawns, terminations, record, outcome).
+
+    Reads go to a stand-in daemon that holds each container's
+    cpuset; an inspection takes `read_seconds`. Containment ends the stream, then
+    raises `reap_failure` if one is given, as a leader that cannot be reaped
+    does. The stream's trail gets ``contained``, ``verified`` and, once the
+    monitor has returned or raised, ``monitor exited``. The monitor runs
+    under the runner's own signal handlers, so an interrupted body's outcome
+    is ``exit <128 + signum>``, and the stream keeps what went to stderr.
+    """
+    spawns: list[tuple[Sequence[str], dict[str, object]]] = []
+    terminations: list[str] = []
+    moved: list[JobCpuRanges] = []
+    order = stream.trail
+
+    def popen(command: Sequence[str], **kwargs: object) -> FakeEventStream:
+        """Record the spawn and hand back the fake stream."""
+        spawns.append((command, kwargs))
+        return stream
+
+    def terminate(process: FakeEventStream, *, use_sudo: bool, primary: BaseException) -> None:
+        """Record the containment walk the monitor asks for, end the stream, then fail if planted."""
+        terminations.append(f"{process.pid}:{use_sudo}:{primary}")
+        order.append("contained")
+        process.contained.set()
+        if reap_failure is not None:
+            raise reap_failure
+
+    def run_docker_stand_in(arguments: Sequence[str], **_kwargs: object) -> subprocess.CompletedProcess[str]:
+        """Answer an inspection after `read_seconds` with the container's cpuset."""
+        if list(arguments[:2]) != ["container", "inspect"]:
+            raise AssertionError("CPU audit attempted a Docker mutation")
+        time.sleep(read_seconds)
+        order.append("verified")
+        return docker_completed(arguments, stdout=ranges[0] + "\n")
+
+    def monitored() -> int:
+        """The body inside the monitor, as execute_workflows runs act: in act's boundary's signal window.
+
+        Leaving the monitor, where the Docker boundary's teardown would begin,
+        appends ``pipe open`` and ``reader alive`` if either still is, then
+        ``boundary teardown`` (#730).
+        """
+        try:
+            with job_cpu_range_monitor(
+                docker.boundary,
+                ranges,
+                context=docker.context,
+                seams=ProcessSeams(popen=popen, terminate_group=terminate),
+            ) as record:
+                moved.append(record)
+                held = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+                try:
+                    signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+                    body()
+                finally:
+                    signal.pthread_sigmask(signal.SIG_SETMASK, held)
+        finally:
+            if not stream.stdout.closed:
+                order.append("pipe open")
+            if any(thread.name == "act-ci-cpu-range-monitor" for thread in threading.enumerate()):
+                order.append("reader alive")
+            order.append("boundary teardown")
+        return RC_OK
+
+    outcome = "returned"
+    stderr = io.StringIO()
+    with mock.patch.multiple(
+        sys.modules[__name__], run_docker=run_docker_stand_in, require_tool=fake_host_tool
+    ), contextlib.redirect_stderr(stderr):
+        try:
+            status = run_with_cleanup_signals(monitored)
+            if status != RC_OK:
+                outcome = f"exit {status}"
+        except Exception as exc:
+            outcome = f"raised {exc}"
+        order.append("monitor exited")
+        for thread in threading.enumerate():
+            if thread.name == "act-ci-cpu-range-monitor":
+                thread.join(timeout=10)
+    stream.stderr = stderr.getvalue()
+    return spawns, terminations, (moved[0] if moved else None), outcome
+
+
+def busy_reader_trail(
+    docker: DockerFixture, body_failure: BaseException | None, reap_failure: Exception | None
+) -> tuple[list[str], JobCpuRanges | None, str, FakeEventStream]:
+    """(trail, record, outcome, stream) of a monitor whose reader is still inspecting a container when the body ends.
+
+    The stream's only line comes once the body has ended, and its inspection takes
+    a fifth of a second, so the reader is busy for the whole shutdown. A
+    TerminationRequest body failure is delivered as its real signal, for the
+    runner's handler to raise.
+    """
+    trail: list[str] = []
+    body_done = threading.Event()
+    line = docker_event_line("create", "a" * 64, docker.boundary.token)
+    stream = FakeEventStream([line], after=body_done, trail=trail)
+
+    def body() -> None:
+        """End the body at once, then let the stream speak."""
+        trail.append("body ended")
+        body_done.set()
+        if isinstance(body_failure, TerminationRequest):
+            signal.raise_signal(body_failure.signum)
+        if body_failure is not None:
+            raise body_failure
+
+    _spawns, _terminations, record, outcome = drive_job_cpu_monitor(
+        docker, ("4-7",), stream, body, reap_failure=reap_failure, read_seconds=0.2
+    )
+    return trail, record, outcome, stream
+
+
+def joined_before_exit(trail: Sequence[str]) -> bool:
+    """Whether containment, inspection and stream completion preceded monitor exit."""
+    return (
+        "stream gave up" not in trail
+        and trail[-1:] == ["monitor exited"]
+        and {"contained", "verified", "stream ended"} <= set(trail)
+        and trail.index("contained") < trail.index("stream ended") < trail.index("monitor exited")
+        and trail.index("verified") < trail.index("monitor exited")
+    )
+
+
+def selftest_job_cpu_monitor(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the monitor streams only its own containers' events and is contained and joined on every exit."""
+    check = tally.check
+    token = docker.boundary.token
+    lines = [docker_event_line("create", "a" * 64, token), docker_event_line("update", "a" * 64, token)]
+    stream = FakeEventStream(lines)
+    with mock.patch.object(time, "time", return_value=1_700_000_000.75):
+        spawns, terminations, record, outcome = drive_job_cpu_monitor(
+            docker, ("4-7",), stream, lambda: None
+        )
+    command, kwargs = spawns[0] if spawns else ([], {})
+    tail = list(command[list(command).index("events"):]) if "events" in command else []
+    check(
+        "the monitor streams container events from a second before act, filtered to this "
+        "boundary's owner label and the five actions it reads, in a session of its own",
+        len(spawns) == 1
+        and tail[:3] == ["events", "--since", "1699999999"]
+        and tail[3:] == [
+            "--format", "{{json .}}", "--filter", "type=container",
+            "--filter", f"label={DOCKER_OWNER_LABEL}={token}",
+            *(word for name in JOB_CPU_RANGE_EVENTS for word in ("--filter", f"event={name}")),
+        ]
+        and kwargs.get("start_new_session") is True
+        and kwargs.get("stdout") == subprocess.PIPE,
+    )
+    check(
+        "after its body the monitor walks the stream's group down the containment ladder once, "
+        "joins its reader with every line applied, and closes the pipe",
+        outcome == "returned"
+        and terminations == ["424242:False:the CPU-range monitor is stopping"]
+        and record is not None
+        and record.verified == 1
+        and record.problems == []
+        and stream.stdout.closed,
+    )
+    def fail() -> None:
+        """A body that fails the way an interrupted act boundary does."""
+        raise RuntimeError("act boundary failed")
+
+    _spawns, failed_terminations, _record, failed = drive_job_cpu_monitor(
+        docker, ("4-7",), FakeEventStream(lines), fail
+    )
+    check(
+        "a body that raises still has the stream contained before the exception reaches the "
+        "Docker boundary",
+        failed == "raised act boundary failed" and len(failed_terminations) == 1,
+    )
+    trail: list[str] = []
+    poll_stream = FakeEventStream(
+        lines[:1], after=threading.Event(), trail=trail, poll_error=OSError("wait failed")
+    )
+    poll_stream.stdout.after.set()  # type: ignore[union-attr]
+    _spawns, poll_terminations, polled, poll_outcome = drive_job_cpu_monitor(
+        docker, ("4-7",), poll_stream, lambda: None, read_seconds=0.2
+    )
+    check(
+        "a stream whose poll fails is still contained once, its reader joined and its pipe "
+        "closed, and the failed poll is a problem, not a verdict",
+        poll_outcome == "returned"
+        and len(poll_terminations) == 1
+        and joined_before_exit(trail)
+        and polled is not None
+        and polled.problems == ["cannot tell whether the Docker event stream ended early: wait failed"]
+        and poll_stream.stdout.closed,
+    )
+    _spawns, _terminations, early, _outcome = drive_job_cpu_monitor(
+        docker, ("4-7",), FakeEventStream([], exited=1), lambda: None
+    )
+    check(
+        "an event stream that ended before act is reported as a problem, not a verdict",
+        early is not None
+        and early.problems
+        == [
+            "the Docker event stream ended before act did (exit 1); "
+            "later container placements were not observed"
+        ],
+    )
+    none_spawned, none_terminated, empty, _outcome = drive_job_cpu_monitor(
+        docker, (), FakeEventStream(lines), lambda: None
+    )
+    check(
+        "a run without job ranges starts no monitor and inspects nothing",
+        none_spawned == [] and none_terminated == [] and empty is not None and empty.verified == 0,
+    )
+    selftest_job_cpu_monitor_busy(tally, docker)
+    selftest_job_cpu_monitor_failures(tally, docker)
+    selftest_job_cpu_monitor_shutdown(tally, docker)
+    selftest_job_cpu_monitor_masked(tally, docker)
+
+
+def selftest_job_cpu_monitor_busy(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: a reader still inspecting a container is joined before the monitor exits, however its body ends.
+
+    The first failure wins: a body failure or an interrupt already
+    propagating keeps its outcome, exit status and diagnostic when the
+    cleanup fails as well, and the cleanup failure is printed beside it.
+    """
+    check = tally.check
+    busy, busy_record, busy_outcome, busy_stream = busy_reader_trail(docker, None, None)
+    check(
+        "a reader still inspecting a container when the body returns is joined, its inspection finished "
+        "and the stream ended by containment, before the monitor lets the Docker boundary unwind",
+        busy_outcome == "returned"
+        and joined_before_exit(busy)
+        and busy_record is not None
+        and busy_record.verified == 1
+        and busy_stream.stdout.closed
+        and busy_stream.stderr == "",
+    )
+    reap = Refusal("cannot reap interrupted host process leader")
+    beside = (
+        "act-ci: CPU-range monitor cleanup also failed: Refusal: cannot reap interrupted host "
+        "process leader\n"
+    )
+    reaped, reaped_record, reaped_outcome, reaped_stream = busy_reader_trail(docker, None, reap)
+    check(
+        "a containment whose leader reap fails still has the busy reader joined and the pipe "
+        "closed before the monitor exits, and with no earlier failure the reap failure is what "
+        "it raises",
+        reaped_outcome == "raised cannot reap interrupted host process leader"
+        and joined_before_exit(reaped)
+        and reaped_record is not None
+        and reaped_record.verified == 1
+        and reaped_stream.stdout.closed
+        and reaped_stream.stderr == "",
+    )
+    both, both_record, both_outcome, both_stream = busy_reader_trail(
+        docker, RuntimeError("act boundary failed"), reap
+    )
+    check(
+        "a body that raises and a reap that fails together still join the busy reader first; "
+        "the body's failure is what the monitor raises, and the reap failure is printed beside it",
+        both_outcome == "raised act boundary failed"
+        and joined_before_exit(both)
+        and both_record is not None
+        and both_record.verified == 1
+        and both_stream.stdout.closed
+        and both_stream.stderr == beside,
+    )
+    signalled, _signalled_record, signalled_outcome, signalled_stream = busy_reader_trail(
+        docker, TerminationRequest(signal.SIGTERM), None
+    )
+    check(
+        "a body ended by a termination signal still joins the busy reader before the signal "
+        "reaches the Docker boundary, and the runner exits 143 after cleanup",
+        signalled_outcome == "exit 143"
+        and joined_before_exit(signalled)
+        and signalled_stream.stderr == "act-ci: interrupted by SIGTERM after cleanup\n",
+    )
+    for signum in CLEANUP_SIGNALS:
+        name = signal.Signals(signum).name
+        trail, record, outcome, stream = busy_reader_trail(docker, TerminationRequest(signum), reap)
+        check(
+            f"a {name} that ends the body, then a reap that fails, still joins the busy reader "
+            f"first; the runner exits {128 + signum} with its interrupt diagnostic, and the reap "
+            "failure is printed beside it",
+            outcome == f"exit {128 + signum}"
+            and joined_before_exit(trail)
+            and record is not None
+            and record.verified == 1
+            and stream.stdout.closed
+            and stream.stderr == beside + f"act-ci: interrupted by {name} after cleanup\n",
+        )
+
+
+class FlakyJoinReader:
+    """A reader thread whose first join raises, as a failed join would, though the thread runs on.
+
+    The thread runs until `release` is set, which only a retried join does,
+    so it is still running after the pause that follows the failed join.
+    """
+
+    def __init__(self, thread: threading.Thread, release: threading.Event) -> None:
+        self.thread = thread
+        self.ident = thread.ident
+        self.release = release
+        self.joins = 0
+
+    def join(self, timeout: float | None = None) -> None:
+        """Raise on the first call; release and join the thread on every later one."""
+        self.joins += 1
+        if self.joins == 1:
+            raise RuntimeError("join interrupted")
+        self.release.set()
+        self.thread.join(timeout)
+
+    def is_alive(self) -> bool:
+        """Whether the thread underneath still runs."""
+        return self.thread.is_alive()
+
+
+def held_reader(finished: list[str]) -> tuple[threading.Thread, threading.Event]:
+    """A started stand-in reader that runs until its event is set, then appends ``reader ended`` to `finished`.
+
+    The wait is bounded, so a regression that abandons the reader cannot
+    hang the self-test.
+    """
+    release = threading.Event()
+    thread = threading.Thread(
+        target=lambda: (release.wait(10), finished.append("reader ended")), daemon=True
+    )
+    thread.start()
+    return thread, release
+
+
+def stop_with_flaky_join(
+    docker: DockerFixture, terminate: Callable[..., None], primary: BaseException | None
+) -> tuple[str, list[str], list[str], bool]:
+    """(raised, reader trail when it raised or returned, cleanup lines printed, pipe closed) of a stop.
+
+    stop_job_cpu_range_monitor runs with `terminate` as its containment,
+    `primary` as the failure already propagating, and a reader whose first
+    join fails while it runs on.
+    """
+    finished: list[str] = []
+    worker, release = held_reader(finished)
+    stream = FakeEventStream([])
+    record = JobCpuRanges(docker.boundary, ("4-7",),
+                          lambda *_args: docker_completed([]))
+    stderr = io.StringIO()
+    raised = ""
+    try:
+        with contextlib.redirect_stderr(stderr):
+            stop_job_cpu_range_monitor(
+                stream,  # type: ignore[arg-type]
+                FlakyJoinReader(worker, release),  # type: ignore[arg-type]
+                record,
+                context=docker.context,
+                seams=ProcessSeams(terminate_group=terminate),
+                primary=primary,
+            )
+    except RuntimeError as exc:
+        raised = f"{type(exc).__name__}: {exc}"
+    ended = list(finished)
+    release.set()
+    worker.join()
+    printed = [line for line in stderr.getvalue().splitlines() if "cleanup also failed" in line]
+    return raised, ended, printed, stream.stdout.closed
+
+
+class ReleaseOnHold(io.StringIO):
+    """A stderr stand-in that sets `release` once the containment hold has been printed to it."""
+
+    def __init__(self, release: threading.Event) -> None:
+        super().__init__()
+        self.release = release
+
+    def write(self, text: str) -> int:
+        """Keep `text`; release the held reader once the hold line is in."""
+        written = super().write(text)
+        if "containment hold" in self.getvalue():
+            self.release.set()
+        return written
+
+
+class UnreadablePipe:
+    """An event pipe whose read fails, as a reader crash does."""
+
+    def __iter__(self) -> Iterator[str]:
+        """Fail the read."""
+        raise OSError("read failed")
+
+
+def selftest_job_cpu_monitor_shutdown(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: a failed or overlong join still waits for the reader, the first failure wins, and stop runs masked."""
+    check = tally.check
+
+    def contained(*_args: object, **_kwargs: object) -> None:
+        """A containment that succeeds."""
+
+    def reap_fails(*_args: object, **_kwargs: object) -> None:
+        """A containment whose leader reap fails."""
+        raise Refusal("cannot reap interrupted host process leader")
+
+    reap_line = (
+        "act-ci: CPU-range monitor cleanup also failed: Refusal: cannot reap interrupted host "
+        "process leader"
+    )
+    join_line = "act-ci: CPU-range monitor cleanup also failed: RuntimeError: join interrupted"
+    raised, ended, printed, closed = stop_with_flaky_join(docker, contained, None)
+    check(
+        "a reader join that fails is retried while the reader still runs after the pause, and "
+        "the join failure is raised only once the reader has ended, with the pipe closed",
+        raised == "RuntimeError: join interrupted"
+        and ended == ["reader ended"]
+        and printed == []
+        and closed,
+    )
+    raised, ended, printed, closed = stop_with_flaky_join(docker, reap_fails, None)
+    check(
+        "with no failure already propagating, a reap failure and then a join failure raise the "
+        "first, the reap's, once the reader has ended, and print the join failure beside it",
+        raised == "Refusal: cannot reap interrupted host process leader"
+        and ended == ["reader ended"]
+        and printed == [join_line]
+        and closed,
+    )
+    raised, ended, printed, closed = stop_with_flaky_join(
+        docker, reap_fails, TerminationRequest(signal.SIGTERM)
+    )
+    check(
+        "with an interrupt already propagating, the same reap and join failures leave it to "
+        "propagate once the reader has ended, and both are printed beside it, in order",
+        raised == "" and ended == ["reader ended"] and printed == [reap_line, join_line] and closed,
+    )
+    finished: list[str] = []
+    worker, release = held_reader(finished)
+    record = JobCpuRanges(docker.boundary, ("4-7",),
+                          lambda *_args: docker_completed([]))
+    hold = ReleaseOnHold(release)
+    with mock.patch.multiple(
+        sys.modules[__name__], DOCKER_COMMAND_TIMEOUT=0.05 - 10
+    ), contextlib.redirect_stderr(hold):
+        held = join_job_cpu_reader(worker, record, 424242)
+    alive_at_return = worker.is_alive()
+    release.set()
+    worker.join()
+    check(
+        "a reader still running when its bounded wait (patched to 0.05 s) expires is held for, "
+        "not abandoned: the hold is printed and recorded, and the join returns only once the "
+        "reader has ended",
+        held is None
+        and not alive_at_return
+        and finished == ["reader ended"]
+        and record.problems == ["the CPU-range monitor survived its bounded shutdown"]
+        and hold.getvalue()
+        == "act-ci: containment hold for the CPU-range monitor's reader (event stream process "
+        "group 424242); Docker teardown is paused until it ends\n",
+    )
+    masks: list[bool] = []
+
+    def masked(*_args: object, **_kwargs: object) -> None:
+        """Record whether the cleanup signals are blocked while containment runs."""
+        masks.append(set(CLEANUP_SIGNALS) <= signal.pthread_sigmask(signal.SIG_BLOCK, []))
+
+    previous = signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+    try:
+        stop_job_cpu_range_monitor(
+            FakeEventStream([]),  # type: ignore[arg-type]
+            None,
+            record,
+            context=docker.context,
+            seams=ProcessSeams(terminate_group=masked),
+        )
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+    crashed = JobCpuRanges(docker.boundary, ("4-7",),
+                           lambda *_args: docker_completed([]))
+    unreadable = FakeEventStream([])
+    unreadable.stdout = UnreadablePipe()  # type: ignore[assignment]
+    read_job_cpu_events(unreadable, crashed)  # type: ignore[arg-type]
+    check(
+        "the stream's containment runs with the cleanup signals blocked, and a reader whose read "
+        "fails records the failure as a problem rather than raising it",
+        masks == [True]
+        and crashed.problems == ["the CPU-range monitor stopped reading events: read failed"],
+    )
+
+
+def contained_before_teardown(trail: Sequence[str]) -> bool:
+    """Whether containment, inspection, stream completion and pipe close preceded teardown (#730)."""
+    return (
+        "boundary teardown" in trail
+        and {"contained", "verified", "stream ended"} <= set(trail)
+        and trail.index("contained") < trail.index("stream ended") < trail.index("boundary teardown")
+        and trail.index("verified") < trail.index("boundary teardown")
+        and "pipe open" not in trail
+        and "reader alive" not in trail
+    )
+
+
+class SignalAtStep:
+    """A tracer from the body's last line through the call releasing the monitor's signal mask (#730).
+
+    Once `armed`, it records each line the main thread runs there as
+    ``file:function:line``, and delivers `signum` at step `at`: an index into
+    those lines, or the first line with that label. ``None`` only records.
+    The signal goes to the main thread, or with `process_wide` to the whole
+    process, where any thread that does not block it could take it.
+    """
+
+    def __init__(self, signum: int, at: int | str | None, process_wide: bool = False) -> None:
+        self.signum = signum
+        self.at = at
+        self.process_wide = process_wide
+        self.armed = False
+        self.steps: list[str] = []
+        self.delivered = ""
+
+    def __call__(self, frame: object, event: str, _arg: object) -> SignalAtStep:
+        """Record each line through the native unmask call, including context-manager and join internals."""
+        if not self.armed:
+            return self
+        code = frame.f_code  # type: ignore[attr-defined]
+        if event == "line":
+            lineno = frame.f_lineno  # type: ignore[attr-defined]
+            label = f"{pathlib.Path(code.co_filename).name}:{code.co_name}:{lineno}"
+            self.steps.append(label)
+            if self.at in (len(self.steps) - 1, label):
+                self.at = None
+                self.delivered = label
+                if self.process_wide:
+                    os.kill(os.getpid(), self.signum)
+                else:
+                    signal.raise_signal(self.signum)
+            caller = frame.f_back  # type: ignore[attr-defined]
+            if code.co_name == "pthread_sigmask" and caller is not None and caller.f_code.co_name == "delivered_after":
+                # This line calls the native unmask operation. Later lines
+                # convert its result after the protected section has ended.
+                self.armed = False
+        return self
+
+
+def signal_at_step(
+    docker: DockerFixture,
+    tracer: SignalAtStep,
+    *,
+    body_failure: Exception | None = None,
+    reap_failure: Exception | None = None,
+) -> tuple[list[str], JobCpuRanges | None, str, FakeEventStream, set[int]]:
+    """The trail, record, outcome, stream and cleanup signals left blocked or pending under `tracer` (#730).
+
+    The stream's only line comes once containment has begun, so the reader
+    is still inspecting a container while the monitor joins it, at every step.
+    The body arms the tracer as its last act, then raises `body_failure` if
+    one is given.
+    """
+    trail: list[str] = []
+    stream = FakeEventStream([], trail=trail)
+    line = docker_event_line("create", "a" * 64, docker.boundary.token)
+    stream.stdout = HeldEventPipe([line], stream.contained, stream.contained, trail)
+
+    def body() -> None:
+        """End the body and arm the tracer."""
+        trail.append("body ended")
+        tracer.armed = True
+        if body_failure is not None:
+            raise body_failure
+
+    mask = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    previous = sys.gettrace()
+    sys.settrace(tracer)
+    try:
+        _spawns, _terminations, record, outcome = drive_job_cpu_monitor(
+            docker, ("4-7",), stream, body, reap_failure=reap_failure, read_seconds=0.05
+        )
+    finally:
+        sys.settrace(previous)
+    blocked = set(CLEANUP_SIGNALS) & (signal.pthread_sigmask(signal.SIG_BLOCK, ()) - mask)
+    return trail, record, outcome, stream, blocked | settle_cleanup_signals(mask)
+
+
+def settle_cleanup_signals(mask: Iterable[int]) -> set[int]:
+    """The cleanup signals left pending, which it consumes before it restores `mask` (#730).
+
+    A regression that leaves one held must fail its own arm, not reach a later one.
+    """
+    signal.pthread_sigmask(signal.SIG_BLOCK, CLEANUP_SIGNALS)
+    pending = set(CLEANUP_SIGNALS) & signal.sigpending()
+    while signal.sigtimedwait(CLEANUP_SIGNALS, 0) is not None:
+        pass
+    signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+    return pending
+
+
+def monitor_cleanup_entry() -> str:
+    """The label of the first statement in job_cpu_range_monitor's outer ``finally``: R633-4's delivery point (#730)."""
+    source = pathlib.Path(__file__).read_text(encoding="utf-8")
+    monitor = next(
+        node
+        for node in ast.parse(source).body
+        if isinstance(node, ast.FunctionDef) and node.name == "job_cpu_range_monitor"
+    )
+    outer = next(node for node in monitor.body if isinstance(node, ast.Try) and node.finalbody)
+    return f"{pathlib.Path(__file__).name}:job_cpu_range_monitor:{outer.finalbody[0].lineno}"
+
+
+def selftest_job_cpu_monitor_masked(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: no step from the body's end to the monitor's exit lets a first signal skip its cleanup (#730).
+
+    Each run has a busy reader. It passes when the stream was contained, the
+    inspection finished and the stream ended before the boundary's teardown would
+    begin, with the pipe closed and no reader left, the runner exits
+    128 + the signal with its interrupt diagnostic, and no cleanup signal is
+    left blocked or pending.
+    """
+    check = tally.check
+    entry = monitor_cleanup_entry()
+
+    def conventional(signum: int, run: tuple[list[str], JobCpuRanges | None, str, FakeEventStream, set[int]]) -> bool:
+        """Whether `run` ended as a first `signum` must, whatever step it arrived at."""
+        trail, record, outcome, stream, left = run
+        name = signal.Signals(signum).name
+        return (
+            outcome == f"exit {128 + signum}"
+            and contained_before_teardown(trail)
+            and record is not None
+            and record.verified == 1
+            and stream.stderr == f"act-ci: interrupted by {name} after cleanup\n"
+            and not left
+        )
+
+    for signum in CLEANUP_SIGNALS:
+        name = signal.Signals(signum).name
+        check(
+            f"a first {name} at the monitor's cleanup entry ({entry}, R633-4's point) waits for "
+            f"the containment, the busy reader's join and the pipe close, then exits {128 + signum}",
+            conventional(signum, signal_at_step(docker, SignalAtStep(signum, entry))),
+        )
+    recorder = SignalAtStep(signal.SIGTERM, None)
+    signal_at_step(docker, recorder)
+    steps = recorder.steps
+    missed: list[str] = []
+    for index, step in enumerate(steps):
+        signum = CLEANUP_SIGNALS[index % len(CLEANUP_SIGNALS)]
+        for process_wide in (False, True):
+            tracer = SignalAtStep(signum, index, process_wide)
+            if not conventional(signum, signal_at_step(docker, tracer)) or tracer.delivered != step:
+                missed.append(f"{step} ({signal.Signals(signum).name}, process-wide {process_wide})")
+                break
+        if missed:
+            break
+    for miss in missed:
+        print(f"    missed: {miss}")
+    landmarks = (
+        entry,
+        "contextlib.py:__exit__:",
+        ":stop_job_cpu_range_monitor:",
+        ":join_job_cpu_reader:",
+        ":delivered_after:",
+    )
+    check(
+        f"a first signal at each of the {len(steps)} steps from the body's end through the mask's release, "
+        "sent to the main thread and to the whole process, waits for the containment, the reader's "
+        "join and the pipe close, and exits 128 + the signal; the steps include contextlib's exit, the "
+        "cleanup entry, stop_job_cpu_range_monitor, the reader join and the release",
+        not missed and all(any(mark in step for step in steps) for mark in landmarks),
+    )
+    reap = Refusal("cannot reap interrupted host process leader")
+    trail, record, outcome, stream, left = signal_at_step(
+        docker, SignalAtStep(signal.SIGTERM, entry), reap_failure=reap
+    )
+    check(
+        "a first SIGTERM held at the cleanup entry, then a reap that fails: the busy reader is joined "
+        "first, the runner exits 143 with its interrupt diagnostic, and the reap failure is printed "
+        "beside it, as for a SIGTERM that ends the body",
+        outcome == "exit 143"
+        and contained_before_teardown(trail)
+        and stream.stderr
+        == "act-ci: CPU-range monitor cleanup also failed: Refusal: cannot reap interrupted host process "
+        "leader\nact-ci: interrupted by SIGTERM after cleanup\n"
+        and not left,
+    )
+    trail, record, outcome, stream, left = signal_at_step(
+        docker, SignalAtStep(signal.SIGTERM, entry), body_failure=RuntimeError("act boundary failed")
+    )
+    check(
+        "a body failure, then a first SIGTERM held at the cleanup entry: the busy reader is joined "
+        "first, the body's failure is what the monitor raises, and the signal is printed beside it",
+        outcome == "raised act boundary failed"
+        and contained_before_teardown(trail)
+        and stream.stderr
+        == "act-ci: CPU-range monitor cleanup was interrupted (TerminationRequest: SIGTERM); the "
+        "failure already propagating is kept\n"
+        and not left,
+    )
+
+
+def selftest_job_cpu_monitor_failures(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the monitor's start failures contain what started."""
+    check = tally.check
+    lines = [docker_event_line("create", "a" * 64, docker.boundary.token)]
+
+    def no_popen(*_args: object, **_kwargs: object) -> FakeEventStream:
+        """A stream that cannot start."""
+        raise OSError("no docker")
+
+    with mock.patch.multiple(sys.modules[__name__], require_tool=fake_host_tool):
+        unstarted = refusal_text(
+            lambda: job_cpu_range_monitor(
+                docker.boundary,
+                ("4-7",),
+                context=docker.context,
+                seams=ProcessSeams(popen=no_popen),
+            ).__enter__()
+        )
+    stream = FakeEventStream(lines)
+    terminations: list[str] = []
+
+    def contain(process: FakeEventStream, **_kwargs: object) -> None:
+        """Record the containment walk."""
+        terminations.append(str(process.pid))
+
+    def no_thread(_thread: threading.Thread, description: str) -> None:
+        """A reader thread that cannot start."""
+        raise Refusal(f"cannot start {description}")
+
+    with mock.patch.multiple(
+        sys.modules[__name__], require_tool=fake_host_tool, start_cleanup_thread_or_refuse=no_thread
+    ):
+        threadless = refusal_text(
+            lambda: job_cpu_range_monitor(
+                docker.boundary,
+                ("4-7",),
+                context=docker.context,
+                seams=ProcessSeams(popen=lambda *_args, **_kwargs: stream, terminate_group=contain),
+            ).__enter__()
+        )
+    check(
+        "a stream that cannot start is a Refusal with nothing to contain; a reader that cannot "
+        "start still has the started stream contained and its pipe closed",
+        unstarted == "cannot start the CPU-range monitor: no docker"
+        and threadless == "cannot start CPU-range monitor"
+        and terminations == ["424242"]
+        and stream.stdout.closed,
     )
 
 
@@ -6681,10 +8628,11 @@ def drive_validation_with_actions(
         temporary_docker_boundary=recording_boundary,
         allocate_tcp_port=lambda: 43211,
         execute_act_boundary=act_for_actions,
+        job_cpu_range_monitor=cpu_range_monitor_stand_in([]),
         cleanup_owned_containers=lambda *_args, **_kwargs: 0,
         cleanup_act_job_volumes=lambda *_args, **_kwargs: [],
         materialize_workflow_actions=materialize_with_fake_git,
-    ):
+    ), mock.patch.object(os, "cpu_count", return_value=512):
         try:
             with contextlib.redirect_stdout(io.StringIO()):
                 rc = run_validation(
@@ -6711,7 +8659,7 @@ def selftest_action_launch_order(
         "boundary exists and before the first act launch",
         drive.error is None
         and drive.rc == RC_OK
-        and drive.events == ["materialise", "boundary", "act", "act"],
+        and drive.events == ["materialise", "boundary", "act"],
     )
     check(
         "two workflows sharing two actions produce one clone each, in sorted order",
@@ -9541,6 +11489,11 @@ def selftest_act_version(tally: SelftestTally) -> None:
         parse_act_version("act version 0.2.89") == SUPPORTED_ACT_VERSION,
     )
     require_supported_act_version(SUPPORTED_ACT_VERSION)
+    require_supported_act_build("act version 0.2.89+milan-ci5")
+    tally.refused("the upstream dispatcher cannot claim atomic fail-fast admission",
+                  lambda: require_supported_act_build("act version 0.2.89"))
+    tally.refused("a different scheduling patch cannot satisfy the runtime pin",
+                  lambda: require_supported_act_build("act version 0.2.89+milan-ci1"))
     check("the audited act version is accepted", True)
     refused(
         "an unaudited newer act version is refused",
@@ -10215,16 +12168,18 @@ def selftest_main_entry_probe(tally: SelftestTally, capture_probe_root: pathlib.
     def run_main_entry_probe() -> int:
         """Run production main against a stub gh that reports its PIDs."""
         # This runs in the forked probe child, which os._exit discards, so
-        # the module attribute is patched in place rather than rebound.
+        # the module attribute is patched in place rather than rebound. The
+        # synthetic booking ends at CPU 63, so the host count is patched as
+        # in the other main-path probes; a smaller host would refuse it.
         with mock.patch.object(
             sys.modules[__name__],
             "SAFE_PATH",
             f"{entry_helper_root}:{original_safe_path}",
-        ):
+        ), mock.patch.object(os, "cpu_count", return_value=512):
             os.environ["ACT_CI_PIDFILE"] = str(entry_ready)
             for name in INHERITED_DOCKER_VARIABLES:
                 os.environ.pop(name, None)
-            return main([str(pathlib.Path(__file__)), "--pr", "1"])
+            return main([str(pathlib.Path(__file__)), "--pr", "1", "--cpu-ranges", ",".join(BOOKED_CPU_RANGES.get())])
 
     check(
         "production main contains an interrupted early repository lookup",
@@ -10339,6 +12294,293 @@ def selftest_remote_change(
         "recorded base oid movement is noted without discarding exact-head "
         "evidence",
         execute_with_remote_change(replace(pr, base_sha="5" * 40)) == RC_OK,
+    )
+
+
+def selftest_act_signal_window(
+    tally: SelftestTally, fixture: SelftestFixture, fixture_run: ValidatedRun
+) -> None:
+    """Arms: inside the CPU-range monitor's hold, act's boundary reopens the cleanup signals for act alone (#730)."""
+    check = tally.check
+    seen: list[set[int]] = []
+
+    def act_process(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[object]:
+        """A stand-in act that records the cleanup signals blocked while it runs, then takes a SIGTERM."""
+        seen.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        signal.raise_signal(signal.SIGTERM)
+        seen.append({0})
+        return subprocess.CompletedProcess([], 0)
+
+    def boundary(run_process: Callable[..., subprocess.CompletedProcess[object]]) -> tuple[int, set[int]]:
+        """(the signal that ended it, cleanup signals blocked after) of act's boundary run inside a hold."""
+        raised = 0
+        with cleanup_termination_signals():
+            try:
+                execute_act_boundary(
+                    ["act"],
+                    run=fixture_run,
+                    context=CommandContext(use_sudo=False, cwd=ROOT, env={}),
+                    integrity_check=lambda: None,
+                    seams=SpawnSeams(query=lambda _number, _repository: fixture.pr, run_process=run_process),
+                )
+            except TerminationRequest as exc:
+                raised = exc.signum
+            return raised, set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ())
+
+    previous = signal.pthread_sigmask(signal.SIG_BLOCK, CLEANUP_SIGNALS)
+    try:
+        during = boundary(act_process)
+        returned = boundary(successful_process)
+        signal.raise_signal(signal.SIGHUP)
+        held = boundary(act_process)
+    finally:
+        left = settle_cleanup_signals(previous)
+    check(
+        "inside the CPU-range monitor's hold, act's boundary runs act with INT, TERM and HUP "
+        "unblocked, so a SIGTERM during act raises at once, and the hold is back after the boundary "
+        "raises or returns",
+        seen[:1] == [set()]
+        and during == (signal.SIGTERM, set(CLEANUP_SIGNALS))
+        and returned == (0, set(CLEANUP_SIGNALS)),
+    )
+    check(
+        "a SIGHUP held before act's boundary is delivered as the boundary opens, before act starts, "
+        "and the hold is back after it",
+        held == (signal.SIGHUP, set(CLEANUP_SIGNALS)) and len(seen) == 1 and not left,
+    )
+    for signum, pending in itertools.product(CLEANUP_SIGNALS, (False, True)):
+        passed, evidence = act_interrupt_signal_case(fixture, fixture_run, signum, pending)
+        where = "pending before act" if pending else "during act"
+        check(
+            f"first {signal.Signals(signum).name} {where}, no earlier failure: "
+            f"conventional status and only the interrupt diagnostic, cleanup complete ({evidence})", passed,
+        )
+    selftest_act_closing_signal(tally, fixture, fixture_run)
+
+
+def act_interrupt_signal_case(
+    fixture: SelftestFixture, fixture_run: ValidatedRun, signum: int, pending: bool
+) -> tuple[bool, str]:
+    """Deliver a first signal through the real monitor and boundary; require only its conventional diagnostic (#730)."""
+    trail: list[str] = []
+    stream = FakeEventStream([], trail=trail)
+    stream.stdout = HeldEventPipe([], stream.contained, stream.contained, trail)
+    context = CommandContext(use_sudo=False, cwd=ROOT, env={})
+    started: list[set[int]] = []
+    masks: list[set[int]] = []
+    outcome: BaseException | int | None = None
+    stderr = io.StringIO()
+
+    def act_process(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[object]:
+        """Record the open window and deliver the signal during act without an external process."""
+        started.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        if not pending:
+            signal.raise_signal(signum)
+        trail.append("act returned")
+        return subprocess.CompletedProcess([], 0)
+
+    def contain(*_args: object, **_kwargs: object) -> None:
+        """Record the restored hold and release the real reader during containment."""
+        masks.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        trail.append("contained")
+        stream.contained.set()
+
+    def action() -> int:
+        """Hold the pending signal in the monitor or deliver it during the interruptible act call."""
+        try:
+            with job_cpu_range_monitor(
+                DockerBoundary(token="a" * 32, name="interrupt-signal-probe"), ("4-7",), context=context,
+                seams=ProcessSeams(popen=lambda *_args, **_kwargs: stream, terminate_group=contain),
+            ):
+                if pending:
+                    signal.raise_signal(signum)
+                return execute_act_boundary(
+                    ["act"], run=fixture_run, context=context, integrity_check=lambda: None,
+                    seams=SpawnSeams(query=lambda *_args: fixture.pr, run_process=act_process),
+                )
+        finally:
+            if not stream.stdout.closed:
+                trail.append("pipe open")
+            if any(thread.name == "act-ci-cpu-range-monitor" for thread in threading.enumerate()):
+                trail.append("reader alive")
+            trail.append("outer teardown")
+
+    incoming = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    with mock.patch.object(sys.modules[__name__], "require_tool", fake_host_tool), \
+            contextlib.redirect_stderr(stderr):
+        try:
+            outcome = run_with_cleanup_signals(action)
+        except BaseException as exc:
+            outcome = exc
+        finally:
+            remaining = signal.pthread_sigmask(signal.SIG_BLOCK, ()) != incoming
+            left = settle_cleanup_signals(incoming)
+            stream.contained.set()
+            for thread in threading.enumerate():
+                if thread.name == "act-ci-cpu-range-monitor":
+                    thread.join(timeout=10)
+    diagnostic = stderr.getvalue()
+    name = signal.Signals(signum).name
+    passed = (
+        outcome == 128 + signum and diagnostic == f"act-ci: interrupted by {name} after cleanup\n"
+        and started == ([] if pending else [set()]) and masks == [set(CLEANUP_SIGNALS)]
+        and trail == ["contained", "stream ended", "outer teardown"]
+        and stream.stdout.closed and not remaining and not left
+    )
+    return passed, f"outcome={outcome!r}, started={started!r}, stderr={diagnostic!r}, trail={trail!r}"
+
+
+def act_closing_signal_case(
+    fixture: SelftestFixture,
+    fixture_run: ValidatedRun,
+    signum: int,
+    line: int,
+    earlier: BaseException | None,
+) -> tuple[bool, str]:
+    """Deliver a first signal at one closing restore of the real act boundary; prove precedence and cleanup (#730)."""
+    trail: list[str] = []
+    stream = FakeEventStream([], trail=trail)
+    stream.stdout = HeldEventPipe([], stream.contained, stream.contained, trail)
+    context = CommandContext(use_sudo=False, cwd=ROOT, env={})
+    fired: list[BaseException | None] = []
+    masks: list[set[int]] = []
+    checks: list[None] = []
+    outcome: BaseException | int | None = None
+    stderr = io.StringIO()
+
+    def integrity() -> None:
+        """Fail the closing integrity check, after the stand-in act has run interruptibly."""
+        checks.append(None)
+        if len(checks) == 2 and earlier is not None:
+            raise earlier
+
+    def act_process(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[object]:
+        """Record act's open signal window without starting any external process."""
+        masks.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        return subprocess.CompletedProcess([], 0)
+
+    def contain(*_args: object, **_kwargs: object) -> None:
+        """Record the restored mask at containment and release the reader."""
+        masks.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        trail.append("contained")
+        stream.contained.set()
+
+    def trace(frame: object, event: str, _arg: object) -> object:
+        """Inject before the chosen mask call, while retaining the active exception as evidence."""
+        if (not fired and event == "line"
+                and frame.f_code is execute_act_boundary.__code__  # type: ignore[attr-defined]
+                and frame.f_lineno == line):  # type: ignore[attr-defined]
+            fired.append(sys.exception())
+            signal.raise_signal(signum)
+        return trace
+
+    def action() -> int:
+        """Run the real monitor and act boundary; inspect the obligations at outer teardown."""
+        try:
+            with job_cpu_range_monitor(
+                DockerBoundary(token="a" * 32, name="closing-signal-probe"), ("4-7",), context=context,
+                seams=ProcessSeams(popen=lambda *_args, **_kwargs: stream, terminate_group=contain),
+            ):
+                try:
+                    return execute_act_boundary(
+                        ["act"], run=fixture_run, context=context, integrity_check=integrity,
+                        seams=SpawnSeams(query=lambda *_args: fixture.pr, run_process=act_process),
+                    )
+                finally:
+                    masks.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        finally:
+            if not stream.stdout.closed:
+                trail.append("pipe open")
+            if any(thread.name == "act-ci-cpu-range-monitor" for thread in threading.enumerate()):
+                trail.append("reader alive")
+            trail.append("outer teardown")
+
+    incoming = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    previous = sys.gettrace()
+    with mock.patch.object(sys.modules[__name__], "require_tool", fake_host_tool), \
+            contextlib.redirect_stderr(stderr):
+        try:
+            sys.settrace(trace)
+            outcome = run_with_cleanup_signals(action)
+        except BaseException as exc:
+            outcome = exc
+            if isinstance(exc, Refusal):
+                print(f"act-ci: REFUSED: {exc}", file=sys.stderr)
+        finally:
+            sys.settrace(previous)
+            remaining = signal.pthread_sigmask(signal.SIG_BLOCK, ()) != incoming
+            pending = settle_cleanup_signals(incoming)
+            stream.contained.set()
+            for thread in threading.enumerate():
+                if thread.name == "act-ci-cpu-range-monitor":
+                    thread.join(timeout=10)
+    diagnostic = stderr.getvalue()
+    name = signal.Signals(signum).name
+    precedence = (
+        outcome is earlier and f"TerminationRequest: {name}" in diagnostic
+        and "the failure already propagating is kept" in diagnostic
+        and (not isinstance(earlier, Refusal) or f"REFUSED: {earlier}" in diagnostic)
+    ) if earlier is not None else (
+        outcome == 128 + signum and diagnostic == f"act-ci: interrupted by {name} after cleanup\n"
+    )
+    clean = (
+        fired == [earlier] and masks == [set(), set(CLEANUP_SIGNALS), set(CLEANUP_SIGNALS)]
+        and trail == ["contained", "stream ended", "outer teardown"]
+        and stream.stdout.closed and not remaining and not pending
+    )
+    return clean and precedence, f"outcome={outcome!r}, fired={fired!r}, masks={masks!r}, trail={trail!r}"
+
+
+def selftest_act_closing_signal(
+    tally: SelftestTally, fixture: SelftestFixture, fixture_run: ValidatedRun
+) -> None:
+    """Arms: signals at the real boundary's closing restores preserve its active failure, hold and cleanup (#730)."""
+    source = pathlib.Path(__file__).read_text(encoding="utf-8")
+    boundary = next(node for node in ast.parse(source).body
+                    if isinstance(node, ast.FunctionDef) and node.name == "execute_act_boundary")
+    restores = sorted(node.finalbody[0].lineno for node in ast.walk(boundary)
+                      if isinstance(node, ast.Try) and node.finalbody)
+    for signum, line, failure in itertools.product(
+        CLEANUP_SIGNALS, restores, (None, Refusal("original integrity failure"), RuntimeError("original failure"))
+    ):
+        passed, evidence = act_closing_signal_case(fixture, fixture_run, signum, line, failure)
+        tally.check(
+            f"first {signal.Signals(signum).name} at act closing restore line {line}, "
+            f"earlier {type(failure).__name__}: preserves outcome and completes containment, "
+            f"reader completion and pipe close before teardown ({evidence})", passed,
+        )
+
+
+def selftest_interrupt_probe_signal_window(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: the live interruption probe also opens its signal window inside the CPU monitor's hold, offline (#730)."""
+    monitor = InterruptMonitor(context=docker.context, boundary=docker.boundary)
+    monitor.frozen.set()
+    monitor.launched_process_group = 424242
+    seen: list[set[int]] = []
+
+    def interrupted(*_args: object, **_kwargs: object) -> subprocess.CompletedProcess[object]:
+        """Observe act's signal mask, then deliver the gate's expected SIGINT."""
+        seen.append(set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+        signal.raise_signal(signal.SIGINT)
+        seen.append({0})
+        return subprocess.CompletedProcess([], 0)
+
+    previous = signal.pthread_sigmask(signal.SIG_BLOCK, CLEANUP_SIGNALS)
+    try:
+        with mock.patch.multiple(
+            sys.modules[__name__],
+            run_act_process=interrupted,
+            require_act_job_volumes_absent=lambda *_args, **_kwargs: None,
+            process_group_exists=lambda *_args, **_kwargs: False,
+        ), cleanup_termination_signals():
+            interrupt_live_act(["act"], monitor)
+            after = set(CLEANUP_SIGNALS) & signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    finally:
+        left = settle_cleanup_signals(previous)
+    tally.check(
+        "the live interruption probe unblocks INT, TERM and HUP inside the CPU monitor's hold, "
+        "takes its expected SIGINT immediately, and restores the hold before returning",
+        seen == [set()] and after == set(CLEANUP_SIGNALS) and not left,
     )
 
 
@@ -10597,8 +12839,9 @@ def selftest_submodule_manifest(tally: SelftestTally, git_fixture: GitFixture) -
          "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git"),
         ("gptp-processor", "gptp-processor", "https://github.com/Mister-M-alt/FPGA-gPTP.git"),
         ("third_party/lwSRP", "third_party/lwSRP", "https://github.com/kebag-logic/lwSRP.git"),
+        ("third_party/tsn-c-stack", "third_party/tsn-c-stack", "https://github.com/kebag-logic/tsn-c-stack.git"),
     )
-    check("the trusted manifest includes exactly the five approved entries", TRUSTED_SUBMODULES == manifest)
+    check("the trusted manifest includes exactly the six approved entries", TRUSTED_SUBMODULES == manifest)
     gitmodules_text = "".join(
         f'[submodule "{name}"]\n\tpath = {path}\n\turl = {url}\n'
         for name, path, url in manifest
@@ -10622,12 +12865,14 @@ def selftest_submodule_manifest(tally: SelftestTally, git_fixture: GitFixture) -
     with mock.patch.object(sys.modules[__name__], "capture", return_value="") as fetched:
         initialize_required_submodules(repo, repo.parent)
     check(
-        "materialization fetches all four public pins including lwSRP and excludes external",
+        "materialization fetches all five public pins including lwSRP and tsn-c-stack and excludes external",
         fetched.call_args.args[0]
         == [*git_prefix(), "-C", str(repo), "submodule", "update", "--init", "--",
-            "third_party/verilog-axis", "protocol-processor", "gptp-processor", "third_party/lwSRP"],
+            "third_party/verilog-axis", "protocol-processor", "gptp-processor", "third_party/lwSRP",
+            "third_party/tsn-c-stack"],
     )
     selftest_lwsrp_manifest(tally, git_fixture, gitmodules_text, trusted_gitlinks)
+    selftest_stack_manifest(tally, git_fixture, gitmodules_text, trusted_gitlinks)
 
     hostile_manifest = gitmodules_text.replace(
         "https://github.com/alexforencich/verilog-axis",
@@ -10689,7 +12934,7 @@ def selftest_lwsrp_manifest(
          gitlinks),
         ("redirects lwSRP", manifest.replace("https://github.com/kebag-logic/lwSRP.git",
                                              "https://127.0.0.1:9/attacker/lwSRP.git"), gitlinks),
-        ("drops lwSRP gitlink", manifest, gitlinks[:-1]),
+        ("drops lwSRP gitlink", manifest, tuple(link for link in gitlinks if link != "third_party/lwSRP")),
         ("adds lwSRP gitlink", manifest, (*gitlinks, "third_party/lwSRP-extra")),
     )
     for label, candidate, candidate_links in variants:
@@ -10721,6 +12966,33 @@ def selftest_lwsrp_manifest(
                 label, lambda: validate_submodule_manifest(repo, commit, candidate_links)
             )
         tally.check(f"{label} control catches candidate-controlled trust", planted.failures == 1)
+
+
+def selftest_stack_manifest(
+    tally: SelftestTally, git_fixture: GitFixture, manifest: str, gitlinks: tuple[str, ...]
+) -> None:
+    """Arms: a tsn-c-stack omission, redirection or extra gitlink fails before materialization (#697)."""
+    repo = git_fixture.repo
+    test_git = git_fixture.test_git
+    stanza = ('[submodule "third_party/tsn-c-stack"]\n\tpath = third_party/tsn-c-stack\n'
+              '\turl = https://github.com/kebag-logic/tsn-c-stack.git\n')
+    variants = (
+        ("drops tsn-c-stack", manifest.replace(stanza, ""), gitlinks),
+        ("redirects tsn-c-stack", manifest.replace("https://github.com/kebag-logic/tsn-c-stack.git",
+                                                   "https://127.0.0.1:9/attacker/tsn-c-stack.git"), gitlinks),
+        ("drops tsn-c-stack gitlink", manifest,
+         tuple(link for link in gitlinks if link != "third_party/tsn-c-stack")),
+        ("adds tsn-c-stack gitlink", manifest, (*gitlinks, "third_party/tsn-c-stack-extra")),
+    )
+    for label, candidate, candidate_links in variants:
+        (repo / ".gitmodules").write_text(candidate, encoding="utf-8")
+        test_git("add", ".gitmodules")
+        test_git("commit", "--quiet", "--allow-empty", "-m", label)
+        commit = test_git("rev-parse", "HEAD")
+        tally.refused(
+            f"candidate that {label} is refused before fetch",
+            lambda: validate_submodule_manifest(repo, commit, candidate_links),
+        )
 
 
 def selftest_sandbox_policy(tally: SelftestTally, repo: pathlib.Path) -> None:
@@ -11220,7 +13492,7 @@ def drive_fake_slot(
 
     with mock.patch.object(
         sys.modules[__name__], "require_tool", fake_host_tool
-    ), mock.patch.object(os, "cpu_count", return_value=128):
+    ), mock.patch.object(os, "cpu_count", return_value=512):
         try:
             with contextlib.redirect_stdout(printed):
                 host.verdict = body()
@@ -11264,16 +13536,9 @@ def selftest_slot_selection(tally: SelftestTally) -> None:
         "--slot-root with slot 0 is refused: the default daemon has no slot root",
         lambda: select_slot(0, pathlib.Path("/srv/slots"), use_sudo=True),
     )
-    with mock.patch.object(os, "cpu_count", return_value=8):
-        check(
-            "slot 1 owns CPUs 4-7 on an 8-CPU host",
-            select_slot(1, None, use_sudo=True).number == 1
-            and container_cpuset(1) == "4-7",
-        )
-        refused(
-            "slot 2 on an 8-CPU host is refused: CPUs 8-11 do not exist",
-            lambda: select_slot(2, None, use_sudo=True),
-        )
+    check("slot selection is independent of CPU placement",
+          select_slot(1, None, use_sudo=True).number == 1
+          and select_slot(2, None, use_sudo=True).number == 2)
     slot = ReplaySlot(5, pathlib.Path("/srv/slots"))
     check(
         "an isolated slot derives every host name from its number",
@@ -11306,28 +13571,22 @@ def selftest_slot_selection(tally: SelftestTally) -> None:
             "10.231.5.0/24",
         ),
     )
-    with mock.patch.object(os, "cpu_count", return_value=4 * (SLOT_LIMIT + 1)):
-        names: list[str] = []
-        cpus: list[set[int]] = []
-        for number in range(SLOT_LIMIT + 1):
-            each = ReplaySlot(number)
-            first, last = (int(part) for part in container_cpuset(number).split("-"))
-            cpus.append(set(range(first, last + 1)))
-            if each.isolated:
-                names.extend(
-                    str(value)
-                    for value in (
-                        each.name, each.netns_path, each.runtime_directory,
-                        each.docker_host, each.daemon_unit, each.uplink_unit,
-                        each.uplink_pidfile, each.slice_unit, each.nft_table,
-                        each.lock_path, each.data_root, each.address_pool,
-                    )
-                )
+    names: list[str] = []
+    for number in range(1, SLOT_LIMIT + 1):
+        each = ReplaySlot(number)
+        names.extend(
+            str(value)
+            for value in (
+                each.name, each.netns_path, each.runtime_directory,
+                each.docker_host, each.daemon_unit, each.uplink_unit,
+                each.uplink_pidfile, each.slice_unit, each.nft_table,
+                each.lock_path, each.data_root, each.address_pool,
+            )
+        )
     check(
-        "no two slots share a namespace, unit, socket, slice, table, lock, data-root, "
-        "address pool or CPU, and one slot's names are identical every time",
+        "no two slots share a namespace, unit, socket, slice, table, lock, data-root "
+        "or address pool, and one slot's names are identical every time",
         len(names) == len(set(names)) == 12 * SLOT_LIMIT
-        and sum(len(each) for each in cpus) == len(set().union(*cpus))
         and ReplaySlot(7).lock_path == ReplaySlot(7).lock_path,
     )
 
@@ -11415,11 +13674,12 @@ def main_with_recorded_collaborators(
         validate_bootstrap_options=stop("validate_bootstrap_options"),
         resolve_act_binary=stop("resolve_act_binary"),
         run_docker=stop("run_docker"),
-    ), mock.patch.object(os, "cpu_count", return_value=128), contextlib.redirect_stderr(
+    ), mock.patch.object(os, "cpu_count", return_value=512), contextlib.redirect_stderr(
         stderr
     ), contextlib.redirect_stdout(io.StringIO()):
         try:
-            status = main(["act_ci.py", *argv])
+            status = main(["act_ci.py", *argv, *([] if "--selftest" in argv else
+                           ["--cpu-ranges", ",".join(BOOKED_CPU_RANGES.get())])])
         except SystemExit as exc:
             status = exc.code if isinstance(exc.code, int) else RC_REFUSED
     return (RC_REFUSED if status is None else status), stderr.getvalue(), reached
@@ -11678,7 +13938,7 @@ def selftest_slot_act_command(tally: SelftestTally, docker: DockerFixture) -> No
     """Arms: an isolated slot changes only its job containers' CPUs, and a boundary stays in its own slot."""
     check = tally.check
     refused = tally.refused
-    with mock.patch.object(os, "cpu_count", return_value=128):
+    with mock.patch.object(os, "cpu_count", return_value=512):
         default_command = build_act_command(
             ["act"], "rtl-full", docker.layout, docker.port, docker.boundary
         )
@@ -11687,17 +13947,17 @@ def selftest_slot_act_command(tally: SelftestTally, docker: DockerFixture) -> No
         )
     options = default_command.index("--container-options") + 1
     check(
-        "slot 0's container options are the pre-slot word: label, CPUs 0-3, memory, swap",
+        "container options preserve the label and memory limits",
         default_command[options]
-        == f"--label={DOCKER_OWNER_LABEL}={docker.boundary.token} --cpuset-cpus=0-3 "
+        == f"--label={DOCKER_OWNER_LABEL}={docker.boundary.token} "
         f"--memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}",
     )
     check(
-        "an isolated slot's act command differs from slot 0's only in its own CPUs",
+        "daemon slot numbering cannot change booked creation affinity",
         slot_command[:options] == default_command[:options]
         and slot_command[options + 1 :] == default_command[options + 1 :]
         and slot_command[options]
-        == default_command[options].replace("--cpuset-cpus=0-3", "--cpuset-cpus=8-11"),
+        == default_command[options],
     )
     docker_calls: list[Sequence[str]] = []
 
@@ -11773,7 +14033,7 @@ def selftest_slot_lifecycle(tally: SelftestTally, layout: RunLayout) -> None:
             "firewall-delete": [nft, "delete", "table", "inet", "milan_act_slot_2"],
             "netns-delete": [ip_tool, "netns", "delete", "milan-act-slot-2"],
         }
-        and SLOT_MEMORY_MAX == "24G",
+        and SLOT_MEMORY_MAX == "36G",
     )
     default_host = FakeSlotHost(slot)
     with contextlib.redirect_stdout(io.StringIO()):
@@ -11839,7 +14099,7 @@ def selftest_slot_loaded_firewall(
         outcome == ""
         and routed.rules == slot_firewall_rules(slot, ("enp1s0", "wg0"))
         and 'oifname != { "enp1s0", "wg0" }' in routed.rules
-        and "memory 24G, uplinks enp1s0,wg0\n" in routed.transcript,
+        and "memory 36G, uplinks enp1s0,wg0\n" in routed.transcript,
     )
 
 
@@ -12330,18 +14590,18 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
         "was hit, and reads only the slice's own events, never those of a container's "
         "limit below it",
         outcome == ""
-        and "act-ci: slot 2: memory peak 12.5 GiB of its 24G cap; the cap was hit 3 "
+        and "act-ci: slot 2: memory peak 12.5 GiB of its 36G cap; the cap was hit 3 "
         "time(s), with no OOM at it\n" in host.transcript
         and host.keys[entry : entry + 2] == ["read-memory.events.local", "read-memory.peak"],
     )
     for events, described, named in (
         ("low 0\nmax 9\noom 2\noom_kill 2\n", "a cap that ran out twice",
-         "ran out of its own memory cap (MemoryMax=24G) 2 time(s)"),
+         "ran out of its own memory cap (MemoryMax=36G) 2 time(s)"),
         # The slice runs no process itself, so the kill is counted in the
         # victim's own cgroup below it and the slice's own oom_kill stays 0.
         ("low 0\nhigh 0\nmax 7\noom 1\noom_kill 0\noom_group_kill 0\n",
          "one OOM at its cap and no kill in its own events",
-         "ran out of its own memory cap (MemoryMax=24G) 1 time(s)"),
+         "ran out of its own memory cap (MemoryMax=36G) 1 time(s)"),
         (None, "unreadable events", "cannot prove replay slot 2's memory cap never ran out"),
         ("oom\n", "malformed events", "cannot prove replay slot 2's memory cap never ran out"),
         ("low 0\nmax 0\n", "events without an oom count",
@@ -12367,11 +14627,11 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
     outcome, _entry = drive_fake_slot(host, layout)
     check(
         "an unreadable peak is reported as unrecorded and refuses nothing",
-        outcome == "" and "memory peak unrecorded of its 24G cap" in host.transcript,
+        outcome == "" and "memory peak unrecorded of its 36G cap" in host.transcript,
     )
     host = FakeSlotHost(slot)
     host.memory_events = "low 0\nhigh 0\nmax 5361\noom 0\noom_kill 0\n"
-    host.memory_peak = f"{24 * 2**30}\n"
+    host.memory_peak = f"{36 * 2**30}\n"
     host.body_verdict = RC_FAILED
     outcome, _entry = drive_fake_slot(host, layout)
     check(
@@ -12379,7 +14639,7 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
         "only an OOM is refused, and reports the peak at the cap and how often it was hit",
         outcome == ""
         and host.verdict == RC_FAILED
-        and "act-ci: slot 2: memory peak 24.0 GiB of its 24G cap; the cap was hit 5361 "
+        and "act-ci: slot 2: memory peak 36.0 GiB of its 36G cap; the cap was hit 5361 "
         "time(s), with no OOM at it\n" in host.transcript,
     )
     host = FakeSlotHost(slot)
@@ -12412,9 +14672,10 @@ def selftest_live_gate_slot(tally: SelftestTally) -> None:
         interrupt_selftest=recorded,
         boundary_selftest=recorded,
         run_with_cleanup_signals=lambda action: action(),
-    ), mock.patch.object(os, "cpu_count", return_value=128):
+    ), mock.patch.object(os, "cpu_count", return_value=512):
         status = main(
-            ["act_ci.py", "--interrupt-selftest", "--sudo", "--slot", "2", "--slot-root", "/srv/slots"]
+            ["act_ci.py", "--interrupt-selftest", "--sudo", "--slot", "2", "--slot-root", "/srv/slots",
+             "--cpu-ranges", ",".join(BOOKED_CPU_RANGES.get())]
         )
     check(
         "--interrupt-selftest --slot 2 runs the live gate in slot 2 on its slot root, "
@@ -12467,15 +14728,6 @@ def selftest_slot_guards(tally: SelftestTally, layout: RunLayout) -> None:
             "host command",
             f"{component} must be a real directory" in outcome and host.keys == [],
         )
-    with mock.patch.object(os, "cpu_count", return_value=11):
-        text = refusal_text(lambda: container_cpuset(2))
-    with mock.patch.object(os, "cpu_count", return_value=12):
-        exact = container_cpuset(2)
-    check(
-        "slot 2 needs CPU 11: an 11-CPU host (CPUs 0-10) refuses it, a 12-CPU host "
-        "gives it exactly 8-11",
-        "needs CPUs 8-11, but this host has 11" in text and exact == "8-11",
-    )
     with tempfile.TemporaryDirectory(prefix="act-ci-slot-path-") as raw:
         scratch = pathlib.Path(raw)
         (scratch / "dangling").symlink_to(scratch / "nowhere")
@@ -12528,7 +14780,7 @@ def selftest_slot_validation_path(
         temporary_docker_boundary=recorded_boundary,
         allocate_tcp_port=lambda: 43210,
         require_tool=fake_host_tool,
-    ), mock.patch.object(os, "cpu_count", return_value=128):
+    ), mock.patch.object(os, "cpu_count", return_value=512):
         with contextlib.redirect_stdout(transcript):
             rc = run_validation(
                 resolved,
@@ -12543,8 +14795,77 @@ def selftest_slot_validation_path(
         and events == ["slot-enter-2-2", "boundary-enter-2", "boundary-exit", "slot-exit"]
         and "/usr/bin/nsenter --net=/run/netns/milan-act-slot-2 -- /usr/bin/env -i "
         "DOCKER_HOST=unix:///run/milan-act-slot-2/docker.sock" in transcript.getvalue()
-        and "--cpuset-cpus=8-11" in transcript.getvalue(),
+        and "MILAN_CI_CPU_RANGES=0-15,16-31,32-47,48-63" in transcript.getvalue()
+        and "created directly on reserved CPU ranges: 0-15,16-31,32-47,48-63\n" in transcript.getvalue(),
     )
+
+
+def dry_run_transcript(
+    resolved: ValidatedRun, workflow: str, slot: ReplaySlot, shipping_root: pathlib.Path
+) -> tuple[int | None, str]:
+    """(rc, printed text) of a --dry-run of `workflow` from `shipping_root` in `slot` on a 512-CPU host.
+
+    The real run_validation reads the shipping workflow file. Only GitHub,
+    git, the slot's daemon and the Docker boundary are stood in, so nothing
+    starts, pulls or seeds; an isolated slot runs under --sudo, as it must.
+    """
+
+    def materialize(_run: ValidatedRun, layout: RunLayout) -> pathlib.Path:
+        """Copy the shipping workflow file into the run's checkout."""
+        target = layout.checkout / WORKFLOWS[workflow]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((shipping_root / WORKFLOWS[workflow]).read_bytes())
+        return layout.checkout
+
+    @contextlib.contextmanager
+    def no_daemon(_selected: ReplaySlot, **_kwargs: object) -> Iterator[None]:
+        """Enter the slot without starting its daemon."""
+        yield
+
+    @contextlib.contextmanager
+    def no_boundary(planned: DockerBoundary, **_kwargs: object) -> Iterator[DockerBoundary]:
+        """Yield the planned boundary populated, without creating or seeding anything."""
+        yield replace(
+            planned, network_id="a" * 64, gateway="172.18.0.1",
+            toolcache_owned=True, toolcache_seeded=True,
+        )
+
+    transcript = io.StringIO()
+    rc: int | None = None
+    with mock.patch.multiple(
+        sys.modules[__name__],
+        materialize_remote_head=materialize,
+        validate_checkout=lambda *_args, **_kwargs: None,
+        initialize_required_submodules=lambda *_args, **_kwargs: None,
+        require_live_pull_request=lambda *_args, **_kwargs: None,
+        inspect_docker_boundary=lambda *_args, **_kwargs: None,
+        replay_slot=no_daemon,
+        temporary_docker_boundary=no_boundary,
+        allocate_tcp_port=lambda: 43210,
+        require_tool=fake_host_tool,
+    ), mock.patch.object(os, "cpu_count", return_value=512):
+        with contextlib.redirect_stdout(transcript):
+            try:
+                rc = run_validation(
+                    resolved,
+                    (workflow,),
+                    shipping_root,
+                    launch=LaunchOptions("/trusted/act", slot.isolated, True, slot),
+                )
+            except Refusal as exc:
+                print(f"act-ci: REFUSED: {exc}")
+    return rc, transcript.getvalue()
+
+
+def selftest_dry_run_cpu_ranges(tally: SelftestTally, resolved: ValidatedRun, shipping_root: pathlib.Path) -> None:
+    """Dry runs show manager-booked creation ranges for every daemon slot."""
+    for slot in (ReplaySlot(0), ReplaySlot(3)):
+        rc, printed = dry_run_transcript(resolved, "rtl-full", slot, shipping_root)
+        tally.check(f"slot {slot.number} uses external ranges without staging",
+                    rc == RC_OK and "created directly on reserved CPU ranges:" in printed
+                    and "MILAN_CI_CPU_RANGES=0-15,16-31,32-47,48-63" in printed
+                    and "--cpuset-cpus=" not in printed)
+
 
 
 def selftest_slot_stages(tally: SelftestTally, docker: DockerFixture) -> None:
@@ -12581,7 +14902,11 @@ def selftest_run_directory_stages(
             second = make_layout(second_root, other_pr)
             docker = selftest_docker_fixture(first)
             selftest_act_command(tally, docker)
+            selftest_combined_execution(tally, docker)
             selftest_container_cpu_bound(tally, docker)
+            selftest_job_cpu_ranges(tally)
+            selftest_job_cpu_record(tally, docker)
+            selftest_job_cpu_monitor(tally, docker)
             selftest_container_memory_bound(tally, docker)
             selftest_act_command_refusals(tally, docker)
             selftest_action_materialisation(tally, docker)
@@ -12667,6 +14992,106 @@ def selftest_shipping_workflows(
         )
 
 
+def selftest_combined_execution(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Plant copied-workflow drift and prove scheduler failures reach process-group cleanup."""
+    layout = replace(docker.layout, checkout=docker.layout.temporary / "combined-checkout")
+    layout.checkout.mkdir()
+    write_concurrency_workflow(layout.checkout, "docs", "  check:\n    steps:\n      - run: true\n")
+    write_concurrency_workflow(layout.checkout, "elaborate", "  elaborate:\n    steps:\n      - run: true\n")
+    names = ("docs", "elaborate")
+    selected = workflow_selection(layout, names)
+    verify_workflow_selection(layout, names, selected)
+    tally.check("one scheduler receives both original workflow byte streams", len(list(selected.iterdir())) == 2)
+    target = selected / "docs.yml"
+    original = target.read_bytes()
+    target.chmod(0o600)
+    target.write_bytes(original + b"# changed source\n")
+    tally.refused("changed private workflow bytes are refused",
+                  lambda: verify_workflow_selection(layout, names, selected))
+    target.write_bytes(original)
+    extra = selected / "injected.yml"
+    extra.write_bytes(original)
+    tally.refused("an extra private workflow is refused", lambda: verify_workflow_selection(layout, names, selected))
+    extra.unlink()
+    target.unlink()
+    tally.refused("a missing selected workflow is refused", lambda: verify_workflow_selection(layout, names, selected))
+    target.symlink_to(layout.checkout / WORKFLOWS["docs"])
+    tally.refused("a selected workflow symlink is refused", lambda: verify_workflow_selection(layout, names, selected))
+    target.unlink()
+    target.write_bytes(original)
+    verify_workflow_selection(layout, names, selected)
+    events = ReplayEvents(layout.temporary / "observations.jsonl")
+    row = {"job": "docs/check  ", "jobID": "check", "matrix": {}, "jobResult": "success"}
+    with contextlib.redirect_stdout(io.StringIO()):
+        events.observe(json.dumps({**row, "raw_output": True, "jobResult": "failure"}) + "\n")
+        events.observe(json.dumps(row) + "\n")
+    tally.check("command output cannot forge a scheduler failure",
+                events.first_failure is None and events.outcomes == {"docs/check": "success"})
+    starting = {"job": "elaborate/elaborate", "jobID": "elaborate", "matrix": {},
+                "stepid": ["--setup-job"], "msg": "\u2b50 Run Set up job"}
+    with contextlib.redirect_stdout(io.StringIO()):
+        events.observe(json.dumps({**starting, "raw_output": True}) + "\n")
+        events.observe(json.dumps(starting) + "\n")
+    tally.check("an actual setup start records admission before its first step completes",
+                json.loads(events.path.read_text().splitlines()[-1]).get("jobStarted") is True)
+    failing = {**row, "job": "elaborate/elaborate", "jobResult": "failure"}
+    program = "import json,time; print(" + repr(json.dumps(failing)) + ", flush=True); time.sleep(60)"
+    context = CommandContext(False, layout.invocation, controlled_act_environment(layout))
+    caught = False
+    with contextlib.redirect_stdout(io.StringIO()):
+        try:
+            run_act_process([sys.executable, "-c", program], context=context,
+                            seams=ProcessSeams(observe=events.observe))
+        except JobFailed:
+            caught = True
+    recorded = [json.loads(line) for line in events.path.read_text().splitlines()]
+    tally.check("the first failed job is retained before interrupting and reaping the execution group",
+                caught and events.first_failure == "elaborate/elaborate" and len(recorded) == 3
+                and recorded[-1]["jobResult"] == "failure")
+
+
+def selftest_evidence_boundary(tally: SelftestTally, root: pathlib.Path) -> None:
+    """Refuse reused destinations, candidate destinations, and altered or linked readers."""
+    candidate = root / "evidence-candidate"
+    candidate.mkdir()
+    fresh = root / "durable-evidence"
+    tally.check("durable evidence is a fresh private directory",
+                prepare_evidence_directory(fresh, candidate) == fresh.resolve()
+                and stat.S_IMODE(fresh.stat().st_mode) == 0o700)
+    tally.refused("existing evidence destination refuses",
+                  lambda: prepare_evidence_directory(fresh, candidate))
+    tally.refused("evidence inside the candidate refuses",
+                  lambda: prepare_evidence_directory(candidate / "output", candidate))
+    alias = root / "evidence-candidate-alias"
+    alias.symlink_to(candidate, target_is_directory=True)
+    tally.refused("evidence through a candidate alias refuses",
+                  lambda: prepare_evidence_directory(alias / "output", candidate))
+    source = root / "evidence-helper-source"
+    source.mkdir()
+    helper = source / "reader.py"
+    helper.write_bytes(b"# pinned reader bytes\n")
+    pins = {helper.name: hashlib.sha256(helper.read_bytes()).hexdigest()}
+    installed = root / "evidence-helper-installed"
+    stage_evidence_helpers(source, installed, pins)
+    tally.check("collector staging binds exact read-only bytes",
+                (installed / helper.name).read_bytes() == helper.read_bytes()
+                and stat.S_IMODE((installed / helper.name).stat().st_mode) == 0o444)
+    helper.write_bytes(b"# changed reader bytes\n")
+    tally.refused("changed collector helper refuses before execution",
+                  lambda: stage_evidence_helpers(source, root / "bad-evidence-helper", pins))
+    helper.unlink()
+    helper.symlink_to(installed / helper.name)
+    tally.refused("linked collector helper refuses before execution",
+                  lambda: stage_evidence_helpers(source, root / "linked-evidence-helper", pins))
+
+
+def selftest_configured(shipping_root: pathlib.Path) -> int:
+    """Run offline controls with explicitly booked synthetic CPU ranges."""
+    with mock.patch.object(sys.modules[__name__], "BOOKED_CPU_RANGES",
+                           contextvars.ContextVar("test_cpu_ranges", default=("0-15", "16-31", "32-47", "48-63"))):
+        return selftest(shipping_root)
+
+
 def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     """Run every offline arm; RC_OK when all pass, else RC_FAILED."""
     tally = SelftestTally()
@@ -12679,9 +15104,14 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     selftest_event_payload(tally, fixture, fixture_run, draft_run)
     resolved = selftest_base_resolution(tally, fixture)
     selftest_fetch_window(tally, fixture, resolved)
+    selftest_scope_event(tally, fixture, shipping_root)
+    selftest_scope_history_wiring(tally, shipping_root)
+    selftest_flat_install(tally, shipping_root)
     selftest_validation_transcript(tally, fixture, resolved, shipping_root)
     selftest_slot_validation_path(tally, resolved, shipping_root)
+    selftest_dry_run_cpu_ranges(tally, resolved, shipping_root)
     selftest_workflow_order(tally, resolved, shipping_root)
+    selftest_cpu_range_warnings(tally, resolved, shipping_root)
     selftest_action_launch_order(tally, resolved, shipping_root)
     selftest_trusted_runner(tally, fixture, resolved)
     selftest_wiring_pins(tally)
@@ -12693,6 +15123,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     selftest_selection_and_metadata(tally, fixture)
 
     docker = selftest_run_directory_stages(tally, pr)
+    with tempfile.TemporaryDirectory(prefix="act-ci-evidence-selftest-") as evidence_raw:
+        selftest_evidence_boundary(tally, pathlib.Path(evidence_raw))
 
     inventory = selftest_container_ownership(tally, docker)
     selftest_cancelled_inventory(tally, docker, inventory)
@@ -12713,6 +15145,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         selftest_git_remote_helper_probes(tally, capture_probe_root)
 
     selftest_remote_change(tally, fixture, fixture_run)
+    selftest_act_signal_window(tally, fixture, fixture_run)
+    selftest_interrupt_probe_signal_window(tally, docker)
     selftest_run_directory_rollback(tally)
     selftest_sudo_cleanup_failures(tally)
     selftest_installed_runner(tally, fixture)
@@ -12727,6 +15161,7 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
         selftest_workflow_reader(tally, git_fixture.repo)
 
     selftest_shipping_workflows(tally, shipping_root)
+    selftest_job_concurrency(tally, shipping_root)
 
     failures = tally.failures
     print("selftest:", "PASS" if failures == 0 else f"{failures} FAILURE(S)")
@@ -13348,14 +15783,19 @@ def interrupt_live_act(command: Sequence[str], monitor: InterruptMonitor) -> Non
     use_sudo = monitor.context.use_sudo
     interrupted_signal: int | None = None
     try:
-        require_act_job_volumes_absent(
-            monitor.boundary, context=monitor.context
-        )
-        result = run_act_process(
-            command,
-            context=monitor.context,
-            started=monitor.started,
-        )
+        held = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+        try:
+            signal.pthread_sigmask(signal.SIG_UNBLOCK, CLEANUP_SIGNALS)
+            require_act_job_volumes_absent(
+                monitor.boundary, context=monitor.context
+            )
+            result = run_act_process(
+                command,
+                context=monitor.context,
+                started=monitor.started,
+            )
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, held)
     except (KeyboardInterrupt, TerminationRequest) as exc:
         if (
             isinstance(exc, TerminationRequest)
@@ -13474,8 +15914,18 @@ def run_interrupt_probe(
         )
         command.append("--pull=false")
         monitor = InterruptMonitor(context=context, boundary=boundary)
-        interrupt_live_act(command, monitor)
+        cpu_ranges = job_cpu_ranges(
+            boundary.slot, replay_container_concurrency(layout.checkout, (workflow,))
+        )
+        with job_cpu_range_monitor(boundary, cpu_ranges, context=context) as moved:
+            interrupt_live_act(command, monitor)
         reaped.set()
+        report_job_cpu_ranges(workflow, moved)
+        if cpu_ranges and (moved.verified < 1 or moved.problems):
+            raise Refusal(
+                "interrupt self-test's CPU-range monitor did not verify the live job "
+                "container on its reserved range"
+            )
     require_act_job_volumes_reclaimed(
         monitor.observed_job_volumes,
         job_volume_scope,
@@ -14292,7 +16742,10 @@ def build_argument_parser() -> argparse.ArgumentParser:
         choices=("all", *WORKFLOWS),
         help="workflow alias; repeatable (default: all)",
     )
+    parser.add_argument("--cpu-ranges", help="manager-booked aligned CPU ranges, comma-separated")
     parser.add_argument("--act-bin", default="act", help="trusted act executable")
+    parser.add_argument("--evidence-directory", type=pathlib.Path,
+                        help="new durable directory outside the candidate tree (default: private temporary directory)")
     parser.add_argument(
         "--trusted-install-sha256",
         help=(
@@ -14390,10 +16843,17 @@ def main(argv: Sequence[str]) -> int:
             or args.boundary_selftest
             or args.slot is not None
             or args.slot_root is not None
+            or args.evidence_directory is not None
+            or args.cpu_ranges is not None
         ):
             parser.error("--selftest cannot be combined with PR-run arguments")
         shipping_root = (args.worktree or ROOT).expanduser().resolve()
-        return selftest(shipping_root)
+        return selftest_configured(shipping_root)
+    try:
+        BOOKED_CPU_RANGES.set(parse_cpu_ranges(args.cpu_ranges))
+    except Refusal as exc:
+        print(f"act-ci: REFUSED: {exc}", file=sys.stderr)
+        return RC_REFUSED
     if args.interrupt_selftest or args.boundary_selftest:
         flag = "--boundary-selftest" if args.boundary_selftest else "--interrupt-selftest"
         if (
@@ -14403,6 +16863,7 @@ def main(argv: Sequence[str]) -> int:
             or args.trusted_install_sha256
             or args.repo is not None
             or args.worktree is not None
+            or args.evidence_directory is not None
             or (args.interrupt_selftest and args.boundary_selftest)
         ):
             parser.error(
@@ -14432,7 +16893,9 @@ def main(argv: Sequence[str]) -> int:
             run,
             workflows,
             candidate_worktree,
-            launch=LaunchOptions(act_binary, args.sudo, args.dry_run, slot),
+            launch=LaunchOptions(act_binary, args.sudo, args.dry_run, slot,
+                                 None if args.dry_run else prepare_evidence_directory(
+                                     args.evidence_directory, candidate_worktree)),
         )
 
     try:

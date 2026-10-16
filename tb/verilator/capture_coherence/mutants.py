@@ -90,6 +90,8 @@ Exit 0 = every mutant was caught, every clean build still passes and both
 build checks hold.
 """
 
+import argparse
+import json
 import os
 import signal
 import subprocess
@@ -98,6 +100,7 @@ import tempfile
 import threading
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextvars import ContextVar
 from functools import partial
 from pathlib import Path
 from typing import NamedTuple
@@ -110,6 +113,7 @@ DATAPATH = HERE / "../../../hdl/milan/milan_datapath.sv"
 NCO = HERE / "../../../hdl/ieee1722/crf/KL_media_nco.sv"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+from ci_case_receipts import Receipt, canonical, partition  # noqa: E402
 
 TORN = "[A] AAF columns mixing two TDM frames"
 MISCOUNT = "[C] walks whose repeat or skip the junction counters did not count"
@@ -169,12 +173,12 @@ NCO_EQ = (("    else if (32'(cnt_r) >= end_w) begin", "    else if (32'(cnt_r) =
 #: break, spelled as the harness prints them)
 MUTATIONS = [
     ("junction", "the walk reads the per-pair stage (the ce550952 latest-sample law)",
-     (("                               ? tdm_walk_r[idx_f[TDMPW_C-1:0]] : 48'd0;",
-       "                               ? tdm_stage_r[idx_f[TDMPW_C-1:0]] : 48'd0;"),),
+     (("      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_walk_r[p];",
+       "      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_stage_r[p];"),),
      (TORN, "[W] walks reading two TDM frames")),
     ("junction", "no walk snapshot: the walk reads the frame bank live",
-     (("                               ? tdm_walk_r[idx_f[TDMPW_C-1:0]] : 48'd0;",
-       "                               ? tdm_frame_r[idx_f[TDMPW_C-1:0]] : 48'd0;"),),
+     (("      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_walk_r[p];",
+       "      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_frame_r[p];"),),
      TORN),
     ("junction", "the frame is closed by its first pair",
      (("(32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);",
@@ -272,6 +276,7 @@ LIVE: set[int] = set()
 LIVE_LOCK = threading.Lock()
 STOPPING = threading.Event()
 PRINT_LOCK = threading.Lock()
+OBSERVATIONS: ContextVar[list | None] = ContextVar("case_observations", default=None)
 
 
 def run_child(cmd: list[str], cwd: Path | None = None, env: dict[str, str] | None = None) -> tuple[int, str]:
@@ -351,7 +356,11 @@ def run_harness(leg: str, exe: Path) -> tuple[int, str]:
     leg's processor reads its ROM images by relative name), waited for with no
     host deadline: the harness is cycle-bounded (module docstring)."""
     suite, *_, args = LEGS[leg]
-    return run_child([str(exe), *args], cwd=suite)
+    rc, output = run_child([str(exe), *args], cwd=suite)
+    observed = OBSERVATIONS.get()
+    if observed is not None:
+        observed.append({"leg": leg, "returncode": rc, "output": output})
+    return rc, output
 
 
 def named_checks(breaks: str | tuple[str, ...]) -> tuple[str, ...]:
@@ -529,6 +538,7 @@ def rom_images_result(work: Path) -> Result:
 
 class Unit(NamedTuple):
     """One build and the harness runs graded on it."""
+    name: str
     run: Callable[[], list[Result]]
     datapath: bool  #: a whole-datapath build: the longest, started first
 
@@ -538,34 +548,79 @@ def one(check: Callable[..., Result], *args: object) -> Callable[[], list[Result
     return lambda: [check(*args)]
 
 
-def arm_units(work: Path) -> list[Unit]:
+def standalone(leg: str, work: Path) -> list[Result]:
+    """Run the full default Makefile harness, preserving its status-only gate."""
+    suite, target, _source, directory, _rtl, exe_name, _args = LEGS[leg]
+    mdir = work / ("obj_standalone_" + leg)
+    rc, output = run_child(["make", "-s", "-C", str(suite), target, f"{directory}={mdir}"],
+                           env={**os.environ, "MAKEFLAGS": BUILD_MAKEFLAGS})
+    if rc:
+        return [(False, ["[FAIL] standalone " + leg + " did not compile", output])]
+    rc, output = run_child([str(mdir / exe_name)], cwd=suite)
+    observed = OBSERVATIONS.get()
+    if observed is not None:
+        observed.append({"leg": "standalone/" + leg, "returncode": rc, "output": output})
+    return [(rc == 0, output.splitlines())]
+
+
+def observed_unit(unit: Unit, work: Path) -> tuple[list[Result], str]:
+    """Capture existing harness observations without participating in their grading."""
+    observations = []
+    token = OBSERVATIONS.set(observations)
+    try:
+        results = unit.run()
+    finally:
+        OBSERVATIONS.reset(token)
+    # Temporary source paths in compiler refusals are observation locations,
+    # not checked values. Only this invocation's exact temporary prefix changes.
+    value = canonical({"results": results, "harnesses": observations}).decode()
+    return results, value.replace(str(work), "<case-work>")
+
+
+def arm_units(work: Path, whole_suite: bool = False) -> list[Unit]:
     """Every unit of the arm, in the order their results print: the two build
     checks, each leg's clean control, then every mutant."""
     dp_legs = {leg for leg, (_, target, *_rest) in LEGS.items() if target == "dp-build"}
-    units = [Unit(one(makeflags_result, work), True), Unit(one(build_break_result, work), True)]
-    units += [Unit(partial(control_results, legs, work), legs[0] in dp_legs) for legs in control_groups()]
-    units += [Unit(one(mutant_result, leg, work, name, edits, breaks), leg in dp_legs)
+    units = []
+    if whole_suite:
+        units += [Unit("standalone/junction", partial(standalone, "junction", work), False),
+                  Unit("standalone/dp", partial(standalone, "dp", work), True)]
+    units += [Unit("build/makeflags", one(makeflags_result, work), True),
+              Unit("build/refusal", one(build_break_result, work), True)]
+    units += [Unit("control/" + "+".join(legs), partial(control_results, legs, work),
+                   legs[0] in dp_legs) for legs in control_groups()]
+    units += [Unit("mutant/" + leg + "/" + name,
+                   one(mutant_result, leg, work, name, edits, breaks), leg in dp_legs)
               for leg, name, edits, breaks in MUTATIONS]
     return units
 
 
-def run_units(units: list[Unit], jobs: int) -> list[bool]:
+def run_units(units: list[Unit], jobs: int, receipt: Receipt | None = None,
+              work: Path | None = None) -> list[bool]:
     """Run the units on `jobs` workers, the datapath's first; print each
     unit's lines in list order as soon as every unit before it has finished,
     and return the checks' verdicts in that order."""
     print(f"[i]  {len(units)} builds on {jobs} worker(s), one per CPU this process may use; "
           f"the datapath builds start first", flush=True)
     start = sorted(range(len(units)), key=lambda i: not units[i].datapath)
-    finished: dict[int, list[Result]] = {}
+    finished = {}
     verdicts: list[bool] = []
     shown = 0
     pool = ThreadPoolExecutor(max_workers=jobs)
     try:
-        futures = {pool.submit(units[i].run): i for i in start}
+        def execute(unit: Unit) -> tuple[list[Result], str]:
+            """Default execution keeps its original result; receipts observe it only."""
+            return observed_unit(unit, work) if receipt is not None else (unit.run(), "")
+        futures = {pool.submit(execute, units[i]): i for i in start}
         for future in as_completed(futures):
             finished[futures[future]] = future.result()
             while shown in finished:
-                for passed, lines in finished.pop(shown):
+                results, output = finished.pop(shown)
+                if receipt is not None:
+                    passed = all(result[0] for result in results)
+                    receipt.record(units[shown].name, "pass" if passed else "failed",
+                                   0 if passed else 1, output)
+                for passed, lines in results:
                     emit(lines)
                     verdicts.append(passed)
                 shown += 1
@@ -577,6 +632,22 @@ def run_units(units: list[Unit], jobs: int) -> list[bool]:
 def main() -> int:
     """Run the build checks, each leg's positive control and every mutant, in
     parallel; 1 if any of them failed."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--list", action="store_true")
+    parser.add_argument("--whole-suite", action="store_true")
+    parser.add_argument("--shard")
+    parser.add_argument("--receipt", type=Path)
+    parser.add_argument("--jobs", type=int, choices=range(1, 5))
+    args = parser.parse_args()
+    names = [unit.name for unit in arm_units(Path("."), args.whole_suite)]
+    if args.list:
+        print(json.dumps(names))
+        return 0
+    try:
+        selected = partition(names, args.shard)
+        receipt = Receipt(HERE.parents[2], "capture_coherence", names, args.shard, args.receipt)
+    except (ValueError, OSError) as exc:
+        parser.error(str(exc))
     for sig in (signal.SIGTERM, signal.SIGINT):
         signal.signal(sig, stop)
     with tempfile.TemporaryDirectory(prefix="capture-coherence-mutants-") as td:
@@ -584,9 +655,11 @@ def main() -> int:
         if not made:
             emit(lines)
             return 1
-        verdicts = run_units(arm_units(Path(td)), len(os.sched_getaffinity(0)))
+        units = [unit for unit in arm_units(Path(td), args.whole_suite) if unit.name in selected]
+        verdicts = run_units(units, args.jobs or len(os.sched_getaffinity(0)), receipt, Path(td))
     passes = sum(verdicts)
     print(f"\n{len(verdicts)} checks: {passes} PASS, {len(verdicts) - passes} FAIL", flush=True)
+    receipt.finish()
     return 0 if passes == len(verdicts) else 1
 
 

@@ -36,6 +36,8 @@ Usage: python3 mclk_mutants.py   (run from tb/verilator/milan_dp_mclk)
 Exit 0 = the clean legs pass and every mutant was caught.
 """
 
+import argparse
+import json
 import os
 import subprocess
 import sys
@@ -49,6 +51,7 @@ RTL = HERE / "../../../hdl"
 CLEAN_EXE = HERE / "obj_mclk/Vmilan_dp_mclk"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+from ci_case_receipts import Receipt, partition  # noqa: E402
 
 #: the three files the schemata plant into: (path, the Makefile override)
 SOURCES = {
@@ -213,9 +216,11 @@ def build(copies: dict[str, Path], mdir: Path) -> Path | None:
     return exe
 
 
-def run_leg(exe: Path, mode: str, mid: int) -> tuple[int, str]:
+def run_leg(exe: Path, mode: str, mid: int, observe: bool = False) -> tuple[int, str]:
     """(rc, output) of one run, waited for with no host deadline."""
     args = [str(exe), f"--{mode}", f"+MCLK_MUT={mid}"]
+    if observe:
+        args.append("+MCLK_CHECK_VALUES=1")
     proc = subprocess.run(args, cwd=str(HERE), capture_output=True, text=True,
                           check=False)
     return proc.returncode, proc.stdout + proc.stderr
@@ -243,8 +248,38 @@ def jobs() -> int:
     return max(1, int(raw)) if raw.isdigit() else 4
 
 
+def run_inventory() -> list[tuple[str, str, int]]:
+    """The default run's cases, shared by execution and receipt verification."""
+    modes = sorted({m.mode for m in MUTANTS})
+    short = [("control", mode, 0) for mode in modes]
+    short += [("mutant", m.mode, m.mid) for m in MUTANTS]
+    short.sort(key=lambda r: -MODE_SECONDS.get(r[1], 0.1))
+    return [("leg", leg, 0) for leg in ("a", "c", "b")] + short
+
+
+def case_id(run: tuple[str, str, int]) -> str:
+    """A stable identity including the mutant selector, not only its mode."""
+    return "/".join(map(str, run))
+
+
 def main() -> int:
     """Run the clean legs, the schemata's controls and every mutant."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--list", action="store_true", help="print the complete case inventory as JSON")
+    parser.add_argument("--shard", help="zero-based INDEX/TOTAL; omitted runs every case")
+    parser.add_argument("--receipt", type=Path, help="record outcomes and all printed check values")
+    args = parser.parse_args()
+    inventory = run_inventory()
+    names = [case_id(run) for run in inventory]
+    if args.list:
+        print(json.dumps(names))
+        return 0
+    try:
+        selected = partition(names, args.shard)
+    except ValueError as exc:
+        parser.error(str(exc))
+    runs = [run for run in inventory if case_id(run) in selected]
+    receipt = Receipt(HERE.parents[2], "milan_dp_mclk", names, args.shard, args.receipt)
     passes = 0
     fails = 0
     if not CLEAN_EXE.is_file():
@@ -260,15 +295,14 @@ def main() -> int:
         if exe is None:
             print("[FAIL] the schemata did not compile; no mutant proves anything")
             return 1
-        modes = sorted({m.mode for m in MUTANTS})
-        short = [("control", exe, mode, 0) for mode in modes]
-        short += [("mutant", exe, m.mode, m.mid) for m in MUTANTS]
-        short.sort(key=lambda r: -MODE_SECONDS.get(r[2], 0.1))
-        runs = [("leg", CLEAN_EXE, leg, 0) for leg in ("a", "c", "b")] + short
         with ThreadPoolExecutor(max_workers=jobs()) as pool:
-            results = list(pool.map(lambda r: run_leg(r[1], r[2], r[3]), runs))
+            results = list(pool.map(lambda r: run_leg(CLEAN_EXE if r[0] == "leg" else exe,
+                                                     r[1], r[2], args.receipt is not None), runs))
     by_mid = {m.mid: m for m in MUTANTS}
-    for (kind, _, mode, mid), (rc, out) in zip(runs, results):
+    for run, (rc, out) in zip(runs, results):
+        kind, mode, mid = run
+        answer = verdict(rc, out, by_mid[mid].breaks if kind == "mutant" else None)
+        receipt.record(case_id(run), answer, rc, out)
         if kind == "leg":
             print(f"======== the clean leg {mode.upper()} ========")
             sys.stdout.write(out)
@@ -289,6 +323,7 @@ def main() -> int:
                   f"({m.name}, --{mode}): {answer}; breaks \"{m.breaks}\"")
         passes, fails = (passes + 1, fails) if ok else (passes, fails + 1)
     print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL")
+    receipt.finish()
     return 1 if fails else 0
 
 

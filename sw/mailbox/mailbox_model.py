@@ -5,8 +5,9 @@
 One reading for every output. ``load()`` turns the YAML into a ``Contract``
 and refuses a contract that could not be built (an overlapping field, a ring
 that is not a power of two, a channel two EtherType rules both claim, a
-match tuple naming a VLAN tag's TPID, message types with no subtype, or a
-bound-talker table that spills its block).
+match tuple naming a VLAN tag's TPID, message types with no subtype, a
+bound-talker table that spills its block, or a publication block that spills
+its interface stride or runs into a ring).
 ``constants()`` flattens it into the one named list every emitter writes, so
 the SystemVerilog package, the C header and the reference page carry the same
 names with the same values, and ``gen_mailbox.py --selftest`` can compare the
@@ -25,7 +26,8 @@ import yaml
 CONTRACT = Path(__file__).resolve().parent / "mailbox.yaml"
 
 #: Every register, interface register and channel register lives below this
-#: byte offset; the event ring and the channel rings live at or above it.
+#: byte offset; the event ring and the channel rings live at or above it, and
+#: so does the publication block, which no ring may overlap.
 REGISTER_SPACE_BYTES = 0x400
 
 #: A frame field a filter term reads is eight bytes long (an entity_id, or a
@@ -143,6 +145,14 @@ class Contract:
     bnd_stride: int
     bnd_entry_stride: int
     bnd_registers: tuple[Register, ...]
+    pub_sources: int
+    pub_sinks: int
+    pub_base: int
+    pub_stride: int
+    pub_sink_base: int
+    pub_sink_stride: int
+    pub_registers: tuple[Register, ...]
+    pub_sink_registers: tuple[Register, ...]
     ch_base: int
     ch_stride: int
     ch_registers: tuple[Register, ...]
@@ -395,6 +405,32 @@ def _check_blocks(contract: Contract) -> None:
                 globals_at.add(at)
 
 
+def _check_publication(contract: Contract) -> None:
+    """The publication block: its sizes, its interface registers before its sink
+    entries, the entries inside the interface stride, and the whole block inside
+    the window above the register space, clear of every ring."""
+    if not 1 <= contract.pub_sources <= 32 or not 1 <= contract.pub_sinks <= 32:
+        raise ContractError(f"publication sources {contract.pub_sources} and sinks {contract.pub_sinks} are not 1..32")
+    if any(r.offset >= contract.pub_sink_base for r in contract.pub_registers):
+        raise ContractError(f"publication registers run into the sink entries at {contract.pub_sink_base:#x}")
+    if any(r.offset >= contract.pub_sink_stride for r in contract.pub_sink_registers):
+        raise ContractError(f"publication sink registers spill out of their {contract.pub_sink_stride:#x} entry")
+    if contract.pub_sink_base + contract.pub_sinks * contract.pub_sink_stride > contract.pub_stride:
+        raise ContractError(f"{contract.pub_sinks} publication sink entries spill out of their "
+                            f"{contract.pub_stride:#x} interface stride")
+    start = contract.pub_base
+    end = contract.pub_base + contract.interfaces * contract.pub_stride
+    if start % 4 or start < REGISTER_SPACE_BYTES or end > contract.window_bytes:
+        raise ContractError(f"the publication block {start:#x}..{end:#x} is not inside the window above the "
+                            f"register space")
+    spans = [(contract.evt_base, contract.evt_words, "event ring")]
+    for ch in contract.channels:
+        spans += [(ch.rx_base, ch.rx_words, f"{ch.name} rx"), (ch.tx_base, ch.tx_words, f"{ch.name} tx")]
+    for base, words, label in spans:
+        if base < end and start < base + 4 * words:
+            raise ContractError(f"the publication block {start:#x}..{end:#x} overlaps the {label}")
+
+
 def _records(raw: dict[str, Any]) -> dict[str, Any]:
     """The three record layouts."""
     rx = _need(raw, "rx_frame", "records")
@@ -421,6 +457,10 @@ def load(path: Path = CONTRACT) -> Contract:
     ifr = _need(raw, "interface_registers", "contract")
     iffr = _need(raw, "interface_filter_registers", "contract")
     bndr = _need(raw, "interface_bound_registers", "contract")
+    pub = _need(raw, "publication", "contract")
+    pubr = _need(raw, "interface_publication_registers", "contract")
+    pub_sink_base = int(_need(pubr, "sink_base", "interface_publication_registers"))
+    pub_sink_stride = int(_need(pubr, "sink_stride", "interface_publication_registers"))
     chr_ = _need(raw, "channel_registers", "contract")
     contract = Contract(
         major=int(raw["version"]["major"]), minor=int(raw["version"]["minor"]),
@@ -439,6 +479,14 @@ def load(path: Path = CONTRACT) -> Contract:
         bnd_entry_stride=int(_need(bndr, "entry_stride", "interface_bound_registers")),
         bnd_registers=_registers(_need(bndr, "registers", "interface_bound_registers"), "interface_bound_registers",
                                  REGISTER_SPACE_BYTES),
+        pub_sources=int(_need(pub, "sources", "publication")), pub_sinks=int(_need(pub, "sinks", "publication")),
+        pub_base=int(_need(pubr, "base", "interface_publication_registers")),
+        pub_stride=int(_need(pubr, "stride", "interface_publication_registers")),
+        pub_sink_base=pub_sink_base, pub_sink_stride=pub_sink_stride,
+        pub_registers=_registers(_need(pubr, "registers", "interface_publication_registers"),
+                                 "interface_publication_registers", REGISTER_SPACE_BYTES),
+        pub_sink_registers=_registers(_need(pubr, "sink_registers", "interface_publication_registers"),
+                                      "interface_publication_registers.sink_registers", REGISTER_SPACE_BYTES),
         ch_base=int(chr_["base"]), ch_stride=int(chr_["stride"]),
         ch_registers=_registers(chr_["registers"], "channel_registers", REGISTER_SPACE_BYTES),
         evt_base=int(raw["event_ring"]["base"]), evt_words=int(raw["event_ring"]["words"]),
@@ -490,6 +538,7 @@ def _check_contract(contract: Contract) -> None:
     _check_rings(contract)
     _check_channels(contract)
     _check_blocks(contract)
+    _check_publication(contract)
 
 
 def _field_constants(prefix: str, fields: tuple[Field, ...], doc: str) -> list[Constant]:
@@ -522,6 +571,16 @@ def _register_constants(contract: Contract) -> list[Constant]:
     out.append(Constant("BND_ENTRY_STRIDE", contract.bnd_entry_stride, "bytes per bound-talker entry", True))
     for reg in contract.bnd_registers:
         out.append(Constant(f"BND_REG_{reg.name}", reg.offset, reg.doc, True))
+        out += _field_constants(reg.name, reg.fields, reg.name)
+    out.append(Constant("PUB_BASE", contract.pub_base, "first interface's publication block", True))
+    out.append(Constant("PUB_STRIDE", contract.pub_stride, "bytes per interface's publication block", True))
+    for reg in contract.pub_registers:
+        out.append(Constant(f"PUB_REG_{reg.name}", reg.offset, reg.doc, True))
+        out += _field_constants(reg.name, reg.fields, reg.name)
+    out.append(Constant("PUB_SINK_BASE", contract.pub_sink_base, "first sink entry inside a publication block", True))
+    out.append(Constant("PUB_SINK_STRIDE", contract.pub_sink_stride, "bytes per publication sink entry", True))
+    for reg in contract.pub_sink_registers:
+        out.append(Constant(f"PUB_SINK_REG_{reg.name}", reg.offset, reg.doc, True))
         out += _field_constants(reg.name, reg.fields, reg.name)
     out.append(Constant("CH_BASE", contract.ch_base, "first channel register block", True))
     out.append(Constant("CH_STRIDE", contract.ch_stride, "bytes per channel block", True))
@@ -598,6 +657,10 @@ def constants(contract: Contract) -> list[Constant]:
            Constant("N_IF", contract.interfaces, "interfaces", False),
            Constant("N_TIMERS", contract.timers, "timer slots", False),
            Constant("N_BOUND", contract.bound_talkers, "bound-talker entries per interface (listener streams)", False),
+           Constant("N_PUB_SOURCES", contract.pub_sources, "publication sources per interface (talker streams)",
+                    False),
+           Constant("N_PUB_SINKS", contract.pub_sinks, "publication sink entries per interface (listener streams)",
+                    False),
            Constant("TICK_MS", contract.tick_ms, "NOW_MS milliseconds per TICK (one centisecond)", False),
            Constant("N_CH", len(contract.channels), "channels", False),
            Constant("INDEX_BITS", contract.index_bits, "ring counter width", False),

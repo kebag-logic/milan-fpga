@@ -69,7 +69,7 @@ struct Fabric {
     unsigned bytes = 0;
     unsigned cycles = 0;
     Fabric() {
-        model->station_mac_i = kMac; model->count_i = 8;
+        model->station_mac_i = kMac; model->count_i = 8; model->realtime_ns_i = 0;
         model->seed_offset_i = 0x100; model->seed_valid_i = 1;
         model->enable_i = 0; model->rx_tvalid_i = 0; model->rx_tready_i = 1;
         model->m_axis_tready = 1; model->rst_n = 0; step(6); model->rst_n = 1; step(3);
@@ -174,6 +174,8 @@ TEST(MaapDifferential, ProbeTimingAndCount) {
     unsigned parent_maximum = 0;
     for (unsigned phase = 0; phase < 1024; ++phase) {
         Fabric sampled;
+        // First enable samples the programmed identity (M4, #696).
+        sampled.model->station_mac_i = kMac + phase;
         sampled.step(phase); sampled.begin(); sampled.frames_until(4);
         for (unsigned k = 1; k < 4; ++k) {
             auto cycles = sampled.frame_cycles[k] - sampled.frame_cycles[k - 1];
@@ -184,12 +186,12 @@ TEST(MaapDifferential, ProbeTimingAndCount) {
             parent_maximum = std::max(parent_maximum, cycles);
         }
     }
-    std::printf("  parent PROBE intervals over 1024 phases: %u..%u cycles\n",
+    std::printf("  parent PROBE intervals over 1024 MAC/phase pairs: %u..%u cycles\n",
                 parent_minimum, parent_maximum);
     EXPECT_LE(parent_minimum, (kParentProbeMinMs + 2u) * 10u)
-        << "phase sampling reaches the parent's lowest draws";
+        << "MAC/phase sampling reaches the parent's lowest draws";
     EXPECT_GE(parent_maximum, (kParentProbeMaxMs - 2u) * 10u)
-        << "phase sampling reaches the parent's highest draws";
+        << "MAC/phase sampling reaches the parent's highest draws";
     // Reach both firmware draw boundaries through the real timer port.
     unsigned minimum = 1000;
     unsigned maximum = 0;
