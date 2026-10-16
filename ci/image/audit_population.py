@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Trace every reached docs-check and rtl-fast step in the image, with networking disabled.
+"""Trace every reached docs, rtl-fast and elaboration step in the image, with networking disabled.
 
-The reached step set is every `run` step of the docs workflow's `docs-check` job
-and of every job of the rtl-fast workflow: the steps the inventory walks. Each runs
+The reached step set is every `run` step of the docs workflow's gate legs and their
+union job, of every job of the rtl-fast workflow, and of the elaboration legs and
+their union job: the steps the inventory walks. The run-orchestration jobs call the
+GitHub API by design; the reconciliation names their steps, untraced. Each runs
 as the hosted runner runs a step: `bash -e` on the step text, in its working
 directory, with the workflow, job and step environment, the runner context, and
 the job's earlier GITHUB_PATH and GITHUB_ENV additions. Every job starts from a
-clean checkout with a fresh home and temporary directory.
+clean checkout with a fresh home and temporary directory. The steps and needs
+contexts hold each traced step's outcome and outputs, and a job's uploaded
+artifacts are what a later job of the same workflow downloads.
 
 A step the image replaces runs in its image form, recorded in the receipt:
 installation and fetch lines that the image or the checkout supplies are removed,
@@ -23,6 +27,8 @@ the source and image identity, and the reconciliation of traced and reached step
 from __future__ import annotations
 
 import argparse
+import fnmatch
+import glob
 import hashlib
 import json
 import os
@@ -40,10 +46,18 @@ import exec_audit
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-WORKFLOWS = (('.github/workflows/docs.yml', ('docs-check',)), ('.github/workflows/rtl-fast.yml', None))
+WORKFLOWS = (('.github/workflows/docs.yml', ('docs-gates-0', 'docs-gates-1', 'docs-gates-2', 'docs-check')),
+             ('.github/workflows/rtl-fast.yml', None),
+             ('.github/workflows/elaborate.yml', ('elaborate-gates-0', 'elaborate-gates-1', 'elaborate')))
+#: Jobs that observe, collect and cancel workflow runs through the GitHub API: never traced offline.
+ORCHESTRATION = ('ci-manifest', 'ci-fail-fast', 'ci-cancel-tail')
+ORCHESTRATED = 'Run orchestration through the GitHub API, which needs the network by design'
 #: Logical lines whose work the image or the checkout already supplies.
 REMOVED = ('python3 -m pip install ', 'sudo apt-get update', 'sudo apt-get install ',
+           'sudo apt-get -o Dir::Cache::archives=', 'python3 scripts/ci_install_cache.py ',
            'sudo ln -sf /opt/yosys/bin/yosys ')
+#: Whole lines the documented adoption replaces (docs/testing/CI_IMAGE.md, "CI and act adoption").
+ADOPTED = {'python3 scripts/ci_litex_env.py': 'python3 scripts/ci_litex_env.py --check'}
 #: The documented RV32 adoption form (docs/testing/CI_IMAGE.md, "CI and act adoption").
 RV32 = ('set -euo pipefail\npython3 scripts/ci_rv32_sdk_selftest.py\n'
         'python3 scripts/ci_rv32_sdk.py --verify-only --destination /opt/rv32-sdk\n'
@@ -59,6 +73,9 @@ REPLACED = {
     'Install behave': ("behave is in the image's Python layer", 'behave --version\n'),
     'Install the pinned sv2v release': ("The checked sv2v is the image's sv2v layer", 'sv2v --version\n'),
     'Install and verify the pinned RV32 SDK': ('The documented RV32 adoption form', RV32),
+    'Install sbt': ("The checked sbt is the image's sbt layer", 'sbt --script-version\n'),
+    'Put a job-private Python environment on PATH': ("The image's Python layer is the job's Python environment",
+                                                     "python3 -c 'import litex, migen, yaml'\n"),
     'Build Verilator from source on cache miss': ("The image's Verilator layer replaces the cache and build", None),
     'Build Yosys from source on cache miss': ("The image's Yosys layer replaces the cache and build", None),
 }
@@ -90,12 +107,16 @@ def image_form(name: str, run: str) -> tuple[str | None, str, list[str]]:
     if fetch:
         return (f'git submodule status {fetch[1]}\n', 'The checkout supplies these submodules before the job',
                 [run])
-    kept, removed = [], []
+    kept, removed, adopted = [], [], False
     for group in logical(run):
         # Only a top-level line is removed; an indented fallback keeps its block, which the image never takes.
-        (removed if group[0].startswith(REMOVED) else kept).append('\n'.join(group))
-    if removed:
-        return '\n'.join(kept) + '\n', "Installation the image's layers supply is removed", removed
+        line = '\n'.join(group)
+        if line in ADOPTED:
+            line, adopted = ADOPTED[line], True
+        (removed if group[0].startswith(REMOVED) else kept).append(line)
+    if removed or adopted:
+        reason = "Installation the image's layers supply is removed" if removed else 'The documented adoption form'
+        return '\n'.join(kept) + '\n', reason, removed
     return run, 'verbatim', []
 
 
@@ -106,6 +127,8 @@ def context(expression: str, values: dict[str, str]) -> str:
         return values[expression]
     if expression.startswith('needs.') and expression.endswith('.result'):
         return 'success'
+    if re.fullmatch(r'steps\.[\w-]+\.outputs\.[\w-]+', expression):
+        return ''  # An output its step never wrote reads as empty, as on the runner.
     raise ValueError(f'unresolved runner expression {expression!r}')
 
 
@@ -148,21 +171,63 @@ def reset(root: Path) -> None:
 
 
 def reached_steps(root: Path) -> list[dict[str, object]]:
-    """Every run step of the reached jobs, in workflow order."""
+    """Every step of the reached and orchestration jobs, in workflow order; only `run` steps are reached."""
     steps = []
     for workflow, jobs in WORKFLOWS:
         document = yaml.safe_load((root / workflow).read_text())
         for job, body in document['jobs'].items():
-            if jobs is not None and job not in jobs:
+            if jobs is not None and job not in jobs and job not in ORCHESTRATION:
                 continue
             for index, step in enumerate(body.get('steps', [])):
-                if 'run' in step:
-                    steps.append({'workflow': workflow, 'job': job, 'index': index,
-                                  'name': step.get('name', str(index)), 'run': step['run'],
-                                  'env': {**document.get('env', {}), **body.get('env', {}), **step.get('env', {})},
-                                  'working-directory': step.get('working-directory', '.'),
-                                  'if': step.get('if')})
+                steps.append({'workflow': workflow, 'job': job, 'index': index, 'id': step.get('id'),
+                              'name': step.get('name', step.get('uses', str(index))), 'run': step.get('run'),
+                              'uses': step.get('uses'), 'with': step.get('with', {}),
+                              'env': {**document.get('env', {}), **body.get('env', {}), **step.get('env', {})},
+                              'working-directory': step.get('working-directory', '.'),
+                              'if': step.get('if'), 'orchestration': job in ORCHESTRATION,
+                              'needs': body.get('needs', []), 'outputs': body.get('outputs', {})})
     return steps
+
+
+def artifact_files(paths: str, values: dict[str, str]) -> tuple[Path | None, list[Path]]:
+    """What actions/upload-artifact@v4 uploads: every matched file, relative to their common directory."""
+    files = []
+    for line in str(paths).splitlines():
+        if line.strip():
+            pattern = substitute(line.strip(), values)
+            matched = sorted(glob.glob(pattern)) if glob.has_magic(pattern) else [pattern]
+            files += [Path(name) for name in matched if Path(name).is_file()]
+    if not files:
+        return None, []
+    base = files[0].parent
+    while not all(f.is_relative_to(base) for f in files):
+        base = base.parent
+    return base, files
+
+
+def transfer(step: dict, values: dict[str, str], store: dict[str, dict[str, bytes]]) -> dict:
+    """Upload a job's files to, or download them from, the workflow run's artifact store."""
+    options = {key: substitute(value, values) if key != 'path' else value for key, value in step['with'].items()}
+    if step['uses'].startswith('actions/upload-artifact@'):
+        base, files = artifact_files(options['path'], values)
+        if not files and options.get('if-no-files-found', 'warn') == 'error':
+            return {'artifact': options['name'], 'uploaded': [], 'outcome': 'failure'}
+        store[options['name']] = {f.relative_to(base).as_posix(): f.read_bytes() for f in files}
+        return {'artifact': options['name'], 'outcome': 'success',
+                'uploaded': {name: hashlib.sha256(data).hexdigest() for name, data in store[options['name']].items()}}
+    target = Path(substitute(options.get('path', '.'), values))
+    if 'name' in options:
+        names, nested = [options['name']], False
+    else:
+        names, nested = sorted(n for n in store if fnmatch.fnmatchcase(n, options.get('pattern', '*'))), True
+    if options.get('merge-multiple') not in (None, 'false') or not names or any(n not in store for n in names):
+        return {'artifact': options.get('name', options.get('pattern')), 'downloaded': names, 'outcome': 'failure'}
+    for name in names:
+        for relative, data in store[name].items():
+            destination = (target / name if nested else target) / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(data)
+    return {'artifact': options.get('name', options.get('pattern')), 'downloaded': names, 'outcome': 'success'}
 
 
 def git(root: Path, *args: str) -> str:
@@ -244,6 +309,11 @@ def untripled(value: object) -> object:
     return value
 
 
+def untraced() -> set[str]:
+    """The reasons a reached step may stay untraced: the image replaces it, or it orchestrates the run."""
+    return {reason for reason, _ in REPLACED.values()} | {ORCHESTRATED}
+
+
 def merge(parts: list[Path], output: Path, listed: list[Path], logs: list[Path]) -> int:
     """Combine receipts traced as different users at one source and image into one receipt."""
     receipts = [json.loads(part.read_text()) for part in parts]
@@ -265,11 +335,12 @@ def merge(parts: list[Path], output: Path, listed: list[Path], logs: list[Path])
     merged = {**first, 'users': [r.get('user') for r in receipts], 'reconciliation': reconciliation,
               'steps': steps, 'traced': sum(row['traced'] for row in reconciliation)}
     merged.pop('user', None)
-    replaced = {reason for reason, _ in REPLACED.values()}
+    merged['artifacts'] = [moved for receipt in receipts for moved in receipt['artifacts']]
     merged['commands'] = commands(listed, logs, steps, first['source']['checkout'])
     merged['clean'] = all(step['clean'] for step in steps) and \
-        all(row['traced'] or row['why'] in replaced for row in reconciliation) and \
-        all(row['instances'] for row in merged['commands'])
+        all(row['traced'] or row['why'] in untraced() for row in reconciliation) and \
+        all(row['instances'] for row in merged['commands']) and \
+        all(moved['outcome'] == 'success' for moved in merged['artifacts'])
     output.write_text(json.dumps(untripled(merged), indent=1, sort_keys=True) + '\n')
     print(f"{merged['traced']} of {merged['reached']} reached steps traced; "
           f"{sum(not s['clean'] for s in steps)} with findings; "
@@ -300,6 +371,50 @@ def main() -> int:
     return trace_population(args)
 
 
+def run_step(step: dict, text: str, environment: dict[str, str], audit: tuple,
+             log: Path) -> tuple[dict, dict[str, Path]]:
+    """Run one step's image form under the audit, with fresh runner file-command files."""
+    commands = Path(tempfile.mkdtemp(dir=environment['RUNNER_TEMP'], prefix='step-'))
+    files = {name: commands / name.lower() for name in
+             ('GITHUB_PATH', 'GITHUB_ENV', 'GITHUB_OUTPUT', 'GITHUB_STEP_SUMMARY')}
+    for path in files.values():
+        path.touch()
+    script = commands / 'step.sh'
+    script.write_text(text)
+    entry = {'job': step['job'], 'label': step['name'], 'argv': ['bash', '-e', str(script)],
+             'working-directory': step['working-directory'], 'text': text}
+    names, root, origin = audit
+    environment = {**environment, **{name: str(path) for name, path in files.items()}}
+    return exec_audit.audit_step(entry, names, root, environment, log, origin), files
+
+
+def job_values(step: dict, jobs: dict[tuple[str, str], dict], values: dict[str, str]) -> dict[str, str]:
+    """The runner values a job starts with: its matrix, and the result and outputs of each job it needs."""
+    needs = [step['needs']] if isinstance(step['needs'], str) else list(step['needs'])
+    if any((step['workflow'], need) not in jobs for need in needs):
+        raise ValueError(f"{step['job']} needs a job this run did not trace: {needs}")
+    needed = {need: jobs[(step['workflow'], need)] for need in needs}
+    return {**values, 'toJSON(matrix)': 'null', 'strategy.job-index': '0',
+            'toJSON(needs)': json.dumps(needed, indent=2),
+            **{f'needs.{n}.result': r['result'] for n, r in needed.items()},
+            **{f'needs.{n}.outputs.{k}': v for n, r in needed.items() for k, v in r['outputs'].items()}}
+
+
+def record_step(contexts: dict, values: dict[str, str], identifier: str | None, outcome: str,
+                outputs: dict[str, str]) -> None:
+    """The steps context a later step reads: each identified step's outcome and outputs."""
+    contexts['ok'] = contexts['ok'] and outcome == 'success'
+    if identifier:
+        contexts['steps'][identifier] = {'outputs': outputs, 'outcome': outcome, 'conclusion': outcome}
+        values.update({f'steps.{identifier}.outputs.{name}': value for name, value in outputs.items()})
+
+
+def finished(contexts: dict, values: dict[str, str]) -> dict:
+    """The needs context a later job reads: this job's result and its declared outputs."""
+    return {'result': 'success' if contexts['ok'] else 'failure',
+            'outputs': {name: substitute(value, values) for name, value in contexts['outputs'].items()}}
+
+
 def trace_population(args: argparse.Namespace) -> int:
     """Trace every selected reached step in order and write the receipt."""
     root = args.root.resolve()
@@ -315,81 +430,102 @@ def trace_population(args: argparse.Namespace) -> int:
     inherited = {key: value for key, value in os.environ.items()
                  if key not in ('TMPDIR', 'PYTHONDONTWRITEBYTECODE', 'HOSTNAME', 'HOME', 'PATH')}
     args.logs.mkdir(parents=True, exist_ok=True)
-    reached = reached_steps(root)
-    receipt_steps, reconciliation = [], []
+    every = reached_steps(root)
+    reached = [step for step in every if step['run'] is not None]
+    receipt_steps, reconciliation, artifacts = [], [], []
     job, origin = None, None
+    stores: dict[str, dict[str, dict[str, bytes]]] = {}
+    jobs: dict[tuple[str, str], dict] = {}
     # Each job starts from the image as built: the image's own files are snapshotted once, before any job.
     image = exec_audit.Image(exec_audit.SYSTEM_ROOTS)
-    for number, step in enumerate(reached):
+    number = -1
+    for step in every:
         key = f"{step['workflow']}#{step['job']}#{step['index']}"
-        text, reason, removed = image_form(step['name'], step['run'])
-        row = {'step': key, 'name': step['name'], 'image_form': reason,
-               'removed': removed, 'text_sha256': hashlib.sha256((text or '').encode()).hexdigest()}
-        if args.only and step['job'] not in args.only:
-            reconciliation.append({**row, 'traced': False, 'why': 'not selected in this run'})
+        selected = not args.only or step['job'] in args.only
+        if step['run'] is not None:
+            number += 1
+            text, reason, removed = image_form(step['name'], step['run'])
+            row = {'step': key, 'name': step['name'], 'image_form': reason,
+                   'removed': removed, 'text_sha256': hashlib.sha256((text or '').encode()).hexdigest()}
+            if step['orchestration']:
+                reconciliation.append({**row, 'traced': False, 'why': ORCHESTRATED})
+                continue
+            if not selected:
+                reconciliation.append({**row, 'traced': False, 'why': 'not selected in this run'})
+                continue
+        elif step['orchestration'] or not selected:
             continue
-        if text is None:
-            reconciliation.append({**row, 'traced': False, 'why': reason})
-            continue
-        if step['job'] != job:
-            job = step['job']
-            if origin is not None:
+        if (step['workflow'], step['job']) != job:
+            if job is not None:
+                jobs[job] = finished(contexts, step_values)
                 origin.close()
+            job = (step['workflow'], step['job'])
             reset(root)
-            scratch = Path(tempfile.mkdtemp(prefix=f'job-{job}-'))
+            scratch = Path(tempfile.mkdtemp(prefix=f"job-{step['job']}-"))
             home, temp = scratch / 'user', scratch / 'temp'
             home.mkdir()
             temp.mkdir()
-            job_path, job_env = [], {}
+            job_path, job_env, contexts = [], {}, {'steps': {}, 'ok': True, 'outputs': step['outputs']}
             origin = exec_audit.Origin(root, names, scratch=(str(scratch),), image=image)
-        commands = Path(tempfile.mkdtemp(dir=temp, prefix='step-'))
-        files = {name: commands / name.lower() for name in
-                 ('GITHUB_PATH', 'GITHUB_ENV', 'GITHUB_OUTPUT', 'GITHUB_STEP_SUMMARY')}
-        for path in files.values():
-            path.touch()
-        script = commands / 'step.sh'
-        script.write_text(text)
+            step_values = job_values(step, jobs, {**values, 'github.workspace': str(root), 'runner.temp': str(temp)})
+        step_values['toJSON(steps)'] = json.dumps(contexts['steps'], indent=2)
+        step_values['job.status'] = 'success' if contexts['ok'] else 'failure'
+        if step['run'] is None:
+            outcome, outputs = 'success', {}
+            if step['uses'] and step['uses'].startswith(('actions/upload-artifact@', 'actions/download-artifact@')):
+                moved = transfer(step, step_values, stores.setdefault(step['workflow'], {}))
+                artifacts.append({'step': key, **moved})
+                outcome = moved['outcome']
+            record_step(contexts, step_values, step['id'], outcome, outputs)
+            continue
+        if text is None:
+            reconciliation.append({**row, 'traced': False, 'why': reason})
+            record_step(contexts, step_values, step['id'], 'success', {})
+            continue
         environment = {**inherited, 'PATH': ':'.join([*reversed(job_path), base_path]), 'HOME': str(home),
-                       'CI': 'true',
-                       'GITHUB_ACTIONS': 'true', 'GITHUB_WORKSPACE': str(root), 'GITHUB_SHA': head,
+                       'CI': 'true', 'GITHUB_ACTIONS': 'true', 'GITHUB_WORKSPACE': str(root), 'GITHUB_SHA': head,
                        'GITHUB_EVENT_NAME': 'push', 'RUNNER_TEMP': str(temp),
                        'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8', **job_env,
-                       **{name: str(path) for name, path in files.items()},
-                       **{name: substitute(value, values) for name, value in step['env'].items()}}
-        entry = {'job': step['job'], 'label': step['name'], 'argv': ['bash', '-e', str(script)],
-                 'working-directory': step['working-directory'], 'text': text}
-        result = exec_audit.audit_step(entry, names, root, environment, args.logs / f'step-{number:03d}.jsonl',
-                                       origin)
+                       **{name: substitute(value, step_values) for name, value in step['env'].items()}}
+        result, files = run_step(step, text, environment, (names, root, origin),
+                                 args.logs / f'step-{number:03d}.jsonl')
         result.update({'step': key, 'image_form': reason, 'text_sha256': row['text_sha256'],
                        'log': f'step-{number:03d}.jsonl'})
         receipt_steps.append(result)
         reconciliation.append({**row, 'traced': True, 'why': reason})
         job_path += [line for line in file_commands(files['GITHUB_PATH']) if line]
         job_env.update(environment_file(file_commands(files['GITHUB_ENV'])))
-        for line in file_commands(files['GITHUB_OUTPUT']):
-            if '=' in line and step['job'] == 'changes':
-                values[f"needs.changes.outputs.{line.split('=', 1)[0]}"] = line.split('=', 1)[1]
+        record_step(contexts, step_values, step['id'], 'success' if result['exit_status'] == 0 else 'failure',
+                    environment_file(file_commands(files['GITHUB_OUTPUT'])))
         print(f"{'CLEAN' if result['clean'] else 'FINDINGS'}: {key} {step['name']} "
               f"(exit {result['exit_status']}, {result['instances']} execs)", flush=True)
     if origin is not None:
         origin.close()
     reset(root)
+    return write_receipt(args, root, len(reached), (reconciliation, receipt_steps, artifacts))
+
+
+def write_receipt(args: argparse.Namespace, root: Path, reached: int, rows: tuple[list, list, list]) -> int:
+    """Write the receipt: source and image identity, each step's result, and the reconciliation."""
+    reconciliation, receipt_steps, artifacts = rows
     traced = {row['step'] for row in reconciliation if row['traced']}
     receipt = {
         'schema': 1,
-        'source': {'commit': head, 'tree': git(root, 'rev-parse', 'HEAD^{tree}'), 'base': args.base,
-                   'checkout': str(root),
+        'source': {'commit': git(root, 'rev-parse', 'HEAD'), 'tree': git(root, 'rev-parse', 'HEAD^{tree}'),
+                   'base': args.base, 'checkout': str(root),
                    'submodules': git(root, 'submodule', 'status').splitlines()},
         'image': args.image, 'user': os.getuid(),
         'tools': {'python3': sys.version.split()[0]},
-        'reached': len(reached), 'traced': len(traced),
+        'reached': reached, 'traced': len(traced),
         'reconciliation': reconciliation,
         'steps': receipt_steps,
+        'artifacts': artifacts,
         'clean': all(step['clean'] for step in receipt_steps) and
-        all(row['traced'] or row['why'] in [r for r, _ in REPLACED.values()] for row in reconciliation),
+        all(row['traced'] or row['why'] in untraced() for row in reconciliation) and
+        all(moved['outcome'] == 'success' for moved in artifacts),
     }
     args.output.write_text(json.dumps(receipt, indent=1, sort_keys=True) + '\n')
-    print(f"{len(traced)} of {len(reached)} reached steps traced; "
+    print(f"{len(traced)} of {reached} reached steps traced; "
           f"{sum(not s['clean'] for s in receipt_steps)} with findings")
     return 0 if receipt['clean'] else 1
 
