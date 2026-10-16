@@ -460,7 +460,7 @@ A checkout path is masked the same way below the part the checkout held as the j
 That part names a file the job wrote, such as a mutant written under a random name.
 Every other byte is exact.
 An inline or streamed entry keeps that masked text, or its exact difference from the tracked script it varies.
-The lists hold 103 inline or streamed programs and 450 generated programs.
+The lists hold 108 inline or streamed programs and 461 generated programs.
 Each generated entry names the tracked test that writes it: mutants, stand-ins, drivers and staged copies.
 The image's own `dash` file loads no executable code beyond itself.
 A program that file runs is judged by the execs it makes.
