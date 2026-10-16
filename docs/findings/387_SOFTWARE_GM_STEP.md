@@ -389,7 +389,7 @@ Everything above this section is the dated record of dev `13eda870`.
 
 Against the 2026-09-29 run on dev `13eda870`, the 2.0 s asCapable loss after
 every step is gone. So are the second and third `tu` episodes and the
-GPTP_GM_CHANGED count of 3 per edge.
+GPTP_GM_CHANGED rise of 3 at nine of the ten edges.
 
 ### B19: stimulus and setup
 
@@ -397,6 +397,7 @@ GPTP_GM_CHANGED count of 3 per edge.
 - **Each run.** A never-grandmaster port (`gmCapable 0`) aligned the host's hardware clock with the switch for 40 s; it converged to at most 7 ns in every run. Then that clock was advanced by 10 ms, 100 times the 100 us locked step threshold. A grandmaster instance with priority1 240 against the switch's 246 announced for 50 s, and then stopped; the switch timed it out and became grandmaster again.
 - **Streams.** The as-found bindings ran throughout. The DUT's CRF Stream Output 1 fed the peer's CRF Stream Input 8, locked, and that input is the peer's selected clock source. Both music AAF streams ran too: the DUT's Stream Input 0 from the peer, and the peer's Stream Input 0 from the DUT. The DUT stayed on INTERNAL.
 - **Deviation from lane B1.** Lane B1 also bound the peer's CRF output to the DUT and selected it as the DUT's clock source. Here the peer already follows the DUT's CRF, so that binding with that selection would close a media-clock loop, and it was not made. The DUT's CRF servo therefore stayed IDLE (`MCSRV_STAT` state 0, no discards); the assignment's grades do not include it.
+- **Servo observable.** So #387 item 4's `A_MCSRV_STAT` observable was not exercised on `9ef71772`: the servo stayed IDLE because the DUT ran on INTERNAL. Lane B1 last saw it LOCKED through steps on dev `13eda870`, before PR #707.
 - **Controller host.** Found, 04:10:25 UTC: no gPTP daemon, hardware timestamping off (tx 0, rx 0), clock frequency offset 0 ppb, CLOCK_REALTIME 20.150 s ahead of the clock. Restored, 04:30:10 UTC: the same state, the clock back on its found trajectory within 4.5 us; the build and every script removed.
 
 ### B19: method and grades

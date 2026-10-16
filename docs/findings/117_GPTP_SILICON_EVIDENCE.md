@@ -819,7 +819,7 @@ bench hosts; intervals come from the tap clock.*
 | | reference peer's own recovery time | NOT RUN: the peer's own link was not captured |
 | 3. Publication words and `tu` are fabric-owned | steady state against the wire | PASS: every word agrees with the wire and the controller view over 300 s |
 | | transition, six losses and returns | PASS under the [stated time base](#b19-method), for every admissible read-to-PHC offset (10.9 to 19.7 ms) and placement error. For the 24 graded CSR edges the wire cause or receipt timeout lies between the last read that showed the old value and the first read that showed the new one. In cycles 1 to 3 the first `tu=1` CRF PDU lies in the interval where `CLKV_STAT[0]` rose. Eleven of these 27 lie within 25 ms of a boundary, the closest by 0.66 ms; see [box 3](#box-3-publication-words-against-the-wire) |
-| 4. Protocol rows | la_avdecc counters probe, parity with the reference peer | PASS: identical transcripts, both CLEAN with 0 complaints |
+| 4. Protocol rows | la_avdecc counters probe, parity with the reference peer | PASS: identical result lines, the target-identity line apart, both CLEAN with 0 complaints |
 | | FRAMES_TX and FRAMES_RX per AVTPDU (#726, PR #729) | PASS: FRAMES_TX equals the CRF PDUs on the wire, and every talker and listener pair counts at the stream's packet rate |
 | | headless la_avdecc enumeration, three runs | PASS: `IEEE17221` and `MILAN` every run, 0 complaints and 0 query errors for the DUT |
 | | behave against hardware, latency (#64, #213), audio continuity | NOT RUN: outside this lane, owner items |
@@ -1020,7 +1020,7 @@ store more than 7 bytes larger would breach it. The other 26 edges hold by
 | Check | Result |
 |---|---|
 | la_avdecc counters probe, DUT (04:27:04 UTC) | CLEAN, rc 0, complaints 0: ENTITY refused NOT_SUPPORTED; Stream Input 0 SUCCESS, `counters_valid` `0x00000FFF`; Stream Input 999 NO_SUCH_DESCRIPTOR; AVB_INTERFACE 0 SUCCESS `0x00000023`; CLOCK_DOMAIN 0 SUCCESS `0x00000003` |
-| The same probe, reference peer | the same transcript line for line: PASS by parity |
+| The same probe, reference peer | identical result lines; the target-identity line differs: PASS by parity |
 | FRAMES_TX per AVTPDU, 299 s (retention window) | the DUT's CRF output counted 149,514 against 149,499 CRF PDUs on the wire, the 15-PDU difference inside the window edges' 0.1 s uncertainty. The peer's CRF Stream Input 8 counted 149,513 FRAMES_RX between its first and last of 300 polls |
 | Packet rates per AVTPDU | DUT AAF talker 7,999.89/s and peer AAF listener 7,999.89/s; peer AAF talker 7,999.89/s and DUT AAF listener 7,999.11/s; DUT CRF talker 500.00/s and peer CRF listener 499.99/s |
 | Headless enumeration, three fresh processes (04:27:08 to 04:27:55 UTC) | `IEEE17221` and `MILAN` every run, no compatibility-change event, Milan protocol version 1 and specification 1.2.0.0; 0 query errors, AECP retries, timeouts and unexpected responses; enumeration 165, 199 and 184 ms; the same 42 descriptors (CLOCK_SOURCE 3, AUDIO_CLUSTER 25) and static tree in all three |
