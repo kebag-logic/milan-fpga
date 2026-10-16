@@ -60,6 +60,7 @@ bound is #75's 1 s.
 - **[Limits](#limits)** -- What this run does not show.
 - **[Artifact hashes](#artifact-hashes)** -- Where the three packets are published, and the raw capture and tool identities.
 - **[2026-10-16: bench lane B21 on dev 9ef71772](#2026-10-16-bench-lane-b21-on-dev-9ef71772)** -- The capture-path self-test on the current image, why both directions stopped, where lane B5's losses now stand, and the hashes.
+- **[2026-10-16: bench lane B21 round 2 on dev 9ef71772](#2026-10-16-bench-lane-b21-round-2-on-dev-9ef71772)** -- Why the resumed round stopped at the identity gate, what it read and touched, and what it needs to go on.
 
 ## Identity and setup
 
@@ -774,3 +775,66 @@ The `st-long2` record needs uint32, because one read interval reached
 | `b5_attrib.py` | lane B5's definitions, imported unchanged | `f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40` |
 | `b5_round3.py` | carried from the evidence archive at `9006c78e`; not run, because it grades content | `415ef1b0e7d26cb821235fe22c81b23a42035afb73b4baef3cf24bd08099ac4d` |
 | `run_a.py` | lane B5's run tool, whose reader `selftest_b21.py` copies | `dcc616aea7842b8b1a574d2e9ba2647e71f344d95ee4473ae2c369802e686ad6` |
+
+## 2026-10-16: bench lane B21 round 2 on dev 9ef71772
+
+Refs #117. Operator [A625], 2026-10-16 from 14:02 UTC, resuming
+[bench lane B21](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-6208207821)
+after its [STOP](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-6208887896).
+The resume terms are these. The SoC board's console stands at a root prompt.
+Direction B's capture is the McASP on the SoC board, and the external capture
+is a cross-check only. Step 1 is redone as a self-test of that McASP capture
+path. The image is dev `9ef71772`, as installed. It was not flashed, reset or
+power-cycled.
+
+The round STOPPED at the identity gate, because the controller host could not
+be reached. Nothing after the gate ran.
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| Identity gate | FAIL: incomplete; the 3 console checks PASS, the 8 ATDECC checks not read | See [B21 round 2: identity gate](#b21-round-2-identity-gate). |
+| Step 1, McASP capture-path self-test | NOT RUN, STOP | The gate did not pass. |
+| Step 2, Direction A | NOT RUN, STOP | The gate did not pass. The binding rule's format reads and the peer's counters also go through the controller host. |
+| Step 3, Direction B | NOT RUN, STOP | The same. |
+| #117 audio continuity row | Not graded on this image; not passed | Lane B5's figures remain the latest graded ones. |
+
+These are operator measurements, not review verdicts.
+
+### B21 round 2: identity gate
+
+The round 1 method ran under the bench lock from 14:04:33 to 14:04:43 UTC.
+
+| Check | Result |
+|---|---|
+| Console `milan_status` | PASS, `ID=4d494c4e VERSION=00020060` |
+| AEM CRC32 over its 7,512 bytes in QSPI | PASS, `5ba355eb` |
+| UART grader | PASS, 10 of 10, with SYNC=1, ASCAPABLE=1 and TU=0 |
+| ENTITY 0 over AECP: entity, name, firmware, serial | Not read |
+| Live ENTITY and CONFIGURATION against the QSPI AEM bytes | Not read |
+| Clock sources and the clock domain | Not read |
+| ADP model | Not read |
+
+Every ATDECC check goes through the controller host, and every connection to
+it failed with no route to the host. The bench host polled it 54 times,
+19 to 32 s apart, from 14:05 to 14:24 UTC, and it never answered. The other bench hosts
+answered throughout. So the gate failed for want of its ATDECC half, not on
+any mismatch, and the assignment's identity STOP applies. The bench host
+itself had restarted at about 12:07 UTC, before the round began.
+
+### B21 round 2: state and restore
+
+| State | As left |
+|---|---|
+| DUT | Two console reads and the UART grader only. Nothing was written. |
+| SoC board, its player and its audio bridge | Not accessed |
+| Taps, outlets and the external capture | Not accessed |
+| Controller host | Unreachable; nothing staged |
+| Bench lock | Free |
+
+Round 1's raw files under the bench host's temporary directory did not
+survive its restart. Their sizes and SHA-256 stay in the round 1 table under
+[B21: artifact hashes](#b21-artifact-hashes), and the packet keeps the derived
+read records.
+
+To go on, the controller host must answer again. The round then starts from
+the identity gate, followed by step 1, the McASP self-test.
