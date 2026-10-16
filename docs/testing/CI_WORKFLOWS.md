@@ -1419,6 +1419,50 @@ in [`sw/litex/patches/`](../../sw/litex/patches) with its `apply.sh`, and runs
 configuration in this tree (#185), so the series is a required install step
 and gate 23h proves the installed trees are upstream plus exactly that series.
 
+Each gate worker installs, fetches and patches that toolchain in an
+interpreter of its own (#748). `actions/setup-python` resolves Python from the
+runner's tool cache, and `act` mounts one tool-cache volume into every job
+container of a replay, while each job keeps its own `HOME`, `RUNNER_TEMP` and
+workspace. So the step after it creates a venv at `$RUNNER_TEMP/litex-venv`
+from that interpreter and puts it first on `PATH`. The pip install, the
+VexiiRiscv checkout, the cached CPU metadata, the patch series and the Scala
+generation all write into the site-packages of the interpreter `python3`
+names, so they now write only into the job's venv, and the tool cache is only
+read. On the shared site-packages, two legs started together contend for one
+VexiiRiscv clone and its git lock, and one leg reverses the patches the other
+has just applied. `scripts/ci_events.py` pins the step, its script and its
+place before the install, and its mutation arms remove it, move it after the
+install and drop its `PATH` entry.
+
+[`scripts/ci_toolcache_isolation.py`](../../scripts/ci_toolcache_isolation.py)
+is the control, run natively with no container. It copies a CPython
+installation into a planted tool cache and runs both legs' setup steps, read
+from the workflow at a revision, side by side. Each leg has its own home,
+temporary directory, workspace and environment files, and every step of both
+legs starts together. It passes only when every step of both legs passes, each
+leg's LiteX interpreter and VexiiRiscv checkout are under that leg's
+`RUNNER_TEMP`, gate 23h and its negative control each ran and passed in each
+leg, and every path of the tool cache is byte for byte what was planted. The
+patch checks are read from the driver's `--receipt`, not its exit code: the
+driver records a check that finds no interpreter importing `migen`, `litex`
+and `litex_boards` as NOT RUN and still exits 0, and the control refuses that
+by the check's name. `--shared` drops the job-private step from both legs, as
+a revision before it does; that run must fail. `--gate-legs` then runs each
+leg's elaboration gate step, both started together, before the final
+comparison, so the Scala generation is inside it too; it needs the three
+source dependencies initialised in the checkout, an installed RV32 SDK
+(`--rv32-sdk`) and `sv2v` and `sbt` on `--tool-dir` or the system `PATH`. The
+report records a hash of the planted and of the final tool-cache manifest.
+`--work` may be relative or absolute; every path argument is made absolute
+before anything is derived from it. The control needs network access for the
+pins and the VexiiRiscv clone, and PyYAML in the interpreter that runs it:
+
+```sh
+python3 scripts/ci_toolcache_isolation.py --python <CPython prefix> --work <empty directory>
+python3 scripts/ci_toolcache_isolation.py --python <CPython prefix> --work <empty directory> --shared
+python3 scripts/ci_toolcache_isolation.py --python <CPython prefix> --work <empty directory> --gate-legs --rv32-sdk <SDK directory> --tool-dir <sv2v directory>
+```
+
 That command runs in two measured legs (#737). Worker 0 runs leg 0,
 `test_baremetal_profile_contract` alone. Worker 1 runs leg 1, the other 102
 gates in inventory order, before its LiteX aggregate.
