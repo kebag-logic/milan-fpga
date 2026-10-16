@@ -72,12 +72,13 @@ A contrived escape from a guard closed this way is residue, not a defect of the 
 |---|---|---|
 | Accepted shell, Make and Python forms | The census: a shape without a passing differential fixture refuses | `ci_differential_selftest.py` |
 | Workflow `env:` names | The reviewed `workflow_environment` list; hooks and `BASH_FUNC_*` refuse by name | `R638-7-N3a-*` fixtures |
-| Shell tests and `cd` | Nothing is decided from the checkout's state; both paths continue | `R638-7-N3b-*` fixtures |
+| Shell tests, `cd` and `realpath` | Nothing is decided from the checkout's state; both paths continue | `R638-7-N3b-*` fixtures, `bash-realpath-after-a-program` |
 | `local` and `declare` | Initializers expand first and locals scope exactly, as in bash; appending forms refuse | `R639-7-F1-*` fixtures |
 | Exec ABI | Every call from another architecture, and every x32 call, is refused before it runs | i386 and x32 trampolines |
-| Exec target | Only a regular file reached by a path runs | memfd, deleted file, descriptor link |
-| Interpreter programs | Inline, streamed and file programs need a reviewed digest | local-wheel installs by `-c` and stdin |
-| Programs outside the image | A traced build output's bytes, or the reviewed generated list | a copied program with a byte appended |
+| Exec target | Only a regular file reached by a path runs; a failed load returns its own error | memfd, deleted file, descriptor link, `#!` through the process filesystem |
+| Interpreters | An image program by the identity of its file, under every installed spelling | `perl5.38.2`, versioned `tclsh8.6` |
+| Interpreter programs | Each reviewed source per kind; unreadable text and unmodelled options refuse | local-wheel installs by `-c` and stdin; unlisted `perl -e`, `perl -le`, `node -e`, `tclsh` stdin |
+| Programs | The image's own file by its job-start key; otherwise a traced build output's bytes, or the reviewed generated list | appended copies in `/usr/local/bin` under a listed name and named `python3`; `bash` named `dash` |
 | The checkout | Each file present at job start keeps its bytes through the job | rewritten and sourced scripts |
 | Network | Steps run with the container network disabled | a failing step |
 
@@ -86,13 +87,17 @@ The remaining limits are named boundaries, each closed by construction:
 - Code an accepted entry program loads in-process is part of that program.
   That covers imports, sourced files, plugins and `enable -f`.
   The entry is judged; reviewed source governs what it loads.
-- A `dash` program is judged by the execs it makes, since `dash` runs nothing in-process.
+- The image's own `dash` file, by its identity, loads no executable code beyond itself.
+  It imports no dynamic loader and has no loadable builtins; its builtins act only within its own process.
+  A program that file runs is judged by the execs it makes.
   The audit's self-test checks that the image's `dash` imports no dynamic loader entry.
 - A named program that reads its own input files is judged by its name.
   That covers `make`, `yosys`, `sbt` and `cmake`; their inputs are reviewed source.
   Any fetch they attempt fails under the disabled network, and any program they run is judged.
 - The audit looks at the checkout at every exec, every exit and the end of each step.
   A file changed and restored between two looks is not reported.
+- An exec target is judged when its call is notified, before the call looks it up again.
+  A file replaced between the two looks is not reported.
 - Runtime assembly in declared scripts is located residue, never a resolved command.
 
 ## Reached construct census
@@ -304,7 +309,13 @@ The other is a script's own directory, or an ancestor in the checkout, before th
 The shell is reading the script from that directory, so it exists.
 Anywhere else an earlier program may have removed the directory, so the output is runtime.
 That form must be unredirected and its directory must not be a link.
-`$(dirname <literal>)` and `$(realpath <literal>)` are exact functions of the operand.
+`$(dirname <literal>)` is an exact function of its operand.
+`$(realpath <literal>)` reads the links on its path as they are when it runs.
+It yields a path only for the running script's own path, its directory or an ancestor in the checkout.
+That holds before the script runs a command, and only with no link on that path.
+Anywhere else an earlier program may have re-pointed a link, so the output is runtime.
+A substitution's words expand before any of its own commands run.
+Reading a test's words to decide whether it always succeeds runs nothing.
 None applies when a same-named function is defined anywhere in scope.
 `cd -` and `cd` options refuse.
 Their tests compare the dirname model with the image's coreutils.
@@ -372,55 +383,81 @@ The audit resolves that path component by component, as the exec's own lookup do
 The caller's own view of the target must then be the same file.
 A target through the process filesystem or `/dev` is refused before it runs.
 So is a memfd, a deleted file, or a descriptor that is not a file on a path.
-A lookup that fails returns the error the exec itself would, and nothing runs.
+The file the call names and what that file loads are kept apart.
+A lookup or load that fails returns its own error, as the exec itself would, and nothing runs.
+A `#!` interpreter refused on its path is refused with its own reason.
 Each refusal is a finding, named by its reason.
+An exec the audit cannot judge is refused, never run.
+A text file without a `#!` line cannot be loaded by an exec.
+Where the caller is the image's `bash`, `bash` then runs that file in its own process, with no exec.
+The audit judges that file as a script of that `bash`, as `bash` decides it.
+An empty file and a file with a NUL in its first line run nothing.
+`dash` instead execs `/bin/sh` on such a file, which the audit sees.
 
 Every exec instance is kept with its full argument vector and directory.
-Each is judged by what it runs, not by the loaded binary.
+Each is judged by what it runs: its program, and an interpreter's own program too.
+A program is the file an exec loads, after any `#!` lines.
+It is the image's own only by its identity.
+Its path is in the snapshot of the image's directories taken before any job, and the file there still has that key.
+It must then be named in [`exec-audit.json`](../../ci/image/exec-audit.json).
+That file also holds the installer denylists and the reviewed program lists.
+
+An interpreter is an image program whose file the image names for its family.
+The families are `bash` and `dash`, Python, Perl, Node and Tcl.
+Any other image file holding such a file's bytes is that interpreter, whatever its name.
+So every installed spelling is an interpreter, such as `perl5.38.2` and `tclsh8.6`.
+A spelling the allowlist does not name is refused by name.
 [`exec_operands.py`](../../ci/image/exec_operands.py) reads each interpreter's options as it does.
-An interpreter is judged by its script, `-m` module, inline or streamed program.
-That covers shells, Python, Perl, Node and Tcl, including shebang scripts.
-[`exec-audit.json`](../../ci/image/exec-audit.json) names permitted programs, scripts and modules.
-It also holds the installer denylists and the reviewed program lists.
+Perl's switches bundle, so `-le CODE` is `-l` then `-e CODE`, and each `-e` adds a line.
+Node's last `-e`, `--eval`, `-p` or `-pe` program wins.
+`tclsh` takes a first word without a leading `-` as its script, and otherwise reads stdin.
+An option a reader does not model is refused by name.
+So is an option that makes the interpreter read code other than its program.
+That covers shell `-i`, `-l` and `--login`, and Python `-i`.
+It covers Perl `-M`, `-m`, `-d`, `-x` and `-S`, and Node's preload, loader and interactive options.
 
 Installers are refused by name, as a program, script or module.
 That covers `apt*`, `dpkg`, `pip*`, `npm`, `npx` and other package managers.
 It covers `gem install`, `cargo install`, `go install` and `go get`.
 An interpreter reading its program from a fetcher's pipe is refused too.
-A program or script in the image's own directories must be named.
 
-An interpreter program runs code in-process, so its text is accepted only by digest.
-That holds for `bash`, Python, Perl, Node and Tcl, inline, streamed or from a file.
+An interpreter program runs code in-process, so it is accepted only from a reviewed source.
 An inline program is read from the argument vector.
 A streamed program is read without consuming it, once every writer has closed its pipe.
-One still being written after 60 seconds, or one the audit cannot read, is a finding.
-A program's text is accepted when it is one of these:
+The accepted sources differ by kind:
 
-- a file in the checkout, unchanged since the job started;
-- a byte copy of such a file;
-- the traced step's own text;
-- an entry of the reviewed `inline_programs` or `generated_programs` list.
+| Program | Accepted sources |
+|---|---|
+| A file | An image file, present before the job and unchanged, named in `scripts`; a checkout file unchanged since the job started, or a byte copy of one; a job-written copy of an image executable, judged as that file by its name; the traced step's own text; a reviewed `generated_programs` entry of its interpreter |
+| Inline (`-c`, `-e`) | The traced step's own text; a reviewed `inline_programs` entry of its interpreter |
+| Streamed (stdin, `-`, `/dev/fd/N`) | The traced step's own text; a reviewed `inline_programs` entry of its interpreter |
 
 Any other is refused by name, with its digest.
+A streamed checkout file, as in `bash < scripts/x.sh`, is therefore refused; `bash scripts/x.sh` is a checkout script.
+A streamed program still being written after 60 seconds, or one the audit cannot read, is refused.
 Each reviewed entry names its interpreter, its source and the reason it installs nothing.
-An inline or streamed entry keeps its exact text, or its exact difference from the tracked script it varies.
-A generated program's digest is taken with each job-temporary path masked.
-Such a path lies under `/tmp` or the job's scratch roots and holds only letters, digits, `_`, `.`, `-` and `/`.
-It can carry no command, and every other byte is exact.
-The lists hold 81 inline or streamed programs and 334 generated programs.
-Each generated entry names the tracked test that writes it: mutants, stand-ins and staged copies.
-`dash` imports no dynamic loader and has no loadable builtins.
-It runs nothing in-process, so a `dash` program is judged by the execs it makes.
-A script with the bytes of an image executable runs that file's code.
-It is judged as that file, by its name.
+Each program text's digest is taken with each job-temporary path masked: inline, streamed and generated.
+Such a path is a word starting at `/tmp` or a job scratch root.
+It holds only letters, digits, `_`, `.`, `-` and `/`, and none of its components is `.` or `..`.
+So it names a job-temporary file, and can carry no command.
+A checkout path is masked the same way below the part the checkout held as the job started.
+That part names a file the job wrote, such as a mutant written under a random name.
+Every other byte is exact.
+An inline or streamed entry keeps that masked text, or its exact difference from the tracked script it varies.
+The lists hold 103 inline or streamed programs and 450 generated programs.
+Each generated entry names the tracked test that writes it: mutants, stand-ins, drivers and staged copies.
+The image's own `dash` file loads no executable code beyond itself.
+A program that file runs is judged by the execs it makes.
+A file named `dash` that is not that file is a program without provenance.
 A missing script operand runs nothing and is recorded as absent.
 
-A program outside the image's directories needs positive provenance.
+A program that is not the image's own needs positive provenance, whatever its name or directory.
 Its bytes must be those of a declared output of a toolchain invocation the job traced.
 That output is `-o`, `--output`, or `a.out` for a linking driver without either.
 It is digested when that invocation exits successfully, if the invocation wrote it.
 A renamed or installed copy of those bytes keeps that provenance.
 Otherwise the program must be in the reviewed `generated_programs` list.
+A copy of an image program written during the job has neither, so it is refused.
 Creation time and byte inequality are not evidence.
 
 Every file present in the checkout as the job starts is digested then.
@@ -433,6 +470,7 @@ What the static walker read is therefore what ran.
 The reviewed `checkout_writes` list names files a step rewrites on purpose.
 Their changes are recorded in the step's receipt, not refused.
 It holds one entry: the entity shape self-test plants and restores `tb/verilator/csr/Makefile`.
+The self-test's own reviewed entries live in the self-test, not in these lists.
 
 `--selftest` runs the controls of
 [`exec_audit_selftest.py`](../../ci/image/exec_audit_selftest.py) inside the image as root:
@@ -447,10 +485,18 @@ An unlisted copy run from a memfd, a deleted file or a descriptor link is refuse
 A real offline local-wheel install is caught as the `pip` module.
 The same install by an inline and by a streamed program is caught as unpinned.
 An unpinned `bash` inline program and an unpinned job-written Python script are caught.
+Unlisted `perl -e`, `perl -le`, `perl -wE` and `perl -l012e … -e …` programs are caught with the digest of the program `perl` builds.
+So are unlisted `node -e`, `node --eval=…` and `node -p -e` programs, and unlisted Tcl and Python on stdin.
+Pinned Perl, Node and Tcl texts stay clean, as do checkout scripts they run after switches.
+`perl5.38.2` is caught as an interpreter the allowlist does not name.
+Perl `-M` and `-x`, Node `-r` and `-i`, shell `-i` and `--login`, and Python `-i` are refused by name.
+A Python program streamed from a socket the audit cannot read is refused.
 Scripted `pip3` and `npm`, and a shebang `apt-get`, are caught by name.
-An unlisted shebang script and a static binary in a system directory are caught.
+An unlisted shebang script and a static binary in an image directory are caught.
 An unlisted program the job copies from the image has no provenance and is caught.
 So is that copy with one byte appended, and a failed build's declared output.
+The appended copy is caught in `/usr/local/bin` under the listed name `cp`, and named `python3` with a checkout script.
+A copy of `bash` named `dash` running an inline program is caught.
 A renamed copy of the image's `pip3` script is caught as the `pip` it reproduces.
 A stub with the bytes of the base image's no-op `initctl` is judged as `initctl`.
 A job-written `dash` script and a `dash` inline program stay clean.
@@ -464,9 +510,15 @@ A checkout script rewritten before it runs is caught at its exec.
 A checkout file rewritten and then sourced is caught though no exec reads it.
 A file in the reviewed write list is recorded, not refused.
 A reviewed generated program is accepted with its temporary paths masked; one more statement is refused.
+A pinned streamed Tcl text is accepted with its temporary path masked; with a `..` component it is refused.
+A job-written checkout path in a program text is masked; a held file, a `..` component and `/var/tmp` stay exact.
 A streamed program its spawning parent writes after the exec is read whole, without a deadlock.
 The exec-only interpreter's binary imports no dynamic loader entry.
 An installer subcommand after leading options, such as `cargo +stable -v install`, is caught.
+A checkout text file without `#!` that `bash` runs itself stays clean; a job-written one is caught.
+`dash` running such a file through `/bin/sh` is observed and stays clean.
+A binary file `bash` refuses and a missing `#!` interpreter run nothing and stay clean.
+A `#!` interpreter through the process filesystem is refused with its own reason.
 A LeakSanitizer leak check still runs under the audit.
 
 `--audit SPEC --output RECEIPT --logs DIRECTORY` runs a step spec.
