@@ -132,9 +132,21 @@ def substitution_controls(fixture: Fixture) -> None:
             ('X="$(cd sub && pwd)"; cd "$X"; bash bootstrap.sh', "unclassified command 'brand_new_command'"),
             ('cd "$(cd sub && pwd)"; bash bootstrap.sh', 'unresolved shell cd'),
             ('bash "$(dirname sub/bootstrap.sh)/bootstrap.sh"', "unclassified command 'brand_new_command'"),
-            ('bash "$(realpath sub/bootstrap.sh)"', "unclassified command 'brand_new_command'")):
+            ('bash "$(realpath sub/bootstrap.sh)"', 'unclassified runtime command name')):
         fixture.run(command)
         fixture.check('substitution: ' + command, refusal)
+    # realpath reads links as they are when it runs: only a script's own path, before it runs a command.
+    fixture.file('own/run.sh', 'bash "$(dirname "$(realpath "$0")")/x.sh"\n')
+    fixture.file('own/late.sh', 'echo started\nbash "$(dirname "$(realpath "$0")")/x.sh"\n')
+    fixture.file('own/x.sh', 'brand_new_command\n')
+    for name, operand in (('realpath', 'own/run.sh'), ('dirname', '${CHECKOUT}/own/run.sh'),
+                          ('realpath', 'own/late.sh')):
+        fixture.table['commands'][name]['patterns'].append([operand])
+    fixture.save_table()
+    fixture.run('bash own/run.sh')
+    fixture.check("realpath of the running script's own path", "unclassified command 'brand_new_command'")
+    fixture.run('bash own/late.sh')
+    fixture.check('realpath after the script ran a command is runtime', 'unclassified command "dirname \'${RUNTIME}\'"')
     fixture.file('scripts/run.sh', 'set -e\ncd sub\nbash "$(dirname "$0")/x.sh"\n')
     fixture.file('scripts/x.sh', 'echo okay\n')
     fixture.file('sub/scripts/x.sh', 'brand_new_command\n')

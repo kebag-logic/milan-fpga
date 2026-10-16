@@ -1,5 +1,5 @@
 {
- "binding": "c68890193ada703196e04f2a9805f683492dd9cf158c9d78af82f50f8e76b2dc",
+ "binding": "76d72b170614d667a1a96e1b557c2deb108c4a8886f2f12887c0d1b6b4d07f87",
  "fixtures": {
   "R638-6-M1": {
    "expect": "refused",
@@ -5039,12 +5039,100 @@
    ],
    "refusal": null,
    "residue": [],
-   "sha256": "14a1bfcf0bc28c0412fc55811c00168afc8a20b03980e2eee282f1bbb1212eb6",
+   "sha256": "646a703b38b500ab308602bc4f44d923ae041cd14cbf06eea21eea2a11a59eda",
    "shapes": [
     "bash:call.command",
+    "bash:word.command-substitution",
     "bash:word.double-quoted",
     "bash:word.literal",
-    "bash:word.realpath",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-realpath-after-a-program": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at run.sh:3",
+   "residue": [],
+   "sha256": "503d2e3663c9302c330d6e8e80b810df545c96408ad1b90df4a6d5db585345f5",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:python.script",
+    "cmd:shell.script.bash",
+    "cmd:table",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": []
+  },
+  "bash-realpath-script-path": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "<fixture>/sub"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "4c59d719bf874e819b8763750c78252d348bb607a06f842be3faa1c2c166177c",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.argv0",
+    "bash:word.dirname",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.realpath.script-path",
+    "cmd:shell.script.bash",
     "cmd:table"
    ],
    "statuses": [
@@ -5059,7 +5147,7 @@
       ],
       [
        "literal",
-       "<fixture>/sub/x.sh"
+       "<fixture>/sub"
       ]
      ],
      "directory": "."
@@ -5566,7 +5654,7 @@
     {
      "argv": [
       "zz_probe",
-      "/tmp/tmp.d0cgl7YqIl"
+      "/tmp/tmp.e3TzyS1DXc"
      ],
      "directory": "."
     }
@@ -7414,14 +7502,14 @@
     {
      "argv": [
       "zz_probe",
-      "a"
+      "b"
      ],
      "directory": "."
     },
     {
      "argv": [
       "zz_probe",
-      "b"
+      "a"
      ],
      "directory": "."
     }

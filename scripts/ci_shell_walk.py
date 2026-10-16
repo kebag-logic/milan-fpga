@@ -322,6 +322,12 @@ class Shell:
             return None
         return values
 
+    def own(self, path: Path, quiet: bool) -> bool:
+        """Whether a script that has run nothing yet is read from this checkout path, or from under it."""
+        script = self.audit.root / self.invocation_source
+        return quiet and self.where.split(':')[0] == self.invocation_source and \
+            path.is_relative_to(self.audit.root) and (script == path or script.is_relative_to(path))
+
     def exact_substitution(self, node: dict, directory: Path, failure_ends: bool, quiet: bool) -> str:
         """Exact shapes only; any other substitution output is a runtime value.
 
@@ -329,39 +335,34 @@ class Shell:
         as the one substitution of a bare assignment under errexit, whose failure ends the shell;
         or, in a script that has run nothing yet, for its own directory or an ancestor in the
         checkout, which exist while the shell reads the script. Elsewhere an earlier program may
-        have removed it. `$(dirname <literal>)` and `$(realpath <literal>)` are exact functions
-        of their operand. None applies when a function of that name is defined anywhere in scope.
-        """
+        have removed it. `$(dirname <literal>)` is exact. `$(realpath <literal>)` reads links as it
+        runs: only such a script's own path or an ancestor, with no link, is exact. None applies
+        when a function of that name is defined anywhere in scope."""
         statements = node.get('Stmts', [])
         if len(statements) != 1 or set(statements[0]) - PLAIN or self.names & set(SUBSTITUTIONS):
             self.shape('word.command-substitution', node)
             return RUNTIME
         command = statements[0]['Cmd']
-        if command.get('Type') == 'CallExpr':
-            words = self.plain_call(statements[0], 2, directory)
-            if not words or words[1].startswith('-') or words[0] not in ('dirname', 'realpath'):
-                self.shape('word.command-substitution', node)
-                return RUNTIME
-            target = directory / words[1]
-            if words[0] == 'dirname':
+        call, binary = command.get('Type') == 'CallExpr', command.get('Type') == 'BinaryCmd'
+        running, self.quiet = self.quiet, quiet  # Its words expand before any command of its own runs.
+        words = self.plain_call(statements[0], 2, directory) if call else None
+        change = self.plain_call(command['X'], 2, directory) if binary and command.get('Op') == 10 else None
+        report = self.plain_call(command['Y'], 1, directory) if change else None
+        self.quiet = running
+        if call:
+            target = Path(_normpath(str(directory / words[1]))) if words else None
+            if words and words[0] == 'dirname' and not words[1].startswith('-'):
                 self.shape('word.dirname', node)
                 return posix_dirname(words[1])
-            if target.exists():
-                self.shape('word.realpath', node)
-                return str(target.resolve())
+            if words and words[0] == 'realpath' and not words[1].startswith('-') and self.own(target, quiet) and \
+                    target.exists() and target == target.resolve():
+                self.shape('word.realpath.script-path', node)
+                return str(target)
             self.shape('word.command-substitution', node)
-            return RUNTIME
-        change = self.plain_call(command['X'], 2, directory) if command.get('Type') == 'BinaryCmd' and \
-            command.get('Op') == 10 else None
-        report = self.plain_call(command['Y'], 1, directory) if change else None
-        if not change or report != ['pwd'] or change[0] != 'cd' or change[1].startswith('-'):
-            self.shape('word.command-substitution', node)
-            return RUNTIME
-        logical = Path(_normpath(str(directory / change[1])))
-        script = (self.audit.root / self.invocation_source).parent
-        own = quiet and self.where.split(':')[0] == self.invocation_source and \
-            logical.is_relative_to(self.audit.root) and (script == logical or script.is_relative_to(logical))
-        if not logical.is_dir() or logical != logical.resolve() or not (failure_ends or own):
+            return RUNTIME  # Any other call, or a path on which an earlier program may have re-pointed a link.
+        logical = Path(_normpath(str(directory / change[1]))) if change else None
+        if not change or report != ['pwd'] or change[0] != 'cd' or change[1].startswith('-') or \
+                not logical.is_dir() or logical != logical.resolve() or not (failure_ends or self.own(logical, quiet)):
             self.shape('word.command-substitution', node)
             return RUNTIME  # A directory that may be missing, or a symlinked one, is not modelled.
         self.shape('word.cd-pwd' if failure_ends else 'word.cd-pwd.script-directory', node)
@@ -432,7 +433,8 @@ class Shell:
             return False
         if not node.get('Args'):  # An assignment fails only through a failed command substitution.
             return not any(child.get('Type') == 'CmdSubst' for child in nodes(node))
-        words = [value for word in node['Args'] for value in self.fields(word, directory)]
+        running, words = self.quiet, [value for word in node['Args'] for value in self.fields(word, directory)]
+        self.quiet = running  # Reading the words runs nothing: the statement itself runs them next.
         if any(isinstance(word, Runtime) for word in words) or words[0] in self.names:
             return False
         return words in (['true'], [':'])

@@ -36,6 +36,8 @@ OK = 'zz_probe ok\n'
 EVIL = 'zz_probe hidden\n'
 #: An undeclared program that changes no command but removes a directory in one variant.
 CLEAN = "import os\nimport shutil\nif os.environ.get('RM'):\n    shutil.rmtree('sub')\n"
+#: An undeclared program that changes no command but re-points a link in one variant.
+RELINK = "import os\nif os.environ.get('RELINK'):\n    os.remove('sub/link')\n    os.symlink('../b', 'sub/link')\n"
 #: A directory that exists in one variant only, so a `cd` into it can fail.
 MADE = 'if [ "$V" = 1 ]; then mkdir -p obj_fw; fi\n'
 EITHER = [{'V': '1'}, {'V': '0'}]
@@ -68,8 +70,19 @@ FIXTURES = [
           files={'sub/lib.sh': 'zz_probe "${BASH_SOURCE[0]}"\n'}, exact_uses={'source': ['. sub/lib.sh']}),
     shell('bash-dirname', ['bash:word.dirname'], 'zz_probe "$(dirname sub/x.sh)"\n',
           patterns={'dirname': [['sub/x.sh']]}),
-    shell('bash-realpath', ['bash:word.realpath'], 'zz_probe "$(realpath sub/x.sh)"\n',
+    # realpath reads the links on its path when it runs: in a step its output is a runtime value.
+    shell('bash-realpath', [], 'zz_probe "$(realpath sub/x.sh)"\n',
           files={'sub/x.sh': ''}, patterns={'realpath': [['sub/x.sh']]}),
+    # A script's own path, before the script runs a command, holds the links the shell read it through.
+    shell('bash-realpath-script-path', ['bash:word.realpath.script-path'], 'bash sub/run.sh\n',
+          files={'sub/run.sh': 'set -u\nHERE="$(dirname "$(realpath "$0")")"\nzz_probe "$HERE"\n'},
+          patterns={'realpath': [['sub/run.sh']], 'dirname': [['${CHECKOUT}/sub/run.sh']]}),
+    # After a program has run, a link on the path may point elsewhere: the output is a runtime value.
+    shell('bash-realpath-after-a-program', [], 'bash run.sh\n', expect='refused', executes=True,
+          probe='R638-8-N4',
+          files={'run.sh': 'python3 relink.py\nX="$(realpath sub/link)"\nbash "$X/run.sh"\n',
+                 'relink.py': RELINK, 'a/run.sh': OK, 'b/run.sh': EVIL},
+          links={'sub/link': '../a'}, patterns={'realpath': [['sub/link']]}, variants=[{}, {'RELINK': '1'}]),
     shell('bash-cd-pwd', ['bash:word.cd-pwd'], 'X="$(cd sub && pwd)"\nzz_probe "$X"\n', files={'sub/.keep': ''}),
     # A script's own directory exists while the shell reads the script, until a command runs.
     shell('bash-cd-pwd-script-directory', ['bash:word.cd-pwd.script-directory'], 'bash sub/run.sh\n',
@@ -421,7 +434,7 @@ FIXTURES += [{'id': f'R639-6-{name}', 'shapes': [], 'expect': expect, 'files': f
                                                               'shell-pwd-shadow')}
              for name, expect, files, run in R639]
 
-# R638-7 and R639-7 probes: workflow environment, checkout state, and local declarations.
+# Probes for workflow environment names, checkout state and local declarations.
 HOOK_NAMES = ('PERL5OPT', 'NODE_OPTIONS', 'GIT_EXEC_PATH', 'GIT_CONFIG_COUNT', 'GIT_CONFIG_KEY_0', 'PYTHONUSERBASE',
               'PYTHONSTARTUP', 'LD_AUDIT', 'HOME')
 #: Two scripts a `cd` chooses between, and a program that removes one directory in one variant.
