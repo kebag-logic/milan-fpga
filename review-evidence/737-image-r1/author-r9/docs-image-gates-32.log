@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "$LANES/737-image/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+  File "$LANES/737-image/sw/builder/test_firmware_compiler.py", line 181, in main
+    selftest()
+  File "$LANES/737-image/sw/builder/test_firmware_compiler.py", line 140, in selftest
+    run_gate(None, Path(tmp) / "absent.jsonl", require=True)
+  File "$LANES/737-image/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+  File "$LANES/737-image/sw/builder/test_builder.py", line 3248, in test_baremetal_profile_contract
+    result = eb.build(path, OUT)
+             ^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+  File "/usr/lib/python3.12/pathlib.py", line 1049, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '$LANES/737-image/configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh'

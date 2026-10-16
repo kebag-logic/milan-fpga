@@ -1,0 +1,33 @@
+Traceback (most recent call last):
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 6071, in <module>
+    main()
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 6045, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+  File "/usr/lib/python3.12/pathlib.py", line 1049, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '$LANES/737-image/configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh'
+Traceback (most recent call last):
+  File "$LANES/737-image/scripts/check_nvm_capture.py", line 228, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "$LANES/737-image/scripts/check_nvm_capture.py", line 206, in main
+    actual = current_inputs()
+             ^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/scripts/check_nvm_capture.py", line 38, in current_inputs
+    names, dc, spi, spo = nvm_shape.build(cfg, Path(tmp))
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/python/bin/python3', '$LANES/737-image/sw/builder/endstation_builder.py', '$LANES/737-image/configs/endstation_ax7101_8x8.yaml', '-o', '/scratch/docs-run/tmp/nvm-capture-census-gbz2uz9o']' returned non-zero exit status 1.

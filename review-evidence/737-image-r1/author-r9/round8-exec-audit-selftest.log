@@ -1,0 +1,78 @@
+Traceback (most recent call last):
+  File "/tmp/exec-audit-znm7fpf6/non_path.py", line 8, in <module>
+    os.execve(descriptor, ["zz_hidden"], {})
+PermissionError: [Errno 13] Permission denied: 3
+Traceback (most recent call last):
+  File "/tmp/exec-audit-znm7fpf6/non_path.py", line 14, in <module>
+    os.execve(descriptor, ["zz_deleted"], {})
+PermissionError: [Errno 13] Permission denied: 3
+Traceback (most recent call last):
+  File "/tmp/exec-audit-znm7fpf6/non_path.py", line 17, in <module>
+    os.execv(f"{self_fds}/{descriptor}", ["zz_linked"])
+PermissionError: [Errno 13] Permission denied
+pip 24.0 from /opt/python/lib/python3.12/site-packages/pip (python 3.12)
+10.9.9
+Processing ./zz_probe_pkg-0.1-py3-none-any.whl
+Installing collected packages: zz-probe-pkg
+Successfully installed zz-probe-pkg-0.1
+Processing ./zz_probe_pkg-0.1-py3-none-any.whl
+Installing collected packages: zz-probe-pkg
+Successfully installed zz-probe-pkg-0.1
+Processing ./zz_probe_pkg-0.1-py3-none-any.whl
+Installing collected packages: zz-probe-pkg
+Successfully installed zz-probe-pkg-0.1
+3
+1
+ok
+printenv (GNU coreutils) 9.4
+Copyright (C) 2023 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by David MacKenzie and Richard Mlynarik.
+pip 24.0 from /opt/python/lib/python3.12/site-packages/pip (python 3.12)
+/tmp/exec-audit-znm7fpf6/data
+/tmp/exec-audit-znm7fpf6/data
+2
+PASS: a static binary the step builds is observed and has provenance: clean
+PASS: a static binary planted in a system directory: caught (system program not in the allowlist: zz_static_probe)
+PASS: a static program that execs through the i386 entry is refused before the exec runs: caught (i386 system call refused: 11)
+PASS: a static program that execs through the x32 entry is refused before the exec runs: caught (x32 system call refused: 520)
+PASS: an unlisted copy run from a memfd descriptor is refused before it runs: caught (exec of a descriptor that is not a file on a path: /memfd:zz_hidden)
+PASS: an unlisted copy run from a deleted descriptor is refused before it runs: caught (exec of a descriptor that is not a file on a path)
+PASS: an unlisted copy run from a linked descriptor is refused before it runs: caught (exec through /proc: not a file on a path)
+PASS: the exec-only interpreter dash imports no dynamic loader entry
+PASS: a scripted installer run by name: caught (installer executed: pip3)
+PASS: a scripted package manager run by name: caught (installer executed: npm)
+PASS: a real offline install of a local wheel: caught (installer module executed: pip)
+PASS: a real offline install of a local wheel by an inline program: caught (unpinned inline program: python3.12)
+PASS: a real offline install of a local wheel by a streamed program: caught (unpinned streamed program: python3.12)
+PASS: a streamed program its spawning parent writes after the exec is read whole: caught (unpinned streamed program: python3.12)
+PASS: an unpinned bash inline program: caught (unpinned inline program: bash)
+PASS: a pinned inline program and a checkout script: clean
+PASS: an interpreter given a missing script runs nothing from it: clean
+PASS: an unlisted shebang script in a system directory: caught (system script not in the allowlist: zz_shebang_probe)
+PASS: a shebang apt-get outside the system directories: caught (installer executed: apt-get)
+PASS: a fetched program piped to a shell: caught (fetched program executed by dash)
+PASS: an installing subcommand: caught (installer subcommand executed: gem install)
+PASS: an installing subcommand after leading options: caught (installer subcommand executed: cargo install)
+PASS: an unlisted program the job copies from the image: caught (program without provenance: zz_copied_program)
+PASS: a copied image program with a byte appended has no provenance: caught (program without provenance: zz_appended)
+PASS: a renamed copy of the image's pip3 script is judged as the pip it reproduces: caught (installer executed: pip)
+PASS: a reviewed generated program is accepted with its job-temporary paths masked: clean
+PASS: a generated program with one more statement is not the reviewed one: caught (script without provenance: zz_extended.py)
+PASS: a job-written Python script that is not pinned has no provenance: caught (script without provenance: zz_written.py)
+PASS: a stub the job writes with the bytes of the image's initctl is judged as initctl: clean
+PASS: a job-written dash script and a dash inline program are judged by their execs: clean
+PASS: a program the job built under a temporary name, then renamed: clean
+PASS: a program the step built, and an installed copy of it: clean
+PASS: a program built without -o, as a.out: clean
+PASS: a failed build's declared output is not a build output: caught (program without provenance: zz_failed)
+PASS: a LeakSanitizer build runs its leak check under the audit: clean
+PASS: a link the step makes to a checkout script is judged as that script: clean
+PASS: a link named as an installer is caught by that name: caught (installer executed: apt-get)
+PASS: a checkout script an earlier program rewrites is caught at its exec: caught (checkout file changed before it ran: rewritten.sh)
+PASS: a checkout file an earlier program rewrites is caught though no exec reads it: caught (checkout file changed during the job: sourced.sh)
+PASS: a checkout file in the reviewed write list is recorded, not refused: clean
+PASS: a step that fails under the disabled network: caught (step exited 7)

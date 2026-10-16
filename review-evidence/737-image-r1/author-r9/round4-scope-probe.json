@@ -1,0 +1,137 @@
+{
+  "result": "scope conflict reproduced",
+  "findings": [
+    {
+      "path": ".github/workflows/elaborate.yml",
+      "line": 230,
+      "argv": [
+        "python3",
+        "-c",
+        "import pythondata_cpu_vexiiriscv as p; print(p.data_location)"
+      ],
+      "round4_required_result": "refusal: interpreter program text"
+    },
+    {
+      "path": ".github/workflows/elaborate.yml",
+      "line": 321,
+      "argv": [
+        "python3",
+        "-c",
+        "import pythondata_cpu_vexiiriscv as p; print(p.data_location)"
+      ],
+      "round4_required_result": "refusal: interpreter program text"
+    },
+    {
+      "path": "scripts/run_all_suites.sh",
+      "functions": [
+        {
+          "name": "cancelled",
+          "line": 124
+        },
+        {
+          "name": "parse_args",
+          "line": 143
+        },
+        {
+          "name": "select_suites",
+          "line": 168
+        },
+        {
+          "name": "refuse",
+          "line": 194
+        },
+        {
+          "name": "acquire_lock",
+          "line": 208
+        },
+        {
+          "name": "cleanup",
+          "line": 219
+        },
+        {
+          "name": "cleanup",
+          "line": 232
+        },
+        {
+          "name": "suite_timeout",
+          "line": 245
+        },
+        {
+          "name": "preflight",
+          "line": 256
+        },
+        {
+          "name": "prepare_logs",
+          "line": 266
+        },
+        {
+          "name": "run_preflight_gates",
+          "line": 275
+        },
+        {
+          "name": "run_suites",
+          "line": 388
+        },
+        {
+          "name": "summarise",
+          "line": 423
+        },
+        {
+          "name": "main",
+          "line": 447
+        }
+      ],
+      "round4_required_result": "refusal: shell functions"
+    },
+    {
+      "path": "scripts/run_litex_sims.sh",
+      "functions": [
+        {
+          "name": "probe",
+          "line": 112
+        },
+        {
+          "name": "sweep_venv_python",
+          "line": 118
+        },
+        {
+          "name": "find_interpreter",
+          "line": 130
+        },
+        {
+          "name": "list_inventory",
+          "line": 144
+        },
+        {
+          "name": "run_aggregate",
+          "line": 149
+        },
+        {
+          "name": "selftest",
+          "line": 253
+        },
+        {
+          "name": "ck",
+          "line": 257
+        },
+        {
+          "name": "make_tree",
+          "line": 282
+        },
+        {
+          "name": "arm",
+          "line": 292
+        }
+      ],
+      "round4_required_result": "refusal: shell functions"
+    },
+    {
+      "path": "tb/verilator/milan_dp/Makefile",
+      "line": 149,
+      "text": "PP_DERIVED := $(shell python3 $(CURDIR)/../../../scripts/pp_srcs.py --prefix $(PP_DIR))",
+      "round4_required_result": "refusal: Makefile shell expansion"
+    }
+  ],
+  "workflow_sha256": "f750e883a13244a89e9969f3dc742332268b6ca1a540bfa9cc4f273cd28a2b66",
+  "candidate_programs_executed": false
+}

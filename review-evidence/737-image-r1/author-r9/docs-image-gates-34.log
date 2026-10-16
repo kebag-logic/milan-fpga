@@ -1,0 +1,35 @@
+Traceback (most recent call last):
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 6071, in <module>
+    main()
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 6045, in main
+    r = build(args.config, args.outdir, write_rtl=args.write_rtl,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 5971, in build
+    p_sweep, p_cfg_adp = _write_shape_copies(art, d, write_rtl, write_fragment)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/sw/builder/endstation_builder.py", line 5951, in _write_shape_copies
+    p_cfg_adp.write_text(art.adp_svh)
+  File "/usr/lib/python3.12/pathlib.py", line 1049, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 30] Read-only file system: '$LANES/737-image/configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh'
+Traceback (most recent call last):
+  File "$LANES/737-image/scripts/check_nvm_record_space.py", line 951, in <module>
+BINDING base read from the donor: REC_ID_BASE_P = 0x20, LAYOUT_VER_P = 0x02
+deadlines: T-NVM-COMMIT-TIMEOUT = 8000 ms, T-NVM-WRITER-ALIVE = 2000 ms, heartbeat = 500 ms
+    sys.exit(main())
+             ^^^^^^
+  File "$LANES/737-image/scripts/check_nvm_record_space.py", line 931, in main
+    f, floor, census[cfg.stem] = check_one(cfg, Path(tmp), donor,
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/scripts/check_nvm_record_space.py", line 697, in check_one
+    names, dc, spi, spo = build(cfg, out)
+                          ^^^^^^^^^^^^^^^
+  File "$LANES/737-image/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/opt/python/bin/python3', '$LANES/737-image/sw/builder/endstation_builder.py', '$LANES/737-image/configs/endstation_arty_4x4.yaml', '-o', '/scratch/docs-run/tmp/nvmrec.dkxlb6yp']' returned non-zero exit status 1.
