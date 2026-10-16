@@ -1,0 +1,95 @@
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index d27da9465..5f3386212 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -781,10 +781,11 @@ firmware: its F05.3 model of Table 5.30 in lock step (88 cells), its Table
+ None remains. Up to processor `2ad2f845` the walk asserted four differences,
+ filed as processor issue
+ [#168](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168),
+-and normalised the first two before comparing. Processor `2cbed0a9`, adopted
+-by [#708](https://github.com/kebag-logic/milan-fpga/issues/708), answers as
+-the firmware does, so frames and records are compared raw. Each former
+-difference is now a check that fails if the processor's old answer returns:
++and normalised the first two in the walk and the third's status byte in its
++scenario before comparing. Processor `2cbed0a9`, adopted by
++[#708](https://github.com/kebag-logic/milan-fpga/issues/708), answers as the
++firmware does, so frames and records are compared raw. Each former difference
++is now a check that fails if the processor's old answer returns:
+ 
+ - LD1, UNBIND_RX_RESPONSE's talker fields: 0 in both frames (Milan v1.2
+   Table 5.36); an echo of the command's fields fails it.
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index 52a586a06..e600c2764 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -196,7 +196,7 @@ The issue's list does not name them.
+ | #69, AVB interface count | [165](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/165) | The top gains parameter `N_AVB_IF_P`, default 1, and input `rx_if_index_i`, default 0; `KL_pp_shadow` keeps both defaults, so one interface changes no cell |
+ | #163, transmit-arbiter cone | [166](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166) | The withdraw mask is registered, so a cancellation reaches the arbiter one clock later; no port, parameter or register change |
+ | #167, coincident cancellations | [169](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/169) | A probe cancellation that coincides with a TIME_LIMITED drain is sent on the next idle cycle rather than dropped; no port, parameter or register change |
+-| #168, ACMP response fields | [171](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171) | UNBIND_RX_RESPONSE carries zero talker identifiers (Milan v1.2 Table 5.36), status survives retries (5.5.3.5.30 step 2), lock refusals are 16 (IEEE 1722.1-2021 Table 8-3), an invalid DISCONNECT_TX source is TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2, Table 5.44), and listener records keep 16 VLAN bits; the [firmware ACMP walk](../design/MAILBOX_SPLIT.md#differences-from-the-processor) now compares raw bytes |
++| #168, ACMP response fields | [171](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171) | UNBIND_RX_RESPONSE carries zero talker identifiers (Milan v1.2 Table 5.36), status survives retries (5.5.3.5.30 step 2), lock refusals are 16 (IEEE 1722.1-2021 Table 8-3), an invalid DISCONNECT_TX source is TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2, Table 5.44), and the processor serves the full 16-bit received VLAN in STREAM_INPUT GET_STREAM_INFO selector 6 and in GET_RX_STATE_RESPONSE; the [firmware ACMP walk](../design/MAILBOX_SPLIT.md#differences-from-the-processor) now compares raw bytes |
+ | #170, saved names | [172](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/172) | Tests and documentation only; the parent's test-evidence readers classify the processor's new name-state mutation driver |
+ 
+ Both processor ROM digests match the `2ad2f845` rows.
+@@ -205,9 +205,17 @@ The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) is re-baselined
+ 
+ Its shipping route keeps +0.215 ns WNS.
+ 
+-The parent's `acmp_bound_vlan_o` keeps 12 bits per sink.
++The processor now serves STREAM_INPUT GET_STREAM_INFO selector 6's `stream_vlan_id`.
++
++A settled input reports all 16 received bits.
++
++An unsettled input reports 0.
+ 
+-Only the processor's internal record widens to 16.
++GET_RX_STATE_RESPONSE also carries the full 16 bits.
++
++The parent's selector-6 input VLAN halfword is no longer used.
++
++The parent's `acmp_bound_vlan_o` keeps 12 bits per sink.
+ 
+ The ROM ledger records current and earlier pins.
+ 
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index d7069d148..dde2c4dd2 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -5187,6 +5187,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+           4'd5: gsi_ans_raw_w = gsi_ofail_w
+                               ? pp_cd_srp_src_fail_bridge_w[64*gsi_oix_w +: 64]
+                               : 64'd0;
++          //! an input's stream_vlan_id [63:48] is unused: the processor
++          //! replaces it with all 16 received VLAN bits (#708)
+           4'd6: gsi_ans_raw_w = {gsi_setl_w
+                                  ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
+                                  : gsi_decl_w
+diff --git a/sw/firmware/ctrl/test/acmp_walk.cpp b/sw/firmware/ctrl/test/acmp_walk.cpp
+index d68e2649a..1a0f36745 100644
+--- a/sw/firmware/ctrl/test/acmp_walk.cpp
++++ b/sw/firmware/ctrl/test/acmp_walk.cpp
+@@ -40,10 +40,11 @@
+ // timer the processor injects a spurious expiry and so does this walk.
+ //
+ // THE FORMER DIFFERENCES. Up to processor 2ad2f845 the processor differed in
+-// four places (processor issue #168), and this walk normalised LD1 and LD2
+-// before comparing. Processor 2cbed0a9 follows the clauses the firmware
+-// follows, so the frames and records are compared raw, and each check below
+-// is a control that fails if the processor's old answer returns:
++// four places (processor issue #168), and this walk normalised LD1 and LD2 in
++// the walk, and LD3's status byte in its scenario, before comparing.
++// Processor 2cbed0a9 follows the clauses the firmware follows, so the frames
++// and records are compared raw, and each check below is a control that fails
++// if the processor's old answer returns:
+ //   LD1  UNBIND_RX_RESPONSE: talker_entity_id and talker_unique_id are 0 in
+ //        the processor's frame (Milan v1.2 Table 5.36), as in the firmware's;
+ //        an echo of the command's talker fields fails it;
+@@ -61,7 +62,7 @@
+ //        2cbed0a9 ("TD1 invalid disconnect"). 5.5.2.7 summarises
+ //        DISCONNECT_TX as always succeeding; it is an overview that defers to
+ //        5.5.4, and 5.5.4.2, the normative procedure, validates the source
+-//        first, so it governs (#665, comment 6030067436).
++//        first, so it governs (#665).
+ // Everything else agrees.
+ //
+ // THE DISCOVERY WALK (DW) drives every cell of the processor's Table 5.54
