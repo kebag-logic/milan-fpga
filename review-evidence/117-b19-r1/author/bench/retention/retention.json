@@ -1,0 +1,238 @@
+{
+ "name": "retention",
+ "console": {
+  "samples": 1200,
+  "healthy": 1200,
+  "clkv_stat": [
+   "00010002"
+  ],
+  "gm": [
+   "3cc0c6fffefe0210"
+  ],
+  "parent": [
+   "3cc0c6fffefe0210"
+  ],
+  "path": [
+   [
+    "1",
+    "1"
+   ]
+  ],
+  "pdelay_ns": [
+   372,
+   383.0,
+   391
+  ],
+  "gptp_lat": [
+   "029000db"
+  ],
+  "words": {
+   "0x90000110": [
+    "0xd"
+   ],
+   "0xf000181c": [
+    "0xd"
+   ],
+   "0x90000774": [
+    "0x83"
+   ],
+   "0x90000720": [
+    "0x1"
+   ],
+   "0x90000780": [
+    "0xa"
+   ],
+   "0x900008f8": [
+    "0x20"
+   ],
+   "0x90000750": [
+    "0x3002e3"
+   ]
+  },
+  "crft_count_range": [
+   122022,
+   271957
+  ]
+ },
+ "controller": {
+  "dut_polls": 300,
+  "dut_as_capable": 300,
+  "dut_gm": [
+   "3cc0c6fffefe0210"
+  ],
+  "dut_flags": [
+   "0x17"
+  ],
+  "dut_pdelay_ns": [
+   372,
+   391
+  ],
+  "peer_polls": 300,
+  "peer_as_capable": 300,
+  "peer_gm": [
+   "3cc0c6fffefe0210"
+  ]
+ },
+ "tap_records": 163468,
+ "tap_span_s": 299.047,
+ "cadence_ms": {
+  "Sync, switch to DUT": {
+   "count": 2393,
+   "intervals": 2392,
+   "log_interval": [
+    -3
+   ],
+   "src": [
+    "3cc0c6fffefe02100001"
+   ],
+   "mean": 125.001,
+   "min": 100.532,
+   "max": 149.383,
+   "within_30pct": 2392
+  },
+  "Follow_Up, switch to DUT": {
+   "count": 2393,
+   "intervals": 2392,
+   "log_interval": [
+    -3
+   ],
+   "src": [
+    "3cc0c6fffefe02100001"
+   ],
+   "mean": 125.001,
+   "min": 100.436,
+   "max": 149.594,
+   "within_30pct": 2392
+  },
+  "Announce, switch to DUT": {
+   "count": 299,
+   "intervals": 298,
+   "log_interval": [
+    0
+   ],
+   "src": [
+    "3cc0c6fffefe02100001"
+   ],
+   "mean": 1001.533,
+   "min": 999.761,
+   "max": 1010.429,
+   "within_30pct": 298
+  },
+  "Pdelay_Req, switch to DUT": {
+   "count": 298,
+   "intervals": 297,
+   "log_interval": [
+    0
+   ],
+   "src": [
+    "3cc0c6fffefe02100001"
+   ],
+   "mean": 1004.654,
+   "min": 999.892,
+   "max": 1019.765,
+   "within_30pct": 297
+  },
+  "Pdelay_Req, DUT to switch": {
+   "count": 299,
+   "intervals": 298,
+   "log_interval": [
+    0
+   ],
+   "src": [
+    "020000fffe0000010001"
+   ],
+   "mean": 1000.003,
+   "min": 1000.002,
+   "max": 1000.003,
+   "within_30pct": 298
+  },
+  "Sync, DUT to switch": {
+   "count": 0,
+   "intervals": 0,
+   "log_interval": [],
+   "src": [],
+   "mean": null,
+   "min": null,
+   "max": null,
+   "within_30pct": 0
+  },
+  "Announce, DUT to switch": {
+   "count": 0,
+   "intervals": 0,
+   "log_interval": [],
+   "src": [],
+   "mean": null,
+   "min": null,
+   "max": null,
+   "within_30pct": 0
+  }
+ },
+ "pdelay_switch_requests_dut_responds": {
+  "requests": 298,
+  "complete": 298,
+  "tap_turnaround_ns": [
+   10976,
+   10992.0,
+   13432
+  ],
+  "resp_to_fu_ns": [
+   7552,
+   9936
+  ],
+  "claimed_ns": [
+   10608,
+   13049
+  ],
+  "tap_minus_claimed_ns": [
+   367,
+   382,
+   392
+  ],
+  "over_15ms": 0
+ },
+ "pdelay_dut_requests_switch_responds": {
+  "requests": 299,
+  "complete": 299,
+  "tap_turnaround_ns": [
+   757841,
+   877155,
+   19105982
+  ],
+  "resp_to_fu_ns": [
+   539210,
+   766594
+  ],
+  "claimed_ns": [
+   757452,
+   19105432
+  ],
+  "tap_minus_claimed_ns": [
+   378,
+   398,
+   550
+  ],
+  "over_15ms": 1
+ },
+ "dut_crf": {
+  "pdus": 149522,
+  "tu1": 0,
+  "streams": [
+   "0200000000010001"
+  ],
+  "vlan": [
+   "(3, 2)"
+  ],
+  "max_gap_ms": 2.005
+ },
+ "announce": [
+  "[\"3cc0c6fffefe0210\", 246, 248, 0, [[\"PathTrace\", [\"3cc0c6fffefe0210\"]]]]"
+ ],
+ "dut_ptp_kinds_sent": [
+  "gPTP Pdelay_Req",
+  "gPTP Pdelay_Resp",
+  "gPTP Pdelay_Resp_Follow_Up"
+ ],
+ "dut_adp_gm": [
+  "3cc0c6fffefe0210"
+ ]
+}

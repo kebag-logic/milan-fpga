@@ -1,0 +1,6 @@
+records: 6876 ports: [2, 3] types: [0, 2, 3, 8, 10, 11]
+src 3cc0c6fffefe02100001 sa 3cc0c6fe0211 port 2 n 298 median raw delta between requests 4295019488442580992
+src 020000fffe0000010001 sa 020000000001 port 3 n 299 median raw delta between requests 4.294978295411245e+18
+timestamp scale divisor: 4294967296
+requester 3cc0c6fffefe02100001: responder sa 020000000001 exchanges 298 tap_turnaround median 10992 ns, claimed t3-t2 median 10609 ns, DIFF (tap - claimed) median 381.5 ns, min 367.0, max 392.0
+requester 020000fffe0000010001: responder sa 3cc0c6fe0211 exchanges 299 tap_turnaround median 877155 ns, claimed t3-t2 median 876756 ns, DIFF (tap - claimed) median 398.0 ns, min 378.0, max 550.0
