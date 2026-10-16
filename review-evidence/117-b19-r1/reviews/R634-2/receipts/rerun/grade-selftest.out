@@ -1,0 +1,14 @@
+ok  PASS got PASS  cause 1 us after the latest old read
+ok  FAIL got FAIL  cause 1 us before the latest old read
+ok  PASS got PASS  cause 1 us before the earliest new read
+ok  FAIL got FAIL  cause 1 us after the earliest new read
+ok  FAIL got FAIL  cause inside at d = 0 but after the earliest new read under the model
+ok  PASS got PASS  cause 5 ms before the last old PHC read, which the offset moves inside
+ok  PASS got PASS  effect PDU 1 us inside one PDU period after the earliest new read
+ok  FAIL got FAIL  effect PDU 1 us beyond one PDU period
+ok  FAIL got FAIL  cycle 3 last Announce moved 0.1 ms past its upper margin
+ok  FAIL got FAIL  cycle 3 second Pdelay exchange moved 0.1 ms past its lower margin
+ok  FAIL got FAIL  cycle 3 last Sync moved 0.1 ms past its upper margin
+ok  FAIL got FAIL  cycle 3 first tu=1 PDU planted before the bracket
+ok  FAIL got FAIL  cycle 3 with no read-to-PHC offset (d_lo = 0): the grandmaster return fails
+selftest: 13 of 13 controls behave
