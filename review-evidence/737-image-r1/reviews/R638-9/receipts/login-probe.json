@@ -1,0 +1,35 @@
+program ran
+{
+ "step": "exec -l bash -c 'echo program ran'",
+ "clean": false,
+ "findings": [
+  {
+   "invocation": "tty",
+   "path": "/usr/bin/tty",
+   "argv": [
+    "/usr/bin/tty"
+   ],
+   "reason": "image program not in the allowlist: tty",
+   "sha256": null
+  }
+ ],
+ "population": [
+  {
+   "kind": "inline",
+   "invocation": "bash",
+   "path": "/usr/bin/bash",
+   "provenance": "step text",
+   "count": 1,
+   "sha256": "f58bbed35f1687bd6b0994a1dcb91ede0277df7f1b1e35ac18412266c7f8567a"
+  },
+  {
+   "kind": "inline",
+   "invocation": "bash",
+   "path": "/usr/bin/bash",
+   "provenance": "pinned",
+   "count": 1,
+   "sha256": "fda89a2490051c7bb5bf3a3c71335b8e9f4d83efc60ce7577938ad0b6fbc61d7"
+  }
+ ],
+ "start_file_ran": true
+}

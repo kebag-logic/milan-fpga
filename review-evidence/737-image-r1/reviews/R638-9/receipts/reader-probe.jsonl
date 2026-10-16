@@ -1,0 +1,9 @@
+{"probe": "python -W category imports a module", "argv": ["python3", "-W", "ignore::zzmod.X", "-c", "print('program ran')"], "reader": {"kind": "inline", "text": "print('program ran')", "rest": []}, "rc": 0, "stdout": "program ran", "markers": []}
+{"probe": "python -Wignore::module.X bundled", "argv": ["python3", "-Wignore::zzmod.X", "-c", "print('program ran')"], "reader": {"kind": "inline", "text": "print('program ran')", "rest": []}, "rc": 0, "stdout": "program ran", "markers": []}
+{"probe": "bash run as -su reads login files", "argv": ["-su", "-c", "echo 'program ran'"], "reader": {"kind": "inline", "text": "echo 'program ran'", "rest": []}, "rc": 0, "stdout": "program ran", "markers": ["MARKER: ~/.bash_profile ran"]}
+{"probe": "bash run as -bash (control)", "argv": ["-bash", "-c", "echo 'program ran'"], "reader": {"kind": "inline", "text": "echo 'program ran'", "rest": []}, "rc": 0, "stdout": "program ran", "markers": ["MARKER: ~/.bash_profile ran"]}
+{"probe": "perl two -e lines", "argv": ["perl", "-le", "print 1", "-e", "print 2"], "reader": {"kind": "inline", "text": "print 1\nprint 2\n", "rest": []}, "rc": 255, "stdout": "", "markers": []}
+{"probe": "node -p X -e Y (last wins)", "argv": ["node", "-p", "'X'", "-e", "console.log('Y')"], "reader": {"kind": "inline", "text": "console.log('Y')", "rest": []}, "rc": 0, "stdout": "Y\nundefined", "markers": []}
+{"probe": "node --eval X -p Y", "argv": ["node", "--eval", "console.log('X')", "-p", "'Y'"], "reader": {"kind": "inline", "text": "'Y'", "rest": []}, "rc": 0, "stdout": "Y", "markers": []}
+{"probe": "tclsh -encoding name file", "argv": ["tclsh", "-encoding", "utf-8", "prog.tcl"], "reader": {"kind": "script", "rest": ["prog.tcl"]}, "rc": 0, "stdout": "file-ran", "markers": []}
+{"probe": "tclsh option then stdin", "argv": ["tclsh", "-x"], "reader": {"kind": "stream", "rest": []}, "rc": 0, "stdout": "stdin-ran", "markers": []}
