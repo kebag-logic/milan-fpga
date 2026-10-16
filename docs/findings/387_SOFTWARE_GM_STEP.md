@@ -375,7 +375,7 @@ Everything above this section is the dated record of dev `13eda870`.
 
 | Acceptance | Verdict | Evidence |
 |---|---|---|
-| #621 item 3: five grandmaster steps with no asCapable loss | PASS | Five takeovers and five releases stepped the DUT PHC by +9.987 ms and -10.003 to -10.005 ms. asCapable never cleared: 0 of 2,399 console samples and 0 of 600 controller polls. The published peer delay stayed 373 to 392 ns. |
+| #621 item 3: five grandmaster steps with no asCapable loss | PASS | Five takeovers and five releases stepped the DUT PHC by +9.987 ms and -10.003 to -10.005 ms. asCapable never cleared: 0 of 2,399 console samples and 0 of 600 answered controller polls of the DUT, both arms of the grade. The published peer delay stayed 373 to 392 ns, in `PDELAY_NS` and in GET_AVB_INFO alike. The packet's `r2_gm.py` derives each figure from the hashed raws. |
 | #387 item 4, the wire and counter observables | PASS | Each of the ten edges gave one `tu` episode on the console and on the DUT's CRF PDUs. GPTP_GM_CHANGED rose by exactly 1. The outgoing `mr` never changed, the talkers' and the peer's CRF listener's MEDIA_RESET stayed flat, and no listener counted MEDIA_UNLOCKED. |
 | #387 item 4, the counted render re-base | Not graded here | By the [assignment's decision](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-6207451080) the re-base count has no register, so the `milan_dp_gm_steps` simulation carries it. |
 
@@ -394,8 +394,8 @@ GPTP_GM_CHANGED count of 3 per edge.
 ### B19: method and grades
 
 Times are seconds after each run's software-grandmaster start. The console
-was polled every 0.25 s, the controller read GET_COUNTERS and the ACMP
-states each second, and the tap recorded the DUT link, as on the
+was polled every 0.25 s, the controller read GET_AVB_INFO, GET_COUNTERS and
+the ACMP states each second, and the tap recorded the DUT link, as on the
 [#117 page](117_GPTP_SILICON_EVIDENCE.md#b19-method). Each run splits at
 27 s: the takeover edge before, the release edge after. An edge passes only
 if all six hold:
@@ -403,7 +403,7 @@ if all six hold:
 | Grade | Observable |
 |---|---|
 | One `tu` event | one rise of `tu` in the console samples, and one `tu=1` episode on the DUT's CRF PDUs |
-| No asCapable loss | no console sample and no controller poll with asCapable 0 |
+| No asCapable loss | no console sample and no DUT GET_AVB_INFO poll with asCapable 0; a poll that does not answer is counted apart, and none failed to answer |
 | One GM_CHANGED | the DUT's GPTP_GM_CHANGED rises by exactly 1 |
 | No `mr` change | the DUT's CRF PDUs keep one `mr` value |
 | MEDIA_RESET flat | MEDIA_RESET +0 on the DUT's AAF and CRF talkers and on the peer's CRF listener |
@@ -413,23 +413,43 @@ The DUT PHC step comes from the wire: the DUT's Pdelay responses carry its
 PHC at the switch's request. The grandmaster time step comes from the Sync
 and Follow_Up pairs forwarded to the DUT.
 
+**Timestamp convention.** A console sample is timed at its command-send time
+on the build-box clock. Its words were read before the command completed,
+about 32 ms later. An edge first shown by a sample happened after the
+previous sample was sent and before this one completed. That interval is
+0.28 s wide at most, and the edge is reported at this sample's send time.
+Assertion and clear come from each run's complete transition history, not
+from a window around the PHC step. Wire `tu` episodes come from the DUT's
+CRF PDUs on the tap clock, one PDU each 2 ms. They are kept apart from the
+sampled console edges.
+
+The round-1 analyzer searched for `tu` from the start of the console PHC-step
+bracket, which can fall one sample after the rise. It also took the clear
+time at command completion. So four `tu` set times were one sample late, and
+every steady clear was 31 or 32 ms late. The packet's `r2_gm.py` replaces both
+derivations. Its planted controls show a step bracket starting one sample
+after the rise no longer drops the first `tu=1` sample. They also show a
+planted controller poll with asCapable 0 fails its edge.
+
 ### B19: per-step results
 
-| Run | Edge | DUT PHC step | GM time step | `tu` rises (console / CRF) | `tu` set / steady clear | asCapable 0 samples | GM_CHANGED | `mr` changes | MEDIA_RESET DUT AAF / CRF talker, peer CRF listener | MEDIA_UNLOCKED DUT / peer CRF / peer AAF | Grade |
-|---|---|---|---|---|---|---:|---:|---:|---|---|---|
-| 1 | takeover | +9.987 ms | +9.994 ms | 1 / 1 | 4.006 / 4.288 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
-| 1 | release | -10.003 ms | -9.995 ms | 1 / 1 | 50.527 / 51.059 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
-| 2 | takeover | +9.987 ms | +9.995 ms | 1 / 1 | 3.755 / 4.037 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
-| 2 | release | -10.004 ms | -9.996 ms | 1 / 1 | 50.773 / 51.055 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
-| 3 | takeover | +9.987 ms | +9.995 ms | 1 / 1 | 3.505 / 4.037 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
-| 3 | release | -10.004 ms | -9.996 ms | 1 / 1 | 50.774 / 51.056 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
-| 4 | takeover | +9.987 ms | +9.994 ms | 1 / 1 | 4.005 / 4.287 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
-| 4 | release | -10.005 ms | -9.997 ms | 1 / 1 | 50.522 / 51.054 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
-| 5 | takeover | +9.987 ms | +9.995 ms | 1 / 1 | 3.550 / 4.332 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
-| 5 | release | -10.004 ms | -9.996 ms | 1 / 1 | 50.699 / 50.981 | 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| Run | Edge | DUT PHC step | GM time step | `tu` rises (console / CRF) | `tu` set / steady clear | asCapable 0, samples / polls | GM_CHANGED | `mr` changes | MEDIA_RESET DUT AAF / CRF talker, peer CRF listener | MEDIA_UNLOCKED DUT / peer CRF / peer AAF | Grade |
+|---|---|---|---|---|---|---|---:|---:|---|---|---|
+| 1 | takeover | +9.987 ms | +9.994 ms | 1 / 1 | 3.756 / 4.256 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 1 | release | -10.003 ms | -9.995 ms | 1 / 1 | 50.527 / 51.027 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 2 | takeover | +9.987 ms | +9.995 ms | 1 / 1 | 3.755 / 4.005 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 2 | release | -10.004 ms | -9.996 ms | 1 / 1 | 50.523 / 51.023 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 3 | takeover | +9.987 ms | +9.995 ms | 1 / 1 | 3.505 / 4.006 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 3 | release | -10.004 ms | -9.996 ms | 1 / 1 | 50.524 / 51.024 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 4 | takeover | +9.987 ms | +9.994 ms | 1 / 1 | 4.005 / 4.255 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 4 | release | -10.005 ms | -9.997 ms | 1 / 1 | 50.522 / 51.022 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 5 | takeover | +9.987 ms | +9.995 ms | 1 / 1 | 3.550 / 4.300 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
+| 5 | release | -10.004 ms | -9.996 ms | 1 / 1 | 50.449 / 50.949 | 0 / 0 | +1 | 0 | +0 / +0, +0 | +0 / +0 / +0 | PASS |
 
-- "`tu` set" is the first console sample with `tu` set; "steady clear" is the first from which sync 1, asCapable 1 and `tu` 0 hold for 2 s. The DUT was steady again 0.28 to 0.78 s after `tu` rose; on dev `13eda870` it took 3.00 to 4.53 s.
-- On the wire the DUT's `tu=1` episode lasted 0.38 to 0.68 s per edge, 189 to 343 PDUs at 500 PDU/s. It began with the new grandmaster's first Announce on the DUT link.
+- "`tu` set" is the first console sample of the edge with `tu` set after one without it. "Steady clear" is the first sample from which sync 1, asCapable 1 and `tu` 0 hold for 2 s. Both use the convention above, each within an interval at most 0.282 s wide. The DUT was steady again 0.25 to 0.75 s after `tu` rose, by the same convention; on dev `13eda870` it took 3.00 to 4.53 s.
+- On the wire the DUT's `tu=1` episode ran 0.376 to 0.684 s per edge, from its first to its last `tu=1` PDU, 189 to 343 PDUs at 500 PDU/s. It began with the new grandmaster's first Announce on the DUT link.
+- **Minimum holdover.** Every wire episode exceeds the 0.25 s holdover. The console samples alone cannot show it: at two edges only one sample had `tu` set, which bounds the episode only to 0 to 0.53 s.
+- The answered DUT polls numbered 36 in each takeover window and 83 in each release window. The other five of the 600 fell before the takeover window.
 - The DUT's CRF never paused: the largest gap in any run was 2 ms, and `CRFT_CTRL` read `0x3002e3`, licensed, in every sample.
 
 Per run, over both edges:
@@ -450,9 +470,9 @@ stepsRemoved 0.
 
 | Element | Decided reaction to one step | Observed over ten steps |
 |---|---|---|
-| asCapable (#621) | A PHC step keeps asCapable and a valid link delay | Kept in every sample; peer delay 373 to 392 ns throughout |
+| asCapable (#621) | A PHC step keeps asCapable and a valid link delay | Kept in every console sample and every controller poll; peer delay 373 to 392 ns in both |
 | Step policy | A locked servo steps above 100 us; a GM change keeps it locked | Each 10 ms offset stepped once; no other step followed |
-| `tu` | Rises on the step; clears after at least 0.25 s of holdover | One episode per edge, set 0.28 to 0.78 s |
+| `tu` | Rises on the step; clears after at least 0.25 s of holdover | One episode per edge. On the wire `tu=1` ran 0.376 to 0.684 s from its first to its last PDU, so the holdover held at least 0.25 s. The console bounds the episode only to 0 to 1.03 s |
 | Outgoing `mr` | Unchanged for a PHC-only step ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | 0 changes on the DUT's CRF output; DUT AAF talker MEDIA_RESET +0 |
 | Talker MEDIA_RESET | No step-only increment | +0 on both DUT talkers at every edge |
 | Listeners | A licensed stream keeps streaming (REQ-PTP-08) | MEDIA_UNLOCKED +0 on the DUT's listener and both peer listeners |
