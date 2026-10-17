@@ -1,0 +1,181 @@
+# processor gates: rc and seconds, base 22c139a4 (scratch submodule) / head ebc3b6bcd6e2c789c1c80c9e285193628567ea33 (lane tree)
+run_suites           base rc=0 (2353s)  head rc=0 (3066s)
+req_tags_executed    base rc=0 (1s)  head rc=0 (0s)
+lint_hdl             base rc=0 (12s)  head rc=0 (24s)
+gen_matrix           base rc=0 (0s)  head rc=0 (0s)
+make_check           base rc=0 (37s)  head rc=0 (92s)
+yosys_run            base rc=0 (83s)  head rc=0 (228s)
+elab_guards_yosys    base rc=0 (84s)  head rc=0 (287s)
+--- diff base head: run_suites
+1c1
+< UPC MAP GATE: PASS (61 engine constants, 89 entry points, all agree)
+---
+> UPC MAP GATE: PASS (61 engine constants, 90 entry points, all agree)
+22c22
+< PASS pp_top (10470 checks: 10470 PASS, 0 FAIL)
+---
+> PASS pp_top (10492 checks: 10492 PASS, 0 FAIL)
+40c40
+< suites: 1029951 checks total, 0 failing
+---
+> suites: 1029973 checks total, 0 failing
+--- diff base head: req_tags_executed
+--- diff base head: lint_hdl
+--- diff base head: gen_matrix
+--- diff base head: make_check
+3c3
+< links: 1192 checked, OK
+---
+> links: 1195 checked, OK
+42c42
+< ids: 578 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+---
+> ids: 583 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+--- diff base head: yosys_run
+--- diff base head: elab_guards_yosys (lines sorted, timings stripped)
+
+# campaigns that build a changed file: rc and seconds (base: submodule for dispatch, notify, aecp_cmds, aecp; export of 22c139a4 for the rest)
+dispatch     base rc=0 (917s)  head rc=0 (936s)
+    base: 44 checks: 44 PASS, 0 FAIL
+    head: 49 checks: 49 PASS, 0 FAIL
+    common logs: 44 identical FAIL sets, 0 differ
+    HEAD ONLY scfg-nsd-notifies.log: 3 FAIL lines
+    HEAD ONLY scfg-nsd-stores.log: 5 FAIL lines
+    HEAD ONLY scfg-nsd-zero-body.log: 2 FAIL lines
+    HEAD ONLY scfg-range-bad-arguments.log: 2 FAIL lines
+    HEAD ONLY scfg-refusal-short-body.log: 4 FAIL lines
+notify       base rc=0 (1718s)  head rc=0 (1686s)
+    base: C6 notification mutations: 93 of 93 KILLED by their named checks; goldens PASS
+    head: C6 notification mutations: 98 of 98 KILLED by their named checks; goldens PASS
+    common logs: 106 identical FAIL sets, 0 differ
+    HEAD ONLY configuration_compare_whole_lane.log: 1 FAIL lines
+    HEAD ONLY configuration_refusal_notifies.log: 1 FAIL lines
+    HEAD ONLY configuration_running_route_dropped.log: 1 FAIL lines
+    HEAD ONLY configuration_success_reserved_dirty.log: 4 FAIL lines
+    HEAD ONLY configuration_unchanged_notifies.log: 2 FAIL lines
+aecp_cmds    base rc=0 (541s)  head rc=0 (534s)
+    base: AECP command decode controls: 16 of 16 detected by their named failures; golden and restored PASS
+    head: AECP command decode controls: 16 of 16 detected by their named failures; golden and restored PASS
+    DIFF response-field-dropped-run.log
+       base only: FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs ucode.hex (generated): observed "a999d56a2cee387b45017c8859fb1414e43f808d5831f210648f867f089f2909", recorded "518b900c4a5650902c3ea9125941
+       head only: FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs ucode.hex (generated): observed "3356acc93775416f9617d44d7a612f39995eeb01332b94db9e105d7bc5037ef4", recorded "a3b62cabe2cb091383f999bf58b8
+    common logs: 53 identical FAIL sets, 1 differ
+aecp         base rc=0 (939s)  head rc=0 (1258s)
+    base: 67 checks: 67 PASS, 0 FAIL
+    head: 67 checks: 67 PASS, 0 FAIL
+    DIFF hz-setcfg-not-barrier-talker.log
+       base only: FAIL: HZ2: the barrier is admitted after the ACMP key is released (23999 after 25208)
+       head only: FAIL: HZ2: the barrier is admitted after the ACMP key is released (24000 after 25209)
+    DIFF hz-setcfg-not-barrier.log
+       base only: FAIL: HZ2: the barrier is admitted after the ACMP key is released (23999 after 25208)
+       head only: FAIL: HZ2: the barrier is admitted after the ACMP key is released (24000 after 25209)
+    DIFF hz-stub-restored.log
+       base only: FAIL: HZ2: the barrier is admitted after the ACMP key is released (23999 after 25208)
+       head only: FAIL: HZ2: the barrier is admitted after the ACMP key is released (24000 after 25209)
+    common logs: 64 identical FAIL sets, 3 differ
+ctr          base rc=0 (370s)  head rc=0 (311s)
+    base: 18 checks: 18 PASS, 0 FAIL
+    head: 18 checks: 18 PASS, 0 FAIL
+    common logs: 18 identical FAIL sets, 0 differ
+gsi          base rc=0 (1028s)  head rc=0 (914s)
+    base: GSI mutations: 20 detected by named checks; golden and restored PASS
+    head: GSI mutations: 20 detected by named checks; golden and restored PASS
+    common logs: 44 identical FAIL sets, 0 differ
+name_wr      base rc=0 (163s)  head rc=0 (71s)
+    base: Name-write mutation: decode killed; golden and restored PASS
+    head: Name-write mutation: decode killed; golden and restored PASS
+    common logs: 6 identical FAIL sets, 0 differ
+maap         base rc=0 (124s)  head rc=0 (121s)
+    base: 32 checks: 32 PASS, 0 FAIL
+    head: 32 checks: 32 PASS, 0 FAIL
+    common logs: 32 identical FAIL sets, 0 differ
+adp          base rc=0 (373s)  head rc=0 (397s)
+    base: 62 checks: 62 PASS, 0 FAIL
+    head: 62 checks: 62 PASS, 0 FAIL
+    common logs: 62 identical FAIL sets, 0 differ
+name_state   base rc=0 (409s)  head rc=0 (297s)
+    base: 
+    head: 
+    common logs: 38 identical FAIL sets, 0 differ
+acmp         base rc=0 (1639s)  head rc=0 (1616s)
+    base: ACMP mutations: 51 of 51 KILLED by their named checks; goldens PASS
+    head: ACMP mutations: 51 of 51 KILLED by their named checks; goldens PASS
+    common logs: 57 identical FAIL sets, 0 differ
+d3           base rc=0 (4827s)  head rc=0 (4808s)
+    base: D3 mutations: 110 of 110 KILLED by their named checks; goldens PASS
+    head: D3 mutations: 110 of 110 KILLED by their named checks; goldens PASS
+    common logs: 116 identical FAIL sets, 0 differ
+
+# scratch-parent consumer gates (parent 7d79ffb26308ac51eaeeab6ec43d798d057ae0cd), gitlink staged at base and at head
+bdd                                      base rc=0 head rc=0  identical
+check_cpp_idiom                          base rc=0 head rc=0  identical
+check_cpp_idiom_selftest                 base rc=0 head rc=0  identical
+check_entity_shape_selftest              base rc=0 head rc=0  identical
+check_hygiene                            base rc=0 head rc=0  identical
+check_hygiene_selftest                   base rc=0 head rc=0  identical
+check_nvm_record_space                   base rc=0 head rc=0  identical
+check_nvm_record_space_selftest          base rc=0 head rc=0  identical
+check_port_contracts                     base rc=0 head rc=0  identical
+check_port_contracts_selftest            base rc=0 head rc=0  identical
+check_py_idiom                           base rc=0 head rc=0  differs
+check_py_idiom_selftest                  base rc=0 head rc=0  identical
+check_rtl_source_lists                   base rc=0 head rc=0  identical
+check_rtl_source_lists_selftest          base rc=0 head rc=0  identical
+check_sh_idiom                           base rc=0 head rc=0  identical
+check_sh_idiom_selftest                  base rc=0 head rc=0  identical
+check_soc_sources                        base rc=0 head rc=0  identical
+check_soc_sources_selftest               base rc=0 head rc=0  identical
+check_submodule_docs                     base rc=1 head rc=1  identical
+check_submodule_docs_selftest            base rc=0 head rc=0  identical
+check_sv_idiom                           base rc=0 head rc=0  identical
+check_sv_idiom_selftest                  base rc=0 head rc=0  identical
+check_todo_ownership                     base rc=0 head rc=0  identical
+check_todo_ownership_selftest            base rc=0 head rc=0  identical
+feature_status                           base rc=0 head rc=0  identical
+feature_status_selftest                  base rc=0 head rc=0  identical
+lint_rtl                                 base rc=0 head rc=0  identical
+measure_cohesion_selftest                base rc=0 head rc=0  identical
+measure_control_flow_selftest            base rc=0 head rc=0  identical
+measure_fail_fast                        base rc=0 head rc=0  identical
+measure_fail_fast_selftest               base rc=0 head rc=0  identical
+measure_naming                           base rc=0 head rc=0  identical
+measure_naming_selftest                  base rc=0 head rc=0  identical
+measure_test_evidence_adapted            base rc=0 head rc=0  identical
+measure_test_evidence                    base rc=1 head rc=1  identical
+measure_test_evidence_selftest_adapted   base rc=0 head rc=0  identical
+measure_test_evidence_selftest           base rc=1 head rc=1  identical
+ooc_record_rom_digests                   base rc=0 head rc=0  differs
+ooc_selftest                             base rc=0 head rc=0  identical
+ooc_verify                               base rc=0 head rc=0  identical
+pp_srcs                                  base rc=0 head rc=0  identical
+--- diff base head: check_py_idiom
+1c1
+< py idiom: 474 first-party modules, 248196 lines
+---
+> py idiom: 474 first-party modules, 248271 lines
+--- diff base head: ooc_record_rom_digests
+1c1
+< ooc.sh: recorded ROM content digests for protocol-processor pin 22c139a4323bc96c779d13e3f6774480c5fb9b75 and gptp-processor pin e4869fd0c42889b2ac806587cc5c78afb1c33461 in syn/yosys/rom_digests.tsv
+---
+> ooc.sh: recorded ROM content digests for protocol-processor pin ebc3b6bcd6e2c789c1c80c9e285193628567ea33 and gptp-processor pin e4869fd0c42889b2ac806587cc5c78afb1c33461 in syn/yosys/rom_digests.tsv
+--- rom_digests.tsv rows recorded (scratch only, restored afterwards)
++22c139a4323bc96c779d13e3f6774480c5fb9b75	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
++22c139a4323bc96c779d13e3f6774480c5fb9b75	ucode.hex	518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8
++ebc3b6bcd6e2c789c1c80c9e285193628567ea33	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
++ebc3b6bcd6e2c789c1c80c9e285193628567ea33	ucode.hex	a3b62cabe2cb091383f999bf58b830ff2d3ab63cd8699b95d2529dbf4d02bcb3
+--- KL_pp_shadow pricing
+KL_pp_shadow                    56117     4104    60221    26281       15        4       10     2381
+KL_pp_shadow                    56117     4104    60221    26281       15        4       10     2381
+--- failing-by-design parent gates (identical at base and head)
+[check_submodule_docs]
+protocol-processor: documented pin differs from Git
+submodule diagram stale: docs/diagrams/submodule_boundaries.svg, docs/diagrams/submodule_boundaries.drawio, docs/diagrams/submodule_boundaries.png
+submodule documentation: FAIL (2 findings)
+[measure_test_evidence]
+runner evidence contract: OK
+
+FAIL: 3 unexplained DUT-source reader(s) > ratchet 0; stale dispositions: []
+[measure_test_evidence_selftest]
+[FAIL] every DUT-source reader has a current disposition: unexplained=['protocol-processor/tb/aecp_cmds/mutants.py', 'protocol-processor/tb/elab_guards/guards.py', 'protocol-processor/tb/elab_guards/mutants.py'], stale=[]
+
+105 checks: 104 PASS, 1 FAIL

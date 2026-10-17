@@ -1,0 +1,58 @@
+# new arms at head: verdict lines and failing checks (head campaign logs)
+== dispatch scfg-range-bad-arguments
+scfg-range-bad-arguments: rc=2 failures=2 named=1 KILLED
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)
+== dispatch scfg-nsd-zero-body
+scfg-nsd-zero-body: rc=2 failures=2 named=1 KILLED
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+== dispatch scfg-nsd-stores
+scfg-nsd-stores: rc=2 failures=5 named=1 KILLED
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no dynamic-store write, NVM mark or notification (1, 0, 0)
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: no dynamic-store write, NVM mark or notification (1, 0, 0)
+FAIL: SC3 ...and GET_CONFIGURATION still reads the image's 1, byte-exact
+== dispatch scfg-nsd-notifies
+scfg-nsd-notifies: rc=2 failures=3 named=1 KILLED
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no unsolicited frame reached the registered holder
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no dynamic-store write, NVM mark or notification (0, 0, 1)
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: no dynamic-store write, NVM mark or notification (0, 0, 1)
+== dispatch scfg-refusal-short-body
+scfg-refusal-short-body: rc=2 failures=4 named=1 KILLED
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 14)
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: ...at the response form's cdl 16, got 14
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 14)
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: ...at the response form's cdl 16, got 14
+== notify configuration_compare_whole_lane
+{"mutant": "configuration_compare_whole_lane", "verdict": "KILLED", "missing": []}
+FAIL: NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester
+== notify configuration_unchanged_notifies
+{"mutant": "configuration_unchanged_notifies", "verdict": "KILLED", "missing": []}
+FAIL: NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester
+FAIL: NP1c SET_CONFIGURATION(0) on the stored configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester
+== notify configuration_running_route_dropped
+{"mutant": "configuration_running_route_dropped", "verdict": "KILLED", "missing": []}
+FAIL: NP10 SET_CONFIGURATION(2), no such configuration, sink 0 bound: STREAM_IS_RUNNING carrying 0, byte-exact (bound 1, status 2)
+== notify configuration_success_reserved_dirty
+{"mutant": "configuration_success_reserved_dirty", "verdict": "KILLED", "missing": []}
+FAIL: NP1a SET_CONFIGURATION(0) on the image's configuration 0: the unchanged SET answers SUCCESS, byte-exact
+FAIL: NP1 SET_CONFIGURATION(1): the solicited response is SUCCESS, byte-exact (premise)
+FAIL: NP1b SET_CONFIGURATION(0): the solicited response is SUCCESS, byte-exact (premise)
+FAIL: NP1c SET_CONFIGURATION(0) on the stored configuration 0: the unchanged SET answers SUCCESS, byte-exact
+== notify configuration_refusal_notifies
+{"mutant": "configuration_refusal_notifies", "verdict": "KILLED", "missing": []}
+FAIL: NP10b: the refused SET_CONFIGURATION pushes nothing
+== scratch: scfg-range-bad-arguments planted, full default build (./obj_dir/Vpp_top_sim)
+FAIL: W18d: SET_CONFIGURATION(0xFFFF) is NO_SUCH_DESCRIPTOR, got 7
+FAIL: W18d2: configurations_count boundary is NO_SUCH_DESCRIPTOR, got 7
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9990 checks, 4 failures
+== base ROM (518b900c...) against the head bench: NP and AX sections
+np-baserom.log:FAIL: NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester
+np-baserom.log:[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 77 checks, 1 failures
+ax-baserom.log:FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)
+ax-baserom.log:FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)
+ax-baserom.log:[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 936 checks, 2 failures
