@@ -1,0 +1,55 @@
+control aecp-dispatch: rc=0 PASS
+p-floor-15: rc=0 failures=0 named=0 UNPROVEN
+lude/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-7oqaw3e_/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__5.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-7oqaw3e_/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap__Dpi.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_sim
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-7oqaw3e_/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 17.334 MB sources in 49 modules, into 8.017 MB in 14 C++ files needing 0.004 MB
+- Verilator: Walltime 34.577 s (elab=0.416, cvt=3.589, bld=30.131); cpu 4.656 s on 16 threads; allocated 920.004 MB
+./obj_dir/Vpp_top_sim --aecp-dispatch-only
+A5b+M9+V: 716 checks, 0 failures
+AX: 231 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 947 checks, 0 failures
+make: Leaving directory '$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-7oqaw3e_/tb/pp_top'
+
+p-gate-ignores-bit12: rc=0 failures=0 named=0 UNPROVEN
+d -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-fzm382sc/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__2__Slow.cpp
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-fzm382sc/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_sim
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-fzm382sc/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 17.335 MB sources in 49 modules, into 8.017 MB in 14 C++ files needing 0.004 MB
+- Verilator: Walltime 33.540 s (elab=0.384, cvt=3.279, bld=29.479); cpu 4.220 s on 16 threads; allocated 984.031 MB
+./obj_dir/Vpp_top_sim --aecp-dispatch-only
+A5b+M9+V: 716 checks, 0 failures
+AX: 231 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 947 checks, 0 failures
+make: Leaving directory '$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-fzm382sc/tb/pp_top'
+
+p-gate-on-desc-ty: rc=2 failures=3 named=3 KILLED
+    FAIL: V1: GET_AVB_INFO byte-exact, both mappings in order
+    FAIL: V1b: GET_AVB_INFO padded to cdl 20 answers V1's SUCCESS, byte-exact
+    FAIL: V3: GET_AVB_INFO on a missing interface refuses NO_SUCH_DESCRIPTOR
+p-wrong-type-arm-empty: rc=0 failures=0 named=0 UNPROVEN
+d -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-8y48dimu/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__2__Slow.cpp
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-8y48dimu/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_sim
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-8y48dimu/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 17.333 MB sources in 49 modules, into 8.017 MB in 14 C++ files needing 0.004 MB
+- Verilator: Walltime 38.981 s (elab=0.366, cvt=3.615, bld=34.475); cpu 4.678 s on 16 threads; allocated 600.133 MB
+./obj_dir/Vpp_top_sim --aecp-dispatch-only
+A5b+M9+V: 716 checks, 0 failures
+AX: 231 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 947 checks, 0 failures
+make: Leaving directory '$REVIEWS/pp177-r642-1-packet/scratch/tmp/aecp-dispatch-mutants-8y48dimu/tb/pp_top'
+
+{"arm": "control aecp-dispatch", "rc": 0, "verdict": "PASS"}
+{"arm": "p-floor-15", "patch": "p-floor-15", "target": "aecp-dispatch", "rc": 0, "failures": 0, "named": 0, "verdict": "UNPROVEN"}
+{"arm": "p-gate-ignores-bit12", "patch": "p-gate-ignores-bit12", "target": "aecp-dispatch", "rc": 0, "failures": 0, "named": 0, "verdict": "UNPROVEN"}
+{"arm": "p-gate-on-desc-ty", "patch": "p-gate-on-desc-ty", "target": "aecp-dispatch", "rc": 2, "failures": 3, "named": 3, "verdict": "KILLED"}
+{"arm": "p-wrong-type-arm-empty", "patch": "p-wrong-type-arm-empty", "target": "aecp-dispatch", "rc": 0, "failures": 0, "named": 0, "verdict": "UNPROVEN"}

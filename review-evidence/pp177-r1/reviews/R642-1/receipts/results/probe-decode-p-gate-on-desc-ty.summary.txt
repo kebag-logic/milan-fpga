@@ -1,0 +1,5 @@
+FAIL:  decode: GET_AVB_INFO: the shortest AEM 0x0027 the engine dispatches to GAVB is cdl 19, the table's command cdl is 16
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0027 GAVB: observed {"answers": {"0": "32"}, "cdls": "19-20, 100", "floor": 19}, recorded {"answers": {"0": "32"}, "cdls": "16-100", "floor": 16} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "bba597ddcc1c5aaee736094226c4b2e38a9c4dcb63c9c86e517503c5577f3655", recorded "cb5b14a2d1fc256b8f832aa06eebc47bc073768d93df232184229ba62c6f2467" (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep trials: observed 585764, recorded 585760 (make -C tb/aecp_cmds record)
+aecp_cmds: 585764 trials swept; 176 checks: 174 PASS, 2 FAIL

@@ -1,0 +1,4 @@
+{"variant": "golden", "build_rc": 0, "sweep_rc": 0, "run_rc": 0, "named_failures": [], "passed": true, "verdict": "PASS"}
+{"variant": "p-floor-15", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: GET_AVB_INFO: the shortest AEM 0x0027 the engine dispatches to GAVB is cdl 15, the table's command cdl is 16"], "passed": true, "verdict": "DETECTED"}
+{"variant": "p-gate-ignores-bit12", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": [], "passed": false, "verdict": "SURVIVED"}
+{"variant": "p-gate-on-desc-ty", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: GET_AVB_INFO: the shortest AEM 0x0027 the engine dispatches to GAVB is cdl 19, the table's command cdl is 16"], "passed": true, "verdict": "DETECTED"}
