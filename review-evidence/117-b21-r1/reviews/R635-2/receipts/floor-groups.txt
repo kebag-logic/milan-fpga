@@ -1,0 +1,15 @@
+inputs: mst-long-reads.u16 sha256 06c5980895a3d010c39fc25447b5857b2511efc52866ea2ad2ab8e25d9311d8c; selftest-times sha256 ab78ee6b3b3f719a977df6dc049b54223a74fb3f593f35a3548568ab20600ecf; selftest-sampler sha256 17a8a5a8792592dc96ca1fa6702d44d0724af9bbdbd34267ea192b0d2d8fabee; W=110 GB=3 GA=2 TOL=4.0
+sampler wakes: 610; first at -0.037 s from read 0; spacing s, percentiles 0/1/50/99/100: [+1.0, +1.0, +1.0, +1.0, +1.0]; longest 1.040 s; window span 1.11 s
+drift over one floor test (median step) +2.304 frames; groups 9
+sampler dips, frames, percentiles 0/1/50/99/100: [-18.4, -17.1, -15.6, -14.0, -12.4]
+windows holding no sampler wake: 0 of 12578 (every 5th window start)
+group reads 3103 .. 3109 (t 31.031 s): largest step +6.4 (+4.1 against the drift) at read 3103; wakes before 2, dips [-16.5, -15.2]; after 1, dips [-14.3]; deepest before - deepest after -2.1; sign rule holds
+group reads 9920 .. 9928 (t 99.204 s): largest step +6.4 (+4.1 against the drift) at read 9920; wakes before 2, dips [-16.6, -15.0]; after 1, dips [-14.5]; deepest before - deepest after -2.1; sign rule holds
+group reads 12090 .. 12099 (t 120.905 s): largest step +7.0 (+4.7 against the drift) at read 12090; wakes before 2, dips [-16.8, -15.3]; after 1, dips [-14.0]; deepest before - deepest after -2.8; sign rule holds
+group reads 12618 .. 12738 (t 126.185 s): largest step +7.6 (+5.3 against the drift) at read 12710; wakes before 2, dips [-18.3, -15.8]; after 1, dips [-14.8]; deepest before - deepest after -3.5; sign rule holds
+group reads 14570 .. 14577 (t 145.706 s): largest step +6.9 (+4.6 against the drift) at read 14570; wakes before 2, dips [-16.7, -16.0]; after 1, dips [-14.1]; deepest before - deepest after -2.6; sign rule holds
+group reads 46799 .. 46805 (t 468.010 s): largest step +8.4 (+6.1 against the drift) at read 46799; wakes before 2, dips [-16.7, -15.4]; after 1, dips [-12.5]; deepest before - deepest after -4.2; sign rule holds
+group reads 49897 .. 49904 (t 498.991 s): largest step +6.3 (+4.0 against the drift) at read 49897; wakes before 2, dips [-15.5, -16.1]; after 1, dips [-13.5]; deepest before - deepest after -2.7; sign rule holds
+group reads 57646 .. 57845 (t 576.485 s): largest step -2.5 (-4.8 against the drift) at read 57761; wakes before 1, dips [-12.4]; after 1, dips [-17.0]; deepest before - deepest after +4.6; sign rule holds
+group reads 58261 .. 58269 (t 582.635 s): largest step +6.8 (+4.5 against the drift) at read 58261; wakes before 2, dips [-16.8, -15.5]; after 1, dips [-14.7]; deepest before - deepest after -2.1; sign rule holds
+sign rule holds in every group: True

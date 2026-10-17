@@ -1,0 +1,9 @@
+clean: corrected PASS {'clean': True, 'matched': 12000, 'offset_changes': 0, 'foreign_frames': 0}; as-run {'rc': 0, 'fully_matched': True, 'matched': 12000, 'foreign_frames': 0, 'offset_changes': 0}
+skip_6: corrected PASS {'clean': False, 'skips': 1, 'skipped_wire_frames': 6, 'repeats_or_inserts': 0, 'foreign_frames': 0, 'matched': 12000}; as-run {'rc': 0, 'fully_matched': False, 'matched': 12000, 'foreign_frames': 0, 'offset_changes': 1}
+repeat_1: corrected PASS {'clean': False, 'skips': 0, 'repeats_or_inserts': 1, 'inserted_frames': 1, 'foreign_frames': 0, 'matched': 12001}; as-run {'rc': 0, 'fully_matched': False, 'matched': 12001, 'foreign_frames': 0, 'offset_changes': 1}
+insert_3_zero_leading: corrected PASS {'clean': False, 'foreign_frames': 3, 'foreign_zero': 3, 'offset_changes': 1, 'repeats_or_inserts': 1, 'inserted_frames': 3, 'skips': 0, 'matched': 12000}; as-run {'rc': 1, 'error': "KeyError: 'wire_frame'"}
+bit_flip: corrected PASS {'clean': False, 'foreign_frames': 1, 'foreign_zero': 0, 'offset_changes': 0, 'matched': 11999}; as-run {'rc': 0, 'fully_matched': False, 'matched': 11999, 'foreign_frames': 1, 'offset_changes': 0}
+zero_for_nonzero: corrected PASS {'clean': False, 'foreign_frames': 1, 'foreign_zero': 1, 'offset_changes': 0, 'matched': 11999}; as-run {'rc': 0, 'fully_matched': False, 'matched': 11999, 'foreign_frames': 1, 'offset_changes': 0}
+unequal_words_same_key: corrected PASS {'clean': False, 'foreign_frames': 1, 'offset_changes': 0, 'matched': 11999}; as-run {'rc': 0, 'fully_matched': True, 'matched': 12000, 'foreign_frames': 0, 'offset_changes': 0}
+noise: {"frames_equal_to_previous": 30162, "fraction_equal_to_previous": 0.213, "all_zero_frames": 29451, "fraction_all_zero": 0.208, "slot_words": {"0x0": 271050, "0xfffffe00": 355, "0xffffff00": 295043}}
+all controls pass: True

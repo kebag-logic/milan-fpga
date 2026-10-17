@@ -1,0 +1,180 @@
+{
+  "replayed_equals_published": {
+    "bound-as-measured.json": true,
+    "restart-controls.json": true,
+    "direction-b-mcasp.json": true,
+    "direction-b-exact.json": true,
+    "grader-controls.json": true,
+    "step1.json": true,
+    "transit-crf.json": true,
+    "floor-groups.txt": true
+  },
+  "table_rows": 20,
+  "table": [
+    {
+      "cycle": 1,
+      "equal": true
+    },
+    {
+      "cycle": 2,
+      "equal": true
+    },
+    {
+      "cycle": 3,
+      "equal": true
+    },
+    {
+      "cycle": 4,
+      "equal": true
+    },
+    {
+      "cycle": 5,
+      "equal": true
+    },
+    {
+      "cycle": 6,
+      "equal": true
+    },
+    {
+      "cycle": 7,
+      "equal": true
+    },
+    {
+      "cycle": 8,
+      "equal": true
+    },
+    {
+      "cycle": 9,
+      "equal": true
+    },
+    {
+      "cycle": 10,
+      "equal": true
+    },
+    {
+      "cycle": 11,
+      "equal": true
+    },
+    {
+      "cycle": 12,
+      "equal": true
+    },
+    {
+      "cycle": 13,
+      "equal": true
+    },
+    {
+      "cycle": 14,
+      "equal": true
+    },
+    {
+      "cycle": 15,
+      "equal": true
+    },
+    {
+      "cycle": 16,
+      "equal": true
+    },
+    {
+      "cycle": 17,
+      "equal": true
+    },
+    {
+      "cycle": 18,
+      "equal": true
+    },
+    {
+      "cycle": 19,
+      "equal": true
+    },
+    {
+      "cycle": 20,
+      "equal": true
+    }
+  ],
+  "prior_loss_counts": [
+    {
+      "run": "st-long",
+      "losses": 2,
+      "above_control": 2,
+      "exceptions": []
+    },
+    {
+      "run": "st-long2",
+      "losses": 18,
+      "above_control": 15,
+      "exceptions": [
+        {
+          "time_s": 510.385,
+          "shortfall": 6.8
+        },
+        {
+          "time_s": 530.522,
+          "shortfall": -5.2
+        },
+        {
+          "time_s": 531.244,
+          "shortfall": 7.8
+        }
+      ]
+    }
+  ],
+  "source_gate_head": "head 75853d80c22893448936bd1890e782bd0a0ce642",
+  "source_gates": [
+    {
+      "gate": 1,
+      "rc": 0,
+      "first_line": "docs_check: 0 finding(s) across 208 md files + 1347 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]"
+    },
+    {
+      "gate": 2,
+      "rc": 0,
+      "first_line": "documentation style: OK (22 current documents)"
+    },
+    {
+      "gate": 3,
+      "rc": 0,
+      "first_line": "TOC gate: OK (147 page(s) carry an annotated contents list, 18 below the 3-section threshold)"
+    },
+    {
+      "gate": 4,
+      "rc": 0,
+      "first_line": "check_em_dash: 0 finding(s) over 25841 added line(s) in 109 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [e4b771f9..HEAD]"
+    },
+    {
+      "gate": 5,
+      "rc": 0,
+      "first_line": "doc path gate: OK (996 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)"
+    },
+    {
+      "gate": 6,
+      "rc": 0,
+      "first_line": "  ok   ['docs/testing/CI_WORKFLOWS.md']: rtl=False"
+    },
+    {
+      "gate": 7,
+      "rc": 0,
+      "first_line": "baremetal-only: OK (0 findings across 1345 tracked first-party file(s))"
+    },
+    {
+      "gate": 8,
+      "rc": 0,
+      "first_line": "  PASS  clean"
+    },
+    {
+      "gate": 9,
+      "rc": 0,
+      "first_line": "(empty successful receipt)"
+    },
+    {
+      "gate": 10,
+      "rc": 0,
+      "first_line": "(empty successful receipt)"
+    },
+    {
+      "gate": 11,
+      "rc": 0,
+      "first_line": "(empty successful receipt)"
+    }
+  ]
+}

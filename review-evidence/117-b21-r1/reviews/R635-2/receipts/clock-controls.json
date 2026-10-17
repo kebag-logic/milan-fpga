@@ -1,0 +1,46 @@
+{
+  "reads": 19001,
+  "frames": 9120023,
+  "realtime_monotonic_range_us": 29.56390380859375,
+  "min_read_interval_ms": 7.807621,
+  "max_read_interval_ms": 12.187206,
+  "cumulative_frames_strictly_increasing": true,
+  "realtime_strictly_increasing": true,
+  "cycle_precedes_bind": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "timestamps_cover_cycles": true,
+  "controls": [
+    {
+      "step_ms": 2,
+      "rc": 1,
+      "message": "refused: realtime moved against monotonic by 0.002030 s inside the capture",
+      "refused": true
+    },
+    {
+      "step_ms": -2,
+      "rc": 1,
+      "message": "refused: realtime moved against monotonic by 0.002002 s inside the capture",
+      "refused": true
+    }
+  ]
+}
