@@ -1,0 +1,123 @@
+{
+  "dA-dut": {
+    "sha256": "59a86f99427ce8ef62530e4da87fa16eaf17ea51a37f3552493f56311b31212f",
+    "pcap_records": 5523355,
+    "packets": 5198452,
+    "frames": 31190712,
+    "seq_breaks": 0,
+    "tv_zero": 0,
+    "seconds": 649.815033182,
+    "crf": {
+      "(3, '0200000000010001')": {
+        "packets": 324903,
+        "seq_breaks": 0,
+        "pps": 499.99333796218696
+      }
+    },
+    "timestamp_step_ns": {
+      "min": 124999,
+      "max": 125020,
+      "median": 124999.0
+    },
+    "pattern": {
+      "first": 239208,
+      "last": 31190711,
+      "valid": 30951504,
+      "repeats": 0,
+      "skips": 0,
+      "backward": 0,
+      "torn": 0,
+      "invalid": 0
+    }
+  },
+  "dA-peer": {
+    "sha256": "a848c00b319904d337da99cf19a3ff2ca3d8dc6b52d7d568562cdb1929c34b85",
+    "pcap_records": 5523405,
+    "packets": 5198499,
+    "frames": 31190994,
+    "seq_breaks": 0,
+    "tv_zero": 0,
+    "seconds": 649.812462168,
+    "crf": {
+      "(2, '0200000000010001')": {
+        "packets": 324906,
+        "seq_breaks": 0,
+        "pps": 499.9998369062258
+      }
+    },
+    "timestamp_step_ns": {
+      "min": 124999,
+      "max": 125020,
+      "median": 124999.0
+    },
+    "pattern": {
+      "first": 238728,
+      "last": 31190993,
+      "valid": 30952266,
+      "repeats": 0,
+      "skips": 0,
+      "backward": 0,
+      "torn": 0,
+      "invalid": 0
+    }
+  },
+  "dB-dut": {
+    "sha256": "6cd1c9b4929025078ad29e2a7c659351fe09c9b3c6f8dfc792ba3a782b878e1f",
+    "pcap_records": 5199234,
+    "packets": 5199125,
+    "frames": 31194750,
+    "seq_breaks": 0,
+    "tv_zero": 0,
+    "seconds": 649.899179207,
+    "crf": {},
+    "timestamp_step_ns": {
+      "min": 124953,
+      "max": 125042,
+      "median": 125001.0
+    }
+  },
+  "dB-peer": {
+    "sha256": "5d60d73376b683f5b835744f84a0d0b5026f3e4f37f0bf08f9c8694af0b3c278",
+    "pcap_records": 5198490,
+    "packets": 5198371,
+    "frames": 31190226,
+    "seq_breaks": 0,
+    "tv_zero": 0,
+    "seconds": 649.796652608,
+    "crf": {},
+    "timestamp_step_ns": {
+      "min": 124953,
+      "max": 125042,
+      "median": 125001.0
+    }
+  },
+  "dA-cross": {
+    "common_packets": 5198372,
+    "dut_offset": 80,
+    "header_equal": 5198372,
+    "payload_equal": 5198372,
+    "tap_rate_ppm": -13.07010697288431,
+    "detrended_transit_us": [
+      -27.681102950597182,
+      23.894065925210715
+    ]
+  },
+  "dB-cross": {
+    "common_packets": 5198371,
+    "dut_offset": 139,
+    "header_equal": 5198371,
+    "payload_equal": 5198371,
+    "tap_rate_ppm": -12.617526873141642,
+    "detrended_transit_us": [
+      -114.3893783079572,
+      50.3980032165274
+    ]
+  },
+  "dB-exact": {
+    "frames": 30480000,
+    "offset": 148874,
+    "unequal_frames": 0,
+    "adjacent_identical_frames": 6437039,
+    "all_zero_frames": 6371968
+  }
+}

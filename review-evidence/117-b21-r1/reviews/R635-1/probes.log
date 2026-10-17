@@ -1,0 +1,102 @@
+{
+  "clean": {
+    "returncode": 0,
+    "mcasp_frames": 1400,
+    "wire_frames": 2000,
+    "first_aligned_mcasp_frame": 0,
+    "first_wire_frame": 100,
+    "matched": 1400,
+    "foreign_frames": 0,
+    "foreign_zero": 0,
+    "offset_changes": 0,
+    "skips": 0,
+    "skipped_wire_frames": 0,
+    "repeats_or_inserts": 0,
+    "inserted_frames": 0,
+    "final_offset": 100,
+    "events": []
+  },
+  "six_frame_skip": {
+    "returncode": 0,
+    "mcasp_frames": 1394,
+    "wire_frames": 2000,
+    "first_aligned_mcasp_frame": 0,
+    "first_wire_frame": 100,
+    "matched": 1394,
+    "foreign_frames": 0,
+    "foreign_zero": 0,
+    "offset_changes": 1,
+    "skips": 1,
+    "skipped_wire_frames": 6,
+    "repeats_or_inserts": 0,
+    "inserted_frames": 0,
+    "final_offset": 106,
+    "events": [
+      {
+        "mcasp_frame": 300,
+        "wire_frame": 406,
+        "offset_change": 6
+      }
+    ]
+  },
+  "one_frame_repeat": {
+    "returncode": 0,
+    "mcasp_frames": 1401,
+    "wire_frames": 2000,
+    "first_aligned_mcasp_frame": 0,
+    "first_wire_frame": 100,
+    "matched": 1401,
+    "foreign_frames": 0,
+    "foreign_zero": 0,
+    "offset_changes": 1,
+    "skips": 0,
+    "skipped_wire_frames": 0,
+    "repeats_or_inserts": 1,
+    "inserted_frames": 1,
+    "final_offset": 99,
+    "events": [
+      {
+        "mcasp_frame": 500,
+        "wire_frame": 599,
+        "offset_change": -1
+      }
+    ]
+  },
+  "three_zero_insertions": {
+    "returncode": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"$REVIEWS/117-b21-r635-1-packet/scratch/evidence/author/tools/b21_grade.py\", line 356, in <module>\n    mcasp(*a)\n    ~~~~~^^^^\n  File \"$REVIEWS/117-b21-r635-1-packet/scratch/evidence/author/tools/b21_grade.py\", line 255, in mcasp\n    first_wire_frame=int(first + (ev[0][\"wire_frame\"] - ev[0][\"mcasp_frame\"] - ev[0][\"offset_change\"]) if ch else first + off) if off is not None else None,\n                                  ~~~~~^^^^^^^^^^^^^^\nKeyError: 'wire_frame'\n"
+  },
+  "unequal_words_same_hash": {
+    "returncode": 0,
+    "mcasp_frames": 1400,
+    "wire_frames": 2000,
+    "first_aligned_mcasp_frame": 0,
+    "first_wire_frame": 100,
+    "matched": 1400,
+    "foreign_frames": 0,
+    "foreign_zero": 0,
+    "offset_changes": 0,
+    "skips": 0,
+    "skipped_wire_frames": 0,
+    "repeats_or_inserts": 0,
+    "inserted_frames": 0,
+    "final_offset": 100,
+    "events": []
+  },
+  "collision_details": {
+    "frame": 100,
+    "before": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "after": [
+      0,
+      0,
+      256,
+      256000768
+    ],
+    "same_key": 0
+  }
+}

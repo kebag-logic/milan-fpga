@@ -1,0 +1,20 @@
+== mst-dry: inputs
+read-time record mst-dry.ts: 48000 B sha256 39408c7ec079af8f5ed665051b9aaf92318709b8d948286f90a71c4b7fbe62bc; 2000 reads, 960000 frames
+frames per read: {480: 2000}
+window: reads 0 .. 1999 (1999 intervals), frames 480 .. 960000; reads not of one period inside: 0 []
+derived record mst-dry-reads.u16: 3998 B sha256 d22bc67a6b0d798a8ed96bfada961b2a8fbff58c2cad473bb8843826993687a6; b5_attrib.py sha256 f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40
+arecord overruns: 0 []; stamper: b21stamp: frames=960000 reads=2000 kept_slots=0 ring_max_fill=0 dropped_bytes=0 partial_bytes=0
+== window and rate
+window 19.991 s on the board's monotonic clock (0.33 min); 959520 frames delivered
+deficit D(R) - D(0) = 47.8 frames; linear fit slope +2.0797 frames/s = +43.33 ppm (the DUT's TDM clock against the board's monotonic clock, uncalibrated)
+deficit residual after the linear fit, frames, percentiles 0/1/50/99/100: [-16.0, -14.4, +0.9, +13.3, +47.2]
+== read intervals and stalls (read interval over 15 ms)
+read interval ms, percentiles 0/0.01/1/50/99/99.99/100: [+9.0, +9.0, +9.7, +10.0, +10.3, +10.9, +11.0]; over 12 ms: 0, over 15 ms: 0
+stalls 0
+== delivery-deficit floor steps (lane B5's floor test)
+positions 1774; drift over one floor test (median step) +2.352 frames; step percentiles 0/0.01/1/50/99/99.99/100: [+0.3, +0.3, +0.3, +2.4, +5.7, +5.8, +5.8]
+positions with |step - drift| > 4 frames: 0, in 0 groups
+sum of the positive group steps: 0.0 frames
+== board sampler (1 Hz): McASP DMA edge interrupt rows (CPU0 count)
+chan0: 20 samples; per-second rate percentiles 0/1/50/99/100 [+0.0, +0.0, +0.0, +0.0, +0.0]
+chan1: 20 samples; per-second rate percentiles 0/1/50/99/100 [+97.1, +97.4, +100.0, +101.0, +101.0]
