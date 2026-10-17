@@ -1,0 +1,10442 @@
+{
+ "binding": "dca46b6e4d21507a6334688f17f9d9f40bc92a036b7b957095062702698e4d4d",
+ "fixtures": {
+  "R638-6-M1": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unsupported conditional Make body at Makefile:2",
+   "residue": [],
+   "sha256": "094447e9d9a2fc85544e41dde380a27bc46bc1b0901d2ee51f4985c59afa4fe9",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:conditional",
+    "make:invocation"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-M10": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "1228d3c015546f9c04eac9f1940f761cc6061eb3976d505676ffb18b48e8723d",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.:=",
+    "make:default-goal",
+    "make:goal.default",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M11": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "okay"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unmodelled Make command-line value for 'FOO' at .github/workflows/fixture.yml:1",
+   "residue": [],
+   "sha256": "bc70c17a1668726d23b9a9c027584f118212b8c6bc46210f121d03a3af2c2f08",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "bash:word.single-quoted"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-M12": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [],
+   "refusal": null,
+   "residue": [],
+   "sha256": "812b42cf5623fa0d173e0bd1a990bae3dba805ca84da1d2383475aeed76b5d93",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "make:assignment.:=",
+    "make:function.subst",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-M13": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [],
+   "refusal": null,
+   "residue": [],
+   "sha256": "5f0abc34c35b93280e2bfc9fab50b53026ae182bf2f4f0c83cff33d50be7c7bd",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:call.prefix-assignment",
+    "bash:word.literal",
+    "cmd:data",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:target-specific",
+    "make:variable.environment",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-M14": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "f82ca540c284acf4d619260a07b38101f7d63436bca072faeeec5c0d3ac8f748",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:recipe-line",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M15": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "unsupported conditional Make body at Makefile:2",
+   "residue": [],
+   "sha256": "2d3191d0f0c406ef6b9ee7d1fdd840ca961a22b719672601859f9768d2bac55b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:conditional",
+    "make:invocation"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-M16": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "55800c6122baf8e0e2e8d124a12fcf1b23c24e7da3b8a5a43b9d6a442104603e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:invocation",
+    "make:recipe",
+    "make:recipe-line",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M17": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "unsupported conditional Make body at Makefile:2",
+   "residue": [],
+   "sha256": "41fb2599ef51360f25e42d887911d2bedfbbad77e65afc7a39c4324fa93b2080",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:conditional",
+    "make:invocation"
+   ],
+   "statuses": [
+    2
+   ],
+   "walker": []
+  },
+  "R638-6-M18": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ],
+   "outcome": "identical",
+   "real": [],
+   "refusal": null,
+   "residue": [],
+   "sha256": "67af5f41826abb0633558792025671b6601cebac41563a3e1ca609202038adcb",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:invocation.inherited-flags",
+    "make:option.directory",
+    "make:option.n",
+    "make:recipe",
+    "make:recipe.dry-run",
+    "make:rule",
+    "make:variable.MAKE",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-M19": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "okay"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "175ecae273e237dcd38c1793bb92dda2bc5ed2198694851e2e3b87ad1c9c90a8",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.=",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:target-specific",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "okay"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M2": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unsupported conditional Make body at Makefile:2",
+   "residue": [],
+   "sha256": "f6c44cdf4029f6b409f565a1d89d35e42ae4cc0184e642a6d007ff8d24ba5331",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:conditional",
+    "make:invocation"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-M20": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "ab7539c45dd02a96e00f41f0ef4a77a0f187bf97d48d7820ae4c2082a9d07385",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:shell.script.bash",
+    "cmd:table",
+    "make:function.abspath",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M21": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at Makefile:1:1",
+   "residue": [],
+   "sha256": "23a89824f3ee39b21d100514a7c3f7e90f92ad184fe5523e4bfe4ce1ff570a4b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:shell.script.bash",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:block",
+    "sh:call.command",
+    "sh:function.call",
+    "sh:function.definition",
+    "sh:word.command-substitution",
+    "sh:word.double-quoted",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-M3": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden",
+      "okay"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "aca88549b2cdae5bbf9f50da66cae354c7cec44ef4340c9d3445bff45f1e5227",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:assignment.+=",
+    "make:assignment.=",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.environment",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ],
+      [
+       "literal",
+       "okay"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M3b": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden",
+      "okay"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "275fe71a87dfd193b7bbbe4cda65b125843bdc4936a4dfde843ec4b2d46f17a4",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:declaration.export",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:assignment.+=",
+    "make:assignment.=",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.environment",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ],
+      [
+       "literal",
+       "okay"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M4": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "7c7f6bb2c17d222d500da30e3a2dc03a5402bca52bc5864acd1f0ac2cacc75c3",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.=",
+    "make:call.argument",
+    "make:function.call",
+    "make:function.if",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M5": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "okay"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "3193853a4ab8e552e329088d1bfd947d9da621c37c0deb5146bf018a75db4e0b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.=",
+    "make:call.argument",
+    "make:function.call",
+    "make:function.if",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "okay"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M6": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "okay"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "ba25d5c8b6485f6291d87f56fe1dcc65e135328aa9ce3f570c7587dc2b1556cd",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:target-specific",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "okay"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M7": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "unsupported Make construct 'endef' at Makefile:5",
+   "residue": [],
+   "sha256": "e1299942de4bc17ad451d4f3aab3f4b9eb44826a0e77cf25a39efd49cc9849b5",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:assignment.=",
+    "make:define",
+    "make:invocation"
+   ],
+   "statuses": [
+    2
+   ],
+   "walker": []
+  },
+  "R638-6-M8": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "a8c2c1468a5b498fc315a72e917f4748a7a2989f9b4ff95367e68e183ac6bab1",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:shell.script.bash",
+    "cmd:table",
+    "make:function.firstword",
+    "make:function.wildcard",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-M9": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [],
+   "refusal": null,
+   "residue": [],
+   "sha256": "e7e6ebe2e9f8cdd55555b49f08e510ad746a354960a3d7428f6e55c44a8a3f52",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "make:function.if",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-S1": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at .github/workflows/fixture.yml:2",
+   "residue": [],
+   "sha256": "867e531c9b1da0d7b09d078518d2b6775eea3cc5b8232118b5e4d675766a7ea8",
+   "shapes": [
+    "bash:block",
+    "bash:call.command",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:shell.script.bash"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-S10": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "scripts"
+    }
+   ],
+   "refusal": "unclassified command 'cd' at .github/workflows/fixture.yml:1",
+   "residue": [],
+   "sha256": "ec7d81d1caeabd43be236da5dd87fba26b6272c9209c914b7a6e5c8cde2771c9",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:wrapper.command"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-S2": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at .github/workflows/fixture.yml:3",
+   "residue": [],
+   "sha256": "78f31701c836048c9b03605e01a5509be66ce94aea3054fdc406dc77dca19485",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-S3": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at .github/workflows/fixture.yml:2",
+   "residue": [],
+   "sha256": "373b5b3a4d806dfda72ac76cb437cc6bba04e24597482e27b7a736bfe9254980",
+   "shapes": [
+    "bash:and",
+    "bash:block",
+    "bash:call.command",
+    "bash:cd",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:shell.script.bash"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-S4": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "14aa10055fdbae39c8e242111ab5709c981a08aa7450f563c9353a8d55811955",
+   "shapes": [
+    "bash:block",
+    "bash:call.command",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.literal",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-S5": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unresolved shell cd at .github/workflows/fixture.yml:3",
+   "residue": [],
+   "sha256": "ff382506b7358ea2f9a723c48ccd6fe49c2651914070c89c8d5388b4a48579fd",
+   "shapes": [
+    "bash:cd",
+    "bash:redirect",
+    "bash:word.double-quoted",
+    "bash:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-S6": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}' at .github/workflows/fixture.yml:2",
+   "residue": [],
+   "sha256": "e4c7e13939d3c82b25f6d0614fe88d4d6e7d38edaa322c67691a9e39a00aee7f",
+   "shapes": [
+    "bash:block",
+    "bash:call.command",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:shell.script.bash"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-S7": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "6c700667e2fc50118ab52ac0d390562e998f56546d53bb1fab79697175f36879",
+   "shapes": [
+    "bash:block",
+    "bash:call.command",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-S8": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "db6e331c7dd404bff0d6864b33551d1c00e07490ce94b1fb76748a6183d7b20a",
+   "shapes": [
+    "bash:block",
+    "bash:call.command",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R638-6-S9": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "run.sh"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified command 'shopt -s expand_aliases' at .github/workflows/fixture.yml:1",
+   "residue": [],
+   "sha256": "f92e89dfdb13017a8410967e6189f1ce841f0caeeb80842dfe657bf88fb3db2e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-PYW1": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pyw1"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "1c75688b11508a043030ef75d1d78a42376a4f7b08c52c3dd1775a8feb002ec5",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.namespace",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-PYW2": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pyw2"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "b55afcd731f0c39ddb1a0202671cceed81dbd61ea2275c04b9d7eb29cbb3b2ae",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:capability.namespace",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-PYW3": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pyw3"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "8de28044927c7d2bb458600b2b83ff946e6f4766d71fea4b75b0ad6b916b4d5e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.namespace",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-PYW4": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pyw4"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "b03e084744553d88a338d1e188bd899d8148868e8e660b1a9fd48a1eb97c1132",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.reflection",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-PYW5": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pyw5"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "7044372035b8befd66e11730ca3b6810ea4f0b4ca8889fe8a96ec01eb6d8c446",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.namespace",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-PYW6": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pyw6"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "be52663c02e721264458aed742adb3edbe1db99d5696f693fe7caaf065e8e13d",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.namespace",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-asyncio": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "unclassified Python execution 'asyncio.create_subprocess_exec' at main.py:3",
+   "residue": [],
+   "sha256": "b526151f222e84ec8cdd25283c8973109278f26d19c11d42228708ccb5a8a441",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.import",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-compile": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "compile"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "uncensused Python builtin 'compile' at main.py",
+   "residue": [],
+   "sha256": "1827531d39c5fb86563e63363e5034a7dbafe81268c0de19b9b4de448f3d7c85",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-ctypes": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ctypes"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "c9b0364cb0d2a9a5240cf49bf07a64a73e0168c10b0e65ef9b88f3fbd0981b44",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-exec": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "exec"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "uncensused Python builtin 'exec' at main.py",
+   "residue": [],
+   "sha256": "0e7c267fbe643f6bbdd155f56e8586fe1b5197054f4d3cd1a1b0edf3433e9b5d",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-execvp": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "execvp"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified Python execution 'os.execvp' at main.py:2",
+   "residue": [],
+   "sha256": "8a37430e7762ae11787cdf2f2268da230819622e33856d00272c2eb5416a677f",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-from-alias": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "alias"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "f06434a006df6c39ea639af1896c251a5f7190e0a470f8be53eb70d1fd0fec27",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-import-builtin": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "import"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "uncensused Python builtin '__import__' at main.py",
+   "residue": [],
+   "sha256": "463f5d1d92cfed13bf224d3919e5c27a4cf5535d13cb4ec4e8836dc276ef6431",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-import-module": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "module"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "9c3eddaf57683b5cd3c668cbbde3ffab5a0662354b79cec8782ae6dcbc76425d",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-pip": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "8f1bb61825b9babaa7d9edd07487c8a2738472f24b642f8928733449f0f6aba1",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-popen": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "popen"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "781613cb8b64b83efe7898845cfc97a740163d67003c6703e0397be7f5e4664b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-posix-spawnp": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "spawn"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified Python execution 'os.posix_spawnp' at main.py:2",
+   "residue": [],
+   "sha256": "1e9f4bf536c2c96b7b4d27beb2d6528ebca743a8e457f9b981b5a9d641d9d7b2",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-pty": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pty"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified Python execution 'pty.spawn' at main.py:2",
+   "residue": [],
+   "sha256": "d8dc22f86cdb164b5e21de321ba240aa946238f4b52e789587a896c625d5026e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.import",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-runpy": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "6e3bf1b2e5f524d185e4f1bc97f8b458705bb6645c83d582940efe7e1f7acf1c",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:import.external",
+    "py:loader.run_module",
+    "py:program"
+   ],
+   "statuses": [
+    1
+   ],
+   "walker": []
+  },
+  "R638-6-python-socket": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "78b50e0993b4a3d3ae1d1632f1492a34f2695aeb504582129d9123571df89037",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-6-python-webbrowser": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "26f1e454ca00607d2d68f5f0892f2f84299f8327e3c41e784e017781744dc60b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-GIT_CONFIG_COUNT": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'GIT_CONFIG_COUNT' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "f63d84a0c733f080383d540ffd042758432bc0535e0730429cfbf1a0652cd393",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-GIT_CONFIG_KEY_0": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'GIT_CONFIG_KEY_0' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "cebaf73a4db03531e0c46bb241af7be532b6261664fbf4ec4d6f87d4069c718a",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-GIT_EXEC_PATH": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'GIT_EXEC_PATH' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "595e0d66e31bd33886cb1fa426fd739798b5855c1b49dcd6107ada3a8cc65213",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-HOME": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'HOME' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "ee9928509ee1ab8d488bfa3fd697ac8836352f0a6f55204a52c73f1684419c59",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-LD_AUDIT": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'LD_AUDIT' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "47070de5dde8fdefa94256f30d7be69089ca80004c7c7b57d65b03c8bb0594c8",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-NODE_OPTIONS": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'NODE_OPTIONS' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "99d4f9ed46daa6ca1637cc19db2392a492bceee8b8b32a39424226a2aec27577",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-PERL5OPT": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'PERL5OPT' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "c4f644fbc3ddd09bb0ceb119293d8ba524f682577f38fe14cb007d66089f6cd1",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-PYTHONSTARTUP": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'PYTHONSTARTUP' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "4c8a76cfdbb238e5edef81803f6093adef807ba3f1f4e6e96d822d81dc8572dc",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-PYTHONUSERBASE": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "interpreter hook in workflow environment 'PYTHONUSERBASE' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "99532565457e7e82c9ac8be160dda836fc2f9b975987e79b4820673e95f63b0a",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-exported-function": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "exported shell function in workflow environment 'BASH_FUNC_echo%%' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "5a91771fd910eef9fad76b36beeea8e31492e3e343b9096bf2a1e0122349cf1c",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3a-unmodelled-name": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unmodelled workflow environment name 'ZZ_UNMODELLED' at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "3614fdd3355a74979c993b12f597821e5f51f2c10b68a52751d0bb30e14bafe7",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3b-if": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "sub"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "other"
+     ],
+     "directory": "other"
+    }
+   ],
+   "refusal": "ambiguous shell directory after conditional at .github/workflows/fixture.yml:2, used at .github/workflows/fixture.yml:3",
+   "residue": [],
+   "sha256": "58e94d7baa4d495da1ea8b1c3cb3d9238f549c96c2182e4eaff58919f6a4f9e8",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": []
+  },
+  "R638-7-N3b-or": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "sub"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "other"
+     ],
+     "directory": "other"
+    }
+   ],
+   "refusal": "ambiguous shell directory after || at .github/workflows/fixture.yml:2, used at .github/workflows/fixture.yml:3",
+   "residue": [],
+   "sha256": "03b638ab8d6782ba671d5d2ccfc8c0fe71a127d7012b4cd73a05d8a5ee9f8014",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:or",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": []
+  },
+  "R639-6-make-explicit-stem": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unmodelled Make explicit-rule stem $* at Makefile:2",
+   "residue": [],
+   "sha256": "52033fb3e5ebfe6b027ee35071904f863741e5ef0d1e674c1f6de22a5825653d",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:rule"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R639-6-make-unlisted": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "unsupported Make construct 'override X = echo' at Makefile:1",
+   "residue": [],
+   "sha256": "21be2c8b9b37964141cbaa496f2fb28c5d71f98dc84e584c559659c7ddd5c35b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:invocation"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R639-6-python-network": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "undeclared executing or network script 'probe.py'",
+   "residue": [],
+   "sha256": "11066ff5058568218e44f52232ec6f412f2f1c7be9f341ef34cd470b07dd7a89",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R639-6-python-unlisted": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "uncensused Python node 'AsyncFunctionDef' at probe.py",
+   "residue": [],
+   "sha256": "f52f6b01a41fdb11c5c4470dd908770a547ef46fc8dab3c42ac991625fff49b9",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R639-6-shell-pwd-shadow": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "evil"
+    }
+   ],
+   "refusal": "unresolved shell cd at .github/workflows/fixture.yml:1",
+   "residue": [],
+   "sha256": "02e0de9ee68f5eb1f87b03fd35b1388c68cb65180417bb5770fa88e749c27e22",
+   "shapes": [
+    "bash:and",
+    "bash:block",
+    "bash:call.command",
+    "bash:cd",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:data"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R639-6-shell-short-circuit": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}' at .github/workflows/fixture.yml:1",
+   "residue": [],
+   "sha256": "c6c1424ca658c7ce8feaf7e529bec86e7f747aae40aac8785ce821cb30596570",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:shell.script.bash"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R639-6-shell-unlisted": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [],
+   "refusal": "uncensused shell ForClause.Select at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "8dba94f5e2e8ae039182f80b02be1c39f5e1e02a62ef6ffb4f1fe1deae69a241",
+   "shapes": [],
+   "statuses": [
+    1
+   ],
+   "walker": []
+  },
+  "R639-7-F1-appending": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "uncensused shell Args.Append at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "7e41ef167661d20093788c39dcc88618be76528908b0ce15898e8219c97e4d9d",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "R639-7-F1-declare": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "outer"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "83fbb4d17bf3870390294099312c4f09a0d77fc0b6a2c8a9c6a2bdc29fef0a73",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.declare",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-initializer": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "db5bb21234310e60c4254671b8caf0b37e9915c1557ada3e88a567a180c02f17",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "hidden"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-nested-scope": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "mid"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "y"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "mid"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "y"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "mid"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "y"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "9c1318014665c4de8979b4c000f44349868ae34b26095f1a92d499b3915b2411",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "mid"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "y"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "mid"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-new-local": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "x"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "x"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "outer"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "3db9251a13c5b757e171b984e4cb215e160d464c464dec7884948c5e77f08226",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "x"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-redeclared-local": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "first"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "first"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "0fbd6e2f8ae90f4639100609d096a5c5c868aa247b495430e7462ed855c5689e",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "first"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "R639-7-F1-words-first": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ],
+      [
+       "literal",
+       "1"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "outer",
+      "1"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "outer"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "3c5019548468e201d05e9319cbb7e43535f48868becc9d185d9f71b0fa0d99f9",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ],
+      [
+       "literal",
+       "1"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-and": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "start"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "in-sub"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "after"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "flagged"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "97500793e66d426cc036e7729eefaa94bac38dc173b38c3f62f5c6e64e306db7",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:call.command",
+    "bash:cd",
+    "bash:subshell",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-sub"
+      ]
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "after"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-argv0": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "sub/run.sh"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "8dfd175d569876e061bfbad5bbfff28d1a82e4a0d65c200f26d76d83e18a8c5e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.argv0",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "sub/run.sh"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-arithmetic": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "0"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "1"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "2"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "337e1f3ab26642db69ead0d34c6349589fba4ba2024e259c8db66bc52e3e205f",
+   "shapes": [
+    "bash:call.command",
+    "bash:for.arithmetic",
+    "bash:word.arithmetic",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.split-runtime",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "fields"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-arithmetic-operators": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "below"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "4",
+      "85",
+      "<fixture>",
+      "<scratch>"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "a502411e6c7da3b1e65aa32c23eb04eb27b2a16e3d7f619354f74e37a1b5dcc8",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.arithmetic",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.parameter-operator",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "below"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ],
+      [
+       "runtime"
+      ],
+      [
+       "runtime"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-arrays": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "x",
+      "x",
+      "y",
+      "z"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "299883f0a29d0a858da3a92dd4982ce695c8b50beac3a57d17355b1073b64c18",
+   "shapes": [
+    "bash:assignment.array",
+    "bash:assignment.index",
+    "bash:call.command",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter-operator",
+    "bash:word.split-runtime",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ],
+      [
+       "fields"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-assignment": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "two",
+      ""
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "78bead9919a2375950bba1197b9412299065ce3841f90a5f502ac8c9d06331e2",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "two"
+      ],
+      [
+       "literal",
+       ""
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-bash-source": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "sub/lib.sh"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "80581471a56273749fdf00180a8ee808311470d34be66eebb65549142f0bad97",
+   "shapes": [
+    "bash:call.command",
+    "bash:source",
+    "bash:word.bash-source",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "sub/lib.sh"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-block": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "b"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "e0fe998691e306b17bc3c748b550976f6111266bd778af70007960ec9c970d35",
+   "shapes": [
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:cd",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "b"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ]
+  },
+  "bash-case": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "1"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "other"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      ""
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "2ebe66dc0968ef09f2a2f7447d43da58213c43fa13a39aa7e942ceeb3f340094",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:case",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "other"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-cd": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "here"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "back"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "30f583394a5266153cf2480ca81cfbff36c5d76250be0a354532c7475a337194",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "here"
+      ]
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "back"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-cd-pwd": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "<fixture>/sub"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "4cad41bc9ccbf31c5f28551fe7967299cd49100aa3445482fa7ebf509825a62b",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:call.command",
+    "bash:cd",
+    "bash:word.cd-pwd",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "<fixture>/sub"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-cd-pwd-after-a-program": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}/run2.sh' at run.sh:3",
+   "residue": [],
+   "sha256": "9b8203fcb2a49ac9eb3e695ddad82eff946ec48e3e00377d6dab08777f76ed71",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:call.command",
+    "bash:cd",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:python.script",
+    "cmd:shell.script.bash",
+    "cmd:table",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0,
+    127
+   ],
+   "walker": []
+  },
+  "bash-cd-pwd-script-directory": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "<fixture>"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "03325064628687764c40101ed769bf622e3a61a0b118f09b9e99f88ed04c4d53",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:call.command",
+    "bash:cd",
+    "bash:word.bash-source",
+    "bash:word.cd-pwd.script-directory",
+    "bash:word.dirname",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "<fixture>"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-cd-runtime": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "there"
+     ],
+     "directory": null
+    }
+   ],
+   "refusal": null,
+   "residue": [
+    "run.sh:1: declared runtime shell directory"
+   ],
+   "sha256": "04ec0e45443d822472d6bd3b6b9344c28e18886aa77e1a8e967814f2f3ab54d5",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd.runtime",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "there"
+      ]
+     ],
+     "directory": null
+    }
+   ]
+  },
+  "bash-cd-test-fails": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "here"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "ambiguous shell directory after && at .github/workflows/fixture.yml:1, used at .github/workflows/fixture.yml:2",
+   "residue": [],
+   "sha256": "d5d7403dc01920911647e2ec1c0921a1bd2975bab8de2ab814566856e15052ab",
+   "shapes": [
+    "bash:and",
+    "bash:call.command",
+    "bash:cd",
+    "bash:word.literal",
+    "cmd:data"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "bash-cd-test-last": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-obj-fw"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "80754e3a5d6a71a22602522b49fa9bdd50e69a19bbf9e16ad0131c1ec0d37e85",
+   "shapes": [
+    "bash:and",
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-obj-fw"
+      ]
+     ],
+     "directory": "obj_fw"
+    }
+   ]
+  },
+  "bash-command": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "alpha",
+      "beta"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "8ef2d2a5b253dfaf378437958eb388b5db4e08022b8d37dc409dc7142d73ec84",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "alpha"
+      ],
+      [
+       "literal",
+       "beta"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-command-substitution": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hi"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "f0d2fb5d00eda7e39e39cecba2f5fbb74566fbe4db3e886710c405cb3021be2e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-declarations": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "out",
+      "out",
+      "global"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "exported"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "b2a0e2146c0be2abe55606510e6c2be746344436658aefee584395220106a4bf",
+   "shapes": [
+    "bash:assignment",
+    "bash:assignment.array",
+    "bash:block",
+    "bash:call.command",
+    "bash:declaration.declare",
+    "bash:declaration.declare-global",
+    "bash:declaration.export",
+    "bash:declaration.local",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "out"
+      ],
+      [
+       "literal",
+       "out"
+      ],
+      [
+       "literal",
+       "global"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "exported"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-dirname": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "sub"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "88f8746b5f3c95007d7c33f703a6178c5cf134caabbc7c41c6768c0c89e2db23",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.dirname",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "sub"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-errexit-cd": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-obj-fw"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "60c953a1de85ff3f43fe0a93d6a38f7dcdce499f71a7dec3b7c9e752c943d5bf",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-obj-fw"
+      ]
+     ],
+     "directory": "obj_fw"
+    }
+   ]
+  },
+  "bash-exit": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "after"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "before"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "79d4e179f119ec49ac136c28eb6efc28ea2335cade1f4c41f6c323d55bb266bc",
+   "shapes": [
+    "bash:call.command",
+    "bash:escape.exit",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "before"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-for-words": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "one"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "two"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "d827fd4bd9fd5df3623eddc814280a1f8f882cf2b9bba7e9982f6b5d8f33244a",
+   "shapes": [
+    "bash:call.command",
+    "bash:for.words",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "one"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "two"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "one"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "two"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-function-in-test": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-f"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "ambiguous shell directory after a cd that can fail at .github/workflows/fixture.yml:2, used at .github/workflows/fixture.yml:3",
+   "residue": [],
+   "sha256": "2e649ff9b6833e7bd3834ac62bdebfeff3d690bc84ce918aa16afe164a31cce5",
+   "shapes": [
+    "bash:block",
+    "bash:cd",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "bash-function-partly-defined": {
+   "expect": "residue",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "defined"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "residue",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "defined"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "f"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [
+    "run.sh:4: declared runtime command name where 'f' is undefined"
+   ],
+   "sha256": "328a5b9999bb693dffcf58eb05489e06d0bc57302c6c455197265ddc89626cce",
+   "shapes": [
+    "bash:block",
+    "bash:call.command",
+    "bash:function.call-partly-defined",
+    "bash:function.definition",
+    "bash:if",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "defined"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-heredoc": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "done"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "6918043664343c0632473c4d19ddafb329a3a09d7ae6ee3ca74e673ef9ba8ae2",
+   "shapes": [
+    "bash:call.command",
+    "bash:heredoc",
+    "bash:redirect",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "done"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-heredoc-python": {
+   "expect": "residue",
+   "inspected": [],
+   "outcome": "residue",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "inline"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [
+    ".github/workflows/fixture.yml:1: declared inline interpreter program"
+   ],
+   "sha256": "17aa1384b1f03119c437e4594d9932f7d00906bf985dbc72aad227bdfa43eaff",
+   "shapes": [
+    "bash:heredoc",
+    "bash:heredoc.python",
+    "bash:redirect",
+    "bash:word.literal",
+    "bash:word.single-quoted",
+    "cmd:python.inline"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "bash-if": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "then"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "one"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "else"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "two"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "689318a0a9a1db29160bb3eb01abf8be875bd0be6a08a4577c92dd8d54ba1e66",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:if",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "then"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "else"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-if-certain": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "then"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "true"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": "ambiguous shell directory after conditional at .github/workflows/fixture.yml:1, used at .github/workflows/fixture.yml:2",
+   "residue": [],
+   "sha256": "4ad5db2173439b77274ef80d519803e03f207099050d92e6df6a72ca2af5bf5c",
+   "shapes": [
+    "bash:assignment",
+    "bash:cd",
+    "bash:if",
+    "bash:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "bash-if-outside": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "moved"
+     ],
+     "directory": null
+    }
+   ],
+   "refusal": "ambiguous shell directory after conditional at .github/workflows/fixture.yml:1, used at .github/workflows/fixture.yml:2",
+   "residue": [],
+   "sha256": "5a8aba3f53d479503cb2b1f07afe327a2d5e7399490c830349bdc5aa5a8829b8",
+   "shapes": [
+    "bash:assignment",
+    "bash:cd",
+    "bash:if",
+    "bash:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "bash-loop-escapes": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "00d751e50a28200ddef08389246ed85b10d88b2d1f6d6ab90399dca173c84b17",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:call.command",
+    "bash:escape.break",
+    "bash:escape.continue",
+    "bash:for.words",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-negated-cd": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "failed"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "e4a81346a3d65f23058fe9bdd2d0c7c9edd2d6e1784603cf0faa610bbca89fed",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:negation",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "failed"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-negation": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "absent"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "present"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "fa9804c25fe6001ee3302a153ccd662be645d6bc7682a7d75a7d02f982dfbaf3",
+   "shapes": [
+    "bash:call.command",
+    "bash:if",
+    "bash:negation",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "absent"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "present"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-no-errexit-cd": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "after"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": "ambiguous shell directory after a cd that can fail at run.sh:2, used at run.sh:3",
+   "residue": [],
+   "sha256": "7c4dde3d14ca7a1f2c0d3b13194d7333f5f841072c46bc921ef639f947f679bb",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": []
+  },
+  "bash-or": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "b"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "in-sub"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "3e1e7925e1d7f29bf00a3816ad9d500eb087789981f853d9893d9ce339a7192f",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:cd",
+    "bash:escape.exit",
+    "bash:or",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-sub"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ]
+  },
+  "bash-or-certain": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "after"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": "ambiguous shell directory after || at .github/workflows/fixture.yml:1, used at .github/workflows/fixture.yml:2",
+   "residue": [],
+   "sha256": "85eb42f5961ba5a25712bd56e1484ba1fdf1263e1892719f5983acdace051377",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:or",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "never"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-parameter-operators": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "val",
+      "3",
+      "va"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "1049ce11f476be3c2d8c64415f2ba8c15de45c526935a1736da6707de817b2ea",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter-operator",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ],
+      [
+       "runtime"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-pathname-expansion": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "g/a.txt",
+      "g/b.txt"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "6841212f8b2cbea6463fe5aba021d54e6f075b76df595a3fcc474af98ea6af3c",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "bash:word.pathname-expansion",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "fields"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-pipe": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "piped"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "82deee038ff7807d2f8dda381953a088cdceb202b9343ace40f49acad6509b68",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:pipe",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "piped"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-prefix-assignment": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "inner"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "outer"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "1800fec6627459baf114c8ffa9008cb96d6c2eb3a84b7fca9fadb66e9fd07c3a",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:call.prefix-assignment",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "inner"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "outer"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-process-substitution": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "/dev/fd/63"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "24da5b57a42d6ddca41e0d0e73077b18866006c53d01e66e9210bd0142879cde",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "bash:word.process-substitution",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-quotes": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a b",
+      "c d",
+      "ef",
+      "<home>x"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "05aacbab7d6bf4a38a88ffe23a54f98ccdeb4e895624db908e4996889d062902",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.single-quoted",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a b"
+      ],
+      [
+       "literal",
+       "c d"
+      ],
+      [
+       "literal",
+       "ef"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-read": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "v"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "2b7d86e3b7eb262d5980c977f562a8702a13730f65b64bb172e1c78b712c30ce",
+   "shapes": [
+    "bash:call.command",
+    "bash:read",
+    "bash:redirect",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.single-quoted",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-realpath": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "<fixture>/sub/x.sh"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "646a703b38b500ab308602bc4f44d923ae041cd14cbf06eea21eea2a11a59eda",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-realpath-after-a-program": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "hidden"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified runtime command name '${RUNTIME}/run.sh' at run.sh:3",
+   "residue": [],
+   "sha256": "503d2e3663c9302c330d6e8e80b810df545c96408ad1b90df4a6d5db585345f5",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:python.script",
+    "cmd:shell.script.bash",
+    "cmd:table",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": []
+  },
+  "bash-realpath-script-path": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "<fixture>/sub"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "4c59d719bf874e819b8763750c78252d348bb607a06f842be3faa1c2c166177c",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.argv0",
+    "bash:word.dirname",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.realpath.script-path",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "<fixture>/sub"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-return": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "b"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "b0ef9439e8545e490c6edb1eb082b832b008d020f23762245d8f6946b0d54456",
+   "shapes": [
+    "bash:and",
+    "bash:assignment",
+    "bash:block",
+    "bash:call.command",
+    "bash:escape.return",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-set-errexit": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-obj-fw"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "a205da024fb6b72aaa39d670b1ead3a1ad16558406995fcd3dae549cd2001073",
+   "shapes": [
+    "bash:call.command",
+    "bash:cd",
+    "bash:if",
+    "bash:set.errexit",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-obj-fw"
+      ]
+     ],
+     "directory": "obj_fw"
+    }
+   ]
+  },
+  "bash-set-plus-e": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "after"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unclassified command 'set +e' at .github/workflows/fixture.yml:1",
+   "residue": [],
+   "sha256": "93432088d2298698ed6ea9b326984a1de9a6feec0e170904ac05c46de3c2db7a",
+   "shapes": [
+    "bash:call.command",
+    "bash:set.errexit",
+    "bash:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "bash-source": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "from-lib"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "f4045bc3f74cb62a511293846bebe663e7447250c50543b37ba95df4bc968201",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:source",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "from-lib"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-special-parameters": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "b",
+      "1"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "65854ddbff0d1afd79dfef9ec7580e6e0dcc80bc5c2143e31b89a85615f920f1",
+   "shapes": [
+    "bash:block",
+    "bash:call.command",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:shift",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.special-parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "b"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-split-literal": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a",
+      "b",
+      "a b"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "c34522960894567d3f64269cec35100cadba3462ab00ecf04b62a8d7241e9f22",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.split",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a"
+      ],
+      [
+       "literal",
+       "b"
+      ],
+      [
+       "literal",
+       "a b"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-split-runtime": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "c",
+      "d",
+      "end"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "610c50cff7f9fb56882b0f20972646a98ed55705b4efe52acb635932ed272916",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.command-substitution",
+    "bash:word.literal",
+    "bash:word.split-runtime",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "fields"
+      ],
+      [
+       "literal",
+       "end"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-subshell": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "b"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "5863a1219e2de80eff29f695453645966746acbe63589239795f079742b8d0ce",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:cd",
+    "bash:subshell",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "b"
+      ]
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-test-clause": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pieces"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "starts-a"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "after"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "make"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "8a0f58839f5ed01921f2eb927f9184725687ea8df0902a1b4529e4875e1fcf3f",
+   "shapes": [
+    "bash:and",
+    "bash:call.command",
+    "bash:if",
+    "bash:test-clause",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0,
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "pieces"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "make"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "starts-a"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "after"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-test-clause-arithmetic": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "small"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "uncensused shell operator BinaryTest.120 at .github/workflows/fixture.yml",
+   "residue": [],
+   "sha256": "eceeb65026d348621dbabc9cb38c2c29780b7aef21db6feeb65b2043443c8c25",
+   "shapes": [],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "bash-tilde": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "<home>/x"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "0cdccd9512657d0625963df97390f7963e04fdc28929d96f513ef6c7f1fe87ea",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "bash:word.split-runtime",
+    "bash:word.tilde",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "fields"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-trap": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "late"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "98a68aec7703acc6b021a02b06c67ea2526333e350ae956ae83c34af0fe22a37",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:trap",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.single-quoted",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": null
+    }
+   ]
+  },
+  "bash-trap-runtime": {
+   "expect": "residue",
+   "inspected": [],
+   "outcome": "residue",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "/tmp/tmp.jH07VPSQDS"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [
+    "run.sh:2: declared runtime trap handler"
+   ],
+   "sha256": "b15894aec954ea106a5fa5c0fc967310635b13057bf270a8531affc513ef9ce6",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:trap.runtime",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "bash-true-certain": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "never"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "never"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "true"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "7310299889226434113cb4e4106e1d3e64c0144a923cc134c98f0d3191c8ed47",
+   "shapes": [
+    "bash:call.command",
+    "bash:if",
+    "bash:or",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "true"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-unset": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      ""
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "a7f485ac6aee6f7843f4894d076b2b2a292e57f370cbed154bf014572d61c798",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:unset",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "bash-while": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "0"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "1"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "2"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "fc7b0d3f046ec6c62539c862fb8c469a043bc221cb8afae35927d394e762fd00",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:while",
+    "bash:word.arithmetic",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "0"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-data": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "exists"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "83e759dc607faf2dddabf20040900fb48ac6c44cd0ad8274aec3f4821a5d11cb",
+   "shapes": [
+    "bash:and",
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "exists"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-direct-bash": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "./run.sh"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "011d50a44cc09ac1e673c9e2fcc4beda5253f66b648df14ce309f241623f71cb",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.argv0",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "cmd:direct.bash",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "./run.sh"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-find": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "sub/a.sh"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "0f728a82afcde7eba161bcd5e025e10194706b8a0ca9059b3bf8c77aad394e4e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "bash:word.single-quoted",
+    "cmd:find",
+    "cmd:table"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-git": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "aa27e177e1da102b00892f2ea29735aca4a3d8c77c9d29cc5311cdc4d87947ae",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:git"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "git"
+      ],
+      [
+       "literal",
+       "rev-parse"
+      ],
+      [
+       "literal",
+       "HEAD"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-installer": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "apt-get",
+      "install",
+      "-y",
+      "cowsay"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "50ccdb2377bbbba64226bae2ea433d65d26fb079c108cfedaebdc1de421a38f8",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:installer"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "apt-get"
+      ],
+      [
+       "literal",
+       "install"
+      ],
+      [
+       "literal",
+       "-y"
+      ],
+      [
+       "literal",
+       "cowsay"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-python-installer": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "python3",
+      "-m",
+      "pip",
+      "install",
+      "--quiet",
+      "cowsay==6.1"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "9f20e3b1ce7a94ceb6986c824e2841d92cc1de2820ad7ec502778aec689144bf",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.installer"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "python3"
+      ],
+      [
+       "literal",
+       "-m"
+      ],
+      [
+       "literal",
+       "pip"
+      ],
+      [
+       "literal",
+       "install"
+      ],
+      [
+       "literal",
+       "--quiet"
+      ],
+      [
+       "literal",
+       "cowsay==6.1"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-python-isolated-script": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "isolated"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "41555095e01710d63622245a1fc1639d42e8bcd72bcd0f86bfadb4c4155628d6",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.isolated-script",
+    "cmd:table",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:exec.argv",
+    "py:import.external",
+    "py:program.isolated"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "isolated"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-runtime-script": {
+   "expect": "residue",
+   "inspected": [],
+   "outcome": "residue",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "child"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [
+    "run.sh:2: runtime script path"
+   ],
+   "sha256": "032d921a81b8e50361044b30e79c5ac72f54e35165818e20487a7e8b8426bc05",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.single-quoted",
+    "cmd:data",
+    "cmd:runtime-script",
+    "cmd:shell.script.bash"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "cmd-shell-inline-sh": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "inline"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "0617dc22661630a3d4cbcd8457bb3e0d1883a0dd18df805ac2a9f84706b3f162",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "bash:word.single-quoted",
+    "cmd:shell.inline.sh",
+    "cmd:table",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "inline"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-shell-runtime-inline": {
+   "expect": "residue",
+   "inspected": [],
+   "outcome": "residue",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "rt"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [
+    "run.sh:2: declared runtime shell program"
+   ],
+   "sha256": "56c73709f9d65d1bfe43608d05736a6839e5c7ad4255958a1bb15ef06c78d235",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "bash:word.single-quoted",
+    "cmd:data",
+    "cmd:shell.runtime-inline",
+    "cmd:shell.script.bash"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "cmd-shell-syntax-check": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [],
+   "refusal": null,
+   "residue": [],
+   "sha256": "22a0be060a17e46afa23aa9da179a681546f0f18d6d70eeced5aec8024dd7104",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:shell.syntax-check"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "cmd-wrapper-command": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "via-command"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "6c7838bd5331eb32cd47620c9ef911a2757fccb06befff3c78bd08c1ac26e058",
+   "shapes": [
+    "bash:block",
+    "bash:call.command",
+    "bash:function.call",
+    "bash:function.definition",
+    "bash:redirect",
+    "bash:word.literal",
+    "cmd:table",
+    "cmd:wrapper.command"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "via-command"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-wrapper-env": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "1",
+      ""
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "693a074d8cae85e4f4e97cb1a391a4ddf410adc218de1324f2dab601b290e1ae",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:declaration.export",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table",
+    "cmd:wrapper.env"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "1"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-wrapper-exec": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "never"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "first"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "last"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "55d2527f72bdc34117de953e560cae6e007d15fcc1086a143a651df4b99af2df",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "cmd:wrapper.exec"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "first"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "last"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-wrapper-flock": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "locked"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "f4af696aa13953f20d6769f003061bf85dc3dc8a9a4caeaaa7efb49bd6324a49",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "cmd:wrapper.flock"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "locked"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-wrapper-sudo": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "as-root"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "8dff93360a50910932ead95ec8501dc0a22d036089a12d87b3ab3a811575a36c",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "cmd:wrapper.sudo"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "as-root"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-wrapper-time": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "timed"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "fb4f0539e26d93decb09abcbf9a1418b5bab174503f9b8d81a9827cd24a3fd4d",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "bash:word.single-quoted",
+    "cmd:table",
+    "cmd:wrapper.time"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "timed"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-wrapper-timeout": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "bounded"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "bfad68ac2b77b73d44f02697a435278c8e48aa2bd25b6fd998226434500c6dd8",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "cmd:wrapper.timeout"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "bounded"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "cmd-wrapper-xargs": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "item",
+      "a"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "item",
+      "b"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "at-c"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "619c40fdad2b69b7902defc9e5fa78a59188dd601e925958d4e21585738a7b3b",
+   "shapes": [
+    "bash:call.command",
+    "bash:pipe",
+    "bash:word.literal",
+    "bash:word.single-quoted",
+    "cmd:data",
+    "cmd:table",
+    "cmd:wrapper.xargs"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "item"
+      ],
+      [
+       "fields"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-assignments": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "later",
+      "late",
+      "dflt",
+      "e1",
+      "e2"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "6ce42eed769c748d1d9f48150a4ec872071fd87f403c80b393674042eb249eb2",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.+=",
+    "make:assignment.:=",
+    "make:assignment.=",
+    "make:assignment.?=",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "later"
+      ],
+      [
+       "literal",
+       "late"
+      ],
+      [
+       "literal",
+       "dflt"
+      ],
+      [
+       "literal",
+       "e1"
+      ],
+      [
+       "literal",
+       "e2"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-basic": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "alpha",
+      "beta"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "53f5fead3f77317cd98bc41ab095839ef70f16a339a7d59106cd7173045fb7fb",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:invocation",
+    "make:phony",
+    "make:recipe",
+    "make:recipe-line",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "alpha"
+      ],
+      [
+       "literal",
+       "beta"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-call": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "M-arg"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "adfa3430a1a13c4a4fc78260afed98444069b1dd13e3cfed8d563e3ffc27b0e3",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.=",
+    "make:call.argument",
+    "make:function.call",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "M-arg"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-command-line": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "cmd"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "7308587e8bfddc5e7d75e00d8562ba67a0ce0a6cdedbb85250b1983d53ce4ffd",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.=",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:option.variable",
+    "make:recipe",
+    "make:rule",
+    "make:variable.command-line",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "cmd"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-computed-reference": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "vb",
+      "<> <vb>"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "08cc92edbeeb0f28454cbb637abdca17f76d4545bc1c770d8c370ee8881ebb4a",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.=",
+    "make:computed-reference",
+    "make:function.foreach",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.double-quoted",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "vb"
+      ],
+      [
+       "literal",
+       "<> <vb>"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-conditional": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "a0f734e2f6b4659f8861106317117a74218462d83697af15e1377e99fe22b910",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:conditional",
+    "make:function.error",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "ok"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-curdir": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "<fixture>"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "f38f7f16f0bc4b79fa152f177c8f656f42fb5658c2f78bd06992bda03c83bf42",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.CURDIR",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "<fixture>"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-default-goal": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "second"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "beab2f6e4348ce98a1768c709e0e72b21c81aa82399a5b810156ebeef08734d3",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.:=",
+    "make:default-goal",
+    "make:goal.default",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "second"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-define": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "defined"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "1217a382409f956ce7023938a7d338ec30464413a59ddadd8cf5547d1f23459d",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:define",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "defined"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-directory": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-sub"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "c55aab8dfcaf2c6177110f15391717e34e0537db2ab465f08c7492a7086efbbb",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:option.directory",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-sub"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ]
+  },
+  "make-environment": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "value",
+      "value",
+      "${{ github.workspace }}/c.txt"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "ee0626c27f13d671e2701eba688ddfca5ab19396645da8e4d44fbde5286297a2",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.environment",
+    "sh:call.command",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "value"
+      ],
+      [
+       "literal",
+       "value"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-escaped-number-sign": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a#b"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "db344a294ef748ecf196a1bacda2905f54f5847919f32493788d60941e06d4c4",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.=",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.double-quoted",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a#b"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-eval": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "r-a",
+      "r-b-c",
+      "more"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "fae7749736fe185d547f6e4910d4bb05cca8ff02295cc80ee7e460a36f1ce778",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.+=",
+    "make:assignment.=",
+    "make:expansion-line",
+    "make:function.eval",
+    "make:function.foreach",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "r-a"
+      ],
+      [
+       "literal",
+       "r-b-c"
+      ],
+      [
+       "literal",
+       "more"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-eval-in-recipe": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ok"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "unmodelled Make eval outside a parse-time line at Makefile:1",
+   "residue": [],
+   "sha256": "e43d3dbf9583252294718e1f495cb2851b7d45189fa62c8c9cbc579aa5d7bac7",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:function.eval",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:rule"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "make-file": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "other"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "0ab225b55321502390b31a2eee90e715a968470d165bef777e358312e6646ce9",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:option.file",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "other"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-functions": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "<fixture>/x",
+      "p-a",
+      "p-b",
+      "y",
+      "a.c",
+      "b.h",
+      "f",
+      "v1",
+      "v2",
+      "yes",
+      "a.o",
+      "s",
+      "t",
+      "bbb",
+      "w/1.txt",
+      "w/2.txt"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "be336328b60ef10882479fbec397518a2ac2588d965d2d5c4eb3b9171a8bb09e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:function.abspath",
+    "make:function.addprefix",
+    "make:function.and",
+    "make:function.filter",
+    "make:function.filter-out",
+    "make:function.firstword",
+    "make:function.foreach",
+    "make:function.if",
+    "make:function.patsubst",
+    "make:function.strip",
+    "make:function.subst",
+    "make:function.wildcard",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "<fixture>/x"
+      ],
+      [
+       "literal",
+       "p-a"
+      ],
+      [
+       "literal",
+       "p-b"
+      ],
+      [
+       "literal",
+       "y"
+      ],
+      [
+       "literal",
+       "a.c"
+      ],
+      [
+       "literal",
+       "b.h"
+      ],
+      [
+       "literal",
+       "f"
+      ],
+      [
+       "literal",
+       "v1"
+      ],
+      [
+       "literal",
+       "v2"
+      ],
+      [
+       "literal",
+       "yes"
+      ],
+      [
+       "literal",
+       "a.o"
+      ],
+      [
+       "literal",
+       "s"
+      ],
+      [
+       "literal",
+       "t"
+      ],
+      [
+       "literal",
+       "bbb"
+      ],
+      [
+       "literal",
+       "w/1.txt"
+      ],
+      [
+       "literal",
+       "w/2.txt"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-goal": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "second"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "4625990c4ce130d3614d4058b31872a4685a3c177e179a6c2458444541654c4a",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.command-line",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:option.goal",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "second"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-inline-recipe": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "inline"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "f0e04298759aed021eebc9a52ced1931257fbae453df116053b502c638dfb704",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "inline"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-jobs": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "b"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "00234b36a36843111032c0273cac300db6a7edc4325a1665e5fd1f14b8a643db",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:option.jobs",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "b"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-or": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "[first]",
+      "[ ]",
+      "[]"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "e3a069d07c14a888a5bfc64cda164277f9d7c94904a29912c23f6e3a322fa8d3",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.:=",
+    "make:assignment.=",
+    "make:function.or",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.double-quoted",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "[first]"
+      ],
+      [
+       "literal",
+       "[ ]"
+      ],
+      [
+       "literal",
+       "[]"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-order-only": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "made-dir"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "x"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "60900c8c60fb9f6a96a259a6cc7c88966ed915bcdb245063b45d8f83a51c95f9",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:automatic.^",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:order-only",
+    "make:recipe",
+    "make:recipe-line",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "made-dir"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "x"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-pattern-rule": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "out.x",
+      "out.src",
+      "out"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "80e96a1f687eec76c99880ea94d15bd97c43fa9c8af5248cbb3380aa97de3dd2",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:automatic.*",
+    "make:automatic.<",
+    "make:automatic.@",
+    "make:goal.first",
+    "make:invocation",
+    "make:order-only",
+    "make:pattern-rule",
+    "make:prerequisite-file",
+    "make:recipe",
+    "make:recipe-line",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "out.x"
+      ],
+      [
+       "literal",
+       "out.src"
+      ],
+      [
+       "literal",
+       "out"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-recursive-flags": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "top"
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "sub"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "113432c82abe6042914fcfec7e30fc6066a03dc67f0b7a9b7d6b71c967eaafc3",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.=",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:invocation.inherited-flags",
+    "make:option.directory",
+    "make:option.variable",
+    "make:recipe",
+    "make:recipe-line",
+    "make:rule",
+    "make:variable.MAKE",
+    "make:variable.command-line",
+    "make:variable.environment",
+    "sh:assignment",
+    "sh:call.command",
+    "sh:call.prefix-assignment",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "top"
+      ]
+     ],
+     "directory": "sub"
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "sub"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ]
+  },
+  "make-runtime-jobs": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "b"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "620d72f58d2c814c34c88054d4f418738c8f062a0a6358fe83b00bde23ed4830",
+   "shapes": [
+    "bash:assignment",
+    "bash:call.command",
+    "bash:word.command-substitution",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:option.jobs",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "b"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-shell-status": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "parse-time"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "0"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "a1a7f78ca9f47cc7503790b78171b0f935402e608761573db0fa81d512f0be33",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.:=",
+    "make:function.shell",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:variable.shell-status",
+    "sh:call.command",
+    "sh:word.literal",
+    "sh:word.parameter",
+    "sh:word.split-runtime"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "parse-time"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "fields"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-silent": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "quiet"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "069ae4f3418fdd5f4b5ef04866c8b5f2966a8b1c98a3254a2fa54454d237e6aa",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:option.no-print-directory",
+    "make:option.s",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "quiet"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-static-pattern-rule": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "build",
+      "one"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "run-one",
+      "build-one",
+      "one"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "build",
+      "two"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "run-two",
+      "build-two",
+      "two"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "fa79d6c3590ae0747c4d316e7eface169271c53ef736e4e8f6728035442f861e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:assignment.=",
+    "make:automatic.*",
+    "make:automatic.<",
+    "make:automatic.@",
+    "make:function.addprefix",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:order-only",
+    "make:pattern-rule",
+    "make:recipe",
+    "make:recipe-line",
+    "make:rule",
+    "make:static-pattern-rule",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "build"
+      ],
+      [
+       "literal",
+       "one"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "run-one"
+      ],
+      [
+       "literal",
+       "build-one"
+      ],
+      [
+       "literal",
+       "one"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "build"
+      ],
+      [
+       "literal",
+       "two"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "run-two"
+      ],
+      [
+       "literal",
+       "build-two"
+      ],
+      [
+       "literal",
+       "two"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "make-target-specific": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "ts"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "e9ea250371322a3bbfda62ff1905877d665ea318af0e533518306c216346ab05",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "make:target-specific",
+    "make:variable.reference",
+    "sh:call.command",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "ts"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "py-capability-import": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "pager"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "e1686660d54ddb6446fc2c043d4c8458f9a929ffc222292b2cd381ba78c313bb",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "py-capability-namespace": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "namespace"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "aea911b81d73d05a76bae73eedf5f89b5e874b7abfad0dcc81f14bade398387b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.namespace",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "py-capability-reflection": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "reflection"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "undeclared executing or network script 'main.py'",
+   "residue": [],
+   "sha256": "95f1be3609ad5c409a53ae9b6145251b89b2d5f4e29de4b94bee35ec0f721644",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:capability.declared",
+    "py:capability.reflection",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "py-import-external": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [],
+   "refusal": null,
+   "residue": [],
+   "sha256": "1de8bbb3c23ec9afd93b6062421b2d14020c943b178a877d2041fa45cd4b6c98",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "py:import.external",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "py-import-module": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "helper"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "0d9d8ae3c74d677f04d2bce92018c4c6cfbc9847c8fddfb943a39ff6a15f63a2",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:exec.argv",
+    "py:import.module",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "helper"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "py-import-shadows-stdlib": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "shadow"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "c907243682289789e51c865bd93c0523de243fd113e47262392132502963572c",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:exec.argv",
+    "py:import.module",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "shadow"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "py-imported-constant": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "lib"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "4f31b4b145b5bf551fefc9e5a29422d3ef96c908255ceadea54e73ea7dce5af2",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:exec.argv",
+    "py:import.external",
+    "py:import.module",
+    "py:path.constant",
+    "py:path.imported-constant",
+    "py:program",
+    "py:search-path.entry"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "lib"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "py-loader-run-path": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "run-path"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "e96564fa5b23b777a296be7b69851687574d7675c79a1e9fc6e199c82a1dc563",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:exec.argv",
+    "py:import.external",
+    "py:loader.run_path",
+    "py:path.constant",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "run-path"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "py-loader-spec": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "spec"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [
+    "main.py:3: runtime Python module loading",
+    "main.py:4: runtime Python module loading"
+   ],
+   "sha256": "dda2b2d956a51cb15853f8f4daa2dfce675ac19803c2a4acf300fa2847d373d8",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:exec.argv",
+    "py:import.external",
+    "py:loader.exec_module",
+    "py:loader.module_from_spec",
+    "py:loader.spec_from_file_location",
+    "py:path.constant",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "spec"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "py-script": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "argv"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "4c66585d0aa9415012c5ad59dfb231248abc7d42d7370ab780c6e574f294712e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:exec.argv",
+    "py:program"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "argv"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "py-search-path": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "lib"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "36cdc0054792c15f29075a169105eda28a25b45a4e3726aced0063c65b219a1c",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:exec.argv",
+    "py:import.external",
+    "py:import.module",
+    "py:path.constant",
+    "py:path.file",
+    "py:path.join-operator",
+    "py:path.parent",
+    "py:path.pathlib.Path",
+    "py:path.resolve",
+    "py:path.str",
+    "py:program",
+    "py:search-path.entry"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "lib"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "py-search-path-name": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "lib"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "ba1857334197d50800c4670c176def0292cb42d2379985e252b93819c98c5c5b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:python.script",
+    "cmd:table",
+    "py:capability.declared",
+    "py:capability.import",
+    "py:exec.argv",
+    "py:import.external",
+    "py:import.module",
+    "py:path.constant",
+    "py:path.file",
+    "py:path.join-operator",
+    "py:path.name",
+    "py:path.parents",
+    "py:path.pathlib.Path",
+    "py:path.resolve",
+    "py:path.str",
+    "py:program",
+    "py:search-path.entry"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "lib"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-and": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "s"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "f"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "a2a2d28f7bfb0103926afdb385bdbcf6f57804d44f3ca040f2d0432c8a6e4433",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:and",
+    "sh:assignment",
+    "sh:call.command",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-arithmetic": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "2"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "08c80777f738937f28da75f49084ee9a1f1bc2e9ec29cece0e62bb16993ea80d",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.arithmetic",
+    "sh:word.literal",
+    "sh:word.split-runtime"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "fields"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-assignment": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "707549c43e0a8fb35355a9a233fa124eb8c28b55d87916ec2a36bfaedbe9d1b5",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:assignment",
+    "sh:call.command",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-block": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in-sub"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "91594505b17c9e7ca92c4533f1c701143d06adc92f8ae7240a6c1821f1eb9a98",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:and",
+    "sh:block",
+    "sh:call.command",
+    "sh:cd",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in-sub"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ]
+  },
+  "sh-case": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "other"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "2d385d217f9a72d654d6708a171f3774c18691fa08cd6f15164a24b1d7e343a7",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:case",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "other"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-cd": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "here"
+     ],
+     "directory": "sub"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "332a83c89d1080c51f5b6fc9e1a08b8caa76a47ac86d85dfa8466e2adfc02e4e",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:and",
+    "sh:call.command",
+    "sh:cd",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "here"
+      ]
+     ],
+     "directory": "sub"
+    }
+   ]
+  },
+  "sh-cd-test-fails": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "here"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "ambiguous shell directory after && at Makefile:1:1, used at Makefile:1:1",
+   "residue": [],
+   "sha256": "3cdb8d0202fa5c731630942954e4bc5080aa518d49a14d8e73d56d5c57eae0dd",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:and",
+    "sh:call.command",
+    "sh:cd",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "sh-cd-test-last": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "52104cf2a9b35e248e6f16e175dbd8a1d059216433e0a591550ad5e135b8e2ff",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:and",
+    "sh:call.command",
+    "sh:cd",
+    "sh:if",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in"
+      ]
+     ],
+     "directory": "obj_fw"
+    }
+   ]
+  },
+  "sh-command-substitution": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "hi"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "8f0ec30de73fa2541324ad35ef44ff1673d5a3d6c95942dd1e665b8b1c712fd8",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.command-substitution",
+    "sh:word.double-quoted",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-exit": {
+   "expect": "identical",
+   "inspected": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "after"
+      ]
+     ],
+     "directory": "."
+    }
+   ],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "before"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "e9b8d57f62d82fd8f645bbaa4d07d9d4ae72104d48d70b7dc1f7d1127cff36ee",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:escape.exit",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "before"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-for": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "one"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "two"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "d63377a3fc1a65621e44785149e1dcc643e2fa46a1e9e74ca02aed563e1b96d2",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:for.words",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "one"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "two"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "one"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "two"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-if": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "one"
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      "zz_probe",
+      "two"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "904102d73b40e8c764b8f7318ed55787456287dbe4450222205d8df2561c7942",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:if",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "one"
+      ]
+     ],
+     "directory": "."
+    },
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "two"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-negation": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "absent"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "38e7918ce423d18b247b4d54ca77b3f125ef10fb2bfc611e2728771e45155350",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:if",
+    "sh:negation",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "absent"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-or": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "b"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "6ee53bfa3df3281974ef399338f27b72da927d81fce1f43adb9381abf64a3714",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:assignment",
+    "sh:call.command",
+    "sh:or",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-parameter-operator": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "dflt"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "2880d395f5f2fa97d4a0a133638474b351c4061f7cfd7f74bc4894a1047db9d7",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter-operator"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-pathname-expansion": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "g/a.txt",
+      "g/b.txt"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "b7c7acf3d1d1e29650ac13b827a9dab5c0dd79b446a7ce63558b4df19596662a",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.literal",
+    "sh:word.pathname-expansion"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "fields"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-pipe": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "piped"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "821dc3bd31610c377f57f52cd68ef4c8b9e0364e5b32dcb334aeb8bcac75a196",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:pipe",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "piped"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-plain-cd": {
+   "expect": "refused",
+   "inspected": [],
+   "outcome": "refused",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "here"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": "ambiguous shell directory after a cd that can fail at Makefile:1:1, used at Makefile:1:1",
+   "residue": [],
+   "sha256": "57da5200c88301a65fd4ec10e6ac490336348ea37b91f5285043b3e484d5f42b",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:cd",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": []
+  },
+  "sh-prefix-assignment": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "inner"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "0fa0103cc3a973b7bfc7f89de2542bc335ef2add104bf569933cc0fd4554d448",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.double-quoted",
+    "bash:word.literal",
+    "bash:word.parameter",
+    "cmd:shell.script.bash",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:assignment",
+    "sh:call.command",
+    "sh:call.prefix-assignment",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "inner"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-quotes": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "a b",
+      "c d"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "1032c32ede1b09da871dc7a811195e49b72d415bc6e897b81888c5578a6ef1de",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.single-quoted"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "a b"
+      ],
+      [
+       "literal",
+       "c d"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-redirect": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "quiet"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "5904aab8f22f72a20cc00cfdb336e9199ca849b2a4c031f896b9a58b6f1a68ba",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:redirect",
+    "sh:word.literal"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "quiet"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  },
+  "sh-set-errexit": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "in"
+     ],
+     "directory": "obj_fw"
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "96c0b30bfaa65d549f08107b8497848325acae5a0aa0c401b853591fce197b52",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:data",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:cd",
+    "sh:if",
+    "sh:set.errexit",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.parameter"
+   ],
+   "statuses": [
+    0,
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "literal",
+       "in"
+      ]
+     ],
+     "directory": "obj_fw"
+    }
+   ]
+  },
+  "sh-special-parameter": {
+   "expect": "identical",
+   "inspected": [],
+   "outcome": "identical",
+   "real": [
+    {
+     "argv": [
+      "zz_probe",
+      "0"
+     ],
+     "directory": "."
+    }
+   ],
+   "refusal": null,
+   "residue": [],
+   "sha256": "188773068a6b08f9313765ada7c11e9ef87548e45b78b712b02bdad06b714feb",
+   "shapes": [
+    "bash:call.command",
+    "bash:word.literal",
+    "cmd:table",
+    "make:goal.first",
+    "make:inline-recipe",
+    "make:invocation",
+    "make:recipe",
+    "make:rule",
+    "sh:call.command",
+    "sh:word.double-quoted",
+    "sh:word.literal",
+    "sh:word.special-parameter"
+   ],
+   "statuses": [
+    0
+   ],
+   "walker": [
+    {
+     "argv": [
+      [
+       "literal",
+       "zz_probe"
+      ],
+      [
+       "runtime"
+      ]
+     ],
+     "directory": "."
+    }
+   ]
+  }
+ },
+ "image": "sha256:68331c7908fcf2c1c6226c621bcd48287916ff20bac23f1f2b7279dffab94e08",
+ "schema": 1,
+ "tools": {
+  "bash": "GNU bash, version 5.2.21(1)-release",
+  "dash": "0.5.12-6ubuntu5",
+  "make": "GNU Make 4.3",
+  "python3": "Python 3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+ }
+}

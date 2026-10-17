@@ -1,0 +1,47 @@
+{
+  "started_utc": "2026-10-14T09:29:07.538099+00:00",
+  "finished_utc": "2026-10-14T09:29:10.839935+00:00",
+  "elapsed_ms": 3302,
+  "rc": 1,
+  "timeout": null,
+  "image_manifest": "sha256:8cc05a5c51aa04a23063c5d0593065912845a4ba4ce5a5dfd3ff53b12ccd1d19",
+  "head": "18f2df92b13cb3f4036b073ed76940187bf10487",
+  "function": "test_baremetal_profile_contract",
+  "source": "sw/builder/test_builder.py:5117",
+  "source_sha256": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47",
+  "require_rv32": true,
+  "failure": "AssertionError: --require-rv32: the hosted firmware instruments must run",
+  "authority": "https://github.com/kebag-logic/milan-fpga/pull/738#issuecomment-6165220472",
+  "log": {
+    "scratch_file": "builder-background.log",
+    "size": 559,
+    "sha256": "1b9093abebd08f10e9dee29c2468b93ec52c2a592d53f4c9573a8002ad8ae7cb"
+  },
+  "command_file": {
+    "scratch_file": "builder-background-command.json",
+    "size": 1123,
+    "sha256": "e232fef5ceede61b30fc49c76cfb1b59ac6cb6963f73d6ace38ea7da45e711f1"
+  },
+  "execution_difference": "The earlier scratch-home environment mapping was omitted. The unchanged census chooses a home-relative compiler at test_builder.py:4767-4769; this invocation failed its required RV32 prerequisite before the long assertion campaign. No image defect or compiler-backed campaign verdict is established.",
+  "runtime_limits": {
+    "memory": "8g",
+    "cpus": 4,
+    "network": "none",
+    "pull": "never"
+  },
+  "prior_home_sdk_links": [
+    {
+      "scratch_relative_path": "container-home/br-milan-rv32/host",
+      "is_symlink": true,
+      "symlink_target": "/opt/rv32-sdk",
+      "exists_on_host": false
+    },
+    {
+      "scratch_relative_path": "container-home/br-milan-rv32/host/bin/riscv32-linux-gcc",
+      "is_symlink": false,
+      "symlink_target": null,
+      "exists_on_host": false
+    }
+  ],
+  "retry_performed": false
+}
