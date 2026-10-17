@@ -293,7 +293,110 @@ ACT_SLOT_TERM_CONTEXTS = (
 ACT_SLOT_TERM_MASK = re.compile("|".join(
     f"(?<=^{re.escape(before)}){re.escape(literal)}(?={re.escape(after)}$)"
     for before, literal, after in ACT_SLOT_TERM_CONTEXTS))
+# #737 round 2: exact public host package identities in the two image locks.
+# Quoted values are literal and file-pinned; product prose stays unmasked.
+CI_IMAGE_LOCK_LITERALS = (
+    '"binutils-x86-64-linux-gnu"',
+    '"binutils-x86-64-linux-gnu_2.42-4ubuntu2.10_amd64.deb"',
+    '"cpp-13-x86-64-linux-gnu"',
+    '"cpp-13-x86-64-linux-gnu_13.3.0-6ubuntu2~24.04.1_amd64.deb"',
+    '"cpp-x86-64-linux-gnu"',
+    '"cpp-x86-64-linux-gnu_4%3a13.2.0-7ubuntu1_amd64.deb"',
+    '"g++-13-x86-64-linux-gnu"',
+    '"g++-13-x86-64-linux-gnu_13.3.0-6ubuntu2~24.04.1_amd64.deb"',
+    '"g++-x86-64-linux-gnu"',
+    '"g++-x86-64-linux-gnu_4%3a13.2.0-7ubuntu1_amd64.deb"',
+    '"gcc-13-x86-64-linux-gnu"',
+    '"gcc-13-x86-64-linux-gnu_13.3.0-6ubuntu2~24.04.1_amd64.deb"',
+    '"gcc-x86-64-linux-gnu"',
+    '"gcc-x86-64-linux-gnu_4%3a13.2.0-7ubuntu1_amd64.deb"',
+    (
+        '"https://archive.ubuntu.com/ubuntu/pool/main/b/binutils/binutils-x86-64-linux-gnu_2.42-4ub'
+        'untu2.10_amd64.deb"'
+    ),
+    (
+        '"https://archive.ubuntu.com/ubuntu/pool/main/g/gcc-13/cpp-13-x86-64-linux-gnu_13.3.0-6ubun'
+        'tu2~24.04.1_amd64.deb"'
+    ),
+    (
+        '"https://archive.ubuntu.com/ubuntu/pool/main/g/gcc-13/g++-13-x86-64-linux-gnu_13.3.0-6ubun'
+        'tu2~24.04.1_amd64.deb"'
+    ),
+    (
+        '"https://archive.ubuntu.com/ubuntu/pool/main/g/gcc-13/gcc-13-x86-64-linux-gnu_13.3.0-6ubun'
+        'tu2~24.04.1_amd64.deb"'
+    ),
+    (
+        '"https://archive.ubuntu.com/ubuntu/pool/main/g/gcc-defaults/cpp-x86-64-linux-gnu_13.2.0-7u'
+        'buntu1_amd64.deb"'
+    ),
+    (
+        '"https://archive.ubuntu.com/ubuntu/pool/main/g/gcc-defaults/g++-x86-64-linux-gnu_13.2.0-7u'
+        'buntu1_amd64.deb"'
+    ),
+    (
+        '"https://archive.ubuntu.com/ubuntu/pool/main/g/gcc-defaults/gcc-x86-64-linux-gnu_13.2.0-7u'
+        'buntu1_amd64.deb"'
+    ),
+    '"https://archive.ubuntu.com/ubuntu/pool/main/l/linux/linux-libc-dev_6.8.0-147.147_amd64.deb"',
+    '"https://archive.ubuntu.com/ubuntu/pool/main/u/util-linux/uuid-dev_2.39.3-9ubuntu6.6_amd64.deb"',
+    '"https://github.com/cli/cli/releases/download/v2.102.0/gh_2.102.0_linux_amd64.tar.gz"',
+    '"https://github.com/zachjs/sv2v/releases/download/v0.0.12/sv2v-Linux.zip"',
+    '"https://nodejs.org/dist/v22.23.3/node-v22.23.3-linux-x64.tar.xz"',
+    '"linux-libc-dev"',
+    '"linux-libc-dev_6.8.0-147.147_amd64.deb"',
+    '"linux/amd64"',
+    '"util-linux"',
+    '"sources/gh_2.102.0_linux_amd64.tar.gz"',
+    '"sources/node-v22.23.3-linux-x64.tar.xz"',
+    # #737 round 3: retained package URLs and the pinned host parser.
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/b/binutils/binutils-x86'
+        '-64-linux-gnu_2.42-4ubuntu2.10_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-13/cpp-13-x86-64-'
+        'linux-gnu_13.3.0-6ubuntu2~24.04.1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-defaults/cpp-x86-'
+        '64-linux-gnu_13.2.0-7ubuntu1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-13/g++-13-x86-64-'
+        'linux-gnu_13.3.0-6ubuntu2~24.04.1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-defaults/g++-x86-'
+        '64-linux-gnu_13.2.0-7ubuntu1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-13/gcc-13-x86-64-'
+        'linux-gnu_13.3.0-6ubuntu2~24.04.1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/g/gcc-defaults/gcc-x86-'
+        '64-linux-gnu_13.2.0-7ubuntu1_amd64.deb"'
+    ),
+    (
+        '"https://snapshot.ubuntu.com/ubuntu/20261014T000000Z/pool/main/l/linux/linux-libc-dev_'
+        '6.8.0-147.147_amd64.deb"'
+    ),
+    '"https://github.com/mvdan/sh/releases/download/v3.11.0/shfmt_v3.11.0_linux_amd64"',
+)
+CI_IMAGE_LOCK_MASK = re.compile("|".join(re.escape(value) for value in CI_IMAGE_LOCK_LITERALS))
+CI_IMAGE_CLIENT_URL = ('"https://download.docker.com/linux/ubuntu/dists/noble/pool/stable/amd64/'
+                       'docker-ce-cli_28.0.4-1~ubuntu.24.04~noble_amd64.deb"')
 TERM_MASKS = {
+    "ci/image/sources.lock.json": re.compile(CI_IMAGE_LOCK_MASK.pattern + "|" + re.escape(CI_IMAGE_CLIENT_URL)),
+    "ci/image/image.lock.json": CI_IMAGE_LOCK_MASK,
+    # #738 comment 6163057631: OCI fields and certificate normalization.
+    # Literal masks apply only to these infrastructure source files.
+    "ci/image/image_archive.py": re.compile(re.escape('"rootfs"')),
+    "ci/image/normalize.py": re.compile(r'"/etc/ssl/certs/java/cacerts"|"/etc"'),
+    "ci/image/privacy_selftest.py": re.compile(r'"linux/amd64"|"linux"|"rootfs"'),
+    "docs/testing/CI_IMAGE.md": re.compile(
+        r"(?<=Use )Linux(?= x86-64, Docker, BuildKit and Python 3\.12\.)"),
     "scripts/act_ci.py": ACT_SLOT_TERM_MASK,
     "scripts/ci_events.py": re.compile(r'"image":\s*"busybox"'),
     "scripts/ci_rv32_sdk.py": re.compile(
@@ -333,6 +436,12 @@ HOST_RUNTIME_MASKS = {
     "scripts/process_test_support.py": re.compile(r'(?<=^PROC = Path\(")/proc(?="\)$)'),
     "docs/testing/CI_WORKFLOWS.md": re.compile(
         r"(?<=`)/proc(?=/<pid>/stat` state is `Z`)"),
+    # #737 round 7: the build-host execution audit reads each traced build-host
+    # process's record through one helper, and names the image's own directories;
+    # only those two exact spellings are masked, and no other path or prose is licensed.
+    "ci/image/exec_audit.py": re.compile(
+        r'(?<=    return Path\(f")/proc(?=/\{pid\}/\{name\}"\)$)'
+        r'|(?<=", "/sbin/", "/lib/", "/lib64/", "/opt/", ")/etc(?=/"\))'),
     # #517: inventory only the runner's own children and the process-control
     # fixtures' state. These do not license another path or unrelated prose.
     "tb/verilator/milan_dp/sim_pool.py": re.compile(
@@ -1191,6 +1300,7 @@ def _arms_host_tooling_masks(arm):
             lambda r, p=path, t=payload: plant_runner_path(
                 r, p, t.rstrip() + " /proc/mtd\n"), True, "[R]")
 
+    _arms_image_host_masks(arm, plant_runner_path)
     sdk_literals = (
         ("host", "scripts/ci_rv32_sdk.py", '("Linux", "x86_64")'),
         ("target", "scripts/ci_rv32_sdk.py", '"riscv32-buildroot-linux-gnu"'),
@@ -1269,6 +1379,39 @@ def _arms_host_tooling_masks(arm):
         lambda r: (r / "d.svg").write_text(
             '<svg content="agent=&quot;Mozilla/5.0 (X11; Linux x86_64)&quot;">'
             '<text>rootfs</text></svg>\n'), True, "[T]")
+
+
+def _arms_image_host_masks(arm, plant_runner_path):
+    """The image decision masks literals only in its named lock files."""
+    for path in ("ci/image/sources.lock.json", "ci/image/image.lock.json"):
+        payload = '{"platform": "linux/amd64"}'
+        arm(f"image-host-literal-allowed-{path}",
+            lambda r, p=path: plant_runner_path(r, p, payload), False)
+        for destination in ("other.json", PRODUCT_DOCS[0]):
+            expected = "[P]" if destination in PRODUCT_DOCS else "[T]"
+            arm(f"image-host-literal-wrong-file-{path}-{destination}",
+                lambda r, p=destination: plant_runner_path(r, p, payload), True, expected)
+        arm(f"image-host-literal-second-term-{path}",
+            lambda r, p=path: plant_runner_path(r, p, '{"platform": "linux/amd64", "extra": "rootfs"}'), True, "[T]")
+        arm(f"image-host-literal-unlisted-{path}",
+            lambda r, p=path: plant_runner_path(r, p, '{"platform": "linux/other"}'), True, "[T]")
+    fixtures = {
+        "ci/image/sources.lock.json": (
+            '"https://download.docker.com/linux/ubuntu/dists/noble/pool/stable/amd64/'
+            'docker-ce-cli_28.0.4-1~ubuntu.24.04~noble_amd64.deb"',),
+        "ci/image/image_archive.py": ('config["rootfs"]',),
+        "ci/image/normalize.py": ('Path("/etc/ssl/certs/java/cacerts")', 'Path("/etc")'),
+        "ci/image/privacy_selftest.py": ('"linux/amd64"', '"linux"', '"rootfs"'),
+    }
+    for path, values in fixtures.items():
+        for number, payload in enumerate(values):
+            arm(f"image-source-literal-{path}-{number}",
+                lambda r, p=path, s=payload: plant_runner_path(r, p, s), False)
+            for destination in ("other.py", PRODUCT_DOCS[0]):
+                arm(f"image-source-wrong-file-{path}-{number}-{destination}",
+                    lambda r, p=destination, s=payload: plant_runner_path(r, p, s), True)
+            arm(f"image-source-appended-term-{path}-{number}",
+                lambda r, p=path, s=payload: plant_runner_path(r, p, s + " systemd"), True)
 
 
 def _arms_host_memory_reads(arm):

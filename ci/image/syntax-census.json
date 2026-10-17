@@ -1,0 +1,1324 @@
+{
+  "make": {
+    "assignment_operators": [
+      "=",
+      ":=",
+      "?=",
+      "+="
+    ],
+    "automatic_variables": [
+      "@",
+      "<",
+      "^",
+      "*"
+    ],
+    "directives": [
+      "define",
+      "endef",
+      "ifeq",
+      "ifneq",
+      "else",
+      "endif"
+    ],
+    "functions": [
+      "call",
+      "foreach",
+      "shell",
+      "error",
+      "strip",
+      "firstword",
+      "abspath",
+      "wildcard",
+      "if",
+      "and",
+      "subst",
+      "patsubst",
+      "filter",
+      "filter-out",
+      "addprefix",
+      "or",
+      "eval"
+    ],
+    "special_targets": [
+      ".PHONY"
+    ],
+    "special_variables": [
+      ".DEFAULT_GOAL",
+      "CURDIR",
+      "MAKE",
+      ".SHELLSTATUS",
+      "MAKECMDGOALS",
+      "MAKELEVEL"
+    ]
+  },
+  "python_builtins": [
+    "AssertionError",
+    "AttributeError",
+    "BaseException",
+    "BlockingIOError",
+    "BrokenPipeError",
+    "ChildProcessError",
+    "Exception",
+    "FileExistsError",
+    "FileNotFoundError",
+    "ImportError",
+    "IndexError",
+    "KeyError",
+    "KeyboardInterrupt",
+    "LookupError",
+    "OSError",
+    "PermissionError",
+    "ProcessLookupError",
+    "RecursionError",
+    "RuntimeError",
+    "StopIteration",
+    "SyntaxError",
+    "SystemExit",
+    "TimeoutError",
+    "TypeError",
+    "UnicodeDecodeError",
+    "UnicodeEncodeError",
+    "UnicodeError",
+    "ValueError",
+    "ZeroDivisionError",
+    "__doc__",
+    "__name__",
+    "abs",
+    "all",
+    "any",
+    "ascii",
+    "bool",
+    "bytearray",
+    "bytes",
+    "callable",
+    "chr",
+    "classmethod",
+    "dict",
+    "dir",
+    "divmod",
+    "enumerate",
+    "eval",
+    "exit",
+    "filter",
+    "float",
+    "format",
+    "frozenset",
+    "getattr",
+    "globals",
+    "hasattr",
+    "hash",
+    "hex",
+    "id",
+    "int",
+    "isinstance",
+    "iter",
+    "len",
+    "list",
+    "map",
+    "max",
+    "min",
+    "next",
+    "object",
+    "open",
+    "ord",
+    "print",
+    "property",
+    "range",
+    "repr",
+    "reversed",
+    "round",
+    "set",
+    "setattr",
+    "sorted",
+    "staticmethod",
+    "str",
+    "sum",
+    "super",
+    "tuple",
+    "type",
+    "vars",
+    "zip"
+  ],
+  "python_nodes": [
+    "Add",
+    "And",
+    "AnnAssign",
+    "Assert",
+    "Assign",
+    "Attribute",
+    "AugAssign",
+    "BinOp",
+    "BitAnd",
+    "BitOr",
+    "BitXor",
+    "BoolOp",
+    "Break",
+    "Call",
+    "ClassDef",
+    "Compare",
+    "Constant",
+    "Continue",
+    "Del",
+    "Delete",
+    "Dict",
+    "DictComp",
+    "Div",
+    "Eq",
+    "ExceptHandler",
+    "Expr",
+    "FloorDiv",
+    "For",
+    "FormattedValue",
+    "FunctionDef",
+    "GeneratorExp",
+    "Gt",
+    "GtE",
+    "If",
+    "IfExp",
+    "Import",
+    "ImportFrom",
+    "In",
+    "Invert",
+    "Is",
+    "IsNot",
+    "JoinedStr",
+    "LShift",
+    "Lambda",
+    "List",
+    "ListComp",
+    "Load",
+    "Lt",
+    "LtE",
+    "Match",
+    "MatchAs",
+    "MatchClass",
+    "MatchOr",
+    "MatchSequence",
+    "MatchValue",
+    "Mod",
+    "Module",
+    "Mult",
+    "Name",
+    "NamedExpr",
+    "Nonlocal",
+    "Not",
+    "NotEq",
+    "NotIn",
+    "Or",
+    "Pass",
+    "Pow",
+    "RShift",
+    "Raise",
+    "Return",
+    "Set",
+    "SetComp",
+    "Slice",
+    "Starred",
+    "Store",
+    "Sub",
+    "Subscript",
+    "Try",
+    "Tuple",
+    "USub",
+    "UnaryOp",
+    "While",
+    "With",
+    "Yield",
+    "YieldFrom",
+    "alias",
+    "arg",
+    "arguments",
+    "comprehension",
+    "keyword",
+    "match_case",
+    "withitem"
+  ],
+  "python_special_names": [
+    "__all__",
+    "__doc__",
+    "__file__",
+    "__name__",
+    "__slots__"
+  ],
+  "shapes": {
+    "bash:and": "bash-and",
+    "bash:assignment": "bash-assignment",
+    "bash:assignment.array": "bash-arrays",
+    "bash:assignment.index": "bash-arrays",
+    "bash:block": "bash-block",
+    "bash:call.command": "bash-command",
+    "bash:call.prefix-assignment": "bash-prefix-assignment",
+    "bash:case": "bash-case",
+    "bash:cd": "bash-cd",
+    "bash:cd.runtime": "bash-cd-runtime",
+    "bash:declaration.declare": "bash-declarations",
+    "bash:declaration.declare-global": "bash-declarations",
+    "bash:declaration.export": "bash-declarations",
+    "bash:declaration.local": "bash-declarations",
+    "bash:escape.break": "bash-loop-escapes",
+    "bash:escape.continue": "bash-loop-escapes",
+    "bash:escape.exit": "bash-exit",
+    "bash:escape.return": "bash-return",
+    "bash:for.arithmetic": "bash-arithmetic",
+    "bash:for.words": "bash-for-words",
+    "bash:function.call": "bash-return",
+    "bash:function.call-partly-defined": "bash-function-partly-defined",
+    "bash:function.definition": "bash-return",
+    "bash:heredoc": "bash-heredoc",
+    "bash:heredoc.python": "bash-heredoc-python",
+    "bash:if": "bash-if",
+    "bash:negation": "bash-negation",
+    "bash:or": "bash-or",
+    "bash:pipe": "bash-pipe",
+    "bash:read": "bash-read",
+    "bash:redirect": "bash-heredoc",
+    "bash:set.errexit": "bash-set-errexit",
+    "bash:shift": "bash-special-parameters",
+    "bash:source": "bash-source",
+    "bash:subshell": "bash-subshell",
+    "bash:test-clause": "bash-test-clause",
+    "bash:trap": "bash-trap",
+    "bash:trap.runtime": "bash-trap-runtime",
+    "bash:unset": "bash-unset",
+    "bash:while": "bash-while",
+    "bash:word.argv0": "bash-argv0",
+    "bash:word.arithmetic": "bash-arithmetic",
+    "bash:word.bash-source": "bash-bash-source",
+    "bash:word.cd-pwd": "bash-cd-pwd",
+    "bash:word.cd-pwd.script-directory": "bash-cd-pwd-script-directory",
+    "bash:word.command-substitution": "bash-command-substitution",
+    "bash:word.dirname": "bash-dirname",
+    "bash:word.double-quoted": "bash-quotes",
+    "bash:word.literal": "bash-command",
+    "bash:word.parameter": "bash-assignment",
+    "bash:word.parameter-operator": "bash-parameter-operators",
+    "bash:word.pathname-expansion": "bash-pathname-expansion",
+    "bash:word.process-substitution": "bash-process-substitution",
+    "bash:word.realpath.script-path": "bash-realpath-script-path",
+    "bash:word.single-quoted": "bash-quotes",
+    "bash:word.special-parameter": "bash-special-parameters",
+    "bash:word.split-runtime": "bash-split-runtime",
+    "bash:word.tilde": "bash-tilde",
+    "cmd:data": "cmd-data",
+    "cmd:direct.bash": "cmd-direct-bash",
+    "cmd:find": "cmd-find",
+    "cmd:git": "cmd-git",
+    "cmd:installer": "cmd-installer",
+    "cmd:python.inline": "bash-heredoc-python",
+    "cmd:python.installer": "cmd-python-installer",
+    "cmd:python.isolated-script": "cmd-python-isolated-script",
+    "cmd:python.script": "py-script",
+    "cmd:runtime-script": "cmd-runtime-script",
+    "cmd:shell.inline.sh": "cmd-shell-inline-sh",
+    "cmd:shell.runtime-inline": "cmd-shell-runtime-inline",
+    "cmd:shell.script.bash": "bash-argv0",
+    "cmd:shell.syntax-check": "cmd-shell-syntax-check",
+    "cmd:table": "bash-command",
+    "cmd:wrapper.command": "cmd-wrapper-command",
+    "cmd:wrapper.env": "cmd-wrapper-env",
+    "cmd:wrapper.exec": "cmd-wrapper-exec",
+    "cmd:wrapper.flock": "cmd-wrapper-flock",
+    "cmd:wrapper.sudo": "cmd-wrapper-sudo",
+    "cmd:wrapper.time": "cmd-wrapper-time",
+    "cmd:wrapper.timeout": "cmd-wrapper-timeout",
+    "cmd:wrapper.xargs": "cmd-wrapper-xargs",
+    "make:assignment.+=": "make-assignments",
+    "make:assignment.:=": "make-assignments",
+    "make:assignment.=": "make-assignments",
+    "make:assignment.?=": "make-assignments",
+    "make:automatic.*": "make-pattern-rule",
+    "make:automatic.<": "make-pattern-rule",
+    "make:automatic.@": "make-pattern-rule",
+    "make:call.argument": "make-call",
+    "make:computed-reference": "make-computed-reference",
+    "make:conditional": "make-conditional",
+    "make:default-goal": "make-default-goal",
+    "make:define": "make-define",
+    "make:expansion-line": "make-eval",
+    "make:function.abspath": "make-functions",
+    "make:function.addprefix": "make-functions",
+    "make:function.and": "make-functions",
+    "make:function.call": "make-call",
+    "make:function.error": "make-conditional",
+    "make:function.eval": "make-eval",
+    "make:function.filter": "make-functions",
+    "make:function.filter-out": "make-functions",
+    "make:function.firstword": "make-functions",
+    "make:function.foreach": "make-functions",
+    "make:function.if": "make-functions",
+    "make:function.or": "make-or",
+    "make:function.patsubst": "make-functions",
+    "make:function.shell": "make-shell-status",
+    "make:function.strip": "make-functions",
+    "make:function.subst": "make-functions",
+    "make:function.wildcard": "make-functions",
+    "make:goal.command-line": "make-goal",
+    "make:inline-recipe": "make-inline-recipe",
+    "make:invocation": "make-basic",
+    "make:invocation.inherited-flags": "make-recursive-flags",
+    "make:option.directory": "make-directory",
+    "make:option.file": "make-file",
+    "make:option.goal": "make-goal",
+    "make:option.jobs": "make-jobs",
+    "make:option.no-print-directory": "make-silent",
+    "make:option.s": "make-silent",
+    "make:option.variable": "make-command-line",
+    "make:order-only": "make-order-only",
+    "make:pattern-rule": "make-pattern-rule",
+    "make:phony": "make-basic",
+    "make:prerequisite-file": "make-pattern-rule",
+    "make:recipe": "make-basic",
+    "make:recipe-line": "make-basic",
+    "make:rule": "make-basic",
+    "make:static-pattern-rule": "make-static-pattern-rule",
+    "make:target-specific": "make-target-specific",
+    "make:variable.CURDIR": "make-curdir",
+    "make:variable.MAKE": "make-recursive-flags",
+    "make:variable.command-line": "make-command-line",
+    "make:variable.environment": "make-environment",
+    "make:variable.reference": "make-assignments",
+    "make:variable.shell-status": "make-shell-status",
+    "py:capability.declared": "py-script",
+    "py:capability.import": "py-capability-import",
+    "py:capability.namespace": "py-capability-namespace",
+    "py:capability.reflection": "py-capability-reflection",
+    "py:exec.argv": "py-script",
+    "py:import.external": "py-import-external",
+    "py:import.module": "py-import-module",
+    "py:loader.exec_module": "py-loader-spec",
+    "py:loader.module_from_spec": "py-loader-spec",
+    "py:loader.run_path": "py-loader-run-path",
+    "py:loader.spec_from_file_location": "py-loader-spec",
+    "py:path.constant": "py-search-path-name",
+    "py:path.file": "py-search-path",
+    "py:path.imported-constant": "py-imported-constant",
+    "py:path.join-operator": "py-search-path",
+    "py:path.name": "py-search-path-name",
+    "py:path.parent": "py-search-path",
+    "py:path.parents": "py-search-path-name",
+    "py:path.pathlib.Path": "py-search-path",
+    "py:path.resolve": "py-search-path",
+    "py:path.str": "py-search-path",
+    "py:program": "py-script",
+    "py:search-path.entry": "py-search-path",
+    "sh:and": "sh-and",
+    "sh:assignment": "sh-assignment",
+    "sh:block": "sh-block",
+    "sh:call.command": "make-basic",
+    "sh:call.prefix-assignment": "sh-prefix-assignment",
+    "sh:case": "sh-case",
+    "sh:cd": "sh-cd",
+    "sh:escape.exit": "sh-exit",
+    "sh:for.words": "sh-for",
+    "sh:if": "sh-if",
+    "sh:negation": "sh-negation",
+    "sh:or": "sh-or",
+    "sh:pipe": "sh-pipe",
+    "sh:redirect": "sh-redirect",
+    "sh:set.errexit": "sh-set-errexit",
+    "sh:word.arithmetic": "sh-arithmetic",
+    "sh:word.command-substitution": "sh-command-substitution",
+    "sh:word.double-quoted": "sh-quotes",
+    "sh:word.literal": "make-basic",
+    "sh:word.parameter": "sh-assignment",
+    "sh:word.parameter-operator": "sh-parameter-operator",
+    "sh:word.pathname-expansion": "sh-pathname-expansion",
+    "sh:word.single-quoted": "sh-quotes",
+    "sh:word.special-parameter": "sh-special-parameter",
+    "sh:word.split-runtime": "sh-arithmetic"
+  },
+  "shell_builtins": {
+    "data": [
+      "echo",
+      "printf",
+      "test",
+      "["
+    ],
+    "declaration_options": [
+      "-a",
+      "-A",
+      "-gA"
+    ],
+    "declarations": [
+      "local",
+      "declare",
+      "export",
+      "readonly"
+    ],
+    "echo_options": [
+      "-n",
+      "-e",
+      "-E"
+    ],
+    "printf_options": [
+      "--"
+    ],
+    "set": [
+      [
+        "-euo",
+        "pipefail"
+      ],
+      [
+        "-u"
+      ],
+      [
+        "-e"
+      ]
+    ],
+    "shift": [
+      "zero or one nonnegative integer operand"
+    ],
+    "source": [
+      "exact semantic calls in shell_exact_uses; one resolved in-tree path"
+    ],
+    "unset": [
+      "ordinary variable names"
+    ]
+  },
+  "shell_exact_uses": {
+    "022fb69ec9bc5aa0cbfcff17a22b055c379cb8ba738985585b02bf13d53f73e3": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/run.sh"
+      ]
+    },
+    "0b7abe13d6312fa68eff72c697f9f45c81041d5d4e873a159dcf3ae335c53e7b": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "syn/yosys/malloc.sh"
+      ]
+    },
+    "1ffac2b791a92fde4c18346519dea59fc25947fb006ea1eef04560810029ff29": {
+      "kinds": [
+        "unset"
+      ],
+      "sources": [
+        "syn/yosys/malloc.sh"
+      ]
+    },
+    "235a50e0978875815f116ee03f8c1184386e6a356bc5832e630de078b37c0d13": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/check_tap_purity.sh"
+      ]
+    },
+    "249ba14d5e960dd38ab0b16a987b35ad146f5461ae77d09954eb691ad323a805": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/elaborate.yml"
+      ]
+    },
+    "280002f494434de12ebdfb03601c57d0eb2429caa49478520f4af03997578b4f": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "syn/yosys/malloc.sh"
+      ]
+    },
+    "2c897fb3f0839ff889f882150123fab536b4acdbc7a1fc5b1834ded7cbd10fc6": {
+      "kinds": [
+        "read"
+      ],
+      "sources": [
+        "scripts/check_tied_inputs.sh"
+      ]
+    },
+    "2ee0b47c357e51e33341a6d87ea40d601b7144b1d37f9cdc4301f3f103529837": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "syn/yosys/run.sh"
+      ]
+    },
+    "3e02887d9fc1455b72b5c191d2274ec3f3ab24d3b2aa1afb4b6b252d5a111d65": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "scripts/check_tied_inputs.sh"
+      ]
+    },
+    "44c34b3c904b117b9172214144289bb6c8d7b3831afd087010e7f79b0467f08d": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/rtl.yml"
+      ]
+    },
+    "45d0accd2cf9e3cc7a9401ddc4e032652319d4b70a6a7919009b8f3872a9e7e7": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "tb/verilator/maap/integration.mk",
+        "tb/verilator/milan_dp_mclk/Makefile",
+        "tb/verilator/pp_shadow/Makefile"
+      ]
+    },
+    "46fd2c03fb9b1263c4b94d70663ff699f1bb2dc01cfe3010ac4cf41f0c586661": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "tb/verilator/milan_dp_render/Makefile"
+      ]
+    },
+    "51a0d5842c1d96a099057cc6d94002960ef0ae2bc183ab46ed150dbb6818df48": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/rtl-fast.yml"
+      ]
+    },
+    "60153d5a58184386178f5d271a702f000c90066b52a98791ef6bb90bef6100f9": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/docs.yml",
+        ".github/workflows/elaborate.yml",
+        ".github/workflows/rtl-fast.yml",
+        ".github/workflows/rtl.yml"
+      ]
+    },
+    "60ece17a20bf347bd1c367ef14c129c4d3c01ecb71bf478af72695a2a8f1eee0": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "syn/yosys/malloc.sh"
+      ]
+    },
+    "61b4089e0e40c8f0b6beddd07b220e3a183eea4dfa84612c4e90ecadfea97001": {
+      "kinds": [
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/check_tap_purity.sh"
+      ]
+    },
+    "62464eada698ca2a316f02b24c4def05222913bd0fc5dcc9250850ca341c36e8": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/run.sh"
+      ]
+    },
+    "a4e5c36c8af7221e1b0c3c2c1782b7328d3e5a3be5855b92e20596a7e5f4dd4c": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "tb/verilator/milan_dp_mclk/Makefile",
+        "tb/verilator/milan_dp_render/Makefile"
+      ]
+    },
+    "a6a9da913fb769927f47b9418a754c0399161a5859c4142f52f4f017d6ace412": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/run.sh"
+      ]
+    },
+    "a8216172b6b4170382968c5128822a7b1c369e3399cbb8e0e37c4b40546a20db": {
+      "kinds": [
+        "conditional-function"
+      ],
+      "sources": [
+        "scripts/run_all_suites.sh"
+      ]
+    },
+    "ada46bed2af054712e87dcf66654b461b444e40a33c450e67975c0cbcbedeb7e": {
+      "kinds": [
+        "source"
+      ],
+      "sources": [
+        "syn/yosys/run.sh"
+      ]
+    },
+    "b43fc8b8bb16c1a64f50812f0ef766d750a4cde9420e7be4fc2e5fed294eb3b6": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "tb/verilator/maap/integration.mk"
+      ]
+    },
+    "b727ed6fee6eb716f9243f9e576d8cc4bb274b05faf2b31246b02629e7291d22": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/check_tap_purity.sh"
+      ]
+    },
+    "b841eb65ae709f91a2a118c3f7b2a3d48d1268817b74aae25338ca4289284d3e": {
+      "kinds": [
+        "conditional-function"
+      ],
+      "sources": [
+        "scripts/run_all_suites.sh"
+      ]
+    },
+    "b909c1e242dd687616301844e98cb342bb22784557cc3a432d494c8da65d5aa1": {
+      "kinds": [
+        "xargs"
+      ],
+      "sources": [
+        "tb/verilator/milan_dp_render/Makefile"
+      ]
+    },
+    "be4b6b7467774a4ca7b01cb6a2dd99c14a6e1d9bf44f6db4e7fe9972f3fe6000": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        ".github/workflows/rtl-fast.yml"
+      ]
+    },
+    "c0ab6f9fe13f444ca86663e2e1ea88829d95589fb2a14fc1065576d8cfd1dcf9": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "syn/yosys/malloc.sh"
+      ]
+    },
+    "c0cc9cc5472e48d02925c4df2ade52f6da22db0df8b0cbce0ebef5fa48fcc480": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/elaborate.yml"
+      ]
+    },
+    "cc3a9824c341161b033cba51493bf3a80387e3c0b4c3b69546daffd4e88571fb": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        "syn/yosys/malloc.sh"
+      ]
+    },
+    "ccbed740ad315a49421e1271c72153b7462b3b2b74dda9bc2b9878b82f2744cb": {
+      "kinds": [
+        "environment-file"
+      ],
+      "sources": [
+        ".github/workflows/elaborate.yml",
+        ".github/workflows/rtl-fast.yml",
+        ".github/workflows/rtl.yml"
+      ]
+    },
+    "e22f5a65396c167bd5c51d9ebcea95dbbf32ac9f0c74eedb8500929889d28c12": {
+      "kinds": [
+        "assignment"
+      ],
+      "sources": [
+        ".github/workflows/rtl-fast.yml"
+      ]
+    },
+    "f536444edb4a76a4924b5e6de63316fd818d6e0d1fada2353051ab671927347f": {
+      "kinds": [
+        "assignment",
+        "read"
+      ],
+      "sources": [
+        "scripts/check_tied_inputs.sh"
+      ]
+    }
+  },
+  "shell_fields": {
+    "Args": [
+      "Array",
+      "End",
+      "Naked",
+      "Name",
+      "Parts",
+      "Pos",
+      "Value"
+    ],
+    "ArithmExp": [
+      "End",
+      "Left",
+      "Pos",
+      "Right",
+      "Type",
+      "X"
+    ],
+    "Array": [
+      "Elems",
+      "End",
+      "Lparen",
+      "Pos",
+      "Rparen"
+    ],
+    "Assigns": [
+      "Append",
+      "Array",
+      "End",
+      "Index",
+      "Name",
+      "Pos",
+      "Value"
+    ],
+    "BinaryArithm": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Type",
+      "X",
+      "Y"
+    ],
+    "BinaryCmd": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Type",
+      "X",
+      "Y"
+    ],
+    "BinaryTest": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Type",
+      "X",
+      "Y"
+    ],
+    "Block": [
+      "End",
+      "Lbrace",
+      "Pos",
+      "Rbrace",
+      "Stmts",
+      "Type"
+    ],
+    "Body": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "CStyleLoop": [
+      "Cond",
+      "End",
+      "Init",
+      "Lparen",
+      "Pos",
+      "Post",
+      "Rparen",
+      "Type"
+    ],
+    "CallExpr": [
+      "Args",
+      "Assigns",
+      "End",
+      "Pos",
+      "Type"
+    ],
+    "CaseClause": [
+      "Case",
+      "End",
+      "Esac",
+      "In",
+      "Items",
+      "Pos",
+      "Type",
+      "Word"
+    ],
+    "CmdSubst": [
+      "End",
+      "Left",
+      "Pos",
+      "Right",
+      "Stmts",
+      "Type"
+    ],
+    "Comments": [
+      "End",
+      "Hash",
+      "Pos",
+      "Text"
+    ],
+    "Cond": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "DblQuoted": [
+      "End",
+      "Left",
+      "Parts",
+      "Pos",
+      "Right",
+      "Type"
+    ],
+    "DeclClause": [
+      "Args",
+      "End",
+      "Pos",
+      "Type",
+      "Variant"
+    ],
+    "Do": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "Elems": [
+      "Comments",
+      "End",
+      "Pos",
+      "Value"
+    ],
+    "Else": [
+      "Cond",
+      "Else",
+      "End",
+      "FiPos",
+      "Pos",
+      "Position",
+      "Then",
+      "ThenPos"
+    ],
+    "Exp": [
+      "Op",
+      "Word"
+    ],
+    "File": [
+      "End",
+      "Pos",
+      "Stmts",
+      "Type"
+    ],
+    "ForClause": [
+      "Do",
+      "DoPos",
+      "DonePos",
+      "End",
+      "ForPos",
+      "Loop",
+      "Pos",
+      "Type"
+    ],
+    "FuncDecl": [
+      "Body",
+      "End",
+      "Name",
+      "Parens",
+      "Pos",
+      "Position",
+      "Type"
+    ],
+    "Hdoc": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "IfClause": [
+      "Cond",
+      "Else",
+      "End",
+      "FiPos",
+      "Pos",
+      "Position",
+      "Then",
+      "ThenPos",
+      "Type"
+    ],
+    "Items": [
+      "Comments",
+      "End",
+      "Op",
+      "OpPos",
+      "Parts",
+      "Patterns",
+      "Pos",
+      "Stmts"
+    ],
+    "Lit": [
+      "End",
+      "Pos",
+      "Type",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "N": [
+      "End",
+      "Pos",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "Name": [
+      "End",
+      "Pos",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "Orig": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "Param": [
+      "End",
+      "Pos",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "ParamExp": [
+      "Dollar",
+      "End",
+      "Exp",
+      "Index",
+      "Length",
+      "Param",
+      "Pos",
+      "Rbrace",
+      "Repl",
+      "Short",
+      "Type"
+    ],
+    "ParenArithm": [
+      "End",
+      "Lparen",
+      "Pos",
+      "Rparen",
+      "Type",
+      "X"
+    ],
+    "Patterns": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "ProcSubst": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Rparen",
+      "Stmts",
+      "Type"
+    ],
+    "Redirs": [
+      "End",
+      "Hdoc",
+      "N",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Word"
+    ],
+    "Repl": [
+      "All",
+      "Orig",
+      "With"
+    ],
+    "SglQuoted": [
+      "End",
+      "Left",
+      "Pos",
+      "Right",
+      "Type",
+      "Value"
+    ],
+    "Stmts": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "Subshell": [
+      "End",
+      "Lparen",
+      "Pos",
+      "Rparen",
+      "Stmts",
+      "Type"
+    ],
+    "TestClause": [
+      "End",
+      "Left",
+      "Pos",
+      "Right",
+      "Type",
+      "X"
+    ],
+    "Then": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "UnaryArithm": [
+      "End",
+      "Op",
+      "OpPos",
+      "Pos",
+      "Post",
+      "Type",
+      "X"
+    ],
+    "Value": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "Variant": [
+      "End",
+      "Pos",
+      "Value",
+      "ValueEnd",
+      "ValuePos"
+    ],
+    "WhileClause": [
+      "Cond",
+      "Do",
+      "DoPos",
+      "DonePos",
+      "End",
+      "Pos",
+      "Type",
+      "WhilePos"
+    ],
+    "With": [
+      "End",
+      "Parts",
+      "Pos"
+    ],
+    "Word": [
+      "End",
+      "Parts",
+      "Pos",
+      "Type"
+    ],
+    "WordIter": [
+      "End",
+      "InPos",
+      "Items",
+      "Name",
+      "Pos",
+      "Type"
+    ],
+    "X": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ],
+    "Y": [
+      "Cmd",
+      "Comments",
+      "End",
+      "Negated",
+      "Pos",
+      "Position",
+      "Redirs",
+      "Semicolon"
+    ]
+  },
+  "shell_flags": {
+    "Args.Naked": [
+      true
+    ],
+    "Assigns.Append": [
+      true
+    ],
+    "Cond.Negated": [
+      true
+    ],
+    "FuncDecl.Parens": [
+      true
+    ],
+    "ParamExp.Length": [
+      true
+    ],
+    "ParamExp.Short": [
+      true
+    ],
+    "Repl.All": [
+      true
+    ],
+    "UnaryArithm.Post": [
+      true
+    ],
+    "Y.Negated": [
+      true
+    ]
+  },
+  "shell_operators": {
+    "BinaryArithm.Op": [
+      38,
+      43,
+      54,
+      56,
+      68,
+      70,
+      72,
+      74,
+      85,
+      87
+    ],
+    "BinaryCmd.Op": [
+      10,
+      11,
+      12
+    ],
+    "BinaryTest.Op": [
+      40
+    ],
+    "Exp.Op": [
+      68,
+      70,
+      71,
+      76,
+      77,
+      78,
+      79
+    ],
+    "Items.Op": [
+      30
+    ],
+    "ProcSubst.Op": [
+      66
+    ],
+    "Redirs.Op": [
+      54,
+      55,
+      56,
+      59,
+      61,
+      63
+    ],
+    "UnaryArithm.Op": [
+      36,
+      37
+    ]
+  },
+  "shell_special": [
+    "#",
+    "$",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "?",
+    "@"
+  ],
+  "shell_test_operators": [
+    "--owned-sweep",
+    "--reverse",
+    "-d",
+    "-e",
+    "-eq",
+    "-f",
+    "-ge",
+    "-gt",
+    "-lt",
+    "-n",
+    "-ne",
+    "-ot",
+    "-r",
+    "-s",
+    "-x",
+    "-z"
+  ],
+  "workflow_environment": {
+    "BDD_CONFORMANCE_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "CASE_NEEDS": "The needs context a gate script parses as JSON; a runtime value, never code.",
+    "CHANGES_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "CI_GATE_NEEDS": "The needs context a gate script parses as JSON; a runtime value, never code.",
+    "CI_GATE_SCOPE": "A scope step output a gate receipt compares with a literal; a runtime value, never code.",
+    "CI_GATE_STEPS": "The steps context an evidence script parses as JSON; a runtime value, never code.",
+    "CI_JOB_RESULT": "The job status an evidence script records as data; a runtime value, never code.",
+    "CI_MATRIX": "The matrix context an evidence script parses as JSON; a runtime value, never code.",
+    "CI_STEP_RESULTS": "The steps context an evidence script parses as JSON; a runtime value, never code.",
+    "CI_TAIL_NEEDS": "The needs context a gate script parses as JSON; a runtime value, never code.",
+    "EVENT_NAME": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "EXPECTED_JOBS": "The generated job-name list the fail-fast watcher parses as JSON; a literal, never code.",
+    "FIRMWARE_AECP_MUTANTS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_BOUNDARY_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_CONTROL_MUTANTS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_SRP_MUTANTS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_UNIT_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "FIRMWARE_VERILATOR_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "GATE_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "GH_TOKEN": "The hosted token the gh client reads as a credential; a runtime value, never code.",
+    "PIP_CONSTRAINT": "The checkout constraints file pip reads as data; the pin reader resolves each request through it; a runtime path, never code.",
+    "PR_BASE_REF": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "PR_DRAFT": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "PR_HEAD_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "PUBLICATION_CENSUS_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "PUSH_BEFORE_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "SHARD": "The matrix shard a suite driver reads as data; a runtime value, never code.",
+    "SHARDS": "The matrix shard count a suite driver reads as data; a literal, never code.",
+    "SHARD_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "SKIPPED_MATRICES": "The generated skipped-matrix map the fail-fast watcher parses as JSON; a literal, never code.",
+    "TARGET_SHA": "Runner event context a scope or gate script reads as data; a runtime value, never code.",
+    "TSN_GEN_REV": "The pinned generator revision the workflow steps expand; a literal, never code.",
+    "UNION_NEEDS": "The needs context a gate script parses as JSON; a runtime value, never code.",
+    "VERILATOR_LINT_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "VERILATOR_VERSION": "The pinned Verilator tag the workflow steps expand; a literal, never code.",
+    "YOSYS_ELABORATION_RESULT": "A needs result the aggregation step compares with a literal; a runtime value, never code.",
+    "YOSYS_VERSION": "The pinned Yosys tag the workflow steps expand; a literal, never code."
+  }
+}
