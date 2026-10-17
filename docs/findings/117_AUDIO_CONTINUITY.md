@@ -61,6 +61,7 @@ bound is #75's 1 s.
 - **[Artifact hashes](#artifact-hashes)** -- Where the three packets are published, and the raw capture and tool identities.
 - **[2026-10-16: bench lane B21 on dev 9ef71772](#2026-10-16-bench-lane-b21-on-dev-9ef71772)** -- The capture-path self-test on the current image, why both directions stopped, where lane B5's losses now stand, and the hashes.
 - **[2026-10-16: bench lane B21 round 2 on dev 9ef71772](#2026-10-16-bench-lane-b21-round-2-on-dev-9ef71772)** -- Why the resumed round stopped at the identity gate, what it read and touched, and what it needs to go on.
+- **[2026-10-17: bench lane B21 round 3 on dev 9ef71772](#2026-10-17-bench-lane-b21-round-3-on-dev-9ef71772)** -- The clean McASP self-test, both directions graded against both taps and the DUT CSRs, 20 restarts, the row passed as measured, and the hashes.
 
 ## Identity and setup
 
@@ -838,3 +839,336 @@ read records.
 
 To go on, the controller host must answer again. The round then starts from
 the identity gate, followed by step 1, the McASP self-test.
+
+## 2026-10-17: bench lane B21 round 3 on dev 9ef71772
+
+Refs #117. Operator [A625], 2026-10-16 from 17:21 UTC and 2026-10-17 from
+06:49 to 07:52 UTC, resuming
+[bench lane B21](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-6208207821)
+after its [round 2 STOP](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-6217670001).
+The round keeps round 2's plan: a self-test of the SoC board's McASP capture
+path, then Directions A and B. The SoC board's McASP is Direction B's capture
+point. The external capture is a cross-check, and its host-side stalls do not
+grade the row. The image is dev `9ef71772`, as installed. It was not flashed,
+reset or power-cycled.
+
+A restart of the bench host cut the round on 2026-10-16 at about 17:32 UTC,
+after the identity gate. The controller host restarted before the resume, so
+the gate ran again on 2026-10-17 before any measurement.
+
+| Item | Verdict | Evidence |
+|---|---|---|
+| Identity gate | PASS, 11 of 11, three times | 2026-10-16 17:22 UTC, then 2026-10-17 06:51 and 07:51 UTC. See [B21 round 3: identity, as found and the cut](#b21-round-3-identity-as-found-and-the-cut). |
+| Step 1, McASP capture-path self-test | CLEAN | 630 s, 63,000 reads, 0 overruns, 0 stalls and no step in the delivery deficit's floor. See [B21 round 3: McASP capture-path self-test](#b21-round-3-mcasp-capture-path-self-test). |
+| Step 2, Direction A with both taps and the DUT CSRs | PASS | On both taps, 644.8 s of pattern frames are all valid and in order, and every common packet is equal. The peer's output holds 638.0 s with no repeat, skip or silent frame. See [B21 round 3: Direction A](#b21-round-3-direction-a). |
+| Step 3, Direction B with both taps and the DUT CSRs | PASS | All 30,480,000 McASP frames, 635.0 s, equal the frames the DUT received, bit for bit and in order. See [B21 round 3: Direction B](#b21-round-3-direction-b). |
+| Restarts, 20 unbind and rebind cycles | PASS, 20 of 20 under 1 s | At the peer's receive point, median 13.8 ms, maximum 86.8 ms. See [B21 round 3: restarts](#b21-round-3-restarts). |
+| #117 audio continuity row | PASS as measured on this image | No missing, repeated, torn or silent frame in either direction, and every restart under 1 s. |
+
+These are operator measurements, not review verdicts.
+
+### B21 round 3: identity, as found and the cut
+
+The round 1 identity method ran three times and passed 11 of 11 each time:
+
+- 2026-10-16, 17:22:28 to 17:22:34 UTC;
+- 2026-10-17, 06:51:33 to 06:51:38 UTC, after the controller host's restart;
+- 2026-10-17, 07:51:38 to 07:51:43 UTC, at the end.
+
+Each run read the same facts as rounds 1 and 2: console
+`ID=4d494c4e VERSION=00020060`, AEM CRC32 `5ba355eb`, live ENTITY and
+CONFIGURATION byte-equal to the QSPI AEM bytes, entity `020000fffe000001`,
+firmware `2.96.0`, the three clock sources, the UART grader 10 of 10 and the
+ADP model.
+
+As found, on 2026-10-16 17:22 UTC and again on 2026-10-17 06:52 UTC:
+
+| State | As found |
+|---|---|
+| DUT STREAM_OUTPUT 0 to the reference peer's STREAM_INPUT 0 | Bound, both formats `0205022002006000` |
+| DUT STREAM_OUTPUT 1, the CRF talker | Bound to the reference peer's CRF input; the peer follows the DUT's CRF |
+| Reference peer STREAM_OUTPUT 0 to DUT STREAM_INPUT 0 | Bound, both formats `0205022001006000` |
+| DUT clock source | 0, INTERNAL |
+| DUT audio maps | STREAM_PORT_INPUT 0: stream channels 0 to 3 on clusters 0 to 3; STREAM_PORT_OUTPUT 0: 8 identity mappings |
+| SoC board | A root prompt; its audio bridge's capture leg holds McASP0 capture; the board's audio player holds McASP0 playback |
+| What the peer's talker carries | Independent low-level noise on all four channels, one or two LSB: the signal already at its talker inputs |
+
+The end census equals the 06:52 one in 45 of 46 entries. The other is the
+DUT's live propagation delay. Both bindings were in place throughout the
+continuity windows, with equal formats on each side. So those windows sent no
+bind, format, map or clock-source command. The restart run's binds are under
+[B21 round 3: restarts](#b21-round-3-restarts).
+
+### B21 round 3: McASP capture-path self-test
+
+**Method.** The reader is lane B5's: the capture command writes the raw
+capture into a pipe, and every 64 KiB read of it is stamped with the frames
+delivered and the clock. The SoC board has no Python, so a small static
+program, `b21stamp`, does the stamping there, in the same 24-byte record. It
+passes the samples through a RAM ring, so a slow storage write never
+back-pressures the capture.
+
+- The capture opens McASP0 directly: eight 32-bit slots at 48 kHz, period
+  480 frames. The driver granted a buffer of 16,320 frames against the 24,000
+  asked.
+- No DUT, peer, tap or controller action ran during the window. The input was
+  whatever the DUT's TDM output carried as found. No samples were kept, so this
+  is the deficit-only self-test.
+- The DUT is the TDM bit-clock and frame master
+  ([first light](451_TDM8_FIRST_LIGHT.md#scope-and-identity)), so the
+  capture runs in the DUT's clock domain.
+- A 1 Hz sampler on the board read the McASP DMA interrupt rows.
+
+| Run | Window, UTC | Seconds | Reads | Frames per read | Overruns | Stalls over 15 ms | Longest read interval, ms | Deficit drift | Permanent step | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `mst-dry` | 07:01:51 to 07:02:11 | 20.0 | 2,000 | 480 in every read | 0 | 0 | 11.0 | +43.3 ppm | none | Dry run |
+| `mst-long` | 07:05:09 to 07:15:39 | 630.0 | 63,000 | 480 in every read | 0 | 0 | 11.1 | +43.06 ppm, linear | none | Clean |
+
+- **No loss.** The capture logged no overrun, and the stamper dropped no
+  byte. Every read delivered one period, 30,240,000 frames in all.
+- **The floor.** The deficit's floor over consecutive 10 s blocks stays within
+  -3.50 to +1.94 frames of a straight line. A loss would raise it for good.
+- **The drift.** The +43 ppm is the DUT's TDM clock against the board's
+  undisciplined clock.
+- **A wobble from the sampler.** The sampler wakes the CPU about every
+  1.03 s. Reads then come about 0.3 ms early, for about 150 ms. With lane B5's
+  11-read floor windows that reads as ±16-frame steps that come back.
+- **The floor window.** The floor test therefore ran with 110-read windows,
+  one sampler cycle. It flags 9 groups of +6 to +8 frames. Each is one sampler
+  cycle missing from a window, where one early-read spacing exceeded 1.1 s.
+  The 10 s block floors show that none is a loss.
+
+Step 1's condition, a clean 10-minute window, is met.
+
+### B21 round 3: Direction A
+
+**Method.** The SoC board played lane B5's pattern period into McASP0
+(SHA-256 `b6a92e97...` checked on the board), in a loop for 670 s. The DUT's
+talker carried it to the reference peer's listener. Through the window:
+
+- both passive taps kept every packet of the DUT's AAF and CRF streams;
+- the DUT's console was polled every 5 s for `AAF_FRAMES`, `AAF_PAIRS`,
+  `AVTPRX_STAT`, `AVTPRX_ERR`, `SLIP_LB`, `SLIP_TDM`, `RENDER_STAT` and the AAF
+  clock meter;
+- GET_COUNTERS read both entities at the start, the middle and the end;
+- the external capture recorded the peer's output with lane B5's reader.
+
+The taps ran from 07:17:32 to 07:28:22 UTC, and the pattern started at
+07:17:39.
+
+| Tap | AAF packets | Sequence breaks | `avtp_timestamp` steps, ns | Pattern frames, all valid and in order | Repeats | Skips | Torn | Invalid inside |
+|---|---|---|---|---|---|---|---|---|
+| DUT link, sent by the DUT | 5,198,452 over 649.8 s | 0 | 124,999 to 125,020 | 30,951,504 (644.8 s) | 0 | 0 | 0 | 0 |
+| Peer link, as the peer received them | 5,198,499 over 649.8 s | 0 | 124,999 to 125,020 | 30,952,266 (644.8 s) | 0 | 0 | 0 | 0 |
+
+- **Both taps agree.** The 5,198,372 packets common to both taps are equal in
+  sequence number, timestamp and payload. Every packet carried `tv` set and 192
+  bytes.
+- **Transit.** Less the two tap clocks' 13.07 ppm rate difference, the transit
+  between the taps varies by -27.7 to +23.9 µs.
+- **CRF.** The stream ran at 500 packets a second with no sequence break on
+  either tap.
+
+| DUT CSR, 128 samples, 07:17:32 to 07:28:07 UTC | Reading |
+|---|---|
+| `SLIP_TDM` | `0x00000000` in every sample: no TDM-junction dup or skip |
+| `SLIP_LB` | `0x0000FFFF` throughout: at the ceiling, which carries no rate |
+| `RENDER_STAT` | Converged in every sample, prefill clear, fill 8 to 14, rails 0 |
+| `AVTPRX_STAT`, `AVTPRX_ERR` | `0x00060701` and `0x0000010C` in every sample: unchanged |
+| `AAF_FRAMES`, `AAF_PAIRS` | +5,079,938 and +121,918,506 in 635.0 s: 7,999.9 and about 192,000 per second |
+
+Over the 655.7 s between the first and last counter reads, the DUT's
+STREAM_OUTPUT 0 counted 5,245,516 frames sent. The peer's STREAM_INPUT 0
+counted the same number received. Only frame counters moved, on either
+entity. None of MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH,
+MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE_TIMESTAMP or EARLY_TIMESTAMP moved.
+
+**The peer's output, cross-check.** The external capture ran from 07:17:35
+UTC for 640 s and held 30,624,574 valid frames, 638.0 s.
+
+- Every frame is valid and in order, at the captured 24 bits.
+- It holds 0 repeats, 0 skips, 0 zero frames and 0 torn frames.
+- Its 64,005 reads hold no stall over 15 ms.
+
+**Placement.** No loss occurred, so none needed placing. Every frame left the
+DUT in order and reached the peer's receive point intact. The peer's output
+carried every frame in the 638.0 s it recorded. The DUT's documented INTERNAL
+beat did not occur either. `SLIP_TDM` counts the TDM junction's dups and
+skips, and it stayed 0.
+
+### B21 round 3: Direction B
+
+**Signal.** The peer's talker carried what already reaches its talker inputs:
+independent low-level noise on all four channels, at one or two LSB. That is
+not a pattern, so the wire record makes it known. The tap on the DUT's link
+records every frame the DUT received. The SoC board's McASP capture of the
+DUT's TDM output is graded against those frames, in the DUT's clock domain.
+
+**Method.** The SoC board ran step 1's capture into `b21stamp` for 635 s.
+It kept TDM slots 0 to 3, which carry stream channels 0 to 3 through the
+DUT's STREAM_PORT_INPUT 0 map. The capture went to the board's own
+storage, through the stamper's ring, and came back over the board's USB network
+link, checked by SHA-256. Nothing was played. The taps kept every packet of
+the peer's AAF stream, and the DUT CSRs and both entities' counters were read
+as in Direction A.
+
+The taps ran from 07:31:30 to 07:42:20 UTC, and the capture from 07:31:34.
+
+| Record | Packets or frames | Sequence breaks | Result |
+|---|---|---|---|
+| Peer link, sent by the peer | 5,198,371 packets | 0 | `tv` set, 96 bytes each, `avtp_timestamp` steps 124,953 to 125,042 ns |
+| DUT link, as the DUT received them | 5,199,125 packets | 0 | Every one of the peer link's 5,198,371 present and equal in header and payload |
+| McASP capture, slots 0 to 3 | 30,480,000 frames, 635.0 s | - | Every frame equal, in all 32 bits of all four slots, to the received frame at one constant offset |
+
+- **The grade.** The grader aligns the capture on 32-frame windows. About 21%
+  of noise frames equal the one before, so a single-frame comparison could not
+  see a repeat. Across the whole capture the offset never changed. That means
+  0 skips, 0 repeats or insertions and 0 frames that match no received frame.
+  On a synthetic record built from the probe's noise, the grader recovered a
+  planted 6-frame skip, a 1-frame repeat and 3 inserted zero frames exactly.
+- **The capture path.** The capture logged 0 overruns, and the stamper dropped
+  0 bytes. The board's reads stalled 25 times, up to 87.1 ms, while the
+  capture streamed to storage. The 16,320-frame buffer absorbed each stall,
+  and the next reads delivered 960 or 1,920 frames. The alignment shows that
+  no frame was lost.
+
+| DUT CSR, 128 samples, 07:31:30 to 07:42:05 UTC | Reading |
+|---|---|
+| `SLIP_TDM` | `0x00000000` in every sample |
+| `RENDER_STAT` | Converged in every sample, prefill clear, fill 8 to 14, rails 0 |
+| `AVTPRX_STAT`, `AVTPRX_ERR` | `0x00060701` and `0x0000010C` in every sample: no interruption, unlock or sequence mismatch counted in the window |
+
+Over 651.0 s of counter reads, the peer's STREAM_OUTPUT 0 counted 5,207,829
+frames sent. The DUT's STREAM_INPUT 0 counted 5,207,944 received, the same
+within the two reads' instants. Only frame counters moved, on either entity.
+
+### B21 round 3: restarts
+
+Lane B5's cycle ran 20 times: DISCONNECT_RX, a 2 s hold, the binding rule,
+CONNECT_RX, then 4 s bound. It ran on DUT STREAM_OUTPUT 0 to the peer's
+STREAM_INPUT 0, from 07:44:28 to 07:46:28 UTC, with the pattern playing.
+
+- **The binding rule.** Before every bind, both formats were read and were
+  equal, `0205022002006000`, so no format was set. Every CONNECT_RX answered
+  SUCCESS.
+- **The end state.** The run ended bound, as found: connection count 1, flags
+  `0x0082`.
+- **The clock.** Both taps kept every ACMP frame, so each restart is timed on
+  one tap clock. It runs from the peer's CONNECT_RX_RESPONSE to the first AAF
+  packet the peer receives.
+
+<!-- b21-restarts -->
+| Population | Count | Below 1 s | Min, ms | Median, ms | Max, ms |
+|---|---|---|---|---|---|
+| Wire restart at the peer's receive point | 20 | 20 | 13.4 | 13.8 | 86.8 |
+| At the peer's output, less the steady wire-to-output latency | 20 | 20 | 23.5 | 24.8 | 97.8 |
+
+- **Stop.** In every cycle the peer's last packet arrived 9.7 to 10.8 ms after
+  the DISCONNECT_RX_RESPONSE. No packet arrived in any hold.
+- **First frames.** After every restart, the first 480 frames were valid
+  pattern frames in order.
+- **Silence.** In the external capture every silence between runs is zero
+  frames only. No step occurs inside any run, and the 190 s capture has no
+  stall.
+- **The output figure.** S, the captured silence in frames, came from the
+  hardware-clocked capture. G, the wire gap, came from the tap. The output
+  restarts S/48,000 - G later than the wire does. The steady latency from wire
+  to output is taken as constant and was not measured.
+- **The two slow cycles.** Cycle 1 took 31.9 ms at the wire and cycle 19 took
+  86.8 ms. The other 18 took 13.4 to 16.8 ms.
+
+### B21 round 3: where lane B5's losses stand
+
+| Lane B5 loss class, `ec0cc0c1` image | Round 3, on the `9ef71772` image |
+|---|---|
+| One-frame drops every 1.266 s | Absent at the peer's output in 638.0 s. The peer now follows the DUT's CRF, which fits lane B5's inference: the peer's output on its own INTERNAL clock. |
+| Whole-frame repeats at the INTERNAL beat | Absent. `SLIP_TDM` stayed 0 throughout, and no repeat is on either tap. |
+| Skips of 60 frames or more, stall-aligned | Absent. The external capture had no stall in this window. Round 1 placed them in the capture path. |
+| Skips of 2 to 59 frames, and the three unaligned ones | Absent in 638.0 s at the peer's output. Neither tap and no DUT counter shows a loss. |
+
+No loss is left unplaced, so step 5's debug trace is not needed for this
+row. Round 1's [list](#b21-what-a-debug-trace-would-need-to-show) still states
+what one would have to show.
+
+### B21 round 3: restore
+
+| State | As left |
+|---|---|
+| Stream states, formats, maps and clock sources | End census equals the 06:52 one in 45 of 46 entries; the other is the DUT's live propagation delay |
+| DUT console words | Equal to the start but for live counters; NVM line unchanged; nothing written |
+| DUT synchronization | SYNC=1, ASCAPABLE=1, TU=0; grandmaster unchanged; identity gate PASS at the end |
+| SoC board audio bridge | The capture leg restarted with its recorded command line under a new process ID; the other leg not running, as found |
+| SoC board audio player | Running and logged in, after a restart; see below |
+| SoC board files | The stamper, the pattern period and the capture removed |
+| Outlets | All on, as found; none switched |
+| Taps | No capture process or file left on the tap host |
+| Controller host | No gPTP daemon or task process; staging removed |
+
+The board's audio player came back through its own stop and start scripts.
+Its stop script also removes a runtime mount that the player needs for its
+network login, and its start script does not make it. After the first start
+the player could not log in. The stop script's comment calls the mount the
+player's CA bind mount. The lane recreated it from the player's own CA
+directory, then stopped and started the player again, and the player logged
+in. McASP0 playback stays
+closed until the player plays. As found, the player held it open and idle.
+
+### B21 round 3: deviations and limits
+
+- **The cut.** The bench host's restart wiped its temporary directory,
+  including the private environment, and the controller host restarted too.
+  The round re-created the environment from the packet's records. It reran the
+  identity gate and a start snapshot before step 1.
+- **The floor window.** Step 1's short floor test used 110-read windows, not
+  11, because of the board sampler's wobble. The 10 s block test is
+  independent of that choice.
+- **The restart tool's format comparison.** It read a field the controller
+  agent does not emit, so it compared nothing. The format reads themselves ran
+  before every bind and are logged. All 20 pairs were equal, so no set was
+  due. The as-run tool is kept unchanged.
+- **The output restart.** It is relative to a steady latency from wire to
+  output that was not measured.
+- **The noise signal.** Direction B's signal is the noise at the peer's
+  talker inputs, made known by the wire record. It is not a known pattern
+  from the source, and what reached the peer's inputs was not observed.
+- **Coverage.** One window per direction, on one morning. Only stream
+  channels 0 and 1 were observed at the peer's output, and 0 to 3 at the McASP.
+- Printed precision is not calibrated accuracy.
+
+### B21 round 3: artifact hashes
+
+Packet `117-b21-a625` holds the round's tools, per-action records, derived
+records and summaries under `r3/`. It also holds `RAW-ARTIFACTS-r3.json`,
+`HANDOFF.md` and `MANIFEST.sha256`; its publication is the manager's. Raw files
+stay outside the tree and the packet, each identified by size and SHA-256.
+
+| Artifact | Bytes | SHA-256 |
+|---|---|---|
+| `mst-long` read-time record, SoC board | 1512000 | `ab78ee6b3b3f719a977df6dc049b54223a74fb3f593f35a3548568ab20600ecf` |
+| `mst-long` derived read record, uint16 | 125998 | `06c5980895a3d010c39fc25447b5857b2511efc52866ea2ad2ab8e25d9311d8c` |
+| Direction A, DUT-link tap | 1501053012 | `59a86f99427ce8ef62530e4da87fa16eaf17ea51a37f3552493f56311b31212f` |
+| Direction A, peer-link tap | 1501066590 | `a848c00b319904d337da99cf19a3ff2ca3d8dc6b52d7d568562cdb1929c34b85` |
+| Direction A, external capture pair | 184331538 | `66d5c858668377d5d3d17ccd1c66424acd148c574aada2566a6d758fcb13b444` |
+| Direction A, external capture read times | 1536120 | `c5d92d2c034a9e4f8edbbf32b971d21f1e6f0d44ef9ab9afcfa103a8a541bf9a` |
+| Direction B, DUT-link tap | 967051444 | `6cd1c9b4929025078ad29e2a7c659351fe09c9b3c6f8dfc792ba3a782b878e1f` |
+| Direction B, peer-link tap | 966912850 | `5d60d73376b683f5b835744f84a0d0b5026f3e4f37f0bf08f9c8694af0b3c278` |
+| Direction B, McASP capture, slots 0 to 3 | 487680000 | `da175f5d24f9191b3101d756babf6901ed2f1bb3590da2b4d5d0d656fddcfc54` |
+| Direction B, McASP read-time record | 1523760 | `cf18ba7e52710ed7f835812f65a0c9336ad725fd2d9af4fc84dff3f8061d2c72` |
+| Restarts, DUT-link tap | 370293984 | `548d1c879751342461ae84d9d15e35552f7f2762799539b9f9455fd5f8b043ab` |
+| Restarts, peer-link tap | 370480818 | `f8c177c3c1b4957d2df56d68d5eeb918a8ee02ec4ff1c1c69549bcfab05183cd` |
+| Restarts, external capture pair | 54720138 | `e855f403a95031c26308a27705e2e1348697f40d3f84046460119f9379bf3427` |
+| Restarts, external capture read times | 456024 | `728ffb1e1c97dfbd39e9f3eda7958e3806ec934dfc4162dc659a3a20bef991c4` |
+
+| Tool | Role | SHA-256 |
+|---|---|---|
+| `b21stamp.c` | the SoC board's per-read stamper, lane B5's record; static binary `666ee35a30bbecedc55c5554ce504445ac731ff206f1c69d82058d790164d920` | `be87ec8353a55bad53f2588b39c37bb8113fccadf08cefbc2ccb2248cc6aabed` |
+| `mcasp_selftest_b21.sh` | step 1 on the SoC board | `f94f4b4af88b9f5053e974bc53688178d4800fd8de5a928fa044c083af0efae4` |
+| `dir_b21.sh` | one direction run: playback or capture, taps, CSR poll, counters | `eb873a1435f2ea663534c3fd8b70bcf266cf27f2bedb2f9d578afa5c3e06806a` |
+| `restart_run_b21.sh`, `restart_b21.py` | the restart run and its cycle driver | `b0a9b5b4d98bfdcacf4e1ba72ae3693e917779bbc8286bad539ddd2d07b67c74`, `a2e237b1cadfb73877a80e844b4827133a68cc17877c2faaedadda79ba0254cf` |
+| `b21_aaf.py` | the taps' AAF decode | `b8fe677d107b415032dba466f1f456d9415dee0d91f1c951e4aa840008f11ca6` |
+| `b21_grade.py` | wire, external, McASP alignment, CSR and counter grades | `a0f3b5acd3cc5fe984f1268fd67a27e556c5d68f528d93ebf2ccb29a14ac6b5d` |
+| `b21_mcasp_ana.py` | the McASP read record, with lane B5's definitions | `f8970b54d186434b1c286ea916d737031433c4f8687d3d4451b52f574f097899` |
+| `b21_restart.py` | the restart grade | `71d6be6486cf6065f6086bfebde35860c7a4b42d7d1096956a5535ed0284070b` |
+| `selftest_b21.py` | round 1's external capture reader, reused for the cross-check | `a2d4c087458e07bcaf9648171b01823b169b07eec7556ae3f01d49d51ce1808f` |
+| `b5_attrib.py` | lane B5's definitions, imported unchanged | `f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40` |
+| `b5_round3.py` | carried from the evidence archive at `9006c78e`; not run, as in round 1 | `415ef1b0e7d26cb821235fe22c81b23a42035afb73b4baef3cf24bd08099ac4d` |
