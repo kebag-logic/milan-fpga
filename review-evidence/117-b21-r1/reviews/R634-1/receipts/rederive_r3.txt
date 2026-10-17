@@ -1,0 +1,72 @@
+[manifest] 380 entries, 0 published-hash mismatches, 78 label-masked
+[raw] `mst-long` read-time record, SoC board: archived, size equal
+[raw] `mst-long` derived read record, uint16: published in packet, hash equal
+[raw] Direction A, DUT-link tap: archived, size equal
+[raw] Direction A, peer-link tap: archived, size equal
+[raw] Direction A, external capture pair: archived, size equal
+[raw] Direction A, external capture read times: archived, size equal
+[raw] Direction B, DUT-link tap: archived, size equal
+[raw] Direction B, peer-link tap: archived, size equal
+[raw] Direction B, McASP capture, slots 0 to 3: archived, size equal
+[raw] Direction B, McASP read-time record: archived, size equal
+[raw] Restarts, DUT-link tap: archived, size equal
+[raw] Restarts, peer-link tap: archived, size equal
+[raw] Restarts, external capture pair: archived, size equal
+[raw] Restarts, external capture read times: archived, size equal
+[raw] 14 artifact rows verified; 13 tool hashes on the round 3 tool table
+[raw] retention receipt: 67 OK lines; last line: cold archive 117-b21-a625-raw: 82 OK, 0 BAD
+[mst-long] reads 63000, intervals 62999, frames 30240000 (delivered in window 30239520); window 630.017 s; exact 630.017315 s
+[mst-long] read interval ms min 8.9 max 11.1; over 15 ms 0; over 12 ms 0
+[mst-long] deficit slope +2.0668 frames/s = +43.06 ppm
+[mst-long] W=10: positions 62974, drift +0.288, |step-drift|>4 at 20518 in 610 groups; step min -16.8 max +18.5; group largest steps [np.float64(18.5), np.float64(-15.2), np.float64(17.1), np.float64(-16.0), np.float64(15.7), np.float64(-15.9), np.float64(15.9), np.float64(15.4), np.float64(15.3), np.float64(15.0), np.float64(16.2), np.float64(16.2), np.float64(15.3), np.float64(15.6), np.float64(-15.2), np.float64(15.1), np.float64(15.4), np.float64(15.5), np.float64(15.5), np.float64(15.5), np.float64(15.0), np.float64(15.1), np.float64(15.8), np.float64(15.6), np.float64(15.9), np.float64(14.9), np.float64(16.0), np.float64(15.7), np.float64(14.8), np.float64(16.4), np.float64(15.4), np.float64(15.2), np.float64(17.2), np.float64(16.5), np.float64(16.6), np.float64(15.7), np.float64(-16.5), np.float64(17.4), np.float64(-16.4), np.float64(-15.3)] ... (610 groups)
+[mst-long] W=110: positions 62774, drift +2.304, |step-drift|>4 at 185 in 9 groups; step min -2.5 max +8.4; group largest steps [np.float64(6.4), np.float64(6.4), np.float64(7.0), np.float64(7.6), np.float64(6.9), np.float64(8.4), np.float64(6.3), np.float64(-2.5), np.float64(6.8)]
+[mst-long] W=110 group largest steps relative to drift: [np.float64(4.1), np.float64(4.1), np.float64(4.7), np.float64(5.3), np.float64(4.6), np.float64(6.1), np.float64(4.0), np.float64(-4.8), np.float64(4.5)]
+[mst-long] 10 s block floors: 63 blocks, residual -3.50 .. +1.94, largest change 2.81
+[mst-long probe] loss  6 frames at 0.25: block largest change 4.91 (baseline 2.81), residual -4.62..+3.66; W=110 floor test flags the loss: True
+[mst-long probe] loss  6 frames at 0.50: block largest change 4.58 (baseline 2.81), residual -3.70..+4.13; W=110 floor test flags the loss: True
+[mst-long probe] loss  6 frames at 0.90: block largest change 4.82 (baseline 2.81), residual -2.82..+4.23; W=110 floor test flags the loss: True
+[mst-long probe] loss 12 frames at 0.25: block largest change 10.80 (baseline 2.81), residual -6.00..+6.48; W=110 floor test flags the loss: True
+[mst-long probe] loss 12 frames at 0.50: block largest change 10.44 (baseline 2.81), residual -5.64..+6.75; W=110 floor test flags the loss: True
+[mst-long probe] loss 12 frames at 0.90: block largest change 10.77 (baseline 2.81), residual -4.10..+8.28; W=110 floor test flags the loss: True
+[mst-long probe] loss 24 frames at 0.25: block largest change 22.58 (baseline 2.81), residual -11.05..+12.77; W=110 floor test flags the loss: True
+[mst-long probe] loss 24 frames at 0.50: block largest change 22.16 (baseline 2.81), residual -11.26..+11.99; W=110 floor test flags the loss: True
+[mst-long probe] loss 24 frames at 0.90: block largest change 22.67 (baseline 2.81), residual -7.60..+16.38; W=110 floor test flags the loss: True
+[mst-long probe] loss 48 frames at 0.25: block largest change 46.15 (baseline 2.81), residual -21.16..+25.37; W=110 floor test flags the loss: True
+[mst-long probe] loss 48 frames at 0.50: block largest change 45.58 (baseline 2.81), residual -22.50..+23.51; W=110 floor test flags the loss: True
+[mst-long probe] loss 48 frames at 0.90: block largest change 46.48 (baseline 2.81), residual -14.62..+32.57; W=110 floor test flags the loss: True
+[dB reads] gunzipped record sha256 equals reads.json: True; intervals 63489, over 15 ms 25, longest 87.07 ms; reads not one period [[7373, 960], [12630, 1920], [12631, 1920], [26108, 960], [29053, 960], [54455, 960]]; stamper: b21stamp: frames=30480000 reads=63490 kept_slots=4 ring_max_fill=483840 dropped_bytes=0 partial_bytes=0; overruns 0
+[dA csr] samples per word [128]; first 2026-10-17T07:17:32.635225Z last 2026-10-17T07:28:07.635274Z
+[dA csr] SLIP_TDM ['0x0']; SLIP_LB ['0xffff']; AVTPRX_STAT ['0x60701']; AVTPRX_ERR ['0x10c']; AAF clock meter words ['0x0']
+[dA csr] RENDER_STAT fill 8..14, prefill {0}, converged {1}, rails {0}
+[dA csr] AAF_FRAMES +5079938, AAF_PAIRS +121918506
+[dA counters] dut SI0 valid 0xfff span 655.7 s moved words {6: 5245515, 11: 5239945}
+[dA counters] dut SI1 valid 0xf3f span 655.7 s moved words {}
+[dA counters] dut SO0 valid 0x1f span 655.7 s moved words {4: 5245516}
+[dA counters] dut SO1 valid 0x1f span 655.7 s moved words {4: 327845}
+[dA counters] peer SI0 valid 0xfff span 655.7 s moved words {6: 5245516, 11: 5245516}
+[dA counters] peer SI8 valid 0xfff span 655.7 s moved words {6: 327845, 11: 327845}
+[dA counters] peer SO0 valid 0x1f span 655.7 s moved words {4: 5245516}
+[dA counters] peer SO2 valid 0x1f span 655.7 s moved words {}
+[dB csr] samples per word [128]; first 2026-10-17T07:31:30.825987Z last 2026-10-17T07:42:05.826083Z
+[dB csr] SLIP_TDM ['0x0']; SLIP_LB ['0xffff']; AVTPRX_STAT ['0x60701']; AVTPRX_ERR ['0x10c']; AAF clock meter words ['0x0']
+[dB csr] RENDER_STAT fill 8..14, prefill {0}, converged {1}, rails {0}
+[dB csr] AAF_FRAMES +5080016, AAF_PAIRS +121920380
+[dB counters] dut SI0 valid 0xfff span 651.0 s moved words {6: 5207830, 11: 5207944}
+[dB counters] dut SI1 valid 0xf3f span 651.0 s moved words {}
+[dB counters] dut SO0 valid 0x1f span 651.0 s moved words {4: 5207829}
+[dB counters] dut SO1 valid 0x1f span 651.0 s moved words {4: 325489}
+[dB counters] peer SI0 valid 0xfff span 651.0 s moved words {6: 5207829, 11: 5207829}
+[dB counters] peer SI8 valid 0xfff span 651.0 s moved words {6: 325490, 11: 325490}
+[dB counters] peer SO0 valid 0x1f span 651.0 s moved words {4: 5207829}
+[dB counters] peer SO2 valid 0x1f span 651.0 s moved words {}
+[dA wire] dutlink: 5198452 packets over 649.815 s, seq breaks 0, ts steps (124999, 125020), tv_zero 0, sdl [192]; pattern valid 30951504 (644.8 s), contiguous and in order: True
+[dA wire] peerlink: 5198499 packets over 649.812 s, seq breaks 0, ts steps (124999, 125020), tv_zero 0, sdl [192]; pattern valid 30952266 (644.8 s), contiguous and in order: True
+[dA wire] common 5198372, header equal 5198372, payload equal 5198372, partition consistent True; transit minus median (drift included) -4237.536 .. 4209.084 us
+[dB wire] dutlink: 5199125 packets over 649.899 s, seq breaks 0, ts steps {'min': 124953, 'median': 125001, 'max': 125042, 'not_125000': 5198528}, tv_zero 0, sdl [96]
+[dB wire] peerlink: 5198371 packets over 649.797 s, seq breaks 0, ts steps {'min': 124953, 'median': 125001, 'max': 125042, 'not_125000': 5197774}, tv_zero 0, sdl [96]
+[dB wire] common 5198371, header equal 5198371, payload equal 5198371, partition consistent True; transit minus median (drift included) -4256.345 .. 4006.776 us
+[dB mcasp] frames 30480000 (635.0 s), matched 30480000, offset changes 0, foreign 0, first aligned McASP frame 0
+[dA ext] valid 30624574 (638.0 s), region 30624574, in order 30624573, repeats 0, skips 0, zero inside 0, torn 0, stalls 0, reads 64005
+[rA peerlink] cycles 20, statuses nonzero 0, restart ms min 13.4 median 13.8 max 86.8, under 1 s 20, stop ms 9.7..10.8, packets in hold 0, first 480 valid 20
+[rA dutlink] cycles 20, statuses nonzero 0, restart ms min 13.4 median 13.8 max 86.8, under 1 s 20, stop ms 10.6..12.7, packets in hold 0, first 480 valid 20
+[rA output] recomputed restart + S/48000 - G, ms: min 23.5 median 24.8 max 97.8; silences all zero True; ext frames 9120023 (190.0 s), stalls 0, in-run steps not 1 0

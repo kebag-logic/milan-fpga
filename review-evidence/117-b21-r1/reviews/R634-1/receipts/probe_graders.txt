@@ -1,0 +1,26 @@
+[tool] b21_grade.py sha256 a0f3b5acd3cc5fe984f1268fd67a27e556c5d68f528d93ebf2ccb29a14ac6b5d
+[tool] b21_aaf.py sha256 b8fe677d107b415032dba466f1f456d9415dee0d91f1c951e4aa840008f11ca6
+[wire probe]
+  clean                    {'dut_seq_breaks': 0, 'peer_seq_breaks': 0, 'dut_repeats': 0, 'dut_skips': 0, 'dut_torn': 0, 'dut_invalid_inside': 0, 'peer_skips': 0, 'common': 3000, 'header_equal': 3000, 'payload_equal': 3000}
+  frame-repeat             {'dut_seq_breaks': 0, 'peer_seq_breaks': 0, 'dut_repeats': 1, 'dut_skips': 1, 'dut_torn': 0, 'dut_invalid_inside': 0, 'peer_skips': 1, 'common': 3000, 'header_equal': 3000, 'payload_equal': 3000}
+  frame-skip-in-content    {'dut_seq_breaks': 0, 'peer_seq_breaks': 0, 'dut_repeats': 0, 'dut_skips': 1, 'dut_torn': 0, 'dut_invalid_inside': 0, 'peer_skips': 1, 'common': 3000, 'header_equal': 3000, 'payload_equal': 3000}
+  torn                     {'dut_seq_breaks': 0, 'peer_seq_breaks': 0, 'dut_repeats': 0, 'dut_skips': 1, 'dut_torn': 1, 'dut_invalid_inside': 1, 'peer_skips': 1, 'common': 3000, 'header_equal': 3000, 'payload_equal': 3000}
+  low-byte                 {'dut_seq_breaks': 0, 'peer_seq_breaks': 0, 'dut_repeats': 0, 'dut_skips': 1, 'dut_torn': 0, 'dut_invalid_inside': 1, 'peer_skips': 1, 'common': 3000, 'header_equal': 3000, 'payload_equal': 3000}
+  dut-packet-lost          {'dut_seq_breaks': 1, 'peer_seq_breaks': 0, 'dut_repeats': 0, 'dut_skips': 1, 'dut_torn': 0, 'dut_invalid_inside': 0, 'peer_skips': 0, 'common': 2999, 'header_equal': 1500, 'payload_equal': 1500}
+  peer-packet-lost         {'dut_seq_breaks': 0, 'peer_seq_breaks': 1, 'dut_repeats': 0, 'dut_skips': 0, 'dut_torn': 0, 'dut_invalid_inside': 0, 'peer_skips': 1, 'common': 2999, 'header_equal': 1500, 'payload_equal': 1500}
+  peer-payload-bitflip     {'dut_seq_breaks': 0, 'peer_seq_breaks': 0, 'dut_repeats': 0, 'dut_skips': 0, 'dut_torn': 0, 'dut_invalid_inside': 0, 'peer_skips': 1, 'common': 3000, 'header_equal': 3000, 'payload_equal': 2999}
+  peer-ts-changed          {'dut_seq_breaks': 0, 'peer_seq_breaks': 0, 'dut_repeats': 0, 'dut_skips': 0, 'dut_torn': 0, 'dut_invalid_inside': 0, 'peer_skips': 0, 'common': 3000, 'header_equal': 2999, 'payload_equal': 3000}
+[mcasp probe]
+  fraction_equal_to_previous 0.213
+  clean                    {'matched': 150000, 'offset_changes': 0, 'skips': 0, 'skipped_wire_frames': 0, 'repeats_or_inserts': 0, 'inserted_frames': 0, 'foreign_frames': 0, 'foreign_zero': 0}
+  skip6                    {'matched': 149994, 'offset_changes': 1, 'skips': 1, 'skipped_wire_frames': 6, 'repeats_or_inserts': 0, 'inserted_frames': 0, 'foreign_frames': 0, 'foreign_zero': 0}
+  repeat1                  {'matched': 150001, 'offset_changes': 1, 'skips': 0, 'skipped_wire_frames': 0, 'repeats_or_inserts': 1, 'inserted_frames': 1, 'foreign_frames': 0, 'foreign_zero': 0}
+  insert3zero              {'matched': 150003, 'offset_changes': 1, 'skips': 0, 'skipped_wire_frames': 0, 'repeats_or_inserts': 1, 'inserted_frames': 3, 'foreign_frames': 0, 'foreign_zero': 0}
+  bitflip                  {'matched': 149999, 'offset_changes': 0, 'skips': 0, 'skipped_wire_frames': 0, 'repeats_or_inserts': 0, 'inserted_frames': 0, 'foreign_frames': 1, 'foreign_zero': 0}
+  replace1zero             {'matched': 149999, 'offset_changes': 0, 'skips': 0, 'skipped_wire_frames': 0, 'repeats_or_inserts': 0, 'inserted_frames': 0, 'foreign_frames': 1, 'foreign_zero': 1}
+[ext probe]
+  clean                    {'valid': 100000, 'repeats': 0, 'skips': 0, 'skipped_frames': 0, 'zero_inside_region': 0, 'torn': 0, 'invalid_nonzero_inside': 0}
+  skip1                    {'valid': 99999, 'repeats': 0, 'skips': 1, 'skipped_frames': 1, 'zero_inside_region': 0, 'torn': 0, 'invalid_nonzero_inside': 0}
+  repeat1                  {'valid': 100001, 'repeats': 1, 'skips': 0, 'skipped_frames': 0, 'zero_inside_region': 0, 'torn': 0, 'invalid_nonzero_inside': 0}
+  zero1                    {'valid': 99999, 'repeats': 0, 'skips': 1, 'skipped_frames': 1, 'zero_inside_region': 1, 'torn': 0, 'invalid_nonzero_inside': 0}
+  torn                     {'valid': 99999, 'repeats': 0, 'skips': 1, 'skipped_frames': 1, 'zero_inside_region': 0, 'torn': 1, 'invalid_nonzero_inside': 1}
