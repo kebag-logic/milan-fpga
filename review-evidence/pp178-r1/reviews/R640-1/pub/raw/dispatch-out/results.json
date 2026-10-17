@@ -1,0 +1,52 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "scfg-range-bad-arguments",
+    "patch": "scfg-range-bad-arguments",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "scfg-nsd-zero-body",
+    "patch": "scfg-nsd-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "scfg-nsd-stores",
+    "patch": "scfg-nsd-stores",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "scfg-nsd-notifies",
+    "patch": "scfg-nsd-notifies",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "scfg-refusal-short-body",
+    "patch": "scfg-refusal-short-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

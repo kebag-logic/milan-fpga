@@ -1,0 +1,9 @@
+== base_generator_sections
+   ## build rc=0
+   [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 76 checks, 1 failures
+   ## run --notify-only rc=1
+   [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 936 checks, 2 failures
+   ## run --aecp-dispatch-only rc=1
+   FAIL: NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester
+   FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)
+   FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)

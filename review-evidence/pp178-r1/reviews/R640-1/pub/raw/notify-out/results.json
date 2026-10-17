@@ -1,0 +1,94 @@
+[
+ {
+  "mutant": "golden-pp_top-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "configuration_unchanged_notifies",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged",
+   "NP1c SET_CONFIGURATION(0) on the stored configuration 0: an unchanged"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester",
+   "NP1c SET_CONFIGURATION(0) on the stored configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "configuration_compare_whole_lane",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "configuration_success_reserved_dirty",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1a SET_CONFIGURATION(0) on the image's configuration 0: the unchanged SET",
+   "NP1c SET_CONFIGURATION(0) on the stored configuration 0: the unchanged SET"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP1a SET_CONFIGURATION(0) on the image's configuration 0: the unchanged SET answers SUCCESS, byte-exact",
+   "NP1 SET_CONFIGURATION(1): the solicited response is SUCCESS, byte-exact (premise)",
+   "NP1b SET_CONFIGURATION(0): the solicited response is SUCCESS, byte-exact (premise)",
+   "NP1c SET_CONFIGURATION(0) on the stored configuration 0: the unchanged SET answers SUCCESS, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "configuration_running_route_dropped",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP10 SET_CONFIGURATION(2), no such configuration, sink 0 bound"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP10 SET_CONFIGURATION(2), no such configuration, sink 0 bound: STREAM_IS_RUNNING carrying 0, byte-exact (bound 1, status 2)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "configuration_refusal_notifies",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP10b: the refused SET_CONFIGURATION pushes nothing"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "NP10b: the refused SET_CONFIGURATION pushes nothing"
+  ],
+  "verdict": "KILLED"
+ }
+]

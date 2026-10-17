@@ -1,0 +1,23 @@
+control aecp-dispatch: rc=0 PASS
+scfg-range-bad-arguments: rc=2 failures=2 named=1 KILLED
+    FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)
+    FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)
+scfg-nsd-zero-body: rc=2 failures=2 named=1 KILLED
+    FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+    FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+scfg-nsd-stores: rc=2 failures=5 named=1 KILLED
+    FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+    FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no dynamic-store write, NVM mark or notification (1, 0, 0)
+    FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+    FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: no dynamic-store write, NVM mark or notification (1, 0, 0)
+    FAIL: SC3 ...and GET_CONFIGURATION still reads the image's 1, byte-exact
+scfg-nsd-notifies: rc=2 failures=3 named=1 KILLED
+    FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no unsolicited frame reached the registered holder
+    FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no dynamic-store write, NVM mark or notification (0, 0, 1)
+    FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: no dynamic-store write, NVM mark or notification (0, 0, 1)
+scfg-refusal-short-body: rc=2 failures=4 named=1 KILLED
+    FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 14)
+    FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: ...at the response form's cdl 16, got 14
+    FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 14)
+    FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: ...at the response form's cdl 16, got 14
+6 checks: 6 PASS, 0 FAIL

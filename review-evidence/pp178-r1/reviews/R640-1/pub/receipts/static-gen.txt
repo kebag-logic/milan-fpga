@@ -1,0 +1,21 @@
+$PACKET/scratch/ucode-base.hex: 2048 words, 89 programs
+gen base rc=0
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  $PACKET/scratch/ucode-base.hex
+$PACKET/scratch/ucode-head.hex: 2048 words, 90 programs
+gen head rc=0
+a3b62cabe2cb091383f999bf58b830ff2d3ab63cd8699b95d2529dbf4d02bcb3  $PACKET/scratch/ucode-head.hex
+UPC MAP GATE: PASS (61 engine constants, 90 entry points, all agree)
+upc rc=0
+usage: check_aecp_commands.py [-h] [--selftest] [--write] [--pr-body PR_BODY]
+                              [--observed OBSERVED] [--write-record]
+
+Hold the AECP command model to its generated, observed and gated consumers.
+
+options:
+  -h, --help           show this help message and exit
+  --selftest           plant each defect and require it caught
+  --write              regenerate F06.14 from the table
+  --pr-body PR_BODY    check or regenerate the PR field reference
+  --observed OBSERVED  tb/aecp_cmds's sweep output to hold
+  --write-record       with --observed: rewrite tb/aecp_cmds/decode.json from
+                       it
