@@ -1,0 +1,415 @@
+{
+  "revision": "8ef92c3bf2517c92f8ec674ae2edbfeac50ee79c",
+  "verified_files": [
+    {
+      "file": "author-r2/HANDOFF.md",
+      "sha256": "c4a2a0d1507db260b0046861b5e3784f03041852e4a8a4d1a886ef1c2929137b",
+      "bytes": 29972,
+      "verified": true,
+      "path_redacted": true
+    },
+    {
+      "file": "author-r2/EXTERNAL-ARTIFACTS.csv",
+      "sha256": "af6fb0028c435be3c78262bc408652d048478e84ed347a0f6ba4b814c3d62416",
+      "bytes": 48499,
+      "verified": true,
+      "path_redacted": false
+    },
+    {
+      "file": "reviews/R642-1/receipts/results/dispatch-gavb-type-low-byte.FAIL-lines.txt",
+      "sha256": "2ae9819e2611fef41c1ccdbf2ab50ea88c30561a170ab5caeac26110673b0cbb",
+      "bytes": 192,
+      "verified": true,
+      "path_redacted": false
+    },
+    {
+      "file": "reviews/R642-1/receipts/results/dispatch-gavb-floor-14.FAIL-lines.txt",
+      "sha256": "4a5f15c1085446d9848a11c10d8abcd0ea91dd50dd7027d0e13db2cf20273e65",
+      "bytes": 51,
+      "verified": true,
+      "path_redacted": false
+    },
+    {
+      "file": "reviews/R642-1/receipts/results/dispatch-campaign.results.json",
+      "sha256": "beb2fbd003cebb6e55110456010a69ff41707d000a3b6613d581837d4414826a",
+      "bytes": 9336,
+      "verified": true,
+      "path_redacted": false
+    },
+    {
+      "file": "reviews/R642-1/receipts/results/decode-controls.results.json",
+      "sha256": "86d5e56687a926f2746de716d2e397dc2dd1a9314a2ce97f3f0431afcd05fe5a",
+      "bytes": 5178,
+      "verified": true,
+      "path_redacted": false
+    },
+    {
+      "file": "reviews/R642-1/receipts/results/probe-decode-p-floor-15.summary.txt",
+      "sha256": "e21f9c73e14760e91e2f6e5ae7f691dc4b81d5ca8d80de696f1d8a07042bb65a",
+      "bytes": 1397,
+      "verified": true,
+      "path_redacted": false
+    },
+    {
+      "file": "reviews/R642-1/receipts/results/probe-decode-p-gate-ignores-bit12.summary.txt",
+      "sha256": "7a35acb57521b1d954d6fb268f0a77d9cab240fa4f98dcb4ed5869c2ba691a01",
+      "bytes": 354,
+      "verified": true,
+      "path_redacted": false
+    },
+    {
+      "file": "reviews/R642-1/receipts/results/probe-dispatch-p-gate-ignores-bit12.summary.txt",
+      "sha256": "a29f84c203def517337ef97b79ce766ca36f385e0251e542a7017392b8549d32",
+      "bytes": 148,
+      "verified": true,
+      "path_redacted": false
+    },
+    {
+      "file": "reviews/R642-1/receipts/dispatch-campaign.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "verified": true,
+      "path_redacted": false
+    },
+    {
+      "file": "reviews/R642-1/receipts/decode-controls.rc",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "verified": true,
+      "path_redacted": false
+    }
+  ],
+  "inventory_only_comparisons": [
+    {
+      "base": "r2/logs/base-ALL.rc",
+      "head": "r2/logs/head-ALL.rc",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-camp-aecpcmds.cmd",
+      "head": "r2/logs/head-camp-aecpcmds.cmd",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/base-camp-aecpcmds.log",
+      "head": "r2/logs/head-camp-aecpcmds.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-camp-aecpcmds.rc",
+      "head": "r2/logs/head-camp-aecpcmds.rc",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-check.cmd",
+      "head": "r2/logs/head-check.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-check.log",
+      "head": "r2/logs/head-check.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-check.rc",
+      "head": "r2/logs/head-check.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/base-lint.cmd",
+      "head": "r2/logs/head-lint.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-lint.log",
+      "head": "r2/logs/head-lint.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-lint.rc",
+      "head": "r2/logs/head-lint.rc",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-matrix.cmd",
+      "head": "r2/logs/head-matrix.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-matrix.log",
+      "head": "r2/logs/head-matrix.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-matrix.rc",
+      "head": "r2/logs/head-matrix.rc",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-reqexec.cmd",
+      "head": "r2/logs/head-reqexec.cmd",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/base-reqexec.log",
+      "head": "r2/logs/head-reqexec.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-reqexec.rc",
+      "head": "r2/logs/head-reqexec.rc",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-reqtags.txt",
+      "head": "r2/logs/head-reqtags.txt",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-status-after.txt",
+      "head": "r2/logs/head-status-after.txt",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-suites.cmd",
+      "head": "r2/logs/head-suites.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-suites.log",
+      "head": "r2/logs/head-suites.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-suites.rc",
+      "head": "r2/logs/head-suites.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/base-verilator.txt",
+      "head": "r2/logs/head-verilator.txt",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-yosys.cmd",
+      "head": "r2/logs/head-yosys.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-yosys.log",
+      "head": "r2/logs/head-yosys.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/base-yosys.rc",
+      "head": "r2/logs/head-yosys.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/parent-base-01.cmd",
+      "head": "r2/logs/parent-head-01.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-01.log",
+      "head": "r2/logs/parent-head-01.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-01.rc",
+      "head": "r2/logs/parent-head-01.rc",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-02.cmd",
+      "head": "r2/logs/parent-head-02.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-02.log",
+      "head": "r2/logs/parent-head-02.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-02.rc",
+      "head": "r2/logs/parent-head-02.rc",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-03.cmd",
+      "head": "r2/logs/parent-head-03.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-03.log",
+      "head": "r2/logs/parent-head-03.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-03.rc",
+      "head": "r2/logs/parent-head-03.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/parent-base-04.cmd",
+      "head": "r2/logs/parent-head-04.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-04.log",
+      "head": "r2/logs/parent-head-04.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-04.rc",
+      "head": "r2/logs/parent-head-04.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/parent-base-05.cmd",
+      "head": "r2/logs/parent-head-05.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-05.log",
+      "head": "r2/logs/parent-head-05.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-05.rc",
+      "head": "r2/logs/parent-head-05.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/parent-base-06.cmd",
+      "head": "r2/logs/parent-head-06.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-06.log",
+      "head": "r2/logs/parent-head-06.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-06.rc",
+      "head": "r2/logs/parent-head-06.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/parent-base-07.cmd",
+      "head": "r2/logs/parent-head-07.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-07.log",
+      "head": "r2/logs/parent-head-07.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-07.rc",
+      "head": "r2/logs/parent-head-07.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/parent-base-08.cmd",
+      "head": "r2/logs/parent-head-08.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-08.log",
+      "head": "r2/logs/parent-head-08.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-08.rc",
+      "head": "r2/logs/parent-head-08.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/parent-base-09.cmd",
+      "head": "r2/logs/parent-head-09.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-09.log",
+      "head": "r2/logs/parent-head-09.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-09.rc",
+      "head": "r2/logs/parent-head-09.rc",
+      "same_size": true,
+      "same_sha256": false
+    },
+    {
+      "base": "r2/logs/parent-base-11.cmd",
+      "head": "r2/logs/parent-head-11.cmd",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-11.log",
+      "head": "r2/logs/parent-head-11.log",
+      "same_size": true,
+      "same_sha256": true
+    },
+    {
+      "base": "r2/logs/parent-base-11.rc",
+      "head": "r2/logs/parent-head-11.rc",
+      "same_size": false,
+      "same_sha256": false
+    }
+  ],
+  "raw_author_gate_logs_published_in_packet": false
+}

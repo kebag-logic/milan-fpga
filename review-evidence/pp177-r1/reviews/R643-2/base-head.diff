@@ -1,0 +1,664 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index 65dce9a..a714a45 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -593,3 +593,4 @@ original-document Cov column. REQ-MVU-005's timing evidence is the deadline engi
+ | 9 | SRP location (originally out of scope per the reviewed doc's §21) | Owner decision 2026-08-11: SRP endpoint (MSRP/MVRP participant) moved **in scope** as doc 10 — 1 Domain FSM, 1 VLAN FSM (Class A, single VID), N + M stream FSMs; MAAP stays external; external-stack alternative retained (`P-EN-SRP-ENGINE`) | [10](architecture/10_srp_engine.md), §6.9 |
+ | 11 | MAAP location (item 9 recorded "MAAP stays external") | The seam grew an internal server: `KL_pp_maap` ([11](architecture/11_maap_engine.md)) answers the 02 §4.2 contract when the quasi-static `cfg_maap_internal_i` = 1 and publishes the claim for the fabric; the DEFAULT stays 0 = external, byte-identical to the landed integrations, so item 9's shipping wiring is unchanged until the integrator flips the input | [11](architecture/11_maap_engine.md), §6.9b |
+ | 10 | Implementation strategy for the reference platform | Owner decision 2026-08-11: full implementation (scenario B of [docs/10](10_RESOURCE_AND_EFFORT.md)) proceeds in this repository; the reference platform cuts over by **direct substitution at parity** — the superseded planes are deleted, never parameterized (git history preserves them); the area verdict is accepted with eyes open, the architecture/conformance value is the goal | [docs/10](10_RESOURCE_AND_EFFORT.md) §5/§10 |
++| 12 | GET_AVB_INFO with a descriptor_type other than AVB_INTERFACE: the status is unstated | Owner decision 2026-10-17 ([#177](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/177)): **`NOT_IMPLEMENTED`** with the command echoed, where the engine had answered `NOT_SUPPORTED`; this restores the end station's behaviour before the AECP engine moved to the processor. IEEE 1722.1-2021 §7.4.40.1: the command's descriptor_type is AVB_INTERFACE, the only valid target, and §7.4.40.3 names only NOT_AUTHENTICATED, so the standard does not fix the status for another type. Table 7-141: NOT_IMPLEMENTED (1) means the entity does not support the command type; NOT_SUPPORTED (11) means the command is implemented but its target is not supported. §9.3.5.3.3: an unimplemented command gets a correctly sized NOT_IMPLEMENTED response (the command reflected, 06 §8.2). Milan v1.2 §5.4.2.23 implements GET_AVB_INFO per [ATDECC 7.4.40] and says nothing on a wrong descriptor. The AVB_INTERFACE response is unchanged: SUCCESS, and `NO_SUCH_DESCRIPTOR` for an index that does not exist | [06 §6.10](architecture/06_aecp_engine.md#sec-06-gsi); `tb/pp_top` V1, V1b, V3, V5 |
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 72fed3b..bd123df 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -273,7 +273,7 @@ status checks trust those exemptions, and the Oversize cells are rendering input
+ | 0x0024 | REGISTER_UNSOLICITED_NOTIFICATION | shall | §7; accepts 2013 no-flags form | REGISTRY_OP | no | no | no | — | 16 | 28 B echo (cdl 16); w/ flags | SUCCESS, NO_RESOURCES |
+ | 0x0025 | DEREGISTER_UNSOLICITED_NOTIFICATION | shall | §7 | REGISTRY_OP | no | no | no | event: auto-deregister → targeted | 12 | 24 B echo (cdl 12) | SUCCESS |
+ | 0x0026 | IDENTIFY_NOTIFICATION | unsolicited-only | as command → `BAD_ARGUMENTS` echo (IEEE §7.4.39.2, the opcode-specific rule — it governs over §9.3.5.3.3's fallback) | RO_SNAPSHOT | no | no | no | event: is one | 16 | 28 B echo (cdl 16); the unsolicited response | BAD_ARGUMENTS |
+-| 0x0027 | GET_AVB_INFO | shall | gather §6.2 | RO_SNAPSHOT | no | no | yes | event: async triggers | 16 | 44 + 4·N B (cdl 32 + 4·N, N msrp mappings) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
++| 0x0027 | GET_AVB_INFO | shall | gather §6.2 | RO_SNAPSHOT | no | no | yes | event: async triggers | 16 | 44 + 4·N B (cdl 32 + 4·N, N msrp mappings) | SUCCESS, NOT_IMPLEMENTED, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS |
+ | 0x0028 | GET_AS_PATH | shall | gather §6.2 | RO_SNAPSHOT | no | no | yes | event: async trigger | 16 | 28 + 8·N B (cdl 16 + 8·N, N path entries) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS |
+ | 0x0029 | GET_COUNTERS | shall | §6.6 | RO_SNAPSHOT | no | yes | no | event: async (`T-CTR-NOTIF`) | 16 | 160 B (cdl 148) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+ | 0x002B | GET_AUDIO_MAP | shall (dynamic ports) | §6.5 | RO_SNAPSHOT | no | no | yes | — | 20 | 36 + 8·N B (cdl 24 + 8·N, N mappings) | SUCCESS, NOT_IMPLEMENTED, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NO_RESOURCES, NOT_SUPPORTED |
+@@ -886,6 +886,21 @@ index (§7.4.41.1), so the engine packs the locate key with the AVB_INTERFACE
+ constant. Both emit count-many records: a zero-count face answers an EMPTY list
+ (cdl 32 / 16) — absent, never invented.
+ 
++**GET_AVB_INFO on another descriptor type (issue #177, owner decision 2026-10-17).**
++IEEE 1722.1-2021 §7.4.40.1 makes AVB_INTERFACE the command's only target, and
++§7.4.40.3 names only NOT_AUTHENTICATED, so the standard fixes no status for another
++type; Milan v1.2 §5.4.2.23 adds nothing. The engine answers it `NOT_IMPLEMENTED`
++(Table 7-141 status 1) with the command echoed at its own length, the correctly
++sized response of §9.3.5.3.3 as §8.2 reads it, rather than `NOT_SUPPORTED`
++(status 11, "implemented but the target is not supported"). This restores the end
++station's behaviour before the AECP engine moved to the processor. The order is
++the length first (a command under cdl 16 lacks the complete
++descriptor_type/descriptor_index pair and answers `BAD_ARGUMENTS`), then the type,
++then existence: an AVB_INTERFACE index the image lacks answers
++`NO_SUCH_DESCRIPTOR`, and any other type answers `NOT_IMPLEMENTED` whether or not
++that descriptor exists. Bytes past the index are not read, so a padded
++AVB_INTERFACE command is answered as the four-byte one is.
++
+ **Honesty contract** (what the processor accepts from an integrator): the engine
+ does not synthesize network state. The face supplies propagation_delay and a
+ counted path of up to eight ClockIdentity entries. A consumer may publish zero
+@@ -1235,7 +1250,7 @@ to; they select nothing in the engine.
+ | 0x0018 / 0x0019 SET/GET_CONTROL | real volatile Identify control with values 0 and 255 |
+ | 0x0022 / 0x0023 START/STOP_STREAMING | real started/stopped state on the ACMP binding record (`pp_acmp_pkg.sv`'s `f_started`), which clears on unbind and is projected by the NVM shadow. The dynamic store's selector 6 is RETIRED rather than reused, so there is no second copy. The write-only request region separates capture from completion: success follows the record write or a confirmed no-op, and a bounded request that cannot start reports `ENTITY_MISBEHAVING` without changing the record. The same `st_err` arm also surfaces a descriptor-store write timeout as `ENTITY_MISBEHAVING` for every WRITE_ST user, where it was previously silently ignored. A Stream Output, and every other descriptor type, answers `NOT_SUPPORTED` per Milan Section 5.4.2.19/.20. A state-changing success sends the opcode-specific unsolicited response to every registered controller except the requester; the generic Table 5.22 started-state event is suppressed for that same command so it does not duplicate the push. |
+ | 0x0024 / 0x0025 REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | real bounded controller registry |
+-| 0x0027 GET_AVB_INFO | real AVB Interface response from the integrator state face |
++| 0x0027 GET_AVB_INFO | real AVB Interface response from the integrator state face; `NO_SUCH_DESCRIPTOR` for an AVB_INTERFACE index the image lacks, `BAD_ARGUMENTS` for a command short of §7.4.40.1's four bytes, and `NOT_IMPLEMENTED` with the command echoed for any other descriptor_type (§6.10, issue #177) |
+ | 0x0028 GET_AS_PATH | real gPTP path response from the integrator state face |
+ | 0x0029 GET_COUNTERS | real for STREAM_INPUT, STREAM_OUTPUT, AVB_INTERFACE and CLOCK_DOMAIN: SUCCESS + `descriptor_type`/`descriptor_index`/`counters_valid` + all 32 quadlets (payload 136, cdl 148), the values coming from the integrator's counter face; `BAD_ARGUMENTS` on a command short of §7.4.42.1's four bytes |
+ | 0x002B GET_AUDIO_MAP | real for both Stream Port directions: SUCCESS + the §7.4.44.2 fixed part + 8-byte records (payload 12 + 8·M, cdl 24 + 8·M), geometry and records from the integrator's audio-map face; `BAD_ARGUMENTS` on `map_index` ≥ `number_of_maps` (§7.4.44.1) or a command short of §7.4.44.1's eight bytes; `NO_SUCH_DESCRIPTOR` where the descriptor store misses the locate; a page of up to `P-MAP-SUBSET-CH-MAX` (71) records served whole, above cdl 524 and through the oversize slot where it needs them (§3's oversize rule); `NO_RESOURCES` with `number_of_mappings` 0 and no record for a page above it (issue #50) |
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 5f4a20b..e22cd2b 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -571,7 +571,7 @@ part and its limits recorded in the row's Arch cell and below.
+ |---|---|---|
+ | F06.14 (06 §6) | **generated** | `python3 scripts/check_aecp_commands.py --write` rewrites the rows between its markers; `aecpcmd` fails on any cell that differs, naming the row and the column |
+ | `gen_ucode.py`'s status codes and MVU command_type | **generated**, read at ROM generation | a status code or MVU row it cannot read stops the generator with a line naming the command and the field; `aecpcmd`'s schema check refuses the same defects by name before it runs the generator. Its `DISPATCH` map selects no ROM word: it refuses missing names/entries, unreadable entry lists and entries that name no placed program |
+-| what `KL_aecp_engine` decodes and dispatches | hand-written, **observed** | `tb/aecp_cmds` drives the engine alone with one sweep for every opcode 0x0000–0x007F: every length 12–100, every descriptor type, running and idle, and the other message types, MVU protocol ids, GET_DYNAMIC_INFO records and unsolicited kinds. It records the µPC the engine hands its µCPU and the response it sends. Per served command: the programs its opcode is dispatched to on every outcome, the MVU sub-decode included, are exactly its `entries`; the shortest command dispatched to its first entry is its command cdl, or its `floor`; a mapping echo command has accepted-offset gcd exactly equal to per; every response the bench saw fits the response rule and carries a status allowed by the command set plus the trusted exemptions. Every opcode the table does not serve reaches only `unserved`, on every message type swept. The GET_DYNAMIC_INFO members, the program each record runs, its record length and the empty aggregate are the table's, and so are every unsolicited job's command_type, body and size. The suite holds a fresh sweep to the table and to its recorded copy `tb/aecp_cmds/decode.json`, and `aecpcmd` holds the table to that file. The standing controls (`make -C tb/aecp_cmds mutants`, CI's suites job) plant R608-1's q1 (a redirected success arm) and q2 (a decode keyed on another opcode) and fourteen more edits, including four-byte and sixteen-byte mapping records, and each must fail by name |
++| what `KL_aecp_engine` decodes and dispatches | hand-written, **observed** | `tb/aecp_cmds` drives the engine alone with one sweep for every opcode 0x0000–0x007F: every length 12–100, every descriptor type, running and idle, and the other message types, MVU protocol ids, GET_DYNAMIC_INFO records and unsolicited kinds. It records the µPC the engine hands its µCPU and the response it sends. Per served command: the programs its opcode is dispatched to on every outcome, the MVU sub-decode included, are exactly its `entries`; the shortest command dispatched to its first entry is its command cdl, or its `floor`; a mapping echo command has accepted-offset gcd exactly equal to per; every response the bench saw fits the response rule and carries a status allowed by the command set plus the trusted exemptions. Every opcode the table does not serve reaches only `unserved`, on every message type swept. The GET_DYNAMIC_INFO members, the program each record runs, its record length and the empty aggregate are the table's, and so are every unsolicited job's command_type, body and size. The suite holds a fresh sweep to the table and to its recorded copy `tb/aecp_cmds/decode.json`, and `aecpcmd` holds the table to that file. The standing controls (`make -C tb/aecp_cmds mutants`, CI's suites job) plant R608-1's q1 (a redirected success arm) and q2 (a decode keyed on another opcode) and fifteen more edits, including four-byte and sixteen-byte mapping records and GET_AVB_INFO's wrong-type refusal back on NOT_SUPPORTED (issue #177), and each must fail by name |
+ | `KL_aecp_engine.sv` `OP_*_C`, `MVU_GET_MILAN_INFO_C`, `GDI_*_C` | hand-written, gated | each declared value against its command's opcode, in both directions: these are the lines `check_m9_opcodes.py` and the reference platform's inventory read |
+ | the engine's `UPC_*_C` names | hand-written, gated | every entry the table names is declared, and every declaration is claimed by a command, a notification body or the table's shared list; their addresses stay `check_upc_map.py`'s (the `run_suites.sh` preamble) |
+ | `protocol_processor_top.sv` `hz_classify` and `pp_pkg`'s hazard codes | hand-written, gated | each opcode's class against the table's, in both directions |
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index 9371c3d..2b92836 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1282,11 +1282,12 @@ module KL_aecp_engine
+   //! so a sweep that sends filler bytes cannot reach them and their guards go
+   //! untested — that cost two review rounds, once for SET_SAMPLING_RATE and
+   //! again for GET_AUDIO_MAP. The bound: `UPC_NOTIMPL_C` is assigned at
+-  //! exactly TWO places, the pop-time default below and the audio-map
+-  //! wrong-type arm, so only the latter can emit a refusal byte-identical to
+-  //! the correct one. Every other type-invalid stub differs on the wire and is
+-  //! therefore visible to the sweep. If a third such stub is ever added, its
+-  //! arm needs a real payload in tb/pp_top's M9 table.
++  //! exactly THREE places, the pop-time default below, the audio-map
++  //! wrong-type arm and the GET_AVB_INFO one (issue #177), so only the latter
++  //! two can emit a refusal byte-identical to the correct one, and both have
++  //! a real payload in tb/pp_top's M9 table. Every other type-invalid stub
++  //! differs on the wire and is therefore visible to the sweep. If a fourth
++  //! such stub is ever added, its arm needs a real payload there too.
+   //!
+   //! AEM AND NOTHING ELSE. `PP_PROTO_AEM` is the RX validator's RESIDUAL
+   //! bucket (KL_pp_rx_validator.sv: 6/7 -> MVU, 2/3 -> AA, everything else
+@@ -3381,11 +3382,18 @@ module KL_aecp_engine
+             end
+             //! GET_AVB_INFO acts on AVB_INTERFACE only; GET_AS_PATH's
+             //! command has no type field to gate - both demand their
+-            //! §7.4.40.1/§7.4.41.1 four payload bytes
++            //! §7.4.40.1/§7.4.41.1 four payload bytes. Any other
++            //! descriptor_type keeps the NOT_IMPLEMENTED echo, sized by the
++            //! command (§9.3.5.3.3; owner decision, issue #177): §7.4.40.1
++            //! names AVB_INTERFACE as the only target and §7.4.40.3 fixes no
++            //! status for another. `gavb_r` stays set: E_NOTIMPL runs no
++            //! gathers, so the gsi routing it selects is never consulted.
+             if (gavb_r) begin
+               if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
+-              else if (cfg_ix_r != DT_AVB_INTERFACE_C) upc_r <= UPC_NSUPPE_C;
+-              else begin
++              else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
++                upc_r  <= UPC_NOTIMPL_C;
++                echo_r <= 1'b1;
++              end else begin
+                 upc_r  <= UPC_GAVB_C;
+                 echo_r <= 1'b0;
+               end
+diff --git a/hdl/aecp/ucode/aecp_commands.json b/hdl/aecp/ucode/aecp_commands.json
+index 0ce27a1..c2b0763 100644
+--- a/hdl/aecp/ucode/aecp_commands.json
++++ b/hdl/aecp/ucode/aecp_commands.json
+@@ -310,11 +310,11 @@
+       "clause": "Milan 5.4.2.23; IEEE 7.4.40",
+       "command": {"cdl": 16},
+       "response": {"cdl": 32, "per": 4, "unit": "msrp mappings"},
+-      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
++      "status": ["SUCCESS", "NOT_IMPLEMENTED", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS"],
+       "hazard": "RO_SNAPSHOT", "lock": false,
+       "notify": {"class": null, "kind": "PP_UNS_AVB_C", "body": "GAVB", "doc": "async triggers"},
+       "gdi": false, "oversize": true,
+-      "entries": ["GAVB", "NSUPPE", "BADARG"],
++      "entries": ["GAVB", "NOTIMPL", "BADARG"],
+       "doc": {"mandate": "shall", "scope": "gather §6.2"}
+     },
+     {
+diff --git a/tb/aecp_cmds/README.md b/tb/aecp_cmds/README.md
+index 5e27aee..9f1f121 100644
+--- a/tb/aecp_cmds/README.md
++++ b/tb/aecp_cmds/README.md
+@@ -95,6 +95,7 @@ detected only when the suite fails with a `FAIL:` line carrying its words.
+ | mvu-protocol-id-tail-unchecked | the protocol_id tail compare dropped | `decode: MVU/wrong-protocol-id 0x0000 is no table command and the engine dispatches it to MVUINFO` |
+ | message-type-guard-dropped | `sclks_w` without its message_type 0 guard | `decode: AVC 0x0016 is no table command and the engine dispatches it to SCLKS` |
+ | unserved-opcode-decoded | `gcfg_w` also on 0x0005 | `decode: AEM 0x0005 is no table command and the engine dispatches it to GCFG` |
++| gavb-other-type-not-supported | GET_AVB_INFO's wrong-type arm back to `UPC_NSUPPE_C`, the behaviour issue #177 replaced | `decode: GET_AVB_INFO: the table's entries name NOTIMPL, which the engine never dispatches AEM 0x0027 to` |
+ | mappings-accepted-between-records | ADD/REMOVE_AUDIO_MAPPINGS accepted at any cdl from 20 + 8·count | `decode: ADD_AUDIO_MAPPINGS: the engine dispatches AEM 0x002C to AMADD at cdl` |
+ | mappings-four-byte-record | Mapping length step 8 to 4 | `decode: ADD_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 4` |
+ | mappings-sixteen-byte-record | Mapping length step 8 to 16 | `decode: ADD_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 0` |
+diff --git a/tb/aecp_cmds/decode.json b/tb/aecp_cmds/decode.json
+index 9832755..1a3aa62 100644
+--- a/tb/aecp_cmds/decode.json
++++ b/tb/aecp_cmds/decode.json
+@@ -22,7 +22,7 @@
+       "hdl/aecp/KL_aecp_dyn_state.sv": "e31a9e5486362bd4f2768beb7b552fbb2111e0bae0600b06d67c078171dcabdb",
+       "hdl/aecp/KL_aecp_nvm_writer.sv": "eac4257846e683df02ee5bafaaa31bd769af9103d85df9235d983e0eb3618c08",
+       "hdl/aecp/KL_aecp_resp_buf.sv": "a5fb5ee1e4342d37d8ab8492bb513a8b37783de7874088fddcfcab1b7397a093",
+-      "hdl/aecp/KL_aecp_engine.sv": "4b59126375de76fa699bc1b2a214e618619fcd176b6e7cd75194c43333e998c6",
++      "hdl/aecp/KL_aecp_engine.sv": "cb5b14a2d1fc256b8f832aa06eebc47bc073768d93df232184229ba62c6f2467",
+       "tb/aecp_cmds/aecp_cmds_wrap.sv": "076b7571a1898dd03361f6d4c4a1ed1105f0701d8baa09f8fe49bcad4fe6c0a9",
+       "tb/aecp_cmds/sim_main.cpp": "7dfd29cf53d97c4cf393368c85b3b2c93f7c3aa832eb30a58b9efe0ab554c37d",
+       "hdl/aecp/desc/milan_min.json": "461cb370013fa5e3bca21e76a938ed4c6593a3eb7672715073b30f62c2c9c40f",
+@@ -155,7 +155,7 @@
+       {"opcodes": "0x0027", "programs": {
+         "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+         "GAVB": {"floor": 16, "cdls": "16-100", "answers": {"0": "32"}},
+-        "NSUPPE": {"floor": 16, "cdls": "16-100", "answers": {"11": "echo"}}
++        "NOTIMPL": {"floor": 16, "cdls": "16-100", "answers": {"1": "echo"}}
+       }},
+       {"opcodes": "0x0028", "programs": {
+         "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+diff --git a/tb/aecp_cmds/mutants.py b/tb/aecp_cmds/mutants.py
+index aa96a92..63897a3 100644
+--- a/tb/aecp_cmds/mutants.py
++++ b/tb/aecp_cmds/mutants.py
+@@ -6,7 +6,8 @@ Each arm is one exact edit to the engine (or the generator) that the AECP comman
+ table must catch through what the engine is observed to do, never through its
+ text: R608-1's q1 (SET_CLOCK_SOURCE's success arm redirected to UPC_GCLKS_C) and
+ q2 (its decode keyed on the GET opcode) first, then a moved length floor, the
+-MVU sub-decode, the message-type guard, an unserved opcode decoded, a
++MVU sub-decode, the message-type guard, an unserved opcode decoded,
++GET_AVB_INFO's wrong-type refusal back on NOT_SUPPORTED, a
+ per-record command accepted between records, the GET_DYNAMIC_INFO membership,
+ record length and member dispatch, the unsolicited kind map, and a program's
+ response size. The golden, every arm and the final restored run each build and
+@@ -69,6 +70,13 @@ def mutations() -> list[tuple[str, str, str, str, int, str]]:
+          "                    && ((txn_w.opcode == OP_GET_CONFIG_C)"
+          " || (txn_w.opcode == 16'h0005));", 1,
+          "decode: AEM 0x0005 is no table command and the engine dispatches it to GCFG"),
++        ("gavb-other-type-not-supported", ENGINE,
++         "                upc_r  <= UPC_NOTIMPL_C;\n                echo_r <= 1'b1;\n"
++         "              end else begin\n                upc_r  <= UPC_GAVB_C;",
++         "                upc_r  <= UPC_NSUPPE_C;\n                echo_r <= 1'b1;\n"
++         "              end else begin\n                upc_r  <= UPC_GAVB_C;", 1,
++         "decode: GET_AVB_INFO: the table's entries name NOTIMPL, which the engine never "
++         "dispatches AEM 0x0027 to"),
+         ("mappings-accepted-between-records", ENGINE,
+          "if (({8'd0, cmd_r.cdl}\n                   != (19'd20 + ({3'd0, desc_ty_r} << 3)))",
+          "if (({8'd0, cmd_r.cdl}\n                   < (19'd20 + ({3'd0, desc_ty_r} << 3)))", 1,
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index d36af88..d0261ce 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -639,14 +639,16 @@ the seven into the one canonical tally.
+     exactly the engine's `OP_*_C` set by `scripts/check_m9_opcodes.py`, which
+     `run_suites.sh` runs (with its self-test) before any suite; issue #76
+     found it at 23 of 30. Arms that re-dispatch on payload content get real
+-    bodies (GET_AUDIO_MAP and the ADD/REMOVE pair a STREAM_PORT_INPUT), and
++    bodies (GET_AUDIO_MAP and the ADD/REMOVE pair a STREAM_PORT_INPUT,
++    GET_AVB_INFO an AVB_INTERFACE 0, because since issue #177 its wrong-type
++    refusal is the NOT_IMPLEMENTED echo M9 expects), and
+     the three writers that joined with #76 (SET_STREAM_FORMAT, SET_STREAM_INFO,
+     SET_NAME) are sent once more with a whole command body, so an unguarded arm
+     reaches its write: **M9b3-M9b5** read STREAM_OUTPUT 1's published format
+     and presentation-offset rows and CLOCK_DOMAIN 0's name back unmoved, as
+-    **M9b/M9b2** do the sampling rate. `make aecp-dispatch` runs A5b and M9
+-    alone on a booted model (the main run holds both in its own timeline), then
+-    section AX.
++    **M9b/M9b2** do the sampling rate. `make aecp-dispatch` runs A5b, M9 and
++    section V's GET_AVB_INFO dispatch cases alone on a booted model (the main
++    run holds them in its own timeline), then section AX.
+ - **Audio-map edit transaction**: ADD/REMOVE_AUDIO_MAPPINGS cover atomic
+   validation and commit, duplicate-safe removal, static-port refusal,
+   running-output refusal, state-changing success notifications with
+@@ -750,8 +752,17 @@ the seven into the one canonical tally.
+   same address appears as the dest MAC of the Talker Advertise on the MSRP
+   wire — MAAP -> DA gate -> ACMP answer -> SRP declaration, end to end.
+ - **V** **GET_AVB_INFO / GET_AS_PATH and their Table 5.22 triggers**: both
+-  solicited responses are byte-exact over the integrator-owned gather face;
++  solicited responses are byte-exact over the integrator-owned gather face,
++  and a GET_AVB_INFO padded to cdl 20 draws the same response (**V1b**);
+   missing descriptors and truncated commands fail with the required status;
++  **V5** (issue #177) GET_AVB_INFO on any descriptor_type but AVB_INTERFACE
++  answers NOT_IMPLEMENTED with the command echoed byte-exact at its own
++  length: twelve rows at cdl 16 (eleven types: the image's other descriptors,
++  AVB_INTERFACE's two neighbours, 0x0109 and 0x8009, which match it below bit
++  8, 0xFFFF; and an absent CLOCK_DOMAIN index), and a CLOCK_DOMAIN padded to
++  cdl 20.
++  `make aecp-dispatch` runs V1, V1b and V3 to V5 alone after M9 for the
++  mutation driver;
+   a GM identity publish raises the independent AVB-info and AS-path strobes
+   and produces both pushes; a PathTrace-tail publish produces only
+   `GET_AS_PATH`; another AVB-info-word change produces only `GET_AVB_INFO`;
+@@ -1290,7 +1301,8 @@ pinned to 4 of the host's 16 CPUs: `--jobs 1` took 1,059 s and `--jobs 8`
+ checks in both. Re-run 2026-10-03 with the three NSD arms (issue #37) at `--jobs 6`,
+ 330 s: every control and every earlier arm gave the same verdict, and one count moved,
+ `lk-sclks-miss-lock-nop`'s, which NSD3 now fails beside LK4; the counts below are that
+-run's. `aecp-dispatch` runs A5b and M9 on a booted model,
++run's. `aecp-dispatch` runs A5b, M9 and section V's GET_AVB_INFO dispatch cases
++(V1, V1b, V3 to V5) on a booted model,
+ then section AX on its own processor (`--aecp-dispatch-only`); `aecp-line`
+ runs section AX in the line build; `line-guards` lints the top across the line
+ range; `d3` runs section D3, whose D3C arms grade SET_CLOCK_SOURCE over a
+@@ -1306,6 +1318,15 @@ failed at the lane head.
+ | `m9-guard-add-mappings` | the ADD term of `amap_edit_w` loses its guard | `M9: mt=4 word 002C` | 7 |
+ | `m9-guard-remove-mappings` | the REMOVE term of `amap_edit_w`, and `amap_remove_w`, lose their guard | `M9: mt=4 word 002D` | 7 |
+ | `m9-guard-dynamic-info` | `gdi_w` loses its guard | `M9: mt=4 word 004B` | 7 |
++| `m9-guard-get-avb-info` | `gavb_w` loses its guard (issue #177; M9 sees it only through its AVB_INTERFACE 0 body) | `M9: mt=4 word 0027` | 14 |
++| `gavb-other-type-not-supported` | GET_AVB_INFO's wrong-type arm back to `UPC_NSUPPE_C`, the behaviour issue #177 replaced | `V5 GET_AVB_INFO on CLOCK_DOMAIN 0: NOT_IMPLEMENTED` | 13 |
++| `gavb-other-type-header-only` | the wrong-type arm's NOT_IMPLEMENTED built without the echo (`echo_r` 0), so it is not sized by the command | `V5 GET_AVB_INFO on CLOCK_DOMAIN 0 padded: NOT_IMPLEMENTED, the command echoed at cdl 20` | 13 |
++| `gavb-type-gate-dropped` | the type gate removed, so every type runs E_GAVB | `V5 GET_AVB_INFO on ENTITY 0: NOT_IMPLEMENTED` | 13 |
++| `gavb-type-low-byte` | the type gate compares descriptor_type's low byte alone | `V5 GET_AVB_INFO on type 0x0109: NOT_IMPLEMENTED` | 2 |
++| `gavb-interface-not-implemented` | the type gate inverted, so AVB_INTERFACE answers NOT_IMPLEMENTED and every other type runs E_GAVB | `V1: GET_AVB_INFO byte-exact` | 16 |
++| `gavb-locate-miss-ignored` | E_GAVB's locate-miss branch (E_GAVB + 1) replaced with NOP, so an absent AVB_INTERFACE answers SUCCESS | `V3: GET_AVB_INFO on a missing interface refuses NO_SUCH_DESCRIPTOR` | 1 |
++| `gavb-padded-refused` | the length gate `cdl != 16` in place of `cdl < 16`, so a padded command is BAD_ARGUMENTS | `V1b: GET_AVB_INFO padded to cdl 20 answers V1's SUCCESS, byte-exact` | 2 |
++| `gavb-floor-14` | the length floor 16 moved to 14, so a command short of its index reaches the type gate | `V4: short GET_AVB_INFO answers BAD_ARGUMENTS` | 1 |
+ | `a5b-reboot-success-arm` | the pop decode answers REBOOT (0x002A) SUCCESS with the command echoed (issue #74) | `A5b: REBOOT (7.4.43, Figure 7-68): the response is not the echoed command` | 1 |
+ | `lk-ssrate-lock-nop` | E_SSRATE's CHECK_LOCK (E_SSRATE+9) replaced with NOP (issue #53) | `LK1 unset rate row, ...: ENTITY_LOCKED byte-exact` | 9 |
+ | `lk-ssrate-miss-lock-nop` | E_SSRATE's locate-miss CHECK_LOCK (SSR_REFUSE) replaced with NOP | `LK4 foreign SET_SAMPLING_RATE on AUDIO_UNIT 3 (absent): ENTITY_LOCKED byte-exact` | 1 |
+@@ -1378,6 +1399,19 @@ no write at any legal line, and `pg-cap-dropped` alone is fenced at the
+ reservation (a 176-record page carries 72 records, 600 bytes, at 584). Together
+ the 176-record page carries 73, and RB counts the 8 bytes past 600, besides
+ PG7 to PG9.
++The issue #177 arms run the `aecp-dispatch` target. The guard arm fails both
++checks of the 0x0027 row on all seven message types; with the filler body
++instead of AVB_INTERFACE 0 it is measured to survive, because the wrong-type
++refusal is then byte-identical to M9's answer. The NOT_SUPPORTED, header-only and
++gate-dropped arms fail every V5 row; the low-byte arm only the two types that
++differ from AVB_INTERFACE only above bit 7 (0x0109 and 0x8009); the inverted
++gate V1, V1b, V3 (the absent index is then NOT_IMPLEMENTED, not
++NO_SUCH_DESCRIPTOR) and every V5 row; the
++ignored miss V3 alone; padding refused V1b and V5's padded row; the moved floor
++V4 alone. An engine edit sending a nonzero index to NOT_IMPLEMENTED at the A_PLD
++exit was tried and survived V3: index 1 differs from 0 only in @27, the walk's
++last byte, which that exit does not yet see. The miss arm is planted in E_GAVB
++instead.
+ The two clock-source arms run the `d3` target. With the bound fixed at three,
+ SET_CLOCK_SOURCE(9) is refused, and every D3C check built on it fails: D3C1's
+ four, D3C2's answer and read-back, both of D3C3's restore and its save, and
+@@ -2119,8 +2153,9 @@ New is among them in every case).
+ ## Section AX: AECP dispatch and response (issues #53, #50, #82)
+ 
+ A fresh processor of its own (the AD pattern), after AD in the default build and
+-by `make aecp-dispatch` (with A5b and M9) for the mutation driver, so the main
+-run's clock is untouched. Its image is the main run's with CLOCK_DOMAIN 0's
++by `make aecp-dispatch` (with A5b, M9 and section V's dispatch cases) for the
++mutation driver, so the main run's clock is untouched. Its image is the main
++run's with CLOCK_DOMAIN 0's
+ `clock_source_index` defaulting to 2, so an unset row's current index is not also
+ the zero a stub would carry.
+ 
+diff --git a/tb/pp_top/aecp_dispatch_mutants.py b/tb/pp_top/aecp_dispatch_mutants.py
+index f550a07..1c549a3 100644
+--- a/tb/pp_top/aecp_dispatch_mutants.py
++++ b/tb/pp_top/aecp_dispatch_mutants.py
+@@ -41,6 +41,26 @@ MUTANTS = [
+     ("m9-guard-remove-mappings", "m9-guard-remove-mappings", "aecp-dispatch",
+      "M9: mt=4 word 002D"),
+     ("m9-guard-dynamic-info", "m9-guard-dynamic-info", "aecp-dispatch", "M9: mt=4 word 004B"),
++    # issue #177: GET_AVB_INFO's guard, which M9 sees only through its real
++    # AVB_INTERFACE body, and the arm that answers any other descriptor_type
++    # NOT_IMPLEMENTED with the command echoed (section V's dispatch cases)
++    ("m9-guard-get-avb-info", "m9-guard-get-avb-info", "aecp-dispatch", "M9: mt=4 word 0027"),
++    ("gavb-other-type-not-supported", "gavb-other-type-not-supported", "aecp-dispatch",
++     "V5 GET_AVB_INFO on CLOCK_DOMAIN 0: NOT_IMPLEMENTED"),
++    ("gavb-other-type-header-only", "gavb-other-type-header-only", "aecp-dispatch",
++     "V5 GET_AVB_INFO on CLOCK_DOMAIN 0 padded: NOT_IMPLEMENTED, the command echoed at cdl 20"),
++    ("gavb-type-gate-dropped", "gavb-type-gate-dropped", "aecp-dispatch",
++     "V5 GET_AVB_INFO on ENTITY 0: NOT_IMPLEMENTED"),
++    ("gavb-type-low-byte", "gavb-type-low-byte", "aecp-dispatch",
++     "V5 GET_AVB_INFO on type 0x0109: NOT_IMPLEMENTED"),
++    ("gavb-interface-not-implemented", "gavb-interface-not-implemented", "aecp-dispatch",
++     "V1: GET_AVB_INFO byte-exact"),
++    ("gavb-locate-miss-ignored", "gavb-locate-miss-ignored", "aecp-dispatch",
++     "V3: GET_AVB_INFO on a missing interface refuses NO_SUCH_DESCRIPTOR"),
++    ("gavb-padded-refused", "gavb-padded-refused", "aecp-dispatch",
++     "V1b: GET_AVB_INFO padded to cdl 20 answers V1's SUCCESS, byte-exact"),
++    ("gavb-floor-14", "gavb-floor-14", "aecp-dispatch",
++     "V4: short GET_AVB_INFO answers BAD_ARGUMENTS"),
+     # issue #74: a SUCCESS arm for REBOOT, the first opcode REQ-FWX-001 names
+     ("a5b-reboot-success-arm", "a5b-reboot-success-arm", "aecp-dispatch",
+      "A5b: REBOOT (7.4.43, Figure 7-68): the response is not the echoed command"),
+diff --git a/tb/pp_top/aecp_dispatch_mutations/gavb-floor-14.patch b/tb/pp_top/aecp_dispatch_mutations/gavb-floor-14.patch
+new file mode 100644
+index 0000000..3ddbe72
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/gavb-floor-14.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -3389,7 +3389,7 @@
++             //! status for another. `gavb_r` stays set: E_NOTIMPL runs no
++             //! gathers, so the gsi routing it selects is never consulted.
++             if (gavb_r) begin
++-              if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
+++              if (cmd_r.cdl < 11'd14)                 upc_r <= UPC_BADARG_C;
++               else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
++                 upc_r  <= UPC_NOTIMPL_C;
++                 echo_r <= 1'b1;
+diff --git a/tb/pp_top/aecp_dispatch_mutations/gavb-interface-not-implemented.patch b/tb/pp_top/aecp_dispatch_mutations/gavb-interface-not-implemented.patch
+new file mode 100644
+index 0000000..2abb3f8
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/gavb-interface-not-implemented.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -3390,7 +3390,7 @@
++             //! gathers, so the gsi routing it selects is never consulted.
++             if (gavb_r) begin
++               if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
++-              else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
+++              else if (cfg_ix_r == DT_AVB_INTERFACE_C) begin
++                 upc_r  <= UPC_NOTIMPL_C;
++                 echo_r <= 1'b1;
++               end else begin
+diff --git a/tb/pp_top/aecp_dispatch_mutations/gavb-locate-miss-ignored.patch b/tb/pp_top/aecp_dispatch_mutations/gavb-locate-miss-ignored.patch
+new file mode 100644
+index 0000000..b486a4e
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/gavb-locate-miss-ignored.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1369,7 +1369,7 @@
++ # answers propagation_delay 0 as the honest "not measured" value.
++ place(E_GAVB, [
++     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # miss -> NO_SUCH_DESCRIPTOR
++-    u('BR_STATUS', cnd=0, imm=E_GAVB + 3),
+++    u('NOP'),
++     u('SET_STATUS', imm=ST_OK),
++     u('GATHER_EXT', rd=1, cnd=0xB, imm=0),       # grandmaster_id
++     u('GATHER_EXT', rd=2, cnd=0xB, imm=1),       # {pdelay, domain, flags, count}
+diff --git a/tb/pp_top/aecp_dispatch_mutations/gavb-other-type-header-only.patch b/tb/pp_top/aecp_dispatch_mutations/gavb-other-type-header-only.patch
+new file mode 100644
+index 0000000..ece0728
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/gavb-other-type-header-only.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -3392,7 +3392,7 @@
++               if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
++               else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
++                 upc_r  <= UPC_NOTIMPL_C;
++-                echo_r <= 1'b1;
+++                echo_r <= 1'b0;
++               end else begin
++                 upc_r  <= UPC_GAVB_C;
++                 echo_r <= 1'b0;
+diff --git a/tb/pp_top/aecp_dispatch_mutations/gavb-other-type-not-supported.patch b/tb/pp_top/aecp_dispatch_mutations/gavb-other-type-not-supported.patch
+new file mode 100644
+index 0000000..925c56d
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/gavb-other-type-not-supported.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -3391,7 +3391,7 @@
++             if (gavb_r) begin
++               if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
++               else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
++-                upc_r  <= UPC_NOTIMPL_C;
+++                upc_r  <= UPC_NSUPPE_C;
++                 echo_r <= 1'b1;
++               end else begin
++                 upc_r  <= UPC_GAVB_C;
+diff --git a/tb/pp_top/aecp_dispatch_mutations/gavb-padded-refused.patch b/tb/pp_top/aecp_dispatch_mutations/gavb-padded-refused.patch
+new file mode 100644
+index 0000000..ac49cce
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/gavb-padded-refused.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -3389,7 +3389,7 @@
++             //! status for another. `gavb_r` stays set: E_NOTIMPL runs no
++             //! gathers, so the gsi routing it selects is never consulted.
++             if (gavb_r) begin
++-              if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
+++              if (cmd_r.cdl != 11'd16)                upc_r <= UPC_BADARG_C;
++               else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
++                 upc_r  <= UPC_NOTIMPL_C;
++                 echo_r <= 1'b1;
+diff --git a/tb/pp_top/aecp_dispatch_mutations/gavb-type-gate-dropped.patch b/tb/pp_top/aecp_dispatch_mutations/gavb-type-gate-dropped.patch
+new file mode 100644
+index 0000000..1354dc3
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/gavb-type-gate-dropped.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -3390,7 +3390,7 @@
++             //! gathers, so the gsi routing it selects is never consulted.
++             if (gavb_r) begin
++               if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
++-              else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
+++              else if (1'b0) begin
++                 upc_r  <= UPC_NOTIMPL_C;
++                 echo_r <= 1'b1;
++               end else begin
+diff --git a/tb/pp_top/aecp_dispatch_mutations/gavb-type-low-byte.patch b/tb/pp_top/aecp_dispatch_mutations/gavb-type-low-byte.patch
+new file mode 100644
+index 0000000..3d1e00d
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/gavb-type-low-byte.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -3390,7 +3390,7 @@
++             //! gathers, so the gsi routing it selects is never consulted.
++             if (gavb_r) begin
++               if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
++-              else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
+++              else if (cfg_ix_r[7:0] != 8'h09) begin
++                 upc_r  <= UPC_NOTIMPL_C;
++                 echo_r <= 1'b1;
++               end else begin
+diff --git a/tb/pp_top/aecp_dispatch_mutations/m9-guard-get-avb-info.patch b/tb/pp_top/aecp_dispatch_mutations/m9-guard-get-avb-info.patch
+new file mode 100644
+index 0000000..7c812ee
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/m9-guard-get-avb-info.patch
+@@ -0,0 +1,12 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -1341,8 +1341,7 @@
++   logic gstri_w, gavb_w, gasp_w;
++   assign gstri_w = aem_w
++                    && (txn_w.opcode == OP_GET_STREAM_INFO_C);
++-  assign gavb_w  = aem_w
++-                   && (txn_w.opcode == OP_GET_AVB_INFO_C);
+++  assign gavb_w  = (txn_w.opcode == OP_GET_AVB_INFO_C);
++   assign gasp_w  = aem_w
++                    && (txn_w.opcode == OP_GET_AS_PATH_C);
++   //! ...and the read-side set's five, on the same terms
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 33c14fd..5893279 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -3402,6 +3402,14 @@ struct MilanInfoPhase {
+         putbe(&pl[2], 0x0000, 2);                 // index 0
+         putbe(&pl[4], 0u, 4);                     // map_index 0
+       }
++      //! GET_AVB_INFO answers every type but AVB_INTERFACE NOT_IMPLEMENTED
++      //! with the command echoed (issue #177), byte-identical to the right
++      //! answer here, so give it a real AVB_INTERFACE 0 or the guard on
++      //! `gavb_w` is untested
++      if (c.hi == 0x0027 && c.bytes == 8) {
++        putbe(&pl[0], 0x0009, 2);                 // AVB_INTERFACE
++        putbe(&pl[2], 0x0000, 2);                 // index 0
++      }
+       //! ADD/REMOVE_AUDIO_MAPPINGS re-dispatch on @24..@25 AND on the record
+       //! count at @28: under the filler the type gate answers the NOT_SUPPORTED
+       //! echo, which differs from the right answer in its status byte alone.
+@@ -5568,10 +5576,11 @@ struct AvbInfoPhase {
+     h.flush_all();
+     h.q_aecp.clear();
+     v1_get_avb_info_byte_exact();
++    v1b_a_padded_get_avb_info_is_answered_the_same();
+     v2_get_as_path_byte_exact();
+     v3_existence_still_rules();
+     v4_truncated_commands_are_bad_arguments();
+-    v5_get_avb_info_on_a_non_interface_type();
++    v5_get_avb_info_on_any_other_type_is_not_implemented();
+     v6_a_grandmaster_change_notifies_both_kinds();
+     v6d_a_path_trace_tail_publish_sends_only_get_as_path();
+     v6f_an_avb_word_change_sends_only_get_avb_info();
+@@ -5579,13 +5588,21 @@ struct AvbInfoPhase {
+     v7_the_read_descriptor_regression();
+   }
+ 
+-  // ---- V1: GET_AVB_INFO byte-exact (2 msrp_mappings -> cdl 40) --------
+-  void v1_get_avb_info_byte_exact() {
+-    std::vector<uint8_t> p2(4, 0);
+-    putbe(&p2[0], 0x0009, 2);
+-    h.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, 0x7501,
+-                      0x0027, p2));
+-    auto f = h.wait_any(h.q_aecp, 500);
++  //! the GET_AVB_INFO dispatch cases alone (V1, V1b, V3 to V5; V3 and V4
++  //! carry their GET_AS_PATH halves), for `--aecp-dispatch-only`: the
++  //! face answers them from constants, so no earlier section's state matters
++  void dispatch_cases() {
++    h.flush_all();
++    h.q_aecp.clear();
++    v1_get_avb_info_byte_exact();
++    v1b_a_padded_get_avb_info_is_answered_the_same();
++    v3_existence_still_rules();
++    v4_truncated_commands_are_bad_arguments();
++    v5_get_avb_info_on_any_other_type_is_not_implemented();
++  }
++
++  //! the face's AVB_INTERFACE 0 answer (gsi_value kind 1)
++  static std::vector<uint8_t> v1_body() {
+     std::vector<uint8_t> body(28, 0);
+     putbe(&body[0],  0x0009, 2);                    // type
+     putbe(&body[2],  0, 2);                         // index
+@@ -5595,6 +5612,17 @@ struct AvbInfoPhase {
+     putbe(&body[18], 2, 2);                         // count
+     putbe(&body[20], 0x06030002u, 4);               // mapping 0
+     putbe(&body[24], 0x05020002u, 4);               // mapping 1
++    return body;
++  }
++
++  // ---- V1: GET_AVB_INFO byte-exact (2 msrp_mappings -> cdl 40) --------
++  void v1_get_avb_info_byte_exact() {
++    std::vector<uint8_t> p2(4, 0);
++    putbe(&p2[0], 0x0009, 2);
++    h.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, 0x7501,
++                      0x0027, p2));
++    auto f = h.wait_any(h.q_aecp, 500);
++    const auto body = v1_body();
+     auto want = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID,
+                            CTLR_EID, 0x7501, 0x0027, body);
+     REQ_TAG("REQ-NET-001", "DIR", "V1: GET_AVB_INFO byte-exact");
+@@ -5603,6 +5631,24 @@ struct AvbInfoPhase {
+     if (!f.empty() && f != want) { dump("got", f); dump("exp", want); }
+   }
+ 
++  // ---- V1b: a padded GET_AVB_INFO is answered the same ----------------
++  // IEEE 7.4.40.1's command is the type and the index; nothing past them is
++  // read, so a command padded to cdl 20 draws V1's response unchanged
++  void v1b_a_padded_get_avb_info_is_answered_the_same() {
++    std::vector<uint8_t> p(8, 0);
++    putbe(&p[0], 0x0009, 2);
++    putbe(&p[4], 0x5A5AC3C3u, 4);
++    h.q_aecp.clear();
++    h.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, 0x750F,
++                      0x0027, p));
++    auto f = h.wait_any(h.q_aecp, 500);
++    auto want = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID,
++                           CTLR_EID, 0x750F, 0x0027, v1_body());
++    CHECK(!f.empty() && f == want,
++          "V1b: GET_AVB_INFO padded to cdl 20 answers V1's SUCCESS, byte-exact");
++    if (!f.empty() && f != want) { dump("got", f); dump("exp", want); }
++  }
++
+   // ---- V2: GET_AS_PATH byte-exact (count 3 -> cdl 40) -----------------
+   void v2_get_as_path_byte_exact() {
+     std::vector<uint8_t> p2(4, 0);                  // index 0 + reserved
+@@ -5656,15 +5702,51 @@ struct AvbInfoPhase {
+           "V4b: empty GET_AS_PATH answers BAD_ARGUMENTS");
+   }
+ 
+-  // ---- V5: GET_AVB_INFO on a non-interface type -----------------------
+-  void v5_get_avb_info_on_a_non_interface_type() {
+-    std::vector<uint8_t> p2(4, 0);
+-    putbe(&p2[0], 0x0024, 2);
+-    h.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, 0x7507,
+-                      0x0027, p2));
+-    auto f = h.wait_any(h.q_aecp, 400);
+-    CHECK(!f.empty() && ((f[16] >> 3) & 0x1F) == 11,
+-          "V5: GET_AVB_INFO on CLOCK_DOMAIN echoes NOT_SUPPORTED");
++  // ---- V5: GET_AVB_INFO on any other type is NOT_IMPLEMENTED ----------
++  // IEEE 1722.1-2021 7.4.40.1 makes AVB_INTERFACE the command's only target
++  // and 7.4.40.3 fixes no status for another; the owner's decision (issue
++  // #177) answers NOT_IMPLEMENTED, correctly sized per 9.3.5.3.3, which this
++  // engine reads as the command reflected (06 section 8.2): the command's
++  // own bytes and length, message_type + 1, status 1. The types are the
++  // image's other descriptors, AVB_INTERFACE's two neighbours, two that
++  // match it only below bit 8, an absent type and an absent CLOCK_DOMAIN
++  // index (the type gate answers before existence), then a padded command,
++  // echoed whole at its own length.
++  void v5_get_avb_info_on_any_other_type_is_not_implemented() {
++    struct Row { uint16_t ty, ix; size_t bytes; const char* what; };
++    static const Row kRows[] = {
++      {0x0000, 0, 4, "ENTITY 0"},
++      {0x0001, 0, 4, "CONFIGURATION 0"},
++      {0x0002, 0, 4, "AUDIO_UNIT 0"},
++      {0x0005, 0, 4, "STREAM_INPUT 0"},
++      {0x0006, 0, 4, "STREAM_OUTPUT 0"},
++      {0x0008, 0, 4, "JACK_OUTPUT 0, the type below AVB_INTERFACE"},
++      {0x000A, 0, 4, "CLOCK_SOURCE 0, the type above AVB_INTERFACE"},
++      {0x0024, 0, 4, "CLOCK_DOMAIN 0"},
++      {0x0024, 5, 4, "CLOCK_DOMAIN 5 (absent)"},
++      {0x0109, 0, 4, "type 0x0109"},
++      {0x8009, 0, 4, "type 0x8009"},
++      {0xFFFF, 0, 4, "type 0xFFFF"},
++      {0x0024, 0, 8, "CLOCK_DOMAIN 0 padded"},
++    };
++    uint16_t sq = 0x7570;
++    for (const Row& r : kRows) {
++      std::vector<uint8_t> p(r.bytes, 0);
++      putbe(&p[0], r.ty, 2);
++      putbe(&p[2], r.ix, 2);
++      if (r.bytes > 4) putbe(&p[4], 0x5A5AC3C3u, 4);
++      h.q_aecp.clear();
++      h.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, sq,
++                        0x0027, p));
++      auto f = h.wait_any(h.q_aecp, 400);
++      auto want = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_NOT_IMPLEMENTED, EID,
++                             CTLR_EID, sq, 0x0027, p);
++      CHECK(!f.empty() && f == want,
++            "V5 GET_AVB_INFO on %s: NOT_IMPLEMENTED, the command echoed at "
++            "cdl %zu, byte-exact", r.what, 12 + r.bytes);
++      if (!f.empty() && f != want) { dump("got", f); dump("exp", want); }
++      sq++;
++    }
+   }
+ 
+   // ---- V6: a grandmaster change notifies BOTH kinds -------------------
+@@ -11061,8 +11143,9 @@ struct NameWritePhase {
+ }
+ 
+ //! `--aecp-dispatch-only` (make aecp-dispatch): the two dispatch sweeps of
+-//! the main run, A5b and M9, on a model booted the NW way, for the mutation
+-//! driver (aecp_dispatch_mutants.py). The default build runs both inside the main
++//! the main run, A5b and M9, and section V's GET_AVB_INFO dispatch cases, on
++//! a model booted the NW way, for the mutation driver
++//! (aecp_dispatch_mutants.py). The default build runs them inside the main
+ //! run's own timeline and never here, so no check is counted twice.
+ [[maybe_unused]] static void run_aecp_dispatch_focus(H& h) {
+   const int checks0 = h.checks;
+@@ -11080,7 +11163,8 @@ struct NameWritePhase {
+       .a5b_not_implemented_is_sized_by_its_command();
+   MilanInfoPhase{h, h.d, setup.image_entity}
+       .m9_an_oui_that_collides_with_an_aem_opcode();
+-  printf("A5b+M9: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
++  AvbInfoPhase{h, h.d}.dispatch_cases();
++  printf("A5b+M9+V: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+ }
+ 
+ //! Section AC on a fresh model, against the same descriptor image the suite

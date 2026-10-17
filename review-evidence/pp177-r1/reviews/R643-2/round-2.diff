@@ -1,0 +1,52 @@
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index a1f67cb..bd123df 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -894,11 +894,12 @@ type; Milan v1.2 §5.4.2.23 adds nothing. The engine answers it `NOT_IMPLEMENTED
+ sized response of §9.3.5.3.3 as §8.2 reads it, rather than `NOT_SUPPORTED`
+ (status 11, "implemented but the target is not supported"). This restores the end
+ station's behaviour before the AECP engine moved to the processor. The order is
+-the length first (a command under cdl 16 has no whole descriptor_type and answers
+-`BAD_ARGUMENTS`), then the type, then existence: an AVB_INTERFACE index the image
+-lacks answers `NO_SUCH_DESCRIPTOR`, and any other type answers `NOT_IMPLEMENTED`
+-whether or not that descriptor exists. Bytes past the index are not read, so a
+-padded AVB_INTERFACE command is answered as the four-byte one is.
++the length first (a command under cdl 16 lacks the complete
++descriptor_type/descriptor_index pair and answers `BAD_ARGUMENTS`), then the type,
++then existence: an AVB_INTERFACE index the image lacks answers
++`NO_SUCH_DESCRIPTOR`, and any other type answers `NOT_IMPLEMENTED` whether or not
++that descriptor exists. Bytes past the index are not read, so a padded
++AVB_INTERFACE command is answered as the four-byte one is.
+ 
+ **Honesty contract** (what the processor accepts from an integrator): the engine
+ does not synthesize network state. The face supplies propagation_delay and a
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 6fffb73..d0261ce 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -757,9 +757,10 @@ the seven into the one canonical tally.
+   missing descriptors and truncated commands fail with the required status;
+   **V5** (issue #177) GET_AVB_INFO on any descriptor_type but AVB_INTERFACE
+   answers NOT_IMPLEMENTED with the command echoed byte-exact at its own
+-  length: twelve types (the image's other descriptors, AVB_INTERFACE's two
+-  neighbours, 0x0109 and 0x8009, which match it below bit 8, 0xFFFF and an
+-  absent CLOCK_DOMAIN index) at cdl 16, and a CLOCK_DOMAIN padded to cdl 20.
++  length: twelve rows at cdl 16 (eleven types: the image's other descriptors,
++  AVB_INTERFACE's two neighbours, 0x0109 and 0x8009, which match it below bit
++  8, 0xFFFF; and an absent CLOCK_DOMAIN index), and a CLOCK_DOMAIN padded to
++  cdl 20.
+   `make aecp-dispatch` runs V1, V1b and V3 to V5 alone after M9 for the
+   mutation driver;
+   a GM identity publish raises the independent AVB-info and AS-path strobes
+@@ -1403,8 +1404,9 @@ checks of the 0x0027 row on all seven message types; with the filler body
+ instead of AVB_INTERFACE 0 it is measured to survive, because the wrong-type
+ refusal is then byte-identical to M9's answer. The NOT_SUPPORTED, header-only and
+ gate-dropped arms fail every V5 row; the low-byte arm only the two types that
+-differ from AVB_INTERFACE above bit 7; the inverted gate V1, V1b, V3 (the absent
+-index is then NOT_IMPLEMENTED, not NO_SUCH_DESCRIPTOR) and every V5 row; the
++differ from AVB_INTERFACE only above bit 7 (0x0109 and 0x8009); the inverted
++gate V1, V1b, V3 (the absent index is then NOT_IMPLEMENTED, not
++NO_SUCH_DESCRIPTOR) and every V5 row; the
+ ignored miss V3 alone; padding refused V1b and V5's padded row; the moved floor
+ V4 alone. An engine edit sending a nonzero index to NOT_IMPLEMENTED at the A_PLD
+ exit was tried and survived V3: index 1 differs from 0 only in @27, the walk's
