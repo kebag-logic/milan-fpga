@@ -1,0 +1,16 @@
+
+### 2026-10-17T09:02:16+0200 timeout=20.0
+
+[1]-  Done                    nohup bash -c 'set -o pipefail; arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw --period-size=480 --buffer-size=24000 -d 20 - 2> mst-dry.arecord.log | ./b21stamp 8 4 none /dev/null mst-dry.ts 4 2> mst-dry.stamp.log; echo "${PIPESTATUS[*]}" > mst-dry.done' > /dev/null 2>&1 < /dev/null
+printf '%s_READY\n'[2]+  Done                    ( while [ ! -f mst-dry.done ]; do
+    cat /proc/uptime; grep -E '485c0100.dma-controller chan[01]$' /proc/interrupts; head -1 /proc/stat; sleep 1;
+done ) > mst-dry.samp 2>&1 < /dev/null
+ A625_489467
+# printf '%s_READY\n' A625_489467
+A625_489467_READY
+# printf '%s_B\n' A625_489467; ls /tmp/a625/mst-dry.done && cat /tmp/a625/mst-dryy.done; printf '\n%s_E rc=%s\n' A625_489467 $?
+A625_489467_B
+[0;0m/tmp/a625/mst-dry.done[m
+0 0
+
+A625_489467_E rc=0

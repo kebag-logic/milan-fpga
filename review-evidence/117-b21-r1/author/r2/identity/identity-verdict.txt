@@ -1,0 +1,9 @@
+{"check": "atdecc-entity", "result": "FAIL", "detail": "no ENTITY 0 read"}
+{"check": "console-id", "result": "PASS", "detail": {"read": ["4d494c4e", "00020060"], "expected": ["4d494c4e", "00020060"]}}
+{"check": "console-aem-crc", "result": "PASS", "detail": {"read": "5ba355eb", "expected": "5ba355eb"}}
+{"check": "live-vs-qspi-ENTITY 0", "result": "FAIL", "detail": {"qspi_bytes": 312, "live_bytes": null, "differing_offsets": null}}
+{"check": "live-vs-qspi-CONFIGURATION 0", "result": "FAIL", "detail": {"qspi_bytes": 106, "live_bytes": null, "differing_offsets": null}}
+{"check": "clock-sources", "result": "FAIL", "detail": {"sources": {"0": null, "1": null, "2": null, "3": null}, "clock_domain_list": null, "get_clock_source": null}}
+{"check": "grader", "result": "PASS", "detail": "BAREMETAL UART SMOKE line"}
+{"check": "adp", "result": "FAIL", "detail": {"model_id": null}}
+IDENTITY GATE: FAIL

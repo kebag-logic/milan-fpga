@@ -1,0 +1,54 @@
+
+### 2026-10-17T09:42:29+0200 timeout=380.0
+
+# printf '%s_READY\n' A625_867457
+A625_867457_READY
+# printf '%s_B\n' A625_867457; cd /root/a625-b21 && cat /proc/uptime; cat dB.donee; cat dB.stamp.log; tail -30 dB.arecord.log; grep -c -i overrun dB.arecord.log;  ls -l dB.*; sha256sum dB.pcm dB.ts dB.arecord.log dB.stamp.log; for f in dB.ts ddB.arecord.log dB.stamp.log dB.pcm; do tftp -p -b 1428 -l $f -r $f <bench-address>.1 188626 && echo tftp_ok $f; done; cat /proc/uptime; printf '\n%s_E rc=%s\n' A625_8677457 $?
+A625_867457_B
+934139.52 3294763.06
+0 0
+b21stamp: frames=30480000 reads=63490 kept_slots=4 ring_max_fill=483840 dropped_bytes=0 partial_bytes=0
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16320
+  period_size  : 480
+  period_time  : 10000
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 480
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16320
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 9187343239835811840
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data '-' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+0
+-rw-r--r--    1 root     root           683 Oct 17 07:31 [0;0mdB.arecord.log[m
+-rw-r--r--    1 root     root             4 Oct 17 07:42 [0;0mdB.done[m
+-rw-r--r--    1 root     root     487680000 Oct 17 07:42 [0;0mdB.pcm[m
+-rw-r--r--    1 root     root           104 Oct 17 07:42 [0;0mdB.stamp.log[m
+-rw-r--r--    1 root     root       1523760 Oct 17 07:42 [0;0mdB.ts[m
+da175f5d24f9191b3101d756babf6901ed2f1bb3590da2b4d5d0d656fddcfc54  dB.pcm
+cf18ba7e52710ed7f835812f65a0c9336ad725fd2d9af4fc84dff3f8061d2c72  dB.ts
+2ffaffbc9ef92f08f9c2dd7321f0d5bde91370c99dddef5e3226b7b3c08ac107  dB.arecord.log
+d1c9e7e634e879fe9d5859fd9eb7dee1b494ea8d42093d075e91b4634683c8e7  dB.stamp.log
+tftp_ok dB.ts
+tftp_ok dB.arecord.log
+tftp_ok dB.stamp.log
+tftp_ok dB.pcm
+934220.36 3295019.62
+
+A625_867457_E rc=0
+# 

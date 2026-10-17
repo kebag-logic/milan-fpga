@@ -1,0 +1,7 @@
+  - docs/findings/117_AUDIO_CONTINUITY.md:904: [R] prohibited target runtime/service surface 'arecord': "**Method.** The reader is lane B5's: `arecord` writes the raw capture into a" (#259: no target OS or retired helper-service plane)
+  - docs/findings/117_AUDIO_CONTINUITY.md:908: [R] prohibited target runtime/service surface 'arecord': 'through a RAM ring, so a slow storage write never back-pressures `arecord`.' (#259: no target OS or retired helper-service plane)
+  - docs/findings/117_AUDIO_CONTINUITY.md:910: [R] prohibited target runtime/service surface 'arecord': '- `arecord -D hw:0,0`: McASP0 directly, eight 32-bit slots at 48 kHz, period' (#259: no target OS or retired helper-service plane)
+  - docs/findings/117_AUDIO_CONTINUITY.md:926: [R] prohibited target runtime/service surface 'arecord': '- **No loss.** `arecord` logged no overrun, and the stamper dropped no' (#259: no target OS or retired helper-service plane)
+  - docs/findings/117_AUDIO_CONTINUITY.md:1006: [R] prohibited target runtime/service surface 'arecord': '**Method.** The SoC board ran `arecord -D hw:0,0` into `b21stamp`, as in step' (#259: no target OS or retired helper-service plane)
+  - docs/findings/117_AUDIO_CONTINUITY.md:1028: [R] prohibited target runtime/service surface 'arecord': '- **The capture path.** `arecord` logged 0 overruns, and the stamper dropped' (#259: no target OS or retired helper-service plane)
+baremetal-only: FAIL (6 finding(s) across 1345 scanned file(s))

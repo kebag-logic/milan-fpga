@@ -1,0 +1,13 @@
+
+### 2026-10-17T09:42:27+0200 timeout=20.0
+
+[1]+  Done                    nohup bash -c 'set -o pipefail; arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw --period-size=480 --buffer-size=24000 -d 635 - 2> dB.arecord.log | /tmp/a625/b21stamp 8 4 0,1,2,3 dB.pcm dB.ts 64 2> dB.stamp.log; echo "${PIPESTATUS[*]}" > dB.done' > /dev/null 2>&1 < /dev/null
+printf '%s_READY\n' A625_556190
+# printf '%s_READY\n' A625_556190
+A625_556190_READY
+# printf '%s_B\n' A625_556190; ls /root/a625-b21/dB.done && cat /root/a625-b21/dBB.done; printf '\n%s_E rc=%s\n' A625_556190 $?
+A625_556190_B
+[0;0m/root/a625-b21/dB.done[m
+0 0
+
+A625_556190_E rc=0

@@ -1,0 +1,18 @@
+
+### 2026-10-17T09:47:51+0200 timeout=30.0
+
+[1]+  Done                    cd /tmp/a625 && nohup sh -c 'while cat /tmp/a625/din.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE -r 48000 -d 210; echo aplay_rc=$?' > /tmp/a625/rA.play.log 2>&1 < /dev/null
+printf '%s_READY\n' A625_833554
+# printf '%s_READY\n' A625_833554
+A625_833554_READY
+# printf '%s_B\n' A625_833554; cd /tmp/a625 && tail -4 rA.play.log; ps -o pid,commm | grep -E 'aplay|cat'; for s in /proc/asound/card0/pcm0*/sub0/status; do echo  $s: $(head -1 $s); done; rm -f rA.play.log; printf '\n%s_E rc=%s\n' A625_833554  $?
+A625_833554_B
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+aplay_rc=0
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+
+A625_833554_E rc=0
+# 

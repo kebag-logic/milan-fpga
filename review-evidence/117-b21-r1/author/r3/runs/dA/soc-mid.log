@@ -1,0 +1,17 @@
+
+### 2026-10-17T09:22:55+0200 timeout=20.0
+
+# printf '%s_READY\n' A625_643837
+A625_643837_READY
+# printf '%s_B\n' A625_643837; cat /proc/uptime; ps -o pid,comm | grep -E 'aplay||arecord|b21stamp'; for s in /proc/asound/card0/pcm0*/sub0/status; do head -3 $s;; done; cat /proc/loadavg; printf '\n%s_E rc=%s\n' A625_643837 $?
+A625_643837_B
+932965.59 3290235.67
+ 4231 aplay
+closed
+state: RUNNING
+owner_pid   : 4231
+trigger_time: 932647.994638560
+0.00 0.02 0.11 1/100 4474
+
+A625_643837_E rc=0
+# 

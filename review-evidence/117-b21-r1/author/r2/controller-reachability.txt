@@ -1,0 +1,7 @@
+Controller host reachability, bench host view (ICMP echo, one probe per poll, no bench lock: no bench device is touched)
+14:04:33Z identity gate: SSH to the controller host: No route to host (STAGE, AECP and ADP rc 255)
+14:05:03Z to 14:09:51Z: 10 polls, all down (Destination Host Unreachable)
+14:10:27Z to 14:24:22Z: 44 polls, every 19 s, all down
+14:15:00Z neighbour tables: the bench host's entry for the controller host FAILED; the tap host (up 5:58) holds no entry for it
+Other bench hosts at the same time: the power-strip host and the tap host answer SSH (a no-op command, nothing switched or captured)
+Bench host: up since about 12:07Z (uptime 1:56 at 14:03:58Z); the controller host was not reachable at any time in this round

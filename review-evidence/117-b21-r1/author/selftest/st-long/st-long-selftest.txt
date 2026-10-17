@@ -1,0 +1,91 @@
+== st-long: inputs
+read-time record cap-ts.bin: 1512096 B sha256 7a1876381494ecd0b6ad626c57e7d81da8716d11a07a5b41f7306a12a0ea783a; 63004 reads, 30241946 frames
+reads not of one period inside the window: 1 [(38194, 960)]
+window: reads 0 .. 63002 (63002 intervals), frames 480 .. 30241920
+derived record st-long-reads.u16: 126004 B sha256 fc3fcf7e4528652c93b1b13d65d9e7a231bb547ee193f5741d79828d0839f9ad
+b5_attrib.py sha256 f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40
+== window and rate
+window 630.045 s on the monotonic clock (10.50 min); 30241440 frames delivered
+deficit D(R) - D(0) = 727.5 frames; linear fit slope +1.439 frames/s = +29.98 ppm (capture clock against this host's monotonic clock, uncalibrated)
+deficit residual after the linear fit, frames, percentiles 0/1/50/99/100: [-201.9, -191.7, +9.6, +167.5, +805.0]
+== read intervals and stalls (read interval over 15 ms)
+read interval ms, percentiles 0/1/50/99/100: [+0.1, +9.9, +10.0, +10.1, +23.2]; over 12 ms: 32, over 15 ms: 11
+stalls 11; excess over the 10 ms period 4488.0 frames; interval 15.41 .. 23.19 ms
+recurrence: spacing median 1.3485 s, min 0.261 s, max 327.665 s
+  stall at read 3963, t 39.636 s, interval 15.90 ms
+  stall at read 36729, t 367.301 s, interval 15.41 ms
+  stall at read 36781, t 367.822 s, interval 16.51 ms
+  stall at read 37246, t 372.475 s, interval 19.88 ms
+  stall at read 37586, t 375.871 s, interval 16.08 ms
+  stall at read 37737, t 377.386 s, interval 16.81 ms
+  stall at read 37855, t 378.568 s, interval 19.08 ms
+  stall at read 37888, t 378.899 s, interval 19.44 ms
+  stall at read 38194, t 381.964 s, interval 22.25 ms
+  stall at read 38219, t 382.225 s, interval 23.19 ms
+  stall at read 38249, t 382.521 s, interval 18.95 ms
+== delivery-deficit floor steps (lane B5's floor test)
+positions 62977; drift over one floor test (median step) -0.048 frames; step percentiles 0.01/1/50/99/99.99: [-1.8, -0.7, -0.0, +0.7, +191.5]
+positions with |step - drift| > 4 frames: 195, in 13 groups; 11 of them a 1 ms (48-frame) step
+  group at reads 4531 .. 4545 (t 45.310 s): largest step +48.4 frames
+  group at reads 10564 .. 10578 (t 105.640 s): largest step +48.0 frames
+  group at reads 16595 .. 16609 (t 165.951 s): largest step +48.0 frames
+  group at reads 22622 .. 22636 (t 226.222 s): largest step +48.4 frames
+  group at reads 28654 .. 28668 (t 286.543 s): largest step +48.1 frames
+  group at reads 34678 .. 34692 (t 346.783 s): largest step +48.0 frames
+  group at reads 36406 .. 36420 (t 364.064 s): largest step +48.6 frames
+  group at reads 37697 .. 37711 (t 376.975 s): largest step +191.6 frames
+  group at reads 37888 .. 37902 (t 378.899 s): largest step +144.4 frames
+  group at reads 42203 .. 42217 (t 422.052 s): largest step +48.1 frames
+  group at reads 48222 .. 48236 (t 482.243 s): largest step +48.1 frames
+  group at reads 54244 .. 54258 (t 542.464 s): largest step +48.1 frames
+  group at reads 60269 .. 60283 (t 602.714 s): largest step +48.0 frames
+sum of the positive group steps: 866.4 frames
+== content of the two AES channels (any input; not graded)
+cap-lr.raw: 181451676 B sha256 6026490a18c0f769560e17a6f3f48ade47331f0f87dfa26440539330a14e60ca; frames 30241946; all-zero frames 0; distinct words ch0 1, ch1 1
+== host evidence around each stall (host_sampler_b21.py, 20 Hz)
+steal-time ticks per 0.05 s sample, median 0.0; per stall: read, interval ms, steal ticks across it, expected, irq rows over their median
+  (np.int64(3963), 15.9, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 21, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 181, 124.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 176, 98.0), ('CAL', 578, 478.0)])
+  (np.int64(36729), 15.41, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 13, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 337, 186.0), ('CAL', 844, 717.0), ('LOC', 1786, 1350.0), ('RES', 8, 0.0), ('TLB', 21, 0.0)])
+  (np.int64(36781), 16.51, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 5, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 132, 124.0), ('CAL', 632, 478.0), ('LOC', 1018, 900.0), ('RES', 6, 0.0), ('TLB', 12, 0.0)])
+  (np.int64(37246), 19.88, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 15, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 143, 124.0), ('CAL', 643, 478.0)])
+  (np.int64(37586), 16.08, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 11, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 631, 124.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 155, 98.0), ('CAL', 520, 478.0), ('LOC', 1113, 900.0), ('RES', 17, 0.0)])
+  (np.int64(37737), 16.81, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 8, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 141, 124.0), ('CAL', 779, 478.0), ('LOC', 1847, 900.0), ('RES', 81, 0.0), ('TLB', 149, 0.0)])
+  (np.int64(37855), 19.08, 0, 0.0, [('IX-0000:04:00.0 65-edge virtio3-req.64', 4, 0.0), ('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 7, 0.0), ('CAL', 496, 478.0), ('LOC', 1358, 900.0), ('RES', 24, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(37888), 19.44, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 10, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 306, 186.0), ('LOC', 1411, 1350.0), ('RES', 13, 0.0)])
+  (np.int64(38194), 22.25, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 10, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 230, 186.0)])
+  (np.int64(38219), 23.19, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 9, 0.0), ('LOC', 929, 900.0), ('RES', 14, 0.0), ('TLB', 15, 0.0)])
+  (np.int64(38249), 18.95, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 10, 0.0), ('CAL', 753, 478.0), ('LOC', 1060, 900.0), ('TLB', 8, 0.0)])
+== USB controller interrupts (host_sampler_b21.py, 20 Hz)
+-MSIX-0000:02:00.0 0-edge xhci_hcd: 0.0 per s; per-sample counts percentiles 0/1/50/99/100 [+0.0, +0.0, +0.0, +0.0, +0.0]
+-MSIX-0000:0a:00.0 0-edge xhci_hcd: 1000.3 per s; per-sample counts percentiles 0/1/50/99/100 [+39.0, +49.0, +50.0, +51.0, +71.0]
+  at t   39.636 s: cumulative interrupt excess from 1 s before to 2 s after -6.8; slice counts [np.int64(50), np.int64(50), np.int64(44), np.int64(50), np.int64(50), np.int64(50)]
+  at t  367.301 s: cumulative interrupt excess from 1 s before to 2 s after +2.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(51), np.int64(49), np.int64(50)]
+  at t  367.822 s: cumulative interrupt excess from 1 s before to 2 s after -4.8; slice counts [np.int64(50), np.int64(50), np.int64(51), np.int64(49), np.int64(51), np.int64(50)]
+  at t  372.475 s: cumulative interrupt excess from 1 s before to 2 s after +4.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  375.871 s: cumulative interrupt excess from 1 s before to 2 s after -13.8; slice counts [np.int64(50), np.int64(50), np.int64(49), np.int64(51), np.int64(50), np.int64(50)]
+  at t  377.386 s: cumulative interrupt excess from 1 s before to 2 s after -23.8; slice counts [np.int64(50), np.int64(50), np.int64(49), np.int64(51), np.int64(50), np.int64(50)]
+  at t  378.568 s: cumulative interrupt excess from 1 s before to 2 s after -13.8; slice counts [np.int64(50), np.int64(50), np.int64(49), np.int64(51), np.int64(50), np.int64(50)]
+  at t  378.899 s: cumulative interrupt excess from 1 s before to 2 s after -13.8; slice counts [np.int64(50), np.int64(39), np.int64(48), np.int64(50), np.int64(50), np.int64(50)]
+  at t  381.964 s: cumulative interrupt excess from 1 s before to 2 s after -16.8; slice counts [np.int64(49), np.int64(45), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  382.225 s: cumulative interrupt excess from 1 s before to 2 s after -11.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  382.521 s: cumulative interrupt excess from 1 s before to 2 s after -11.8; slice counts [np.int64(50), np.int64(50), np.int64(45), np.int64(50), np.int64(50), np.int64(50)]
+  at t   45.310 s: cumulative interrupt excess from 1 s before to 2 s after -0.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  105.640 s: cumulative interrupt excess from 1 s before to 2 s after -0.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  165.951 s: cumulative interrupt excess from 1 s before to 2 s after +1.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  226.222 s: cumulative interrupt excess from 1 s before to 2 s after +8.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  286.543 s: cumulative interrupt excess from 1 s before to 2 s after +2.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  346.783 s: cumulative interrupt excess from 1 s before to 2 s after +2.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(49)]
+  at t  364.064 s: cumulative interrupt excess from 1 s before to 2 s after -18.8; slice counts [np.int64(49), np.int64(50), np.int64(42), np.int64(49), np.int64(51), np.int64(50)]
+  at t  376.975 s: cumulative interrupt excess from 1 s before to 2 s after -22.8; slice counts [np.int64(49), np.int64(51), np.int64(40), np.int64(47), np.int64(50), np.int64(50)]
+  at t  378.899 s: cumulative interrupt excess from 1 s before to 2 s after -13.8; slice counts [np.int64(50), np.int64(39), np.int64(48), np.int64(50), np.int64(50), np.int64(50)]
+  at t  422.052 s: cumulative interrupt excess from 1 s before to 2 s after -0.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  482.243 s: cumulative interrupt excess from 1 s before to 2 s after -0.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  542.464 s: cumulative interrupt excess from 1 s before to 2 s after -0.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  602.714 s: cumulative interrupt excess from 1 s before to 2 s after -1.8; slice counts [np.int64(50), np.int64(50), np.int64(51), np.int64(49), np.int64(50), np.int64(51)]
+== event classes against clear times (2 s spans; USB interrupt shortfall in interrupts, pressure in ms per s)
+floor steps over 1 ms (losses): 2; USB shortfall median +13.6, max +13.6
+1 ms floor steps: 11; USB shortfall median +0.6, max +10.5
+stalls with no floor step: 10; USB shortfall median +6.6, max +16.5
+clear control times: 300; USB shortfall median +0.6, max +4.5
+  loss at t  376.975 s: step +191.6 frames, USB shortfall +13.6
+  loss at t  378.899 s: step +144.4 frames, USB shortfall +13.5

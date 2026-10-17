@@ -1,0 +1,13 @@
+
+### 2026-10-17T09:44:13+0200 timeout=30.0
+
+# printf '%s_READY\n' A625_556712
+A625_556712_READY
+# printf '%s_B\n' A625_556712; sha256sum /tmp/a625/din.raw; ps -o pid,comm | grepp -E 'aplay|arecord'; for s in /proc/asound/card0/pcm0*/sub0/status; do echo $s:  $(head -1 $s); done; printf '\n%s_E rc=%s\n' A625_556712 $?
+A625_556712_B
+b6a92e9724e945354c3f8fc5178cec7bb8fd0e62d52bd9ee7f13ed5347bfa97c  /tmp/a625/din.raw
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+
+A625_556712_E rc=0
+# 

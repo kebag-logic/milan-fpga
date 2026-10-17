@@ -1,0 +1,42 @@
+
+### 2026-10-17T09:31:33+0200 timeout=30.0
+
+# printf '%s_READY\n' A625_422292
+A625_422292_READY
+printf '%s_B\n' A625_422292; mkd# printf '%s_B\n' A625_422292; mkdir -p /root/a625-b21 && cd /root/a625-b21 && r m -f dB.*; cat /proc/uptime; nohup bash -c 'set -o pipefail; arecord -v -D hw:0,00 -c 8 -f S32_LE -r 48000 -t raw --period-size=480 --buffer-size=24000 -d 635 - 22> dB.arecord.log | /tmp/a625/b21stamp 8 4 0,1,2,3 dB.pcm dB.ts 64 2> dB.stamp.loog; echo "${PIPESTATUS[*]}" > dB.done' > /dev/null 2>&1 < /dev/null & sleep 3; heead -40 dB.arecord.log; ps -o pid,comm | grep -E 'arecord|b21stamp'; cat /proc/upptime; df -k /root | tail -1; printf '\n%s_E rc=%s\n' A625_422292 $?
+A625_422292_B
+933484.24 3292298.23
+[1] 4745
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16320
+  period_size  : 480
+  period_time  : 10000
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 480
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16320
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 9187343239835811840
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data '-' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+ 4747 arecord
+ 4748 b21stamp
+933487.28 3292309.61
+/dev/root             59838192   4099712  52684080   7% /
+
+A625_422292_E rc=0
+# 

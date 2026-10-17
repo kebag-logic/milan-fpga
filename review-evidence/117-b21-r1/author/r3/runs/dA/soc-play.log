@@ -1,0 +1,41 @@
+
+### 2026-10-17T09:17:37+0200 timeout=30.0
+
+# printf '%s_READY\n' A625_881631
+A625_881631_READY
+# printf '%s_B\n' A625_881631; cd /tmp/a625 && cat /proc/uptime; nohup sh -c 'whiile cat /tmp/a625/din.raw; do :; done | aplay -v -D hw:0,0 -t raw -c 8 -f S32_LE  -r 48000 -d 670; echo aplay_rc=$?' > /tmp/a625/dA.play.log 2>&1 < /dev/null & slleep 2; ps -o pid,comm | grep -E 'aplay|cat'; head -30 /tmp/a625/dA.play.log; catt /proc/uptime; printf '\n%s_E rc=%s\n' A625_881631 $?
+A625_881631_B
+932647.96 3288975.43
+[1] 4228
+ 4231 aplay
+ 4233 cat
+Playing raw data 'stdin' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : PLAYBACK
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16384
+  period_size  : 2048
+  period_time  : 42666
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 2048
+  period_event : 0
+  start_threshold  : 16384
+  stop_threshold   : 16384
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 4611686018427387904
+  appl_ptr     : 0
+  hw_ptr       : 0
+932649.99 3288983.42
+
+A625_881631_E rc=0
+# 

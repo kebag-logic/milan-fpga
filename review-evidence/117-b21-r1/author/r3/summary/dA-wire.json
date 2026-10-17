@@ -1,0 +1,107 @@
+{
+ "stream": "0200000000010000",
+ "dutlink": {
+  "packets": 5198452,
+  "frames_per_packet": 6,
+  "seconds_tap": 649.815,
+  "rate_pps": 7999.893,
+  "seq_step_not_1": 0,
+  "seq_steps": [
+   1
+  ],
+  "ts_step_ns": {
+   "124999": 3515745,
+   "125000": 1337029,
+   "125019": 250189,
+   "125020": 95488
+  },
+  "tv_zero": 0,
+  "sdl": [
+   192
+  ],
+  "interarrival_us": {
+   "min": 123.5,
+   "p50": 125.0,
+   "p99_99": 125.03,
+   "max": 126.5
+  },
+  "seq_breaks": [],
+  "pattern": {
+   "valid": 30951504,
+   "first_valid": 239208,
+   "last_valid": 31190711,
+   "region_frames": 30951504,
+   "invalid_inside_region": 0,
+   "in_order": 30951503,
+   "repeats": 0,
+   "skips": 0,
+   "skipped_frames": 0,
+   "backward": 0,
+   "torn": 0,
+   "torn_inside_region": 0,
+   "first_frame_word": "0xffffff00",
+   "events": []
+  }
+ },
+ "peerlink": {
+  "packets": 5198499,
+  "frames_per_packet": 6,
+  "seconds_tap": 649.812,
+  "rate_pps": 7999.997,
+  "seq_step_not_1": 0,
+  "seq_steps": [
+   1
+  ],
+  "ts_step_ns": {
+   "124999": 3515777,
+   "125000": 1337041,
+   "125019": 250193,
+   "125020": 95487
+  },
+  "tv_zero": 0,
+  "sdl": [
+   192
+  ],
+  "interarrival_us": {
+   "min": 123.2,
+   "p50": 124.8,
+   "p99_99": 125.6,
+   "max": 126.4
+  },
+  "seq_breaks": [],
+  "pattern": {
+   "valid": 30952266,
+   "first_valid": 238728,
+   "last_valid": 31190993,
+   "region_frames": 30952266,
+   "invalid_inside_region": 0,
+   "in_order": 30952265,
+   "repeats": 0,
+   "skips": 0,
+   "skipped_frames": 0,
+   "backward": 0,
+   "torn": 0,
+   "torn_inside_region": 0,
+   "first_frame_word": "0xffffff00",
+   "events": []
+  }
+ },
+ "cross_link": {
+  "common_packets": 5198372,
+  "dut_first_common": 80,
+  "peer_first_common": 0,
+  "header_equal": 5198372,
+  "payload_equal": 5198372,
+  "first_unequal": null,
+  "dut_only_before": 80,
+  "dut_only_after": 0,
+  "peer_only_before": 0,
+  "peer_only_after": 127,
+  "transit_minus_median_us": {
+   "min": -4237.536,
+   "p50": 0.0,
+   "max": 4209.084,
+   "note": "tap clocks of the two links are not common; drift included"
+  }
+ }
+}

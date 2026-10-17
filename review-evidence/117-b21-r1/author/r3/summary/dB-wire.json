@@ -1,0 +1,75 @@
+{
+ "stream": "3cc0c60102030000",
+ "dutlink": {
+  "packets": 5199125,
+  "frames_per_packet": 6,
+  "seconds_tap": 649.899,
+  "rate_pps": 7999.893,
+  "seq_step_not_1": 0,
+  "seq_steps": [
+   1
+  ],
+  "ts_step_ns": {
+   "min": 124953,
+   "median": 125001,
+   "max": 125042,
+   "not_125000": 5198528
+  },
+  "tv_zero": 0,
+  "sdl": [
+   96
+  ],
+  "interarrival_us": {
+   "min": 121.8,
+   "p50": 125.18,
+   "p99_99": 131.01,
+   "max": 157.6
+  },
+  "seq_breaks": []
+ },
+ "peerlink": {
+  "packets": 5198371,
+  "frames_per_packet": 6,
+  "seconds_tap": 649.797,
+  "rate_pps": 7999.995,
+  "seq_step_not_1": 0,
+  "seq_steps": [
+   1
+  ],
+  "ts_step_ns": {
+   "min": 124953,
+   "median": 125001,
+   "max": 125042,
+   "not_125000": 5197774
+  },
+  "tv_zero": 0,
+  "sdl": [
+   96
+  ],
+  "interarrival_us": {
+   "min": 123.22,
+   "p50": 124.98,
+   "p99_99": 131.1,
+   "max": 157.4
+  },
+  "seq_breaks": []
+ },
+ "cross_link": {
+  "common_packets": 5198371,
+  "dut_first_common": 139,
+  "peer_first_common": 0,
+  "header_equal": 5198371,
+  "payload_equal": 5198371,
+  "first_unequal": null,
+  "dut_only_before": 139,
+  "dut_only_after": 615,
+  "peer_only_before": 0,
+  "peer_only_after": 0,
+  "transit_minus_median_us": {
+   "min": -4256.345,
+   "p50": 0.0,
+   "max": 4006.776,
+   "note": "tap clocks of the two links are not common; drift included"
+  }
+ }
+}
