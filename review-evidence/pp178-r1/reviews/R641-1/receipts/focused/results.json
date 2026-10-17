@@ -1,0 +1,158 @@
+[
+  {
+    "name": "golden-notify",
+    "rc": 0,
+    "completed": true,
+    "ok": true,
+    "failures": [],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 76 checks, 0 failures"
+    ]
+  },
+  {
+    "name": "golden-dispatch",
+    "rc": 0,
+    "completed": true,
+    "ok": true,
+    "failures": [],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 936 checks, 0 failures"
+    ]
+  },
+  {
+    "name": "enq_dropped_configuration",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: NP1 SET_CONFIGURATION(1): exactly one unsolicited response of this command at the other registered controller, got 0",
+      "FAIL: NP1b SET_CONFIGURATION(0): exactly one unsolicited response of this command at the other registered controller, got 0"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 74 checks, 2 failures"
+    ]
+  },
+  {
+    "name": "configuration_compare_whole_lane",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 76 checks, 1 failures"
+    ]
+  },
+  {
+    "name": "configuration_unchanged_notifies",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester",
+      "FAIL: NP1c SET_CONFIGURATION(0) on the stored configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 76 checks, 2 failures"
+    ]
+  },
+  {
+    "name": "configuration_success_reserved_dirty",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: NP1a SET_CONFIGURATION(0) on the image's configuration 0: the unchanged SET answers SUCCESS, byte-exact",
+      "FAIL: NP1 SET_CONFIGURATION(1): the solicited response is SUCCESS, byte-exact (premise)",
+      "FAIL: NP1b SET_CONFIGURATION(0): the solicited response is SUCCESS, byte-exact (premise)",
+      "FAIL: NP1c SET_CONFIGURATION(0) on the stored configuration 0: the unchanged SET answers SUCCESS, byte-exact"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 76 checks, 4 failures"
+    ]
+  },
+  {
+    "name": "configuration_refusal_notifies",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: NP10b: the refused SET_CONFIGURATION pushes nothing"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 76 checks, 1 failures"
+    ]
+  },
+  {
+    "name": "scfg-range-bad-arguments",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)",
+      "FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 7, cdl 16)"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 936 checks, 2 failures"
+    ]
+  },
+  {
+    "name": "scfg-nsd-zero-body",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)",
+      "FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 936 checks, 2 failures"
+    ]
+  },
+  {
+    "name": "scfg-nsd-stores",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)",
+      "FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no dynamic-store write, NVM mark or notification (1, 0, 0)",
+      "FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)",
+      "FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: no dynamic-store write, NVM mark or notification (1, 0, 0)",
+      "FAIL: SC3 ...and GET_CONFIGURATION still reads the image's 1, byte-exact"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 936 checks, 5 failures"
+    ]
+  },
+  {
+    "name": "scfg-nsd-notifies",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no unsolicited frame reached the registered holder",
+      "FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no dynamic-store write, NVM mark or notification (0, 0, 1)",
+      "FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: no dynamic-store write, NVM mark or notification (0, 0, 1)"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 936 checks, 3 failures"
+    ]
+  },
+  {
+    "name": "scfg-refusal-short-body",
+    "rc": 1,
+    "completed": true,
+    "ok": true,
+    "failures": [
+      "FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 14)",
+      "FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: ...at the response form's cdl 16, got 14",
+      "FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 14)",
+      "FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: ...at the response form's cdl 16, got 14"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 936 checks, 4 failures"
+    ]
+  }
+]

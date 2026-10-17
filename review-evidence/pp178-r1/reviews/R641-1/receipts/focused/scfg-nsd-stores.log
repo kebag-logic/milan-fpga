@@ -1,0 +1,12 @@
+A5b+M9: 697 checks, 0 failures
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+  got (60 B): 02 02 c2 c2 c2 c2 0a 0b 0c 0d 0e 0f 22 f0 fb 01 10 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 43 7c 38 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 02 02 c2 c2 c2 c2 0a 0b 0c 0d 0e 0f 22 f0 fb 01 10 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 43 7c 38 00 06 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no dynamic-store write, NVM mark or notification (1, 0, 0)
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: NO_SUCH_DESCRIPTOR byte-exact (status 2, cdl 16)
+  got (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 10 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7c 39 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  exp (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 10 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7c 39 00 06 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: SC2 the bench's SET_CONFIGURATION(0xFFFF) carries the image's 1: no dynamic-store write, NVM mark or notification (1, 0, 0)
+FAIL: SC3 ...and GET_CONFIGURATION still reads the image's 1, byte-exact
+AX: 239 checks, 5 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 936 checks, 5 failures
