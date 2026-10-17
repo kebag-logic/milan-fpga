@@ -1,0 +1,51 @@
+Reproduction of PR round 2 outputs (scripts/reproduce_pr2.sh), packet author-r2 at evidence commit 68f0200e
+bound rc=0
+controls rc=0
+exact rc=0
+extract rc=0
+floor rc=0
+mcasp rc=0
+probes rc=0
+step1 rc=0
+transit rc=0
+derived DUT-link received-frame record sha256 1976539998f6c7590c2bfe7a5efcbb8cb8f733a1e77f88f20e614082cafe2468, page 1976539998f6c7590c2bfe7a5efcbb8cb8f733a1e77f88f20e614082cafe2468
+IDENTICAL pr2/rA/rA-bound.json
+IDENTICAL pr2/rA/rA-controls.json
+IDENTICAL pr2/probes/probes.json
+IDENTICAL pr2/mst-long/floor-groups.txt
+IDENTICAL pr2/mst-long/step1-verdict.json
+DIFFERS pr2/dA/dA-transit-crf.json: identical after masking the two capture names
+IDENTICAL pr2/dB/dB-exact.json
+IDENTICAL pr2/dB/dB-mcasp.json
+IDENTICAL pr2/rA/controls/bound-plant-24000.json
+IDENTICAL pr2/rA/controls/bound-plant-43344.json
+IDENTICAL pr2/rA/controls/bound-plant-48000.json
+IDENTICAL pr2/rA/controls/bound-as-measured.json
+IDENTICAL pr2/probes/graders/bit_flip-asrun-mcasp.json
+IDENTICAL pr2/probes/graders/bit_flip-corrected-mcasp.json
+IDENTICAL pr2/probes/graders/clean-asrun-mcasp.json
+IDENTICAL pr2/probes/graders/clean-corrected-mcasp.json
+IDENTICAL pr2/probes/graders/insert_3_zero_leading-corrected-mcasp.json
+IDENTICAL pr2/probes/graders/repeat_1-asrun-mcasp.json
+IDENTICAL pr2/probes/graders/repeat_1-corrected-mcasp.json
+IDENTICAL pr2/probes/graders/skip_6-asrun-mcasp.json
+IDENTICAL pr2/probes/graders/skip_6-corrected-mcasp.json
+IDENTICAL pr2/probes/graders/unequal_words_same_key-asrun-mcasp.json
+IDENTICAL pr2/probes/graders/unequal_words_same_key-corrected-mcasp.json
+IDENTICAL pr2/probes/graders/zero_for_nonzero-asrun-mcasp.json
+IDENTICAL pr2/probes/graders/zero_for_nonzero-corrected-mcasp.json
+--- controls stdout
+planted 0.5 s (24000 frames): verdict PASS rc 0, failing cycles []; expected PASS []: PASS
+planted 0.903 s (43344 frames): verdict FAIL rc 1, failing cycles [19]; expected FAIL [19]: PASS
+planted 1.0 s (48000 frames): verdict FAIL rc 1, failing cycles [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]; expected FAIL [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]: PASS
+as measured: PASS ; all controls pass: True
+--- probes stdout
+clean: corrected PASS {'clean': True, 'matched': 12000, 'offset_changes': 0, 'foreign_frames': 0}; as-run {'rc': 0, 'fully_matched': True, 'matched': 12000, 'foreign_frames': 0, 'offset_changes': 0}
+skip_6: corrected PASS {'clean': False, 'skips': 1, 'skipped_wire_frames': 6, 'repeats_or_inserts': 0, 'foreign_frames': 0, 'matched': 12000}; as-run {'rc': 0, 'fully_matched': False, 'matched': 12000, 'foreign_frames': 0, 'offset_changes': 1}
+repeat_1: corrected PASS {'clean': False, 'skips': 0, 'repeats_or_inserts': 1, 'inserted_frames': 1, 'foreign_frames': 0, 'matched': 12001}; as-run {'rc': 0, 'fully_matched': False, 'matched': 12001, 'foreign_frames': 0, 'offset_changes': 1}
+insert_3_zero_leading: corrected PASS {'clean': False, 'foreign_frames': 3, 'foreign_zero': 3, 'offset_changes': 1, 'repeats_or_inserts': 1, 'inserted_frames': 3, 'skips': 0, 'matched': 12000}; as-run {'rc': 1, 'error': "KeyError: 'wire_frame'"}
+bit_flip: corrected PASS {'clean': False, 'foreign_frames': 1, 'foreign_zero': 0, 'offset_changes': 0, 'matched': 11999}; as-run {'rc': 0, 'fully_matched': False, 'matched': 11999, 'foreign_frames': 1, 'offset_changes': 0}
+zero_for_nonzero: corrected PASS {'clean': False, 'foreign_frames': 1, 'foreign_zero': 1, 'offset_changes': 0, 'matched': 11999}; as-run {'rc': 0, 'fully_matched': False, 'matched': 11999, 'foreign_frames': 1, 'offset_changes': 0}
+unequal_words_same_key: corrected PASS {'clean': False, 'foreign_frames': 1, 'offset_changes': 0, 'matched': 11999}; as-run {'rc': 0, 'fully_matched': True, 'matched': 12000, 'foreign_frames': 0, 'offset_changes': 0}
+noise: {"frames_equal_to_previous": 30162, "fraction_equal_to_previous": 0.213, "all_zero_frames": 29451, "fraction_all_zero": 0.208, "slot_words": {"0x0": 271050, "0xfffffe00": 355, "0xffffff00": 295043}}
+all controls pass: True
