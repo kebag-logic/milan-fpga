@@ -1,0 +1,377 @@
+{
+ "computed-nested": {
+  "makefile": "A = B\nB = C\nC = deep\nall: ; zz_probe \"$($($(A)))\"\n",
+  "outcome": "identical",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "deep"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "deep"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ },
+ "ctl-eval": {
+  "makefile": "CASES = a b-c\n$(foreach case,$(CASES),$(eval R_$(case) = r-$(case)))\nall: ; zz_probe $(R_a) $(R_b-c)\n",
+  "outcome": "identical",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "r-a",
+     "r-b-c"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "r-a"
+     ],
+     [
+      "literal",
+      "r-b-c"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ },
+ "dash-name": {
+  "makefile": "a-b = one\nall: ; zz_probe \"$(a-b)\"\n",
+  "outcome": "identical",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "one"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "one"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ },
+ "escaped-hash-rule-recipe": {
+  "makefile": "all: ; zz_probe \"a\\#b\"\n",
+  "outcome": "identical",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "a\\#b"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "a\\#b"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ },
+ "escaped-hash-tab-recipe": {
+  "makefile": "all:\n\tzz_probe \"a\\#b\"\n",
+  "outcome": "identical",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "a\\#b"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "a\\#b"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ },
+ "eval-vs-command-line": {
+  "makefile": "$(foreach c,a,$(eval X := mk))\nall: ; zz_probe \"$(X)\"\n",
+  "outcome": "identical",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "cmd"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make X=cmd\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "cmd"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ },
+ "loopvar-eval-persists": {
+  "makefile": "X = outer\n$(foreach X,a b,$(eval X := z$(X)))\nall: ; zz_probe \"$(X)\"\n",
+  "outcome": "mismatch",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "zb"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "outer"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ },
+ "loopvar-eval-shadow": {
+  "makefile": "$(foreach X,a,$(eval X := q)$(eval Y := $(X)))\nall: ; zz_probe \"$(Y)\"\n",
+  "outcome": "mismatch",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "a"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "q"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ },
+ "or-whitespace": {
+  "makefile": "all: ; zz_probe \"[$(or  , x)]\" \"[$(or ,)]\"\n",
+  "outcome": "identical",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "[x]",
+     "[]"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "[x]"
+     ],
+     [
+      "literal",
+      "[]"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ },
+ "static-two-percent": {
+  "makefile": "all: run-x\nrun-x: run-%: b-%-%\n\tzz_probe $@ $< $*\nb-%: ; zz_probe build $@\n",
+  "outcome": "identical",
+  "real": [
+   {
+    "argv": [
+     "zz_probe",
+     "build",
+     "b-x-%"
+    ],
+    "directory": "."
+   },
+   {
+    "argv": [
+     "zz_probe",
+     "run-x",
+     "b-x-%",
+     "x"
+    ],
+    "directory": "."
+   }
+  ],
+  "refusal": null,
+  "run": "make\n",
+  "statuses": [
+   0
+  ],
+  "walker": [
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "build"
+     ],
+     [
+      "literal",
+      "b-x-%"
+     ]
+    ],
+    "directory": "."
+   },
+   {
+    "argv": [
+     [
+      "literal",
+      "zz_probe"
+     ],
+     [
+      "literal",
+      "run-x"
+     ],
+     [
+      "literal",
+      "b-x-%"
+     ],
+     [
+      "literal",
+      "x"
+     ]
+    ],
+    "directory": "."
+   }
+  ]
+ }
+}
