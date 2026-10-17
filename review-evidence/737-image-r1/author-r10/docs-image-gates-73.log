@@ -1,0 +1,7 @@
+SHAPE DRIFT: cfg_arty: build.sh arty --dry-run exited 2: refusing to build: regenerating $LANES/737-image/sw/builder/out/endstation_arty_current/soc_params.json from configs/endstation_arty_current.yaml FAILED (endstation_builder.py exited 1, its error is above). Nothing launched; the design argv already on file was NOT used.
+SHAPE DRIFT: cfg_ax7101: build.sh ax7101 --dry-run exited 2: refusing to build: regenerating $LANES/737-image/sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json from configs/endstation_ax7101_1x1_tdm8.yaml FAILED (endstation_builder.py exited 1, its error is above). Nothing launched; the design argv already on file was NOT used.
+SHAPE DRIFT: cfg_ax8x8: build.sh ax8x8 --dry-run exited 2: refusing to build: regenerating $LANES/737-image/sw/builder/out/endstation_ax7101_8x8/soc_params.json from configs/endstation_ax7101_8x8.yaml FAILED (endstation_builder.py exited 1, its error is above). Nothing launched; the design argv already on file was NOT used.
+  [sweep-shape] arty: num-streams 4, l2 0, render-lpf True == endstation_arty_4x4.yaml
+  [sweep-shape] ax7101: num-streams 1, l2 0, render-lpf False == endstation_ax7101_1x1_tdm8.yaml
+  [sweep-shape] build.sh: `export PYTHONHASHSEED=0` on line 498 precedes the milan_soc.py launch on line 499
+  [sweep-shape] sweep.sh: `export PYTHONHASHSEED=0` on line 29 precedes the milan_soc.py launch on line 119

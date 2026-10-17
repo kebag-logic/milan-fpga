@@ -1,0 +1,274 @@
+{
+ "committed_receipt": {
+  "bytes": 864566,
+  "checkout_writes": [
+   [
+    ".github/workflows/docs.yml#docs-gates-0#51",
+    [
+     "tb/verilator/csr/Makefile"
+    ]
+   ]
+  ],
+  "clean": true,
+  "commands": {
+   "listed": 115,
+   "observed": 115,
+   "with_listed_arguments": 111
+  },
+  "commit": "d7cb1f90af1b8c2f115f58281991f1c9626447f9",
+  "exit_statuses": [
+   0
+  ],
+  "findings": 0,
+  "image": "sha256:68331c7908fcf2c1c6226c621bcd48287916ff20bac23f1f2b7279dffab94e08",
+  "instances": 320983,
+  "path": "ci/image/exec-audit-receipt.json",
+  "population_rows": 3118,
+  "provenance": {
+   "absent": 1,
+   "built by ld.bfd": 99,
+   "checkout": 348,
+   "copy of /sbin/initctl": 2,
+   "copy of a program built by ld.bfd": 5,
+   "copy of protocol-processor/hdl/acmp/rom/gen_ltn_rom.py": 2,
+   "copy of protocol-processor/hdl/aecp/ucode/gen_ucode.py": 2,
+   "copy of scripts/act_ci.py": 2,
+   "copy of scripts/ci_local_manifest.py": 1,
+   "copy of scripts/ci_scope.py": 21,
+   "copy of scripts/run_litex_sims.sh": 9,
+   "copy of syn/ooc/pp_baseline.py": 1,
+   "copy of syn/ooc/pp_resource_gate.py": 20,
+   "copy of syn/yosys/run.sh": 2,
+   "exec-only interpreter": 691,
+   "generated": 477,
+   "image": 1019,
+   "pinned": 220,
+   "step text": 196
+  },
+  "reached": 230,
+  "sha256": "b8c2895305e4cad80f5a9e3edf0b79e25ab2ca0ad3c9747ea5577ff44997e65e",
+  "source": {
+   "base": "fa7347fc59173f90e4feec2df207692e6e6e72ec",
+   "checkout": "/work",
+   "commit": "54fbcba6ac004cad7ce00a52428ebb29a66f62bc",
+   "submodules": [
+    "-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external",
+    " e4869fd0c42889b2ac806587cc5c78afb1c33461 gptp-processor (remotes/origin/main-7-ge4869fd)",
+    " 2ad2f845dd583f8310075fa2380cb60a04fd091a protocol-processor (v2.0-646-g2ad2f84)",
+    " 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)",
+    " 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)",
+    " 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)"
+   ],
+   "tree": "5bac5727430687a269c9f61c35f1cddffdd1c290"
+  },
+  "traced": 195,
+  "untraced": [
+   {
+    "name": "Set CPU-derived job budgets",
+    "step": ".github/workflows/docs.yml#ci-manifest#1",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Fetch inventory dependencies",
+    "step": ".github/workflows/docs.yml#ci-manifest#2",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Install the pinned evidence reader",
+    "step": ".github/workflows/docs.yml#ci-manifest#4",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Collect actual runtime evidence",
+    "step": ".github/workflows/docs.yml#ci-manifest#6",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Set CPU-derived job budgets",
+    "step": ".github/workflows/docs.yml#ci-fail-fast#1",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Observe the first failed job",
+    "step": ".github/workflows/docs.yml#ci-fail-fast#2",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Cancel this run and sibling workflows",
+    "step": ".github/workflows/docs.yml#ci-fail-fast#3",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Record actual job execution",
+    "step": ".github/workflows/docs.yml#ci-fail-fast#4",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Set CPU-derived job budgets",
+    "step": ".github/workflows/docs.yml#ci-cancel-tail#1",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Cancel confirmed terminal failures",
+    "step": ".github/workflows/docs.yml#ci-cancel-tail#2",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Build Verilator from source on cache miss",
+    "step": ".github/workflows/rtl-fast.yml#verilator-lint#6",
+    "why": "The image's Verilator layer replaces the cache and build"
+   },
+   {
+    "name": "Build Yosys from source on cache miss",
+    "step": ".github/workflows/rtl-fast.yml#yosys-elaboration#6",
+    "why": "The image's Yosys layer replaces the cache and build"
+   },
+   {
+    "name": "Build Yosys from source on cache miss",
+    "step": ".github/workflows/rtl-fast.yml#publication-census#8",
+    "why": "The image's Yosys layer replaces the cache and build"
+   },
+   {
+    "name": "Build Verilator from source on cache miss",
+    "step": ".github/workflows/rtl-fast.yml#firmware-verilator#10",
+    "why": "The image's Verilator layer replaces the cache and build"
+   },
+   {
+    "name": "Set CPU-derived job budgets",
+    "step": ".github/workflows/rtl-fast.yml#ci-manifest#1",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Fetch inventory dependencies",
+    "step": ".github/workflows/rtl-fast.yml#ci-manifest#2",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Install the pinned evidence reader",
+    "step": ".github/workflows/rtl-fast.yml#ci-manifest#4",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Collect actual runtime evidence",
+    "step": ".github/workflows/rtl-fast.yml#ci-manifest#6",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Set CPU-derived job budgets",
+    "step": ".github/workflows/rtl-fast.yml#ci-fail-fast#1",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Observe the first failed job",
+    "step": ".github/workflows/rtl-fast.yml#ci-fail-fast#2",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Cancel this run and sibling workflows",
+    "step": ".github/workflows/rtl-fast.yml#ci-fail-fast#3",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Record actual job execution",
+    "step": ".github/workflows/rtl-fast.yml#ci-fail-fast#4",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Set CPU-derived job budgets",
+    "step": ".github/workflows/rtl-fast.yml#ci-cancel-tail#1",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Cancel confirmed terminal failures",
+    "step": ".github/workflows/rtl-fast.yml#ci-cancel-tail#2",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Build Verilator from source on cache miss",
+    "step": ".github/workflows/elaborate.yml#elaborate-gates-1#22",
+    "why": "The image's Verilator layer replaces the cache and build"
+   },
+   {
+    "name": "Set CPU-derived job budgets",
+    "step": ".github/workflows/elaborate.yml#ci-manifest#1",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Fetch inventory dependencies",
+    "step": ".github/workflows/elaborate.yml#ci-manifest#2",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Install the pinned evidence reader",
+    "step": ".github/workflows/elaborate.yml#ci-manifest#4",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Collect actual runtime evidence",
+    "step": ".github/workflows/elaborate.yml#ci-manifest#6",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Set CPU-derived job budgets",
+    "step": ".github/workflows/elaborate.yml#ci-fail-fast#1",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Observe the first failed job",
+    "step": ".github/workflows/elaborate.yml#ci-fail-fast#2",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Cancel this run and sibling workflows",
+    "step": ".github/workflows/elaborate.yml#ci-fail-fast#3",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Record actual job execution",
+    "step": ".github/workflows/elaborate.yml#ci-fail-fast#4",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Set CPU-derived job budgets",
+    "step": ".github/workflows/elaborate.yml#ci-cancel-tail#1",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   },
+   {
+    "name": "Cancel confirmed terminal failures",
+    "step": ".github/workflows/elaborate.yml#ci-cancel-tail#2",
+    "why": "Run orchestration through the GitHub API, which needs the network by design"
+   }
+  ]
+ },
+ "docs-logs": {
+  "bytes": 162838482,
+  "files": 112,
+  "manifest_sha256": "f8c0aa56eed8fee1c858ec03a4ddd68579f61f4ffa4c518353cd2f6972a7250f"
+ },
+ "docs.json": {
+  "bytes": 426381,
+  "exit_statuses": [
+   0
+  ],
+  "sha256": "fc112bcc2c5d931bb5d8a2e03970a4c906774a1d0d68072585738bf7f47b549e",
+  "steps_with_findings": 0,
+  "traced": 112,
+  "user": 0
+ },
+ "merged_equals_committed": true,
+ "rtl-logs": {
+  "bytes": 213333607,
+  "files": 83,
+  "manifest_sha256": "3f5fb21c70e9e5d34d2b4aee2881f3ed430586b34c8e08f805ced2633352f4ad"
+ },
+ "rtl.json": {
+  "bytes": 499112,
+  "exit_statuses": [
+   0
+  ],
+  "sha256": "ba100c410b5a49027b9eb58b7433ebfef3b24baa8e6bf0327b6bc3502eb1fcc8",
+  "steps_with_findings": 0,
+  "traced": 83,
+  "user": 1000
+ }
+}

@@ -1,0 +1,22 @@
+f1c041bce302c8a5618b05c6458b51d73571213f
+== prepare-a 18:48:58
+prepare-a rc=0
+CI tool inventory matches workflow installation requests
+Verified context; recipe sha256:712f7b38fde7d2c1fc61de98c99f697a1b356c1c194dad2a632972c4220f21ac
+== build-a 18:50:59
+build-a rc=0
+CI tool inventory matches workflow installation requests
+{"build_ms": 353518, "image_digest": "sha256:68331c7908fcf2c1c6226c621bcd48287916ff20bac23f1f2b7279dffab94e08", "image_id": "sha256:772f24cefe10c87f577e91f50bbc42541e5ef0473721aa3e8a857c3e53853555", "recipe_sha256": "712f7b38fde7d2c1fc61de98c99f697a1b356c1c194dad2a632972c4220f21ac", "size_bytes": 3930754018, "stage": "validation-tools", "tag": "fpga-validation:712f7b38fde7d2c1fc61de98c99f697a1b356c1c194dad2a632972c4220f21ac-validation-tools"}
+e6dc7a492df0dd9ff255d22e887cc07b32a8874360990b3ebe2cb30ee96f6207  $VALIDATION_STORAGE/737-a615/round10-cold-c/base-locked.tar
+== record-a 18:58:29
+record-a rc=0
+PASS: exported image authenticated; final lock recorded
+== build-b 19:01:26
+build-b rc=0
+CI tool inventory matches workflow installation requests
+{"build_ms": 386192, "image_digest": "sha256:68331c7908fcf2c1c6226c621bcd48287916ff20bac23f1f2b7279dffab94e08", "image_id": "sha256:772f24cefe10c87f577e91f50bbc42541e5ef0473721aa3e8a857c3e53853555", "recipe_sha256": "712f7b38fde7d2c1fc61de98c99f697a1b356c1c194dad2a632972c4220f21ac", "size_bytes": 3930754018, "stage": "validation-tools", "tag": "fpga-validation:712f7b38fde7d2c1fc61de98c99f697a1b356c1c194dad2a632972c4220f21ac-validation-tools"}
+e6dc7a492df0dd9ff255d22e887cc07b32a8874360990b3ebe2cb30ee96f6207  $VALIDATION_STORAGE/737-a615/round10-cold-d/base-locked.tar
+== verify-b 19:10:03
+verify-b rc=0
+PASS: image identity verified against exported manifest, config and every layer
+== done 19:12:59

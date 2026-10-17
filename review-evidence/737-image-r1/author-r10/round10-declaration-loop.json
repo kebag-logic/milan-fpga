@@ -1,0 +1,474 @@
+{
+ "binary_patterns": [
+  {
+   "command": [
+    "${CHECKOUT}/tb/verilator/follow_ring/obj_dir/Vfollow_ring",
+    "--case",
+    "bind",
+    "--b17-cycles",
+    "5,4,9",
+    "--bind-phase",
+    "0.125",
+    "--jitter-us",
+    "5",
+    "--dwell-s",
+    "0.5",
+    "--follow-binds",
+    "1"
+   ],
+   "where": "tb/verilator/follow_ring/Makefile:117:1"
+  },
+  {
+   "command": [
+    "verilator",
+    "--cc",
+    "--exe",
+    "--build",
+    "-j",
+    "0",
+    "--top-module",
+    "gptp_tables_wrap",
+    "-Wall",
+    "-Wno-fatal",
+    "-Wno-DECLFILENAME",
+    "-Wno-UNUSEDSIGNAL",
+    "-Wno-WIDTHEXPAND",
+    "-Wno-WIDTHTRUNC",
+    "-Wno-UNUSEDPARAM",
+    "-Wno-TIMESCALEMOD",
+    "-Wno-GENUNNAMED",
+    "-Wno-PROCASSINIT",
+    "-Wno-SELRANGE",
+    "-Wno-PINCONNECTEMPTY",
+    "-Wno-PINMISSING",
+    "-GUCODE_HEX_P=\"gptp_ucode.hex\"",
+    "-GCLK_HZ_P=2000000",
+    "-CFLAGS",
+    "-std=c++17 -O2 -I${CHECKOUT}/tb/verilator/gptp_tables -Wall -Wextra",
+    "waivers.vlt",
+    "gptp_tables_wrap.sv",
+    "../gptp_shadow/gptp_shadow_wrap.sv",
+    "../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+    "../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+    "../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+    "../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+    "../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+    "../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+    "../../../hdl/common/KL_link_guard.sv",
+    "../../../hdl/common/cdc_pulse.sv",
+    "../../../hdl/common/cdc_handshake.sv",
+    "../../../third_party/verilog-axis/rtl/axis_fifo.v",
+    "../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+    "../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+    "../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+    "../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+    "../../../gptp-processor/hdl/common/KL_gptp_timer.sv",
+    "../../../gptp-processor/hdl/top/KL_gptp_engine.sv",
+    "sim_main.cpp",
+    "-o",
+    "Vgptp_tables_sim"
+   ],
+   "where": "tb/verilator/gptp_tables/Makefile:56:1"
+  },
+  {
+   "command": [
+    "./obj_dir/Vgptp_tables_sim",
+    "one_valued.tsv"
+   ],
+   "where": "tb/verilator/gptp_tables/Makefile:57:1"
+  },
+  {
+   "command": [
+    "./obj_dynmap/Vmilan_dp_dynmap"
+   ],
+   "where": "tb/verilator/milan_dp/Makefile:719:1"
+  },
+  {
+   "command": [
+    "./obj_nxn/Vmilan_dp_nxn"
+   ],
+   "where": "tb/verilator/milan_dp/Makefile:608:1"
+  },
+  {
+   "command": [
+    "./obj_nxndv/Vmilan_dp_nxndv"
+   ],
+   "where": "tb/verilator/milan_dp/Makefile:617:1"
+  },
+  {
+   "command": [
+    "./obj_nxn8/Vmilan_dp_nxn8"
+   ],
+   "where": "tb/verilator/milan_dp/Makefile:632:1"
+  },
+  {
+   "command": [
+    "./obj_nxn4c/Vmilan_dp_nxn4c"
+   ],
+   "where": "tb/verilator/milan_dp/Makefile:650:1"
+  },
+  {
+   "command": [
+    "./obj_nolpf/Vmilan_dp_nolpf"
+   ],
+   "where": "tb/verilator/milan_dp/Makefile:662:1"
+  },
+  {
+   "command": [
+    "./obj_prune/Vmilan_dp_prune"
+   ],
+   "where": "tb/verilator/milan_dp/Makefile:672:1"
+  }
+ ],
+ "binary_rows": [
+  {
+   "executable": "./obj_dir/Vgptp_tables_sim",
+   "where": "tb/verilator/gptp_tables/Makefile:57:1"
+  },
+  {
+   "executable": "./obj_dynmap/Vmilan_dp_dynmap",
+   "where": "tb/verilator/milan_dp/Makefile:719:1"
+  },
+  {
+   "executable": "./obj_nxn/Vmilan_dp_nxn",
+   "where": "tb/verilator/milan_dp/Makefile:608:1"
+  },
+  {
+   "executable": "./obj_nxndv/Vmilan_dp_nxndv",
+   "where": "tb/verilator/milan_dp/Makefile:617:1"
+  },
+  {
+   "executable": "./obj_nxn8/Vmilan_dp_nxn8",
+   "where": "tb/verilator/milan_dp/Makefile:632:1"
+  },
+  {
+   "executable": "./obj_nxn4c/Vmilan_dp_nxn4c",
+   "where": "tb/verilator/milan_dp/Makefile:650:1"
+  },
+  {
+   "executable": "./obj_nolpf/Vmilan_dp_nolpf",
+   "where": "tb/verilator/milan_dp/Makefile:662:1"
+  },
+  {
+   "executable": "./obj_prune/Vmilan_dp_prune",
+   "where": "tb/verilator/milan_dp/Makefile:672:1"
+  }
+ ],
+ "census_items": [
+  {
+   "key": "Exp.Op",
+   "section": "shell_operators",
+   "value": 76,
+   "where": ".github/workflows/rtl-fast.yml"
+  },
+  {
+   "key": "BinaryArithm.Op",
+   "section": "shell_operators",
+   "value": 85,
+   "where": ".github/workflows/rtl-fast.yml"
+  },
+  {
+   "key": "BinaryArithm.Op",
+   "section": "shell_operators",
+   "value": 54,
+   "where": ".github/workflows/rtl-fast.yml"
+  }
+ ],
+ "git_patterns": [
+  {
+   "pattern": [
+    "-C",
+    "<runtime>",
+    "cat-file",
+    "commit",
+    "HEAD"
+   ],
+   "where": "scripts/ci_workflow_plan_selftest.py:50"
+  },
+  {
+   "pattern": [
+    "-C",
+    "<runtime>",
+    "update-ref",
+    "HEAD",
+    "<runtime>"
+   ],
+   "where": "scripts/ci_workflow_plan_selftest.py:60"
+  },
+  {
+   "pattern": [
+    "-C",
+    "<runtime>",
+    "write-tree"
+   ],
+   "where": "scripts/ci_workflow_plan_selftest.py:55"
+  },
+  {
+   "pattern": [
+    "-C",
+    "<runtime>",
+    "hash-object",
+    "-w",
+    "-t",
+    "commit",
+    "--stdin"
+   ],
+   "where": "scripts/ci_workflow_plan_selftest.py:58"
+  },
+  {
+   "pattern": [
+    "init",
+    "-q",
+    "<runtime>"
+   ],
+   "where": "scripts/ci_runtime_evidence_selftest.py:40"
+  },
+  {
+   "pattern": [
+    "-C",
+    "<runtime>",
+    "add",
+    "<runtime>"
+   ],
+   "where": "scripts/ci_runtime_evidence_selftest.py:41"
+  },
+  {
+   "pattern": [
+    "-C",
+    "/tmp/yosys-src",
+    "rev-parse",
+    "HEAD"
+   ],
+   "where": ".github/workflows/rtl-fast.yml:7"
+  },
+  {
+   "pattern": [
+    "<runtime>",
+    "-C",
+    "<runtime>",
+    "<runtime>"
+   ],
+   "where": "sw/firmware/ctrl/test/ctrl_build.py:419"
+  },
+  {
+   "pattern": [
+    "rev-parse",
+    "HEAD^{tree}"
+   ],
+   "where": ".github/workflows/rtl.yml:6"
+  }
+ ],
+ "inline": [
+  {
+   "file": "$VALIDATION_STORAGE/737-a615/round10/inline/36e127eaad4459ef.py",
+   "key": "python3:36e127eaad4459ef2a4d3d8928ac8281c93f9f3bbdc7a67202b98d0ce14b93db",
+   "where": ".github/workflows/rtl.yml:1"
+  },
+  {
+   "file": "$VALIDATION_STORAGE/737-a615/round10/inline/25804af4bd31c275.py",
+   "key": "python3:25804af4bd31c27528254d556cdc8e16b7cc56c69e461633cbb65d3ac7a2aff9",
+   "where": ".github/workflows/rtl.yml:1"
+  },
+  {
+   "file": "$VALIDATION_STORAGE/737-a615/round10/inline/c85af5b87997a3f7.py",
+   "key": "python3:c85af5b87997a3f798e241d35f30c190d77d1ba2c09c0cad8d27e9e51dce08df",
+   "where": "tb/verilator/milan_dp/Makefile:724:1"
+  }
+ ],
+ "scripts/act_ci.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation self-test uses local sockets and subprocess fixtures; host orchestration installs no tools.",
+   "sha256": "506155c11334eeccdb210a0001f41c2b0d9ceb5bd95b41887d1bb5422255882a"
+  }
+ },
+ "scripts/check_baremetal_only.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "3d10365d3c399071b2e41949b2ef813c0b2b4aaf1de432346779328726b54e06"
+  }
+ },
+ "scripts/check_gptp_docs.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "6e2efe35c4b5b2e327f737bd354d38dc9f3518f750e1c63b7bc32329693a1036"
+  }
+ },
+ "scripts/ci_builder_legs.py": {
+  "previous": null
+ },
+ "scripts/ci_capture_cases_selftest.py": {
+  "previous": null
+ },
+ "scripts/ci_case_receipts.py": {
+  "previous": null
+ },
+ "scripts/ci_case_receipts_selftest.py": {
+  "previous": null
+ },
+ "scripts/ci_fail_fast.py": {
+  "previous": null
+ },
+ "scripts/ci_fail_fast_selftest.py": {
+  "previous": null
+ },
+ "scripts/ci_gate_workflows_selftest.py": {
+  "previous": null
+ },
+ "scripts/ci_install_cache.py": {
+  "previous": null,
+  "reviewed": "installer, tools from the install step"
+ },
+ "scripts/ci_local_manifest.py": {
+  "previous": null
+ },
+ "scripts/ci_maap_cases_selftest.py": {
+  "previous": null
+ },
+ "scripts/ci_make_cases.py": {
+  "previous": null
+ },
+ "scripts/ci_runtime_evidence.py": {
+  "previous": null
+ },
+ "scripts/ci_runtime_evidence_selftest.py": {
+  "previous": null
+ },
+ "scripts/ci_scope.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "d091ccd7d60562db374ad4b0b7f09b81620d8c4f08d73da886351d1d75c13455"
+  }
+ },
+ "scripts/ci_scope_history.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "343b272084271c9a8b2d4cf35071b08e9307084fde12aea7c828b5026d0c91b8"
+  }
+ },
+ "scripts/ci_suite_pieces.py": {
+  "previous": null
+ },
+ "scripts/ci_workflow_plan.py": {
+  "previous": null
+ },
+ "scripts/ci_workflow_plan_selftest.py": {
+  "previous": null
+ },
+ "scripts/run_all_suites.sh": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation driver: runtime test directories and function arguments install no tools.",
+   "sha256": "b36a1a6f50a1652c31cfa12717b4f86c5db13d6ed7b65fa3486414cd0a699eca"
+  }
+ },
+ "scripts/suite_shards.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "59e476532c7db7d77d738d487621d57220996432a2ea8219b198bdd7438eecb4"
+  }
+ },
+ "sw/builder/test_builder.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "997e8528ba47199a25376256f1614430586ae574e56db3470c0feeaa706a5c47"
+  }
+ },
+ "sw/firmware/ctrl/test/ctrl_arms.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "fd48045166e3350ada8789336bbb1ae1e40cdd654eac97bc60481f5c01bf6728"
+  }
+ },
+ "sw/firmware/ctrl/test/ctrl_build.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "5c58336a106a2916658d4a159a855bf2bb6b69793fb48f3ca7670d18233436e8"
+  }
+ },
+ "sw/firmware/ctrl/test/ctrl_configs.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "a63cd10b62552874c5b89a77bf744dfd48db705b1da4fb22bd994eb8605c8703"
+  }
+ },
+ "sw/firmware/ctrl/test/test_ctrl_firmware.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Reflection on its own or an in-tree module namespace (sys.modules, getattr, setattr) for test patching; executes and installs nothing.",
+   "sha256": "2580bf394f204b2adee6ed9d2a49effd82090ae54f14853b5eb15ad1bcbb08f7"
+  }
+ },
+ "sw/firmware/nvm_hosttest/test_nvm_firmware.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "72e290af4df6bd93c153ab5726cc67252cf73e993374d068104f95544f19b163"
+  }
+ },
+ "sw/mailbox/publication_census.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Parallel netlist census workers validate publication ownership; no installation.",
+   "sha256": "cbc6cef4211f197c289603faca4e519762c7be41f2d62f72e3b56ec3a9ef974e"
+  }
+ },
+ "tb/verilator/capture_coherence/mutants.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "743aa9d28f92d9b6c0fb3c4c3447ec8fe881959f81c1b2353a2a5d1d4919f530"
+  }
+ },
+ "tb/verilator/follow_ring/mutants.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "36c9fec967d2e0418f9b9f5a4ebc9f0a7356e22aa88bbd96a3bab320be4e4abf"
+  }
+ },
+ "tb/verilator/follow_ring/settle_control.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "b3198b73b49f37dce4e90a3a011c69fef46fc75c52970574fa0f2ecf44aca798"
+  }
+ },
+ "tb/verilator/follow_ring/sweep.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Runs existing compilers or simulation binaries for local validation; installs nothing.",
+   "sha256": "495740856ae152f17fa07eab0057c5175bb50300e78cc7faa41fd47c5c826a3b"
+  }
+ },
+ "tb/verilator/maap/mutants.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "576e4a2b4e42d3ad5e1c60418d25df10d60c485a61353d0398c92df19545aaaa"
+  }
+ },
+ "tb/verilator/milan_dp_mclk/mclk_mutants.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+   "sha256": "9daf59e55513901b3f311a709bfc764647f424b8060309749ddf8e018ed6b88e"
+  }
+ },
+ "tb/verilator/nvm_cosim/run_cases.py": {
+  "previous": {
+   "class": "reviewed non-installing",
+   "reason": "Build and execute firmware and RTL co-simulation cases; no installation.",
+   "sha256": "0fdbc7ccccc029a745c2764eac182786155c60572df95255fa21c9ceee393d42"
+  }
+ }
+}

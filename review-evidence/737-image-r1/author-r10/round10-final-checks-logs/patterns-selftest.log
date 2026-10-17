@@ -1,0 +1,125 @@
+PASS: gh extension install example/fixture: generation and comparison
+PASS: gh release download v1 -R example/tool: generation and comparison
+PASS: git submodule add https://example.invalid/tool: generation and comparison
+PASS: git config submodule.x.url https://example.invalid/tool: generation and comparison
+PASS: git clone --no-hardlinks git@host:org/tool.git: generation and comparison
+PASS: git archive --remote=https://example.invalid/tool HEAD: generation and comparison
+PASS: /unclassified/git rev-parse HEAD: generation and comparison
+PASS: node -e "require('https')": generation and comparison
+PASS: java -jar download.jar: generation and comparison
+PASS: cmake --install build: generation and comparison
+PASS: sbt "install fixture": generation and comparison
+PASS: eval "echo okay": generation and comparison
+PASS: bash -c "npx fixture": generation and comparison
+PASS: echo 'npx fixture' | bash: generation and comparison
+PASS: bash <<< 'npx fixture': generation and comparison
+PASS: python3 <<'END': generation and comparison
+PASS: python3 -I - <<'END': generation and comparison
+PASS: echo ${MISSING:-$(npx fixture)}: generation and comparison
+PASS: for ((i=$(npx fixture);i<1;i++)); do true; done: generation and comparison
+PASS: selected=$RUNTIME_FUNCTION; $selected: generation and comparison
+PASS: find . -ok npx fixture {} \;: generation and comparison
+PASS: sed -n '1e npx fixture #$' "$PWD/sw/litex/sweep.sh": generation and comparison
+PASS: awk 'BEGIN { system("npx fixture") }; { print $1 }': generation and comparison
+PASS: "\e\c\h\o" okay: generation and comparison
+PASS: recognized Git argv: generation and comparison
+PASS: literal dollar text cannot match runtime argument: generation and comparison
+PASS: extra Git argument: generation and comparison
+PASS: unknown wrapper option: generation and comparison
+PASS: wrapper child classification: generation and comparison
+PASS: reusable job: generation and comparison
+PASS: a fixed program reads a literal data file: generation and comparison
+PASS: a fixed program with an option in its data slot: generation and comparison
+PASS: a fixed program with a runtime word in its data slot: generation and comparison
+PASS: a fixed program with a second file in its data slot: generation and comparison
+PASS: import os: generation and comparison
+PASS: import os: generation and comparison
+PASS: import os: generation and comparison
+PASS: import os: generation and comparison
+PASS: import asyncio: generation and comparison
+PASS: import pty: generation and comparison
+PASS: import pip._internal: generation and comparison
+PASS: import urllib3: generation and comparison
+PASS: import asyncio, ssl: generation and comparison
+PASS: import subprocess: generation and comparison
+PASS: import subprocess: generation and comparison
+PASS: import importlib: generation and comparison
+PASS: declared literal unpacking or alias: generation and comparison
+PASS: declared literal unpacking or alias: generation and comparison
+PASS: declared keyword command: generation and comparison
+PASS: changed declaration: generation and comparison
+PASS: step working directory: generation and comparison
+PASS: subshell does not leak directory: generation and comparison
+PASS: subshell child directory: generation and comparison
+PASS: top-level directory persists: generation and comparison
+PASS: computed subshell directory: generation and comparison
+PASS: block preserves parent scope: generation and comparison
+PASS: a cd into an existing directory is never certain: its fallback is followed: generation and comparison
+PASS: a fallback after an uncertain cd leaves the directory ambiguous: generation and comparison
+PASS: terminating fallback preserves successful directory: generation and comparison
+PASS: a test that always succeeds takes its branch: generation and comparison
+PASS: ambiguous conditional directory: generation and comparison
+PASS: common conditional directory persists: generation and comparison
+PASS: a cd test is never certain: both paths continue: generation and comparison
+PASS: same-file function: generation and comparison
+PASS: subshell function definition does not leak: generation and comparison
+PASS: pipeline function definition does not leak: generation and comparison
+PASS: function global assignment persists: generation and comparison
+PASS: function local assignment is restored: generation and comparison
+PASS: foreign function: generation and comparison
+PASS: missing sourced file: generation and comparison
+PASS: followed source: generation and comparison
+PASS: a slash-free source operand searches PATH: generation and comparison
+PASS: pinned imported function: generation and comparison
+PASS: changed imported function: generation and comparison
+PASS: sequences and substitutions: generation and comparison
+PASS: literal loop values: generation and comparison
+PASS: loop body refusal: generation and comparison
+PASS: pinned inline text: generation and comparison
+PASS: changed inline byte: generation and comparison
+PASS: workflow directory default: generation and comparison
+PASS: job directory default: generation and comparison
+PASS: make --file=install.mk: generation and comparison
+PASS: make -finstall.mk: generation and comparison
+PASS: make -f install.mk: generation and comparison
+PASS: make --directory=sub: generation and comparison
+PASS: make -Csub: generation and comparison
+PASS: make -C sub: generation and comparison
+PASS: selected Makefile preserves invocation directory: generation and comparison
+PASS: directory option changes recipe directory: generation and comparison
+PASS: Make step directory: generation and comparison
+PASS: literal default selects actual goal: generation and comparison
+PASS: computed default: generation and comparison
+PASS: pattern prerequisite: generation and comparison
+PASS: implicit recipe behind explicit prerequisite rule: generation and comparison
+PASS: unique stem: generation and comparison
+PASS: ambiguous stem: generation and comparison
+PASS: literal Make shell: generation and comparison
+PASS: computed Make shell: generation and comparison
+PASS: literal command variable: generation and comparison
+PASS: unsupported Make function: generation and comparison
+PASS: Make eval in an assignment: generation and comparison
+PASS: unsupported include: generation and comparison
+PASS: macro list and automatic stem: generation and comparison
+PASS: undefined macro: generation and comparison
+PASS: unsupported automatic variable: generation and comparison
+PASS: first ordinary target after special declaration: generation and comparison
+PASS: order-only prerequisite: generation and comparison
+PASS: order-only excluded from $<: generation and comparison
+PASS: order-only excluded from $^: generation and comparison
+PASS: uncensused automatic variable: generation and comparison
+PASS: target-specific literal variable: generation and comparison
+PASS: computed target-specific variable: generation and comparison
+PASS: conditional error guard: generation and comparison
+PASS: unsupported conditional assignment: generation and comparison
+PASS: resolved $(subst original,brand_new_command,original): generation and comparison
+PASS: resolved $(patsubst obj_%,brand_new_%,obj_command): generation and comparison
+PASS: resolved $(filter brand_new_command,echo brand_new_command): generation and comparison
+PASS: resolved $(filter-out echo,echo brand_new_command): generation and comparison
+PASS: resolved $(addprefix brand_new_,command): generation and comparison
+PASS: resolved $(firstword brand_new_command echo): generation and comparison
+PASS: resolved $(strip   brand_new_command   ): generation and comparison
+PASS: resolved $(if yes,brand_new_command,echo): generation and comparison
+PASS: resolved $(and yes,brand_new_command): generation and comparison
+PASS: unknown target: generation and comparison
+PASS: unknown Make option: generation and comparison

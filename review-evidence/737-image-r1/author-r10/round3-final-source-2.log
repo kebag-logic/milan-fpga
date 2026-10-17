@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "$LANES/737-image/ci/image/resolve_packages.py", line 144, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$LANES/737-image/ci/image/resolve_packages.py", line 124, in main
+    packages = selected_packages(pins, args.cache, base)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/ci/image/resolve_packages.py", line 61, in selected_packages
+    fields = {name: metadata(cache / row["filename"], row) for name, row in rows.items()}
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/737-image/ci/image/resolve_packages.py", line 40, in metadata
+    data = subprocess.check_output(["dpkg-deb", "--field", str(path)], text=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "$VALIDATION_TOOLS/uvpy/cpython-3.12.3-linux-x86_64-gnu/lib/python3.12/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'dpkg-deb'
