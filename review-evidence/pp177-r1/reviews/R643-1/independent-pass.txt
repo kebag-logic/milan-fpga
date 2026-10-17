@@ -1,0 +1,17 @@
+[R643] NEGATIVE - exact head 6aaec5dfc45e84c8842f3f31f76910bfa91a96e1
+
+Independent verdict and ledger, recorded before consulting prior public review findings or any other review report.
+
+R643-1-F1, MINOR, Conformance and Docs: docs/architecture/06_aecp_engine.md:897 incorrectly says every command under cdl 16 has no complete descriptor_type. At cdl 14 or 15 the two-byte descriptor_type is complete; descriptor_index is incomplete. The guard correctly requires the complete four-byte target. Replace that rationale with “a command under cdl 16 lacks the complete descriptor_type/descriptor_index pair and answers BAD_ARGUMENTS”. This corrects a protocol-field claim in the normative architecture, so it is not classified as wording-only residue. The runtime boundary and expected responses are correct.
+
+R643-1-R1, RESIDUE, RTL, Tests and Docs: newly added source comments carry bench labels, including the M9 reference in hdl/aecp/KL_aecp_engine.sv:1288, labels at tb/pp_top/sim_main.cpp:5591,5634,5636,5705,11146, and section V at tb/pp_top/aecp_dispatch_mutants.py:46. Replace these with behavioral descriptions and issue/requirement references without changing executable checks or their diagnostic names. Existing review-history comments are outside this finding.
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+| --- | --- | --- | --- | --- |
+| Conformance | UNCLEAN | issue 177; compliance item 12; architecture 06 sections 6.10/8.2; target-field parser; F1 | R643-1 | 6aaec5dfc45e84c8842f3f31f76910bfa91a96e1 |
+| RTL | CLEAN | engine diff; echo length/source/seal paths; E_NOTIMPL and E_GAVB; command registry; R1 residue | R643-1 | 6aaec5dfc45e84c8842f3f31f76910bfa91a96e1 |
+| Robustness | CLEAN | full-width comparator; length/type/existence ordering; high-byte and absent-index cases; message guard and nine dispatch mutants | R643-1 | 6aaec5dfc45e84c8842f3f31f76910bfa91a96e1 |
+| Tests | CLEAN | full-frame V cases; M9 stimulus; all nine dispatch mutants killed; decode golden 585760 trials/176 checks; published gate inventory; R1 residue | R643-1 | 6aaec5dfc45e84c8842f3f31f76910bfa91a96e1 |
+| Docs | UNCLEAN | docs conventions; compliance clauses; generated command table/record; bench README; focused static gates; F1 and R1 | R643-1 | 6aaec5dfc45e84c8842f3f31f76910bfa91a96e1 |
+
+All five lenses independently applied. The decode mutant/restored sweep is still running and will be incorporated in REPORT.md. No runtime defect found. The author reports broader source and scratch-parent gates; their raw logs are indexed by hash in the public packet but not included there. No manager source bank is inferred. Hosted suites remain in progress at this snapshot; final current-dev candidate validation is a manager duty.

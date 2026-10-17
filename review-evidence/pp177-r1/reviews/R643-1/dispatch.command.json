@@ -1,0 +1,13 @@
+[
+  "python3",
+  "-B",
+  "tb/pp_top/aecp_dispatch_mutants.py",
+  "--jobs",
+  "3",
+  "--only",
+  "m9-guard-get-avb-info,gavb-other-type-not-supported,gavb-other-type-header-only,gavb-type-gate-dropped,gavb-type-low-byte,gavb-interface-not-implemented,gavb-locate-miss-ignored,gavb-padded-refused,gavb-floor-14",
+  "--output",
+  "$REVIEWS/pp177-r643-1-packet/dispatch",
+  "--verilator",
+  "$REVIEWS/pp177-r643-1-packet/scratch/bounded-simulator.py"
+]

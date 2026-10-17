@@ -1,0 +1,13 @@
+[
+  "python3",
+  "-B",
+  "tb/aecp_cmds/mutants.py",
+  "--jobs",
+  "2",
+  "--only",
+  "gavb-other-type-not-supported",
+  "--output",
+  "$REVIEWS/pp177-r643-1-packet/decode",
+  "--verilator",
+  "$REVIEWS/pp177-r643-1-packet/scratch/bounded-simulator.py"
+]
