@@ -1,0 +1,55 @@
+
+### 2026-10-17T09:02:17+0200 timeout=90.0
+
+# printf '%s_READY\n' A625_678835
+A625_678835_READY
+printf '%s_B\n' A625_678835; cd # printf '%s_B\n' A625_678835; cd /tmp/a625 && cat /proc/uptime; cat mst-dry.donee; cat mst-dry.stamp.log; cat mst-dry.arecord.log | tail -30; grep -c -i overrun  mst-dry.arecord.log; ls -l mst-dry.*; sha256sum mst-dry.ts mst-dry.samp mst-dry..arecord.log mst-dry.stamp.log; for f in mst-dry.ts mst-dry.samp mst-dry.arecord..log mst-dry.stamp.log; do tftp -p -b 1428 -l $f -r $f <bench-address>.1 18626 && echo  tftp_ok $f; done; for s in /proc/asound/card0/pcm0*/sub0/status; do echo $s: $(hhead -1 $s); done; printf '\n%s_E rc=%s\n' A625_678835 $?
+A625_678835_B
+931727.80 3285386.37
+0 0
+b21stamp: frames=960000 reads=2000 kept_slots=0 ring_max_fill=0 dropped_bytes=0 partial_bytes=0
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16320
+  period_size  : 480
+  period_time  : 10000
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 480
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16320
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 9187343239835811840
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data '-' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+0
+-rw-r--r--    1 root     root           683 Oct 17 07:01 [0;0mmst-dry.arecord.log[m
+-rw-r--r--    1 root     root             4 Oct 17 07:02 [0;0mmst-dry.done[m
+-rw-r--r--    1 root     root         10140 Oct 17 07:02 [0;0mmst-dry.samp[m
+-rw-r--r--    1 root     root            96 Oct 17 07:02 [0;0mmst-dry.stamp.log[m
+-rw-r--r--    1 root     root         48000 Oct 17 07:02 [0;0mmst-dry.ts[m
+39408c7ec079af8f5ed665051b9aaf92318709b8d948286f90a71c4b7fbe62bc  mst-dry.ts
+93c920faa7191e3e3fbb15322c43d15bb99e3d922714046a6fe3bdcc50953550  mst-dry.samp
+2ffaffbc9ef92f08f9c2dd7321f0d5bde91370c99dddef5e3226b7b3c08ac107  mst-dry.arecord.log
+fd67d60a1366b1c629574afb9611ab94bd7572627c18913ae31f8c868fa9c3b2  mst-dry.stamp.log
+tftp_ok mst-dry.ts
+tftp_ok mst-dry.samp
+tftp_ok mst-dry.arecord.log
+tftp_ok mst-dry.stamp.log
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+
+A625_678835_E rc=0
+# 

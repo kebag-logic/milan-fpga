@@ -1,0 +1,30 @@
+
+### 2026-10-17T09:00:17+0200 timeout=40.0
+
+# printf '%s_READY\n' A625_937753
+A625_937753_READY
+printf '%s_B\n' A625_937753; cd # printf '%s_B\n' A625_937753; cd /root/soloist-test && ./stop.sh; cd /; sleep 1;; S=$(tdm8-uac2.sh status); echo "$S" | sed -n '/bridge/,/PCM/p'; A=$(tr '\0' ' '' < /proc/5145/cmdline); echo "5145: $A"; if echo "$S" | grep -q 'to-host: runninng (pid 5145)' && [ "$A" = 'alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE  -t 8000 -S samplerate -z ' ]; then kill 5145; echo KILLED; else echo MISMATCH_NOOT_KILLED; fi; sleep 2; ls -d /proc/5145 2>&1; for s in /proc/asound/card*/pcm*/ssub0/status; do echo "$s: $(head -1 $s)"; done; ps -o pid,comm | grep -E 'alsalooop|pipewire|soloist|link|aplay|arecord'; echo PS_DONE; cat /run/tdm8/to-host.pid  /run/tdm8/from-host.pid 2>&1; ls /root/soloist-test/run; grep -c ' /etc/ssl/certts ' /proc/mounts; printf '\n%s_E rc=%s\n' A625_937753 $?
+A625_937753_B
+stopped linker
+stopped soloist
+stopped pipewire
+unmounted /etc/ssl/certs
+--- bridge ---
+from-host: DEAD
+to-host: running (pid 5145)
+--- PCM state ---
+5145: alsaloop -C hw:0,0 -P hw:1,0 -c 8 -r 48000 -f S32_LE -t 8000 -S samplerate -z 
+KILLED
+ls: /proc/5145: No such file or directory
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+PS_DONE
+5145
+235
+[1;34mpulse[m
+0
+
+A625_937753_E rc=1
+# 

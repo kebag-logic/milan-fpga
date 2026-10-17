@@ -1,0 +1,55 @@
+
+### 2026-10-17T09:15:45+0200 timeout=90.0
+
+# printf '%s_READY\n' A625_695510
+A625_695510_READY
+# printf '%s_B\n' A625_695510; cd /tmp/a625 && cat /proc/uptime; cat mst-long.donne; cat mst-long.stamp.log; cat mst-long.arecord.log | tail -30; grep -c -i overrrun mst-long.arecord.log; ls -l mst-long.*; sha256sum mst-long.ts mst-long.samp mmst-long.arecord.log mst-long.stamp.log; for f in mst-long.ts mst-long.samp mst-llong.arecord.log mst-long.stamp.log; do tftp -p -b 1428 -l $f -r $f <bench-address>.1 118626 && echo tftp_ok $f; done; for s in /proc/asound/card0/pcm0*/sub0/status; doo echo $s: $(head -1 $s); done; printf '\n%s_E rc=%s\n' A625_695510 $?
+A625_695510_B
+932535.71 3288532.76
+0 0
+b21stamp: frames=30240000 reads=63000 kept_slots=0 ring_max_fill=0 dropped_bytes=0 partial_bytes=0
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16320
+  period_size  : 480
+  period_time  : 10000
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 480
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16320
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 9187343239835811840
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data '-' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+0
+-rw-r--r--    1 root     root           683 Oct 17 07:05 [0;0mmst-long.arecord.log[m
+-rw-r--r--    1 root     root             4 Oct 17 07:15 [0;0mmst-long.done[m
+-rw-r--r--    1 root     root        309270 Oct 17 07:15 [0;0mmst-long.samp[m
+-rw-r--r--    1 root     root            99 Oct 17 07:15 [0;0mmst-long.stamp.log[m
+-rw-r--r--    1 root     root       1512000 Oct 17 07:15 [0;0mmst-long.ts[m
+ab78ee6b3b3f719a977df6dc049b54223a74fb3f593f35a3548568ab20600ecf  mst-long.ts
+17a8a5a8792592dc96ca1fa6702d44d0724af9bbdbd34267ea192b0d2d8fabee  mst-long.samp
+2ffaffbc9ef92f08f9c2dd7321f0d5bde91370c99dddef5e3226b7b3c08ac107  mst-long.arecord.log
+011e518d941d80228f42e9273dc14555bbac030a8b873f10e8dc288923292e3a  mst-long.stamp.log
+tftp_ok mst-long.ts
+tftp_ok mst-long.samp
+tftp_ok mst-long.arecord.log
+tftp_ok mst-long.stamp.log
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+
+A625_695510_E rc=0
+# 

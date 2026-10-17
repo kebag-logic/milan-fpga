@@ -1,0 +1,14 @@
+
+### 2026-10-17T09:48:38+0200 timeout=30.0
+
+# printf '%s_READY\n' A625_545546
+A625_545546_READY
+# printf '%s_B\n' A625_545546; grep -In "ssl/certs" /root/soloist-test/*.sh /roott/soloist-test/*.conf /root/*.sh 2>/dev/null | cut -c1-160; grep -c " /etc/ssl/ceerts " /proc/mounts; ls /root/soloist-test/certs | head -3; ls /etc/ssl/certs | wwc -l; printf '\n%s_E rc=%s\n' A625_545546 $?
+A625_545546_B
+/root/soloist-test/stop.sh:11:if grep -q " /etc/ssl/certs " /proc/mounts; then umount /etc/ssl/certs && echo "unmounted /etc/ssl/certs"; fi
+0
+ca-certificates.crt
+0
+
+A625_545546_E rc=0
+# 

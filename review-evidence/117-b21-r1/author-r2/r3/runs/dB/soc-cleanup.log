@@ -1,0 +1,13 @@
+
+### 2026-10-17T09:43:50+0200 timeout=30.0
+
+# printf '%s_READY\n' A625_402440
+A625_402440_READY
+printf '%s_B\n' A625_402440; cd # printf '%s_B\n' A625_402440; cd /root/a625-b21 && rm -f dB.pcm dB.ts dB.arecordd.log dB.stamp.log dB.done && cd / && rmdir /root/a625-b21; ls -d /root/a625-b21  2>&1; for s in /proc/asound/card0/pcm0*/sub0/status; do echo $s: $(head -1 $s);  done; printf '\n%s_E rc=%s\n' A625_402440 $?
+A625_402440_B
+ls: /root/a625-b21: No such file or directory
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+
+A625_402440_E rc=0
+# 

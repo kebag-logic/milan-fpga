@@ -1,0 +1,41 @@
+
+### 2026-10-17T09:05:05+0200 timeout=30.0
+
+# printf '%s_READY\n' A625_152946
+A625_152946_READY
+# printf '%s_B\n' A625_152946; cd /tmp/a625 && rm -f mst-long.*; nohup bash -c 'sset -o pipefail; arecord -v -D hw:0,0 -c 8 -f S32_LE -r 48000 -t raw --period-sizze=480 --buffer-size=24000 -d 630 - 2> mst-long.arecord.log | ./b21stamp 8 4 nonee /dev/null mst-long.ts 4 2> mst-long.stamp.log; echo "${PIPESTATUS[*]}" > mst-loong.done' > /dev/null 2>&1 < /dev/null & (while [ ! -f mst-long.done ]; do cat /pproc/uptime; grep -E '485c0100.dma-controller chan[01]$' /proc/interrupts; head --1 /proc/stat; sleep 1; done) > mst-long.samp 2>&1 < /dev/null & sleep 3; head -440 mst-long.arecord.log; ps -o pid,comm | grep -E 'arecord|b21stamp'; cat /proc/uuptime; printf '\n%s_E rc=%s\n' A625_152946 $?
+A625_152946_B
+[1] 1741
+[2] 1742
+Hardware PCM card 0 'TDM8' device 0 subdevice 0
+Its setup is:
+  stream       : CAPTURE
+  access       : RW_INTERLEAVED
+  format       : S32_LE
+  subformat    : STD
+  channels     : 8
+  rate         : 48000
+  exact rate   : 48000 (48000/1)
+  msbits       : 32
+  buffer_size  : 16320
+  period_size  : 480
+  period_time  : 10000
+  tstamp_mode  : ENABLE
+  tstamp_type  : MONOTONIC
+  period_step  : 1
+  avail_min    : 480
+  period_event : 0
+  start_threshold  : 1
+  stop_threshold   : 16320
+  silence_threshold: 0
+  silence_size : 0
+  boundary     : 9187343239835811840
+  appl_ptr     : 0
+  hw_ptr       : 0
+Recording raw data '-' : Signed 32 bit Little Endian, Rate 48000 Hz, Channels 8
+ 1746 arecord
+ 1747 b21stamp
+931899.19 3286070.45
+
+A625_152946_E rc=0
+# 

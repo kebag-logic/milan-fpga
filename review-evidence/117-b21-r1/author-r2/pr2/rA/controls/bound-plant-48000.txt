@@ -1,0 +1,55 @@
+{
+ "time_base": {
+  "clock": "bench host CLOCK_REALTIME",
+  "reads": 19001,
+  "realtime_minus_monotonic_range_s": 2.956390380859375e-05,
+  "tolerance_s": 0.001,
+  "capture_realtime": [
+   1792223055.7448695,
+   1792223245.7468963
+  ]
+ },
+ "cycles_logged": 20,
+ "binds_logged": 20,
+ "bind_retries": 0,
+ "captured_silences": 20,
+ "tap_connect_commands": 20,
+ "tap_connect_responses": 20,
+ "tap_disconnect_responses": 20,
+ "limit_s": 1.0,
+ "upper_s": {
+  "n": 20,
+  "min": 1.027508,
+  "median": 1.033496,
+  "max": 1.100714,
+  "under_limit": 0
+ },
+ "lower_s": {
+  "n": 20,
+  "min": 0.023158,
+  "median": 0.0237205,
+  "max": 0.096727
+ },
+ "verdict": "FAIL"
+}
+cycle  lower_ms  upper_ms  pass
+    1      41.5    1051.0  False
+    2      23.5    1028.6  False
+    3      23.4    1033.7  False
+    4      24.2    1028.3  False
+    5      23.2    1032.0  False
+    6      23.5    1037.4  False
+    7      23.5    1032.6  False
+    8      26.7    1039.0  False
+    9      23.7    1033.3  False
+   10      23.7    1027.5  False
+   11      23.7    1031.8  False
+   12      23.7    1036.1  False
+   13      23.7    1032.2  False
+   14      23.6    1036.5  False
+   15      23.9    1030.8  False
+   16      23.6    1035.8  False
+   17      23.8    1030.3  False
+   18      23.7    1034.6  False
+   19      96.7    1100.7  False
+   20      23.6    1034.9  False

@@ -1,0 +1,55 @@
+{
+ "time_base": {
+  "clock": "bench host CLOCK_REALTIME",
+  "reads": 19001,
+  "realtime_minus_monotonic_range_s": 2.956390380859375e-05,
+  "tolerance_s": 0.001,
+  "capture_realtime": [
+   1792223055.7448695,
+   1792223245.7468963
+  ]
+ },
+ "cycles_logged": 20,
+ "binds_logged": 20,
+ "bind_retries": 0,
+ "captured_silences": 20,
+ "tap_connect_commands": 20,
+ "tap_connect_responses": 20,
+ "tap_disconnect_responses": 20,
+ "limit_s": 1.0,
+ "upper_s": {
+  "n": 20,
+  "min": 0.930775,
+  "median": 0.935928,
+  "max": 1.010719,
+  "under_limit": 19
+ },
+ "lower_s": {
+  "n": 20,
+  "min": 0.023158,
+  "median": 0.0237205,
+  "max": 0.096727
+ },
+ "verdict": "FAIL"
+}
+cycle  lower_ms  upper_ms  pass
+    1      41.5     951.0  True
+    2      23.5     938.6  True
+    3      23.4     933.7  True
+    4      24.2     938.0  True
+    5      23.2     932.1  True
+    6      23.5     937.4  True
+    7      23.5     932.6  True
+    8      26.7     939.0  True
+    9      23.7     933.2  True
+   10      23.7     937.5  True
+   11      23.7     931.8  True
+   12      23.7     936.1  True
+   13      23.7     932.2  True
+   14      23.6     936.5  True
+   15      23.9     930.8  True
+   16      23.6     935.8  True
+   17      23.8     940.3  True
+   18      23.7     934.5  True
+   19      96.7    1010.7  False
+   20      23.6     934.9  True

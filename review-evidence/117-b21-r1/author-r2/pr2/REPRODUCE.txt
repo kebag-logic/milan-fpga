@@ -1,0 +1,48 @@
+PR round 2 reproduction (offline; no bench access needed).
+PACKET = this packet's root; ARCHIVE = the cold archive's 117-b21-a625-raw directory; WORK = any empty
+scratch directory. Every input is read by path; every command exits 0 on the recorded inputs.
+
+Item 1, restart bounds and planted latency controls:
+  python3 -I -B $PACKET/tools/pr2/b21_restart_bound.py $PACKET/r3/runs/rA/cycles.jsonl \
+      $ARCHIVE/rA/a625-rA-<MAC-derived-interface-name>.pcap $ARCHIVE/rA-ext/cap-lr.raw $ARCHIVE/rA-ext/cap-ts.bin $WORK/rA-bound.json
+      -> pr2/rA/rA-bound.json, pr2/rA/rA-bound.txt (verdict PASS)
+  python3 -I -B $PACKET/tools/pr2/b21_restart_controls.py $PACKET/tools/pr2/b21_restart_bound.py \
+      $PACKET/r3/runs/rA/cycles.jsonl $ARCHIVE/rA/a625-rA-<MAC-derived-interface-name>.pcap $ARCHIVE/rA-ext/cap-lr.raw \
+      $ARCHIVE/rA-ext/cap-ts.bin $WORK/plant $WORK/rA-controls.json
+      -> pr2/rA/rA-controls.json, pr2/rA/controls/ (all controls pass)
+
+Items 2 and 3, McASP grader:
+  python3 -I -B $PACKET/tools/pr2/b21_aaf.py extract $ARCHIVE/dB/a625-dB-<MAC-derived-interface-name>.pcap 3cc0c60102030000 2 $WORK/dutlink
+      -> dutlink.samples 499116000 B sha256 1976539998f6c7590c2bfe7a5efcbb8cb8f733a1e77f88f20e614082cafe2468
+  python3 -I -B $PACKET/tools/pr2/b21_grade.py mcasp $ARCHIVE/dB dB $WORK/dutlink.samples 4 $WORK/dB
+      -> pr2/dB/dB-mcasp.json, pr2/dB/dB-mcasp-stdout.txt (clean true)
+  python3 -I -B $PACKET/tools/pr2/b21_exact.py $ARCHIVE/dB/dB.pcm $WORK/dutlink.samples 4 $WORK/dB-exact.json
+      -> pr2/dB/dB-exact.json (exact true, offset 148874, 0 unequal)
+  python3 -I -B $PACKET/tools/pr2/b21_probes.py $ARCHIVE/probe/peer.samples $PACKET/tools/b21_grade.py \
+      $PACKET/tools/pr2/b21_grade.py $WORK/probes $WORK/probes.json
+      -> pr2/probes/probes.json, pr2/probes/graders/ (all controls pass; the as-run grader's results recorded)
+
+Item 4 and S2, step 1:
+  B5_W=110 python3 -I -B $PACKET/tools/pr2/b21_floor_groups.py $PACKET/r3/selftest/mst-long/mst-long-reads.u16 \
+      $ARCHIVE/mst-long/mst-long.ts $ARCHIVE/mst-long/mst-long.samp $WORK/floor-groups.txt
+      -> pr2/mst-long/floor-groups.txt (sign rule holds in every group)
+  python3 -I -B $PACKET/tools/pr2/b21_step1_verdict.py $PACKET/r3/selftest/mst-long/mst-long-reads.u16 \
+      $PACKET/r3/selftest/mst-long/mst-long-reads.json $WORK/step1-verdict.json
+      -> pr2/mst-long/step1-verdict.json (clean, every plant caught)
+
+Item 5, transit and CRF:
+  python3 -I -B $PACKET/tools/pr2/b21_transit_crf.py $ARCHIVE/dA/a625-dA-<MAC-derived-interface-name>.pcap \
+      $ARCHIVE/dA/a625-dA-<MAC-derived-interface-name>.pcap $WORK/dA-transit-crf.json
+      -> pr2/dA/dA-transit-crf.json
+
+Archive inputs, verified before use (sha256):
+  da175f5d24f9191b3101d756babf6901ed2f1bb3590da2b4d5d0d656fddcfc54  dB/dB.pcm
+  6cd1c9b4929025078ad29e2a7c659351fe09c9b3c6f8dfc792ba3a782b878e1f  dB/a625-dB-<MAC-derived-interface-name>.pcap
+  f8c177c3c1b4957d2df56d68d5eeb918a8ee02ec4ff1c1c69549bcfab05183cd  rA/a625-rA-<MAC-derived-interface-name>.pcap
+  e855f403a95031c26308a27705e2e1348697f40d3f84046460119f9379bf3427  rA-ext/cap-lr.raw
+  728ffb1e1c97dfbd39e9f3eda7958e3806ec934dfc4162dc659a3a20bef991c4  rA-ext/cap-ts.bin
+  59a86f99427ce8ef62530e4da87fa16eaf17ea51a37f3552493f56311b31212f  dA/a625-dA-<MAC-derived-interface-name>.pcap
+  a848c00b319904d337da99cf19a3ff2ca3d8dc6b52d7d568562cdb1929c34b85  dA/a625-dA-<MAC-derived-interface-name>.pcap
+  ab78ee6b3b3f719a977df6dc049b54223a74fb3f593f35a3548568ab20600ecf  mst-long/mst-long.ts
+  17a8a5a8792592dc96ca1fa6702d44d0724af9bbdbd34267ea192b0d2d8fabee  mst-long/mst-long.samp
+  8f592556c1b93fb7d2395cd138c5880a6345c1654ca11d77240eb6cca77dc6b6  probe/peer.samples

@@ -1,0 +1,38 @@
+{
+ "inputs": [
+  "a625-dA-<MAC-derived-interface-name>.pcap",
+  "a625-dA-<MAC-derived-interface-name>.pcap"
+ ],
+ "transit": {
+  "pairs": 5198372,
+  "pairs_same_seq_and_timestamp": 5198372,
+  "dut_first": 80,
+  "peer_first": 0,
+  "span_s": 649.805,
+  "rate_difference_ppm": -13.070107,
+  "residual_us": {
+   "min": -27.681,
+   "p50": 1.663,
+   "max": 23.894
+  },
+  "undetrended_minus_median_us": {
+   "min": -4237.536,
+   "max": 4209.084
+  },
+  "note": "tap clocks independent: the rate difference and the residual are relative, not absolute latency"
+ },
+ "crf": {
+  "dutlink_sent_by_dut": {
+   "packets": 324903,
+   "seq_breaks": 0,
+   "seconds_tap": 649.813,
+   "rate_pps": 499.993
+  },
+  "peerlink_received_by_peer": {
+   "packets": 324906,
+   "seq_breaks": 0,
+   "seconds_tap": 649.81,
+   "rate_pps": 500.0
+  }
+ }
+}

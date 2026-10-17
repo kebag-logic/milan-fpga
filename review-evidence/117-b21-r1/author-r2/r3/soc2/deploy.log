@@ -1,0 +1,15 @@
+
+### 2026-10-17T09:00:22+0200 timeout=40.0
+
+# printf '%s_READY\n' A625_646122
+A625_646122_READY
+# printf '%s_B\n' A625_646122; mkdir -p /tmp/a625 && wget -q -O /tmp/a625/b21stammp http://<bench-address>.1:18625/b21stamp && chmod 755 /tmp/a625/b21stamp && sha256summ /tmp/a625/b21stamp && ls -l /tmp/a625; readlink -f /var/tmp; ls -ld /var/tmp; pprintf '\n%s_E rc=%s\n' A625_646122 $?
+A625_646122_B
+666ee35a30bbecedc55c5554ce504445ac731ff206f1c69d82058d790164d920  /tmp/a625/b21stamp
+total 648
+-rwxr-xr-x    1 root     root        663464 Oct 17 07:00 [1;32mb21stamp[m
+/tmp
+lrwxrwxrwx    1 root     root             6 Jul  2 05:43 [1;36m/var/tmp[m -> [1;34m../tmp[m
+
+A625_646122_E rc=0
+# 

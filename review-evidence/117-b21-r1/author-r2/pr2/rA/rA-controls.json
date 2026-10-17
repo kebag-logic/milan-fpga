@@ -1,0 +1,89 @@
+{
+ "as_measured": {
+  "rc": 0,
+  "verdict": "PASS",
+  "upper_max_s": 0.100725
+ },
+ "controls": [
+  {
+   "planted_s": 0.5,
+   "planted_frames": 24000,
+   "verdict": "PASS",
+   "rc": 0,
+   "failing_cycles": [],
+   "expected_verdict": "PASS",
+   "expected_failing_cycles": [],
+   "upper_max_s": 0.600713,
+   "control_pass": true
+  },
+  {
+   "planted_s": 0.903,
+   "planted_frames": 43344,
+   "verdict": "FAIL",
+   "rc": 1,
+   "failing_cycles": [
+    19
+   ],
+   "expected_verdict": "FAIL",
+   "expected_failing_cycles": [
+    19
+   ],
+   "upper_max_s": 1.010719,
+   "control_pass": true
+  },
+  {
+   "planted_s": 1.0,
+   "planted_frames": 48000,
+   "verdict": "FAIL",
+   "rc": 1,
+   "failing_cycles": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+   ],
+   "expected_verdict": "FAIL",
+   "expected_failing_cycles": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+   ],
+   "upper_max_s": 1.100714,
+   "control_pass": true
+  }
+ ],
+ "all_controls_pass": true
+}

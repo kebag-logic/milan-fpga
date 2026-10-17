@@ -1,0 +1,15 @@
+
+### 2026-10-17T09:17:27+0200 timeout=180.0
+
+# printf '%s_READY\n' A625_185578
+A625_185578_READY
+# printf '%s_B\n' A625_185578; cd /tmp/a625 && cat /proc/uptime; awk 'BEGIN{for(nn=0;n<65536;n++){h=sprintf("00%02x%02x",n%256,int(n/256));s="";for(c=1;c<=8;c++)ss=s h sprintf("%02x",c);print s}}' | xxd -r -p > /tmp/a625/din.raw; echo build_rcc=$?; cat /proc/uptime; wc -c < /tmp/a625/din.raw; echo 'b6a92e9724e945354c3f8fc55178cec7bb8fd0e62d52bd9ee7f13ed5347bfa97c  /tmp/a625/din.raw' | sha256sum -c; priintf '\n%s_E rc=%s\n' A625_185578 $?
+A625_185578_B
+932638.30 3288942.29
+build_rc=0
+932642.59 3288954.21
+2097152
+/tmp/a625/din.raw: OK
+
+A625_185578_E rc=0
+# 

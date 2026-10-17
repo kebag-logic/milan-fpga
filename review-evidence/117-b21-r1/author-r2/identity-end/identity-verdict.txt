@@ -1,0 +1,12 @@
+{"check": "atdecc-entity_id", "result": "PASS", "detail": {"read": "020000fffe000001", "expected": "020000fffe000001"}}
+{"check": "atdecc-entity_name", "result": "PASS", "detail": {"read": "Milan FPGA 1x1 TDM8", "expected": "Milan FPGA 1x1 TDM8"}}
+{"check": "atdecc-firmware_version", "result": "PASS", "detail": {"read": "2.96.0", "expected": "2.96.0"}}
+{"check": "atdecc-serial_number", "result": "PASS", "detail": {"read": "AX7101-0001", "expected": "AX7101-0001"}}
+{"check": "console-id", "result": "PASS", "detail": {"read": ["4d494c4e", "00020060"], "expected": ["4d494c4e", "00020060"]}}
+{"check": "console-aem-crc", "result": "PASS", "detail": {"read": "5ba355eb", "expected": "5ba355eb"}}
+{"check": "live-vs-qspi-ENTITY 0", "result": "PASS", "detail": {"qspi_bytes": 312, "live_bytes": 312, "differing_offsets": []}}
+{"check": "live-vs-qspi-CONFIGURATION 0", "result": "PASS", "detail": {"qspi_bytes": 106, "live_bytes": 106, "differing_offsets": []}}
+{"check": "clock-sources", "result": "PASS", "detail": {"sources": {"0": {"name": "Internal", "type": 0, "location_type": 10, "location_index": 0}, "1": {"name": "CRF Clock", "type": 2, "location_type": 5, "location_index": 1}, "2": {"name": "Stream Clock", "type": 2, "location_type": 5, "location_index": 0}, "3": "NO_SUCH_DESCRIPTOR"}, "clock_domain_list": [0, 1, 2], "get_clock_source": 0}}
+{"check": "grader", "result": "PASS", "detail": "BAREMETAL UART SMOKE line"}
+{"check": "adp", "result": "PASS", "detail": {"model_id": "001bc5c1935893e1"}}
+IDENTITY GATE: PASS

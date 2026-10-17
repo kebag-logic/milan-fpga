@@ -1,0 +1,40 @@
+== mst-dry: inputs
+read-time record mst-dry.ts: 48000 B sha256 39408c7ec079af8f5ed665051b9aaf92318709b8d948286f90a71c4b7fbe62bc; 2000 reads, 960000 frames
+frames per read: {480: 2000}
+window: reads 0 .. 1999 (1999 intervals), frames 480 .. 960000; reads not of one period inside: 0 []
+derived record mst-dry-reads.u16: 3998 B sha256 d22bc67a6b0d798a8ed96bfada961b2a8fbff58c2cad473bb8843826993687a6; b5_attrib.py sha256 f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40
+arecord overruns: 0 []; stamper: b21stamp: frames=960000 reads=2000 kept_slots=0 ring_max_fill=0 dropped_bytes=0 partial_bytes=0
+== window and rate
+window 19.991 s on the board's monotonic clock (0.33 min); 959520 frames delivered
+deficit D(R) - D(0) = 47.8 frames; linear fit slope +2.0797 frames/s = +43.33 ppm (the DUT's TDM clock against the board's monotonic clock, uncalibrated)
+deficit residual after the linear fit, frames, percentiles 0/1/50/99/100: [-16.0, -14.4, +0.9, +13.3, +47.2]
+== read intervals and stalls (read interval over 15 ms)
+read interval ms, percentiles 0/0.01/1/50/99/99.99/100: [+9.0, +9.0, +9.7, +10.0, +10.3, +10.9, +11.0]; over 12 ms: 0, over 15 ms: 0
+stalls 0
+== delivery-deficit floor steps (lane B5's floor test)
+positions 1974; drift over one floor test (median step) +0.288 frames; step percentiles 0/0.01/1/50/99/99.99/100: [-16.4, -16.4, -15.9, +0.3, +16.6, +17.0, +17.0]
+positions with |step - drift| > 4 frames: 648, in 20 groups
+  group at reads 13 .. 24 (t 0.130 s): largest step +16.8 frames
+  group at reads 87 .. 124 (t 0.870 s): largest step +15.2 frames
+  group at reads 190 .. 227 (t 1.900 s): largest step +15.4 frames
+  group at reads 285 .. 329 (t 2.850 s): largest step +16.1 frames
+  group at reads 397 .. 433 (t 3.970 s): largest step +15.7 frames
+  group at reads 500 .. 536 (t 5.000 s): largest step +15.5 frames
+  group at reads 604 .. 638 (t 6.040 s): largest step +16.6 frames
+  group at reads 707 .. 742 (t 7.070 s): largest step -14.6 frames
+  group at reads 810 .. 845 (t 8.100 s): largest step -16.4 frames
+  group at reads 913 .. 949 (t 9.131 s): largest step +16.9 frames
+  group at reads 1017 .. 1052 (t 10.171 s): largest step -15.1 frames
+  group at reads 1120 .. 1154 (t 11.201 s): largest step +15.3 frames
+  group at reads 1222 .. 1258 (t 12.221 s): largest step +15.9 frames
+  group at reads 1326 .. 1361 (t 13.261 s): largest step -15.6 frames
+  group at reads 1429 .. 1467 (t 14.291 s): largest step +15.2 frames
+  group at reads 1533 .. 1568 (t 15.331 s): largest step +15.0 frames
+  group at reads 1636 .. 1673 (t 16.361 s): largest step -15.2 frames
+  group at reads 1739 .. 1776 (t 17.391 s): largest step +15.2 frames
+  group at reads 1843 .. 1877 (t 18.431 s): largest step +16.2 frames
+  group at reads 1946 .. 1984 (t 19.461 s): largest step +16.1 frames
+sum of the positive group steps: 232.9 frames
+== board sampler (1 Hz): McASP DMA edge interrupt rows (CPU0 count)
+chan0: 20 samples; per-second rate percentiles 0/1/50/99/100 [+0.0, +0.0, +0.0, +0.0, +0.0]
+chan1: 20 samples; per-second rate percentiles 0/1/50/99/100 [+97.1, +97.4, +100.0, +101.0, +101.0]

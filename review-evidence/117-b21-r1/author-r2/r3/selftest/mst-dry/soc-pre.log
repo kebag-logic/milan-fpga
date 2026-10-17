@@ -1,0 +1,15 @@
+
+### 2026-10-17T09:01:47+0200 timeout=30.0
+
+# printf '%s_READY\n' A625_176667
+A625_176667_READY
+# printf '%s_B\n' A625_176667; cat /proc/uptime; for s in /proc/asound/card0/pcm00*/sub0/status; do echo $s: $(head -1 $s); done; ps -o pid,comm | grep -E 'alsalooop|arecord|aplay|pipewire|soloist' ; sha256sum /tmp/a625/b21stamp; df -k /tmp |  tail -1; printf '\n%s_E rc=%s\n' A625_176667 $?
+A625_176667_B
+931697.89 3285269.79
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+666ee35a30bbecedc55c5554ce504445ac731ff206f1c69d82058d790164d920  /tmp/a625/b21stamp
+tmpfs                   209564       868    208696   0% /tmp
+
+A625_176667_E rc=0
+# 

@@ -1,0 +1,488 @@
+== st-long2: inputs
+read-time record cap-ts.bin: 1510464 B sha256 5f798357ae75af4c089dcc89c3d5308a202eec9661a06e42b90b20fe788435d1; 62936 reads, 30231876 frames
+reads not of one period inside the window: 53 [(19739, 1028), (19740, 892), (19741, 1028), (19742, 1028), (19743, 824), (19822, 960), (19949, 960), (20534, 960), (21144, 960), (21150, 1028), (21151, 892), (21674, 960), (21678, 960), (21745, 960), (22683, 960), (22765, 960), (22770, 1028), (22771, 1028), (22772, 824), (23515, 1028)]
+window: reads 0 .. 62934 (62934 intervals), frames 480 .. 30231840
+derived record st-long2-reads.u32: 251736 B sha256 58a24e98eb74fc9fa3ffd01e5a1d588c68056c324bcc6d1299128921b0561bee
+b5_attrib.py sha256 f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40
+== window and rate
+window 630.060 s on the monotonic clock (10.50 min); 30231360 frames delivered
+deficit D(R) - D(0) = 11531.5 frames; linear fit slope +22.624 frames/s = +471.33 ppm (capture clock against this host's monotonic clock, uncalibrated)
+deficit residual after the linear fit, frames, percentiles 0/1/50/99/100: [-2693.4, -2550.3, -301.2, +3416.3, +4445.4]
+== read intervals and stalls (read interval over 15 ms)
+read interval ms, percentiles 0/1/50/99/100: [+0.0, +9.9, +10.0, +10.1, +88.4]; over 12 ms: 201, over 15 ms: 123
+stalls 123; excess over the 10 ms period 72390.8 frames; interval 15.03 .. 88.42 ms
+recurrence: spacing median 0.6659 s, min 0.015 s, max 175.731 s
+  stall at read 15673, t 156.747 s, interval 25.76 ms
+  stall at read 15675, t 156.765 s, interval 17.98 ms
+  stall at read 17041, t 170.433 s, interval 18.16 ms
+  stall at read 17690, t 176.921 s, interval 15.65 ms
+  stall at read 17693, t 176.952 s, interval 15.03 ms
+  stall at read 17697, t 176.999 s, interval 17.13 ms
+  stall at read 18356, t 183.589 s, interval 15.61 ms
+  stall at read 18645, t 186.478 s, interval 15.27 ms
+  stall at read 18647, t 186.499 s, interval 16.33 ms
+  stall at read 18814, t 188.170 s, interval 15.80 ms
+  stall at read 18817, t 188.200 s, interval 15.52 ms
+  stall at read 18975, t 189.781 s, interval 18.31 ms
+  stall at read 19449, t 194.530 s, interval 23.36 ms
+  stall at read 19451, t 194.546 s, interval 15.22 ms
+  stall at read 19637, t 196.410 s, interval 22.47 ms
+  stall at read 19638, t 196.425 s, interval 15.45 ms
+  stall at read 19736, t 197.393 s, interval 16.01 ms
+  stall at read 19738, t 197.422 s, interval 24.56 ms
+  stall at read 19739, t 197.439 s, interval 16.97 ms
+  stall at read 19740, t 197.482 s, interval 43.06 ms
+  stall at read 19741, t 197.536 s, interval 54.35 ms
+  stall at read 19745, t 197.567 s, interval 19.94 ms
+  stall at read 19747, t 197.597 s, interval 29.58 ms
+  stall at read 19748, t 197.631 s, interval 34.55 ms
+  stall at read 19749, t 197.649 s, interval 17.70 ms
+  stall at read 19750, t 197.665 s, interval 16.52 ms
+  stall at read 19822, t 198.410 s, interval 35.29 ms
+  stall at read 19949, t 199.675 s, interval 20.32 ms
+  stall at read 20533, t 205.527 s, interval 21.97 ms
+  stall at read 20534, t 205.542 s, interval 15.07 ms
+  stall at read 21144, t 211.650 s, interval 23.82 ms
+  stall at read 21150, t 211.739 s, interval 44.41 ms
+  stall at read 21241, t 212.645 s, interval 19.61 ms
+  stall at read 21244, t 212.675 s, interval 19.90 ms
+  stall at read 21632, t 216.553 s, interval 17.68 ms
+  stall at read 21674, t 216.978 s, interval 19.04 ms
+  stall at read 21678, t 217.027 s, interval 16.88 ms
+  stall at read 21744, t 217.695 s, interval 19.85 ms
+  stall at read 21745, t 217.711 s, interval 16.09 ms
+  stall at read 21748, t 217.741 s, interval 16.17 ms
+== delivery-deficit floor steps (lane B5's floor test)
+positions 62909; drift over one floor test (median step) -0.048 frames; step percentiles 0.01/1/50/99/99.99: [-1.5, -0.8, -0.0, +1.2, +3346.0]
+positions with |step - drift| > 4 frames: 528, in 31 groups; 13 of them a 1 ms (48-frame) step
+  group at reads 4558 .. 4572 (t 45.580 s): largest step +48.1 frames
+  group at reads 10571 .. 10585 (t 105.710 s): largest step +47.9 frames
+  group at reads 15671 .. 15688 (t 156.711 s): largest step +672.1 frames
+  group at reads 17688 .. 17706 (t 176.895 s): largest step +336.0 frames
+  group at reads 18073 .. 18087 (t 180.752 s): largest step +47.8 frames
+  group at reads 18973 .. 18987 (t 189.753 s): largest step +192.6 frames
+  group at reads 19736 .. 19762 (t 197.393 s): largest step +4223.4 frames
+  group at reads 22524 .. 22564 (t 225.495 s): largest step +287.8 frames
+  group at reads 22767 .. 22781 (t 227.952 s): largest step +48.3 frames
+  group at reads 26653 .. 26674 (t 267.043 s): largest step +1103.7 frames
+  group at reads 27756 .. 27773 (t 278.174 s): largest step +2064.7 frames
+  group at reads 28633 .. 28647 (t 286.979 s): largest step +48.5 frames
+  group at reads 34631 .. 34645 (t 346.959 s): largest step +48.3 frames
+  group at reads 40617 .. 40631 (t 406.820 s): largest step +48.0 frames
+  group at reads 46594 .. 46608 (t 466.591 s): largest step +48.3 frames
+  group at reads 50330 .. 50344 (t 503.952 s): largest step +288.0 frames
+  group at reads 50392 .. 50406 (t 504.587 s): largest step +145.0 frames
+  group at reads 50695 .. 50709 (t 507.611 s): largest step +239.9 frames
+  group at reads 50971 .. 51032 (t 510.385 s): largest step +144.0 frames
+  group at reads 51077 .. 51091 (t 511.440 s): largest step +48.2 frames
+  group at reads 51408 .. 51423 (t 514.751 s): largest step +191.8 frames
+  group at reads 52517 .. 52531 (t 525.855 s): largest step +239.7 frames
+  group at reads 52860 .. 52874 (t 529.290 s): largest step +96.1 frames
+  group at reads 52982 .. 52996 (t 530.522 s): largest step +96.3 frames
+  group at reads 53054 .. 53068 (t 531.244 s): largest step +240.1 frames
+  group at reads 53116 .. 53130 (t 531.869 s): largest step +48.3 frames
+  group at reads 54045 .. 54060 (t 541.160 s): largest step +192.0 frames
+  group at reads 54121 .. 54135 (t 541.932 s): largest step +47.8 frames
+  group at reads 55476 .. 55490 (t 555.475 s): largest step +192.1 frames
+  group at reads 55556 .. 55570 (t 556.279 s): largest step +48.3 frames
+  group at reads 61530 .. 61544 (t 616.019 s): largest step +48.2 frames
+sum of the positive group steps: 11572.8 frames
+== content of the two AES channels (any input; not graded)
+cap-lr.raw: 181391256 B sha256 67805c6fedb2b67d4eb07b7f4f590e978db0a8519f844ab04a1d3f11417405e4; frames 30231876; all-zero frames 0; distinct words ch0 1, ch1 1
+== host evidence around each stall (host_sampler_b21.py, 20 Hz)
+steal-time ticks per 0.05 s sample, median 0.0; per stall: read, interval ms, steal ticks across it, expected, irq rows over their median
+  (np.int64(15673), 25.76, 4, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 14, 0.0), ('CAL', 660, 651.0), ('LOC', 1936, 1296.0), ('RES', 40, 0.0), ('TLB', 24, 0.0)])
+  (np.int64(15675), 17.98, 4, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 3, 0.0), ('LOC', 1127, 864.0), ('TLB', 8, 0.0)])
+  (np.int64(17041), 18.16, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 13, 0.0), ('RES', 5, 0.0)])
+  (np.int64(17690), 15.65, 1, 0.0, [('LOC', 900, 864.0)])
+  (np.int64(17693), 15.03, 1, 0.0, [('CAL', 718, 651.0), ('LOC', 1364, 1296.0), ('RES', 9, 0.0)])
+  (np.int64(17697), 17.13, 0, 0.0, [('CAL', 751, 651.0), ('LOC', 1487, 1296.0), ('RES', 12, 0.0), ('TLB', 4, 0.0)])
+  (np.int64(18356), 15.61, 0, 0.0, [])
+  (np.int64(18645), 15.27, 2, 0.0, [('LOC', 883, 864.0), ('RES', 3, 0.0)])
+  (np.int64(18647), 16.33, 2, 0.0, [('IX-0000:04:00.0 92-edge virtio3-req.91', 3, 0.0), ('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 8, 0.0), ('LOC', 1326, 1296.0), ('RES', 3, 0.0)])
+  (np.int64(18814), 15.8, 2, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 39, 0.0), ('LOC', 1602, 864.0)])
+  (np.int64(18817), 15.52, 2, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 39, 0.0), ('LOC', 1602, 864.0)])
+  (np.int64(18975), 18.31, 2, 0.0, [('LOC', 891, 864.0)])
+  (np.int64(19449), 23.36, 0, 0.0, [('LOC', 939, 864.0), ('RES', 5, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(19451), 15.22, 0, 0.0, [('LOC', 939, 864.0), ('RES', 5, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(19637), 22.47, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 106, 100.0), ('LOC', 1275, 864.0)])
+  (np.int64(19638), 15.45, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 106, 100.0), ('LOC', 1275, 864.0)])
+  (np.int64(19736), 16.01, 5, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 229, 150.0), ('LOC', 3395, 1296.0), ('RES', 10, 0.0), ('TLB', 5, 0.0)])
+  (np.int64(19738), 24.56, 5, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 179, 100.0), ('LOC', 2893, 864.0), ('RES', 10, 0.0), ('TLB', 5, 0.0)])
+  (np.int64(19739), 16.97, 6, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 27, 0.0), ('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 227, 150.0), ('CAL', 657, 651.0), ('LOC', 3487, 1296.0), ('RES', 11, 0.0), ('TLB', 8, 0.0)])
+  (np.int64(19740), 43.06, 5, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 27, 0.0), ('LOC', 1755, 864.0), ('RES', 3, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(19741), 54.35, 5, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 27, 0.0), ('LOC', 1755, 864.0), ('RES', 3, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(19745), 19.94, 5, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 27, 0.0), ('LOC', 1755, 864.0), ('RES', 3, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(19747), 29.58, 5, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 27, 0.0), ('LOC', 1755, 864.0), ('RES', 3, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(19748), 34.55, 5, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 27, 0.0), ('LOC', 1755, 864.0), ('RES', 3, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(19749), 17.7, 5, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 27, 0.0), ('LOC', 1755, 864.0), ('RES', 3, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(19750), 16.52, 5, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 27, 0.0), ('LOC', 1755, 864.0), ('RES', 3, 0.0), ('TLB', 3, 0.0)])
+  (np.int64(19822), 35.29, 2, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 128, 100.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 1321, 98.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 1412, 92.0), ('CAL', 6359, 434.0), ('LOC', 2367, 864.0), ('RES', 6, 0.0)])
+  (np.int64(19949), 20.32, 1, 0.0, [('LOC', 1825, 1296.0), ('RES', 4, 0.0), ('TLB', 6, 0.0)])
+  (np.int64(20533), 21.97, 1, 0.0, [('IX-0000:04:00.0 65-edge virtio3-req.64', 4, 0.0), ('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 19, 0.0), ('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 124, 100.0), ('LOC', 1165, 864.0)])
+  (np.int64(20534), 15.07, 1, 0.0, [('IX-0000:04:00.0 65-edge virtio3-req.64', 4, 0.0), ('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 19, 0.0), ('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 124, 100.0), ('LOC', 1165, 864.0)])
+  (np.int64(21144), 23.82, 2, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 204, 150.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 352, 147.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 338, 138.0), ('CAL', 944, 651.0), ('LOC', 2378, 1296.0), ('RES', 6, 0.0)])
+  (np.int64(21150), 44.41, 1, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 126, 100.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 203, 98.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 190, 92.0), ('CAL', 594, 434.0), ('LOC', 1622, 864.0), ('RES', 4, 0.0)])
+  (np.int64(21241), 19.61, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 113, 100.0), ('LOC', 1415, 864.0), ('RES', 15, 0.0), ('TLB', 6, 0.0)])
+  (np.int64(21244), 19.9, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 113, 100.0), ('LOC', 1415, 864.0), ('RES', 15, 0.0), ('TLB', 6, 0.0)])
+  (np.int64(21632), 17.68, 1, 0.0, [('CAL', 455, 434.0), ('LOC', 901, 864.0)])
+  (np.int64(21674), 19.04, 3, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 129, 100.0), ('LOC', 1064, 864.0)])
+  (np.int64(21678), 16.88, 3, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 129, 100.0), ('LOC', 1064, 864.0)])
+  (np.int64(21744), 19.85, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 200, 150.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 184, 147.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 199, 138.0), ('CAL', 698, 651.0), ('LOC', 2196, 1296.0)])
+  (np.int64(21745), 16.09, 0, 0.0, [('IX-0000:01:00.0 1-edge virtio1-input.0', 133, 98.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 150, 92.0)])
+  (np.int64(21748), 16.17, 0, 0.0, [('IX-0000:01:00.0 1-edge virtio1-input.0', 133, 98.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 150, 92.0)])
+  (np.int64(21751), 19.29, 0, 0.0, [('IX-0000:01:00.0 1-edge virtio1-input.0', 133, 98.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 150, 92.0)])
+  (np.int64(22394), 19.34, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 111, 100.0), ('LOC', 1048, 864.0)])
+  (np.int64(22526), 15.91, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 7, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 103, 98.0)])
+  (np.int64(22555), 16.27, 0, 0.0, [('LOC', 1222, 864.0), ('TLB', 6, 0.0)])
+  (np.int64(22683), 20.26, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 14, 0.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 106, 98.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 100, 92.0), ('LOC', 1010, 864.0), ('RES', 19, 0.0), ('TLB', 9, 0.0)])
+  (np.int64(22764), 19.54, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 220, 150.0), ('IX-0000:01:00.0 1-edge virtio1-input.0', 158, 147.0), ('X-0000:01:00.0 2-edge virtio1-output.0', 153, 138.0), ('CAL', 1151, 651.0), ('LOC', 4349, 1296.0), ('RES', 532, 0.0)])
+  (np.int64(22769), 71.59, 0, 0.0, [('CAL', 735, 434.0), ('LOC', 1171, 864.0), ('RES', 526, 0.0), ('TLB', 284, 0.0)])
+  (np.int64(23514), 22.01, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 172, 150.0), ('CAL', 689, 651.0), ('LOC', 1853, 1296.0), ('RES', 30, 0.0), ('TLB', 41, 0.0)])
+  (np.int64(23515), 26.79, 0, 0.0, [('RES', 30, 0.0), ('TLB', 40, 0.0)])
+  (np.int64(24221), 15.49, 0, 0.0, [])
+  (np.int64(24404), 18.1, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 32, 0.0), ('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 124, 100.0), ('LOC', 1754, 864.0), ('RES', 22, 0.0), ('TLB', 35, 0.0)])
+  (np.int64(24409), 28.5, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 33, 0.0), ('LOC', 1096, 864.0), ('TLB', 35, 0.0)])
+  (np.int64(24410), 27.93, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 33, 0.0), ('LOC', 1096, 864.0), ('TLB', 35, 0.0)])
+  (np.int64(24716), 16.89, 0, 0.0, [])
+  (np.int64(24903), 16.65, 0, 0.0, [('0000:00:1f.2 0-edge ahci[0000:00:1f.2]', 30, 0.0)])
+  (np.int64(25041), 80.03, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 155, 100.0), ('CAL', 495, 434.0), ('LOC', 1338, 864.0)])
+  (np.int64(25618), 17.72, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 139, 100.0), ('LOC', 1145, 864.0)])
+  (np.int64(25619), 16.88, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 139, 100.0), ('LOC', 1145, 864.0)])
+  (np.int64(25620), 31.58, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 139, 100.0), ('LOC', 1145, 864.0)])
+  (np.int64(25621), 29.6, 0, 0.0, [('|PCI-MSIX-0000:0a:00.0 0-edge xhci_hcd', 139, 100.0), ('LOC', 1145, 864.0)])
+== USB controller interrupts (host_sampler_b21.py, 20 Hz)
+-MSIX-0000:02:00.0 0-edge xhci_hcd: 0.0 per s; per-sample counts percentiles 0/1/50/99/100 [+0.0, +0.0, +0.0, +0.0, +0.0]
+-MSIX-0000:0a:00.0 0-edge xhci_hcd: 999.4 per s; per-sample counts percentiles 0/1/50/99/100 [+9.0, +48.0, +50.0, +52.0, +159.0]
+  at t  156.747 s: cumulative interrupt excess from 1 s before to 2 s after -35.2; slice counts [np.int64(50), np.int64(34), np.int64(29), np.int64(50), np.int64(51), np.int64(49)]
+  at t  156.765 s: cumulative interrupt excess from 1 s before to 2 s after -35.2; slice counts [np.int64(50), np.int64(34), np.int64(29), np.int64(50), np.int64(51), np.int64(49)]
+  at t  170.433 s: cumulative interrupt excess from 1 s before to 2 s after -9.2; slice counts [np.int64(50), np.int64(50), np.int64(49), np.int64(40), np.int64(50), np.int64(50)]
+  at t  176.921 s: cumulative interrupt excess from 1 s before to 2 s after -20.2; slice counts [np.int64(51), np.int64(49), np.int64(35), np.int64(45), np.int64(48), np.int64(49)]
+  at t  176.952 s: cumulative interrupt excess from 1 s before to 2 s after -20.2; slice counts [np.int64(49), np.int64(35), np.int64(45), np.int64(48), np.int64(49), np.int64(51)]
+  at t  176.999 s: cumulative interrupt excess from 1 s before to 2 s after -21.2; slice counts [np.int64(35), np.int64(45), np.int64(48), np.int64(49), np.int64(51), np.int64(49)]
+  at t  183.589 s: cumulative interrupt excess from 1 s before to 2 s after -1.2; slice counts [np.int64(50), np.int64(59), np.int64(38), np.int64(50), np.int64(50), np.int64(50)]
+  at t  186.478 s: cumulative interrupt excess from 1 s before to 2 s after -49.7; slice counts [np.int64(49), np.int64(50), np.int64(57), np.int64(38), np.int64(50), np.int64(50)]
+  at t  186.499 s: cumulative interrupt excess from 1 s before to 2 s after -50.7; slice counts [np.int64(50), np.int64(57), np.int64(38), np.int64(50), np.int64(50), np.int64(50)]
+  at t  188.170 s: cumulative interrupt excess from 1 s before to 2 s after -98.6; slice counts [np.int64(49), np.int64(56), np.int64(44), np.int64(46), np.int64(49), np.int64(48)]
+  at t  188.200 s: cumulative interrupt excess from 1 s before to 2 s after -98.6; slice counts [np.int64(49), np.int64(56), np.int64(44), np.int64(46), np.int64(49), np.int64(48)]
+  at t  189.781 s: cumulative interrupt excess from 1 s before to 2 s after -56.2; slice counts [np.int64(47), np.int64(47), np.int64(33), np.int64(46), np.int64(48), np.int64(47)]
+  at t  194.530 s: cumulative interrupt excess from 1 s before to 2 s after +4.0; slice counts [np.int64(50), np.int64(93), np.int64(36), np.int64(51), np.int64(50), np.int64(50)]
+  at t  194.546 s: cumulative interrupt excess from 1 s before to 2 s after +4.0; slice counts [np.int64(50), np.int64(93), np.int64(36), np.int64(51), np.int64(50), np.int64(50)]
+  at t  196.410 s: cumulative interrupt excess from 1 s before to 2 s after -100.3; slice counts [np.int64(50), np.int64(50), np.int64(56), np.int64(50), np.int64(50), np.int64(50)]
+  at t  196.425 s: cumulative interrupt excess from 1 s before to 2 s after -100.3; slice counts [np.int64(50), np.int64(50), np.int64(56), np.int64(50), np.int64(50), np.int64(50)]
+  at t  197.393 s: cumulative interrupt excess from 1 s before to 2 s after -102.4; slice counts [np.int64(50), np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50)]
+  at t  197.422 s: cumulative interrupt excess from 1 s before to 2 s after -102.4; slice counts [np.int64(50), np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50)]
+  at t  197.439 s: cumulative interrupt excess from 1 s before to 2 s after -102.3; slice counts [np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50), np.int64(50)]
+  at t  197.482 s: cumulative interrupt excess from 1 s before to 2 s after -102.3; slice counts [np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50), np.int64(50)]
+  at t  197.536 s: cumulative interrupt excess from 1 s before to 2 s after -102.3; slice counts [np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50), np.int64(50)]
+  at t  197.567 s: cumulative interrupt excess from 1 s before to 2 s after -102.3; slice counts [np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50), np.int64(50)]
+  at t  197.597 s: cumulative interrupt excess from 1 s before to 2 s after -102.3; slice counts [np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50), np.int64(50)]
+  at t  197.631 s: cumulative interrupt excess from 1 s before to 2 s after -102.3; slice counts [np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50), np.int64(50)]
+  at t  197.649 s: cumulative interrupt excess from 1 s before to 2 s after -102.3; slice counts [np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50), np.int64(50)]
+  at t  197.665 s: cumulative interrupt excess from 1 s before to 2 s after -102.3; slice counts [np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50), np.int64(50)]
+  at t  198.410 s: cumulative interrupt excess from 1 s before to 2 s after -102.3; slice counts [np.int64(50), np.int64(79), np.int64(78), np.int64(50), np.int64(50), np.int64(50)]
+  at t  199.675 s: cumulative interrupt excess from 1 s before to 2 s after -1.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  205.527 s: cumulative interrupt excess from 1 s before to 2 s after -3.3; slice counts [np.int64(50), np.int64(89), np.int64(74), np.int64(50), np.int64(50), np.int64(50)]
+  at t  205.542 s: cumulative interrupt excess from 1 s before to 2 s after -3.3; slice counts [np.int64(50), np.int64(89), np.int64(74), np.int64(50), np.int64(50), np.int64(50)]
+  at t  211.650 s: cumulative interrupt excess from 1 s before to 2 s after -18.3; slice counts [np.int64(50), np.int64(78), np.int64(77), np.int64(49), np.int64(50), np.int64(50)]
+  at t  211.739 s: cumulative interrupt excess from 1 s before to 2 s after -18.3; slice counts [np.int64(50), np.int64(78), np.int64(77), np.int64(49), np.int64(50), np.int64(50)]
+  at t  212.645 s: cumulative interrupt excess from 1 s before to 2 s after -1.3; slice counts [np.int64(50), np.int64(72), np.int64(63), np.int64(50), np.int64(50), np.int64(50)]
+  at t  212.675 s: cumulative interrupt excess from 1 s before to 2 s after -1.3; slice counts [np.int64(50), np.int64(72), np.int64(63), np.int64(50), np.int64(50), np.int64(50)]
+  at t  216.553 s: cumulative interrupt excess from 1 s before to 2 s after +0.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  216.978 s: cumulative interrupt excess from 1 s before to 2 s after +2.2; slice counts [np.int64(49), np.int64(83), np.int64(78), np.int64(51), np.int64(50), np.int64(50)]
+  at t  217.027 s: cumulative interrupt excess from 1 s before to 2 s after +2.2; slice counts [np.int64(49), np.int64(83), np.int64(78), np.int64(51), np.int64(50), np.int64(50)]
+  at t  217.695 s: cumulative interrupt excess from 1 s before to 2 s after +4.2; slice counts [np.int64(47), np.int64(138), np.int64(12), np.int64(50), np.int64(50), np.int64(50)]
+  at t  217.711 s: cumulative interrupt excess from 1 s before to 2 s after +4.2; slice counts [np.int64(47), np.int64(138), np.int64(12), np.int64(50), np.int64(50), np.int64(50)]
+  at t  217.741 s: cumulative interrupt excess from 1 s before to 2 s after +4.2; slice counts [np.int64(47), np.int64(138), np.int64(12), np.int64(50), np.int64(50), np.int64(50)]
+  at t  217.774 s: cumulative interrupt excess from 1 s before to 2 s after +4.2; slice counts [np.int64(47), np.int64(138), np.int64(12), np.int64(50), np.int64(50), np.int64(50)]
+  at t  224.205 s: cumulative interrupt excess from 1 s before to 2 s after -24.8; slice counts [np.int64(50), np.int64(81), np.int64(61), np.int64(50), np.int64(51), np.int64(49)]
+  at t  225.521 s: cumulative interrupt excess from 1 s before to 2 s after -25.6; slice counts [np.int64(50), np.int64(48), np.int64(30), np.int64(50), np.int64(50), np.int64(50)]
+  at t  225.818 s: cumulative interrupt excess from 1 s before to 2 s after -24.6; slice counts [np.int64(50), np.int64(101), np.int64(38), np.int64(50), np.int64(50), np.int64(50)]
+  at t  227.102 s: cumulative interrupt excess from 1 s before to 2 s after -11.0; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(48), np.int64(50), np.int64(50)]
+  at t  227.922 s: cumulative interrupt excess from 1 s before to 2 s after -10.0; slice counts [np.int64(50), np.int64(159), np.int64(10), np.int64(51), np.int64(50), np.int64(50)]
+  at t  228.034 s: cumulative interrupt excess from 1 s before to 2 s after -10.0; slice counts [np.int64(50), np.int64(159), np.int64(10), np.int64(51), np.int64(50), np.int64(50)]
+  at t  235.465 s: cumulative interrupt excess from 1 s before to 2 s after -1.7; slice counts [np.int64(50), np.int64(111), np.int64(11), np.int64(50), np.int64(50), np.int64(50)]
+  at t  235.492 s: cumulative interrupt excess from 1 s before to 2 s after -1.7; slice counts [np.int64(50), np.int64(111), np.int64(11), np.int64(50), np.int64(50), np.int64(50)]
+  at t  242.548 s: cumulative interrupt excess from 1 s before to 2 s after -4.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(112)]
+  at t  244.381 s: cumulative interrupt excess from 1 s before to 2 s after +0.4; slice counts [np.int64(50), np.int64(50), np.int64(112), np.int64(12), np.int64(50), np.int64(50)]
+  at t  244.441 s: cumulative interrupt excess from 1 s before to 2 s after +1.4; slice counts [np.int64(50), np.int64(112), np.int64(12), np.int64(50), np.int64(50), np.int64(50)]
+  at t  244.469 s: cumulative interrupt excess from 1 s before to 2 s after +1.4; slice counts [np.int64(50), np.int64(112), np.int64(12), np.int64(50), np.int64(50), np.int64(50)]
+  at t  247.520 s: cumulative interrupt excess from 1 s before to 2 s after -0.2; slice counts [np.int64(50), np.int64(50), np.int64(49), np.int64(50), np.int64(50), np.int64(50)]
+  at t  249.390 s: cumulative interrupt excess from 1 s before to 2 s after +5.5; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  250.833 s: cumulative interrupt excess from 1 s before to 2 s after +0.5; slice counts [np.int64(50), np.int64(56), np.int64(105), np.int64(50), np.int64(50), np.int64(50)]
+  at t  256.571 s: cumulative interrupt excess from 1 s before to 2 s after +4.6; slice counts [np.int64(50), np.int64(77), np.int64(89), np.int64(50), np.int64(50), np.int64(50)]
+  at t  256.587 s: cumulative interrupt excess from 1 s before to 2 s after +4.6; slice counts [np.int64(50), np.int64(77), np.int64(89), np.int64(50), np.int64(50), np.int64(50)]
+  at t  256.619 s: cumulative interrupt excess from 1 s before to 2 s after +4.6; slice counts [np.int64(50), np.int64(77), np.int64(89), np.int64(50), np.int64(50), np.int64(50)]
+  at t  256.649 s: cumulative interrupt excess from 1 s before to 2 s after +4.6; slice counts [np.int64(50), np.int64(77), np.int64(89), np.int64(50), np.int64(50), np.int64(50)]
+  at t  258.931 s: cumulative interrupt excess from 1 s before to 2 s after +4.7; slice counts [np.int64(51), np.int64(143), np.int64(11), np.int64(51), np.int64(50), np.int64(50)]
+  at t  259.153 s: cumulative interrupt excess from 1 s before to 2 s after +4.7; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  261.049 s: cumulative interrupt excess from 1 s before to 2 s after +1.9; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  262.117 s: cumulative interrupt excess from 1 s before to 2 s after +0.9; slice counts [np.int64(50), np.int64(55), np.int64(108), np.int64(51), np.int64(50), np.int64(50)]
+  at t  262.170 s: cumulative interrupt excess from 1 s before to 2 s after +0.9; slice counts [np.int64(50), np.int64(55), np.int64(108), np.int64(51), np.int64(50), np.int64(50)]
+  at t  262.188 s: cumulative interrupt excess from 1 s before to 2 s after +0.9; slice counts [np.int64(50), np.int64(55), np.int64(108), np.int64(51), np.int64(50), np.int64(50)]
+  at t  262.207 s: cumulative interrupt excess from 1 s before to 2 s after +0.9; slice counts [np.int64(50), np.int64(55), np.int64(108), np.int64(51), np.int64(50), np.int64(50)]
+  at t  262.226 s: cumulative interrupt excess from 1 s before to 2 s after +0.9; slice counts [np.int64(50), np.int64(55), np.int64(108), np.int64(51), np.int64(50), np.int64(50)]
+  at t  265.892 s: cumulative interrupt excess from 1 s before to 2 s after -30.0; slice counts [np.int64(50), np.int64(49), np.int64(51), np.int64(49), np.int64(51), np.int64(51)]
+  at t  267.018 s: cumulative interrupt excess from 1 s before to 2 s after -30.0; slice counts [np.int64(50), np.int64(50), np.int64(146), np.int64(9), np.int64(50), np.int64(50)]
+  at t  267.074 s: cumulative interrupt excess from 1 s before to 2 s after -31.0; slice counts [np.int64(50), np.int64(146), np.int64(9), np.int64(50), np.int64(50), np.int64(50)]
+  at t  267.096 s: cumulative interrupt excess from 1 s before to 2 s after -31.0; slice counts [np.int64(50), np.int64(146), np.int64(9), np.int64(50), np.int64(50), np.int64(50)]
+  at t  267.116 s: cumulative interrupt excess from 1 s before to 2 s after -31.0; slice counts [np.int64(50), np.int64(146), np.int64(9), np.int64(50), np.int64(50), np.int64(50)]
+  at t  267.153 s: cumulative interrupt excess from 1 s before to 2 s after -31.0; slice counts [np.int64(50), np.int64(146), np.int64(9), np.int64(50), np.int64(50), np.int64(50)]
+  at t  270.625 s: cumulative interrupt excess from 1 s before to 2 s after +1.1; slice counts [np.int64(50), np.int64(123), np.int64(12), np.int64(50), np.int64(50), np.int64(50)]
+  at t  270.688 s: cumulative interrupt excess from 1 s before to 2 s after +1.1; slice counts [np.int64(50), np.int64(123), np.int64(12), np.int64(50), np.int64(50), np.int64(50)]
+  at t  277.294 s: cumulative interrupt excess from 1 s before to 2 s after -60.1; slice counts [np.int64(50), np.int64(50), np.int64(104), np.int64(50), np.int64(50), np.int64(50)]
+  at t  277.319 s: cumulative interrupt excess from 1 s before to 2 s after -60.1; slice counts [np.int64(50), np.int64(50), np.int64(104), np.int64(50), np.int64(50), np.int64(50)]
+  at t  277.353 s: cumulative interrupt excess from 1 s before to 2 s after -60.1; slice counts [np.int64(50), np.int64(50), np.int64(104), np.int64(50), np.int64(50), np.int64(50)]
+  at t  278.174 s: cumulative interrupt excess from 1 s before to 2 s after -65.1; slice counts [np.int64(50), np.int64(58), np.int64(32), np.int64(50), np.int64(50), np.int64(50)]
+  at t  278.246 s: cumulative interrupt excess from 1 s before to 2 s after -65.1; slice counts [np.int64(50), np.int64(58), np.int64(32), np.int64(50), np.int64(50), np.int64(50)]
+  at t  301.980 s: cumulative interrupt excess from 1 s before to 2 s after -14.2; slice counts [np.int64(50), np.int64(50), np.int64(45), np.int64(50), np.int64(50), np.int64(50)]
+  at t  306.785 s: cumulative interrupt excess from 1 s before to 2 s after +1.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  315.169 s: cumulative interrupt excess from 1 s before to 2 s after +1.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  318.705 s: cumulative interrupt excess from 1 s before to 2 s after +1.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  319.176 s: cumulative interrupt excess from 1 s before to 2 s after +1.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  323.755 s: cumulative interrupt excess from 1 s before to 2 s after +2.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  324.597 s: cumulative interrupt excess from 1 s before to 2 s after +5.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  500.328 s: cumulative interrupt excess from 1 s before to 2 s after +1.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  503.981 s: cumulative interrupt excess from 1 s before to 2 s after -27.2; slice counts [np.int64(50), np.int64(50), np.int64(33), np.int64(50), np.int64(50), np.int64(50)]
+  at t  504.493 s: cumulative interrupt excess from 1 s before to 2 s after -27.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(39), np.int64(50)]
+  at t  504.587 s: cumulative interrupt excess from 1 s before to 2 s after -27.2; slice counts [np.int64(50), np.int64(50), np.int64(39), np.int64(50), np.int64(50), np.int64(50)]
+  at t  506.946 s: cumulative interrupt excess from 1 s before to 2 s after -19.2; slice counts [np.int64(50), np.int64(50), np.int64(45), np.int64(50), np.int64(50), np.int64(50)]
+  at t  507.639 s: cumulative interrupt excess from 1 s before to 2 s after -19.2; slice counts [np.int64(50), np.int64(50), np.int64(34), np.int64(50), np.int64(55), np.int64(45)]
+  at t  508.072 s: cumulative interrupt excess from 1 s before to 2 s after -1.3; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  508.425 s: cumulative interrupt excess from 1 s before to 2 s after -10.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  508.704 s: cumulative interrupt excess from 1 s before to 2 s after +5.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  509.721 s: cumulative interrupt excess from 1 s before to 2 s after -6.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  510.385 s: cumulative interrupt excess from 1 s before to 2 s after -6.2; slice counts [np.int64(51), np.int64(49), np.int64(41), np.int64(50), np.int64(50), np.int64(50)]
+  at t  510.858 s: cumulative interrupt excess from 1 s before to 2 s after -6.2; slice counts [np.int64(50), np.int64(42), np.int64(46), np.int64(50), np.int64(50), np.int64(50)]
+  at t  513.020 s: cumulative interrupt excess from 1 s before to 2 s after -13.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  517.822 s: cumulative interrupt excess from 1 s before to 2 s after +1.8; slice counts [np.int64(50), np.int64(50), np.int64(54), np.int64(46), np.int64(50), np.int64(50)]
+  at t  518.675 s: cumulative interrupt excess from 1 s before to 2 s after +1.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  520.652 s: cumulative interrupt excess from 1 s before to 2 s after -0.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  521.680 s: cumulative interrupt excess from 1 s before to 2 s after -0.2; slice counts [np.int64(43), np.int64(44), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  523.684 s: cumulative interrupt excess from 1 s before to 2 s after +1.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  525.882 s: cumulative interrupt excess from 1 s before to 2 s after -17.2; slice counts [np.int64(50), np.int64(50), np.int64(34), np.int64(50), np.int64(50), np.int64(50)]
+  at t  525.979 s: cumulative interrupt excess from 1 s before to 2 s after -17.2; slice counts [np.int64(34), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(51)]
+  at t  527.356 s: cumulative interrupt excess from 1 s before to 2 s after -14.2; slice counts [np.int64(48), np.int64(49), np.int64(50), np.int64(50), np.int64(51), np.int64(49)]
+  at t  527.677 s: cumulative interrupt excess from 1 s before to 2 s after -14.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  528.946 s: cumulative interrupt excess from 1 s before to 2 s after +7.8; slice counts [np.int64(50), np.int64(50), np.int64(45), np.int64(50), np.int64(50), np.int64(50)]
+  at t  528.978 s: cumulative interrupt excess from 1 s before to 2 s after +7.8; slice counts [np.int64(50), np.int64(45), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  529.109 s: cumulative interrupt excess from 1 s before to 2 s after +7.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(48)]
+  at t  530.278 s: cumulative interrupt excess from 1 s before to 2 s after -13.2; slice counts [np.int64(50), np.int64(50), np.int64(44), np.int64(63), np.int64(60), np.int64(50)]
+  at t  530.522 s: cumulative interrupt excess from 1 s before to 2 s after -7.2; slice counts [np.int64(50), np.int64(62), np.int64(42), np.int64(50), np.int64(50), np.int64(50)]
+  at t  530.979 s: cumulative interrupt excess from 1 s before to 2 s after -7.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  531.271 s: cumulative interrupt excess from 1 s before to 2 s after -1.3; slice counts [np.int64(50), np.int64(50), np.int64(34), np.int64(50), np.int64(50), np.int64(50)]
+  at t  533.306 s: cumulative interrupt excess from 1 s before to 2 s after +0.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  541.429 s: cumulative interrupt excess from 1 s before to 2 s after -0.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  541.932 s: cumulative interrupt excess from 1 s before to 2 s after +4.8; slice counts [np.int64(50), np.int64(50), np.int64(41), np.int64(50), np.int64(50), np.int64(50)]
+  at t  550.790 s: cumulative interrupt excess from 1 s before to 2 s after -1.2; slice counts [np.int64(50), np.int64(50), np.int64(43), np.int64(50), np.int64(50), np.int64(50)]
+  at t  555.502 s: cumulative interrupt excess from 1 s before to 2 s after -23.2; slice counts [np.int64(50), np.int64(50), np.int64(35), np.int64(50), np.int64(50), np.int64(50)]
+  at t  556.847 s: cumulative interrupt excess from 1 s before to 2 s after -8.2; slice counts [np.int64(50), np.int64(50), np.int64(44), np.int64(51), np.int64(49), np.int64(50)]
+  at t   45.580 s: cumulative interrupt excess from 1 s before to 2 s after +3.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  105.710 s: cumulative interrupt excess from 1 s before to 2 s after +5.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  156.711 s: cumulative interrupt excess from 1 s before to 2 s after -35.2; slice counts [np.int64(50), np.int64(50), np.int64(34), np.int64(29), np.int64(50), np.int64(51)]
+  at t  176.895 s: cumulative interrupt excess from 1 s before to 2 s after -20.2; slice counts [np.int64(49), np.int64(51), np.int64(49), np.int64(35), np.int64(45), np.int64(48)]
+  at t  180.752 s: cumulative interrupt excess from 1 s before to 2 s after -0.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  189.753 s: cumulative interrupt excess from 1 s before to 2 s after -56.2; slice counts [np.int64(47), np.int64(47), np.int64(33), np.int64(46), np.int64(48), np.int64(47)]
+  at t  197.393 s: cumulative interrupt excess from 1 s before to 2 s after -102.4; slice counts [np.int64(50), np.int64(50), np.int64(128), np.int64(51), np.int64(48), np.int64(50)]
+  at t  225.495 s: cumulative interrupt excess from 1 s before to 2 s after -25.6; slice counts [np.int64(50), np.int64(48), np.int64(30), np.int64(50), np.int64(50), np.int64(50)]
+  at t  227.952 s: cumulative interrupt excess from 1 s before to 2 s after -10.0; slice counts [np.int64(50), np.int64(159), np.int64(10), np.int64(51), np.int64(50), np.int64(50)]
+  at t  267.043 s: cumulative interrupt excess from 1 s before to 2 s after -31.0; slice counts [np.int64(50), np.int64(146), np.int64(9), np.int64(50), np.int64(50), np.int64(50)]
+  at t  278.174 s: cumulative interrupt excess from 1 s before to 2 s after -65.1; slice counts [np.int64(50), np.int64(58), np.int64(32), np.int64(50), np.int64(50), np.int64(50)]
+  at t  286.979 s: cumulative interrupt excess from 1 s before to 2 s after +0.8; slice counts [np.int64(48), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  346.959 s: cumulative interrupt excess from 1 s before to 2 s after +6.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  406.820 s: cumulative interrupt excess from 1 s before to 2 s after +3.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  466.591 s: cumulative interrupt excess from 1 s before to 2 s after +1.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  503.952 s: cumulative interrupt excess from 1 s before to 2 s after -27.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(33), np.int64(50), np.int64(50)]
+  at t  504.587 s: cumulative interrupt excess from 1 s before to 2 s after -27.2; slice counts [np.int64(50), np.int64(50), np.int64(39), np.int64(50), np.int64(50), np.int64(50)]
+  at t  507.611 s: cumulative interrupt excess from 1 s before to 2 s after -19.2; slice counts [np.int64(50), np.int64(50), np.int64(34), np.int64(50), np.int64(55), np.int64(45)]
+  at t  510.385 s: cumulative interrupt excess from 1 s before to 2 s after -6.2; slice counts [np.int64(51), np.int64(49), np.int64(41), np.int64(50), np.int64(50), np.int64(50)]
+  at t  511.440 s: cumulative interrupt excess from 1 s before to 2 s after -10.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+  at t  514.751 s: cumulative interrupt excess from 1 s before to 2 s after -13.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(35), np.int64(50), np.int64(50)]
+  at t  525.855 s: cumulative interrupt excess from 1 s before to 2 s after -17.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(34), np.int64(50), np.int64(50)]
+  at t  529.290 s: cumulative interrupt excess from 1 s before to 2 s after -8.2; slice counts [np.int64(50), np.int64(50), np.int64(48), np.int64(44), np.int64(50), np.int64(50)]
+  at t  530.522 s: cumulative interrupt excess from 1 s before to 2 s after -7.2; slice counts [np.int64(50), np.int64(62), np.int64(42), np.int64(50), np.int64(50), np.int64(50)]
+  at t  531.244 s: cumulative interrupt excess from 1 s before to 2 s after -7.2; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(34), np.int64(50), np.int64(50)]
+  at t  531.869 s: cumulative interrupt excess from 1 s before to 2 s after -26.2; slice counts [np.int64(50), np.int64(50), np.int64(42), np.int64(50), np.int64(49), np.int64(50)]
+  at t  541.160 s: cumulative interrupt excess from 1 s before to 2 s after -20.2; slice counts [np.int64(50), np.int64(50), np.int64(37), np.int64(50), np.int64(50), np.int64(50)]
+  at t  541.932 s: cumulative interrupt excess from 1 s before to 2 s after +4.8; slice counts [np.int64(50), np.int64(50), np.int64(41), np.int64(50), np.int64(50), np.int64(50)]
+  at t  555.475 s: cumulative interrupt excess from 1 s before to 2 s after -23.2; slice counts [np.int64(50), np.int64(50), np.int64(35), np.int64(50), np.int64(50), np.int64(50)]
+  at t  556.279 s: cumulative interrupt excess from 1 s before to 2 s after -23.2; slice counts [np.int64(50), np.int64(52), np.int64(44), np.int64(50), np.int64(50), np.int64(50)]
+  at t  616.019 s: cumulative interrupt excess from 1 s before to 2 s after +3.8; slice counts [np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50), np.int64(50)]
+== pressure and vmstat counters around stalls and steps (from 1 s before to 1 s after)
+  t  156.747 s: psi us {'cpu_some': 1891, 'memory_some': 1126, 'memory_full': 1127, 'io_some': 16125, 'io_full': 16115}; vmstat {'pswpin': 4, 'allocstall_movable': 1, 'pgmajfault': 9, 'compact_stall': 1, 'compact_fail': 1, 'thp_fault_alloc': 2}
+  t  156.765 s: psi us {'cpu_some': 1891, 'memory_some': 1126, 'memory_full': 1127, 'io_some': 16125, 'io_full': 16115}; vmstat {'pswpin': 4, 'allocstall_movable': 1, 'pgmajfault': 9, 'compact_stall': 1, 'compact_fail': 1, 'thp_fault_alloc': 2}
+  t  170.433 s: psi us {'cpu_some': 1700, 'io_some': 30960, 'io_full': 30939}; vmstat {}
+  t  176.921 s: psi us {'cpu_some': 1128, 'io_some': 10229, 'io_full': 10222}; vmstat {'thp_fault_alloc': 24}
+  t  176.952 s: psi us {'cpu_some': 1126, 'io_some': 9874, 'io_full': 9866}; vmstat {'thp_fault_alloc': 24}
+  t  176.999 s: psi us {'cpu_some': 1126, 'io_some': 9882, 'io_full': 9876}; vmstat {'thp_fault_alloc': 24}
+  t  183.589 s: psi us {'cpu_some': 1002, 'io_some': 26990, 'io_full': 26885}; vmstat {'thp_fault_alloc': 8}
+  t  186.478 s: psi us {'cpu_some': 1571, 'memory_some': 6206, 'memory_full': 6206, 'io_some': 12758, 'io_full': 12755}; vmstat {'pgmajfault': 1, 'thp_fault_alloc': 19}
+  t  186.499 s: psi us {'cpu_some': 1570, 'memory_some': 6206, 'memory_full': 6206, 'io_some': 12619, 'io_full': 12615}; vmstat {'pgmajfault': 1, 'thp_fault_alloc': 19}
+  t  188.170 s: psi us {'cpu_some': 942, 'memory_some': 1150, 'memory_full': 1150, 'io_some': 92697, 'io_full': 92452}; vmstat {'allocstall_movable': 2, 'thp_fault_alloc': 27}
+  t  188.200 s: psi us {'cpu_some': 942, 'memory_some': 1150, 'memory_full': 1150, 'io_some': 92697, 'io_full': 92452}; vmstat {'allocstall_movable': 2, 'thp_fault_alloc': 27}
+  t  189.781 s: psi us {'cpu_some': 410, 'io_some': 29013, 'io_full': 28987}; vmstat {'thp_fault_alloc': 6}
+  t  194.530 s: psi us {'cpu_some': 656, 'io_some': 9556, 'io_full': 9552}; vmstat {'thp_fault_alloc': 37}
+  t  194.546 s: psi us {'cpu_some': 656, 'io_some': 9556, 'io_full': 9552}; vmstat {'thp_fault_alloc': 37}
+  t  196.410 s: psi us {'cpu_some': 4355, 'memory_some': 803, 'memory_full': 803, 'io_some': 6246, 'io_full': 6241}; vmstat {'thp_fault_alloc': 52}
+  t  196.425 s: psi us {'cpu_some': 4355, 'memory_some': 803, 'memory_full': 803, 'io_some': 6246, 'io_full': 6241}; vmstat {'thp_fault_alloc': 52}
+  t  197.393 s: psi us {'cpu_some': 5209, 'memory_some': 803, 'memory_full': 803, 'io_some': 7045, 'io_full': 7041}; vmstat {'thp_fault_alloc': 9}
+  t  197.422 s: psi us {'cpu_some': 5209, 'memory_some': 803, 'memory_full': 803, 'io_some': 7045, 'io_full': 7041}; vmstat {'thp_fault_alloc': 9}
+  t  197.439 s: psi us {'cpu_some': 5227, 'memory_some': 803, 'memory_full': 803, 'io_some': 7125, 'io_full': 7120}; vmstat {'thp_fault_alloc': 9}
+  t  197.482 s: psi us {'cpu_some': 5227, 'memory_some': 803, 'memory_full': 803, 'io_some': 7125, 'io_full': 7120}; vmstat {'thp_fault_alloc': 9}
+  t  197.536 s: psi us {'cpu_some': 5227, 'memory_some': 803, 'memory_full': 803, 'io_some': 7125, 'io_full': 7120}; vmstat {'thp_fault_alloc': 9}
+  t  197.567 s: psi us {'cpu_some': 5227, 'memory_some': 803, 'memory_full': 803, 'io_some': 7125, 'io_full': 7120}; vmstat {'thp_fault_alloc': 9}
+  t  197.597 s: psi us {'cpu_some': 5227, 'memory_some': 803, 'memory_full': 803, 'io_some': 7125, 'io_full': 7120}; vmstat {'thp_fault_alloc': 9}
+  t  197.631 s: psi us {'cpu_some': 5227, 'memory_some': 803, 'memory_full': 803, 'io_some': 7125, 'io_full': 7120}; vmstat {'thp_fault_alloc': 9}
+  t  197.649 s: psi us {'cpu_some': 5227, 'memory_some': 803, 'memory_full': 803, 'io_some': 7125, 'io_full': 7120}; vmstat {'thp_fault_alloc': 9}
+  t  197.665 s: psi us {'cpu_some': 5227, 'memory_some': 803, 'memory_full': 803, 'io_some': 7125, 'io_full': 7120}; vmstat {'thp_fault_alloc': 9}
+  t  198.410 s: psi us {'cpu_some': 5114, 'io_some': 8889, 'io_full': 7959}; vmstat {'thp_fault_alloc': 5}
+  t  199.675 s: psi us {'cpu_some': 962, 'io_some': 10257, 'io_full': 8995}; vmstat {'thp_fault_alloc': 10}
+  t  205.527 s: psi us {'cpu_some': 823, 'io_some': 11308, 'io_full': 11306}; vmstat {'pgmajfault': 1, 'thp_fault_alloc': 5}
+  t  205.542 s: psi us {'cpu_some': 823, 'io_some': 11308, 'io_full': 11306}; vmstat {'pgmajfault': 1, 'thp_fault_alloc': 5}
+  t  211.650 s: psi us {'cpu_some': 3705, 'io_some': 11641, 'io_full': 11621}; vmstat {'thp_fault_alloc': 12}
+  t  211.739 s: psi us {'cpu_some': 3705, 'io_some': 11641, 'io_full': 11621}; vmstat {'thp_fault_alloc': 12}
+  t  212.645 s: psi us {'cpu_some': 3566, 'io_some': 8787, 'io_full': 8786}; vmstat {'thp_fault_alloc': 17}
+  t  212.675 s: psi us {'cpu_some': 3566, 'io_some': 8787, 'io_full': 8786}; vmstat {'thp_fault_alloc': 17}
+  t  216.553 s: psi us {'cpu_some': 702, 'io_some': 12753, 'io_full': 12748}; vmstat {'thp_fault_alloc': 12}
+  t  216.978 s: psi us {'cpu_some': 731, 'io_some': 26076, 'io_full': 26071}; vmstat {'thp_fault_alloc': 12}
+  t  217.027 s: psi us {'cpu_some': 731, 'io_some': 26076, 'io_full': 26071}; vmstat {'thp_fault_alloc': 12}
+  t  217.695 s: psi us {'cpu_some': 802, 'io_some': 25846, 'io_full': 25842}; vmstat {'thp_fault_alloc': 29}
+  t  217.711 s: psi us {'cpu_some': 802, 'io_some': 25846, 'io_full': 25842}; vmstat {'thp_fault_alloc': 29}
+  t  217.741 s: psi us {'cpu_some': 802, 'io_some': 25846, 'io_full': 25842}; vmstat {'thp_fault_alloc': 29}
+  t  217.774 s: psi us {'cpu_some': 802, 'io_some': 25846, 'io_full': 25842}; vmstat {'thp_fault_alloc': 29}
+  t  224.205 s: psi us {'cpu_some': 730, 'io_some': 10056, 'io_full': 10055}; vmstat {'thp_fault_alloc': 25}
+  t  225.521 s: psi us {'cpu_some': 542, 'io_some': 10704, 'io_full': 10704}; vmstat {'thp_fault_alloc': 66}
+  t  225.818 s: psi us {'cpu_some': 579, 'io_some': 12400, 'io_full': 12396}; vmstat {'pgmajfault': 1, 'thp_fault_alloc': 69}
+  t  227.102 s: psi us {'cpu_some': 801, 'io_some': 12305, 'io_full': 12301}; vmstat {'pgmajfault': 1, 'thp_fault_alloc': 62}
+  t  227.922 s: psi us {'cpu_some': 518, 'memory_some': 611, 'memory_full': 611, 'io_some': 9484, 'io_full': 9483}; vmstat {'thp_fault_alloc': 27}
+  t  228.034 s: psi us {'cpu_some': 518, 'memory_some': 611, 'memory_full': 611, 'io_some': 9484, 'io_full': 9483}; vmstat {'thp_fault_alloc': 27}
+  t  235.465 s: psi us {'cpu_some': 987, 'io_some': 12306, 'io_full': 12304}; vmstat {'thp_fault_alloc': 175}
+  t  235.492 s: psi us {'cpu_some': 987, 'io_some': 12306, 'io_full': 12304}; vmstat {'thp_fault_alloc': 175}
+  t  242.548 s: psi us {'cpu_some': 1160, 'io_some': 12184, 'io_full': 12169}; vmstat {'thp_fault_alloc': 18}
+  t  244.381 s: psi us {'cpu_some': 1921, 'io_some': 12101, 'io_full': 12068}; vmstat {'thp_fault_alloc': 3}
+  t  244.441 s: psi us {'cpu_some': 1855, 'io_some': 12148, 'io_full': 12116}; vmstat {'thp_fault_alloc': 3}
+  t  244.469 s: psi us {'cpu_some': 1855, 'io_some': 12148, 'io_full': 12116}; vmstat {'thp_fault_alloc': 3}
+  t  247.520 s: psi us {'cpu_some': 322, 'io_some': 9538, 'io_full': 9536}; vmstat {'thp_fault_alloc': 2}
+  t  249.390 s: psi us {'cpu_some': 327, 'memory_some': 1997, 'memory_full': 1997, 'io_some': 12364, 'io_full': 12355}; vmstat {'allocstall_movable': 1, 'thp_fault_alloc': 3}
+  t  250.833 s: psi us {'cpu_some': 1928, 'io_some': 11183, 'io_full': 11182}; vmstat {'thp_fault_alloc': 27}
+  t  256.571 s: psi us {'cpu_some': 637, 'io_some': 12056, 'io_full': 12053}; vmstat {}
+  t  256.587 s: psi us {'cpu_some': 637, 'io_some': 12056, 'io_full': 12053}; vmstat {}
+  t  256.619 s: psi us {'cpu_some': 637, 'io_some': 12056, 'io_full': 12053}; vmstat {}
+  t  256.649 s: psi us {'cpu_some': 637, 'io_some': 12056, 'io_full': 12053}; vmstat {}
+  t  258.931 s: psi us {'cpu_some': 868, 'memory_some': 727, 'memory_full': 727, 'io_some': 11445, 'io_full': 11443}; vmstat {'allocstall_movable': 2, 'thp_fault_alloc': 25}
+  t  259.153 s: psi us {'cpu_some': 873, 'memory_some': 727, 'memory_full': 727, 'io_some': 11053, 'io_full': 11048}; vmstat {'allocstall_movable': 2, 'thp_fault_alloc': 30}
+  t  261.049 s: psi us {'cpu_some': 251, 'io_some': 8682, 'io_full': 8680}; vmstat {'thp_fault_alloc': 7}
+  t  262.117 s: psi us {'cpu_some': 2132, 'io_some': 11283, 'io_full': 11267}; vmstat {'thp_fault_alloc': 3}
+  t  262.170 s: psi us {'cpu_some': 2132, 'io_some': 11283, 'io_full': 11267}; vmstat {'thp_fault_alloc': 3}
+  t  262.188 s: psi us {'cpu_some': 2132, 'io_some': 11283, 'io_full': 11267}; vmstat {'thp_fault_alloc': 3}
+  t  262.207 s: psi us {'cpu_some': 2132, 'io_some': 11283, 'io_full': 11267}; vmstat {'thp_fault_alloc': 3}
+  t  262.226 s: psi us {'cpu_some': 2132, 'io_some': 11283, 'io_full': 11267}; vmstat {'thp_fault_alloc': 3}
+  t  265.892 s: psi us {'cpu_some': 1785, 'io_some': 8532, 'io_full': 8523}; vmstat {'thp_fault_alloc': 22}
+  t  267.018 s: psi us {'cpu_some': 313, 'io_some': 9677, 'io_full': 9672}; vmstat {'thp_fault_alloc': 9}
+  t  267.074 s: psi us {'cpu_some': 322, 'io_some': 9925, 'io_full': 9920}; vmstat {'thp_fault_alloc': 4}
+  t  267.096 s: psi us {'cpu_some': 322, 'io_some': 9925, 'io_full': 9920}; vmstat {'thp_fault_alloc': 4}
+  t  267.116 s: psi us {'cpu_some': 322, 'io_some': 9925, 'io_full': 9920}; vmstat {'thp_fault_alloc': 4}
+  t  267.153 s: psi us {'cpu_some': 322, 'io_some': 9925, 'io_full': 9920}; vmstat {'thp_fault_alloc': 4}
+  t  270.625 s: psi us {'cpu_some': 381, 'io_some': 10437, 'io_full': 10426}; vmstat {'thp_fault_alloc': 19}
+  t  270.688 s: psi us {'cpu_some': 381, 'io_some': 10437, 'io_full': 10426}; vmstat {'thp_fault_alloc': 19}
+  t  277.294 s: psi us {'cpu_some': 5582, 'memory_some': 1, 'io_some': 10123, 'io_full': 10121}; vmstat {'thp_fault_alloc': 16}
+  t  277.319 s: psi us {'cpu_some': 5582, 'memory_some': 1, 'io_some': 10123, 'io_full': 10121}; vmstat {'thp_fault_alloc': 16}
+  t  277.353 s: psi us {'cpu_some': 5582, 'memory_some': 1, 'io_some': 10123, 'io_full': 10121}; vmstat {'thp_fault_alloc': 16}
+  t  278.174 s: psi us {'cpu_some': 5794, 'memory_some': 1, 'io_some': 8443, 'io_full': 8441}; vmstat {'thp_fault_alloc': 18}
+  t  278.246 s: psi us {'cpu_some': 5794, 'memory_some': 1, 'io_some': 8443, 'io_full': 8441}; vmstat {'thp_fault_alloc': 18}
+  t  301.980 s: psi us {'cpu_some': 544, 'io_some': 11315, 'io_full': 11313}; vmstat {}
+  t  306.785 s: psi us {'cpu_some': 587, 'io_some': 12619, 'io_full': 12599}; vmstat {'thp_fault_alloc': 47}
+  t  315.169 s: psi us {'cpu_some': 754, 'io_some': 10994, 'io_full': 10993}; vmstat {'thp_fault_alloc': 44}
+  t  318.705 s: psi us {'cpu_some': 320, 'io_some': 11310, 'io_full': 11308}; vmstat {'thp_fault_alloc': 8}
+  t  319.176 s: psi us {'cpu_some': 287, 'io_some': 11454, 'io_full': 11453}; vmstat {'thp_fault_alloc': 13}
+  t  323.755 s: psi us {'cpu_some': 722, 'io_some': 12090, 'io_full': 12082}; vmstat {'thp_fault_alloc': 104}
+  t  324.597 s: psi us {'cpu_some': 421, 'io_some': 11166, 'io_full': 11157}; vmstat {'thp_fault_alloc': 24}
+  t  500.328 s: psi us {'cpu_some': 1281, 'memory_some': 463, 'memory_full': 463, 'io_some': 21477, 'io_full': 21451}; vmstat {'allocstall_movable': 3, 'thp_fault_alloc': 34}
+  t  503.981 s: psi us {'cpu_some': 837, 'io_some': 8320, 'io_full': 8318}; vmstat {}
+  t  504.493 s: psi us {'cpu_some': 1116, 'io_some': 8427, 'io_full': 8425}; vmstat {'thp_fault_alloc': 19}
+  t  504.587 s: psi us {'cpu_some': 1096, 'io_some': 8597, 'io_full': 8595}; vmstat {'thp_fault_alloc': 19}
+  t  506.946 s: psi us {'cpu_some': 603, 'io_some': 10194, 'io_full': 10194}; vmstat {'thp_fault_alloc': 13}
+  t  507.639 s: psi us {'cpu_some': 1049, 'io_some': 10134, 'io_full': 10133}; vmstat {'thp_fault_alloc': 7}
+  t  508.072 s: psi us {'cpu_some': 1036, 'io_some': 10145, 'io_full': 10144}; vmstat {'thp_fault_alloc': 8}
+  t  508.425 s: psi us {'cpu_some': 1139, 'io_some': 12237, 'io_full': 12189}; vmstat {'thp_fault_alloc': 61}
+  t  508.704 s: psi us {'cpu_some': 1212, 'io_some': 14564, 'io_full': 14517}; vmstat {'thp_fault_alloc': 92}
+  t  509.721 s: psi us {'cpu_some': 759, 'io_some': 14784, 'io_full': 14737}; vmstat {'thp_fault_alloc': 233}
+  t  510.385 s: psi us {'cpu_some': 670, 'io_some': 13835, 'io_full': 13829}; vmstat {'thp_fault_alloc': 180}
+  t  510.858 s: psi us {'cpu_some': 500, 'io_some': 11271, 'io_full': 11265}; vmstat {'thp_fault_alloc': 108}
+  t  513.020 s: psi us {'cpu_some': 956, 'io_some': 21757, 'io_full': 21750}; vmstat {'thp_fault_alloc': 54}
+  t  517.822 s: psi us {'cpu_some': 1878, 'io_some': 19786, 'io_full': 19778}; vmstat {'thp_fault_alloc': 16}
+  t  518.675 s: psi us {'cpu_some': 1846, 'io_some': 17166, 'io_full': 17159}; vmstat {}
+  t  520.652 s: psi us {'cpu_some': 510, 'io_some': 25218, 'io_full': 25213}; vmstat {}
+  t  521.680 s: psi us {'cpu_some': 482, 'io_some': 10615, 'io_full': 10613}; vmstat {}
+  t  523.684 s: psi us {'cpu_some': 507, 'io_some': 10390, 'io_full': 10388}; vmstat {'thp_fault_alloc': 2}
+  t  525.882 s: psi us {'cpu_some': 283, 'io_some': 12097, 'io_full': 12098}; vmstat {'thp_fault_alloc': 7}
+  t  525.979 s: psi us {'cpu_some': 285, 'io_some': 12144, 'io_full': 12144}; vmstat {'thp_fault_alloc': 8}
+  t  527.356 s: psi us {'cpu_some': 261, 'io_some': 10823, 'io_full': 10821}; vmstat {'thp_fault_alloc': 16}
+  t  527.677 s: psi us {'cpu_some': 262, 'io_some': 10559, 'io_full': 10557}; vmstat {'thp_fault_alloc': 14}
+  t  528.946 s: psi us {'cpu_some': 960, 'io_some': 10809, 'io_full': 10807}; vmstat {'thp_fault_alloc': 3}
+  t  528.978 s: psi us {'cpu_some': 960, 'io_some': 11038, 'io_full': 11036}; vmstat {'thp_fault_alloc': 2}
+  t  529.109 s: psi us {'cpu_some': 960, 'io_some': 11048, 'io_full': 11045}; vmstat {'thp_fault_alloc': 2}
+  t  530.278 s: psi us {'cpu_some': 410, 'io_some': 18940, 'io_full': 17588}; vmstat {'thp_fault_alloc': 3}
+  t  530.522 s: psi us {'cpu_some': 399, 'io_some': 18303, 'io_full': 16951}; vmstat {'pswpin': 1, 'pgmajfault': 1, 'thp_fault_alloc': 3}
+  t  530.979 s: psi us {'cpu_some': 2295, 'io_some': 17667, 'io_full': 16315}; vmstat {'pswpin': 1, 'pgmajfault': 1, 'thp_fault_alloc': 3}
+  t  531.271 s: psi us {'cpu_some': 2514, 'io_some': 18297, 'io_full': 16945}; vmstat {'pswpin': 1, 'pgmajfault': 1, 'thp_fault_alloc': 3}
+  t  533.306 s: psi us {'cpu_some': 646, 'io_some': 15661, 'io_full': 15654}; vmstat {'thp_fault_alloc': 2}
+  t  541.429 s: psi us {'cpu_some': 1835, 'io_some': 11616, 'io_full': 11608}; vmstat {'thp_fault_alloc': 41}
+  t  541.932 s: psi us {'cpu_some': 1938, 'io_some': 11902, 'io_full': 11894}; vmstat {'thp_fault_alloc': 60}
+  t  550.790 s: psi us {'cpu_some': 595, 'io_some': 142, 'io_full': 142}; vmstat {}
+  t  555.502 s: psi us {'cpu_some': 602, 'io_some': 533, 'io_full': 528}; vmstat {'thp_fault_alloc': 2}
+  t  556.847 s: psi us {'cpu_some': 671}; vmstat {'thp_fault_alloc': 57}
+  t   45.580 s: psi us {'cpu_some': 813, 'io_some': 18026, 'io_full': 18026}; vmstat {}
+  t  105.710 s: psi us {'cpu_some': 438, 'io_some': 9936, 'io_full': 9936}; vmstat {'thp_fault_alloc': 71}
+  t  156.711 s: psi us {'cpu_some': 1865, 'memory_some': 1126, 'memory_full': 1127, 'io_some': 15423, 'io_full': 15413}; vmstat {'pswpin': 4, 'allocstall_movable': 1, 'pgmajfault': 9, 'compact_stall': 1, 'compact_fail': 1, 'thp_fault_alloc': 2}
+  t  176.895 s: psi us {'cpu_some': 1128, 'io_some': 10239, 'io_full': 10231}; vmstat {'thp_fault_alloc': 24}
+  t  180.752 s: psi us {'cpu_some': 697, 'io_some': 286014, 'io_full': 278064}; vmstat {}
+  t  189.753 s: psi us {'cpu_some': 410, 'io_some': 29013, 'io_full': 28987}; vmstat {'thp_fault_alloc': 6}
+  t  197.393 s: psi us {'cpu_some': 5209, 'memory_some': 803, 'memory_full': 803, 'io_some': 7045, 'io_full': 7041}; vmstat {'thp_fault_alloc': 9}
+  t  225.495 s: psi us {'cpu_some': 542, 'io_some': 10704, 'io_full': 10704}; vmstat {'thp_fault_alloc': 66}
+  t  227.952 s: psi us {'cpu_some': 518, 'memory_some': 611, 'memory_full': 611, 'io_some': 9484, 'io_full': 9483}; vmstat {'thp_fault_alloc': 27}
+  t  267.043 s: psi us {'cpu_some': 322, 'io_some': 9925, 'io_full': 9920}; vmstat {'thp_fault_alloc': 4}
+  t  278.174 s: psi us {'cpu_some': 5794, 'memory_some': 1, 'io_some': 8443, 'io_full': 8441}; vmstat {'thp_fault_alloc': 18}
+  t  286.979 s: psi us {'cpu_some': 964, 'io_some': 28837, 'io_full': 28827}; vmstat {'thp_fault_alloc': 15}
+  t  346.959 s: psi us {'cpu_some': 843, 'io_some': 10235, 'io_full': 10234}; vmstat {'thp_fault_alloc': 21}
+  t  406.820 s: psi us {'cpu_some': 1431, 'io_some': 11800, 'io_full': 11796}; vmstat {'thp_fault_alloc': 44}
+  t  466.591 s: psi us {'cpu_some': 711, 'memory_some': 1402, 'memory_full': 1402, 'io_some': 19534, 'io_full': 19534}; vmstat {'pgmajfault': 7, 'thp_fault_alloc': 3}
+  t  503.952 s: psi us {'cpu_some': 838, 'io_some': 8351, 'io_full': 8350}; vmstat {}
+  t  504.587 s: psi us {'cpu_some': 1096, 'io_some': 8597, 'io_full': 8595}; vmstat {'thp_fault_alloc': 19}
+  t  507.611 s: psi us {'cpu_some': 1049, 'io_some': 10134, 'io_full': 10133}; vmstat {'thp_fault_alloc': 7}
+  t  510.385 s: psi us {'cpu_some': 670, 'io_some': 13835, 'io_full': 13829}; vmstat {'thp_fault_alloc': 180}
+  t  511.440 s: psi us {'cpu_some': 557, 'io_some': 11799, 'io_full': 11792}; vmstat {'thp_fault_alloc': 72}
+  t  514.751 s: psi us {'cpu_some': 324, 'io_some': 15046, 'io_full': 15043}; vmstat {'thp_fault_alloc': 14}
+  t  525.855 s: psi us {'cpu_some': 282, 'io_some': 12169, 'io_full': 12169}; vmstat {'thp_fault_alloc': 7}
+  t  529.290 s: psi us {'cpu_some': 960, 'io_some': 11052, 'io_full': 11052}; vmstat {'thp_fault_alloc': 2}
+  t  530.522 s: psi us {'cpu_some': 399, 'io_some': 18303, 'io_full': 16951}; vmstat {'pswpin': 1, 'pgmajfault': 1, 'thp_fault_alloc': 3}
+  t  531.244 s: psi us {'cpu_some': 2521, 'io_some': 18196, 'io_full': 16844}; vmstat {'pswpin': 1, 'pgmajfault': 1, 'thp_fault_alloc': 3}
+  t  531.869 s: psi us {'cpu_some': 2529, 'io_some': 20916, 'io_full': 19559}; vmstat {'pswpin': 1, 'pgmajfault': 1}
+  t  541.160 s: psi us {'cpu_some': 1848, 'io_some': 11510, 'io_full': 11502}; vmstat {'thp_fault_alloc': 41}
+  t  541.932 s: psi us {'cpu_some': 1938, 'io_some': 11902, 'io_full': 11894}; vmstat {'thp_fault_alloc': 60}
+  t  555.475 s: psi us {'cpu_some': 602, 'io_some': 533, 'io_full': 528}; vmstat {'thp_fault_alloc': 2}
+  t  556.279 s: psi us {'cpu_some': 669, 'io_some': 8, 'io_full': 8}; vmstat {'thp_fault_alloc': 58}
+  t  616.019 s: psi us {'cpu_some': 346}; vmstat {'thp_fault_alloc': 1}
+== event classes against clear times (2 s spans; USB interrupt shortfall in interrupts, pressure in ms per s)
+floor steps over 1 ms (losses): 18; USB shortfall median +21.3, max +103.0; io_full median 5.39, p90 8.44; memory_full median 0.00, p90 0.11; cpu_some median 0.45, p90 1.58
+1 ms floor steps: 13; USB shortfall median -0.2, max +26.8; io_full median 5.90, p90 13.49; memory_full median 0.00, p90 0.24; cpu_some median 0.36, p90 0.92
+stalls with no floor step: 82; USB shortfall median -0.8, max +102.9; io_full median 5.62, p90 12.25; memory_full median 0.00, p90 0.34; cpu_some median 0.42, p90 1.71
+clear control times: 300; USB shortfall median -1.2, max +7.8; io_full median 5.51, p90 7.39; memory_full median 0.00, p90 0.00; cpu_some median 0.28, p90 0.59
+  loss at t  156.711 s: step +672.1 frames, USB shortfall +34.8, io_full 7.7, memory_full 0.6, cpu_some 0.9 ms/s
+  loss at t  176.895 s: step +336.0 frames, USB shortfall +21.8, io_full 5.1, memory_full 0.0, cpu_some 0.6 ms/s
+  loss at t  189.753 s: step +192.6 frames, USB shortfall +60.8, io_full 14.5, memory_full 0.0, cpu_some 0.2 ms/s
+  loss at t  197.393 s: step +4223.4 frames, USB shortfall +103.0, io_full 3.1, memory_full 0.4, cpu_some 2.3 ms/s
+  loss at t  225.495 s: step +287.8 frames, USB shortfall +23.2, io_full 5.3, memory_full 0.0, cpu_some 0.3 ms/s
+  loss at t  267.043 s: step +1103.7 frames, USB shortfall +32.6, io_full 4.7, memory_full 0.0, cpu_some 0.2 ms/s
+  loss at t  278.174 s: step +2064.7 frames, USB shortfall +60.7, io_full 4.0, memory_full 0.0, cpu_some 2.8 ms/s
+  loss at t  503.952 s: step +288.0 frames, USB shortfall +27.8, io_full 4.2, memory_full 0.0, cpu_some 0.4 ms/s
+  loss at t  504.587 s: step +145.0 frames, USB shortfall +27.8, io_full 4.3, memory_full 0.0, cpu_some 0.5 ms/s
+  loss at t  507.611 s: step +239.9 frames, USB shortfall +19.8, io_full 5.1, memory_full 0.0, cpu_some 0.5 ms/s
+  loss at t  510.385 s: step +144.0 frames, USB shortfall +6.8, io_full 6.9, memory_full 0.0, cpu_some 0.3 ms/s
+  loss at t  514.751 s: step +191.8 frames, USB shortfall +13.8, io_full 7.5, memory_full 0.0, cpu_some 0.2 ms/s
+  loss at t  525.855 s: step +239.7 frames, USB shortfall +14.8, io_full 6.1, memory_full 0.0, cpu_some 0.1 ms/s
+  loss at t  529.290 s: step +96.1 frames, USB shortfall +17.8, io_full 5.5, memory_full 0.0, cpu_some 0.5 ms/s
+  loss at t  530.522 s: step +96.3 frames, USB shortfall -5.2, io_full 8.5, memory_full 0.0, cpu_some 0.2 ms/s
+  loss at t  531.244 s: step +240.1 frames, USB shortfall +7.8, io_full 8.4, memory_full 0.0, cpu_some 1.3 ms/s
+  loss at t  541.160 s: step +192.0 frames, USB shortfall +20.8, io_full 5.8, memory_full 0.0, cpu_some 0.9 ms/s
+  loss at t  555.475 s: step +192.1 frames, USB shortfall +17.8, io_full 0.3, memory_full 0.0, cpu_some 0.3 ms/s

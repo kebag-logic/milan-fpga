@@ -1,0 +1,17 @@
+
+### 2026-10-17T09:49:22+0200 timeout=40.0
+
+# printf '%s_READY\n' A625_786631
+A625_786631_READY
+# printf '%s_B\n' A625_786631; cat /proc/uptime; for s in /proc/asound/card0/pcm00*/sub0/status; do echo $s: $(head -2 $s | tr '\n' ' '); done; ps -o pid,comm | ggrep -cE 'pipewire|soloist|link-sol'; cd /root/soloist-test/logs && for f in pipeewire.log soloist.log linker.log; do echo $f lines=$(wc -l < $f) err=$(grep -ciE  'error|fail' $f) tls=$(grep -ciE 'certif|ssl|tls' $f); done; grep -iE 'link|tdm||sink' linker.log | tail -3 | cut -c1-100; printf '\n%s_E rc=%s\n' A625_786631 $??
+A625_786631_B
+934553.16 3296326.84
+/proc/asound/card0/pcm0c/sub0/status: state: RUNNING owner_pid : 4975
+/proc/asound/card0/pcm0p/sub0/status: closed
+4
+pipewire.log lines=0 err=0 tls=0
+soloist.log lines=43 err=5 tls=0
+linker.log lines=0 err=0 tls=0
+
+A625_786631_E rc=0
+# 

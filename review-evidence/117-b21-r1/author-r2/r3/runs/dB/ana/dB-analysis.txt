@@ -1,0 +1,104 @@
+== dB: inputs
+read-time record dB.ts: 1523760 B sha256 cf18ba7e52710ed7f835812f65a0c9336ad725fd2d9af4fc84dff3f8061d2c72; 63490 reads, 30480000 frames
+frames per read: {480: 63484, 960: 4, 1920: 2}
+window: reads 0 .. 63489 (63489 intervals), frames 480 .. 30480000; reads not of one period inside: 6 [(7373, 960), (12630, 1920), (12631, 1920), (26108, 960), (29053, 960), (54455, 960)]
+derived record dB-reads.u32: 253956 B sha256 5f74d0615daa8138b107b9b0df14ba965d2bdca5f06c0e78d5d3069505aaf095; b5_attrib.py sha256 f1d9b2ba456672cdf00ed86a645b9ab35c4d11fef3bb5ac9363c70885a5dfa40
+arecord overruns: 0 []; stamper: b21stamp: frames=30480000 reads=63490 kept_slots=4 ring_max_fill=483840 dropped_bytes=0 partial_bytes=0
+== window and rate
+window 635.018 s on the board's monotonic clock (10.58 min); 30479520 frames delivered
+deficit D(R) - D(0) = 1326.9 frames; linear fit slope +2.0609 frames/s = +42.93 ppm (the DUT's TDM clock against the board's monotonic clock, uncalibrated)
+deficit residual after the linear fit, frames, percentiles 0/1/50/99/100: [-22.0, -2.4, -1.2, +12.8, +2268.9]
+== read intervals and stalls (read interval over 15 ms)
+read interval ms, percentiles 0/0.01/1/50/99/99.99/100: [+0.4, +0.8, +9.7, +10.0, +10.3, +27.1, +87.1]; over 12 ms: 59, over 15 ms: 25
+stalls 25; longest 87.07 ms
+  stall at read 7371, t 73.761 s, interval 57.31 ms
+  stall at read 10039, t 100.410 s, interval 15.46 ms
+  stall at read 12630, t 126.393 s, interval 87.07 ms
+  stall at read 16166, t 161.753 s, interval 25.09 ms
+  stall at read 17883, t 178.914 s, interval 16.19 ms
+  stall at read 18500, t 185.084 s, interval 16.05 ms
+  stall at read 20280, t 202.898 s, interval 28.63 ms
+  stall at read 24836, t 248.458 s, interval 26.83 ms
+  stall at read 26107, t 261.172 s, interval 30.38 ms
+  stall at read 29052, t 290.636 s, interval 33.20 ms
+  stall at read 31744, t 317.551 s, interval 16.65 ms
+  stall at read 36250, t 362.617 s, interval 20.93 ms
+  stall at read 39009, t 390.207 s, interval 20.17 ms
+  stall at read 40082, t 400.938 s, interval 20.82 ms
+  stall at read 41374, t 413.859 s, interval 20.92 ms
+  stall at read 43861, t 438.731 s, interval 21.89 ms
+  stall at read 46372, t 463.838 s, interval 18.22 ms
+  stall at read 46744, t 467.568 s, interval 27.30 ms
+  stall at read 47659, t 476.711 s, interval 20.32 ms
+  stall at read 49907, t 499.191 s, interval 19.66 ms
+  stall at read 51865, t 518.768 s, interval 15.20 ms
+  stall at read 53073, t 530.854 s, interval 20.97 ms
+  stall at read 54454, t 544.678 s, interval 34.58 ms
+  stall at read 60889, t 609.028 s, interval 21.78 ms
+  stall at read 62132, t 621.456 s, interval 17.20 ms
+stall spacings of 2.99 to 3.02 s: 0
+== delivery-deficit floor steps (lane B5's floor test)
+positions 63464; drift over one floor test (median step) +0.288 frames; step percentiles 0/0.01/1/50/99/99.99/100: [-19.6, -19.4, -8.8, +0.3, +10.0, +19.8, +20.4]
+positions with |step - drift| > 4 frames: 2469, in 83 groups
+  group at reads 13 .. 24 (t 0.130 s): largest step +17.0 frames
+  group at reads 287 .. 313 (t 2.870 s): largest step +9.8 frames
+  group at reads 3110 .. 3153 (t 31.102 s): largest step -17.4 frames
+  group at reads 3371 .. 3460 (t 33.712 s): largest step +15.2 frames
+  group at reads 4668 .. 4703 (t 46.682 s): largest step -9.4 frames
+  group at reads 6163 .. 6249 (t 61.633 s): largest step -12.3 frames
+  group at reads 7049 .. 7127 (t 70.493 s): largest step +10.8 frames
+  group at reads 7363 .. 7455 (t 73.634 s): largest step +12.8 frames
+  group at reads 7715 .. 7796 (t 77.164 s): largest step +12.0 frames
+  group at reads 8211 .. 8292 (t 82.124 s): largest step +16.1 frames
+  group at reads 9461 .. 9491 (t 94.624 s): largest step +12.1 frames
+  group at reads 9532 .. 9563 (t 95.334 s): largest step +15.1 frames
+  group at reads 10028 .. 10053 (t 100.295 s): largest step -5.2 frames
+  group at reads 10528 .. 10553 (t 105.295 s): largest step +5.6 frames
+  group at reads 11292 .. 11317 (t 112.935 s): largest step +6.7 frames
+  group at reads 11353 .. 11378 (t 113.545 s): largest step -4.3 frames
+  group at reads 12304 .. 12331 (t 123.055 s): largest step +7.3 frames
+  group at reads 12623 .. 12705 (t 126.246 s): largest step -13.1 frames
+  group at reads 13244 .. 13269 (t 132.516 s): largest step +14.8 frames
+  group at reads 13757 .. 13782 (t 137.646 s): largest step +5.2 frames
+  group at reads 15269 .. 15300 (t 152.767 s): largest step -10.6 frames
+  group at reads 16156 .. 16181 (t 161.637 s): largest step +9.6 frames
+  group at reads 16216 .. 16241 (t 162.237 s): largest step -4.3 frames
+  group at reads 17875 .. 17958 (t 178.828 s): largest step -17.4 frames
+  group at reads 18489 .. 18514 (t 184.968 s): largest step +20.4 frames
+  group at reads 18984 .. 19015 (t 189.918 s): largest step +11.1 frames
+  group at reads 19052 .. 19083 (t 190.598 s): largest step +15.4 frames
+  group at reads 19414 .. 19439 (t 194.219 s): largest step +10.0 frames
+  group at reads 20272 .. 20297 (t 202.799 s): largest step +9.0 frames
+  group at reads 20333 .. 20358 (t 203.409 s): largest step +12.7 frames
+  group at reads 21210 .. 21292 (t 212.179 s): largest step -13.2 frames
+  group at reads 21909 .. 21934 (t 219.170 s): largest step +5.0 frames
+  group at reads 22141 .. 22166 (t 221.490 s): largest step -9.2 frames
+  group at reads 24171 .. 24196 (t 241.791 s): largest step +6.4 frames
+  group at reads 24826 .. 24913 (t 248.341 s): largest step +10.4 frames
+  group at reads 25090 .. 25115 (t 250.981 s): largest step +10.1 frames
+  group at reads 25330 .. 25361 (t 253.381 s): largest step -11.1 frames
+  group at reads 25399 .. 25424 (t 254.071 s): largest step +9.3 frames
+  group at reads 25880 .. 25905 (t 258.881 s): largest step +8.1 frames
+  group at reads 26098 .. 26134 (t 261.061 s): largest step +12.0 frames
+  group at reads 26506 .. 26531 (t 265.152 s): largest step +14.3 frames
+  group at reads 28339 .. 28414 (t 283.482 s): largest step -7.2 frames
+  group at reads 28557 .. 28589 (t 285.662 s): largest step -11.4 frames
+  group at reads 28630 .. 28655 (t 286.392 s): largest step +5.9 frames
+  group at reads 29043 .. 29079 (t 290.523 s): largest step +12.0 frames
+  group at reads 30578 .. 30614 (t 305.883 s): largest step +11.7 frames
+  group at reads 31715 .. 31747 (t 317.254 s): largest step +11.3 frames
+  group at reads 31836 .. 31863 (t 318.464 s): largest step +10.2 frames
+  group at reads 33345 .. 33370 (t 333.555 s): largest step +14.6 frames
+  group at reads 34012 .. 34037 (t 340.225 s): largest step +5.6 frames
+  group at reads 35359 .. 35384 (t 353.695 s): largest step +9.3 frames
+  group at reads 36240 .. 36265 (t 362.506 s): largest step +5.2 frames
+  group at reads 37637 .. 37662 (t 376.476 s): largest step -8.4 frames
+  group at reads 38104 .. 38171 (t 381.147 s): largest step -14.0 frames
+  group at reads 39886 .. 39911 (t 398.967 s): largest step -11.9 frames
+  group at reads 40397 .. 40422 (t 404.078 s): largest step +9.3 frames
+  group at reads 41303 .. 41334 (t 413.138 s): largest step -10.5 frames
+  group at reads 42154 .. 42230 (t 421.648 s): largest step +12.0 frames
+  group at reads 42759 .. 42783 (t 427.699 s): largest step +4.8 frames
+  group at reads 43853 .. 43936 (t 438.639 s): largest step +12.0 frames
+sum of the positive group steps: 611.0 frames
+== permanent-step check: floors of 63 consecutive 10 s blocks, less their linear fit (+2.0670 frames/s): residual min -11.15, max +6.02 frames; largest block-to-block change 16.67 frames
