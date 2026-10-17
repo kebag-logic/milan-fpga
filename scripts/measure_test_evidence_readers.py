@@ -18,6 +18,10 @@ A new reader is debt until review classifies it here.
 """
 
 DUT_READER_DISPOSITIONS = {
+    "protocol-processor/tb/name_state/mutants.py":
+        "mutation campaign; plants name capture, replay and pending defects in isolated copies "
+        "and requires named value assertions to fail in completed runs; name values and record "
+        "ordinals come from an independent fixed inventory, never from RTL text",
     "tb/verilator/aaf/start_mutants.py":
         "mutation campaign; plants named defects in isolated RTL and requires named assertion failures; "
         "expected timestamps and samples are independent of RTL text",

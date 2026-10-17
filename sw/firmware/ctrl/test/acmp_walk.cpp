@@ -39,27 +39,30 @@
 // state names its one timer) and is reported, not walked; in a state with no
 // timer the processor injects a spurious expiry and so does this walk.
 //
-// THE DIFFERENCES. LD1 to LD3 are asserted to be exactly what they are, field
-// for field, against the processor's own model; TD1 on the firmware's half:
-//   LD1  UNBIND_RX_RESPONSE: the processor echoes the command's
-//        talker_entity_id and talker_unique_id; Milan v1.2 Table 5.36 gives
-//        both 0, and the firmware sends 0;
-//   LD2  TMR_RETRY with the talker discovered (5.5.3.5.30 step 2): the
-//        processor's A12 sets the ACMP status to 0; step 2 sets none, so the
-//        firmware keeps the status the retry was for (5.3.8.6: it reports the
-//        last probe sequence's error while PROBING_ACTIVE);
-//   LD3  CONTROLLER_NOT_AUTHORIZED: the processor sends status 13
-//        (TALKER_MISBEHAVING in IEEE 1722.1-2021 Table 8-3); the firmware
-//        sends 16, the table's CONTROLLER_NOT_AUTHORIZED;
+// THE FORMER DIFFERENCES. Up to processor 2ad2f845 the processor differed in
+// four places (processor issue #168), and this walk normalised LD1 and LD2 in
+// the walk, and LD3's status byte in its scenario, before comparing.
+// Processor 2cbed0a9 follows the clauses the firmware follows, so the frames
+// and records are compared raw, and each check below is a control that fails
+// if the processor's old answer returns:
+//   LD1  UNBIND_RX_RESPONSE: talker_entity_id and talker_unique_id are 0 in
+//        the processor's frame (Milan v1.2 Table 5.36), as in the firmware's;
+//        an echo of the command's talker fields fails it;
+//   LD2  TMR_RETRY with the talker discovered (5.5.3.5.30 step 2): step 2
+//        sets no ACMP status, so both keep the status the retry was for
+//        (5.3.8.6: the last probe sequence's error while PROBING_ACTIVE); a
+//        processor that zeroes it fails it;
+//   LD3  the lock's refusal: both send 16, CONTROLLER_NOT_AUTHORIZED in IEEE
+//        1722.1-2021 Table 8-3, byte for byte; the processor's former 13,
+//        TALKER_MISBEHAVING, fails it;
 //   TD1  DISCONNECT_TX of an unknown source: the firmware answers
-//        TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2 step 1, Table 5.44). The
-//        processor's SUCCESS is read from source (hdl/acmp/KL_acmp_talker.sv,
-//        lines 1301 to 1306), not walked: this arm reuses the talker suite's
-//        constants, and that suite has no unknown-source DISCONNECT_TX check.
-//        5.5.2.7 says DISCONNECT_TX "always returns SUCCESS"; it is an
-//        overview that defers to 5.5.4, and 5.5.4.2, the "shall" procedure,
-//        validates the source first, so it governs (#665, comment
-//        6030067436). The four are processor issue #168.
+//        TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2 step 1, Table 5.44), graded on
+//        the firmware's half: this arm reuses the talker suite's constants,
+//        not a model. The processor's talker suite grades its own half since
+//        2cbed0a9 ("TD1 invalid disconnect"). 5.5.2.7 summarises
+//        DISCONNECT_TX as always succeeding; it is an overview that defers to
+//        5.5.4, and 5.5.4.2, the normative procedure, validates the source
+//        first, so it governs (#665).
 // Everything else agrees.
 //
 // THE DISCOVERY WALK (DW) drives every cell of the processor's Table 5.54
@@ -430,21 +433,18 @@ TEST_P(ListenerWalk, Graded) {
     Exp e = w.step(k, row_stim(w, k, row));
     w.model_timer(e, k);
 
-    // LD1: the processor echoes UNBIND_RX_RESPONSE's talker fields; Table 5.36 gives 0
-    for (pp_lsn::Pdu& f : e.frames) {
+    // LD1: UNBIND_RX_RESPONSE's talker fields are 0 in the processor's frame (Table 5.36); compared raw below
+    for (const pp_lsn::Pdu& f : e.frames) {
         if ((f.b[1] & 0x0Fu) == M_UNBIND_R && (f.b[2] >> 3) == ST_OK) {
-            bool echoed = wire_be64(f.b + 20) == TK_A && wire_be16(f.b + 36) == TKUID_A;
-            EXPECT_TRUE(echoed) << "LD1 " << cell << ": the processor echoes the command's talker fields";
-            std::memset(f.b + 20, 0, 8);
-            std::memset(f.b + 36, 0, 2);
+            EXPECT_TRUE(wire_be64(f.b + 20) == 0u && wire_be16(f.b + 36) == 0u)
+                << "LD1 " << cell
+                << ": the processor's talker fields are 0 (Milan v1.2 Table 5.36), not the command's echo";
         }
     }
-    // LD2: TMR_RETRY, talker discovered: the processor's A12 zeroes the ACMP status
-    bool ld2 = row == R_TMR_RETRY && st == S_PWT && w.before.tk_disc;
-    if (ld2) {
-        EXPECT_TRUE(w.m.rec[k].acmpsta == 0 && w.before.acmpsta == ST_NOBW)
-            << "LD2 " << cell << ": the processor zeroes the status the retry was for";
-        w.m.rec[k].acmpsta = w.before.acmpsta;
+    // LD2: TMR_RETRY, talker discovered: the processor keeps the ACMP status (5.5.3.5.30 step 2); compared raw below
+    if (row == R_TMR_RETRY && st == S_PWT && w.before.tk_disc) {
+        EXPECT_TRUE(w.before.acmpsta == ST_NOBW && w.m.rec[k].acmpsta == w.before.acmpsta)
+            << "LD2 " << cell << ": the processor keeps the status the retry was for (5.5.3.5.30 step 2)";
     }
 
     ASSERT_EQ(fk.sent.size(), e.frames.size()) << "LW " << cell << ": frames";
@@ -521,7 +521,7 @@ std::string lcell_name(const ::testing::TestParamInfo<LCell>& info) {
 
 INSTANTIATE_TEST_SUITE_P(Table530, ListenerWalk, ::testing::ValuesIn(listener_cells()), lcell_name);
 
-// LD3: the lock's refusal, both ways.
+// LD3: the lock's refusal, both ways, byte for byte.
 TEST(ListenerScenario, LD3TheLockRefusalStatus) {
     using namespace pp_lsn;
     Lockstep w;
@@ -532,12 +532,11 @@ TEST(ListenerScenario, LD3TheLockRefusalStatus) {
     Exp e = w.step(0, Lockstep::bind(0, TK_A, TKUID_A, CTL1, false));
     ASSERT_TRUE(e.frames.size() == 1u && fk.sent.size() == 1u) << "LD3 one refusal each";
     EXPECT_EQ(e.frames[0].b[2] >> 3, ST_NOAUTH) << "LD3 the processor's status is its ST_NOAUTH";
-    EXPECT_EQ(ST_NOAUTH, 13) << "LD3 which is 13, TALKER_MISBEHAVING in IEEE 1722.1-2021 Table 8-3";
+    EXPECT_EQ(ST_NOAUTH, 16) << "LD3 which is 16, CONTROLLER_NOT_AUTHORIZED in IEEE 1722.1-2021 Table 8-3, not 13";
     EXPECT_EQ(fk.sent[0].bytes[16] >> 3, spec::STATUS_CONTROLLER_NOT_AUTHORIZED)
         << "LD3 the firmware sends 16, CONTROLLER_NOT_AUTHORIZED";
-    e.frames[0].b[2] = static_cast<std::uint8_t>((spec::STATUS_CONTROLLER_NOT_AUTHORIZED << 3) | (e.frames[0].b[2] & 7u));
     EXPECT_EQ(std::memcmp(fk.sent[0].bytes.data() + spec::HEADER_BYTES, e.frames[0].b, PDU_BYTES), 0)
-        << "LD3 and every other byte agrees";
+        << "LD3 and the two refusals agree byte for byte";
     EXPECT_TRUE(w.a.sinks[0].state == ACMP_UNBOUND && w.m.rec[0].sm == S_UNB) << "LD3 nothing bound on either side";
 }
 
@@ -797,8 +796,8 @@ TEST_F(TalkerWalk, TW3DisconnectAndGetTxConnection) {
         << "TW3 DISCONNECT_TX: SUCCESS, nothing changes (Table 5.45)";
     r = ask(pp_tk::MT_DISC, pp_tk::N_SRC, 0);
     EXPECT_EQ(r.status, pp_tk::ST_TK_UNKNOWN)
-        << "TD1 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2 step 1, Table 5.44); the "
-           "processor answers SUCCESS";
+        << "TD1 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2 step 1, Table 5.44), as the "
+           "processor's talker suite now requires";
     r = ask(pp_tk::MT_GTXC, 1, 0);
     EXPECT_EQ(r.status, pp_tk::ST_NSUPP) << "TW3 GET_TX_CONNECTION: NOT_SUPPORTED (Table 5.48)";
 }

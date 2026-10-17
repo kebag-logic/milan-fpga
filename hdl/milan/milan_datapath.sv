@@ -5187,6 +5187,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           4'd5: gsi_ans_raw_w = gsi_ofail_w
                               ? pp_cd_srp_src_fail_bridge_w[64*gsi_oix_w +: 64]
                               : 64'd0;
+          //! an input's stream_vlan_id [63:48] is unused: the processor
+          //! replaces it with all 16 received VLAN bits (#708)
           4'd6: gsi_ans_raw_w = {gsi_setl_w
                                  ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
                                  : gsi_decl_w

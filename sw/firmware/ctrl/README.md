@@ -517,19 +517,19 @@ and `tb/acmp_talker/sim_main.cpp`'s F05.11 constants
 (`pp_talker_reuse.inc`). `acmp_walk.cpp` runs the processor's model and the
 firmware's core in lock step through every Table 5.30 cell a stimulus can
 reach, and grades the frames byte for byte, the sink's timer, its record, the
-SRP start and stop, discovery, the store's mark and the notification. Three
-differences are asserted, field for field, to be exactly what they are:
-UNBIND_RX_RESPONSE's talker fields (the processor echoes them; Milan Table
-5.36 gives 0), the ACMP status after a TMR_RETRY with the talker discovered
-(the processor zeroes it; 5.5.3.5.30 step 2 sets none), and the lock's refusal
-status (the processor sends 13, TALKER_MISBEHAVING in IEEE 1722.1-2021 Table
-8-3; the firmware 16, CONTROLLER_NOT_AUTHORIZED). A fourth, DISCONNECT_TX of
-an unknown source, is asserted on the firmware's half only (TALKER_UNKNOWN_ID,
-Milan 5.5.4.2 step 1); the processor's SUCCESS is read from source
-(`KL_acmp_talker.sv:1301-1306`), not walked. Milan 5.5.2.7 says DISCONNECT_TX
-"always returns SUCCESS"; 5.5.4.2 governs, since 5.5.2.7 is an overview that
-defers to 5.5.4 and 5.5.4.2 is the "shall" procedure. The four are processor
-issue #168.
+SRP start and stop, discovery, the store's mark and the notification. Since
+processor `2cbed0a9` (processor issue #168, adopted by #708) the frames and
+records are compared raw, with no normalisation, and the four former
+differences are checks that fail if the processor's old answer returns:
+UNBIND_RX_RESPONSE's talker fields are 0 in both frames (Milan Table 5.36),
+both keep the ACMP status after a TMR_RETRY with the talker discovered
+(5.5.3.5.30 step 2 sets none), and both refuse a locked bind with 16,
+CONTROLLER_NOT_AUTHORIZED in IEEE 1722.1-2021 Table 8-3, not 13. DISCONNECT_TX
+of an unknown source is graded on the firmware's half (TALKER_UNKNOWN_ID,
+Milan 5.5.4.2 step 1); the processor's talker suite now grades its own half.
+Milan 5.5.2.7 summarises DISCONNECT_TX as always succeeding; 5.5.4.2 governs,
+since 5.5.2.7 is an overview that defers to 5.5.4 and 5.5.4.2 is the
+normative procedure.
 
 ### Planted defects
 

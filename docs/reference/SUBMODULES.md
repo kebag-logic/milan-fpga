@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `e4869fd0c42889b2ac806587cc5c78afb1c33461` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `2ad2f845dd583f8310075fa2380cb60a04fd091a` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `2cbed0a987c1e68402658d69459ab7e5aa571adc` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -185,6 +185,37 @@ After merge, the manager repeats #608 withdrawal cycles.
 The manager also reads #658's default map.
 
 This adoption checks the resource baseline and capture receipt.
+
+Issue #708 adopts processor pin `2cbed0a9`.
+
+The range also carries processor PRs 165 and 166.
+The issue's list does not name them.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #69, AVB interface count | [165](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/165) | The top gains parameter `N_AVB_IF_P`, default 1, and input `rx_if_index_i`, default 0; `KL_pp_shadow` keeps both defaults, so one interface changes no cell |
+| #163, transmit-arbiter cone | [166](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/166) | The withdraw mask is registered, so a cancellation reaches the arbiter one clock later; no port, parameter or register change |
+| #167, coincident cancellations | [169](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/169) | A probe cancellation that coincides with a TIME_LIMITED drain is sent on the next idle cycle rather than dropped; no port, parameter or register change |
+| #168, ACMP response fields | [171](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/171) | UNBIND_RX_RESPONSE carries zero talker identifiers (Milan v1.2 Table 5.36), status survives retries (5.5.3.5.30 step 2), lock refusals are 16 (IEEE 1722.1-2021 Table 8-3), an invalid DISCONNECT_TX source is TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2, Table 5.44), and the processor serves the full 16-bit received VLAN in STREAM_INPUT GET_STREAM_INFO selector 6 and in GET_RX_STATE_RESPONSE; the [firmware ACMP walk](../design/MAILBOX_SPLIT.md#differences-from-the-processor) now compares raw bytes |
+| #170, saved names | [172](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/172) | Tests and documentation only; the parent's test-evidence readers classify the processor's new name-state mutation driver |
+
+Both processor ROM digests match the `2ad2f845` rows.
+
+The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) is re-baselined at this pin.
+
+Its shipping route keeps +0.215 ns WNS.
+
+The processor now serves STREAM_INPUT GET_STREAM_INFO selector 6's `stream_vlan_id`.
+
+A settled input reports all 16 received bits.
+
+An unsettled input reports 0.
+
+GET_RX_STATE_RESPONSE also carries the full 16 bits.
+
+The parent's selector-6 input VLAN halfword is no longer used.
+
+The parent's `acmp_bound_vlan_o` keeps 12 bits per sink.
 
 The ROM ledger records current and earlier pins.
 

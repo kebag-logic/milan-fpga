@@ -29,7 +29,7 @@ define the interface. The numbers live in one place, the generated
 - **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
 - **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
-- **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four differences from the processor.
+- **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four former differences from the processor, each now a check that fails if the old answer returns.
 - **[The publication block](#the-publication-block)** -- The class-D state the firmware owner publishes for the split placement's datapath: the layout, the stream_id behind SID_VALID, each writer and the response it precedes, the two semantic choices, and the service cost.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
@@ -776,35 +776,34 @@ SRP takes the shared tick, leaving ADP, ACMP and MAAP's timer slots disjoint.
 
 The `acmpwalk` arm runs the processor's own expectations against the
 firmware: its F05.3 model of Table 5.30 in lock step (88 cells), its Table
-5.54 transcription (33 cells) and its talker suite's F05.11 constants. The
-first three differences below (LD1 to LD3) are asserted field for field
-against that model and transcription, each with the clause the firmware
-follows. The fourth (TD1) is asserted on the firmware's half only: the talker
-arm reuses constants, not a model, and the processor's suite has no
-unknown-source DISCONNECT_TX check, so its half is read from source, not
-walked.
+5.54 transcription (33 cells) and its talker suite's F05.11 constants.
 
-- UNBIND_RX_RESPONSE's talker fields: the processor echoes them; Milan v1.2
-  Table 5.36 gives 0.
-- The ACMP status after a TMR_RETRY with the talker discovered: the
-  processor zeroes it; 5.5.3.5.30 step 2 sets none.
-- The lock's refusal: the processor sends 13, TALKER_MISBEHAVING in IEEE
-  1722.1-2021 Table 8-3; the firmware sends 16, CONTROLLER_NOT_AUTHORIZED
-  (`pp_acmp_pkg.sv:123` in the submodule).
-- DISCONNECT_TX for a source that does not exist: the processor answers
-  SUCCESS (`KL_acmp_talker.sv:1301-1306`, read from source: the DISCONNECT_TX
-  arm answers SUCCESS without reading `uid_valid_w`); the firmware answers
-  TALKER_UNKNOWN_ID (5.5.4.2 step 1, Table 5.44). Milan v1.2 5.5.2.7 says
-  that DISCONNECT_TX "always returns SUCCESS without modifying the state of
-  the Talker", which is the processor's answer. 5.5.4.2 governs: 5.5.2.7 is
-  an overview that ends "The complete specification of the talker's behavior
-  is defined in Section 5.5.4", and 5.5.4.2 is the "shall" procedure, which
-  validates the source first. SUCCESS without a state change applies to a
-  valid source (the ruling on #665, comment 6030067436).
-
-Each is the processor's to fix; F3 changes nothing in the submodule. They are
+None remains. Up to processor `2ad2f845` the walk asserted four differences,
 filed as processor issue
-[#168](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168).
+[#168](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168),
+and normalised the first two in the walk and the third's status byte in its
+scenario before comparing. Processor `2cbed0a9`, adopted by
+[#708](https://github.com/kebag-logic/milan-fpga/issues/708), answers as the
+firmware does, so frames and records are compared raw. Each former difference
+is now a check that fails if the processor's old answer returns:
+
+- LD1, UNBIND_RX_RESPONSE's talker fields: 0 in both frames (Milan v1.2
+  Table 5.36); an echo of the command's fields fails it.
+- LD2, the ACMP status after a TMR_RETRY with the talker discovered: both
+  keep the status the retry was for, since 5.5.3.5.30 step 2 sets none; a
+  zeroed status fails it.
+- LD3, the lock's refusal: both send 16, CONTROLLER_NOT_AUTHORIZED in IEEE
+  1722.1-2021 Table 8-3, byte for byte; the former 13, TALKER_MISBEHAVING,
+  fails it.
+- TD1, DISCONNECT_TX for a source that does not exist: the firmware answers
+  TALKER_UNKNOWN_ID (5.5.4.2 step 1, Table 5.44), graded on the firmware's
+  half because the talker arm reuses constants, not a model. The processor's
+  own talker suite now grades its half the same way. Milan v1.2 5.5.2.7
+  summarises DISCONNECT_TX as succeeding without changing the talker's
+  state. 5.5.4.2 governs: 5.5.2.7 is an overview that defers to 5.5.4 for the
+  complete behavior, and 5.5.4.2 is the normative procedure, which validates
+  the source first. SUCCESS without a state change applies to a valid source
+  (the ruling on #665, comment 6030067436).
 
 ## The publication block
 
@@ -1109,7 +1108,7 @@ on the host model.
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
 | the processor's ADP walk, reused | 36 cells of the processor suite's own Table 5.51 transcription and its own frame builder, cut from the pinned submodule at build time, drive the firmware through the model |
-| the processor's ACMP expectations, reused | its F05.3 model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, cut from the pinned submodule at build time; four differences asserted ([above](#differences-from-the-processor)) |
+| the processor's ACMP expectations, reused | its F05.3 model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, cut from the pinned submodule at build time; frames and records compared raw, the four former differences each a check that fails if it returns ([above](#differences-from-the-processor)) |
 | the binding owner on lane F1's store | on the host flash model at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, an unread slot refusing persistence, a refused record and the roll-back |
 | the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, a call back from the port refused, and the started level before the BIND_RX response that echoes STREAMING_WAIT and before a START_STREAMING or STOP_STREAMING is reported (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model, a started move as one `BINDING` write that keeps the stream (`B10` to `B12`), a bound or started move with no settled stream written as `BINDING` alone with `SID_VALID` clear, over the stream an unbind left in `SID_LO` and `SID_HI` (`B13`), and, composed with F5's AECP owner, a START_STREAMING and a STOP_STREAMING each moving the started level in one `BINDING` write before its response's TX_HEAD, within F5's service target (`App.StartAndStopPublishTheStartedLevelBeforeTheirResponse`, two plants in [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py) that F5's own tests let through); MAAP's DA gate before each allocation report, on the allocating interface alone at two interfaces (`DaGate*`); SRP's licence before each report, its Domain, slope and Talker declarations before every MRPDU that carries them, read at each record's commit, the Talker declarations published again by a Domain adoption and held after it, the declarations withdrawn before a reset or destroy removes them, and none published by a re-creation refused at any one of its allocations, a source's join among them (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
 | the placement switch's SRP comparator, the firmware gate's `srpcmp` arm | [`srp_wire_compare.py`](../../sw/firmware/ctrl/test/srp_wire_compare.py), an independent IEEE 802.1Q Clause 10.8 decoder and transmit-opportunity comparator, which the placement switch compares the two placements' SRP frames with (the ruling of comment 6088423771 keeps it for that switch). Its self-test runs in every firmware gate run, so it cannot rot first: its five named controls, and its 18 named planted wire and comparison defects each present and caught (a report missing any of them fails the arm), among them a dropped, an extra and a duplicated declaration, a wrong attribute or FourPacked event and every malformed length and EndMark |
