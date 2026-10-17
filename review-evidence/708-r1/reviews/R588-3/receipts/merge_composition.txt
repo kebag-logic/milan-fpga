@@ -1,0 +1,96 @@
+git merge-tree --write-tree 1f6f2f57177f1dd904654c317009461b43423989 b2460b79b399a2c383d8d912c8d017b78e5e4072
+268289918a958a682bc98146fe62b8a484ab3351
+rc=0
+candidate tree 268289918a958a682bc98146fe62b8a484ab3351
+candidate parents: 1f6f2f57177f1dd904654c317009461b43423989 b2460b79b399a2c383d8d912c8d017b78e5e4072
+merge-base(dev, pr-head) 734eb780dc93896a5961cd95180f79475a401650
+
+dev-side commits 734eb780dc93896a5961cd95180f79475a401650..1f6f2f57:
+1f6f2f57177f1dd904654c317009461b43423989 Merge PR #751: Record bench lane B19 on dev 9ef71772: #117 boxes 1 to 3, box 4 protocol rows and ten software-grandmaster steps
+c2243f791ced37dd2288dbf870758d93c5aa5325 List the B19 round-2 tools and outputs with their hashes (#117, #387)
+7a23a0c312c4e02e502c2eb53807f73b39c1f5f9 Apply the B19 round-1 residue wording and add the servo observable line (#117, #387)
+28cbe35c30642003db24acab8d2ac29b41458565 State durable retention of the B19 raws with the manager's re-verified receipt (#117, #387)
+0f5f22f54f3aa7d1bc96c94aa421f92749e5eaa4 Bind the B19 image to the PR #747 provenance record and the manager's continuity receipt (#117, #387)
+ac504029bb87a59ce860dc7647f74a6334f0172b Re-derive the B19 tu set and clear times under one convention, add the controller-poll asCapable arm and the derived figures (#387, #621, #117)
+b4f411d3fdb706a8c7d91cf192c54037b2cc321c State the B19 box 3 time base with the read-to-PHC offset and grade all 27 edges against it (#117)
+8eacc40839d95ff0e8cb26d0169cc1638800a44d Merge PR #753: Add the board deployment guide and install the pinned LiteX in README and QUICKSTART
+38b251541770a3911ff507bdc16f7121c9cd94d7 Name the deployment PC by its tools, not by an operating system
+62a273ab8d5e79ec8b957002b5baee300ca21099 Add the board deployment guide and install the pinned LiteX in README and QUICKSTART
+d812a604e61c9fe5d94754cee0a9faad2456bad3 Record bench lane B19 on dev 9ef71772: #117 boxes 1 to 3 and box 4 protocol rows, and ten software-grandmaster steps for #621 and #387
+4a9b5a2a74fe793a637745fd3ccf51ad2eaf93b4 Merge PR #745: Refuse a replay on any OOM in its slot and bound the census by memory (#744)
+20cd16e18f9b7cd41d597495c785e61443c62b87 Merge dev 734eb780 into 744-slot-oom
+7997eeb348c3af302079c7273d1b3092eee4dc6c Write the planted cgroup root in the census controls' reasons as a placeholder, not as the host path
+ab7965522800e76df17302db0a8f2d1039f7167b State only the sv2v counts the published per-run log reproduces
+d0091c29f308f4b017de95010010b425a5f8b316 Give every census budget refusal its own stated reason and check each control refuses for it
+c55f2cf3791b4da1530dee1b46661f7960bc45b0 Refuse each declared host memory read in every other declared file, so the lines cannot be pooled across files
+1996179ab6920177863e034aee8e39dbab3b9adb Say what the host memory reads' gate comments mean without naming the review that decided them
+43a25fa7eba4d7ed7d2bb757aa42b973bd24c76e Set the census worker peak to 1213100 KiB, the largest sv2v measured over the self-test's arms as well as the shapes
+dcd4d98ae91fb6386a1cf64eb6dd03765c5edb6b Name the slot evidence field oom_free for what it decides, and say the manifest's completeness does not read the slot's memory events
+597c43f92fceecafcca02540313aa4e2ec7e1f08 Declare the host memory reads in the bare-metal gate as whole lines in their files, and reword the prose that only needed the word
+1cb7f19bd6fc5b810e230149e001f2d38687f9ee Refuse a census memory limit that is present but unreadable, at the job's cgroup or any ancestor, with mode-000 controls
+f643377f15c0d939d875ae5698672f1b0a99a644 Document the slot's hierarchical OOM accounting and the census memory bound with their measurements
+9a706ef2767f28ec95d09f3f10c28f32a93ce0e5 Bound the publication census workers by the job's memory and a measured sv2v peak, never above nproc
+f049d579ef0d0cddd0eb86412e51e3816d7f28b2 Refuse a replay on any OOM in its slot, read from the slice's hierarchical memory events before teardown
+
+dev-side paths:
+.github/ci-templates/rtl-fast.yml
+.github/workflows/rtl-fast.yml
+QUICKSTART.md
+README.md
+docs/design/MAILBOX_SPLIT.md
+docs/findings/117_GPTP_SILICON_EVIDENCE.md
+docs/findings/387_SOFTWARE_GM_STEP.md
+docs/guides/BOARD_DEPLOYMENT.md
+docs/guides/README.md
+docs/testing/CI_WORKFLOWS.md
+scripts/act_ci.py
+scripts/check_baremetal_only.py
+scripts/check_doc_style.py
+scripts/ci_events.py
+scripts/ci_gate_workflows_selftest.py
+scripts/ci_runtime_workflows.py
+
+pr-side commits 734eb780dc93896a5961cd95180f79475a401650..b2460b79:
+b2460b79b399a2c383d8d912c8d017b78e5e4072 State on the pin page that the processor now serves input GET_STREAM_INFO selector 6 and GET_RX_STATE with all 16 VLAN bits, and note it at the datapath's selector 6
+aa0818b6ba72e70d48d4dfaa9dde94c449351101 Drop the comment ID from the walk's DISCONNECT_TX note and name LD3's status-byte normalisation in the walk and MAILBOX_SPLIT history
+5c6f50eefa4c5545f052ec843363ace5e7936e8a Document the processor 2cbed0a9 resource re-baseline: findings section, headroom table and the pages that quote the record
+9ac9f5ca1844e92fab0b0016c6c9707ee067bd37 Re-record the three resource endpoints at processor 2cbed0a9 on the merge of dev 734eb780
+82227af0c44164610e302f6144fa2775a18653b3 State in the MAILBOX_SPLIT contents that the four processor differences are now controls
+435af429dc313465954c8bb59892f8bcc08ccf45 Re-record the port census header after merging dev 734eb780
+a1dfbfadfb02c52f7ab917bbf4d3761b6f8a0d35 Merge origin/dev 734eb780 into 708-pin3
+99a5a2ac6fbbf1268f57008b42b5b26ccf6ae731 Point the F5 single-interface AECP wire reference at its own 2ad2f845 checkout now that the pin moves
+c673ff85166b91783ba5a96534a37124f0464b4a Re-record the processor pin's ROM digests, pin page, boundary diagram and port census at 2cbed0a9
+afc0b831aef9201c969ba7b0bbd0ac8a05ae1aea Retire the F3 ACMP walk normalisation: compare the processor's frames raw, with LD1 to LD3 as controls for the old answers
+df70d8f0355bb2703cd110a5f4fb96afa31b5dee Classify the processor name-state mutation driver as a DUT-source reader (parent-name-evidence.patch)
+75a28523eeb00f8c46477db62e7bd98a2afd4965 Adopt protocol-processor main 2cbed0a9 for issue 708
+
+pr-side paths:
+docs/design/AREA_BUDGET.md
+docs/design/MAILBOX_SPLIT.md
+docs/design/MARK_II_AREA_PLAN.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+docs/reference/SUBMODULES.md
+hdl/milan/milan_datapath.sv
+protocol-processor
+scripts/measure_test_evidence_readers.py
+scripts/port_docs.budget
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl/aecp/README.md
+sw/firmware/ctrl/test/acmp_walk.cpp
+syn/ooc/pp_resource_baseline.json
+syn/yosys/rom_digests.tsv
+
+overlap:
+docs/design/MAILBOX_SPLIT.md
+
+MAILBOX_SPLIT hunks: dev
+@@ -1033,3 +1033,3 @@ without a plant fails CI. The census runs in `rtl-fast`'s own
+MAILBOX_SPLIT hunks: pr
+@@ -32 +32 @@ define the interface. The numbers live in one place, the generated
+@@ -779,27 +779,3 @@ firmware: its F05.3 model of Table 5.30 in lock step (88 cells), its Table
+@@ -807 +783,24 @@ filed as processor issue
+@@ -1112 +1111 @@ on the host model.

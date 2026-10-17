@@ -1,0 +1,20 @@
+definitions.candidate.docs.yml: manifest=f4222f818a34f0e4 git=f4222f818a34f0e4 MATCH
+definitions.candidate.elaborate.yml: manifest=767bfdfad712163e git=767bfdfad712163e MATCH
+definitions.candidate.rtl-fast.yml: manifest=5758f0dd581e4f9f git=5758f0dd581e4f9f MATCH
+definitions.candidate.rtl.yml: manifest=2434c502b775193a git=2434c502b775193a MATCH
+definitions.head.docs.yml: manifest=f4222f818a34f0e4 git=f4222f818a34f0e4 MATCH
+definitions.head.elaborate.yml: manifest=767bfdfad712163e git=767bfdfad712163e MATCH
+definitions.head.rtl-fast.yml: manifest=93da483bdac6fafd git=93da483bdac6fafd MATCH
+definitions.head.rtl.yml: manifest=2434c502b775193a git=2434c502b775193a MATCH
+subject.candidate: e9f2ea8e1d256f709f206518cf402d77914c5e3f MATCH
+subject.head: b2460b79b399a2c383d8d912c8d017b78e5e4072 MATCH
+subject.candidate_parent: 1f6f2f57177f1dd904654c317009461b43423989 MATCH
+subject.candidate_tree: 268289918a958a682bc98146fe62b8a484ab3351 MATCH
+subject.head_tree: 4cc342899bae1253e7e4f63435c4ba2550f1d020 MATCH
+subject.pr: 754 MATCH
+result: success | act exit: 0
+act jobs: 64 non-success: {'rtl-full/Physical gPTP (nightly and manual)': 'skipped'}
+bank full-native: exit 0, 5 commands, nonzero []
+bank manager-builder: exit 0, 48 commands, nonzero []
+execution.coverage: null
+ALL SUBJECT/DEFINITION CHECKS PASS
