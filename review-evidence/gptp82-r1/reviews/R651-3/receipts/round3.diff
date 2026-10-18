@@ -1,0 +1,911 @@
+diff --git a/.gitignore b/.gitignore
+index 3e395e0..2808e05 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,6 +1,7 @@
+ obj_dir/
+ seedrun/
+ syncseedrun/
++p1run/
+ *.log
+ *.jou
+ *.rpt
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index bf37507..413c713 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -146,10 +146,19 @@ That slot runs the Announce receipt leg.
+ 
+ Preserve this coupling when changing either region or flag.
+ 
++Microcode bit 0 means only that a peer is elected.
++
++The output also sets bit 0 for a grandmaster-capable thisClock.
++
++ROM word 1022 bit 32 marks that capability.
++
++Microcode reads of word 2 return the unmodified bits.
++
+ ## MicroCPU shape
+ 
+ - ROM contains 1,024 forty-eight-bit words.
+ - Its last two words hold thisClock as data.
++- Bit 32 of word 1022 marks grandmaster capability.
+ - Register storage contains sixteen sixty-four-bit words.
+ - Integer logic supports common sixty-four-bit operations.
+ - Shifts run serially.
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index f22bdc3..c387aab 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -475,7 +475,9 @@ The grandmaster output names thisClock.
+ 
+ The path holds one entry: thisClock.
+ 
+-Parent identity and flags keep their reset values.
++Parent identity keeps its reset value.
++
++Flags carry gmPresent alone.
+ 
+ Reset loads exactly this state into the publication bank.
+ 
+@@ -489,6 +491,22 @@ thisClock is data in the generated microcode image.
+ 
+ The engine reads it there at configuration.
+ 
++### Grandmaster presence
++
++Flags bit 0 publishes gmPresent.
++
++802.1AS-2020 10.3.13.2.4 g) defines it.
++
++A priority1 below 255 makes thisClock grandmaster-capable.
++
++The image marks that capability beside thisClock.
++
++A capable thisClock sets gmPresent in every publication.
++
++That includes reset, both departures and mastership.
++
++With priority1 255, only an elected peer sets it.
++
+ ### Selection after reset
+ 
+ Scratch keeps the last best-vector record across warm resets.
+@@ -513,7 +531,9 @@ Losing asCapable drops the peer's vector at once.
+ 
+ That drop commits within about one millisecond.
+ 
+-Its commit also clears the presence and sync flags.
++Its commit clears the sync and mastership flags.
++
++gmPresent stays set for a capable thisClock.
+ 
+ It leaves PHC control and the slew level untouched.
+ 
+@@ -521,7 +541,7 @@ Announces on an incapable port elect nothing.
+ 
+ Restored capability lets the best live peer win.
+ 
+-Without Announces, the receipt watch then grants mastership.
++Without Announces, mastership follows within one receipt interval.
+ 
+ ## Microcode configuration
+ 
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index 5b29d30..364268d 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -8,18 +8,18 @@ Line numbers describe the current branch layout.
+ | Claim | Source evidence | Executable evidence |
+ |---|---|---|
+ | Single clock domain | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L58) | `make lint` |
+-| Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L173) | `make lint` |
++| Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L177) | `make lint` |
+ | Any-byte receive refusal | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv) | Parser suite and named mutation controls |
+ | Deferred receive event | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L393) | Parser suite |
+-| Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L427) | Engine suite |
+-| Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L454) | Engine suite |
+-| Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L365) | Engine suite |
+-| Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L371) | Engine suite |
++| Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L431) | Engine suite |
++| Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L458) | Engine suite |
++| Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L369) | Engine suite |
++| Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L375) | Engine suite |
+ | Explicit lost result | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Retained Pdelay pairing context | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Reset-backed pairing validity | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L253) | Engine suite |
++| Reset-backed pairing validity | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L257) | Engine suite |
+ | Transmit admission credit | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L100) | Engine suite |
+-| Eight timer slots | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L407) | Engine suite |
++| Eight timer slots | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L411) | Engine suite |
+ | Six state regions | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L20) | Engine suite |
+ | Stable stalled transmission | [`KL_gptp_tx_slot`](../hdl/wire/KL_gptp_tx_slot.sv#L117) | Engine suite |
+ | Committed publication | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L124) | Engine suite |
+@@ -28,7 +28,7 @@ Line numbers describe the current branch layout.
+ | Python image generation | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Media-dependent transmit flags | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine and tsngen suites |
+ | Step-versus-slew policy | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L988), [word 3](../hdl/top/KL_gptp_engine.sv#L993), [policy](../hdl/ucode/gen_gptp_ucode.py#L878) | Engine suite and named mutation controls |
++| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L993), [word 3](../hdl/top/KL_gptp_engine.sv#L998), [policy](../hdl/ucode/gen_gptp_ucode.py#L890) | Engine suite and named mutation controls |
+ | PHC rate envelope | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Ignored receive flag bits | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L475) | Engine suite |
+ | C++ test harnesses | [`tb/verilator`](../tb/verilator) | `make` |
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index 2b48966..6a91cc7 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -111,6 +111,9 @@ Prefer independent protocol formulas and frame builders.
+ - Keeps a retained best record out of post-reset selection.
+ - Hands both to a winning peer and back after silence.
+ - Drops a peer whose port loses asCapable.
++- Grades gmPresent in every self publication.
++- Reruns those phases from a priority1 255 image.
++- Regains mastership without Announces after capability returns.
+ - Rejects tied-low and early-clear slew indications.
+ - Keeps in-band tracking inactive after idle timeouts and GM changes.
+ - Keeps in-band returns from mastership inactive.
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index bda5f14..366bc29 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -169,6 +169,10 @@ module KL_gptp_engine
+   initial $readmemh(UCODE_HEX_P, cid_img_r);
+   wire [63:0] rom_clock_id_w = {cid_img_r[ROM_CID_HI_C][31:0],
+                                 cid_img_r[ROM_CID_LO_C][31:0]};
++  //! Bit 32 of the high word (ROM_GMCAP_BIT_C): thisClock's priority1 is
++  //! below 255. gmPriority is never worse than thisClock's own vector, so
++  //! then a grandmaster is always present (802.1AS-2020 10.3.13.2.4 g).
++  wire        rom_gm_capable_w = cid_img_r[ROM_CID_HI_C][32];
+ 
+   KL_gptp_rx_parser u_parser (
+       .clk_i        (clk_i),
+@@ -702,9 +706,10 @@ module KL_gptp_engine
+   //! GM/parent. If the local vector wins, BECOME overwrites it with `[self]`
+   //! before the handler's sole COMMIT; a worse Announce never executes `take`
+   //! and therefore cannot disturb the selected record. Every reset loads the
+-  //! self publication, thisClock and {thisClock}, as the best record below
+-  //! returns to the local vector (#82); outward wires stay gated to canonical
+-  //! zero while the raw GM is zero.
++  //! self publication, thisClock and {thisClock}, and invalidates the best
++  //! record below, so only a newly received Announce competes with the local
++  //! vector (#82); outward wires stay gated to canonical zero while the raw GM
++  //! is zero.
+   //! The raw public ABI is bounded to eight complete entries. Count zero is
+   //! the honest publication for a selected fixed Announce without PathTrace;
+   //! its GM remains separately published and every tail word is zero. Counts
+@@ -1020,7 +1025,10 @@ module KL_gptp_engine
+ 
+   assign pub_gm_id_o     = pub_gm_r;
+   assign pub_parent_id_o = pub_parent_r;
+-  assign pub_flags_o     = pub_flags_r;
++  //! gmPresent (#82): the µcode's bit 0 marks an elected peer; a
++  //! grandmaster-capable thisClock is present whenever none is
++  assign pub_flags_o     = {pub_flags_r[31:1],
++                            pub_flags_r[0] | rom_gm_capable_w};
+   assign pub_pdelay_ns_o = pub_pdelay_r;
+   assign pub_offset_o    = pub_offset_r;
+   assign pub_annq_o      = pub_annq_r;
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index 21aa63c..5537bd5 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -19,6 +19,13 @@ rules keep a departed or retained peer out of that publication:
+     BECGATE then drops an elected peer through SELF, with no mastership PHC
+     transition. BECOME also ends in SELF, so both publish one way.
+ 
++gmPresent is TRUE when gmPriority's priority1 is below 255 (10.3.13.2.4 g).
++gmPriority is never worse than our own vector, so a grandmaster-capable
++plane always has a grandmaster present: at reset, after a drop and as
++master alike. The image marks that capability beside thisClock, and the
++engine publishes it in flags bit 0. The µcode's own bit 0 now means only "a
++peer is elected", so BECOME no longer sets it.
++
+ FPGA-gPTP #39, found while the parent integrated complete egress-stamp tags:
+ the Sync counter remained wider than its 16-bit wire field. At Sync 65,536,
+ its bit 16 occupied the claim's new messageType nibble, so the type-0 return
+@@ -414,6 +421,10 @@ OUR_PORTNUM_C = 1               # thisPort. ONE definition, read by both
+ # program may occupy these words; the packer keeps them out of its gaps.
+ ROM_CID_HI_C, ROM_CID_LO_C = 1022, 1023
+ PUB_CID_C = 15
++# Bit 32 of the high word is set when thisClock is grandmaster-capable, its
++# priority1 below 255 (802.1AS-2020 10.3.13.2.4 g). The engine ORs it into
++# the published gmPresent, flags bit 0.
++ROM_GMCAP_BIT_C = 32
+ 
+ # ---- our clock vector (Milan defaults) -------------------------------------
+ P1_C, P2_C = 248, 248
+@@ -487,7 +498,8 @@ def set_servo_gains(clk_hz: int) -> None:
+     assert 0 < RUNTIME["gain_m"] < (1 << 24), RUNTIME["gain_m"]
+     assert 2 * RUNTIME["ilim"] + 1 < (1 << 24), RUNTIME["ilim"]
+ 
+-# publish flags bits
++# publish flags bits. The µcode's bit 0 means a peer is elected; the engine
++# also publishes it while thisClock is grandmaster-capable (#82)
+ FL_PRESENT_C, FL_AMGM_C, FL_ASCAP_C, FL_SYNCOK_C = 1, 2, 4, 8
+ 
+ # 802.1AS-2011 Table 11-7 controlField values for every message this plane
+@@ -1693,9 +1705,10 @@ def prog_becgate(base: int) -> Prog:
+     p.emit("ALU", rd=RU, ra=RT, rb=0, cnd=ALU_AND, imm=FL_PRESENT_C)
+     p.emit("CMP", ra=RU, rb=0, fmt=FMT_D, imm=0)
+     p.emit("BRS", cnd=BRS_Z, label="none")
+-    # present and not master: a peer is elected. Drop it: no grandmaster
+-    # is selected and sync is not ok, as after a reset (asCapable and the
+-    # master bit are already clear, so the whole word is zero)
++    # present and not master: a peer is elected. Drop it: no peer is
++    # elected and sync is not ok, as after a reset (asCapable and the
++    # master bit are already clear, so the whole word is zero; the engine
++    # still publishes gmPresent for thisClock)
+     p.emit("WRST", ra=0, imm=RG_PUB | 2, fmt=FMT_Q)
+     p.emit("BR", label=LB["SELF"])
+     p.label("none")
+@@ -1714,7 +1727,8 @@ def prog_become(base: int) -> Prog:
+     p.emit("RDST", rd=RT, imm=RG_SCR | S_INTG, fmt=FMT_Q)
+     p.emit("ALU", rd=RT, ra=R0, rb=RT, cnd=ALU_SUB)
+     p.emit("WRST", ra=RT, imm=RG_PHC | 3, fmt=FMT_Q)
+-    e_flags(p, andm=FL_ASCAP_C, orm=FL_PRESENT_C | FL_AMGM_C)
++    # no peer is elected: gmPresent is the engine's, from the image
++    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)
+     p.emit("MOVE", rd=RT, ra=0, imm=1)
+     p.emit("WRST", ra=RT, imm=RG_TMR | 1, fmt=FMT_Q)  # sync now
+     p.emit("MOVE", rd=RT, ra=0, imm=2)
+@@ -2182,7 +2196,9 @@ def build(mac: int, seq_seed: int = 0,
+             rom[base + i] = word
+         used += len(words)
+     cid = clock_identity(mac)
+-    for addr, word in ((ROM_CID_HI_C, cid >> 32),
++    gm_capable = RUNTIME["p1"] < 255
++    for addr, word in ((ROM_CID_HI_C,
++                        (cid >> 32) | (gm_capable << ROM_GMCAP_BIT_C)),
+                        (ROM_CID_LO_C, cid & 0xFFFFFFFF)):
+         assert rom[addr] is None, f"overlap at {addr}"
+         rom[addr] = word
+diff --git a/syn/ooc/work/gptp_ucode.hex b/syn/ooc/work/gptp_ucode.hex
+index 8c9d163..2de3c06 100644
+--- a/syn/ooc/work/gptp_ucode.hex
++++ b/syn/ooc/work/gptp_ucode.hex
+@@ -990,7 +990,7 @@ EA8281000000
+ 482830040003
+ 428030030002
+ EAA802000004
+-EAA803000003
++EAA803000002
+ 482830030002
+ 228000000001
+ 482830050001
+@@ -1020,5 +1020,5 @@ EAA803000003
+ 180000000000
+ EE6DB9884765
+ 255251AABB9F
+-000002A1B2FF
++000102A1B2FF
+ 0000FEC3D4E5
+diff --git a/tb/tsngen/gptp_ucode.hex b/tb/tsngen/gptp_ucode.hex
+index 2fa911c..894f7d6 100644
+--- a/tb/tsngen/gptp_ucode.hex
++++ b/tb/tsngen/gptp_ucode.hex
+@@ -990,7 +990,7 @@ EA8281000000
+ 482830040003
+ 428030030002
+ EAA802000004
+-EAA803000003
++EAA803000002
+ 482830030002
+ 228000000001
+ 482830050001
+@@ -1020,5 +1020,5 @@ EAA803000003
+ 180000000000
+ EE6DB9884765
+ 255251AABB9F
+-000002A1B2FF
++000102A1B2FF
+ 0000FEC3D4E5
+diff --git a/tb/verilator/engine/Makefile b/tb/verilator/engine/Makefile
+index 289b0e2..efe5ffa 100644
+--- a/tb/verilator/engine/Makefile
++++ b/tb/verilator/engine/Makefile
+@@ -27,7 +27,8 @@ all: run mutants
+ # runs need 2,097,152 requests (24.3 days) or 65,536 Syncs (2 h 16 min at
+ # 8 Hz) to reach those states. $$readmemh resolves its image by RELATIVE name
+ # at simulation start, so seeded passes run from ignored directories and an
+-# interrupt can leave no tracked artifact behind.
++# interrupt can leave no tracked artifact behind. A fourth pass (#82) runs
++# only the self-publication phases, from an image whose priority1 is 255.
+ run: gptp_ucode.hex
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vengine_sim
+ 	./obj_dir/Vengine_sim
+@@ -39,6 +40,10 @@ run: gptp_ucode.hex
+ 	@python3 $(GEN) $(GENARGS) --sync-seq-seed 0x10000 -o syncseedrun/gptp_ucode.hex >/dev/null
+ 	@echo "-- again, with the Sync counter seeded above 16 bits --"
+ 	@cd syncseedrun && ../obj_dir/Vengine_sim
++	@mkdir -p p1run
++	@python3 $(GEN) $(GENARGS) --p1 255 -o p1run/gptp_ucode.hex >/dev/null
++	@echo "-- the self publication again, not grandmaster-capable (priority1 255) --"
++	@cd p1run && ../obj_dir/Vengine_sim +not-gm-capable
+ 
+ # Rule 8: prove the checks above are load-bearing. Defects are injected into
+ # the real engine RTL and the real micro-code generator, one at a time, and
+@@ -52,4 +57,4 @@ gptp_ucode.hex: $(GEN)
+ 	python3 $< $(GENARGS) -o $@
+ 
+ clean:
+-	rm -rf obj_dir gptp_ucode.hex seedrun syncseedrun
++	rm -rf obj_dir gptp_ucode.hex seedrun syncseedrun p1run
+diff --git a/tb/verilator/engine/gptp_ucode.hex b/tb/verilator/engine/gptp_ucode.hex
+index e4ae267..abf7cb0 100644
+--- a/tb/verilator/engine/gptp_ucode.hex
++++ b/tb/verilator/engine/gptp_ucode.hex
+@@ -990,7 +990,7 @@ EA8281000000
+ 482830040003
+ 428030030002
+ EAA802000004
+-EAA803000003
++EAA803000002
+ 482830030002
+ 228000000001
+ 482830050001
+@@ -1020,5 +1020,5 @@ EAA803000003
+ 180000000000
+ EE6DB9884765
+ 255251AABB9F
+-000002A1B2FF
++000102A1B2FF
+ 0000FEC3D4E5
+diff --git a/tb/verilator/engine/mutants.py b/tb/verilator/engine/mutants.py
+index 00378cf..97c75da 100644
+--- a/tb/verilator/engine/mutants.py
++++ b/tb/verilator/engine/mutants.py
+@@ -55,7 +55,7 @@ HERE = Path(__file__).resolve().parent
+ HDL = (HERE / "../../../hdl").resolve()
+ sys.path.insert(0, str((HERE / "../../").resolve()))
+ 
+-from mutation_verdict import verdict  # noqa: E402
++from mutation_verdict import TALLY, verdict  # noqa: E402
+ 
+ #: the RTL the suite builds, in the order the Makefile lists it
+ RTL_SOURCES = (
+@@ -69,6 +69,11 @@ RTL_SOURCES = (
+ GENERATOR = "ucode/gen_gptp_ucode.py"
+ #: the shipping arguments of this suite's image, as tb/verilator/engine/Makefile
+ GENARGS = ("--clk-hz", "2000000", "--cease-ms", "3000")
++#: the Makefile's fourth pass (#82): a priority1 of 255, the self-publication
++#: phases only. Its checks print with this prefix, so a control names the pass
++P1_GENARGS = ("--p1", "255")
++P1_PLUSARG = "+not-gm-capable"
++P1_PREFIX = "p1 255 "
+ 
+ VFLAGS = [
+     "--cc", "--exe", "--build", "-j", "4", "--top-module", "KL_gptp_engine",
+@@ -255,8 +260,8 @@ MUTATIONS = [
+      "    p.emit(\"WRST\", ra=0, imm=RG_SCR | S_LOCK, fmt=FMT_Q)\n",
+      "the servo stays locked across a Sync receipt timeout"),
+     ("becoming grandmaster unlocks the servo", GENERATOR,
+-     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_PRESENT_C | FL_AMGM_C)\n",
+-     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_PRESENT_C | FL_AMGM_C)\n"
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)\n"
+      "    p.emit(\"WRST\", ra=0, imm=RG_SCR | S_LOCK, fmt=FMT_Q)\n",
+      "the servo stays locked across a return from mastership"),
+     ("the locked threshold is 200 us", GENERATOR,
+@@ -271,9 +276,8 @@ MUTATIONS = [
+      "",
+      "the first pair after asCapable rises, or after a reset, is a link-up"),
+     ("becoming grandmaster keeps sync-ok", GENERATOR,
+-     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_PRESENT_C | FL_AMGM_C)\n",
+-     "    e_flags(p, andm=FL_ASCAP_C | FL_SYNCOK_C,"
+-     " orm=FL_PRESENT_C | FL_AMGM_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C | FL_SYNCOK_C, orm=FL_AMGM_C)\n",
+      "becoming grandmaster clears the sync-ok verdict"),
+     ("the whole trim is not clamped", GENERATOR,
+      "    e_sat(p, RT, RUNTIME[\"ilim\"], \"sv_a\")                    "
+@@ -305,9 +309,11 @@ MUTATIONS = [
+      "",
+      "#82 warm reset: it names thisClock, not the elected peer"),
+     ("the thisClock words are read swapped", GENERATOR,
+-     "    for addr, word in ((ROM_CID_HI_C, cid >> 32),\n"
++     "    for addr, word in ((ROM_CID_HI_C,\n"
++     "                        (cid >> 32) | (gm_capable << ROM_GMCAP_BIT_C)),\n"
+      "                       (ROM_CID_LO_C, cid & 0xFFFFFFFF)):\n",
+-     "    for addr, word in ((ROM_CID_LO_C, cid >> 32),\n"
++     "    for addr, word in ((ROM_CID_LO_C,\n"
++     "                        (cid >> 32) | (gm_capable << ROM_GMCAP_BIT_C)),\n"
+      "                       (ROM_CID_HI_C, cid & 0xFFFFFFFF)):\n",
+      "#82 cold release: every cycle to the first beat names thisClock"
+      " | #82 cold release: that commit carries thisClock and {thisClock}"),
+@@ -384,12 +390,14 @@ MUTATIONS = [
+      "    p.emit(\"WRST\", ra=RC, imm=RG_PUB | 1, fmt=FMT_Q)\n",
+      "    p.emit(\"WRST\", ra=RC, imm=RG_PUB | 1, fmt=FMT_Q)\n",
+      "#82 peer leaves: the mastership commit names thisClock"
+-     " | #82 Pdelay loss: thisClock is committed within 2 ms of the fall"),
++     " | #82 Pdelay loss: thisClock is committed within 2 ms of the fall"
++     " | #82 Pdelay loss: that mastership names thisClock, {thisClock}"),
+     ("the self publication keeps the departed path", GENERATOR,
+      "    p.emit(\"WRST\", ra=RT, imm=RG_PUB | 6, fmt=FMT_Q)",
+      "    p.emit(\"WRST\", ra=0, imm=RG_PUB | 6, fmt=FMT_Q)",
+      "#82 peer leaves: the mastership commit path is {thisClock}"
+      " | #82 Pdelay loss: that commit carries {thisClock}"
++     " | #82 Pdelay loss: that mastership names thisClock, {thisClock}"
+      " | #82 every commit naming thisClock carries {thisClock}"),
+     ("the self publication keeps the departed record", GENERATOR,
+      "    p.emit(\"RDST\", rd=RT, imm=RG_SCR | S_MYPV, fmt=FMT_Q)\n"
+@@ -418,6 +426,51 @@ MUTATIONS = [
+      "    e_flag_gate(p, FL_ASCAP_C, FL_ASCAP_C, \"ac\", \"out\")\n",
+      "",
+      "#82 Pdelay loss: Announces from the incapable port elect nothing"),
++    ("the asCapable drop keeps the flags word", GENERATOR,
++     "    p.emit(\"WRST\", ra=0, imm=RG_PUB | 2, fmt=FMT_Q)\n"
++     "    p.emit(\"BR\", label=LB[\"SELF\"])\n",
++     "    p.emit(\"BR\", label=LB[\"SELF\"])\n",
++     "#82 Pdelay loss: the drop commit's flags are gmPresent alone"
++     " | p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone"),
++    ("an incapable port's receipt watch is not re-armed", GENERATOR,
++     "    p.emit(\"MOVE\", rd=RU, ra=0, imm=3000)\n"
++     "    p.emit(\"WRST\", ra=RU, imm=RG_TMR | 2, fmt=FMT_Q)  # keep watching\n",
++     "",
++     "#82 Pdelay loss: once capable, with no Announce, master in 3 s"
++     " | #82 Pdelay loss: that mastership names thisClock, {thisClock}"
++     " | p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s"),
++    # -- every self publication carries gmPresent (10.3.13.2.4 g) ----------
++    ("the published flags leave gmPresent to the microcode",
++     "top/KL_gptp_engine.sv",
++     "  assign pub_flags_o     = {pub_flags_r[31:1],\n"
++     "                            pub_flags_r[0] | rom_gm_capable_w};\n",
++     "  assign pub_flags_o     = pub_flags_r;\n",
++     "#82 cold release: every cycle to the first beat has gmPresent"
++     " | #82 cold release: that commit's flags are gmPresent alone"
++     " | #82 warm reset: its flags are gmPresent alone"
++     " | #82 peer leaves: the mastership commit has gmPresent"
++     " | #82 Pdelay loss: the drop commit's flags are gmPresent alone"
++     " | #82 Pdelay loss: that mastership commit has gmPresent"),
++    ("the image does not mark thisClock grandmaster-capable", GENERATOR,
++     "    gm_capable = RUNTIME[\"p1\"] < 255\n",
++     "    gm_capable = False\n",
++     "#82 cold release: every cycle to the first beat has gmPresent"
++     " | #82 cold release: that commit's flags are gmPresent alone"
++     " | #82 warm reset: its flags are gmPresent alone"
++     " | #82 peer leaves: the mastership commit has gmPresent"
++     " | #82 Pdelay loss: the drop commit's flags are gmPresent alone"
++     " | #82 Pdelay loss: that mastership commit has gmPresent"),
++    ("the capability mark ignores priority1", GENERATOR,
++     "    gm_capable = RUNTIME[\"p1\"] < 255\n",
++     "    gm_capable = True\n",
++     "p1 255 #82 cold release: every cycle to the first beat has gmPresent"
++     " | p1 255 #82 cold release: that commit's flags are gmPresent alone"
++     " | p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone"
++     " | p1 255 #82 Pdelay loss: that mastership commit has gmPresent"),
++    ("mastership sets the microcode's presence bit", GENERATOR,
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_PRESENT_C | FL_AMGM_C)\n",
++     "p1 255 #82 Pdelay loss: that mastership commit has gmPresent"),
+ ]
+ 
+ 
+@@ -437,14 +490,18 @@ def stage(work: Path, tag: str,
+ 
+ 
+ def generate_image(srcdir: Path, rundir: Path) -> bool:
+-    """Write the suite's ROM image from `srcdir`'s generator. False when the
++    """Write the suite's ROM images from `srcdir`'s generator: the shipping
++    one in `rundir`, the fourth pass's in `rundir`/p1run. False when the
+     generator refuses, which for a packing failure is a real answer."""
+-    rundir.mkdir(parents=True, exist_ok=True)
+-    out = subprocess.run(
+-        [sys.executable, str(srcdir / GENERATOR), *GENARGS,
+-         "-o", str(rundir / "gptp_ucode.hex")],
+-        capture_output=True, text=True)
+-    return out.returncode == 0 and (rundir / "gptp_ucode.hex").is_file()
++    for d, extra in ((rundir, ()), (rundir / "p1run", P1_GENARGS)):
++        d.mkdir(parents=True, exist_ok=True)
++        out = subprocess.run(
++            [sys.executable, str(srcdir / GENERATOR), *GENARGS, *extra,
++             "-o", str(d / "gptp_ucode.hex")],
++            capture_output=True, text=True)
++        if out.returncode != 0 or not (d / "gptp_ucode.hex").is_file():
++            return False
++    return True
+ 
+ 
+ def build(srcdir: Path, work: Path, tag: str) -> Path | None:
+@@ -464,15 +521,29 @@ def build(srcdir: Path, work: Path, tag: str) -> Path | None:
+ 
+ 
+ def run_harness(exe: Path, rundir: Path) -> tuple[int, str]:
+-    """(rc, output) of one harness run, reading its image from `rundir`.
++    """(rc, output) of one harness run, reading its image from `rundir`,
++    followed by the fourth pass from `rundir`/p1run.
++
++    The two tallies become one, so a failure in either pass is a failure of
++    the run. A pass that printed no tally keeps both runs' raw output with
++    no tally, and verdict() then names the abort rather than a catch.
+ 
+     No host deadline: every wait in sim_main.cpp is bounded in DUT cycles and
+     reports its own timeout as a failed check, so a mutant that wedges the
+     plane still returns a verdict.
+     """
+-    out = subprocess.run([str(exe)], cwd=str(rundir),
+-                         capture_output=True, text=True)
+-    return out.returncode, out.stdout + out.stderr
++    runs = [subprocess.run([str(exe), *arg], cwd=str(d),
++                           capture_output=True, text=True)
++            for d, arg in ((rundir, ()), (rundir / "p1run", (P1_PLUSARG,)))]
++    rc = next((r.returncode for r in runs if r.returncode), 0)
++    outs = [r.stdout + r.stderr for r in runs]
++    tallies = [TALLY.search(o) for o in outs]
++    body = "".join(TALLY.sub("", o) for o in outs)
++    if not all(tallies):
++        return rc, body
++    total = sum(int(m.group(1)) for m in tallies)
++    failed = sum(int(m.group(3)) for m in tallies)
++    return rc, f"{body}{total} checks: {total - failed} PASS, {failed} FAIL\n"
+ 
+ 
+ def main() -> int:
+@@ -538,24 +609,33 @@ def main() -> int:
+             # unrelated existing failure cannot stand in for that evidence.
+             if breaks.startswith("slew:") and answer == "caught":
+                 named = [line for line in output.splitlines()
+-                         if line.startswith("FAIL ") and breaks in line]
++                         if line.startswith("FAIL ") and breaks in line
++                         and not line.startswith("FAIL " + P1_PREFIX)]
+                 if not named:
+                     answer = "missed its named check"
+                 else:
+                     print(named[0])
+             # #82 controls must fail every check they name, for the same
+             # reason: each of those checks needs its own failing defect.
+-            if breaks.startswith("#82 ") and answer == "caught":
++            if breaks.startswith(("#82 ", P1_PREFIX)) and answer == "caught":
+                 failed = [line for line in output.splitlines()
+                           if line.startswith("FAIL ")]
++
++                def failing(want: str) -> str | None:
++                    pass_tag = "FAIL " + P1_PREFIX
++                    mine = want.startswith(P1_PREFIX)
++                    return next((line for line in failed
++                                 if want in line
++                                 and line.startswith(pass_tag) == mine),
++                                None)
+                 missed = [want for want in breaks.split(" | ")
+-                          if not any(want in line for line in failed)]
++                          if failing(want) is None]
+                 if missed:
+                     answer = ("missed its named check(s): "
+                               + "; ".join(missed))
+                 else:
+                     for want in breaks.split(" | "):
+-                        print(next(line for line in failed if want in line))
++                        print(failing(want))
+             if answer == "caught":
+                 passes += 1
+                 print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
+diff --git a/tb/verilator/engine/sim_main.cpp b/tb/verilator/engine/sim_main.cpp
+index c3d7317..c711735 100644
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -20,9 +20,9 @@
+ //         ignored: "armed with sequence 0" is not "nothing armed" (#8)
+ //  1d     #82: before any peer the plane is its own grandmaster. Every cycle
+ //         from cold release to the first timer beat publishes thisClock
+-//         with the one-entry path {thisClock}, and exactly one commit, on
+-//         the first clock edge out of reset, carries both (802.1AS-2020
+-//         10.3.13.2.4 b, i)
++//         with the one-entry path {thisClock} and gmPresent, and exactly
++//         one commit, on the first clock edge out of reset, carries them
++//         with no other flag (802.1AS-2020 10.3.13.2.4 b, g, i)
+ //  2b     a Pdelay_Resp (and its Follow_Up) sourced from OUR OWN
+ //         clockIdentity, answering the outstanding request, is ignored:
+ //         it neither moves the delay nor climbs the ladder (IEEE
+@@ -143,16 +143,26 @@
+ //         ppm envelope the parent's egress reconstruction derives
+ // 35      #82: a peer wins with its three-entry path; a warm reset taken
+ //         while it is elected commits thisClock and {thisClock}, with a zero
+-//         tail, once and at once; the retained record cannot compete, so a
+-//         peer worse than this plane leaves thisClock selected and a live
+-//         peer worse than the absent winner is elected with its own path;
+-//         when that peer falls silent, Pdelay still answering, the
+-//         mastership commit names thisClock and {thisClock} again
+-// 36      #82: the elected peer's Pdelay stops while its Announces continue;
+-//         within 2 ms of the asCapable fall thisClock and {thisClock} are
+-//         committed, the incapable port's Announces elect nothing, and once
+-//         capable a live peer worse than the dropped one is elected. Every
+-//         commit of the run naming thisClock carries {thisClock}
++//         tail and gmPresent alone, once and at once; the retained record
++//         cannot compete, so a peer worse than this plane leaves thisClock
++//         selected and a live peer worse than the absent winner is elected
++//         with its own path; when that peer falls silent, Pdelay still
++//         answering, the mastership commit names thisClock and {thisClock}
++//         again, with gmPresent
++// 36      #82: the elected peer's Pdelay stops while its Announces and
++//         Syncs continue, so sync-ok is set when asCapable falls; within
++//         2 ms of the fall thisClock and {thisClock} are committed with
++//         gmPresent alone, the incapable port's Announces elect nothing,
++//         and once capable, with no Announce, the port becomes master
++//         within one receipt interval; then a live peer worse than the
++//         dropped one is elected. Every commit of the run naming thisClock
++//         carries {thisClock}
++//
++// A fourth pass (+not-gm-capable, an image built with --p1 255) runs only
++// the phases a self publication passes through: boot, mastership and 36.
++// There thisClock is not grandmaster-capable, so gmPresent stays clear in
++// every self publication and is set only while a capable peer is elected
++// (10.3.13.2.4 g). Its checks print with a "p1 255 " prefix.
+ //
+ // All frames and expectations built independently from 802.1AS-2011 +
+ // Milan v1.2 4.2.6. The pdelay model mirrors the SPEC formula in exact
+@@ -223,9 +233,29 @@ namespace {
+ //! class rather than the whole translation unit.
+ class GptpEngineHarness {
+  public:
++  //! #82: the image was built with priority1 255, so thisClock is not
++  //! grandmaster-capable and the self publication carries no gmPresent
++  explicit GptpEngineHarness(bool not_gm_capable)
++      : self_present(not_gm_capable ? 0u : FL_PRESENT),
++        check_prefix(not_gm_capable ? "p1 255 " : "") {}
++
+   //! Runs every phase in file order and prints the one tally line the sweep
+   //! parses. Returns the process exit status: 0 pass, 1 fail.
+   int run_suite() {
++    if (self_present == 0) {
++      // the phases a self publication passes through, and no others: the
++      // rest of the suite scripts a grandmaster-capable plane
++      bring_the_engine_out_of_reset();
++      check_the_boot_pdelay_request();
++      publish_thisclock_before_any_peer();
++      txts_idx(our_req_idx, T1);   // the boot request's stamp, as phase 2
++      raise_ascapable_on_the_second_exchange();
++      become_master_on_announce_receipt_timeout();
++      drop_a_peer_whose_pdelay_stops();
++      hold_every_committed_path_coherent();
++      printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
++      return fails ? 1 : 0;
++    }
+     bring_the_engine_out_of_reset();
+     check_the_boot_pdelay_request();
+     publish_thisclock_before_any_peer();
+@@ -316,13 +346,18 @@ class GptpEngineHarness {
+ 
+  private:
+ 
++  //! flags bit 0 in a self publication: gmPresent when thisClock is
++  //! grandmaster-capable (802.1AS-2020 10.3.13.2.4 g)
++  const uint32_t self_present;
++  //! names the pass on every failed check, so a control can name the pass
++  const char *const check_prefix;
+   int checks = 0;
+   int fails = 0;
+   void expect(const char *what, uint64_t got, uint64_t exp) {
+     checks++;
+     if (got != exp) {
+       fails++;
+-      printf("FAIL %-28s got %016llx exp %016llx\n", what,
++      printf("FAIL %s%-28s got %016llx exp %016llx\n", check_prefix, what,
+              static_cast<unsigned long long>(got),
+              static_cast<unsigned long long>(exp));
+     }
+@@ -413,11 +448,13 @@ class GptpEngineHarness {
+   static constexpr size_t MAX_COMMIT_SNAPS = 1000000;
+   //! #82: from cold release to the first timer beat every cycle's outputs
+   //! are graded, not only its commits: the cycles seen, and those whose
+-  //! grandmaster is not thisClock or whose path is not {thisClock}
++  //! grandmaster is not thisClock, whose path is not {thisClock} or whose
++  //! gmPresent is not the self publication's
+   bool boot_watch = false;
+   uint64_t boot_cycles = 0;
+   uint64_t boot_bad_gm = 0;
+   uint64_t boot_bad_path = 0;
++  uint64_t boot_bad_present = 0;
+ 
+   // ---- TX backpressure ------------------------------------------------------
+   std::vector<std::vector<uint8_t>> txf;
+@@ -553,6 +590,7 @@ class GptpEngineHarness {
+       for (unsigned k = 0; k < PATH_TAIL_SLOTS; k++)
+         self_path &= pub_path_tail(k) == 0;
+       if (!self_path) boot_bad_path++;
++      if ((dut->pub_flags_o & FL_PRESENT) != self_present) boot_bad_present++;
+     }
+     if (dut->pub_commit_o) commits_seen++;
+     //! The record is bounded: a defect that commits on every cycle must
+@@ -1188,11 +1226,12 @@ class GptpEngineHarness {
+   // ---- 1d: #82 -- before any peer the plane is its own grandmaster -----
+   // 802.1AS-2020 10.3.13.2.4 b): with no port vector, gmPriority is the
+   // systemPriorityVector, so thisClock is the grandmaster, and i) makes
+-  // pathTrace {thisClock}. That holds from reset release, not from the
+-  // first one-second beat, whose init leg is the first microcode to run.
+-  // So every cycle from release to that beat is graded, and so is the one
++  // pathTrace {thisClock}, and g) sets gmPresent from that vector's
++  // priority1. That holds from reset release, not from the first
++  // one-second beat, whose init leg is the first microcode to run. So
++  // every cycle from release to that beat is graded, and so is the one
+   // commit a consumer needs to copy the bank: exactly one in the interval,
+-  // on the first clock edge out of reset, carrying both
++  // on the first clock edge out of reset, carrying all three
+   void publish_thisclock_before_any_peer() {
+     printf("INFO #82 cold release graded for %llu cycles to the first beat\n",
+            static_cast<unsigned long long>(boot_cycles));
+@@ -1200,6 +1239,8 @@ class GptpEngineHarness {
+            boot_bad_gm, 0);
+     expect("#82 cold release: every cycle to the first beat has {thisClock}",
+            boot_bad_path, 0);
++    expect("#82 cold release: every cycle to the first beat has gmPresent",
++           boot_bad_present, 0);
+     size_t n = 0;
+     const PubSnap *s = nullptr;
+     for (size_t i = cold_boot_mark; i < commit_snaps.size(); i++)
+@@ -1212,6 +1253,8 @@ class GptpEngineHarness {
+            s ? s->cyc - cold_release_cyc : ~0ull, 0);
+     expect("#82 cold release: that commit carries thisClock and {thisClock}",
+            s && s->gm == OUR_CID && committed_path_is(*s, {}), 1);
++    expect("#82 cold release: that commit's flags are gmPresent alone",
++           s ? s->flags : ~0u, self_present);
+   }
+ 
+   // ---- 1a: a self-sourced Pdelay_Req draws nothing -----------------------
+@@ -1718,7 +1761,7 @@ class GptpEngineHarness {
+            wait_flags(FL_AMGM, FL_AMGM, 12000000ull), 1);
+     run(200);  // raw words move before COMMIT; grade the complete transaction
+     expect("master flags", dut->pub_flags_o & 7,
+-           FL_PRESENT | FL_AMGM | FL_ASCAP);
++           self_present | FL_AMGM | FL_ASCAP);
+     expect("gm is us", dut->pub_gm_id_o, OUR_CID);
+     expect("self path has one entry", dut->pub_path_count_o, 1);
+     for (unsigned k = 0; k < PATH_TAIL_SLOTS; k++) {
+@@ -4802,7 +4845,7 @@ class GptpEngineHarness {
+   // worse than the absent A, wins with its own path. Once B's Announces
+   // stop while Pdelay still answers, the receipt timeout ages its vector
+   // out and the mastership commit names thisClock and {thisClock} again
+-  // (10.3.13.2.4 b, i)
++  // (10.3.13.2.4 b, i). Both self publications carry gmPresent (g)
+   void return_to_thisclock_around_a_winning_peer() {
+     const uint64_t GMA = 0x0082A0FFFE000001ull;
+     const uint64_t HOPA = 0x0082A0FFFE000002ull;
+@@ -4835,6 +4878,8 @@ class GptpEngineHarness {
+            w ? w->gm : 0, OUR_CID);
+     expect("#82 warm reset: its path is {thisClock} with a zero tail",
+            w && committed_path_is(*w, {}), 1);
++    expect("#82 warm reset: its flags are gmPresent alone",
++           w ? w->flags : ~0u, self_present);
+ 
+     wait_flags(FL_ASCAP, FL_ASCAP, 9000000);
+     const size_t worse0 = commit_snaps.size();
+@@ -4861,17 +4906,24 @@ class GptpEngineHarness {
+            gm ? gm->gm : 0, OUR_CID);
+     expect("#82 peer leaves: the mastership commit path is {thisClock}",
+            gm && committed_path_is(*gm, {}), 1);
++    expect("#82 peer leaves: the mastership commit has gmPresent",
++           gm ? gm->flags & FL_PRESENT : ~0u, self_present);
+   }
+ 
+   // ---- 36: #82 -- Pdelay stops while the elected peer keeps announcing --
+   // The other way a peer departs: its port stops being asCapable (four lost
+-  // responses, 802.1AS-2011 11.2.12.4) while its Announces still arrive.
+-  // A port that is not asCapable stops contributing its vector at once
+-  // (802.1AS-2020 10.3.12, DISABLED): within 2 ms of the commit that
+-  // publishes the fall, a commit names thisClock with {thisClock}, and the
+-  // Announces that keep arriving on the incapable port elect nothing
+-  // (10.3.11). Once Pdelay answers again, the best live peer is elected:
+-  // E, worse than the silent D, proves that D's record was dropped too
++  // responses, 802.1AS-2011 11.2.12.4) while its Announces and Syncs still
++  // arrive, so sync-ok is still set when asCapable falls. A port that is
++  // not asCapable stops contributing its vector at once (802.1AS-2020
++  // 10.3.12, DISABLED): within 2 ms of the commit that publishes the fall,
++  // a commit names thisClock with {thisClock}. Its flags are those of any
++  // self publication that is not master: gmPresent (10.3.13.2.4 g), with
++  // sync-ok, mastership and asCapable clear. The Announces that keep
++  // arriving on the incapable port elect nothing (10.3.11). Once Pdelay
++  // answers again and no Announce arrives, the receipt watch still running
++  // makes the port master within one receipt interval (10.3.12, AGED). A
++  // live peer is then elected: E, worse than the silent D, proves that D's
++  // record was dropped too
+   void drop_a_peer_whose_pdelay_stops() {
+     const uint64_t GMD = 0x0082D0FFFE000001ull;
+     const uint64_t HOPD = 0x0082D0FFFE000002ull;
+@@ -4880,15 +4932,25 @@ class GptpEngineHarness {
+     const uint64_t SRCE = 0x0082E0FFFE000002ull;
+     const std::vector<uint64_t> path_d = {GMD, HOPD, SRCD};
+     uint16_t seq = 0x8401;
++    uint16_t sseq = 0x8601;
++    //! one Sync/Follow_Up pair from D, measured exactly on time
++    auto d_sync = [&]() {
++      const uint64_t local = phc() + 1000;
++      sync_pair(sseq++, local, local - static_cast<uint64_t>(pdm.d), SRCD);
++    };
+     pd_mode = PD_NORMAL;
+     wait_flags(FL_ASCAP, FL_ASCAP, 9000000);  // setup, as in phase 35
+     send_announce(seq++, 1, GMD, 2, SRCD, path_d, phc() + 100);
++    d_sync();
+ 
+     pd_mode = PD_OFF;
+     const size_t lost0 = commit_snaps.size();
+-    for (int beat = 0; beat < 8 && (dut->pub_flags_o & FL_ASCAP); beat++) {
+-      run_svc(2000000);                       // one second
+-      send_announce(seq++, 1, GMD, 2, SRCD, path_d, phc() + 100);
++    // a Sync every 125 ms keeps sync-ok inside its 375 ms receipt timeout,
++    // an Announce every second keeps D's vector inside its 3 s one
++    for (int n = 0; n < 64 && (dut->pub_flags_o & FL_ASCAP); n++) {
++      run_svc(250000 - 8000);                 // sync_pair runs 8000 cycles
++      d_sync();
++      if (n % 8 == 7) send_announce(seq++, 1, GMD, 2, SRCD, path_d, phc() + 100);
+     }
+     run_svc(20000);
+     const PubSnap *fell = nullptr;
+@@ -4898,12 +4960,16 @@ class GptpEngineHarness {
+       if (fell && !self && commit_snaps[i].gm == OUR_CID) self = &commit_snaps[i];
+     }
+     if (fell && self)
+-      printf("INFO #82 Pdelay loss: thisClock committed %llu cycles after "
+-             "the fall\n", static_cast<unsigned long long>(self->cyc - fell->cyc));
++      printf("INFO #82 Pdelay loss: the fall commits flags %x, thisClock "
++             "follows %llu cycles later with flags %x\n", fell->flags,
++             static_cast<unsigned long long>(self->cyc - fell->cyc),
++             self->flags);
+     expect("#82 Pdelay loss: thisClock is committed within 2 ms of the fall",
+            fell && self && self->cyc - fell->cyc <= 4000, 1);
+     expect("#82 Pdelay loss: that commit carries {thisClock}",
+            self && committed_path_is(*self, {}), 1);
++    expect("#82 Pdelay loss: the drop commit's flags are gmPresent alone",
++           self ? self->flags : ~0u, self_present);
+ 
+     const size_t still0 = commit_snaps.size();
+     for (int beat = 0; beat < 3; beat++) {
+@@ -4916,7 +4982,31 @@ class GptpEngineHarness {
+ 
+     pd_mode = PD_NORMAL;
+     pd_seen = txf.size();
++    const size_t rise0 = commit_snaps.size();
+     wait_flags(FL_ASCAP, FL_ASCAP, 9000000);
++    wait_flags(FL_AMGM, FL_AMGM, 6100000);    // no Announce: the watch
++    run(200);  // the PathTrace write and COMMIT follow the flags write
++    const PubSnap *rose = nullptr;
++    const PubSnap *master = nullptr;
++    for (size_t i = rise0; i < commit_snaps.size(); i++) {
++      if (!rose && (commit_snaps[i].flags & FL_ASCAP)) rose = &commit_snaps[i];
++      if (rose && !master && (commit_snaps[i].flags & FL_AMGM))
++        master = &commit_snaps[i];
++    }
++    if (rose && master)
++      printf("INFO #82 Pdelay loss: mastership commits %llu cycles after "
++             "asCapable rises\n",
++             static_cast<unsigned long long>(master->cyc - rose->cyc));
++    // the watch, re-armed at 3 s while the port was incapable, expires no
++    // later than 3 s after the rise; 2 ms covers its tick and handler
++    expect("#82 Pdelay loss: once capable, with no Announce, master in 3 s",
++           rose && master && master->cyc - rose->cyc <= 6004000, 1);
++    expect("#82 Pdelay loss: that mastership names thisClock, {thisClock}",
++           master && master->gm == OUR_CID && committed_path_is(*master, {}),
++           1);
++    expect("#82 Pdelay loss: that mastership commit has gmPresent",
++           master ? master->flags & FL_PRESENT : ~0u, self_present);
++
+     const size_t back0 = commit_snaps.size();
+     send_announce(seq++, 2, GME, 1, SRCE, {GME, SRCE}, phc() + 100);
+     const PubSnap *back = last_commit_since(back0);
+@@ -5600,6 +5690,7 @@ class GptpEngineHarness {
+ 
+ int main(int argc, char **argv) {
+   Verilated::commandArgs(argc, argv);
+-  GptpEngineHarness harness;
++  GptpEngineHarness harness(
++      Verilated::commandArgsPlusMatch("not-gm-capable")[0] != '\0');
+   return harness.run_suite();
+ }
+diff --git a/tb/verilator/ucpu/gptp_ucode.hex b/tb/verilator/ucpu/gptp_ucode.hex
+index 8c9d163..2de3c06 100644
+--- a/tb/verilator/ucpu/gptp_ucode.hex
++++ b/tb/verilator/ucpu/gptp_ucode.hex
+@@ -990,7 +990,7 @@ EA8281000000
+ 482830040003
+ 428030030002
+ EAA802000004
+-EAA803000003
++EAA803000002
+ 482830030002
+ 228000000001
+ 482830050001
+@@ -1020,5 +1020,5 @@ EAA803000003
+ 180000000000
+ EE6DB9884765
+ 255251AABB9F
+-000002A1B2FF
++000102A1B2FF
+ 0000FEC3D4E5

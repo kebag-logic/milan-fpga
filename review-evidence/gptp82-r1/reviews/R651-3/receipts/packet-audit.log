@@ -1,0 +1,18 @@
+PASS publication manifest: 313 exact published hashes
+receipts/scripts/verify_receipts.py clean rc=0 312 files, 312 index rows, 0 mismatches
+receipts/scripts/verify_receipts.py changed rc=1 312 files, 312 index rows, 1 mismatches; MISMATCH receipts/r3/gates/head/bench.rc
+receipts/scripts/verify_receipts.py missing rc=1 311 files, 312 index rows, 1 mismatches; MISMATCH receipts/r3/gates/head/bench.rc
+receipts/scripts/verify_receipts.py extra rc=1 313 files, 312 index rows, 1 mismatches; MISMATCH unexpected-file
+receipts/r3/scripts/verify_receipts.py clean rc=0 312 files, 312 index rows, 0 mismatches
+receipts/r3/scripts/verify_receipts.py changed rc=1 312 files, 312 index rows, 1 mismatches; MISMATCH receipts/r3/gates/head/bench.rc
+receipts/r3/scripts/verify_receipts.py missing rc=1 311 files, 312 index rows, 1 mismatches; MISMATCH receipts/r3/gates/head/bench.rc
+receipts/r3/scripts/verify_receipts.py extra rc=1 313 files, 312 index rows, 1 mismatches; MISMATCH unexpected-file
+PASS all 58 current mutation names caught exactly once; 18 clean shard controls; all source anchors unique
+PASS named failing public probe drop_keeps_flags
+PASS named failing public probe held_no_rearm
+PASS exact-head engine: 1642 x 3 and 46; sync-ok at all four falls; correct self flags and recovery timing
+receipts/r3/gates/head exit receipts 28 nonzero {}
+receipts/r3/pgates/head exit receipts 22 nonzero {'milan_dp-gptp-dev-tests.rc': 2}
+receipts/r3/gates/base exit receipts 19 nonzero {}
+receipts/pgates/base exit receipts 0 nonzero {}
+PASS packet audit and all falsification cases
