@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3617,7 +3617,7 @@
+               //! a wrong-length command's echo is command-sized, and a
+               //! refusal has to be the size of the response it refuses, so
+               //! E_SIBAD builds the full zero body itself
+-              if (!si13_w && !si21_w) begin
++              if (1'b1 && !si21_w) begin
+                 upc_r  <= UPC_SIBAD_C;
+                 echo_r <= 1'b0;
+               end

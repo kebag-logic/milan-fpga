@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv	2026-10-17 18:31:09.380374350 +0200
++++ b/hdl/aecp/KL_aecp_engine.sv	2026-10-17 18:31:09.396374349 +0200
+@@ -810,7 +810,7 @@
+   localparam logic [10:0] SI21_PLD_C           = 11'd84;
+   localparam logic [10:0] SI13_CDL_C           = 11'd60;
+   localparam logic [10:0] SI13_PLD_C           = 11'd48;
+-  localparam logic [10:0] SI13_ECHO_C          = 11'd46;   // @24..@69
++  localparam logic [10:0] SI13_ECHO_C          = 11'd48;   // @24..@69
+   //! ---- START/STOP_STREAMING (Milan §5.4.2.19 / §5.4.2.20) --------------
+   //! IEEE Figure 7-59 gives both the {type @24, index @26} shape and nothing
+   //! else, so they join `tix_w` and their response is four bytes long — the

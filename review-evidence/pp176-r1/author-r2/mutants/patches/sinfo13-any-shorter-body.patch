@@ -1,0 +1,13 @@
+--- a/hdl/aecp/KL_aecp_engine.sv	2026-10-17 18:31:09.409531571 +0200
++++ b/hdl/aecp/KL_aecp_engine.sv	2026-10-17 18:31:09.425596438 +0200
+@@ -1559,8 +1559,8 @@
+   //! every route the 2021 body takes, and only the answer's length (A_RUN)
+   //! and its bytes past @69 (`frame_byte`) differ
+   logic si13_w;
+-  assign si13_w = ssinfo_r && (cmd_r.cdl == SI13_CDL_C)
+-                  && (pld_cmd_r == SI13_PLD_C);
++  assign si13_w = ssinfo_r && (cmd_r.cdl >= SI13_CDL_C)
++                  && (pld_cmd_r >= SI13_PLD_C);
+ 
+   //! the @26..@27 capture set. `tix_w` is the {type @24, index @26} SHAPE;
+   //! SET_CONFIGURATION is not that shape (§7.4.7.1 puts `reserved` at @24) but

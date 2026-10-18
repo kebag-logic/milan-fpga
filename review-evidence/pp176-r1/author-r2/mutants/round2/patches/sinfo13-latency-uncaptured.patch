@@ -1,0 +1,17 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3718,10 +3718,10 @@
+               //! can reach the register, and settled well before the A_PLD
+               //! exit reads it - a cdl-96 command's walk runs to index 83, a
+               //! cdl-60 command's to index 47.
+-              11'd26: if (ssinfo_r) silat_r[31:24] <= rxs_rd_data_i;
+-              11'd27: if (ssinfo_r) silat_r[23:16] <= rxs_rd_data_i;
+-              11'd28: if (ssinfo_r) silat_r[15:8]  <= rxs_rd_data_i;
+-              11'd29: if (ssinfo_r) silat_r[7:0]   <= rxs_rd_data_i;
++              11'd26: if (ssinfo_r && !si13_w) silat_r[31:24] <= rxs_rd_data_i;
++              11'd27: if (ssinfo_r && !si13_w) silat_r[23:16] <= rxs_rd_data_i;
++              11'd28: if (ssinfo_r && !si13_w) silat_r[15:8]  <= rxs_rd_data_i;
++              11'd29: if (ssinfo_r && !si13_w) silat_r[7:0]   <= rxs_rd_data_i;
+               default: ;
+             endcase
+ 
