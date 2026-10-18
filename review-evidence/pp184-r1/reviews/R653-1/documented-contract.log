@@ -1,0 +1,13 @@
+PASS no peer -> JoinMt
+PASS matching peer -> JoinIn
+PASS rLv -> next periodic JoinMt
+PASS queued JoinIn before withdrawal
+OBS queued event after rLv while not accepted: event=1 valid=1
+FAIL DOC293/309: rejoin accepted after Lv is JoinMt
+PASS queued old JoinIn then fresh JoinMt
+OBS withdrawal at enqueue: accepted-event=1
+PASS fresh rejoin after enqueue collision is JoinMt
+OBS queued event after registration while not accepted: event=3 valid=1
+FAIL DOC293: rejoin samples registrar at acceptance
+PASS queued old JoinMt then fresh JoinIn
+2 FAIL

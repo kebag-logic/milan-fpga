@@ -1,0 +1,13 @@
+COMMAND ['python3', '$REVIEWS/pp184-r653-1-packet/scratch/source/tb/srp_top/mutants.py', '--jobs', '4', '--only', 'domain-rejoin-always-joinin,domain-rejoin-always-joinmt,domain-lv-ignored', '--output', '$REVIEWS/pp184-r653-1-packet/mutation-logs']
+control srp_encoder : rc=0 PASS
+control srp_top domjoin: rc=0 PASS
+control srp_top timers: rc=0 PASS
+domain-rejoin-always-joinin: rc=2 failures=10 KILLED tags=B1-domain,D2 periodic JoinMt,D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR1 no peer,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR11 LINK_DOWN and LINK_UP clear the registration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR6 peer withdrawal (Lv)
+domain-rejoin-always-joinin: rc=2 failures=2 KILLED tags=DJ1,DJ4
+domain-rejoin-always-joinin: rc=2 failures=1 KILLED tags=Q2
+domain-rejoin-always-joinmt: rc=2 failures=8 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered
+domain-rejoin-always-joinmt: rc=2 failures=8 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered
+domain-rejoin-always-joinmt: rc=2 failures=2 KILLED tags=DJ2,DJ3
+domain-lv-ignored: rc=2 failures=1 KILLED tags=DR6 peer withdrawal (Lv)
+domain-lv-ignored: rc=2 failures=1 KILLED tags=DJ4
+11 checks: 11 PASS, 0 FAIL

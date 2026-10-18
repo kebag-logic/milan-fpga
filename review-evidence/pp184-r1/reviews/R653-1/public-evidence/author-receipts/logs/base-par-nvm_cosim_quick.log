@@ -1,0 +1,13 @@
+## gate base-par-nvm_cosim_quick
+## dir <data>/tmp/pp184-a648/parent
+## cmd make -j16 -C tb/verilator/nvm_cosim quick JOBS=4 POOL=2
+## head e9cbb676d7fdd6539aa408e5dfe38870a4ae1a5f
+## start 2026-10-18T15:49:21+02:00
+make: Entering directory '<data>/tmp/pp184-a648/parent/tb/verilator/nvm_cosim'
+python3 -B run_cases.py --shapes 1x1 --jobs 4 --pool 2 --skip-mutants
+building 2 build(s)
+[contract-1x1] 62 case run(s): 315 ok, 0 bad, 0 not expressible
+nvm_cosim: 315 checks: 315 PASS, 0 FAIL (0 not expressible)
+RESULT: PASS
+make: Leaving directory '<data>/tmp/pp184-a648/parent/tb/verilator/nvm_cosim'
+## end 2026-10-18T15:52:57+02:00 rc 0
