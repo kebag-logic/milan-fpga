@@ -1,0 +1,297 @@
+ooc/base-1x1/cone.rpt
+Slack (VIOLATED) :        -2.653ns  (required time - arrival time)
+Source:                 u_notify/cmdq_count_r_reg[4]/C
+Destination:            u_event_router/sel_r_reg[0]/D
+Path Group:             clk
+Logic Levels:           22  (LUT3=3 LUT4=3 LUT5=3 LUT6=13)
+Slack (VIOLATED) :        -2.448ns  (required time - arrival time)
+Source:                 u_notify/cmdq_count_r_reg[4]/C
+Destination:            u_event_router/sel_r_reg[1]/D
+Path Group:             clk
+Logic Levels:           22  (LUT3=3 LUT4=3 LUT5=3 LUT6=13)
+
+ooc/base-1x1/timing.rpt
+Slack (VIOLATED) :        -4.819ns  (required time - arrival time)
+Source:                 u_aecp/u_ucpu/desc_base_r_reg[1]/C
+Destination:            u_aecp/u_d3/deb_cnt_r_reg[0]/R
+Path Group:             clk
+Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+Source:                 u_aecp/u_ucpu/desc_base_r_reg[1]/C
+Destination:            u_aecp/u_d3/deb_cnt_r_reg[10]/R
+Path Group:             clk
+Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+
+ooc/base-8x8/cone.rpt
+Slack (VIOLATED) :        -8.930ns  (required time - arrival time)
+Source:                 u_notify/cmdq_count_r_reg[3]/C
+Destination:            u_event_router/sel_r_reg[0]/CE
+Path Group:             clk
+Logic Levels:           33  (LUT2=2 LUT3=2 LUT4=4 LUT5=3 LUT6=21 MUXF7=1)
+Slack (VIOLATED) :        -8.930ns  (required time - arrival time)
+Source:                 u_notify/cmdq_count_r_reg[3]/C
+Destination:            u_event_router/sel_r_reg[1]/CE
+Path Group:             clk
+Logic Levels:           33  (LUT2=2 LUT3=2 LUT4=4 LUT5=3 LUT6=21 MUXF7=1)
+
+ooc/base-8x8/timing.rpt
+Slack (VIOLATED) :        -10.720ns  (required time - arrival time)
+Source:                 u_notify/ctr_pend_r_reg[6]/C
+Destination:            u_event_router/sel_r_reg[0]/CE
+Path Group:             clk
+Logic Levels:           36  (LUT2=2 LUT3=2 LUT4=5 LUT5=3 LUT6=23 MUXF7=1)
+Slack (VIOLATED) :        -10.720ns  (required time - arrival time)
+Source:                 u_notify/ctr_pend_r_reg[6]/C
+Destination:            u_event_router/sel_r_reg[1]/CE
+Path Group:             clk
+Logic Levels:           36  (LUT2=2 LUT3=2 LUT4=5 LUT5=3 LUT6=23 MUXF7=1)
+
+ooc/head-1x1/cone.rpt
+No timing paths found.
+
+ooc/head-1x1/count_to_nempty.rpt
+Slack (MET) :             7.716ns  (required time - arrival time)
+Source:                 u_notify/cmdq_count_r_reg[4]/C
+Destination:            u_notify/cmdq_nempty_r_reg/D
+Path Group:             clk
+Logic Levels:           3  (LUT5=1 LUT6=2)
+
+ooc/head-1x1/nempty_to_sel.rpt
+Slack (VIOLATED) :        -0.367ns  (required time - arrival time)
+Source:                 u_notify/cmdq_nempty_r_reg/C
+Destination:            u_event_router/sel_r_reg[0]/D
+Path Group:             clk
+Logic Levels:           19  (LUT3=1 LUT4=5 LUT5=5 LUT6=8)
+Slack (VIOLATED) :        -0.367ns  (required time - arrival time)
+Source:                 u_notify/cmdq_nempty_r_reg/C
+Destination:            u_event_router/sel_r_reg[1]/D
+Path Group:             clk
+Logic Levels:           19  (LUT3=1 LUT4=5 LUT5=5 LUT6=8)
+
+ooc/head-1x1/timing.rpt
+Slack (VIOLATED) :        -4.819ns  (required time - arrival time)
+Source:                 u_aecp/u_ucpu/desc_base_r_reg[1]/C
+Destination:            u_aecp/u_d3/deb_cnt_r_reg[0]/R
+Path Group:             clk
+Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+Source:                 u_aecp/u_ucpu/desc_base_r_reg[1]/C
+Destination:            u_aecp/u_d3/deb_cnt_r_reg[10]/R
+Path Group:             clk
+Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+
+ooc/head-8x8/cone.rpt
+No timing paths found.
+
+ooc/head-8x8/count_to_nempty.rpt
+Slack (MET) :             7.909ns  (required time - arrival time)
+Source:                 u_notify/cmdq_count_r_reg[4]/C
+Destination:            u_notify/cmdq_nempty_r_reg/D
+Path Group:             clk
+Logic Levels:           2  (LUT6=2)
+
+ooc/head-8x8/nempty_to_sel.rpt
+Slack (VIOLATED) :        -1.741ns  (required time - arrival time)
+Source:                 u_notify/cmdq_nempty_r_reg/C
+Destination:            u_event_router/sel_r_reg[0]/CE
+Path Group:             clk
+Logic Levels:           21  (LUT3=3 LUT4=5 LUT5=1 LUT6=12)
+Slack (VIOLATED) :        -1.741ns  (required time - arrival time)
+Source:                 u_notify/cmdq_nempty_r_reg/C
+Destination:            u_event_router/sel_r_reg[1]/CE
+Path Group:             clk
+Logic Levels:           21  (LUT3=3 LUT4=5 LUT5=1 LUT6=12)
+
+ooc/head-8x8/timing.rpt
+Slack (VIOLATED) :        -5.844ns  (required time - arrival time)
+Source:                 u_aecp/u_ucpu/desc_base_r_reg[1]/C
+Destination:            u_aecp/u_d3/deb_cnt_r_reg[0]/R
+Path Group:             clk
+Logic Levels:           30  (CARRY4=11 LUT2=3 LUT3=1 LUT4=3 LUT5=4 LUT6=8)
+Slack (VIOLATED) :        -5.815ns  (required time - arrival time)
+Source:                 u_aecp/u_ucpu/desc_base_r_reg[1]/C
+Destination:            u_aecp/u_d3/deb_cnt_r_reg[10]/R
+Path Group:             clk
+Logic Levels:           30  (CARRY4=11 LUT2=3 LUT3=1 LUT4=3 LUT5=4 LUT6=8)
+
+cone/head760/head760/clkout1_top10.rpt
+Slack (MET) :             0.220ns  (required time - arrival time)
+Source:                 milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C
+Destination:            milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[0]/R
+Path Group:             milansoc_crg_clkout1
+Logic Levels:           34  (CARRY4=11 LUT2=7 LUT4=2 LUT5=6 LUT6=7 MUXF7=1)
+Slack (MET) :             0.220ns  (required time - arrival time)
+Source:                 milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C
+Destination:            milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[29]/R
+Path Group:             milansoc_crg_clkout1
+Logic Levels:           34  (CARRY4=11 LUT2=7 LUT4=2 LUT5=6 LUT6=7 MUXF7=1)
+
+cone/head760/head760/cone.rpt
+No timing paths found.
+
+cone/head760/head760/count_to_nempty.rpt
+Slack (MET) :             16.795ns  (required time - arrival time)
+Source:                 milan_datapath/pp_shadow/u_pp/u_notify/cmdq_count_r_reg[4]/C
+Destination:            milan_datapath/pp_shadow/u_pp/u_notify/cmdq_nempty_r_reg/D
+Path Group:             milansoc_crg_clkout1
+Logic Levels:           2  (LUT4=1 LUT6=1)
+
+cone/head760/head760/nempty_to_sel.rpt
+Slack (MET) :             3.510ns  (required time - arrival time)
+Source:                 milan_datapath/pp_shadow/u_pp/u_notify/cmdq_nempty_r_reg/C
+Destination:            milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[0]/CE
+Path Group:             milansoc_crg_clkout1
+Logic Levels:           22  (LUT2=6 LUT3=1 LUT4=2 LUT5=6 LUT6=7)
+Slack (MET) :             3.653ns  (required time - arrival time)
+Source:                 milan_datapath/pp_shadow/u_pp/u_notify/cmdq_nempty_r_reg/C
+Destination:            milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[3]/CE
+Path Group:             milansoc_crg_clkout1
+Logic Levels:           22  (LUT2=6 LUT3=1 LUT4=2 LUT5=6 LUT6=7)
+
+proofs/inv-head-1x1/inv.excerpt.txt
+105911:Induction step proven: SUCCESS!
+
+proofs/inv-head-2if-ident/inv.excerpt.txt
+210647:Induction step proven: SUCCESS!
+
+proofs/inv-head-default/inv.excerpt.txt
+106170:Induction step proven: SUCCESS!
+
+proofs/inv-m-N1-pop-keeps-set/inv.excerpt.txt
+125659:ERROR: Called with -verify and proof did fail!
+
+proofs/inv-m-N2-push-unseen/inv.excerpt.txt
+125659:ERROR: Called with -verify and proof did fail!
+
+proofs/inv-m-N3-pop-one-late/inv.excerpt.txt
+125659:ERROR: Called with -verify and proof did fail!
+
+proofs/inv-m-N4-cleared-beside-push/inv.excerpt.txt
+125659:ERROR: Called with -verify and proof did fail!
+
+proofs/inv-m-N5-not-busy/inv.excerpt.txt
+105911:Induction step proven: SUCCESS!
+
+proofs/inv-m-N6-reset-set/inv.excerpt.txt
+125648:ERROR: Called with -verify and proof did fail!
+
+proofs/inv-m-N7-pop-clears/inv.excerpt.txt
+125659:ERROR: Called with -verify and proof did fail!
+
+proofs/run-m-R1-base-always-ptr/equiv.log
+  Of those cells 280 are proven and 6 are unproven.
+ERROR: Found 6 unproven $equiv cells in 'equiv_status -assert'.
+
+proofs/run-m-R2-presented-not-removed/equiv.log
+  Of those cells 284 are proven and 2 are unproven.
+ERROR: Found 2 unproven $equiv cells in 'equiv_status -assert'.
+
+proofs/run-m-R3-load-ignores-ack/equiv.log
+  Of those cells 278 are proven and 8 are unproven.
+ERROR: Found 8 unproven $equiv cells in 'equiv_status -assert'.
+
+proofs/run-m-R4-select-reloads-always/equiv.log
+  Of those cells 280 are proven and 6 are unproven.
+ERROR: Found 6 unproven $equiv cells in 'equiv_status -assert'.
+
+proofs/run-m-R5-no-grant-clears/equiv.log
+  Of those cells 280 are proven and 6 are unproven.
+ERROR: Found 6 unproven $equiv cells in 'equiv_status -assert'.
+
+proofs/run-router-1/equiv.log
+  Of those cells 91 are proven and 0 are unproven.
+  Equivalence successfully proven!
+
+proofs/run-router-16/equiv.log
+  Of those cells 505 are proven and 0 are unproven.
+  Equivalence successfully proven!
+
+proofs/run-router-29/equiv.excerpt.txt
+3077:  Of those cells 859 are proven and 0 are unproven.
+
+proofs/run-router-5/equiv.log
+  Of those cells 205 are proven and 0 are unproven.
+  Equivalence successfully proven!
+
+proofs/run-router-8/equiv.log
+  Of those cells 286 are proven and 0 are unproven.
+  Equivalence successfully proven!
+
+camp/head/notify/occupancy_cleared_beside_push.log
+FAIL: CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 1 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (2 jobs, want 3)
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (40 of 8609 edges differ, the first at edge 8395)
+
+camp/head/notify/occupancy_not_busy.log
+FAIL: CQ1b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job (2 low), and low again after that (low)
+FAIL: CQ2b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job, between rounds included (17 low), and low again after that (low)
+
+camp/head/notify/occupancy_pop_clears.log
+FAIL: CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (16 entries at most, want 16; 1 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (3 jobs, want 26)
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (36 of 8515 edges differ, the first at edge 8480)
+
+camp/head/notify/occupancy_pop_keeps_set.log
+FAIL: DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (6 jobs after the drain)
+FAIL: DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once
+FAIL: CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 1 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (496 jobs, want 3)
+FAIL: CQ1b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job (0 low), and low again after that (high)
+FAIL: CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (16 entries at most, want 16; 1 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (458 jobs, want 26)
+FAIL: CQ2b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job, between rounds included (0 low), and low again after that (high)
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (134 of 12411 edges differ, the first at edge 5771)
+
+camp/head/notify/occupancy_pop_one_late.log
+FAIL: DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (3 jobs after the drain)
+FAIL: DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once
+FAIL: CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 1 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (5 jobs, want 3)
+FAIL: CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (16 entries at most, want 16; 1 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (27 jobs, want 26)
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (125 of 8627 edges differ, the first at edge 5771)
+
+camp/head/notify/occupancy_push_unseen.log
+FAIL: DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (1 jobs after the drain)
+FAIL: DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once
+FAIL: CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 2 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (0 jobs, want 3)
+FAIL: CQ1b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job (0 low), and low again after that (low)
+FAIL: CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (16 entries at most, want 16; 2 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (0 jobs, want 26)
+FAIL: CQ2b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job, between rounds included (0 low), and low again after that (low)
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (4045 of 12418 edges differ, the first at edge 5770)
+
+camp/head/notify/occupancy_reset_set.log
+FAIL: TS1: a counter change goes out to the registered controller
+FAIL: TS3: after a warm reset, a change in that same second goes out at once
+FAIL: TW1: a round first presented at ms 0 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 0, want 3600 to 3608
+FAIL: TW2: a change made at ms 5100, while a round first presented at ms 0 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6510: next round at ms 0, want 7510 to 7518
+FAIL: DR1: in a GET_COUNTERS round on 0009:0, C's registration expires while its job waits, and the round's remaining controller D still receives the round's GET_COUNTERS 0009:0 (6 jobs after the drain)
+FAIL: DR1b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once
+FAIL: DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (6 jobs after the drain)
+FAIL: DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once
+FAIL: DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31501 and a change arrives at ms 30101: D's GET_COUNTERS sent at ms 31659, the next at ms 0, want 32659 to 32667 (1 of D's GET_COUNTERS seen)
+FAIL: CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 30 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (61 jobs, want 3)
+FAIL: CQ1b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job (0 low), and low again after that (low)
+FAIL: CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (30 entries at most, want 16; 30 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (62 jobs, want 26)
+FAIL: CQ2b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job, between rounds included (0 low), and low again after that (low)
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (26 of 9040 edges differ, the first at edge 1)
+
+camp/head/notify/occupancy_reset_set_collision.log
+FAIL: SC1: a TIME_LIMITED drain and another controller's command in the same cycle cancel both probes exactly once, for either row order
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (8 of 140 edges differ, the first at edge 1)
+
+camp/head/notify/occupancy_reset_set_failure.log
+FAIL: SC2: a failure one cycle after the cancellation coincidence leaves the commanding controller registered without DEREGISTER, for either row order
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (8 of 876 edges differ, the first at edge 1)
+
+camp/head/notify/occupancy_reset_set_identify.log
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (4 of 100399998 edges differ, the first at edge 1)
+
+camp/head/notify/occupancy_reset_set_interfaces.log
+FAIL: PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)
+FAIL: PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (4 notification(s))
+FAIL: CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 0, 0000:0)
+FAIL: CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 0, 0000:0, 8 ms after interface 1's)
+FAIL: CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 3018 on index 0, want 4002 to 4010 on index 1
+FAIL: CK4: AVB_INTERFACE 2 names no interface of a two-interface build: no GET_COUNTERS in two seconds (one presented on 0000:0)
+FAIL: CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 0, 0000:0)
+FAIL: PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (4 entries, DEREGISTER to 020000000001), and row 1's monitor deadline probes row 1's controller, CA owner 0 (1 probe(s))
+FAIL: CA2: the cancelled exchanges' late failures and responses touch nothing: 3 entries (want 3), a job presented, and 2 draw(s), the two E's command asked
+FAIL: CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (0 cancel(s), owners 0x0, 2 entries)
+FAIL: CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 2 entries), and B's probe follows (1)
+FAIL: CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken 4 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 02000000000b)
+FAIL: OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (16 of 936 edges differ, the first at edge 1)

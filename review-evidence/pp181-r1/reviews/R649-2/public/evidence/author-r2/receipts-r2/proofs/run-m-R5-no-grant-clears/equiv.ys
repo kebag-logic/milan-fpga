@@ -1,0 +1,12 @@
+read_verilog gold.v gate.v
+chparam -set N_SRC_P 8 gold gate
+hierarchy -check
+proc; opt_clean
+memory; opt_clean
+flatten; opt_clean
+async2sync
+equiv_make -blacklist skip.txt gold gate eq
+hierarchy -top eq
+equiv_simple -seq 2
+equiv_induct -seq 2
+equiv_status -assert

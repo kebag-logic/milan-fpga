@@ -1,0 +1,161 @@
+author-receipts/ooc/base-1x1/cone.rpt
+Slack (VIOLATED) :        -2.204ns  (required time - arrival time)
+Logic Levels:           22  (LUT2=1 LUT3=1 LUT4=6 LUT5=5 LUT6=9)
+Slack (VIOLATED) :        -1.999ns  (required time - arrival time)
+Logic Levels:           22  (LUT2=1 LUT3=1 LUT4=6 LUT5=5 LUT6=9)
+Slack (VIOLATED) :        -1.955ns  (required time - arrival time)
+
+author-receipts/ooc/base-1x1/timing.rpt
+Slack (VIOLATED) :        -5.416ns  (required time - arrival time)
+Logic Levels:           31  (CARRY4=12 LUT2=4 LUT4=4 LUT5=3 LUT6=8)
+Slack (VIOLATED) :        -5.387ns  (required time - arrival time)
+Logic Levels:           31  (CARRY4=12 LUT2=4 LUT4=4 LUT5=3 LUT6=8)
+Slack (VIOLATED) :        -5.387ns  (required time - arrival time)
+
+author-receipts/ooc/base-1x1/util.rpt
+| Slice LUTs*                | 21643 |     0 |          0 |     63400 | 34.14 |
+| Slice Registers            | 18922 |     0 |          0 |    126800 | 14.92 |
+| Block RAM Tile    | 16.5 |     0 |          0 |       135 | 12.22 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+| RAMB18E1 |     1 |        Block Memory |
+
+author-receipts/ooc/base-1x1/util_hier.rpt
+|          Instance          |                Module               | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
+|   u_event_router           |                  KL_pp_event_router |        123 |        123 |       0 |    0 |    39 |      0 |      0 |          0 |
+|   u_notify                 |                      KL_aecp_notify |       2354 |       1394 |     960 |    0 |  1196 |      0 |      0 |          0 |
+
+author-receipts/ooc/base-8x8/cone.rpt
+Slack (VIOLATED) :        -8.234ns  (required time - arrival time)
+Logic Levels:           32  (LUT2=1 LUT3=4 LUT4=4 LUT5=1 LUT6=22)
+Slack (VIOLATED) :        -8.234ns  (required time - arrival time)
+Logic Levels:           32  (LUT2=1 LUT3=4 LUT4=4 LUT5=1 LUT6=22)
+Slack (VIOLATED) :        -8.234ns  (required time - arrival time)
+
+author-receipts/ooc/base-8x8/timing.rpt
+Slack (VIOLATED) :        -11.482ns  (required time - arrival time)
+Logic Levels:           39  (LUT2=1 LUT3=5 LUT4=5 LUT5=4 LUT6=24)
+Slack (VIOLATED) :        -11.482ns  (required time - arrival time)
+Logic Levels:           39  (LUT2=1 LUT3=5 LUT4=5 LUT5=4 LUT6=24)
+Slack (VIOLATED) :        -11.482ns  (required time - arrival time)
+
+author-receipts/ooc/base-8x8/util.rpt
+| Slice LUTs*                | 29096 |     0 |          0 |     63400 | 45.89 |
+| Slice Registers            | 25459 |     0 |          0 |    126800 | 20.08 |
+| Block RAM Tile    |   19 |     0 |          0 |       135 | 14.07 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+| RAMB18E1 |     2 |        Block Memory |
+
+author-receipts/ooc/base-8x8/util_hier.rpt
+|          Instance          |                Module               | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
+|   u_event_router           |                  KL_pp_event_router |        659 |        659 |       0 |    0 |   117 |      0 |      0 |          0 |
+|   u_notify                 |                      KL_aecp_notify |       2481 |       1521 |     960 |    0 |  1709 |      0 |      0 |          0 |
+
+author-receipts/ooc/cut-1x1/cone.rpt
+No timing paths found.
+
+author-receipts/ooc/cut-1x1/count_to_nempty.rpt
+Slack (MET) :             7.716ns  (required time - arrival time)
+Logic Levels:           3  (LUT5=1 LUT6=2)
+
+author-receipts/ooc/cut-1x1/nempty_to_sel.rpt
+Slack (VIOLATED) :        -1.719ns  (required time - arrival time)
+Logic Levels:           22  (LUT2=2 LUT3=2 LUT4=4 LUT5=2 LUT6=12)
+Slack (VIOLATED) :        -1.719ns  (required time - arrival time)
+Logic Levels:           22  (LUT2=2 LUT3=2 LUT4=4 LUT5=2 LUT6=12)
+Slack (VIOLATED) :        -1.719ns  (required time - arrival time)
+
+author-receipts/ooc/cut-1x1/timing.rpt
+Slack (VIOLATED) :        -5.416ns  (required time - arrival time)
+Logic Levels:           31  (CARRY4=12 LUT2=4 LUT4=4 LUT5=3 LUT6=8)
+Slack (VIOLATED) :        -5.387ns  (required time - arrival time)
+Logic Levels:           31  (CARRY4=12 LUT2=4 LUT4=4 LUT5=3 LUT6=8)
+Slack (VIOLATED) :        -5.387ns  (required time - arrival time)
+
+author-receipts/ooc/cut-1x1/util.rpt
+| Slice LUTs*                | 21662 |     0 |          0 |     63400 | 34.17 |
+| Slice Registers            | 18926 |     0 |          0 |    126800 | 14.93 |
+| Block RAM Tile    | 16.5 |     0 |          0 |       135 | 12.22 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+| RAMB18E1 |     1 |        Block Memory |
+
+author-receipts/ooc/cut-1x1/util_hier.rpt
+|          Instance          |                Module               | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
+|   u_event_router           |                  KL_pp_event_router |        123 |        123 |       0 |    0 |    39 |      0 |      0 |          0 |
+|   u_notify                 |                      KL_aecp_notify |       2312 |       1352 |     960 |    0 |  1198 |      0 |      0 |          0 |
+
+author-receipts/ooc/cut-8x8/cone.rpt
+No timing paths found.
+
+author-receipts/ooc/cut-8x8/count_to_nempty.rpt
+Slack (MET) :             7.936ns  (required time - arrival time)
+Logic Levels:           2  (LUT4=1 LUT5=1)
+
+author-receipts/ooc/cut-8x8/nempty_to_sel.rpt
+Slack (VIOLATED) :        -2.032ns  (required time - arrival time)
+Logic Levels:           22  (LUT2=1 LUT3=3 LUT4=4 LUT5=1 LUT6=13)
+Slack (VIOLATED) :        -2.032ns  (required time - arrival time)
+Logic Levels:           22  (LUT2=1 LUT3=3 LUT4=4 LUT5=1 LUT6=13)
+Slack (VIOLATED) :        -2.032ns  (required time - arrival time)
+
+author-receipts/ooc/cut-8x8/timing.rpt
+Slack (VIOLATED) :        -6.045ns  (required time - arrival time)
+Logic Levels:           30  (LUT2=1 LUT3=3 LUT4=6 LUT5=3 LUT6=16 RAMD32=1)
+Slack (VIOLATED) :        -6.045ns  (required time - arrival time)
+Logic Levels:           30  (LUT2=1 LUT3=3 LUT4=6 LUT5=3 LUT6=16 RAMD32=1)
+Slack (VIOLATED) :        -6.045ns  (required time - arrival time)
+
+author-receipts/ooc/cut-8x8/util.rpt
+| Slice LUTs*                | 29065 |     0 |          0 |     63400 | 45.84 |
+| Slice Registers            | 25461 |     0 |          0 |    126800 | 20.08 |
+| Block RAM Tile    |   19 |     0 |          0 |       135 | 14.07 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+| RAMB18E1 |     2 |        Block Memory |
+
+author-receipts/ooc/cut-8x8/util_hier.rpt
+|          Instance          |                Module               | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
+|   u_event_router           |                  KL_pp_event_router |        701 |        701 |       0 |    0 |   117 |      0 |      0 |          0 |
+|   u_notify                 |                      KL_aecp_notify |       2430 |       1470 |     960 |    0 |  1712 |      0 |      0 |          0 |
+
+author-receipts/ooc/head-1x1/cone.rpt
+No timing paths found.
+
+author-receipts/ooc/head-1x1/timing.rpt
+Slack (VIOLATED) :        -5.416ns  (required time - arrival time)
+Logic Levels:           31  (CARRY4=12 LUT2=4 LUT4=4 LUT5=3 LUT6=8)
+Slack (VIOLATED) :        -5.387ns  (required time - arrival time)
+Logic Levels:           31  (CARRY4=12 LUT2=4 LUT4=4 LUT5=3 LUT6=8)
+Slack (VIOLATED) :        -5.387ns  (required time - arrival time)
+
+author-receipts/ooc/head-1x1/util.rpt
+| Slice LUTs*                | 21662 |     0 |          0 |     63400 | 34.17 |
+| Slice Registers            | 18926 |     0 |          0 |    126800 | 14.93 |
+| Block RAM Tile    | 16.5 |     0 |          0 |       135 | 12.22 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+| RAMB18E1 |     1 |        Block Memory |
+
+author-receipts/ooc/head-1x1/util_hier.rpt
+|          Instance          |                Module               | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
+|   u_event_router           |                  KL_pp_event_router |        123 |        123 |       0 |    0 |    39 |      0 |      0 |          0 |
+|   u_notify                 |                      KL_aecp_notify |       2312 |       1352 |     960 |    0 |  1198 |      0 |      0 |          0 |
+
+author-receipts/ooc/head-8x8/cone.rpt
+No timing paths found.
+
+author-receipts/ooc/head-8x8/timing.rpt
+Slack (VIOLATED) :        -6.045ns  (required time - arrival time)
+Logic Levels:           30  (LUT2=1 LUT3=3 LUT4=6 LUT5=3 LUT6=16 RAMD32=1)
+Slack (VIOLATED) :        -6.045ns  (required time - arrival time)
+Logic Levels:           30  (LUT2=1 LUT3=3 LUT4=6 LUT5=3 LUT6=16 RAMD32=1)
+Slack (VIOLATED) :        -6.045ns  (required time - arrival time)
+
+author-receipts/ooc/head-8x8/util.rpt
+| Slice LUTs*                | 29065 |     0 |          0 |     63400 | 45.84 |
+| Slice Registers            | 25461 |     0 |          0 |    126800 | 20.08 |
+| Block RAM Tile    |   19 |     0 |          0 |       135 | 14.07 |
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+| RAMB18E1 |     2 |        Block Memory |
+
+author-receipts/ooc/head-8x8/util_hier.rpt
+|          Instance          |                Module               | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
+|   u_event_router           |                  KL_pp_event_router |        701 |        701 |       0 |    0 |   117 |      0 |      0 |          0 |
+|   u_notify                 |                      KL_aecp_notify |       2430 |       1470 |     960 |    0 |  1712 |      0 |      0 |          0 |

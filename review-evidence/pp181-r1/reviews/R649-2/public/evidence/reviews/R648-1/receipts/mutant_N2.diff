@@ -1,0 +1,10 @@
+--- head/hdl/aecp/KL_aecp_notify.sv	2026-10-18 13:02:11.000000000 +0200
++++ mut/N2/hdl/aecp/KL_aecp_notify.sv	2026-10-18 13:29:26.200037348 +0200
+@@ -1296,7 +1296,6 @@
+           cmdq_excl_r[cmdq_wr_r]  <= ev_cmd_excl_eid_i;
+           cmdq_wr_r    <= cmdq_wr_r + 4'd1;
+           cmdq_count_r <= cmdq_count_r + 5'd1;
+-          cmdq_nempty_r <= 1'b1;
+         end else if (cmdq_drop_r != 16'hFFFF) begin
+           cmdq_drop_r <= cmdq_drop_r + 16'd1;
+         end

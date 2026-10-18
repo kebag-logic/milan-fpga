@@ -1,0 +1,10 @@
+--- ../src/head_KL_aecp_notify.sv	2026-10-18 14:41:04.931320907 +0200
++++ N2-push-unseen.sv	2026-10-18 14:41:18.492138475 +0200
+@@ -1297,7 +1297,6 @@
+           cmdq_excl_r[cmdq_wr_r]  <= ev_cmd_excl_eid_i;
+           cmdq_wr_r    <= cmdq_wr_r + 4'd1;
+           cmdq_count_r <= cmdq_count_r + 5'd1;
+-          cmdq_nempty_r <= 1'b1;
+         end else if (cmdq_drop_r != 16'hFFFF) begin
+           cmdq_drop_r <= cmdq_drop_r + 16'd1;
+         end

@@ -1,0 +1,11 @@
+--- head/hdl/aecp/KL_aecp_notify.sv	2026-10-18 13:02:11.000000000 +0200
++++ mut/N6/hdl/aecp/KL_aecp_notify.sv	2026-10-18 13:29:26.200939452 +0200
+@@ -1193,7 +1193,7 @@
+       cmdq_wr_r   <= 4'd0;
+       cmdq_rd_r   <= 4'd0;
+       cmdq_count_r <= 5'd0;
+-      cmdq_nempty_r <= 1'b0;
++      cmdq_nempty_r <= 1'b1;
+       cmdq_drop_r <= 16'd0;
+       ctr_dirty_r <= '0;
+       ctr_pend_r  <= '0;

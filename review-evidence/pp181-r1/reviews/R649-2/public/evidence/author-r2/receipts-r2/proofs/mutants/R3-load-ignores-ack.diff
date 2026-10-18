@@ -1,0 +1,11 @@
+--- ../src/head_KL_pp_event_router.sv	2026-10-18 14:41:04.928320907 +0200
++++ R3-load-ignores-ack.sv	2026-10-18 14:41:18.487853865 +0200
+@@ -181,7 +181,7 @@
+       end
+ 
+       // presentation: load on delivery or from idle; held stable otherwise
+-      if (deliver_w || !valid_r) begin
++      if (1'b1) begin
+         valid_r <= gnt_found_w;
+         sel_r   <= sel_next_w;
+       end

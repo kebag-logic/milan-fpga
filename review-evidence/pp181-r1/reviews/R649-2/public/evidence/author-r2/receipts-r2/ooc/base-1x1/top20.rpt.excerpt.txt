@@ -1,0 +1,165 @@
+# excerpt: full file sha256 3b5bcb0b4523ac1d83d68e25a2264eaebff91c15dc797a7abddf921f30ce28d9, 205194 bytes, kept in scratch
+# --- first 80 lines
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Oct 18 15:08:26 2026
+| Host         : <host> running 64-bit unknown
+| Command      : report_timing -max_paths 20 -nworst 1 -file top20.rpt
+| Design       : protocol_processor_top
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -4.819ns  (required time - arrival time)
+  Source:                 u_aecp/u_ucpu/desc_base_r_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_aecp/u_d3/deb_cnt_r_reg[0]/R
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        14.292ns  (logic 5.771ns (40.379%)  route 8.521ns (59.621%))
+  Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 10.748 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=22976, unset)        0.787     0.787    u_aecp/u_ucpu/clk_i
+                         FDRE                                         r  u_aecp/u_ucpu/desc_base_r_reg[1]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_aecp/u_ucpu/desc_base_r_reg[1]/Q
+                         net (fo=2, unplaced)         0.373     1.557    u_aecp/u_ucpu/desc_base_r_reg_n_0_[1]
+                         LUT2 (Prop_lut2_I0_O)        0.232     1.789 r  u_aecp/u_ucpu/cfg_r[15]_i_39/O
+                         net (fo=1, unplaced)         0.000     1.789    u_aecp/u_ucpu/cfg_r[15]_i_39_n_0
+                         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.444     2.233 r  u_aecp/u_ucpu/cfg_r_reg[15]_i_16/CO[3]
+                         net (fo=1, unplaced)         0.000     2.233    u_aecp/u_ucpu/cfg_r_reg[15]_i_16_n_0
+                         CARRY4 (Prop_carry4_CI_O[3])
+                                                      0.277     2.510 r  u_aecp/u_ucpu/ptoff_r_reg[0][31]_i_6/O[3]
+                         net (fo=4, unplaced)         0.383     2.893    u_aecp/u_ucpu/ptoff_r_reg[0][31]_i_6_n_4
+                         LUT2 (Prop_lut2_I0_O)        0.250     3.143 r  u_aecp/u_ucpu/name_r_reg_i_151/O
+                         net (fo=1, unplaced)         0.000     3.143    u_aecp/u_ucpu/name_r_reg_i_151_n_0
+                         CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.444     3.587 r  u_aecp/u_ucpu/name_r_reg_i_130/CO[3]
+                         net (fo=1, unplaced)         0.000     3.587    u_aecp/u_ucpu/name_r_reg_i_130_n_0
+                         CARRY4 (Prop_carry4_CI_O[1])
+                                                      0.269     3.856 f  u_aecp/u_ucpu/name_r_reg_i_126/O[1]
+                         net (fo=1, unplaced)         0.240     4.096    u_aecp/u_ucpu/data4[11]
+                         LUT6 (Prop_lut6_I0_O)        0.245     4.341 f  u_aecp/u_ucpu/cfg_r[15]_i_59/O
+                         net (fo=1, unplaced)         0.347     4.688    u_aecp/u_ucpu/cfg_r[15]_i_59_n_0
+                         LUT6 (Prop_lut6_I3_O)        0.105     4.793 f  u_aecp/u_ucpu/cfg_r[15]_i_29/O
+                         net (fo=18, unplaced)        0.835     5.628    u_aecp/u_ucpu/ws_r_reg[2]_rep__1_3
+                         LUT6 (Prop_lut6_I0_O)        0.105     5.733 f  u_aecp/u_ucpu/cfg_r[15]_i_14/O
+                         net (fo=3, unplaced)         0.365     6.098    u_aecp/u_ucpu/cfg_r[15]_i_14_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     6.203 f  u_aecp/u_ucpu/cfg_r[15]_i_5/O
+                         net (fo=45, unplaced)        0.427     6.630    u_aecp/u_d3/dirty_r_reg[37]_i_101
+                         LUT5 (Prop_lut5_I0_O)        0.105     6.735 r  u_aecp/u_d3/cfg_r[15]_i_47/O
+                         net (fo=1, unplaced)         0.000     6.735    u_aecp/u_d3/cfg_r[15]_i_47_n_0
+                         CARRY4 (Prop_carry4_DI[0]_CO[3])
+                                                      0.477     7.212 r  u_aecp/u_d3/cfg_r_reg[15]_i_20/CO[3]
+                         net (fo=1, unplaced)         0.000     7.212    u_aecp/u_d3/cfg_r_reg[15]_i_20_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100     7.312 r  u_aecp/u_d3/cfg_r_reg[15]_i_10/CO[3]
+                         net (fo=3, unplaced)         0.628     7.940    u_aecp/u_ucpu/rd_data_r_reg[63]_0[0]
+                         LUT6 (Prop_lut6_I0_O)        0.105     8.045 r  u_aecp/u_ucpu/rd_data_r[63]_i_2/O
+                         net (fo=107, unplaced)       0.448     8.493    u_aecp/u_dyn/rd_data_r_reg[0]_1
+                         LUT4 (Prop_lut4_I0_O)        0.105     8.598 r  u_aecp/u_dyn/rd_data_r[3]_i_2/O
+                         net (fo=2, unplaced)         0.358     8.956    u_aecp/u_d3/dirty_r[37]_i_152_1
+                         LUT6 (Prop_lut6_I4_O)        0.105     9.061 f  u_aecp/u_d3/dirty_r[37]_i_163/O
+# --- key lines (line: text)
+6: | Command      : report_timing -max_paths 20 -nworst 1 -file top20.rpt
+15: Slack (VIOLATED) :        -4.819ns  (required time - arrival time)
+24:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+130: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+139:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+245: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+254:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+360: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+369:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+475: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+484:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+590: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+599:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+705: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+714:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+820: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+829:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+935: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+944:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+1050: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+1059:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+1165: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+1174:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+1280: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+1289:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+1395: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+1404:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+1510: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+1519:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+1625: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+1634:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+1740: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+1749:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+1855: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+1864:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+1970: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+1979:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+2085: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+2094:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+2200: Slack (VIOLATED) :        -4.790ns  (required time - arrival time)
+2209:   Logic Levels:           29  (CARRY4=12 LUT2=2 LUT4=1 LUT5=5 LUT6=9)
+# --- last 40 lines
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100    10.257 r  u_aecp/u_ucpu/dirty_r_reg[37]_i_67/CO[3]
+                         net (fo=1, unplaced)         0.000    10.257    u_aecp/u_ucpu/dirty_r_reg[37]_i_67_n_0
+                         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100    10.357 r  u_aecp/u_ucpu/dirty_r_reg[37]_i_53/CO[3]
+                         net (fo=1, unplaced)         0.000    10.357    u_aecp/u_ucpu/dirty_r_reg[37]_i_53_n_0
+                         CARRY4 (Prop_carry4_CI_CO[1])
+                                                      0.150    10.507 r  u_aecp/u_ucpu/dirty_r_reg[37]_i_35/CO[1]
+                         net (fo=2, unplaced)         0.251    10.758    u_aecp/u_ucpu/dirty_r_reg[37]_i_35_n_2
+                         LUT6 (Prop_lut6_I2_O)        0.277    11.035 r  u_aecp/u_ucpu/dirty_r[37]_i_11/O
+                         net (fo=2, unplaced)         0.358    11.393    u_aecp/u_ucpu/d3_chg_w
+                         LUT6 (Prop_lut6_I1_O)        0.105    11.498 f  u_aecp/u_ucpu/dirty_r[35]_i_4/O
+                         net (fo=21, unplaced)        0.408    11.906    u_aecp/u_ucpu/dirty_r[35]_i_4_n_0
+                         LUT6 (Prop_lut6_I2_O)        0.105    12.011 r  u_aecp/u_ucpu/dirty_r[35]_i_2/O
+                         net (fo=3, unplaced)         0.800    12.811    u_aecp/u_ucpu/dirty_r[37]_i_4_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    12.916 r  u_aecp/u_ucpu/deb_cnt_r[31]_i_11/O
+                         net (fo=1, unplaced)         0.778    13.694    u_aecp/u_ucpu/deb_cnt_r[31]_i_11_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    13.799 r  u_aecp/u_ucpu/deb_cnt_r[31]_i_4/O
+                         net (fo=9, unplaced)         0.623    14.422    u_aecp/u_ucpu/deb_cnt_r[31]_i_4_n_0
+                         LUT5 (Prop_lut5_I1_O)        0.105    14.527 r  u_aecp/u_ucpu/deb_cnt_r[31]_i_1/O
+                         net (fo=26, unplaced)        0.552    15.079    u_aecp/u_d3/deb_cnt_r_reg[31]_0
+                         FDRE                                         r  u_aecp/u_d3/deb_cnt_r_reg[27]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  <hidden>
+                                                      0.000    10.000 r  clk_i
+                         net (fo=22976, unset)        0.748    10.748    u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_aecp/u_d3/deb_cnt_r_reg[27]/C
+                         clock pessimism              0.000    10.748    <hidden>
+                         clock uncertainty           -0.035    10.712    <hidden>
+                         FDRE (Setup_fdre_C_R)       -0.423    10.289    u_aecp/u_d3/deb_cnt_r_reg[27]
+  -------------------------------------------------------------------
+                         required time                         10.289    <hidden>
+                         arrival time                         -15.079    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 -4.790    <hidden>
+
+
+
+

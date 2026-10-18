@@ -1,0 +1,64 @@
+[
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "occupancy_cleared_beside_push",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:",
+   "CQ1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 1 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (2 jobs, want 3)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (40 of 8609 edges differ, the first at edge 8395)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_pop_clears",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:",
+   "CQ2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (16 entries at most, want 16; 1 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (3 jobs, want 26)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (36 of 8515 edges differ, the first at edge 8480)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_not_busy",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CQ1b:",
+   "CQ2b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CQ1b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job (2 low), and low again after that (low)",
+   "CQ2b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job, between rounds included (17 low), and low again after that (low)"
+  ],
+  "verdict": "KILLED"
+ }
+]
