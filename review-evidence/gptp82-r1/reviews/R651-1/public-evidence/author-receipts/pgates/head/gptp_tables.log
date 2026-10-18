@@ -1,0 +1,42 @@
+make: Entering directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables'
+python3 ../../../scripts/gen_one_valued_table.py --check
+README.md: the one-valued table is current
+verilator --cc --exe --build -j 0 --top-module gptp_tables_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -Wno-PINMISSING -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables -Wall -Wextra" waivers.vlt gptp_tables_wrap.sv ../gptp_shadow/gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_tables_sim
+make[1]: Entering directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables/obj_dir'
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables -Wall -Wextra   -c -o verilated.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables -Wall -Wextra   -c -o verilated_threads.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vgptp_tables_wrap.cpp Vgptp_tables_wrap___024root__0.cpp Vgptp_tables_wrap__ConstPool__0__Slow.cpp Vgptp_tables_wrap___024root__Slow.cpp Vgptp_tables_wrap___024root__0__Slow.cpp Vgptp_tables_wrap__Syms__Slow.cpp > Vgptp_tables_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables -Wall -Wextra   -c -o Vgptp_tables_wrap__ALL.o Vgptp_tables_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vgptp_tables_wrap__ALL.a    -pthread -lpthread -latomic   -o Vgptp_tables_sim
+rm Vgptp_tables_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.200 MB sources in 19 modules, into 0.913 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 6.285 s (elab=0.034, cvt=0.141, bld=6.058); cpu 0.239 s on 16 threads; allocated 768.145 MB
+./obj_dir/Vgptp_tables_sim one_valued.tsv
+stimulus: 32100038 cycles, 90033 mixed and 209 peer frames, 10 pdelay answers
+rx_fifo: 44205 good, 33135 overflow, 12900 bad, lanes 0xff, 256 beats deep
+tx_fifo: 6333 frames, counts 0x114, 10809744 stalled cycles, 25 beats deep
+tx_fifo decode: counts 0 to 8 presented enables 00 01 03 07 0f 1f 3f 7f ff, 0 decoded wrong
+ledger: 18779434 compared, heads 0xff, 3 deep
+results: 7193 compared, heads 0xff, 2 deep, 111 written behind a waiting result
+timer: 41796 compared, slots 0x3f
+plane: flags 0xd, 3689 programs run, 112 tap drops, 915 parser drops, 33 event drops, 0 lost results, 0 barriers
+rx_fifo values: lane: 8 distinct: 0x0 0x1 0x2 0x3 0x4 0x5 0x6 0x7
+tx_fifo values: count: 3 distinct: 0x2 0x4 0x8
+ledger values: type: 6 distinct: 0x0 0x2 0x3 0x8 0xa 0xb
+ledger values: seq: 3125 distinct, 0x0 to 0xff05
+ledger values: tag: 1 distinct: 0x1, declared 0x1
+results values: ns: 6332 distinct, 0x18b7c to 0x1c977a64
+results values: seq: 3124 distinct, 0x0 to 0xff05
+results values: type: 6 distinct: 0x0 0x2 0x3 0x8 0xa 0xb
+results values: ok: 1 distinct: 0x1, declared 0x1
+results values: gen: 1 distinct: 0x1, declared 0x1
+timer values: deadline: 680 distinct, 0x4b0 to 0x34e4
+== gptp_tables: checks: 36   failures: 0 ==
+RESULT: PASS
+python3 mutants.py
+REFUSED: required dependency gitlinks differ from HEAD
+make: *** [Makefile:66: mutants] Error 2
+make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables'

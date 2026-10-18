@@ -1,0 +1,54 @@
+{
+  "control": {
+    "named": 0,
+    "cold": 1,
+    "gone": 1,
+    "warm": 1
+  },
+  "mutant1": {
+    "named": 1,
+    "named_checks": {
+      "#82 cold boot: first commit names thisClock": true,
+      "#82 cold boot: first commit path is {thisClock}": true,
+      "#82 warm reset: first commit names thisClock": true,
+      "#82 warm reset: first commit path is {thisClock}": true
+    },
+    "name": "boot publication restored to zero"
+  },
+  "mutant2": {
+    "named": 1,
+    "named_checks": {
+      "#82 cold boot: a commit lands with the first beat": true,
+      "#82 warm reset: a commit follows the release at once": true
+    },
+    "name": "no engine commit after reset"
+  },
+  "mutant3": {
+    "named": 1,
+    "named_checks": {
+      "#82 peer wins: its commit names the peer GM": true
+    },
+    "name": "thisClock hides an elected peer"
+  },
+  "mutant4": {
+    "named": 1,
+    "named_checks": {
+      "#82 peer wins: its commit carries the peer path": true
+    },
+    "name": "an elected peer keeps the self path"
+  },
+  "mutant5": {
+    "named": 1,
+    "named_checks": {
+      "#82 peer leaves: the mastership commit names thisClock": true
+    },
+    "name": "becoming grandmaster keeps the departed GM"
+  },
+  "mutant6": {
+    "named": 1,
+    "named_checks": {
+      "#82 peer leaves: the mastership commit path is {thisClock}": true
+    },
+    "name": "becoming grandmaster keeps the departed path"
+  }
+}

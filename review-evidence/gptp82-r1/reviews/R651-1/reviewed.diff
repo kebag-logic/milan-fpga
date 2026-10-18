@@ -1,0 +1,460 @@
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index 6f73cf3..e76ee68 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -173,6 +173,18 @@ Consumers sample only during `pub_commit_o`.
+ 
+ Inactive path entries must remain zero.
+ 
++A zero raw grandmaster means no election since reset.
++
++The outputs then name thisClock and the path {thisClock}.
++
++The S_CID mirror supplies thisClock; the ROM stays unchanged.
++
++The engine also raises one commit after each reset.
++
++It waits for thisClock and an idle microCPU.
++
++A microcode commit before it cancels it.
++
+ ## Out-of-context measurement
+ 
+ `make ooc` synthesizes both tops out of context.
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index 0c046f9..a7b1ac1 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -459,6 +459,44 @@ Retained paths contain at most eight identities.
+ 
+ Inactive path entries remain zero.
+ 
++### Before any peer
++
++[Issue #82](https://github.com/Mister-M-alt/FPGA-gPTP/issues/82) defines this boot publication.
++
++802.1AS-2020 clause 10.3.13.2.4 requires it.
++
++Every reset leaves no elected peer.
++
++This plane is then its own grandmaster.
++
++The grandmaster output names thisClock.
++
++The path holds one entry: thisClock.
++
++Parent identity and flags keep their reset values.
++
++The engine commits this state once by itself.
++
++That commit waits until thisClock is known.
++
++It also waits until no handler is running.
++
++A warm reset knows thisClock at once.
++
++A cold start learns it in the first timer beat.
++
++That beat runs about 1.2 s after reset.
++
++Until then, grandmaster and path count stay zero.
++
++An earlier microcode commit replaces the engine's own commit.
++
++A better peer then wins through normal selection.
++
++Its silence for 3 s returns thisClock.
++
++That return still requires asCapable.
++
+ ## Microcode configuration
+ 
+ Generate one image for each hardware configuration.
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index 14558fe..8b931d1 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -28,7 +28,7 @@ Line numbers describe the current branch layout.
+ | Python image generation | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Media-dependent transmit flags | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine and tsngen suites |
+ | Step-versus-slew policy | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L929), [word 3](../hdl/top/KL_gptp_engine.sv#L934), [policy](../hdl/ucode/gen_gptp_ucode.py#L848) | Engine suite and named mutation controls |
++| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L947), [word 3](../hdl/top/KL_gptp_engine.sv#L952), [policy](../hdl/ucode/gen_gptp_ucode.py#L848) | Engine suite and named mutation controls |
+ | PHC rate envelope | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Ignored receive flag bits | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L475) | Engine suite |
+ | C++ test harnesses | [`tb/verilator`](../tb/verilator) | `make` |
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index 90ab606..3d42095 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -106,6 +106,8 @@ Prefer independent protocol formulas and frame builders.
+ - Keeps every written addend inside 200 ppm.
+ - Checks slew decisions, completion, and held intervals.
+ - Checks reset, lost capability, missing Sync, steps, and mastership.
++- Commits thisClock and {thisClock} after cold and warm resets.
++- Hands both to a winning peer and back after silence.
+ - Rejects tied-low and early-clear slew indications.
+ - Keeps in-band tracking inactive after idle timeouts and GM changes.
+ - Keeps in-band returns from mastership inactive.
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index e8b6900..cc47406 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -115,10 +115,10 @@ module KL_gptp_engine
+     output logic [31:0] pub_pdelay_ns_o,
+     output logic [31:0] pub_offset_o,  //! last sync offset, ns (signed)
+     output logic [63:0] pub_annq_o,    //! last received announce vector, raw
+-    //! Raw selected PathTrace publication. A present sequence reports its
+-    //! complete received length including the separately published GM at slot
+-    //! zero; an absent TLV reports count zero. pub_path_o carries slots 1..7,
+-    //! and every inactive tail slot is zero.
++    //! Raw selected PathTrace publication: its complete received length,
++    //! including the separately published GM at slot zero, or zero for an
++    //! absent TLV. pub_path_o carries slots 1..7; inactive slots are zero.
++    //! Before any election since reset: thisClock and {thisClock} (#82).
+     output logic  [3:0] pub_path_count_o,
+     output logic [7*64-1:0] pub_path_o,
+     output logic        pub_commit_o,
+@@ -621,6 +621,7 @@ module KL_gptp_engine
+   logic        ucpu_tx_ready_w;
+   logic [UPC_W_C-1:0] ucpu_dbg_upc_w;
+   logic        ucpu_dbg_ovf_w;
++  logic        ucpu_commit_w;
+ 
+   KL_gptp_ucpu #(
+       .UCODE_HEX_P (UCODE_HEX_P)
+@@ -657,7 +658,7 @@ module KL_gptp_engine
+       .resp_len_o         (resp_len_w),
+       .resp_status_o      (resp_status_w),
+       .tx_ready_i         (ucpu_tx_ready_w),
+-      .eff_commit_o       (pub_commit_o),
++      .eff_commit_o       (ucpu_commit_w),
+       .eff_nvm_mark_o     (eff_nvm_mark_o),
+       .eff_nvm_stb_o      (eff_nvm_stb_o),
+       .eff_notify_class_o (eff_notify_class_o),
+@@ -679,8 +680,8 @@ module KL_gptp_engine
+   //! GM/parent. If the local vector wins, BECOME overwrites it with `[self]`
+   //! before the handler's sole COMMIT; a worse Announce never executes `take`
+   //! and therefore cannot disturb the selected record. Preserve this raw path
+-  //! across warm reset with the scratch best vector; outward wires are gated
+-  //! to canonical zero while the reset-cleared GM is zero.
++  //! across warm reset with the scratch best vector; while the reset-cleared
++  //! GM is zero, the outward wires publish thisClock and {thisClock} instead.
+   // The initial writer is configuration state, not a second runtime driver.
+   /* verilator lint_off MULTIDRIVEN */
+   initial begin : pub_path_poweron
+@@ -767,6 +768,12 @@ module KL_gptp_engine
+   //! an asCapable port regain mastership and its Sync cadence.
+   logic       boot_done_r;
+   logic [7:0] boot_cnt_r;
++  //! Boot publication (#82). The shadow consumer copies the bank only on
++  //! pub_commit_o, so the reset-time self publication needs a commit too.
++  //! The µcode installs thisClock in its first timer beat on a cold start;
++  //! a warm reset keeps it. One engine commit follows, unless a µcode
++  //! COMMIT has already exposed the bank.
++  logic       boot_pub_pend_r, boot_pub_commit_r;
+ `ifndef SYNTHESIS
+   //! Address 7 may change raw path state before publication, but the BTCA
+   //! contest must always resolve through address 6 before any COMMIT. This
+@@ -788,6 +795,8 @@ module KL_gptp_engine
+       pub_annq_r      <= '0;
+       boot_done_r     <= 1'b0;
+       boot_cnt_r      <= '0;
++      boot_pub_pend_r   <= 1'b1;
++      boot_pub_commit_r <= 1'b0;
+       phc_addend_we_o <= 1'b0;
+       phc_addend_o    <= '0;
+       phc_step_we_o   <= 1'b0;
+@@ -808,6 +817,15 @@ module KL_gptp_engine
+       phc_addend_we_o <= 1'b0;
+       phc_step_we_o   <= 1'b0;
+       tmr_arm_we_w    <= 1'b0;
++      boot_pub_commit_r <= 1'b0;
++      //! #82: commit the reset-time bank once thisClock is known, while no
++      //! handler sits between its staging writes and its own COMMIT.
++      if (boot_pub_pend_r && local_clock_valid_r && !dbg_busy_o) begin
++        boot_pub_pend_r   <= 1'b0;
++        boot_pub_commit_r <= 1'b1;
++      end else if (ucpu_commit_w) begin
++        boot_pub_pend_r <= 1'b0;
++      end
+ `ifndef SYNTHESIS
+       if (local_clock_valid_r &&
+           (local_clock_id_r != scratch_r[6'd25]))
+@@ -960,15 +978,19 @@ module KL_gptp_engine
+   end
+   /* verilator lint_on MULTIDRIVEN */
+ 
+-  assign pub_gm_id_o     = pub_gm_r;
++  //! #82: a zero GM is the reset value, before any election since reset.
++  wire        pub_gm_self_w = (pub_gm_r == 64'd0);
++  wire [63:0] local_gm_id_w = local_clock_valid_r ? local_clock_id_r : 64'd0;
++  assign pub_gm_id_o     = pub_gm_self_w ? local_gm_id_w : pub_gm_r;
+   assign pub_parent_id_o = pub_parent_r;
+   assign pub_flags_o     = pub_flags_r;
+   assign pub_pdelay_ns_o = pub_pdelay_r;
+   assign pub_offset_o    = pub_offset_r;
+   assign pub_annq_o      = pub_annq_r;
+-  assign pub_path_count_o = (pub_gm_r == 64'd0) ? 4'd0
+-                                                 : pub_path_count_r;
+-  assign pub_path_o       = (pub_gm_r == 64'd0) ? '0 : pub_path_r;
++  assign pub_path_count_o = pub_gm_self_w ? {3'd0, local_clock_valid_r}
++                                          : pub_path_count_r;
++  assign pub_path_o       = pub_gm_self_w ? '0 : pub_path_r;
++  assign pub_commit_o     = ucpu_commit_w || boot_pub_commit_r;
+ 
+   // ------------------------------------------------------------ TX slot
+   KL_gptp_tx_slot u_txslot (
+diff --git a/tb/verilator/engine/mutants.py b/tb/verilator/engine/mutants.py
+index 2908641..057cc62 100644
+--- a/tb/verilator/engine/mutants.py
++++ b/tb/verilator/engine/mutants.py
+@@ -288,6 +288,49 @@ MUTATIONS = [
+      "# +-ILIM\n",
+      "",
+      "the integrator stays within +-200 ppm"),
++    # ---- #82: thisClock and {thisClock} until a peer is elected ----------
++    # Each control lists, after "#82 ", every named check it must fail.
++    ("boot publication restored to zero", "top/KL_gptp_engine.sv",
++     "  assign pub_gm_id_o     = pub_gm_self_w ? local_gm_id_w : pub_gm_r;\n"
++     "  assign pub_parent_id_o = pub_parent_r;\n"
++     "  assign pub_flags_o     = pub_flags_r;\n"
++     "  assign pub_pdelay_ns_o = pub_pdelay_r;\n"
++     "  assign pub_offset_o    = pub_offset_r;\n"
++     "  assign pub_annq_o      = pub_annq_r;\n"
++     "  assign pub_path_count_o = pub_gm_self_w ? {3'd0, local_clock_valid_r}\n",
++     "  assign pub_gm_id_o     = pub_gm_r;\n"
++     "  assign pub_parent_id_o = pub_parent_r;\n"
++     "  assign pub_flags_o     = pub_flags_r;\n"
++     "  assign pub_pdelay_ns_o = pub_pdelay_r;\n"
++     "  assign pub_offset_o    = pub_offset_r;\n"
++     "  assign pub_annq_o      = pub_annq_r;\n"
++     "  assign pub_path_count_o = pub_gm_self_w ? 4'd0\n",
++     "#82 cold boot: first commit names thisClock"
++     " | #82 cold boot: first commit path is {thisClock}"
++     " | #82 warm reset: first commit names thisClock"
++     " | #82 warm reset: first commit path is {thisClock}"),
++    ("no engine commit after reset", "top/KL_gptp_engine.sv",
++     "  assign pub_commit_o     = ucpu_commit_w || boot_pub_commit_r;",
++     "  assign pub_commit_o     = ucpu_commit_w;",
++     "#82 cold boot: a commit lands with the first beat"
++     " | #82 warm reset: a commit follows the release at once"),
++    ("thisClock hides an elected peer", "top/KL_gptp_engine.sv",
++     "  wire        pub_gm_self_w = (pub_gm_r == 64'd0);",
++     "  wire        pub_gm_self_w = local_clock_valid_r;",
++     "#82 peer wins: its commit names the peer GM"),
++    ("an elected peer keeps the self path", "top/KL_gptp_engine.sv",
++     "  assign pub_path_count_o = pub_gm_self_w ? {3'd0, local_clock_valid_r}",
++     "  assign pub_path_count_o = local_clock_valid_r ? 4'd1",
++     "#82 peer wins: its commit carries the peer path"),
++    ("becoming grandmaster keeps the departed GM", GENERATOR,
++     "    p.emit(\"WRST\", ra=RC, imm=RG_PUB | 0, fmt=FMT_Q)\n"
++     "    p.emit(\"WRST\", ra=RC, imm=RG_PUB | 1, fmt=FMT_Q)\n",
++     "    p.emit(\"WRST\", ra=RC, imm=RG_PUB | 1, fmt=FMT_Q)\n",
++     "#82 peer leaves: the mastership commit names thisClock"),
++    ("becoming grandmaster keeps the departed path", GENERATOR,
++     "    p.emit(\"WRST\", ra=RT, imm=RG_PUB | 6, fmt=FMT_Q)",
++     "    p.emit(\"WRST\", ra=0, imm=RG_PUB | 6, fmt=FMT_Q)",
++     "#82 peer leaves: the mastership commit path is {thisClock}"),
+ ]
+ 
+ 
+@@ -413,6 +456,19 @@ def main() -> int:
+                     answer = "missed its named check"
+                 else:
+                     print(named[0])
++            # #82 controls must fail every check they name, for the same
++            # reason: each of those checks needs its own failing defect.
++            if breaks.startswith("#82 ") and answer == "caught":
++                failed = [line for line in output.splitlines()
++                          if line.startswith("FAIL ")]
++                missed = [want for want in breaks.split(" | ")
++                          if not any(want in line for line in failed)]
++                if missed:
++                    answer = ("missed its named check(s): "
++                              + "; ".join(missed))
++                else:
++                    for want in breaks.split(" | "):
++                        print(next(line for line in failed if want in line))
+             if answer == "caught":
+                 passes += 1
+                 print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
+diff --git a/tb/verilator/engine/sim_main.cpp b/tb/verilator/engine/sim_main.cpp
+index 5e9db31..0b37bdd 100644
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -18,6 +18,10 @@
+ //  1b     a Follow_Up for the boot request (sequence 0) ahead of any
+ //         Resp, from the zero identity a never-armed pairing holds, is
+ //         ignored: "armed with sequence 0" is not "nothing armed" (#8)
++//  1d     #82: before any peer the plane is its own grandmaster. The first
++//         commit after a cold reset lands with the first beat, which
++//         installs thisClock, and names thisClock with the one-entry path
++//         {thisClock} (802.1AS-2020 10.3.13.2.4 b, i)
+ //  2b     a Pdelay_Resp (and its Follow_Up) sourced from OUR OWN
+ //         clockIdentity, answering the outstanding request, is ignored:
+ //         it neither moves the delay nor climbs the ladder (IEEE
+@@ -136,6 +140,10 @@
+ //         Announce keeps the common 10.5.2.2.6 ptpTimescale (#64)
+ // 34      #68: every addend pulse of the whole run lies inside the +-200
+ //         ppm envelope the parent's egress reconstruction derives
++// 35      #82: a warm reset commits thisClock and {thisClock} at once; a
++//         better peer then replaces both with its own grandmaster and
++//         three-entry path, and when it falls silent the mastership
++//         commit names thisClock and {thisClock} again
+ //
+ // All frames and expectations built independently from 802.1AS-2011 +
+ // Milan v1.2 4.2.6. The pdelay model mirrors the SPEC formula in exact
+@@ -211,6 +219,7 @@ class GptpEngineHarness {
+   int run_suite() {
+     bring_the_engine_out_of_reset();
+     check_the_boot_pdelay_request();
++    publish_thisclock_before_any_peer();
+     ignore_a_self_sourced_pdelay_request();
+     answer_peer_requests_across_our_pending_stamp();
+     separate_claims_differing_only_in_the_sequence_high_byte();
+@@ -288,6 +297,7 @@ class GptpEngineHarness {
+     hold_the_media_dependent_transmit_flags();
+     exercise_the_slew_level_contract();
+     keep_every_addend_inside_the_consumer_envelope();
++    return_to_thisclock_around_a_winning_peer();
+ 
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+     return fails ? 1 : 0;
+@@ -385,6 +395,8 @@ class GptpEngineHarness {
+     uint64_t parent;
+     uint8_t count;
+     uint64_t tail[PATH_TAIL_SLOTS];
++    uint64_t cyc;    //!< the harness cycle that sampled this commit
++    uint32_t flags;
+   };
+   std::vector<PubSnap> commit_snaps;
+ 
+@@ -521,6 +533,8 @@ class GptpEngineHarness {
+       s.gm = dut->pub_gm_id_o;
+       s.parent = dut->pub_parent_id_o;
+       s.count = dut->pub_path_count_o;
++      s.cyc = cyc;
++      s.flags = dut->pub_flags_o;
+       for (unsigned k = 0; k < PATH_TAIL_SLOTS; k++)
+         s.tail[k] = static_cast<uint64_t>(dut->pub_path_o[2 * k])
+                   | (static_cast<uint64_t>(dut->pub_path_o[2 * k + 1]) << 32);
+@@ -980,6 +994,22 @@ class GptpEngineHarness {
+          | (static_cast<uint64_t>(dut->pub_path_o[2 * slot + 1]) << 32);
+   }
+ 
++  //! #82: the committed path is exactly `head` followed by `tail` (the
++  //! separately published grandmaster plus the identities behind it), with
++  //! every inactive tail slot zero. {thisClock} is count one, no tail.
++  static bool committed_path_is(const PubSnap &s,
++                                const std::vector<uint64_t> &tail) {
++    bool same = s.count == tail.size() + 1;
++    for (unsigned k = 0; k < PATH_TAIL_SLOTS; k++)
++      same &= s.tail[k] == (k < tail.size() ? tail[k] : 0);
++    return same;
++  }
++
++  //! the first commit sampled at or after index `mark`, if one landed
++  const PubSnap *first_commit_since(size_t mark) const {
++    return commit_snaps.size() > mark ? &commit_snaps[mark] : nullptr;
++  }
++
+   void check_common(const char *tag, const std::vector<uint8_t> &f,
+                     uint8_t mtype, uint16_t flags, int msglen,
+                     uint8_t logint) {
+@@ -1017,6 +1047,8 @@ class GptpEngineHarness {
+ 
+ 
+   // ---- what one phase records for a later phase to read --------------------
++  //! the first commit index after the cold reset, graded by phase 1d
++  size_t cold_boot_mark = 0;
+   //! phase 1's boot Pdelay_Req: the transmit slot whose egress timestamp is
+   //! still outstanding through phase 1c, and the stamp finally returned for it
+   size_t our_req_idx = 0;
+@@ -1079,6 +1111,7 @@ class GptpEngineHarness {
+     expect("reset holds the result face closed", dut->txts_ready_o, 0);
+     expect("slew: cold reset clears the level", dut->phc_slew_active_o, 0);
+     dut->rst_n = 1;
++    cold_boot_mark = commit_snaps.size();
+ 
+     // Before the ROM init leg has written S_CID, no complete all-hop loop
+     // comparison is possible. A first-event over-cap Announce with our identity
+@@ -1113,6 +1146,22 @@ class GptpEngineHarness {
+     T1 = 1000000ull;
+   }
+ 
++  // ---- 1d: #82 -- before any peer the plane is its own grandmaster -----
++  // 802.1AS-2020 10.3.13.2.4 b): with no port vector, gmPriority is the
++  // systemPriorityVector, so thisClock is the grandmaster, and i) makes
++  // pathTrace {thisClock}. A consumer copies the bank only on a commit, so
++  // the first commit after the cold reset must carry both. It must land by
++  // the end of the first one-second beat, whose init leg installs thisClock
++  void publish_thisclock_before_any_peer() {
++    const PubSnap *s = first_commit_since(cold_boot_mark);
++    expect("#82 cold boot: a commit lands with the first beat",
++           s != nullptr, 1);
++    expect("#82 cold boot: first commit names thisClock",
++           s ? s->gm : 0, OUR_CID);
++    expect("#82 cold boot: first commit path is {thisClock}",
++           s && committed_path_is(*s, {}), 1);
++  }
++
+   // ---- 1a: a self-sourced Pdelay_Req draws nothing -----------------------
+   // IEEE 1588-2008 9.5.2.2: "A message received at the same port that
+   // issued the message shall be ignored", compared on sourcePortIdentity
+@@ -4678,6 +4727,55 @@ class GptpEngineHarness {
+            adj_on_the_rail >= 10 ? 1 : 0, 1);
+   }
+ 
++  // ---- 35: #82 -- thisClock around a peer that wins and then leaves -----
++  // A warm reset clears every port vector (802.1AS-2020 10.3.13.2.4 a), so
++  // the plane is its own grandmaster again and commits that at once, even
++  // though scratch still holds the last best record. A peer better than
++  // any retained record then wins and publishes its own three-entry path
++  // (10.3.13.2.4 f 5). Once its Announces stop, the receipt timeout ages
++  // its vector out and the mastership commit names thisClock and
++  // {thisClock} again (10.3.13.2.4 b, i)
++  void return_to_thisclock_around_a_winning_peer() {
++    const uint64_t GM82 = 0x0082A0FFFE000001ull;
++    const uint64_t HOP82 = 0x0082A0FFFE000002ull;
++    const uint64_t SRC82 = 0x0082A0FFFE000003ull;
++    pd_mode = PD_NORMAL;
++    pd_seen = txf.size();
++    const size_t warm0 = commit_snaps.size();
++    const uint64_t release = cyc + 8;       // warm_reset holds 8 cycles
++    warm_reset();
++    const PubSnap *w = first_commit_since(warm0);
++    expect("#82 warm reset: a commit follows the release at once",
++           w != nullptr && w->cyc <= release + 2, 1);
++    expect("#82 warm reset: first commit names thisClock",
++           w ? w->gm : 0, OUR_CID);
++    expect("#82 warm reset: first commit path is {thisClock}",
++           w && committed_path_is(*w, {}), 1);
++
++    // Setup waits are not checks: a missed one fails the checks after it.
++    wait_flags(FL_ASCAP, FL_ASCAP, 9000000);  // Announces need asCapable
++    const size_t win0 = commit_snaps.size();
++    send_announce(0x8201, 0, GM82, 2, SRC82, {GM82, HOP82, SRC82},
++                  phc() + 100);
++    const PubSnap *won = commit_snaps.size() > win0 ? &commit_snaps.back()
++                                                    : nullptr;
++    expect("#82 peer wins: its commit names the peer GM",
++           won ? won->gm : 0, GM82);
++    expect("#82 peer wins: its commit carries the peer path",
++           won && committed_path_is(*won, {HOP82, SRC82}), 1);
++
++    const size_t quiet0 = commit_snaps.size();
++    wait_flags(FL_AMGM, FL_AMGM, 9000000);    // 3 s receipt timeout
++    run(200);  // the PathTrace write and COMMIT follow the flags write
++    const PubSnap *gm = nullptr;
++    for (size_t i = quiet0; i < commit_snaps.size() && !gm; i++)
++      if (commit_snaps[i].flags & FL_AMGM) gm = &commit_snaps[i];
++    expect("#82 peer leaves: the mastership commit names thisClock",
++           gm ? gm->gm : 0, OUR_CID);
++    expect("#82 peer leaves: the mastership commit path is {thisClock}",
++           gm && committed_path_is(*gm, {}), 1);
++  }
++
+   //! A #75 policy probe uses wire frames and watches every output edge.
+   //! The scripted band/settling verdict is supplied by the scenario, never
+   //! read from an internal register, a pulse or the published sync flag.

@@ -1,0 +1,184 @@
+Downloaded public files match evidence MANIFEST published_sha256 values.
+gates/head/bench.log:
+PASS: two MII done toggles carried tags {3,1234}, {a,beef}
+gates/head/clean.log:
+
+gates/head/contract.log:
+PHC interface contract: PASS
+gates/head/docs.log:
+diagram selftest: PASS (10 arms)
+docs check: PASS (11 current pages, 17 historical pages)
+docs selftest: PASS (10 arms)
+source evidence: 20 exact, 0 findings
+source evidence selftest: PASS (7 arms)
+gates/head/engine-mutants-s0.log:
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+[PASS] mutant caught: a new request leaves the old pair live - breaks "a superseded exchange cannot pair with the new request's t1"
+[PASS] mutant caught: a grandmaster change unlocks the servo - breaks "the servo stays locked across a grandmaster identity change"
+[PASS] mutant caught: the integrator is not clamped - breaks "the integrator stays within +-200 ppm"
+6 checks: 6 PASS, 0 FAIL
+gates/head/engine-mutants-s1.log:
+FAIL #82 cold boot: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 warm reset: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: boot publication restored to zero - breaks "#82 cold boot: first commit names thisClock | #82 cold boot: first commit path is {thisClock} | #82 warm reset: first commit names thisClock | #82 warm reset: first commit path is {thisClock}"
+6 checks: 6 PASS, 0 FAIL
+gates/head/engine-mutants-s2.log:
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+FAIL #82 cold boot: a commit lands with the first beat got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: a commit follows the release at once got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: no engine commit after reset - breaks "#82 cold boot: a commit lands with the first beat | #82 warm reset: a commit follows the release at once"
+6 checks: 6 PASS, 0 FAIL
+gates/head/engine-mutants-s3.log:
+[PASS] mutant caught: credit gate removed from the Announce leg - breaks "an Announce beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: the locked threshold is 200 us - breaks "a locked pair steps over 100 us, after a receipt timeout too"
+FAIL #82 peer wins: its commit names the peer GM got 02a1b2fffec3d4e5 exp 0082a0fffe000001
+[PASS] mutant caught: thisClock hides an elected peer - breaks "#82 peer wins: its commit names the peer GM"
+6 checks: 6 PASS, 0 FAIL
+gates/head/engine-mutants-s4.log:
+[PASS] mutant caught: every pair uses the locked threshold - breaks "a link-up pair steps over 20 us"
+[PASS] mutant caught: asCapable's rise keeps the lock - breaks "the first pair after asCapable rises, or after a reset, is a link-up"
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an elected peer keeps the self path - breaks "#82 peer wins: its commit carries the peer path"
+6 checks: 6 PASS, 0 FAIL
+gates/head/engine-mutants-s5.log:
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+[PASS] mutant caught: becoming grandmaster keeps sync-ok - breaks "becoming grandmaster clears the sync-ok verdict"
+FAIL #82 peer leaves: the mastership commit names thisClock got 0082a0fffe000001 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: becoming grandmaster keeps the departed GM - breaks "#82 peer leaves: the mastership commit names thisClock"
+6 checks: 6 PASS, 0 FAIL
+gates/head/engine-mutants-s6.log:
+[PASS] mutant caught: exactly the threshold steps - breaks "an offset of exactly 20 us, or 100 us once locked, slews"
+[PASS] mutant caught: the whole trim is not clamped - breaks "the written trim never leaves +-200 ppm"
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: becoming grandmaster keeps the departed path - breaks "#82 peer leaves: the mastership commit path is {thisClock}"
+6 checks: 6 PASS, 0 FAIL
+gates/head/engine-mutants-s7.log:
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+[PASS] mutant caught: the step arm is unreachable - breaks "an offset over the threshold steps"
+[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks "the written trim never leaves the envelope the consumer derives"
+5 checks: 5 PASS, 0 FAIL
+gates/head/engine-run.log:
+1623 checks: 1623 PASS, 0 FAIL
+1623 checks: 1623 PASS, 0 FAIL
+1623 checks: 1623 PASS, 0 FAIL
+gates/head/gaskets.log:
+[PASS] mutant caught: tx fifo level truncated - breaks "a FIFO holding exactly 64 words reports a level the gasket can see, instead of reading 0 and wedging S_IDLE"
+[PASS] mutant caught: tx sfd toggle frozen - breaks "the egress timestamp point is marked once per frame at the SFD"
+[PASS] mutant caught: rx sfd toggle frozen - breaks "the ingress timestamp point is marked once per frame at the SFD"
+[PASS] mutant caught: rx end of frame never raised - breaks "a delivered frame is terminated, so the receiver can count its bytes"
+5 checks: 5 PASS, 0 FAIL
+gates/head/lint.log:
+
+gates/head/parser.log:
+[PASS] mutant caught: rx_err ignored on every byte - fails all 4 named check(s), first "sync rx_err held from byte 20 to eof: no event"
+[PASS] mutant caught: the refusal outlives its frame - fails all 24 named check(s), first "sync control after the errors: event"
+[PASS] mutant caught: rx_err sampled between bytes - fails all 2 named check(s), first "rx_err in every gap between bytes: sync event"
+[PASS] mutant caught: a refusal skips the next frame's w2 write - fails all 8 named check(s), first "sync after a refused sync: every word is this frame's"
+9 checks: 9 PASS, 0 FAIL
+gates/head/tsngen.log:
+[PASS] the unmutated engine RTL still passes the harness
+[PASS] mutant caught: received sequenceId zeroed - breaks "a Follow_Up is paired with its Sync by the sequenceId that arrived, not by a constant"
+[PASS] mutant caught: announce grandmasterIdentity discarded - breaks "the grandmasterIdentity an Announce carries is the identity BMCA compares, so a better master is recognised as one"
+[PASS] mutant caught: transmit end of frame one byte early - breaks "a transmitted frame carries every byte the slot holds"
+4 checks: 4 PASS, 0 FAIL
+gates/head/ucpu.log:
+768 checks: 768 PASS, 0 FAIL
+pgates/head/check_gptp_docs-bumped.log:
+
+pgates/head/check_gptp_docs-selftest-bumped.log:
+
+pgates/head/check_gptp_docs-selftest.log:
+gPTP docs selftest: production donor links failed
+pgates/head/check_gptp_docs.log:
+gPTP documentation: FAIL (35 findings)
+pgates/head/gptp_plane-phc-step.log:
+PASS planted defect never-rearm-measurement: real excessive delay still clears asCapable
+PASS planted defect liveness-not-marked: asCapable falls at the fourth unanswered request after a crossing exchange
+PASS planted defect r571-no-liveness: asCapable falls at the fourth unanswered request after a crossing exchange
+PASS planted defect credit-on-step: asCapable falls at the third unanswered request after an unanswered crossing request
+phc_step campaign: 8 checks: 8 PASS, 0 FAIL
+pgates/head/gptp_plane-run.log:
+29 checks: 29 PASS, 0 FAIL
+pgates/head/gptp_shadow-lifecycle.log:
+unsafe-SIGTERM: {"caller_changed": true, "cleanup_required": true, "exit": 143, "handshake": {"child": 831235, "cwd": "<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-lqvrt77r/unsafe-SIGTERM input [523]/tb/verilator/gptp_shadow", "identities": {"831234": ["1558667", "S"], "831235": ["1558670", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 831234, "private": "<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-lqvrt77r/unsafe-SIGTERM input [523]"}, "signal": "SIGTERM", "unsafe_control_detected": true}
+unsafe-SIGKILL: {"caller_changed": true, "cleanup_required": false, "exit": -9, "handshake": {"child": 831400, "cwd": "<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-lqvrt77r/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow", "identities": {"831399": ["1558909", "S"], "831400": ["1558912", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 831399, "private": "<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-lqvrt77r/unsafe-SIGKILL input [523]"}, "signal": "SIGKILL", "unsafe_control_detected": true}
+nested-SIGINT: {"exit": 130, "handshake": {"child": 831638, "cwd": "<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-lqvrt77r/nested-SIGINT-control/gptp-shadow-mutants-g3z67na8/tb/verilator/gptp_shadow", "identities": {"831636": ["1559277", "S"], "831638": ["1559281", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 831636, "private": "<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-lqvrt77r/nested-SIGINT-control/gptp-shadow-mutants-g3z67na8"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+nested-SIGTERM: {"exit": 143, "handshake": {"child": 831957, "cwd": "<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-lqvrt77r/nested-SIGTERM-control/gptp-shadow-mutants-avefn18l/tb/verilator/gptp_shadow", "identities": {"831956": ["1559663", "S"], "831957": ["1559666", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 831956, "private": "<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-lqvrt77r/nested-SIGTERM-control/gptp-shadow-mutants-avefn18l"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)
+pgates/head/gptp_shadow-mutants.log:
+309 checks: 309 PASS, 0 FAIL
+REFUSED: required dependency gitlinks differ from HEAD
+make: *** [Makefile:56: mutants] Error 2
+pgates/head/gptp_shadow-run.log:
+309 checks: 309 PASS, 0 FAIL
+pgates/head/gptp_tables.log:
+== gptp_tables: checks: 36   failures: 0 ==
+RESULT: PASS
+REFUSED: required dependency gitlinks differ from HEAD
+make: *** [Makefile:66: mutants] Error 2
+pgates/head/gptp_txts-mutants.log:
+[ ok ] crossing_latency_term_dropped: caught by "bias: the mean error is within one nanosecond of zero"
+[ ok ] mean_sampling_phase_term_dropped: caught by "bias: the mean error is within one nanosecond of zero"
+[ ok ] delta_forced_not_measured: caught by "fragment: the observer refused it, by measurement"
+controls: 6   failures: 0
+RESULT: PASS
+pgates/head/gptp_txts-run.log:
+  mean reconstruction error 0.630 ns over 200 frames
+  error spread -9..+11 ns over 17 distinct values, 2191 us of run
+== gptp_txts: checks: 85   failures: 0 ==
+RESULT: PASS
+pgates/head/lint_rtl.log:
+PRAGMA GATE: PASS (0 justified lint_off, 0 excluded file(s))
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 18 waived, 0 justified lint_off)
+pgates/head/milan_dp-build-gptp.log:
+   64 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_frame_cnt = '0;
+   90 |   rx_error_bad_frame_cnt <= counters[RX_ERROR_BAD_FRAME];
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:65:68: Procedural assignment to declaration with initial value: 'rx_error_bad_fcs_cnt'
+   65 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_fcs_cnt = '0;
+   91 |   rx_error_bad_fcs_cnt <= counters[RX_ERROR_BAD_FCS];
+pgates/head/milan_dp-exec-gptp.log:
+182 checks: 182 PASS, 0 FAIL
+pgates/head/milan_dp-gmstep.log:
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:65:68: Procedural assignment to declaration with initial value: 'rx_error_bad_fcs_cnt'
+   65 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_fcs_cnt = '0;
+   91 |   rx_error_bad_fcs_cnt <= counters[RX_ERROR_BAD_FCS];
+== gmstep: checks: 190   failures: 0 ==
+RESULT: PASS
+pgates/head/milan_dp-gptp-lat.log:
+   90 |   rx_error_bad_frame_cnt <= counters[RX_ERROR_BAD_FRAME];
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/common/eth_event_counter/ethernet_events.sv:65:68: Procedural assignment to declaration with initial value: 'rx_error_bad_fcs_cnt'
+   65 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_fcs_cnt = '0;
+   91 |   rx_error_bad_fcs_cnt <= counters[RX_ERROR_BAD_FCS];
+182 checks: 182 PASS, 0 FAIL
+pgates/head/ooc-record.log:
+
+pgates/head/ooc-tcam-recorded.log:
+
+pgates/head/ooc-tcam.log:
+
+pgates/head/port_contracts-selftest.log:
+[PASS] the `import` header of KL_gptp_engine.sv contributes its ports
+[PASS] the `import` header of protocol_processor_top.sv contributes its ports
+[PASS] the .svh files are in the binding population
+[PASS] the tree's interface is not a hierarchical root
+82 checks: 82 PASS, 0 FAIL
+pgates/head/port_contracts.log:
+
+pgates/head/tsn_fuzz-ptp.log:
+[parser gates: what must drop, drops; what 11.4.1 ignores, passes]
+== gPTP/802.1AS field campaign (tsn-gen driven): 677 pass, 0 fail, 0 known gaps ==
+campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+pgates/head/wire_acc.log:
+  [ok]   ax7101_8x8 with the TDM master removed (the 07-27 fabric): findings - as expected
+  [ok]   datapath with the silence fill deleted: findings - as expected
+  self-test: PASS
+checks: 77   findings: 0
+RESULT: PASS
+pgates/head/yosys-ci3.log:
+  [PASS] KL_pp_shadow           cells=61944
+  [PASS] KL_gptp_shadow         cells=3380
+tops: 3   pass: 3   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker

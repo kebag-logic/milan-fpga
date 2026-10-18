@@ -1,0 +1,16 @@
+[R651] NEGATIVE - exact head 85373de08a5c35487f260087ac8ceaf7a3789cdc
+
+Independent verdict recorded before reading any other reviewer's findings or report.
+
+Four open findings: cold-start zero publication (MAJOR); departed-peer publication retained after capability loss (MAJOR); pre-reset best vector overrides a valid post-reset winner (MAJOR); required parent mutation gates refused at this head (MAJOR).
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN | Issue #82 body and assignment; parent REQUIREMENTS.md; publication and selection RTL; cold/gone/warm receipts | R651-1 | 85373de08a5c35487f260087ac8ceaf7a3789cdc |
+| RTL | UNCLEAN | KL_gptp_engine.sv, generated-program source, parent shadow and datapath; interface check | R651-1 | 85373de08a5c35487f260087ac8ceaf7a3789cdc |
+| Robustness | UNCLEAN | Reset retention, capability loss, timeout selection; consumer-edge monitor; three independent failure cases | R651-1 | 85373de08a5c35487f260087ac8ceaf7a3789cdc |
+| Tests | UNCLEAN | Six #82 mutants and focused positive control; author repository and consumer gate receipts; refused mutation arms | R651-1 | 85373de08a5c35487f260087ac8ceaf7a3789cdc |
+| Docs | UNCLEAN | Current guides, source comments, public PR and handoff; false reset-vector assertion in new phase-35 comment | R651-1 | 85373de08a5c35487f260087ac8ceaf7a3789cdc |
+
+All five lenses applied. No other review report read. Full findings, evidence limits and publication manifest follow in REPORT.md.
+R651-1 FINISHED
