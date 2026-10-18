@@ -1,0 +1,20 @@
+golden: verified expected rc 0
+refresh-while-waiting: verified expected rc 1
+enqueue-next-state: verified expected rc 1
+Traceback (most recent call last):
+  File "$REVIEWS/pp184-r653-2-packet/scripts/spot_checks.py", line 50, in <module>
+    for f in tasks: print(f.result(),flush=True)
+                          ~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 447, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$REVIEWS/pp184-r653-2-packet/scripts/spot_checks.py", line 32, in probe
+    else: assert expected[label] in s
+                 ^^^^^^^^^^^^^^^^^^^^
+AssertionError

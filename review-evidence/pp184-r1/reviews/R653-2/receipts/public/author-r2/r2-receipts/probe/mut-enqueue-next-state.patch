@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_domain.sv
++++ b/hdl/srp/KL_srp_domain.sv
+@@ -256,7 +256,7 @@
+         // periodic / LeaveAll re-join of the standing declaration: sJ
+         // against the Registrar state (802.1Q §10.7.6.3)
+         q0_valid_r    <= 1'b1;
+-        q0_ev_r       <= reg_in_r ? EV_JOININ_C : EV_JOINMT_C;
++        q0_ev_r       <= reg_in_nx_w ? EV_JOININ_C : EV_JOINMT_C;
+         q0_val_r      <= {CLASS_A_ID_C, decl_prio_r, decl_vid_r};
+         rejoin_pend_r <= 1'b0;
+       end

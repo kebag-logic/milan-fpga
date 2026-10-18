@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_domain.sv
++++ b/hdl/srp/KL_srp_domain.sv
+@@ -189,7 +189,7 @@
+       pend_in_r           <= pend_in_nx_w;
+ 
+       // ---- queue pop toward the encoder ---------------------------------
+-      if (q0_valid_r && dom_ev_ready_i) begin
++      if (q0_valid_r) begin
+         q0_valid_r <= q1_valid_r;
+         q0_ev_r    <= q1_ev_r;
+         q0_val_r   <= q1_val_r;

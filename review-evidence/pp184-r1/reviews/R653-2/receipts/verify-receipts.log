@@ -1,0 +1,11 @@
+PASS index: exact set of 123 files, all sizes/SHA256; all 124 public files match publication manifest
+PASS gates 16 rc files agree with log footers (campaign exports have blank head fields)
+PASS campaigns 28 rc files agree with log footers (campaign exports have blank head fields)
+PASS base 36 suites; summed checks 1030013
+PASS head 36 suites; summed checks 1030029
+PROBE head-probe rc 0 probe: 12 PASS, 0 FAIL
+PROBE mut-probe-enqueue-next-state rc 1 probe: 11 PASS, 1 FAIL
+PROBE mut-probe-pop-without-ready rc 1 probe: 9 PASS, 3 FAIL
+PROBE mut-probe-refresh-while-waiting rc 1 probe: 10 PASS, 2 FAIL
+PROBE r1head-probe rc 0 probe: 12 PASS, 0 FAIL
+PASS synthesis Domain stats present 476 494

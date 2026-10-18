@@ -1,0 +1,46 @@
+# campaign comparison (compare_out.sh): base 5addf297 vs head 88cb2061
+srp_top: 130 common receipts, 130 identical failing sets; only-base 0, only-head 16; differing: none
+  base rc 0: 137 checks: 137 PASS, 0 FAIL
+  head rc 0: 159 checks: 159 PASS, 0 FAIL
+srp_admission: 12 common receipts, 12 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: 12 checks: 12 PASS, 0 FAIL
+  head rc 0: 12 checks: 12 PASS, 0 FAIL
+aecp: 67 common receipts, 67 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: 67 checks: 67 PASS, 0 FAIL
+  head rc 0: 67 checks: 67 PASS, 0 FAIL
+aecp_dispatch: 59 common receipts, 59 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: 58 checks: 58 PASS, 0 FAIL
+  head rc 0: 58 checks: 58 PASS, 0 FAIL
+ctr: 18 common receipts, 18 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: 18 checks: 18 PASS, 0 FAIL
+  head rc 0: 18 checks: 18 PASS, 0 FAIL
+notify: 123 common receipts, 123 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: C6 notification mutations: 109 of 109 KILLED by their named checks; goldens PASS
+  head rc 0: C6 notification mutations: 109 of 109 KILLED by their named checks; goldens PASS
+gsi: 45 common receipts, 45 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: GSI mutations: 20 detected by named checks; golden and restored PASS
+  head rc 0: GSI mutations: 20 detected by named checks; golden and restored PASS
+name_wr: 7 common receipts, 7 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: Name-write mutation: decode killed; golden and restored PASS
+  head rc 0: Name-write mutation: decode killed; golden and restored PASS
+acmp: 58 common receipts, 58 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: ACMP mutations: 51 of 51 KILLED by their named checks; goldens PASS
+  head rc 0: ACMP mutations: 51 of 51 KILLED by their named checks; goldens PASS
+d3: 117 common receipts, 117 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: D3 mutations: 110 of 110 KILLED by their named checks; goldens PASS
+  head rc 0: D3 mutations: 110 of 110 KILLED by their named checks; goldens PASS
+adp: 62 common receipts, 62 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: 62 checks: 62 PASS, 0 FAIL
+  head rc 0: 62 checks: 62 PASS, 0 FAIL
+maap: 32 common receipts, 32 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: 32 checks: 32 PASS, 0 FAIL
+  head rc 0: 32 checks: 32 PASS, 0 FAIL
+name_state: 124 common receipts, 124 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: name_table_last_entry_dropped: KILLED
+  head rc 0: name_table_last_entry_dropped: KILLED
+elab_mutants: 161 common receipts, 161 identical failing sets; only-base 0, only-head 0; differing: none
+  base rc 0: elab guard mutants: 160 of 160 killed
+  head rc 0: elab guard mutants: 160 of 160 killed
+
+# round-2 head srp_top campaign vs round-1 head e11fb36b (sorted, headers stripped)
+identical
