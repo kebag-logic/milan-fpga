@@ -145,6 +145,11 @@ directory match exactly.
 
 | scratch file | bytes | sha256 | what it is |
 |---|---:|---|---|
-| `<data>/tmp/gptp82-a649/r2/synth/base/synth.log` | 750086 | `372e75c5133a18a2f458524a922c8fcf79d6cfa8da0eb63a5af8f4767fc3a6a1` | full synthesis log behind `receipts/synth/` |
-| `<data>/tmp/gptp82-a649/r2/synth/head-final/synth.log` | 744897 | `e4350b25f2af02a58bd57ed300df3b3bc63ffc623e3bc02546f8043a2e07e25c` | full synthesis log behind `receipts/synth/` |
-| `<data>/tmp/gptp82-a649/r2/synth/varb/synth.log` | 744567 | `fd64e5dded731fe622838f0e721f1d4dce3de0d9726cfc737092f9e99c121104` | full synthesis log behind `receipts/synth/` |
+
+## Kept in the author scratch, not published
+
+These files exceed the size limit. Their bytes and sha256 are the author values; the verifier does not check them.
+
+- <data>/tmp/gptp82-a649/r2/synth/base/synth.log: 750086 bytes, sha256 372e75c5133a18a2f458524a922c8fcf79d6cfa8da0eb63a5af8f4767fc3a6a1 (full synthesis log behind `receipts/synth/`)
+- <data>/tmp/gptp82-a649/r2/synth/head-final/synth.log: 744897 bytes, sha256 e4350b25f2af02a58bd57ed300df3b3bc63ffc623e3bc02546f8043a2e07e25c (full synthesis log behind `receipts/synth/`)
+- <data>/tmp/gptp82-a649/r2/synth/varb/synth.log: 744567 bytes, sha256 fd64e5dded731fe622838f0e721f1d4dce3de0d9726cfc737092f9e99c121104 (full synthesis log behind `receipts/synth/`)
