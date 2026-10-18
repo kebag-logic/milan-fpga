@@ -1,0 +1,7 @@
+# M45 planted, tb/aecp_cmds against the recorded decode.json, rc=2
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E BADARG: observed {"answers": {"7": "96, 97, 100"}, "cdls": "60, 96-97, 100", "floor": 60}, recorded {"answers": {"7": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E NSUPPE: observed {"answers": {"11": "96, 97, 98, 99, 100"}, "cdls": "60, 96-100", "floor": 60}, recorded {"answers": {"11": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SIBAD: observed {"answers": {"7": "96"}, "cdls": "12-59, 61-95", "floor": 12}, recorded {"answers": {"7": "96"}, "cdls": "12-59, 61-95, 97-100", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SINFO: observed {"answers": {"0": "96, 97, 100"}, "cdls": "60, 96-97, 100", "floor": 60}, recorded {"answers": {"0": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "18ec603e1268b918ec6a2dd5c56286a2b5d03db842caeb235b20a3986864ec45", recorded "93f6800f5bc1dae853f8f0ec3ebbd51de1b11f3c7567ddc077fbee35bb654778" (make -C tb/aecp_cmds record)
+aecp_cmds: 617908 trials swept; 176 checks: 175 PASS, 1 FAIL

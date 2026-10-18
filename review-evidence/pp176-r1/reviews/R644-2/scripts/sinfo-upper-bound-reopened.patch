@@ -1,0 +1,13 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1567,8 +1567,8 @@
+   //! ...and exactly the 2021 body, walked whole. A SET_STREAM_INFO that is
+   //! neither, shorter or longer, is refused (issue #176, REQ-AEM-009)
+   logic si21_w;
+-  assign si21_w = ssinfo_r && (cmd_r.cdl == SI21_CDL_C)
+-                  && (pld_cmd_r == SI21_PLD_C);
++  assign si21_w = ssinfo_r && (cmd_r.cdl >= SI21_CDL_C)
++                  && (pld_cmd_r >= SI21_PLD_C);
+ 
+   //! the @26..@27 capture set. `tix_w` is the {type @24, index @26} SHAPE;
+   //! SET_CONFIGURATION is not that shape (§7.4.7.1 puts `reserved` at @24) but

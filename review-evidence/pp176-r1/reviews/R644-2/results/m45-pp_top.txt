@@ -1,0 +1,9 @@
+# m45 planted at 26ddcba4 (scripts/sinfo-upper-bound-reopened.patch), default build, rc=1
+FAIL: W24n: a SET_STREAM_INFO one byte longer than the 2021 body (cdl 97) refuses BAD_ARGUMENTS at cdl 96, {type,index} over a zero body, byte-exact
+FAIL: W24n1: ...and its latency was NOT applied
+FAIL: W24o: a SET_STREAM_INFO 44 bytes longer than the 2021 body (cdl 140) refuses BAD_ARGUMENTS at cdl 96, {type,index} over a zero body, byte-exact
+FAIL: W24o1: ...and its latency was NOT applied
+FAIL: W24h2: ...and the published rows did not move
+FAIL: W25b2: ...and the offset row kept W24a's value
+FAIL: W25b3: a 2013-length SET_STREAM_INFO on a streaming output refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10017 checks, 7 failures
