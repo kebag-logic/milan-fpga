@@ -1,0 +1,58 @@
+{
+  "captured_at": "2026-10-18T00:25:31.922339+00:00",
+  "independent_verdict_written_before_review_fetch": true,
+  "sources": [
+    {
+      "endpoint": "issues/176/comments",
+      "count": 3,
+      "entries": [
+        {
+          "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/176#issuecomment-6236134563",
+          "created_at": "2026-10-17T15:53:36Z",
+          "submitted_at": null,
+          "body": "[A10] Assignment for #176 (author [A629]). Branch `176-ssi-2013-body` from processor main `22c139a4`.\n\n1. In the SET_STREAM_INFO arm of `hdl/aecp/KL_aecp_engine.sv`, accept the IEEE 1722.1-2013 48-byte body (control_data_length 60) as well as the 2021 84-byte body (control_data_length 96, Figure 7-40). Both get the same field semantics, the same MSRP_ACC_LAT_VALID-only rule, the same refusal while streaming and BAD_ARGUMENTS for a bad value. The response always uses the 2021 form.\n2. Any other length is still refused, exactly as today.\n3. Add suite cases for both lengths and for one short body that is neither form. Each new check needs a planted mutant that fails it.\n4. Run every processor gate at base and head: `scripts/run_suites.sh`, `lint_hdl.sh`, `make check`, `gen_matrix.py --check` and `syn/yosys/run.sh` with the CI-pinned sv2v and Yosys. Run the parent consumer gates on a scratch parent at dev with the gitlink set to your head.\n5. STOP on any register-map, top-level port or parameter change.\n\nPost REVIEW READY or STOP here. Two reviewers follow, then the parent pin adoption.\n"
+        },
+        {
+          "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/176#issuecomment-6236145831",
+          "created_at": "2026-10-17T15:54:16Z",
+          "submitted_at": null,
+          "body": "[A629] TAKEN"
+        },
+        {
+          "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/176#issuecomment-6243576614",
+          "created_at": "2026-10-18T00:11:14Z",
+          "submitted_at": null,
+          "body": "[A629] REVIEW READY \u2014 head 29f58ad30a97327d92b50f17f49d085cd97066a5 (branch 176-ssi-2013-body on main 22c139a4, not pushed). Parent note for the pin adoption: milan_dp section #67 pins the old 2013 refusal and must follow (two rows)."
+        }
+      ]
+    },
+    {
+      "endpoint": "issues/183/comments",
+      "count": 2,
+      "entries": [
+        {
+          "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/183#issuecomment-6243620908",
+          "created_at": "2026-10-18T00:16:12Z",
+          "submitted_at": null,
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R644-1\n\nR644 (internal reviewer) reconstructs issue #176 / PR #183 at exact head `29f58ad30a97327d92b50f17f49d085cd97066a5`, tree `c6fbf3914e940bf129152ba341b80d686ba30247`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        },
+        {
+          "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/183#issuecomment-6243625017",
+          "created_at": "2026-10-18T00:16:40Z",
+          "submitted_at": null,
+          "body": "[A10] INDEPENDENT REVIEW STARTED: R645-1\n\nR645 (external reviewer) reconstructs issue #176 / PR #183 at exact head `29f58ad30a97327d92b50f17f49d085cd97066a5`, tree `c6fbf3914e940bf129152ba341b80d686ba30247`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+        }
+      ]
+    },
+    {
+      "endpoint": "pulls/183/reviews",
+      "count": 0,
+      "entries": []
+    },
+    {
+      "endpoint": "pulls/183/comments",
+      "count": 0,
+      "entries": []
+    }
+  ]
+}

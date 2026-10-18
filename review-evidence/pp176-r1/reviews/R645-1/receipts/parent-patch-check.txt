@@ -1,0 +1,10 @@
+receipt-base: git apply --check rc=0
+receipt-base: sim_nxn.cpp:6862:         // (cdl 96) - Milan v1.2 refuses the 2013 60-byte shape
+receipt-base: sim_nxn.cpp:7243:             // the 2013-complete 48-byte shape IS the truncated case
+receipt-base: sim_nxn.cpp:7248:             ck("#67 the 2013-length SET_STREAM_INFO refuses at cdl 96",
+receipt-base: sim_nxn.cpp:7252:         ck("#67 no refusal moved the stored offset", lat_of(g2),
+live-dev: git apply --check rc=0
+live-dev: sim_nxn.cpp:6862:         // (cdl 96) - Milan v1.2 refuses the 2013 60-byte shape
+live-dev: sim_nxn.cpp:7243:             // the 2013-complete 48-byte shape IS the truncated case
+live-dev: sim_nxn.cpp:7248:             ck("#67 the 2013-length SET_STREAM_INFO refuses at cdl 96",
+live-dev: sim_nxn.cpp:7252:         ck("#67 no refusal moved the stored offset", lat_of(g2),
