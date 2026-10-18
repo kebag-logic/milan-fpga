@@ -1,0 +1,9 @@
+shard 9/18: 3 of 58 mutants: recorded t1 survives reset; the locked threshold is 200 us; a winning peer's path is not staged
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: the locked threshold is 200 us - breaks "a locked pair steps over 100 us, after a receipt timeout too"
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a winning peer's path is not staged - breaks "#82 peer wins: its commit carries the peer path | #82 warm reset: the live peer carries its own path"
+
+4 checks: 4 PASS, 0 FAIL

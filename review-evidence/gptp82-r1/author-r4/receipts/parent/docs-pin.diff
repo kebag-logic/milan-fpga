@@ -1,0 +1,154 @@
+commit e54c7c21bee2c3296584684f794a62f069e22568
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Sun Oct 18 19:29:38 2026 +0200
+
+    Pin gptp-processor 8f3c376d for local consumer gates, not for push
+
+diff --git a/docs/design/GPTP_PLANE.md b/docs/design/GPTP_PLANE.md
+index 26113a3fd..6ce62d589 100644
+--- a/docs/design/GPTP_PLANE.md
++++ b/docs/design/GPTP_PLANE.md
+@@ -29,10 +29,10 @@ This page defines parent integration.
+ 
+ | Reader | Parent guide | Engine guide |
+ |---|---|---|
+-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md) |
+-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md) |
+-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/HDL_DEVELOPER.md) |
+-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/TEST_DEVELOPER.md) |
++| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/MANAGER.md) |
++| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/INTEGRATION.md) |
++| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/HDL_DEVELOPER.md) |
++| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/TEST_DEVELOPER.md) |
+ 
+ Parent guides own integration behavior.
+ 
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 7cf6eb2fd..9ea53d9d2 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -112,7 +112,7 @@ The offset is local time minus grandmaster time.
+ | Step-threshold decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
+ | PHC-only restart exclusion, 2026-09-27 | [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355); supersedes the step-only `mr` and MEDIA_RESET obligation |
+ | Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
+-| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md#step-versus-slew-policy) |
++| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/INTEGRATION.md#step-versus-slew-policy) |
+ 
+ The [coupling decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5816509317) requires discarding slew-overlapped windows.
+ 
+diff --git a/docs/guides/gptp/HDL_DEVELOPER.md b/docs/guides/gptp/HDL_DEVELOPER.md
+index b478abdb5..099a9778c 100644
+--- a/docs/guides/gptp/HDL_DEVELOPER.md
++++ b/docs/guides/gptp/HDL_DEVELOPER.md
+@@ -30,13 +30,13 @@ Never patch imported behavior inside the parent lane.
+ 
+ Land donor changes before advancing its pin.
+ 
+-Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/HDL_DEVELOPER.md).
++Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/HDL_DEVELOPER.md).
+ 
+ ## Preserve timing
+ 
+-![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/diagrams/wavedrom/rx_accept.svg)
++![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/diagrams/wavedrom/rx_accept.svg)
+ 
+-![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/diagrams/wavedrom/tx_backpressure.svg)
++![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/diagrams/wavedrom/tx_backpressure.svg)
+ 
+ ![Parent Pdelay timestamp ownership](../../diagrams/wd_gptp_pdelay.svg)
+ 
+@@ -99,4 +99,4 @@ Never convert a refused frame into partial data.
+ - Run lint and portability gates.
+ - Record exact-head evidence publicly.
+ 
+-Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/SOURCE_EVIDENCE.md).
++Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/SOURCE_EVIDENCE.md).
+diff --git a/docs/guides/gptp/MANAGER.md b/docs/guides/gptp/MANAGER.md
+index b74e0644c..d23fd0cea 100644
+--- a/docs/guides/gptp/MANAGER.md
++++ b/docs/guides/gptp/MANAGER.md
+@@ -20,7 +20,7 @@ Use this page for delivery decisions.
+ - Atomic publication prevents contradictory consumer state.
+ - Direct health drives every AVTP uncertainty bit.
+ 
+-Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md).
++Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/MANAGER.md).
+ 
+ ## Status
+ 
+@@ -50,7 +50,7 @@ Simulation remains necessary but insufficient.
+ 
+ Transition behavior is in [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md).
+ 
+-Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md).
++Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/MANAGER.md).
+ 
+ ## Release evidence
+ 
+diff --git a/docs/guides/gptp/SYSTEM_INTEGRATOR.md b/docs/guides/gptp/SYSTEM_INTEGRATOR.md
+index 7184d6506..54303442a 100644
+--- a/docs/guides/gptp/SYSTEM_INTEGRATOR.md
++++ b/docs/guides/gptp/SYSTEM_INTEGRATOR.md
+@@ -58,7 +58,7 @@ A build without a MAC ties the record face off.
+ 
+ That plane then delivers no timestamp and counts the loss.
+ 
+-Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md).
++Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/INTEGRATION.md).
+ 
+ ## Observe
+ 
+diff --git a/docs/guides/gptp/TEST_DEVELOPER.md b/docs/guides/gptp/TEST_DEVELOPER.md
+index 3ffe4153d..5a22a2722 100644
+--- a/docs/guides/gptp/TEST_DEVELOPER.md
++++ b/docs/guides/gptp/TEST_DEVELOPER.md
+@@ -27,7 +27,7 @@ C firmware never judges gPTP correctness.
+ 
+ Python models must not mirror implementation blindly.
+ 
+-Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/TEST_DEVELOPER.md).
++Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/TEST_DEVELOPER.md).
+ 
+ ## Choose a suite
+ 
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index e600c2764..072c8e3a8 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
+ | Path | Pin | Purpose | Root integration |
+ |---|---|---|---|
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+-| `gptp-processor` | `e4869fd0c42889b2ac806587cc5c78afb1c33461` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
++| `gptp-processor` | `8f3c376d1e07d2f1417889ae2ac590c71b8cb910` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+ | `protocol-processor` | `2cbed0a987c1e68402658d69459ab7e5aa571adc` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+ | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+ | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+@@ -348,10 +348,10 @@ The parent carries it to the CRF servo (#545).
+ 
+ Window overlap preserves lock until measured correction completes.
+ 
+-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md)
+-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md)
+-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/HDL_DEVELOPER.md)
+-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/TEST_DEVELOPER.md)
++- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/MANAGER.md)
++- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/INTEGRATION.md)
++- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/HDL_DEVELOPER.md)
++- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/TEST_DEVELOPER.md)
+ 
+ Processor PR 156 resolves both former RX-interface contradictions.
+ 
+diff --git a/docs/traceability/ieee8021as.md b/docs/traceability/ieee8021as.md
+index 8dcd2330c..96317e6b4 100644
+--- a/docs/traceability/ieee8021as.md
++++ b/docs/traceability/ieee8021as.md
+@@ -50,7 +50,7 @@ Simulation never becomes physical evidence.
+ 
+ The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
+ 
+-The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/SOURCE_EVIDENCE.md) maps internals.
++The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/8f3c376d1e07d2f1417889ae2ac590c71b8cb910/docs/SOURCE_EVIDENCE.md) maps internals.
+ 
+ ## Requirement mapping
+ 

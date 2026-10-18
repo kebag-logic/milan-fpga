@@ -1,0 +1,9 @@
+shard 1/9: 4 of 33 mutants: slew clears at the first in-band pair; byte face advances without ready; credit gate removed from the Announce leg; asCapable's rise keeps the lock
+[PASS] the unmutated engine still passes the harness
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew clears at the first in-band pair - breaks "slew: first in-band pair cannot clear"
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+[PASS] mutant caught: credit gate removed from the Announce leg - breaks "an Announce beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: asCapable's rise keeps the lock - breaks "the first pair after asCapable rises, or after a reset, is a link-up"
+
+5 checks: 5 PASS, 0 FAIL

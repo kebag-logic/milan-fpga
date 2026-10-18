@@ -1,0 +1,96 @@
+make: Entering directory '<scratch>/r4/ctl/swap/tb/verilator/engine'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I<scratch>/r4/ctl/swap/tb/verilator/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+make[1]: Entering directory '<scratch>/r4/ctl/swap/tb/verilator/engine/obj_dir'
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/r4/ctl/swap/tb/verilator/engine -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/r4/ctl/swap/tb/verilator/engine -Wall -Wextra   -c -o verilated.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/r4/ctl/swap/tb/verilator/engine -Wall -Wextra   -c -o verilated_threads.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_gptp_engine.cpp VKL_gptp_engine___024root__0.cpp VKL_gptp_engine__ConstPool__0__Slow.cpp VKL_gptp_engine___024root__Slow.cpp VKL_gptp_engine___024root__0__Slow.cpp VKL_gptp_engine__Syms__Slow.cpp > VKL_gptp_engine__ALL.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<scratch>/r4/ctl/swap/tb/verilator/engine -Wall -Wextra   -c -o VKL_gptp_engine__ALL.o VKL_gptp_engine__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_gptp_engine__ALL.a    -pthread -lpthread -latomic   -o Vengine_sim
+rm VKL_gptp_engine__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<scratch>/r4/ctl/swap/tb/verilator/engine/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.408 MB sources in 7 modules, into 0.389 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.226 s (elab=0.007, cvt=0.044, bld=5.157); cpu 0.075 s on 16 threads; allocated 1207.668 MB
+./obj_dir/Vengine_sim
+INFO #82 cold release graded for 2400605 cycles to the first beat
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000829 cycles after asCapable rises
+INFO #82 62 commits graded for the self path
+46 checks: 46 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+INFO #82 cold release graded for 2400626 cycles to the first beat
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000829 cycles after asCapable rises
+INFO #82 62 commits graded for the self path
+46 checks: 46 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+INFO #82 cold release graded for 2400608 cycles to the first beat
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000829 cycles after asCapable rises
+INFO #82 62 commits graded for the self path
+46 checks: 46 PASS, 0 FAIL
+-- the self publication again, not grandmaster-capable (priority1 255) --
+INFO #82 cold release graded for 2400605 cycles to the first beat
+FAIL p1 255 ann p1                       got 00000000000000ff exp 00000000000000f8
+FAIL p1 255 still master                 got 0000000000000000 exp 0000000000000002
+FAIL p1 255 gm still us                  got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 foreign-domain announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 foreign-domain announce: gm still us got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 foreign-domain announce: parent still us got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL p1 255 own-source announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 own-source announce: gm still us got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 own-source announce: parent still us got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL p1 255 stepsRemoved-255 announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 stepsRemoved-255 announce: gm still us got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 stepsRemoved-255 announce: parent still us got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL p1 255 deep-trace loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 deep-trace loop announce: gm still us got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 deep-trace loop announce: parent still us got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL p1 255 eighth-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 eighth-hop loop announce: gm still us got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 eighth-hop loop announce: parent still us got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL p1 255 first-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 first-hop loop announce: gm still us got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 first-hop loop announce: parent still us got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL p1 255 single-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 single-hop loop announce: gm still us got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 single-hop loop announce: parent still us got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL p1 255 path-trace-loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 path-trace-loop announce: gm still us got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 path-trace-loop announce: parent still us got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL p1 255 stepsRemoved-0x0100 announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 stepsRemoved-0x0100 announce: gm still us got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL p1 255 stepsRemoved-0x0100 announce: parent still us got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL p1 255 boundary-clean announce: degraded parent yields got 0000000000000001 exp 0000000000000003
+FAIL p1 255 boundary-clean announce: gm is us again got 00d1d1fffe000004 exp 02a1b2fffec3d4e5
+FAIL p1 255 stepsRemoved-0xFFFF announce: still master got 0000000000000000 exp 0000000000000002
+FAIL p1 255 stepsRemoved-0xFFFF announce: gm still us got 00d1d1fffe000004 exp 02a1b2fffec3d4e5
+FAIL p1 255 stepsRemoved-0xFFFF announce: parent still us got 00d1d1fffe000005 exp 02a1b2fffec3d4e5
+FAIL p1 255 half-identity control A: degraded parent yields got 0000000000000001 exp 0000000000000003
+FAIL p1 255 half-identity control A: gm is us again got 00d2d2fffe000006 exp 02a1b2fffec3d4e5
+FAIL p1 255 half-identity control B: degraded parent yields got 0000000000000001 exp 0000000000000003
+FAIL p1 255 half-identity control B: gm is us again got 00d3d3fffe000007 exp 02a1b2fffec3d4e5
+FAIL p1 255 TLV-less competition control: degraded parent yields got 0000000000000001 exp 0000000000000003
+FAIL p1 255 TLV-less competition control: gm is us again got 00d4d4fffe000008 exp 02a1b2fffec3d4e5
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+FAIL p1 255 degraded parent yields NOW   got 0000000000000001 exp 0000000000000003
+FAIL p1 255 gm is us again               got aabbccfffe010203 exp 02a1b2fffec3d4e5
+FAIL wait_tx type 0: timeout
+FAIL p1 255 slew: parent degradation returns to GM got 0000000000000000 exp 0000000000000002
+FAIL p1 255 slew: mastership retires the phase correction got 0000000000000001 exp 0000000000000000
+FAIL p1 255 slew: mastership writes one replacement rate got 00000000000000b4 exp 00000000000000b5
+FAIL p1 255 slew: mastership keeps the integral-only rate got 00000000ffe66666 exp 00000000ffe66667
+FAIL p1 255 slew: mastership has one falling edge got 0000000000000025 exp 0000000000000026
+FAIL p1 255 slew: GM duty remains inactive got 0000000000000001 exp 0000000000000000
+FAIL p1 255 slew: return from GM starts inactive got 0000000000000001 exp 0000000000000000
+FAIL p1 255 slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+FAIL p1 255 slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 0
+INFO #82 Pdelay loss: mastership commits 2000682 cycles after asCapable rises
+INFO #82 492 commits graded for the self path
+1642 checks: 1588 PASS, 54 FAIL
+make: *** [Makefile:46: run] Error 1
+make: Leaving directory '<scratch>/r4/ctl/swap/tb/verilator/engine'

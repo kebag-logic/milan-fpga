@@ -1,0 +1,7 @@
+shard 6/9: 3 of 33 mutants: result face always ready; the tail runs before its own t1; a grandmaster change unlocks the servo
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result face always ready - breaks "a result already owed to the micro-code cannot be replaced by a later one"
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+[PASS] mutant caught: a grandmaster change unlocks the servo - breaks "the servo stays locked across a grandmaster identity change"
+
+4 checks: 4 PASS, 0 FAIL

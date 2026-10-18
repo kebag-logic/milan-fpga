@@ -1,0 +1,21 @@
+INFO #82 cold release graded for 2400605 cycles to the first beat
+FAIL #82 cold release: every cycle to the first beat has gmPresent got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+FAIL #82 warm reset: its flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 0
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+INFO #82 Pdelay loss: mastership commits 2000682 cycles after asCapable rises
+INFO #82 491 commits graded for the self path
+1642 checks: 1638 PASS, 4 FAIL
+rc=1
+-- the fourth pass: --p1 255, +not-gm-capable --
+INFO #82 cold release graded for 2400605 cycles to the first beat
+FAIL p1 255 master flags                 got 0000000000000007 exp 0000000000000006
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 0
+INFO #82 Pdelay loss: mastership commits 2000829 cycles after asCapable rises
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+INFO #82 62 commits graded for the self path
+46 checks: 44 PASS, 2 FAIL
+rc=1

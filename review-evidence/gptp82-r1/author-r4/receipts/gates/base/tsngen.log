@@ -1,0 +1,18 @@
+make: Entering directory '<data>/tmp/gptp82-a649/r2/base-src/tb/tsngen'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I<data>/tmp/gptp82-a649/r2/base-src/tb/tsngen" ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv tsngen_main.cpp -o Vtsngen
+make[1]: Entering directory '<data>/tmp/gptp82-a649/r2/base-src/tb/tsngen/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/tb/tsngen/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 16 threads; allocated 16.496 MB
+python3 run_tsngen.py
+288 checks: 288 PASS, 0 FAIL
+python3 mutants.py
+[PASS] the unmutated engine RTL still passes the harness
+[PASS] mutant caught: received sequenceId zeroed - breaks "a Follow_Up is paired with its Sync by the sequenceId that arrived, not by a constant"
+[PASS] mutant caught: announce grandmasterIdentity discarded - breaks "the grandmasterIdentity an Announce carries is the identity BMCA compares, so a better master is recognised as one"
+[PASS] mutant caught: transmit end of frame one byte early - breaks "a transmitted frame carries every byte the slot holds"
+
+4 checks: 4 PASS, 0 FAIL
+make: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/tb/tsngen'

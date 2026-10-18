@@ -1,0 +1,124 @@
+2.52. Printing statistics.
+
+=== KL_gptp_engine ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     8420 wires
+    27790 wire bits
+      388 public wires
+     6701 public wire bits
+       43 ports
+     1074 port bits
+    10327 cells
+        4   $scopeinfo
+        1   BUFG
+        4   DSP48E1
+      170   IBUF
+     2489   INV
+       72   LUT1
+     1162   LUT2
+      736   LUT3
+      771   LUT4
+     1512   LUT5
+     2435   LUT6
+      904   OBUF
+       64   RAM64X1S
+        3   RAMB18E1
+     4512 submodules
+      238   CARRY4
+     3427   FDRE
+        1   FDSE
+      600   MUXF7
+      138   MUXF8
+       80   RAM32M
+       28   RAM64M
+
+   Estimated number of LCs:       5454
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        | 
+    10327 KL_gptp_engine
+
+        +----------Count including submodules.
+        | 
+     8420 wires
+    27790 wire bits
+      388 public wires
+     6701 public wire bits
+       43 ports
+     1074 port bits
+        - memories
+        - memory bits
+        - processes
+    10327 cells
+        4   $scopeinfo
+        1   BUFG
+        4   DSP48E1
+      170   IBUF
+     2489   INV
+       72   LUT1
+     1162   LUT2
+      736   LUT3
+      771   LUT4
+     1512   LUT5
+     2435   LUT6
+      904   OBUF
+       64   RAM64X1S
+        3   RAMB18E1
+     4512 submodules
+      238   CARRY4
+     3427   FDRE
+        1   FDSE
+      600   MUXF7
+      138   MUXF8
+       80   RAM32M
+       28   RAM64M
+
+   Estimated number of LCs:       5454
+
+2.53. Executing CHECK pass (checking for obvious problems).
+Checking module KL_gptp_engine...
+Found and reported 0 problems.
+
+3. Printing statistics.
+
+=== KL_gptp_engine ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     8420 wires
+    27790 wire bits
+      388 public wires
+     6701 public wire bits
+       43 ports
+     1074 port bits
+    14839 cells
+        4   $scopeinfo
+        1   BUFG
+      238   CARRY4
+        4   DSP48E1
+     3427   FDRE
+        1   FDSE
+      170   IBUF
+     2489   INV
+       72   LUT1
+     1162   LUT2
+      736   LUT3
+      771   LUT4
+     1512   LUT5
+     2435   LUT6
+      600   MUXF7
+      138   MUXF8
+      904   OBUF
+       80   RAM32M
+       28   RAM64M
+       64   RAM64X1S
+        3   RAMB18E1
+
+Warnings: 12 unique messages, 12 total
+End of script. Logfile hash: bfc1dd8f12, time: 19.12s, user: 13.80s, system: 1.33s, MEM: 422.75 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 27% 1x abc (5 sec), 15% 8x techmap (3 sec), ...

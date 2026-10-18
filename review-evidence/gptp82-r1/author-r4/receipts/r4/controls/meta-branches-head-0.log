@@ -1,0 +1,9 @@
+meta rows: meta: pattern absent -> #82 x; meta: generator refuses -> #82 x; meta: RTL does not build -> #82 x; meta: comment only, survives -> #82 cold release: that commit's flags are gmPresent alone
+[PASS] the unmutated engine still passes the harness
+[FAIL] mutation 'meta: pattern absent': its pattern appears 0 time(s) in ucode/gen_gptp_ucode.py, expected exactly 1. The source moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[FAIL] mutation 'meta: generator refuses': the generator refused its image, so this mutant proves nothing about the harness
+[FAIL] mutation 'meta: RTL does not build' did not build; a mutant that cannot build proves nothing about the harness
+[FAIL] mutant SURVIVED: meta: comment only, survives. The harness does not prove "#82 cold release: that commit's flags are gmPresent alone".
+
+5 checks: 1 PASS, 4 FAIL
+main() rc 1

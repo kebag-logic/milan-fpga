@@ -1,0 +1,183 @@
+commit 1687cf53ff32b545d946c2378b85c3c0980ed9cf
+Pin gptp-processor 334e9fe6 for local consumer gates, not for push
+
+---
+ docs/design/GPTP_PLANE.md             |  8 ++++----
+ docs/design/TIME_SYNC.md              |  2 +-
+ docs/guides/gptp/HDL_DEVELOPER.md     |  8 ++++----
+ docs/guides/gptp/MANAGER.md           |  4 ++--
+ docs/guides/gptp/SYSTEM_INTEGRATOR.md |  2 +-
+ docs/guides/gptp/TEST_DEVELOPER.md    |  2 +-
+ docs/reference/SUBMODULES.md          | 10 +++++-----
+ docs/traceability/ieee8021as.md       |  2 +-
+ gptp-processor                        |  2 +-
+ syn/yosys/rom_digests.tsv             |  1 +
+ 10 files changed, 21 insertions(+), 20 deletions(-)
+
+diff --git a/docs/design/GPTP_PLANE.md b/docs/design/GPTP_PLANE.md
+index 26113a3fd..9877dd3a5 100644
+--- a/docs/design/GPTP_PLANE.md
++++ b/docs/design/GPTP_PLANE.md
+@@ -29,10 +29,10 @@ This page defines parent integration.
+ 
+ | Reader | Parent guide | Engine guide |
+ |---|---|---|
+-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md) |
+-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md) |
+-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/HDL_DEVELOPER.md) |
+-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/TEST_DEVELOPER.md) |
++| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/MANAGER.md) |
++| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/INTEGRATION.md) |
++| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/HDL_DEVELOPER.md) |
++| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/TEST_DEVELOPER.md) |
+ 
+ Parent guides own integration behavior.
+ 
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 7cf6eb2fd..9a8ac9604 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -112,7 +112,7 @@ The offset is local time minus grandmaster time.
+ | Step-threshold decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
+ | PHC-only restart exclusion, 2026-09-27 | [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355); supersedes the step-only `mr` and MEDIA_RESET obligation |
+ | Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
+-| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md#step-versus-slew-policy) |
++| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/INTEGRATION.md#step-versus-slew-policy) |
+ 
+ The [coupling decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5816509317) requires discarding slew-overlapped windows.
+ 
+diff --git a/docs/guides/gptp/HDL_DEVELOPER.md b/docs/guides/gptp/HDL_DEVELOPER.md
+index b478abdb5..8c99eee11 100644
+--- a/docs/guides/gptp/HDL_DEVELOPER.md
++++ b/docs/guides/gptp/HDL_DEVELOPER.md
+@@ -30,13 +30,13 @@ Never patch imported behavior inside the parent lane.
+ 
+ Land donor changes before advancing its pin.
+ 
+-Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/HDL_DEVELOPER.md).
++Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/HDL_DEVELOPER.md).
+ 
+ ## Preserve timing
+ 
+-![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/diagrams/wavedrom/rx_accept.svg)
++![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/diagrams/wavedrom/rx_accept.svg)
+ 
+-![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/diagrams/wavedrom/tx_backpressure.svg)
++![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/diagrams/wavedrom/tx_backpressure.svg)
+ 
+ ![Parent Pdelay timestamp ownership](../../diagrams/wd_gptp_pdelay.svg)
+ 
+@@ -99,4 +99,4 @@ Never convert a refused frame into partial data.
+ - Run lint and portability gates.
+ - Record exact-head evidence publicly.
+ 
+-Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/SOURCE_EVIDENCE.md).
++Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/SOURCE_EVIDENCE.md).
+diff --git a/docs/guides/gptp/MANAGER.md b/docs/guides/gptp/MANAGER.md
+index b74e0644c..a146386f9 100644
+--- a/docs/guides/gptp/MANAGER.md
++++ b/docs/guides/gptp/MANAGER.md
+@@ -20,7 +20,7 @@ Use this page for delivery decisions.
+ - Atomic publication prevents contradictory consumer state.
+ - Direct health drives every AVTP uncertainty bit.
+ 
+-Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md).
++Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/MANAGER.md).
+ 
+ ## Status
+ 
+@@ -50,7 +50,7 @@ Simulation remains necessary but insufficient.
+ 
+ Transition behavior is in [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md).
+ 
+-Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md).
++Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/MANAGER.md).
+ 
+ ## Release evidence
+ 
+diff --git a/docs/guides/gptp/SYSTEM_INTEGRATOR.md b/docs/guides/gptp/SYSTEM_INTEGRATOR.md
+index 7184d6506..d1a54be49 100644
+--- a/docs/guides/gptp/SYSTEM_INTEGRATOR.md
++++ b/docs/guides/gptp/SYSTEM_INTEGRATOR.md
+@@ -58,7 +58,7 @@ A build without a MAC ties the record face off.
+ 
+ That plane then delivers no timestamp and counts the loss.
+ 
+-Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md).
++Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/INTEGRATION.md).
+ 
+ ## Observe
+ 
+diff --git a/docs/guides/gptp/TEST_DEVELOPER.md b/docs/guides/gptp/TEST_DEVELOPER.md
+index 3ffe4153d..1ae5a2387 100644
+--- a/docs/guides/gptp/TEST_DEVELOPER.md
++++ b/docs/guides/gptp/TEST_DEVELOPER.md
+@@ -27,7 +27,7 @@ C firmware never judges gPTP correctness.
+ 
+ Python models must not mirror implementation blindly.
+ 
+-Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/TEST_DEVELOPER.md).
++Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/TEST_DEVELOPER.md).
+ 
+ ## Choose a suite
+ 
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index e600c2764..18322dc80 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
+ | Path | Pin | Purpose | Root integration |
+ |---|---|---|---|
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+-| `gptp-processor` | `e4869fd0c42889b2ac806587cc5c78afb1c33461` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
++| `gptp-processor` | `334e9fe64dfff5568be58a0dc9aeb302959b3b58` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+ | `protocol-processor` | `2cbed0a987c1e68402658d69459ab7e5aa571adc` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+ | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+ | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+@@ -348,10 +348,10 @@ The parent carries it to the CRF servo (#545).
+ 
+ Window overlap preserves lock until measured correction completes.
+ 
+-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md)
+-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md)
+-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/HDL_DEVELOPER.md)
+-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/TEST_DEVELOPER.md)
++- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/MANAGER.md)
++- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/INTEGRATION.md)
++- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/HDL_DEVELOPER.md)
++- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/TEST_DEVELOPER.md)
+ 
+ Processor PR 156 resolves both former RX-interface contradictions.
+ 
+diff --git a/docs/traceability/ieee8021as.md b/docs/traceability/ieee8021as.md
+index 8dcd2330c..e98f4eeaf 100644
+--- a/docs/traceability/ieee8021as.md
++++ b/docs/traceability/ieee8021as.md
+@@ -50,7 +50,7 @@ Simulation never becomes physical evidence.
+ 
+ The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
+ 
+-The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/SOURCE_EVIDENCE.md) maps internals.
++The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/334e9fe64dfff5568be58a0dc9aeb302959b3b58/docs/SOURCE_EVIDENCE.md) maps internals.
+ 
+ ## Requirement mapping
+ 
+diff --git a/gptp-processor b/gptp-processor
+index e4869fd0c..334e9fe64 160000
+--- a/gptp-processor
++++ b/gptp-processor
+@@ -1 +1 @@
+-Subproject commit e4869fd0c42889b2ac806587cc5c78afb1c33461
++Subproject commit 334e9fe64dfff5568be58a0dc9aeb302959b3b58
+diff --git a/syn/yosys/rom_digests.tsv b/syn/yosys/rom_digests.tsv
+index 65eb5b5a1..349a490f1 100644
+--- a/syn/yosys/rom_digests.tsv
++++ b/syn/yosys/rom_digests.tsv
+@@ -19,6 +19,7 @@
+ 2cbed0a987c1e68402658d69459ab7e5aa571adc	ucode.hex	518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8
+ 2faa5af8889d97616bda1369e4739a546da7b0f1	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ 2faa5af8889d97616bda1369e4739a546da7b0f1	ucode.hex	e77ca1f64dfcbcffb2290b9acd812fa3790a78220558cf44f306d904f758e4dc
++334e9fe64dfff5568be58a0dc9aeb302959b3b58	gptp_ucode.hex	ceb04562d5b1f61dc18027b121aacfc2b22d6ba3a9ffb4f87efba543df36e4b2
+ 3770ae02c56ca712d4a3505f429298b62edd5da8	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+ 3770ae02c56ca712d4a3505f429298b62edd5da8	ucode.hex	e77ca1f64dfcbcffb2290b9acd812fa3790a78220558cf44f306d904f758e4dc
+ 424c688fa2205b934a7689a58f2aa766420f2326	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956

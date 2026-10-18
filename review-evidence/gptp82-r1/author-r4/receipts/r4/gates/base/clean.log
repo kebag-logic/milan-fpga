@@ -1,0 +1,17 @@
+make -C tb/verilator/ucpu clean
+make[1]: Entering directory '<scratch>/r4/base-src/tb/verilator/ucpu'
+rm -rf obj_dir gptp_ucode.hex
+make[1]: Leaving directory '<scratch>/r4/base-src/tb/verilator/ucpu'
+make -C tb/verilator/parser clean
+make[1]: Entering directory '<scratch>/r4/base-src/tb/verilator/parser'
+rm -rf obj_dir
+make[1]: Leaving directory '<scratch>/r4/base-src/tb/verilator/parser'
+make -C tb/verilator/engine clean
+make[1]: Entering directory '<scratch>/r4/base-src/tb/verilator/engine'
+rm -rf obj_dir gptp_ucode.hex seedrun syncseedrun p1run
+make[1]: Leaving directory '<scratch>/r4/base-src/tb/verilator/engine'
+make -C bench/arty clean
+make[1]: Entering directory '<scratch>/r4/base-src/bench/arty'
+rm -rf obj_dir
+make[1]: Leaving directory '<scratch>/r4/base-src/bench/arty'
+rm -rf syn/ooc/work

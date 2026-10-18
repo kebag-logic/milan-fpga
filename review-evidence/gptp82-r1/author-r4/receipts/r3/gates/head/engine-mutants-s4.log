@@ -1,0 +1,9 @@
+shard 4/18: 3 of 58 mutants: slew idle asCapable loss arms qualification; exactly the threshold steps; the boot commit never retires
+[PASS] the unmutated engine still passes the harness
+FAIL slew: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle asCapable loss arms qualification - breaks "slew: in-band pair after asCapable recovery stays inactive"
+[PASS] mutant caught: exactly the threshold steps - breaks "an offset of exactly 20 us, or 100 us once locked, slews"
+FAIL #82 cold release: one commit before the first beat got 00000000000f4240 exp 0000000000000001
+[PASS] mutant caught: the boot commit never retires - breaks "#82 cold release: one commit before the first beat"
+
+4 checks: 4 PASS, 0 FAIL

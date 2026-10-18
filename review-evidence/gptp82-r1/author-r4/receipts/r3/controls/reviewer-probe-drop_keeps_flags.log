@@ -1,0 +1,8 @@
+probe=drop_keeps_flags harness_rc=1
+INFO #82 cold release graded for 2400605 cycles to the first beat
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1969 cycles later with flags 9
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000001
+INFO #82 Pdelay loss: mastership commits 2000682 cycles after asCapable rises
+INFO #82 492 commits graded for the self path
+1642 checks: 1641 PASS, 1 FAIL
+rc=0

@@ -1,0 +1,11 @@
+meta rows: slew clears at the first in-band pair -> slew: no such check; mastership sets the microcode's presence bit -> #82 Pdelay loss: that mastership commit has gmPresent; slew clears at the first in-band pair -> slew: first in-band pair cannot clear; mastership sets the microcode's presence bit -> p1 255 #82 Pdelay loss: that mastership commit has gmPresent
+[PASS] the unmutated engine still passes the harness
+[FAIL] mutant 'slew clears at the first in-band pair' missed its named check
+[FAIL] mutant "mastership sets the microcode's presence bit" missed its named check(s): #82 Pdelay loss: that mastership commit has gmPresent
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew clears at the first in-band pair - breaks "slew: first in-band pair cannot clear"
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: mastership sets the microcode's presence bit - breaks "p1 255 #82 Pdelay loss: that mastership commit has gmPresent"
+
+5 checks: 3 PASS, 2 FAIL
+main() rc 1

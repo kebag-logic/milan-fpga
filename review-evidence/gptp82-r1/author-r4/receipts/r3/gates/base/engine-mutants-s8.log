@@ -1,0 +1,7 @@
+shard 8/9: 3 of 33 mutants: result tag taken without an accepted beat; credit gate removed from the Pdelay_Req leg; becoming grandmaster unlocks the servo
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+
+4 checks: 4 PASS, 0 FAIL

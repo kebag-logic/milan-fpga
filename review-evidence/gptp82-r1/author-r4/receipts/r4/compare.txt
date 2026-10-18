@@ -1,0 +1,45 @@
+== engine suite log, base vs head (paths removed)
+17c17
+< - Verilator: Walltime 6.335 s (elab=0.009, cvt=0.053, bld=6.252); cpu 0.090 s on 16 threads; allocated 1079.664 MB
+---
+> - Verilator: Walltime 6.397 s (elab=0.009, cvt=0.054, bld=6.313); cpu 0.091 s on 16 threads; allocated 1015.668 MB
+diff rc 1
+
+== engine mutation arm, 18 shard logs, base vs head, byte for byte
+s0 cmp rc 0
+s1 cmp rc 0
+s2 cmp rc 0
+s3 cmp rc 0
+s4 cmp rc 0
+s5 cmp rc 0
+s6 cmp rc 0
+s7 cmp rc 0
+s8 cmp rc 0
+s9 cmp rc 0
+s10 cmp rc 0
+s11 cmp rc 0
+s12 cmp rc 0
+s13 cmp rc 0
+s14 cmp rc 0
+s15 cmp rc 0
+s16 cmp rc 0
+s17 cmp rc 0
+caught lines: base 58, head 58
+named failure lines printed: base 71, head 71
+
+== branch meta-run, base vs head
+half 0 cmp rc 0
+half 1 cmp rc 0
+
+== parent consumer logs: manager's run at 334e9fe6 vs this run at acfef36b (paths removed)
+01: 12 differing line(s)
+02: 19 differing line(s)
+03: 2 differing line(s)
+04: 0 differing line(s)
+05: 102 differing line(s)
+06: 16 differing line(s)
+07: 0 differing line(s)
+08: 0 differing line(s)
+09: 0 differing line(s)
+10: 0 differing line(s)
+11: 0 differing line(s)

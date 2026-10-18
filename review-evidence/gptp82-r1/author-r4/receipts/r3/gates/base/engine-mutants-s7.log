@@ -1,0 +1,7 @@
+shard 7/9: 3 of 33 mutants: result value taken without an accepted beat; a new request leaves the old pair live; a receipt timeout unlocks the servo
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+[PASS] mutant caught: a new request leaves the old pair live - breaks "a superseded exchange cannot pair with the new request's t1"
+[PASS] mutant caught: a receipt timeout unlocks the servo - breaks "the servo stays locked across a Sync receipt timeout"
+
+4 checks: 4 PASS, 0 FAIL

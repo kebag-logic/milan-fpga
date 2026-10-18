@@ -1,0 +1,11 @@
+shard 11/18: 3 of 58 mutants: lost t1 fabricates a time and a companion; becoming grandmaster keeps sync-ok; the self publication keeps the departed path
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+[FAIL] mutation 'becoming grandmaster keeps sync-ok': its pattern appears 0 time(s) in ucode/gen_gptp_ucode.py, expected exactly 1. The source moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 000000000000000f exp 0000000000000000
+[PASS] mutant caught: the self publication keeps the departed path - breaks "#82 peer leaves: the mastership commit path is {thisClock} | #82 Pdelay loss: that commit carries {thisClock} | #82 Pdelay loss: that mastership names thisClock, {thisClock} | #82 every commit naming thisClock carries {thisClock}"
+
+4 checks: 3 PASS, 1 FAIL
