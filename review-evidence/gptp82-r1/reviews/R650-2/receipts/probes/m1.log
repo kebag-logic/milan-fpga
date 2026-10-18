@@ -1,0 +1,8 @@
+probe=m:a warm reset keeps the retained best record harness_rc=1
+INFO #82 cold release graded for 2400605 cycles to the first beat
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0082a0fffe000001 exp 0082b0fffe000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+INFO #82 Pdelay loss: thisClock committed 1970 cycles after the fall
+INFO #82 448 commits graded for the self path
+1634 checks: 1631 PASS, 3 FAIL

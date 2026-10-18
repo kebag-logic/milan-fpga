@@ -1,0 +1,9 @@
+probe=drop_via_become harness_rc=1
+INFO #82 cold release graded for 2400605 cycles to the first beat
+FAIL slew: incapable pair cannot complete correction got 0000000000000000 exp 0000000000000001
+FAIL slew: incapable pair writes no rate got 00000000000000be exp 00000000000000bd
+FAIL slew: incapable interval has no falling edge got 000000000000002a exp 0000000000000029
+FAIL slew: incapable interval holds the rate got 00000000000000be exp 00000000000000bd
+INFO #82 Pdelay loss: thisClock committed 2002 cycles after the fall
+INFO #82 445 commits graded for the self path
+1635 checks: 1631 PASS, 4 FAIL

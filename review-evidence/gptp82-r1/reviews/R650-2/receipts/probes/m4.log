@@ -1,0 +1,7 @@
+probe=m:reset keeps the elected tail harness_rc=1
+INFO #82 cold release graded for 2400605 cycles to the first beat
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+INFO #82 Pdelay loss: thisClock committed 1970 cycles after the fall
+INFO #82 448 commits graded for the self path
+FAIL #82 every commit naming thisClock carries {thisClock} got 0000000000000002 exp 0000000000000000
+1634 checks: 1632 PASS, 2 FAIL
