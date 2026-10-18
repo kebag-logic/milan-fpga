@@ -1,0 +1,50 @@
+[
+  {
+    "case": "default",
+    "rc": 0,
+    "sha256": "00826e9be6b0aeaa6fef58e7f46b48508626661d96aef317a0d6ce67ac5fe5ae",
+    "words": 1024,
+    "cid": "0x2a1b2fffec3d4e5",
+    "expected": "0x2a1b2fffec3d4e5",
+    "pass": true,
+    "generator_summary": "1024 words, 1013 real (98.9%), mac 02A1B2C3D4E5"
+  },
+  {
+    "case": "custom",
+    "rc": 0,
+    "sha256": "707aaf2c42d6c0551857a410f8b1c92c883c69883500f9dc9cb2073f7eec1319",
+    "words": 1024,
+    "cid": "0x21122fffe334455",
+    "expected": "0x21122fffe334455",
+    "pass": true,
+    "generator_summary": "1024 words, 1013 real (98.9%), mac 021122334455"
+  },
+  {
+    "case": "request-seed",
+    "rc": 0,
+    "sha256": "6facc9b8a75bdf95708b6cd9e44827e494715396fe146ca4d92be63a766ef833",
+    "words": 1024,
+    "cid": "0x2a1b2fffec3d4e5",
+    "expected": "0x2a1b2fffec3d4e5",
+    "pass": true,
+    "generator_summary": "1024 words, 1014 real (99.0%), mac 02A1B2C3D4E5"
+  },
+  {
+    "case": "sync-seed",
+    "rc": 0,
+    "sha256": "cd7283b2f2dce239c9d6fd914ca69213e23877283fdf9abd00f1b1878358f9e6",
+    "words": 1024,
+    "cid": "0x2a1b2fffec3d4e5",
+    "expected": "0x2a1b2fffec3d4e5",
+    "pass": true,
+    "generator_summary": "1024 words, 1014 real (99.0%), mac 02A1B2C3D4E5"
+  },
+  {
+    "tracked_images": {
+      "syn/ooc/work/gptp_ucode.hex": "00826e9be6b0aeaa6fef58e7f46b48508626661d96aef317a0d6ce67ac5fe5ae",
+      "tb/tsngen/gptp_ucode.hex": "267a2311ac25a20dd3cd89fc8f5b99d8173425669531081eb422f56a15100be1",
+      "tb/verilator/engine/gptp_ucode.hex": "44e48258beb04fd6c95116a147c4adc20418adb26273eb24c42a50b4160a0662",
+      "tb/verilator/ucpu/gptp_ucode.hex": "00826e9be6b0aeaa6fef58e7f46b48508626661d96aef317a0d6ce67ac5fe5ae"
+    }
+  }
+]

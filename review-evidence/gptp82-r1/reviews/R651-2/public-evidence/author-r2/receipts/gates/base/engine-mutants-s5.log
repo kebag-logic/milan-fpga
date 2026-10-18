@@ -1,0 +1,10 @@
+shard 5/6: 5 of 33 mutants: slew mastership keeps qualification; lost t1 fabricates a time and a companion; credit gate removed from the Pdelay_Req leg; the step arm is unreachable; becoming grandmaster keeps sync-ok
+[PASS] the unmutated engine still passes the harness
+FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew mastership keeps qualification - breaks "slew: in-band return from GM stays inactive"
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: the step arm is unreachable - breaks "an offset over the threshold steps"
+[PASS] mutant caught: becoming grandmaster keeps sync-ok - breaks "becoming grandmaster clears the sync-ok verdict"
+
+6 checks: 6 PASS, 0 FAIL

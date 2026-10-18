@@ -1,0 +1,654 @@
+{
+  "head": "8f3c376d1e07d2f1417889ae2ac590c71b8cb910",
+  "tree": "359e2e2518117b70fd1efd4287ecf2888a61d102",
+  "index_tree": "359e2e2518117b70fd1efd4287ecf2888a61d102",
+  "index_matches_head_tree": true,
+  "tracked_files": 107,
+  "mismatches": [],
+  "gitlinks": {},
+  "status": "",
+  "tracked": [
+    {
+      "path": ".gitignore",
+      "blob": "3e395e06d32e2c7b466a8c2a8096826bcbb13c52",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "LICENSE",
+      "blob": "7c981754e29e51563b50b0553bb819415aa2c2c8",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "Makefile",
+      "blob": "26f80bceea761874c47048da6c8ea42795a381de",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "README.md",
+      "blob": "ba8f44e3b6b34fc6f4af9da762c573653dd782b1",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/Makefile",
+      "blob": "734818df23dbc92e9dddf3b2a059de116d229631",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/arty.xdc",
+      "blob": "24341bfe7c1d783e4eb7d231100a4719a80b14a2",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/bench_afifo.sv",
+      "blob": "ae1a141d7d3015831864aca659ef81b3a89e4b10",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/bench_arty_top.sv",
+      "blob": "95da3525b1e87ecbeb0a10ae7bad00f740e5fbcc",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/bench_mii_rx.sv",
+      "blob": "7bdc5625b4b57cc673452e1bee9ac39008dd1088",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/bench_mii_tx.sv",
+      "blob": "ab127b395161c101227535face4da95a26b902ff",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/bench_mii_tx_tag_test.cpp",
+      "blob": "a130a87c5342bf498b3c3cd12bf3a35507ce0b60",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/bench_phc.sv",
+      "blob": "6bd9bbd110771e2d80bd6409130c769f93859fcc",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/bench_uart_report.sv",
+      "blob": "11bf6e15b052e2e23cea87737080484e3d95d230",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/build.sh",
+      "blob": "84a53ed521fa792407cfda850b1dbc17d79004df",
+      "mode": "100755",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/arty/build.tcl",
+      "blob": "1a0cb8c68c9f0441cc3d97972a5cc3638e96ccf4",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "bench/pcap_verdict.py",
+      "blob": "2c7220a8b0e941237c1532c12feb4ddcb21e4412",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/HDL_DEVELOPER.md",
+      "blob": "bf37507e84146bfda55e096faf84e07f05b6a107",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/INTEGRATION.md",
+      "blob": "f22bdc3ebf543e7ef6593507ea867086e9638918",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/MANAGER.md",
+      "blob": "e3c3711488710596dbc22c30a536de089e121d27",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/README.md",
+      "blob": "352bc45d57fd6565efee284bc495aa573ac8827b",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/SOURCE_EVIDENCE.md",
+      "blob": "5b29d301bd6d7d1d06d406512bbfc69e1bd940f8",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/TEST_DEVELOPER.md",
+      "blob": "2b48966d650c7329bfbf84c028cc9a0b1d16a84e",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/README.md",
+      "blob": "655933f3d8a90cd148f7f034e1c885c06b4bedd1",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/gptp_architecture.drawio",
+      "blob": "6bfddcb10bbdad5b4262b09997aff066bdc35a6d",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/gptp_architecture.png",
+      "blob": "fcaeb19eaba3214add10c215e1b7ce2d2767e399",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/gptp_architecture.svg",
+      "blob": "2b1d0905a371fcb42a3e8fdf37f9094b4ec4a6f3",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/manifest.json",
+      "blob": "57dfe042ca9d36d919d523ce560d639fa864615d",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/wavedrom/rx_accept.json",
+      "blob": "5c302f10d3aa97d8212bf0d697983c72d8e339b1",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/wavedrom/rx_accept.png",
+      "blob": "2021768eabeef4e85b4e15a5f8ba942845a65215",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/wavedrom/rx_accept.svg",
+      "blob": "55fd7532c7c95805e6dd908d70b43c2f0c7f1739",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/wavedrom/tx_backpressure.json",
+      "blob": "7de3907fde5bc5074a1a4d69ca6d69ce4c7c1c73",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/wavedrom/tx_backpressure.png",
+      "blob": "e27acc13e4f78587e94eb3878f2b8b33b69b4334",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/diagrams/wavedrom/tx_backpressure.svg",
+      "blob": "0286b3778d6a611410cca2a21684f65207b62aed",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/BENCH_FIRSTLIGHT.md",
+      "blob": "da46382e9fcf01e4ddc5d323e33f2ff1e29df7e1",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/BENCH_GRANDMASTER.md",
+      "blob": "4b87382bc5251b81d22ebb50f7eae311f389e523",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/PROJECT_STATUS.md",
+      "blob": "5cf08722909c30b15a4a75b7ada53f4a55151c8d",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/README.md",
+      "blob": "52a75a29524ede295574b42bba7dcec6b2bc567c",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/RESOURCE_VALIDATION.md",
+      "blob": "17068bf1a8c2e4ecb70ddccf1cbb829ad2d9ada6",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/ARCHITECTURE.md",
+      "blob": "6407b2bd05ff9d3a4d39456cfdd48b531d71cf68",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/BENCH_ASCAPABLE.md",
+      "blob": "d8e579c0087b9099df0fe7f31ff78f1f6523ec9c",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/BENCH_OPERATIONS.md",
+      "blob": "f7aebf81535000efb42ca2dd2c65003efa9792bb",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md",
+      "blob": "34a03d653fdb1afade04af6c85daf02487a630ae",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/FSM_CONFORMANCE.md",
+      "blob": "70896fd894708381fa8e9f25af7e95ff4235301d",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/INTEGRATION_GUIDE.md",
+      "blob": "778fe8682ab2d67d484cabf2cf9d54570770617b",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/IP_BLOCKS.md",
+      "blob": "09c1726e2888bcfde3b1e07515984cd389389cc0",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/MGMT_INTERFACE.md",
+      "blob": "056509c679d57bf74b064632ddb0839db31f69c3",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/RESOURCE_VALIDATION.md",
+      "blob": "1dbeda36cad3a7bf4dba2609518a460cc8d681e6",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/VERIFICATION.md",
+      "blob": "0987259035f10bac7ca83409fed5015bb55ea8b7",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/bank_word0.svg",
+      "blob": "425b7f07a5be04020ddab18807f8381453ae863a",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/block_engine.svg",
+      "blob": "5c904de3e8f7de31087ea03a135d3844e181f26b",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/block_integration.svg",
+      "blob": "982e41502b88bd150193346ba8ef6199c2e069d3",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/dispatch_handshake.svg",
+      "blob": "5fb4d07b5811f7d58c47aae4907d89a73bd21bf4",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/event_flow.svg",
+      "blob": "08b9bf65aacec2c3f975f5b25ffcc408739c3840",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/flags_word.svg",
+      "blob": "4d0e2a116a3832fdc5e3944496f0834228fcfea8",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/pdelay_exchange.svg",
+      "blob": "3624f53261f7a5eff449a57fd40fba30aeb79354",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/rx_byte_face.svg",
+      "blob": "4026caef7ee9b04984779495908bb829ba415c7e",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/servo_decision.svg",
+      "blob": "1a362142458dc2c4dec651b580f869cb26e4d498",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/state_port.svg",
+      "blob": "21cdbf756a10cd239c017d5b945c4d89fb8aec5b",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/sync_followup.svg",
+      "blob": "3745ad49dcdbcbf70322bdd6759905135bc858aa",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/timer_sweep.svg",
+      "blob": "4ff8dba166ec3107160d46c5306cec62da84f49c",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/tx_build_send.svg",
+      "blob": "67cba92c378e349af1a37fe9446b6e1b6bffb76c",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/txslot_unpack.svg",
+      "blob": "5cb899bf48cfca0b84cd3368c0ffe03c85b202cb",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/prototype/diagrams/uop_encoding.svg",
+      "blob": "3e22d9d6bc036e9ef63ad9f89c507a9cd855e632",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/testing/ENGINE_TEST_RECORD.md",
+      "blob": "e0ee52c25c215c704e9391e2732bc8a576454bd0",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/testing/PARSER_TEST_RECORD.md",
+      "blob": "b8bf5280700716a800021f21dd1340d4443f3022",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "docs/history/v1/testing/UCPU_TEST_RECORD.md",
+      "blob": "414603dbbe6202ca37f8f23e89a5bc5a9330af6a",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "hdl/common/KL_gptp_timer.sv",
+      "blob": "428d47b0ab154d14d352966a51730429d4eacd6d",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "hdl/top/KL_gptp_engine.sv",
+      "blob": "bda5f14233e4a3770f4b009251ffd6081ed7505f",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "hdl/ucode/gen_gptp_ucode.py",
+      "blob": "21aa63cec5d06b23e704d9fd04338118063e6571",
+      "mode": "100755",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "hdl/ucpu/KL_gptp_ucpu.sv",
+      "blob": "093311a4ed1fd4e68a618262c5cb5b31b321c0c5",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "hdl/ucpu/gptp_ucpu_pkg.sv",
+      "blob": "62c49ae3fc8ffe46cb93e715c403a16e2fa602d0",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "hdl/wire/KL_gptp_rx_parser.sv",
+      "blob": "45421ab67e09bbcbdad19677910e420e13e7ad8d",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "hdl/wire/KL_gptp_tx_slot.sv",
+      "blob": "50ef51785f7a9f603d77034ad2062e86fc4f9683",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "scripts/check_docs.py",
+      "blob": "8be88a4140a04140877be08efa32328b8afee687",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "scripts/check_source_evidence.py",
+      "blob": "c8eef1ac7f191bdef0cc660c4a94090082650d3b",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "scripts/generate_diagrams.py",
+      "blob": "7a7c1108523b372dd34618b87e6258dc0c6311a1",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "syn/ooc/check_ooc_clock.py",
+      "blob": "68055aa47b1910c5b750cc0a595106ad0a03fae9",
+      "mode": "100755",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "syn/ooc/engine_ooc.tcl",
+      "blob": "a82a24dfc6d839e853a166a6983c9664738d368c",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "syn/ooc/ooc_clock.xdc",
+      "blob": "74a7908bbac22a0aa3c75bd51d84fd676d0a78eb",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "syn/ooc/run.sh",
+      "blob": "3279bacd2fbf974ce413392c2ed5ea302aa74099",
+      "mode": "100755",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "syn/ooc/ucpu_ooc.tcl",
+      "blob": "32e1dbbcb7789e5ae48b52f7742422bfbe570f85",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "syn/ooc/work/gptp_ucode.hex",
+      "blob": "8c9d163bbf51e385ca5e00b0c7c481b0932a83ef",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/check_phc_contract.py",
+      "blob": "5059cf5f04c64ebef704fa2b20a619631fc572c7",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/common/verilator_harness.hpp",
+      "blob": "0b7485fb0bbb1908e61d253703025dca65a99100",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/mutation_verdict.py",
+      "blob": "e25b17efbacee3c5b67ecace76eec9b39c4de97c",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/tsngen/Makefile",
+      "blob": "3f34608c8a6b71e0a1da9cf22dfb326ecb31bc1b",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/tsngen/gptp_ucode.hex",
+      "blob": "2fa911c74626952faec7a1db6e3a57bb9f91553d",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/tsngen/mutants.py",
+      "blob": "36d0e141fb2a9cf5b3b6a5ba1859b8648e76f785",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/tsngen/run_tsngen.py",
+      "blob": "31d2e92beabbe914c42274406547191ecf535d60",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/tsngen/tsngen_main.cpp",
+      "blob": "6be7e6a4226c072c9148640e9578cd376e37b754",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/engine/Makefile",
+      "blob": "289b0e2cb95651c944b929328fe9f19155bb49a4",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/engine/README.md",
+      "blob": "f0976d9aa7d042502cc6d594dc3fe4e485e8521e",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/engine/gptp_ucode.hex",
+      "blob": "e4ae267fab4140b2839b8c1393326b58a4755577",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/engine/mutants.py",
+      "blob": "00378cf773e9102c4e9d9f022668b84c3554c187",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/engine/sim_main.cpp",
+      "blob": "c3d73176535e3593da546372832b79db36024fbf",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/gaskets/Makefile",
+      "blob": "c98135a4c163f95a3e797430c7e5d1a843dbfa71",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/gaskets/gasket_tb_top.sv",
+      "blob": "904a88cadc8b6429e5c65465eefc1eb08eeb24b3",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/gaskets/mutants.py",
+      "blob": "37ecf1c1ecc5fb40e334ca92ee94f53da81d41e8",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/gaskets/sim_main.cpp",
+      "blob": "0765bb31ee15385143b763033ca8f721934debc6",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/parser/Makefile",
+      "blob": "2e4440e291199e9210c8356a05ac9ba4842b4b29",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/parser/README.md",
+      "blob": "435405c31c3463204e471fdb46e234df7b5ca282",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/parser/mutants.py",
+      "blob": "91fa3fe2a0d84f8e3e0029e3873d4697654f82ff",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/parser/sim_main.cpp",
+      "blob": "108f8b18bd59d7d4ac10e2f3f77afe91ba4fd49f",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/ucpu/Makefile",
+      "blob": "6f03a757682f7bdbfaa0da52c596908f3ef892b5",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/ucpu/README.md",
+      "blob": "6672c33183b4539ae59e5ebdc9d69870ff4f940c",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/ucpu/gptp_ucode.hex",
+      "blob": "8c9d163bbf51e385ca5e00b0c7c481b0932a83ef",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    },
+    {
+      "path": "tb/verilator/ucpu/sim_main.cpp",
+      "blob": "28bb1a945c65d97ce17317276a9c6293101d0efa",
+      "mode": "100644",
+      "bytes_and_mode_match": true
+    }
+  ]
+}

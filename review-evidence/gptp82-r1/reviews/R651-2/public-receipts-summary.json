@@ -1,0 +1,780 @@
+[
+  {
+    "file": "public-evidence/author-r2/receipts/controls/control-base-rtl.log",
+    "terminal_lines": [
+      "FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001",
+      "INFO #82 423 commits graded for the self path",
+      "1634 checks: 1617 PASS, 17 FAIL",
+      "rc=1"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/controls/control-round1-rtl.log",
+    "terminal_lines": [
+      "FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001",
+      "INFO #82 435 commits graded for the self path",
+      "1634 checks: 1623 PASS, 11 FAIL",
+      "rc=1"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/bench.log",
+    "terminal_lines": [
+      "- Verilator: Walltime 4.219 s (elab=0.001, cvt=0.006, bld=4.208); cpu 0.014 s on 16 threads; allocated 690.793 MB",
+      "./obj_dir/Vbench_mii_tx_tag_test",
+      "PASS: two MII done toggles carried tags {3,1234}, {a,beef}",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/bench/arty'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/clean.log",
+    "terminal_lines": [
+      "make[1]: Entering directory '<data>/tmp/gptp82-a649/r2/base-src/bench/arty'",
+      "rm -rf obj_dir",
+      "make[1]: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/bench/arty'",
+      "rm -rf syn/ooc/work"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/contract.log",
+    "terminal_lines": [
+      "python3 tb/check_phc_contract.py",
+      "PHC interface contract: PASS"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/docs.log",
+    "terminal_lines": [
+      "EXACT hdl/wire/KL_gptp_rx_parser.sv#L475 (Ignored receive flag bits): 11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];",
+      "source evidence: 20 exact, 0 findings",
+      "python3 scripts/check_source_evidence.py --selftest",
+      "source evidence selftest: PASS (7 arms)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/engine-mutants-s0.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: a grandmaster change unlocks the servo - breaks \"the servo stays locked across a grandmaster identity change\"",
+      "[PASS] mutant caught: the whole trim is not clamped - breaks \"the written trim never leaves +-200 ppm\"",
+      "",
+      "7 checks: 7 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/engine-mutants-s1.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: a receipt timeout unlocks the servo - breaks \"the servo stays locked across a Sync receipt timeout\"",
+      "[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks \"the written trim never leaves the envelope the consumer derives\"",
+      "",
+      "7 checks: 7 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/engine-mutants-s2.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks \"the servo stays locked across a return from mastership\"",
+      "[PASS] mutant caught: the integrator is not clamped - breaks \"the integrator stays within +-200 ppm\"",
+      "",
+      "7 checks: 7 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/engine-mutants-s3.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: every pair uses the link-up threshold - breaks \"a locked pair slews up to 100 us\"",
+      "[PASS] mutant caught: the locked threshold is 200 us - breaks \"a locked pair steps over 100 us, after a receipt timeout too\"",
+      "",
+      "6 checks: 6 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/engine-mutants-s4.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: exactly the threshold steps - breaks \"an offset of exactly 20 us, or 100 us once locked, slews\"",
+      "[PASS] mutant caught: asCapable's rise keeps the lock - breaks \"the first pair after asCapable rises, or after a reset, is a link-up\"",
+      "",
+      "6 checks: 6 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/engine-mutants-s5.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: the step arm is unreachable - breaks \"an offset over the threshold steps\"",
+      "[PASS] mutant caught: becoming grandmaster keeps sync-ok - breaks \"becoming grandmaster clears the sync-ok verdict\"",
+      "",
+      "6 checks: 6 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/engine-run.log",
+    "terminal_lines": [
+      "SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399",
+      "SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465",
+      "1613 checks: 1613 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/tb/verilator/engine'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/gaskets.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: rx end of frame never raised - breaks \"a delivered frame is terminated, so the receiver can count its bytes\"",
+      "",
+      "5 checks: 5 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/tb/verilator/gaskets'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/lint.log",
+    "terminal_lines": [
+      "- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050",
+      "- Verilator: Built from 1.103 MB sources in 13 modules, into 0.407 MB in 3 C++ files needing 0.000 MB",
+      "- Verilator: Walltime 0.097 s (elab=0.012, cvt=0.060, bld=0.000); cpu 0.096 s on 1 threads; allocated 25.559 MB",
+      "make[1]: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/bench/arty'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/parser.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: a refusal skips the next frame's w2 write - fails all 8 named check(s), first \"sync after a refused sync: every word is this frame's\"",
+      "",
+      "9 checks: 9 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/tb/verilator/parser'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/tsngen.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: transmit end of frame one byte early - breaks \"a transmitted frame carries every byte the slot holds\"",
+      "",
+      "4 checks: 4 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/tb/tsngen'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/base/ucpu.log",
+    "terminal_lines": [
+      "- Verilator: Walltime 5.766 s (elab=0.003, cvt=0.026, bld=5.727); cpu 0.043 s on 16 threads; allocated 756.457 MB",
+      "./obj_dir/Vucpu_sim",
+      "768 checks: 768 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/r2/base-src/tb/verilator/ucpu'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/bench.log",
+    "terminal_lines": [
+      "- Verilator: Walltime 4.181 s (elab=0.001, cvt=0.006, bld=4.170); cpu 0.014 s on 16 threads; allocated 946.789 MB",
+      "./obj_dir/Vbench_mii_tx_tag_test",
+      "PASS: two MII done toggles carried tags {3,1234}, {a,beef}",
+      "make: Leaving directory '<data>/lanes/gptp82-boot/bench/arty'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/clean.log",
+    "terminal_lines": [
+      "make[1]: Entering directory '<data>/lanes/gptp82-boot/bench/arty'",
+      "rm -rf obj_dir",
+      "make[1]: Leaving directory '<data>/lanes/gptp82-boot/bench/arty'",
+      "rm -rf syn/ooc/work"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/contract.log",
+    "terminal_lines": [
+      "python3 tb/check_phc_contract.py",
+      "PHC interface contract: PASS"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/docs.log",
+    "terminal_lines": [
+      "EXACT hdl/wire/KL_gptp_rx_parser.sv#L475 (Ignored receive flag bits): 11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];",
+      "source evidence: 20 exact, 0 findings",
+      "python3 scripts/check_source_evidence.py --selftest",
+      "source evidence selftest: PASS (7 arms)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/engine-mutants-s0.log",
+    "terminal_lines": [
+      "FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001",
+      "[PASS] mutant caught: the self publication keeps the departed record - breaks \"#82 Pdelay loss: once capable, a live peer worse than D wins\"",
+      "",
+      "8 checks: 8 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/engine-mutants-s1.log",
+    "terminal_lines": [
+      "FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001",
+      "[PASS] mutant caught: an asCapable fall leaves the receipt watch running - breaks \"#82 Pdelay loss: thisClock is committed within 2 ms of the fall\"",
+      "",
+      "8 checks: 8 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/engine-mutants-s2.log",
+    "terminal_lines": [
+      "FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001",
+      "[PASS] mutant caught: an incapable receipt timeout keeps the elected peer - breaks \"#82 Pdelay loss: thisClock is committed within 2 ms of the fall | #82 Pdelay loss: that commit carries {thisClock} | #82 Pdelay loss: Announces from the incapable port elect nothing\"",
+      "",
+      "8 checks: 8 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/engine-mutants-s3.log",
+    "terminal_lines": [
+      "FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001",
+      "[PASS] mutant caught: an incapable port's Announces still compete - breaks \"#82 Pdelay loss: Announces from the incapable port elect nothing\"",
+      "",
+      "8 checks: 8 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/engine-mutants-s4.log",
+    "terminal_lines": [
+      "FAIL #82 warm reset: the live worse peer wins, not the absent A got 02a1b2fffec3d4e5 exp 0082b0fffe000001",
+      "[PASS] mutant caught: a winning peer's grandmaster is not published - breaks \"#82 peer wins: its commit names the peer GM | #82 warm reset: the live worse peer wins, not the absent A\"",
+      "",
+      "7 checks: 7 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/engine-mutants-s5.log",
+    "terminal_lines": [
+      "FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001",
+      "[PASS] mutant caught: a winning peer's path is not staged - breaks \"#82 peer wins: its commit carries the peer path | #82 warm reset: the live peer carries its own path\"",
+      "",
+      "7 checks: 7 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/engine-mutants-s6.log",
+    "terminal_lines": [
+      "FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001",
+      "[PASS] mutant caught: the self publication keeps the departed grandmaster - breaks \"#82 peer leaves: the mastership commit names thisClock | #82 Pdelay loss: thisClock is committed within 2 ms of the fall\"",
+      "",
+      "7 checks: 7 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/engine-mutants-s7.log",
+    "terminal_lines": [
+      "FAIL #82 every commit naming thisClock carries {thisClock} got 000000000000000c exp 0000000000000000",
+      "[PASS] mutant caught: the self publication keeps the departed path - breaks \"#82 peer leaves: the mastership commit path is {thisClock} | #82 Pdelay loss: that commit carries {thisClock} | #82 every commit naming thisClock carries {thisClock}\"",
+      "",
+      "7 checks: 7 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/engine-run.log",
+    "terminal_lines": [
+      "INFO #82 Pdelay loss: thisClock committed 1970 cycles after the fall",
+      "INFO #82 448 commits graded for the self path",
+      "1634 checks: 1634 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/lanes/gptp82-boot/tb/verilator/engine'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/gaskets.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: rx end of frame never raised - breaks \"a delivered frame is terminated, so the receiver can count its bytes\"",
+      "",
+      "5 checks: 5 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/lanes/gptp82-boot/tb/verilator/gaskets'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/lint.log",
+    "terminal_lines": [
+      "- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050",
+      "- Verilator: Built from 1.115 MB sources in 13 modules, into 0.412 MB in 3 C++ files needing 0.000 MB",
+      "- Verilator: Walltime 0.104 s (elab=0.012, cvt=0.065, bld=0.000); cpu 0.104 s on 1 threads; allocated 25.676 MB",
+      "make[1]: Leaving directory '<data>/lanes/gptp82-boot/bench/arty'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/parser.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: a refusal skips the next frame's w2 write - fails all 8 named check(s), first \"sync after a refused sync: every word is this frame's\"",
+      "",
+      "9 checks: 9 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/lanes/gptp82-boot/tb/verilator/parser'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/tsngen.log",
+    "terminal_lines": [
+      "[PASS] mutant caught: transmit end of frame one byte early - breaks \"a transmitted frame carries every byte the slot holds\"",
+      "",
+      "4 checks: 4 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/lanes/gptp82-boot/tb/tsngen'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/gates/head/ucpu.log",
+    "terminal_lines": [
+      "- Verilator: Walltime 5.726 s (elab=0.003, cvt=0.027, bld=5.684); cpu 0.046 s on 16 threads; allocated 628.465 MB",
+      "./obj_dir/Vucpu_sim",
+      "768 checks: 768 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/lanes/gptp82-boot/tb/verilator/ucpu'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/parent/ooc-record-rom-digests.log",
+    "terminal_lines": [
+      "ooc.sh: recorded ROM content digests for protocol-processor pin 2cbed0a987c1e68402658d69459ab7e5aa571adc and gptp-processor pin 8f3c376d1e07d2f1417889ae2ac590c71b8cb910 in syn/yosys/rom_digests.tsv"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/builder-clock-contract.log",
+    "terminal_lines": [
+      "[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass",
+      "[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration",
+      "[clock contract] 5 tap conversions and presence declarations match configurations",
+      "[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/check_gptp_docs-selftest.log",
+    "terminal_lines": [
+      "gPTP documentation selftest: OK (30 controls)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/check_gptp_docs.log",
+    "terminal_lines": [
+      "gPTP documentation: OK (8 current pages)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/gptp_plane-phc-step.log",
+    "terminal_lines": [
+      "PASS planted defect r571-no-liveness: asCapable falls at the fourth unanswered request after a crossing exchange",
+      "PASS planted defect credit-on-step: asCapable falls at the third unanswered request after an unanswered crossing request",
+      "phc_step campaign: 8 checks: 8 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_plane'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/gptp_plane-run.log",
+    "terminal_lines": [
+      "TX flags Follow_Up: 1 frames, 0 wrong, expected 0x0000",
+      "TX flags Pdelay_Req: 7 frames, 0 wrong, expected 0x0000",
+      "29 checks: 29 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_plane'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/gptp_shadow-lifecycle.log",
+    "terminal_lines": [
+      "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 1934785, \"cwd\": \"<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-x2zp3_js/nested-SIGINT-control/gptp-shadow-mutants-p20vv90w/tb/verilator/gptp_shadow\", \"identities\": {\"1934784\": [\"3304197\", \"S\"], \"1934785\": [\"3304200\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1934784, \"private\": \"<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-x2zp3_js/nested-SIGINT-control/gptp-shadow-mutants-p20vv90w\"}, \"nested_driver\": true, \"next_suite\": false, \"scratch_removed\": true, \"source_unchanged\": true}",
+      "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 1934971, \"cwd\": \"<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-x2zp3_js/nested-SIGTERM-control/gptp-shadow-mutants-uutn2a4q/tb/verilator/gptp_shadow\", \"identities\": {\"1934970\": [\"3304568\", \"S\"], \"1934971\": [\"3304571\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1934970, \"private\": \"<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-x2zp3_js/nested-SIGTERM-control/gptp-shadow-mutants-uutn2a4q\"}, \"nested_driver\": true, \"next_suite\": false, \"scratch_removed\": true, \"source_unchanged\": true}",
+      "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_shadow'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/gptp_shadow-mutants.log",
+    "terminal_lines": [
+      "[note] cancellation_frees_the_entry: not separately observable here",
+      "controls: 9   failures: 0",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_shadow'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/gptp_shadow-run.log",
+    "terminal_lines": [
+      "TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200",
+      "TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000",
+      "309 checks: 309 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_shadow'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/gptp_tables.log",
+    "terminal_lines": [
+      "[ ok ] declaration_stray: caught by \"values: declarations that name no censused column\"",
+      "controls: 26   failures: 0",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_tables'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/gptp_txts-mutants.log",
+    "terminal_lines": [
+      "[ ok ] delta_forced_not_measured: caught by \"fragment: the observer refused it, by measurement\"",
+      "controls: 6   failures: 0",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_txts'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/gptp_txts-run.log",
+    "terminal_lines": [
+      "  error spread -9..+11 ns over 17 distinct values, 2191 us of run",
+      "== gptp_txts: checks: 85   failures: 0 ==",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_txts'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/lint_rtl.log",
+    "terminal_lines": [
+      "  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.",
+      "  hdl/milan/KL_pp_shadow.sv:257:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'",
+      "  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'",
+      "LINT GATE: PASS (90 violation(s) <= ratchet 90; 18 waived, 0 justified lint_off)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/milan_dp-gmstep.log",
+    "terminal_lines": [
+      "simulated_cycles=54890718",
+      "== gmstep: checks: 190   failures: 0 ==",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/milan_dp-gptp-lat.log",
+    "terminal_lines": [
+      "TX flags Pdelay_Resp: 2 frames, 0 wrong, expected 0x0200",
+      "TX flags Pdelay_Resp_Follow_Up: 2 frames, 0 wrong, expected 0x0000",
+      "182 checks: 182 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/milan_dp-gptp-updated-tests.log",
+    "terminal_lines": [
+      "TX flags Pdelay_Resp_Follow_Up: 2 frames, 0 wrong, expected 0x0000",
+      "182 checks: 180 PASS, 2 FAIL",
+      "make: *** [Makefile:376: exec-gptp] Error 1",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/milan_dp-gptp.log",
+    "terminal_lines": [
+      "TX flags Pdelay_Resp: 2 frames, 0 wrong, expected 0x0200",
+      "TX flags Pdelay_Resp_Follow_Up: 2 frames, 0 wrong, expected 0x0000",
+      "182 checks: 182 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/ooc-tcam.log",
+    "terminal_lines": [
+      "== OOC area (synth_xilinx -family xc7 -flatten) ==",
+      "   yosys allocator: /usr/lib/libjemalloc.so.2",
+      "top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4",
+      "tcam                              678        0      678     1680        0        0        0        0"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/port_contracts-selftest.log",
+    "terminal_lines": [
+      "[PASS] the .svh files are in the binding population",
+      "[PASS] the tree's interface is not a hierarchical root",
+      "",
+      "82 checks: 82 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/port_contracts.log",
+    "terminal_lines": [
+      "port contract gate: OK (3989 first-party port(s): hdl 2103, gptp-processor 125, protocol-processor 1761; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)",
+      "  review inventory: 93 open and 48 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 408 test-only hierarchical observation(s)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/tsn_fuzz-ptp.log",
+    "terminal_lines": [
+      "",
+      "== gPTP/802.1AS field campaign (tsn-gen driven): 677 pass, 0 fail, 0 known gaps ==",
+      "campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/tsn_fuzz'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/wire_acc.log",
+    "terminal_lines": [
+      "",
+      "----------------------------------------------------------------------",
+      "checks: 77   findings: 0",
+      "RESULT: PASS"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/base/yosys-ci3.log",
+    "terminal_lines": [
+      "--------------------------------------------------------------",
+      "tops: 3   pass: 3   fail: 0",
+      "RESULT: PASS",
+      "structural checks: skipped in this worker"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/builder-clock-contract.log",
+    "terminal_lines": [
+      "[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass",
+      "[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration",
+      "[clock contract] 5 tap conversions and presence declarations match configurations",
+      "[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/check_gptp_docs-selftest.log",
+    "terminal_lines": [
+      "gPTP documentation selftest: OK (30 controls)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/check_gptp_docs.log",
+    "terminal_lines": [
+      "gPTP documentation: OK (8 current pages)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/gptp_plane-phc-step.log",
+    "terminal_lines": [
+      "PASS planted defect r571-no-liveness: asCapable falls at the fourth unanswered request after a crossing exchange",
+      "PASS planted defect credit-on-step: asCapable falls at the third unanswered request after an unanswered crossing request",
+      "phc_step campaign: 8 checks: 8 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_plane'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/gptp_plane-run.log",
+    "terminal_lines": [
+      "TX flags Follow_Up: 1 frames, 0 wrong, expected 0x0000",
+      "TX flags Pdelay_Req: 7 frames, 0 wrong, expected 0x0000",
+      "29 checks: 29 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_plane'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/gptp_shadow-lifecycle.log",
+    "terminal_lines": [
+      "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 1794217, \"cwd\": \"<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-y_fz1wfa/nested-SIGINT-control/gptp-shadow-mutants-6yn3u974/tb/verilator/gptp_shadow\", \"identities\": {\"1794216\": [\"3056934\", \"S\"], \"1794217\": [\"3056937\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1794216, \"private\": \"<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-y_fz1wfa/nested-SIGINT-control/gptp-shadow-mutants-6yn3u974\"}, \"nested_driver\": true, \"next_suite\": false, \"scratch_removed\": true, \"source_unchanged\": true}",
+      "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 1794486, \"cwd\": \"<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-y_fz1wfa/nested-SIGTERM-control/gptp-shadow-mutants-kyyair3i/tb/verilator/gptp_shadow\", \"identities\": {\"1794485\": [\"3057288\", \"S\"], \"1794486\": [\"3057290\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1794485, \"private\": \"<data>/tmp/gptp82-a649/tmpdir/mutant-lifecycle-y_fz1wfa/nested-SIGTERM-control/gptp-shadow-mutants-kyyair3i\"}, \"nested_driver\": true, \"next_suite\": false, \"scratch_removed\": true, \"source_unchanged\": true}",
+      "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_shadow'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/gptp_shadow-mutants.log",
+    "terminal_lines": [
+      "[note] cancellation_frees_the_entry: not separately observable here",
+      "controls: 9   failures: 0",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_shadow'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/gptp_shadow-run.log",
+    "terminal_lines": [
+      "TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200",
+      "TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000",
+      "309 checks: 309 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_shadow'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/gptp_tables.log",
+    "terminal_lines": [
+      "[ ok ] declaration_stray: caught by \"values: declarations that name no censused column\"",
+      "controls: 26   failures: 0",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_tables'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/gptp_txts-mutants.log",
+    "terminal_lines": [
+      "[ ok ] delta_forced_not_measured: caught by \"fragment: the observer refused it, by measurement\"",
+      "controls: 6   failures: 0",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_txts'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/gptp_txts-run.log",
+    "terminal_lines": [
+      "  error spread -9..+11 ns over 17 distinct values, 2191 us of run",
+      "== gptp_txts: checks: 85   failures: 0 ==",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/gptp_txts'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/lint_rtl.log",
+    "terminal_lines": [
+      "  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.",
+      "  hdl/milan/KL_pp_shadow.sv:257:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'",
+      "  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'",
+      "LINT GATE: PASS (90 violation(s) <= ratchet 90; 18 waived, 0 justified lint_off)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/milan_dp-build-gptp.log",
+    "terminal_lines": [
+      "- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050",
+      "- Verilator: Built from 149.127 MB sources in 118 modules, into 15.309 MB in 23 C++ files needing 0.006 MB",
+      "- Verilator: Walltime 14.846 s (elab=0.499, cvt=3.996, bld=9.839); cpu 5.181 s on 16 threads; allocated 1381.363 MB",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/milan_dp-exec-gptp-dev-tests.log",
+    "terminal_lines": [
+      "TX flags Pdelay_Resp_Follow_Up: 2 frames, 0 wrong, expected 0x0000",
+      "182 checks: 179 PASS, 3 FAIL",
+      "make: *** [Makefile:376: exec-gptp] Error 1",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/milan_dp-gmstep.log",
+    "terminal_lines": [
+      "simulated_cycles=54890718",
+      "== gmstep: checks: 190   failures: 0 ==",
+      "RESULT: PASS",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/milan_dp-gptp-lat-dev-tests.log",
+    "terminal_lines": [
+      "182 checks: 179 PASS, 3 FAIL",
+      "make[1]: *** [Makefile:432: exec-gptp-lat] Error 1",
+      "make: *** [Makefile:421: gptp-lat] Error 2",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/milan_dp-gptp-lat.log",
+    "terminal_lines": [
+      "TX flags Pdelay_Resp: 2 frames, 0 wrong, expected 0x0200",
+      "TX flags Pdelay_Resp_Follow_Up: 2 frames, 0 wrong, expected 0x0000",
+      "182 checks: 182 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/milan_dp-gptp.log",
+    "terminal_lines": [
+      "TX flags Pdelay_Resp: 2 frames, 0 wrong, expected 0x0200",
+      "TX flags Pdelay_Resp_Follow_Up: 2 frames, 0 wrong, expected 0x0000",
+      "182 checks: 182 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/milan_dp'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/ooc-tcam.log",
+    "terminal_lines": [
+      "== OOC area (synth_xilinx -family xc7 -flatten) ==",
+      "   yosys allocator: /usr/lib/libjemalloc.so.2",
+      "top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4",
+      "tcam                              678        0      678     1680        0        0        0        0"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/port_contracts-selftest.log",
+    "terminal_lines": [
+      "[PASS] the .svh files are in the binding population",
+      "[PASS] the tree's interface is not a hierarchical root",
+      "",
+      "82 checks: 82 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/port_contracts.log",
+    "terminal_lines": [
+      "port contract gate: OK (3989 first-party port(s): hdl 2103, gptp-processor 125, protocol-processor 1761; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)",
+      "  review inventory: 93 open and 48 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 408 test-only hierarchical observation(s)"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/tsn_fuzz-ptp.log",
+    "terminal_lines": [
+      "",
+      "== gPTP/802.1AS field campaign (tsn-gen driven): 677 pass, 0 fail, 0 known gaps ==",
+      "campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL",
+      "make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/tsn_fuzz'"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/wire_acc.log",
+    "terminal_lines": [
+      "",
+      "----------------------------------------------------------------------",
+      "checks: 77   findings: 0",
+      "RESULT: PASS"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/pgates/head/yosys-ci3.log",
+    "terminal_lines": [
+      "--------------------------------------------------------------",
+      "tops: 3   pass: 3   fail: 0",
+      "RESULT: PASS",
+      "structural checks: skipped in this worker"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/r651/head/probe-cold.log",
+    "terminal_lines": [
+      "COLD at 1s: gm=02a1b2fffec3d4e5 count=1 commits=1",
+      "FIRST_COMMIT release_delta=0 gm=02a1b2fffec3d4e5 count=1",
+      "CONSUMER_EDGES 1",
+      "5 checks: 5 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/r651/head/probe-gone.log",
+    "terminal_lines": [
+      "INFO #82 cold release graded for 2400605 cycles to the first beat",
+      "DEPARTED after 7s: gm=02a1b2fffec3d4e5 count=1 flags=0 commits=7",
+      "CONSUMER_EDGES 22",
+      "28 checks: 28 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/r651/head/probe-warm.log",
+    "terminal_lines": [
+      "INFO #82 cold release graded for 2400605 cycles to the first beat",
+      "WARM successor: gm=0082b0fffe000001 count=1",
+      "CONSUMER_EDGES 7",
+      "28 checks: 28 PASS, 0 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/r651/round1/probe-cold.log",
+    "terminal_lines": [
+      "FAIL cold publication exists by 1s got 0000000000000000 exp 0000000000000001",
+      "FIRST_COMMIT release_delta=2400604 gm=02a1b2fffec3d4e5 count=1",
+      "CONSUMER_EDGES 1",
+      "5 checks: 2 PASS, 3 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/r651/round1/probe-gone.log",
+    "terminal_lines": [
+      "FAIL departed peer returns thisClock got 0082a0fffe000001 exp 02a1b2fffec3d4e5",
+      "FAIL departed peer returns self path got 0000000000000003 exp 0000000000000001",
+      "CONSUMER_EDGES 21",
+      "26 checks: 24 PASS, 2 FAIL"
+    ]
+  },
+  {
+    "file": "public-evidence/author-r2/receipts/r651/round1/probe-warm.log",
+    "terminal_lines": [
+      "WARM successor: gm=0082a0fffe000001 count=3",
+      "FAIL warm better-than-local peer wins got 0082a0fffe000001 exp 0082b0fffe000001",
+      "CONSUMER_EDGES 7",
+      "26 checks: 25 PASS, 1 FAIL"
+    ]
+  }
+]

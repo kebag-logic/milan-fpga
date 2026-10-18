@@ -1,0 +1,10 @@
+shard 3/6: 5 of 33 mutants: slew idle lapse arms qualification; recorded t1 survives reset; the tail runs before its own t1; every pair uses the link-up threshold; the locked threshold is 200 us
+[PASS] the unmutated engine still passes the harness
+FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle lapse arms qualification - breaks "slew: in-band pair after idle timeout stays inactive"
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+[PASS] mutant caught: the locked threshold is 200 us - breaks "a locked pair steps over 100 us, after a receipt timeout too"
+
+6 checks: 6 PASS, 0 FAIL

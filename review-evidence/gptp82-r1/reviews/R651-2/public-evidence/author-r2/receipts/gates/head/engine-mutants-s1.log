@@ -1,0 +1,21 @@
+shard 1/8: 7 of 52 mutants: slew clears at the first in-band pair; recorded t1 survives reset; credit gate removed from the Pdelay_Req leg; a receipt timeout unlocks the servo; reset leaves the grandmaster zero; the boot commit waits for the timer bootstrap; an asCapable fall leaves the receipt watch running
+[PASS] the unmutated engine still passes the harness
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew clears at the first in-band pair - breaks "slew: first in-band pair cannot clear"
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: a receipt timeout unlocks the servo - breaks "the servo stays locked across a Sync receipt timeout"
+FAIL #82 cold release: every cycle to the first beat names thisClock got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL pre-init deep Announce: GM stays thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: reset leaves the grandmaster zero - breaks "#82 cold release: every cycle to the first beat names thisClock | #82 cold release: every cycle to the first beat has {thisClock} | #82 cold release: that commit carries thisClock and {thisClock} | #82 warm reset: it names thisClock, not the elected peer | pre-init deep Announce: GM stays thisClock"
+FAIL #82 cold release: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL #82 warm reset: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the boot commit waits for the timer bootstrap - breaks "#82 cold release: that commit is the first edge after release | #82 warm reset: that commit is the first edge after release | pre-init deep Announce: no commit"
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an asCapable fall leaves the receipt watch running - breaks "#82 Pdelay loss: thisClock is committed within 2 ms of the fall"
+
+8 checks: 8 PASS, 0 FAIL

@@ -1,0 +1,17 @@
+FAIL pre-init deep Announce: GM stays thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+INFO #82 cold release graded for 2400671 cycles to the first beat
+FAIL #82 cold release: every cycle to the first beat names thisClock got 0000000000249f7c exp 0000000000000000
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 0000000000249f7c exp 0000000000000000
+FAIL #82 cold release: that commit is the first edge after release got 000000000024a15c exp 0000000000000000
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0082a0fffe000001 exp 0082b0fffe000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+INFO #82 435 commits graded for the self path
+1634 checks: 1623 PASS, 11 FAIL
+rc=1

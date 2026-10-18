@@ -1,0 +1,15 @@
+shard 5/8: 6 of 52 mutants: slew mastership keeps qualification; lost response cancels the requester exchange; every pair uses the link-up threshold; becoming grandmaster keeps sync-ok; reset keeps the elected tail; a winning peer's path is not staged
+[PASS] the unmutated engine still passes the harness
+FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew mastership keeps qualification - breaks "slew: in-band return from GM stays inactive"
+[PASS] mutant caught: lost response cancels the requester exchange - breaks "a lost Pdelay_Resp result retires the response claim and nothing else"
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+[PASS] mutant caught: becoming grandmaster keeps sync-ok - breaks "becoming grandmaster clears the sync-ok verdict"
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 0000000000000002 exp 0000000000000000
+[PASS] mutant caught: reset keeps the elected tail - breaks "#82 warm reset: its path is {thisClock} with a zero tail | #82 every commit naming thisClock carries {thisClock}"
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a winning peer's path is not staged - breaks "#82 peer wins: its commit carries the peer path | #82 warm reset: the live peer carries its own path"
+
+7 checks: 7 PASS, 0 FAIL

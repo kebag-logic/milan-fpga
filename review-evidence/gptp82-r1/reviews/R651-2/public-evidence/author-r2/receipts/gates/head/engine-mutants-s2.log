@@ -1,0 +1,19 @@
+shard 2/8: 7 of 52 mutants: slew clears before the replacement rate; byte face advances without ready; credit gate removed from the Sync leg; becoming grandmaster unlocks the servo; reset keeps the elected grandmaster; a warm reset keeps the retained best record; an incapable receipt timeout keeps the elected peer
+[PASS] the unmutated engine still passes the harness
+FAIL slew: no clear precedes the replacement rate got 0000000000000007 exp 0000000000000000
+[PASS] mutant caught: slew clears before the replacement rate - breaks "slew: no clear precedes the replacement rate"
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+[PASS] mutant caught: credit gate removed from the Sync leg - breaks "a Sync beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0082a0fffe000001 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: reset keeps the elected grandmaster - breaks "#82 warm reset: it names thisClock, not the elected peer"
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0082a0fffe000001 exp 0082b0fffe000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a warm reset keeps the retained best record - breaks "#82 warm reset: a worse-than-local peer leaves thisClock | #82 warm reset: the live worse peer wins, not the absent A | #82 warm reset: the live peer carries its own path"
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an incapable receipt timeout keeps the elected peer - breaks "#82 Pdelay loss: thisClock is committed within 2 ms of the fall | #82 Pdelay loss: that commit carries {thisClock} | #82 Pdelay loss: Announces from the incapable port elect nothing"
+
+8 checks: 8 PASS, 0 FAIL

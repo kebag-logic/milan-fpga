@@ -1,0 +1,12 @@
+[R651] NEGATIVE - exact head 8f3c376d1e07d2f1417889ae2ac590c71b8cb910
+Independent pass recorded before reading either prior public review report or findings comment.
+The source delta addresses reset-release publication, best-vector invalidation, selected path clearing, and both requested peer-departure paths. Public mutation and consumer receipts corroborate the source; all 132 published author-r2 files match the publication manifest. No functional defect found in the scoped delta.
+R651-2-F1 MINOR, Tests and Docs: published receipts/scripts/verify_receipts.py:10 classifies the three redacted <data>/ scratch rows as in-directory files; the documented verification command exits 1 with 131 files, 134 rows, 3 mismatches. Independently checking only the in-directory table passes all 131 rows. Fix section selection in the published verifier and re-index changed published bytes.
+R651-2-S1 SUGGESTION, Tests and Docs: supplementary receipts/rom/layout-base.txt ends in AttributeError because the layout helper assumes head-only ROM_CID constants at base. Make the helper revision-aware or explicitly label the truncated supplementary base layout. Default-image generation and head packing were independently checked successfully; this is not a gate failure.
+
+lens | verdict | examined artifacts | covering round | exact head
+Conformance | CLEAN | issue82/assignment; IEEE indexed clauses; generator BTCA/BECGATE/SELF; reset bank | R651-2 scoped delta | 8f3c376d1e07d2f1417889ae2ac590c71b8cb910
+RTL | CLEAN | engine reset/valid bits/timer hook; ROM generation, interface declarations, synthesis receipts | R651-2 scoped delta | 8f3c376d1e07d2f1417889ae2ac590c71b8cb910
+Robustness | CLEAN | cold interval, warm absent/present peers, both departures, mutation summaries | R651-2 scoped delta | 8f3c376d1e07d2f1417889ae2ac590c71b8cb910
+Tests | UNCLEAN | source test oracles, mutation driver, parent guarded completion receipts; F1 | R651-2 scoped delta | 8f3c376d1e07d2f1417889ae2ac590c71b8cb910
+Docs | UNCLEAN | changed guides; source ledger; public index and verifier; F1 | R651-2 scoped delta | 8f3c376d1e07d2f1417889ae2ac590c71b8cb910
