@@ -1,0 +1,16 @@
+## gate base-par-lint_rtl_st
+## dir <data>/tmp/pp184-a648/parent
+## cmd python3 scripts/lint_rtl.py --self-test
+## head e9cbb676d7fdd6539aa408e5dfe38870a4ae1a5f
+## start 2026-10-18T14:54:45+02:00
+  [self-test] bad_trailing.sv  REJECT   OK (the 5.020 trailing-prose scar)
+  [self-test] bad_block.sv     REJECT   OK (a block comment with code after the pragma)
+  [self-test] bad_unclosed.sv  REJECT   OK (a lint_off that leaks to end of file)
+  [self-test] bad_unknown.sv   REJECT   OK (a waiver code Verilator does not know)
+  [self-test] bad_orphan_on.sv REJECT   OK (a lint_on with no matching lint_off)
+  [self-test] good.sv          ACCEPT   OK (the well-formed shape the tree already uses)
+  [self-test] resolution-refusal REFUSE   OK (every absent resolution tree refuses; none flagged when present)
+  [self-test] empty-tree-is-absent      OK (a present but source-empty tree reads as absent)
+== lint pragma gate (well-formed · balanced · justified) ==
+PRAGMA GATE: PASS (0 justified lint_off, 0 excluded file(s))
+## end 2026-10-18T14:54:47+02:00 rc 0

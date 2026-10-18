@@ -1,0 +1,26 @@
+ docs/architecture/10_srp_engine.md                 |  62 +++++-
+ hdl/srp/KL_srp_domain.sv                           |  77 +++++++-
+ hdl/srp/KL_srp_top.sv                              |   8 +
+ tb/pp_top/README.md                                |   4 +-
+ tb/srp_encoder/README.md                           |  48 ++++-
+ tb/srp_encoder/sim_main.cpp                        | 207 +++++++++++++++++++--
+ tb/srp_encoder/srp_tb_wrap.sv                      |   4 +
+ tb/srp_top/README.md                               |  49 ++++-
+ tb/srp_top/mutants.py                              |  25 ++-
+ .../domain-adoption-drops-registrar.patch          |  11 ++
+ .../mutations/domain-capture-unregistered.patch    |  10 +
+ .../mutations/domain-leaveall-after-receive.patch  |  10 +
+ .../mutations/domain-leaveall-keeps-in.patch       |  10 +
+ .../mutations/domain-link-keeps-registrar.patch    |  18 ++
+ tb/srp_top/mutations/domain-lv-any-value.patch     |  11 ++
+ tb/srp_top/mutations/domain-lv-ignored.patch       |  10 +
+ .../mutations/domain-pending-lv-ignored.patch      |  10 +
+ .../mutations/domain-rejoin-always-joinin.patch    |  11 ++
+ .../mutations/domain-rejoin-always-joinmt.patch    |  11 ++
+ .../mutations/domain-rejoin-at-request.patch       |  11 ++
+ .../mutations/domain-rx-leaveall-dropped.patch     |  10 +
+ tb/srp_top/mutations/top-domain-lv-unwired.patch   |  11 ++
+ .../mutations/top-domain-tx-every-clock.patch      |  11 ++
+ tb/srp_top/mutations/top-domain-tx-unwired.patch   |  11 ++
+ tb/srp_top/sim_main.cpp                            |  75 +++++++-
+ 25 files changed, 676 insertions(+), 49 deletions(-)

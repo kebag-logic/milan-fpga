@@ -1,0 +1,1256 @@
+diff --git a/docs/architecture/10_srp_engine.md b/docs/architecture/10_srp_engine.md
+index 9520a57..0958aa8 100644
+--- a/docs/architecture/10_srp_engine.md
++++ b/docs/architecture/10_srp_engine.md
+@@ -187,9 +187,11 @@ this profile, §6.3), listener-registration
+ set {Ignore/AskingFailed/Ready/ReadyFailed} → `lstn_reg_state[src]`. Per sink (N):
+ declared Listener state {NONE, READY, ASKING_FAILED}, matched talker registration
+ {NONE, ADVERTISE, FAILED} + `msrp_fail_code/bridge`, `acc_latency`. Singletons:
+-Domain {declared prio, VID, adopted?}, VLAN {refcount, joined VID}. All registrar
+-states carry the MRP {IN, MT, LV} encoding; LV is reachable **only** through the
+-LeaveAll cycle (Δ13 below).
++Domain {declared prio, VID, adopted?, registration of the declared value IN?}, VLAN
++{refcount, joined VID}. All registrar states carry the MRP {IN, MT, LV} encoding; LV is
++reachable **only** through the LeaveAll cycle (Δ13 below). The Domain's one registrar bit
++folds LV into MT, because the only thing that reads it, the re-join encoding, treats the
++two alike (§6.1).
+ 
+ ### 5.1 Storage and per-stream cost (issue #230)
+ 
+@@ -262,9 +264,54 @@ stateDiagram-v2
+     DEFAULTS --> ADOPTED: rx Class A Domain declaration with different params / adopt received FirstValue, re-declare it, DOMAIN_CHANGE
+     ADOPTED --> ADOPTED: rx differing Domain again / adopt + re-declare + DOMAIN_CHANGE
+     ADOPTED --> DEFAULTS: LINK_DOWN / restore defaults, declared again on the next LINK_UP
+-    DEFAULTS --> DEFAULTS: periodic or LeaveAll / re-join declaration
++    DEFAULTS --> DEFAULTS: periodic or LeaveAll / re-join declaration (JoinIn if registered, else JoinMt)
++    ADOPTED --> ADOPTED: periodic or LeaveAll / re-join declaration (JoinIn if registered, else JoinMt)
+ ```
+ 
++<a id="sec-10-domain-rejoin"></a>**Re-join encoding (issue
++[#184](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/184)).**
++The periodic and LeaveAll re-join is the applicant's sJ: "If the Registrar state is IN,
++then the AttributeEvent value JoinIn is encoded ... If the Registrar state is MT or LV,
++then the AttributeEvent value JoinMt is encoded" (802.1Q-2018 §10.7.6.3). The Registrar
++is the one for the declared value. `KL_srp_domain` keeps it as one bit, set and cleared
++as Table 10-4 and Milan v1.2 §4.2.7.2.2 move it:
++
++| Event for the declared value | Registrar | Next re-join |
++|---|---|---|
++| received New, JoinIn or JoinMt | MT or LV → IN | JoinIn |
++| received Lv | IN → MT at once (Milan §4.2.7.2.2, Δ13) | JoinMt |
++| a LeaveAll on the Domain lane, received or the own `sLA` | IN → LV | JoinMt until the peer declares again |
++| LINK_UP (Begin!) or LINK_DOWN (Flush!) | MT | JoinMt |
++| adoption of a received value | that value's Registrar, IN unless its Lv arrived before the adoption applied | JoinIn, or JoinMt |
++
++Events of other Domain values change nothing, and received In and Mt never register. A
++received event wins over a LeaveAll in the same clock, as on the stream registrars
++(§6.5). LV is kept as MT: sJ encodes the two alike, and nothing else reads the Domain
++registration (802.1Q-2018 §35.2.4 gives the Domain no MAP; an adopted Domain is kept
++until LINK_DOWN). So no leavetimer runs for it.
++
++The encoding is chosen when the re-join is handed to the encoder, from the Registrar
++state at that moment, and the next MSRP drain carries it. A `periodic!` re-join is handed
++over at once, as before, and so is the own LeaveAll's: its `sLA` comes on the round's
++tx! opportunity. A LeaveAll outside a tx! opportunity is a received one. Its re-join
++waits for the next tx! (the next T-MRP-JOIN round), the drain it would have reached
++anyway, so a declaration later in the peer's MRPDU registers first. The single New at
++startup and at LINK_UP is unchanged. Three cases follow:
++
++- With no other station declaring a Domain, every re-join is JoinMt.
++- A peer that declares the same Domain is answered JoinIn. That includes a bridge whose
++  LeaveAll MRPDU flags the Domain type and re-declares its Domain in the same MRPDU: the
++  LeaveAll takes the Registrar to LV and the declaration back to IN before our tx!.
++- The own LeaveAll ages the Registrar to LV in the clock of its `sLA`. The re-join in the
++  own LeaveAll MRPDU is therefore JoinMt, and the next is JoinIn again once the peer has
++  re-declared.
++
++A peer's Lv is answered JoinMt by every re-join handed over after it. A re-join already
++handed over keeps its encoding; it waits at most one T-MRP-JOIN for its drain.
++[`tb/srp_encoder`](../../tb/srp_encoder/README.md) DR1 to DR11 (with DR3a) and
++[`tb/srp_top`](../../tb/srp_top/README.md) group DJ grade it, each check with a planted
++mutant.
++
+ Rules: Domain transmission is **independent of gPTP port state** (Milan §4.2.7.2.1);
+ a Domain change updates `class_a_prio`/`class_a_vid`, fires the GET_AVB_INFO
+ notification path, steers *future* MVRP joins to the new VID (already-declared VIDs
+@@ -592,9 +639,8 @@ the stream licence.
+ *Transmit.* The own LeaveAll MRPDU flags the first VectorAttribute of every
+ Attribute Type the application supports, the criterion of the §10.7.5.20 NOTE
+ above: MSRP Talker Advertise, Talker Failed, Listener and Domain, and MVRP VID.
+-That holds whatever this participant declares or registers; the Domain type, for
+-one, has no registrar here (table below). A supported type the cycle declares
+-nothing of rides a LeaveAll-only VectorAttribute in its own message:
++That holds whatever this participant declares or registers. A supported type the
++cycle declares nothing of rides a LeaveAll-only VectorAttribute in its own message:
+ NumberOfValues 0, a FirstValue that is present at its full AttributeLength but
+ ignored (sent as zero), and no packed events (§10.8.2.8 f and g, §10.8.2.10.1
+ NOTE). A bridge that scopes a received LeaveAll by type would otherwise
+@@ -615,7 +661,7 @@ type only:
+ | Talker Advertise | talker source declaring Advertise | listener sink holding an Advertise registration |
+ | Talker Failed | talker source declaring Failed | listener sink holding a Failed registration |
+ | Listener | listener sink declaring Listener | talker source's Listener registration |
+-| Domain | Domain participant re-declares ([F10.2](#fig-10-domsm)) | none: the Domain FSM keeps no registrar |
++| Domain | Domain participant re-declares ([F10.2](#fig-10-domsm)) | the Domain participant's registration of its declared value: its next re-join is JoinMt unless the peer declares again first ([§6.1](#sec-10-domain-rejoin)) |
+ | MVRP VID | VLAN participant re-joins every held VID | none |
+ 
+ *Own transmit action.* MSRP timer expiry records pending intent only; repeated
+diff --git a/hdl/srp/KL_srp_domain.sv b/hdl/srp/KL_srp_domain.sv
+index 96c57db..baeae06 100644
+--- a/hdl/srp/KL_srp_domain.sv
++++ b/hdl/srp/KL_srp_domain.sv
+@@ -23,6 +23,23 @@
+ //                so the certified two-class bridge shape (FirstValue
+ //                {5, 2, VID}, NumberOfValues 2) adopts correctly; equality
+ //                matching on FirstValue alone is a wire defect.
++//                The re-join (periodic and LeaveAll) is the applicant's sJ
++//                (802.1Q-2018 §10.7.6.3): JoinIn only while the Registrar
++//                of the declared value is IN, JoinMt in MT or LV. That
++//                one-bit Registrar follows Table 10-4 with the Milan
++//                §4.2.7.2.2 cell: a registering event (New, JoinIn,
++//                JoinMt) of the declared value sets IN; its Lv clears IN at
++//                once; a LeaveAll (received on the Domain lane, or the own
++//                sLA) clears IN to LV, and LV encodes as MT so no
++//                leavetimer is kept; LINK_UP and LINK_DOWN clear it. An
++//                adoption takes the adopted value's Registrar along. The
++//                encoding is chosen when the re-join is handed to the
++//                encoder: at once for periodic! and for the own LeaveAll,
++//                whose sLA comes on a tx! opportunity (tx_tick_i); a
++//                LeaveAll outside one is a received one, and its re-join
++//                waits for the next tx!, so a peer's Domain declaration
++//                after its LeaveAll in one MRPDU registers first and is
++//                answered JoinIn (issue #184).
+ //
+ //  Decision    : the design decision that matters — Domain transmission is
+ //                independent of gPTP port state STRUCTURALLY: this module
+@@ -52,14 +69,16 @@ module KL_srp_domain #(
+     input  wire  [7:0]  rxdom_prio_i,        //! FirstValue SRclassPriority
+     input  wire  [15:0] rxdom_vid_i,         //! FirstValue SRclassVID (pinned across the vector)
+     input  wire  [12:0] rxdom_nov_i,         //! NumberOfValues of the vector
++    input  wire         rxdom_lv_i,          //! one-cycle strobe: Domain vector withdrawn (rLv!)
+ 
+     // ---- MSRP participant cadence (timer expiries via the event router) ---
+     input  wire         periodic_tick_i,     //! T-MRP-PERIODIC: re-join the declaration
+     input  wire         leaveall_tick_i,     //! MSRP LeaveAll cycle (own or received): re-declare
++    input  wire         tx_tick_i,           //! MSRP tx! opportunity (join round, own sLA round)
+ 
+     // ---- declaration events toward KL_srp_encoder -------------------------
+     output logic        dom_ev_valid_o,      //! event pending, held until ready
+-    output logic [2:0]  dom_ev_event_o,      //! attribute event (0 New, 1 JoinIn, 5 Lv)
++    output logic [2:0]  dom_ev_event_o,      //! attribute event (0 New, 1 JoinIn, 3 JoinMt, 5 Lv)
+     output logic [31:0] dom_ev_value_o,      //! Domain FirstValue {SRclassID, prio, VID}
+     input  wire         dom_ev_ready_i,      //! encoder accepts the event
+ 
+@@ -75,6 +94,7 @@ module KL_srp_domain #(
+   localparam logic [7:0] CLASS_A_ID_C = 8'd6;
+   localparam logic [2:0] EV_NEW_C     = 3'd0;
+   localparam logic [2:0] EV_JOININ_C  = 3'd1;
++  localparam logic [2:0] EV_JOINMT_C  = 3'd3;
+   localparam logic [2:0] EV_LV_C      = 3'd5;
+ 
+   // ------------------------------------------------------- operating state
+@@ -94,11 +114,19 @@ module KL_srp_domain #(
+   logic [7:0]  rx_pend_prio_r;
+   logic [15:0] rx_pend_vid_r;
+   logic        rejoin_pend_r;
++  logic        rxla_pend_r;   // a received LeaveAll's re-join, held for tx!
++
++  // Registrar of the declared value, and of the pending adoption's value
++  // (1 = IN; 0 = MT or LV, which sJ encodes alike)
++  logic        reg_in_r;
++  logic        pend_in_r;
+ 
+   // ------------------------------------------------------ receive surfacing
+   logic        covers6_w;
+   logic [7:0]  surf_prio_w;
+   logic        link_rise_w, link_fall_w, q_empty_w;
++  logic        rx_is_decl_w, rx_is_pend_w;
++  logic        reg_in_nx_w, pend_in_nx_w;
+ 
+   // Class A present iff SRclassID_first <= 6 < SRclassID_first + NoV (10 §3)
+   assign covers6_w   = (rxdom_class_id_i <= CLASS_A_ID_C)
+@@ -110,6 +138,27 @@ module KL_srp_domain #(
+   assign link_fall_w = !link_up_i && link_q_r;
+   assign q_empty_w   = !q0_valid_r && !q1_valid_r;
+ 
++  // the received value is the declared one / the pending adoption's one
++  assign rx_is_decl_w = declared_r && covers6_w
++                     && ({surf_prio_w, rxdom_vid_i} == {decl_prio_r, decl_vid_r});
++  assign rx_is_pend_w = declared_r && covers6_w && rx_pend_v_r
++                     && ({surf_prio_w, rxdom_vid_i} == {rx_pend_prio_r, rx_pend_vid_r});
++
++  // Table 10-4 with Milan §4.2.7.2.2. A received event of the clock wins
++  // over the LeaveAll of that clock, as on the stream registrars (10 §6.5).
++  always_comb begin : registrar_next
++    reg_in_nx_w  = reg_in_r;
++    pend_in_nx_w = pend_in_r;
++    if (leaveall_tick_i && declared_r) begin
++      reg_in_nx_w  = 1'b0;                         // rLA! / txLA!: IN -> LV
++      pend_in_nx_w = 1'b0;
++    end
++    if (rxdom_valid_i && rx_is_decl_w) reg_in_nx_w  = 1'b1;  // rNew / rJoinIn / rJoinMt
++    if (rxdom_valid_i && rx_is_pend_w) pend_in_nx_w = 1'b1;
++    if (rxdom_lv_i && rx_is_decl_w)    reg_in_nx_w  = 1'b0;  // rLv!: IN -> MT at once
++    if (rxdom_lv_i && rx_is_pend_w)    pend_in_nx_w = 1'b0;
++  end
++
+   always_ff @(posedge clk_i) begin : domain_sm
+     if (!rst_n) begin
+       decl_prio_r         <= DEF_PRIO_P;
+@@ -127,10 +176,15 @@ module KL_srp_domain #(
+       rx_pend_prio_r      <= 8'd0;
+       rx_pend_vid_r       <= 16'd0;
+       rejoin_pend_r       <= 1'b0;
++      rxla_pend_r         <= 1'b0;
++      reg_in_r            <= 1'b0;
++      pend_in_r           <= 1'b0;
+       evt_domain_change_o <= 1'b0;
+     end else begin
+       evt_domain_change_o <= 1'b0;
+       link_q_r            <= link_up_i;
++      reg_in_r            <= reg_in_nx_w;
++      pend_in_r           <= pend_in_nx_w;
+ 
+       // ---- queue pop toward the encoder ---------------------------------
+       if (q0_valid_r && dom_ev_ready_i) begin
+@@ -146,8 +200,16 @@ module KL_srp_domain #(
+         rx_pend_prio_r <= surf_prio_w;    // newest received Domain wins
+         rx_pend_vid_r  <= rxdom_vid_i;
+         rx_pend_v_r    <= 1'b1;
++        pend_in_r      <= 1'b1;           // registered by this very event
++      end
++      if ((periodic_tick_i || (leaveall_tick_i && tx_tick_i)) && declared_r) begin
++        rejoin_pend_r <= 1'b1;            // periodic!, or the own sLA on its tx!
++      end
++      if (leaveall_tick_i && !tx_tick_i && declared_r) begin
++        rxla_pend_r <= 1'b1;              // a received LeaveAll: wait for tx!
+       end
+-      if ((periodic_tick_i || leaveall_tick_i) && declared_r) begin
++      if (tx_tick_i && rxla_pend_r) begin
++        rxla_pend_r   <= 1'b0;
+         rejoin_pend_r <= 1'b1;
+       end
+ 
+@@ -163,12 +225,17 @@ module KL_srp_domain #(
+         q1_valid_r    <= 1'b0;
+         rx_pend_v_r   <= 1'b0;
+         rejoin_pend_r <= 1'b0;
++        rxla_pend_r   <= 1'b0;
++        reg_in_r      <= 1'b0;             // Flush!: every Registrar to MT
++        pend_in_r     <= 1'b0;
+       end else if (link_rise_w) begin
+         // declare the defaults (New) — startup lands here too
+         q0_valid_r <= 1'b1;
+         q0_ev_r    <= EV_NEW_C;
+         q0_val_r   <= {CLASS_A_ID_C, DEF_PRIO_P, DEF_VID_P};
+         declared_r <= 1'b1;
++        reg_in_r   <= 1'b0;                // Begin!: nothing registered yet
++        pend_in_r  <= 1'b0;
+       end else if (rx_pend_v_r && q_empty_w) begin
+         // adopt: withdraw the old declaration, re-declare the adopted one
+         q0_valid_r          <= 1'b1;
+@@ -179,13 +246,15 @@ module KL_srp_domain #(
+         q1_val_r            <= {CLASS_A_ID_C, rx_pend_prio_r, rx_pend_vid_r};
+         decl_prio_r         <= rx_pend_prio_r;
+         decl_vid_r          <= rx_pend_vid_r;
++        reg_in_r            <= pend_in_nx_w;  // the adopted value's Registrar
+         adopted_r           <= 1'b1;
+         rx_pend_v_r         <= 1'b0;
+         evt_domain_change_o <= 1'b1;
+       end else if (rejoin_pend_r && declared_r && q_empty_w) begin
+-        // periodic / LeaveAll re-join of the standing declaration
++        // periodic / LeaveAll re-join of the standing declaration: sJ
++        // against the Registrar state (802.1Q §10.7.6.3)
+         q0_valid_r    <= 1'b1;
+-        q0_ev_r       <= EV_JOININ_C;
++        q0_ev_r       <= reg_in_r ? EV_JOININ_C : EV_JOINMT_C;
+         q0_val_r      <= {CLASS_A_ID_C, decl_prio_r, decl_vid_r};
+         rejoin_pend_r <= 1'b0;
+       end
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index 7f0c641..9bb7a9e 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -345,6 +345,7 @@ module KL_srp_top
+   // ========================================================================
+   logic        dom_rx_valid_w;
+   logic        dom_rx_reg_w;
++  logic        dom_rx_lv_w;
+   logic        dom_ev_valid_w;
+   logic [2:0]  dom_ev_event_w;
+   logic [31:0] dom_ev_value_w;
+@@ -358,6 +359,11 @@ module KL_srp_top
+   assign dom_rx_valid_w = dec_evt_valid_w && dec_evt_msrp_w
+                        && (dec_evt_attr_type_w == SRP_MSRP_ATTR_DOMAIN_C)
+                        && dec_evt_class_a_w && dom_rx_reg_w;
++  // rLv! of a Class A Domain value: its Registrar drops IN -> MT (Δ13)
++  assign dom_rx_lv_w = dec_evt_valid_w && dec_evt_msrp_w
++                    && (dec_evt_attr_type_w == SRP_MSRP_ATTR_DOMAIN_C)
++                    && dec_evt_class_a_w
++                    && (dec_evt_mrp_event_w == 3'(SRP_EV_LV));
+ 
+   KL_srp_domain #(
+       .DEF_PRIO_P (DOM_DEF_PRIO_P),
+@@ -371,8 +377,10 @@ module KL_srp_top
+       .rxdom_prio_i        (dec_evt_priority_w),
+       .rxdom_vid_i         (dec_evt_vid_w),
+       .rxdom_nov_i         (13'd1),
++      .rxdom_lv_i          (dom_rx_lv_w),
+       .periodic_tick_i     (p_periodic_r),
+       .leaveall_tick_i     (dec_la_msrp_w[SRP_LA_DOMAIN_C] || p_la_msrp_w),
++      .tx_tick_i           (join_fsm_w),
+       .dom_ev_valid_o      (dom_ev_valid_w),
+       .dom_ev_event_o      (dom_ev_event_w),
+       .dom_ev_value_o      (dom_ev_value_w),
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index ee7a3c6..009096e 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2575,10 +2575,10 @@ check grades the trigger and the frame, not the words.
+   does: no DOMAIN_CHANGE, and nothing reaches A (acceptance 2).
+ - **DN2** (premise) the bridge declares the default {3, 2}, which is then in force
+   with one DOMAIN_CHANGE. **DN2b, DN2c** one more GET_AVB_INFO, byte-exact at
+-  `sequence_id` 3. The strobe comes from the adoption arm (`KL_srp_domain.sv:184`): a
++  `sequence_id` 3. The strobe comes from the adoption arm (`KL_srp_domain.sv:252`): a
+   received Domain that differs from the operating one is adopted, even when it carries
+   the default's values, so `srp_domain_adopted_o` stays 1 (the section's `[i]` line).
+-  The revert at `:157` runs on LINK_DOWN alone.
++  The revert at `:219` runs on LINK_DOWN alone.
+ - **DN3b** the default declared again: nothing.
+ 
+ The section's `[i]` lines time each notification from its stimulus: the link edge, or
+diff --git a/tb/srp_encoder/README.md b/tb/srp_encoder/README.md
+index 624ae37..8da6ced 100644
+--- a/tb/srp_encoder/README.md
++++ b/tb/srp_encoder/README.md
+@@ -3,7 +3,7 @@
+ 
+ Exit 0 = PASS. `make` builds `srp_tb_wrap` (encoder wired to a **real**
+ `KL_pp_tx_slots` pool; Domain and VLAN singletons stand-alone) and runs
+-581 checks against an **independent** C++ packer written from 802.1Q
++593 checks against an **independent** C++ packer written from 802.1Q
+ §10.8.1/§35.2.2 and Milan §4.2.7 — never from the RTL — and an independent
+ byte-level MRPDU parser. Every captured frame crossed the actual slot RAM
+ through its serialize port.
+@@ -71,6 +71,34 @@ value 1 with priority 3 by the §3 range rule; non-covering vectors ignored;
+ periodic/LeaveAll re-join the ADOPTED declaration and never revert; revert
+ happens on LINK_DOWN only, LINK_UP re-declares the defaults. Domain TX is
+ independent of gPTP state structurally — the module has no gPTP port.
++A `periodic!` re-join is handed to the encoder at once, and so is a LeaveAll's
++when it comes on `tx_tick_i` (the own sLA, on its round's tx! opportunity); a
++LeaveAll outside one (a received one) waits for the next `tx_tick_i`, which the
++harness pulses a few clocks after each request.
++
++**Domain re-join against its Registrar (issue #184; 802.1Q-2018 §10.7.6.3,
++Table 10-4; Milan v1.2 §4.2.7.2.2)** — DR1..DR11. The expected codes come from
++§10.7.6.3, not from the RTL: JoinIn only while the Registrar of the declared
++value is IN, JoinMt in MT or LV.
++- DR1: no peer: the periodic re-join is JoinMt.
++- DR2: the peer declares the same Domain: registered, not adopted; JoinIn.
++- DR3a, DR3: a received LeaveAll (IN → LV) followed by the peer's Domain
++  declaration (LV → IN), as a bridge's LeaveAll MRPDU carries them. The re-join
++  waits for the tx! (DR3a), and is then JoinIn (DR3).
++- DR4: the own LeaveAll, with its sLA on the round's own tx! clock: LV, JoinMt.
++- DR5: LV re-joins JoinMt until the peer declares again, then JoinIn.
++- DR6: the peer's Lv takes IN to MT at once: the very next re-join is JoinMt.
++- DR7: an Lv of another Domain value leaves the registration IN.
++- DR8: a registering event in the LeaveAll's own clock keeps IN.
++- DR9: an adoption carries the adopting declaration's registration: Lv, New,
++  then JoinIn of the adopted value.
++- DR10: an adoption held behind a busy queue, withdrawn (Lv) before it
++  applies, is declared but not registered: JoinMt.
++- DR11: LINK_DOWN and LINK_UP clear the registration: New, then JoinMt.
++
++D2, D3, D8 and B1 grade the same rule on their own walks: no registration
++gives JoinMt (D2, D3, B1); the adopting declaration registers, so D8's
++periodic re-join is JoinIn and its LeaveAll re-join JoinMt.
+ 
+ **VLAN (10 §6.2, corrected F10.3)** — V1..V9: per-VID refcount keyed by
+ each user's OWN stream VID: two users of one VID produce exactly one join
+@@ -93,6 +121,24 @@ frames end-to-end.
+ | M3 | `KL_srp_vlan.sv`: leave branch takes `found_v_r` alone (Lv on EVERY leave, refcount ignored) | 2 FAIL — "V6 a remaining user keeps the VID declared", "V6 still two live entries" |
+ | M4 | `KL_srp_domain.sv`: `surf_prio_w = rxdom_prio_i` (FirstValue equality instead of the §3 range rule) | 2 FAIL — both D6 two-class-shape checks |
+ 
++Domain re-join (issue #184), through [the campaign](../srp_top/mutants.py)
++(`tb/srp_top/mutations/`); each arm must fail its named check:
++
++| Mutation (`KL_srp_domain.sv`) | Named check | Suite response |
++|---|---|---|
++| `domain-rejoin-always-joinin`: every re-join JoinIn (the base) | DR1 no peer | 10 FAIL — D2, D3, D8, DR1, DR4, DR5, DR6, DR10, DR11, B1 |
++| `domain-rejoin-always-joinmt`: every re-join JoinMt | DR2, DR5 | 8 FAIL — D8, DR2, DR3, DR5, DR7, DR8, DR9, DR10 |
++| `domain-rejoin-at-request`: a received LeaveAll's re-join handed over at once | DR3a | 5 FAIL — D3, D8, DR3a, DR3, DR8 |
++| `domain-rx-leaveall-dropped`: a received LeaveAll's re-join never handed over | DR3 | 4 FAIL — D3, D8, DR3, DR8 |
++| `domain-leaveall-keeps-in`: a LeaveAll leaves IN | DR4 | 3 FAIL — D8, DR4, DR5 |
++| `domain-lv-ignored`: a received Lv leaves IN | DR6 | 1 FAIL — DR6 |
++| `domain-lv-any-value`: an Lv of any value clears IN | DR7 | 1 FAIL — DR7 |
++| `domain-leaveall-after-receive`: the LeaveAll wins its clock | DR8 | 1 FAIL — DR8 |
++| `domain-adoption-drops-registrar`: an adoption clears the registration | DR9 | 3 FAIL — D8, DR9, DR10 |
++| `domain-capture-unregistered`: the captured adoption is not registered | DR9 | 3 FAIL — D8, DR9, DR10 |
++| `domain-pending-lv-ignored`: an Lv of the pending adoption is lost | DR10 | 1 FAIL — DR10 |
++| `domain-link-keeps-registrar`: LINK_DOWN and LINK_UP keep IN | DR11 | 2 FAIL — DR11, B1 |
++
+ LeaveAll per Attribute Type (issue #106). The planted files, logs and a
+ restore-hash check are kept in the review packet (`mutate.py`):
+ 
+diff --git a/tb/srp_encoder/sim_main.cpp b/tb/srp_encoder/sim_main.cpp
+index 2f1706c..b3be595 100644
+--- a/tb/srp_encoder/sim_main.cpp
++++ b/tb/srp_encoder/sim_main.cpp
+@@ -387,6 +387,27 @@ struct H {
+     return wait_and_drain(out, to);
+   }
+ 
++  // A Domain cadence request (periodic, or a LeaveAll), then the MSRP tx!
++  // opportunity a few clocks later, as KL_srp_top's join round gives it.
++  void dom_cadence(bool leaveall) {
++    if (leaveall) d->dom_leaveall_tick_i = 1; else d->dom_periodic_tick_i = 1;
++    tick();
++    d->dom_leaveall_tick_i = 0; d->dom_periodic_tick_i = 0;
++    run(3);
++    d->dom_tx_tick_i = 1; tick(); d->dom_tx_tick_i = 0;
++    run(10);
++  }
++
++  // One received Domain value: a registering event (New, JoinIn, JoinMt),
++  // or its Lv.
++  void dom_rx(int cid, int prio, int vid, int nov, bool lv) {
++    d->dom_rx_class_id_i = uint8_t(cid); d->dom_rx_prio_i = uint8_t(prio);
++    d->dom_rx_vid_i = uint16_t(vid); d->dom_rx_nov_i = uint16_t(nov);
++    if (lv) d->dom_rx_lv_i = 1; else d->dom_rx_valid_i = 1;
++    tick();
++    d->dom_rx_lv_i = 0; d->dom_rx_valid_i = 0;
++  }
++
+   bool vlan_op(bool join, int vid, int timeout = kHandshakeTimeoutCycles) {
+     d->vlan_user_join_i = join; d->vlan_user_vid_i = uint16_t(vid);
+     d->vlan_user_valid_i = 1;
+@@ -442,6 +463,12 @@ class SrpSuite {
+   void arbitrate_prepare_and_mvrp();
+   void domain_declares_adopts_and_ignores_repeats();
+   void domain_surfaces_class_a_and_reverts_on_link_down();
++  void domain_rejoin_follows_its_registrar();
++  void domain_rejoin_after_a_withdrawal();
++  void domain_rejoin_across_adoption_and_link();
++  bool dom_seq(std::initializer_list<std::pair<int, uint32_t>> exp) const {
++    return h.dom_evs == std::vector<std::pair<int, uint32_t>>(exp);
++  }
+   void vlan_refcounts_every_vid_and_freezes_the_old_one();
+   void bridge_the_fsm_declarations_onto_real_frames();
+   void track_which_vids_have_left();
+@@ -462,8 +489,9 @@ void SrpSuite::bring_out_of_reset() {
+   d->enc_la_prepare_i = 0;
+   d->enc_txreq_ready_i = 0;
+   d->ser_req_i = 0; d->ser_ready_i = 0; d->ser_slot_i = 0;
+-  d->dom_link_up_i = 0; d->dom_rx_valid_i = 0;
++  d->dom_link_up_i = 0; d->dom_rx_valid_i = 0; d->dom_rx_lv_i = 0;
+   d->dom_periodic_tick_i = 0; d->dom_leaveall_tick_i = 0;
++  d->dom_tx_tick_i = 0;
+   d->dom_ev_ready_i = 1;
+   d->vlan_user_valid_i = 0; d->vlan_periodic_tick_i = 0;
+   d->vlan_leaveall_tick_i = 0; d->vlan_ev_ready_i = 1; d->vlan_mvrp_tx_i = 0;
+@@ -964,18 +992,16 @@ void SrpSuite::domain_declares_adopts_and_ignores_repeats() {
+           "D1 class-D defaults {3, 2}");
+     CHECK(d->dom_adopted_o == 0, "D1 DEFAULTS state");
+ 
+-    // D2: periodic re-join
++    // D2: periodic re-join; no Domain is registered, so JoinMt (R below)
+     h.dom_evs.clear();
+-    d->dom_periodic_tick_i = 1; h.tick(); d->dom_periodic_tick_i = 0;
+-    h.run(10);
+-    CHECK(h.dom_evs.size() == 1 && h.dom_evs[0].first == 1
+-          && h.dom_evs[0].second == 0x06030002u, "D2 periodic JoinIn");
++    h.dom_cadence(false);
++    CHECK(h.dom_evs.size() == 1 && h.dom_evs[0].first == 3
++          && h.dom_evs[0].second == 0x06030002u, "D2 periodic JoinMt");
+ 
+     // D3: LeaveAll re-declare
+     h.dom_evs.clear();
+-    d->dom_leaveall_tick_i = 1; h.tick(); d->dom_leaveall_tick_i = 0;
+-    h.run(10);
+-    CHECK(h.dom_evs.size() == 1 && h.dom_evs[0].first == 1,
++    h.dom_cadence(true);
++    CHECK(h.dom_evs.size() == 1 && h.dom_evs[0].first == 3,
+           "D3 LeaveAll re-join");
+ 
+     // D4: adopt a differing Class A Domain {6, 5, VID 7}
+@@ -1051,15 +1077,15 @@ void SrpSuite::domain_surfaces_class_a_and_reverts_on_link_down() {
+     d->dom_rx_valid_i = 1; h.tick(); d->dom_rx_valid_i = 0;
+     h.run(10);
+     h.dom_evs.clear();
+-    d->dom_periodic_tick_i = 1; h.tick(); d->dom_periodic_tick_i = 0;
+-    h.run(10);
+-    d->dom_leaveall_tick_i = 1; h.tick(); d->dom_leaveall_tick_i = 0;
+-    h.run(10);
++    h.dom_cadence(false);
++    h.dom_cadence(true);
+     CHECK(d->dom_class_a_prio_o == 4 && d->dom_class_a_vid_o == 8,
+           "D8 cadence never reverts an adoption");
++    // the adopting declaration registered {6, 4, 8}: periodic JoinIn; the
++    // LeaveAll ages it to LV and nothing re-registers it: JoinMt
+     CHECK(h.dom_evs.size() == 2 && h.dom_evs[0].first == 1
+           && h.dom_evs[0].second == 0x06040008u
+-          && h.dom_evs[1].first == 1 && h.dom_evs[1].second == 0x06040008u,
++          && h.dom_evs[1].first == 3 && h.dom_evs[1].second == 0x06040008u,
+           "D8 re-joins carry the ADOPTED declaration");
+     CHECK(d->dom_adopted_o == 1, "D8 still ADOPTED");
+ 
+@@ -1072,8 +1098,7 @@ void SrpSuite::domain_surfaces_class_a_and_reverts_on_link_down() {
+     CHECK(d->dom_class_a_prio_o == 3 && d->dom_class_a_vid_o == 2,
+           "D9 levels back to the defaults");
+     CHECK(d->dom_adopted_o == 0, "D9 DEFAULTS state");
+-    d->dom_periodic_tick_i = 1; h.tick(); d->dom_periodic_tick_i = 0;
+-    h.run(10);
++    h.dom_cadence(false);
+     CHECK(h.dom_evs.empty(), "D9 nothing declared while the link is down");
+     d->dom_link_up_i = 1;
+     h.run(10);
+@@ -1083,6 +1108,149 @@ void SrpSuite::domain_surfaces_class_a_and_reverts_on_link_down() {
+   }
+ }
+ 
++// DR: the AttributeEvent codes of 802.1Q-2018 §10.8.2.10.4 the Domain re-join
++// is graded with, and the default Domain FirstValue {6, 3, VID 2}
++constexpr int kNew = 0;
++constexpr int kJoinIn = 1;
++constexpr int kJoinMt = 3;
++constexpr int kLv = 5;
++constexpr uint32_t kDefDomain = 0x06030002u;
++
++void SrpSuite::domain_rejoin_follows_its_registrar() {
++  // =====================================================================
++  // DR — the Domain re-join is sJ (802.1Q-2018 §10.7.6.3): JoinIn only while
++  //     the Registrar of the declared value is IN, JoinMt in MT or LV.
++  //     Registrar per Table 10-4 with Milan v1.2 §4.2.7.2.2 (IN -> MT on
++  //     rLv!). Expected codes come from those clauses, not from the RTL:
++  //     DR1..DR5 here, DR6..DR8 and DR9..DR11 in the two that follow.
++  // =====================================================================
++  {
++    // the link is up and the defaults declared (D9); nothing registered
++
++    // DR1: no peer: the periodic re-join is JoinMt
++    h.dom_evs.clear();
++    h.dom_cadence(false);
++    CHECK(dom_seq({{kJoinMt, kDefDomain}}),
++          "DR1 no peer: the periodic re-join is JoinMt {6, 3, 2}");
++
++    // DR2: the peer declares the same Domain: registered (no adoption), and
++    // the periodic re-join is JoinIn
++    h.dom_evs.clear();
++    h.dom_rx(6, 3, 2, 1, false);
++    h.run(5);
++    h.dom_cadence(false);
++    CHECK(dom_seq({{kJoinIn, kDefDomain}}),
++          "DR2 peer declaring: the periodic re-join is JoinIn {6, 3, 2}");
++
++    // DR3: the bridge's LeaveAll MRPDU: LeaveAll on the Domain lane (IN ->
++    // LV), then its own Domain declaration in the same MRPDU (LV -> IN).
++    // A LeaveAll outside a tx! clock is a received one: its re-join waits
++    // for the tx!, so the declaration registers first: JoinIn
++    h.dom_evs.clear();
++    d->dom_leaveall_tick_i = 1; h.tick(); d->dom_leaveall_tick_i = 0;
++    h.run(5);
++    h.dom_rx(6, 3, 2, 1, false);
++    h.run(5);
++    CHECK(h.dom_evs.empty(), "DR3a a received LeaveAll's re-join waits for tx!");
++    d->dom_tx_tick_i = 1; h.tick(); d->dom_tx_tick_i = 0;
++    h.run(10);
++    CHECK(dom_seq({{kJoinIn, kDefDomain}}),
++          "DR3 a peer LeaveAll re-declared before tx!: the re-join is JoinIn");
++
++    // DR4: the own LeaveAll (sLA on the round's tx!) ages the registration
++    // to LV in that clock, and its re-join is handed over at once: JoinMt
++    h.dom_evs.clear();
++    d->dom_leaveall_tick_i = 1; d->dom_tx_tick_i = 1; h.tick();
++    d->dom_leaveall_tick_i = 0; d->dom_tx_tick_i = 0;
++    h.run(10);
++    CHECK(dom_seq({{kJoinMt, kDefDomain}}),
++          "DR4 own LeaveAll: the registration is LV at its tx!, JoinMt");
++
++    // DR5: LV holds until the peer declares again (LV -> IN)
++    h.dom_evs.clear();
++    h.dom_cadence(false);
++    h.dom_rx(6, 3, 2, 1, false);
++    h.dom_cadence(false);
++    CHECK(dom_seq({{kJoinMt, kDefDomain}, {kJoinIn, kDefDomain}}),
++          "DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn");
++  }
++}
++
++void SrpSuite::domain_rejoin_after_a_withdrawal() {
++  // DR6..DR8: Lv of this value and of another, and a same-clock race
++  {
++    // DR6: the peer withdraws: IN -> MT at once (Milan v1.2 §4.2.7.2.2), so
++    // the very next re-join is JoinMt
++    h.dom_evs.clear();
++    h.dom_rx(6, 3, 2, 1, true);
++    h.dom_cadence(false);
++    REQ_TAG("REQ-SRP-005", "MTXW", "DR6 peer withdrawal (Lv)");
++    CHECK(dom_seq({{kJoinMt, kDefDomain}}),
++          "DR6 peer withdrawal (Lv): the very next re-join is JoinMt");
++
++    // DR7: an Lv of another Domain value leaves this registration IN
++    h.dom_evs.clear();
++    h.dom_rx(6, 3, 2, 1, false);
++    h.dom_rx(6, 4, 9, 1, true);
++    h.dom_cadence(false);
++    CHECK(dom_seq({{kJoinIn, kDefDomain}}),
++          "DR7 an Lv of another Domain value leaves the registration IN");
++
++    // DR8: a registering event in the LeaveAll's own clock wins (10 §6.5)
++    h.dom_rx(6, 3, 2, 1, true);                    // MT first
++    h.dom_evs.clear();
++    d->dom_rx_class_id_i = 6; d->dom_rx_prio_i = 3;
++    d->dom_rx_vid_i = 2; d->dom_rx_nov_i = 1;
++    d->dom_leaveall_tick_i = 1; d->dom_rx_valid_i = 1; h.tick();
++    d->dom_leaveall_tick_i = 0; d->dom_rx_valid_i = 0;
++    h.run(3);
++    d->dom_tx_tick_i = 1; h.tick(); d->dom_tx_tick_i = 0;
++    h.run(10);
++    CHECK(dom_seq({{kJoinIn, kDefDomain}}),
++          "DR8 a registering event in the LeaveAll's clock keeps IN: JoinIn");
++  }
++}
++
++void SrpSuite::domain_rejoin_across_adoption_and_link() {
++  // DR9..DR11: the registration across an adoption and the link
++  {
++    // DR9: an adoption takes the adopting declaration's registration along
++    h.dom_evs.clear();
++    h.dom_rx(6, 5, 7, 1, false);
++    h.run(10);
++    h.dom_cadence(false);
++    CHECK(dom_seq({{kLv, kDefDomain}, {kNew, 0x06050007u}, {kJoinIn, 0x06050007u}}),
++          "DR9 the adopted value is registered: Lv, New, then JoinIn {6, 5, 7}");
++
++    // DR10: an adoption waiting behind the queue, withdrawn before it
++    // applies, is declared but not registered: JoinMt
++    h.dom_evs.clear();
++    d->dom_ev_ready_i = 0;
++    h.dom_cadence(false);                           // JoinIn held in the queue
++    h.dom_rx(6, 6, 9, 1, false);
++    h.run(3);
++    h.dom_rx(6, 6, 9, 1, true);
++    h.run(3);
++    d->dom_ev_ready_i = 1;
++    h.run(10);
++    h.dom_cadence(false);
++    CHECK(dom_seq({{kJoinIn, 0x06050007u}, {kLv, 0x06050007u},
++                   {kNew, 0x06060009u}, {kJoinMt, 0x06060009u}}),
++          "DR10 an adoption withdrawn before it applies re-joins JoinMt");
++
++    // DR11: LINK_DOWN and LINK_UP clear the registration (Flush!, Begin!)
++    h.dom_rx(6, 6, 9, 1, false);                   // IN again
++    h.dom_evs.clear();
++    d->dom_link_up_i = 0;
++    h.run(10);
++    d->dom_link_up_i = 1;
++    h.run(10);
++    h.dom_cadence(false);
++    CHECK(dom_seq({{kNew, kDefDomain}, {kJoinMt, kDefDomain}}),
++          "DR11 LINK_DOWN and LINK_UP clear the registration: New, then JoinMt");
++  }
++}
++
+ void SrpSuite::vlan_refcounts_every_vid_and_freezes_the_old_one() {
+   // =====================================================================
+   // V — VLAN FSM walk (corrected F10.3: per-VID refcount, frozen VID)
+@@ -1180,8 +1348,10 @@ void SrpSuite::bridge_the_fsm_declarations_onto_real_frames() {
+     // stop auto-draining the FSM event faces
+     d->dom_ev_ready_i = 0; d->vlan_ev_ready_i = 0;
+     d->dom_periodic_tick_i = 1; d->vlan_periodic_tick_i = 1;
++    d->dom_tx_tick_i = 1;
+     h.tick();
+     d->dom_periodic_tick_i = 0; d->vlan_periodic_tick_i = 0;
++    d->dom_tx_tick_i = 0;
+     // bridge both faces into the encoder push port (domain first)
+     int bridged_dom = 0;
+     int bridged_vlan = 0;
+@@ -1222,7 +1392,7 @@ void SrpSuite::bridge_the_fsm_declarations_onto_real_frames() {
+     CHECK(bridged_dom == 1 && bridged_vlan == 1,
+           "B1 one Domain and one VLAN re-join bridged got %d %d",
+           bridged_dom, bridged_vlan);
+-    std::vector<Ev> bm = {mk_ev(0, 4, 1, 0, {0x06, 0x03, 0x00, 0x02})};
++    std::vector<Ev> bm = {mk_ev(0, 4, 3, 0, {0x06, 0x03, 0x00, 0x02})};
+     std::vector<Ev> bv = {mk_ev(1, 1, 1, 0, {0x00, 0x05})};
+     CHECK(h.capture_pdu(0, got), "B1 Domain frame captured");
+     check_pdu("B1-domain", got, model_pdu(bm, false, OWN_MAC));
+@@ -1327,6 +1497,9 @@ int SrpSuite::run() {
+   arbitrate_prepare_and_mvrp();
+   domain_declares_adopts_and_ignores_repeats();
+   domain_surfaces_class_a_and_reverts_on_link_down();
++  domain_rejoin_follows_its_registrar();
++  domain_rejoin_after_a_withdrawal();
++  domain_rejoin_across_adoption_and_link();
+   vlan_refcounts_every_vid_and_freezes_the_old_one();
+   bridge_the_fsm_declarations_onto_real_frames();
+   track_which_vids_have_left();
+diff --git a/tb/srp_encoder/srp_tb_wrap.sv b/tb/srp_encoder/srp_tb_wrap.sv
+index cf2c3ee..6d41e68 100644
+--- a/tb/srp_encoder/srp_tb_wrap.sv
++++ b/tb/srp_encoder/srp_tb_wrap.sv
+@@ -61,8 +61,10 @@ module srp_tb_wrap (
+     input  wire  [7:0]   dom_rx_prio_i,       //! FirstValue SRclassPriority
+     input  wire  [15:0]  dom_rx_vid_i,        //! FirstValue SRclassVID
+     input  wire  [12:0]  dom_rx_nov_i,        //! NumberOfValues
++    input  wire          dom_rx_lv_i,         //! received Domain Lv strobe
+     input  wire          dom_periodic_tick_i, //! T-MRP-PERIODIC
+     input  wire          dom_leaveall_tick_i, //! MSRP LeaveAll cycle
++    input  wire          dom_tx_tick_i,       //! MSRP tx! opportunity
+     output logic         dom_ev_valid_o,      //! declaration event pending
+     output logic [2:0]   dom_ev_event_o,      //! event code
+     output logic [31:0]  dom_ev_value_o,      //! Domain FirstValue
+@@ -177,8 +179,10 @@ module srp_tb_wrap (
+       .rxdom_prio_i        (dom_rx_prio_i),
+       .rxdom_vid_i         (dom_rx_vid_i),
+       .rxdom_nov_i         (dom_rx_nov_i),
++      .rxdom_lv_i          (dom_rx_lv_i),
+       .periodic_tick_i     (dom_periodic_tick_i),
+       .leaveall_tick_i     (dom_leaveall_tick_i),
++      .tx_tick_i           (dom_tx_tick_i),
+       .dom_ev_valid_o      (dom_ev_valid_o),
+       .dom_ev_event_o      (dom_ev_event_o),
+       .dom_ev_value_o      (dom_ev_value_o),
+diff --git a/tb/srp_top/README.md b/tb/srp_top/README.md
+index e056a5a..3e3b641 100644
+--- a/tb/srp_top/README.md
++++ b/tb/srp_top/README.md
+@@ -58,7 +58,9 @@ Covered end to end:
+   (PRNG-drawn) emits a LeaveAllEvent PDU that flags every MSRP Attribute
+   Type once, on its first vector (a NumberOfValues-0 vector for a type the
+   cycle declares nothing of; 802.1Q §10.8.2.6), and whose cycle re-declares
+-  Domain JoinIn + Listener Ready; registrations stay published through LV and a
++  the Domain + Listener Ready. The Domain re-join is JoinMt: the own sLA ages
++  our Domain registration to LV and no peer re-declares the Domain there
++  (issue #184, 802.1Q-2018 §10.7.6.3). Registrations stay published through LV and a
+   peer re-join keeps them (no unregister). A received MSRP LeaveAll that
+   flags every MSRP type, as a conformant peer's does (F2), ages the
+   registrar over a real 5 s T-MRP-LEAVE to TK_ATTR_UNREGISTERED and the
+@@ -77,12 +79,14 @@ Covered end to end:
+     ACTIVE, while the Talker Advertise lane ages sink 0's un-re-declared
+     Advertise to TK_ATTR_UNREGISTERED.
+   - **(b)** a Domain-only LeaveAll: our Domain re-declares (JoinIn at the
+-    next T-MRP-JOIN, well before any periodic re-join); neither the
++    next T-MRP-JOIN, well before any periodic re-join; the flagged vector
++    re-declares the peer's Domain, so our registration is IN again at our
++    tx!); neither the
+     Listener registration nor sink 0's Advertise ages.
+   - **(c)** a Listener-only LeaveAll, never re-declared: Ready stays
+     published for T-MRP-LEAVE (LV), then ages to MT and ACTIVE drops; sink
+-    0's Advertise is untouched. The Domain row's negative: no Domain JoinIn
+-    follows it before the next periodic re-join, nor, each in its own clean
++    0's Advertise is untouched. The Domain row's negative: no Domain re-join,
++    JoinIn or JoinMt, follows it before the next periodic re-join, nor, each in its own clean
+     slot, a Talker Advertise LeaveAll (sink 0's Advertise re-declared in the
+     flagged vector) or a Talker Failed-only LeaveAll.
+ - **Admission sweep**: 30 randomized declare/withdraw rounds across all 8
+@@ -244,7 +248,7 @@ when the P8 arm-delay sweep brought the complete run to 185,012,669); the
+ encoder and stream-FSM
+ walks use finite cycle bounds. Budget exits and missing tallies are unproven,
+ not kills. `RUN_ARGS=phases`, `edge`, `peer`, `congestion`, `guards`,
+-`armdelay`, `restart`, `timers`, `join` or `lvleave` selects one group for a focused run,
++`armdelay`, `restart`, `timers`, `join`, `lvleave`, `lvcoll` or `domjoin` selects one group for a focused run,
+ `RUN_ARGS=storage` the timer-arm FIFO arms; plain `make` runs every existing and
+ new check. The stream-FSM suite independently walks every
+ applicant state with same-edge sLA/join acceptance.
+@@ -439,7 +443,7 @@ DUT register.
+ | Check | Timer (Table 4.3 range) | Measured |
+ |---|---|---|
+ | Q1 | joinTime 180-240 ms: the Table 10-3 ladder New, New, JoinMt of one fresh declaration is one MRPDU per T-MRP-JOIN tick | 200, 200 ms |
+-| Q2 | periodictimer 900-1500 ms: a quiet declared Talker Advertise re-joins (JoinMt) on each periodic!, and so do the Domain and the MVRP VID (JoinIn); at least five of each before the first LeaveAll | 9 x 1000 ms each |
++| Q2 | periodictimer 900-1500 ms: a quiet declared Talker Advertise re-joins (JoinMt) on each periodic!, and so do the Domain (JoinMt: no peer Domain is registered, issue #184) and the MVRP VID (JoinIn); at least five of each before the first LeaveAll | 9 x 1000 ms each |
+ | Q3 | leavealltimer 10-15 s: the first own MSRP and MVRP LeaveAll no earlier than 10 s after arming, and consecutive own LeaveAlls 10-15 s apart, at least three per application | first +14206 / +10601 ms; MSRP 10000-12800 ms, MVRP 11000-13200 ms |
+ | Q4 | issue #108 on the wire: a peer LeaveAll 5 s after the latest own one restarts the timer, so the next own LeaveAll of that application comes 10-15 s after the peer's | MSRP +11000 ms, MVRP +14495 ms |
+ 
+@@ -456,6 +460,39 @@ Mutation-proven 2026-09-29 through `mutants.py` (checked-in patches):
+ | `periodic-ms-3000` (`PERIODIC_MS_P = 3000`) | timers | 1 | Q2 |
+ | `draw-kind-0` (`draw_kind_o = 3'd0`, the 0-1 s range) | timers | 6 | Q1,Q2,Q3,Q4 |
+ 
++## Domain re-join follows the peer's Domain (issue #184)
++
++802.1Q-2018 §10.7.6.3: the re-join (sJ) is JoinIn only while the Registrar of the
++declared Domain is IN, and JoinMt in MT or LV. Milan v1.2 §4.2.7.2.2: rLv! takes that
++Registrar from IN to MT at once ([10 §6.1](../../docs/architecture/10_srp_engine.md#sec-10-domain-rejoin)).
++`RUN_ARGS=domjoin` runs the group, also part of the default run, on a fresh model
++from reset. Every step ends before the first own LeaveAll can fire (10 s from reset).
++Each step takes the first Domain re-join of the wire, JoinIn or JoinMt, through the
++real decoder, cadence and encoder.
++
++| Check | What it requires |
++|---|---|
++| DJ1 | nothing declares a Domain: our periodic re-join is JoinMt |
++| DJ2 | the peer declares our Domain {6, 3, 2} (JoinIn): our next re-join is JoinIn |
++| DJ3 | the peer's LeaveAll MRPDU flags the Domain type on a vector re-declaring its Domain (JoinMt), and flags the other three types with NumberOfValues-0 vectors: our rLA! re-join, at the next T-MRP-JOIN, is JoinIn |
++| DJ4 | the peer withdraws its Domain (Lv): our next re-join is JoinMt |
++
++The unit half is [srp_encoder](../srp_encoder/README.md) DR1 to DR11. Mutation-proven
++through `mutants.py` (checked-in patches; the `srp_encoder` rows are listed there):
++
++| Deliberate breakage | Group | Failing checks | Named failing assertions |
++|---|---|---:|---|
++| `domain-rejoin-always-joinin` (the base: every re-join JoinIn) | domjoin | 2 | DJ1, DJ4 |
++| `domain-rejoin-always-joinin` | timers | 1 | Q2 |
++| `domain-rejoin-always-joinmt` (every re-join JoinMt) | domjoin | 2 | DJ2, DJ3 |
++| `domain-lv-ignored` (a received Lv leaves the Registrar IN) | domjoin | 1 | DJ4 |
++| `top-domain-lv-unwired` (`KL_srp_top` ties the Domain's Lv strobe to 0) | domjoin | 1 | DJ4 |
++| `domain-rx-leaveall-dropped` (a received LeaveAll's re-join is never handed over) | domjoin | 1 | DJ3 |
++| `top-domain-tx-every-clock` (`KL_srp_top` ties the Domain's tx! input to 1, so a received LeaveAll's re-join is handed over at once) | domjoin | 1 | DJ3 |
++| `top-domain-tx-unwired` (`KL_srp_top` ties the Domain's tx! input to 0) | domjoin | 1 | DJ3 |
++
++The assertion-coverage check also requires DJ1-DJ4.
++
+ ## MVRP join before the stream (issue #65, REQ-SRP-006)
+ 
+ Milan v1.2 4.3.2: a Talker PAAD "shall join the relevant VLAN via MVRP prior to
+diff --git a/tb/srp_top/mutants.py b/tb/srp_top/mutants.py
+index 8b5f27c..24974e0 100644
+--- a/tb/srp_top/mutants.py
++++ b/tb/srp_top/mutants.py
+@@ -158,6 +158,29 @@ MUTANTS = [
+     ('lv-expiry-last', 'srp_stream_fsms', 'suite', 'SC1:'),
+     ('lv-expiry-dropped', 'srp_stream_fsms', 'suite', 'SC1:'),
+     ('lv-sweep-misses-collision', 'srp_top', 'lvcoll', 'SC3:'),
++    # issue #184: the Domain re-join is sJ against the Domain Registrar
++    # (802.1Q-2018 10.7.6.3, Table 10-4; Milan v1.2 4.2.7.2.2)
++    ('domain-rejoin-always-joinin', 'srp_encoder', '', 'DR1 no peer'),
++    ('domain-rejoin-always-joinin', 'srp_top', 'domjoin', 'DJ1:'),
++    ('domain-rejoin-always-joinin', 'srp_top', 'timers', 'Q2:'),
++    ('domain-rejoin-always-joinmt', 'srp_encoder', '', 'DR2 peer declaring'),
++    ('domain-rejoin-always-joinmt', 'srp_encoder', '', 'DR5 LV re-joins'),
++    ('domain-rejoin-always-joinmt', 'srp_top', 'domjoin', 'DJ2:'),
++    ('domain-rejoin-at-request', 'srp_encoder', '', 'DR3a a received LeaveAll'),
++    ('domain-rx-leaveall-dropped', 'srp_encoder', '', 'DR3 a peer LeaveAll'),
++    ('domain-rx-leaveall-dropped', 'srp_top', 'domjoin', 'DJ3:'),
++    ('domain-leaveall-keeps-in', 'srp_encoder', '', 'DR4 own LeaveAll'),
++    ('domain-lv-ignored', 'srp_encoder', '', 'DR6 peer withdrawal'),
++    ('domain-lv-ignored', 'srp_top', 'domjoin', 'DJ4:'),
++    ('domain-lv-any-value', 'srp_encoder', '', 'DR7 an Lv of another'),
++    ('domain-leaveall-after-receive', 'srp_encoder', '', 'DR8 a registering event'),
++    ('domain-adoption-drops-registrar', 'srp_encoder', '', 'DR9 the adopted value'),
++    ('domain-capture-unregistered', 'srp_encoder', '', 'DR9 the adopted value'),
++    ('domain-pending-lv-ignored', 'srp_encoder', '', 'DR10 an adoption withdrawn'),
++    ('domain-link-keeps-registrar', 'srp_encoder', '', 'DR11 LINK_DOWN'),
++    ('top-domain-lv-unwired', 'srp_top', 'domjoin', 'DJ4:'),
++    ('top-domain-tx-every-clock', 'srp_top', 'domjoin', 'DJ3:'),
++    ('top-domain-tx-unwired', 'srp_top', 'domjoin', 'DJ3:'),
+ ]
+ 
+ 
+@@ -250,7 +273,7 @@ def main() -> int:
+     if not args.only:
+         expected = {f"{group}{i}" for group, count in
+                     [("K", 12), ("L", 4), ("M", 12), ("N", 13), ("O", 8), ("P", 8), ("Q", 4), ("R", 4),
+-                     ("S", 3), ("SC", 3), ("TF", 5), ("WK", 10)]
++                     ("S", 3), ("SC", 3), ("TF", 5), ("WK", 10), ("DJ", 4)]
+                     for i in range(1, count + 1)}
+         missing = expected - covered
+         total += 1
+diff --git a/tb/srp_top/mutations/domain-adoption-drops-registrar.patch b/tb/srp_top/mutations/domain-adoption-drops-registrar.patch
+new file mode 100644
+index 0000000..06e2162
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-adoption-drops-registrar.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -246,7 +246,7 @@
++         q1_val_r            <= {CLASS_A_ID_C, rx_pend_prio_r, rx_pend_vid_r};
++         decl_prio_r         <= rx_pend_prio_r;
++         decl_vid_r          <= rx_pend_vid_r;
++-        reg_in_r            <= pend_in_nx_w;  // the adopted value's Registrar
+++        reg_in_r            <= 1'b0;  // the adopted value's Registrar
++         adopted_r           <= 1'b1;
++         rx_pend_v_r         <= 1'b0;
++         evt_domain_change_o <= 1'b1;
+diff --git a/tb/srp_top/mutations/domain-capture-unregistered.patch b/tb/srp_top/mutations/domain-capture-unregistered.patch
+new file mode 100644
+index 0000000..9534ab6
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-capture-unregistered.patch
+@@ -0,0 +1,10 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -200,7 +200,6 @@
++         rx_pend_prio_r <= surf_prio_w;    // newest received Domain wins
++         rx_pend_vid_r  <= rxdom_vid_i;
++         rx_pend_v_r    <= 1'b1;
++-        pend_in_r      <= 1'b1;           // registered by this very event
++       end
++       if ((periodic_tick_i || (leaveall_tick_i && tx_tick_i)) && declared_r) begin
++         rejoin_pend_r <= 1'b1;            // periodic!, or the own sLA on its tx!
+diff --git a/tb/srp_top/mutations/domain-leaveall-after-receive.patch b/tb/srp_top/mutations/domain-leaveall-after-receive.patch
+new file mode 100644
+index 0000000..252c504
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-leaveall-after-receive.patch
+@@ -0,0 +1,10 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -157,6 +157,7 @@
++     if (rxdom_valid_i && rx_is_pend_w) pend_in_nx_w = 1'b1;
++     if (rxdom_lv_i && rx_is_decl_w)    reg_in_nx_w  = 1'b0;  // rLv!: IN -> MT at once
++     if (rxdom_lv_i && rx_is_pend_w)    pend_in_nx_w = 1'b0;
+++    if (leaveall_tick_i && declared_r) reg_in_nx_w  = 1'b0;
++   end
++ 
++   always_ff @(posedge clk_i) begin : domain_sm
+diff --git a/tb/srp_top/mutations/domain-leaveall-keeps-in.patch b/tb/srp_top/mutations/domain-leaveall-keeps-in.patch
+new file mode 100644
+index 0000000..ba3582a
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-leaveall-keeps-in.patch
+@@ -0,0 +1,10 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -150,7 +150,6 @@
++     reg_in_nx_w  = reg_in_r;
++     pend_in_nx_w = pend_in_r;
++     if (leaveall_tick_i && declared_r) begin
++-      reg_in_nx_w  = 1'b0;                         // rLA! / txLA!: IN -> LV
++       pend_in_nx_w = 1'b0;
++     end
++     if (rxdom_valid_i && rx_is_decl_w) reg_in_nx_w  = 1'b1;  // rNew / rJoinIn / rJoinMt
+diff --git a/tb/srp_top/mutations/domain-link-keeps-registrar.patch b/tb/srp_top/mutations/domain-link-keeps-registrar.patch
+new file mode 100644
+index 0000000..feab993
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-link-keeps-registrar.patch
+@@ -0,0 +1,18 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -226,7 +226,6 @@
++         rx_pend_v_r   <= 1'b0;
++         rejoin_pend_r <= 1'b0;
++         rxla_pend_r   <= 1'b0;
++-        reg_in_r      <= 1'b0;             // Flush!: every Registrar to MT
++         pend_in_r     <= 1'b0;
++       end else if (link_rise_w) begin
++         // declare the defaults (New) — startup lands here too
++@@ -234,7 +233,6 @@
++         q0_ev_r    <= EV_NEW_C;
++         q0_val_r   <= {CLASS_A_ID_C, DEF_PRIO_P, DEF_VID_P};
++         declared_r <= 1'b1;
++-        reg_in_r   <= 1'b0;                // Begin!: nothing registered yet
++         pend_in_r  <= 1'b0;
++       end else if (rx_pend_v_r && q_empty_w) begin
++         // adopt: withdraw the old declaration, re-declare the adopted one
+diff --git a/tb/srp_top/mutations/domain-lv-any-value.patch b/tb/srp_top/mutations/domain-lv-any-value.patch
+new file mode 100644
+index 0000000..d6b11cc
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-lv-any-value.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -155,7 +155,7 @@
++     end
++     if (rxdom_valid_i && rx_is_decl_w) reg_in_nx_w  = 1'b1;  // rNew / rJoinIn / rJoinMt
++     if (rxdom_valid_i && rx_is_pend_w) pend_in_nx_w = 1'b1;
++-    if (rxdom_lv_i && rx_is_decl_w)    reg_in_nx_w  = 1'b0;  // rLv!: IN -> MT at once
+++    if (rxdom_lv_i && declared_r)      reg_in_nx_w  = 1'b0;  // rLv!: IN -> MT at once
++     if (rxdom_lv_i && rx_is_pend_w)    pend_in_nx_w = 1'b0;
++   end
++ 
+diff --git a/tb/srp_top/mutations/domain-lv-ignored.patch b/tb/srp_top/mutations/domain-lv-ignored.patch
+new file mode 100644
+index 0000000..b3c93ed
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-lv-ignored.patch
+@@ -0,0 +1,10 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -155,7 +155,6 @@
++     end
++     if (rxdom_valid_i && rx_is_decl_w) reg_in_nx_w  = 1'b1;  // rNew / rJoinIn / rJoinMt
++     if (rxdom_valid_i && rx_is_pend_w) pend_in_nx_w = 1'b1;
++-    if (rxdom_lv_i && rx_is_decl_w)    reg_in_nx_w  = 1'b0;  // rLv!: IN -> MT at once
++     if (rxdom_lv_i && rx_is_pend_w)    pend_in_nx_w = 1'b0;
++   end
++ 
+diff --git a/tb/srp_top/mutations/domain-pending-lv-ignored.patch b/tb/srp_top/mutations/domain-pending-lv-ignored.patch
+new file mode 100644
+index 0000000..5113b92
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-pending-lv-ignored.patch
+@@ -0,0 +1,10 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -156,7 +156,6 @@
++     if (rxdom_valid_i && rx_is_decl_w) reg_in_nx_w  = 1'b1;  // rNew / rJoinIn / rJoinMt
++     if (rxdom_valid_i && rx_is_pend_w) pend_in_nx_w = 1'b1;
++     if (rxdom_lv_i && rx_is_decl_w)    reg_in_nx_w  = 1'b0;  // rLv!: IN -> MT at once
++-    if (rxdom_lv_i && rx_is_pend_w)    pend_in_nx_w = 1'b0;
++   end
++ 
++   always_ff @(posedge clk_i) begin : domain_sm
+diff --git a/tb/srp_top/mutations/domain-rejoin-always-joinin.patch b/tb/srp_top/mutations/domain-rejoin-always-joinin.patch
+new file mode 100644
+index 0000000..687aa78
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-rejoin-always-joinin.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -254,7 +254,7 @@
++         // periodic / LeaveAll re-join of the standing declaration: sJ
++         // against the Registrar state (802.1Q §10.7.6.3)
++         q0_valid_r    <= 1'b1;
++-        q0_ev_r       <= reg_in_r ? EV_JOININ_C : EV_JOINMT_C;
+++        q0_ev_r       <= EV_JOININ_C;
++         q0_val_r      <= {CLASS_A_ID_C, decl_prio_r, decl_vid_r};
++         rejoin_pend_r <= 1'b0;
++       end
+diff --git a/tb/srp_top/mutations/domain-rejoin-always-joinmt.patch b/tb/srp_top/mutations/domain-rejoin-always-joinmt.patch
+new file mode 100644
+index 0000000..c9fc1d3
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-rejoin-always-joinmt.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -254,7 +254,7 @@
++         // periodic / LeaveAll re-join of the standing declaration: sJ
++         // against the Registrar state (802.1Q §10.7.6.3)
++         q0_valid_r    <= 1'b1;
++-        q0_ev_r       <= reg_in_r ? EV_JOININ_C : EV_JOINMT_C;
+++        q0_ev_r       <= EV_JOINMT_C;
++         q0_val_r      <= {CLASS_A_ID_C, decl_prio_r, decl_vid_r};
++         rejoin_pend_r <= 1'b0;
++       end
+diff --git a/tb/srp_top/mutations/domain-rejoin-at-request.patch b/tb/srp_top/mutations/domain-rejoin-at-request.patch
+new file mode 100644
+index 0000000..b00d6a6
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-rejoin-at-request.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -202,7 +202,7 @@
++         rx_pend_v_r    <= 1'b1;
++         pend_in_r      <= 1'b1;           // registered by this very event
++       end
++-      if ((periodic_tick_i || (leaveall_tick_i && tx_tick_i)) && declared_r) begin
+++      if ((periodic_tick_i || leaveall_tick_i) && declared_r) begin
++         rejoin_pend_r <= 1'b1;            // periodic!, or the own sLA on its tx!
++       end
++       if (leaveall_tick_i && !tx_tick_i && declared_r) begin
+diff --git a/tb/srp_top/mutations/domain-rx-leaveall-dropped.patch b/tb/srp_top/mutations/domain-rx-leaveall-dropped.patch
+new file mode 100644
+index 0000000..538ae67
+--- /dev/null
++++ b/tb/srp_top/mutations/domain-rx-leaveall-dropped.patch
+@@ -0,0 +1,10 @@
++--- a/hdl/srp/KL_srp_domain.sv
+++++ b/hdl/srp/KL_srp_domain.sv
++@@ -210,7 +210,6 @@
++       end
++       if (tx_tick_i && rxla_pend_r) begin
++         rxla_pend_r   <= 1'b0;
++-        rejoin_pend_r <= 1'b1;
++       end
++ 
++       // ---- link transitions own the state (F10.2 revert rule) -----------
+diff --git a/tb/srp_top/mutations/top-domain-lv-unwired.patch b/tb/srp_top/mutations/top-domain-lv-unwired.patch
+new file mode 100644
+index 0000000..b001f38
+--- /dev/null
++++ b/tb/srp_top/mutations/top-domain-lv-unwired.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_top.sv
+++++ b/hdl/srp/KL_srp_top.sv
++@@ -377,7 +377,7 @@
++       .rxdom_prio_i        (dec_evt_priority_w),
++       .rxdom_vid_i         (dec_evt_vid_w),
++       .rxdom_nov_i         (13'd1),
++-      .rxdom_lv_i          (dom_rx_lv_w),
+++      .rxdom_lv_i          (1'b0),
++       .periodic_tick_i     (p_periodic_r),
++       .leaveall_tick_i     (dec_la_msrp_w[SRP_LA_DOMAIN_C] || p_la_msrp_w),
++       .tx_tick_i           (join_fsm_w),
+diff --git a/tb/srp_top/mutations/top-domain-tx-every-clock.patch b/tb/srp_top/mutations/top-domain-tx-every-clock.patch
+new file mode 100644
+index 0000000..9b8a98f
+--- /dev/null
++++ b/tb/srp_top/mutations/top-domain-tx-every-clock.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_top.sv
+++++ b/hdl/srp/KL_srp_top.sv
++@@ -380,7 +380,7 @@
++       .rxdom_lv_i          (dom_rx_lv_w),
++       .periodic_tick_i     (p_periodic_r),
++       .leaveall_tick_i     (dec_la_msrp_w[SRP_LA_DOMAIN_C] || p_la_msrp_w),
++-      .tx_tick_i           (join_fsm_w),
+++      .tx_tick_i           (1'b1),
++       .dom_ev_valid_o      (dom_ev_valid_w),
++       .dom_ev_event_o      (dom_ev_event_w),
++       .dom_ev_value_o      (dom_ev_value_w),
+diff --git a/tb/srp_top/mutations/top-domain-tx-unwired.patch b/tb/srp_top/mutations/top-domain-tx-unwired.patch
+new file mode 100644
+index 0000000..8adc492
+--- /dev/null
++++ b/tb/srp_top/mutations/top-domain-tx-unwired.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_top.sv
+++++ b/hdl/srp/KL_srp_top.sv
++@@ -380,7 +380,7 @@
++       .rxdom_lv_i          (dom_rx_lv_w),
++       .periodic_tick_i     (p_periodic_r),
++       .leaveall_tick_i     (dec_la_msrp_w[SRP_LA_DOMAIN_C] || p_la_msrp_w),
++-      .tx_tick_i           (join_fsm_w),
+++      .tx_tick_i           (1'b0),
++       .dom_ev_valid_o      (dom_ev_valid_w),
++       .dom_ev_event_o      (dom_ev_event_w),
++       .dom_ev_value_o      (dom_ev_value_w),
+diff --git a/tb/srp_top/sim_main.cpp b/tb/srp_top/sim_main.cpp
+index d0f9c36..01419c6 100644
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -295,6 +295,11 @@ static bool frame_has(const std::vector<uint8_t>& f, bool msrp, int type,
+   return false;
+ }
+ 
++// our Class A Domain re-joined in this frame, JoinIn or JoinMt
++static bool dom_rejoin_in(const std::vector<uint8_t>& f) {
++  return frame_has(f, true, 4, 6, EV_JOININ) || frame_has(f, true, 4, 6, EV_JOINMT);
++}
++
+ // ---------------------------------------------------------------------------
+ // harness
+ // ---------------------------------------------------------------------------
+@@ -620,6 +625,7 @@ class SrpTopHarness {
+     if (!*group || !strcmp(group,"join")) check_mvrp_join_before_the_stream();
+     if (!*group || !strcmp(group,"lvleave")) check_withdrawal_meets_an_lv_registrar();
+     if (!*group || !strcmp(group,"lvcoll")) check_leave_expiry_collisions();
++    if (!*group || !strcmp(group,"domjoin")) check_domain_rejoin_follows_the_peer();
+ 
+     printf("TOTAL_CLOCKS %llu\n", static_cast<unsigned long long>(h.t));
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+@@ -1945,8 +1951,9 @@ class SrpTopHarness {
+   }
+ 
+   // Q2 periodictimer: a quiet declared attribute re-joins on each periodic!
+-  // (QA -> AA, then JoinMt on the next tx!); the Domain and the MVRP VID
+-  // re-join JoinIn on the same timer
++  // (QA -> AA, then JoinMt on the next tx!); the Domain re-joins on the same
++  // timer, JoinMt with no peer Domain registered (issue #184), and the MVRP
++  // VID JoinIn
+   void check_periodic_time(const std::vector<Stamp>& early, uint32_t after) {
+     std::vector<uint32_t> tk;
+     std::vector<uint32_t> dom;
+@@ -1954,7 +1961,7 @@ class SrpTopHarness {
+     for (const Stamp& s : early) {
+       if (s.ms <= after) continue;
+       if (s.p.msrp && carries(s.p, 1, own_sid(0), EV_JOINMT)) tk.push_back(s.ms);
+-      if (s.p.msrp && carries(s.p, 4, 6, EV_JOININ)) dom.push_back(s.ms);
++      if (s.p.msrp && carries(s.p, 4, 6, EV_JOINMT)) dom.push_back(s.ms);
+       if (!s.p.msrp && carries(s.p, 1, 2, EV_JOININ)) vid.push_back(s.ms);
+     }
+     Gaps gt;
+@@ -2310,12 +2317,14 @@ class SrpTopHarness {
+     for (auto& p : got) {
+       for (auto& v : p.vecs) {
+         if (v.type == 4 && v.fv.size() == 4 && v.fv[0] == 6
+-            && !v.ev.empty() && v.ev[0] == EV_JOININ) dom_rejoin = true;
++            && !v.ev.empty() && v.ev[0] == EV_JOINMT) dom_rejoin = true;
+         if (v.type == 3 && fv_u64(v.fv, 0, 8) == SIDX
+             && !v.fp.empty() && v.fp[0] == DECL_READY) ls_rejoin = true;
+       }
+     }
+-    CHECK(dom_rejoin, "F1: Domain JoinIn rides the LeaveAll cycle");
++    // the own sLA ages our Domain Registrar to LV and no peer re-declares
++    // the Domain here, so the re-join is JoinMt (802.1Q §10.7.6.3)
++    CHECK(dom_rejoin, "F1: Domain JoinMt rides the LeaveAll cycle");
+     CHECK(ls_rejoin, "F1: Listener Ready re-joins the LeaveAll cycle");
+     // registration stays published through LV; a peer re-join keeps it IN
+     CHECK(h.tk_reg(0) == 1, "F1: registration published through LV");
+@@ -2508,13 +2517,13 @@ class SrpTopHarness {
+     // (c) LeaveAll on the Listener type only, never re-declared: LV keeps
+     // Ready published, then T-MRP-LEAVE ages it to MT. The Domain row's
+     // negative: our Domain participant takes no rLA! from this lane, so no
+-    // Domain JoinIn follows it before the next periodic re-join
++    // Domain re-join (JoinIn or JoinMt) follows it before the next periodic
+     peer_answers_own_leaveall("c");
+     unreg0 = h.unreg_cnt[0];
+     h.sync();       // clean slot: the next periodic re-join is >= 650 ms away
+     h.feed(mrpdu_body(true, {la_only(3, 8, true)}), true);
+     rj = h.wait_frame(true, 400, [](const std::vector<uint8_t>& fr) {
+-      return frame_has(fr, true, 4, 6, EV_JOININ);
++      return dom_rejoin_in(fr);
+     });
+     CHECK(rj.empty(), "F5c: a Listener-only LeaveAll never re-declares our Domain");
+     h.run_ms(4100);
+@@ -2535,13 +2544,13 @@ class SrpTopHarness {
+            {EV_JOININ}, {}}}};
+     h.feed(mrpdu_body(true, {ta}), true);
+     rj = h.wait_frame(true, 400, [](const std::vector<uint8_t>& fr) {
+-      return frame_has(fr, true, 4, 6, EV_JOININ);
++      return dom_rejoin_in(fr);
+     });
+     CHECK(rj.empty(), "F5c: a Talker Advertise LeaveAll never re-declares our Domain");
+     h.sync();
+     h.feed(mrpdu_body(true, {la_only(2, 34, false)}), true);
+     rj = h.wait_frame(true, 400, [](const std::vector<uint8_t>& fr) {
+-      return frame_has(fr, true, 4, 6, EV_JOININ);
++      return dom_rejoin_in(fr);
+     });
+     CHECK(rj.empty(), "F5c: a Talker Failed-only LeaveAll never re-declares our Domain");
+     CHECK(h.malformed == 0, "F5: no PDU we fed was tolerance-discarded");
+@@ -2935,6 +2944,51 @@ class SrpTopHarness {
+     }
+   }
+ 
++  // ==== DJ. our Domain re-join follows the peer's Domain (issue #184) =====
++  // 802.1Q-2018 §10.7.6.3: sJ encodes JoinIn only while the Registrar of the
++  // declared value is IN, JoinMt in MT or LV; Milan v1.2 §4.2.7.2.2: rLv!
++  // takes IN to MT at once. Through the real decoder, cadence and encoder, on
++  // a fresh model, all before the first own LeaveAll (>= 10 s from reset).
++  // Each step takes the first Domain re-join (JoinIn or JoinMt) on the wire.
++  void check_domain_rejoin_follows_the_peer() {
++    h.reset();
++    d->link_up_i = 1; h.idle(10);
++    auto rejoin_ev = [](const std::vector<uint8_t>& f) {
++      if (f.empty()) return -1;
++      return frame_has(f, true, 4, 6, EV_JOININ) ? EV_JOININ : EV_JOINMT;
++    };
++    auto peer_domain = [](bool la, int ev) {
++      return Msg{4, 4, false, {Vec{la, 1, fv_domain(6, 3, 2), {ev}, {}}}};
++    };
++    // DJ1: nothing registers our Domain
++    h.sync();
++    auto f = h.wait_frame(true, 1600, dom_rejoin_in);
++    CHECK(rejoin_ev(f) == EV_JOINMT, "DJ1: no peer Domain: our re-join is JoinMt, got %d",
++          rejoin_ev(f));
++    // DJ2: the peer declares the same Domain {6, 3, 2}
++    h.sync();
++    h.feed(mrpdu_body(true, {peer_domain(false, EV_JOININ)}), true);
++    f = h.wait_frame(true, 1600, dom_rejoin_in);
++    CHECK(rejoin_ev(f) == EV_JOININ, "DJ2: the peer declaring our Domain: JoinIn, got %d",
++          rejoin_ev(f));
++    // DJ3: the peer's LeaveAll MRPDU: the Domain lane's LeaveAll (IN -> LV),
++    // then the peer's Domain in the same vector (LV -> IN); rLA! re-declares
++    // ours at the next T-MRP-JOIN
++    h.sync();
++    h.feed(mrpdu_body(true, {peer_domain(true, EV_JOINMT), la_only(1, 25, false),
++                             la_only(2, 34, false), la_only(3, 8, true)}), true);
++    f = h.wait_frame(true, 400, dom_rejoin_in);
++    CHECK(rejoin_ev(f) == EV_JOININ,
++          "DJ3: a peer LeaveAll re-declaring the Domain: our re-join is JoinIn, got %d",
++          rejoin_ev(f));
++    // DJ4: the peer withdraws its Domain: the next re-join is JoinMt
++    h.sync();
++    h.feed(mrpdu_body(true, {peer_domain(false, EV_LV)}), true);
++    f = h.wait_frame(true, 1600, dom_rejoin_in);
++    CHECK(rejoin_ev(f) == EV_JOINMT, "DJ4: the peer's Lv: the next re-join is JoinMt, got %d",
++          rejoin_ev(f));
++  }
++
+   const milan::tb::Model<Vsrp_top_wrap> model;
+   Vsrp_top_wrap* const d;
+   H h;
+@@ -2952,6 +3006,7 @@ int main(int argc, char** argv) {
+   if (*group && strcmp(group,"armdelay") && strcmp(group,"phases") && strcmp(group,"edge")
+       && strcmp(group,"peer") && strcmp(group,"congestion")
+       && strcmp(group,"guards") && strcmp(group,"restart")
+-      && strcmp(group,"timers") && strcmp(group,"join") && strcmp(group,"lvleave") && strcmp(group,"lvcoll")) return 2;
++      && strcmp(group,"timers") && strcmp(group,"join") && strcmp(group,"lvleave") && strcmp(group,"lvcoll")
++      && strcmp(group,"domjoin")) return 2;
+   return harness.run(group);
+ }
