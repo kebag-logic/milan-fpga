@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -498,7 +498,7 @@
+   assign gate_open_acc_w = rst_n && gate_acc_w && gate_open_i;
+ 
+   always_ff @(posedge clk_i) begin : walk_tspec_write
+-    if (gate_open_acc_w) begin
++    if (gate_open_acc_w && !rec_valid_r[gate_src_i]) begin
+       wtsp_r[gate_src_i] <= {gate_max_frame_i, gate_max_interval_i,
+                              gate_prio_i, gate_rank_i, gate_acc_lat_i};
+     end

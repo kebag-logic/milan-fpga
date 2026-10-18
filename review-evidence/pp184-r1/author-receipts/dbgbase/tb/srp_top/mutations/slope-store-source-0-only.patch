@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_admission.sv
++++ b/hdl/srp/KL_srp_admission.sv
+@@ -162,7 +162,7 @@
+   // stage 3: saturating 32-bit slope (see banner) — iv <= IV_MAX_C is the
+   // exact product (67108 x 64000 < 2^32)
+   always_ff @(posedge clk_i) begin : slope_store
+-    if (rst_n) begin
++    if (rst_n && (cidx_q2_r == '0)) begin
+       slope_q_r[cidx_q2_r] <= (iv_bytes_r > IV_MAX_C) ? SLOPE_SAT_C
+                                                       : slope_prod_w[31:0];
+     end

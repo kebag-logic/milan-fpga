@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3980,7 +3980,7 @@
+       .ev_amap_count_i       (amap_edit_count_o),
+       .ev_amap_excl_eid_i    (aecp_rgy_eid_w),
+       .ev_ctr_i              (ctr_change_i),
+-      .ev_ctr_type_i         (ctr_change_desc_type_i),
++      .ev_ctr_type_i         (ctr_change_desc_index_i),
+       .ev_ctr_index_i        (ctr_change_desc_index_i),
+       .ev_cmd_i              (aecp_eff_notify_stb_nc_w),
+       .ev_cmd_class_i        (aecp_eff_notify_cls_nc_w),

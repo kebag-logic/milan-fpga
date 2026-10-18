@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -772,7 +772,7 @@
+           evt_tk_unregistered_o[s] <= 1'b1;
+         end else if (reg_rx_hit_w[s]
+                      && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+-          if (reg_r[s] == R_IN_C) begin
++          if (reg_r[s] != R_MT_C) begin
+             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
+             evt_tk_unregistered_o[s] <= 1'b1;
+           end

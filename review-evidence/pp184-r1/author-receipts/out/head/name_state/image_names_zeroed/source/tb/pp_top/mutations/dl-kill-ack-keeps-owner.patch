@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3574,7 +3574,7 @@
+       //! a kill the scoreboard honoured has released the hold: the RX-slot
+       //! return one clock later must not release its id again, since a new
+       //! admission may already own it
+-      if (sb_rel_aecp_w || sb_kill_ack_w) begin
++      if (sb_rel_aecp_w) begin
+         aecp_sb_active_r       <= 1'b0;
+         aecp_sb_done_pending_r <= 1'b0;
+       end

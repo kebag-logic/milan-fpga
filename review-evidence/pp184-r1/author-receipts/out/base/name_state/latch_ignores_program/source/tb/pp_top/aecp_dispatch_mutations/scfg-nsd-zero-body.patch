@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -2070,7 +2070,7 @@
+ 
+ #! E_SCFG's range check lands here: CHECK_ARG wrote BAD_ARGUMENTS, and the arm
+ #! answers NO_SUCH_DESCRIPTOR with the CURRENT index instead (issue #179).
+-place(E_SCFGNSD, [u('SET_STATUS', imm=ST_OK)] + _scfg_cur(E_SCFGNSD + 1) + [
++place(E_SCFGNSD, [u('MOVE', rd=2, ra=0, imm=0), u('MOVE', rd=1, ra=0, imm=0)] + [
+     u('SET_STATUS', imm=ST_NOSUCH),
+     u('BRANCH', imm=E_SCFGEMT),
+ ])

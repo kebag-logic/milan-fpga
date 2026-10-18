@@ -1,0 +1,12 @@
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -500,8 +500,7 @@
+                  && (ev_ctr_index_i == 16'd0)) begin
+       ctr_ev_ok_w = 1'b1;
+       ctr_ev_ix_w = CTX_W_C'(N_STREAM_IN_P + N_STREAM_OUT_P);
+-    end else if ((ev_ctr_type_i == DT_CLOCK_DOMAIN_C)
+-                 && (ev_ctr_index_i == 16'd0)) begin
++    end else if (ev_ctr_type_i == DT_CLOCK_DOMAIN_C) begin
+       ctr_ev_ok_w = 1'b1;
+       ctr_ev_ix_w = CTX_W_C'(N_STREAM_IN_P + N_STREAM_OUT_P + 1);
+     end

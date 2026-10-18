@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1369,7 +1369,7 @@
+ # answers propagation_delay 0 as the honest "not measured" value.
+ place(E_GAVB, [
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # miss -> NO_SUCH_DESCRIPTOR
+-    u('BR_STATUS', cnd=0, imm=E_GAVB + 3),
++    u('NOP'),
+     u('SET_STATUS', imm=ST_OK),
+     u('GATHER_EXT', rd=1, cnd=0xB, imm=0),       # grandmaster_id
+     u('GATHER_EXT', rd=2, cnd=0xB, imm=1),       # {pdelay, domain, flags, count}

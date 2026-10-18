@@ -1,0 +1,12 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1341,8 +1341,7 @@
+   logic gstri_w, gavb_w, gasp_w;
+   assign gstri_w = aem_w
+                    && (txn_w.opcode == OP_GET_STREAM_INFO_C);
+-  assign gavb_w  = aem_w
+-                   && (txn_w.opcode == OP_GET_AVB_INFO_C);
++  assign gavb_w  = (txn_w.opcode == OP_GET_AVB_INFO_C);
+   assign gasp_w  = aem_w
+                    && (txn_w.opcode == OP_GET_AS_PATH_C);
+   //! ...and the read-side set's five, on the same terms

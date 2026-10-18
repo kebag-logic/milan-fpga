@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -324,7 +324,7 @@
+   logic       la_cancel_r;
+   logic       la_done_w;
+   logic       join_fsm_w;
+-  assign join_fsm_w = p_join_fsm_r || la_done_w;
++  assign join_fsm_w = p_join_fsm_r;
+   logic [1:0] enc_la_r;        // encoder LeaveAllEvent lanes {MVRP, MSRP}
+ 
+   // ========================================================================

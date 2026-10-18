@@ -1,0 +1,12 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1315,8 +1315,7 @@
+   logic ssfmt_w, ssinfo_w;
+   assign ssfmt_w  = aem_w
+                     && (txn_w.opcode == OP_SET_STREAM_FMT_C);
+-  assign ssinfo_w = aem_w
+-                    && (txn_w.opcode == OP_SET_STREAM_INFO_C);
++  assign ssinfo_w = (txn_w.opcode == OP_SET_STREAM_INFO_C);
+   assign setc_w   = ssrate_w | sclks_w | sctrl_w | ssfmt_w | ssinfo_w;
+   logic scfg_w;
+   assign scfg_w   = aem_w

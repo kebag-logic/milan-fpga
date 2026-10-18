@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -401,7 +401,7 @@
+                      && (evt_vid_i == {4'd0, vid_r[s]});
+       reg_rx_hit_w[s] = evt_valid_i && evt_msrp_i && rec_valid_r[s]
+                      && (evt_attr_type_i == SRP_MSRP_ATTR_LISTENER_C)
+-                     && (evt_stream_id_i == sid_r[s]);
++                     ;
+     end
+   end
+ 

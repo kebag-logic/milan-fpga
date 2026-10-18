@@ -1,0 +1,10 @@
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -953,6 +953,7 @@
+           const uint32_t end_ms = d->now_ms_o + 20;
+           while (h.t + k < close) h.cycle();
+           h.rx_cycles.clear();
++          h.idle(401);
+           if (listener) talker_event(target, EV_LV);
+           else listener_event(target, EV_LV, fp);
+           for (uint64_t cycle : h.rx_cycles) collisions += cycle + 1 == close;

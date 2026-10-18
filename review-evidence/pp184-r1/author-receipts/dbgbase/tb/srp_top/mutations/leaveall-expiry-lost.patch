@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -987,7 +987,7 @@
+ 
+   // unsigned wrap maps below-base slots to huge indices — one bound check
+   assign cad_exp_ix_w    = 32'(exp_slot_i) - CAD_SLOT_BASE_P;
+-  assign cad_hit_w       = exp_valid_i && (cad_exp_ix_w < N_CAD_C);
++  assign cad_hit_w       = exp_valid_i && (cad_exp_ix_w != CAD_LA_MSRP_C) && (cad_exp_ix_w < N_CAD_C);
+   assign join_due_w = cad_hit_w && (cad_exp_ix_w == CAD_JOIN_MSRP_C);
+   assign enc_msrp_full_w = (32'(enc_cnt_msrp_w) == ENC_DEPTH_P);
+ 

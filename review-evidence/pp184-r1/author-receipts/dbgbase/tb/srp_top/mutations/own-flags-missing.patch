@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -426,7 +426,7 @@
+                                                 : LA_TYPES_MSRP_C;
+   // AttributeType 1..4 -> bit 0..3 (type 4 wraps: 2'b00 - 1 = 3)
+   assign la_bit_w   = 4'b0001 << (run_type_r[1:0] - 2'd1);
+-  assign la3_w      = (la_act_r && ((la_types_w & la_bit_w & ~la_seen_r) != '0))
++  assign la3_w      = (1'b0 && la_act_r && ((la_types_w & la_bit_w & ~la_seen_r) != '0))
+                     ? 3'd1 : 3'd0;
+   // supported types the drain carried no vector of: each gets a
+   // LeaveAll-only message after the drained ones, lowest AttributeType first

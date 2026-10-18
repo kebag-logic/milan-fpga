@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -94,7 +94,7 @@
+     //! stream sinks N = P-N-STREAM-IN
+     parameter int unsigned N_SINKS_P   = 8,
+     //! T-MRP-JOIN in ms (F08.1: 200)
+-    parameter int unsigned JOIN_MS_P     = 200,
++    parameter int unsigned JOIN_MS_P     = 400,
+     //! T-MRP-PERIODIC in ms (F08.1: 1000)
+     parameter int unsigned PERIODIC_MS_P = 1000,
+     //! T-MRP-LEAVE in ms (F08.1: 5000, coupled to Δ13)

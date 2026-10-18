@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -727,7 +727,7 @@
+       .join_tick_i    (enc_join_r),
+       .leaveall_i     (enc_la_r),
+       .la_prepare_i   (la_wait_r),
+-      .la_cancel_i    (la_cancel_r || (|dec_la_msrp_w)),
++      .la_cancel_i    ((|dec_la_msrp_w)),
+       .la_prepare_done_o (la_done_w),
+       .la_tx_o        (p_la_msrp_w),
+       .own_mac_i      (own_mac_i),

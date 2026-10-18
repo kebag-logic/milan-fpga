@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -2077,7 +2077,7 @@
+ 
+ place(E_SCFGEMT, [
+     u('BUILD_HDR', ra=15, rb=13),
+-    u('BUILD_FLD', ra=2, fmt=FMT_W),             # reserved            @24
++    u('NOP'),
+     u('BUILD_FLD', ra=1, fmt=FMT_W),             # configuration_index @26
+     u('SEND_RESP'),
+     u('END'),

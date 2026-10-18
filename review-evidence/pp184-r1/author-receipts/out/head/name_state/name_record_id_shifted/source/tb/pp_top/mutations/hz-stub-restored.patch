@@ -1,0 +1,24 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1496,6 +1496,9 @@
+     hz_class_w = 4'(PP_HZ_RO_SNAPSHOT);
+     hz_key_w   = HZ_KEY_NONE_C;
+     if (hz_protocol_w == 3'(PP_PROTO_ACMP)) begin
++      hz_class_w = 4'(PP_HZ_STREAM_CFG);
++      hz_key_w = {13'd0, hz_protocol_w};
++    end else if (1'b0) begin
+       //! GET_TX_STATE, GET_TX_CONNECTION and GET_RX_STATE are reads (F03.7
+       //! RO_SNAPSHOT); every other step is the stream's STREAM_CFG
+       if (hz_acmp_tkr_w) begin
+@@ -1507,7 +1510,10 @@
+         hz_class_w = (hdr_msg_type_r == 4'd10) ? 4'(PP_HZ_RO_SNAPSHOT)
+                                                : 4'(PP_HZ_STREAM_CFG);
+       end
+-    end else if (hz_aem_cmd_w) begin
++    end else if (hz_aem_cmd_w && ((hz_opcode_w == 16'h002C) || (hz_opcode_w == 16'h002D))) begin
++      hz_class_w = 4'(PP_HZ_MAP_CFG);
++      hz_key_w = {13'd0, hz_protocol_w};
++    end else if (1'b0) begin
+       unique case (hz_opcode_w)
+         16'h0006: begin                        // SET_CONFIGURATION
+           hz_class_w = 4'(PP_HZ_CFG_BARRIER);

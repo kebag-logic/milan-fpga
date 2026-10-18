@@ -1,0 +1,20 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -873,7 +873,7 @@
+       imm=GAMAP_PAGE_MAX + 1),
+     u('BR_STATUS', cnd=3, imm=E_GAMAP + 9),
+     u('MOVE', rd=10, ra=0, imm=0xFFFF),          # above it: number_of_mappings
+-    u('SET_MASKED', rd=6, ra=12, rb=10),         # := 0, and no record emitted
++    u('NOP'),                                    # := 0, and no record emitted
+     u('BR_STATUS', cnd=0, imm=GAMAP_EMIT),       # E_GAMAP + 9, NSD: the emit
+     u('SET_STATUS', imm=ST_OK),
+     u('CHECK_ARG', ra=5, rb=12, fmt=FMT_W,       # number_of_maps != 0;
+@@ -881,7 +881,7 @@
+     u('CHECK_ARG', ra=13, rb=5, fmt=FMT_W,       # map_index < number_of_maps
+       cnd=REL_LT, imm=GAMAP_EMIT),               # else BAD_ARGUMENTS (§7.4.44.1)
+     u('BR_STATUS', cnd=3, imm=GAMAP_EMIT),       # the page fits (lt of +5)
+-    u('SET_STATUS', imm=ST_NORES),               # it does not: NO_RESOURCES
++    u('NOP'),                                    # it does not: NO_RESOURCES
+     u('BUILD_HDR', ra=15, rb=13),                # GAMAP_EMIT, all statuses:
+     u('BUILD_FLD', ra=8, fmt=FMT_W),             # descriptor_type       @24
+     u('BUILD_FLD', ra=13, fmt=FMT_D),            # descriptor_index @26 + map_index @28

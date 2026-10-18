@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1092,7 +1092,7 @@
+       if (la_done_w) begin
+         // Repeated expiries coalesce until this action is accepted. A
+         // canceled preparation must not consume a newer timer intent.
+-        if (!la_cancel_r) la_msrp_pend_r <= 1'b0;
++        la_msrp_pend_r <= 1'b0;
+         la_wait_r   <= 1'b0;
+         rnd_act_r   <= 1'b1;
+         td_tk_r     <= 1'b0;

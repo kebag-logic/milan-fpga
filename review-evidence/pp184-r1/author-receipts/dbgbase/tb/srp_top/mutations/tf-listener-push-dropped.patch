@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -971,7 +971,7 @@
+   end
+ 
+   always_ff @(posedge clk_i) begin : tf_ls_write
+-    if (tf_push_w[1]) begin
++    if (tf_push_w[1] && !tf_push_w[0]) begin
+       tf_ls_ram_r[tf_wptr_r[1]]
+         <= {ls_arm_cancel_w, ls_arm_slot_w, ls_arm_owner_w, ls_arm_dl_w};
+     end

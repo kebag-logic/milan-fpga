@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -374,7 +374,7 @@
+ # finished building is not one, so it becomes ENTITY_MISBEHAVING (IEEE
+ # 1722.1-2021 Table 7-141: an internal error). The stub falls into E_FAILSAFE.
+ place(E_DLKILL, [
+-    u('BR_STATUS', cnd=0, imm=E_FAILSAFE),
++    u('NOP'),
+     u('SET_STATUS', imm=ST_EMISB),
+ ])
+ assert E_DLKILL + 2 == E_FAILSAFE, "E_DLKILL must fall into E_FAILSAFE"

@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1528,7 +1528,7 @@
+         end
+         16'h0014, 16'h0016: begin              // SET_SAMPLING_RATE, SET_CLOCK_SOURCE
+           hz_class_w = 4'(PP_HZ_CLOCK_CFG);
+-          hz_key_w   = hz_dkey_w;
++          hz_key_w   = HZ_KEY_NONE_C;
+         end
+         16'h0010: begin                        // SET_NAME
+           hz_class_w = 4'(PP_HZ_NAME_WR);

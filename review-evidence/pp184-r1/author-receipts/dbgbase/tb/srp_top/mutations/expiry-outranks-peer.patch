@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1206,7 +1206,7 @@
+       // Table 10-5 rLA!, per application (10 §6.5): Start leavealltimer (a
+       // fresh draw re-arms the slot) and Passive (an unaccepted own action
+       // is dropped; an accepted sLA is never retracted).
+-      if (|dec_la_msrp_w) begin
++      if ((|dec_la_msrp_w) && !(cad_hit_w && (cad_exp_ix_w == CAD_LA_MSRP_C))) begin
+         need_draw_r[0] <= 1'b1;
+         la_msrp_pend_r <= 1'b0;
+         if (la_wait_r) la_cancel_r <= 1'b1;

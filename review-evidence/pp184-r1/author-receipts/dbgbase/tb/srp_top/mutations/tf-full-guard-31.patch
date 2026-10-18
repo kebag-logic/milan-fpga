@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -960,7 +960,7 @@
+   logic [1:0] tf_push_w;
+   logic [1:0] tf_pop_w;
+ 
+-  assign tf_push_w[0] = tk_arm_v_w && (tf_cnt_r[0] != 6'(TFD_C));
++  assign tf_push_w[0] = tk_arm_v_w && (tf_cnt_r[0] != 6'(TFD_C - 1));
+   assign tf_push_w[1] = ls_arm_v_w && (tf_cnt_r[1] != 6'(TFD_C));
+ 
+   always_ff @(posedge clk_i) begin : tf_tk_write

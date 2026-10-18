@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -342,7 +342,7 @@
+                         || ((st_r == E_IDLE) && la_prepare_i)) : start1_w;
+   assign la_prepare_done_o = ((st_r == E_ALLOC) && preparing_r && alloc_gnt_i)
+                           || ((st_r == E_COLLECT) && la_prepare_i);
+-  assign la_tx_o = la_prepare_done_o && ((st_r == E_COLLECT) || la_act_r) && !la_cancel_i;
++  assign la_tx_o = ((st_r == E_ALLOC) && preparing_r) && ((st_r == E_COLLECT) || la_act_r) && !la_cancel_i;
+   assign ev_ready_o  = !tgt_full_w && !busy_app_w && !start_tgt_w;
+ 
+   always_ff @(posedge clk_i) begin : pend_write

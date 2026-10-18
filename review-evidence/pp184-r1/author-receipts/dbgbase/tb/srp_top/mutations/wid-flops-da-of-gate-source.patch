@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -514,7 +514,7 @@
+     end
+     assign wid_w = wid_r[wsrc_r];
+   end else begin : g_wid_flops
+-    assign wid_w = {sid_r[wsrc_r], da_r[wsrc_r], vid_r[wsrc_r]};
++    assign wid_w = {sid_r[wsrc_r], da_r[gate_src_i], vid_r[wsrc_r]};
+   end
+ 
+   // FirstValue of the walk source (F10.7 layout; byte 0 at [271:264])

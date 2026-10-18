@@ -1,0 +1,13 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -749,7 +749,9 @@
+       // Test expiry before rLv so its one-clock strobe cannot be masked.
+       // ---- per-sink registrar events ------------------------------------
+       for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+-        if (reg_rx_hit_w[s] && rx_registering_w) begin
++        if (leaveall_any_w[s] && (reg_r[s] == R_IN_C)) begin
++          reg_r[s] <= R_LV_C; tpend_r[s] <= T_ARM_C;
++        end else if (reg_rx_hit_w[s] && rx_registering_w) begin
+           // registering event: -> IN; latch type + payloads; a type change
+           // while IN/LV is the in-place swap (strobe, no unregistration)
+           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;

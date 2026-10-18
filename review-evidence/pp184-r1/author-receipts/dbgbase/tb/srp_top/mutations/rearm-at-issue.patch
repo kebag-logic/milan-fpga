@@ -1,0 +1,14 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1028,9 +1028,9 @@
+   assign la_msrp_age_w = now_ms_i - cad_dl_r[CAD_LA_MSRP_C];
+   assign la_mvrp_age_w = now_ms_i - cad_dl_r[CAD_LA_MVRP_C];
+   assign la_rearm_w[0] = need_draw_r[0] || (dr_inflight_r && !dr_app_r)
+-                      || la_msrp_age_w[31];
++                      || cad_pend_r[CAD_LA_MSRP_C];
+   assign la_rearm_w[1] = need_draw_r[1] || (dr_inflight_r && dr_app_r)
+-                      || la_mvrp_age_w[31];
++                      || cad_pend_r[CAD_LA_MVRP_C];
+ 
+   assign draw_kind_o = 3'd3;   // T-MRP-LEAVEALL range (F08.2)
+ 
