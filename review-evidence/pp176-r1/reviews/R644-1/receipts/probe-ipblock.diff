@@ -1,0 +1,12 @@
+--- mux/tb/pp_top/sim_main.cpp	2026-10-17 23:45:23.000000000 +0200
++++ probe/tb/pp_top/sim_main.cpp	2026-10-18 02:49:10.819342381 +0200
+@@ -8127,6 +8127,9 @@
+       putbe(&p[0], ty, 2); putbe(&p[2], ix, 2);
+       putbe(&p[4], flags, 4);
+       putbe(&p[24], lat, 4);
++      // reviewer probe: a non-zero 2021 ip block (@70..@107), so the
++      // byte-exact echo rows see it
++      for (int i = 46; i < 84; ++i) p[i] = uint8_t(0xC0 + i);
+       return p;
+     };
+     const uint32_t ACC_LAT = 0x20000000u;

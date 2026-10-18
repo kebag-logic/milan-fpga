@@ -1,0 +1,6 @@
+aecp_cmds sweep: 596404 trials, 0 timeouts, written to $PACKET/receipts/runs/run/mux-aecp_cmds-5/obj_dir/observed.json
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E NSUPPE: observed {"answers": {"11": "96"}, "cdls": "60-100", "floor": 60}, recorded {"answers": {"11": "96, 97, 98, 99, 100"}, "cdls": "60, 96-100", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SIBAD: observed {"answers": {"7": "96"}, "cdls": "12-59", "floor": 12}, recorded {"answers": {"7": "96"}, "cdls": "12-59, 61-95", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SIRUN: observed {"answers": {"12": "96"}, "cdls": "60-96", "floor": 60}, recorded {"answers": {"12": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "03de87896bb55be4073b1d5b14e6aa9b01c92cbdd9a1029e43ec09a82efdeb77", recorded "4504ee23cb67a62ccf4a1d529bc6e1e9489a41c2b414e7c708cf4d409d8bf407" (make -C tb/aecp_cmds record)
+aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL

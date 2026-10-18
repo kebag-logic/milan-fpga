@@ -1,0 +1,76 @@
+base-pp_top-none: rc=0 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9976 checks, 0 failures
+    fails: (none)
+head-aecp_cmds-none: rc=0 | aecp_cmds: 596404 trials swept; 176 checks: 176 PASS, 0 FAIL
+    fails: (none)
+head-pp_top-none: rc=0 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 0 failures
+    fails: (none)
+len-base-aecp_cmds-none: rc=2 | 
+    fails: (none)
+len-head-aecp_cmds-none: rc=2 | 
+    fails: (none)
+mux-aecp_cmds-0: rc=1 | aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: (none)
+mux-aecp_cmds-1: rc=1 | aecp_cmds: 596512 trials swept; 176 checks: 174 PASS, 2 FAIL
+    fails: decode: SET_STREAM_INFO: the shortest AEM 0x000E the engine dispatches to SINFO is cdl 96, the table's floor is 60, 0x000E BADARG observed {"answers": {"7": "96"}, 0x000E NSUPPE observed {"answers": {"11": "echo"}, 0x000E SIBAD observed {"answers": {"7": "96"}, 0x000E SINFO observed {"answers": {"0": "96"}, 0x000E SIRUN observed {"answers": {"12": "96"}
+mux-aecp_cmds-2: rc=1 | aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: 0x000E BADARG observed {"answers": {"7": "echo"}, 0x000E NSUPPE observed {"answers": {"11": "echo"}, 0x000E SINFO observed {"answers": {"0": "echo"}, 0x000E SIRUN observed {"answers": {"12": "echo"}
+mux-aecp_cmds-5: rc=1 | aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: 0x000E NSUPPE observed {"answers": {"11": "96"}, 0x000E SIBAD observed {"answers": {"7": "96"}, 0x000E SIRUN observed {"answers": {"12": "96"}
+mux-aecp_cmds-8: rc=1 | aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: (none)
+mux-aecp_cmds-9: rc=1 | aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: 0x000E NSUPPE observed {"answers": {"11": "96"}
+mux-aecp_cmds-10: rc=1 | aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: (none)
+mux-aecp_cmds-11: rc=1 | aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: (none)
+mux-aecp_cmds-13: rc=1 | aecp_cmds: 596475 trials swept; 176 checks: 174 PASS, 2 FAIL
+    fails: decode: SET_STREAM_INFO: the shortest AEM 0x000E the engine dispatches to SINFO is cdl 59, the table's floor is 60, 0x000E BADARG observed {"answers": {"7": "96"}, 0x000E NSUPPE observed {"answers": {"11": "96, 97, 98, 99, 100"}, 0x000E SIBAD observed {"answers": {"7": "96"}, 0x000E SINFO observed {"answers": {"0": "96"}, 0x000E SIRUN observed {"answers": {"12": "96"}
+mux-aecp_cmds-14: rc=1 | aecp_cmds: 596477 trials swept; 176 checks: 174 PASS, 2 FAIL
+    fails: decode: SET_STREAM_INFO: the shortest AEM 0x000E the engine dispatches to SINFO is cdl 61, the table's floor is 60, 0x000E BADARG observed {"answers": {"7": "96"}, 0x000E NSUPPE observed {"answers": {"11": "96, 97, 98, 99, 100"}, 0x000E SIBAD observed {"answers": {"7": "96"}, 0x000E SINFO observed {"answers": {"0": "96"}, 0x000E SIRUN observed {"answers": {"12": "96"}
+mux-aecp_cmds-15: rc=1 | aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: 0x000E SIRUN observed {"answers": {"12": "96"}
+mux-aecp_cmds-16: rc=1 | aecp_cmds: 596440 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: 0x000E BADARG observed {"answers": {"7": "96"}
+mux-aecp_cmds-17: rc=1 | aecp_cmds: 596404 trials swept; 176 checks: 175 PASS, 1 FAIL
+    fails: 0x000E SINFO observed {"answers": {"0": "96", "2": "96"}
+mux-pp_top-0: rc=0 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 0 failures
+    fails: (none)
+mux-pp_top-1: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 8 failures
+    fails: W24g, W24g1, W24g2, W24i, W24j, W24k, W24l, W25b3
+mux-pp_top-2: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 7 failures
+    fails: W24g, W24g2, W24i, W24j, W24k, W24l, W25b3
+mux-pp_top-3: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 6 failures
+    fails: W24g, W24i, W24j, W24k, W24l, W25b3
+mux-pp_top-4: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 6 failures
+    fails: W24g, W24i, W24j, W24k, W24l, W25b3
+mux-pp_top-5: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 6 failures
+    fails: W24m, W24m1, W24m2, W24h2, W25b2, W25b3
+mux-pp_top-6: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 8 failures
+    fails: W24g1, W24g2, W24k, W24l2, W24m1, W24h2, W25b2, W25b3
+mux-pp_top-7: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 9 failures
+    fails: W24d, W24e, W24f, W24j, W24l2, W24m1, W24h2, W25b2, W25b3
+mux-pp_top-8: rc=0 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 0 failures
+    fails: (none)
+mux-pp_top-9: rc=0 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 0 failures
+    fails: (none)
+mux-pp_top-10: rc=0 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 0 failures
+    fails: (none)
+mux-pp_top-11: rc=0 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 0 failures
+    fails: (none)
+mux-pp_top-12: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 6 failures
+    fails: W24g, W24i, W24j, W24k, W24l, W25b3
+mux-pp_top-13: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 8 failures
+    fails: W24g, W24g1, W24g2, W24i, W24j, W24k, W24l, W25b3
+mux-pp_top-14: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 8 failures
+    fails: W24g, W24g1, W24g2, W24i, W24j, W24k, W24l, W25b3
+mux-pp_top-15: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 1 failures
+    fails: W25b3
+mux-pp_top-16: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 6 failures
+    fails: W24k, W24l2, W24m1, W24h2, W25b2, W25b3
+mux-pp_top-17: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 6 failures
+    fails: W24i, W24l2, W24m1, W24h2, W25b2, W25b3
+probe-pp_top-0: rc=0 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 0 failures
+    fails: (none)
+probe-pp_top-8: rc=1 | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9985 checks, 1 failures
+    fails: W24a

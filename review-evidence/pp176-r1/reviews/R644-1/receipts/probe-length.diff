@@ -1,0 +1,22 @@
+--- $PACKET/scratch/head/tb/aecp_cmds/sim_main.cpp	2026-10-17 23:45:23.000000000 +0200
++++ $PACKET/scratch/len-head/tb/aecp_cmds/sim_main.cpp	2026-10-18 03:11:55.407951688 +0200
+@@ -308,7 +308,7 @@
+     }
+     Tpl f; snprintf(nm, sizeof nm, "type@24=%04X,flags@28=20000000", t); f.name = nm;
+     put16(f.bytes, 24, t); put32(f.bytes, 28, 0x20000000u);
+-    f.cdls = {60, 96};                // the 1722.1-2013 and 2021 bodies
++    f.cdls = {60, 96, 97, 100, 140};  // reviewer length probe
+     out.push_back(f);
+     Tpl g = f; g.name += ",latency@48=80000000"; put32(g.bytes, 48, 0x80000000u);
+     out.push_back(g);
+--- $PACKET/scratch/base/tb/aecp_cmds/sim_main.cpp	2026-10-12 07:53:42.000000000 +0200
++++ $PACKET/scratch/len-base/tb/aecp_cmds/sim_main.cpp	2026-10-18 03:11:55.409596017 +0200
+@@ -308,7 +308,7 @@
+     }
+     Tpl f; snprintf(nm, sizeof nm, "type@24=%04X,flags@28=20000000", t); f.name = nm;
+     put16(f.bytes, 24, t); put32(f.bytes, 28, 0x20000000u);
+-    f.cdls = {96};
++    f.cdls = {60, 96, 97, 100, 140};  // reviewer length probe
+     out.push_back(f);
+     Tpl g = f; g.name += ",latency@48=80000000"; put32(g.bytes, 48, 0x80000000u);
+     out.push_back(g);
