@@ -1,0 +1,258 @@
+# excerpt: full file sha256 9946f44c456bfdc2ed4b9874bfed5d5e5c39125fedcfc52c45ba91af68a60a36, 881951 bytes, kept in scratch
+# --- first 80 lines
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sun Oct 18 16:26:16 2026
+# Process ID         : 1102869
+# Current directory  : <data>/tmp/pp181-a635/route-r2-head760/work/ax7101/gateware
+# Command line       : vivado -mode batch -source baseline_integrated.tcl -nojournal -log baseline.log
+# Log file           : <data>/tmp/pp181-a635/route-r2-head760/work/ax7101/gateware/baseline.log
+# Journal file       : 
+# Running On         : <host>
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 64
+# CPU Logical cores  : 128
+# Host memory        : 65724 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 104378 MB
+# Available Virtual  : 79794 MB
+#-----------------------------------------------------------
+Sourcing tcl script '<home>/.Xilinx/Vivado/Vivado_init.tcl'
+source baseline_integrated.tcl
+# set_param synth.maxThreads 1
+# create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2
+# set_msg_config -id {Common 17-55} -new_severity {Warning}
+# set_param general.maxThreads 32
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/pp_acmp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/pp_acmp_pkg.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/adp/pp_adp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/adp/pp_adp_pkg.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/ucpu_pkg.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/ucpu_pkg.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/common/pp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/common/pp_pkg.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/srp/srp_pkg.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/srp/srp_pkg.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/KL_acmp_talker.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/KL_acmp_talker.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/adp/KL_adp_engine.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/adp/KL_adp_engine.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_desc_store.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_engine.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_engine.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_notify.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_notify.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/aecp/KL_aecp_ucpu.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/common/KL_pp_prng.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/common/KL_pp_prng.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/common/KL_pp_timer_service.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/common/KL_pp_timer_service.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/maap/KL_pp_maap.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/maap/KL_pp_maap.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/packet_engine/KL_pp_event_router.sv}]
+# read_verilog -v {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv}
+# set_property file_type SystemVerilog [get_files {<data>/tmp/pp181-a635/parent/protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv}]
+# --- key lines (line: text)
+26: source baseline_integrated.tcl
+263: # set_msg_config -id {Synth 8-4445} -new_severity ERROR
+267: Command: synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2 -include_dirs {<data>/tmp/pp181-a635/parent/configs/generated/endstation_ax7101_1x1_tdm8 <data>/tmp/pp181-a635/parent/configs/generated/endstation_ax7101_1x1_tdm8/gen <data>/tmp/pp181-a635/parent/hdl/common <data>/tmp/pp181-a635/parent/hdl/ieee8021q/ts <data>/tmp/pp181-a635/parent/hdl/ieee8021as/ptp_timestamp <data>/tmp/pp181-a635/parent/hdl/ieee17221/adp <data>/tmp/pp181-a635/parent/hdl/common/csr <data>/tmp/pp181-a635/parent/hdl/common/eth_event_counter <data>/tmp/pp181-a635/parent/hdl/ieee1722/avtp}
+4723: # report_timing_summary -file alinx_ax7101_timing_synth.rpt
+4727: report_timing_summary: Time (s): cpu = 00:00:48 ; elapsed = 00:00:18 . Memory (MB): peak = 7819.359 ; gain = 0.000 ; free physical = 27825 ; free virtual = 76692
+4728: # report_utilization -hierarchical -file alinx_ax7101_utilization_hierarchical_synth.rpt
+4729: # report_utilization -file alinx_ax7101_utilization_synth.rpt
+4824: Command: opt_design -directive ExploreArea
+4833: INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+5061: ##     set conditions [report_operating_conditions -grade -junction_temp -return_string]
+5068: ##     set settings [report_config_timing -return_string]
+5096: ##                 report_operating_conditions -file ${stem}_operating.rpt
+5097: ##                 report_timing_summary -delay_type min_max -report_unconstrained \
+5099: ##                 report_timing -delay_type min_max -slack_lesser_than 0 \
+5110: ##     report_timing_summary -delay_type min_max -report_unconstrained \
+5112: ##     report_clock_interaction -delay_type min_max -file ${prefix}_clock_interaction.rpt
+5113: ##     report_cdc -details -file ${prefix}_cdc.rpt
+5118: Command: place_design -directive ExtraPostPlacementOpt
+5127: INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+5307: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-2.044 | TNS=-266.941 |
+5321: INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.396. For the most accurate timing information please run report_timing.
+5336: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-1.336 | TNS=-25.483 |
+5345: INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.909. For the most accurate timing information please run report_timing.
+5352: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.909 | TNS=-9.631 |
+5361: INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.909. For the most accurate timing information please run report_timing.
+5406: Command: phys_opt_design -directive AggressiveExplore
+5421: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.909 | TNS=-9.631 |
+5430: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.909 | TNS=-9.631 |
+5447: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.909 | TNS=-8.551 |
+5651: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.831 | TNS=-3.289 |
+5726: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.831 | TNS=-3.268 |
+5747: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.118 | TNS=-0.118 |
+5797: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.065 | TNS=-0.065 |
+6068: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.036 | TNS=0.000 |
+6230: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.036 | TNS=0.000 |
+6256: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.036 | TNS=0.000 |
+6257: INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.036 | TNS=0.000 |
+6269: INFO: [Physopt 32-668] Estimated Timing Summary | WNS=0.036 | TNS=0.000 | WHS=-0.285 | THS=-14.817 |
+6274: INFO: [Physopt 32-668] Estimated Timing Summary | WNS=0.036 | TNS=0.000 | WHS=-0.212 | THS=-14.268 |
+6279: INFO: [Physopt 32-669] Post Physical Optimization Timing Summary | WNS=0.036 | TNS=0.000 | WHS=-0.212 | THS=-14.268 |
+6286: |  Optimization            |  WNS Gain (ns)  |  TNS Gain (ns)  |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+6326: # report_utilization -hierarchical -file alinx_ax7101_utilization_hierarchical_place.rpt
+6327: # report_utilization -file alinx_ax7101_utilization_place.rpt
+6328: # report_io -file alinx_ax7101_io.rpt
+6329: report_io: Time (s): cpu = 00:00:00.18 ; elapsed = 00:00:00.65 . Memory (MB): peak = 7914.477 ; gain = 0.000 ; free physical = 29600 ; free virtual = 79863
+6330: # report_control_sets -verbose -file alinx_ax7101_control_sets.rpt
+6331: report_control_sets: Time (s): cpu = 00:00:00.46 ; elapsed = 00:00:00.98 . Memory (MB): peak = 7914.477 ; gain = 0.000 ; free physical = 30406 ; free virtual = 80611
+6332: # report_clock_utilization -file alinx_ax7101_clock_utilization.rpt
+6333: report_clock_utilization: Time (s): cpu = 00:00:38 ; elapsed = 00:00:15 . Memory (MB): peak = 7914.477 ; gain = 0.000 ; free physical = 31270 ; free virtual = 81356
+6417: ##         return [list FAIL "direction $dir is not checked; only IN and OUT ports are"]
+6434: ##         return [list FAIL "$dir, net [join $nets {, }] reaches no cell: this port could not be traversed"]
+6438: ##         return [list FAIL "$dir, nothing answered behind [join $bufs {, }]: this port could not be traversed"]
+6473: ##         return [list FAIL "$dir, no cell answered behind [join $bufs {, }]: this port could not be traversed"]
+6476: ##         return [list FAIL "$dir, no register reads the pad, only: [join $logic {, }]"]
+6479: ##         return [list FAIL "$dir, not in an $site site: [join $wrong {, }]"]
+6482: ##     return [list PASS "$dir, [join $regs {, }]$also"]
+6514: ##         # re-raised, NEVER swallowed: a Vivado ERROR is catchable
+6521: ##             # text when the cause is a Vivado ERROR, so without this line
+6523: ##             puts "IOB-PACK ERROR: a query, or the code grading it, raised\
+6525: ##             error "IOB-PACK ERROR: grading $port ended the run: $answer"
+6529: ##         if {$verdict eq "FAIL"} {
+6544: ##         error "IOB-PACK FAIL: [llength $failed] port(s) constrained IOB TRUE are not in an IOB register after placement, or could not be traversed: [join [lsort $failed] {, }]. An unpacked register is CRITICAL WARNING Place 30-722 made fatal; the other rows are this check refusing to grade what it could not see. See $report."
+6564: ##         error "IOB-PACK ERROR: [llength $rows] port(s) answered IOB TRUE one at a time, but [llength $constrained] match the same filter; the two reads disagree on: [join [lsort $disputed] {, }]. The netlist did not read the same way twice, so this run graded nothing; see $report."
+6571: ##         error "IOB-PACK ERROR: no port answered IOB TRUE, so nothing was checked, and $why. A run that selects no port is not a pass; see $report."
+6578: IOB-PACK PASS  eth0_rx_data[0]: IN, milansoc_phy_rx_data_reg[0] (FDRE @ ILOGIC_X0Y120)
+6579: IOB-PACK PASS  eth0_rx_data[1]: IN, milansoc_phy_rx_data_reg[1] (FDRE @ ILOGIC_X0Y137)
+6580: IOB-PACK PASS  eth0_rx_data[2]: IN, milansoc_phy_rx_data_reg[2] (FDRE @ ILOGIC_X0Y138)
+6581: IOB-PACK PASS  eth0_rx_data[3]: IN, milansoc_phy_rx_data_reg[3] (FDRE @ ILOGIC_X0Y130)
+6582: IOB-PACK PASS  eth0_rx_data[4]: IN, milansoc_phy_rx_data_reg[4] (FDRE @ ILOGIC_X0Y129)
+6583: IOB-PACK PASS  eth0_rx_data[5]: IN, milansoc_phy_rx_data_reg[5] (FDRE @ ILOGIC_X0Y114)
+6584: IOB-PACK PASS  eth0_rx_data[6]: IN, milansoc_phy_rx_data_reg[6] (FDRE @ ILOGIC_X0Y113)
+6585: IOB-PACK PASS  eth0_rx_data[7]: IN, milansoc_phy_rx_data_reg[7] (FDRE @ ILOGIC_X0Y115)
+6586: IOB-PACK PASS  eth0_rx_dv: IN, milansoc_phy_rx_dv_reg (FDRE @ ILOGIC_X0Y119); also read by 4 fabric cell(s)
+6587: IOB-PACK PASS  eth0_tx_data[0]: OUT, eth0_tx_data_reg[0] (FDRE @ OLOGIC_X0Y155)
+6588: IOB-PACK PASS  eth0_tx_data[1]: OUT, eth0_tx_data_reg[1] (FDRE @ OLOGIC_X0Y134)
+6589: IOB-PACK PASS  eth0_tx_data[2]: OUT, eth0_tx_data_reg[2] (FDRE @ OLOGIC_X0Y135)
+6590: IOB-PACK PASS  eth0_tx_data[3]: OUT, eth0_tx_data_reg[3] (FDRE @ OLOGIC_X0Y136)
+6591: IOB-PACK PASS  eth0_tx_data[4]: OUT, eth0_tx_data_reg[4] (FDRE @ OLOGIC_X0Y131)
+6592: IOB-PACK PASS  eth0_tx_data[5]: OUT, eth0_tx_data_reg[5] (FDRE @ OLOGIC_X0Y122)
+6593: IOB-PACK PASS  eth0_tx_data[6]: OUT, eth0_tx_data_reg[6] (FDRE @ OLOGIC_X0Y123)
+6594: IOB-PACK PASS  eth0_tx_data[7]: OUT, eth0_tx_data_reg[7] (FDRE @ OLOGIC_X0Y121)
+6595: IOB-PACK PASS  eth0_tx_en: OUT, eth0_tx_en_reg (FDRE @ OLOGIC_X0Y151)
+6596: IOB-PACK PASS  tdm_bclk: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/bclk_r_reg (FDRE @ OLOGIC_X0Y168)
+6597: IOB-PACK PASS  tdm_dout: OUT, milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/tdm_dout_o_reg (FDRE @ OLOGIC_X0Y167)
+6598: IOB-PACK PASS  tdm_fsync: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/fsync_r_reg (FDSE @ OLOGIC_X0Y164)
+6601: Command: route_design -directive AggressiveExplore
+6606: INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+6636: INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.453  | TNS=0.000  | WHS=-0.382 | THS=-1921.633|
+6649:   Run report_route_status for detailed report.
+6688: INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.227 | TNS=-1.328 | WHS=N/A    | THS=N/A    |
+6700: INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.143  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+6727: INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.210  | TNS=0.000  | WHS=0.029  | THS=0.000  |
+6743:   Run report_route_status for detailed report.
+6767: | Pass |  WNS  | TNS |  WHS  | THS | Status | Elapsed Time | Solution Selected |
+6780: INFO: [Route 35-20] Post Routing Timing Summary | WNS=0.220  | TNS=0.000  | WHS=0.029  | THS=0.000  |
+6803: Command: phys_opt_design -directive AggressiveExplore
+6812: INFO: [Vivado_Tcl 4-2280] Estimated Timing Summary | WNS= 0.220 | TNS= 0.000 | WHS= 0.029 |
+6813: INFO: [Vivado_Tcl 4-383] Design worst setup slack (WNS) is greater than or equal to 0.000 ns. All physical synthesis setup optimizations will be skipped.
+6836: # report_timing_summary -no_header -no_detailed_paths
+6868: No report available as report_methodology has not been run prior. Run report_methodology on the current design for the summary of methodology violations.
+6963:     WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+6968: All user specified timing constraints are met.
+6997: Clock                                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+7018: From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+7033: Path Group            From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+7039: report_timing_summary: Time (s): cpu = 00:01:23 ; elapsed = 00:00:12 . Memory (MB): peak = 7914.477 ; gain = 0.000 ; free physical = 33973 ; free virtual = 83224
+7040: # report_route_status -file alinx_ax7101_route_status.rpt
+7041: # report_drc -file alinx_ax7101_drc.rpt
+7042: Command: report_drc -file alinx_ax7101_drc.rpt
+7048: report_drc completed successfully
+7049: report_drc: Time (s): cpu = 00:00:43 ; elapsed = 00:00:07 . Memory (MB): peak = 7914.477 ; gain = 0.000 ; free physical = 30265 ; free virtual = 79739
+7050: # report_timing_summary -datasheet -max_paths 10 -file alinx_ax7101_timing.rpt
+7053: report_timing_summary: Time (s): cpu = 00:01:42 ; elapsed = 00:00:18 . Memory (MB): peak = 7914.477 ; gain = 0.000 ; free physical = 29979 ; free virtual = 79511
+7054: # report_power -file alinx_ax7101_power.rpt
+7055: Command: report_power -file alinx_ax7101_power.rpt
+7061: Resolution: To review and fix problems, please run Power Constraints Advisor in the GUI from Tools > Power Constraints Advisor or run report_power with the -advisory option to generate a text report.
+7063: report_power completed successfully
+7064: report_power: Time (s): cpu = 00:00:38 ; elapsed = 00:00:20 . Memory (MB): peak = 8202.945 ; gain = 288.469 ; free physical = 32963 ; free virtual = 82417
+7068: report_timing_summary: Time (s): cpu = 00:01:22 ; elapsed = 00:00:14 . Memory (MB): peak = 8202.945 ; gain = 0.000 ; free physical = 34847 ; free virtual = 84298
+7076: report_timing_summary: Time (s): cpu = 00:01:14 ; elapsed = 00:00:11 . Memory (MB): peak = 8202.945 ; gain = 0.000 ; free physical = 36297 ; free virtual = 85754
+7084: report_timing_summary: Time (s): cpu = 00:01:14 ; elapsed = 00:00:11 . Memory (MB): peak = 8202.945 ; gain = 0.000 ; free physical = 36542 ; free virtual = 85995
+7092: report_timing_summary: Time (s): cpu = 00:01:14 ; elapsed = 00:00:11 . Memory (MB): peak = 8202.945 ; gain = 0.000 ; free physical = 35375 ; free virtual = 84654
+7100: report_timing_summary: Time (s): cpu = 00:01:32 ; elapsed = 00:00:17 . Memory (MB): peak = 8202.945 ; gain = 0.000 ; free physical = 33118 ; free virtual = 82805
+7107: INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+7113: # report_clock_interaction -delay_type min_max -file alinx_ax7101_clock_interaction.rpt
+7119: # report_exceptions -file alinx_ax7101_exceptions.rpt
+7123: report_exceptions: Time (s): cpu = 00:00:51 ; elapsed = 00:00:09 . Memory (MB): peak = 8202.945 ; gain = 0.000 ; free physical = 33672 ; free virtual = 83004
+7124: # report_utilization -hierarchical -hierarchical_depth 10 -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt
+7125: # report_utilization -file baseline_utilization.rpt
+7126: # report_timing_summary -max_paths 10 -file baseline_timing.rpt
+7130: report_timing_summary: Time (s): cpu = 00:00:50 ; elapsed = 00:00:10 . Memory (MB): peak = 8202.945 ; gain = 0.000 ; free physical = 33082 ; free virtual = 82531
+7139: # report_utilization -cells $pp -file baseline_pp_utilization.rpt
+7140: # report_timing -through [get_pins -of_objects $pp] -max_paths 10 -file baseline_pp_boundary_timing.rpt
+7157: # puts $tf "instance\tsequential_cells\tinternal_WNS_ns"
+# --- last 40 lines
+# set pp [get_cells -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] != 1} { error "Expected exactly one protocol wrapper" }
+# report_utilization -cells $pp -file baseline_pp_utilization.rpt
+# report_timing -through [get_pins -of_objects $pp] -max_paths 10 -file baseline_pp_boundary_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -through_pins  -max_paths 10 -nworst 1 -delay_type max -sort_by slack.
+# set scope_root ""
+# set pp [get_cells -quiet -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] == 1} {
+#   set scope_root "$pp/"
+# } elseif {[llength $pp] == 0} {
+#   set core [get_cells -quiet u_pp]
+#   if {[llength $core] != 1 || [get_property ORIG_REF_NAME $core] ne "protocol_processor_top"} {
+#     error "Expected the standalone wrapper's processor instance"
+#   }
+# } else {
+#   error "Expected exactly one protocol wrapper"
+# }
+# set tf [open baseline_scope_timing.tsv w]
+# puts $tf "instance\tsequential_cells\tinternal_WNS_ns"
+# foreach relative {wrapper u_pp u_pp/u_aecp u_pp/u_srp u_pp/u_notify u_pp/u_listener u_pp/u_talker u_nvm} {
+#   set path "$scope_root$relative"
+#   if {$relative eq "wrapper"} {
+#     set path [string trimright $scope_root /]
+#   }
+#   if {$path eq ""} {
+#     set path KL_pp_shadow
+#     set regs [get_cells -hier -filter {IS_SEQUENTIAL == 1}]
+#   } else {
+#     set regs [get_cells -hier -filter [format {NAME =~ "%s/*" && IS_SEQUENTIAL == 1} $path]]
+#   }
+#   set worst [get_timing_paths -from $regs -to $regs -max_paths 1]
+#   if {[llength $worst] != 1} { error "No internal timing path for $path" }
+#   puts $tf "$path\t[llength $regs]\t[get_property SLACK $worst]"
+#   flush $tf
+# }
+# close $tf
+# quit
+INFO: [Common 17-206] Exiting Vivado at Sun Oct 18 18:27:01 2026...

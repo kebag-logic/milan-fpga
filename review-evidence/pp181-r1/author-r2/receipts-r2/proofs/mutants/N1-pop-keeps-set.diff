@@ -1,0 +1,11 @@
+--- ../src/head_KL_aecp_notify.sv	2026-10-18 14:41:04.931320907 +0200
++++ N1-pop-keeps-set.sv	2026-10-18 14:41:18.491872205 +0200
+@@ -1509,7 +1509,7 @@
+                     cmdq_count_r <= cmdq_count_r;
+                   else begin
+                     cmdq_count_r <= cmdq_count_r - 5'd1;
+-                    cmdq_nempty_r <= (cmdq_count_r != 5'd1);
++                    cmdq_nempty_r <= 1'b1;
+                   end
+                 end else if (pick_kind_w == PP_UNS_CTRS_C) begin
+                   em_excl_v_r <= 1'b0;

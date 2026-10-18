@@ -1,0 +1,11 @@
+--- ../src/head_KL_aecp_notify.sv	2026-10-18 14:41:04.931320907 +0200
++++ N5-not-busy.sv	2026-10-18 14:41:18.492695210 +0200
+@@ -1163,7 +1163,7 @@
+   // the mapping staging RAM intact until its unsolicited body is consumed.
+   assign amap_busy_o = dh_v_r || em_active_r || pe_lock_r || pe_amap_r
+                        || pe_avb_r || pe_asp_r || (|pe_sin_r) || (|pe_sout_r)
+-                       || cmdq_nempty_r || (|ctr_pend_r) || id_own_w;
++                       || (|ctr_pend_r) || id_own_w;
+   assign prng_draw_kind_o = 3'd4;       // KL_pp_prng: uniform 30..60 seconds
+ 
+   assign dbg_uns_cnt_o  = uns_cnt_r;
