@@ -1,0 +1,223 @@
+## inner manifests (sha256sum -c sums/MANIFEST-*.sha256, in receipts-r2)
+sums/MANIFEST-camp.sha256 entries=1405 not-ok=4
+./camp/base/notify/adoption_no_strobe.log: FAILED
+./camp/base/notify/results.json: FAILED
+./camp/head/notify/adoption_no_strobe.log: FAILED
+./camp/head/notify/results.json: FAILED
+sums/MANIFEST-cone.sha256 entries=11 not-ok=0
+sums/MANIFEST-in-tree-checks.sha256 entries=26 not-ok=0
+sums/MANIFEST-logs.sha256 entries=20 not-ok=0
+sums/MANIFEST-ooc.sha256 entries=67 not-ok=0
+sums/MANIFEST-pgates.sha256 entries=176 not-ok=0
+sums/MANIFEST-proofs.sha256 entries=141 not-ok=0
+sums/MANIFEST-r648-inputs.sha256 entries=16 not-ok=0
+sums/MANIFEST-route-head760.sha256 entries=36 not-ok=1
+./route-head760/route.sh: FAILED
+sums/MANIFEST-scripts.sha256 entries=17 not-ok=3
+./scripts/chain_parent.sh: FAILED
+./scripts/ooc_run2.sh: FAILED
+./scripts/route.sh: FAILED
+sums/MANIFEST-top.sha256 entries=2 not-ok=0
+
+## top-level MANIFEST.json, author-r2 entries
+entries=1940 published-mismatch=0 unlisted-on-disk=0
+redacted at publication: author-r2/HANDOFF.md original=58382ffc1e5d95d5 published=4663c3c959e93bc0
+redacted at publication: author-r2/receipts-r2/camp/base/notify/adoption_no_strobe.log original=cf11f921654009e3 published=b6498e755c89a6e2
+redacted at publication: author-r2/receipts-r2/camp/base/notify/results.json original=a10e82b95cef34d9 published=1a97ad49398ea7cd
+redacted at publication: author-r2/receipts-r2/camp/head/notify/adoption_no_strobe.log original=dbedeaaf3ed57e4d published=6608c5b322aa2506
+redacted at publication: author-r2/receipts-r2/camp/head/notify/results.json original=2e3ce5e4ba48cbbd published=c607460a0b606ebe
+redacted at publication: author-r2/receipts-r2/route-head760/route.sh original=513490d4760048de published=e05d7bc84ab479e4
+redacted at publication: author-r2/receipts-r2/scripts/chain_parent.sh original=d23cc970d8568541 published=78fa880af1bba80d
+redacted at publication: author-r2/receipts-r2/scripts/ooc_run2.sh original=74af49565e9dfa85 published=9fd7fccab0dbaaaa
+redacted at publication: author-r2/receipts-r2/scripts/route.sh original=513490d4760048de published=e05d7bc84ab479e4
+
+## route-1x1 with #760 at head
+2026-10-18T14:25:52Z
+7d79ffb26308ac51eaeeab6ec43d798d057ae0cd
+c5afc0a42f200af01dd83e67b579dc3badc42601
+EXPORT-DONE
+VIVADO rc=0
+GATE rc=0
+ROUTE-DONE
+WNS_ns           0.215        0.22     0.005  ok
+WHS_ns           0.036       0.029    -0.007  ok
+route status: complete, no unrouted net and no routing error
+RESULT: PASS
+2026-10-18T14:06:36Z gitlink head 160000 c5afc0a42f200af01dd83e67b579dc3badc42601 0	protocol-processor
+2026-10-18T14:25:52Z 760.patch sha256 003e49859d84a36189f0edb0ee629948dc9179cdeccda2d4549c91aeefeedf5b
+2026-10-18T14:25:52Z apply 760 rc=0
+2026-10-18T16:27:07Z revert 760 rc=0
+cone.rpt (count->sel): 1 'No timing paths found'
+count_to_nempty: Slack (MET) : 16.795ns (required time - arrival time) |  Logic Levels: 2 (LUT4=1 LUT6=1)
+ Source: milan_datapath/pp_shadow/u_pp/u_notify/cmdq_count_r_reg[4]/C
+ Destination: milan_datapath/pp_shadow/u_pp/u_notify/cmdq_nempty_r_reg/D
+nempty_to_sel: Slack (MET) : 3.510ns (required time - arrival time) |  Logic Levels: 22 (LUT2=6 LUT3=1 LUT4=2 LUT5=6 LUT6=7)
+ Source: milan_datapath/pp_shadow/u_pp/u_notify/cmdq_nempty_r_reg/C
+ Destination: milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[0]/CE
+clkout1_top10: Slack (MET) : 0.220ns (required time - arrival time) |  Logic Levels: 34 (CARRY4=11 LUT2=7 LUT4=2 LUT5=6 LUT6=7 MUXF7=1)
+ Source: milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C
+ Destination: milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[0]/R
+to_sel: Slack (MET) : 1.758ns (required time - arrival time) |  Logic Levels: 24 (LUT2=4 LUT3=5 LUT4=2 LUT5=6 LUT6=7)
+ Source: milan_datapath/pp_shadow/u_pp/u_notify/ctr_pend_r_reg[2]/C
+ Destination: milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[0]/CE
+
+## OOC
+2026-10-18T12:40:17Z head c5afc0a42f200af01dd83e67b579dc3badc42601
+2026-10-18T12:43:36Z ooc head 1x1 rc=0 (199s)
+2026-10-18T12:50:24Z ooc head 8x8 rc=0 (408s)
+2026-10-18T13:08:30Z ooc base 1x1 rc=0 (1086s)
+2026-10-18T13:14:37Z ooc base 8x8 rc=0 (367s)
+2026-10-18T13:14:37Z OOC-DONE
+base-1x1: WNS -4.819ns | cone  Logic Levels: 22 (LUT3=3 LUT4=3 LUT5=3 LUT6=13) | nempty->sel -
+head-1x1: WNS -4.819ns | cone no path | nempty->sel  Logic Levels: 19 (LUT3=1 LUT4=5 LUT5=5 LUT6=8)
+base-8x8: WNS -10.720ns | cone  Logic Levels: 33 (LUT2=2 LUT3=2 LUT4=4 LUT5=3 LUT6=21 MUXF7=1) | nempty->sel -
+head-8x8: WNS -5.844ns | cone no path | nempty->sel  Logic Levels: 21 (LUT3=3 LUT4=5 LUT5=1 LUT6=12)
+
+## proofs
+router-1 rc=0 (1s)
+router-5 rc=0 (1s)
+router-8 rc=0 (3s)
+m-R1-base-always-ptr rc=1 (4s)
+router-16 rc=0 (8s)
+m-R2-presented-not-removed rc=1 (3s)
+m-R3-load-ignores-ack rc=1 (2s)
+m-R4-select-reloads-always rc=1 (3s)
+m-R5-no-grant-clears rc=1 (4s)
+router-29 rc=0 (37s)
+inv-m-N1-pop-keeps-set rc=1 (117s)
+inv-head-1x1 rc=0 (129s)
+inv-m-N2-push-unseen rc=1 (122s)
+inv-m-N3-pop-one-late rc=1 (184s)
+inv-m-N4-cleared-beside-push rc=1 (192s)
+inv-m-N5-not-busy rc=0 (203s)
+inv-m-N6-reset-set rc=1 (141s)
+inv-m-N7-pop-clears rc=1 (190s)
+inv-head-default rc=0 (182s)
+inv-head-2if-ident rc=0 (340s)
+DONE
+run-m-R1-base-always-ptr: Of those cells 280 are proven and 6 are unproven
+run-m-R2-presented-not-removed: Of those cells 284 are proven and 2 are unproven
+run-m-R3-load-ignores-ack: Of those cells 278 are proven and 8 are unproven
+run-m-R4-select-reloads-always: Of those cells 280 are proven and 6 are unproven
+run-m-R5-no-grant-clears: Of those cells 280 are proven and 6 are unproven
+run-router-1: Of those cells 91 are proven and 0 are unproven
+run-router-16: Of those cells 505 are proven and 0 are unproven
+run-router-29: Of those cells 859 are proven and 0 are unproven
+run-router-5: Of those cells 205 are proven and 0 are unproven
+run-router-8: Of those cells 286 are proven and 0 are unproven
+src/head_KL_pp_event_router.sv == c5afc0a42f200af01dd83e67b579dc3badc42601:hdl/packet_engine/KL_pp_event_router.sv
+src/base_KL_pp_event_router.sv == 08ae00130f096f241463172c4781885934400ee4:hdl/packet_engine/KL_pp_event_router.sv
+src/head_KL_aecp_notify.sv == c5afc0a42f200af01dd83e67b579dc3badc42601:hdl/aecp/KL_aecp_notify.sv
+
+## processor gates
+-- head
+tree <data>/lanes/pp181-cut
+head c5afc0a42f200af01dd83e67b579dc3badc42601
+2026-10-18T12:40:17Z
+Verilator 5.050 2026-07-01 rev v5.050
+sv2v v0.0.12
+Yosys 0.33 (git sha1 2584903a060)
+Python 3.14.8
+run_suites rc=0 (2951s)
+req_tags_executed rc=0 (1s)
+lint_hdl rc=0 (47s)
+make_check rc=0 (49s)
+gen_matrix rc=0 (0s)
+yosys_run rc=0 (154s)
+elab_guards_yosys rc=0 (214s)
+status-after 
+DONE
+suites: 1030013 checks total, 0 failing
+req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 227 tags in 19 files, OK
+req-tags executed: 227 evidence lines, 14 suites, OK
+-- base
+tree <data>/tmp/pp181-a635/parent/protocol-processor
+head 08ae00130f096f241463172c4781885934400ee4
+2026-10-18T12:58:01Z
+Verilator 5.050 2026-07-01 rev v5.050
+sv2v v0.0.12
+Yosys 0.33 (git sha1 2584903a060)
+Python 3.14.8
+run_suites rc=0 (3368s)
+req_tags_executed rc=0 (0s)
+lint_hdl rc=0 (34s)
+make_check rc=0 (116s)
+gen_matrix rc=0 (0s)
+yosys_run rc=0 (272s)
+elab_guards_yosys rc=0 (324s)
+status-after 
+DONE
+suites: 1030000 checks total, 0 failing
+req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 226 tags in 19 files, OK
+req-tags executed: 226 evidence lines, 14 suites, OK
+
+## campaigns
+-- head
+d3 rc=0 (10214s)
+DONE
+notify rc=0 (2850s)
+dispatch rc=0 (1831s)
+aecp rc=0 (1633s)
+ctr rc=0 (421s)
+gsi rc=0 (1026s)
+name_wr rc=0 (76s)
+acmp rc=0 (2222s)
+name_state rc=0 (344s)
+elab_guards rc=0 (805s)
+DONE
+status-after 
+CAMP-DONE
+C6 notification mutations: 109 of 109 KILLED by their named checks; goldens PASS
+-- base
+d3 rc=0 (11083s)
+DONE
+notify rc=0 (1937s)
+dispatch rc=0 (1005s)
+aecp rc=0 (1136s)
+ctr rc=0 (335s)
+gsi rc=0 (1163s)
+name_wr rc=0 (149s)
+acmp rc=0 (4706s)
+name_state rc=0 (712s)
+elab_guards rc=0 (1246s)
+DONE
+status-after 
+CAMP-DONE
+C6 notification mutations: 98 of 98 KILLED by their named checks; goldens PASS
+{"mutant": "occupancy_cleared_beside_push", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_not_busy", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_pop_clears", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_pop_keeps_set", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_pop_one_late", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_push_unseen", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_reset_set_collision", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_reset_set_failure", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_reset_set_identify", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_reset_set_interfaces", "verdict": "KILLED", "missing": []}
+{"mutant": "occupancy_reset_set", "verdict": "KILLED", "missing": []}
+d3: console IDENTICAL; 117 base / 117 head records, 0 differ
+notify: console DIFFERS; 112 base / 123 head records, 13 differ
+    differs: golden-aecp_notify-run.log
+    differs: occupancy_cleared_beside_push.log
+    differs: occupancy_not_busy.log
+    differs: occupancy_pop_clears.log
+    differs: occupancy_pop_keeps_set.log
+    differs: occupancy_pop_one_late.log
+    differs: occupancy_push_unseen.log
+    differs: occupancy_reset_set.log
+    differs: occupancy_reset_set_collision.log
+    differs: occupancy_reset_set_failure.log
+    differs: occupancy_reset_set_identify.log
+    differs: occupancy_reset_set_interfaces.log
+
+## parent consumer gates (rc only, base vs head)
+rc tables identical
+check_submodule_docs rc=1 secs=2
+measure_test_evidence rc=1 secs=24
+measure_test_evidence_selftest rc=1 secs=23
+160000 08ae00130f096f241463172c4781885934400ee4 0	protocol-processor
+160000 c5afc0a42f200af01dd83e67b579dc3badc42601 0	protocol-processor
+check_submodule_docs.log identical base/head
+measure_test_evidence.log identical base/head
+measure_test_evidence_selftest.log identical base/head
+ROM digests identical base/head

@@ -1,0 +1,7 @@
+1508c1508
+<                   if (cmd_push_w)
+---
+>                   if (cmd_push_w) begin
+1509a1510,1511
+>                     cmdq_nempty_r <= 1'b0;
+>                   end

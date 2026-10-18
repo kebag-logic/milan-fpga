@@ -1,0 +1,27 @@
+426,430c426
+<   //! occupancy, registered (issue #181; REQ-NOT-001, REQ-NOT-002): always
+<   //! equal to cmdq_count_r != 0, written beside every count update, so
+<   //! amap_busy_o and the emission pick read one flop instead of comparing
+<   //! the count
+<   logic        cmdq_nempty_r;
+---
+>   wire cmdq_nempty_r = (cmdq_count_r != 5'd0);  // probe only
+833c829
+<     end else if (cmdq_nempty_r) begin
+---
+>     end else if (cmdq_count_r != 5'd0) begin
+1166c1162
+<                        || cmdq_nempty_r || (|ctr_pend_r) || id_own_w;
+---
+>                        || (cmdq_count_r != 5'd0) || (|ctr_pend_r) || id_own_w;
+1197d1192
+<       cmdq_nempty_r <= 1'b0;
+1300d1294
+<           cmdq_nempty_r <= 1'b1;
+1510c1504
+<                   else begin
+---
+>                   else
+1512,1513d1505
+<                     cmdq_nempty_r <= (cmdq_count_r != 5'd1);
+<                   end

@@ -1,0 +1,71 @@
+merge 2cacc92 parents: 42eb9aef3642f6d98058fe634a70f6a9c749cd25 08ae00130f096f241463172c4781885934400ee4
+merge tree 0e779022ea9b5c556d6a0f1207315f91a589d25b
+git merge-tree --write-tree 42eb9aef 08ae0013: 0e779022ea9b5c556d6a0f1207315f91a589d25b
+merge-base 42eb9aef 08ae0013: 77cf6fb4e7acefb9eedef8da988930333166da50
+
+PR-side files (77cf6fb4..42eb9aef):
+docs/architecture/03_packet_engine.md
+docs/architecture/06_aecp_engine.md
+hdl/aecp/KL_aecp_notify.sv
+hdl/packet_engine/KL_pp_event_router.sv
+syn/ooc/README.md
+main-side files (77cf6fb4..08ae0013):
+docs/architecture/06_aecp_engine.md
+docs/architecture/09_verification.md
+hdl/aecp/KL_aecp_engine.sv
+hdl/aecp/ucode/aecp_commands.json
+hdl/aecp/ucode/aecp_fields.json
+hdl/aecp/ucode/gen_ucode.py
+scripts/check_aecp_commands.py
+tb/aecp_cmds/README.md
+tb/aecp_cmds/decode.json
+tb/aecp_cmds/sim_main.cpp
+tb/pp_top/README.md
+tb/pp_top/sim_main.cpp
+
+PR-side delta preserved: diff of (42eb9aef vs 77cf6fb4) vs (2cacc92 vs 08ae0013):
+IDENTICAL
+main-side files in merge equal 08ae0013 (except the shared 06_aecp_engine.md):
+  differs docs/architecture/06_aecp_engine.md
+  same docs/architecture/09_verification.md
+  same hdl/aecp/KL_aecp_engine.sv
+  same hdl/aecp/ucode/aecp_commands.json
+  same hdl/aecp/ucode/aecp_fields.json
+  same hdl/aecp/ucode/gen_ucode.py
+  same scripts/check_aecp_commands.py
+  same tb/aecp_cmds/README.md
+  same tb/aecp_cmds/decode.json
+  same tb/aecp_cmds/sim_main.cpp
+  same tb/pp_top/README.md
+  same tb/pp_top/sim_main.cpp
+
+author commits a0a5789, c5afc0a: files
+ docs/architecture/06_aecp_engine.md     |   2 +-
+ docs/architecture/09_verification.md    |   4 +-
+ hdl/aecp/KL_aecp_notify.sv              |   7 +-
+ hdl/packet_engine/KL_pp_event_router.sv |  10 +-
+ tb/aecp_notify/Makefile                 |   4 +-
+ tb/aecp_notify/README.md                |  79 +++++++++++-
+ tb/aecp_notify/occupancy.vlt            |   8 ++
+ tb/aecp_notify/port_tuple.hpp           |   3 +
+ tb/aecp_notify/sim_main.cpp             | 205 +++++++++++++++++++++++++++++++-
+ tb/pp_top/notify_mutants.py             |  55 ++++++++-
+ 10 files changed, 356 insertions(+), 21 deletions(-)
+hdl diff 2cacc92..c5afc0a (comments only):
+-  //! occupancy, registered (issue #181): always equal to cmdq_count_r != 0,
+-  //! written beside every count update, so amap_busy_o and the emission
+-  //! pick read one flop instead of comparing the count
++  //! occupancy, registered (issue #181; REQ-NOT-001, REQ-NOT-002): always
++  //! equal to cmdq_count_r != 0, written beside every count update, so
++  //! amap_busy_o and the emission pick read one flop instead of comparing
++  //! the count
+-  // The scan reads registered state only (issue #181): it assumes the
+-  // presented event is the one delivered, keyed on valid_r rather than on
+-  // deliver_w. A grant is only loaded on a delivery or from idle, and in
+-  // both cases this is exactly the old scan (from idle nothing is
+-  // presented, so nothing is removed and the base is ptr_r); a presented
++  // The scan reads registered state only (issue #181; REQ-REU-001, F02.6):
++  // it assumes the presented event is the one delivered, keyed on valid_r
++  // rather than on deliver_w. A grant is only loaded on a delivery or from
++  // idle, and in both cases this is exactly the old scan (from idle nothing
++  // is presented, so nothing is removed and the base is ptr_r); a presented
