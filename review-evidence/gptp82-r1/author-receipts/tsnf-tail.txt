@@ -1,0 +1,25 @@
+[the accept side of the length oracle: one over-minimum frame per parsed type, accepted and ACTED ON]
+
+[Milan 4.2.6.2.5: multiple responders cease Pdelay_Req; duplicates do not]
+
+[re-climb before the storm: exchanges up, asCapable within the ladder]
+
+[constrained-random storms + the asCapable canary]
+  ..... storm: 192 frames, rx_drop 68 -> 94
+
+[the two-sided canary: asCapable falls in a response drought, then climbs again]
+
+[recovery: exchanges up, asCapable within the ladder]
+
+[every Ethernet TX flag word: model and Table 11-4]
+  ..... tx_sync.flags: 89 emitted frames
+  ..... tx_follow_up.flags: 89 emitted frames
+  ..... tx_pdelay_req.flags: 47 emitted frames
+  ..... tx_pdelay_resp.flags: 32 emitted frames
+  ..... tx_pdelay_resp_fu.flags: 32 emitted frames
+
+results -> ../../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md
+
+== gPTP/802.1AS field campaign (tsn-gen driven): 677 pass, 0 fail, 0 known gaps ==
+campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+make: Leaving directory '<data>/tmp/gptp82-a649/parent-head/tb/verilator/tsn_fuzz'

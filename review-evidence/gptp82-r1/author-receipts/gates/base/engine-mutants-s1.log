@@ -1,0 +1,11 @@
+shard 1/6: 6 of 33 mutants: slew clears at the first in-band pair; result value taken without an accepted beat; lost response cancels the requester exchange; credit gate removed from the Announce leg; a receipt timeout unlocks the servo; the trim clamp is one unit wider than the envelope
+[PASS] the unmutated engine still passes the harness
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew clears at the first in-band pair - breaks "slew: first in-band pair cannot clear"
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+[PASS] mutant caught: lost response cancels the requester exchange - breaks "a lost Pdelay_Resp result retires the response claim and nothing else"
+[PASS] mutant caught: credit gate removed from the Announce leg - breaks "an Announce beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: a receipt timeout unlocks the servo - breaks "the servo stays locked across a Sync receipt timeout"
+[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks "the written trim never leaves the envelope the consumer derives"
+
+7 checks: 7 PASS, 0 FAIL

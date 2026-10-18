@@ -1,0 +1,10 @@
+shard 6/8: 5 of 39 mutants: result face always ready; a later response re-arms the frozen pair; exactly the threshold steps; the whole trim is not clamped; becoming grandmaster keeps the departed path
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result face always ready - breaks "a result already owed to the micro-code cannot be replaced by a later one"
+[PASS] mutant caught: a later response re-arms the frozen pair - breaks "a complete pair keeps its own identity and operands until its t1"
+[PASS] mutant caught: exactly the threshold steps - breaks "an offset of exactly 20 us, or 100 us once locked, slews"
+[PASS] mutant caught: the whole trim is not clamped - breaks "the written trim never leaves +-200 ppm"
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: becoming grandmaster keeps the departed path - breaks "#82 peer leaves: the mastership commit path is {thisClock}"
+
+6 checks: 6 PASS, 0 FAIL

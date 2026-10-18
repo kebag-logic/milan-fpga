@@ -1,0 +1,14 @@
+shard 1/8: 5 of 39 mutants: slew clears at the first in-band pair; recorded t1 survives reset; credit gate removed from the Pdelay_Req leg; a receipt timeout unlocks the servo; boot publication restored to zero
+[PASS] the unmutated engine still passes the harness
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew clears at the first in-band pair - breaks "slew: first in-band pair cannot clear"
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: a receipt timeout unlocks the servo - breaks "the servo stays locked across a Sync receipt timeout"
+FAIL #82 cold boot: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 cold boot: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 warm reset: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: boot publication restored to zero - breaks "#82 cold boot: first commit names thisClock | #82 cold boot: first commit path is {thisClock} | #82 warm reset: first commit names thisClock | #82 warm reset: first commit path is {thisClock}"
+
+6 checks: 6 PASS, 0 FAIL

@@ -1,0 +1,12 @@
+shard 2/8: 5 of 39 mutants: slew clears before the replacement rate; byte face advances without ready; credit gate removed from the Sync leg; becoming grandmaster unlocks the servo; no engine commit after reset
+[PASS] the unmutated engine still passes the harness
+FAIL slew: no clear precedes the replacement rate got 0000000000000007 exp 0000000000000000
+[PASS] mutant caught: slew clears before the replacement rate - breaks "slew: no clear precedes the replacement rate"
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+[PASS] mutant caught: credit gate removed from the Sync leg - breaks "a Sync beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+FAIL #82 cold boot: a commit lands with the first beat got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: a commit follows the release at once got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: no engine commit after reset - breaks "#82 cold boot: a commit lands with the first beat | #82 warm reset: a commit follows the release at once"
+
+6 checks: 6 PASS, 0 FAIL

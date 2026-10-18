@@ -1,0 +1,27 @@
+make: Entering directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_txts'
+python3 ../../../sw/litex/gen_mac_tx_model.py --check
+generated MAC transmit chain: OK (2719 lines, region 792c35e9020a, checked by product source, pins and bytes)
+verilator --cc --exe --build -j 0 --top-module gptp_txts_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -Wno-COMBDLY -Wno-CMPCONST -Wno-UNDRIVEN -Wno-SYNCASYNCNET -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_txts -Wall -Wextra" gptp_txts_wrap.sv generated/mac_tx_chain.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_txts_sim
+make[1]: Entering directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_txts/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_txts/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 16 threads; allocated 16.496 MB
+./obj_dir/Vgptp_txts_sim
+  engine cadence reached the lane at 48015 us
+  retired capture precedes the launch by 323 ns isolated, 36367 ns queued
+  mean reconstruction error 0.630 ns over 200 frames
+  error spread -9..+11 ns over 17 distinct values, 2191 us of run
+== gptp_txts: checks: 85   failures: 0 ==
+RESULT: PASS
+python3 mutants.py
+[ ok ] observer_disconnected: caught by "launch: every isolated frame was graded"
+[ ok ] observer_shifted_one_transmit_cycle: caught by "bias: the mean error is within one nanosecond of zero"
+[ ok ] observer_latency_term_dropped: caught by "bias: the mean error is within one nanosecond of zero"
+[ ok ] crossing_latency_term_dropped: caught by "bias: the mean error is within one nanosecond of zero"
+[ ok ] mean_sampling_phase_term_dropped: caught by "bias: the mean error is within one nanosecond of zero"
+[ ok ] delta_forced_not_measured: caught by "fragment: the observer refused it, by measurement"
+controls: 6   failures: 0
+RESULT: PASS
+make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/gptp_txts'

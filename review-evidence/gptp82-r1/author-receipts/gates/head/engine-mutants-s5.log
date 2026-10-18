@@ -1,0 +1,11 @@
+shard 5/8: 5 of 39 mutants: slew mastership keeps qualification; lost response cancels the requester exchange; every pair uses the link-up threshold; becoming grandmaster keeps sync-ok; becoming grandmaster keeps the departed GM
+[PASS] the unmutated engine still passes the harness
+FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew mastership keeps qualification - breaks "slew: in-band return from GM stays inactive"
+[PASS] mutant caught: lost response cancels the requester exchange - breaks "a lost Pdelay_Resp result retires the response claim and nothing else"
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+[PASS] mutant caught: becoming grandmaster keeps sync-ok - breaks "becoming grandmaster clears the sync-ok verdict"
+FAIL #82 peer leaves: the mastership commit names thisClock got 0082a0fffe000001 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: becoming grandmaster keeps the departed GM - breaks "#82 peer leaves: the mastership commit names thisClock"
+
+6 checks: 6 PASS, 0 FAIL

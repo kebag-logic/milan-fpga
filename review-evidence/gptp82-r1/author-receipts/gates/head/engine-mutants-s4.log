@@ -1,0 +1,11 @@
+shard 4/8: 5 of 39 mutants: slew idle asCapable loss arms qualification; lost Sync cancels the requester exchange; every pair uses the locked threshold; asCapable's rise keeps the lock; an elected peer keeps the self path
+[PASS] the unmutated engine still passes the harness
+FAIL slew: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle asCapable loss arms qualification - breaks "slew: in-band pair after asCapable recovery stays inactive"
+[PASS] mutant caught: lost Sync cancels the requester exchange - breaks "a lost Sync result retires the Sync claim and nothing else"
+[PASS] mutant caught: every pair uses the locked threshold - breaks "a link-up pair steps over 20 us"
+[PASS] mutant caught: asCapable's rise keeps the lock - breaks "the first pair after asCapable rises, or after a reset, is a link-up"
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an elected peer keeps the self path - breaks "#82 peer wins: its commit carries the peer path"
+
+6 checks: 6 PASS, 0 FAIL

@@ -1,0 +1,8 @@
+shard 7/8: 4 of 39 mutants: result value taken without an accepted beat; the tail runs before its own t1; the step arm is unreachable; the trim clamp is one unit wider than the envelope
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+[PASS] mutant caught: the step arm is unreachable - breaks "an offset over the threshold steps"
+[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks "the written trim never leaves the envelope the consumer derives"
+
+5 checks: 5 PASS, 0 FAIL
