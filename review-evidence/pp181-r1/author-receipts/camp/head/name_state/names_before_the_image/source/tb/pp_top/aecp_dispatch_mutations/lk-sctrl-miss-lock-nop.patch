@@ -1,0 +1,19 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1633,14 +1633,14 @@
+     u('BR_STATUS', cnd=2, imm=E_SCTRL + 20),
+     u('NOTIFY_ENQ', imm=4),                      # SET_CONTROL
+     u('END'),                                    # E_SCTRL + 20
+-    u('CHECK_LOCK', ra=15, imm=SCTRL_EMIT),      # SCTRL_REFUSE: a miss meets the lock
++    u('NOP'),      # SCTRL_REFUSE: a miss meets the lock
+     u('BUILD_HDR', ra=15, rb=13),                # SCTRL_EMIT: the refusals
+     u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
+     u('BUILD_FLD', ra=6, fmt=FMT_B),             # the value in force  @28
+     u('SEND_RESP'),
+     u('END'),
+ ])
+-assert rom[SCTRL_REFUSE] == u('CHECK_LOCK', ra=15, imm=SCTRL_EMIT)
++assert rom[SCTRL_REFUSE] == u('NOP')
+ assert rom[SCTRL_EMIT] == u('BUILD_HDR', ra=15, rb=13)
+ 
+ # --- the CONTROL-shaped refusals (cdl 17) -----------------------------------

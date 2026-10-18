@@ -1,0 +1,12 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3490,8 +3490,7 @@
+   //! an ACMP head picked and refused in every clock would keep the barrier
+   //! from ever being presented again: both queues wedged for good.
+   assign sb_pick_aecp_w = aecp_sb_candidate_w
+-                        && (!acmp_sb_candidate_w || sb_prefer_aecp_r
+-                            || sb_barrier_w);
++                        && (!acmp_sb_candidate_w || sb_prefer_aecp_r);
+   assign sb_pick_acmp_w = acmp_sb_candidate_w && !sb_pick_aecp_w;
+ 
+   always_comb begin : scoreboard_admission_mux

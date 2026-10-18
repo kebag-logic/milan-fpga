@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -1034,7 +1034,7 @@
+       for (int unsigned c = 0; c < N_CTR_DESC_C; c++) begin
+         if (ctr_dirty_r[c] && !ctr_pend_r[c]
+             && (!ctr_sent_r[c]
+-                || ((now_ms_i - ctr_last_r[c]) >= 32'd1000))) begin
++                || 1'b1)) begin
+           ctr_dirty_r[c] <= 1'b0;
+           ctr_pend_r[c]  <= 1'b1;
+         end

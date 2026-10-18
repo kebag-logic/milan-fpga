@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1132,7 +1132,7 @@
+     u('BR_STATUS', cnd=0, imm=E_RDSTUB),
+     u('READ_ST', rd=3, imm=RGN_DYNV + SEL_RATE), # has a SET or restore set it?
+     u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+-    u('BR_STATUS', cnd=2, imm=E_RDESC),          # unset: the image is current
++    u('NOP'),                                    # unset: the image is current
+     u('READ_ST', rd=8, imm=RGN_LEN),
+     u('COMPARE', ra=8, fmt=FMT_W, imm=AU_RATE_TAIL),
+     u('BR_STATUS', cnd=3, imm=E_RDESC),          # too short for the lane

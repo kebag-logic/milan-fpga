@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1514,7 +1514,7 @@
+           hz_key_w   = HZ_KEY_GLOBAL_C;
+         end
+         16'h0001: begin                        // LOCK_ENTITY
+-          hz_class_w = 4'(PP_HZ_LOCK_OP);
++          hz_class_w = 4'(PP_HZ_RO_SNAPSHOT);
+           hz_key_w   = HZ_KEY_GLOBAL_C;
+         end
+         16'h0008, 16'h000E, 16'h0022, 16'h0023: begin

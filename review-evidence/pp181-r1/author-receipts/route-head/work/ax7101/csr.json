@@ -1,0 +1,573 @@
+{
+    "csr_bases": {
+        "ctrl": 4026531840,
+        "ddrphy": 4026533888,
+        "identifier_mem": 4026535936,
+        "milan_mac": 4026537984,
+        "sdram": 4026540032,
+        "spiflash": 4026542080,
+        "timer0": 4026544128,
+        "uart": 4026546176,
+        "ppmem": 4026595328
+    },
+    "csr_registers": {
+        "ctrl_reset": {
+            "addr": 4026531840,
+            "size": 1,
+            "type": "rw"
+        },
+        "ctrl_scratch": {
+            "addr": 4026531844,
+            "size": 1,
+            "type": "rw"
+        },
+        "ctrl_bus_errors": {
+            "addr": 4026531848,
+            "size": 1,
+            "type": "ro"
+        },
+        "ddrphy_rst": {
+            "addr": 4026533888,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_dly_sel": {
+            "addr": 4026533892,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_half_sys8x_taps": {
+            "addr": 4026533896,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_wlevel_en": {
+            "addr": 4026533900,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_wlevel_strobe": {
+            "addr": 4026533904,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_rdly_dq_rst": {
+            "addr": 4026533908,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_rdly_dq_inc": {
+            "addr": 4026533912,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_rdly_dq_bitslip_rst": {
+            "addr": 4026533916,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_rdly_dq_bitslip": {
+            "addr": 4026533920,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_wdly_dq_bitslip_rst": {
+            "addr": 4026533924,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_wdly_dq_bitslip": {
+            "addr": 4026533928,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_rdphase": {
+            "addr": 4026533932,
+            "size": 1,
+            "type": "rw"
+        },
+        "ddrphy_wrphase": {
+            "addr": 4026533936,
+            "size": 1,
+            "type": "rw"
+        },
+        "milan_mac_phy_crg_reset": {
+            "addr": 4026537984,
+            "size": 1,
+            "type": "rw"
+        },
+        "milan_mac_phy_mdio_w": {
+            "addr": 4026537988,
+            "size": 1,
+            "type": "rw"
+        },
+        "milan_mac_phy_mdio_r": {
+            "addr": 4026537992,
+            "size": 1,
+            "type": "ro"
+        },
+        "milan_mac_core_preamble_crc": {
+            "addr": 4026537996,
+            "size": 1,
+            "type": "ro"
+        },
+        "milan_mac_core_rx_datapath_preamble_errors": {
+            "addr": 4026538000,
+            "size": 1,
+            "type": "ro"
+        },
+        "milan_mac_core_rx_datapath_crc_errors": {
+            "addr": 4026538004,
+            "size": 1,
+            "type": "ro"
+        },
+        "milan_mac_loopback": {
+            "addr": 4026538008,
+            "size": 1,
+            "type": "rw"
+        },
+        "milan_mac_link_status": {
+            "addr": 4026538012,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_control": {
+            "addr": 4026540032,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi0_command": {
+            "addr": 4026540036,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi0_command_issue": {
+            "addr": 4026540040,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi0_address": {
+            "addr": 4026540044,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi0_baddress": {
+            "addr": 4026540048,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi0_wrdata": {
+            "addr": 4026540052,
+            "size": 2,
+            "type": "rw"
+        },
+        "sdram_dfii_pi0_rddata": {
+            "addr": 4026540060,
+            "size": 2,
+            "type": "ro"
+        },
+        "sdram_dfii_pi1_command": {
+            "addr": 4026540068,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi1_command_issue": {
+            "addr": 4026540072,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi1_address": {
+            "addr": 4026540076,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi1_baddress": {
+            "addr": 4026540080,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi1_wrdata": {
+            "addr": 4026540084,
+            "size": 2,
+            "type": "rw"
+        },
+        "sdram_dfii_pi1_rddata": {
+            "addr": 4026540092,
+            "size": 2,
+            "type": "ro"
+        },
+        "sdram_dfii_pi2_command": {
+            "addr": 4026540100,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi2_command_issue": {
+            "addr": 4026540104,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi2_address": {
+            "addr": 4026540108,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi2_baddress": {
+            "addr": 4026540112,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi2_wrdata": {
+            "addr": 4026540116,
+            "size": 2,
+            "type": "rw"
+        },
+        "sdram_dfii_pi2_rddata": {
+            "addr": 4026540124,
+            "size": 2,
+            "type": "ro"
+        },
+        "sdram_dfii_pi3_command": {
+            "addr": 4026540132,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi3_command_issue": {
+            "addr": 4026540136,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi3_address": {
+            "addr": 4026540140,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi3_baddress": {
+            "addr": 4026540144,
+            "size": 1,
+            "type": "rw"
+        },
+        "sdram_dfii_pi3_wrdata": {
+            "addr": 4026540148,
+            "size": 2,
+            "type": "rw"
+        },
+        "sdram_dfii_pi3_rddata": {
+            "addr": 4026540156,
+            "size": 2,
+            "type": "ro"
+        },
+        "spiflash_phy_clk_divisor": {
+            "addr": 4026542080,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_phy_mode": {
+            "addr": 4026542084,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_mmap_clk_divisor": {
+            "addr": 4026542088,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_mmap_dummy_bits": {
+            "addr": 4026542092,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_master_cs": {
+            "addr": 4026542096,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_master_phyconfig": {
+            "addr": 4026542100,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_master_rxtx": {
+            "addr": 4026542104,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_master_status": {
+            "addr": 4026542108,
+            "size": 1,
+            "type": "ro"
+        },
+        "spiflash_master_clk_divisor": {
+            "addr": 4026542112,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_load": {
+            "addr": 4026544128,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_reload": {
+            "addr": 4026544132,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_en": {
+            "addr": 4026544136,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_update_value": {
+            "addr": 4026544140,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_value": {
+            "addr": 4026544144,
+            "size": 1,
+            "type": "ro"
+        },
+        "timer0_ev_status": {
+            "addr": 4026544148,
+            "size": 1,
+            "type": "ro"
+        },
+        "timer0_ev_pending": {
+            "addr": 4026544152,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_ev_enable": {
+            "addr": 4026544156,
+            "size": 1,
+            "type": "rw"
+        },
+        "uart_rxtx": {
+            "addr": 4026546176,
+            "size": 1,
+            "type": "rw"
+        },
+        "uart_txfull": {
+            "addr": 4026546180,
+            "size": 1,
+            "type": "ro"
+        },
+        "uart_rxempty": {
+            "addr": 4026546184,
+            "size": 1,
+            "type": "ro"
+        },
+        "uart_ev_status": {
+            "addr": 4026546188,
+            "size": 1,
+            "type": "ro"
+        },
+        "uart_ev_pending": {
+            "addr": 4026546192,
+            "size": 1,
+            "type": "rw"
+        },
+        "uart_ev_enable": {
+            "addr": 4026546196,
+            "size": 1,
+            "type": "rw"
+        },
+        "uart_txempty": {
+            "addr": 4026546200,
+            "size": 1,
+            "type": "ro"
+        },
+        "uart_rxfull": {
+            "addr": 4026546204,
+            "size": 1,
+            "type": "ro"
+        },
+        "ppmem_desc_req": {
+            "addr": 4026595328,
+            "size": 1,
+            "type": "ro"
+        },
+        "ppmem_desc_fault": {
+            "addr": 4026595332,
+            "size": 1,
+            "type": "ro"
+        },
+        "ppmem_resp_req": {
+            "addr": 4026595336,
+            "size": 1,
+            "type": "ro"
+        },
+        "ppmem_resp_fault": {
+            "addr": 4026595340,
+            "size": 1,
+            "type": "ro"
+        },
+        "ppmem_stat": {
+            "addr": 4026595344,
+            "size": 1,
+            "type": "ro"
+        }
+    },
+    "constants": {
+        "config_platform_name": "alinx_ax7101",
+        "config_clock_frequency": 100000000,
+        "config_cpu_has_interrupt": null,
+        "config_cpu_reset_addr": 0,
+        "config_cpu_count": 1,
+        "config_cpu_isa": "rv32i2p0__zicsr_zifencei",
+        "config_cpu_type_vexiiriscv": null,
+        "config_cpu_variant_baremetal": null,
+        "config_cpu_family": "riscv",
+        "config_cpu_name": "vexiiriscv",
+        "config_cpu_human_name": "VexiiRiscv (rv32i2p0__zicsr_zifencei)",
+        "config_cpu_nop": "nop",
+        "config_bios_no_build_time": null,
+        "config_identifier": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal",
+        "milan_gptp_owner": 1,
+        "milan_cpu_xlen": 32,
+        "config_bios_no_boot": null,
+        "spiflash_phy_frequency": 12500000,
+        "spiflash_phy_min_divisor": 2,
+        "spiflash_module_name": "n25q128a13",
+        "spiflash_module_total_size": 16777216,
+        "spiflash_module_page_size": 256,
+        "spiflash_skip_freq_init": null,
+        "milan_flash_journal_offset": 15597568,
+        "milan_flash_journal_size": 131072,
+        "milan_flash_user_offset": 15728640,
+        "milan_flash_user_size": 1048576,
+        "milan_flashboot_aem_offset": 4194304,
+        "milan_flashboot_aem_addr": 0,
+        "milan_flashboot_aem_size": 65536,
+        "milan_aem_flash_offset": 4194304,
+        "milan_aem_image_bytes": 7512,
+        "milan_aem_image_crc32": 1537431019,
+        "milan_aem_desc_base": 2138046464,
+        "milan_entity_id_lo": 4261412865,
+        "milan_entity_id_hi": 33554687,
+        "milan_model_id_lo": 2472055777,
+        "milan_model_id_hi": 1820097,
+        "milan_station_mac_lo": 2,
+        "milan_station_mac_hi": 256,
+        "milan_n_talkers": 1,
+        "milan_sr_vid": 2,
+        "milan_lwsrp_ctrl_reset": 16,
+        "milan_aaf_ctrl_boot": 131073,
+        "milan_maap_ctrl_boot": 513,
+        "milan_mac_ctrl_set": 8,
+        "milan_tcam_ctrl_boot": 1,
+        "milan_crf_tx_ctrl_boot": 3,
+        "milan_nvm_live_base": 2139025408,
+        "milan_nvm_stage_base": 2138959872,
+        "milan_nvm_contract": 3,
+        "milan_nvm_image_max": 65536,
+        "milan_nvm_n_stream_in": 2,
+        "milan_nvm_n_stream_out": 2,
+        "milan_nvm_n_sport_in": 1,
+        "milan_nvm_n_sport_out": 1,
+        "milan_nvm_n_audio_unit": 1,
+        "milan_nvm_n_clk_dom": 1,
+        "milan_nvm_n_name": 39,
+        "milan_nvm_bind_base": 32,
+        "milan_nvm_rec_layout": 2,
+        "milan_nvm_mapin_entries_0": 8,
+        "milan_nvm_mapin_entries_1": 0,
+        "milan_nvm_mapin_entries_2": 0,
+        "milan_nvm_mapin_entries_3": 0,
+        "milan_nvm_mapin_entries_4": 0,
+        "milan_nvm_mapin_entries_5": 0,
+        "milan_nvm_mapin_entries_6": 0,
+        "milan_nvm_mapin_entries_7": 0,
+        "milan_nvm_mapin_entries_8": 0,
+        "milan_nvm_mapin_entries_9": 0,
+        "milan_nvm_mapin_entries_10": 0,
+        "milan_nvm_mapin_entries_11": 0,
+        "milan_nvm_mapin_entries_12": 0,
+        "milan_nvm_mapin_entries_13": 0,
+        "milan_nvm_mapin_entries_14": 0,
+        "milan_nvm_mapin_entries_15": 0,
+        "milan_nvm_mapout_entries_0": 17,
+        "milan_nvm_mapout_entries_1": 0,
+        "milan_nvm_mapout_entries_2": 0,
+        "milan_nvm_mapout_entries_3": 0,
+        "milan_nvm_mapout_entries_4": 0,
+        "milan_nvm_mapout_entries_5": 0,
+        "milan_nvm_mapout_entries_6": 0,
+        "milan_nvm_mapout_entries_7": 0,
+        "milan_nvm_mapout_entries_8": 0,
+        "milan_nvm_mapout_entries_9": 0,
+        "milan_nvm_mapout_entries_10": 0,
+        "milan_nvm_mapout_entries_11": 0,
+        "milan_nvm_mapout_entries_12": 0,
+        "milan_nvm_mapout_entries_13": 0,
+        "milan_nvm_mapout_entries_14": 0,
+        "milan_nvm_mapout_entries_15": 0,
+        "milan_nvm_heartbeat_ms": 250,
+        "milan_nvm_debounce_ms": 1000,
+        "milan_nvm_erase_timeout_ms": 3500,
+        "milan_nvm_program_timeout_ms": 50,
+        "milan_nvm_restore_timeout_ms": 3000,
+        "config_csr_data_width": 32,
+        "config_csr_alignment": 32,
+        "config_csr_ordering_big": null,
+        "config_bus_standard": "wishbone",
+        "config_bus_data_width": 32,
+        "config_bus_address_width": 32,
+        "config_bus_bursting": 0,
+        "config_cpu_has_dma_bus": null,
+        "config_cpu_interrupts": 3,
+        "timer0_interrupt": 2,
+        "uart_interrupt": 1
+    },
+    "memories": {
+        "plic": {
+            "base": 4039114752,
+            "size": 4194304,
+            "type": "io+linker"
+        },
+        "clint": {
+            "base": 4026597376,
+            "size": 65536,
+            "type": "io+linker"
+        },
+        "rom": {
+            "base": 0,
+            "size": 131072,
+            "type": "cached"
+        },
+        "sram": {
+            "base": 268435456,
+            "size": 8192,
+            "type": "cached"
+        },
+        "main_ram": {
+            "base": 1073741824,
+            "size": 1073741824,
+            "type": "cached"
+        },
+        "spiflash": {
+            "base": 16777216,
+            "size": 16777216,
+            "type": "cached"
+        },
+        "milan_csr": {
+            "base": 2415919104,
+            "size": 65536,
+            "type": "io"
+        },
+        "csr": {
+            "base": 4026531840,
+            "size": 65536,
+            "type": "io"
+        }
+    },
+    "cores": {
+        "ctrl": "SoCController",
+        "ddrphy": "A7DDRPHY",
+        "milan_mac": "MilanMAC",
+        "sdram": "LiteDRAMCore",
+        "spiflash": "LiteSPI",
+        "timer0": "Timer",
+        "uart": "UART",
+        "ppmem": "_PPMemDiag"
+    }
+}

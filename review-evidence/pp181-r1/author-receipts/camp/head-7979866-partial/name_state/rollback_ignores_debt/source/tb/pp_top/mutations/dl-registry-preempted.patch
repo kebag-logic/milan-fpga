@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1713,7 +1713,7 @@
+   end
+ 
+   assign ucpu_preempt_w = dl_kill_r && (a_st_r == A_RUN)
+-                          && !regun_r && !lockc_r && !amap_edit_r;
++                          && !lockc_r && !amap_edit_r;
+   assign dl_queued_o    = (a_st_r == A_TXW) && !uns_r && txreq_ready_i;
+ 
+   KL_aecp_ucpu #(

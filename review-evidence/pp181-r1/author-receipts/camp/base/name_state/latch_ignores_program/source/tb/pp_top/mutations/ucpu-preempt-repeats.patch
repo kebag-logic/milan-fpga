@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_ucpu.sv
++++ b/hdl/aecp/KL_aecp_ucpu.sv
+@@ -480,7 +480,7 @@
+   assign pre_eff_w = uop_e_r.op inside {OP_WRITE_ST, OP_NAME_WR, OP_COMMIT,
+                                         OP_NVM_MARK, OP_NOTIFY_ENQ,
+                                         OP_SEND_RESP, OP_END};
+-  assign pre_go_w  = preempt_i && (ms_r == S_RUN) && !pre_taken_r
++  assign pre_go_w  = preempt_i && (ms_r == S_RUN) && 1'b1
+                      && !pre_seen_r
+                      && (!vld_e_r || (advance_e_w && !pre_eff_w));
+ 

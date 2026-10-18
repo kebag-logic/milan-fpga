@@ -1,0 +1,103 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sun Oct 18 05:02:48 2026
+# Process ID         : 2993214
+# Current directory  : <data>/tmp/pp181-a635/cone/lane760
+# Command line       : vivado -mode batch -nojournal -log cone.log -source <data>/tmp/pp181-a635/route_cone.tcl -tclargs <data>/tmp/760-a630/route/work/ax7101/gateware/alinx_ax7101_route.dcp
+# Log file           : <data>/tmp/pp181-a635/cone/lane760/cone.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.346 MHz
+# CPU Physical cores : 64
+# CPU Logical cores  : 128
+# Host memory        : 65724 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 104378 MB
+# Available Virtual  : 92109 MB
+#-----------------------------------------------------------
+Sourcing tcl script '<home>/.Xilinx/Vivado/Vivado_init.tcl'
+source <data>/tmp/pp181-a635/route_cone.tcl
+# open_checkpoint [lindex $argv 0]
+Command: open_checkpoint <data>/tmp/760-a630/route/work/ax7101/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1451.223 ; gain = 8.906 ; free physical = 23387 ; free virtual = 87862
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.26 ; elapsed = 00:00:00.26 . Memory (MB): peak = 1998.371 ; gain = 0.000 ; free physical = 22257 ; free virtual = 86836
+INFO: [Netlist 29-17] Analyzing 5827 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.17 ; elapsed = 00:00:00.18 . Memory (MB): peak = 2145.254 ; gain = 5.000 ; free physical = 22349 ; free virtual = 86929
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  synth.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.09 . Memory (MB): peak = 3009.762 ; gain = 7.781 ; free physical = 21048 ; free virtual = 85786
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 3010.762 ; gain = 1.000 ; free physical = 21048 ; free virtual = 85786
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3010.762 ; gain = 0.000 ; free physical = 21048 ; free virtual = 85786
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 3088.051 ; gain = 77.289 ; free physical = 20912 ; free virtual = 85651
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3088.051 ; gain = 0.000 ; free physical = 20912 ; free virtual = 85651
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.48 . Memory (MB): peak = 3111.051 ; gain = 23.000 ; free physical = 20887 ; free virtual = 85626
+Read Physdb Files: Time (s): cpu = 00:00:04 ; elapsed = 00:00:02 . Memory (MB): peak = 3111.051 ; gain = 109.070 ; free physical = 20889 ; free virtual = 85627
+Restored from archive | CPU: 4.380000 secs | Memory: 84.198669 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:04 ; elapsed = 00:00:02 . Memory (MB): peak = 3111.051 ; gain = 109.070 ; free physical = 20889 ; free virtual = 85627
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3140.777 ; gain = 0.000 ; free physical = 20837 ; free virtual = 85576
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1308 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 27 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 713 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 33 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 290 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:31 ; elapsed = 00:00:20 . Memory (MB): peak = 3148.812 ; gain = 1709.465 ; free physical = 20825 ; free virtual = 85564
+# set pp milan_datapath/pp_shadow/u_pp
+# set src [get_cells -hier -filter "NAME =~ $pp/u_notify/cmdq_count_r_reg*"]
+# set dst [get_cells -hier -filter "NAME =~ $pp/u_event_router/sel_r_reg*"]
+# puts "CONE src [llength $src] dst [llength $dst]"
+CONE src 5 dst 4
+# report_timing -from $src -to $dst -max_paths 3 -nworst 1 -file cone.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 3 -nworst 1 -delay_type max -sort_by slack.
+report_timing: Time (s): cpu = 00:00:42 ; elapsed = 00:00:06 . Memory (MB): peak = 3470.879 ; gain = 322.066 ; free physical = 20272 ; free virtual = 85168
+# report_timing -to $dst -max_paths 5 -nworst 1 -file to_sel.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -to_pins  -max_paths 5 -nworst 1 -delay_type max -sort_by slack.
+# report_timing -from $src -max_paths 5 -nworst 1 -file from_cmdq.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -max_paths 5 -nworst 1 -delay_type max -sort_by slack.
+# set rtr [get_cells -hier -filter "NAME =~ $pp/u_event_router/* && IS_SEQUENTIAL"]
+# report_timing -to $rtr -max_paths 5 -nworst 1 -file to_router.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -to_pins  -max_paths 5 -nworst 1 -delay_type max -sort_by slack.
+# report_timing -group milansoc_crg_clkout1 -max_paths 10 -nworst 1 -file clkout1_top10.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 10 -nworst 1 -delay_type max -sort_by slack.
+INFO: [Common 17-206] Exiting Vivado at Sun Oct 18 05:03:16 2026...

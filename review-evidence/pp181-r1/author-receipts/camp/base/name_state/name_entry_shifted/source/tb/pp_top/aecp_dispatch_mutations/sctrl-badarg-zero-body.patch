@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1816,7 +1816,7 @@
+     u('COMPARE', ra=12, fmt=FMT_B, imm=255),     # value == 255 ?
+     u('BR_STATUS', cnd=2, imm=E_SCTRL + 11),
+     u('SET_STATUS', imm=ST_BADARG),              # neither: out of range,
+-    u('BRANCH', imm=SCTRL_EMIT),                 # carrying the value in force
++    u('BRANCH', imm=E_BADARG1),                  # carrying the value in force
+     u('WRITE_ST', ra=12, fmt=FMT_B,              # E_SCTRL + 11
+       imm=RGN_DYN + SEL_IDENT),
+     u('SET_STATUS', imm=ST_OK),

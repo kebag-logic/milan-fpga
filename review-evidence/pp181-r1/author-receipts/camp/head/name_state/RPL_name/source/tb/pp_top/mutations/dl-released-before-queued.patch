@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -999,7 +999,7 @@
+       .rel_id_i           (sb_rel_id_w),
+       .kill_valid_i       (aecp_dl_kill_w),
+       .kill_id_i          (aecp_sb_id_r),
+-      .kill_resp_queued_i (aecp_dl_queued_w),
++      .kill_resp_queued_i (1'b1),
+       .kill_ack_o         (sb_kill_ack_w),
+       .holds_o            (sb_holds_w),
+       .full_o             (sb_full_w),

@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3637,7 +3637,7 @@
+               //! a preempted command that is not an AEM_COMMAND has no status
+               //! 10, so the forced answer is its refusal form, NOT_IMPLEMENTED
+               //! with the command echoed (`st_echo_w`)
+-              if (ucpu_pre_w && st_echo_w) begin
++              if (1'b0) begin
+                 status_r <= ST_NOT_IMPLEMENTED_C;
+                 echo_r   <= 1'b1;
+                 pld_r    <= pld_cmd_r;

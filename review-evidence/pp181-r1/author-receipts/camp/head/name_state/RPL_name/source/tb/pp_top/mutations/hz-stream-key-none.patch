@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1520,7 +1520,7 @@
+         16'h0008, 16'h000E, 16'h0022, 16'h0023: begin
+           //! SET_STREAM_FORMAT, SET_STREAM_INFO, START/STOP_STREAMING
+           hz_class_w = 4'(PP_HZ_STREAM_CFG);
+-          hz_key_w   = hz_dkey_w;
++          hz_key_w   = HZ_KEY_NONE_C;
+         end
+         16'h002C, 16'h002D: begin              // ADD/REMOVE_AUDIO_MAPPINGS
+           hz_class_w = 4'(PP_HZ_MAP_CFG);

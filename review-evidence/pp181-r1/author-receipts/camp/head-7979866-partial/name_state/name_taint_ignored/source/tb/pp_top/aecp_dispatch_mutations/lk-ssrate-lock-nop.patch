@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1352,7 +1352,7 @@
+     u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+     u('BR_STATUS', cnd=2, imm=E_SSRATE + 9),     # unset -> the image's stands
+     u('READ_ST', rd=6, imm=RGN_DYN + SEL_RATE),  # set -> the controller's
+-    u('CHECK_LOCK', ra=15, imm=SSR_EMIT),        # E_SSRATE + 9: held by another
++    u('NOP'),        # E_SSRATE + 9: held by another
+     u('MOVE', rd=9, ra=0, imm=SSR_LIST_OFF),     # controller -> ENTITY_LOCKED
+     u('SHIFT_R', rd=8, ra=7, imm=16),            # sampling_rates_offset [15:0]
+     u('CHECK_ARG', ra=8, rb=9, fmt=FMT_W,        # the list where the walk

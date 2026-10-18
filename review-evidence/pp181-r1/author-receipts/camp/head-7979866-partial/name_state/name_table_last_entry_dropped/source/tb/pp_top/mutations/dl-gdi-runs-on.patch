@@ -1,0 +1,20 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -2998,7 +2998,7 @@
+         A_GDEC: begin
+           //! past the deadline no further record runs: the aggregate is
+           //! voided through the shape check's own arm (rule (e))
+-          if (dl_kill_r) begin
++          if (1'b0) begin
+             g_shape_fault_r <= 1'b1;
+             pld_r           <= 11'd0;
+             echo_r          <= 1'b0;
+@@ -3623,7 +3623,7 @@
+               //! edit must not silently misalign every following record or
+               //! expose stale response memory. Void the aggregate if the two
+               //! authorities disagree, and past the deadline (rule (e)).
+-              if (dl_kill_r
++              if (1'b0
+                   || ((resp_send_w ? resp_len_w : g_sub_end_r)
+                       != (g_out_r + 11'd8 + g_rec_rlen_r))) begin
+                 g_shape_fault_r <= 1'b1;

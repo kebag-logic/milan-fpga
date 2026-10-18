@@ -1,0 +1,450 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sat Oct 17 23:53:32 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing -from [get_cells -hier -filter {NAME =~ *u_notify/cmdq_count_r_reg*}] -max_paths 5 -nworst 1 -file from_cmdq.rpt
+| Design       : protocol_processor_top
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Synthesized
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -2.204ns  (required time - arrival time)
+  Source:                 u_notify/cmdq_count_r_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_event_router/sel_r_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        12.172ns  (logic 2.834ns (23.283%)  route 9.338ns (76.717%))
+  Logic Levels:           22  (LUT2=1 LUT3=1 LUT4=6 LUT5=5 LUT6=9)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 10.748 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=22975, unset)        0.787     0.787    u_notify/clk_i
+                         FDRE                                         r  u_notify/cmdq_count_r_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_notify/cmdq_count_r_reg[3]/Q
+                         net (fo=7, unplaced)         0.692     1.876    u_notify/cmdq_count_r[3]
+                         LUT5 (Prop_lut5_I0_O)        0.232     2.108 f  u_notify/em_excl_r[63]_i_3/O
+                         net (fo=73, unplaced)        0.439     2.547    u_notify/em_excl_r[63]_i_3_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.105     2.652 f  u_notify/em_active_r_i_2/O
+                         net (fo=8, unplaced)         0.366     3.018    u_aecp/u_resp/barrier_pend_r_i_2
+                         LUT6 (Prop_lut6_I0_O)        0.105     3.123 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_21/O
+                         net (fo=3, unplaced)         0.365     3.488    u_aecp/u_resp/a_st_r_reg[0]_rep_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     3.593 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6/O
+                         net (fo=1, unplaced)         0.328     3.921    u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105     4.026 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_1/O
+                         net (fo=34, unplaced)        0.420     4.446    u_talker/sb_pick_aecp_w
+                         LUT5 (Prop_lut5_I4_O)        0.105     4.551 r  u_talker/cls_r[0][3]_i_3/O
+                         net (fo=31, unplaced)        0.417     4.968    u_dispatch/u_acmp_q/sb_pick_acmp_w
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.073 r  u_dispatch/u_acmp_q/cls_r[0][2]_i_1/O
+                         net (fo=43, unplaced)        0.661     5.734    u_dispatch/u_acmp_q/out_data_r_reg[55]_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.839 r  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_78/O
+                         net (fo=8, unplaced)         0.385     6.224    u_scoreboard/aecp_txn_valid_o_INST_0_i_40_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     6.329 f  u_scoreboard/aecp_txn_valid_o_INST_0_i_113/O
+                         net (fo=2, unplaced)         0.358     6.687    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56_0
+                         LUT5 (Prop_lut5_I2_O)        0.105     6.792 f  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107/O
+                         net (fo=1, unplaced)         0.347     7.139    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107_n_0
+                         LUT6 (Prop_lut6_I2_O)        0.105     7.244 f  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56/O
+                         net (fo=1, unplaced)         0.328     7.572    u_scoreboard/valid_r[7]_i_3_2
+                         LUT6 (Prop_lut6_I3_O)        0.105     7.677 f  u_scoreboard/aecp_txn_valid_o_INST_0_i_20/O
+                         net (fo=2, unplaced)         0.358     8.035    u_scoreboard/aecp_txn_valid_o_INST_0_i_20_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     8.140 r  u_scoreboard/aecp_txn_valid_o_INST_0_i_5/O
+                         net (fo=21, unplaced)        0.643     8.783    u_scoreboard/aecp_txn_valid_o_INST_0_i_5_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     8.888 f  u_scoreboard/acmp_sb_slot_r[1]_i_1/O
+                         net (fo=11, unplaced)        0.393     9.281    u_dispatch/u_acmp_q/p_259_in
+                         LUT6 (Prop_lut6_I4_O)        0.105     9.386 f  u_dispatch/u_acmp_q/ctlr_x_r[63]_i_2/O
+                         net (fo=18, unplaced)        0.404     9.790    u_listener/lsn_txn_valid_w
+                         LUT4 (Prop_lut4_I2_O)        0.105     9.895 r  u_listener/ptr_r[2]_i_3/O
+                         net (fo=2, unplaced)         0.358    10.253    u_listener/lsn_evt_tk_ready_raw_w
+                         LUT2 (Prop_lut2_I0_O)        0.105    10.358 r  u_listener/ptr_r[2]_i_2/O
+                         net (fo=20, unplaced)        0.407    10.765    u_event_router/mem_r_reg
+                         LUT3 (Prop_lut3_I2_O)        0.105    10.870 f  u_event_router/pending_r[6]_i_2/O
+                         net (fo=25, unplaced)        0.412    11.282    u_event_router/pending_r[6]_i_2_n_0
+                         LUT6 (Prop_lut6_I2_O)        0.105    11.387 r  u_event_router/sel_r[0]_i_16/O
+                         net (fo=1, unplaced)         0.582    11.969    u_event_router/sel_r[0]_i_16_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    12.074 r  u_event_router/sel_r[0]_i_9/O
+                         net (fo=1, unplaced)         0.328    12.402    u_event_router/sel_r[0]_i_9_n_0
+                         LUT6 (Prop_lut6_I2_O)        0.105    12.507 r  u_event_router/sel_r[0]_i_5/O
+                         net (fo=1, unplaced)         0.347    12.854    u_event_router/sel_r[0]_i_5_n_0
+                         LUT6 (Prop_lut6_I3_O)        0.105    12.959 r  u_event_router/sel_r[0]_i_1__0/O
+                         net (fo=1, unplaced)         0.000    12.959    u_event_router/sel_r[0]_i_1__0_n_0
+                         FDRE                                         r  u_event_router/sel_r_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  <hidden>
+                                                      0.000    10.000 r  clk_i
+                         net (fo=22975, unset)        0.748    10.748    u_event_router/clk_i
+                         FDRE                                         r  u_event_router/sel_r_reg[0]/C
+                         clock pessimism              0.000    10.748    <hidden>
+                         clock uncertainty           -0.035    10.712    <hidden>
+                         FDRE (Setup_fdre_C_D)        0.043    10.755    u_event_router/sel_r_reg[0]
+  -------------------------------------------------------------------
+                         required time                         10.755    <hidden>
+                         arrival time                         -12.959    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 -2.204    <hidden>
+
+Slack (VIOLATED) :        -1.999ns  (required time - arrival time)
+  Source:                 u_notify/cmdq_count_r_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_event_router/sel_r_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        11.967ns  (logic 2.834ns (23.682%)  route 9.133ns (76.318%))
+  Logic Levels:           22  (LUT2=1 LUT3=1 LUT4=6 LUT5=5 LUT6=9)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 10.748 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=22975, unset)        0.787     0.787    u_notify/clk_i
+                         FDRE                                         r  u_notify/cmdq_count_r_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_notify/cmdq_count_r_reg[3]/Q
+                         net (fo=7, unplaced)         0.692     1.876    u_notify/cmdq_count_r[3]
+                         LUT5 (Prop_lut5_I0_O)        0.232     2.108 f  u_notify/em_excl_r[63]_i_3/O
+                         net (fo=73, unplaced)        0.439     2.547    u_notify/em_excl_r[63]_i_3_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.105     2.652 f  u_notify/em_active_r_i_2/O
+                         net (fo=8, unplaced)         0.366     3.018    u_aecp/u_resp/barrier_pend_r_i_2
+                         LUT6 (Prop_lut6_I0_O)        0.105     3.123 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_21/O
+                         net (fo=3, unplaced)         0.365     3.488    u_aecp/u_resp/a_st_r_reg[0]_rep_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     3.593 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6/O
+                         net (fo=1, unplaced)         0.328     3.921    u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105     4.026 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_1/O
+                         net (fo=34, unplaced)        0.420     4.446    u_talker/sb_pick_aecp_w
+                         LUT5 (Prop_lut5_I4_O)        0.105     4.551 r  u_talker/cls_r[0][3]_i_3/O
+                         net (fo=31, unplaced)        0.417     4.968    u_dispatch/u_acmp_q/sb_pick_acmp_w
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.073 f  u_dispatch/u_acmp_q/cls_r[0][2]_i_1/O
+                         net (fo=43, unplaced)        0.661     5.734    u_dispatch/u_acmp_q/out_data_r_reg[55]_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.839 f  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_78/O
+                         net (fo=8, unplaced)         0.385     6.224    u_scoreboard/aecp_txn_valid_o_INST_0_i_40_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     6.329 r  u_scoreboard/aecp_txn_valid_o_INST_0_i_113/O
+                         net (fo=2, unplaced)         0.358     6.687    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56_0
+                         LUT5 (Prop_lut5_I2_O)        0.105     6.792 r  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107/O
+                         net (fo=1, unplaced)         0.347     7.139    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107_n_0
+                         LUT6 (Prop_lut6_I2_O)        0.105     7.244 r  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56/O
+                         net (fo=1, unplaced)         0.328     7.572    u_scoreboard/valid_r[7]_i_3_2
+                         LUT6 (Prop_lut6_I3_O)        0.105     7.677 r  u_scoreboard/aecp_txn_valid_o_INST_0_i_20/O
+                         net (fo=2, unplaced)         0.358     8.035    u_scoreboard/aecp_txn_valid_o_INST_0_i_20_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     8.140 f  u_scoreboard/aecp_txn_valid_o_INST_0_i_5/O
+                         net (fo=21, unplaced)        0.643     8.783    u_scoreboard/aecp_txn_valid_o_INST_0_i_5_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     8.888 r  u_scoreboard/acmp_sb_slot_r[1]_i_1/O
+                         net (fo=11, unplaced)        0.393     9.281    u_dispatch/u_acmp_q/p_259_in
+                         LUT6 (Prop_lut6_I4_O)        0.105     9.386 r  u_dispatch/u_acmp_q/ctlr_x_r[63]_i_2/O
+                         net (fo=18, unplaced)        0.404     9.790    u_listener/lsn_txn_valid_w
+                         LUT4 (Prop_lut4_I2_O)        0.105     9.895 f  u_listener/ptr_r[2]_i_3/O
+                         net (fo=2, unplaced)         0.358    10.253    u_listener/lsn_evt_tk_ready_raw_w
+                         LUT2 (Prop_lut2_I0_O)        0.105    10.358 f  u_listener/ptr_r[2]_i_2/O
+                         net (fo=20, unplaced)        0.407    10.765    u_event_router/mem_r_reg
+                         LUT3 (Prop_lut3_I2_O)        0.105    10.870 r  u_event_router/pending_r[6]_i_2/O
+                         net (fo=25, unplaced)        0.412    11.282    u_event_router/pending_r[6]_i_2_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.105    11.387 r  u_event_router/sel_r[2]_i_15/O
+                         net (fo=2, unplaced)         0.358    11.745    u_event_router/sel_r[2]_i_15_n_0
+                         LUT6 (Prop_lut6_I3_O)        0.105    11.850 r  u_event_router/sel_r[1]_i_17/O
+                         net (fo=1, unplaced)         0.347    12.197    u_event_router/sel_r[1]_i_17_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.105    12.302 r  u_event_router/sel_r[1]_i_5/O
+                         net (fo=1, unplaced)         0.347    12.649    u_event_router/sel_r[1]_i_5_n_0
+                         LUT6 (Prop_lut6_I3_O)        0.105    12.754 r  u_event_router/sel_r[1]_i_1__0/O
+                         net (fo=1, unplaced)         0.000    12.754    u_event_router/sel_r[1]_i_1__0_n_0
+                         FDRE                                         r  u_event_router/sel_r_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  <hidden>
+                                                      0.000    10.000 r  clk_i
+                         net (fo=22975, unset)        0.748    10.748    u_event_router/clk_i
+                         FDRE                                         r  u_event_router/sel_r_reg[1]/C
+                         clock pessimism              0.000    10.748    <hidden>
+                         clock uncertainty           -0.035    10.712    <hidden>
+                         FDRE (Setup_fdre_C_D)        0.043    10.755    u_event_router/sel_r_reg[1]
+  -------------------------------------------------------------------
+                         required time                         10.755    <hidden>
+                         arrival time                         -12.754    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 -1.999    <hidden>
+
+Slack (VIOLATED) :        -1.955ns  (required time - arrival time)
+  Source:                 u_notify/cmdq_count_r_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_event_router/sel_r_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        11.923ns  (logic 2.834ns (23.769%)  route 9.089ns (76.231%))
+  Logic Levels:           22  (LUT2=1 LUT4=7 LUT5=5 LUT6=9)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 10.748 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=22975, unset)        0.787     0.787    u_notify/clk_i
+                         FDRE                                         r  u_notify/cmdq_count_r_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_notify/cmdq_count_r_reg[3]/Q
+                         net (fo=7, unplaced)         0.692     1.876    u_notify/cmdq_count_r[3]
+                         LUT5 (Prop_lut5_I0_O)        0.232     2.108 f  u_notify/em_excl_r[63]_i_3/O
+                         net (fo=73, unplaced)        0.439     2.547    u_notify/em_excl_r[63]_i_3_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.105     2.652 f  u_notify/em_active_r_i_2/O
+                         net (fo=8, unplaced)         0.366     3.018    u_aecp/u_resp/barrier_pend_r_i_2
+                         LUT6 (Prop_lut6_I0_O)        0.105     3.123 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_21/O
+                         net (fo=3, unplaced)         0.365     3.488    u_aecp/u_resp/a_st_r_reg[0]_rep_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     3.593 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6/O
+                         net (fo=1, unplaced)         0.328     3.921    u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105     4.026 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_1/O
+                         net (fo=34, unplaced)        0.420     4.446    u_talker/sb_pick_aecp_w
+                         LUT5 (Prop_lut5_I4_O)        0.105     4.551 r  u_talker/cls_r[0][3]_i_3/O
+                         net (fo=31, unplaced)        0.417     4.968    u_dispatch/u_acmp_q/sb_pick_acmp_w
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.073 r  u_dispatch/u_acmp_q/cls_r[0][2]_i_1/O
+                         net (fo=43, unplaced)        0.661     5.734    u_dispatch/u_acmp_q/out_data_r_reg[55]_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.839 r  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_78/O
+                         net (fo=8, unplaced)         0.385     6.224    u_scoreboard/aecp_txn_valid_o_INST_0_i_40_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     6.329 f  u_scoreboard/aecp_txn_valid_o_INST_0_i_113/O
+                         net (fo=2, unplaced)         0.358     6.687    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56_0
+                         LUT5 (Prop_lut5_I2_O)        0.105     6.792 f  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107/O
+                         net (fo=1, unplaced)         0.347     7.139    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107_n_0
+                         LUT6 (Prop_lut6_I2_O)        0.105     7.244 f  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56/O
+                         net (fo=1, unplaced)         0.328     7.572    u_scoreboard/valid_r[7]_i_3_2
+                         LUT6 (Prop_lut6_I3_O)        0.105     7.677 f  u_scoreboard/aecp_txn_valid_o_INST_0_i_20/O
+                         net (fo=2, unplaced)         0.358     8.035    u_scoreboard/aecp_txn_valid_o_INST_0_i_20_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     8.140 r  u_scoreboard/aecp_txn_valid_o_INST_0_i_5/O
+                         net (fo=21, unplaced)        0.643     8.783    u_scoreboard/aecp_txn_valid_o_INST_0_i_5_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     8.888 f  u_scoreboard/acmp_sb_slot_r[1]_i_1/O
+                         net (fo=11, unplaced)        0.393     9.281    u_dispatch/u_acmp_q/p_259_in
+                         LUT6 (Prop_lut6_I4_O)        0.105     9.386 f  u_dispatch/u_acmp_q/ctlr_x_r[63]_i_2/O
+                         net (fo=18, unplaced)        0.404     9.790    u_listener/lsn_txn_valid_w
+                         LUT4 (Prop_lut4_I2_O)        0.105     9.895 r  u_listener/ptr_r[2]_i_3/O
+                         net (fo=2, unplaced)         0.358    10.253    u_listener/lsn_evt_tk_ready_raw_w
+                         LUT2 (Prop_lut2_I0_O)        0.105    10.358 r  u_listener/ptr_r[2]_i_2/O
+                         net (fo=20, unplaced)        0.407    10.765    u_event_router/mem_r_reg
+                         LUT4 (Prop_lut4_I0_O)        0.105    10.870 f  u_event_router/pending_r[7]_i_2/O
+                         net (fo=6, unplaced)         0.379    11.249    u_event_router/pending_r[7]_i_2_n_0
+                         LUT6 (Prop_lut6_I2_O)        0.105    11.354 r  u_event_router/sel_r[2]_i_23/O
+                         net (fo=1, unplaced)         0.347    11.701    u_event_router/sel_r[2]_i_23_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.806 r  u_event_router/sel_r[2]_i_14/O
+                         net (fo=1, unplaced)         0.347    12.153    u_event_router/sel_r[2]_i_14_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    12.258 r  u_event_router/sel_r[2]_i_5/O
+                         net (fo=1, unplaced)         0.347    12.605    u_event_router/sel_r[2]_i_5_n_0
+                         LUT6 (Prop_lut6_I3_O)        0.105    12.710 r  u_event_router/sel_r[2]_i_1__0/O
+                         net (fo=1, unplaced)         0.000    12.710    u_event_router/sel_r[2]_i_1__0_n_0
+                         FDRE                                         r  u_event_router/sel_r_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  <hidden>
+                                                      0.000    10.000 r  clk_i
+                         net (fo=22975, unset)        0.748    10.748    u_event_router/clk_i
+                         FDRE                                         r  u_event_router/sel_r_reg[2]/C
+                         clock pessimism              0.000    10.748    <hidden>
+                         clock uncertainty           -0.035    10.712    <hidden>
+                         FDRE (Setup_fdre_C_D)        0.043    10.755    u_event_router/sel_r_reg[2]
+  -------------------------------------------------------------------
+                         required time                         10.755    <hidden>
+                         arrival time                         -12.710    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 -1.955    <hidden>
+
+Slack (VIOLATED) :        -1.758ns  (required time - arrival time)
+  Source:                 u_notify/cmdq_count_r_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_aecp/u_resp/tmo_r_reg[0]/R
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        11.260ns  (logic 2.519ns (22.371%)  route 8.741ns (77.629%))
+  Logic Levels:           19  (LUT2=1 LUT3=1 LUT4=6 LUT5=6 LUT6=5)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 10.748 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=22975, unset)        0.787     0.787    u_notify/clk_i
+                         FDRE                                         r  u_notify/cmdq_count_r_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_notify/cmdq_count_r_reg[3]/Q
+                         net (fo=7, unplaced)         0.692     1.876    u_notify/cmdq_count_r[3]
+                         LUT5 (Prop_lut5_I0_O)        0.232     2.108 f  u_notify/em_excl_r[63]_i_3/O
+                         net (fo=73, unplaced)        0.439     2.547    u_notify/em_excl_r[63]_i_3_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.105     2.652 f  u_notify/em_active_r_i_2/O
+                         net (fo=8, unplaced)         0.366     3.018    u_aecp/u_resp/barrier_pend_r_i_2
+                         LUT6 (Prop_lut6_I0_O)        0.105     3.123 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_21/O
+                         net (fo=3, unplaced)         0.365     3.488    u_aecp/u_resp/a_st_r_reg[0]_rep_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     3.593 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6/O
+                         net (fo=1, unplaced)         0.328     3.921    u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105     4.026 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_1/O
+                         net (fo=34, unplaced)        0.420     4.446    u_talker/sb_pick_aecp_w
+                         LUT5 (Prop_lut5_I4_O)        0.105     4.551 r  u_talker/cls_r[0][3]_i_3/O
+                         net (fo=31, unplaced)        0.417     4.968    u_dispatch/u_acmp_q/sb_pick_acmp_w
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.073 f  u_dispatch/u_acmp_q/cls_r[0][2]_i_1/O
+                         net (fo=43, unplaced)        0.661     5.734    u_dispatch/u_acmp_q/out_data_r_reg[55]_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.839 f  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_78/O
+                         net (fo=8, unplaced)         0.385     6.224    u_scoreboard/aecp_txn_valid_o_INST_0_i_40_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     6.329 r  u_scoreboard/aecp_txn_valid_o_INST_0_i_113/O
+                         net (fo=2, unplaced)         0.358     6.687    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56_0
+                         LUT5 (Prop_lut5_I2_O)        0.105     6.792 r  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107/O
+                         net (fo=1, unplaced)         0.347     7.139    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107_n_0
+                         LUT6 (Prop_lut6_I2_O)        0.105     7.244 r  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56/O
+                         net (fo=1, unplaced)         0.328     7.572    u_scoreboard/valid_r[7]_i_3_2
+                         LUT6 (Prop_lut6_I3_O)        0.105     7.677 r  u_scoreboard/aecp_txn_valid_o_INST_0_i_20/O
+                         net (fo=2, unplaced)         0.358     8.035    u_scoreboard/aecp_txn_valid_o_INST_0_i_20_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     8.140 f  u_scoreboard/aecp_txn_valid_o_INST_0_i_5/O
+                         net (fo=21, unplaced)        0.643     8.783    u_scoreboard/aecp_txn_valid_o_INST_0_i_5_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     8.888 r  u_scoreboard/aecp_txn_valid_o_INST_0/O
+                         net (fo=41, unplaced)        0.424     9.312    u_notify/cmd_r_reg[sequence_id][15][0]
+                         LUT3 (Prop_lut3_I1_O)        0.105     9.417 r  u_notify/amap_remove_r_i_4/O
+                         net (fo=157, unplaced)       0.458     9.875    u_notify/pe_lock_r_reg_1
+                         LUT4 (Prop_lut4_I3_O)        0.105     9.980 f  u_notify/amap_remove_r_i_3/O
+                         net (fo=6, unplaced)         0.379    10.359    u_aecp/u_resp/amap_remove_r_reg_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.464 r  u_aecp/u_resp/amap_remove_r_i_1/O
+                         net (fo=22, unplaced)        0.409    10.873    u_aecp/u_resp/a_st_r_reg[0]_rep
+                         LUT2 (Prop_lut2_I0_O)        0.105    10.978 r  u_aecp/u_resp/lane_s_r[7]_i_1/O
+                         net (fo=48, unplaced)        0.428    11.406    u_aecp/u_resp/lane_s_r[7]_i_1_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.511 r  u_aecp/u_resp/tmo_r[0]_i_1/O
+                         net (fo=13, unplaced)        0.536    12.047    u_aecp/u_resp/tmo_r[0]_i_1_n_0
+                         FDRE                                         r  u_aecp/u_resp/tmo_r_reg[0]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  <hidden>
+                                                      0.000    10.000 r  clk_i
+                         net (fo=22975, unset)        0.748    10.748    u_aecp/u_resp/clk_i
+                         FDRE                                         r  u_aecp/u_resp/tmo_r_reg[0]/C
+                         clock pessimism              0.000    10.748    <hidden>
+                         clock uncertainty           -0.035    10.712    <hidden>
+                         FDRE (Setup_fdre_C_R)       -0.423    10.289    u_aecp/u_resp/tmo_r_reg[0]
+  -------------------------------------------------------------------
+                         required time                         10.289    <hidden>
+                         arrival time                         -12.047    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 -1.758    <hidden>
+
+Slack (VIOLATED) :        -1.758ns  (required time - arrival time)
+  Source:                 u_notify/cmdq_count_r_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            u_aecp/u_resp/tmo_r_reg[10]/R
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (clk rise@10.000ns - clk rise@0.000ns)
+  Data Path Delay:        11.260ns  (logic 2.519ns (22.371%)  route 8.741ns (77.629%))
+  Logic Levels:           19  (LUT2=1 LUT3=1 LUT4=6 LUT5=6 LUT6=5)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 10.748 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=22975, unset)        0.787     0.787    u_notify/clk_i
+                         FDRE                                         r  u_notify/cmdq_count_r_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_notify/cmdq_count_r_reg[3]/Q
+                         net (fo=7, unplaced)         0.692     1.876    u_notify/cmdq_count_r[3]
+                         LUT5 (Prop_lut5_I0_O)        0.232     2.108 f  u_notify/em_excl_r[63]_i_3/O
+                         net (fo=73, unplaced)        0.439     2.547    u_notify/em_excl_r[63]_i_3_n_0
+                         LUT6 (Prop_lut6_I5_O)        0.105     2.652 f  u_notify/em_active_r_i_2/O
+                         net (fo=8, unplaced)         0.366     3.018    u_aecp/u_resp/barrier_pend_r_i_2
+                         LUT6 (Prop_lut6_I0_O)        0.105     3.123 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_21/O
+                         net (fo=3, unplaced)         0.365     3.488    u_aecp/u_resp/a_st_r_reg[0]_rep_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     3.593 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6/O
+                         net (fo=1, unplaced)         0.328     3.921    u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105     4.026 f  u_aecp/u_resp/aecp_txn_valid_o_INST_0_i_1/O
+                         net (fo=34, unplaced)        0.420     4.446    u_talker/sb_pick_aecp_w
+                         LUT5 (Prop_lut5_I4_O)        0.105     4.551 r  u_talker/cls_r[0][3]_i_3/O
+                         net (fo=31, unplaced)        0.417     4.968    u_dispatch/u_acmp_q/sb_pick_acmp_w
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.073 f  u_dispatch/u_acmp_q/cls_r[0][2]_i_1/O
+                         net (fo=43, unplaced)        0.661     5.734    u_dispatch/u_acmp_q/out_data_r_reg[55]_0
+                         LUT4 (Prop_lut4_I1_O)        0.105     5.839 f  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_78/O
+                         net (fo=8, unplaced)         0.385     6.224    u_scoreboard/aecp_txn_valid_o_INST_0_i_40_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     6.329 r  u_scoreboard/aecp_txn_valid_o_INST_0_i_113/O
+                         net (fo=2, unplaced)         0.358     6.687    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56_0
+                         LUT5 (Prop_lut5_I2_O)        0.105     6.792 r  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107/O
+                         net (fo=1, unplaced)         0.347     7.139    u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_107_n_0
+                         LUT6 (Prop_lut6_I2_O)        0.105     7.244 r  u_dispatch/u_acmp_q/aecp_txn_valid_o_INST_0_i_56/O
+                         net (fo=1, unplaced)         0.328     7.572    u_scoreboard/valid_r[7]_i_3_2
+                         LUT6 (Prop_lut6_I3_O)        0.105     7.677 r  u_scoreboard/aecp_txn_valid_o_INST_0_i_20/O
+                         net (fo=2, unplaced)         0.358     8.035    u_scoreboard/aecp_txn_valid_o_INST_0_i_20_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     8.140 f  u_scoreboard/aecp_txn_valid_o_INST_0_i_5/O
+                         net (fo=21, unplaced)        0.643     8.783    u_scoreboard/aecp_txn_valid_o_INST_0_i_5_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     8.888 r  u_scoreboard/aecp_txn_valid_o_INST_0/O
+                         net (fo=41, unplaced)        0.424     9.312    u_notify/cmd_r_reg[sequence_id][15][0]
+                         LUT3 (Prop_lut3_I1_O)        0.105     9.417 r  u_notify/amap_remove_r_i_4/O
+                         net (fo=157, unplaced)       0.458     9.875    u_notify/pe_lock_r_reg_1
+                         LUT4 (Prop_lut4_I3_O)        0.105     9.980 f  u_notify/amap_remove_r_i_3/O
+                         net (fo=6, unplaced)         0.379    10.359    u_aecp/u_resp/amap_remove_r_reg_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.464 r  u_aecp/u_resp/amap_remove_r_i_1/O
+                         net (fo=22, unplaced)        0.409    10.873    u_aecp/u_resp/a_st_r_reg[0]_rep
+                         LUT2 (Prop_lut2_I0_O)        0.105    10.978 r  u_aecp/u_resp/lane_s_r[7]_i_1/O
+                         net (fo=48, unplaced)        0.428    11.406    u_aecp/u_resp/lane_s_r[7]_i_1_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.511 r  u_aecp/u_resp/tmo_r[0]_i_1/O
+                         net (fo=13, unplaced)        0.536    12.047    u_aecp/u_resp/tmo_r[0]_i_1_n_0
+                         FDRE                                         r  u_aecp/u_resp/tmo_r_reg[10]/R
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       10.000    10.000 r  <hidden>
+                                                      0.000    10.000 r  clk_i
+                         net (fo=22975, unset)        0.748    10.748    u_aecp/u_resp/clk_i
+                         FDRE                                         r  u_aecp/u_resp/tmo_r_reg[10]/C
+                         clock pessimism              0.000    10.748    <hidden>
+                         clock uncertainty           -0.035    10.712    <hidden>
+                         FDRE (Setup_fdre_C_R)       -0.423    10.289    u_aecp/u_resp/tmo_r_reg[10]
+  -------------------------------------------------------------------
+                         required time                         10.289    <hidden>
+                         arrival time                         -12.047    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 -1.758    <hidden>
+
+
+
+

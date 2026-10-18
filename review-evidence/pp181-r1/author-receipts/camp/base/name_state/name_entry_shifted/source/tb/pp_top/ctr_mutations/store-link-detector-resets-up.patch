@@ -1,0 +1,10 @@
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -1917,6 +1917,7 @@
+     d->entity_enable_i = 0; d->link_up_i = 0; d->gm_change_i = 0;
+     d->gm_id_i = GM0; d->gptp_domain_i = DOM0;
+     itf = ItfCounters{};
++    itf.link_q = true;
+     itf.gm_q = GM0;
+     mclk_locked = false;
+     d->p2p_i = 1; d->cfg_rank_i = 1;

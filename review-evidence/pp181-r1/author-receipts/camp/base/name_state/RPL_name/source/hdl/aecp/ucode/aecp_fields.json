@@ -1,0 +1,874 @@
+[
+  {
+    "path": "about",
+    "status": "held to nothing",
+    "reason": "Explanatory prose; no consumer validates its assertions."
+  },
+  {
+    "path": "commands",
+    "status": "held to nothing",
+    "reason": "Container: shape is schema-checked; value claims belong to the individual fields below."
+  },
+  {
+    "path": "commands[].clause",
+    "status": "held to nothing",
+    "reason": "Specification citation prose; no semantic citation check."
+  },
+  {
+    "path": "commands[].command",
+    "status": "held to nothing",
+    "reason": "Command-size container; each leaf is classified below."
+  },
+  {
+    "path": "commands[].command.cdl",
+    "status": "held",
+    "reason": "Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an unsolicited body.",
+    "consumer": "record._floor; table._sizes",
+    "check": "command floor or echo equality",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            25,
+            "command",
+            "cdl"
+          ],
+          "value": 20
+        }
+      ],
+      "words": [
+        "decode: GET_COUNTERS:",
+        "command cdl"
+      ]
+    }
+  },
+  {
+    "path": "commands[].command.floor",
+    "status": "held",
+    "reason": "Explicit shorter accepted floor for echo commands.",
+    "consumer": "record._floor",
+    "check": "declared floor",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            0,
+            "command",
+            "floor"
+          ],
+          "value": 16
+        }
+      ],
+      "words": [
+        "decode: ACQUIRE_ENTITY:",
+        "floor is 16"
+      ]
+    }
+  },
+  {
+    "path": "commands[].command.max",
+    "status": "held to nothing",
+    "reason": "GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100 and does not hold this ceiling."
+  },
+  {
+    "path": "commands[].command.per",
+    "status": "held",
+    "reason": "Exact gcd of accepted offsets for both mapping echo commands.",
+    "consumer": "record._floor",
+    "check": "accepted-offset gcd",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            27,
+            "command",
+            "per"
+          ],
+          "value": 4
+        },
+        {
+          "path": [
+            "commands",
+            27,
+            "response",
+            "per"
+          ],
+          "value": 4
+        }
+      ],
+      "words": [
+        "decode: ADD_AUDIO_MAPPINGS: command per is 4",
+        "gcd",
+        "is 8"
+      ]
+    }
+  },
+  {
+    "path": "commands[].command.plus",
+    "status": "held to nothing",
+    "reason": "Variable-part label used in rendering; presence selects a variable size rule, but its wording is not validated."
+  },
+  {
+    "path": "commands[].command.unit",
+    "status": "held to nothing",
+    "reason": "Rendering label for N records; existence is schema-checked, wording is not behavior."
+  },
+  {
+    "path": "commands[].doc",
+    "status": "held to nothing",
+    "reason": "F06.14 rendering data; no semantic validation of the prose."
+  },
+  {
+    "path": "commands[].doc.class",
+    "status": "held to nothing",
+    "reason": "F06.14 rendering prose; changes regenerate text without validating the assertion."
+  },
+  {
+    "path": "commands[].doc.mandate",
+    "status": "held to nothing",
+    "reason": "F06.14 rendering prose; changes regenerate text without validating the assertion."
+  },
+  {
+    "path": "commands[].doc.scope",
+    "status": "held to nothing",
+    "reason": "F06.14 rendering prose; changes regenerate text without validating the assertion."
+  },
+  {
+    "path": "commands[].doc.size",
+    "status": "held to nothing",
+    "reason": "F06.14 rendering prose; changes regenerate text without validating the assertion."
+  },
+  {
+    "path": "commands[].engine_status",
+    "status": "held to nothing",
+    "reason": "Held to nothing: engine-built status exemptions are trusted; their exact set and reachability are not independently held."
+  },
+  {
+    "path": "commands[].entries",
+    "status": "held",
+    "reason": "Every dispatched program and first-entry decode floor in the observed population.",
+    "consumer": "record._dispatch; record._floor",
+    "check": "dispatch entries",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            25,
+            "entries"
+          ],
+          "value": [
+            "GCLKS",
+            "BADARG"
+          ]
+        }
+      ],
+      "words": [
+        "decode: GET_COUNTERS:",
+        "entries"
+      ]
+    }
+  },
+  {
+    "path": "commands[].gdi",
+    "status": "held",
+    "reason": "Observed GET_DYNAMIC_INFO membership.",
+    "consumer": "record._gdi_members",
+    "check": "GDI membership",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            17,
+            "gdi"
+          ],
+          "value": true
+        }
+      ],
+      "words": [
+        "decode:",
+        "GET_CONTROL"
+      ]
+    }
+  },
+  {
+    "path": "commands[].hazard",
+    "status": "held",
+    "reason": "Top-level classifier hazard name.",
+    "consumer": "rtl.check_classifier",
+    "check": "command hazard",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            25,
+            "hazard"
+          ],
+          "value": "MAP_CFG"
+        }
+      ],
+      "words": [
+        "classifier: GET_COUNTERS:"
+      ]
+    }
+  },
+  {
+    "path": "commands[].lock",
+    "status": "held",
+    "reason": "ROM CHECK_LOCK reachability and scoreboard class membership.",
+    "consumer": "rom._lock_and_notify; rtl.check_scoreboard",
+    "check": "lock protection",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            10,
+            "lock"
+          ],
+          "value": false
+        }
+      ],
+      "words": [
+        "rom: SET_NAME:",
+        "lock false"
+      ]
+    }
+  },
+  {
+    "path": "commands[].message",
+    "status": "held",
+    "reason": "AEM/MVU dispatch identity, within the observed sweep.",
+    "consumer": "record._served; table._identity",
+    "check": "message dispatch",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            25,
+            "message"
+          ],
+          "value": "MVU"
+        }
+      ],
+      "words": [
+        "decode: GET_COUNTERS:"
+      ]
+    }
+  },
+  {
+    "path": "commands[].name",
+    "status": "held to nothing",
+    "reason": "Identity and diagnostic label; uniqueness is checked, but spelling is not an engine invariant (except the required MVU identity)."
+  },
+  {
+    "path": "commands[].notify",
+    "status": "held",
+    "reason": "Presence of the notification contract.",
+    "consumer": "rom._lock_and_notify; record._unsolicited",
+    "check": "notification presence",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            4,
+            "notify"
+          ],
+          "value": null
+        }
+      ],
+      "words": [
+        "rom: SET_CONFIGURATION:",
+        "notification class"
+      ]
+    }
+  },
+  {
+    "path": "commands[].notify.body",
+    "status": "held",
+    "reason": "Observed unsolicited dispatch and ROM body length.",
+    "consumer": "record._unsolicited; rom._lock_and_notify",
+    "check": "unsolicited body",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            4,
+            "notify",
+            "body"
+          ],
+          "value": "GCLKS"
+        }
+      ],
+      "words": [
+        "decode:",
+        "SET_CONFIGURATION"
+      ]
+    }
+  },
+  {
+    "path": "commands[].notify.class",
+    "status": "held",
+    "reason": "Enqueued notification class; null means an engine event.",
+    "consumer": "rom._lock_and_notify; rtl.check_notify",
+    "check": "notification class",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            4,
+            "notify",
+            "class"
+          ],
+          "value": 2
+        }
+      ],
+      "words": [
+        "rom: SET_CONFIGURATION:",
+        "notification class"
+      ]
+    }
+  },
+  {
+    "path": "commands[].notify.doc",
+    "status": "held to nothing",
+    "reason": "F06.14 notification prose; no semantic validation."
+  },
+  {
+    "path": "commands[].notify.kind",
+    "status": "held",
+    "reason": "Notification kind mapping and observed unsolicited job.",
+    "consumer": "rtl.check_notify; record._unsolicited",
+    "check": "notification kind",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            4,
+            "notify",
+            "kind"
+          ],
+          "value": "PP_UNS_NAME_C"
+        }
+      ],
+      "words": [
+        "notify: SET_CONFIGURATION:",
+        "PP_UNS_NAME_C"
+      ]
+    }
+  },
+  {
+    "path": "commands[].opcode",
+    "status": "held",
+    "reason": "Engine constant and observed command_type, within the sweep.",
+    "consumer": "rtl.check_engine; record._served",
+    "check": "opcode",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            25,
+            "opcode"
+          ],
+          "value": "0x007E"
+        }
+      ],
+      "words": [
+        "engine: GET_COUNTERS:",
+        "opcode"
+      ]
+    }
+  },
+  {
+    "path": "commands[].oversize",
+    "status": "held to nothing",
+    "reason": "Held to nothing: F06.14 rendering input; no gate derives the oversize flag from response size or the Milan list."
+  },
+  {
+    "path": "commands[].response",
+    "status": "held to nothing",
+    "reason": "Response-size container; each leaf is classified below."
+  },
+  {
+    "path": "commands[].response.cdl",
+    "status": "held",
+    "reason": "ROM fixed part, failure/unsolicited bodies and observed answers; echo responses equal command cdl (see command.cdl limits).",
+    "consumer": "rom._entries; record._answers; table._sizes",
+    "check": "response size",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            26,
+            "response",
+            "cdl"
+          ],
+          "value": 20
+        }
+      ],
+      "words": [
+        "rom: GET_AUDIO_MAP:",
+        "response"
+      ]
+    }
+  },
+  {
+    "path": "commands[].response.echo",
+    "status": "held",
+    "reason": "Observed command-length responses and ROM echo rule.",
+    "consumer": "record._answers; rom._entries",
+    "check": "echo response",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            8,
+            "response",
+            "echo"
+          ],
+          "value": false
+        }
+      ],
+      "words": [
+        "rom: SET_STREAM_INFO:",
+        "E_SINFO answers",
+        "table's response"
+      ]
+    }
+  },
+  {
+    "path": "commands[].response.engine",
+    "status": "held",
+    "reason": "Engine-built aggregate versus dispatched program.",
+    "consumer": "record._dispatch",
+    "check": "engine-built answer",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            29,
+            "response",
+            "engine"
+          ],
+          "value": false
+        }
+      ],
+      "words": [
+        "decode: GET_DYNAMIC_INFO:",
+        "without a program"
+      ]
+    }
+  },
+  {
+    "path": "commands[].response.max",
+    "status": "held to nothing",
+    "reason": "GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100 and does not hold this ceiling."
+  },
+  {
+    "path": "commands[].response.per",
+    "status": "held",
+    "reason": "ROM variable step; echo step equals the command step, whose accepted-offset gcd is exact.",
+    "consumer": "rom._entries; table._sizes; record._floor",
+    "check": "response record step",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            23,
+            "response",
+            "per"
+          ],
+          "value": 2
+        }
+      ],
+      "words": [
+        "rom: GET_AVB_INFO:",
+        "response"
+      ]
+    }
+  },
+  {
+    "path": "commands[].response.plus",
+    "status": "held to nothing",
+    "reason": "Variable-part label used in rendering; presence selects a variable size rule, but its wording is not validated."
+  },
+  {
+    "path": "commands[].response.stub",
+    "status": "held",
+    "reason": "Fixed failure response length.",
+    "consumer": "rom._entries; record._answers",
+    "check": "failure stub",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            3,
+            "response",
+            "stub"
+          ],
+          "value": 24
+        }
+      ],
+      "words": [
+        "rom: READ_DESCRIPTOR:",
+        "response"
+      ]
+    }
+  },
+  {
+    "path": "commands[].response.unit",
+    "status": "held to nothing",
+    "reason": "Rendering label for N records; existence is schema-checked, wording is not behavior."
+  },
+  {
+    "path": "commands[].rtl",
+    "status": "held",
+    "reason": "Declared engine constant identity.",
+    "consumer": "rtl.check_engine",
+    "check": "opcode constant",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            25,
+            "rtl"
+          ],
+          "value": "OP_MISSING_C"
+        }
+      ],
+      "words": [
+        "engine: GET_COUNTERS:",
+        "OP_MISSING_C"
+      ]
+    }
+  },
+  {
+    "path": "commands[].status",
+    "status": "held",
+    "reason": "ROM path statuses and observed answers, conditional on the trusted common_status and engine_status exemptions.",
+    "consumer": "rom._statuses; record._answers",
+    "check": "command status set",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "commands",
+            4,
+            "status"
+          ],
+          "value": [
+            "SUCCESS",
+            "ENTITY_LOCKED",
+            "BAD_ARGUMENTS"
+          ]
+        }
+      ],
+      "words": [
+        "rom: SET_CONFIGURATION:",
+        "STREAM_IS_RUNNING"
+      ]
+    }
+  },
+  {
+    "path": "common_status",
+    "status": "held to nothing",
+    "reason": "Status exemptions trusted by the ROM and decode checks; reachability from a shared path only is not checked."
+  },
+  {
+    "path": "common_status.AEM",
+    "status": "held to nothing",
+    "reason": "Held to nothing: these shared-status exemptions are trusted, not proven reachable for every command; they can hide command-owned statuses."
+  },
+  {
+    "path": "common_status.MVU",
+    "status": "held to nothing",
+    "reason": "Held to nothing: these shared-status exemptions are trusted, not proven reachable for every command; they can hide command-owned statuses."
+  },
+  {
+    "path": "documented",
+    "status": "held to nothing",
+    "reason": "Includes six semantic unimplemented GDI members; individual fields below distinguish semantics from identity and rendering."
+  },
+  {
+    "path": "documented[].cells",
+    "status": "held to nothing",
+    "reason": "F06.14 rendering cells; cell count is checked, their prose is not machine semantics."
+  },
+  {
+    "path": "documented[].gdi",
+    "status": "held",
+    "reason": "Optional semantic membership flag for the six unimplemented GDI members.",
+    "consumer": "record._gdi_members",
+    "check": "unimplemented GDI membership",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "documented",
+            3,
+            "gdi"
+          ],
+          "value": false
+        }
+      ],
+      "words": [
+        "decode:",
+        "GET_DYNAMIC_INFO",
+        "0x000B"
+      ]
+    }
+  },
+  {
+    "path": "documented[].name",
+    "status": "held to nothing",
+    "reason": "Identity and diagnostic label, also rendered; required by schema, spelling has no behavioral consumer."
+  },
+  {
+    "path": "documented[].opcode",
+    "status": "held",
+    "reason": "Semantic input for the six unimplemented GDI members; other documented rows use opcode as rendering text only.",
+    "consumer": "rtl._gdi_consts; record._gdi_members",
+    "check": "unimplemented GDI opcode",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "documented",
+            3,
+            "opcode"
+          ],
+          "value": "0x007E"
+        }
+      ],
+      "words": [
+        "engine: GET_VIDEO_FORMAT:"
+      ]
+    }
+  },
+  {
+    "path": "documented[].rtl",
+    "status": "held",
+    "reason": "Optional semantic constant name for the six unimplemented GDI members.",
+    "consumer": "rtl._gdi_consts",
+    "check": "unimplemented GDI constant",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "documented",
+            3,
+            "rtl"
+          ],
+          "value": "GDI_MISSING_C"
+        }
+      ],
+      "words": [
+        "engine: GET_VIDEO_FORMAT:",
+        "GDI_MISSING_C"
+      ]
+    }
+  },
+  {
+    "path": "documented[].section",
+    "status": "held to nothing",
+    "reason": "F06.14 rendering group and sort order; schema checks the allowed groups, not semantic placement."
+  },
+  {
+    "path": "echo_entries",
+    "status": "held",
+    "reason": "Each member is shared by commands without a first-entry owner, or listed in shared_entries. The exemption applies only to non-SUCCESS answers; SUCCESS must fit the response rule.",
+    "consumer": "table._echo_entries; rom._entries; record._answers",
+    "check": "shared echo membership and non-SUCCESS scope",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "echo_entries"
+          ],
+          "value": [
+            "NOTIMPL",
+            "BADARG",
+            "NSUPPE",
+            "EAVL"
+          ]
+        }
+      ],
+      "words": [
+        "schema: echo_entries: EAVL",
+        "nor listed in shared_entries"
+      ]
+    }
+  },
+  {
+    "path": "fields",
+    "status": "held",
+    "reason": "Sibling registry filename.",
+    "consumer": "fields.check_fields",
+    "check": "export registry",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "fields"
+          ],
+          "value": "other.json"
+        }
+      ],
+      "words": [
+        "fields: fields: export"
+      ]
+    }
+  },
+  {
+    "path": "hazard_classes",
+    "status": "held to nothing",
+    "reason": "Container: shape is schema-checked; value claims belong to the individual fields below."
+  },
+  {
+    "path": "hazard_classes.*",
+    "status": "held",
+    "reason": "Hazard code by name.",
+    "consumer": "rtl.check_classifier",
+    "check": "hazard class code",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "hazard_classes",
+            "RO_SNAPSHOT"
+          ],
+          "value": 15
+        }
+      ],
+      "words": [
+        "classifier: hazard class RO_SNAPSHOT"
+      ]
+    }
+  },
+  {
+    "path": "schema",
+    "status": "held",
+    "reason": "Export schema tag.",
+    "consumer": "table.check_schema",
+    "check": "schema tag",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "schema"
+          ],
+          "value": "other"
+        }
+      ],
+      "words": [
+        "schema:",
+        "declares"
+      ]
+    }
+  },
+  {
+    "path": "shared_entries",
+    "status": "held to nothing",
+    "reason": "Shared-entry inventory keys are checked for missing claims only; added claims are not independently held."
+  },
+  {
+    "path": "shared_entries.*",
+    "status": "held to nothing",
+    "reason": "Diagnostic explanations of shared program names; wording is not checked and adding a key only widens the inventory."
+  },
+  {
+    "path": "status_codes",
+    "status": "held to nothing",
+    "reason": "Container: shape is schema-checked; value claims belong to the individual fields below."
+  },
+  {
+    "path": "status_codes.*",
+    "status": "held to nothing",
+    "reason": "Container: shape is schema-checked; value claims belong to the individual fields below."
+  },
+  {
+    "path": "status_codes.*.code",
+    "status": "held",
+    "reason": "IEEE 1722.1-2021 Table 7-141 code; also consumed by the ROM generator.",
+    "consumer": "table._status_rows; rtl.check_status_codes",
+    "check": "IEEE status code",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "status_codes",
+            "SUCCESS",
+            "code"
+          ],
+          "value": 13
+        }
+      ],
+      "words": [
+        "schema: status SUCCESS",
+        "13"
+      ]
+    }
+  },
+  {
+    "path": "status_codes.*.rtl",
+    "status": "held",
+    "reason": "Optional status constant, where non-null; null for STREAM_IS_RUNNING has no RTL constant.",
+    "consumer": "rtl.check_status_codes",
+    "check": "status constant",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "status_codes",
+            "SUCCESS",
+            "rtl"
+          ],
+          "value": "ST_MISSING_C"
+        }
+      ],
+      "words": [
+        "status: SUCCESS",
+        "ST_MISSING_C"
+      ]
+    }
+  },
+  {
+    "path": "unserved",
+    "status": "held",
+    "reason": "Default program for every unserved opcode in the observed population.",
+    "consumer": "record._unserved",
+    "check": "unserved program",
+    "probe": {
+      "edits": [
+        {
+          "path": [
+            "unserved"
+          ],
+          "value": "DLKILL"
+        }
+      ],
+      "words": [
+        "decode:",
+        "is no table command",
+        "not only DLKILL"
+      ]
+    }
+  }
+]

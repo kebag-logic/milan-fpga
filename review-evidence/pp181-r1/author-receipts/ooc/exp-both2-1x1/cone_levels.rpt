@@ -1,0 +1,27 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Oct 18 00:24:10 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_design_analysis -logic_level_distribution -of_timing_paths [get_timing_paths -from [get_cells -hier -filter {NAME =~ *u_notify/cmdq_count_r_reg*}] -to [get_cells -hier -filter {NAME =~ *u_event_router/sel_r_reg*}] -max_paths 1000 -nworst 1] -file cone_levels.rpt
+| Design       : protocol_processor_top
+| Device       : xc7a100t
+| Design State : Synthesized
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Report Design Analysis
+
+Table of Contents
+-----------------
+1. Logic Level Distribution
+
+1. Logic Level Distribution
+---------------------------
+
++-----------------+-------------+
+| End Point Clock | Requirement |
++-----------------+-------------+
+* Columns represent the logic levels per end point clock
+** Distribution is for top worst 0 paths
+
+

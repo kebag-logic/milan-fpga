@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1446,7 +1446,7 @@
+     u('READ_ST', rd=6, imm=RGN_DATA + CD_SRCIDX_LANE),   # the image's index
+     u('BR_STATUS', cnd=2, imm=E_SCLKS + 9),      # unset -> the image's stands
+     u('READ_ST', rd=6, imm=RGN_DYN + SEL_CLKSRC),        # set -> the controller's
+-    u('CHECK_LOCK', ra=15, imm=SCLKS_EMIT),      # E_SCLKS + 9: ENTITY_LOCKED
++    u('NOP'),      # E_SCLKS + 9: ENTITY_LOCKED
+     u('READ_ST', rd=7, imm=RGN_DATA + CD_SRCCNT_LANE),
+     u('SHIFT_R', rd=7, ra=7, imm=32),            # count is lane[47:32]
+     u('MOVE', rd=9, ra=7, fmt=FMT_W),            # r9 = clock_sources_count

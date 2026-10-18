@@ -1,0 +1,12 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3953,8 +3953,7 @@
+ 
+   //! only the AECP engine can need the Δ8 oversize slot (READ_DESCRIPTOR is
+   //! the one response in this build that may exceed a standard 576-byte slot)
+-  assign pool_oversize_w = txc_locked_r && (txc_owner_r == 3'(TXC_AECP_C))
+-                         && aecp_txs_oversize_w;
++  assign pool_oversize_w = 1'b0;
+ 
+   always_comb begin : txc_mux
+     pool_alloc_req_w = 1'b0;

@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1197,7 +1197,7 @@
+ place(E_RDESCSF, [
+     u('READ_ST', rd=8, imm=RGN_LEN),
+     u('COMPARE', ra=8, fmt=FMT_W, imm=STR_FMT_TAIL),
+-    u('BR_STATUS', cnd=3, imm=E_RDESC),          # too short for the lane
++    u('NOP'),                                    # too short for the lane
+     u('READ_ST', rd=4, imm=RGN_DATA + STR_FMT_LANE2),  # lane 80..87
+     u('SHIFT_R', rd=5, ra=4, imm=32),            # [15:0] = formats_offset @82
+     u('MOVE', rd=7, ra=0, imm=STR_FMT_OFF),      # prefix length 74
