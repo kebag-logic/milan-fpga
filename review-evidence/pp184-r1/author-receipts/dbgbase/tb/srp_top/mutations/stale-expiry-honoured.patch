@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1189,7 +1189,7 @@
+             cad_dl_r[CAD_PERIODIC_C]   <= now_ms_i + PERIODIC_MS_P;
+           end
+           3'(CAD_LA_MSRP_C): begin
+-            if (!la_rearm_w[0]) begin
++            if (1'b1) begin
+               la_msrp_pend_r <= 1'b1;  // wait for a supported sLA opportunity
+               need_draw_r[0] <= 1'b1;  // fresh 10-15 s draw re-arms the slot
+             end

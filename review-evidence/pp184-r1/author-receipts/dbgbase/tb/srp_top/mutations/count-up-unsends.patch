@@ -1,0 +1,10 @@
+--- a/hdl/srp/KL_srp_vlan.sv
++++ b/hdl/srp/KL_srp_vlan.sv
+@@ -251,6 +251,7 @@
+         V_APPLY: begin
+           if (op_join_r) begin
+             if (found_v_r) begin
++              sent_r[found_ix_r] <= 1'b0;
+               st_r <= V_IDLE;                      // count up, silent
+             end else if (free_v_r) begin
+               active_r[free_ix_r] <= 1'b1;

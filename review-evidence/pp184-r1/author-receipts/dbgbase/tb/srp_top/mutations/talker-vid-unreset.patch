@@ -1,0 +1,10 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -542,7 +542,6 @@
+       rec_valid_r <= '0;
+       sid_r       <= '0;
+       da_r        <= '0;
+-      vid_r       <= '0;
+       app_r       <= '0;      // Begin! = VO everywhere
+       fail_r      <= '0;
+       rla_pend_r  <= '0;

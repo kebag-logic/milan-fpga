@@ -1,0 +1,10 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1213,7 +1213,6 @@
+       end
+       if (dec_la_mvrp_w) begin
+         need_draw_r[1] <= 1'b1;
+-        la_mvrp_pend_r <= 1'b0;
+       end
+     end
+   end

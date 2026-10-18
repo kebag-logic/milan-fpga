@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1195,7 +1195,7 @@
+             end
+           end
+           default: begin             // CAD_LA_MVRP_C
+-            if (!la_rearm_w[1]) begin
++            if (1'b1) begin
+               p_la_mvrp_r    <= 1'b1;  // VLAN re-joins every held VID
+               la_mvrp_pend_r <= 1'b1;  // the flag waits for the next drain
+               need_draw_r[1] <= 1'b1;

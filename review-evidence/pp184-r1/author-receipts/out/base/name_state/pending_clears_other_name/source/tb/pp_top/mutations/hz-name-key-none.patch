@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1532,7 +1532,7 @@
+         end
+         16'h0010: begin                        // SET_NAME
+           hz_class_w = 4'(PP_HZ_NAME_WR);
+-          hz_key_w   = hz_dkey_w;
++          hz_key_w   = HZ_KEY_NONE_C;
+         end
+         16'h0024, 16'h0025: begin              // (DE)REGISTER_UNSOLICITED
+           hz_class_w = 4'(PP_HZ_REGISTRY_OP);

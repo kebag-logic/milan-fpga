@@ -1,0 +1,52 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -325,6 +325,7 @@
+   logic       p_la_mvrp_r;     // own MVRP leavealltimer expiry
+   logic [1:0] enc_join_r;      // encoder drain ticks {MVRP, MSRP}
+   logic       la_msrp_pend_r;  // timer intent, not a registrar event
++  logic       my_exp_r;
+   logic       la_mvrp_pend_r;  // MVRP LeaveAll flag waiting for a drain
+   logic       join_msrp_pend_r;
+   logic       la_wait_r;
+@@ -534,7 +535,7 @@
+       .join_tick_i         (join_fsm_w),
+       .periodic_tick_i     (p_periodic_r),
+       .leaveall_rx_i       (dec_la_msrp_w),
+-      .leaveall_own_i      (p_la_msrp_w),
++      .leaveall_own_i      (p_la_msrp_w || my_exp_r),
+       .txop_done_o         (tk_txop_done_w),
+       .ev_valid_o          (tk_ev_valid_w),
+       .ev_ready_i          (tk_ev_ready_w),
+@@ -617,7 +618,7 @@
+       .join_tick_i             (join_fsm_w),
+       .periodic_tick_i         (p_periodic_r),
+       .leaveall_rx_i           (dec_la_msrp_w),
+-      .leaveall_own_i          (p_la_msrp_w),
++      .leaveall_own_i          (p_la_msrp_w || my_exp_r),
+       .txop_done_o             (ls_txop_done_w),
+       .ev_valid_o              (ls_ev_valid_w),
+       .ev_ready_i              (ls_ev_ready_w),
+@@ -1041,6 +1042,7 @@
+       p_periodic_r      <= 1'b0;
+       la_msrp_pend_r    <= 1'b0;
+       la_mvrp_pend_r    <= 1'b0;
++      my_exp_r <= 1'b0;
+       join_msrp_pend_r  <= 1'b0;
+       la_wait_r         <= 1'b0;
+       la_cancel_r       <= 1'b0;
+@@ -1054,6 +1056,7 @@
+       p_join_fsm_r <= 1'b0;
+       p_periodic_r <= 1'b0;
+       p_la_mvrp_r  <= 1'b0;
++      my_exp_r <= 1'b0;
+       enc_join_r   <= 2'b00;
+       enc_la_r     <= 2'b00;
+ 
+@@ -1191,6 +1194,7 @@
+           3'(CAD_LA_MSRP_C): begin
+             if (!la_rearm_w[0]) begin
+               la_msrp_pend_r <= 1'b1;  // wait for a supported sLA opportunity
++              my_exp_r <= 1'b1;
+               need_draw_r[0] <= 1'b1;  // fresh 10-15 s draw re-arms the slot
+             end
+           end

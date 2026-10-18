@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -438,7 +438,7 @@
+   end
+   // unsigned wrap maps below-base slots to huge indices — one bound check
+   assign exp_idx_w = 32'(exp_slot_i) - SLOT_BASE_P;
+-  assign exp_hit_w = exp_valid_i && (exp_idx_w < N_SINKS_P);
++  assign exp_hit_w = 1'b0 && exp_valid_i && (exp_idx_w < N_SINKS_P);
+ 
+   always_comb begin : reg_ind
+     for (int unsigned s = 0; s < N_SINKS_P; s++) begin

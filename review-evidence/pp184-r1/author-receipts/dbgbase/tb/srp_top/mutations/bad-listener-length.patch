@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_decoder.sv
++++ b/hdl/srp/KL_srp_decoder.sv
+@@ -189,7 +189,7 @@
+       unique case (attr_type_r)
+         SRP_MSRP_ATTR_TALKER_ADV_C:    len_ok_w = (mrp_data_i == SRP_FV_LEN_TALKER_ADV_C);
+         SRP_MSRP_ATTR_TALKER_FAILED_C: len_ok_w = (mrp_data_i == SRP_FV_LEN_TALKER_FAILED_C);
+-        SRP_MSRP_ATTR_LISTENER_C:      len_ok_w = (mrp_data_i == SRP_FV_LEN_LISTENER_C);
++        SRP_MSRP_ATTR_LISTENER_C:      len_ok_w = 1'b1;
+         SRP_MSRP_ATTR_DOMAIN_C:        len_ok_w = (mrp_data_i == SRP_FV_LEN_DOMAIN_C);
+         default:                       len_ok_w = 1'b0;
+       endcase

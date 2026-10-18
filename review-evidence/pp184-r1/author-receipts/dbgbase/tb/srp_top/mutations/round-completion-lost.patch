@@ -1,0 +1,10 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1150,6 +1150,7 @@
+         unique case (cad_exp_ix_w[2:0])
+           3'(CAD_JOIN_MSRP_C): begin
+             if (rnd_act_r || la_wait_r) join_msrp_pend_r <= 1'b1;
++            td_tk_r <= 1'b0; td_ls_r <= 1'b0;
+             cad_pend_r[CAD_JOIN_MSRP_C] <= 1'b1;
+             cad_dl_r[CAD_JOIN_MSRP_C]   <= now_ms_i + JOIN_MS_P;
+           end

@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -979,7 +979,7 @@
+ 
+   // registered read of each FIFO's head (the RAM's async read + this flop)
+   always_ff @(posedge clk_i) begin : tf_read
+-    tf_q_r[0] <= tf_tk_ram_r[tf_rptr_r[0]];
++    tf_q_r[0] <= tf_tk_ram_r[tf_rptr_r[0] + 5'd1];
+     tf_q_r[1] <= tf_ls_ram_r[tf_rptr_r[1]];
+   end
+ 

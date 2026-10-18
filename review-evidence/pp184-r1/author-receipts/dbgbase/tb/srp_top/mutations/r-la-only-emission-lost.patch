@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -605,7 +605,7 @@
+         E_HDR: begin
+           if (last_byte_w) begin
+             if (drain_n_r != '0) st_r <= E_RD;
+-            else if (la_act_r) begin
++            else if (1'b0) begin
+               run_type_r <= ATTR_TALKER_ADV_C;
+               run_first_r <= '0;
+               run_len_r <= '0;

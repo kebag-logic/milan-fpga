@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -934,7 +934,7 @@
+     $fatal(1, "DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page",
+            LINE_BYTES_P, LINE_MIN_BYTES_C, ucpu_pkg::GAMAP_PAGE_MAX_C);
+   end
+-  if (RESP_BUF_C > RESP_CURSOR_BYTES_C) begin : gen_g_line_ceiling
++  if (1'b0) begin : gen_g_line_ceiling
+     $fatal(1, "DESC_LINE_BYTES_P=%0d is above %0d: 16 + line passes the %0d-byte cursor",
+            LINE_BYTES_P, LINE_MAX_BYTES_C, RESP_CURSOR_BYTES_C);
+   end

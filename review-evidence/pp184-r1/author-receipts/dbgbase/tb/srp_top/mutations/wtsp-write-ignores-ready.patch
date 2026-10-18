@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -495,7 +495,7 @@
+   logic                gate_open_acc_w;
+   logic [WTSP_W_C-1:0] wtsp_w;   // walk source {mfs, mif, prio, rank, lat}
+   logic [WID_W_C-1:0]  wid_w;    // walk source {stream_id, DA, VLAN}
+-  assign gate_open_acc_w = rst_n && gate_acc_w && gate_open_i;
++  assign gate_open_acc_w = rst_n && gate_valid_i && gate_open_i;
+ 
+   always_ff @(posedge clk_i) begin : walk_tspec_write
+     if (gate_open_acc_w) begin

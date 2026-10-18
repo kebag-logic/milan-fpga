@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -408,7 +408,7 @@
+   logic        vu_sel_ls_w;
+   logic        vrr_r;
+ 
+-  assign vu_sel_ls_w       = ls_user_valid_w && (!tk_user_valid_w || vrr_r);
++  assign vu_sel_ls_w       = 1'b0;
+   assign vlan_user_valid_w = tk_user_valid_w || ls_user_valid_w;
+   assign vlan_user_join_w  = vu_sel_ls_w ? ls_user_join_w : tk_user_join_w;
+   assign vlan_user_vid_w   = vu_sel_ls_w ? ls_user_vid_w : tk_user_vid_w;

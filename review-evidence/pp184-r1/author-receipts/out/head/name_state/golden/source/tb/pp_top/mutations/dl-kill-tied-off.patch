@@ -1,0 +1,20 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -997,7 +997,7 @@
+       .adm_id_o           (sb_id_w),
+       .rel_valid_i        (sb_rel_valid_w),
+       .rel_id_i           (sb_rel_id_w),
+-      .kill_valid_i       (aecp_dl_kill_w),
++      .kill_valid_i       (1'b0),
+       .kill_id_i          (aecp_sb_id_r),
+       .kill_resp_queued_i (aecp_dl_queued_w),
+       .kill_ack_o         (sb_kill_ack_w),
+@@ -3696,7 +3696,7 @@
+       .txreq_valid_o      (aecp_txreq_valid_w),
+       .txreq_slot_o       (aecp_txreq_slot_w),
+       .txreq_ready_i      (aecp_txreq_ready_w),
+-      .dl_kill_i          (aecp_dl_kill_w),
++      .dl_kill_i          (1'b0),
+       .dl_queued_o        (aecp_dl_queued_w),
+       .rgy_req_o          (aecp_rgy_req_w),
+       .rgy_state_o        (aecp_rgy_state_w),

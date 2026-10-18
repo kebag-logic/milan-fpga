@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -890,7 +890,7 @@
+     u('ITER_OPEN', ra=6),                        # count = number_of_mappings
+     u('BR_STATUS', cnd=1, imm=E_GAMAP + 26),     # E_GAMAP + 21, loop: 0-trip safe
+     u('GATHER_EXT', rd=7, **AM_REC),             # record amap_rec_o, 8 B
+-    u('APPEND', ra=7, fmt=FMT_Q, cnd=D8),        # fills the buffer (§5.4.1)
++    u('APPEND', ra=7, fmt=FMT_Q),        # fills the buffer (§5.4.1)
+     u('ITER_NEXT'),
+     u('BRANCH', imm=E_GAMAP + 21),
+     u('SEND_RESP'),                              # E_GAMAP + 26, out:

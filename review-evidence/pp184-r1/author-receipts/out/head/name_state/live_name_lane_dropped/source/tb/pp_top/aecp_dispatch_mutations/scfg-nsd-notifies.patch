@@ -1,0 +1,10 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -2072,6 +2072,7 @@
+ #! answers NO_SUCH_DESCRIPTOR with the CURRENT index instead (issue #179).
+ place(E_SCFGNSD, [u('SET_STATUS', imm=ST_OK)] + _scfg_cur(E_SCFGNSD + 1) + [
+     u('SET_STATUS', imm=ST_NOSUCH),
++    u('NOTIFY_ENQ', imm=1),
+     u('BRANCH', imm=E_SCFGEMT),
+ ])
+ 

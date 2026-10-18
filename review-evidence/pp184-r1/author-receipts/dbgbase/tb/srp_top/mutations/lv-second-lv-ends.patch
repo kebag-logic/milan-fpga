@@ -1,0 +1,25 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -660,6 +660,7 @@
+   // a received LeaveAll ages it (§10.7.5.20 b)2)); an own LeaveAll ages
+   // every registrar of the participant (§10.7.9).
+   logic        leaveall_any_w;
++  logic [N_SOURCES_P-1:0] lv2_r;
+   logic        exp_hit_w;
+   logic [31:0] exp_idx_w;
+ 
+@@ -737,9 +738,14 @@
+             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
+           end
+           // LV: table 10-4 rLv on LV is -x- (the LeaveAll aging continues)
++          if (reg_r[s] == R_LV_C) begin
++            if (lv2_r[s]) reg_r[s] <= R_MT_C;
++            lv2_r[s] <= 1'b1;
++          end
+         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
+           reg_r[s]   <= R_LV_C;
+           tpend_r[s] <= T_ARM_C;
++          lv2_r[s]   <= 1'b0;
+         end
+         // gate re-open arms a fresh tracker for the (possibly new) stream
+         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin

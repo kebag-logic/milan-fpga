@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -431,7 +431,7 @@
+   assign la_rx_app_w = leaveall_rx_i[SRP_LA_LISTENER_C];
+   always_comb begin : la_rx_reg_map
+     for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+-      leaveall_any_w[s] = leaveall_own_i
++      leaveall_any_w[s] = 1'b0
+                        || (rtype_r[s] ? leaveall_rx_i[SRP_LA_TALKER_FAILED_C]
+                                       : leaveall_rx_i[SRP_LA_TALKER_ADV_C]);
+     end

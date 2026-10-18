@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -822,7 +822,7 @@
+ # the APPEND iterator instead.
+ place(E_GCTRS, [
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),               # miss -> NSD
+-    u('BR_STATUS', cnd=0, imm=E_GCTRS + 17),             # miss: the zero body
++    u('BR_STATUS', cnd=0, imm=E_GCTRS + 2),              # miss: the zero body
+     u('SET_STATUS', imm=ST_OK),
+     u('GATHER_EXT', rd=1, cnd=GX_CTR_MASK_CND, imm=0),   # counters_valid
+     u('BUILD_HDR', ra=15, rb=13),

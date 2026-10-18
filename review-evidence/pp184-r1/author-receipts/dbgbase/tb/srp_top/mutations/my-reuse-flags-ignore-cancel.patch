@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -594,7 +594,7 @@
+           // content arrives. A later own round can reuse that handle; do
+           // not wait for another allocation or emit an empty MRPDU.
+           if (la_prepare_i) begin
+-            la_act_r <= !la_cancel_i;
++            la_act_r <= 1'b1;
+             join_pend_r[0] <= 1'b0;
+           end else if (go0_w && ((cnt_msrp_r != '0) || la_act_r)) begin
+             drain_n_r <= cnt_msrp_r;

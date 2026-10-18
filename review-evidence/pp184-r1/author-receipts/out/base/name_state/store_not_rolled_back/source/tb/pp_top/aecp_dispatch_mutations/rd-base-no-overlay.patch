@@ -1,0 +1,28 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3117,25 +3117,6 @@
+             //! those GETs and their SETs locate in (the literal cfg 0 of
+             //! opd0_w's tix shape), so another configuration's descriptor
+             //! keeps its image bytes.
+-            if ((cmd_r.protocol == PP_PROTO_AEM)
+-                && (cmd_r.msg_type == 4'd0)
+-                && (cmd_r.opcode == OP_READ_DESCRIPTOR_C)
+-                && (cmd_r.cdl >= 11'd20)
+-                && (cfg_ix_r == 16'd0)) begin
+-              if (desc_ty_r == DT_AUDIO_UNIT_C) begin
+-                upc_r  <= UPC_RDESCAU_C;
+-                echo_r <= 1'b0;
+-              end else if (desc_ty_r == DT_CLOCK_DOMAIN_C) begin
+-                upc_r  <= UPC_RDESCCD_C;
+-                echo_r <= 1'b0;
+-              end else if (desc_ty_r == DT_STREAM_INPUT_C) begin
+-                upc_r  <= UPC_RDESCSI_C;
+-                echo_r <= 1'b0;
+-              end else if (desc_ty_r == DT_STREAM_OUTPUT_C) begin
+-                upc_r  <= UPC_RDESCSO_C;
+-                echo_r <= 1'b0;
+-              end
+-            end
+             //! ...and the audio-map TYPE gate at the same seam, for the same
+             //! reason: descriptor_type is at @24 and cannot be judged at pop.
+             //! BOTH Milan §5.4.2.26 halves are served now - the OUTPUT side

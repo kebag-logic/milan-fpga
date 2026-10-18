@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -329,7 +329,7 @@
+   assign go0_w    = join_tick_i[0] || join_pend_r[0];
+   assign go1_w    = join_tick_i[1] || join_pend_r[1];
+   assign start0_w = (st_r == E_IDLE) && !la_prepare_i && go0_w && (cnt_msrp_r != '0);
+-  assign start1_w = (st_r == E_IDLE) && !la_prepare_i && !start0_w && go1_w && (cnt_mvrp_r != '0);
++  assign start1_w = (st_r == E_IDLE) && !start0_w && go1_w && (cnt_mvrp_r != '0);
+ 
+   // the drain owns its application's table: pushes to it wait
+   assign busy_app_w  = (st_r != E_IDLE) && (st_r != E_COLLECT)

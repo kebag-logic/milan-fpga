@@ -1,0 +1,34 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3685,16 +3685,6 @@
+                               ? 11'(ETH_MIN_C)
+                               : 11'(FRAME_HDR_C) + amap_edit_pld_w)
+                            : 11'(ETH_MIN_C);
+-            //! Milan v1.2 §5.4.3.3 Table 5.19: an MVU status is SUCCESS or
+-            //! NOT_IMPLEMENTED, so a voided MVU answer, like that of every
+-            //! other message type but AEM's, is its refusal form, the
+-            //! command echoed, as the deadline's is (A_RUN, `st_echo_w`)
+-            if (st_echo_w) begin
+-              status_r    <= ST_NOT_IMPLEMENTED_C;
+-              echo_r      <= 1'b1;
+-              pld_r       <= pld_cmd_r;
+-              frame_len_r <= echo_len_w;
+-            end
+             bidx_r      <= 11'd0;
+             if (rerr_cnt_r != 16'hFFFF) rerr_cnt_r <= rerr_cnt_r + 16'd1;
+           end else if (txs_alloc_gnt_i) begin
+@@ -3717,14 +3707,6 @@
+                               ? 11'(ETH_MIN_C)
+                               : 11'(FRAME_HDR_C) + amap_edit_pld_w)
+                            : 11'(ETH_MIN_C);
+-            //! the command echoed, as at A_ALLOC; its slot was sized for the
+-            //! echo (txs_oversize_o)
+-            if (st_echo_w) begin
+-              status_r    <= ST_NOT_IMPLEMENTED_C;
+-              echo_r      <= 1'b1;
+-              pld_r       <= pld_cmd_r;
+-              frame_len_r <= echo_len_w;
+-            end
+             bidx_r      <= 11'd0;
+             if (rerr_cnt_r != 16'hFFFF) rerr_cnt_r <= rerr_cnt_r + 16'd1;
+           end else if (byte_ok_w) begin

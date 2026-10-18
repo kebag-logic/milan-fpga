@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -728,7 +728,7 @@
+     u('BUILD_FLD', ra=5, fmt=FMT_D),              # protocol_version @32
+     u('BUILD_FLD', ra=6, fmt=FMT_D),              # features_flags @36
+     u('BUILD_FLD', ra=7, fmt=FMT_D),              # certification_version @40
+-    u('SEND_RESP'),
++    u('NOP'),
+     u('END'),
+ ])
+ 

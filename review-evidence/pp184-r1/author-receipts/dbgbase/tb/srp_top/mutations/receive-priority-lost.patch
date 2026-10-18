@@ -1,0 +1,13 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -722,7 +722,9 @@
+       // Test expiry before rLv so its one-clock strobe cannot be masked.
+       // ---- per-source registrar events ----------------------------------
+       for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+-        if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
++        if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
++          reg_r[s] <= R_LV_C; tpend_r[s] <= T_ARM_C;
++        end else if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
+                                 || (evt_mrp_event_i == 3'(SRP_EV_JOININ))
+                                 || (evt_mrp_event_i == 3'(SRP_EV_JOINMT)))) begin
+           // registering event: -> IN, latch the declaration parameter

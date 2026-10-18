@@ -1,0 +1,19 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -324,6 +324,7 @@
+   logic       la_cancel_r;
+   logic       la_done_w;
+   logic       join_fsm_w;
++  assign p_la_msrp_w = cad_hit_w && (cad_exp_ix_w == CAD_LA_MSRP_C);
+   assign join_fsm_w = p_join_fsm_r || la_done_w;
+   logic [1:0] enc_la_r;        // encoder LeaveAllEvent lanes {MVRP, MSRP}
+ 
+@@ -729,7 +730,7 @@
+       .la_prepare_i   (la_wait_r),
+       .la_cancel_i    (la_cancel_r || (|dec_la_msrp_w)),
+       .la_prepare_done_o (la_done_w),
+-      .la_tx_o        (p_la_msrp_w),
++      .la_tx_o        (),
+       .own_mac_i      (own_mac_i),
+       .alloc_req_o    (alloc_req_o),
+       .oversize_o     (oversize_o),

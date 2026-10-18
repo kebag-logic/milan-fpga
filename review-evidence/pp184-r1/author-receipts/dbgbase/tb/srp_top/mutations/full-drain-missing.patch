@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1108,7 +1108,7 @@
+         rnd_act_r     <= 1'b0;
+       end
+       hw_full_q_r <= enc_msrp_full_w;
+-      if ((rnd_act_r || la_done_w) && enc_msrp_full_w
++      if (1'b0 && (rnd_act_r || la_done_w) && enc_msrp_full_w
+           && (!hw_full_q_r || la_done_w)) begin
+         enc_join_r[0] <= 1'b1;   // pending table full mid-walk: interim drain
+       end

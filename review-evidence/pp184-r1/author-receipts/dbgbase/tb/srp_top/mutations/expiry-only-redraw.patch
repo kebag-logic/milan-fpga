@@ -1,0 +1,10 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1207,7 +1207,6 @@
+       // fresh draw re-arms the slot) and Passive (an unaccepted own action
+       // is dropped; an accepted sLA is never retracted).
+       if (|dec_la_msrp_w) begin
+-        need_draw_r[0] <= 1'b1;
+         la_msrp_pend_r <= 1'b0;
+         if (la_wait_r) la_cancel_r <= 1'b1;
+       end

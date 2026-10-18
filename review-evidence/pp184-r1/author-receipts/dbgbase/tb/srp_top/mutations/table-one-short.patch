@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -335,7 +335,7 @@
+   assign busy_app_w  = (st_r != E_IDLE) && (st_r != E_COLLECT)
+                     && (cur_app_r == ev_app_i);
+   assign tgt_full_w  = (ev_app_i == APP_MSRP_C)
+-                     ? (cnt_msrp_r == CNT_W_C'(DEPTH_P))
++                     ? (cnt_msrp_r == CNT_W_C'(DEPTH_P - 1))
+                      : (cnt_mvrp_r == CNT_W_C'(DEPTH_P));
+   assign start_tgt_w = (ev_app_i == APP_MSRP_C)
+                      ? (start0_w || ((st_r == E_COLLECT) && go0_w)

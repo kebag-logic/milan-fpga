@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -1135,7 +1135,7 @@
+             wr_en_r  <= 1'b1;
+             wr_ix_r  <= em_ix_r;
+             wr_row_r <= {hold_eid_r, hold_mac_r, hold_seq_r + 16'd1};
+-            if (em_ix_r == CIX_W_C'(N_ROW_C - 1)) em_active_r <= 1'b0;
++            if (1'b0) em_active_r <= 1'b0;
+             else                                   em_ix_r <= em_ix_r + CIX_W_C'(1);
+           end
+           n_st_r <= N_IDLE;

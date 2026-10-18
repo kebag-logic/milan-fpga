@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3390,7 +3390,7 @@
+             //! gathers, so the gsi routing it selects is never consulted.
+             if (gavb_r) begin
+               if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
+-              else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
++              else if (1'b0) begin
+                 upc_r  <= UPC_NOTIMPL_C;
+                 echo_r <= 1'b1;
+               end else begin

@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -622,7 +622,7 @@
+         W_IDLE: begin
+           if (join_tick_i || tick_pend_r) begin
+             tick_pend_r  <= 1'b0;
+-            wtxla_r      <= laown_pend_r || leaveall_own_i;
++            wtxla_r      <= laown_pend_r;
+             laown_pend_r <= 1'b0;
+             wsrc_r       <= '0;
+             walk_r       <= W_EVAL;

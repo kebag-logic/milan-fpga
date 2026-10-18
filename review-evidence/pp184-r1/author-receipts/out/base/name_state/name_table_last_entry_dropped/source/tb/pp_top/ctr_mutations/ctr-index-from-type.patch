@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -2172,7 +2172,7 @@
+ 
+   assign ctr_req_o        = gx_req_w && !gx_alt_w;
+   assign ctr_desc_type_o  = cfg_ix_r;
+-  assign ctr_desc_index_o = desc_ix_r;
++  assign ctr_desc_index_o = cfg_ix_r;
+   assign ctr_word_o       = gx_sel_w[7] ? 6'd32
+                                         : {1'b0, gx_sel_w[6:4], gx_sel_w[1:0]};
+ 

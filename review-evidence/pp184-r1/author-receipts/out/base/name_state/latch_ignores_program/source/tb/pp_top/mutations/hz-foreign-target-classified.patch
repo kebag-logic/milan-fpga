@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1484,7 +1484,7 @@
+ 
+   assign hz_aem_cmd_w  = (hz_protocol_w == 3'(PP_PROTO_AEM))
+                          && (hdr_msg_type_r == 4'd0)
+-                         && (hdr_target_eid_r == entity_id_i);
++                         ;
+   //! the ACMP pop steer's talker set, term for term: PROBE_TX,
+   //! DISCONNECT_TX, GET_TX_STATE and GET_TX_CONNECTION commands
+   assign hz_acmp_tkr_w = (hdr_msg_type_r == 4'd0) || (hdr_msg_type_r == 4'd2)

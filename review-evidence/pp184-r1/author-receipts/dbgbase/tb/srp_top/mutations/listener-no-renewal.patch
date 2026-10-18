@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -753,7 +753,7 @@
+           // registering event: -> IN; latch type + payloads; a type change
+           // while IN/LV is the in-place swap (strobe, no unregistration)
+           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+-          reg_r[s]   <= R_IN_C;
++          reg_r[s]   <= (reg_r[s] == R_LV_C) ? R_LV_C : R_IN_C;
+           rtype_r[s] <= rx_is_failed_w;
+           lat_r[s]   <= evt_acc_latency_i;   // refresh re-latches (10 §6.4)
+           // Compare this sink's old latch on its actual write. The pulse

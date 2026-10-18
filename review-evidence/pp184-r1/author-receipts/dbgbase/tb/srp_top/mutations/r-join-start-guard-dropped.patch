@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -1079,7 +1079,7 @@
+       // reset completion bits mid-round under encoder/TX backpressure.
+       if (!rnd_act_r && !la_wait_r && (join_msrp_pend_r || join_due_w)) begin
+         join_msrp_pend_r <= 1'b0;
+-        if (la_msrp_pend_r && !(|dec_la_msrp_w)) begin
++        if (la_msrp_pend_r) begin
+           la_wait_r      <= 1'b1;
+           la_cancel_r    <= 1'b0;
+         end else begin

@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1509,7 +1509,7 @@
+       end
+     end else if (hz_aem_cmd_w) begin
+       unique case (hz_opcode_w)
+-        16'h0006: begin                        // SET_CONFIGURATION
++        16'h0006, 16'h0004: begin              // SET_CONFIGURATION
+           hz_class_w = 4'(PP_HZ_CFG_BARRIER);
+           hz_key_w   = HZ_KEY_GLOBAL_C;
+         end

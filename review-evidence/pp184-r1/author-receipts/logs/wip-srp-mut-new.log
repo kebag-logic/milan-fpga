@@ -1,0 +1,31 @@
+## gate wip-srp-mut-new
+## dir <data>/lanes/pp184-dom/tb/srp_top
+## cmd python3 mutants.py --output <data>/tmp/pp184-a648/out/wip-srp-mut-new2 --jobs 4 --only domain-rejoin-always-joinin,domain-rejoin-always-joinmt,domain-rejoin-at-request,domain-rx-leaveall-dropped,domain-leaveall-keeps-in,domain-lv-ignored,domain-lv-any-value,domain-leaveall-after-receive,domain-adoption-drops-registrar,domain-capture-unregistered,domain-pending-lv-ignored,domain-link-keeps-registrar,top-domain-lv-unwired,top-domain-tx-every-clock,top-domain-tx-unwired
+## head 08ae00130f096f241463172c4781885934400ee4
+## start 2026-10-18T14:28:12+02:00
+control srp_encoder : rc=0 PASS
+control srp_top domjoin: rc=0 PASS
+control srp_top timers: rc=0 PASS
+domain-rejoin-always-joinin: rc=2 failures=10 KILLED tags=B1-domain,D2 periodic JoinMt,D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR1 no peer,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR11 LINK_DOWN and LINK_UP clear the registration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR6 peer withdrawal (Lv)
+domain-rejoin-always-joinin: rc=2 failures=2 KILLED tags=DJ1,DJ4
+domain-rejoin-always-joinin: rc=2 failures=1 KILLED tags=Q2
+domain-rejoin-always-joinmt: rc=2 failures=8 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered
+domain-rejoin-always-joinmt: rc=2 failures=8 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered
+domain-rejoin-always-joinmt: rc=2 failures=2 KILLED tags=DJ2,DJ3
+domain-rejoin-at-request: rc=2 failures=5 KILLED tags=D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR3 a peer LeaveAll re-declared before tx!,DR3a a received LeaveAll's re-join waits for tx!,DR8 a registering event in the LeaveAll's clock keeps IN
+domain-rx-leaveall-dropped: rc=2 failures=4 KILLED tags=D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR3 a peer LeaveAll re-declared before tx!,DR8 a registering event in the LeaveAll's clock keeps IN
+domain-rx-leaveall-dropped: rc=2 failures=1 KILLED tags=DJ3
+domain-leaveall-keeps-in: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn
+domain-lv-ignored: rc=2 failures=1 KILLED tags=DR6 peer withdrawal (Lv)
+domain-lv-ignored: rc=2 failures=1 KILLED tags=DJ4
+domain-lv-any-value: rc=2 failures=1 KILLED tags=DR7 an Lv of another Domain value leaves the registration IN
+domain-leaveall-after-receive: rc=2 failures=1 KILLED tags=DR8 a registering event in the LeaveAll's clock keeps IN
+domain-adoption-drops-registrar: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR9 the adopted value is registered
+domain-capture-unregistered: rc=2 failures=3 KILLED tags=D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR9 the adopted value is registered
+domain-pending-lv-ignored: rc=2 failures=1 KILLED tags=DR10 an adoption withdrawn before it applies re-joins JoinMt
+domain-link-keeps-registrar: rc=2 failures=2 KILLED tags=B1-domain,DR11 LINK_DOWN and LINK_UP clear the registration
+top-domain-lv-unwired: rc=2 failures=1 KILLED tags=DJ4
+top-domain-tx-every-clock: rc=2 failures=1 KILLED tags=DJ3
+top-domain-tx-unwired: rc=2 failures=1 KILLED tags=DJ3
+24 checks: 24 PASS, 0 FAIL
+## end 2026-10-18T14:29:19+02:00 rc 0

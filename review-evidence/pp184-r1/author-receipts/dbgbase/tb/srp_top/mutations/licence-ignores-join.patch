@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -821,7 +821,7 @@
+       active_o[s] = rec_valid_r[s] && app_declaring_f(app_r[s]) && !fail_r[s]
+                  && ((lstn_out_w[s] == 2'(SRP_DECL_READY))
+                      || (lstn_out_w[s] == 2'(SRP_DECL_READY_FAILED)))
+-                 && sr_admitted_i[s] && vid_ok_w[s];
++                 && sr_admitted_i[s];
+       msrp_fail_code_o[s]   = (tk_decl_state_o[s] == 2'd2) ? 8'd1 : 8'd0;
+       msrp_fail_bridge_o[s] = (tk_decl_state_o[s] == 2'd2)
+                             ? {16'd0, own_mac_i} : 64'd0;

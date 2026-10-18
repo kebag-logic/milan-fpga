@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -630,7 +630,7 @@
+   assign leaveall_any_w = leaveall_rx_i[SRP_LA_LISTENER_C] || leaveall_own_i;
+   // unsigned wrap maps below-base slots to huge indices — one bound check
+   assign exp_idx_w = 32'(exp_slot_i) - SLOT_BASE_P;
+-  assign exp_hit_w = exp_valid_i && (exp_idx_w < N_SOURCES_P);
++  assign exp_hit_w = 1'b0 && exp_valid_i && (exp_idx_w < N_SOURCES_P);
+ 
+   logic [N_SOURCES_P-1:0][1:0] lstn_out_w;
+   always_comb begin : lstn_out_map

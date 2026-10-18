@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1983,7 +1983,7 @@
+     #! sets no status of its own for it.
+     u('READ_ST', rd=9, imm=RGN_NCFG),
+     u('CHECK_ARG', ra=12, rb=9, fmt=FMT_W,
+-      cnd=REL_LT, imm=E_SCFGNSD),
++      cnd=REL_LT, imm=E_SCFGBAD),
+     u('READ_ST', rd=3, imm=RGN_DYNV + SEL_CFG),
+     u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+     u('BR_STATUS', cnd=2, imm=E_SCFG + 9),

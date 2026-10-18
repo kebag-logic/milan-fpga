@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_encoder.sv
++++ b/hdl/srp/KL_srp_encoder.sv
+@@ -596,7 +596,7 @@
+           if (la_prepare_i) begin
+             la_act_r <= !la_cancel_i;
+             join_pend_r[0] <= 1'b0;
+-          end else if (go0_w && ((cnt_msrp_r != '0) || la_act_r)) begin
++          end else if (go0_w && la_act_r) begin
+             drain_n_r <= cnt_msrp_r;
+             join_pend_r[0] <= 1'b0;
+             st_r <= E_HDR;
