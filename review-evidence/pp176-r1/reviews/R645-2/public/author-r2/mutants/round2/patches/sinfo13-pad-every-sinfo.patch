@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -2581,7 +2581,7 @@
+   //! a 2013 SET_STREAM_INFO answered in the 2021 form: its echo stops after
+   //! @69 and the rest of Figure 7-40 is zero (issue #176, REQ-AEM-009)
+   logic si13_pad_w;
+-  assign si13_pad_w = si13_w
++  assign si13_pad_w = ssinfo_r
+                       && (bidx_r >= (11'(FRAME_HDR_C) + SI13_ECHO_C));
+   always_comb begin : frame_byte
+     if (bidx_r < 11'(FRAME_HDR_C))  frame_byte_w = hdr_byte_w;

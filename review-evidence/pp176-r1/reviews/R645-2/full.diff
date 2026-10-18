@@ -1,0 +1,647 @@
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index f954ea0..5c5f7d2 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -258,7 +258,7 @@ status checks trust those exemptions, and the Oversize cells are rendering input
+ | 0x0007 | GET_CONFIGURATION | shall | — | RO_SNAPSHOT | no | yes | no | — | 12 | 28 B (cdl 16) | SUCCESS, NO_SUCH_DESCRIPTOR |
+ | 0x0008 | SET_STREAM_FORMAT | shall | per stream, both directions; §6.4 chain | STREAM_CFG | yes | no | no | class 2: success with state change, requester excluded | 24 | 36 B (cdl 24) | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED, STREAM_IS_RUNNING |
+ | 0x0009 | GET_STREAM_FORMAT | shall | — | RO_SNAPSHOT | no | yes | no | — | 16 | 36 B (cdl 24) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+-| 0x000E | SET_STREAM_INFO | shall | **output only** (Δ11); §6.3 | STREAM_CFG | yes | no | no | class 3: success with state change, requester excluded | 96 | 108 B echo (cdl 96) | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED, STREAM_IS_RUNNING |
++| 0x000E | SET_STREAM_INFO | shall | **output only** (Δ11); §6.3; accepts exactly the 2021 body (cdl 96) and the 2013 48-byte body (cdl 60) | STREAM_CFG | yes | no | no | class 3: success with state change, requester excluded | 96 | 108 B echo (cdl 96); the 2021 form, whichever body | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED, STREAM_IS_RUNNING |
+ | 0x000F | GET_STREAM_INFO | shall | Milan 80-B form §6.2 | RO_SNAPSHOT | no | yes | no | event: async triggers | 16 | 80 B (cdl 68) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+ | 0x0010 | SET_NAME | shall | every named descriptor; ENTITY indices 0 and 1, all others index 0 | NAME_WR | yes | no | no | class 7: naming trigger | 84 | 96 B (cdl 84); current 64-B name | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS |
+ | 0x0011 | GET_NAME | shall | every named descriptor; ENTITY indices 0 and 1, all others index 0 | RO_SNAPSHOT | no | yes | no | — | 20 | 96 B (cdl 84); current 64-B name | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS |
+@@ -490,7 +490,7 @@ Consequently `SET_NAME`, `GET_NAME`, and `READ_DESCRIPTOR` expose one value.
+ 
+ | Command | Stream Input | Stream Output |
+ |---|---|---|
+-| SET_STREAM_INFO (**implemented**, Milan §5.4.2.9) | `NOT_SUPPORTED` whole, at the response's own length (params come from PROBE_TX_RESPONSE) | the shape is 1722.1-2021 Figure 7-40's COMPLETE 84-byte payload (cdl 96, the ip block included) - Milan v1.2 references the 2021 edition, so the 2013 60-byte command is a TRUNCATED command, refused `BAD_ARGUMENTS` at the full 2021 response length. The one supported sub-command is **MSRP_ACC_LAT_VALID alone**: writes the presentation-time offset to the dynamic store's SEL_PTOFF row (0..0x7FFFFFFF ns; bit 31 set answers `BAD_ARGUMENTS`); **any other flag combination, including none, refuses the whole command `NOT_SUPPORTED`**; a STREAMING output refuses `STREAM_IS_RUNNING` before the sub-command is examined; success answers the command echo, which is exactly §5.4.2.9's required body (same flag, same latency; the ip fields are echoed, never interpreted). Every narrowing is an engine dispatch route off registered walk fields; the µprogram is CHECK_LOCK, locate, WRITE_ST, NVM mark, echo |
++| SET_STREAM_INFO (**implemented**, Milan §5.4.2.9) | `NOT_SUPPORTED` whole, at the response's own length (params come from PROBE_TX_RESPONSE) | exactly two shapes are accepted: 1722.1-2021 Figure 7-40's COMPLETE 84-byte payload (cdl 96, the ip block included), which Milan v1.2 references, and the 1722.1-2013 Figure 7.46 48-byte payload (cdl 60), because the end station serves IEEE 1722.1 as well as Milan (issue #176). The 2013 payload is the 2021 payload's first 48 bytes (2021 turns its reserved word at @70 into ip_flags), so both take the same routes below with the same field semantics; every response, whichever shape the command had, is the 2021 form: a 2013 command's @24..@69 echoed and zeros from ip_flags to the end of the destination address (@70..@107). Any other length, shorter or longer (neither standard defines a body longer than Figure 7-40), is refused `BAD_ARGUMENTS` at the full 2021 response length with {type, index} over a zero body, and writes nothing. The one supported sub-command is **MSRP_ACC_LAT_VALID alone**: writes the presentation-time offset to the dynamic store's SEL_PTOFF row (0..0x7FFFFFFF ns; bit 31 set answers `BAD_ARGUMENTS`); **any other flag combination, including none, refuses the whole command `NOT_SUPPORTED`**; a STREAMING output refuses `STREAM_IS_RUNNING` before the sub-command is examined; success answers the command echo (for a 2013 command, lengthened to the 2021 form as above), which is exactly §5.4.2.9's required body (same flag, same latency; the ip fields are echoed, never interpreted). Every narrowing is an engine dispatch route off registered walk fields; the µprogram is CHECK_LOCK, locate, WRITE_ST, NVM mark, echo |
+ | START/STOP_STREAMING | **implemented** (issues #78 and #97): a bound input changes state, while an unbound or repeated-state request is a confirmed no-op. The state lives only on the ACMP binding record. Success waits for the record write or no-op examination, and a bounded pending request fails safely if the record walker cannot start it | **implemented**: `NOT_SUPPORTED`, because a talker streams whenever reserved (Δ14) and Section 5.3.7.3 excludes stopping a Stream Output. Every non-input type takes the same arm |
+ 
+ ### 6.4 Validation chains (order matters; first failure responds)
+@@ -1257,7 +1257,7 @@ to; they select nothing in the engine.
+ | 0x0007 GET_CONFIGURATION | real current configuration read |
+ | 0x0008 SET_STREAM_FORMAT | real lock-protected per-stream store for both directions, with the Milan §5.4.2.7 refusals: per-descriptor `STREAM_IS_RUNNING` (bound input / streaming output, judged at dispatch off the indexed vectors), and one integrator gather that rules on the proposed format (supported set + mapping-channel survival) answering `BAD_ARGUMENTS`; every refusal carries the CURRENT format through GET_STREAM_FORMAT's own face word. The value is stored, published on the settings face and folded into the served current format; it does not yet re-shape the wire framers - the SET_CONFIGURATION precedent |
+ | 0x0009 GET_STREAM_FORMAT | real current Stream Input or Stream Output format read |
+-| 0x000E SET_STREAM_INFO | real for Stream Outputs, Milan §5.4.2.9's single sub-command: MSRP_ACC_LAT_VALID alone writes the presentation-time offset (bit 31 `BAD_ARGUMENTS`), any other flags refuse whole `NOT_SUPPORTED`, a streaming output refuses `STREAM_IS_RUNNING`, a Stream Input refuses `NOT_SUPPORTED`, and success answers the command echo §5.4.2.9 requires. The offset is stored, published per row and folded into GET_STREAM_INFO's latency word |
++| 0x000E SET_STREAM_INFO | real for Stream Outputs, Milan §5.4.2.9's single sub-command: MSRP_ACC_LAT_VALID alone writes the presentation-time offset (bit 31 `BAD_ARGUMENTS`), any other flags refuse whole `NOT_SUPPORTED`, a streaming output refuses `STREAM_IS_RUNNING`, a Stream Input refuses `NOT_SUPPORTED`, and success answers the command echo §5.4.2.9 requires. Exactly the 2021 body (cdl 96) and the 2013 body (cdl 60) are accepted; any other length, shorter or longer, is refused `BAD_ARGUMENTS` and writes nothing; every answer is the 2021 form (issue #176). The offset is stored, published per row and folded into GET_STREAM_INFO's latency word |
+ | 0x000F GET_STREAM_INFO | real Milan Figure 5.1 response from the integrator state face |
+ | 0x0010 / 0x0011 SET/GET_NAME | real for every named descriptor (ENTITY names 0 and 1, every other type name 0): the fixed 72-byte body carrying the current name in force at cdl 84 on every arm; SET_NAME is lock-protected, refused `ENTITY_LOCKED` with the current name, writes only a changed name and notifies (§6.2.1) |
+ | 0x0014 / 0x0015 SET/GET_SAMPLING_RATE | real lock-protected per-Audio Unit dynamic state; SET accepts only a rate the located AUDIO_UNIT's `sampling_rates` list holds and refuses any other `BAD_ARGUMENTS` carrying the current rate (§6.4) |
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 5aa7406..e8c9812 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -181,7 +181,7 @@ and `tb/dyn_state/sim_main.cpp` (lettered sections):
+ | sampling_rate | W5 (byte-exact image 96000); W9i (a rate the AUDIO_UNIT list does not hold is refused on the unset row carrying the image's 96000, GET still reads it) | W9/W9b/W9c (48000, GET and the GET_DYNAMIC_INFO member); the list check (issue #51) on a set row: W9j (refusal carries the stored rate), W9k (refusals of an unlisted, a pulled and a zero rate write, mark and notify nothing, graded at the effect strobes and a second registered controller; the accepted listed rate moves each once), W9l (count, entries and offset are the image's, patched in place), W9m (the lock outranks the list check) | mechanism-level: dyn_state C, D |
+ | clock_source | W6/W6b; W10i (a refusal on the unset row carries the image's index, GET still reads it) | W10/W10d; the accepted SET answers the index it stored, not the one it replaced, on the unset row (W10j7b, 0 to 1) and on a set row (W10b, 1 to 2); refusals write nothing: W10e-W10h; refusals mark and notify nothing, graded at the effect strobes and a second registered controller: W10j | mechanism-level: dyn_state C, D; a CLOCK_DOMAIN the image lacks is NO_SUCH_DESCRIPTOR with a zero body, moving nothing, and the lock still outranks the miss: `tb/pp_top` AX NSD1-NSD3 (issue #37) |
+ | stream formats (in/out) | W4 per type and index | W23a/W23a2 (SET, both the echo and the published row), W23b (GET_STREAM_FORMAT serves the setting through the fold), W23i (the output row); refusals write nothing: W23c-W23h, W25a | dyn_state C, D + the per-row face checks F |
+-| presentation offset | (no getter opcode; live face + GET_STREAM_INFO word 3) | W24a/W24a2 (SET + the published row), W24b (GET_STREAM_INFO serves it through the fold), W25d; refusals write nothing: W24c-W24h, W25b | dyn_state C + the per-row face checks F |
++| presentation offset | (no getter opcode; live face + GET_STREAM_INFO word 3) | W24a/W24a2 (SET + the published row), W24b (GET_STREAM_INFO serves it through the fold), W25d; the 1722.1-2013 body (cdl 60, issue #176): W24g/W24g1/W24g2; refusals write nothing: W24c-W24f, W24h-W24m, W25b, W25b3; so do bodies longer than the 2021 one (cdl 97 and 140): W24n/W24n1, W24o/W24o1 | dyn_state C + the per-row face checks F |
+ | Identify control | W12/W12b/W12c (pre-SET GET) | W12d-W12h (SET/GET cycles), W13-W13d (step legality); AX LK3b/LK3c (the out-of-range refusal carries the 255 in force, IEEE §7.4.25.1); volatility: dyn_state E | dyn_state E |
+ | started/stopped | NOT in this store: the ACMP binding record owns it and selector 6 is RETIRED (dyn_state F2) | listener suite + pp_top W21 | dyn_state F2 |
+ 
+@@ -608,8 +608,11 @@ Still hand-written and held to no table:
+   `check_upc_map.py`);
+ - ACQUIRE_ENTITY's command cdl 28 and REGISTER_UNSOLICITED_NOTIFICATION's 16. The
+   engine accepts both from cdl 12, the table declares that `floor`, and only the echo
+-  rule ties each size to its response. IDENTIFY_NOTIFICATION's 16 is held through the
+-  echo rule to its unsolicited body alone;
++  rule ties each size to its response. SET_STREAM_INFO's 96 likewise: the engine also
++  accepts the 1722.1-2013 body at cdl 60 (issue #176), the table declares that `floor`,
++  and only the recorded sweep holds its refusal of every other length, between and
++  above (to cdl 100; `tb/pp_top` W24n and W24o grade cdl 97 and 140).
++  IDENTIFY_NOTIFICATION's 16 is held through the echo rule to its unsolicited body alone;
+ - GET_DYNAMIC_INFO's 524 ceilings (the sweep stops at cdl 100);
+ - the decode of opcodes above 0x007F and of outcomes no stimulus of the sweep reaches;
+ - the ACMP transition ROM (`hdl/acmp/rom/gen_ltn_rom.py`, a transcription of F05.3), the
+@@ -652,9 +655,10 @@ Rendering inputs generate F06.14; rendering equality is not behavioral proof.
+   fields below.
+ - commands[].clause: held to nothing. Specification citation prose; no semantic citation check.
+ - commands[].command: held to nothing. Command-size container; each leaf is classified below.
+-- commands[].command.cdl: held. Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and
+-  REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an
+-  unsolicited body. Consumer: record._floor; table._sizes. Check: command floor or echo equality.
++- commands[].command.cdl: held. Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY,
++  REGISTER_UNSOLICITED_NOTIFICATION and SET_STREAM_INFO cdl are tied only by echo equality;
++  IDENTIFY_NOTIFICATION also has an unsolicited body. Consumer: record._floor; table._sizes. Check: command
++  floor or echo equality.
+ - commands[].command.floor: held. Explicit shorter accepted floor for echo commands. Consumer:
+   record._floor. Check: declared floor.
+ - commands[].command.max: held to nothing. GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index 2b92836..52b5d6e 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -800,6 +800,20 @@ module KL_aecp_engine
+   //! §5.4.2.9 admits EXACTLY this flag - a command carrying any other bit,
+   //! or none, is refused whole (NOT_SUPPORTED), never partially applied.
+   localparam logic [31:0] SIF_ACC_LAT_C        = 32'h2000_0000;
++  //! The only two bodies accepted (issue #176, REQ-AEM-009): 1722.1-2021
++  //! Figure 7-40, 84 payload bytes at cdl 96, and 1722.1-2013 Figure 7.46,
++  //! 48 bytes at cdl 60. Neither standard defines a longer body, so every
++  //! other length is refused. The 2013 body is the 2021 body's first 48
++  //! bytes, except that 2021 turns the reserved word at @70 into ip_flags,
++  //! so both carry the flags @28 and the latency @48 at the same offsets.
++  //! The response is always Figure 7-40: a 2013 command's @24..@69 echoed,
++  //! then zeros for the fields it does not carry, ip_flags through
++  //! destination_ip_address.
++  localparam logic [10:0] SI21_CDL_C           = 11'd96;
++  localparam logic [10:0] SI21_PLD_C           = 11'd84;
++  localparam logic [10:0] SI13_CDL_C           = 11'd60;
++  localparam logic [10:0] SI13_PLD_C           = 11'd48;
++  localparam logic [10:0] SI13_ECHO_C          = 11'd46;   // @24..@69
+   //! ---- START/STOP_STREAMING (Milan §5.4.2.19 / §5.4.2.20) --------------
+   //! IEEE Figure 7-59 gives both the {type @24, index @26} shape and nothing
+   //! else, so they join `tix_w` and their response is four bytes long — the
+@@ -1545,6 +1559,18 @@ module KL_aecp_engine
+         : ((32'(desc_ix_r) < N_STREAM_OUT_P)
+            && 1'(strm_streaming_i >> desc_ix_r));
+ 
++  //! a SET_STREAM_INFO carrying exactly the 2013 body, walked whole: it takes
++  //! every route the 2021 body takes, and only the answer's length (A_RUN)
++  //! and its bytes past @69 (`frame_byte`) differ (issue #176, REQ-AEM-009)
++  logic si13_w;
++  assign si13_w = ssinfo_r && (cmd_r.cdl == SI13_CDL_C)
++                  && (pld_cmd_r == SI13_PLD_C);
++  //! ...and exactly the 2021 body, walked whole. A SET_STREAM_INFO that is
++  //! neither, shorter or longer, is refused (issue #176, REQ-AEM-009)
++  logic si21_w;
++  assign si21_w = ssinfo_r && (cmd_r.cdl == SI21_CDL_C)
++                  && (pld_cmd_r == SI21_PLD_C);
++
+   //! the @26..@27 capture set. `tix_w` is the {type @24, index @26} SHAPE;
+   //! SET_CONFIGURATION is not that shape (§7.4.7.1 puts `reserved` at @24) but
+   //! it DOES take its argument from @26, so it joins the capture without
+@@ -2553,11 +2579,17 @@ module KL_aecp_engine
+           63 - (8 * ((amap_uns_pidx_w - 11'd8) & 11'd7)) -: 8];
+     endcase
+   end
++  //! a 2013 SET_STREAM_INFO answered in the 2021 form: its echo stops after
++  //! @69 and the rest of Figure 7-40 is zero (issue #176, REQ-AEM-009)
++  logic si13_pad_w;
++  assign si13_pad_w = si13_w
++                      && (bidx_r >= (11'(FRAME_HDR_C) + SI13_ECHO_C));
+   always_comb begin : frame_byte
+     if (bidx_r < 11'(FRAME_HDR_C))  frame_byte_w = hdr_byte_w;
+     else if (pay_w)                 frame_byte_w = (amap_uns_r || amap_edit_r)
+                                       ? amap_uns_byte_w
+-                                      : echo_r ? rxs_rd_data_i
++                                      : echo_r ? (si13_pad_w ? 8'd0
++                                                             : rxs_rd_data_i)
+                                                : rsp_rd_data_w;
+     else                            frame_byte_w = 8'd0;   // pad
+   end
+@@ -3568,15 +3600,16 @@ module KL_aecp_engine
+             end
+             //! ---- SET_STREAM_INFO (Milan §5.4.2.9) ---------------------
+             //! Every narrowing is settled HERE, off registered walk fields:
+-            //! the length floor is 1722.1-2021 Figure 7-40's COMPLETE body
+-            //! (84 payload bytes, cdl 96) - Milan v1.2 references the 2021
+-            //! edition, so the 2013 60-byte shape is a truncated command
+-            //! here, refused BAD_ARGUMENTS at the full 2021 response length
+-            //! (the compatibility note for shorter bodies covers a
+-            //! controller READING an older entity's response, never this
+-            //! responder accepting a legacy command). The appended ip
+-            //! fields are walked and echoed, never interpreted. The
+-            //! walked-length conjunct guards the @48 capture as above; a
++            //! exactly two lengths are accepted, 1722.1-2021 Figure 7-40's
++            //! COMPLETE body (84 payload bytes, cdl 96, `si21_w`) and the
++            //! 1722.1-2013 Figure 7.46 body (48 bytes, cdl 60, `si13_w`):
++            //! the end station serves IEEE 1722.1 as well as Milan (issue
++            //! #176, REQ-AEM-009). Any other length, shorter or longer, is
++            //! refused BAD_ARGUMENTS at the full 2021 response length. Both
++            //! bodies then take the same routes below, and every answer is
++            //! the 2021 form (`si13_w` at A_RUN and `frame_byte`). The
++            //! appended ip fields are walked and echoed, never interpreted.
++            //! The walked-length conjuncts guard the @48 capture as above; a
+             //! Stream Input target is NOT_SUPPORTED (Milan implements this
+             //! command for Stream Outputs only); the flags word must be
+             //! EXACTLY MSRP_ACC_LAT_VALID (any other sub-command refuses the
+@@ -3588,12 +3621,11 @@ module KL_aecp_engine
+             //! success body's one updated field is the value the echo
+             //! already carries.
+             if (ssinfo_r) begin
+-              //! the short-command stub is the ONE route that must not echo:
+-              //! a truncated command's echo is command-sized, and a refusal
+-              //! has to be the size of the response it refuses, so E_SIBAD
+-              //! builds the full zero body itself
+-              if ((cmd_r.cdl < 11'd96)
+-                  || (pld_cmd_r < 11'd84)) begin
++              //! the wrong-length stub is the ONE route that must not echo:
++              //! a wrong-length command's echo is command-sized, and a
++              //! refusal has to be the size of the response it refuses, so
++              //! E_SIBAD builds the full zero body itself
++              if (!si13_w && !si21_w) begin
+                 upc_r  <= UPC_SIBAD_C;
+                 echo_r <= 1'b0;
+               end
+@@ -3689,10 +3721,11 @@ module KL_aecp_engine
+               11'd14, 11'd15, 11'd16, 11'd17:
+                 if (lockc_r && (rxs_rd_data_i != 8'd0)) lock_ent_ok_r <= 1'b0;
+               //! SET_STREAM_INFO's msrp_accumulated_latency, @48..@51
+-              //! (Figure 7-40). Guarded on its own discriminator so no other
+-              //! long command's padding can reach the register, and settled
+-              //! well before the A_PLD exit reads it - a cdl-96 command's
+-              //! walk runs to index 83.
++              //! (Figure 7-40, and Figure 7.46 at the same offset). Guarded
++              //! on its own discriminator so no other long command's padding
++              //! can reach the register, and settled well before the A_PLD
++              //! exit reads it - a cdl-96 command's walk runs to index 83, a
++              //! cdl-60 command's to index 47.
+               11'd26: if (ssinfo_r) silat_r[31:24] <= rxs_rd_data_i;
+               11'd27: if (ssinfo_r) silat_r[23:16] <= rxs_rd_data_i;
+               11'd28: if (ssinfo_r) silat_r[15:8]  <= rxs_rd_data_i;
+@@ -3737,7 +3770,9 @@ module KL_aecp_engine
+                             ? 11'(PLD_MAX_C) : (resp_len_w - 11'd12))
+                          : 11'd0;
+               end else begin
+-                pld_r <= pld_cmd_r;
++                //! ...except a 2013 SET_STREAM_INFO, answered in the 2021
++                //! form on every route (issue #176, REQ-AEM-009)
++                pld_r <= si13_w ? SI21_PLD_C : pld_cmd_r;
+               end
+               //! a preempted command that is not an AEM_COMMAND has no status
+               //! 10, so the forced answer is its refusal form, NOT_IMPLEMENTED
+diff --git a/hdl/aecp/ucode/aecp_commands.json b/hdl/aecp/ucode/aecp_commands.json
+index 145d712..eeef753 100644
+--- a/hdl/aecp/ucode/aecp_commands.json
++++ b/hdl/aecp/ucode/aecp_commands.json
+@@ -138,14 +138,14 @@
+     {
+       "name": "SET_STREAM_INFO", "message": "AEM", "opcode": "0x000E", "rtl": "OP_SET_STREAM_INFO_C",
+       "clause": "Milan 5.4.2.9; IEEE 7.4.15",
+-      "command": {"cdl": 96},
++      "command": {"cdl": 96, "floor": 60},
+       "response": {"cdl": 96, "echo": true},
+       "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED", "STREAM_IS_RUNNING"],
+       "hazard": "STREAM_CFG", "lock": true,
+       "notify": {"class": 3, "kind": "PP_UNS_SINFO_C", "body": "SINFOUNS", "doc": "success with state change, requester excluded"},
+       "gdi": false, "oversize": false,
+       "entries": ["SINFO", "SIBAD", "SIRUN", "NSUPPE", "BADARG"],
+-      "doc": {"mandate": "shall", "scope": "**output only** (Δ11); §6.3"}
++      "doc": {"mandate": "shall", "scope": "**output only** (Δ11); §6.3; accepts exactly the 2021 body (cdl 96) and the 2013 48-byte body (cdl 60)", "size": "the 2021 form, whichever body"}
+     },
+     {
+       "name": "GET_STREAM_INFO", "message": "AEM", "opcode": "0x000F", "rtl": "OP_GET_STREAM_INFO_C",
+diff --git a/hdl/aecp/ucode/aecp_fields.json b/hdl/aecp/ucode/aecp_fields.json
+index ad193f6..b073011 100644
+--- a/hdl/aecp/ucode/aecp_fields.json
++++ b/hdl/aecp/ucode/aecp_fields.json
+@@ -22,7 +22,7 @@
+   {
+     "path": "commands[].command.cdl",
+     "status": "held",
+-    "reason": "Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an unsolicited body.",
++    "reason": "Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY, REGISTER_UNSOLICITED_NOTIFICATION and SET_STREAM_INFO cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an unsolicited body.",
+     "consumer": "record._floor; table._sizes",
+     "check": "command floor or echo equality",
+     "probe": {
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index 8c9617c..cce5a79 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -2325,7 +2325,10 @@ place(E_SFBAD, [
+ # command and response share Figure 7-40, so the echo IS the required body.
+ # The refusal arms (E_FAILSAFE here, E_NSUPPE / E_BADARG / E_SIRUN / E_SIBAD
+ # at dispatch) ride the same echo with the status the refusing op or route
+-# established.
++# established. A 1722.1-2013 command (Figure 7.46, cdl 60) takes the same
++# programs; the engine lengthens its echo to Figure 7-40 and zeroes the fields
++# the 2013 body does not carry (issue #176, REQ-AEM-009), so no program here
++# tells the two apart.
+ place(E_SINFO, [
+     u('CHECK_LOCK', ra=15, imm=E_FAILSAFE),      # echo + ENTITY_LOCKED
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # miss -> NO_SUCH_DESCRIPTOR
+@@ -2342,13 +2345,14 @@ place(E_SINFO, [
+     u('END'),
+ ])
+ 
+-# Too short for 1722.1-2021 Figure 7-40 - Milan v1.2 references the 2021
+-# edition, so the 2013 60-byte shape is itself a truncated command here. The
+-# echo cannot serve (a refusal has to be the size of the response it refuses,
+-# and a truncated command's echo is not), so the stub lays the complete
+-# 84-byte body out as zeros after the echoed {type, index} word: flags,
+-# stream_format, stream_id, msrp_accumulated_latency, dest_mac, the failure
+-# pair, failure_bridge_id, vlan, and the 2021 ip block through @107.
++# Neither 1722.1-2021 Figure 7-40 nor the 1722.1-2013 Figure 7.46 body, the
++# only two lengths the engine accepts (issue #176, REQ-AEM-009): a shorter or a
++# longer command. The echo cannot serve (a refusal has to be the size of the
++# response it refuses, and a wrong-length command's echo is not), so the stub
++# lays the complete 84-byte body out as zeros after the echoed {type, index}
++# word: flags, stream_format, stream_id, msrp_accumulated_latency, dest_mac,
++# the failure pair, failure_bridge_id, vlan, and the 2021 ip block through
++# @107.
+ place(E_SIBAD, [
+     u('SET_STATUS', imm=ST_BADARG),
+     u('MOVE', rd=2, ra=0, imm=0),
+diff --git a/scripts/check_aecp_commands.py b/scripts/check_aecp_commands.py
+index d4ca172..6a4a132 100644
+--- a/scripts/check_aecp_commands.py
++++ b/scripts/check_aecp_commands.py
+@@ -20,9 +20,10 @@ Rendering inputs generate F06.14; rendering equality is not behavioral proof.
+   fields below.
+ - commands[].clause: held to nothing. Specification citation prose; no semantic citation check.
+ - commands[].command: held to nothing. Command-size container; each leaf is classified below.
+-- commands[].command.cdl: held. Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY and
+-  REGISTER_UNSOLICITED_NOTIFICATION cdl are tied only by echo equality; IDENTIFY_NOTIFICATION also has an
+-  unsolicited body. Consumer: record._floor; table._sizes. Check: command floor or echo equality.
++- commands[].command.cdl: held. Observed first-entry floor, unless floor is declared: ACQUIRE_ENTITY,
++  REGISTER_UNSOLICITED_NOTIFICATION and SET_STREAM_INFO cdl are tied only by echo equality;
++  IDENTIFY_NOTIFICATION also has an unsolicited body. Consumer: record._floor; table._sizes. Check: command
++  floor or echo equality.
+ - commands[].command.floor: held. Explicit shorter accepted floor for echo commands. Consumer:
+   record._floor. Check: declared floor.
+ - commands[].command.max: held to nothing. GET_DYNAMIC_INFO ceiling 524; the observed sweep stops at cdl 100
+diff --git a/tb/aecp_cmds/README.md b/tb/aecp_cmds/README.md
+index 9f1f121..7ce78ce 100644
+--- a/tb/aecp_cmds/README.md
++++ b/tb/aecp_cmds/README.md
+@@ -31,7 +31,9 @@ program, shows wherever it lands.
+     cdl 20 and 100;
+   - descriptor_type @24 with count 1 @28 at cdl 24 and 28, and count 2 at cdl 28 and 36;
+   - descriptor_type @24 with SET_STREAM_INFO's MSRP_ACC_LAT_VALID flags @28,
+-    with and without bit 31 of the latency @48, at cdl 96;
++    with and without bit 31 of the latency @48, at cdl 60 and 96 (the
++    IEEE 1722.1-2013 and 2021 bodies) and at cdl 97 and 100 (longer bodies,
++    which neither standard defines);
+   - and a LOCK target @36 that is not ENTITY, at cdl 28.
+ - **Floors.** Every program an opcode reached is replayed, with the stimulus
+   that first reached it, at every shorter cdl down to 12. The shortest cdl at
+@@ -80,6 +82,10 @@ Beyond the served commands:
+ Three commands declare a floor of 12, because the engine judges no length for
+ them: ACQUIRE_ENTITY and IDENTIFY_NOTIFICATION (refused at every length) and
+ REGISTER_UNSOLICITED_NOTIFICATION (the 2013 form without flags is accepted).
++SET_STREAM_INFO declares a floor of 60: the engine accepts the IEEE 1722.1-2013
++body (cdl 60) beside the 2021 one (cdl 96) and refuses every other length,
++shorter, between or longer, which the recorded SIBAD lengths hold (issue #176,
++REQ-AEM-009).
+ 
+ ## Standing controls (`make mutants`)
+ 
+diff --git a/tb/aecp_cmds/decode.json b/tb/aecp_cmds/decode.json
+index ebd6467..9b5f6d1 100644
+--- a/tb/aecp_cmds/decode.json
++++ b/tb/aecp_cmds/decode.json
+@@ -8,7 +8,7 @@
+     "unsolicited: per job kind, the program and the response's command_type:cdl."
+   ],
+   "sweep": {
+-    "trials": 585760,
++    "trials": 617908,
+     "timeouts": 0,
+     "opcodes": "0x0000-0x007F on every bucket; MVU: command_type 0x0000-0x007F",
+     "cdl": "12-100 with descriptor_type @24; 16, 24, 96 running; the other templates at their own lengths (tb/aecp_cmds/sim_main.cpp); every program replayed down to 12",
+@@ -22,9 +22,9 @@
+       "hdl/aecp/KL_aecp_dyn_state.sv": "e31a9e5486362bd4f2768beb7b552fbb2111e0bae0600b06d67c078171dcabdb",
+       "hdl/aecp/KL_aecp_nvm_writer.sv": "eac4257846e683df02ee5bafaaa31bd769af9103d85df9235d983e0eb3618c08",
+       "hdl/aecp/KL_aecp_resp_buf.sv": "a5fb5ee1e4342d37d8ab8492bb513a8b37783de7874088fddcfcab1b7397a093",
+-      "hdl/aecp/KL_aecp_engine.sv": "cb5b14a2d1fc256b8f832aa06eebc47bc073768d93df232184229ba62c6f2467",
++      "hdl/aecp/KL_aecp_engine.sv": "93f6800f5bc1dae853f8f0ec3ebbd51de1b11f3c7567ddc077fbee35bb654778",
+       "tb/aecp_cmds/aecp_cmds_wrap.sv": "076b7571a1898dd03361f6d4c4a1ed1105f0701d8baa09f8fe49bcad4fe6c0a9",
+-      "tb/aecp_cmds/sim_main.cpp": "7dfd29cf53d97c4cf393368c85b3b2c93f7c3aa832eb30a58b9efe0ab554c37d",
++      "tb/aecp_cmds/sim_main.cpp": "1f267045c224b790d0b2e3ffc033f8e091a8a8303c1d3539643e6a51e3e52375",
+       "hdl/aecp/desc/milan_min.json": "461cb370013fa5e3bca21e76a938ed4c6593a3eb7672715073b30f62c2c9c40f",
+       "hdl/aecp/desc/gen_desc_image.py": "1291e4eeb5dfc17e7b8219fa53f571253ffbbac52c640190fe536fc704491a53",
+       "hdl/aecp/desc/model_lint.py": "02152fa8ebccb03ff55f82e24ed04a62259c0f13ee5b19e550466b2451200476",
+@@ -56,7 +56,7 @@
+       }},
+       {"opcodes": "0x0004", "programs": {
+         "BADARG": {"floor": 12, "cdls": "12-19", "answers": {"7": "echo"}},
+-        "RDESC": {"floor": 20, "cdls": "20, 24, 28, 36, 96, 100", "answers": {"0": "36, 40, 102, 106, 118, 129", "2": "20", "7": "20"}},
++        "RDESC": {"floor": 20, "cdls": "20, 24, 28, 36, 60, 96-97, 100", "answers": {"0": "36, 40, 102, 106, 118, 129", "2": "20", "7": "20"}},
+         "RDESCAU": {"floor": 20, "cdls": "20, 28, 36, 100", "answers": {"0": "164"}},
+         "RDESCCD": {"floor": 20, "cdls": "20, 100", "answers": {"0": "96"}},
+         "RDESCENT": {"floor": 20, "cdls": "20-100", "answers": {"0": "328", "7": "20"}},
+@@ -84,11 +84,11 @@
+         "TIZ8NS": {"floor": 16, "cdls": "16-100", "answers": {"11": "24"}}
+       }},
+       {"opcodes": "0x000E", "programs": {
+-        "BADARG": {"floor": 96, "cdls": "96", "answers": {"7": "96"}},
+-        "NSUPPE": {"floor": 96, "cdls": "96-100", "answers": {"11": "echo"}},
+-        "SIBAD": {"floor": 12, "cdls": "12-95", "answers": {"7": "96"}},
+-        "SINFO": {"floor": 96, "cdls": "96", "answers": {"0": "96"}},
+-        "SIRUN": {"floor": 96, "cdls": "96", "answers": {"12": "96"}}
++        "BADARG": {"floor": 60, "cdls": "60, 96", "answers": {"7": "96"}},
++        "NSUPPE": {"floor": 60, "cdls": "60, 96", "answers": {"11": "96"}},
++        "SIBAD": {"floor": 12, "cdls": "12-59, 61-95, 97-100", "answers": {"7": "96"}},
++        "SINFO": {"floor": 60, "cdls": "60, 96", "answers": {"0": "96"}},
++        "SIRUN": {"floor": 60, "cdls": "60, 96", "answers": {"12": "96"}}
+       }},
+       {"opcodes": "0x000F", "programs": {
+         "BADARG": {"floor": 12, "cdls": "12-15", "answers": {"7": "echo"}},
+diff --git a/tb/aecp_cmds/sim_main.cpp b/tb/aecp_cmds/sim_main.cpp
+index 0d48203..f146982 100644
+--- a/tb/aecp_cmds/sim_main.cpp
++++ b/tb/aecp_cmds/sim_main.cpp
+@@ -308,7 +308,9 @@ std::vector<Tpl> templates() {
+     }
+     Tpl f; snprintf(nm, sizeof nm, "type@24=%04X,flags@28=20000000", t); f.name = nm;
+     put16(f.bytes, 24, t); put32(f.bytes, 28, 0x20000000u);
+-    f.cdls = {96};
++    // the 1722.1-2013 and 2021 bodies, then two longer ones, which neither
++    // standard defines (issue #176, REQ-AEM-009)
++    f.cdls = {60, 96, 97, 100};
+     out.push_back(f);
+     Tpl g = f; g.name += ",latency@48=80000000"; put32(g.bytes, 48, 0x80000000u);
+     out.push_back(g);
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 8b7c7c8..ee7a3c6 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -1041,6 +1041,15 @@ Trace window 0x40000: record = 4 words, lane 0 = now_ms, lane 1 =
+ | M35 | the binding manager's capture compare back to its form before the unbound rule (`KL_acmp_nvm_shadow` `c1_diff_w` true on any field difference, so two unbound records can differ) | default build 2 FAIL of 1,414: BW3 (the GET served after the failed walk rewrites region 0x20 unbound, byte 8 `03` to `00`, before any BIND; the BIND then writes region 0x20 a second time). Every other section PASSES |
+ | M36 | the top's `restore_done_o` without the release (`= nvm_walk_done_w`) | default build 2 FAIL of 1,414: BW4 (8 cycles of `restore_done_o` while the gate owned the listener, one in each of the six earlier walks and two in BW4's own; and in BW4's own walk the last preload's discovery arm lands in the cycle `restore_done_o` rose). Every other section PASSES |
+ | M37 | the top's `restore_busy_o` without the gap term (`= nvm_walk_busy_w`) | default build 1 FAIL of 1,414: BW4 (8 cycles read neither busy nor done). Every other section PASSES |
++| M38 | issue #176: the engine refuses the 1722.1-2013 SET_STREAM_INFO body again (the `!si13_w` term of the short-command route to `1'b1`) | default build 8 FAIL of 9,985: W24g/W24g1/W24g2 (the cdl-60 command is BAD_ARGUMENTS and writes nothing), W24i-W24l and W25b3 (each 2013-form refusal answers the zero-body stub, not its own status over the echo). Every other section PASSES |
++| M39 | the 2013 answer keeps the command's own length (`pld_r <= pld_cmd_r` for every echo) | default build 7 FAIL of 9,985: W24g, W24g2 (cdl 60, not 96), W24i-W24l, W25b3. W24g1 PASSES: the write still lands |
++| M40 | the 2013 answer's bytes past @69 echo the RX slot (`si13_pad_w` tied 0) | default build 6 FAIL of 9,985: W24g, W24i-W24l, W25b3, each byte-exact against the 2021 form (the reserved A5A5 at @70, then whatever the slot holds past the command) |
++| M41 | the 2013 answer echoes @70..@71 into ip_flags (`SI13_ECHO_C` 46 to 48) | default build 6 FAIL of 9,985: the M40 set, on the reserved word alone |
++| M42 | any shorter body of at least 48 bytes accepted as the 2013 form (`si13_w` compares `>=`) | default build 6 FAIL of 9,985: W24m/W24m1/W24m2 (the 72-byte body is accepted and writes 640000), and the rows that then find 640000 instead of 1000000 (W24h2, W25b2, W25b3) |
++| M43 | the 2013 latency never captured (the four `silat_r` walk arms gated `!si13_w`) | default build 8 FAIL of 9,985: W24g1 and W24g2 (0 is published, then kept), W24k (the bit-31 latency is not seen), and the rows that find 0 instead of 1000000 (W24l2, W24m1, W24h2, W25b2, W25b3). W24g's byte-exact echo PASSES: only the published row sees this edit |
++| M44 | the flag gate forced open (M9's edit, for the 2013 rows) | default build 9 FAIL of 9,985: M9's W24d/W24e/W24f, W24j (the 2013 extra-flag command answers SUCCESS), and the rows that find its 640000 (W24l2, W24m1, W24h2, W25b2, W25b3) |
++| M45 | issue #176: the upper bound reopened, any SET_STREAM_INFO of at least the 2021 body taken as one (`si21_w` compares `>=`, the dispatch before this row) | default build 7 FAIL of 10,004: W24n/W24n1 and W24o/W24o1 (the cdl-97 and cdl-140 commands answer SUCCESS at their own length and write 640000), and the rows that then find 640000 instead of 1000000 (W24h2, W25b2, W25b3). Every other section PASSES. `tb/aecp_cmds` fails too: AEM 0x000E's recorded SINFO, NSUPPE, BADARG and SIBAD lengths move by cdl 97-100 |
++| M46 | the 2013 answer's zero tail widened to every SET_STREAM_INFO (`si13_pad_w` keyed on `ssinfo_r`, not `si13_w`) | default build 1 FAIL of 10,004: W24a3 (the 2021 command's non-zero ip block, @70..@107, answers as zeros). Every other section PASSES |
+ 
+ Every row but the M31 control bites; originals restored; suite back to green. The M1-M6 counts were
+ taken when the suite stood at 86 checks (scenario A and section B have since
+@@ -1062,6 +1071,12 @@ M32 to M37 were measured on 2026-09-24 at 1,414, each in its own extract of the
+ tree: M32 then fails 8 (BW1 four times, BW2, BW3's saved-record check, and BW4
+ twice, because a gate that never owns makes no gap and sees no preload), M33
+ and M34 the same 2 as before.
++M38 to M44 were measured on 2026-10-17 at 9,985 checks. M45 and M46 were measured
++on 2026-10-18 at 10,004, each in its own extract of `hdl/` and this directory, and
++M38 to M44 were planted again there: M38 to M41 fail the same checks as before,
++M42 adds W24a3 (a 2021 body is at least 48 bytes, so it is padded as a 2013 one)
++and W24n/W24n1/W24o/W24o1 (a longer body is taken as the 2013 form), and M43 and
++M44 add W24n1 and W24o1 (they find the offset their earlier rows left).
+ 
+ ### D3 negative controls (issue #131): `d3_mutants.py`
+ 
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index b8dd234..11ca879 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -8173,8 +8173,36 @@ struct ReadSidePhase : SamplingRateTools {
+   // Milan v1.2 references 1722.1-2021, so the shape is Figure 7-40's
+   // complete 84-byte payload (cdl 96) including the ip block; command
+   // and response share it, so success and every full-length refusal
+-  // answer as the echo. The 2013 60-byte shape is a TRUNCATED command
+-  // here (W24g).
++  // answer as the echo. The 1722.1-2013 body (Figure 7.46, 48 bytes, cdl
++  // 60) is accepted too, with the same routes, and answered in the 2021
++  // form (issue #176, REQ-AEM-009); a length that is neither, shorter or
++  // longer, is refused BAD_ARGUMENTS at cdl 96 and writes nothing.
++  //! a 2013 body (Figure 7.46). Every field it carries but the latency
++  //! holds a non-zero pattern, so the echo is seen whole; its last word @70
++  //! is reserved there and ip_flags in 2021, and holds A5A5 so that a
++  //! response carrying it into ip_flags is seen
++  static std::vector<uint8_t> si13_pl(uint16_t ty, uint16_t ix,
++                                      uint32_t flags, uint32_t lat) {
++    std::vector<uint8_t> p(48, 0);
++    putbe(&p[0], ty, 2); putbe(&p[2], ix, 2);
++    putbe(&p[4], flags, 4);
++    putbe(&p[8], 0x00A0020240006000ull, 8);    // stream_format
++    putbe(&p[16], 0x020000FFFE000001ull, 8);   // stream_id
++    putbe(&p[24], lat, 4);
++    putbe(&p[28], 0x91E0F000FE01ull, 6);       // stream_dest_mac
++    putbe(&p[34], 0x0102, 2);                  // msrp_failure_code, reserved
++    putbe(&p[36], 0x8000001B21FFFE01ull, 8);   // msrp_failure_bridge_id
++    putbe(&p[44], 0x0002, 2);                  // stream_vlan_id
++    putbe(&p[46], 0xA5A5, 2);                  // reserved
++    return p;
++  }
++  //! ...and its answer, independently of the engine: Figure 7-40 with the
++  //! 2013 body's @24..@69 and zero from @70 (ip_flags) to @107
++  static std::vector<uint8_t> si13_rsp(const std::vector<uint8_t>& p) {
++    std::vector<uint8_t> r(84, 0);
++    for (int i = 0; i < 46; ++i) r[i] = p[i];
++    return r;
++  }
+   void w24_set_stream_info() {
+     auto si_pl = [&](uint16_t ty, uint16_t ix, uint32_t flags,
+                      uint32_t lat) {
+@@ -8200,6 +8228,18 @@ struct ReadSidePhase : SamplingRateTools {
+     CHECK((h.d->aecp_pt_offset_v_o & 1)
+               && h.d->aecp_pt_offset_o.at(0) == 1000000,
+           "W24a2: the presentation-offset row published the setting");
++    // a 2021 body whose ip block (ip_flags @70 through the destination
++    // address @107) is non-zero is echoed whole: only a 2013 answer is
++    // zeroed past @69 (issue #176, REQ-AEM-009)
++    auto ip = si_pl(0x0006, 0, ACC_LAT, 1000000);
++    for (int i = 46; i < 84; ++i) ip[i] = uint8_t(0xC1 + 7 * i);
++    f = ask(AEM_SET_STREAM_INFO, ip, 0x76F7);
++    want = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
++                      0x76F7, AEM_SET_STREAM_INFO, ip);
++    CHECK(!f.empty() && f == want,
++          "W24a3: a 2021 SET_STREAM_INFO with a non-zero ip block is echoed "
++          "byte-exact");
++    if (!f.empty() && f != want) { dump("got", f); dump("exp", want); }
+ 
+     // W24b: GET_STREAM_INFO's msrp_accumulated_latency now serves the
+     // setting through the fold (Milan Figure 5.1 keeps it at @48)
+@@ -8237,25 +8277,10 @@ struct ReadSidePhase : SamplingRateTools {
+               && h.d->aecp_pt_offset_o.at(0) == 1000000,
+           "W24f: a bit-31 latency is BAD_ARGUMENTS and writes nothing");
+ 
+-    // W24g: the 2013-complete 48-byte shape (cdl 60) IS the truncated
+-    // case under Milan v1.2's 2021 reference - refused BAD_ARGUMENTS at
+-    // the full 2021 response length, {type,index} echoed, every value
+-    // byte zero. This row pins the review ruling: a legacy command is
+-    // never accepted.
+-    std::vector<uint8_t> shortpl(48, 0);
+-    putbe(&shortpl[0], 0x0006, 2); putbe(&shortpl[4], ACC_LAT, 4);
+-    putbe(&shortpl[24], 640000, 4);
+-    f = ask(AEM_SET_STREAM_INFO, shortpl, 0x76A6);
+-    CHECK(!f.empty() && st(f) == AECP_BAD_ARGUMENTS && cdl(f) == 96,
+-          "W24g: the 2013-length SET_STREAM_INFO refuses at cdl 96");
+-    CHECK(h.d->aecp_pt_offset_o.at(0) == 1000000,
+-          "W24g1: ...and its latency was NOT applied");
+-    if (f.size() >= 38 + 84) {
+-      bool zeros = true;
+-      for (int a = 42; a < 38 + 84; ++a) zeros = zeros && (f[a] == 0);
+-      CHECK(zeros && (((unsigned)f[38] << 8) | f[39]) == 0x0006,
+-            "W24g2: the stub echoes {type,index} over a zero body");
+-    }
++    // the 1722.1-2013 body, a shorter body of neither length, and bodies
++    // longer than the 2021 one
++    w24g_the_2013_body_and_a_body_of_neither_length();
++    w24n_bodies_longer_than_the_2021_body();
+ 
+     // W24h: an index the image does not hold -> NO_SUCH_DESCRIPTOR, and
+     // no offset row anywhere took the refused value
+@@ -8269,6 +8294,113 @@ struct ReadSidePhase : SamplingRateTools {
+           "W24h2: ...and the published rows did not move");
+   }
+ 
++  // Exercise the legacy body and an unsupported short body; preserve the
++  // stored offset across the refusal checks (issue #176, REQ-AEM-009).
++  void w24g_the_2013_body_and_a_body_of_neither_length() {
++    const uint32_t ACC_LAT = 0x20000000u;
++    std::vector<uint8_t> f;
++    // the 2013 body (cdl 60) is accepted (issue #176, REQ-AEM-009):
++    // SUCCESS, answered in the 2021 form byte-exact, and its latency is the
++    // offset
++    auto ask13 = [&](const std::vector<uint8_t>& p, uint16_t seq,
++                     uint8_t status, const char* what) {
++      auto r = ask(AEM_SET_STREAM_INFO, p, seq);
++      auto w = aecp_frame(CTLR_MAC, OWN_MAC, 1, status, EID, CTLR_EID, seq,
++                          AEM_SET_STREAM_INFO, si13_rsp(p));
++      CHECK(!r.empty() && r == w, "%s", what);
++      if (!r.empty() && r != w) { dump("got", r); dump("exp", w); }
++      return r;
++    };
++    ask13(si13_pl(0x0006, 0, ACC_LAT, 750000), 0x76F0, AECP_SUCCESS,
++          "W24g: the 2013-length SET_STREAM_INFO (cdl 60) is SUCCESS, "
++          "answered in the 2021 form (cdl 96) byte-exact");
++    CHECK((h.d->aecp_pt_offset_v_o & 1)
++              && h.d->aecp_pt_offset_o.at(0) == 750000,
++          "W24g1: ...and the presentation-offset row published its latency");
++    // and again, back to the initial offset, which the rows below keep
++    f = ask(AEM_SET_STREAM_INFO, si13_pl(0x0006, 0, ACC_LAT, 1000000),
++            0x76F1);
++    CHECK(!f.empty() && st(f) == AECP_SUCCESS && cdl(f) == 96
++              && h.d->aecp_pt_offset_o.at(0) == 1000000,
++          "W24g2: a second 2013-length SET_STREAM_INFO sets the offset back");
++
++    // each 2021-form refusal repeated in the 2013 form: answered in the
++    // 2021 form, writing nothing
++    ask13(si13_pl(0x0005, 0, ACC_LAT, 640000), 0x76F2, AECP_NOT_SUPPORTED,
++          "W24i: a 2013-length SET_STREAM_INFO on a Stream Input is "
++          "NOT_SUPPORTED, 2021 form byte-exact");
++    ask13(si13_pl(0x0006, 0, ACC_LAT | 0x8u, 640000), 0x76F3,
++          AECP_NOT_SUPPORTED,
++          "W24j: a 2013-length SET_STREAM_INFO with an extra flag is "
++          "NOT_SUPPORTED, 2021 form byte-exact");
++    ask13(si13_pl(0x0006, 0, ACC_LAT, 0x80000001u), 0x76F4,
++          AECP_BAD_ARGUMENTS,
++          "W24k: a 2013-length SET_STREAM_INFO with a bit-31 latency is "
++          "BAD_ARGUMENTS, 2021 form byte-exact");
++    ask13(si13_pl(0x0006, 5, ACC_LAT, 250000), 0x76F5,
++          AECP_NO_SUCH_DESCRIPTOR,
++          "W24l: a 2013-length SET_STREAM_INFO on a nonexistent Stream "
++          "Output is NO_SUCH_DESCRIPTOR, 2021 form byte-exact");
++    CHECK(h.d->aecp_pt_offset_v_o == 0x1
++              && h.d->aecp_pt_offset_o.at(0) == 1000000,
++          "W24l2: ...and no refused 2013-length latency was applied");
++
++    // a body that is neither form (72 bytes, cdl 84, a valid
++    // MSRP_ACC_LAT_VALID latency inside it) is still TRUNCATED - refused
++    // BAD_ARGUMENTS at the full 2021 response length, {type,index}
++    // echoed, every value byte zero
++    std::vector<uint8_t> shortpl(72, 0);
++    putbe(&shortpl[0], 0x0006, 2); putbe(&shortpl[4], ACC_LAT, 4);
++    putbe(&shortpl[24], 640000, 4);
++    f = ask(AEM_SET_STREAM_INFO, shortpl, 0x76A6);
++    CHECK(!f.empty() && st(f) == AECP_BAD_ARGUMENTS && cdl(f) == 96,
++          "W24m: a 72-byte SET_STREAM_INFO (cdl 84) refuses at cdl 96");
++    CHECK(h.d->aecp_pt_offset_o.at(0) == 1000000,
++          "W24m1: ...and its latency was NOT applied");
++    if (f.size() >= 38 + 84) {
++      bool zeros = true;
++      for (int a = 42; a < 38 + 84; ++a) zeros = zeros && (f[a] == 0);
++      CHECK(zeros && (((unsigned)f[38] << 8) | f[39]) == 0x0006,
++            "W24m2: the stub echoes {type,index} over a zero body");
++    }
++  }
++
++  // Neither standard defines a SET_STREAM_INFO body longer than 1722.1-2021
++  // Figure 7-40, so one is refused like a short one: BAD_ARGUMENTS at the
++  // 2021 response length, {type, index} over a zero body, nothing written.
++  // Each command is a valid MSRP_ACC_LAT_VALID template with a latency the
++  // offset does not hold, lengthened by a non-zero tail; the stored offset
++  // is the initial one on entry and on exit (issue #176, REQ-AEM-009).
++  void w24n_bodies_longer_than_the_2021_body() {
++    auto longer = [&](int len, uint16_t seq, const char* refused,
++                      const char* kept) {
++      std::vector<uint8_t> p(size_t(len) - 12, 0);
++      putbe(&p[0], 0x0006, 2); putbe(&p[4], 0x20000000u, 4);
++      putbe(&p[24], 640000, 4);
++      for (size_t i = 84; i < p.size(); ++i) p[i] = uint8_t(0x5A + i);
++      std::vector<uint8_t> stub(84, 0);
++      putbe(&stub[0], 0x0006, 2);
++      auto f = ask(AEM_SET_STREAM_INFO, p, seq);
++      auto w = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_BAD_ARGUMENTS, EID,
++                          CTLR_EID, seq, AEM_SET_STREAM_INFO, stub);
++      CHECK(!f.empty() && f == w, "%s", refused);
++      if (!f.empty() && f != w) { dump("got", f); dump("exp", w); }
++      CHECK(h.d->aecp_pt_offset_v_o == 0x1
++                && h.d->aecp_pt_offset_o.at(0) == 1000000,
++            "%s", kept);
++    };
++    longer(97, 0x76F8,
++           "W24n: a SET_STREAM_INFO one byte longer than the 2021 body "
++           "(cdl 97) refuses BAD_ARGUMENTS at cdl 96, {type,index} over a "
++           "zero body, byte-exact",
++           "W24n1: ...and its latency was NOT applied");
++    longer(140, 0x76F9,
++           "W24o: a SET_STREAM_INFO 44 bytes longer than the 2021 body "
++           "(cdl 140) refuses BAD_ARGUMENTS at cdl 96, {type,index} over a "
++           "zero body, byte-exact",
++           "W24o1: ...and its latency was NOT applied");
++  }
++
+   // ---- W25: the streaming-output refusals, against REAL streaming ------
+   // Milan 5.4.2.7 and 5.4.2.9 both refuse a STREAMING Stream Output with
+   // STREAM_IS_RUNNING. Streaming is 5.3.7.3's conjunction - our Talker
+@@ -8312,6 +8444,19 @@ struct ReadSidePhase : SamplingRateTools {
+     CHECK(h.d->aecp_pt_offset_o.at(0) == 1000000,
+           "W25b2: ...and the offset row kept W24a's value");
+ 
++    // the 2013 body (cdl 60) is refused the same way, answered in the 2021
++    // form (issue #176, REQ-AEM-009)
++    auto p13 = si13_pl(0x0006, 0, 0x20000000u, 500000);
++    f = ask(AEM_SET_STREAM_INFO, p13, 0x76F6);
++    auto want13 = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_STREAM_IS_RUNNING,
++                             EID, CTLR_EID, 0x76F6, AEM_SET_STREAM_INFO,
++                             si13_rsp(p13));
++    CHECK(!f.empty() && f == want13
++              && h.d->aecp_pt_offset_o.at(0) == 1000000,
++          "W25b3: a 2013-length SET_STREAM_INFO on a streaming output "
++          "refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written");
++    if (!f.empty() && f != want13) { dump("got", f); dump("exp", want13); }
++
+     // the gate must LIFT: the Listener leaves, both commands are accepted
+     h.sync_join();
+     Msg lv{3, 8, true, {Vec{false, 1, fv_sid(SID_T0),

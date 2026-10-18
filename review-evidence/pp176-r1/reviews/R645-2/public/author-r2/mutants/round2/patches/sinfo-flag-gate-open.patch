@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3627,7 +3627,7 @@
+               //! command with STREAM_IS_RUNNING, before the sub-command is
+               //! even examined - the same route order as SET_STREAM_FORMAT
+               else if (run_this_w)                    upc_r <= UPC_SIRUN_C;
+-              else if (setval_r[63:32] != SIF_ACC_LAT_C)
++              else if (1'b0)
+                                                       upc_r <= UPC_NSUPPE_C;
+               else if (silat_r[31])                   upc_r <= UPC_BADARG_C;
+               else                                    upc_r <= UPC_SINFO_C;

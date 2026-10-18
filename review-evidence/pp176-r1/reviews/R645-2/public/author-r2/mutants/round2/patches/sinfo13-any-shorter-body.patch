@@ -1,0 +1,13 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1562,8 +1562,8 @@
+   //! every route the 2021 body takes, and only the answer's length (A_RUN)
+   //! and its bytes past @69 (`frame_byte`) differ (issue #176, REQ-AEM-009)
+   logic si13_w;
+-  assign si13_w = ssinfo_r && (cmd_r.cdl == SI13_CDL_C)
+-                  && (pld_cmd_r == SI13_PLD_C);
++  assign si13_w = ssinfo_r && (cmd_r.cdl >= SI13_CDL_C)
++                  && (pld_cmd_r >= SI13_PLD_C);
+   //! ...and exactly the 2021 body, walked whole. A SET_STREAM_INFO that is
+   //! neither, shorter or longer, is refused (issue #176, REQ-AEM-009)
+   logic si21_w;

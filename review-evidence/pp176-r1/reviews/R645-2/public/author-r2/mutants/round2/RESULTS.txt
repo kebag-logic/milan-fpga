@@ -1,0 +1,145 @@
+# Round 2 planted arms at head bee33ff2 (tree identical to the planted source; see HANDOFF.md).
+# Each arm: its own extract of hdl/, tb/common, tb/pp_top; default build (gsi-build) run through every section.
+# pp_top batch 1. The 'aecp_cmds rc=2' printed in both batches is superseded: those extracts lacked
+# docs/00_MILAN_COMPLIANCE_REVIEW.md, one of the command gate's inputs (scripts/aecp_gate/inputs.py), so the
+# gate refused to compare ("cannot read an input"). The aecp_cmds verdicts are the per-arm reruns at the end of this file.
+== control pp_top rc=0 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 0 failures
+== sinfo-upper-bound-reopened pp_top rc=1 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 7 failures
+FAIL: W24n: a SET_STREAM_INFO one byte longer than the 2021 body (cdl 97) refuses BAD_ARGUMENTS at cdl 96, {type,index} over a zero body, byte-exact
+FAIL: W24n1: ...and its latency was NOT applied
+FAIL: W24o: a SET_STREAM_INFO 44 bytes longer than the 2021 body (cdl 140) refuses BAD_ARGUMENTS at cdl 96, {type,index} over a zero body, byte-exact
+FAIL: W24o1: ...and its latency was NOT applied
+FAIL: W24h2: ...and the published rows did not move
+FAIL: W25b2: ...and the offset row kept W24a's value
+FAIL: W25b3: a 2013-length SET_STREAM_INFO on a streaming output refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written
+== sinfo13-pad-every-sinfo pp_top rc=1 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 1 failures
+FAIL: W24a3: a 2021 SET_STREAM_INFO with a non-zero ip block is echoed byte-exact
+== sinfo13-refused pp_top rc=1 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 8 failures
+FAIL: W24g: the 2013-length SET_STREAM_INFO (cdl 60) is SUCCESS, answered in the 2021 form (cdl 96) byte-exact
+FAIL: W24g1: ...and the presentation-offset row published its latency
+FAIL: W24g2: a second 2013-length SET_STREAM_INFO sets the offset back
+FAIL: W24i: a 2013-length SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED, 2021 form byte-exact
+FAIL: W24j: a 2013-length SET_STREAM_INFO with an extra flag is NOT_SUPPORTED, 2021 form byte-exact
+FAIL: W24k: a 2013-length SET_STREAM_INFO with a bit-31 latency is BAD_ARGUMENTS, 2021 form byte-exact
+FAIL: W24l: a 2013-length SET_STREAM_INFO on a nonexistent Stream Output is NO_SUCH_DESCRIPTOR, 2021 form byte-exact
+FAIL: W25b3: a 2013-length SET_STREAM_INFO on a streaming output refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written
+== sinfo13-echo-length pp_top rc=1 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 7 failures
+FAIL: W24g: the 2013-length SET_STREAM_INFO (cdl 60) is SUCCESS, answered in the 2021 form (cdl 96) byte-exact
+FAIL: W24g2: a second 2013-length SET_STREAM_INFO sets the offset back
+FAIL: W24i: a 2013-length SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED, 2021 form byte-exact
+FAIL: W24j: a 2013-length SET_STREAM_INFO with an extra flag is NOT_SUPPORTED, 2021 form byte-exact
+FAIL: W24k: a 2013-length SET_STREAM_INFO with a bit-31 latency is BAD_ARGUMENTS, 2021 form byte-exact
+FAIL: W24l: a 2013-length SET_STREAM_INFO on a nonexistent Stream Output is NO_SUCH_DESCRIPTOR, 2021 form byte-exact
+FAIL: W25b3: a 2013-length SET_STREAM_INFO on a streaming output refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written
+# pp_top batch 2
+== sinfo13-tail-echoed pp_top rc=1 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 6 failures
+FAIL: W24g: the 2013-length SET_STREAM_INFO (cdl 60) is SUCCESS, answered in the 2021 form (cdl 96) byte-exact
+FAIL: W24i: a 2013-length SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED, 2021 form byte-exact
+FAIL: W24j: a 2013-length SET_STREAM_INFO with an extra flag is NOT_SUPPORTED, 2021 form byte-exact
+FAIL: W24k: a 2013-length SET_STREAM_INFO with a bit-31 latency is BAD_ARGUMENTS, 2021 form byte-exact
+FAIL: W24l: a 2013-length SET_STREAM_INFO on a nonexistent Stream Output is NO_SUCH_DESCRIPTOR, 2021 form byte-exact
+FAIL: W25b3: a 2013-length SET_STREAM_INFO on a streaming output refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written
+== sinfo13-reserved-echoed pp_top rc=1 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 6 failures
+FAIL: W24g: the 2013-length SET_STREAM_INFO (cdl 60) is SUCCESS, answered in the 2021 form (cdl 96) byte-exact
+FAIL: W24i: a 2013-length SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED, 2021 form byte-exact
+FAIL: W24j: a 2013-length SET_STREAM_INFO with an extra flag is NOT_SUPPORTED, 2021 form byte-exact
+FAIL: W24k: a 2013-length SET_STREAM_INFO with a bit-31 latency is BAD_ARGUMENTS, 2021 form byte-exact
+FAIL: W24l: a 2013-length SET_STREAM_INFO on a nonexistent Stream Output is NO_SUCH_DESCRIPTOR, 2021 form byte-exact
+FAIL: W25b3: a 2013-length SET_STREAM_INFO on a streaming output refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written
+== sinfo13-any-shorter-body pp_top rc=1 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 11 failures
+FAIL: W24a3: a 2021 SET_STREAM_INFO with a non-zero ip block is echoed byte-exact
+FAIL: W24m: a 72-byte SET_STREAM_INFO (cdl 84) refuses at cdl 96
+FAIL: W24m1: ...and its latency was NOT applied
+FAIL: W24m2: the stub echoes {type,index} over a zero body
+FAIL: W24n: a SET_STREAM_INFO one byte longer than the 2021 body (cdl 97) refuses BAD_ARGUMENTS at cdl 96, {type,index} over a zero body, byte-exact
+FAIL: W24n1: ...and its latency was NOT applied
+FAIL: W24o: a SET_STREAM_INFO 44 bytes longer than the 2021 body (cdl 140) refuses BAD_ARGUMENTS at cdl 96, {type,index} over a zero body, byte-exact
+FAIL: W24o1: ...and its latency was NOT applied
+FAIL: W24h2: ...and the published rows did not move
+FAIL: W25b2: ...and the offset row kept W24a's value
+FAIL: W25b3: a 2013-length SET_STREAM_INFO on a streaming output refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written
+== sinfo13-latency-uncaptured pp_top rc=1 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 10 failures
+FAIL: W24g1: ...and the presentation-offset row published its latency
+FAIL: W24g2: a second 2013-length SET_STREAM_INFO sets the offset back
+FAIL: W24k: a 2013-length SET_STREAM_INFO with a bit-31 latency is BAD_ARGUMENTS, 2021 form byte-exact
+FAIL: W24l2: ...and no refused 2013-length latency was applied
+FAIL: W24m1: ...and its latency was NOT applied
+FAIL: W24n1: ...and its latency was NOT applied
+FAIL: W24o1: ...and its latency was NOT applied
+FAIL: W24h2: ...and the published rows did not move
+FAIL: W25b2: ...and the offset row kept W24a's value
+FAIL: W25b3: a 2013-length SET_STREAM_INFO on a streaming output refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written
+== sinfo-flag-gate-open pp_top rc=1 aecp_cmds rc=2
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 10004 checks, 11 failures
+FAIL: W24d: an extra flag refuses whole and writes nothing
+FAIL: W24e: an empty flags word is NOT_SUPPORTED
+FAIL: W24f: a bit-31 latency is BAD_ARGUMENTS and writes nothing
+FAIL: W24j: a 2013-length SET_STREAM_INFO with an extra flag is NOT_SUPPORTED, 2021 form byte-exact
+FAIL: W24l2: ...and no refused 2013-length latency was applied
+FAIL: W24m1: ...and its latency was NOT applied
+FAIL: W24n1: ...and its latency was NOT applied
+FAIL: W24o1: ...and its latency was NOT applied
+FAIL: W24h2: ...and the published rows did not move
+FAIL: W25b2: ...and the offset row kept W24a's value
+FAIL: W25b3: a 2013-length SET_STREAM_INFO on a streaming output refuses STREAM_IS_RUNNING, 2021 form byte-exact, nothing written
+# tb/aecp_cmds suite per arm (own extract incl. docs/)
+== control aecp_cmds rc=0
+aecp_cmds: 617908 trials swept; 176 checks: 176 PASS, 0 FAIL
+== sinfo-upper-bound-reopened aecp_cmds rc=2
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E BADARG: observed {"answers": {"7": "96, 97, 100"}, "cdls": "60, 96-97, 100", "floor": 60}, recorded {"answers": {"7": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E NSUPPE: observed {"answers": {"11": "96, 97, 98, 99, 100"}, "cdls": "60, 96-100", "floor": 60}, recorded {"answers": {"11": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SIBAD: observed {"answers": {"7": "96"}, "cdls": "12-59, 61-95", "floor": 12}, recorded {"answers": {"7": "96"}, "cdls": "12-59, 61-95, 97-100", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SINFO: observed {"answers": {"0": "96, 97, 100"}, "cdls": "60, 96-97, 100", "floor": 60}, recorded {"answers": {"0": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "c0330241bbba09e4cee93c0979d8ff6397094e6cce0c1b07c6140e73df054109", recorded "b5d43c4d5c3894e6967591386f6eb5ea6a730a20dc8fc3de7d4ef361df9efea7" (make -C tb/aecp_cmds record)
+aecp_cmds: 617908 trials swept; 176 checks: 175 PASS, 1 FAIL
+== sinfo13-pad-every-sinfo aecp_cmds rc=2
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "4d33b40a2bf0fc4996cf81cfa039d260f0745797787e88b618951cd487583ebf", recorded "b5d43c4d5c3894e6967591386f6eb5ea6a730a20dc8fc3de7d4ef361df9efea7" (make -C tb/aecp_cmds record)
+aecp_cmds: 617908 trials swept; 176 checks: 175 PASS, 1 FAIL
+== sinfo13-refused aecp_cmds rc=2
+FAIL:  decode: SET_STREAM_INFO: the shortest AEM 0x000E the engine dispatches to SINFO is cdl 96, the table's floor is 60
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E BADARG: observed {"answers": {"7": "96"}, "cdls": "96", "floor": 96}, recorded {"answers": {"7": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E NSUPPE: observed {"answers": {"11": "96"}, "cdls": "96", "floor": 96}, recorded {"answers": {"11": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SIBAD: observed {"answers": {"7": "96"}, "cdls": "12-95, 97-100", "floor": 12}, recorded {"answers": {"7": "96"}, "cdls": "12-59, 61-95, 97-100", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SINFO: observed {"answers": {"0": "96"}, "cdls": "96", "floor": 96}, recorded {"answers": {"0": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SIRUN: observed {"answers": {"12": "96"}, "cdls": "96", "floor": 96}, recorded {"answers": {"12": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "8a0c87e8ffee3e27639c8babc48c26d37993a149fb5b5f4db364a253003270eb", recorded "b5d43c4d5c3894e6967591386f6eb5ea6a730a20dc8fc3de7d4ef361df9efea7" (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep trials: observed 618016, recorded 617908 (make -C tb/aecp_cmds record)
+aecp_cmds: 618016 trials swept; 176 checks: 174 PASS, 2 FAIL
+== sinfo13-echo-length aecp_cmds rc=2
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E BADARG: observed {"answers": {"7": "echo"}, "cdls": "60, 96", "floor": 60}, recorded {"answers": {"7": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E NSUPPE: observed {"answers": {"11": "echo"}, "cdls": "60, 96", "floor": 60}, recorded {"answers": {"11": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SINFO: observed {"answers": {"0": "echo"}, "cdls": "60, 96", "floor": 60}, recorded {"answers": {"0": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SIRUN: observed {"answers": {"12": "echo"}, "cdls": "60, 96", "floor": 60}, recorded {"answers": {"12": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "8ccb3a102c21f1f12a0a19a60f1ecba9fb1af2c4b31cce45ebf94f37b5579f18", recorded "b5d43c4d5c3894e6967591386f6eb5ea6a730a20dc8fc3de7d4ef361df9efea7" (make -C tb/aecp_cmds record)
+aecp_cmds: 617908 trials swept; 176 checks: 175 PASS, 1 FAIL
+== sinfo13-tail-echoed aecp_cmds rc=2
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "71adb8e4f0d40c07eed079f0e5de47663534da2ec037e0561632fdaaae97c42f", recorded "b5d43c4d5c3894e6967591386f6eb5ea6a730a20dc8fc3de7d4ef361df9efea7" (make -C tb/aecp_cmds record)
+aecp_cmds: 617908 trials swept; 176 checks: 175 PASS, 1 FAIL
+== sinfo13-reserved-echoed aecp_cmds rc=2
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "75c18f59404f64783dcdf9bfdd5ae74ef142b80f01347604382d9b8f9cb0642d", recorded "b5d43c4d5c3894e6967591386f6eb5ea6a730a20dc8fc3de7d4ef361df9efea7" (make -C tb/aecp_cmds record)
+aecp_cmds: 617908 trials swept; 176 checks: 175 PASS, 1 FAIL
+== sinfo13-any-shorter-body aecp_cmds rc=2
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E BADARG: observed {"answers": {"7": "96"}, "cdls": "60, 96-97, 100", "floor": 60}, recorded {"answers": {"7": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E NSUPPE: observed {"answers": {"11": "96"}, "cdls": "60-100", "floor": 60}, recorded {"answers": {"11": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SIBAD: observed {"answers": {"7": "96"}, "cdls": "12-59", "floor": 12}, recorded {"answers": {"7": "96"}, "cdls": "12-59, 61-95, 97-100", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SINFO: observed {"answers": {"0": "96"}, "cdls": "60, 96-97, 100", "floor": 60}, recorded {"answers": {"0": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E SIRUN: observed {"answers": {"12": "96"}, "cdls": "60-96", "floor": 60}, recorded {"answers": {"12": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "96b32ec61fdca0222e1f2000fc273ec0f83132ef871be7f24032a7b595fcee39", recorded "b5d43c4d5c3894e6967591386f6eb5ea6a730a20dc8fc3de7d4ef361df9efea7" (make -C tb/aecp_cmds record)
+aecp_cmds: 617908 trials swept; 176 checks: 175 PASS, 1 FAIL
+== sinfo13-latency-uncaptured aecp_cmds rc=2
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x000E BADARG: observed {"answers": {"7": "96"}, "cdls": "96", "floor": 96}, recorded {"answers": {"7": "96"}, "cdls": "60, 96", "floor": 60} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "c4a051e7ebdf2b509ecaf878d1db0ddee4b66667553a4ac4bc01e1582a6cca8d", recorded "b5d43c4d5c3894e6967591386f6eb5ea6a730a20dc8fc3de7d4ef361df9efea7" (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep trials: observed 617944, recorded 617908 (make -C tb/aecp_cmds record)
+aecp_cmds: 617944 trials swept; 176 checks: 175 PASS, 1 FAIL
+== sinfo-flag-gate-open aecp_cmds rc=2
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "d0e63941bfc2bf4a3a58e01875749c93a377159233b287814503f77b15283ef1", recorded "b5d43c4d5c3894e6967591386f6eb5ea6a730a20dc8fc3de7d4ef361df9efea7" (make -C tb/aecp_cmds record)
+aecp_cmds: 617908 trials swept; 176 checks: 175 PASS, 1 FAIL

@@ -1,0 +1,140 @@
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -14400,93 +14400,52 @@
+   return h.fails ? 1 : 0;
+ }
+ 
++
+ int main(int argc, char** argv) {
+   Verilated::commandArgs(argc, argv);
+-  //! the harness that owns the tally. Sections DV and AX run on models of
+-  //! their own in two builds each, so each has one path; in the fixture and
+-  //! line builds this model is never clocked.
+   const milan::tb::Model<Vpp_top_wrap> model;
+   H h(model.get());
+-#if defined(PP_TOP_SRP_DOM_DEF_VID)
+-  //! every other section is written against the product default, which the
+-  //! first build grades; the fixture build runs section DV alone
+-  DomainDefaultPhase{h}.run();
+-  const char* const build = "fixture";
+-#elif defined(PP_TOP_EN_IDENT)
+-  //! the third build sets P-EN-IDENTIFY-NOTIFICATION to 1 and runs section
+-  //! ID alone; the first grades the default 0 (section ID0 among the rest)
+-  run_identify(h);
+-  const char* const build = "identify";
+-#elif defined(PP_TOP_DESC_LINE_BYTES)
+-  //! the line build runs section AX alone, on its non-default line
+-  run_aecp_response(h);
+-  const char* const build = "line";
+-#elif defined(PP_TOP_TIM_REAL)
+-  //! the fifth build runs section TB alone, at the nominal timebase
+-  run_budgets(h);
+-  const char* const build = "timebase";
+-#elif defined(PP_TOP_TIM_DEFAULTS)
+-  //! the sixth build runs section TD alone, with the registration and lock
+-  //! timers at the top's own defaults
+-  if (argc == 2 && std::strcmp(argv[1], "--withdraw-only") == 0) run_withdraw(h);
+-  else run_timer_defaults(h);
+-  const char* const build = "defaults";
+-#elif defined(PP_TOP_IF2)
+-  //! the seventh build sets P-N-AVB-INTERFACES to 2 and runs section IF alone
+-  run_interfaces(h);
+-  const char* const build = "interfaces";
+-#else
+-  const bool gsi_only = argc == 2 && std::strcmp(argv[1], "--gsi-internal-only") == 0;
+-  const bool name_only = argc == 2 && std::strcmp(argv[1], "--name-writes-only") == 0;
+-  const bool d3_only = argc == 2 && std::strcmp(argv[1], "--d3-only") == 0;
+-  const bool volatile_only = argc == 2 && std::strcmp(argv[1], "--volatile-only") == 0;
+-  const bool cuts_only = argc == 2 && std::strcmp(argv[1], "--cuts-only") == 0;
+-  const bool one_seed = argc == 3 && std::strcmp(argv[1], "--cut-seed") == 0;
+-  const bool acmp_only = argc == 2 && std::strcmp(argv[1], "--acmp-only") == 0;
+-  const bool maap_only = argc == 2 && std::strcmp(argv[1], "--maap-internal-only") == 0;
+-  const bool adp_only = argc == 2 && std::strcmp(argv[1], "--adp-only") == 0;
+-  const bool ident_only = argc == 2 && std::strcmp(argv[1], "--identify-only") == 0;
+-  const bool notify_only = argc == 2 && std::strcmp(argv[1], "--notify-only") == 0;
+-  const bool aecp_only = argc == 2 && std::strcmp(argv[1], "--aecp-dispatch-only") == 0;
+-  const bool dl_only = argc == 2 && std::strcmp(argv[1], "--deadline-only") == 0;
+-  const bool hz_only = argc == 2 && std::strcmp(argv[1], "--hazards-only") == 0;
+-  const bool ctr_only = argc == 2 && std::strcmp(argv[1], "--counters-only") == 0;
+-  const bool spacing_only = argc == 2 && std::strcmp(argv[1], "--spacing-only") == 0;
+-  const bool dn_only = argc == 2 && std::strcmp(argv[1], "--domain-notify-only") == 0;
+-  const bool aq_only = argc == 2 && std::strcmp(argv[1], "--arm-queue-only") == 0;
+-  const bool withdraw_only = argc == 2 && std::strcmp(argv[1], "--withdraw-only") == 0;
+-  if (argc == 2 && std::strcmp(argv[1], "--dr3a") == 0) {
+-    run_dr3a(h);
+-    return 0;
+-  }
+-  const bool one_section = gsi_only || name_only || d3_only || volatile_only || acmp_only || adp_only
+-                           || cuts_only || one_seed || maap_only || aecp_only || dl_only || hz_only
+-                           || ident_only || notify_only || ctr_only || spacing_only || aq_only
+-                           || dn_only || withdraw_only;
+-  if (maap_only) run_maap_internal(h);
+-  if (!one_section || aq_only) Suite(h).run();
+-  if (aecp_only) run_aecp_dispatch_focus(h);
+-  if (!one_section || gsi_only) InternalStreamInfoPhase{h}.run();
+-  if (!one_section || name_only) run_name_writes(h);
+-  if (!one_section || d3_only) run_d3(h);
+-  if (!one_section || volatile_only) run_volatile(h);
+-  if (!one_section || cuts_only) run_cuts(h, D3CutCampaignPhase::standing());
+-  if (one_seed) run_cuts(h, {uint32_t(std::stoul(argv[2], nullptr, 0))});
+-  if (!one_section || acmp_only) run_acmp(h);
+-  if (!one_section || adp_only) run_adp_config(h);
+-  if (!one_section || aecp_only) run_aecp_response(h);
+-  if (!one_section || dl_only) run_deadlines(h);
+-  if (!one_section || hz_only) run_hazards(h);
+-  if (!one_section || ident_only) run_identify(h);
+-  if (!one_section || notify_only) run_pushes(h);
+-  if (!one_section || notify_only) run_storm(h);
+-  if (!one_section || notify_only) run_rnd(h);
+-  if (!one_section || spacing_only) run_spacing(h);
+-  if (!one_section || dn_only) run_domain_notify(h);
+-  if (!one_section || withdraw_only) run_withdraw(h);
+-  if (!one_section || ctr_only) run_counters(h);
+-  if (!one_section || aq_only) run_arm_queue(h);
+-  const char* const build = "default";
+-#endif
+-  return report_build(h, build);
++  Suite setup(h);
++  setup.load_descriptor_image();
++  h.reset();
++  setup.boot_restore_over_blank_nvm();
++  h.d->link_up_i = 1;
++  h.d->entity_enable_i = 1;
++  h.idle(1000);
++  h.flush_all();
++  ReadSidePhase phase{h, setup.image_ents};
++  phase.w24_set_stream_info();
++  std::printf("Existing W24: %d checks, %d failures\n", h.checks, h.fails);
++  uint32_t expected_offset = 1000000;
++  for (int len : {59, 60, 61, 95, 96, 97, 100, 140, 511}) {
++    std::vector<uint8_t> p(size_t(len) - 12, 0);
++    putbe(&p[0], 0x0006, 2);
++    putbe(&p[4], 0x20000000u, 4);
++    putbe(&p[24], uint32_t(600000 + len), 4);
++    for (size_t i = 46; i < p.size(); ++i) p[i] = uint8_t(0xC1 + 7*i);
++    const bool accepted = len == 60 || len == 96;
++    if (accepted) expected_offset = 600000 + len;
++    const unsigned writes = h.d->dbg_dyn_writes_o;
++    const auto marks = h.nvm_marks;
++    const auto notifications = h.notify_enqs;
++    auto f = phase.ask(AEM_SET_STREAM_INFO, p, uint16_t(0x7E00 + len));
++    std::vector<uint8_t> body(84, 0);
++    if (len == 96) body = p;
++    else if (len == 60) std::copy(p.begin(), p.begin()+46, body.begin());
++    else putbe(&body[0], 0x0006, 2);
++    auto expected = aecp_frame(CTLR_MAC, OWN_MAC, 1,
++        accepted ? AECP_SUCCESS : AECP_BAD_ARGUMENTS, EID, CTLR_EID,
++        uint16_t(0x7E00 + len), AEM_SET_STREAM_INFO, body);
++    bool ok = f == expected && h.d->aecp_pt_offset_o.at(0) == expected_offset;
++    if (!accepted) ok = ok && h.d->dbg_dyn_writes_o == writes
++        && h.nvm_marks == marks && h.notify_enqs == notifications;
++    std::printf("Boundary cdl %d status %d response_cdl %d offset %u writes %u: %s\n",
++        len, f.empty() ? -1 : phase.st(f), phase.cdl(f),
++        unsigned(h.d->aecp_pt_offset_o.at(0)),
++        unsigned(h.d->dbg_dyn_writes_o - writes), ok ? "PASS" : "FAIL");
++    if (!ok) ++h.fails;
++  }
++  AvbInfoPhase{h, h.d}.dispatch_cases();
++  std::printf("Focused result: %d failures\n", h.fails);
++  return h.fails ? 1 : 0;
+ }

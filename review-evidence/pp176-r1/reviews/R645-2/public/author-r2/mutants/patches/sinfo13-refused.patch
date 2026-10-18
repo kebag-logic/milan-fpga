@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv	2026-10-17 18:31:09.293988756 +0200
++++ b/hdl/aecp/KL_aecp_engine.sv	2026-10-17 18:31:09.310374355 +0200
+@@ -3609,7 +3609,7 @@
+               //! a truncated command's echo is command-sized, and a refusal
+               //! has to be the size of the response it refuses, so E_SIBAD
+               //! builds the full zero body itself
+-              if (!si13_w
++              if (1'b1
+                   && ((cmd_r.cdl < 11'd96)
+                       || (pld_cmd_r < 11'd84))) begin
+                 upc_r  <= UPC_SIBAD_C;
