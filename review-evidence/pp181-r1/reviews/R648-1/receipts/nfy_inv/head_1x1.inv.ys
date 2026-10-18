@@ -1,0 +1,5 @@
+read_verilog $REVIEWS/pp181-r648-1-packet/scratch/fv/nfy_1x1/notify.v
+chparam -set N_STREAM_IN_P 1 -set N_STREAM_OUT_P 1  KL_aecp_notify
+hierarchy -top KL_aecp_notify
+proc; flatten; memory; opt -fast
+sat -tempinduct -prove inv_ok_w 1 -set-at 1 rst_n 0 -seq 1 -maxsteps 1 -verify

@@ -1,0 +1,11 @@
+--- base/hdl/aecp/KL_aecp_notify.sv	2026-10-18 03:38:36.000000000 +0200
++++ bmtree/B7/hdl/aecp/KL_aecp_notify.sv	2026-10-18 14:03:55.889621687 +0200
+@@ -1501,7 +1501,7 @@
+                   if (cmd_push_w)
+                     cmdq_count_r <= cmdq_count_r;
+                   else
+-                    cmdq_count_r <= cmdq_count_r - 5'd1;
++                    cmdq_count_r <= 5'd0;
+                 end else if (pick_kind_w == PP_UNS_CTRS_C) begin
+                   em_excl_v_r <= 1'b0;
+                   em_ctr_ix_r <= pick_ctr_ix_w;

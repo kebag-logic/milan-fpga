@@ -1,0 +1,719 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+
+-- Executing script file `$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/induct.ys' --
+
+1. Executing Verilog-2005 frontend: $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v
+Parsing Verilog input from `$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v' to AST representation.
+Generating RTLIL representation for module `\evr_gold'.
+Warning: Replacing memory \lost_cnt_r with list of registers. See $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:108
+Warning: Replacing memory \payload_r with list of registers. See $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:107
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v
+Parsing Verilog input from `$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v' to AST representation.
+Generating RTLIL representation for module `\evr_gate'.
+Warning: Replacing memory \lost_cnt_r with list of registers. See $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:110
+Warning: Replacing memory \payload_r with list of registers. See $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:109
+Successfully finished Verilog frontend.
+Parameter \N_SRC_P = 1
+
+3. Executing AST frontend in derive mode using pre-parsed AST for module `\evr_gold'.
+Parameter \N_SRC_P = 1
+Generating RTLIL representation for module `$paramod\evr_gold\N_SRC_P=32'00000000000000000000000000000001'.
+Warning: Replacing memory \lost_cnt_r with list of registers. See $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:108
+Warning: Replacing memory \payload_r with list of registers. See $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:107
+Parameter \N_SRC_P = 1
+
+4. Executing AST frontend in derive mode using pre-parsed AST for module `\evr_gate'.
+Parameter \N_SRC_P = 1
+Generating RTLIL representation for module `$paramod\evr_gate\N_SRC_P=32'00000000000000000000000000000001'.
+Warning: Replacing memory \lost_cnt_r with list of registers. See $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:110
+Warning: Replacing memory \payload_r with list of registers. See $REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:109
+
+5. Executing PROC pass (convert processes to netlists).
+
+5.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:41$705'.
+Found and cleaned up 1 empty switch in `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:61$715'.
+Found and cleaned up 1 empty switch in `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:76$726'.
+Found and cleaned up 1 empty switch in `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:41$627'.
+Found and cleaned up 1 empty switch in `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:61$637'.
+Found and cleaned up 1 empty switch in `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:76$648'.
+Cleaned up 6 empty switches.
+
+5.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:41$705 in module evr_gate.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:61$715 in module evr_gate.
+Marked 2 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:76$726 in module evr_gate.
+Marked 4 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738 in module evr_gate.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:145$764 in module evr_gate.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:147$767 in module evr_gate.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:41$627 in module evr_gold.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:61$637 in module evr_gold.
+Marked 2 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:76$648 in module evr_gold.
+Marked 4 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659 in module evr_gold.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:144$685 in module evr_gold.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:146$688 in module evr_gold.
+Removed a total of 0 dead cases.
+
+5.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 40 assignments to connections.
+
+5.4. Executing PROC_INIT pass (extract init attributes).
+
+5.5. Executing PROC_ARST pass (detect async resets in processes).
+
+5.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~27 debug messages>
+
+5.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:41$705'.
+     1/2: $1\delivered_w[0:0]
+     2/2: $1$bitselwrite$pos$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:46$692[0:0]$707
+Creating decoders for process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:61$715'.
+     1/2: $1\pend_after_w[0:0]
+     2/2: $1$bitselwrite$pos$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:66$693[0:0]$717
+Creating decoders for process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:76$726'.
+     1/3: $1\gnt_src_w[0:0]
+     2/3: $1\gnt_found_w[0:0]
+     3/3: $1\rr_scan.sv2v_autoblock_1.$for_loop$307[0].sv2v_autoblock_2.idx[31:0]$732
+Creating decoders for process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+     1/13: $2\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:140$696.$result[0:0]$750
+     2/13: $2\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:140$696.s[0:0]$751
+     3/13: $1\evt_state.sv2v_autoblock_3.s[31:0]
+     4/13: $1\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:140$696.s[0:0]$743
+     5/13: $1\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:140$696.$result[0:0]$742
+     6/13: $1\evt_state.sv2v_autoblock_4.s[31:0]
+     7/13: $0\lost_cnt_r[0][7:0]
+     8/13: $0\payload_r[0][15:0]
+     9/13: $0\ptr_r[0:0]
+    10/13: $0\sel_r[0:0]
+    11/13: $0\valid_r[0:0]
+    12/13: $0\coalesced_r[0:0]
+    13/13: $0\pending_r[0:0]
+Creating decoders for process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:69$757'.
+Creating decoders for process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:145$764'.
+     1/1: $1$mem2reg_rd$\payload_r$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:145$702_DATA[15:0]$766
+Creating decoders for process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:147$767'.
+     1/1: $1$mem2reg_rd$\lost_cnt_r$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:147$703_DATA[7:0]$769
+Creating decoders for process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:148$770'.
+Creating decoders for process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:41$627'.
+     1/2: $1\delivered_w[0:0]
+     2/2: $1$bitselwrite$pos$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:46$614[0:0]$629
+Creating decoders for process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:61$637'.
+     1/2: $1\pend_after_w[0:0]
+     2/2: $1$bitselwrite$pos$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:66$615[0:0]$639
+Creating decoders for process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:76$648'.
+     1/3: $1\gnt_src_w[0:0]
+     2/3: $1\gnt_found_w[0:0]
+     3/3: $1\rr_scan.sv2v_autoblock_1.$for_loop$1[0].sv2v_autoblock_2.idx[31:0]$654
+Creating decoders for process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+     1/13: $2\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:139$618.$result[0:0]$671
+     2/13: $2\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:139$618.s[0:0]$672
+     3/13: $1\evt_state.sv2v_autoblock_3.s[31:0]
+     4/13: $1\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:139$618.s[0:0]$664
+     5/13: $1\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:139$618.$result[0:0]$663
+     6/13: $1\evt_state.sv2v_autoblock_4.s[31:0]
+     7/13: $0\lost_cnt_r[0][7:0]
+     8/13: $0\payload_r[0][15:0]
+     9/13: $0\ptr_r[0:0]
+    10/13: $0\sel_r[0:0]
+    11/13: $0\valid_r[0:0]
+    12/13: $0\coalesced_r[0:0]
+    13/13: $0\pending_r[0:0]
+Creating decoders for process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:69$678'.
+Creating decoders for process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:144$685'.
+     1/1: $1$mem2reg_rd$\payload_r$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:144$624_DATA[15:0]$687
+Creating decoders for process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:146$688'.
+     1/1: $1$mem2reg_rd$\lost_cnt_r$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:146$625_DATA[7:0]$690
+Creating decoders for process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:147$691'.
+
+5.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\evr_gate.\delivered_w' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:41$705'.
+No latch inferred for signal `\evr_gate.\pend_after_w' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:61$715'.
+No latch inferred for signal `\evr_gate.\gnt_found_w' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:76$726'.
+No latch inferred for signal `\evr_gate.\gnt_src_w' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:76$726'.
+No latch inferred for signal `\evr_gate.\rr_scan.sv2v_autoblock_1.k' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:76$726'.
+No latch inferred for signal `\evr_gate.\rr_scan.sv2v_autoblock_1.$for_loop$307[0].sv2v_autoblock_2.idx' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:76$726'.
+No latch inferred for signal `\evr_gate.\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:69$694.$result' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:69$757'.
+No latch inferred for signal `\evr_gate.$mem2reg_rd$\payload_r$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:145$702_DATA' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:145$764'.
+No latch inferred for signal `\evr_gate.$mem2reg_rd$\lost_cnt_r$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:147$703_DATA' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:147$767'.
+No latch inferred for signal `\evr_gate.\_sv2v_0' from process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:148$770'.
+No latch inferred for signal `\evr_gold.\delivered_w' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:41$627'.
+No latch inferred for signal `\evr_gold.\pend_after_w' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:61$637'.
+No latch inferred for signal `\evr_gold.\gnt_found_w' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:76$648'.
+No latch inferred for signal `\evr_gold.\gnt_src_w' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:76$648'.
+No latch inferred for signal `\evr_gold.\rr_scan.sv2v_autoblock_1.k' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:76$648'.
+No latch inferred for signal `\evr_gold.\rr_scan.sv2v_autoblock_1.$for_loop$1[0].sv2v_autoblock_2.idx' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:76$648'.
+No latch inferred for signal `\evr_gold.\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:69$616.$result' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:69$678'.
+No latch inferred for signal `\evr_gold.$mem2reg_rd$\payload_r$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:144$624_DATA' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:144$685'.
+No latch inferred for signal `\evr_gold.$mem2reg_rd$\lost_cnt_r$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:146$625_DATA' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:146$688'.
+No latch inferred for signal `\evr_gold.\_sv2v_0' from process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:147$691'.
+
+5.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\evr_gate.\pending_r' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$991' with positive edge clock.
+Creating register for signal `\evr_gate.\coalesced_r' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$992' with positive edge clock.
+Creating register for signal `\evr_gate.\valid_r' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$993' with positive edge clock.
+Creating register for signal `\evr_gate.\sel_r' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$994' with positive edge clock.
+Creating register for signal `\evr_gate.\ptr_r' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$995' with positive edge clock.
+Creating register for signal `\evr_gate.\evt_state.sv2v_autoblock_3.s' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$996' with positive edge clock.
+Creating register for signal `\evr_gate.\evt_state.sv2v_autoblock_4.s' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$997' with positive edge clock.
+Creating register for signal `\evr_gate.\payload_r[0]' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$998' with positive edge clock.
+Creating register for signal `\evr_gate.\lost_cnt_r[0]' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$999' with positive edge clock.
+Creating register for signal `\evr_gate.\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:140$696.$result' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$1000' with positive edge clock.
+Creating register for signal `\evr_gate.\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:140$696.s' using process `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+  created $dff cell `$procdff$1001' with positive edge clock.
+Creating register for signal `\evr_gold.\pending_r' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1002' with positive edge clock.
+Creating register for signal `\evr_gold.\coalesced_r' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1003' with positive edge clock.
+Creating register for signal `\evr_gold.\valid_r' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1004' with positive edge clock.
+Creating register for signal `\evr_gold.\sel_r' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1005' with positive edge clock.
+Creating register for signal `\evr_gold.\ptr_r' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1006' with positive edge clock.
+Creating register for signal `\evr_gold.\evt_state.sv2v_autoblock_3.s' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1007' with positive edge clock.
+Creating register for signal `\evr_gold.\evt_state.sv2v_autoblock_4.s' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1008' with positive edge clock.
+Creating register for signal `\evr_gold.\payload_r[0]' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1009' with positive edge clock.
+Creating register for signal `\evr_gold.\lost_cnt_r[0]' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1010' with positive edge clock.
+Creating register for signal `\evr_gold.\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:139$618.$result' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1011' with positive edge clock.
+Creating register for signal `\evr_gold.\rr_next$func$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:139$618.s' using process `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+  created $dff cell `$procdff$1012' with positive edge clock.
+
+5.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+5.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:41$705'.
+Removing empty process `evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:41$705'.
+Found and cleaned up 1 empty switch in `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:61$715'.
+Removing empty process `evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:61$715'.
+Found and cleaned up 2 empty switches in `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:76$726'.
+Removing empty process `evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:76$726'.
+Found and cleaned up 7 empty switches in `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+Removing empty process `evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:98$738'.
+Removing empty process `evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:69$757'.
+Found and cleaned up 1 empty switch in `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:145$764'.
+Removing empty process `evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:145$764'.
+Found and cleaned up 1 empty switch in `\evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:147$767'.
+Removing empty process `evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:147$767'.
+Removing empty process `evr_gate.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:148$770'.
+Found and cleaned up 1 empty switch in `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:41$627'.
+Removing empty process `evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:41$627'.
+Found and cleaned up 1 empty switch in `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:61$637'.
+Removing empty process `evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:61$637'.
+Found and cleaned up 2 empty switches in `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:76$648'.
+Removing empty process `evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:76$648'.
+Found and cleaned up 8 empty switches in `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+Removing empty process `evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:96$659'.
+Removing empty process `evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:69$678'.
+Found and cleaned up 1 empty switch in `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:144$685'.
+Removing empty process `evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:144$685'.
+Found and cleaned up 1 empty switch in `\evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:146$688'.
+Removing empty process `evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:146$688'.
+Removing empty process `evr_gold.$proc$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:147$691'.
+Cleaned up 27 empty switches.
+
+5.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module evr_gate.
+<suppressed ~25 debug messages>
+Optimizing module evr_gold.
+<suppressed ~25 debug messages>
+
+6. Executing MEMORY pass.
+
+6.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+6.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+6.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+6.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+6.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+6.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \evr_gate..
+Finding unused cells or wires in module \evr_gold..
+Removed 44 unused cells and 248 unused wires.
+<suppressed ~52 debug messages>
+
+6.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+6.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+6.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \evr_gate..
+Finding unused cells or wires in module \evr_gold..
+
+6.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+6.11. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \evr_gate..
+Finding unused cells or wires in module \evr_gold..
+
+8. Executing FLATTEN pass (flatten design).
+
+9. Executing OPT pass (performing simple optimizations).
+
+9.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module evr_gate.
+<suppressed ~1 debug messages>
+Optimizing module evr_gold.
+<suppressed ~1 debug messages>
+
+9.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\evr_gate'.
+Computing hashes of 63 cells of `\evr_gate'.
+Finding duplicate cells in `\evr_gate'.
+Computing hashes of 60 cells of `\evr_gate'.
+Finding duplicate cells in `\evr_gate'.
+Computing hashes of 58 cells of `\evr_gate'.
+Finding duplicate cells in `\evr_gate'.
+<suppressed ~15 debug messages>
+Finding identical cells in module `\evr_gold'.
+Computing hashes of 63 cells of `\evr_gold'.
+Finding duplicate cells in `\evr_gold'.
+Computing hashes of 60 cells of `\evr_gold'.
+Finding duplicate cells in `\evr_gold'.
+Computing hashes of 58 cells of `\evr_gold'.
+Finding duplicate cells in `\evr_gold'.
+Computing hashes of 57 cells of `\evr_gold'.
+Finding duplicate cells in `\evr_gold'.
+<suppressed ~18 debug messages>
+Removed a total of 11 cells.
+
+9.3. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $procdff$992 ($dff) from module evr_gate (D = $procmux$858_Y, Q = \coalesced_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1013 ($sdff) from module evr_gate (D = $procmux$858_Y, Q = \coalesced_r).
+Adding SRST signal on $procdff$993 ($dff) from module evr_gate (D = $procmux$847_Y, Q = \valid_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1017 ($sdff) from module evr_gate (D = \gnt_found_w, Q = \valid_r).
+Adding SRST signal on $procdff$994 ($dff) from module evr_gate (D = $procmux$842_Y, Q = \sel_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1019 ($sdff) from module evr_gate (D = \gnt_src_w, Q = \sel_r).
+Adding SRST signal on $procdff$998 ($dff) from module evr_gate (D = $procmux$831_Y, Q = \payload_r[0], rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1023 ($sdff) from module evr_gate (D = \src_payload_i, Q = \payload_r[0]).
+Adding SRST signal on $procdff$999 ($dff) from module evr_gate (D = $procmux$822_Y, Q = \lost_cnt_r[0], rval = 8'00000000).
+Adding EN signal on $auto$ff.cc:337:slice$1027 ($sdff) from module evr_gate (D = $add$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:127$747_Y, Q = \lost_cnt_r[0]).
+Adding SRST signal on $procdff$995 ($dff) from module evr_gate (D = $procmux$837_Y, Q = \ptr_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1033 ($sdff) from module evr_gate (D = $ternary$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:58$754_Y, Q = \ptr_r).
+Adding SRST signal on $procdff$991 ($dff) from module evr_gate (D = $procmux$869_Y, Q = \pending_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1035 ($sdff) from module evr_gate (D = $procmux$869_Y, Q = \pending_r).
+Adding SRST signal on $procdff$1003 ($dff) from module evr_gold (D = $procmux$969_Y, Q = \coalesced_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1043 ($sdff) from module evr_gold (D = $procmux$969_Y, Q = \coalesced_r).
+Adding SRST signal on $procdff$1004 ($dff) from module evr_gold (D = $procmux$958_Y, Q = \valid_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1047 ($sdff) from module evr_gold (D = \gnt_found_w, Q = \valid_r).
+Adding SRST signal on $procdff$1005 ($dff) from module evr_gold (D = $procmux$953_Y, Q = \sel_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1049 ($sdff) from module evr_gold (D = \gnt_src_w, Q = \sel_r).
+Adding SRST signal on $procdff$1009 ($dff) from module evr_gold (D = $procmux$940_Y, Q = \payload_r[0], rval = 16'0000000000000000).
+Adding EN signal on $auto$ff.cc:337:slice$1053 ($sdff) from module evr_gold (D = \src_payload_i, Q = \payload_r[0]).
+Adding SRST signal on $procdff$1010 ($dff) from module evr_gold (D = $procmux$931_Y, Q = \lost_cnt_r[0], rval = 8'00000000).
+Adding EN signal on $auto$ff.cc:337:slice$1057 ($sdff) from module evr_gold (D = $add$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:125$668_Y, Q = \lost_cnt_r[0]).
+Adding SRST signal on $procdff$1006 ($dff) from module evr_gold (D = $procmux$946_Y, Q = \ptr_r, rval = 1'0).
+Adding SRST signal on $procdff$1002 ($dff) from module evr_gold (D = $procmux$980_Y, Q = \pending_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1064 ($sdff) from module evr_gold (D = $procmux$980_Y, Q = \pending_r).
+
+9.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \evr_gate..
+Finding unused cells or wires in module \evr_gold..
+Removed 31 unused cells and 44 unused wires.
+<suppressed ~36 debug messages>
+
+9.5. Rerunning OPT passes. (Removed registers in this run.)
+
+9.6. Executing OPT_EXPR pass (perform const folding).
+Optimizing module evr_gate.
+<suppressed ~2 debug messages>
+Optimizing module evr_gold.
+<suppressed ~2 debug messages>
+
+9.7. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\evr_gate'.
+Computing hashes of 49 cells of `\evr_gate'.
+Finding duplicate cells in `\evr_gate'.
+Computing hashes of 47 cells of `\evr_gate'.
+Finding duplicate cells in `\evr_gate'.
+<suppressed ~6 debug messages>
+Finding identical cells in module `\evr_gold'.
+Computing hashes of 49 cells of `\evr_gold'.
+Finding duplicate cells in `\evr_gold'.
+Computing hashes of 47 cells of `\evr_gold'.
+Finding duplicate cells in `\evr_gold'.
+<suppressed ~6 debug messages>
+Removed a total of 4 cells.
+
+9.8. Executing OPT_DFF pass (perform DFF optimizations).
+
+9.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \evr_gate..
+Finding unused cells or wires in module \evr_gold..
+Removed 0 unused cells and 4 unused wires.
+<suppressed ~2 debug messages>
+
+9.10. Finished fast OPT passes.
+
+10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \evr_gate..
+Finding unused cells or wires in module \evr_gold..
+
+11. Executing EQUIV_MAKE pass (creating equiv checking module).
+Presumably equivalent wires: _sv2v_0_gold (1'0), _sv2v_0_gate (1'0) -> _sv2v_0
+Presumably equivalent wires: clk_i_gold (\clk_i_gold), clk_i_gate (\clk_i_gate) -> clk_i
+Presumably equivalent wires: rr_scan.sv2v_autoblock_1.k_gold (1), rr_scan.sv2v_autoblock_1.k_gate (1) -> rr_scan.sv2v_autoblock_1.k
+Presumably equivalent wires: ptr_r_gold (\ptr_r_gold), ptr_r_gate (\ptr_r_gate) -> ptr_r
+Presumably equivalent wires: rst_n_gold (\rst_n_gold), rst_n_gate (\rst_n_gate) -> rst_n
+Presumably equivalent wires: sel_r_gold (\sel_r_gold), sel_r_gate (\sel_r_gate) -> sel_r
+Presumably equivalent wires: src_strobe_i_gold (\src_strobe_i_gold), src_strobe_i_gate (\src_strobe_i_gate) -> src_strobe_i
+Presumably equivalent wires: src_payload_i_gold (\src_payload_i_gold), src_payload_i_gate (\src_payload_i_gate) -> src_payload_i
+Presumably equivalent wires: evt_valid_o_gold (\valid_r_gold), evt_valid_o_gate (\valid_r_gate) -> evt_valid_o
+Presumably equivalent wires: evt_src_o_gold (\sel_r_gold), evt_src_o_gate (\sel_r_gate) -> evt_src_o
+Presumably equivalent wires: evt_payload_o_gold (\evt_payload_o_gold), evt_payload_o_gate (\evt_payload_o_gate) -> evt_payload_o
+Presumably equivalent wires: payload_r[0]_gold (\payload_r[0]_gold), payload_r[0]_gate (\payload_r[0]_gate) -> payload_r[0]
+Presumably equivalent wires: lost_cnt_r[0]_gold (\lost_cnt_r[0]_gold), lost_cnt_r[0]_gate (\lost_cnt_r[0]_gate) -> lost_cnt_r[0]
+Presumably equivalent wires: evt_lost_o_gold (\evt_lost_o_gold), evt_lost_o_gate (\evt_lost_o_gate) -> evt_lost_o
+Presumably equivalent wires: evt_ack_i_gold (\evt_ack_i_gold), evt_ack_i_gate (\evt_ack_i_gate) -> evt_ack_i
+Presumably equivalent wires: lost_src_i_gold (\lost_src_i_gold), lost_src_i_gate (\lost_src_i_gate) -> lost_src_i
+Presumably equivalent wires: lost_count_o_gold (\lost_count_o_gold), lost_count_o_gate (\lost_count_o_gate) -> lost_count_o
+Presumably equivalent wires: pending_r_gold (\pending_r_gold), pending_r_gate (\pending_r_gate) -> pending_r
+Presumably equivalent wires: coalesced_r_gold (\coalesced_r_gold), coalesced_r_gate (\coalesced_r_gate) -> coalesced_r
+Presumably equivalent wires: valid_r_gold (\valid_r_gold), valid_r_gate (\valid_r_gate) -> valid_r
+Changing input A of cell $procmux$878_gate ($mux): \lost_cnt_r[0]_gate -> \lost_cnt_r[0]
+Changing input S of cell $procmux$778_gate ($mux): \valid_r_gate -> \valid_r
+Changing input A of cell $procmux$778_gate ($mux): \pending_r_gate -> \pending_r
+Changing input A of cell $logic_and$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:39$704_gate ($logic_and): \valid_r_gate -> \valid_r
+Changing input A of cell $neg$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:46$712_gate ($neg): { 1'0 \sel_r_gate } -> { 1'0 \evt_src_o }
+Changing input A of cell $and$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:66$721_gate ($and): \pending_r_gate -> \pending_r
+Changing input S of cell $ternary$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:69$725_gate ($mux): \valid_r_gate -> \valid_r
+Changing input A of cell $ternary$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:69$725_gate ($mux): \ptr_r_gate -> \ptr_r
+Changing input A of cell $logic_not$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:119$744_gate ($logic_not): \pending_r_gate -> \pending_r
+Changing input A of cell $ne$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:126$746_gate ($ne): \lost_cnt_r[0]_gate -> \lost_cnt_r[0]
+Changing input A of cell $add$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:127$747_gate ($add): \lost_cnt_r[0]_gate -> \lost_cnt_r[0]
+Changing input A of cell $logic_not$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:135$748_gate ($logic_not): \valid_r_gate -> \valid_r
+Changing input A of cell $add$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:58$753_gate ($add): \sel_r_gate -> \evt_src_o
+Changing input S of cell $ternary$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:58$754_gate ($mux): \sel_r_gate -> \evt_src_o
+Changing input B of cell $shiftx$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:146$755_gate ($shiftx): \sel_r_gate -> \evt_src_o
+Changing input A of cell $shiftx$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:146$755_gate ($shiftx): \coalesced_r_gate -> \coalesced_r
+Changing input A of cell $logic_and$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gate.v:146$756_gate ($logic_and): \valid_r_gate -> \valid_r
+Changing input S of cell $procmux$875_gate ($mux): \sel_r_gate -> \evt_src_o
+Changing input A of cell $procmux$875_gate ($mux): \payload_r[0]_gate -> \payload_r[0]
+Changing input S of cell $procmux$986_gold ($mux): \sel_r_gold -> \evt_src_o
+Changing input A of cell $procmux$986_gold ($mux): \payload_r[0]_gold -> \payload_r[0]
+Changing input A of cell $procmux$989_gold ($mux): \lost_cnt_r[0]_gold -> \lost_cnt_r[0]
+Changing input A of cell $procmux$887_gold ($mux): \pending_r_gold -> \pending_r
+Changing input A of cell $logic_and$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:39$626_gold ($logic_and): \valid_r_gold -> \valid_r
+Changing input A of cell $neg$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:46$634_gold ($neg): { 1'0 \sel_r_gold } -> { 1'0 \evt_src_o }
+Changing input A of cell $procmux$946_gold ($mux): \ptr_r_gold -> \ptr_r
+Changing input A of cell $and$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:66$643_gold ($and): \pending_r_gold -> \pending_r
+Changing input A of cell $logic_not$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:117$665_gold ($logic_not): \pending_r_gold -> \pending_r
+Changing input A of cell $ne$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:124$667_gold ($ne): \lost_cnt_r[0]_gold -> \lost_cnt_r[0]
+Changing input A of cell $add$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:125$668_gold ($add): \lost_cnt_r[0]_gold -> \lost_cnt_r[0]
+Changing input A of cell $logic_not$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:133$669_gold ($logic_not): \valid_r_gold -> \valid_r
+Changing input A of cell $add$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:58$674_gold ($add): \sel_r_gold -> \evt_src_o
+Changing input S of cell $ternary$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:58$675_gold ($mux): \sel_r_gold -> \evt_src_o
+Changing input B of cell $shiftx$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:145$676_gold ($shiftx): \sel_r_gold -> \evt_src_o
+Changing input A of cell $shiftx$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:145$676_gold ($shiftx): \coalesced_r_gold -> \coalesced_r
+Changing input A of cell $logic_and$$REVIEWS/pp181-r648-1-packet/scratch/fv/head_n1/gold.v:145$677_gold ($logic_and): \valid_r_gold -> \valid_r
+
+12. Executing HIERARCHY pass (managing design hierarchy).
+
+12.1. Analyzing design hierarchy..
+Top module:  \equiv
+
+12.2. Analyzing design hierarchy..
+Top module:  \equiv
+Removing unused module `\evr_gate'.
+Removing unused module `\evr_gold'.
+Removed 2 unused modules.
+
+13. Executing EQUIV_SIMPLE pass.
+Found 89 unproven $equiv cells (14 groups) in equiv:
+  Trying to prove $equiv for \_sv2v_0:ezsat
+ success!
+  Trying to prove $equiv for \evt_valid_o:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \evt_src_o:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \evt_payload_o:
+  Trying to prove $equiv for \evt_payload_o [0]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [7]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [8]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [9]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [10]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [11]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [12]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [13]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [14]:ezsat
+ success!
+  Trying to prove $equiv for \evt_payload_o [15]:ezsat
+ success!
+  Trying to prove $equiv for \evt_lost_o:ezsat
+ success!
+ Grouping SAT models for \lost_count_o:
+  Trying to prove $equiv for \lost_count_o [0]:ezsat
+ success!
+  Trying to prove $equiv for \lost_count_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \lost_count_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \lost_count_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \lost_count_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \lost_count_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \lost_count_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \lost_count_o [7]:ezsat
+ success!
+  Trying to prove $equiv for \pending_r:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \coalesced_r:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \valid_r:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \sel_r:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \ptr_r:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \rr_scan.sv2v_autoblock_1.k:
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [0]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [1]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [2]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [3]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [4]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [5]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [6]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [7]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [8]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [9]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [10]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [11]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [12]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [13]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [14]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [15]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [16]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [17]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [18]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [19]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [20]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [21]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [22]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [23]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [24]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [25]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [26]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [27]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [28]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [29]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [30]:ezsat
+ success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [31]:ezsat
+ success!
+ Grouping SAT models for \payload_r[0]:
+  Trying to prove $equiv for \payload_r[0] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [3]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [4]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [5]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [6]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [7]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [8]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [9]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [10]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [11]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [12]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [13]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [14]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \payload_r[0] [15]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \lost_cnt_r[0]:
+  Trying to prove $equiv for \lost_cnt_r[0] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [3]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [4]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [5]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [6]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [7]:ezsat
+ezsat
+ezsat
+ failed.
+Proved 58 previously unproven $equiv cells.
+
+14. Executing EQUIV_INDUCT pass.
+Found 31 unproven $equiv cells in module equiv:
+  Proving existence of base case for step 1. (4838 clauses over 1898 variables)
+  Proving induction step 1. (11119 clauses over 4274 variables)
+  Proof for induction step holds. Entire workset of 31 cells proven!
+Proved 31 previously unproven $equiv cells.
+
+15. Executing EQUIV_STATUS pass.
+Found 89 $equiv cells in equiv:
+  Of those cells 89 are proven and 0 are unproven.
+  Equivalence successfully proven!
+
+Warnings: 4 unique messages, 8 total
+End of script. Logfile hash: cf094d6c2c, time: 0.44s, user: 0.19s, system: 0.02s, MEM: 33.18 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 38% 1x equiv_simple (0 sec), 31% 4x read_verilog (0 sec), ...

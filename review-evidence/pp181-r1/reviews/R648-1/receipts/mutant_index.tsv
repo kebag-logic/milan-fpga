@@ -1,0 +1,13 @@
+R1	hdl/packet_engine/KL_pp_event_router.sv	base always ptr_r
+R2	hdl/packet_engine/KL_pp_event_router.sv	presented event not removed from the scan
+R3	hdl/packet_engine/KL_pp_event_router.sv	load ignores the acknowledge
+R4	hdl/packet_engine/KL_pp_event_router.sv	select reloads every cycle, outside the load enable
+R5	hdl/packet_engine/KL_pp_event_router.sv	no grant clears the select instead of keeping it
+R6	hdl/packet_engine/KL_pp_event_router.sv	base keyed on valid_r, removal still keyed on deliver_w (EQUIV)
+N1	hdl/aecp/KL_aecp_notify.sv	pop keeps the queue occupied
+N2	hdl/aecp/KL_aecp_notify.sv	push does not set the occupancy
+N3	hdl/aecp/KL_aecp_notify.sv	pop off by one (empties one entry late)
+N4	hdl/aecp/KL_aecp_notify.sv	pop beside a push clears the occupancy
+N5	hdl/aecp/KL_aecp_notify.sv	amap_busy_o drops the queue occupancy
+N6	hdl/aecp/KL_aecp_notify.sv	reset sets the occupancy
+N7	hdl/aecp/KL_aecp_notify.sv	pop clears the occupancy at once (empties early)
