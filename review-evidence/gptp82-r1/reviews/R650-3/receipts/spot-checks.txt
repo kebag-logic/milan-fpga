@@ -1,0 +1,11 @@
+SAME   syn/ooc/work/gptp_ucode.hex
+DIFFER tb/tsngen/gptp_ucode.hex
+SAME   tb/verilator/ucpu/gptp_ucode.hex
+SAME   tb/verilator/engine/gptp_ucode.hex (engine GENARGS)
+word 1022 default: 000102A1B2FF
+word 1022 p1 255:  000002A1B2FF
+word 1023 default: 0000FEC3D4E5
+header lines: 50
+HEADER SAME prev=8f3c376d1e07d2f1417889ae2ac590c71b8cb910 head=334e9fe64dfff5568be58a0dc9aeb302959b3b58
+23b9be0d9b403ec03058fb7a05064fd7973e0dae0095e54282381a654a9a5da7
+SAME   tb/tsngen/gptp_ucode.hex (tsngen --clk-hz 2000000)

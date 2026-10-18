@@ -1,0 +1,9 @@
+INFO #82 cold release graded for 2400605 cycles to the first beat
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1966 cycles later with flags 1
+FAIL #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 00000000ffffffff exp 0000000000000001
+INFO #82 491 commits graded for the self path
+1642 checks: 1639 PASS, 3 FAIL

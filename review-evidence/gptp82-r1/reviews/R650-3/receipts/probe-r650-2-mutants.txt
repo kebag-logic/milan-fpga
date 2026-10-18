@@ -1,0 +1,14 @@
+clean             default rc=0  1642 checks: 1642 PASS, 0 FAIL
+clean             p1      rc=0  46 checks: 46 PASS, 0 FAIL
+drop_keeps_flags  default rc=1  1642 checks: 1641 PASS, 1 FAIL
+    FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000001
+drop_keeps_flags  p1      rc=1  46 checks: 45 PASS, 1 FAIL
+    FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000000
+held_no_rearm     default rc=1  1642 checks: 1639 PASS, 3 FAIL
+    FAIL #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+    FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+    FAIL #82 Pdelay loss: that mastership commit has gmPresent got 00000000ffffffff exp 0000000000000001
+held_no_rearm     p1      rc=1  46 checks: 43 PASS, 3 FAIL
+    FAIL p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+    FAIL p1 255 #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+    FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 00000000ffffffff exp 0000000000000000

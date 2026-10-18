@@ -1,0 +1,11 @@
+head 334e9fe64dfff5568be58a0dc9aeb302959b3b58 tree fdb142e8ffb1a8f68158feaf00d486f6f5e3c3e2
+pr83 headRefOid 334e9fe64dfff5568be58a0dc9aeb302959b3b58
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+hosted check-runs at head: 0; combined status: pending (0 statuses)
+evidence commit kebag-logic/milan-fpga 6f640b75f3ce16dd015ab8bd6363db1ea9ddffac path review-evidence/gptp82-r1/author-r3
+parent datapath e9cbb676 flags consumers:
+1503:  wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w;
+2040:    .fabric_sync_ok_i (gptp_pub_flags_w[3]),
+2041:    .fabric_as_cap_i  (gptp_pub_flags_w[2]),
+7604:        .pub_flags_o     (gptp_pub_flags_w),
+7675:    assign gptp_pub_flags_w = '0;
