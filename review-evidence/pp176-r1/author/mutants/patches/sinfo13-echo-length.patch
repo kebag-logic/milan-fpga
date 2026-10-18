@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv	2026-10-17 18:31:09.324456434 +0200
++++ b/hdl/aecp/KL_aecp_engine.sv	2026-10-17 18:31:09.339374353 +0200
+@@ -3758,7 +3758,7 @@
+               end else begin
+                 //! ...except a 2013 SET_STREAM_INFO, answered in the 2021
+                 //! form on every route (issue #176)
+-                pld_r <= si13_w ? SI21_PLD_C : pld_cmd_r;
++                pld_r <= pld_cmd_r;
+               end
+               //! a preempted command that is not an AEM_COMMAND has no status
+               //! 10, so the forced answer is its refusal form, NOT_IMPLEMENTED
