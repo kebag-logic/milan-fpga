@@ -1,0 +1,70 @@
+# processor gates: base 5addf297 vs head 88cb2061, norm.sh-normalised diff
+=== suites: base rc 0, head rc 0
+32c32
+< PASS srp_encoder (581 checks: 581 PASS, 0 FAIL)
+---
+> PASS srp_encoder (593 checks: 593 PASS, 0 FAIL)
+34c34
+< PASS srp_top (8656 checks: 8656 PASS, 0 FAIL)
+---
+> PASS srp_top (8660 checks: 8660 PASS, 0 FAIL)
+40c40
+< suites: 1030013 checks total, 0 failing
+---
+> suites: 1030029 checks total, 0 failing
+=== reqtags-exec: base rc 0, head rc 0
+1,2c1,2
+< req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 227 tags in 19 files, OK
+< req-tags executed: 227 evidence lines, 14 suites, OK
+---
+> req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 228 tags in 19 files, OK
+> req-tags executed: 228 evidence lines, 14 suites, OK
+=== lint: base rc 0, head rc 0
+=== check: base rc 0, head rc 0
+3c3
+< links: 1196 checked, OK
+---
+> links: 1202 checked, OK
+6c6
+< req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 227 tags in 19 files, OK
+---
+> req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 228 tags in 19 files, OK
+42c42
+< ids: 593 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+---
+> ids: 608 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+=== matrix: base rc 0, head rc 0
+=== yosys: base rc 0, head rc 0
+50,52c50,52
+< Warning: Replacing memory \tf_cnt_r with list of registers. See all.v:20579
+< Warning: Replacing memory \tf_q_r with list of registers. See all.v:20508
+< Warning: Replacing memory \tf_wptr_r with list of registers. See all.v:20575, all.v:20501
+---
+> Warning: Replacing memory \tf_cnt_r with list of registers. See all.v:20635
+> Warning: Replacing memory \tf_q_r with list of registers. See all.v:20564
+> Warning: Replacing memory \tf_wptr_r with list of registers. See all.v:20631, all.v:20557
+=== guards: base rc 0, head rc 0
+82c82
+< GUARD yosys KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: all.v:17491: ERROR: FATAL: .
+---
+> GUARD yosys KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: all.v:17543: ERROR: FATAL: .
+84c84
+< GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: all.v:21711: ERROR: FATAL: .
+---
+> GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: all.v:21767: ERROR: FATAL: .
+86c86
+< GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: all.v:21714: ERROR: FATAL: .
+---
+> GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: all.v:21770: ERROR: FATAL: .
+88c88
+< GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: all.v:21717: ERROR: FATAL: .
+---
+> GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: all.v:21773: ERROR: FATAL: .
+90c90
+< GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: all.v:21720: ERROR: FATAL: .
+---
+> GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: all.v:21776: ERROR: FATAL: .
+92c92
+< GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: all.v:21729: ERROR: FATAL: .
+---
+> GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: all.v:21785: ERROR: FATAL: .

@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_domain.sv
++++ b/hdl/srp/KL_srp_domain.sv
+@@ -196,6 +196,8 @@
+         q1_valid_r <= 1'b0;
+       end
+ 
++      if (q0_valid_r && !dom_ev_ready_i && !q1_valid_r && (q0_ev_r == EV_JOININ_C || q0_ev_r == EV_JOINMT_C))
++        q0_ev_r <= reg_in_nx_w ? EV_JOININ_C : EV_JOINMT_C;
+       // ---- adoption / re-join request capture ---------------------------
+       if (rxdom_valid_i && declared_r && covers6_w
+           && ({surf_prio_w, rxdom_vid_i} != {decl_prio_r, decl_vid_r})) begin
