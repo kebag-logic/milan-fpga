@@ -1,0 +1,29 @@
+d3: console IDENTICAL; 117 base / 117 head records, 0 differ
+notify: console DIFFERS; 112 base / 123 head records, 13 differ
+    differs: golden-aecp_notify-run.log
+    differs: occupancy_cleared_beside_push.log
+    differs: occupancy_not_busy.log
+    differs: occupancy_pop_clears.log
+    differs: occupancy_pop_keeps_set.log
+    differs: occupancy_pop_one_late.log
+    differs: occupancy_push_unseen.log
+    differs: occupancy_reset_set.log
+    differs: occupancy_reset_set_collision.log
+    differs: occupancy_reset_set_failure.log
+    differs: occupancy_reset_set_identify.log
+    differs: occupancy_reset_set_interfaces.log
+    base only: C6 notification mutations: 98 of 98 KILLED by their named checks; goldens PASS
+    head only: C6 notification mutations: 109 of 109 KILLED by their named checks; goldens PASS
+    head only: {"mutant": "occupancy_cleared_beside_push", "verdict": "KILLED", "missing": []}
+    head only: {"mutant": "occupancy_not_busy", "verdict": "KILLED", "missing": []}
+    head only: {"mutant": "occupancy_pop_clears", "verdict": "KILLED", "missing": []}
+    head only: {"mutant": "occupancy_pop_keeps_set", "verdict": "KILLED", "missing": []}
+    head only: {"mutant": "occupancy_pop_one_late", "verdict": "KILLED", "missing": []}
+dispatch: console IDENTICAL; 59 base / 59 head records, 0 differ
+aecp: console IDENTICAL; 67 base / 67 head records, 0 differ
+ctr: console IDENTICAL; 18 base / 18 head records, 0 differ
+gsi: console IDENTICAL; 45 base / 45 head records, 0 differ
+name_wr: console IDENTICAL; 7 base / 7 head records, 0 differ
+acmp: console IDENTICAL; 58 base / 58 head records, 0 differ
+name_state: console IDENTICAL; 39 base / 39 head records, 0 differ
+elab_guards: console IDENTICAL; 161 base / 161 head records, 0 differ

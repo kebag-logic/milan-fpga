@@ -1,0 +1,524 @@
+# excerpt: full file sha256 04a5e7a199a41a7c53a79c5aba55ffddaa86abb6110fc465fcea059def79e65b, 667671 bytes, kept in scratch
+# --- first 80 lines
+FAIL: GI BIND-ACTIVE unsolicited: pbsta sink 0 = 2, got 0
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 00 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 00 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 40 00 00 00
+FAIL: GI BIND-ACTIVE solicited: pbsta sink 0 = 2, got 0
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 04 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 04 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 40 00 00 00
+FAIL: GI BIND-TIMEOUT unsolicited: pbsta sink 0 = 2, got 0
+FAIL: GI BIND-TIMEOUT unsolicited: acmpsta sink 0 = 7, got 0
+FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 01 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 01 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 47 00 00 00
+FAIL: GI BIND-TIMEOUT solicited: pbsta sink 0 = 2, got 0
+FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 0 = 7, got 0
+FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 05 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 05 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 47 00 00 00
+FAIL: GI PASSIVE unsolicited: pbsta sink 0 = 1, got 0
+FAIL: GI PASSIVE unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 02 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 02 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 20 00 00 00
+FAIL: GI PASSIVE solicited: pbsta sink 0 = 1, got 0
+FAIL: GI PASSIVE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 06 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 06 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 20 00 00 00
+FAIL: GI BIND-ACTIVE unsolicited: pbsta sink 1 = 2, got 1
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 03 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 03 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-ACTIVE solicited: pbsta sink 1 = 2, got 1
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 08 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 08 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-TIMEOUT unsolicited: pbsta sink 1 = 2, got 1
+FAIL: GI BIND-TIMEOUT unsolicited: acmpsta sink 1 = 7, got 0
+FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 47 00 00 00
+FAIL: GI BIND-TIMEOUT solicited: pbsta sink 1 = 2, got 1
+FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 1 = 7, got 0
+FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 09 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 09 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 47 00 00 00
+FAIL: GI ACTIVE unsolicited: pbsta sink 0 = 2, got 1
+FAIL: GI ACTIVE unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 40 00 00 00
+FAIL: GI ACTIVE solicited: pbsta sink 0 = 2, got 1
+FAIL: GI ACTIVE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 40 00 00 00
+FAIL: GI OTHER-PASSIVE solicited: pbsta sink 1 = 1, got 2
+FAIL: GI OTHER-PASSIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0d 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 40 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0d 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+FAIL: GI TIMEOUT unsolicited: pbsta sink 0 = 2, got 1
+FAIL: GI TIMEOUT unsolicited: acmpsta sink 0 = 7, got 0
+FAIL: GI TIMEOUT unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 07 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 07 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 47 00 00 00
+FAIL: GI TIMEOUT solicited: pbsta sink 0 = 2, got 1
+FAIL: GI TIMEOUT solicited: acmpsta sink 0 = 7, got 0
+FAIL: GI TIMEOUT solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0e 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0e 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 47 00 00 00
+FAIL: GI OTHER-PASSIVE solicited: pbsta sink 1 = 1, got 2
+FAIL: GI OTHER-PASSIVE solicited: acmpsta sink 1 = 0, got 7
+FAIL: GI OTHER-PASSIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+FAIL: GI RETRY-RETAIN solicited: pbsta sink 0 = 2, got 1
+FAIL: GI RETRY-RETAIN solicited: acmpsta sink 0 = 7, got 0
+FAIL: GI RETRY-RETAIN solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 14 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 14 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 47 00 00 00
+FAIL: GI COMPLETED unsolicited: pbsta sink 0 = 3, got 1
+FAIL: GI COMPLETED unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 0a 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 0a 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+# --- key lines (line: text)
+1: FAIL: GI BIND-ACTIVE unsolicited: pbsta sink 0 = 2, got 0
+2: FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 0 response
+5: FAIL: GI BIND-ACTIVE solicited: pbsta sink 0 = 2, got 0
+6: FAIL: GI BIND-ACTIVE solicited: byte-exact sink 0 response
+9: FAIL: GI BIND-TIMEOUT unsolicited: pbsta sink 0 = 2, got 0
+10: FAIL: GI BIND-TIMEOUT unsolicited: acmpsta sink 0 = 7, got 0
+11: FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response
+14: FAIL: GI BIND-TIMEOUT solicited: pbsta sink 0 = 2, got 0
+15: FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 0 = 7, got 0
+16: FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response
+19: FAIL: GI PASSIVE unsolicited: pbsta sink 0 = 1, got 0
+20: FAIL: GI PASSIVE unsolicited: byte-exact sink 0 response
+23: FAIL: GI PASSIVE solicited: pbsta sink 0 = 1, got 0
+24: FAIL: GI PASSIVE solicited: byte-exact sink 0 response
+27: FAIL: GI BIND-ACTIVE unsolicited: pbsta sink 1 = 2, got 1
+28: FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response
+31: FAIL: GI BIND-ACTIVE solicited: pbsta sink 1 = 2, got 1
+32: FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response
+35: FAIL: GI BIND-TIMEOUT unsolicited: pbsta sink 1 = 2, got 1
+36: FAIL: GI BIND-TIMEOUT unsolicited: acmpsta sink 1 = 7, got 0
+37: FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 1 response
+40: FAIL: GI BIND-TIMEOUT solicited: pbsta sink 1 = 2, got 1
+41: FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 1 = 7, got 0
+42: FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 1 response
+45: FAIL: GI ACTIVE unsolicited: pbsta sink 0 = 2, got 1
+46: FAIL: GI ACTIVE unsolicited: byte-exact sink 0 response
+49: FAIL: GI ACTIVE solicited: pbsta sink 0 = 2, got 1
+50: FAIL: GI ACTIVE solicited: byte-exact sink 0 response
+53: FAIL: GI OTHER-PASSIVE solicited: pbsta sink 1 = 1, got 2
+54: FAIL: GI OTHER-PASSIVE solicited: byte-exact sink 1 response
+57: FAIL: GI TIMEOUT unsolicited: pbsta sink 0 = 2, got 1
+58: FAIL: GI TIMEOUT unsolicited: acmpsta sink 0 = 7, got 0
+59: FAIL: GI TIMEOUT unsolicited: byte-exact sink 0 response
+62: FAIL: GI TIMEOUT solicited: pbsta sink 0 = 2, got 1
+63: FAIL: GI TIMEOUT solicited: acmpsta sink 0 = 7, got 0
+64: FAIL: GI TIMEOUT solicited: byte-exact sink 0 response
+67: FAIL: GI OTHER-PASSIVE solicited: pbsta sink 1 = 1, got 2
+68: FAIL: GI OTHER-PASSIVE solicited: acmpsta sink 1 = 0, got 7
+69: FAIL: GI OTHER-PASSIVE solicited: byte-exact sink 1 response
+72: FAIL: GI RETRY-RETAIN solicited: pbsta sink 0 = 2, got 1
+73: FAIL: GI RETRY-RETAIN solicited: acmpsta sink 0 = 7, got 0
+74: FAIL: GI RETRY-RETAIN solicited: byte-exact sink 0 response
+77: FAIL: GI COMPLETED unsolicited: pbsta sink 0 = 3, got 1
+78: FAIL: GI COMPLETED unsolicited: byte-exact sink 0 response
+81: FAIL: GI COMPLETED solicited: pbsta sink 0 = 3, got 1
+82: FAIL: GI COMPLETED solicited: byte-exact sink 0 response
+85: FAIL: GI ACTIVE unsolicited: pbsta sink 1 = 2, got 3
+86: FAIL: GI ACTIVE unsolicited: byte-exact sink 1 response
+89: FAIL: GI ACTIVE solicited: pbsta sink 1 = 2, got 3
+90: FAIL: GI ACTIVE solicited: byte-exact sink 1 response
+93: FAIL: GI FAILED-0 unsolicited: failure code sink 0 = 7, got 0
+94: FAIL: GI FAILED-0 unsolicited: full failure bridge sink 0
+95: FAIL: GI FAILED-0 unsolicited: byte-exact sink 0 response
+98: FAIL: GI FAILED-0 solicited: failure code sink 0 = 7, got 0
+99: FAIL: GI FAILED-0 solicited: full failure bridge sink 0
+100: FAIL: GI FAILED-0 solicited: byte-exact sink 0 response
+103: FAIL: GI FAILED-1 unsolicited: failure code sink 1 = 11, got 7
+104: FAIL: GI FAILED-1 unsolicited: full failure bridge sink 1
+105: FAIL: GI FAILED-1 unsolicited: byte-exact sink 1 response
+108: FAIL: GI FAILED-1 solicited: failure code sink 1 = 11, got 7
+109: FAIL: GI FAILED-1 solicited: full failure bridge sink 1
+110: FAIL: GI FAILED-1 solicited: byte-exact sink 1 response
+113: FAIL: GI DISTINCT-0 solicited: failure code sink 0 = 7, got 11
+114: FAIL: GI DISTINCT-0 solicited: full failure bridge sink 0
+115: FAIL: GI DISTINCT-0 solicited: byte-exact sink 0 response
+118: FAIL: GI FAILED-REFRESH unsolicited: failure code sink 0 = 9, got 11
+119: FAIL: GI FAILED-REFRESH unsolicited: full failure bridge sink 0
+120: FAIL: GI FAILED-REFRESH unsolicited: byte-exact sink 0 response
+123: FAIL: GI FAILED-REFRESH solicited: failure code sink 0 = 9, got 11
+124: FAIL: GI FAILED-REFRESH solicited: full failure bridge sink 0
+125: FAIL: GI FAILED-REFRESH solicited: byte-exact sink 0 response
+128: FAIL: GI ADVERTISE unsolicited: failure code sink 0 = 0, got 11
+129: FAIL: GI ADVERTISE unsolicited: full failure bridge sink 0
+130: FAIL: GI ADVERTISE unsolicited: byte-exact sink 0 response
+133: FAIL: GI ADVERTISE solicited: failure code sink 0 = 0, got 11
+134: FAIL: GI ADVERTISE solicited: full failure bridge sink 0
+135: FAIL: GI ADVERTISE solicited: byte-exact sink 0 response
+138: FAIL: GI LATENCY-BEFORE solicited: failure code sink 0 = 0, got 11
+139: FAIL: GI LATENCY-BEFORE solicited: full failure bridge sink 0
+140: FAIL: GI LATENCY-BEFORE solicited: byte-exact sink 0 response
+143: FAIL: GI LATENCY-BEFORE solicited: failure code sink 1 = 11, got 0
+144: FAIL: GI LATENCY-BEFORE solicited: full failure bridge sink 1
+145: FAIL: GI LATENCY-BEFORE solicited: byte-exact sink 1 response
+148: FAIL: GI LATENCY-CHANGE unsolicited: failure code sink 0 = 0, got 11
+149: FAIL: GI LATENCY-CHANGE unsolicited: full failure bridge sink 0
+150: FAIL: GI LATENCY-CHANGE unsolicited: byte-exact sink 0 response
+153: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+154: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+155: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+158: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+159: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+160: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+163: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+164: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+165: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+168: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+169: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+170: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+173: FAIL: GI LATENCY-CHANGE unsolicited: failure code sink 1 = 11, got 0
+174: FAIL: GI LATENCY-CHANGE unsolicited: full failure bridge sink 1
+175: FAIL: GI LATENCY-CHANGE unsolicited: byte-exact sink 1 response
+178: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+179: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+180: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+183: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+184: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+185: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+188: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+189: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+190: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+193: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+194: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+195: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+198: FAIL: GI LATENCY-CHANGE unsolicited: failure code sink 0 = 0, got 11
+199: FAIL: GI LATENCY-CHANGE unsolicited: full failure bridge sink 0
+200: FAIL: GI LATENCY-CHANGE unsolicited: byte-exact sink 0 response
+203: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+204: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+205: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+208: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+209: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+210: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+213: FAIL: GI LATENCY-CHANGE unsolicited: failure code sink 1 = 11, got 0
+214: FAIL: GI LATENCY-CHANGE unsolicited: full failure bridge sink 1
+215: FAIL: GI LATENCY-CHANGE unsolicited: byte-exact sink 1 response
+218: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+219: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+220: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+223: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+224: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+225: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+228: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+229: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+230: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+233: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+234: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+235: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+238: FAIL: GI LATENCY-WALK-ONE bit 0 step unsolicited: failure code sink 0 = 0, got 11
+239: FAIL: GI LATENCY-WALK-ONE bit 0 step unsolicited: full failure bridge sink 0
+240: FAIL: GI LATENCY-WALK-ONE bit 0 step unsolicited: byte-exact sink 0 response
+243: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+244: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+245: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+248: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+249: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+250: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+253: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+254: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+255: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+258: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+259: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+260: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+263: FAIL: GI LATENCY-WALK-ONE bit 0 return unsolicited: failure code sink 0 = 0, got 11
+264: FAIL: GI LATENCY-WALK-ONE bit 0 return unsolicited: full failure bridge sink 0
+265: FAIL: GI LATENCY-WALK-ONE bit 0 return unsolicited: byte-exact sink 0 response
+268: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+269: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+270: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+273: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+274: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+275: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+278: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+279: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+280: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+283: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+284: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+285: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+288: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+289: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+290: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+293: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+294: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+295: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+298: FAIL: GI LATENCY-WALK-ONE bit 1 step unsolicited: failure code sink 0 = 0, got 11
+299: FAIL: GI LATENCY-WALK-ONE bit 1 step unsolicited: full failure bridge sink 0
+300: FAIL: GI LATENCY-WALK-ONE bit 1 step unsolicited: byte-exact sink 0 response
+303: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+304: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+305: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+308: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+309: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+310: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+313: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+314: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+315: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+318: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+319: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+320: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+323: FAIL: GI LATENCY-WALK-ONE bit 1 return unsolicited: failure code sink 0 = 0, got 11
+324: FAIL: GI LATENCY-WALK-ONE bit 1 return unsolicited: full failure bridge sink 0
+325: FAIL: GI LATENCY-WALK-ONE bit 1 return unsolicited: byte-exact sink 0 response
+328: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+329: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+330: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+333: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+334: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+335: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+338: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+339: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+340: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+343: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+344: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+345: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+348: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+349: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+350: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+353: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+354: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+355: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+358: FAIL: GI LATENCY-WALK-ONE bit 2 step unsolicited: failure code sink 0 = 0, got 11
+359: FAIL: GI LATENCY-WALK-ONE bit 2 step unsolicited: full failure bridge sink 0
+360: FAIL: GI LATENCY-WALK-ONE bit 2 step unsolicited: byte-exact sink 0 response
+363: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+364: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+365: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+368: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+369: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+370: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+373: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+374: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+375: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+378: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+379: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+380: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+383: FAIL: GI LATENCY-WALK-ONE bit 2 return unsolicited: failure code sink 0 = 0, got 11
+384: FAIL: GI LATENCY-WALK-ONE bit 2 return unsolicited: full failure bridge sink 0
+385: FAIL: GI LATENCY-WALK-ONE bit 2 return unsolicited: byte-exact sink 0 response
+388: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+389: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+390: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+393: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+394: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+395: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+398: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+399: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+400: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+403: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+404: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+405: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+408: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+409: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+410: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+413: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+414: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+415: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+418: FAIL: GI LATENCY-WALK-ONE bit 3 step unsolicited: failure code sink 0 = 0, got 11
+419: FAIL: GI LATENCY-WALK-ONE bit 3 step unsolicited: full failure bridge sink 0
+420: FAIL: GI LATENCY-WALK-ONE bit 3 step unsolicited: byte-exact sink 0 response
+423: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+424: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+425: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+428: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+429: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+430: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+433: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+434: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+435: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+438: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+439: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+440: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+443: FAIL: GI LATENCY-WALK-ONE bit 3 return unsolicited: failure code sink 0 = 0, got 11
+444: FAIL: GI LATENCY-WALK-ONE bit 3 return unsolicited: full failure bridge sink 0
+445: FAIL: GI LATENCY-WALK-ONE bit 3 return unsolicited: byte-exact sink 0 response
+448: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+449: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+450: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+453: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+454: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+455: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+458: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+459: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+460: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+463: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+464: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+465: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+468: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+469: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+470: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+473: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+474: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+475: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+478: FAIL: GI LATENCY-WALK-ONE bit 4 step unsolicited: failure code sink 0 = 0, got 11
+479: FAIL: GI LATENCY-WALK-ONE bit 4 step unsolicited: full failure bridge sink 0
+480: FAIL: GI LATENCY-WALK-ONE bit 4 step unsolicited: byte-exact sink 0 response
+483: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+484: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+485: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+488: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+489: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+490: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+493: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+494: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+495: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+498: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+499: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+500: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+503: FAIL: GI LATENCY-WALK-ONE bit 4 return unsolicited: failure code sink 0 = 0, got 11
+504: FAIL: GI LATENCY-WALK-ONE bit 4 return unsolicited: full failure bridge sink 0
+505: FAIL: GI LATENCY-WALK-ONE bit 4 return unsolicited: byte-exact sink 0 response
+508: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+509: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+510: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+513: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+514: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+515: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+518: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+519: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+520: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+523: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+524: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+525: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+528: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+529: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+530: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+533: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+534: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+535: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+538: FAIL: GI LATENCY-WALK-ONE bit 5 step unsolicited: failure code sink 0 = 0, got 11
+539: FAIL: GI LATENCY-WALK-ONE bit 5 step unsolicited: full failure bridge sink 0
+540: FAIL: GI LATENCY-WALK-ONE bit 5 step unsolicited: byte-exact sink 0 response
+543: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+544: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+545: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+548: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+549: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+550: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+553: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+554: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+555: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+558: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+559: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+560: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+563: FAIL: GI LATENCY-WALK-ONE bit 5 return unsolicited: failure code sink 0 = 0, got 11
+564: FAIL: GI LATENCY-WALK-ONE bit 5 return unsolicited: full failure bridge sink 0
+565: FAIL: GI LATENCY-WALK-ONE bit 5 return unsolicited: byte-exact sink 0 response
+568: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+569: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+570: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+573: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+574: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+575: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+578: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+579: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+580: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+583: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+584: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+585: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+588: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+589: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+590: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+593: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+594: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+595: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+598: FAIL: GI LATENCY-WALK-ONE bit 6 step unsolicited: failure code sink 0 = 0, got 11
+599: FAIL: GI LATENCY-WALK-ONE bit 6 step unsolicited: full failure bridge sink 0
+600: FAIL: GI LATENCY-WALK-ONE bit 6 step unsolicited: byte-exact sink 0 response
+603: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+604: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+605: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+608: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+609: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+610: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+613: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+614: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+615: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+618: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+619: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+620: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+623: FAIL: GI LATENCY-WALK-ONE bit 6 return unsolicited: failure code sink 0 = 0, got 11
+624: FAIL: GI LATENCY-WALK-ONE bit 6 return unsolicited: full failure bridge sink 0
+625: FAIL: GI LATENCY-WALK-ONE bit 6 return unsolicited: byte-exact sink 0 response
+628: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+629: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+630: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+633: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+634: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+635: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+638: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+639: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+640: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+643: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+644: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+645: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+648: FAIL: GI LATENCY-READ solicited: failure code sink 1 = 11, got 0
+649: FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+650: FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+653: FAIL: GI LATENCY-OTHER solicited: failure code sink 0 = 0, got 11
+654: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 0
+655: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 0 response
+658: FAIL: GI LATENCY-WALK-ONE bit 7 step unsolicited: failure code sink 0 = 0, got 11
+659: FAIL: GI LATENCY-WALK-ONE bit 7 step unsolicited: full failure bridge sink 0
+660: FAIL: GI LATENCY-WALK-ONE bit 7 step unsolicited: byte-exact sink 0 response
+663: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+664: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+665: FAIL: GI LATENCY-READ solicited: byte-exact sink 0 response
+668: FAIL: GI LATENCY-OTHER solicited: failure code sink 1 = 11, got 0
+669: FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+670: FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+673: FAIL: GI LATENCY-READ solicited: failure code sink 0 = 0, got 11
+674: FAIL: GI LATENCY-READ solicited: full failure bridge sink 0
+# --- last 40 lines
+FAIL: GI REBIND-TIMEOUT unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 02 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 02 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 47 00 00 00
+FAIL: GI REBIND-TIMEOUT solicited: pbsta sink 0 = 2, got 0
+FAIL: GI REBIND-TIMEOUT solicited: acmpsta sink 0 = 7, got 0
+FAIL: GI REBIND-TIMEOUT solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b b8 00 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b b8 00 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 47 00 00 00
+FAIL: GI BIND-ACTIVE unsolicited: pbsta sink 1 = 2, got 0
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-ACTIVE solicited: pbsta sink 1 = 2, got 0
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b bc 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b bc 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-TIMEOUT unsolicited: pbsta sink 1 = 2, got 0
+FAIL: GI BIND-TIMEOUT unsolicited: acmpsta sink 1 = 7, got 0
+FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 05 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 05 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 47 00 00 00
+FAIL: GI BIND-TIMEOUT solicited: pbsta sink 1 = 2, got 0
+FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 1 = 7, got 0
+FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b bd 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b bd 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 47 00 00 00
+FAIL: GI PASSIVE unsolicited: pbsta sink 1 = 1, got 0
+FAIL: GI PASSIVE unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 0
+FAIL: GI PASSIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b be 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b be 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+FAIL: GI INDEX-GUARD-ALIAS solicited: pbsta sink 1 = 1, got 0
+FAIL: GI INDEX-GUARD-ALIAS solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b c0 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b c0 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+FAIL: VLAN168 GET_STREAM_INFO retains all received bits
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6183 checks, 2500 failures

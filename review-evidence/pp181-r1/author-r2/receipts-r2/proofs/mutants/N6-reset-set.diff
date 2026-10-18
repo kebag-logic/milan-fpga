@@ -1,0 +1,11 @@
+--- ../src/head_KL_aecp_notify.sv	2026-10-18 14:41:04.931320907 +0200
++++ N6-reset-set.sv	2026-10-18 14:41:18.492902020 +0200
+@@ -1194,7 +1194,7 @@
+       cmdq_wr_r   <= 4'd0;
+       cmdq_rd_r   <= 4'd0;
+       cmdq_count_r <= 5'd0;
+-      cmdq_nempty_r <= 1'b0;
++      cmdq_nempty_r <= 1'b1;
+       cmdq_drop_r <= 16'd0;
+       ctr_dirty_r <= '0;
+       ctr_pend_r  <= '0;

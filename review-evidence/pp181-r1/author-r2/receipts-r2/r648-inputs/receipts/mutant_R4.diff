@@ -1,0 +1,12 @@
+--- head/hdl/packet_engine/KL_pp_event_router.sv	2026-10-18 13:02:11.000000000 +0200
++++ mut/R4/hdl/packet_engine/KL_pp_event_router.sv	2026-10-18 13:29:26.199081083 +0200
+@@ -183,8 +183,8 @@
+       // presentation: load on delivery or from idle; held stable otherwise
+       if (deliver_w || !valid_r) begin
+         valid_r <= gnt_found_w;
+-        sel_r   <= sel_next_w;
+       end
++      sel_r <= sel_next_w;
+       if (deliver_w) ptr_r <= rr_next(sel_r);
+     end
+   end

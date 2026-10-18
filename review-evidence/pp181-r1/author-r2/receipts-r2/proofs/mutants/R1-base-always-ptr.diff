@@ -1,0 +1,11 @@
+--- ../src/head_KL_pp_event_router.sv	2026-10-18 14:41:04.928320907 +0200
++++ R1-base-always-ptr.sv	2026-10-18 14:41:18.487321241 +0200
+@@ -122,7 +122,7 @@
+   end
+ 
+   logic [SRC_W_C-1:0] base_w;
+-  assign base_w = valid_r ? rr_next(sel_r) : ptr_r;
++  assign base_w = ptr_r;
+ 
+   logic               gnt_found_w;
+   logic [SRC_W_C-1:0] gnt_src_w;

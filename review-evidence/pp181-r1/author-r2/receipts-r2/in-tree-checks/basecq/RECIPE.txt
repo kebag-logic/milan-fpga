@@ -1,0 +1,12 @@
+The base-RTL control of sections CQ (issue #181), run at head c5afc0a4's bench.
+For each of base, B5 and B7, a scratch copy holds the head tree's hdl/, tb/common/
+and tb/aecp_notify/ (Makefile, sim_main.cpp, port_tuple.hpp, occupancy.vlt), and:
+  - hdl/aecp/KL_aecp_notify.sv := git show 08ae0013:hdl/aecp/KL_aecp_notify.sv
+    (main, before the occupancy flop);
+  - occupancy.vlt: the cmdq_nempty_r line deleted (base has no such flop);
+  - sim_main.cpp: Occupancy::sample's flop read replaced by `count(d) != 0`
+    (so OC1 holds trivially there; CQ1 to CQ2b are the checks under test).
+B5 and B7 then apply the R648-1 published base_mutant_B5.diff and
+base_mutant_B7.diff (r648-inputs/) with `patch -p1`. Each copy ran `make run`
+in tb/aecp_notify with the pinned Verilator 5.050: base.log, B5.log, B7.log;
+return codes in rc.txt.

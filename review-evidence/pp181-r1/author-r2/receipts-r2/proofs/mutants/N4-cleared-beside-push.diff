@@ -1,0 +1,14 @@
+--- ../src/head_KL_aecp_notify.sv	2026-10-18 14:41:04.931320907 +0200
++++ N4-cleared-beside-push.sv	2026-10-18 14:41:18.492545956 +0200
+@@ -1505,8 +1505,10 @@
+                   em_excl_r   <= cmdq_excl_r[cmdq_rd_r];
+                   em_excl_v_r <= 1'b1;
+                   cmdq_rd_r   <= cmdq_rd_r + 4'd1;
+-                  if (cmd_push_w)
++                  if (cmd_push_w) begin
+                     cmdq_count_r <= cmdq_count_r;
++                    cmdq_nempty_r <= 1'b0;
++                  end
+                   else begin
+                     cmdq_count_r <= cmdq_count_r - 5'd1;
+                     cmdq_nempty_r <= (cmdq_count_r != 5'd1);

@@ -1,0 +1,12 @@
+--- ../src/head_KL_pp_event_router.sv	2026-10-18 14:41:04.928320907 +0200
++++ R4-select-reloads-always.sv	2026-10-18 14:41:18.487979513 +0200
+@@ -183,8 +183,8 @@
+       // presentation: load on delivery or from idle; held stable otherwise
+       if (deliver_w || !valid_r) begin
+         valid_r <= gnt_found_w;
+-        sel_r   <= sel_next_w;
+       end
++      sel_r <= sel_next_w;
+       if (deliver_w) ptr_r <= rr_next(sel_r);
+     end
+   end

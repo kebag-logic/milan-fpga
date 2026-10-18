@@ -1,0 +1,36 @@
+inventory KL_acmp_nvm_shadow.g_backoff_check: hdl/acmp/KL_acmp_nvm_shadow.sv:538
+inventory KL_acmp_nvm_shadow.g_rs_tmo_check: hdl/acmp/KL_acmp_nvm_shadow.sv:545
+inventory KL_pp_acmp_listener.g_strm_tmo_check: hdl/acmp/KL_pp_acmp_listener.sv:347
+inventory KL_aecp_desc_store.gen_g_line_align: hdl/aecp/KL_aecp_desc_store.sv:263
+inventory KL_aecp_desc_store.gen_g_beats: hdl/aecp/KL_aecp_desc_store.sv:267
+inventory KL_aecp_desc_store.gen_g_names: hdl/aecp/KL_aecp_desc_store.sv:270
+inventory KL_aecp_desc_store.gen_g_base_align: hdl/aecp/KL_aecp_desc_store.sv:273
+inventory KL_aecp_engine.gen_g_frame_fit: hdl/aecp/KL_aecp_engine.sv:958
+inventory KL_aecp_engine.gen_g_resp_cap_fit: hdl/aecp/KL_aecp_engine.sv:963
+inventory KL_aecp_engine.gen_g_line_step: hdl/aecp/KL_aecp_engine.sv:978
+inventory KL_aecp_engine.gen_g_gamap_page_fit: hdl/aecp/KL_aecp_engine.sv:982
+inventory KL_aecp_engine.gen_g_line_ceiling: hdl/aecp/KL_aecp_engine.sv:986
+inventory KL_aecp_notify.g_rows_guard: hdl/aecp/KL_aecp_notify.sv:367
+inventory KL_aecp_nvm_writer.g_shape_check: hdl/aecp/KL_aecp_nvm_writer.sv:315
+inventory KL_aecp_nvm_writer.g_backoff_check: hdl/aecp/KL_aecp_nvm_writer.sv:318
+inventory KL_aecp_nvm_writer.g_rs_tmo_check: hdl/aecp/KL_aecp_nvm_writer.sv:322
+inventory KL_aecp_nvm_writer.g_rs_agg_check: hdl/aecp/KL_aecp_nvm_writer.sv:326
+inventory KL_aecp_resp_buf.gen_g_base_align: hdl/aecp/KL_aecp_resp_buf.sv:194
+inventory KL_aecp_resp_buf.gen_g_size: hdl/aecp/KL_aecp_resp_buf.sv:197
+inventory KL_aecp_resp_buf.gen_g_beats: hdl/aecp/KL_aecp_resp_buf.sv:201
+inventory KL_aecp_ucpu.gen_g_d8_cap: hdl/aecp/KL_aecp_ucpu.sv:297
+inventory KL_pp_nvm_port.g_tmo_check: hdl/packet_engine/KL_pp_nvm_port.sv:189
+inventory KL_pp_nvm_port.g_maxp_check: hdl/packet_engine/KL_pp_nvm_port.sv:198
+inventory KL_pp_originator.g_inflight_check: hdl/packet_engine/KL_pp_originator.sv:149
+inventory KL_pp_release_merge.g_slot_count_check: hdl/packet_engine/KL_pp_release_merge.sv:38
+inventory KL_srp_encoder.g_depth_check: hdl/srp/KL_srp_encoder.sv:148
+inventory protocol_processor_top.gen_g_avb_if: hdl/top/protocol_processor_top.sv:876
+inventory protocol_processor_top.gen_g_tmr_aw: hdl/top/protocol_processor_top.sv:880
+inventory protocol_processor_top.gen_g_tmr_fit: hdl/top/protocol_processor_top.sv:884
+inventory protocol_processor_top.gen_g_tmr_overlap: hdl/top/protocol_processor_top.sv:897
+inventory protocol_processor_top.gen_g_owner_overlap: hdl/top/protocol_processor_top.sv:911
+FAIL: GUARD verilator KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: not refused as a $fatal of this guard: %Warning-USERFATAL: hdl/aecp/KL_aecp_ucpu.sv:297:5: RESP_D8_CAP_BYTES_P=1025 outside 524..1024 (the 10-bit cursor)
+ELAB  verilator KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1008 fixture: elaborates
+FAIL: GUARD yosys KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: not refused as a $fatal of this guard: all.v:11498: ERROR: FATAL: .
+ELAB  yosys KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1008 fixture: elaborates
+elab guards: 35 checks: 33 PASS, 2 FAIL

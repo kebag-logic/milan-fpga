@@ -1,0 +1,20 @@
+job router-1 ./equiv.sh router-1 <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/src/head_KL_pp_event_router.sv KL_pp_event_router 2 "" -- -set N_SRC_P 1
+job router-5 ./equiv.sh router-5 <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/src/head_KL_pp_event_router.sv KL_pp_event_router 2 "" -- -set N_SRC_P 5
+job router-8 ./equiv.sh router-8 <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/src/head_KL_pp_event_router.sv KL_pp_event_router 2 "" -- -set N_SRC_P 8
+job router-16 ./equiv.sh router-16 <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/src/head_KL_pp_event_router.sv KL_pp_event_router 2 "" -- -set N_SRC_P 16
+job router-29 ./equiv.sh router-29 <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/src/head_KL_pp_event_router.sv KL_pp_event_router 2 "" -- -set N_SRC_P 29
+job m-R1-base-always-ptr ./equiv.sh m-R1-base-always-ptr <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/mutants/R1-base-always-ptr.sv KL_pp_event_router 2 "" -- -set N_SRC_P 8
+job m-R2-presented-not-removed ./equiv.sh m-R2-presented-not-removed <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/mutants/R2-presented-not-removed.sv KL_pp_event_router 2 "" -- -set N_SRC_P 8
+job m-R3-load-ignores-ack ./equiv.sh m-R3-load-ignores-ack <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/mutants/R3-load-ignores-ack.sv KL_pp_event_router 2 "" -- -set N_SRC_P 8
+job m-R4-select-reloads-always ./equiv.sh m-R4-select-reloads-always <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/mutants/R4-select-reloads-always.sv KL_pp_event_router 2 "" -- -set N_SRC_P 8
+job m-R5-no-grant-clears ./equiv.sh m-R5-no-grant-clears <data>/tmp/pp181-a635/r2/proofs/src/base_KL_pp_event_router.sv <data>/tmp/pp181-a635/r2/proofs/mutants/R5-no-grant-clears.sv KL_pp_event_router 2 "" -- -set N_SRC_P 8
+job inv-head-1x1 ./inv.sh head-1x1 <data>/tmp/pp181-a635/r2/proofs/src/head_KL_aecp_notify.sv $S1
+job inv-m-N1-pop-keeps-set ./inv.sh m-N1-pop-keeps-set <data>/tmp/pp181-a635/r2/proofs/mutants/N1-pop-keeps-set.sv $S1
+job inv-m-N2-push-unseen ./inv.sh m-N2-push-unseen <data>/tmp/pp181-a635/r2/proofs/mutants/N2-push-unseen.sv $S1
+job inv-m-N3-pop-one-late ./inv.sh m-N3-pop-one-late <data>/tmp/pp181-a635/r2/proofs/mutants/N3-pop-one-late.sv $S1
+job inv-m-N4-cleared-beside-push ./inv.sh m-N4-cleared-beside-push <data>/tmp/pp181-a635/r2/proofs/mutants/N4-cleared-beside-push.sv $S1
+job inv-m-N5-not-busy ./inv.sh m-N5-not-busy <data>/tmp/pp181-a635/r2/proofs/mutants/N5-not-busy.sv $S1
+job inv-m-N6-reset-set ./inv.sh m-N6-reset-set <data>/tmp/pp181-a635/r2/proofs/mutants/N6-reset-set.sv $S1
+job inv-m-N7-pop-clears ./inv.sh m-N7-pop-clears <data>/tmp/pp181-a635/r2/proofs/mutants/N7-pop-clears.sv $S1
+job inv-head-default ./inv.sh head-default <data>/tmp/pp181-a635/r2/proofs/src/head_KL_aecp_notify.sv
+job inv-head-2if-ident ./inv.sh head-2if-ident <data>/tmp/pp181-a635/r2/proofs/src/head_KL_aecp_notify.sv -set N_IF_P 2 -set EN_IDENTIFY_NOTIF_P 1

@@ -1,0 +1,7 @@
+read_verilog -mem2reg dut.v
+hierarchy -check -top KL_aecp_notify
+proc; opt_clean
+memory; flatten; opt_clean
+opt_clean
+async2sync; dffunmap
+sat -tempinduct -prove inv_ok 1 -set-at 1 rst_n 0 -seq 1 -maxsteps 1 -verify KL_aecp_notify
