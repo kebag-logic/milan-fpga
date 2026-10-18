@@ -1,0 +1,9 @@
+# excerpt of the full yosys log (sha256 bf04ca8d1400bb8a64ea8af4ea909345b5281d71036d1645e17bd0e61b21f667, 69837 lines): version, chparam, sat command and verdict lines
+8. Executing SAT pass (solving SAT problems in the circuit).
+** Trying induction with length 1 **
+Base case for induction length 1 proven.
+[induction step 1] Solving problem with 1329013 variables and 3474540 clauses..
+Induction step proven: SUCCESS!
+End of script. Logfile hash: a2a8224ca2, time: 71.41s, user: 75.41s, system: 1.39s, MEM: 2255.25 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 31% 1x chparam (24 sec), 22% 1x sat (16 sec), 21% 2x read_verilog (16 sec), ...

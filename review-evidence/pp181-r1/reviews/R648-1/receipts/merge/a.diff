@@ -1,0 +1,196 @@
+diff --git a/docs/architecture/03_packet_engine.md b/docs/architecture/03_packet_engine.md
+index d9b00ee..06607ec 100644
+--- a/docs/architecture/03_packet_engine.md
++++ b/docs/architecture/03_packet_engine.md
+@@ -224,7 +224,11 @@ The **event router** delivers sticky events (catalog [02 §5](02_interfaces.md))
+ their consumers; consumers that are state machines treat them as SM events and the
+ notification engine turns the Table 5.22 subset into triggers. No event feeds a counter
+ here: the GET_COUNTERS counters are the integrator's, which strobes `ctr_change_i`
+-when one moves ([06 §6.6](06_aecp_engine.md#sec-06-counters)).
++when one moves ([06 §6.6](06_aecp_engine.md#sec-06-counters)). Its round-robin scan reads
++registered state only, and a consumer's acknowledge only enables the load of the next
++event, so a consumer's ready logic does not run through the scan (issue #181). The
++presentation is cycle for cycle what it was: one event per cycle under back-to-back
++acknowledges.
+ 
+ ## 6. Scoreboard: hazard classes and ordering
+ 
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 72fed3b..3d93fed 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -965,7 +965,7 @@ milan-fpga #232.
+ | Cancel-pending bits `g_ca_own.cx_wait_r`, at one interface | 1 bit per row | flops | retains a command's cancel when a TIME_LIMITED drain occupies the output |
+ | Identity index | `P-N-CONTROLLERS` × `P-N-AVB-INTERFACES` rows × 19 six-bit chunks, one 64 × 1 memory each | distributed RAM | the monitor's "any valid AECP cmd from this controller" (F06.5) matches every row in the command's own cycle without a comparator per row; a REGISTER rewrites its row's index over the row write's own cycle and the cycle after it, while that row is matched by one comparator against the write port's read. The index's correctness relies on its configuration-time zero content (an explicit `initial`), as the ROM images rely on `$readmemh`; `rst_n` leaves both the index and `rows_r` as they are |
+ | valid, TIME_LIMITED, parked expiry, monitor and probe flags | 1 bit per row each | flops | the expiry intake, the monitor and the walk read and write them in one cycle |
+-| Command-notification queue `cmdq_*` | `P-NOTIF-QUEUE-DEPTH` (16) × 132 bits | distributed RAM | one write pointer, one read pointer; the pointers and count are the reset state |
++| Command-notification queue `cmdq_*` | `P-NOTIF-QUEUE-DEPTH` (16) × 132 bits | distributed RAM | one write pointer, one read pointer; the pointers and count are the reset state. The occupancy `cmdq_nempty_r` is a flop written beside every count update, always equal to a nonzero count: `amap_busy_o` and the emission pick read it, so the count's compare is not in the engine's admission path (issue #181) |
+ | GET_COUNTERS stamps `ctr_last_r` | (streams in + out + 1 + P-N-AVB-INTERFACES) × 32 bits | flops, no reset | `ctr_sent_r` is each stamp's valid bit; the one-second window reads every stamp against `now_ms_i` in every cycle |
+ 
+ Exhaustion is defined for each. A REGISTER into a full table answers `NO_RESOURCES`
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index fe9aba7..e40ed8e 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -423,6 +423,10 @@ module KL_aecp_notify
+   logic [63:0] cmdq_excl_r  [0:CMDQ_N_C-1];
+   logic [3:0]  cmdq_wr_r, cmdq_rd_r;
+   logic [4:0]  cmdq_count_r;
++  //! occupancy, registered (issue #181): always equal to cmdq_count_r != 0,
++  //! written beside every count update, so amap_busy_o and the emission
++  //! pick read one flop instead of comparing the count
++  logic        cmdq_nempty_r;
+   logic [15:0] cmdq_drop_r;
+   logic        cmd_class_ok_w, cmd_push_w;
+ 
+@@ -825,7 +829,7 @@ module KL_aecp_notify
+     pick_ctr_ix_w = '0;
+     if (pe_lock_r) begin
+       pick_kind_w = PP_UNS_LOCK_C;
+-    end else if (cmdq_count_r != 5'd0) begin
++    end else if (cmdq_nempty_r) begin
+       pick_cmd_w = 1'b1;
+       pick_dt_w  = cmdq_type_r[cmdq_rd_r];
+       pick_di_w  = cmdq_index_r[cmdq_rd_r];
+@@ -1158,7 +1162,7 @@ module KL_aecp_notify
+   // the mapping staging RAM intact until its unsolicited body is consumed.
+   assign amap_busy_o = dh_v_r || em_active_r || pe_lock_r || pe_amap_r
+                        || pe_avb_r || pe_asp_r || (|pe_sin_r) || (|pe_sout_r)
+-                       || (cmdq_count_r != 5'd0) || (|ctr_pend_r) || id_own_w;
++                       || cmdq_nempty_r || (|ctr_pend_r) || id_own_w;
+   assign prng_draw_kind_o = 3'd4;       // KL_pp_prng: uniform 30..60 seconds
+ 
+   assign dbg_uns_cnt_o  = uns_cnt_r;
+@@ -1189,6 +1193,7 @@ module KL_aecp_notify
+       cmdq_wr_r   <= 4'd0;
+       cmdq_rd_r   <= 4'd0;
+       cmdq_count_r <= 5'd0;
++      cmdq_nempty_r <= 1'b0;
+       cmdq_drop_r <= 16'd0;
+       ctr_dirty_r <= '0;
+       ctr_pend_r  <= '0;
+@@ -1291,6 +1296,7 @@ module KL_aecp_notify
+           cmdq_excl_r[cmdq_wr_r]  <= ev_cmd_excl_eid_i;
+           cmdq_wr_r    <= cmdq_wr_r + 4'd1;
+           cmdq_count_r <= cmdq_count_r + 5'd1;
++          cmdq_nempty_r <= 1'b1;
+         end else if (cmdq_drop_r != 16'hFFFF) begin
+           cmdq_drop_r <= cmdq_drop_r + 16'd1;
+         end
+@@ -1500,8 +1506,10 @@ module KL_aecp_notify
+                   cmdq_rd_r   <= cmdq_rd_r + 4'd1;
+                   if (cmd_push_w)
+                     cmdq_count_r <= cmdq_count_r;
+-                  else
++                  else begin
+                     cmdq_count_r <= cmdq_count_r - 5'd1;
++                    cmdq_nempty_r <= (cmdq_count_r != 5'd1);
++                  end
+                 end else if (pick_kind_w == PP_UNS_CTRS_C) begin
+                   em_excl_v_r <= 1'b0;
+                   em_ctr_ix_r <= pick_ctr_ix_w;
+diff --git a/hdl/packet_engine/KL_pp_event_router.sv b/hdl/packet_engine/KL_pp_event_router.sv
+index 32fdfab..59a35ee 100644
+--- a/hdl/packet_engine/KL_pp_event_router.sv
++++ b/hdl/packet_engine/KL_pp_event_router.sv
+@@ -106,14 +106,23 @@ module KL_pp_event_router #(
+   // consecutive grants rotate and no source starves. A source strobing
+   // this very cycle is picked up on a later load — grants never race the
+   // producers combinationally.
++  //
++  // The scan reads registered state only (issue #181): it assumes the
++  // presented event is the one delivered, keyed on valid_r rather than on
++  // deliver_w. A grant is only loaded on a delivery or from idle, and in
++  // both cases this is exactly the old scan (from idle nothing is
++  // presented, so nothing is removed and the base is ptr_r); a presented
++  // event that is not acked holds, and the grant is unused. evt_ack_i thus
++  // only enables the load, and the consumer's ready cone no longer runs
++  // through the scan into sel_r.
+   logic [N_SRC_P-1:0] pend_after_w;
+   always_comb begin : pend_after
+     pend_after_w = pending_r;
+-    if (deliver_w) pend_after_w[sel_r] = 1'b0;
++    if (valid_r) pend_after_w[sel_r] = 1'b0;
+   end
+ 
+   logic [SRC_W_C-1:0] base_w;
+-  assign base_w = deliver_w ? rr_next(sel_r) : ptr_r;
++  assign base_w = valid_r ? rr_next(sel_r) : ptr_r;
+ 
+   logic               gnt_found_w;
+   logic [SRC_W_C-1:0] gnt_src_w;
+@@ -132,6 +141,11 @@ module KL_pp_event_router #(
+     end
+   end
+ 
++  // the select a load would take (no grant keeps it), from registers only,
++  // so the load itself is a plain enable
++  logic [SRC_W_C-1:0] sel_next_w;
++  assign sel_next_w = gnt_found_w ? gnt_src_w : sel_r;
++
+   // -------------------------------------------------------- state update
+   always_ff @(posedge clk_i) begin : evt_state
+     if (!rst_n) begin
+@@ -169,7 +183,7 @@ module KL_pp_event_router #(
+       // presentation: load on delivery or from idle; held stable otherwise
+       if (deliver_w || !valid_r) begin
+         valid_r <= gnt_found_w;
+-        if (gnt_found_w) sel_r <= gnt_src_w;
++        sel_r   <= sel_next_w;
+       end
+       if (deliver_w) ptr_r <= rr_next(sel_r);
+     end
+diff --git a/syn/ooc/README.md b/syn/ooc/README.md
+index c965e4c..9322302 100644
+--- a/syn/ooc/README.md
++++ b/syn/ooc/README.md
+@@ -237,3 +237,49 @@ Zero, as expected: the unconnected flop was already trimmed from the base's
+ netlist. The hierarchical reports differ only in their date lines. Both builds
+ have the same negative OOC slack at 10 ns (-9.656 ns), so this measurement makes
+ no routed timing or hardware claim.
++
++## The notify-queue to event-router cone - issue #181
++
++Measured 2026-10-18 with the complete-processor recipe above, `xc7a100tfgg484-2`,
++10 ns clock, Vivado 2026.1, at the shipping one-stream shape (`-tclargs <tree> 1 1`)
++and the default 8-input / 8-output shape. The same recipe ran in separate empty
++build directories against base `22c139a4` and the change, with all top-level ports
++present. The cone was read after the recipe's own reports with
++`report_timing -from u_notify/cmdq_count_r_reg* -to u_event_router/sel_r_reg*`.
++
++The parent's shipping route had this cone as its worst setup path, 30 levels: the
++count's compare merged into `amap_busy_o` in `u_notify`, the AECP admission ready, the
++scoreboard's AECP-versus-ACMP pick, the ACMP listener's event ready, and then, in
++`u_event_router`, the acknowledge entering the round-robin scan's base and pending
++set. The change registers the occupancy (`cmdq_nempty_r`) and keys the scan on
++`valid_r`, so the acknowledge only enables the select's load. Both are cycle-for-cycle
++equivalent to base.
++
++| | 1x1 base | 1x1 change | 8x8 base | 8x8 change |
++|---|---:|---:|---:|---:|
++| `cmdq_count_r` to `sel_r` | 22 levels, -2.204 ns | no path | 32 levels, -8.234 ns | no path |
++| Worst path from `cmdq_count_r` | the 22 above | 2 levels (queue write enable) | the 32 above | 2 levels |
++| `cmdq_count_r` to `cmdq_nempty_r` | - | 3 levels, +7.716 ns | - | 2 levels, +7.936 ns |
++| `cmdq_nempty_r` to `sel_r` | - | 22 levels, -1.719 ns | - | 22 levels, -2.032 ns |
++| Deepest path into `sel_r` | 24 levels, from `u_talker` | 24 levels, the same path | 39 levels, from `u_notify/ctr_pend_r`, to D | 28 levels, the same start, to the clock enable |
++| Slice LUTs | 21,643 | 21,662 | 29,096 | 29,065 |
++| Registers | 18,922 | 18,926 | 25,459 | 25,461 |
++| LUT as distributed RAM | 2,328 | 2,328 | 2,842 | 2,842 |
++| RAMB36 / RAMB18 / DSP | 16 / 1 / 4 | 16 / 1 / 4 | 18 / 2 / 4 | 18 / 2 / 4 |
++| `u_notify` LUTs / registers | 2,354 / 1,196 | 2,312 / 1,198 | 2,481 / 1,709 | 2,430 / 1,712 |
++| `u_event_router` LUTs / registers | 123 / 39 | 123 / 39 | 659 / 117 | 701 / 117 |
++| WNS, OOC | -5.416 ns | -5.416 ns | -11.482 ns | -6.045 ns |
++
++The count no longer reaches the router at either shape, but the register does not
++halve the cone's depth: the occupancy-to-select half keeps 22 levels at both shapes.
++At 8x8 the cone's 32 levels split into 2 and 22, the saving mostly in the router's
++scan; at 1x1 the count's compare was already folded into the emission pick, so the
++half after the register is as deep as the whole cone was. The rest of the cone, from
++the AECP admission ready through the scoreboard and the ACMP listener, is outside
++these two blocks and unchanged, and it holds most of the 22 levels. This synthesis
++is not timing-driven, because the recipe creates its clock after `synth_design`, so
++at 1x1 it folds the select's load enable back into the scan and the deepest path into
++`sel_r`, which starts in the talker, keeps its 24 levels. At 8x8 the acknowledge lands
++on the clock enable. The whole-design worst path at 1x1 is unchanged and outside the
++cone (`u_aecp/u_ucpu` to `u_aecp/u_d3`). These are post-synthesis figures, not routed
++timing or hardware proof.

@@ -1,0 +1,9 @@
+== base: notify output ports combinationally fed by cmdq_count_r
+  KL_aecp_notify/amap_busy_o
+== base: router scan signals combinationally fed by evt_ack_i
+  KL_pp_event_router/gnt_src_w
+  KL_pp_event_router/gnt_found_w
+== base: router base/pending/next-select signals combinationally fed by evt_ack_i
+  KL_pp_event_router/gnt_src_w
+  KL_pp_event_router/base_w
+  KL_pp_event_router/pend_after_w

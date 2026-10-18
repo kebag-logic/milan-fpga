@@ -1,0 +1,11 @@
+--- head/hdl/packet_engine/KL_pp_event_router.sv	2026-10-18 13:02:11.000000000 +0200
++++ mut/R1/hdl/packet_engine/KL_pp_event_router.sv	2026-10-18 13:29:26.198459300 +0200
+@@ -122,7 +122,7 @@
+   end
+ 
+   logic [SRC_W_C-1:0] base_w;
+-  assign base_w = valid_r ? rr_next(sel_r) : ptr_r;
++  assign base_w = ptr_r;
+ 
+   logic               gnt_found_w;
+   logic [SRC_W_C-1:0] gnt_src_w;

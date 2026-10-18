@@ -1,0 +1,16 @@
+# mutant | formal check | unit suite | tb/pp_top first build (all sections)
+R1 | evr_equiv N5 rc=1 N8 rc=1 N16 rc=1 | event_router rc=2 81 checks: 79 PASS, 2 FAIL | -
+R2 | evr_equiv N5 rc=1 N8 rc=1 N16 rc=1 | event_router rc=2 81 checks: 66 PASS, 15 FAIL | -
+R3 | evr_equiv N5 rc=1 N8 rc=1 N16 rc=1 | event_router rc=2 81 checks: 71 PASS, 10 FAIL | -
+R4 | evr_equiv N5 rc=1 N8 rc=1 N16 rc=1 | event_router rc=2 81 checks: 79 PASS, 2 FAIL | -
+R5 | evr_equiv N5 rc=1 N8 rc=1 N16 rc=1 | event_router rc=0 81 checks: 81 PASS, 0 FAIL | sections fails=0
+R6 | evr_equiv N5 rc=0 N8 rc=0 N16 rc=0 | event_router rc=0 81 checks: 81 PASS, 0 FAIL | -
+N1 | nfy_inv 1x1 rc=1 | aecp_notify rc=2 FAIL-lines=2  | -
+N2 | nfy_inv 1x1 rc=1 | aecp_notify rc=2 FAIL-lines=2  | -
+N3 | nfy_inv 1x1 rc=1 | aecp_notify rc=2 FAIL-lines=2  | -
+N4 | nfy_inv 1x1 rc=1 | aecp_notify rc=0 FAIL-lines=0 67 checks: 67 PASS, 0 FAIL | sections fails=0
+N5 | nfy_inv 1x1 rc=0 | aecp_notify rc=0 FAIL-lines=0 67 checks: 67 PASS, 0 FAIL | sections fails=0
+N6 | nfy_inv 1x1 rc=1 | aecp_notify rc=2 FAIL-lines=9  | -
+N7 | nfy_inv 1x1 rc=1 | aecp_notify rc=0 FAIL-lines=0 67 checks: 67 PASS, 0 FAIL | sections fails=0
+B5 (base) | - | aecp_notify rc=0 | sections(notify,arm-queue,aecp-dispatch,gsi) fails=0
+B7 (base) | - | aecp_notify rc=0 | sections(notify,arm-queue,aecp-dispatch,gsi) fails=0

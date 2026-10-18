@@ -1,0 +1,11 @@
+--- head/hdl/packet_engine/KL_pp_event_router.sv	2026-10-18 13:02:11.000000000 +0200
++++ mut/R6/hdl/packet_engine/KL_pp_event_router.sv	2026-10-18 13:29:26.199424038 +0200
+@@ -118,7 +118,7 @@
+   logic [N_SRC_P-1:0] pend_after_w;
+   always_comb begin : pend_after
+     pend_after_w = pending_r;
+-    if (valid_r) pend_after_w[sel_r] = 1'b0;
++    if (deliver_w) pend_after_w[sel_r] = 1'b0;
+   end
+ 
+   logic [SRC_W_C-1:0] base_w;

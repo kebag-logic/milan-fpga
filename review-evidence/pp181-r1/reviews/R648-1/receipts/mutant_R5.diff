@@ -1,0 +1,11 @@
+--- head/hdl/packet_engine/KL_pp_event_router.sv	2026-10-18 13:02:11.000000000 +0200
++++ mut/R5/hdl/packet_engine/KL_pp_event_router.sv	2026-10-18 13:29:26.199256316 +0200
+@@ -144,7 +144,7 @@
+   // the select a load would take (no grant keeps it), from registers only,
+   // so the load itself is a plain enable
+   logic [SRC_W_C-1:0] sel_next_w;
+-  assign sel_next_w = gnt_found_w ? gnt_src_w : sel_r;
++  assign sel_next_w = gnt_src_w;
+ 
+   // -------------------------------------------------------- state update
+   always_ff @(posedge clk_i) begin : evt_state
