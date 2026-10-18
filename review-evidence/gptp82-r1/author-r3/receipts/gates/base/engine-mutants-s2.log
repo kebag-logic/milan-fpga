@@ -1,0 +1,11 @@
+shard 2/6: 6 of 33 mutants: slew clears before the replacement rate; result tag taken without an accepted beat; a later response re-arms the frozen pair; every pair uses the locked threshold; becoming grandmaster unlocks the servo; the integrator is not clamped
+[PASS] the unmutated engine still passes the harness
+FAIL slew: no clear precedes the replacement rate got 0000000000000007 exp 0000000000000000
+[PASS] mutant caught: slew clears before the replacement rate - breaks "slew: no clear precedes the replacement rate"
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+[PASS] mutant caught: a later response re-arms the frozen pair - breaks "a complete pair keeps its own identity and operands until its t1"
+[PASS] mutant caught: every pair uses the locked threshold - breaks "a link-up pair steps over 20 us"
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+[PASS] mutant caught: the integrator is not clamped - breaks "the integrator stays within +-200 ppm"
+
+7 checks: 7 PASS, 0 FAIL

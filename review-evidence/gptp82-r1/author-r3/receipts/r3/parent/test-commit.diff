@@ -1,0 +1,44 @@
+commit c7c60bae889b1557d27429da0b069423ca3200cf
+Expect the #82 self publication before any peer in the milan_dp gptp leg, local only
+
+---
+ tb/verilator/milan_dp/sim_gptp.cpp | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/tb/verilator/milan_dp/sim_gptp.cpp b/tb/verilator/milan_dp/sim_gptp.cpp
+index b9f28d9f7..2f00ff2a6 100644
+--- a/tb/verilator/milan_dp/sim_gptp.cpp
++++ b/tb/verilator/milan_dp/sim_gptp.cpp
+@@ -810,8 +810,9 @@ class GptpPlaneHarness {
+     axi_write(dut, 0x504, 8u << 24);       // 8.0 ns; matches sim_cyc model
+ 
+     // The option is omitted from this elaboration: these are assertions about
+-    // the RTL default.  Before any peer answers, the engine's committed bank is
+-    // zero. Retained legacy addresses remain mapped for ABI stability, but every
++    // the RTL default.  Before any peer answers, the engine's committed bank
++    // names thisClock as grandmaster (FPGA-gPTP #82) and is otherwise zero.
++    // Retained legacy addresses remain mapped for ABI stability, but every
+     // write is inert and cannot manufacture a publication or healthy CLKV claim.
+     expect("default-on VERSION", axi_read(dut, 0x004), 0x00020060);
+     axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
+@@ -822,8 +823,8 @@ class GptpPlaneHarness {
+     // (802.1AS 8.1), so this 5 must never surface on the CSR readback, the
+     // GET_AVB_INFO gather below, or the MAC-bound Pdelay_Req scanned below.
+     axi_write(dut, 0x62C, 5);
+-    expect("fabric GM low overrides SW", axi_read(dut, 0x624), 0);
+-    expect("fabric GM high overrides SW", axi_read(dut, 0x628), 0);
++    expect("fabric GM low overrides SW", axi_read(dut, 0x624), 0xFEC3D4E5);
++    expect("fabric GM high overrides SW", axi_read(dut, 0x628), 0x02A1B2FF);
+     expect("fabric pdelay overrides SW", axi_read(dut, 0x6E4), 0);
+     expect("fabric parent low overrides SW", axi_read(dut, 0x730), 0);
+     expect("fabric parent high overrides SW", axi_read(dut, 0x734), 0);
+@@ -832,7 +833,8 @@ class GptpPlaneHarness {
+     uint32_t clkv = axi_read(dut, 0x77C);
+     expect("legacy write cannot clear tu", clkv & 1, 1);
+     expect("legacy sync claim is inert", (clkv >> 1) & 1, 0);
+-    expect("compatibility CLKV fields read zero", (clkv >> 2) & 0x3FFF, 0);
++    // [3] is the discontinuity holdover the boot grandmaster edge arms
++    expect("compatibility CLKV fields read zero", clkv & 0xFFF4, 0);
+     expect("legacy asCapable claim is inert", (clkv >> 16) & 1, 0);
+   }
+ 

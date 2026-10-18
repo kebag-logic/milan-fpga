@@ -1,0 +1,15 @@
+shard 7/8: 6 of 52 mutants: result value taken without an accepted beat; the tail runs before its own t1; the step arm is unreachable; the trim clamp is one unit wider than the envelope; the boot commit fires twice; the self publication keeps the departed path
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+[PASS] mutant caught: the step arm is unreachable - breaks "an offset over the threshold steps"
+[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks "the written trim never leaves the envelope the consumer derives"
+FAIL #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000002 exp 0000000000000001
+[PASS] mutant caught: the boot commit fires twice - breaks "#82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms"
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 000000000000000c exp 0000000000000000
+[PASS] mutant caught: the self publication keeps the departed path - breaks "#82 peer leaves: the mastership commit path is {thisClock} | #82 Pdelay loss: that commit carries {thisClock} | #82 every commit naming thisClock carries {thisClock}"
+
+7 checks: 7 PASS, 0 FAIL

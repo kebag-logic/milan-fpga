@@ -1,0 +1,9 @@
+shard 3/9: 4 of 33 mutants: slew idle lapse arms qualification; lost Sync cancels the requester exchange; every pair uses the link-up threshold; the whole trim is not clamped
+[PASS] the unmutated engine still passes the harness
+FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle lapse arms qualification - breaks "slew: in-band pair after idle timeout stays inactive"
+[PASS] mutant caught: lost Sync cancels the requester exchange - breaks "a lost Sync result retires the Sync claim and nothing else"
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+[PASS] mutant caught: the whole trim is not clamped - breaks "the written trim never leaves +-200 ppm"
+
+5 checks: 5 PASS, 0 FAIL

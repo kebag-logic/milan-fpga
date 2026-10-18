@@ -1,0 +1,12 @@
+shard 3/18: 4 of 58 mutants: slew idle lapse arms qualification; every pair uses the link-up threshold; the boot commit fires twice; mastership sets the microcode's presence bit
+[PASS] the unmutated engine still passes the harness
+FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle lapse arms qualification - breaks "slew: in-band pair after idle timeout stays inactive"
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+FAIL #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000002 exp 0000000000000001
+[PASS] mutant caught: the boot commit fires twice - breaks "#82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms"
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: mastership sets the microcode's presence bit - breaks "p1 255 #82 Pdelay loss: that mastership commit has gmPresent"
+
+5 checks: 5 PASS, 0 FAIL

@@ -1,0 +1,9 @@
+shard 0/9: 4 of 33 mutants: slew level tied low; recorded t1 survives reset; credit gate removed from the Sync leg; the locked threshold is 200 us
+[PASS] the unmutated engine still passes the harness
+FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew level tied low - breaks "slew: policy decision starts at +101 ns"
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: credit gate removed from the Sync leg - breaks "a Sync beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: the locked threshold is 200 us - breaks "a locked pair steps over 100 us, after a receipt timeout too"
+
+5 checks: 5 PASS, 0 FAIL

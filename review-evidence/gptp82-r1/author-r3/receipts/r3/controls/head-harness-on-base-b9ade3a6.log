@@ -1,0 +1,46 @@
+FAIL pre-init deep Announce: GM stays thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+INFO #82 cold release graded for 2400671 cycles to the first beat
+FAIL #82 cold release: every cycle to the first beat names thisClock got 000000000024a19f exp 0000000000000000
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a19f exp 0000000000000000
+FAIL #82 cold release: every cycle to the first beat has gmPresent got 000000000024a19f exp 0000000000000000
+FAIL #82 cold release: one commit before the first beat got 0000000000000000 exp 0000000000000001
+FAIL #82 cold release: that commit is the first edge after release got ffffffffffffffff exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 cold release: that commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000001
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: that commit is the first edge after release got ffffffffffffffff exp 0000000000000000
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its flags are gmPresent alone got 00000000ffffffff exp 0000000000000001
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0082a0fffe000001 exp 0082b0fffe000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000001
+FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+INFO #82 Pdelay loss: mastership commits 40615 cycles after asCapable rises
+INFO #82 465 commits graded for the self path
+1642 checks: 1622 PASS, 20 FAIL
+rc=1
+-- the fourth pass: --p1 255, +not-gm-capable --
+FAIL p1 255 pre-init deep Announce: GM stays thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+INFO #82 cold release graded for 2400671 cycles to the first beat
+FAIL p1 255 #82 cold release: every cycle to the first beat names thisClock got 000000000024a19f exp 0000000000000000
+FAIL p1 255 #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a19f exp 0000000000000000
+FAIL p1 255 #82 cold release: one commit before the first beat got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 cold release: that commit is the first edge after release got ffffffffffffffff exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 cold release: that commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000000
+FAIL p1 255 master flags                 got 0000000000000007 exp 0000000000000006
+FAIL p1 255 #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+INFO #82 Pdelay loss: mastership commits 36810 cycles after asCapable rises
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+INFO #82 59 commits graded for the self path
+46 checks: 33 PASS, 13 FAIL
+rc=1

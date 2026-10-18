@@ -1,0 +1,13 @@
+default-argument images (tb/verilator/ucpu copy), 8f3c376d vs 334e9fe6:
+img-8f3c376d.hex 00826e9be6b0aeaa6fef58e7f46b48508626661d96aef317a0d6ce67ac5fe5ae
+img-334e9fe6.hex ceb04562d5b1f61dc18027b121aacfc2b22d6ba3a9ffb4f87efba543df36e4b2
+img-334e9fe6-p1-255.hex a99cd72a0fe3070397216bf29ea503e64b6184a20fc1c0879be16adb988ee645
+
+words that differ (index: 8f3c376d -> 334e9fe6):
+992: EAA803000003 -> EAA803000002
+1022: 000002A1B2FF -> 000102A1B2FF
+
+334e9fe6 default vs --p1 255, words that differ:
+549: 21800000F8F8 -> 21800000FFF8
+559: 22800000F8F8 -> 22800000FFF8
+1022: 000102A1B2FF -> 000002A1B2FF
