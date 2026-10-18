@@ -1,0 +1,6 @@
+PASS golden: rc 0, named expected outcome probe: 12 PASS, 0 FAIL
+PASS refresh-while-waiting: rc 1, named expected outcome FAIL: B1b
+PASS enqueue-next-state: rc 1, named expected outcome FAIL: B3b
+PASS pop-without-ready: rc 1, named expected outcome FAIL: B1b
+PASS full documentation gate: make -j16 check, rc 0
+Orchestration-only correction: initial wrapper expected B1a for pop-without-ready; actual and published mutant both fail B1b/B2b/B4. Corrected expected assertion to B1b and verified existing raw results; no test was rerun or outcome changed.
