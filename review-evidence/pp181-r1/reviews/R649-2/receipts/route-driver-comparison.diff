@@ -1,0 +1,18 @@
+--- published-round1/route.sh
++++ published-round2/route.sh
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env bash
+-# route-1x1 on the scratch parent, per docs/testing/PP_SHADOW_BASELINE_RECIPE.md,
++# round 2 (the pinned SDK in this lane's scratch): route-1x1 on the scratch parent, per docs/testing/PP_SHADOW_BASELINE_RECIPE.md,
+ # recipe unchanged; Vivado under the exclusive lock.  usage: route.sh <label>
+ set -euo pipefail
+ label=$1
+@@ -7,7 +7,7 @@
+ export REPO=<data>/tmp/pp181-a635/parent
+ export WORK=$W/work
+ export LITEX_PYTHON=<home>/litex-milan/venv/bin/python3
+-export SDK=<data>/tmp/708-a585/sdk
++export SDK=<data>/tmp/pp181-a635/sdk
+ export PATH="<home>/Xilinx/2026.1/Vivado/bin:$SDK/bin:$(dirname "$LITEX_PYTHON"):$PATH"
+ export PYTHONHASHSEED=0
+ mkdir -p "$W"

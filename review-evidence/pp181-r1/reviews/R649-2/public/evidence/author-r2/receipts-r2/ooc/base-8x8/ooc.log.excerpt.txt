@@ -1,0 +1,140 @@
+# excerpt: full file sha256 3ddb0d467e485ad1177712a973a555b7ed23fb713bb6578fff3d7f1ae562508b, 259207 bytes, kept in scratch
+# --- first 80 lines
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sun Oct 18 15:08:32 2026
+# Process ID         : 752353
+# Current directory  : <data>/tmp/pp181-a635/r2/ooc/base-8x8
+# Command line       : vivado -mode batch -nojournal -log ooc.log -source <data>/tmp/pp181-a635/ooc_cone2.tcl -tclargs <data>/tmp/pp181-a635/r2/base-tree 8 8
+# Log file           : <data>/tmp/pp181-a635/r2/ooc/base-8x8/ooc.log
+# Journal file       : 
+# Running On         : <host>
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 64
+# CPU Logical cores  : 128
+# Host memory        : 65724 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 104378 MB
+# Available Virtual  : 78097 MB
+#-----------------------------------------------------------
+Sourcing tcl script '<home>/.Xilinx/Vivado/Vivado_init.tcl'
+source <data>/tmp/pp181-a635/ooc_cone2.tcl
+# set TREE [file normalize [lindex $argv 0]]
+# source $TREE/syn/ooc/protocol_processor_ooc.tcl
+## set SPEC [file normalize [file dirname [info script]]/../..]
+## if {$argc > 0} { set SPEC [file normalize [lindex $argv 0]] }
+## set SHAPE {}
+## if {$argc > 2} {
+##     set SHAPE [list -generic N_STREAM_IN_P=[lindex $argv 1] \
+##                     -generic N_STREAM_OUT_P=[lindex $argv 2]]
+## }
+## set_param general.maxThreads 8
+## set pkgs [lsort [glob $SPEC/hdl/*/*_pkg.sv]]
+## read_verilog -sv $pkgs
+## foreach src [lsort [glob $SPEC/hdl/*/*.sv]] {
+##     if {[lsearch -exact $pkgs $src] < 0} { read_verilog -sv $src }
+## }
+## exec python3 $SPEC/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+## exec python3 $SPEC/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+## synth_design -mode out_of_context -top protocol_processor_top -part xc7a100tfgg484-2 {*}$SHAPE
+Command: synth_design -mode out_of_context -top protocol_processor_top -part xc7a100tfgg484-2 -generic N_STREAM_IN_P=8 -generic N_STREAM_OUT_P=8
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 752655
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:07 ; elapsed = 00:00:08 . Memory (MB): peak = 2203.051 ; gain = 493.617 ; free physical = 41529 ; free virtual = 83668
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'protocol_processor_top' [<data>/tmp/pp181-a635/r2/base-tree/hdl/top/protocol_processor_top.sv:98]
+	Parameter N_STREAM_IN_P bound to: 32'b00000000000000000000000000001000 
+	Parameter N_STREAM_OUT_P bound to: 32'b00000000000000000000000000001000 
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_rx_slots' [<data>/tmp/pp181-a635/r2/base-tree/hdl/packet_engine/KL_pp_rx_slots.sv:42]
+	Parameter SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter BYTES_P bound to: 32'b00000000000000000000001001000000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_rx_slots' (0#1) [<data>/tmp/pp181-a635/r2/base-tree/hdl/packet_engine/KL_pp_rx_slots.sv:42]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_timer_service' [<data>/tmp/pp181-a635/r2/base-tree/hdl/common/KL_pp_timer_service.sv:43]
+	Parameter CLK_HZ_P bound to: 32'b00000101111101011110000100000000 
+	Parameter SLOTS_P bound to: 32'b00000000000000000000000001011011 
+	Parameter DIV_US_P bound to: 32'b00000000000000000000000001100100 
+	Parameter DIV_MS_P bound to: 32'b00000000000000000000001111101000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_timer_service' (0#1) [<data>/tmp/pp181-a635/r2/base-tree/hdl/common/KL_pp_timer_service.sv:43]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_prng' [<data>/tmp/pp181-a635/r2/base-tree/hdl/common/KL_pp_prng.sv:63]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<data>/tmp/pp181-a635/r2/base-tree/hdl/common/KL_pp_prng.sv:152]
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_prng' (0#1) [<data>/tmp/pp181-a635/r2/base-tree/hdl/common/KL_pp_prng.sv:63]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_scoreboard' [<data>/tmp/pp181-a635/r2/base-tree/hdl/packet_engine/KL_pp_scoreboard.sv:66]
+	Parameter MAX_HOLDS_P bound to: 32'b00000000000000000000000000001000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_scoreboard' (0#1) [<data>/tmp/pp181-a635/r2/base-tree/hdl/packet_engine/KL_pp_scoreboard.sv:66]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_trace_ring' [<data>/tmp/pp181-a635/r2/base-tree/hdl/packet_engine/KL_pp_trace_ring.sv:39]
+	Parameter RECORDS_P bound to: 32'b00000000000000000000000100000000 
+	Parameter RECORD_W_P bound to: 32'b00000000000000000000000010000000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_trace_ring' (0#1) [<data>/tmp/pp181-a635/r2/base-tree/hdl/packet_engine/KL_pp_trace_ring.sv:39]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_originator' [<data>/tmp/pp181-a635/r2/base-tree/hdl/packet_engine/KL_pp_originator.sv:53]
+	Parameter CA_POOL_P bound to: 32'b00000000000000000000000000000100 
+	Parameter PROBE_SLOTS_P bound to: 32'b00000000000000000000000000000000 
+# --- key lines (line: text)
+26: source <data>/tmp/pp181-a635/ooc_cone2.tcl
+45: Command: synth_design -mode out_of_context -top protocol_processor_top -part xc7a100tfgg484-2 -generic N_STREAM_IN_P=8 -generic N_STREAM_OUT_P=8
+2385: ## report_utilization -hierarchical -file util_hier.rpt
+2386: ## report_utilization -file util.rpt
+2387: ## report_timing_summary -delay_type max -max_paths 3 -file timing.rpt
+2393: report_timing_summary: Time (s): cpu = 00:00:41 ; elapsed = 00:00:21 . Memory (MB): peak = 3196.277 ; gain = 63.996 ; free physical = 42424 ; free virtual = 83660
+2398: # report_timing -from $src -to $dst -max_paths 10 -nworst 1 -file cone.rpt
+2402: # report_timing -from $src -to $dst -max_paths 1 -nworst 1 -sort_by group -file cone_worst.rpt
+2406: # report_design_analysis -logic_level_distribution -of_timing_paths [get_timing_paths -from $src -to $dst -max_paths 1000 -nworst 1] -file cone_levels.rpt
+2407: # report_design_analysis -logic_level_distribution -file levels_all.rpt
+2408: # report_timing -max_paths 20 -nworst 1 -file top20.rpt
+2410: # report_timing -from $src -max_paths 5 -nworst 1 -file from_cmdq.rpt
+2412: # report_timing -to $dst -max_paths 5 -nworst 1 -file to_sel.rpt
+2419: #   report_timing -from $src -to $mid -max_paths 1 -nworst 1 -file count_to_nempty.rpt
+2420: #   report_timing -from $mid -to $dst -max_paths 3 -nworst 1 -file nempty_to_sel.rpt
+2421: #   report_timing -from $mid -max_paths 3 -nworst 1 -file from_nempty.rpt
+# --- last 40 lines
+## create_clock -period 10.000 -name clk [get_ports clk_i]
+## report_utilization -hierarchical -file util_hier.rpt
+## report_utilization -file util.rpt
+## report_timing_summary -delay_type max -max_paths 3 -file timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk_i" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+report_timing_summary: Time (s): cpu = 00:00:41 ; elapsed = 00:00:21 . Memory (MB): peak = 3196.277 ; gain = 63.996 ; free physical = 42424 ; free virtual = 83660
+# set src [get_cells -hier -filter {NAME =~ *u_notify/cmdq_count_r_reg*}]
+# set dst [get_cells -hier -filter {NAME =~ *u_event_router/sel_r_reg*}]
+# puts "CONE src [llength $src] dst [llength $dst]"
+CONE src 5 dst 46
+# report_timing -from $src -to $dst -max_paths 10 -nworst 1 -file cone.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 10 -nworst 1 -delay_type max -sort_by slack.
+# report_timing -from $src -to $dst -max_paths 1 -nworst 1 -sort_by group -file cone_worst.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -to_pins  -max_paths 1 -nworst 1 -delay_type max -sort_by group.
+# report_design_analysis -logic_level_distribution -of_timing_paths [get_timing_paths -from $src -to $dst -max_paths 1000 -nworst 1] -file cone_levels.rpt
+# report_design_analysis -logic_level_distribution -file levels_all.rpt
+# report_timing -max_paths 20 -nworst 1 -file top20.rpt
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 20 -nworst 1 -delay_type max -sort_by slack.
+# report_timing -from $src -max_paths 5 -nworst 1 -file from_cmdq.rpt
+INFO: [Timing 38-78] ReportTimingParams: -from_pins  -max_paths 5 -nworst 1 -delay_type max -sort_by slack.
+# report_timing -to $dst -max_paths 5 -nworst 1 -file to_sel.rpt
+INFO: [Timing 38-78] ReportTimingParams: -to_pins  -max_paths 5 -nworst 1 -delay_type max -sort_by slack.
+WARNING: [Vivado 12-180] No cells matched 'get_cells -hier -filter {NAME =~ *u_notify/cmdq_nempty_r_reg*}'.
+# set mid [get_cells -hier -filter {NAME =~ *u_notify/cmdq_nempty_r_reg*}]
+# puts "CUT mid [llength $mid]"
+CUT mid 0
+# if {[llength $mid] > 0} {
+#   report_timing -from $src -to $mid -max_paths 1 -nworst 1 -file count_to_nempty.rpt
+#   report_timing -from $mid -to $dst -max_paths 3 -nworst 1 -file nempty_to_sel.rpt
+#   report_timing -from $mid -max_paths 3 -nworst 1 -file from_nempty.rpt
+# }
+INFO: [Common 17-206] Exiting Vivado at Sun Oct 18 15:14:36 2026...

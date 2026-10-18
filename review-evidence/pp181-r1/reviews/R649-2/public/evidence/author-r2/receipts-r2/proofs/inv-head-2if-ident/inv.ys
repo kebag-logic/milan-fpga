@@ -1,0 +1,8 @@
+read_verilog -mem2reg dut.v
+chparam -set N_IF_P 2 -set EN_IDENTIFY_NOTIF_P 1 KL_aecp_notify
+hierarchy -check -top KL_aecp_notify
+proc; opt_clean
+memory; flatten; opt_clean
+opt_clean
+async2sync; dffunmap
+sat -tempinduct -prove inv_ok 1 -set-at 1 rst_n 0 -seq 1 -maxsteps 1 -verify KL_aecp_notify
