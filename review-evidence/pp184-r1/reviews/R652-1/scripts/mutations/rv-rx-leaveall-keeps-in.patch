@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/KL_srp_domain.sv b/hdl/srp/KL_srp_domain.sv
+index baeae06..508eb27 100644
+--- a/hdl/srp/KL_srp_domain.sv
++++ b/hdl/srp/KL_srp_domain.sv
+@@ -149,7 +149,7 @@ module KL_srp_domain #(
+   always_comb begin : registrar_next
+     reg_in_nx_w  = reg_in_r;
+     pend_in_nx_w = pend_in_r;
+-    if (leaveall_tick_i && declared_r) begin
++    if (leaveall_tick_i && tx_tick_i && declared_r) begin
+       reg_in_nx_w  = 1'b0;                         // rLA! / txLA!: IN -> LV
+       pend_in_nx_w = 1'b0;
+     end

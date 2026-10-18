@@ -1,0 +1,13 @@
+diff --git a/hdl/srp/KL_srp_domain.sv b/hdl/srp/KL_srp_domain.sv
+index baeae06..a98a41d 100644
+--- a/hdl/srp/KL_srp_domain.sv
++++ b/hdl/srp/KL_srp_domain.sv
+@@ -140,7 +140,7 @@ module KL_srp_domain #(
+ 
+   // the received value is the declared one / the pending adoption's one
+   assign rx_is_decl_w = declared_r && covers6_w
+-                     && ({surf_prio_w, rxdom_vid_i} == {decl_prio_r, decl_vid_r});
++                     && (rxdom_vid_i == decl_vid_r);
+   assign rx_is_pend_w = declared_r && covers6_w && rx_pend_v_r
+                      && ({surf_prio_w, rxdom_vid_i} == {rx_pend_prio_r, rx_pend_vid_r});
+ 
