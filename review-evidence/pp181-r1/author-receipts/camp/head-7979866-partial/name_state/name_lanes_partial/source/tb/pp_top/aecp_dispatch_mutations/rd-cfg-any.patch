@@ -1,0 +1,12 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3120,8 +3120,7 @@
+             if ((cmd_r.protocol == PP_PROTO_AEM)
+                 && (cmd_r.msg_type == 4'd0)
+                 && (cmd_r.opcode == OP_READ_DESCRIPTOR_C)
+-                && (cmd_r.cdl >= 11'd20)
+-                && (cfg_ix_r == 16'd0)) begin
++                && (cmd_r.cdl >= 11'd20)) begin
+               if (desc_ty_r == DT_AUDIO_UNIT_C) begin
+                 upc_r  <= UPC_RDESCAU_C;
+                 echo_r <= 1'b0;

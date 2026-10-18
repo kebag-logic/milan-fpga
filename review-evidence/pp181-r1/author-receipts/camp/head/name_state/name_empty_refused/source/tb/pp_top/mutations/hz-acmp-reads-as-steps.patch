@@ -1,0 +1,16 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1500,11 +1500,11 @@
+       //! RO_SNAPSHOT); every other step is the stream's STREAM_CFG
+       if (hz_acmp_tkr_w) begin
+         hz_key_w   = hz_key(HZ_DT_STREAM_OUT_C, hdr_operands_r[15:0]);
+-        hz_class_w = ((hdr_msg_type_r == 4'd4) || (hdr_msg_type_r == 4'd12))
++        hz_class_w = (1'b0)
+                      ? 4'(PP_HZ_RO_SNAPSHOT) : 4'(PP_HZ_STREAM_CFG);
+       end else begin
+         hz_key_w   = hz_key(HZ_DT_STREAM_IN_C, hdr_operands_r[15:0]);
+-        hz_class_w = (hdr_msg_type_r == 4'd10) ? 4'(PP_HZ_RO_SNAPSHOT)
++        hz_class_w = (1'b0) ? 4'(PP_HZ_RO_SNAPSHOT)
+                                                : 4'(PP_HZ_STREAM_CFG);
+       end
+     end else if (hz_aem_cmd_w) begin

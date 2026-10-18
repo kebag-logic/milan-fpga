@@ -1,0 +1,10 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3341,7 +3341,6 @@
+             //! selects is never consulted on this arm.
+             if (ctrs_r && (cfg_ix_r != DT_STREAM_INPUT_C)
+                 && (cfg_ix_r != DT_STREAM_OUTPUT_C)
+-                && (cfg_ix_r != DT_AVB_INTERFACE_C)
+                 && (cfg_ix_r != DT_CLOCK_DOMAIN_C)) begin
+               upc_r  <= UPC_GCTRSNS_C;
+               echo_r <= 1'b0;

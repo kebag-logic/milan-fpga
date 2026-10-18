@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1187,7 +1187,7 @@
+         u('BR_STATUS', cnd=0, imm=E_RDSTUB),
+         u('READ_ST', rd=3, imm=RGN_DYNV + sel),  # has a SET or restore set it?
+         u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+-        u('BR_STATUS', cnd=2, imm=E_RDESC),      # unset: the image is current
++        u('NOP'),                                # unset: the image is current
+         u('READ_ST', rd=1, imm=RGN_DYN + sel),   # the format SET_STREAM_FORMAT stored
+         u('BRANCH', imm=E_RDESCSF),
+     ]

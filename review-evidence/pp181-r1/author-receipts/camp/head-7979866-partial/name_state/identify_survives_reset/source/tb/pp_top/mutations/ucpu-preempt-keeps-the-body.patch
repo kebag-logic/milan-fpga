@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_ucpu.sv
++++ b/hdl/aecp/KL_aecp_ucpu.sv
+@@ -722,7 +722,7 @@
+             vld_e_r     <= 1'b0;
+             eseq_r      <= '0;
+             pre_taken_r <= 1'b1;
+-            if (!batch_r) begin
++            if (1'b0) begin
+               cursor_r   <= 10'd12;
+               resp_len_r <= 11'd12;
+             end

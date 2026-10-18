@@ -1,0 +1,14 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1174,9 +1174,8 @@
+   //! descriptor type, record count and exact variable length are registered.
+   //! Keeping it out of this pop-time mux preserves the measured ROM-address
+   //! timing rule used by every other variable-shape command.
+-  assign amap_edit_w = aem_w
+-                       && ((txn_w.opcode == OP_ADD_AUDIO_MAP_C)
+-                           || (txn_w.opcode == OP_REMOVE_AUDIO_MAP_C));
++  assign amap_edit_w = (aem_w && (txn_w.opcode == OP_REMOVE_AUDIO_MAP_C))
++                       || (txn_w.opcode == OP_ADD_AUDIO_MAP_C);
+   //! THE GUARD BELONGS ON EVERY ARM, and for a long time it was on only some.
+   //! `opcode` is AECPDU @22..@23, which on a VENDOR_UNIQUE message is the first
+   //! two bytes of a 48-bit protocol_id. OP_READ_DESCRIPTOR_C is 0x0004, so a

@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1545,7 +1545,7 @@
+         //! the GETs with the {descriptor_type @24, descriptor_index @26} shape
+         16'h0009, 16'h000F, 16'h0011, 16'h0015, 16'h0017, 16'h0019,
+         16'h0027, 16'h0029, 16'h002B:
+-          hz_key_w = hz_dkey_w;
++          hz_key_w = HZ_KEY_NONE_C;
+         16'h0028:                              // GET_AS_PATH: the index at @24
+           hz_key_w = hz_key(HZ_DT_AVB_IF_C, hdr_operands_r[63:48]);
+         16'h0000, 16'h0002, 16'h0007:          // the ENTITY-addressed three

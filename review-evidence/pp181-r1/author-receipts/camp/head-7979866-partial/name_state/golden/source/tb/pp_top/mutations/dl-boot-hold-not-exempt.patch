@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3610,7 +3610,7 @@
+       aecp_dl_r        <= 32'd0;
+       aecp_boot_held_r <= 1'b0;
+     end else if (aecp_sb_accept_w) begin
+-      aecp_dl_r        <= aecp_boot_held_r
++      aecp_dl_r        <= 1'b0
+                           ? (now_ms_w + 32'(BUDGET_AECP_MS_C))
+                           : aecp_head_w.deadline;
+       aecp_boot_held_r <= 1'b0;

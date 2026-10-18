@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -870,7 +870,7 @@
+     u('GATHER_EXT', rd=5, **AM_NMAPS),           # r5 = number_of_maps
+     u('GATHER_EXT', rd=6, **AM_GEOM),            # r6 = {nmaps, nmappings}
+     u('COMPARE', ra=6, fmt=FMT_W,                # lt: the page fits the cap
+-      imm=GAMAP_PAGE_MAX + 1),
++      imm=GAMAP_PAGE_MAX + 2),
+     u('BR_STATUS', cnd=3, imm=E_GAMAP + 9),
+     u('MOVE', rd=10, ra=0, imm=0xFFFF),          # above it: number_of_mappings
+     u('SET_MASKED', rd=6, ra=12, rb=10),         # := 0, and no record emitted

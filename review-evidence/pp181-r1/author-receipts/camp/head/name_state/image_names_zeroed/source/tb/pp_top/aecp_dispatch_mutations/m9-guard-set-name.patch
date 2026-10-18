@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1307,7 +1307,7 @@
+                     && (txn_w.opcode == OP_SET_CONTROL_C);
+   logic gname_w, sname_w;
+   assign gname_w  = aem_w && (txn_w.opcode == OP_GET_NAME_C);
+-  assign sname_w  = aem_w && (txn_w.opcode == OP_SET_NAME_C);
++  assign sname_w  = (txn_w.opcode == OP_SET_NAME_C);
+   //! SET_STREAM_FORMAT and SET_STREAM_INFO join the value-at-@28 family:
+   //! for the format that IS the argument (8 bytes, lands right-justified);
+   //! for SET_STREAM_INFO the eight bytes hold the FLAGS word at the top and

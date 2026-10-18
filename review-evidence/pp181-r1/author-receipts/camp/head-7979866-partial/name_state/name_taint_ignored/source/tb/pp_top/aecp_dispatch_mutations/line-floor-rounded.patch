@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -930,7 +930,7 @@
+     $fatal(1, "DESC_LINE_BYTES_P=%0d is not a multiple of 8 (legal: %0d..%0d in steps of 8)",
+            LINE_BYTES_P, LINE_MIN_BYTES_C, LINE_MAX_BYTES_C);
+   end
+-  if (RESP_BUF_C < 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C) begin : gen_g_gamap_page_fit
++  if (((RESP_BUF_C + 15) & ~32'd15) < 24 + 8 * ucpu_pkg::GAMAP_PAGE_MAX_C) begin : gen_g_gamap_page_fit
+     $fatal(1, "DESC_LINE_BYTES_P=%0d is below %0d: no room for a %0d-record GET_AUDIO_MAP page",
+            LINE_BYTES_P, LINE_MIN_BYTES_C, ucpu_pkg::GAMAP_PAGE_MAX_C);
+   end

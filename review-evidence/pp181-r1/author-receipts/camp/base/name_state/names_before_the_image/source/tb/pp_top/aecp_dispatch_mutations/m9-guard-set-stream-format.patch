@@ -1,0 +1,12 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1313,8 +1313,7 @@
+   //! for SET_STREAM_INFO the eight bytes hold the FLAGS word at the top and
+   //! the argument itself rides the dedicated @48 capture (`silat_r`).
+   logic ssfmt_w, ssinfo_w;
+-  assign ssfmt_w  = aem_w
+-                    && (txn_w.opcode == OP_SET_STREAM_FMT_C);
++  assign ssfmt_w  = (txn_w.opcode == OP_SET_STREAM_FMT_C);
+   assign ssinfo_w = aem_w
+                     && (txn_w.opcode == OP_SET_STREAM_INFO_C);
+   assign setc_w   = ssrate_w | sclks_w | sctrl_w | ssfmt_w | ssinfo_w;

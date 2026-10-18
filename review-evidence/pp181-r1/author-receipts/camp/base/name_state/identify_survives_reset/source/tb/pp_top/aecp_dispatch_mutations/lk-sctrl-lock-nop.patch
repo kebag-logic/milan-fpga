@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1615,7 +1615,7 @@
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # does the CONTROL exist?
+     u('BR_STATUS', cnd=0, imm=SCTRL_REFUSE),     # no -> the lock, then NSD
+     u('READ_ST', rd=6, imm=RGN_DYN + SEL_IDENT), # the value in force
+-    u('CHECK_LOCK', ra=15, imm=SCTRL_EMIT),      # held by another controller?
++    u('NOP'),      # held by another controller?
+     u('COMPARE', ra=12, fmt=FMT_B, imm=0),       # value == 0 ?
+     u('BR_STATUS', cnd=2, imm=E_SCTRL + 11),
+     u('COMPARE', ra=12, fmt=FMT_B, imm=255),     # value == 255 ?

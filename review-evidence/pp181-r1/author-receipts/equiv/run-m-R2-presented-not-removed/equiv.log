@@ -1,0 +1,1426 @@
+
+ /----------------------------------------------------------------------------\
+ |                                                                            |
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |                                                                            |
+ |  Copyright (C) 2012 - 2020  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |                                                                            |
+ |  Permission to use, copy, modify, and/or distribute this software for any  |
+ |  purpose with or without fee is hereby granted, provided that the above    |
+ |  copyright notice and this permission notice appear in all copies.         |
+ |                                                                            |
+ |  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES  |
+ |  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF          |
+ |  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR   |
+ |  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    |
+ |  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN     |
+ |  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   |
+ |  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            |
+ |                                                                            |
+ \----------------------------------------------------------------------------/
+
+ Yosys 0.33 (git sha1 2584903a060)
+
+
+-- Executing script file `equiv.ys' --
+
+1. Executing Verilog-2005 frontend: gold.v
+Parsing Verilog input from `gold.v' to AST representation.
+Generating RTLIL representation for module `\gold'.
+Warning: Replacing memory \lost_cnt_r with list of registers. See gold.v:118
+Warning: Replacing memory \payload_r with list of registers. See gold.v:117
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: gate.v
+Parsing Verilog input from `gate.v' to AST representation.
+Generating RTLIL representation for module `\gate'.
+Warning: Replacing memory \lost_cnt_r with list of registers. See gate.v:118
+Warning: Replacing memory \payload_r with list of registers. See gate.v:117
+Successfully finished Verilog frontend.
+Parameter \N_SRC_P = 8
+
+3. Executing AST frontend in derive mode using pre-parsed AST for module `\gold'.
+Parameter \N_SRC_P = 8
+Generating RTLIL representation for module `$paramod\gold\N_SRC_P=32'00000000000000000000000000001000'.
+Warning: Replacing memory \lost_cnt_r with list of registers. See gold.v:118
+Warning: Replacing memory \payload_r with list of registers. See gold.v:117
+Parameter \N_SRC_P = 8
+
+4. Executing AST frontend in derive mode using pre-parsed AST for module `\gate'.
+Parameter \N_SRC_P = 8
+Generating RTLIL representation for module `$paramod\gate\N_SRC_P=32'00000000000000000000000000001000'.
+Warning: Replacing memory \lost_cnt_r with list of registers. See gate.v:118
+Warning: Replacing memory \payload_r with list of registers. See gate.v:117
+
+5. Executing HIERARCHY pass (managing design hierarchy).
+
+6. Executing PROC pass (convert processes to netlists).
+
+6.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\gate.$proc$gate.v:51$848'.
+Found and cleaned up 1 empty switch in `\gate.$proc$gate.v:71$864'.
+Found and cleaned up 1 empty switch in `\gate.$proc$gate.v:84$866'.
+Found and cleaned up 1 empty switch in `\gold.$proc$gold.v:51$652'.
+Found and cleaned up 1 empty switch in `\gold.$proc$gold.v:71$668'.
+Found and cleaned up 1 empty switch in `\gold.$proc$gold.v:86$685'.
+Cleaned up 6 empty switches.
+
+6.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 1 switch rules as full_case in process $proc$gate.v:51$848 in module gate.
+Marked 16 switch rules as full_case in process $proc$gate.v:84$866 in module gate.
+Marked 18 switch rules as full_case in process $proc$gate.v:106$948 in module gate.
+Removed 1 dead cases from process $proc$gate.v:0$1002 in module gate.
+Marked 1 switch rules as full_case in process $proc$gate.v:0$1002 in module gate.
+Removed 1 dead cases from process $proc$gate.v:0$1005 in module gate.
+Marked 1 switch rules as full_case in process $proc$gate.v:0$1005 in module gate.
+Marked 1 switch rules as full_case in process $proc$gold.v:51$652 in module gold.
+Marked 1 switch rules as full_case in process $proc$gold.v:71$668 in module gold.
+Marked 16 switch rules as full_case in process $proc$gold.v:86$685 in module gold.
+Marked 18 switch rules as full_case in process $proc$gold.v:106$766 in module gold.
+Removed 1 dead cases from process $proc$gold.v:0$820 in module gold.
+Marked 1 switch rules as full_case in process $proc$gold.v:0$820 in module gold.
+Removed 1 dead cases from process $proc$gold.v:0$823 in module gold.
+Marked 1 switch rules as full_case in process $proc$gold.v:0$823 in module gold.
+Removed a total of 4 dead cases.
+
+6.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 87 assignments to connections.
+
+6.4. Executing PROC_INIT pass (extract init attributes).
+
+6.5. Executing PROC_ARST pass (detect async resets in processes).
+
+6.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~110 debug messages>
+
+6.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\gate.$proc$gate.v:51$848'.
+     1/4: $1\delivered_w[7:0]
+     2/4: $1$bitselwrite$data$gate.v:56$828[7:0]$853
+     3/4: $1$bitselwrite$mask$gate.v:56$827[7:0]$854
+     4/4: $1$bitselwrite$sel$gate.v:56$829[2:0]$852
+Creating decoders for process `\gate.$proc$gate.v:71$864'.
+Creating decoders for process `\gate.$proc$gate.v:84$866'.
+     1/24: $8\gnt_src_w[2:0]
+     2/24: $8\gnt_found_w[0:0]
+     3/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$323[7].sv2v_autoblock_2.idx[31:0]$942
+     4/24: $7\gnt_src_w[2:0]
+     5/24: $7\gnt_found_w[0:0]
+     6/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$323[6].sv2v_autoblock_2.idx[31:0]$935
+     7/24: $6\gnt_src_w[2:0]
+     8/24: $6\gnt_found_w[0:0]
+     9/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$323[5].sv2v_autoblock_2.idx[31:0]$928
+    10/24: $5\gnt_src_w[2:0]
+    11/24: $5\gnt_found_w[0:0]
+    12/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$323[4].sv2v_autoblock_2.idx[31:0]$921
+    13/24: $4\gnt_src_w[2:0]
+    14/24: $4\gnt_found_w[0:0]
+    15/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$323[3].sv2v_autoblock_2.idx[31:0]$914
+    16/24: $3\gnt_src_w[2:0]
+    17/24: $3\gnt_found_w[0:0]
+    18/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$323[2].sv2v_autoblock_2.idx[31:0]$907
+    19/24: $2\gnt_src_w[2:0]
+    20/24: $2\gnt_found_w[0:0]
+    21/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$323[1].sv2v_autoblock_2.idx[31:0]$900
+    22/24: $1\gnt_src_w[2:0]
+    23/24: $1\gnt_found_w[0:0]
+    24/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$323[0].sv2v_autoblock_2.idx[31:0]$893
+Creating decoders for process `\gate.$proc$gate.v:106$948'.
+     1/41: $2\rr_next$func$gate.v:148$839.$result[2:0]$989
+     2/41: $2\rr_next$func$gate.v:148$839.s[2:0]$988
+     3/41: $0\coalesced_r[7:0] [7]
+     4/41: $0\coalesced_r[7:0] [6]
+     5/41: $0\pending_r[7:0] [6]
+     6/41: $0\coalesced_r[7:0] [5]
+     7/41: $0\pending_r[7:0] [5]
+     8/41: $0\coalesced_r[7:0] [4]
+     9/41: $0\pending_r[7:0] [4]
+    10/41: $0\coalesced_r[7:0] [3]
+    11/41: $0\pending_r[7:0] [3]
+    12/41: $0\coalesced_r[7:0] [2]
+    13/41: $0\pending_r[7:0] [2]
+    14/41: $0\coalesced_r[7:0] [1]
+    15/41: $0\pending_r[7:0] [1]
+    16/41: $0\coalesced_r[7:0] [0]
+    17/41: $0\pending_r[7:0] [0]
+    18/41: $1\rr_next$func$gate.v:148$839.$result[2:0]$953
+    19/41: $1\rr_next$func$gate.v:148$839.s[2:0]$952
+    20/41: $1\evt_state.sv2v_autoblock_4.s[31:0]
+    21/41: $0\lost_cnt_r[7][7:0]
+    22/41: $0\lost_cnt_r[6][7:0]
+    23/41: $0\lost_cnt_r[5][7:0]
+    24/41: $0\lost_cnt_r[4][7:0]
+    25/41: $0\lost_cnt_r[3][7:0]
+    26/41: $0\lost_cnt_r[2][7:0]
+    27/41: $0\lost_cnt_r[1][7:0]
+    28/41: $0\lost_cnt_r[0][7:0]
+    29/41: $0\payload_r[7][15:0]
+    30/41: $0\payload_r[6][15:0]
+    31/41: $0\payload_r[5][15:0]
+    32/41: $0\payload_r[4][15:0]
+    33/41: $0\payload_r[3][15:0]
+    34/41: $0\payload_r[2][15:0]
+    35/41: $0\payload_r[1][15:0]
+    36/41: $0\payload_r[0][15:0]
+    37/41: $0\ptr_r[2:0]
+    38/41: $0\sel_r[2:0]
+    39/41: $0\valid_r[0:0]
+    40/41: $0\pending_r[7:0] [7]
+    41/41: $1\evt_state.sv2v_autoblock_3.s[31:0]
+Creating decoders for process `\gate.$proc$gate.v:0$995'.
+Creating decoders for process `\gate.$proc$gate.v:0$1002'.
+     1/1: $1$mem2reg_rd$\payload_r$gate.v:153$845_DATA[15:0]$1004
+Creating decoders for process `\gate.$proc$gate.v:0$1005'.
+     1/1: $1$mem2reg_rd$\lost_cnt_r$gate.v:155$846_DATA[7:0]$1007
+Creating decoders for process `\gate.$proc$gate.v:0$1008'.
+Creating decoders for process `\gold.$proc$gold.v:51$652'.
+     1/4: $1\delivered_w[7:0]
+     2/4: $1$bitselwrite$data$gold.v:56$629[7:0]$657
+     3/4: $1$bitselwrite$mask$gold.v:56$628[7:0]$656
+     4/4: $1$bitselwrite$sel$gold.v:56$630[2:0]$658
+Creating decoders for process `\gold.$proc$gold.v:71$668'.
+     1/4: $1\pend_after_w[7:0]
+     2/4: $1$bitselwrite$data$gold.v:76$632[7:0]$673
+     3/4: $1$bitselwrite$mask$gold.v:76$631[7:0]$672
+     4/4: $1$bitselwrite$sel$gold.v:76$633[2:0]$674
+Creating decoders for process `\gold.$proc$gold.v:86$685'.
+     1/24: $8\gnt_src_w[2:0]
+     2/24: $8\gnt_found_w[0:0]
+     3/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$1[7].sv2v_autoblock_2.idx[31:0]$761
+     4/24: $7\gnt_src_w[2:0]
+     5/24: $7\gnt_found_w[0:0]
+     6/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$1[6].sv2v_autoblock_2.idx[31:0]$754
+     7/24: $6\gnt_src_w[2:0]
+     8/24: $6\gnt_found_w[0:0]
+     9/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$1[5].sv2v_autoblock_2.idx[31:0]$747
+    10/24: $5\gnt_src_w[2:0]
+    11/24: $5\gnt_found_w[0:0]
+    12/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$1[4].sv2v_autoblock_2.idx[31:0]$740
+    13/24: $4\gnt_src_w[2:0]
+    14/24: $4\gnt_found_w[0:0]
+    15/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$1[3].sv2v_autoblock_2.idx[31:0]$733
+    16/24: $3\gnt_src_w[2:0]
+    17/24: $3\gnt_found_w[0:0]
+    18/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$1[2].sv2v_autoblock_2.idx[31:0]$726
+    19/24: $2\gnt_src_w[2:0]
+    20/24: $2\gnt_found_w[0:0]
+    21/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$1[1].sv2v_autoblock_2.idx[31:0]$719
+    22/24: $1\gnt_src_w[2:0]
+    23/24: $1\gnt_found_w[0:0]
+    24/24: $1\rr_scan.sv2v_autoblock_1.$for_loop$1[0].sv2v_autoblock_2.idx[31:0]$712
+Creating decoders for process `\gold.$proc$gold.v:106$766'.
+     1/41: $2\rr_next$func$gold.v:149$643.$result[2:0]$806
+     2/41: $2\rr_next$func$gold.v:149$643.s[2:0]$807
+     3/41: $0\coalesced_r[7:0] [7]
+     4/41: $0\coalesced_r[7:0] [6]
+     5/41: $0\pending_r[7:0] [6]
+     6/41: $0\coalesced_r[7:0] [5]
+     7/41: $0\pending_r[7:0] [5]
+     8/41: $0\coalesced_r[7:0] [4]
+     9/41: $0\pending_r[7:0] [4]
+    10/41: $0\coalesced_r[7:0] [3]
+    11/41: $0\pending_r[7:0] [3]
+    12/41: $0\coalesced_r[7:0] [2]
+    13/41: $0\pending_r[7:0] [2]
+    14/41: $0\coalesced_r[7:0] [1]
+    15/41: $0\pending_r[7:0] [1]
+    16/41: $0\coalesced_r[7:0] [0]
+    17/41: $0\pending_r[7:0] [0]
+    18/41: $1\rr_next$func$gold.v:149$643.s[2:0]$771
+    19/41: $1\rr_next$func$gold.v:149$643.$result[2:0]$770
+    20/41: $1\evt_state.sv2v_autoblock_4.s[31:0]
+    21/41: $0\lost_cnt_r[7][7:0]
+    22/41: $0\lost_cnt_r[6][7:0]
+    23/41: $0\lost_cnt_r[5][7:0]
+    24/41: $0\lost_cnt_r[4][7:0]
+    25/41: $0\lost_cnt_r[3][7:0]
+    26/41: $0\lost_cnt_r[2][7:0]
+    27/41: $0\lost_cnt_r[1][7:0]
+    28/41: $0\lost_cnt_r[0][7:0]
+    29/41: $0\payload_r[7][15:0]
+    30/41: $0\payload_r[6][15:0]
+    31/41: $0\payload_r[5][15:0]
+    32/41: $0\payload_r[4][15:0]
+    33/41: $0\payload_r[3][15:0]
+    34/41: $0\payload_r[2][15:0]
+    35/41: $0\payload_r[1][15:0]
+    36/41: $0\payload_r[0][15:0]
+    37/41: $0\ptr_r[2:0]
+    38/41: $0\sel_r[2:0]
+    39/41: $0\valid_r[0:0]
+    40/41: $0\pending_r[7:0] [7]
+    41/41: $1\evt_state.sv2v_autoblock_3.s[31:0]
+Creating decoders for process `\gold.$proc$gold.v:0$813'.
+Creating decoders for process `\gold.$proc$gold.v:0$820'.
+     1/1: $1$mem2reg_rd$\payload_r$gold.v:154$649_DATA[15:0]$822
+Creating decoders for process `\gold.$proc$gold.v:0$823'.
+     1/1: $1$mem2reg_rd$\lost_cnt_r$gold.v:156$650_DATA[7:0]$825
+Creating decoders for process `\gold.$proc$gold.v:0$826'.
+
+6.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\gate.\delivered_w' from process `\gate.$proc$gate.v:51$848'.
+No latch inferred for signal `\gate.$bitselwrite$sel$gate.v:56$829' from process `\gate.$proc$gate.v:51$848'.
+No latch inferred for signal `\gate.$bitselwrite$data$gate.v:56$828' from process `\gate.$proc$gate.v:51$848'.
+No latch inferred for signal `\gate.$bitselwrite$mask$gate.v:56$827' from process `\gate.$proc$gate.v:51$848'.
+No latch inferred for signal `\gate.\pend_after_w' from process `\gate.$proc$gate.v:71$864'.
+No latch inferred for signal `\gate.\gnt_found_w' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\gnt_src_w' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_scan.sv2v_autoblock_1.k' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$838.inp' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$838.$result' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$837.inp' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$837.$result' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$836.inp' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$836.$result' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$835.inp' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$835.$result' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$834.inp' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$834.$result' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$833.inp' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$833.$result' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$832.inp' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$832.$result' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$831.inp' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\sv2v_cast_32$func$gate.v:94$831.$result' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_scan.sv2v_autoblock_1.$for_loop$323[0].sv2v_autoblock_2.idx' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_scan.sv2v_autoblock_1.$for_loop$323[1].sv2v_autoblock_2.idx' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_scan.sv2v_autoblock_1.$for_loop$323[2].sv2v_autoblock_2.idx' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_scan.sv2v_autoblock_1.$for_loop$323[3].sv2v_autoblock_2.idx' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_scan.sv2v_autoblock_1.$for_loop$323[4].sv2v_autoblock_2.idx' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_scan.sv2v_autoblock_1.$for_loop$323[5].sv2v_autoblock_2.idx' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_scan.sv2v_autoblock_1.$for_loop$323[6].sv2v_autoblock_2.idx' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_scan.sv2v_autoblock_1.$for_loop$323[7].sv2v_autoblock_2.idx' from process `\gate.$proc$gate.v:84$866'.
+No latch inferred for signal `\gate.\rr_next$func$gate.v:77$842.s' from process `\gate.$proc$gate.v:0$995'.
+No latch inferred for signal `\gate.\rr_next$func$gate.v:77$842.$result' from process `\gate.$proc$gate.v:0$995'.
+No latch inferred for signal `\gate.\rr_next$func$gate.v:77$830.$result' from process `\gate.$proc$gate.v:0$995'.
+No latch inferred for signal `\gate.$mem2reg_rd$\payload_r$gate.v:153$845_DATA' from process `\gate.$proc$gate.v:0$1002'.
+No latch inferred for signal `\gate.$mem2reg_rd$\lost_cnt_r$gate.v:155$846_DATA' from process `\gate.$proc$gate.v:0$1005'.
+No latch inferred for signal `\gate.\_sv2v_0' from process `\gate.$proc$gate.v:0$1008'.
+No latch inferred for signal `\gold.\delivered_w' from process `\gold.$proc$gold.v:51$652'.
+No latch inferred for signal `\gold.$bitselwrite$mask$gold.v:56$628' from process `\gold.$proc$gold.v:51$652'.
+No latch inferred for signal `\gold.$bitselwrite$data$gold.v:56$629' from process `\gold.$proc$gold.v:51$652'.
+No latch inferred for signal `\gold.$bitselwrite$sel$gold.v:56$630' from process `\gold.$proc$gold.v:51$652'.
+No latch inferred for signal `\gold.\pend_after_w' from process `\gold.$proc$gold.v:71$668'.
+No latch inferred for signal `\gold.$bitselwrite$mask$gold.v:76$631' from process `\gold.$proc$gold.v:71$668'.
+No latch inferred for signal `\gold.$bitselwrite$data$gold.v:76$632' from process `\gold.$proc$gold.v:71$668'.
+No latch inferred for signal `\gold.$bitselwrite$sel$gold.v:76$633' from process `\gold.$proc$gold.v:71$668'.
+No latch inferred for signal `\gold.\gnt_found_w' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\gnt_src_w' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_scan.sv2v_autoblock_1.k' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_scan.sv2v_autoblock_1.$for_loop$1[0].sv2v_autoblock_2.idx' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_scan.sv2v_autoblock_1.$for_loop$1[1].sv2v_autoblock_2.idx' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_scan.sv2v_autoblock_1.$for_loop$1[2].sv2v_autoblock_2.idx' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_scan.sv2v_autoblock_1.$for_loop$1[3].sv2v_autoblock_2.idx' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_scan.sv2v_autoblock_1.$for_loop$1[4].sv2v_autoblock_2.idx' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_scan.sv2v_autoblock_1.$for_loop$1[5].sv2v_autoblock_2.idx' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_scan.sv2v_autoblock_1.$for_loop$1[6].sv2v_autoblock_2.idx' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_scan.sv2v_autoblock_1.$for_loop$1[7].sv2v_autoblock_2.idx' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$635.$result' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$635.inp' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$636.$result' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$636.inp' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$637.$result' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$637.inp' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$638.$result' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$638.inp' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$639.$result' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$639.inp' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$640.$result' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$640.inp' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$641.$result' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$641.inp' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$642.$result' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\sv2v_cast_32$func$gold.v:96$642.inp' from process `\gold.$proc$gold.v:86$685'.
+No latch inferred for signal `\gold.\rr_next$func$gold.v:79$634.$result' from process `\gold.$proc$gold.v:0$813'.
+No latch inferred for signal `\gold.\rr_next$func$gold.v:79$646.$result' from process `\gold.$proc$gold.v:0$813'.
+No latch inferred for signal `\gold.\rr_next$func$gold.v:79$646.s' from process `\gold.$proc$gold.v:0$813'.
+No latch inferred for signal `\gold.$mem2reg_rd$\payload_r$gold.v:154$649_DATA' from process `\gold.$proc$gold.v:0$820'.
+No latch inferred for signal `\gold.$mem2reg_rd$\lost_cnt_r$gold.v:156$650_DATA' from process `\gold.$proc$gold.v:0$823'.
+No latch inferred for signal `\gold.\_sv2v_0' from process `\gold.$proc$gold.v:0$826'.
+
+6.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\gate.\pending_r' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1979' with positive edge clock.
+Creating register for signal `\gate.\coalesced_r' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1980' with positive edge clock.
+Creating register for signal `\gate.\valid_r' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1981' with positive edge clock.
+Creating register for signal `\gate.\sel_r' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1982' with positive edge clock.
+Creating register for signal `\gate.\ptr_r' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1983' with positive edge clock.
+Creating register for signal `\gate.\evt_state.sv2v_autoblock_3.s' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1984' with positive edge clock.
+Creating register for signal `\gate.\evt_state.sv2v_autoblock_4.s' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1985' with positive edge clock.
+Creating register for signal `\gate.\payload_r[0]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1986' with positive edge clock.
+Creating register for signal `\gate.\payload_r[1]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1987' with positive edge clock.
+Creating register for signal `\gate.\payload_r[2]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1988' with positive edge clock.
+Creating register for signal `\gate.\payload_r[3]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1989' with positive edge clock.
+Creating register for signal `\gate.\payload_r[4]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1990' with positive edge clock.
+Creating register for signal `\gate.\payload_r[5]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1991' with positive edge clock.
+Creating register for signal `\gate.\payload_r[6]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1992' with positive edge clock.
+Creating register for signal `\gate.\payload_r[7]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1993' with positive edge clock.
+Creating register for signal `\gate.\lost_cnt_r[0]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1994' with positive edge clock.
+Creating register for signal `\gate.\lost_cnt_r[1]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1995' with positive edge clock.
+Creating register for signal `\gate.\lost_cnt_r[2]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1996' with positive edge clock.
+Creating register for signal `\gate.\lost_cnt_r[3]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1997' with positive edge clock.
+Creating register for signal `\gate.\lost_cnt_r[4]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1998' with positive edge clock.
+Creating register for signal `\gate.\lost_cnt_r[5]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$1999' with positive edge clock.
+Creating register for signal `\gate.\lost_cnt_r[6]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$2000' with positive edge clock.
+Creating register for signal `\gate.\lost_cnt_r[7]' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$2001' with positive edge clock.
+Creating register for signal `\gate.\rr_next$func$gate.v:148$839.s' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$2002' with positive edge clock.
+Creating register for signal `\gate.\rr_next$func$gate.v:148$839.$result' using process `\gate.$proc$gate.v:106$948'.
+  created $dff cell `$procdff$2003' with positive edge clock.
+Creating register for signal `\gold.\pending_r' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2004' with positive edge clock.
+Creating register for signal `\gold.\coalesced_r' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2005' with positive edge clock.
+Creating register for signal `\gold.\valid_r' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2006' with positive edge clock.
+Creating register for signal `\gold.\sel_r' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2007' with positive edge clock.
+Creating register for signal `\gold.\ptr_r' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2008' with positive edge clock.
+Creating register for signal `\gold.\evt_state.sv2v_autoblock_3.s' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2009' with positive edge clock.
+Creating register for signal `\gold.\evt_state.sv2v_autoblock_4.s' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2010' with positive edge clock.
+Creating register for signal `\gold.\payload_r[0]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2011' with positive edge clock.
+Creating register for signal `\gold.\payload_r[1]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2012' with positive edge clock.
+Creating register for signal `\gold.\payload_r[2]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2013' with positive edge clock.
+Creating register for signal `\gold.\payload_r[3]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2014' with positive edge clock.
+Creating register for signal `\gold.\payload_r[4]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2015' with positive edge clock.
+Creating register for signal `\gold.\payload_r[5]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2016' with positive edge clock.
+Creating register for signal `\gold.\payload_r[6]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2017' with positive edge clock.
+Creating register for signal `\gold.\payload_r[7]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2018' with positive edge clock.
+Creating register for signal `\gold.\lost_cnt_r[0]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2019' with positive edge clock.
+Creating register for signal `\gold.\lost_cnt_r[1]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2020' with positive edge clock.
+Creating register for signal `\gold.\lost_cnt_r[2]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2021' with positive edge clock.
+Creating register for signal `\gold.\lost_cnt_r[3]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2022' with positive edge clock.
+Creating register for signal `\gold.\lost_cnt_r[4]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2023' with positive edge clock.
+Creating register for signal `\gold.\lost_cnt_r[5]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2024' with positive edge clock.
+Creating register for signal `\gold.\lost_cnt_r[6]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2025' with positive edge clock.
+Creating register for signal `\gold.\lost_cnt_r[7]' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2026' with positive edge clock.
+Creating register for signal `\gold.\rr_next$func$gold.v:149$643.$result' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2027' with positive edge clock.
+Creating register for signal `\gold.\rr_next$func$gold.v:149$643.s' using process `\gold.$proc$gold.v:106$766'.
+  created $dff cell `$procdff$2028' with positive edge clock.
+
+6.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+6.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\gate.$proc$gate.v:51$848'.
+Removing empty process `gate.$proc$gate.v:51$848'.
+Removing empty process `gate.$proc$gate.v:71$864'.
+Found and cleaned up 16 empty switches in `\gate.$proc$gate.v:84$866'.
+Removing empty process `gate.$proc$gate.v:84$866'.
+Found and cleaned up 35 empty switches in `\gate.$proc$gate.v:106$948'.
+Removing empty process `gate.$proc$gate.v:106$948'.
+Removing empty process `gate.$proc$gate.v:0$995'.
+Found and cleaned up 1 empty switch in `\gate.$proc$gate.v:0$1002'.
+Removing empty process `gate.$proc$gate.v:0$1002'.
+Found and cleaned up 1 empty switch in `\gate.$proc$gate.v:0$1005'.
+Removing empty process `gate.$proc$gate.v:0$1005'.
+Removing empty process `gate.$proc$gate.v:0$1008'.
+Found and cleaned up 1 empty switch in `\gold.$proc$gold.v:51$652'.
+Removing empty process `gold.$proc$gold.v:51$652'.
+Found and cleaned up 1 empty switch in `\gold.$proc$gold.v:71$668'.
+Removing empty process `gold.$proc$gold.v:71$668'.
+Found and cleaned up 16 empty switches in `\gold.$proc$gold.v:86$685'.
+Removing empty process `gold.$proc$gold.v:86$685'.
+Found and cleaned up 36 empty switches in `\gold.$proc$gold.v:106$766'.
+Removing empty process `gold.$proc$gold.v:106$766'.
+Removing empty process `gold.$proc$gold.v:0$813'.
+Found and cleaned up 1 empty switch in `\gold.$proc$gold.v:0$820'.
+Removing empty process `gold.$proc$gold.v:0$820'.
+Found and cleaned up 1 empty switch in `\gold.$proc$gold.v:0$823'.
+Removing empty process `gold.$proc$gold.v:0$823'.
+Removing empty process `gold.$proc$gold.v:0$826'.
+Cleaned up 110 empty switches.
+
+6.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module gate.
+<suppressed ~47 debug messages>
+Optimizing module gold.
+<suppressed ~47 debug messages>
+
+7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate..
+Finding unused cells or wires in module \gold..
+Removed 43 unused cells and 684 unused wires.
+<suppressed ~51 debug messages>
+
+8. Executing MEMORY pass.
+
+8.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+8.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+8.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+8.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+8.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+8.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate..
+Finding unused cells or wires in module \gold..
+
+8.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+8.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+8.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate..
+Finding unused cells or wires in module \gold..
+
+8.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+8.11. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate..
+Finding unused cells or wires in module \gold..
+
+10. Executing FLATTEN pass (flatten design).
+
+11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \gate..
+Finding unused cells or wires in module \gold..
+
+12. Executing ASYNC2SYNC pass.
+
+13. Executing EQUIV_MAKE pass (creating equiv checking module).
+Presumably equivalent wires: _sv2v_0_gold (1'0), _sv2v_0_gate (1'0) -> _sv2v_0
+Presumably equivalent wires: clk_i_gold (\clk_i_gold), clk_i_gate (\clk_i_gate) -> clk_i
+Presumably equivalent wires: coalesced_r_gold (\coalesced_r_gold), coalesced_r_gate (\coalesced_r_gate) -> coalesced_r
+Presumably equivalent wires: deliver_w_gold (\deliver_w_gold), deliver_w_gate (\deliver_w_gate) -> deliver_w
+Presumably equivalent wires: delivered_w_gold (\delivered_w_gold), delivered_w_gate (\delivered_w_gate) -> delivered_w
+Presumably equivalent wires: evt_ack_i_gold (\evt_ack_i_gold), evt_ack_i_gate (\evt_ack_i_gate) -> evt_ack_i
+Presumably equivalent wires: evt_lost_o_gold (\evt_lost_o_gold), evt_lost_o_gate (\evt_lost_o_gate) -> evt_lost_o
+Presumably equivalent wires: evt_payload_o_gold (\evt_payload_o_gold), evt_payload_o_gate (\evt_payload_o_gate) -> evt_payload_o
+Presumably equivalent wires: evt_src_o_gold (\sel_r_gold), evt_src_o_gate (\sel_r_gate) -> evt_src_o
+Presumably equivalent wires: evt_valid_o_gold (\valid_r_gold), evt_valid_o_gate (\valid_r_gate) -> evt_valid_o
+Presumably equivalent wires: lost_cnt_r[0]_gold (\lost_cnt_r[0]_gold), lost_cnt_r[0]_gate (\lost_cnt_r[0]_gate) -> lost_cnt_r[0]
+Presumably equivalent wires: lost_cnt_r[1]_gold (\lost_cnt_r[1]_gold), lost_cnt_r[1]_gate (\lost_cnt_r[1]_gate) -> lost_cnt_r[1]
+Presumably equivalent wires: lost_cnt_r[2]_gold (\lost_cnt_r[2]_gold), lost_cnt_r[2]_gate (\lost_cnt_r[2]_gate) -> lost_cnt_r[2]
+Presumably equivalent wires: lost_cnt_r[3]_gold (\lost_cnt_r[3]_gold), lost_cnt_r[3]_gate (\lost_cnt_r[3]_gate) -> lost_cnt_r[3]
+Presumably equivalent wires: lost_cnt_r[4]_gold (\lost_cnt_r[4]_gold), lost_cnt_r[4]_gate (\lost_cnt_r[4]_gate) -> lost_cnt_r[4]
+Presumably equivalent wires: lost_cnt_r[5]_gold (\lost_cnt_r[5]_gold), lost_cnt_r[5]_gate (\lost_cnt_r[5]_gate) -> lost_cnt_r[5]
+Presumably equivalent wires: lost_cnt_r[6]_gold (\lost_cnt_r[6]_gold), lost_cnt_r[6]_gate (\lost_cnt_r[6]_gate) -> lost_cnt_r[6]
+Presumably equivalent wires: lost_cnt_r[7]_gold (\lost_cnt_r[7]_gold), lost_cnt_r[7]_gate (\lost_cnt_r[7]_gate) -> lost_cnt_r[7]
+Presumably equivalent wires: lost_count_o_gold (\lost_count_o_gold), lost_count_o_gate (\lost_count_o_gate) -> lost_count_o
+Presumably equivalent wires: lost_src_i_gold (\lost_src_i_gold), lost_src_i_gate (\lost_src_i_gate) -> lost_src_i
+Presumably equivalent wires: payload_r[0]_gold (\payload_r[0]_gold), payload_r[0]_gate (\payload_r[0]_gate) -> payload_r[0]
+Presumably equivalent wires: payload_r[1]_gold (\payload_r[1]_gold), payload_r[1]_gate (\payload_r[1]_gate) -> payload_r[1]
+Presumably equivalent wires: payload_r[2]_gold (\payload_r[2]_gold), payload_r[2]_gate (\payload_r[2]_gate) -> payload_r[2]
+Presumably equivalent wires: payload_r[3]_gold (\payload_r[3]_gold), payload_r[3]_gate (\payload_r[3]_gate) -> payload_r[3]
+Presumably equivalent wires: payload_r[4]_gold (\payload_r[4]_gold), payload_r[4]_gate (\payload_r[4]_gate) -> payload_r[4]
+Presumably equivalent wires: payload_r[5]_gold (\payload_r[5]_gold), payload_r[5]_gate (\payload_r[5]_gate) -> payload_r[5]
+Presumably equivalent wires: payload_r[6]_gold (\payload_r[6]_gold), payload_r[6]_gate (\payload_r[6]_gate) -> payload_r[6]
+Presumably equivalent wires: payload_r[7]_gold (\payload_r[7]_gold), payload_r[7]_gate (\payload_r[7]_gate) -> payload_r[7]
+Presumably equivalent wires: pending_r_gold (\pending_r_gold), pending_r_gate (\pending_r_gate) -> pending_r
+Presumably equivalent wires: ptr_r_gold (\ptr_r_gold), ptr_r_gate (\ptr_r_gate) -> ptr_r
+Presumably equivalent wires: rr_scan.sv2v_autoblock_1.k_gold (8), rr_scan.sv2v_autoblock_1.k_gate (8) -> rr_scan.sv2v_autoblock_1.k
+Presumably equivalent wires: rst_n_gold (\rst_n_gold), rst_n_gate (\rst_n_gate) -> rst_n
+Presumably equivalent wires: sel_r_gold (\sel_r_gold), sel_r_gate (\sel_r_gate) -> sel_r
+Presumably equivalent wires: src_payload_i_gold (\src_payload_i_gold), src_payload_i_gate (\src_payload_i_gate) -> src_payload_i
+Presumably equivalent wires: src_strobe_i_gold (\src_strobe_i_gold), src_strobe_i_gate (\src_strobe_i_gate) -> src_strobe_i
+Presumably equivalent wires: valid_r_gold (\valid_r_gold), valid_r_gate (\valid_r_gate) -> valid_r
+Changing input A of cell $add$gate.v:135$961_gate ($add): \lost_cnt_r[1]_gate -> \lost_cnt_r[1]
+Changing input A of cell $add$gate.v:135$965_gate ($add): \lost_cnt_r[2]_gate -> \lost_cnt_r[2]
+Changing input A of cell $add$gate.v:135$969_gate ($add): \lost_cnt_r[3]_gate -> \lost_cnt_r[3]
+Changing input A of cell $add$gate.v:135$973_gate ($add): \lost_cnt_r[4]_gate -> \lost_cnt_r[4]
+Changing input A of cell $add$gate.v:135$977_gate ($add): \lost_cnt_r[5]_gate -> \lost_cnt_r[5]
+Changing input A of cell $add$gate.v:135$981_gate ($add): \lost_cnt_r[6]_gate -> \lost_cnt_r[6]
+Changing input A of cell $add$gate.v:135$985_gate ($add): \lost_cnt_r[7]_gate -> \lost_cnt_r[7]
+Changing input A of cell $add$gate.v:68$1000_gate ($add): \sel_r_gate -> \sel_r
+Changing input A of cell $add$gate.v:68$991_gate ($add): \sel_r_gate -> \sel_r
+Changing input A of cell $eq$gate.v:68$990_gate ($eq): \sel_r_gate -> \sel_r
+Changing input A of cell $eq$gate.v:68$999_gate ($eq): \sel_r_gate -> \sel_r
+Changing input A of cell $logic_and$gate.v:154$994_gate ($logic_and): \valid_r_gate -> \valid_r
+Changing input A of cell $logic_and$gate.v:49$847_gate ($logic_and): \valid_r_gate -> \valid_r
+Changing input A of cell $logic_not$gate.v:127$954_gate ($logic_not): \pending_r_gate [0] -> \pending_r [0]
+Changing input A of cell $logic_not$gate.v:127$958_gate ($logic_not): \pending_r_gate [1] -> \pending_r [1]
+Changing input A of cell $logic_not$gate.v:127$962_gate ($logic_not): \pending_r_gate [2] -> \pending_r [2]
+Changing input A of cell $logic_not$gate.v:127$966_gate ($logic_not): \pending_r_gate [3] -> \pending_r [3]
+Changing input A of cell $logic_not$gate.v:127$970_gate ($logic_not): \pending_r_gate [4] -> \pending_r [4]
+Changing input A of cell $logic_not$gate.v:127$974_gate ($logic_not): \pending_r_gate [5] -> \pending_r [5]
+Changing input A of cell $logic_not$gate.v:127$978_gate ($logic_not): \pending_r_gate [6] -> \pending_r [6]
+Changing input A of cell $logic_not$gate.v:127$982_gate ($logic_not): \pending_r_gate [7] -> \pending_r [7]
+Changing input A of cell $logic_not$gate.v:143$986_gate ($logic_not): \valid_r_gate -> \valid_r
+Changing input B of cell $logic_or$gate.v:127$955_gate ($logic_or): \delivered_w_gate [0] -> \delivered_w [0]
+Changing input B of cell $logic_or$gate.v:127$959_gate ($logic_or): \delivered_w_gate [1] -> \delivered_w [1]
+Changing input B of cell $logic_or$gate.v:127$963_gate ($logic_or): \delivered_w_gate [2] -> \delivered_w [2]
+Changing input B of cell $logic_or$gate.v:127$967_gate ($logic_or): \delivered_w_gate [3] -> \delivered_w [3]
+Changing input B of cell $logic_or$gate.v:127$971_gate ($logic_or): \delivered_w_gate [4] -> \delivered_w [4]
+Changing input B of cell $logic_or$gate.v:127$975_gate ($logic_or): \delivered_w_gate [5] -> \delivered_w [5]
+Changing input B of cell $logic_or$gate.v:127$979_gate ($logic_or): \delivered_w_gate [6] -> \delivered_w [6]
+Changing input B of cell $logic_or$gate.v:127$983_gate ($logic_or): \delivered_w_gate [7] -> \delivered_w [7]
+Changing input A of cell $logic_or$gate.v:143$987_gate ($logic_or): \deliver_w_gate -> \deliver_w
+Changing input A of cell $ne$gate.v:134$956_gate ($ne): \lost_cnt_r[0]_gate -> \lost_cnt_r[0]
+Changing input A of cell $ne$gate.v:134$960_gate ($ne): \lost_cnt_r[1]_gate -> \lost_cnt_r[1]
+Changing input A of cell $ne$gate.v:134$964_gate ($ne): \lost_cnt_r[2]_gate -> \lost_cnt_r[2]
+Changing input A of cell $ne$gate.v:134$968_gate ($ne): \lost_cnt_r[3]_gate -> \lost_cnt_r[3]
+Changing input A of cell $ne$gate.v:134$972_gate ($ne): \lost_cnt_r[4]_gate -> \lost_cnt_r[4]
+Changing input A of cell $ne$gate.v:134$976_gate ($ne): \lost_cnt_r[5]_gate -> \lost_cnt_r[5]
+Changing input A of cell $ne$gate.v:134$980_gate ($ne): \lost_cnt_r[6]_gate -> \lost_cnt_r[6]
+Changing input A of cell $ne$gate.v:134$984_gate ($ne): \lost_cnt_r[7]_gate -> \lost_cnt_r[7]
+Changing input S of cell $procmux$1010_gate ($mux): \deliver_w_gate -> \deliver_w
+Changing input A of cell $procmux$1105_gate ($mux): \coalesced_r_gate [7] -> \coalesced_r [7]
+Changing input S of cell $procmux$1105_gate ($mux): \delivered_w_gate [7] -> \delivered_w [7]
+Changing input A of cell $procmux$1116_gate ($mux): \coalesced_r_gate [6] -> \coalesced_r [6]
+Changing input S of cell $procmux$1116_gate ($mux): \delivered_w_gate [6] -> \delivered_w [6]
+Changing input A of cell $procmux$1127_gate ($mux): \pending_r_gate [6] -> \pending_r [6]
+Changing input S of cell $procmux$1127_gate ($mux): \delivered_w_gate [6] -> \delivered_w [6]
+Changing input A of cell $procmux$1131_gate ($mux): \pending_r_gate [6] -> \pending_r [6]
+Changing input A of cell $procmux$1138_gate ($mux): \coalesced_r_gate [5] -> \coalesced_r [5]
+Changing input S of cell $procmux$1138_gate ($mux): \delivered_w_gate [5] -> \delivered_w [5]
+Changing input A of cell $procmux$1149_gate ($mux): \pending_r_gate [5] -> \pending_r [5]
+Changing input S of cell $procmux$1149_gate ($mux): \delivered_w_gate [5] -> \delivered_w [5]
+Changing input A of cell $procmux$1153_gate ($mux): \pending_r_gate [5] -> \pending_r [5]
+Changing input A of cell $procmux$1160_gate ($mux): \coalesced_r_gate [4] -> \coalesced_r [4]
+Changing input S of cell $procmux$1160_gate ($mux): \delivered_w_gate [4] -> \delivered_w [4]
+Changing input A of cell $procmux$1171_gate ($mux): \pending_r_gate [4] -> \pending_r [4]
+Changing input S of cell $procmux$1171_gate ($mux): \delivered_w_gate [4] -> \delivered_w [4]
+Changing input A of cell $procmux$1175_gate ($mux): \pending_r_gate [4] -> \pending_r [4]
+Changing input A of cell $procmux$1182_gate ($mux): \coalesced_r_gate [3] -> \coalesced_r [3]
+Changing input S of cell $procmux$1182_gate ($mux): \delivered_w_gate [3] -> \delivered_w [3]
+Changing input A of cell $procmux$1193_gate ($mux): \pending_r_gate [3] -> \pending_r [3]
+Changing input S of cell $procmux$1193_gate ($mux): \delivered_w_gate [3] -> \delivered_w [3]
+Changing input A of cell $procmux$1197_gate ($mux): \pending_r_gate [3] -> \pending_r [3]
+Changing input A of cell $procmux$1204_gate ($mux): \coalesced_r_gate [2] -> \coalesced_r [2]
+Changing input S of cell $procmux$1204_gate ($mux): \delivered_w_gate [2] -> \delivered_w [2]
+Changing input A of cell $procmux$1215_gate ($mux): \pending_r_gate [2] -> \pending_r [2]
+Changing input S of cell $procmux$1215_gate ($mux): \delivered_w_gate [2] -> \delivered_w [2]
+Changing input A of cell $procmux$1219_gate ($mux): \pending_r_gate [2] -> \pending_r [2]
+Changing input A of cell $procmux$1226_gate ($mux): \coalesced_r_gate [1] -> \coalesced_r [1]
+Changing input S of cell $procmux$1226_gate ($mux): \delivered_w_gate [1] -> \delivered_w [1]
+Changing input A of cell $procmux$1237_gate ($mux): \pending_r_gate [1] -> \pending_r [1]
+Changing input S of cell $procmux$1237_gate ($mux): \delivered_w_gate [1] -> \delivered_w [1]
+Changing input A of cell $procmux$1241_gate ($mux): \pending_r_gate [1] -> \pending_r [1]
+Changing input A of cell $procmux$1248_gate ($mux): \coalesced_r_gate [0] -> \coalesced_r [0]
+Changing input S of cell $procmux$1248_gate ($mux): \delivered_w_gate [0] -> \delivered_w [0]
+Changing input A of cell $procmux$1259_gate ($mux): \pending_r_gate [0] -> \pending_r [0]
+Changing input S of cell $procmux$1259_gate ($mux): \delivered_w_gate [0] -> \delivered_w [0]
+Changing input A of cell $procmux$1263_gate ($mux): \pending_r_gate [0] -> \pending_r [0]
+Changing input A of cell $procmux$1280_gate ($mux): \lost_cnt_r[7]_gate -> \lost_cnt_r[7]
+Changing input B of cell $procmux$1283_gate ($mux): \lost_cnt_r[7]_gate -> \lost_cnt_r[7]
+Changing input A of cell $procmux$1285_gate ($mux): \lost_cnt_r[7]_gate -> \lost_cnt_r[7]
+Changing input A of cell $procmux$1291_gate ($mux): \lost_cnt_r[6]_gate -> \lost_cnt_r[6]
+Changing input B of cell $procmux$1294_gate ($mux): \lost_cnt_r[6]_gate -> \lost_cnt_r[6]
+Changing input A of cell $procmux$1296_gate ($mux): \lost_cnt_r[6]_gate -> \lost_cnt_r[6]
+Changing input A of cell $procmux$1302_gate ($mux): \lost_cnt_r[5]_gate -> \lost_cnt_r[5]
+Changing input B of cell $procmux$1305_gate ($mux): \lost_cnt_r[5]_gate -> \lost_cnt_r[5]
+Changing input A of cell $procmux$1307_gate ($mux): \lost_cnt_r[5]_gate -> \lost_cnt_r[5]
+Changing input A of cell $procmux$1313_gate ($mux): \lost_cnt_r[4]_gate -> \lost_cnt_r[4]
+Changing input B of cell $procmux$1316_gate ($mux): \lost_cnt_r[4]_gate -> \lost_cnt_r[4]
+Changing input A of cell $procmux$1318_gate ($mux): \lost_cnt_r[4]_gate -> \lost_cnt_r[4]
+Changing input A of cell $procmux$1324_gate ($mux): \lost_cnt_r[3]_gate -> \lost_cnt_r[3]
+Changing input B of cell $procmux$1327_gate ($mux): \lost_cnt_r[3]_gate -> \lost_cnt_r[3]
+Changing input A of cell $procmux$1329_gate ($mux): \lost_cnt_r[3]_gate -> \lost_cnt_r[3]
+Changing input A of cell $procmux$1335_gate ($mux): \lost_cnt_r[2]_gate -> \lost_cnt_r[2]
+Changing input B of cell $procmux$1338_gate ($mux): \lost_cnt_r[2]_gate -> \lost_cnt_r[2]
+Changing input A of cell $procmux$1340_gate ($mux): \lost_cnt_r[2]_gate -> \lost_cnt_r[2]
+Changing input A of cell $procmux$1346_gate ($mux): \lost_cnt_r[1]_gate -> \lost_cnt_r[1]
+Changing input B of cell $procmux$1349_gate ($mux): \lost_cnt_r[1]_gate -> \lost_cnt_r[1]
+Changing input A of cell $procmux$1351_gate ($mux): \lost_cnt_r[1]_gate -> \lost_cnt_r[1]
+Changing input A of cell $procmux$1357_gate ($mux): \lost_cnt_r[0]_gate -> \lost_cnt_r[0]
+Changing input B of cell $procmux$1360_gate ($mux): \lost_cnt_r[0]_gate -> \lost_cnt_r[0]
+Changing input A of cell $procmux$1362_gate ($mux): \lost_cnt_r[0]_gate -> \lost_cnt_r[0]
+Changing input A of cell $procmux$1369_gate ($mux): \payload_r[7]_gate -> \payload_r[7]
+Changing input A of cell $procmux$1371_gate ($mux): \payload_r[7]_gate -> \payload_r[7]
+Changing input A of cell $procmux$1378_gate ($mux): \payload_r[6]_gate -> \payload_r[6]
+Changing input A of cell $procmux$1380_gate ($mux): \payload_r[6]_gate -> \payload_r[6]
+Changing input A of cell $procmux$1387_gate ($mux): \payload_r[5]_gate -> \payload_r[5]
+Changing input A of cell $procmux$1389_gate ($mux): \payload_r[5]_gate -> \payload_r[5]
+Changing input A of cell $procmux$1396_gate ($mux): \payload_r[4]_gate -> \payload_r[4]
+Changing input A of cell $procmux$1398_gate ($mux): \payload_r[4]_gate -> \payload_r[4]
+Changing input A of cell $procmux$1405_gate ($mux): \payload_r[3]_gate -> \payload_r[3]
+Changing input A of cell $procmux$1407_gate ($mux): \payload_r[3]_gate -> \payload_r[3]
+Changing input A of cell $procmux$1414_gate ($mux): \payload_r[2]_gate -> \payload_r[2]
+Changing input A of cell $procmux$1416_gate ($mux): \payload_r[2]_gate -> \payload_r[2]
+Changing input A of cell $procmux$1423_gate ($mux): \payload_r[1]_gate -> \payload_r[1]
+Changing input A of cell $procmux$1425_gate ($mux): \payload_r[1]_gate -> \payload_r[1]
+Changing input A of cell $procmux$1432_gate ($mux): \payload_r[0]_gate -> \payload_r[0]
+Changing input A of cell $procmux$1434_gate ($mux): \payload_r[0]_gate -> \payload_r[0]
+Changing input A of cell $procmux$1440_gate ($mux): \ptr_r_gate -> \ptr_r
+Changing input S of cell $procmux$1440_gate ($mux): \deliver_w_gate -> \deliver_w
+Changing input A of cell $procmux$1445_gate ($mux): \sel_r_gate -> \sel_r
+Changing input A of cell $procmux$1450_gate ($mux): \valid_r_gate -> \valid_r
+Changing input A of cell $procmux$1455_gate ($mux): \pending_r_gate [7] -> \pending_r [7]
+Changing input S of cell $procmux$1455_gate ($mux): \delivered_w_gate [7] -> \delivered_w [7]
+Changing input A of cell $procmux$1459_gate ($mux): \pending_r_gate [7] -> \pending_r [7]
+Changing input B of cell $procmux$1469_gate ($pmux): { \payload_r[0]_gate \payload_r[1]_gate \payload_r[2]_gate \payload_r[3]_gate \payload_r[4]_gate \payload_r[5]_gate \payload_r[6]_gate \payload_r[7]_gate } -> { \payload_r[0] \payload_r[1] \payload_r[2] \payload_r[3] \payload_r[4] \payload_r[5] \payload_r[6] \payload_r[7] }
+Changing input A of cell $procmux$1470_CMP0_gate ($eq): \sel_r_gate -> \sel_r
+Changing input A of cell $procmux$1471_CMP0_gate ($eq): \sel_r_gate -> \sel_r
+Changing input A of cell $procmux$1472_CMP0_gate ($eq): \sel_r_gate -> \sel_r
+Changing input A of cell $procmux$1473_CMP0_gate ($eq): \sel_r_gate -> \sel_r
+Changing input A of cell $procmux$1474_CMP0_gate ($eq): \sel_r_gate -> \sel_r
+Changing input A of cell $procmux$1475_CMP0_gate ($eq): \sel_r_gate -> \sel_r
+Changing input A of cell $procmux$1476_CMP0_gate ($eq): \sel_r_gate -> \sel_r
+Changing input A of cell $procmux$1477_CMP0_gate ($logic_not): \sel_r_gate -> \sel_r
+Changing input B of cell $procmux$1478_gate ($pmux): { \lost_cnt_r[0]_gate \lost_cnt_r[1]_gate \lost_cnt_r[2]_gate \lost_cnt_r[3]_gate \lost_cnt_r[4]_gate \lost_cnt_r[5]_gate \lost_cnt_r[6]_gate \lost_cnt_r[7]_gate } -> { \lost_cnt_r[0] \lost_cnt_r[1] \lost_cnt_r[2] \lost_cnt_r[3] \lost_cnt_r[4] \lost_cnt_r[5] \lost_cnt_r[6] \lost_cnt_r[7] }
+Changing input A of cell $shiftx$gate.v:0$896_gate ($shiftx): \pending_r_gate -> \pending_r
+Changing input A of cell $shiftx$gate.v:0$903_gate ($shiftx): \pending_r_gate -> \pending_r
+Changing input A of cell $shiftx$gate.v:0$910_gate ($shiftx): \pending_r_gate -> \pending_r
+Changing input A of cell $shiftx$gate.v:0$917_gate ($shiftx): \pending_r_gate -> \pending_r
+Changing input A of cell $shiftx$gate.v:0$924_gate ($shiftx): \pending_r_gate -> \pending_r
+Changing input A of cell $shiftx$gate.v:0$931_gate ($shiftx): \pending_r_gate -> \pending_r
+Changing input A of cell $shiftx$gate.v:0$938_gate ($shiftx): \pending_r_gate -> \pending_r
+Changing input A of cell $shiftx$gate.v:0$945_gate ($shiftx): \pending_r_gate -> \pending_r
+Changing input A of cell $shiftx$gate.v:0$993_gate ($shiftx): \coalesced_r_gate -> \coalesced_r
+Changing input B of cell $shiftx$gate.v:0$993_gate ($shiftx): \sel_r_gate -> \sel_r
+Changing input A of cell $sub$gate.v:0$858_gate ($sub): { 29'00000000000000000000000000000 \sel_r_gate } -> { 29'00000000000000000000000000000 \sel_r }
+Changing input A of cell $ternary$gate.v:105$947_gate ($mux): \sel_r_gate -> \sel_r
+Changing input A of cell $ternary$gate.v:77$865_gate ($mux): \ptr_r_gate -> \ptr_r
+Changing input S of cell $ternary$gate.v:77$865_gate ($mux): \valid_r_gate -> \valid_r
+Changing input A of cell $add$gate.v:135$957_gate ($add): \lost_cnt_r[0]_gate -> \lost_cnt_r[0]
+Changing input A of cell $add$gold.v:135$779_gold ($add): \lost_cnt_r[1]_gold -> \lost_cnt_r[1]
+Changing input A of cell $add$gold.v:135$783_gold ($add): \lost_cnt_r[2]_gold -> \lost_cnt_r[2]
+Changing input A of cell $add$gold.v:135$787_gold ($add): \lost_cnt_r[3]_gold -> \lost_cnt_r[3]
+Changing input A of cell $add$gold.v:135$791_gold ($add): \lost_cnt_r[4]_gold -> \lost_cnt_r[4]
+Changing input A of cell $add$gold.v:135$795_gold ($add): \lost_cnt_r[5]_gold -> \lost_cnt_r[5]
+Changing input A of cell $add$gold.v:135$799_gold ($add): \lost_cnt_r[6]_gold -> \lost_cnt_r[6]
+Changing input A of cell $add$gold.v:135$803_gold ($add): \lost_cnt_r[7]_gold -> \lost_cnt_r[7]
+Changing input A of cell $add$gold.v:68$809_gold ($add): \sel_r_gold -> \sel_r
+Changing input A of cell $add$gold.v:68$818_gold ($add): \sel_r_gold -> \sel_r
+Changing input A of cell $and$gold.v:0$682_gold ($and): \pending_r_gold -> \pending_r
+Changing input A of cell $eq$gold.v:68$808_gold ($eq): \sel_r_gold -> \sel_r
+Changing input A of cell $eq$gold.v:68$817_gold ($eq): \sel_r_gold -> \sel_r
+Changing input A of cell $logic_and$gold.v:155$812_gold ($logic_and): \valid_r_gold -> \valid_r
+Changing input A of cell $logic_and$gold.v:49$651_gold ($logic_and): \valid_r_gold -> \valid_r
+Changing input A of cell $logic_not$gold.v:127$772_gold ($logic_not): \pending_r_gold [0] -> \pending_r [0]
+Changing input A of cell $logic_not$gold.v:127$776_gold ($logic_not): \pending_r_gold [1] -> \pending_r [1]
+Changing input A of cell $logic_not$gold.v:127$780_gold ($logic_not): \pending_r_gold [2] -> \pending_r [2]
+Changing input A of cell $logic_not$gold.v:127$784_gold ($logic_not): \pending_r_gold [3] -> \pending_r [3]
+Changing input A of cell $logic_not$gold.v:127$788_gold ($logic_not): \pending_r_gold [4] -> \pending_r [4]
+Changing input A of cell $logic_not$gold.v:127$792_gold ($logic_not): \pending_r_gold [5] -> \pending_r [5]
+Changing input A of cell $logic_not$gold.v:127$796_gold ($logic_not): \pending_r_gold [6] -> \pending_r [6]
+Changing input A of cell $logic_not$gold.v:127$800_gold ($logic_not): \pending_r_gold [7] -> \pending_r [7]
+Changing input A of cell $logic_not$gold.v:143$804_gold ($logic_not): \valid_r_gold -> \valid_r
+Changing input B of cell $logic_or$gold.v:127$773_gold ($logic_or): \delivered_w_gold [0] -> \delivered_w [0]
+Changing input B of cell $logic_or$gold.v:127$777_gold ($logic_or): \delivered_w_gold [1] -> \delivered_w [1]
+Changing input B of cell $logic_or$gold.v:127$781_gold ($logic_or): \delivered_w_gold [2] -> \delivered_w [2]
+Changing input B of cell $logic_or$gold.v:127$785_gold ($logic_or): \delivered_w_gold [3] -> \delivered_w [3]
+Changing input B of cell $logic_or$gold.v:127$789_gold ($logic_or): \delivered_w_gold [4] -> \delivered_w [4]
+Changing input B of cell $logic_or$gold.v:127$793_gold ($logic_or): \delivered_w_gold [5] -> \delivered_w [5]
+Changing input B of cell $logic_or$gold.v:127$797_gold ($logic_or): \delivered_w_gold [6] -> \delivered_w [6]
+Changing input B of cell $logic_or$gold.v:127$801_gold ($logic_or): \delivered_w_gold [7] -> \delivered_w [7]
+Changing input A of cell $logic_or$gold.v:143$805_gold ($logic_or): \deliver_w_gold -> \deliver_w
+Changing input A of cell $ne$gold.v:134$774_gold ($ne): \lost_cnt_r[0]_gold -> \lost_cnt_r[0]
+Changing input A of cell $ne$gold.v:134$778_gold ($ne): \lost_cnt_r[1]_gold -> \lost_cnt_r[1]
+Changing input A of cell $ne$gold.v:134$782_gold ($ne): \lost_cnt_r[2]_gold -> \lost_cnt_r[2]
+Changing input A of cell $ne$gold.v:134$786_gold ($ne): \lost_cnt_r[3]_gold -> \lost_cnt_r[3]
+Changing input A of cell $ne$gold.v:134$790_gold ($ne): \lost_cnt_r[4]_gold -> \lost_cnt_r[4]
+Changing input A of cell $ne$gold.v:134$794_gold ($ne): \lost_cnt_r[5]_gold -> \lost_cnt_r[5]
+Changing input A of cell $ne$gold.v:134$798_gold ($ne): \lost_cnt_r[6]_gold -> \lost_cnt_r[6]
+Changing input A of cell $ne$gold.v:134$802_gold ($ne): \lost_cnt_r[7]_gold -> \lost_cnt_r[7]
+Changing input S of cell $procmux$1488_gold ($mux): \deliver_w_gold -> \deliver_w
+Changing input A of cell $procmux$1500_gold ($mux): \pending_r_gold -> \pending_r
+Changing input S of cell $procmux$1500_gold ($mux): \deliver_w_gold -> \deliver_w
+Changing input A of cell $procmux$1595_gold ($mux): \coalesced_r_gold [7] -> \coalesced_r [7]
+Changing input S of cell $procmux$1595_gold ($mux): \delivered_w_gold [7] -> \delivered_w [7]
+Changing input A of cell $procmux$1606_gold ($mux): \coalesced_r_gold [6] -> \coalesced_r [6]
+Changing input S of cell $procmux$1606_gold ($mux): \delivered_w_gold [6] -> \delivered_w [6]
+Changing input A of cell $procmux$1617_gold ($mux): \pending_r_gold [6] -> \pending_r [6]
+Changing input S of cell $procmux$1617_gold ($mux): \delivered_w_gold [6] -> \delivered_w [6]
+Changing input A of cell $procmux$1621_gold ($mux): \pending_r_gold [6] -> \pending_r [6]
+Changing input A of cell $procmux$1628_gold ($mux): \coalesced_r_gold [5] -> \coalesced_r [5]
+Changing input S of cell $procmux$1628_gold ($mux): \delivered_w_gold [5] -> \delivered_w [5]
+Changing input A of cell $procmux$1639_gold ($mux): \pending_r_gold [5] -> \pending_r [5]
+Changing input S of cell $procmux$1639_gold ($mux): \delivered_w_gold [5] -> \delivered_w [5]
+Changing input A of cell $procmux$1643_gold ($mux): \pending_r_gold [5] -> \pending_r [5]
+Changing input A of cell $procmux$1650_gold ($mux): \coalesced_r_gold [4] -> \coalesced_r [4]
+Changing input S of cell $procmux$1650_gold ($mux): \delivered_w_gold [4] -> \delivered_w [4]
+Changing input A of cell $procmux$1661_gold ($mux): \pending_r_gold [4] -> \pending_r [4]
+Changing input S of cell $procmux$1661_gold ($mux): \delivered_w_gold [4] -> \delivered_w [4]
+Changing input A of cell $procmux$1665_gold ($mux): \pending_r_gold [4] -> \pending_r [4]
+Changing input A of cell $procmux$1672_gold ($mux): \coalesced_r_gold [3] -> \coalesced_r [3]
+Changing input S of cell $procmux$1672_gold ($mux): \delivered_w_gold [3] -> \delivered_w [3]
+Changing input A of cell $procmux$1683_gold ($mux): \pending_r_gold [3] -> \pending_r [3]
+Changing input S of cell $procmux$1683_gold ($mux): \delivered_w_gold [3] -> \delivered_w [3]
+Changing input A of cell $procmux$1687_gold ($mux): \pending_r_gold [3] -> \pending_r [3]
+Changing input A of cell $procmux$1694_gold ($mux): \coalesced_r_gold [2] -> \coalesced_r [2]
+Changing input S of cell $procmux$1694_gold ($mux): \delivered_w_gold [2] -> \delivered_w [2]
+Changing input A of cell $procmux$1705_gold ($mux): \pending_r_gold [2] -> \pending_r [2]
+Changing input S of cell $procmux$1705_gold ($mux): \delivered_w_gold [2] -> \delivered_w [2]
+Changing input A of cell $procmux$1709_gold ($mux): \pending_r_gold [2] -> \pending_r [2]
+Changing input A of cell $procmux$1716_gold ($mux): \coalesced_r_gold [1] -> \coalesced_r [1]
+Changing input S of cell $procmux$1716_gold ($mux): \delivered_w_gold [1] -> \delivered_w [1]
+Changing input A of cell $procmux$1727_gold ($mux): \pending_r_gold [1] -> \pending_r [1]
+Changing input S of cell $procmux$1727_gold ($mux): \delivered_w_gold [1] -> \delivered_w [1]
+Changing input A of cell $procmux$1731_gold ($mux): \pending_r_gold [1] -> \pending_r [1]
+Changing input A of cell $procmux$1738_gold ($mux): \coalesced_r_gold [0] -> \coalesced_r [0]
+Changing input S of cell $procmux$1738_gold ($mux): \delivered_w_gold [0] -> \delivered_w [0]
+Changing input A of cell $procmux$1749_gold ($mux): \pending_r_gold [0] -> \pending_r [0]
+Changing input S of cell $procmux$1749_gold ($mux): \delivered_w_gold [0] -> \delivered_w [0]
+Changing input A of cell $procmux$1753_gold ($mux): \pending_r_gold [0] -> \pending_r [0]
+Changing input A of cell $procmux$1770_gold ($mux): \lost_cnt_r[7]_gold -> \lost_cnt_r[7]
+Changing input B of cell $procmux$1773_gold ($mux): \lost_cnt_r[7]_gold -> \lost_cnt_r[7]
+Changing input A of cell $procmux$1775_gold ($mux): \lost_cnt_r[7]_gold -> \lost_cnt_r[7]
+Changing input A of cell $procmux$1781_gold ($mux): \lost_cnt_r[6]_gold -> \lost_cnt_r[6]
+Changing input B of cell $procmux$1784_gold ($mux): \lost_cnt_r[6]_gold -> \lost_cnt_r[6]
+Changing input A of cell $procmux$1786_gold ($mux): \lost_cnt_r[6]_gold -> \lost_cnt_r[6]
+Changing input A of cell $procmux$1792_gold ($mux): \lost_cnt_r[5]_gold -> \lost_cnt_r[5]
+Changing input B of cell $procmux$1795_gold ($mux): \lost_cnt_r[5]_gold -> \lost_cnt_r[5]
+Changing input A of cell $procmux$1797_gold ($mux): \lost_cnt_r[5]_gold -> \lost_cnt_r[5]
+Changing input A of cell $procmux$1803_gold ($mux): \lost_cnt_r[4]_gold -> \lost_cnt_r[4]
+Changing input B of cell $procmux$1806_gold ($mux): \lost_cnt_r[4]_gold -> \lost_cnt_r[4]
+Changing input A of cell $procmux$1808_gold ($mux): \lost_cnt_r[4]_gold -> \lost_cnt_r[4]
+Changing input A of cell $procmux$1814_gold ($mux): \lost_cnt_r[3]_gold -> \lost_cnt_r[3]
+Changing input B of cell $procmux$1817_gold ($mux): \lost_cnt_r[3]_gold -> \lost_cnt_r[3]
+Changing input A of cell $procmux$1819_gold ($mux): \lost_cnt_r[3]_gold -> \lost_cnt_r[3]
+Changing input A of cell $procmux$1825_gold ($mux): \lost_cnt_r[2]_gold -> \lost_cnt_r[2]
+Changing input B of cell $procmux$1828_gold ($mux): \lost_cnt_r[2]_gold -> \lost_cnt_r[2]
+Changing input A of cell $procmux$1830_gold ($mux): \lost_cnt_r[2]_gold -> \lost_cnt_r[2]
+Changing input A of cell $procmux$1836_gold ($mux): \lost_cnt_r[1]_gold -> \lost_cnt_r[1]
+Changing input B of cell $procmux$1839_gold ($mux): \lost_cnt_r[1]_gold -> \lost_cnt_r[1]
+Changing input A of cell $procmux$1841_gold ($mux): \lost_cnt_r[1]_gold -> \lost_cnt_r[1]
+Changing input A of cell $procmux$1847_gold ($mux): \lost_cnt_r[0]_gold -> \lost_cnt_r[0]
+Changing input B of cell $procmux$1850_gold ($mux): \lost_cnt_r[0]_gold -> \lost_cnt_r[0]
+Changing input A of cell $procmux$1852_gold ($mux): \lost_cnt_r[0]_gold -> \lost_cnt_r[0]
+Changing input A of cell $procmux$1859_gold ($mux): \payload_r[7]_gold -> \payload_r[7]
+Changing input A of cell $procmux$1861_gold ($mux): \payload_r[7]_gold -> \payload_r[7]
+Changing input A of cell $procmux$1868_gold ($mux): \payload_r[6]_gold -> \payload_r[6]
+Changing input A of cell $procmux$1870_gold ($mux): \payload_r[6]_gold -> \payload_r[6]
+Changing input A of cell $procmux$1877_gold ($mux): \payload_r[5]_gold -> \payload_r[5]
+Changing input A of cell $procmux$1879_gold ($mux): \payload_r[5]_gold -> \payload_r[5]
+Changing input A of cell $procmux$1886_gold ($mux): \payload_r[4]_gold -> \payload_r[4]
+Changing input A of cell $procmux$1888_gold ($mux): \payload_r[4]_gold -> \payload_r[4]
+Changing input A of cell $procmux$1895_gold ($mux): \payload_r[3]_gold -> \payload_r[3]
+Changing input A of cell $procmux$1897_gold ($mux): \payload_r[3]_gold -> \payload_r[3]
+Changing input A of cell $procmux$1904_gold ($mux): \payload_r[2]_gold -> \payload_r[2]
+Changing input A of cell $procmux$1906_gold ($mux): \payload_r[2]_gold -> \payload_r[2]
+Changing input A of cell $procmux$1913_gold ($mux): \payload_r[1]_gold -> \payload_r[1]
+Changing input A of cell $procmux$1915_gold ($mux): \payload_r[1]_gold -> \payload_r[1]
+Changing input A of cell $procmux$1922_gold ($mux): \payload_r[0]_gold -> \payload_r[0]
+Changing input A of cell $procmux$1924_gold ($mux): \payload_r[0]_gold -> \payload_r[0]
+Changing input A of cell $procmux$1930_gold ($mux): \ptr_r_gold -> \ptr_r
+Changing input S of cell $procmux$1930_gold ($mux): \deliver_w_gold -> \deliver_w
+Changing input A of cell $procmux$1935_gold ($mux): \sel_r_gold -> \sel_r
+Changing input A of cell $procmux$1937_gold ($mux): \sel_r_gold -> \sel_r
+Changing input A of cell $procmux$1942_gold ($mux): \valid_r_gold -> \valid_r
+Changing input A of cell $procmux$1947_gold ($mux): \pending_r_gold [7] -> \pending_r [7]
+Changing input S of cell $procmux$1947_gold ($mux): \delivered_w_gold [7] -> \delivered_w [7]
+Changing input A of cell $procmux$1951_gold ($mux): \pending_r_gold [7] -> \pending_r [7]
+Changing input B of cell $procmux$1961_gold ($pmux): { \payload_r[0]_gold \payload_r[1]_gold \payload_r[2]_gold \payload_r[3]_gold \payload_r[4]_gold \payload_r[5]_gold \payload_r[6]_gold \payload_r[7]_gold } -> { \payload_r[0] \payload_r[1] \payload_r[2] \payload_r[3] \payload_r[4] \payload_r[5] \payload_r[6] \payload_r[7] }
+Changing input A of cell $procmux$1962_CMP0_gold ($eq): \sel_r_gold -> \sel_r
+Changing input A of cell $procmux$1963_CMP0_gold ($eq): \sel_r_gold -> \sel_r
+Changing input A of cell $procmux$1964_CMP0_gold ($eq): \sel_r_gold -> \sel_r
+Changing input A of cell $procmux$1965_CMP0_gold ($eq): \sel_r_gold -> \sel_r
+Changing input A of cell $procmux$1966_CMP0_gold ($eq): \sel_r_gold -> \sel_r
+Changing input A of cell $procmux$1967_CMP0_gold ($eq): \sel_r_gold -> \sel_r
+Changing input A of cell $procmux$1968_CMP0_gold ($eq): \sel_r_gold -> \sel_r
+Changing input A of cell $procmux$1969_CMP0_gold ($logic_not): \sel_r_gold -> \sel_r
+Changing input B of cell $procmux$1970_gold ($pmux): { \lost_cnt_r[0]_gold \lost_cnt_r[1]_gold \lost_cnt_r[2]_gold \lost_cnt_r[3]_gold \lost_cnt_r[4]_gold \lost_cnt_r[5]_gold \lost_cnt_r[6]_gold \lost_cnt_r[7]_gold } -> { \lost_cnt_r[0] \lost_cnt_r[1] \lost_cnt_r[2] \lost_cnt_r[3] \lost_cnt_r[4] \lost_cnt_r[5] \lost_cnt_r[6] \lost_cnt_r[7] }
+Changing input A of cell $shiftx$gold.v:0$811_gold ($shiftx): \coalesced_r_gold -> \coalesced_r
+Changing input B of cell $shiftx$gold.v:0$811_gold ($shiftx): \sel_r_gold -> \sel_r
+Changing input A of cell $sub$gold.v:0$662_gold ($sub): { 29'00000000000000000000000000000 \sel_r_gold } -> { 29'00000000000000000000000000000 \sel_r }
+Changing input A of cell $sub$gold.v:0$675_gold ($sub): { 29'00000000000000000000000000000 \sel_r_gold } -> { 29'00000000000000000000000000000 \sel_r }
+Changing input A of cell $sub$gold.v:0$678_gold ($sub): { 29'00000000000000000000000000000 \sel_r_gold } -> { 29'00000000000000000000000000000 \sel_r }
+Changing input A of cell $ternary$gold.v:79$684_gold ($mux): \ptr_r_gold -> \ptr_r
+Changing input S of cell $ternary$gold.v:79$684_gold ($mux): \deliver_w_gold -> \deliver_w
+Changing input A of cell $add$gold.v:135$775_gold ($add): \lost_cnt_r[0]_gold -> \lost_cnt_r[0]
+
+14. Executing HIERARCHY pass (managing design hierarchy).
+
+14.1. Analyzing design hierarchy..
+Top module:  \eq
+
+14.2. Analyzing design hierarchy..
+Top module:  \eq
+Removing unused module `\gate'.
+Removing unused module `\gold'.
+Removed 2 unused modules.
+
+15. Executing EQUIV_SIMPLE pass.
+Found 286 unproven $equiv cells (30 groups) in eq:
+  Trying to prove $equiv for \_sv2v_0: success!
+  Trying to prove $equiv for \evt_valid_o: failed.
+ Grouping SAT models for \evt_src_o:
+  Trying to prove $equiv for \evt_src_o [0]: failed.
+  Trying to prove $equiv for \evt_src_o [1]: failed.
+  Trying to prove $equiv for \evt_src_o [2]: failed.
+ Grouping SAT models for \evt_payload_o:
+  Trying to prove $equiv for \evt_payload_o [0]: success!
+  Trying to prove $equiv for \evt_payload_o [1]: success!
+  Trying to prove $equiv for \evt_payload_o [2]: success!
+  Trying to prove $equiv for \evt_payload_o [3]: success!
+  Trying to prove $equiv for \evt_payload_o [4]: success!
+  Trying to prove $equiv for \evt_payload_o [5]: success!
+  Trying to prove $equiv for \evt_payload_o [6]: success!
+  Trying to prove $equiv for \evt_payload_o [7]: success!
+  Trying to prove $equiv for \evt_payload_o [8]: success!
+  Trying to prove $equiv for \evt_payload_o [9]: success!
+  Trying to prove $equiv for \evt_payload_o [10]: success!
+  Trying to prove $equiv for \evt_payload_o [11]: success!
+  Trying to prove $equiv for \evt_payload_o [12]: success!
+  Trying to prove $equiv for \evt_payload_o [13]: success!
+  Trying to prove $equiv for \evt_payload_o [14]: success!
+  Trying to prove $equiv for \evt_payload_o [15]: success!
+  Trying to prove $equiv for \evt_lost_o: success!
+ Grouping SAT models for \lost_count_o:
+  Trying to prove $equiv for \lost_count_o [0]: success!
+  Trying to prove $equiv for \lost_count_o [1]: success!
+  Trying to prove $equiv for \lost_count_o [2]: success!
+  Trying to prove $equiv for \lost_count_o [3]: success!
+  Trying to prove $equiv for \lost_count_o [4]: success!
+  Trying to prove $equiv for \lost_count_o [5]: success!
+  Trying to prove $equiv for \lost_count_o [6]: success!
+  Trying to prove $equiv for \lost_count_o [7]: success!
+ Grouping SAT models for \pending_r:
+  Trying to prove $equiv for \pending_r [0]: failed.
+  Trying to prove $equiv for \pending_r [1]: failed.
+  Trying to prove $equiv for \pending_r [2]: failed.
+  Trying to prove $equiv for \pending_r [3]: failed.
+  Trying to prove $equiv for \pending_r [4]: failed.
+  Trying to prove $equiv for \pending_r [5]: failed.
+  Trying to prove $equiv for \pending_r [6]: failed.
+  Trying to prove $equiv for \pending_r [7]: failed.
+ Grouping SAT models for \coalesced_r:
+  Trying to prove $equiv for \coalesced_r [0]: failed.
+  Trying to prove $equiv for \coalesced_r [1]: failed.
+  Trying to prove $equiv for \coalesced_r [2]: failed.
+  Trying to prove $equiv for \coalesced_r [3]: failed.
+  Trying to prove $equiv for \coalesced_r [4]: failed.
+  Trying to prove $equiv for \coalesced_r [5]: failed.
+  Trying to prove $equiv for \coalesced_r [6]: failed.
+  Trying to prove $equiv for \coalesced_r [7]: failed.
+  Trying to prove $equiv for \valid_r: failed.
+ Grouping SAT models for \sel_r:
+  Trying to prove $equiv for \sel_r [0]: failed.
+  Trying to prove $equiv for \sel_r [1]: failed.
+  Trying to prove $equiv for \sel_r [2]: failed.
+ Grouping SAT models for \ptr_r:
+  Trying to prove $equiv for \ptr_r [0]: failed.
+  Trying to prove $equiv for \ptr_r [1]: failed.
+  Trying to prove $equiv for \ptr_r [2]: failed.
+  Trying to prove $equiv for \deliver_w: success!
+ Grouping SAT models for \delivered_w:
+  Trying to prove $equiv for \delivered_w [0]: success!
+  Trying to prove $equiv for \delivered_w [1]: success!
+  Trying to prove $equiv for \delivered_w [2]: success!
+  Trying to prove $equiv for \delivered_w [3]: success!
+  Trying to prove $equiv for \delivered_w [4]: success!
+  Trying to prove $equiv for \delivered_w [5]: success!
+  Trying to prove $equiv for \delivered_w [6]: success!
+  Trying to prove $equiv for \delivered_w [7]: success!
+ Grouping SAT models for \rr_scan.sv2v_autoblock_1.k:
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [0]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [1]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [2]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [3]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [4]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [5]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [6]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [7]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [8]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [9]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [10]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [11]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [12]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [13]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [14]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [15]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [16]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [17]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [18]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [19]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [20]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [21]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [22]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [23]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [24]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [25]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [26]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [27]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [28]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [29]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [30]: success!
+  Trying to prove $equiv for \rr_scan.sv2v_autoblock_1.k [31]: success!
+ Grouping SAT models for \payload_r[0]:
+  Trying to prove $equiv for \payload_r[0] [0]: failed.
+  Trying to prove $equiv for \payload_r[0] [1]: failed.
+  Trying to prove $equiv for \payload_r[0] [2]: failed.
+  Trying to prove $equiv for \payload_r[0] [3]: failed.
+  Trying to prove $equiv for \payload_r[0] [4]: failed.
+  Trying to prove $equiv for \payload_r[0] [5]: failed.
+  Trying to prove $equiv for \payload_r[0] [6]: failed.
+  Trying to prove $equiv for \payload_r[0] [7]: failed.
+  Trying to prove $equiv for \payload_r[0] [8]: failed.
+  Trying to prove $equiv for \payload_r[0] [9]: failed.
+  Trying to prove $equiv for \payload_r[0] [10]: failed.
+  Trying to prove $equiv for \payload_r[0] [11]: failed.
+  Trying to prove $equiv for \payload_r[0] [12]: failed.
+  Trying to prove $equiv for \payload_r[0] [13]: failed.
+  Trying to prove $equiv for \payload_r[0] [14]: failed.
+  Trying to prove $equiv for \payload_r[0] [15]: failed.
+ Grouping SAT models for \payload_r[1]:
+  Trying to prove $equiv for \payload_r[1] [0]: failed.
+  Trying to prove $equiv for \payload_r[1] [1]: failed.
+  Trying to prove $equiv for \payload_r[1] [2]: failed.
+  Trying to prove $equiv for \payload_r[1] [3]: failed.
+  Trying to prove $equiv for \payload_r[1] [4]: failed.
+  Trying to prove $equiv for \payload_r[1] [5]: failed.
+  Trying to prove $equiv for \payload_r[1] [6]: failed.
+  Trying to prove $equiv for \payload_r[1] [7]: failed.
+  Trying to prove $equiv for \payload_r[1] [8]: failed.
+  Trying to prove $equiv for \payload_r[1] [9]: failed.
+  Trying to prove $equiv for \payload_r[1] [10]: failed.
+  Trying to prove $equiv for \payload_r[1] [11]: failed.
+  Trying to prove $equiv for \payload_r[1] [12]: failed.
+  Trying to prove $equiv for \payload_r[1] [13]: failed.
+  Trying to prove $equiv for \payload_r[1] [14]: failed.
+  Trying to prove $equiv for \payload_r[1] [15]: failed.
+ Grouping SAT models for \payload_r[2]:
+  Trying to prove $equiv for \payload_r[2] [0]: failed.
+  Trying to prove $equiv for \payload_r[2] [1]: failed.
+  Trying to prove $equiv for \payload_r[2] [2]: failed.
+  Trying to prove $equiv for \payload_r[2] [3]: failed.
+  Trying to prove $equiv for \payload_r[2] [4]: failed.
+  Trying to prove $equiv for \payload_r[2] [5]: failed.
+  Trying to prove $equiv for \payload_r[2] [6]: failed.
+  Trying to prove $equiv for \payload_r[2] [7]: failed.
+  Trying to prove $equiv for \payload_r[2] [8]: failed.
+  Trying to prove $equiv for \payload_r[2] [9]: failed.
+  Trying to prove $equiv for \payload_r[2] [10]: failed.
+  Trying to prove $equiv for \payload_r[2] [11]: failed.
+  Trying to prove $equiv for \payload_r[2] [12]: failed.
+  Trying to prove $equiv for \payload_r[2] [13]: failed.
+  Trying to prove $equiv for \payload_r[2] [14]: failed.
+  Trying to prove $equiv for \payload_r[2] [15]: failed.
+ Grouping SAT models for \payload_r[3]:
+  Trying to prove $equiv for \payload_r[3] [0]: failed.
+  Trying to prove $equiv for \payload_r[3] [1]: failed.
+  Trying to prove $equiv for \payload_r[3] [2]: failed.
+  Trying to prove $equiv for \payload_r[3] [3]: failed.
+  Trying to prove $equiv for \payload_r[3] [4]: failed.
+  Trying to prove $equiv for \payload_r[3] [5]: failed.
+  Trying to prove $equiv for \payload_r[3] [6]: failed.
+  Trying to prove $equiv for \payload_r[3] [7]: failed.
+  Trying to prove $equiv for \payload_r[3] [8]: failed.
+  Trying to prove $equiv for \payload_r[3] [9]: failed.
+  Trying to prove $equiv for \payload_r[3] [10]: failed.
+  Trying to prove $equiv for \payload_r[3] [11]: failed.
+  Trying to prove $equiv for \payload_r[3] [12]: failed.
+  Trying to prove $equiv for \payload_r[3] [13]: failed.
+  Trying to prove $equiv for \payload_r[3] [14]: failed.
+  Trying to prove $equiv for \payload_r[3] [15]: failed.
+ Grouping SAT models for \payload_r[4]:
+  Trying to prove $equiv for \payload_r[4] [0]: failed.
+  Trying to prove $equiv for \payload_r[4] [1]: failed.
+  Trying to prove $equiv for \payload_r[4] [2]: failed.
+  Trying to prove $equiv for \payload_r[4] [3]: failed.
+  Trying to prove $equiv for \payload_r[4] [4]: failed.
+  Trying to prove $equiv for \payload_r[4] [5]: failed.
+  Trying to prove $equiv for \payload_r[4] [6]: failed.
+  Trying to prove $equiv for \payload_r[4] [7]: failed.
+  Trying to prove $equiv for \payload_r[4] [8]: failed.
+  Trying to prove $equiv for \payload_r[4] [9]: failed.
+  Trying to prove $equiv for \payload_r[4] [10]: failed.
+  Trying to prove $equiv for \payload_r[4] [11]: failed.
+  Trying to prove $equiv for \payload_r[4] [12]: failed.
+  Trying to prove $equiv for \payload_r[4] [13]: failed.
+  Trying to prove $equiv for \payload_r[4] [14]: failed.
+  Trying to prove $equiv for \payload_r[4] [15]: failed.
+ Grouping SAT models for \payload_r[5]:
+  Trying to prove $equiv for \payload_r[5] [0]: failed.
+  Trying to prove $equiv for \payload_r[5] [1]: failed.
+  Trying to prove $equiv for \payload_r[5] [2]: failed.
+  Trying to prove $equiv for \payload_r[5] [3]: failed.
+  Trying to prove $equiv for \payload_r[5] [4]: failed.
+  Trying to prove $equiv for \payload_r[5] [5]: failed.
+  Trying to prove $equiv for \payload_r[5] [6]: failed.
+  Trying to prove $equiv for \payload_r[5] [7]: failed.
+  Trying to prove $equiv for \payload_r[5] [8]: failed.
+  Trying to prove $equiv for \payload_r[5] [9]: failed.
+  Trying to prove $equiv for \payload_r[5] [10]: failed.
+  Trying to prove $equiv for \payload_r[5] [11]: failed.
+  Trying to prove $equiv for \payload_r[5] [12]: failed.
+  Trying to prove $equiv for \payload_r[5] [13]: failed.
+  Trying to prove $equiv for \payload_r[5] [14]: failed.
+  Trying to prove $equiv for \payload_r[5] [15]: failed.
+ Grouping SAT models for \payload_r[6]:
+  Trying to prove $equiv for \payload_r[6] [0]: failed.
+  Trying to prove $equiv for \payload_r[6] [1]: failed.
+  Trying to prove $equiv for \payload_r[6] [2]: failed.
+  Trying to prove $equiv for \payload_r[6] [3]: failed.
+  Trying to prove $equiv for \payload_r[6] [4]: failed.
+  Trying to prove $equiv for \payload_r[6] [5]: failed.
+  Trying to prove $equiv for \payload_r[6] [6]: failed.
+  Trying to prove $equiv for \payload_r[6] [7]: failed.
+  Trying to prove $equiv for \payload_r[6] [8]: failed.
+  Trying to prove $equiv for \payload_r[6] [9]: failed.
+  Trying to prove $equiv for \payload_r[6] [10]: failed.
+  Trying to prove $equiv for \payload_r[6] [11]: failed.
+  Trying to prove $equiv for \payload_r[6] [12]: failed.
+  Trying to prove $equiv for \payload_r[6] [13]: failed.
+  Trying to prove $equiv for \payload_r[6] [14]: failed.
+  Trying to prove $equiv for \payload_r[6] [15]: failed.
+ Grouping SAT models for \payload_r[7]:
+  Trying to prove $equiv for \payload_r[7] [0]: failed.
+  Trying to prove $equiv for \payload_r[7] [1]: failed.
+  Trying to prove $equiv for \payload_r[7] [2]: failed.
+  Trying to prove $equiv for \payload_r[7] [3]: failed.
+  Trying to prove $equiv for \payload_r[7] [4]: failed.
+  Trying to prove $equiv for \payload_r[7] [5]: failed.
+  Trying to prove $equiv for \payload_r[7] [6]: failed.
+  Trying to prove $equiv for \payload_r[7] [7]: failed.
+  Trying to prove $equiv for \payload_r[7] [8]: failed.
+  Trying to prove $equiv for \payload_r[7] [9]: failed.
+  Trying to prove $equiv for \payload_r[7] [10]: failed.
+  Trying to prove $equiv for \payload_r[7] [11]: failed.
+  Trying to prove $equiv for \payload_r[7] [12]: failed.
+  Trying to prove $equiv for \payload_r[7] [13]: failed.
+  Trying to prove $equiv for \payload_r[7] [14]: failed.
+  Trying to prove $equiv for \payload_r[7] [15]: failed.
+ Grouping SAT models for \lost_cnt_r[0]:
+  Trying to prove $equiv for \lost_cnt_r[0] [0]: failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [1]: failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [2]: failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [3]: failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [4]: failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [5]: failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [6]: failed.
+  Trying to prove $equiv for \lost_cnt_r[0] [7]: failed.
+ Grouping SAT models for \lost_cnt_r[1]:
+  Trying to prove $equiv for \lost_cnt_r[1] [0]: failed.
+  Trying to prove $equiv for \lost_cnt_r[1] [1]: failed.
+  Trying to prove $equiv for \lost_cnt_r[1] [2]: failed.
+  Trying to prove $equiv for \lost_cnt_r[1] [3]: failed.
+  Trying to prove $equiv for \lost_cnt_r[1] [4]: failed.
+  Trying to prove $equiv for \lost_cnt_r[1] [5]: failed.
+  Trying to prove $equiv for \lost_cnt_r[1] [6]: failed.
+  Trying to prove $equiv for \lost_cnt_r[1] [7]: failed.
+ Grouping SAT models for \lost_cnt_r[2]:
+  Trying to prove $equiv for \lost_cnt_r[2] [0]: failed.
+  Trying to prove $equiv for \lost_cnt_r[2] [1]: failed.
+  Trying to prove $equiv for \lost_cnt_r[2] [2]: failed.
+  Trying to prove $equiv for \lost_cnt_r[2] [3]: failed.
+  Trying to prove $equiv for \lost_cnt_r[2] [4]: failed.
+  Trying to prove $equiv for \lost_cnt_r[2] [5]: failed.
+  Trying to prove $equiv for \lost_cnt_r[2] [6]: failed.
+  Trying to prove $equiv for \lost_cnt_r[2] [7]: failed.
+ Grouping SAT models for \lost_cnt_r[3]:
+  Trying to prove $equiv for \lost_cnt_r[3] [0]: failed.
+  Trying to prove $equiv for \lost_cnt_r[3] [1]: failed.
+  Trying to prove $equiv for \lost_cnt_r[3] [2]: failed.
+  Trying to prove $equiv for \lost_cnt_r[3] [3]: failed.
+  Trying to prove $equiv for \lost_cnt_r[3] [4]: failed.
+  Trying to prove $equiv for \lost_cnt_r[3] [5]: failed.
+  Trying to prove $equiv for \lost_cnt_r[3] [6]: failed.
+  Trying to prove $equiv for \lost_cnt_r[3] [7]: failed.
+ Grouping SAT models for \lost_cnt_r[4]:
+  Trying to prove $equiv for \lost_cnt_r[4] [0]: failed.
+  Trying to prove $equiv for \lost_cnt_r[4] [1]: failed.
+  Trying to prove $equiv for \lost_cnt_r[4] [2]: failed.
+  Trying to prove $equiv for \lost_cnt_r[4] [3]: failed.
+  Trying to prove $equiv for \lost_cnt_r[4] [4]: failed.
+  Trying to prove $equiv for \lost_cnt_r[4] [5]: failed.
+  Trying to prove $equiv for \lost_cnt_r[4] [6]: failed.
+  Trying to prove $equiv for \lost_cnt_r[4] [7]: failed.
+ Grouping SAT models for \lost_cnt_r[5]:
+  Trying to prove $equiv for \lost_cnt_r[5] [0]: failed.
+  Trying to prove $equiv for \lost_cnt_r[5] [1]: failed.
+  Trying to prove $equiv for \lost_cnt_r[5] [2]: failed.
+  Trying to prove $equiv for \lost_cnt_r[5] [3]: failed.
+  Trying to prove $equiv for \lost_cnt_r[5] [4]: failed.
+  Trying to prove $equiv for \lost_cnt_r[5] [5]: failed.
+  Trying to prove $equiv for \lost_cnt_r[5] [6]: failed.
+  Trying to prove $equiv for \lost_cnt_r[5] [7]: failed.
+ Grouping SAT models for \lost_cnt_r[6]:
+  Trying to prove $equiv for \lost_cnt_r[6] [0]: failed.
+  Trying to prove $equiv for \lost_cnt_r[6] [1]: failed.
+  Trying to prove $equiv for \lost_cnt_r[6] [2]: failed.
+  Trying to prove $equiv for \lost_cnt_r[6] [3]: failed.
+  Trying to prove $equiv for \lost_cnt_r[6] [4]: failed.
+  Trying to prove $equiv for \lost_cnt_r[6] [5]: failed.
+  Trying to prove $equiv for \lost_cnt_r[6] [6]: failed.
+  Trying to prove $equiv for \lost_cnt_r[6] [7]: failed.
+ Grouping SAT models for \lost_cnt_r[7]:
+  Trying to prove $equiv for \lost_cnt_r[7] [0]: failed.
+  Trying to prove $equiv for \lost_cnt_r[7] [1]: failed.
+  Trying to prove $equiv for \lost_cnt_r[7] [2]: failed.
+  Trying to prove $equiv for \lost_cnt_r[7] [3]: failed.
+  Trying to prove $equiv for \lost_cnt_r[7] [4]: failed.
+  Trying to prove $equiv for \lost_cnt_r[7] [5]: failed.
+  Trying to prove $equiv for \lost_cnt_r[7] [6]: failed.
+  Trying to prove $equiv for \lost_cnt_r[7] [7]: failed.
+Proved 67 previously unproven $equiv cells.
+
+16. Executing EQUIV_INDUCT pass.
+Found 219 unproven $equiv cells in module eq:
+  Proving existence of base case for step 1. (81948 clauses over 30562 variables)
+  Proving induction step 1. (168195 clauses over 62413 variables)
+  Proof for induction step failed. Extending to next time step.
+  Proving existence of base case for step 2. (168196 clauses over 62413 variables)
+  Proving induction step 2. (254443 clauses over 94264 variables)
+  Proof for induction step failed. Trying to prove individual $equiv from workset.
+  Trying to prove $equiv for \payload_r[5] [2]: success!
+  Trying to prove $equiv for \payload_r[6] [15]: success!
+  Trying to prove $equiv for \payload_r[6] [1]: success!
+  Trying to prove $equiv for \payload_r[7] [0]: success!
+  Trying to prove $equiv for \lost_cnt_r[7] [3]: success!
+  Trying to prove $equiv for \pending_r [6]: success!
+  Trying to prove $equiv for \pending_r [2]: success!
+  Trying to prove $equiv for \evt_src_o [1]: success!
+  Trying to prove $equiv for \ptr_r [0]: success!
+  Trying to prove $equiv for \lost_cnt_r[3] [5]: success!
+  Trying to prove $equiv for \lost_cnt_r[1] [1]: success!
+  Trying to prove $equiv for \payload_r[3] [4]: success!
+  Trying to prove $equiv for \payload_r[2] [6]: success!
+  Trying to prove $equiv for \lost_cnt_r[3] [4]: success!
+  Trying to prove $equiv for \payload_r[2] [7]: success!
+  Trying to prove $equiv for \payload_r[3] [6]: success!
+  Trying to prove $equiv for \lost_cnt_r[0] [2]: success!
+  Trying to prove $equiv for \sel_r [2]: success!
+  Trying to prove $equiv for \lost_cnt_r[2] [1]: success!
+  Trying to prove $equiv for \payload_r[0] [9]: success!
+  Trying to prove $equiv for \payload_r[6] [6]: success!
+  Trying to prove $equiv for \payload_r[2] [13]: success!
+  Trying to prove $equiv for \lost_cnt_r[4] [6]: success!
+  Trying to prove $equiv for \payload_r[1] [1]: success!
+  Trying to prove $equiv for \payload_r[7] [9]: success!
+  Trying to prove $equiv for \payload_r[7] [14]: success!
+  Trying to prove $equiv for \lost_cnt_r[4] [2]: success!
+  Trying to prove $equiv for \lost_cnt_r[0] [7]: success!
+  Trying to prove $equiv for \lost_cnt_r[7] [1]: success!
+  Trying to prove $equiv for \lost_cnt_r[6] [7]: success!
+  Trying to prove $equiv for \lost_cnt_r[5] [1]: success!
+  Trying to prove $equiv for \payload_r[3] [13]: success!
+  Trying to prove $equiv for \payload_r[5] [10]: success!
+  Trying to prove $equiv for \payload_r[4] [5]: success!
+  Trying to prove $equiv for \lost_cnt_r[5] [7]: success!
+  Trying to prove $equiv for \lost_cnt_r[4] [3]: success!
+  Trying to prove $equiv for \payload_r[1] [14]: success!
+  Trying to prove $equiv for \payload_r[0] [1]: success!
+  Trying to prove $equiv for \payload_r[1] [0]: success!
+  Trying to prove $equiv for \coalesced_r [6]: success!
+  Trying to prove $equiv for \payload_r[5] [11]: success!
+  Trying to prove $equiv for \payload_r[4] [4]: success!
+  Trying to prove $equiv for \payload_r[7] [10]: success!
+  Trying to prove $equiv for \payload_r[7] [4]: success!
+  Trying to prove $equiv for \pending_r [1]: success!
+  Trying to prove $equiv for \lost_cnt_r[7] [2]: success!
+  Trying to prove $equiv for \payload_r[6] [2]: success!
+  Trying to prove $equiv for \payload_r[7] [12]: success!
+  Trying to prove $equiv for \lost_cnt_r[4] [4]: success!
+  Trying to prove $equiv for \payload_r[0] [13]: success!
+  Trying to prove $equiv for \lost_cnt_r[2] [2]: success!
+  Trying to prove $equiv for \payload_r[4] [7]: success!
+  Trying to prove $equiv for \evt_valid_o: failed.
+  Trying to prove $equiv for \payload_r[0] [0]: success!
+  Trying to prove $equiv for \payload_r[3] [5]: success!
+  Trying to prove $equiv for \coalesced_r [0]: success!
+  Trying to prove $equiv for \payload_r[3] [14]: success!
+  Trying to prove $equiv for \payload_r[3] [8]: success!
+  Trying to prove $equiv for \payload_r[5] [5]: success!
+  Trying to prove $equiv for \payload_r[4] [8]: success!
+  Trying to prove $equiv for \lost_cnt_r[5] [4]: success!
+  Trying to prove $equiv for \payload_r[0] [6]: success!
+  Trying to prove $equiv for \payload_r[2] [0]: success!
+  Trying to prove $equiv for \payload_r[0] [12]: success!
+  Trying to prove $equiv for \payload_r[0] [7]: success!
+  Trying to prove $equiv for \coalesced_r [1]: success!
+  Trying to prove $equiv for \pending_r [7]: success!
+  Trying to prove $equiv for \lost_cnt_r[1] [6]: success!
+  Trying to prove $equiv for \lost_cnt_r[4] [5]: success!
+  Trying to prove $equiv for \payload_r[5] [0]: success!
+  Trying to prove $equiv for \coalesced_r [7]: success!
+  Trying to prove $equiv for \payload_r[5] [12]: success!
+  Trying to prove $equiv for \payload_r[1] [9]: success!
+  Trying to prove $equiv for \payload_r[3] [10]: success!
+  Trying to prove $equiv for \payload_r[3] [2]: success!
+  Trying to prove $equiv for \payload_r[2] [15]: success!
+  Trying to prove $equiv for \lost_cnt_r[7] [0]: success!
+  Trying to prove $equiv for \payload_r[7] [1]: success!
+  Trying to prove $equiv for \payload_r[1] [8]: success!
+  Trying to prove $equiv for \lost_cnt_r[5] [3]: success!
+  Trying to prove $equiv for \lost_cnt_r[2] [5]: success!
+  Trying to prove $equiv for \payload_r[5] [6]: success!
+  Trying to prove $equiv for \payload_r[7] [6]: success!
+  Trying to prove $equiv for \payload_r[6] [3]: success!
+  Trying to prove $equiv for \payload_r[7] [15]: success!
+  Trying to prove $equiv for \payload_r[1] [10]: success!
+  Trying to prove $equiv for \lost_cnt_r[1] [7]: success!
+  Trying to prove $equiv for \lost_cnt_r[6] [1]: success!
+  Trying to prove $equiv for \payload_r[4] [1]: success!
+  Trying to prove $equiv for \payload_r[2] [8]: success!
+  Trying to prove $equiv for \lost_cnt_r[2] [3]: success!
+  Trying to prove $equiv for \lost_cnt_r[4] [1]: success!
+  Trying to prove $equiv for \payload_r[2] [1]: success!
+  Trying to prove $equiv for \payload_r[6] [4]: success!
+  Trying to prove $equiv for \payload_r[1] [11]: success!
+  Trying to prove $equiv for \lost_cnt_r[6] [3]: success!
+  Trying to prove $equiv for \coalesced_r [4]: success!
+  Trying to prove $equiv for \lost_cnt_r[7] [6]: success!
+  Trying to prove $equiv for \lost_cnt_r[5] [6]: success!
+  Trying to prove $equiv for \lost_cnt_r[6] [4]: success!
+  Trying to prove $equiv for \payload_r[2] [4]: success!
+  Trying to prove $equiv for \lost_cnt_r[0] [6]: success!
+  Trying to prove $equiv for \payload_r[3] [3]: success!
+  Trying to prove $equiv for \lost_cnt_r[5] [5]: success!
+  Trying to prove $equiv for \payload_r[6] [12]: success!
+  Trying to prove $equiv for \payload_r[1] [2]: success!
+  Trying to prove $equiv for \pending_r [4]: success!
+  Trying to prove $equiv for \payload_r[6] [13]: success!
+  Trying to prove $equiv for \lost_cnt_r[1] [3]: success!
+  Trying to prove $equiv for \payload_r[5] [4]: success!
+  Trying to prove $equiv for \payload_r[5] [7]: success!
+  Trying to prove $equiv for \lost_cnt_r[6] [6]: success!
+  Trying to prove $equiv for \payload_r[4] [14]: success!
+  Trying to prove $equiv for \lost_cnt_r[7] [7]: success!
+  Trying to prove $equiv for \lost_cnt_r[6] [0]: success!
+  Trying to prove $equiv for \evt_src_o [2]: success!
+  Trying to prove $equiv for \payload_r[0] [5]: success!
+  Trying to prove $equiv for \lost_cnt_r[0] [3]: success!
+  Trying to prove $equiv for \payload_r[2] [5]: success!
+  Trying to prove $equiv for \lost_cnt_r[3] [3]: success!
+  Trying to prove $equiv for \lost_cnt_r[2] [4]: success!
+  Trying to prove $equiv for \payload_r[2] [2]: success!
+  Trying to prove $equiv for \lost_cnt_r[0] [1]: success!
+  Trying to prove $equiv for \payload_r[4] [0]: success!
+  Trying to prove $equiv for \lost_cnt_r[5] [2]: success!
+  Trying to prove $equiv for \payload_r[7] [13]: success!
+  Trying to prove $equiv for \sel_r [1]: success!
+  Trying to prove $equiv for \payload_r[2] [12]: success!
+  Trying to prove $equiv for \lost_cnt_r[3] [6]: success!
+  Trying to prove $equiv for \payload_r[3] [1]: success!
+  Trying to prove $equiv for \payload_r[2] [9]: success!
+  Trying to prove $equiv for \payload_r[1] [15]: success!
+  Trying to prove $equiv for \payload_r[0] [11]: success!
+  Trying to prove $equiv for \payload_r[6] [0]: success!
+  Trying to prove $equiv for \payload_r[3] [9]: success!
+  Trying to prove $equiv for \payload_r[5] [3]: success!
+  Trying to prove $equiv for \ptr_r [1]: success!
+  Trying to prove $equiv for \lost_cnt_r[3] [1]: success!
+  Trying to prove $equiv for \ptr_r [2]: success!
+  Trying to prove $equiv for \lost_cnt_r[4] [0]: success!
+  Trying to prove $equiv for \lost_cnt_r[2] [7]: success!
+  Trying to prove $equiv for \payload_r[4] [12]: success!
+  Trying to prove $equiv for \payload_r[4] [9]: success!
+  Trying to prove $equiv for \lost_cnt_r[0] [0]: success!
+  Trying to prove $equiv for \payload_r[3] [7]: success!
+  Trying to prove $equiv for \payload_r[7] [7]: success!
+  Trying to prove $equiv for \payload_r[0] [3]: success!
+  Trying to prove $equiv for \lost_cnt_r[0] [4]: success!
+  Trying to prove $equiv for \payload_r[0] [4]: success!
+  Trying to prove $equiv for \lost_cnt_r[2] [0]: success!
+  Trying to prove $equiv for \payload_r[1] [13]: success!
+  Trying to prove $equiv for \payload_r[3] [0]: success!
+  Trying to prove $equiv for \lost_cnt_r[7] [4]: success!
+  Trying to prove $equiv for \payload_r[2] [10]: success!
+  Trying to prove $equiv for \payload_r[6] [5]: success!
+  Trying to prove $equiv for \payload_r[4] [13]: success!
+  Trying to prove $equiv for \payload_r[4] [3]: success!
+  Trying to prove $equiv for \payload_r[0] [10]: success!
+  Trying to prove $equiv for \payload_r[5] [14]: success!
+  Trying to prove $equiv for \payload_r[2] [3]: success!
+  Trying to prove $equiv for \payload_r[3] [15]: success!
+  Trying to prove $equiv for \lost_cnt_r[3] [7]: success!
+  Trying to prove $equiv for \payload_r[7] [5]: success!
+  Trying to prove $equiv for \payload_r[5] [1]: success!
+  Trying to prove $equiv for \payload_r[6] [8]: success!
+  Trying to prove $equiv for \payload_r[6] [11]: success!
+  Trying to prove $equiv for \payload_r[5] [15]: success!
+  Trying to prove $equiv for \lost_cnt_r[2] [6]: success!
+  Trying to prove $equiv for \payload_r[7] [2]: success!
+  Trying to prove $equiv for \payload_r[4] [11]: success!
+  Trying to prove $equiv for \payload_r[3] [12]: success!
+  Trying to prove $equiv for \payload_r[5] [8]: success!
+  Trying to prove $equiv for \pending_r [0]: success!
+  Trying to prove $equiv for \payload_r[0] [2]: success!
+  Trying to prove $equiv for \lost_cnt_r[0] [5]: success!
+  Trying to prove $equiv for \payload_r[5] [9]: success!
+  Trying to prove $equiv for \payload_r[5] [13]: success!
+  Trying to prove $equiv for \pending_r [3]: success!
+  Trying to prove $equiv for \payload_r[7] [11]: success!
+  Trying to prove $equiv for \payload_r[7] [8]: success!
+  Trying to prove $equiv for \payload_r[0] [14]: success!
+  Trying to prove $equiv for \lost_cnt_r[7] [5]: success!
+  Trying to prove $equiv for \payload_r[1] [12]: success!
+  Trying to prove $equiv for \payload_r[6] [10]: success!
+  Trying to prove $equiv for \lost_cnt_r[1] [0]: success!
+  Trying to prove $equiv for \payload_r[4] [10]: success!
+  Trying to prove $equiv for \lost_cnt_r[1] [4]: success!
+  Trying to prove $equiv for \payload_r[3] [11]: success!
+  Trying to prove $equiv for \evt_src_o [0]: success!
+  Trying to prove $equiv for \sel_r [0]: success!
+  Trying to prove $equiv for \payload_r[0] [8]: success!
+  Trying to prove $equiv for \payload_r[7] [3]: success!
+  Trying to prove $equiv for \lost_cnt_r[6] [5]: success!
+  Trying to prove $equiv for \payload_r[6] [9]: success!
+  Trying to prove $equiv for \lost_cnt_r[3] [0]: success!
+  Trying to prove $equiv for \payload_r[6] [14]: success!
+  Trying to prove $equiv for \payload_r[4] [15]: success!
+  Trying to prove $equiv for \lost_cnt_r[1] [2]: success!
+  Trying to prove $equiv for \payload_r[1] [3]: success!
+  Trying to prove $equiv for \payload_r[2] [14]: success!
+  Trying to prove $equiv for \payload_r[2] [11]: success!
+  Trying to prove $equiv for \coalesced_r [3]: success!
+  Trying to prove $equiv for \payload_r[1] [7]: success!
+  Trying to prove $equiv for \payload_r[4] [2]: success!
+  Trying to prove $equiv for \lost_cnt_r[6] [2]: success!
+  Trying to prove $equiv for \coalesced_r [5]: success!
+  Trying to prove $equiv for \payload_r[0] [15]: success!
+  Trying to prove $equiv for \valid_r: failed.
+  Trying to prove $equiv for \payload_r[6] [7]: success!
+  Trying to prove $equiv for \lost_cnt_r[5] [0]: success!
+  Trying to prove $equiv for \payload_r[1] [4]: success!
+  Trying to prove $equiv for \payload_r[1] [6]: success!
+  Trying to prove $equiv for \lost_cnt_r[4] [7]: success!
+  Trying to prove $equiv for \lost_cnt_r[1] [5]: success!
+  Trying to prove $equiv for \pending_r [5]: success!
+  Trying to prove $equiv for \lost_cnt_r[3] [2]: success!
+  Trying to prove $equiv for \payload_r[1] [5]: success!
+  Trying to prove $equiv for \coalesced_r [2]: success!
+  Trying to prove $equiv for \payload_r[4] [6]: success!
+Proved 217 previously unproven $equiv cells.
+
+17. Executing EQUIV_STATUS pass.
+Found 286 $equiv cells in eq:
+  Of those cells 284 are proven and 2 are unproven.
+  Unproven $equiv $auto$equiv_make.cc:294:find_same_wires$2314: \valid_r_gold \valid_r_gate
+  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$2067: \evt_valid_o_gold \evt_valid_o_gate
+Found a total of 2 unproven $equiv cells.
+ERROR: Found 2 unproven $equiv cells in 'equiv_status -assert'.

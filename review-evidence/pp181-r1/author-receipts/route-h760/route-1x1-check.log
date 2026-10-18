@@ -1,0 +1,25 @@
+endpoint route-1x1: <data>/tmp/pp181-a635/route-h760/work/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              49613       49601       -12  ok, below the baseline
+FF               52353       52362         9  ok
+SLICE            15725       15655       -70  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              25          25         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.215       0.144    -0.071  ok
+WHS_ns           0.036       0.036       0.0  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT +101, FF +0
+  u_pp: LUT +98, FF +0
+  u_pp/u_ca_builder: LUT +93, FF +0
+  u_pp/u_originator: LUT -90, FF +0
+  u_pp/u_aecp: LUT +65, FF +0
+  u_pp/u_aecp/u_dyn: LUT +64, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +53, FF +0
+  u_pp/u_rx_validator: LUT +45, FF +0
+  u_pp/u_aecp/u_d3: LUT +34, FF +0
+  u_pp/u_aecp/u_store: LUT -31, FF +0
+  u_pp/u_srp/u_listener: LUT +26, FF +0
+  u_pp/u_timer: LUT -20, FF +0
+RESULT: PASS

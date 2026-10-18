@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1499,7 +1499,7 @@
+       //! GET_TX_STATE, GET_TX_CONNECTION and GET_RX_STATE are reads (F03.7
+       //! RO_SNAPSHOT); every other step is the stream's STREAM_CFG
+       if (hz_acmp_tkr_w) begin
+-        hz_key_w   = hz_key(HZ_DT_STREAM_OUT_C, hdr_operands_r[15:0]);
++        hz_key_w   = hz_key(HZ_DT_STREAM_IN_C, hdr_operands_r[15:0]);
+         hz_class_w = ((hdr_msg_type_r == 4'd4) || (hdr_msg_type_r == 4'd12))
+                      ? 4'(PP_HZ_RO_SNAPSHOT) : 4'(PP_HZ_STREAM_CFG);
+       end else begin

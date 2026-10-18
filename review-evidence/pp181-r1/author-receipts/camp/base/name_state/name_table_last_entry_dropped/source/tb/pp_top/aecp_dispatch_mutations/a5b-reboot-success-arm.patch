@@ -1,0 +1,12 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1250,6 +1250,9 @@
+                      || ((txn_w.opcode == OP_GET_COUNTERS_C) && short_ct_w)
+                      || ((txn_w.opcode == OP_GET_AUDIO_MAP_C) && short_am_w))) begin
+       upc_w  = UPC_BADARG_C;
++      echo_w = 1'b1;
++    end else if (aem_w && (txn_w.opcode == 16'h002A)) begin
++      upc_w  = UPC_UNSOK_C;
+       echo_w = 1'b1;
+     end else begin
+       upc_w  = UPC_NOTIMPL_C;

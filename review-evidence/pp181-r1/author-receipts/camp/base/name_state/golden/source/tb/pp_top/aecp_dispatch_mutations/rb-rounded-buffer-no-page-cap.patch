@@ -1,0 +1,31 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -900,7 +900,7 @@
+   //! RESP_BASE_P (07 §3.3.2), and it bounds every response write: the buffer
+   //! drops a byte at or past it, and the Δ8 APPEND stops at it. The line is a
+   //! multiple of 8 (below), so the buffer is whole 8-byte memory lanes.
+-  localparam int unsigned RESP_BUF_C   = 16 + LINE_BYTES_P;
++  localparam int unsigned RESP_BUF_C   = ((16 + LINE_BYTES_P) + 15) & ~32'd15;
+   localparam int unsigned PLD_MAX_C    = RESP_BUF_C - 12;
+   localparam int unsigned FRAME_MAX_C  = FRAME_HDR_C + PLD_MAX_C;
+   //! the bytes the µCPU's 10-bit response cursor addresses
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -920,7 +920,7 @@
+       imm=GAMAP_PAGE_MAX + 1),
+     u('BR_STATUS', cnd=3, imm=E_GAMAP + 9),
+     u('MOVE', rd=10, ra=0, imm=0xFFFF),          # above it: number_of_mappings
+-    u('SET_MASKED', rd=6, ra=12, rb=10),         # := 0, and no record emitted
++    u('NOP'),                                    # := 0, and no record emitted
+     u('BR_STATUS', cnd=0, imm=GAMAP_EMIT),       # E_GAMAP + 9, NSD: the emit
+     u('SET_STATUS', imm=ST_OK),
+     u('CHECK_ARG', ra=5, rb=12, fmt=FMT_W,       # number_of_maps != 0;
+@@ -928,7 +928,7 @@
+     u('CHECK_ARG', ra=13, rb=5, fmt=FMT_W,       # map_index < number_of_maps
+       cnd=REL_LT, imm=GAMAP_EMIT),               # else BAD_ARGUMENTS (§7.4.44.1)
+     u('BR_STATUS', cnd=3, imm=GAMAP_EMIT),       # the page fits (lt of +5)
+-    u('SET_STATUS', imm=ST_NORES),               # it does not: NO_RESOURCES
++    u('NOP'),                                    # it does not: NO_RESOURCES
+     u('BUILD_HDR', ra=15, rb=13),                # GAMAP_EMIT, all statuses:
+     u('BUILD_FLD', ra=8, fmt=FMT_W),             # descriptor_type       @24
+     u('BUILD_FLD', ra=13, fmt=FMT_D),            # descriptor_index @26 + map_index @28

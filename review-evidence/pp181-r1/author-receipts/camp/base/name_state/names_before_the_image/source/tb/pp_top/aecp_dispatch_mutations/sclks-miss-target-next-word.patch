@@ -1,0 +1,11 @@
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1675,7 +1675,7 @@ place(E_SCLKS, [
+     u('MOVE', rd=2, ra=0, imm=0),                # reserved @30, and the refusals
+     u('MOVE', rd=6, ra=0, imm=0),                # the current index, 0 until read
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # does the Clock Domain exist?
+-    u('BR_STATUS', cnd=0, imm=SCLKS_REFUSE),     # miss -> the lock, then NSD
++    u('BR_STATUS', cnd=0, imm=SCLKS_REFUSE + 1), # miss -> the lock, then NSD
+     u('READ_ST', rd=3, imm=RGN_DYNV + SEL_CLKSRC),
+     u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+     u('READ_ST', rd=6, imm=RGN_DATA + CD_SRCIDX_LANE),   # the image's index

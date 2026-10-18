@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -1169,7 +1169,7 @@
+                   && (txn_w.opcode == OP_GET_COUNTERS_C) && !short_ct_w;
+   assign amap_w = aem_w
+                   && (txn_w.opcode == OP_GET_AUDIO_MAP_C) && !short_am_w;
+-  assign gdi_w  = aem_w && (txn_w.opcode == OP_GET_DYNAMIC_INFO_C);
++  assign gdi_w  = (txn_w.opcode == OP_GET_DYNAMIC_INFO_C);
+   //! The editing pair is re-dispatched after the payload walk, when the
+   //! descriptor type, record count and exact variable length are registered.
+   //! Keeping it out of this pop-time mux preserves the measured ROM-address

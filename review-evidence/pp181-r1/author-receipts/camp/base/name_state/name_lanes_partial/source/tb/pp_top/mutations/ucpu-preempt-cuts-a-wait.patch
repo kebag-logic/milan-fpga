@@ -1,0 +1,11 @@
+--- a/hdl/aecp/KL_aecp_ucpu.sv
++++ b/hdl/aecp/KL_aecp_ucpu.sv
+@@ -482,7 +482,7 @@
+                                         OP_SEND_RESP, OP_END};
+   assign pre_go_w  = preempt_i && (ms_r == S_RUN) && !pre_taken_r
+                      && !pre_seen_r
+-                     && (!vld_e_r || (advance_e_w && !pre_eff_w));
++                     && (!vld_e_r || !pre_eff_w);
+ 
+   // --------------------------------------------------------- W writeback
+   always_comb begin : writeback_mux

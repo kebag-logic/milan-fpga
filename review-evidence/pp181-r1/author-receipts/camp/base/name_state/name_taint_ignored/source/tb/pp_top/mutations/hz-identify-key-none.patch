@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1540,7 +1540,7 @@
+         end
+         16'h0018: begin                        // SET_CONTROL (identify)
+           hz_class_w = 4'(PP_HZ_IDENTIFY);
+-          hz_key_w   = hz_dkey_w;
++          hz_key_w   = HZ_KEY_NONE_C;
+         end
+         //! the GETs with the {descriptor_type @24, descriptor_index @26} shape
+         16'h0009, 16'h000F, 16'h0011, 16'h0015, 16'h0017, 16'h0019,
