@@ -1,0 +1,19 @@
+## gate base-camp-srp_admission
+## dir <scratch>/r2/export-base/tb/srp_admission
+## cmd python3 mutants.py --output <scratch>/r2/out/base/srp_admission --jobs 3
+## head 
+## start 2026-10-18T20:57:09+02:00
+control admission-2: rc=0 PASS
+control admission-8: rc=0 PASS
+control srp-top: rc=0 PASS
+stale-evaluation admission-2: rc=2 PASS
+stale-evaluation admission-8: rc=2 PASS
+stale-evaluation srp-top: rc=2 PASS
+pending-absent admission-2: rc=2 PASS
+pending-absent admission-8: rc=2 PASS
+pending-absent srp-top: rc=2 PASS
+discarded-round-strobes admission-2: rc=2 PASS
+discarded-round-strobes admission-8: rc=2 PASS
+discarded-round-strobes srp-top: rc=2 PASS
+12 checks: 12 PASS, 0 FAIL
+## end 2026-10-18T21:06:26+02:00 rc 0

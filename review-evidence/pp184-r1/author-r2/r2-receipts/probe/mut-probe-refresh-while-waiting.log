@@ -1,0 +1,22 @@
+## gate mut-probe-refresh-while-waiting
+## dir <scratch>/r2
+## cmd <scratch>/r2/probe/run.sh <scratch>/r2/probe-mut/refresh-while-waiting <scratch>/r2/build-probe-refresh-while-waiting
+## head 
+## start 2026-10-18T20:35:15+02:00
+Verilator 5.050 2026-07-01 rev v5.050
+77d8b5c6c9030c7e4e0c84529dabba3868f5d4e907c9bcf2b5b0aabbf55e9422  <scratch>/r2/probe-mut/refresh-while-waiting/hdl/srp/KL_srp_domain.sv
+45a4f67d182ed11a487d47af10a309d1c1c4d06b89f445418df8f644996b9c0f  <scratch>/r2/probe/probe.cpp
+PASS: B1a registered: the queued re-join is JoinIn
+FAIL: B1b a peer Lv while it waits leaves the queued JoinIn
+PASS: B1c the encoder accepts the queued event
+PASS: B1d the next fresh re-join after the Lv is JoinMt
+PASS: B2a no registration: the queued re-join is JoinMt
+FAIL: B2b a peer JoinIn while it waits leaves the queued JoinMt
+PASS: B2c the next fresh re-join after the JoinIn is JoinIn
+PASS: B3a the re-join is pending, not yet queued
+PASS: B3b an Lv on the enqueue edge: queued JoinIn
+PASS: B3c the subsequent re-join is JoinMt
+PASS: B4 the queued re-join waits 200000 clocks while ready stays low
+PASS: B4b and is accepted once ready rises
+probe: 10 PASS, 2 FAIL
+## end 2026-10-18T20:35:24+02:00 rc 1
