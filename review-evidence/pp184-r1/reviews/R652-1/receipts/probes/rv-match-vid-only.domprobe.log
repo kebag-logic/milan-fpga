@@ -1,0 +1,36 @@
+PASS: P1 link rise: one New of the default Domain {6,3,2}
+PASS: P2 no peer: periodic re-join JoinMt
+  P2 events: (3,06030002)
+PASS: P3 peer declares {6,3,2}: periodic re-join JoinIn
+  P3 events: (1,06030002)
+PASS: P4 peer Lv {6,3,2}: IN -> MT at once, next re-join JoinMt
+  P4 events: (3,06030002)
+PASS: P5 received LeaveAll, peer silent: LA re-join JoinMt (LV)
+  P5 events: (3,06030002)
+PASS: P5b still LV: periodic re-join JoinMt
+  P5b events: (3,06030002)
+PASS: P6 peer re-declares: JoinIn
+  P6 events: (1,06030002)
+PASS: P7 Lv of {6,3,9} (same prio, other VID) leaves IN
+  P7 events: (1,06030002)
+FAIL: P8 Lv of {6,4,2} (other prio, same VID) leaves IN
+  P8 events: (3,06030002)
+PASS: P9 Lv of the two-class vector {5,2,2} NoV 2 (surfaces {6,3,2}): JoinMt
+  P9 events: (3,06030002)
+PASS: P10 two-class vector {5,2,2} NoV 2 registers {6,3,2}, no adoption: JoinIn
+  P10 events: (1,06030002)
+PASS: P11 class-B-only vector {5,2,2} NoV 1 is not Class A: nothing changes
+  P11 events: (1,06030002)
+PASS: P12 own LeaveAll: re-join JoinMt
+  P12 events: (3,06030002)
+PASS: P13 differing Domain {6,5,7}: Lv old, New adopted, prio 5 VID 7, one DOMAIN_CHANGE
+  P13 events: (5,06030002) (0,06050007)
+PASS: P14 adopted value registered by its declaration: JoinIn
+  P14 events: (1,06050007)
+PASS: P15 Lv of the adopted value: JoinMt, adoption kept until LINK_DOWN
+  P15 events: (3,06050007)
+PASS: P16 LINK_DOWN/LINK_UP: revert to defaults, New, then JoinMt
+  P16 events: (0,06030002) (3,06030002)
+OBS-a tx! inside the peer LeaveAll MRPDU before its Domain value: (3,06030002) 
+OBS-b received LeaveAll on a tx! clock, Domain value 4 clocks later: (3,06030002) 
+17 checks: 16 PASS, 1 FAIL

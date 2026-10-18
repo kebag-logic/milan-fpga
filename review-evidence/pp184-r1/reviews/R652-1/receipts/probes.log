@@ -1,0 +1,21 @@
+rv-match-prio-only: srp_encoder rc=0 593 checks: 593 PASS, 0 FAIL
+rv-match-prio-only: srp_top domjoin rc=0 4 checks: 4 PASS, 0 FAIL
+rv-match-prio-only: reviewer bench rc=1 17 checks: 15 PASS, 2 FAIL
+    FAIL: P7 Lv of {6,3,9} (same prio, other VID) leaves IN
+    FAIL: P8 Lv of {6,4,2} (other prio, same VID) leaves IN
+rv-match-vid-only: srp_encoder rc=0 593 checks: 593 PASS, 0 FAIL
+rv-match-vid-only: srp_top domjoin rc=0 4 checks: 4 PASS, 0 FAIL
+rv-match-vid-only: reviewer bench rc=1 17 checks: 16 PASS, 1 FAIL
+    FAIL: P8 Lv of {6,4,2} (other prio, same VID) leaves IN
+rv-rx-leaveall-keeps-in: srp_encoder rc=2 593 checks: 592 PASS, 1 FAIL
+    FAIL: D8 re-joins carry the ADOPTED declaration
+rv-rx-leaveall-keeps-in: srp_top domjoin rc=0 4 checks: 4 PASS, 0 FAIL
+rv-rx-leaveall-keeps-in: reviewer bench rc=1 17 checks: 15 PASS, 2 FAIL
+    FAIL: P5 received LeaveAll, peer silent: LA re-join JoinMt (LV)
+    FAIL: P5b still LV: periodic re-join JoinMt
+rv-top-lv-any-type: srp_encoder rc=0 593 checks: 593 PASS, 0 FAIL
+rv-top-lv-any-type: srp_top domjoin rc=0 4 checks: 4 PASS, 0 FAIL
+rv-top-lv-any-type: reviewer bench rc=0 17 checks: 17 PASS, 0 FAIL
+rv-top-lv-no-class-a: srp_encoder rc=0 593 checks: 593 PASS, 0 FAIL
+rv-top-lv-no-class-a: srp_top domjoin rc=0 4 checks: 4 PASS, 0 FAIL
+rv-top-lv-no-class-a: reviewer bench rc=0 17 checks: 17 PASS, 0 FAIL

@@ -1,0 +1,12 @@
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index 9bb7a9e..21094e2 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -361,7 +361,6 @@ module KL_srp_top
+                        && dec_evt_class_a_w && dom_rx_reg_w;
+   // rLv! of a Class A Domain value: its Registrar drops IN -> MT (Δ13)
+   assign dom_rx_lv_w = dec_evt_valid_w && dec_evt_msrp_w
+-                    && (dec_evt_attr_type_w == SRP_MSRP_ATTR_DOMAIN_C)
+                     && dec_evt_class_a_w
+                     && (dec_evt_mrp_event_w == 3'(SRP_EV_LV));
+ 
