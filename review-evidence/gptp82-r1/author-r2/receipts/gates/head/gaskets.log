@@ -1,0 +1,19 @@
+make: Entering directory '<data>/lanes/gptp82-boot/tb/verilator/gaskets'
+verilator --cc --exe --build -j 0 --top-module gasket_tb_top -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I<data>/lanes/gptp82-boot/tb/verilator/gaskets" ../../../bench/arty/bench_afifo.sv ../../../bench/arty/bench_mii_tx.sv ../../../bench/arty/bench_mii_rx.sv gasket_tb_top.sv sim_main.cpp -o Vgasket_sim
+make[1]: Entering directory '<data>/lanes/gptp82-boot/tb/verilator/gaskets/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<data>/lanes/gptp82-boot/tb/verilator/gaskets/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 16 threads; allocated 16.496 MB
+./obj_dir/Vgasket_sim
+81 checks: 81 PASS, 0 FAIL
+python3 mutants.py
+[PASS] the unmutated bench RTL still passes the harness
+[PASS] mutant caught: tx fifo level truncated - breaks "a FIFO holding exactly 64 words reports a level the gasket can see, instead of reading 0 and wedging S_IDLE"
+[PASS] mutant caught: tx sfd toggle frozen - breaks "the egress timestamp point is marked once per frame at the SFD"
+[PASS] mutant caught: rx sfd toggle frozen - breaks "the ingress timestamp point is marked once per frame at the SFD"
+[PASS] mutant caught: rx end of frame never raised - breaks "a delivered frame is terminated, so the receiver can count its bytes"
+
+5 checks: 5 PASS, 0 FAIL
+make: Leaving directory '<data>/lanes/gptp82-boot/tb/verilator/gaskets'

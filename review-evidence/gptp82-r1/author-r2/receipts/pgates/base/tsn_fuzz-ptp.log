@@ -1,0 +1,54 @@
+make: Entering directory '<data>/tmp/gptp82-a649/parent/tb/verilator/tsn_fuzz'
+verilator --cc --exe --build -j 0 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.. -Wall -Wextra" --top-module gptp_shadow_wrap -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 --Mdir obj_ptp ../gptp_shadow/gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv cosim_ptp.cpp -o Vptp_cosim
+make[1]: Entering directory '<data>/tmp/gptp82-a649/parent/tb/verilator/tsn_fuzz/obj_ptp'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/tsn_fuzz/obj_ptp'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 16 threads; allocated 16.496 MB
+== gPTP/802.1AS field campaign (tsn-gen driven) ==
+
+[802.1AS model inventory (tsn-gen)]
+
+[independent decode: wire.py vs packet_gen (no shift)]
+
+[boot: the first Pdelay_Req, graded field by field]
+
+[climb: exchanges up, asCapable within the ladder]
+
+[as grandmaster: Announce / Sync / Follow_Up conform]
+
+[parser gates: what must drop, drops; what 11.4.1 ignores, passes]
+  ..... unlisted-type windows: 0x1:1 0x4:2 0x5:1 0x6:1 0x7:1 0x9:1 0xD:1 0xE:1 0xF:1 (1 re-roll(s) over 9 types)
+
+[pdelay responder: Resp + Resp_Follow_Up conform]
+
+[BTCA under fuzz: only a legal better vector moves the grandmaster]
+
+[sync consumption: clean pairs move the servo, malformed ones cannot]
+
+[the accept side of the length oracle: one over-minimum frame per parsed type, accepted and ACTED ON]
+
+[Milan 4.2.6.2.5: multiple responders cease Pdelay_Req; duplicates do not]
+
+[re-climb before the storm: exchanges up, asCapable within the ladder]
+
+[constrained-random storms + the asCapable canary]
+  ..... storm: 192 frames, rx_drop 68 -> 94
+
+[the two-sided canary: asCapable falls in a response drought, then climbs again]
+
+[recovery: exchanges up, asCapable within the ladder]
+
+[every Ethernet TX flag word: model and Table 11-4]
+  ..... tx_sync.flags: 89 emitted frames
+  ..... tx_follow_up.flags: 89 emitted frames
+  ..... tx_pdelay_req.flags: 47 emitted frames
+  ..... tx_pdelay_resp.flags: 32 emitted frames
+  ..... tx_pdelay_resp_fu.flags: 32 emitted frames
+
+results -> ../../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md
+
+== gPTP/802.1AS field campaign (tsn-gen driven): 677 pass, 0 fail, 0 known gaps ==
+campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+make: Leaving directory '<data>/tmp/gptp82-a649/parent/tb/verilator/tsn_fuzz'

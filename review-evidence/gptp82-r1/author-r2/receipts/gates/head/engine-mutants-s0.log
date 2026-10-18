@@ -1,0 +1,14 @@
+shard 0/8: 7 of 52 mutants: slew level tied low; result tag taken without an accepted beat; a new request leaves the old pair live; a grandmaster change unlocks the servo; the integrator is not clamped; the boot commit never retires; the self publication keeps the departed record
+[PASS] the unmutated engine still passes the harness
+FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew level tied low - breaks "slew: policy decision starts at +101 ns"
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+[PASS] mutant caught: a new request leaves the old pair live - breaks "a superseded exchange cannot pair with the new request's t1"
+[PASS] mutant caught: a grandmaster change unlocks the servo - breaks "the servo stays locked across a grandmaster identity change"
+[PASS] mutant caught: the integrator is not clamped - breaks "the integrator stays within +-200 ppm"
+FAIL #82 cold release: one commit before the first beat got 00000000000f4240 exp 0000000000000001
+[PASS] mutant caught: the boot commit never retires - breaks "#82 cold release: one commit before the first beat"
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the self publication keeps the departed record - breaks "#82 Pdelay loss: once capable, a live peer worse than D wins"
+
+8 checks: 8 PASS, 0 FAIL
