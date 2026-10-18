@@ -1,0 +1,10 @@
+The gate trees under scratch/head and scratch/base are `git archive` exports of
+85373de08a5c35487f260087ac8ceaf7a3789cdc and b9ade3a63d1b2292d75eb9b1809647e6439542a0.
+The only reviewer edits to those copies cap Verilator build parallelism:
+"--build -j 0" -> "--build -j 2" in tb/verilator/*/Makefile, tb/tsngen/Makefile,
+bench/arty/Makefile, and "-j","0" -> "-j","2" in the tsngen, gaskets and parser
+mutants.py. The engine mutation table was run through
+scripts/run_engine_mutants_parallel.py (imports the tree's own mutants.py,
+"-j 4" -> "-j 2"). The scratch parent (scratch/pwt) is a `git archive` of
+milan-fpga e9cbb676d7fdd6539aa408e5dfe38870a4ae1a5f with gptp-processor/ replaced
+by the head export and third_party/verilog-axis at its pinned 48ff7a7e.

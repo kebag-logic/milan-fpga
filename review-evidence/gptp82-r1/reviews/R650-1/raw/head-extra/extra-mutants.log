@@ -1,0 +1,10 @@
+[XX] m01 R650 boot commit ignores a running handler: pass
+[OK] m02 R650 boot commit fires before thisClock is known: caught
+      FAIL pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+      FAIL #82 cold boot: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+      FAIL #82 cold boot: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+[XX] m03 R650 boot commit never retires: pass
+[XX] m04 R650 a microcode commit does not cancel the boot commit: pass
+[XX] m05 R650 self path count ignores clock validity: pass
+[XX] m06 R650 self path keeps the raw tail: pass
+RESULT 1/6 as expected

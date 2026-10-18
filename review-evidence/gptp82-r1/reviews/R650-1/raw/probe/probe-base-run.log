@@ -1,0 +1,36 @@
+PROBE-COLD harness at cyc 2400679 (1.2003 s after release) when 1d grades
+FAIL #82 cold boot: a commit lands with the first beat got 0000000000000000 exp 0000000000000001
+FAIL #82 cold boot: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 cold boot: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+PROBE-COLD zero-GM commit before thisClock at cyc 2685554 count 0
+PROBE-COLD zero-GM commit before thisClock at cyc 6401371 count 0
+PROBE-COLD first nonzero-GM commit at cyc 8400344, 8400336 cycles after release = 4.2002 s; gm 02a1b2fffec3d4e5 count 1
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+PROBE-INV gm0 commit at cyc 195801282 count 0
+PROBE-INV gm0 commit at cyc 197801440 count 0
+PROBE-INV gm0 commit at cyc 200231369 count 0
+PROBE-INV gm0 commit at cyc 211032449 count 0
+PROBE-INV gm0 commit at cyc 213032272 count 0
+PROBE-INV gm0 commit at cyc 219034509 count 0
+PROBE-INV gm0 commit at cyc 237515654 count 0
+PROBE-INV gm0 commit at cyc 241897178 count 0
+PROBE-INV gm0 commit at cyc 243897176 count 0
+PROBE-INV gm0 commit at cyc 264401714 count 0
+PROBE-INV gm0 commit at cyc 278817265 count 0
+FAIL #82 warm reset: a commit follows the release at once got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 warm reset: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+PROBE-INV gm0 commit at cyc 281257197 count 0
+PROBE-WARM A announce: 2 commits, last gm 0065a0fffe0000a1 count 2
+PROBE-WARM after warm reset: 0 commits, first gm 0000000000000000 count 0
+FAIL PROBE-WARM warm reset publishes thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+PROBE-INV gm0 commit at cyc 289664915 count 0
+PROBE-WARM B announce after reset: 2 commits, last gm 0065a0fffe0000a1 (A=0065a0fffe0000a1 B=0065a0fffe0000b1 self=02a1b2fffec3d4e5) parent 0065a0fffe0000a3 count 2 flags 5
+PROBE-WARM B announce 1 s later: outward gm 0065a0fffe0000a1 parent 0065a0fffe0000a3 flags 5, 1 commits
+PROBE-WARM B announce 2 s later: outward gm 0065a0fffe0000a1 parent 0065a0fffe0000a3 flags 5, 1 commits
+PROBE-WARM B announce 3 s later: outward gm 0065a0fffe0000a1 parent 0065a0fffe0000a3 flags 5, 1 commits
+FAIL PROBE-WARM a peer B better than this plane is elected after the reset got 0065a0fffe0000a1 exp 0065a0fffe0000b1
+PROBE-INV commits graded 413: gm0 13, self-path bad 0, tail bad 0; zero-GM commits before thisClock 2
+FAIL PROBE-INV no commit names GM 0 after thisClock got 000000000000000d exp 0000000000000000
+1629 checks: 1620 PASS, 9 FAIL

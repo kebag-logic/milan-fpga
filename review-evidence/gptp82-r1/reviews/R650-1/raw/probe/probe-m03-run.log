@@ -1,0 +1,13 @@
+PROBE-COLD first nonzero-GM commit at cyc 2400612, 2400604 cycles after release = 1.2003 s; gm 02a1b2fffec3d4e5 count 1
+PROBE-COLD harness at cyc 2400679 (1.2003 s after release) when 1d grades
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+PROBE-WARM A announce: 2 commits, last gm 0065a0fffe0000a1 count 2
+PROBE-WARM after warm reset: 4000 commits, first gm 02a1b2fffec3d4e5 count 1
+PROBE-WARM B announce after reset: 2 commits, last gm 0065a0fffe0000a1 (A=0065a0fffe0000a1 B=0065a0fffe0000b1 self=02a1b2fffec3d4e5) parent 0065a0fffe0000a3 count 2 flags 5
+PROBE-WARM B announce 1 s later: outward gm 0065a0fffe0000a1 parent 0065a0fffe0000a3 flags 5, 1 commits
+PROBE-WARM B announce 2 s later: outward gm 0065a0fffe0000a1 parent 0065a0fffe0000a3 flags 5, 1 commits
+PROBE-WARM B announce 3 s later: outward gm 0065a0fffe0000a1 parent 0065a0fffe0000a3 flags 5, 1 commits
+FAIL PROBE-WARM a peer B better than this plane is elected after the reset got 0065a0fffe0000a1 exp 0065a0fffe0000b1
+PROBE-INV commits graded 34765940: gm0 0, self-path bad 0, tail bad 0; zero-GM commits before thisClock 0
+1629 checks: 1628 PASS, 1 FAIL

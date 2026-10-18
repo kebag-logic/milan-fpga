@@ -1,0 +1,360 @@
+[OK] clean unmutated control: pass
+[OK] m01 slew level tied low: caught
+      FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+      FAIL slew: real correction has one uninterrupted interval got 0000000000000000 exp 0000000000000002
+      FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+      FAIL slew: real correction has one uninterrupted interval got 0000000000000000 exp 0000000000000002
+      FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+      FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+      FAIL slew: high between pairs     got 0000000000000000 exp 0000000000000001
+      FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+      FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+      FAIL slew: -101 ns restarts settling got 0000000000000000 exp 0000000000000001
+      FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+      FAIL slew: zero crossing cannot clear early got 0000000000000000 exp 0000000000000001
+[OK] m02 slew clears at the first in-band pair: caught
+      FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+      FAIL slew: zero crossing cannot clear early got 0000000000000000 exp 0000000000000001
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+      FAIL slew: first settled pair before lapse got 0000000000000000 exp 0000000000000001
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+      FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+      FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+      FAIL slew: first settled pair before GM change got 0000000000000000 exp 0000000000000001
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+      FAIL slew: GM identity change holds active got 0000000000000000 exp 0000000000000001
+      FAIL slew: GM change restarts completion qualification got 0000000000000000 exp 0000000000000001
+[OK] m03 slew clears before the replacement rate: caught
+      FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+      FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+      FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+      FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+      FAIL slew: no clear precedes the replacement rate got 0000000000000007 exp 0000000000000000
+[OK] m04 slew idle lapse arms qualification: caught
+      FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+      FAIL slew: idle GM change has no level edge got 000000000000001e exp 000000000000001c
+      FAIL slew: in-band pair after idle GM change stays inactive got 0000000000000001 exp 0000000000000000
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+      FAIL slew: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+      FAIL slew: idle capability recovery pairs have no level edge got 0000000000000022 exp 0000000000000020
+      FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+[OK] m05 slew idle asCapable loss arms qualification: caught
+      FAIL slew: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+      FAIL slew: idle capability recovery pairs have no level edge got 000000000000001e exp 000000000000001c
+[OK] m06 slew mastership keeps qualification: caught
+      FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+      FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+[OK] m07 result face always ready: caught
+      FAIL reset holds the result face closed got 0000000000000001 exp 0000000000000000
+      FAIL D1 face closes behind the accepted result got 0000000000000001 exp 0000000000000000
+      FAIL D1 second result waits for the first to dispatch got 0000000000000000 exp 0000000000000001
+      FAIL D1 face stays closed while a result is owed got 0000000000000001 exp 0000000000000000
+      FAIL D1 response Follow_Up sent   got 0000000000000000 exp 0000000000000001
+      FAIL D1 response stalled at its first byte got 0000000000000000 exp 0000000000000001
+      FAIL D1 face closes behind the accepted result got 0000000000000001 exp 0000000000000000
+      FAIL D1 second result waits for the first to dispatch got 0000000000000000 exp 0000000000000001
+      FAIL D1 face stays closed while a result is owed got 0000000000000001 exp 0000000000000000
+      FAIL D1 response Follow_Up sent   got 0000000000000000 exp 0000000000000001
+      FAIL wait_tx type 0: timeout
+      FAIL D1: Sync outstanding         got 0000000000000000 exp 0000000000000001
+[OK] m08 result value taken without an accepted beat: caught
+      FAIL D1 response keeps its own t3 got 0000000002627558 exp 0000000002625a00
+      FAIL D1 response keeps its own t3 got 000000000263fbf8 exp 000000000263e0a0
+      FAIL D1 response keeps its own t3 got 0000000002658298 exp 0000000002656740
+      FAIL D1 response keeps its own t3 got 0000000002670938 exp 000000000266ede0
+      FAIL D1 response keeps its own t3 got 0000000002688fd8 exp 0000000002687480
+      FAIL D1 response keeps its own t3 got 00000000026a1678 exp 000000000269fb20
+      FAIL D1 response keeps its own t3 got 00000000026b9d18 exp 00000000026b81c0
+      FAIL D1 response keeps its own t3 got 00000000026d23b8 exp 00000000026d0860
+      FAIL D1 response keeps its own t3 got 00000000026eaa58 exp 00000000026e8f00
+[OK] m09 result tag taken without an accepted beat: caught
+      FAIL D1 response Follow_Up sent   got 0000000000000000 exp 0000000000000001
+      FAIL D1 Sync keeps its own t1     got 0000000002625a00 exp 0000000002627558
+      FAIL D1 the held result was finally taken got 0000000000000001 exp 0000000000000000
+      FAIL wait_tx type 0: timeout
+      FAIL D1: Sync outstanding         got 0000000000000000 exp 0000000000000001
+      FAIL the result face keeps accepting got 0000000000000000 exp 0000000000000001
+      FAIL the result face keeps accepting got 0000000000000000 exp 0000000000000001
+      FAIL wait_tx type 2: timeout
+      FAIL D2a: request outstanding     got 0000000000000000 exp 0000000000000001
+      FAIL D2a neighbour request answered got 0000000000000000 exp 0000000000000001
+      FAIL producer never replaces an unaccepted result got 0000000000000001 exp 0000000000000000
+      FAIL offered result was accepted  got 0000000000000000 exp 0000000000000001
+[OK] m10 recorded t1 survives reset: caught
+      FAIL D3c a pre-reset t1 cannot pair after reset got 0000000000000259 exp 0000000000000000
+      FAIL D3d interval 0 keeps its frozen operands moved got 0000000000000000 exp 0000000000000001
+[OK] m11 byte face advances without ready: caught
+      FAIL raw-empty overload: only frozen A commits got 000000000000001f exp 0000000000000020
+      FAIL raw-empty overload: post-release path commits got 000000000000001f exp 0000000000000020
+      FAIL pub offset                   got 0000000000000000 exp 00000000000f3bff
+      FAIL sync-ok rose                 got 0000000000000000 exp 0000000000000008
+      FAIL big offset re-bases the phc  got 0000000000000000 exp 0000000000000001
+      FAIL late FU dropped              got 0000000000000000 exp 00000000000f3bff
+      FAIL late FU never steers         got 0000000000000000 exp 0000000000000002
+      FAIL next pair lands              got 0000000000000000 exp 00000000001e7e3f
+      FAIL foreign-domain pair: offset unmoved got 0000000000000000 exp 00000000001e7e3f
+      FAIL foreign Sync left no pending slot got 0000000000000000 exp 00000000001e7e3f
+      FAIL TLV-less Follow_Up: offset unmoved got 0000000000000000 exp 00000000001e7e3f
+      FAIL cut Follow_Up: offset unmoved got 0000000000000000 exp 00000000001e7e3f
+[OK] m12 lost t1 fabricates a time and a companion: caught
+      FAIL D2c lost t1 publishes no delay got 0000000002fb09b8 exp 00000000000002bc
+      FAIL D2c cancelled pair stays cancelled got 0000000002fb09b8 exp 00000000000002bc
+[OK] m13 lost Sync cancels the requester exchange: caught
+      FAIL D2b lost Sync left the recorded t1 alone value got 000000000000012d exp 00000000000002bc
+      FAIL D2b lost Sync left the recorded t1 alone moved got 0000000000000000 exp 0000000000000001
+[OK] m14 lost response cancels the requester exchange: caught
+      FAIL D2a lost response left the frozen pair alone value got 0000000000000259 exp 000000000000012d
+      FAIL D2a lost response left the frozen pair alone moved got 0000000000000000 exp 0000000000000001
+      FAIL D2b lost Sync left the recorded t1 alone value got 00000000000002bd exp 00000000000002bc
+[OK] m15 a later response re-arms the frozen pair: caught
+      FAIL D3a the pair computes from its own operands value got 00000000000312f3 exp 0000000000000191
+      FAIL D3b a zero t1 completes its exchange value got 000000000000028d exp 0000000000000259
+      FAIL D3d interval 0 keeps its frozen operands value got 0000000000000294 exp 0000000000000259
+      FAIL D3d interval 1 keeps its frozen operands value got 00000000000002c6 exp 000000000000028a
+      FAIL D3d interval 2 keeps its frozen operands value got 00000000000002f8 exp 00000000000002bc
+[OK] m16 the tail runs before its own t1: caught
+      FAIL D2a the pair publishes nothing without its t1 got 00000000f7c4b68b exp 0000000000000259
+      FAIL D2a lost response left the frozen pair alone value got 00000000f7c4b68b exp 000000000000012d
+      FAIL D2c the pair publishes nothing without its t1 got 0000000000989d6c exp 00000000000002bd
+      FAIL D2c lost t1 publishes no delay got 0000000000989d6c exp 00000000000002bd
+      FAIL D2c cancelled pair stays cancelled got 0000000000989d6c exp 00000000000002bd
+      FAIL D3a the pair publishes nothing without its t1 got 00000000298dfcf0 exp 0000000000000259
+      FAIL D3a successor traffic publishes nothing either got 00000000298dfcf0 exp 0000000000000259
+      FAIL D3a the pair computes from its own operands value got 00000000298dfcf0 exp 0000000000000191
+      FAIL D3b the pair publishes nothing without its zero t1 got 00000000fbd3bca4 exp 00000000298dfcf0
+      FAIL D3b a zero t1 completes its exchange value got 00000000fbd3bca4 exp 0000000000000259
+      FAIL D3c the pair publishes nothing before the reset got 0000000004eb026f exp 00000000fbd3bca4
+      FAIL D3c a real exchange after reset still computes value got 000000000000015f exp 0000000000000285
+[OK] m17 a new request leaves the old pair live: caught
+      FAIL D2a the pair publishes nothing without its t1 got 00000000f7c4b490 exp 0000000000000259
+      FAIL D2a lost response left the frozen pair alone value got 00000000f7c4b490 exp 000000000000012d
+      FAIL D2c the pair publishes nothing without its t1 got 0000000000989d6c exp 00000000000002bd
+      FAIL D2c lost t1 publishes no delay got 0000000000989d6c exp 00000000000002bd
+      FAIL D2c cancelled pair stays cancelled got 0000000000989d6c exp 00000000000002bd
+      FAIL D3a the pair publishes nothing without its t1 got 00000000298dfaf6 exp 0000000000000259
+      FAIL D3a successor traffic publishes nothing either got 00000000298dfaf6 exp 0000000000000259
+      FAIL D3a the pair computes from its own operands value got 00000000298dfaf6 exp 0000000000000191
+      FAIL D3b the pair publishes nothing without its zero t1 got 00000000fbd3bca4 exp 00000000298dfaf6
+      FAIL D3b a zero t1 completes its exchange value got 00000000fbd3bca4 exp 0000000000000259
+      FAIL D3c the pair publishes nothing before the reset got 0000000004eb026f exp 00000000fbd3bca4
+      FAIL D3c a real exchange after reset still computes value got 000000000000015f exp 0000000000000285
+[OK] m18 credit gate removed from the Pdelay_Req leg: caught
+      FAIL D4 Pdelay_Req beats are withheld got 0000000000000001 exp 0000000000000000
+[OK] m19 credit gate removed from the Sync leg: caught
+      FAIL D4 Sync beats are withheld   got 000000000000000a exp 0000000000000000
+[OK] m20 credit gate removed from the Announce leg: caught
+      FAIL D4 Announce beats are withheld got 0000000000000001 exp 0000000000000000
+[OK] m21 every pair uses the locked threshold: caught
+      FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+      FAIL link-up +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000ffef5c21
+      FAIL link-up +25 us: the step writes the bare estimate got 00000000ffe66666 exp 00000000ffef5c21
+      FAIL link-up -15 us: addend matches the mirror got 00000000fff851e9 exp 00000000fffeb852
+      FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+      FAIL link-up -25 us: addend matches the mirror got 000000000006666c exp 00000000fff3332e
+      FAIL link-up -25 us: the step writes the bare estimate got 000000000006666c exp 00000000fff3332e
+      FAIL link-up -20 us: addend matches the mirror got 0000000000028f61 exp 0000000000028f60
+      FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+      FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffe66666 exp 00000000fff3332f
+      FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffe66666 exp 00000000fff3332f
+      FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+[OK] m22 every pair uses the link-up threshold: caught
+      FAIL receipt timeout, same GM, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+      FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 0000000000000000 exp 00000000ffe66666
+      FAIL receipt timeout, same GM, +50 us: no step pulse got 0000000000000009 exp 0000000000000008
+      FAIL receipt timeout, same GM, +150 us: addend matches the mirror got 0000000000000000 exp 00000000fff3332d
+      FAIL receipt timeout, same GM, +150 us: one step pulse got 000000000000000a exp 0000000000000009
+      FAIL link-up +15 us: addend matches the mirror got 00000000fff0a3d0 exp 00000000ffe66666
+      FAIL link-up +25 us: addend matches the mirror got 00000000fffc28f4 exp 00000000ffef5c21
+      FAIL link-up +25 us: the step writes the bare estimate got 00000000fffc28f4 exp 00000000ffef5c21
+      FAIL link-up -15 us: addend matches the mirror got 00000000000b8525 exp 00000000fffeb852
+      FAIL link-up -25 us: addend matches the mirror got 0000000000000001 exp 00000000fff3332e
+      FAIL link-up -25 us: the step writes the bare estimate got 0000000000000001 exp 00000000fff3332e
+      FAIL link-up +20 us: addend matches the mirror got 00000000ffeb8516 exp 00000000ffe66666
+[OK] m23 exactly the threshold steps: caught
+      FAIL link-up +20 us: step pulses  got 0000000000000001 exp 0000000000000000
+      FAIL link-up +20 us: addend matches the mirror got 00000000fff3332e exp 00000000ffe66666
+      FAIL link-up -20 us: addend matches the mirror got 000000000007ae1a exp 0000000000028f60
+      FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000fff851e9 exp 00000000fff3332f
+      FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000fff851e9 exp 00000000fff3332f
+      FAIL link-up -20 us - 1 ns: addend matches the mirror got 00000000fff851e9 exp 00000000fff3332f
+      FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000fff851e9 exp 00000000fff3332f
+      FAIL link-up: one step pulse per probe over 20 us got 000000000000000e exp 000000000000000d
+      FAIL locked +100 us: step pulses  got 0000000000000001 exp 0000000000000000
+      FAIL locked +100 us: addend matches the mirror got 00000000fffd70af exp 00000000ffe66666
+      FAIL locked +100 us + 1 ns: addend matches the mirror got 0000000000170a56 exp 000000000000000d
+      FAIL locked -100 us - 1 ns: addend matches the mirror got 0000000000170a56 exp 000000000000000d
+[OK] m24 the step arm is unreachable: caught
+      FAIL big offset re-bases the phc  got 0000000000000000 exp 0000000000000001
+      FAIL late FU never steers         got 0000000000000001 exp 0000000000000002
+      FAIL complete Follow_Up re-bases the phc got 0000000000000000 exp 0000000000000001
+      FAIL padded Sync (60) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+      FAIL padded Sync (74) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+      FAIL sync flags 0200/0000: pairs and steers got 0000000000000007 exp 000000000000000f
+      FAIL sync flags 0208/0008: pairs and steers got 0000000000000007 exp 000000000000000f
+      FAIL sync flags 0000/0200: pairs and steers got 0000000000000007 exp 000000000000000f
+      FAIL receipt timeout, same GM, +150 us: step pulses got 0000000000000000 exp 0000000000000001
+      FAIL receipt timeout, same GM, +150 us: addend matches the mirror got 00000000ffe66666 exp 00000000fff3332d
+      FAIL receipt timeout, same GM, +150 us: one step pulse got 0000000000000000 exp 0000000000000001
+      FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+[OK] m25 a grandmaster change unlocks the servo: caught
+      FAIL GM change, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+      FAIL GM change, +50 us: addend matches the mirror got 00000000000e6349 exp 00000000ffe66666
+      FAIL GM change, +50 us: no step pulse got 0000000000000013 exp 0000000000000012
+      FAIL GM change, -5 ms: addend matches the mirror got 00000000000e6349 exp 0000000000019676
+      FAIL GM change, -5 ms: one step pulse got 0000000000000014 exp 0000000000000013
+      FAIL failover, -50 us: step pulses got 0000000000000001 exp 0000000000000000
+      FAIL failover, -50 us: addend matches the mirror got 00000000000e6349 exp 000000000019999a
+      FAIL failover, -50 us: no step pulse got 0000000000000015 exp 0000000000000014
+      FAIL failover, +150 us: addend matches the mirror got 00000000000e6349 exp 00000000000e634a
+      FAIL return from mastership, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+      FAIL return from mastership, +50 us: addend matches the mirror got 00000000000e6349 exp 00000000ffe66666
+      FAIL return from mastership, +50 us: no step pulse got 0000000000000017 exp 0000000000000016
+[OK] m26 a receipt timeout unlocks the servo: caught
+      FAIL receipt timeout, same GM, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+      FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 0000000000000000 exp 00000000ffe66666
+      FAIL receipt timeout, same GM, +50 us: no step pulse got 0000000000000009 exp 0000000000000008
+      FAIL receipt timeout, same GM, +150 us: addend matches the mirror got 0000000000000000 exp 00000000fff3332d
+      FAIL receipt timeout, same GM, +150 us: one step pulse got 000000000000000a exp 0000000000000009
+      FAIL link-up +15 us: addend matches the mirror got 00000000fff0a3d0 exp 00000000ffe66666
+      FAIL link-up +25 us: addend matches the mirror got 00000000fffc28f4 exp 00000000ffef5c21
+      FAIL link-up +25 us: the step writes the bare estimate got 00000000fffc28f4 exp 00000000ffef5c21
+      FAIL link-up -15 us: addend matches the mirror got 00000000000b8525 exp 00000000fffeb852
+      FAIL link-up -25 us: addend matches the mirror got 0000000000000001 exp 00000000fff3332e
+      FAIL link-up -25 us: the step writes the bare estimate got 0000000000000001 exp 00000000fff3332e
+      FAIL link-up +20 us: addend matches the mirror got 00000000ffeb8516 exp 00000000ffe66666
+[OK] m27 becoming grandmaster unlocks the servo: caught
+      FAIL return from mastership, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+      FAIL return from mastership, +50 us: addend matches the mirror got 00000000000e634a exp 00000000ffe66666
+      FAIL return from mastership, +50 us: no step pulse got 0000000000000015 exp 0000000000000014
+      FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 00000000000e634a exp 0000000000019677
+      FAIL warm-reset link-up: first pair: addend matches the mirror got 00000000000b50da exp 00000000fffe8407
+      FAIL warm-reset link-up: locked +30 us: addend matches the mirror got 00000000ffeee64d exp 00000000ffe66666
+      FAIL warm-reset link-up: +25 us: addend matches the mirror got 000000000005f096 exp 00000000fff923c3
+      FAIL slew: arithmetic remains the PI policy got 000000000005f096 exp 00000000fff923c3
+      FAIL slew: arithmetic remains the PI policy got 000000000005f096 exp 00000000fff923c3
+      FAIL slew: arithmetic remains the PI policy got 000000000005d660 exp 00000000fff9098d
+      FAIL slew: arithmetic remains the PI policy got 0000000000060440 exp 00000000fff9376d
+      FAIL slew: arithmetic remains the PI policy got 000000000005f097 exp 00000000fff923c4
+[OK] m28 the locked threshold is 200 us: caught
+      FAIL receipt timeout, same GM, +150 us: step pulses got 0000000000000000 exp 0000000000000001
+      FAIL receipt timeout, same GM, +150 us: addend matches the mirror got 00000000ffe66666 exp 00000000fff3332d
+      FAIL receipt timeout, same GM, +150 us: one step pulse got 0000000000000008 exp 0000000000000009
+      FAIL link-up +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000ffef5c21
+      FAIL link-up +25 us: the step writes the bare estimate got 00000000ffe66666 exp 00000000ffef5c21
+      FAIL link-up -15 us: addend matches the mirror got 00000000fff5c297 exp 00000000fffeb852
+      FAIL link-up -25 us: addend matches the mirror got 00000000ffea3d73 exp 00000000fff3332e
+      FAIL link-up -25 us: the step writes the bare estimate got 00000000ffea3d73 exp 00000000fff3332e
+      FAIL link-up -20 us: addend matches the mirror got 00000000fffae152 exp 0000000000028f60
+      FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffeb8521 exp 00000000fff3332f
+      FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffeb8521 exp 00000000fff3332f
+      FAIL link-up -20 us - 1 ns: addend matches the mirror got 00000000ffeb8521 exp 00000000fff3332f
+[OK] m29 asCapable's rise keeps the lock: caught
+      FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+      FAIL link-up +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000ffef5c21
+      FAIL link-up +25 us: the step writes the bare estimate got 00000000ffe66666 exp 00000000ffef5c21
+      FAIL link-up -15 us: addend matches the mirror got 00000000fff851e9 exp 00000000fffeb852
+      FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+      FAIL link-up -25 us: addend matches the mirror got 000000000006666c exp 00000000fff3332e
+      FAIL link-up -25 us: the step writes the bare estimate got 000000000006666c exp 00000000fff3332e
+      FAIL link-up -20 us: addend matches the mirror got 0000000000028f61 exp 0000000000028f60
+      FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+      FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffe66666 exp 00000000fff3332f
+      FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffe66666 exp 00000000fff3332f
+      FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+[OK] m30 becoming grandmaster keeps sync-ok: caught
+      FAIL becoming grandmaster clears sync-ok got 0000000000000008 exp 0000000000000000
+[OK] m31 the whole trim is not clamped: caught
+      FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 00000000ffccccb4 exp 00000000ffe66666
+      FAIL receipt timeout, same GM, +50 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL link-up +15 us: addend matches the mirror got 00000000ffe3d6fd exp 00000000ffe66666
+      FAIL link-up +15 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL link-up +20 us: addend matches the mirror got 00000000ffdeb843 exp 00000000ffe66666
+      FAIL link-up +20 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL locked +90 us: addend matches the mirror got 00000000ffa1478b exp 00000000ffe66666
+      FAIL locked +90 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL locked -90 us: addend matches the mirror got 0000000000428f8a exp 000000000019999a
+      FAIL locked -90 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL locked +100 us: addend matches the mirror got 00000000ff999973 exp 00000000ffe66666
+      FAIL locked +100 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+[OK] m32 the trim clamp is one unit wider than the envelope: caught
+      FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+      FAIL receipt timeout, same GM, +50 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL link-up +15 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+      FAIL link-up +15 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL link-up +20 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+      FAIL link-up +20 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL locked +90 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+      FAIL locked +90 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL locked -90 us: addend matches the mirror got 000000000019999b exp 000000000019999a
+      FAIL locked -90 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+      FAIL locked +100 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+      FAIL locked +100 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+[OK] m33 the integrator is not clamped: caught
+      FAIL locked +110 us: addend matches the mirror got 00000000fff33330 exp 00000000fffd70af
+      FAIL locked -110 us: addend matches the mirror got 00000000fff33330 exp 00000000fffd70af
+      FAIL locked +100 us + 1 ns: addend matches the mirror got 00000000fff33331 exp 000000000000000d
+      FAIL locked -100 us - 1 ns: addend matches the mirror got 00000000fff33331 exp 000000000000000d
+      FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+      FAIL closed loop pair 0: addend matches the mirror got 00000000fff1eb83 exp 00000000fffeb85f
+      FAIL integrator survives the step got 0000000000000000 exp 0000000000000001
+      FAIL closed loop pair 1: addend matches the mirror got 0000000000129a2a exp 000000000019999a
+      FAIL closed loop pair 4: addend matches the mirror got 000000000018c47d exp 000000000019999a
+      FAIL closed loop pair 5: addend matches the mirror got 000000000015e7ba exp 000000000019999a
+      FAIL closed loop pair 6: addend matches the mirror got 000000000014344e exp 000000000019999a
+      FAIL closed loop pair 7: addend matches the mirror got 00000000001339a1 exp 000000000019999a
+[OK] m34 boot publication restored to zero: caught
+      FAIL #82 cold boot: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+      FAIL #82 cold boot: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+      FAIL #82 warm reset: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+      FAIL #82 warm reset: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+[OK] m35 no engine commit after reset: caught
+      FAIL #82 cold boot: a commit lands with the first beat got 0000000000000000 exp 0000000000000001
+      FAIL #82 cold boot: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+      FAIL #82 cold boot: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+      FAIL #82 warm reset: a commit follows the release at once got 0000000000000000 exp 0000000000000001
+      FAIL #82 warm reset: first commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+      FAIL #82 warm reset: first commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+[OK] m36 thisClock hides an elected peer: caught
+      FAIL boundary-clean announce: adopted got 02a1b2fffec3d4e5 exp 00d1d1fffe000004
+      FAIL boundary-clean announce: raw path count got 0000000000000001 exp 0000000000000008
+      FAIL boundary-clean announce: raw path tail 1 got 0000000000000000 exp 00d1000000000001
+      FAIL boundary-clean announce: raw path tail 2 got 0000000000000000 exp 00d1000000000002
+      FAIL boundary-clean announce: raw path tail 3 got 0000000000000000 exp 00d1000000000003
+      FAIL boundary-clean announce: raw path tail 4 got 0000000000000000 exp 00d1000000000004
+      FAIL boundary-clean announce: raw path tail 5 got 0000000000000000 exp 00d1000000000005
+      FAIL boundary-clean announce: raw path tail 6 got 0000000000000000 exp 00d1000000000006
+      FAIL boundary-clean announce: raw path tail 7 got 0000000000000000 exp 00d1000000000007
+      FAIL half-identity control A: adopted got 02a1b2fffec3d4e5 exp 00d2d2fffe000006
+      FAIL half-identity control A: raw path count got 0000000000000001 exp 0000000000000002
+      FAIL half-identity control A: raw path tail 1 got 0000000000000000 exp 02a1b2fffec3d4e4
+[OK] m37 an elected peer keeps the self path: caught
+      FAIL boundary-clean announce: raw path count got 0000000000000001 exp 0000000000000008
+      FAIL half-identity control A: raw path count got 0000000000000001 exp 0000000000000002
+      FAIL half-identity control B: raw path count got 0000000000000001 exp 0000000000000002
+      FAIL TLV-less competition control: raw path count got 0000000000000001 exp 0000000000000000
+      FAIL adopt publishes complete path count got 0000000000000001 exp 0000000000000004
+      FAIL worse announce retains path A count got 0000000000000001 exp 0000000000000004
+      FAIL worse TLV-less announce retains path A count got 0000000000000001 exp 0000000000000004
+      FAIL deep parent path clamps to eight got 0000000000000001 exp 0000000000000008
+      FAIL parent refresh publishes path C count got 0000000000000001 exp 0000000000000003
+      FAIL unknown-only current parent: raw count zero got 0000000000000001 exp 0000000000000000
+      FAIL unknown before path current parent: count got 0000000000000001 exp 0000000000000003
+      FAIL full path before raw empty: count eight got 0000000000000001 exp 0000000000000008
+[OK] m38 becoming grandmaster keeps the departed GM: caught
+      FAIL boundary-clean announce: gm is us again got 00d1d1fffe000004 exp 02a1b2fffec3d4e5
+      FAIL stepsRemoved-0xFFFF announce: gm still us got 00d1d1fffe000004 exp 02a1b2fffec3d4e5
+      FAIL half-identity control A: gm is us again got 00d2d2fffe000006 exp 02a1b2fffec3d4e5
+      FAIL half-identity control B: gm is us again got 00d3d3fffe000007 exp 02a1b2fffec3d4e5
+      FAIL TLV-less competition control: gm is us again got 00d4d4fffe000008 exp 02a1b2fffec3d4e5
+      FAIL gm is us again               got 00e0e0fffe00000e exp 02a1b2fffec3d4e5
+      FAIL gm is us after the quiet     got 00aaccfffe010203 exp 02a1b2fffec3d4e5
+      FAIL #82 peer leaves: the mastership commit names thisClock got 0082a0fffe000001 exp 02a1b2fffec3d4e5
+[OK] m39 becoming grandmaster keeps the departed path: caught
+      FAIL self path has one entry      got 0000000000000000 exp 0000000000000001
+      FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+RESULT 40/40 as expected

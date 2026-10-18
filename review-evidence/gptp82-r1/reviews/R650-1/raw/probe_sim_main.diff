@@ -1,0 +1,97 @@
+--- scratch/probe/sim_main.orig.cpp	2026-10-18 16:13:14.880020261 +0200
++++ scratch/probe/tb/verilator/engine/sim_main.cpp	2026-10-18 16:13:14.893457159 +0200
+@@ -298,6 +298,11 @@
+     exercise_the_slew_level_contract();
+     keep_every_addend_inside_the_consumer_envelope();
+     return_to_thisclock_around_a_winning_peer();
++    probe_warm_reset_with_a_retained_record();
++    printf("PROBE-INV commits graded %llu: gm0 %llu, self-path bad %llu, tail bad %llu; zero-GM commits before thisClock %llu\n", (unsigned long long)probe_commits, (unsigned long long)probe_gm0, (unsigned long long)probe_self_bad, (unsigned long long)probe_tail_bad, (unsigned long long)probe_pre_commits);
++    expect("PROBE-INV no commit names GM 0 after thisClock", probe_gm0, 0);
++    expect("PROBE-INV every thisClock commit carries {thisClock}", probe_self_bad, 0);
++    expect("PROBE-INV count 0/1 commits carry a zero tail", probe_tail_bad, 0);
+ 
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+     return fails ? 1 : 0;
+@@ -399,6 +404,10 @@
+     uint32_t flags;
+   };
+   std::vector<PubSnap> commit_snaps;
++  bool probe_cold_seen = false;
++  uint64_t probe_release_cyc = 0, probe_cold_first_cyc = 0;
++  uint64_t probe_gm0 = 0, probe_self_bad = 0, probe_tail_bad = 0;
++  uint64_t probe_commits = 0, probe_pre_commits = 0;
+ 
+   // ---- TX backpressure ------------------------------------------------------
+   std::vector<std::vector<uint8_t>> txf;
+@@ -539,6 +548,21 @@
+         s.tail[k] = static_cast<uint64_t>(dut->pub_path_o[2 * k])
+                   | (static_cast<uint64_t>(dut->pub_path_o[2 * k + 1]) << 32);
+       commit_snaps.push_back(s);
++      if (probe_cold_seen) {
++        bool tail0 = true;
++        for (unsigned k = 0; k < PATH_TAIL_SLOTS; k++) tail0 &= s.tail[k] == 0;
++        if (s.gm == 0) { probe_gm0++; printf("PROBE-INV gm0 commit at cyc %llu count %u\n", (unsigned long long)cyc, s.count); }
++        if (s.gm == OUR_CID && !(s.count == 1 && tail0)) { probe_self_bad++; printf("PROBE-INV self commit with count %u tail0 %d at cyc %llu\n", s.count, tail0, (unsigned long long)cyc); }
++        if (s.count <= 1 && !tail0) { probe_tail_bad++; printf("PROBE-INV count %u with nonzero tail at cyc %llu\n", s.count, (unsigned long long)cyc); }
++        probe_commits++;
++      } else if (dut->rst_n && s.gm != 0) {
++        probe_cold_seen = true;
++        printf("PROBE-COLD first nonzero-GM commit at cyc %llu, %llu cycles after release = %.4f s; gm %016llx count %u\n", (unsigned long long)cyc, (unsigned long long)(cyc - probe_release_cyc), (cyc - probe_release_cyc) / 2.0e6, (unsigned long long)s.gm, s.count);
++      } else if (dut->rst_n) {
++        probe_pre_commits++;
++        printf("PROBE-COLD zero-GM commit before thisClock at cyc %llu count %u\n", (unsigned long long)cyc, s.count);
++      }
++      if (probe_cold_seen && probe_cold_first_cyc == 0) probe_cold_first_cyc = cyc;
+     }
+     if (dut->phc_addend_we_o) {
+       phc_adj = static_cast<int32_t>(dut->phc_addend_o);
+@@ -1112,6 +1136,7 @@
+     expect("slew: cold reset clears the level", dut->phc_slew_active_o, 0);
+     dut->rst_n = 1;
+     cold_boot_mark = commit_snaps.size();
++    probe_release_cyc = cyc;
+ 
+     // Before the ROM init leg has written S_CID, no complete all-hop loop
+     // comparison is possible. A first-event over-cap Announce with our identity
+@@ -1153,6 +1178,7 @@
+   // the first commit after the cold reset must carry both. It must land by
+   // the end of the first one-second beat, whose init leg installs thisClock
+   void publish_thisclock_before_any_peer() {
++    printf("PROBE-COLD harness at cyc %llu (%.4f s after release) when 1d grades\n", (unsigned long long)cyc, (cyc - probe_release_cyc) / 2.0e6);
+     const PubSnap *s = first_commit_since(cold_boot_mark);
+     expect("#82 cold boot: a commit lands with the first beat",
+            s != nullptr, 1);
+@@ -4776,6 +4802,33 @@
+            gm && committed_path_is(*gm, {}), 1);
+   }
+ 
++  void probe_warm_reset_with_a_retained_record() {
++    const uint64_t GMA = 0x0065A0FFFE0000A1ull, SRCA = 0x0065A0FFFE0000A3ull;
++    const uint64_t GMB = 0x0065A0FFFE0000B1ull, SRCB = 0x0065A0FFFE0000B3ull;
++    pd_mode = PD_NORMAL;
++    wait_flags(FL_ASCAP, FL_ASCAP, 9000000);
++    size_t m = commit_snaps.size();
++    send_announce(0x6501, 0, GMA, 1, SRCA, {GMA, SRCA}, phc() + 100);
++    printf("PROBE-WARM A announce: %zu commits, last gm %016llx count %u\n", commit_snaps.size() - m, commit_snaps.size() > m ? (unsigned long long)commit_snaps.back().gm : 0ull, commit_snaps.size() > m ? commit_snaps.back().count : 0);
++    expect("PROBE-WARM peer A elected", commit_snaps.size() > m ? commit_snaps.back().gm : 0, GMA);
++    m = commit_snaps.size();
++    warm_reset();
++    printf("PROBE-WARM after warm reset: %zu commits, first gm %016llx count %u\n", commit_snaps.size() - m, commit_snaps.size() > m ? (unsigned long long)commit_snaps[m].gm : 0ull, commit_snaps.size() > m ? commit_snaps[m].count : 0);
++    expect("PROBE-WARM warm reset publishes thisClock", commit_snaps.size() > m ? commit_snaps[m].gm : 0, OUR_CID);
++    wait_flags(FL_ASCAP, FL_ASCAP, 9000000);
++    m = commit_snaps.size();
++    send_announce(0x6502, 1, GMB, 1, SRCB, {GMB, SRCB}, phc() + 100);
++    const uint64_t got = commit_snaps.size() > m ? commit_snaps.back().gm : 0;
++    printf("PROBE-WARM B announce after reset: %zu commits, last gm %016llx (A=%016llx B=%016llx self=%016llx) parent %016llx count %u flags %x\n", commit_snaps.size() - m, (unsigned long long)got, (unsigned long long)GMA, (unsigned long long)GMB, (unsigned long long)OUR_CID, commit_snaps.size() > m ? (unsigned long long)commit_snaps.back().parent : 0ull, commit_snaps.size() > m ? commit_snaps.back().count : 0, commit_snaps.size() > m ? commit_snaps.back().flags : 0);
++    for (int beat = 0; beat < 3; beat++) {
++      run_svc(2000000);
++      m = commit_snaps.size();
++      send_announce(0x6503 + beat, 1, GMB, 1, SRCB, {GMB, SRCB}, phc() + 100);
++      printf("PROBE-WARM B announce %d s later: outward gm %016llx parent %016llx flags %x, %zu commits\n", beat + 1, (unsigned long long)dut->pub_gm_id_o, (unsigned long long)dut->pub_parent_id_o, dut->pub_flags_o, commit_snaps.size() - m);
++    }
++    expect("PROBE-WARM a peer B better than this plane is elected after the reset", dut->pub_gm_id_o, GMB);
++  }
++
+   //! A #75 policy probe uses wire frames and watches every output edge.
+   //! The scripted band/settling verdict is supplied by the scenario, never
+   //! read from an internal register, a pulse or the published sync flag.
