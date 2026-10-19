@@ -1,0 +1,8 @@
+command: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --build-dir <scratch>/b/gate/build
+interpreter: CPython 3.12.3
+tree: byte-identical to 07c6c72fce79e705bcf28a70071497d0ce7040e4
+rc: 0
+final line: test_ctrl_firmware: PASS
+full log kept outside the output directory: 333913 bytes, sha256 375b9655e7dfd1e416d32b3f85e0d7728ef1351c98a91c5a3d0871f075567f21
+extract.log: the toolchain and pin lines, every top-level [ok] line (939), every RESULT and tally line
+[ok] lines by class (Round 2 correction, derived by round-2/scripts/classify_ok.py into round-2/count/classify.json): 876 source-mutant executions caught (520 control-source, 78 AECP, 278 SRP), 2 dependency-pin refusal controls passed, 61 normal arm outcomes passed. The 939 lines are not 939 planted controls.
