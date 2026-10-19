@@ -1,0 +1,573 @@
+[
+ {
+  "mutant": "golden-aecp_notify-collision",
+  "suite": "make collision",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-aecp_notify-failure-window",
+  "suite": "make failure-window",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-aecp_notify-identify",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-aecp_notify-interfaces",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-aecp-dispatch-only",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-arm-queue-only",
+  "suite": "./obj_dir/Vpp_top_sim --arm-queue-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "lock_notification_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_flags_unlock_bit_only",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_timeout_keeps_flags",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_timeout_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_flags_from_exclusion",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN3 ...its notification carries flags 0: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact",
+   "LN3 ...its notification carries flags 0: flags 0x00000000, locked_id 0x7777000000000043, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_job_arguments_dropped",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_job_r14_unpacked",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_notification_not_sent",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: the registered bench is notified",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: the registered bench is notified",
+   "LN3 ...its notification carries flags 0: the registered bench is notified",
+   "LN4 ...its notification echoes the UNLOCK's flags: the registered bench is notified"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: the registered bench is notified",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: the registered bench is notified",
+   "LN3 ...its notification carries flags 0: the registered bench is notified",
+   "LN4 ...its notification echoes the UNLOCK's flags: the registered bench is notified"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_coalesced_timeout_keeps_flags",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_coalesced_timeout_flags_zero",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_response_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 a second controller's LOCK: SUCCESS echoing flags 0x00010000",
+   "LN4 its UNLOCK: SUCCESS echoing flags 0x80020001"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 a second controller's LOCK: SUCCESS echoing flags 0x00010000, byte-exact (status 0)",
+   "LN4 its UNLOCK: SUCCESS echoing flags 0x80020001, byte-exact (status 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_take_keeps_old_flags",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF1:",
+   "LF3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF1: X's LOCK with flags 0x00010000 notifies C with those flags (job args 0001/0000)",
+   "LF3a: X's LOCK with flags 0 notifies C with flags 0 (job args 0000/0000)",
+   "LF3: X's LOCK with flags 0x00020000 after a timeout whose round is pending: the coalesced notification carries the LOCK's flags (job args 0002/0000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_release_keeps_old_flags",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF1b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF1b: X's UNLOCK with flags 0x80020001 notifies C with those flags (job args 8002/0001)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_pop_keeps_set",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:",
+   "CQ1:",
+   "CQ2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (6 jobs after the drain)",
+   "DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once",
+   "CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 1 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (496 jobs, want 3)",
+   "CQ1b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job (0 low), and low again after that (high)",
+   "CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (16 entries at most, want 16; 1 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (458 jobs, want 26)",
+   "CQ2b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job, between rounds included (0 low), and low again after that (high)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (174 of 12483 edges differ, the first at edge 5771)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_push_unseen",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:",
+   "CQ1:",
+   "CQ1b:",
+   "CQ2:",
+   "CQ2b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (1 jobs after the drain)",
+   "DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once",
+   "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)",
+   "LF3: X's LOCK with flags 0x00020000 after a timeout whose round is pending: the coalesced notification carries the LOCK's flags (job args 0002/0000)",
+   "CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 2 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (0 jobs, want 3)",
+   "CQ1b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job (0 low), and low again after that (low)",
+   "CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (16 entries at most, want 16; 2 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (0 jobs, want 26)",
+   "CQ2b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job, between rounds included (0 low), and low again after that (low)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (4087 of 12486 edges differ, the first at edge 5770)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "register_refused",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN0: the bench registers for unsolicited notifications again"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LK0: the bench registers for unsolicited notifications, got 8",
+   "LN0: the bench registers for unsolicited notifications again, got 8"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_pop_one_late",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:",
+   "CQ1:",
+   "CQ2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (3 jobs after the drain)",
+   "DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once",
+   "CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 1 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (5 jobs, want 3)",
+   "CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (16 entries at most, want 16; 1 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (27 jobs, want 26)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (165 of 8699 edges differ, the first at edge 5771)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_cleared_beside_push",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:",
+   "CQ1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 1 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (2 jobs, want 3)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (40 of 8681 edges differ, the first at edge 8467)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_not_busy",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CQ1b:",
+   "CQ2b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CQ1b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job (2 low), and low again after that (low)",
+   "CQ2b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job, between rounds included (17 low), and low again after that (low)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_reset_set",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TS1: a counter change goes out to the registered controller",
+   "TS3: after a warm reset, a change in that same second goes out at once",
+   "TW1: a round first presented at ms 0 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 0, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 0 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6510: next round at ms 0, want 7510 to 7518",
+   "DR1: in a GET_COUNTERS round on 0009:0, C's registration expires while its job waits, and the round's remaining controller D still receives the round's GET_COUNTERS 0009:0 (6 jobs after the drain)",
+   "DR1b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once",
+   "DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (6 jobs after the drain)",
+   "DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once",
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31501 and a change arrives at ms 30101: D's GET_COUNTERS sent at ms 31659, the next at ms 0, want 32659 to 32667 (1 of D's GET_COUNTERS seen)",
+   "LF1: X's LOCK with flags 0x00010000 notifies C with those flags (job args 0001/0000)",
+   "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)",
+   "LF3: X's LOCK with flags 0x00020000 after a timeout whose round is pending: the coalesced notification carries the LOCK's flags (job args 0002/0000)",
+   "CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 30 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (61 jobs, want 3)",
+   "CQ1b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job (0 low), and low again after that (low)",
+   "CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (30 entries at most, want 16; 30 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (62 jobs, want 26)",
+   "CQ2b: amap_busy_o is low before the first push, high in every clock from the one after it to the last job, between rounds included (0 low), and low again after that (low)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (28 of 9103 edges differ, the first at edge 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_reset_set_interfaces",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (4 notification(s))",
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 0, 0000:0)",
+   "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 0, 0000:0, 8 ms after interface 1's)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 3018 on index 0, want 4002 to 4010 on index 1",
+   "CK4: AVB_INTERFACE 2 names no interface of a two-interface build: no GET_COUNTERS in two seconds (one presented on 0000:0)",
+   "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 0, 0000:0)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (4 entries, DEREGISTER to 020000000001), and row 1's monitor deadline probes row 1's controller, CA owner 0 (1 probe(s))",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 3 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (0 cancel(s), owners 0x0, 2 entries)",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 2 entries), and B's probe follows (1)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken 4 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 02000000000b)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (16 of 936 edges differ, the first at edge 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_reset_set_collision",
+  "suite": "make collision",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "SC1: a TIME_LIMITED drain and another controller's command in the same cycle cancel both probes exactly once, for either row order",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (8 of 140 edges differ, the first at edge 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_reset_set_failure",
+  "suite": "make failure-window",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "SC2: a failure one cycle after the cancellation coincidence leaves the commanding controller registered without DEREGISTER, for either row order",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (8 of 876 edges differ, the first at edge 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_reset_set_identify",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (4 of 100399998 edges differ, the first at edge 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "occupancy_pop_clears",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:",
+   "CQ2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CQ2: 17 commands back to back while the first round is held fill the queue to P-NOTIF-QUEUE-DEPTH (16 entries at most, want 16; 1 after the push beside the first claim, want 1), and every entry reaches each registered controller but its requester, in order, at that controller's next sequence_id (3 jobs, want 26)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (36 of 8587 edges differ, the first at edge 8552)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_unlock_notifies_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --arm-queue-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "L5b: C2's second notification carries sequence_id 1"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "L5b: C2's second notification carries sequence_id 1 (Milan 5.4.5.1) and the UNLOCK's flags 1",
+   "L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK, locked_id 0, seq 3"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_auto_unlock_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --arm-queue-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK, locked_id 0, seq 3"
+  ],
+  "verdict": "KILLED"
+ }
+]
