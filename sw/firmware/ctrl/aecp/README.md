@@ -102,7 +102,11 @@ before it returns; the response leaves on a later pass (#665).
 the live validators. A saved map is accepted atomically or refused as a whole.
 Absent maps start from generated identity defaults, clipped to a restored input
 format. A refused saved map retains the default map and rolls its input format
-back when required to preserve that map. Live format changes cannot orphan
+back when required to preserve that map. An emptied map is saved as a framed
+record whose entries are all UNUSED, never as an erased record, so an empty list
+and a non-default one each come back across the store's power cycle
+([#763](https://github.com/kebag-logic/milan-fpga/issues/763); Milan v1.2
+5.3.9.1, 5.3.10.1). Live format changes cannot orphan
 existing mappings. Map partitioning follows advertised geometry and output
 stream/channel ownership is global across output ports. An accepted default-valued
 SET still establishes a persistent override. Store dirty marks are queued for
@@ -129,7 +133,10 @@ No reserved message type is interpreted as an AEM command.
 The [firmware bank](../test/test_ctrl_firmware.py) includes the composed AECP
 tests at one and two interfaces, all five generated shapes and the reentry
 guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
-each source defect to fail its named assertion in a completed run. The full
+each source defect to fail its named assertion in a completed run. It plants into
+a copy of this tree and of the saved-state store beside it, so a store defect that
+reads an all-UNUSED map payload as erased is graded against the AECP owner's
+power-cycle test, which no store suite catches (#763). The full
 [coverage gate](../../gtest/README.md) measures the eight new production files
 at 100% lines and branches without a new exclusion.
 
