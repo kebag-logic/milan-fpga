@@ -1,0 +1,10 @@
+# r04 CRF MaxFrameSize: specified vs derived (computed, CPython 3.12.3)
+IEEE 1722-2016 10.4.1 CRF header fields (octets): {'subtype': 1, 'sv|version|mr|r|fs|tu': 1, 'sequence_num': 1, 'type': 1, 'stream_id': 8, 'pull|base_frequency': 4, 'crf_data_length': 2, 'timestamp_interval': 2}
+header octets = 20
+CRF AVTPDU octets (derived) = 28 ; DUT CRF_PDU_C (KL_crf_tx.sv:197) = 28 -> AGREE
+derived MaxFrameSize = pdu + 1 (Table 4.4 note) = 29
+specified MaxFrameSize (Table 4.4 CRF, 1 ts/pdu) = 29
+derived == specified: True (the +1 is the Table 4.4 note; the 28 is the Clause 10 PDU) -> assignment STOP item 6 NOT triggered
+AAF 8ch Table 4.4 MaxFrameSize = 24*8+24+1 = 217 (the observed 217 = tctx_maxf_w[0] at TALKER_WIRE_CHANS_P=8)
+Table 4.4 note bandwidth: CRF@29 = 5632000 b/s (table says 5632 kbps: True )
+bandwidth at the declared 217 = 16576000 b/s; over-reservation = 10944000 b/s

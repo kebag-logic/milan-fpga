@@ -1,0 +1,46 @@
+36,40c36,40
+<     FAIL: ELAB  verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=2: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:876:5: F01.5: N_AVB_IF_P=2 is outside 1 to 2 (P-N-AVB-INTERFACES)
+<     FAIL: ELAB  verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=16: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:911:5: F08.4: owner tags OVERLAP at SI=
+<     FAIL: ELAB  verilator protocol_processor_top.gen_g_tmr_aw defaults fixture: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:880:5: F08.4: TMR_AW_C=7 cannot index P-TIMER-SLOTS=128
+<     FAIL: ELAB  verilator protocol_processor_top.gen_g_tmr_fit defaults: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:884:5: F08.4: slot map ends at 91 but P-TIMER-SLOTS=91
+<     FAIL: ELAB  verilator protocol_processor_top.gen_g_tmr_overlap defaults: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:897:5: F08.4: timer-slot groups OVERLAP at SI=8 SO=8
+---
+>     FAIL: ELAB  verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=2: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:879:5: F01.5: N_AVB_IF_P=2 is outside 1 to 2 (P-N-AVB-INTERFACES)
+>     FAIL: ELAB  verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=16: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:914:5: F08.4: owner tags OVERLAP at SI=
+>     FAIL: ELAB  verilator protocol_processor_top.gen_g_tmr_aw defaults fixture: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:883:5: F08.4: TMR_AW_C=7 cannot index P-TIMER-SLOTS=128
+>     FAIL: ELAB  verilator protocol_processor_top.gen_g_tmr_fit defaults: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:887:5: F08.4: slot map ends at 91 but P-TIMER-SLOTS=91
+>     FAIL: ELAB  verilator protocol_processor_top.gen_g_tmr_overlap defaults: rc 1: %Warning-USERFATAL: hdl/top/protocol_processor_top.sv:900:5: F08.4: timer-slot groups OVERLAP at SI=8 SO=8
+178c178
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:876:5: F01.5: N_AVB_IF_P=3 is outsi
+---
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:879:5: F01.5: N_AVB_IF_P=3 is outsi
+181,182c181,182
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:876:5: F01.5: N_AVB_IF_P=3 is outsid
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:911:5:
+---
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:879:5: F01.5: N_AVB_IF_P=3 is outsid
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:914:5:
+185,189c185,189
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:911:5: 
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:880:5: F08.4: TMR_AW_C=7 c
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:880:5: F08.4: TMR_AW_C=7 ca
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-WIDTHEXPAND: hdl/top/protocol_processor_top.sv:956:8: Input port connec
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-WIDTHEXPAND: hdl/top/protocol_processor_top.sv:956:8: Input port connec
+---
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:914:5: 
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:883:5: F08.4: TMR_AW_C=7 c
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:883:5: F08.4: TMR_AW_C=7 ca
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-WIDTHEXPAND: hdl/top/protocol_processor_top.sv:959:8: Input port connec
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: %Warning-WIDTHEXPAND: hdl/top/protocol_processor_top.sv:959:8: Input port connec
+192,193c192,193
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:884:5: F08.4: slot map ends at 91
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:884:5: F08.4: slot map ends at 91 
+---
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:887:5: F08.4: slot map ends at 91
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:887:5: F08.4: slot map ends at 91 
+196,197c196,197
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:897:5: F08.4: timer-slot grou
+<     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:897:5: F08.4: timer-slot group
+---
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: %Warning-USERERROR: hdl/top/protocol_processor_top.sv:900:5: F08.4: timer-slot grou
+>     FAIL: GUARD verilator protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: %Warning-USERWARN: hdl/top/protocol_processor_top.sv:900:5: F08.4: timer-slot group

@@ -1,0 +1,6 @@
+[A654] TAKEN
+Branch: kebag-logic/milan-fpga `190-crf-maxframesize` from dev e9cbb676
+Authoritative references: Milan v1.2 4.3.3.2 Table 4.4 (CRF, 1 ts/pdu row) and 7.3.2 / Table 7.1; IEEE 1722-2016 Clause 10; IEEE 802.1Q-2018 35.2.2.8.4; assignment comment 6256483038
+Interpreted scope: make the CRF Stream Output's Talker Advertise declare the CRF MaxFrameSize derived from the CRF format parameters (timestamps per PDU, Clause 10 header, the Table 4.4 extra octet) instead of the AAF value, and pin it with a suite case and planted mutant.
+Validation plan: the touched Verilator suites (pp_shadow / milan_dp) with the pinned Verilator, the docs and rtl-fast gates the change touches, all rc 0.
+Blockers: none yet

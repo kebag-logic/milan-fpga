@@ -1,0 +1,88 @@
+# r03 code trace at milan-fpga e9cbb676 / protocol-processor 2cbed0a9: where the CRF source's TSpec MaxFrameSize comes from
+
+--- hdl/milan/milan_datapath.sv:5587-5589 (AAF geometry constants)
+  5587	  localparam int unsigned AAF_SPF_C        = 6;   //! 48 kHz / 8000 per s
+  5588	  localparam int unsigned AAF_SMP_OCTETS_C = 4;   //! AAF INT_32BIT
+  5589	  localparam int unsigned AVTP_AAF_HDR_C   = 24;  //! common + format header
+
+--- hdl/milan/milan_datapath.sv:5641-5643 (tctx_maxf_w = 24 + 1 + 6*4*chans: the AAF Table 4.4 row)
+  5641	      assign tctx_maxf_w[gc] =
+  5642	          16'(AVTP_AAF_HDR_C) + 16'd1 +
+  5643	          16'(AAF_SPF_C * AAF_SMP_OCTETS_C) * 16'(tctx_chans_w[gc]);
+
+--- hdl/milan/milan_datapath.sv:8192-8192 (every source enabled, CRF index N_STREAMS included)
+  8192	      .cfg_src_en_i      ({ACMP_SRC_C{1'b1}}),
+
+--- hdl/milan/milan_datapath.sv:8197-8201 (the ONE scalar handed to the processor: AAF talker 0's value)
+  8197	      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize, DERIVED from the wire
+  8198	      //! width the framer was elaborated with (tctx_maxf_w) - never an
+  8199	      //! independent constant, or the declaration and the frame disagree.
+  8200	      //! Talker 0's value: every AAF talker in a build shares one width.
+  8201	      .cfg_tspec_max_frame_i (tctx_maxf_w[0]),
+
+--- hdl/milan/KL_pp_shadow.sv:300-300 (shadow port: scalar)
+   300	    input  wire [15:0]                  cfg_tspec_max_frame_i,
+
+--- hdl/milan/KL_pp_shadow.sv:1161-1161 (shadow passes it straight through)
+  1161	      .cfg_tspec_max_frame_i(cfg_tspec_max_frame_i),
+
+--- hdl/top/protocol_processor_top.sv:300-300 (processor port: one 16-bit scalar for every engine-driven DECLARE_TALKER)
+   300	    input  wire  [15:0] cfg_tspec_max_frame_i, //! TSpec MaxFrameSize for engine-driven DECLARE_TALKER
+
+--- hdl/top/protocol_processor_top.sv:2689-2701 (engine path: every source's gate_open captures the same scalar)
+  2689	      if (tkr_gate_open_w || tkr_gate_close_w) begin
+  2690	        if (st_tk_vld_r) begin
+  2691	          if (svc_drop_r != 16'hFFFF) svc_drop_r <= svc_drop_r + 16'd1;
+  2692	        end else begin
+  2693	          st_tk_vld_r <= 1'b1;
+  2694	          st_tk_r     <= '{from_svc: 1'b0,
+  2695	                           op:    tkr_gate_open_w ? 3'd0 : 3'd1,
+  2696	                           index: 8'(tkr_gate_src_w),
+  2697	                           sid:   tkr_gate_sid_w,
+  2698	                           da:    tkr_gate_da_w,
+  2699	                           vid:   tkr_gate_vlan_w,
+  2700	                           mfs:   cfg_tspec_max_frame_i,
+  2701	                           lstn:  2'd0};
+
+--- hdl/srp/KL_srp_top.sv:844-844 (SRP top latches it as the request TSpec)
+   844	            a_mfs_r <= req_max_frame_i;
+
+--- hdl/srp/KL_srp_top.sv:910-910 (...and stores it per source (the store is per source, the input is not))
+   910	              adm_mfs_r[a_idx_r[SRC_W_C-1:0]]   <= a_mfs_r;
+
+--- hdl/srp/KL_srp_admission.sv:127-127 (admission F = MaxFrameSize + L2 overhead, clamped (Table 4.4 note rule))
+   127	  assign f_raw_w      = {1'b0, max_frame_i[cidx_r]} + L2_OVERHEAD_C;
+
+--- hdl/ieee1722/crf/KL_crf_tx.sv:193-197 (CRF PDU: crf_data_length 8 = one timestamp, 28-octet AVTPDU)
+   193	  localparam [28:0] CRF_BASEHZ_C = 29'd48000;
+   194	  localparam [15:0] CRF_DLEN_C   = 16'd8;
+   195	  localparam [15:0] CRF_IVAL_C   = 16'd96;
+   196	
+   197	  localparam int CRF_PDU_C   = 28;                      //! CRF AVTPDU octets
+
+--- hdl/ieee1722/crf/KL_crf_tx.sv:206-212 (stale comment naming a deleted CRF_SRP_MAXF_C (42) - not consumed anywhere)
+   206	  //! The MSRP TSpec MaxFrameSize the integration must declare for this
+   207	  //! stream is FRAME_BYTES - (ETH_HDR_C + VTAG_C) = 42: the PADDED MSDU,
+   208	  //! not the 28-octet AVTPDU (802.1Q 35.2.2.4 TSpec; the engine's idleSlope
+   209	  //! adds the fixed 42 = preamble 8 + eth 14 + tag 4 + FCS 4 + IPG 12, so
+   210	  //! 42 + 42 = the 84-octet wire slot this frame really occupies).
+   211	  //! milan_datapath's CRF_SRP_MAXF_C carries that number.
+   212	
+
+--- CRF_SRP_MAXF_C occurrences in hdl/ (only the stale comment):
+hdl/ieee1722/crf/KL_crf_tx.sv:211:  //! milan_datapath's CRF_SRP_MAXF_C carries that number.
+
+--- processor origin/main: same scalar port and same capture (no per-source variant upstream):
+300:    input  wire  [15:0] cfg_tspec_max_frame_i, //! TSpec MaxFrameSize for engine-driven DECLARE_TALKER
+2700:                           mfs:   cfg_tspec_max_frame_i,
+
+--- hdl/milan/KL_pp_shadow.sv:1285-1293 (the service DECLARE path, the only other per-request MaxFrameSize input, is tied off)
+  1285	      .svc_valid_i         (1'b0),
+  1286	      .svc_ready_o         (),
+  1287	      .svc_op_i            ('0),
+  1288	      .svc_index_i         ('0),
+  1289	      .svc_stream_id_i     ('0),
+  1290	      .svc_da_i            ('0),
+  1291	      .svc_vid_i           ('0),
+  1292	      .svc_max_frame_i     ('0),
+  1293	      .svc_lstn_state_i    ('0),
