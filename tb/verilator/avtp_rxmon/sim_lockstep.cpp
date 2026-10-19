@@ -37,20 +37,39 @@
 //        traffic and out-of-range indexes, compared as [LS] and [GC].
 //   [SI] #762, STREAM_INTERRUPTED's causes (Milan v1.2 Table 5.6), each
 //        graded by count, not against the reference: a 100 ms silence that
-//        unlocks a bound stream counts once and the resume after it adds
-//        nothing; a sequence gap of two lost PDUs counts once; an unbind of a
-//        locked stream unlocks without counting, and so does the silence
-//        after it. An unbind swept across the silence's unlock moves
-//        MEDIA_UNLOCKED once and STREAM_INTERRUPTED at most once.
+//        unlocks a bound, started stream counts once and the resume after it
+//        adds nothing; a sequence gap of two lost PDUs counts once; an unbind
+//        of a locked stream unlocks without counting, and so does the silence
+//        after it. A stopped stream's silence unlocks it and counts nothing
+//        (5.3.8.7, the #762 ruling); STOP with live traffic counts nothing;
+//        after START a silence counts again.
+//        The boundary sweep lands an unbind, or a STOP, at every cycle from
+//        12 before to 24 after the edge the 100 ms watchdog expires on, plus
+//        far points, on an idle engine and on one paused or yielding to PDU
+//        traffic. The expected count is the harness's own: it owns the reset,
+//        so it knows the 1 ms grid (CLK_FREQ_HZ_P / 1000 cycles from reset
+//        release), and it sees the stream's last accept on pdu_accept_p_o, so
+//        the expiry is the 100th grid tick after it. After that edge the
+//        silence counts exactly once; on or before it, never.
+//        A sequence gap follows the same ruling (#762, extended): a started
+//        input's gap counts once, a stopped input's gap counts nothing (its
+//        SEQ_NUM_MISMATCH still counts), and after START a gap counts again.
+//        The gap's one boundary is its accept verdict: a STOP, or a START,
+//        lands at every cycle from 4 before to 20 after the gap PDU's pulse,
+//        on an idle engine and on one that makes the PDU wait; the gap counts
+//        exactly when the input is started on its verdict edge, the edge the
+//        harness sees pdu_accept_p_o rise for that stream.
 //
 // Scaled clock: CLK_FREQ_HZ_P=10000 makes 1 ms 10 cycles and the 100 ms
 // silence unlock 1000 cycles; the Table 5.6 interval is IVAL_CYC_P=500.
 #include "Vavtp_rxmon_lockstep_wrap.h"
 #include "verilated.h"
 #include "../../common/verilator_harness.hpp"
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <string>
+#include <vector>
 
 #ifndef N_TB
 #define N_TB 1
@@ -61,6 +80,9 @@ namespace {
 constexpr int kN = N_TB;
 constexpr int kIval = 500;
 constexpr int kUnlockCycles = 1000;
+//! the 1 ms grid, CLK_FREQ_HZ_P / 1000, and the 100 ms silence in its ticks
+constexpr int64_t kMsCycles = 10;
+constexpr int64_t kUnlockTicks = 100;
 //! AAF 48 kHz / INT32 / depth 32 / 8 channels (the NxN harness's format)
 constexpr uint64_t kFmt = 0x0205022002006000ULL;
 constexpr uint64_t kSid0 = 0x020000FFFE010000ULL;
@@ -72,6 +94,7 @@ constexpr int kWCnt0 = 16;
 constexpr int kColMl = 0;
 constexpr int kColMu = 1;
 constexpr int kColSi = 2;
+constexpr int kColSm = 3;
 constexpr int kColFrx = 9;
 constexpr int kCols = 12;
 constexpr int kLctxTimeout = 256;
@@ -109,6 +132,15 @@ class Lockstep {
     uint32_t now_ = 1000000;
     uint8_t seq_[kN] = {};
     uint32_t bound_ = 0;
+    uint32_t stopped_ = 0;
+    //! the [SI] oracle's inputs: the last edge reset was sampled low, and
+    //! each stream's last accept edge, both seen from outside the modules
+    int64_t reset_edge_ = 0;
+    int64_t last_accept_[kN] = {};
+    //! the longest expiry-to-unlock latency the idle boundary sweeps saw
+    int64_t idle_latency_ = 0;
+    //! the longest pulse-to-verdict wait the idle gap sweeps saw
+    int64_t idle_wait_ = 0;
     //! [LS]/[GC] mismatch tallies, reported once each per phase
     uint64_t ls_bad_ = 0;
     uint64_t gc_bad_ = 0;
@@ -127,6 +159,8 @@ class Lockstep {
     }
     void reset(int len);
     void bind(int s, bool up);
+    void stop(int s, bool stopped);
+    int64_t silence_expiry_edge(int s) const;
     bool lctx_write(int s, int word, uint32_t data);
     bool lctx_read(int s, int word, uint32_t& data);
     void lock_and_settle(int s);
@@ -138,7 +172,22 @@ class Lockstep {
     void h3_wrap();
     void h4_reset_during_update();
     void si_causes();
-    void si_unbind_across_the_silence();
+    void si_stop_rule();
+    void si_gap_rule();
+    void si_gap_boundary(bool by_start, bool busy);
+    //! one boundary trial's outcome (boundary_trial)
+    struct BoundaryTrial {
+        uint32_t mu = 0;
+        uint32_t si = 0;
+        bool late_moved = false;
+        int64_t e = 0;
+        int64_t ev = 0;
+        int64_t mu_edge = -1;
+        int64_t si_edge = -1;
+        bool yielded = false;
+    };
+    BoundaryTrial boundary_trial(int d, int gap, bool by_stop, bool busy);
+    void si_boundary(bool by_stop, bool busy);
     void soak(uint64_t seed, int n);
 };
 
@@ -156,6 +205,8 @@ void Lockstep::step() {
     dut_->clk_i = 1;
     dut_->eval();
     ++cycle_;
+    if (dut_->dut_pdu_accept_p_o && dut_->dut_pdu_accept_idx_o < kN)
+        last_accept_[dut_->dut_pdu_accept_idx_o] = static_cast<int64_t>(cycle_);
     now_ += 20;
     dut_->ptp_now_i = now_;
     idle_inputs();
@@ -233,9 +284,12 @@ void Lockstep::pdu(int s, uint8_t seq, bool tv, uint8_t chans) {
 void Lockstep::reset(int len) {
     dut_->rst_n = 0;
     cycles(len);
+    reset_edge_ = static_cast<int64_t>(cycle_);
     dut_->rst_n = 1;
     bound_ = 0;
     dut_->bound_i = 0;
+    stopped_ = 0;
+    dut_->stopped_i = 0;
 }
 
 void Lockstep::bind(int s, bool up) {
@@ -247,6 +301,25 @@ void Lockstep::bind(int s, bool up) {
         dut_->bind_fall_i = static_cast<uint8_t>(1u << s);
     }
     dut_->bound_i = bound_;
+}
+
+//! STOP_STREAMING / START_STREAMING: a level, held until changed
+void Lockstep::stop(int s, bool stopped) {
+    if (stopped)
+        stopped_ |= 1u << s;
+    else
+        stopped_ &= ~(1u << s);
+    dut_->stopped_i = stopped_;
+}
+
+//! The edge stream s's 100 ms silence watchdog expires on, from what the
+//! harness drives and sees: the 1 ms tick is visible to the watchdog on edges
+//! reset_edge_ + kMsCycles * m + 1 (m >= 1), the accept edge restarts the
+//! count, and the 100th tick after it expires.
+int64_t Lockstep::silence_expiry_edge(int s) const {
+    int64_t m = (last_accept_[s] - reset_edge_ - 1) / kMsCycles + 1;
+    if (m < 1) m = 1;
+    return reset_edge_ + kMsCycles * (m + kUnlockTicks - 1) + 1;
 }
 
 //! a window write held until the engine grants it
@@ -509,36 +582,337 @@ void Lockstep::si_causes() {
     report_lockstep("SI");
 }
 
-//! The unbind landing anywhere across the silence's unlock, from well before
-//! the watchdog fires to after the unlock walk: whichever comes first, the
-//! stream unlocks once, and STREAM_INTERRUPTED moves at most once
-void Lockstep::si_unbind_across_the_silence() {
-    std::printf("[SI] an unbind swept across the silence unlock\n");
+//! #762 ruling: a stopped input has no playback, so its silence interrupts
+//! nothing (Milan v1.2 5.3.8.7 and Table 5.6). Each case is graded by count:
+//! stopped silence after an established lock, START recovery, STOP with live
+//! traffic, and the unbind of a stopped, locked input.
+void Lockstep::si_stop_rule() {
+    std::printf("[SI] #762 stopped and started inputs\n");
     const int s = kN - 1;
-    uint64_t wrong_unlocks = 0;
-    uint64_t wrong_interrupts = 0;
-    uint64_t counted = 0;
-    uint64_t trials = 0;
-    for (int offset = kUnlockCycles - 40; offset < kUnlockCycles + 40; offset += 2) {
-        ++trials;
-        lock_and_settle(s);
-        //! lock_and_settle returns 40 cycles after its last PDU
-        const uint32_t mu0 = gc_read(s, kColMu);
-        const uint32_t si0 = gc_read(s, kColSi);
-        cycles(offset - 40);
-        bind(s, false);
-        cycles(kUnlockCycles + 200);
-        const uint32_t mu = gc_read(s, kColMu) - mu0;
-        const uint32_t si = gc_read(s, kColSi) - si0;
-        wrong_unlocks += mu != 1;
-        wrong_interrupts += si > 1;
-        counted += si;
+    lock_and_settle(s);
+    uint32_t ml0 = gc_read(s, kColMl);
+    uint32_t mu0 = gc_read(s, kColMu);
+    uint32_t si0 = gc_read(s, kColSi);
+    stop(s, true);
+    cycles(kUnlockCycles + 200);
+    c_.dec("[SI] a stopped input's silence unlocks it (MEDIA_UNLOCKED)", gc_read(s, kColMu) - mu0, 1);
+    c_.dec("[SI] a stopped input's silence unlocks it but counts no STREAM_INTERRUPTED",
+           gc_read(s, kColSi) - si0, 0);
+    //! START: the talker resumes five sequence numbers on and the stream
+    //! relocks; the first PDU re-seeds, and a later silence counts again
+    stop(s, false);
+    seq_[s] = static_cast<uint8_t>(seq_[s] + 5);
+    for (int k = 0; k < 9; k++) {
+        pdu(s, ++seq_[s]);
+        cycles(20);
     }
-    c_.dec("[SI] across the sweep every stream unlocked exactly once", wrong_unlocks, 0);
-    c_.dec("[SI] across the sweep STREAM_INTERRUPTED never moved twice", wrong_interrupts, 0);
-    c_.that("[SI] the sweep covered both orders (some silences counted, some unbinds first)",
-            counted > 0 && counted < trials);
-    report_lockstep("SI sweep");
+    cycles(20);
+    c_.dec("[SI] START: the resumed stream relocks (MEDIA_LOCKED)", gc_read(s, kColMl) - ml0, 1);
+    c_.dec("[SI] START: ...and the resume counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si0, 0);
+    cycles(kUnlockCycles + 200);
+    c_.dec("[SI] after START a silence counts STREAM_INTERRUPTED again", gc_read(s, kColSi) - si0, 1);
+    bind(s, false);
+    cycles(40);
+
+    //! STOP with live traffic: the monitor still receives every PDU, so the
+    //! stream neither falls silent nor unlocks, for longer than the timeout
+    lock_and_settle(s);
+    mu0 = gc_read(s, kColMu);
+    si0 = gc_read(s, kColSi);
+    stop(s, true);
+    for (int k = 0; k < 30; k++) {
+        pdu(s, ++seq_[s]);
+        cycles(50);
+    }
+    c_.dec("[SI] STOP with live traffic unlocks nothing", gc_read(s, kColMu) - mu0, 0);
+    c_.dec("[SI] STOP with live traffic counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si0, 0);
+    stop(s, false);
+    pdu(s, ++seq_[s]);
+    cycles(20);
+    cycles(kUnlockCycles + 200);
+    c_.dec("[SI] START after stopped live traffic: the next silence counts once",
+           gc_read(s, kColSi) - si0, 1);
+    bind(s, false);
+    cycles(40);
+
+    lock_and_settle(s);
+    mu0 = gc_read(s, kColMu);
+    si0 = gc_read(s, kColSi);
+    stop(s, true);
+    cycles(20);
+    bind(s, false);
+    cycles(40);
+    c_.dec("[SI] an unbind of a stopped, locked input unlocks it once", gc_read(s, kColMu) - mu0, 1);
+    c_.dec("[SI] ...and counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si0, 0);
+    stop(s, false);
+    report_lockstep("SI stop");
+}
+
+//! #762, extended ruling: a stopped input has no playback, so its sequence
+//! gap interrupts nothing either; a started input's gap counts once and after
+//! START a gap counts again. Each case is graded by count.
+void Lockstep::si_gap_rule() {
+    std::printf("[SI] #762 a sequence gap on started and stopped inputs\n");
+    const int s = kN - 1;
+    auto gap = [this, s]() {
+        seq_[s] = static_cast<uint8_t>(seq_[s] + 3);
+        pdu(s, seq_[s]);
+        cycles(20);
+    };
+    lock_and_settle(s);
+    const uint32_t mu0 = gc_read(s, kColMu);
+    const uint32_t si0 = gc_read(s, kColSi);
+    gap();
+    c_.dec("[SI] a started input's sequence gap counts STREAM_INTERRUPTED once", gc_read(s, kColSi) - si0, 1);
+    //! close the interval the started gap landed in, so the stopped gaps'
+    //! SEQ_NUM_MISMATCH is their own
+    cycles(kIval + 20);
+    const uint32_t sm1 = gc_read(s, kColSm);
+    const uint32_t si1 = gc_read(s, kColSi);
+    stop(s, true);
+    cycles(5);
+    gap();
+    c_.dec("[SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si1, 0);
+    gap();
+    c_.dec("[SI] ...nor does a second stopped gap", gc_read(s, kColSi) - si1, 0);
+    c_.dec("[SI] ...and the stopped gaps unlock nothing", gc_read(s, kColMu) - mu0, 0);
+    cycles(kIval + 20);
+    c_.that("[SI] the stopped gaps were seen: SEQ_NUM_MISMATCH moved (the case is live)",
+            gc_read(s, kColSm) - sm1 >= 1);
+    stop(s, false);
+    cycles(5);
+    const uint32_t si2 = gc_read(s, kColSi);
+    gap();
+    c_.dec("[SI] after START a sequence gap counts STREAM_INTERRUPTED again", gc_read(s, kColSi) - si2, 1);
+    if (kN > 1) {
+        stop(0, true);
+        cycles(5);
+        gap();
+        c_.dec("[SI] another input's STOP leaves this input's gap counted", gc_read(s, kColSi) - si2, 2);
+        stop(0, false);
+    }
+    bind(s, false);
+    cycles(40);
+    report_lockstep("SI gap");
+}
+
+//! The gap's one boundary, its accept verdict. Each trial sends one gap PDU
+//! on edge P, a STOP (or a START) lands on edge P + d, and the verdict edge A
+//! is where pdu_accept_p_o rises for that stream after P. The gap counts
+//! once when the input is started on edge A, never otherwise. Busy, two
+//! earlier events (a second stream's PDUs, or depacketizer pulses at N = 1)
+//! occupy the walker, so the PDU waits for its verdict. Each trial starts at
+//! the same phase of the observation interval the harness drives.
+void Lockstep::si_gap_boundary(bool by_start, bool busy) {
+    const char* what = by_start ? "a START" : "a STOP";
+    std::printf("[SI] gap boundary: %s across the verdict, %s engine\n", what, busy ? "busy" : "idle");
+    const std::string tag = std::string("[SI] gap boundary (") + what + (busy ? ", busy)" : ", idle)");
+    const int s = kN - 1;
+    const int b = 0;
+    if (busy && kN > 1) lock_and_settle(b);
+    lock_and_settle(s);
+    uint64_t wrong = 0;
+    uint64_t unseen = 0;
+    //! where the event landed: before the pulse, between the pulse and the
+    //! verdict, on the verdict edge, after it
+    uint64_t where[4] = {};
+    int64_t max_wait = 0;
+    for (int d = -4; d <= 20; d++) {
+        stop(s, by_start);
+        //! every trial at one phase of the Table 5.6 interval, far from its
+        //! commit walk, so the verdict's wait is the same in every trial
+        cycles(10);
+        while ((static_cast<int64_t>(cycle_) - reset_edge_) % kIval != kIval / 2) step();
+        const uint32_t si0 = gc_read(s, kColSi);
+        const int64_t p = static_cast<int64_t>(cycle_) + 8;
+        const int64_t ev = p + d;
+        int64_t a = -1;
+        while (static_cast<int64_t>(cycle_) < p + 40) {
+            const int64_t next = static_cast<int64_t>(cycle_) + 1;
+            if (busy && (next == p - 2 || next == p - 1)) {
+                if (kN > 1) {
+                    pdu(b, ++seq_[b]);
+                } else {
+                    dut_->depkt_pdu_p_i = 1;
+                    dut_->depkt_pdu_idx_i = 0;
+                }
+            }
+            if (next == p) {
+                seq_[s] = static_cast<uint8_t>(seq_[s] + 3);
+                pdu(s, seq_[s]);
+            }
+            if (next == ev) stop(s, !by_start);
+            step();
+            if (a < 0 && static_cast<int64_t>(cycle_) >= p && dut_->dut_pdu_accept_p_o &&
+                dut_->dut_pdu_accept_idx_o == s)
+                a = static_cast<int64_t>(cycle_);
+        }
+        const uint32_t si = gc_read(s, kColSi) - si0;
+        if (a < 0) {
+            unseen++;
+            continue;
+        }
+        const bool started_at_verdict = by_start ? ev <= a : ev > a;
+        const uint32_t want = started_at_verdict ? 1 : 0;
+        if (si != want)
+            std::printf("  offset %d from the pulse (verdict at +%lld): STREAM_INTERRUPTED +%u, expected +%u\n",
+                        d, static_cast<long long>(a - p), si, want);
+        wrong += si != want;
+        where[ev < p ? 0 : ev < a ? 1 : ev == a ? 2 : 3]++;
+        max_wait = std::max(max_wait, a - p);
+    }
+    stop(s, false);
+    std::printf("  landed before the pulse %llu, before the verdict %llu, on it %llu, after it %llu; "
+                "longest pulse-to-verdict %lld cycles\n",
+                static_cast<unsigned long long>(where[0]), static_cast<unsigned long long>(where[1]),
+                static_cast<unsigned long long>(where[2]), static_cast<unsigned long long>(where[3]),
+                static_cast<long long>(max_wait));
+    c_.dec((tag + ": every gap PDU reached its verdict").c_str(), unseen, 0);
+    c_.dec((tag + ": the gap counts once when started at its verdict, never when stopped").c_str(), wrong, 0);
+    c_.that((tag + ": landed before the pulse, before the verdict, on it and after it (the sweep is live)").c_str(),
+            where[0] > 0 && where[1] > 0 && where[2] > 0 && where[3] > 0);
+    if (!busy)
+        idle_wait_ = std::max(idle_wait_, max_wait);
+    else
+        c_.that((tag + ": the load held the verdict longer than an idle engine does").c_str(),
+                max_wait > idle_wait_);
+    bind(s, false);
+    cycles(40);
+    if (busy && kN > 1) {
+        bind(b, false);
+        cycles(40);
+    }
+    report_lockstep(by_start ? "SI gap START boundary" : "SI gap STOP boundary");
+}
+
+//! One #762 boundary trial: a fresh lock, then an unbind or a STOP sampled
+//! on edge E + d, where E is the silence's expiry edge (silence_expiry_edge).
+//! Busy, a PDU of a second stream (N > 1) or a depacketizer pulse (N = 1)
+//! arrives every `gap` cycles until 40 cycles after the event. Returns the
+//! counter deltas once the walk is over, whether anything moved in a full
+//! timeout after it, and the edges GET_COUNTERS showed the walk's two writes.
+Lockstep::BoundaryTrial Lockstep::boundary_trial(int d, int gap, bool by_stop, bool busy) {
+    const int s = kN - 1;
+    const int b = 0;
+    BoundaryTrial r;
+    lock_and_settle(s);
+    const uint32_t mu0 = gc_read(s, kColMu);
+    const uint32_t si0 = gc_read(s, kColSi);
+    r.e = silence_expiry_edge(s);
+    r.ev = r.e + d;
+    const int64_t load_end = r.ev + 40;
+    const int64_t end = std::max(r.ev, r.e) + 80;
+    while (static_cast<int64_t>(cycle_) < end) {
+        const int64_t next = static_cast<int64_t>(cycle_) + 1;
+        if (next == r.ev) {
+            if (by_stop)
+                stop(s, true);
+            else
+                bind(s, false);
+        }
+        if (busy && next < load_end && next % gap == 0) {
+            if (kN > 1) {
+                pdu(b, ++seq_[b]);
+            } else {
+                dut_->depkt_pdu_p_i = 1;
+                dut_->depkt_pdu_idx_i = 0;
+            }
+        }
+        step();
+        if (r.mu_edge < 0 && gc_read(s, kColMu) != mu0) r.mu_edge = static_cast<int64_t>(cycle_);
+        if (r.si_edge < 0 && gc_read(s, kColSi) != si0) r.si_edge = static_cast<int64_t>(cycle_);
+        if (kN > 1 && r.mu_edge >= 0 && r.si_edge < 0 && dut_->dut_pdu_accept_p_o &&
+            dut_->dut_pdu_accept_idx_o == b)
+            r.yielded = true;
+    }
+    r.mu = gc_read(s, kColMu) - mu0;
+    r.si = gc_read(s, kColSi) - si0;
+    cycles(kUnlockCycles + 100);
+    r.late_moved = (gc_read(s, kColMu) - mu0 != r.mu) || (gc_read(s, kColSi) - si0 != r.si);
+    if (by_stop) stop(s, false);
+    bind(s, false);
+    cycles(40);
+    return r;
+}
+
+//! #762's one event boundary. An unbind, or a STOP, is sampled on every edge
+//! from 12 before to 24 after the silence's expiry edge E, and at far points.
+//! E is the harness's own (silence_expiry_edge), never read from a module.
+//! Sampled after E, the silence is already an interruption and counts
+//! exactly once; on or before E it never counts; the stream unlocks once
+//! either way, and a full timeout later nothing more has moved. Busy, the
+//! unlock walk waits for the walker and its STREAM_INTERRUPTED write yields.
+void Lockstep::si_boundary(bool by_stop, bool busy) {
+    const char* what = by_stop ? "a STOP" : "an unbind";
+    std::printf("[SI] boundary: %s across the silence expiry, %s engine\n", what,
+                busy ? "busy" : "idle");
+    const std::string tag = std::string("[SI] boundary (") + what + (busy ? ", busy)" : ", idle)");
+    std::vector<int> offsets = {-200, -40};
+    for (int d = -12; d <= 24; d++) offsets.push_back(d);
+    offsets.push_back(40);
+    offsets.push_back(80);
+    uint64_t wrong_mu = 0;
+    uint64_t wrong_si = 0;
+    uint64_t wrong_late = 0;
+    //! where the event was sampled, against the walk's two counter writes:
+    //! before the expiry, while the walk was pending, between its writes, after
+    uint64_t where[4] = {};
+    uint64_t yielded = 0;
+    int64_t max_latency = 0;
+    if (busy && kN > 1) lock_and_settle(0);
+    int trial = 0;
+    for (const int d : offsets) {
+        const int gap = 3 + 3 * (trial++ % 3);  //! 3, 6 or 9 cycles apart
+        const BoundaryTrial r = boundary_trial(d, gap, by_stop, busy);
+        const uint32_t want = d > 0 ? 1 : 0;
+        if (r.mu != 1 || r.si != want)
+            std::printf("  offset %d from the expiry: MEDIA_UNLOCKED +%u, STREAM_INTERRUPTED +%u, "
+                        "expected +1 and +%u\n", d, r.mu, r.si, want);
+        wrong_mu += r.mu != 1;
+        wrong_si += r.si != want;
+        wrong_late += r.late_moved;
+        int at = 3;
+        if (r.ev <= r.e)
+            at = 0;
+        else if (r.mu_edge < 0 || r.ev <= r.mu_edge)
+            at = 1;
+        else if (r.si_edge < 0 || r.ev <= r.si_edge)
+            at = 2;
+        where[at]++;
+        //! the silence's own unlock walk: always when stopped, and after E
+        //! when the unbind comes later
+        if (r.mu_edge >= 0 && (by_stop || d > 0))
+            max_latency = std::max(max_latency, r.mu_edge - r.e);
+        yielded += r.yielded;
+    }
+    if (busy && kN > 1) {
+        bind(0, false);
+        cycles(40);
+    }
+    std::printf("  sampled before the expiry %llu, while the walk was pending %llu, between its two "
+                "writes %llu, after it %llu; longest expiry-to-unlock %lld cycles; "
+                "interruption writes that yielded to a PDU walk %llu\n",
+                static_cast<unsigned long long>(where[0]), static_cast<unsigned long long>(where[1]),
+                static_cast<unsigned long long>(where[2]), static_cast<unsigned long long>(where[3]),
+                static_cast<long long>(max_latency), static_cast<unsigned long long>(yielded));
+    c_.dec((tag + ": the stream unlocked exactly once at every offset").c_str(), wrong_mu, 0);
+    c_.dec((tag + ": after the expiry the silence counts once, on or before it never").c_str(),
+           wrong_si, 0);
+    c_.dec((tag + ": a full timeout later nothing more has moved").c_str(), wrong_late, 0);
+    if (!busy) {
+        idle_latency_ = std::max(idle_latency_, max_latency);
+        c_.that((tag + ": sampled before the expiry, during the walk, between its two writes and "
+                       "after it (the sweep is live)").c_str(),
+                where[0] > 0 && where[1] > 0 && where[2] > 0 && where[3] > 0);
+    } else {
+        c_.that((tag + ": the load held the unlock walk longer than an idle engine does").c_str(),
+                max_latency > idle_latency_);
+        c_.that((tag + ": sampled before the expiry, while the walk was held, and after it").c_str(),
+                where[0] > 0 && where[1] > 0 && where[3] > 0);
+        if (kN > 1)
+            c_.that((tag + ": some interruption write yielded to a PDU walk").c_str(), yielded > 0);
+    }
+    report_lockstep(by_stop ? "SI stop boundary" : "SI unbind boundary");
 }
 
 void Lockstep::soak(uint64_t seed, int n) {
@@ -654,7 +1028,16 @@ void Lockstep::run() {
     h3_wrap();
     h4_reset_during_update();
     si_causes();
-    si_unbind_across_the_silence();
+    si_stop_rule();
+    si_gap_rule();
+    si_boundary(false, false);
+    si_boundary(true, false);
+    si_boundary(false, true);
+    si_boundary(true, true);
+    si_gap_boundary(false, false);
+    si_gap_boundary(true, false);
+    si_gap_boundary(false, true);
+    si_gap_boundary(true, true);
     soak(0x6406u + kN, 300000);
     soak(0x9e3779b97f4a7c15ULL, 300000);
     c_.that("[GC] the reads covered every sink and column many times", gc_reads_ > 600000);

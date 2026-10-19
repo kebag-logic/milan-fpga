@@ -6,9 +6,9 @@
 //! Lockstep wrapper (#640 M6): the shipping KL_avtp_rx_monitor_ctx beside
 //! the pre-change reference, KL_avtp_rx_monitor_ctx_ref
 //! (reference/KL_avtp_rx_monitor_ctx_ref.sv: the module of dev e8454e27,
-//! identical except its module name and #762's silence interruption, applied
-//! in the engine's own lines). Both take the SAME inputs every
-//! cycle; every output of both is a port, so sim_lockstep.cpp compares them
+//! identical except its module name and #762's silence interruption and
+//! stop rule, applied in the engine's own lines). Both take the SAME inputs
+//! every cycle; every output of both is a port, so sim_lockstep.cpp compares them
 //! cycle by cycle. The GET_COUNTERS read is the one interface that changed
 //! shape: the reference presents a sink's twelve counters at once
 //! (ref_diag_cnt_o), the shipping module one counter named by column
@@ -36,6 +36,7 @@ module avtp_rxmon_lockstep_wrap #(
   input  wire [N_LISTENERS_P-1:0] bound_i,
   input  wire [N_LISTENERS_P-1:0] bind_rise_i,
   input  wire [N_LISTENERS_P-1:0] bind_fall_i,
+  input  wire [N_LISTENERS_P-1:0] stopped_i,
   input  wire [63:0]  sid0_i,
   input  wire [63:0]  fmt0_i,
   input  wire [31:0]  ptp_now_i,
@@ -90,8 +91,9 @@ module avtp_rxmon_lockstep_wrap #(
   ) u_ref (
     .clk_i, .rst_n, .match_valid_i, .match_index_i, .subtype_i, .seq_num_i,
     .ts_uncertain_i, .ts_valid_i, .media_restart_i, .avtp_ts_i, .fsh_i,
-    .bound_i, .bind_rise_i, .bind_fall_i, .sid0_i, .fmt0_i, .ptp_now_i,
-    .pres_ofs_i, .clk_src_i (16'd0), .servo_conv_i (1'b0), .render_sel_i,
+    .bound_i, .bind_rise_i, .bind_fall_i, .stopped_i, .sid0_i, .fmt0_i,
+    .ptp_now_i, .pres_ofs_i, .clk_src_i (16'd0), .servo_conv_i (1'b0),
+    .render_sel_i,
     .depkt_pdu_p_i, .depkt_pdu_idx_i, .depkt_drop_p_i, .depkt_drop_idx_i,
     .lctx_wr_en_i, .lctx_wr_addr_i, .lctx_wr_data_i,
     .lctx_wr_rdy_o (ref_lctx_wr_rdy_o),
@@ -124,8 +126,9 @@ module avtp_rxmon_lockstep_wrap #(
   ) u_dut (
     .clk_i, .rst_n, .match_valid_i, .match_index_i, .subtype_i, .seq_num_i,
     .ts_uncertain_i, .ts_valid_i, .media_restart_i, .avtp_ts_i, .fsh_i,
-    .bound_i, .bind_rise_i, .bind_fall_i, .sid0_i, .fmt0_i, .ptp_now_i,
-    .pres_ofs_i, .clk_src_i (16'd0), .servo_conv_i (1'b0), .render_sel_i,
+    .bound_i, .bind_rise_i, .bind_fall_i, .stopped_i, .sid0_i, .fmt0_i,
+    .ptp_now_i, .pres_ofs_i, .clk_src_i (16'd0), .servo_conv_i (1'b0),
+    .render_sel_i,
     .depkt_pdu_p_i, .depkt_pdu_idx_i, .depkt_drop_p_i, .depkt_drop_idx_i,
     .lctx_wr_en_i, .lctx_wr_addr_i, .lctx_wr_data_i,
     .lctx_wr_rdy_o (dut_lctx_wr_rdy_o),

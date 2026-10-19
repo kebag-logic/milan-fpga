@@ -42,7 +42,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -GMAXTT_NS_P=$(MAXTT_NS) -GEARLY_MARGIN_NS_P=$(EARLY_M_NS) \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE \
-         -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=$(IVAL_CYC)u \
+         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -DIVAL_CYC_C=$(IVAL_CYC)u \
                   -DMAXTT_NS_C=$(MAXTT_NS)u -DEARLY_M_NS_C=$(EARLY_M_NS)u -Wall -Wextra"
 
 RX_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
@@ -50,6 +50,9 @@ SRCS = $(RX_RTL)
 DISC_MDIR ?= obj_discontinuity
 UNIT_MDIR ?= obj_dir
 CPP  = sim_main.cpp
+# overridable so mutants.py can plant a #762 defect in the replica too; the
+# -I above keeps its relative includes resolving from a copy elsewhere
+UNIT_CPP ?= $(CPP)
 
 .PHONY: all run unit unit-build discontinuity discontinuity-build talker_step mutants clean
 all: run mutants
@@ -61,7 +64,7 @@ unit: unit-build
 	./$(UNIT_MDIR)/Vcrf_rx_sim
 
 unit-build:
-	$(VERILATOR) $(VFLAGS) -Mdir $(UNIT_MDIR) $(SRCS) $(CPP) -o Vcrf_rx_sim
+	$(VERILATOR) $(VFLAGS) -Mdir $(UNIT_MDIR) $(SRCS) $(UNIT_CPP) -o Vcrf_rx_sim
 
 discontinuity: discontinuity-build
 	./$(DISC_MDIR)/Vdiscontinuity

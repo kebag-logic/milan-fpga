@@ -169,7 +169,9 @@ def main() -> int:
         changed = copy.deepcopy(base)
         changed[0]["results"][0][key] = value
         refuse(lambda: verify(changed), f"changed result {key}")
-    for bad in ("-1/4", "4/4", "0/0", "0/32"):
+    # One shard more than the driver's real inventory, which the accepted
+    # len(names)-way split above sits one below; never a fixed count.
+    for bad in ("-1/4", "4/4", "0/0", f"0/{len(names) + 1}"):
         refuse(lambda: receipts.partition(names, bad), f"shard {bad}")
     with tempfile.TemporaryDirectory(prefix="case-receipts-") as directory:
         work = Path(directory)

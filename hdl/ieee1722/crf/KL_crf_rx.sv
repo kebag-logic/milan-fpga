@@ -89,7 +89,9 @@
                   own unlock, once. A Controller Unbind drops en_i, so no
                   PDU is accepted and its unlock counts nothing - the
                   clause's exclusion holds structurally. A STOPPED sink's
-                  timeout unlocks without counting it.
+                  timeout unlocks without counting it, and its sequence
+                  gaps count SEQ_NUM_MISMATCH but not it: a stopped input
+                  has no playback to interrupt (5.3.8.7, #762).
                 * MEDIA_RESET "the 'mr' bit was toggled in any of the
                   received Stream Data AVTPDUs" - the RECEIVED bit of the
                   CRF PDU (mr_i, frame byte O+1 bit 3; IEEE 1722-2016
@@ -399,8 +401,9 @@ module KL_crf_rx #(
   wire w_ev_lt_w = w_acc && w_late_w;
   wire w_ev_et_w = w_acc && w_early_w;
   //! STREAM_INTERRUPTED is PER-EVENT (no interval flag): an accepted PDU
-  //! whose sequence_num shows >= INTR_MIN_LOST_C lost AVTPDUs
-  wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C));
+  //! whose sequence_num shows >= INTR_MIN_LOST_C lost AVTPDUs, while the
+  //! sink is started (#762: a stopped input has no playback to interrupt)
+  wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;
   //! not-bound -> bound: the mr level belongs to the PREVIOUS era
   wire w_bind_rise_w = en_i && !en_q;
   //! bound -> not bound: a Controller Unbind of this Stream Input (#653)
