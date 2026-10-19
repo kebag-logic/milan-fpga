@@ -5413,8 +5413,10 @@ class NxnDatapathHarness {
     //! direction that must still come back (D3 8.3, 18.4): a hole (a mapping
     //! after an UNUSED entry), a field outside every range an ADD accepts,
     //! two mappings for one key, and a layout or an id that is not the
-    //! record's. Then the put-back: a saved input list a restored narrower
-    //! format refuses, whose port gets its reset set back
+    //! record's. Then the legal maximum, every key of both ports mapped off
+    //! the power-on map, which comes back whole, and the put-back: a saved
+    //! input list a restored narrower format refuses, whose port gets its
+    //! reset set back
     void maprec_value_arms_section(const MaprecCtx& x) {
         const std::array<uint16_t, 4> kUnused = {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF};
         const std::string in_rec = map_record(0x60, x.in_saved, maprec_in_entries());
@@ -5439,8 +5441,19 @@ class NxnDatapathHarness {
                             {in_rec, out_r({{0, 0, 7, 0}, {0, 0, 2, 0}})}, x.in_saved, x.out_id);
         maprec_restore_case("wrong layout, input", {in_rec, out_rec}, x.in_id, x.out_saved,
                             0x60, 2, 0x03);
+        maprec_restore_case("wrong layout, output", {in_rec, out_rec}, x.in_saved, x.out_id,
+                            0x70, 2, 0x03);
+        maprec_restore_case("wrong id, input", {in_rec, out_rec}, x.in_id, x.out_saved,
+                            0x60, 3, 0x61);
         maprec_restore_case("wrong id, output", {in_rec, out_rec}, x.in_saved, x.out_id,
                             0x70, 3, 0x71);
+        MapSet in_full;
+        MapSet out_full;
+        for (uint16_t c = 0; c < 8; c++) {
+            in_full.push_back({0, static_cast<uint16_t>(7 - c), c, 0});
+            out_full.push_back({0, c, static_cast<uint16_t>(7 - c), 0});
+        }
+        maprec_restore_case("legal maximum", {in_r(in_full), out_r(out_full)}, in_full, out_full);
         char fmt30[40];
         snprintf(fmt30, sizeof fmt30, "0x30=%016llx", static_cast<unsigned long long>(
                      (x.fin & ~(0x3FFull << 22)) | (4ull << 22)));
@@ -5505,7 +5518,7 @@ class NxnDatapathHarness {
         //! every page above ran: a GET that never answered would otherwise
         //! leave its checks unrun rather than failed
         ck("[MAPREC] every page ran (vacuity guard)",
-           static_cast<unsigned long>(maprec_pages), 45);
+           static_cast<unsigned long>(maprec_pages), 51);
         bring_the_datapath_out_of_reset();
     }
     #endif
