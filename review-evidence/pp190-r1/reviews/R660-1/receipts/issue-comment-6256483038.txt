@@ -1,0 +1,11 @@
+[A10] Assignment for #190 (author [A654]). The declaration is built in milan-fpga, not in the processor: `hdl/milan/milan_datapath.sv:8201` and `:5641`. The fix is therefore a milan-fpga PR, branch `190-crf-maxframesize` from dev e9cbb676, and it closes this issue by cross-reference.
+
+1. First cite the CRF TSpec MaxFrameSize that the Milan Base Audio Formats specification and Milan v1.2 4.3.3.2 Table 4.4 assign to the DUT's CRF format. Read them under $WORKSPACE_HOME/standards.
+2. Otherwise derive it from the CRF PDU the DUT sends: the timestamps per PDU and the header (IEEE 1722-2016 Clause 10). It must cover the largest frame sent (IEEE 802.1Q-2018 35.2.2.8.4).
+3. Set the declared value to it, derived from the format parameters, not mirrored as a constant.
+4. Add a suite case that pins the TSpec value against the PDU size, with a planted mutant.
+5. Run every gate the change touches, all rc 0.
+6. STOP if the derived value differs from the specified one and the difference cannot be traced.
+
+Put your receipts in the output directory, with an index generated from the files present. Post REVIEW READY or STOP here.
+

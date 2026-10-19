@@ -1,0 +1,429 @@
+diff --git a/docs/architecture/02_interfaces.md b/docs/architecture/02_interfaces.md
+index 5e297a6..4242901 100644
+--- a/docs/architecture/02_interfaces.md
++++ b/docs/architecture/02_interfaces.md
+@@ -252,6 +252,7 @@ faces and the class-D levels instead of issuing requests.
+ 
+ </details>
+ 
++<a id="sec-02-srp"></a>
+ ### 4.1 `srp` — SRP/MSRP adapter operations
+ 
+ This contract is served by the **in-scope SRP engine** ([10](10_srp_engine.md)) when
+@@ -273,6 +274,14 @@ fields or it cannot serve this contract.
+ | `WITHDRAW_LISTENER` | sink idx | OK | unbind/teardown |
+ | `GET_DOMAIN` | SR class | {priority, default VID} | GET_AVB_INFO gather |
+ 
++The tspec is per source. MaxFrameSize is the largest frame the talker produces for
++the stream (IEEE 802.1Q-2018 §35.2.2.8.4 a)), and Milan Table 4.4 sets it by format,
++so Stream Outputs of different formats (AAF, CRF) declare different values. The
++engine-driven `DECLARE_TALKER` of source *s* takes slot *s* of the top's
++`cfg_tspec_max_frame_i[N_STREAM_OUT_P*16-1:0]`, flat `[16*s +: 16]` like
++`cfg_stream_id_i`; the service face carries it per request in `svc_max_frame_i`.
++Until issue #190 the port was one 16-bit value that every source declared.
++
+ Class-C events from `srp`: `TK_ATTR_REGISTERED{sink, adv|failed}` /
+ `TK_ATTR_UNREGISTERED{sink}` (matched on the sink's settled {stream_id, DA, VLAN} —
+ exact match per Milan §5.3.8.9, matching done in the adapter),
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 67de9c3..5949298 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -774,3 +774,15 @@ Rendering inputs generate F06.14; rendering equality is not behavioral proof.
+ - unserved: held. Default program for every unserved opcode in the observed population. Consumer:
+   record._unserved. Check: unserved program.
+ <!-- END AECP FIELD REGISTRY -->
++
++### 8.12 The per-source TSpec MaxFrameSize (issue #190)
++
++The top takes `cfg_tspec_max_frame_i` per source
++([02 §4.1](02_interfaces.md#sec-02-srp)): the engine-driven
++`DECLARE_TALKER` of source *s* declares slot *s*.
++
++| Property | Checks | Controls |
++|---|---|---|
++| each source declares its own slot, read off the MSRP wire and range-matched, on a fresh model whose eight slots are eight different Milan Table 4.4 values (the CRF value 29 among them) | `tb/pp_top` TS1, one check per source; TS0 grades that every source's DA gate is open | `tspec_slot_zero`, `tspec_slot_last` and `tspec_no_allocator` in `tb/pp_top/acmp_mutants.py` |
++
++The mutation record is in the [`tb/pp_top` README](../../tb/pp_top/README.md).
+diff --git a/docs/architecture/10_srp_engine.md b/docs/architecture/10_srp_engine.md
+index cc0db5c..b1107b0 100644
+--- a/docs/architecture/10_srp_engine.md
++++ b/docs/architecture/10_srp_engine.md
+@@ -134,7 +134,9 @@ the stream's current format per Milan Table 4.4; lanes bottom→top = wire order
+ 
+ TSpec source values (Milan Table 4.4; N = channel count): AAF PCM32 48 kHz →
+ MaxFrameSize 24·N+25; 96 kHz → 48·N+25; 192 kHz → 96·N+25; CRF → 29. All with
+-MaxIntervalFrames = 1.
++MaxIntervalFrames = 1. Each source declares its own: the engine-driven declaration
++of source *s* takes slot *s* of the top's `cfg_tspec_max_frame_i`
++([02 §4.1](02_interfaces.md#sec-02-srp)).
+ 
+ `accumulated_latency` on the wire is 802.1Q's: the talker's initial value is
+ `portTcMaxLatency` plus registered amounts, grown by each bridge in transit
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index b7f99f4..622b7b6 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -267,7 +267,7 @@ updated at runtime under the event contracts below.
+ | Dynamic gPTP state | `gm_change_i`, `gm_id_i[63:0]`, `gptp_domain_i[7:0]` |
+ | Level controls | `entity_enable_i`, `link_up_i` |
+ | Identification button | `identify_button_i` (read only with `EN_IDENTIFY_NOTIF_P` = 1) |
+-| SRP | `p2p_i`, `cfg_rank_i`, `cfg_acc_lat_ns_i[31:0]`, `port_rate_bps_i[31:0]`, `cfg_tspec_max_frame_i[15:0]` |
++| SRP | `p2p_i`, `cfg_rank_i`, `cfg_acc_lat_ns_i[31:0]`, `port_rate_bps_i[31:0]`, `cfg_tspec_max_frame_i[N_STREAM_OUT_P*16-1:0]` |
+ | Talker sources | `cfg_src_en_i`, `cfg_src_iface_i`, `cfg_stream_id_i` |
+ 
+ Drive `entity_model_id_i` with the ENTITY descriptor's `entity_model_id`: the
+@@ -324,9 +324,19 @@ The processor drives none of these inputs itself. The
+ [descriptor ownership contract](../architecture/07_memory_maps.md#31-descriptor-tree)
+ identifies the parent shipping checks and what the processor's lint adds to them.
+ 
+-The three per-source vectors `cfg_src_en_i`, `cfg_src_iface_i` and
+-`cfg_stream_id_i` are **flat packed bit vectors**: index *s* occupies
+-`[W*s +: W]`. The same convention is used by every per-index status output.
++The four per-source vectors `cfg_src_en_i`, `cfg_src_iface_i`,
++`cfg_stream_id_i` and `cfg_tspec_max_frame_i` are **flat packed bit vectors**:
++index *s* occupies `[W*s +: W]`. The same convention is used by every per-index
++status output.
++
++Drive slot *s* of `cfg_tspec_max_frame_i` with the TSpec MaxFrameSize of Stream
++Output *s*'s format: the largest frame that source produces (IEEE 802.1Q-2018
++35.2.2.8.4 a)), as Milan v1.2 4.3.3.2 Table 4.4 gives it per format; the
++[SRP engine document](../architecture/10_srp_engine.md#fig-10-talkerfv) lists the
++values. Source *s*'s engine-driven `DECLARE_TALKER` declares that slot,
++and the admission round prices the source from it. Until issue #190 the port was
++one 16-bit value that every source declared; an integration that still has one
++value drives it on every slot, `{N_STREAM_OUT_P{value}}`.
+ 
+ `entity_enable_i` is the boot gate of Milan §5.6.1, as a **request**. The ADP engine's
+ effective enable is `entity_enable_i && restore_done_o`: the processor releases your
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index dda6b54..adadb25 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -297,7 +297,10 @@ module protocol_processor_top
+     input  wire         cfg_rank_i,            //! declared rank bit (F10.7)
+     input  wire  [31:0] cfg_acc_lat_ns_i,      //! initial accumulated_latency
+     input  wire  [31:0] port_rate_bps_i,       //! port rate for the admission ceiling
+-    input  wire  [15:0] cfg_tspec_max_frame_i, //! TSpec MaxFrameSize for engine-driven DECLARE_TALKER
++    //! per-source TSpec MaxFrameSize for the engine-driven DECLARE_TALKER,
++    //! flat [16*s +: 16] like cfg_stream_id_i: source s declares slot s
++    //! (802.1Q-2018 35.2.2.8.4 a), Milan v1.2 4.3.3.2 Table 4.4)
++    input  wire  [N_STREAM_OUT_P*16-1:0] cfg_tspec_max_frame_i,
+ 
+     //! ---- talker source configuration (05 quasi-static) ----
+     input  wire  [N_STREAM_OUT_P-1:0]    cfg_src_en_i,     //! source exists in current config
+@@ -2697,7 +2700,7 @@ module protocol_processor_top
+                            sid:   tkr_gate_sid_w,
+                            da:    tkr_gate_da_w,
+                            vid:   tkr_gate_vlan_w,
+-                           mfs:   cfg_tspec_max_frame_i,
++                           mfs:   cfg_tspec_max_frame_i[32'(tkr_gate_src_w) * 16 +: 16],
+                            lstn:  2'd0};
+         end
+       end
+diff --git a/tb/pp_top/Makefile b/tb/pp_top/Makefile
+index 44f968b..3a16619 100644
+--- a/tb/pp_top/Makefile
++++ b/tb/pp_top/Makefile
+@@ -86,6 +86,11 @@ gsi-internal: gsi-build
+ maap-internal: gsi-build
+ 	./obj_dir/Vpp_top_sim --maap-internal-only
+ 
++# section TS alone (issue #190): every source declares its own TSpec
++# MaxFrameSize slot; acmp_mutants.py's TSpec arms run against it
++tspec: gsi-build
++	./obj_dir/Vpp_top_sim --tspec-only
++
+ adp-config: gsi-build
+ 	./obj_dir/Vpp_top_sim --adp-only
+ 
+@@ -241,7 +246,7 @@ ucode.hex: $(HDL)/aecp/ucode/gen_ucode.py $(HDL)/aecp/ucode/aecp_commands.json
+ clean:
+ 	rm -rf obj_dir obj_vid obj_idn obj_line obj_tim obj_tdf obj_if2 ltn_rom.hex ucode.hex
+ 
+-.PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config aecp-dispatch \
++.PHONY: name-writes run gsi-build gsi-internal maap-internal tspec adp-config aecp-dispatch \
+         line-build aecp-line aecp-dispatch-mutants identify-build identify \
+         deadline d3 volatile cuts hazards counters budget budget-build \
+         timer-defaults timer-defaults-build withdraw interfaces interfaces-build \
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 678b1c3..3df4970 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2171,6 +2171,46 @@ Measured 2026-10-04 at the head of the issue's second round, each KILLED. In the
+ first five, the other failing checks are the main section's own (S2's MVRP VID
+ New is among them in every case).
+ 
++## Section TS: every source declares its own TSpec MaxFrameSize (issue #190)
++
++IEEE 802.1Q-2018 35.2.2.8.4 a) makes MaxFrameSize the largest frame the talker
++produces for the stream, and Milan v1.2 4.3.3.2 Table 4.4 sets it by format, so
++Stream Outputs of different formats declare different values. The top takes
++`cfg_tspec_max_frame_i` per source, flat `[16*s +: 16]` like `cfg_stream_id_i`,
++and the engine-driven DECLARE_TALKER of source *s* captures slot *s*.
++
++The main model drives 1024 on every slot, so nothing above moves. TS runs a
++fresh model of its own with the suite's descriptor image and an erased NVM, and
++gives every slot a different Table 4.4 value: source 0 the 8-channel AAF PCM32
++48 kHz value 217 (24·8 + 24 + 1), source 1 the CRF value at one timestamp per
++PDU, 29 (28 + 1), and sources 2 to 7 the same AAF format at 2 to 7 channels (73
++to 193). The bench's allocator grants every source a DA.
++
++- **TS0** AECP is released after both walks, and a PROBE_TX for each of the eight
++  sources is answered PROBE_TX_RESPONSE SUCCESS, so every DA gate is open.
++- **TS1** (one check per source) the first Talker attribute the MSRP wire carries
++  for source *s* declares slot *s*. The value is range-matched the way a bridge
++  reads it: FirstValue + k adds k to the Unique ID and to the destination_address
++  and carries the TSpec unchanged (802.1Q-2018 35.2.2.8), so a vector of
++  NumberOfValues *n* declares its TSpec for *n* stream_ids. Sources 0 to 6 take
++  74.368 Mb/s of the 75 Mb/s ceiling (Milan v1.2 4.3.3.2's bandwidth rule), so
++  the greedy round refuses source 7, which declares Talker Failed; that
++  FirstValue carries the TSpec at the same offset, and either attribute is read.
++
++`make tspec` (or `./obj_dir/Vpp_top_sim --tspec-only` after `make gsi-build`)
++runs the section alone: 9 checks. The full default run runs it last.
++
++The controls below are planted by `acmp_mutants.py` (issue #190 group), each
++built with `gsi-build` and run with `--tspec-only`:
++
++| Mutant | Defect planted | Named checks, each failing | Failing checks |
++|---|---|---|---|
++| `tspec_slot_zero` | the talker stage captures slot 0 for every source, the single value the port carried before issue #190 | `TS1: source 1 declares its own slot's MaxFrameSize` (the CRF slot) | 7 of 9: TS1 for sources 1 to 7, each declaring 217 |
++| `tspec_slot_last` | the talker stage captures the last slot for every source | `TS1: source 0 declares its own slot's MaxFrameSize` | 7 of 9: TS1 for sources 0 to 6, each declaring 193 |
++| `tspec_no_allocator` | the talker's MAAP request face is tied not-ready, so no source is granted a DA | `TS0: AECP is released and every source's PROBE_TX_RESPONSE is SUCCESS` | 9 of 9: no probe succeeds and nothing is declared |
++
++Measured 2026-10-19 at the lane head, each KILLED, and the golden PASS.
++
+ ## Section AX: AECP dispatch and response (issues #53, #50, #82)
+ 
+ A fresh processor of its own (the AD pattern), after AD in the default build and
+diff --git a/tb/pp_top/acmp_mutants.py b/tb/pp_top/acmp_mutants.py
+index c994202..664e5c6 100755
+--- a/tb/pp_top/acmp_mutants.py
++++ b/tb/pp_top/acmp_mutants.py
+@@ -13,9 +13,11 @@ the tree this script lives in is never touched.
+ The controls are those of processor issues #47 (ACMP messages outside the listener
+ and talker sets are inert; the probe-response guard per term), #45 (ACMPDUs longer
+ than 56 bytes are accepted), #48 (the integrated settle path from the listener
+-through the top's SRP service stage to the SRP listener matcher and back) and #639
++through the top's SRP service stage to the SRP listener matcher and back), #639
+ (the listener records in distributed RAM, and the top's timer arm-port queues as
+-rings in distributed RAM). The suite READMEs carry the matching mutation records.
++rings in distributed RAM) and #190 (the same service stage takes each engine-driven
++DECLARE_TALKER's TSpec MaxFrameSize from its own source's slot). The suite READMEs
++carry the matching mutation records.
+ 
+ Usage: python3 tb/pp_top/acmp_mutants.py --output DIR [--verilator V] [--jobs N]
+                                          [--only NAME ...]
+@@ -321,9 +323,27 @@ FIELDS = (
+          "rec_r.bind_ctlr_eid[ctlr_shift_w +: 8]"),),
+         ("retry preserves original probe after same-talker rebind",)),
+ )
+-MUTANTS = INERT + LONG_FORM + SETTLE_PATH + STORAGE + FIELDS
++# issue #190: the top's talker stage (st_tk_r) captures each engine-driven
++# DECLARE_TALKER's TSpec MaxFrameSize from its own source's slot of
++# cfg_tspec_max_frame_i; section TS gives every slot a different Milan v1.2
++# Table 4.4 value (source 0 the 8-channel AAF 217, source 1 the CRF 29)
++PP_TOP_TS = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--tspec-only"))
++TS_SLOT = "mfs:   cfg_tspec_max_frame_i[32'(tkr_gate_src_w) * 16 +: 16],"
++TSPEC = (
++    Mutant("tspec_slot_zero", PP_TOP_TS, (
++        (TOP, TS_SLOT, "mfs:   cfg_tspec_max_frame_i[15:0],"),),
++        ("TS1: source 1 declares its own slot's MaxFrameSize",)),
++    Mutant("tspec_slot_last", PP_TOP_TS, (
++        (TOP, TS_SLOT, "mfs:   cfg_tspec_max_frame_i[N_STREAM_OUT_P*16-16 +: 16],"),),
++        ("TS1: source 0 declares its own slot's MaxFrameSize",)),
++    Mutant("tspec_no_allocator", PP_TOP_TS, (
++        (TOP, "                                                     : maap_req_ready_i;\n",
++         "                                                     : 1'b0;\n"),),
++        ("TS0: AECP is released and every source's PROBE_TX_RESPONSE is SUCCESS",)),
++)
++MUTANTS = INERT + LONG_FORM + SETTLE_PATH + STORAGE + FIELDS + TSPEC
+ TALLY = re.compile(
+-    r"^((?:ACMP|AQ|GI): \d+ checks, \d+ failures|"
++    r"^((?:ACMP|AQ|GI|TS): \d+ checks, \d+ failures|"
+     r"\[build [^\n]+\] \d+ checks, \d+ failures|"
+     r"\d+ checks: \d+ PASS, \d+ FAIL)$", re.M)
+ 
+diff --git a/tb/pp_top/pp_top_wrap.sv b/tb/pp_top/pp_top_wrap.sv
+index 771752e..e019d3f 100644
+--- a/tb/pp_top/pp_top_wrap.sv
++++ b/tb/pp_top/pp_top_wrap.sv
+@@ -76,7 +76,7 @@ module pp_top_wrap (
+     input  wire         cfg_rank_i,
+     input  wire  [31:0] cfg_acc_lat_ns_i,
+     input  wire  [31:0] port_rate_bps_i,
+-    input  wire  [15:0] cfg_tspec_max_frame_i,
++    input  wire  [8*16-1:0] cfg_tspec_max_frame_i,  // per source, [16*s +: 16]
+ 
+     // MAC trunk RX
+     input  wire         rx_valid_i,
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 11ca879..0f6d5be 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -1492,6 +1492,12 @@ struct H {
+   }
+ 
+   static uint64_t maap_da(int n) { return 0x91E0F0AABB00ULL + unsigned(n); }
++  //! slot s of the per-source cfg_tspec_max_frame_i, [16*s +: 16]
++  void set_tspec(unsigned s, uint16_t mfs) {
++    uint32_t& w = d->cfg_tspec_max_frame_i[s / 2];
++    const unsigned sh = 16 * (s % 2);
++    w = (w & ~(0xFFFFu << sh)) | (uint32_t(mfs) << sh);
++  }
+   bool saw_decl_edge(int src, bool rising) const {
+     for (const auto& e : decl_edges)
+       if (e.first == src && e.second == rising) return true;
+@@ -2052,7 +2058,7 @@ struct H {
+     mclk_locked = false;
+     d->p2p_i = 1; d->cfg_rank_i = 1;
+     d->cfg_acc_lat_ns_i = ACC_LAT; d->port_rate_bps_i = RATE;
+-    d->cfg_tspec_max_frame_i = 1024;
++    for (unsigned s = 0; s < 8; ++s) set_tspec(s, 1024);  // section TS varies them
+     d->rx_valid_i = 0; d->rx_data_i = 0; d->rx_last_i = 0;
+     mac_tx_ready = true;
+     stall_tx_at_eof = false;
+@@ -11353,6 +11359,117 @@ struct NameWritePhase {
+   InternalMaapPhase{h}.run();
+ }
+ 
++// ==== TS. every source declares its own TSpec MaxFrameSize (issue #190) ===
++// IEEE 802.1Q-2018 35.2.2.8.4 a): MaxFrameSize is the maximum frame size the
++// Talker will produce for the stream, and Milan v1.2 4.3.3.2 Table 4.4 sets it
++// from the stream's format, so two Stream Outputs of different formats declare
++// different values. The engine-driven DECLARE_TALKER of source s takes slot s
++// of cfg_tspec_max_frame_i ([16*s +: 16], the cfg_stream_id_i packing).
++//
++// The main model drives 1024 on every slot. This section runs a fresh model
++// whose eight slots all differ, each a Table 4.4 value: source 0 an 8-channel
++// AAF PCM32 48 kHz stream (24*8 + 24 + 1 = 217), source 1 the CRF stream at
++// one timestamp per PDU (28 + 1 = 29), sources 2 to 7 the same AAF format at
++// 2 to 7 channels. The bench's allocator grants every source a DA, and a
++// PROBE_TX per source keeps its DA gate open (F05.12), so every source
++// declares. Sources 0 to 6 take 74.368 Mb/s of the 75 Mb/s ceiling, so the
++// greedy round refuses source 7, which declares Talker Failed; its
++// FirstValue carries the TSpec at the same offset, so either attribute is
++// read.
++//
++// The declared value is read off the MSRP wire and range-matched: FirstValue
++// + k adds k to the Unique ID and to the destination_address and carries the
++// rest unchanged (802.1Q-2018 35.2.2.8), so a vector of NumberOfValues n
++// declares the vector's TSpec for stream_id first .. first + n - 1. A run the
++// encoder folds is read the way a bridge reads it.
++struct TspecPhase {
++  H& h;
++  const milan::tb::Model<Vpp_top_wrap> model2;
++  Vpp_top_wrap* const d2;
++  H h2;
++  explicit TspecPhase(H& hh) : h(hh), d2(model2.get()), h2(d2) {}
++
++  //! the Table 4.4 value this bench gives slot s
++  static uint16_t slot_mfs(unsigned s) {
++    if (s == 1) return 28 + 1;                       // CRF, 1 ts/pdu
++    const unsigned chans = (s == 0) ? 8 : s;         // AAF PCM32, 48 kHz
++    return static_cast<uint16_t>(24 * chans + 24 + 1);
++  }
++
++  void run() {
++    h2.dram = h.dram;                       // the same 07 SS3.3 image
++    h2.reset();
++    for (unsigned s = 0; s < 8; ++s) h2.set_tspec(s, slot_mfs(s));
++    const bool booted = h2.boot_to_aecp();  // both walks over an erased device
++    d2->link_up_i = 1;
++    d2->entity_enable_i = 1;
++    h2.maap_on = true;
++    h2.run_ms(100);
++    h2.idle(8 * (1024 + 64));  // retry period plus bounded acquisition sweep
++    ts0_every_source_is_probed(booted);
++    ts1_each_source_declares_its_own_slot();
++  }
++
++  // ---- TS0: a PROBE_TX per source opens its DA gate --------------------
++  void ts0_every_source_is_probed(bool booted) {
++    unsigned ok = 0;
++    for (unsigned s = 0; s < 8; ++s) {
++      h2.q_acmp.clear();
++      h2.feed(acmp_frame(CTLR_MAC, 0, 0, 0, CTLR_EID, EID, T1_EID,
++                         uint16_t(s), 7, 0, 0, uint16_t(0x7190 + s), 0x000A, 0));
++      auto p = h2.wait_any(h2.q_acmp, 400);
++      if (p.size() == 70 && (p[15] & 0x0F) == 1 && (p[16] >> 3) == 0
++          && fv_u64(p, 50, 2) == s)
++        ok |= 1u << s;
++    }
++    CHECK(booted && ok == 0xFFu,
++          "TS0: AECP is released and every source's PROBE_TX_RESPONSE is "
++          "SUCCESS (mask 0x%02x)", ok);
++  }
++
++  // ---- TS1: each source's Talker attribute carries its own slot --------
++  void ts1_each_source_declares_its_own_slot() {
++    int got[8];
++    for (int& g : got) g = -1;
++    unsigned seen = 0;
++    long budget = 2000L * MS_CYC;
++    while (seen != 0xFFu && budget-- > 0) {
++      while (!h2.q_msrp.empty() && seen != 0xFFu) {
++        auto pf = parse_mrpdu(h2.q_msrp.front());
++        h2.q_msrp.pop_front();
++        for (const auto& v : pf.vecs) {
++          if ((v.type != 1 && v.type != 2) || v.fv.size() < 20) continue;
++          const uint64_t first = fv_u64(v.fv, 0, 8);
++          for (int k = 0; k < v.nov; ++k) {
++            const uint64_t sid = first + uint64_t(k);
++            if ((sid >> 16) != OWN_MAC || (sid & 0xFFFFu) >= 8) continue;
++            const unsigned s = unsigned(sid & 0xFFFFu);
++            if (seen & (1u << s)) continue;
++            seen |= 1u << s;
++            got[s] = int(fv_u64(v.fv, 16, 2));
++          }
++        }
++      }
++      if (seen != 0xFFu) h2.step();
++    }
++    for (unsigned s = 0; s < 8; ++s)
++      CHECK(got[s] == slot_mfs(s),
++            "TS1: source %u declares its own slot's MaxFrameSize %u (got %d)",
++            s, unsigned(slot_mfs(s)), got[s]);
++  }
++};
++
++//! section TS alone, for the ACMP mutation campaign's TSpec arms
++//! (acmp_mutants.py, README section TS); its model needs only the image
++[[maybe_unused]] static void run_tspec(H& h) {
++  const int checks0 = h.checks;
++  const int fails0 = h.fails;
++  Suite setup(h);
++  setup.load_descriptor_image();
++  TspecPhase{h}.run();
++  printf("TS: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
++}
++
+ // ==== AD. The ADPDU across SET_CONFIGURATION (issue #40) =================
+ // REQ-ADP-005 (Milan §5.6.2 note) with IEEE §6.2.2.18: every ADPDU field is
+ // independent of the current Configuration except current_configuration_index,
+@@ -14455,6 +14572,7 @@ int main(int argc, char** argv) {
+   const bool dn_only = argc == 2 && std::strcmp(argv[1], "--domain-notify-only") == 0;
+   const bool aq_only = argc == 2 && std::strcmp(argv[1], "--arm-queue-only") == 0;
+   const bool withdraw_only = argc == 2 && std::strcmp(argv[1], "--withdraw-only") == 0;
++  const bool ts_only = argc == 2 && std::strcmp(argv[1], "--tspec-only") == 0;
+   if (argc == 2 && std::strcmp(argv[1], "--dr3a") == 0) {
+     run_dr3a(h);
+     return 0;
+@@ -14462,7 +14580,7 @@ int main(int argc, char** argv) {
+   const bool one_section = gsi_only || name_only || d3_only || volatile_only || acmp_only || adp_only
+                            || cuts_only || one_seed || maap_only || aecp_only || dl_only || hz_only
+                            || ident_only || notify_only || ctr_only || spacing_only || aq_only
+-                           || dn_only || withdraw_only;
++                           || dn_only || withdraw_only || ts_only;
+   if (maap_only) run_maap_internal(h);
+   if (!one_section || aq_only) Suite(h).run();
+   if (aecp_only) run_aecp_dispatch_focus(h);
+@@ -14486,6 +14604,7 @@ int main(int argc, char** argv) {
+   if (!one_section || withdraw_only) run_withdraw(h);
+   if (!one_section || ctr_only) run_counters(h);
+   if (!one_section || aq_only) run_arm_queue(h);
++  if (!one_section || ts_only) run_tspec(h);
+   const char* const build = "default";
+ #endif
+   return report_build(h, build);

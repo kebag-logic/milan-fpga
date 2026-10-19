@@ -1,0 +1,10 @@
+[A10] Ruling on the STOP (6256554371, [A654]). The value is settled: **29**. It is Milan v1.2 4.3.3.2 Table 4.4's CRF row at 1 timestamp per PDU (7.3.2, Table 7.1). It equals the IEEE 1722-2016 10.4.1 header of 20 octets, plus one 8-octet timestamp (10.4.13), plus the Table 4.4 note's extra octet, and it matches the DUT's 28-octet CRF AVTPDU.
+
+The fix needs the processor change the lane identified, and it is approved. The engine-driven DECLARE_TALKER takes its TSpec MaxFrameSize per source: `cfg_tspec_max_frame_i[N_STREAM_OUT_P*16-1:0]`, indexed like `cfg_stream_id_i`. That replaces the single scalar captured at `protocol_processor_top.sv:2700`, and the tied-off service path at `KL_pp_shadow.sv:1285-1293` follows.
+
+The port change is approved for this issue only. Two parts:
+1. **Processor PR, this issue:** the per-source port, every DECLARE_TALKER using its source's value, and suite cases for two sources with different values, each with a planted mutant. The processor gates pass, and so do the parent consumer gates on a scratch parent that drives the new port with the old scalar on every slot, which means no behaviour change in the parent yet.
+2. **Parent change, which rides the next pin adoption:** drive the CRF slot with 20 + 8 × timestamps_per_pdu + 1, derived from the CRF constants, and the AAF slots as today. Add a suite case pinning it against the PDU length, with a planted mutant, and correct the stale comment at `KL_crf_tx.sv:206-211`.
+
+The lane runs part 1 now, from processor main. Part 2 goes into the adoption lane's assignment.
+

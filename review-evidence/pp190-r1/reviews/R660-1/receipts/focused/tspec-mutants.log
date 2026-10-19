@@ -1,0 +1,6 @@
+["python3", "tb/pp_top/acmp_mutants.py", "--jobs", "2", "--only", "tspec_slot_zero", "tspec_slot_last", "tspec_no_allocator", "--output", "$REVIEWS/pp190-r660-1-packet/receipts/focused/mutants", "--verilator", "$REVIEWS/pp190-r660-1-packet/scripts/capped-compiler.py"]
+{"mutant": "golden-pp_top--tspec-only", "verdict": "PASS"}
+{"mutant": "tspec_slot_last@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "tspec_slot_zero@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "tspec_no_allocator@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 3 of 3 KILLED by their named checks; goldens PASS
