@@ -414,8 +414,9 @@ pin `d352bbaa` (#70 lane 2) the D3 writer also writes and restores the current
 configuration, the sampling rates, both stream formats, the presentation
 offsets and the clock sources, proven on the desk, with the firmware loading
 the AEM image before the restore so that it completes; its silicon cold cycle
-remains open on #70. Channel mappings and user names have no record writer yet (#70
-lanes 3 and 4).
+remains open on #70. The channel mappings are written and restored by the parent
+since #637 (desk; cold cycle open on #637). The parent has not adopted the user
+names' writer (#70 lane 3).
 
 Blocks **item 5.1 entirely**, and item 5.1 has **no "if the DUT does not implement
 persistence" escape clause** — this is a hard compliance gate, not a

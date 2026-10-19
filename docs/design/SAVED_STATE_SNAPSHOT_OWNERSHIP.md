@@ -33,10 +33,11 @@
 > Names use accepted writes; maps use actual parent phase-5 writes.
 > The marks retain their command-completion meaning.
 > What is still a KNOWN LIMITATION of the shipping build, and a scope rather
-> than a defect of this contract, is MATERIALIZATION: no record writer exists
-> for the user names and the channel maps, which is scope D3 and UNRESOLVED 1.
-> The scalar groups have the D3 writer since processor pin `d352bbaa`
-> (#70 lane 2, section 11).
+> than a defect of this contract, is MATERIALIZATION of the user names: the
+> processor writes them, and the parent has not adopted that stage (scope D3,
+> UNRESOLVED 1). The scalar groups have the D3 writer since processor pin
+> `d352bbaa` (#70 lane 2), and the channel maps the parent's own since #637
+> (section 11).
 >
 > Two product decisions are recorded, and the contract is built on both:
 >
@@ -1282,11 +1283,13 @@ the status, because the contract relies on neither ever ending.
 Historical tracing used dev 36ee8a37 and donor 8f2f58fb.
 The table includes subsequent D1, D2 and #502 reporting updates, and the
 scalar rows the D3 writer owns since processor pin `d352bbaa`.
-The only device-face initiator in
-the gateware is KL_pp_nvm_port, driven by KL_acmp_nvm_shadow and, since that
-pin, by the D3 writer through KL_pp_nvm_mgr_arb; the
-firmware writes no record content (it copies whole containers). Record ids
-are
+The device face has two initiators since #637: KL_pp_nvm_port, driven by
+KL_acmp_nvm_shadow and, since that pin, by the D3 writer through
+KL_pp_nvm_mgr_arb, and the parent's channel-map writer in milan_datapath.
+KL_pp_shadow arbitrates them in front of the backend, and each command stays
+with the side that issued it until its done or err. Both are under obligation
+O3. The firmware writes no record content (it copies whole containers).
+Record ids are
 [section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)'s.
 
 | Ids | Group | Live value held by | Change indication reaching the parent | Record writer | What this contract publishes |
@@ -1296,20 +1299,21 @@ are
 | 0x02 to 0x09 | sampling rate | KL_aecp_dyn_state, selector 1 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 |
 | 0x0A to 0x11 | clock source | KL_aecp_dyn_state, selector 2 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 |
 | 0x12 to 0x19 | media clock reference | no AECP program writes it | none | NONE | nothing changes, nothing to report |
-| 0x20 to 0x2F | binding, parameters and started state | KL_acmp_nvm_shadow | the manager's per-sink dirty on nvm_unflushed_o (donor scope D1, landed), then the record's own grant and completion in the backend | KL_acmp_nvm_shadow through KL_pp_nvm_port, the ONLY record writer | the whole contract, pending from the accept inside the manager's debounce |
+| 0x20 to 0x2F | binding, parameters and started state | KL_acmp_nvm_shadow | the manager's per-sink dirty on nvm_unflushed_o (donor scope D1, landed), then the record's own grant and completion in the backend | KL_acmp_nvm_shadow through KL_pp_nvm_port, the ONLY binding record writer | the whole contract, pending from the accept inside the manager's debounce |
 | 0x30 to 0x3F | stream format in | KL_aecp_dyn_state, selector 3 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 (E1, before that pin: two accepted format changes; the tracked and composite builds commit record 0x30 erased, and the prototype commits no slot at all, "record 0x30 in slot None") |
 | 0x40 to 0x4F | stream format out | KL_aecp_dyn_state, selector 4 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 |
 | 0x50 to 0x5F | presentation time offset | KL_aecp_dyn_state, selector 5 | the D3 writer's per-record dirty bit, as for 0x00 | the D3 writer | as for 0x00 |
-| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502) | NONE | nvm_pend 1 from the first actual write until reset; never durable, and never written (UNRESOLVED 1) |
-| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | accepted aecp_name_wr_o pulse (#502) | NONE | as the maps row: reported from acceptance, never written (UNRESOLVED 1) |
+| 0x60 to 0x7F | channel maps in and out | milan_datapath and KL_chan_map_capture | actual phase-5 map write enable (#502), then the map writer's per-record dirty bit on amap_unflushed_i, retired at the record's window write (#637) | the parent's map writer in milan_datapath, through KL_pp_shadow's device-face arbiter (since #637) | the whole contract, pending from the accepted write |
+| 0x80 to 0xFF | user names | KL_aecp_desc_store (SET_NAME) | accepted aecp_name_wr_o pulse (#502), sticky until reset in the parent | the D3 writer since processor pin `ead80360`, not adopted by the parent (lane 3) | reported from acceptance and never durable until reset, as the maps were before #637 (UNRESOLVED 1) |
 
 Acknowledgement identity repairs none of the NONE rows; what this contract
 guarantees for them is only that the status never claims durability over a
 change it can see (E1 on the prototype: no_durable_claim_unmaterialized@first
 and @end pass, and the tracked build fails both). Materialization itself is
-UNRESOLVED 1. The channel-map and name rows are now REPORTED, because donor
-scope D2 landed. Issue #502 makes accepted live writes sticky instead.
-They still lack a writer, which is the same UNRESOLVED 1.
+UNRESOLVED 1. The name row is REPORTED, because donor scope D2 landed, and
+issue #502 makes its accepted live writes sticky. The parent's adoption of
+its writer is the same UNRESOLVED 1. The channel-map row left that state with
+#637.
 
 The non-binding writer contract is accepted under #70 lane 0.
 [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md) owns its live-write groups and retirement.

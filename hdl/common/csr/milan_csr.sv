@@ -184,11 +184,12 @@ module milan_csr #(
   //! constant zero. The pinned processor now exports the binding manager's
   //! unflushed sinks and the AECP commit marks, so [11] also reads 1 while a
   //! binding accepted INSIDE the manager's debounce has not yet committed,
-  //! and after a committed channel-map (ADD/REMOVE_AUDIO_MAPPINGS) or user
-  //! name (SET_NAME) change, which no record writer materializes and which
-  //! therefore clears only at reset. For a controller host this makes the
-  //! saved-state page's 9.3 durable reading - (backed 1, dirty 0, stale 0)
-  //! AND pend 0 - honest for those three cases: a host that polled it over
+  //! and after a committed user name (SET_NAME) change, whose sticky source
+  //! the parent still holds until reset (the name stage is not adopted); a
+  //! channel-map (ADD/REMOVE_AUDIO_MAPPINGS) change clears when the parent's
+  //! map writer has written its record (#637). For a controller host this
+  //! makes the saved-state page's 9.3 durable reading - (backed 1, dirty 0,
+  //! stale 0) AND pend 0 - honest for those three cases: a host that polled it over
   //! one of them was told durable while the change was not. Nothing here
   //! loosens the bit: 0 still means no accepted work is outstanding.
   //! #502 closes the original marks' program-tail window: accepted name

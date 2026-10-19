@@ -4178,10 +4178,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! This freezes the live baseline between the validation and commit passes,
   //! so a concurrent CSR write cannot create a time-of-check/time-of-use partial edit.
   //! Phase 1 rechecks that baseline and reserves the complete commit. This
-  //! root asserts wait only while the #658 boot map writer is busy, which
-  //! ends for good one sweep after the restore's terminal, so a transaction
-  //! meets it at phase 0 at the latest and phases 5 and 2 still complete
-  //! without a timeout point between live writes.
+  //! root asserts wait only while the #658 boot map writer is busy or the
+  //! #637 map restore holds the maps, which both end for good after the
+  //! restore's terminal, so a transaction meets it at phase 0 at the latest
+  //! and phases 5 and 2 still complete without a timeout point between live
+  //! writes.
   logic        amap_edit_seen_r;
   logic  [2:0] amap_edit_seen_phase_r;
   logic  [7:0] amap_edit_seen_rec_r;
@@ -4507,9 +4508,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! face waits and the CSR window is held out, so the RAMs and the stores
   //! agree before any edit validates against them. A writer through the
   //! existing legs is smaller than reset images in the two leaves, which
-  //! would still need it for the clip. #70 stage 3, whose map restore drives
-  //! the edit face inside the window, takes the window over for the ports it
-  //! restores.
+  //! would still need it for the clip. The #637 map restore (block amr_fsm)
+  //! runs after the window's terminal, on the stores the sweep has left equal
+  //! to the RAMs, and holds the edit face and the CSR window until it ends
+  //! (amap_boot_busy_w).
 
   //! a stream's declared default channel count, the one its
   //! GET_STREAM_FORMAT serves while no format is set; 0 past the rows

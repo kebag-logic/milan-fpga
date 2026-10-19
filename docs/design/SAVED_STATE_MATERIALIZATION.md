@@ -14,10 +14,14 @@
 > names (stage 2; [processor PR #150](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/150), lane P1).
 > The parent's lane 3 (section 18.3) has not adopted them: name pending is not
 > transferred, and no parent test grades a name across a power cycle.
-> Channel maps (stage 3) are not implemented.
 > Amended by the processor's ruling on its issue 83 (2026-10-03): the channel
 > maps (stage 3) are the parent's to write, restore and roll back, and the
-> processor's roll-back resets its two stores only (section 15 item 2, amended; #637).
+> processor's roll-back resets its two stores only (section 15 item 2, amended).
+> #637 implements stage 3 in the parent (section 18.4): `milan_datapath.sv`
+> writes records `0x60` and `0x70` from its own phase-5 change and restores
+> them after the D3 walk's COMPLETE terminal, through a device-face arbiter
+> `KL_pp_shadow.sv` adds beside the processor's port. The record format is
+> unchanged. Its board cold cycle is still owed.
 > Adoption follows the [lane-0 decision](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862191328).
 > The [assignment](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862193501) requires independent review.
 > This page decides scope D3 of the
@@ -164,7 +168,9 @@ Since processor pin `d352bbaa` (adopted by #70 lane 2) the D3 writer,
 manager 1 of `KL_pp_nvm_mgr_arb`, also writes and restores the scalar
 records: `0x00`, `0x02`.., `0x0A`.., `0x30`.., `0x40`.. and `0x50`...
 Before that pin the eight non-binding Milan item groups had no record
-writer; user names and both channel-map directions still have none. The
+writer. User names have one in the processor since pin `ead80360`, which the
+parent has not adopted (lane 3), and both channel-map directions have the
+parent's own since #637 (section 18.4). The
 [snapshot-ownership page section 11](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#11-persistent-field-materialization)
 reads NONE for those, and the contract reports them honestly instead: the
 parent's `pend_i` combines four terms in `KL_pp_shadow.sv`:
@@ -192,7 +198,7 @@ Where each live value is held, read at the current source:
 | `0x0A`.. | clock source | selector 2 | the same per-record bit |
 | `0x30`.. and `0x40`.. | stream formats in and out | selectors 3 and 4 | the same per-record bit |
 | `0x50`.. | presentation time offset | selector 5 | the same per-record bit |
-| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the power-on identity of #658 (stream channel c on the port's cluster c), clipped to the restored formats until the restore's terminal (`milan_datapath.sv` blocks `amap_boot_clip`, `amap_boot_walk` and `amap_edit_commit`; the crossbar RAMs take the same set from the boot writer) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
+| `0x60` to `0x7F` | channel maps in and out (written and restored by the parent since #637, section 18.4) | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the power-on identity of #658 (stream channel c on the port's cluster c), clipped to the restored formats until the restore's terminal (`milan_datapath.sv` blocks `amap_boot_clip`, `amap_boot_walk` and `amap_edit_commit`; the crossbar RAMs take the same set from the boot writer) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
 | `0x80`.. | user names | the writable name table of `KL_aecp_desc_store`, on chip, initialized from the image by the store's walk | accepted `aecp_name_wr_o` pulse, held sticky |
 
 `0x01` (system unique id) and `0x12` to `0x19` (media clock reference) are
@@ -389,8 +395,9 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    port changes again (section 7.2, K16). This is FAILURE CONTAINMENT, not
    persistence: Milan 5.3.10.1 requires the accepted set to persist, and
    #501 now specifies the larger allocation in the saved-state page.
-   Stage 3 still needs its writer, the parent's own (section 10;
-   section 15 item 2, amended).
+   Stage 3's writer is the parent's own (section 15 item 2, amended), and
+   at the parent's stores no set can outgrow its record (section 18.4), so
+   the skip has no case there.
 10. **Three firmware changes** (section 5.3): the AEM image loads before
     `nvm_boot` (without it the restore cannot prove its image and ends
     CLOSED); the restore walk starts on every boot path; the restore wait's
@@ -590,9 +597,12 @@ Lane 0 changes no processor document or implementation.
 The accepted D3 glue contract changes `KL_pp_shadow.sv` without adding CSRs:
 
 - The final composition is
-  `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`.
+  `pend_i = (|nvm_unflushed_o) | d3_unflushed_o`, plus the parent map
+  writer's unflushed records (`amap_unflushed_i`, #637).
   Each stage replaces its group's current pending terms (section 10).
-  Stage 3 removes `aecp_live_wr_w` and `aecp_live_pend_r` from `pend_i`.
+  Since #637 the sticky `aecp_live_pend_r` holds names only, and the map
+  pulse stays in `aecp_live_wr_w` so that pending still rises on the
+  accepting edge; the name terms leave with lane 3.
   `aecp_dyn_dirty_o` stays exported for diagnosis but leaves `pend_i`.
 - `alarm_i` takes the processor's combined alarm.
 - the restore outputs take the processor's combined verdicts; the blind-walk
@@ -600,18 +610,24 @@ The accepted D3 glue contract changes `KL_pp_shadow.sv` without adding CSRs:
   fail, so a device error that loses the one saved record never reads as a
   clean first boot (H8).
 
-With stage 3 the map plane (`milan_datapath.sv` and `KL_chan_map_capture.sv`)
-puts the port sets back to their reset value when the D3 walk rolls back
-(`restore_rb_o`): the #658 power-on identity, clipped to the formats then in
-force. The processor's roll-back strobe stays inside the processor (section 15
-item 2, amended).
+With stage 3 (#637) the map plane (`milan_datapath.sv` and
+`KL_chan_map_capture.sv`) keeps the port sets at their reset value when the
+D3 walk rolls back (`restore_rb_o`): the #658 power-on identity, clipped to
+the formats then in force. The processor's roll-back strobe stays inside the
+processor (section 15 item 2, amended).
 
-Until then the parent's boot window (`amap_boot_r`, from reset to the
-restore's terminal) recomputes that clipped identity from the live formats on
-every cycle. So a roll-back of the formats already brings the whole identity
-back. The window also holds the map edit face and the CSR map writer, so it
-must change with stage 3, whose map restore drives the edit face inside it:
-stage 3 takes the window over for the ports it restores.
+The parent's boot window (`amap_boot_r`, from reset to the restore's
+terminal) recomputes that clipped identity from the live formats on every
+cycle, so a roll-back of the formats already brings the whole identity back,
+and the map restore has nothing to undo. The map restore runs after the
+window's terminal and its sweep, on stores equal to the RAMs, and drives the
+edit face itself. The edit face, the CSR map writer, the GET_AUDIO_MAP face,
+the format judge and the entity enable wait for it (section 18.4).
+
+The records reach the backend through a second device-face initiator, the
+parent's, beside the processor's port: `KL_pp_shadow.sv` arbitrates the one
+device face. Obligation O3 holds for it: it requests nothing before the D3
+terminal.
 
 [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) owes the PP_STAT rows for
 the combined restore verdicts, and the PP_CTRL[0] and ADP_CTRL[0] rows (they
@@ -1194,7 +1210,12 @@ channels. Restoring either alone can orphan the other, so the order is:
    channel orphaned") and reverted to the image default if it fails.
 
 The processor's D3 walk does step 1; steps 2 to 4 are the parent's map
-restore after the walk's terminal (section 15 item 2, amended).
+restore after the walk's terminal (section 15 item 2, amended). In the
+parent (#637) steps 3 and 4 hold by construction, so the parent needs no
+write face into the processor's formats. Every mapping the restore applies
+passes the ADD rule against the format then in force, so no applied set
+orphans a restored format. The reset set it puts back is the identity
+clipped to those formats, so it orphans none either.
 
 EXECUTED: V6b restores a consistent narrower pair ("OUT0 set matches the
 slot True"); M10_fmt_full_judge judges the format against the maps before
@@ -1214,9 +1235,10 @@ restored formats before AECP is released. So a persisted narrower format is
 kept, and nothing is left orphaned. The formats are still judged on
 "supported" alone: judging the map bit would silently discard a persisted
 format (#658 ruling, comment 5988843004). The clip raises neither
-`amap_edit_live_wr_p` nor map-persistence work. Controller edits raise sticky
-live-map pending; records `0x60` to `0x7F` remain unmaterialized in stages 1
-and 2. Stage 3 supplies their writer. The model uses a non-empty reset set so
+`amap_edit_live_wr_p` nor map-persistence work. In stages 1 and 2 controller
+edits raised sticky live-map pending and records `0x60` to `0x7F` stayed
+unmaterialized. Stage 3 (#637) supplies their writer, whose per-record dirty
+bits replace that sticky source. The model uses a non-empty reset set so
 that every step runs (section 14).
 
 **Which judge.** The product's verdict (`hdl/milan/milan_datapath.sv`,
@@ -1264,7 +1286,9 @@ whose correctness is structural:
 - **So the roll-back is a reset.** An abort in pass 1 pulses `rb_rst`, which
   resets the dynamic-state store and the descriptor store (section 5.1),
   stage 1's owners; the parent's map plane, stage 3's, resets its port sets
-  on `restore_rb_o` (section 15 item 2, amended). Each owner then holds exactly what it held before the
+  on `restore_rb_o` (section 15 item 2, amended), and its own walk, after
+  the terminal, puts every port's reset set back on any failure of its own
+  (section 18.4). Each owner then holds exactly what it held before the
   restore: every row at its reset value with its valid flag clear, every
   name the image's (the descriptor store walks the image again), every
   port's reset set. Formats and maps return together, so they are
@@ -1896,7 +1920,7 @@ Its decision-register gates govern activation of those lanes.
 |---|---|---|---|---|
 | 1. the dynamic-state selectors | configuration index, sampling rate, clock source, stream formats, presentation offset: 9 records at 1x1, 30 at 8x8 | on the seams S1 to S4: the writer with the state-bus trigger, `own` from reset, the flush, the restore transaction from the binding walk's drained terminal with its deadline, its cause classification, its descriptor-fault aborts and the roll-back of BOTH stores (the dynamic-state store, and the descriptor store, whose reset re-arms its fetch watchdog and re-walks the image), held while the descriptor memory owes a burst (S2); the format rule on "supported"; the arbiter and its drain of either manager; the enable released by the restore; the exports; `pend_i` loses the dynamic-state level; the three firmware changes | SET_CLOCK_SOURCE 1, SET_STREAM_INFO, SET_STREAM_FORMAT on an unbound input; power cycle; GET_CLOCK_SOURCE, GET_STREAM_INFO, GET_STREAM_FORMAT, and the ADPDU's configuration index | T8, T9 (processor, prerequisites), T1 (processor), T4 (this repository); released after #502 |
 | 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; the sticky pending source stops taking live name writes | SET_NAME on the entity name, the group name and a stream name, one of them to the EMPTY name; power cycle; GET_NAME | T2, T4; released after #502 |
-| 3. channel maps | 2 at 1x1, 16 at 8x8 | The parent's own writer and restore (section 15 item 2, amended): the edit-face trigger, the framing rule at #501's capacity, the coupled restore after the processor's D3 terminal, the map plane's reset on `restore_rb_o`; the sticky live-name/map bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T4, #501, #637 |
+| 3. channel maps | 2 at 1x1, 16 at 8x8 | The parent's own writer and restore (section 15 item 2, amended; implemented by #637, section 18.4): the edit-face trigger, the framing rule at #501's capacity, the coupled restore after the processor's D3 terminal, the map plane's reset on `restore_rb_o`; the sticky live bit stops taking map writes | ADD and REMOVE on both ports, one of them to the EMPTY list; power cycle; GET_AUDIO_MAP | T4, #501, #637 |
 
 Stage 1's descriptor recovery is shown alone: section 8.6's S1 cases run
 on the stage-1 build, which rolls back the two stores and not the map
@@ -1910,7 +1934,9 @@ Issue #502 already supplies live-write pulses and their sticky history.
 It feeds `pend_i` directly and sets `aecp_live_pend_r`.
 Stage 2 transfers name reporting to its record writer.
 It removes names from both the pulse and sticky history.
-Stage 3 transfers maps and removes both remaining terms.
+Stage 3 (#637) transfers maps: the sticky source takes names only, and the
+map pulse stays in `aecp_live_wr_w` for its accepting edge. Both terms
+leave with lane 3.
 
 Each lane owes its own area comparison under DR4.
 Section 12 measures historical prototypes, not stage implementation budgets.
@@ -2104,7 +2130,7 @@ DR2a and DR3a require measured, explicitly scoped product budgets.
   starts the walk on every path. The new order is mandatory: under the old
   one the restore cannot prove its image and ends CLOSED.
 - The old output capacity left accepted sets pending indefinitely.
-  #501 grows the allocation; stage 3 needs donor adoption.
+  #501 grows the allocation; the parent's stage-3 writer (#637) consumes it.
 - The value rules exist twice, in the programs and in the writer
   (UNRESOLVED 7).
 - The writer's alarm is sticky like the binding manager's, and joins its
@@ -2264,7 +2290,8 @@ Existing numbered references retain these dispositions:
    to 4), and puts its port sets back on `restore_rb_o`. The processor's `rb_rst` resets
    its two stores only, and no processor writer, latch or replay implements maps; its
    ATDECC side (GET_AUDIO_MAP, ADD/REMOVE_AUDIO_MAPPINGS) is unchanged. #637 owns the
-   parent's restore and roll-back.
+   parent's restore and roll-back, and implements them (section 18.4); its board
+   cold cycle is still owed.
    Historical K16 proves containment only, not accepted-set persistence.
 3. **RESOLVED: reporting under #502.** #579 landed accepting-edge reporting.
    Names and actual map writes remain sticky until reset.
@@ -2785,6 +2812,49 @@ Cold-cycle ADD/REMOVE results on both mutable directions.
 Verify GET_AUDIO_MAP and actual audio routing after automatic restore.
 The 8x8 post-place obligation remains open and blocked, not waived.
 Lane 5 still owes the combined saved-set fault campaign.
+
+**Implementation (#637).** The parent writes and restores records `0x60`
+and `0x70` (`hdl/milan/milan_datapath.sv`, the `amr_*` blocks).
+
+- **Writer.** One dirty bit per dynamic port and direction is set by
+  `amap_edit_live_wr_p`. A first-dirty window of 500 ms arms one burst.
+  Each record is latched in one clock with no edit transaction open.
+  A later change taints the write; the untainted WRITE's done clears it.
+  DR2c applies: three attempts 500 ms apart, then the reset-sticky alarm.
+- **Record.** The format of FASTCONNECT 4.2 and 6.1 is unchanged.
+  The empty set is a framed record of UNUSED entries (8.3, V3g).
+  The parent's stores cannot hold a set larger than its record.
+- **Device face.** `KL_pp_shadow.sv` arbitrates the backend's one device
+  face between the processor's port and the parent's writer. A side
+  keeps the face while it asks, and a command stays with its side until
+  done or err. An abandoned read is drained; an abandoned write is never
+  padded.
+- **Restore.** It runs only after the D3 walk's COMPLETE terminal.
+  Each dynamic record is read whole once. An erased or unframed record
+  keeps the reset set, and so does a framed one that fails its layout,
+  id, crc16, padding or ranges. A well-formed set replaces the reset set
+  through the ADD/REMOVE transaction server, judged by the ADD rule.
+  A refused ADD puts the reset set back.
+- **Roll-back.** A device error, a short read, a deadline or a refused
+  put-back rolls every map back to its reset set. `restore_rb_o` and a
+  D3 abort leave the reset sets in place.
+- **One read pass, not two.** The processor's pass 0 exists so that an
+  abort applies nothing its roll-back cannot reach. The parent's
+  roll-back reaches every map, so a second pass would end in the same
+  states and only lengthen the faces' hold.
+- **Holds.** Until the map restore ends, the edit face, the CSR map writer,
+  GET_AUDIO_MAP, the format judge and the entity enable wait. The healthy
+  1x1 hold measured 553 to 635 clocks in the evidence below, against the
+  processor's 4,096-clock gather watchdog. It used a zero-latency window
+  model, so the board's DDR latency adds to it.
+- **Deadlines.** Each restore wait has 20 ms, and the whole restore keeps
+  DR3a's 1,000 ms from `PP_CTRL[1]`. Each service wait has the port's
+  1,000 ms.
+
+Evidence: `tb/verilator/milan_dp`, the dynmap leg's `[MAPREC]` section,
+with a planted power cycle that keeps the window memory across a reset.
+Its planted controls run in `make dynmap-mutants`. The board cold cycle,
+the measured DDR hold, and the 8x8 obligations above remain open.
 
 ### 18.5 Lane 5: complete fault campaign and release bench
 

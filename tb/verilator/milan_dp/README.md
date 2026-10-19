@@ -79,7 +79,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
 | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): INTERNAL with the align loop engaged (#629 A2-a: the plan's -10.64 ppm drift gone, zero junction slips, the loop and NCO gate engaged; the aligner left disengaged at INTERNAL is mutant 3 of [`milan_dp_mclk`](../milan_dp_mclk/README.md#mutants), whose INTERNAL row it must fail), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and, since #629's A2-a holds the pop grid on it at INTERNAL too, shows zero dups at INTERNAL over the window in which the -10.64 ppm plan would dup once per fed pair. The closed form of that window: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup would come (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts that dup from the first beat and watches a window of 1.5 times the prediction. The same aim and window under CRF show zero too, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants`. Then `[UNB]` (#653): an unbind of each locked sink, graded for wire order and the Table 5.6 pair; its campaign is `make unb-mutants` |
-| `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`), `dynmap_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF | `[DYNMAP]` (#658): the power-on audio maps on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0, over the wire and in both crossbar RAMs; SET_STREAM_FORMAT under Milan 5.4.2.7; the output clip in the boot window; a restored 4-channel input format; the boot window's guard arms, each staged on its own clock. Its planted controls are `make dynmap-mutants`; see [the section below](#the-658-power-on-audio-maps-obj_dynmap) |
+| `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`), `dynmap_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF | `[DYNMAP]` (#658): the power-on audio maps on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0, over the wire and in both crossbar RAMs; SET_STREAM_FORMAT under Milan 5.4.2.7; the output clip in the boot window; a restored 4-channel input format; the boot window's guard arms, each staged on its own clock. Then `[MAPREC]` (#637): the channel-map records written and restored across a planted power cycle, the EMPTY list in both directions included. Its planted controls are `make dynmap-mutants`; see [the section below](#the-658-power-on-audio-maps-obj_dynmap) |
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
@@ -856,6 +856,60 @@ idle: an input key with no physical render key, or a direction with no
 dynamic map (the Arty shapes' outputs). No leg grades that today. Removing all
 four sites at once is caught (the fifth dynmap row above, review R490-1's
 probe P1).
+
+### The channel-map records across a planted power cycle (`[MAPREC]`, #637)
+
+The dynmap leg then grades the parent's map record writer and restore
+(Milan v1.2 5.3.9.1, 5.3.10.1). A power cycle here resets the whole datapath
+and KEEPS the saved-state window memory, then runs the firmware's load of
+it: re-base, RELOAD, publish, and the restore walk. The window stands in for
+the slot the firmware commits and copies back; `tb/verilator/nvm_cosim`
+grades that commit and copy. The leg compiles the map writer's millisecond
+to 100 clocks (`-GAMR_MS_CYC_P`), so its 500 ms windows are 50,000 clocks.
+The processor's own timebase is not compressed.
+
+The oracle for every record the writer leaves is the repository's codec.
+`gen_nvm_window.py` frames the expected records with `scripts/nvm_klj2.py`,
+and the window must hold exactly those bytes, every other record erased.
+
+- **The EMPTY list, both directions.** Every mapping of both ports is removed.
+  Pending rises with the change, the window then holds both records as
+  framed sets of UNUSED entries, and the write waited out the 500 ms window.
+  After the power cycle both ports read zero mappings, and both crossbar
+  RAMs are empty.
+- **A non-empty, non-default list.** Three input and two output mappings
+  that are not the power-on map. An unchanged ADD of the same list writes
+  nothing (DR2b). After the power cycle GET_AUDIO_MAP and both RAMs read the
+  lists, and the restore writes no record back.
+- **The torn-record control.** One payload byte of the input record changes
+  under its crc16, to a list the ADD rule would take. The input keeps its
+  reset set, and the whole output record still comes back.
+- **The parent's roll-back.** The output record's payload lanes answer a
+  read error after the input record was applied. Every map returns to its
+  reset set.
+- **The D3 walk rolled back.** The processor's roll-back terminal is planted
+  (`dynmap_probes.vlt`). No map is restored.
+- **A GET held at the terminal.** It reaches the read face while the map
+  restore holds it and is answered with the restored list. The entity
+  enable, requested with the walk, reaches the processor only after it.
+- **A SET_STREAM_FORMAT held at the terminal.** The saved input list maps
+  channels 0 and 1. A 4-channel format is judged against it, not against
+  the reset set, and succeeds.
+- **A change during the record write.** Slowed lane writes let a second edit
+  land after the latch. The window ends on the final list.
+- **One device face, two initiators.** The processor's D3 writer commits a
+  user name with its lane writes slowed, while the map writer asks for the
+  backend. Both records reach the window.
+- **DR2c.** A record whose writes always fail is tried three times, at least
+  500 ms apart, then gives the change up with the alarm.
+- **A silent memory.** The output record's payload never answers. The
+  restore ends at its 20 ms per-wait deadline and rolls every map back.
+  When the memory answers at last, a later change still reaches the window.
+
+The healthy map restore held the faces 553 to 635 clocks after
+`restore_done`, under the processor's 4,096-clock gather watchdog. The window
+model answers with no latency, so the board's DDR latency adds to that
+figure.
 
 ## GM step re-base leg (#387)
 

@@ -85,10 +85,14 @@ on its per-wait deadlines, and the boot grades that terminal.
 Each test then observes live writes through command completion.
 Pending must rise on the first accepting edge.
 The later group mark must occur and identify its group.
-An accepted snapshot acknowledgement must preserve the sticky source.
+An accepted snapshot acknowledgement must preserve the pending source.
 From processor pin `ead80360` the D3 writer also saves names (lane P1).
-No map record writer exists yet.
+The parent keeps a name's pending sticky until reset (lane 3 not adopted).
+Since #637 the parent's map writer holds a map change pending until its record
+write, after a 500 ms first-dirty window. These checks run inside that window.
 These tests make no flash persistence or restoration claim.
+`tb/verilator/milan_dp`'s `[MAPREC]` section grades the map records' write and
+restore across a planted power cycle.
 
 Controls exercise unchanged names and zero-record map commands.
 The default static output refuses edits before record validation.
