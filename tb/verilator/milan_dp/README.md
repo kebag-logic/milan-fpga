@@ -26,11 +26,13 @@ elaborations (shapes 1 and 8, `uncertain` and `frames-only`) under `TMPDIR`,
 each printing `RESULT: PASS`.
 See [the stream counter measurements](../../../docs/testing/726_STREAM_COUNTERS.md).
 
-Six `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
-`obj_notify`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
+Eight `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
+`obj_notify`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, `obj_nxn4c`,
+then `obj_maprec8` and `obj_maprec4`.
 Each writes `generator.log`, `image.bin`, `image.json`, and eleven builder files.
 Those include the private `gen/adp_shape_defaults.svh` shape header.
-`obj_dynmap` also writes one unique `milan_nvm_*` directory: its saved-state window.
+`obj_dynmap`, `obj_maprec8` and `obj_maprec4` also write one unique
+`milan_nvm_*` directory each: its saved-state window.
 Timestamp and file-operation audits found no repository writes.
 The other six legs write no data files.
 All private write sets are disjoint; no exclusive marks remain.
@@ -80,6 +82,8 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): INTERNAL with the align loop engaged (#629 A2-a: the plan's -10.64 ppm drift gone, zero junction slips, the loop and NCO gate engaged; the aligner left disengaged at INTERNAL is mutant 3 of [`milan_dp_mclk`](../milan_dp_mclk/README.md#mutants), whose INTERNAL row it must fail), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and, since #629's A2-a holds the pop grid on it at INTERNAL too, shows zero dups at INTERNAL over the window in which the -10.64 ppm plan would dup once per fed pair. The closed form of that window: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup would come (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts that dup from the first beat and watches a window of 1.5 times the prediction. The same aim and window under CRF show zero too, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants`. Then `[UNB]` (#653): an unbind of each locked sink, graded for wire order and the Table 5.6 pair; its campaign is `make unb-mutants` |
 | `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`), `dynmap_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF | `[DYNMAP]` (#658): the power-on audio maps on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0, over the wire and in both crossbar RAMs; SET_STREAM_FORMAT under Milan 5.4.2.7; the output clip in the boot window; a restored 4-channel input format; the boot window's guard arms, each staged on its own clock. Then `[MAPREC]` (#637): the channel-map records written and restored across a planted power cycle, the EMPTY list in both directions included. Its planted controls are `make dynmap-mutants`; see [the section below](#the-658-power-on-audio-maps-obj_dynmap) |
+| `obj_maprec8` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_ax7101_8x8`, eight dynamic output ports, direct option OFF | `[MAPREC]` (#637) across ports: a stream channel moved between output ports in both port orders and around a cycle, saved by the writer and restored, graded on GET_AUDIO_MAP, every key's owner and cluster, and the capture RAM; keys two records claim; a refused put-back that rolls every map back; PP_STAT's composed verdicts |
+| `obj_maprec4` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_arty_4x4`, four dynamic input ports, direct option OFF | `[MAPREC]` (#637) across ports: the first and last input ports' records and an emptied port between them, saved and restored, graded on GET_AUDIO_MAP, the stores and the render RAM; the last port's put-back under a restored 2-channel format |
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
@@ -439,7 +443,7 @@ Each phase has a bounded simulated deadline.
 Transport timeout aborts print the remaining unexecuted scope.
 
 The explicit physical driver runs this leg once through `milan_dp_gptp`.
-The `milan_dp` default retains its twelve existing legs.
+The `milan_dp` default retains its fourteen legs.
 `suite_tally.py` reads its separate physical-rate summary.
 It also counts 40 setup, audio and missing-response accounting checks.
 `suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
@@ -913,15 +917,17 @@ and the window must hold exactly those bytes, every other record erased.
   reset set, and the whole output record still comes back.
 - **The parent's roll-back.** The output record's payload lanes answer a
   read error after the input record was applied. Every map returns to its
-  reset set.
+  reset set. The same on the input record, the walk's first, fails it
+  before any record was validated.
 - **The D3 walk rolled back.** The processor's roll-back terminal is planted
   (`dynmap_probes.vlt`). No map is restored.
 - **A GET held at the terminal.** It reaches the read face while the map
   restore holds it and is answered with the restored list. The entity
   enable, requested with the walk, reaches the processor only after it.
 - **A SET_STREAM_FORMAT held at the terminal.** The saved input list maps
-  channels 0 and 1. A 4-channel format is judged against it, not against
-  the reset set, and succeeds.
+  channel 6, so a 4-channel format would orphan it. The restore empties the
+  port in its stage 0, so a judge asked while it runs would accept. The
+  judge waits, sees the restored list and answers BAD_ARGUMENTS.
 - **A change during the record write.** Slowed lane writes let a second edit
   land after the latch. The window ends on the final list.
 - **One device face, two initiators.** The processor's D3 writer commits a
@@ -938,11 +944,50 @@ and the window must hold exactly those bytes, every other record erased.
   restore ends at its 20 ms per-wait deadline, long before the aggregate,
   and rolls every map back. When the memory answers at last, a later change
   still reaches the window.
+- **The value arms.** Each is a framed, crc-clean record the restore must
+  refuse whole, in each direction, beside a whole record of the other
+  direction that still comes back: a hole (a mapping after an UNUSED entry),
+  a field outside every range an ADD accepts (an input stream channel or
+  cluster, an output stream or cluster), two mappings for one key, a layout
+  version that is not the parent's, and a record id that is not the port's.
+- **The put-back.** A restored 4-channel input format refuses the saved
+  input list, and the port gets its reset set, clipped to 4 channels, back.
+- **A D3 abort in pass 0.** A device error on the input format record ends
+  the D3 walk done and failed, with no roll-back. The map restore runs after
+  COMPLETE only, so every port keeps its reset set.
+- **PP_STAT.** Each case reads the composed verdicts once the restore has
+  ended (done 1, busy 0, then fail and blank): blank on the first boot,
+  neither after empty or saved lists, fail after each roll-back and both
+  deadlines. Inside the saved case's map restore it reads busy, and neither
+  done nor blank.
 
-The healthy map restore held the faces 553 to 635 clocks after
+The healthy map restore held the faces 598 to 660 clocks after
 `restore_done`, under the processor's 4,096-clock gather watchdog. The window
 model answers with no latency, so the board's DDR latency adds to that
 figure.
+
+### The map records across ports (`obj_maprec8`, `obj_maprec4`, #637)
+
+The same section's second half (`MAPREC_MP_TB`) runs on the two shapes
+whose dynamic ports are several, with the dynmap leg's compressed writer
+millisecond. On the 8x8 shape a stream channel belongs to one of eight
+dynamic output ports, and a controller may move it between them. Port 1
+gives a channel to port 0, which comes first in the restore's walk. Port 0
+gives one to port 7, which comes last. Ports 2, 3 and 4 pass a channel each
+around a cycle. The writer saves the six changed records and a power cycle
+restores them. GET_AUDIO_MAP on all eight ports, every key's owner and
+cluster in the stores, and the capture RAM against its own reading before
+the cycle all agree. Two windows then plant inconsistent records. When two
+records claim one key, the first port's set wins and the other port gets
+its reset set back. When a saved set claims an erased port's reset key,
+that port's reset set cannot come back, so every map rolls back and
+PP_STAT reads fail. On the 4x4 shape the four dynamic input ports hold
+disjoint clusters. The leg saves and restores the first and last ports'
+records and an emptied port between them. It then restores the last port
+under a 2-channel format record that refuses its saved set, against a
+reference boot over the format record alone. At 8x8 the three stages held
+the faces about 13,700 clocks, past the processor's 4,096-clock gather
+watchdog; that stays open with the other 8x8 obligations (D3 18.4).
 
 ## GM step re-base leg (#387)
 

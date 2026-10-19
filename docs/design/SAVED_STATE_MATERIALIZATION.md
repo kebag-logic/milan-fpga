@@ -375,6 +375,16 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    survives. A restore write is never a change. Restore done is both walks'
    terminal; blank is a restore that did not fail and in which neither walk
    validated a record.
+   **Amended for the map records (#637).** The map records are restored by
+   the parent after the D3 walk's COMPLETE terminal, as ONE transaction over
+   the map records alone, in ONE read pass (ruling, PR #768 comment
+   6269988820). Any failure of that pass rolls every map back to its reset
+   set, and every face that reads or edits a map stays held until it ends,
+   so no controller sees a partial set. Its outcome is the two-pass
+   transaction's, and the two-pass requirement does not apply to the map
+   records (section 18.4). Restore done, fail and blank then cover the map
+   restore too: done waits for its end, fail includes its roll-back, and
+   blank needs it to have validated no record either (section 5.2).
 8. **Deadlines, and the enable** (section 8.8). Every restore wait of both
    walks is bounded: the D3 walk's by `RS_TMO_CYC_P` cycles without
    progress, the binding walk's read phase by the same deadline (seam S3)
@@ -611,6 +621,14 @@ The accepted D3 glue contract changes `KL_pp_shadow.sv` without adding CSRs:
   latch is unchanged; restore blank reads 1 only for a restore that did not
   fail, so a device error that loses the one saved record never reads as a
   clean first boot (H8).
+- PP_STAT composes those verdicts with the parent's map restore (#637,
+  `milan_datapath.sv` `pp_stat_*_w`); the processor's interface does not
+  change. `[1]` busy covers the map restore from the D3 terminal to its end,
+  and `[2]` done waits for that end. `[3]` fail adds the map restore's
+  roll-back. `[7]` blank also needs the map restore to have failed nowhere
+  and to have read no framed, crc-clean record, the processor's own test for
+  a validated one. So saved maps lost to a device error never read as a
+  clean first boot, and restored maps never read as "nothing came back".
 
 With stage 3 (#637) the map plane (`milan_datapath.sv` and
 `KL_chan_map_capture.sv`) keeps the port sets at their reset value when the
@@ -1469,15 +1487,19 @@ owners leave reset only after the late burst.
 ### 8.7 What the status says after a restore
 
 - restore done: both walks' terminal (the binding walk's drained terminal,
-  S4's release, and the D3 walk COMPLETE or DEFAULTS).
+  S4's release, and the D3 walk COMPLETE or DEFAULTS), and since #637 the end
+  of the parent's map restore after it (section 5.2).
 - restore fail: either walk failed, or a blind walk (the latch
   `KL_pp_shadow` already keeps). The D3 walk fails on a device error, a
   torn read, a difference between the passes, a descriptor fault, an
   unproven image, a deadline, or a port that refuses to give up or take
   back its reset set. The binding walk fails on a torn read, a device error
-  with nothing forwarded, or its deadline.
+  with nothing forwarded, or its deadline. Since #637 the parent's map
+  restore fails, and rolls every map back, on a device error, a short read,
+  a deadline, or a port that refuses to give up or take back its reset set;
+  both cause fields then read 0.
 - restore blank: the restore did NOT fail, and NEITHER walk validated a
-  record. V7, a name back and no binding, reads "blank 0, done 1";
+  record, nor did the parent's map restore (#637). V7, a name back and no binding, reads "blank 0, done 1";
   G04_blank_ignores_d3, the binding walk's blank alone, reads "blank 1".
   V10, a blank first boot, reads "blank 49 of 49, applied 0 ... status blank
   1" (145 of 145 at 8x8). H8, a device error losing the only saved record,
@@ -2808,7 +2830,8 @@ Require value, routing and ownership failures, not timeout-only detection.
 
 **Dependencies and physical result.** Follow lanes 1-3 and DR6.
 DR2b governs unchanged edits; DR5 preserves the inventory.
-Remeasure both passes and rollback against ratified DR3a budgets.
+Remeasure both passes and rollback against ratified DR3a budgets
+(one pass for the map records, under the #637 ruling below).
 Meet DR4's maps-stage 1x1 TDM8 area ceilings.
 Retain 8x8 synthesis diagnostics.
 Cold-cycle ADD/REMOVE results on both mutable directions.
@@ -2824,6 +2847,10 @@ and `0x70` (`hdl/milan/milan_datapath.sv`, the `amr_*` blocks).
   Each record is latched in one clock with no edit transaction open.
   A later change taints the write; the untainted WRITE's done clears it.
   DR2c applies: three attempts 500 ms apart, then the reset-sticky alarm.
+  An attempt's 1,000 ms device wait runs from its request, so a request the
+  arbiter never grants counts as a failed attempt, where section 6.3 counts
+  one from the grant; against the backend's 50 ms capture hold this changes
+  no outcome.
 - **Record.** The format of FASTCONNECT 4.2 and 6.1 is unchanged.
   The empty set is a framed record of UNUSED entries (8.3, V3g).
   The parent's stores cannot hold a set larger than its record.
@@ -2832,32 +2859,60 @@ and `0x70` (`hdl/milan/milan_datapath.sv`, the `amr_*` blocks).
   keeps the face while it asks, and a command stays with its side until
   done or err. An abandoned read is drained; an abandoned write is never
   padded.
-- **Restore.** It runs only after the D3 walk's COMPLETE terminal.
-  Each dynamic record is read whole once. An erased or unframed record
-  keeps the reset set, and so does a framed one that fails its layout,
-  id, crc16, padding or ranges. A well-formed set replaces the reset set
-  through the ADD/REMOVE transaction server, judged by the ADD rule.
-  A refused ADD puts the reset set back.
-- **Roll-back.** A device error, a short read, a deadline or a refused
-  put-back rolls every map back to its reset set. `restore_rb_o` and a
-  D3 abort leave the reset sets in place.
-- **One read pass, not two.** The processor's pass 0 exists so that an
-  abort applies nothing its roll-back cannot reach. The parent's
-  roll-back reaches every map, so a second pass would end in the same
-  states and only lengthen the faces' hold.
+- **Restore.** It runs only after the D3 walk's COMPLETE terminal, in
+  three stages through the ADD/REMOVE transaction server. Stage 0 REMOVEs
+  every dynamic port's reset set. Stage 1 reads each dynamic record whole,
+  once, and ADDs a well-formed set, judged by the ADD rule. An erased or
+  unframed record marks the port, and so does a framed one that fails its
+  layout, id, crc16, padding or ranges, or a set the ADD rule refuses.
+  Stage 2 ADDs every marked port's reset set back. A saved set therefore
+  never meets another port's reset set: a key one port gave up and another
+  took comes back whatever the port order (Milan v1.2 5.3.10.1).
+- **Roll-back.** A device error, a short read, a deadline, a refused
+  take-down or a refused put-back rolls every map back to its reset set.
+  `restore_rb_o` and a D3 abort, in either pass, leave the reset sets in
+  place.
+- **The transaction (ruling, PR #768 comment 6269988820).** The map
+  records are restored as one transaction over the map records alone. The
+  D3 walk's transaction over its own records has ended before it starts,
+  and its roll-back touches no D3-owned state. It reads each record once.
+  Its outcome equals the two-pass transaction's, for two reasons. Any
+  failure in the pass rolls every map back to its reset set. And every
+  face that reads or edits a map (the edit face, the CSR map writer,
+  GET_AUDIO_MAP, the format judge, the entity enable) stays held until it
+  ends, so no controller sees a partial set. Section 3's two-pass
+  requirement does not apply to the map records.
+- **Its validation obligation.** Every failure inside the one pass must
+  end with every map at its reset set and PP_STAT fail set. That covers a
+  device error on the first record and on a later one, the 20 ms per-wait
+  deadline, DR3a's 1,000 ms aggregate from `PP_CTRL[1]`, and a refused
+  put-back. Each is graded on GET_AUDIO_MAP, the stores and the crossbar
+  RAMs, with a planted control: `[MAPREC]` roll-back, first-record device
+  error, silent memory and slow memory (dynmap), and refused put-back
+  (maprec8).
+- **Status.** PP_STAT composes the map restore's verdict with the
+  processor's (section 5.2): busy and done cover it, fail adds its
+  roll-back, and blank needs it to have validated no record.
 - **Holds.** Until the map restore ends, the edit face, the CSR map writer,
   GET_AUDIO_MAP, the format judge and the entity enable wait. The healthy
-  1x1 hold measured 553 to 635 clocks in the evidence below, against the
+  1x1 hold measured 598 to 660 clocks in the dynmap leg, against the
   processor's 4,096-clock gather watchdog. It used a zero-latency window
-  model, so the board's DDR latency adds to it.
+  model, so the board's DDR latency adds to it. At 8x8 the three stages
+  hold the faces about 13,700 clocks (maprec8), past that watchdog: a
+  command held there meanwhile is answered by the watchdog.
 - **Deadlines.** Each restore wait has 20 ms, and the whole restore keeps
   DR3a's 1,000 ms from `PP_CTRL[1]`. Each service wait has the port's
   1,000 ms.
 
-Evidence: `tb/verilator/milan_dp`, the dynmap leg's `[MAPREC]` section,
-with a planted power cycle that keeps the window memory across a reset.
-Its planted controls run in `make dynmap-mutants`. The board cold cycle,
-the measured DDR hold, and the 8x8 obligations above remain open.
+Evidence: `tb/verilator/milan_dp`. The dynmap leg's `[MAPREC]` section
+runs on the 1x1 shape, with a planted power cycle that keeps the window
+memory across a reset. The maprec8 and maprec4 legs run across the 8x8
+shape's eight dynamic output ports and the 4x4 shape's four dynamic input
+ports: transfers in both port orders, a cyclic swap, keys two records
+claim, a refused put-back, and the first and last input ports. Their
+planted controls run in `make dynmap-mutants`. The board cold cycle, the
+measured DDR hold, the 8x8 hold against the gather watchdog and the 8x8
+post-place obligation above remain open.
 
 ### 18.5 Lane 5: complete fault campaign and release bench
 

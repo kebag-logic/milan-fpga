@@ -1619,7 +1619,9 @@ module KL_pp_shadow #(
   // ======================================================================= //
   //! done stays the SEQUENCING level the processor publishes: both walks ran
   //! to a COMPLETE or DEFAULTS terminal (CLOSED is fail and never done).
-  //! Everything below is what the walk is allowed to CLAIM.
+  //! Everything below is what the walk is allowed to CLAIM. milan_datapath
+  //! sequences its #637 map restore from these levels and composes PP_STAT's
+  //! busy, done, fail and blank with that restore's (pp_stat_*_w).
   assign restore_done_o  = pp_restore_done_w;
   assign nvm_backed_o    = nvm_backed_w;
   //! the processor's combined blank: both walks sequenced, neither failed and
