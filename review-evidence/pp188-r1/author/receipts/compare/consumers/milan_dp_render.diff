@@ -1,0 +1,109 @@
+--- base/milan_dp_render
++++ head/milan_dp_render
+@@ -1,4 +0,0 @@
+-
+-
+-
+-
+@@ -474,30 +469,0 @@
+-    0  0x0000      0      1       312     312  0x000110          0
+-    0  0x0000      0      1       312     312  0x000110          0
+-    0  0x0001      0      1       106     112  0x000248          2
+-    0  0x0001      0      1       106     112  0x000248          2
+-    0  0x0002      0      1       148     152  0x0002B8          3
+-    0  0x0002      0      1       148     152  0x0002B8          3
+-    0  0x0005      0      1       154     160  0x000350          4
+-    0  0x0005      0      2       154     160  0x000350          4
+-    0  0x0005      1      1       146     152  0x0003F0          5
+-    0  0x0005      2      1       146     152  0x000490          6
+-    0  0x0006      0      2       146     152  0x000488          6
+-    0  0x0006      0      2       146     152  0x000528          7
+-    0  0x0009      0      1       102     104  0x0005B8          8
+-    0  0x0009      0      1       102     104  0x000658          9
+-    0  0x000A      0      3        86      88  0x000620          9
+-    0  0x000A      0      4        86      88  0x0006C0         10
+-    0  0x000C      0      1        72      72  0x000728          -
+-    0  0x000C      0      1        72      72  0x000820          -
+-    0  0x000D      0      1       452     456  0x000770          -
+-    0  0x000D      0      1       452     456  0x000868          -
+-    0  0x000E      0      1        20      24  0x000938          -
+-    0  0x000E      0      2        20      24  0x000A30          -
+-    0  0x000F      0      1        20      24  0x000950          -
+-    0  0x000F      0      1        20      24  0x000A60          -
+-    0  0x0014      0     24        90      96  0x000A78         14
+-    0  0x0014      0     25        90      96  0x000968         12
+-    0  0x001A      0      1       113     120  0x0012C8         37
+-    0  0x001A      0      1       113     120  0x001378         38
+-    0  0x0024      0      1        82      88  0x001340         38
+-    0  0x0024      0      1        84      88  0x0013F0         39
+@@ -766,34 +731,0 @@
+-  cfg  type    first  count  elem_len  stride  elem_off   name_base
+-  cfg  type    first  count  elem_len  stride  elem_off   name_base
+-  entity_model_id_i  0x001BC5374BCA9B39
+-  entity_model_id_i  0x001BC5C1935893E1
+-  identify_index_i   0
+-  identify_index_i   0
+-  listener_sinks_i   2
+-  listener_sinks_i   3
+-  talker_sources_i   2
+-  talker_sources_i   2
+-  wrote configs/generated/sweep_opts_ax7101.sh
+-  wrote configs/generated/sweep_opts_ax7101.sh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aem_overlay.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/build_plan.md
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/platform_shape.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/soc_params.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/adp_shape_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/aecp_aem_rom.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/aem_overlay.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/build_plan.md
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/gen/adp_shape_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/gptp_ucode.hex
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/lwsrp_csr_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/lwsrp_table.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/lwsrp_table.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/platform_shape.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/soc_params.json
+@@ -951,2 +882,0 @@
+-ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+-ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+@@ -968,8 +897,0 @@
+-[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC5C1935893E1 (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+-[endstation_builder] endstation_tdm8r_multi: 2x1 AAF + CRF, tdm8, 24 clusters (cluster-per-stream-channel), model_id 0x001BC5374BCA9B39 (hash); 3 planned element(s); resources TIGHT (worst LUT 80.0%)
+-[gen_aemi_image] obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aem_overlay.json: 42 descriptors -> tdm8r_aemi.bin, 7512 bytes
+-[gen_aemi_image] obj_tdm8rm_aem/endstation_tdm8r_multi/aem_overlay.json: 44 descriptors -> tdm8rm_aemi.bin, 7752 bytes
+-checksum 0xBCE67FDD
+-checksum 0xBCE6817E
+-configurations 1  index entries 15  names 39
+-configurations 1  index entries 15  names 40
+@@ -1036,6 +957,0 @@
+-index_off 0x000020  names_off 0x001398  image_bytes 7512  desc_max_len 452
+-index_off 0x000020  names_off 0x001448  image_bytes 7752  desc_max_len 452
+-lint waivers applied: 0
+-lint waivers applied: 0
+-magic AEMI  layout_version 1
+-magic AEMI  layout_version 1
+@@ -1048,10 +963,0 @@
+-model digest sha256 1ec821bbaef9c1911ba0c6af2b42cf64af860939332a6df3dd2049a64f46852e (IEEE 1722.1-2021 §6.2.2.8)
+-model digest sha256 97845bcc1f11bdd64099f1e535330fc502374a5f24ef6c12eb503a635b1d2ad5 (IEEE 1722.1-2021 §6.2.2.8)
+-multi-stream render shape: ports_in=2 port0 keys 0..7 physical, port1 keys 8..15 NONPHYSICAL; config tb/verilator/milan_dp_render/gen_tdm8r_multi/endstation_tdm8r_multi.yaml
+-python3 ../../../avdecc/gen_aemi_image.py --overlay obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o tdm8r_aemi.bin
+-python3 ../../../avdecc/gen_aemi_image.py --overlay obj_tdm8rm_aem/endstation_tdm8r_multi/aem_overlay.json --line-bytes 576 -o tdm8rm_aemi.bin
+-python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+-python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+-python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_tdm8r_aem
+-python3 ../../../sw/builder/endstation_builder.py gen_tdm8r_multi/endstation_tdm8r_multi.yaml -o obj_tdm8rm_aem
+-python3 gen_tdm8r_multi_shape.py
+@@ -1061,3 +966,0 @@
+-semantic lint: on (07 §3.1 rules L1 to L12)
+-semantic lint: on (07 §3.1 rules L1 to L12)
+-ucode.hex: 2048 words, 90 programs
+@@ -1066 +968,0 @@
+-wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
