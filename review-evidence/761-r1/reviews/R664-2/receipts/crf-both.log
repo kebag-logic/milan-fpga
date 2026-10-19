@@ -1,0 +1,8 @@
+silence_not_interrupted: CAUGHT in engine and replica; [FAIL] [762-a] silence: STREAM_INTERRUPTED counts the silence once got=0 exp=1
+gap_not_interrupted: CAUGHT in engine and replica; [FAIL] [5t-e2] 3 gaps in ONE interval: +3 immediately (per-event) got=1 exp=4
+unbind_interrupts: CAUGHT in engine and replica; [FAIL] [UNB-a6] STREAM_INTERRUPTED does not count the unbind got=1 exp=0
+unbind_edge_timeout_interrupts: CAUGHT in engine and replica; [FAIL] [UNB-d5] ...and no STREAM_INTERRUPTED: the unbind wins the edge (#762) got=2 exp=1
+stopped_silence_interrupts: CAUGHT in engine and replica; [FAIL] [762-ST-b2] stopped silence: no STREAM_INTERRUPTED got=1 exp=0
+stopped_gap_interrupts: CAUGHT in engine and replica; [FAIL] [762-SG-b1] stopped gap: no STREAM_INTERRUPTED got=1 exp=0
+sticky_stop_gap: CAUGHT in engine and replica; [FAIL] [762-SG-c1] after START a gap counts STREAM_INTERRUPTED again got=0 exp=1
+PASS 7 paired CRF controls

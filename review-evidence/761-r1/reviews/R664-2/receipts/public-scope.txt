@@ -1,0 +1,106 @@
+ISSUE 761
+
+Found by the in-house qualification run of 2026-10-18 on the AX7101 (dev e9cbb676).
+
+**Behaviour.** The DUT's AAF stream follows a CRF media clock on its Stream Input. Its mr bit toggles when:
+- the CRF stops;
+- the input is unbound;
+- the CRF's own mr toggles.
+
+It does **not** toggle when the CRF comes back, or when the input is bound again. Over 80,000 frames in each window, there were 0 toggles.
+
+**Required.** IEEE 1722-2016 4.4.4.3: mr indicates that there has been a change in the source of the media clock, and toggles each time a media clock restart is needed. The media clock returning to the CRF is such a change.
+
+**Source.**
+- `hdl/milan/milan_datapath.sv:3243-3246`: only the CRF lock-loss edge requests a restart, and the re-lock edge does not.
+- See also `hdl/ieee1722/avtp/KL_media_clock_restart.sv:168-179`.
+
+**Done when:**
+- the selected CRF's lock-gain edge also requests a media clock restart, so mr toggles once on the return;
+- a simulation case and a planted mutant cover both edges;
+- the suites pass.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/761#issuecomment-6256482625
+
+[A10] Assignment for #761 and #762 together (author [A652]). Branch `761-762-mr-interrupt` from dev e9cbb676. Both are in the AVTP receive and media-clock path, so one lane does them, in two commits.
+
+1. **#761:** the selected CRF's lock-gain edge also requests a media clock restart, so mr toggles once when the media clock returns to the CRF (IEEE 1722-2016 4.4.4.3). Keep the existing loss, disruption and mr-toggle causes unchanged. Add a simulation case for both edges, with a planted mutant.
+2. **#762:** a silence that unlocks a bound Stream Input counts STREAM_INTERRUPTED once, as a sequence gap does. An Unbind does not count (Milan v1.2 Table 5.16). Add simulation cases for silence, gap and unbind, each with a planted mutant.
+3. Run every gate the change touches, the builder bank's affected suites and the route-1x1 timing check, all rc 0.
+4. STOP on any register-map, top-level port or parameter change.
+
+Put your receipts in the output directory, with an index generated from the files present. Post REVIEW READY or STOP on #761.
+
+
+ISSUE 762
+
+Found by the in-house qualification run of 2026-10-18 on the AX7101 (dev e9cbb676).
+
+**Behaviour.** A bound stream into a Stream Input stops for 10 s, then resumes. MEDIA_UNLOCKED and MEDIA_LOCKED each count once, but STREAM_INTERRUPTED stays 0. This was seen on both the AAF input 0 and the CRF input 1.
+
+**Required.** Milan v1.2 Table 5.16: STREAM_INTERRUPTED is "incremented each time the stream playback is interrupted for any reason other than a Controller Unbind operation".
+
+**Source.** `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:997-999` counts it only on a sequence_num gap in a locked stream. A silence unlocks the input first, and the first PDU after it re-seeds the sequence, so the interruption is never counted.
+
+**Done when:**
+- a silence that unlocks a bound input counts STREAM_INTERRUPTED once, as does a sequence gap;
+- an unbind does not count;
+- simulation cases for silence, gap and unbind, each with a planted mutant;
+- the suites pass.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6260976223
+
+[A10] Scope ruling for #762 (raised by R664-1-F2 and R663-1-F2 on PR #767): a silence on a bound Stream Input that is **stopped** does not count STREAM_INTERRUPTED.
+
+- Milan v1.2 Table 5.6 counts "each time the stream playback is interrupted for any reason other than a Controller Unbind operation".
+- A stopped input has no playback to interrupt. 5.3.8.7 separates started/stopped from bound, and 5.4.2.20 says STOP_STREAMING stops the playback.
+- The Unbind exception exists for the same reason: the controller ended the playback itself.
+
+The rule is the same in both receive engines: the AAF monitor (`KL_avtp_rx_monitor_ctx.sv`) and the CRF sink (`KL_crf_rx.sv`). A silence on a started input counts once. STOP with live traffic counts nothing. After START, a later silence counts again. The register documentation states exactly this, with these clauses.
+
+https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6265746720
+
+[A10] Scope ruling for #762, extended. This answers the first open risk in [A652]'s round-2 REVIEW READY: a sequence gap on a stopped input.
+
+The reason a stopped input's silence counts nothing applies to any interruption. A stopped input has no playback (Milan v1.2 5.3.8.7, 5.4.2.20), so Table 5.6 has nothing to count. Rules:
+- **Stopped input:** a sequence gap counts no STREAM_INTERRUPTED, in both engines: the AAF monitor `KL_avtp_rx_monitor_ctx.sv` and the CRF sink `KL_crf_rx.sv`.
+- **Started input:** a gap still counts once.
+- **After START:** a gap counts again.
+
+Round 2b for [A652], on 2cd2750d, before any round-2 review:
+- Implement this rule in both engines.
+- Add count-graded cases (gap while stopped, gap after START) with planted mutants in the engine and in the reference, as round 2 did.
+- State the rule in `REGISTER_MAP.md`, the compliance matrix and `TESTING.md`.
+- Re-run the round-2 gate list at the new head.
+
+The second open risk, an AAF stream's return raising no restart, stays as is: #761 and IEEE 1722-2016 4.4.4.3 name the CRF only.
+
+
+https://github.com/kebag-logic/milan-fpga/pull/767#issuecomment-6260976498
+
+[A10] Round 2 assignment for PR #767 (author [A652]). Head `4191b098`. Both reviews are NEGATIVE: R664-1 (6260664989) and R663-1 (6260969105). The scope ruling for the stopped-input case is on #762.
+
+1. **R663-1-F1 (BLOCKER).** gate_50's `scripts/ci_case_receipts_selftest.py` fails because the mclk driver now lists 34 cases, more than the fixed "0/32" over-shard control.
+   - Derive the control's shard count from the driver's real inventory (its case count + 1), so it still refuses an over-shard count. Never remove or loosen it into a vacuous form.
+   - Run `scripts/ci_controls_step.sh` and expect all 14 commands at rc 0.
+   - Add gate_50 to your recorded gate list. The hosted `docs-gates-*` and `docs-check` must then pass at the new head.
+2. **R664-1-F1 (MAJOR).** A later Unbind must not erase an interruption already attributable to a silence.
+   - Use one event boundary across the unlock and interruption writes. An Unbind-caused unlock still adds nothing.
+   - Grade exactly one interruption for silence-before-Unbind and zero for Unbind-before-silence, at every relative cycle (the reviewer's probe uses N=1..8), in both engine shapes, including paused or yielding walks.
+   - The check must use an independent counter oracle, not the patched lockstep copy (R663-1-F3).
+   - Add a mutant that reintroduces the phase-3 consume race.
+3. **R664-1-F2 / R663-1-F2.** Implement the #762 ruling in BOTH engines.
+   - Grade started silence, stopped silence after an established lock, STOP with live traffic, START recovery and Unbind, each independently, with a mutant for the stopped rule.
+   - Align `docs/reference/REGISTER_MAP.md` and the PR's acceptance claim.
+
+Run every gate the change touches, gate_50 included, plus route-1x1 and the resource gate, all rc 0. Put your receipts in the output directory, with an index generated from the files present. Post REVIEW READY or STOP on #761.
+
+
+https://github.com/kebag-logic/milan-fpga/pull/767#issuecomment-6273865256
+
+[A10] INDEPENDENT REVIEW STARTED: R664-2
+
+R664 (external reviewer) reconstructs issue #761+762 / PR #767 at exact head `eef90b4238b6c19b679b44adc6f09362809be153`, tree `ba15df1ef198a7d86150b4e33726fe0a4a10f589`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
