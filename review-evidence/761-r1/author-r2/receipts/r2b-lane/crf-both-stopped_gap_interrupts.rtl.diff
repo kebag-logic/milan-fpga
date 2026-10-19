@@ -1,0 +1,11 @@
+--- <lane>/hdl/ieee1722/crf/KL_crf_rx.sv	2026-10-19 16:04:03.725572379 +0200
++++ stopped_gap_interrupts.sv	2026-10-19 16:06:50.083343044 +0200
+@@ -398,7 +398,7 @@
+   //! STREAM_INTERRUPTED is PER-EVENT (no interval flag): an accepted PDU
+   //! whose sequence_num shows >= INTR_MIN_LOST_C lost AVTPDUs, while the
+   //! sink is started (#762: a stopped input has no playback to interrupt)
+-  wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;
++  wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C));
+   //! not-bound -> bound: the mr level belongs to the PREVIOUS era
+   wire w_bind_rise_w = en_i && !en_q;
+   //! bound -> not bound: a Controller Unbind of this Stream Input (#653)
