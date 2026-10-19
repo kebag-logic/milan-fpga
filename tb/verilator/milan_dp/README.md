@@ -829,49 +829,73 @@ the `milan_datapath` leg, decodes TDM capture slot c in stream channel c.
 **Failing arms.** `make dynmap-mutants` runs `dynmap_mutants.py`. It plants
 each defect in a copy of `milan_datapath.sv`, or of `KL_pp_shadow.sv` for the
 device-face arbiter, and builds the named leg through its own suite's recipe.
-Each mutant must fail its named check, and each leg's clean build must still
-pass. Measured on 2026-10-19 UTC: 37 of 37 mutants caught, each clean leg
-passing.
+Each mutant must fail its named check, every one of them where a row names
+several, and each leg's clean build must still pass. `DYNMAP_MUTANT_JOBS`
+runs that many at once, at most two of them building. Measured on 2026-10-19
+UTC at four jobs: 60 of 60 mutants caught, each clean leg passing.
 
-| Leg | Mutant | Named check that fails | Failures |
-|---|---|---|---|
-| dynmap | an empty reset: the power-on image holds no mapping | `[DYNMAP] power-on SPI 0: number_of_mappings` | 91 of 331 |
-| dynmap | no clip after the restore: the window ignores a restored input format | `[DYNMAP] restored SPI 0: number_of_mappings` | 6 of 331 |
-| dynmap | no output clip: the window ignores a STREAM_OUTPUT row | `[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map` | 2 of 331 |
-| dynmap | the boot writer never fills the crossbar RAMs | `[DYNMAP] power-on: render RAM keys 2..9 hold the input map` | 70 of 331 |
-| dynmap | the CSR writer is not held while the boot writer is busy | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 4 of 331 |
-| dynmap | the input store alone takes a CSR write while the writer is busy | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 2 of 331 |
-| dynmap | the output store alone takes a CSR write while the writer is busy | `[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM` | 2 of 331 |
-| dynmap | the boot window ignores the CLOSED terminal | `[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended` | 2 of 331 |
-| dynmap | no sweep after the restore's terminal | `[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map` | 6 of 331 |
-| dynmap | no drain clock: busy ends while the last boot write is in flight | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 4 of 331 |
-| dynmap | the edit face never waits for the boot writer | `[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends` | 2 of 331 |
-| dynmap | the map writer never marks a record dirty | `[MAPREC] empty: the window holds the codec's records and the pend has fallen` | 30 of 331 |
-| dynmap | an empty saved list reads as an erased record (#763) | `[MAPREC] empty, after the power cycle: SPI 0: number_of_mappings` | 17 of 331 |
-| dynmap | no first-dirty window: the change is written at the next tick | `[MAPREC] empty: the write waited out the 500 ms first-dirty window` | 2 of 331 |
-| dynmap | the restore refuses every framed record | `[MAPREC] saved, after the power cycle: SPI 0: number_of_mappings` | 42 of 331 |
-| dynmap | the restore ignores the record's crc16 | `[MAPREC] torn input record: SPI 0: number_of_mappings` | 3 of 331 |
-| dynmap | a failed walk rolls nothing back | `[MAPREC] roll-back: SPI 0: number_of_mappings` | 11 of 331 |
-| dynmap | the roll-back sweeps the RAMs and leaves the stores | `[MAPREC] roll-back: SPI 0: number_of_mappings` | 11 of 331 |
-| dynmap | the roll-back puts the stores back and never sweeps the RAMs | `[MAPREC] roll-back: render RAM keys 2..9 hold the input list` | 3 of 331 |
-| dynmap | the map restore runs over the D3 walk's roll-back | `[MAPREC] D3 roll-back: SPI 0: number_of_mappings` | 6 of 331 |
-| dynmap | GET_AUDIO_MAP does not wait for the map restore | `[MAPREC] held GET: answered with the restored list` | 1 of 331 |
-| dynmap | the format judge does not wait for the map restore | `[MAPREC] held SET_STREAM_FORMAT: SUCCESS against the restored list` | 2 of 331 |
-| dynmap | the entity enable does not wait for the map restore | `[MAPREC] held GET: the entity enable waits for the map restore` | 1 of 331 |
-| dynmap | every phase-5 beat marks its record, changed or not (DR2b) | `[MAPREC] unchanged: no record write follows an unchanged edit` | 3 of 331 |
-| dynmap | a restore write counts as a change | `[MAPREC] saved: the restore itself writes no record` | 2 of 331 |
-| dynmap | a change after the latch does not taint the write | `[MAPREC] taint: the window ends on the final list` | 5 of 331 |
-| dynmap | a fourth attempt follows the third failure | `[MAPREC] failing writes: three attempts, then no more` | 1 of 331 |
-| dynmap | no backoff between attempts | `[MAPREC] failing writes: the attempts are at least 500 ms apart` | 1 of 331 |
-| dynmap | the last failed attempt raises no alarm | `[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised` | 1 of 331 |
-| dynmap | the map restore has no per-wait deadline | `[MAPREC] silent memory: the walk ends at its per-wait deadline` | 1 of 331 |
-| dynmap | the map restore has no aggregate deadline | `[MAPREC] slow memory: SPI 0: number_of_mappings` | 8 of 331 |
-| dynmap (arbiter, `KL_pp_shadow.sv`) | the arbiter does not drain a read the map writer abandoned | `[MAPREC] silent memory, late answer: a later change reaches the window` | 1 of 331 |
-| dynmap (arbiter, `KL_pp_shadow.sv`) | the arbiter's selection moves while the backend serves a command | `[MAPREC] shared face: both writers' records are in the window` | 1 of 331 |
-| dynmap (arbiter, `KL_pp_shadow.sv`) | the map writer's pending is not reported | `[MAPREC] empty: PP_STAT pend rises with the accepted change` | 1 of 331 |
-| dynmap (arbiter, `KL_pp_shadow.sv`) | the map writer's alarm does not reach nvm_alarm | `[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised` | 1 of 331 |
-| listener (`milan_dp_render`) | an empty reset, under the listener's end-to-end check | `T18 POWER-ON: with no map command since the reset, the lane renders injected events` | 8 of 264 |
-| talker (`capture_coherence`, `--quick`) | an empty reset, under the talker's end-to-end check | `[V] every requested column was decoded` | 20 of 134 |
+| # | Leg | Mutant | Named check that fails | Failures |
+|---:|---|---|---|---|
+| 1 | dynmap | an empty reset: the power-on image holds no mapping | `[DYNMAP] power-on SPI 0: number_of_mappings` | 142 of 589 |
+| 2 | dynmap | no clip after the restore: the window ignores a restored input format | `[DYNMAP] restored SPI 0: number_of_mappings` | 14 of 589 |
+| 3 | dynmap | no output clip: the window ignores a STREAM_OUTPUT row | `[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map` | 2 of 589 |
+| 4 | dynmap | the boot writer never fills the crossbar RAMs | `[DYNMAP] power-on: render RAM keys 2..9 hold the input map` | 162 of 589 |
+| 5 | dynmap | the CSR writer is not held while the boot writer is busy | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 4 of 589 |
+| 6 | dynmap | the input store alone takes a CSR write while the writer is busy | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 2 of 589 |
+| 7 | dynmap | the output store alone takes a CSR write while the writer is busy | `[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM` | 2 of 589 |
+| 8 | dynmap | the boot window ignores the CLOSED terminal | `[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended` | 2 of 589 |
+| 9 | dynmap | no sweep after the restore's terminal | `[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map` | 6 of 589 |
+| 10 | dynmap | no drain clock: busy ends while the last boot write is in flight | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 4 of 589 |
+| 11 | dynmap | the edit face never waits for the boot writer | `[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends` | 2 of 589 |
+| 12 | dynmap | the map writer never marks a record dirty | `[MAPREC] empty: the window holds the codec's records and the pend has fallen` | 32 of 589 |
+| 13 | dynmap | an empty saved list reads as an erased record (#763) | `[MAPREC] empty, after the power cycle: SPI 0: number_of_mappings` | 17 of 589 |
+| 14 | dynmap | no first-dirty window: the change is written at the next tick | `[MAPREC] empty: the write waited out the 500 ms first-dirty window` | 2 of 589 |
+| 15 | dynmap | the restore refuses every framed record | `[MAPREC] saved, after the power cycle: SPI 0: number_of_mappings` | 83 of 589 |
+| 16 | dynmap | the restore ignores the record's crc16 | `[MAPREC] torn input record: SPI 0: number_of_mappings` | 3 of 589 |
+| 17 | dynmap | a failed walk rolls nothing back | `[MAPREC] roll-back: SPI 0: number_of_mappings` | 26 of 589 |
+| 18 | dynmap | the roll-back sweeps the RAMs and leaves the stores | `[MAPREC] roll-back: SPI 0: number_of_mappings` | 26 of 589 |
+| 19 | dynmap | the roll-back puts the stores back and never sweeps the RAMs | `[MAPREC] roll-back: render RAM keys 2..9 hold the input list` | 8 of 589 |
+| 20 | dynmap | the map restore runs over the D3 walk's roll-back | `[MAPREC] D3 roll-back: SPI 0: number_of_mappings` | 6 of 589 |
+| 21 | dynmap | GET_AUDIO_MAP does not wait for the map restore | `[MAPREC] held GET: answered with the restored list` | 91 of 589 |
+| 22 | dynmap | the format judge does not wait for the map restore | `[MAPREC] held SET_STREAM_FORMAT: BAD_ARGUMENTS against the restored list` | 4 of 589 |
+| 23 | dynmap | the entity enable does not wait for the map restore | `[MAPREC] held GET: the entity enable waits for the map restore` | 1 of 589 |
+| 24 | dynmap | every phase-5 beat marks its record, changed or not (DR2b) | `[MAPREC] unchanged: no record write follows an unchanged edit` | 4 of 589 |
+| 25 | dynmap | a restore write counts as a change | `[MAPREC] saved: the restore itself writes no record` | 4 of 589 |
+| 26 | dynmap | a change after the latch does not taint the write | `[MAPREC] taint: the window ends on the final list` | 5 of 589 |
+| 27 | dynmap | a fourth attempt follows the third failure | `[MAPREC] failing writes: three attempts, then no more` | 1 of 589 |
+| 28 | dynmap | no backoff between attempts | `[MAPREC] failing writes: the attempts are at least 500 ms apart` | 1 of 589 |
+| 29 | dynmap | the last failed attempt raises no alarm | `[MAPREC] failing writes: PP_STAT[4], the alarm, is raised` | 1 of 589 |
+| 30 | dynmap | the map restore has no per-wait deadline | `[MAPREC] silent memory: the walk ends at its per-wait deadline` | 1 of 589 |
+| 31 | dynmap | the map restore has no aggregate deadline | `[MAPREC] slow memory: SPI 0: number_of_mappings` | 8 of 589 |
+| 32 | dynmap (arbiter, `KL_pp_shadow.sv`) | the arbiter does not drain a read the map writer abandoned | `[MAPREC] silent memory, late answer: a later change reaches the window` | 1 of 589 |
+| 33 | dynmap (arbiter, `KL_pp_shadow.sv`) | the arbiter's selection moves while the backend serves a command | `[MAPREC] shared face: both writers' records are in the window` | 1 of 589 |
+| 34 | dynmap (arbiter, `KL_pp_shadow.sv`) | the map writer's pending is not reported | `[MAPREC] empty: PP_STAT pend rises with the accepted change` | 1 of 589 |
+| 35 | dynmap (arbiter, `KL_pp_shadow.sv`) | the map writer's alarm does not reach nvm_alarm | `[MAPREC] failing writes: PP_STAT[4], the alarm, is raised` | 1 of 589 |
+| 36 | listener (`milan_dp_render`) | an empty reset, under the listener's end-to-end check | `T18 POWER-ON: with no map command since the reset, the lane renders injected events` | 8 of 264 |
+| 37 | talker (`capture_coherence`, `--quick`) | an empty reset, under the talker's end-to-end check | `[V] every requested column was decoded` | 20 of 134 |
+| 38 | dynmap | the map restore's roll-back is not composed into PP_STAT fail | `[MAPREC] roll-back: PP_STAT fail 1`; `[MAPREC] first-record device error: PP_STAT fail 1`; `[MAPREC] slow memory: PP_STAT fail 1`; `[MAPREC] silent memory: PP_STAT fail 1` | 4 of 589 |
+| 39 | dynmap | PP_STAT blank ignores a validated map record | `[MAPREC] saved, after the power cycle: PP_STAT blank 0`; `[MAPREC] empty, after the power cycle: PP_STAT blank 0` | 16 of 589 |
+| 40 | dynmap | PP_STAT blank ignores the map restore's failure | `[MAPREC] first-record device error: PP_STAT blank 0` | 1 of 589 |
+| 41 | dynmap | PP_STAT busy does not cover the map restore | `[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds` | 1 of 589 |
+| 42 | dynmap | PP_STAT done does not wait for the map restore | `[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds` | 1 of 589 |
+| 43 | dynmap | PP_STAT blank is published before the map restore ends | `[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds` | 1 of 589 |
+| 44 | dynmap | the map restore takes every record it reads for a validated one | `[MAPREC] first boot: PP_STAT blank 1` | 1 of 589 |
+| 45 | dynmap | a saved set the ADD rule refuses is never put back | `[MAPREC] put-back: SPI 0: number_of_mappings` | 3 of 589 |
+| 46 | dynmap | an erased or refused record's port is never put back | `[MAPREC] first boot: SPI 0: number_of_mappings` | 88 of 589 |
+| 47 | dynmap | no hole rule: a mapping after an UNUSED entry is not refused | `[MAPREC] hole, input: SPI 0: number_of_mappings`; `[MAPREC] hole, output: SPO 0: number_of_mappings` | 6 of 589 |
+| 48 | dynmap | the layout version is not judged | `[MAPREC] wrong layout, input: SPI 0: number_of_mappings`; `[MAPREC] wrong layout, output: SPO 0: number_of_mappings` | 6 of 589 |
+| 49 | dynmap | the record id is not judged | `[MAPREC] wrong id, input: SPI 0: number_of_mappings`; `[MAPREC] wrong id, output: SPO 0: number_of_mappings` | 6 of 589 |
+| 50 | dynmap | a field outside every ADD range is dropped, not refused | `[MAPREC] range, input stream channel: SPI 0: number_of_mappings`; `[MAPREC] range, input cluster: SPI 0: number_of_mappings`; `[MAPREC] range, output stream: SPO 0: number_of_mappings`; `[MAPREC] range, output cluster: SPO 0: number_of_mappings` | 12 of 589 |
+| 51 | dynmap | one input cluster, two mappings: not refused | `[MAPREC] conflicting keys, input: SPI 0: number_of_mappings` | 3 of 589 |
+| 52 | dynmap | one output stream channel, two clusters: not refused | `[MAPREC] conflicting keys, output: SPO 0: number_of_mappings` | 3 of 589 |
+| 53 | dynmap | the map restore runs over a D3 abort in pass 0 | `[MAPREC] D3 pass-0 abort: SPI 0: number_of_mappings` | 6 of 589 |
+| 54 | maprec8 | the round-1 ordering: a port's reset set comes down just before its saved set | `[MAPREC] transfers, after the power cycle: port 0: the mappings are the expected list` | 12 of 219 |
+| 55 | maprec8 | a refused put-back does not roll back | `[MAPREC] refused put-back: port 7: number_of_mappings` | 7 of 219 |
+| 56 | maprec8 | the map restore's roll-back is not composed into PP_STAT fail, 8x8 | `[MAPREC] refused put-back: PP_STAT fail 1` | 1 of 219 |
+| 57 | maprec8 | an output port refused a key another port holds is never put back | `[MAPREC] conflicting keys across ports: port 7: number_of_mappings` | 4 of 219 |
+| 58 | maprec8 | every output port writes and reads output port 0's record | `[MAPREC] transfers, after the power cycle: port 7: the mappings are the expected list` | 12 of 219 |
+| 59 | maprec4 | every input port writes and reads input port 0's record | `[MAPREC] inputs: the window holds the codec's records and the pend has fallen`; `[MAPREC] inputs, after the power cycle: port 0: the mappings are the expected list` | 8 of 137 |
+| 60 | maprec4 | the last input port's refused saved set is never put back | `[MAPREC] put-back, last port: port 3: number_of_mappings` | 3 of 137 |
 
 **The hold's two RAM sites are equivalent on this shape.** The CSR writer's
 hold sits at four places: the input store, the output store and the two
@@ -950,6 +974,8 @@ and the window must hold exactly those bytes, every other record erased.
   a field outside every range an ADD accepts (an input stream channel or
   cluster, an output stream or cluster), two mappings for one key, a layout
   version that is not the parent's, and a record id that is not the port's.
+- **The legal maximum.** Every key of both ports mapped, none as the
+  power-on map maps it, comes back whole.
 - **The put-back.** A restored 4-channel input format refuses the saved
   input list, and the port gets its reset set, clipped to 4 channels, back.
 - **A D3 abort in pass 0.** A device error on the input format record ends
