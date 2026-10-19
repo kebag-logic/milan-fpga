@@ -1,0 +1,42 @@
+1c1
+< 67 checks: 67 PASS, 0 FAIL
+---
+> 73 checks: 73 PASS, 0 FAIL
+247d246
+<     FAIL: RD3 AUDIO_UNIT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @136 carrying 0xbb80
+293a293,309
+>     FAIL: RDC7 ...and IDENTIFY again, CONTROL 0 carries 255: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC7 ...and IDENTIFY again, CONTROL 0 carries 255: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC7 ...and IDENTIFY again, CONTROL 0 carries 255: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC7 CONTROL 0 with control_type 0011223344556677, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 0011223344556677, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+400c416,422
+< rdc-base-no-overlay: rc=2 failures=7 named=1 KILLED
+---
+> rdc-base-no-overlay: rc=2 failures=8 named=1 KILLED
+> rdc-ctype-any: rc=2 failures=5 named=1 KILLED
+> rdc-ctype-status-kept: rc=2 failures=5 named=1 KILLED
+> rdc-ctype-w82-nop: rc=2 failures=1 named=1 KILLED
+> rdc-ctype-w84-nop: rc=2 failures=1 named=1 KILLED
+> rdc-ctype-w86-nop: rc=2 failures=1 named=1 KILLED
+> rdc-ctype-w88-nop: rc=2 failures=1 named=1 KILLED
+406c428
+< rdc-unit-shift-8: rc=2 failures=7 named=1 KILLED
+---
+> rdc-unit-shift-8: rc=2 failures=8 named=1 KILLED
+414c436
+< rd-tail-uncut: rc=2 failures=16 named=1 KILLED
+---
+> rd-tail-uncut: rc=2 failures=17 named=1 KILLED

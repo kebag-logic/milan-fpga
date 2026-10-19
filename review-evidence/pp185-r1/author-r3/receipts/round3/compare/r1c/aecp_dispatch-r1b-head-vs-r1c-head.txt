@@ -1,0 +1,12 @@
+campaign aecp_dispatch
+records: base r1b/head, head r1c/head
+base results.json sha256 1ef55a4ae4366fcca62d1b2501584a062da9aceb472431d111b1022aeb149b88
+head results.json sha256 1ef55a4ae4366fcca62d1b2501584a062da9aceb472431d111b1022aeb149b88
+base: 63 mutants {'KILLED': 63}, 4 baselines {'PASS': 4}
+head: 63 mutants {'KILLED': 63}, 4 baselines {'PASS': 4}
+MUTANTS: 63 unchanged, 0 changed, 0 added, 0 removed
+BASELINES (not mutants): 4 at both, 4 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+  baseline control aecp-dispatch: base PASS, head PASS
+  baseline control aecp-line: base PASS, head PASS
+  baseline control d3: base PASS, head PASS
+  baseline control line-guards: base PASS, head PASS

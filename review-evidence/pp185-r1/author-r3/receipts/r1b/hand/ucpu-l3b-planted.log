@@ -1,0 +1,14 @@
+python3 ../../hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 91 programs
+verilator --cc --exe --build -j 0 --top-module KL_aecp_ucpu -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$LANES/pp185-ctl/tb/ucpu -Wall -Wextra" ../../hdl/aecp/ucpu_pkg.sv ../../hdl/aecp/KL_aecp_ucpu.sv sim_main.cpp -o Vucpu_sim
+make[1]: Entering directory '$LANES/pp185-ctl/tb/ucpu/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$LANES/pp185-ctl/tb/ucpu/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 16 threads; allocated 16.496 MB
+./obj_dir/Vucpu_sim
+FAIL: L3 the causing command's flags echoed at @24, got 00000000
+FAIL: L3b flags UNLOCK, locked_id 0 (00000000 00000000 00000000)
+445 checks: 443 PASS, 2 FAIL
+make: *** [Makefile:18: run] Error 1

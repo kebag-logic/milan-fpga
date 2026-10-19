@@ -1,0 +1,32 @@
+FAIL: baseline-only: rc 0, missing ['MUTANTS: 0 unchanged, 0 changed, 0 added, 0 removed', '3 baselines', 'BASELINES (not mutants): 3 at both, 3 PASS']
+    campaign notify
+    base results.json sha256 dc5a051d03e9ccae66e28176908b47cf52b0de095d5ed302dd329e1541c5fd1c
+    head results.json sha256 dc5a051d03e9ccae66e28176908b47cf52b0de095d5ed302dd329e1541c5fd1c
+    base: 3 mutants {'PASS': 3}, 0 baselines {}
+    head: 3 mutants {'PASS': 3}, 0 baselines {}
+    MUTANTS: 3 unchanged, 0 changed, 0 added, 0 removed
+    BASELINES (not mutants): 0 at both, 0 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+    
+FAIL: mixed: rc 0, missing ['base: 3 mutants', 'head: 4 mutants', '2 baselines', 'MUTANTS: 2 unchanged, 1 changed, 1 added, 0 removed']
+    campaign d3
+    base results.json sha256 b6e8dd207d2de63cace0159983c4f39fb0f9c5dd42a41ce58e3f6b0e3f1fb96c
+    head results.json sha256 4a05e809039499cc9e591a7ce6ea16e3d88f77eb190de8a9328aaae86135a717
+    base: 5 mutants {'PASS': 2, 'KILLED': 3}, 0 baselines {}
+    head: 6 mutants {'PASS': 2, 'KILLED': 4}, 0 baselines {}
+    MUTANTS: 4 unchanged, 1 changed, 1 added, 0 removed
+      CHANGED m2: base 1: BB1
+                  head 2: BB1, DD1
+      ADDED m4 (KILLED): 1: DD1
+    BASELINES (not mutants): 0 at both, 0 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+    
+PASS: dispatch count mismatch: rc 1
+FAIL: name/plant disagreement: rc 0, missing ['name and named_checks disagree on baseline']
+    campaign notify
+    base results.json sha256 cd60d15ffadea2957254b1437cc1e75f96dce9506caa8481d501e9526ced21d0
+    head results.json sha256 cd60d15ffadea2957254b1437cc1e75f96dce9506caa8481d501e9526ced21d0
+    base: 1 mutants {'PASS': 1}, 0 baselines {}
+    head: 1 mutants {'PASS': 1}, 0 baselines {}
+    MUTANTS: 1 unchanged, 0 changed, 0 added, 0 removed
+    BASELINES (not mutants): 0 at both, 0 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+    
+selftest: 1 of 4 cases PASS

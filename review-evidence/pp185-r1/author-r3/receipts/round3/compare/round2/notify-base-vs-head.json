@@ -1,0 +1,39 @@
+{
+ "campaign": "notify",
+ "base_sha256": "64e7eab5766b95c4321762ac89ebaeeb4d2de9fbc14e5eeaf985d5bc76fb775c",
+ "head_sha256": "8af615f66a7f866aa19795d9b1403b969d971c32e008aed09b57c38f08f72498",
+ "base_mutants": 125,
+ "head_mutants": 135,
+ "base_baselines": 15,
+ "head_baselines": 15,
+ "mutants": {
+  "unchanged": 120,
+  "changed": [
+   "lock_coalesced_timeout_flags_zero",
+   "lock_coalesced_timeout_keeps_flags",
+   "lock_release_keeps_old_flags",
+   "lock_take_keeps_old_flags",
+   "occupancy_reset_set"
+  ],
+  "added": [
+   "lock_claim_beside_expiry",
+   "lock_expiry_at_holder_read",
+   "lock_expiry_in_presented_job",
+   "lock_expiry_pending_dropped",
+   "lock_expiry_relatch_keeps_exclusion",
+   "lock_expiry_round_not_relatched",
+   "lock_op_ignores_due_expiry",
+   "lock_release_round_not_relatched",
+   "lock_take_relatch_keeps_exclusion",
+   "lock_take_round_not_relatched"
+  ],
+  "removed": []
+ },
+ "baselines": {
+  "unchanged": 15,
+  "changed": [],
+  "added": [],
+  "removed": []
+ },
+ "baselines_clean_at_both": 15
+}

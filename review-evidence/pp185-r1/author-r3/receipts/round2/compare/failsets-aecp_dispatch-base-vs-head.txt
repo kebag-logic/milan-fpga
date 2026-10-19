@@ -1,0 +1,13 @@
+DIFFER rd-tail-uncut: base 16: RDC0, RDC1, RDC3b, RDC3, RDC4, RD1, RD1, RD1, RD1, RD1, RDC5, RD3, RD3, RD3, RD3, RDC5
+                      head 17: RDC0, RDC1, RDC3b, RDC3, RDC7, RDC4, RD1, RD1, RD1, RD1, RD1, RDC5, RD3, RD3, RD3, RD3, RDC5
+DIFFER rdc-base-no-overlay: base 7: RDC0, RDC1, RDC3b, RDC3, RDC4, RDC5, RDC5
+                            head 8: RDC0, RDC1, RDC3b, RDC3, RDC7, RDC4, RDC5, RDC5
+HEAD ONLY rdc-ctype-any: 5: RDC7, RDC7, RDC7, RDC7, RDC7
+HEAD ONLY rdc-ctype-status-kept: 5: RDC7, RDC7, RDC7, RDC7, RDC7
+HEAD ONLY rdc-ctype-w82-nop: 1: RDC7
+HEAD ONLY rdc-ctype-w84-nop: 1: RDC7
+HEAD ONLY rdc-ctype-w86-nop: 1: RDC7
+HEAD ONLY rdc-ctype-w88-nop: 1: RDC7
+DIFFER rdc-unit-shift-8: base 7: RDC0, RDC1, RDC3b, RDC3, RDC4, RDC5, RDC5
+                         head 8: RDC0, RDC1, RDC3b, RDC3, RDC7, RDC4, RDC5, RDC5
+64 mutants fail the same checks at base and head

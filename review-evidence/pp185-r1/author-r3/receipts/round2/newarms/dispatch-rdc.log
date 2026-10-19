@@ -1,0 +1,77 @@
+control aecp-dispatch: rc=0 PASS
+rdc-base-no-overlay: rc=2 failures=8 named=1 KILLED
+    FAIL: RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+    FAIL: RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC3 ...and restored, CONTROL 0 carries 255 again: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC7 ...and IDENTIFY again, CONTROL 0 carries 255: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC4 CONTROL 0 after the holder's SET_CONTROL(0), under its lock: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+    FAIL: RDC5 CONTROL 0 after SET_CONTROL(255), before the power cycle: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC5 CONTROL 0 after the power cycle: the reset 0, neither the 255 set before it nor the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+rdc-unset-image: rc=2 failures=2 named=1 KILLED
+    FAIL: RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+    FAIL: RDC5 CONTROL 0 after the power cycle: the reset 0, neither the 255 set before it nor the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+rdc-voffset-guard-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC2 CONTROL 0 with values_offset 106, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-vtype-int16: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC3 CONTROL 0 as a CONTROL_LINEAR_INT16, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-vtype-uint8-only: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+rdc-short-floor-111: rc=2 failures=2 named=1 KILLED
+    FAIL: RDC6 CONTROL 0 of 111 bytes, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: LN0: the bench registers for unsolicited notifications again, got -1
+rdc-unit-shift-8: rc=2 failures=8 named=1 KILLED
+    FAIL: RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+    FAIL: RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC3 ...and restored, CONTROL 0 carries 255 again: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC7 ...and IDENTIFY again, CONTROL 0 carries 255: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC4 CONTROL 0 after the holder's SET_CONTROL(0), under its lock: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+    FAIL: RDC5 CONTROL 0 after SET_CONTROL(255), before the power cycle: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC5 CONTROL 0 after the power cycle: the reset 0, neither the 255 set before it nor the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+rdc-ident-reset-255: rc=2 failures=5 named=1 KILLED
+    FAIL: RDC0 IDENTIFY unset: GET_CONTROL reads Milan 5.3.12's reset 0 (premise)
+    FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: ENTITY_LOCKED byte-exact (status 3, cdl 17)
+    FAIL: LK2 IDENTIFY 255: ...one store write and 1 notification enqueued (1, 0)
+    FAIL: RDC5 the power cycle clears IDENTIFY: GET_CONTROL and the face read 0 (premise)
+    FAIL: RDC6 IDENTIFY 255: ...one store write and 1 notification enqueued (1, 0)
+rdc-sctrl-no-write: rc=2 failures=11 named=1 KILLED
+    FAIL: LK2 IDENTIFY 255: ...one store write and 1 notification enqueued (0, 1)
+    FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: ENTITY_LOCKED byte-exact (status 3, cdl 17)
+    FAIL: LK3 ...and the IDENTIFY value is still 255, on GET and on the face
+    FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+    FAIL: LK3c ...and the IDENTIFY value is still 255, on GET and on the face
+    FAIL: RDC1 GET_CONTROL reads 255 (premise)
+    FAIL: LK6 IDENTIFY 0: ...one store write and 1 notification enqueued (0, 0)
+    FAIL: RDC5 IDENTIFY 255: ...one store write and 1 notification enqueued (0, 1)
+    FAIL: RDC6 IDENTIFY 255: ...one store write and 1 notification enqueued (0, 1)
+    FAIL: RDC6 GET_CONTROL reads 255 and the image serves CONTROL 0 at 111 bytes (premise)
+rdc-ctype-any: rc=2 failures=5 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 0011223344556677, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-w82-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-w84-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-w86-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-w88-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-status-kept: rc=2 failures=0 named=0 UNPROVEN
+make: Entering directory '$VALIDATION_STORAGE/pp185-a647/tmpdir/aecp-dispatch-mutants-nq5d0s8e/tb/pp_top'
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/pp185-a647/tmpdir/aecp-dispatch-mutants-nq5d0s8e/tb/pp_top/../../hdl/aecp/ucode/gen_ucode.py", line 1378, in <module>
+    assert rom[E_RDESCID + 12] == u('SET_STATUS', imm=ST_OK)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+make: *** [Makefile:244: ucode.hex] Error 1
+make: Leaving directory '$VALIDATION_STORAGE/pp185-a647/tmpdir/aecp-dispatch-mutants-nq5d0s8e/tb/pp_top'
+
+16 checks: 15 PASS, 1 FAIL

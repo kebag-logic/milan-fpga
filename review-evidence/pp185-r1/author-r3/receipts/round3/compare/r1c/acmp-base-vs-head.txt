@@ -1,0 +1,14 @@
+campaign acmp
+records: base r1c/base, head r1c/head
+base results.json sha256 9460644dcb65be872e2e1e0ef9511506aae486d5b3b358c0b3152d938ac617ed
+head results.json sha256 3b43558693744ffef6d062f3f1818b5f6dbb01bd7f7b9e1162057138403e7628
+base: 51 mutants {'KILLED': 51}, 6 baselines {'PASS': 6}
+head: 51 mutants {'KILLED': 51}, 6 baselines {'PASS': 6}
+MUTANTS: 51 unchanged, 0 changed, 0 added, 0 removed
+BASELINES (not mutants): 6 at both, 6 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+  baseline golden-acmp_listener: base PASS, head PASS
+  baseline golden-acmp_talker: base PASS, head PASS
+  baseline golden-pp_top--acmp-only: base PASS, head PASS
+  baseline golden-pp_top--arm-queue-only: base PASS, head PASS
+  baseline golden-pp_top--gsi-internal-only: base PASS, head PASS
+  baseline golden-rx_validator: base PASS, head PASS

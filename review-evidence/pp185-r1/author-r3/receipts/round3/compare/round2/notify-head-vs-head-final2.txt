@@ -1,0 +1,23 @@
+campaign notify
+records: base round2/head, head round2/head-final2
+base results.json sha256 8af615f66a7f866aa19795d9b1403b969d971c32e008aed09b57c38f08f72498
+head results.json sha256 bae3f495c305e529f078e60efb5d9f1d662aa93f844ca72191dfed487526a163
+base: 135 mutants {'KILLED': 135}, 15 baselines {'PASS': 15}
+head: 135 mutants {'KILLED': 135}, 15 baselines {'PASS': 15}
+MUTANTS: 135 unchanged, 0 changed, 0 added, 0 removed
+BASELINES (not mutants): 15 at both, 15 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+  baseline golden-aecp_notify-collision: base PASS, head PASS
+  baseline golden-aecp_notify-failure-window: base PASS, head PASS
+  baseline golden-aecp_notify-identify: base PASS, head PASS
+  baseline golden-aecp_notify-interfaces: base PASS, head PASS
+  baseline golden-aecp_notify-run: base PASS, head PASS
+  baseline golden-originator-run: base PASS, head PASS
+  baseline golden-pp_top-aecp-dispatch-only: base PASS, head PASS
+  baseline golden-pp_top-arm-queue-only: base PASS, head PASS
+  baseline golden-pp_top-domain-notify-only: base PASS, head PASS
+  baseline golden-pp_top-identify-only: base PASS, head PASS
+  baseline golden-pp_top-notify-only: base PASS, head PASS
+  baseline golden-pp_top-obj_idn_Vpp_top_idn: base PASS, head PASS
+  baseline golden-pp_top-obj_if2_Vpp_top_if2: base PASS, head PASS
+  baseline golden-pp_top-spacing-only: base PASS, head PASS
+  baseline golden-pp_top-withdraw-only: base PASS, head PASS

@@ -1,0 +1,13 @@
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index dc71a89..4931b4f 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -1182,7 +1182,7 @@ place(E_LOCKUNS, [
+     u('MOVE', rd=12, ra=0, imm=0),
+     u('SET_STATUS', imm=ST_OK),
+     u('BUILD_HDR', ra=15, rb=13),
+-    u('BUILD_FLD', ra=14, fmt=FMT_D),            # the command's flags @24
++    u('BUILD_FLD', ra=12, fmt=FMT_D),            # the command's flags @24
+     u('BUILD_FLD', ra=3,  fmt=FMT_Q),            # locked_id           @28
+     u('BUILD_FLD', ra=12, fmt=FMT_D),            # ENTITY[0]           @36
+     u('SEND_RESP'),

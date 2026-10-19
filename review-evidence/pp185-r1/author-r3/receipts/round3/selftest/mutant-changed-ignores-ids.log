@@ -1,0 +1,16 @@
+PASS: baseline-only: rc 0
+FAIL: mixed: rc 0, missing ['MUTANTS: 2 unchanged, 1 changed, 1 added, 0 removed', 'CHANGED m2']
+    campaign d3
+    base results.json sha256 b6e8dd207d2de63cace0159983c4f39fb0f9c5dd42a41ce58e3f6b0e3f1fb96c
+    head results.json sha256 4a05e809039499cc9e591a7ce6ea16e3d88f77eb190de8a9328aaae86135a717
+    base: 3 mutants {'KILLED': 3}, 2 baselines {'PASS': 2}
+    head: 4 mutants {'KILLED': 4}, 2 baselines {'PASS': 2}
+    MUTANTS: 3 unchanged, 0 changed, 1 added, 0 removed
+      ADDED m4 (KILLED): 1: DD1
+    BASELINES (not mutants): 2 at both, 2 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+      baseline golden-s0: base PASS, head PASS
+      baseline golden-s1: base PASS, head PASS
+    
+PASS: dispatch count mismatch: rc 1
+PASS: name/plant disagreement: rc 1
+selftest: 3 of 4 cases PASS

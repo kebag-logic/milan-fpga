@@ -1,0 +1,110 @@
+{
+  "notify": {
+    "base_mutants": 125,
+    "head_mutants": 135,
+    "same_failure_ids": 120,
+    "changed_failure_ids": [
+      "lock_coalesced_timeout_flags_zero",
+      "lock_coalesced_timeout_keeps_flags",
+      "lock_release_keeps_old_flags",
+      "lock_take_keeps_old_flags",
+      "occupancy_reset_set"
+    ],
+    "new_mutants": [
+      "lock_claim_beside_expiry",
+      "lock_expiry_at_holder_read",
+      "lock_expiry_in_presented_job",
+      "lock_expiry_pending_dropped",
+      "lock_expiry_relatch_keeps_exclusion",
+      "lock_expiry_round_not_relatched",
+      "lock_op_ignores_due_expiry",
+      "lock_release_round_not_relatched",
+      "lock_take_relatch_keeps_exclusion",
+      "lock_take_round_not_relatched"
+    ],
+    "goldens": 15
+  },
+  "d3": {
+    "base_mutants": 110,
+    "head_mutants": 110,
+    "same_failure_ids": 110,
+    "changed_failure_ids": [],
+    "new_mutants": [],
+    "goldens": 6
+  },
+  "aecp_dispatch": {
+    "base_mutants": 63,
+    "head_mutants": 69,
+    "same_failure_count": 60,
+    "changed_failure_count": [
+      "rd-tail-uncut",
+      "rdc-base-no-overlay",
+      "rdc-unit-shift-8"
+    ],
+    "new_mutants": [
+      "rdc-ctype-any",
+      "rdc-ctype-status-kept",
+      "rdc-ctype-w82-nop",
+      "rdc-ctype-w84-nop",
+      "rdc-ctype-w86-nop",
+      "rdc-ctype-w88-nop"
+    ],
+    "goldens": 4
+  },
+  "exact_head_notify_rerun": "135 KILLED; 15 goldens PASS; same named failure IDs as earlier head run",
+  "parent_gate11": {
+    "byte_identical": true,
+    "base_rc": "1",
+    "head_rc": "1"
+  },
+  "parent_rcs": {
+    "parent-base": {
+      "g01_cpp_idiom.rc": "0",
+      "g02_py_idiom.rc": "0",
+      "g03_rtl_source_lists.rc": "0",
+      "g04_pp_srcs.rc": "0",
+      "g05_port_contracts.rc": "0",
+      "g06_naming.rc": "0",
+      "g07_test_evidence.rc": "0",
+      "g08_docs_check.rc": "0",
+      "g09_sh_idiom.rc": "0",
+      "g10_test_builder.rc": "0",
+      "g11_lint_rtl.rc": "1",
+      "g12_pp_shadow.rc": "0",
+      "g13_nvm_cosim_lint.rc": "0",
+      "g14_nvm_cosim_quick.rc": "0",
+      "g15_milan_dp.rc": "0",
+      "g16_milan_dp_render.rc": "0",
+      "g17_xvlog.rc": "0"
+    },
+    "parent-head": {
+      "g01_cpp_idiom.rc": "0",
+      "g02_py_idiom.rc": "0",
+      "g03_rtl_source_lists.rc": "0",
+      "g04_pp_srcs.rc": "0",
+      "g05_port_contracts.rc": "0",
+      "g06_naming.rc": "0",
+      "g07_test_evidence.rc": "0",
+      "g08_docs_check.rc": "0",
+      "g09_sh_idiom.rc": "0",
+      "g10_test_builder.rc": "0",
+      "g11_lint_rtl.rc": "1",
+      "g12_pp_shadow.rc": "0",
+      "g13_nvm_cosim_lint.rc": "0",
+      "g14_nvm_cosim_quick.rc": "0",
+      "g15_milan_dp.rc": "0",
+      "g16_milan_dp_render.rc": "0",
+      "g17_xvlog.rc": "0"
+    }
+  },
+  "source_gate_rcs": {
+    "elab_guards_yosys.rc": "0",
+    "gen_matrix.rc": "0",
+    "lint_hdl.rc": "0",
+    "make_check.rc": "0",
+    "req_tags_executed.rc": "0",
+    "run_suites.rc": "0",
+    "yosys_run_033.rc": "0",
+    "yosys_run_066.rc": "0"
+  }
+}

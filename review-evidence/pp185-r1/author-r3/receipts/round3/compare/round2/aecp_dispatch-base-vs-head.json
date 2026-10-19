@@ -1,0 +1,33 @@
+{
+ "campaign": "aecp_dispatch",
+ "base_sha256": "1ef55a4ae4366fcca62d1b2501584a062da9aceb472431d111b1022aeb149b88",
+ "head_sha256": "f2a7ca979929f0d093377a8a0443538bdc00126c9514576b2ba37af5576032a1",
+ "base_mutants": 63,
+ "head_mutants": 69,
+ "base_baselines": 4,
+ "head_baselines": 4,
+ "mutants": {
+  "unchanged": 60,
+  "changed": [
+   "rd-tail-uncut",
+   "rdc-base-no-overlay",
+   "rdc-unit-shift-8"
+  ],
+  "added": [
+   "rdc-ctype-any",
+   "rdc-ctype-status-kept",
+   "rdc-ctype-w82-nop",
+   "rdc-ctype-w84-nop",
+   "rdc-ctype-w86-nop",
+   "rdc-ctype-w88-nop"
+  ],
+  "removed": []
+ },
+ "baselines": {
+  "unchanged": 4,
+  "changed": [],
+  "added": [],
+  "removed": []
+ },
+ "baselines_clean_at_both": 4
+}

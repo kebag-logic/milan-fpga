@@ -1,0 +1,34 @@
+{
+ "campaign": "notify",
+ "base_sha256": "7a37491cbfcdc689570f4fbfdcf3651b20109ef560150bcc598621095ea24898",
+ "head_sha256": "fb2f4fe428a28bbe4e29bb122fb1950f06ee2941a99387865633cfdcb1f352e5",
+ "base_mutants": 114,
+ "head_mutants": 125,
+ "base_baselines": 15,
+ "head_baselines": 15,
+ "mutants": {
+  "unchanged": 114,
+  "changed": [],
+  "added": [
+   "occupancy_cleared_beside_push",
+   "occupancy_not_busy",
+   "occupancy_pop_clears",
+   "occupancy_pop_keeps_set",
+   "occupancy_pop_one_late",
+   "occupancy_push_unseen",
+   "occupancy_reset_set",
+   "occupancy_reset_set_collision",
+   "occupancy_reset_set_failure",
+   "occupancy_reset_set_identify",
+   "occupancy_reset_set_interfaces"
+  ],
+  "removed": []
+ },
+ "baselines": {
+  "unchanged": 15,
+  "changed": [],
+  "added": [],
+  "removed": []
+ },
+ "baselines_clean_at_both": 15
+}

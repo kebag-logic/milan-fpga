@@ -1,0 +1,9 @@
+campaign name_state
+records: base r1c/base, head r1c/head
+base results.json sha256 ed6834d2a0801f2db9c1774a85709660ee53f11c5d5cb122a0dff17286c66ba0
+head results.json sha256 ed6834d2a0801f2db9c1774a85709660ee53f11c5d5cb122a0dff17286c66ba0
+base: 16 mutants {'KILLED': 16}, 1 baselines {'PASS': 1}
+head: 16 mutants {'KILLED': 16}, 1 baselines {'PASS': 1}
+MUTANTS: 16 unchanged, 0 changed, 0 added, 0 removed
+BASELINES (not mutants): 1 at both, 1 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+  baseline golden: base PASS, head PASS

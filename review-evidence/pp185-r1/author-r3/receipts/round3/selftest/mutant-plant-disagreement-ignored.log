@@ -1,0 +1,14 @@
+PASS: baseline-only: rc 0
+PASS: mixed: rc 0
+PASS: dispatch count mismatch: rc 1
+FAIL: name/plant disagreement: rc 0, missing ['name and named_checks disagree on baseline']
+    campaign notify
+    base results.json sha256 cd60d15ffadea2957254b1437cc1e75f96dce9506caa8481d501e9526ced21d0
+    head results.json sha256 cd60d15ffadea2957254b1437cc1e75f96dce9506caa8481d501e9526ced21d0
+    base: 0 mutants {}, 1 baselines {'PASS': 1}
+    head: 0 mutants {}, 1 baselines {'PASS': 1}
+    MUTANTS: 0 unchanged, 0 changed, 0 added, 0 removed
+    BASELINES (not mutants): 1 at both, 1 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+      baseline golden-x: base PASS, head PASS
+    
+selftest: 3 of 4 cases PASS

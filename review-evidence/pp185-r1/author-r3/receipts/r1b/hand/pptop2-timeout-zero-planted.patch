@@ -1,0 +1,19 @@
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index 65138eb..7099a91 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -1390,12 +1390,12 @@ module KL_aecp_notify
+           //! registered controller observes the resulting unlocked state.
+           //! It is an unlock, so it carries UNLOCK (issue #186).
+           lockx_v_r <= 1'b0;
+-          lockf_r   <= LOCKF_UNLOCK_C;
++          lockf_r   <= 32'd0;
+           if (coalesce_r != 8'hFF) coalesce_r <= coalesce_r + 8'd1;
+         end else begin
+           pe_lock_r <= 1'b1;
+           lockx_v_r <= 1'b0;            // a timeout excludes nobody
+-          lockf_r   <= LOCKF_UNLOCK_C;  // ...and is an unlock (Table 5.22, 7-143)
++          lockf_r   <= 32'd0;  // ...and is an unlock (Table 5.22, 7-143)
+         end
+       end
+ 
