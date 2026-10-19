@@ -1,0 +1,46 @@
+
+KL_pp_shadow.sv
+297:     //! was tied 16'd0 in shadow mode, where a declaration nobody sends can
+298:     //! carry any number; on the wire a zero MaxFrameSize is a reservation for
+299:     //! zero bandwidth, which a bridge grants and a stream then overruns.
+300:     input  wire [15:0]                  cfg_tspec_max_frame_i,
+301:     //! initial accumulated_latency for the Listener direction (802.1Q
+302:     //! 35.2.2.8.4). Same story: tied 0 in shadow mode.
+303:     input  wire [31:0]                  cfg_acc_lat_ns_i,
+1158:       .cfg_rank_i          (1'b1),
+1159:       .cfg_acc_lat_ns_i    (cfg_acc_lat_ns_i),
+1160:       .port_rate_bps_i     (port_rate_bps_i),
+1161:       .cfg_tspec_max_frame_i(cfg_tspec_max_frame_i),
+1162: 
+1163:       //! Which talker sources exist — straight from the port, which the
+1164:       //! integrator derives from the entity shape (see the port's banner).
+1282:       //! Reserved config-plane seam, held inactive. Bindings arrive over the
+1283:       //! wire (ACMP) and reservations follow them, which is the
+1284:       //! ATDECC-authoritative shape this device is built to.
+1285:       .svc_valid_i         (1'b0),
+1286:       .svc_ready_o         (),
+1287:       .svc_op_i            ('0),
+1288:       .svc_index_i         ('0),
+1289:       .svc_stream_id_i     ('0),
+1290:       .svc_da_i            ('0),
+1291:       .svc_vid_i           ('0),
+1292:       .svc_max_frame_i     ('0),
+1293:       .svc_lstn_state_i    ('0),
+1294:       .svc_rsp_valid_o     (),
+1295:       .svc_rsp_status_o    (),
+
+milan_datapath.sv
+5666:   //! KL_lwsrp_ctx attribute ROW, and there is no attribute row table any
+5667:   //! more: the protocol processor keeps its own per-source and per-sink SRP
+5668:   //! state and is provisioned by the quasi-static ports on KL_pp_shadow
+5669:   //! (cfg_stream_id_i, cfg_src_en_i, cfg_tspec_max_frame_i) plus the ACMP
+5670:   //! binds it resolves itself. Provisioning a row is not something this file
+5671:   //! does any longer, so nothing here mirrors it.
+5672:   //!
+8198:       //! width the framer was elaborated with (tctx_maxf_w) - never an
+8199:       //! independent constant, or the declaration and the frame disagree.
+8200:       //! Talker 0's value: every AAF talker in a build shares one width.
+8201:       .cfg_tspec_max_frame_i (tctx_maxf_w[0]),
+8202:       .cfg_acc_lat_ns_i  (cfg_lwsrp_latency),
+8203:       //! the SRP admission ceiling follows the negotiated link rate
+8204:       .port_rate_bps_i   (cfg_mac_is_1g ? 32'd1_000_000_000 : 32'd100_000_000),

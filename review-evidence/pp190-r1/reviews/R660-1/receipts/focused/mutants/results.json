@@ -1,0 +1,78 @@
+[
+ {
+  "mutant": "golden-pp_top--tspec-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "tspec_slot_last@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "TS1: source 0 declares its own slot's MaxFrameSize"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TS1: source 0 declares its own slot's MaxFrameSize 217 (got 193)",
+   "TS1: source 1 declares its own slot's MaxFrameSize 29 (got 193)",
+   "TS1: source 2 declares its own slot's MaxFrameSize 73 (got 193)",
+   "TS1: source 3 declares its own slot's MaxFrameSize 97 (got 193)",
+   "TS1: source 4 declares its own slot's MaxFrameSize 121 (got 193)",
+   "TS1: source 5 declares its own slot's MaxFrameSize 145 (got 193)",
+   "TS1: source 6 declares its own slot's MaxFrameSize 169 (got 193)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "tspec_slot_zero@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "TS1: source 1 declares its own slot's MaxFrameSize"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TS1: source 1 declares its own slot's MaxFrameSize 29 (got 217)",
+   "TS1: source 2 declares its own slot's MaxFrameSize 73 (got 217)",
+   "TS1: source 3 declares its own slot's MaxFrameSize 97 (got 217)",
+   "TS1: source 4 declares its own slot's MaxFrameSize 121 (got 217)",
+   "TS1: source 5 declares its own slot's MaxFrameSize 145 (got 217)",
+   "TS1: source 6 declares its own slot's MaxFrameSize 169 (got 217)",
+   "TS1: source 7 declares its own slot's MaxFrameSize 193 (got 217)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "tspec_no_allocator@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "TS0: AECP is released and every source's PROBE_TX_RESPONSE is SUCCESS"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TS0: AECP is released and every source's PROBE_TX_RESPONSE is SUCCESS (mask 0x00)",
+   "TS1: source 0 declares its own slot's MaxFrameSize 217 (got -1)",
+   "TS1: source 1 declares its own slot's MaxFrameSize 29 (got -1)",
+   "TS1: source 2 declares its own slot's MaxFrameSize 73 (got -1)",
+   "TS1: source 3 declares its own slot's MaxFrameSize 97 (got -1)",
+   "TS1: source 4 declares its own slot's MaxFrameSize 121 (got -1)",
+   "TS1: source 5 declares its own slot's MaxFrameSize 145 (got -1)",
+   "TS1: source 6 declares its own slot's MaxFrameSize 169 (got -1)",
+   "TS1: source 7 declares its own slot's MaxFrameSize 193 (got -1)"
+  ],
+  "verdict": "KILLED"
+ }
+]
