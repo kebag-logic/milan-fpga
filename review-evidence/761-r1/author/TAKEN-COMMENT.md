@@ -1,0 +1,6 @@
+[A652] TAKEN
+Branch: 761-762-mr-interrupt (from dev e9cbb676)
+Authoritative references: IEEE 1722-2016 4.4.4.3 and 10.4.3 (mr); Milan v1.2 5.3.8.10 Table 5.6 and 5.4.2.25 Table 5.16 (STREAM_INTERRUPTED); assignment issuecomment-6256482625
+Interpreted scope: #761: the selected CRF's lock-gain edge joins the lock-loss edge in the media clock restart request (milan_datapath.sv), so mr toggles once on the return to the CRF; the loss, AAF-meter and received-mr causes stay unchanged. #762: a 100 ms silence that unlocks a bound Stream Input counts STREAM_INTERRUPTED once, in both receive engines (KL_avtp_rx_monitor_ctx for the AAF inputs, KL_crf_rx for the CRF input, since the issue reports both); an unbind never counts. Tests that pinned the old behaviour (the mclk CRF-return row, the restart-expression pins, the rxmon lockstep reference and the crf_rx replica) are updated to the new law, each with a planted mutant per edge/cause.
+Validation plan: lint_rtl --check, docs gates, sw/builder tests, avtp_rxmon (incl. lockstep mutants), crf_rx (incl. mutants), milan_dp_mclk (incl. mutants), milan_dp_gm_steps mutants, milan_dp and the other suites that elaborate the datapath, Yosys, route-1x1 timing.
+Blockers: none
