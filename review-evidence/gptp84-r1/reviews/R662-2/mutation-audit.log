@@ -1,0 +1,49 @@
+PASS: 72/72 matching source mutants caught; 154 required named failures; 24 positive controls.
+
+lane-head-2022d363/engine-run.log
+1703 checks: 1703 PASS, 0 FAIL
+1703 checks: 1703 PASS, 0 FAIL
+1703 checks: 1703 PASS, 0 FAIL
+53 checks: 53 PASS, 0 FAIL
+
+parent-adoption-564466ea/06.log
+310 checks: 310 PASS, 0 FAIL
+
+parent-adoption-564466ea/milan_dp/gptp.log
+185 checks: 185 PASS, 0 FAIL
+
+parent-adoption-564466ea/milan_dp/gptp-lat.log
+185 checks: 185 PASS, 0 FAIL
+
+parent-adoption-564466ea/milan_dp_gptp/dp-gptp-physical.log
+  [ ok ] the grandmaster change holds tu for the 0.25 s holdover
+  [ ok ] tu clears within 0.5 s of the grandmaster change
+  [ ok ] loss leaves this station grandmaster     got=0x20000fffe000001 exp=0x20000fffe000001
+  [ ok ] the grandmaster role is synchronised, uncertainty cleared got=0x2 exp=0x2
+== ax1x1gptp physical: checks: 155   failures: 0 ==
+== ax1x1gptp setup abort: checks: 6   failures: 0 ==
+== ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==
+== ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+== ax1x1gptp recentre controls: checks: 14   failures: 0 ==
+
+parent-adoption-564466ea/milan_dp_gm_steps/milan_dp_gm_steps.log
+== gmstep: checks: 190   failures: 0 ==
+6 checks: 6 PASS, 0 FAIL
+
+Parent new negative controls (executed on the earlier executable-equivalent snapshot):
+mutants-milan_dp-gptp
+control rc=0 secs=147 fails=0
+reset-gm-zero rc=2 secs=136 fails=3
+first-gm-no-hold rc=0 secs=144 fails=0
+hold-never-armed rc=2 secs=137 fails=1
+no-thisclock rc=2 secs=149 fails=10
+appended-source rc=2 secs=144 fails=2
+
+mutants-milan_dp_gptp
+self-keeps-departed-gm rc=2 secs=4002 fails=7
+hold-never-armed rc=2 secs=4095 fails=2
+become-no-syncok rc=2 secs=4170 fails=3
+reset-gm-zero rc=2 secs=4170 fails=2
+no-thisclock rc=2 secs=4341 fails=8
+
+The first-gm-no-hold survivor is recorded, not counted as caught; manager ruling accepts the redundant arm.

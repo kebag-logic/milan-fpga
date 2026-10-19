@@ -1,0 +1,1087 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Kebag Logic
+ * SPDX-License-Identifier: CERN-OHL-W-2.0
+ */
+//---------------------------------------------------------------------------//
+//  File        : KL_gptp_shadow.sv
+//  Project     : Milan AVB end-station -- the fabric gPTP plane (issue #110)
+//
+//  Description : The time-sync plane in the KL_pp_shadow integration shape:
+//                an INPUT-ONLY tap on the MAC RX AXIS stream classifies
+//                EtherType 0x88F7 into a frame FIFO, a byte serializer feeds
+//                the gptp-processor submodule's KL_gptp_engine at 1 B/clk,
+//                and the engine's byte TX gears back up onto one wide
+//                control-lane leg. The engine's PHC control outputs become
+//                the parent timestamp_counter's knobs (the adjfine pulse
+//                latches to a level here; adjtime passes through), and the
+//                publish bank
+//                (GM identity, parent identity, asCapable/sync flags, peer
+//                delay, offset, selected PathTrace) is latched here as one
+//                transaction on the
+//                engine commit pulse before leaving the wrapper.
+//
+//                INGRESS TIMESTAMP TRANSPORT (the part a register latch
+//                gets wrong): the arrival timestamp is latched at each
+//                frame's first beat and pushed into a side FIFO on the
+//                frame FIFO's status_good_frame commit pulse -- exactly
+//                once per frame that will actually be DELIVERED, so the
+//                drop machinery (runt, reject, overflow) can never desync
+//                timestamps from frames. The serializer pops one entry at
+//                each frame's first byte; the engine latches at sof.
+//
+//                The ingress point is the tap (axis domain), not the MAC
+//                SFD: the constant MAC->tap pipeline offset belongs in the
+//                ingress-latency correction (REQ-PTP-06 lineage), and the
+//                silicon round (#117) measures it. THAT CORRECTION IS NOW
+//                HERE (issue #358): INGRESS_LAT_NS_P is subtracted from the
+//                arrival stamp and EGRESS_LAT_NS_P is added to the
+//                reconstructed launch, both per-board constants the builder
+//                carries from the board configuration. This plane is their
+//                only consumer.
+//
+//                THE EGRESS TIMESTAMP IS AN OBSERVED LAUNCH, NOT A
+//                BOUNDARY CAPTURE (issue #360). It used to be latched at
+//                the first accepted beat of the frame at the datapath's MAC
+//                boundary, which precedes the wire by two AXIS crossings, a
+//                store-and-forward packet FIFO, width conversion, padding,
+//                FCS, preamble and gap insertion and one registered output
+//                stage - a queue-dependent delay that went straight into t1
+//                and biased the computed peer delay. The plane now allocates
+//                one ordered LEDGER ENTRY per frame at the accepted end of
+//                its last byte (KL_gptp_txticket), a first-party observer at
+//                the MAC's own transmit stream reports each launched frame
+//                (KL_gptp_gmii_launch, instantiated by the SoC beside the
+//                MAC), and this wrapper's KL_gptp_txret reconstructs the
+//                launch instant and serves the engine's result face. The
+//                frame's {messageType, sequenceId} still travels with the
+//                result, because sequenceId alone cannot separate a
+//                Pdelay_Req from a Pdelay_Resp when the two counters
+//                coincide (milan-fpga #214, Mister-M-alt/FPGA-gPTP#28) - but
+//                it is now a CHECK on an identity the two ordered positions
+//                have already established, not the identity itself.
+//
+//                A control frame offered while the FIFO cannot take it is
+//                LOST and counted, never hidden (the tap cannot
+//                backpressure the NIC). The same is true of the SHED RULE
+//                (issue #122): the side FIFO is shallower than the frame
+//                FIFO, so a frame arriving when the ring is already spoken
+//                for is dropped WHOLE at its first beat rather than allowed
+//                to lap a still-live stamp -- see the occupancy block below
+//                for why that count has two terms and why the pointer
+//                difference must be taken at pointer width.
+//---------------------------------------------------------------------------//
+`default_nettype none
+
+module KL_gptp_shadow #(
+    parameter int unsigned TDATA_WIDTH_P   = 64,
+    parameter int unsigned CLK_HZ_P        = 100_000_000,
+    parameter string       UCODE_HEX_P     = "gptp_ucode.hex",
+    parameter int unsigned RX_FIFO_BYTES_P = 2048,
+    parameter int unsigned TX_FIFO_BYTES_P = 2048,
+    parameter int unsigned TS_FIFO_LOG2_P  = 5,
+    //! egress identities live at once; the ledger and the result queue are
+    //! both this deep and the admission credit is derived from the same
+    //! number (issue #360)
+    parameter int unsigned TXTS_CAP_N_P    = 8,
+    parameter int unsigned MAND_RSV_C      = 4,
+    parameter int unsigned TXTS_OIDX_W_P   = 12,
+    parameter int unsigned TXTS_GEN_W_P    = 4,
+    parameter int unsigned TXTS_DELTA_W_P  = 8,
+    //! transmit-clock period in nanoseconds at the observation point: 8 ns
+    //! is the 1 Gb/s GMII shape and no other link speed is qualified
+    parameter int unsigned ETH_TICK_NS_P   = 8,
+    //! nanoseconds the PHC advances per clock of this plane. 0 DERIVES it
+    //! from CLK_HZ_P, which is what a product build wants. A bench whose
+    //! counter runs a different shape from its own clock states the shape
+    //! here rather than misdeclaring its clock, because the egress
+    //! reconstruction subtracts whole ticks of this period.
+    parameter int unsigned PHC_TICK_NS_P   = 0,
+    //! THE BOARD'S OWN TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue
+    //! #358). They are per-board physical facts - PHY receive and transmit
+    //! latency and whatever pipeline sits outside this plane's own measured
+    //! register stages - so they are declared in the board configuration,
+    //! carried here by the builder, and applied ONCE, here. Every other
+    //! layer carries zero: `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` (0x540/0x544)
+    //! remain inert scratch with no timestamp consumer, so a correction
+    //! cannot be applied twice by two owners who each think they are the
+    //! only one.
+    //!
+    //! INGRESS is SUBTRACTED from the arrival stamp: the tap sees the frame
+    //! AFTER the physical and MAC receive path, so the raw stamp is LATE by
+    //! this much. EGRESS is ADDED to the reconstructed launch: the observed
+    //! launch precedes the wire by the transmit path, so the raw
+    //! reconstruction is EARLY by this much. The two defaults are zero,
+    //! which reproduces the uncorrected stamps bit for bit.
+    parameter int unsigned INGRESS_LAT_NS_P = 0,
+    parameter int unsigned EGRESS_LAT_NS_P  = 0
+) (
+    input  wire clk_i,                    //! axis_clk
+    input  wire rst_n,                    //! active-low reset
+
+    //! MAC RX tap: INPUT ONLY, a beat is real when tvalid && tready
+    //! (the gh #65 hazard: a stalled downstream path parks tvalid-held data)
+    input  wire [TDATA_WIDTH_P-1:0]   rx_tdata_i,   //! little lane order
+    input  wire [TDATA_WIDTH_P/8-1:0] rx_tkeep_i,  //! per-lane byte enables
+    input  wire                       rx_tvalid_i, //! the tap's valid
+    input  wire                       rx_tready_i, //! the consumer's ready
+    input  wire                       rx_tlast_i,  //! last beat of a frame
+
+    //! live PHC value for ingress timestamp capture
+    input  wire [63:0] phc_ns_i,
+
+    //! THE PHC COUNTER'S OWN EFFECTIVE CONTROL NETS, in its clock domain
+    //! and after every synchroniser: the egress reconstruction is only
+    //! valid across a trajectory these describe, and they are the only
+    //! signals that say what the accumulator actually did. The CSR side
+    //! and this plane's own upstream addend both change earlier.
+    input  wire        phc_en_eff_i,
+    input  wire [31:0] phc_incr_eff_ns_i,    //! Q8.24 nominal step, ns
+    input  wire signed [31:0] phc_adj_eff_ns_i, //! Q8.24 signed addend, ns
+    input  wire        phc_load_eff_i,       //! settime applied here
+    input  wire        phc_adjust_eff_i,     //! adjtime applied here
+
+    //! PHC knobs out: adjfine as a latched LEVEL, adjtime as a pulse
+    output logic signed [31:0] phc_adj_o,
+    output logic               phc_step_we_o,
+    output logic        [63:0] phc_step_o,
+    //! Registered engine policy level (clk_i), independent of publication.
+    //! Rises before the slew addend; falls with its replacement pulse.
+    //! Consumers must cover their retained-rate and PHC pipeline tail.
+    output wire                phc_slew_active_o,
+
+    //! TX: one wide control-lane leg (whole frames, FRAME_FIFO-held)
+    output wire [TDATA_WIDTH_P-1:0]   tx_tdata_o,
+    output wire [TDATA_WIDTH_P/8-1:0] tx_tkeep_o,
+    output wire                       tx_tvalid_o,
+    output wire                       tx_tlast_o,
+    input  wire                       tx_tready_i,
+
+    //! LAUNCH RECORDS from KL_gptp_gmii_launch, one per frame the MAC
+    //! actually launched. Already in this clock domain: the observer owns
+    //! the crossing, because the module that measures the event is the one
+    //! that knows how many register stages its own measurement carries.
+    input  wire                      rec_valid_i,
+    input  wire                      rec_kind_i,    //! 0 = frame, 1 = echo
+    input  wire [TXTS_OIDX_W_P-1:0]  rec_oidx_i,   //! observer position
+    input  wire  [TXTS_GEN_W_P-1:0]  rec_gen_i,    //! adopted generation
+    input  wire                [3:0] rec_type_i,   //! messageType octet
+    input  wire               [15:0] rec_seq_i,    //! the frame's sequenceId
+    input  wire [TXTS_DELTA_W_P-1:0] rec_delta_i,  //! measured cycle distance
+    input  wire                      rec_abort_i,  //! no measurement here
+
+    //! the seal offered back to that observer, and the crossing's own
+    //! delivery report (which is NOT the observer's acknowledgement)
+    output wire                     seal_req_o,
+    output wire [TXTS_GEN_W_P-1:0]  seal_gen_o,
+    input  wire                     seal_ack_i,
+
+    //! the MAC recovery levels the link guard drives, observed: a rising
+    //! edge of either raises the plane's barrier
+    input  wire mac_reinit_i,
+    input  wire mac_eth_rst_i,
+    //! the guard's own episode evidence, and this plane's request for one.
+    //! The levels above cannot distinguish a completed recovery from an
+    //! aborted one, so the plane reads the episode rather than the levels
+    //! when it decides that the frames it fenced off are really gone.
+    input  wire epi_start_i,
+    input  wire epi_done_i,
+    input  wire epi_busy_i,
+    input  wire epi_dis_i,
+    output wire recov_req_o,
+
+    //! sole live publication bank
+    output logic [63:0] pub_gm_id_o,
+    output logic [63:0] pub_parent_id_o,
+    output logic [31:0] pub_flags_o,      //! b0 present, b1 gm, b2 asCap, b3 sync
+    output logic [31:0] pub_pdelay_ns_o,
+    output logic [31:0] pub_offset_o,
+    output logic [63:0] pub_annq_o,
+    output logic  [3:0] pub_path_count_o, //! complete length incl GM
+    output logic [7*64-1:0] pub_path_o,   //! canonical slots 1..7
+    output logic  [3:0] pub_path_gen_o,  //! complete served tuple generation
+    output logic        pub_commit_o,
+    //! Combinational pre-commit discontinuity. The outward bank is
+    //! registered on the engine commit, so a consumer sampling on that edge
+    //! otherwise still sees the old healthy GM/flags for one cycle.
+    output wire         pub_disc_o,
+
+    //! diagnostics
+    output logic [15:0] dbg_tap_drop_o,   //! frames lost at the tap FIFO
+    output logic [15:0] dbg_rx_drop_o,    //! frames the parser refused
+    output logic [15:0] dbg_ev_drop_o,    //! events lost at the queue
+    output logic        dbg_busy_o,
+    output wire  [63:0] dbg_rx_ts_o,      //! the ts entry feeding the engine
+    output wire         dbg_tspush_v_o,   //! bench probes: side-FIFO push
+    output wire  [63:0] dbg_tspush_o,
+    output wire         dbg_tspop_v_o,    //! side-FIFO pop (engine sof)
+    output wire  [15:0] dbg_txts_lost_o,  //! egress results retired without
+                                          //! a measurement, wrapping
+    output wire  [15:0] dbg_txts_disc_o,  //! launch records discarded
+    output wire  [15:0] dbg_txts_barr_o,  //! barriers raised
+    output wire  [15:0] dbg_txts_stall_o, //! head-entry age expiries
+    output wire  [15:0] dbg_txts_phcl_o,  //! results refused by the PHC
+                                          //! history guard
+    output wire   [7:0] dbg_txts_dirt_cyc_o, //! eligible cycles still owed
+    output wire  [15:0] dbg_txts_state_o, //! seal, echo, generation, depths
+    output logic [15:0] dbg_txts_torn_o   //! frames the fence tore and this
+                                          //! plane discarded locally
+);
+
+  localparam int unsigned KEEP_W_C = TDATA_WIDTH_P / 8;
+  localparam logic [15:0] ET_GPTP_C = 16'h88F7;
+
+  //! The two frame FIFOs store a beat's byte enables as a lane number, not
+  //! as KEEP_W_C enables, so a 64-bit beat is 69 bits and fits one RAMB36
+  //! (512 x 72) instead of a RAMB36 plus a RAMB18 (issue #640, lane M7).
+  //! RX keeps the HIGHEST enabled lane, the only thing the byte serializer
+  //! ever reads from tkeep. TX keeps the beat's lane COUNT, 0..KEEP_W_C: the
+  //! gearbox only ever builds contiguous enables from lane 0, and a
+  //! never-written FIFO word holds count 0, which decodes to the all-clear
+  //! tkeep; any other word decodes to exactly the mask the eight-bit FIFO
+  //! stored. Both FIFOs keep their depth in beats, so the frame and overflow
+  //! arithmetic is unchanged.
+  localparam int unsigned LANE_W_C = 3;  //! ser_idx_r's width
+  localparam int unsigned CNT_W_C  = 4;
+  localparam int unsigned RX_FIFO_BEATS_C = RX_FIFO_BYTES_P / KEEP_W_C;
+  localparam int unsigned TX_FIFO_BEATS_C = TX_FIFO_BYTES_P / KEEP_W_C;
+
+  //! occupancy width shared by the allocator, the ledger and the departure
+  //! count, so the three cannot drift apart silently
+  localparam int unsigned OCC_W_C = $clog2(TXTS_CAP_N_P + 1) + 1;
+  //! this plane's own PHC tick in nanoseconds. It is DERIVED from the
+  //! configured frequency unless a bench states the shape, because the
+  //! reconstruction subtracts whole ticks of it and a mirrored literal
+  //! would go stale the first time the datapath clock moved.
+  localparam int unsigned DP_TICK_NS_C =
+      (PHC_TICK_NS_P != 0) ? PHC_TICK_NS_P : 1_000_000_000 / CLK_HZ_P;
+
+  //! Beats the plane's transmit FIFO holds. The pinned `axis_fifo` with
+  //! KEEP_ENABLE=0 takes DEPTH in beats (`ADDR_WIDTH = $clog2(DEPTH)`) and
+  //! rounds it up to a power of two, so this is the exact capacity and not
+  //! an estimate.
+  localparam int unsigned TXF_BEATS_C =
+      2 ** $clog2(TX_FIFO_BYTES_P / KEEP_W_C);
+  //! the largest plane frame, in beats: the donor's own transmit slot size
+  //! is the authority for the octet count
+  localparam int unsigned PLANE_BEATS_C =
+      (gptp_ucpu_pkg::TXSLOT_BYTES_C + KEEP_W_C - 1) / KEEP_W_C;
+
+  // ---- elaboration contract ---------------------------------------------
+  //! ONE format string per $error: later arguments print as values.
+  if ((KEEP_W_C < 1) || (KEEP_W_C > (1 << LANE_W_C))) begin : g_refuse_lanes
+    $error("KL_gptp_shadow: TDATA_WIDTH_P=%0d gives %0d byte lanes; the byte serializer and the frame FIFOs' lane fields cover 1 to 8 lanes.",
+           TDATA_WIDTH_P, KEEP_W_C);
+  end else if (TXTS_CAP_N_P * PLANE_BEATS_C > TXF_BEATS_C) begin : g_refuse_txfifo
+    $error("KL_gptp_shadow: the plane transmit FIFO holds %0d beats and TXTS_CAP_N_P=%0d maximum plane frames need %0d. Admission is bounded by the ledger, not by this FIFO, so a FIFO that cannot hold the admitted frames would back-pressure the engine byte face - which stalls the very dispatch that releases the previous result.",
+           TXF_BEATS_C, TXTS_CAP_N_P, TXTS_CAP_N_P * PLANE_BEATS_C);
+  end else if ((PHC_TICK_NS_P == 0) && (DP_TICK_NS_C * CLK_HZ_P != 1_000_000_000))
+  begin : g_refuse_tick
+    $error("KL_gptp_shadow: CLK_HZ_P=%0d does not divide 1 GHz into whole nanoseconds (nearest tick %0d ns). The egress reconstruction subtracts whole ticks of this period, so a rounded tick would be a silent bias on every timestamp; state the shape through PHC_TICK_NS_P if the counter really runs at another rate.",
+           CLK_HZ_P, DP_TICK_NS_C);
+  end else if ((INGRESS_LAT_NS_P > 16'hFFFF) || (EGRESS_LAT_NS_P > 16'hFFFF))
+  begin : g_refuse_lat
+    //! The applied value has to be the PUBLISHED value (issue #358). The
+    //! parent serves both constants as one read-only word, sixteen bits per
+    //! direction, so a larger number would be applied to every timestamp
+    //! and read back truncated - a correction nobody could audit. A real
+    //! 1000BASE-T path is hundreds of nanoseconds; 65535 ns is already two
+    //! orders of magnitude past it, so this bound refuses a typo rather
+    //! than a board.
+    $error("KL_gptp_shadow: INGRESS_LAT_NS_P=%0d and EGRESS_LAT_NS_P=%0d must each fit 16 bits (0..65535 ns). The parent publishes both in one read-only word at that width, so a wider value would be applied and read back truncated.",
+           INGRESS_LAT_NS_P, EGRESS_LAT_NS_P);
+  end
+
+  // ======================================================================= //
+  //  RX classify (the KL_pp_shadow idiom: aligned lanes, no byte muxes)    //
+  // ======================================================================= //
+  logic beat_w;
+  assign beat_w = rx_tvalid_i & rx_tready_i;
+
+  //! EtherType is wire bytes 12,13 = beat-1 LANES 4 and 5 (lane j =
+  //! tdata[8j +: 8]) -- the one-lane-off failure mode is a silently deaf
+  //! tap (KL_pp_shadow's banner carries the war story)
+  logic [15:0] etype_w;
+  assign etype_w = {rx_tdata_i[39:32], rx_tdata_i[47:40]};
+
+  typedef enum logic [1:0] {FW_HEAD0, FW_HEAD1, FW_BODY, FW_SKIP} fw_state_e;
+  fw_state_e fw_S;
+  //! this frame is being SHED whole (issue #122): the ingress-ts ring was
+  //! full at its sof, so no beat may enter the FIFO -- otherwise its commit
+  //! would lap the ring over a still-live arrival stamp. Set at FW_HEAD0,
+  //! read at FW_HEAD1 (where the EtherType verdict for the count lands).
+  logic shed_r;
+
+  logic                     fw_valid_w, fw_last_w, fw_user_w;
+  logic [TDATA_WIDTH_P-1:0] fw_data_w;
+  logic [LANE_W_C-1:0]      fw_top_w;    //! highest enabled lane
+  logic                     fw_ready_w;
+
+  //! The serializer stops after the highest enabled lane, so that lane is
+  //! all the FIFO carries. An all-clear tkeep gives lane 0, as before.
+  always_comb begin : rx_top_lane
+    fw_top_w = '0;
+    for (int unsigned i = 0; i < KEEP_W_C; i++) begin
+      if (rx_tkeep_i[i]) fw_top_w = LANE_W_C'(i);
+    end
+  end : rx_top_lane
+
+  logic accept_w;
+  assign accept_w = (etype_w == ET_GPTP_C);
+
+  //! the shed guard's verdict and the frame FIFO's bad-frame strobe are
+  //! DECLARED HERE, above their first use in the always_comb below. Verilator
+  //! accepts a later declaration; Vivado's front-end does not (VRFC 10-3380
+  //! rejects the whole module), so a file that only ever sees Verilator can
+  //! regress the xsim benches silently. Their drivers live with the ring.
+  logic full_w;
+  logic ff_bad_w;
+
+  always_comb begin
+    fw_valid_w = 1'b0;
+    fw_data_w  = rx_tdata_i;
+    fw_last_w  = rx_tlast_i;
+    fw_user_w  = 1'b0;
+    unique case (fw_S)
+      FW_HEAD0: begin
+        // beat 0 normally enters -- the verdict needs beat 1; a frame
+        // ending here is a runt, marked bad and dropped atomically. But when
+        // the ingress-ts ring is FULL at sof (issue #122), the WHOLE frame is
+        // shed before it enters the FIFO: suppress beat 0 too, so its commit
+        // (ff_good_w) can never lap the ring over a still-live arrival stamp.
+        fw_valid_w = beat_w & ~full_w;
+        fw_user_w  = rx_tlast_i;
+      end
+      FW_HEAD1: begin
+        // a shed frame keeps beat 1 out of the FIFO as well, so the shed is
+        // atomic at frame granularity: nothing ever entered.
+        fw_valid_w = beat_w & ~shed_r;
+        if (!accept_w & ~shed_r) begin
+          fw_last_w = 1'b1;
+          fw_user_w = 1'b1;                  // reject: reclaimed atomically
+        end
+      end
+      FW_BODY: fw_valid_w = beat_w;
+      default: fw_valid_w = 1'b0;            // FW_SKIP
+    endcase
+  end
+
+  //! the arrival stamp for the frame currently entering the tap, with the
+  //! board's ingress latency already removed (issue #358). One subtractor on
+  //! a constant, folded into the existing capture: the tap stamps LATE by
+  //! the receive path ahead of it, so the corrected arrival is the raw PHC
+  //! value minus that path. At the default zero this is the raw value.
+  logic [63:0] ts_arr_r;
+  logic [63:0] ts_arr_corr_w;
+  assign ts_arr_corr_w = phc_ns_i - 64'(INGRESS_LAT_NS_P);
+
+  always_ff @(posedge clk_i) begin
+    if (!rst_n) begin
+      fw_S     <= FW_HEAD0;
+      ts_arr_r <= 64'd0;
+      shed_r   <= 1'b0;
+    end else if (beat_w) begin
+      unique case (fw_S)
+        FW_HEAD0: begin
+          ts_arr_r <= ts_arr_corr_w;
+          // shed the WHOLE frame when the ts ring is full at sof (issue
+          // #122). A one-beat runt at full stays uncounted -- no EtherType
+          // verdict lands, matching today's bad-frame reclaim.
+          shed_r   <= full_w & ~rx_tlast_i;
+          fw_S     <= rx_tlast_i ? FW_HEAD0 : FW_HEAD1;
+        end
+        // a shed frame routes to FW_SKIP regardless of EtherType (it never
+        // entered the FIFO); accept_w still steers a normal frame.
+        FW_HEAD1: fw_S <= rx_tlast_i ? FW_HEAD0
+                                     : ((shed_r | ~accept_w) ? FW_SKIP : FW_BODY);
+        FW_BODY:  if (rx_tlast_i) fw_S <= FW_HEAD0;
+        default:  if (rx_tlast_i) fw_S <= FW_HEAD0;
+      endcase
+    end
+  end
+
+  //! counted, never hidden. DROP_WHEN_FULL keeps s_ready HIGH and drops
+  //! whole frames INSIDE the FIFO, so a ready-based counter never fires:
+  //! status_overflow is the real drop strobe (one per lost frame); the
+  //! ready term stays as a belt-and-braces alarm for any backpressure
+  //! mode change.
+  logic ff_ovf_w;
+  logic drop_evt_w;
+  //! a SHED gPTP frame (issue #122): the ring was full at its sof, so it
+  //! never entered the FIFO and ff_ovf_w never fires for it. Count it in the
+  //! tap-drop diagnostic ONLY once the EtherType verdict lands (beat 1 =
+  //! FW_HEAD1) and ONLY when it is 0x88F7 -- counting non-gPTP sheds would
+  //! poison the diagnostic.
+  logic shed_gptp_w;
+  assign shed_gptp_w = beat_w & (fw_S == FW_HEAD1) & shed_r & accept_w;
+  assign drop_evt_w = (fw_valid_w & ~fw_ready_w & (fw_S != FW_SKIP))
+                    | ff_ovf_w | shed_gptp_w;
+  logic [15:0] tap_drop_r;
+  always_ff @(posedge clk_i) begin
+    if (!rst_n)           tap_drop_r <= 16'd0;
+    else if (drop_evt_w)  tap_drop_r <= tap_drop_r + 16'd1;
+  end
+  assign dbg_tap_drop_o = tap_drop_r;
+
+  logic [TDATA_WIDTH_P-1:0] ff_data_w;
+  logic [LANE_W_C-1:0]      ff_top_w;
+  logic                     ff_valid_w, ff_last_w, ff_ready_w;
+  logic                     ff_good_w;
+  //! a delivered frame is never bad: the FIFO drops bad frames whole
+  logic                     ff_user_unused_w;
+
+  //! tuser carries {highest lane, bad}; only bit 0 judges the frame
+  axis_fifo #(
+    .DEPTH               (RX_FIFO_BEATS_C),
+    .DATA_WIDTH          (TDATA_WIDTH_P),
+    .KEEP_ENABLE         (0),
+    .KEEP_WIDTH          (KEEP_W_C),
+    .LAST_ENABLE         (1),
+    .ID_ENABLE           (0),
+    .DEST_ENABLE         (0),
+    .USER_ENABLE         (1),
+    .USER_WIDTH          (LANE_W_C + 1),
+    .FRAME_FIFO          (1),
+    .USER_BAD_FRAME_VALUE((LANE_W_C + 1)'(1)),
+    .USER_BAD_FRAME_MASK ((LANE_W_C + 1)'(1)),
+    .DROP_BAD_FRAME      (1),
+    .DROP_OVERSIZE_FRAME (1),
+    .DROP_WHEN_FULL      (1)
+  ) rx_fifo (
+    .clk                (clk_i),
+    .rst                (~rst_n),
+    .s_axis_tdata       (fw_data_w),
+    .s_axis_tkeep       ('1),
+    .s_axis_tvalid      (fw_valid_w),
+    .s_axis_tready      (fw_ready_w),
+    .s_axis_tlast       (fw_last_w),
+    .s_axis_tid         ('0),
+    .s_axis_tdest       ('0),
+    .s_axis_tuser       ({fw_top_w, fw_user_w}),
+    .m_axis_tdata       (ff_data_w),
+    .m_axis_tkeep       (),
+    .m_axis_tvalid     (ff_valid_w),
+    .m_axis_tready      (ff_ready_w),
+    .m_axis_tlast       (ff_last_w),
+    .m_axis_tid         (),
+    .m_axis_tdest       (),
+    .m_axis_tuser       ({ff_top_w, ff_user_unused_w}),
+    .status_overflow    (ff_ovf_w),
+    .status_bad_frame   (ff_bad_w),
+    .status_good_frame  (ff_good_w),
+    .status_depth       (),
+    .status_depth_commit(),
+    .pause_req          (1'b0),
+    .pause_ack          ()
+  );
+
+  // ======================================================================= //
+  //  Ingress-timestamp side FIFO: pushed per COMMITTED frame only          //
+  // ======================================================================= //
+  localparam int unsigned TSD_C = 1 << TS_FIFO_LOG2_P;
+  logic [63:0] tsf_r [0:TSD_C-1];
+  //! one extra pointer bit so (wp - rp) is a wrap-safe occupancy rather than
+  //! an ambiguous full/empty compare
+  logic [TS_FIFO_LOG2_P:0] tsf_wp_r, tsf_rp_r;
+  logic tsf_pop_w;
+
+  // ----------------------------------------------------------------------- //
+  //  THE SHED GUARD'S OCCUPANCY (issue #122), in two terms                   //
+  //                                                                          //
+  //  The ring is PUSHED on ff_good_w -- the frame FIFO's commit -- which LAGS //
+  //  the tap sof by the FIFO's write latency, so the ring pointers alone      //
+  //  under-count: frames already taken at the tap but not yet committed are   //
+  //  invisible, the guard sheds too late, and the ring still laps (measured:  //
+  //  38 frames into a 32-entry ring on the burst below).                      //
+  //                                                                          //
+  //  Counting instead at the TAP and releasing on POP is what a first cut     //
+  //  did, and it LEAKS: a frame the FIFO itself discards (oversize, or full)  //
+  //  never commits, so it never pushes and never pops. One slot leaks per     //
+  //  discarded frame and after TSD_C of them the guard wedges shut and the    //
+  //  plane goes PERMANENTLY DEAF -- worse than the lap it was fixing, and     //
+  //  invisible to the whole sweep (measured: 40 oversize frames, then         //
+  //  nothing was ever accepted again).                                        //
+  //                                                                          //
+  //  So the second term counts frames that have ENTERED the frame FIFO and    //
+  //  are not yet RESOLVED by it. A frame resolves exactly once -- good (a     //
+  //  future push), bad, or overflow (no push) -- so this can neither leak nor //
+  //  underflow, whatever the FIFO does with the frame. It counts non-gPTP     //
+  //  frames too, which only makes the guard slightly conservative: they       //
+  //  resolve within a couple of cycles and never push.                        //
+  //                                                                          //
+  //  sum = entries the ring holds + pushes it may still be owed, so shedding  //
+  //  a new frame at TSD_C means the ring is never asked to hold a 33rd.       //
+  // ----------------------------------------------------------------------- //
+  logic fifo_enter_w, fifo_resolve_w;
+  //! a frame's FIRST beat being written IS the frame entering the FIFO
+  assign fifo_enter_w   = fw_valid_w & fw_ready_w & (fw_S == FW_HEAD0);
+  assign fifo_resolve_w = ff_good_w | ff_bad_w | ff_ovf_w;
+  //! BOUND: an enter is blocked once occ reaches TSD_C, and unres_r <= occ,
+  //! so unres_r never exceeds TSD_C -- one bit wider than the ring index is
+  //! all it needs. The saturations below are then unreachable by
+  //! construction and kept only as belt-and-braces on a wedge that would
+  //! cost the plane every frame.
+  logic [TS_FIFO_LOG2_P:0] unres_r;
+  //! THE SUBTRACTION MUST HAPPEN AT POINTER WIDTH. `N'(a - b)` sets the
+  //! CONTEXT size of the whole expression, so casting the difference straight
+  //! to the sum's width evaluates a - b at that width and the wrap-safe extra
+  //! pointer bit is thrown away: every wrap then reads ~2^N - (rp - wp), the
+  //! guard latches full and the plane sheds frames it has room for. Take the
+  //! difference in its own N+1-bit net FIRST, then widen.
+  logic [TS_FIFO_LOG2_P:0]   ring_occ_w;
+  logic [TS_FIFO_LOG2_P+1:0] occ_w;
+  assign ring_occ_w = tsf_wp_r - tsf_rp_r;
+  assign occ_w  = {1'b0, ring_occ_w} + {1'b0, unres_r};
+  assign full_w = (occ_w >= (TS_FIFO_LOG2_P+2)'(TSD_C));
+
+  always_ff @(posedge clk_i) begin
+    if (!rst_n) begin
+      tsf_wp_r <= '0;
+      tsf_rp_r <= '0;
+      unres_r  <= '0;
+    end else begin
+      if (ff_good_w) begin
+        tsf_r[tsf_wp_r[TS_FIFO_LOG2_P-1:0]] <= ts_arr_r;
+        tsf_wp_r                            <= tsf_wp_r + 1'b1;
+      end
+      //! the empty test makes a pop-without-push STRUCTURALLY unable to drive
+      //! rp past wp. It cannot fire today (a pop trails its push by cycles),
+      //! but with a pointer-difference compare that ordering is the only
+      //! thing standing between a stray pop and a permanently shedding guard
+      if (tsf_pop_w & (tsf_wp_r != tsf_rp_r)) tsf_rp_r <= tsf_rp_r + 1'b1;
+      if (fifo_enter_w & ~fifo_resolve_w) begin
+        if (~&unres_r) unres_r <= unres_r + 1'b1;
+      end else if (~fifo_enter_w & fifo_resolve_w) begin
+        if (|unres_r)  unres_r <= unres_r - 1'b1;
+      end
+    end
+  end
+
+  logic [63:0] rx_ts_w;
+  assign rx_ts_w = tsf_r[tsf_rp_r[TS_FIFO_LOG2_P-1:0]];
+  assign dbg_rx_ts_o = rx_ts_w;
+  assign dbg_tspush_v_o = ff_good_w;
+  assign dbg_tspush_o   = ts_arr_r;
+  assign dbg_tspop_v_o  = tsf_pop_w;
+
+  // ======================================================================= //
+  //  Byte serializer: 1 B/clk into the engine, sof pops the ts entry       //
+  // ======================================================================= //
+  logic [TDATA_WIDTH_P-1:0] ser_data_r;
+  logic [LANE_W_C-1:0]      ser_top_r;   //! the word's highest enabled lane
+  logic                     ser_last_r, ser_busy_r, ser_sof_r;
+  logic [2:0]               ser_idx_r;
+
+  logic [2:0] ser_top_w;
+  assign ser_top_w = ser_top_r;
+
+  assign ff_ready_w = ~ser_busy_r;
+
+  logic       eng_rx_valid_w, eng_rx_sof_w, eng_rx_eof_w;
+  logic [7:0] eng_rx_data_w;
+  assign eng_rx_valid_w = ser_busy_r;
+  assign eng_rx_data_w  = ser_data_r[8*ser_idx_r +: 8];
+  assign eng_rx_sof_w   = ser_busy_r & ser_sof_r & (ser_idx_r == 3'd0);
+  assign eng_rx_eof_w   = ser_busy_r & ser_last_r & (ser_idx_r == ser_top_w);
+
+  assign tsf_pop_w = eng_rx_valid_w & eng_rx_sof_w;
+
+  always_ff @(posedge clk_i) begin
+    if (!rst_n) begin
+      ser_busy_r <= 1'b0;
+      ser_idx_r  <= 3'd0;
+      ser_data_r <= '0;
+      ser_top_r  <= '0;
+      ser_last_r <= 1'b0;
+      ser_sof_r  <= 1'b1;
+    end else if (!ser_busy_r) begin
+      if (ff_valid_w) begin
+        ser_data_r <= ff_data_w;
+        ser_top_r  <= ff_top_w;
+        ser_last_r <= ff_last_w;
+        ser_idx_r  <= 3'd0;
+        ser_busy_r <= 1'b1;
+      end
+    end else begin
+      if (ser_idx_r == ser_top_w) begin
+        ser_busy_r <= 1'b0;
+        ser_sof_r  <= ser_last_r;      // next word starts a frame iff eof
+      end else begin
+        ser_idx_r <= ser_idx_r + 3'd1;
+        if (ser_idx_r == 3'd0) ser_sof_r <= 1'b0;
+      end
+    end
+  end
+
+  // ======================================================================= //
+  //  The engine (gptp-processor submodule)                                 //
+  // ======================================================================= //
+  logic       eng_tx_valid_w, eng_tx_sof_w, eng_tx_eof_w, eng_tx_ready_w;
+  logic [7:0] eng_tx_data_w;
+  logic       adj_we_w;
+  //! the engine's result face, served by the ledger below
+  logic        eng_txts_valid_w, eng_txts_ready_w, eng_txts_ok_w;
+  logic [63:0] eng_txts_ns_w;
+  logic [15:0] eng_txts_seq_w;
+  logic  [3:0] eng_txts_type_w;
+  logic [TXTS_GEN_W_P-1:0] eng_txts_gen_w;
+  logic        eng_tx_credit_w;
+  logic [31:0] adj_val_w;
+  logic [63:0] pub_gm_raw_w, pub_parent_raw_w, pub_annq_raw_w;
+  logic [31:0] pub_flags_raw_w, pub_pdelay_raw_w, pub_offset_raw_w;
+  logic  [3:0] pub_path_count_raw_w;
+  logic [7*64-1:0] pub_path_raw_w;
+  logic        pub_commit_raw_w;
+
+  //! Canonical public sequence. A tail has no identity without a GM. With a
+  //! GM, preserve the donor's raw distinction: count zero means the selected
+  //! Announce carried no PathTrace TLV, while count one is the explicit
+  //! one-entry `[GM]` sequence. Generation covers the COMPLETE sequence this
+  //! parent serves, so 0 <-> 1 is a real edge while GM A->B with both counts
+  //! zero is silent (the served sequence remains empty).
+  logic [3:0] pub_path_count_next_w;
+  logic [7*64-1:0] pub_path_next_w;
+  always_comb begin : canonical_public_path
+    pub_path_count_next_w = 4'd0;
+    pub_path_next_w       = '0;
+    if (|pub_gm_raw_w) begin
+      //! Clamp a hostile or future wider donor at the public seven-tail ABI
+      //! boundary, then copy only identities selected by that count. Letting
+      //! inactive bytes escape would spend a generation and manufacture a
+      //! Table 5.22 event even though GET_AS_PATH serves the same sequence.
+      pub_path_count_next_w = (pub_path_count_raw_w > 4'd8) ? 4'd8
+          : pub_path_count_raw_w;
+      for (int unsigned pk = 0; pk < 7; pk++) begin
+        if (4'(pk + 2) <= pub_path_count_next_w)
+          pub_path_next_w[64*pk +: 64] = pub_path_raw_w[64*pk +: 64];
+      end
+    end
+  end : canonical_public_path
+  //! The grandmaster participates in PathTrace identity only when entry zero
+  //! exists. Keep the scalar GM publication independent: GET_AVB_INFO, ADP and
+  //! the GM-change counter still observe every identity edge while an absent
+  //! PathTrace remains the same empty served sequence.
+  wire [63:0] pub_path_head_next_w = (|pub_path_count_next_w)
+      ? pub_gm_raw_w : 64'd0;
+  wire [63:0] pub_path_head_o_w = (|pub_path_count_o)
+      ? pub_gm_id_o : 64'd0;
+  wire pub_path_changed_w = (pub_path_head_next_w != pub_path_head_o_w)
+      || (pub_path_count_next_w != pub_path_count_o)
+      || (pub_path_next_w != pub_path_o);
+
+  //! Same-edge warning for AVTP talkers. A GM change or a healthy-to-unhealthy
+  //! sync transition must assert tu before the registered outward bank moves;
+  //! waiting for pub_gm_id_o/pub_flags_o would leak one certain frame on the
+  //! commit edge. Other publication-only updates do not create a time
+  //! discontinuity and must not hold tu high continuously.
+  assign pub_disc_o = pub_commit_raw_w &&
+                      ((pub_gm_raw_w != pub_gm_id_o) ||
+                       (pub_flags_o[3] && !pub_flags_raw_w[3]));
+
+  KL_gptp_engine #(
+      .UCODE_HEX_P (UCODE_HEX_P),
+      .CLK_HZ_P    (CLK_HZ_P)
+  ) u_engine (
+      .clk_i              (clk_i),
+      .rst_n              (rst_n),
+      .rx_valid_i         (eng_rx_valid_w),
+      .rx_data_i          (eng_rx_data_w),
+      .rx_sof_i           (eng_rx_sof_w),
+      .rx_eof_i           (eng_rx_eof_w),
+      .rx_err_i           (1'b0),
+      .rx_ts_i            (rx_ts_w),
+      .tx_valid_o         (eng_tx_valid_w),
+      .tx_data_o          (eng_tx_data_w),
+      .tx_sof_o           (eng_tx_sof_w),
+      .tx_eof_o           (eng_tx_eof_w),
+      .tx_ready_i         (eng_tx_ready_w),
+      .txts_valid_i       (eng_txts_valid_w),
+      .txts_ready_o       (eng_txts_ready_w),
+      .txts_ns_i          (eng_txts_ns_w),
+      .txts_seq_i         (eng_txts_seq_w),
+      .txts_type_i        (eng_txts_type_w),
+      .txts_ok_i          (eng_txts_ok_w),
+      .txts_gen_i         (eng_txts_gen_w),
+      .tx_credit_i        (eng_tx_credit_w),
+      .phc_addend_we_o    (adj_we_w),
+      .phc_addend_o       (adj_val_w),
+      .phc_step_we_o      (phc_step_we_o),
+      .phc_step_o         (phc_step_o),
+      .phc_slew_active_o  (phc_slew_active_o),
+      .pub_gm_id_o        (pub_gm_raw_w),
+      .pub_parent_id_o    (pub_parent_raw_w),
+      .pub_flags_o        (pub_flags_raw_w),
+      .pub_pdelay_ns_o    (pub_pdelay_raw_w),
+      .pub_offset_o       (pub_offset_raw_w),
+      .pub_annq_o         (pub_annq_raw_w),
+      .pub_path_count_o   (pub_path_count_raw_w),
+      .pub_path_o         (pub_path_raw_w),
+      .pub_commit_o       (pub_commit_raw_w),
+      .eff_nvm_stb_o      (),
+      .eff_nvm_mark_o     (),
+      .eff_notify_stb_o   (),
+      .eff_notify_class_o (),
+      .dbg_rx_drop_o      (dbg_rx_drop_o),
+      .dbg_ev_drop_o      (dbg_ev_drop_o),
+      .dbg_busy_o         (dbg_busy_o),
+      .dbg_status_o       ()
+  );
+
+  //! The donor updates individual publication words while handling an event
+  //! and ends the transaction with pub_commit_raw_w. Consumers must never see
+  //! a new GM paired with old flags, parent, or timing data, so the wrapper
+  //! publishes the complete scalar + PathTrace bank only at that boundary.
+  always_ff @(posedge clk_i) begin : publication_commit
+    if (!rst_n) begin
+      pub_gm_id_o     <= '0;
+      pub_parent_id_o <= '0;
+      pub_flags_o     <= '0;
+      pub_pdelay_ns_o <= '0;
+      pub_offset_o    <= '0;
+      pub_annq_o      <= '0;
+      pub_path_count_o <= '0;
+      pub_path_o       <= '0;
+      pub_path_gen_o   <= '0;
+      pub_commit_o    <= 1'b0;
+    end else begin
+      pub_commit_o <= pub_commit_raw_w;
+      if (pub_commit_raw_w) begin
+        pub_gm_id_o     <= pub_gm_raw_w;
+        pub_parent_id_o <= pub_parent_raw_w;
+        pub_flags_o     <= pub_flags_raw_w;
+        // The donor keeps peer delay signed while grading the symmetric
+        // exchange: a small negative result is legal measurement noise and
+        // must not tear down asCapable.  This outward contract is different:
+        // CSR GPTP_PDELAY and GET_AVB_INFO carry an *unsigned* nanosecond
+        // value.  Publishing the two's-complement bits would turn -1 ns into
+        // 4.29 seconds.  Clamp only at this public-bank boundary so the
+        // donor's signed acceptance/servo arithmetic remains unchanged.
+        pub_pdelay_ns_o <= pub_pdelay_raw_w[31] ? 32'd0
+                                                : pub_pdelay_raw_w;
+        pub_offset_o    <= pub_offset_raw_w;
+        pub_annq_o      <= pub_annq_raw_w;
+        pub_path_count_o <= pub_path_count_next_w;
+        pub_path_o       <= pub_path_next_w;
+        if (pub_path_changed_w)
+          pub_path_gen_o <= pub_path_gen_o + 4'd1;
+      end
+    end
+  end : publication_commit
+
+  //! adjfine is a level at the counter: latch the engine's pulse
+  always_ff @(posedge clk_i) begin : adj_latch
+    if (!rst_n)        phc_adj_o <= '0;
+    else if (adj_we_w) phc_adj_o <= $signed(adj_val_w);
+  end
+
+  // ======================================================================= //
+  //  TX gearbox: 1 B/clk up to wide beats, whole frames onto the lane      //
+  // ======================================================================= //
+  logic [TDATA_WIDTH_P-1:0] gb_data_r;
+  logic [2:0]               gb_idx_r;
+
+  logic                     gbo_valid_w, gbo_last_w, gbo_ready_w;
+  logic [TDATA_WIDTH_P-1:0] gbo_data_w;
+  logic [CNT_W_C-1:0]       gbo_cnt_w;
+
+  //! the engine byte is accepted while the beat register has room and the
+  //! TX FIFO can take a completed beat; FRAME_FIFO holds the frame until
+  //! its eof so a stalled lane never shows a partial frame downstream
+  assign eng_tx_ready_w = gbo_ready_w | ~gbo_valid_w;
+
+  logic beat_full_w, tx_byte_w;
+  assign tx_byte_w   = eng_tx_valid_w & eng_tx_ready_w;
+  assign beat_full_w = tx_byte_w & ((gb_idx_r == 3'd7) | eng_tx_eof_w);
+
+  //! a completed beat presents combinationally from the staging register
+  logic                     st_valid_r, st_last_r;
+  logic [TDATA_WIDTH_P-1:0] st_data_r;
+  //! the beat's lane count: its bytes are always lanes 0..gb_idx_r
+  logic [CNT_W_C-1:0]       st_cnt_r;
+
+  assign gbo_valid_w = st_valid_r;
+  assign gbo_data_w  = st_data_r;
+  assign gbo_cnt_w   = st_cnt_r;
+  assign gbo_last_w  = st_last_r;
+
+  always_ff @(posedge clk_i) begin
+    if (!rst_n) begin
+      gb_data_r  <= '0;
+      gb_idx_r   <= 3'd0;
+      st_valid_r <= 1'b0;
+      st_data_r  <= '0;
+      st_cnt_r   <= '0;
+      st_last_r  <= 1'b0;
+    end else begin
+      if (st_valid_r && gbo_ready_w) st_valid_r <= 1'b0;
+      if (tx_byte_w) begin
+        gb_data_r[8*gb_idx_r +: 8] <= eng_tx_data_w;
+        if ((gb_idx_r == 3'd7) || eng_tx_eof_w) begin
+          st_data_r  <= gb_data_r;
+          st_data_r[8*gb_idx_r +: 8] <= eng_tx_data_w;
+          st_cnt_r   <= CNT_W_C'(gb_idx_r) + CNT_W_C'(1);
+          st_last_r  <= eng_tx_eof_w;
+          st_valid_r <= 1'b1;
+          gb_idx_r   <= 3'd0;
+        end else begin
+          gb_idx_r <= gb_idx_r + 3'd1;
+        end
+      end
+    end
+  end
+
+  logic txf_out_last_w, txf_out_valid_w, txf_out_ready_w;
+  logic [CNT_W_C-1:0] txf_cnt_w;
+
+  //! tuser carries the beat's lane count; tkeep is rebuilt from it below
+  axis_fifo #(
+    .DEPTH               (TX_FIFO_BEATS_C),
+    .DATA_WIDTH          (TDATA_WIDTH_P),
+    .KEEP_ENABLE         (0),
+    .KEEP_WIDTH          (KEEP_W_C),
+    .LAST_ENABLE         (1),
+    .ID_ENABLE           (0),
+    .DEST_ENABLE         (0),
+    .USER_ENABLE         (1),
+    .USER_WIDTH          (CNT_W_C),
+    .FRAME_FIFO          (1),
+    .DROP_BAD_FRAME      (0),
+    .DROP_OVERSIZE_FRAME (0),
+    .DROP_WHEN_FULL      (0)
+  ) tx_fifo (
+    .clk                (clk_i),
+    .rst                (~rst_n),
+    .s_axis_tdata       (gbo_data_w),
+    .s_axis_tkeep       ('1),
+    .s_axis_tvalid      (gbo_valid_w),
+    .s_axis_tready      (gbo_ready_w),
+    .s_axis_tlast       (gbo_last_w),
+    .s_axis_tid         ('0),
+    .s_axis_tdest       ('0),
+    .s_axis_tuser       (gbo_cnt_w),
+    .m_axis_tdata       (tx_tdata_o),
+    .m_axis_tkeep       (),
+    .m_axis_tvalid      (txf_out_valid_w),
+    .m_axis_tready      (tx_tready_i),
+    .m_axis_tlast       (txf_out_last_w),
+    .m_axis_tid         (),
+    .m_axis_tdest       (),
+    .m_axis_tuser       (txf_cnt_w),
+    .status_overflow    (),
+    .status_bad_frame   (),
+    .status_good_frame  (),
+    .status_depth       (),
+    .status_depth_commit(),
+    .pause_req          (1'b0),
+    .pause_ack          ()
+  );
+
+  //! tkeep from the lane count: lanes below the count are enabled, so every
+  //! stored word, including a stale one an idle FIFO presents, decodes to
+  //! the mask the eight-bit FIFO held
+  logic [KEEP_W_C-1:0] txf_keep_w;
+  always_comb begin : tx_keep_decode
+    for (int unsigned i = 0; i < KEEP_W_C; i++)
+      txf_keep_w[i] = (CNT_W_C'(i) < txf_cnt_w);
+  end : tx_keep_decode
+  assign tx_tkeep_o = txf_keep_w;
+
+  //! start-of-frame tracking on the lane output: 1 means the next accepted
+  //! beat begins a frame, so the egress is at a frame boundary
+  logic txo_sof_r;
+  always_ff @(posedge clk_i) begin : lane_sof
+    if (!rst_n)                                   txo_sof_r <= 1'b1;
+    else if (txf_out_valid_w && txf_out_ready_w)  txo_sof_r <= txf_out_last_w;
+  end : lane_sof
+
+  // ======================================================================= //
+  //  THE DEPARTURE FENCE                                                    //
+  // ======================================================================= //
+  //! When the ledger raises a barrier it has to fix, once and for all, which
+  //! of its entries had already been handed to the MAC: those are the ones a
+  //! recovery episode will destroy, and the ones behind them are still whole
+  //! inside this plane's own transmit FIFO and will launch later. The fence
+  //! is what makes that split a fact rather than a guess.
+  //!
+  //! IT MUST NOT DEPEND ON DOWNSTREAM READY. If the fence waited for the
+  //! merge chain to accept the rest of a frame that was mid-egress, a
+  //! downstream stall - which is one of the very conditions that raises a
+  //! barrier - would hold the fence open for as long as the stall lasted,
+  //! and the pre-fence set would keep growing. The remaining beats of a torn
+  //! frame are therefore popped and DISCARDED HERE, independent of
+  //! `tx_tready_i`, and the frame is counted as departed, because its
+  //! leading beats are already downstream and will be destroyed with them.
+  //!
+  //! THE COST, stated rather than hidden: the merge arbiter downstream is
+  //! locked to this source from that frame's first beat to its last, and it
+  //! now never sees that last beat. It releases the lock through its own
+  //! no-progress watchdog (2^16 axis cycles at the plane mux, 1.31 ms at
+  //! 50 MHz), counting one abort. That is well inside the recovery episode
+  //! the barrier also requests, and the partial frame it flushes enters a
+  //! MAC path that is held in reset for the whole episode.
+  typedef enum logic [1:0] {FN_OPEN, FN_DISCARD, FN_HELD} fn_state_e;
+  fn_state_e fn_S;
+  logic fence_held_w;
+  logic egress_hold_w;
+
+  assign fence_held_w = (fn_S == FN_HELD);
+  assign txf_out_ready_w = (fn_S == FN_DISCARD) ? 1'b1
+                         : ((fn_S == FN_HELD)   ? 1'b0 : tx_tready_i);
+  assign tx_tvalid_o = txf_out_valid_w & (fn_S == FN_OPEN);
+  assign tx_tlast_o  = txf_out_last_w;
+
+  always_ff @(posedge clk_i) begin : departure_fence
+    if (!rst_n) begin
+      fn_S            <= FN_OPEN;
+      dbg_txts_torn_o <= 16'd0;
+    end else begin
+      unique case (fn_S)
+        FN_OPEN: begin
+          if (egress_hold_w) begin
+            //! at a frame boundary the fence is immediate; mid-frame it
+            //! takes one local discard first
+            fn_S <= txo_sof_r ? FN_HELD : FN_DISCARD;
+            if (!txo_sof_r) dbg_txts_torn_o <= dbg_txts_torn_o + 16'd1;
+          end
+        end
+        FN_DISCARD: begin
+          //! the discarded beats still count as this frame's departure: its
+          //! leading beats left, so the entry is pre-fence
+          if (txf_out_valid_w && txf_out_last_w) fn_S <= FN_HELD;
+        end
+        default: begin   //! FN_HELD
+          if (!egress_hold_w) fn_S <= FN_OPEN;
+        end
+      endcase
+    end
+  end : departure_fence
+
+  // ======================================================================= //
+  //  Departures: frames this plane has handed to the MAC                    //
+  // ======================================================================= //
+  //! A record can only be credited to a frame the plane has actually handed
+  //! over. This counter is that positive gate's source: it rises at each
+  //! accepted last beat at the lane egress and falls as the ledger resolves
+  //! those frames, so it is the number of departed entries still owed a
+  //! record rather than a free-running total.
+  logic [OCC_W_C-1:0] n_dep_r;
+  logic dep_add_w, dep_take_w;
+  //! a departure is an accepted last beat at this plane's own egress,
+  //! whether the merge chain accepted it or the fence discarded it
+  assign dep_add_w = txf_out_valid_w & txf_out_ready_w & txf_out_last_w;
+
+  always_ff @(posedge clk_i) begin : departures
+    if (!rst_n) begin
+      n_dep_r <= '0;
+    end else if (dep_add_w & ~dep_take_w) begin
+      n_dep_r <= n_dep_r + 1'b1;
+    end else if (~dep_add_w & dep_take_w) begin
+      if (|n_dep_r) n_dep_r <= n_dep_r - 1'b1;
+    end
+  end : departures
+
+  // ======================================================================= //
+  //  Egress timestamp ownership: allocation, ledger, result face            //
+  // ======================================================================= //
+  logic       alloc_w, alloc_tag_w;
+  logic [3:0] alloc_type_w;
+  logic [15:0] alloc_seq_w;
+  logic [11:0] alloc_aidx_w;
+  logic [OCC_W_C-1:0] outstanding_w;
+  logic       res_accept_w, credit_hold_w;
+  logic [15:0] dbg_alloc_ovf_w;
+
+  KL_gptp_txticket #(
+      .TXTS_CAP_N_P  (TXTS_CAP_N_P),
+      .MAND_RSV_C    (MAND_RSV_C),
+      .TXTS_AIDX_W_P (12)
+  ) u_txticket (
+      .clk_i           (clk_i),
+      .rst_n           (rst_n),
+      .tx_valid_i      (eng_tx_valid_w),
+      .tx_ready_i      (eng_tx_ready_w),
+      .tx_sof_i        (eng_tx_sof_w),
+      .tx_eof_i        (eng_tx_eof_w),
+      .tx_data_i       (eng_tx_data_w),
+      .alloc_o         (alloc_w),
+      .alloc_type_o    (alloc_type_w),
+      .alloc_seq_o     (alloc_seq_w),
+      .alloc_tagged_o  (alloc_tag_w),
+      .alloc_aidx_o    (alloc_aidx_w),
+      .res_accept_i    (res_accept_w),
+      .credit_hold_i   (credit_hold_w),
+      .tx_credit_o     (eng_tx_credit_w),
+      .outstanding_o   (outstanding_w),
+      .dbg_alloc_ovf_o (dbg_alloc_ovf_w)
+  );
+
+  KL_gptp_txret #(
+      .TXTS_CAP_N_P   (TXTS_CAP_N_P),
+      .TXTS_OIDX_W_P  (TXTS_OIDX_W_P),
+      .TXTS_GEN_W_P   (TXTS_GEN_W_P),
+      .TXTS_DELTA_W_P (TXTS_DELTA_W_P),
+      .ETH_TICK_NS_P  (ETH_TICK_NS_P),
+      .DP_TICK_NS_P   (DP_TICK_NS_C),
+      .PHC_CLK_HZ_P   (CLK_HZ_P),
+      .EGRESS_LAT_NS_P(EGRESS_LAT_NS_P)
+  ) u_txret (
+      .clk_i            (clk_i),
+      .rst_n            (rst_n),
+      .phc_ns_i         (phc_ns_i),
+      .phc_en_eff_i     (phc_en_eff_i),
+      .phc_incr_eff_ns_i   (phc_incr_eff_ns_i),
+      .phc_adj_eff_ns_i    (phc_adj_eff_ns_i),
+      .phc_load_eff_i   (phc_load_eff_i),
+      .phc_adjust_eff_i (phc_adjust_eff_i),
+      .alloc_i       (alloc_w),
+      .alloc_type_i  (alloc_type_w),
+      .alloc_seq_i   (alloc_seq_w),
+      .alloc_tagged_i(alloc_tag_w),
+      .outstanding_i (outstanding_w),
+      .rec_valid_i   (rec_valid_i),
+      .rec_kind_i    (rec_kind_i),
+      .rec_oidx_i    (rec_oidx_i),
+      .rec_gen_i     (rec_gen_i),
+      .rec_type_i    (rec_type_i),
+      .rec_seq_i     (rec_seq_i),
+      .rec_delta_i   (rec_delta_i),
+      .rec_abort_i   (rec_abort_i),
+      .n_dep_i       (n_dep_r),
+      .dep_take_o    (dep_take_w),
+      .egress_hold_o (egress_hold_w),
+      .fence_held_i  (fence_held_w),
+      .seal_req_o    (seal_req_o),
+      .seal_gen_o    (seal_gen_o),
+      .seal_ack_i    (seal_ack_i),
+      .mac_reinit_i  (mac_reinit_i),
+      .mac_eth_rst_i (mac_eth_rst_i),
+      .epi_start_i   (epi_start_i),
+      .epi_done_i    (epi_done_i),
+      .epi_busy_i    (epi_busy_i),
+      .epi_dis_i     (epi_dis_i),
+      .recov_req_o   (recov_req_o),
+      .txts_valid_o  (eng_txts_valid_w),
+      .txts_ready_i  (eng_txts_ready_w),
+      .txts_ns_o     (eng_txts_ns_w),
+      .txts_seq_o    (eng_txts_seq_w),
+      .txts_type_o   (eng_txts_type_w),
+      .txts_ok_o     (eng_txts_ok_w),
+      .txts_gen_o    (eng_txts_gen_w),
+      .credit_hold_o (credit_hold_w),
+      .res_accept_o  (res_accept_w),
+      .dbg_lost_o    (dbg_txts_lost_o),
+      .dbg_disc_o    (dbg_txts_disc_o),
+      .dbg_barrier_o (dbg_txts_barr_o),
+      .dbg_stall_o   (dbg_txts_stall_o),
+      .dbg_phc_lost_o(dbg_txts_phcl_o),
+      .dbg_phc_dirty_cyc_o(dbg_txts_dirt_cyc_o),
+      .dbg_state_o   (dbg_txts_state_o)
+  );
+
+  //! the allocation index and the allocator's own overflow count are
+  //! diagnostics the benches read through the hierarchy; naming them keeps
+  //! the observation deliberate
+  logic unused_w;
+  assign unused_w = ^{alloc_aidx_w, dbg_alloc_ovf_w, txo_sof_r};
+
+endmodule : KL_gptp_shadow
+`default_nettype wire

@@ -1,0 +1,101 @@
+[R662] NEGATIVE - exact head 2022d363fc622f6bbf4c312239fc3db741b4d29a
+
+One open MINOR finding concerns an overstated execution claim in the new public evidence. Tests and Docs are therefore UNCLEAN. The source implementation and parent companion changes satisfy the scoped behavioral requirements; no functional defect was found. All prior mandatory findings are resolved. The remaining correction needs an accurate evidence description, not another simulation campaign.
+
+Reviewed tree: `249bdbe6209bbc7ec17a816c26823ad97bb6d748`. Source base: `43acfbcc098f5af1be20a4a5458770ead3717622`. Previously reviewed head: `53ac2e9d75ceb381c2d2b04854e760304d9ae43f`. Public start: [review assignment](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86#issuecomment-6264069827). Public evidence is pinned at [c3f1d08d](https://github.com/kebag-logic/milan-fpga/tree/c3f1d08d87370a2a06c6a8725c269f8bc7ab3071/review-evidence/gptp84-r1).
+
+**R662-2-F01 — MINOR — Tests, Docs — OPEN: the search method overstates executed coverage and snapshot provenance**
+
+- Artifact: `author-r2/receipts/round2/search/path-shape-search.md:16` in the pinned public packet; locally [path-shape-search.md](public-evidence/author-r2/receipts/round2/search/path-shape-search.md).
+- Claim: every parent suite elaborating the enabled engine was run at head without a companion.
+- Authority/evidence: the same packet's [suite inventory](public-evidence/author-r2/receipts/round2/search/suite-inventory.md), rows at lines 16–20, records `milan_dp_gm_steps` as **not run** without companions and executed on adoption snapshots; `gptp_plane`, `gptp_tables`, and `gptp_txts` ran on snapshot `6814d01c` with the #85 companions; both `tsn_fuzz` field campaigns were **SUITE-SKIP**, exercising no engine. The [snapshot table](public-evidence/author-r2/receipts/round2/snapshots.txt) and raw logs agree with that inventory. The frozen review instructions require skipped field campaigns to remain distinct from executed evidence.
+- Impact: the search-method narrative claims a broader unpatched-head execution cross-check than was performed. Readers can infer missing baseline or field coverage from it. The inventory and successful adoption receipts already supply the actual scope; this finding does not invalidate those results.
+- Required outcome: replace method item 3 with: “The suite inventory records the snapshot and result for each enabled-engine suite. Execution cross-checks use the unpatched-head and companion-adoption runs listed there. The tsn_fuzz field campaigns were skipped and supplied no engine-execution evidence.” Preserve the actual NOT RUN/SUITE-SKIP entries and regenerate the receipt index/publication hashes after editing.
+- Verification: compare the revised method with every inventory row and its existing rc/log files, then verify the regenerated index and publication hashes. No new source change or bank run is required.
+- Classification: this changes an assertion about executed tests and their snapshot provenance. Under the conservative wording rule it is MINOR, rather than treating an execution-coverage claim as cosmetic residue.
+
+**R662-2-R01 — RESIDUE — Docs — OPEN: obsolete approval wording in the live PR body**
+
+- Artifact: PR #86, “Parent companions” section, “For the owner's decision”; captured in [PR86.md](public-authorities/PR86.md).
+- Authority/evidence: the [round-2 ruling](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86#issuecomment-6264025745) already accepts both the #82 patch and the #84 harness change.
+- Impact: the heading leaves an obsolete pending-decision cue. No measurement, test, behavior, or requirement claim changes.
+- Exact fix: replace “For the owner's decision:” with “Parent adoption decisions accepted by the manager:”. Retain the technical explanation of both patches.
+- Verification: reread the live PR body against the ruling. This is prose-only residue; it does not make a lens unclean. Historical REVIEW READY and handoff records need no retrospective rewriting.
+
+**R661-1-S1 — SUGGESTION — Tests — RETAINED**
+
+- Artifact: the master-side out-of-threshold Pdelay/asCapable-fall path in `hdl/ucode/gen_gptp_ucode.py`, now at line 1976, and `tb/verilator/engine/sim_main.cpp`.
+- Evidence: the [prior review](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86#issuecomment-6259956163) records a sync-ok-clearing mutant on this path surviving, while the lost-response and multiple-response variants were caught. The current delta changes neither executable policy nor test behavior; the public handoff explicitly leaves this suggestion undone.
+- Impact: optional robustness coverage remains narrower than all three master-side capability-fall paths. The published implementation remains correct.
+- Suggested outcome and verification: add a master-side excessive-Pdelay case in follow-up work; its ordinary run should retain sync-ok, and clearing sync-ok only on that path should fail the named check. No new execution of this probe was performed here. It does not make a lens unclean.
+
+**Prior finding reconciliation**
+
+The independent source pass, initial verdict, and five-lens ledger were written before either prior report was opened. The subsequent evidence audit found F01 above, superseding the initial clean Tests/Docs assessment. Prior findings were then checked at their causes, not merely against the author's response. No current-round peer review was read.
+
+| Prior ID | Severity / attributable lenses | Disposition at this head | Verification |
+|---|---|---|---|
+| R662-1-F01 and R661-1-F2 | MINOR / Docs | RESOLVED | `docs/MANAGER.md:103,107` now states 1,015/1,024 (99.1%), nine free. All four recipes independently regenerate matching committed images. `gen_gptp_ucode.py:1859` removes the stale percentage. Documentation checks pass. |
+| R661-1-F1 | MAJOR / Tests, Docs | RESOLVED | Four companion patches apply in order to public parent files at e9cbb676. The eight named `sim_gptp.cpp` expectations, loop-exit count, new tail identities, and physical-rate path checks are covered. Public exact-head adoption receipts show both gptp legs 185/185, shadow 310/310, physical-rate harness 155/155, and 11/11 consumer gates. Omission/wrong-identity controls fail the intended checks. The PR lists all four companions. |
+| R661-1-F3 | MINOR / Docs | RESOLVED | Generator `:1739`, suite header `:168`, and PR #84 description now restrict mastership-triggered holdover to replacement of a peer GM. Existing thisClock publication arms no new identity-change hold; an earlier hold may still be active. This agrees with parent clock validity and wrapper behavior. |
+| R661-1-F4 | MINOR / Docs | RESOLVED | Generator `:72` identifies the SlavePort copy plus thisClock as the path served to GET_AS_PATH; the no-reader qualification now concerns Announce transmission only. |
+| R661-1-R1 | RESIDUE / Docs | RESOLVED | Suite header `:168` puts phase 37 before 38, matching invocation order. |
+| R661-1-S1 | SUGGESTION / Tests | RETAINED | Recorded above; no executable delta addresses it. |
+
+The manager's round-2 ruling also accepts the #82 adoption debt and the #84 parent harness change. It accepts the `&& gm_r != 0` mutant survivor as redundant because the wrapper's discontinuity pulse arms the same hold. That survivor remains recorded as surviving; it is not counted as a caught defect.
+
+**Scope, authorities, and independent lens evidence**
+
+The supplied AGENTS instruction and its referenced command policy were read first; no repository AGENTS.md or CONTRIBUTING.md was present. The documentation map and current guides established the evidence order. The issue bodies, exact [assignment](https://github.com/Mister-M-alt/FPGA-gPTP/issues/84#issuecomment-6257168490), exact [STOP ruling](https://github.com/Mister-M-alt/FPGA-gPTP/issues/84#issuecomment-6259159680), #82 publication requirements, and later [parent adoption ruling](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86#issuecomment-6264025745) define scope. The complete base-to-head diff and five-commit history were reviewed, with the three later commits assessed separately.
+
+Conformance was checked against the frozen public requirements: IEEE 1722-2016 4.4.4.7 and 10.4; Milan v1.2 4.3.5.2 and Annex B.1.1; IEEE 802.1AS-2020 10.3.9.23 and 10.3.13.2.4 f) 5); IEEE 1722.1-2021 7.4.41 and Milan 5.4.2.24 for GET_AS_PATH. Parent interface authorities were fetched at `e9cbb676d7fdd6539aa408e5dfe38870a4ae1a5f`: `GPTP_PLANE.md`, `milan_datapath.sv`, `KL_gptp_shadow.sv`, and `KL_ptp_clock_validity.sv`. This is conformance to the quoted public scope and implementation contract, not a full-text standards audit or certification.
+
+For #84, BECOME sets the master and sync-ok flags together. SRTO preserves sync-ok for a master even when an already queued expiry follows takeover, while a slave timeout clears it. Peer handover clears sync-ok. The parent samples publication at commit and raises discontinuity on a GM change; clock validity combines sync health, live discontinuity, and retained holdover. A master sync flag therefore preserves the parent holdover. Existing pre-master self publication behavior remains within the stated scope.
+
+For #85, `KL_gptp_engine.sv:722` and `:977` append the configured ROM identity to frozen received paths of length 1–7, publish count + 1, copy active received tails, and clear inactive entries. Empty remains empty; eight or more received entries retain the existing eight-entry prefix. The staged GM/path transaction remains coherent across #82 reset, winning-peer, departure, capability-loss, and reacquisition transitions. The public module declaration, ports, and parameters match the base after comment removal.
+
+Robustness evidence covers the queued timeout, absent path, seven/eight-entry boundary, direct and multi-hop identities, stale-tail clearing, frozen Announce ownership, handovers, and priority1 255. The new physical-rate parent harness requires the peer GM before declaring recovery, separates pre-master uncertainty, holdover, and certain-master windows, and checks both GM identity and the holdover bounds. Its transition window deliberately omits stable-tu packet comparisons; the lower/upper timing checks and stable windows remain explicit. The extended mode retains its separately disclosed transition treatment.
+
+The later source delta contains only guides and comments. The executable generator syntax tree and test executable tokens match the prior reviewed head; RTL and every committed image are identical. Thus the previous clean behavioral lenses carry forward with these independent checks and current published evidence. No newly added prohibited bench/review identifiers were found in the source-comment delta.
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Frozen #82/#84/#85 scope; both manager rulings; parent wrapper/validity; path-stage and mastership policy; four parent companions | R662-1 behavioral baseline, independently checked R662-2 | 2022d363fc622f6bbf4c312239fc3db741b4d29a |
+| RTL | CLEAN | Full source diff; `KL_gptp_engine.sv:722,977`; `prog_become`, `prog_leg_srto`; unchanged executable AST/tokens; four regenerated images; interface comparison | R662-1 plus R662-2 equivalence and regeneration | 2022d363fc622f6bbf4c312239fc3db741b4d29a |
+| Robustness | CLEAN | Engine boundary/transition checks and named failures; parent loss/recovery patch; holdover wiring; retained S1 | R662-1 plus R662-2 artifact checks | 2022d363fc622f6bbf4c312239fc3db741b4d29a |
+| Tests | UNCLEAN | 421 public-file hashes; 414 receipt rows; 72 mutation arms and 154 named failures; parent adoption and negative controls; F01 incorrect method coverage claim | R662-2 | 2022d363fc622f6bbf4c312239fc3db741b4d29a |
+| Docs | UNCLEAN | Corrected ROM budget, holdover and clause note; source anchors; PR; evidence method/inventory; F01 open, R01 residue | R662-2 | 2022d363fc622f6bbf4c312239fc3db741b4d29a |
+
+**Execution and receipt verification**
+
+Reviewer executions were focused: four image regenerations, source equivalence/interface checks, documentation/diagram/contract checks, receipt audits, and disposable parent patch application. No engine, parent, builder, or synthesis bank was rerun. The scoped simulator identity was checked as version 5.050 before any potential use; no simulation probe was needed to falsify the new evidence claim. Commands remained foreground operations; independent light checks/downloads were concurrent within the 16-job limit. All generated files and disposable trees are under this packet's `scratch/`.
+
+| Evidence | Verified result | Receipt |
+|---|---|---|
+| Independent source/image checks | Four matching images; 1,015 words, nine free; unchanged executable delta and module declaration | `focused-checks.log`, `round2.diff`, `source.diff` |
+| Independent docs/diagrams/contract checks | rc 0; 20 exact source anchors, zero findings; documentation and diagram selftests pass | `docs-contract.log`, `docs-contract.rc` |
+| Public packet integrity | 421/421 author-r2 files match full published SHA-256; receipt index exactly matches 414 files, sizes, hash prefixes | `public-fetch.log`, `focused-checks.log` |
+| Author exact-head engine runs | 1,703/1,703 in each of three passes; priority1 255: 53/53 | `mutation-audit.log`; `author-r2/receipts/round2/lane-head-2022d363/engine-run.log` |
+| Author exact-head mutations | 72/72 caught; 24 passing slice controls; 154 required named failures independently matched; source patterns occur exactly once | `mutation-audit.log`; corresponding `engine-mutants/` logs |
+| Author exact-head parent adoption | Snapshot `564466ea0a06720b8209c45e13303907beaf0569`: 11/11 rc 0, shadow 310/310, gptp and gptp-lat 185/185 each | `author-r2/receipts/round2/parent-adoption-564466ea/` |
+| Additional adoption suites | Physical-rate harness 155/155, verifier counts 6/6, 20/20, 14/14, 14/14; GM steps 190/190 and 6/6 controls | Same adoption directory; `mutation-audit.log` |
+| Parent negative controls | Appropriate path, reset, holdover, master-sync and departed-GM failures; one explicitly accepted redundant survivor | `parent-adoption-3f053cc1/mutants-milan_dp-gptp/` and `mutants-milan_dp_gptp/` |
+| Parent dependencies | Six recorded adoption gitlinks agree with public dev dependency pins, with donor advanced to this exact head | `authority-audit.log`, `public-authorities/parent-gitlinks.json`, published `snapshots.txt` |
+
+The last mutation campaign above used the earlier source snapshot identified in the public receipts, not this exact source hash. The published delta comparison records unchanged executable donor and parent test content; the final adoption reruns are separately recorded at 564466ea. Similarly, gptp_plane/tables/txts are credited only at their recorded snapshot. None is relabeled as an exact-head execution.
+
+The source and evidence publication commits both report **unsigned** in public signature metadata. Full published-file hashes were verified, but no cryptographic signature verification is claimed. The evidence index is internally consistent; F01 concerns its narrative interpretation, not file integrity.
+
+**Limits, integrity, and pending manager duties**
+
+The author-run committed parent snapshot is source-validation evidence. There is no manager source bank at this head. The builder union reports 103 gates exactly once and explicitly includes a physical-calibration NOT RUN row. Field campaigns are skipped. Physical-rate simulation, grader selftests, calibration skips, and field skips provide no hardware acceptance proof.
+
+Exact-head hosted metadata contains zero workflow runs, zero check runs, and zero status contexts. The empty combined status is pending, not a passing gate. Hosted and act acceptance remain with the manager.
+
+The final checkout audit hashes all 107 tracked blobs, verifies executable modes and every index entry against the exact tree, and confirms a clean worktree. This donor has no nested submodule gitlinks. Parent pins were verified against the published adoption record, without claiming access to its unpublished local commit object. No source fixes, commits, pushes, GitHub writes, author contact, merges, hardware operations, or edits to another checkout were performed.
+
+The manager still needs to obtain the F01 evidence correction and verify its regenerated receipt index, carry R01 as residue, preserve S1 as optional follow-up, obtain both independent positive reviews, adopt all four companions in their published order with the donor pin, and execute the final current-dev candidate's builder/native banks at the merge turn. Link those candidate receipts on the PR. Source base remains 43acfbcc; the stated live parent dev is e9cbb676. The published suite inventory identifies gaps to address when widening the parent consumer list. Physical calibration and field acceptance remain pending.
+
+Portable checks: `fetch_public.py`, `fetch_authorities.py`, `check_review.py SOURCE_ROOT`, `audit_receipts.py SOURCE_ROOT`, and `run_light.py SOURCE_ROOT`. Run the fetchers before checks. Raw receipts and scripts selected for publication appear in `MANIFEST.sha256`; `scratch/` is excluded. The early independent checkpoint is retained only as an ordering record and is superseded by this final verdict.
+
+R662-2 FINISHED

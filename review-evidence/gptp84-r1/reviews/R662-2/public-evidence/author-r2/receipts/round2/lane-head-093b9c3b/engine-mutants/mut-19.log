@@ -1,0 +1,15 @@
+[PASS] the unmutated engine still passes the harness
+FAIL #84 first mastership: the master flags carry sync-ok got 0000000000000007 exp 000000000000000f
+FAIL #84 takeover: its commit names thisClock with sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 every master cycle publishes sync-ok got 000000000679530e exp 0000000000000000
+FAIL p1 255 #84 first mastership: the master flags carry sync-ok got 0000000000000006 exp 000000000000000e
+FAIL p1 255 #84 every master cycle publishes sync-ok got 00000000000005b0 exp 0000000000000000
+[PASS] mutant caught: becoming grandmaster clears sync-ok - breaks "#84 first mastership: the master flags carry sync-ok | #84 takeover: its commit names thisClock with sync-ok | #84 every master cycle publishes sync-ok | p1 255 #84 first mastership: the master flags carry sync-ok | p1 255 #84 every master cycle publishes sync-ok"
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000001 exp 0000000000000002
+FAIL #84 every master cycle publishes sync-ok got 000000000003d794 exp 0000000000000000
+[PASS] mutant caught: a queued receipt timeout clears a master's sync-ok - breaks "#84 takeover: a queued receipt timeout keeps sync-ok | #84 every master cycle publishes sync-ok"
+FAIL #84 takeover: the queued receipt timeout commits after it got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the receipt timeout publishes nothing - breaks "#84 takeover: the queued receipt timeout commits after it"
+slice [57, 60] of 72
+
+4 checks: 4 PASS, 0 FAIL

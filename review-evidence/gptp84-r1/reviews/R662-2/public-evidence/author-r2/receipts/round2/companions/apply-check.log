@@ -1,0 +1,29 @@
+worktree <parent-apply-check> at e9cbb676d7fdd6539aa408e5dfe38870a4ae1a5f (milan-fpga dev e9cbb676), clean: 0 changes
+$ git apply -v parent-adoption-gptp_shadow-85.patch   (sha256 322602876418c569)
+Checking patch tb/verilator/gptp_shadow/sim_main.cpp...
+Applied patch tb/verilator/gptp_shadow/sim_main.cpp cleanly.
+rc=0
+$ git apply -v parent-adoption-milan_dp-85.patch   (sha256 332495485992a2d1)
+Checking patch tb/verilator/milan_dp/sim_ax1x1gptp.cpp...
+Checking patch tb/verilator/milan_dp/sim_gptp.cpp...
+Applied patch tb/verilator/milan_dp/sim_ax1x1gptp.cpp cleanly.
+Applied patch tb/verilator/milan_dp/sim_gptp.cpp cleanly.
+rc=0
+$ git apply -v parent-adoption-milan_dp-82.patch   (sha256 771fc76f3c1765ea)
+Checking patch tb/verilator/milan_dp/sim_ax1x1gptp.cpp...
+Checking patch tb/verilator/milan_dp/sim_gptp.cpp...
+Applied patch tb/verilator/milan_dp/sim_ax1x1gptp.cpp cleanly.
+Applied patch tb/verilator/milan_dp/sim_gptp.cpp cleanly.
+rc=0
+$ git apply -v parent-adoption-milan_dp_gptp-84.patch   (sha256 ec49e1ee30127e06)
+Checking patch tb/verilator/milan_dp/sim_ax1x1gptp.cpp...
+Applied patch tb/verilator/milan_dp/sim_ax1x1gptp.cpp cleanly.
+rc=0
+$ git diff --stat 564466ea -- tb/   (the adoption snapshot's tests; empty = identical)
+rc=0
+$ git diff --stat (from dev e9cbb676)
+ tb/verilator/gptp_shadow/sim_main.cpp   | 12 ++++---
+ tb/verilator/milan_dp/sim_ax1x1gptp.cpp | 58 +++++++++++++++++++++++++--------
+ tb/verilator/milan_dp/sim_gptp.cpp      | 50 ++++++++++++++++++----------
+ 3 files changed, 83 insertions(+), 37 deletions(-)
+restored: 0 changes

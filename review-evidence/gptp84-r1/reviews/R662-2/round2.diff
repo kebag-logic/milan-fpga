@@ -1,0 +1,99 @@
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index e3c3711..fb3baaa 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -100,11 +100,11 @@ See the [historical resource record](history/v1/RESOURCE_VALIDATION.md).
+ 
+ ## Current ROM budget
+ 
+-Shipping usage: 1,013 of 1,024 words (98.9%).
++Shipping usage: 1,015 of 1,024 words (99.1%).
+ 
+ That count includes thisClock's two data words at 1022..1023.
+ 
+-Only eleven words remain free, spread across packing gaps.
++Only nine words remain free, spread across packing gaps.
+ 
+ Shared legs may occupy the formerly reserved prefix.
+ 
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index c9b49cf..f866ad8 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -28,7 +28,7 @@ Line numbers describe the current branch layout.
+ | Python image generation | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Media-dependent transmit flags | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine and tsngen suites |
+ | Step-versus-slew policy | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L1009), [word 3](../hdl/top/KL_gptp_engine.sv#L1014), [policy](../hdl/ucode/gen_gptp_ucode.py#L893) | Engine suite and named mutation controls |
++| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L1009), [word 3](../hdl/top/KL_gptp_engine.sv#L1014), [policy](../hdl/ucode/gen_gptp_ucode.py#L896) | Engine suite and named mutation controls |
+ | PHC rate envelope | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Ignored receive flag bits | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L475) | Engine suite |
+ | C++ test harnesses | [`tb/verilator`](../tb/verilator) | `make` |
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index c632f44..04beed5 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -69,9 +69,12 @@ The three rules now run ahead of every write the handler makes:
+     therefore consumes one coherent qualification bit rather than walking a
+     truncated storage window.
+ 
+-(d)'s pathTrace copy for a SlavePort is moot on a single-port end station: a
+-slave port transmits no Announce (the ANNTX leg is gated on the master role),
+-so the global array has no reader here.
++(d)'s pathTrace copy for a SlavePort, with thisClock appended (802.1AS-2020
++10.3.13.2.4 f) 5), #85), is the published path, which the parent serves to
++GET_AS_PATH (IEEE 1722.1-2021 7.4.41).
++Only its Announce transmit side has no reader on a single-port end station:
++a slave port transmits no Announce (the ANNTX leg is gated on the master
++role).
+ 
+ FPGA-gPTP #8, found by the parent's field campaign: the
+ Pdelay_Resp_Follow_Up handler qualified requestingPortIdentity and
+@@ -1733,8 +1736,11 @@ def prog_become(base: int) -> Prog:
+     p.emit("WRST", ra=RT, imm=RG_PHC | 3, fmt=FMT_Q)
+     # no peer is elected: gmPresent is the engine's, from the image. The
+     # grandmaster's own time is the domain's time, so the master role is
+-    # synchronised (#84): the parent's tu falls once the holdover that this
+-    # commit's grandmaster change arms has run (Milan v1.2 Annex B.1.1)
++    # synchronised (#84). A commit that replaces a peer grandmaster with
++    # thisClock arms the parent's Milan v1.2 Annex B.1.1 holdover. When
++    # the publication already names thisClock (from reset, or after a self
++    # publication), this commit changes no grandmaster and arms none: the
++    # parent's tu falls here unless an earlier holdover is still running
+     e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C | FL_SYNCOK_C)
+     p.emit("MOVE", rd=RT, ra=0, imm=1)
+     p.emit("WRST", ra=RT, imm=RG_TMR | 1, fmt=FMT_Q)  # sync now
+@@ -1850,7 +1856,8 @@ def _pdpost_pairing_gates(p):
+     # neighborPropDelay, the ladder and asCapable stay where they are.
+     # This leg is the Follow_Up handler's only continuation; it lives
+     # here rather than in the fixed slot so SERVO keeps its 48-word home
+-    # behind that slot (the ROM is 88 percent full; see the packer)
++    # behind that slot (the ROM is nearly full; docs/MANAGER.md states the
++    # current budget)
+     # the portNumber half of prog_rx_pdrfu's requesting-identity check,
+     # which is the ENGINE'S OWN hardening and not an arm of the figure
+     # (the figure names the sequenceId and the sourcePortIdentity, the
+diff --git a/tb/verilator/engine/sim_main.cpp b/tb/verilator/engine/sim_main.cpp
+index a449875..1298065 100644
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -165,13 +165,14 @@
+ //         within one receipt interval; then a live peer worse than the
+ //         dropped one is elected. Every commit of the run naming thisClock
+ //         carries {thisClock}
+-// 38      #85: every commit naming a peer grandmaster with a path ends it
+-//         with thisClock, once, unless eight received entries fill it
+ // 37      #84: a grandmaster's own time is the domain's time, so the master
+ //         role is synchronised. Every cycle of the run that publishes the
+-//         master bit publishes sync-ok beside it (the parent's tu is 0 there
+-//         once its Milan v1.2 Annex B.1.1 holdover has run), and every
+-//         commit that leaves mastership for a peer grandmaster clears it
++//         master bit publishes sync-ok beside it, and every commit that
++//         leaves mastership for a peer grandmaster clears it. The parent's
++//         tu is 0 there except during a Milan v1.2 Annex B.1.1 holdover;
++//         mastership arms one only by replacing a peer grandmaster
++// 38      #85: every commit naming a peer grandmaster with a path ends it
++//         with thisClock, once, unless eight received entries fill it
+ //
+ // A fourth pass (+not-gm-capable, an image built with --p1 255) runs only
+ // the phases a self publication passes through: boot, mastership and 36..38.
