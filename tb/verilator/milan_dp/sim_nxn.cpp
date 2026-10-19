@@ -226,6 +226,30 @@ class NxnDatapathHarness {
     uint32_t nm_waddr = 0;
     uint64_t nm_wdata = 0;
     uint32_t nm_wstrb = 0;
+    //! #637: the window's control tuple as the last load wrote it, so a
+    //! planted power cycle can load the RETAINED bytes again, and a read
+    //! error planted on the bursts that start in [nm_err_lo, nm_err_hi)
+    std::vector<std::pair<uint32_t, uint32_t> > nm_tables;
+    uint32_t nm_img_len = 0;
+    uint32_t nm_err_lo = 0;
+    uint32_t nm_err_hi = 0;
+    //! ...a memory that never answers the bursts starting in [nm_silent_lo,
+    //! nm_silent_hi), a write error on every lane write in [nm_werr_lo,
+    //! nm_werr_hi), and the cycles at which the lane write holding byte
+    //! nm_watch_addr was accepted (each record WRITE's first byte)
+    uint32_t nm_silent_lo = 0;
+    uint32_t nm_silent_hi = 0;
+    uint32_t nm_werr_lo = 0;
+    uint32_t nm_werr_hi = 0;
+    uint32_t nm_watch_addr = 0xFFFFFFFFu;
+    std::vector<long> nm_watch_hits;
+    long nm_cycle = 0;
+    //! ...and a slow memory: a lane write in [nm_wslow_lo, nm_wslow_hi)
+    //! commits nm_wslow_cyc clocks after it is accepted
+    uint32_t nm_wslow_lo = 0;
+    uint32_t nm_wslow_hi = 0;
+    long nm_wslow_cyc = 0;
+    long nm_wwait = 0;
 
     uint64_t nmem_beat(uint32_t byte_addr) {
         uint64_t v = 0;
@@ -239,16 +263,20 @@ class NxnDatapathHarness {
     void nmem_drive() {
         if (!nm_answering) return;
         dut->i_nvm_mem_req_ready = nm_busy ? 0 : 1;
-        dut->i_nvm_mem_rsp_valid = nm_busy ? 1 : 0;
+        const bool silent = nm_busy && nm_cur >= nm_silent_lo && nm_cur < nm_silent_hi;
+        dut->i_nvm_mem_rsp_valid = (nm_busy && !silent) ? 1 : 0;
         dut->i_nvm_mem_rsp_data  = nm_busy ? nmem_beat(nm_cur) : 0;
         dut->i_nvm_mem_rsp_last  = (nm_busy && nm_left == 1) ? 1 : 0;
-        dut->i_nvm_mem_rsp_err   = 0;
+        dut->i_nvm_mem_rsp_err   = (nm_busy && nm_cur >= nm_err_lo
+                                    && nm_cur < nm_err_hi) ? 1 : 0;
         dut->i_nvm_mem_wr_ready  = nm_wpend ? 0 : 1;   // low while a commit is owed
-        dut->i_nvm_mem_wr_done   = nm_wpend ? 1 : 0;
-        dut->i_nvm_mem_wr_err    = 0;
+        dut->i_nvm_mem_wr_done   = (nm_wpend && nm_wwait == 0) ? 1 : 0;
+        dut->i_nvm_mem_wr_err    = (nm_wpend && nm_waddr >= nm_werr_lo
+                                    && nm_waddr < nm_werr_hi) ? 1 : 0;
     }
 
     void nmem_edge() {
+        nm_cycle++;
         if (!nm_answering) return;
         if (!nm_busy) {
             if (dut->o_nvm_mem_req_valid && dut->i_nvm_mem_req_ready) {
@@ -256,11 +284,14 @@ class NxnDatapathHarness {
                 nm_left = static_cast<int>(dut->o_nvm_mem_req_beats);
                 nm_busy = (nm_left > 0);
             }
-        } else if (dut->o_nvm_mem_rsp_ready) {         // real backpressure
-            nm_cur += 8;
+        } else if (dut->o_nvm_mem_rsp_ready && !(nm_cur >= nm_silent_lo
+                                                 && nm_cur < nm_silent_hi)) {
+            nm_cur += 8;                                // real backpressure
             if (--nm_left <= 0) nm_busy = false;
         }
-        if (nm_wpend) {
+        if (nm_wpend && nm_wwait > 0) {
+            nm_wwait--;
+        } else if (nm_wpend) {
             for (int i = 0; i < 8; i++) {
                 if (nm_wstrb & (1u << i)) {             // zero-strobe byte untouched
                     const uint32_t k = nm_waddr - NVM_AREA_BASE + static_cast<uint32_t>(i);
@@ -273,6 +304,11 @@ class NxnDatapathHarness {
             nm_wdata = dut->o_nvm_mem_wr_data;
             nm_wstrb = dut->o_nvm_mem_wr_strb;
             nm_wpend = true;
+            nm_wwait = (nm_waddr >= nm_wslow_lo && nm_waddr < nm_wslow_hi)
+                       ? nm_wslow_cyc : 0;
+            if (nm_waddr == (nm_watch_addr & ~7u)
+                && ((nm_wstrb >> (nm_watch_addr & 7u)) & 1u))
+                nm_watch_hits.push_back(nm_cycle);
         }
     }
 
@@ -2778,23 +2814,16 @@ class NxnDatapathHarness {
            st & (kDone | kClosed), kDone);
     }
 
-    //! THE FIRMWARE'S WINDOW LOAD, for a saved state worth restoring: what
-    //! nvm_boot() does through nvm_load_window() and nvm_publish()
-    //! (sw/firmware/milan_baremetal/milan_baremetal.c). Re-base the backend
-    //! (the record area's base and length, then each port's channel-map table
-    //! word), fill the window, RELOAD it, and publish the sequence and the
-    //! VD_OK verdict with the valid bit. The window is the one
-    //! gen_nvm_window.py frames for `cfg` with `records` ("ID=HEXPAYLOAD")
-    //! written and every other record erased, so its layout is the
-    //! repository's codec's and not this file's. Run it after a reset and
-    //! before start_the_boot_restore_walk(), the firmware's order. False, with
-    //! the reason, when the window cannot be generated or read.
-    bool load_the_saved_state_window(const char* cfg,
-                                     const std::vector<std::string>& records,
-                                     std::string* why) {
-        constexpr uint16_t A_PP_NVM_SEL = 0x934;
-        constexpr uint16_t A_PP_NVM_DATA = 0x938;
-        constexpr uint16_t A_PP_NVM_STAT = 0x93C;
+    //! gen_nvm_window.py's window for `cfg` with `records` framed and every
+    //! other record erased: the record area, the channel-map table words,
+    //! the area's length and each framed record's {offset, plen}. False,
+    //! with the reason, when it cannot be generated or read.
+    bool frame_a_window(const char* cfg, const std::vector<std::string>& records,
+                        std::vector<uint8_t>* area,
+                        std::vector<std::pair<uint32_t, uint32_t> >* tables,
+                        uint32_t* img_len_out,
+                        std::map<uint32_t, std::pair<uint32_t, uint32_t> >* recs,
+                        std::string* why) {
         const char* scratch = getenv("TMPDIR");
         if (!scratch || !*scratch) scratch = "/tmp";
         std::string temp_template = std::string(scratch) + "/milan_nvm_XXXXXX";
@@ -2824,8 +2853,9 @@ class NxnDatapathHarness {
         while ((n = fread(buf, 1, sizeof buf, fh)) > 0) doc.append(buf, n);
         fclose(fh);
         uint32_t img_len = 0;
-        std::vector<std::pair<uint32_t, uint32_t> > tables;   // {PP_NVM word, value}
-        nmem.clear();
+        tables->clear();                                     // {PP_NVM word, value}
+        area->clear();
+        recs->clear();
         size_t at = 0;
         while (at < doc.size()) {
             size_t end = doc.find('\n', at);
@@ -2839,26 +2869,68 @@ class NxnDatapathHarness {
                 const bool is_out = line[4] == 'o';
                 char* rest = nullptr;
                 const unsigned long port = strtoul(s + (is_out ? 8 : 7), &rest, 0);
-                tables.emplace_back((is_out ? 0x30u : 0x20u) | static_cast<uint32_t>(port),
-                                    static_cast<uint32_t>(strtoul(rest, nullptr, 0)));
+                tables->emplace_back((is_out ? 0x30u : 0x20u) | static_cast<uint32_t>(port),
+                                     static_cast<uint32_t>(strtoul(rest, nullptr, 0)));
+            } else if (line.rfind("record ", 0) == 0) {
+                char* rest = nullptr;
+                const unsigned long rid = strtoul(s + 7, &rest, 0);
+                char* rest2 = nullptr;
+                const unsigned long off = strtoul(rest, &rest2, 0);
+                const unsigned long plen = strtoul(rest2, nullptr, 0);
+                (*recs)[static_cast<uint32_t>(rid)] = {static_cast<uint32_t>(off),
+                                                       static_cast<uint32_t>(plen)};
             } else if (line.rfind("area ", 0) == 0) {
                 for (size_t i = 5; i + 1 < line.size(); i += 2)
-                    nmem.push_back(static_cast<uint8_t>(
+                    area->push_back(static_cast<uint8_t>(
                         strtoul(line.substr(i, 2).c_str(), nullptr, 16)));
             }
         }
         std::error_code cleanup_error;
         std::filesystem::remove_all(temp_dir, cleanup_error);
-        if (img_len == 0 || nmem.size() != img_len || tables.empty()) {
+        if (img_len == 0 || area->size() != img_len || tables->empty()) {
             *why = "the window description has no record area, length or table";
             return false;
         }
+        *img_len_out = img_len;
+        return true;
+    }
+
+    //! THE FIRMWARE'S WINDOW LOAD, for a saved state worth restoring: what
+    //! nvm_boot() does through nvm_load_window() and nvm_publish()
+    //! (sw/firmware/milan_baremetal/milan_baremetal.c). Re-base the backend
+    //! (the record area's base and length, then each port's channel-map table
+    //! word), fill the window, RELOAD it, and publish the sequence and the
+    //! VD_OK verdict with the valid bit. The window is the one
+    //! gen_nvm_window.py frames for `cfg` with `records` ("ID=HEXPAYLOAD")
+    //! written and every other record erased, so its layout is the
+    //! repository's codec's and not this file's. Run it after a reset and
+    //! before start_the_boot_restore_walk(), the firmware's order. False, with
+    //! the reason, when the window cannot be generated or read.
+    bool load_the_saved_state_window(const char* cfg,
+                                     const std::vector<std::string>& records,
+                                     std::string* why) {
+        std::vector<uint8_t> area;
+        std::map<uint32_t, std::pair<uint32_t, uint32_t> > recs;
+        if (!frame_a_window(cfg, records, &area, &nm_tables, &nm_img_len, &recs, why))
+            return false;
+        nmem = area;
+        load_the_window_in_memory();
+        return true;
+    }
+
+    //! the firmware's re-base, RELOAD and publish over whatever the window
+    //! memory holds now: after load_the_saved_state_window, or after a
+    //! planted power cycle over the bytes the writers left there
+    void load_the_window_in_memory() {
+        constexpr uint16_t A_PP_NVM_SEL = 0x934;
+        constexpr uint16_t A_PP_NVM_DATA = 0x938;
+        constexpr uint16_t A_PP_NVM_STAT = 0x93C;
         //! the re-base: base and length, then the channel-map tables
         axi_write(A_PP_NVM_SEL, 0);
         axi_write(A_PP_NVM_DATA, NVM_AREA_BASE);
         axi_write(A_PP_NVM_SEL, 1);
-        axi_write(A_PP_NVM_DATA, img_len);
-        for (const std::pair<uint32_t, uint32_t>& t : tables) {
+        axi_write(A_PP_NVM_DATA, nm_img_len);
+        for (const std::pair<uint32_t, uint32_t>& t : nm_tables) {
             axi_write(A_PP_NVM_SEL, t.first);
             axi_write(A_PP_NVM_DATA, t.second);
         }
@@ -2876,7 +2948,6 @@ class NxnDatapathHarness {
         axi_write(A_PP_NVM_DATA, 0x10u);
         ck("[NVM] ...and holds it valid (PP_NVM_STAT[7])",
            (axi_read(A_PP_NVM_STAT) >> 7) & 1u, 1);
-        return true;
     }
 
     void prove_the_identity_and_provision_the_entity_id() {
@@ -3033,6 +3104,8 @@ class NxnDatapathHarness {
         //! released, and nothing before this point has touched a map, so
         //! the first GET_AUDIO_MAP below reads the power-on maps.
         dynmap_power_on_and_adaptation_section();
+        //! #637: the map records across a planted power cycle
+        dynmap_map_records_section();
         printf("--------------------------------------------------------------\n");
         printf("checks: %ld   failures: %ld\n", checks, fails);
         printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
@@ -4558,6 +4631,558 @@ class NxnDatapathHarness {
                                       0x10000u | (ok - 1), slot, sweep);
         dynmap_roll_back_to_closed(fin, fout, in_n, out_n);
         dynmap_edit_meets_the_sweep(out_n);
+    }
+
+    // ==================================================================
+    //  [MAPREC] #637: THE CHANNEL-MAP RECORDS ACROSS A PLANTED POWER CYCLE
+    //  (Milan v1.2 5.3.9.1 and 5.3.10.1; D3 8.3, 8.6 and 18.4). The parent
+    //  writes records 0x60 and 0x70 from its own accepted edits and restores
+    //  them after the D3 walk's terminal. The power cycle here resets the
+    //  whole datapath with the window memory KEPT, then runs the firmware's
+    //  load of that memory (re-base, RELOAD, publish) and the restore walk:
+    //  the window stands in for the slot the firmware commits and copies
+    //  back, whose commit and copy are nvm_cosim's subject. The oracle for
+    //  every record the writer leaves is the repository's codec:
+    //  gen_nvm_window.py frames the expected records, and the window must
+    //  hold exactly those bytes, every other record erased.
+    // ==================================================================
+    using MapSet = std::vector<std::array<uint16_t, 4> >;
+    static constexpr uint32_t kPpPend = 1u << 11;
+    static constexpr uint32_t kPpAlarm = 1u << 4;
+    //! this leg's millisecond of the map writer (-GAMR_MS_CYC_P)
+    static constexpr long kMapMs = AMR_MS_CYC_TB;
+
+    static MapSet identity_set(uint16_t n) {
+        MapSet s;
+        for (uint16_t c = 0; c < n; c++) s.push_back({0, c, c, 0});
+        return s;
+    }
+
+    //! ADD (0x002C) or REMOVE (0x002D) of `set` on Stream Port `ty` 0
+    long maprec_edit(uint16_t cmd, uint16_t ty, const MapSet& set) {
+        std::vector<uint8_t> pl = {
+            static_cast<uint8_t>(ty >> 8), static_cast<uint8_t>(ty), 0x00, 0x00,
+            0x00, static_cast<uint8_t>(set.size()), 0x00, 0x00};
+        for (const std::array<uint16_t, 4>& m : set)
+            for (uint16_t f : m) {
+                pl.push_back(static_cast<uint8_t>(f >> 8));
+                pl.push_back(static_cast<uint8_t>(f));
+            }
+        return aecp_status(aecp_xact(cmd, dynmap_sq++, pl));
+    }
+
+    //! "ID=HEX" for gen_nvm_window.py: the set's mappings in GET_AUDIO_MAP
+    //! order, then UNUSED entries of eight 0xFF bytes up to `entries`
+    static std::string map_record(uint32_t rid, const MapSet& set, size_t entries) {
+        char b[16];
+        snprintf(b, sizeof b, "0x%02x=", rid);
+        std::string h = b;
+        for (size_t e = 0; e < entries; e++)
+            for (int f = 0; f < 4; f++) {
+                if (e < set.size()) {
+                    snprintf(b, sizeof b, "%04x", static_cast<unsigned>(set[e][f]));
+                    h += b;
+                } else {
+                    h += "ffff";
+                }
+            }
+        return h;
+    }
+
+    //! the record capacities, FASTCONNECT 4.2's rule read off the image this
+    //! leg serves: an input port's clusters; a dynamic output port's
+    //! max(clusters, STREAM_OUTPUT * 8)
+    size_t maprec_in_entries() {
+        return static_cast<size_t>(port_clusters(0x000E, 0));
+    }
+    size_t maprec_out_entries() {
+        long outputs = 0;
+        while (desc_of(0x0006, static_cast<unsigned>(outputs)) != nullptr) outputs++;
+        return static_cast<size_t>(std::max(port_clusters(0x000F, 0), outputs * 8));
+    }
+
+    //! the window the codec frames for `records`, every other record erased
+    bool maprec_codec_window(const std::vector<std::string>& records,
+                             std::vector<uint8_t>* area,
+                             std::map<uint32_t, std::pair<uint32_t, uint32_t> >* at) {
+        std::vector<std::pair<uint32_t, uint32_t> > tables;
+        uint32_t len = 0;
+        std::string why;
+        const bool ok = frame_a_window(AEMI_CFG_C, records, area, &tables, &len, at, &why);
+        if (!ok) printf("  [i]    %s\n", why.c_str());
+        return ok && (len == nm_img_len) && (tables == nm_tables);
+    }
+
+    //! clock until the window holds `want` and PP_STAT's pend has fallen;
+    //! the cycles that took, or -1 at `budget`
+    long maprec_wait_for_the_window(const std::vector<uint8_t>& want, long budget) {
+        for (long c = 0; c < budget; c += 1000) {
+            for (int i = 0; i < 1000; i++) step();
+            if (nmem == want && !(axi_read(A_PP_STAT) & kPpPend)) return c + 1000;
+        }
+        for (size_t i = 0; i < nmem.size() && i < want.size(); i++)
+            if (nmem[i] != want[i]) {
+                printf("  [i]    the window differs from the codec's first at area "
+                       "byte %zu: %02x, want %02x\n", i, nmem[i], want[i]);
+                break;
+            }
+        return -1;
+    }
+
+    //! the reset half of a power cycle: the datapath reset, the window
+    //! memory's bytes KEPT and its bus state dropped (a burst or a write the
+    //! last boot left owed is gone with the power), then the firmware's load
+    void maprec_cut_the_power() {
+        nm_busy = false;
+        nm_left = 0;
+        nm_wpend = false;
+        nm_wwait = 0;
+        bring_the_datapath_out_of_reset();
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        load_the_window_in_memory();
+    }
+
+    //! THE PLANTED POWER CYCLE: a reset of the whole datapath with the window
+    //! memory kept, the firmware's load of that memory, and the walk. The D3
+    //! walk's roll-back terminal is planted (dynmap_probes.vlt) when
+    //! `d3_rolled_back`; nothing else is touched. Returns the clocks from the
+    //! combined restore_done to the end of the map restore, or -1.
+    long maprec_power_cycle(const char* tag, bool d3_rolled_back) {
+        constexpr uint16_t A_PP_CTRL = 0x920;
+        maprec_cut_the_power();
+        if (d3_rolled_back)
+            dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_d3__DOT__rb_r = 1;
+        axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
+        long t_done = -1;
+        long t_end = -1;
+        for (long c = 0; c < 6000000 && t_end < 0; c++) {
+            step();
+            if (t_done < 0 && dut->rootp->milan_datapath__DOT__pp_restore_done_w) t_done = c;
+            if (t_done >= 0 && !dut->rootp->milan_datapath__DOT__amr_rs_hold_r) t_end = c;
+        }
+        char w[200];
+        snprintf(w, sizeof w, "[MAPREC] %s: the restore reached its terminal and "
+                 "the map restore ended", tag);
+        ck(w, static_cast<unsigned long>(t_end >= 0), 1);
+        for (int c = 0; c < 64; c++) step();
+        printf("  [i]    %s: the map restore held the faces %ld clocks after "
+               "restore_done\n", tag, (t_end >= 0) ? t_end - t_done : -1);
+        return (t_end >= 0) ? t_end - t_done : -1;
+    }
+
+    long maprec_pages = 0;
+    void maprec_grade_page(const char* tag, uint16_t ty, const MapSet& want) {
+        const AmapPage p = get_audio_map_page0(ty, 0);
+        printf("  [i]    %s: status %ld, %ld mapping(s)", tag, p.status, p.nmappings);
+        for (const std::array<uint16_t, 4>& m : p.rec)
+            printf(" s%u.c%u->o%u.c%u", static_cast<unsigned>(m[0]),
+                   static_cast<unsigned>(m[1]), static_cast<unsigned>(m[2]),
+                   static_cast<unsigned>(m[3]));
+        printf("\n");
+        char w[200];
+        snprintf(w, sizeof w, "[MAPREC] %s: GET_AUDIO_MAP SUCCESS", tag);
+        ck(w, static_cast<unsigned long>(p.status), 0);
+        snprintf(w, sizeof w, "[MAPREC] %s: number_of_mappings", tag);
+        ck(w, static_cast<unsigned long>(p.nmappings),
+           static_cast<unsigned long>(want.size()));
+        snprintf(w, sizeof w, "[MAPREC] %s: the mappings are the expected list", tag);
+        ck(w, static_cast<unsigned long>(p.rec == want), 1);
+        maprec_pages++;
+    }
+
+    //! both crossbar RAMs against two lists: input cluster c's render key
+    //! 2 + c holds {en, AVB, stream, channel}; output stream channel k's
+    //! capture key k holds the TDM capture slot of its cluster
+    void maprec_grade_rams(const char* tag, const MapSet& in, const MapSet& out) {
+        uint32_t want_r[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        uint32_t want_k[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        for (const std::array<uint16_t, 4>& m : in)
+            if (m[2] < 8) want_r[m[2]] = 0x80u | (m[0] << 3) | m[1];
+        for (const std::array<uint16_t, 4>& m : out)
+            if (m[0] == 0 && m[1] < 8) want_k[m[1]] = dynmap_slot_word(m[2]);
+        long render_off = 0;
+        long capture_off = 0;
+        for (uint32_t c = 0; c < 8; c++) {
+            if ((dynmap_ram_rd(2 + c) & 0xFFu) != want_r[c]) render_off++;
+            if ((dynmap_ram_rd(0x100u | c) & 0x1FFFu) != want_k[c]) capture_off++;
+        }
+        char w[200];
+        snprintf(w, sizeof w, "[MAPREC] %s: render RAM keys 2..9 hold the input list", tag);
+        ck(w, static_cast<unsigned long>(render_off), 0);
+        snprintf(w, sizeof w, "[MAPREC] %s: capture RAM keys 0..7 hold the output list", tag);
+        ck(w, static_cast<unsigned long>(capture_off), 0);
+    }
+
+    void maprec_grade_both(const char* tag, const MapSet& in, const MapSet& out) {
+        char t[160];
+        snprintf(t, sizeof t, "%s: SPI 0", tag);
+        maprec_grade_page(t, 0x000E, in);
+        snprintf(t, sizeof t, "%s: SPO 0", tag);
+        maprec_grade_page(t, 0x000F, out);
+        maprec_grade_rams(tag, in, out);
+    }
+
+    //! one edit's record write, against the codec's framing of both lists
+    void maprec_await_records(const char* tag, const MapSet& in, const MapSet& out,
+                              std::vector<uint8_t>* area,
+                              std::map<uint32_t, std::pair<uint32_t, uint32_t> >* at) {
+        const bool framed = maprec_codec_window(
+            {map_record(0x60, in, maprec_in_entries()),
+             map_record(0x70, out, maprec_out_entries())}, area, at);
+        char w[200];
+        snprintf(w, sizeof w, "[MAPREC] %s: the codec frames both records", tag);
+        ck(w, static_cast<unsigned long>(framed), 1);
+        const long took = maprec_wait_for_the_window(*area, 2000 * kMapMs);
+        printf("  [i]    %s: the window held the codec's records %ld clocks after "
+               "the change\n", tag, took);
+        snprintf(w, sizeof w, "[MAPREC] %s: the window holds the codec's records "
+                 "and the pend has fallen", tag);
+        ck(w, static_cast<unsigned long>(took >= 0), 1);
+        //! DR2a: the first-dirty window holds the write for 500 ms
+        snprintf(w, sizeof w, "[MAPREC] %s: the write waited out the 500 ms "
+                 "first-dirty window", tag);
+        ck(w, static_cast<unsigned long>(took >= 500 * kMapMs), 1);
+    }
+
+    void dynmap_map_records_section() {
+        printf("-- [MAPREC] #637: the channel-map records across a planted "
+               "power cycle --\n");
+        const MapSet none;
+        const MapSet in_id = identity_set(8);
+        const MapSet out_id = identity_set(8);
+        //! a non-empty list that is not the power-on map, in each direction,
+        //! in GET_AUDIO_MAP order: inputs by cluster, outputs by stream channel
+        const MapSet in_saved = {{0, 6, 0, 0}, {0, 0, 3, 0}, {0, 1, 5, 0}};
+        const MapSet out_saved = {{0, 0, 7, 0}, {0, 4, 2, 0}};
+
+        //! a first boot over a window whose every record is erased
+        bring_the_datapath_out_of_reset();
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        std::string why;
+        const bool loaded = load_the_saved_state_window(AEMI_CFG_C, {}, &why);
+        ck("[MAPREC] a first boot over an erased window", static_cast<unsigned long>(loaded), 1);
+        if (!loaded) {
+            printf("  [i]    %s\n", why.c_str());
+            return;
+        }
+        start_the_boot_restore_walk();
+        for (int c = 0; c < 2000; c++) step();
+        maprec_grade_both("first boot", in_id, out_id);
+
+        //! 1. THE EMPTY LIST, both directions (#763): every mapping removed
+        ck("[MAPREC] empty: REMOVE every SPI 0 mapping SUCCESS",
+           static_cast<unsigned long>(maprec_edit(0x002D, 0x000E, in_id)), 0);
+        ck("[MAPREC] empty: PP_STAT pend rises with the accepted change",
+           (axi_read(A_PP_STAT) & kPpPend) ? 1u : 0u, 1);
+        ck("[MAPREC] empty: REMOVE every SPO 0 mapping SUCCESS",
+           static_cast<unsigned long>(maprec_edit(0x002D, 0x000F, out_id)), 0);
+        std::vector<uint8_t> area_empty;
+        std::map<uint32_t, std::pair<uint32_t, uint32_t> > at;
+        maprec_await_records("empty", none, none, &area_empty, &at);
+        maprec_power_cycle("empty", false);
+        maprec_grade_both("empty, after the power cycle", none, none);
+
+        //! 2. A NON-EMPTY, NON-DEFAULT LIST, both directions
+        ck("[MAPREC] saved: ADD the SPI 0 list SUCCESS",
+           static_cast<unsigned long>(maprec_edit(0x002C, 0x000E, in_saved)), 0);
+        ck("[MAPREC] saved: ADD the SPO 0 list SUCCESS",
+           static_cast<unsigned long>(maprec_edit(0x002C, 0x000F, out_saved)), 0);
+        std::vector<uint8_t> area_saved;
+        maprec_await_records("saved", in_saved, out_saved, &area_saved, &at);
+        //! DR2b: the same ADD again changes no mapping, so it marks no record
+        //! and writes nothing, however long the writer is given
+        if (at.count(0x60) != 0) {
+            nm_watch_addr = NVM_AREA_BASE + at[0x60].first;
+            nm_watch_hits.clear();
+            ck("[MAPREC] unchanged: the same SPI 0 ADD again SUCCESS",
+               static_cast<unsigned long>(maprec_edit(0x002C, 0x000E, in_saved)), 0);
+            for (long c = 0; c < 1500 * kMapMs; c += 1000)
+                for (int i = 0; i < 1000; i++) step();
+            ck("[MAPREC] unchanged: no record write follows an unchanged edit",
+               static_cast<unsigned long>(nm_watch_hits.size()), 0);
+            ck("[MAPREC] unchanged: pend stays clear",
+               (axi_read(A_PP_STAT) & kPpPend) ? 1u : 0u, 0);
+            nm_watch_addr = 0xFFFFFFFFu;
+        }
+        const long held = maprec_power_cycle("saved", false);
+        maprec_grade_both("saved, after the power cycle", in_saved, out_saved);
+        ck("[MAPREC] saved: the restore rolled nothing back",
+           static_cast<unsigned long>(dut->rootp->milan_datapath__DOT__amr_rs_fail_r), 0);
+        //! the processor's gather watchdog (DESC_MEM_TMO_CYC_P, 4096 clocks)
+        //! bounds a command held on the faces meanwhile
+        ck("[MAPREC] saved: the map restore holds the faces under the AECP "
+           "gather watchdog", static_cast<unsigned long>(held >= 0 && held < 4096), 1);
+
+        if (at.count(0x60) == 0 || at.count(0x70) == 0) {
+            ck("[MAPREC] the codec placed both map records", 0, 1);
+            return;
+        }
+        const uint32_t off60 = at[0x60].first;
+        const uint32_t off70 = at[0x70].first;
+        const uint32_t len70 = 8 + at[0x70].second;
+
+        //! 3. THE TORN-RECORD CONTROL: one payload byte of the input record
+        //! changed under its crc16. The cluster of its first mapping moves
+        //! from 0 to 4, a list the ADD rule would take: only the crc can
+        //! refuse it. The input keeps its reset set; the output record is
+        //! whole and comes back
+        nmem = area_saved;
+        nmem[off60 + 8 + 5] = 0x04;
+        maprec_power_cycle("torn input record", false);
+        maprec_grade_both("torn input record", in_id, out_saved);
+
+        //! 4. THE PARENT'S ROLL-BACK: the output record's payload lanes answer
+        //! a read error, after the input record was applied. Every map goes
+        //! back to its reset set (D3 8.6: no partial restore survives)
+        nmem = area_saved;
+        //! the lanes wholly inside record 0x70 past its header's first lane;
+        //! a lane it shares with a neighbour is never touched, so the D3
+        //! walk's own records read clean and its terminal stays COMPLETE
+        nm_err_lo = ((NVM_AREA_BASE + off70) & ~7u) + 8u;
+        nm_err_hi = (NVM_AREA_BASE + off70 + len70) & ~7u;
+        maprec_power_cycle("roll-back", false);
+        nm_err_lo = nm_err_hi = 0;
+        maprec_grade_both("roll-back", in_id, out_id);
+        ck("[MAPREC] roll-back: the restore reports it rolled back",
+           static_cast<unsigned long>(dut->rootp->milan_datapath__DOT__amr_rs_fail_r), 1);
+
+        //! 5. THE D3 WALK ROLLED BACK (restore_rb_o): the saved lists stay in
+        //! the window and no map is restored
+        nmem = area_saved;
+        maprec_power_cycle("D3 roll-back", true);
+        maprec_grade_both("D3 roll-back", in_id, out_id);
+
+        //! 6. A GET HELD AT THE TERMINAL: sent before the walk, dispatched at
+        //! restore_done, and answered with the restored list, never a reset
+        //! or half-restored one
+        {
+            constexpr uint16_t A_PP_CTRL = 0x920;
+            nmem = area_saved;
+            maprec_cut_the_power();
+            axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
+            std::vector<uint8_t> pl = desc_key(0x000E, 0);
+            pl.resize(8, 0);
+            const std::vector<uint8_t> f = aecp_request(0x002B, dynmap_sq++, pl);
+            inject(f.data(), f.size(), 40);
+            //! the premise: the GET reached the read face while the map
+            //! restore still held it, so the answer below is the hold's
+            bool met_the_hold = false;
+            const std::vector<uint8_t> r = await_aecp(2000000, [&](int) {
+                if (dut->rootp->milan_datapath__DOT__pp_amap_req_w
+                    && dut->rootp->milan_datapath__DOT__amr_rs_hold_r)
+                    met_the_hold = true;
+            });
+            ck("[MAPREC] held GET: it reached the read face inside the map restore",
+               static_cast<unsigned long>(met_the_hold), 1);
+            MapSet got;
+            const long n = (r.size() >= 50) ? ((r[46] << 8) | r[47]) : -1;
+            for (size_t a = 50; n > 0 && a + 8 <= r.size()
+                     && got.size() < static_cast<size_t>(n); a += 8) {
+                std::array<uint16_t, 4> m{};
+                for (size_t f = 0; f < 4; f++)
+                    m[f] = static_cast<uint16_t>((r[a + 2*f] << 8) | r[a + 2*f + 1]);
+                got.push_back(m);
+            }
+            ck("[MAPREC] held GET: answered SUCCESS",
+               static_cast<unsigned long>(aecp_status(r)), 0);
+            ck("[MAPREC] held GET: answered with the restored list",
+               static_cast<unsigned long>(got == in_saved), 1);
+        }
+
+        //! 6b. A CHANGE DURING THE RECORD WRITE (D3 7.1): the record's lane
+        //! writes are slowed, and a second edit lands after the latch. The
+        //! write it taints clears nothing, so the record is written again and
+        //! the window ends on the final list
+        {
+            nmem = area_saved;
+            maprec_power_cycle("taint", false);
+            const uint32_t len60 = 8 + at[0x60].second;
+            nm_wslow_lo = (NVM_AREA_BASE + off60) & ~7u;
+            nm_wslow_hi = (NVM_AREA_BASE + off60 + len60) & ~7u;
+            nm_wslow_cyc = 2000;
+            nm_watch_addr = NVM_AREA_BASE + off60;
+            nm_watch_hits.clear();
+            ck("[MAPREC] taint: REMOVE the first SPI 0 mapping SUCCESS",
+               static_cast<unsigned long>(maprec_edit(0x002D, 0x000E, {{0, 6, 0, 0}})), 0);
+            for (long c = 0; c < 2000 * kMapMs && nm_watch_hits.empty(); c++) step();
+            ck("[MAPREC] taint: REMOVE the second while the record is written SUCCESS",
+               static_cast<unsigned long>(maprec_edit(0x002D, 0x000E, {{0, 0, 3, 0}})), 0);
+            ck("[MAPREC] taint: the second change landed after the latch",
+               static_cast<unsigned long>(dut->rootp->milan_datapath__DOT__amr_taint_r), 1);
+            nm_wslow_lo = nm_wslow_hi = 0;
+            nm_watch_addr = 0xFFFFFFFFu;
+            const MapSet in_final = {{0, 1, 5, 0}};
+            std::vector<uint8_t> area_taint;
+            std::map<uint32_t, std::pair<uint32_t, uint32_t> > at2;
+            const bool framed = maprec_codec_window(
+                {map_record(0x60, in_final, maprec_in_entries()),
+                 map_record(0x70, out_saved, maprec_out_entries())}, &area_taint, &at2);
+            ck("[MAPREC] taint: the codec frames both records",
+               static_cast<unsigned long>(framed), 1);
+            ck("[MAPREC] taint: the window ends on the final list",
+               static_cast<unsigned long>(
+                   maprec_wait_for_the_window(area_taint, 4000 * kMapMs) >= 0), 1);
+            maprec_power_cycle("taint", false);
+            maprec_grade_both("taint, after the power cycle", in_final, out_saved);
+        }
+
+        //! 6c. ONE DEVICE FACE, TWO INITIATORS: the processor's D3 writer
+        //! commits a user name (ERASE, then WRITE, its lane writes slowed)
+        //! while the map writer asks for the same backend. Both records
+        //! reach the window, each the codec's framing
+        {
+            nmem = area_saved;
+            maprec_power_cycle("shared face", false);
+            const MapSet in_less = {{0, 0, 3, 0}, {0, 1, 5, 0}};
+            static const char kName[] = "Map-share";
+            std::string name_hex = "0x80=";
+            for (size_t i = 0; i < 64; i++) {
+                char b[4];
+                snprintf(b, sizeof b, "%02x",
+                         i < sizeof kName - 1 ? static_cast<unsigned char>(kName[i]) : 0u);
+                name_hex += b;
+            }
+            std::vector<uint8_t> area_share;
+            std::map<uint32_t, std::pair<uint32_t, uint32_t> > at3;
+            const bool framed = maprec_codec_window(
+                {map_record(0x60, in_less, maprec_in_entries()),
+                 map_record(0x70, out_saved, maprec_out_entries()), name_hex},
+                &area_share, &at3);
+            ck("[MAPREC] shared face: the codec frames the three records",
+               static_cast<unsigned long>(framed && at3.count(0x80) != 0), 1);
+            if (framed && at3.count(0x80) != 0) {
+                const uint32_t off80 = at3[0x80].first;
+                nm_wslow_lo = (NVM_AREA_BASE + off80) & ~7u;
+                nm_wslow_hi = (NVM_AREA_BASE + off80 + 8 + at3[0x80].second) & ~7u;
+                nm_wslow_cyc = 4000;
+                nm_watch_addr = NVM_AREA_BASE + off80;
+                nm_watch_hits.clear();
+                std::vector<uint8_t> pl(72, 0);
+                memcpy(pl.data() + 8, kName, sizeof kName - 1);
+                ck("[MAPREC] shared face: SET_NAME of the entity SUCCESS",
+                   static_cast<unsigned long>(aecp_status(aecp_xact(0x0010, dynmap_sq++, pl))), 0);
+                //! the processor's 500 ms debounce runs on its own, uncompressed
+                //! millisecond; its first slowed lane write opens the window
+                for (long c = 0; c < 80000000L && nm_watch_hits.empty(); c++) step();
+                ck("[MAPREC] shared face: the processor's commit of the name began",
+                   static_cast<unsigned long>(!nm_watch_hits.empty()), 1);
+                ck("[MAPREC] shared face: REMOVE one SPI 0 mapping SUCCESS",
+                   static_cast<unsigned long>(maprec_edit(0x002D, 0x000E, {{0, 6, 0, 0}})), 0);
+                bool contended = false;
+                long took = -1;
+                for (long c = 0; c < 3000000L && took < 0; c++) {
+                    step();
+                    if (dut->rootp->milan_datapath__DOT__amr_req_r
+                        && !dut->rootp->milan_datapath__DOT__pp_shadow__DOT__da_map_r
+                        && dut->rootp->milan_datapath__DOT__pp_shadow__DOT__nvm_busy_w)
+                        contended = true;
+                    //! PP_STAT's pend stays up here by design: a name's
+                    //! accepted write keeps its sticky source until reset,
+                    //! as the parent has not adopted the name stage (lane 3)
+                    if ((c % 1000) == 999 && nmem == area_share
+                        && !dut->rootp->milan_datapath__DOT__amr_dirty_r)
+                        took = c;
+                }
+                ck("[MAPREC] shared face: the map writer asked while the processor's "
+                   "command held the device", static_cast<unsigned long>(contended), 1);
+                ck("[MAPREC] shared face: both writers' records are in the window",
+                   static_cast<unsigned long>(took >= 0), 1);
+                if (took < 0) {
+                    long shown = 0;
+                    for (size_t i = 0; i < nmem.size() && shown < 12; i++)
+                        if (nmem[i] != area_share[i]) {
+                            printf("  [i]    shared face: area byte %zu is %02x, want %02x\n",
+                                   i, nmem[i], area_share[i]);
+                            shown++;
+                        }
+                    printf("  [i]    shared face: 0x60 at %u, 0x70 at %u, 0x80 at %u, "
+                           "PP_STAT %08x\n", at3[0x60].first, at3[0x70].first,
+                           at3[0x80].first, axi_read(A_PP_STAT));
+                }
+                nm_wslow_lo = nm_wslow_hi = 0;
+                nm_watch_addr = 0xFFFFFFFFu;
+            }
+        }
+
+        //! 7. DR2c: a record whose every write fails. Three attempts, at
+        //! least 500 ms apart, then the reset-sticky alarm, and the change's
+        //! pend falls with it
+        {
+            nmem = area_saved;
+            maprec_power_cycle("failing writes", false);
+            nm_werr_lo = (NVM_AREA_BASE + off60) & ~7u;
+            nm_werr_hi = (NVM_AREA_BASE + off60 + 8 + at[0x60].second) & ~7u;
+            nm_watch_addr = NVM_AREA_BASE + off60;
+            nm_watch_hits.clear();
+            ck("[MAPREC] failing writes: REMOVE one SPI 0 mapping SUCCESS",
+               static_cast<unsigned long>(maprec_edit(0x002D, 0x000E, {{0, 6, 0, 0}})), 0);
+            uint32_t st = 0;
+            for (long c = 0; c < 4000 * kMapMs && !(st & kPpAlarm); c += 1000) {
+                for (int i = 0; i < 1000; i++) step();
+                st = axi_read(A_PP_STAT);
+            }
+            for (long c = 0; c < 1000 * kMapMs; c += 1000)
+                for (int i = 0; i < 1000; i++) step();
+            st = axi_read(A_PP_STAT);
+            printf("  [i]    failing writes: %zu attempt(s) at clocks",
+                   nm_watch_hits.size());
+            for (long h : nm_watch_hits) printf(" %ld", h);
+            printf(", PP_STAT %08x\n", st);
+            ck("[MAPREC] failing writes: three attempts, then no more",
+               static_cast<unsigned long>(nm_watch_hits.size()), 3);
+            long gap = 1L << 40;
+            for (size_t i = 1; i < nm_watch_hits.size(); i++)
+                gap = std::min(gap, nm_watch_hits[i] - nm_watch_hits[i - 1]);
+            ck("[MAPREC] failing writes: the attempts are at least 500 ms apart",
+               static_cast<unsigned long>(nm_watch_hits.size() >= 2 && gap >= 500 * kMapMs), 1);
+            ck("[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised",
+               (st & kPpAlarm) ? 1u : 0u, 1);
+            //! the writer gives the change up (its dirty bit, its share of
+            //! pend), and the alarm revokes nvm_backed (PP_STAT[6]). The
+            //! backend's own pend stays: the failed WRITE left its record
+            //! open, and an open record is never retired (FASTCONNECT 9.2)
+            ck("[MAPREC] failing writes: the writer gives the record up",
+               static_cast<unsigned long>(dut->rootp->milan_datapath__DOT__amr_dirty_r), 0);
+            ck("[MAPREC] failing writes: nvm_backed is revoked (PP_STAT[6])",
+               (st >> 6) & 1u, 0);
+            nm_werr_lo = nm_werr_hi = 0;
+            nm_watch_addr = 0xFFFFFFFFu;
+        }
+
+        //! 8. A SILENT MEMORY UNDER THE MAP RESTORE: the output record's
+        //! payload lanes never answer. The walk ends at its per-wait
+        //! deadline, rolls every map back and releases the faces
+        {
+            nmem = area_saved;
+            nm_silent_lo = ((NVM_AREA_BASE + off70) & ~7u) + 8u;
+            nm_silent_hi = (NVM_AREA_BASE + off70 + len70) & ~7u;
+            maprec_power_cycle("silent memory", false);
+            maprec_grade_both("silent memory", in_id, out_id);
+            ck("[MAPREC] silent memory: the restore reports it rolled back",
+               static_cast<unsigned long>(dut->rootp->milan_datapath__DOT__amr_rs_fail_r), 1);
+            //! the memory answers at last: the abandoned READ's late bytes are
+            //! drained, the backend ends it, and a later change still reaches
+            //! the window
+            nm_silent_lo = nm_silent_hi = 0;
+            ck("[MAPREC] silent memory, late answer: REMOVE one SPI 0 mapping SUCCESS",
+               static_cast<unsigned long>(maprec_edit(0x002D, 0x000E, {{0, 7, 7, 0}})), 0);
+            std::vector<uint8_t> area_late;
+            std::map<uint32_t, std::pair<uint32_t, uint32_t> > at4;
+            const bool framed = maprec_codec_window(
+                {map_record(0x60, identity_set(7), maprec_in_entries()),
+                 map_record(0x70, out_saved, maprec_out_entries())}, &area_late, &at4);
+            ck("[MAPREC] silent memory, late answer: a later change reaches the window",
+               static_cast<unsigned long>(
+                   framed && maprec_wait_for_the_window(area_late, 2000 * kMapMs) >= 0), 1);
+        }
+
+        //! every page above ran: a GET that never answered would otherwise
+        //! leave its checks unrun rather than failed
+        ck("[MAPREC] every page ran (vacuity guard)",
+           static_cast<unsigned long>(maprec_pages), 16);
+        bring_the_datapath_out_of_reset();
     }
     #endif
 

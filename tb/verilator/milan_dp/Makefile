@@ -322,12 +322,16 @@ endef
 # through this same recipe (DP_SRC and DYNMAP_MDIR overridden), so its planted
 # controls elaborate exactly the gateware the positive leg does.
 DYNMAP_MDIR ?= obj_dynmap
+# #637: the map writer's millisecond in this leg, so its 500 ms debounce and
+# retry backoff are 50,000 clocks; the processor's timebase is not compressed
+DYNMAP_MS_CYC = 100
 define DYNMAP_BUILD
 $(VERILATOR) dynmap_probes.vlt $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(DYNMAP_MDIR) \
   -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
   -GAUDIO_IF_MASTER_P=1 \
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
-  -CFLAGS "-DNSTREAMS_TB=1 -DDYNMAP_DEFAULT_TB=1 -Wall -Wextra" \
+  -GAMR_MS_CYC_P=$(DYNMAP_MS_CYC) \
+  -CFLAGS "-DNSTREAMS_TB=1 -DDYNMAP_DEFAULT_TB=1 -DAMR_MS_CYC_TB=$(DYNMAP_MS_CYC) -Wall -Wextra" \
   $(SRCS) sim_nxn.cpp -o Vmilan_dp_dynmap
 endef
 
