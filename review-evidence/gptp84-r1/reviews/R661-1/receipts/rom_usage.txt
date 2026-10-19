@@ -1,0 +1,9 @@
+# generator default image (python3 hdl/ucode/gen_gptp_ucode.py -o x.hex)
+base 43acfbcc: 1024 words, 1013 real (98.9%), mac 02A1B2C3D4E5
+head 53ac2e9d: 1024 words, 1015 real (99.1%), mac 02A1B2C3D4E5
+tracked image tb/verilator/engine/gptp_ucode.hex regenerates byte-identical (args: --clk-hz 2000000 --cease-ms 3000)
+tracked image tb/tsngen/gptp_ucode.hex regenerates byte-identical (args: --clk-hz 2000000)
+tracked image tb/verilator/ucpu/gptp_ucode.hex regenerates byte-identical (args: )
+tracked image syn/ooc/work/gptp_ucode.hex regenerates byte-identical (args: )
+docs/MANAGER.md:103: Shipping usage: 1,013 of 1,024 words (98.9%).
+docs/MANAGER.md:107: Only eleven words remain free, spread across packing gaps.

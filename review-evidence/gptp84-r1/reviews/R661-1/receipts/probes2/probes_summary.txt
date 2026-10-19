@@ -1,0 +1,3 @@
+A2-lost-responses-clear-master-syncok: CAUGHT rc=2 fails=1 - lost Pdelay responses during mastership clear sync-ok | FAIL #84 every master cycle publishes sync-ok got 0000000003473bb3 exp 0000000000000000
+A3-cease-clears-master-syncok: CAUGHT rc=2 fails=1 - the multiple-response cease during mastership clears sync-ok | FAIL #84 every master cycle publishes sync-ok got 0000000003862d61 exp 0000000000000000
+A4-incapable-master-publishes-no-syncok: CAUGHT rc=2 fails=1 - a master whose port is not asCapable publishes no sync-ok | FAIL #84 every master cycle publishes sync-ok got 0000000001f79f04 exp 0000000000000000
