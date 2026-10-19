@@ -1,0 +1,27 @@
+INFO #82 cold release graded for 2400605 cycles to the first beat
+FAIL half-identity control A: raw path tail 2 got 02a1b3fffec3d4e5 exp 02a1b2fffec3d4e5
+FAIL half-identity control B: raw path tail 2 got 02a1b2fffec3d4e4 exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: tail 1 got 00e5e5fffe000001 exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: tail 5 got 00e6e6fffe0000c4 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: tail 7 got 00e7e7fffe000007 exp 02a1b2fffec3d4e5
+FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL adopt appends thisClock as path tail 4 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL worse announce retains path A tail 4 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL worse TLV-less announce retains path A tail 4 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL parent refresh appends thisClock got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL unknown before path current parent: tail 3 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL post-release C appends thisClock got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174416
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 0 ns, trim 1174399
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000682 cycles after asCapable rises
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+INFO #82 503 commits graded for the self path
+INFO #84 108614414 master cycles graded, 16 handovers to a peer
+INFO #85 365 peer commits graded for thisClock last
+FAIL #85 every peer path ends with thisClock got 0000000000000168 exp 0000000000000000
+1703 checks: 1685 PASS, 18 FAIL

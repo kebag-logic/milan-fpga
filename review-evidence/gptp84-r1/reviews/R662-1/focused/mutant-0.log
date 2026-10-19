@@ -1,0 +1,13 @@
+INFO #82 cold release graded for 2400605 cycles to the first beat
+FAIL #84 first mastership: the master flags carry sync-ok got 0000000000000007 exp 000000000000000f
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174416
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 0 ns, trim 1174399
+FAIL #84 takeover: its commit names thisClock with sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000000 exp 0000000000000002
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000682 cycles after asCapable rises
+INFO #82 503 commits graded for the self path
+INFO #84 108614414 master cycles graded, 16 handovers to a peer
+FAIL #84 every master cycle publishes sync-ok got 000000000679530e exp 0000000000000000
+INFO #85 365 peer commits graded for thisClock last
+1703 checks: 1699 PASS, 4 FAIL

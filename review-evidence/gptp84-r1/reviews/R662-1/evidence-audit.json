@@ -1,0 +1,27 @@
+{
+  "receipt_index_files": 194,
+  "receipt_index_exact_match": true,
+  "published_manifest_hashes_verified": 196,
+  "exact_head_mutants_verified": 72,
+  "mutation_positive_controls": 24,
+  "named_failures_verified": true,
+  "companion_copies_identical": true,
+  "parent_gate_rc_rows": [
+    "01 rc=0 secs=1 python3 scripts/check_cpp_idiom.py",
+    "02 rc=0 secs=5 python3 scripts/check_py_idiom.py",
+    "03 rc=0 secs=153 python3 scripts/xvlog_gate.py --check",
+    "04 rc=0 secs=1 python3 scripts/check_rtl_source_lists.py",
+    "06 rc=0 secs=247 make -C tb/verilator/gptp_shadow -j8",
+    "07 rc=0 secs=3 python3 scripts/check_port_contracts.py",
+    "08 rc=0 secs=0 python3 scripts/measure_naming.py --check",
+    "09 rc=0 secs=8 python3 scripts/measure_test_evidence.py --check",
+    "10 rc=0 secs=8 python3 scripts/docs_check.py",
+    "11 rc=0 secs=10 python3 scripts/lint_rtl.py --check"
+  ],
+  "builder_union": [
+    "builder: 103 gates exactly once, union pass, legs ['0/2', '1/2'], head 28e1085fb57ac95ec660f3f6a4449e08657e956c",
+    "NOT RUN rows: [['gate 11', 'real report not on disk (<home>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree', 'row']]",
+    "verdicts_sha256 8800c441e33bfdedbc0a2b41321ebc75251b43c1a36b0e11362b5df8d0367e84",
+    "rc=0"
+  ]
+}

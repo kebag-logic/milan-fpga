@@ -1,0 +1,70 @@
+[
+  {
+    "case": "control",
+    "rc": 0,
+    "verdict": "pass",
+    "tally": "1703 checks: 1703 PASS, 0 FAIL\n"
+  },
+  {
+    "case": "request-seed",
+    "rc": 0,
+    "verdict": "pass",
+    "tally": "1703 checks: 1703 PASS, 0 FAIL\n"
+  },
+  {
+    "case": "sync-seed",
+    "rc": 0,
+    "verdict": "pass",
+    "tally": "1703 checks: 1703 PASS, 0 FAIL\n"
+  },
+  {
+    "case": "priority255",
+    "rc": 0,
+    "verdict": "pass",
+    "tally": "53 checks: 53 PASS, 0 FAIL\n"
+  },
+  {
+    "case": "mutant-0",
+    "rc": 1,
+    "verdict": "caught",
+    "tally": "1703 checks: 1699 PASS, 4 FAIL\n",
+    "mutation": "becoming grandmaster clears sync-ok"
+  },
+  {
+    "case": "mutant-1",
+    "rc": 1,
+    "verdict": "caught",
+    "tally": "1703 checks: 1701 PASS, 2 FAIL\n",
+    "mutation": "a queued receipt timeout clears a master's sync-ok"
+  },
+  {
+    "case": "mutant-2",
+    "rc": 1,
+    "verdict": "caught",
+    "tally": "1703 checks: 1672 PASS, 31 FAIL\n",
+    "mutation": "the received path is published without thisClock"
+  },
+  {
+    "case": "mutant-3",
+    "rc": 1,
+    "verdict": "caught",
+    "tally": "1703 checks: 1685 PASS, 18 FAIL\n",
+    "mutation": "the appended entry is the announcing source"
+  },
+  {
+    "image": "syn/ooc/work/gptp_ucode.hex",
+    "byte_match": true
+  },
+  {
+    "image": "tb/verilator/ucpu/gptp_ucode.hex",
+    "byte_match": true
+  },
+  {
+    "image": "tb/tsngen/gptp_ucode.hex",
+    "byte_match": true
+  },
+  {
+    "image": "tb/verilator/engine/gptp_ucode.hex",
+    "byte_match": true
+  }
+]
