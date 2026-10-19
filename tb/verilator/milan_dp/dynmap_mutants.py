@@ -393,14 +393,15 @@ MUTATIONS = [
     ("maprec8", "an output port refused a key another port holds is never put back",
      [(PB_REFUSED, "")],
      "[MAPREC] conflicting keys across ports: port 7: number_of_mappings"),
-    ("maprec8", "every output port reads output port 0's record",
+    ("maprec8", "every output port writes and reads output port 0's record",
      [("        amr_rid_w  = 8'h70 + 8'(p);", "        amr_rid_w  = 8'h70;")],
      "[MAPREC] transfers, after the power cycle: port 7: the mappings are the "
      "expected list"),
-    ("maprec4", "every input port reads input port 0's record",
+    ("maprec4", "every input port writes and reads input port 0's record",
      [("        amr_rid_w  = 8'h60 + 8'(p);", "        amr_rid_w  = 8'h60;")],
-     "[MAPREC] inputs, after the power cycle: port 3: the mappings are the "
-     "expected list"),
+     ("[MAPREC] inputs: the window holds the codec's records and the pend has fallen",
+      "[MAPREC] inputs, after the power cycle: port 0: the mappings are the "
+      "expected list")),
     ("maprec4", "the last input port's refused saved set is never put back",
      [(PB_REFUSED, "")],
      "[MAPREC] put-back, last port: port 3: number_of_mappings"),
