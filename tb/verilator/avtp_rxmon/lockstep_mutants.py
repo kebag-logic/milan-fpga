@@ -12,8 +12,11 @@ is the one its case exists for: a lost increment, a torn read, a wrong stream
 index and a missed reset. The rest are #762's STREAM_INTERRUPTED rules
 ([SI]): a silence that unlocks without counting, a sequence gap that does not
 count, an unbind that counts, an unbind that erases a silence already expired
-(the walk's consume race), a stopped input's silence that counts, and a STOP
-sampled at the walk instead of at the expiry. Each #762 defect is planted in
+(the walk's consume race), a stopped input's silence that counts, a STOP
+sampled at the walk instead of at the expiry, a stopped input's sequence gap
+that counts, a STOP that disarms the gap until the next bind (START never
+re-arms it), and a gap's stopped state read one cycle after its verdict. Each
+#762 defect is planted in
 the engine AND in the reference copy, so the lockstep comparison cannot see it
 and only the harness's own count oracle can fail. The real engine is mutated
 one defect at a time, the SAME harness is rebuilt through the Makefile's own
@@ -70,6 +73,10 @@ SI_MARK = "            if (bound_i[s] && !bind_fall_i[s] && !stopped_i[s])\n"
 UNBIND_UNLOCK = "        if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;\n"
 #: one boundary-sweep check, of either event
 BOUNDARY = "boundary ({}, idle): after the expiry the silence counts once, on or before it never"
+#: the gap's stopped-state gate, as both modules write it
+GAP_STOP = "                  && !stopped_i[ev_s_r])\n"
+#: the declaration a mutant's extra state goes after, in both modules
+SI_DECL = "  logic [N_LISTENERS_P-1:0] sil_si_r;\n"
 
 # (name, [(the ONE text it replaces, its replacement), ...], the check it must
 # fail, whether the reference copy gets the same edits)
@@ -105,8 +112,8 @@ MUTATIONS = [
      [(SI_MARK, "            if (1'b0)\n")],
      "[SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once", True),
     ("gap: a sequence gap of two lost PDUs no longer interrupts (#762)",
-     [("              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C))",
-       "              | ((1'b0 && lost_w >= 8'(INTERRUPT_MIN_LOST_C))")],
+     [("              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)\n",
+       "              | ((1'b0 && lost_w >= 8'(INTERRUPT_MIN_LOST_C)\n")],
      "[SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once", True),
     ("unbind: an unbind's unlock is counted as an interruption (#762)",
      [(UNBIND_UNLOCK, UNBIND_UNLOCK + "        if (bind_fall_i[s] && locked_sh_r[s]) sil_si_r[s] <= 1'b1;\n")],
@@ -122,6 +129,22 @@ MUTATIONS = [
       ("                if (sil_si_r[ev_s_r]) begin",
        "                if (sil_si_r[ev_s_r] && !stopped_i[ev_s_r]) begin")],
      BOUNDARY.format("a STOP"), True),
+    ("stopped gap: a stopped input's sequence gap is counted an interruption (#762)",
+     [(GAP_STOP, "                  )\n")],
+     "[SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED", True),
+    ("sticky stop: a STOP disarms the gap until the next bind, START never re-arms it (#762)",
+     [(SI_DECL, SI_DECL + "  logic [N_LISTENERS_P-1:0] stop_seen_r;\n"
+                "  always_ff @(posedge clk_i)\n"
+                "    if (!rst_n) stop_seen_r <= '0;\n"
+                "    else stop_seen_r <= (stop_seen_r | stopped_i) & ~bind_rise_i;\n"),
+      (GAP_STOP, "                  && !stop_seen_r[ev_s_r])\n")],
+     "[SI] after START a sequence gap counts STREAM_INTERRUPTED again", True),
+    ("gap stop late: a gap's stopped state is read one cycle after its verdict (#762)",
+     [(SI_DECL, SI_DECL + "  logic [N_LISTENERS_P-1:0] stopped_late_r;\n"
+                "  always_ff @(posedge clk_i) stopped_late_r <= stopped_i;\n"),
+      (GAP_STOP, "                  && !stopped_late_r[ev_s_r])\n")],
+     "gap boundary (a STOP, idle): the gap counts once when started at its verdict, never when stopped",
+     True),
 ]
 
 

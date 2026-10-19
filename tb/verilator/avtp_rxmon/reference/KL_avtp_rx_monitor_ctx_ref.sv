@@ -5,8 +5,9 @@
 
 //! LOCKSTEP REFERENCE (tb/verilator/avtp_rxmon/sim_lockstep.cpp): the module
 //! of dev e8454e27 with its name changed, and with #762's silence
-//! interruption (sil_si_r, stopped_i) applied in the same lines as the
-//! shipping engine, so the #640 M6 comparison stays exact on every column.
+//! interruption (sil_si_r, stopped_i) and its stopped-gap rule applied in the
+//! same lines as the shipping engine, so the #640 M6 comparison stays exact on
+//! every column.
 //! #762 itself is graded by count in the harness's [SI] cases, never against
 //! this copy: lockstep_mutants.py plants each #762 defect in BOTH modules.
 
@@ -1005,9 +1006,12 @@ module KL_avtp_rx_monitor_ctx_ref #(
             //! counters walk here.
             if (cur_r.tv) tv_cnt_r[ev_s_r]  <= tv_cnt_r[ev_s_r]  + 32'd1;
             else          tnv_cnt_r[ev_s_r] <= tnv_cnt_r[ev_s_r] + 32'd1;
+            //! #762: a gap interrupts only a started input's playback; the
+            //! stopped state is read at this verdict, the gap's one boundary
             inc_list_r <=
                 (lock_now_w  ? (12'b1 << C_ML_C) : 12'b0)
-              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C))
+              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)
+                  && !stopped_i[ev_s_r])
                              ? (12'b1 << C_SI_C) : 12'b0);
             wrph_r <= '0;
             mst_r  <= M_PWR_S;

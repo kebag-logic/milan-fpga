@@ -28,8 +28,8 @@
                 * STREAM_INTERRUPTED has two causes (Milan v1.2 5.3.8.10
                   Table 5.6, #762): an accepted PDU whose sequence_num
                   shows >= 2 lost PDUs, and a 100 ms silence that unlocks
-                  a bound, started stream (5.3.8.7: a stopped input has
-                  no playback to interrupt).
+                  a bound stream, each only while the input is started
+                  (5.3.8.7: a stopped input has no playback to interrupt).
                   The first PDU after a silence re-seeds the sequence, so
                   the silence is counted at its own unlock, once. An
                   unbind unlocks through the same walk and counts nothing;
@@ -1017,9 +1017,12 @@ module KL_avtp_rx_monitor_ctx #(
             //! counters walk here.
             if (cur_w.tv) tv_cnt_r[ev_s_r]  <= tv_cnt_r[ev_s_r]  + 32'd1;
             else          tnv_cnt_r[ev_s_r] <= tnv_cnt_r[ev_s_r] + 32'd1;
+            //! #762: a gap interrupts only a started input's playback; the
+            //! stopped state is read at this verdict, the gap's one boundary
             inc_list_r <=
                 (lock_now_w  ? (12'b1 << C_ML_C) : 12'b0)
-              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C))
+              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)
+                  && !stopped_i[ev_s_r])
                              ? (12'b1 << C_SI_C) : 12'b0);
             wrph_r <= '0;
             mst_r  <= M_PWR_S;

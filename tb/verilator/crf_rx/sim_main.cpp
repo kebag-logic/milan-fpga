@@ -33,7 +33,8 @@
 //                      / further ahead than MAXTT_NS_P + 10 ms
 //   STREAM_INTERRUPTED per-EVENT, >= 2 lost AVTPDUs (no interval fold), and
 //                      the 100 ms silence of a started, bound sink (#762),
-//                      never an unbind
+//                      never an unbind, and never on a stopped sink: its
+//                      gap counts SEQ_NUM_MISMATCH only (#762, extended)
 // and in every case a REJECTED PDU counts none of them.
 //
 // Sampling contract: outputs are compared SETTLE_TICKS_C (4) cycles after
@@ -163,8 +164,9 @@ struct Model {
         rate_seeded = true;
         if (have_seq && seq != exp_seq) {
             settle = 0;                  // discontinuity breaks the settle run
-            // STREAM_INTERRUPTED: "the loss of several AVTPDUs", per-event
-            if (static_cast<uint8_t>(seq - exp_seq) >= 2) cnt_i++;
+            // STREAM_INTERRUPTED: "the loss of several AVTPDUs", per-event,
+            // on a started sink only (#762: a stopped one has no playback)
+            if (static_cast<uint8_t>(seq - exp_seq) >= 2 && !stop) cnt_i++;
         } else if (stop) {
             // a stopped sink's accepts advance nothing toward lock
         } else if (settle != 7) {
@@ -266,6 +268,7 @@ class CrfRxHarness {
         pin_stopped_sink();
         pin_unbind_scores_one_unlock();
         pin_stopped_silence_is_no_interruption();
+        pin_stopped_gap_is_no_interruption();
 
         printf("======================================================================\n");
         printf("KL_crf_rx: %ld checks, %ld failures (%ld accepted PDUs pinned)\n",
@@ -395,7 +398,9 @@ class CrfRxHarness {
     // The Table 5.6 events (FRX always, SM on a discontinuity) are computed
     // from the replica's PRE-update state — exactly what the RTL sees in
     // have_seq_r/exp_seq_r at the pulse edge.
-    void feed_good(uint64_t ts, uint8_t seq, uint64_t ptp) {
+    //! `stop_after` >= 0 drives stop_i to that level on the edge right after
+    //! the PDU's own: the replica scores the PDU at the state of its edge
+    void feed_good(uint64_t ts, uint8_t seq, uint64_t ptp, int stop_after = -1) {
         dut->ptp_now_i = ptp;
         drive_fields(ts, seq);
         g_ev_frx = true;
@@ -405,11 +410,13 @@ class CrfRxHarness {
         g_ev_lt  = ts_late(ts, ptp);
         g_ev_et  = ts_early(ts, ptp);
         pulse();
+        if (stop_after >= 0) dut->stop_i = stop_after;
         for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
         m.good_pdu(ts, seq, ptp, g_mr, g_tu);
+        if (stop_after >= 0) m.stop = stop_after != 0;
     }
-    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
-        feed_good(ts, seq, ptp);
+    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, int stop_after = -1) {
+        feed_good(ts, seq, ptp, stop_after);
         compare(++g_pdu_no);
     }
 
@@ -1704,6 +1711,75 @@ class CrfRxHarness {
         ck("[762-ST-e3] ...nor the silence after it", d_intr(i0), 0);
         dut->en_i = 1; m.bind_zero();
         for (int i = 0; i < 4; i++) tick();
+    }
+
+    //-----------------------------------------------------------------------
+    // [762-SG] the #762 ruling, extended: a sequence gap on a STOPPED sink
+    // counts no STREAM_INTERRUPTED (it still counts SEQ_NUM_MISMATCH); a
+    // started sink's gap counts once; after START a gap counts again. The
+    // stopped state is read on the gap PDU's own accept edge, so a STOP or a
+    // START one edge later changes nothing for that gap. Each case is graded
+    // by its own count delta; the replica carries the same rule, so every
+    // #762 mutant is planted in both (mutants.py).
+    //-----------------------------------------------------------------------
+    void pin_stopped_gap_is_no_interruption() {
+        printf("\n[762-SG] #762 a sequence gap on a stopped sink\n");
+        auto gap = [&](int stop_after = -1) {
+            ts += 2000200; ptp += 2000000; seq += 3;   // 3 lost AVTPDUs
+            good_pdu(ts, seq++, ptp, stop_after);
+        };
+        auto set_stop = [&](bool stopped) {
+            dut->stop_i = stopped; m.stop = stopped;
+        };
+        auto d_intr = [&](uint32_t i0) {
+            return static_cast<long long>(dut->cnt_intr_o - i0);
+        };
+        for (int n = 0; n < 10; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        ck("[762-SG-a0] precondition: started and locked", dut->locked_o, 1);
+        uint32_t i0 = dut->cnt_intr_o;
+        gap();
+        ck("[762-SG-a1] started gap: one STREAM_INTERRUPTED", d_intr(i0), 1);
+
+        // (b) stopped: two gaps, neither counted; the interval still sees them
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        align_interval();
+        const uint32_t s0 = dut->seq_err_o;
+        const uint32_t u0 = dut->cnt_unlocked_o;
+        i0 = dut->cnt_intr_o;
+        set_stop(true);
+        gap();
+        ck("[762-SG-b1] stopped gap: no STREAM_INTERRUPTED", d_intr(i0), 0);
+        gap();
+        ck("[762-SG-b2] ...nor a second stopped gap", d_intr(i0), 0);
+        ck("[762-SG-b3] ...and the gaps unlock nothing", dut->cnt_unlocked_o, u0);
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        ck("[762-SG-b4] the stopped gaps were seen: one SEQ_NUM_MISMATCH interval",
+           dut->seq_err_o, s0 + 1);
+
+        // (c) START: a gap counts again
+        set_stop(false);
+        for (int i = 0; i < 4; i++) tick();
+        i0 = dut->cnt_intr_o;
+        gap();
+        ck("[762-SG-c1] after START a gap counts STREAM_INTERRUPTED again", d_intr(i0), 1);
+
+        // (d) the gap's own edge is the boundary, in both directions
+        i0 = dut->cnt_intr_o;
+        set_stop(true);
+        gap(0);                          // STOP on the gap's edge, START after
+        ck("[762-SG-d1] a STOP on the gap's own edge: no STREAM_INTERRUPTED", d_intr(i0), 0);
+        gap(1);                          // started on the gap's edge, STOP after
+        ck("[762-SG-d2] a STOP one edge after the gap: the gap counts once", d_intr(i0), 1);
+        gap(0);                          // stopped on the gap's edge, START after
+        ck("[762-SG-d3] a START one edge after the gap: the gap counts nothing", d_intr(i0), 1);
+        ck("[762-SG-d4] ...and the START after it holds", dut->stop_i, 0);
+        set_stop(true);
+        for (int i = 0; i < 4; i++) tick();
+        set_stop(false);
+        gap();                           // START on the gap's own edge
+        ck("[762-SG-d5] a START on the gap's own edge: the gap counts once", d_intr(i0), 2);
     }
 };
 

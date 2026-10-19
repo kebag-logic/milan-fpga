@@ -6,7 +6,10 @@
 The discontinuity mutants run sim_discontinuity.cpp; the #762 STREAM_INTERRUPTED
 mutants (a silence, a sequence gap, an unbind and a stopped input's silence,
 each the cause its check names) run the counter harness, sim_main.cpp, through
-`make unit-build`.
+`make unit-build`. The stopped-gap mutants (a stopped sink's gap counted, and a
+STOP that disarms the gap until the next bind) are planted in the engine AND in
+the harness's replica, so the per-PDU replica compare cannot see them and only
+the named count check can fail.
 
 No checkout is edited. Every executable, including the positive control,
 is rebuilt from this invocation's source. The harness has bounded loops.
@@ -43,7 +46,7 @@ UNIT_MUTANTS = (
      "if (1'b0) cnt_intr_o <= cnt_intr_o + 32'd1;",
      "[762-a] silence: STREAM_INTERRUPTED counts the silence once"),
     ("gap_not_interrupted",
-     "wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C));",
+     "wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;",
      "wire w_ev_si_w = 1'b0;",
      "[5t-e2] 3 gaps in ONE interval: +3 immediately (per-event)"),
     ("unbind_interrupts",
@@ -61,21 +64,62 @@ UNIT_MUTANTS = (
      "if (en_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
      "[762-ST-b2] stopped silence: no STREAM_INTERRUPTED"),
 )
+#: the gap's stopped-state gate, in the engine and in the replica
+GAP_RTL = "(w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;"
+GAP_REPLICA = "if (static_cast<uint8_t>(seq - exp_seq) >= 2 && !stop) cnt_i++;"
+#: #762 stopped-gap mutants planted in both: (name, engine edits, replica
+#: edits, the check that must fail)
+BOTH_MUTANTS = (
+    ("stopped_gap_interrupts",
+     ((GAP_RTL, "(w_lost_w >= 8'(INTR_MIN_LOST_C));"),),
+     ((GAP_REPLICA, "if (static_cast<uint8_t>(seq - exp_seq) >= 2) cnt_i++;"),),
+     "[762-SG-b1] stopped gap: no STREAM_INTERRUPTED"),
+    ("sticky_stop_gap",
+     (("  //! STREAM_INTERRUPTED is PER-EVENT (no interval flag)",
+       "  logic stop_seen_r;\n"
+       "  always_ff @(posedge clk_i)\n"
+       "    if (!rst_n) stop_seen_r <= 1'b0;\n"
+       "    else stop_seen_r <= (stop_seen_r | stop_i) & ~(en_i && !en_q);\n"
+       "  //! STREAM_INTERRUPTED is PER-EVENT (no interval flag)"),
+      (GAP_RTL, "(w_lost_w >= 8'(INTR_MIN_LOST_C)) && !(stop_i || stop_seen_r);")),
+     (("    bool     stop = false;\n", "    bool     stop = false;\n    bool     stop_seen = false;\n"),
+      ("        settle = 0; have_seq = false; mr_seeded = false;\n",
+       "        settle = 0; have_seq = false; mr_seeded = false; stop_seen = false;\n"),
+      (GAP_REPLICA,
+       "if (static_cast<uint8_t>(seq - exp_seq) >= 2 && !(stop_seen = stop_seen || stop)) cnt_i++;")),
+     "[762-SG-c1] after START a gap counts STREAM_INTERRUPTED again"),
+)
+
+
+def plant(text: str, edits: tuple[tuple[str, str], ...]) -> str | None:
+    """`text` with every edit applied, or None when an anchor is not unique."""
+    for anchor, replacement in edits:
+        if text.count(anchor) != 1:
+            return None
+        text = text.replace(anchor, replacement)
+    return text
 
 
 def run_case(work: Path, name: str, source: str, failure: str | None,
-             *, servo: bool = False, unit: bool = False) -> bool:
-    """A compiler error or abnormal termination never counts as a kill."""
+             *, servo: bool = False, harness: str | None = None) -> bool:
+    """A compiler error or abnormal termination never counts as a kill.
+
+    `harness` is the counter harness's source: given, the case runs that
+    harness (the unit build) instead of the discontinuity one."""
     rtl = work / f"{name}.sv"
     rtl.write_text(source)
     mdir = work / f"obj_{name}"
+    unit = harness is not None
+    if unit:
+        cpp = work / f"{name}_sim_main.cpp"
+        cpp.write_text(harness)
     if servo:
         build = ["make", "-s", "-C", str(HERE / "../mmcm_servo"), "unit-build",
                  f"SERVO_RTL={rtl}", f"UNIT_MDIR={mdir}"]
         executable = "Vservo_sim"
     elif unit:
         build = ["make", "-s", "-C", str(HERE), "unit-build",
-                 f"RX_RTL={rtl}", f"UNIT_MDIR={mdir}"]
+                 f"RX_RTL={rtl}", f"UNIT_MDIR={mdir}", f"UNIT_CPP={cpp}"]
         executable = "Vcrf_rx_sim"
     else:
         build = ["make", "-s", "-C", str(HERE), "discontinuity-build",
@@ -125,14 +169,23 @@ def main() -> int:
                 results.append(False)
                 continue
             results.append(run_case(work, name, source.replace(anchor, replacement), failure))
-        results.append(run_case(work, "unit_clean", source, None, unit=True))
+        harness = (HERE / "sim_main.cpp").read_text()
+        results.append(run_case(work, "unit_clean", source, None, harness=harness))
         for name, anchor, replacement, failure in UNIT_MUTANTS:
             if source.count(anchor) != 1:
                 print(f"FAIL {name}: expected exactly one mutation anchor")
                 results.append(False)
                 continue
             results.append(run_case(work, name, source.replace(anchor, replacement), failure,
-                                    unit=True))
+                                    harness=harness))
+        for name, rtl_edits, replica_edits, failure in BOTH_MUTANTS:
+            mutated = plant(source, rtl_edits)
+            mutated_harness = plant(harness, replica_edits)
+            if mutated is None or mutated_harness is None:
+                print(f"FAIL {name}: expected exactly one mutation anchor per edit")
+                results.append(False)
+                continue
+            results.append(run_case(work, name, mutated, failure, harness=mutated_harness))
         servo_source = SERVO.read_text()
         anchor = "\n                           && ref_rate_valid_i;"
         if servo_source.count(anchor) != 1:

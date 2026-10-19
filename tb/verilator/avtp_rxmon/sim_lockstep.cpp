@@ -51,6 +51,14 @@
 //        release), and it sees the stream's last accept on pdu_accept_p_o, so
 //        the expiry is the 100th grid tick after it. After that edge the
 //        silence counts exactly once; on or before it, never.
+//        A sequence gap follows the same ruling (#762, extended): a started
+//        input's gap counts once, a stopped input's gap counts nothing (its
+//        SEQ_NUM_MISMATCH still counts), and after START a gap counts again.
+//        The gap's one boundary is its accept verdict: a STOP, or a START,
+//        lands at every cycle from 4 before to 20 after the gap PDU's pulse,
+//        on an idle engine and on one that makes the PDU wait; the gap counts
+//        exactly when the input is started on its verdict edge, the edge the
+//        harness sees pdu_accept_p_o rise for that stream.
 //
 // Scaled clock: CLK_FREQ_HZ_P=10000 makes 1 ms 10 cycles and the 100 ms
 // silence unlock 1000 cycles; the Table 5.6 interval is IVAL_CYC_P=500.
@@ -86,6 +94,7 @@ constexpr int kWCnt0 = 16;
 constexpr int kColMl = 0;
 constexpr int kColMu = 1;
 constexpr int kColSi = 2;
+constexpr int kColSm = 3;
 constexpr int kColFrx = 9;
 constexpr int kCols = 12;
 constexpr int kLctxTimeout = 256;
@@ -130,6 +139,8 @@ class Lockstep {
     int64_t last_accept_[kN] = {};
     //! the longest expiry-to-unlock latency the idle boundary sweeps saw
     int64_t idle_latency_ = 0;
+    //! the longest pulse-to-verdict wait the idle gap sweeps saw
+    int64_t idle_wait_ = 0;
     //! [LS]/[GC] mismatch tallies, reported once each per phase
     uint64_t ls_bad_ = 0;
     uint64_t gc_bad_ = 0;
@@ -162,6 +173,8 @@ class Lockstep {
     void h4_reset_during_update();
     void si_causes();
     void si_stop_rule();
+    void si_gap_rule();
+    void si_gap_boundary(bool by_start, bool busy);
     //! one boundary trial's outcome (boundary_trial)
     struct BoundaryTrial {
         uint32_t mu = 0;
@@ -635,6 +648,143 @@ void Lockstep::si_stop_rule() {
     report_lockstep("SI stop");
 }
 
+//! #762, extended ruling: a stopped input has no playback, so its sequence
+//! gap interrupts nothing either; a started input's gap counts once and after
+//! START a gap counts again. Each case is graded by count.
+void Lockstep::si_gap_rule() {
+    std::printf("[SI] #762 a sequence gap on started and stopped inputs\n");
+    const int s = kN - 1;
+    auto gap = [this, s]() {
+        seq_[s] = static_cast<uint8_t>(seq_[s] + 3);
+        pdu(s, seq_[s]);
+        cycles(20);
+    };
+    lock_and_settle(s);
+    const uint32_t mu0 = gc_read(s, kColMu);
+    const uint32_t si0 = gc_read(s, kColSi);
+    gap();
+    c_.dec("[SI] a started input's sequence gap counts STREAM_INTERRUPTED once", gc_read(s, kColSi) - si0, 1);
+    //! close the interval the started gap landed in, so the stopped gaps'
+    //! SEQ_NUM_MISMATCH is their own
+    cycles(kIval + 20);
+    const uint32_t sm1 = gc_read(s, kColSm);
+    const uint32_t si1 = gc_read(s, kColSi);
+    stop(s, true);
+    cycles(5);
+    gap();
+    c_.dec("[SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si1, 0);
+    gap();
+    c_.dec("[SI] ...nor does a second stopped gap", gc_read(s, kColSi) - si1, 0);
+    c_.dec("[SI] ...and the stopped gaps unlock nothing", gc_read(s, kColMu) - mu0, 0);
+    cycles(kIval + 20);
+    c_.that("[SI] the stopped gaps were seen: SEQ_NUM_MISMATCH moved (the case is live)",
+            gc_read(s, kColSm) - sm1 >= 1);
+    stop(s, false);
+    cycles(5);
+    const uint32_t si2 = gc_read(s, kColSi);
+    gap();
+    c_.dec("[SI] after START a sequence gap counts STREAM_INTERRUPTED again", gc_read(s, kColSi) - si2, 1);
+    if (kN > 1) {
+        stop(0, true);
+        cycles(5);
+        gap();
+        c_.dec("[SI] another input's STOP leaves this input's gap counted", gc_read(s, kColSi) - si2, 2);
+        stop(0, false);
+    }
+    bind(s, false);
+    cycles(40);
+    report_lockstep("SI gap");
+}
+
+//! The gap's one boundary, its accept verdict. Each trial sends one gap PDU
+//! on edge P, a STOP (or a START) lands on edge P + d, and the verdict edge A
+//! is where pdu_accept_p_o rises for that stream after P. The gap counts
+//! once when the input is started on edge A, never otherwise. Busy, two
+//! earlier events (a second stream's PDUs, or depacketizer pulses at N = 1)
+//! occupy the walker, so the PDU waits for its verdict. Each trial starts at
+//! the same phase of the observation interval the harness drives.
+void Lockstep::si_gap_boundary(bool by_start, bool busy) {
+    const char* what = by_start ? "a START" : "a STOP";
+    std::printf("[SI] gap boundary: %s across the verdict, %s engine\n", what, busy ? "busy" : "idle");
+    const std::string tag = std::string("[SI] gap boundary (") + what + (busy ? ", busy)" : ", idle)");
+    const int s = kN - 1;
+    const int b = 0;
+    if (busy && kN > 1) lock_and_settle(b);
+    lock_and_settle(s);
+    uint64_t wrong = 0;
+    uint64_t unseen = 0;
+    //! where the event landed: before the pulse, between the pulse and the
+    //! verdict, on the verdict edge, after it
+    uint64_t where[4] = {};
+    int64_t max_wait = 0;
+    for (int d = -4; d <= 20; d++) {
+        stop(s, by_start);
+        //! every trial at one phase of the Table 5.6 interval, far from its
+        //! commit walk, so the verdict's wait is the same in every trial
+        cycles(10);
+        while ((static_cast<int64_t>(cycle_) - reset_edge_) % kIval != kIval / 2) step();
+        const uint32_t si0 = gc_read(s, kColSi);
+        const int64_t p = static_cast<int64_t>(cycle_) + 8;
+        const int64_t ev = p + d;
+        int64_t a = -1;
+        while (static_cast<int64_t>(cycle_) < p + 40) {
+            const int64_t next = static_cast<int64_t>(cycle_) + 1;
+            if (busy && (next == p - 2 || next == p - 1)) {
+                if (kN > 1) {
+                    pdu(b, ++seq_[b]);
+                } else {
+                    dut_->depkt_pdu_p_i = 1;
+                    dut_->depkt_pdu_idx_i = 0;
+                }
+            }
+            if (next == p) {
+                seq_[s] = static_cast<uint8_t>(seq_[s] + 3);
+                pdu(s, seq_[s]);
+            }
+            if (next == ev) stop(s, !by_start);
+            step();
+            if (a < 0 && static_cast<int64_t>(cycle_) >= p && dut_->dut_pdu_accept_p_o &&
+                dut_->dut_pdu_accept_idx_o == s)
+                a = static_cast<int64_t>(cycle_);
+        }
+        const uint32_t si = gc_read(s, kColSi) - si0;
+        if (a < 0) {
+            unseen++;
+            continue;
+        }
+        const bool started_at_verdict = by_start ? ev <= a : ev > a;
+        const uint32_t want = started_at_verdict ? 1 : 0;
+        if (si != want)
+            std::printf("  offset %d from the pulse (verdict at +%lld): STREAM_INTERRUPTED +%u, expected +%u\n",
+                        d, static_cast<long long>(a - p), si, want);
+        wrong += si != want;
+        where[ev < p ? 0 : ev < a ? 1 : ev == a ? 2 : 3]++;
+        max_wait = std::max(max_wait, a - p);
+    }
+    stop(s, false);
+    std::printf("  landed before the pulse %llu, before the verdict %llu, on it %llu, after it %llu; "
+                "longest pulse-to-verdict %lld cycles\n",
+                static_cast<unsigned long long>(where[0]), static_cast<unsigned long long>(where[1]),
+                static_cast<unsigned long long>(where[2]), static_cast<unsigned long long>(where[3]),
+                static_cast<long long>(max_wait));
+    c_.dec((tag + ": every gap PDU reached its verdict").c_str(), unseen, 0);
+    c_.dec((tag + ": the gap counts once when started at its verdict, never when stopped").c_str(), wrong, 0);
+    c_.that((tag + ": landed before the pulse, before the verdict, on it and after it (the sweep is live)").c_str(),
+            where[0] > 0 && where[1] > 0 && where[2] > 0 && where[3] > 0);
+    if (!busy)
+        idle_wait_ = std::max(idle_wait_, max_wait);
+    else
+        c_.that((tag + ": the load held the verdict longer than an idle engine does").c_str(),
+                max_wait > idle_wait_);
+    bind(s, false);
+    cycles(40);
+    if (busy && kN > 1) {
+        bind(b, false);
+        cycles(40);
+    }
+    report_lockstep(by_start ? "SI gap START boundary" : "SI gap STOP boundary");
+}
+
 //! One #762 boundary trial: a fresh lock, then an unbind or a STOP sampled
 //! on edge E + d, where E is the silence's expiry edge (silence_expiry_edge).
 //! Busy, a PDU of a second stream (N > 1) or a depacketizer pulse (N = 1)
@@ -879,10 +1029,15 @@ void Lockstep::run() {
     h4_reset_during_update();
     si_causes();
     si_stop_rule();
+    si_gap_rule();
     si_boundary(false, false);
     si_boundary(true, false);
     si_boundary(false, true);
     si_boundary(true, true);
+    si_gap_boundary(false, false);
+    si_gap_boundary(true, false);
+    si_gap_boundary(false, true);
+    si_gap_boundary(true, true);
     soak(0x6406u + kN, 300000);
     soak(0x9e3779b97f4a7c15ULL, 300000);
     c_.that("[GC] the reads covered every sink and column many times", gc_reads_ > 600000);
