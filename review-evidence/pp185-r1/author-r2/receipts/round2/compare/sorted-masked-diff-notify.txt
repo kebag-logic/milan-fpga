@@ -1,0 +1,20 @@
+1c1
+< C6 notification mutations: 125 of 125 KILLED by their named checks; goldens PASS
+---
+> C6 notification mutations: 135 of 135 KILLED by their named checks; goldens PASS
+87a88
+> {"mutant": "lock_claim_beside_expiry", "verdict": "KILLED", "missing": []}
+89a91,95
+> {"mutant": "lock_expiry_at_holder_read", "verdict": "KILLED", "missing": []}
+> {"mutant": "lock_expiry_in_presented_job", "verdict": "KILLED", "missing": []}
+> {"mutant": "lock_expiry_pending_dropped", "verdict": "KILLED", "missing": []}
+> {"mutant": "lock_expiry_relatch_keeps_exclusion", "verdict": "KILLED", "missing": []}
+> {"mutant": "lock_expiry_round_not_relatched", "verdict": "KILLED", "missing": []}
+95a102
+> {"mutant": "lock_op_ignores_due_expiry", "verdict": "KILLED", "missing": []}
+96a104
+> {"mutant": "lock_release_round_not_relatched", "verdict": "KILLED", "missing": []}
+98a107
+> {"mutant": "lock_take_relatch_keeps_exclusion", "verdict": "KILLED", "missing": []}
+99a109
+> {"mutant": "lock_take_round_not_relatched", "verdict": "KILLED", "missing": []}

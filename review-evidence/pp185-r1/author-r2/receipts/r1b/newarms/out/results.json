@@ -1,0 +1,302 @@
+[
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-aecp-dispatch-only",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-arm-queue-only",
+  "suite": "./obj_dir/Vpp_top_sim --arm-queue-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "lock_flags_unlock_bit_only",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_notification_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_timeout_keeps_flags",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_timeout_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_flags_from_exclusion",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN3 ...its notification carries flags 0: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact",
+   "LN3 ...its notification carries flags 0: flags 0x00000000, locked_id 0x7777000000000043, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_job_arguments_dropped",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_job_r14_unpacked",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: flags 0x00010000, locked_id 0x7777000000000043, byte-exact",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: flags 0x00000001, locked_id 0x0000000000000000, byte-exact",
+   "LN4 ...its notification echoes the UNLOCK's flags: flags 0x80020001, locked_id 0x0000000000000000, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_notification_not_sent",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: the registered bench is notified",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: the registered bench is notified",
+   "LN3 ...its notification carries flags 0: the registered bench is notified",
+   "LN4 ...its notification echoes the UNLOCK's flags: the registered bench is notified"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 ...its notification echoes the LOCK's flags: the registered bench is notified",
+   "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: the registered bench is notified",
+   "LN3 ...its notification carries flags 0: the registered bench is notified",
+   "LN4 ...its notification echoes the UNLOCK's flags: the registered bench is notified"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_coalesced_timeout_keeps_flags",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_coalesced_timeout_flags_zero",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_response_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN1 a second controller's LOCK: SUCCESS echoing flags 0x00010000",
+   "LN4 its UNLOCK: SUCCESS echoing flags 0x80020001"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LN1 a second controller's LOCK: SUCCESS echoing flags 0x00010000, byte-exact (status 0)",
+   "LN4 its UNLOCK: SUCCESS echoing flags 0x80020001, byte-exact (status 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_take_keeps_old_flags",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF1:",
+   "LF3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF1: X's LOCK with flags 0x00010000 notifies C with those flags (job args 0001/0000)",
+   "LF3a: X's LOCK with flags 0 notifies C with flags 0 (job args 0000/0000)",
+   "LF3: X's LOCK with flags 0x00020000 after a timeout whose round is pending: the coalesced notification carries the LOCK's flags (job args 0002/0000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_release_keeps_old_flags",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF1b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF1b: X's UNLOCK with flags 0x80020001 notifies C with those flags (job args 8002/0001)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "register_refused",
+  "suite": "./obj_dir/Vpp_top_sim --aecp-dispatch-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "LN0: the bench registers for unsolicited notifications again"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LK0: the bench registers for unsolicited notifications, got 8",
+   "LN0: the bench registers for unsolicited notifications again, got 8"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_auto_unlock_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --arm-queue-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK, locked_id 0, seq 3"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_unlock_notifies_flags_zero",
+  "suite": "./obj_dir/Vpp_top_sim --arm-queue-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "L5b: C2's second notification carries sequence_id 1"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "L5b: C2's second notification carries sequence_id 1 (Milan 5.4.5.1) and the UNLOCK's flags 1",
+   "L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK, locked_id 0, seq 3"
+  ],
+  "verdict": "KILLED"
+ }
+]

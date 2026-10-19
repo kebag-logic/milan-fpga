@@ -1,0 +1,13 @@
+tb/aecp_notify/sim_main.cpp:389: // The flags a LOCK_ENTITY notification carries (issue #186; REQ-AEM-003,
+tb/pp_top/sim_main.cpp:12138:   //! Issue #185 (REQ-AEM-006, REQ-AEM-014): after the accepted SET_CONTROL(255)
+tb/pp_top/sim_main.cpp:12554:     //! ...and IDENTIFY goes into the power cycle at 255
+tb/pp_top/sim_main.cpp:12604:   //! In the same power cycle: CONTROL 0 at 111 bytes, ending inside
+tb/pp_top/sim_main.cpp:12644:   // ---- the LOCK_ENTITY notification's flags (issue #186) -----------------
+tb/ucpu/sim_main.cpp:851: // ---- READ_DESCRIPTOR's CONTROL overlay (issue #185; REQ-AEM-006, REQ-AEM-014)
+tb/ucpu/sim_main.cpp:860: // value's low byte first, which KL_aecp_resp_buf lays big-endian on the wire
+tb/ucpu/sim_main.cpp:861: // (wire order is checked at the processor boundary).
+tb/pp_top/notify_mutants.py:33: flags of the LOCK_ENTITY notification (issue #186; REQ-AEM-003, REQ-NOT-001: tb/pp_top's
+tb/pp_top/notify_mutants.py:34: command-driven and automatic-unlock wire checks and its reserved-bit echo checks, and
+tb/pp_top/notify_mutants.py:625: # The LOCK_ENTITY notification echoes the flags of the command that caused it,
+tb/pp_top/notify_mutants.py:626: # and the auto-unlock's carries UNLOCK (issue #186; REQ-AEM-003, REQ-NOT-001): the
+tb/pp_top/notify_mutants.py:693:     # ...and in tb/aecp_notify's pending-round coalescence checks, the latches
