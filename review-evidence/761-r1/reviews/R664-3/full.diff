@@ -1,0 +1,2273 @@
+diff --git a/docs/design/GM_LOSS_RECOVERY.md b/docs/design/GM_LOSS_RECOVERY.md
+index 5254544e2..465d788a2 100644
+--- a/docs/design/GM_LOSS_RECOVERY.md
++++ b/docs/design/GM_LOSS_RECOVERY.md
+@@ -176,7 +176,7 @@ The project interprets that duration as a minimum.
+ | Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); the receiver excludes talker-step rate samples (#546). The servo now excludes every local slew-overlapped window (#545 closed). By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
+ | Packet NCO | Not named by the decision | No PHC or step input |
+ | CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. The receiver invalidates rate history on tu transitions or timestamp jumps (#546). After 256 clean intervals, sampling resumes; lock and integrator hold meanwhile. Local policy-slew overlap also discards and counts each affected window, including its partial tail (#545 closed). Integrator, trim and LOCKED hold; clean windows resume directly |
+-| Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Unchanged for a PHC-only step ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | `mcr_restart_p_w` takes only selected-CRF disruption or received-`mr` propagation. Source changes remain detected inside `KL_media_clock_restart`. The gmstep leg checks the exclusion and both legitimate causes; option-off legs check INTERNAL adjtime and settime |
++| Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Unchanged for a PHC-only step ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | `mcr_restart_p_w` takes only selected-CRF lock edges (its disruption and, since #761, its return) or received-`mr` propagation. Source changes remain detected inside `KL_media_clock_restart`. The gmstep leg checks the exclusion and both legitimate causes; option-off legs check INTERNAL adjtime and settime |
+ | Talker MEDIA_RESET (Milan Table 5.4) | No step-only increment ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) | `KL_talker_diag_ctx` still counts intervals containing transmitted `mr` toggles. The gmstep leg checks no increment before or after the isolated step. Option-off legs check software settime adds none |
+ | A step while an `mr` restart is pending | The PHC-only step adds no request ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)); the genuine restart continues | The engine still merges genuine requests until the first reported PDU carrying the adopted level. Its per-stream eight-PDU hold is unchanged. `tkdiag` T17 and T18 grade merging and the pending boundary |
+ | Licensed streams | Keep streaming (REQ-PTP-08) | Yes: `tu` gates no emission |
+diff --git a/docs/design/MEDIA_CLOCK_FOLLOWING.md b/docs/design/MEDIA_CLOCK_FOLLOWING.md
+index 752b9d36c..2d98a840f 100644
+--- a/docs/design/MEDIA_CLOCK_FOLLOWING.md
++++ b/docs/design/MEDIA_CLOCK_FOLLOWING.md
+@@ -1394,15 +1394,19 @@ The same rules apply to either kind of followed source.
+    rate is valid 512 ms later for CRF and 4.096 s later for AAF under E8. The
+    servo re-enters ACQUIRE with its two-window
+    skip, and reads LOCKED after four windows within 2 ppm
+-   (`KL_mmcm_drp_servo.sv:232-233`). The return itself raises no second toggle.
+-   Each disruption toggles once.
++   (`KL_mmcm_drp_servo.sv:232-233`). Each disruption toggles once. The
++   return of a followed AAF stream raises no second toggle. The return of a
++   followed CRF stream raises one at the sink's re-lock (#761), because the
++   media clock's source changes from holdover back to the CRF (4.4.4.3).
+ 
+ ### `mr`
+ 
+ - **A source change** toggles every output's `mr` once, through the existing
+   edge on the stored index (`KL_media_clock_restart.sv:236`). That includes the
+   CRF output, which is a CRF talker for 10.4.3.
+-- **A followed CRF stream** keeps today's two triggers.
++- **A followed CRF stream** keeps its disruption and received-toggle triggers,
++  and since #761 the sink's re-lock requests one restart too: the media clock
++  moves from holdover back onto the CRF, a change of its source (4.4.4.3).
+ - **A followed AAF stream** gains the same two, from the meter: `disrupt_p`,
+   when its own 100 ms timeout drops its lock, and `mr_toggle_p`, a toggle of
+   its received `mr`. A source that is not followed is ignored (4.4.4.3 and
+@@ -1642,7 +1646,7 @@ pass.
+ | `tb/verilator/milan_dp`, true-ratio leg | INTERNAL, an AAF source and the CRF source selected in turn, with an AAF talker and a CRF talker both present at different planted offsets (for example +20 and -15 ppm) | The media clock follows the selected talker's offset within 0.5 ppm with zero junction slips; at INTERNAL the aligner stays engaged and `SLIP_TDM` stays static (D4 = A2-a) | The decode kept as the CRF-only compare: AAF selection leaves the grid free-running. Separately, the reference mux stuck on `KL_crf_rx`: AAF selected, the clock lands on the CRF talker's offset. Separately, the aligner left disengaged at INTERNAL (no A2-a): `SLIP_TDM` moves at INTERNAL |
+ | Same | W2 at the root: following AAF input 0 with the servo LOCKED, a switch to a CRF stream already locked | `MCSRV_STAT` shows HOLDOVER, then ACQUIRE with the lock count cleared and the integrator kept, then LOCKED | The one-cycle unlocked presentation removed: the servo stays LOCKED across the switch |
+ | Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1, with the two AAF talkers at opposite `mr` levels: (i) both talkers streaming, each switch repeated at 16 phases across one CRF output period; (ii) AAF input 0 to input 1 with input 1's talker silent at the switch and starting 5 ms after it; (iii) an INTERNAL dwell with AAF talker 0 toggling its `mr` | At a `public_flat_rd` tap on the restart request: no pulse at any switch, one per disruption. On the wire: exactly one toggle per output per switch, held 8 PDUs, at every phase of (i) and in (ii); none in (iii). Each output's MEDIA_RESET moves once per switch; one #386 recentre; aligner engaged throughout; `SLIP_TDM` static | No re-seed on a change of the followed listener: a request pulse at every switch onto the other talker, and in (ii) a second toggle on every output. Separately, the meter's raw lock-fall edge wired as the disruption, as the CRF term is: a request pulse at every switch. Separately, the meter's enable tied high: requests and toggles in (iii) |
+-| Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption, none on return; the index unchanged; LOCKED again after the return | `disrupt_p` not ORed into the request: no toggle at the AAF loss |
++| Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption; none on the AAF return, one on the CRF return (#761); the index unchanged; LOCKED again after the return | `disrupt_p` not ORed into the request: no toggle at the AAF loss. Separately, either edge of the selected CRF's lock dropped from the request: no toggle at that edge |
+ | Same | The followed AAF stream toggles its own `mr`; an unfollowed one does | Echoed once when followed, ignored otherwise | Echo ungated |
+ | Same | CLOCK_DOMAIN counters across a holdover, a return, a switch, and 60 s with one PDU lost in every 0.3 s | C1, as ruled: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again; neither moves during the PDU-loss leg. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | C0's level (`~tu` only): no UNLOCKED at the loss. Separately, C2's level (the reference lock): LOCKED counted 8 PDUs after the return, before the servo reads LOCKED. Separately, the meter's held lock cleared on a sequence gap: the servo enters HOLDOVER at the leg's first lost PDU, so UNLOCKED moves there, and each later loss, 0.3 s on, returns it to HOLDOVER before its two-window skip ends, so LOCKED moves only after the leg: 2.6 s after it ends in the round-5 desk model. The loss leg grades this mutant alone: under C0's level, C2's level or restart on any loss neither counter moves in it |
+ | Same | The two meter words read over the CSR bus | Each field equals the meter's: lock, rate validity, followed listener, restart count, largest deviation, rate | The read-window term missing: both words read zero |
+diff --git a/docs/integration/BAREMETAL_FIRMWARE.md b/docs/integration/BAREMETAL_FIRMWARE.md
+index a36a31a9f..e2b52ea02 100644
+--- a/docs/integration/BAREMETAL_FIRMWARE.md
++++ b/docs/integration/BAREMETAL_FIRMWARE.md
+@@ -1609,7 +1609,7 @@ The rest are refusals, and each one costs a legitimate edit:
+ | `cfg_ptp_cmd_load` has exactly five references; `eff_ptp_adjust_w` has three | Their extra reader is now `media_rebase_p_w` (#387). Its initializer is exactly `eff_ptp_adjust_w \| cfg_ptp_cmd_load`. Every other PHC-net census count stays unchanged |
+ | `media_rebase_p_w` has exactly two references | Its initializer and sole reader, `render_recentre_p_w`, under the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355). Another reader or driver is refused |
+ | `render_recentre_p_w` is exactly `media_rebase_p_w \| src_recentre_p_r` | The render stage receives the step and settled source change. GM identity alone contributes no second re-centre |
+-| `mcr_restart_p_w` is exactly `crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) \| crf_mr_toggle_p_w)` | The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes the PHC-step term. Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
++| `mcr_restart_p_w` is exactly `(crf_clk_selected_r & ((tkd_crflk_q_r ^ crf_locked_w) \| crf_mr_toggle_p_w)) \| aafm_disrupt_p_w \| aafm_mr_toggle_p_w` | The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes the PHC-step term. Either edge of the selected CRF's lock requests a restart (#761). Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
+ | External RX, the pre-filter tap, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
+ | CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
+ | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
+diff --git a/docs/reference/MILAN_COMPLIANCE_MATRIX.md b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+index 2b154fa16..851e5ee0a 100644
+--- a/docs/reference/MILAN_COMPLIANCE_MATRIX.md
++++ b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+@@ -128,7 +128,7 @@ input, are silently refused.
+ | 5.4.2.21 / .22 | REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | implemented | PP aecp_notify |
+ | 5.4.2.23 | GET_AVB_INFO | implemented | propagation delay served from the measured word since 0x0055 (audit B8 closed) |
+ | 5.4.2.24 | GET_AS_PATH | implemented | staged publish/cutover contract; option-off aliasing recorded in audit B6 |
+-| 5.4.2.25 | GET_COUNTERS: AAF and CRF Stream Input, Stream Output (Table 5.17), AVB Interface, Clock Domain | implemented | served + pushed for all five; the declared CRF Stream Input serves its Table 5.16 ten at the Table 7-157 offsets (mask `0xF3F`) since #529: RTL milan_dp `[CTRS-CRF]` (reset, per-quadlet signatures through the gather mux, each counter moved by its own `KL_crf_rx` event to a distinct count, 32-bit wrap, the bind-edge wipe, descriptor isolation) and `[NOTIFY-CRF]` on the timed leg |
++| 5.4.2.25 | GET_COUNTERS: AAF and CRF Stream Input, Stream Output (Table 5.17), AVB Interface, Clock Domain | implemented | served + pushed for all five; the declared CRF Stream Input serves its Table 5.16 ten at the Table 7-157 offsets (mask `0xF3F`) since #529: RTL milan_dp `[CTRS-CRF]` (reset, per-quadlet signatures through the gather mux, each counter moved by its own `KL_crf_rx` event to a distinct count, 32-bit wrap, the bind-edge wipe, descriptor isolation) and `[NOTIFY-CRF]` on the timed leg. Since #762 STREAM_INTERRUPTED also counts the 100 ms silence that unlocks a bound, started input, on the AAF and CRF inputs alike; a stopped input's silence (5.3.8.7, the [#762 scope ruling](https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6260976223)) and an unbind count nothing (5.3.8.10 Table 5.6), and an unbind or STOP after the silence's expiry leaves it counted. A sequence gap on a stopped input counts nothing either ([extended ruling](https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6265746720)); a started input's gap counts once, and after START a gap counts again, the input's state read at the gap PDU's accept verdict: `avtp_rxmon` `[SI]` (graded by count at every cycle across the expiry and across the gap's verdict), `crf_rx` `[762]`/`[762-ST]`/`[762-SG]`/`[UNB-d]`, each rule with a planted mutant |
+ | 5.4.2.26 | GET_AUDIO_MAP (both directions) | implemented | PP pp_top |
+ | 5.4.2.27 / .28 | ADD/REMOVE_AUDIO_MAPPINGS | implemented | atomic validation, live datapath projection, lock checks, unsolicited updates (2026-08-17) |
+ | 5.4.2.29 | GET_DYNAMIC_INFO (IEEE Section 7.4.76) | implemented | completed 2026-08-17; never answers `IN_PROGRESS`, satisfying Section 7.4.76's support rule |
+@@ -214,7 +214,7 @@ no record writer yet.
+ |---|---|---|
+ | 4.4.3.2–.4 | subtype, h, version — a non-zero-version PDU is discarded whole | implemented — RTL avtp_parser (version gate closed 2026-08-08) |
+ | 4.4.4.2 / .8 | sv, stream_id match | implemented — RTL avtp_parser at five shapes |
+-| 4.4.4.3 | `mr` toggles on source change or the followed source's disruption/received toggle; held >= 8 AVTPDUs | implemented: `KL_media_clock_restart`; tkdiag holds/merging and milan_dp controls. Since #629 a followed AAF input's 100 ms timeout and received `mr` toggle request a restart as the CRF ones do (the literal shall names CRF; the design applies it to AAF under the PICS AAF-5 reading); a switch requests exactly one, graded at the meter's ports (tb/verilator/aaf_clock_meter) and at the root's request tap. PHC-only re-base is excluded by the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355); `tu` and render re-base remain independent |
++| 4.4.4.3 | `mr` toggles on source change or the followed source's disruption/received toggle; held >= 8 AVTPDUs | implemented: `KL_media_clock_restart`; tkdiag holds/merging and milan_dp controls. Since #761 the selected CRF's return (its sink's re-lock) requests a restart as its loss does, graded in `tb/verilator/milan_dp_mclk` with a mutant per edge. Since #629 a followed AAF input's 100 ms timeout and received `mr` toggle request a restart as the CRF ones do (the literal shall names CRF; the design applies it to AAF under the PICS AAF-5 reading); a switch requests exactly one, graded at the meter's ports (tb/verilator/aaf_clock_meter) and at the root's request tap. PHC-only re-base is excluded by the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355); `tu` and render re-base remain independent |
+ | 4.4.4.5 / .9 | tv + avtp_timestamp (mod-2³² gPTP ns) | implemented -- RTL avtp_stream, aaf; SILICON latency = presentation offset was measured on the I2S shape BEFORE #386: every in-tree I2S shape now renders its DAC through the render setpoint stage (8 media ticks more, constant), so that figure predates the shipped gateware and a re-measurement rides #117's bench; the accept-to-render constant is digital-proven in `tb/verilator/milan_dp` (the true-ratio leg, #386); the TDM render lane is clocked on the shipping AX7101 1x1 TDM8 shape (#447), and [TDM8 first light](../findings/451_TDM8_FIRST_LIGHT.md) (#451) decoded its eight slots in order; its silicon figure rides #117 |
+ | 4.4.4.6 | sequence_num increment/wrap | implemented — RTL aaf; the SEQ_NUM_MISMATCH counter proves the observer |
+ | 4.4.4.7 | tu on gPTP discontinuity | implemented — `KL_ptp_clock_validity` + the plane's clock-validity lease; RTL clkvalid; the retired BDD leg left the tree with #259 |
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 61d7ca245..af9b4d585 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -870,6 +870,30 @@ descriptor (#529). FRAMES_RX counts every accepted AVTPDU, including routine
+ healthy traffic, under IEEE 1722.1-2021 Table 7.157 and the #726 ruling.
+ It resets on not-bound to bound and retains its value on unbind.
+ The six anomaly counters keep their observation intervals.
++STREAM_INTERRUPTED counts an accepted PDU that shows two or more lost PDUs,
++and since #762 the 100 ms silence that unlocks a bound input (Milan v1.2
++5.3.8.10 Table 5.6). The AAF inputs' `KL_avtp_rx_monitor_ctx` and the CRF
++input's `KL_crf_rx` apply one rule, the
++[#762 scope ruling](https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6260976223)
++and its [extension to sequence gaps](https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6265746720):
++
++- a silence on a started input counts once;
++- a silence on a stopped input counts nothing, because a stopped input has no
++  playback to interrupt (5.3.8.7, and 5.4.2.20 makes STOP_STREAMING the change
++  to stopped); the lock still falls and MEDIA_UNLOCKED counts it;
++- STOP with live traffic counts nothing;
++- after START (5.4.2.19), a later silence counts again;
++- a sequence gap of two or more lost PDUs on a started input counts once;
++- a sequence gap on a stopped input counts nothing, for the same reason; it
++  still counts SEQ_NUM_MISMATCH and unlocks nothing;
++- after START, a sequence gap counts again;
++- a Controller Unbind never counts, as Table 5.6 excludes it.
++
++The silence's expiry is the one event boundary: an Unbind or a STOP that
++arrives after it leaves the silence counted, and one that arrives on or before
++it leaves none. A gap's boundary is its PDU's accept verdict: the gap counts
++when the input is started on that edge, and a STOP or a START after it changes
++nothing for that gap.
+ 
+ | Quadlet (block offset) | Counter | `KL_crf_rx` output |
+ |---|---|---|
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index d3f91f2f0..2f7d6cac2 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -611,7 +611,7 @@ verdicts and for check counts.
+ | [`tb/verilator/adp_tx`](../../tb/verilator/adp_tx) | `adp_tx_arbiter` — the generic 2-in-1-out AXIS arbiter, which SURVIVED the control-plane deletion because the data lane uses it too |
+ | [`tb/verilator/aes3`](../../tb/verilator/aes3) | the AES3/S-PDIF ser/des family |
+ | [`tb/verilator/avtp_parser`](../../tb/verilator/avtp_parser) | the listener ACCEPT VERDICT at every shipping shape; carries the entry-0 blocker guard (T6) |
+-| [`tb/verilator/avtp_rxmon`](../../tb/verilator/avtp_rxmon) | the flat `KL_avtp_rx_monitor` and the N=4 `KL_avtp_rx_monitor_ctx` stack, then the #640 M6 lockstep leg: the context engine beside its pre-change reference (`reference/`, the module of dev `e8454e27` with only its name changed) at N=1 and N=8. Every output and one GET_COUNTERS read are compared in every cycle, and four read-modify-write hazards carry their own oracles: same-stream back-to-back updates, an update colliding with a read, wrap, and a reset during an update. `lockstep_mutants.py` requires a lost increment, a torn read, a wrong stream index and a missed reset each to fail its named check |
++| [`tb/verilator/avtp_rxmon`](../../tb/verilator/avtp_rxmon) | the flat `KL_avtp_rx_monitor` and the N=4 `KL_avtp_rx_monitor_ctx` stack, then the #640 M6 lockstep leg: the context engine beside its pre-change reference (`reference/`, the module of dev `e8454e27` with its name changed and #762's silence interruption and stop rule applied in the engine's own lines) at N=1 and N=8. Every output and one GET_COUNTERS read are compared in every cycle, and four read-modify-write hazards carry their own oracles: same-stream back-to-back updates, an update colliding with a read, wrap, and a reset during an update. Its `[SI]` cases grade #762's STREAM_INTERRUPTED rules by count, never against the reference: a silence that unlocks a bound, started stream counts once, a sequence gap counts once, an unbind counts nothing, a stopped stream's silence counts nothing, STOP with live traffic counts nothing and a silence after START counts again; a stopped stream's sequence gap counts nothing (its SEQ_NUM_MISMATCH still counts), a started stream's gap counts once, after START a gap counts again, and at N=8 another stream's STOP leaves the gap counted. Its boundary sweep lands an unbind, and a STOP, on every cycle from 12 before to 24 after the silence's expiry edge, which the harness derives from its own reset, the 1 ms grid and the observed last accept, on an idle engine and on one held or yielding to PDU traffic: after the expiry the silence counts once, on or before it never. A second sweep lands a STOP, and a START, on every cycle from 4 before to 20 after a gap PDU's pulse, idle and with the walker occupied: the gap counts once exactly when the stream is started on the edge its accept verdict rises. `lockstep_mutants.py` requires a lost increment, a torn read, a wrong stream index, a missed reset, an uncounted silence, an uncounted gap, a counted unbind, an unbind that erases an expired silence, a counted stopped silence, a STOP read at the walk, a counted stopped gap, a STOP that disarms the gap until the next bind and a gap's stopped state read one cycle late each to fail its named check; each #762 defect is planted in the engine and the reference alike |
+ | [`tb/verilator/avtp_stream`](../../tb/verilator/avtp_stream) | — |
+ | [`tb/verilator/capture_coherence`](../../tb/verilator/capture_coherence) | **#617, every Talker AAF column carries one TDM frame.** The junction leg binds the real TDM8 master, media NCO, grid aligner, `KL_chan_map_capture` and packetizer at the shipping 1x1 TDM8 shape and a 50 MHz axis clock, shifts the #451 pattern into the TDM data pin off the master's own bclk and fsync, and decodes every AAF column: one whole beat of the true 391/1591 plan and several of +/-1000 ppm plans at INTERNAL, then CRF: locks at sixteen phases on the true plan and at four on +/-50 ppm plans, and the aligner's engagement PLACED against the walk's crossing (calibrated per plan) every cycle across +/-32 of it and every 16 round the frame on the true plan, every 4 across the +/-50 ppm acquisition band, every quarter cycle at 64 sub-step phases across the crossing at -50 ppm (where the aligner's trim updates land on the NCO's terminal count), and the approach to the settled lock at +/-80 and +/-100 ppm (the converged lock is recorded in longer runs). The wrapper binds `milan_datapath`'s own keep-off declaration, copied out of the datapath source at build time, and the build refuses a datapath whose aligner instance binds anything else. It grades the columns, each walk's frame against the frame its tick takes (no added sample of latency), continuity, beat crossings and the CRF law (slips only while an engagement acquires, net zero, none in the lock; the engagement window derived from the relative rate), the junction counters against each walk's own repeat or skip, and prints the #451 torn-state table and each pair's sample age. The `dp` leg runs the same bench through the whole `milan_datapath` on the shipping shape, reading the frames at the MAC, with its own placed band. `mutants.py` then builds in parallel, one build per CPU, and requires twenty defects each to fail a named check: the per-pair hold law of `ce550952`, an unsnapshotted walk, a first-pair close, a late publish, an unwritten stage, a walk ignoring the coincidence law, the round-1 snapshot instant, the round-1 counter law, the round-1 aligner binding (in the wrapper and in `milan_datapath`), the default keep-off, an undelayed aligner tick, `milan_datapath`'s keep-off halved to 128 cycles (the +/-50 ppm bands), a literal keep-off bound to `milan_datapath`'s aligner (refused by the build), the NCO's `==` terminal compare (in `media_nco` check 10 and under the sub-cycle sweep), a one-pair frame length in `milan_datapath`, a close that ignores the frame length (`chmap_capture` [F1]), and a queued tick that snapshots never or at the tick (`chmap_capture` [Q]). The dp recipe must also build under an inherited `MAKEFLAGS=w`, and a planted syntax error must print its compiler error: a failed build prints the tail of its own make and compiler output |
+ | [`tb/verilator/cbs`](../../tb/verilator/cbs) | CBS arithmetic vs a fixed-point replica and an ideal 802.1Qav model |
+@@ -622,7 +622,7 @@ verdicts and for check counts.
+ | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
+ | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
+ | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
+-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. Locked-sink validation errors retain lock but cannot extend the 100 ms timeout. The default gate includes `validation_error_unlocks`, `validation_error_refreshes_timeout`, tu, jump, refill, sample-edge and servo-validity mutants |
++| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. Locked-sink validation errors retain lock but cannot extend the 100 ms timeout. The default gate includes `validation_error_unlocks`, `validation_error_refreshes_timeout`, tu, jump, refill, sample-edge and servo-validity mutants, and #762's STREAM_INTERRUPTED mutants run on the counter harness: an uncounted silence, an uncounted gap, a counted unbind, an unbind on the timeout edge and a counted stopped silence (`[762-ST]`, the stopped-input ruling). `[762-SG]` grades the ruling's extension to sequence gaps by count: a stopped sink's gap counts nothing (one SEQ_NUM_MISMATCH interval still counts), a started sink's gap counts once, after START a gap counts again, and a STOP or START on the gap's own edge decides it while one an edge later does not; its two mutants, a counted stopped gap and a STOP that disarms the gap until the next bind, are planted in the engine and in the harness's replica alike |
+ | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
+ | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** - that leg drove the old control-plane windows live. The `obj_pps` leg re-runs the same harness with `PPS_P=1` (#260): the 0x548 block decodes in every build, but `PTP_PPS_CTRL[0]`, its RO built bit `[16]` and `PTP_PPS_WIDTH` are gated, so the default leg grades the **UNSUPPORTED** arm (a structural zero at `o_pps_enable` whatever software writes) and this one grades the supported arm, from one set of expectations rather than two that drift |
+ | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
+@@ -642,7 +642,7 @@ verdicts and for check counts.
+ | [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. Since #74 `KL_media_grid_align` steers it under a followed source, and since #629 (A2-a) at INTERNAL too; it free-runs only while the aligner is disengaged. Check 10 (#617) moves the trim on every cycle around the terminal count, every end move on both shapes: one tick per period, no counter wrap |
+ | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule, and every leg parses the `gptp-processor` sources |
+ | [`tb/verilator/milan_dp_gm_steps`](../../tb/verilator/milan_dp_gm_steps) | **#387, #602 and #621, the GM step leg and its five acceptance controls**, split out of `milan_dp` for wall clock: `make -C tb/verilator/milan_dp_gm_steps`. `milan_dp`'s `gmstep` recipe runs the clean leg with every phase once. `gmstep_mutants.py --no-small-steps` then plants the five controls, each on the leg without its #621 phase, which holds none of their named checks. Its README tabulates the native per-leg times that moved it |
+-| [`tb/verilator/milan_dp_mclk`](../../tb/verilator/milan_dp_mclk) | **#629 at the root**: the `milan_datapath` rows of the [media-clock following design](../design/MEDIA_CLOCK_FOLLOWING.md#simulation)'s test plan on a two-stream TDM8 elaboration at the true audio clock ratio, the servo closed through a modelled MMCM fine phase shift. Leg A follows AAF input 0 within 0.5 ppm, with the CSR words, the echo, a loss leg, a lock loss and the followed talker's `tu` edges; leg C takes W2 onto the CRF input and follows it; leg B the CRF lock loss, the switch rows (one onto a talker silent past the meter's timeout) and INTERNAL with the aligner engaged (A2-a). `mclk_mutants.py` runs the three legs (A, B, C) beside sixteen named mutants planted once as mutant schemata, among them the meter's `tu` taken from the `tv` net |
++| [`tb/verilator/milan_dp_mclk`](../../tb/verilator/milan_dp_mclk) | **#629 at the root**: the `milan_datapath` rows of the [media-clock following design](../design/MEDIA_CLOCK_FOLLOWING.md#simulation)'s test plan on a two-stream TDM8 elaboration at the true audio clock ratio, the servo closed through a modelled MMCM fine phase shift. Leg A follows AAF input 0 within 0.5 ppm, with the CSR words, the echo, a loss leg, a lock loss and the followed talker's `tu` edges; leg C takes W2 onto the CRF input and follows it; leg B the CRF lock loss, the switch rows (one onto a talker silent past the meter's timeout) and INTERNAL with the aligner engaged (A2-a). `mclk_mutants.py` runs the three legs (A, B, C) beside eighteen named mutants planted once as mutant schemata, among them the meter's `tu` taken from the `tv` net and either edge of the selected CRF's lock dropped from the restart request (#761) |
+ | [`tb/verilator/milan_dp_render` `tdm8render`](../../tb/verilator/milan_dp_render) | **#447, the shipping TDM8 render lane end to end**: `make -C tb/verilator/milan_dp_render tdm8render`. Binds listener 0 over ACMP, programs a no-fixed-point permutation through the real dynamic `ADD_AUDIO_MAPPINGS` path, grades `GET_AUDIO_MAP` and the render RAM readback against its OWN issued route record, feeds channel-distinct AAF through the real acceptance/depacketizer/setpoint/crossbar chain, and decodes `tdm_bclk_o`/`tdm_fsync_o`/`tdm_dout_o` with a pin-only receiver that reads no DUT internal. It grades every 24-bit word and every 8-bit pad against an IMMUTABLE injection record, measures the commit-to-pin terms from registered events, and exercises the render epoch over a reset with the serial clock stopped, a reset inside the frame, a reset ON the frame wrap, a reset while a round trip is outstanding, a bind loss, a map write inside the closed epoch and a rebind. It grades the GRACEFUL FLUSH BOUNDARY from the pins as its own property: the last frame before digital silence must be a complete frame carrying one media event's identity in every routed slot, which is the whole-frame half of the flush contract that the silence checks cannot see. Every one of those states an EXACT epoch count - one counted reopening per event, two for two bind falls inside one round trip - counts the adapter's commits between a reset release and the reopening with the feed still running, and derives the first eligible media event from the preserved prefill rule instead of searching for it. Its `[CRF]` phase then selects this shape's CRF `CLOCK_SOURCE` through a real `SET_CLOCK_SOURCE` on the same AECP face, UNDER the running stream, feeds a real CRF stream into the provisioned sink and decodes the same pins again: the settled-grid recentre fires exactly once, the setpoint law holds under CRF, and the commit-to-pin walk is stopped under CRF. Since #629's A2-a INTERNAL is aligned too: its window may not walk at the divider plan's `+10.64` ppm, and back at INTERNAL after the deselect the walk stays stopped. That window opens while the aligner is still pulling the grid in after T14's serial-clock hold, so since #643 the setpoint law at INTERNAL is the `[LAW]` phase's: it waits for the aligner's settled report (engaged, error inside 1/64 sample for 2048 ticks, within the 32768-tick ceiling counted from the start of that wait), then starts a fresh stream at each of eighteen feed phases against an observed media tick, sixteen over one tick plus +927 and +1156. Each phase must hold the settled report throughout, read a fill of exactly 14 events (the setpoint plus that PDU) at every PDU end and pop every first event inside (8, 9] ticks of it, plus the pop pulse's one-cycle register. Each phase must also be gradable, with no PDU end within the 9-cycle ambiguity window of a pop, and that margin is a check. Both laws are graded at the render stage's own reference, the PDU end, under the ambiguity window the [media-clock following test plan](../design/MEDIA_CLOCK_FOLLOWING.md#simulation) measures and states. Its `[PULLIN]` phase (#647) runs a fresh stream at a `[LAW]` feed phase through T14's serial-clock hold and grades it again after the [settle recentre](../design/MEDIA_CLOCK_FOLLOWING.md#settle-recentre): one settle recentre, the stage's one recentre since the hold, `SLIP_LB` static from it on, and the law. The default leg omits this long phase. The explicit `tdm8render-pullin` target preserves its standing phase after the full serial/CRF/LAW history (`--with-pullin`) and runs all eighteen boot phases, `PULLIN_JOBS` legs at a time, from inside the suite directory |
+ | [`tb/verilator/milan_dp_render` `tdm8render-multi`](../../tb/verilator/milan_dp_render) | **#447 on a TWO-STREAM shape**: `make -C tb/verilator/milan_dp_render tdm8render-multi`. `gen_tdm8r_multi_shape.py` writes a second end-station config and the real builder derives its shape header and entity image, because two properties are unobservable on the one-stream shipping image. It binds both listeners and grades the STREAM-QUALIFIED epoch mask in both directions - a bind fall on a stream the lane does not render leaves the commit gate open for every cycle of the window, and the same fall on a stream the lane DOES render closes it, flushes to digital silence and reopens on a fresh post-flush event - and grades the three cluster-key classes (projected, in-range NONPHYSICAL, out of range) on BOTH the render RAM and the AECP protocol store |
+ | `tdm8_render_mutants.py` | the mutation arm of both legs above, run through the EXPLICIT `tdm8render-mutants` target, `make -C tb/verilator/milan_dp_render tdm8render-mutants`: a per-mutant rebuild costs tens of minutes, so section 0's explicit-campaign rule applies and nothing in the inventory is trimmed for it. The suite's own default target runs the same runner with `--leg-defects`, which is the part of this inventory that needs no elaboration (the three leg-side defect arms and the two clean modes they are the negative of), so the sweep still holds an executable negative arm for these assertions. Its inventory is its own `MUTATIONS`, `CLEAN_CONTROLS` and `LEG_DEFECTS` tables, and every run prints the totals it actually ran: at this head twenty-two gateware or generated-shape mutants, three leg-side defect arms, three clean controls and one positive control per elaboration and mode, 34 checks in all. This retains #657's original 32 checks plus #672's two pull-in additions. The clean `--epoch-only` leg and its arrival-skew controls take the declared boot pull-in dwell before T30. `T6 UNDERRUN` forces serializer repeats with a two-PDU-period double-rate physical audio/serial clock burst, then requires each repeated pin frame to increment the underrun counter. It also requires actual repeats and intact sample identities. The burst follows CRF/LAW checks and runs while bound. The frozen-underrun-counter mutant must fail that named check. Among them: an explicitly modelled bit-arrival skew that discriminates the gray counter crossing from a raw binary one; one cycle of modelled ARRIVAL SKEW on each of the render epoch's two crossed levels, which the shipping handshake must survive and a producer that rebuilds its reset condition from two reconverged levels must not; a request raised onto a still-visible acknowledgement; an epoch gate that reaches the frame CDC but not the adapter; a moved prefill target; a graceful flush that tears the frame in flight instead of zeroing the active frame at frame starts only; the unqualified bind-fall mask; a lane stream set that ignores the mapping's stream field; a protocol-store mirror gated on the physical projection; #643's planted defect, #629's A2-a removed, which runs the `--law-only` leg and must fail the `[LAW]` phase's settled check at every one of its eighteen feed phases; the render setpoint one event low and one event high, which must fail both law checks there; and #647's settle recentre that never pulses, which runs the `--pullin` leg and must fail its law check after the settle. Its `--law-boundary` round, the explicit `tdm8render-law-boundary` target, is #643's boundary-band diagnostic: the `[LAW]` phases one cycle apart over +/-40 cycles of the feed phase where a PDU end meets a pop, on the unmutated gateware and the two setpoint defects, each in three histories (the leg's own ascending scan, descending, and each phase within 12 cycles alone), 81 checks. Every phase must come out graded or not gradable, a graded one must pass on the sound design and fail both law checks on a defect, and each scan must hold both kinds. Under each run's verdict it prints every window's nearest-pop range and walk, then the largest walk over all of them beside the walk the leg states, so its output re-measures the window. Both targets support outer `make -C`; nested builds explicitly suppress directory banners so source and flag queries contain only their intended data |
+diff --git a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+index b2913b646..98ac1e4e2 100644
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -15,7 +15,8 @@
+                 (LCTX). Per-PDU verdict contract = KL_avtp_rx_monitor
+                 (the module-avb-extracted engine): lock on first valid PDU /
+                 8-PDU settle / mismatch detect + interrupt(lost>=2) /
+-                100 ms silence unlock / per-PDU format compare (a rejected
++                100 ms silence unlock + interrupt (#762) / per-PDU format
++                compare (a rejected
+                 PDU affects nothing else) / counter reset ONLY on that
+                 stream's not-bound->bound edge [M-5.3.8.10].
+ 
+@@ -24,6 +25,15 @@
+                 * MEDIA_LOCKED / MEDIA_UNLOCKED / STREAM_INTERRUPTED are
+                   EVENT counters ("incremented each time ...") - they RMW
+                   the RAM at the event, as before.
++                * STREAM_INTERRUPTED has two causes (Milan v1.2 5.3.8.10
++                  Table 5.6, #762): an accepted PDU whose sequence_num
++                  shows >= 2 lost PDUs, and a 100 ms silence that unlocks
++                  a bound stream, each only while the input is started
++                  (5.3.8.7: a stopped input has no playback to interrupt).
++                  The first PDU after a silence re-seeds the sequence, so
++                  the silence is counted at its own unlock, once. An
++                  unbind unlocks through the same walk and counts nothing;
++                  one after the silence's expiry leaves it counted.
+                 * FRAMES_RX counts every accepted AVTPDU, with 32-bit wrap.
+                   The interval commit publishes the accumulated packet total.
+                   IEEE 1722.1-2021 Table 7.157 and #726 ruling 6125741685
+@@ -81,8 +91,9 @@
+                 Table 5.6 interval counters count INTERVALS here where the
+                 flat instrument counts FRAMES (the flat module keeps the
+                 1722.1 per-frame reading on purpose - TBs use it as a
+-                frame-accurate loop-integrity probe). Wire bytes and accept
+-                verdicts are unchanged.
++                frame-accurate loop-integrity probe); the flat module does
++                not count a silence as STREAM_INTERRUPTED (#762). Wire bytes
++                and accept verdicts are unchanged.
+ 
+   Company     : Kebag Logic
+   Project     : Milan AVTP
+@@ -137,6 +148,9 @@ module KL_avtp_rx_monitor_ctx #(
+                                                 //! the 0x002B law's second
+                                                 //! unlock cause - it rides
+                                                 //! the silence-unlock walk)
++  //! per-stream bound-and-stopped level (Milan v1.2 5.3.8.7): a stopped
++  //! input has no playback, so neither its silence nor its sequence gap is an interruption (#762)
++  input  wire [N_LISTENERS_P-1:0] stopped_i,
+ 
+   //! --- stream-0 legacy config (no-regression aliases) -------------------
+   input  wire [63:0]  sid0_i,            //! sink-0 bound sid (LCTX w0/w1)
+@@ -308,6 +322,9 @@ module KL_avtp_rx_monitor_ctx #(
+ 
+   logic [N_LISTENERS_P-1:0] bind_pend_r;
+   logic [N_LISTENERS_P-1:0] sil_pend_r;
++  //! #762: the pending unlock is the silence watchdog's, not an unbind's,
++  //! so its walk also counts STREAM_INTERRUPTED (Milan v1.2 5.3.8.10 Table 5.6)
++  logic [N_LISTENERS_P-1:0] sil_si_r;
+   logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
+   logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
+ 
+@@ -806,6 +823,7 @@ module KL_avtp_rx_monitor_ctx #(
+       ddrop_add_r <= '0;
+       bind_pend_r  <= '0;
+       sil_pend_r   <= '0;
++      sil_si_r     <= '0;
+       iv_pend_r    <= '0;
+       frx_add_r    <= '0;
+       for (int s = 0; s < N_LISTENERS_P; s++) frx_acc_r[s] <= '0;
+@@ -885,6 +903,12 @@ module KL_avtp_rx_monitor_ctx #(
+           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
+             sil_pend_r[s] <= 1'b1;
+             sil_ms_r[s]   <= '0;
++            //! #762: a silence of a bound, started stream interrupts its
++            //! playback. This expiry is the event's one boundary: an Unbind
++            //! or a STOP after it leaves the mark for the walk to count, and
++            //! one on or before it leaves no mark
++            if (bound_i[s] && !bind_fall_i[s] && !stopped_i[s])
++              sil_si_r[s] <= 1'b1;
+           end
+           else sil_ms_r[s] <= sil_ms_r[s] + 7'd1;
+         end
+@@ -993,9 +1017,12 @@ module KL_avtp_rx_monitor_ctx #(
+             //! counters walk here.
+             if (cur_w.tv) tv_cnt_r[ev_s_r]  <= tv_cnt_r[ev_s_r]  + 32'd1;
+             else          tnv_cnt_r[ev_s_r] <= tnv_cnt_r[ev_s_r] + 32'd1;
++            //! #762: a gap interrupts only a started input's playback; the
++            //! stopped state is read at this verdict, the gap's one boundary
+             inc_list_r <=
+                 (lock_now_w  ? (12'b1 << C_ML_C) : 12'b0)
+-              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C))
++              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)
++                  && !stopped_i[ev_s_r])
+                              ? (12'b1 << C_SI_C) : 12'b0);
+             wrph_r <= '0;
+             mst_r  <= M_PWR_S;
+@@ -1042,9 +1069,17 @@ module KL_avtp_rx_monitor_ctx #(
+                 locked_sh_r[ev_s_r]  <= 1'b0;
+                 sil_ms_r[ev_s_r]     <= '0;
+                 sil_pend_r[ev_s_r]   <= 1'b0;
++                sil_si_r[ev_s_r]     <= 1'b0;
+                 sil_mode_r <= 1'b0;
+                 wrph_r     <= '0;
+-                mst_r      <= M_IDLE_S;
++                //! #762: a silence unlock then counts STREAM_INTERRUPTED
++                //! through the ordinary RMW below, which yields to PDU
++                //! pressure like every other counter walk
++                if (sil_si_r[ev_s_r]) begin
++                  inc_list_r <= 12'b1 << C_SI_C;
++                  mst_r      <= M_INC_S;
++                end
++                else mst_r <= M_IDLE_S;
+               end
+             endcase
+           end
+@@ -1109,6 +1144,7 @@ module KL_avtp_rx_monitor_ctx #(
+             //! MEDIA_UNLOCKED over a zeroed MEDIA_LOCKED and strand the
+             //! stream at UNLOCKED=LOCKED+1, which is neither legal state
+             sil_pend_r[ev_s_r]   <= 1'b0;
++            sil_si_r[ev_s_r]     <= 1'b0;
+             //! a parked walk remainder for THIS stream dies with the era
+             //! too (its counters are zeroed by the bind-zero walk below)
+             if (iv_res_s_r == ev_s_r) iv_res_list_r <= '0;
+diff --git a/hdl/ieee1722/avtp/KL_media_clock_restart.sv b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+index c0b5efc24..3c2e57556 100644
+--- a/hdl/ieee1722/avtp/KL_media_clock_restart.sv
++++ b/hdl/ieee1722/avtp/KL_media_clock_restart.sv
+@@ -167,8 +167,8 @@ module KL_media_clock_restart #(
+ 
+   //! media-clock restart request: one cycle per restart event. The
+   //! integration ORs every trigger but the source change here: a disruption
+-  //! of the CRF stream our media clock is slaved to, that stream's own mr
+-  //! toggle. PHC-only steps are excluded by #602; the source-change
++  //! of the CRF stream our media clock is slaved to, its return (#761), that
++  //! stream's own mr toggle. PHC-only steps are excluded by #602; the source-change
+   //! trigger has its own clk_src_i below.
+   input  wire                    restart_p_i,
+   //! the live media clock SOURCE (SET_CLOCK_SOURCE / clock_source_index). A
+diff --git a/hdl/ieee1722/crf/KL_crf_rx.sv b/hdl/ieee1722/crf/KL_crf_rx.sv
+index 53037b3de..ffdd7c6ae 100644
+--- a/hdl/ieee1722/crf/KL_crf_rx.sv
++++ b/hdl/ieee1722/crf/KL_crf_rx.sv
+@@ -83,9 +83,15 @@
+                   recovery and the clause's own example is the trigger: an
+                   accepted PDU whose sequence_num shows >= 2 lost PDUs
+                   (INTR_MIN_LOST_C, the KL_avtp_rx_monitor law verbatim).
+-                  A Controller Unbind drops en_i, so no PDU is accepted and
+-                  the counter cannot move - the clause's exclusion holds
+-                  structurally.
++                  The 100 ms silence timeout of a started, bound, locked
++                  sink is the other trigger (#762): the first PDU after it
++                  re-seeds the sequence, so the silence is counted at its
++                  own unlock, once. A Controller Unbind drops en_i, so no
++                  PDU is accepted and its unlock counts nothing - the
++                  clause's exclusion holds structurally. A STOPPED sink's
++                  timeout unlocks without counting it, and its sequence
++                  gaps count SEQ_NUM_MISMATCH but not it: a stopped input
++                  has no playback to interrupt (5.3.8.7, #762).
+                 * MEDIA_RESET "the 'mr' bit was toggled in any of the
+                   received Stream Data AVTPDUs" - the RECEIVED bit of the
+                   CRF PDU (mr_i, frame byte O+1 bit 3; IEEE 1722-2016
+@@ -390,8 +396,9 @@ module KL_crf_rx #(
+   wire w_ev_lt_w = w_acc && w_late_w;
+   wire w_ev_et_w = w_acc && w_early_w;
+   //! STREAM_INTERRUPTED is PER-EVENT (no interval flag): an accepted PDU
+-  //! whose sequence_num shows >= INTR_MIN_LOST_C lost AVTPDUs
+-  wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C));
++  //! whose sequence_num shows >= INTR_MIN_LOST_C lost AVTPDUs, while the
++  //! sink is started (#762: a stopped input has no playback to interrupt)
++  wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;
+   //! not-bound -> bound: the mr level belongs to the PREVIOUS era
+   wire w_bind_rise_w = en_i && !en_q;
+   //! bound -> not bound: a Controller Unbind of this Stream Input (#653)
+@@ -545,6 +552,11 @@ module KL_crf_rx #(
+           locked_o       <= 1'b0;
+           cnt_unlocked_o <= cnt_unlocked_o + 32'd1;
+           dirty_p_o      <= 1'b1;
++          //! #762: a silence of a started, bound sink interrupts its
++          //! playback (Milan v1.2 Table 5.6). An unbind in this same cycle
++          //! has already dropped en_i. Started, no PDU was accepted this
++          //! cycle, so w_ev_si_w cannot write the counter beside this
++          if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;
+         end
+         settle_r <= '0;
+         //! the silence reset SPLITS on the stopped state. Stopped, the
+@@ -625,7 +637,8 @@ module KL_crf_rx #(
+       //! up to 100 ms (#653). Nothing is reset here (5.3.8.10's asymmetry).
+       //! The timeout then finds locked_o low and scores nothing, and one in
+       //! this same cycle writes the same +1, so the event counts once.
+-      //! STREAM_INTERRUPTED cannot move: en_i low accepts no PDU. The pulse
++      //! STREAM_INTERRUPTED cannot move: en_i low accepts no PDU, and the
++      //! timeout counts it only while en_i is high (#762). The pulse
+       //! arms the Table 5.22 push of the changed pair.
+       if (w_bind_fall_w && locked_o) begin
+         locked_o       <= 1'b0;
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index dde2c4dd2..c5b1eda06 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3188,6 +3188,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //  crf_locked_w falling IS the disruption: KL_crf_rx drops lock after
+   //  100 ms of CRF silence or at an unbind (#653), and needs 8 clean PDUs
+   //  to re-lock, so the edge is the debounced verdict, not a per-PDU twitch.
++  //  crf_locked_w RISING is the return (#761): the media clock moves from
++  //  holdover back onto the CRF, a change of its source that needs its own
++  //  restart (4.4.4.3), so either lock edge requests one.
+   //
+   //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
+   //  an internal media clock there is no CRF stream to be disrupted, so
+@@ -3195,7 +3198,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //  re-base is not a restart request (#602, below).
+   // --------------------------------------------------------------------------
+   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
+-  //! the selected media clock source. The clause's OTHER mandatory trigger, a
++  //! the selected media clock source, and the return pulse when it rises
++  //! again (#761). The clause's OTHER mandatory trigger, a
+   //! change of the media clock SOURCE (PICS Table F.7 AAF-5, AAF:M), is
+   //! detected INSIDE KL_media_clock_restart from clk_src_i, so all of 4.4.4.3
+   //! lives in the one module.
+@@ -3242,7 +3246,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! net, no port or register)
+   wire mcr_restart_p_w /* verilator public_flat_rd */ =
+        (crf_clk_selected_r
+-        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
++        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p_w))
+        | aafm_disrupt_p_w | aafm_mr_toggle_p_w;
+ 
+   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
+@@ -6300,6 +6304,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .bound_i        (strtbl_en_w),
+     .bind_rise_i    (strtbl_bind_rise_w),
+     .bind_fall_i    (strtbl_bind_fall_w),
++    //! #762: a stopped input's silence or sequence gap interrupts no playback (5.3.8.7)
++    .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
+     .sid0_i         (acmpl_sid),
+     .fmt0_i         (aecp_in0_fmt),
+     .ptp_now_i      (ptp_now_w[31:0]),
+diff --git a/scripts/ci_case_receipts_selftest.py b/scripts/ci_case_receipts_selftest.py
+index 2babf3b40..f850d5673 100644
+--- a/scripts/ci_case_receipts_selftest.py
++++ b/scripts/ci_case_receipts_selftest.py
+@@ -169,7 +169,9 @@ def main() -> int:
+         changed = copy.deepcopy(base)
+         changed[0]["results"][0][key] = value
+         refuse(lambda: verify(changed), f"changed result {key}")
+-    for bad in ("-1/4", "4/4", "0/0", "0/32"):
++    # One shard more than the driver's real inventory, which the accepted
++    # len(names)-way split above sits one below; never a fixed count.
++    for bad in ("-1/4", "4/4", "0/0", f"0/{len(names) + 1}"):
+         refuse(lambda: receipts.partition(names, bad), f"shard {bad}")
+     with tempfile.TemporaryDirectory(prefix="case-receipts-") as directory:
+         work = Path(directory)
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index 8cbea518a..ec394c3d1 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -11374,13 +11374,14 @@ def test_baremetal_profile_contract() -> None:
+             "media re-base pulse must read only adjtime and settime")
+         #: #629: a followed AAF stream adds the AAF clock meter's two pulses,
+         #: its own timeout and the followed stream's received toggle; the
+-        #: meter's enable is their selection gate
++        #: meter's enable is their selection gate. #761: the selected CRF's
++        #: lock requests on either edge, its loss and its return
+         direct_initializer(
+             datapath, r"wire[ \t]+mcr_restart_p_w",
+             "mcr_restart_p_w",
+-            "(crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) "
++            "(crf_clk_selected_r & ((tkd_crflk_q_r ^ crf_locked_w) "
+             "| crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w",
+-            "media restart pulse must read only selected CRF disruption "
++            "media restart pulse must read only selected CRF lock edges "
+             "and received mr propagation")
+         restart_reason = (
+             "media restart engine must consume mcr_restart_p_w directly")
+@@ -15946,7 +15947,7 @@ def test_baremetal_profile_contract() -> None:
+          MutantFiles(datapath=media_rebase_adp_term)),
+         ("ADP term spliced into the media restart pulse", firmware_source,
+          docs_source, csr_source,
+-         "media restart pulse must read only selected CRF disruption "
++         "media restart pulse must read only selected CRF lock edges "
+          "and received mr propagation",
+          MutantFiles(datapath=mcr_restart_adp_term)),
+         ("media restart engine port gated by ADP", firmware_source,
+@@ -17524,7 +17525,7 @@ def test_baremetal_profile_contract() -> None:
+           "adjtime/settime read, feeding only render_recentre_p_w. "
+           "Render combines it with the settled source change and the "
+           "#645 settle recentre, never GM "
+-          "identity; restart takes only selected CRF disruption and "
++          "identity; restart takes only selected CRF lock edges and "
+           "received mr propagation, feeding its engine port directly; "
+           "external MAC RX "
+           "traverses the pre-filter tap, both RXFILT_P arms and the "
+diff --git a/tb/verilator/avtp_rxmon/Makefile b/tb/verilator/avtp_rxmon/Makefile
+index 702a35a76..230bef9c8 100644
+--- a/tb/verilator/avtp_rxmon/Makefile
++++ b/tb/verilator/avtp_rxmon/Makefile
+@@ -40,16 +40,19 @@ NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
+        avtp_rxmon_nx_wrap.sv
+ # #640 M6 lockstep leg: the shipping context engine beside the pre-change
+ # reference (reference/KL_avtp_rx_monitor_ctx_ref.sv, dev e8454e27's module
+-# with only its name changed), at the shipping N=1 and the 8x8 shape's N=8.
+-# RXMON_SRC and LS_MDIR are overridable so lockstep_mutants.py builds a
+-# MUTATED copy of the engine through this exact recipe.
++# with its name changed and #762's silence interruption and stop rule applied
++# in the engine's own lines), at the shipping N=1 and the 8x8 shape's N=8.
++# RXMON_SRC, REF_SRC and LS_MDIR are overridable so lockstep_mutants.py builds
++# a MUTATED copy of the engine, and for #762 of the reference too, through
++# this exact recipe.
+ RXMON_SRC ?= $(A)/KL_avtp_rx_monitor_ctx.sv
++REF_SRC   ?= reference/KL_avtp_rx_monitor_ctx_ref.sv
+ LS_MDIR   ?= obj_ls
+ LSFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_lockstep_wrap \
+          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE \
+          -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
+-LSSRCS = reference/KL_avtp_rx_monitor_ctx_ref.sv $(RXMON_SRC) \
++LSSRCS = $(REF_SRC) $(RXMON_SRC) \
+          avtp_rxmon_lockstep_wrap.sv
+ .PHONY: all run clean coverage lockstep-build lockstep
+ all: run
+diff --git a/tb/verilator/avtp_rxmon/avtp_rxmon_lockstep_wrap.sv b/tb/verilator/avtp_rxmon/avtp_rxmon_lockstep_wrap.sv
+index ac0aaa0c4..69043477d 100644
+--- a/tb/verilator/avtp_rxmon/avtp_rxmon_lockstep_wrap.sv
++++ b/tb/verilator/avtp_rxmon/avtp_rxmon_lockstep_wrap.sv
+@@ -6,8 +6,9 @@
+ //! Lockstep wrapper (#640 M6): the shipping KL_avtp_rx_monitor_ctx beside
+ //! the pre-change reference, KL_avtp_rx_monitor_ctx_ref
+ //! (reference/KL_avtp_rx_monitor_ctx_ref.sv: the module of dev e8454e27,
+-//! byte-identical except its module name). Both take the SAME inputs every
+-//! cycle; every output of both is a port, so sim_lockstep.cpp compares them
++//! identical except its module name and #762's silence interruption and
++//! stop rule, applied in the engine's own lines). Both take the SAME inputs
++//! every cycle; every output of both is a port, so sim_lockstep.cpp compares them
+ //! cycle by cycle. The GET_COUNTERS read is the one interface that changed
+ //! shape: the reference presents a sink's twelve counters at once
+ //! (ref_diag_cnt_o), the shipping module one counter named by column
+@@ -35,6 +36,7 @@ module avtp_rxmon_lockstep_wrap #(
+   input  wire [N_LISTENERS_P-1:0] bound_i,
+   input  wire [N_LISTENERS_P-1:0] bind_rise_i,
+   input  wire [N_LISTENERS_P-1:0] bind_fall_i,
++  input  wire [N_LISTENERS_P-1:0] stopped_i,
+   input  wire [63:0]  sid0_i,
+   input  wire [63:0]  fmt0_i,
+   input  wire [31:0]  ptp_now_i,
+@@ -89,8 +91,9 @@ module avtp_rxmon_lockstep_wrap #(
+   ) u_ref (
+     .clk_i, .rst_n, .match_valid_i, .match_index_i, .subtype_i, .seq_num_i,
+     .ts_uncertain_i, .ts_valid_i, .media_restart_i, .avtp_ts_i, .fsh_i,
+-    .bound_i, .bind_rise_i, .bind_fall_i, .sid0_i, .fmt0_i, .ptp_now_i,
+-    .pres_ofs_i, .clk_src_i (16'd0), .servo_conv_i (1'b0), .render_sel_i,
++    .bound_i, .bind_rise_i, .bind_fall_i, .stopped_i, .sid0_i, .fmt0_i,
++    .ptp_now_i, .pres_ofs_i, .clk_src_i (16'd0), .servo_conv_i (1'b0),
++    .render_sel_i,
+     .depkt_pdu_p_i, .depkt_pdu_idx_i, .depkt_drop_p_i, .depkt_drop_idx_i,
+     .lctx_wr_en_i, .lctx_wr_addr_i, .lctx_wr_data_i,
+     .lctx_wr_rdy_o (ref_lctx_wr_rdy_o),
+@@ -123,8 +126,9 @@ module avtp_rxmon_lockstep_wrap #(
+   ) u_dut (
+     .clk_i, .rst_n, .match_valid_i, .match_index_i, .subtype_i, .seq_num_i,
+     .ts_uncertain_i, .ts_valid_i, .media_restart_i, .avtp_ts_i, .fsh_i,
+-    .bound_i, .bind_rise_i, .bind_fall_i, .sid0_i, .fmt0_i, .ptp_now_i,
+-    .pres_ofs_i, .clk_src_i (16'd0), .servo_conv_i (1'b0), .render_sel_i,
++    .bound_i, .bind_rise_i, .bind_fall_i, .stopped_i, .sid0_i, .fmt0_i,
++    .ptp_now_i, .pres_ofs_i, .clk_src_i (16'd0), .servo_conv_i (1'b0),
++    .render_sel_i,
+     .depkt_pdu_p_i, .depkt_pdu_idx_i, .depkt_drop_p_i, .depkt_drop_idx_i,
+     .lctx_wr_en_i, .lctx_wr_addr_i, .lctx_wr_data_i,
+     .lctx_wr_rdy_o (dut_lctx_wr_rdy_o),
+diff --git a/tb/verilator/avtp_rxmon/avtp_rxmon_nx_wrap.sv b/tb/verilator/avtp_rxmon/avtp_rxmon_nx_wrap.sv
+index 07b323504..239173cfb 100644
+--- a/tb/verilator/avtp_rxmon/avtp_rxmon_nx_wrap.sv
++++ b/tb/verilator/avtp_rxmon/avtp_rxmon_nx_wrap.sv
+@@ -137,6 +137,7 @@ module avtp_rxmon_nx_wrap #(
+     .media_restart_i (mr_w),
+     .avtp_ts_i (ts_w), .fsh_i (fsh_w),
+     .bound_i (tbl_en_w), .bind_rise_i (bind_rise_w),
++    .stopped_i ('0),                   //! every stack input started
+     .sid0_i (sid0_i), .fmt0_i (fmt0_i),
+     .ptp_now_i (ptp_now_i), .pres_ofs_i (pres_ofs_i),
+     .clk_src_i (clk_src_i), .servo_conv_i (servo_conv_i),
+diff --git a/tb/verilator/avtp_rxmon/lockstep_mutants.py b/tb/verilator/avtp_rxmon/lockstep_mutants.py
+index 49065ba69..fae128a1a 100644
+--- a/tb/verilator/avtp_rxmon/lockstep_mutants.py
++++ b/tb/verilator/avtp_rxmon/lockstep_mutants.py
+@@ -9,10 +9,19 @@ counter contexts with their own oracles: same-stream back-to-back updates
+ ([H1]), an update colliding with a read ([H2]), every sink answering its own
+ GET_COUNTERS row ([GC]) and a reset during an update ([H4]). Each defect below
+ is the one its case exists for: a lost increment, a torn read, a wrong stream
+-index and a missed reset. The real engine is mutated one defect at a time, the
+-SAME harness is rebuilt through the Makefile's own recipe (`make
+-lockstep-build` with RXMON_SRC and LS_MDIR overridden) at both shapes (N=1 and
+-N=8), and both binaries run. Each mutant must make the harness FAIL by its
++index and a missed reset. The rest are #762's STREAM_INTERRUPTED rules
++([SI]): a silence that unlocks without counting, a sequence gap that does not
++count, an unbind that counts, an unbind that erases a silence already expired
++(the walk's consume race), a stopped input's silence that counts, a STOP
++sampled at the walk instead of at the expiry, a stopped input's sequence gap
++that counts, a STOP that disarms the gap until the next bind (START never
++re-arms it), and a gap's stopped state read one cycle after its verdict. Each
++#762 defect is planted in
++the engine AND in the reference copy, so the lockstep comparison cannot see it
++and only the harness's own count oracle can fail. The real engine is mutated
++one defect at a time, the SAME harness is rebuilt through the Makefile's own
++recipe (`make lockstep-build` with RXMON_SRC, REF_SRC and LS_MDIR overridden)
++at both shapes (N=1 and N=8), and both binaries run. Each mutant must make the harness FAIL by its
+ OWN verdict (a `[FAIL]` line or a tally with failures, read by
+ scripts/suite_tally.py), and the named check must be among the failures; a
+ crash or an abort is not a catch. The positive control is the clean pair
+@@ -39,10 +48,11 @@ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+ RTL = HERE / "../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv"
++REF = HERE / "reference/KL_avtp_rx_monitor_ctx_ref.sv"
+ CLEAN_MDIR = HERE / "obj_ls"
+ #: every input of the clean recipe (the Makefile's LSSRCS and the harness,
+ #: and the Makefile itself): a clean binary older than any of them is stale
+-CLEAN_INPUTS = [RTL, HERE / "reference/KL_avtp_rx_monitor_ctx_ref.sv",
++CLEAN_INPUTS = [RTL, REF,
+                 HERE / "avtp_rxmon_lockstep_wrap.sv", HERE / "sim_lockstep.cpp",
+                 HERE / "Makefile"]
+ EXE_NAME = "Vavtp_rxmon_lockstep"
+@@ -57,15 +67,27 @@ MIRROR_WRITE = """  always_ff @(posedge clk_i) begin : mirror_wr
+         <= ram_wdata_w;
+   end : mirror_wr"""
+ 
+-# (name, the ONE text it replaces, its replacement, the check it must fail)
++#: the #762 silence mark, as both modules write it
++SI_MARK = "            if (bound_i[s] && !bind_fall_i[s] && !stopped_i[s])\n"
++#: the unbind's unlock request, as both modules write it
++UNBIND_UNLOCK = "        if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;\n"
++#: one boundary-sweep check, of either event
++BOUNDARY = "boundary ({}, idle): after the expiry the silence counts once, on or before it never"
++#: the gap's stopped-state gate, as both modules write it
++GAP_STOP = "                  && !stopped_i[ev_s_r])\n"
++#: the declaration a mutant's extra state goes after, in both modules
++SI_DECL = "  logic [N_LISTENERS_P-1:0] sil_si_r;\n"
++
++# (name, [(the ONE text it replaces, its replacement), ...], the check it must
++# fail, whether the reference copy gets the same edits)
+ MUTATIONS = [
+     ("lost increment: a pulse that lands on a queued dispatch drops out of the queue count",
+-     "        default : ;                     //! 2'b11 (one in, one out) holds it",
+-     "        2'b11   : pq_cnt_r <= pq_cnt_r - 2'd1;\n        default : ;",
+-     "[H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU"),
++     [("        default : ;                     //! 2'b11 (one in, one out) holds it",
++       "        2'b11   : pq_cnt_r <= pq_cnt_r - 2'd1;\n        default : ;")],
++     "[H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU", False),
+     ("torn read: the mirror takes a write's high half one cycle after its low half",
+-     MIRROR_WRITE,
+-     """  logic              tear_v_r;
++     [(MIRROR_WRITE,
++       """  logic              tear_v_r;
+   logic [MIRW_C-1:0] tear_a_r;
+   logic [15:0]       tear_hi_r;
+   always_ff @(posedge clk_i) begin : mirror_wr
+@@ -76,26 +98,63 @@ MUTATIONS = [
+       cnt_mirror_r[MIRW_C'(32'(ram_waddr_w[AW_C-1:5]) * 16 + 32'(cntw_col_w))][15:0]
+         <= ram_wdata_w[15:0];
+     if (tear_v_r) cnt_mirror_r[tear_a_r][31:16] <= tear_hi_r;
+-  end : mirror_wr""",
+-     "[H2] GET_COUNTERS read identical to the reference in every cycle of the update window"),
++  end : mirror_wr""")],
++     "[H2] GET_COUNTERS read identical to the reference in every cycle of the update window", False),
+     ("wrong stream index: the GET_COUNTERS read ignores the sink",
+-     "      default : diag_q_o = cnt_mirror_r[MIRW_C'(32'(diag_ridx_w) * 16\n"
+-     "                                                + 32'(diag_col_i))];",
+-     "      default : diag_q_o = cnt_mirror_r[MIRW_C'(32'(diag_col_i))];",
+-     "[GC] every sink answers its own row and column (seeded signatures)"),
++     [("      default : diag_q_o = cnt_mirror_r[MIRW_C'(32'(diag_ridx_w) * 16\n"
++       "                                                + 32'(diag_col_i))];",
++       "      default : diag_q_o = cnt_mirror_r[MIRW_C'(32'(diag_col_i))];")],
++     "[GC] every sink answers its own row and column (seeded signatures)", False),
+     ("missed reset: the bundle queue's count survives a reset",
+-     "      pq_cnt_r    <= '0;\n      pq_wp_r     <= '0;",
+-     "      pq_wp_r     <= '0;",
+-     "[H4] no bundle queued before a reset is served after it"),
++     [("      pq_cnt_r    <= '0;\n      pq_wp_r     <= '0;", "      pq_wp_r     <= '0;")],
++     "[H4] no bundle queued before a reset is served after it", False),
++    ("silence: the watchdog's unlock is never marked an interruption (#762)",
++     [(SI_MARK, "            if (1'b0)\n")],
++     "[SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once", True),
++    ("gap: a sequence gap of two lost PDUs no longer interrupts (#762)",
++     [("              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)\n",
++       "              | ((1'b0 && lost_w >= 8'(INTERRUPT_MIN_LOST_C)\n")],
++     "[SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once", True),
++    ("unbind: an unbind's unlock is counted as an interruption (#762)",
++     [(UNBIND_UNLOCK, UNBIND_UNLOCK + "        if (bind_fall_i[s] && locked_sh_r[s]) sil_si_r[s] <= 1'b1;\n")],
++     "[SI] an unbind of a locked stream counts no STREAM_INTERRUPTED", True),
++    ("consume race: an unbind erases a silence already expired, before its walk counts it (#762)",
++     [(UNBIND_UNLOCK, UNBIND_UNLOCK + "        if (bind_fall_i[s]) sil_si_r[s] <= 1'b0;\n")],
++     BOUNDARY.format("an unbind"), True),
++    ("stopped: a stopped input's silence is marked an interruption (#762)",
++     [(SI_MARK, "            if (bound_i[s] && !bind_fall_i[s])\n")],
++     "[SI] a stopped input's silence unlocks it but counts no STREAM_INTERRUPTED", True),
++    ("stop at the walk: the stopped state is read when the walk counts, not at the expiry (#762)",
++     [(SI_MARK, "            if (bound_i[s] && !bind_fall_i[s])\n"),
++      ("                if (sil_si_r[ev_s_r]) begin",
++       "                if (sil_si_r[ev_s_r] && !stopped_i[ev_s_r]) begin")],
++     BOUNDARY.format("a STOP"), True),
++    ("stopped gap: a stopped input's sequence gap is counted an interruption (#762)",
++     [(GAP_STOP, "                  )\n")],
++     "[SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED", True),
++    ("sticky stop: a STOP disarms the gap until the next bind, START never re-arms it (#762)",
++     [(SI_DECL, SI_DECL + "  logic [N_LISTENERS_P-1:0] stop_seen_r;\n"
++                "  always_ff @(posedge clk_i)\n"
++                "    if (!rst_n) stop_seen_r <= '0;\n"
++                "    else stop_seen_r <= (stop_seen_r | stopped_i) & ~bind_rise_i;\n"),
++      (GAP_STOP, "                  && !stop_seen_r[ev_s_r])\n")],
++     "[SI] after START a sequence gap counts STREAM_INTERRUPTED again", True),
++    ("gap stop late: a gap's stopped state is read one cycle after its verdict (#762)",
++     [(SI_DECL, SI_DECL + "  logic [N_LISTENERS_P-1:0] stopped_late_r;\n"
++                "  always_ff @(posedge clk_i) stopped_late_r <= stopped_i;\n"),
++      (GAP_STOP, "                  && !stopped_late_r[ev_s_r])\n")],
++     "gap boundary (a STOP, idle): the gap counts once when started at its verdict, never when stopped",
++     True),
+ ]
+ 
+ 
+-def build(rtl_path: Path, mdir: Path) -> list[Path] | None:
+-    """Build the harness at both shapes against `rtl_path` through the suite's
+-    own recipe; the executables, or None when the recipe failed or left none."""
++def build(rtl_path: Path, mdir: Path, ref_path: Path = REF) -> list[Path] | None:
++    """Build the harness at both shapes against `rtl_path` (and `ref_path`)
++    through the suite's own recipe; the executables, or None when the recipe
++    failed or left none."""
+     out = subprocess.run(
+         ["make", "-s", "-C", str(HERE), "lockstep-build", f"RXMON_SRC={rtl_path}",
+-         f"LS_MDIR={mdir}"],
++         f"REF_SRC={ref_path}", f"LS_MDIR={mdir}"],
+         capture_output=True, text=True, check=False)
+     exes = [Path(f"{mdir}{shape}") / EXE_NAME for shape in SHAPES]
+     if out.returncode != 0 or not all(exe.is_file() for exe in exes):
+@@ -147,18 +206,36 @@ def verdict(rc: int, out: str, must_fail: str | None) -> str:
+     return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
+ 
+ 
+-def run_mutant(src: str, mutation: tuple[str, str, str, str], work: Path) -> bool:
++def plant(text: str, edits: list[tuple[str, str]], name: str, where: str) -> str | None:
++    """`text` with every edit applied, or None (reported) when an anchor is not unique."""
++    for pattern, replacement in edits:
++        if text.count(pattern) != 1:
++            print(f"[FAIL] mutation {name!r}: its pattern appears {text.count(pattern)} "
++                  f"time(s) in {where}, expected exactly 1. The RTL moved and this "
++                  f"mutant is no longer mutating anything - fix the pattern, do not delete the arm.")
++            return None
++        text = text.replace(pattern, replacement)
++    return text
++
++
++def run_mutant(src: str, ref: str,
++               mutation: tuple[str, list[tuple[str, str]], str, bool], work: Path) -> bool:
+     """Plant one mutation, build and run the harness; True when it was caught."""
+-    name, pattern, replacement, breaks = mutation
+-    if src.count(pattern) != 1:
+-        print(f"[FAIL] mutation {name!r}: its pattern appears {src.count(pattern)} "
+-              f"time(s) in {RTL.name}, expected exactly 1. The RTL moved and this "
+-              f"mutant is no longer mutating anything - fix the pattern, do not delete the arm.")
+-        return False
++    name, edits, breaks, both = mutation
+     tag = name.split(":")[0].replace(" ", "_")
++    mutated = plant(src, edits, name, RTL.name)
++    if mutated is None:
++        return False
+     mpath = work / f"KL_avtp_rx_monitor_ctx_{tag}.sv"
+-    mpath.write_text(src.replace(pattern, replacement))
+-    exes = build(mpath, work / f"obj_{tag}")
++    mpath.write_text(mutated)
++    rpath = REF
++    if both:
++        mutated_ref = plant(ref, edits, name, REF.name)
++        if mutated_ref is None:
++            return False
++        rpath = work / f"KL_avtp_rx_monitor_ctx_ref_{tag}.sv"
++        rpath.write_text(mutated_ref)
++    exes = build(mpath, work / f"obj_{tag}", rpath)
+     if exes is None:
+         print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
+               f"proves nothing about the harness")
+@@ -167,7 +244,8 @@ def run_mutant(src: str, mutation: tuple[str, str, str, str], work: Path) -> boo
+     answer = verdict(rc, out, breaks)
+     if answer == "caught":
+         broke = failed_checks(out)
+-        print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
++        where = " (planted in the engine and the reference)" if both else ""
++        print(f"[PASS] mutant caught{where}: {name} - breaks \"{breaks}\"")
+         print(f"    it broke {len(broke)} check(s): {'; '.join(broke)}")
+         return True
+     if answer == "pass":
+@@ -185,6 +263,7 @@ def main() -> int:
+ 
+     signal.signal(signal.SIGTERM, on_sigterm)
+     src = RTL.read_text()
++    ref = REF.read_text()
+     passes = 0
+     fails = 0
+     with tempfile.TemporaryDirectory(prefix="rxmon-lockstep-mutants-") as td:
+@@ -203,7 +282,7 @@ def main() -> int:
+             print(f"[FAIL] the unmutated context engine does NOT pass ({answer}) - every "
+                   f"mutant result is meaningless")
+         for mutation in MUTATIONS:
+-            if run_mutant(src, mutation, work):
++            if run_mutant(src, ref, mutation, work):
+                 passes += 1
+             else:
+                 fails += 1
+diff --git a/tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv b/tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv
+index 5a39a51b6..318d9fa33 100644
+--- a/tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv
++++ b/tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv
+@@ -3,6 +3,14 @@
+  * SPDX-License-Identifier: CERN-OHL-W-2.0
+  */
+ 
++//! LOCKSTEP REFERENCE (tb/verilator/avtp_rxmon/sim_lockstep.cpp): the module
++//! of dev e8454e27 with its name changed, and with #762's silence
++//! interruption (sil_si_r, stopped_i) and its stopped-gap rule applied in the
++//! same lines as the shipping engine, so the #640 M6 comparison stays exact on
++//! every column.
++//! #762 itself is graded by count in the harness's [SI] cases, never against
++//! this copy: lockstep_mutants.py plants each #762 defect in BOTH modules.
++
+ /*
+ ------------------------------------------------------------------------------
+   File        : KL_avtp_rx_monitor_ctx.sv
+@@ -139,6 +147,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
+                                                 //! the 0x002B law's second
+                                                 //! unlock cause - it rides
+                                                 //! the silence-unlock walk)
++  input  wire [N_LISTENERS_P-1:0] stopped_i,    //! bound-and-stopped (#762)
+ 
+   //! --- stream-0 legacy config (no-regression aliases) -------------------
+   input  wire [63:0]  sid0_i,            //! sink-0 bound sid (LCTX w0/w1)
+@@ -301,6 +310,9 @@ module KL_avtp_rx_monitor_ctx_ref #(
+ 
+   logic [N_LISTENERS_P-1:0] bind_pend_r;
+   logic [N_LISTENERS_P-1:0] sil_pend_r;
++  //! #762: the pending unlock is the silence watchdog's, not an unbind's,
++  //! so its walk also counts STREAM_INTERRUPTED (Milan v1.2 5.3.8.10 Table 5.6)
++  logic [N_LISTENERS_P-1:0] sil_si_r;
+   logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
+   logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
+ 
+@@ -785,6 +797,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
+       ddrop_add_r <= '0;
+       bind_pend_r  <= '0;
+       sil_pend_r   <= '0;
++      sil_si_r     <= '0;
+       iv_pend_r    <= '0;
+       frx_add_r    <= '0;
+       for (int s = 0; s < N_LISTENERS_P; s++) frx_acc_r[s] <= '0;
+@@ -866,6 +879,12 @@ module KL_avtp_rx_monitor_ctx_ref #(
+           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
+             sil_pend_r[s] <= 1'b1;
+             sil_ms_r[s]   <= '0;
++            //! #762: a silence of a bound, started stream interrupts its
++            //! playback. This expiry is the event's one boundary: an Unbind
++            //! or a STOP after it leaves the mark for the walk to count, and
++            //! one on or before it leaves no mark
++            if (bound_i[s] && !bind_fall_i[s] && !stopped_i[s])
++              sil_si_r[s] <= 1'b1;
+           end
+           else sil_ms_r[s] <= sil_ms_r[s] + 7'd1;
+         end
+@@ -987,9 +1006,12 @@ module KL_avtp_rx_monitor_ctx_ref #(
+             //! counters walk here.
+             if (cur_r.tv) tv_cnt_r[ev_s_r]  <= tv_cnt_r[ev_s_r]  + 32'd1;
+             else          tnv_cnt_r[ev_s_r] <= tnv_cnt_r[ev_s_r] + 32'd1;
++            //! #762: a gap interrupts only a started input's playback; the
++            //! stopped state is read at this verdict, the gap's one boundary
+             inc_list_r <=
+                 (lock_now_w  ? (12'b1 << C_ML_C) : 12'b0)
+-              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C))
++              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)
++                  && !stopped_i[ev_s_r])
+                              ? (12'b1 << C_SI_C) : 12'b0);
+             wrph_r <= '0;
+             mst_r  <= M_PWR_S;
+@@ -1036,9 +1058,17 @@ module KL_avtp_rx_monitor_ctx_ref #(
+                 locked_sh_r[ev_s_r]  <= 1'b0;
+                 sil_ms_r[ev_s_r]     <= '0;
+                 sil_pend_r[ev_s_r]   <= 1'b0;
++                sil_si_r[ev_s_r]     <= 1'b0;
+                 sil_mode_r <= 1'b0;
+                 wrph_r     <= '0;
+-                mst_r      <= M_IDLE_S;
++                //! #762: a silence unlock then counts STREAM_INTERRUPTED
++                //! through the ordinary RMW below, which yields to PDU
++                //! pressure like every other counter walk
++                if (sil_si_r[ev_s_r]) begin
++                  inc_list_r <= 12'b1 << C_SI_C;
++                  mst_r      <= M_INC_S;
++                end
++                else mst_r <= M_IDLE_S;
+               end
+             endcase
+           end
+@@ -1103,6 +1133,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
+             //! MEDIA_UNLOCKED over a zeroed MEDIA_LOCKED and strand the
+             //! stream at UNLOCKED=LOCKED+1, which is neither legal state
+             sil_pend_r[ev_s_r]   <= 1'b0;
++            sil_si_r[ev_s_r]     <= 1'b0;
+             //! a parked walk remainder for THIS stream dies with the era
+             //! too (its counters are zeroed by the bind-zero walk below)
+             if (iv_res_s_r == ev_s_r) iv_res_list_r <= '0;
+diff --git a/tb/verilator/avtp_rxmon/sim_lockstep.cpp b/tb/verilator/avtp_rxmon/sim_lockstep.cpp
+index 717dfd911..f9b7e5730 100644
+--- a/tb/verilator/avtp_rxmon/sim_lockstep.cpp
++++ b/tb/verilator/avtp_rxmon/sim_lockstep.cpp
+@@ -3,8 +3,9 @@
+ //
+ // Lockstep leg (#640 M6): KL_avtp_rx_monitor_ctx against the pre-change
+ // reference KL_avtp_rx_monitor_ctx_ref (reference/, the module of dev
+-// e8454e27 with only its name changed), both fed the SAME inputs every cycle
+-// by avtp_rxmon_lockstep_wrap.
++// e8454e27 with its name changed and #762's silence interruption applied in
++// the same lines as the engine), both fed the SAME inputs every cycle by
++// avtp_rxmon_lockstep_wrap.
+ //
+ //   [LS] unchanged outputs match in every cycle: accept verdicts, legacy
+ //        counters, LCTX answers, lock and channel levels. Every historical
+@@ -34,15 +35,41 @@
+ //        bundle queued before the reset is served after it.
+ //   [SO] a seeded random soak over every input, with resets, binds, window
+ //        traffic and out-of-range indexes, compared as [LS] and [GC].
++//   [SI] #762, STREAM_INTERRUPTED's causes (Milan v1.2 Table 5.6), each
++//        graded by count, not against the reference: a 100 ms silence that
++//        unlocks a bound, started stream counts once and the resume after it
++//        adds nothing; a sequence gap of two lost PDUs counts once; an unbind
++//        of a locked stream unlocks without counting, and so does the silence
++//        after it. A stopped stream's silence unlocks it and counts nothing
++//        (5.3.8.7, the #762 ruling); STOP with live traffic counts nothing;
++//        after START a silence counts again.
++//        The boundary sweep lands an unbind, or a STOP, at every cycle from
++//        12 before to 24 after the edge the 100 ms watchdog expires on, plus
++//        far points, on an idle engine and on one paused or yielding to PDU
++//        traffic. The expected count is the harness's own: it owns the reset,
++//        so it knows the 1 ms grid (CLK_FREQ_HZ_P / 1000 cycles from reset
++//        release), and it sees the stream's last accept on pdu_accept_p_o, so
++//        the expiry is the 100th grid tick after it. After that edge the
++//        silence counts exactly once; on or before it, never.
++//        A sequence gap follows the same ruling (#762, extended): a started
++//        input's gap counts once, a stopped input's gap counts nothing (its
++//        SEQ_NUM_MISMATCH still counts), and after START a gap counts again.
++//        The gap's one boundary is its accept verdict: a STOP, or a START,
++//        lands at every cycle from 4 before to 20 after the gap PDU's pulse,
++//        on an idle engine and on one that makes the PDU wait; the gap counts
++//        exactly when the input is started on its verdict edge, the edge the
++//        harness sees pdu_accept_p_o rise for that stream.
+ //
+ // Scaled clock: CLK_FREQ_HZ_P=10000 makes 1 ms 10 cycles and the 100 ms
+ // silence unlock 1000 cycles; the Table 5.6 interval is IVAL_CYC_P=500.
+ #include "Vavtp_rxmon_lockstep_wrap.h"
+ #include "verilated.h"
+ #include "../../common/verilator_harness.hpp"
++#include <algorithm>
+ #include <cstdint>
+ #include <cstdio>
+ #include <string>
++#include <vector>
+ 
+ #ifndef N_TB
+ #define N_TB 1
+@@ -53,6 +80,9 @@ namespace {
+ constexpr int kN = N_TB;
+ constexpr int kIval = 500;
+ constexpr int kUnlockCycles = 1000;
++//! the 1 ms grid, CLK_FREQ_HZ_P / 1000, and the 100 ms silence in its ticks
++constexpr int64_t kMsCycles = 10;
++constexpr int64_t kUnlockTicks = 100;
+ //! AAF 48 kHz / INT32 / depth 32 / 8 channels (the NxN harness's format)
+ constexpr uint64_t kFmt = 0x0205022002006000ULL;
+ constexpr uint64_t kSid0 = 0x020000FFFE010000ULL;
+@@ -64,6 +94,7 @@ constexpr int kWCnt0 = 16;
+ constexpr int kColMl = 0;
+ constexpr int kColMu = 1;
+ constexpr int kColSi = 2;
++constexpr int kColSm = 3;
+ constexpr int kColFrx = 9;
+ constexpr int kCols = 12;
+ constexpr int kLctxTimeout = 256;
+@@ -101,6 +132,15 @@ class Lockstep {
+     uint32_t now_ = 1000000;
+     uint8_t seq_[kN] = {};
+     uint32_t bound_ = 0;
++    uint32_t stopped_ = 0;
++    //! the [SI] oracle's inputs: the last edge reset was sampled low, and
++    //! each stream's last accept edge, both seen from outside the modules
++    int64_t reset_edge_ = 0;
++    int64_t last_accept_[kN] = {};
++    //! the longest expiry-to-unlock latency the idle boundary sweeps saw
++    int64_t idle_latency_ = 0;
++    //! the longest pulse-to-verdict wait the idle gap sweeps saw
++    int64_t idle_wait_ = 0;
+     //! [LS]/[GC] mismatch tallies, reported once each per phase
+     uint64_t ls_bad_ = 0;
+     uint64_t gc_bad_ = 0;
+@@ -119,6 +159,8 @@ class Lockstep {
+     }
+     void reset(int len);
+     void bind(int s, bool up);
++    void stop(int s, bool stopped);
++    int64_t silence_expiry_edge(int s) const;
+     bool lctx_write(int s, int word, uint32_t data);
+     bool lctx_read(int s, int word, uint32_t& data);
+     void lock_and_settle(int s);
+@@ -129,6 +171,23 @@ class Lockstep {
+     void h2_update_colliding_with_read();
+     void h3_wrap();
+     void h4_reset_during_update();
++    void si_causes();
++    void si_stop_rule();
++    void si_gap_rule();
++    void si_gap_boundary(bool by_start, bool busy);
++    //! one boundary trial's outcome (boundary_trial)
++    struct BoundaryTrial {
++        uint32_t mu = 0;
++        uint32_t si = 0;
++        bool late_moved = false;
++        int64_t e = 0;
++        int64_t ev = 0;
++        int64_t mu_edge = -1;
++        int64_t si_edge = -1;
++        bool yielded = false;
++    };
++    BoundaryTrial boundary_trial(int d, int gap, bool by_stop, bool busy);
++    void si_boundary(bool by_stop, bool busy);
+     void soak(uint64_t seed, int n);
+ };
+ 
+@@ -146,6 +205,8 @@ void Lockstep::step() {
+     dut_->clk_i = 1;
+     dut_->eval();
+     ++cycle_;
++    if (dut_->dut_pdu_accept_p_o && dut_->dut_pdu_accept_idx_o < kN)
++        last_accept_[dut_->dut_pdu_accept_idx_o] = static_cast<int64_t>(cycle_);
+     now_ += 20;
+     dut_->ptp_now_i = now_;
+     idle_inputs();
+@@ -223,9 +284,12 @@ void Lockstep::pdu(int s, uint8_t seq, bool tv, uint8_t chans) {
+ void Lockstep::reset(int len) {
+     dut_->rst_n = 0;
+     cycles(len);
++    reset_edge_ = static_cast<int64_t>(cycle_);
+     dut_->rst_n = 1;
+     bound_ = 0;
+     dut_->bound_i = 0;
++    stopped_ = 0;
++    dut_->stopped_i = 0;
+ }
+ 
+ void Lockstep::bind(int s, bool up) {
+@@ -239,6 +303,25 @@ void Lockstep::bind(int s, bool up) {
+     dut_->bound_i = bound_;
+ }
+ 
++//! STOP_STREAMING / START_STREAMING: a level, held until changed
++void Lockstep::stop(int s, bool stopped) {
++    if (stopped)
++        stopped_ |= 1u << s;
++    else
++        stopped_ &= ~(1u << s);
++    dut_->stopped_i = stopped_;
++}
++
++//! The edge stream s's 100 ms silence watchdog expires on, from what the
++//! harness drives and sees: the 1 ms tick is visible to the watchdog on edges
++//! reset_edge_ + kMsCycles * m + 1 (m >= 1), the accept edge restarts the
++//! count, and the 100th tick after it expires.
++int64_t Lockstep::silence_expiry_edge(int s) const {
++    int64_t m = (last_accept_[s] - reset_edge_ - 1) / kMsCycles + 1;
++    if (m < 1) m = 1;
++    return reset_edge_ + kMsCycles * (m + kUnlockTicks - 1) + 1;
++}
++
+ //! a window write held until the engine grants it
+ bool Lockstep::lctx_write(int s, int word, uint32_t data) {
+     dut_->lctx_wr_en_i = 1;
+@@ -403,6 +486,10 @@ void Lockstep::h3_wrap() {
+         pdu(s, seq_[s]);
+         cycles(20);
+     }
++    //! read now: the interval wait below outlasts the silence timeout, and
++    //! that silence is itself an interruption (#762)
++    c_.hex("[H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two",
++           gc_read(s, kColSi), 0x00000000u);
+     //! depacketizer: three PDU pulses (pdus 0xFFFF -> 0x0002) and two drops
+     //! (drops 0xFFFE -> 0x0000), each half on its own
+     for (int k = 0; k < 3; k++) {
+@@ -417,8 +504,6 @@ void Lockstep::h3_wrap() {
+     //! close two intervals so FRAMES_RX commits its frame total
+     cycles(2 * kIval + 50);
+     c_.hex("[H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000", gc_read(s, kColMl), 0x00000000u);
+-    c_.hex("[H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two",
+-           gc_read(s, kColSi), 0x00000000u);
+     c_.hex("[H3] FRAMES_RX adds eleven packets across 32-bit wrap (0xFFFFFFFA + 11)",
+            gc_read(s, kColFrx), 0x00000005u);
+     uint32_t w11 = 0;
+@@ -428,6 +513,8 @@ void Lockstep::h3_wrap() {
+     //! silence unlock: MEDIA_UNLOCKED wraps
+     cycles(kUnlockCycles + 200);
+     c_.hex("[H3] MEDIA_UNLOCKED wraps 0xFFFFFFFF -> 0x00000000", gc_read(s, kColMu), 0x00000000u);
++    c_.hex("[H3] ...and that silence counts STREAM_INTERRUPTED on from the wrap (#762)",
++           gc_read(s, kColSi), 0x00000001u);
+     report_lockstep("H3");
+ }
+ 
+@@ -457,6 +544,377 @@ void Lockstep::h4_reset_during_update() {
+     report_lockstep("H4");
+ }
+ 
++//! #762: each cause of STREAM_INTERRUPTED moves it by its own count
++void Lockstep::si_causes() {
++    std::printf("[SI] #762 silence, gap and unbind\n");
++    const int s = kN - 1;
++    lock_and_settle(s);
++    const uint32_t mu0 = gc_read(s, kColMu);
++    const uint32_t si0 = gc_read(s, kColSi);
++    cycles(kUnlockCycles + 200);
++    c_.dec("[SI] a silence unlocks the bound stream once (MEDIA_UNLOCKED)", gc_read(s, kColMu) - mu0, 1);
++    c_.dec("[SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once",
++           gc_read(s, kColSi) - si0, 1);
++    //! the talker resumes five sequence numbers on: the first PDU re-seeds
++    seq_[s] = static_cast<uint8_t>(seq_[s] + 5);
++    for (int k = 0; k < 9; k++) {
++        pdu(s, ++seq_[s]);
++        cycles(20);
++    }
++    cycles(20);
++    c_.dec("[SI] the resume after the silence adds nothing (its first PDU re-seeds)",
++           gc_read(s, kColSi) - si0, 1);
++    const uint32_t si1 = gc_read(s, kColSi);
++    const uint32_t mu1 = gc_read(s, kColMu);
++    seq_[s] = static_cast<uint8_t>(seq_[s] + 3);
++    pdu(s, seq_[s]);
++    cycles(20);
++    c_.dec("[SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once", gc_read(s, kColSi) - si1, 1);
++    c_.dec("[SI] ...and unlocks nothing", gc_read(s, kColMu) - mu1, 0);
++    const uint32_t si2 = gc_read(s, kColSi);
++    bind(s, false);
++    cycles(40);
++    c_.dec("[SI] an unbind of a locked stream unlocks it once", gc_read(s, kColMu) - mu1, 1);
++    c_.dec("[SI] an unbind of a locked stream counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si2, 0);
++    cycles(kUnlockCycles + 200);
++    c_.dec("[SI] ...nor does the silence after the unbind", gc_read(s, kColSi) - si2, 0);
++    c_.dec("[SI] ...which unlocks nothing more", gc_read(s, kColMu) - mu1, 1);
++    report_lockstep("SI");
++}
++
++//! #762 ruling: a stopped input has no playback, so its silence interrupts
++//! nothing (Milan v1.2 5.3.8.7 and Table 5.6). Each case is graded by count:
++//! stopped silence after an established lock, START recovery, STOP with live
++//! traffic, and the unbind of a stopped, locked input.
++void Lockstep::si_stop_rule() {
++    std::printf("[SI] #762 stopped and started inputs\n");
++    const int s = kN - 1;
++    lock_and_settle(s);
++    uint32_t ml0 = gc_read(s, kColMl);
++    uint32_t mu0 = gc_read(s, kColMu);
++    uint32_t si0 = gc_read(s, kColSi);
++    stop(s, true);
++    cycles(kUnlockCycles + 200);
++    c_.dec("[SI] a stopped input's silence unlocks it (MEDIA_UNLOCKED)", gc_read(s, kColMu) - mu0, 1);
++    c_.dec("[SI] a stopped input's silence unlocks it but counts no STREAM_INTERRUPTED",
++           gc_read(s, kColSi) - si0, 0);
++    //! START: the talker resumes five sequence numbers on and the stream
++    //! relocks; the first PDU re-seeds, and a later silence counts again
++    stop(s, false);
++    seq_[s] = static_cast<uint8_t>(seq_[s] + 5);
++    for (int k = 0; k < 9; k++) {
++        pdu(s, ++seq_[s]);
++        cycles(20);
++    }
++    cycles(20);
++    c_.dec("[SI] START: the resumed stream relocks (MEDIA_LOCKED)", gc_read(s, kColMl) - ml0, 1);
++    c_.dec("[SI] START: ...and the resume counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si0, 0);
++    cycles(kUnlockCycles + 200);
++    c_.dec("[SI] after START a silence counts STREAM_INTERRUPTED again", gc_read(s, kColSi) - si0, 1);
++    bind(s, false);
++    cycles(40);
++
++    //! STOP with live traffic: the monitor still receives every PDU, so the
++    //! stream neither falls silent nor unlocks, for longer than the timeout
++    lock_and_settle(s);
++    mu0 = gc_read(s, kColMu);
++    si0 = gc_read(s, kColSi);
++    stop(s, true);
++    for (int k = 0; k < 30; k++) {
++        pdu(s, ++seq_[s]);
++        cycles(50);
++    }
++    c_.dec("[SI] STOP with live traffic unlocks nothing", gc_read(s, kColMu) - mu0, 0);
++    c_.dec("[SI] STOP with live traffic counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si0, 0);
++    stop(s, false);
++    pdu(s, ++seq_[s]);
++    cycles(20);
++    cycles(kUnlockCycles + 200);
++    c_.dec("[SI] START after stopped live traffic: the next silence counts once",
++           gc_read(s, kColSi) - si0, 1);
++    bind(s, false);
++    cycles(40);
++
++    lock_and_settle(s);
++    mu0 = gc_read(s, kColMu);
++    si0 = gc_read(s, kColSi);
++    stop(s, true);
++    cycles(20);
++    bind(s, false);
++    cycles(40);
++    c_.dec("[SI] an unbind of a stopped, locked input unlocks it once", gc_read(s, kColMu) - mu0, 1);
++    c_.dec("[SI] ...and counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si0, 0);
++    stop(s, false);
++    report_lockstep("SI stop");
++}
++
++//! #762, extended ruling: a stopped input has no playback, so its sequence
++//! gap interrupts nothing either; a started input's gap counts once and after
++//! START a gap counts again. Each case is graded by count.
++void Lockstep::si_gap_rule() {
++    std::printf("[SI] #762 a sequence gap on started and stopped inputs\n");
++    const int s = kN - 1;
++    auto gap = [this, s]() {
++        seq_[s] = static_cast<uint8_t>(seq_[s] + 3);
++        pdu(s, seq_[s]);
++        cycles(20);
++    };
++    lock_and_settle(s);
++    const uint32_t mu0 = gc_read(s, kColMu);
++    const uint32_t si0 = gc_read(s, kColSi);
++    gap();
++    c_.dec("[SI] a started input's sequence gap counts STREAM_INTERRUPTED once", gc_read(s, kColSi) - si0, 1);
++    //! close the interval the started gap landed in, so the stopped gaps'
++    //! SEQ_NUM_MISMATCH is their own
++    cycles(kIval + 20);
++    const uint32_t sm1 = gc_read(s, kColSm);
++    const uint32_t si1 = gc_read(s, kColSi);
++    stop(s, true);
++    cycles(5);
++    gap();
++    c_.dec("[SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si1, 0);
++    gap();
++    c_.dec("[SI] ...nor does a second stopped gap", gc_read(s, kColSi) - si1, 0);
++    c_.dec("[SI] ...and the stopped gaps unlock nothing", gc_read(s, kColMu) - mu0, 0);
++    cycles(kIval + 20);
++    c_.that("[SI] the stopped gaps were seen: SEQ_NUM_MISMATCH moved (the case is live)",
++            gc_read(s, kColSm) - sm1 >= 1);
++    stop(s, false);
++    cycles(5);
++    const uint32_t si2 = gc_read(s, kColSi);
++    gap();
++    c_.dec("[SI] after START a sequence gap counts STREAM_INTERRUPTED again", gc_read(s, kColSi) - si2, 1);
++    if (kN > 1) {
++        stop(0, true);
++        cycles(5);
++        gap();
++        c_.dec("[SI] another input's STOP leaves this input's gap counted", gc_read(s, kColSi) - si2, 2);
++        stop(0, false);
++    }
++    bind(s, false);
++    cycles(40);
++    report_lockstep("SI gap");
++}
++
++//! The gap's one boundary, its accept verdict. Each trial sends one gap PDU
++//! on edge P, a STOP (or a START) lands on edge P + d, and the verdict edge A
++//! is where pdu_accept_p_o rises for that stream after P. The gap counts
++//! once when the input is started on edge A, never otherwise. Busy, two
++//! earlier events (a second stream's PDUs, or depacketizer pulses at N = 1)
++//! occupy the walker, so the PDU waits for its verdict. Each trial starts at
++//! the same phase of the observation interval the harness drives.
++void Lockstep::si_gap_boundary(bool by_start, bool busy) {
++    const char* what = by_start ? "a START" : "a STOP";
++    std::printf("[SI] gap boundary: %s across the verdict, %s engine\n", what, busy ? "busy" : "idle");
++    const std::string tag = std::string("[SI] gap boundary (") + what + (busy ? ", busy)" : ", idle)");
++    const int s = kN - 1;
++    const int b = 0;
++    if (busy && kN > 1) lock_and_settle(b);
++    lock_and_settle(s);
++    uint64_t wrong = 0;
++    uint64_t unseen = 0;
++    //! where the event landed: before the pulse, between the pulse and the
++    //! verdict, on the verdict edge, after it
++    uint64_t where[4] = {};
++    int64_t max_wait = 0;
++    for (int d = -4; d <= 20; d++) {
++        stop(s, by_start);
++        //! every trial at one phase of the Table 5.6 interval, far from its
++        //! commit walk, so the verdict's wait is the same in every trial
++        cycles(10);
++        while ((static_cast<int64_t>(cycle_) - reset_edge_) % kIval != kIval / 2) step();
++        const uint32_t si0 = gc_read(s, kColSi);
++        const int64_t p = static_cast<int64_t>(cycle_) + 8;
++        const int64_t ev = p + d;
++        int64_t a = -1;
++        while (static_cast<int64_t>(cycle_) < p + 40) {
++            const int64_t next = static_cast<int64_t>(cycle_) + 1;
++            if (busy && (next == p - 2 || next == p - 1)) {
++                if (kN > 1) {
++                    pdu(b, ++seq_[b]);
++                } else {
++                    dut_->depkt_pdu_p_i = 1;
++                    dut_->depkt_pdu_idx_i = 0;
++                }
++            }
++            if (next == p) {
++                seq_[s] = static_cast<uint8_t>(seq_[s] + 3);
++                pdu(s, seq_[s]);
++            }
++            if (next == ev) stop(s, !by_start);
++            step();
++            if (a < 0 && static_cast<int64_t>(cycle_) >= p && dut_->dut_pdu_accept_p_o &&
++                dut_->dut_pdu_accept_idx_o == s)
++                a = static_cast<int64_t>(cycle_);
++        }
++        const uint32_t si = gc_read(s, kColSi) - si0;
++        if (a < 0) {
++            unseen++;
++            continue;
++        }
++        const bool started_at_verdict = by_start ? ev <= a : ev > a;
++        const uint32_t want = started_at_verdict ? 1 : 0;
++        if (si != want)
++            std::printf("  offset %d from the pulse (verdict at +%lld): STREAM_INTERRUPTED +%u, expected +%u\n",
++                        d, static_cast<long long>(a - p), si, want);
++        wrong += si != want;
++        where[ev < p ? 0 : ev < a ? 1 : ev == a ? 2 : 3]++;
++        max_wait = std::max(max_wait, a - p);
++    }
++    stop(s, false);
++    std::printf("  landed before the pulse %llu, before the verdict %llu, on it %llu, after it %llu; "
++                "longest pulse-to-verdict %lld cycles\n",
++                static_cast<unsigned long long>(where[0]), static_cast<unsigned long long>(where[1]),
++                static_cast<unsigned long long>(where[2]), static_cast<unsigned long long>(where[3]),
++                static_cast<long long>(max_wait));
++    c_.dec((tag + ": every gap PDU reached its verdict").c_str(), unseen, 0);
++    c_.dec((tag + ": the gap counts once when started at its verdict, never when stopped").c_str(), wrong, 0);
++    c_.that((tag + ": landed before the pulse, before the verdict, on it and after it (the sweep is live)").c_str(),
++            where[0] > 0 && where[1] > 0 && where[2] > 0 && where[3] > 0);
++    if (!busy)
++        idle_wait_ = std::max(idle_wait_, max_wait);
++    else
++        c_.that((tag + ": the load held the verdict longer than an idle engine does").c_str(),
++                max_wait > idle_wait_);
++    bind(s, false);
++    cycles(40);
++    if (busy && kN > 1) {
++        bind(b, false);
++        cycles(40);
++    }
++    report_lockstep(by_start ? "SI gap START boundary" : "SI gap STOP boundary");
++}
++
++//! One #762 boundary trial: a fresh lock, then an unbind or a STOP sampled
++//! on edge E + d, where E is the silence's expiry edge (silence_expiry_edge).
++//! Busy, a PDU of a second stream (N > 1) or a depacketizer pulse (N = 1)
++//! arrives every `gap` cycles until 40 cycles after the event. Returns the
++//! counter deltas once the walk is over, whether anything moved in a full
++//! timeout after it, and the edges GET_COUNTERS showed the walk's two writes.
++Lockstep::BoundaryTrial Lockstep::boundary_trial(int d, int gap, bool by_stop, bool busy) {
++    const int s = kN - 1;
++    const int b = 0;
++    BoundaryTrial r;
++    lock_and_settle(s);
++    const uint32_t mu0 = gc_read(s, kColMu);
++    const uint32_t si0 = gc_read(s, kColSi);
++    r.e = silence_expiry_edge(s);
++    r.ev = r.e + d;
++    const int64_t load_end = r.ev + 40;
++    const int64_t end = std::max(r.ev, r.e) + 80;
++    while (static_cast<int64_t>(cycle_) < end) {
++        const int64_t next = static_cast<int64_t>(cycle_) + 1;
++        if (next == r.ev) {
++            if (by_stop)
++                stop(s, true);
++            else
++                bind(s, false);
++        }
++        if (busy && next < load_end && next % gap == 0) {
++            if (kN > 1) {
++                pdu(b, ++seq_[b]);
++            } else {
++                dut_->depkt_pdu_p_i = 1;
++                dut_->depkt_pdu_idx_i = 0;
++            }
++        }
++        step();
++        if (r.mu_edge < 0 && gc_read(s, kColMu) != mu0) r.mu_edge = static_cast<int64_t>(cycle_);
++        if (r.si_edge < 0 && gc_read(s, kColSi) != si0) r.si_edge = static_cast<int64_t>(cycle_);
++        if (kN > 1 && r.mu_edge >= 0 && r.si_edge < 0 && dut_->dut_pdu_accept_p_o &&
++            dut_->dut_pdu_accept_idx_o == b)
++            r.yielded = true;
++    }
++    r.mu = gc_read(s, kColMu) - mu0;
++    r.si = gc_read(s, kColSi) - si0;
++    cycles(kUnlockCycles + 100);
++    r.late_moved = (gc_read(s, kColMu) - mu0 != r.mu) || (gc_read(s, kColSi) - si0 != r.si);
++    if (by_stop) stop(s, false);
++    bind(s, false);
++    cycles(40);
++    return r;
++}
++
++//! #762's one event boundary. An unbind, or a STOP, is sampled on every edge
++//! from 12 before to 24 after the silence's expiry edge E, and at far points.
++//! E is the harness's own (silence_expiry_edge), never read from a module.
++//! Sampled after E, the silence is already an interruption and counts
++//! exactly once; on or before E it never counts; the stream unlocks once
++//! either way, and a full timeout later nothing more has moved. Busy, the
++//! unlock walk waits for the walker and its STREAM_INTERRUPTED write yields.
++void Lockstep::si_boundary(bool by_stop, bool busy) {
++    const char* what = by_stop ? "a STOP" : "an unbind";
++    std::printf("[SI] boundary: %s across the silence expiry, %s engine\n", what,
++                busy ? "busy" : "idle");
++    const std::string tag = std::string("[SI] boundary (") + what + (busy ? ", busy)" : ", idle)");
++    std::vector<int> offsets = {-200, -40};
++    for (int d = -12; d <= 24; d++) offsets.push_back(d);
++    offsets.push_back(40);
++    offsets.push_back(80);
++    uint64_t wrong_mu = 0;
++    uint64_t wrong_si = 0;
++    uint64_t wrong_late = 0;
++    //! where the event was sampled, against the walk's two counter writes:
++    //! before the expiry, while the walk was pending, between its writes, after
++    uint64_t where[4] = {};
++    uint64_t yielded = 0;
++    int64_t max_latency = 0;
++    if (busy && kN > 1) lock_and_settle(0);
++    int trial = 0;
++    for (const int d : offsets) {
++        const int gap = 3 + 3 * (trial++ % 3);  //! 3, 6 or 9 cycles apart
++        const BoundaryTrial r = boundary_trial(d, gap, by_stop, busy);
++        const uint32_t want = d > 0 ? 1 : 0;
++        if (r.mu != 1 || r.si != want)
++            std::printf("  offset %d from the expiry: MEDIA_UNLOCKED +%u, STREAM_INTERRUPTED +%u, "
++                        "expected +1 and +%u\n", d, r.mu, r.si, want);
++        wrong_mu += r.mu != 1;
++        wrong_si += r.si != want;
++        wrong_late += r.late_moved;
++        int at = 3;
++        if (r.ev <= r.e)
++            at = 0;
++        else if (r.mu_edge < 0 || r.ev <= r.mu_edge)
++            at = 1;
++        else if (r.si_edge < 0 || r.ev <= r.si_edge)
++            at = 2;
++        where[at]++;
++        //! the silence's own unlock walk: always when stopped, and after E
++        //! when the unbind comes later
++        if (r.mu_edge >= 0 && (by_stop || d > 0))
++            max_latency = std::max(max_latency, r.mu_edge - r.e);
++        yielded += r.yielded;
++    }
++    if (busy && kN > 1) {
++        bind(0, false);
++        cycles(40);
++    }
++    std::printf("  sampled before the expiry %llu, while the walk was pending %llu, between its two "
++                "writes %llu, after it %llu; longest expiry-to-unlock %lld cycles; "
++                "interruption writes that yielded to a PDU walk %llu\n",
++                static_cast<unsigned long long>(where[0]), static_cast<unsigned long long>(where[1]),
++                static_cast<unsigned long long>(where[2]), static_cast<unsigned long long>(where[3]),
++                static_cast<long long>(max_latency), static_cast<unsigned long long>(yielded));
++    c_.dec((tag + ": the stream unlocked exactly once at every offset").c_str(), wrong_mu, 0);
++    c_.dec((tag + ": after the expiry the silence counts once, on or before it never").c_str(),
++           wrong_si, 0);
++    c_.dec((tag + ": a full timeout later nothing more has moved").c_str(), wrong_late, 0);
++    if (!busy) {
++        idle_latency_ = std::max(idle_latency_, max_latency);
++        c_.that((tag + ": sampled before the expiry, during the walk, between its two writes and "
++                       "after it (the sweep is live)").c_str(),
++                where[0] > 0 && where[1] > 0 && where[2] > 0 && where[3] > 0);
++    } else {
++        c_.that((tag + ": the load held the unlock walk longer than an idle engine does").c_str(),
++                max_latency > idle_latency_);
++        c_.that((tag + ": sampled before the expiry, while the walk was held, and after it").c_str(),
++                where[0] > 0 && where[1] > 0 && where[3] > 0);
++        if (kN > 1)
++            c_.that((tag + ": some interruption write yielded to a PDU walk").c_str(), yielded > 0);
++    }
++    report_lockstep(by_stop ? "SI stop boundary" : "SI unbind boundary");
++}
++
+ void Lockstep::soak(uint64_t seed, int n) {
+     std::printf("[SO] random soak, seed %llu, %d cycles\n", static_cast<unsigned long long>(seed), n);
+     Rng r(seed);
+@@ -569,6 +1027,17 @@ void Lockstep::run() {
+     h2_update_colliding_with_read();
+     h3_wrap();
+     h4_reset_during_update();
++    si_causes();
++    si_stop_rule();
++    si_gap_rule();
++    si_boundary(false, false);
++    si_boundary(true, false);
++    si_boundary(false, true);
++    si_boundary(true, true);
++    si_gap_boundary(false, false);
++    si_gap_boundary(true, false);
++    si_gap_boundary(false, true);
++    si_gap_boundary(true, true);
+     soak(0x6406u + kN, 300000);
+     soak(0x9e3779b97f4a7c15ULL, 300000);
+     c_.that("[GC] the reads covered every sink and column many times", gc_reads_ > 600000);
+diff --git a/tb/verilator/avtp_rxmon/sim_main_nx.cpp b/tb/verilator/avtp_rxmon/sim_main_nx.cpp
+index a66319349..ea8c52aab 100644
+--- a/tb/verilator/avtp_rxmon/sim_main_nx.cpp
++++ b/tb/verilator/avtp_rxmon/sim_main_nx.cpp
+@@ -346,11 +346,18 @@ class NxnRxStackHarness {
+ 
+     void silence_unlocks_on_the_ms_grid(){
+         printf("\n[G6] P2 golden: 100 ms silence unlocks (ms-grid watchdog)\n");
++        const long si=dut->cnt_stream_interrupted_o;
+         cyc(12000);
+         ck("MEDIA_UNLOCKED 1", dut->cnt_media_unlocked_o, 1);
+         ck("unlocked level", dut->media_locked_o, 0);
++        //! #762 (Milan v1.2 Table 5.6): the silence interrupted a bound
++        //! stream, and the resume below re-seeds rather than counting again
++        ck("[G6-762] the silence counts STREAM_INTERRUPTED once",
++           dut->cnt_stream_interrupted_o, si+1);
+         { AafCfg c; c.seq=200; feed(build_aaf(stim, c)); }
+         ck("relock: MEDIA_LOCKED 2", dut->cnt_media_locked_o, 2);
++        ck("[G6-762] the resume's sequence jump counts nothing more",
++           dut->cnt_stream_interrupted_o, si+1);
+     }
+ 
+     void unbind_keeps_rebind_resets(){
+diff --git a/tb/verilator/crf_rx/Makefile b/tb/verilator/crf_rx/Makefile
+index 9364b0cb9..ffeb2497c 100644
+--- a/tb/verilator/crf_rx/Makefile
++++ b/tb/verilator/crf_rx/Makefile
+@@ -6,7 +6,8 @@
+ # an independent C++ ring replica — the regression that guards the
+ # ts_hist flop-file -> BRAM conversion.
+ #   make        - run counters, discontinuity, connected servo and mutation gates
+-#   make mutants - detector/refill/servo-validity mutants with named failures
++#   make mutants - detector/refill/servo-validity and #762 STREAM_INTERRUPTED
++#                  mutants with named failures
+ #   make clean  - remove build artifacts
+ #
+ # CLK_FREQ_HZ_P is scaled to 200 kHz so the 100 ms lock timeout is
+@@ -41,23 +42,29 @@ VFLAGS = --cc --exe --build -j 0 \
+          -GMAXTT_NS_P=$(MAXTT_NS) -GEARLY_MARGIN_NS_P=$(EARLY_M_NS) \
+          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE \
+-         -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=$(IVAL_CYC)u \
++         -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -DIVAL_CYC_C=$(IVAL_CYC)u \
+                   -DMAXTT_NS_C=$(MAXTT_NS)u -DEARLY_M_NS_C=$(EARLY_M_NS)u -Wall -Wextra"
+ 
+ RX_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
+ SRCS = $(RX_RTL)
+ DISC_MDIR ?= obj_discontinuity
++UNIT_MDIR ?= obj_dir
+ CPP  = sim_main.cpp
++# overridable so mutants.py can plant a #762 defect in the replica too; the
++# -I above keeps its relative includes resolving from a copy elsewhere
++UNIT_CPP ?= $(CPP)
+ 
+-.PHONY: all run unit discontinuity discontinuity-build talker_step mutants clean
++.PHONY: all run unit unit-build discontinuity discontinuity-build talker_step mutants clean
+ all: run mutants
+ 
+ run: unit discontinuity talker_step
+ 
+-unit:
+-	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vcrf_rx_sim
++unit: unit-build
+ 	@echo "======================================================================"
+-	./obj_dir/Vcrf_rx_sim
++	./$(UNIT_MDIR)/Vcrf_rx_sim
++
++unit-build:
++	$(VERILATOR) $(VFLAGS) -Mdir $(UNIT_MDIR) $(SRCS) $(UNIT_CPP) -o Vcrf_rx_sim
+ 
+ discontinuity: discontinuity-build
+ 	./$(DISC_MDIR)/Vdiscontinuity
+diff --git a/tb/verilator/crf_rx/mutants.py b/tb/verilator/crf_rx/mutants.py
+index aff245d1d..3f4323807 100644
+--- a/tb/verilator/crf_rx/mutants.py
++++ b/tb/verilator/crf_rx/mutants.py
+@@ -3,6 +3,14 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """Compile isolated CRF receiver and servo-validity mutants; require named harness failures.
+ 
++The discontinuity mutants run sim_discontinuity.cpp; the #762 STREAM_INTERRUPTED
++mutants (a silence, a sequence gap, an unbind and a stopped input's silence,
++each the cause its check names) run the counter harness, sim_main.cpp, through
++`make unit-build`. The stopped-gap mutants (a stopped sink's gap counted, and a
++STOP that disarms the gap until the next bind) are planted in the engine AND in
++the harness's replica, so the per-PDU replica compare cannot see them and only
++the named count check can fail.
++
+ No checkout is edited. Every executable, including the positive control,
+ is rebuilt from this invocation's source. The harness has bounded loops.
+ """
+@@ -32,18 +40,87 @@ MUTANTS = (
+     ("accept_edge_late", "!w_bind_rise_w && !rate_break_w;", "!w_bind_rise_w;",
+      "tu edge invalidates before the sampling edge"),
+ )
++#: #762, graded by the counter harness: (name, anchor, replacement, check)
++UNIT_MUTANTS = (
++    ("silence_not_interrupted", "if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
++     "if (1'b0) cnt_intr_o <= cnt_intr_o + 32'd1;",
++     "[762-a] silence: STREAM_INTERRUPTED counts the silence once"),
++    ("gap_not_interrupted",
++     "wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;",
++     "wire w_ev_si_w = 1'b0;",
++     "[5t-e2] 3 gaps in ONE interval: +3 immediately (per-event)"),
++    ("unbind_interrupts",
++     "        cnt_unlocked_o <= cnt_unlocked_o + 32'd1;\n        dirty_p_o      <= 1'b1;\n      end\n\n"
++     "      //! not-bound -> bound",
++     "        cnt_unlocked_o <= cnt_unlocked_o + 32'd1;\n        dirty_p_o      <= 1'b1;\n"
++     "        cnt_intr_o     <= cnt_intr_o + 32'd1;\n      end\n\n      //! not-bound -> bound",
++     "[UNB-a6] STREAM_INTERRUPTED does not count the unbind"),
++    ("unbind_edge_timeout_interrupts",
++     "if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
++     "if (!stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
++     "[UNB-d5] ...and no STREAM_INTERRUPTED: the unbind wins the edge (#762)"),
++    ("stopped_silence_interrupts",
++     "if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
++     "if (en_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
++     "[762-ST-b2] stopped silence: no STREAM_INTERRUPTED"),
++)
++#: the gap's stopped-state gate, in the engine and in the replica
++GAP_RTL = "(w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;"
++GAP_REPLICA = "if (static_cast<uint8_t>(seq - exp_seq) >= 2 && !stop) cnt_i++;"
++#: #762 stopped-gap mutants planted in both: (name, engine edits, replica
++#: edits, the check that must fail)
++BOTH_MUTANTS = (
++    ("stopped_gap_interrupts",
++     ((GAP_RTL, "(w_lost_w >= 8'(INTR_MIN_LOST_C));"),),
++     ((GAP_REPLICA, "if (static_cast<uint8_t>(seq - exp_seq) >= 2) cnt_i++;"),),
++     "[762-SG-b1] stopped gap: no STREAM_INTERRUPTED"),
++    ("sticky_stop_gap",
++     (("  //! STREAM_INTERRUPTED is PER-EVENT (no interval flag)",
++       "  logic stop_seen_r;\n"
++       "  always_ff @(posedge clk_i)\n"
++       "    if (!rst_n) stop_seen_r <= 1'b0;\n"
++       "    else stop_seen_r <= (stop_seen_r | stop_i) & ~(en_i && !en_q);\n"
++       "  //! STREAM_INTERRUPTED is PER-EVENT (no interval flag)"),
++      (GAP_RTL, "(w_lost_w >= 8'(INTR_MIN_LOST_C)) && !(stop_i || stop_seen_r);")),
++     (("    bool     stop = false;\n", "    bool     stop = false;\n    bool     stop_seen = false;\n"),
++      ("        settle = 0; have_seq = false; mr_seeded = false;\n",
++       "        settle = 0; have_seq = false; mr_seeded = false; stop_seen = false;\n"),
++      (GAP_REPLICA,
++       "if (static_cast<uint8_t>(seq - exp_seq) >= 2 && !(stop_seen = stop_seen || stop)) cnt_i++;")),
++     "[762-SG-c1] after START a gap counts STREAM_INTERRUPTED again"),
++)
++
++
++def plant(text: str, edits: tuple[tuple[str, str], ...]) -> str | None:
++    """`text` with every edit applied, or None when an anchor is not unique."""
++    for anchor, replacement in edits:
++        if text.count(anchor) != 1:
++            return None
++        text = text.replace(anchor, replacement)
++    return text
+ 
+ 
+ def run_case(work: Path, name: str, source: str, failure: str | None,
+-             *, servo: bool = False) -> bool:
+-    """A compiler error or abnormal termination never counts as a kill."""
++             *, servo: bool = False, harness: str | None = None) -> bool:
++    """A compiler error or abnormal termination never counts as a kill.
++
++    `harness` is the counter harness's source: given, the case runs that
++    harness (the unit build) instead of the discontinuity one."""
+     rtl = work / f"{name}.sv"
+     rtl.write_text(source)
+     mdir = work / f"obj_{name}"
++    unit = harness is not None
++    if unit:
++        cpp = work / f"{name}_sim_main.cpp"
++        cpp.write_text(harness)
+     if servo:
+         build = ["make", "-s", "-C", str(HERE / "../mmcm_servo"), "unit-build",
+                  f"SERVO_RTL={rtl}", f"UNIT_MDIR={mdir}"]
+         executable = "Vservo_sim"
++    elif unit:
++        build = ["make", "-s", "-C", str(HERE), "unit-build",
++                 f"RX_RTL={rtl}", f"UNIT_MDIR={mdir}", f"UNIT_CPP={cpp}"]
++        executable = "Vcrf_rx_sim"
+     else:
+         build = ["make", "-s", "-C", str(HERE), "discontinuity-build",
+                  f"RX_RTL={rtl}", f"DISC_MDIR={mdir}"]
+@@ -60,9 +137,9 @@ def run_case(work: Path, name: str, source: str, failure: str | None,
+     output = result.stdout + result.stderr
+     if failure is None:
+         passed = result.returncode == 0 and ("RESULT: PASS" in output or
+-                                           (servo and "0 failures" in output))
++                                           ((servo or unit) and " 0 failures" in output))
+     else:
+-        passed = (result.returncode == 1 and (servo or "RESULT: FAIL" in output) and
++        passed = (result.returncode == 1 and (servo or unit or "RESULT: FAIL" in output) and
+                   f"[FAIL] {failure}" in output)
+     print(f"[{'PASS' if passed else 'FAIL'}] {name}: rc={result.returncode}")
+     if passed and failure is not None:
+@@ -92,6 +169,23 @@ def main() -> int:
+                 results.append(False)
+                 continue
+             results.append(run_case(work, name, source.replace(anchor, replacement), failure))
++        harness = (HERE / "sim_main.cpp").read_text()
++        results.append(run_case(work, "unit_clean", source, None, harness=harness))
++        for name, anchor, replacement, failure in UNIT_MUTANTS:
++            if source.count(anchor) != 1:
++                print(f"FAIL {name}: expected exactly one mutation anchor")
++                results.append(False)
++                continue
++            results.append(run_case(work, name, source.replace(anchor, replacement), failure,
++                                    harness=harness))
++        for name, rtl_edits, replica_edits, failure in BOTH_MUTANTS:
++            mutated = plant(source, rtl_edits)
++            mutated_harness = plant(harness, replica_edits)
++            if mutated is None or mutated_harness is None:
++                print(f"FAIL {name}: expected exactly one mutation anchor per edit")
++                results.append(False)
++                continue
++            results.append(run_case(work, name, mutated, failure, harness=mutated_harness))
+         servo_source = SERVO.read_text()
+         anchor = "\n                           && ref_rate_valid_i;"
+         if servo_source.count(anchor) != 1:
+diff --git a/tb/verilator/crf_rx/sim_main.cpp b/tb/verilator/crf_rx/sim_main.cpp
+index 83344a7ff..d6b44965d 100644
+--- a/tb/verilator/crf_rx/sim_main.cpp
++++ b/tb/verilator/crf_rx/sim_main.cpp
+@@ -31,7 +31,10 @@
+ //                      O+1 bit 0, NOT the common header's byte O+3)
+ //   LATE/EARLY         the CRF reference timestamp vs ptp_now: in the past
+ //                      / further ahead than MAXTT_NS_P + 10 ms
+-//   STREAM_INTERRUPTED per-EVENT, >= 2 lost AVTPDUs (no interval fold)
++//   STREAM_INTERRUPTED per-EVENT, >= 2 lost AVTPDUs (no interval fold), and
++//                      the 100 ms silence of a started, bound sink (#762),
++//                      never an unbind, and never on a stopped sink: its
++//                      gap counts SEQ_NUM_MISMATCH only (#762, extended)
+ // and in every case a REJECTED PDU counts none of them.
+ //
+ // Sampling contract: outputs are compared SETTLE_TICKS_C (4) cycles after
+@@ -161,8 +164,9 @@ struct Model {
+         rate_seeded = true;
+         if (have_seq && seq != exp_seq) {
+             settle = 0;                  // discontinuity breaks the settle run
+-            // STREAM_INTERRUPTED: "the loss of several AVTPDUs", per-event
+-            if (static_cast<uint8_t>(seq - exp_seq) >= 2) cnt_i++;
++            // STREAM_INTERRUPTED: "the loss of several AVTPDUs", per-event,
++            // on a started sink only (#762: a stopped one has no playback)
++            if (static_cast<uint8_t>(seq - exp_seq) >= 2 && !stop) cnt_i++;
+         } else if (stop) {
+             // a stopped sink's accepts advance nothing toward lock
+         } else if (settle != 7) {
+@@ -187,8 +191,15 @@ struct Model {
+     void bad_pdu() {                     // format-invalid, matched stream
+         settle = 0;                      // the UF count commits via cycle()
+     }
+-    void timeout() {                     // 100 ms without a CONSUMED PDU
+-        if (locked) { locked = false; cnt_u++; }
++    // 100 ms without a CONSUMED PDU. #762: a started, bound sink's
++    // silence is also a STREAM_INTERRUPTED; an unbind on the same edge
++    // (bound false) is not
++    void timeout(bool bound = true) {
++        if (locked) {
++            locked = false;
++            cnt_u++;
++            if (bound && !stop) cnt_i++;
++        }
+         settle = 0;
+         // stopped, the frames may still be arriving and counted: the
+         // sequence cursor, ring fill and mr reference stay live (a reset
+@@ -256,6 +267,8 @@ class CrfRxHarness {
+         pin_wrap_backing_and_slice_abi();
+         pin_stopped_sink();
+         pin_unbind_scores_one_unlock();
++        pin_stopped_silence_is_no_interruption();
++        pin_stopped_gap_is_no_interruption();
+ 
+         printf("======================================================================\n");
+         printf("KL_crf_rx: %ld checks, %ld failures (%ld accepted PDUs pinned)\n",
+@@ -385,7 +398,9 @@ class CrfRxHarness {
+     // The Table 5.6 events (FRX always, SM on a discontinuity) are computed
+     // from the replica's PRE-update state — exactly what the RTL sees in
+     // have_seq_r/exp_seq_r at the pulse edge.
+-    void feed_good(uint64_t ts, uint8_t seq, uint64_t ptp) {
++    //! `stop_after` >= 0 drives stop_i to that level on the edge right after
++    //! the PDU's own: the replica scores the PDU at the state of its edge
++    void feed_good(uint64_t ts, uint8_t seq, uint64_t ptp, int stop_after = -1) {
+         dut->ptp_now_i = ptp;
+         drive_fields(ts, seq);
+         g_ev_frx = true;
+@@ -395,11 +410,13 @@ class CrfRxHarness {
+         g_ev_lt  = ts_late(ts, ptp);
+         g_ev_et  = ts_early(ts, ptp);
+         pulse();
++        if (stop_after >= 0) dut->stop_i = stop_after;
+         for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+         m.good_pdu(ts, seq, ptp, g_mr, g_tu);
++        if (stop_after >= 0) m.stop = stop_after != 0;
+     }
+-    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
+-        feed_good(ts, seq, ptp);
++    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, int stop_after = -1) {
++        feed_good(ts, seq, ptp, stop_after);
+         compare(++g_pdu_no);
+     }
+ 
+@@ -586,17 +603,22 @@ class CrfRxHarness {
+         // commits one more tick); THEN the ~100 empty intervals must not move
+         for (int i = 0; i < kIvalCyc + 2; i++) tick();
+         uint32_t pdu_frozen = dut->pdu_count_o;
++        const uint32_t si_before = dut->cnt_intr_o;
+         for (int i = 0; i < kSilenceCyc; i++) tick();  // TOUT_CYC_C = 20 000 @ 200 kHz
+         m.timeout();
+         ck("silence: unlocked", dut->locked_o, 0);
+         ck("silence: cnt_unlocked 1", dut->cnt_unlocked_o, 1);
++        ck("[762-a] silence: STREAM_INTERRUPTED counts the silence once",
++           dut->cnt_intr_o, si_before + 1);
+         ck("silence: rate holds last value",
+            static_cast<int32_t>(dut->rate_o), rate_frozen);
+         ck("silence: empty intervals do NOT tick FRAMES_RX",
+            dut->pdu_count_o, pdu_frozen);
+ 
+-        // resume at +100 ppm again; ~100 ms passed on both timelines
++        // resume at +100 ppm again; ~100 ms passed on both timelines, and
++        // five sequence numbers on: the first PDU re-seeds the cursor
+         ts += 100000000; ptp += 100000000;
++        seq += 5;
+         long rate_change_pdu = -1;
+         long resume_base = g_pdu_no;
+         for (int n = 0; n < 270; n++) {
+@@ -608,6 +630,8 @@ class CrfRxHarness {
+                 rate_change_pdu = g_pdu_no - resume_base;
+         }
+         ck("re-lock: cnt_locked 2", dut->cnt_locked_o, 2);
++        ck("[762-b] resume: the re-seeded first PDU adds no STREAM_INTERRUPTED",
++           dut->cnt_intr_o, si_before + 1);
+         ck("refill: rate frozen for 256 PDUs, moves on 257",
+            rate_change_pdu, 257);
+         ck("refill: rate == +100 ppm again",
+@@ -1474,7 +1498,8 @@ class CrfRxHarness {
+     // so Table 5.6 reads MEDIA_LOCKED = MEDIA_UNLOCKED, "not synchronized",
+     // from the unbind on. The 100 ms timeout after it finds the lock down and
+     // counts nothing, even when the two land on one edge. An unbound UNLOCKED
+-    // input counts nothing, STREAM_INTERRUPTED never moves, a stopped input
++    // input counts nothing, an unbind never moves STREAM_INTERRUPTED (#762:
++    // the timeout counts it only while bound), a stopped input
+     // still holding its lock scores the same one unlock, and 100 ms of
+     // silence while BOUND (genuine stream loss) still unlocks.
+     //-----------------------------------------------------------------------
+@@ -1555,6 +1580,7 @@ class CrfRxHarness {
+         ck("[UNB-d0] 100 ms of silence while BOUND still unlocks",
+            static_cast<long>(dut->cnt_locked_o == 1 && dut->cnt_unlocked_o == 1
+                              && !dut->locked_o), 1);
++        ck("[UNB-d0b] ...and counts one STREAM_INTERRUPTED (#762)", dut->cnt_intr_o, 1);
+         const uint32_t tout_max = dut->rootp->KL_crf_rx__DOT__tout_r;
+         ts += 100000000; ptp += 100000000;
+         for (int n = 0; n < 10; n++) {
+@@ -1569,9 +1595,11 @@ class CrfRxHarness {
+         g_dirty_cnt = 0;
+         dut->en_i = 0;
+         tick();
+-        m.timeout(); m.unbind();
++        m.timeout(false); m.unbind();
+         ck("[UNB-d2] unbind and timeout on one edge: ONE unlock",
+            dut->cnt_unlocked_o, 2);
++        ck("[UNB-d5] ...and no STREAM_INTERRUPTED: the unbind wins the edge (#762)",
++           dut->cnt_intr_o, 1);
+         ck("[UNB-d3] ...locked_o down", dut->locked_o, 0);
+         ck("[UNB-d4] ...and one dirty pulse", g_dirty_cnt, 1);
+     }
+@@ -1595,6 +1623,164 @@ class CrfRxHarness {
+         dut->en_i = 1; m.bind_zero();
+         for (int i = 0; i < 4; i++) tick();
+     }
++
++    //-----------------------------------------------------------------------
++    // [762-ST] the #762 ruling: a silence on a bound, STOPPED input counts no
++    // STREAM_INTERRUPTED, because a stopped input has no playback to
++    // interrupt (Milan v1.2 5.3.8.7, Table 5.6). Each case is graded by its
++    // own count delta, never against the replica: started silence, stopped
++    // silence after an established lock, START recovery, STOP with live
++    // traffic, and Unbind.
++    //-----------------------------------------------------------------------
++    void pin_stopped_silence_is_no_interruption() {
++        printf("\n[762-ST] #762 stopped-input ruling\n");
++        auto lock_started = [&]() {
++            for (int n = 0; n < 10; n++) {
++                ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
++            }
++        };
++        auto silence = [&]() {
++            for (int i = 0; i < kSilenceCyc; i++) tick();
++            m.timeout();
++        };
++        auto d_unl = [&](uint32_t u0) {
++            return static_cast<long long>(dut->cnt_unlocked_o - u0);
++        };
++        auto d_intr = [&](uint32_t i0) {
++            return static_cast<long long>(dut->cnt_intr_o - i0);
++        };
++
++        // (a) started silence
++        lock_started();
++        ck("[762-ST-a0] precondition: started and locked", dut->locked_o, 1);
++        uint32_t u0 = dut->cnt_unlocked_o;
++        uint32_t i0 = dut->cnt_intr_o;
++        silence();
++        ck("[762-ST-a1] started silence: one MEDIA_UNLOCKED", d_unl(u0), 1);
++        ck("[762-ST-a2] started silence: one STREAM_INTERRUPTED", d_intr(i0), 1);
++
++        // (b) stopped silence after an established lock: no PDU at all
++        ts += 100000000; ptp += 100000000;
++        lock_started();
++        ck("[762-ST-b0] precondition: locked again while started", dut->locked_o, 1);
++        u0 = dut->cnt_unlocked_o;
++        i0 = dut->cnt_intr_o;
++        dut->stop_i = 1; m.stop = true;
++        silence();
++        ck("[762-ST-b1] stopped silence: the lock still falls once", d_unl(u0), 1);
++        ck("[762-ST-b2] stopped silence: no STREAM_INTERRUPTED", d_intr(i0), 0);
++
++        // (c) START: the sink re-earns the lock, and a later silence counts
++        dut->stop_i = 0; m.stop = false;
++        for (int i = 0; i < 4; i++) tick();
++        ts += 100000000; ptp += 100000000;
++        lock_started();
++        ck("[762-ST-c0] START: the sink re-earns the lock", dut->locked_o, 1);
++        ck("[762-ST-c1] START: the resume counts no STREAM_INTERRUPTED", d_intr(i0), 0);
++        silence();
++        ck("[762-ST-c2] after START a silence counts STREAM_INTERRUPTED again", d_intr(i0), 1);
++
++        // (d) STOP with live traffic: frames keep arriving and counting, the
++        // consumption clock times the lock out, and nothing is interrupted
++        ts += 100000000; ptp += 100000000;
++        lock_started();
++        u0 = dut->cnt_unlocked_o;
++        i0 = dut->cnt_intr_o;
++        dut->stop_i = 1; m.stop = true;
++        for (int burst = 0; burst < 11; burst++) {
++            ts += 2000200; ptp += 2000000;
++            feed_good(ts, seq++, ptp);
++            for (int i = 0; i < 2100; i++) tick();
++        }
++        m.timeout();
++        ck("[762-ST-d1] STOP with live traffic: the lock times out once", d_unl(u0), 1);
++        ck("[762-ST-d2] STOP with live traffic: no STREAM_INTERRUPTED", d_intr(i0), 0);
++        dut->stop_i = 0; m.stop = false;
++        for (int i = 0; i < 4; i++) tick();
++
++        // (e) the Unbind of a started, locked sink, and the silence after it
++        lock_started();
++        ck("[762-ST-e0] precondition: started and locked", dut->locked_o, 1);
++        u0 = dut->cnt_unlocked_o;
++        i0 = dut->cnt_intr_o;
++        dut->en_i = 0; m.unbind();
++        tick();
++        ck("[762-ST-e1] Unbind: one MEDIA_UNLOCKED", d_unl(u0), 1);
++        ck("[762-ST-e2] Unbind: no STREAM_INTERRUPTED", d_intr(i0), 0);
++        silence();
++        ck("[762-ST-e3] ...nor the silence after it", d_intr(i0), 0);
++        dut->en_i = 1; m.bind_zero();
++        for (int i = 0; i < 4; i++) tick();
++    }
++
++    //-----------------------------------------------------------------------
++    // [762-SG] the #762 ruling, extended: a sequence gap on a STOPPED sink
++    // counts no STREAM_INTERRUPTED (it still counts SEQ_NUM_MISMATCH); a
++    // started sink's gap counts once; after START a gap counts again. The
++    // stopped state is read on the gap PDU's own accept edge, so a STOP or a
++    // START one edge later changes nothing for that gap. Each case is graded
++    // by its own count delta; the replica carries the same rule, so every
++    // #762 mutant is planted in both (mutants.py).
++    //-----------------------------------------------------------------------
++    void pin_stopped_gap_is_no_interruption() {
++        printf("\n[762-SG] #762 a sequence gap on a stopped sink\n");
++        auto gap = [&](int stop_after = -1) {
++            ts += 2000200; ptp += 2000000; seq += 3;   // 3 lost AVTPDUs
++            good_pdu(ts, seq++, ptp, stop_after);
++        };
++        auto set_stop = [&](bool stopped) {
++            dut->stop_i = stopped; m.stop = stopped;
++        };
++        auto d_intr = [&](uint32_t i0) {
++            return static_cast<long long>(dut->cnt_intr_o - i0);
++        };
++        for (int n = 0; n < 10; n++) {
++            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
++        }
++        ck("[762-SG-a0] precondition: started and locked", dut->locked_o, 1);
++        uint32_t i0 = dut->cnt_intr_o;
++        gap();
++        ck("[762-SG-a1] started gap: one STREAM_INTERRUPTED", d_intr(i0), 1);
++
++        // (b) stopped: two gaps, neither counted; the interval still sees them
++        for (int i = 0; i < kIvalCyc + 2; i++) tick();
++        align_interval();
++        const uint32_t s0 = dut->seq_err_o;
++        const uint32_t u0 = dut->cnt_unlocked_o;
++        i0 = dut->cnt_intr_o;
++        set_stop(true);
++        gap();
++        ck("[762-SG-b1] stopped gap: no STREAM_INTERRUPTED", d_intr(i0), 0);
++        gap();
++        ck("[762-SG-b2] ...nor a second stopped gap", d_intr(i0), 0);
++        ck("[762-SG-b3] ...and the gaps unlock nothing", dut->cnt_unlocked_o, u0);
++        for (int i = 0; i < kIvalCyc + 2; i++) tick();
++        ck("[762-SG-b4] the stopped gaps were seen: one SEQ_NUM_MISMATCH interval",
++           dut->seq_err_o, s0 + 1);
++
++        // (c) START: a gap counts again
++        set_stop(false);
++        for (int i = 0; i < 4; i++) tick();
++        i0 = dut->cnt_intr_o;
++        gap();
++        ck("[762-SG-c1] after START a gap counts STREAM_INTERRUPTED again", d_intr(i0), 1);
++
++        // (d) the gap's own edge is the boundary, in both directions
++        i0 = dut->cnt_intr_o;
++        set_stop(true);
++        gap(0);                          // STOP on the gap's edge, START after
++        ck("[762-SG-d1] a STOP on the gap's own edge: no STREAM_INTERRUPTED", d_intr(i0), 0);
++        gap(1);                          // started on the gap's edge, STOP after
++        ck("[762-SG-d2] a STOP one edge after the gap: the gap counts once", d_intr(i0), 1);
++        gap(0);                          // stopped on the gap's edge, START after
++        ck("[762-SG-d3] a START one edge after the gap: the gap counts nothing", d_intr(i0), 1);
++        ck("[762-SG-d4] ...and the START after it holds", dut->stop_i, 0);
++        set_stop(true);
++        for (int i = 0; i < 4; i++) tick();
++        set_stop(false);
++        gap();                           // START on the gap's own edge
++        ck("[762-SG-d5] a START on the gap's own edge: the gap counts once", d_intr(i0), 2);
++    }
+ };
+ 
+ }  // namespace
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index aaded0dd6..8174c46a0 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -1185,6 +1185,20 @@ CLOCK_DOMAIN 0 or a tuple at an undeclared index. Each of the 45 pairwise
+ exchanges of the ten `KL_crf_rx` output bindings turns both of its quadlets red
+ on `obj_nxn` and `obj_nxn8`.
+ 
++**`[762-DP]` grades the AAF half of #762 through the datapath.** It runs on
++every broad `sim_nxn` leg, right after the 5.3.8.7 discard section, on AAF
++Stream Input 0. STOP_STREAMING and START_STREAMING arrive over the wire, and
++every count is read with `GET_COUNTERS(STREAM_INPUT, 0)`. While the input is
++stopped, a gap of two lost PDUs moves SEQ_NUM_MISMATCH and the 100 ms silence
++moves MEDIA_UNLOCKED, but neither moves STREAM_INTERRUPTED. After START and a
++relock past the 8-PDU settle window, the same gap counts STREAM_INTERRUPTED
++once. The harness advances the monitor's silence watchdog to 3 ms short of its
++limit, as the CRF arm does, and the last ticks run for real. The engine rule is
++graded in `tb/verilator/avtp_rxmon`; this section grades the one wire into it,
++`KL_avtp_rx_monitor_ctx`'s `stopped_i` port in `milan_datapath`. With that port
++tied to `'0` or fed sink 1's level, the stopped gap and the stopped silence each
++count. With it fed the bound level, the gap after START does not count.
++
+ `sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
+ `GET_AUDIO_MAP` succeeds on both Stream Port directions, and
+ `ADD_AUDIO_MAPPINGS` plus `REMOVE_AUDIO_MAPPINGS` use the processor's two-pass
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index 6d76e76a5..f2bee7e79 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -5549,7 +5549,7 @@ class NxnDatapathHarness {
+     static constexpr uint32_t CRF_EVT_N[10] = {
+          2,   // MEDIA_LOCKED         two locks
+          1,   // MEDIA_UNLOCKED       one unlock
+-         3,   // STREAM_INTERRUPTED   three gaps of >= 2 lost
++         3,   // STREAM_INTERRUPTED   two gaps of >= 2 lost and the silence (#762)
+          4,   // SEQ_NUM_MISMATCH     ...and one gap of 1
+          5,   // MEDIA_RESET          five mr toggles
+          6,   // TIMESTAMP_UNCERTAIN  six tu PDUs
+@@ -5602,11 +5602,12 @@ class NxnDatapathHarness {
+     //! against the leg's 256-cycle LDIAG_IVAL_CYC_P), in a fresh era:
+     //!   P1         accepted: seeds the sequence cursor and the mr level
+     //!   7 rejects  type 2 at the followed sid     UNSUPPORTED_FORMAT   7
+-    //!   P2..P4     2, 3 and 2 PDUs lost           STREAM_INTERRUPTED   3
+-    //!   P5         1 PDU lost, below the >= 2     SEQ_NUM_MISMATCH     4
++    //!   P2, P3     2 and 3 PDUs lost              STREAM_INTERRUPTED   2
++    //!   P4, P5     1 PDU lost, below the >= 2     SEQ_NUM_MISMATCH     4
+     //!   P6..P13    eight clean in order: a lock   MEDIA_LOCKED         1
+     //!   P6..P10    each toggles the received mr   MEDIA_RESET          5
+     //!   silence    the 100 ms timeout: an unlock  MEDIA_UNLOCKED       1
++    //!              ...and an interruption (#762)  STREAM_INTERRUPTED   3
+     //!   P14..P21   eight clean in order: a lock   MEDIA_LOCKED         2
+     //!   P14..P19   carry tu                       TIMESTAMP_UNCERTAIN  6
+     //!   P1..P8     timestamp already past         LATE_TIMESTAMP       8
+@@ -5622,7 +5623,7 @@ class NxnDatapathHarness {
+             send_crf_pdu(phc_now_ns() + 1000000u, cseq, 0x80, 0x02);
+         cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(2, false, false);
+         cseq = static_cast<uint8_t>(cseq + 3); send_crf_event_pdu(3, false, false);
+-        cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(4, false, false);
++        cseq = static_cast<uint8_t>(cseq + 1); send_crf_event_pdu(4, false, false);
+         cseq = static_cast<uint8_t>(cseq + 1); send_crf_event_pdu(5, false, false);
+         for (int n = 6; n <= 13; n++)           // mr 1,0,1,0,1 then held at 1
+             send_crf_event_pdu(n, n > 10 || n % 2 == 0, false);
+@@ -5652,6 +5653,8 @@ class NxnDatapathHarness {
+            ctr_word(r2, 1), 1);
+         ck("[CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized)",
+            ctr_word(r2, 0), 1);
++        ck("[CTRS-CRF] events: ...and the silence counts STREAM_INTERRUPTED @8 (#762)",
++           ctr_word(r2, 2), 3);
+ 
+         for (int n = 14; n <= 21; n++) send_crf_event_pdu(n, true, n <= 19);
+         const std::vector<uint8_t> r3 = crf_ctrs(0x4408);
+@@ -6432,6 +6435,7 @@ class NxnDatapathHarness {
+         const unsigned long armed_bound =
+             grade_the_bound_alias_verdict(armed_pre);
+         prove_a_stopped_stream_input_discards();
++        prove_a_stopped_stream_input_counts_no_interruption();
+         prove_a_stopped_crf_media_clock_input_never_locks();
+         grade_the_stream_setters_end_to_end();
+         prove_the_window_writes_leave_entry_zero_alone(armed_bound);
+@@ -6646,6 +6650,84 @@ class NxnDatapathHarness {
+            static_cast<long>(frx_after > frx_before), 1);
+     }
+ 
++    // ---- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED ----
++    //! Milan v1.2 5.3.8.7 and 5.4.2.20: a stopped Stream Input discards its
++    //! AVTPDUs, so it has no playback to interrupt, and Table 5.6 (5.3.8.10)
++    //! counts STREAM_INTERRUPTED for neither its sequence gap nor its silence
++    //! (#762). tb/verilator/avtp_rxmon grades that law in the engine; this is
++    //! the grade of its one datapath input, the bound-and-stopped vector this
++    //! module hands KL_avtp_rx_monitor_ctx's stopped_i, read at the entity's
++    //! GET_COUNTERS face with STOP and START arriving over the wire:
++    //!   1 started, locked and settled: the baseline
++    //!   2 STOP, then a gap of two lost PDUs: SEQ_NUM_MISMATCH moves (the case
++    //!     is live) and STREAM_INTERRUPTED does not
++    //!   3 still stopped, the 100 ms silence expires: MEDIA_UNLOCKED moves and
++    //!     STREAM_INTERRUPTED does not
++    //!   4 START, relock past the 8-PDU settle window, then the same gap:
++    //!     STREAM_INTERRUPTED counts it once
++    //! A stopped_i tied to '0 or fed another sink's level fails 2 and 3; one
++    //! fed the bound level fails 4.
++    std::vector<uint8_t> sin0_ctrs(uint16_t sq) {
++        const std::vector<uint8_t> key = {0x00, 0x05, 0x00, 0x00};
++        return aecp_xact(0x0029, sq, key);
++    }
++
++    void prove_a_stopped_stream_input_counts_no_interruption() {
++        printf("-- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED --\n");
++        const std::vector<uint8_t> ti4 = {0x00, 0x05, 0x00, 0x00};
++        // one PDU per 256-cycle counter interval, so each interval flag
++        // (SEQ_NUM_MISMATCH) commits before the next PDU
++        auto pdu = [this](uint8_t seq) { inject(mkaaf(sid0, seq, 2, 0xC0), 400); };
++        // the discard section's last PDU was 0x22: carry on in order
++        for (uint8_t s = 0x23; s <= 0x2B; s++) pdu(s);
++        const std::vector<uint8_t> r1 = sin0_ctrs(0x9130);
++        ck("[762-DP] 1 started: GET_COUNTERS(STREAM_INPUT,0) answers SUCCESS",
++           aecp_status(r1), 0);
++        ck("[762-DP] 1 started: ...and the input reads locked",
++           dut->rootp->milan_datapath__DOT__avtp_rx_monitor__DOT__locked_sh_r & 1u, 1);
++
++        ck("[762-DP] 2 STOP_STREAMING answered SUCCESS",
++           aecp_status(aecp_xact(0x0023, 0x9131, ti4)), 0);
++        pdu(0x2E);                               // 0x2C expected: two lost
++        const std::vector<uint8_t> r2 = sin0_ctrs(0x9132);
++        ck("[762-DP] 2 stopped gap: SEQ_NUM_MISMATCH +1 (the gap was seen)",
++           ctr_word(r2, 3) - ctr_word(r1, 3), 1);
++        ck("[762-DP] 2 stopped gap: STREAM_INTERRUPTED +0",
++           ctr_word(r2, 2) - ctr_word(r1, 2), 0);
++
++        //! The silence is the monitor's own 1 ms-tick watchdog reaching 100.
++        //! Run whole it is 10,000,000 cycles of this 100 MHz fabric on every
++        //! leg, so the watchdog is advanced through the engine's hierarchy
++        //! to 3 ms short of its limit and the last ticks run for real, as the
++        //! [CTRS-CRF] silence does: only idle time is skipped.
++        static constexpr uint8_t kAafUnlockMs = 100;          // UNLOCK_MS_C
++        static constexpr uint32_t kFabricMsCyc = 100000;      // MILAN_CLK_FREQ_HZ / 1000
++        auto& sil_ms = dut->rootp->milan_datapath__DOT__avtp_rx_monitor__DOT__sil_ms_r[0];
++        ck("[762-DP] 3 the skip only shortens the silence (the watchdog was below it)",
++           static_cast<long>(sil_ms < kAafUnlockMs - 3), 1);
++        sil_ms = kAafUnlockMs - 3;
++        for (uint32_t c = 0; c < 4 * kFabricMsCyc; c++) step();
++        ck("[762-DP] 3 the stopped input's silence unlocked it",
++           dut->rootp->milan_datapath__DOT__avtp_rx_monitor__DOT__locked_sh_r & 1u, 0);
++        const std::vector<uint8_t> r3 = sin0_ctrs(0x9133);
++        ck("[762-DP] 3 stopped silence: MEDIA_UNLOCKED +1 (the silence was seen)",
++           ctr_word(r3, 1) - ctr_word(r2, 1), 1);
++        ck("[762-DP] 3 stopped silence: STREAM_INTERRUPTED +0",
++           ctr_word(r3, 2) - ctr_word(r2, 2), 0);
++
++        ck("[762-DP] 4 START_STREAMING answered SUCCESS",
++           aecp_status(aecp_xact(0x0022, 0x9134, ti4)), 0);
++        for (uint8_t s = 0x30; s <= 0x38; s++) pdu(s);   // lock + 8 settle
++        pdu(0x3B);                               // 0x39 expected: two lost
++        const std::vector<uint8_t> r4 = sin0_ctrs(0x9135);
++        ck("[762-DP] 4 started again: MEDIA_LOCKED +1 (relocked)",
++           ctr_word(r4, 0) - ctr_word(r3, 0), 1);
++        ck("[762-DP] 4 started gap: SEQ_NUM_MISMATCH +1",
++           ctr_word(r4, 3) - ctr_word(r3, 3), 1);
++        ck("[762-DP] 4 started gap: STREAM_INTERRUPTED +1",
++           ctr_word(r4, 2) - ctr_word(r3, 2), 1);
++    }
++
+     // ---- Milan 5.3.8.7 on the CRF Media Clock Input (issue #97) ----
+     // The CRF sink has no classification-table entry (KL_crf_rx keys on
+     // subtype off the parser), so the stopped predicate rides its own
+diff --git a/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py b/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
+index c8584c867..ab7ec1cd3 100755
+--- a/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
++++ b/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
+@@ -77,7 +77,7 @@ RESTART_TRIGGER = "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;"
+ #: the selected CRF stream's two terms, the disruption and the received toggle:
+ #: a control that ANDs a veto into the CRF restart plants it inside this group,
+ #: since on RESTART_TRIGGER the `&` binds to the AAF toggle alone
+-CRF_RESTART_TERMS = "        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))"
++CRF_RESTART_TERMS = "        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p_w))"
+ RESTART_DECL = ("  wire mcr_restart_p_w /* verilator public_flat_rd */ =\n"
+                 "       (crf_clk_selected_r\n" + CRF_RESTART_TERMS + "\n" + RESTART_TRIGGER)
+ TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
+@@ -158,7 +158,7 @@ CONTROLS = [
+             "source control: a real source change toggles mr once", True),
+     Control("selected CRF mr propagation is removed", "datapath",
+             CRF_RESTART_TERMS,
+-            "        & (tkd_crflk_q_r & ~crf_locked_w))",
++            "        & (tkd_crflk_q_r ^ crf_locked_w))",
+             "CRF control: selected CRF mr propagates exactly once", True),
+     Control("the grandmaster identity re-bases the render stage as well as the step",
+             "datapath", RENDER_TRIGGER,
+diff --git a/tb/verilator/milan_dp_mclk/README.md b/tb/verilator/milan_dp_mclk/README.md
+index 01dcd3b69..2ab6c3e08 100644
+--- a/tb/verilator/milan_dp_mclk/README.md
++++ b/tb/verilator/milan_dp_mclk/README.md
+@@ -13,7 +13,7 @@ restart request and CLOCK_DOMAIN counters.
+ 
+ - **[The elaboration](#the-elaboration)** -- The two-stream shape, the 4 MHz fabric and true-ratio audio clocks, the modelled MMCM fine phase shift and the `tu` test double.
+ - **[The legs](#the-legs)** -- The planted talker offsets and which rows legs A, B and C run.
+-- **[Mutants](#mutants)** -- The sixteen named defects, planted once as mutant schemata, each with its short leg and the check it must fail.
++- **[Mutants](#mutants)** -- The eighteen named defects, planted once as mutant schemata, each with its short leg and the check it must fail.
+ - **[Running](#running)** -- The default target, the pool width and the single legs.
+ - **[Limits](#limits)** -- Where this suite departs from the design's test plan, and why.
+ 
+@@ -48,7 +48,7 @@ level, CRF at -14 ppm. The plan alone is -10.64 ppm.
+ |---|---|
+ | A | AAF input 0 selected from INTERNAL, LOCKED, followed within 0.5 ppm; the CSR words; the echo; one PDU lost in every 0.3 s for 3 s; a 150 ms lock loss and return; the talker's `tu` set, then cleared, each edge one history restart and no request (IEEE 1722-2016 4.4.4.7) |
+ | C | AAF input 0 LOCKED, then W2 onto the locked CRF input, LOCKED and followed within 0.5 ppm |
+-| B | the CRF input selected and LOCKED; its lock loss and return; the switch sweep at 16 phases of the CRF output; one recentre per switch kind; a switch onto a silent talker; a switch onto a talker silent for 150 ms, past the meter's timeout, where the lock clears at the switch and the timeout raises no second request; an INTERNAL dwell; INTERNAL with the aligner engaged, the grids at one rate and no junction slip |
++| B | the CRF input selected and LOCKED; its lock loss and return, each one request and one `mr` toggle per output (#761); the switch sweep at 16 phases of the CRF output; one recentre per switch kind; a switch onto a silent talker; a switch onto a talker silent for 150 ms, past the meter's timeout, where the lock clears at the switch and the timeout raises no second request; an INTERNAL dwell; INTERNAL with the aligner engaged, the grids at one rate and no junction slip |
+ 
+ Every leg grades the C1 invariant every millisecond: LOCKED equals UNLOCKED
+ or UNLOCKED + 1. Leg C repeats A's AAF lock so the pool runs the two side by
+@@ -81,6 +81,8 @@ pass every short leg.
+ | 14 | the decode table one source short | `--switch` | switch: AAF1 decodes as listener 1 and the meter follows it |
+ | 15 | `tu` taken from the `tv` net (the CRF wiring) | `--tu` | tu: the followed talker's tu edge restarts the meter's history |
+ | 16 | a change of the followed listener keeping a held lock | `--silent` | switch (iv): the meter's lock clears at the switch |
++| 17 | the selected CRF's lock-gain edge dropped (#761) | `--crfloss` | CRF return: one request at the sink's re-lock |
++| 18 | the selected CRF's lock-loss edge dropped | `--crfloss` | CRF loss: one request at the sink's timeout |
+ 
+ ## Running
+ 
+diff --git a/tb/verilator/milan_dp_mclk/mclk_mutants.py b/tb/verilator/milan_dp_mclk/mclk_mutants.py
+index 83074e0ea..4da36587d 100644
+--- a/tb/verilator/milan_dp_mclk/mclk_mutants.py
++++ b/tb/verilator/milan_dp_mclk/mclk_mutants.py
+@@ -10,7 +10,7 @@ left in obj_mclk) must pass, and each mutant must make its short leg FAIL by
+ its OWN verdict, with the named check among the failures. A crash, an abort or
+ a failure of some other check is not a catch.
+ 
+-ONE ELABORATION FOR SIXTEEN MUTANTS (mutant schemata). Sixteen rebuilds of
++ONE ELABORATION FOR EIGHTEEN MUTANTS (mutant schemata). Eighteen rebuilds of
+ the whole datapath do not fit the suite's 1800 s guard beside the leg itself.
+ So every mutation is planted once, into copies of milan_datapath.sv,
+ KL_aaf_clock_meter.sv and milan_csr.sv, each guarded by a selector the run
+@@ -114,6 +114,10 @@ EDITS = [
+          "  logic aafm_lk_q_r;\n"
+          "  always_ff @(posedge axis_clk) aafm_lk_q_r <= aafm_locked_w;\n"
+          "  wire mcr_restart_p_w /* verilator public_flat_rd */ =\n"),
++    Edit("dp", "        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p_w))",
++         "        & (((mclk_mut_r == 17) ? (tkd_crflk_q_r & ~crf_locked_w)"
++         " : (mclk_mut_r == 18) ? (~tkd_crflk_q_r & crf_locked_w)"
++         " : (tkd_crflk_q_r ^ crf_locked_w)) | crf_mr_toggle_p_w))"),
+     Edit("dp", "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;",
+          "       | ((mclk_mut_r == 6) ? (aafm_lk_q_r & ~aafm_locked_w)"
+          " : (aafm_disrupt_p_w & (mclk_mut_r != 8))) | aafm_mr_toggle_p_w;"),
+@@ -174,12 +178,16 @@ MUTANTS = [
+            "tu: the followed talker's tu edge restarts the meter's history"),
+     Mutant(16, "a change of the followed listener keeping a held lock", "silent",
+            "switch (iv): the meter's lock clears at the switch"),
++    Mutant(17, "the selected CRF's lock-gain edge dropped (#761)", "crfloss",
++           "CRF return: one request at the sink's re-lock"),
++    Mutant(18, "the selected CRF's lock-loss edge dropped", "crfloss",
++           "CRF loss: one request at the sink's timeout"),
+ ]
+ 
+ 
+ #: simulated seconds each short leg runs, so the pool starts the long ones
+ #: first and the short ones fill in behind them
+-MODE_SECONDS = {"loss": 9.0, "internal": 4.1, "refmux": 3.2, "aafloss": 0.4,
++MODE_SECONDS = {"loss": 9.0, "crfloss": 6.2, "internal": 4.1, "refmux": 3.2, "aafloss": 0.4,
+                 "switch": 0.4, "silent": 0.3, "echo": 0.2, "dwell": 0.2, "tu": 0.1}
+ 
+ 
+diff --git a/tb/verilator/milan_dp_mclk/sim_mclk.cpp b/tb/verilator/milan_dp_mclk/sim_mclk.cpp
+index 93c3884d1..bd7b5668b 100644
+--- a/tb/verilator/milan_dp_mclk/sim_mclk.cpp
++++ b/tb/verilator/milan_dp_mclk/sim_mclk.cpp
+@@ -887,14 +887,17 @@ void MclkHarness::row_crf_loss() {
+        rp->milan_datapath__DOT__pp_aecp_clk_src_index_w == kSrcCrf &&
+        rp->milan_datapath__DOT__crf_clk_selected_r == 1);
+     ckv("C1: UNLOCKED moves at the CRF loss", ctr_unlocked() - un0, 1);
++    //! #761: the return onto the CRF is a change of the media clock's
++    //! source (IEEE 1722-2016 4.4.4.3), so the sink's re-lock requests one
++    //! restart of its own, after the loss toggle has held its 8 PDUs
+     crfk.muted = false;
+     rq0 = restart_pulses;
+     at0 = aaf_out.toggles;
+     ct0 = crf_out.toggles;
+     run_for_ns(100'000'000);
+-    ckv("CRF return: no request on return", static_cast<uint64_t>(restart_pulses - rq0), 0);
+-    ckv("CRF return: no further mr toggle",
+-        static_cast<uint64_t>(aaf_out.toggles - at0 + crf_out.toggles - ct0), 0);
++    ckv("CRF return: one request at the sink's re-lock", static_cast<uint64_t>(restart_pulses - rq0), 1);
++    ckv("CRF return: one mr toggle on the AAF output", static_cast<uint64_t>(aaf_out.toggles - at0), 1);
++    ckv("CRF return: one mr toggle on the CRF output", static_cast<uint64_t>(crf_out.toggles - ct0), 1);
+     follow_to_locked("CRF return", lk0);
+ }
+ 
+@@ -1141,6 +1144,7 @@ int MclkHarness::run(const std::string& mode) {
+     else if (mode == "echo") { row_select_aaf0(); row_echo(); }
+     else if (mode == "aafloss") { row_select_aaf0(); row_aaf_loss(false); }
+     else if (mode == "w2") { row_select_aaf0(); row_w2_switch_to_crf(false); }
++    else if (mode == "crfloss") { row_select_crf(); row_crf_loss(); }
+     else if (mode == "loss") {
+         const uint32_t lk0 = ctr_locked();
+         row_select_aaf0();
