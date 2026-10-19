@@ -865,8 +865,9 @@ and KEEPS the saved-state window memory, then runs the firmware's load of
 it: re-base, RELOAD, publish, and the restore walk. The window stands in for
 the slot the firmware commits and copies back; `tb/verilator/nvm_cosim`
 grades that commit and copy. The leg compiles the map writer's millisecond
-to 100 clocks (`-GAMR_MS_CYC_P`), so its 500 ms windows are 50,000 clocks.
-The processor's own timebase is not compressed.
+to 100 clocks (`-GAMR_MS_CYC_P`), so its 500 ms windows are 50,000 clocks and
+its deadlines count the same millisecond. The processor's own timebase is
+not compressed.
 
 The oracle for every record the writer leaves is the repository's codec.
 `gen_nvm_window.py` frames the expected records with `scripts/nvm_klj2.py`,
@@ -902,9 +903,15 @@ and the window must hold exactly those bytes, every other record erased.
   backend. Both records reach the window.
 - **DR2c.** A record whose writes always fail is tried three times, at least
   500 ms apart, then gives the change up with the alarm.
+- **A slow memory.** Every lane of both map records answers 15 ms late,
+  inside each wait's 20 ms. Only the aggregate from `PP_CTRL[1]` can end the
+  walk, and it does: the leg compiles that aggregate to 300 ms
+  (`-GAMR_RS_AGG_MS_P`, a test value; the product keeps DR3a's 1,000 ms),
+  and every map rolls back there.
 - **A silent memory.** The output record's payload never answers. The
-  restore ends at its 20 ms per-wait deadline and rolls every map back.
-  When the memory answers at last, a later change still reaches the window.
+  restore ends at its 20 ms per-wait deadline, long before the aggregate,
+  and rolls every map back. When the memory answers at last, a later change
+  still reaches the window.
 
 The healthy map restore held the faces 553 to 635 clocks after
 `restore_done`, under the processor's 4,096-clock gather watchdog. The window

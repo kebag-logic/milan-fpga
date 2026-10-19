@@ -17,14 +17,14 @@ CLOSED terminal; the sweep after the terminal; its drain clock; and the edit
 face's wait. Each is caught by the staged arm that places its stimulus on
 the clock the guard owns.
 
-Twenty-three more, the #637 controls, plant one defect each in the parent's
+Twenty-four more, the #637 controls, plant one defect each in the parent's
 channel-map record writer and restore (milan_datapath's amr_* blocks) or in
 the device-face arbiter KL_pp_shadow adds in front of the backend, and each
 is caught by its named [MAPREC] check: the trigger, the debounce, the empty
 list read as an erased record (#763), every framed record refused, the
 crc16 ignored, both roll-backs, the faces' waits, the change qualification
 (DR2b), the taint, the restore's own writes, the entity enable, the three
-DR2c arms, the restore's deadline, and four arbiter and glue arms.
+DR2c arms, the restore's two deadlines, and four arbiter and glue arms.
 
 The empty reset is also planted under the two end-to-end checks the ruling
 asks for, each in its own suite: the listener (tb/verilator/milan_dp_render,
@@ -165,9 +165,8 @@ MUTATIONS = [
        "      amr_dirty_r <= amr_dirty_r;\n")],
      "[MAPREC] empty: the window holds the codec's records and the pend has fallen"),
     ("dynmap", "an empty saved list reads as an erased record (#763)",
-     [("          if ((amr_magic_r != 16'h1722) || (amr_hplen_r != amr_plen_w)) begin",
-       "          if ((amr_magic_r != 16'h1722) || (amr_hplen_r != amr_plen_w)\n"
-       "              || !((|amr_li_r) || (|amr_lo_r))) begin")],
+     [("          if (!amr_hframe_r) begin",
+       "          if (!amr_hframe_r || !((|amr_li_r) || (|amr_lo_r))) begin")],
      "[MAPREC] empty, after the power cycle: SPI 0: number_of_mappings"),
     ("dynmap", "no first-dirty window: the change is written at the next tick",
      [("            if (amr_mscnt_r == 10'd500) begin", "            if (1'b1) begin")],
@@ -224,9 +223,12 @@ MUTATIONS = [
      [("            amr_alarm_r <= 1'b1;", "            amr_alarm_r <= 1'b0;")],
      "[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised"),
     ("dynmap", "the map restore has no per-wait deadline",
-     [("(amr_rs_w ? AMR_RS_TMO_CYC_P : AMR_MEM_TMO_CYC_P)",
-       "(amr_rs_w ? 32'h7FFF_FFFF : AMR_MEM_TMO_CYC_P)")],
-     "[MAPREC] silent memory: the restore reached its terminal and the map restore ended"),
+     [("(amr_rs_w ? AMR_RS_TMO_MS_P : AMR_MEM_TMO_MS_P)",
+       "(amr_rs_w ? 32'h7FFF_FFFF : AMR_MEM_TMO_MS_P)")],
+     "[MAPREC] silent memory: the walk ends at its per-wait deadline"),
+    ("dynmap", "the map restore has no aggregate deadline",
+     [("          || (amr_rs_w && amr_agg_x_r));", "          || (1'b0 && amr_agg_x_r));")],
+     "[MAPREC] slow memory: SPI 0: number_of_mappings"),
     ("dynmap", "the arbiter does not drain a read the map writer abandoned",
      [("        da_drain_r <= 1'b1;\n", "        da_drain_r <= 1'b0;\n")],
      "[MAPREC] silent memory, late answer: a later change reaches the window", "shadow"),
