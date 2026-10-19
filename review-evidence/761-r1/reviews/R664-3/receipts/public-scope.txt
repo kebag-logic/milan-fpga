@@ -1,0 +1,124 @@
+https://github.com/kebag-logic/milan-fpga/issues/761
+Found by the in-house qualification run of 2026-10-18 on the AX7101 (dev e9cbb676).
+
+**Behaviour.** The DUT's AAF stream follows a CRF media clock on its Stream Input. Its mr bit toggles when:
+- the CRF stops;
+- the input is unbound;
+- the CRF's own mr toggles.
+
+It does **not** toggle when the CRF comes back, or when the input is bound again. Over 80,000 frames in each window, there were 0 toggles.
+
+**Required.** IEEE 1722-2016 4.4.4.3: mr indicates that there has been a change in the source of the media clock, and toggles each time a media clock restart is needed. The media clock returning to the CRF is such a change.
+
+**Source.**
+- `hdl/milan/milan_datapath.sv:3243-3246`: only the CRF lock-loss edge requests a restart, and the re-lock edge does not.
+- See also `hdl/ieee1722/avtp/KL_media_clock_restart.sv:168-179`.
+
+**Done when:**
+- the selected CRF's lock-gain edge also requests a media clock restart, so mr toggles once on the return;
+- a simulation case and a planted mutant cover both edges;
+- the suites pass.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/762
+Found by the in-house qualification run of 2026-10-18 on the AX7101 (dev e9cbb676).
+
+**Behaviour.** A bound stream into a Stream Input stops for 10 s, then resumes. MEDIA_UNLOCKED and MEDIA_LOCKED each count once, but STREAM_INTERRUPTED stays 0. This was seen on both the AAF input 0 and the CRF input 1.
+
+**Required.** Milan v1.2 Table 5.16: STREAM_INTERRUPTED is "incremented each time the stream playback is interrupted for any reason other than a Controller Unbind operation".
+
+**Source.** `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:997-999` counts it only on a sequence_num gap in a locked stream. A silence unlocks the input first, and the first PDU after it re-seeds the sequence, so the interruption is never counted.
+
+**Done when:**
+- a silence that unlocks a bound input counts STREAM_INTERRUPTED once, as does a sequence gap;
+- an unbind does not count;
+- simulation cases for silence, gap and unbind, each with a planted mutant;
+- the suites pass.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/761#issuecomment-6256482625
+[A10] Assignment for #761 and #762 together (author [A652]). Branch `761-762-mr-interrupt` from dev e9cbb676. Both are in the AVTP receive and media-clock path, so one lane does them, in two commits.
+
+1. **#761:** the selected CRF's lock-gain edge also requests a media clock restart, so mr toggles once when the media clock returns to the CRF (IEEE 1722-2016 4.4.4.3). Keep the existing loss, disruption and mr-toggle causes unchanged. Add a simulation case for both edges, with a planted mutant.
+2. **#762:** a silence that unlocks a bound Stream Input counts STREAM_INTERRUPTED once, as a sequence gap does. An Unbind does not count (Milan v1.2 Table 5.16). Add simulation cases for silence, gap and unbind, each with a planted mutant.
+3. Run every gate the change touches, the builder bank's affected suites and the route-1x1 timing check, all rc 0.
+4. STOP on any register-map, top-level port or parameter change.
+
+Put your receipts in the output directory, with an index generated from the files present. Post REVIEW READY or STOP on #761.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/761#issuecomment-6275750885
+[A652] REVIEW READY
+Commit: d30a208d44d5868cc356e6a8b7abc89b062ca9bd (branch `761-762-mr-interrupt`, three commits on the PR #767 head `eef90b42`, no rebase, no amend). The new commits are for the manager to push; PR #767 is not edited.
+Changed (round 3, answering R663-2 under the round-3 assignment, #767 comment 6274405031):
+- R663-2-F1 (`336a6f6a`): `[762-DP]` in `tb/verilator/milan_dp/sim_nxn.cpp` is the integrated case. It runs on every broad `sim_nxn` leg, the shipping Arty shape `obj_nxn4c` included, on AAF Stream Input 0. STOP_STREAMING and START_STREAMING arrive over the wire, and every count is read with `GET_COUNTERS(STREAM_INPUT, 0)`. While the input is stopped, a gap of two lost PDUs moves SEQ_NUM_MISMATCH +1 (live) and STREAM_INTERRUPTED +0. A silence that expires while stopped moves MEDIA_UNLOCKED +1 (live) and STREAM_INTERRUPTED +0. After START and a relock past the settle window, the same gap counts STREAM_INTERRUPTED +1. The silence is the monitor's own watchdog, advanced to 3 ms short of its limit as the `[CTRS-CRF]` arm does; the expiry and every count after it run for real (Milan v1.2 5.3.8.7, 5.4.2.19, 5.4.2.20, 5.3.8.10 Table 5.6).
+- R663-2-F2 (`cb65d9d7`): both port comments, as written in the review (`KL_avtp_rx_monitor_ctx.sv:152`, `milan_datapath.sv:6307`).
+- `d30a208d`: the milan_dp README paragraph for `[762-DP]`.
+- R663-2-F3: the PR body's status lines are corrected in the lane's PR-BODY.md: hosted state at the head, reviewers `[R663]` (internal) and `[R664]` (external). The PR itself is not edited. R663-2-S1 is not assigned and not taken.
+- No RTL logic change: both RTL edits are comments. So route-1x1 was not re-run.
+Planted mutants at `milan_datapath.sv:6308`, each rebuilt through `build-nxn4c` and run; every failing check in the leg is listed:
+- port tied to `'0`: fails `[762-DP] 2 stopped gap: STREAM_INTERRUPTED +0` and `[762-DP] 3 stopped silence: STREAM_INTERRUPTED +0` (each got 1).
+- wrong vector, sink 1's level `acmpl_stopped_v_w[N_STREAMS:1]`: the same two checks.
+- wrong vector, the bound level `acmpl_bound_v_w[N_STREAMS-1:0]`: fails `[762-DP] 4 started gap: STREAM_INTERRUPTED +1` (got 0).
+- clean control: 1,981 checks, 0 failures.
+Validation (head d30a208d, clean clone, CPython 3.12.3 CI build, Verilator 5.050; all rc 0 unless stated):
+- `make -C tb/verilator/milan_dp`: rc 0, 0 failures on every leg. `obj_nxn` 1,981, `obj_nxndv` 1,983, `obj_nxn8` 3,765, `obj_nxn4c` 1,981 checks, each +13 for `[762-DP]`. notify 423, crflic 416, dynmap 162, prune 33.
+- `make -C tb/verilator/avtp_rxmon`: flat 97, stack 121, lockstep 116 (N=1) and 119 (N=8), 0 failures; `lockstep_mutants.py` 14/14.
+- docs gate_50, all fourteen commands: rc 0 (`shard 0/35 refused`, 34 driver cases).
+- 80 of the 82 other docs-workflow gate commands are rc 0. The same two host-only self-tests as rounds 2 and 2b fail, on files unchanged since the base. `act_ci.py --selftest` gives the same 31 failure lines as round 2b. The git-absent case of `check_todo_ownership.py --selftest` fails under this host's CPython 3.12.3 build and gives 45/45 under the host Python.
+- Builder bank: ALL GATES PASS EXCEPT 1 NOT RUN (gate 11, needs a local mf48 tree).
+- Hosted at `eef90b42`: every check run succeeded, including `rtl-fast`, `verilator-suites`, `yosys-portability`, `docs-check` and `docs-gates-0/1/2`; the nightly physical gPTP job was skipped. The new commits have no hosted run or act replica yet, because they are not pushed.
+Acceptance criteria: met, with #762 read under the scope ruling and its extension. #761 is unchanged since round 1. The AAF half of the stopped-input rule is now graded at the datapath's GET_COUNTERS face, and the CRF half was already graded there.
+Open risks/questions:
+- A followed AAF stream's return still raises no restart; the ruling keeps it as is.
+- R663-1-S1 and R663-2-S1 are suggestions and are not taken.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6260976223
+[A10] Scope ruling for #762 (raised by R664-1-F2 and R663-1-F2 on PR #767): a silence on a bound Stream Input that is **stopped** does not count STREAM_INTERRUPTED.
+
+- Milan v1.2 Table 5.6 counts "each time the stream playback is interrupted for any reason other than a Controller Unbind operation".
+- A stopped input has no playback to interrupt. 5.3.8.7 separates started/stopped from bound, and 5.4.2.20 says STOP_STREAMING stops the playback.
+- The Unbind exception exists for the same reason: the controller ended the playback itself.
+
+The rule is the same in both receive engines: the AAF monitor (`KL_avtp_rx_monitor_ctx.sv`) and the CRF sink (`KL_crf_rx.sv`). A silence on a started input counts once. STOP with live traffic counts nothing. After START, a later silence counts again. The register documentation states exactly this, with these clauses.
+
+https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6265746720
+[A10] Scope ruling for #762, extended. This answers the first open risk in [A652]'s round-2 REVIEW READY: a sequence gap on a stopped input.
+
+The reason a stopped input's silence counts nothing applies to any interruption. A stopped input has no playback (Milan v1.2 5.3.8.7, 5.4.2.20), so Table 5.6 has nothing to count. Rules:
+- **Stopped input:** a sequence gap counts no STREAM_INTERRUPTED, in both engines: the AAF monitor `KL_avtp_rx_monitor_ctx.sv` and the CRF sink `KL_crf_rx.sv`.
+- **Started input:** a gap still counts once.
+- **After START:** a gap counts again.
+
+Round 2b for [A652], on 2cd2750d, before any round-2 review:
+- Implement this rule in both engines.
+- Add count-graded cases (gap while stopped, gap after START) with planted mutants in the engine and in the reference, as round 2 did.
+- State the rule in `REGISTER_MAP.md`, the compliance matrix and `TESTING.md`.
+- Re-run the round-2 gate list at the new head.
+
+The second open risk, an AAF stream's return raising no restart, stays as is: #761 and IEEE 1722-2016 4.4.4.3 name the CRF only.
+
+
+https://github.com/kebag-logic/milan-fpga/pull/767#issuecomment-6274405031
+[A10] Round 3 assignment for [A652], head eef90b42. It answers R663-2 (issuecomment-6274385352). R664-2 is POSITIVE (issuecomment-6274077431).
+
+1. **R663-2-F1: the integrated case.** In `tb/verilator/milan_dp/sim_nxn.cpp`, on a shipping datapath shape, STOP an AAF Stream Input with STOP_STREAMING. Show by count that:
+   - a sequence gap while stopped leaves STREAM_INTERRUPTED unchanged;
+   - a silence that expires while stopped also leaves it unchanged;
+   - SEQ_NUM_MISMATCH or MEDIA_UNLOCKED moves, which proves the case is live;
+   - after START_STREAMING, a gap counts +1.
+
+   Plant a mutant at `milan_datapath.sv:6308`: the port tied to `'0`, and one wrong-vector form. Each must fail the named check (Milan v1.2 5.3.8.7, 5.4.2.20, Table 5.6).
+2. **R663-2-F2:** apply both comment edits as written.
+3. **R663-2-F3:** correct the PR body's status lines. Drop "not pushed", point to the hosted checks at the head, and name the reviewers `[R663]` (internal) and `[R664]` (external).
+4. **R663-2-S1** is not assigned.
+
+New commits on eef90b42 (no rebase, no amend). Re-run the milan_dp legs that build the change, the touched suites, the docs gates and the builder bank. route-1x1 only if RTL changed; comments do not count.
+
+
+https://github.com/kebag-logic/milan-fpga/pull/767#issuecomment-6275807687
+[A10] INDEPENDENT REVIEW STARTED: R664-3
+
+R664 (external reviewer) reconstructs issue #761+762 / PR #767 at exact head `d30a208d44d5868cc356e6a8b7abc89b062ca9bd`, tree `d203767adbab4025cbfb3f760540783f65cc2e6c`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
