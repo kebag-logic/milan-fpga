@@ -75,6 +75,14 @@ SHAPE_4x4_F = $(CFG_DIR)/endstation_arty_4x4/gen/adp_shape_defaults.svh
 SHAPE_8x8_F = $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
 SHAPE_AX1_F = $(CFG_DIR)/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
 GEN_ALL     = $(GEN_CSR) $(SHAPE_DEF) $(SHAPE_4x4_F) $(SHAPE_8x8_F) $(SHAPE_AX1_F)
+# #765: STREAM_INPUT 0's DECLARED format, ADP_STRIN0_FMT_C out of the shape
+# header a build includes. The receive monitor compares every PDU's channel
+# count with the current format, so sim_main.cpp and sim_prune.cpp, which
+# feed stream 0 with no controller to set one, build their PDUs from it as
+# IN0_FMT_TB: read from the header, never restated here.
+SHAPE_1x1_F = $(CFG_DIR)/endstation_arty_current/gen/adp_shape_defaults.svh
+in0_fmt = $(shell sed -n "s/.*ADP_STRIN0_FMT_C = 64'h\([0-9A-Fa-f]*\);.*/\1/p" $(1))
+in0_fmt_cflags = -CFLAGS "-DIN0_FMT_TB=0x$(call in0_fmt,$(1))ULL -Wall -Wextra"
 # the DIVERGENT-shape leg's generated header + bench expectations: every
 # tracked config declares the same first format on every row, so only a
 # generated divergent header can prove the per-row verdict base and reset
@@ -246,6 +254,7 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_ax1x1 \
   -GAUDIO_IF_MASTER_P=1 \
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
   -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS) -Wall -Wextra" \
+  $(call in0_fmt_cflags,$(SHAPE_AX1_F)) \
   $(SRCS) $(CPP) -o Vmilan_dp_ax1x1
 endef
 
@@ -439,7 +448,7 @@ exec-gptp-lat:
 # unchanged).
 OPTOFF_MDIR ?= obj_dir
 option-off-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
-	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir $(OPTOFF_MDIR) $(SRCS) $(CPP) -o Vmilan_dp_sim
+	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(call in0_fmt_cflags,$(SHAPE_1x1_F)) --Mdir $(OPTOFF_MDIR) $(SRCS) $(CPP) -o Vmilan_dp_sim
 
 option-off: option-off-build
 	./$(OPTOFF_MDIR)/Vmilan_dp_sim
@@ -596,7 +605,7 @@ ci-list:
 	@printf '%s\n' $(RUN_CASES)
 
 build-base: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
-	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
+	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(call in0_fmt_cflags,$(SHAPE_1x1_F)) $(SRCS) $(CPP) -o Vmilan_dp_sim
 
 exec-base:
 	./obj_dir/Vmilan_dp_sim
@@ -656,7 +665,7 @@ exec-nxn4c:
 # self-checking harness, unchanged, and every check must give the same
 # answer. It does not merely elaborate: it re-runs the whole legacy leg.
 build-nolpf: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
-	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir obj_nolpf -GLPF_P=0 $(SRCS) $(CPP) -o Vmilan_dp_nolpf
+	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(call in0_fmt_cflags,$(SHAPE_1x1_F)) --Mdir obj_nolpf -GLPF_P=0 $(SRCS) $(CPP) -o Vmilan_dp_nolpf
 
 exec-nolpf:
 	./obj_nolpf/Vmilan_dp_nolpf
@@ -666,7 +675,7 @@ exec-nolpf:
 # than not-armed-yet zeros. The two legs answer different questions and both
 # stay.
 build-prune: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
-	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) --Mdir obj_prune $(PRUNE_G) $(SRCS) sim_prune.cpp -o Vmilan_dp_prune
+	$(VERILATOR) $(SHAPE_1x1) $(DP_VFLAGS) $(call in0_fmt_cflags,$(SHAPE_1x1_F)) --Mdir obj_prune $(PRUNE_G) $(SRCS) sim_prune.cpp -o Vmilan_dp_prune
 
 exec-prune:
 	./obj_prune/Vmilan_dp_prune
