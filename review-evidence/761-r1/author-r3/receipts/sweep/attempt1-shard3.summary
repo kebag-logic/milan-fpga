@@ -1,0 +1,23 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 432890, "cwd": "<scratch>/tmpdir/suite-cancellation-nd2wyfit/normal-orphan input [523]", "identities": {"432889": ["6281540", "S"], "432890": ["6281544", "S"]}, "pid": 432889}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 433329, "cwd": "<scratch>/tmpdir/suite-cancellation-nd2wyfit/cancel-selection-SIGINT input [523]", "identities": {"433328": ["6281861", "S"], "433329": ["6281864", "S"]}, "pid": 433328}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 433994, "cwd": "<scratch>/tmpdir/suite-cancellation-nd2wyfit/cancel-selection-SIGTERM input [523]", "identities": {"433993": ["6282103", "S"], "433994": ["6282106", "S"]}, "pid": 433993}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 434204, "cwd": "<scratch>/tmpdir/suite-cancellation-nd2wyfit/cancel-preflight-SIGINT input [523]", "identities": {"434203": ["6282349", "S"], "434204": ["6282351", "S"]}, "pid": 434203}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 434501, "cwd": "<scratch>/tmpdir/suite-cancellation-nd2wyfit/cancel-preflight-SIGTERM input [523]", "identities": {"434494": ["6282600", "S"], "434501": ["6282603", "S"]}, "pid": 434494}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<scratch>/swB/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "<scratch>/swB/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+  File "<scratch>/swB/scripts/test_suite_cancellation.py", line 188, in cancellation
+    assert status == 128 + signum, output
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: shard: 0/1   selected suites: 2
+REFUSED: process ownership: CLEANUP FAILED: owned descendants remain: {434795: (434730, '6282881'), 434788: (434733, '6282874'), 434733: (434730, '6282843')}
+ABORTING: sweep cancellation controls failed.

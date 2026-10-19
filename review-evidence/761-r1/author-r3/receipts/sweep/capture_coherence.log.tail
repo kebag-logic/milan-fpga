@@ -1,0 +1,201 @@
+full log sha256 a5834a49bf5937db86e58fe085e44b1a0bec7a78bb65ef35ca21e92be13449ff size 331244 bytes (kept in scratch, over 200 KB); last 200 lines:
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:453:15: Signal flopped as both synchronous and async: 'axis_resetn'
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:3491:10: ... Location of async usage
+ 3491 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:773:10: ... Location of sync usage
+  773 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+make[1]: Entering directory '<scratch>/swA/tb/verilator/capture_coherence/obj_dp'
+g++  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -Os  -c -o sim_dp.o ../sim_dp.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -c -o verilated.o $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -c -o verilated_dpi.o $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -c -o verilated_threads.o $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_0.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_1.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_0.cpp
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__3__Slow.cpp
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_1.cpp
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+g++    sim_dp.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vcoherence_dp
+rm Vmilan_datapath__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<scratch>/swA/tb/verilator/capture_coherence/obj_dp'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 149.055 MB sources in 118 modules, into 14.542 MB in 23 C++ files needing 0.006 MB
+- Verilator: Walltime 38.739 s (elab=0.581, cvt=4.686, bld=32.830); cpu 6.141 s on 2 threads; allocated 520.973 MB
+======================================================================
+<scratch>/swA/tb/verilator/capture_coherence/obj_dp/Vcoherence_dp
+=== milan_datapath 1x1 TDM8: AAF column coherence at the MAC (#617) ===
+
+[DP-INT-slow] milan_datapath, INTERNAL, -1000 ppm plan, TDM clock held 0 steps, 2200 columns
+  [i]  2201 columns in 367 PDUs, 0 torn (0.0%), 1 repeats, 0 skips, 1 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2201 columns  100.0%  coherent
+
+[DP-INT-fast] milan_datapath, INTERNAL, +1000 ppm plan, TDM clock held 0 steps, 2200 columns
+  [i]  2201 columns in 367 PDUs, 0 torn (0.0%), 0 repeats, 2 skips, 2 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       2201 columns  100.0%  coherent
+
+[DP-CRF-0] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 0 steps, 1500 columns
+  [i]  DP-CRF-0: engaged +14 cycles from the crossing; tail: tick 984 cycles after the fsync edge, -44..+1 (spread 45); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-1] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 520 steps, 1500 columns
+  [i]  DP-CRF-1: engaged +144 cycles from the crossing; tail: tick 878 cycles after the fsync edge, -24..+0 (spread 24); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-2] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 1041 steps, 1500 columns
+  [i]  DP-CRF-2: engaged +274 cycles from the crossing; tail: tick 769 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-3] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 1562 steps, 1500 columns
+  [i]  DP-CRF-3: engaged +404 cycles from the crossing; tail: tick 639 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-4] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 2083 steps, 1500 columns
+  [i]  DP-CRF-4: engaged -508 cycles from the crossing; tail: tick 508 cycles after the fsync edge, -6..+1 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-5] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 2604 steps, 1500 columns
+  [i]  DP-CRF-5: engaged -377 cycles from the crossing; tail: tick 378 cycles after the fsync edge, -7..+0 (spread 7); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-6] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 3125 steps, 1500 columns
+  [i]  DP-CRF-6: engaged -247 cycles from the crossing; tail: tick 250 cycles after the fsync edge, -6..+0 (spread 6); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+[DP-CRF-7] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 3646 steps, 1500 columns
+  [i]  DP-CRF-7: engaged -117 cycles from the crossing; tail: tick 143 cycles after the fsync edge, -1..+16 (spread 17); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  1505 columns in 251 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+  [i]    pairs 1..3 vs pair 0: +0 +0 +0       1505 columns  100.0%  coherent
+
+  [i]  calibration, true 391/1591 plan: with the TDM clock unheld the first close under CRF lands 14 cycles after its tick
+
+[DP-band-true] milan_datapath, CRF, true 391/1591 plan, engagement placed every 2 cycles from -20 to +4 of the crossing, 1500 columns each
+  [i]  DP-band-true-20: engaged -21 cycles from the crossing; tail: tick 64 cycles after the fsync edge, +0..+31 (spread 31); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-18: engaged -20 cycles from the crossing; tail: tick 63 cycles after the fsync edge, +0..+31 (spread 31); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-16: engaged -17 cycles from the crossing; tail: tick 61 cycles after the fsync edge, +0..+31 (spread 31); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-14: engaged -16 cycles from the crossing; tail: tick 60 cycles after the fsync edge, +0..+32 (spread 32); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-12: engaged -13 cycles from the crossing; tail: tick 57 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-10: engaged -12 cycles from the crossing; tail: tick 56 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-8: engaged -9 cycles from the crossing; tail: tick 54 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-6: engaged -8 cycles from the crossing; tail: tick 53 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-4: engaged -5 cycles from the crossing; tail: tick 51 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true-2: engaged -3 cycles from the crossing; tail: tick 49 cycles after the fsync edge, +0..+34 (spread 34); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true+0: engaged -1 cycles from the crossing; tail: tick 47 cycles after the fsync edge, +0..+35 (spread 35); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true+2: engaged +1 cycles from the crossing; tail: tick 994 cycles after the fsync edge, -46..+1 (spread 47); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true+4: engaged +3 cycles from the crossing; tail: tick 993 cycles after the fsync edge, -46..+0 (spread 46); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  DP-band-true: 13 engagements landed from -21 to +3, widest gap 3 cycles
+== capture_coherence_dp: checks: 332   failures: 0 ==
+RESULT: PASS
+======================================================================
+python3 mutants.py
+[i]  29 builds on 16 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: <scratch>/tmpdir/capture-coherence-mutants-aha7asdj/build_break_dp/milan_datapath.sv:8411:15: syntax error, unexpected break, expecting ',' or ';'
+[PASS] the unmutated source still passes the junction harness
+[PASS] the unmutated source still passes the band harness
+[PASS] the unmutated source still passes the band50 harness
+[PASS] the unmutated source still passes the fine harness
+[PASS] the unmutated source still passes the dp harness
+[PASS] the unmutated source still passes the dp-band harness
+[PASS] the unmutated source still passes the chmap harness
+[PASS] the unmutated source still passes the nco harness
+[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+[PASS] mutant caught (junction): no walk snapshot: the walk reads the frame bank live - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is closed by its first pair - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+[PASS] mutant caught (junction): the walk ignores the coincidence law: a close on the tick cycle always waits - breaks "[C] walks whose repeat or skip the junction counters did not count" and "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the walk snapshot back on the pre-walk's last cycle (the round-1 instant) - breaks "[W] walks newer than the frame their tick takes"
+[PASS] mutant caught (junction): the junction counters keyed on the slot-0 write against the tick (the round-1 law) - breaks "[C] walks whose repeat or skip the junction counters did not count"
+[PASS] mutant caught (band): the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner's keep-off back to its 1/128-sample default - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner sees the tick itself, one cycle before the walk's crossing - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (chmap): RM8: a queued tick snapshots at the tick itself, reloading the walk still running - breaks "Q: col 1 pair 2 L is frame 2" and "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (band50): RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks "update landing at old end +0: one tick, in a period the old or the new trim sets"
+[PASS] mutant caught (fine): the terminal compare back to == (377d1ac3), under the aligner's trim updates - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks "F1: col 0 carries its own pair-0 frame (L)"
+
+30 checks: 30 PASS, 0 FAIL
+make: Leaving directory '<scratch>/swA/tb/verilator/capture_coherence'
