@@ -456,7 +456,7 @@ class CrfRxHarness {
 
         // wrong stream_id: ignored (no count, no error), whatever its
         // subtype. An AAF PDU on THIS stream_id is a format reject (#765),
-        // graded by [FMT] at the end of the run.
+        // graded by [FMT] (pin_aaf_pdu_on_the_crf_input).
         dut->sid_frame_i = SID_C ^ 1;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
         dut->subtype_i = 0x02;                              // AAF
