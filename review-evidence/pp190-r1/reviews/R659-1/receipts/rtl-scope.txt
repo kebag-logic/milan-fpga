@@ -1,0 +1,34 @@
+# hdl delta 246cbc22..83405d19 (the only RTL change)
+ hdl/top/protocol_processor_top.sv | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index dda6b54..adadb25 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -297,7 +297,10 @@ module protocol_processor_top
+     input  wire         cfg_rank_i,            //! declared rank bit (F10.7)
+     input  wire  [31:0] cfg_acc_lat_ns_i,      //! initial accumulated_latency
+     input  wire  [31:0] port_rate_bps_i,       //! port rate for the admission ceiling
+-    input  wire  [15:0] cfg_tspec_max_frame_i, //! TSpec MaxFrameSize for engine-driven DECLARE_TALKER
++    //! per-source TSpec MaxFrameSize for the engine-driven DECLARE_TALKER,
++    //! flat [16*s +: 16] like cfg_stream_id_i: source s declares slot s
++    //! (802.1Q-2018 35.2.2.8.4 a), Milan v1.2 4.3.3.2 Table 4.4)
++    input  wire  [N_STREAM_OUT_P*16-1:0] cfg_tspec_max_frame_i,
+ 
+     //! ---- talker source configuration (05 quasi-static) ----
+     input  wire  [N_STREAM_OUT_P-1:0]    cfg_src_en_i,     //! source exists in current config
+@@ -2697,7 +2700,7 @@ module protocol_processor_top
+                            sid:   tkr_gate_sid_w,
+                            da:    tkr_gate_da_w,
+                            vid:   tkr_gate_vlan_w,
+-                           mfs:   cfg_tspec_max_frame_i,
++                           mfs:   cfg_tspec_max_frame_i[32'(tkr_gate_src_w) * 16 +: 16],
+                            lstn:  2'd0};
+         end
+       end
+# port/parameter declarations that differ (module header of the top, base vs head)
+61c61
+<     input  wire  [15:0] cfg_tspec_max_frame_i, //! TSpec MaxFrameSize for engine-driven DECLARE_TALKER
+---
+>     input  wire  [N_STREAM_OUT_P*16-1:0] cfg_tspec_max_frame_i,
+# files changed outside hdl/docs/tb: 0

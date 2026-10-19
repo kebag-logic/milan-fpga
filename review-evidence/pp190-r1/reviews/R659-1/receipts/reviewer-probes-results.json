@@ -1,0 +1,98 @@
+[
+ {
+  "mutant": "golden-tspec",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "rv_slot_xor1",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "TS1: source 0 declares its own slot's MaxFrameSize",
+   "TS1: source 1 declares its own slot's MaxFrameSize"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TS1: source 0 declares its own slot's MaxFrameSize 217 (got 29)",
+   "TS1: source 1 declares its own slot's MaxFrameSize 29 (got 217)",
+   "TS1: source 2 declares its own slot's MaxFrameSize 73 (got 97)",
+   "TS1: source 3 declares its own slot's MaxFrameSize 97 (got 73)",
+   "TS1: source 4 declares its own slot's MaxFrameSize 121 (got 145)",
+   "TS1: source 5 declares its own slot's MaxFrameSize 145 (got 121)",
+   "TS1: source 6 declares its own slot's MaxFrameSize 169 (got 193)",
+   "TS1: source 7 declares its own slot's MaxFrameSize 193 (got 169)"
+  ],
+  "verdict": "KILLED",
+  "expect": "KILL"
+ },
+ {
+  "mutant": "rv_stride8",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "TS1: source 1 declares its own slot's MaxFrameSize"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TS1: source 1 declares its own slot's MaxFrameSize 29 (got 7424)",
+   "TS1: source 2 declares its own slot's MaxFrameSize 73 (got 29)",
+   "TS1: source 3 declares its own slot's MaxFrameSize 97 (got 18688)",
+   "TS1: source 4 declares its own slot's MaxFrameSize 121 (got 73)",
+   "TS1: source 5 declares its own slot's MaxFrameSize 145 (got 24832)",
+   "TS1: source 6 declares its own slot's MaxFrameSize 169 (got 97)",
+   "TS1: source 7 declares its own slot's MaxFrameSize 193 (got 30976)"
+  ],
+  "verdict": "KILLED",
+  "expect": "KILL"
+ },
+ {
+  "mutant": "rv_low_byte_dropped",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "TS1: source 1 declares its own slot's MaxFrameSize"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TS1: source 0 declares its own slot's MaxFrameSize 217 (got 0)",
+   "TS1: source 1 declares its own slot's MaxFrameSize 29 (got 0)",
+   "TS1: source 2 declares its own slot's MaxFrameSize 73 (got 0)",
+   "TS1: source 3 declares its own slot's MaxFrameSize 97 (got 0)",
+   "TS1: source 4 declares its own slot's MaxFrameSize 121 (got 0)",
+   "TS1: source 5 declares its own slot's MaxFrameSize 145 (got 0)",
+   "TS1: source 6 declares its own slot's MaxFrameSize 169 (got 0)",
+   "TS1: source 7 declares its own slot's MaxFrameSize 193 (got 0)"
+  ],
+  "verdict": "KILLED",
+  "expect": "KILL"
+ },
+ {
+  "mutant": "rv_close_slot0",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "TS1: source 1 declares its own slot's MaxFrameSize"
+  ],
+  "missing": [
+   "TS1: source 1 declares its own slot's MaxFrameSize"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED",
+  "expect": "EXPECT_SURVIVE"
+ }
+]
