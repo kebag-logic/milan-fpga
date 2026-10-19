@@ -1,0 +1,8 @@
+rc=0 python3 scripts/check_doc_paths.py
+rc=2 python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2 python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=0 python3 scripts/check_archive.py
+rc=0 python3 scripts/lint_rtl.py --check
+rc=0 python3 scripts/check_doc_style.py

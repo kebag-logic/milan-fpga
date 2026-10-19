@@ -1,0 +1,26 @@
+== stopped_gap_interrupts: rc=1, named check '[762-SG-b1] stopped gap: no STREAM_INTERRUPTED', failing lines 12
+     [PASS] 3 discontinuities: SEQ_NUM_MISMATCH +1         got=2 exp=2
+     [PASS] [5t-e4] the same 4 gaps fold to ONE SEQ_NUM_MISMATCH got=3 exp=3
+     [PASS] [5t-g1] pre-unbind SEQ_NUM_MISMATCH is NON-ZERO got=1 exp=1
+     [PASS] [5t-g3] unbind must NOT reset SEQ_NUM_MISMATCH got=1 exp=1
+     [PASS] [5t-g4] bind edge zeroes SEQ_NUM_MISMATCH      got=0 exp=0
+     [FAIL] [762-SG-b1] stopped gap: no STREAM_INTERRUPTED got=1 exp=0
+     [FAIL] [762-SG-b2] ...nor a second stopped gap        got=2 exp=0
+     [PASS] [762-SG-b4] the stopped gaps were seen: one SEQ_NUM_MISMATCH interval got=2 exp=2
+     [FAIL] [762-SG-d1] a STOP on the gap's own edge: no STREAM_INTERRUPTED got=1 exp=0
+     [FAIL] [762-SG-d2] a STOP one edge after the gap: the gap counts once got=2 exp=1
+     [FAIL] [762-SG-d3] a START one edge after the gap: the gap counts nothing got=3 exp=1
+     [FAIL] [762-SG-d5] a START on the gap's own edge: the gap counts once got=4 exp=2
+   KL_crf_rx: 15202 checks, 6 failures (1154 accepted PDUs pinned)
+== sticky_stop_gap: rc=1, named check '[762-SG-c1] after START a gap counts STREAM_INTERRUPTED again', failing lines 10
+     [PASS] 3 discontinuities: SEQ_NUM_MISMATCH +1         got=2 exp=2
+     [PASS] [5t-e4] the same 4 gaps fold to ONE SEQ_NUM_MISMATCH got=3 exp=3
+     [PASS] [5t-g1] pre-unbind SEQ_NUM_MISMATCH is NON-ZERO got=1 exp=1
+     [PASS] [5t-g3] unbind must NOT reset SEQ_NUM_MISMATCH got=1 exp=1
+     [PASS] [5t-g4] bind edge zeroes SEQ_NUM_MISMATCH      got=0 exp=0
+     [PASS] [762-SG-b4] the stopped gaps were seen: one SEQ_NUM_MISMATCH interval got=2 exp=2
+     [FAIL] [762-SG-c1] after START a gap counts STREAM_INTERRUPTED again got=0 exp=1
+     [FAIL] [762-SG-d2] a STOP one edge after the gap: the gap counts once got=0 exp=1
+     [FAIL] [762-SG-d3] a START one edge after the gap: the gap counts nothing got=0 exp=1
+     [FAIL] [762-SG-d5] a START on the gap's own edge: the gap counts once got=0 exp=2
+   KL_crf_rx: 15202 checks, 4 failures (1154 accepted PDUs pinned)
