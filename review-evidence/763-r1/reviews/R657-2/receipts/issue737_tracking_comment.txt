@@ -1,0 +1,8 @@
+https://github.com/kebag-logic/milan-fpga/issues/737#issuecomment-6259477028
+2026-10-19T04:12:18Z
+[A10] Added to this issue's adoption work (ruling on PR #766). `ci/image/tool-inventory.json` has four stale `inputs` rows: `sw/firmware/ctrl/test/aecp_arms.py` and `aecp_mutants.py` (PR #766), `scripts/check_doc_style.py` (#753) and `scripts/measure_test_evidence_readers.py` (#754).
+
+The fix:
+- run `scripts/ci_tool_inventory.py --write` once on the dev that includes #766;
+- re-record `ci/image/image.lock.json` from two byte-identical cold builds (the recipe digest moves from 712f7b38);
+- make `ci_tool_inventory.py --check` part of the gate set, so later inputs can't go stale unnoticed.
