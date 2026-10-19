@@ -162,6 +162,18 @@ class Lockstep {
     void h4_reset_during_update();
     void si_causes();
     void si_stop_rule();
+    //! one boundary trial's outcome (boundary_trial)
+    struct BoundaryTrial {
+        uint32_t mu = 0;
+        uint32_t si = 0;
+        bool late_moved = false;
+        int64_t e = 0;
+        int64_t ev = 0;
+        int64_t mu_edge = -1;
+        int64_t si_edge = -1;
+        bool yielded = false;
+    };
+    BoundaryTrial boundary_trial(int d, int gap, bool by_stop, bool busy);
     void si_boundary(bool by_stop, bool busy);
     void soak(uint64_t seed, int n);
 };
@@ -623,21 +635,68 @@ void Lockstep::si_stop_rule() {
     report_lockstep("SI stop");
 }
 
+//! One #762 boundary trial: a fresh lock, then an unbind or a STOP sampled
+//! on edge E + d, where E is the silence's expiry edge (silence_expiry_edge).
+//! Busy, a PDU of a second stream (N > 1) or a depacketizer pulse (N = 1)
+//! arrives every `gap` cycles until 40 cycles after the event. Returns the
+//! counter deltas once the walk is over, whether anything moved in a full
+//! timeout after it, and the edges GET_COUNTERS showed the walk's two writes.
+Lockstep::BoundaryTrial Lockstep::boundary_trial(int d, int gap, bool by_stop, bool busy) {
+    const int s = kN - 1;
+    const int b = 0;
+    BoundaryTrial r;
+    lock_and_settle(s);
+    const uint32_t mu0 = gc_read(s, kColMu);
+    const uint32_t si0 = gc_read(s, kColSi);
+    r.e = silence_expiry_edge(s);
+    r.ev = r.e + d;
+    const int64_t load_end = r.ev + 40;
+    const int64_t end = std::max(r.ev, r.e) + 80;
+    while (static_cast<int64_t>(cycle_) < end) {
+        const int64_t next = static_cast<int64_t>(cycle_) + 1;
+        if (next == r.ev) {
+            if (by_stop)
+                stop(s, true);
+            else
+                bind(s, false);
+        }
+        if (busy && next < load_end && next % gap == 0) {
+            if (kN > 1) {
+                pdu(b, ++seq_[b]);
+            } else {
+                dut_->depkt_pdu_p_i = 1;
+                dut_->depkt_pdu_idx_i = 0;
+            }
+        }
+        step();
+        if (r.mu_edge < 0 && gc_read(s, kColMu) != mu0) r.mu_edge = static_cast<int64_t>(cycle_);
+        if (r.si_edge < 0 && gc_read(s, kColSi) != si0) r.si_edge = static_cast<int64_t>(cycle_);
+        if (kN > 1 && r.mu_edge >= 0 && r.si_edge < 0 && dut_->dut_pdu_accept_p_o &&
+            dut_->dut_pdu_accept_idx_o == b)
+            r.yielded = true;
+    }
+    r.mu = gc_read(s, kColMu) - mu0;
+    r.si = gc_read(s, kColSi) - si0;
+    cycles(kUnlockCycles + 100);
+    r.late_moved = (gc_read(s, kColMu) - mu0 != r.mu) || (gc_read(s, kColSi) - si0 != r.si);
+    if (by_stop) stop(s, false);
+    bind(s, false);
+    cycles(40);
+    return r;
+}
+
 //! #762's one event boundary. An unbind, or a STOP, is sampled on every edge
 //! from 12 before to 24 after the silence's expiry edge E, and at far points.
 //! E is the harness's own (silence_expiry_edge), never read from a module.
 //! Sampled after E, the silence is already an interruption and counts
 //! exactly once; on or before E it never counts; the stream unlocks once
-//! either way, and a full timeout later nothing more has moved. Busy, PDUs of
-//! a second stream (N > 1) or depacketizer pulses (N = 1) occupy the walker,
-//! so the unlock walk waits and its STREAM_INTERRUPTED write yields.
+//! either way, and a full timeout later nothing more has moved. Busy, the
+//! unlock walk waits for the walker and its STREAM_INTERRUPTED write yields.
 void Lockstep::si_boundary(bool by_stop, bool busy) {
     const char* what = by_stop ? "a STOP" : "an unbind";
     std::printf("[SI] boundary: %s across the silence expiry, %s engine\n", what,
                 busy ? "busy" : "idle");
     const std::string tag = std::string("[SI] boundary (") + what + (busy ? ", busy)" : ", idle)");
-    const int s = kN - 1;
-    const int b = 0;  //! the background stream when N > 1
     std::vector<int> offsets = {-200, -40};
     for (int d = -12; d <= 24; d++) offsets.push_back(d);
     offsets.push_back(40);
@@ -645,88 +704,47 @@ void Lockstep::si_boundary(bool by_stop, bool busy) {
     uint64_t wrong_mu = 0;
     uint64_t wrong_si = 0;
     uint64_t wrong_late = 0;
-    //! where the event was sampled, against the walk's two counter writes
-    uint64_t before_expiry = 0;
-    uint64_t walk_pending = 0;
-    uint64_t between_writes = 0;
-    uint64_t after_walk = 0;
+    //! where the event was sampled, against the walk's two counter writes:
+    //! before the expiry, while the walk was pending, between its writes, after
+    uint64_t where[4] = {};
     uint64_t yielded = 0;
     int64_t max_latency = 0;
-    if (busy && kN > 1) lock_and_settle(b);
+    if (busy && kN > 1) lock_and_settle(0);
     int trial = 0;
     for (const int d : offsets) {
         const int gap = 3 + 3 * (trial++ % 3);  //! 3, 6 or 9 cycles apart
-        lock_and_settle(s);
-        const uint32_t mu0 = gc_read(s, kColMu);
-        const uint32_t si0 = gc_read(s, kColSi);
-        const int64_t e = silence_expiry_edge(s);
-        const int64_t ev = e + d;
-        const int64_t load_end = ev + 40;
-        const int64_t end = std::max(ev, e) + 80;
-        int64_t mu_edge = -1;
-        int64_t si_edge = -1;
-        bool bg_between = false;
-        while (static_cast<int64_t>(cycle_) < end) {
-            const int64_t next = static_cast<int64_t>(cycle_) + 1;
-            if (next == ev) {
-                if (by_stop)
-                    stop(s, true);
-                else
-                    bind(s, false);
-            }
-            if (busy && next < load_end && next % gap == 0) {
-                if (kN > 1) {
-                    pdu(b, ++seq_[b]);
-                } else {
-                    dut_->depkt_pdu_p_i = 1;
-                    dut_->depkt_pdu_idx_i = 0;
-                }
-            }
-            step();
-            if (mu_edge < 0 && gc_read(s, kColMu) != mu0) mu_edge = static_cast<int64_t>(cycle_);
-            if (si_edge < 0 && gc_read(s, kColSi) != si0) si_edge = static_cast<int64_t>(cycle_);
-            if (kN > 1 && mu_edge >= 0 && si_edge < 0 && dut_->dut_pdu_accept_p_o &&
-                dut_->dut_pdu_accept_idx_o == b)
-                bg_between = true;
-        }
-        const uint32_t mu = gc_read(s, kColMu) - mu0;
-        const uint32_t si = gc_read(s, kColSi) - si0;
+        const BoundaryTrial r = boundary_trial(d, gap, by_stop, busy);
         const uint32_t want = d > 0 ? 1 : 0;
-        if (mu != 1 || si != want)
+        if (r.mu != 1 || r.si != want)
             std::printf("  offset %d from the expiry: MEDIA_UNLOCKED +%u, STREAM_INTERRUPTED +%u, "
-                        "expected +1 and +%u\n", d, mu, si, want);
-        wrong_mu += mu != 1;
-        wrong_si += si != want;
-        cycles(kUnlockCycles + 100);
-        wrong_late += (gc_read(s, kColMu) - mu0 != mu) || (gc_read(s, kColSi) - si0 != si);
-        if (ev <= e)
-            before_expiry++;
-        else if (mu_edge < 0 || ev <= mu_edge)
-            walk_pending++;
-        else if (si_edge < 0 || ev <= si_edge)
-            between_writes++;
-        else
-            after_walk++;
+                        "expected +1 and +%u\n", d, r.mu, r.si, want);
+        wrong_mu += r.mu != 1;
+        wrong_si += r.si != want;
+        wrong_late += r.late_moved;
+        int at = 3;
+        if (r.ev <= r.e)
+            at = 0;
+        else if (r.mu_edge < 0 || r.ev <= r.mu_edge)
+            at = 1;
+        else if (r.si_edge < 0 || r.ev <= r.si_edge)
+            at = 2;
+        where[at]++;
         //! the silence's own unlock walk: always when stopped, and after E
         //! when the unbind comes later
-        if (mu_edge >= 0 && (by_stop || d > 0)) max_latency = std::max(max_latency, mu_edge - e);
-        yielded += bg_between;
-        if (by_stop) stop(s, false);
-        bind(s, false);
-        cycles(40);
+        if (r.mu_edge >= 0 && (by_stop || d > 0))
+            max_latency = std::max(max_latency, r.mu_edge - r.e);
+        yielded += r.yielded;
     }
     if (busy && kN > 1) {
-        bind(b, false);
+        bind(0, false);
         cycles(40);
     }
     std::printf("  sampled before the expiry %llu, while the walk was pending %llu, between its two "
                 "writes %llu, after it %llu; longest expiry-to-unlock %lld cycles; "
                 "interruption writes that yielded to a PDU walk %llu\n",
-                static_cast<unsigned long long>(before_expiry),
-                static_cast<unsigned long long>(walk_pending),
-                static_cast<unsigned long long>(between_writes),
-                static_cast<unsigned long long>(after_walk), static_cast<long long>(max_latency),
-                static_cast<unsigned long long>(yielded));
+                static_cast<unsigned long long>(where[0]), static_cast<unsigned long long>(where[1]),
+                static_cast<unsigned long long>(where[2]), static_cast<unsigned long long>(where[3]),
+                static_cast<long long>(max_latency), static_cast<unsigned long long>(yielded));
     c_.dec((tag + ": the stream unlocked exactly once at every offset").c_str(), wrong_mu, 0);
     c_.dec((tag + ": after the expiry the silence counts once, on or before it never").c_str(),
            wrong_si, 0);
@@ -735,12 +753,12 @@ void Lockstep::si_boundary(bool by_stop, bool busy) {
         idle_latency_ = std::max(idle_latency_, max_latency);
         c_.that((tag + ": sampled before the expiry, during the walk, between its two writes and "
                        "after it (the sweep is live)").c_str(),
-                before_expiry > 0 && walk_pending > 0 && between_writes > 0 && after_walk > 0);
+                where[0] > 0 && where[1] > 0 && where[2] > 0 && where[3] > 0);
     } else {
         c_.that((tag + ": the load held the unlock walk longer than an idle engine does").c_str(),
                 max_latency > idle_latency_);
         c_.that((tag + ": sampled before the expiry, while the walk was held, and after it").c_str(),
-                before_expiry > 0 && walk_pending > 0 && after_walk > 0);
+                where[0] > 0 && where[1] > 0 && where[3] > 0);
         if (kN > 1)
             c_.that((tag + ": some interruption write yielded to a PDU walk").c_str(), yielded > 0);
     }
