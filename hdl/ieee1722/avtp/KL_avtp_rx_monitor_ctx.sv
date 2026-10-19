@@ -15,7 +15,8 @@
                 (LCTX). Per-PDU verdict contract = KL_avtp_rx_monitor
                 (the module-avb-extracted engine): lock on first valid PDU /
                 8-PDU settle / mismatch detect + interrupt(lost>=2) /
-                100 ms silence unlock / per-PDU format compare (a rejected
+                100 ms silence unlock + interrupt (#762) / per-PDU format
+                compare (a rejected
                 PDU affects nothing else) / counter reset ONLY on that
                 stream's not-bound->bound edge [M-5.3.8.10].
 
@@ -24,6 +25,13 @@
                 * MEDIA_LOCKED / MEDIA_UNLOCKED / STREAM_INTERRUPTED are
                   EVENT counters ("incremented each time ...") - they RMW
                   the RAM at the event, as before.
+                * STREAM_INTERRUPTED has two causes (Milan v1.2 5.3.8.10
+                  Table 5.6, #762): an accepted PDU whose sequence_num
+                  shows >= 2 lost PDUs, and a 100 ms silence that unlocks
+                  a bound stream.
+                  The first PDU after a silence re-seeds the sequence, so
+                  the silence is counted at its own unlock, once. An
+                  unbind unlocks through the same walk and counts nothing.
                 * FRAMES_RX counts every accepted AVTPDU, with 32-bit wrap.
                   The interval commit publishes the accumulated packet total.
                   IEEE 1722.1-2021 Table 7.157 and #726 ruling 6125741685
@@ -81,8 +89,9 @@
                 Table 5.6 interval counters count INTERVALS here where the
                 flat instrument counts FRAMES (the flat module keeps the
                 1722.1 per-frame reading on purpose - TBs use it as a
-                frame-accurate loop-integrity probe). Wire bytes and accept
-                verdicts are unchanged.
+                frame-accurate loop-integrity probe); the flat module does
+                not count a silence as STREAM_INTERRUPTED (#762). Wire bytes
+                and accept verdicts are unchanged.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -308,6 +317,9 @@ module KL_avtp_rx_monitor_ctx #(
 
   logic [N_LISTENERS_P-1:0] bind_pend_r;
   logic [N_LISTENERS_P-1:0] sil_pend_r;
+  //! #762: the pending unlock is the silence watchdog's, not an unbind's,
+  //! so its walk also counts STREAM_INTERRUPTED (Milan v1.2 5.3.8.10 Table 5.6)
+  logic [N_LISTENERS_P-1:0] sil_si_r;
   logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
   logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
 
@@ -806,6 +818,7 @@ module KL_avtp_rx_monitor_ctx #(
       ddrop_add_r <= '0;
       bind_pend_r  <= '0;
       sil_pend_r   <= '0;
+      sil_si_r     <= '0;
       iv_pend_r    <= '0;
       frx_add_r    <= '0;
       for (int s = 0; s < N_LISTENERS_P; s++) frx_acc_r[s] <= '0;
@@ -874,6 +887,9 @@ module KL_avtp_rx_monitor_ctx #(
         //! unlock increment always lands before any wipe (the ordering the
         //! walker comment below already mandates).
         if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
+        //! #762: an Unbind is never an interruption, even one landing on a
+        //! silence unlock that is still waiting for its walk
+        if (bind_fall_i[s]) sil_si_r[s] <= 1'b0;
         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
             !(&dpdu_pend_r[s]))
           dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
@@ -885,6 +901,8 @@ module KL_avtp_rx_monitor_ctx #(
           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
             sil_pend_r[s] <= 1'b1;
             sil_ms_r[s]   <= '0;
+            //! #762: a silence of a bound stream interrupts its playback
+            if (bound_i[s] && !bind_fall_i[s]) sil_si_r[s] <= 1'b1;
           end
           else sil_ms_r[s] <= sil_ms_r[s] + 7'd1;
         end
@@ -1042,9 +1060,17 @@ module KL_avtp_rx_monitor_ctx #(
                 locked_sh_r[ev_s_r]  <= 1'b0;
                 sil_ms_r[ev_s_r]     <= '0;
                 sil_pend_r[ev_s_r]   <= 1'b0;
+                sil_si_r[ev_s_r]     <= 1'b0;
                 sil_mode_r <= 1'b0;
                 wrph_r     <= '0;
-                mst_r      <= M_IDLE_S;
+                //! #762: a silence unlock then counts STREAM_INTERRUPTED
+                //! through the ordinary RMW below, which yields to PDU
+                //! pressure like every other counter walk
+                if (sil_si_r[ev_s_r]) begin
+                  inc_list_r <= 12'b1 << C_SI_C;
+                  mst_r      <= M_INC_S;
+                end
+                else mst_r <= M_IDLE_S;
               end
             endcase
           end
@@ -1109,6 +1135,7 @@ module KL_avtp_rx_monitor_ctx #(
             //! MEDIA_UNLOCKED over a zeroed MEDIA_LOCKED and strand the
             //! stream at UNLOCKED=LOCKED+1, which is neither legal state
             sil_pend_r[ev_s_r]   <= 1'b0;
+            sil_si_r[ev_s_r]     <= 1'b0;
             //! a parked walk remainder for THIS stream dies with the era
             //! too (its counters are zeroed by the bind-zero walk below)
             if (iv_res_s_r == ev_s_r) iv_res_list_r <= '0;

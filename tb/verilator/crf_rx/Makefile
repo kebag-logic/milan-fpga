@@ -6,7 +6,8 @@
 # an independent C++ ring replica — the regression that guards the
 # ts_hist flop-file -> BRAM conversion.
 #   make        - run counters, discontinuity, connected servo and mutation gates
-#   make mutants - detector/refill/servo-validity mutants with named failures
+#   make mutants - detector/refill/servo-validity and #762 STREAM_INTERRUPTED
+#                  mutants with named failures
 #   make clean  - remove build artifacts
 #
 # CLK_FREQ_HZ_P is scaled to 200 kHz so the 100 ms lock timeout is
@@ -47,17 +48,20 @@ VFLAGS = --cc --exe --build -j 0 \
 RX_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
 SRCS = $(RX_RTL)
 DISC_MDIR ?= obj_discontinuity
+UNIT_MDIR ?= obj_dir
 CPP  = sim_main.cpp
 
-.PHONY: all run unit discontinuity discontinuity-build talker_step mutants clean
+.PHONY: all run unit unit-build discontinuity discontinuity-build talker_step mutants clean
 all: run mutants
 
 run: unit discontinuity talker_step
 
-unit:
-	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vcrf_rx_sim
+unit: unit-build
 	@echo "======================================================================"
-	./obj_dir/Vcrf_rx_sim
+	./$(UNIT_MDIR)/Vcrf_rx_sim
+
+unit-build:
+	$(VERILATOR) $(VFLAGS) -Mdir $(UNIT_MDIR) $(SRCS) $(CPP) -o Vcrf_rx_sim
 
 discontinuity: discontinuity-build
 	./$(DISC_MDIR)/Vdiscontinuity

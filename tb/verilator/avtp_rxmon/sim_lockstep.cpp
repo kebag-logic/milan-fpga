@@ -3,8 +3,9 @@
 //
 // Lockstep leg (#640 M6): KL_avtp_rx_monitor_ctx against the pre-change
 // reference KL_avtp_rx_monitor_ctx_ref (reference/, the module of dev
-// e8454e27 with only its name changed), both fed the SAME inputs every cycle
-// by avtp_rxmon_lockstep_wrap.
+// e8454e27 with its name changed and #762's silence interruption applied in
+// the same lines as the engine), both fed the SAME inputs every cycle by
+// avtp_rxmon_lockstep_wrap.
 //
 //   [LS] unchanged outputs match in every cycle: accept verdicts, legacy
 //        counters, LCTX answers, lock and channel levels. Every historical
@@ -34,6 +35,13 @@
 //        bundle queued before the reset is served after it.
 //   [SO] a seeded random soak over every input, with resets, binds, window
 //        traffic and out-of-range indexes, compared as [LS] and [GC].
+//   [SI] #762, STREAM_INTERRUPTED's causes (Milan v1.2 Table 5.6), each
+//        graded by count, not against the reference: a 100 ms silence that
+//        unlocks a bound stream counts once and the resume after it adds
+//        nothing; a sequence gap of two lost PDUs counts once; an unbind of a
+//        locked stream unlocks without counting, and so does the silence
+//        after it. An unbind swept across the silence's unlock moves
+//        MEDIA_UNLOCKED once and STREAM_INTERRUPTED at most once.
 //
 // Scaled clock: CLK_FREQ_HZ_P=10000 makes 1 ms 10 cycles and the 100 ms
 // silence unlock 1000 cycles; the Table 5.6 interval is IVAL_CYC_P=500.
@@ -129,6 +137,8 @@ class Lockstep {
     void h2_update_colliding_with_read();
     void h3_wrap();
     void h4_reset_during_update();
+    void si_causes();
+    void si_unbind_across_the_silence();
     void soak(uint64_t seed, int n);
 };
 
@@ -403,6 +413,10 @@ void Lockstep::h3_wrap() {
         pdu(s, seq_[s]);
         cycles(20);
     }
+    //! read now: the interval wait below outlasts the silence timeout, and
+    //! that silence is itself an interruption (#762)
+    c_.hex("[H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two",
+           gc_read(s, kColSi), 0x00000000u);
     //! depacketizer: three PDU pulses (pdus 0xFFFF -> 0x0002) and two drops
     //! (drops 0xFFFE -> 0x0000), each half on its own
     for (int k = 0; k < 3; k++) {
@@ -417,8 +431,6 @@ void Lockstep::h3_wrap() {
     //! close two intervals so FRAMES_RX commits its frame total
     cycles(2 * kIval + 50);
     c_.hex("[H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000", gc_read(s, kColMl), 0x00000000u);
-    c_.hex("[H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two",
-           gc_read(s, kColSi), 0x00000000u);
     c_.hex("[H3] FRAMES_RX adds eleven packets across 32-bit wrap (0xFFFFFFFA + 11)",
            gc_read(s, kColFrx), 0x00000005u);
     uint32_t w11 = 0;
@@ -428,6 +440,8 @@ void Lockstep::h3_wrap() {
     //! silence unlock: MEDIA_UNLOCKED wraps
     cycles(kUnlockCycles + 200);
     c_.hex("[H3] MEDIA_UNLOCKED wraps 0xFFFFFFFF -> 0x00000000", gc_read(s, kColMu), 0x00000000u);
+    c_.hex("[H3] ...and that silence counts STREAM_INTERRUPTED on from the wrap (#762)",
+           gc_read(s, kColSi), 0x00000001u);
     report_lockstep("H3");
 }
 
@@ -455,6 +469,76 @@ void Lockstep::h4_reset_during_update() {
     }
     c_.dec("[H4] no bundle queued before a reset is served after it", stale_served, 0);
     report_lockstep("H4");
+}
+
+//! #762: each cause of STREAM_INTERRUPTED moves it by its own count
+void Lockstep::si_causes() {
+    std::printf("[SI] #762 silence, gap and unbind\n");
+    const int s = kN - 1;
+    lock_and_settle(s);
+    const uint32_t mu0 = gc_read(s, kColMu);
+    const uint32_t si0 = gc_read(s, kColSi);
+    cycles(kUnlockCycles + 200);
+    c_.dec("[SI] a silence unlocks the bound stream once (MEDIA_UNLOCKED)", gc_read(s, kColMu) - mu0, 1);
+    c_.dec("[SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once",
+           gc_read(s, kColSi) - si0, 1);
+    //! the talker resumes five sequence numbers on: the first PDU re-seeds
+    seq_[s] = static_cast<uint8_t>(seq_[s] + 5);
+    for (int k = 0; k < 9; k++) {
+        pdu(s, ++seq_[s]);
+        cycles(20);
+    }
+    cycles(20);
+    c_.dec("[SI] the resume after the silence adds nothing (its first PDU re-seeds)",
+           gc_read(s, kColSi) - si0, 1);
+    const uint32_t si1 = gc_read(s, kColSi);
+    const uint32_t mu1 = gc_read(s, kColMu);
+    seq_[s] = static_cast<uint8_t>(seq_[s] + 3);
+    pdu(s, seq_[s]);
+    cycles(20);
+    c_.dec("[SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once", gc_read(s, kColSi) - si1, 1);
+    c_.dec("[SI] ...and unlocks nothing", gc_read(s, kColMu) - mu1, 0);
+    const uint32_t si2 = gc_read(s, kColSi);
+    bind(s, false);
+    cycles(40);
+    c_.dec("[SI] an unbind of a locked stream unlocks it once", gc_read(s, kColMu) - mu1, 1);
+    c_.dec("[SI] an unbind of a locked stream counts no STREAM_INTERRUPTED", gc_read(s, kColSi) - si2, 0);
+    cycles(kUnlockCycles + 200);
+    c_.dec("[SI] ...nor does the silence after the unbind", gc_read(s, kColSi) - si2, 0);
+    c_.dec("[SI] ...which unlocks nothing more", gc_read(s, kColMu) - mu1, 1);
+    report_lockstep("SI");
+}
+
+//! The unbind landing anywhere across the silence's unlock, from well before
+//! the watchdog fires to after the unlock walk: whichever comes first, the
+//! stream unlocks once, and STREAM_INTERRUPTED moves at most once
+void Lockstep::si_unbind_across_the_silence() {
+    std::printf("[SI] an unbind swept across the silence unlock\n");
+    const int s = kN - 1;
+    uint64_t wrong_unlocks = 0;
+    uint64_t wrong_interrupts = 0;
+    uint64_t counted = 0;
+    uint64_t trials = 0;
+    for (int offset = kUnlockCycles - 40; offset < kUnlockCycles + 40; offset += 2) {
+        ++trials;
+        lock_and_settle(s);
+        //! lock_and_settle returns 40 cycles after its last PDU
+        const uint32_t mu0 = gc_read(s, kColMu);
+        const uint32_t si0 = gc_read(s, kColSi);
+        cycles(offset - 40);
+        bind(s, false);
+        cycles(kUnlockCycles + 200);
+        const uint32_t mu = gc_read(s, kColMu) - mu0;
+        const uint32_t si = gc_read(s, kColSi) - si0;
+        wrong_unlocks += mu != 1;
+        wrong_interrupts += si > 1;
+        counted += si;
+    }
+    c_.dec("[SI] across the sweep every stream unlocked exactly once", wrong_unlocks, 0);
+    c_.dec("[SI] across the sweep STREAM_INTERRUPTED never moved twice", wrong_interrupts, 0);
+    c_.that("[SI] the sweep covered both orders (some silences counted, some unbinds first)",
+            counted > 0 && counted < trials);
+    report_lockstep("SI sweep");
 }
 
 void Lockstep::soak(uint64_t seed, int n) {
@@ -569,6 +653,8 @@ void Lockstep::run() {
     h2_update_colliding_with_read();
     h3_wrap();
     h4_reset_during_update();
+    si_causes();
+    si_unbind_across_the_silence();
     soak(0x6406u + kN, 300000);
     soak(0x9e3779b97f4a7c15ULL, 300000);
     c_.that("[GC] the reads covered every sink and column many times", gc_reads_ > 600000);

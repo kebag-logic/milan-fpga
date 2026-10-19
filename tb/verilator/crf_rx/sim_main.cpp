@@ -31,7 +31,9 @@
 //                      O+1 bit 0, NOT the common header's byte O+3)
 //   LATE/EARLY         the CRF reference timestamp vs ptp_now: in the past
 //                      / further ahead than MAXTT_NS_P + 10 ms
-//   STREAM_INTERRUPTED per-EVENT, >= 2 lost AVTPDUs (no interval fold)
+//   STREAM_INTERRUPTED per-EVENT, >= 2 lost AVTPDUs (no interval fold), and
+//                      the 100 ms silence of a started, bound sink (#762),
+//                      never an unbind
 // and in every case a REJECTED PDU counts none of them.
 //
 // Sampling contract: outputs are compared SETTLE_TICKS_C (4) cycles after
@@ -187,8 +189,15 @@ struct Model {
     void bad_pdu() {                     // format-invalid, matched stream
         settle = 0;                      // the UF count commits via cycle()
     }
-    void timeout() {                     // 100 ms without a CONSUMED PDU
-        if (locked) { locked = false; cnt_u++; }
+    // 100 ms without a CONSUMED PDU. #762: a started, bound sink's
+    // silence is also a STREAM_INTERRUPTED; an unbind on the same edge
+    // (bound false) is not
+    void timeout(bool bound = true) {
+        if (locked) {
+            locked = false;
+            cnt_u++;
+            if (bound && !stop) cnt_i++;
+        }
         settle = 0;
         // stopped, the frames may still be arriving and counted: the
         // sequence cursor, ring fill and mr reference stay live (a reset
@@ -586,17 +595,22 @@ class CrfRxHarness {
         // commits one more tick); THEN the ~100 empty intervals must not move
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
         uint32_t pdu_frozen = dut->pdu_count_o;
+        const uint32_t si_before = dut->cnt_intr_o;
         for (int i = 0; i < kSilenceCyc; i++) tick();  // TOUT_CYC_C = 20 000 @ 200 kHz
         m.timeout();
         ck("silence: unlocked", dut->locked_o, 0);
         ck("silence: cnt_unlocked 1", dut->cnt_unlocked_o, 1);
+        ck("[762-a] silence: STREAM_INTERRUPTED counts the silence once",
+           dut->cnt_intr_o, si_before + 1);
         ck("silence: rate holds last value",
            static_cast<int32_t>(dut->rate_o), rate_frozen);
         ck("silence: empty intervals do NOT tick FRAMES_RX",
            dut->pdu_count_o, pdu_frozen);
 
-        // resume at +100 ppm again; ~100 ms passed on both timelines
+        // resume at +100 ppm again; ~100 ms passed on both timelines, and
+        // five sequence numbers on: the first PDU re-seeds the cursor
         ts += 100000000; ptp += 100000000;
+        seq += 5;
         long rate_change_pdu = -1;
         long resume_base = g_pdu_no;
         for (int n = 0; n < 270; n++) {
@@ -608,6 +622,8 @@ class CrfRxHarness {
                 rate_change_pdu = g_pdu_no - resume_base;
         }
         ck("re-lock: cnt_locked 2", dut->cnt_locked_o, 2);
+        ck("[762-b] resume: the re-seeded first PDU adds no STREAM_INTERRUPTED",
+           dut->cnt_intr_o, si_before + 1);
         ck("refill: rate frozen for 256 PDUs, moves on 257",
            rate_change_pdu, 257);
         ck("refill: rate == +100 ppm again",
@@ -1474,7 +1490,8 @@ class CrfRxHarness {
     // so Table 5.6 reads MEDIA_LOCKED = MEDIA_UNLOCKED, "not synchronized",
     // from the unbind on. The 100 ms timeout after it finds the lock down and
     // counts nothing, even when the two land on one edge. An unbound UNLOCKED
-    // input counts nothing, STREAM_INTERRUPTED never moves, a stopped input
+    // input counts nothing, an unbind never moves STREAM_INTERRUPTED (#762:
+    // the timeout counts it only while bound), a stopped input
     // still holding its lock scores the same one unlock, and 100 ms of
     // silence while BOUND (genuine stream loss) still unlocks.
     //-----------------------------------------------------------------------
@@ -1555,6 +1572,7 @@ class CrfRxHarness {
         ck("[UNB-d0] 100 ms of silence while BOUND still unlocks",
            static_cast<long>(dut->cnt_locked_o == 1 && dut->cnt_unlocked_o == 1
                              && !dut->locked_o), 1);
+        ck("[UNB-d0b] ...and counts one STREAM_INTERRUPTED (#762)", dut->cnt_intr_o, 1);
         const uint32_t tout_max = dut->rootp->KL_crf_rx__DOT__tout_r;
         ts += 100000000; ptp += 100000000;
         for (int n = 0; n < 10; n++) {
@@ -1569,9 +1587,11 @@ class CrfRxHarness {
         g_dirty_cnt = 0;
         dut->en_i = 0;
         tick();
-        m.timeout(); m.unbind();
+        m.timeout(false); m.unbind();
         ck("[UNB-d2] unbind and timeout on one edge: ONE unlock",
            dut->cnt_unlocked_o, 2);
+        ck("[UNB-d5] ...and no STREAM_INTERRUPTED: the unbind wins the edge (#762)",
+           dut->cnt_intr_o, 1);
         ck("[UNB-d3] ...locked_o down", dut->locked_o, 0);
         ck("[UNB-d4] ...and one dirty pulse", g_dirty_cnt, 1);
     }

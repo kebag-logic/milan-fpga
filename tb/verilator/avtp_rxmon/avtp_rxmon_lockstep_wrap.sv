@@ -6,7 +6,8 @@
 //! Lockstep wrapper (#640 M6): the shipping KL_avtp_rx_monitor_ctx beside
 //! the pre-change reference, KL_avtp_rx_monitor_ctx_ref
 //! (reference/KL_avtp_rx_monitor_ctx_ref.sv: the module of dev e8454e27,
-//! byte-identical except its module name). Both take the SAME inputs every
+//! identical except its module name and #762's silence interruption, applied
+//! in the engine's own lines). Both take the SAME inputs every
 //! cycle; every output of both is a port, so sim_lockstep.cpp compares them
 //! cycle by cycle. The GET_COUNTERS read is the one interface that changed
 //! shape: the reference presents a sink's twelve counters at once

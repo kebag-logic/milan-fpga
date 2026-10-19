@@ -3,6 +3,10 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Compile isolated CRF receiver and servo-validity mutants; require named harness failures.
 
+The discontinuity mutants run sim_discontinuity.cpp; the #762 STREAM_INTERRUPTED
+mutants (a silence, a sequence gap and an unbind, each the cause its check
+names) run the counter harness, sim_main.cpp, through `make unit-build`.
+
 No checkout is edited. Every executable, including the positive control,
 is rebuilt from this invocation's source. The harness has bounded loops.
 """
@@ -32,10 +36,30 @@ MUTANTS = (
     ("accept_edge_late", "!w_bind_rise_w && !rate_break_w;", "!w_bind_rise_w;",
      "tu edge invalidates before the sampling edge"),
 )
+#: #762, graded by the counter harness: (name, anchor, replacement, check)
+UNIT_MUTANTS = (
+    ("silence_not_interrupted", "if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
+     "if (1'b0) cnt_intr_o <= cnt_intr_o + 32'd1;",
+     "[762-a] silence: STREAM_INTERRUPTED counts the silence once"),
+    ("gap_not_interrupted",
+     "wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C));",
+     "wire w_ev_si_w = 1'b0;",
+     "[5t-e2] 3 gaps in ONE interval: +3 immediately (per-event)"),
+    ("unbind_interrupts",
+     "        cnt_unlocked_o <= cnt_unlocked_o + 32'd1;\n        dirty_p_o      <= 1'b1;\n      end\n\n"
+     "      //! not-bound -> bound",
+     "        cnt_unlocked_o <= cnt_unlocked_o + 32'd1;\n        dirty_p_o      <= 1'b1;\n"
+     "        cnt_intr_o     <= cnt_intr_o + 32'd1;\n      end\n\n      //! not-bound -> bound",
+     "[UNB-a6] STREAM_INTERRUPTED does not count the unbind"),
+    ("unbind_edge_timeout_interrupts",
+     "if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
+     "if (!stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
+     "[UNB-d5] ...and no STREAM_INTERRUPTED: the unbind wins the edge (#762)"),
+)
 
 
 def run_case(work: Path, name: str, source: str, failure: str | None,
-             *, servo: bool = False) -> bool:
+             *, servo: bool = False, unit: bool = False) -> bool:
     """A compiler error or abnormal termination never counts as a kill."""
     rtl = work / f"{name}.sv"
     rtl.write_text(source)
@@ -44,6 +68,10 @@ def run_case(work: Path, name: str, source: str, failure: str | None,
         build = ["make", "-s", "-C", str(HERE / "../mmcm_servo"), "unit-build",
                  f"SERVO_RTL={rtl}", f"UNIT_MDIR={mdir}"]
         executable = "Vservo_sim"
+    elif unit:
+        build = ["make", "-s", "-C", str(HERE), "unit-build",
+                 f"RX_RTL={rtl}", f"UNIT_MDIR={mdir}"]
+        executable = "Vcrf_rx_sim"
     else:
         build = ["make", "-s", "-C", str(HERE), "discontinuity-build",
                  f"RX_RTL={rtl}", f"DISC_MDIR={mdir}"]
@@ -60,9 +88,9 @@ def run_case(work: Path, name: str, source: str, failure: str | None,
     output = result.stdout + result.stderr
     if failure is None:
         passed = result.returncode == 0 and ("RESULT: PASS" in output or
-                                           (servo and "0 failures" in output))
+                                           ((servo or unit) and " 0 failures" in output))
     else:
-        passed = (result.returncode == 1 and (servo or "RESULT: FAIL" in output) and
+        passed = (result.returncode == 1 and (servo or unit or "RESULT: FAIL" in output) and
                   f"[FAIL] {failure}" in output)
     print(f"[{'PASS' if passed else 'FAIL'}] {name}: rc={result.returncode}")
     if passed and failure is not None:
@@ -92,6 +120,14 @@ def main() -> int:
                 results.append(False)
                 continue
             results.append(run_case(work, name, source.replace(anchor, replacement), failure))
+        results.append(run_case(work, "unit_clean", source, None, unit=True))
+        for name, anchor, replacement, failure in UNIT_MUTANTS:
+            if source.count(anchor) != 1:
+                print(f"FAIL {name}: expected exactly one mutation anchor")
+                results.append(False)
+                continue
+            results.append(run_case(work, name, source.replace(anchor, replacement), failure,
+                                    unit=True))
         servo_source = SERVO.read_text()
         anchor = "\n                           && ref_rate_valid_i;"
         if servo_source.count(anchor) != 1:

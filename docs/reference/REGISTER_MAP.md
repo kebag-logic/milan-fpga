@@ -870,6 +870,11 @@ descriptor (#529). FRAMES_RX counts every accepted AVTPDU, including routine
 healthy traffic, under IEEE 1722.1-2021 Table 7.157 and the #726 ruling.
 It resets on not-bound to bound and retains its value on unbind.
 The six anomaly counters keep their observation intervals.
+STREAM_INTERRUPTED counts an accepted PDU that shows two or more lost PDUs,
+and since #762 the 100 ms silence that unlocks the started, bound input
+(Milan v1.2 5.3.8.10 Table 5.6). An unbind never counts, and neither does the
+timeout of a stopped input. The AAF inputs' `KL_avtp_rx_monitor_ctx` keeps the
+same two causes.
 
 | Quadlet (block offset) | Counter | `KL_crf_rx` output |
 |---|---|---|

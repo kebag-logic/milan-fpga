@@ -346,11 +346,18 @@ class NxnRxStackHarness {
 
     void silence_unlocks_on_the_ms_grid(){
         printf("\n[G6] P2 golden: 100 ms silence unlocks (ms-grid watchdog)\n");
+        const long si=dut->cnt_stream_interrupted_o;
         cyc(12000);
         ck("MEDIA_UNLOCKED 1", dut->cnt_media_unlocked_o, 1);
         ck("unlocked level", dut->media_locked_o, 0);
+        //! #762 (Milan v1.2 Table 5.6): the silence interrupted a bound
+        //! stream, and the resume below re-seeds rather than counting again
+        ck("[G6-762] the silence counts STREAM_INTERRUPTED once",
+           dut->cnt_stream_interrupted_o, si+1);
         { AafCfg c; c.seq=200; feed(build_aaf(stim, c)); }
         ck("relock: MEDIA_LOCKED 2", dut->cnt_media_locked_o, 2);
+        ck("[G6-762] the resume's sequence jump counts nothing more",
+           dut->cnt_stream_interrupted_o, si+1);
     }
 
     void unbind_keeps_rebind_resets(){

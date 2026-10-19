@@ -40,7 +40,8 @@ NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
        avtp_rxmon_nx_wrap.sv
 # #640 M6 lockstep leg: the shipping context engine beside the pre-change
 # reference (reference/KL_avtp_rx_monitor_ctx_ref.sv, dev e8454e27's module
-# with only its name changed), at the shipping N=1 and the 8x8 shape's N=8.
+# with its name changed and #762's silence interruption applied in the
+# engine's own lines), at the shipping N=1 and the 8x8 shape's N=8.
 # RXMON_SRC and LS_MDIR are overridable so lockstep_mutants.py builds a
 # MUTATED copy of the engine through this exact recipe.
 RXMON_SRC ?= $(A)/KL_avtp_rx_monitor_ctx.sv

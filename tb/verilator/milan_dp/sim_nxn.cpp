@@ -5549,7 +5549,7 @@ class NxnDatapathHarness {
     static constexpr uint32_t CRF_EVT_N[10] = {
          2,   // MEDIA_LOCKED         two locks
          1,   // MEDIA_UNLOCKED       one unlock
-         3,   // STREAM_INTERRUPTED   three gaps of >= 2 lost
+         3,   // STREAM_INTERRUPTED   two gaps of >= 2 lost and the silence (#762)
          4,   // SEQ_NUM_MISMATCH     ...and one gap of 1
          5,   // MEDIA_RESET          five mr toggles
          6,   // TIMESTAMP_UNCERTAIN  six tu PDUs
@@ -5602,11 +5602,12 @@ class NxnDatapathHarness {
     //! against the leg's 256-cycle LDIAG_IVAL_CYC_P), in a fresh era:
     //!   P1         accepted: seeds the sequence cursor and the mr level
     //!   7 rejects  type 2 at the followed sid     UNSUPPORTED_FORMAT   7
-    //!   P2..P4     2, 3 and 2 PDUs lost           STREAM_INTERRUPTED   3
-    //!   P5         1 PDU lost, below the >= 2     SEQ_NUM_MISMATCH     4
+    //!   P2, P3     2 and 3 PDUs lost              STREAM_INTERRUPTED   2
+    //!   P4, P5     1 PDU lost, below the >= 2     SEQ_NUM_MISMATCH     4
     //!   P6..P13    eight clean in order: a lock   MEDIA_LOCKED         1
     //!   P6..P10    each toggles the received mr   MEDIA_RESET          5
     //!   silence    the 100 ms timeout: an unlock  MEDIA_UNLOCKED       1
+    //!              ...and an interruption (#762)  STREAM_INTERRUPTED   3
     //!   P14..P21   eight clean in order: a lock   MEDIA_LOCKED         2
     //!   P14..P19   carry tu                       TIMESTAMP_UNCERTAIN  6
     //!   P1..P8     timestamp already past         LATE_TIMESTAMP       8
@@ -5622,7 +5623,7 @@ class NxnDatapathHarness {
             send_crf_pdu(phc_now_ns() + 1000000u, cseq, 0x80, 0x02);
         cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(2, false, false);
         cseq = static_cast<uint8_t>(cseq + 3); send_crf_event_pdu(3, false, false);
-        cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(4, false, false);
+        cseq = static_cast<uint8_t>(cseq + 1); send_crf_event_pdu(4, false, false);
         cseq = static_cast<uint8_t>(cseq + 1); send_crf_event_pdu(5, false, false);
         for (int n = 6; n <= 13; n++)           // mr 1,0,1,0,1 then held at 1
             send_crf_event_pdu(n, n > 10 || n % 2 == 0, false);
@@ -5652,6 +5653,8 @@ class NxnDatapathHarness {
            ctr_word(r2, 1), 1);
         ck("[CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized)",
            ctr_word(r2, 0), 1);
+        ck("[CTRS-CRF] events: ...and the silence counts STREAM_INTERRUPTED @8 (#762)",
+           ctr_word(r2, 2), 3);
 
         for (int n = 14; n <= 21; n++) send_crf_event_pdu(n, true, n <= 19);
         const std::vector<uint8_t> r3 = crf_ctrs(0x4408);

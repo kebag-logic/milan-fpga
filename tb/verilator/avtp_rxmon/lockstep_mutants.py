@@ -9,7 +9,9 @@ counter contexts with their own oracles: same-stream back-to-back updates
 ([H1]), an update colliding with a read ([H2]), every sink answering its own
 GET_COUNTERS row ([GC]) and a reset during an update ([H4]). Each defect below
 is the one its case exists for: a lost increment, a torn read, a wrong stream
-index and a missed reset. The real engine is mutated one defect at a time, the
+index and a missed reset. Three more are #762's STREAM_INTERRUPTED causes
+([SI]): a silence that unlocks without counting, a sequence gap that does
+not count, and an unbind that counts. The real engine is mutated one defect at a time, the
 SAME harness is rebuilt through the Makefile's own recipe (`make
 lockstep-build` with RXMON_SRC and LS_MDIR overridden) at both shapes (N=1 and
 N=8), and both binaries run. Each mutant must make the harness FAIL by its
@@ -87,6 +89,18 @@ MUTATIONS = [
      "      pq_cnt_r    <= '0;\n      pq_wp_r     <= '0;",
      "      pq_wp_r     <= '0;",
      "[H4] no bundle queued before a reset is served after it"),
+    ("silence: the watchdog's unlock is never marked an interruption (#762)",
+     "            if (bound_i[s] && !bind_fall_i[s]) sil_si_r[s] <= 1'b1;",
+     "            if (1'b0) sil_si_r[s] <= 1'b1;",
+     "[SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once"),
+    ("gap: a sequence gap of two lost PDUs no longer interrupts (#762)",
+     "              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C))",
+     "              | ((1'b0 && lost_w >= 8'(INTERRUPT_MIN_LOST_C))",
+     "[SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once"),
+    ("unbind: an unbind's unlock is counted as an interruption (#762)",
+     "        if (bind_fall_i[s]) sil_si_r[s] <= 1'b0;",
+     "        if (bind_fall_i[s] && locked_sh_r[s]) sil_si_r[s] <= 1'b1;",
+     "[SI] an unbind of a locked stream counts no STREAM_INTERRUPTED"),
 ]
 
 
