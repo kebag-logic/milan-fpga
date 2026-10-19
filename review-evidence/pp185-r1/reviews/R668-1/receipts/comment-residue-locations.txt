@@ -1,0 +1,15 @@
+tb/aecp_notify/sim_main.cpp:376: // LF: the flags a LOCK_ENTITY notification carries (issue #186). IEEE
+tb/pp_top/notify_mutants.py:33: flags of the LOCK_ENTITY notification (issue #186: tb/pp_top L5b in the main suite and
+tb/pp_top/notify_mutants.py:625: # and the auto-unlock's in the main suite's section L (L5b, L6d), and section
+tb/pp_top/notify_mutants.py:626: # AX's LN, where a second controller's LOCK and UNLOCK carry reserved bits in
+tb/pp_top/notify_mutants.py:690:     # ...and in tb/aecp_notify section LF, the latches themselves and the
+tb/pp_top/sim_main.cpp:12138:   //! RDC1 (issue #185): after LK2's SET_CONTROL(255) and the three SET_CONTROLs
+tb/pp_top/sim_main.cpp:12140:   //! value GET_CONTROL reads (IEEE 1722.1-2021 7.2.22, 7.3.6.2). RDC2 and RDC3:
+tb/pp_top/sim_main.cpp:12144:   //! than one octet. RDC3b: CONTROL_LINEAR_INT8, the other one-octet linear
+tb/pp_top/sim_main.cpp:12536:     //! ...and IDENTIFY goes into the power cycle at 255 (RDC5)
+tb/pp_top/sim_main.cpp:12586:   //! RDC6 rides the same power cycle: CONTROL 0 at 111 bytes, ending inside
+tb/pp_top/sim_main.cpp:12626:   // ---- LN: the LOCK_ENTITY notification's flags (issue #186) -------------
+tb/ucpu/sim_main.cpp:859: // is held as the µCPU writes it, its value's low byte first (P12), which
+tb/ucpu/sim_main.cpp:860: // KL_aecp_resp_buf lays big-endian on the wire (tb/pp_top RDC grades that).
+tb/ucpu/sim_main.cpp:851: // ---- RC: READ_DESCRIPTOR's CONTROL overlay (issue #185) ---------------
+tb/pp_top/notify_mutants.py:34: section AX's LN). The suite READMEs carry the matching mutation records.

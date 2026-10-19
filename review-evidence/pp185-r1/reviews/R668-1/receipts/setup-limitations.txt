@@ -1,0 +1,3 @@
+The first documentation attempt used an archive without Git metadata and failed its Git-dependent inventory checks; the disposable-checkout rerun is separately recorded.
+The first campaign attempt did not set TMPDIR; both campaign drivers create TemporaryDirectory independently of --output. Descriptor controls completed, and the notification campaign was interrupted. Those initial attempts are excluded from result claims. Subsequent runs set TMPDIR inside packet/scratch and MAKEFLAGS=-j16.
+Known initial temporary directories still present: []

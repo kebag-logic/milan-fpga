@@ -1,0 +1,53 @@
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@ -178,7 +178,7 @@
+ 
+   //! a LOCK (an UNLOCK when `unlock`) by `eid` with the command's `flags`
+   //! word; true when it was answered SUCCESS
+-  bool lock_op(uint64_t eid, bool unlock, uint32_t flags) {
++  bool lock_op(uint64_t eid, bool unlock, uint32_t flags, int settle = 2) {
+     d->rgy_state_i = 0;
+     d->rgy_op_i = unlock ? 3 : 2;
+     d->rgy_eid_i = eid;
+@@ -197,7 +197,7 @@
+     tick();
+     d->rgy_req_i = 0;
+     d->rgy_flags_i = 0;
+-    idle(2);
++    idle(settle);
+     return success;
+   }
+ 
+@@ -447,6 +447,32 @@
+   CHECK(held3 && took3b && ended3 && lock_job(0x0002, 0x0000),
+         "LF3: X's LOCK with flags 0x00020000 after a timeout whose round is pending: the "
+         "coalesced notification carries the LOCK's flags (job args 0002/0000)");
++
++  for (uint32_t flags : {0u, 0x00010000u}) {
++    for (int settle : {0, 1}) {
++      warm_reset();
++      d->uns_done_i = 0;
++      now = 100000;
++      register_row(EID_C, MAC_C, false);
++      const bool took4 = lock_op(EID_X, false, flags, settle);
++      // settle 0: expiry before returning idle; settle 1: expiry at the claim.
++      now += 60000;
++      expire(LOCK_SLOT, OWN_LOCK);
++      const UnsJob clash = job_presented(now + WALK_MS);
++      printf("PROBE settle=%d command_flags=%08x took=%u held=%u holder=%016llx kind=%u flags=%04x%04x\n",
++             settle, flags, took4, unsigned(d->lock_held_o),
++             (unsigned long long)d->lock_ctlr_o,
++             unsigned(clash.kind), unsigned(clash.arg1), unsigned(clash.arg0));
++      if (clash.ms) (void)retire();
++      const UnsJob later = job_presented(now + WALK_MS);
++      printf("PROBE follow-up: present=%u kind=%u flags=%04x%04x\n", later.ms != 0,
++             unsigned(later.kind), unsigned(later.arg1), unsigned(later.arg0));
++      CHECK(took4 && !d->lock_held_o && clash.ms && clash.kind == KIND_LOCK
++                && clash.arg1 == 0 && clash.arg0 == 1,
++            "PROBE: expiry before/at round claim must notify UNLOCK (settle=%d, command=%08x)",
++            settle, flags);
++    }
++  }
+   d->uns_done_i = 1;
+ }
+ 

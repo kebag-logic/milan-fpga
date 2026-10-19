@@ -1,0 +1,15 @@
+[R668] NEGATIVE - exact head b0f6f9c3b5107c49e2323b9009d3c9b56ade51ad
+Independent verdict frozen before reading any prior public findings or another review report.
+
+F1 MAJOR: Automatic unlock coinciding with claim of a pending lock round snapshots the old flags and clears the pending bit. Reproduced for LOCK flags 0 and 0x00010000. One-clock-earlier controls produce UNLOCK. Both collisions have held=0, holder=0 and no follow-up notification. Evidence: claim-collision.log, claim-collision.patch. Attributable lenses: Conformance, RTL, Robustness, Tests, Docs (the unconditional last-cause guarantee at docs/architecture/06_aecp_engine.md:813 is not realized).
+F2 RESIDUE: New source-comment test labels (LF, RDC, LK, RC, LN and AX references) violate the supplied October 15 comment rule. Remove labels from comments, retain behavior/issue/requirement descriptions and leave assertions and measurements unchanged. Locations to enumerate in final report.
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN (F1) | #185 body/assignment, #186 correction, REQ-AEM-003/006/014, IEEE clauses, generator and directed byte checks | R668-1 | b0f6f9c3b5107c49e2323b9009d3c9b56ade51ad |
+| RTL | UNCLEAN (F1) | engine dispatch/operands, notify expiry/claim and flags latches, top wiring, dynamic store, microprograms, preserved router/occupancy logic | R668-1 | b0f6f9c3b5107c49e2323b9009d3c9b56ade51ad |
+| Robustness | UNCLEAN (F1) | reset/layout guards, locked refusals, coalesced changes; independent before/at-claim expiry probe | R668-1 | b0f6f9c3b5107c49e2323b9009d3c9b56ade51ad |
+| Tests | UNCLEAN (F1) | RDC/RC/LN/LF/TD/RN checks and 25 new controls, public gate/campaign receipts; local suites all pass while claim probe fails | R668-1 | b0f6f9c3b5107c49e2323b9009d3c9b56ade51ad |
+| Docs | UNCLEAN (F1) | architecture 06/09, compliance decision rows 15/16, command table/decode, three bench READMEs, PR body; F2 is non-blocking residue | R668-1 | b0f6f9c3b5107c49e2323b9009d3c9b56ade51ad |
+
+Public receipt inspection: author gates at f42c886, parent dev e9cbb676 with patches and processor f42c886. Not a manager source bank or exact-b0 full-bank run. Exact-b0 local focused checks pass; hosted portability/docs success, suites still running at observation. 227 public indexed receipts verified; 11 intentionally omitted large files accounted for. Remaining reviewer work: targeted controls, prior-public-findings reconciliation, final integrity and manifest.

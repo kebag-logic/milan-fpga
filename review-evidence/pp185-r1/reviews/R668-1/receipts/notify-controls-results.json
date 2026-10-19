@@ -1,0 +1,45 @@
+[
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "occupancy_cleared_beside_push",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "OC1:",
+   "CQ1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CQ1: two commands back to back, the second pushed in the clock the first is claimed (count 1 after it, want 1): C receives entry 0 and D entries 0 and 1, in order, each at its next sequence_id (2 jobs, want 3)",
+   "OC1: at every clock edge of this run the command queue's occupancy flop equals its count being non-zero (40 of 8681 edges differ, the first at edge 8467)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_coalesced_timeout_flags_zero",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)"
+  ],
+  "verdict": "KILLED"
+ }
+]

@@ -1,0 +1,22 @@
+Command: python3 tb/pp_top/aecp_dispatch_mutants.py --output $REVIEWS/pp185-r668-1-packet/scratch/descriptor-controls --verilator $REVIEWS/pp185-r668-1-packet/bounded-sim.py --jobs 2 --only rdc-base-no-overlay,rdc-unit-shift-8,rdc-short-floor-111
+control aecp-dispatch: rc=0 PASS
+rdc-base-no-overlay: rc=2 failures=7 named=1 KILLED
+    FAIL: RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+    FAIL: RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC3 ...and restored, CONTROL 0 carries 255 again: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC4 CONTROL 0 after the holder's SET_CONTROL(0), under its lock: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+    FAIL: RDC5 CONTROL 0 after SET_CONTROL(255), before the power cycle: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC5 CONTROL 0 after the power cycle: the reset 0, neither the 255 set before it nor the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+rdc-short-floor-111: rc=2 failures=2 named=1 KILLED
+    FAIL: RDC6 CONTROL 0 of 111 bytes, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: LN0: the bench registers for unsolicited notifications again, got -1
+rdc-unit-shift-8: rc=2 failures=7 named=1 KILLED
+    FAIL: RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+    FAIL: RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC3 ...and restored, CONTROL 0 carries 255 again: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC4 CONTROL 0 after the holder's SET_CONTROL(0), under its lock: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+    FAIL: RDC5 CONTROL 0 after SET_CONTROL(255), before the power cycle: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+    FAIL: RDC5 CONTROL 0 after the power cycle: the reset 0, neither the 255 set before it nor the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+4 checks: 4 PASS, 0 FAIL

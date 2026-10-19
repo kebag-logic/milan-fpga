@@ -1,0 +1,5 @@
+Command: python3 tb/pp_top/notify_mutants.py --output $REVIEWS/pp185-r668-1-packet/scratch/notify-controls --verilator $REVIEWS/pp185-r668-1-packet/bounded-sim.py --jobs 2 --only lock_coalesced_timeout_flags_zero occupancy_cleared_beside_push
+{"mutant": "golden-aecp_notify-run", "verdict": "PASS"}
+{"mutant": "occupancy_cleared_beside_push", "verdict": "KILLED", "missing": []}
+{"mutant": "lock_coalesced_timeout_flags_zero", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 2 of 2 KILLED by their named checks; goldens PASS

@@ -1,0 +1,34 @@
+make: Entering directory '$REVIEWS/pp185-r668-1-packet/scratch/source/tb/aecp_notify'
+$REVIEWS/pp185-r668-1-packet/bounded-sim.py --cc --exe --build -j 0 --top-module KL_aecp_notify -GN_CTRL_P=2 -GN_STREAM_IN_P=1 -GN_STREAM_OUT_P=1 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp185-r668-1-packet/scratch/source/tb/aecp_notify -Wall -Wextra" occupancy.vlt ../../hdl/common/pp_pkg.sv ../../hdl/aecp/KL_aecp_notify.sv sim_main.cpp -o Vaecp_notify_sim
+make[1]: Entering directory '$REVIEWS/pp185-r668-1-packet/scratch/source/tb/aecp_notify/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp185-r668-1-packet/scratch/source/tb/aecp_notify -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o VKL_aecp_notify__ALL.a    -pthread -lpthread -latomic   -o Vaecp_notify_sim
+make[1]: Leaving directory '$REVIEWS/pp185-r668-1-packet/scratch/source/tb/aecp_notify/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.518 s (elab=0.000, cvt=0.000, bld=1.517); cpu 0.001 s on 8 threads; allocated 16.496 MB
+./obj_dir/Vaecp_notify_sim --cancel-collision-only
+  [i] SC1: expired owner 0, cancels {1,1}, 1 entry, collision met
+  [i] SC1: expired owner 1, cancels {1,1}, 1 entry, collision met
+[build collision] 2 checks, 0 failures
+make: Leaving directory '$REVIEWS/pp185-r668-1-packet/scratch/source/tb/aecp_notify'
+  [i] TW1: the round's last job sent at ms 2600; the next round presented at ms 3603
+  [i] TW2: the round's last job sent at ms 6504; the next round presented at ms 7507
+  [i] DR1: after the drain, ms 20010: kind 6, 0009:0, args 0/0, seq 0, to 020000000004
+  [i] DR1: after the drain, ms 20013: kind 0, 0000:0, args 0/0, seq 1, to 020000000003
+  [i] DR2: after the drain, ms 25009: kind 8, 0005:1, args 2/3, seq 0, to 020000000004
+  [i] DR2: after the drain, ms 25012: kind 0, 0000:0, args 0/0, seq 1, to 020000000003
+  [i] DR3: the job after the drain (kind 6 to 020000000004) sent at ms 31504; D's GET_COUNTERS sent at ms 31504 and next presented at ms 32508
+PROBE settle=0 command_flags=00000000 took=1 held=0 holder=0000000000000000 kind=1 flags=00000001
+PROBE follow-up: present=0 kind=0 flags=00000000
+PROBE settle=1 command_flags=00000000 took=1 held=0 holder=0000000000000000 kind=1 flags=00000000
+PROBE follow-up: present=0 kind=0 flags=00000000
+FAIL: PROBE: expiry before/at round claim must notify UNLOCK (settle=1, command=00000000)
+PROBE settle=0 command_flags=00010000 took=1 held=0 holder=0000000000000000 kind=1 flags=00000001
+PROBE follow-up: present=0 kind=0 flags=00000000
+PROBE settle=1 command_flags=00010000 took=1 held=0 holder=0000000000000000 kind=1 flags=00010000
+PROBE follow-up: present=0 kind=0 flags=00000000
+FAIL: PROBE: expiry before/at round claim must notify UNLOCK (settle=1, command=00010000)
+  [i] CQ1: 2 pushes, count 1 after the push beside the first claim, 1 at most; 3 jobs; amap_busy_o low in 0 clocks before the last job, low after it
+  [i] CQ2: 17 pushes, count 1 after the push beside the first claim, 16 at most; 26 jobs; amap_busy_o low in 0 clocks before the last job, low after it
+[build default] 65 checks, 2 failures
