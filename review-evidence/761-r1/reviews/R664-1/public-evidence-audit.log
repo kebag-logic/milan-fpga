@@ -1,0 +1,91 @@
+Published evidence commit: 9020398b728636ec6a976a5b1e02c6979e0c24c6
+Source head claimed by author: 4191b0987d1313abc86c747ad6a9c3c0963f17da
+No manager source bank is claimed.
+shard0.summary: [11, 11, 0, 0, 12518, 0]
+shard1.summary: [13, 13, 0, 0, 35543, 0]
+shard2.summary: [12, 12, 0, 0, 424706, 0]
+shard3.summary: [13, 13, 0, 0, 1672586, 0]
+shard4.summary: [14, 14, 0, 0, 41952, 0]
+Aggregate suites/passed/failed/timeout/checks/failures: [63, 63, 0, 0, 2187305, 0]
+commit2-762/c762-avtp_rxmon.rc: rc=0
+commit2-762/c762-crf_rx.rc: rc=0
+commit2-762/c762-milan_dp.rc: rc=0
+final/builder.rc: rc=0
+final/xvlog.rc: rc=0
+final/yosys.rc: rc=0
+route/base/check.rc: rc=0
+route/base/route.rc: rc=0
+route/cand/check.rc: rc=0
+route/cand/route.rc: rc=0
+42 final-static gate rows: all rc 0
+sweep/milan_dp_mclk.log: == milan_dp_mclk: checks: 55   failures: 0 ==
+== milan_dp_mclk: checks: 32   failures: 0 ==
+== milan_dp_mclk: checks: 51   failures: 0 ==
+[PASS] mutant 17 (the selected CRF's lock-gain edge dropped (#761), --crfloss): caught; breaks "CRF return: one request at the sink's re-lock"
+[PASS] mutant 18 (the selected CRF's lock-loss edge dropped, --crfloss): caught; breaks "CRF loss: one request at the sink's timeout"
+34 checks: 34 PASS, 0 FAIL
+sweep/avtp_rxmon.log: KL_avtp_rx_monitor: 97 checks, 0 failures
+NxN RX stack: 121 checks, 0 failures
+== avtp_rxmon lockstep N=1: checks: 53   failures: 0 ==
+== avtp_rxmon lockstep N=8: checks: 53   failures: 0 ==
+8 checks: 8 PASS, 0 FAIL
+sweep/crf_rx.log: KL_crf_rx: 14291 checks, 0 failures (1086 accepted PDUs pinned)
+== crf_rx discontinuity: checks: 2201   failures: 0 ==
+== crf_rx talker_step: checks: 69   failures: 0 ==
+== crf_rx mutants: checks: 15   failures: 0 ==
+sweep/tkdiag.log: checks: 99   failures: 0
+5 checks: 5 PASS, 0 FAIL
+sweep/milan_dp_gm_steps.log: == gmstep: checks: 190   failures: 0 ==
+6 checks: 6 PASS, 0 FAIL
+final/builder.log:   [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+  [gate 1b] COSTS. RETIRED this round (#408, #409), each with an accepted case measured GREEN in the loop above and RED at dev 759da623, and each replaced by an instrument rather than narrowed by exception: a conditional reaching milan_init(), configure_fabric(), entity_advertise() or the three CSR accessors (every arm selection is graded as the firmware it builds), a C backslash-newline that JOIN
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+ALL GATES PASS EXCEPT 1 NOT RUN
+final/yosys.log:   [PASS] KL_pp_shadow           cells=1235819
+route/base/commit.txt:
+e9cbb676d7fdd6539aa408e5dfe38870a4ae1a5f
+
+route/base/check.log:
+endpoint route-1x1: <scratch>/route-base/work/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              49613       49613         0  ok
+FF               52353       52353         0  ok
+SLICE            15725       15725         0  ok
+RAMB36              74          74         0  ok
+RAMB18              25          25         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.215       0.215       0.0  ok
+WHS_ns           0.036       0.036       0.0  ok
+route status: complete, no unrouted net and no routing error
+RESULT: PASS
+
+route/cand/commit.txt:
+4191b0987d1313abc86c747ad6a9c3c0963f17da
+
+route/cand/check.log:
+endpoint route-1x1: <scratch>/route-cand/work/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              49613       49411      -202  ok, below the baseline
+FF               52353       52297       -56  ok, below the baseline
+SLICE            15725       15751        26  ok
+RAMB36              74          74         0  ok
+RAMB18              25          25         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.215       0.161    -0.054  ok
+WHS_ns           0.036       0.036       0.0  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT -83, FF +0
+  wrapper: LUT -80, FF +0
+  u_pp/u_aecp/u_d3: LUT +68, FF +0
+  u_pp/u_srp/u_talker: LUT -40, FF +0
+  u_pp/u_srp: LUT -39, FF +0
+  u_pp/u_aecp/u_store: LUT -29, FF +0
+  u_pp/u_aecp/u_ucpu: LUT -22, FF +0
+  u_pp/u_event_router: LUT -13, FF +0
+  u_pp/u_aecp/u_dyn: LUT -11, FF +0
+  u_pp/u_srp/u_domain: LUT +8, FF +0
+  u_pp/u_aecp: LUT -7, FF +0
+  u_pp/u_scoreboard: LUT -7, FF +0
+RESULT: PASS
+
