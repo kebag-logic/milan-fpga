@@ -980,7 +980,10 @@ Issue #502 aligns name/map reporting with live acceptance.
 - The binding manager's `nvm_unflushed_o` vector, reduced with OR.
 - Accepted name writes from `aecp_name_wr_o`.
 - Actual phase-5 map writes through `amap_live_wr_i`.
-- Sticky history of those name/map writes, cleared only by reset.
+- Sticky history of the name writes, cleared only by reset.
+- Since #637 the parent map writer's per-record dirty bits
+  (`amap_unflushed_i`), each set by an actual phase-5 map write and retired at
+  its record's window write.
 
 The accepting pulses bypass the history register into `pend_i`.
 The backend therefore reports pending on the accepting edge.
@@ -1396,10 +1399,10 @@ revision 424c688f (issue 90, merged): one new output port, no behaviour change.
   and not just the first attempt. Neither weakens the parent use: both make
   the vector report exactly the changes the manager still owes.
 - Current parent use: `KL_pp_shadow` drives the backend's pending input.
-  `pend_i = (|nvm_unflushed_w) | d3_unflushed_w | aecp_live_wr_w | aecp_live_pend_r`
-  since processor pin `d352bbaa`; before it the D3 term was `aecp_dyn_dirty_o`.
+  `pend_i = (|nvm_unflushed_w) | d3_unflushed_w | amap_unflushed_i | aecp_live_wr_w | aecp_live_pend_r`
+  since #637; before processor pin `d352bbaa` the D3 term was `aecp_dyn_dirty_o`.
   Here `aecp_live_wr_w = aecp_name_wr_w | amap_live_wr_i`.
-  The pulse covers acceptance; the history stays set until reset.
+  The pulse covers acceptance; the name history stays set until reset.
   Section 6.1 defines each source and its clearing rule.
 - EXECUTED: E3_binding_inside_manager_debounce is an ordinary PASSING case of
   `tb/verilator/nvm_cosim` with the export bound. It was the suite's one

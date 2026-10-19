@@ -175,19 +175,21 @@ parent's own since #637 (section 18.4). The
 reads NONE for those, and the contract reports them honestly instead: the
 parent's `pend_i` combines four terms in `KL_pp_shadow.sv`:
 
-`pend_i = (|nvm_unflushed_w) | d3_unflushed_w | aecp_live_wr_w | aecp_live_pend_r`.
+`pend_i = (|nvm_unflushed_w) | d3_unflushed_w | amap_unflushed_i | aecp_live_wr_w | aecp_live_pend_r`.
 
-The first two report unflushed bindings and the D3 writer's unflushed
-scalar records, each retired at its record's window write (section 7.1).
+The first three report unflushed bindings, the D3 writer's unflushed
+records and, since #637, the parent map writer's, each retired at its
+record's window write (section 7.1).
 Before pin `d352bbaa` the second term was the dynamic-state store's
 `aecp_dyn_dirty_o`, sticky until reset; it stays exported as a diagnostic.
 Here `aecp_live_wr_w = aecp_name_wr_w | amap_live_wr_i`.
 Accepted name writes pulse `aecp_name_wr_o`.
 The parent's `amap_edit_live_wr_p` reports actual phase-5 map writes.
 It also drives the shadow's `amap_live_wr_i` input.
-`latch_live_pending` retains both live-write sources until reset.
+`latch_live_pending` retains the name writes until reset; since #637 the
+map writer's dirty bits hold the map changes instead.
 The live pulse also feeds `pend_i` directly, covering acceptance.
-No slot holds these unmaterialized name/map changes.
+No slot holds these unmaterialized name changes.
 
 Where each live value is held, read at the current source:
 
@@ -2294,7 +2296,8 @@ Existing numbered references retain these dispositions:
    cold cycle is still owed.
    Historical K16 proves containment only, not accepted-set persistence.
 3. **RESOLVED: reporting under #502.** #579 landed accepting-edge reporting.
-   Names and actual map writes remain sticky until reset.
+   Names remain sticky until reset; actual map writes stopped being sticky
+   when #637 transferred them to the map writer's dirty bits.
    Section 10 transfers that responsibility only with materialization.
 4. **AMENDED: processor #15 reusable-port acceptance** (the processor ruling on #15, lane P2).
    The port answers a silent device at its own deadline, `NVM_MEM_TMO_CYC_P` = `CLK_HZ_P`
