@@ -1,0 +1,19 @@
+[
+  {
+    "name": "owner-named",
+    "rc": 1,
+    "expected_failure": true,
+    "named_checks": {
+      "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle": true,
+      "Nvm.WholeMapFramingAndEmptySetAreDistinct": true
+    },
+    "ok": true
+  },
+  {
+    "name": "owner-without-new",
+    "rc": 1,
+    "expected_failure": true,
+    "named_checks": {},
+    "ok": true
+  }
+]

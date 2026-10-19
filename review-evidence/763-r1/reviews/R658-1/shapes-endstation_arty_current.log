@@ -1,0 +1,121 @@
+Note: Google Test filter = Nvm.*
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from Nvm
+[ RUN      ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+[       OK ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords (4 ms)
+[ RUN      ] Nvm.WholeMapFramingAndEmptySetAreDistinct
+[       OK ] Nvm.WholeMapFramingAndEmptySetAreDistinct (0 ms)
+[ RUN      ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle
+$REVIEWS/r658-1-763/sw/firmware/ctrl/test/test_aecp.cpp:151: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 0
+status for command 45
+
+  [FAIL] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle: status for command 45
+[  FAILED  ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle (1 ms)
+[ RUN      ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle
+$REVIEWS/r658-1-763/sw/firmware/ctrl/test/test_aecp.cpp:269: Failure
+Value of: e&&o
+  Actual: false
+Expected: true
+Google Test trace:
+$REVIEWS/r658-1-763/sw/firmware/ctrl/test/test_aecp.cpp:261: 14
+
+  [FAIL] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle: $REVIEWS/r658-1-763/sw/firmware/ctrl/test/test_aecp.cpp:261: 14
+[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (0 ms)
+[ RUN      ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+$REVIEWS/r658-1-763/sw/firmware/ctrl/test/test_aecp.cpp:295: Failure
+Expected equality of these values:
+  m.count
+    Which is: 2
+  4u
+    Which is: 4
+
+  [FAIL] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat:     Which is: 4
+$REVIEWS/r658-1-763/sw/firmware/ctrl/test/test_aecp.cpp:302: Failure
+Expected equality of these values:
+  get(d.value+74,8)
+    Which is: 145524899438419968
+  format
+    Which is: 145524899430031360
+a refused saved map keeps the full reset set
+
+  [FAIL] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat: a refused saved map keeps the full reset set
+$REVIEWS/r658-1-763/sw/firmware/ctrl/test/test_aecp.cpp:304: Failure
+Value of: owner.port.latch(&owner,NVM_G_FMTI,0,out.data(),8)
+  Actual: true
+Expected: false
+
+  [FAIL] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat: Expected: false
+[  FAILED  ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat (0 ms)
+[ RUN      ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+[       OK ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups (0 ms)
+[ RUN      ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+=================================================================
+==676187==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7d7bd53f4b90 at pc 0x0000004be9c5 bp 0x7fffa8366320 sp 0x7fffa8366310
+READ of size 8 at 0x7d7bd53f4b90 thread T0
+    #0 0x0000004be9c4 in Nvm_MapRecordsRefuseMissingStorageAndNeverPartiallyLatch_Test::TestBody() $REVIEWS/r658-1-763/sw/firmware/ctrl/test/test_aecp.cpp:333
+    #1 0x7f1bd7292ec6  (/usr/lib/libgtest.so.1.18.0+0x59ec6) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #2 0x7f1bd727e347 in testing::Test::Run() (/usr/lib/libgtest.so.1.18.0+0x45347) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #3 0x7f1bd727e556 in testing::TestInfo::Run() (/usr/lib/libgtest.so.1.18.0+0x45556) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #4 0x7f1bd727e773 in testing::TestSuite::Run() (/usr/lib/libgtest.so.1.18.0+0x45773) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #5 0x7f1bd728aef7 in testing::internal::UnitTestImpl::RunAllTests() (/usr/lib/libgtest.so.1.18.0+0x51ef7) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #6 0x7f1bd728b800 in testing::UnitTest::Run() (/usr/lib/libgtest.so.1.18.0+0x52800) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #7 0x0000005ad1b8 in RUN_ALL_TESTS() /usr/include/gtest/gtest.h:2344
+    #8 0x0000005ad1b8 in main $REVIEWS/r658-1-763/sw/firmware/gtest/fw_gtest_main.cpp:199
+    #9 0x7f1bd6227780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #10 0x7f1bd62278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #11 0x000000405b84 in _start ($REVIEWS/763-r658-1-packet/scratch/shapes/build/aecp-core-endstation_arty_current-if1/suite+0x405b84) (BuildId: 5de115e6e58cacf4dbff1539b7ad570b952e3801)
+
+0x7d7bd53f4b90 is located 24 bytes after 10872-byte region [0x7d7bd53f2100,0x7d7bd53f4b78)
+allocated by thread T0 here:
+    #0 0x7f1bd6b2d2a1 in operator new(unsigned long) (/usr/lib/libasan.so.8+0x12d2a1) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x0000005aa95a in testing::internal::TestFactoryImpl<Nvm_MapRecordsRefuseMissingStorageAndNeverPartiallyLatch_Test>::CreateTest() /usr/include/gtest/internal/gtest-internal.h:455
+    #2 0x7f1bd727e561 in testing::TestInfo::Run() (/usr/lib/libgtest.so.1.18.0+0x45561) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #3 0x7f1bd727e773 in testing::TestSuite::Run() (/usr/lib/libgtest.so.1.18.0+0x45773) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #4 0x7f1bd728aef7 in testing::internal::UnitTestImpl::RunAllTests() (/usr/lib/libgtest.so.1.18.0+0x51ef7) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #5 0x7f1bd728b800 in testing::UnitTest::Run() (/usr/lib/libgtest.so.1.18.0+0x52800) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #6 0x0000005ad1b8 in RUN_ALL_TESTS() /usr/include/gtest/gtest.h:2344
+    #7 0x0000005ad1b8 in main $REVIEWS/r658-1-763/sw/firmware/gtest/fw_gtest_main.cpp:199
+    #8 0x7f1bd6227780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #9 0x7f1bd62278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #10 0x000000405b84 in _start ($REVIEWS/763-r658-1-packet/scratch/shapes/build/aecp-core-endstation_arty_current-if1/suite+0x405b84) (BuildId: 5de115e6e58cacf4dbff1539b7ad570b952e3801)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow $REVIEWS/r658-1-763/sw/firmware/ctrl/test/test_aecp.cpp:333 in Nvm_MapRecordsRefuseMissingStorageAndNeverPartiallyLatch_Test::TestBody()
+Shadow bytes around the buggy address:
+  0x7d7bd53f4900: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d7bd53f4980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d7bd53f4a00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d7bd53f4a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d7bd53f4b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 fa
+=>0x7d7bd53f4b80: fa fa[fa]fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d7bd53f4c00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d7bd53f4c80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d7bd53f4d00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d7bd53f4d80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d7bd53f4e00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==676187==ABORTING
+  verdict: FAIL (NOCOUNT: no tally, or a tally of nothing (the run did not finish), exit 1)
