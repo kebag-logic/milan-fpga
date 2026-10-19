@@ -8,6 +8,8 @@
 //! interruption (sil_si_r) applied in the same lines as the shipping engine,
 //! so the #640 M6 comparison stays exact on every column. #762 itself is
 //! graded by count in the harness's [SI] cases, never against this copy.
+//! #765's channel-count compare (f_cpf_w/p_cpf_w) is applied the same way;
+//! it is graded by sim_main_nx.cpp's [UF] cases, never against this copy.
 
 /*
 ------------------------------------------------------------------------------
@@ -475,11 +477,13 @@ module KL_avtp_rx_monitor_ctx_ref #(
   wire [3:0] f_nsr_w     = fmt_r[51:48];
   wire [7:0] f_format_w  = fmt_r[47:40];
   wire [7:0] f_depth_w   = fmt_r[39:32];
+  wire [9:0] f_cpf_w     = fmt_r[31:22];   //! #765
 
   //! received AAF fields from the format-specific header (wire layout)
   wire [7:0] p_format_w = cur_r.fsh[63:56];
   wire [3:0] p_nsr_w    = cur_r.fsh[55:52];
   wire [7:0] p_chans_w  = cur_r.fsh[47:40];
+  wire [9:0] p_cpf_w    = cur_r.fsh[49:40];  //! #765
   wire [7:0] p_depth_w  = cur_r.fsh[39:32];
   wire       p_sp_w     = cur_r.fsh[12];
 
@@ -496,7 +500,10 @@ module KL_avtp_rx_monitor_ctx_ref #(
                   (p_format_w  == f_format_w)  &&
                   (p_nsr_w     == f_nsr_w)     &&
                   (p_depth_w   == f_depth_w)   &&
-                  (p_chans_w   != 8'd0)        &&
+                  //! #765: the current format's channel count, applied
+                  //! here as in the shipping engine
+                  (p_cpf_w     == f_cpf_w)     &&
+                  (p_cpf_w     != 10'd0)       &&
                   (p_sp_w      == 1'b0);
 
   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;

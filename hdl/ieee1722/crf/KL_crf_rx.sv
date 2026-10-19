@@ -318,10 +318,15 @@ module KL_crf_rx #(
   localparam logic [31:0] EARLY_LIMIT_C = 32'(MAXTT_NS_P)
                                         + 32'(EARLY_MARGIN_NS_P);
 
-  wire w_hit = frame_p_i && en_i && (subtype_i == CRF_SUBTYPE_C)
-             && (sid_frame_i == sid_i);
+  //! a Stream Data AVTPDU on this input's stream_id is received on it,
+  //! whatever its subtype (the parser pulses stream subtypes only). The
+  //! subtype is part of the format: Milan v1.2 Table 5.6 counts a PDU whose
+  //! format does not match the input's current format, and 4.4.2.2
+  //! discards it, so an AAF PDU here is a format reject (#765)
+  wire w_hit = frame_p_i && en_i && (sid_frame_i == sid_i);
 
-  wire w_fmt_ok = (type_i == CRF_TYPE_AS_C)
+  wire w_fmt_ok = (subtype_i == CRF_SUBTYPE_C)
+               && (type_i == CRF_TYPE_AS_C)
                && (pullbase_i[31:29] == 3'd0)
                && (pullbase_i[28:0]  == CRF_BASEHZ_C)
                && (fsh_i[63:48] == CRF_DLEN_C)

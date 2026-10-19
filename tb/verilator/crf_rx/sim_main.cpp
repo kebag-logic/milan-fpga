@@ -265,6 +265,7 @@ class CrfRxHarness {
         pin_wrap_backing_and_slice_abi();
         pin_stopped_sink();
         pin_unbind_scores_one_unlock();
+        pin_aaf_pdu_on_the_crf_input();
 
         printf("======================================================================\n");
         printf("KL_crf_rx: %ld checks, %ld failures (%ld accepted PDUs pinned)\n",
@@ -445,11 +446,14 @@ class CrfRxHarness {
 
         dut->en_i = 1;
 
-        // wrong stream_id / wrong subtype: ignored (no count, no error)
+        // wrong stream_id: ignored (no count, no error), whatever its
+        // subtype. An AAF PDU on THIS stream_id is a format reject (#765),
+        // graded by [FMT] at the end of the run.
         dut->sid_frame_i = SID_C ^ 1;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        dut->sid_frame_i = SID_C; dut->subtype_i = 0x02;    // AAF
+        dut->subtype_i = 0x02;                              // AAF
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        dut->sid_frame_i = SID_C; dut->subtype_i = 0x04;
         ck("foreign frames: pdu_count 0", dut->pdu_count_o, 0);
         ck("foreign frames: fmt_err 0",   dut->fmt_err_o, 0);
     }
@@ -1495,6 +1499,56 @@ class CrfRxHarness {
     // still holding its lock scores the same one unlock, and 100 ms of
     // silence while BOUND (genuine stream loss) still unlocks.
     //-----------------------------------------------------------------------
+    //! [FMT] #765: a Stream Data AVTPDU on this input's stream_id is received
+    //! on it whatever its subtype. Milan v1.2 Table 5.6 counts
+    //! UNSUPPORTED_FORMAT for a PDU whose format does not match the input's
+    //! current format and 4.4.2.2 discards it, so an AAF PDU here is a reject
+    //! like any other profile error: one interval count, nothing accepted,
+    //! the sequence cursor unmoved, and an established lock retained.
+    void pin_aaf_pdu_on_the_crf_input() {
+        printf("\n[FMT] #765: an AAF PDU on the CRF input is UNSUPPORTED_FORMAT\n");
+        for (int n = 0; n < 10; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        align_interval();
+        ck("[FMT-0] precondition: bound and locked", dut->locked_o, 1);
+        const uint32_t f0 = dut->fmt_err_o;
+        const uint32_t s0 = dut->seq_err_o;
+
+        uint32_t p0 = dut->pdu_count_o;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        ck("[FMT-a1] a matching CRF PDU is accepted", dut->pdu_count_o, p0 + 1);
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        ck("[FMT-a2] ...and counts no UNSUPPORTED_FORMAT", dut->fmt_err_o, f0);
+
+        // AAF subtype, every other field a valid Milan 7.3.2 CRF profile, so
+        // only the subtype term can reject it; it carries the next sequence_num
+        align_interval();
+        p0 = dut->pdu_count_o;
+        ts += 2000200; ptp += 2000000;
+        drive_fields(ts, seq); dut->ptp_now_i = ptp;
+        dut->subtype_i = 0x02;
+        g_ev_uf = true;
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        m.bad_pdu();
+        dut->subtype_i = 0x04;
+        ck("[FMT-b1] an AAF PDU on the CRF stream_id is not accepted",
+           dut->pdu_count_o, p0);
+        ck("[FMT-b2] ...and keeps the established lock", dut->locked_o, 1);
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        ck("[FMT-b3] ...and counts UNSUPPORTED_FORMAT once", dut->fmt_err_o, f0 + 1);
+        compare(g_pdu_no);
+
+        // the AAF PDU advanced nothing: the next CRF PDU continues the sequence
+        align_interval();
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        ck("[FMT-c1] the next CRF PDU is accepted with no SEQ_NUM_MISMATCH",
+           dut->seq_err_o, s0);
+        ck("[FMT-c2] ...and no second UNSUPPORTED_FORMAT", dut->fmt_err_o, f0 + 1);
+    }
+
     void pin_unbind_scores_one_unlock() {
         printf("\n[UNB] #653 the unbind of a locked input scores one unlock\n");
 
