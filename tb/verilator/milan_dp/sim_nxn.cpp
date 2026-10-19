@@ -4870,6 +4870,9 @@ class NxnDatapathHarness {
         start_the_boot_restore_walk();
         for (int c = 0; c < 2000; c++) step();
         maprec_grade_both("first boot", in_id, out_id);
+        uint64_t fin = 0;
+        ck("[MAPREC] first boot: STREAM_INPUT 0 reads 8 channels",
+           static_cast<unsigned long>(current_channels(0x0005, 0, &fin)), 8);
 
         //! 1. THE EMPTY LIST, both directions (#763): every mapping removed
         ck("[MAPREC] empty: REMOVE every SPI 0 mapping SUCCESS",
@@ -4906,8 +4909,21 @@ class NxnDatapathHarness {
                (axi_read(A_PP_STAT) & kPpPend) ? 1u : 0u, 0);
             nm_watch_addr = 0xFFFFFFFFu;
         }
+        if (at.count(0x60) != 0) {
+            nm_watch_addr = NVM_AREA_BASE + at[0x60].first;
+            nm_watch_hits.clear();
+        }
         const long held = maprec_power_cycle("saved", false);
         maprec_grade_both("saved, after the power cycle", in_saved, out_saved);
+        //! a restore write is never a change (D3 3.1): nothing the restore
+        //! applied is written back, however long the writer is given
+        for (long c = 0; c < 1500 * kMapMs; c += 1000)
+            for (int i = 0; i < 1000; i++) step();
+        ck("[MAPREC] saved: the restore itself writes no record",
+           static_cast<unsigned long>(nm_watch_hits.size()), 0);
+        ck("[MAPREC] saved: pend is clear after the restore",
+           (axi_read(A_PP_STAT) & kPpPend) ? 1u : 0u, 0);
+        nm_watch_addr = 0xFFFFFFFFu;
         ck("[MAPREC] saved: the restore rolled nothing back",
            static_cast<unsigned long>(dut->rootp->milan_datapath__DOT__amr_rs_fail_r), 0);
         //! the processor's gather watchdog (DESC_MEM_TMO_CYC_P, 4096 clocks)
@@ -4961,7 +4977,10 @@ class NxnDatapathHarness {
             constexpr uint16_t A_PP_CTRL = 0x920;
             nmem = area_saved;
             maprec_cut_the_power();
-            axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
+            //! the enable is requested with the walk, as a firmware that
+            //! does not wait would: it reaches the processor only once the
+            //! map restore has ended
+            axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x3u);
             std::vector<uint8_t> pl = desc_key(0x000E, 0);
             pl.resize(8, 0);
             const std::vector<uint8_t> f = aecp_request(0x002B, dynmap_sq++, pl);
@@ -4969,11 +4988,19 @@ class NxnDatapathHarness {
             //! the premise: the GET reached the read face while the map
             //! restore still held it, so the answer below is the hold's
             bool met_the_hold = false;
+            bool enabled_early = false;
             const std::vector<uint8_t> r = await_aecp(2000000, [&](int) {
                 if (dut->rootp->milan_datapath__DOT__pp_amap_req_w
                     && dut->rootp->milan_datapath__DOT__amr_rs_hold_r)
                     met_the_hold = true;
+                if (dut->rootp->milan_datapath__DOT__pp_shadow__DOT__enable_i
+                    && dut->rootp->milan_datapath__DOT__amr_rs_hold_r)
+                    enabled_early = true;
             });
+            for (int c = 0; c < 64; c++) step();
+            ck("[MAPREC] held GET: the entity enable waits for the map restore",
+               static_cast<unsigned long>(!enabled_early
+                   && dut->rootp->milan_datapath__DOT__pp_shadow__DOT__enable_i), 1);
             ck("[MAPREC] held GET: it reached the read face inside the map restore",
                static_cast<unsigned long>(met_the_hold), 1);
             MapSet got;
@@ -4989,6 +5016,45 @@ class NxnDatapathHarness {
                static_cast<unsigned long>(aecp_status(r)), 0);
             ck("[MAPREC] held GET: answered with the restored list",
                static_cast<unsigned long>(got == in_saved), 1);
+        }
+
+        //! 6a. A SET_STREAM_FORMAT HELD AT THE TERMINAL (D3 8.4): the saved
+        //! input list maps channels 0 and 1 only, so a 4-channel format is
+        //! legal against it and not against the reset set, which maps 0..7.
+        //! Its judge waits for the map restore and sees the restored list
+        {
+            constexpr uint16_t A_PP_CTRL = 0x920;
+            const MapSet in_two = {{0, 0, 3, 0}, {0, 1, 5, 0}};
+            std::vector<uint8_t> area_two;
+            std::map<uint32_t, std::pair<uint32_t, uint32_t> > at5;
+            const bool framed = maprec_codec_window(
+                {map_record(0x60, in_two, maprec_in_entries()),
+                 map_record(0x70, out_saved, maprec_out_entries())}, &area_two, &at5);
+            ck("[MAPREC] held SET_STREAM_FORMAT: the codec frames both records",
+               static_cast<unsigned long>(framed), 1);
+            nmem = area_two;
+            maprec_cut_the_power();
+            axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
+            const uint64_t want = (fin & ~(0x3FFull << 22)) | (4ull << 22);
+            const std::vector<uint8_t> f = aecp_request(0x0008, dynmap_sq++,
+                                                        sf_pl(0x0005, 0, want));
+            inject(f.data(), f.size(), 40);
+            bool judged_inside = false;
+            const std::vector<uint8_t> r = await_aecp(2000000, [&](int) {
+                if (dut->rootp->milan_datapath__DOT__pp_gsi_req_w
+                    && (dut->rootp->milan_datapath__DOT__pp_gsi_kind_w == 0)
+                    && (dut->rootp->milan_datapath__DOT__pp_gsi_sel_w == 15)
+                    && dut->rootp->milan_datapath__DOT__amr_rs_hold_r)
+                    judged_inside = true;
+            });
+            ck("[MAPREC] held SET_STREAM_FORMAT: its judge was asked inside the map restore",
+               static_cast<unsigned long>(judged_inside), 1);
+            ck("[MAPREC] held SET_STREAM_FORMAT: SUCCESS against the restored list",
+               static_cast<unsigned long>(aecp_status(r)), 0);
+            uint64_t now = 0;
+            ck("[MAPREC] held SET_STREAM_FORMAT: STREAM_INPUT 0 reads 4 channels",
+               static_cast<unsigned long>(current_channels(0x0005, 0, &now)), 4);
+            maprec_grade_page("held SET_STREAM_FORMAT: SPI 0", 0x000E, in_two);
         }
 
         //! 6b. A CHANGE DURING THE RECORD WRITE (D3 7.1): the record's lane
@@ -5181,7 +5247,7 @@ class NxnDatapathHarness {
         //! every page above ran: a GET that never answered would otherwise
         //! leave its checks unrun rather than failed
         ck("[MAPREC] every page ran (vacuity guard)",
-           static_cast<unsigned long>(maprec_pages), 16);
+           static_cast<unsigned long>(maprec_pages), 17);
         bring_the_datapath_out_of_reset();
     }
     #endif
