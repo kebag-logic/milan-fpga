@@ -1709,6 +1709,20 @@ class PpShadowHarness {
         axi_write(A_PP_NVM_DATA, 0xA5C30001u);
         ck("PP_NVM_DATA reads back the backend's word 2 (sequence)",
            axi_read(A_PP_NVM_DATA), 0xA5C30001u);
+        //! Since #637 the parent's map restore reads records 0x60 and 0x70
+        //! once the D3 walk has ended; on this unconfigured backend each
+        //! read is the blank answer, so the device face is busy for a few
+        //! hundred clocks after restore_done. Those reads must END, within a
+        //! bound, before the face can read idle.
+        long busy_for = 0;
+        while ((busy_for < 2000) && (axi_read(A_PP_NVM_STAT) & (1u << 4))) {
+            run_idle(10);
+            busy_for += 10;
+        }
+        ck_true("PP_NVM_STAT[4]: the map restore's blank reads end within 2,000 clocks",
+                busy_for < 2000,
+                busy_for < 2000 ? "the device face went idle"
+                                : "an operation is still in flight");
         const uint32_t nstat = axi_read(A_PP_NVM_STAT);
         ck("PP_NVM_STAT: not configured, not backed, no operation in flight",
            nstat & ((1u << 6) | (1u << 5) | (1u << 4)), 0u);
