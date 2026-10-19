@@ -1,0 +1,2697 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index b9fa67a..d7d1073 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -596,3 +596,5 @@ original-document Cov column. REQ-MVU-005's timing evidence is the deadline engi
+ | 12 | IEEE 1722.1-2021 §7.4.7: "On success this command also sends an unsolicited notification"; a SET_CONFIGURATION to the configuration already in force changes nothing (issue #178) | **No notification.** Milan v1.2 §5.4.5.2 sends one only after a successful response to a command of [ATDECC §7.5.2] when "the command modifies the state", to every registered controller except the requester; Milan wins (§5.5.2.1). The response is SUCCESS carrying the index (§7.4.7.1). A change still notifies once. While a stream is bound or streaming the command is refused STREAM_IS_RUNNING first (Milan §5.4.2.5) | [06 §6.4](architecture/06_aecp_engine.md#64-validation-chains-order-matters-first-failure-responds) |
+ | 13 | SET_CONFIGURATION with a `configuration_index` that has no CONFIGURATION descriptor (issue #179); IEEE §7.4.7.2 names only STREAM_IS_RUNNING, ENTITY_LOCKED/ENTITY_ACQUIRED and NOT_AUTHENTICATED, and Milan §5.4.2.5 says nothing on the index | Owner decision 2026-10-17: **`NO_SUCH_DESCRIPTOR`** (2), IEEE Table 7-141: "A descriptor with the descriptor_type and descriptor_index specified does not exist", which fits a missing CONFIGURATION more precisely than `BAD_ARGUMENTS` (7, "One or more of the values in the fields of the frame were deemed to be bad"). The response carries the current index (§7.4.7.1: "the old value if it fails"). STREAM_IS_RUNNING keeps its precedence (Milan §5.4.2.5) and a truncated command stays BAD_ARGUMENTS. READ_DESCRIPTOR is unchanged: a CONFIGURATION `descriptor_index` the image lacks is a locate miss, NO_SUCH_DESCRIPTOR, while a `configuration_index` field past the count is BAD_ARGUMENTS for every descriptor type ([06 §6.1](architecture/06_aecp_engine.md)) | [06 §6.4](architecture/06_aecp_engine.md#64-validation-chains-order-matters-first-failure-responds) |
+ | 14 | GET_AVB_INFO with a descriptor_type other than AVB_INTERFACE: the status is unstated | Owner decision 2026-10-17 ([#177](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/177)): **`NOT_IMPLEMENTED`** with the command echoed, where the engine had answered `NOT_SUPPORTED`; this restores the end station's behaviour before the AECP engine moved to the processor. IEEE 1722.1-2021 §7.4.40.1: the command's descriptor_type is AVB_INTERFACE, the only valid target, and §7.4.40.3 names only NOT_AUTHENTICATED, so the standard does not fix the status for another type. Table 7-141: NOT_IMPLEMENTED (1) means the entity does not support the command type; NOT_SUPPORTED (11) means the command is implemented but its target is not supported. §9.3.5.3.3: an unimplemented command gets a correctly sized NOT_IMPLEMENTED response (the command reflected, 06 §8.2). Milan v1.2 §5.4.2.23 implements GET_AVB_INFO per [ATDECC 7.4.40] and says nothing on a wrong descriptor. The AVB_INTERFACE response is unchanged: SUCCESS, and `NO_SUCH_DESCRIPTOR` for an index that does not exist | [06 §6.10](architecture/06_aecp_engine.md#sec-06-gsi); `tb/pp_top` V1, V1b, V3, V5 |
++| 15 | READ_DESCRIPTOR CONTROL's `value_details` after SET_CONTROL (issue #185): the IDENTIFY value is volatile dynamic state, not image data | **The descriptor carries the value GET_CONTROL returns**, in `current[0]`: IEEE 1722.1-2021 §7.2.22 and §7.3.6.2 (Table 7-122) give `value_details` the control's current setting, and Milan v1.2 §5.3.12 gives the IDENTIFY value 0 after reset and 255 in identification mode. GET_CONTROL reads the volatile store alone, with no image arm, so the descriptor does too: 0 before any SET_CONTROL and after a power cycle, whatever the image's `current[0]` holds, and the value in force after every SET_CONTROL. A CONTROL whose value is not one octet wide and linear at offset 104 keeps its image bytes, and so does one whose `control_type` is not IDENTIFY (IEEE Table 7-98, the test model rule L8 applies): its current value is its own | [06 §6.1](architecture/06_aecp_engine.md); `tb/pp_top` RDC0 to RDC7, `tb/ucpu` RC1 to RC3 |
++| 16 | The flags of the unsolicited LOCK_ENTITY a LOCK or UNLOCK command causes (issue #186): Milan v1.2 §5.4.5.1 says only that the notifications carry the same information | **The command's flags, as its response carries them**: Milan is silent, so IEEE 1722.1-2021 decides. §7.5.2: "An unsolicited notification is sent by using an unsolicited response to the command", and §7.4.2.1 (Table 7-143) gives the response the command's flags, so an UNLOCK's notification carries UNLOCK and every flag bit is echoed as the response echoes it. Milan Table 5.22's automatic unlock on `T-LOCK-UNLOCK` expiry is an unlock and leaves its flags to IEEE, so it carries UNLOCK as well, with `locked_id` 0. Every notification carries one cause's flags and `locked_id`, a LOCK's with its holder and an unlock's with 0, also when the lock changes around a round (the expiry is held back while a job's flags and holder read could straddle it, and a lock change re-latches a running lock round) | [06 §6.8](architecture/06_aecp_engine.md); `tb/pp_top` L5b, L6d, LN1 to LN4, `tb/aecp_notify` LF1 to LF3, LC0 to LC7, `tb/ucpu` L3, L3b |
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 9df1033..953e6b4 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -250,7 +250,7 @@ status checks trust those exemptions, and the Oversize cells are rendering input
+ | Opcode | Command | Mandate | Scope rule | Class | Lock-prot. | GDI | Oversize | Notif | Cmd cdl | Resp. size | Status set |
+ |---|---|---|---|---|---|---|---|---|---|---|---|
+ | 0x0000 | ACQUIRE_ENTITY | shall, **never succeeds** (Δ7) | any | RO_SNAPSHOT | no | no | no | — | 28 | 40 B echo (cdl 28); owner_id 0 | NOT_SUPPORTED |
+-| 0x0001 | LOCK_ENTITY | shall | ENTITY only (Δ10); the lock itself, so not lock-protected | LOCK_OP | no | no | no | event: on lock/unlock/auto | 28 | 40 B (cdl 28) | SUCCESS, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
++| 0x0001 | LOCK_ENTITY | shall | ENTITY only (Δ10); the lock itself, so not lock-protected | LOCK_OP | no | no | no | event: on lock/unlock with the command's flags; auto-unlock with flags UNLOCK | 28 | 40 B (cdl 28) | SUCCESS, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+ | 0x0002 | ENTITY_AVAILABLE | shall | — | RO_SNAPSHOT | no | no | no | — | 12 | 44 B (cdl 32); 2021 form w/ flags + acquired/locked IDs | SUCCESS |
+ | 0x0003 | CONTROLLER_AVAILABLE | responder: n/i (not a controller); **originator**: §7 | — | — | — | — | — | — | — | 24 B echo (cdl 12) | NOT_IMPLEMENTED |
+ | 0x0004 | READ_DESCRIPTOR | shall | allowed while locked | RO_SNAPSHOT | no | no | yes | — | 20 | 28 + descriptor B (cdl 16 + descriptor; failure stub cdl 20); the stub is §7.4.5's {type, index} | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS |
+@@ -303,7 +303,7 @@ status (`NO_SUCH_DESCRIPTOR` / `BAD_ARGUMENTS` for a bad config index) with the
+ **Current values** (issue #82). A descriptor's `current_*` field is the value its GET
+ returns, so after a SET the descriptor must carry what the SET stored, not the image's
+ default. The payload walk captures `descriptor_type` at @28, and at that seam the engine
+-re-dispatches four types to a program that copies the image around the field and
++re-dispatches five types to a program that copies the image around the field and
+ builds the field from the dynamic-state row the SET (or the D3 restore) wrote:
+ 
+ | Type | Program | Field | Row (and the GET that reads it) |
+@@ -312,9 +312,10 @@ builds the field from the dynamic-state row the SET (or the D3 restore) wrote:
+ | AUDIO_UNIT, configuration 0 | `E_RDESCAU` | `current_sampling_rate` @136 | `SEL_RATE` (GET_SAMPLING_RATE) |
+ | CLOCK_DOMAIN, configuration 0 | `E_RDESCCD` | `clock_source_index` @70 | `SEL_CLKSRC` (GET_CLOCK_SOURCE) |
+ | STREAM_INPUT / STREAM_OUTPUT, configuration 0 | `E_RDESCSI` / `E_RDESCSO`, then `E_RDESCSF` | `current_format` @74 | `SEL_FMTIN` / `SEL_FMTOUT` (GET_STREAM_FORMAT reads the Milan-info face, which serves the published row once it is valid: the settings fold) |
++| CONTROL whose `control_type` is IDENTIFY, configuration 0 (issue #185) | `E_RDESCCT`, then `E_RDESCID` | `value_details` `current[0]` @108 | `SEL_IDENT` (GET_CONTROL) |
+ 
+-A row no SET or restore has written leaves the descriptor to `E_RDESC`, whole: the
+-image is the current value then, the GETs' own rule. A STREAM's GET reads the
++For the first four types, a row no SET or restore has written leaves the descriptor
++to `E_RDESC`, whole: the image is the current value then, the GETs' own rule. A STREAM's GET reads the
+ integrator's face even then, and the face need not agree with the image before a SET;
+ the descriptor overlays only the processor's own row, so it never takes a value the
+ processor did not store. Configuration 0 because that is where the GET/SET family
+@@ -332,6 +333,34 @@ sampling rate or clock source (set or restored) is judged against the AUDIO_UNIT
+ own list and the CLOCK_DOMAIN's own count, which a descriptor short of the lane does
+ not hold.
+ 
++The CONTROL row is the IDENTIFY control's value (issue #185; IEEE 1722.1-2021 §7.2.22
++and §7.3.6.2, Milan §5.3.12). §7.2.22 puts `value_details` at `values_offset`, "104
++for this version of AEM", and Table 7-122 puts a linear value's `current[0]` at 4V into
++it, so a one-octet linear value (CONTROL_LINEAR_UINT8, the IDENTIFY's §7.3.5.2 type, or
++CONTROL_LINEAR_INT8) carries it at 108. GET_CONTROL reads the `SEL_IDENT` row alone,
++with no image arm: Milan §5.3.12 makes the value volatile with 0 after reset, and an
++unwritten row reads exactly 0. `E_RDESCCT` follows the same rule, so the descriptor
++agrees with GET_CONTROL before the first SET_CONTROL, after every one, and after a power
++cycle, whatever the image's `current[0]` holds. Lane 104..111 (minimum to string[0]'s
++first byte) is rebuilt from the image around the value, and the tail from 112 rides
++`COPY_BUFFER` TAIL, which is empty for a CONTROL that ends with the lane. A CONTROL whose
++`values_offset` is not 104, whose `control_value_type` is not one of the two one-octet
++linear types, or that ends inside lane 104..111 is served whole from the image. So is a
++CONTROL whose `control_type` @82..@89 is not IDENTIFY (90-E0-F0-00-00-00-00-01, IEEE
++Table 7-98, the test model rule L8 applies): §7.2.22 and §7.3.6.2 give every CONTROL
++its own current values, and the value this row holds is the IDENTIFY's. `E_RDESCID`
++makes that test inside the engine's microprogram, on the four 16-bit words of the
++type (the µISA has no 64-bit immediate), and no top-level port or parameter is
++involved. `tb/pp_top` section AX grades it byte-exact: RDC0 before any SET_CONTROL (the
++reset 0, the image carrying 0x5A), RDC1 after SET_CONTROL(255) and three refused ones,
++RDC4 after SET_CONTROL(0), RDC5 at 255 before a power cycle and at 0 after it; RDC2,
++RDC3 and RDC6 serve the image whole for `values_offset` 106, CONTROL_LINEAR_INT16 and a
++111-byte CONTROL, RDC3b overlays CONTROL_LINEAR_INT8, and RDC7 serves the image whole
++for a vendor `control_type` and for four types that each differ from IDENTIFY in one of
++the four words. `tb/ucpu` RC1 and RC2 run the program on a conformant 113-byte
++IDENTIFY, whose one-byte TAIL carries string[0]'s second byte, and RC3 on a CONTROL
++whose type differs from IDENTIFY in its last octet.
++
+ <a id="sec-06-stri"></a>
+ ### 6.2 GET_STREAM_INFO — the Milan 80-byte response and its data lineage
+ 
+@@ -776,6 +805,70 @@ ACMP listener's 5.5.2.4 gate and the engine's CHECK_LOCK read the SAME published
+ lock state. State-change notifications (took/released/expired) go to registered
+ controllers except the requester, per-entry sequence_id incrementing.
+ 
++**The notification's flags** (issue #186). IEEE 1722.1-2021 §7.5.2 sends a
++notification "by using an unsolicited response to the command", and §7.4.2.1's
++response carries the command's flags, so the notification a LOCK or UNLOCK causes
++echoes that command's whole flags word (@24..@27), as its response does: an UNLOCK's
++notification carries UNLOCK (1), and reserved bits are echoed where the response echoes
++them. Milan §5.4.5.1 says only that the notifications carry the same information, so
++IEEE 1722.1-2021 decides. Table 5.22's automatic unlock on `T-LOCK-UNLOCK` expiry
++is an unlock, and the table leaves its flags to IEEE, whose unlock response carries
++UNLOCK: it carries flags UNLOCK (1) with `locked_id` 0, as an UNLOCK command's does.
++`locked_id` stays the current holder. `KL_aecp_notify` latches the word
++(`rgy_flags_i`, the engine's `{@24..@25, @26..@27}` capture) beside the exclusion when
++the command changes the lock, latches UNLOCK on the timeout, and hands it to the job in its
++two arguments; the engine packs it into r14[31:0] exactly as for `E_LOCKEN`, and
++`E_LOCKUNS` emits it. Coalesced changes keep the last cause's flags with its exclusion.
++`tb/pp_top` L5b and L6d grade the UNLOCK's and the auto-unlock's notifications
++byte-exact with flags 1; section AX's
++LN1 to LN4 grade a LOCK and an UNLOCK carrying reserved bits in both halves of the word
++and the auto-unlock after that LOCK (flags UNLOCK); `tb/aecp_notify` LF1 to LF3 grade the
++latch, a timeout coalesced over a pending LOCK (flags UNLOCK) and a LOCK over a pending
++timeout (its own flags) among them; `tb/ucpu` L3 and L3b grade the program.
++
++**One cause per notification** (issue #186; IEEE 1722.1-2021 §7.5.2, §7.4.2.1 and
++Table 7-143; Milan v1.2 Table 5.22). Every LOCK_ENTITY notification carries the flags
++and the `locked_id` of one change: a LOCK's word with its holder, or an UNLOCK's word
++or the automatic unlock's UNLOCK with `locked_id` 0. The flags are the job's arguments,
++which the engine takes when it loads the job, and the `locked_id` is the holder
++`E_LOCKUNS` reads afterwards through the rgy face's state query, so the two can only
++disagree if the lock changes between that load and that read, or if a round's
++arguments outlive the change that set them. `KL_aecp_notify` closes both; the engine,
++the microprogram and every port are unchanged:
++
++- *The expiry is held back while a LOCK job's pair could straddle it.* The timer's
++  strobe makes the expiry owed (`lk_exp_r` keeps it); it waits while a LOCK job is
++  presented (the engine may have loaded it) and in the cycle the job's state query is
++  taken, so the read answers the state the arguments came from. It applies at the
++  next cycle that is neither, which is within one job. The published lock state
++  follows it, so a command in between still finds the lock held, as it would a few
++  microseconds earlier.
++- *A round claim never meets an expiry.* In an idle cycle in which the expiry applies,
++  the claim waits a cycle, so a lock round claimed next snapshots the automatic
++  unlock's flags and its empty exclusion with the pending bit (the coincidence at the
++  claim is how the earlier block emitted the preceding LOCK's flags and lost the
++  automatic unlock).
++- *A lock change during a lock round re-latches it.* An expiry applied, a LOCK that
++  takes the lock, or an UNLOCK that releases it while a lock round runs rewrites that
++  round's arguments and exclusion for the jobs not yet presented (a job withdrawn for
++  the command is presented again with them), and pends the next lock round as before,
++  so the controllers the round had already reached see the change too. A job the
++  engine had already loaded keeps the pair it read, which is one cause.
++- *An op sees an owed expiry.* A LOCK or UNLOCK in the cycle an expiry applies decides
++  on the released lock (`lk_on_w`), so the holder's re-lock then takes the lock anew
++  and notifies, rather than keeping a lock whose UNLOCK is pending.
++
++Chosen over re-reading the flags in the microprogram because the cause's flags word
++exists only in the notification block. `tb/aecp_notify` LC0 to LC7 serve every lock job
++as the engine does (arguments at the load, then the holder read through the face) and
++grade each frame's @24..@35 bytes, destination and sequence_id: the expiry one clock
++at a time from before the claim to after the first job is presented, after a LOCK word
++of 0 and of 0x00010000 with the former owner registered (LC1); between a job's load and
++its holder read, and in the cycle the read is taken (LC2, LC3); another controller's
++LOCK while an UNLOCK round runs (LC4, LC5, the requester skipped); the holder's UNLOCK
++while its LOCK round runs (LC6); and the holder's re-lock after an expiry owed while a
++job waits (LC7).
++
+ - **ACQUIRE_ENTITY (Δ7)**: a 3-µop constant program — echo fields, `owner_id` = 0,
+   status `NOT_SUPPORTED`. No acquire state, no CONTROLLER_AVAILABLE contention flow,
+   no PERSISTENT handling. (`CONTROLLER_AVAILABLE` origination exists solely for the
+@@ -1250,9 +1343,9 @@ to; they select nothing in the engine.
+ | Opcode | Answer |
+ |---|---|
+ | 0x0000 ACQUIRE_ENTITY | Milan refusal: `NOT_SUPPORTED`, owner zero, and the full command response form |
+-| 0x0001 LOCK_ENTITY | real lock, unlock, owner query, keep-alive, and expiry behavior |
++| 0x0001 LOCK_ENTITY | real lock, unlock, owner query, keep-alive, and expiry behavior; the notification a LOCK or UNLOCK causes echoes its flags, the auto-unlock's carries UNLOCK, and every one carries one cause's flags and `locked_id` (§6.8; issue #186) |
+ | 0x0002 ENTITY_AVAILABLE | real flags and current owner state |
+-| 0x0004 READ_DESCRIPTOR | real: SUCCESS + `configuration_index`/reserved/descriptor, the descriptor carrying the current value a SET or the restore stored, which its GET then returns (ENTITY, and configuration 0's AUDIO_UNIT, CLOCK_DOMAIN and STREAMs, §6.1; issue #82) and reaching cdl 592 through the oversize slot (§3); `NO_SUCH_DESCRIPTOR` on a locate miss and `BAD_ARGUMENTS` on a bad configuration index, both with the §7.4.5 4-byte {type, index} stub |
++| 0x0004 READ_DESCRIPTOR | real: SUCCESS + `configuration_index`/reserved/descriptor, the descriptor carrying the current value a SET or the restore stored, which its GET then returns (ENTITY, and configuration 0's AUDIO_UNIT, CLOCK_DOMAIN and STREAMs, §6.1; issue #82), and the IDENTIFY CONTROL's value GET_CONTROL returns (configuration 0, a CONTROL whose `control_type` is IDENTIFY; any other CONTROL is its image, §6.1; issue #185) and reaching cdl 592 through the oversize slot (§3); `NO_SUCH_DESCRIPTOR` on a locate miss and `BAD_ARGUMENTS` on a bad configuration index, both with the §7.4.5 4-byte {type, index} stub |
+ | 0x0006 SET_CONFIGURATION | real lock-protected **store**, with `STREAM_IS_RUNNING` while any Stream Input is bound or Stream Output is streaming, `NO_SUCH_DESCRIPTOR` for an index the image has no CONFIGURATION for, and a notification only when the index changes. The value is recorded and republished; it does not yet re-point the served descriptor set - see the note under §6.4 |
+ | 0x0007 GET_CONFIGURATION | real current configuration read |
+ | 0x0008 SET_STREAM_FORMAT | real lock-protected per-stream store for both directions, with the Milan §5.4.2.7 refusals: per-descriptor `STREAM_IS_RUNNING` (bound input / streaming output, judged at dispatch off the indexed vectors), and one integrator gather that rules on the proposed format (supported set + mapping-channel survival) answering `BAD_ARGUMENTS`; every refusal carries the CURRENT format through GET_STREAM_FORMAT's own face word. The value is stored, published on the settings face and folded into the served current format; it does not yet re-shape the wire framers - the SET_CONFIGURATION precedent |
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 5949298..3253f4c 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -182,7 +182,7 @@ and `tb/dyn_state/sim_main.cpp` (lettered sections):
+ | clock_source | W6/W6b; W10i (a refusal on the unset row carries the image's index, GET still reads it) | W10/W10d; the accepted SET answers the index it stored, not the one it replaced, on the unset row (W10j7b, 0 to 1) and on a set row (W10b, 1 to 2); refusals write nothing: W10e-W10h; refusals mark and notify nothing, graded at the effect strobes and a second registered controller: W10j | mechanism-level: dyn_state C, D; a CLOCK_DOMAIN the image lacks is NO_SUCH_DESCRIPTOR with a zero body, moving nothing, and the lock still outranks the miss: `tb/pp_top` AX NSD1-NSD3 (issue #37) |
+ | stream formats (in/out) | W4 per type and index | W23a/W23a2 (SET, both the echo and the published row), W23b (GET_STREAM_FORMAT serves the setting through the fold), W23i (the output row); refusals write nothing: W23c-W23h, W25a | dyn_state C, D + the per-row face checks F |
+ | presentation offset | (no getter opcode; live face + GET_STREAM_INFO word 3) | W24a/W24a2 (SET + the published row), W24b (GET_STREAM_INFO serves it through the fold), W25d; the 1722.1-2013 body (cdl 60, issue #176): W24g/W24g1/W24g2; refusals write nothing: W24c-W24f, W24h-W24m, W25b, W25b3; so do bodies longer than the 2021 one (cdl 97 and 140): W24n/W24n1, W24o/W24o1 | dyn_state C + the per-row face checks F |
+-| Identify control | W12/W12b/W12c (pre-SET GET) | W12d-W12h (SET/GET cycles), W13-W13d (step legality); AX LK3b/LK3c (the out-of-range refusal carries the 255 in force, IEEE §7.4.25.1); volatility: dyn_state E | dyn_state E |
++| Identify control | W12/W12b/W12c (pre-SET GET); AX RDC0, RDC5 (READ_DESCRIPTOR's `current[0]` is GET_CONTROL's reset 0 before any SET and after a power cycle, not the image's byte, issue #185) | W12d-W12h (SET/GET cycles), W13-W13d (step legality); AX LK3b/LK3c (the out-of-range refusal carries the 255 in force, IEEE §7.4.25.1); AX RDC1, RDC3b, RDC4 (READ_DESCRIPTOR carries the value after each SET_CONTROL, issue #185); volatility: dyn_state E | dyn_state E; AX RDC2, RDC3, RDC6 (a CONTROL not one octet wide and linear at 104, or ending inside lane 104..111, keeps its image bytes); AX RDC7 (a CONTROL whose `control_type` is not IDENTIFY keeps its image bytes) |
+ | started/stopped | NOT in this store: the ACMP binding record owns it and selector 6 is RETIRED (dyn_state F2) | listener suite + pp_top W21 | dyn_state F2 |
+ 
+ Reset and persistence semantics: dyn_state A (everything invalid out of reset),
+@@ -306,7 +306,7 @@ the [`tb/pp_top` README](../../tb/pp_top/README.md).
+ 
+ Each section runs on a fresh processor of its own in `tb/pp_top` (`--notify-only`,
+ `--spacing-only`, `--domain-notify-only`, `--withdraw-only`, `--identify-only`, and the suite's third build
+-for section ID), plus one section of the originator's unit suite and nine of the
++for section ID), plus one section of the originator's unit suite and eleven of the
+ notification block's:
+ 
+ | Category | Section | What it proves |
+@@ -327,6 +327,8 @@ notification block's:
+ | DIR | `tb/aecp_notify` DR | a DEREGISTER drained between two jobs of a round, after a TIME_LIMITED expiry or a failed CONTROLLER_AVAILABLE retry: the round's remaining controller still receives the round's notification (a GET_COUNTERS and a SET_NAME round), the expired controller alone its own DEREGISTER, and with the drained row's next job held for the TX slot the next counter round still waits a second from that controller's send |
+ | TIM | `tb/aecp_notify` CX | the superseding command presents exactly one availability cancellation in its own clock, before the top's registered mask |
+ | TIM | `tb/aecp_notify` SC (#167) | at one interface, a TIME_LIMITED drain and another controller's command in the same clock send both availability cancellations exactly once, in either row order; a failure for the commanding owner presented in the deferred cancellation's clock leaves that controller registered and sends no DEREGISTER |
++| DIR | `tb/aecp_notify` LF (#186) | the LOCK_ENTITY notification's job carries the flags word of the LOCK or UNLOCK that caused it, reserved bits included, and the auto-unlock's carries UNLOCK; coalesced changes carry the last cause's flags: a timeout over a pending LOCK UNLOCK, a LOCK over a pending timeout its own |
++| DIR | `tb/aecp_notify` LC (#186) | every LOCK_ENTITY notification carries one cause's flags and `locked_id`, each lock job served as the engine serves it and graded @24..@35 byte-exact with its destination and sequence_id: the lock expiring one clock at a time from before a round's claim to after its first job is presented (preceding LOCK words 0 and 0x00010000, the former owner registered), between a job's load and its holder read and in the cycle that read is taken, another controller's LOCK during an UNLOCK round (its requester skipped), the holder's UNLOCK during its LOCK round, and its re-lock after an expiry owed while a job waits; no automatic unlock is lost |
+ | DIR | `tb/aecp_notify` CQ (#181) | the command queue: a command pushed in the clock the emitter claims the one before it, and `P-NOTIF-QUEUE-DEPTH` + 1 commands back to back behind a held round (a full queue), reach every registered controller but their requester, in order, each at that controller's next sequence_id; `amap_busy_o` holds in every clock from the first push to the last job, between rounds included, and falls after it |
+ | DIR | `tb/aecp_notify` OC (#181, every run of all three builds) | the queue's registered occupancy `cmdq_nempty_r` equals its count being non-zero at every clock edge |
+ 
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index 52b5d6e..6f36dc8 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -525,6 +525,7 @@ module KL_aecp_engine
+     output logic [63:0] rgy_eid_o,           //! requesting controller entity_id
+     output logic [47:0] rgy_mac_o,           //! its source MAC
+     output logic        rgy_tl_o,            //! REGISTER: TIME_LIMITED flag
++    output logic [31:0] rgy_flags_o,         //! LOCK/UNLOCK: the command's flags word
+     input  wire  [63:0] rgy_data_i,          //! result word
+     input  wire         rgy_wait_i,          //! HOLD the beat (not a ready)
+ 
+@@ -900,6 +901,7 @@ module KL_aecp_engine
+   localparam logic [10:0] UPC_RDESCSO_C  = 11'd1780; // E_RDESCSO
+   localparam logic [10:0] UPC_RDESCAU_C  = 11'd2000; // E_RDESCAU
+   localparam logic [10:0] UPC_RDESCCD_C  = 11'd2024; // E_RDESCCD
++  localparam logic [10:0] UPC_RDESCCT_C  = 11'd600;  // E_RDESCCT
+   localparam logic [10:0] UPC_STRT_C     = 11'd1600; // E_STRT
+   localparam logic [10:0] UPC_STOP_C     = 11'd1632; // E_STOP
+   localparam logic [10:0] UPC_STRMNS_C   = 11'd1664; // E_STRMNS
+@@ -1584,11 +1586,15 @@ module KL_aecp_engine
+                  | gsfmt_r | gsrate_r | gclks_r | setc_r | gctrl_r
+                  | strm_r | ssfmt_r | ssinfo_r | gname_r | sname_r;
+   assign ix26_w = tix_w | regun_r | lockc_r | scfg_r;
++  //! r14[31:0] = the flags word for LOCK_ENTITY and for its notification, the
++  //! one unsolicited job routed to the rgy face (`regun_r`, at the job load)
++  logic lockf_w;
++  assign lockf_w = lockc_r || (uns_r && regun_r);
+   assign opd0_w = (gname_r || sname_r)
+                               ? {16'd0, desc_ix_r, cfg_ix_r, name_cfg_r}
+                 : tix_w       ? {16'd0, desc_ix_r, cfg_ix_r, 16'd0}
+                 : gasp_r      ? {16'd0, cfg_ix_r, DT_AVB_INTERFACE_C, 16'd0}
+-                : lockc_r     ? {32'd0, cfg_ix_r, desc_ix_r}
++                : lockf_w     ? {32'd0, cfg_ix_r, desc_ix_r}
+                               : {16'd0, desc_ix_r, desc_ty_r, cfg_ix_r};
+   assign opd1_w = (gname_r || sname_r)   ? {cfg_ix_r, desc_ix_r,
+                                              name_ix_r, name_cfg_r}
+@@ -2261,6 +2267,10 @@ module KL_aecp_engine
+   assign rgy_eid_o   = cmd_r.controller_eid;
+   assign rgy_mac_o   = cmd_r.src_mac;
+   assign rgy_tl_o    = (cmd_r.cdl >= 11'd16) && desc_ix_r[0];
++  //! LOCK_ENTITY's whole flags word, @24..@27 as E_LOCKEN echoes it: the
++  //! notification a LOCK or UNLOCK causes echoes it too (issue #186), so
++  //! KL_aecp_notify latches it with the change it records
++  assign rgy_flags_o = {cfg_ix_r, desc_ix_r};
+ 
+   //! ...and the audio-map selectors are three points of it (gen_ucode.py
+   //! AM_NMAPS 0x00 / AM_GEOM 0x01 / AM_REC 0x10): sel[4] alone separates a
+@@ -2957,10 +2967,15 @@ module KL_aecp_engine
+             pld_r      <= (uns_kind_i == PP_UNS_AMAP_C)
+                           ? 11'd8 + (11'(uns_amap_count_i) << 3) : 11'd0;
+             amap_rsp_count_r <= 8'd0;
+-            cfg_ix_r   <= (uns_kind_i == PP_UNS_ASP_C) ? uns_desc_index_i
+-                                                        : uns_desc_type_i;
+-            desc_ix_r  <= (uns_kind_i == PP_UNS_CFG_C) ? uns_arg0_i
+-                                                        : uns_desc_index_i;
++            //! the LOCK notification's job carries the flags word of the
++            //! command that caused it in its two arguments (UNLOCK for the
++            //! timeout), landed where a LOCK_ENTITY's walk leaves them
++            cfg_ix_r   <= (uns_kind_i == PP_UNS_ASP_C)  ? uns_desc_index_i
++                        : (uns_kind_i == PP_UNS_LOCK_C) ? uns_arg1_i
++                                                         : uns_desc_type_i;
++            desc_ix_r  <= ((uns_kind_i == PP_UNS_CFG_C)
++                           || (uns_kind_i == PP_UNS_LOCK_C)) ? uns_arg0_i
++                                                             : uns_desc_index_i;
+             name_ix_r  <= uns_arg0_i;
+             name_cfg_r <= uns_arg1_i;
+             desc_ty_r  <= (uns_kind_i == PP_UNS_AMAP_C)
+@@ -3285,6 +3300,18 @@ module KL_aecp_engine
+               upc_r  <= UPC_RDESCENT_C;
+               echo_r <= 1'b0;
+             end
++            //! READ_DESCRIPTOR(CONTROL) carries the IDENTIFY value (issue
++            //! #185): E_RDESCCT puts what GET_CONTROL reads in value_details'
++            //! current[0], in configuration 0, where GET/SET_CONTROL locate
++            if ((cmd_r.protocol == PP_PROTO_AEM)
++                && (cmd_r.msg_type == 4'd0)
++                && (cmd_r.opcode == OP_READ_DESCRIPTOR_C)
++                && (cmd_r.cdl >= 11'd20)
++                && (cfg_ix_r == 16'd0)
++                && (desc_ty_r == DT_CONTROL_C)) begin
++              upc_r  <= UPC_RDESCCT_C;
++              echo_r <= 1'b0;
++            end
+             //! ...and the current values a SET changes (issue #82): the
+             //! AUDIO_UNIT's sampling rate, the CLOCK_DOMAIN's clock source
+             //! and a STREAM's current_format, from the dynamic-state row each
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index fb81088..2b0e576 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -94,7 +94,15 @@
+ //                     Result bit 1 = "the lock STATE CHANGED", the emission
+ //                     trigger (Milan SS5.4.5.2 sends only for a command
+ //                     that "modifies the state", so a keep-alive re-lock
+-//                     and an already-unlocked query emit nothing).
++//                     and an already-unlocked query emit nothing). A change
++//                     latches the command's flags word (rgy_flags_i) beside
++//                     its exclusion, and the notification's job carries it
++//                     in uns_arg1_o/uns_arg0_o: IEEE SS7.5.2's notification
++//                     is "an unsolicited response to the command", whose
++//                     flags SS7.4.2.1 echoes (issue #186). The timeout is
++//                     an unlock and latches UNLOCK (1): Milan Table 5.22
++//                     leaves its flags to IEEE, whose unlock response
++//                     carries UNLOCK (SS7.4.2.1, Table 7-143).
+ //                  rgy_state_i = 1 -> no op: answer the holder's eid
+ //                     (locked_id for the response; 0 = not locked).
+ //                THE OP RUNS ONCE PER REQUEST EDGE. A microprogram that
+@@ -127,7 +135,14 @@
+ //                deadline it just replaced). Lock expiry clears the lock
+ //                and queues the Milan Table 5.22 LOCK_ENTITY notification
+ //                ("Sent when the entity automatically unlocks itself after
+-//                the one (1) minute timeout").
++//                the one (1) minute timeout"). EVERY LOCK NOTIFICATION
++//                CARRIES ONE CAUSE (issue #186): the flags and the locked_id
++//                of one change, a LOCK's with its holder, an UNLOCK's or the
++//                expiry's with 0. The expiry is therefore held back while a
++//                LOCK job's flags and its holder read could straddle it, a
++//                round claim waits a cycle behind it, and any lock change
++//                during a lock round re-latches the round's remaining jobs'
++//                arguments and exclusion as well as pending the next round.
+ //
+ //                EMISSION is a walk of the same table: pick the highest
+ //                pending event class, then for each valid row (skipping the
+@@ -160,11 +175,14 @@
+ //
+ //                DEADLOCK IS BROKEN BY WITHDRAWAL: while a presented job
+ //                waits for the engine, a rising rgy_req_i proves the engine
+-//                is busy running a solicited registry/lock command (an
+-//                unsolicited job's own microprogram never touches the rgy
+-//                face), so the un-accepted job is withdrawn, the op served,
+-//                and the job re-presented. Without this, engine-waits-on-
+-//                gather and notify-waits-on-done form a cycle.
++//                is busy running a solicited registry/lock command, or the
++//                LOCK job's own holder read (the one unsolicited
++//                microprogram that touches the rgy face, and only to read
++//                the state), so the job is withdrawn, the op or the read
++//                served, and the job re-presented; a job the engine has
++//                taken is retired by its done in that re-presentation.
++//                Without this, engine-waits-on-gather and
++//                notify-waits-on-done form a cycle.
+ //
+ //                IDENTIFY_NOTIFICATION (IEEE 1722.1-2021 SS7.4.39, SS7.5.1 and
+ //                Figure 7-142; Milan SS5.4.5.4) IS THE ONE JOB THAT IS NOT A
+@@ -262,6 +280,7 @@ module KL_aecp_notify
+     input  wire  [47:0] rgy_mac_i,           //! its source MAC (the registry tuple)
+     input  wire  [1:0]  rgy_port_i,          //! its AVB interface, the tuple's port (N_IF_P > 1)
+     input  wire         rgy_tl_i,            //! REGISTER: TIME_LIMITED flag
++    input  wire  [31:0] rgy_flags_i,         //! LOCK/UNLOCK: the command's flags word
+     output logic [63:0] rgy_data_o,          //! result word (see banner)
+     output logic        rgy_wait_o,          //! HOLD the gather beat (not a ready)
+ 
+@@ -410,6 +429,10 @@ module KL_aecp_notify
+   logic [63:0] amap_excl_r;
+   logic [63:0] lockx_eid_r;    //! requester excluded from the lock emission
+   logic        lockx_v_r;      //! 0 = no exclusion (timeout, or coalesced)
++  logic [31:0] lockf_r;        //! the flags the lock emission echoes (timeout: UNLOCK)
++  localparam logic [31:0] LOCKF_UNLOCK_C = 32'h0000_0001;   //! Table 7-143 UNLOCK
++  //! a lock expiry not applied yet (see "lock expiry" in the machine)
++  logic        lk_exp_r;
+ 
+   // Command-driven notifications are losslessly parked behind the registry
+   // walk. Sixteen entries match the dispatcher depth and keep a slow fan-out
+@@ -539,11 +562,14 @@ module KL_aecp_notify
+   logic rgy_new_w;
+   assign rgy_new_w = rgy_req_i && !req_done_r;
+ 
+-  //! lock op outcomes, combinational from current state
++  //! the lock expiry's timing (assigned beside the expiry intake below)
++  logic lk_due_w, lk_defer_w, lk_exp_now_w, lk_on_w;
++
++  //! lock op outcomes, combinational from the lock as the op sees it
+   logic lk_is_holder_w;
+-  assign lk_is_holder_w = lk_held_r && (lk_ctlr_r == rgy_eid_i);
++  assign lk_is_holder_w = lk_on_w && (lk_ctlr_r == rgy_eid_i);
+   logic lk_denied_w;
+-  assign lk_denied_w = lk_held_r && !lk_is_holder_w;
++  assign lk_denied_w = lk_on_w && !lk_is_holder_w;
+ 
+   //! walk-row comparisons (one comparator each; the walk is serial)
+   logic wk_hit_w;
+@@ -830,6 +856,8 @@ module KL_aecp_notify
+     pick_ctr_ix_w = '0;
+     if (pe_lock_r) begin
+       pick_kind_w = PP_UNS_LOCK_C;
++      pick_arg1_w = lockf_r[31:16];
++      pick_arg0_w = lockf_r[15:0];
+     end else if (cmdq_nempty_r) begin
+       pick_cmd_w = 1'b1;
+       pick_dt_w  = cmdq_type_r[cmdq_rd_r];
+@@ -926,6 +954,20 @@ module KL_aecp_notify
+       && (tmr_exp_slot_i == TMR_AW_C'(TMR_REGMON_BASE_P + 32'(exp_ix_w)));
+   assign exp_lock_w = tmr_exp_valid_i && (tmr_exp_owner_i == PP_OWN_LOCK_C)
+       && (tmr_exp_slot_i == TMR_AW_C'(TMR_LOCK_SLOT_P));
++
++  //! ONE CAUSE PER LOCK NOTIFICATION (issue #186): a LOCK job's flags are its
++  //! arguments, which the engine loads with the job, and its locked_id is the
++  //! holder E_LOCKUNS reads off the rgy face afterwards, so the lock may not
++  //! change between the two. A lock expiry is owed from its strobe
++  //! (lk_due_w). It waits while a LOCK job is presented, since the engine may
++  //! have loaded it, and in the cycle a state query is taken, whose answer is
++  //! read in the next. Otherwise it applies in the cycle it is owed, and a
++  //! LOCK or UNLOCK in that cycle sees the lock released (lk_on_w)
++  assign lk_due_w     = lk_exp_r || (exp_lock_w && lk_held_r);
++  assign lk_defer_w   = ((n_st_r == N_EMIT_WAIT) && (em_kind_r == PP_UNS_LOCK_C))
++                        || ((n_st_r == N_IDLE) && rgy_new_w && rgy_state_i);
++  assign lk_exp_now_w = lk_due_w && !lk_defer_w;
++  assign lk_on_w      = lk_held_r && !lk_exp_now_w;
+   assign exp_mon_w = tmr_exp_valid_i
+       && (tmr_exp_owner_i[7:OIX_W_C] == PP_OWN_CMON_C[7:OIX_W_C])
+       && (tmr_exp_slot_i == TMR_AW_C'(TMR_REGMON_BASE_P + N_ROW_C
+@@ -1217,6 +1259,8 @@ module KL_aecp_notify
+       amap_excl_r <= 64'd0;
+       lockx_eid_r <= 64'd0;
+       lockx_v_r   <= 1'b0;
++      lockf_r     <= 32'd0;
++      lk_exp_r    <= 1'b0;
+       dh_v_r      <= 1'b0;
+       dh_eid_r    <= 64'd0;
+       dh_mac_r    <= 48'd0;
+@@ -1374,19 +1418,35 @@ module KL_aecp_notify
+       end
+ 
+       // ---- lock expiry: auto-unlock + Table 5.22 notification ------------
+-      if (exp_lock_w && lk_held_r) begin
++      //! applied when owed and not deferred (lk_exp_now_w above); a deferred
++      //! one waits in lk_exp_r
++      if (lk_exp_now_w) begin
++        lk_exp_r  <= 1'b0;
+         lk_held_r <= 1'b0;
+         lk_ctlr_r <= 64'd0;
+         if (pe_lock_r) begin
+           //! The final coalesced change is caused by timeout, not by the
+           //! earlier requester. Clear that command exclusion so every
+           //! registered controller observes the resulting unlocked state.
++          //! It is an unlock, so it carries UNLOCK (issue #186).
+           lockx_v_r <= 1'b0;
++          lockf_r   <= LOCKF_UNLOCK_C;
+           if (coalesce_r != 8'hFF) coalesce_r <= coalesce_r + 8'd1;
+         end else begin
+           pe_lock_r <= 1'b1;
+           lockx_v_r <= 1'b0;            // a timeout excludes nobody
++          lockf_r   <= LOCKF_UNLOCK_C;  // ...and is an unlock (Table 5.22, 7-143)
++        end
++        //! a lock round running now: its jobs not yet presented carry the
++        //! automatic unlock and exclude nobody, as the round pended above
++        //! will (the jobs already sent carried the change before it)
++        if (em_active_r && (em_kind_r == PP_UNS_LOCK_C)) begin
++          em_arg1_r   <= LOCKF_UNLOCK_C[31:16];
++          em_arg0_r   <= LOCKF_UNLOCK_C[15:0];
++          em_excl_v_r <= 1'b0;
+         end
++      end else if (lk_due_w) begin
++        lk_exp_r <= 1'b1;
+       end
+ 
+       //! the identify sequencer's IDENT-BURST / IDENT-REARM arm, in a cycle
+@@ -1418,7 +1478,7 @@ module KL_aecp_notify
+                 result_r <= 2'd1;                   // ENTITY_LOCKED
+               end else if (!rgy_op_i[0]) begin
+                 // LOCK by the holder (re-arm) or when free (take)
+-                result_r  <= {!lk_held_r, 1'b0};    // bit1 = changed
++                result_r  <= {!lk_on_w, 1'b0};      // bit1 = changed
+                 lk_held_r <= 1'b1;
+                 lk_ctlr_r <= rgy_eid_i;
+                 tmr_arm_valid_o       <= 1'b1;
+@@ -1426,16 +1486,27 @@ module KL_aecp_notify
+                 tmr_arm_slot_o        <= TMR_AW_C'(TMR_LOCK_SLOT_P);
+                 tmr_arm_owner_o       <= PP_OWN_LOCK_C;
+                 tmr_arm_deadline_ms_o <= deadline_w;
+-                if (!lk_held_r) begin
+-                  //! took the lock: notify everyone but the taker
++                if (!lk_on_w) begin
++                  //! took the lock: notify everyone but the taker, echoing
++                  //! the taker's flags
+                   pe_lock_r   <= 1'b1;
++                  lockf_r     <= rgy_flags_i;
+                   lockx_eid_r <= rgy_eid_i;
+                   lockx_v_r   <= 1'b1;
++                  //! a lock round running now (its job withdrawn for this
++                  //! op): its jobs not yet presented carry this LOCK, as the
++                  //! round pended here will, and skip the taker
++                  if (em_active_r && (em_kind_r == PP_UNS_LOCK_C)) begin
++                    em_arg1_r   <= rgy_flags_i[31:16];
++                    em_arg0_r   <= rgy_flags_i[15:0];
++                    em_excl_r   <= rgy_eid_i;
++                    em_excl_v_r <= 1'b1;
++                  end
+                 end
+               end else begin
+                 // UNLOCK by the holder, or the already-unlocked query
+-                result_r <= {lk_held_r, 1'b0};      // bit1 = changed
+-                if (lk_held_r) begin
++                result_r <= {lk_on_w, 1'b0};        // bit1 = changed
++                if (lk_on_w) begin
+                   lk_held_r <= 1'b0;
+                   lk_ctlr_r <= 64'd0;
+                   tmr_arm_valid_o  <= 1'b1;
+@@ -1444,8 +1515,17 @@ module KL_aecp_notify
+                   tmr_arm_owner_o  <= PP_OWN_LOCK_C;
+                   tmr_arm_deadline_ms_o <= 32'd0;
+                   pe_lock_r   <= 1'b1;
++                  lockf_r     <= rgy_flags_i;
+                   lockx_eid_r <= rgy_eid_i;
+                   lockx_v_r   <= 1'b1;
++                  //! ...and the same for a running lock round: this UNLOCK,
++                  //! skipping its requester
++                  if (em_active_r && (em_kind_r == PP_UNS_LOCK_C)) begin
++                    em_arg1_r   <= rgy_flags_i[31:16];
++                    em_arg0_r   <= rgy_flags_i[15:0];
++                    em_excl_r   <= rgy_eid_i;
++                    em_excl_v_r <= 1'b1;
++                  end
+                 end
+               end
+               n_st_r <= N_ANS;
+@@ -1457,6 +1537,10 @@ module KL_aecp_notify
+               op_dereg_r <= rgy_op_i[0];
+               n_st_r     <= N_WALK;
+             end
++          end else if (lk_exp_now_w) begin
++            //! the lock expiry applies in this cycle: the claim waits for the
++            //! next, so a lock round it claims snapshots the automatic
++            //! unlock's arguments and exclusion with the pending bit
+           end else if (pd_any_w && !dh_v_r) begin
+             //! the drain waits for the previous auto-DEREGISTER to emit -
+             //! its row must stay live until the holder frees (the expiry
+diff --git a/hdl/aecp/ucode/aecp_commands.json b/hdl/aecp/ucode/aecp_commands.json
+index eeef753..83a61fe 100644
+--- a/hdl/aecp/ucode/aecp_commands.json
++++ b/hdl/aecp/ucode/aecp_commands.json
+@@ -66,7 +66,7 @@
+       "response": {"cdl": 28},
+       "status": ["SUCCESS", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+       "hazard": "LOCK_OP", "lock": false,
+-      "notify": {"class": null, "kind": "PP_UNS_LOCK_C", "body": "LOCKUNS", "doc": "on lock/unlock/auto"},
++      "notify": {"class": null, "kind": "PP_UNS_LOCK_C", "body": "LOCKUNS", "doc": "on lock/unlock with the command's flags; auto-unlock with flags UNLOCK"},
+       "gdi": false, "oversize": false,
+       "entries": ["LOCKEN", "NSUPPE", "BADARG"],
+       "doc": {"mandate": "shall", "scope": "ENTITY only (Δ10); the lock itself, so not lock-protected"}
+@@ -88,7 +88,7 @@
+       "response": {"cdl": 16, "plus": "descriptor", "stub": 20},
+       "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS"],
+       "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": false, "oversize": true,
+-      "entries": ["RDESC", "RDESCENT", "RDESCAU", "RDESCCD", "RDESCSI", "RDESCSO", "BADARG"],
++      "entries": ["RDESC", "RDESCENT", "RDESCAU", "RDESCCD", "RDESCSI", "RDESCSO", "RDESCCT", "BADARG"],
+       "doc": {"mandate": "shall", "scope": "allowed while locked", "size": "the stub is §7.4.5's {type, index}"}
+     },
+     {
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index cce5a79..3b9899f 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -252,6 +252,10 @@ E_RDESCSI = 1768     # ...a STREAM_INPUT: its SET_STREAM_FORMAT row
+ E_RDESCSO = 1780     # ...a STREAM_OUTPUT: its SET_STREAM_FORMAT row
+ E_RDESCAU = 2000     # ...an AUDIO_UNIT: current_sampling_rate
+ E_RDESCCD = 2024     # ...a CLOCK_DOMAIN: clock_source_index
++#! ...and the IDENTIFY CONTROL's current[0] (issue #185), in the free 594..639
++#! run in front of E_RDESC
++E_RDESCCT = 600      # ...a CONTROL: value_details current[0]
++E_RDESCID = 656      # ...whose control_type is IDENTIFY, in the free 653..671 run
+ # --- START/STOP_STREAMING (Milan §5.4.2.19/.20, IEEE §7.4.35/.36) ------------
+ # 32-word slots in the free tail, so each can grow an arm without renumbering
+ # its neighbour.
+@@ -1163,15 +1167,23 @@ place(E_LOCKEN, [
+ 
+ # --- unsolicited LOCK_ENTITY (IEEE §7.5.2 list + Milan Table 5.22) -----------
+ # Sent on every lock-state CHANGE (took, released, 60 s auto-unlock) to every
+-# registered controller except the requester. The body reports CURRENT state:
+-# flags 0, locked_id = the holder now (0 after an unlock or the timeout - the
+-# Table 5.22 row is exactly "the entity automatically unlocks itself").
++# registered controller except the requester. locked_id is the CURRENT state,
++# the holder now (0 after an unlock or the timeout - the Table 5.22 row is
++# exactly "the entity automatically unlocks itself"). The flags are the
++# command's (issue #186): §7.5.2 sends a notification "by using an unsolicited
++# response to the command", and §7.4.2.1's response carries the command's flags,
++# so a notification a LOCK_ENTITY caused echoes that command's flags word as
++# E_LOCKEN's response does. The auto-unlock is an unlock and carries UNLOCK:
++# Milan leaves its flags to IEEE, whose unlock response carries UNLOCK (Table
++# 7-143). Register contract: r14[31:0] = that flags word, which KL_aecp_notify
++# latched with the change (UNLOCK for the timeout) and the engine packs as
++# E_LOCKEN's.
+ place(E_LOCKUNS, [
+     u('GATHER_EXT', rd=3, **RG_STATE),           # the holder right now
+     u('MOVE', rd=12, ra=0, imm=0),
+     u('SET_STATUS', imm=ST_OK),
+     u('BUILD_HDR', ra=15, rb=13),
+-    u('BUILD_FLD', ra=12, fmt=FMT_D),            # flags               @24
++    u('BUILD_FLD', ra=14, fmt=FMT_D),            # the command's flags @24
+     u('BUILD_FLD', ra=3,  fmt=FMT_Q),            # locked_id           @28
+     u('BUILD_FLD', ra=12, fmt=FMT_D),            # ENTITY[0]           @36
+     u('SEND_RESP'),
+@@ -1274,6 +1286,96 @@ place(E_RDESCCD, [
+     u('SEND_RESP'),
+     u('END'),
+ ])
++# The IDENTIFY CONTROL (issue #185): IEEE 1722.1-2021 §7.2.22 puts value_details
++# at values_offset, "104 for this version of AEM", and Table 7-122 puts a linear
++# value's current[0] at 4V into it, so a CONTROL_LINEAR_UINT8 (§7.3.5.2, V = 1)
++# carries it at 108, as does any one-octet linear value (CONTROL_LINEAR_INT8 or
++# _UINT8): lane 104..111 is minimum, maximum, step, default, current, unit
++# (109..110) and string[0]'s first byte, and string's second byte opens the
++# tail. The value is GET_CONTROL's (§7.4.26): the SEL_IDENT row alone, with no
++# image arm, by E_GCTRL's own rule - Milan §5.3.12 makes the IDENTIFY value
++# volatile with 0 after reset, and an unwritten row reads exactly 0, so the
++# descriptor agrees with the GET before any SET_CONTROL as well as after one
++# (the overlays above follow their GETs' image arms for the same reason). A
++# CONTROL whose value is not one octet wide and linear at 104 (its
++# control_value_type @80, the top of lane 80..87, and values_offset @94, the end
++# of lane 88..95), or that ends inside lane 104..111, is served whole from the
++# image; a CONTROL that ends with the lane has an empty TAIL, which copies
++# nothing. Only the IDENTIFY CONTROL carries that value: §7.2.22 and §7.3.6.2
++# give every other CONTROL its own current values, which this processor keeps
++# in the image, so E_RDESCID serves a CONTROL whose control_type @82..@89 is
++# not IDENTIFY (Table 7-98, as model rule L8 tests it) whole as well.
++CT_VTYPE_LANE = 80                 # §7.2.22 control_value_type @80
++CT_VOFF_LANE = 88                  # §7.2.22 values_offset @94
++CT_VALUES = 104                    # values_offset, and value_details' start
++CT_LINEAR_INT16 = 0x0002           # §7.3.6.1: below it, LINEAR_INT8 and _UINT8
++CT_CUR_OFF = CT_VALUES + 4         # Table 7-122 current[0], 4V with V = 1
++CT_CUR_TAIL = CT_VALUES + 8        # lane 104..111 ends: string[0]'s second byte
++place(E_RDESCCT, [
++    u('MOVE', rd=12, ra=0, imm=0),               # reserved @26
++    u('READ_ST', rd=9, imm=RGN_NCFG),
++    u('CHECK_ARG', ra=14, rb=9, fmt=FMT_W,
++      cnd=REL_LT, imm=E_RDSTUB),
++    u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # requested CONTROL[index]
++    u('BR_STATUS', cnd=0, imm=E_RDSTUB),
++    u('READ_ST', rd=8, imm=RGN_LEN),
++    u('COMPARE', ra=8, fmt=FMT_W, imm=CT_CUR_TAIL),
++    u('BR_STATUS', cnd=3, imm=E_RDESC),          # too short for the lane
++    u('READ_ST', rd=4, imm=RGN_DATA + CT_VOFF_LANE),  # [15:0] = values_offset
++    u('COMPARE', ra=4, fmt=FMT_W, imm=CT_VALUES),
++    u('BR_STATUS', cnd=2, imm=E_RDESCCT + 12),
++    u('BRANCH', imm=E_RDESC),                    # value_details elsewhere
++    u('READ_ST', rd=5, imm=RGN_DATA + CT_VTYPE_LANE),  # E_RDESCCT + 12
++    u('SHIFT_R', rd=5, ra=5, imm=48),            # [15:0] = control_value_type
++    u('COMPARE', ra=5, fmt=FMT_W, imm=CT_LINEAR_INT16),
++    u('BR_STATUS', cnd=3, imm=E_RDESCID),        # one octet, linear
++    u('BRANCH', imm=E_RDESC),                    # any other value type
++    u('READ_ST', rd=1, imm=RGN_DYN + SEL_IDENT),  # E_RDESCCT + 17: GET_CONTROL's
++    u('READ_ST', rd=4, imm=RGN_DATA + CT_VALUES),  # lane 104..111
++    u('SHIFT_R', rd=5, ra=4, imm=16),            # [7:0] = unit's first byte @109
++    u('MOVE', rd=7, ra=0, imm=CT_CUR_OFF),       # prefix length 108
++    u('SET_STATUS', imm=ST_OK),
++    u('BUILD_HDR', ra=15, rb=13),
++    u('BUILD_FLD', ra=14, fmt=FMT_W),            # configuration_index @24
++    u('BUILD_FLD', ra=12, fmt=FMT_W),            # reserved @26
++    u('COPY_BUF', ra=7, imm=RGN_DATA),           # bytes 0..107
++    u('BUILD_FLD', ra=1, fmt=FMT_B),             # current[0] 108
++    u('BUILD_FLD', ra=5, fmt=FMT_B),             # unit 109
++    u('BUILD_FLD', ra=4, fmt=FMT_W),             # unit 110, string 111
++    u('COPY_BUF', ra=8, cnd=TAIL, imm=RGN_DATA + CT_CUR_TAIL),  # 112..
++    u('SEND_RESP'),
++    u('END'),
++])
++assert rom[E_RDESCCT + 12] == u('READ_ST', rd=5, imm=RGN_DATA + CT_VTYPE_LANE)
++assert rom[E_RDESCCT + 17] == u('READ_ST', rd=1, imm=RGN_DYN + SEL_IDENT)
++# The IDENTIFY test: control_type @82..@89 is 90-E0-F0-00-00-00-00-01 (IEEE
++# 1722.1-2021 Table 7-98). The µISA has no 64-bit immediate, so it compares the
++# four 16-bit words: @82 and @84 in lane 80..87 (r5, re-read: E_RDESCCT shifted
++# it for the value type), @86 there too, and @88 at the top of lane 88..95,
++# which E_RDESCCT left in r4. CHECK_ARG branches when a word differs, setting
++# BAD_ARGUMENTS on the way, so its arm restores SUCCESS before E_RDESC serves
++# the image whole. Registers: r6 the word, r9 its expected value (r9's
++# configurations_count is spent), r12 = 0.
++CT_TYPE_LANE = 80                  # §7.2.22 control_type @82..@87
++IDENTIFY_WORDS = (0x90E0, 0xF000, 0x0000, 0x0001)   # @82, @84, @86, @88
++place(E_RDESCID, [
++    u('READ_ST', rd=5, imm=RGN_DATA + CT_TYPE_LANE),  # lane 80..87
++    u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[0]),
++    u('SHIFT_R', rd=6, ra=5, imm=32),            # [15:0] = @82..@83
++    u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++    u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[1]),
++    u('SHIFT_R', rd=6, ra=5, imm=16),            # [15:0] = @84..@85
++    u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++    u('CHECK_ARG', ra=5, rb=12, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),  # @86..@87
++    u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[3]),
++    u('SHIFT_R', rd=6, ra=4, imm=48),            # [15:0] = @88..@89
++    u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++    u('BRANCH', imm=E_RDESCCT + 17),             # the IDENTIFY: overlaid
++    u('SET_STATUS', imm=ST_OK),                  # E_RDESCID + 12: another
++    u('BRANCH', imm=E_RDESC),                    # CONTROL, its image whole
++])
++assert IDENTIFY_WORDS[2] == 0, "@86..@87 is compared with r12 = 0"
++assert rom[E_RDESCID + 12] == u('SET_STATUS', imm=ST_OK)
+ def _rdesc_stream(sel):
+     """A STREAM_INPUT's or STREAM_OUTPUT's READ_DESCRIPTOR entry: its SET row
+     into r1, then the shared emit; an unset row serves the image whole."""
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index adadb25..39bd2f0 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3451,6 +3451,7 @@ module protocol_processor_top
+   logic [1:0]  aecp_rgy_op_w;
+   logic [63:0] aecp_rgy_eid_w, aecp_rgy_data_w;
+   logic [47:0] aecp_rgy_mac_w;
++  logic [31:0] aecp_rgy_flags_w;        // LOCK_ENTITY's flags word (issue #186)
+   logic        uns_valid_w, uns_done_w;
+   logic        uns_tx_busy_w;          // the identify schedule's departure (below)
+   logic [3:0]  uns_kind_w;
+@@ -3856,6 +3857,7 @@ module protocol_processor_top
+       .rgy_eid_o          (aecp_rgy_eid_w),
+       .rgy_mac_o          (aecp_rgy_mac_w),
+       .rgy_tl_o           (aecp_rgy_tl_w),
++      .rgy_flags_o        (aecp_rgy_flags_w),
+       .rgy_data_i         (aecp_rgy_data_w),
+       .rgy_wait_i         (aecp_rgy_wait_w),
+       .uns_valid_i        (uns_valid_w),
+@@ -4063,6 +4065,7 @@ module protocol_processor_top
+       .rgy_mac_i             (aecp_rgy_mac_w),
+       .rgy_port_i            ((N_AVB_IF_P > 1) ? aecp_cmd_if_r : 2'd0),  // the command's interface (above)
+       .rgy_tl_i              (aecp_rgy_tl_w),
++      .rgy_flags_i           (aecp_rgy_flags_w),
+       .rgy_data_o            (aecp_rgy_data_w),
+       .rgy_wait_o            (aecp_rgy_wait_w),
+       //! Table 5.22 GET_STREAM_INFO triggers this fabric OBSERVES: for a
+diff --git a/tb/aecp_cmds/aecp_cmds_wrap.sv b/tb/aecp_cmds/aecp_cmds_wrap.sv
+index 6108cd3..88802bd 100644
+--- a/tb/aecp_cmds/aecp_cmds_wrap.sv
++++ b/tb/aecp_cmds/aecp_cmds_wrap.sv
+@@ -228,6 +228,7 @@ module aecp_cmds_wrap
+       .rgy_eid_o          (),
+       .rgy_mac_o          (),
+       .rgy_tl_o           (),
++      .rgy_flags_o        (),
+       .rgy_data_i         ('0),
+       .rgy_wait_i         (1'b0),
+       .uns_valid_i        (uns_valid_i),
+diff --git a/tb/aecp_cmds/decode.json b/tb/aecp_cmds/decode.json
+index 9b5f6d1..7c12b5c 100644
+--- a/tb/aecp_cmds/decode.json
++++ b/tb/aecp_cmds/decode.json
+@@ -8,7 +8,7 @@
+     "unsolicited: per job kind, the program and the response's command_type:cdl."
+   ],
+   "sweep": {
+-    "trials": 617908,
++    "trials": 617916,
+     "timeouts": 0,
+     "opcodes": "0x0000-0x007F on every bucket; MVU: command_type 0x0000-0x007F",
+     "cdl": "12-100 with descriptor_type @24; 16, 24, 96 running; the other templates at their own lengths (tb/aecp_cmds/sim_main.cpp); every program replayed down to 12",
+@@ -22,15 +22,15 @@
+       "hdl/aecp/KL_aecp_dyn_state.sv": "e31a9e5486362bd4f2768beb7b552fbb2111e0bae0600b06d67c078171dcabdb",
+       "hdl/aecp/KL_aecp_nvm_writer.sv": "eac4257846e683df02ee5bafaaa31bd769af9103d85df9235d983e0eb3618c08",
+       "hdl/aecp/KL_aecp_resp_buf.sv": "a5fb5ee1e4342d37d8ab8492bb513a8b37783de7874088fddcfcab1b7397a093",
+-      "hdl/aecp/KL_aecp_engine.sv": "93f6800f5bc1dae853f8f0ec3ebbd51de1b11f3c7567ddc077fbee35bb654778",
+-      "tb/aecp_cmds/aecp_cmds_wrap.sv": "076b7571a1898dd03361f6d4c4a1ed1105f0701d8baa09f8fe49bcad4fe6c0a9",
++      "hdl/aecp/KL_aecp_engine.sv": "e5a16e882cb42094c84125ad0b579acd325811034e568a6a08e84d26c1bb7526",
++      "tb/aecp_cmds/aecp_cmds_wrap.sv": "9dfb5ef3bc605201decb629826e4810251f95f0300bf1b88bbce109c0c22b420",
+       "tb/aecp_cmds/sim_main.cpp": "1f267045c224b790d0b2e3ffc033f8e091a8a8303c1d3539643e6a51e3e52375",
+       "hdl/aecp/desc/milan_min.json": "461cb370013fa5e3bca21e76a938ed4c6593a3eb7672715073b30f62c2c9c40f",
+       "hdl/aecp/desc/gen_desc_image.py": "1291e4eeb5dfc17e7b8219fa53f571253ffbbac52c640190fe536fc704491a53",
+       "hdl/aecp/desc/model_lint.py": "02152fa8ebccb03ff55f82e24ed04a62259c0f13ee5b19e550466b2451200476",
+       "hdl/aecp/desc/model_rules.py": "b5ccdc449c63ec4e24ec6390ceffdfaf1c9ed61a0cf3e0d123f045008b12abd9",
+       "tb/common/verilator_harness.hpp": "7366ad0590aa52af2d7a75b8448fc57ccc318ee6b3acc6810848d29b86766ec9",
+-      "ucode.hex (generated)": "a3b62cabe2cb091383f999bf58b830ff2d3ab63cd8699b95d2529dbf4d02bcb3"
++      "ucode.hex (generated)": "a7b1af66b72cd4aed8d4db5a9cb02942dfd26a6be25ddff05e3681ddb5009bf8"
+     }
+   },
+   "decode": {
+@@ -56,9 +56,10 @@
+       }},
+       {"opcodes": "0x0004", "programs": {
+         "BADARG": {"floor": 12, "cdls": "12-19", "answers": {"7": "echo"}},
+-        "RDESC": {"floor": 20, "cdls": "20, 24, 28, 36, 60, 96-97, 100", "answers": {"0": "36, 40, 102, 106, 118, 129", "2": "20", "7": "20"}},
++        "RDESC": {"floor": 20, "cdls": "20, 24, 28, 36, 60, 96-97, 100", "answers": {"0": "36, 40, 102, 106, 118", "2": "20", "7": "20"}},
+         "RDESCAU": {"floor": 20, "cdls": "20, 28, 36, 100", "answers": {"0": "164"}},
+         "RDESCCD": {"floor": 20, "cdls": "20, 100", "answers": {"0": "96"}},
++        "RDESCCT": {"floor": 20, "cdls": "20, 100", "answers": {"0": "129"}},
+         "RDESCENT": {"floor": 20, "cdls": "20-100", "answers": {"0": "328", "7": "20"}},
+         "RDESCSI": {"floor": 20, "cdls": "20, 100", "answers": {"0": "162"}},
+         "RDESCSO": {"floor": 20, "cdls": "20, 100", "answers": {"0": "162"}}
+diff --git a/tb/aecp_notify/README.md b/tb/aecp_notify/README.md
+index d9ec4d4..b83f945 100644
+--- a/tb/aecp_notify/README.md
++++ b/tb/aecp_notify/README.md
+@@ -12,9 +12,10 @@ Entity ID and MAC tuple. Section IX then grades the registry's identity index,
+ section TS the counter throttle stamps' valid bit, section TW a counter round
+ that waits for the TX slot, section DR a DEREGISTER drained between two jobs
+ of a round, section CX the clock of the availability cancellation, section
+-SC a command cancellation coinciding with a TIME_LIMITED drain, and section CQ
+-the command queue. Every run of every build ends with section OC, the queue's
+-occupancy at every clock edge.
++SC a command cancellation coinciding with a TIME_LIMITED drain, section LF the
++flags of the lock notification, section LC the one cause each lock notification
++carries, and section CQ the command queue. Every run of
++every build ends with section OC, the queue's occupancy at every clock edge.
+ A third build, at two AVB interfaces, runs sections PT, CK, PD and CA: the registry row's port, the per-interface counter rows, the registry depth
+ per interface and the availability probes of a controller on both interfaces.
+ 
+@@ -24,7 +25,7 @@ Run `make`. Exit status zero and the printed check tally are required.
+ 
+ | Build | Override | Runs |
+ |---|---|---|
+-| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks), section DR (11 checks), section CX (1 check), section CQ (8 checks) and OC1 |
++| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks), section DR (11 checks), section CX (1 check), section LF (6 checks), section LC (45 checks), section CQ (8 checks) and OC1 |
+ | `obj_idn/Vaecp_notify_idn` | `EN_IDENTIFY_NOTIF_P` = 1 (`AECP_NOTIFY_IDENT`) | section FT alone, then OC1 |
+ | `obj_if2/Vaecp_notify_if2` | `N_IF_P` = 2, P-N-AVB-INTERFACES (`AECP_NOTIFY_IF2`) | sections PT (6 checks), CK (5 checks), PD (3 checks) and CA (5 checks) alone, from `port_tuple.hpp`, then OC1 |
+ 
+@@ -35,7 +36,7 @@ retains the existing three-run record; `make collision` runs SC1 alone and
+ `make failure-window` runs SC2 alone. `make identify` builds and runs the
+ second build alone (the identify mutation campaign's arm), and `make interfaces`
+ the third (the notify campaign's arms for issue #69). The combined suite has
+-80 checks: 51 in the first run, 5 in FT, 20 in PT/CK/PD/CA and 4 in SC, each run's
++131 checks: 102 in the first run, 5 in FT, 20 in PT/CK/PD/CA and 4 in SC, each run's
+ last check its OC1. Every build reads `occupancy.vlt`, which makes the queue's
+ count and occupancy flop readable by the bench and changes no RTL. CX keeps its
+ one-interface cancellation-clock premise; CA4 measures the engine's settle
+@@ -356,6 +357,99 @@ so every existing campaign arm retains its previous failing-check record.
+ 
+ Both controls are arms of `tb/pp_top/notify_mutants.py`.
+ 
++## Section LF: the LOCK_ENTITY notification's flags (issue #186)
++
++IEEE 1722.1-2021 7.5.2 sends a notification "by using an unsolicited response to the
++command", whose flags 7.4.2.1 echoes, so the job of a lock change a LOCK or UNLOCK
++caused carries that command's flags word, `uns_arg1_o` the high half and `uns_arg0_o`
++the low. Milan Table 5.22's auto-unlock, an unlock, carries UNLOCK (1, Table 7-143),
++as an UNLOCK command's does. After a warm
++reset C registers (row 0) and controller X changes the lock; each word sets reserved
++bits, so a latch of the UNLOCK bit alone is seen. A SET_NAME round whose job the bench
++holds keeps a lock round pending, so two changes coalesce, and the flags follow the
++last cause, as the exclusion does:
++
++- **LF1** X's LOCK with flags 0x00010000: C's job carries 0001/0000.
++- **LF1b** X's UNLOCK with flags 0x80020001: 8002/0001.
++- **LF2** X's LOCK with flags 0x00040000 times out before its round leaves: the
++  coalesced job is the auto-unlock's, UNLOCK: 0000/0001.
++- **LF3a** X's LOCK with flags 0: 0000/0000.
++- **LF3** the lock times out with its round held, then X's LOCK with flags 0x00020000:
++  the coalesced job carries the LOCK's 0002/0000.
++
++| Mutant | Planted | Failing checks |
++|---|---|---|
++| `lock_coalesced_timeout_keeps_flags` | a timeout coalesced into a pending lock round keeps the LOCK's flags | LF2; since section LC, also LC1 before and on the claim (both words) |
++| `lock_coalesced_timeout_flags_zero` | a timeout coalesced into a pending lock round latches 0, not UNLOCK | LF2; also LC1 before and on the claim (both words) |
++| `lock_take_keeps_old_flags` | a LOCK latches no flags | LF1, LF3a, LF3; also LC0, LC1 two clocks after the claim (0x00010000), LC2, LC3, LC4, LC5, LC7 |
++| `lock_release_keeps_old_flags` | an UNLOCK latches no flags | LF1b; also LC6 |
++
++The four controls are arms of `tb/pp_top/notify_mutants.py`; `tb/pp_top` sections L
++(L5b, L6d) and AX (LN) grade the same flags on the wire.
++
++## Section LC: one cause per lock notification (issue #186)
++
++Every LOCK_ENTITY notification carries the flags and the `locked_id` of one cause
++(IEEE 1722.1-2021 7.5.2, 7.4.2.1 and Table 7-143; Milan v1.2 Table 5.22;
++REQ-AEM-003, REQ-NOT-001): a LOCK's flags word with its holder, an UNLOCK's word or
++the automatic unlock's UNLOCK (0x00000001) with `locked_id` 0. The job's arguments
++become the flags when the engine loads the job, and E_LOCKUNS then reads the holder
++through the block's state query, so the bench serves every lock job as the engine
++does: it takes the arguments at the load edge, raises the state query (whose first
++cycle withdraws the job, whose second takes the read and whose third answers it),
++reads the holder, and retires the job when it is presented again. Each case must
++give exactly the listed frames, each graded by its @24..@35 bytes (flags, then
++`locked_id`, big-endian), its destination and its sequence_id. C, X, Y and D are
++controllers; X is the first owner.
++
++- **LC0** (premise) C and X registered, X's LOCK with flags 0x00010000, undisturbed:
++  the round is claimed one cycle after the op and C alone receives 0x00010000 with
++  holder X.
++- **LC1** the same, with the lock expiring one clock before the claim, on it, one
++  clock after it (the first job not yet presented) and two clocks after it (the
++  first job presented), after a LOCK word of 0 and of 0x00010000 (8 checks). Before
++  and on the claim: C and X each receive UNLOCK with 0. One clock after: the round
++  is re-latched, so C and X each receive UNLOCK, and both again in the next round.
++  Two clocks after: the expiry waits for C's job, whose frame is the LOCK's (its
++  word, holder X), then X receives UNLOCK, and both again.
++- **LC2** the lock expires after the engine loads C's job and before it reads the
++  holder: C's frame is the LOCK's, then X receives UNLOCK, and both again.
++- **LC3** the lock expires in the cycle the holder read is taken: as LC2.
++- **LC4** C and D registered; X locks (its round sent), then unlocks with
++  0x80020001; while the UNLOCK round's job to C waits, Y locks with 0x00030000. No
++  job carries UNLOCK once Y holds the lock: C and D each receive Y's LOCK with
++  holder Y, and both again.
++- **LC5** as LC4 with Y registered after C: the rest of the round skips Y, the
++  requester of the LOCK its jobs now carry, and so does the next round (C twice).
++- **LC6** C and D registered; X locks with 0x00010000 and, while the round's job to
++  C waits, unlocks with 0x80020001: C and D each receive the UNLOCK with 0, and both
++  again.
++- **LC7** the same LOCK; the lock expires while C's job is presented (the expiry
++  waits), then X locks again with 0x00040000, which takes the released lock: C and D
++  each receive that LOCK with holder X, and both again.
++
++The other 30 checks are the cases' REGISTERs. At `b0f6f9c3`, before the block held the
++expiry back and re-latched its rounds, LC0 and LC1's clock before the claim pass and
++the rest fail: on the claim the round carries the LOCK's word with `locked_id` 0 and
++the automatic unlock is lost (the reviewers' claim-collision reproduction), and in
++LC4 C and D receive UNLOCK with holder Y (the mid-round reproduction).
++
++Mutation record (planted by `tb/pp_top/notify_mutants.py`, which runs `make run`
++here; all ten KILLED by their named checks):
++
++| Mutant | Planted | Named | Failing checks |
++|---|---|---|---|
++| `lock_claim_beside_expiry` | the round claim no longer waits behind an expiry applied in its cycle | LC1 | 2: LC1 on the claim (both words) |
++| `lock_expiry_in_presented_job` | the expiry no longer waits while a LOCK job is presented | LC2 | 3: LC1 two clocks after the claim (both words), LC2 |
++| `lock_expiry_at_holder_read` | the expiry no longer waits in the cycle a state query is taken | LC3 | 4: LC1 two clocks after (both words), LC2, LC3 |
++| `lock_expiry_pending_dropped` | an expiry that had to wait is never applied | LC2, LC3 | 5: LC1 two clocks after (both words), LC2, LC3, LC7 |
++| `lock_expiry_round_not_relatched` | an expiry during a lock round leaves its arguments and exclusion | LC1 | 6: LC1 one and two clocks after (both words), LC2, LC3 |
++| `lock_expiry_relatch_keeps_exclusion` | that re-latch keeps the round's exclusion | LC1 | 6: as the previous |
++| `lock_take_round_not_relatched` | a LOCK during a lock round leaves its arguments and exclusion | LC4 | 3: LC4, LC5, LC7 |
++| `lock_take_relatch_keeps_exclusion` | that re-latch keeps the round's exclusion | LC5 | 1: LC5 |
++| `lock_release_round_not_relatched` | an UNLOCK during a lock round leaves its arguments and exclusion | LC6 | 1: LC6 |
++| `lock_op_ignores_due_expiry` | a LOCK or UNLOCK decides on the lock before an expiry owed in its cycle | LC7 | 1: LC7 |
++
+ ## Sections CQ and OC: the command queue (issue #181)
+ 
+ A successful state-changing command pushes its notification onto a queue of
+@@ -408,13 +502,20 @@ arm must fail; the failing checks are what it failed:
+ | Mutant | Planted | Named | Failing checks |
+ |---|---|---|---|
+ | `occupancy_pop_keeps_set` | a claim without a push leaves the occupancy set | OC1, CQ1, CQ2 | 7: DR2, DR2b, CQ1, CQ1b, CQ2, CQ2b, OC1 |
+-| `occupancy_push_unseen` | a push does not set the occupancy | OC1, CQ1, CQ1b, CQ2, CQ2b | 7: DR2, DR2b, CQ1, CQ1b, CQ2, CQ2b, OC1 |
++| `occupancy_push_unseen` | a push does not set the occupancy | OC1, CQ1, CQ1b, CQ2, CQ2b | 9: DR2, DR2b, LF2, LF3, CQ1, CQ1b, CQ2, CQ2b, OC1 |
+ | `occupancy_pop_one_late` | a claim without a push clears the occupancy one entry late | OC1, CQ1, CQ2 | 5: DR2, DR2b, CQ1, CQ2, OC1 |
+ | `occupancy_cleared_beside_push` | a claim beside a push clears the occupancy, so CQ1's last entry is stranded | OC1, CQ1 | 2: CQ1, OC1 |
+ | `occupancy_not_busy` | `amap_busy_o` drops the occupancy term | CQ1b, CQ2b | 2: CQ1b, CQ2b |
+-| `occupancy_reset_set` | the reset sets the occupancy | OC1 | 14: TS1, TS3, TW1, TW2, DR1, DR1b, DR2, DR2b, DR3, CQ1, CQ1b, CQ2, CQ2b, OC1 |
++| `occupancy_reset_set` | the reset sets the occupancy | OC1 | 32: TS1, TS3, TW1, TW2, DR1, DR1b, DR2, DR2b, DR3, LF1, LF2, LF3, LC0, LC1 (8), LC2 to LC7, CQ1, CQ1b, CQ2, CQ2b, OC1 |
+ | `occupancy_pop_clears` | a claim without a push clears the occupancy, so CQ2's queue is stranded | OC1, CQ2 | 2: CQ2, OC1 |
+ | `occupancy_reset_set_identify` | as `occupancy_reset_set`, graded by FT's run | OC1 | 1: OC1 |
+ | `occupancy_reset_set_interfaces` | as `occupancy_reset_set`, graded by the third build | OC1 | 13: PT4, PT6, CK1, CK2, CK3, CK4, CK5, PD3, CA2, CA1b, CA3, CA4, OC1 |
+ | `occupancy_reset_set_collision` | as `occupancy_reset_set`, graded by SC1's run | OC1 | 2: SC1, OC1 |
+ | `occupancy_reset_set_failure` | as `occupancy_reset_set`, graded by SC2's run | OC1 | 2: SC2, OC1 |
++
++`occupancy_push_unseen` and `occupancy_reset_set` also fail section LF's checks
++(issue #186): LF holds a SET_NAME round, which goes through the queue.
++`occupancy_reset_set` also fails every section LC check but its REGISTERs (15,
++issue #186 round 2): after each warm reset the set occupancy makes the pick
++claim an empty queue entry before the lock round, so the first job is not a
++lock job.
+diff --git a/tb/aecp_notify/sim_main.cpp b/tb/aecp_notify/sim_main.cpp
+index 378259b..25d4214 100644
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@ -27,6 +27,9 @@ static constexpr uint8_t OWN_MON = 0xD0;
+ static constexpr uint8_t REGMON_BASE = 25;
+ static constexpr uint8_t N_CTRL = 2;
+ static constexpr uint8_t KIND_DEREG = 0;         // pp_pkg PP_UNS_DEREG_C
++static constexpr uint8_t KIND_LOCK = 1;          // pp_pkg PP_UNS_LOCK_C
++static constexpr uint8_t OWN_LOCK = 0xB0;        // pp_pkg PP_OWN_LOCK_C
++static constexpr uint8_t LOCK_SLOT = 61;         // TMR_LOCK_SLOT_P's default
+ static constexpr uint8_t KIND_CTRS = 6;          // pp_pkg PP_UNS_CTRS_C
+ static constexpr uint8_t KIND_NAME = 8;          // pp_pkg PP_UNS_NAME_C
+ static constexpr uint16_t DT_AVB_INTERFACE = 0x0009;
+@@ -120,6 +123,28 @@ struct Harness {
+   void dereg_command_round();
+   void dereg_round_waits();
+   void cancel_clock();
++  void lock_flags();
++  struct LockFrame {
++    bool sent = false;                      // presented, its holder read, retired
++    bool read_late = false;                 // the read was not answered when E_LOCKUNS's is
++    uint64_t mac = 0;
++    uint16_t seq = 0;
++    uint32_t flags = 0;                     // @24, the job's arguments at its load
++    uint64_t locked_id = 0;                 // @28, the holder read after the load
++  };
++  enum class ReadExpiry { none, after_load, at_read };
++  LockFrame engine_lock_job(uint32_t last, ReadExpiry at);
++  std::vector<LockFrame> lock_jobs(ReadExpiry first_at = ReadExpiry::none);
++  struct LockWant {
++    uint64_t mac;
++    uint16_t seq;
++    uint32_t flags;
++    uint64_t locked_id;
++  };
++  bool frames_are(const std::vector<LockFrame>& got, const std::vector<LockWant>& want);
++  void lock_cause();
++  void lock_cause_claim();
++  void lock_cause_rounds();
+   void cancel_collision();
+   void cancel_failure_window();
+   struct Drain {
+@@ -172,6 +197,31 @@ struct Harness {
+     CHECK(registers(eid, mac, time_limited), "registry accepts controller tuple");
+   }
+ 
++  //! a LOCK (an UNLOCK when `unlock`) by `eid` with the command's `flags`
++  //! word, then `settle` idle cycles; true when it was answered SUCCESS
++  bool lock_op(uint64_t eid, bool unlock, uint32_t flags, int settle = 2) {
++    d->rgy_state_i = 0;
++    d->rgy_op_i = unlock ? 3 : 2;
++    d->rgy_eid_i = eid;
++    d->rgy_mac_i = 0;
++    d->rgy_tl_i = 0;
++    d->rgy_flags_i = flags;
++    d->rgy_req_i = 1;
++    int guard = 0;
++    while (guard++ < REGISTRY_ACCEPT_CYCLES) {
++      d->clk_i = 0;
++      d->eval();
++      if (!d->rgy_wait_o) break;
++      tick();
++    }
++    const bool success = guard < REGISTRY_ACCEPT_CYCLES && (d->rgy_data_o & 1) == 0;
++    tick();
++    d->rgy_req_i = 0;
++    d->rgy_flags_i = 0;
++    idle(settle);
++    return success;
++  }
++
+   //! the monitor draw a registration asks for, answered with 30 s; true when
+   //! it was asked for
+   bool draws() {
+@@ -236,6 +286,7 @@ void Harness::initialize_inputs() {
+   dut->rgy_eid_i = 0;
+   dut->rgy_mac_i = 0;
+   dut->rgy_tl_i = 0;
++  dut->rgy_flags_i = 0;
+   dut->ev_stri_in_i = 0;
+   dut->ev_stri_out_i = 0;
+   dut->ev_avb_i = 0;
+@@ -337,11 +388,339 @@ int Harness::run(bool collision_only, bool failure_window_only) {
+   dereg_command_round();
+   dereg_round_waits();
+   cancel_clock();
++  lock_flags();
++  lock_cause();
+   command_queue();
+   occupancy_held(occupancy, checks, fails);
+   return fails ? 1 : 0;
+ }
+ 
++// The flags a LOCK_ENTITY notification carries (issue #186; REQ-AEM-003,
++// REQ-NOT-001). IEEE 1722.1-2021 7.5.2 sends it "by using an unsolicited response to the command",
++// whose flags 7.4.2.1 echoes, so the job of a change a LOCK or UNLOCK caused
++// carries that command's flags word in its arguments (uns_arg1_o the high half,
++// uns_arg0_o the low), and Milan Table 5.22's auto-unlock, an unlock, carries
++// UNLOCK (1, Table 7-143). Changes that meet a pending lock round coalesce, and
++// the flags follow the last cause, as the exclusion does: a timeout over a
++// pending LOCK carries UNLOCK, a LOCK over a pending timeout its own flags.
++// Controller X changes the lock and C, registered, receives each round; a
++// SET_NAME round whose job the bench holds keeps the lock round pending. Every
++// command word sets reserved bits in both halves (Table 7-143 bits 0 to 30), so
++// a block that kept only the UNLOCK bit is seen.
++void Harness::lock_flags() {
++  constexpr uint64_t EID_X = 0x8888000000000008ull;
++  warm_reset();
++  d->uns_done_i = 0;
++  now = 30000;
++  register_row(EID_C, MAC_C, false);        // row 0
++  auto lock_job = [&](uint16_t arg1, uint16_t arg0) {
++    const UnsJob j = job_presented(now + WALK_MS);
++    const bool ok = j.ms != 0 && j.kind == KIND_LOCK && j.mac == MAC_C && j.arg1 == arg1
++                    && j.arg0 == arg0;
++    if (!ok)
++      printf("  [i] LF: presented kind %u, args %04x/%04x, to %012llx\n", unsigned(j.kind),
++             unsigned(j.arg1), unsigned(j.arg0), static_cast<unsigned long long>(j.mac));
++    if (j.ms != 0) (void)retire();
++    return ok;
++  };
++  //! a SET_NAME round from a requester nobody registered, its job to C held
++  auto hold_a_round = [&]() {
++    d->ev_cmd_class_i = 7;
++    d->ev_cmd_type_i = 0x0005;
++    d->ev_cmd_index_i = 1;
++    d->ev_cmd_arg0_i = 0;
++    d->ev_cmd_arg1_i = 0;
++    d->ev_cmd_excl_eid_i = 0x7777000000000007ull;
++    d->ev_cmd_i = 1;
++    tick();
++    d->ev_cmd_i = 0;
++    ++now;
++    const UnsJob j = job_presented(now + WALK_MS);
++    return j.ms != 0 && j.kind == KIND_NAME;
++  };
++  //! the held SET_NAME job, withdrawn by each lock op and presented again
++  //! (the block's banner), is sent: the round ends
++  auto end_the_round = [&]() {
++    const UnsJob j = job_presented(now + WALK_MS);
++    if (j.ms != 0) (void)retire();
++    return j.ms != 0 && j.kind == KIND_NAME;
++  };
++  const bool took = lock_op(EID_X, false, 0x00010000u);
++  CHECK(took && lock_job(0x0001, 0x0000),
++        "LF1: X's LOCK with flags 0x00010000 notifies C with those flags (job args 0001/0000)");
++  const bool released = lock_op(EID_X, true, 0x80020001u);
++  CHECK(released && lock_job(0x8002, 0x0001),
++        "LF1b: X's UNLOCK with flags 0x80020001 notifies C with those flags (job args "
++        "8002/0001)");
++  const bool held2 = hold_a_round();
++  const bool took2 = lock_op(EID_X, false, 0x00040000u);
++  expire(LOCK_SLOT, OWN_LOCK);              // the lock times out, its round still pending
++  const bool ended2 = end_the_round();
++  CHECK(held2 && took2 && ended2 && lock_job(0x0000, 0x0001),
++        "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the "
++        "coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)");
++  const bool took3 = lock_op(EID_X, false, 0x00000000u);
++  CHECK(took3 && lock_job(0x0000, 0x0000),
++        "LF3a: X's LOCK with flags 0 notifies C with flags 0 (job args 0000/0000)");
++  const bool held3 = hold_a_round();
++  expire(LOCK_SLOT, OWN_LOCK);              // the auto-unlock's round pending
++  const bool took3b = lock_op(EID_X, false, 0x00020000u);
++  const bool ended3 = end_the_round();
++  CHECK(held3 && took3b && ended3 && lock_job(0x0002, 0x0000),
++        "LF3: X's LOCK with flags 0x00020000 after a timeout whose round is pending: the "
++        "coalesced notification carries the LOCK's flags (job args 0002/0000)");
++  d->uns_done_i = 1;
++}
++
++//! one lock job as the engine serves it: the arguments are taken at the load
++//! edge, then E_LOCKUNS's GATHER_EXT RG_STATE withdraws the presented job in
++//! its first request cycle, is taken in the second and is answered in the
++//! third; the job is presented again and its done retires it. `at` adds a
++//! lock expiry between the load and the read, or in the cycle the read is
++//! taken
++Harness::LockFrame Harness::engine_lock_job(uint32_t last, ReadExpiry at) {
++  LockFrame f;
++  const UnsJob j = job_presented(last);
++  if (j.ms == 0 || j.kind != KIND_LOCK) return f;
++  f.mac = j.mac;
++  f.seq = j.seq;
++  f.flags = (uint32_t(j.arg1) << 16) | j.arg0;
++  tick();                                   // the load
++  if (at == ReadExpiry::after_load) expire(LOCK_SLOT, OWN_LOCK);
++  d->rgy_state_i = 1;
++  d->rgy_op_i = 0;
++  d->rgy_eid_i = 0;
++  d->rgy_req_i = 1;
++  int cycle = 0;
++  while (++cycle <= REGISTRY_ACCEPT_CYCLES) {
++    d->clk_i = 0;
++    d->eval();
++    if (!d->rgy_wait_o) break;
++    if (at == ReadExpiry::at_read && cycle == 2) {
++      d->tmr_exp_slot_i = LOCK_SLOT;
++      d->tmr_exp_owner_i = OWN_LOCK;
++      d->tmr_exp_valid_i = 1;
++    }
++    tick();
++    d->tmr_exp_valid_i = 0;
++  }
++  f.read_late = cycle != 3;
++  f.locked_id = d->rgy_data_o;
++  tick();
++  d->rgy_req_i = 0;
++  d->rgy_state_i = 0;
++  const UnsJob again = job_presented(now + WALK_MS);
++  if (again.ms != 0 && again.kind == KIND_LOCK && again.mac == f.mac && again.seq == f.seq) {
++    (void)retire();
++    f.sent = true;
++  }
++  return f;
++}
++
++//! the lock jobs presented until none is for WALK_MS, each served as the
++//! engine serves it; `first_at` places an expiry around the first one's read
++std::vector<Harness::LockFrame> Harness::lock_jobs(ReadExpiry first_at) {
++  std::vector<LockFrame> got;
++  for (int k = 0; k < 8; ++k) {
++    const LockFrame f = engine_lock_job(now + WALK_MS, k == 0 ? first_at : ReadExpiry::none);
++    if (!f.sent) break;
++    got.push_back(f);
++  }
++  return got;
++}
++
++// Every LOCK_ENTITY notification carries the flags and the locked_id of one
++// cause (issue #186; REQ-AEM-003, REQ-NOT-001). IEEE 1722.1-2021 7.5.2 sends it
++// as "an unsolicited response to the command", so a LOCK's carries that
++// command's flags word and its holder, and an UNLOCK's or Milan Table 5.22's
++// automatic unlock's carries UNLOCK (Table 7-143) with locked_id 0. The flags
++// are the job's arguments, which the engine takes when it loads the job, and
++// the locked_id is the holder E_LOCKUNS reads afterwards through this block's
++// state query, so the bench serves every lock job as the engine does
++// (engine_lock_job) and grades each frame's @24..@35 bytes, its destination and
++// its sequence_id. The lock changes around a round in each way the block can
++// see: the timeout expires one clock at a time from before the round's claim
++// to after its first job is presented, after a LOCK word of 0 and one with a
++// reserved bit set, with the former owner registered; it expires between a
++// job's load and its holder read, and in the cycle that read is taken; and
++// another controller locks, or the holder unlocks or re-locks, while a round's
++// job waits. Each case must give exactly the frames the rule gives, so no
++// automatic unlock is lost and no requester is notified of its own change.
++//! the frames `got` are exactly `want`: each one's destination, sequence_id and
++//! @24..@35 bytes (flags, then locked_id, big-endian), its holder read answered
++//! when E_LOCKUNS's is; on a difference every frame is printed
++bool Harness::frames_are(const std::vector<LockFrame>& got, const std::vector<LockWant>& want) {
++  auto wire = [](uint32_t flags, uint64_t locked_id) {
++    std::array<uint8_t, 12> b{};
++    for (int k = 0; k < 4; ++k) b[k] = uint8_t(flags >> (24 - 8 * k));
++    for (int k = 0; k < 8; ++k) b[4 + k] = uint8_t(locked_id >> (56 - 8 * k));
++    return b;
++  };
++  bool same = got.size() == want.size();
++  for (size_t k = 0; same && k < got.size(); ++k)
++    same = !got[k].read_late && got[k].mac == want[k].mac && got[k].seq == want[k].seq
++           && wire(got[k].flags, got[k].locked_id) == wire(want[k].flags, want[k].locked_id);
++  if (!same) {
++    for (const LockFrame& f : got)
++      printf("  [i] lock frame to %012llx seq %u: flags %08x locked_id %016llx%s\n",
++             static_cast<unsigned long long>(f.mac), unsigned(f.seq), unsigned(f.flags),
++             static_cast<unsigned long long>(f.locked_id), f.read_late ? " (read late)" : "");
++    printf("  [i] %zu frames, want %zu\n", got.size(), want.size());
++  }
++  return same;
++}
++
++void Harness::lock_cause() {
++  lock_cause_claim();
++  lock_cause_rounds();
++  d->uns_done_i = 1;
++}
++
++//! the expiry one clock at a time around a lock round's claim, and around a
++//! job's holder read
++void Harness::lock_cause_claim() {
++  constexpr uint64_t EID_X = 0x8888000000000008ull;
++  constexpr uint64_t MAC_X = 0x020000000008ull;
++  constexpr uint32_t UNLOCK = 0x00000001u;
++  //! C (row 0) and the owner X (row 1) registered, then X's LOCK with `word`
++  //! and `settle` idle cycles
++  auto x_locks = [&](uint32_t word, int settle) {
++    warm_reset();
++    d->uns_done_i = 0;
++    now = 40000;
++    register_row(EID_C, MAC_C, false);
++    register_row(EID_X, MAC_X, false);
++    return lock_op(EID_X, false, word, settle);
++  };
++
++  // the claim of an undisturbed round: its first job is presented two cycles
++  // after it (N_EMIT_RD, then N_EMIT_WAIT)
++  const bool took0 = x_locks(0x00010000u, 0);
++  int presented = -1;
++  for (int c = 0; c < 8 && presented < 0; ++c) {
++    d->clk_i = 0;
++    d->eval();
++    if (d->uns_valid_o) presented = c;
++    else tick();
++  }
++  const int claim = presented - 2;
++  CHECK(took0 && claim >= 1 && frames_are(lock_jobs(), {{MAC_C, 0, 0x00010000u, EID_X}})
++            && d->lock_held_o && d->lock_ctlr_o == EID_X,
++        "LC0: X's LOCK with flags 0x00010000, undisturbed: its round is claimed %d cycle(s) "
++        "after the op and notifies C alone with those flags and holder X",
++        claim);
++
++  for (uint32_t word : {0x00000000u, 0x00010000u}) {
++    for (int offset = 0; offset <= claim + 2; ++offset) {
++      const bool took = x_locks(word, 0);
++      idle(offset);
++      expire(LOCK_SLOT, OWN_LOCK);
++      std::vector<LockWant> want = {{MAC_C, 0, UNLOCK, 0}, {MAC_X, 0, UNLOCK, 0}};
++      if (offset == claim + 1)
++        want = {{MAC_C, 0, UNLOCK, 0}, {MAC_X, 0, UNLOCK, 0},
++                {MAC_C, 1, UNLOCK, 0}, {MAC_X, 1, UNLOCK, 0}};
++      if (offset == claim + 2)
++        want = {{MAC_C, 0, word, EID_X}, {MAC_X, 0, UNLOCK, 0},
++                {MAC_C, 1, UNLOCK, 0}, {MAC_X, 1, UNLOCK, 0}};
++      char when[32];
++      if (offset == claim) snprintf(when, sizeof when, "on");
++      else
++        snprintf(when, sizeof when, "%d clock(s) %s", offset < claim ? claim - offset
++                                                                      : offset - claim,
++                 offset < claim ? "before" : "after");
++      CHECK(took && frames_are(lock_jobs(), want) && !d->lock_held_o,
++            "LC1: X's LOCK with flags 0x%08x expires %s its round's claim: each frame one "
++            "cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) "
++            "reaches C and the former owner X",
++            unsigned(word), when);
++    }
++  }
++
++  const std::vector<LockWant> straddled = {{MAC_C, 0, 0x00010000u, EID_X}, {MAC_X, 0, UNLOCK, 0},
++                                       {MAC_C, 1, UNLOCK, 0}, {MAC_X, 1, UNLOCK, 0}};
++  bool took = x_locks(0x00010000u, 2);
++  CHECK(took && frames_are(lock_jobs(ReadExpiry::after_load), straddled) && !d->lock_held_o,
++        "LC2: the lock expires after the engine loads C's job and before it reads the "
++        "holder: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock "
++        "reaches X, and both again");
++  took = x_locks(0x00010000u, 2);
++  CHECK(took && frames_are(lock_jobs(ReadExpiry::at_read), straddled) && !d->lock_held_o,
++        "LC3: the lock expires in the cycle the holder read is taken: C's frame is the "
++        "LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again");
++}
++
++//! a LOCK or an UNLOCK while a lock round's job waits, and the holder's re-lock
++//! after an expiry owed meanwhile
++void Harness::lock_cause_rounds() {
++  constexpr uint64_t EID_X = 0x8888000000000008ull;
++  constexpr uint64_t EID_Y = 0x9999000000000009ull;
++  constexpr uint64_t MAC_Y = 0x020000000009ull;
++  constexpr uint64_t EID_D = 0x4444000000000004ull;
++  constexpr uint64_t MAC_D = 0x020000000004ull;
++  //! C and `other` registered; X locks and its round is sent, X unlocks with
++  //! reserved bits set, and the unlock round's first job (to C) is presented
++  auto x_unlock_round = [&](uint64_t eid, uint64_t mac) {
++    warm_reset();
++    d->uns_done_i = 0;
++    now = 50000;
++    register_row(EID_C, MAC_C, false);
++    register_row(eid, mac, false);
++    const bool locked = lock_op(EID_X, false, 0x00000000u);
++    const bool first = frames_are(lock_jobs(), {{MAC_C, 0, 0, EID_X}, {mac, 0, 0, EID_X}});
++    const bool released = lock_op(EID_X, true, 0x80020001u);
++    const UnsJob j = job_presented(now + WALK_MS);
++    return locked && first && released && j.ms != 0 && j.mac == MAC_C;
++  };
++  bool round = x_unlock_round(EID_D, MAC_D);
++  bool ytook = lock_op(EID_Y, false, 0x00030000u);
++  CHECK(round && ytook
++            && frames_are(lock_jobs(), {{MAC_C, 1, 0x00030000u, EID_Y},
++                                        {MAC_D, 1, 0x00030000u, EID_Y},
++                                        {MAC_C, 2, 0x00030000u, EID_Y},
++                                        {MAC_D, 2, 0x00030000u, EID_Y}})
++            && d->lock_held_o && d->lock_ctlr_o == EID_Y,
++        "LC4: Y locks (flags 0x00030000) while X's UNLOCK round waits on C: no job carries "
++        "UNLOCK once Y holds the lock; C and D each receive Y's LOCK with holder Y");
++  round = x_unlock_round(EID_Y, MAC_Y);
++  ytook = lock_op(EID_Y, false, 0x00030000u);
++  CHECK(round && ytook
++            && frames_are(lock_jobs(), {{MAC_C, 1, 0x00030000u, EID_Y},
++                                        {MAC_C, 2, 0x00030000u, EID_Y}}),
++        "LC5: ...with Y registered after C, the rest of that round skips Y, the requester of "
++        "the LOCK its jobs now carry, and so does the next round");
++
++  //! C and D registered; X locks, and its round's first job (to C) is presented
++  auto x_lock_round = [&](uint32_t word) {
++    warm_reset();
++    d->uns_done_i = 0;
++    now = 60000;
++    register_row(EID_C, MAC_C, false);
++    register_row(EID_D, MAC_D, false);
++    const bool locked = lock_op(EID_X, false, word);
++    const UnsJob j = job_presented(now + WALK_MS);
++    return locked && j.ms != 0 && j.mac == MAC_C;
++  };
++  round = x_lock_round(0x00010000u);
++  const bool released = lock_op(EID_X, true, 0x80020001u);
++  CHECK(round && released
++            && frames_are(lock_jobs(), {{MAC_C, 0, 0x80020001u, 0}, {MAC_D, 0, 0x80020001u, 0},
++                                        {MAC_C, 1, 0x80020001u, 0}, {MAC_D, 1, 0x80020001u, 0}})
++            && !d->lock_held_o,
++        "LC6: X unlocks (flags 0x80020001) while its LOCK round waits on C: C and D each "
++        "receive the UNLOCK with locked_id 0, never the LOCK's flags without a holder");
++  round = x_lock_round(0x00010000u);
++  expire(LOCK_SLOT, OWN_LOCK);              // owed while C's job is presented
++  const bool relocked = lock_op(EID_X, false, 0x00040000u);
++  CHECK(round && relocked
++            && frames_are(lock_jobs(), {{MAC_C, 0, 0x00040000u, EID_X},
++                                        {MAC_D, 0, 0x00040000u, EID_X},
++                                        {MAC_C, 1, 0x00040000u, EID_X},
++                                        {MAC_D, 1, 0x00040000u, EID_X}})
++            && d->lock_held_o && d->lock_ctlr_o == EID_X,
++        "LC7: the lock expires while C's job is presented, then X's LOCK (flags 0x00040000) "
++        "takes it anew: C and D each receive that LOCK with holder X");
++}
++
+ // SC1: both rows have live probes. Expire one TIME_LIMITED registration,
+ // then present the other controller's command in the drain's own cycle.
+ // Observe the cancellation face before each edge, including the command's;
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 3df4970..2a5035f 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -912,8 +912,8 @@ the seven into the one canonical tally.
+   registers TIME_LIMITED and another locks the entity; the registered one
+   answers every CONTROLLER_AVAILABLE the monitor sends it (Milan §5.4.5.3), so
+   only the timer under test can end its registration. **TD1** the auto-unlock
+-  notification (LOCK_ENTITY, u = 1, locked_id 0, byte-exact but for the entry's
+-  sequence_id) reaches the registered controller no sooner than 60,000 ms after
++  notification (LOCK_ENTITY, u = 1, flags UNLOCK, locked_id 0, byte-exact but for
++  the entry's sequence_id) reaches the registered controller no sooner than 60,000 ms after
+   the LOCK_ENTITY was fed and at most 20 ms later. **TD2** the expiry
+   DEREGISTER (u = 1, byte-exact likewise) reaches it no sooner than 300,000 ms
+   after the REGISTER and at most 20 ms later. The lower bound is exact, since
+@@ -1317,7 +1317,10 @@ checks in both. Re-run 2026-10-03 with the three NSD arms (issue #37) at `--jobs
+ 330 s: every control and every earlier arm gave the same verdict, and one count moved,
+ `lk-sclks-miss-lock-nop`'s, which NSD3 now fails beside LK4; the counts below are that
+ run's, except the five SC arms (issue #179), added 2026-10-17 and counted in their own
+-run at the lane head. `aecp-dispatch` runs A5b, M9 and section V's GET_AVB_INFO
++run at the lane head, and the nine RDC arms (issue #185), added 2026-10-18 and counted
++in their own run at the issue #186 head, and the six IDENTIFY-type arms (issue #185
++round 2), added 2026-10-19 and counted, with the nine re-measured, in their own run at
++the round-2 head. `aecp-dispatch` runs A5b, M9 and section V's GET_AVB_INFO
+ dispatch cases (V1, V1b, V3 to V5) on a booted model,
+ then section AX on its own processor (`--aecp-dispatch-only`); `aecp-line`
+ runs section AX in the line build; `line-guards` lints the top across the line
+@@ -1348,7 +1351,7 @@ failed at the lane head.
+ | `lk-ssrate-miss-lock-nop` | E_SSRATE's locate-miss CHECK_LOCK (SSR_REFUSE) replaced with NOP | `LK4 foreign SET_SAMPLING_RATE on AUDIO_UNIT 3 (absent): ENTITY_LOCKED byte-exact` | 1 |
+ | `lk-sclks-lock-nop` | E_SCLKS's CHECK_LOCK (E_SCLKS+9) replaced with NOP | `LK1 unset clock-source row, ...: ENTITY_LOCKED byte-exact` | 9 |
+ | `lk-sclks-miss-lock-nop` | E_SCLKS's locate-miss CHECK_LOCK (E_SCLKSRF) replaced with NOP | `LK4 foreign SET_CLOCK_SOURCE on CLOCK_DOMAIN 3 (absent): ENTITY_LOCKED byte-exact` | 2 |
+-| `lk-sctrl-lock-nop` | E_SCTRL's CHECK_LOCK (E_SCTRL+4) replaced with NOP | `LK1 IDENTIFY at its reset 0, ...: ENTITY_LOCKED byte-exact` | 12 |
++| `lk-sctrl-lock-nop` | E_SCTRL's CHECK_LOCK (E_SCTRL+4) replaced with NOP | `LK1 IDENTIFY at its reset 0, ...: ENTITY_LOCKED byte-exact` | 13 |
+ | `lk-sctrl-miss-lock-nop` | E_SCTRL's locate-miss CHECK_LOCK (E_SCTRL+21) replaced with NOP | `LK4 foreign SET_CONTROL on CONTROL 3 (absent): ENTITY_LOCKED byte-exact` | 1 |
+ | `lk-prefix-zero-body` | the microcode generator as it stood at the lane base (`0451d83d`): the lock checked first and refused through the zero-bodied E_LOCKED4/E_LOCKED1 stubs, the issue #53 reproduction | `LK3 foreign SET_SAMPLING_RATE(96000) carries the stored 48000: ENTITY_LOCKED byte-exact` | 7 |
+ | `sctrl-badarg-zero-body` | E_SCTRL's out-of-range arm branches to the zero-bodied E_BADARG1 again, as at the lane base (R416-1 F1) | `LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact` | 2 |
+@@ -1365,8 +1368,8 @@ failed at the lane head.
+ | `rd-str-unset-overlays` | the STREAM programs' unset test removed, so an unset row overlays its zero | `RD0 STREAM_INPUT 0, format unset: READ_DESCRIPTOR byte-exact` | 4 |
+ | `rd-so-reads-input-row` | E_RDESCSO reads the STREAM_INPUT row (`SEL_FMTIN`) instead of its own | `RD1 STREAM_OUTPUT 1 after SET_STREAM_FORMAT: READ_DESCRIPTOR byte-exact` | 4 |
+ | `rd-cfg-any` | the configuration-0 guard of the re-dispatch dropped | `RD2 configuration 1's CLOCK_DOMAIN 0 keeps its image bytes: the 534-byte descriptor, byte-exact` | 2 |
+-| `rd-tail-uncut` | the µCPU's COPY_BUFFER TAIL copies the whole length from its start (no subtract) | `RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact` | 9 |
+-| `rd-str-short-guard-nop` | E_RDESCSF's too-short guard replaced with NOP, so a STREAM short of the lane takes the overlay with a wrapped TAIL count (R416-1 S1) | `RD4 STREAM_OUTPUT 1 of 80 bytes with a set row: READ_DESCRIPTOR byte-exact` | 1 |
++| `rd-tail-uncut` | the µCPU's COPY_BUFFER TAIL copies the whole length from its start (no subtract) | `RD1 AUDIO_UNIT 0 after SET_SAMPLING_RATE(48000): READ_DESCRIPTOR byte-exact` | 17 |
++| `rd-str-short-guard-nop` | E_RDESCSF's too-short guard replaced with NOP, so a STREAM short of the lane takes the overlay with a wrapped TAIL count (R416-1 S1) | `RD4 STREAM_OUTPUT 1 of 80 bytes with a set row: READ_DESCRIPTOR byte-exact` | 6 |
+ | `line-floor-rounded` | the engine's line floor judged on the buffer rounded up to 16, as at 54c1e2b1 (R417-1 F1), so a 568-byte line elaborates (`line-guards`) | `line guard 568` | 1 |
+ | `line-ceiling-dropped` | the engine's line ceiling removed, so 1016 is refused only by the µCPU's own cap, which does not name `DESC_LINE_BYTES_P` (R416-1 F2; `line-guards`) | `line guard 1016` | 1 |
+ | `line-buffer-fixed-592` | the response buffer fixed at the default line's 592 bytes instead of `16 + LINE_BYTES_P` (`aecp-line`) | `OV1 AUDIO_MAP 0 (584 B, the whole line: cdl 600, frame 626): the 584-byte descriptor, byte-exact` | 7 |
+@@ -1381,6 +1384,21 @@ failed at the lane head.
+ | `scfg-nsd-stores` | E_SCFGNSD writing the dynamic store (r0) before it refuses | `SC3 ...and GET_CONFIGURATION still reads the image's 1, byte-exact` | 5 |
+ | `scfg-nsd-notifies` | E_SCFGNSD enqueueing a notification before its answer | `SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: no unsolicited frame reached the registered holder` | 3 |
+ | `scfg-refusal-short-body` | E_SCFGEMT, the body every SET_CONFIGURATION refusal shares, without its reserved word @24 (cdl 14) | `SC1 a second controller's SET_CONFIGURATION(2), the count, carries the image's 1: ...at the response form's cdl 16` | 4 |
++| `rdc-base-no-overlay` | the engine's issue #185 re-dispatch removed, so CONTROL reads are the image's, the issue reproduction | `RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact` | 8 |
++| `rdc-unset-image` | E_RDESCCT given an image arm: an IDENTIFY row no SET_CONTROL wrote serves the image whole, the other overlays' rule, not GET_CONTROL's | `RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact` | 2 |
++| `rdc-voffset-guard-nop` | E_RDESCCT's `values_offset` guard (its BRANCH to E_RDESC) replaced with NOP | `RDC2 CONTROL 0 with values_offset 106, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 1 |
++| `rdc-vtype-int16` | the value-type bound moved from CONTROL_LINEAR_INT16 (0x0002) to 0x0003, so a two-octet linear value is overlaid | `RDC3 CONTROL 0 as a CONTROL_LINEAR_INT16, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 1 |
++| `rdc-vtype-uint8-only` | the value-type test overlays CONTROL_LINEAR_UINT8 alone | `RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact` | 1 |
++| `rdc-short-floor-111` | E_RDESCCT's too-short floor at 111 bytes instead of 112, so a CONTROL ending inside lane 104..111 takes the overlay with a wrapped TAIL count | `RDC6 CONTROL 0 of 111 bytes, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 2 |
++| `rdc-unit-shift-8` | the unit's first byte @109 taken from the lane shifted by 8 instead of 16, so it carries byte 110 | `RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact` | 8 |
++| `rdc-ident-reset-255` | `KL_aecp_dyn_state` resets the IDENTIFY row to 255, a premise control | `RDC0 IDENTIFY unset: GET_CONTROL reads Milan 5.3.12's reset 0 (premise)` | 5 |
++| `rdc-sctrl-no-write` | E_SCTRL's IDENTIFY write (E_SCTRL + 11) replaced with NOP, a premise control | `RDC1 GET_CONTROL reads 255 (premise)` | 11 |
++| `rdc-ctype-any` | E_RDESCCT overlays without E_RDESCID's `control_type` test, the program before round 2, the R667-1 F2 reproduction | `RDC7 CONTROL 0 with control_type 0011223344556677, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 5 |
++| `rdc-ctype-w82-nop` | E_RDESCID's comparison of the type's word @82 replaced with NOP | `RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 1 |
++| `rdc-ctype-w84-nop` | ...of the word @84 | `RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 1 |
++| `rdc-ctype-w86-nop` | ...of the word @86 | `RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 1 |
++| `rdc-ctype-w88-nop` | ...of the word @88 | `RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 1 |
++| `rdc-ctype-status-kept` | E_RDESCID's refusal arm without its SET_STATUS, so a non-IDENTIFY CONTROL reaches E_RDESC with BAD_ARGUMENTS | `RDC7 CONTROL 0 with control_type 0011223344556677, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact` | 5 |
+ 
+ Each guard arm fails its opcode's row on all seven message types; the three
+ writers also fail their whole-body row and the read-back that proves the write
+@@ -1433,6 +1451,27 @@ V4 alone. An engine edit sending a nonzero index to NOT_IMPLEMENTED at the A_PLD
+ exit was tried and survived V3: index 1 differs from 0 only in @27, the walk's
+ last byte, which that exit does not yet see. The miss arm is planted in E_GAVB
+ instead.
++The nine issue #185 arms run the `aecp-dispatch` target. Without the re-dispatch, or
++with the unit's byte from the wrong shift, every overlaid read fails: RDC0, RDC1,
++RDC3b, RDC3's restored read, RDC4 and both RDC5 reads, while RDC2, RDC3 and RDC6,
++which expect the image, still pass. An image arm for an unwritten row fails the two
++reads at the reset 0 (RDC0 and RDC5 after the power cycle). Each layout guard fails
++the one read that reaches it, and the short floor also fails LN0: the 111-byte
++CONTROL's TAIL count wraps and the response never ends inside the bound, so the next
++command is not answered. The two premise controls fail their premises and the
++SET_CONTROL checks around them. Three earlier arms reach RDC checks too, and their
++counts moved with issue #185 while every failure they had still fails:
++`lk-sctrl-lock-nop` 12 to 13 (RDC1's premise: the foreign SET_CONTROL(0) was
++stored), `rd-tail-uncut` 9 to 16 (the seven overlaid RDC reads; 17 with round
++2's RDC7 read, IDENTIFY again) and
++`rd-str-short-guard-nop` 1 to 5 (after RD4's unanswered read, RDC6's SET_CONTROL,
++its store-and-notify count, its premise and its read), and with issue #186 to 6
++(LN0, the registration after that power cycle, is not answered either). The six
++round-2 arms grade the `control_type` test: without it every RDC7 type takes the
++overlay, and each word comparison dropped lets through exactly the type that differs
++from IDENTIFY in that word alone. The re-dispatch removed and the wrong unit shift
++now also fail RDC7's last read, IDENTIFY again (7 to 8), and so does the uncut
++TAIL (`rd-tail-uncut`, 16 to 17).
+ The two clock-source arms run the `d3` target. With the bound fixed at three,
+ SET_CLOCK_SOURCE(9) is refused, and every D3C check built on it fails: D3C1's
+ four, D3C2's answer and read-back, both of D3C3's restore and its save, and
+@@ -2211,7 +2250,7 @@ built with `gsi-build` and run with `--tspec-only`:
+ 
+ Measured 2026-10-19 at the lane head, each KILLED, and the golden PASS.
+ 
+-## Section AX: AECP dispatch and response (issues #53, #50, #82)
++## Section AX: AECP dispatch and response (issues #53, #50, #82, #185, #186)
+ 
+ A fresh processor of its own (the AD pattern), after AD in the default build and
+ by `make aecp-dispatch` (with A5b, M9 and section V's dispatch cases) for the
+@@ -2301,6 +2340,25 @@ the zero a stub would carry.
+   count, which a descriptor short of the lane does not hold, while a stream format is
+   judged by the integrator's face. At the lane base every RD1 read after a SET fails
+   (the image's defaults); `rd-base-no-overlay` below restores exactly that.
++- **RDC** READ_DESCRIPTOR CONTROL carries the IDENTIFY value GET_CONTROL returns
++  (issue #185; IEEE 1722.1-2021 7.2.22, 7.3.6.2, Milan 5.3.12). The shared CONTROL
++  fixture is 112 bytes; for this section its `control_value_type` is
++  CONTROL_LINEAR_UINT8 (7.3.5.2), the lane's seven other bytes are 0xA0 to 0xA7 and
++  `current[0]` @108 holds 0x5A, neither IDENTIFY state, so each READ_DESCRIPTOR names
++  the source of every byte; each grade is byte-exact against the image with the
++  expected value at @108, and the overlay's TAIL is empty at this length (`tb/ucpu` RC1
++  covers the 113-byte form). **RDC0**, with RD0: GET_CONTROL reads the reset 0 and so
++  does the descriptor, not the image's 0x5A. **RDC1**, after LK2's SET_CONTROL(255)
++  and the three refused since: 255. **RDC2**: `values_offset` poked to 106, the image
++  whole; **RDC3**: `control_value_type` CONTROL_LINEAR_INT16, the image whole;
++  **RDC3b**: CONTROL_LINEAR_INT8, overlaid; then restored, 255 again. **RDC4**, after
++  LK6's SET_CONTROL(0): 0. **RDC5**: SET_CONTROL(255) after RD1 and 255 in the
++  descriptor; after RD3's power cycle GET_CONTROL and the face read 0 (IDENTIFY is
++  volatile and no restore writes it) and the descriptor carries 0. **RDC6**: RD4's
++  index map also gives CONTROL 0 111 bytes, ending inside lane 104..111; after
++  SET_CONTROL(255) READ_DESCRIPTOR serves its 111 image bytes whole. At the lane base
++  every RDC grade but RDC2, RDC3 and RDC6 fails (the image's 0x5A);
++  `rdc-base-no-overlay` below restores exactly that.
+ - **PG** the GET_AUDIO_MAP page (issue #50). The audio-map face serves STREAM_PORT_INPUT
+   1's page 0 at M mappings, every record distinct, and each response is graded
+   byte-exact, its `number_of_mappings` against the records its cdl carries, and its TX
+@@ -2312,6 +2370,19 @@ the zero a stub would carry.
+   again. At the lane base PG2 to PG6 fail: the records stopped at cdl 524, 62 of
+   them, while `number_of_mappings` still named every one (the `pg-append-524` arm
+   below restores exactly that).
++- **LN** the LOCK_ENTITY notification's flags (issue #186; IEEE 1722.1-2021 7.5.2,
++  7.4.2.1, Milan Table 5.22). After RD4's power cycle the bench registers again
++  (**LN0**) and a second controller, not registered, changes the lock; each
++  command's response is graded byte-exact, and the bench's unsolicited
++  LOCK_ENTITY byte-exact but for its sequence_id. **LN1**: a LOCK with flags
++  0x00010000 (a reserved bit, so still a LOCK) is echoed by its notification,
++  locked_id the second controller; **LN2**: the wrap's 400 ms window passes and the
++  auto-unlock's notification carries flags UNLOCK (1) and locked_id 0, not the LOCK's
++  word and not 0 (Table 5.22 leaves the flags to IEEE, whose unlock carries UNLOCK);
++  **LN3**: a LOCK with flags 0, flags 0; **LN4**: an UNLOCK with flags 0x80020001
++  (reserved bits in both halves) is echoed, locked_id 0. The main suite's **L5b**
++  and **L6d** grade the plain UNLOCK's and the auto-unlock's notifications with
++  flags 1. At the lane base LN1, LN2, LN4, L5b and L6d fail (flags 0).
+ - **RB** every response write stays inside the reservation (R417-1 F1). The
+   integrator reserves `16 + DESC_LINE_BYTES_P` bytes at `RESP_BASE_P` and nothing
+   else writes there (integrator guide section 5, 07 section 3.3.2), and the
+@@ -2553,9 +2624,10 @@ SET_CLOCK_SOURCE (10 %) and GET_CONTROL (8 %) against the model in
+ `RndPhase::Model`: the list (capacity 16, a refresh keeps its entry's
+ sequence_id, a new entry starts at 0), the lock (one holder, keep-alive, the
+ 400 ms compressed expiry) and the pushes (every registered controller but the
+-requester; an automatic unlock excludes nobody). Each step compares the solicited
+-response and the set of unsolicited frames it caused byte for byte, and counts any
+-other frame as a divergence. The lock never sits in the ambiguous window around
++requester; an automatic unlock excludes nobody, and both unlocks' pushes carry
++flags UNLOCK, issue #186). Each step compares the solicited response and the set
++of unsolicited frames it caused byte for byte, and counts any other frame as a
++divergence. The lock never sits in the ambiguous window around
+ its expiry: 250 ms after its last LOCK the holder refreshes it or the bench waits
+ 600 ms for the automatic unlock. A lock-refused SET is graded on status and cdl
+ only (its body is issue #53's). Result: 2,203 frame comparisons, zero divergence;
+@@ -2792,6 +2864,29 @@ Issues #178 and #179 add `configuration_compare_whole_lane`,
+ controls, graded by NP1a, NP1c, NP10 and NP10b of `--notify-only`. Their rows below
+ are from their own run at the lane head.
+ 
++Issue #186 adds sixteen controls, graded by L5b and L6d of
++`--arm-queue-only`, LN0 to LN4 of `--aecp-dispatch-only` and `tb/aecp_notify` section
++LF, from their own run at the lane head (goldens PASS, 16 of 16 KILLED). With issue
++#181's eleven occupancy controls, merged from processor main `246cbc22` and recorded
++in `tb/aecp_notify/README.md`, the campaign holds 125 controls at that merge: the 98
++above, the eleven and the sixteen. The two
++controls of the flags' source plant the same edit in E_LOCKUNS and are graded by the
++two sections. The three `_flags_zero` timeout controls plant the automatic unlock
++with flags 0, as an earlier head and the in-house qualification had it, where both
++unlocks carry UNLOCK.
++`lock_notification_not_sent`, `lock_response_flags_zero` and `register_refused` are
++premise controls: the notification arrives, the response echoes the word, and the
++bench is registered.
++
++Issue #186 round 2 adds ten controls for 135, graded by `tb/aecp_notify` section LC,
++which serves every lock job as the engine does and requires each LOCK_ENTITY
++notification to carry one cause's flags and `locked_id`: the claim beside an expiry,
++the expiry applied while a LOCK job is presented or while its holder read is taken,
++the owed expiry dropped, a running lock round not re-latched (or re-latched with its
++old exclusion) on an expiry, a LOCK or an UNLOCK, and an op that does not see an
++expiry owed in its cycle. Their rows below, and the four section-LF rows they move,
++are from their own run at the round-2 head (goldens PASS, 14 of 14 KILLED).
++
+ | Mutant | Planted in | Failing checks |
+ |---|---|---|
+ | `ident_two_frames` | a burst of two | 35, ID1 first |
+@@ -2892,6 +2987,32 @@ are from their own run at the lane head.
+ | `settle_dropped` | no settle after a cancel | 1: `tb/aecp_notify` CA4 |
+ | `rgy_port_from_latest_frame` | the top takes `u_notify`'s `rgy_port_i` from the latest received frame's interface, `hdr_if_r` (review R512-1 F2, probe P1) | 2: IF3, IF3b (seventh build) |
+ | `dereg_matches_other_port` | a DEREGISTER matches the other port's entry (review R512-1 F2, probe P2) | 1: IF3b (seventh build) |
++| `lock_unlock_notifies_flags_zero` | E_LOCKUNS builds flags @24 from r12, 0, again: the issue #186 reproduction | 2: L5b, L6d |
++| `lock_auto_unlock_flags_zero` | the timeout latches flags 0, not UNLOCK | 1: L6d |
++| `lock_notification_flags_zero` | the same edit as the first, graded by section AX | 3: LN1, LN2, LN4 |
++| `lock_flags_unlock_bit_only` | `KL_aecp_notify` latches the UNLOCK bit alone, not the whole flags word | 2: LN1, LN4 |
++| `lock_timeout_keeps_flags` | the timeout leaves the last command's flags latched | 1: LN2 |
++| `lock_timeout_flags_zero` | the timeout latches flags 0, not UNLOCK, graded by section AX | 1: LN2 |
++| `lock_flags_from_exclusion` | the job's arguments carry the exclusion's eid bits, not the latched flags | 4: LN1 to LN4 |
++| `lock_job_arguments_dropped` | the engine loads a LOCK job's arguments as any other kind's (descriptor type and index) | 3: LN1, LN2, LN4 |
++| `lock_job_r14_unpacked` | the engine packs r14 as LOCK_ENTITY's for the command alone, not for its notification's job | 3: LN1, LN2, LN4 |
++| `lock_notification_not_sent` | the LOCK job runs the no-send program, not E_LOCKUNS | 4: LN1 to LN4 (the bench is not notified) |
++| `lock_response_flags_zero` | E_LOCKEN's response builds flags @24 from r12, 0 | 2: LN1, LN4 (the responses) |
++| `lock_coalesced_timeout_keeps_flags` | a timeout coalesced into a pending lock round keeps the LOCK's flags | 5: `tb/aecp_notify` LF2, LC1 before and on the claim (both words) |
++| `lock_coalesced_timeout_flags_zero` | a timeout coalesced into a pending lock round latches flags 0, not UNLOCK | 5: `tb/aecp_notify` LF2, LC1 before and on the claim (both words) |
++| `lock_take_keeps_old_flags` | a LOCK latches no flags | 10: `tb/aecp_notify` LF1, LF3a, LF3, LC0, LC1 two clocks after the claim (0x00010000), LC2, LC3, LC4, LC5, LC7 |
++| `lock_release_keeps_old_flags` | an UNLOCK latches no flags | 2: `tb/aecp_notify` LF1b, LC6 |
++| `register_refused` | the REGISTER answered NO_RESOURCES | 2: LK0, LN0 |
++| `lock_claim_beside_expiry` | the round claim no longer waits behind an expiry applied in its cycle: the reviewers' claim collision | 2: `tb/aecp_notify` LC1 on the claim (both words) |
++| `lock_expiry_in_presented_job` | the expiry no longer waits while a LOCK job is presented | 3: `tb/aecp_notify` LC1 two clocks after the claim (both words), LC2 |
++| `lock_expiry_at_holder_read` | the expiry no longer waits in the cycle a state query is taken | 4: `tb/aecp_notify` LC1 two clocks after the claim (both words), LC2, LC3 |
++| `lock_expiry_pending_dropped` | an expiry that had to wait is never applied | 5: `tb/aecp_notify` LC1 two clocks after the claim (both words), LC2, LC3, LC7 |
++| `lock_expiry_round_not_relatched` | an expiry during a lock round leaves the round's arguments and exclusion | 6: `tb/aecp_notify` LC1 one and two clocks after the claim (both words), LC2, LC3 |
++| `lock_expiry_relatch_keeps_exclusion` | that re-latch keeps the round's exclusion | 6: `tb/aecp_notify` LC1 one and two clocks after the claim (both words), LC2, LC3 |
++| `lock_take_round_not_relatched` | a LOCK during a lock round leaves the round's arguments and exclusion: the reviewers' mid-round case | 3: `tb/aecp_notify` LC4, LC5, LC7 |
++| `lock_take_relatch_keeps_exclusion` | that re-latch keeps the round's exclusion | 1: `tb/aecp_notify` LC5 |
++| `lock_release_round_not_relatched` | an UNLOCK during a lock round leaves the round's arguments and exclusion | 1: `tb/aecp_notify` LC6 |
++| `lock_op_ignores_due_expiry` | a LOCK or UNLOCK decides on the lock before an expiry owed in its cycle | 1: `tb/aecp_notify` LC7 |
+ 
+ RN and `tb/originator` R are the suites whose mutation records #80 and #86 ask for:
+ every RND control is killed by the divergence check alone.
+diff --git a/tb/pp_top/aecp_dispatch_mutants.py b/tb/pp_top/aecp_dispatch_mutants.py
+index 8b9b8a6..904dfef 100644
+--- a/tb/pp_top/aecp_dispatch_mutants.py
++++ b/tb/pp_top/aecp_dispatch_mutants.py
+@@ -132,6 +132,55 @@ MUTANTS = [
+     # R416-1 S1: the STREAM programs' too-short guard, the one a SET can reach
+     ("rd-str-short-guard-nop", "rd-str-short-guard-nop", "aecp-dispatch",
+      "RD4 STREAM_OUTPUT 1 of 80 bytes with a set row: READ_DESCRIPTOR byte-exact"),
++    # issue #185: READ_DESCRIPTOR's CONTROL overlay, the re-dispatch to it, its
++    # store-only value (no image arm), its three layout guards, the lane it
++    # rebuilds, and the IDENTIFY row its premises read
++    ("rdc-base-no-overlay", "rdc-base-no-overlay", "aecp-dispatch",
++     "RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: "
++     "READ_DESCRIPTOR byte-exact"),
++    ("rdc-unset-image", "rdc-unset-image", "aecp-dispatch",
++     "RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's "
++     "0x5A: READ_DESCRIPTOR byte-exact"),
++    ("rdc-voffset-guard-nop", "rdc-voffset-guard-nop", "aecp-dispatch",
++     "RDC2 CONTROL 0 with values_offset 106, IDENTIFY 255: its image whole: "
++     "READ_DESCRIPTOR byte-exact"),
++    ("rdc-vtype-int16", "rdc-vtype-int16", "aecp-dispatch",
++     "RDC3 CONTROL 0 as a CONTROL_LINEAR_INT16, IDENTIFY 255: its image whole: "
++     "READ_DESCRIPTOR byte-exact"),
++    ("rdc-vtype-uint8-only", "rdc-vtype-uint8-only", "aecp-dispatch",
++     "RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: "
++     "READ_DESCRIPTOR byte-exact"),
++    ("rdc-short-floor-111", "rdc-short-floor-111", "aecp-dispatch",
++     "RDC6 CONTROL 0 of 111 bytes, IDENTIFY 255: its image whole: READ_DESCRIPTOR "
++     "byte-exact"),
++    ("rdc-unit-shift-8", "rdc-unit-shift-8", "aecp-dispatch",
++     "RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: "
++     "READ_DESCRIPTOR byte-exact"),
++    ("rdc-ident-reset-255", "rdc-ident-reset-255", "aecp-dispatch",
++     "RDC0 IDENTIFY unset: GET_CONTROL reads Milan 5.3.12's reset 0 (premise)"),
++    ("rdc-sctrl-no-write", "rdc-sctrl-no-write", "aecp-dispatch",
++     "RDC1 GET_CONTROL reads 255 (premise)"),
++    # ...and the overlay's restriction to the IDENTIFY CONTROL: its control_type
++    # test bypassed, each of its four word comparisons dropped, and its refusal
++    # arm's status left BAD_ARGUMENTS
++    ("rdc-ctype-any", "rdc-ctype-any", "aecp-dispatch",
++     "RDC7 CONTROL 0 with control_type 0011223344556677, not IDENTIFY, IDENTIFY 255: its "
++     "image whole: READ_DESCRIPTOR byte-exact"),
++    ("rdc-ctype-w82-nop", "rdc-ctype-w82-nop", "aecp-dispatch",
++     "RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its "
++     "image whole: READ_DESCRIPTOR byte-exact"),
++    ("rdc-ctype-w84-nop", "rdc-ctype-w84-nop", "aecp-dispatch",
++     "RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its "
++     "image whole: READ_DESCRIPTOR byte-exact"),
++    ("rdc-ctype-w86-nop", "rdc-ctype-w86-nop", "aecp-dispatch",
++     "RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its "
++     "image whole: READ_DESCRIPTOR byte-exact"),
++    ("rdc-ctype-w88-nop", "rdc-ctype-w88-nop", "aecp-dispatch",
++     "RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its "
++     "image whole: READ_DESCRIPTOR byte-exact"),
++    ("rdc-ctype-status-kept", "rdc-ctype-status-kept", "aecp-dispatch",
++     "RDC7 CONTROL 0 with control_type 0011223344556677, not IDENTIFY, IDENTIFY 255: its "
++     "image whole: READ_DESCRIPTOR byte-exact"),
+     # R416-1 F2, R417-1 F1: the DESC_LINE_BYTES_P range and the response
+     # buffer as the 16 + line reservation, at the range's edges (line-guards)
+     # and at the line build's non-default 584-byte line (aecp-line)
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-base-no-overlay.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-base-no-overlay.patch
+new file mode 100644
+index 0000000..9b48b9b
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-base-no-overlay.patch
+@@ -0,0 +1,21 @@
++--- a/hdl/aecp/KL_aecp_engine.sv
+++++ b/hdl/aecp/KL_aecp_engine.sv
++@@ -3298,18 +3298,6 @@
++                 && (cmd_r.cdl >= 11'd20)
++                 && (desc_ty_r == DT_ENTITY_C)) begin
++               upc_r  <= UPC_RDESCENT_C;
++-              echo_r <= 1'b0;
++-            end
++-            //! READ_DESCRIPTOR(CONTROL) carries the IDENTIFY value (issue
++-            //! #185): E_RDESCCT puts what GET_CONTROL reads in value_details'
++-            //! current[0], in configuration 0, where GET/SET_CONTROL locate
++-            if ((cmd_r.protocol == PP_PROTO_AEM)
++-                && (cmd_r.msg_type == 4'd0)
++-                && (cmd_r.opcode == OP_READ_DESCRIPTOR_C)
++-                && (cmd_r.cdl >= 11'd20)
++-                && (cfg_ix_r == 16'd0)
++-                && (desc_ty_r == DT_CONTROL_C)) begin
++-              upc_r  <= UPC_RDESCCT_C;
++               echo_r <= 1'b0;
++             end
++             //! ...and the current values a SET changes (issue #82): the
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-any.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-any.patch
+new file mode 100644
+index 0000000..79f0099
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-any.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1328,7 +1328,7 @@
++     u('READ_ST', rd=5, imm=RGN_DATA + CT_VTYPE_LANE),  # E_RDESCCT + 12
++     u('SHIFT_R', rd=5, ra=5, imm=48),            # [15:0] = control_value_type
++     u('COMPARE', ra=5, fmt=FMT_W, imm=CT_LINEAR_INT16),
++-    u('BR_STATUS', cnd=3, imm=E_RDESCID),        # one octet, linear
+++    u('BR_STATUS', cnd=3, imm=E_RDESCCT + 17),   # one octet, linear
++     u('BRANCH', imm=E_RDESC),                    # any other value type
++     u('READ_ST', rd=1, imm=RGN_DYN + SEL_IDENT),  # E_RDESCCT + 17: GET_CONTROL's
++     u('READ_ST', rd=4, imm=RGN_DATA + CT_VALUES),  # lane 104..111
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-status-kept.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-status-kept.patch
+new file mode 100644
+index 0000000..f22e504
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-status-kept.patch
+@@ -0,0 +1,16 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1371,11 +1371,11 @@
++     u('SHIFT_R', rd=6, ra=4, imm=48),            # [15:0] = @88..@89
++     u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++     u('BRANCH', imm=E_RDESCCT + 17),             # the IDENTIFY: overlaid
++-    u('SET_STATUS', imm=ST_OK),                  # E_RDESCID + 12: another
+++    u('NOP'),  # planted: u('SET_STATUS', imm=ST_OK),
++     u('BRANCH', imm=E_RDESC),                    # CONTROL, its image whole
++ ])
++ assert IDENTIFY_WORDS[2] == 0, "@86..@87 is compared with r12 = 0"
++-assert rom[E_RDESCID + 12] == u('SET_STATUS', imm=ST_OK)
+++assert rom[E_RDESCID + 12] == u('NOP')
++ def _rdesc_stream(sel):
++     """A STREAM_INPUT's or STREAM_OUTPUT's READ_DESCRIPTOR entry: its SET row
++     into r1, then the shared emit; an unset row serves the image whole."""
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w82-nop.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w82-nop.patch
+new file mode 100644
+index 0000000..cbd9935
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w82-nop.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1362,7 +1362,7 @@
++     u('READ_ST', rd=5, imm=RGN_DATA + CT_TYPE_LANE),  # lane 80..87
++     u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[0]),
++     u('SHIFT_R', rd=6, ra=5, imm=32),            # [15:0] = @82..@83
++-    u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
+++    u('NOP'),  # planted: u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++     u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[1]),
++     u('SHIFT_R', rd=6, ra=5, imm=16),            # [15:0] = @84..@85
++     u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w84-nop.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w84-nop.patch
+new file mode 100644
+index 0000000..458d15c
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w84-nop.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1365,7 +1365,7 @@
++     u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++     u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[1]),
++     u('SHIFT_R', rd=6, ra=5, imm=16),            # [15:0] = @84..@85
++-    u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
+++    u('NOP'),  # planted: u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++     u('CHECK_ARG', ra=5, rb=12, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),  # @86..@87
++     u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[3]),
++     u('SHIFT_R', rd=6, ra=4, imm=48),            # [15:0] = @88..@89
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w86-nop.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w86-nop.patch
+new file mode 100644
+index 0000000..2453313
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w86-nop.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1366,7 +1366,7 @@
++     u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[1]),
++     u('SHIFT_R', rd=6, ra=5, imm=16),            # [15:0] = @84..@85
++     u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++-    u('CHECK_ARG', ra=5, rb=12, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),  # @86..@87
+++    u('NOP'),  # planted: u('CHECK_ARG', ra=5, rb=12, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++     u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[3]),
++     u('SHIFT_R', rd=6, ra=4, imm=48),            # [15:0] = @88..@89
++     u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w88-nop.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w88-nop.patch
+new file mode 100644
+index 0000000..6217798
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-ctype-w88-nop.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1369,7 +1369,7 @@
++     u('CHECK_ARG', ra=5, rb=12, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),  # @86..@87
++     u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[3]),
++     u('SHIFT_R', rd=6, ra=4, imm=48),            # [15:0] = @88..@89
++-    u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
+++    u('NOP'),  # planted: u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++     u('BRANCH', imm=E_RDESCCT + 17),             # the IDENTIFY: overlaid
++     u('SET_STATUS', imm=ST_OK),                  # E_RDESCID + 12: another
++     u('BRANCH', imm=E_RDESC),                    # CONTROL, its image whole
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-ident-reset-255.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-ident-reset-255.patch
+new file mode 100644
+index 0000000..e25cd6e
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-ident-reset-255.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/KL_aecp_dyn_state.sv
+++++ b/hdl/aecp/KL_aecp_dyn_state.sv
++@@ -308,7 +308,7 @@
++       for (int unsigned i = 0; i < N_STREAM_OUT_P; i++) ptoff_r[i]  <= 32'd0;
++       //! Milan §5.3.12: "0 = not identifying" IS the reset default, and the
++       //! IDENTIFY value is one of the three things §5.3.4 keeps VOLATILE
++-      for (int unsigned i = 0; i < N_CONTROL_P;    i++) ident_r[i]  <= 8'd0;
+++      for (int unsigned i = 0; i < N_CONTROL_P;    i++) ident_r[i]  <= 8'd255;
++     end else begin
++       //! the read answer is one cycle behind the request, exactly like the
++       //! descriptor store's, so the µCPU's `!st_rvalid_i` stall sees one flop
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-sctrl-no-write.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-sctrl-no-write.patch
+new file mode 100644
+index 0000000..718c7a6
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-sctrl-no-write.patch
+@@ -0,0 +1,12 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1985,8 +1985,7 @@
++     u('BR_STATUS', cnd=2, imm=E_SCTRL + 11),
++     u('SET_STATUS', imm=ST_BADARG),              # neither: out of range,
++     u('BRANCH', imm=SCTRL_EMIT),                 # carrying the value in force
++-    u('WRITE_ST', ra=12, fmt=FMT_B,              # E_SCTRL + 11
++-      imm=RGN_DYN + SEL_IDENT),
+++    u('NOP'),                                    # E_SCTRL + 11, planted
++     u('SET_STATUS', imm=ST_OK),
++     u('BUILD_HDR', ra=15, rb=13),
++     u('BUILD_FLD', ra=13, fmt=FMT_D),            # type @24 + index @26
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-short-floor-111.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-short-floor-111.patch
+new file mode 100644
+index 0000000..68fc20e
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-short-floor-111.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1313,7 +1313,7 @@
++     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # requested CONTROL[index]
++     u('BR_STATUS', cnd=0, imm=E_RDSTUB),
++     u('READ_ST', rd=8, imm=RGN_LEN),
++-    u('COMPARE', ra=8, fmt=FMT_W, imm=CT_CUR_TAIL),
+++    u('COMPARE', ra=8, fmt=FMT_W, imm=CT_CUR_TAIL - 1),
++     u('BR_STATUS', cnd=3, imm=E_RDESC),          # too short for the lane
++     u('READ_ST', rd=4, imm=RGN_DATA + CT_VOFF_LANE),  # [15:0] = values_offset
++     u('COMPARE', ra=4, fmt=FMT_W, imm=CT_VALUES),
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-unit-shift-8.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-unit-shift-8.patch
+new file mode 100644
+index 0000000..a745ca4
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-unit-shift-8.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1326,7 +1326,7 @@
++     u('BRANCH', imm=E_RDESC),                    # any other value type
++     u('READ_ST', rd=1, imm=RGN_DYN + SEL_IDENT),  # E_RDESCCT + 17: GET_CONTROL's
++     u('READ_ST', rd=4, imm=RGN_DATA + CT_VALUES),  # lane 104..111
++-    u('SHIFT_R', rd=5, ra=4, imm=16),            # [7:0] = unit's first byte @109
+++    u('SHIFT_R', rd=5, ra=4, imm=8),            # [7:0] = unit's first byte @109
++     u('MOVE', rd=7, ra=0, imm=CT_CUR_OFF),       # prefix length 108
++     u('SET_STATUS', imm=ST_OK),
++     u('BUILD_HDR', ra=15, rb=13),
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-unset-image.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-unset-image.patch
+new file mode 100644
+index 0000000..791ea28
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-unset-image.patch
+@@ -0,0 +1,39 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1318,12 +1318,15 @@
++       cnd=REL_LT, imm=E_RDSTUB),
++     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # requested CONTROL[index]
++     u('BR_STATUS', cnd=0, imm=E_RDSTUB),
+++    u('READ_ST', rd=3, imm=RGN_DYNV + SEL_IDENT),
+++    u('COMPARE', ra=3, fmt=FMT_D, imm=0),
+++    u('BR_STATUS', cnd=2, imm=E_RDESC),
++     u('READ_ST', rd=8, imm=RGN_LEN),
++     u('COMPARE', ra=8, fmt=FMT_W, imm=CT_CUR_TAIL),
++     u('BR_STATUS', cnd=3, imm=E_RDESC),          # too short for the lane
++     u('READ_ST', rd=4, imm=RGN_DATA + CT_VOFF_LANE),  # [15:0] = values_offset
++     u('COMPARE', ra=4, fmt=FMT_W, imm=CT_VALUES),
++-    u('BR_STATUS', cnd=2, imm=E_RDESCCT + 12),
+++    u('BR_STATUS', cnd=2, imm=E_RDESCCT + 15),
++     u('BRANCH', imm=E_RDESC),                    # value_details elsewhere
++     u('READ_ST', rd=5, imm=RGN_DATA + CT_VTYPE_LANE),  # E_RDESCCT + 12
++     u('SHIFT_R', rd=5, ra=5, imm=48),            # [15:0] = control_value_type
++@@ -1346,8 +1349,8 @@
++     u('SEND_RESP'),
++     u('END'),
++ ])
++-assert rom[E_RDESCCT + 12] == u('READ_ST', rd=5, imm=RGN_DATA + CT_VTYPE_LANE)
++-assert rom[E_RDESCCT + 17] == u('READ_ST', rd=1, imm=RGN_DYN + SEL_IDENT)
+++assert rom[E_RDESCCT + 15] == u('READ_ST', rd=5, imm=RGN_DATA + CT_VTYPE_LANE)
+++assert rom[E_RDESCCT + 20] == u('READ_ST', rd=1, imm=RGN_DYN + SEL_IDENT)
++ # The IDENTIFY test: control_type @82..@89 is 90-E0-F0-00-00-00-00-01 (IEEE
++ # 1722.1-2021 Table 7-98). The µISA has no 64-bit immediate, so it compares the
++ # four 16-bit words: @82 and @84 in lane 80..87 (r5, re-read: E_RDESCCT shifted
++@@ -1370,7 +1373,7 @@
++     u('MOVE', rd=9, ra=0, imm=IDENTIFY_WORDS[3]),
++     u('SHIFT_R', rd=6, ra=4, imm=48),            # [15:0] = @88..@89
++     u('CHECK_ARG', ra=6, rb=9, fmt=FMT_W, cnd=REL_EQ, imm=E_RDESCID + 12),
++-    u('BRANCH', imm=E_RDESCCT + 17),             # the IDENTIFY: overlaid
+++    u('BRANCH', imm=E_RDESCCT + 20),             # the IDENTIFY: overlaid
++     u('SET_STATUS', imm=ST_OK),                  # E_RDESCID + 12: another
++     u('BRANCH', imm=E_RDESC),                    # CONTROL, its image whole
++ ])
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-voffset-guard-nop.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-voffset-guard-nop.patch
+new file mode 100644
+index 0000000..0e01c77
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-voffset-guard-nop.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1318,7 +1318,7 @@
++     u('READ_ST', rd=4, imm=RGN_DATA + CT_VOFF_LANE),  # [15:0] = values_offset
++     u('COMPARE', ra=4, fmt=FMT_W, imm=CT_VALUES),
++     u('BR_STATUS', cnd=2, imm=E_RDESCCT + 12),
++-    u('BRANCH', imm=E_RDESC),                    # value_details elsewhere
+++    u('NOP'),                                    # planted
++     u('READ_ST', rd=5, imm=RGN_DATA + CT_VTYPE_LANE),  # E_RDESCCT + 12
++     u('SHIFT_R', rd=5, ra=5, imm=48),            # [15:0] = control_value_type
++     u('COMPARE', ra=5, fmt=FMT_W, imm=CT_LINEAR_INT16),
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-vtype-int16.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-vtype-int16.patch
+new file mode 100644
+index 0000000..8fbd442
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-vtype-int16.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1302,7 +1302,7 @@
++ CT_VTYPE_LANE = 80                 # §7.2.22 control_value_type @80
++ CT_VOFF_LANE = 88                  # §7.2.22 values_offset @94
++ CT_VALUES = 104                    # values_offset, and value_details' start
++-CT_LINEAR_INT16 = 0x0002           # §7.3.6.1: below it, LINEAR_INT8 and _UINT8
+++CT_LINEAR_INT16 = 0x0003           # §7.3.6.1: below it, LINEAR_INT8 and _UINT8
++ CT_CUR_OFF = CT_VALUES + 4         # Table 7-122 current[0], 4V with V = 1
++ CT_CUR_TAIL = CT_VALUES + 8        # lane 104..111 ends: string[0]'s second byte
++ place(E_RDESCCT, [
+diff --git a/tb/pp_top/aecp_dispatch_mutations/rdc-vtype-uint8-only.patch b/tb/pp_top/aecp_dispatch_mutations/rdc-vtype-uint8-only.patch
+new file mode 100644
+index 0000000..a42e0ab
+--- /dev/null
++++ b/tb/pp_top/aecp_dispatch_mutations/rdc-vtype-uint8-only.patch
+@@ -0,0 +1,13 @@
++--- a/hdl/aecp/ucode/gen_ucode.py
+++++ b/hdl/aecp/ucode/gen_ucode.py
++@@ -1327,8 +1327,8 @@
++     u('BRANCH', imm=E_RDESC),                    # value_details elsewhere
++     u('READ_ST', rd=5, imm=RGN_DATA + CT_VTYPE_LANE),  # E_RDESCCT + 12
++     u('SHIFT_R', rd=5, ra=5, imm=48),            # [15:0] = control_value_type
++-    u('COMPARE', ra=5, fmt=FMT_W, imm=CT_LINEAR_INT16),
++-    u('BR_STATUS', cnd=3, imm=E_RDESCID),        # one octet, linear
+++    u('COMPARE', ra=5, fmt=FMT_W, imm=0x0001),
+++    u('BR_STATUS', cnd=2, imm=E_RDESCID),        # one octet, linear
++     u('BRANCH', imm=E_RDESC),                    # any other value type
++     u('READ_ST', rd=1, imm=RGN_DYN + SEL_IDENT),  # E_RDESCCT + 17: GET_CONTROL's
++     u('READ_ST', rd=4, imm=RGN_DATA + CT_VALUES),  # lane 104..111
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+index 468cc8d..aa28627 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -29,8 +29,12 @@ IF3 and IF3b's held commands), and the originator's withdraw mask one clock late
+ the top (issue #163: tb/pp_top section WD and tb/aecp_notify section CX), and
+ the simultaneous drain and command cancellation at one interface (issue #167:
+ tb/aecp_notify section SC), including a failure one cycle after the coincidence, and the
+-command queue's occupancy flop (issue #181: tb/aecp_notify sections CQ and OC). The suite
+-READMEs carry the matching mutation records.
++command queue's occupancy flop (issue #181: tb/aecp_notify sections CQ and OC), and the
++flags of the LOCK_ENTITY notification (issue #186; REQ-AEM-003, REQ-NOT-001: tb/pp_top's
++command-driven and automatic-unlock wire checks and its reserved-bit echo checks, and
++tb/aecp_notify's pending-round coalescence checks), and the one cause each lock
++notification carries (tb/aecp_notify's lock-cause checks). The suite READMEs carry the
++matching mutation records.
+ 
+ Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+                                            [--only NAME ...]
+@@ -90,8 +94,7 @@ HOLD = ("            if (!btn_q2_r) begin\n"
+         "              i_st_r <= I_WAIT;        // !identifyButtonPressed\n")
+ TAKE = ("                  lockx_eid_r <= rgy_eid_i;\n"
+         "                  lockx_v_r   <= 1'b1;\n"
+-        "                end\n"
+-        "              end else begin\n")
++        "                  //! a lock round running now (its job withdrawn for this\n")
+ CANCEL = ("        release_slot_o        <= txs_r[cancel_pend_ix_w];\n"
+           "        tmr_arm_valid_o       <= 1'b1;\n")
+ 
+@@ -277,8 +280,8 @@ STORM_RND = (
+          "                         16'd0};\n"),),
+         ("RN: 720 seeded steps",)),
+     Mutant("foreign_unlock_allowed", NOTIFY, (
+-        (NTFY, "  assign lk_denied_w = lk_held_r && !lk_is_holder_w;\n",
+-         "  assign lk_denied_w = lk_held_r && !lk_is_holder_w && !rgy_op_i[0];\n"),),
++        (NTFY, "  assign lk_denied_w = lk_on_w && !lk_is_holder_w;\n",
++         "  assign lk_denied_w = lk_on_w && !lk_is_holder_w && !rgy_op_i[0];\n"),),
+         ("RN: 720 seeded steps",)),
+     Mutant("lock_taker_notified", NOTIFY, (
+         (NTFY, TAKE, TAKE.replace("lockx_v_r   <= 1'b1;", "lockx_v_r   <= 1'b0;")),),
+@@ -619,6 +622,162 @@ DEFERRED_FAILURE = (
+         ("SC2:",)),
+ )
+ 
++# The LOCK_ENTITY notification echoes the flags of the command that caused it,
++# and the auto-unlock's carries UNLOCK (issue #186; REQ-AEM-003, REQ-NOT-001): the
++# UNLOCK's notification and the auto-unlock's in the main suite's command-driven
++# and automatic-unlock wire checks, and the reserved-bit echo checks, where a
++# second controller's LOCK and UNLOCK carry reserved bits in both halves of the
++# word
++LOCK_MAIN = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--arm-queue-only"))
++LOCK_AX = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--aecp-dispatch-only"))
++LOCKUNS_FLAGS = "    u('BUILD_FLD', ra=14, fmt=FMT_D),            # the command's flags @24\n"
++LN1 = "LN1 ...its notification echoes the LOCK's flags: "
++LN2 = "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: "
++LOCKF_TIMEOUT = "          lockf_r   <= LOCKF_UNLOCK_C;  // ...and is an unlock (Table 5.22, 7-143)\n"
++LOCKF_COALESCED = "          lockf_r   <= LOCKF_UNLOCK_C;\n          if (coalesce_r != 8'hFF)"
++LN3 = "LN3 ...its notification carries flags 0: "
++LN4 = "LN4 ...its notification echoes the UNLOCK's flags: "
++LOCK_FLAGS = (
++    Mutant("lock_unlock_notifies_flags_zero", LOCK_MAIN, (
++        (UCODE, LOCKUNS_FLAGS, LOCKUNS_FLAGS.replace("ra=14", "ra=12")),),
++        ("L5b: C2's second notification carries sequence_id 1",)),
++    # the automatic unlock with flags 0, as the qualification observed it
++    Mutant("lock_auto_unlock_flags_zero", LOCK_MAIN, (
++        (NTFY, LOCKF_TIMEOUT, LOCKF_TIMEOUT.replace("LOCKF_UNLOCK_C;", "32'd0;         ")),),
++        ("L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK",)),
++    Mutant("lock_notification_flags_zero", LOCK_AX, (
++        (UCODE, LOCKUNS_FLAGS, LOCKUNS_FLAGS.replace("ra=14", "ra=12")),),
++        (LN1 + "flags", LN4 + "flags")),
++    Mutant("lock_flags_unlock_bit_only", LOCK_AX, (
++        (NTFY, "                  //! the taker's flags\n"
++               "                  pe_lock_r   <= 1'b1;\n"
++               "                  lockf_r     <= rgy_flags_i;\n",
++         "                  //! the taker's flags\n"
++         "                  pe_lock_r   <= 1'b1;\n"
++         "                  lockf_r     <= {31'd0, rgy_op_i[0]};\n"),
++        (NTFY, "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
++               "                  pe_lock_r   <= 1'b1;\n"
++               "                  lockf_r     <= rgy_flags_i;\n",
++         "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
++         "                  pe_lock_r   <= 1'b1;\n"
++         "                  lockf_r     <= {31'd0, rgy_op_i[0]};\n")),
++        (LN1 + "flags", LN4 + "flags")),
++    Mutant("lock_timeout_keeps_flags", LOCK_AX, (
++        (NTFY, LOCKF_TIMEOUT, ""),),
++        (LN2 + "flags",)),
++    Mutant("lock_timeout_flags_zero", LOCK_AX, (
++        (NTFY, LOCKF_TIMEOUT, LOCKF_TIMEOUT.replace("LOCKF_UNLOCK_C;", "32'd0;         ")),),
++        (LN2 + "flags",)),
++    Mutant("lock_flags_from_exclusion", LOCK_AX, (
++        (NTFY, "      pick_arg1_w = lockf_r[31:16];\n      pick_arg0_w = lockf_r[15:0];\n",
++         "      pick_arg1_w = lockx_eid_r[31:16];\n      pick_arg0_w = lockx_eid_r[15:0];\n"),),
++        (LN3 + "flags",)),
++    Mutant("lock_job_arguments_dropped", LOCK_AX, (
++        (ENGINE, "                        : (uns_kind_i == PP_UNS_LOCK_C) ? uns_arg1_i\n", ""),
++        (ENGINE, "                           || (uns_kind_i == PP_UNS_LOCK_C)) ? uns_arg0_i\n",
++         "                           ) ? uns_arg0_i\n")),
++        (LN1 + "flags", LN4 + "flags")),
++    Mutant("lock_job_r14_unpacked", LOCK_AX, (
++        (ENGINE, "  assign lockf_w = lockc_r || (uns_r && regun_r);\n",
++         "  assign lockf_w = lockc_r;\n"),),
++        (LN1 + "flags", LN4 + "flags")),
++    Mutant("lock_notification_not_sent", LOCK_AX, (
++        (ENGINE, "uns_upc_w = UPC_LOCKUNS_C; end\n", "uns_upc_w = UPC_NOSEND_C; end\n"),),
++        (LN1 + "the registered bench is notified", LN2 + "the registered bench is notified",
++         LN3 + "the registered bench is notified", LN4 + "the registered bench is notified")),
++    Mutant("lock_response_flags_zero", LOCK_AX, (
++        (UCODE, "    u('BUILD_FLD', ra=14, fmt=FMT_D),            # flags echo          @24\n",
++         "    u('BUILD_FLD', ra=12, fmt=FMT_D),            # flags echo          @24\n"),),
++        ("LN1 a second controller's LOCK: SUCCESS echoing flags 0x00010000",
++         "LN4 its UNLOCK: SUCCESS echoing flags 0x80020001")),
++    # ...and in tb/aecp_notify's pending-round coalescence checks, the latches
++    # themselves and the coalesced timeout, which a pending round makes reachable
++    Mutant("lock_coalesced_timeout_keeps_flags", INDEX, (
++        (NTFY, LOCKF_COALESCED, "          if (coalesce_r != 8'hFF)"),),
++        ("LF2:",)),
++    Mutant("lock_coalesced_timeout_flags_zero", INDEX, (
++        (NTFY, LOCKF_COALESCED, LOCKF_COALESCED.replace("LOCKF_UNLOCK_C", "32'd0")),),
++        ("LF2:",)),
++    Mutant("lock_take_keeps_old_flags", INDEX, (
++        (NTFY, "                  //! the taker's flags\n"
++               "                  pe_lock_r   <= 1'b1;\n"
++               "                  lockf_r     <= rgy_flags_i;\n",
++         "                  //! the taker's flags\n"
++         "                  pe_lock_r   <= 1'b1;\n"),),
++        ("LF1:", "LF3:")),
++    Mutant("lock_release_keeps_old_flags", INDEX, (
++        (NTFY, "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
++               "                  pe_lock_r   <= 1'b1;\n"
++               "                  lockf_r     <= rgy_flags_i;\n",
++         "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
++         "                  pe_lock_r   <= 1'b1;\n"),),
++        ("LF1b:",)),
++    Mutant("register_refused", LOCK_AX, (
++        (UCODE, "    u('SET_STATUS', imm=ST_OK),                  # ok:\n",
++         "    u('SET_STATUS', imm=ST_NORES),               # ok:\n"),),
++        ("LN0: the bench registers for unsolicited notifications again",)),
++)
++
++# Every LOCK_ENTITY notification carries one cause's flags and locked_id (issue
++# #186; REQ-AEM-003, REQ-NOT-001), graded by tb/aecp_notify's lock-cause checks,
++# which serve each lock job as the engine does: the claim waits behind an expiry
++# applied in its cycle, the expiry waits while a LOCK job is presented and while
++# its holder read is taken, a lock change re-latches a running lock round's
++# arguments and exclusion, and a LOCK or UNLOCK sees an expiry owed in its cycle
++LC_CLAIM_WAIT = ("          end else if (lk_exp_now_w) begin\n"
++                 "            //! the lock expiry applies in this cycle: the claim waits for the\n"
++                 "            //! next, so a lock round it claims snapshots the automatic\n"
++                 "            //! unlock's arguments and exclusion with the pending bit\n")
++LC_DEFER = ("  assign lk_defer_w   = ((n_st_r == N_EMIT_WAIT) && (em_kind_r == PP_UNS_LOCK_C))\n"
++            "                        || ((n_st_r == N_IDLE) && rgy_new_w && rgy_state_i);\n")
++LC_EXP_RELATCH = ("        if (em_active_r && (em_kind_r == PP_UNS_LOCK_C)) begin\n"
++                  "          em_arg1_r   <= LOCKF_UNLOCK_C[31:16];\n"
++                  "          em_arg0_r   <= LOCKF_UNLOCK_C[15:0];\n"
++                  "          em_excl_v_r <= 1'b0;\n"
++                  "        end\n")
++LC_OP_RELATCH = ("                  if (em_active_r && (em_kind_r == PP_UNS_LOCK_C)) begin\n"
++                 "                    em_arg1_r   <= rgy_flags_i[31:16];\n"
++                 "                    em_arg0_r   <= rgy_flags_i[15:0];\n"
++                 "                    em_excl_r   <= rgy_eid_i;\n"
++                 "                    em_excl_v_r <= 1'b1;\n"
++                 "                  end\n")
++LC_TAKE = "                  //! round pended here will, and skip the taker\n" + LC_OP_RELATCH
++LC_RELEASE = "                  //! skipping its requester\n" + LC_OP_RELATCH
++LOCK_CAUSE = (
++    Mutant("lock_claim_beside_expiry", INDEX, (
++        (NTFY, LC_CLAIM_WAIT, "          end else if (1'b0) begin\n"),),
++        ("LC1:",)),
++    Mutant("lock_expiry_in_presented_job", INDEX, (
++        (NTFY, LC_DEFER, "  assign lk_defer_w   = ((n_st_r == N_IDLE) && rgy_new_w && rgy_state_i);\n"),),
++        ("LC2:",)),
++    Mutant("lock_expiry_at_holder_read", INDEX, (
++        (NTFY, LC_DEFER, "  assign lk_defer_w   = ((n_st_r == N_EMIT_WAIT) && (em_kind_r == PP_UNS_LOCK_C));\n"),),
++        ("LC3:",)),
++    Mutant("lock_expiry_pending_dropped", INDEX, (
++        (NTFY, "        lk_exp_r <= 1'b1;\n", ""),),
++        ("LC2:", "LC3:")),
++    Mutant("lock_expiry_round_not_relatched", INDEX, (
++        (NTFY, LC_EXP_RELATCH, ""),),
++        ("LC1:",)),
++    Mutant("lock_expiry_relatch_keeps_exclusion", INDEX, (
++        (NTFY, LC_EXP_RELATCH, LC_EXP_RELATCH.replace("          em_excl_v_r <= 1'b0;\n", "")),),
++        ("LC1:",)),
++    Mutant("lock_take_round_not_relatched", INDEX, (
++        (NTFY, LC_TAKE, "                  //! round pended here will, and skip the taker\n"),),
++        ("LC4:",)),
++    Mutant("lock_take_relatch_keeps_exclusion", INDEX, (
++        (NTFY, LC_TAKE, LC_TAKE.replace("                    em_excl_r   <= rgy_eid_i;\n"
++                                        "                    em_excl_v_r <= 1'b1;\n", "")),),
++        ("LC5:",)),
++    Mutant("lock_release_round_not_relatched", INDEX, (
++        (NTFY, LC_RELEASE, "                  //! skipping its requester\n"),),
++        ("LC6:",)),
++    Mutant("lock_op_ignores_due_expiry", INDEX, (
++        (NTFY, "  assign lk_on_w      = lk_held_r && !lk_exp_now_w;\n",
++         "  assign lk_on_w      = lk_held_r;\n"),),
++        ("LC7:",)),
++)
++
+ # The command queue's occupancy flop, written beside every count update and read
+ # by amap_busy_o and the emission pick (issue #181; REQ-NOT-001, REQ-NOT-002),
+ # graded by tb/aecp_notify sections OC and CQ
+@@ -671,7 +830,7 @@ OCCUPANCY = (
+ 
+ MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+            + DEREG_MID_ROUND + DOMAIN_NOTIFY + WITHDRAW_STAGE + INTERFACE_ROWS + INTERFACE_DEPTH_PROBES
+-           + SAME_CYCLE_CANCEL + DEFERRED_FAILURE + OCCUPANCY)
++           + SAME_CYCLE_CANCEL + DEFERRED_FAILURE + OCCUPANCY + LOCK_FLAGS + LOCK_CAUSE)
+ TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+                    r" \d+ checks, \d+ failures"
+                    r"|\[build \w+\] \d+ checks, \d+ failures"
+diff --git a/tb/pp_top/notify_phases.hpp b/tb/pp_top/notify_phases.hpp
+index dc648f5..9c7ac6c 100644
+--- a/tb/pp_top/notify_phases.hpp
++++ b/tb/pp_top/notify_phases.hpp
+@@ -1600,7 +1600,7 @@ struct RndPhase : NotifyBench {
+       e.status = AECP_SUCCESS;
+       if (m.holder == int(c)) {
+         m.holder = -1;
+-        e.uns = pushes_of(int(c), 0x0001, lock_body(0, 0));
++        e.uns = pushes_of(int(c), 0x0001, lock_body(1, 0));   // the UNLOCK's flags
+       }
+     }
+     e.rsp = lock_body(unlock ? 1 : 0, m.holder >= 0 ? eid(unsigned(m.holder)) : 0);
+@@ -1652,7 +1652,7 @@ struct RndPhase : NotifyBench {
+     }
+     Expect e;
+     const size_t from = seen.size();
+-    e.uns = pushes_of(-1, 0x0001, lock_body(0, 0));   // Milan Table 5.22
++    e.uns = pushes_of(-1, 0x0001, lock_body(1, 0));   // Milan Table 5.22: UNLOCK
+     m.holder = -1;
+     ++n_expired;
+     run_ms(600);
+@@ -2391,7 +2391,7 @@ struct TimerDefaultsPhase : NotifyBench {
+     std::vector<uint8_t> want;
+     if (u >= 0) {
+       want = LockPhase::lockresp(C2_MAC, CTLR2_EID, uint16_t(seq_of(seen[u].f)),
+-                                 AECP_SUCCESS, 0, 0);
++                                 AECP_SUCCESS, 1, 0);   // flags UNLOCK
+       want[36] |= 0x80;                                // u = 1
+     }
+     const long lock_got = u >= 0 ? long(got - lock_ms) : -1L;
+@@ -2400,8 +2400,8 @@ struct TimerDefaultsPhase : NotifyBench {
+               && seen[u].f == want && got - lock_ms >= LOCK_MS
+               && got - lock_ms <= LOCK_MS + SLACK_MS,
+           "TD1: T-LOCK-UNLOCK at its default: the LOCK_ENTITY answers SUCCESS "
+-          "and its auto-unlock notification (LOCK_ENTITY, u = 1, locked_id 0) "
+-          "reaches the registered controller %u to %u ms after the command "
++          "and its auto-unlock notification (LOCK_ENTITY, u = 1, flags UNLOCK, "
++          "locked_id 0) reaches the registered controller %u to %u ms after the command "
+           "(got %ld ms)", LOCK_MS, LOCK_MS + SLACK_MS, lock_got);
+     const long d = until_pushed(0x0025, reg_ms + TL_MS + SLACK_MS + 1, &got,
+                                 [](const std::vector<uint8_t>&) { return true; });
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 0f6d5be..53ecb03 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -5234,11 +5234,15 @@ struct LockPhase {
+     CHECK(!f.empty() && f == want,
+           "L5: UNLOCK SUCCESS, locked_id 0");
+     if (!f.empty() && f != want) { dump("got", f); dump("exp", want); }
++    //! ...the notification is the unsolicited response to the UNLOCK, so it
++    //! carries its flags, UNLOCK, as the response does (IEEE 7.5.2, 7.4.2.1;
++    //! issue #186)
+     auto uns = h.wait_any(h.q_aecp, 400);
+-    auto wantu = lockresp(C2_MAC, CTLR2_EID, 0x0001, 0, 0, 0);
++    auto wantu = lockresp(C2_MAC, CTLR2_EID, 0x0001, 0, 1, 0);
+     wantu[36] |= 0x80;
+     CHECK(!uns.empty() && uns == wantu,
+-          "L5b: C2's second notification carries sequence_id 1 (Milan 5.4.5.1)");
++          "L5b: C2's second notification carries sequence_id 1 (Milan 5.4.5.1) "
++          "and the UNLOCK's flags 1");
+     if (!uns.empty() && uns != wantu) { dump("got", uns); dump("exp", wantu); }
+     //! the already-unlocked query: SUCCESS, no change, no notification
+     h.q_aecp.clear();
+@@ -5278,11 +5282,12 @@ struct LockPhase {
+           "L6c: still locked past the original deadline (re-armed)");
+     h.q_aecp.clear();
+     auto uns = h.wait_any(h.q_aecp, 700);   // the refreshed deadline fires
+-    auto wantu = lockresp(C2_MAC, CTLR2_EID, 0x0003, 0, 0, 0);
++    auto wantu = lockresp(C2_MAC, CTLR2_EID, 0x0003, 0, 1, 0);   // UNLOCK
+     wantu[36] |= 0x80;
+     REQ_TAG("REQ-AEM-003", "TIM", "L6d: 60 s auto-unlock notifies");
+     CHECK(!uns.empty() && uns == wantu,
+-          "L6d: 60 s auto-unlock notifies (Milan Table 5.22), locked_id 0, seq 3");
++          "L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK, locked_id 0, "
++          "seq 3");
+     if (!uns.empty() && uns != wantu) { dump("got", uns); dump("exp", wantu); }
+   }
+ 
+@@ -11879,6 +11884,15 @@ struct AecpResponsePhase {
+   uint16_t seq = 0x7C00;
+   static constexpr uint64_t C2_MAC = 0x0202C2C2C2C2ull;
+   static constexpr uint16_t CD_IMAGE_INDEX = 2;
++  //! the IDENTIFY CONTROL's current[0] (IEEE 1722.1-2021 7.2.22, Table 7-122:
++  //! value_details @104, current[0] at 4V with V = 1), and the value the image
++  //! carries there for this section: neither IDENTIFY state (7.3.5.2), so a
++  //! READ_DESCRIPTOR names the source of the byte it serves. The shared
++  //! fixture's control_value_type becomes CONTROL_LINEAR_UINT8 (7.3.5.2) and
++  //! the lane's seven other bytes 0xA0 to 0xA7, so each lands where its offset
++  //! says. The fixture is 112 bytes, so the overlay's TAIL is empty here
++  static constexpr size_t CT_CUR = 108;
++  static constexpr uint8_t CT_IMAGE_CUR = 0x5A;
+ 
+   explicit AecpResponsePhase(H& tally) : h(tally), io(model.get()) {}
+ 
+@@ -11974,8 +11988,15 @@ struct AecpResponsePhase {
+         {CFG1, 0x0017, 1, 528, 0xFFFF, 528, 0},
+         {CFG1, 0x0024, 1, 534, 0xFFFF, 536, 0}};
+     image.load_descriptor_image(CFGIX, cfg1, cfg1_bodies);
+-    for (const auto& e : image.image_ents)
++    for (const auto& e : image.image_ents) {
+       if (e.cfg == CFGIX && e.type == 0x0024) putbe(&io.dram[e.off + 70], CD_IMAGE_INDEX, 2);
++      if (e.cfg == CFGIX && e.type == 0x001A) {
++        putbe(&io.dram[e.off + 80], 0x0001, 2);   // CONTROL_LINEAR_UINT8 (7.3.5.2)
++        for (size_t k = 0; k < 8; ++k)
++          io.dram[e.off + 104 + k] = uint8_t(0xA0 + k);
++        io.dram[e.off + CT_CUR] = CT_IMAGE_CUR;
++      }
++    }
+     ents = image.image_ents;
+     restart("AX boot: blank NVM releases the entity");
+   }
+@@ -12111,6 +12132,57 @@ struct AecpResponsePhase {
+               && io.d->dbg_identify_o == 255,
+           "LK3 ...and the IDENTIFY value is still 255, on GET and on the face");
+     sctrl_out_of_range_carries_255();
++    rd_control_after_set();
++  }
++
++  //! Issue #185 (REQ-AEM-006, REQ-AEM-014): after the accepted SET_CONTROL(255)
++  //! and the three SET_CONTROLs refused since, READ_DESCRIPTOR CONTROL 0
++  //! carries 255 at current[0], the value GET_CONTROL reads (IEEE 1722.1-2021
++  //! 7.2.22, 7.3.6.2). A CONTROL whose value is not one octet wide and linear
++  //! at 104 is served whole from its image, IDENTIFY 255 or not: values_offset
++  //! 106, then control_value_type CONTROL_LINEAR_INT16 (7.3.6.1), the first
++  //! type wider than one octet. CONTROL_LINEAR_INT8, the other one-octet
++  //! linear type, is overlaid. A one-octet linear CONTROL whose control_type
++  //! is not IDENTIFY (Table 7-98) carries its own current value, its image's:
++  //! a vendor type, then four types that each differ from IDENTIFY in one of
++  //! the four 16-bit words the program compares. The store fetches a
++  //! descriptor's bytes at every locate, so each poke takes effect at the
++  //! next command
++  void rd_control_after_set() {
++    CHECK(get_value(AEM_GET_CONTROL, 0x001A, 0, 1, false) == 255u,
++          "RDC1 GET_CONTROL reads 255 (premise)");
++    rd_ctrl("RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs");
++    const size_t at = ctrl_at();
++    const uint8_t v0 = io.dram[at + 94];
++    const uint8_t v1 = io.dram[at + 95];
++    putbe(&io.dram[at + 94], 106, 2);
++    rd_ctrl_image("RDC2 CONTROL 0 with values_offset 106, IDENTIFY 255: its image whole");
++    io.dram[at + 94] = v0;
++    io.dram[at + 95] = v1;
++    const uint8_t t0 = io.dram[at + 80];
++    const uint8_t t1 = io.dram[at + 81];
++    putbe(&io.dram[at + 80], 0x0002, 2);
++    rd_ctrl_image("RDC3 CONTROL 0 as a CONTROL_LINEAR_INT16, IDENTIFY 255: its image "
++                  "whole");
++    putbe(&io.dram[at + 80], 0x0000, 2);
++    rd_ctrl("RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid");
++    io.dram[at + 80] = t0;
++    io.dram[at + 81] = t1;
++    rd_ctrl("RDC3 ...and restored, CONTROL 0 carries 255 again");
++    const uint64_t identify = rd64(&io.dram[at + 82]);
++    CHECK(identify == 0x90E0F00000000001ull,
++          "RDC7 CONTROL 0's control_type is IDENTIFY, 90-E0-F0-00-00-00-00-01 (premise)");
++    for (const uint64_t type : {0x0011223344556677ull, 0x91E0F00000000001ull,
++                                0x90E0F10000000001ull, 0x90E0F00000010001ull,
++                                0x90E0F00000000002ull}) {
++      putbe(&io.dram[at + 82], type, 8);
++      char what[128];
++      snprintf(what, sizeof what, "RDC7 CONTROL 0 with control_type %016llx, not IDENTIFY, "
++               "IDENTIFY 255: its image whole", static_cast<unsigned long long>(type));
++      rd_ctrl_image(what);
++    }
++    putbe(&io.dram[at + 82], identify, 8);
++    rd_ctrl("RDC7 ...and IDENTIFY again, CONTROL 0 carries 255");
+   }
+ 
+   //! SET_CONTROL's out-of-range refusal shares the locked refusal's tail, so
+@@ -12169,6 +12241,7 @@ struct AecpResponsePhase {
+               && get_value(AEM_GET_CLOCK_SOURCE, 0x0024, 0, 2, false) == 2u
+               && get_value(AEM_GET_CONTROL, 0x001A, 0, 1, false) == 0u,
+           "LK6 ...and each GET reads what the holder stored");
++    rd_ctrl("RDC4 CONTROL 0 after the holder's SET_CONTROL(0), under its lock");
+     lock(false, "LK6");
+   }
+ 
+@@ -12411,6 +12484,23 @@ struct AecpResponsePhase {
+     const auto d = image_desc(CFGIX, ty, ix);
+     rd_agrees(ty, ix, 74, 8, d.size() >= 82 ? rd64(&d[74]) : 0, what);
+   }
++  //! the IDENTIFY CONTROL (issue #185): its image bytes with current[0]
++  //! carrying what GET_CONTROL reads, the dynamic store alone (Milan 5.3.12)
++  void rd_ctrl(const char* what) {
++    rd_agrees(0x001A, 0, CT_CUR, 1, get_value(AEM_GET_CONTROL, 0x001A, 0, 1, false),
++              what);
++  }
++  //! ...and a CONTROL the overlay must leave alone: its image bytes, whole
++  void rd_ctrl_image(const char* what) {
++    const auto d = image_desc(CFGIX, 0x001A, 0);
++    rd_agrees(0x001A, 0, CT_CUR, 1, d.size() > CT_CUR ? d[CT_CUR] : 0, what);
++  }
++  //! the DRAM offset of configuration 0's CONTROL 0
++  size_t ctrl_at() const {
++    for (const auto& e : ents)
++      if (e.cfg == CFGIX && e.type == 0x001A) return e.off;
++    return 0;
++  }
+ 
+   //! before any SET the image is the current value of the rate and the clock
+   //! source, and a STREAM's descriptor is its image
+@@ -12422,6 +12512,12 @@ struct AecpResponsePhase {
+     rd_clks("RD0 CLOCK_DOMAIN 0, clock source unset");
+     rd_image(0x0005, 0, "RD0 STREAM_INPUT 0, format unset");
+     rd_image(0x0006, 1, "RD0 STREAM_OUTPUT 1, format unset");
++    //! IDENTIFY has no image arm: its GET reads the store's reset 0, and so
++    //! does the descriptor, whatever the image's current[0] holds
++    CHECK(get_value(AEM_GET_CONTROL, 0x001A, 0, 1, false) == 0u,
++          "RDC0 IDENTIFY unset: GET_CONTROL reads Milan 5.3.12's reset 0 (premise)");
++    rd_ctrl("RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the "
++            "image's 0x5A");
+   }
+ 
+   //! after each SET the READ_DESCRIPTOR carries what the GET reads (the SETs'
+@@ -12455,6 +12551,9 @@ struct AecpResponsePhase {
+     rd_image(0x0006, 0, "RD1 STREAM_OUTPUT 0, never set, still its image");
+     ov_read(0x0024, 0, cfg1_bodies[3], false,
+             "RD2 configuration 1's CLOCK_DOMAIN 0 keeps its image bytes");
++    //! ...and IDENTIFY goes into the power cycle at 255
++    holder_set(AEM_SET_CONTROL, ctrl_body(0, 255), true, "RDC5 IDENTIFY 255");
++    rd_ctrl("RDC5 CONTROL 0 after SET_CONTROL(255), before the power cycle");
+   }
+ 
+   //! RD3 (R417-1 S2): a row the D3 restore wrote, not a SET. RD1's rows reach
+@@ -12483,6 +12582,13 @@ struct AecpResponsePhase {
+     rd_fmt(0x0005, 0, "RD3 STREAM_INPUT 0 after the restore, no SET since the reset");
+     rd_fmt(0x0006, 1, "RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset");
+     rd_image(0x0006, 0, "RD3 STREAM_OUTPUT 0, never set, still its image");
++    //! IDENTIFY is volatile (Milan 5.3.4, 5.3.12) and no restore writes it
++    CHECK(get_value(AEM_GET_CONTROL, 0x001A, 0, 1, false) == 0u
++              && io.d->dbg_identify_o == 0,
++          "RDC5 the power cycle clears IDENTIFY: GET_CONTROL and the face read 0 "
++          "(premise)");
++    rd_ctrl("RDC5 CONTROL 0 after the power cycle: the reset 0, neither the 255 set "
++            "before it nor the image's 0x5A");
+   }
+ 
+   //! RD4 (R416-1 S1): a configuration-0 STREAM too short for current_format's
+@@ -12495,12 +12601,20 @@ struct AecpResponsePhase {
+   //! (outside the header checksum) gives STREAM_OUTPUT 80 bytes, a power cycle
+   //! walks it again, and the holder sets STREAM_OUTPUT 1's format
+   static constexpr uint16_t SHORT_STREAM = 80;
++  //! In the same power cycle: CONTROL 0 at 111 bytes, ending inside
++  //! the lane current[0] lives in (104..111), is served whole from its image
++  static constexpr uint16_t SHORT_CONTROL = 111;
+   void rd_a_short_stream_keeps_its_image() {
+-    for (size_t i = 0; i < ents.size(); ++i)
++    for (size_t i = 0; i < ents.size(); ++i) {
+       if (ents[i].cfg == CFGIX && ents[i].type == 0x0006) {
+         ents[i].len = SHORT_STREAM;
+         putbe(&io.dram[32 + 16 * i + 6], SHORT_STREAM, 2);
+       }
++      if (ents[i].cfg == CFGIX && ents[i].type == 0x001A) {
++        ents[i].len = SHORT_CONTROL;
++        putbe(&io.dram[32 + 16 * i + 6], SHORT_CONTROL, 2);
++      }
++    }
+     restart("RD4 the power cycle over 80-byte STREAM_OUTPUTs releases the entity");
+     ++seq;
+     const auto set = ask(AEM_SET_STREAM_FORMAT, tiv(0x0006, 1, SFMT_ALT, 8));
+@@ -12519,6 +12633,79 @@ struct AecpResponsePhase {
+     CHECK(r == w, "RD4 STREAM_OUTPUT 1 of 80 bytes with a set row: READ_DESCRIPTOR "
+           "byte-exact, its image whole (cdl %d)", cdl(r));
+     if (!r.empty() && r != w && r.size() < 200) { dump("got", r); dump("exp", w); }
++    holder_set(AEM_SET_CONTROL, ctrl_body(0, 255), true, "RDC6 IDENTIFY 255");
++    CHECK(get_value(AEM_GET_CONTROL, 0x001A, 0, 1, false) == 255u
++              && image_desc(CFGIX, 0x001A, 0).size() == SHORT_CONTROL,
++          "RDC6 GET_CONTROL reads 255 and the image serves CONTROL 0 at %u bytes "
++          "(premise)", unsigned(SHORT_CONTROL));
++    rd_ctrl_image("RDC6 CONTROL 0 of 111 bytes, IDENTIFY 255: its image whole");
++  }
++
++  // ---- the LOCK_ENTITY notification's flags (issue #186) -----------------
++  //! IEEE 1722.1-2021 7.5.2 sends a notification "by using an unsolicited
++  //! response to the command", and 7.4.2.1's response carries the command's
++  //! flags, so the notification a second controller's LOCK or UNLOCK causes at
++  //! the registered bench echoes that command's whole flags word, as the
++  //! response does; Milan Table 5.22's auto-unlock, an unlock, carries
++  //! UNLOCK (Table 7-143). The words set reserved bits (bits 0 to 30) in both
++  //! halves, which the engine echoes and which leave the operation to the
++  //! UNLOCK bit, so the whole word is told from the UNLOCK bit alone, and the
++  //! auto-unlock follows a LOCK whose word is not 0. The wrap's 400 ms
++  //! LOCK_TIMEOUT_MS_P is the window. The power cycle above cleared the
++  //! registry, so the bench registers again
++  static constexpr uint32_t LN_LOCK_FLAGS = 0x00010000u;     // a LOCK
++  static constexpr uint32_t LN_UNLOCK_FLAGS = 0x80020001u;   // an UNLOCK
++  static constexpr uint32_t LN_AUTO_FLAGS = 0x00000001u;     // the auto-unlock: UNLOCK
++  static std::vector<uint8_t> lock_body(uint32_t flags, uint64_t locked_id) {
++    std::vector<uint8_t> b(16, 0);                 // ...and ENTITY[0] @36
++    putbe(&b[0], flags, 4);
++    putbe(&b[4], locked_id, 8);
++    return b;
++  }
++  //! the second controller's LOCK_ENTITY with `flags`, answered SUCCESS with
++  //! them echoed and `locked_id` after the operation, byte-exact
++  void ln_command(uint32_t flags, uint64_t locked_id, const char* what) {
++    ++seq;
++    const auto r = ask2(0x0001, lock_body(flags, 0));
++    const auto w = want(C2_MAC, CTLR2_EID, AECP_SUCCESS, 0x0001,
++                        lock_body(flags, locked_id));
++    CHECK(r == w, "%s: SUCCESS echoing flags 0x%08x, byte-exact (status %d)", what,
++          flags, st(r));
++    if (!r.empty() && r != w) { dump("got", r); dump("exp", w); }
++  }
++  //! the next unsolicited LOCK_ENTITY at the bench, byte-exact but for its
++  //! sequence_id, which the bench's entry also spends on other notifications
++  void ln_notified(uint32_t flags, uint64_t locked_id, int timeout_ms,
++                   const char* what) {
++    const auto u = io.wait_frame(io.q_aecp, timeout_ms, [](const std::vector<uint8_t>& f) {
++      return f.size() > 37 && (rd64(&f[0]) >> 16) == CTLR_MAC && (f[36] & 0x80) != 0
++             && (((f[36] & 0x7F) << 8) | f[37]) == 0x0001;
++    });
++    CHECK(!u.empty(), "%s: the registered bench is notified", what);
++    if (u.empty()) return;
++    auto w = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
++                        uint16_t((u[34] << 8) | u[35]), 0x0001,
++                        lock_body(flags, locked_id));
++    w[36] |= 0x80;
++    CHECK(u == w, "%s: flags 0x%08x, locked_id 0x%016llx, byte-exact", what, flags,
++          static_cast<unsigned long long>(locked_id));
++    if (u != w) { dump("got", u); dump("exp", w); }
++  }
++  void ln_lock_notification_flags() {
++    ++seq;
++    const auto r = ask(0x0024, std::vector<uint8_t>(4, 0));
++    CHECK(st(r) == AECP_SUCCESS, "LN0: the bench registers for unsolicited "
++          "notifications again, got %d", st(r));
++    ln_command(LN_LOCK_FLAGS, CTLR2_EID, "LN1 a second controller's LOCK");
++    ln_notified(LN_LOCK_FLAGS, CTLR2_EID, 120,
++                "LN1 ...its notification echoes the LOCK's flags");
++    ln_notified(LN_AUTO_FLAGS, 0, 700, "LN2 the auto-unlock after that LOCK (Milan "
++                "Table 5.22) carries UNLOCK");
++    ln_command(0, CTLR2_EID, "LN3 the second controller's LOCK with flags 0");
++    ln_notified(0, CTLR2_EID, 120, "LN3 ...its notification carries flags 0");
++    ln_command(LN_UNLOCK_FLAGS, 0, "LN4 its UNLOCK");
++    ln_notified(LN_UNLOCK_FLAGS, 0, 120,
++                "LN4 ...its notification echoes the UNLOCK's flags");
+   }
+ 
+   // ---- RB: every response write inside the reservation (R417-1 F1) ------
+@@ -12551,6 +12738,7 @@ struct AecpResponsePhase {
+     rd_after_each_set();
+     rd_after_the_restore();
+     rd_a_short_stream_keeps_its_image();
++    ln_lock_notification_flags();
+     rb_writes_stay_in_the_reservation();
+   }
+ };
+diff --git a/tb/ucpu/README.md b/tb/ucpu/README.md
+index 7f52ee5..693c3bd 100644
+--- a/tb/ucpu/README.md
++++ b/tb/ucpu/README.md
+@@ -3,7 +3,7 @@
+ 
+ Proves the µCPU skeleton (`hdl/aecp/KL_aecp_ucpu.sv`) actually executes the
+ [06 §8](../../docs/architecture/06_aecp_engine.md) µISA before anyone quotes its
+-area: `make` = build + run, exit 0 = PASS, 427 checks (2026-10-01).
++area: `make` = build + run, exit 0 = PASS, 447 checks (2026-10-19).
+ 
+ The C++ harness is an independent model, never DUT logic: it implements the
+ state port (2-cycle read latency, locate mapping, forced miss), the gather port
+@@ -67,6 +67,21 @@ duplicated or lost changes it); a REFUSED write must be re-presented
+ byte-for-byte identically while it is held; and the zero-stall run must be
+ held zero cycles, so the invariance is not vacuous.
+ 
++Covered by RC — **READ_DESCRIPTOR's CONTROL overlay** (`E_RDESCCT`, issue #185). On a
++conformant 113-byte IDENTIFY CONTROL (IEEE 1722.1-2021 §7.2.22: 104 + one 9-byte
++CONTROL_LINEAR_UINT8 entry, §7.3.5.2; `control_type` IDENTIFY, Table 7-98) with every
++other byte distinct, the image's `current[0]`
++0x5A and the store's IDENTIFY row 255, RC1 checks the whole response: `current[0]` @108
++is the row's 255, the lane's other seven bytes are the image's, and string[0]'s second
++byte @112 rides the one-byte TAIL. RC2 moves `values_offset` to 106 and gets the image
++whole, and RC3 gets it whole for a `control_type` that differs from IDENTIFY in its last
++octet @89 (`E_RDESCID`'s test). tb/pp_top section AX grades the same program on the wire
++(RDC0 to RDC7).
++
++Covered by L3 and L3b — **the LOCK_ENTITY notification's flags** (`E_LOCKUNS`, issue
++#186): the job's r14[31:0] is echoed at @24 whole (0x80010001, reserved bits in both
++halves), and the auto-unlock's job, r14 1, carries flags UNLOCK and locked_id 0.
++
+ Covered by P20 — **the deadline preempt** (03 §6 rule (e), issue #81). The
+ harness raises `preempt_i` on an observed trigger and holds it, as the engine's
+ level is held: from the dispatch (P20a, P20b), once the first state write was
+diff --git a/tb/ucpu/sim_main.cpp b/tb/ucpu/sim_main.cpp
+index 213f980..f7026b5 100644
+--- a/tb/ucpu/sim_main.cpp
++++ b/tb/ucpu/sim_main.cpp
+@@ -43,6 +43,7 @@ constexpr uint16_t E_FMT = 512;
+ constexpr uint16_t E_NOTIMPL = 560;
+ constexpr uint16_t E_ACQ = 576;
+ constexpr uint16_t E_STPRE = 592;
++constexpr uint16_t E_RDESCCT = 600;   // gen_ucode.py: READ_DESCRIPTOR's CONTROL overlay
+ constexpr uint16_t E_MVUINFO = 736;
+ constexpr uint16_t E_GCTRS = 768;
+ constexpr uint16_t E_GAMAP = 800;
+@@ -201,6 +202,24 @@ struct Harness {
+   uint64_t rgy_result = 0;
+   uint64_t rgy_holder = 0;   // sel 0xA1: the lock holder's eid (0 = free)
+ 
++  // READ_DESCRIPTOR's CONTROL overlay (E_RDESCCT, issue #185): the located
++  // CONTROL's bytes, served lane by lane in wire order, its length, one
++  // configuration, and the dynamic store's IDENTIFY row
++  std::vector<uint8_t> rc_desc;
++  uint8_t rc_ident = 0;
++  uint64_t rc_read(uint32_t a) const {
++    const uint32_t region = a & 0xF0000u;
++    uint32_t off = a & 0xFFFFu;
++    if (off >= 0x500u) off -= 0x500u;              // after the locate's base
++    if (region == 0xD0000u) return 1;              // configurations_count
++    if (region == 0xE0000u) return rc_desc.size(); // the located length
++    if (region == 0x10000u && off == 0x38u) return rc_ident;   // SEL_IDENT
++    uint64_t lane = 0;
++    for (uint32_t k = 0; k < 8; ++k)
++      lane = (lane << 8) | (off + k < rc_desc.size() ? rc_desc[off + k] : 0);
++    return lane;
++  }
++
+   // the SET_STREAM_FORMAT faces: the integrator's verdict on the proposed
+   // format (sel 0xBF: bit 0 supported, bit 1 mappings survive) and the
+   // CURRENT format the refusal arms serve through GET_STREAM_FORMAT's own
+@@ -266,6 +285,7 @@ struct Harness {
+     // the key itself, exactly as the real store decides.
+     if ((a & 0xF0000u) == 0xF0000u)
+       { *err = (((wdata >> 32) & 0xFFFFu) == 0x0BADu); return 0x500; }
++    if (cur_upc == E_RDESCCT) return rc_read(a);
+     // RGN_NADDR translates the semantic name index after a successful
+     // locate. ENTITY exposes indices 0 and 1; every other named descriptor
+     // exposes only index 0. The returned address is a byte address.
+@@ -529,6 +549,7 @@ class UcpuSuite {
+   void get_name_serves_the_stored_lanes();
+   void set_name_writes_only_changed_lanes();
+   void copy_buffer_moves_descriptor_bytes_into_the_response();
++  void read_descriptor_overlays_the_identify_control();
+   void map_validate_passes_and_fails();
+   void the_524_byte_cap_skips_on_overflow();
+   void the_d8_append_fills_the_buffer_but_not_a_batch();
+@@ -827,6 +848,69 @@ void UcpuSuite::copy_buffer_moves_descriptor_bytes_into_the_response() {
+   CHECK(h.last_len == 20, "P9b len 20 (48 - 40 bytes) got %u", h.last_len);
+ }
+ 
++// ---- READ_DESCRIPTOR's CONTROL overlay (issue #185; REQ-AEM-006, REQ-AEM-014)
++// E_RDESCCT on a conformant IDENTIFY CONTROL of 113 bytes (IEEE 1722.1-2021
++// 7.2.22: 104 and one 9-byte CONTROL_LINEAR_UINT8 entry, 7.3.5.2; control_type
++// IDENTIFY, Table 7-98), every other byte of it distinct: the image's current[0]
++// @108 is 0x5A and the store's IDENTIFY row 255. The response is
++// configuration_index 0, reserved, then the descriptor with current[0] the
++// row's 255 and string[0]'s second byte @112 carried by a one-byte TAIL.
++// Response bytes 16 + k are descriptor byte k: a copied word holds four of them
++// big-endian, and a field built by BUILD_FLD is held as the µCPU writes it, its
++// value's low byte first, which KL_aecp_resp_buf lays big-endian on the wire
++// (wire order is checked at the processor boundary).
++void UcpuSuite::read_descriptor_overlays_the_identify_control() {
++  std::vector<uint8_t> d(113);
++  for (size_t k = 0; k < d.size(); ++k) d[k] = uint8_t(0x11 + 7 * k);
++  d[0] = 0x00; d[1] = 0x1A;                        // CONTROL
++  d[2] = 0x00; d[3] = 0x00;                        // index 0
++  d[80] = 0x00; d[81] = 0x01;                      // CONTROL_LINEAR_UINT8
++  for (size_t k = 0; k < 8; ++k)                   // control_type IDENTIFY
++    d[82 + k] = uint8_t(0x90E0F00000000001ull >> (56 - 8 * k));  // (Table 7-98)
++  d[94] = 0x00; d[95] = 104;                       // values_offset
++  d[108] = 0x5A;                                   // the image's current[0]
++  const uint64_t KEY = 0x00000000001A0000ull;      // {index 0, CONTROL, cfg 0}
++  //! configuration 0 and reserved, the copied words below `upto`, and the
++  //! TAIL's byte @112
++  auto copied = [&](const std::vector<uint8_t>& w, size_t upto) {
++    bool ok = h.w32(12) == 0;
++    for (size_t k = 0; k < upto; k += 4)
++      ok = ok && h.w32(uint32_t(16 + k))
++                     == (uint32_t(w[k]) << 24 | uint32_t(w[k + 1]) << 16
++                         | uint32_t(w[k + 2]) << 8 | w[k + 3]);
++    return ok && ((h.w32(16 + 112) >> 24) & 0xFFu) == w[112];
++  };
++  h.rc_desc = d;
++  h.rc_ident = 255;
++  CHECK(h.run(E_RDESCCT, KEY, false), "RC1 completes");
++  std::vector<uint8_t> w = d;
++  w[108] = 255;
++  CHECK(h.last_status == ST_OK && h.last_len == 16 + 113,
++        "RC1 SUCCESS, the whole descriptor (st %u len %u)", h.last_status,
++        h.last_len);
++  CHECK(copied(w, 108) && h.buf[124] == 255 && h.buf[125] == d[109]
++            && h.buf[126] == d[111] && h.buf[127] == d[110],
++        "RC1 the IDENTIFY CONTROL with current[0] the row's 255, every other byte "
++        "the image's, byte @112 by the TAIL (@124 %08x @128 %08x)", h.w32(124),
++        h.w32(128));
++  //! ...and value_details anywhere but 104 is served whole from the image
++  h.rc_desc[95] = 106;
++  CHECK(h.run(E_RDESCCT, KEY, false), "RC2 completes");
++  CHECK(h.last_status == ST_OK && h.last_len == 16 + 113 && copied(h.rc_desc, 112),
++        "RC2 values_offset 106: the image whole, current[0] the image's 0x5A "
++        "(st %u len %u @124 %08x)", h.last_status, h.last_len, h.w32(124));
++  //! ...and so is a one-octet linear CONTROL whose control_type is not
++  //! IDENTIFY (IEEE 1722.1-2021 7.2.22, 7.3.6.2: its own current value), here
++  //! one that differs from IDENTIFY in its last octet @89 alone
++  h.rc_desc = d;
++  h.rc_desc[89] = 0x02;
++  CHECK(h.run(E_RDESCCT, KEY, false), "RC3 completes");
++  CHECK(h.last_status == ST_OK && h.last_len == 16 + 113 && copied(h.rc_desc, 112),
++        "RC3 control_type 90-E0-F0-00-00-00-00-02, not IDENTIFY: the image whole, "
++        "current[0] the image's 0x5A (st %u len %u @124 %08x)", h.last_status, h.last_len,
++        h.w32(124));
++}
++
+ // ---- P10: MAP_VALIDATE pass and fail --------------------------------
+ void UcpuSuite::map_validate_passes_and_fails() {
+   CHECK(h.run(E_MAPV, 0, false), "P10 completes");
+@@ -1266,14 +1350,28 @@ void UcpuSuite::lock_entity_and_the_not_supported_echo() {
+   CHECK(h.w32(16) == 0x99998888u && h.w32(20) == 0x77776666u,
+         "L2 the denial names the holder");
+ 
++  //! the notification echoes the flags of the command that caused it (issue
++  //! #186, IEEE 7.5.2 and 7.4.2.1), the job's r14[31:0]; reserved bits set on
++  //! both halves tell the whole word from the UNLOCK bit alone
+   h.rgy_holder = 0xAAAABBBBCCCCDDDDull;
+-  CHECK(h.run(E_LOCKUNS, 0, false), "L3 unsolicited LOCK completes");
++  CHECK(h.run(E_LOCKUNS, 0x0000000080010001ull, false),
++        "L3 unsolicited LOCK completes");
+   CHECK(h.last_status == ST_OK && h.last_len == 28,
+         "L3 SUCCESS, full 16-byte body (st %u len %u)",
+         h.last_status, h.last_len);
+-  CHECK(h.w32(12) == 0, "L3 flags 0");
++  CHECK(h.w32(12) == 0x80010001u,
++        "L3 the causing command's flags echoed at @24, got %08x", h.w32(12));
+   CHECK(h.w32(16) == 0xAAAABBBBu && h.w32(20) == 0xCCCCDDDDu,
+         "L3 locked_id = the current holder");
++  CHECK(h.w32(24) == 0, "L3 ENTITY[0]");
++  //! ...and the auto-unlock's job carries UNLOCK (Milan Table 5.22 leaves
++  //! the flags to IEEE, whose unlock response carries UNLOCK, Table 7-143)
++  h.rgy_holder = 0;
++  CHECK(h.run(E_LOCKUNS, 0x0000000000000001ull, false),
++        "L3b auto-unlock notification completes");
++  CHECK(h.w32(12) == 1 && h.w32(16) == 0 && h.w32(20) == 0,
++        "L3b flags UNLOCK, locked_id 0 (%08x %08x %08x)", h.w32(12), h.w32(16),
++        h.w32(20));
+ 
+   CHECK(h.run(E_NSUPPE, 0, false), "L4 NOT_SUPPORTED echo completes");
+   CHECK(h.last_status == ST_NSUPP && h.last_len == 12 && h.sends == 1,
+@@ -1698,6 +1796,7 @@ int UcpuSuite::run() {
+   get_name_serves_the_stored_lanes();
+   set_name_writes_only_changed_lanes();
+   copy_buffer_moves_descriptor_bytes_into_the_response();
++  read_descriptor_overlays_the_identify_control();
+   map_validate_passes_and_fails();
+   the_524_byte_cap_skips_on_overflow();
+   the_d8_append_fills_the_buffer_but_not_a_batch();

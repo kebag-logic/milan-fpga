@@ -1,0 +1,265 @@
+[
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "lock_expiry_at_holder_read",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC1: X's LOCK with flags 0x00000000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC2: the lock expires after the engine loads C's job and before it reads the holder: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again",
+   "LC3: the lock expires in the cycle the holder read is taken: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_expiry_pending_dropped",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC2:",
+   "LC3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC1: X's LOCK with flags 0x00000000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC2: the lock expires after the engine loads C's job and before it reads the holder: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again",
+   "LC3: the lock expires in the cycle the holder read is taken: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again",
+   "LC7: the lock expires while C's job is presented, then X's LOCK (flags 0x00040000) takes it anew: C and D each receive that LOCK with holder X"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_claim_beside_expiry",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC1: X's LOCK with flags 0x00000000 expires on its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires on its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_expiry_in_presented_job",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC1: X's LOCK with flags 0x00000000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC2: the lock expires after the engine loads C's job and before it reads the holder: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_expiry_round_not_relatched",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC1: X's LOCK with flags 0x00000000 expires 1 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00000000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires 1 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC2: the lock expires after the engine loads C's job and before it reads the holder: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again",
+   "LC3: the lock expires in the cycle the holder read is taken: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_take_relatch_keeps_exclusion",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC5:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC5: ...with Y registered after C, the rest of that round skips Y, the requester of the LOCK its jobs now carry, and so does the next round"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_take_round_not_relatched",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC4: Y locks (flags 0x00030000) while X's UNLOCK round waits on C: no job carries UNLOCK once Y holds the lock; C and D each receive Y's LOCK with holder Y",
+   "LC5: ...with Y registered after C, the rest of that round skips Y, the requester of the LOCK its jobs now carry, and so does the next round",
+   "LC7: the lock expires while C's job is presented, then X's LOCK (flags 0x00040000) takes it anew: C and D each receive that LOCK with holder X"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_expiry_relatch_keeps_exclusion",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC1: X's LOCK with flags 0x00000000 expires 1 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00000000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires 1 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC2: the lock expires after the engine loads C's job and before it reads the holder: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again",
+   "LC3: the lock expires in the cycle the holder read is taken: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_release_round_not_relatched",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC6:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC6: X unlocks (flags 0x80020001) while its LOCK round waits on C: C and D each receive the UNLOCK with locked_id 0, never the LOCK's flags without a holder"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_coalesced_timeout_keeps_flags",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)",
+   "LC1: X's LOCK with flags 0x00000000 expires 1 clock(s) before its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00000000 expires on its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires 1 clock(s) before its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires on its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_coalesced_timeout_flags_zero",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)",
+   "LC1: X's LOCK with flags 0x00000000 expires 1 clock(s) before its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00000000 expires on its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires 1 clock(s) before its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC1: X's LOCK with flags 0x00010000 expires on its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_op_ignores_due_expiry",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LC7:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LC7: the lock expires while C's job is presented, then X's LOCK (flags 0x00040000) takes it anew: C and D each receive that LOCK with holder X"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_take_keeps_old_flags",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF1:",
+   "LF3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF1: X's LOCK with flags 0x00010000 notifies C with those flags (job args 0001/0000)",
+   "LF3a: X's LOCK with flags 0 notifies C with flags 0 (job args 0000/0000)",
+   "LF3: X's LOCK with flags 0x00020000 after a timeout whose round is pending: the coalesced notification carries the LOCK's flags (job args 0002/0000)",
+   "LC0: X's LOCK with flags 0x00010000, undisturbed: its round is claimed 1 cycles after the op and notifies C alone with those flags and holder X",
+   "LC1: X's LOCK with flags 0x00010000 expires 2 clock(s) after its round's claim: each frame one cause, @24..@35 byte-exact, and the automatic unlock (UNLOCK, locked_id 0) reaches C and the former owner X",
+   "LC2: the lock expires after the engine loads C's job and before it reads the holder: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again",
+   "LC3: the lock expires in the cycle the holder read is taken: C's frame is the LOCK's (0x00010000, holder X), then the automatic unlock reaches X, and both again",
+   "LC4: Y locks (flags 0x00030000) while X's UNLOCK round waits on C: no job carries UNLOCK once Y holds the lock; C and D each receive Y's LOCK with holder Y",
+   "LC5: ...with Y registered after C, the rest of that round skips Y, the requester of the LOCK its jobs now carry, and so does the next round",
+   "LC7: the lock expires while C's job is presented, then X's LOCK (flags 0x00040000) takes it anew: C and D each receive that LOCK with holder X"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_release_keeps_old_flags",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "LF1b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "LF1b: X's UNLOCK with flags 0x80020001 notifies C with those flags (job args 8002/0001)",
+   "LC6: X unlocks (flags 0x80020001) while its LOCK round waits on C: C and D each receive the UNLOCK with locked_id 0, never the LOCK's flags without a holder"
+  ],
+  "verdict": "KILLED"
+ }
+]

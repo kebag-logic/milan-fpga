@@ -1,0 +1,357 @@
+{
+  "observed_at": "2026-10-19T17:27:58.714435+00:00",
+  "runs": [
+    {
+      "id": 39293425859,
+      "head_sha": "4865184c9ba88dd85aba3fc8036a6b74bcdb7073",
+      "status": "in_progress",
+      "conclusion": null,
+      "event": "pull_request",
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/39293425859",
+      "jobs": [
+        {
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install yosys + sv2v",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Elaborate every top off-vendor",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Grade elaboration guards with the installed sv2v and yosys",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install the WaveDrom renderer and the Mermaid CLI",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, AECP command model, IDs, figures, staleness)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build Verilator v5.050",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Lint (zero tolerance) + every suite",
+              "status": "in_progress",
+              "conclusion": null
+            },
+            {
+              "name": "Every REQ tag ran, in a suite that passed",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "SRP LeaveAll mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "MAAP mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "ADP mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP deadline and hazard-class mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP dispatch mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP command decode standing controls",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Traceability matrix no-drift + untested budget 0",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "nvm_port README figures agree with the tree",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39293418946,
+      "head_sha": "4865184c9ba88dd85aba3fc8036a6b74bcdb7073",
+      "status": "in_progress",
+      "conclusion": null,
+      "event": "push",
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/39293418946",
+      "jobs": [
+        {
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install yosys + sv2v",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Elaborate every top off-vendor",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Grade elaboration guards with the installed sv2v and yosys",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install the WaveDrom renderer and the Mermaid CLI",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, AECP command model, IDs, figures, staleness)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build Verilator v5.050",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Lint (zero tolerance) + every suite",
+              "status": "in_progress",
+              "conclusion": null
+            },
+            {
+              "name": "Every REQ tag ran, in a suite that passed",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "SRP LeaveAll mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "MAAP mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "ADP mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP deadline and hazard-class mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP dispatch mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP command decode standing controls",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Traceability matrix no-drift + untested budget 0",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "nvm_port README figures agree with the tree",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
