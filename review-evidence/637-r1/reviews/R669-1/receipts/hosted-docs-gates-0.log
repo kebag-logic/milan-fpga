@@ -1,0 +1,43 @@
+docs-gates-0	Port contract gate	﻿2026-10-19T12:55:22.8626719Z ##[group]Run python3 scripts/check_port_contracts.py
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8627464Z ^[[36;1mpython3 scripts/check_port_contracts.py^[[0m
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8628123Z ^[[36;1mpython3 scripts/check_port_contracts.py --selftest^[[0m
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8698479Z shell: /usr/bin/bash -e {0}
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8698802Z env:
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8699195Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8699648Z   CI_BUILD_JOBS: 4
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8699881Z   CI_TOOL_BUILD_JOBS: 4
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8700126Z   CI_CAMPAIGN_JOBS: 4
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8700362Z   VERILATOR_JOBS: 4
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8700595Z   SIM_JOBS: 4
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8700842Z   MAKEFLAGS: -j1 --no-print-directory
+docs-gates-0	Port contract gate	2026-10-19T12:55:22.8701146Z ##[endgroup]
+docs-gates-0	Port contract gate	2026-10-19T12:55:26.4009244Z UNJUSTIFIED CONNECTION: hdl/milan/milan_datapath.sv:pp_shadow.mrec_offset_i is open or literal-bound with no rationale comment on its line or directly above its run, and is not in the budget.
+docs-gates-0	Port contract gate	2026-10-19T12:55:26.4141853Z ##[error]Process completed with exit code 1.
+docs-check	Require every gate exactly once	﻿2026-10-19T12:57:10.4460575Z ##[group]Run python3 scripts/ci_gate_receipts.py verify --workflow docs --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4461773Z ^[[36;1mpython3 scripts/ci_gate_receipts.py verify --workflow docs --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"^[[0m
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4524660Z shell: /usr/bin/bash -e {0}
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4524947Z env:
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4525331Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4525799Z   CI_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4526046Z   CI_TOOL_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4526305Z   CI_CAMPAIGN_JOBS: 4
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4526552Z   VERILATOR_JOBS: 4
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4526793Z   SIM_JOBS: 4
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4527050Z   MAKEFLAGS: -j1 --no-print-directory
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4527876Z   CI_GATE_NEEDS: {
+docs-check	Require every gate exactly once	  "docs-gates-0": {
+docs-check	Require every gate exactly once	    "result": "failure",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-1": {
+docs-check	Require every gate exactly once	    "result": "success",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-2": {
+docs-check	Require every gate exactly once	    "result": "success",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  }
+docs-check	Require every gate exactly once	}
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.4529002Z ##[endgroup]
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.6682259Z gate evidence refused: docs-gates-0: dependent job failed, cancelled or skipped
+docs-check	Require every gate exactly once	2026-10-19T12:57:10.6809058Z ##[error]Process completed with exit code 1.
