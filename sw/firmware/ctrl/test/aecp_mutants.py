@@ -355,6 +355,20 @@ DEFECTS = (
            'len > m->capacity * 8u) return 0;',
            ('Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch',
             'owner.port.latch')),
+    # #763: an emptied list read back as the reset set, by the owner or by the store
+    defect('nvm-empty-map-keeps-defaults', 'aecp_nvm.c',
+           '\t\tunsigned status = aecp_map_restore(n->core, m, n->scratch, count);',
+           '\t\tif (count == 0) return NVM_APPLIED;\n'
+           '\t\tunsigned status = aecp_map_restore(n->core, m, n->scratch, count);',
+           ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
+            'the empty list survives the power cycle'),
+           ('Nvm.WholeMapFramingAndEmptySetAreDistinct',
+            'all UNUSED is an intentional empty set')),
+    defect('nvm-unused-payload-reads-erased', '../ctrl_nvm/nvm_store.c',
+           '\tif (nvm_all_erased(rec, NVM_REC_HDR)) {',
+           '\tif (nvm_all_erased(rec, NVM_REC_HDR) || nvm_all_erased(rec + NVM_REC_HDR, r.plen)) {',
+           ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
+            'the empty list survives the power cycle')),
     defect('app-start-inverted', 'app/ctrl_app_aecp.c',
            'c->start_value = value;',
            'c->start_value = !value;',
@@ -490,6 +504,9 @@ def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack: 
     root.mkdir(parents=True, exist_ok=True)
     src = root / "work/ctrl"
     shutil.copytree(CTRL, src, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+    # the saved-state store beside it, which the Nvm arm compiles from the tree's sibling (#763)
+    shutil.copytree(CTRL.parent / "ctrl_nvm", src.parent / "ctrl_nvm", dirs_exist_ok=True,
+                    ignore=shutil.ignore_patterns("test", "__pycache__", "*.pyc"))
     tree = Tree(src, root / "work/build", root / "work/reuse", fw_gtest.Build(jobs=jobs), stack)
     config = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
     receipts = []

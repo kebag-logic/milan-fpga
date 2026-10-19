@@ -17,7 +17,7 @@ def saved_state(tree: Tree, config: Path, out: Path) -> tuple[list, list, list]:
     shape = nvm_bench.shape_inputs(config, out / "shape")
     gen = out / "gen"
     nvm_bench.write_headers(gen, nvm_bench.shape_header(shape.shape, shape.donor, shape.ident), shape.clock_hz)
-    directory = ROOT / "sw/firmware/ctrl_nvm"
+    directory = tree.src.parent / "ctrl_nvm"  # the checkout's store, or a campaign's planted copy (#763)
     inc = [f"-I{gen}", f"-I{directory}", "-DAECP_TEST_NVM"]
     sources = [tree.src / "aecp/aecp_nvm.c", directory / "nvm_klj2.c", directory / "nvm_store.c"]
     return inc, sources, [directory / "host/nvm_fmodel.c"]
