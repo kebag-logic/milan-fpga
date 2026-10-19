@@ -1,0 +1,32 @@
+[
+  {
+    "name": "nvm-empty-map-keeps-defaults",
+    "path": "aecp/aecp_nvm.c",
+    "old": "\t\tunsigned status = aecp_map_restore(n->core, m, n->scratch, count);",
+    "new": "\t\tif (count == 0) return NVM_APPLIED;\n\t\tunsigned status = aecp_map_restore(n->core, m, n->scratch, count);",
+    "checks": [
+      [
+        "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "the empty list survives the power cycle"
+      ],
+      [
+        "Nvm.WholeMapFramingAndEmptySetAreDistinct",
+        "all UNUSED is an intentional empty set"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "nvm-unused-payload-reads-erased",
+    "path": "../ctrl_nvm/nvm_store.c",
+    "old": "\tif (nvm_all_erased(rec, NVM_REC_HDR)) {",
+    "new": "\tif (nvm_all_erased(rec, NVM_REC_HDR) || nvm_all_erased(rec + NVM_REC_HDR, r.plen)) {",
+    "checks": [
+      [
+        "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "the empty list survives the power cycle"
+      ]
+    ],
+    "caught": true
+  }
+]

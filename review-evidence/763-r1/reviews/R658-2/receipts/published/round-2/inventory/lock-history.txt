@@ -1,0 +1,15 @@
+Inventory regenerations and the image-lock records that followed them (git log, newest first):
+54fbcba6a 2026-10-16 Record the image lock for recipe 712f7b38 from two byte-identical cold builds
+f1c041bce 2026-10-16 Measure the differential receipt in the locked image and regenerate the inventory input digest
+943d47dbe 2026-10-16 Record the image lock for recipe a8e55b00 from two byte-identical cold builds
+e19dd3542 2026-10-16 Inventory the merged workflows: read PIP_CONSTRAINT, package caches and venvs, and model their shell and Make forms wit
+4df2f2f06 2026-10-16 Bind the image lock to the recipe with the round-nine walker
+ce3dd4bd3 2026-10-16 Resolve $(realpath <literal>) only for a script's own unlinked path before it runs a command, with a re-pointed-link fi
+cd9ef1bef 2026-10-15 Bind the image lock to the recipe with the round-eight walker
+e977cc44b 2026-10-15 Prime the PYW2 probe so its hidden command runs, check dash for a loader import, and read installer subcommands past le
+1cebf676b 2026-10-15 Admit workflow env names by allowlist, expand local initializers as bash does, and never decide a cd from checkout stat
+afdf0ef0c 2026-10-15 Bind the image lock to the recipe with the failed-cd walker model
+
+54fbcba6a changes only the recipe_digest line of image.lock.json:
+ ci/image/image.lock.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)

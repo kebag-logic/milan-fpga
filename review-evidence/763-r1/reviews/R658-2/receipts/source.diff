@@ -1,0 +1,126 @@
+diff --git a/sw/firmware/ctrl/aecp/README.md b/sw/firmware/ctrl/aecp/README.md
+index 995f40a6c..0b2ba9026 100644
+--- a/sw/firmware/ctrl/aecp/README.md
++++ b/sw/firmware/ctrl/aecp/README.md
+@@ -102,7 +102,11 @@ before it returns; the response leaves on a later pass (#665).
+ the live validators. A saved map is accepted atomically or refused as a whole.
+ Absent maps start from generated identity defaults, clipped to a restored input
+ format. A refused saved map retains the default map and rolls its input format
+-back when required to preserve that map. Live format changes cannot orphan
++back when required to preserve that map. An emptied map is saved as a framed
++record whose entries are all UNUSED, never as an erased record, so an empty list
++and a non-default one each come back across the store's power cycle
++([#763](https://github.com/kebag-logic/milan-fpga/issues/763); Milan v1.2
++5.3.9.1, 5.3.10.1). Live format changes cannot orphan
+ existing mappings. Map partitioning follows advertised geometry and output
+ stream/channel ownership is global across output ports. An accepted default-valued
+ SET still establishes a persistent override. Store dirty marks are queued for
+@@ -129,7 +133,10 @@ No reserved message type is interpreted as an AEM command.
+ The [firmware bank](../test/test_ctrl_firmware.py) includes the composed AECP
+ tests at one and two interfaces, all five generated shapes and the reentry
+ guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
+-each source defect to fail its named assertion in a completed run. The full
++each source defect to fail its named assertion in a completed run. It plants into
++a copy of this tree and of the saved-state store beside it, so a store defect that
++reads an all-UNUSED map payload as erased is graded against the AECP owner's
++power-cycle test, which no store suite catches (#763). The full
+ [coverage gate](../../gtest/README.md) measures the eight new production files
+ at 100% lines and branches without a new exclusion.
+ 
+diff --git a/sw/firmware/ctrl/test/aecp_arms.py b/sw/firmware/ctrl/test/aecp_arms.py
+index 39df844c3..9335527ab 100644
+--- a/sw/firmware/ctrl/test/aecp_arms.py
++++ b/sw/firmware/ctrl/test/aecp_arms.py
+@@ -17,7 +17,7 @@ def saved_state(tree: Tree, config: Path, out: Path) -> tuple[list, list, list]:
+     shape = nvm_bench.shape_inputs(config, out / "shape")
+     gen = out / "gen"
+     nvm_bench.write_headers(gen, nvm_bench.shape_header(shape.shape, shape.donor, shape.ident), shape.clock_hz)
+-    directory = ROOT / "sw/firmware/ctrl_nvm"
++    directory = tree.src.parent / "ctrl_nvm"  # the checkout's store, or a campaign's planted copy (#763)
+     inc = [f"-I{gen}", f"-I{directory}", "-DAECP_TEST_NVM"]
+     sources = [tree.src / "aecp/aecp_nvm.c", directory / "nvm_klj2.c", directory / "nvm_store.c"]
+     return inc, sources, [directory / "host/nvm_fmodel.c"]
+diff --git a/sw/firmware/ctrl/test/aecp_mutants.py b/sw/firmware/ctrl/test/aecp_mutants.py
+index bc02295a6..14e555c2b 100644
+--- a/sw/firmware/ctrl/test/aecp_mutants.py
++++ b/sw/firmware/ctrl/test/aecp_mutants.py
+@@ -355,6 +355,20 @@ DEFECTS = (
+            'len > m->capacity * 8u) return 0;',
+            ('Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch',
+             'owner.port.latch')),
++    # #763: an emptied list read back as the reset set, by the owner or by the store
++    defect('nvm-empty-map-keeps-defaults', 'aecp_nvm.c',
++           '\t\tunsigned status = aecp_map_restore(n->core, m, n->scratch, count);',
++           '\t\tif (count == 0) return NVM_APPLIED;\n'
++           '\t\tunsigned status = aecp_map_restore(n->core, m, n->scratch, count);',
++           ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
++            'the empty list survives the power cycle'),
++           ('Nvm.WholeMapFramingAndEmptySetAreDistinct',
++            'all UNUSED is an intentional empty set')),
++    defect('nvm-unused-payload-reads-erased', '../ctrl_nvm/nvm_store.c',
++           '\tif (nvm_all_erased(rec, NVM_REC_HDR)) {',
++           '\tif (nvm_all_erased(rec, NVM_REC_HDR) || nvm_all_erased(rec + NVM_REC_HDR, r.plen)) {',
++           ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
++            'the empty list survives the power cycle')),
+     defect('app-start-inverted', 'app/ctrl_app_aecp.c',
+            'c->start_value = value;',
+            'c->start_value = !value;',
+@@ -490,6 +504,9 @@ def campaign(root: Path, jobs: int = 4, shard: tuple[int, int] = (0, 1), stack:
+     root.mkdir(parents=True, exist_ok=True)
+     src = root / "work/ctrl"
+     shutil.copytree(CTRL, src, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
++    # the saved-state store beside it, which the Nvm arm compiles from the tree's sibling (#763)
++    shutil.copytree(CTRL.parent / "ctrl_nvm", src.parent / "ctrl_nvm", dirs_exist_ok=True,
++                    ignore=shutil.ignore_patterns("test", "__pycache__", "*.pyc"))
+     tree = Tree(src, root / "work/build", root / "work/reuse", fw_gtest.Build(jobs=jobs), stack)
+     config = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
+     receipts = []
+diff --git a/sw/firmware/ctrl/test/test_aecp.cpp b/sw/firmware/ctrl/test/test_aecp.cpp
+index 2d36016c7..a272894ac 100644
+--- a/sw/firmware/ctrl/test/test_aecp.cpp
++++ b/sw/firmware/ctrl/test/test_aecp.cpp
+@@ -247,6 +247,44 @@ TEST_F(Nvm, AcceptedStateSurvivesTheRealStorePowerCycle)
+     }
+ }
+ 
++// #763: an emptied list in either direction and a non-default list in the other survive the store's power
++// cycle (Milan v1.2 5.3.9.1, 5.3.10.1); the empty set is a framed record of UNUSED entries, never an erased one
++TEST_F(Nvm, EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle)
++{
++    auto remove=[](const aecp_map &m,size_t from,size_t to){
++        Bytes b=target(m.type,m.index,8+8*(to-from));put(b,4,to-from,2);
++        for(size_t k=from;k<to;++k){auto &r=m.rows[k];size_t at=8+8*(k-from);
++            put(b,at,r.stream,2);put(b,at+2,r.channel,2);put(b,at+4,r.cluster,2);put(b,at+6,r.cluster_channel,2);}
++        return b;
++    };
++    for(unsigned type:{14u,15u}){
++        SCOPED_TRACE(type);
++        a.open=false;ASSERT_TRUE(aecp_restore_defaults(&a));
++        nvm_fmodel_blank();nvm_fmodel_power_on();owner.released=false;boot();
++        ASSERT_EQ(nvm_store_status()->terminal,NVM_T_BLANK);
++        ON_CALL(mock,Changed).WillByDefault([this](aecp_change k,uint16_t t,uint16_t i){aecp_nvm_changed(&owner,k,t,i);});
++        aecp_open(&a);
++        aecp_map *e=nullptr,*o=nullptr;
++        for(auto &m:pools) if(m.index==0) (m.type==type?e:o)=&m;
++        ASSERT_TRUE(e&&o);ASSERT_GT(e->count,0u);ASSERT_GT(o->count,1u);
++        ask(45,remove(*e,0,e->count));ask(45,remove(*o,o->count-1,o->count));
++        ASSERT_EQ(e->count,0u);ASSERT_EQ(o->count,o->default_count-1u);
++        unsigned empty=type==14?NVM_G_MAPI:NVM_G_MAPO,other=type==14?NVM_G_MAPO:NVM_G_MAPI;
++        auto kept=latch(other,0,o->capacity*8);
++        save();
++        auto r=nvm_rec_of(empty,0);ASSERT_TRUE(r.ok);
++        const uint8_t *rec=nvm_store_stage()+NVM_KLJ2_HDR+r.off;
++        EXPECT_EQ(get(rec,2),0x1722u)<<"the empty set is a framed record, not an erased one";
++        EXPECT_TRUE(nvm_all_erased(rec+NVM_REC_HDR,r.plen))<<"every entry of the empty set is UNUSED";
++        a.open=false;ASSERT_TRUE(aecp_restore_defaults(&a));ASSERT_EQ(e->count,e->default_count);
++        owner.released=false;nvm_fmodel_power_on();boot();
++        ASSERT_EQ(nvm_store_status()->terminal,NVM_T_COMPLETE);
++        EXPECT_EQ(e->count,0u)<<"the empty list survives the power cycle";
++        EXPECT_EQ(latch(other,0,kept.size()),kept)<<"the non-default list survives the power cycle";
++        EXPECT_EQ(o->count,o->default_count-1u);
++    }
++}
++
+ TEST_F(Nvm, AbsentMapClipsButRefusedMapRevertsItsFormat)
+ {
+     auto &m=pools[0];auto original=latch(NVM_G_MAPI,0,m.capacity*8);

@@ -1,0 +1,20 @@
+[
+  {
+    "html_url": "https://github.com/kebag-logic/milan-fpga/issues/763#issuecomment-6256482855",
+    "body": "[A10] Assignment for #763 (author [A653]). Branch `763-map-persist` from dev e9cbb676.\n\n1. An empty dynamic mapping list, and a non-empty non-default one, both survive a power cycle (Milan v1.2 5.3.9.1, 5.3.10.1).\n2. The saved-state record must tell \"empty\" apart from \"erased\". Use a row count, or an empty marker that is not 0xFF.\n3. Follow the saved-state contract and its records: docs/design/SAVED_STATE_FASTCONNECT.md and the #70 erased-record rule. Bump any record version as the contract requires.\n4. Add firmware unit tests and the saved-state tests for both cases, each with a planted mutant.\n5. Run every gate the change touches, all rc 0. The firmware change needs the capture re-measure that the NVM capture check pins.\n6. STOP on any change of the saved-state layout that breaks reading records written by the shipping image. If that is unavoidable, propose a migration and stop.\n\nPut your receipts in the output directory, with an index generated from the files present. Post REVIEW READY or STOP on #763.\n",
+    "created_at": "2026-10-18T23:26:13Z",
+    "updated_at": "2026-10-18T23:26:13Z"
+  },
+  {
+    "html_url": "https://github.com/kebag-logic/milan-fpga/issues/763#issuecomment-6256965417",
+    "body": "[A653] TAKEN\nBranch: `763-map-persist` from dev `e9cbb676d7fdd6539aa408e5dfe38870a4ae1a5f`\nAuthoritative references: Milan v1.2 5.3.9.1, 5.3.10.1; docs/design/SAVED_STATE_FASTCONNECT.md sections 4.2 and 6.1 (the erased-record rule); docs/design/SAVED_STATE_MATERIALIZATION.md sections 8.3, 8.4 and 18.4; #70; #637\nInterpreted scope: make an empty and a non-empty non-default dynamic map list both survive a power cycle, with a record format that tells \"empty\" from \"erased\", firmware and saved-state tests for both with planted mutants, and every touched gate rc 0, under the assignment's STOP rule for layout changes.\nValidation plan: the firmware AECP saved-state unit tests and their mutant campaign, scripts/check_nvm_record_space.py with its self-test, scripts/check_nvm_capture.py, and the docs gates.\nBlockers: under investigation. The first reading suggests the shipping build has no channel-map record writer at all (#637), and that the record contract already separates an empty set from an erased record. I will confirm this or rule it out before editing anything.\n",
+    "created_at": "2026-10-19T00:17:24Z",
+    "updated_at": "2026-10-19T00:17:24Z"
+  },
+  {
+    "html_url": "https://github.com/kebag-logic/milan-fpga/issues/763#issuecomment-6257040042",
+    "body": "[A10] Ruling on the STOP ([A653]): **both A and B.**\n\n- **A.** The board's real gap is that nothing writes or restores the channel-map records, which #637 owns. Milan v1.2 5.3.9.1 and 5.3.10.1 make this mandatory, so #637 becomes a release item and gets its own lane next. #763's board acceptance (an empty list and a non-default list surviving a cold cycle) moves into #637's acceptance. The record format stays as it is: it already separates empty from erased.\n- **B.** #763 narrows to the firmware path. Commit the probe as an in-tree test in `sw/firmware/ctrl/test/test_aecp.cpp`, with both plants as mutants in `aecp_mutants.py`, and run the firmware test gate. This closes the test gap the lane found: the all-0xFF plant failed no in-tree test.\n\n#763 closes on B. #637 closes on the board.",
+    "created_at": "2026-10-19T00:24:10Z",
+    "updated_at": "2026-10-19T00:24:10Z"
+  }
+]

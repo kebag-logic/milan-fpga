@@ -1,0 +1,62 @@
+{
+  "head": "07c6c72fce79e705bcf28a70071497d0ce7040e4",
+  "tree": "c70d7afe29d34724474bfc05053fe3cb43801026",
+  "changed_files": [
+    "sw/firmware/ctrl/aecp/README.md",
+    "sw/firmware/ctrl/test/aecp_arms.py",
+    "sw/firmware/ctrl/test/aecp_mutants.py",
+    "sw/firmware/ctrl/test/test_aecp.cpp"
+  ],
+  "changed_inventory_inputs": [
+    "sw/firmware/ctrl/test/aecp_arms.py",
+    "sw/firmware/ctrl/test/aecp_mutants.py"
+  ],
+  "stale_inputs": {
+    "scripts/check_doc_style.py": {
+      "recorded": "13fba7bee454aa20d8d2726360f17098bc2f6700551ec7f9ccb35a878e3ed814",
+      "head": "3b7e9010ecd6325b3ccbed34e35beec73fe58a736f06e5f2b344fde1ecdba93d",
+      "base": "3b7e9010ecd6325b3ccbed34e35beec73fe58a736f06e5f2b344fde1ecdba93d",
+      "inherited": true
+    },
+    "scripts/measure_test_evidence_readers.py": {
+      "recorded": "58aba60471256eaafab31a2765151d80ebc8c5689b5c4875e311710dac84c4cd",
+      "head": "4ba6dbeb82ef957e5ed4bac6da8b3f2b6097d919ecfcccff0e02e5d344a9084a",
+      "base": "4ba6dbeb82ef957e5ed4bac6da8b3f2b6097d919ecfcccff0e02e5d344a9084a",
+      "inherited": true
+    },
+    "sw/firmware/ctrl/test/aecp_arms.py": {
+      "recorded": "33c3c60ad505af511d0c9fdc342743c85deb519ac5f3f2919b7c31035792915e",
+      "head": "277a41b99af8ee0848e96d9322194e8d5016eea47f059ffea6f75cd8a43f9ee8",
+      "base": "33c3c60ad505af511d0c9fdc342743c85deb519ac5f3f2919b7c31035792915e",
+      "inherited": false
+    },
+    "sw/firmware/ctrl/test/aecp_mutants.py": {
+      "recorded": "b3f94ef03f97cdda14462a70f363e91f018f61d8170757ebd05278e0b6bef469",
+      "head": "bb4fe6f2174da489be3048a4ddf0ca5130189f914e845f87cc73eb5da142472d",
+      "base": "b3f94ef03f97cdda14462a70f363e91f018f61d8170757ebd05278e0b6bef469",
+      "inherited": false
+    }
+  },
+  "verified_public_receipts": {
+    "author": 52,
+    "author-r2": 105
+  },
+  "verified_index_rows": 104,
+  "gate_counts": {
+    "normal arm outcome": 61,
+    "control-source mutant": 520,
+    "dependency-pin refusal control": 2,
+    "AECP mutant": 78,
+    "SRP mutant": 278
+  },
+  "top_level_ok": 939,
+  "source_mutant_executions": 876,
+  "signature": {
+    "payload": null,
+    "reason": "unsigned",
+    "signature": null,
+    "verified": false,
+    "verified_at": null
+  },
+  "status": "PASS"
+}

@@ -1,0 +1,256 @@
+head: e9cbb676d7fdd6539aa408e5dfe38870a4ae1a5f
+processor submodule: 2cbed0a987c1e68402658d69459ab7e5aa571adc
+
+== protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:98-121
+    98	//                bit 31 clear; a user name whose ordinal the image's name
+    99	//                table holds (the store's region 0xA, its name count):
+   100	//                SET_NAME refuses only a name index the descriptor lacks, and
+   101	//                takes any 64 bytes.
+   102	//                The LOCATEs use configuration 0, as the SET programs do.
+   103	//
+   104	//                THE RECORDS (scalar and name stages). One record per
+   105	//                persisted dynamic-state row and per writable name, one dirty
+   106	//                bit per record, NO shadow:
+   107	//                  0x00                  configuration index    u16
+   108	//                  0x02 + AUDIO_UNIT     sampling rate          u32
+   109	//                  0x0A + CLOCK_DOMAIN   clock source index     u16
+   110	//                  0x30 + STREAM_INPUT   stream format in       u64
+   111	//                  0x40 + STREAM_OUTPUT  stream format out      u64
+   112	//                  0x50 + STREAM_OUTPUT  presentation offset    u32
+   113	//                  0x80 + name ordinal   user name              64 B
+   114	//                each framed as F07.8 {magic 0x1722, LAYOUT_VER_P, record
+   115	//                id, payload_length, crc16 CCITT-FALSE over the header
+   116	//                without its crc and the payload}, 16-bit header fields and
+   117	//                the payload big-endian (the saved-state allocation, parent
+   118	//                FASTCONNECT §4.2). A name record is the store's 64-byte
+   119	//                entry verbatim, its eight lanes in wire order. Channel maps
+   120	//                are the integrator's (07 §5.1); this writer never writes or
+   121	//                reads them.
+
+== protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv:397-406
+   397	  function automatic logic [7:0] sel_base_f(input logic [2:0] sel);
+   398	    unique case (sel)
+   399	      3'd0:    return 8'h00;
+   400	      3'd1:    return 8'h02;
+   401	      3'd2:    return 8'h0A;
+   402	      3'd3:    return 8'h30;
+   403	      3'd4:    return 8'h40;
+   404	      3'd5:    return 8'h50;
+   405	      default: return 8'h80;
+   406	    endcase
+
+== hdl/milan/KL_pp_shadow.sv:929-932
+   929	  //!     retired at the done of the whole-record window write
+   930	  //!     (docs/design/SAVED_STATE_MATERIALIZATION.md 5.2 and 7.1). The
+   931	  //!     accepted live name/map writes are held sticky beside them because
+   932	  //!     neither group has a record writer yet (stage 3 retires them).
+
+== hdl/milan/KL_pp_shadow.sv:949-951
+   949	  //! Binding and scalar changes stay pending until their record completes or
+   950	  //! alarms. Names and maps have no record writer yet, so their source clears
+   951	  //! only at reset. The later class-6/7 marks still delimit command completion;
+
+== hdl/milan/milan_datapath.sv:4452-4455
+  4452	  //! would still need it for the clip. #70 stage 3, whose map restore drives
+  4453	  //! the edit face inside the window, takes the window over for the ports it
+  4454	  //! restores.
+  4455	
+
+== docs/design/SAVED_STATE_MATERIALIZATION.md:17-20
+    17	> Channel maps (stage 3) are not implemented.
+    18	> Amended by the processor's ruling on its issue 83 (2026-10-03): the channel
+    19	> maps (stage 3) are the parent's to write, restore and roll back, and the
+    20	> processor's roll-back resets its two stores only (section 15 item 2, amended; #637).
+
+== docs/design/SAVED_STATE_MATERIALIZATION.md:1138-1151
+  1138	**The map record's framing.** Pack the port's set first.
+  1139	Then pad with UNUSED entries through its derived capacity.
+  1140	Input capacity remains the port's cluster count.
+  1141	Output capacity follows the per-port entry count in
+  1142	[section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged).
+  1143	An unused entry is EXACTLY eight 0xFF bytes.
+  1144	The flush writes that value; nothing else denotes UNUSED.
+  1145	The saved set is the entries before the first unused one, and
+  1146	every one of them goes to the judge as a mapping, whatever its stream
+  1147	index. An entry that is not unused, AFTER an unused one, makes the record
+  1148	malformed: it is refused before the port's set is touched, and the reset set
+  1149	stays. Round one called an entry unused when its FIRST byte was 0xFF, so a
+  1150	mapping from stream 0xFF00 read as the end of the set and an empty set was
+  1151	applied over the reset one ("refused 0, applied 1").
+
+== docs/design/SAVED_STATE_MATERIALIZATION.md:1164-1164
+  1164	| V3g | every entry unused: the valid EMPTY set | applied: "live OUT0 empty (want the empty set); applied 2 refused 0" |
+
+== docs/design/SAVED_STATE_MATERIALIZATION.md:1217-1219
+  1217	`amap_edit_live_wr_p` nor map-persistence work. Controller edits raise sticky
+  1218	live-map pending; records `0x60` to `0x7F` remain unmaterialized in stages 1
+  1219	and 2. Stage 3 supplies their writer. The model uses a non-empty reset set so
+
+== docs/design/SAVED_STATE_MATERIALIZATION.md:2754-2758
+  2754	### 18.4 Lane 4: both map directions
+  2755	
+  2756	**Acceptance.** Implement capture/apply over the actual parent map interfaces.
+  2757	Consume #501's per-port capacity in the parent's buffers and framing (section 15 item 2, amended).
+  2758	Persist input and output ports independently, including empty sets.
+
+== docs/design/SAVED_STATE_FASTCONNECT.md:332-332
+   332	Unused entries remain eight `0xFF` bytes each.
+
+== docs/design/SAVED_STATE_FASTCONNECT.md:661-676
+   661	**The erased-record rule (round 5, 2026-09-06).** A record position may hold,
+   662	instead of a frame, the record's whole span (8 header bytes plus its
+   663	payload_length) filled with `0xFF`. That record has never been written since
+   664	the media was blank: the backend erases a record's span to `0xFF` and writes
+   665	it in place, the firmware wraps the record area verbatim, and a record the
+   666	processor has not yet committed therefore has no frame to carry. An erased
+   667	record counts as PRESENT for rule 12, applies nothing, and the processor
+   668	restores the vendor default for it through the same blank arm it takes on
+   669	blank media. The rule is deliberately narrow: an erased span is accepted only
+   670	at the position of the next required record in ascending id order and only
+   671	for that record's exact span, so a header of `0xFF` over a payload that is not
+   672	erased is a torn or foreign span and is refused (rule 8), and an image that is
+   673	one record SHORT is still refused (rules 10 and 12), because absence stayed an
+   674	omission. Without this rule a board that has never been bound could never
+   675	carry an accepted image at all, and the very first controller SET would have
+   676	produced a container rule 12 refuses.
+
+== docs/design/SAVED_STATE_FASTCONNECT.md:1472-1476
+  1472	- **Only binding records reach the store.** Other groups need materialization.
+  1473	  Their accepted writer contract is
+  1474	  [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md).
+  1475	  Until implementation, accepted images contain bindings and erased spans.
+  1476	  The erased-record rule makes those images legal.
+
+== sw/firmware/milan_baremetal/milan_baremetal.c:894-921
+   894	/*
+   895	 * The control tuple of section 8.2, in two steps. The RE-BASE: where the
+   896	 * record area is, how long it is, the per-port channel-map tables (framed
+   897	 * length and running prefix inside the group, direction distinct). Each of
+   898	 * these writes makes every record read open and arms the backend's load flag,
+   899	 * so it comes BEFORE the window load (snapshot-ownership section 5.3).
+   900	 */
+   901	static void nvm_rebase_backend(void)
+   902	{
+   903		unsigned int dir;
+   904	
+   905		nvm_csr_write(NVM_W_IMG_BASE, MILAN_NVM_LIVE_BASE + KLJ2_HDR);
+   906		nvm_csr_write(NVM_W_IMG_LEN, NVM_AREA_LEN);
+   907		for (dir = 0; dir < 2; ++dir) {
+   908			unsigned int n = dir ? MILAN_NVM_N_SPORT_OUT : MILAN_NVM_N_SPORT_IN;
+   909			unsigned int word = dir ? NVM_W_MAP_OUT : NVM_W_MAP_IN;
+   910			unsigned int prefix = 0;
+   911			unsigned int k;
+   912	
+   913			for (k = 0; k < n && k < 16u; ++k) {
+   914				unsigned int entries = dir ? nvm_mapout_entries[k] :
+   915							nvm_mapin_entries[k];
+   916				unsigned int flen = REC_HDR + NVM_MAP_ENTRY * entries;
+   917	
+   918				nvm_csr_write(word | k, (flen << 16) | prefix);
+   919				prefix += flen;
+   920			}
+   921		}
+
+== sw/firmware/ctrl_nvm/nvm_store.c:288-309
+   288	
+   289	/* One saved record through the state port: 1 when its rule could not be
+   290	 * judged, which ends the walk. An erased record applies nothing and its
+   291	 * default stands. */
+   292	static int nvm_apply_faults(struct nvm_rec r)
+   293	{
+   294		const struct nvm_state *s = nvm.state;
+   295		const uint8_t *rec = nvm_stage + NVM_KLJ2_HDR + r.off;
+   296		enum nvm_apply res;
+   297	
+   298		if (nvm_all_erased(rec, NVM_REC_HDR)) {
+   299			nvm.st.blank++;
+   300			return 0;
+   301		}
+   302		res = s->apply(s->ctx, r.group, r.index, rec + NVM_REC_HDR, r.plen);
+   303		if (res == NVM_FAULT)
+   304			return 1;
+   305		if (res == NVM_APPLIED)
+   306			nvm.st.applied++;
+   307		else
+   308			nvm.st.refused++;
+   309		return 0;
+
+== sw/firmware/ctrl_nvm/nvm_store.c:494-517
+   494	/* Latch one record from its owner into the stage. */
+   495	static void nvm_latch(struct nvm_rec r)
+   496	{
+   497		const struct nvm_state *s = nvm.state;
+   498		uint8_t *rec = nvm_stage + NVM_KLJ2_HDR + r.off;
+   499		int same;
+   500		unsigned int i;
+   501	
+   502		if (!s->latch(s->ctx, r.group, r.index, nvm_payload, r.plen))
+   503			return;                 /* nothing to save: the staged bytes stand */
+   504		same = nvm_framed_as(rec, r);
+   505		for (i = 0; i < r.plen; ++i) {
+   506			if (rec[NVM_REC_HDR + i] != nvm_payload[i])
+   507				same = 0;
+   508			rec[NVM_REC_HDR + i] = nvm_payload[i];
+   509		}
+   510		nvm.step_bytes += r.plen;
+   511		if (same)
+   512			return;
+   513		nvm_rec_frame(rec, r);
+   514		nvm.step_bytes += 6u + r.plen;
+   515		nvm.stage_changed = 1;
+   516		nvm.stage_durable = 0;
+   517	}
+
+== sw/firmware/ctrl/aecp/aecp_nvm.c:56-73
+    56		if (group == NVM_G_MAPI || group == NVM_G_MAPO) {
+    57			struct aecp_map *m = map(n, group, index);
+    58			if (m == NULL || m->capacity > n->scratch_count) return NVM_FAULT;
+    59			if (len != m->capacity * 8u) return refused(n, m);
+    60			size_t count = 0;
+    61			bool unused = false;
+    62			for (size_t k = 0; k < m->capacity; ++k) {
+    63				const uint8_t *r = p + k * 8u;
+    64				bool erased = wire_be64(r) == UINT64_MAX;
+    65				if (erased) unused = true;
+    66				else {
+    67					if (unused) return refused(n, m); // No map edit on malformed framing.
+    68					n->scratch[count++] = (struct aecp_mapping){(uint16_t)wire_be16(r),
+    69						(uint16_t)wire_be16(r + 2), (uint16_t)wire_be16(r + 4), (uint16_t)wire_be16(r + 6)};
+    70				}
+    71			}
+    72			unsigned status = aecp_map_restore(n->core, m, n->scratch, count);
+    73			return status == AECP_BAD_ARGUMENTS ? refused(n, m) : verdict(status);
+
+== sw/firmware/ctrl/aecp/aecp_nvm.c:94-105
+    94		if (group == NVM_G_MAPI || group == NVM_G_MAPO) {
+    95			struct aecp_map *m = map(n, group, index);
+    96			if (m == NULL || len != m->capacity * 8u) return 0;
+    97			memset(p, 0xff, len);
+    98			for (size_t k = 0; k < m->count; ++k) {
+    99				const struct aecp_mapping *r = &m->rows[k];
+   100				wire_put_be(p + 8u*k, r->stream, 2);
+   101				wire_put_be(p + 8u*k + 2u, r->channel, 2);
+   102				wire_put_be(p + 8u*k + 4u, r->cluster, 2);
+   103				wire_put_be(p + 8u*k + 6u, r->cluster_channel, 2);
+   104			}
+   105			return 1;
+
+== sw/firmware/ctrl/test/test_aecp.cpp:208-225
+   208	TEST_F(Nvm, WholeMapFramingAndEmptySetAreDistinct)
+   209	{
+   210	    auto &m=pools[0];auto initial=latch(NVM_G_MAPI,0,m.capacity*8);
+   211	    Bytes erased(initial.size(),0xff);
+   212	    for(unsigned bad: {0xff00,0xfeff,0xfffe,0xffff}){
+   213	        auto b=erased;put(b,0,bad,2);put(b,2,0,6);
+   214	        EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPI,0,b.data(),b.size()),NVM_REFUSED);
+   215	        EXPECT_EQ(latch(NVM_G_MAPI,0,b.size()),initial);
+   216	    }
+   217	    auto b=erased;std::copy(initial.begin(),initial.begin()+8,b.end()-8);
+   218	    EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPI,0,b.data(),b.size()),NVM_REFUSED);
+   219	    EXPECT_EQ(latch(NVM_G_MAPI,0,b.size()),initial)<<"a hole cannot touch the current map";
+   220	    b=erased;b.back()=0;
+   221	    EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPI,0,b.data(),b.size()),NVM_REFUSED);
+   222	    EXPECT_EQ(owner.port.apply(&owner,NVM_G_MAPI,0,erased.data(),erased.size()),NVM_APPLIED);
+   223	    EXPECT_EQ(m.count,0u)<<"all UNUSED is an intentional empty set";
+   224	    EXPECT_EQ(owner.port.rollback(&owner,NVM_W_D3),0);EXPECT_EQ(latch(NVM_G_MAPI,0,initial.size()),initial);
+   225	}

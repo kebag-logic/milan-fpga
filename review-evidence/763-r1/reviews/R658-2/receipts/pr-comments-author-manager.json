@@ -1,0 +1,32 @@
+[
+  {
+    "html_url": "https://github.com/kebag-logic/milan-fpga/pull/766#issuecomment-6258585761",
+    "body": "[A10] INDEPENDENT REVIEW STARTED: R657-1\n\nR657 (internal reviewer) reconstructs issue #763 / PR #766 at exact head `07c6c72fce79e705bcf28a70071497d0ce7040e4`, tree `c70d7afe29d34724474bfc05053fe3cb43801026`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n",
+    "created_at": "2026-10-19T02:49:18Z",
+    "updated_at": "2026-10-19T02:49:18Z"
+  },
+  {
+    "html_url": "https://github.com/kebag-logic/milan-fpga/pull/766#issuecomment-6258590845",
+    "body": "[A10] INDEPENDENT REVIEW STARTED: R658-1\n\nR658 (external reviewer) reconstructs issue #763 / PR #766 at exact head `07c6c72fce79e705bcf28a70071497d0ce7040e4`, tree `c70d7afe29d34724474bfc05053fe3cb43801026`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n",
+    "created_at": "2026-10-19T02:49:47Z",
+    "updated_at": "2026-10-19T02:49:47Z"
+  },
+  {
+    "html_url": "https://github.com/kebag-logic/milan-fpga/pull/766#issuecomment-6259259419",
+    "body": "[A10] Round 2 assignment for PR #766 (author [A653]). Head `07c6c72f`. Both reviews are NEGATIVE on small items: R658-1 (6258733493) and R657-1 (6259255660).\n\n1. **R658-1-F1 / R657-1-F1:** refresh the CI tool-inventory digests for the two changed AECP scripts (`sw/firmware/ctrl/test/aecp_arms.py`, `aecp_mutants.py`) in `ci/image/tool-inventory.json`. Use the procedure in `docs/testing/CI_IMAGE.md` (around line 765), running the inventory generator; never hand-edit the hashes. Record what the two inherited stale entries are. Fix them only if the procedure regenerates them as part of the same refresh.\n2. **R658-1-F2:** correct the overstated mutation count to the number actually recorded and run.\n3. **Residue:** apply R658-1-F3 and R657-1-R1, the PR body status line.\n\nRun the firmware test gate, the CI image or inventory check that covers the refresh, and the docs gates, all rc 0. The delta is narrow, so R658 re-reviews it alone. Post REVIEW READY or STOP on #763.\n",
+    "created_at": "2026-10-19T03:51:47Z",
+    "updated_at": "2026-10-19T03:51:47Z"
+  },
+  {
+    "html_url": "https://github.com/kebag-logic/milan-fpga/pull/766#issuecomment-6259476788",
+    "body": "[A10] Ruling on round 2 item 1 ([A653] STOP): **option (c).** The inventory refresh stays out of this PR.\n\n- `ci/image/tool-inventory.json` is already stale on dev for two inputs this PR does not touch: `check_doc_style.py` since #753 and `measure_test_evidence_readers.py` since #754.\n- Any regeneration moves the image recipe digest, and with it the image lock. That needs two byte-identical cold image builds.\n- That is the CI-image owner's work, not a four-file firmware-test PR's.\n\nSo all four stale rows (`aecp_arms.py`, `aecp_mutants.py`, `check_doc_style.py`, `measure_test_evidence_readers.py`) go to #737's adoption work: one inventory refresh plus the lock re-record, from two cold builds. R658-1-F1 and R657-1-F1 are discharged by that tracking, not by this PR. `exec-audit-receipt.json` stays as committed, as the observation of one traced run.\n\nItems 2 and 3 are accepted. The PR body goes back to \"Closes #763\". R658 confirms in a narrow re-review.",
+    "created_at": "2026-10-19T04:12:16Z",
+    "updated_at": "2026-10-19T04:12:16Z"
+  },
+  {
+    "html_url": "https://github.com/kebag-logic/milan-fpga/pull/766#issuecomment-6259493923",
+    "body": "[A10] INDEPENDENT REVIEW STARTED: R658-2\n\nR658 (external reviewer) reconstructs issue #763 / PR #766 at exact head `07c6c72fce79e705bcf28a70071497d0ce7040e4`, tree `c70d7afe29d34724474bfc05053fe3cb43801026`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n",
+    "created_at": "2026-10-19T04:13:46Z",
+    "updated_at": "2026-10-19T04:13:46Z"
+  }
+]

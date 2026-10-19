@@ -1,0 +1,22 @@
+{
+  "top_level_ok_lines": 939,
+  "classes": {
+    "AECP mutant": 78,
+    "SRP mutant": 278,
+    "control-source mutant": 520,
+    "dependency-pin refusal control": 2,
+    "normal arm outcome": 61
+  },
+  "source_mutant_executions": 876,
+  "resolved_by_campaign_order": [
+    {
+      "line": "[ok] reentry-uncounted: Core.ReentrantPortsCannotMutateState",
+      "campaign": "AECP mutant"
+    },
+    {
+      "line": "[ok] reentry-uncounted: ReentryFromOutputIsRefusedAndCounted / adapter.reentries",
+      "campaign": "SRP mutant"
+    }
+  ],
+  "unclassified": []
+}

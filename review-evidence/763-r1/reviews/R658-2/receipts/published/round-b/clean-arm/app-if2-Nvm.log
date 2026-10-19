@@ -1,0 +1,32 @@
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+wrote <scratch>/b/arm-if2/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/b/arm-if2/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/b/arm-if2/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = Nvm.*
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from Nvm
+[ RUN      ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+[       OK ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords (2 ms)
+[ RUN      ] Nvm.WholeMapFramingAndEmptySetAreDistinct
+[       OK ] Nvm.WholeMapFramingAndEmptySetAreDistinct (0 ms)
+[ RUN      ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle
+[       OK ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle (0 ms)
+[ RUN      ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle
+[       OK ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (1 ms)
+[ RUN      ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+[       OK ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat (0 ms)
+[ RUN      ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+[       OK ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups (0 ms)
+[ RUN      ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+[       OK ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch (0 ms)
+[ RUN      ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+[       OK ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords (0 ms)
+[----------] 8 tests from Nvm (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (6 ms total)
+[  PASSED  ] 8 tests.
+== AECP core: checks: 8   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (8 tests, 0 failures, exit 0)
