@@ -1,0 +1,4 @@
+tsn_fuzz rc=0 secs=14 cmd=make -C tb/verilator/tsn_fuzz VERILATOR_JOBS=3
+gptp_txts rc=0 secs=61 cmd=make -C tb/verilator/gptp_txts VERILATOR_JOBS=3
+gptp_tables rc=0 secs=426 cmd=make -C tb/verilator/gptp_tables VERILATOR_JOBS=3
+gptp_plane rc=0 secs=574 cmd=make -C tb/verilator/gptp_plane VERILATOR_JOBS=3

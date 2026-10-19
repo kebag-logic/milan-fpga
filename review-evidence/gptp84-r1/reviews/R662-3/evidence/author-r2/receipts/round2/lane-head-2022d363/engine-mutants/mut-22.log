@@ -1,0 +1,20 @@
+[PASS] the unmutated engine still passes the harness
+FAIL #85 seven received entries: count got 0000000000000007 exp 0000000000000008
+FAIL #85 seven received entries: tail 7 got 0000000000000000 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: seven received entries leave thisClock out - breaks "#85 seven received entries: count | #85 seven received entries: tail 7"
+FAIL #85 direct grandmaster: tail 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: tail 5 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 every peer path ends with thisClock got 0000000000000168 exp 0000000000000000
+[PASS] mutant caught: thisClock lands one slot early - breaks "#85 direct grandmaster: tail 1 | #85 multi-hop grandmaster: tail 5 | #85 every peer path ends with thisClock"
+FAIL #85 direct grandmaster: tail 2 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+[PASS] mutant caught: thisClock fills every later slot - breaks "#85 direct grandmaster: tail 2 | #85 direct grandmaster: tail 3 | #85 direct grandmaster: tail 4 | #85 direct grandmaster: tail 5 | #85 direct grandmaster: tail 6 | #85 direct grandmaster: tail 7 | #85 multi-hop grandmaster: tail 6 | #85 multi-hop grandmaster: tail 7"
+slice [66, 69] of 72
+
+4 checks: 4 PASS, 0 FAIL

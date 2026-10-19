@@ -1,0 +1,29 @@
+[PASS] the unmutated engine still passes the harness
+FAIL #85 direct grandmaster: tail 1 got 00e5e5fffe000001 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: tail 5 got 00e6e6fffe0000c4 exp 02a1b2fffec3d4e5
+FAIL #85 every peer path ends with thisClock got 0000000000000168 exp 0000000000000000
+[PASS] mutant caught: the appended entry is the announcing source - breaks "#85 direct grandmaster: tail 1 | #85 multi-hop grandmaster: tail 5 | #85 every peer path ends with thisClock"
+FAIL #85 multi-hop grandmaster: tail 1 got 0000000000000000 exp 00e6e6fffe0000b1
+FAIL #85 multi-hop grandmaster: tail 2 got 0000000000000000 exp 00e6e6fffe0000b2
+FAIL #85 multi-hop grandmaster: tail 3 got 0000000000000000 exp 00e6e6fffe0000b3
+FAIL #85 multi-hop grandmaster: tail 4 got 0000000000000000 exp 00e6e6fffe0000c4
+FAIL #85 seven received entries: tail 1 got 0000000000000000 exp 00e7e7fffe000002
+FAIL #85 seven received entries: tail 2 got 0000000000000000 exp 00e7e7fffe000003
+FAIL #85 seven received entries: tail 3 got 0000000000000000 exp 00e7e7fffe000004
+FAIL #85 seven received entries: tail 4 got 0000000000000000 exp 00e7e7fffe000005
+FAIL #85 seven received entries: tail 5 got 0000000000000000 exp 00e7e7fffe000006
+FAIL #85 seven received entries: tail 6 got 0000000000000000 exp 00e7e7fffe000007
+FAIL #85 eight received entries: tail 1 got 0000000000000000 exp 00e8e8fffe000002
+FAIL #85 eight received entries: tail 2 got 0000000000000000 exp 00e8e8fffe000003
+FAIL #85 eight received entries: tail 3 got 0000000000000000 exp 00e8e8fffe000004
+FAIL #85 eight received entries: tail 4 got 0000000000000000 exp 00e8e8fffe000005
+FAIL #85 eight received entries: tail 5 got 0000000000000000 exp 00e8e8fffe000006
+FAIL #85 eight received entries: tail 6 got 0000000000000000 exp 00e8e8fffe000007
+FAIL #85 eight received entries: tail 7 got 0000000000000000 exp 00e8e8fffe000008
+[PASS] mutant caught: the received entries are not copied - breaks "#85 multi-hop grandmaster: tail 1 | #85 multi-hop grandmaster: tail 2 | #85 multi-hop grandmaster: tail 3 | #85 multi-hop grandmaster: tail 4 | #85 seven received entries: tail 1 | #85 seven received entries: tail 2 | #85 seven received entries: tail 3 | #85 seven received entries: tail 4 | #85 seven received entries: tail 5 | #85 seven received entries: tail 6 | #85 eight received entries: tail 1 | #85 eight received entries: tail 2 | #85 eight received entries: tail 3 | #85 eight received entries: tail 4 | #85 eight received entries: tail 5 | #85 eight received entries: tail 6 | #85 eight received entries: tail 7"
+FAIL #85 peer commits with a path were graded got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #85 peer commits with a path were graded got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: every received path is published empty - breaks "#85 peer commits with a path were graded | p1 255 #85 peer commits with a path were graded"
+slice [69, 72] of 72
+
+4 checks: 4 PASS, 0 FAIL

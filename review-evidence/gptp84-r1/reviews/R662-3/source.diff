@@ -1,0 +1,1294 @@
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index 413c713..f9a7dc1 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -134,6 +134,8 @@ Region 3, word 2 writes trigger this hook.
+ 
+ Bit 2 means asCapable; bit 3 means sync-ok.
+ 
++Mastership sets bit 3 beside bit 1.
++
+ Either cleared bit reloads two completion pairs while active.
+ 
+ The hook preserves the active level and applied rate.
+@@ -201,6 +203,14 @@ The engine commits the reset state on its first edge.
+ 
+ No handler can run before that commit.
+ 
++Region 3, word 7 stages a taken Announce's path.
++
++That write appends thisClock to a nonempty received path.
++
++The appended entry uses the same image words.
++
++Eight received entries leave it no slot.
++
+ ## Out-of-context measurement
+ 
+ `make ooc` synthesizes both tops out of context.
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index 854ea3c..cc55ea6 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -299,6 +299,8 @@ These events clear the synchronization verdict and keep the lock:
+ - A 375 ms Sync receipt timeout.
+ - This plane returning from grandmaster duty.
+ 
++Becoming grandmaster sets the verdict instead.
++
+ A grandmaster failover through a Sync lapse stays locked.
+ 
+ So the next pair uses the 100 us threshold.
+@@ -461,6 +463,30 @@ Retained paths contain at most eight identities.
+ 
+ Inactive path entries remain zero.
+ 
++### Path of an elected peer
++
++[Issue #85](https://github.com/Mister-M-alt/FPGA-gPTP/issues/85) records this rule.
++
++802.1AS-2020 clause 10.3.13.2.4 defines it.
++
++Its item f5 is the slave port case.
++
++The path is the received pathSequence plus thisClock.
++
++thisClock is therefore the last published entry.
++
++A directly attached grandmaster publishes two entries.
++
++An absent PathTrace still publishes count zero.
++
++Seven received entries fill all eight slots.
++
++Longer received paths publish their first eight entries.
++
++Those entries are also pathTrace's first eight.
++
++The grandmaster and its path change in one commit.
++
+ ### Before any peer
+ 
+ [Issue #82](https://github.com/Mister-M-alt/FPGA-gPTP/issues/82) defines this self publication.
+@@ -507,6 +533,32 @@ That includes reset, both departures and mastership.
+ 
+ With priority1 255, only an elected peer sets it.
+ 
++### Grandmaster synchronization
++
++[Issue #84](https://github.com/Mister-M-alt/FPGA-gPTP/issues/84) records this rule.
++
++A grandmaster's own time is the domain's time.
++
++So mastership counts as synchronized.
++
++Flags bit 1 and bit 3 are therefore set together.
++
++A Sync receipt timeout never clears bit 3 during mastership.
++
++The parent derives tu from bit 3.
++
++Its tu therefore clears during mastership.
++
++Taking mastership from a peer changes the published grandmaster.
++
++That change arms the parent's Annex B.1.1 holdover.
++
++Handing mastership to a peer clears bit 3.
++
++The first consumed Sync pair sets it again.
++
++A self publication without mastership leaves bit 3 clear.
++
+ ### Selection after reset
+ 
+ Scratch keeps the last best-vector record across warm resets.
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index e3c3711..fb3baaa 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -100,11 +100,11 @@ See the [historical resource record](history/v1/RESOURCE_VALIDATION.md).
+ 
+ ## Current ROM budget
+ 
+-Shipping usage: 1,013 of 1,024 words (98.9%).
++Shipping usage: 1,015 of 1,024 words (99.1%).
+ 
+ That count includes thisClock's two data words at 1022..1023.
+ 
+-Only eleven words remain free, spread across packing gaps.
++Only nine words remain free, spread across packing gaps.
+ 
+ Shared legs may occupy the formerly reserved prefix.
+ 
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index 364268d..f866ad8 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -8,27 +8,27 @@ Line numbers describe the current branch layout.
+ | Claim | Source evidence | Executable evidence |
+ |---|---|---|
+ | Single clock domain | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L58) | `make lint` |
+-| Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L177) | `make lint` |
++| Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L178) | `make lint` |
+ | Any-byte receive refusal | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv) | Parser suite and named mutation controls |
+ | Deferred receive event | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L393) | Parser suite |
+-| Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L431) | Engine suite |
+-| Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L458) | Engine suite |
+-| Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L369) | Engine suite |
+-| Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L375) | Engine suite |
++| Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L432) | Engine suite |
++| Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L459) | Engine suite |
++| Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L370) | Engine suite |
++| Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L376) | Engine suite |
+ | Explicit lost result | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Retained Pdelay pairing context | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Reset-backed pairing validity | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L257) | Engine suite |
++| Reset-backed pairing validity | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L258) | Engine suite |
+ | Transmit admission credit | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L100) | Engine suite |
+-| Eight timer slots | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L411) | Engine suite |
++| Eight timer slots | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L412) | Engine suite |
+ | Six state regions | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L20) | Engine suite |
+ | Stable stalled transmission | [`KL_gptp_tx_slot`](../hdl/wire/KL_gptp_tx_slot.sv#L117) | Engine suite |
+-| Committed publication | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L124) | Engine suite |
++| Committed publication | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L125) | Engine suite |
+ | 1,024-word microcode ROM | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L105) | MicroCPU suite |
+ | Sixteen registers | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L113) | MicroCPU suite |
+ | Python image generation | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Media-dependent transmit flags | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine and tsngen suites |
+ | Step-versus-slew policy | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L993), [word 3](../hdl/top/KL_gptp_engine.sv#L998), [policy](../hdl/ucode/gen_gptp_ucode.py#L890) | Engine suite and named mutation controls |
++| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L1009), [word 3](../hdl/top/KL_gptp_engine.sv#L1014), [policy](../hdl/ucode/gen_gptp_ucode.py#L896) | Engine suite and named mutation controls |
+ | PHC rate envelope | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Ignored receive flag bits | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L475) | Engine suite |
+ | C++ test harnesses | [`tb/verilator`](../tb/verilator) | `make` |
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index 6a91cc7..3a32720 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -114,6 +114,12 @@ Prefer independent protocol formulas and frame builders.
+ - Grades gmPresent in every self publication.
+ - Reruns those phases from a priority1 255 image.
+ - Regains mastership without Announces after capability returns.
++- Publishes sync-ok in every master cycle.
++- Keeps it through a receipt timeout queued behind mastership.
++- Clears it on every handover to a peer.
++- Appends thisClock to direct and multi-hop received paths.
++- Checks the seven-entry, eight-entry and absent path boundaries.
++- Ends every committed peer path with thisClock.
+ - Rejects tied-low and early-clear slew indications.
+ - Keeps in-band tracking inactive after idle timeouts and GM changes.
+ - Keeps in-band returns from mastership inactive.
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index 366bc29..a9d0b0e 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -115,9 +115,10 @@ module KL_gptp_engine
+     output logic [31:0] pub_pdelay_ns_o,
+     output logic [31:0] pub_offset_o,  //! last sync offset, ns (signed)
+     output logic [63:0] pub_annq_o,    //! last received announce vector, raw
+-    //! Raw selected PathTrace publication: its complete received length,
+-    //! including the separately published GM at slot zero, or zero for an
+-    //! absent TLV. pub_path_o carries slots 1..7; inactive slots are zero.
++    //! Raw pathTrace publication: the selected Announce's pathSequence with
++    //! thisClock appended (#85), so its length includes the separately
++    //! published GM at slot zero and thisClock last, or zero for an absent
++    //! TLV. pub_path_o carries slots 1..7; inactive slots are zero.
+     //! After reset or a departed peer: thisClock and {thisClock} (#82).
+     output logic  [3:0] pub_path_count_o,
+     output logic [7*64-1:0] pub_path_o,
+@@ -712,10 +713,21 @@ module KL_gptp_engine
+   //! is zero.
+   //! The raw public ABI is bounded to eight complete entries. Count zero is
+   //! the honest publication for a selected fixed Announce without PathTrace;
+-  //! its GM remains separately published and every tail word is zero. Counts
+-  //! above the retained bank cap publish the first eight received entries.
++  //! its GM remains separately published and every tail word is zero. A
++  //! received path of one to seven entries publishes them and thisClock;
++  //! eight or more publish the first eight received entries.
+   wire [3:0] ann_pub_count_clamped_w = (ann_pub_count_r > 8'd8)
+       ? 4'd8 : ann_pub_count_r[3:0];
++  //! #85: a slave port's pathTrace is the received pathSequence with
++  //! thisClock appended, unless that sequence is empty (802.1AS-2020
++  //! 10.3.13.2.4 f) 5), 10.3.9.23). The appended entry takes the slot after
++  //! the received ones while it fits the eight-entry ABI. A received path of
++  //! eight or more entries publishes its first eight, as before: that prefix
++  //! is also the first eight entries of pathTrace.
++  wire       path_append_w = (ann_pub_count_clamped_w != 4'd0) &&
++                             (ann_pub_count_clamped_w != 4'd8);
++  wire [3:0] path_trace_count_w = ann_pub_count_clamped_w +
++                                  {3'd0, path_append_w};
+ 
+   //! Policy-owned completion qualifier: remaining in-band pairs, 0..2.
+   //! Separate from the exported level: a zero verdict stages completion,
+@@ -958,18 +970,22 @@ module KL_gptp_engine
+                 end
+               end
+               //! Address 7 stages the current frozen Announce payload only
+-              //! after BTCA `take`. Copy all active tails and clear every
+-              //! inactive word on this one edge, so a following COMMIT cannot
+-              //! expose parser-stale data from a prior longer PathTrace.
++              //! after BTCA `take`. Copy all active tails, append thisClock
++              //! (#85) and clear every inactive word on this one edge, so a
++              //! following COMMIT cannot expose parser-stale data from a
++              //! prior longer PathTrace.
+               4'd7: begin
+ `ifndef SYNTHESIS
+                 path_stage_pending_r <= 1'b1;
+ `endif
+-                pub_path_count_r <= ann_pub_count_clamped_w;
++                pub_path_count_r <= path_trace_count_w;
+                 for (int unsigned pk = 0; pk < 7; pk++) begin
+                   if (4'(pk + 2) <= ann_pub_count_clamped_w)
+                     pub_path_r[64*pk +: 64] <=
+                         ann_pub_tail_r[64*pk +: 64];
++                  else if (path_append_w &&
++                           (4'(pk + 1) == ann_pub_count_clamped_w))
++                    pub_path_r[64*pk +: 64] <= rom_clock_id_w;
+                   else
+                     pub_path_r[64*pk +: 64] <= 64'd0;
+                 end
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index 5537bd5..04beed5 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -69,9 +69,12 @@ The three rules now run ahead of every write the handler makes:
+     therefore consumes one coherent qualification bit rather than walking a
+     truncated storage window.
+ 
+-(d)'s pathTrace copy for a SlavePort is moot on a single-port end station: a
+-slave port transmits no Announce (the ANNTX leg is gated on the master role),
+-so the global array has no reader here.
++(d)'s pathTrace copy for a SlavePort, with thisClock appended (802.1AS-2020
++10.3.13.2.4 f) 5), #85), is the published path, which the parent serves to
++GET_AS_PATH (IEEE 1722.1-2021 7.4.41).
++Only its Announce transmit side has no reader on a single-port end station:
++a slave port transmits no Announce (the ANNTX leg is gated on the master
++role).
+ 
+ FPGA-gPTP #8, found by the parent's field campaign: the
+ Pdelay_Resp_Follow_Up handler qualified requestingPortIdentity and
+@@ -501,6 +504,9 @@ def set_servo_gains(clk_hz: int) -> None:
+ # publish flags bits. The µcode's bit 0 means a peer is elected; the engine
+ # also publishes it while thisClock is grandmaster-capable (#82)
+ FL_PRESENT_C, FL_AMGM_C, FL_ASCAP_C, FL_SYNCOK_C = 1, 2, 4, 8
++# the left shift that carries the master bit onto sync-ok (prog_leg_srto)
++SYNCOK_BY_AMGM_C = 2
++assert FL_AMGM_C << SYNCOK_BY_AMGM_C == FL_SYNCOK_C
+ 
+ # 802.1AS-2011 Table 11-7 controlField values for every message this plane
+ # transmits. Keep the map exhaustive so adding a TX message cannot silently
+@@ -1621,8 +1627,9 @@ def prog_btca(base: int) -> Prog:
+     p.emit("WRST", ra=RB, imm=RG_SCR | S_BESTID, fmt=FMT_Q)
+     p.emit("WRST", ra=RD_, imm=RG_SCR | S_BESTSRC, fmt=FMT_Q)
+     # Stage this taken Announce's frozen PathTrace into the raw publish bank.
+-    # Address 7 atomically copies the count/tail-only publication snapshot and
+-    # clears inactive tail words. Handler reads independently use the compact
++    # Address 7 atomically copies the count/tail-only publication snapshot,
++    # appends thisClock to a nonempty path (#85) and clears inactive tail
++    # words. Handler reads independently use the compact
+     # serial ann_ctx_r port; spending fourteen ROM words to copy the same path
+     # through that port would overflow this deliberately full µcode image.
+     # `they_win` is also reachable from a later worse Announce, so that later
+@@ -1727,8 +1734,14 @@ def prog_become(base: int) -> Prog:
+     p.emit("RDST", rd=RT, imm=RG_SCR | S_INTG, fmt=FMT_Q)
+     p.emit("ALU", rd=RT, ra=R0, rb=RT, cnd=ALU_SUB)
+     p.emit("WRST", ra=RT, imm=RG_PHC | 3, fmt=FMT_Q)
+-    # no peer is elected: gmPresent is the engine's, from the image
+-    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)
++    # no peer is elected: gmPresent is the engine's, from the image. The
++    # grandmaster's own time is the domain's time, so the master role is
++    # synchronised (#84). A commit that replaces a peer grandmaster with
++    # thisClock arms the parent's Milan v1.2 Annex B.1.1 holdover. When
++    # the publication already names thisClock (from reset, or after a self
++    # publication), this commit changes no grandmaster and arms none: the
++    # parent's tu falls here unless an earlier holdover is still running
++    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C | FL_SYNCOK_C)
+     p.emit("MOVE", rd=RT, ra=0, imm=1)
+     p.emit("WRST", ra=RT, imm=RG_TMR | 1, fmt=FMT_Q)  # sync now
+     p.emit("MOVE", rd=RT, ra=0, imm=2)
+@@ -1843,7 +1856,8 @@ def _pdpost_pairing_gates(p):
+     # neighborPropDelay, the ladder and asCapable stay where they are.
+     # This leg is the Follow_Up handler's only continuation; it lives
+     # here rather than in the fixed slot so SERVO keeps its 48-word home
+-    # behind that slot (the ROM is 88 percent full; see the packer)
++    # behind that slot (the ROM is nearly full; docs/MANAGER.md states the
++    # current budget)
+     # the portNumber half of prog_rx_pdrfu's requesting-identity check,
+     # which is the ENGINE'S OWN hardening and not an arm of the figure
+     # (the figure names the sequenceId and the sourcePortIdentity, the
+@@ -1982,9 +1996,21 @@ def prog_leg_resume(base: int) -> Prog:
+ 
+ def prog_leg_srto(base: int) -> Prog:
+     """Sync receipt timeout (375 ms): the sync-ok verdict falls. The servo
+-    stays locked, so the next pair still uses the locked threshold (#68)."""
++    stays locked, so the next pair still uses the locked threshold (#68).
++
++    A master keeps its verdict (#84). BECOME disarms this watch, but a
++    disarm cannot recall an expiry already queued behind BECOME's own
++    event. So sync-ok survives here exactly where the master bit stands:
++    the flags shifted left by SYNCOK_BY_AMGM_C put bit 1 on bit 3, and the
++    other three bits pass. Branch-free, because a gated form is two words
++    longer and the packer then has no gap for it."""
+     p = Prog(base)
+-    e_flags(p, andm=FL_PRESENT_C | FL_AMGM_C | FL_ASCAP_C)
++    p.emit("RDST", rd=RT, imm=RG_PUB | 2, fmt=FMT_Q)
++    p.emit("ALU", rd=RU, ra=RT, rb=0, cnd=ALU_SHL, imm=SYNCOK_BY_AMGM_C)
++    p.emit("ALU", rd=RU, ra=RU, rb=0, cnd=ALU_OR,
++           imm=FL_PRESENT_C | FL_AMGM_C | FL_ASCAP_C)
++    p.emit("ALU", rd=RT, ra=RT, rb=RU, cnd=ALU_AND)
++    p.emit("WRST", ra=RT, imm=RG_PUB | 2, fmt=FMT_Q)
+     p.emit("COMMIT")
+     p.emit("END")
+     return p
+diff --git a/syn/ooc/work/gptp_ucode.hex b/syn/ooc/work/gptp_ucode.hex
+index 2de3c06..5678720 100644
+--- a/syn/ooc/work/gptp_ucode.hex
++++ b/syn/ooc/work/gptp_ucode.hex
+@@ -185,11 +185,11 @@ E92807000002
+ EAA901000000
+ EAA980000000
+ 0800000003B5
+-428030030002
+-EAA802000007
+-482830030002
+-A80000000000
+-180000000000
++096BE4EFDFDB
++331CD7693666
++1B94B2E33D31
++FB952B8EA245
++A3030FCF5E15
+ 408030020017
+ 280820000001
+ 1000020000C4
+@@ -247,13 +247,13 @@ EA8803130000
+ 482830020029
+ E00000000000
+ 180000000000
+-EFB5D14F69EA
+-429B2B5FFE4C
+-23C80B38522D
+-CF2CBECDFC4E
+-E6002586BF15
+-5EE5A7779C01
+-507146283FB4
++428030030002
++EB2805000002
++EB3003000007
++EAAB02000000
++482830030002
++A80000000000
++180000000000
+ 408030020017
+ 280820000001
+ 100002000104
+@@ -519,7 +519,7 @@ E00000000000
+ 287810000003
+ 100002000181
+ 287810000004
+-1000020000BB
++1000020000F9
+ 287810000005
+ 10000200007D
+ 180000000000
+@@ -990,7 +990,7 @@ EA8281000000
+ 482830040003
+ 428030030002
+ EAA802000004
+-EAA803000002
++EAA80300000A
+ 482830030002
+ 228000000001
+ 482830050001
+diff --git a/tb/tsngen/gptp_ucode.hex b/tb/tsngen/gptp_ucode.hex
+index 894f7d6..08b9f68 100644
+--- a/tb/tsngen/gptp_ucode.hex
++++ b/tb/tsngen/gptp_ucode.hex
+@@ -185,11 +185,11 @@ E92807000002
+ EAA901000000
+ EAA980000000
+ 0800000003B5
+-428030030002
+-EAA802000007
+-482830030002
+-A80000000000
+-180000000000
++096BE4EFDFDB
++331CD7693666
++1B94B2E33D31
++FB952B8EA245
++A3030FCF5E15
+ 408030020017
+ 280820000001
+ 1000020000C4
+@@ -247,13 +247,13 @@ EA8803130000
+ 482830020029
+ E00000000000
+ 180000000000
+-EFB5D14F69EA
+-429B2B5FFE4C
+-23C80B38522D
+-CF2CBECDFC4E
+-E6002586BF15
+-5EE5A7779C01
+-507146283FB4
++428030030002
++EB2805000002
++EB3003000007
++EAAB02000000
++482830030002
++A80000000000
++180000000000
+ 408030020017
+ 280820000001
+ 100002000104
+@@ -519,7 +519,7 @@ E00000000000
+ 287810000003
+ 100002000181
+ 287810000004
+-1000020000BB
++1000020000F9
+ 287810000005
+ 10000200007D
+ 180000000000
+@@ -990,7 +990,7 @@ EA8281000000
+ 482830040003
+ 428030030002
+ EAA802000004
+-EAA803000002
++EAA80300000A
+ 482830030002
+ 228000000001
+ 482830050001
+diff --git a/tb/verilator/engine/gptp_ucode.hex b/tb/verilator/engine/gptp_ucode.hex
+index abf7cb0..1df2faa 100644
+--- a/tb/verilator/engine/gptp_ucode.hex
++++ b/tb/verilator/engine/gptp_ucode.hex
+@@ -185,11 +185,11 @@ E92807000002
+ EAA901000000
+ EAA980000000
+ 0800000003B5
+-428030030002
+-EAA802000007
+-482830030002
+-A80000000000
+-180000000000
++096BE4EFDFDB
++331CD7693666
++1B94B2E33D31
++FB952B8EA245
++A3030FCF5E15
+ 408030020017
+ 280820000001
+ 1000020000C4
+@@ -247,13 +247,13 @@ EA8803130000
+ 482830020029
+ E00000000000
+ 180000000000
+-EFB5D14F69EA
+-429B2B5FFE4C
+-23C80B38522D
+-CF2CBECDFC4E
+-E6002586BF15
+-5EE5A7779C01
+-507146283FB4
++428030030002
++EB2805000002
++EB3003000007
++EAAB02000000
++482830030002
++A80000000000
++180000000000
+ 408030020017
+ 280820000001
+ 100002000104
+@@ -519,7 +519,7 @@ E00000000000
+ 287810000003
+ 100002000181
+ 287810000004
+-1000020000BB
++1000020000F9
+ 287810000005
+ 10000200007D
+ 180000000000
+@@ -990,7 +990,7 @@ EA8281000000
+ 482830040003
+ 428030030002
+ EAA802000004
+-EAA803000002
++EAA80300000A
+ 482830030002
+ 228000000001
+ 482830050001
+diff --git a/tb/verilator/engine/mutants.py b/tb/verilator/engine/mutants.py
+index 84aeaf6..dec71f2 100644
+--- a/tb/verilator/engine/mutants.py
++++ b/tb/verilator/engine/mutants.py
+@@ -42,6 +42,12 @@ through two good Pdelay exchanges at 1 s cadence. Only mastership disarms
+ that watch, and mastership retires the qualifier itself. This is a
+ reachability argument from the current policy, not an executed proof;
+ revisit it if the timer or capability recovery rules change.
++
++An absent PathTrace's tail words have no arm either (#85). The engine's
++own simulation assertion stops the run when a commit pairs count zero with
++a nonzero tail word, so such a mutant aborts before any check can grade
++it, and an abort is not a catch. The absent-path probe grades its count
++and its commit instead, and a fabricated entry there is caught.
+ """
+ 
+ from __future__ import annotations
+@@ -254,14 +260,19 @@ MUTATIONS = [
+      "the servo stays locked across a grandmaster identity change"),
+     # only an asCapable rise re-arms the link-up (the manager's ruling on
+     # #68): each of these two re-adds a retired re-arm
++    # word-neutral, because the packer has no gap for a longer receipt
++    # timeout leg (#84): a slave's timeout as before, plus the unlock
+     ("a receipt timeout unlocks the servo", GENERATOR,
+-     "    e_flags(p, andm=FL_PRESENT_C | FL_AMGM_C | FL_ASCAP_C)\n",
+-     "    e_flags(p, andm=FL_PRESENT_C | FL_AMGM_C | FL_ASCAP_C)\n"
++     "    p.emit(\"ALU\", rd=RU, ra=RT, rb=0, cnd=ALU_SHL, imm=SYNCOK_BY_AMGM_C)\n"
++     "    p.emit(\"ALU\", rd=RU, ra=RU, rb=0, cnd=ALU_OR,\n"
++     "           imm=FL_PRESENT_C | FL_AMGM_C | FL_ASCAP_C)\n",
++     "    p.emit(\"MOVE\", rd=RU, ra=0,"
++     " imm=FL_PRESENT_C | FL_AMGM_C | FL_ASCAP_C)\n"
+      "    p.emit(\"WRST\", ra=0, imm=RG_SCR | S_LOCK, fmt=FMT_Q)\n",
+      "the servo stays locked across a Sync receipt timeout"),
+     ("becoming grandmaster unlocks the servo", GENERATOR,
+-     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)\n",
+-     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)\n"
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C | FL_SYNCOK_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C | FL_SYNCOK_C)\n"
+      "    p.emit(\"WRST\", ra=0, imm=RG_SCR | S_LOCK, fmt=FMT_Q)\n",
+      "the servo stays locked across a return from mastership"),
+     ("the locked threshold is 200 us", GENERATOR,
+@@ -275,10 +286,6 @@ MUTATIONS = [
+      "  # rose: link-up\n",
+      "",
+      "the first pair after asCapable rises, or after a reset, is a link-up"),
+-    ("becoming grandmaster keeps sync-ok", GENERATOR,
+-     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)\n",
+-     "    e_flags(p, andm=FL_ASCAP_C | FL_SYNCOK_C, orm=FL_AMGM_C)\n",
+-     "becoming grandmaster clears the sync-ok verdict"),
+     ("the whole trim is not clamped", GENERATOR,
+      "    e_sat(p, RT, RUNTIME[\"ilim\"], \"sv_a\")                    "
+      "# +-200 ppm\n",
+@@ -378,7 +385,13 @@ MUTATIONS = [
+      "    p.emit(\"WRST\", ra=RW, imm=RG_PUB | 0, fmt=FMT_Q)\n",
+      "",
+      "#82 peer wins: its commit names the peer GM"
+-     " | #82 warm reset: the live worse peer wins, not the absent A"),
++     " | #82 warm reset: the live worse peer wins, not the absent A"
++     " | #84 the run hands mastership to a peer"
++     " | #85 direct grandmaster: elected"
++     " | #85 multi-hop grandmaster: elected"
++     " | #85 seven received entries: elected"
++     " | #85 eight received entries: elected"
++     " | #85 absent path: elected"),
+     ("a winning peer's path is not staged", GENERATOR,
+      "    p.emit(\"WRST\", ra=0, imm=RG_PUB | 7, fmt=FMT_Q)\n",
+      "",
+@@ -391,7 +404,12 @@ MUTATIONS = [
+      "    p.emit(\"WRST\", ra=RC, imm=RG_PUB | 1, fmt=FMT_Q)\n",
+      "#82 peer leaves: the mastership commit names thisClock"
+      " | #82 Pdelay loss: thisClock is committed within 2 ms of the fall"
+-     " | #82 Pdelay loss: that mastership names thisClock, {thisClock}"),
++     " | #82 Pdelay loss: that mastership names thisClock, {thisClock}"
++     " | #85 direct grandmaster: the degraded grandmaster yields"
++     " | #85 multi-hop grandmaster: the degraded grandmaster yields"
++     " | #85 seven received entries: the degraded grandmaster yields"
++     " | #85 eight received entries: the degraded grandmaster yields"
++     " | #85 absent path: the degraded grandmaster yields"),
+     ("the self publication keeps the departed path", GENERATOR,
+      "    p.emit(\"WRST\", ra=RT, imm=RG_PUB | 6, fmt=FMT_Q)",
+      "    p.emit(\"WRST\", ra=0, imm=RG_PUB | 6, fmt=FMT_Q)",
+@@ -468,9 +486,145 @@ MUTATIONS = [
+      " | p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone"
+      " | p1 255 #82 Pdelay loss: that mastership commit has gmPresent"),
+     ("mastership sets the microcode's presence bit", GENERATOR,
+-     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)\n",
+-     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_PRESENT_C | FL_AMGM_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C | FL_SYNCOK_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C,"
++     " orm=FL_PRESENT_C | FL_AMGM_C | FL_SYNCOK_C)\n",
+      "p1 255 #82 Pdelay loss: that mastership commit has gmPresent"),
++    # ---- #84: the master role is synchronised ----------------------------
++    # Each control lists, after "#84 ", every named check it must fail.
++    ("becoming grandmaster clears sync-ok", GENERATOR,
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C | FL_SYNCOK_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C)\n",
++     "#84 first mastership: the master flags carry sync-ok"
++     " | #84 takeover: its commit names thisClock with sync-ok"
++     " | #84 every master cycle publishes sync-ok"
++     " | p1 255 #84 first mastership: the master flags carry sync-ok"
++     " | p1 255 #84 every master cycle publishes sync-ok"),
++    ("a queued receipt timeout clears a master's sync-ok", GENERATOR,
++     "    p.emit(\"ALU\", rd=RU, ra=RT, rb=0, cnd=ALU_SHL,"
++     " imm=SYNCOK_BY_AMGM_C)\n",
++     "    p.emit(\"MOVE\", rd=RU, ra=0, imm=0)\n",
++     "#84 takeover: a queued receipt timeout keeps sync-ok"
++     " | #84 every master cycle publishes sync-ok"),
++    ("the receipt timeout publishes nothing", GENERATOR,
++     "    p.emit(\"ALU\", rd=RT, ra=RT, rb=RU, cnd=ALU_AND)\n"
++     "    p.emit(\"WRST\", ra=RT, imm=RG_PUB | 2, fmt=FMT_Q)\n"
++     "    p.emit(\"COMMIT\")\n",
++     "    p.emit(\"ALU\", rd=RT, ra=RT, rb=RU, cnd=ALU_AND)\n"
++     "    p.emit(\"WRST\", ra=RT, imm=RG_PUB | 2, fmt=FMT_Q)\n",
++     "#84 takeover: the queued receipt timeout commits after it"),
++    ("dispatch ignores a busy serializer", "top/KL_gptp_engine.sv",
++     "                 disp_ready_w && ser_idle_w && !disp_valid_r;",
++     "                 disp_ready_w && !disp_valid_r;",
++     "#84 takeover: nothing commits while dispatch is held"),
++    ("mastership never publishes the master bit", GENERATOR,
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_AMGM_C | FL_SYNCOK_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_SYNCOK_C)\n",
++     "#84 master cycles were graded"
++     " | p1 255 #84 master cycles were graded"),
++    ("a handover to a peer keeps sync-ok", GENERATOR,
++     "    e_flags(p, andm=FL_ASCAP_C, orm=FL_PRESENT_C)\n",
++     "    e_flags(p, andm=FL_ASCAP_C | FL_SYNCOK_C, orm=FL_PRESENT_C)\n",
++     "#84 every handover to a peer grandmaster clears sync-ok"
++     " | p1 255 #84 every handover to a peer grandmaster clears sync-ok"),
++    # ---- #85: the received pathSequence plus thisClock --------------------
++    # Each control lists, after "#85 ", every named check it must fail.
++    ("the received path is published without thisClock",
++     "top/KL_gptp_engine.sv",
++     "  wire       path_append_w = (ann_pub_count_clamped_w != 4'd0) &&\n"
++     "                             (ann_pub_count_clamped_w != 4'd8);\n",
++     "  wire       path_append_w = 1'b0;\n",
++     "#85 direct grandmaster: count"
++     " | #85 direct grandmaster: tail 1"
++     " | #85 direct grandmaster: its commit names the grandmaster and path"
++     " | #85 multi-hop grandmaster: count"
++     " | #85 multi-hop grandmaster: tail 5"
++     " | #85 multi-hop grandmaster: its commit names the grandmaster and path"
++     " | #85 seven received entries: count"
++     " | #85 seven received entries: tail 7"
++     " | #85 seven received entries: its commit names the grandmaster and"
++     " path"
++     " | #85 every peer path ends with thisClock"
++     " | p1 255 #85 every peer path ends with thisClock"
++     " | #82 peer wins: its commit carries the peer path"
++     " | #82 warm reset: the live peer carries its own path"
++     " | #82 Pdelay loss: once capable, a live peer worse than D wins"
++     " | adopt appends thisClock as path tail 4"
++     " | worse announce retains path A tail 4"
++     " | worse TLV-less announce retains path A tail 4"
++     " | parent refresh appends thisClock"
++     " | unknown before path current parent: tail 3"
++     " | post-release C appends thisClock"),
++    ("thisClock is appended to an absent path", "top/KL_gptp_engine.sv",
++     "  wire       path_append_w = (ann_pub_count_clamped_w != 4'd0) &&\n"
++     "                             (ann_pub_count_clamped_w != 4'd8);\n",
++     "  wire       path_append_w = (ann_pub_count_clamped_w != 4'd8);\n",
++     "#85 absent path: count"
++     " | #85 absent path: its commit names the grandmaster and path"),
++    ("eight received entries take a ninth", "top/KL_gptp_engine.sv",
++     "  wire       path_append_w = (ann_pub_count_clamped_w != 4'd0) &&\n"
++     "                             (ann_pub_count_clamped_w != 4'd8);\n",
++     "  wire       path_append_w = (ann_pub_count_clamped_w != 4'd0);\n",
++     "#85 eight received entries: count"
++     " | #85 eight received entries: its commit names the grandmaster and"
++     " path"),
++    ("seven received entries leave thisClock out", "top/KL_gptp_engine.sv",
++     "  wire       path_append_w = (ann_pub_count_clamped_w != 4'd0) &&\n"
++     "                             (ann_pub_count_clamped_w != 4'd8);\n",
++     "  wire       path_append_w = (ann_pub_count_clamped_w != 4'd0) &&\n"
++     "                             (ann_pub_count_clamped_w < 4'd7);\n",
++     "#85 seven received entries: count"
++     " | #85 seven received entries: tail 7"),
++    ("thisClock lands one slot early", "top/KL_gptp_engine.sv",
++     "                           (4'(pk + 1) == ann_pub_count_clamped_w))\n",
++     "                           (4'(pk + 2) == ann_pub_count_clamped_w))\n",
++     "#85 direct grandmaster: tail 1"
++     " | #85 multi-hop grandmaster: tail 5"
++     " | #85 every peer path ends with thisClock"),
++    ("thisClock fills every later slot", "top/KL_gptp_engine.sv",
++     "                           (4'(pk + 1) == ann_pub_count_clamped_w))\n",
++     "                           (4'(pk + 1) >= ann_pub_count_clamped_w))\n",
++     "#85 direct grandmaster: tail 2"
++     " | #85 direct grandmaster: tail 3"
++     " | #85 direct grandmaster: tail 4"
++     " | #85 direct grandmaster: tail 5"
++     " | #85 direct grandmaster: tail 6"
++     " | #85 direct grandmaster: tail 7"
++     " | #85 multi-hop grandmaster: tail 6"
++     " | #85 multi-hop grandmaster: tail 7"),
++    ("the appended entry is the announcing source", "top/KL_gptp_engine.sv",
++     "                    pub_path_r[64*pk +: 64] <= rom_clock_id_w;\n",
++     "                    pub_path_r[64*pk +: 64] <= frame_cid_r;\n",
++     "#85 direct grandmaster: tail 1"
++     " | #85 multi-hop grandmaster: tail 5"
++     " | #85 every peer path ends with thisClock"),
++    ("the received entries are not copied", "top/KL_gptp_engine.sv",
++     "                    pub_path_r[64*pk +: 64] <=\n"
++     "                        ann_pub_tail_r[64*pk +: 64];\n",
++     "                    pub_path_r[64*pk +: 64] <= 64'd0;\n",
++     "#85 multi-hop grandmaster: tail 1"
++     " | #85 multi-hop grandmaster: tail 2"
++     " | #85 multi-hop grandmaster: tail 3"
++     " | #85 multi-hop grandmaster: tail 4"
++     " | #85 seven received entries: tail 1"
++     " | #85 seven received entries: tail 2"
++     " | #85 seven received entries: tail 3"
++     " | #85 seven received entries: tail 4"
++     " | #85 seven received entries: tail 5"
++     " | #85 seven received entries: tail 6"
++     " | #85 eight received entries: tail 1"
++     " | #85 eight received entries: tail 2"
++     " | #85 eight received entries: tail 3"
++     " | #85 eight received entries: tail 4"
++     " | #85 eight received entries: tail 5"
++     " | #85 eight received entries: tail 6"
++     " | #85 eight received entries: tail 7"),
++    ("every received path is published empty", "top/KL_gptp_engine.sv",
++     "  wire [3:0] ann_pub_count_clamped_w = (ann_pub_count_r > 8'd8)\n"
++     "      ? 4'd8 : ann_pub_count_r[3:0];\n",
++     "  wire [3:0] ann_pub_count_clamped_w = 4'd0;\n",
++     "#85 peer commits with a path were graded"
++     " | p1 255 #85 peer commits with a path were graded"),
+ ]
+ 
+ 
+@@ -574,9 +728,10 @@ def named_verdict(answer: str, breaks: str, output: str) -> str:
+             answer = "missed its named check"
+         else:
+             print(named[0])
+-    # #82 controls must fail every check they name, for the same
+-    # reason: each of those checks needs its own failing defect.
+-    if breaks.startswith(("#82 ", P1_PREFIX)) and answer == "caught":
++    # #82, #84 and #85 controls must fail every check they name, for the
++    # same reason: each of those checks needs its own failing defect.
++    if breaks.startswith(("#82 ", "#84 ", "#85 ", P1_PREFIX)) and \
++            answer == "caught":
+         failed = [line for line in output.splitlines()
+                   if line.startswith("FAIL ")]
+         missed = [want for want in breaks.split(" | ")
+diff --git a/tb/verilator/engine/sim_main.cpp b/tb/verilator/engine/sim_main.cpp
+index 2580717..1298065 100644
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -72,6 +72,12 @@
+ //         identity) and two half-identity controls (source and first
+ //         hop differing from ours in one 32-bit half) adopt, and a
+ //         degrade hands mastership back each time (#7)
++// 8n      #85: a slave port publishes the received pathSequence with
++//         thisClock appended (802.1AS-2020 10.3.13.2.4 f 5, 10.3.9.23): a
++//         directly attached grandmaster [GM] publishes [GM, thisClock], a
++//         four-bridge path publishes its five entries and thisClock, seven
++//         entries put thisClock in the last of the eight slots, eight or
++//         more publish their first eight, and an absent TLV stays empty
+ // 10..12  slave sync path: offset, sync-ok verdict, the 125 ms
+ //         Follow_Up and 375 ms sync receipt timeouts (Table 4.2); the
+ //         first pair after asCapable, a link-up about 1 ms off, steps (#68)
+@@ -109,9 +115,11 @@
+ //         locked: -50 us off it slews, and after a second failover 150 us
+ //         off it steps once
+ // 19..21  parent degradation yields mastership immediately (10.3.5) and
+-//         clears sync-ok; the Sync body stays zero while its Follow_Up
+-//         carries the live egress stamp; an asCapable fall stops
+-//         consumption and steering. #68: the first pair after the
++//         keeps sync-ok (#84), in the commit that names thisClock, though
++//         the Sync receipt timeout expires while that Announce still waits
++//         behind a stalled Pdelay response; the Sync body stays zero while
++//         its Follow_Up carries the live egress stamp; an asCapable fall
++//         stops consumption and steering. #68: the first pair after the
+ //         return from mastership is locked, and 50 us off it slews; the
+ //         first after asCapable falls and returns is a link-up, and 25 us
+ //         off it steps once
+@@ -157,9 +165,17 @@
+ //         within one receipt interval; then a live peer worse than the
+ //         dropped one is elected. Every commit of the run naming thisClock
+ //         carries {thisClock}
++// 37      #84: a grandmaster's own time is the domain's time, so the master
++//         role is synchronised. Every cycle of the run that publishes the
++//         master bit publishes sync-ok beside it, and every commit that
++//         leaves mastership for a peer grandmaster clears it. The parent's
++//         tu is 0 there except during a Milan v1.2 Annex B.1.1 holdover;
++//         mastership arms one only by replacing a peer grandmaster
++// 38      #85: every commit naming a peer grandmaster with a path ends it
++//         with thisClock, once, unless eight received entries fill it
+ //
+ // A fourth pass (+not-gm-capable, an image built with --p1 255) runs only
+-// the phases a self publication passes through: boot, mastership and 36.
++// the phases a self publication passes through: boot, mastership and 36..38.
+ // There thisClock is not grandmaster-capable, so gmPresent stays clear in
+ // every self publication and is set only while a capable peer is elected
+ // (10.3.13.2.4 g). Its checks print with a "p1 255 " prefix.
+@@ -263,6 +279,8 @@ class GptpEngineHarness {
+     become_master_on_announce_receipt_timeout();
+     drop_a_peer_whose_pdelay_stops();
+     hold_every_committed_path_coherent();
++    keep_sync_ok_in_every_master_cycle();
++    end_every_peer_path_with_thisclock();
+   }
+ 
+   //! The shipping passes: every phase named in the file header, in order.
+@@ -291,6 +309,7 @@ class GptpEngineHarness {
+     stay_master_against_a_worse_announce();
+     refuse_a_better_announce_in_a_foreign_domain();
+     refuse_unqualified_announces_and_admit_the_controls();
++    append_thisclock_to_each_received_path();
+     adopt_a_better_announce_and_hold_its_path();
+     clamp_a_deep_path_and_take_a_parent_refresh();
+     walk_past_an_unknown_tlv_to_a_later_path_trace();
+@@ -350,6 +369,8 @@ class GptpEngineHarness {
+     return_to_thisclock_around_a_winning_peer();
+     drop_a_peer_whose_pdelay_stops();
+     hold_every_committed_path_coherent();
++    keep_sync_ok_in_every_master_cycle();
++    end_every_peer_path_with_thisclock();
+   }
+ 
+   //! flags bit 0 in a self publication: gmPresent when thisClock is
+@@ -461,6 +482,10 @@ class GptpEngineHarness {
+   uint64_t boot_bad_gm = 0;
+   uint64_t boot_bad_path = 0;
+   uint64_t boot_bad_present = 0;
++  //! #84: every cycle of the run is graded: those whose published flags
++  //! carry the master bit, and those of them without sync-ok
++  uint64_t master_cycles = 0;
++  uint64_t master_unsynced_cycles = 0;
+ 
+   // ---- TX backpressure ------------------------------------------------------
+   std::vector<std::vector<uint8_t>> txf;
+@@ -598,6 +623,10 @@ class GptpEngineHarness {
+       if (!self_path) boot_bad_path++;
+       if ((dut->pub_flags_o & FL_PRESENT) != self_present) boot_bad_present++;
+     }
++    if (dut->pub_flags_o & FL_AMGM) {
++      master_cycles++;
++      if (!(dut->pub_flags_o & FL_SYNCOK)) master_unsynced_cycles++;
++    }
+     if (dut->pub_commit_o) commits_seen++;
+     //! The record is bounded: a defect that commits on every cycle must
+     //! fail its checks, not exhaust the host. A clean run commits hundreds.
+@@ -1078,6 +1107,16 @@ class GptpEngineHarness {
+     return same;
+   }
+ 
++  //! #85: the pathTrace an elected peer's Announce leaves published, as
++  //! 802.1AS-2020 10.3.13.2.4 f) 5) states it: the received pathSequence
++  //! with thisClock appended unless that sequence is empty, bounded to the
++  //! first eight entries, all the publication carries.
++  static std::vector<uint64_t> path_trace_of(std::vector<uint64_t> received) {
++    if (!received.empty()) received.push_back(OUR_CID);
++    if (received.size() > 8) received.resize(8);
++    return received;
++  }
++
+   //! the first commit sampled at or after index `mark`, if one landed
+   const PubSnap *first_commit_since(size_t mark) const {
+     return commit_snaps.size() > mark ? &commit_snaps[mark] : nullptr;
+@@ -1768,6 +1807,9 @@ class GptpEngineHarness {
+     run(200);  // raw words move before COMMIT; grade the complete transaction
+     expect("master flags", dut->pub_flags_o & 7,
+            self_present | FL_AMGM | FL_ASCAP);
++    expect("#84 first mastership: the master flags carry sync-ok",
++           dut->pub_flags_o & 0xF,
++           self_present | FL_AMGM | FL_ASCAP | FL_SYNCOK);
+     expect("gm is us", dut->pub_gm_id_o, OUR_CID);
+     expect("self path has one entry", dut->pub_path_count_o, 1);
+     for (unsigned k = 0; k < PATH_TAIL_SLOTS; k++) {
+@@ -2273,11 +2315,11 @@ class GptpEngineHarness {
+     expect(n, dut->pub_parent_id_o, src);
+     snprintf(n, 96, "%s: no longer master", tag);
+     expect(n, dut->pub_flags_o & FL_AMGM, 0);
+-    const unsigned served = path.size() > 8 ? 8 : path.size();
++    const std::vector<uint64_t> served = path_trace_of(path);
+     snprintf(n, 96, "%s: raw path count", tag);
+-    expect(n, dut->pub_path_count_o, served);
++    expect(n, dut->pub_path_count_o, served.size());
+     for (unsigned k = 0; k < PATH_TAIL_SLOTS; k++) {
+-      const uint64_t want = (k + 1 < served) ? path[k + 1] : 0;
++      const uint64_t want = (k + 1 < served.size()) ? served[k + 1] : 0;
+       snprintf(n, 96, "%s: raw path tail %u", tag, k + 1);
+       expect(n, pub_path_tail(k), want);
+     }
+@@ -2385,6 +2427,76 @@ class GptpEngineHarness {
+                   0x00D4D4FFFE000009ull, {}, 7100000);
+   }
+ 
++  // ---- 8n: #85, the published path is the received one plus thisClock --
++  //! Each probe wins BTCA outright from mastership with priority1 1, is
++  //! graded against the pathTrace written out literally below, then
++  //! degrades below us so mastership returns, as adopt_control does.
++  void append_thisclock_to_each_received_path() {
++    const uint64_t GM_D = 0x00E5E5FFFE000001ull;
++    take_and_grade_a_path("#85 direct grandmaster", 30, GM_D, 0, GM_D,
++                          {GM_D}, {GM_D, OUR_CID}, 7300000);
++    const uint64_t GM_M = 0x00E6E6FFFE000001ull;
++    const uint64_t B1 = 0x00E6E6FFFE0000B1ull;
++    const uint64_t B2 = 0x00E6E6FFFE0000B2ull;
++    const uint64_t B3 = 0x00E6E6FFFE0000B3ull;
++    const uint64_t SRC_M = 0x00E6E6FFFE0000C4ull;
++    take_and_grade_a_path("#85 multi-hop grandmaster", 32, GM_M, 4, SRC_M,
++                          {GM_M, B1, B2, B3, SRC_M},
++                          {GM_M, B1, B2, B3, SRC_M, OUR_CID}, 7500000);
++    const uint64_t GM_7 = 0x00E7E7FFFE000001ull;
++    const std::vector<uint64_t> seven = {GM_7, GM_7 + 1, GM_7 + 2, GM_7 + 3,
++                                         GM_7 + 4, GM_7 + 5, GM_7 + 6};
++    take_and_grade_a_path("#85 seven received entries", 34, GM_7, 6,
++                          GM_7 + 6, seven,
++                          {GM_7, GM_7 + 1, GM_7 + 2, GM_7 + 3, GM_7 + 4,
++                           GM_7 + 5, GM_7 + 6, OUR_CID}, 7700000);
++    const uint64_t GM_8 = 0x00E8E8FFFE000001ull;
++    const std::vector<uint64_t> eight = {GM_8, GM_8 + 1, GM_8 + 2, GM_8 + 3,
++                                         GM_8 + 4, GM_8 + 5, GM_8 + 6,
++                                         GM_8 + 7};
++    take_and_grade_a_path("#85 eight received entries", 36, GM_8, 7,
++                          GM_8 + 7, eight, eight, 7900000);
++    const uint64_t GM_0 = 0x00E9E9FFFE000001ull;
++    take_and_grade_a_path("#85 absent path", 38, GM_0, 0, GM_0, {}, {},
++                          8100000);
++  }
++
++  //! One 8n probe: `received` on the wire, `want` the published pathTrace.
++  void take_and_grade_a_path(const char *tag, uint16_t seq, uint64_t gm,
++                             uint16_t steps, uint64_t src,
++                             const std::vector<uint64_t> &received,
++                             const std::vector<uint64_t> &want, uint64_t rx) {
++    char n[112];
++    const size_t c0 = commit_snaps.size();
++    send_announce(seq, 1, gm, steps, src, received, rx);
++    snprintf(n, sizeof n, "%s: elected", tag);
++    expect(n, dut->pub_gm_id_o, gm);
++    snprintf(n, sizeof n, "%s: count", tag);
++    expect(n, dut->pub_path_count_o, want.size());
++    // An empty path's tail is the engine's own assertion: a nonzero word
++    // beside count zero stops the simulation before any check could grade it
++    for (unsigned k = 0; k < PATH_TAIL_SLOTS && !want.empty(); k++) {
++      snprintf(n, sizeof n, "%s: tail %u", tag, k + 1);
++      expect(n, pub_path_tail(k), k + 1 < want.size() ? want[k + 1] : 0);
++    }
++    const PubSnap *s = first_commit_since(c0);
++    bool carried = s && s->gm == gm;
++    if (carried && want.empty()) {
++      carried = s->count == 0;
++      for (unsigned k = 0; k < PATH_TAIL_SLOTS; k++)
++        carried &= s->tail[k] == 0;
++    } else if (carried) {
++      carried = committed_path_is(
++          *s, std::vector<uint64_t>(want.begin() + 1, want.end()));
++    }
++    snprintf(n, sizeof n, "%s: its commit names the grandmaster and path", tag);
++    expect(n, carried, 1);
++    send_announce(static_cast<uint16_t>(seq + 1), 250, gm, steps, src,
++                  received, rx + 100000);
++    snprintf(n, sizeof n, "%s: the degraded grandmaster yields", tag);
++    expect(n, dut->pub_gm_id_o == OUR_CID && (dut->pub_flags_o & FL_AMGM), 1);
++  }
++
+   // ---- 9: better announce -> adopt, sync stops --------------------------
+   // a rogue Sync heard while still master would leave a stale ingress
+   // stamp; adopt must void it so it cannot pair with a post-adopt FU
+@@ -2403,11 +2515,12 @@ class GptpEngineHarness {
+     expect("adopted", dut->pub_flags_o & 3, FL_PRESENT);
+     expect("adopt keeps capable", dut->pub_flags_o & FL_ASCAP, FL_ASCAP);
+     expect("gm is theirs", dut->pub_gm_id_o, GMID);
+-    expect("adopt publishes complete path count", dut->pub_path_count_o, 4);
++    expect("adopt publishes complete path count", dut->pub_path_count_o, 5);
+     expect("adopt publishes path tail 1", pub_path_tail(0), PATH_A1);
+     expect("adopt publishes path tail 2", pub_path_tail(1), PATH_A2);
+     expect("adopt publishes path tail 3", pub_path_tail(2), PEER_CID);
+-    for (unsigned k = 3; k < PATH_TAIL_SLOTS; k++) {
++    expect("adopt appends thisClock as path tail 4", pub_path_tail(3), OUR_CID);
++    for (unsigned k = 4; k < PATH_TAIL_SLOTS; k++) {
+       char n[64]; snprintf(n, sizeof(n), "adopt clears inactive tail %u", k);
+       expect(n, pub_path_tail(k), 0);
+     }
+@@ -2426,10 +2539,11 @@ class GptpEngineHarness {
+            PEER_CID);
+     expect("worse announce reaches a commit", commits_seen,
+            commits_before_worse + 1);
+-    expect("worse announce retains path A count", dut->pub_path_count_o, 4);
++    expect("worse announce retains path A count", dut->pub_path_count_o, 5);
+     expect("worse announce retains path A tail 1", pub_path_tail(0), PATH_A1);
+     expect("worse announce retains path A tail 2", pub_path_tail(1), PATH_A2);
+     expect("worse announce retains path A tail 3", pub_path_tail(2), PEER_CID);
++    expect("worse announce retains path A tail 4", pub_path_tail(3), OUR_CID);
+ 
+     // The same losing contest with no PathTrace reports raw count zero for the
+     // current frame, but never executes BTCA `take`. The common `they_win`
+@@ -2445,14 +2559,16 @@ class GptpEngineHarness {
+     expect("worse TLV-less announce retains selected parent",
+            dut->pub_parent_id_o, PEER_CID);
+     expect("worse TLV-less announce retains path A count",
+-           dut->pub_path_count_o, 4);
++           dut->pub_path_count_o, 5);
+     expect("worse TLV-less announce retains path A tail 1",
+            pub_path_tail(0), PATH_A1);
+     expect("worse TLV-less announce retains path A tail 2",
+            pub_path_tail(1), PATH_A2);
+     expect("worse TLV-less announce retains path A tail 3",
+            pub_path_tail(2), PEER_CID);
+-    for (unsigned k = 3; k < PATH_TAIL_SLOTS; k++) {
++    expect("worse TLV-less announce retains path A tail 4",
++           pub_path_tail(3), OUR_CID);
++    for (unsigned k = 4; k < PATH_TAIL_SLOTS; k++) {
+       char n[88]; snprintf(n, sizeof n,
+                            "worse TLV-less announce retains zero tail %u", k + 1);
+       expect(n, pub_path_tail(k), 0);
+@@ -2481,10 +2597,11 @@ class GptpEngineHarness {
+     PATH_C1 = 0x00CCD0FFFE000033ull;
+     const std::vector<uint64_t> PATH_C = {GMID, PATH_C1, PEER_CID};
+     send_announce(13, 100, GMID, 2, PEER_CID, PATH_C, 6300000);
+-    expect("parent refresh publishes path C count", dut->pub_path_count_o, 3);
++    expect("parent refresh publishes path C count", dut->pub_path_count_o, 4);
+     expect("parent refresh publishes path C tail 1", pub_path_tail(0), PATH_C1);
+     expect("parent refresh publishes path C tail 2", pub_path_tail(1), PEER_CID);
+-    for (unsigned k = 2; k < PATH_TAIL_SLOTS; k++) {
++    expect("parent refresh appends thisClock", pub_path_tail(2), OUR_CID);
++    for (unsigned k = 3; k < PATH_TAIL_SLOTS; k++) {
+       char n[72]; snprintf(n, sizeof(n), "parent refresh clears old tail %u", k);
+       expect(n, pub_path_tail(k), 0);
+     }
+@@ -2588,11 +2705,13 @@ class GptpEngineHarness {
+       expect("unknown before path current parent: one commit",
+              commit_snaps.size(), c0 + 1);
+       expect("unknown before path current parent: count",
+-             dut->pub_path_count_o, 3);
++             dut->pub_path_count_o, 4);
+       expect("unknown before path current parent: tail 1",
+              pub_path_tail(0), PATH_U1);
+       expect("unknown before path current parent: tail 2",
+              pub_path_tail(1), PEER_CID);
++      expect("unknown before path current parent: tail 3",
++             pub_path_tail(2), OUR_CID);
+       expect("unknown before path current parent: parser accepts",
+              dut->dbg_rx_drop_o, d0);
+     }
+@@ -2763,7 +2882,7 @@ class GptpEngineHarness {
+       const PubSnap &qa = commit_snaps[queued_commit_base + 0];
+       expect("frozen queued A GM coherent", qa.gm, GMID);
+       expect("frozen queued A parent coherent", qa.parent, PEER_CID);
+-      expect("frozen queued A count coherent", qa.count, 4);
++      expect("frozen queued A count coherent", qa.count, 5);
+       expect("frozen queued A tail 1 coherent", qa.tail[0], Q_A1);
+       expect("frozen queued A tail 2 coherent", qa.tail[1], Q_A2);
+     }
+@@ -2773,9 +2892,10 @@ class GptpEngineHarness {
+            released_commit_base + 1);
+     expect("post-release C GM coherent", dut->pub_gm_id_o, GMID);
+     expect("post-release C parent coherent", dut->pub_parent_id_o, PEER_CID);
+-    expect("post-release C count coherent", dut->pub_path_count_o, 3);
++    expect("post-release C count coherent", dut->pub_path_count_o, 4);
+     expect("post-release C tail coherent", pub_path_tail(0), Q_C1);
+-    expect("post-release C clears inactive A tail", pub_path_tail(2), 0);
++    expect("post-release C appends thisClock", pub_path_tail(2), OUR_CID);
++    expect("post-release C clears inactive A tail", pub_path_tail(3), 0);
+     // Repeat the literal EOF/SOF-adjacent stalled-dispatch overload with a
+     // fixed no-PathTrace owner A and present-PathTrace chasers. The deferred
+     // zero count must belong to A, hold the frozen context until its handler
+@@ -2818,7 +2938,7 @@ class GptpEngineHarness {
+                     Q_PATH_C, phc() + 1000);
+       expect("raw-empty overload: post-release path commits",
+              commit_snaps.size(), c1 + 1);
+-      expect("raw-empty overload: post-release count", dut->pub_path_count_o, 3);
++      expect("raw-empty overload: post-release count", dut->pub_path_count_o, 4);
+       expect("raw-empty overload: post-release tail", pub_path_tail(0), Q_C1);
+     }
+   }
+@@ -3652,17 +3772,53 @@ class GptpEngineHarness {
+ 
+   // ---- 19: the parent degrades below us -> immediate takeover -----------
+   // 10.3.5: a parent update replaces the best; ours now wins the
+-  // contest and become-master runs WITHOUT waiting any timeout. Becoming
+-  // grandmaster clears the sync-ok verdict phase 18d left high
++  // contest and become-master runs WITHOUT waiting any timeout. #84: the
++  // grandmaster's own time is the domain's, so becoming grandmaster keeps
++  // the sync-ok verdict phase 18d left high, in the commit that changes the
++  // grandmaster to thisClock. That Announce waits behind a stalled Pdelay
++  // response until the Sync receipt watch 18d's last pair armed has
++  // expired, so the timeout's event is queued behind the takeover's, where
++  // BECOME's disarm cannot reach it: the master it then meets keeps sync-ok
+   void take_mastership_when_the_parent_degrades() {
+     expect("sync-ok high before the takeover",
+            dut->pub_flags_o & FL_SYNCOK, FL_SYNCOK);
+-    announce(42, 250, 0xAABBCCFFFE010203ull, 0, 0x00F1F1FFFE000009ull);
++    const size_t c0 = commit_snaps.size();
++    dut->tx_ready_i = 0;
++    {
++      Frame q = ptp(0x2, 0x6C6C, 0, 0x0000, 20, PEER_CID);
++      q.u64(0); q.u16(0); q.ts(0); q.b.resize(68);
++      send_frame(q.b, phc() + 100);
++      run(2000);  // response serializer is now non-idle and holds dispatch
++    }
++    enqueue_announce(42, 250, 0xAABBCCFFFE010203ull, 0, 0x00F1F1FFFE000009ull,
++                     {0xAABBCCFFFE010203ull}, 5000000);
++    run(760000);  // 380 ms: past the 375 ms watch armed before this phase
++    const size_t c_held = commit_snaps.size();
++    dut->tx_ready_i = 1;
++    run_svc(30000);
+     expect("degraded parent yields NOW", dut->pub_flags_o & 3,
+            FL_PRESENT | FL_AMGM);
+     expect("gm is us again", dut->pub_gm_id_o, OUR_CID);
+-    expect("becoming grandmaster clears sync-ok",
+-           dut->pub_flags_o & FL_SYNCOK, 0);
++    expect("#84 takeover: nothing commits while dispatch is held",
++           c_held, c0);
++    // the takeover commit, then the queued timeout's own commit
++    size_t named = 0;
++    size_t named_synced = 0;
++    for (size_t k = c0; k < commit_snaps.size(); k++) {
++      if (commit_snaps[k].gm != OUR_CID) continue;
++      named++;
++      if ((commit_snaps[k].flags & (FL_AMGM | FL_SYNCOK)) ==
++          (FL_AMGM | FL_SYNCOK))
++        named_synced++;
++    }
++    expect("#84 takeover: its commit names thisClock with sync-ok",
++           c0 < commit_snaps.size() && commit_snaps[c0].gm == OUR_CID &&
++               (commit_snaps[c0].flags & FL_SYNCOK),
++           1);
++    expect("#84 takeover: the queued receipt timeout commits after it",
++           named >= 2, 1);
++    expect("#84 takeover: a queued receipt timeout keeps sync-ok",
++           named_synced, named);
+   }
+ 
+   // ---- 20: every two-step Sync carries a zero reserved body --------------
+@@ -4870,7 +5026,7 @@ class GptpEngineHarness {
+     expect("#82 peer wins: its commit names the peer GM",
+            won ? won->gm : 0, GMA);
+     expect("#82 peer wins: its commit carries the peer path",
+-           won && committed_path_is(*won, {HOPA, SRCA}), 1);
++           won && committed_path_is(*won, {HOPA, SRCA, OUR_CID}), 1);
+ 
+     const size_t warm0 = commit_snaps.size();
+     const uint64_t release = cyc + 8;       // warm_reset holds 8 cycles
+@@ -4900,7 +5056,7 @@ class GptpEngineHarness {
+     expect("#82 warm reset: the live worse peer wins, not the absent A",
+            live ? live->gm : 0, GMB);
+     expect("#82 warm reset: the live peer carries its own path",
+-           live && committed_path_is(*live, {SRCB}), 1);
++           live && committed_path_is(*live, {SRCB, OUR_CID}), 1);
+ 
+     const size_t quiet0 = commit_snaps.size();
+     wait_flags(FL_AMGM, FL_AMGM, 9000000);    // 3 s receipt timeout
+@@ -5017,7 +5173,9 @@ class GptpEngineHarness {
+     send_announce(seq++, 2, GME, 1, SRCE, {GME, SRCE}, phc() + 100);
+     const PubSnap *back = last_commit_since(back0);
+     expect("#82 Pdelay loss: once capable, a live peer worse than D wins",
+-           back && back->gm == GME && committed_path_is(*back, {SRCE}), 1);
++           back && back->gm == GME &&
++               committed_path_is(*back, {SRCE, OUR_CID}),
++           1);
+   }
+ 
+   //! #82: every commit of the whole run that names thisClock, whatever
+@@ -5032,6 +5190,54 @@ class GptpEngineHarness {
+            self_bad, 0);
+   }
+ 
++  // ---- 37: #84, the master role is synchronised -------------------------
++  //! A grandmaster's own time is the domain's time: IEEE 1722-2016 4.4.4.7
++  //! raises tu for a discontinuity, not for the role. Graded over the whole
++  //! run: every cycle publishing the master bit publishes sync-ok, and every
++  //! commit that hands mastership to a peer grandmaster clears it, on the
++  //! grandmaster change that also arms the parent's Annex B.1.1 holdover.
++  void keep_sync_ok_in_every_master_cycle() {
++    size_t handed = 0;
++    size_t handed_bad = 0;
++    for (size_t k = 1; k < commit_snaps.size(); k++) {
++      if (!(commit_snaps[k - 1].flags & FL_AMGM)) continue;
++      if (commit_snaps[k].gm == OUR_CID) continue;
++      handed++;
++      if (commit_snaps[k].flags & (FL_AMGM | FL_SYNCOK)) handed_bad++;
++    }
++    printf("INFO #84 %llu master cycles graded, %zu handovers to a peer\n",
++           static_cast<unsigned long long>(master_cycles), handed);
++    expect("#84 master cycles were graded", master_cycles > 0, 1);
++    expect("#84 every master cycle publishes sync-ok",
++           master_unsynced_cycles, 0);
++    expect("#84 the run hands mastership to a peer", handed > 0, 1);
++    expect("#84 every handover to a peer grandmaster clears sync-ok",
++           handed_bad, 0);
++  }
++
++  // ---- 38: #85, thisClock closes every peer path --------------------------
++  //! Graded over every commit of the run that names a peer grandmaster with
++  //! a nonempty path: thisClock is its last entry and appears nowhere else,
++  //! unless eight received entries filled the publication first.
++  void end_every_peer_path_with_thisclock() {
++    size_t graded = 0;
++    size_t bad = 0;
++    for (const PubSnap &s : commit_snaps) {
++      if (s.gm == OUR_CID || s.count == 0) continue;
++      graded++;
++      size_t seen = 0;
++      size_t at = 0;
++      for (unsigned k = 0; k + 1 < s.count && k < PATH_TAIL_SLOTS; k++)
++        if (s.tail[k] == OUR_CID) { seen++; at = k + 1; }
++      const bool appended = seen == 1 && at + 1 == s.count;
++      const bool filled = seen == 0 && s.count == 8;
++      if (!appended && !filled) bad++;
++    }
++    printf("INFO #85 %zu peer commits graded for thisClock last\n", graded);
++    expect("#85 peer commits with a path were graded", graded > 0, 1);
++    expect("#85 every peer path ends with thisClock", bad, 0);
++  }
++
+   //! A #75 policy probe uses wire frames and watches every output edge.
+   //! The scripted band/settling verdict is supplied by the scenario, never
+   //! read from an internal register, a pulse or the published sync flag.
+diff --git a/tb/verilator/ucpu/gptp_ucode.hex b/tb/verilator/ucpu/gptp_ucode.hex
+index 2de3c06..5678720 100644
+--- a/tb/verilator/ucpu/gptp_ucode.hex
++++ b/tb/verilator/ucpu/gptp_ucode.hex
+@@ -185,11 +185,11 @@ E92807000002
+ EAA901000000
+ EAA980000000
+ 0800000003B5
+-428030030002
+-EAA802000007
+-482830030002
+-A80000000000
+-180000000000
++096BE4EFDFDB
++331CD7693666
++1B94B2E33D31
++FB952B8EA245
++A3030FCF5E15
+ 408030020017
+ 280820000001
+ 1000020000C4
+@@ -247,13 +247,13 @@ EA8803130000
+ 482830020029
+ E00000000000
+ 180000000000
+-EFB5D14F69EA
+-429B2B5FFE4C
+-23C80B38522D
+-CF2CBECDFC4E
+-E6002586BF15
+-5EE5A7779C01
+-507146283FB4
++428030030002
++EB2805000002
++EB3003000007
++EAAB02000000
++482830030002
++A80000000000
++180000000000
+ 408030020017
+ 280820000001
+ 100002000104
+@@ -519,7 +519,7 @@ E00000000000
+ 287810000003
+ 100002000181
+ 287810000004
+-1000020000BB
++1000020000F9
+ 287810000005
+ 10000200007D
+ 180000000000
+@@ -990,7 +990,7 @@ EA8281000000
+ 482830040003
+ 428030030002
+ EAA802000004
+-EAA803000002
++EAA80300000A
+ 482830030002
+ 228000000001
+ 482830050001
