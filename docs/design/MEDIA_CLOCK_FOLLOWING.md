@@ -312,7 +312,7 @@ packet grid.
 | CLOCK_DOMAIN LOCKED and UNLOCKED count edges of the gPTP clock-validity verdict that `tu` also carries, by a recorded rule | `hdl/milan/milan_datapath.sv:3469-3475`, `:3492` |
 | The RX parser hands every matched AVTPDU's listener index, timestamp, `tv`, `tu`, `mr`, sequence number and format header to the fabric | `hdl/milan/milan_datapath.sv:5418-5446` |
 | The format header holds AAF's format, `nsr`, `channels_per_frame`, `bit_depth`, `stream_data_length` and `sp`; the common-header `tu` is byte o+3 bit 0 | `hdl/ieee1722/avtp/avtp_stream_parser.sv:165-177` |
-| The AAF listener's format check is a family compare (subtype, format, `nsr`, depth, a nonzero channel count, `sp` clear), with no samples-per-PDU check | `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:465-491` |
+| The AAF listener's format check compares the current format's subtype, format, `nsr`, depth and channel count, with `sp` clear (#765), and no samples-per-PDU check | `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:492-523` |
 | The RX monitor's media-lock ports for an external clock are wired but unused | `hdl/milan/milan_datapath.sv:5858-5865` (#74 ledger item 3) |
 | `PCMRX_TS` (`0x6C8`) is stream 0's last accepted timestamp, a CSR snapshot | `hdl/milan/milan_datapath.sv:2576`, `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:218`, `hdl/common/csr/milan_csr.sv:396` |
 | CSR words at or above `0x800` read zero unless the read window claims them | `hdl/common/csr/milan_csr.sv:2562-2581` |
@@ -455,8 +455,8 @@ AAF carries no samples-per-PDU field. The meter derives it from the PDU's own
 fields: `stream_data_length` must equal 6 x 4 x `channels_per_frame` octets,
 with `channels_per_frame` nonzero (IEEE 1722-2016 7.3.3, 7.3.5). Every PDU of a
 stream carries the same number of samples (7.3.5), so the check is stable for
-a stream. The RX monitor's family compare does not check the sample count
-(`hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:486-491`), so the meter must.
+a stream. The RX monitor's format compare does not check the sample count
+(`hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:507-523`), so the meter must.
 The bound input's current format agrees on every shipping shape, because every
 advertised input format has 6 samples per PDU
 (`avdecc/aem_descriptors.py:133`). The meter therefore keeps no second check.
