@@ -247,6 +247,44 @@ TEST_F(Nvm, AcceptedStateSurvivesTheRealStorePowerCycle)
     }
 }
 
+// #763: an emptied list in either direction and a non-default list in the other survive the store's power
+// cycle (Milan v1.2 5.3.9.1, 5.3.10.1); the empty set is a framed record of UNUSED entries, never an erased one
+TEST_F(Nvm, EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle)
+{
+    auto remove=[](const aecp_map &m,size_t from,size_t to){
+        Bytes b=target(m.type,m.index,8+8*(to-from));put(b,4,to-from,2);
+        for(size_t k=from;k<to;++k){auto &r=m.rows[k];size_t at=8+8*(k-from);
+            put(b,at,r.stream,2);put(b,at+2,r.channel,2);put(b,at+4,r.cluster,2);put(b,at+6,r.cluster_channel,2);}
+        return b;
+    };
+    for(unsigned type:{14u,15u}){
+        SCOPED_TRACE(type);
+        a.open=false;ASSERT_TRUE(aecp_restore_defaults(&a));
+        nvm_fmodel_blank();nvm_fmodel_power_on();owner.released=false;boot();
+        ASSERT_EQ(nvm_store_status()->terminal,NVM_T_BLANK);
+        ON_CALL(mock,Changed).WillByDefault([this](aecp_change k,uint16_t t,uint16_t i){aecp_nvm_changed(&owner,k,t,i);});
+        aecp_open(&a);
+        aecp_map *e=nullptr,*o=nullptr;
+        for(auto &m:pools) if(m.index==0) (m.type==type?e:o)=&m;
+        ASSERT_TRUE(e&&o);ASSERT_GT(e->count,0u);ASSERT_GT(o->count,1u);
+        ask(45,remove(*e,0,e->count));ask(45,remove(*o,o->count-1,o->count));
+        ASSERT_EQ(e->count,0u);ASSERT_EQ(o->count,o->default_count-1u);
+        unsigned empty=type==14?NVM_G_MAPI:NVM_G_MAPO,other=type==14?NVM_G_MAPO:NVM_G_MAPI;
+        auto kept=latch(other,0,o->capacity*8);
+        save();
+        auto r=nvm_rec_of(empty,0);ASSERT_TRUE(r.ok);
+        const uint8_t *rec=nvm_store_stage()+NVM_KLJ2_HDR+r.off;
+        EXPECT_EQ(get(rec,2),0x1722u)<<"the empty set is a framed record, not an erased one";
+        EXPECT_TRUE(nvm_all_erased(rec+NVM_REC_HDR,r.plen))<<"every entry of the empty set is UNUSED";
+        a.open=false;ASSERT_TRUE(aecp_restore_defaults(&a));ASSERT_EQ(e->count,e->default_count);
+        owner.released=false;nvm_fmodel_power_on();boot();
+        ASSERT_EQ(nvm_store_status()->terminal,NVM_T_COMPLETE);
+        EXPECT_EQ(e->count,0u)<<"the empty list survives the power cycle";
+        EXPECT_EQ(latch(other,0,kept.size()),kept)<<"the non-default list survives the power cycle";
+        EXPECT_EQ(o->count,o->default_count-1u);
+    }
+}
+
 TEST_F(Nvm, AbsentMapClipsButRefusedMapRevertsItsFormat)
 {
     auto &m=pools[0];auto original=latch(NVM_G_MAPI,0,m.capacity*8);
