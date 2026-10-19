@@ -1,0 +1,9 @@
+shard 8/18: 3 of 58 mutants: result tag taken without an accepted beat; becoming grandmaster unlocks the servo; a winning peer's grandmaster is not published
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+FAIL #82 peer wins: its commit names the peer GM got 02a1b2fffec3d4e5 exp 0082a0fffe000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 02a1b2fffec3d4e5 exp 0082b0fffe000001
+[PASS] mutant caught: a winning peer's grandmaster is not published - breaks "#82 peer wins: its commit names the peer GM | #82 warm reset: the live worse peer wins, not the absent A"
+
+4 checks: 4 PASS, 0 FAIL

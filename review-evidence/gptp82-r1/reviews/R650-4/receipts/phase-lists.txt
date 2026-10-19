@@ -1,0 +1,6 @@
+old self branch 10 statements; old fall-through 85
+new self 8 ; new every 83
+old self minus tally/return == new self: True ['printf("%d checks: %d PASS, %d FAIL\\n", checks, checks - fails, fails)', 'return fails ? 1 : 0']
+old fall-through minus tally/return == new every: True ['printf("%d checks: %d PASS, %d FAIL\\n", checks, checks - fails, fails)', 'return fails ? 1 : 0']
+new run_suite: ['if (self_present == 0)\n      run_the_self_publication_phases()', 'else\n      run_every_phase()', 'printf("%d checks: %d PASS, %d FAIL\\n", checks, checks - fails, fails)', 'return fails ? 1 : 0']
+any return/exit/goto/break in new phase lists: False

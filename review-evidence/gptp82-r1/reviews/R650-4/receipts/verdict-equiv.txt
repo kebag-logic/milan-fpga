@@ -1,0 +1,63 @@
+== control passes: rc old 1 new 1; stdout identical True; stub calls identical True
+[PASS] the unmutated engine still passes the harness
+[FAIL] mutation 'absent': its pattern appears 0 time(s) in top/KL_gptp_engine.sv, expected exactly 1. The source moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[FAIL] mutation 'twice': its pattern appears 2 time(s) in top/KL_gptp_engine.sv, expected exactly 1. The source moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[FAIL] mutation 'image refused': the generator refused its image, so this mutant proves nothing about the harness
+[FAIL] mutation 'no build' did not build; a mutant that cannot build proves nothing about the harness
+FAIL #82 a got 0 exp 1
+[PASS] mutant caught: generator, clean exe - breaks "#82 a"
+[FAIL] mutant SURVIVED: survivor. The harness does not prove "#82 a".
+[FAIL] mutant 'masked' exited 0 but the tally reports 2 failed check(s) - a masked verdict is not evidence
+[FAIL] mutant 'abort' exited 2 with no harness verdict - an abort is not a catch
+[FAIL] mutant 'signal' died by signal 11 with no harness verdict - a crash is not a catch
+[FAIL] mutant 'skipped' skipped
+[PASS] mutant caught: plain catch - breaks "an unnamed property"
+FAIL slew: s1 got 0
+[PASS] mutant caught: slew named - breaks "slew: s1"
+[FAIL] mutant 'slew only in p1' missed its named check
+[FAIL] mutant 'slew unrelated' missed its named check
+FAIL #82 a got 0
+FAIL #82 b got 1
+[PASS] mutant caught: 82 all named - breaks "#82 a | #82 b"
+[FAIL] mutant '82 one missing' missed its named check(s): #82 b; #82 c
+[FAIL] mutant '82 only in p1' missed its named check(s): #82 a
+FAIL p1 255 #82 a got 0
+FAIL #82 b
+[PASS] mutant caught: p1 named - breaks "p1 255 #82 a | #82 b"
+[FAIL] mutant 'p1 only shipping' missed its named check(s): p1 255 #82 a
+[FAIL] mutant SURVIVED: 82 not caught. The harness does not prove "#82 a | #82 b".
+
+21 checks: 6 PASS, 15 FAIL
+
+== control fails: rc old 1 new 1; stdout identical True; stub calls identical True
+[FAIL] the unmutated engine does NOT pass (caught) - every mutant result below is meaningless
+[FAIL] mutation 'absent': its pattern appears 0 time(s) in top/KL_gptp_engine.sv, expected exactly 1. The source moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[FAIL] mutation 'twice': its pattern appears 2 time(s) in top/KL_gptp_engine.sv, expected exactly 1. The source moved and this mutant is no longer mutating anything - fix the pattern, do not delete the arm.
+[FAIL] mutation 'image refused': the generator refused its image, so this mutant proves nothing about the harness
+[FAIL] mutation 'no build' did not build; a mutant that cannot build proves nothing about the harness
+FAIL #82 a got 0 exp 1
+[PASS] mutant caught: generator, clean exe - breaks "#82 a"
+[FAIL] mutant SURVIVED: survivor. The harness does not prove "#82 a".
+[FAIL] mutant 'masked' exited 0 but the tally reports 2 failed check(s) - a masked verdict is not evidence
+[FAIL] mutant 'abort' exited 2 with no harness verdict - an abort is not a catch
+[FAIL] mutant 'signal' died by signal 11 with no harness verdict - a crash is not a catch
+[FAIL] mutant 'skipped' skipped
+[PASS] mutant caught: plain catch - breaks "an unnamed property"
+FAIL slew: s1 got 0
+[PASS] mutant caught: slew named - breaks "slew: s1"
+[FAIL] mutant 'slew only in p1' missed its named check
+[FAIL] mutant 'slew unrelated' missed its named check
+FAIL #82 a got 0
+FAIL #82 b got 1
+[PASS] mutant caught: 82 all named - breaks "#82 a | #82 b"
+[FAIL] mutant '82 one missing' missed its named check(s): #82 b; #82 c
+[FAIL] mutant '82 only in p1' missed its named check(s): #82 a
+FAIL p1 255 #82 a got 0
+FAIL #82 b
+[PASS] mutant caught: p1 named - breaks "p1 255 #82 a | #82 b"
+[FAIL] mutant 'p1 only shipping' missed its named check(s): p1 255 #82 a
+[FAIL] mutant SURVIVED: 82 not caught. The harness does not prove "#82 a | #82 b".
+
+21 checks: 5 PASS, 16 FAIL
+
+EQUIVALENT
