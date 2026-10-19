@@ -1,0 +1,158 @@
+=== milan_datapath NxN integration (N_STREAMS=1, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 7512 bytes, 42 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 463 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +20 for STREAM_INPUT 1 (146 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [REVIEW] initialize erased record window       = 0x1
+  [ok]   [REVIEW] codec frames valid saved maps         = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] review saved maps: the restore reached its terminal and the map restore ended = 0x1
+  [i]    review saved maps: the map restore held the faces 635 clocks after restore_done, 3989 after PP_CTRL[1]
+  [i]    review saved maps: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] review saved maps: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review saved maps: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] review saved maps: SPI 0: the mappings are the expected list = 0x1
+  [i]    review saved maps: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] review saved maps: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review saved maps: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] review saved maps: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] review saved maps: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] review saved maps: capture RAM keys 0..7 hold the output list = 0x0
+[REVIEW-STATUS] saved PP_STAT=5b000484 done=1 fail=0 blank=1 map_fail=0
+  [ok]   [REVIEW] public restore failure agrees with map outcome = 0x0
+  [FAIL] [REVIEW] public blank agrees with records restored or lost got=0x1 exp=0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] review map device error: the restore reached its terminal and the map restore ended = 0x1
+  [i]    review map device error: the map restore held the faces 263 clocks after restore_done, 3316 after PP_CTRL[1]
+  [ok]   [REVIEW] fault affected the parent map walk    = 0x1
+  [i]    review map device error: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] review map device error: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review map device error: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] review map device error: SPI 0: the mappings are the expected list = 0x1
+  [i]    review map device error: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] review map device error: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review map device error: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] review map device error: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] review map device error: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] review map device error: capture RAM keys 0..7 hold the output list = 0x0
+[REVIEW-STATUS] device-error PP_STAT=5b000484 done=1 fail=0 blank=1 map_fail=1
+  [FAIL] [REVIEW] public restore failure agrees with map outcome got=0x0 exp=0x1
+  [FAIL] [REVIEW] public blank agrees with records restored or lost got=0x1 exp=0x0
+  [ok]   [REVIEW] codec frames malformed value with a valid CRC = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] review hole refusal: the restore reached its terminal and the map restore ended = 0x1
+  [i]    review hole refusal: the map restore held the faces 553 clocks after restore_done, 3606 after PP_CTRL[1]
+  [i]    review hole refusal: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] review hole refusal: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review hole refusal: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] review hole refusal: SPI 0: the mappings are the expected list = 0x1
+  [i]    review hole refusal: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] review hole refusal: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review hole refusal: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] review hole refusal: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] review hole refusal: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] review hole refusal: capture RAM keys 0..7 hold the output list = 0x0
+  [ok]   [REVIEW] codec frames malformed value with a valid CRC = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] review range refusal: the restore reached its terminal and the map restore ended = 0x1
+  [i]    review range refusal: the map restore held the faces 553 clocks after restore_done, 3606 after PP_CTRL[1]
+  [i]    review range refusal: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] review range refusal: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review range refusal: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] review range refusal: SPI 0: the mappings are the expected list = 0x1
+  [i]    review range refusal: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] review range refusal: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review range refusal: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] review range refusal: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] review range refusal: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] review range refusal: capture RAM keys 0..7 hold the output list = 0x0
+  [ok]   [REVIEW] codec frames malformed value with a valid CRC = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] review duplicate refusal: the restore reached its terminal and the map restore ended = 0x1
+  [i]    review duplicate refusal: the map restore held the faces 553 clocks after restore_done, 3606 after PP_CTRL[1]
+  [i]    review duplicate refusal: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] review duplicate refusal: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review duplicate refusal: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] review duplicate refusal: SPI 0: the mappings are the expected list = 0x1
+  [i]    review duplicate refusal: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] review duplicate refusal: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review duplicate refusal: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] review duplicate refusal: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] review duplicate refusal: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] review duplicate refusal: capture RAM keys 0..7 hold the output list = 0x0
+  [ok]   [REVIEW] codec frames narrower format and incompatible saved map = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] review refused ADD put-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    review refused ADD put-back: the map restore held the faces 605 clocks after restore_done, 3718 after PP_CTRL[1]
+  [i]    review refused ADD put-back: SPI 0: status 0, 0 mapping(s)
+  [ok]   [MAPREC] review refused ADD put-back: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [FAIL] [MAPREC] review refused ADD put-back: SPI 0: number_of_mappings got=0x0 exp=0x4
+  [FAIL] [MAPREC] review refused ADD put-back: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+  [i]    review refused ADD put-back: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] review refused ADD put-back: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] review refused ADD put-back: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] review refused ADD put-back: SPO 0: the mappings are the expected list = 0x1
+  [FAIL] [MAPREC] review refused ADD put-back: render RAM keys 2..9 hold the input list got=0x4 exp=0x0
+  [ok]   [MAPREC] review refused ADD put-back: capture RAM keys 0..7 hold the output list = 0x0
+--------------------------------------------------------------
+checks: 131   failures: 6
+RESULT: FAIL
