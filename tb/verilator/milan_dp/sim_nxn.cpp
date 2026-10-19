@@ -5049,6 +5049,12 @@ class NxnDatapathHarness {
             ck("[MAPREC] held SET_STREAM_FORMAT: the codec frames both records",
                static_cast<unsigned long>(framed), 1);
             nmem = area_two;
+            //! the input record's lanes answer 250 clocks late, so the judge
+            //! is asked while the input port still holds its reset set, and
+            //! the whole hold stays inside the 4,096-clock gather watchdog
+            nm_rslow_lo = (NVM_AREA_BASE + at5[0x60].first) & ~7u;
+            nm_rslow_hi = NVM_AREA_BASE + at5[0x60].first + 8 + at5[0x60].second;
+            nm_rslow_cyc = 250;
             maprec_cut_the_power();
             axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
             const uint64_t want = (fin & ~(0x3FFull << 22)) | (4ull << 22);
@@ -5056,15 +5062,24 @@ class NxnDatapathHarness {
                                                         sf_pl(0x0005, 0, want));
             inject(f.data(), f.size(), 40);
             bool judged_inside = false;
+            bool judged_on_reset_set = false;
             const std::vector<uint8_t> r = await_aecp(2000000, [&](int) {
                 if (dut->rootp->milan_datapath__DOT__pp_gsi_req_w
                     && (dut->rootp->milan_datapath__DOT__pp_gsi_kind_w == 0)
                     && (dut->rootp->milan_datapath__DOT__pp_gsi_sel_w == 15)
-                    && dut->rootp->milan_datapath__DOT__amr_rs_hold_r)
+                    && dut->rootp->milan_datapath__DOT__amr_rs_hold_r && !judged_inside) {
                     judged_inside = true;
+                    bool reset_set = true;
+                    for (uint32_t c = 0; c < 8; c++)
+                        if (dynmap_in_store(c) != (0x80u | c)) reset_set = false;
+                    judged_on_reset_set = reset_set;
+                }
             });
+            nm_rslow_lo = nm_rslow_hi = 0;
             ck("[MAPREC] held SET_STREAM_FORMAT: its judge was asked inside the map restore",
                static_cast<unsigned long>(judged_inside), 1);
+            ck("[MAPREC] held SET_STREAM_FORMAT: ...while the input port still held its reset set",
+               static_cast<unsigned long>(judged_on_reset_set), 1);
             ck("[MAPREC] held SET_STREAM_FORMAT: SUCCESS against the restored list",
                static_cast<unsigned long>(aecp_status(r)), 0);
             uint64_t now = 0;
