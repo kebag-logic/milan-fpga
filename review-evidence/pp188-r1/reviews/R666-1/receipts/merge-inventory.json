@@ -1,0 +1,1233 @@
+{
+  "tb/srp_top/mutants.py": {
+    "parent1": 129,
+    "parent2": 141,
+    "merged": 150,
+    "exact_union": true,
+    "parent_mutation_edits_preserved": true,
+    "expected_check_updates": [],
+    "anchors": [
+      {
+        "id": "bad-listener-length",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "repeated-action",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "expiry-event",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "before-slot",
+        "suite": "srp_top",
+        "group": "edge",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "talker-no-own",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-no-own",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "talker-lost-txla",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-lost-txla",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "talker-strict-lv",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-strict-lv",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-sid-ignored",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "talker-no-renewal",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-no-renewal",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "talker-no-expiry",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-no-expiry",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "pending-peer-ignored",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "encoder-peer-ignored",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "mvrp-supersedes-msrp",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "reset-retains-intent",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "full-drain-missing",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "already-full-missed",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "round-completion-lost",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "own-flags-missing",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "expiry-congestion",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "missing-registrar-edge",
+        "suite": "srp_top",
+        "group": "edge",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "empty-canceled-pdu",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "reserved-slot-not-reused",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "renewal-congestion",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "leaveall-expiry-lost",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "expiry-outranks-peer",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "repeated-expiry-queued",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "receive-priority-lost",
+        "suite": "srp_top",
+        "group": "edge",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "action-omitted",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "preparation-before-slot",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "table-one-short",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "my-expiry-pulse",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "my-join-edge-peer",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "my-cancel-eats-new-intent",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "my-edge-cancel-lost",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "my-la-outranks-leave",
+        "suite": "srp_top",
+        "group": "edge",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "my-drop-join-during-wait",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "my-no-walk-at-sLA",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "my-reuse-flags-ignore-cancel",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-expiry-pulse-restored",
+        "suite": "srp_top",
+        "group": "phases",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-cancel-latch-dropped",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-cancel-consumes-new-intent",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-join-start-guard-dropped",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-sink-receive-priority-lost",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-join-coalesce-dropped",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-la-only-emission-lost",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-collect-blocks-pushes",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-accept-edge-drain-lost",
+        "suite": "srp_top",
+        "group": "congestion",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-reuse-without-action",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-mvrp-start-during-prepare",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "canceled-content-never-drains",
+        "suite": "srp_top",
+        "group": "guards",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "expiry-only-redraw",
+        "suite": "srp_top",
+        "group": "restart",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "mvrp-expiry-only-redraw",
+        "suite": "srp_top",
+        "group": "restart",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "stale-expiry-honoured",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "mvrp-stale-expiry-honoured",
+        "suite": "srp_top",
+        "group": "restart",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "mvrp-passive-lost",
+        "suite": "srp_top",
+        "group": "restart",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "mvrp-flag-at-expiry",
+        "suite": "srp_top",
+        "group": "restart",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "rearm-at-issue",
+        "suite": "srp_top",
+        "group": "armdelay",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-rearm-no-inflight",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-rearm-no-inflight",
+        "suite": "srp_top",
+        "group": "restart",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-rearm-no-deadline",
+        "suite": "srp_top",
+        "group": "peer",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-rearm-no-deadline",
+        "suite": "srp_top",
+        "group": "armdelay",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "r-flag-ignores-edge-peer",
+        "suite": "srp_top",
+        "group": "restart",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "join-ms-400",
+        "suite": "srp_top",
+        "group": "timers",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "periodic-ms-3000",
+        "suite": "srp_top",
+        "group": "timers",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "draw-kind-0",
+        "suite": "srp_top",
+        "group": "timers",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "licence-ignores-join",
+        "suite": "srp_top",
+        "group": "join",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "licence-ignores-join",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "join-sent-at-handover",
+        "suite": "srp_top",
+        "group": "join",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "count-up-unsends",
+        "suite": "srp_top",
+        "group": "join",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-lane-cut",
+        "suite": "srp_top",
+        "group": "join",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "join-sent-at-handover",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "count-up-unsends",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tx-strobe-any-app",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-heads-swapped",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-head-at-write-pointer",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-listener-push-dropped",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-ls-written-at-tk-pointer",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-tk-head-read-ahead",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-ls-head-reads-tk-ram",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-tk-write-at-rptr",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-full-guard-31",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-tk-write-ignores-full",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "tf-ls-write-ignores-full",
+        "suite": "srp_top",
+        "group": "storage",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "walk-record-written-on-close",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wtsp-first-open-only",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wtsp-read-at-gate-source",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wtsp-read-at-source-0",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wtsp-latency-field-shifted",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wtsp-latency-shifted",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wtsp-rank-dropped",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wtsp-prio-rank-swapped",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wid-ram-first-open-only",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wid-ram-read-at-gate-source",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wid-ram-read-neighbour",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wid-flops-da-of-gate-source",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wid-flops-sid-of-source-0",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wid-flops-vid-of-source-0",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "talker-vid-unreset",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wsid-ram-first-settle-only",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wsid-ram-written-on-teardown",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wsid-flops-of-control-sink",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wsid-flops-read-sink-0",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wtsp-write-ignores-ready",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "wsid-write-ignores-ready",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "slope-stored-at-stage-2-index",
+        "suite": "srp_admission",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "slope-stored-at-source-0",
+        "suite": "srp_admission",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "slope-store-source-0-only",
+        "suite": "srp_admission",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "slope-read-source-0",
+        "suite": "srp_admission",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lv-second-lv-ends",
+        "suite": "srp_top",
+        "group": "lvleave",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lv-never-ends",
+        "suite": "srp_top",
+        "group": "lvleave",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lv-expiry-masked",
+        "suite": "srp_top",
+        "group": "lvcoll",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lv-expiry-masked",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lv-expiry-last",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lv-expiry-dropped",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lv-sweep-misses-collision",
+        "suite": "srp_top",
+        "group": "lvcoll",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-rebind-abandons-leave",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-declaration-not-held",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-park-never-retires",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-reprobe-abandons-leave",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "listener-reprobe-parks-own-stream",
+        "suite": "srp_stream_fsms",
+        "group": "suite",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "walk-ignores-leave-copy",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lsid-ram-read-sink-0",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lsid-flops-read-sink-0",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "lsid-ram-written-with-new-stream",
+        "suite": "srp_stream_fsms",
+        "group": "walk",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-rejoin-always-joinin",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-rejoin-always-joinin",
+        "suite": "srp_top",
+        "group": "domjoin",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-rejoin-always-joinin",
+        "suite": "srp_top",
+        "group": "timers",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-rejoin-always-joinmt",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-rejoin-always-joinmt",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-rejoin-always-joinmt",
+        "suite": "srp_top",
+        "group": "domjoin",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-rejoin-at-request",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-rx-leaveall-dropped",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-rx-leaveall-dropped",
+        "suite": "srp_top",
+        "group": "domjoin",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-leaveall-keeps-in",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-lv-ignored",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-lv-ignored",
+        "suite": "srp_top",
+        "group": "domjoin",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-lv-any-value",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-leaveall-after-receive",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-adoption-drops-registrar",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-capture-unregistered",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-pending-lv-ignored",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "domain-link-keeps-registrar",
+        "suite": "srp_encoder",
+        "group": "",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "top-domain-lv-unwired",
+        "suite": "srp_top",
+        "group": "domjoin",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "top-domain-tx-every-clock",
+        "suite": "srp_top",
+        "group": "domjoin",
+        "anchor": "patch applies"
+      },
+      {
+        "id": "top-domain-tx-unwired",
+        "suite": "srp_top",
+        "group": "domjoin",
+        "anchor": "patch applies"
+      }
+    ]
+  },
+  "tb/pp_top/acmp_mutants.py": {
+    "parent1": 57,
+    "parent2": 54,
+    "merged": 60,
+    "exact_union": true,
+    "parent_mutation_edits_preserved": true,
+    "expected_check_updates": [
+      {
+        "parent": "HEAD^2",
+        "id": "st_ls_teardown_as_declare",
+        "old_checks": [
+          "AS6: the Listener attribute is withdrawn on the wire"
+        ],
+        "merged_checks": [
+          "AS6: the sink's VLAN membership is released"
+        ]
+      }
+    ],
+    "anchors": [
+      {
+        "id": "msg_ok_forced",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "msg_ok_forced",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "guard_ctlr_dropped",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "guard_talker_eid_dropped",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "guard_talker_uid_dropped",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "cdl_not_44_rejected",
+        "suite": "tb/rx_validator",
+        "anchors": "unique"
+      },
+      {
+        "id": "cdl_not_44_rejected",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "st_ls_settle_as_withdraw",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "st_ls_teardown_as_declare",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "st_ls_sid_da_swapped",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "st_ls_state_none",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "st_ls_vid_dropped",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "st_ls_index_zero",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "st_ls_teardown_lost",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "bound_view_not_latched",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "bound_dmac_from_sid",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "bound_view_not_cleared",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "matcher_da_ignored",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "matcher_vid_ignored",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "rec_read_sink_zero",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "rec_read_in_idle",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "rec_started_unstored",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "rec_settled_vlan_unstored",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "rec_sweep_misaddressed",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "armq_read_tail",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "armq_head_stuck",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "armq_ring_of_three",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "armq_write_at_head",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "armq_write_at_mid",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "armq_write_refused",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "armq_write_wrap_hi",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "armq_full_pop_refuses",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "armq_drop_skip_sat",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "field_reset_blocked",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "disconnect_not_accepted",
+        "suite": "tb/acmp_talker",
+        "anchors": "unique"
+      },
+      {
+        "id": "settled_vlan_truncated",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "unbind_talker_echo",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "retry_status_cleared",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "lock_status_13",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "disconnect_invalid_success",
+        "suite": "tb/acmp_talker",
+        "anchors": "unique"
+      },
+      {
+        "id": "disconnect_changes_gate",
+        "suite": "tb/acmp_talker",
+        "anchors": "unique"
+      },
+      {
+        "id": "settled_vlan_truncated",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "settlement_vlan_truncated",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "gsi_vlan_external",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "parent_vlan_shifted",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "retry_probe_status_cleared",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "retry_probe_status_cleared",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "lock_gate_bypassed",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "stored_vlan_truncated",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "probe_guard_current_controller",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "probe_retry_current_controller",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "rebind_abandons_leave",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "park_never_retires",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "rf_swap_unlatched",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "rf_swap_unlatched",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "rf_swap_sticky",
+        "suite": "tb/acmp_listener",
+        "anchors": "unique"
+      },
+      {
+        "id": "rf_swap_sticky",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "tspec_slot_zero",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "tspec_slot_last",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      },
+      {
+        "id": "tspec_no_allocator",
+        "suite": "tb/pp_top",
+        "anchors": "unique"
+      }
+    ]
+  }
+}

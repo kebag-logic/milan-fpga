@@ -1,0 +1,10 @@
+COMMAND ['python3', 'tb/pp_top/acmp_mutants.py', '--jobs', '2', '--verilator', '<review-scratch>/bin/verilator', '--output', '<review-packet>/receipts/acmp-focused', '--only', 'rf_swap_unlatched', 'rf_swap_sticky', 'rebind_abandons_leave', 'park_never_retires']
+{"mutant": "golden-acmp_listener", "verdict": "PASS"}
+{"mutant": "golden-pp_top--acmp-only", "verdict": "PASS"}
+{"mutant": "park_never_retires@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "rebind_abandons_leave@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "rf_swap_unlatched@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "rf_swap_sticky@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "rf_swap_unlatched@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "rf_swap_sticky@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 6 of 6 KILLED by their named checks; goldens PASS

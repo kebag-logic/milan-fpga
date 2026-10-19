@@ -1,0 +1,39 @@
+cb8bab0 dc01aec b48312e Merge processor main Domain re-join and per-source TSpec into 188-189-listener
+dc01aec 9c8859a Let GET_RX_STATE REGISTERING_FAILED follow the in-place Talker Advertise/Failed swap in SETTLED_RSV_OK (issue #189)
+b48312e 246cbc2 83405d1 Merge pull request #194 from Mister-M-alt/190-per-source-tspec
+83405d1 90321bf 246cbc2 Merge processor main MSRP Domain re-join into 190-per-source-tspec
+9c8859a 5addf29 Keep the owed Listener Leave when a bound sink settles again before tx! (issue #188)
+90321bf 5addf29 Take the engine-driven DECLARE_TALKER's TSpec MaxFrameSize per source (#190)
+246cbc2 5addf29 88cb206 Merge pull request #191 from Mister-M-alt/184-domain-joinmt
+88cb206 4e87b88 Domain re-join docs: snapshot at enqueue, kept until the encoder accepts it, no fixed drain bound (#184)
+
+AGENTS.md and CONTRIBUTING.md are absent in the tracked repository. User-supplied instructions were applied.
+ docs/architecture/05_acmp_engine.md                |   7 ++
+ docs/architecture/10_srp_engine.md                 |  25 +++-
+ hdl/acmp/KL_pp_acmp_listener.sv                    |  10 ++
+ hdl/srp/KL_srp_listener_fsm.sv                     |  95 +++++++++++++--
+ tb/acmp_listener/README.md                         |  27 ++++-
+ tb/acmp_listener/sim_main.cpp                      |  31 ++++-
+ tb/pp_top/README.md                                |  36 +++++-
+ tb/pp_top/acmp_mutants.py                          |  44 ++++++-
+ tb/pp_top/sim_main.cpp                             | 134 ++++++++++++++++++++-
+ tb/srp_stream_fsms/README.md                       |  23 +++-
+ tb/srp_stream_fsms/sim_main.cpp                    |  81 +++++++++++++
+ tb/srp_stream_fsms/walk_main.cpp                   |  39 +++++-
+ tb/srp_top/README.md                               |  32 ++++-
+ tb/srp_top/mutants.py                              |  13 +-
+ .../mutations/listener-declaration-not-held.patch  |  11 ++
+ .../mutations/listener-park-never-retires.patch    |  10 ++
+ .../mutations/listener-rebind-abandons-leave.patch |  11 ++
+ .../listener-reprobe-abandons-leave.patch          |  11 ++
+ .../listener-reprobe-parks-own-stream.patch        |  11 ++
+ tb/srp_top/mutations/lsid-flops-read-sink-0.patch  |  11 ++
+ tb/srp_top/mutations/lsid-ram-read-sink-0.patch    |  11 ++
+ .../lsid-ram-written-with-new-stream.patch         |  11 ++
+ tb/srp_top/mutations/walk-ignores-leave-copy.patch |  11 ++
+ .../mutations/wsid-flops-of-control-sink.patch     |  12 +-
+ tb/srp_top/mutations/wsid-flops-read-sink-0.patch  |  12 +-
+ .../mutations/wsid-ram-first-settle-only.patch     |   4 +-
+ .../mutations/wsid-ram-written-on-teardown.patch   |   4 +-
+ .../mutations/wsid-write-ignores-ready.patch       |   4 +-
+ 28 files changed, 679 insertions(+), 52 deletions(-)

@@ -1,0 +1,128 @@
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -9773,6 +9773,7 @@
+     as_the_matching_advertise_declares_ready();
+     as_settled_rsv_ok_outlives_t_acmp_notk(ts);
+     as_in_place_swap_follows_the_registered_type();
++    review_stalled_swaps();
+     as_unbind_withdraws_and_clears();
+     as_rebind_before_tx_sends_the_old_leave();
+     printf("  AC: %u ms of simulated time on its own model\n", h2.now_ms());
+@@ -10068,6 +10069,71 @@
+           lstn_decl());
+     if (!g.empty() && g != rx_state_settled(0x4822)) {
+       dump("got", g); dump("exp", rx_state_settled(0x4822));
++    }
++  }
++
++
++  void review_stalled_swaps() {
++    const bool stall = std::getenv("REVIEW_NO_TX_STALL") == nullptr;
++    for (bool final_failed : {false, true}) {
++      h2.feed(final_failed ? failed(SID_L, DA_L, VID_L, EV_JOININ)
++                           : advertise(SID_L, DA_L, VID_L, EV_JOININ));
++      h2.run_ms(20);
++      auto before = get_rx_state(0x4B80);
++      CHECK(before == rx_state_settled(0x4B80, final_failed ? 0x0042 : 0x0002),
++            "REVIEW: initial declaration and GET_RX_STATE agree (failed %d)",final_failed);
++      h2.mac_tx_ready = !stall;
++      for (unsigned i=0; i<6; ++i) {
++        h2.feed(acmp_frame(CTLR_MAC, 10, 0, 0, CTLR2_EID, 0, EID, 0, LS, 0, 0,
++                           uint16_t(0x4C00+i), 0, 0));
++        h2.run_ms(2);
++      }
++      const unsigned free = h2.snap(25) & 7u;
++      const unsigned trace_begin = h2.snap(15) & 0xffffu;
++      h2.feed(final_failed ? advertise(SID_L, DA_L, VID_L, EV_JOININ)
++                           : failed(SID_L, DA_L, VID_L, EV_JOININ));
++      h2.run_ms(2);
++      const unsigned middle = tk_reg();
++      h2.feed(final_failed ? failed(SID_L, DA_L, VID_L, EV_JOININ)
++                           : advertise(SID_L, DA_L, VID_L, EV_JOININ));
++      h2.run_ms(2);
++      const unsigned latest = tk_reg();
++      h2.mac_tx_ready = true;
++      h2.run_ms(50);
++      unsigned coalesced=0, deliveries=0;
++      const unsigned trace_end=h2.snap(15)&0xffffu;
++      for (unsigned i=trace_begin;i<trace_end;++i) {
++        const uint32_t event=h2.trace_lane(i&255u,1);
++        if ((event>>24)==LS) {++deliveries;coalesced+=(event>>16)&1u;}
++      }
++      CHECK(coalesced == (stall ? 1u : 0u) && deliveries == (stall ? 1u : 2u),
++            "REVIEW: trace confirms pending type-event delivery (stall %d, delivered %u, coalesced %u)",
++            stall,deliveries,coalesced);
++      printf("REVIEW evidence: stall=%d final_failed=%d delivered=%u coalesced=%u\n",
++             stall,final_failed,deliveries,coalesced);
++      h2.q_acmp.clear();
++      auto g = get_rx_state(0x4C80);
++      CHECK((!stall || free == 1) && middle == (final_failed ? 1u : 2u)
++            && latest == (final_failed ? 2u : 1u),
++            "REVIEW: separate type-change frames register with four standard TX slots full "
++            "and the reserved slot free (free %u, middle %u, latest %u)",free,middle,latest);
++      CHECK(g == rx_state_settled(0x4C80, final_failed ? 0x0042 : 0x0002),
++            "REVIEW: after TX resumes GET_RX_STATE follows latest type "
++            "(registration %u, declaration %u, flags 0x%04x, expected 0x%04x)",
++            tk_reg(),lstn_decl(),g.size()>65 ? unsigned(fv_u64(g,64,2)) : 0xffffu,
++            final_failed ? 0x0042 : 0x0002);
++      h2.feed(final_failed ? failed(SID_L, DA_L, VID_L, EV_JOININ)
++                           : advertise(SID_L, DA_L, VID_L, EV_JOININ));
++      h2.run_ms(500);
++      g = get_rx_state(0x4C81);
++      CHECK(g == rx_state_settled(0x4C81, final_failed ? 0x0042 : 0x0002),
++            "REVIEW: unchanged refresh also leaves GET_RX_STATE on current type "
++            "(flags 0x%04x, expected 0x%04x)",
++            g.size()>65 ? unsigned(fv_u64(g,64,2)) : 0xffffu,final_failed ? 0x0042 : 0x0002);
++      // Restore the precondition using individually consumed changes.
++      h2.feed(failed(SID_L, DA_L, VID_L, EV_JOININ)); h2.run_ms(20);
++      h2.feed(advertise(SID_L, DA_L, VID_L, EV_JOININ)); h2.run_ms(20);
++      last_join=h2.now_ms();
+     }
+   }
+ 
+--- a/tb/srp_stream_fsms/sim_main.cpp
++++ b/tb/srp_stream_fsms/sim_main.cpp
+@@ -1207,6 +1207,43 @@
+   listener_failure_change_notifies_registered_sinks_on_a_shared_stream();
+   settle_keeps_the_owed_listener_leave();
+ 
++
++  // Successive bindings share one old declaration debt until it is sent.
++  constexpr uint64_t B=0x02AABBCCDDEE0002ull, C=0x02AABBCCDDEE0003ull;
++  h.reset(); l_goto(h,QA);
++  h.ctl(false,0,SID0,DA0,VID0);
++  h.ctl(true,0,B,DA0,VID0); h.inject(true,1,B,DA0,VID0,3);
++  h.ctl(false,0,B,DA0,VID0);
++  h.ctl(true,0,C,DA0,VID0); h.inject(true,1,C,DA0,VID0,3);
++  h.clear_logs(); h.tick();
++  CHECK(one_listener_push(h.l_push,5,2,SID0),"REVIEW: three-stream chain keeps original Leave");
++  h.clear_logs(); h.tick();
++  CHECK(one_listener_push(h.l_push,0,2,C),"REVIEW: three-stream chain declares latest value");
++  h.reset(); l_goto(h,QA);
++  h.ctl(false,0,SID0,DA0,VID0); h.ctl(true,0,B,DA0,VID0);
++  h.ctl(false,0,B,DA0,VID0); h.ctl(true,0,SID0,DA0,VID0);
++  h.inject(true,1,SID0,DA0,VID0,3); h.clear_logs(); h.tick();
++  CHECK(one_listener_push(h.l_push,0,2,SID0),"REVIEW: return to old value rejoins its applicant");
++  h.reset(); l_goto(h,QA);
++  h.inject(true,2,SID0,DA0,VID0,3,0,500,0x1234,1); h.tick(); h.tick(); h.tick();
++  h.ctl(false,0,SID0,DA0,VID0); h.ctl(true,0,B,DA0,VID0);
++  h.inject(true,1,B,DA0,VID0,3); h.clear_logs(); h.tick();
++  CHECK(one_listener_push(h.l_push,5,1,SID0),"REVIEW: old Failed declaration keeps AskingFailed on Leave");
++  h.clear_logs(); h.tick();
++  CHECK(one_listener_push(h.l_push,0,2,B),"REVIEW: new Advertise declares Ready after failed old value");
++  h.reset(); l_goto(h,QA);
++  h.ctl(false,0,SID0,DA0,VID0); h.ctl(true,0,B,DA0,VID0);
++  h.inject(true,1,B,DA0,VID0,3); h.la_own(); h.clear_logs(); h.tick();
++  CHECK(h.l_push.empty(),"REVIEW: own LeaveAll obeys LA txLA no-message action");
++  h.clear_logs(); h.tick();
++  CHECK(one_listener_push(h.l_push,4,2,SID0),"REVIEW: old LO sends Empty after own LeaveAll");
++  h.clear_logs(); h.tick();
++  CHECK(one_listener_push(h.l_push,0,2,B),"REVIEW: new declaration follows old LO retirement");
++  h.reset(); l_goto(h,QA);
++  h.ctl(false,0,SID0,DA0,VID0); h.ctl(true,0,B,DA0,VID0);
++  h.reset(); h.tick();
++  CHECK(h.l_push.empty(),"REVIEW: reset discards stale leave-copy validity");
++
+   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+   return fails ? 1 : 0;
+ }
