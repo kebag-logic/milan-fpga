@@ -1,0 +1,12 @@
+2026-10-19T05:49:17.8426172Z receipt control: shard 4/4 refused
+2026-10-19T05:49:17.8426325Z receipt control: shard 0/0 refused
+2026-10-19T05:49:17.8653897Z Traceback (most recent call last):
+2026-10-19T05:49:17.8654457Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_case_receipts_selftest.py", line 210, in <module>
+2026-10-19T05:49:17.8654920Z     raise SystemExit(main())
+2026-10-19T05:49:17.8655145Z                      ^^^^^^
+2026-10-19T05:49:17.8655522Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_case_receipts_selftest.py", line 173, in main
+2026-10-19T05:49:17.8656072Z     refuse(lambda: receipts.partition(names, bad), f"shard {bad}")
+2026-10-19T05:49:17.8656541Z   File "<home-path>/work/milan-fpga/milan-fpga/scripts/ci_case_receipts_selftest.py", line 30, in refuse
+2026-10-19T05:49:17.8657012Z     raise AssertionError(f"receipt control accepted: {label}")
+2026-10-19T05:49:17.8657343Z AssertionError: receipt control accepted: shard 0/32
+2026-10-19T05:49:17.8814425Z ##[error]Process completed with exit code 1.
