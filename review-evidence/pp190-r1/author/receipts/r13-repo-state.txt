@@ -1,0 +1,25 @@
+# r13 repository state
+origin: Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+base: 5addf29759a22372ed6aa3e1d52a3aad29e3ecd7 (processor main; origin/main was still this commit when fetched)
+branch: 190-per-source-tspec
+head: 90321bffbf48a271e9862cad92973bd862827d5f
+commits on the base:
+  90321bffbf48a271e9862cad92973bd862827d5f Take the engine-driven DECLARE_TALKER's TSpec MaxFrameSize per source (#190)
+diffstat:
+   docs/architecture/02_interfaces.md   |   9 +++
+   docs/architecture/09_verification.md |  12 ++++
+   docs/architecture/10_srp_engine.md   |   4 +-
+   docs/guides/integrator.md            |  18 +++--
+   hdl/top/protocol_processor_top.sv    |   7 +-
+   tb/pp_top/Makefile                   |   7 +-
+   tb/pp_top/README.md                  |  40 ++++++++++++
+   tb/pp_top/acmp_mutants.py            |  28 ++++++--
+   tb/pp_top/pp_top_wrap.sv             |   2 +-
+   tb/pp_top/sim_main.cpp               | 123 ++++++++++++++++++++++++++++++++++-
+   10 files changed, 235 insertions(+), 15 deletions(-)
+worktree: 0 untracked, modified or ignored entries (build outputs removed with git clean -fdX after the head runs)
+
+ROM digests (generated into scratch, never in the tree):
+  hdl/aecp/ucode/gen_ucode.py -> ucode.hex   base a3b62cabe2cb091383f999bf58b830ff2d3ab63cd8699b95d2529dbf4d02bcb3  head the same
+  hdl/acmp/rom/gen_ltn_rom.py -> ltn_rom.hex base 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  head the same
+  scripts/check_upc_map.py at head: UPC MAP GATE: PASS (61 engine constants, 90 entry points, all agree)

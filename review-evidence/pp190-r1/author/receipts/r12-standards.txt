@@ -1,0 +1,10 @@
+# r12 standards read for this round (sha256, size; text not reproduced, clauses cited only)
+55268b5f716aee085c3357a4cba398602d9f0cb340fe3d8a70de40fac58ed956  18576069 bytes  802.1Q-2018.pdf
+6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8  1684588 bytes  Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf
+Clauses this change rests on:
+- IEEE 802.1Q-2018 35.2.2.8.4 a): MaxFrameSize is the maximum frame size the Talker will produce for the stream.
+- IEEE 802.1Q-2018 35.2.2.8: incrementing FirstValue adds 1 to the Unique ID and 1 to the destination_address
+  (the rest of the FirstValue, TSpec included, is carried unchanged); the bench's range match in section TS rests on it.
+- Milan v1.2 4.3.3.2, Table 4.4 and its notes: MaxFrameSize by stream format (AAF PCM32 48 kHz 24*N + 24 + 1;
+  CRF 1 ts/pdu 28 + 1) and the bandwidth rule (F = MaxFrameSize + 22, at least 68; W = F + 20; x 8000 x 8).
+Round 1's receipt round1/receipts/r02-standards-sha256.txt covers IEEE 1722-2016 and the Milan Base Audio Formats text.
