@@ -1185,6 +1185,20 @@ CLOCK_DOMAIN 0 or a tuple at an undeclared index. Each of the 45 pairwise
 exchanges of the ten `KL_crf_rx` output bindings turns both of its quadlets red
 on `obj_nxn` and `obj_nxn8`.
 
+**`[762-DP]` grades the AAF half of #762 through the datapath.** It runs on
+every broad `sim_nxn` leg, right after the 5.3.8.7 discard section, on AAF
+Stream Input 0. STOP_STREAMING and START_STREAMING arrive over the wire, and
+every count is read with `GET_COUNTERS(STREAM_INPUT, 0)`. While the input is
+stopped, a gap of two lost PDUs moves SEQ_NUM_MISMATCH and the 100 ms silence
+moves MEDIA_UNLOCKED, but neither moves STREAM_INTERRUPTED. After START and a
+relock past the 8-PDU settle window, the same gap counts STREAM_INTERRUPTED
+once. The harness advances the monitor's silence watchdog to 3 ms short of its
+limit, as the CRF arm does, and the last ticks run for real. The engine rule is
+graded in `tb/verilator/avtp_rxmon`; this section grades the one wire into it,
+`KL_avtp_rx_monitor_ctx`'s `stopped_i` port in `milan_datapath`. With that port
+tied to `'0` or fed sink 1's level, the stopped gap and the stopped silence each
+count. With it fed the bound level, the gap after START does not count.
+
 `sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
 `GET_AUDIO_MAP` succeeds on both Stream Port directions, and
 `ADD_AUDIO_MAPPINGS` plus `REMOVE_AUDIO_MAPPINGS` use the processor's two-pass
