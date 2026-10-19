@@ -81,10 +81,6 @@ LEGACY_LEGS = (
      "./obj_crflic/Vmilan_dp_crflic"),
     ("---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----",
      "./obj_dynmap/Vmilan_dp_dynmap"),
-    ("---- #637 the map records across the 8x8 shape's eight output ports ----",
-     "./obj_maprec8/Vmilan_dp_maprec8"),
-    ("---- #637 the map records across the 4x4 shape's four input ports ----",
-     "./obj_maprec4/Vmilan_dp_maprec4"),
     (None, "./obj_nxn/Vmilan_dp_nxn"),
     ("---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----",
      "./obj_nxndv/Vmilan_dp_nxndv"),
@@ -98,6 +94,10 @@ LEGACY_LEGS = (
      "./obj_ax1x1/Vmilan_dp_ax1x1"),
     ("---- the same shape at the TRUE clk_audio ratio (391/1591) ----",
      "./obj_aclk/Vmilan_dp_aclk"),
+    ("---- #637 the map records across the 8x8 shape's eight output ports ----",
+     "./obj_maprec8/Vmilan_dp_maprec8"),
+    ("---- #637 the map records across the 4x4 shape's four input ports ----",
+     "./obj_maprec4/Vmilan_dp_maprec4"),
 )
 
 #: the fake leg every arm runs; a leg's executable imports it with its config

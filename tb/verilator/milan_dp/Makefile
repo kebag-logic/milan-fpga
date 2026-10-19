@@ -598,7 +598,7 @@ ax1x1gptp-extended: ax1x1gptp
 # One inventory owns default execution and CI selection.
 COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
 PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
-ORDINARY_CASES = base notify crflic dynmap maprec8 maprec4 nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk
+ORDINARY_CASES = base notify crflic dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
 SUFFIX_CASES = render-mutants
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
 $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
