@@ -1,0 +1,45 @@
+== head: head rc=0
+INFO #84 108614414 master cycles graded, 16 handovers to a peer
+INFO #85 365 peer commits graded for thisClock last
+1703 checks: 1703 PASS, 0 FAIL
+INFO #84 108614414 master cycles graded, 16 handovers to a peer
+INFO #85 365 peer commits graded for thisClock last
+1703 checks: 1703 PASS, 0 FAIL
+INFO #84 108614414 master cycles graded, 16 handovers to a peer
+INFO #85 365 peer commits graded for thisClock last
+1703 checks: 1703 PASS, 0 FAIL
+INFO #84 1456 master cycles graded, 2 handovers to a peer
+INFO #85 48 peer commits graded for thisClock last
+53 checks: 53 PASS, 0 FAIL
+== p1: p1 rc=2
+INFO #84 108613337 master cycles graded, 16 handovers to a peer
+INFO #85 363 peer commits graded for thisClock last
+1702 checks: 1691 PASS, 11 FAIL
+FAIL sync-ok falls on timeout     got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +50 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL receipt timeout, same GM: the second timeout got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL closed loop starts unsynchronized got 0000000000000000 exp 0000000000000001
+FAIL failover, -50 us: the receipt timeout comes first got 0000000000000000 exp 0000000000000001
+FAIL failover, +150 us: the receipt timeout comes first got 0000000000000000 exp 0000000000000001
+FAIL slew: idle timeout clears sync-ok got 0000000000000008 exp 0000000000000000
+FAIL slew: missing Sync clears sync-ok got 0000000000000008 exp 0000000000000000
+FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+== p2: p2 rc=2
+INFO #84 108613337 master cycles graded, 16 handovers to a peer
+INFO #85 363 peer commits graded for thisClock last
+1702 checks: 1689 PASS, 13 FAIL
+FAIL sync-ok falls on timeout     got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +50 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL receipt timeout, same GM: the second timeout got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL closed loop starts unsynchronized got 0000000000000000 exp 0000000000000001
+FAIL failover, -50 us: the receipt timeout comes first got 0000000000000000 exp 0000000000000001
+FAIL failover, +150 us: the receipt timeout comes first got 0000000000000000 exp 0000000000000001
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000001 exp 0000000000000003
+FAIL slew: idle timeout clears sync-ok got 0000000000000008 exp 0000000000000000
+FAIL slew: missing Sync clears sync-ok got 0000000000000008 exp 0000000000000000
+FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+FAIL #84 every master cycle publishes sync-ok got 000000000003d1fa exp 0000000000000000
