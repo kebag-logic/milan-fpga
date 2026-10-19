@@ -5,9 +5,10 @@
 
 //! LOCKSTEP REFERENCE (tb/verilator/avtp_rxmon/sim_lockstep.cpp): the module
 //! of dev e8454e27 with its name changed, and with #762's silence
-//! interruption (sil_si_r) applied in the same lines as the shipping engine,
-//! so the #640 M6 comparison stays exact on every column. #762 itself is
-//! graded by count in the harness's [SI] cases, never against this copy.
+//! interruption (sil_si_r, stopped_i) applied in the same lines as the
+//! shipping engine, so the #640 M6 comparison stays exact on every column.
+//! #762 itself is graded by count in the harness's [SI] cases, never against
+//! this copy: lockstep_mutants.py plants each #762 defect in BOTH modules.
 
 /*
 ------------------------------------------------------------------------------
@@ -145,6 +146,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
                                                 //! the 0x002B law's second
                                                 //! unlock cause - it rides
                                                 //! the silence-unlock walk)
+  input  wire [N_LISTENERS_P-1:0] stopped_i,    //! bound-and-stopped (#762)
 
   //! --- stream-0 legacy config (no-regression aliases) -------------------
   input  wire [63:0]  sid0_i,            //! sink-0 bound sid (LCTX w0/w1)
@@ -865,9 +867,6 @@ module KL_avtp_rx_monitor_ctx_ref #(
         //! unlock increment always lands before any wipe (the ordering the
         //! walker comment below already mandates).
         if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
-        //! #762: an Unbind is never an interruption, even one landing on a
-        //! silence unlock that is still waiting for its walk
-        if (bind_fall_i[s]) sil_si_r[s] <= 1'b0;
         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
             !(&dpdu_pend_r[s]))
           dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
@@ -879,8 +878,12 @@ module KL_avtp_rx_monitor_ctx_ref #(
           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
             sil_pend_r[s] <= 1'b1;
             sil_ms_r[s]   <= '0;
-            //! #762: a silence of a bound stream interrupts its playback
-            if (bound_i[s] && !bind_fall_i[s]) sil_si_r[s] <= 1'b1;
+            //! #762: a silence of a bound, started stream interrupts its
+            //! playback. This expiry is the event's one boundary: an Unbind
+            //! or a STOP after it leaves the mark for the walk to count, and
+            //! one on or before it leaves no mark
+            if (bound_i[s] && !bind_fall_i[s] && !stopped_i[s])
+              sil_si_r[s] <= 1'b1;
           end
           else sil_ms_r[s] <= sil_ms_r[s] + 7'd1;
         end

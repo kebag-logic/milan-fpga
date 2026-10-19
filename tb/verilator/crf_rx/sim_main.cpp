@@ -265,6 +265,7 @@ class CrfRxHarness {
         pin_wrap_backing_and_slice_abi();
         pin_stopped_sink();
         pin_unbind_scores_one_unlock();
+        pin_stopped_silence_is_no_interruption();
 
         printf("======================================================================\n");
         printf("KL_crf_rx: %ld checks, %ld failures (%ld accepted PDUs pinned)\n",
@@ -1612,6 +1613,95 @@ class CrfRxHarness {
            static_cast<long>(dut->cnt_locked_o == 1 && dut->cnt_unlocked_o == 1
                              && !dut->locked_o), 1);
         dut->stop_i = 0; m.stop = false;
+        dut->en_i = 1; m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
+    }
+
+    //-----------------------------------------------------------------------
+    // [762-ST] the #762 ruling: a silence on a bound, STOPPED input counts no
+    // STREAM_INTERRUPTED, because a stopped input has no playback to
+    // interrupt (Milan v1.2 5.3.8.7, Table 5.6). Each case is graded by its
+    // own count delta, never against the replica: started silence, stopped
+    // silence after an established lock, START recovery, STOP with live
+    // traffic, and Unbind.
+    //-----------------------------------------------------------------------
+    void pin_stopped_silence_is_no_interruption() {
+        printf("\n[762-ST] #762 stopped-input ruling\n");
+        auto lock_started = [&]() {
+            for (int n = 0; n < 10; n++) {
+                ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+            }
+        };
+        auto silence = [&]() {
+            for (int i = 0; i < kSilenceCyc; i++) tick();
+            m.timeout();
+        };
+        auto d_unl = [&](uint32_t u0) {
+            return static_cast<long long>(dut->cnt_unlocked_o - u0);
+        };
+        auto d_intr = [&](uint32_t i0) {
+            return static_cast<long long>(dut->cnt_intr_o - i0);
+        };
+
+        // (a) started silence
+        lock_started();
+        ck("[762-ST-a0] precondition: started and locked", dut->locked_o, 1);
+        uint32_t u0 = dut->cnt_unlocked_o;
+        uint32_t i0 = dut->cnt_intr_o;
+        silence();
+        ck("[762-ST-a1] started silence: one MEDIA_UNLOCKED", d_unl(u0), 1);
+        ck("[762-ST-a2] started silence: one STREAM_INTERRUPTED", d_intr(i0), 1);
+
+        // (b) stopped silence after an established lock: no PDU at all
+        ts += 100000000; ptp += 100000000;
+        lock_started();
+        ck("[762-ST-b0] precondition: locked again while started", dut->locked_o, 1);
+        u0 = dut->cnt_unlocked_o;
+        i0 = dut->cnt_intr_o;
+        dut->stop_i = 1; m.stop = true;
+        silence();
+        ck("[762-ST-b1] stopped silence: the lock still falls once", d_unl(u0), 1);
+        ck("[762-ST-b2] stopped silence: no STREAM_INTERRUPTED", d_intr(i0), 0);
+
+        // (c) START: the sink re-earns the lock, and a later silence counts
+        dut->stop_i = 0; m.stop = false;
+        for (int i = 0; i < 4; i++) tick();
+        ts += 100000000; ptp += 100000000;
+        lock_started();
+        ck("[762-ST-c0] START: the sink re-earns the lock", dut->locked_o, 1);
+        ck("[762-ST-c1] START: the resume counts no STREAM_INTERRUPTED", d_intr(i0), 0);
+        silence();
+        ck("[762-ST-c2] after START a silence counts STREAM_INTERRUPTED again", d_intr(i0), 1);
+
+        // (d) STOP with live traffic: frames keep arriving and counting, the
+        // consumption clock times the lock out, and nothing is interrupted
+        ts += 100000000; ptp += 100000000;
+        lock_started();
+        u0 = dut->cnt_unlocked_o;
+        i0 = dut->cnt_intr_o;
+        dut->stop_i = 1; m.stop = true;
+        for (int burst = 0; burst < 11; burst++) {
+            ts += 2000200; ptp += 2000000;
+            feed_good(ts, seq++, ptp);
+            for (int i = 0; i < 2100; i++) tick();
+        }
+        m.timeout();
+        ck("[762-ST-d1] STOP with live traffic: the lock times out once", d_unl(u0), 1);
+        ck("[762-ST-d2] STOP with live traffic: no STREAM_INTERRUPTED", d_intr(i0), 0);
+        dut->stop_i = 0; m.stop = false;
+        for (int i = 0; i < 4; i++) tick();
+
+        // (e) the Unbind of a started, locked sink, and the silence after it
+        lock_started();
+        ck("[762-ST-e0] precondition: started and locked", dut->locked_o, 1);
+        u0 = dut->cnt_unlocked_o;
+        i0 = dut->cnt_intr_o;
+        dut->en_i = 0; m.unbind();
+        tick();
+        ck("[762-ST-e1] Unbind: one MEDIA_UNLOCKED", d_unl(u0), 1);
+        ck("[762-ST-e2] Unbind: no STREAM_INTERRUPTED", d_intr(i0), 0);
+        silence();
+        ck("[762-ST-e3] ...nor the silence after it", d_intr(i0), 0);
         dut->en_i = 1; m.bind_zero();
         for (int i = 0; i < 4; i++) tick();
     }

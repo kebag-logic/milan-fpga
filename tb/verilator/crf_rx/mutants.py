@@ -4,8 +4,9 @@
 """Compile isolated CRF receiver and servo-validity mutants; require named harness failures.
 
 The discontinuity mutants run sim_discontinuity.cpp; the #762 STREAM_INTERRUPTED
-mutants (a silence, a sequence gap and an unbind, each the cause its check
-names) run the counter harness, sim_main.cpp, through `make unit-build`.
+mutants (a silence, a sequence gap, an unbind and a stopped input's silence,
+each the cause its check names) run the counter harness, sim_main.cpp, through
+`make unit-build`.
 
 No checkout is edited. Every executable, including the positive control,
 is rebuilt from this invocation's source. The harness has bounded loops.
@@ -55,6 +56,10 @@ UNIT_MUTANTS = (
      "if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
      "if (!stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
      "[UNB-d5] ...and no STREAM_INTERRUPTED: the unbind wins the edge (#762)"),
+    ("stopped_silence_interrupts",
+     "if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
+     "if (en_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
+     "[762-ST-b2] stopped silence: no STREAM_INTERRUPTED"),
 )
 
 

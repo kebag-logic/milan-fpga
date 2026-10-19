@@ -28,10 +28,12 @@
                 * STREAM_INTERRUPTED has two causes (Milan v1.2 5.3.8.10
                   Table 5.6, #762): an accepted PDU whose sequence_num
                   shows >= 2 lost PDUs, and a 100 ms silence that unlocks
-                  a bound stream.
+                  a bound, started stream (5.3.8.7: a stopped input has
+                  no playback to interrupt).
                   The first PDU after a silence re-seeds the sequence, so
                   the silence is counted at its own unlock, once. An
-                  unbind unlocks through the same walk and counts nothing.
+                  unbind unlocks through the same walk and counts nothing;
+                  one after the silence's expiry leaves it counted.
                 * FRAMES_RX counts every accepted AVTPDU, with 32-bit wrap.
                   The interval commit publishes the accumulated packet total.
                   IEEE 1722.1-2021 Table 7.157 and #726 ruling 6125741685
@@ -146,6 +148,9 @@ module KL_avtp_rx_monitor_ctx #(
                                                 //! the 0x002B law's second
                                                 //! unlock cause - it rides
                                                 //! the silence-unlock walk)
+  //! per-stream bound-and-stopped level (Milan v1.2 5.3.8.7): a stopped
+  //! input has no playback, so its silence is no interruption (#762)
+  input  wire [N_LISTENERS_P-1:0] stopped_i,
 
   //! --- stream-0 legacy config (no-regression aliases) -------------------
   input  wire [63:0]  sid0_i,            //! sink-0 bound sid (LCTX w0/w1)
@@ -887,9 +892,6 @@ module KL_avtp_rx_monitor_ctx #(
         //! unlock increment always lands before any wipe (the ordering the
         //! walker comment below already mandates).
         if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
-        //! #762: an Unbind is never an interruption, even one landing on a
-        //! silence unlock that is still waiting for its walk
-        if (bind_fall_i[s]) sil_si_r[s] <= 1'b0;
         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
             !(&dpdu_pend_r[s]))
           dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
@@ -901,8 +903,12 @@ module KL_avtp_rx_monitor_ctx #(
           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
             sil_pend_r[s] <= 1'b1;
             sil_ms_r[s]   <= '0;
-            //! #762: a silence of a bound stream interrupts its playback
-            if (bound_i[s] && !bind_fall_i[s]) sil_si_r[s] <= 1'b1;
+            //! #762: a silence of a bound, started stream interrupts its
+            //! playback. This expiry is the event's one boundary: an Unbind
+            //! or a STOP after it leaves the mark for the walk to count, and
+            //! one on or before it leaves no mark
+            if (bound_i[s] && !bind_fall_i[s] && !stopped_i[s])
+              sil_si_r[s] <= 1'b1;
           end
           else sil_ms_r[s] <= sil_ms_r[s] + 7'd1;
         end

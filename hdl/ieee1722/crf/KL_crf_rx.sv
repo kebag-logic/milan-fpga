@@ -89,7 +89,8 @@
                   own unlock, once. A Controller Unbind drops en_i, so no
                   PDU is accepted and its unlock counts nothing - the
                   clause's exclusion holds structurally. A STOPPED sink's
-                  timeout unlocks without counting it.
+                  timeout unlocks without counting it: a stopped input has
+                  no playback to interrupt (5.3.8.7, #762).
                 * MEDIA_RESET "the 'mr' bit was toggled in any of the
                   received Stream Data AVTPDUs" - the RECEIVED bit of the
                   CRF PDU (mr_i, frame byte O+1 bit 3; IEEE 1722-2016
