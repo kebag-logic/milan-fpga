@@ -1,0 +1,33 @@
+campaign notify
+base results.json sha256 b5bdaec57b83f0fe2414c957f177b105da1edc9af4ec64cca28941ed9c66111b
+head results.json sha256 ccf7bb3a49b4bcf4c205317887412a610d5447326e155aad9d692d4f4af3f1fb
+base: 114 mutants {'KILLED': 114}, 15 baselines {'PASS': 15}
+head: 125 mutants {'KILLED': 125}, 15 baselines {'PASS': 15}
+MUTANTS: 114 unchanged, 0 changed, 11 added, 0 removed
+  ADDED occupancy_cleared_beside_push (KILLED): 2: CQ1, OC1
+  ADDED occupancy_not_busy (KILLED): 2: CQ1b, CQ2b
+  ADDED occupancy_pop_clears (KILLED): 2: CQ2, OC1
+  ADDED occupancy_pop_keeps_set (KILLED): 7: CQ1, CQ1b, CQ2, CQ2b, DR2, DR2b, OC1
+  ADDED occupancy_pop_one_late (KILLED): 5: CQ1, CQ2, DR2, DR2b, OC1
+  ADDED occupancy_push_unseen (KILLED): 9: CQ1, CQ1b, CQ2, CQ2b, DR2, DR2b, LF2, LF3, OC1
+  ADDED occupancy_reset_set (KILLED): 17: CQ1, CQ1b, CQ2, CQ2b, DR1, DR1b, DR2, DR2b, DR3, LF1, LF2, LF3, OC1, TS1, TS3, TW1, TW2
+  ADDED occupancy_reset_set_collision (KILLED): 2: OC1, SC1
+  ADDED occupancy_reset_set_failure (KILLED): 2: OC1, SC2
+  ADDED occupancy_reset_set_identify (KILLED): 1: OC1
+  ADDED occupancy_reset_set_interfaces (KILLED): 13: CA1b, CA2, CA3, CA4, CK1, CK2, CK3, CK4, CK5, OC1, PD3, PT4, PT6
+BASELINES (not mutants): 15 at both, 15 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+  baseline golden-aecp_notify-collision: base PASS, head PASS
+  baseline golden-aecp_notify-failure-window: base PASS, head PASS
+  baseline golden-aecp_notify-identify: base PASS, head PASS
+  baseline golden-aecp_notify-interfaces: base PASS, head PASS
+  baseline golden-aecp_notify-run: base PASS, head PASS
+  baseline golden-originator-run: base PASS, head PASS
+  baseline golden-pp_top-aecp-dispatch-only: base PASS, head PASS
+  baseline golden-pp_top-arm-queue-only: base PASS, head PASS
+  baseline golden-pp_top-domain-notify-only: base PASS, head PASS
+  baseline golden-pp_top-identify-only: base PASS, head PASS
+  baseline golden-pp_top-notify-only: base PASS, head PASS
+  baseline golden-pp_top-obj_idn_Vpp_top_idn: base PASS, head PASS
+  baseline golden-pp_top-obj_if2_Vpp_top_if2: base PASS, head PASS
+  baseline golden-pp_top-spacing-only: base PASS, head PASS
+  baseline golden-pp_top-withdraw-only: base PASS, head PASS

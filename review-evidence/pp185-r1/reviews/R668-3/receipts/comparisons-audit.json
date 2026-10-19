@@ -1,0 +1,435 @@
+{
+  "comparisons": [
+    {
+      "comparison": "round3/compare/r1c/acmp-base-vs-head.json",
+      "coverage": "explicit campaign roster/verdicts; full failure-ID records omitted by public size cap",
+      "base_mutants": 51,
+      "head_mutants": 51,
+      "base_baselines": 6,
+      "head_baselines": 6,
+      "mutants": {
+        "unchanged": 51,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 6,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 6
+    },
+    {
+      "comparison": "round3/compare/r1c/acmp-r1b-head-vs-r1c-head.json",
+      "coverage": "explicit campaign roster/verdicts; full failure-ID records omitted by public size cap",
+      "base_mutants": 51,
+      "head_mutants": 51,
+      "base_baselines": 6,
+      "head_baselines": 6,
+      "mutants": {
+        "unchanged": 51,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 6,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 6
+    },
+    {
+      "comparison": "round3/compare/r1c/aecp_dispatch-base-vs-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 54,
+      "head_mutants": 63,
+      "base_baselines": 4,
+      "head_baselines": 4,
+      "mutants": {
+        "unchanged": 51,
+        "changed": [
+          "lk-sctrl-lock-nop",
+          "rd-str-short-guard-nop",
+          "rd-tail-uncut"
+        ],
+        "added": [
+          "rdc-base-no-overlay",
+          "rdc-ident-reset-255",
+          "rdc-sctrl-no-write",
+          "rdc-short-floor-111",
+          "rdc-unit-shift-8",
+          "rdc-unset-image",
+          "rdc-voffset-guard-nop",
+          "rdc-vtype-int16",
+          "rdc-vtype-uint8-only"
+        ],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 4,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 4
+    },
+    {
+      "comparison": "round3/compare/r1c/aecp_dispatch-r1b-head-vs-r1c-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 63,
+      "head_mutants": 63,
+      "base_baselines": 4,
+      "head_baselines": 4,
+      "mutants": {
+        "unchanged": 63,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 4,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 4
+    },
+    {
+      "comparison": "round3/compare/r1c/d3-base-vs-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 110,
+      "head_mutants": 110,
+      "base_baselines": 6,
+      "head_baselines": 6,
+      "mutants": {
+        "unchanged": 110,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 6,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 6
+    },
+    {
+      "comparison": "round3/compare/r1c/d3-r1b-head-vs-r1c-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 110,
+      "head_mutants": 110,
+      "base_baselines": 6,
+      "head_baselines": 6,
+      "mutants": {
+        "unchanged": 110,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 6,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 6
+    },
+    {
+      "comparison": "round3/compare/r1c/name_state-base-vs-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 16,
+      "head_mutants": 16,
+      "base_baselines": 1,
+      "head_baselines": 1,
+      "mutants": {
+        "unchanged": 16,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 1,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 1
+    },
+    {
+      "comparison": "round3/compare/r1c/notify-base-vs-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 109,
+      "head_mutants": 125,
+      "base_baselines": 13,
+      "head_baselines": 15,
+      "mutants": {
+        "unchanged": 107,
+        "changed": [
+          "occupancy_push_unseen",
+          "occupancy_reset_set"
+        ],
+        "added": [
+          "lock_auto_unlock_flags_zero",
+          "lock_coalesced_timeout_flags_zero",
+          "lock_coalesced_timeout_keeps_flags",
+          "lock_flags_from_exclusion",
+          "lock_flags_unlock_bit_only",
+          "lock_job_arguments_dropped",
+          "lock_job_r14_unpacked",
+          "lock_notification_flags_zero",
+          "lock_notification_not_sent",
+          "lock_release_keeps_old_flags",
+          "lock_response_flags_zero",
+          "lock_take_keeps_old_flags",
+          "lock_timeout_flags_zero",
+          "lock_timeout_keeps_flags",
+          "lock_unlock_notifies_flags_zero",
+          "register_refused"
+        ],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 13,
+        "changed": [],
+        "added": [
+          "golden-pp_top-aecp-dispatch-only",
+          "golden-pp_top-arm-queue-only"
+        ],
+        "removed": []
+      },
+      "baselines_clean_at_both": 13
+    },
+    {
+      "comparison": "round3/compare/r1c/notify-r1b-head-vs-r1c-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 114,
+      "head_mutants": 125,
+      "base_baselines": 15,
+      "head_baselines": 15,
+      "mutants": {
+        "unchanged": 114,
+        "changed": [],
+        "added": [
+          "occupancy_cleared_beside_push",
+          "occupancy_not_busy",
+          "occupancy_pop_clears",
+          "occupancy_pop_keeps_set",
+          "occupancy_pop_one_late",
+          "occupancy_push_unseen",
+          "occupancy_reset_set",
+          "occupancy_reset_set_collision",
+          "occupancy_reset_set_failure",
+          "occupancy_reset_set_identify",
+          "occupancy_reset_set_interfaces"
+        ],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 15,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 15
+    },
+    {
+      "comparison": "round3/compare/round2/acmp-base-vs-head.json",
+      "coverage": "explicit campaign roster/verdicts; full failure-ID records omitted by public size cap",
+      "base_mutants": 54,
+      "head_mutants": 54,
+      "base_baselines": 7,
+      "head_baselines": 7,
+      "mutants": {
+        "unchanged": 54,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 7,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 7
+    },
+    {
+      "comparison": "round3/compare/round2/aecp_dispatch-base-vs-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 63,
+      "head_mutants": 69,
+      "base_baselines": 4,
+      "head_baselines": 4,
+      "mutants": {
+        "unchanged": 60,
+        "changed": [
+          "rd-tail-uncut",
+          "rdc-base-no-overlay",
+          "rdc-unit-shift-8"
+        ],
+        "added": [
+          "rdc-ctype-any",
+          "rdc-ctype-status-kept",
+          "rdc-ctype-w82-nop",
+          "rdc-ctype-w84-nop",
+          "rdc-ctype-w86-nop",
+          "rdc-ctype-w88-nop"
+        ],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 4,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 4
+    },
+    {
+      "comparison": "round3/compare/round2/d3-base-vs-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 110,
+      "head_mutants": 110,
+      "base_baselines": 6,
+      "head_baselines": 6,
+      "mutants": {
+        "unchanged": 110,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 6,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 6
+    },
+    {
+      "comparison": "round3/compare/round2/name_state-base-vs-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 16,
+      "head_mutants": 16,
+      "base_baselines": 1,
+      "head_baselines": 1,
+      "mutants": {
+        "unchanged": 16,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 1,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 1
+    },
+    {
+      "comparison": "round3/compare/round2/notify-base-vs-head-final2.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 125,
+      "head_mutants": 135,
+      "base_baselines": 15,
+      "head_baselines": 15,
+      "mutants": {
+        "unchanged": 120,
+        "changed": [
+          "lock_coalesced_timeout_flags_zero",
+          "lock_coalesced_timeout_keeps_flags",
+          "lock_release_keeps_old_flags",
+          "lock_take_keeps_old_flags",
+          "occupancy_reset_set"
+        ],
+        "added": [
+          "lock_claim_beside_expiry",
+          "lock_expiry_at_holder_read",
+          "lock_expiry_in_presented_job",
+          "lock_expiry_pending_dropped",
+          "lock_expiry_relatch_keeps_exclusion",
+          "lock_expiry_round_not_relatched",
+          "lock_op_ignores_due_expiry",
+          "lock_release_round_not_relatched",
+          "lock_take_relatch_keeps_exclusion",
+          "lock_take_round_not_relatched"
+        ],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 15,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 15
+    },
+    {
+      "comparison": "round3/compare/round2/notify-base-vs-head.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 125,
+      "head_mutants": 135,
+      "base_baselines": 15,
+      "head_baselines": 15,
+      "mutants": {
+        "unchanged": 120,
+        "changed": [
+          "lock_coalesced_timeout_flags_zero",
+          "lock_coalesced_timeout_keeps_flags",
+          "lock_release_keeps_old_flags",
+          "lock_take_keeps_old_flags",
+          "occupancy_reset_set"
+        ],
+        "added": [
+          "lock_claim_beside_expiry",
+          "lock_expiry_at_holder_read",
+          "lock_expiry_in_presented_job",
+          "lock_expiry_pending_dropped",
+          "lock_expiry_relatch_keeps_exclusion",
+          "lock_expiry_round_not_relatched",
+          "lock_op_ignores_due_expiry",
+          "lock_release_round_not_relatched",
+          "lock_take_relatch_keeps_exclusion",
+          "lock_take_round_not_relatched"
+        ],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 15,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 15
+    },
+    {
+      "comparison": "round3/compare/round2/notify-head-vs-head-final2.json",
+      "coverage": "complete comparison replay and independent failure-ID/verdict reconciliation",
+      "base_mutants": 135,
+      "head_mutants": 135,
+      "base_baselines": 15,
+      "head_baselines": 15,
+      "mutants": {
+        "unchanged": 135,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines": {
+        "unchanged": 15,
+        "changed": [],
+        "added": [],
+        "removed": []
+      },
+      "baselines_clean_at_both": 15
+    }
+  ],
+  "raw_dispatch_extracts_crosschecked": 0
+}

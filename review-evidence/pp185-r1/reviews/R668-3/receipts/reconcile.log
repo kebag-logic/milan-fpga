@@ -1,0 +1,25 @@
+MATCH: the audit replayed on these records equals the published audit
+| Campaign | Figure | Audit | This comparison | |
+|---|---|---:|---:|---|
+| notify | base mutants | 125 | 125 | MATCH |
+| notify | head mutants | 135 | 135 | MATCH |
+| notify | unchanged mutants | 120 | 120 | MATCH |
+| notify | changed mutants | 5 | 5 | MATCH |
+| notify | added mutants | 10 | 10 | MATCH |
+| notify | removed mutants | 0 | 0 | MATCH |
+| notify | head baselines | 15 | 15 | MATCH |
+| aecp_dispatch | base mutants | 63 | 63 | MATCH |
+| aecp_dispatch | head mutants | 69 | 69 | MATCH |
+| aecp_dispatch | unchanged mutants | 60 | 60 | MATCH |
+| aecp_dispatch | changed mutants | 3 | 3 | MATCH |
+| aecp_dispatch | added mutants | 6 | 6 | MATCH |
+| aecp_dispatch | removed mutants | 0 | 0 | MATCH |
+| aecp_dispatch | head baselines | 4 | 4 | MATCH |
+| d3 | base mutants | 110 | 110 | MATCH |
+| d3 | head mutants | 110 | 110 | MATCH |
+| d3 | unchanged mutants | 110 | 110 | MATCH |
+| d3 | changed mutants | 0 | 0 | MATCH |
+| d3 | added mutants | 0 | 0 | MATCH |
+| d3 | removed mutants | 0 | 0 | MATCH |
+| d3 | head baselines | 6 | 6 | MATCH |
+0 mismatches

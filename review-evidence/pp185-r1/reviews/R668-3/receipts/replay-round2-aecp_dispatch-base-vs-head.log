@@ -1,0 +1,23 @@
+campaign aecp_dispatch
+base results.json sha256 1ef55a4ae4366fcca62d1b2501584a062da9aceb472431d111b1022aeb149b88
+head results.json sha256 f2a7ca979929f0d093377a8a0443538bdc00126c9514576b2ba37af5576032a1
+base: 63 mutants {'KILLED': 63}, 4 baselines {'PASS': 4}
+head: 69 mutants {'KILLED': 69}, 4 baselines {'PASS': 4}
+MUTANTS: 60 unchanged, 3 changed, 6 added, 0 removed
+  CHANGED rd-tail-uncut: base 16: RD1 x5, RD3 x4, RDC0, RDC1, RDC3, RDC3b, RDC4, RDC5 x2
+                         head 17: RD1 x5, RD3 x4, RDC0, RDC1, RDC3, RDC3b, RDC4, RDC5 x2, RDC7
+  CHANGED rdc-base-no-overlay: base 7: RDC0, RDC1, RDC3, RDC3b, RDC4, RDC5 x2
+                               head 8: RDC0, RDC1, RDC3, RDC3b, RDC4, RDC5 x2, RDC7
+  CHANGED rdc-unit-shift-8: base 7: RDC0, RDC1, RDC3, RDC3b, RDC4, RDC5 x2
+                            head 8: RDC0, RDC1, RDC3, RDC3b, RDC4, RDC5 x2, RDC7
+  ADDED rdc-ctype-any (KILLED): 5: RDC7 x5
+  ADDED rdc-ctype-status-kept (KILLED): 5: RDC7 x5
+  ADDED rdc-ctype-w82-nop (KILLED): 1: RDC7
+  ADDED rdc-ctype-w84-nop (KILLED): 1: RDC7
+  ADDED rdc-ctype-w86-nop (KILLED): 1: RDC7
+  ADDED rdc-ctype-w88-nop (KILLED): 1: RDC7
+BASELINES (not mutants): 4 at both, 4 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+  baseline control aecp-dispatch: base PASS, head PASS
+  baseline control aecp-line: base PASS, head PASS
+  baseline control d3: base PASS, head PASS
+  baseline control line-guards: base PASS, head PASS

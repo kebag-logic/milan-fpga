@@ -1,0 +1,13 @@
+campaign d3
+base results.json sha256 aea2367ad75435a0fa5c3fac04101986c2128ed5d2f6727e907d9aa13eba912a
+head results.json sha256 09eda24287ee2b9ce3ef5ce5f7b04f16f0851439d2e7ec4c49a709d048ea9a0e
+base: 110 mutants {'KILLED': 110}, 6 baselines {'PASS': 6}
+head: 110 mutants {'KILLED': 110}, 6 baselines {'PASS': 6}
+MUTANTS: 110 unchanged, 0 changed, 0 added, 0 removed
+BASELINES (not mutants): 6 at both, 6 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+  baseline golden-acmp_nvm: base PASS, head PASS
+  baseline golden-pp_top: base PASS, head PASS
+  baseline golden-pp_top-adp-only: base PASS, head PASS
+  baseline golden-pp_top-cuts-only: base PASS, head PASS
+  baseline golden-pp_top-volatile-only: base PASS, head PASS
+  baseline golden-rx_validator: base PASS, head PASS

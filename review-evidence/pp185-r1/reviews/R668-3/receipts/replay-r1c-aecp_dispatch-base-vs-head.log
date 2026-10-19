@@ -1,0 +1,26 @@
+campaign aecp_dispatch
+base results.json sha256 b91a91294c93f63d370f841ac8c98fbddf40f83ac78695d25c4810161cfddfa8
+head results.json sha256 1ef55a4ae4366fcca62d1b2501584a062da9aceb472431d111b1022aeb149b88
+base: 54 mutants {'KILLED': 54}, 4 baselines {'PASS': 4}
+head: 63 mutants {'KILLED': 63}, 4 baselines {'PASS': 4}
+MUTANTS: 51 unchanged, 3 changed, 9 added, 0 removed
+  CHANGED lk-sctrl-lock-nop: base 12: LK1 x3, LK2, LK3 x4, LK3b, LK3c x2, LK6
+                             head 13: LK1 x3, LK2, LK3 x4, LK3b, LK3c x2, LK6, RDC1
+  CHANGED rd-str-short-guard-nop: base 1: RD4
+                                  head 6: LN0, RD4, RDC6 x4
+  CHANGED rd-tail-uncut: base 9: RD1 x5, RD3 x4
+                         head 16: RD1 x5, RD3 x4, RDC0, RDC1, RDC3, RDC3b, RDC4, RDC5 x2
+  ADDED rdc-base-no-overlay (KILLED): 7: RDC0, RDC1, RDC3, RDC3b, RDC4, RDC5 x2
+  ADDED rdc-ident-reset-255 (KILLED): 5: LK1, LK2, RDC0, RDC5, RDC6
+  ADDED rdc-sctrl-no-write (KILLED): 11: LK2, LK3 x2, LK3b, LK3c x2, LK6, RDC1, RDC5, RDC6 x2
+  ADDED rdc-short-floor-111 (KILLED): 2: LN0, RDC6
+  ADDED rdc-unit-shift-8 (KILLED): 7: RDC0, RDC1, RDC3, RDC3b, RDC4, RDC5 x2
+  ADDED rdc-unset-image (KILLED): 2: RDC0, RDC5
+  ADDED rdc-voffset-guard-nop (KILLED): 1: RDC2
+  ADDED rdc-vtype-int16 (KILLED): 1: RDC3
+  ADDED rdc-vtype-uint8-only (KILLED): 1: RDC3b
+BASELINES (not mutants): 4 at both, 4 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+  baseline control aecp-dispatch: base PASS, head PASS
+  baseline control aecp-line: base PASS, head PASS
+  baseline control d3: base PASS, head PASS
+  baseline control line-guards: base PASS, head PASS

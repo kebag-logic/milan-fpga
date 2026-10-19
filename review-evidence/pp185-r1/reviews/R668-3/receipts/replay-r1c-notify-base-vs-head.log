@@ -1,0 +1,42 @@
+campaign notify
+base results.json sha256 6ad888715cb1d5bbaaaa448c0b8ad9bd9a91892f46ad2256daa4274a5b57438f
+head results.json sha256 ccf7bb3a49b4bcf4c205317887412a610d5447326e155aad9d692d4f4af3f1fb
+base: 109 mutants {'KILLED': 109}, 13 baselines {'PASS': 13}
+head: 125 mutants {'KILLED': 125}, 15 baselines {'PASS': 15}
+MUTANTS: 107 unchanged, 2 changed, 16 added, 0 removed
+  CHANGED occupancy_push_unseen: base 7: CQ1, CQ1b, CQ2, CQ2b, DR2, DR2b, OC1
+                                 head 9: CQ1, CQ1b, CQ2, CQ2b, DR2, DR2b, LF2, LF3, OC1
+  CHANGED occupancy_reset_set: base 14: CQ1, CQ1b, CQ2, CQ2b, DR1, DR1b, DR2, DR2b, DR3, OC1, TS1, TS3, TW1, TW2
+                               head 17: CQ1, CQ1b, CQ2, CQ2b, DR1, DR1b, DR2, DR2b, DR3, LF1, LF2, LF3, OC1, TS1, TS3, TW1, TW2
+  ADDED lock_auto_unlock_flags_zero (KILLED): 1: L6d
+  ADDED lock_coalesced_timeout_flags_zero (KILLED): 1: LF2
+  ADDED lock_coalesced_timeout_keeps_flags (KILLED): 1: LF2
+  ADDED lock_flags_from_exclusion (KILLED): 4: LN1, LN2, LN3, LN4
+  ADDED lock_flags_unlock_bit_only (KILLED): 2: LN1, LN4
+  ADDED lock_job_arguments_dropped (KILLED): 3: LN1, LN2, LN4
+  ADDED lock_job_r14_unpacked (KILLED): 3: LN1, LN2, LN4
+  ADDED lock_notification_flags_zero (KILLED): 3: LN1, LN2, LN4
+  ADDED lock_notification_not_sent (KILLED): 4: LN1, LN2, LN3, LN4
+  ADDED lock_release_keeps_old_flags (KILLED): 1: LF1b
+  ADDED lock_response_flags_zero (KILLED): 2: LN1, LN4
+  ADDED lock_take_keeps_old_flags (KILLED): 3: LF1, LF3, LF3a
+  ADDED lock_timeout_flags_zero (KILLED): 1: LN2
+  ADDED lock_timeout_keeps_flags (KILLED): 1: LN2
+  ADDED lock_unlock_notifies_flags_zero (KILLED): 2: L5b, L6d
+  ADDED register_refused (KILLED): 2: LK0, LN0
+BASELINES (not mutants): 13 at both, 13 PASS with no failing check at both, 0 changed, 2 added, 0 removed
+  baseline golden-aecp_notify-collision: base PASS, head PASS
+  baseline golden-aecp_notify-failure-window: base PASS, head PASS
+  baseline golden-aecp_notify-identify: base PASS, head PASS
+  baseline golden-aecp_notify-interfaces: base PASS, head PASS
+  baseline golden-aecp_notify-run: base PASS, head PASS
+  baseline golden-originator-run: base PASS, head PASS
+  baseline golden-pp_top-aecp-dispatch-only: base absent, head PASS
+  baseline golden-pp_top-arm-queue-only: base absent, head PASS
+  baseline golden-pp_top-domain-notify-only: base PASS, head PASS
+  baseline golden-pp_top-identify-only: base PASS, head PASS
+  baseline golden-pp_top-notify-only: base PASS, head PASS
+  baseline golden-pp_top-obj_idn_Vpp_top_idn: base PASS, head PASS
+  baseline golden-pp_top-obj_if2_Vpp_top_if2: base PASS, head PASS
+  baseline golden-pp_top-spacing-only: base PASS, head PASS
+  baseline golden-pp_top-withdraw-only: base PASS, head PASS

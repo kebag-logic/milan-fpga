@@ -1,0 +1,14 @@
+PASS: baseline-only: rc 0
+PASS: mixed: rc 0
+FAIL: dispatch count mismatch: rc 0, missing ['1 FAIL: lines, results.json says 2']
+    campaign aecp_dispatch
+    base results.json sha256 ed97d6f9c0520884009afec6a5496cd81c76dda5025fa5be15b3213dbd446edd
+    head results.json sha256 ed97d6f9c0520884009afec6a5496cd81c76dda5025fa5be15b3213dbd446edd
+    base: 1 mutants {'KILLED': 1}, 1 baselines {'PASS': 1}
+    head: 1 mutants {'KILLED': 1}, 1 baselines {'PASS': 1}
+    MUTANTS: 1 unchanged, 0 changed, 0 added, 0 removed
+    BASELINES (not mutants): 1 at both, 1 PASS with no failing check at both, 0 changed, 0 added, 0 removed
+      baseline control t: base PASS, head PASS
+    
+PASS: name/plant disagreement: rc 1
+selftest: 3 of 4 cases PASS
