@@ -1,0 +1,29 @@
+shard: 3/5   selected suites: 13
+PASS     adp_tx
+PASS     cbs
+PASS     crf_rx
+PASS     crf_tx
+PASS     follow_ring
+FAIL     gptp_shadow
+PASS     lat_history_ring
+PASS     link_guard
+PASS     maap
+PASS     mbx
+PASS     rx_filter
+PASS     shaper_core
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 13   passed: 12   failed: 1   timed out: 0
+checks: 1672943   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  gptp_shadow: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: gptp_shadow
+logs: <scratch>/r2/sweep-logs/shard3

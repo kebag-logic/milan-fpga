@@ -1,0 +1,8 @@
+34c34
+<         if (d.cnt_unlocked_o != 1 || d.cnt_intr_o != 1) {
+---
+>         if (d.cnt_unlocked_o != 1 || d.cnt_intr_o != (stopped ? 0u : 1u)) {
+36c36
+<             std::puts("FAIL: bound input's silence unlock must count exactly one interruption under the frozen acceptance");
+---
+>             std::puts("FAIL: under the #762 ruling a started silence counts one interruption and a stopped one none");

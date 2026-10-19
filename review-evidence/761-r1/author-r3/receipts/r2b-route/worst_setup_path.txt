@@ -1,0 +1,145 @@
+Slack (MET) :             0.189ns  (required time - arrival time)
+  Source:                 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[0]_replica/C
+                            (rising edge-triggered cell FDCE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bus_aw_rValid_reg/D
+                            (rising edge-triggered cell FDCE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.740ns  (logic 2.428ns (24.929%)  route 7.312ns (75.071%))
+  Logic Levels:           19  (LUT2=2 LUT3=5 LUT4=4 LUT5=2 LUT6=6)
+  Clock Path Skew:        -0.046ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.757ns = ( 16.757 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.189ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.519     7.189    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_rData_header_reg[0]_0
+    SLICE_X62Y164        FDCE                                         r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[0]_replica/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X62Y164        FDCE (Prop_fdce_C_Q)         0.433     7.622 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[0]_replica/Q
+                         net (fo=1, routed)           0.825     8.448    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[0]_repN
+    SLICE_X63Y169        LUT6 (Prop_lut6_I0_O)        0.105     8.553 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6/O
+                         net (fo=3, routed)           0.135     8.687    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net
+    SLICE_X63Y169        LUT4 (Prop_lut4_I3_O)        0.105     8.792 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_replica/O
+                         net (fo=1, routed)           0.264     9.056    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_upsDone_reg_0_repN
+    SLICE_X62Y169        LUT2 (Prop_lut2_I0_O)        0.105     9.161 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_len[3]_i_4/O
+                         net (fo=2, routed)           0.133     9.294    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_len[3]_i_4_n_0
+    SLICE_X62Y169        LUT4 (Prop_lut4_I3_O)        0.105     9.399 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/maskLocked_1_i_4/O
+                         net (fo=4, routed)           0.266     9.665    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/dma_bridge_write_bridge_io_down_a_valid
+    SLICE_X62Y171        LUT5 (Prop_lut5_I3_O)        0.105     9.770 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter/ram_reg_0_i_24/O
+                         net (fo=88, routed)          0.893    10.664    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/DIADI[0]
+    SLICE_X60Y175        LUT6 (Prop_lut6_I1_O)        0.105    10.769 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/ram_reg_0_i_49/O
+                         net (fo=4, routed)           0.629    11.398    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/dma_bridge_down_arbiter_core_io_down_a_payload_size[0]
+    SLICE_X58Y175        LUT3 (Prop_lut3_I1_O)        0.105    11.503 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/ram_reg_0_i_85/O
+                         net (fo=1, routed)           0.396    11.898    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/ram_reg_0_i_75_0
+    SLICE_X60Y172        LUT3 (Prop_lut3_I0_O)        0.105    12.003 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3_37/O
+                         net (fo=1, routed)           0.315    12.318    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_33
+    SLICE_X59Y171        LUT6 (Prop_lut6_I5_O)        0.105    12.423 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_10/O
+                         net (fo=1, routed)           0.615    13.039    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_38
+    SLICE_X60Y174        LUT6 (Prop_lut6_I5_O)        0.105    13.144 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_11/O
+                         net (fo=3, routed)           0.267    13.411    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/io_up_a_tracker_beat_reg[0]
+    SLICE_X60Y175        LUT6 (Prop_lut6_I5_O)        0.105    13.516 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/io_up_a_tracker_beat[3]_i_3__0/O
+                         net (fo=3, routed)           0.471    13.986    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_logic_core/io_up_a_tracker_beat_reg[0]_1
+    SLICE_X62Y174        LUT3 (Prop_lut3_I2_O)        0.105    14.091 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_logic_core/ptr_cmd[2]_i_3__0_replica/O
+                         net (fo=1, routed)           0.230    14.322    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/dma_filter_logic_core_io_up_a_ready_repN_alias
+    SLICE_X62Y173        LUT6 (Prop_lut6_I0_O)        0.105    14.427 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6_4/O
+                         net (fo=18, routed)          0.199    14.625    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_6
+    SLICE_X62Y173        LUT2 (Prop_lut2_I0_O)        0.105    14.730 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_7/O
+                         net (fo=11, routed)          0.423    15.153    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net_8
+    SLICE_X64Y172        LUT3 (Prop_lut3_I0_O)        0.105    15.258 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT2_8_rewire/O
+                         net (fo=49, routed)          0.303    15.561    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/frontend_split_ready_output
+    SLICE_X65Y170        LUT3 (Prop_lut3_I2_O)        0.105    15.666 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT3_5/O
+                         net (fo=1, routed)           0.116    15.782    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/aligner_io_up_aw_ready
+    SLICE_X65Y170        LUT4 (Prop_lut4_I3_O)        0.105    15.887 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_2/O
+                         net (fo=4, routed)           0.361    16.248    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/compactor_io_up_aw_ready
+    SLICE_X64Y169        LUT4 (Prop_lut4_I2_O)        0.105    16.353 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_i_4/O
+                         net (fo=2, routed)           0.471    16.824    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/onAw_halted_fork2_io_input_ready
+    SLICE_X64Y165        LUT5 (Prop_lut5_I2_O)        0.105    16.929 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/dma_bus_aw_rValid_i_1/O
+                         net (fo=1, routed)           0.000    16.929    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge_n_37
+    SLICE_X64Y165        FDCE                                         r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bus_aw_rValid_reg/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.399    16.757    VexiiRiscvLitex_f5f08b170311db53220574624f819159/popArea_stream_rData_reg
+    SLICE_X64Y165        FDCE                                         r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bus_aw_rValid_reg/C
+                         clock pessimism              0.386    17.143    <hidden>
+                         clock uncertainty           -0.058    17.086    <hidden>
+    SLICE_X64Y165        FDCE (Setup_fdce_C_D)        0.032    17.118    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bus_aw_rValid_reg
+  -------------------------------------------------------------------
+                         required time                         17.118    <hidden>
+                         arrival time                         -16.929    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.189    <hidden>
+
+Slack (MET) :             0.240ns  (required time - arrival time)
+  Source:                 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[0]_replica/C
+                            (rising edge-triggered cell FDCE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_0_reg/D
+                            (rising edge-triggered cell FDPE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.725ns  (logic 2.431ns (24.997%)  route 7.294ns (75.003%))
+  Logic Levels:           19  (LUT2=2 LUT3=5 LUT4=5 LUT5=1 LUT6=6)
+  Clock Path Skew:        -0.046ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.757ns = ( 16.757 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.189ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.519     7.189    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_rData_header_reg[0]_0
+    SLICE_X62Y164        FDCE                                         r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[0]_replica/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X62Y164        FDCE (Prop_fdce_C_Q)         0.433     7.622 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[0]_replica/Q
+                         net (fo=1, routed)           0.825     8.448    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg_n_0_[0]_repN
+    SLICE_X63Y169        LUT6 (Prop_lut6_I0_O)        0.105     8.553 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6/O
+                         net (fo=3, routed)           0.135     8.687    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_net
+    SLICE_X63Y169        LUT4 (Prop_lut4_I3_O)        0.105     8.792 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4_replica/O
+                         net (fo=1, routed)           0.264     9.056    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_upsDone_reg_0_repN
+    SLICE_X62Y169        LUT2 (Prop_lut2_I0_O)        0.105     9.161 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_len[3]_i_4/O
