@@ -1,0 +1,9 @@
+# parent scratch patch vs parent dev e9cbb676 hdl/milan/KL_pp_shadow.sv
+parent blob at e9cbb676 (git hash-object): 50455d463e71917422d1d25ba40cc472d92dcf8b
+patch preimage index line: index 50455d463..5e84f1eda 100644
+patch sha256: 37d1b76ec95e1b0d7de12ace14d8ade032bf8bb96a70eb5df21d11c1363234a8
+instance parameter:  .N_STREAM_OUT_P (N_STREAM_OUT_P),
+parent scalar port:  input wire [15:0] cfg_tspec_max_frame_i,
+service face tie-off kept:  .svc_valid_i (1'b0), /  .svc_max_frame_i ('0),
+git apply --check against the e9cbb676 file: OK
+patched blob: 5e84f1eda9867d6a3bb396ba23c52a81fd7a6e58 (patch postimage index 5e84f1eda)
