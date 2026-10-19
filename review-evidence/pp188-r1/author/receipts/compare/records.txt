@@ -1,0 +1,75 @@
+# records: rc (seconds); base 5addf297 in the scratch parent's submodule, head dc01aec4 in the lane unless noted
+
+## processor gates (base-gates / head-gates)
+lint_hdl             base rc=0 (32s)  head rc=0 (20s)
+gen_matrix           base rc=0 (0s)  head rc=0 (0s)
+make_check           base rc=0 (109s)  head rc=0 (59s)
+yosys_run            base rc=0 (200s)  head rc=0 (101s)
+elab_guards_yosys    base rc=0 (253s)  head rc=0 (111s)
+run_suites           base rc=0 (4884s)  head rc=0 (2232s)
+req_tags_executed    base rc=0 (1s)  head rc=0 (0s)
+
+elab_guards_yosys            base rc=0 head rc=0  identical
+gen_matrix                   base rc=0 head rc=0  identical
+lint_hdl                     base rc=0 head rc=0  identical
+make_check                   base rc=0 head rc=0  6 differing lines
+req_tags_executed            base rc=0 head rc=0  4 differing lines
+run_suites                   base rc=0 head rc=0  8 differing lines
+yosys_run                    base rc=0 head rc=0  identical
+
+--- run_suites summaries
+base-gates/run_suites.log:PASS acmp_listener (3167 checks: 3167 PASS, 0 FAIL)
+base-gates/run_suites.log:PASS pp_top (10519 checks: 10519 PASS, 0 FAIL)
+base-gates/run_suites.log:PASS srp_stream_fsms (1347 checks: 1347 PASS, 0 FAIL)
+base-gates/run_suites.log:suites: 1030013 checks total, 0 failing
+head-gates/run_suites.log:PASS acmp_listener (3170 checks: 3170 PASS, 0 FAIL)
+head-gates/run_suites.log:PASS pp_top (10524 checks: 10524 PASS, 0 FAIL)
+head-gates/run_suites.log:PASS srp_stream_fsms (1352 checks: 1352 PASS, 0 FAIL)
+head-gates/run_suites.log:suites: 1030026 checks total, 0 failing
+
+## campaigns
+srp_top        base rc=0 (3258s)  head rc=0 (6873s) [bacfb90 tree]
+srp_admission  base rc=0 (611s)  head rc=0 (776s) [bacfb90 tree]
+maap           base rc=0 (186s)  head rc=0 (158s)
+adp            base rc=0 (671s)  head rc=0 (484s)
+aecp           base rc=0 (2466s)  head rc=0 (1182s)
+dispatch       base rc=0 (2370s)  head rc=0 (984s)
+ctr            base rc=0 (354s)  head rc=0 (376s)
+acmp           base rc=0 (10316s)  head rc=0 (6425s)
+gsi            base rc=0 (878s)  head rc=0 (1003s)
+name_wr        base rc=0 (150s)  head rc=0 (160s)
+notify         base rc=0 (10436s)  head rc=0 (3469s)
+name_state     base rc=0 (659s)  head rc=0 (541s)
+elab_mutants   base rc=0 (1618s)  head rc=0 (1046s)
+d3             base rc=0 (11703s)  head rc=0 (5577s)
+(elab_mutants and name_state first refused at both sides because the wrapper pre-created their output directory; the *.setup-refused records are kept; the reruns above are the records)
+
+## consumer gates (cons-base / cons-head, ooc-base / ooc-head)
+baremetal_only               base rc=0 head rc=0  identical
+bdd                          base rc=0 head rc=0  identical
+cpp_idiom                    base rc=0 head rc=0  identical
+docs_check                   base rc=0 head rc=0  identical
+hygiene                      base rc=0 head rc=0  identical
+lint_rtl                     base rc=0 head rc=0  identical
+measure_naming               base rc=0 head rc=0  identical
+measure_test_evidence        base rc=0 head rc=0  identical
+milan_dp                     base rc=0 head rc=0  51 differing lines
+milan_dp_render              base rc=0 head rc=0  98 differing lines
+nvm_cosim_lint               base rc=0 head rc=0  identical
+nvm_cosim_quick              base rc=0 head rc=0  identical
+ooc_selftest                 base rc=2 head rc=2  2 differing lines
+port_contracts               base rc=0 head rc=0  identical
+pp_shadow                    base rc=0 head rc=0  78 differing lines
+pp_srcs                      base rc=0 head rc=0  identical
+py_idiom                     base rc=0 head rc=0  2 differing lines
+rtl_source_lists             base rc=0 head rc=0  identical
+sh_idiom                     base rc=0 head rc=0  identical
+submodule_docs               base rc=1 head rc=1  identical
+sv_idiom                     base rc=0 head rc=0  identical
+test_builder                 base rc=0 head rc=0  92 differing lines
+xvlog                        base rc=0 head rc=0  2 differing lines
+xvlog.lockwait-cut           base rc=143 head rc=-  ONE SIDE ONLY
+yosys_elaborate              base rc=0 head rc=0  4 differing lines
+ooc_pp_shadow                base rc=0 head rc=0  2 differing lines
+ooc_record_rom_digests       base rc=0 head rc=0  2 differing lines
+ooc_selftest                 base rc=0 head rc=0  identical

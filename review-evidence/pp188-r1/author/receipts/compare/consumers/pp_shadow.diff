@@ -1,0 +1,118 @@
+--- base/pp_shadow
++++ head/pp_shadow
+@@ -5 +5 @@
+-  [PASS3
++  [PASS0x00017700 exp=0x00017700
+@@ -12 +11,0 @@
+-  [PASS] #400 diagnostic writes preserve Domain default got=0x00030000BB80
+@@ -14 +13,2 @@
+-  [PASS] #400 diagnostic writes preserve Domain default got=0x00030x00017700 exp=0x00017700
++  [PASS] #400 diagnostic writes preserve Domain default got=0x0003=== milan_datapath + the protocol processor AS the control plane ===
++  [PASS] #400 diagnostic writes preserve Domain default got=0x0003x00000026 exp=0x00000026
+@@ -63,2 +63,2 @@
+-  [PASS] #403 exact MAAP boot count readback        got=0x00000101 exp=0x0./obj_crf/Vpp_crf
+-  [PASS] #403 exact MAAP boot count readback        got=0x00000101 exp=0x0make --no-print-directory exec-base
++  [PASS] #403 exact MAAP boot count readback        got=0x00000101 exp=0x00000101
++  [PASS] #403 exact MAAP boot count readback        got=0x00000101 exp=0x0tays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+@@ -130 +130 @@
+-  [PASS] #606 source 1 startup allocation was refused no block was valid a     got=0x02112233 exp=0x02112233
++  [PASS] #606 source 1 startup allocation was refused no block was valid ag++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_pending
+@@ -313 +313 @@
+-  [PASS] K accepted name lanes    x00000040 exp=0x00000040
++  [PASS] K accepted name lanes    mark group                               got=0x00000000 exp=0x00000000
+@@ -649 +649 @@
+-  [PASS] K control: reset/load permits durable status got=0 response status       got=0x00000000 exp=0x00000000
++  [PASS] K control: reset/load permits durable status got=0                  got=0x00000000 exp=0x00000000
+@@ -781 +781 @@
+-  [PASS] K10 0002 exp=0x00030002
++  [PASS] K10 0049 exp=0x00030049
+@@ -819 +819 @@
+-  [PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000049 exp=0x00030049
++  [PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000002 exp=0x00030002
+@@ -879 +879 @@
+-  [PASS] K12 duplicate input no_durable_claim_over_unsand: matching response completes     got=0x00000001 exp=0x00000001
++  [PASS] K12 duplicate input no_durable_claim_over_uns response status       got=0x00000000 exp=0x00000000
+@@ -900,0 +901 @@
++  [PASS] K12 duplicate input:and: matching response completes     got=0x00000001 exp=0x00000001
+@@ -902 +902,0 @@
+-  [PASS] K12 duplicate input:mark group                               got=0x00000000 exp=0x00000000
+@@ -1066 +1065,0 @@
+-  [PASS] K12 remove input sticky_pending                  got=0x00000000 exp=0x00000000
+@@ -1073,0 +1073 @@
++  [PASS] K12 remove input sticky_pendingaved got=0x00000000 exp=0x00000000
+@@ -1194 +1194 @@
+-  [PASS] L2: control_data_length = 12 + payload     got=0x00000028 exp=     got=0x02112233 exp=0x02112233
++  [PASS] L2: control_data_length = 12 + payload     got=0x00000028 exp=0000101
+@@ -1229 +1229 @@
+-  [PASS] L3: sequence_id echoed                     gtays 1 (the walk did complete) got=0x00000001 exp=0x00000001
++  [PASS] L3: sequence_id echoed                     got=0x00000103 exp=0x00000103
+@@ -1323 +1323 @@
+-  [PASS] L5: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
++  [PASS] L5: frame length matches (60-octet min)        got=0x02112233 exp=0x02112233
+@@ -1398 +1397,0 @@
+-  [PASS] L5b: unicast back to the requester
+@@ -1400 +1399,2 @@
+-  [PASS] L5b: unicast back to the requester    tays 1 (the walk did complete) got=0x00000001 exp=0x00000001
++  [PASS] L5b: unicast back to the requester         got=0x02112233 exp=0x02112233
++  [PASS] L5b: unicast back to the requester    0x00000028
+@@ -1507,2 +1507,2 @@
+-  [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x000000010x00000028
+-  [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x00000001g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_pending
++  [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x00000001
++  [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x00000001r Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+@@ -1542 +1542 @@
+-  [PASS] L5e: unicast back to the requester         got=0x02112233 exp=0x0211223
++  [PASS] L5e: unicast back to the requester         got=0x02112233 exp=0x02112233
+@@ -1620 +1620 @@
+-  [PASS] L6: command_type echoed, u = 0             got=0] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
++  [PASS] L6: command_type echoed, u = 0             got=0
+@@ -1838,3 +1838,3 @@
+-  [PASS] PP_STAT[2] restore_done sg++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_crf
+-  [PASS] PP_STAT[2] restore_done sg++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_shadow_sim
+-  [PASS] PP_STAT[2] restore_done sot=0x00000103 exp=0x00000103
++  [PASS] PP_STAT[2] restore_done s] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
++  [PASS] PP_STAT[2] restore_done stays 1 (the walk did complete) got=0x00000001 exp=0x00000001
++  [PASS] PP_STAT[2] restore_done stays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+@@ -1891,0 +1892,2 @@
++  [PASS] R7: GET_SAMPLING_RATE reads 96000          got= got=0x0000003C exp=0x0000003C
++  [PASS] R7: GET_SAMPLING_RATE reads 96000          got=0000BB80
+@@ -1893,2 +1894,0 @@
+-  [PASS] R7: GET_SAMPLING_RATE reads 96000          got=0x00017700 exp=0x00017700
+-  [PASS] R7: GET_SAMPLING_RATE reads 96000          got=r Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+@@ -2003 +2003 @@
+-  [PASS] T: source 0 declares Talke] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
++  [PASS] T: source 0 declares Talke0
+@@ -2005 +2005 @@
+-  [PASS] T: source 0 declares Talkex00000026 exp=0x00000026
++  [PASS] T: source 0 declares Talkerm Vmilan_datapath__ALL.verilator_deplist.tmp
+@@ -2126 +2126 @@
+-  [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x00000000
++  [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x0000000] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
+@@ -2187 +2187 @@
+-  [PASSt acceptance
++  [PASSg++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_shadow_sim
+@@ -2198 +2198 @@
+-  [i]    PP_STAT 0x924 = 0x5B48080C after a refused image (backed 0 blank 0 alarm 0 fa=== milan_datapath + the protocol processor AS the control plane ===
++  [i]    PP_STAT 0x924 = 0x5B48080C after a refused image (backed 0 blank 0 alarm 0 fa0x00017700 exp=0x00017700
+@@ -2276,0 +2277 @@
++./obj_crf/Vpp_crf
+@@ -2278,2 +2278,0 @@
+-0000101
+-0000101
+@@ -2364 +2362,0 @@
+-aved got=0x00000000 exp=0x00000000
+@@ -2367,0 +2366 @@
++g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_crf
+@@ -2484,0 +2484 @@
++make --no-print-directory exec-base
+@@ -2504,2 +2503,0 @@
+-python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+-python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+@@ -2512,3 +2510 @@
+-rm Vmilan_datapath__ALL.verilator_deplist.tmp
+-tays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+-ucode.hex: 2048 words, 90 programs
++t acceptance
+@@ -2519 +2515 @@
+-wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
++x00000040 exp=0x00000040
