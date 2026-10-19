@@ -1,0 +1,17 @@
+== crf_stop: CAUGHT rcs=[1]
+   [FAIL] [ST-c3] no phantom STREAM_INTERRUPTED: the cursor survived got=1 exp=0
+   [FAIL] pdu#1045  cnt_intr_o                             got=1 exp=0
+   [FAIL] pdu#1046  cnt_intr_o                             got=1 exp=0
+   [FAIL] pdu#1047  cnt_intr_o                             got=1 exp=0
+   [FAIL] pdu#1048  cnt_intr_o                             got=1 exp=0
+   [FAIL] pdu#1049  cnt_intr_o                             got=1 exp=0
+   [FAIL] pdu#1050  cnt_intr_o                             got=1 exp=0
+   [FAIL] pdu#1051  cnt_intr_o                             got=1 exp=0
+   [FAIL] pdu#1052  cnt_intr_o                             got=1 exp=0
+   [FAIL] pdu#1053  cnt_intr_o                             got=1 exp=0
+== aaf_eng: CAUGHT rcs=[1, 1]
+   [FAIL] [LS] SI sweep: unchanged outputs match and historical dirty pulses remain got=2410 exp=0
+   [FAIL] [GC] SI sweep: every GET_COUNTERS read identical to the reference got=202 exp=0
+   [FAIL] [GC] SI sweep: every GET_COUNTERS read identical to the reference got=25 exp=0
+== aaf_both: SURVIVED rcs=[0, 0]
+SUMMARY crf_stop=CAUGHT aaf_eng=CAUGHT aaf_both=SURVIVED

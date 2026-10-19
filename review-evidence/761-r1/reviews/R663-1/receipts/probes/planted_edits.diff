@@ -1,0 +1,43 @@
+--- hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv	2026-10-19 07:39:28.348077611 +0200
++++ <probe-work>/aaf_eng.sv	2026-10-19 07:57:55.960777279 +0200
+@@ -889,7 +889,6 @@
+         if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
+         //! #762: an Unbind is never an interruption, even one landing on a
+         //! silence unlock that is still waiting for its walk
+-        if (bind_fall_i[s]) sil_si_r[s] <= 1'b0;
+         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
+             !(&dpdu_pend_r[s]))
+           dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
+--- tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv	2026-10-19 07:39:28.416397637 +0200
++++ <probe-work>/aaf_both_ref.sv	2026-10-19 07:58:08.252314066 +0200
+@@ -867,7 +867,6 @@
+         if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
+         //! #762: an Unbind is never an interruption, even one landing on a
+         //! silence unlock that is still waiting for its walk
+-        if (bind_fall_i[s]) sil_si_r[s] <= 1'b0;
+         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
+             !(&dpdu_pend_r[s]))
+           dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
+--- hdl/ieee1722/crf/KL_crf_rx.sv	2026-10-19 07:39:28.351249181 +0200
++++ <probe-work>/crf_stop.sv	2026-10-19 07:57:50.868378330 +0200
+@@ -553,7 +553,7 @@
+           //! playback (Milan v1.2 Table 5.6). An unbind in this same cycle
+           //! has already dropped en_i. Started, no PDU was accepted this
+           //! cycle, so w_ev_si_w cannot write the counter beside this
+-          if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;
++          if (en_i) cnt_intr_o <= cnt_intr_o + 32'd1;
+         end
+         settle_r <= '0;
+         //! the silence reset SPLITS on the stopped state. Stopped, the
+--- hdl/milan/milan_datapath.sv	2026-10-19 07:39:28.357826428 +0200
++++ <probe-work>/mclk_ungated_dp.sv	2026-10-19 07:59:07.872855490 +0200
+@@ -3246,7 +3246,8 @@
+   //! net, no port or register)
+   wire mcr_restart_p_w /* verilator public_flat_rd */ =
+        (crf_clk_selected_r
+-        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p_w))
++        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
++       | (~tkd_crflk_q_r & crf_locked_w)
+        | aafm_disrupt_p_w | aafm_mr_toggle_p_w;
+ 
+   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
