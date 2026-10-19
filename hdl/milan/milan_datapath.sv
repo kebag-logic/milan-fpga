@@ -2328,6 +2328,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the two levels that keep the saved-state verdict honest: a walk that
   //! validated nothing, and whether any persistent media exists at all
   logic        pp_restore_blank_w, pp_nvm_backed_w;
+  //! PP_STAT[1], [2], [3] and [7]: the processor's verdicts composed with
+  //! the #637 map restore's (assigned beside amr_fsm)
+  logic        pp_stat_busy_w, pp_stat_done_w, pp_stat_fail_w, pp_stat_blank_w;
   logic        pp_nvm_alarm_w;
   //! the D3 walk's CLOSED and roll-back terminals and both walks' causes
   //! (SAVED_STATE_MATERIALIZATION.md 5.2), published at PP_STAT[22:16]
@@ -2831,11 +2834,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_pp_rdata         (pp_rdata_w),
     .i_pp_ack           (pp_ack_w),
     .i_pp_err           (pp_err_w),
-    .i_pp_restore_busy  (pp_restore_busy_w),
-    .i_pp_restore_done  (pp_restore_done_w),
-    .i_pp_restore_fail  (pp_restore_fail_w),
+    .i_pp_restore_busy  (pp_stat_busy_w),
+    .i_pp_restore_done  (pp_stat_done_w),
+    .i_pp_restore_fail  (pp_stat_fail_w),
     .i_pp_nvm_backed    (pp_nvm_backed_w),
-    .i_pp_nvm_blank     (pp_restore_blank_w),
+    .i_pp_nvm_blank     (pp_stat_blank_w),
     .i_pp_restore_closed(pp_restore_closed_w),
     .i_pp_restore_rb    (pp_restore_rb_w),
     .i_pp_rs_cause      (pp_rs_cause_w),
@@ -4900,27 +4903,31 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! or misses its deadline waits 500 ms and relatches; the third failure
   //! gives the record up with the reset-sticky alarm.
   //!
-  //! THE RESTORE (D3 8.3, 8.4, 8.6, 8.8; the processor's 07 §5.1). It runs
-  //! after the D3 walk's COMPLETE terminal only: DEFAULTS, a D3 abort and
-  //! CLOSED keep every reset set. Each dynamic port's record is read whole
-  //! once. An erased or unframed record (magic, length) keeps the reset
-  //! set. A framed one whose layout, id, crc16, padding (UNUSED is eight
-  //! 0xFF bytes, and nothing but UNUSED follows one) or field ranges fail
-  //! is refused before its port is touched and keeps the reset set. A
-  //! well-formed one replaces the reset set through the transaction server
-  //! above, as one REMOVE of the port's set and one ADD of the saved set,
-  //! judged by the ADD rule against the formats the D3 walk restored. A
-  //! refused ADD puts the reset set back with an ADD of the clipped image;
-  //! that one refused in turn, or a refused REMOVE, is a failure of the
-  //! walk. A failure of the walk (a device error, a short read, a wait past
-  //! AMR_RS_TMO_MS_P, the aggregate AMR_RS_AGG_MS_P from PP_CTRL[1], or
-  //! such a refusal) ROLLS BACK every map to its reset set, so no partial
-  //! restore survives. One read pass is enough: the processor reads twice
-  //! because a pass-1 abort must not leave state its roll-back cannot
-  //! reach, and this roll-back reaches every map. The faces wait meanwhile
-  //! (amap_boot_busy_w, pp_amap_wait_w, the format judge) and the entity
-  //! enable is held, so no command edits or reads a map, and no ADPDU
-  //! leaves, before the restore has ended.
+  //! THE RESTORE (D3 8.3, 8.4, 8.6, 8.8, 18.4; the processor's 07 §5.1). It
+  //! runs after the D3 walk's COMPLETE terminal only: DEFAULTS, a D3 abort
+  //! and CLOSED keep every reset set. It is one transaction over the map
+  //! records alone, in three stages through the transaction server above:
+  //!   0. every dynamic port's reset set (the #658 image clipped to the
+  //!      formats the D3 walk restored) is REMOVEd;
+  //!   1. each dynamic port's record is read whole, once. A well-formed
+  //!      one's set is ADDed, judged by the ADD rule against those formats.
+  //!      An erased or unframed record (magic, length), a framed one whose
+  //!      layout, id, crc16, padding (UNUSED is eight 0xFF bytes, and nothing
+  //!      but UNUSED follows one) or field ranges fail, and a set the ADD
+  //!      rule refuses, each mark the port;
+  //!   2. every marked port's reset set is ADDed back.
+  //! So a saved set never meets another port's reset set: a key one port
+  //! gave up and another took is free when the taker's set is ADDed,
+  //! whatever the port order (Milan v1.2 5.3.10.1; #637 ruling, PR #768
+  //! comment 6269988820). A failure of the walk (a device error, a short
+  //! read, a wait past AMR_RS_TMO_MS_P, the aggregate AMR_RS_AGG_MS_P from
+  //! PP_CTRL[1], a refused REMOVE, or a refused put-back) ROLLS BACK every
+  //! map to its reset set, so no partial restore survives. One read pass is
+  //! enough (the same ruling): this roll-back reaches every map, and the
+  //! faces wait meanwhile (amap_boot_busy_w, pp_amap_wait_w, the format
+  //! judge) and the entity enable is held, so no command edits or reads a
+  //! map, and no ADPDU leaves, before the restore has ended. PP_STAT
+  //! composes its verdicts with the processor's (pp_stat_*_w).
   localparam int AMR_NI_C = AMAP_IN_PORTS_C;
   localparam int AMR_NO_C = AMAP_OUT_PORTS_C;
   localparam int AMR_NR_C = AMR_NI_C + AMR_NO_C;
@@ -4928,7 +4935,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int AMR_RW_C = $clog2(AMR_NR_C + 1);
   //! KL_acmp_nvm_shadow's LAYOUT_VER_P, which the D3 writer shares; the
   //! record-space gate compares this literal with the donor's
-  //! (scripts/check_nvm_record_space.py, check 13)
+  //! (scripts/check_nvm_record_space.py, check 15)
   localparam logic [7:0] AMR_LAYOUT_C = 8'h02;
 
   function automatic int amr_icl_max();
@@ -5012,12 +5019,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   //! ---- one mapping at the cursor, from the latch or the clip (amr_src_r
   //! 0 or 1): the set the record holds, or the port's reset set, the #658
-  //! image clipped to the current formats. The clip is also the port's live
-  //! set while the restore runs: the boot window held the stores at it to
-  //! the terminal, and since then the edit face, the CSR writer and the
-  //! format judge have all waited, so no store or format has moved but the
-  //! ports this walk restored, whose keys it never reads again. A REMOVE of
-  //! a set the stores do not hold is refused, and the walk rolls back.
+  //! image clipped to the current formats. The clip is every port's live
+  //! set when stage 0 starts: the boot window held the stores at it to the
+  //! terminal, and since then the edit face, the CSR writer and the format
+  //! judge have all waited, so no store or format has moved. A REMOVE of a
+  //! set the stores do not hold is refused, and the walk rolls back.
   logic [AMR_ICL_C*7-1:0]          amr_li_r;
   logic [AMR_OK_C*(1+AMR_OCW_C)-1:0] amr_lo_r;
   logic        amr_src_r;
@@ -5211,6 +5217,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   logic        amr_e_ff_r, amr_e_z_r;
   logic  [7:0] amr_e_b1_r, amr_e_b3_r, amr_e_b5_r;
   logic        amr_unused_r, amr_malformed_r, amr_refuse_r;
+  //! the walk's stage (0 take every reset set down, 1 read and apply the
+  //! records, 2 put reset sets back) and the ports stage 2 serves
+  logic  [1:0] amr_stage_r;
+  logic [AMR_NR_C-1:0] amr_pb_r;
   //! the transaction in hand: its step (0 REMOVE the live set, 1 ADD the
   //! saved set, 2 ADD the reset set back), phase, ordinal and count
   logic  [1:0] amr_step_r;
@@ -5224,8 +5234,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   logic  [1:0] amr_fails_r;
   logic  [9:0] amr_mscnt_r;
   logic [AMR_RW_C:0] amr_scan_r;
-  //! the restore's verdict, for diagnosis: 1 when it rolled every map back
-  logic        amr_rs_fail_r;
+  //! the restore's verdicts, which PP_STAT composes with the processor's
+  //! (pp_stat_*_w): it rolled every map back; it read a framed, crc-clean
+  //! record, the processor's own test for a validated one
+  logic        amr_rs_fail_r, amr_rs_valid_r;
 
   //! the running count of a transaction's mappings (AS_ECNT)
   wire [7:0] amr_cnt_w = amr_idx_r + {7'd0, amr_sv_w};
@@ -5272,6 +5284,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       amr_st_r        <= AS_BOOT;
       amr_rs_hold_r   <= 1'b1;
       amr_rs_fail_r   <= 1'b0;
+      amr_rs_valid_r  <= 1'b0;
+      amr_stage_r     <= 2'd0;
+      amr_pb_r        <= '0;
       amr_rb_r        <= 1'b0;
       amr_own_r       <= 1'b0;
       amr_r_r         <= '0;
@@ -5338,19 +5353,37 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           end else if (pp_restore_done_w) begin
             //! the walk owns the edit face from here: the processor's beats
             //! wait (amap_boot_busy_w) and the server sees none of them
-            amr_own_r <= 1'b1;
-            amr_r_r   <= '0;
-            amr_st_r  <= AS_RNEXT;
+            amr_own_r   <= 1'b1;
+            amr_r_r     <= '0;
+            amr_stage_r <= 2'd0;
+            amr_pb_r    <= '0;
+            amr_st_r    <= AS_RNEXT;
           end
         end
         AS_RNEXT: begin
           if (32'(amr_r_r) >= AMR_NR_C) begin
-            amr_own_r     <= 1'b0;
-            amr_rs_hold_r <= 1'b0;
-            amr_r_r       <= '0;
-            amr_st_r      <= AS_SVC;
-          end else if (!amr_dyn_w) begin
+            amr_r_r <= '0;
+            if (amr_stage_r == 2'd2) begin
+              amr_own_r     <= 1'b0;
+              amr_rs_hold_r <= 1'b0;
+              amr_st_r      <= AS_SVC;
+            end else begin
+              amr_stage_r <= amr_stage_r + 2'd1;
+            end
+          end else if (!amr_dyn_w
+                       || ((amr_stage_r == 2'd2) && !(|(amr_pb_r & amr_rmask_w)))) begin
             amr_r_r <= amr_r_r + AMR_RW_C'(1);
+          end else if (amr_stage_r != 2'd1) begin
+            //! stage 0 REMOVEs the port's reset set, stage 2 ADDs it back,
+            //! once the sweep after the terminal has left the crossbar RAMs
+            //! equal to the stores
+            if (!amap_sweep_busy_w) begin
+              amr_step_r <= (amr_stage_r == 2'd0) ? 2'd0 : 2'd2;
+              amr_src_r  <= 1'b1;
+              amr_k_r    <= 8'd0;
+              amr_idx_r  <= 8'd0;
+              amr_st_r   <= AS_ECNT;
+            end
           end else begin
             amr_req_r       <= 1'b1;
             amr_we_r        <= 1'b0;
@@ -5449,21 +5482,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           end
         end
         AS_RJDG: begin
-          if (!amr_hframe_r) begin
-            //! erased or unframed: the reset set stands
+          //! a framed, crc-clean record is a validated one (D3 8.7), whatever
+          //! its value rule then says
+          if (amr_hframe_r && amr_hid_r && (amr_hcrc_r == amr_crc_r))
+            amr_rs_valid_r <= 1'b1;
+          if (!amr_hframe_r || !amr_hid_r || (amr_hcrc_r != amr_crc_r)
+              || amr_malformed_r || amr_refuse_r) begin
+            //! erased, unframed, or refused before the port is touched: the
+            //! port's reset set comes back in stage 2
+            amr_pb_r <= amr_pb_r | amr_rmask_w;
             amr_r_r  <= amr_r_r + AMR_RW_C'(1);
             amr_st_r <= AS_RNEXT;
-          end else if (!amr_hid_r
-                       || (amr_hcrc_r != amr_crc_r) || amr_malformed_r
-                       || amr_refuse_r) begin
-            //! refused before the port is touched: the reset set stands
-            amr_r_r  <= amr_r_r + AMR_RW_C'(1);
-            amr_st_r <= AS_RNEXT;
-          end else if (!amap_sweep_busy_w) begin
-            //! well formed: REMOVE the port's set, once the sweep after the
-            //! terminal has left the crossbar RAMs equal to the stores
-            amr_step_r <= 2'd0;
-            amr_src_r  <= 1'b1;
+          end else begin
+            //! well formed: ADD the saved set to the port stage 0 emptied
+            amr_step_r <= 2'd1;
+            amr_src_r  <= 1'b0;
             amr_k_r    <= 8'd0;
             amr_idx_r  <= 8'd0;
             amr_st_r   <= AS_ECNT;
@@ -5559,19 +5592,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           amr_ed_req_r <= 1'b0;
           amr_k_r      <= 8'd0;
           amr_idx_r    <= 8'd0;
-          if ((amr_step_r == 2'd0) && amr_ok_r) begin
-            amr_step_r <= 2'd1;                  //! now ADD the saved set
-            amr_src_r  <= 1'b0;
-            amr_st_r   <= AS_ECNT;
-          end else if ((amr_step_r == 2'd1) && !amr_ok_r) begin
-            amr_step_r <= 2'd2;                  //! refused: the reset set back
-            amr_src_r  <= 1'b1;
-            amr_st_r   <= AS_ECNT;
-          end else if (amr_ok_r) begin
-            amr_r_r  <= amr_r_r + AMR_RW_C'(1);  //! applied, or put back
+          if (amr_ok_r || (amr_step_r == 2'd1)) begin
+            //! taken down, applied or put back; a refused saved set marks
+            //! its port for stage 2
+            if (!amr_ok_r) amr_pb_r <= amr_pb_r | amr_rmask_w;
+            amr_r_r  <= amr_r_r + AMR_RW_C'(1);
             amr_st_r <= AS_RNEXT;
           end else begin
-            amr_st_r <= AS_RB;                   //! the port cannot be restored
+            amr_st_r <= AS_RB;   //! a refused take-down or put-back
           end
         end
         AS_RB: begin
@@ -5725,6 +5753,24 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       endcase
     end
   end : amr_fsm
+
+  //! ---- PP_STAT's restore verdicts, both restores composed (D3 3 rule 7,
+  //! 5.2, 8.7; #637). The processor's interface is unchanged: its levels
+  //! keep sequencing this block and the boot window, and only the register
+  //! reads the composition. busy covers the map restore from the D3
+  //! terminal to its end, and done waits for that end, so no host reads a
+  //! verdict the map restore can still change. fail adds the map restore's
+  //! roll-back (a device error, a short read, a deadline, a refused
+  //! take-down or put-back); its causes stay the processor's, so a fail
+  //! with both causes 0 on a walk that did not run blind is the map
+  //! restore's. blank needs both restores done, neither failed, and no
+  //! framed, crc-clean record read by either, so saved maps lost to a
+  //! device error never read as a clean first boot (H8)
+  assign pp_stat_busy_w  = pp_restore_busy_w || (pp_restore_done_w && amr_rs_hold_r);
+  assign pp_stat_done_w  = pp_restore_done_w && !amr_rs_hold_r;
+  assign pp_stat_fail_w  = pp_restore_fail_w || amr_rs_fail_r;
+  assign pp_stat_blank_w = pp_restore_blank_w && !amr_rs_hold_r
+                           && !amr_rs_fail_r && !amr_rs_valid_r;
 
   //! ==== the Milan-info answer block (06 SS6.2/SS6.10) ====================
   //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
@@ -9103,7 +9149,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .mrec_gnt_o        (mrec_gnt_w),
       .mrec_op_i         (amr_we_r ? 2'd1 : 2'd0),
       .mrec_region_i     (amr_rid_w),
-      .mrec_offset_i     (16'd0),
+      .mrec_offset_i     (16'd0),   // whole-record commands: each starts at byte 0
       .mrec_len_i        (amr_plen_w + 16'd8),
       .mrec_wvalid_i     (amr_wvalid_w),
       .mrec_wready_o     (mrec_wready_w),

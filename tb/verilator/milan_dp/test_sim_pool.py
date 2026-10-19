@@ -34,7 +34,7 @@ What the arms hold, and why each one is here:
   order, the dump file ends with the last writer's bytes, and an empty name
   fails at the first writer as the sequential recipe did;
 * the runner's own lines add no check and no failure to the suite's tally;
-* the Makefile hands the runner the twelve legs of the recipe, in the recipe's
+* the Makefile hands the runner the fourteen legs of the recipe, in the recipe's
   order and with its banners, at two workers unless SIM_JOBS says one; then
   render_mutants.py is the recipe's last step, and nothing of the #387 GM step
   leg is built or run (#621 moved it to ../milan_dp_gm_steps).
@@ -70,7 +70,7 @@ sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import FAIL_MARKER, log_reports_failure, scan  # noqa: E402
 
 #: The ordinary legs and banners at dev 5c78ce2e, including #508 and #530,
-#: and the #658 leg dev 30e3c018 (PR #670) added.
+#: the #658 leg dev 30e3c018 (PR #670) added, and #637's two multi-port legs.
 #: The rebase retains this full inventory and each existing execution phase.
 LEGACY_LEGS = (
     (None, "./obj_dir/Vmilan_dp_sim"),
@@ -81,6 +81,10 @@ LEGACY_LEGS = (
      "./obj_crflic/Vmilan_dp_crflic"),
     ("---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----",
      "./obj_dynmap/Vmilan_dp_dynmap"),
+    ("---- #637 the map records across the 8x8 shape's eight output ports ----",
+     "./obj_maprec8/Vmilan_dp_maprec8"),
+    ("---- #637 the map records across the 4x4 shape's four input ports ----",
+     "./obj_maprec4/Vmilan_dp_maprec4"),
     (None, "./obj_nxn/Vmilan_dp_nxn"),
     ("---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----",
      "./obj_nxndv/Vmilan_dp_nxndv"),
@@ -861,7 +865,7 @@ def logical_lines(text: str) -> list[str]:
 
 
 def arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs() -> None:
-    """`make -n run`: the runner gets exactly the recipe's twelve legs, in its
+    """`make -n run`: the runner gets exactly the recipe's fourteen legs, in its
     order and with its banners, two workers unless SIM_JOBS=1 and whatever
     -j says, after all ordinary builds and before render_mutants.py, on a line
     whose errors make does not ignore. render_mutants.py is the last step, and

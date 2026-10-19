@@ -26,6 +26,19 @@ crc16 ignored, both roll-backs, the faces' waits, the change qualification
 (DR2b), the taint, the restore's own writes, the entity enable, the three
 DR2c arms, the restore's two deadlines, and four arbiter and glue arms.
 
+The #637 round-2 controls follow (reviews R669-1 and R670-1): seven that
+disconnect PP_STAT's composition of the map restore's verdict (busy, done,
+fail, blank and the validated-record test), eleven on the restore's value
+and recovery arms (the put-back of a refused set and of an erased record,
+the hole rule, the layout and id, the ranges, both conflicting-key rules, a
+D3 pass-0 abort, a refused put-back that does not roll back, and the record
+id of each port), and the round-1 ordering, which REMOVEs a port's reset set
+only just before its saved set: the maprec8 leg catches it with a stream
+channel moved between output ports. Those that need several ports run on
+the maprec8 and maprec4 legs (the 8x8 shape's output ports, the 4x4 shape's
+input ports). A row may name several checks; it is caught only when every
+one of them fails.
+
 The empty reset is also planted under the two end-to-end checks the ruling
 asks for, each in its own suite: the listener (tb/verilator/milan_dp_render,
 whose `T18 POWER-ON` decodes stream channel c at TDM8 serial slot c) and the
@@ -50,16 +63,19 @@ SIGTERM handler turns a kill into an exit that removes the temporary
 directory.
 
 Usage: make -C tb/verilator/milan_dp dynmap-mutants
-       (or python3 dynmap_mutants.py [N ...] from tb/verilator/milan_dp,
-       where each N selects one mutant by its 1-based place in MUTATIONS;
-       the clean control runs every time)
+       (or python3 dynmap_mutants.py [--jobs J] [N ...] from
+       tb/verilator/milan_dp, where each N selects one mutant by its 1-based
+       place in MUTATIONS; the clean control of each selected leg runs every
+       time; J mutants run at once, at most two of them building, default 1)
 Exit 0 = every selected mutant was caught and the clean leg still passes.
 """
 
+import concurrent.futures
 import signal
 import subprocess
 import sys
 import tempfile
+import threading
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -71,6 +87,10 @@ SHADOW_RTL = HERE / "../../../hdl/milan/KL_pp_shadow.sv"
 LEGS = {
     "dynmap": (HERE, "dynmap-build", "DYNMAP_MDIR", "obj_dynmap",
                "Vmilan_dp_dynmap", (), ("ltn_rom.hex", "ucode.hex")),
+    "maprec8": (HERE, "maprec8-build", "MAPREC8_MDIR", "obj_maprec8",
+                "Vmilan_dp_maprec8", (), ("ltn_rom.hex", "ucode.hex")),
+    "maprec4": (HERE, "maprec4-build", "MAPREC4_MDIR", "obj_maprec4",
+                "Vmilan_dp_maprec4", (), ("ltn_rom.hex", "ucode.hex")),
     "listener": (HERE / "../milan_dp_render", "tdm8render-build", "TDM8R_MDIR",
                  "obj_tdm8r", "Vmilan_dp_tdm8r", (),
                  ("ltn_rom.hex", "ucode.hex", "tdm8r_aemi.bin")),
@@ -79,6 +99,10 @@ LEGS = {
 }
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
+
+#: at most two mutant elaborations at once, whatever --jobs says: a build is
+#: the larger share of a mutant's memory and of its CPU
+BUILD_SLOTS = threading.Semaphore(2)
 
 #: the two image constants: the stores' reset value and the window's source
 IMG_IN = "  localparam logic [AMAP_IN_KEYS_C*8-1:0] AMAP_IN_IMAGE_C = amap_in_image();"
@@ -121,7 +145,41 @@ SWEEP = "        amap_boot_last_r <= 1'b1;\n"
 DRAIN = "      amap_boot_drain_r <= amap_boot_last_r && amap_boot_wrap_w;"
 WAIT = "  assign pp_amap_edit_wait_w = amap_boot_busy_w;"
 
-# (leg, name, [(the text it replaces, its replacement)], the check it must fail)
+#: #637 round 2: PP_STAT's composition of the map restore (milan_datapath)
+STAT_BUSY = "  assign pp_stat_busy_w  = pp_restore_busy_w || (pp_restore_done_w && amr_rs_hold_r);"
+STAT_DONE = "  assign pp_stat_done_w  = pp_restore_done_w && !amr_rs_hold_r;"
+STAT_FAIL = "  assign pp_stat_fail_w  = pp_restore_fail_w || amr_rs_fail_r;"
+STAT_BLANK_HOLD = "  assign pp_stat_blank_w = pp_restore_blank_w && !amr_rs_hold_r"
+STAT_BLANK_FAIL = "\n                           && !amr_rs_fail_r"
+STAT_BLANK_VALID = " && !amr_rs_valid_r;"
+#: the map restore's validated-record test (AS_RJDG)
+VALID = "          if (amr_hframe_r && amr_hid_r && (amr_hcrc_r == amr_crc_r))\n"
+#: the two marks that send a port to stage 2's put-back: a refused saved set
+#: (AS_EEND) and an erased, unframed or refused record (AS_RJDG)
+PB_REFUSED = "            if (!amr_ok_r) amr_pb_r <= amr_pb_r | amr_rmask_w;\n"
+PB_RECORD = ("            //! port's reset set comes back in stage 2\n"
+             "            amr_pb_r <= amr_pb_r | amr_rmask_w;\n")
+#: round 1's order: stage 0 takes nothing down, and stage 1 REMOVEs a
+#: well-formed record's port just before ADDing its saved set
+ROUND1_ORDER = [
+    ("                       || ((amr_stage_r == 2'd2) && !(|(amr_pb_r & amr_rmask_w)))) begin",
+     "                       || (amr_stage_r == 2'd0)\n"
+     "                       || ((amr_stage_r == 2'd2) && !(|(amr_pb_r & amr_rmask_w)))) begin"),
+    ("            //! well formed: ADD the saved set to the port stage 0 emptied\n"
+     "            amr_step_r <= 2'd1;\n"
+     "            amr_src_r  <= 1'b0;\n",
+     "            amr_step_r <= 2'd0;\n"
+     "            amr_src_r  <= 1'b1;\n"),
+    ("          if (amr_ok_r || (amr_step_r == 2'd1)) begin",
+     "          if (amr_ok_r && (amr_stage_r == 2'd1) && (amr_step_r == 2'd0)) begin\n"
+     "            amr_step_r <= 2'd1;\n"
+     "            amr_src_r  <= 1'b0;\n"
+     "            amr_st_r   <= AS_ECNT;\n"
+     "          end else if (amr_ok_r || (amr_step_r == 2'd1)) begin"),
+]
+
+# (leg, name, [(the text it replaces, its replacement)], the check it must fail,
+#  or a tuple of checks that must all fail)
 MUTATIONS = [
     ("dynmap", "an empty reset: the power-on image holds no mapping", EMPTY,
      "[DYNMAP] power-on SPI 0: number_of_mappings"),
@@ -165,14 +223,15 @@ MUTATIONS = [
        "      amr_dirty_r <= amr_dirty_r;\n")],
      "[MAPREC] empty: the window holds the codec's records and the pend has fallen"),
     ("dynmap", "an empty saved list reads as an erased record (#763)",
-     [("          if (!amr_hframe_r) begin",
-       "          if (!amr_hframe_r || !((|amr_li_r) || (|amr_lo_r))) begin")],
+     [("          if (!amr_hframe_r || !amr_hid_r || (amr_hcrc_r != amr_crc_r)\n",
+       "          if (!amr_hframe_r || !((|amr_li_r) || (|amr_lo_r))\n"
+       "              || !amr_hid_r || (amr_hcrc_r != amr_crc_r)\n")],
      "[MAPREC] empty, after the power cycle: SPI 0: number_of_mappings"),
     ("dynmap", "no first-dirty window: the change is written at the next tick",
      [("            if (amr_mscnt_r == 10'd500) begin", "            if (1'b1) begin")],
      "[MAPREC] empty: the write waited out the 500 ms first-dirty window"),
     ("dynmap", "the restore refuses every framed record",
-     [("                       || amr_refuse_r) begin", "                       || 1'b1) begin")],
+     [("              || amr_malformed_r || amr_refuse_r) begin", "              || 1'b1) begin")],
      "[MAPREC] saved, after the power cycle: SPI 0: number_of_mappings"),
     ("dynmap", "the restore ignores the record's crc16",
      [("(amr_hcrc_r != amr_crc_r)", "1'b0")],
@@ -196,7 +255,7 @@ MUTATIONS = [
     ("dynmap", "the format judge does not wait for the map restore",
      [("                             || (amr_rs_run_w && (pp_gsi_kind_w == 2'd0)",
        "                             || (1'b0 && (pp_gsi_kind_w == 2'd0)")],
-     "[MAPREC] held SET_STREAM_FORMAT: SUCCESS against the restored list"),
+     "[MAPREC] held SET_STREAM_FORMAT: BAD_ARGUMENTS against the restored list"),
     ("dynmap", "the entity enable does not wait for the map restore",
      [("      .enable_i          ((pp_enable_w | cfg_adp_enable) && !amr_rs_hold_r),",
        "      .enable_i          (pp_enable_w | cfg_adp_enable),")],
@@ -221,7 +280,7 @@ MUTATIONS = [
      "[MAPREC] failing writes: the attempts are at least 500 ms apart"),
     ("dynmap", "the last failed attempt raises no alarm",
      [("            amr_alarm_r <= 1'b1;", "            amr_alarm_r <= 1'b0;")],
-     "[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised"),
+     "[MAPREC] failing writes: PP_STAT[4], the alarm, is raised"),
     ("dynmap", "the map restore has no per-wait deadline",
      [("(amr_rs_w ? AMR_RS_TMO_MS_P : AMR_MEM_TMO_MS_P)",
        "(amr_rs_w ? 32'h7FFF_FFFF : AMR_MEM_TMO_MS_P)")],
@@ -242,21 +301,117 @@ MUTATIONS = [
     ("dynmap", "the map writer's alarm does not reach nvm_alarm",
      [("      .alarm_i         (nvm_alarm_w | amap_alarm_i),", "      .alarm_i         (nvm_alarm_w),"),
       ("  assign nvm_alarm_o     = nvm_alarm_w | amap_alarm_i;", "  assign nvm_alarm_o     = nvm_alarm_w;")],
-     "[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised", "shadow"),
+     "[MAPREC] failing writes: PP_STAT[4], the alarm, is raised", "shadow"),
     ("listener", "an empty reset, under the listener's end-to-end check", EMPTY,
      "T18 POWER-ON: with no map command since the reset, the lane renders "
      "injected events"),
     ("talker", "an empty reset, under the talker's end-to-end check", EMPTY,
      "[V] every requested column was decoded"),
+    # ---- #637 round 2: PP_STAT's composition (D3 3 rule 7, 8.7) ----------
+    ("dynmap", "the map restore's roll-back is not composed into PP_STAT fail",
+     [(STAT_FAIL, "  assign pp_stat_fail_w  = pp_restore_fail_w;")],
+     ("[MAPREC] roll-back: PP_STAT fail 1",
+      "[MAPREC] first-record device error: PP_STAT fail 1",
+      "[MAPREC] slow memory: PP_STAT fail 1",
+      "[MAPREC] silent memory: PP_STAT fail 1")),
+    ("dynmap", "PP_STAT blank ignores a validated map record",
+     [(STAT_BLANK_VALID, ";")],
+     ("[MAPREC] saved, after the power cycle: PP_STAT blank 0",
+      "[MAPREC] empty, after the power cycle: PP_STAT blank 0")),
+    ("dynmap", "PP_STAT blank ignores the map restore's failure",
+     [(STAT_BLANK_FAIL, "\n                           ")],
+     "[MAPREC] first-record device error: PP_STAT blank 0"),
+    ("dynmap", "PP_STAT busy does not cover the map restore",
+     [(STAT_BUSY, "  assign pp_stat_busy_w  = pp_restore_busy_w;")],
+     "[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map "
+     "restore holds"),
+    ("dynmap", "PP_STAT done does not wait for the map restore",
+     [(STAT_DONE, "  assign pp_stat_done_w  = pp_restore_done_w;")],
+     "[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map "
+     "restore holds"),
+    ("dynmap", "PP_STAT blank is published before the map restore ends",
+     [(STAT_BLANK_HOLD, "  assign pp_stat_blank_w = pp_restore_blank_w")],
+     "[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map "
+     "restore holds"),
+    ("dynmap", "the map restore takes every record it reads for a validated one",
+     [(VALID, "          if (1'b1)\n")],
+     "[MAPREC] first boot: PP_STAT blank 1"),
+    # ---- #637 round 2: the restore's value and recovery arms (D3 8.3, 18.4)
+    ("dynmap", "a saved set the ADD rule refuses is never put back",
+     [(PB_REFUSED, "")],
+     "[MAPREC] put-back: SPI 0: number_of_mappings"),
+    ("dynmap", "an erased or refused record's port is never put back",
+     [(PB_RECORD, "")],
+     "[MAPREC] first boot: SPI 0: number_of_mappings"),
+    ("dynmap", "no hole rule: a mapping after an UNUSED entry is not refused",
+     [("amr_malformed_r <= 1'b1;", "amr_malformed_r <= 1'b0;")],
+     ("[MAPREC] hole, input: SPI 0: number_of_mappings",
+      "[MAPREC] hole, output: SPO 0: number_of_mappings")),
+    ("dynmap", "the layout version is not judged",
+     [("11'd2: amr_hid_r    <= (mrec_rdata_w == AMR_LAYOUT_C);",
+       "11'd2: amr_hid_r    <= 1'b1;")],
+     "[MAPREC] wrong layout, input: SPI 0: number_of_mappings"),
+    ("dynmap", "the record id is not judged",
+     [("amr_hid_r    <= amr_hid_r && (mrec_rdata_w == amr_rid_w);",
+       "amr_hid_r    <= amr_hid_r;")],
+     "[MAPREC] wrong id, output: SPO 0: number_of_mappings"),
+    ("dynmap", "a field outside every ADD range is dropped, not refused",
+     [("                    //! outside every range an ADD accepts\n"
+       "                    amr_refuse_r <= 1'b1;",
+       "                    //! outside every range an ADD accepts\n"
+       "                    amr_refuse_r <= 1'b0;")],
+     ("[MAPREC] range, input stream channel: SPI 0: number_of_mappings",
+      "[MAPREC] range, input cluster: SPI 0: number_of_mappings",
+      "[MAPREC] range, output stream: SPO 0: number_of_mappings",
+      "[MAPREC] range, output cluster: SPO 0: number_of_mappings")),
+    ("dynmap", "one input cluster, two mappings: not refused",
+     [("amr_refuse_r <= 1'b1;   //! one cluster, two mappings",
+       "amr_refuse_r <= 1'b0;   //! one cluster, two mappings")],
+     "[MAPREC] conflicting keys, input: SPI 0: number_of_mappings"),
+    ("dynmap", "one output stream channel, two clusters: not refused",
+     [("amr_refuse_r <= 1'b1;   //! one stream channel, two clusters",
+       "amr_refuse_r <= 1'b0;   //! one stream channel, two clusters")],
+     "[MAPREC] conflicting keys, output: SPO 0: number_of_mappings"),
+    ("dynmap", "the map restore runs over a D3 abort in pass 0",
+     [("(pp_restore_rb_w || (pp_rs_cause_w != 3'd0))", "(pp_restore_rb_w)")],
+     "[MAPREC] D3 pass-0 abort: SPI 0: number_of_mappings"),
+    # ---- #637 round 2: across ports (the maprec8 and maprec4 legs) -------
+    ("maprec8", "the round-1 ordering: a port's reset set comes down just before its saved set",
+     ROUND1_ORDER,
+     "[MAPREC] transfers, after the power cycle: port 0: the mappings are the "
+     "expected list"),
+    ("maprec8", "a refused put-back does not roll back",
+     [("            amr_st_r <= AS_RB;   //! a refused take-down or put-back",
+       "            amr_r_r  <= amr_r_r + AMR_RW_C'(1);\n"
+       "            amr_st_r <= AS_RNEXT;")],
+     "[MAPREC] refused put-back: port 7: number_of_mappings"),
+    ("maprec8", "the map restore's roll-back is not composed into PP_STAT fail, 8x8",
+     [(STAT_FAIL, "  assign pp_stat_fail_w  = pp_restore_fail_w;")],
+     "[MAPREC] refused put-back: PP_STAT fail 1"),
+    ("maprec8", "an output port refused a key another port holds is never put back",
+     [(PB_REFUSED, "")],
+     "[MAPREC] conflicting keys across ports: port 7: number_of_mappings"),
+    ("maprec8", "every output port reads output port 0's record",
+     [("        amr_rid_w  = 8'h70 + 8'(p);", "        amr_rid_w  = 8'h70;")],
+     "[MAPREC] transfers, after the power cycle: port 7: the mappings are the "
+     "expected list"),
+    ("maprec4", "every input port reads input port 0's record",
+     [("        amr_rid_w  = 8'h60 + 8'(p);", "        amr_rid_w  = 8'h60;")],
+     "[MAPREC] inputs, after the power cycle: port 3: the mappings are the "
+     "expected list"),
+    ("maprec4", "the last input port's refused saved set is never put back",
+     [(PB_REFUSED, "")],
+     "[MAPREC] put-back, last port: port 3: number_of_mappings"),
 ]
 
 
 def build(leg: str, dp_path: Path, mdir: Path,
-          shadow_path: Path | None = None) -> Path | None:
+          shadow_path: Path | None = None, log: list[str] | None = None) -> Path | None:
     """Build `leg` against `dp_path` (and `shadow_path` for KL_pp_shadow, the
     suite's own copy when None) through its suite's own recipe; the
-    executable, or None when the recipe failed or left none. The generated
-    inputs the leg reads are the clean build's: `-o` keeps them unmade."""
+    executable, or None when the recipe failed or left none, its output's
+    tail then appended to `log`. The generated inputs the leg reads are the
+    clean build's: `-o` keeps them unmade."""
     suite, target, mvar, _clean, exe_name, _args, keep = LEGS[leg]
     cmd = ["make", "-s", "-C", str(suite)]
     for name in keep:
@@ -264,11 +419,12 @@ def build(leg: str, dp_path: Path, mdir: Path,
     cmd += [target, f"DP_SRC={dp_path}", f"{mvar}={mdir}"]
     if shadow_path is not None:
         cmd += [f"SHADOW_SRC={shadow_path}"]
-    out = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    with BUILD_SLOTS:
+        out = subprocess.run(cmd, capture_output=True, text=True, check=False)
     exe = mdir / exe_name
     if out.returncode != 0 or not exe.is_file():
-        sys.stdout.write(out.stdout[-2000:])
-        sys.stdout.write(out.stderr[-2000:])
+        if log is not None:
+            log.append(out.stdout[-2000:] + out.stderr[-2000:])
         return None
     return exe
 
@@ -282,17 +438,20 @@ def run_leg(leg: str, exe: Path) -> tuple[int, str]:
     return out.returncode, out.stdout + out.stderr
 
 
-def verdict(rc: int, out: str, must_fail: str | None) -> str:
-    """'pass', 'caught', or why the run is not evidence."""
+def verdict(rc: int, out: str, must_fail: str | tuple[str, ...] | None) -> str:
+    """'pass', 'caught', or why the run is not evidence. Every named check
+    must be among the failures."""
     reason, failed = log_reports_failure(out)
     if rc == 0 and not failed:
         return "pass"
     if rc == 0 and failed:
         return f"exited 0 but {reason} - a masked verdict is not evidence"
     if failed:
-        if must_fail and not any(line.strip().startswith("[FAIL]") and must_fail in line
-                                 for line in out.splitlines()):
-            return f"failed, but not the named check ({must_fail!r})"
+        named = (must_fail,) if isinstance(must_fail, str) else (must_fail or ())
+        for check in named:
+            if not any(line.strip().startswith("[FAIL]") and check in line
+                       for line in out.splitlines()):
+                return f"failed, but not the named check ({check!r})"
         return "caught"
     if rc < 0:
         return f"died by signal {-rc} with no harness verdict - a crash is not a catch"
@@ -300,7 +459,7 @@ def verdict(rc: int, out: str, must_fail: str | None) -> str:
 
 
 def plant(name: str, edits: list[tuple[str, str]], work: Path, tag: str,
-          source: Path = DP_RTL) -> Path | None:
+          source: Path, log: list[str]) -> Path | None:
     """Write the mutant's copy of `source` (the datapath unless the arm names
     KL_pp_shadow); None when a pattern no longer matches exactly once, so the
     mutant would mutate nothing."""
@@ -308,10 +467,10 @@ def plant(name: str, edits: list[tuple[str, str]], work: Path, tag: str,
     for pattern, replacement in edits:
         count = text.count(pattern)
         if count != 1:
-            print(f"[FAIL] mutation {name!r}: a pattern appears {count} time(s) in "
-                  f"{source.name}, expected exactly 1. The RTL moved and this "
-                  f"mutant is no longer mutating anything - fix the pattern, do not "
-                  f"delete the arm.")
+            log.append(f"[FAIL] mutation {name!r}: a pattern appears {count} time(s) in "
+                       f"{source.name}, expected exactly 1. The RTL moved and this "
+                       f"mutant is no longer mutating anything - fix the pattern, do not "
+                       f"delete the arm.")
             return None
         text = text.replace(pattern, replacement)
     out = work / f"{source.stem}_{tag}.sv"
@@ -319,56 +478,66 @@ def plant(name: str, edits: list[tuple[str, str]], work: Path, tag: str,
     return out
 
 
-def run_mutant(mutation: tuple, work: Path) -> bool:
-    """Plant one mutation, build and run its leg; True when it was caught.
-    A fifth element "shadow" plants it in KL_pp_shadow instead of the
-    datapath."""
+def run_mutant(mutation: tuple, work: Path) -> tuple[bool, list[str]]:
+    """Plant one mutation, build and run its leg; (caught, the lines to
+    print). A fifth element "shadow" plants it in KL_pp_shadow instead of
+    the datapath."""
     leg, name, edits, breaks = mutation[:4]
     in_shadow = len(mutation) > 4 and mutation[4] == "shadow"
     tag = "".join(c if c.isalnum() else "_" for c in name)[:48]
-    planted = plant(name, edits, work, tag, SHADOW_RTL if in_shadow else DP_RTL)
+    log: list[str] = []
+    planted = plant(name, edits, work, tag, SHADOW_RTL if in_shadow else DP_RTL, log)
     if planted is None:
-        return False
+        return False, log
     if in_shadow:
-        exe = build(leg, DP_RTL, work / f"obj_{tag}", planted)
+        exe = build(leg, DP_RTL, work / f"obj_{tag}", planted, log)
     else:
-        exe = build(leg, planted, work / f"obj_{tag}")
+        exe = build(leg, planted, work / f"obj_{tag}", None, log)
     if exe is None:
-        print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
-              f"proves nothing about the leg")
-        return False
+        log.append(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
+                   f"proves nothing about the leg")
+        return False, log
     rc, out = run_leg(leg, exe)
     answer = verdict(rc, out, breaks)
     if answer == "caught":
-        print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\" "
-              f"({log_reports_failure(out)[0]})")
-        return True
+        log.append(f"[PASS] mutant caught: {name} - breaks \"{breaks}\" "
+                   f"({log_reports_failure(out)[0]})")
+        return True, log
     if answer == "pass":
-        print(f"[FAIL] mutant SURVIVED: {name}. The leg does not prove \"{breaks}\".")
+        log.append(f"[FAIL] mutant SURVIVED: {name}. The leg does not prove \"{breaks}\".")
     else:
-        print(f"[FAIL] mutant {name!r} {answer}")
-    return False
+        log.append(f"[FAIL] mutant {name!r} {answer}")
+    return False, log
 
 
-def selected(argv: list[str]) -> list[tuple] | None:
+def selected(argv: list[str]) -> tuple[list[tuple], int] | None:
     """The mutants `argv` names by 1-based place, every one when it names
-    none; None when an argument names no mutant."""
+    none, and the --jobs it asks for (1 when it names none); None when an
+    argument names no mutant or no job count."""
+    jobs = 1
+    if argv[:1] == ["--jobs"]:
+        if len(argv) < 2 or not argv[1].isdigit() or int(argv[1]) < 1:
+            print("[FAIL] --jobs needs a count of at least 1")
+            return None
+        jobs = int(argv[1])
+        argv = argv[2:]
     if not argv:
-        return MUTATIONS
+        return MUTATIONS, jobs
     picks = []
     for arg in argv:
         if not arg.isdigit() or not 1 <= int(arg) <= len(MUTATIONS):
             print(f"[FAIL] {arg!r} names no mutant: use 1..{len(MUTATIONS)}")
             return None
         picks.append(MUTATIONS[int(arg) - 1])
-    return picks
+    return picks, jobs
 
 
 def main() -> int:
     """Run the positive control and the selected mutants; 1 if any survived."""
-    mutations = selected(sys.argv[1:])
-    if mutations is None:
+    picked = selected(sys.argv[1:])
+    if picked is None:
         return 2
+    mutations, jobs = picked
 
     def on_sigterm(*_: object) -> None:
         """Exit on a kill so the temporary directory is removed."""
@@ -382,7 +551,8 @@ def main() -> int:
         for leg in dict.fromkeys(m[0] for m in mutations):
             suite, _t, _m, clean_mdir, exe_name, _a, _k = LEGS[leg]
             clean = suite / clean_mdir / exe_name
-            exe = clean if clean.is_file() else build(leg, DP_RTL, work / f"obj_clean_{leg}")
+            exe = clean if clean.is_file() else build(leg, DP_RTL, work / f"obj_clean_{leg}",
+                                                      None, None)
             answer = verdict(*run_leg(leg, exe), None) if exe else "did not compile"
             if answer == "pass":
                 passes += 1
@@ -391,11 +561,15 @@ def main() -> int:
                 fails += 1
                 print(f"[FAIL] the unmutated gateware does NOT pass the {leg} leg "
                       f"({answer}) - its mutant results are meaningless")
-        for mutation in mutations:
-            if run_mutant(mutation, work):
-                passes += 1
-            else:
-                fails += 1
+        # the results print in MUTATIONS order, whatever order they end in
+        with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
+            for caught, log in pool.map(lambda m: run_mutant(m, work), mutations):
+                for line in log:
+                    print(line, flush=True)
+                if caught:
+                    passes += 1
+                else:
+                    fails += 1
     print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL")
     return 1 if fails else 0
 

@@ -963,7 +963,7 @@ module KL_pp_shadow #(
   //!     whole-record window write
   //!     (docs/design/SAVED_STATE_MATERIALIZATION.md 5.2 and 7.1). The
   //!     accepted live name writes are still held sticky beside them, because
-  //!     the parent has not adopted the name stage (D3 18.3, lane 3).
+  //!     the parent has not adopted the name stage (D3 18.3).
   //!     aecp_dyn_dirty_o LEFT pend_i with the D3 writer: it is set by any
   //!     persisted-row write since reset, a restore write included, and never
   //!     clears, so it would hold pend at 1 over every durable scalar. It stays

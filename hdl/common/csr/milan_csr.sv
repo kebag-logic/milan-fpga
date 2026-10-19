@@ -647,6 +647,8 @@ module milan_csr #(
   input  wire                    i_pp_ack,          //! completion strobe
   input  wire                    i_pp_err,          //! access refused (with ack)
   //! Shadow observability (see KL_pp_shadow's banner for what each proves).
+  //! busy, done, fail and blank arrive composed with the parent's map
+  //! restore (milan_datapath pp_stat_*_w, #637).
   input  wire                    i_pp_restore_busy,
   input  wire                    i_pp_restore_done,
   input  wire                    i_pp_restore_fail,
