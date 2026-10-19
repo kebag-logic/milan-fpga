@@ -1,0 +1,7 @@
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: lost Sync cancels the requester exchange - breaks "a lost Sync result retires the Sync claim and nothing else"
+[PASS] mutant caught: lost response cancels the requester exchange - breaks "a lost Pdelay_Resp result retires the response claim and nothing else"
+[PASS] mutant caught: a later response re-arms the frozen pair - breaks "a complete pair keeps its own identity and operands until its t1"
+slice [12:15] of 58
+
+4 checks: 4 PASS, 0 FAIL

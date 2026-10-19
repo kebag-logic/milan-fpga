@@ -1,0 +1,7 @@
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+slice [9, 12] of 72
+
+4 checks: 4 PASS, 0 FAIL

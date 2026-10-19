@@ -1,0 +1,13 @@
+[PASS] the unmutated engine still passes the harness
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0082a0fffe000001 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: reset keeps the elected grandmaster - breaks "#82 warm reset: it names thisClock, not the elected peer"
+FAIL #82 cold release: every cycle to the first beat names thisClock got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the thisClock words are read swapped - breaks "#82 cold release: every cycle to the first beat names thisClock | #82 cold release: that commit carries thisClock and {thisClock}"
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: reset leaves the path empty - breaks "#82 cold release: every cycle to the first beat has {thisClock} | #82 cold release: that commit carries thisClock and {thisClock} | #82 warm reset: its path is {thisClock} with a zero tail"
+slice [33, 36] of 72
+
+4 checks: 4 PASS, 0 FAIL

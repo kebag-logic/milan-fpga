@@ -1,0 +1,14 @@
+[PASS] the unmutated engine still passes the harness
+FAIL #82 cold release: one commit before the first beat got 00000000000f4240 exp 0000000000000001
+[PASS] mutant caught: the boot commit never retires - breaks "#82 cold release: one commit before the first beat"
+FAIL #82 cold release: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL #82 warm reset: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the boot commit waits for the timer bootstrap - breaks "#82 cold release: that commit is the first edge after release | #82 warm reset: that commit is the first edge after release | pre-init deep Announce: no commit"
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0082a0fffe000001 exp 0082b0fffe000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a warm reset keeps the retained best record - breaks "#82 warm reset: a worse-than-local peer leaves thisClock | #82 warm reset: the live worse peer wins, not the absent A | #82 warm reset: the live peer carries its own path"
+slice [39, 42] of 72
+
+4 checks: 4 PASS, 0 FAIL
