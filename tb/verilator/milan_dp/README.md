@@ -987,7 +987,7 @@ and the window must hold exactly those bytes, every other record erased.
   deadlines. Inside the saved case's map restore it reads busy, and neither
   done nor blank.
 
-The healthy map restore held the faces 598 to 660 clocks after
+The healthy map restore held the faces 598 to 672 clocks after
 `restore_done`, under the processor's 4,096-clock gather watchdog. The window
 model answers with no latency, so the board's DDR latency adds to that
 figure.

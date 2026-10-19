@@ -2895,7 +2895,7 @@ and `0x70` (`hdl/milan/milan_datapath.sv`, the `amr_*` blocks).
   roll-back, and blank needs it to have validated no record.
 - **Holds.** Until the map restore ends, the edit face, the CSR map writer,
   GET_AUDIO_MAP, the format judge and the entity enable wait. The healthy
-  1x1 hold measured 598 to 660 clocks in the dynmap leg, against the
+  1x1 hold measured 598 to 672 clocks in the dynmap leg, against the
   processor's 4,096-clock gather watchdog. It used a zero-latency window
   model, so the board's DDR latency adds to it. At 8x8 the three stages
   hold the faces about 13,700 clocks (maprec8), past that watchdog: a
