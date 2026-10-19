@@ -1,0 +1,16 @@
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.vector_round_trip/model
+[       OK ] Ports/NvmBoth.vector_round_trip/model (12 ms)
+[ RUN      ] Ports/NvmBoth.vector_round_trip/litespi
+[       OK ] Ports/NvmBoth.vector_round_trip/litespi (2 ms)
+[----------] 2 tests from Ports/NvmBoth (14 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+[==========] 2 tests from 1 test suite ran. (14 ms total)
+[  PASSED  ] 2 tests.
+== ctrl_nvm saved-state store, recorded vector (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
