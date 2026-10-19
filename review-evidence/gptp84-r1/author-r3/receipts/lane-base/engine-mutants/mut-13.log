@@ -1,0 +1,13 @@
+[PASS] the unmutated engine still passes the harness
+FAIL #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000002 exp 0000000000000001
+[PASS] mutant caught: the boot commit fires twice - breaks "#82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms"
+FAIL #82 cold release: one commit before the first beat got 00000000000f4240 exp 0000000000000001
+[PASS] mutant caught: the boot commit never retires - breaks "#82 cold release: one commit before the first beat"
+FAIL #82 cold release: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL #82 warm reset: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the boot commit waits for the timer bootstrap - breaks "#82 cold release: that commit is the first edge after release | #82 warm reset: that commit is the first edge after release | pre-init deep Announce: no commit"
+slice [39:42] of 58
+
+4 checks: 4 PASS, 0 FAIL

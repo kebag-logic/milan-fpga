@@ -1,0 +1,18 @@
+[PASS] the unmutated engine still passes the harness
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000000
+[PASS] mutant caught: the asCapable drop keeps the flags word - breaks "#82 Pdelay loss: the drop commit's flags are gmPresent alone | p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone"
+FAIL #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an incapable port's receipt watch is not re-armed - breaks "#82 Pdelay loss: once capable, with no Announce, master in 3 s | #82 Pdelay loss: that mastership names thisClock, {thisClock} | p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s"
+FAIL #82 cold release: every cycle to the first beat has gmPresent got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the published flags leave gmPresent to the microcode - breaks "#82 cold release: every cycle to the first beat has gmPresent | #82 cold release: that commit's flags are gmPresent alone | #82 warm reset: its flags are gmPresent alone | #82 peer leaves: the mastership commit has gmPresent | #82 Pdelay loss: the drop commit's flags are gmPresent alone | #82 Pdelay loss: that mastership commit has gmPresent"
+slice [51, 54] of 72
+
+4 checks: 4 PASS, 0 FAIL
