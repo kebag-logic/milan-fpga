@@ -1,0 +1,12 @@
+contract rc=0 secs=0 cmd=make contract
+lint rc=0 secs=0 cmd=make lint
+docs rc=0 secs=1 cmd=make docs
+ucpu rc=0 secs=6 cmd=make -C tb/verilator/ucpu
+parser rc=0 secs=59 cmd=make -C tb/verilator/parser
+engine-run rc=0 secs=140 cmd=make -C tb/verilator/engine run
+gaskets rc=0 secs=37 cmd=make -C tb/verilator/gaskets
+tsngen rc=0 secs=40 cmd=make -C tb/tsngen
+bench rc=0 secs=6 cmd=make -C bench/arty test
+diagrams rc=0 secs=0 cmd=make diagrams-check
+ooc-selftest rc=0 secs=0 cmd=python3 syn/ooc/check_ooc_clock.py --selftest
+parser-mutants rc=0 secs=58 cmd=make -C tb/verilator/parser mutants

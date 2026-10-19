@@ -1,0 +1,12 @@
+[PASS] the unmutated engine still passes the harness
+FAIL #84 takeover: nothing commits while dispatch is held got 0000000000000127 exp 0000000000000126
+[PASS] mutant caught: dispatch ignores a busy serializer - breaks "#84 takeover: nothing commits while dispatch is held"
+FAIL #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: mastership never publishes the master bit - breaks "#84 master cycles were graded | p1 255 #84 master cycles were graded"
+FAIL #84 every handover to a peer grandmaster clears sync-ok got 0000000000000010 exp 0000000000000000
+FAIL p1 255 #84 every handover to a peer grandmaster clears sync-ok got 0000000000000002 exp 0000000000000000
+[PASS] mutant caught: a handover to a peer keeps sync-ok - breaks "#84 every handover to a peer grandmaster clears sync-ok | p1 255 #84 every handover to a peer grandmaster clears sync-ok"
+slice [60, 63] of 72
+
+4 checks: 4 PASS, 0 FAIL

@@ -1,0 +1,7 @@
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+[PASS] mutant caught: a new request leaves the old pair live - breaks "a superseded exchange cannot pair with the new request's t1"
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+slice [15, 18] of 72
+
+4 checks: 4 PASS, 0 FAIL
