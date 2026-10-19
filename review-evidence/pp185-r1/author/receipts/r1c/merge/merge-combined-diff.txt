@@ -1,0 +1,395 @@
+commit a2cf652eb3de82a8a186d02e150c093d99c0fbbc
+Merge: fcb6b51 246cbc2
+Author: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date:   Mon Oct 19 03:38:00 2026 +0200
+
+    Merge processor main 246cbc22 (#181 notify-queue cut, #184 MSRP Domain) into 185-186-control-unlock
+
+diff --cc docs/architecture/09_verification.md
+index cf4dadb,67de9c3..9aebbc5
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@@ -306,7 -306,7 +306,7 @@@ the [`tb/pp_top` README](../../tb/pp_to
+  
+  Each section runs on a fresh processor of its own in `tb/pp_top` (`--notify-only`,
+  `--spacing-only`, `--domain-notify-only`, `--withdraw-only`, `--identify-only`, and the suite's third build
+- for section ID), plus one section of the originator's unit suite and eight of the
+ -for section ID), plus one section of the originator's unit suite and nine of the
+++for section ID), plus one section of the originator's unit suite and ten of the
+  notification block's:
+  
+  | Category | Section | What it proves |
+@@@ -327,7 -327,8 +327,9 @@@
+  | DIR | `tb/aecp_notify` DR | a DEREGISTER drained between two jobs of a round, after a TIME_LIMITED expiry or a failed CONTROLLER_AVAILABLE retry: the round's remaining controller still receives the round's notification (a GET_COUNTERS and a SET_NAME round), the expired controller alone its own DEREGISTER, and with the drained row's next job held for the TX slot the next counter round still waits a second from that controller's send |
+  | TIM | `tb/aecp_notify` CX | the superseding command presents exactly one availability cancellation in its own clock, before the top's registered mask |
+  | TIM | `tb/aecp_notify` SC (#167) | at one interface, a TIME_LIMITED drain and another controller's command in the same clock send both availability cancellations exactly once, in either row order; a failure for the commanding owner presented in the deferred cancellation's clock leaves that controller registered and sends no DEREGISTER |
+ +| DIR | `tb/aecp_notify` LF (#186) | the LOCK_ENTITY notification's job carries the flags word of the LOCK or UNLOCK that caused it, reserved bits included, and the auto-unlock's carries UNLOCK; coalesced changes carry the last cause's flags: a timeout over a pending LOCK UNLOCK, a LOCK over a pending timeout its own |
++ | DIR | `tb/aecp_notify` CQ (#181) | the command queue: a command pushed in the clock the emitter claims the one before it, and `P-NOTIF-QUEUE-DEPTH` + 1 commands back to back behind a held round (a full queue), reach every registered controller but their requester, in order, each at that controller's next sequence_id; `amap_busy_o` holds in every clock from the first push to the last job, between rounds included, and falls after it |
++ | DIR | `tb/aecp_notify` OC (#181, every run of all three builds) | the queue's registered occupancy `cmdq_nempty_r` equals its count being non-zero at every clock edge |
+  
+  The mutation records are in the two suites' READMEs; `tb/pp_top/notify_mutants.py`
+  plants the pp_top controls.
+diff --cc hdl/aecp/KL_aecp_notify.sv
+index 65138eb,fb81088..aaad243
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@@ -836,9 -830,7 +841,9 @@@ module KL_aecp_notif
+      pick_ctr_ix_w = '0;
+      if (pe_lock_r) begin
+        pick_kind_w = PP_UNS_LOCK_C;
+ +      pick_arg1_w = lockf_r[31:16];
+ +      pick_arg0_w = lockf_r[15:0];
+-     end else if (cmdq_count_r != 5'd0) begin
++     end else if (cmdq_nempty_r) begin
+        pick_cmd_w = 1'b1;
+        pick_dt_w  = cmdq_type_r[cmdq_rd_r];
+        pick_di_w  = cmdq_index_r[cmdq_rd_r];
+diff --cc tb/aecp_notify/README.md
+index 56080e3,d9ec4d4..f9285ee
+--- a/tb/aecp_notify/README.md
++++ b/tb/aecp_notify/README.md
+@@@ -11,8 -11,10 +11,10 @@@ different controller and verifies that 
+  Entity ID and MAC tuple. Section IX then grades the registry's identity index,
+  section TS the counter throttle stamps' valid bit, section TW a counter round
+  that waits for the TX slot, section DR a DEREGISTER drained between two jobs
+- of a round, section CX the clock of the availability cancellation, and section
+- SC a command cancellation coinciding with a TIME_LIMITED drain.
++ of a round, section CX the clock of the availability cancellation, section
+ -SC a command cancellation coinciding with a TIME_LIMITED drain, and section CQ
+ -the command queue. Every run of every build ends with section OC, the queue's
+ -occupancy at every clock edge.
+++SC a command cancellation coinciding with a TIME_LIMITED drain, section LF the
+++flags of the lock notification, and section CQ the command queue. Every run of
+++every build ends with section OC, the queue's occupancy at every clock edge.
+  A third build, at two AVB interfaces, runs sections PT, CK, PD and CA: the registry row's port, the per-interface counter rows, the registry depth
+  per interface and the availability probes of a controller on both interfaces.
+  
+@@@ -22,9 -24,9 +24,9 @@@ Run `make`. Exit status zero and the pr
+  
+  | Build | Override | Runs |
+  |---|---|---|
+- | `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks), section DR (11 checks), section CX (1 check) and section LF (6 checks) |
+- | `obj_idn/Vaecp_notify_idn` | `EN_IDENTIFY_NOTIF_P` = 1 (`AECP_NOTIFY_IDENT`) | section FT alone |
+- | `obj_if2/Vaecp_notify_if2` | `N_IF_P` = 2, P-N-AVB-INTERFACES (`AECP_NOTIFY_IF2`) | sections PT (6 checks), CK (5 checks), PD (3 checks) and CA (5 checks) alone, from `port_tuple.hpp` |
+ -| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks), section DR (11 checks), section CX (1 check), section CQ (8 checks) and OC1 |
+++| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks), section DR (11 checks), section CX (1 check), section LF (6 checks), section CQ (8 checks) and OC1 |
++ | `obj_idn/Vaecp_notify_idn` | `EN_IDENTIFY_NOTIF_P` = 1 (`AECP_NOTIFY_IDENT`) | section FT alone, then OC1 |
++ | `obj_if2/Vaecp_notify_if2` | `N_IF_P` = 2, P-N-AVB-INTERFACES (`AECP_NOTIFY_IF2`) | sections PT (6 checks), CK (5 checks), PD (3 checks) and CA (5 checks) alone, from `port_tuple.hpp`, then OC1 |
+  
+  Each run prints its own count, and the Makefile prints the canonical tally.
+  The default `make` runs the three builds and SC1 and SC2 as separate runs of the
+@@@ -33,7 -35,9 +35,9 @@@ retains the existing three-run record; 
+  `make failure-window` runs SC2 alone. `make identify` builds and runs the
+  second build alone (the identify mutation campaign's arm), and `make interfaces`
+  the third (the notify campaign's arms for issue #69). The combined suite has
+- 73 checks: 48 in the first run, 4 in FT, 19 in PT/CK/PD/CA and 2 in SC. CX keeps its
+ -80 checks: 51 in the first run, 5 in FT, 20 in PT/CK/PD/CA and 4 in SC, each run's
+++86 checks: 57 in the first run, 5 in FT, 20 in PT/CK/PD/CA and 4 in SC, each run's
++ last check its OC1. Every build reads `occupancy.vlt`, which makes the queue's
++ count and occupancy flop readable by the bench and changes no RTL. CX keeps its
+  one-interface cancellation-clock premise; CA4 measures the engine's settle
+  interval, before the top's withdraw register, so its four-cycle lower bound
+  is unchanged by #163.
+@@@ -352,32 -356,65 +356,95 @@@ so every existing campaign arm retains 
+  
+  Both controls are arms of `tb/pp_top/notify_mutants.py`.
+  
+ +## Section LF: the LOCK_ENTITY notification's flags (issue #186)
+ +
+ +IEEE 1722.1-2021 7.5.2 sends a notification "by using an unsolicited response to the
+ +command", whose flags 7.4.2.1 echoes, so the job of a lock change a LOCK or UNLOCK
+ +caused carries that command's flags word, `uns_arg1_o` the high half and `uns_arg0_o`
+ +the low. Milan Table 5.22's auto-unlock, an unlock, carries UNLOCK (1, Table 7-143),
+ +as an UNLOCK command's does. After a warm
+ +reset C registers (row 0) and controller X changes the lock; each word sets reserved
+ +bits, so a latch of the UNLOCK bit alone is seen. A SET_NAME round whose job the bench
+ +holds keeps a lock round pending, so two changes coalesce, and the flags follow the
+ +last cause, as the exclusion does:
+ +
+ +- **LF1** X's LOCK with flags 0x00010000: C's job carries 0001/0000.
+ +- **LF1b** X's UNLOCK with flags 0x80020001: 8002/0001.
+ +- **LF2** X's LOCK with flags 0x00040000 times out before its round leaves: the
+ +  coalesced job is the auto-unlock's, UNLOCK: 0000/0001.
+ +- **LF3a** X's LOCK with flags 0: 0000/0000.
+ +- **LF3** the lock times out with its round held, then X's LOCK with flags 0x00020000:
+ +  the coalesced job carries the LOCK's 0002/0000.
+ +
+ +| Mutant | Planted | Failing checks |
+ +|---|---|---|
+ +| `lock_coalesced_timeout_keeps_flags` | a timeout coalesced into a pending lock round keeps the LOCK's flags | LF2 |
+ +| `lock_coalesced_timeout_flags_zero` | a timeout coalesced into a pending lock round latches 0, not UNLOCK | LF2 |
+ +| `lock_take_keeps_old_flags` | a LOCK latches no flags | LF1, LF3a, LF3 |
+ +| `lock_release_keeps_old_flags` | an UNLOCK latches no flags | LF1b |
+ +
+ +The four controls are arms of `tb/pp_top/notify_mutants.py`; `tb/pp_top` sections L
+ +(L5b, L6d) and AX (LN) grade the same flags on the wire.
+++
++ ## Sections CQ and OC: the command queue (issue #181)
++ 
++ A successful state-changing command pushes its notification onto a queue of
++ `P-NOTIF-QUEUE-DEPTH` entries (06 section 7). The emitter claims (pops) one
++ entry per round, and a push and a claim can share a clock. The queue keeps its
++ occupancy in a flop of its own, `cmdq_nempty_r`, written beside every count
++ update, so `amap_busy_o` and the emission pick read one flop instead of
++ comparing the count. While an entry waits, `amap_busy_o` holds the engine's
++ next command, which keeps the finite queue lossless (Milan v1.2 5.4.5.1 and
++ 5.4.5.2, REQ-NOT-001 and REQ-NOT-002).
++ 
++ Section CQ runs twice, each time after a warm reset with C (row 0) and D (row 1)
++ registered (four REGISTERs checked). The bench is the engine and the clock
++ advances one ms per cycle. Entry n is SET_NAME on 0005:n with arguments
++ 0x100 + n and 0x200 + n. An odd entry comes from C, which it excludes; an even
++ one comes from an unregistered requester.
++ 
++ - **CQ1** two commands back to back into an idle block. The second is pushed in
++   the clock the emitter claims the first (the count reads 1 after it, not 2),
++   and it is the last push. C receives entry 0, and D entries 0 and 1, in order,
++   each at that controller's next sequence_id: three jobs.
++ - **CQ1b** `amap_busy_o` is low before the first push, high in every clock from
++   the one after it to the last job, and low again after that. In the clock after
++   the first push nothing but the queue holds it.
++ - **CQ2** `P-NOTIF-QUEUE-DEPTH` + 1 = 17 commands back to back while the first
++   round's job is held: entry 0 in the round and a full queue behind it (16
++   entries at most), the second command again pushed in the first one's claim.
++   Every entry reaches each registered controller but its requester, in order,
++   at that controller's next sequence_id: 26 jobs, C's at sequence_id 0 to 8 and
++   D's at 0 to 16.
++ - **CQ2b** as CQ1b, through 17 rounds: between two rounds the queue alone holds
++   `amap_busy_o` for a clock.
++ 
++ **OC1** closes every run of every build (the default run, FT, PT/CK/PD/CA, SC1
++ and SC2). `occupancy.vlt` makes `cmdq_count_r` and `cmdq_nempty_r` readable, the
++ bench samples both after each clock edge, and OC1 requires `cmdq_nempty_r ==
++ (cmdq_count_r != 0)` at every edge.
++ 
++ CQ1 to CQ2b pass on the RTL before the flop (`main` `08ae0013`, whose emission
++ pick and `amap_busy_o` compared the count) with the same jobs and the same
++ `amap_busy_o` trace, so they describe behaviour that did not change. There they
++ fail with `amap_busy_o` without the count term (CQ1b and CQ2b) and with a claim
++ that empties the count (CQ2).
++ 
++ Mutation record (planted by `tb/pp_top/notify_mutants.py`, which runs `make run`,
++ or for the last four arms `make identify`, `make interfaces`, `make collision` and
++ `make failure-window`, here; all eleven KILLED). The named checks are the ones each
++ arm must fail; the failing checks are what it failed:
++ 
++ | Mutant | Planted | Named | Failing checks |
++ |---|---|---|---|
++ | `occupancy_pop_keeps_set` | a claim without a push leaves the occupancy set | OC1, CQ1, CQ2 | 7: DR2, DR2b, CQ1, CQ1b, CQ2, CQ2b, OC1 |
++ | `occupancy_push_unseen` | a push does not set the occupancy | OC1, CQ1, CQ1b, CQ2, CQ2b | 7: DR2, DR2b, CQ1, CQ1b, CQ2, CQ2b, OC1 |
++ | `occupancy_pop_one_late` | a claim without a push clears the occupancy one entry late | OC1, CQ1, CQ2 | 5: DR2, DR2b, CQ1, CQ2, OC1 |
++ | `occupancy_cleared_beside_push` | a claim beside a push clears the occupancy, so CQ1's last entry is stranded | OC1, CQ1 | 2: CQ1, OC1 |
++ | `occupancy_not_busy` | `amap_busy_o` drops the occupancy term | CQ1b, CQ2b | 2: CQ1b, CQ2b |
++ | `occupancy_reset_set` | the reset sets the occupancy | OC1 | 14: TS1, TS3, TW1, TW2, DR1, DR1b, DR2, DR2b, DR3, CQ1, CQ1b, CQ2, CQ2b, OC1 |
++ | `occupancy_pop_clears` | a claim without a push clears the occupancy, so CQ2's queue is stranded | OC1, CQ2 | 2: CQ2, OC1 |
++ | `occupancy_reset_set_identify` | as `occupancy_reset_set`, graded by FT's run | OC1 | 1: OC1 |
++ | `occupancy_reset_set_interfaces` | as `occupancy_reset_set`, graded by the third build | OC1 | 13: PT4, PT6, CK1, CK2, CK3, CK4, CK5, PD3, CA2, CA1b, CA3, CA4, OC1 |
++ | `occupancy_reset_set_collision` | as `occupancy_reset_set`, graded by SC1's run | OC1 | 2: SC1, OC1 |
++ | `occupancy_reset_set_failure` | as `occupancy_reset_set`, graded by SC2's run | OC1 | 2: SC2, OC1 |
+diff --cc tb/aecp_notify/sim_main.cpp
+index b8e8517,378259b..f5fcd1b
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@@ -90,9 -120,18 +123,19 @@@ struct Harness 
+    void dereg_command_round();
+    void dereg_round_waits();
+    void cancel_clock();
+ +  void lock_flags();
+    void cancel_collision();
+    void cancel_failure_window();
++   struct Drain {
++     std::vector<UnsJob> jobs;
++     std::vector<bool> busy;                 // amap_busy_o, from the clock after the first push
++     std::vector<unsigned> count;            // the queue's count after each push's edge
++     int last = -1;                          // busy's index of the last job's clock; -1 = none
++   };
++   Drain queue_drain(unsigned pushes);
++   bool delivered(const Drain& r, unsigned pushes) const;
++   void command_queue();
++   Occupancy occupancy;
+  
+    void tick() {
+      d->now_ms_i = now;
+@@@ -321,7 -337,8 +367,9 @@@ int Harness::run(bool collision_only, b
+    dereg_command_round();
+    dereg_round_waits();
+    cancel_clock();
+ +  lock_flags();
++   command_queue();
++   occupancy_held(occupancy, checks, fails);
+    return fails ? 1 : 0;
+  }
+  
+diff --cc tb/pp_top/notify_mutants.py
+index ec48255,468cc8d..f916c70
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@@ -29,8 -29,8 +29,9 @@@ IF3 and IF3b's held commands), and the 
+  the top (issue #163: tb/pp_top section WD and tb/aecp_notify section CX), and
+  the simultaneous drain and command cancellation at one interface (issue #167:
+  tb/aecp_notify section SC), including a failure one cycle after the coincidence, and the
+ -command queue's occupancy flop (issue #181: tb/aecp_notify sections CQ and OC). The suite
+ -READMEs carry the matching mutation records.
+++command queue's occupancy flop (issue #181: tb/aecp_notify sections CQ and OC), and the
+ +flags of the LOCK_ENTITY notification (issue #186: tb/pp_top L5b in the main suite and
+ +section AX's LN). The suite READMEs carry the matching mutation records.
+  
+  Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+                                             [--only NAME ...]
+@@@ -619,104 -619,59 +620,154 @@@ DEFERRED_FAILURE = 
+          ("SC2:",)),
+  )
+  
+ +# The LOCK_ENTITY notification echoes the flags of the command that caused it,
+ +# and the auto-unlock's carries UNLOCK (issue #186): the UNLOCK's notification
+ +# and the auto-unlock's in the main suite's section L (L5b, L6d), and section
+ +# AX's LN, where a second controller's LOCK and UNLOCK carry reserved bits in
+ +# both halves of the word
+ +LOCK_MAIN = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--arm-queue-only"))
+ +LOCK_AX = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--aecp-dispatch-only"))
+ +LOCKUNS_FLAGS = "    u('BUILD_FLD', ra=14, fmt=FMT_D),            # the command's flags @24\n"
+ +LN1 = "LN1 ...its notification echoes the LOCK's flags: "
+ +LN2 = "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: "
+ +LOCKF_TIMEOUT = "          lockf_r   <= LOCKF_UNLOCK_C;  // ...and is an unlock (Table 5.22, 7-143)\n"
+ +LOCKF_COALESCED = "          lockf_r   <= LOCKF_UNLOCK_C;\n          if (coalesce_r != 8'hFF)"
+ +LN3 = "LN3 ...its notification carries flags 0: "
+ +LN4 = "LN4 ...its notification echoes the UNLOCK's flags: "
+ +LOCK_FLAGS = (
+ +    Mutant("lock_unlock_notifies_flags_zero", LOCK_MAIN, (
+ +        (UCODE, LOCKUNS_FLAGS, LOCKUNS_FLAGS.replace("ra=14", "ra=12")),),
+ +        ("L5b: C2's second notification carries sequence_id 1",)),
+ +    # the automatic unlock with flags 0, as the qualification observed it
+ +    Mutant("lock_auto_unlock_flags_zero", LOCK_MAIN, (
+ +        (NTFY, LOCKF_TIMEOUT, LOCKF_TIMEOUT.replace("LOCKF_UNLOCK_C;", "32'd0;         ")),),
+ +        ("L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK",)),
+ +    Mutant("lock_notification_flags_zero", LOCK_AX, (
+ +        (UCODE, LOCKUNS_FLAGS, LOCKUNS_FLAGS.replace("ra=14", "ra=12")),),
+ +        (LN1 + "flags", LN4 + "flags")),
+ +    Mutant("lock_flags_unlock_bit_only", LOCK_AX, (
+ +        (NTFY, "                  //! the taker's flags\n"
+ +               "                  pe_lock_r   <= 1'b1;\n"
+ +               "                  lockf_r     <= rgy_flags_i;\n",
+ +         "                  //! the taker's flags\n"
+ +         "                  pe_lock_r   <= 1'b1;\n"
+ +         "                  lockf_r     <= {31'd0, rgy_op_i[0]};\n"),
+ +        (NTFY, "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
+ +               "                  pe_lock_r   <= 1'b1;\n"
+ +               "                  lockf_r     <= rgy_flags_i;\n",
+ +         "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
+ +         "                  pe_lock_r   <= 1'b1;\n"
+ +         "                  lockf_r     <= {31'd0, rgy_op_i[0]};\n")),
+ +        (LN1 + "flags", LN4 + "flags")),
+ +    Mutant("lock_timeout_keeps_flags", LOCK_AX, (
+ +        (NTFY, LOCKF_TIMEOUT, ""),),
+ +        (LN2 + "flags",)),
+ +    Mutant("lock_timeout_flags_zero", LOCK_AX, (
+ +        (NTFY, LOCKF_TIMEOUT, LOCKF_TIMEOUT.replace("LOCKF_UNLOCK_C;", "32'd0;         ")),),
+ +        (LN2 + "flags",)),
+ +    Mutant("lock_flags_from_exclusion", LOCK_AX, (
+ +        (NTFY, "      pick_arg1_w = lockf_r[31:16];\n      pick_arg0_w = lockf_r[15:0];\n",
+ +         "      pick_arg1_w = lockx_eid_r[31:16];\n      pick_arg0_w = lockx_eid_r[15:0];\n"),),
+ +        (LN3 + "flags",)),
+ +    Mutant("lock_job_arguments_dropped", LOCK_AX, (
+ +        (ENGINE, "                        : (uns_kind_i == PP_UNS_LOCK_C) ? uns_arg1_i\n", ""),
+ +        (ENGINE, "                           || (uns_kind_i == PP_UNS_LOCK_C)) ? uns_arg0_i\n",
+ +         "                           ) ? uns_arg0_i\n")),
+ +        (LN1 + "flags", LN4 + "flags")),
+ +    Mutant("lock_job_r14_unpacked", LOCK_AX, (
+ +        (ENGINE, "  assign lockf_w = lockc_r || (uns_r && regun_r);\n",
+ +         "  assign lockf_w = lockc_r;\n"),),
+ +        (LN1 + "flags", LN4 + "flags")),
+ +    Mutant("lock_notification_not_sent", LOCK_AX, (
+ +        (ENGINE, "uns_upc_w = UPC_LOCKUNS_C; end\n", "uns_upc_w = UPC_NOSEND_C; end\n"),),
+ +        (LN1 + "the registered bench is notified", LN2 + "the registered bench is notified",
+ +         LN3 + "the registered bench is notified", LN4 + "the registered bench is notified")),
+ +    Mutant("lock_response_flags_zero", LOCK_AX, (
+ +        (UCODE, "    u('BUILD_FLD', ra=14, fmt=FMT_D),            # flags echo          @24\n",
+ +         "    u('BUILD_FLD', ra=12, fmt=FMT_D),            # flags echo          @24\n"),),
+ +        ("LN1 a second controller's LOCK: SUCCESS echoing flags 0x00010000",
+ +         "LN4 its UNLOCK: SUCCESS echoing flags 0x80020001")),
+ +    # ...and in tb/aecp_notify section LF, the latches themselves and the
+ +    # coalesced timeout, which a pending round makes reachable
+ +    Mutant("lock_coalesced_timeout_keeps_flags", INDEX, (
+ +        (NTFY, LOCKF_COALESCED, "          if (coalesce_r != 8'hFF)"),),
+ +        ("LF2:",)),
+ +    Mutant("lock_coalesced_timeout_flags_zero", INDEX, (
+ +        (NTFY, LOCKF_COALESCED, LOCKF_COALESCED.replace("LOCKF_UNLOCK_C", "32'd0")),),
+ +        ("LF2:",)),
+ +    Mutant("lock_take_keeps_old_flags", INDEX, (
+ +        (NTFY, "                  //! the taker's flags\n"
+ +               "                  pe_lock_r   <= 1'b1;\n"
+ +               "                  lockf_r     <= rgy_flags_i;\n",
+ +         "                  //! the taker's flags\n"
+ +         "                  pe_lock_r   <= 1'b1;\n"),),
+ +        ("LF1:", "LF3:")),
+ +    Mutant("lock_release_keeps_old_flags", INDEX, (
+ +        (NTFY, "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
+ +               "                  pe_lock_r   <= 1'b1;\n"
+ +               "                  lockf_r     <= rgy_flags_i;\n",
+ +         "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
+ +         "                  pe_lock_r   <= 1'b1;\n"),),
+ +        ("LF1b:",)),
+ +    Mutant("register_refused", LOCK_AX, (
+ +        (UCODE, "    u('SET_STATUS', imm=ST_OK),                  # ok:\n",
+ +         "    u('SET_STATUS', imm=ST_NORES),               # ok:\n"),),
+ +        ("LN0: the bench registers for unsolicited notifications again",)),
+ +)
+ +
++ # The command queue's occupancy flop, written beside every count update and read
++ # by amap_busy_o and the emission pick (issue #181; REQ-NOT-001, REQ-NOT-002),
++ # graded by tb/aecp_notify sections OC and CQ
++ OCC_PUSH = "          cmdq_nempty_r <= 1'b1;\n"
++ OCC_POP = "                    cmdq_nempty_r <= (cmdq_count_r != 5'd1);\n"
++ OCC_BESIDE = ("                  if (cmd_push_w)\n"
++               "                    cmdq_count_r <= cmdq_count_r;\n")
++ OCC_BUSY = "                       || cmdq_nempty_r || (|ctr_pend_r) || id_own_w;\n"
++ OCC_RESET = "      cmdq_nempty_r <= 1'b0;\n"
++ 
++ OCCUPANCY = (
++     Mutant("occupancy_pop_keeps_set", INDEX, (
++         (NTFY, OCC_POP, OCC_POP.replace("(cmdq_count_r != 5'd1)", "1'b1")),),
++         ("OC1:", "CQ1:", "CQ2:")),
++     Mutant("occupancy_push_unseen", INDEX, (
++         (NTFY, OCC_PUSH, ""),),
++         ("OC1:", "CQ1:", "CQ1b:", "CQ2:", "CQ2b:")),
++     Mutant("occupancy_pop_one_late", INDEX, (
++         (NTFY, OCC_POP, OCC_POP.replace("5'd1", "5'd0")),),
++         ("OC1:", "CQ1:", "CQ2:")),
++     Mutant("occupancy_cleared_beside_push", INDEX, (
++         (NTFY, OCC_BESIDE, "                  if (cmd_push_w) begin\n"
++                            "                    cmdq_count_r <= cmdq_count_r;\n"
++                            "                    cmdq_nempty_r <= 1'b0;\n"
++                            "                  end\n"),),
++         ("OC1:", "CQ1:")),
++     Mutant("occupancy_not_busy", INDEX, (
++         (NTFY, OCC_BUSY, OCC_BUSY.replace("|| cmdq_nempty_r ", "")),),
++         ("CQ1b:", "CQ2b:")),
++     Mutant("occupancy_reset_set", INDEX, (
++         (NTFY, OCC_RESET, OCC_RESET.replace("1'b0", "1'b1")),),
++         ("OC1:",)),
++     # OC1 closes every run of the suite: the same edit, graded in the other four
++     Mutant("occupancy_reset_set_identify", TIMEBASE, (
++         (NTFY, OCC_RESET, OCC_RESET.replace("1'b0", "1'b1")),),
++         ("OC1:",)),
++     Mutant("occupancy_reset_set_interfaces", INTERFACES, (
++         (NTFY, OCC_RESET, OCC_RESET.replace("1'b0", "1'b1")),),
++         ("OC1:",)),
++     Mutant("occupancy_reset_set_collision", COLLISION, (
++         (NTFY, OCC_RESET, OCC_RESET.replace("1'b0", "1'b1")),),
++         ("OC1:",)),
++     Mutant("occupancy_reset_set_failure", FAILURE_WINDOW, (
++         (NTFY, OCC_RESET, OCC_RESET.replace("1'b0", "1'b1")),),
++         ("OC1:",)),
++     Mutant("occupancy_pop_clears", INDEX, (
++         (NTFY, OCC_POP, OCC_POP.replace("(cmdq_count_r != 5'd1)", "1'b0")),),
++         ("OC1:", "CQ2:")),
++ )
++ 
+  MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+             + DEREG_MID_ROUND + DOMAIN_NOTIFY + WITHDRAW_STAGE + INTERFACE_ROWS + INTERFACE_DEPTH_PROBES
+-            + SAME_CYCLE_CANCEL + DEFERRED_FAILURE + LOCK_FLAGS)
+ -           + SAME_CYCLE_CANCEL + DEFERRED_FAILURE + OCCUPANCY)
+++           + SAME_CYCLE_CANCEL + DEFERRED_FAILURE + OCCUPANCY + LOCK_FLAGS)
+  TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+                     r" \d+ checks, \d+ failures"
+                     r"|\[build \w+\] \d+ checks, \d+ failures"

@@ -1,0 +1,16 @@
+DIFFER lk-sctrl-lock-nop: base 12: LK1, LK1, LK1, LK2, LK3, LK3, LK3, LK3, LK3b, LK3c, LK3c, LK6
+                          head 13: LK1, LK1, LK1, LK2, LK3, LK3, LK3, LK3, LK3b, LK3c, LK3c, RDC1, LK6
+DIFFER rd-str-short-guard-nop: base 1: RD4
+                               head 6: RD4, RDC6, RDC6, RDC6, RDC6, LN0
+DIFFER rd-tail-uncut: base 9: RD1, RD1, RD1, RD1, RD1, RD3, RD3, RD3, RD3
+                      head 16: RDC0, RDC1, RDC3b, RDC3, RDC4, RD1, RD1, RD1, RD1, RD1, RDC5, RD3, RD3, RD3, RD3, RDC5
+HEAD ONLY rdc-base-no-overlay: 7: RDC0, RDC1, RDC3b, RDC3, RDC4, RDC5, RDC5
+HEAD ONLY rdc-ident-reset-255: 5: RDC0, LK1, LK2, RDC5, RDC6
+HEAD ONLY rdc-sctrl-no-write: 11: LK2, LK3, LK3, LK3b, LK3c, LK3c, RDC1, LK6, RDC5, RDC6, RDC6
+HEAD ONLY rdc-short-floor-111: 2: RDC6, LN0
+HEAD ONLY rdc-unit-shift-8: 7: RDC0, RDC1, RDC3b, RDC3, RDC4, RDC5, RDC5
+HEAD ONLY rdc-unset-image: 2: RDC0, RDC5
+HEAD ONLY rdc-voffset-guard-nop: 1: RDC2
+HEAD ONLY rdc-vtype-int16: 1: RDC3
+HEAD ONLY rdc-vtype-uint8-only: 1: RDC3b
+55 mutants fail the same checks at base and head

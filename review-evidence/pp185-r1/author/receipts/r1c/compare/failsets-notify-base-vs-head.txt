@@ -1,0 +1,23 @@
+HEAD ONLY golden-pp_top-aecp-dispatch-only: 0: 
+HEAD ONLY golden-pp_top-arm-queue-only: 0: 
+HEAD ONLY lock_auto_unlock_flags_zero: 1: L6d
+HEAD ONLY lock_coalesced_timeout_flags_zero: 1: LF2
+HEAD ONLY lock_coalesced_timeout_keeps_flags: 1: LF2
+HEAD ONLY lock_flags_from_exclusion: 4: LN1, LN2, LN3, LN4
+HEAD ONLY lock_flags_unlock_bit_only: 2: LN1, LN4
+HEAD ONLY lock_job_arguments_dropped: 3: LN1, LN2, LN4
+HEAD ONLY lock_job_r14_unpacked: 3: LN1, LN2, LN4
+HEAD ONLY lock_notification_flags_zero: 3: LN1, LN2, LN4
+HEAD ONLY lock_notification_not_sent: 4: LN1, LN2, LN3, LN4
+HEAD ONLY lock_release_keeps_old_flags: 1: LF1b
+HEAD ONLY lock_response_flags_zero: 2: LN1, LN4
+HEAD ONLY lock_take_keeps_old_flags: 3: LF1, LF3a, LF3
+HEAD ONLY lock_timeout_flags_zero: 1: LN2
+HEAD ONLY lock_timeout_keeps_flags: 1: LN2
+HEAD ONLY lock_unlock_notifies_flags_zero: 2: L5b, L6d
+DIFFER occupancy_push_unseen: base 7: DR2, DR2b, CQ1, CQ1b, CQ2, CQ2b, OC1
+                              head 9: DR2, DR2b, LF2, LF3, CQ1, CQ1b, CQ2, CQ2b, OC1
+DIFFER occupancy_reset_set: base 14: TS1, TS3, TW1, TW2, DR1, DR1b, DR2, DR2b, DR3, CQ1, CQ1b, CQ2, CQ2b, OC1
+                            head 17: TS1, TS3, TW1, TW2, DR1, DR1b, DR2, DR2b, DR3, LF1, LF2, LF3, CQ1, CQ1b, CQ2, CQ2b, OC1
+HEAD ONLY register_refused: 2: LK0, LN0
+120 mutants fail the same checks at base and head

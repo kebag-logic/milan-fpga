@@ -1,0 +1,91 @@
+1c1
+< 58 checks: 58 PASS, 0 FAIL
+---
+> 67 checks: 67 PASS, 0 FAIL
+27a28
+>     FAIL: LK1 IDENTIFY at its reset 0, foreign SET_CONTROL(255) carries 0: ENTITY_LOCKED byte-exact (status 3, cdl 17)
+38a40,41
+>     FAIL: LK2 IDENTIFY 255: ...one store write and 1 notification enqueued (0, 1)
+>     FAIL: LK2 IDENTIFY 255: ...one store write and 1 notification enqueued (1, 0)
+43a47,48
+>     FAIL: LK3 ...and the IDENTIFY value is still 255, on GET and on the face
+>     FAIL: LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+47a53,54
+>     FAIL: LK3c ...and the IDENTIFY value is still 255, on GET and on the face
+>     FAIL: LK3c IDENTIFY at 255, unlocked, a second controller's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact (status 7, cdl 17)
+56a64
+>     FAIL: LK3 foreign SET_CONTROL(0) carries the stored 255: ENTITY_LOCKED byte-exact (status 3, cdl 17)
+69c77
+<     FAIL: LK6 IDENTIFY 0: ...one store write and 1 notification enqueued (1, 0)
+---
+>     FAIL: LK6 IDENTIFY 0: ...one store write and 1 notification enqueued (0, 0)
+70a79,80
+>     FAIL: LN0: the bench registers for unsolicited notifications again, got -1
+>     FAIL: LN0: the bench registers for unsolicited notifications again, got 10
+240,241d249
+<     FAIL: RD3 CLOCK_DOMAIN 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @70 carrying 0x1
+<     FAIL: RD3 STREAM_INPUT 0 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+247d254
+<     FAIL: RD3 STREAM_OUTPUT 1 after the restore, no SET since the reset: READ_DESCRIPTOR byte-exact, @74 carrying 0x205021801006000
+248a256,293
+>     FAIL: RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC0 CONTROL 0 before any SET_CONTROL: current[0] the reset 0, not the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC0 IDENTIFY unset: GET_CONTROL reads Milan 5.3.12's reset 0 (premise)
+>     FAIL: RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC1 CONTROL 0 after SET_CONTROL(255) and three refused SET_CONTROLs: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC1 GET_CONTROL reads 255 (premise)
+>     FAIL: RDC1 GET_CONTROL reads 255 (premise)
+>     FAIL: RDC2 CONTROL 0 with values_offset 106, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC3 ...and restored, CONTROL 0 carries 255 again: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC3 ...and restored, CONTROL 0 carries 255 again: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC3 ...and restored, CONTROL 0 carries 255 again: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC3b CONTROL 0 as a CONTROL_LINEAR_INT8, IDENTIFY 255: overlaid: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC3 CONTROL 0 as a CONTROL_LINEAR_INT16, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC4 CONTROL 0 after the holder's SET_CONTROL(0), under its lock: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC4 CONTROL 0 after the holder's SET_CONTROL(0), under its lock: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC4 CONTROL 0 after the holder's SET_CONTROL(0), under its lock: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC5 CONTROL 0 after SET_CONTROL(255), before the power cycle: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC5 CONTROL 0 after SET_CONTROL(255), before the power cycle: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC5 CONTROL 0 after SET_CONTROL(255), before the power cycle: READ_DESCRIPTOR byte-exact, @108 carrying 0xff
+>     FAIL: RDC5 CONTROL 0 after the power cycle: the reset 0, neither the 255 set before it nor the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC5 CONTROL 0 after the power cycle: the reset 0, neither the 255 set before it nor the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC5 CONTROL 0 after the power cycle: the reset 0, neither the 255 set before it nor the image's 0x5A: READ_DESCRIPTOR byte-exact, @108 carrying 0x0
+>     FAIL: RDC5 IDENTIFY 255: ...one store write and 1 notification enqueued (0, 1)
+>     FAIL: RDC5 the power cycle clears IDENTIFY: GET_CONTROL and the face read 0 (premise)
+>     FAIL: RDC6 CONTROL 0 of 111 bytes, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC6 CONTROL 0 of 111 bytes, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+>     FAIL: RDC6 GET_CONTROL reads 255 and the image serves CONTROL 0 at 111 bytes (premise)
+>     FAIL: RDC6 GET_CONTROL reads 255 and the image serves CONTROL 0 at 111 bytes (premise)
+>     FAIL: RDC6 IDENTIFY 255: ...one store write and 1 notification enqueued (0, 0)
+>     FAIL: RDC6 IDENTIFY 255: ...one store write and 1 notification enqueued (0, 1)
+>     FAIL: RDC6 IDENTIFY 255: ...one store write and 1 notification enqueued (1, 0)
+>     FAIL: RDC6 IDENTIFY 255: the holder's SET is served, byte-exact
+333c378
+< lk-sctrl-lock-nop: rc=2 failures=12 named=1 KILLED
+---
+> lk-sctrl-lock-nop: rc=2 failures=13 named=1 KILLED
+354a400
+> rdc-base-no-overlay: rc=2 failures=7 named=1 KILLED
+356a403,410
+> rdc-ident-reset-255: rc=2 failures=5 named=1 KILLED
+> rdc-sctrl-no-write: rc=2 failures=11 named=1 KILLED
+> rdc-short-floor-111: rc=2 failures=2 named=1 KILLED
+> rdc-unit-shift-8: rc=2 failures=7 named=1 KILLED
+> rdc-unset-image: rc=2 failures=2 named=1 KILLED
+> rdc-voffset-guard-nop: rc=2 failures=1 named=1 KILLED
+> rdc-vtype-int16: rc=2 failures=1 named=1 KILLED
+> rdc-vtype-uint8-only: rc=2 failures=1 named=1 KILLED
+358c412
+< rd-str-short-guard-nop: rc=2 failures=1 named=1 KILLED
+---
+> rd-str-short-guard-nop: rc=2 failures=6 named=1 KILLED
+360c414
+< rd-tail-uncut: rc=2 failures=9 named=1 KILLED
+---
+> rd-tail-uncut: rc=2 failures=16 named=1 KILLED

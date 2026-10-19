@@ -1,0 +1,471 @@
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 67de9c3..9aebbc5 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -182,7 +182,7 @@ and `tb/dyn_state/sim_main.cpp` (lettered sections):
+ | clock_source | W6/W6b; W10i (a refusal on the unset row carries the image's index, GET still reads it) | W10/W10d; the accepted SET answers the index it stored, not the one it replaced, on the unset row (W10j7b, 0 to 1) and on a set row (W10b, 1 to 2); refusals write nothing: W10e-W10h; refusals mark and notify nothing, graded at the effect strobes and a second registered controller: W10j | mechanism-level: dyn_state C, D; a CLOCK_DOMAIN the image lacks is NO_SUCH_DESCRIPTOR with a zero body, moving nothing, and the lock still outranks the miss: `tb/pp_top` AX NSD1-NSD3 (issue #37) |
+ | stream formats (in/out) | W4 per type and index | W23a/W23a2 (SET, both the echo and the published row), W23b (GET_STREAM_FORMAT serves the setting through the fold), W23i (the output row); refusals write nothing: W23c-W23h, W25a | dyn_state C, D + the per-row face checks F |
+ | presentation offset | (no getter opcode; live face + GET_STREAM_INFO word 3) | W24a/W24a2 (SET + the published row), W24b (GET_STREAM_INFO serves it through the fold), W25d; the 1722.1-2013 body (cdl 60, issue #176): W24g/W24g1/W24g2; refusals write nothing: W24c-W24f, W24h-W24m, W25b, W25b3; so do bodies longer than the 2021 one (cdl 97 and 140): W24n/W24n1, W24o/W24o1 | dyn_state C + the per-row face checks F |
+-| Identify control | W12/W12b/W12c (pre-SET GET) | W12d-W12h (SET/GET cycles), W13-W13d (step legality); AX LK3b/LK3c (the out-of-range refusal carries the 255 in force, IEEE §7.4.25.1); volatility: dyn_state E | dyn_state E |
++| Identify control | W12/W12b/W12c (pre-SET GET); AX RDC0, RDC5 (READ_DESCRIPTOR's `current[0]` is GET_CONTROL's reset 0 before any SET and after a power cycle, not the image's byte, issue #185) | W12d-W12h (SET/GET cycles), W13-W13d (step legality); AX LK3b/LK3c (the out-of-range refusal carries the 255 in force, IEEE §7.4.25.1); AX RDC1, RDC3b, RDC4 (READ_DESCRIPTOR carries the value after each SET_CONTROL, issue #185); volatility: dyn_state E | dyn_state E; AX RDC2, RDC3, RDC6 (a CONTROL not one octet wide and linear at 104, or ending inside lane 104..111, keeps its image bytes) |
+ | started/stopped | NOT in this store: the ACMP binding record owns it and selector 6 is RETIRED (dyn_state F2) | listener suite + pp_top W21 | dyn_state F2 |
+ 
+ Reset and persistence semantics: dyn_state A (everything invalid out of reset),
+@@ -306,7 +306,7 @@ the [`tb/pp_top` README](../../tb/pp_top/README.md).
+ 
+ Each section runs on a fresh processor of its own in `tb/pp_top` (`--notify-only`,
+ `--spacing-only`, `--domain-notify-only`, `--withdraw-only`, `--identify-only`, and the suite's third build
+-for section ID), plus one section of the originator's unit suite and nine of the
++for section ID), plus one section of the originator's unit suite and ten of the
+ notification block's:
+ 
+ | Category | Section | What it proves |
+@@ -327,6 +327,7 @@ notification block's:
+ | DIR | `tb/aecp_notify` DR | a DEREGISTER drained between two jobs of a round, after a TIME_LIMITED expiry or a failed CONTROLLER_AVAILABLE retry: the round's remaining controller still receives the round's notification (a GET_COUNTERS and a SET_NAME round), the expired controller alone its own DEREGISTER, and with the drained row's next job held for the TX slot the next counter round still waits a second from that controller's send |
+ | TIM | `tb/aecp_notify` CX | the superseding command presents exactly one availability cancellation in its own clock, before the top's registered mask |
+ | TIM | `tb/aecp_notify` SC (#167) | at one interface, a TIME_LIMITED drain and another controller's command in the same clock send both availability cancellations exactly once, in either row order; a failure for the commanding owner presented in the deferred cancellation's clock leaves that controller registered and sends no DEREGISTER |
++| DIR | `tb/aecp_notify` LF (#186) | the LOCK_ENTITY notification's job carries the flags word of the LOCK or UNLOCK that caused it, reserved bits included, and the auto-unlock's carries UNLOCK; coalesced changes carry the last cause's flags: a timeout over a pending LOCK UNLOCK, a LOCK over a pending timeout its own |
+ | DIR | `tb/aecp_notify` CQ (#181) | the command queue: a command pushed in the clock the emitter claims the one before it, and `P-NOTIF-QUEUE-DEPTH` + 1 commands back to back behind a held round (a full queue), reach every registered controller but their requester, in order, each at that controller's next sequence_id; `amap_busy_o` holds in every clock from the first push to the last job, between rounds included, and falls after it |
+ | DIR | `tb/aecp_notify` OC (#181, every run of all three builds) | the queue's registered occupancy `cmdq_nempty_r` equals its count being non-zero at every clock edge |
+ 
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index fb81088..aaad243 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -94,7 +94,15 @@
+ //                     Result bit 1 = "the lock STATE CHANGED", the emission
+ //                     trigger (Milan SS5.4.5.2 sends only for a command
+ //                     that "modifies the state", so a keep-alive re-lock
+-//                     and an already-unlocked query emit nothing).
++//                     and an already-unlocked query emit nothing). A change
++//                     latches the command's flags word (rgy_flags_i) beside
++//                     its exclusion, and the notification's job carries it
++//                     in uns_arg1_o/uns_arg0_o: IEEE SS7.5.2's notification
++//                     is "an unsolicited response to the command", whose
++//                     flags SS7.4.2.1 echoes (issue #186). The timeout is
++//                     an unlock and latches UNLOCK (1): Milan Table 5.22
++//                     leaves its flags to IEEE, whose unlock response
++//                     carries UNLOCK (SS7.4.2.1, Table 7-143).
+ //                  rgy_state_i = 1 -> no op: answer the holder's eid
+ //                     (locked_id for the response; 0 = not locked).
+ //                THE OP RUNS ONCE PER REQUEST EDGE. A microprogram that
+@@ -262,6 +270,7 @@ module KL_aecp_notify
+     input  wire  [47:0] rgy_mac_i,           //! its source MAC (the registry tuple)
+     input  wire  [1:0]  rgy_port_i,          //! its AVB interface, the tuple's port (N_IF_P > 1)
+     input  wire         rgy_tl_i,            //! REGISTER: TIME_LIMITED flag
++    input  wire  [31:0] rgy_flags_i,         //! LOCK/UNLOCK: the command's flags word
+     output logic [63:0] rgy_data_o,          //! result word (see banner)
+     output logic        rgy_wait_o,          //! HOLD the gather beat (not a ready)
+ 
+@@ -410,6 +419,8 @@ module KL_aecp_notify
+   logic [63:0] amap_excl_r;
+   logic [63:0] lockx_eid_r;    //! requester excluded from the lock emission
+   logic        lockx_v_r;      //! 0 = no exclusion (timeout, or coalesced)
++  logic [31:0] lockf_r;        //! the flags the lock emission echoes (timeout: UNLOCK)
++  localparam logic [31:0] LOCKF_UNLOCK_C = 32'h0000_0001;   //! Table 7-143 UNLOCK
+ 
+   // Command-driven notifications are losslessly parked behind the registry
+   // walk. Sixteen entries match the dispatcher depth and keep a slow fan-out
+@@ -830,6 +841,8 @@ module KL_aecp_notify
+     pick_ctr_ix_w = '0;
+     if (pe_lock_r) begin
+       pick_kind_w = PP_UNS_LOCK_C;
++      pick_arg1_w = lockf_r[31:16];
++      pick_arg0_w = lockf_r[15:0];
+     end else if (cmdq_nempty_r) begin
+       pick_cmd_w = 1'b1;
+       pick_dt_w  = cmdq_type_r[cmdq_rd_r];
+@@ -1217,6 +1230,7 @@ module KL_aecp_notify
+       amap_excl_r <= 64'd0;
+       lockx_eid_r <= 64'd0;
+       lockx_v_r   <= 1'b0;
++      lockf_r     <= 32'd0;
+       dh_v_r      <= 1'b0;
+       dh_eid_r    <= 64'd0;
+       dh_mac_r    <= 48'd0;
+@@ -1381,11 +1395,14 @@ module KL_aecp_notify
+           //! The final coalesced change is caused by timeout, not by the
+           //! earlier requester. Clear that command exclusion so every
+           //! registered controller observes the resulting unlocked state.
++          //! It is an unlock, so it carries UNLOCK (issue #186).
+           lockx_v_r <= 1'b0;
++          lockf_r   <= LOCKF_UNLOCK_C;
+           if (coalesce_r != 8'hFF) coalesce_r <= coalesce_r + 8'd1;
+         end else begin
+           pe_lock_r <= 1'b1;
+           lockx_v_r <= 1'b0;            // a timeout excludes nobody
++          lockf_r   <= LOCKF_UNLOCK_C;  // ...and is an unlock (Table 5.22, 7-143)
+         end
+       end
+ 
+@@ -1427,8 +1444,10 @@ module KL_aecp_notify
+                 tmr_arm_owner_o       <= PP_OWN_LOCK_C;
+                 tmr_arm_deadline_ms_o <= deadline_w;
+                 if (!lk_held_r) begin
+-                  //! took the lock: notify everyone but the taker
++                  //! took the lock: notify everyone but the taker, echoing
++                  //! the taker's flags
+                   pe_lock_r   <= 1'b1;
++                  lockf_r     <= rgy_flags_i;
+                   lockx_eid_r <= rgy_eid_i;
+                   lockx_v_r   <= 1'b1;
+                 end
+@@ -1444,6 +1463,7 @@ module KL_aecp_notify
+                   tmr_arm_owner_o  <= PP_OWN_LOCK_C;
+                   tmr_arm_deadline_ms_o <= 32'd0;
+                   pe_lock_r   <= 1'b1;
++                  lockf_r     <= rgy_flags_i;
+                   lockx_eid_r <= rgy_eid_i;
+                   lockx_v_r   <= 1'b1;
+                 end
+diff --git a/tb/aecp_notify/README.md b/tb/aecp_notify/README.md
+index d9ec4d4..f9285ee 100644
+--- a/tb/aecp_notify/README.md
++++ b/tb/aecp_notify/README.md
+@@ -12,9 +12,9 @@ Entity ID and MAC tuple. Section IX then grades the registry's identity index,
+ section TS the counter throttle stamps' valid bit, section TW a counter round
+ that waits for the TX slot, section DR a DEREGISTER drained between two jobs
+ of a round, section CX the clock of the availability cancellation, section
+-SC a command cancellation coinciding with a TIME_LIMITED drain, and section CQ
+-the command queue. Every run of every build ends with section OC, the queue's
+-occupancy at every clock edge.
++SC a command cancellation coinciding with a TIME_LIMITED drain, section LF the
++flags of the lock notification, and section CQ the command queue. Every run of
++every build ends with section OC, the queue's occupancy at every clock edge.
+ A third build, at two AVB interfaces, runs sections PT, CK, PD and CA: the registry row's port, the per-interface counter rows, the registry depth
+ per interface and the availability probes of a controller on both interfaces.
+ 
+@@ -24,7 +24,7 @@ Run `make`. Exit status zero and the printed check tally are required.
+ 
+ | Build | Override | Runs |
+ |---|---|---|
+-| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks), section DR (11 checks), section CX (1 check), section CQ (8 checks) and OC1 |
++| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks), section DR (11 checks), section CX (1 check), section LF (6 checks), section CQ (8 checks) and OC1 |
+ | `obj_idn/Vaecp_notify_idn` | `EN_IDENTIFY_NOTIF_P` = 1 (`AECP_NOTIFY_IDENT`) | section FT alone, then OC1 |
+ | `obj_if2/Vaecp_notify_if2` | `N_IF_P` = 2, P-N-AVB-INTERFACES (`AECP_NOTIFY_IF2`) | sections PT (6 checks), CK (5 checks), PD (3 checks) and CA (5 checks) alone, from `port_tuple.hpp`, then OC1 |
+ 
+@@ -35,7 +35,7 @@ retains the existing three-run record; `make collision` runs SC1 alone and
+ `make failure-window` runs SC2 alone. `make identify` builds and runs the
+ second build alone (the identify mutation campaign's arm), and `make interfaces`
+ the third (the notify campaign's arms for issue #69). The combined suite has
+-80 checks: 51 in the first run, 5 in FT, 20 in PT/CK/PD/CA and 4 in SC, each run's
++86 checks: 57 in the first run, 5 in FT, 20 in PT/CK/PD/CA and 4 in SC, each run's
+ last check its OC1. Every build reads `occupancy.vlt`, which makes the queue's
+ count and occupancy flop readable by the bench and changes no RTL. CX keeps its
+ one-interface cancellation-clock premise; CA4 measures the engine's settle
+@@ -356,6 +356,36 @@ so every existing campaign arm retains its previous failing-check record.
+ 
+ Both controls are arms of `tb/pp_top/notify_mutants.py`.
+ 
++## Section LF: the LOCK_ENTITY notification's flags (issue #186)
++
++IEEE 1722.1-2021 7.5.2 sends a notification "by using an unsolicited response to the
++command", whose flags 7.4.2.1 echoes, so the job of a lock change a LOCK or UNLOCK
++caused carries that command's flags word, `uns_arg1_o` the high half and `uns_arg0_o`
++the low. Milan Table 5.22's auto-unlock, an unlock, carries UNLOCK (1, Table 7-143),
++as an UNLOCK command's does. After a warm
++reset C registers (row 0) and controller X changes the lock; each word sets reserved
++bits, so a latch of the UNLOCK bit alone is seen. A SET_NAME round whose job the bench
++holds keeps a lock round pending, so two changes coalesce, and the flags follow the
++last cause, as the exclusion does:
++
++- **LF1** X's LOCK with flags 0x00010000: C's job carries 0001/0000.
++- **LF1b** X's UNLOCK with flags 0x80020001: 8002/0001.
++- **LF2** X's LOCK with flags 0x00040000 times out before its round leaves: the
++  coalesced job is the auto-unlock's, UNLOCK: 0000/0001.
++- **LF3a** X's LOCK with flags 0: 0000/0000.
++- **LF3** the lock times out with its round held, then X's LOCK with flags 0x00020000:
++  the coalesced job carries the LOCK's 0002/0000.
++
++| Mutant | Planted | Failing checks |
++|---|---|---|
++| `lock_coalesced_timeout_keeps_flags` | a timeout coalesced into a pending lock round keeps the LOCK's flags | LF2 |
++| `lock_coalesced_timeout_flags_zero` | a timeout coalesced into a pending lock round latches 0, not UNLOCK | LF2 |
++| `lock_take_keeps_old_flags` | a LOCK latches no flags | LF1, LF3a, LF3 |
++| `lock_release_keeps_old_flags` | an UNLOCK latches no flags | LF1b |
++
++The four controls are arms of `tb/pp_top/notify_mutants.py`; `tb/pp_top` sections L
++(L5b, L6d) and AX (LN) grade the same flags on the wire.
++
+ ## Sections CQ and OC: the command queue (issue #181)
+ 
+ A successful state-changing command pushes its notification onto a queue of
+diff --git a/tb/aecp_notify/sim_main.cpp b/tb/aecp_notify/sim_main.cpp
+index 378259b..f5fcd1b 100644
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@ -27,6 +27,9 @@ static constexpr uint8_t OWN_MON = 0xD0;
+ static constexpr uint8_t REGMON_BASE = 25;
+ static constexpr uint8_t N_CTRL = 2;
+ static constexpr uint8_t KIND_DEREG = 0;         // pp_pkg PP_UNS_DEREG_C
++static constexpr uint8_t KIND_LOCK = 1;          // pp_pkg PP_UNS_LOCK_C
++static constexpr uint8_t OWN_LOCK = 0xB0;        // pp_pkg PP_OWN_LOCK_C
++static constexpr uint8_t LOCK_SLOT = 61;         // TMR_LOCK_SLOT_P's default
+ static constexpr uint8_t KIND_CTRS = 6;          // pp_pkg PP_UNS_CTRS_C
+ static constexpr uint8_t KIND_NAME = 8;          // pp_pkg PP_UNS_NAME_C
+ static constexpr uint16_t DT_AVB_INTERFACE = 0x0009;
+@@ -120,6 +123,7 @@ struct Harness {
+   void dereg_command_round();
+   void dereg_round_waits();
+   void cancel_clock();
++  void lock_flags();
+   void cancel_collision();
+   void cancel_failure_window();
+   struct Drain {
+@@ -172,6 +176,31 @@ struct Harness {
+     CHECK(registers(eid, mac, time_limited), "registry accepts controller tuple");
+   }
+ 
++  //! a LOCK (an UNLOCK when `unlock`) by `eid` with the command's `flags`
++  //! word; true when it was answered SUCCESS
++  bool lock_op(uint64_t eid, bool unlock, uint32_t flags) {
++    d->rgy_state_i = 0;
++    d->rgy_op_i = unlock ? 3 : 2;
++    d->rgy_eid_i = eid;
++    d->rgy_mac_i = 0;
++    d->rgy_tl_i = 0;
++    d->rgy_flags_i = flags;
++    d->rgy_req_i = 1;
++    int guard = 0;
++    while (guard++ < REGISTRY_ACCEPT_CYCLES) {
++      d->clk_i = 0;
++      d->eval();
++      if (!d->rgy_wait_o) break;
++      tick();
++    }
++    const bool success = guard < REGISTRY_ACCEPT_CYCLES && (d->rgy_data_o & 1) == 0;
++    tick();
++    d->rgy_req_i = 0;
++    d->rgy_flags_i = 0;
++    idle(2);
++    return success;
++  }
++
+   //! the monitor draw a registration asks for, answered with 30 s; true when
+   //! it was asked for
+   bool draws() {
+@@ -236,6 +265,7 @@ void Harness::initialize_inputs() {
+   dut->rgy_eid_i = 0;
+   dut->rgy_mac_i = 0;
+   dut->rgy_tl_i = 0;
++  dut->rgy_flags_i = 0;
+   dut->ev_stri_in_i = 0;
+   dut->ev_stri_out_i = 0;
+   dut->ev_avb_i = 0;
+@@ -337,11 +367,89 @@ int Harness::run(bool collision_only, bool failure_window_only) {
+   dereg_command_round();
+   dereg_round_waits();
+   cancel_clock();
++  lock_flags();
+   command_queue();
+   occupancy_held(occupancy, checks, fails);
+   return fails ? 1 : 0;
+ }
+ 
++// LF: the flags a LOCK_ENTITY notification carries (issue #186). IEEE
++// 1722.1-2021 7.5.2 sends it "by using an unsolicited response to the command",
++// whose flags 7.4.2.1 echoes, so the job of a change a LOCK or UNLOCK caused
++// carries that command's flags word in its arguments (uns_arg1_o the high half,
++// uns_arg0_o the low), and Milan Table 5.22's auto-unlock, an unlock, carries
++// UNLOCK (1, Table 7-143). Changes that meet a pending lock round coalesce, and
++// the flags follow the last cause, as the exclusion does: a timeout over a
++// pending LOCK carries UNLOCK, a LOCK over a pending timeout its own flags.
++// Controller X changes the lock and C, registered, receives each round; a
++// SET_NAME round whose job the bench holds keeps the lock round pending. Every
++// command word sets reserved bits in both halves (Table 7-143 bits 0 to 30), so
++// a block that kept only the UNLOCK bit is seen.
++void Harness::lock_flags() {
++  constexpr uint64_t EID_X = 0x8888000000000008ull;
++  warm_reset();
++  d->uns_done_i = 0;
++  now = 30000;
++  register_row(EID_C, MAC_C, false);        // row 0
++  auto lock_job = [&](uint16_t arg1, uint16_t arg0) {
++    const UnsJob j = job_presented(now + WALK_MS);
++    const bool ok = j.ms != 0 && j.kind == KIND_LOCK && j.mac == MAC_C && j.arg1 == arg1
++                    && j.arg0 == arg0;
++    if (!ok)
++      printf("  [i] LF: presented kind %u, args %04x/%04x, to %012llx\n", unsigned(j.kind),
++             unsigned(j.arg1), unsigned(j.arg0), static_cast<unsigned long long>(j.mac));
++    if (j.ms != 0) (void)retire();
++    return ok;
++  };
++  //! a SET_NAME round from a requester nobody registered, its job to C held
++  auto hold_a_round = [&]() {
++    d->ev_cmd_class_i = 7;
++    d->ev_cmd_type_i = 0x0005;
++    d->ev_cmd_index_i = 1;
++    d->ev_cmd_arg0_i = 0;
++    d->ev_cmd_arg1_i = 0;
++    d->ev_cmd_excl_eid_i = 0x7777000000000007ull;
++    d->ev_cmd_i = 1;
++    tick();
++    d->ev_cmd_i = 0;
++    ++now;
++    const UnsJob j = job_presented(now + WALK_MS);
++    return j.ms != 0 && j.kind == KIND_NAME;
++  };
++  //! the held SET_NAME job, withdrawn by each lock op and presented again
++  //! (the block's banner), is sent: the round ends
++  auto end_the_round = [&]() {
++    const UnsJob j = job_presented(now + WALK_MS);
++    if (j.ms != 0) (void)retire();
++    return j.ms != 0 && j.kind == KIND_NAME;
++  };
++  const bool took = lock_op(EID_X, false, 0x00010000u);
++  CHECK(took && lock_job(0x0001, 0x0000),
++        "LF1: X's LOCK with flags 0x00010000 notifies C with those flags (job args 0001/0000)");
++  const bool released = lock_op(EID_X, true, 0x80020001u);
++  CHECK(released && lock_job(0x8002, 0x0001),
++        "LF1b: X's UNLOCK with flags 0x80020001 notifies C with those flags (job args "
++        "8002/0001)");
++  const bool held2 = hold_a_round();
++  const bool took2 = lock_op(EID_X, false, 0x00040000u);
++  expire(LOCK_SLOT, OWN_LOCK);              // the lock times out, its round still pending
++  const bool ended2 = end_the_round();
++  CHECK(held2 && took2 && ended2 && lock_job(0x0000, 0x0001),
++        "LF2: X's LOCK with flags 0x00040000 times out before its round leaves: the "
++        "coalesced notification is the auto-unlock's, flags UNLOCK (job args 0000/0001)");
++  const bool took3 = lock_op(EID_X, false, 0x00000000u);
++  CHECK(took3 && lock_job(0x0000, 0x0000),
++        "LF3a: X's LOCK with flags 0 notifies C with flags 0 (job args 0000/0000)");
++  const bool held3 = hold_a_round();
++  expire(LOCK_SLOT, OWN_LOCK);              // the auto-unlock's round pending
++  const bool took3b = lock_op(EID_X, false, 0x00020000u);
++  const bool ended3 = end_the_round();
++  CHECK(held3 && took3b && ended3 && lock_job(0x0002, 0x0000),
++        "LF3: X's LOCK with flags 0x00020000 after a timeout whose round is pending: the "
++        "coalesced notification carries the LOCK's flags (job args 0002/0000)");
++  d->uns_done_i = 1;
++}
++
+ // SC1: both rows have live probes. Expire one TIME_LIMITED registration,
+ // then present the other controller's command in the drain's own cycle.
+ // Observe the cancellation face before each edge, including the command's;
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+index 468cc8d..f916c70 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -29,8 +29,9 @@ IF3 and IF3b's held commands), and the originator's withdraw mask one clock late
+ the top (issue #163: tb/pp_top section WD and tb/aecp_notify section CX), and
+ the simultaneous drain and command cancellation at one interface (issue #167:
+ tb/aecp_notify section SC), including a failure one cycle after the coincidence, and the
+-command queue's occupancy flop (issue #181: tb/aecp_notify sections CQ and OC). The suite
+-READMEs carry the matching mutation records.
++command queue's occupancy flop (issue #181: tb/aecp_notify sections CQ and OC), and the
++flags of the LOCK_ENTITY notification (issue #186: tb/pp_top L5b in the main suite and
++section AX's LN). The suite READMEs carry the matching mutation records.
+ 
+ Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+                                            [--only NAME ...]
+@@ -619,6 +620,101 @@ DEFERRED_FAILURE = (
+         ("SC2:",)),
+ )
+ 
++# The LOCK_ENTITY notification echoes the flags of the command that caused it,
++# and the auto-unlock's carries UNLOCK (issue #186): the UNLOCK's notification
++# and the auto-unlock's in the main suite's section L (L5b, L6d), and section
++# AX's LN, where a second controller's LOCK and UNLOCK carry reserved bits in
++# both halves of the word
++LOCK_MAIN = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--arm-queue-only"))
++LOCK_AX = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--aecp-dispatch-only"))
++LOCKUNS_FLAGS = "    u('BUILD_FLD', ra=14, fmt=FMT_D),            # the command's flags @24\n"
++LN1 = "LN1 ...its notification echoes the LOCK's flags: "
++LN2 = "LN2 the auto-unlock after that LOCK (Milan Table 5.22) carries UNLOCK: "
++LOCKF_TIMEOUT = "          lockf_r   <= LOCKF_UNLOCK_C;  // ...and is an unlock (Table 5.22, 7-143)\n"
++LOCKF_COALESCED = "          lockf_r   <= LOCKF_UNLOCK_C;\n          if (coalesce_r != 8'hFF)"
++LN3 = "LN3 ...its notification carries flags 0: "
++LN4 = "LN4 ...its notification echoes the UNLOCK's flags: "
++LOCK_FLAGS = (
++    Mutant("lock_unlock_notifies_flags_zero", LOCK_MAIN, (
++        (UCODE, LOCKUNS_FLAGS, LOCKUNS_FLAGS.replace("ra=14", "ra=12")),),
++        ("L5b: C2's second notification carries sequence_id 1",)),
++    # the automatic unlock with flags 0, as the qualification observed it
++    Mutant("lock_auto_unlock_flags_zero", LOCK_MAIN, (
++        (NTFY, LOCKF_TIMEOUT, LOCKF_TIMEOUT.replace("LOCKF_UNLOCK_C;", "32'd0;         ")),),
++        ("L6d: 60 s auto-unlock notifies (Milan Table 5.22), flags UNLOCK",)),
++    Mutant("lock_notification_flags_zero", LOCK_AX, (
++        (UCODE, LOCKUNS_FLAGS, LOCKUNS_FLAGS.replace("ra=14", "ra=12")),),
++        (LN1 + "flags", LN4 + "flags")),
++    Mutant("lock_flags_unlock_bit_only", LOCK_AX, (
++        (NTFY, "                  //! the taker's flags\n"
++               "                  pe_lock_r   <= 1'b1;\n"
++               "                  lockf_r     <= rgy_flags_i;\n",
++         "                  //! the taker's flags\n"
++         "                  pe_lock_r   <= 1'b1;\n"
++         "                  lockf_r     <= {31'd0, rgy_op_i[0]};\n"),
++        (NTFY, "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
++               "                  pe_lock_r   <= 1'b1;\n"
++               "                  lockf_r     <= rgy_flags_i;\n",
++         "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
++         "                  pe_lock_r   <= 1'b1;\n"
++         "                  lockf_r     <= {31'd0, rgy_op_i[0]};\n")),
++        (LN1 + "flags", LN4 + "flags")),
++    Mutant("lock_timeout_keeps_flags", LOCK_AX, (
++        (NTFY, LOCKF_TIMEOUT, ""),),
++        (LN2 + "flags",)),
++    Mutant("lock_timeout_flags_zero", LOCK_AX, (
++        (NTFY, LOCKF_TIMEOUT, LOCKF_TIMEOUT.replace("LOCKF_UNLOCK_C;", "32'd0;         ")),),
++        (LN2 + "flags",)),
++    Mutant("lock_flags_from_exclusion", LOCK_AX, (
++        (NTFY, "      pick_arg1_w = lockf_r[31:16];\n      pick_arg0_w = lockf_r[15:0];\n",
++         "      pick_arg1_w = lockx_eid_r[31:16];\n      pick_arg0_w = lockx_eid_r[15:0];\n"),),
++        (LN3 + "flags",)),
++    Mutant("lock_job_arguments_dropped", LOCK_AX, (
++        (ENGINE, "                        : (uns_kind_i == PP_UNS_LOCK_C) ? uns_arg1_i\n", ""),
++        (ENGINE, "                           || (uns_kind_i == PP_UNS_LOCK_C)) ? uns_arg0_i\n",
++         "                           ) ? uns_arg0_i\n")),
++        (LN1 + "flags", LN4 + "flags")),
++    Mutant("lock_job_r14_unpacked", LOCK_AX, (
++        (ENGINE, "  assign lockf_w = lockc_r || (uns_r && regun_r);\n",
++         "  assign lockf_w = lockc_r;\n"),),
++        (LN1 + "flags", LN4 + "flags")),
++    Mutant("lock_notification_not_sent", LOCK_AX, (
++        (ENGINE, "uns_upc_w = UPC_LOCKUNS_C; end\n", "uns_upc_w = UPC_NOSEND_C; end\n"),),
++        (LN1 + "the registered bench is notified", LN2 + "the registered bench is notified",
++         LN3 + "the registered bench is notified", LN4 + "the registered bench is notified")),
++    Mutant("lock_response_flags_zero", LOCK_AX, (
++        (UCODE, "    u('BUILD_FLD', ra=14, fmt=FMT_D),            # flags echo          @24\n",
++         "    u('BUILD_FLD', ra=12, fmt=FMT_D),            # flags echo          @24\n"),),
++        ("LN1 a second controller's LOCK: SUCCESS echoing flags 0x00010000",
++         "LN4 its UNLOCK: SUCCESS echoing flags 0x80020001")),
++    # ...and in tb/aecp_notify section LF, the latches themselves and the
++    # coalesced timeout, which a pending round makes reachable
++    Mutant("lock_coalesced_timeout_keeps_flags", INDEX, (
++        (NTFY, LOCKF_COALESCED, "          if (coalesce_r != 8'hFF)"),),
++        ("LF2:",)),
++    Mutant("lock_coalesced_timeout_flags_zero", INDEX, (
++        (NTFY, LOCKF_COALESCED, LOCKF_COALESCED.replace("LOCKF_UNLOCK_C", "32'd0")),),
++        ("LF2:",)),
++    Mutant("lock_take_keeps_old_flags", INDEX, (
++        (NTFY, "                  //! the taker's flags\n"
++               "                  pe_lock_r   <= 1'b1;\n"
++               "                  lockf_r     <= rgy_flags_i;\n",
++         "                  //! the taker's flags\n"
++         "                  pe_lock_r   <= 1'b1;\n"),),
++        ("LF1:", "LF3:")),
++    Mutant("lock_release_keeps_old_flags", INDEX, (
++        (NTFY, "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
++               "                  pe_lock_r   <= 1'b1;\n"
++               "                  lockf_r     <= rgy_flags_i;\n",
++         "                  tmr_arm_deadline_ms_o <= 32'd0;\n"
++         "                  pe_lock_r   <= 1'b1;\n"),),
++        ("LF1b:",)),
++    Mutant("register_refused", LOCK_AX, (
++        (UCODE, "    u('SET_STATUS', imm=ST_OK),                  # ok:\n",
++         "    u('SET_STATUS', imm=ST_NORES),               # ok:\n"),),
++        ("LN0: the bench registers for unsolicited notifications again",)),
++)
++
+ # The command queue's occupancy flop, written beside every count update and read
+ # by amap_busy_o and the emission pick (issue #181; REQ-NOT-001, REQ-NOT-002),
+ # graded by tb/aecp_notify sections OC and CQ
+@@ -671,7 +767,7 @@ OCCUPANCY = (
+ 
+ MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+            + DEREG_MID_ROUND + DOMAIN_NOTIFY + WITHDRAW_STAGE + INTERFACE_ROWS + INTERFACE_DEPTH_PROBES
+-           + SAME_CYCLE_CANCEL + DEFERRED_FAILURE + OCCUPANCY)
++           + SAME_CYCLE_CANCEL + DEFERRED_FAILURE + OCCUPANCY + LOCK_FLAGS)
+ TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+                    r" \d+ checks, \d+ failures"
+                    r"|\[build \w+\] \d+ checks, \d+ failures"
