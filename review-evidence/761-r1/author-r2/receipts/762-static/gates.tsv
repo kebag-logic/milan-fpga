@@ -1,0 +1,20 @@
+lint	0	12	python3 scripts/lint_rtl.py --check
+docs_check	0	8	python3 scripts/docs_check.py
+feature_status	0	2	python3 scripts/check_feature_status.py
+doc_style	0	0	python3 scripts/check_doc_style.py
+module_matrix	0	1	python3 docs/traceability/gen_module_matrix.py --check
+baremetal_only	0	26	python3 scripts/check_baremetal_only.py --check
+doc_paths	0	0	python3 scripts/check_doc_paths.py
+gen_toc	0	7	python3 scripts/gen_toc.py --check
+py_idiom	0	7	python3 scripts/check_py_idiom.py
+cpp_idiom	0	2	python3 scripts/check_cpp_idiom.py
+sv_idiom	0	0	python3 scripts/check_sv_idiom.py
+hygiene	0	1	python3 scripts/check_hygiene.py --check
+test_evidence	0	11	python3 scripts/measure_test_evidence.py --check
+fail_fast	0	2	python3 scripts/measure_fail_fast.py --check
+naming	0	1	python3 scripts/measure_naming.py --check
+port_contracts	0	4	python3 scripts/check_port_contracts.py
+todo_ownership	0	2	python3 scripts/check_todo_ownership.py
+rtl_source_lists	0	1	python3 scripts/check_rtl_source_lists.py
+pp_srcs	0	0	python3 scripts/pp_srcs.py --check
+ci_gate_workflows	0	1	python3 scripts/ci_gate_workflows.py --check

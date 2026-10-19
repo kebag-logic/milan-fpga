@@ -1,0 +1,9 @@
+53c53,54
+< text = text.replace("    si_causes();\n    si_unbind_across_the_silence();", "    si_causes();\n    si_unbind_across_the_silence();\n    committed_silence_then_unbind();")
+---
+> assert text.count("    si_causes();\n    si_stop_rule();") == 1
+> text = text.replace("    si_causes();\n    si_stop_rule();", "    si_causes();\n    si_stop_rule();\n    committed_silence_then_unbind();")
+63c64
+<     rc = subprocess.run(["make", "-j16", "lockstep-build"], cwd=suite, env=env,
+---
+>     rc = subprocess.run(["make", "-j8", "lockstep-build"], cwd=suite, env=env,
