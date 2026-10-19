@@ -6304,7 +6304,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .bound_i        (strtbl_en_w),
     .bind_rise_i    (strtbl_bind_rise_w),
     .bind_fall_i    (strtbl_bind_fall_w),
-    //! #762: a stopped input's silence interrupts no playback (5.3.8.7)
+    //! #762: a stopped input's silence or sequence gap interrupts no playback (5.3.8.7)
     .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
     .sid0_i         (acmpl_sid),
     .fmt0_i         (aecp_in0_fmt),

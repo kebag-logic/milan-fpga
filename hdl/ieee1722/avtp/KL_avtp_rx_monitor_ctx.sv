@@ -149,7 +149,7 @@ module KL_avtp_rx_monitor_ctx #(
                                                 //! unlock cause - it rides
                                                 //! the silence-unlock walk)
   //! per-stream bound-and-stopped level (Milan v1.2 5.3.8.7): a stopped
-  //! input has no playback, so its silence is no interruption (#762)
+  //! input has no playback, so neither its silence nor its sequence gap is an interruption (#762)
   input  wire [N_LISTENERS_P-1:0] stopped_i,
 
   //! --- stream-0 legacy config (no-regression aliases) -------------------
