@@ -1,0 +1,54 @@
+Note: Google Test filter = Nvm.*
+[==========] Running 8 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 8 tests from Nvm
+[ RUN      ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords
+[       OK ] Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords (2 ms)
+[ RUN      ] Nvm.WholeMapFramingAndEmptySetAreDistinct
+[       OK ] Nvm.WholeMapFramingAndEmptySetAreDistinct (0 ms)
+[ RUN      ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle
+[       OK ] Nvm.AcceptedStateSurvivesTheRealStorePowerCycle (0 ms)
+[ RUN      ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:282: Failure
+Expected equality of these values:
+  e->count
+    Which is: 8
+  0u
+    Which is: 0
+the empty list survives the power cycle
+Google Test trace:
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:261: 14
+
+  [FAIL] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle: <clone>/sw/firmware/ctrl/test/test_aecp.cpp:261: 14
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:282: Failure
+Expected equality of these values:
+  e->count
+    Which is: 8
+  0u
+    Which is: 0
+the empty list survives the power cycle
+Google Test trace:
+<clone>/sw/firmware/ctrl/test/test_aecp.cpp:261: 15
+
+  [FAIL] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle: <clone>/sw/firmware/ctrl/test/test_aecp.cpp:261: 15
+[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (1 ms)
+[ RUN      ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat
+[       OK ] Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat (0 ms)
+[ RUN      ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups
+[       OK ] Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups (0 ms)
+[ RUN      ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch
+[       OK ] Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch (0 ms)
+[ RUN      ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords
+[       OK ] Nvm.EveryChangeQueuesOnlyItsOwnedRecords (0 ms)
+[----------] 8 tests from Nvm (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 7 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle
+
+ 1 FAILED TEST
+== AECP core: checks: 8   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 8 checks, exit 1)

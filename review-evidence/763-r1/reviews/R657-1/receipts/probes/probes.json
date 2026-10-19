@@ -1,0 +1,218 @@
+[
+  {
+    "probe": "clean",
+    "filter": "Nvm.*",
+    "rc": 0,
+    "expect_rc": 0,
+    "checks": [],
+    "ok": true,
+    "summary": [
+      "[  PASSED  ] 8 tests.",
+      "RESULT: PASS",
+      "  verdict: PASS (8 tests, 0 failures, exit 0)"
+    ]
+  },
+  {
+    "probe": "m1-table",
+    "filter": "Nvm.*",
+    "rc": 1,
+    "expect_rc": 1,
+    "checks": [
+      {
+        "test": "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "words": "the empty list survives the power cycle",
+        "expect_failure": true,
+        "caught": true
+      },
+      {
+        "test": "Nvm.WholeMapFramingAndEmptySetAreDistinct",
+        "words": "all UNUSED is an intentional empty set",
+        "expect_failure": true,
+        "caught": true
+      }
+    ],
+    "ok": true,
+    "summary": [
+      "[  FAILED  ] Nvm.WholeMapFramingAndEmptySetAreDistinct (0 ms)",
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (1 ms)",
+      "[  PASSED  ] 6 tests.",
+      "[  FAILED  ] 2 tests, listed below:",
+      "[  FAILED  ] Nvm.WholeMapFramingAndEmptySetAreDistinct",
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+      "RESULT: FAIL",
+      "  verdict: FAIL (its tallies report 2 failure(s) across 8 checks, exit 1)"
+    ]
+  },
+  {
+    "probe": "m2-table",
+    "filter": "Nvm.*",
+    "rc": 1,
+    "expect_rc": 1,
+    "checks": [
+      {
+        "test": "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "words": "the empty list survives the power cycle",
+        "expect_failure": true,
+        "caught": true
+      }
+    ],
+    "ok": true,
+    "summary": [
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (1 ms)",
+      "[  PASSED  ] 7 tests.",
+      "[  FAILED  ] 1 test, listed below:",
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+      "RESULT: FAIL",
+      "  verdict: FAIL (its tallies report 1 failure(s) across 8 checks, exit 1)"
+    ]
+  },
+  {
+    "probe": "m2-gap-full-arm-without-new-test",
+    "filter": "*:-Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+    "rc": 0,
+    "expect_rc": 0,
+    "checks": [],
+    "ok": true,
+    "summary": [
+      "[  PASSED  ] 73 tests.",
+      "RESULT: PASS",
+      "  verdict: PASS (73 tests, 0 failures, exit 0)"
+    ]
+  },
+  {
+    "probe": "m1-full-arm-without-new-test",
+    "filter": "*:-Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+    "rc": 1,
+    "expect_rc": 1,
+    "checks": [
+      {
+        "test": "Nvm.WholeMapFramingAndEmptySetAreDistinct",
+        "words": "all UNUSED is an intentional empty set",
+        "expect_failure": true,
+        "caught": true
+      }
+    ],
+    "ok": true,
+    "summary": [
+      "[  FAILED  ] Nvm.WholeMapFramingAndEmptySetAreDistinct (0 ms)",
+      "[  PASSED  ] 72 tests.",
+      "[  FAILED  ] 1 test, listed below:",
+      "[  FAILED  ] Nvm.WholeMapFramingAndEmptySetAreDistinct",
+      "RESULT: FAIL",
+      "  verdict: FAIL (its tallies report 1 failure(s) across 73 checks, exit 1)"
+    ]
+  },
+  {
+    "probe": "writer-skips-all-unused-payload",
+    "filter": "Nvm.*",
+    "rc": 1,
+    "expect_rc": 1,
+    "checks": [
+      {
+        "test": "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "words": "the empty set is a framed record, not an erased one",
+        "expect_failure": true,
+        "caught": true
+      },
+      {
+        "test": "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "words": "the empty list survives the power cycle",
+        "expect_failure": true,
+        "caught": true
+      }
+    ],
+    "ok": true,
+    "summary": [
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (1 ms)",
+      "[  PASSED  ] 7 tests.",
+      "[  FAILED  ] 1 test, listed below:",
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+      "RESULT: FAIL",
+      "  verdict: FAIL (its tallies report 1 failure(s) across 8 checks, exit 1)"
+    ]
+  },
+  {
+    "probe": "writer-skips-all-unused-payload-without-new-test",
+    "filter": "*:-Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+    "rc": 0,
+    "expect_rc": null,
+    "checks": [],
+    "ok": true,
+    "summary": [
+      "[  PASSED  ] 73 tests.",
+      "RESULT: PASS",
+      "  verdict: PASS (73 tests, 0 failures, exit 0)"
+    ]
+  },
+  {
+    "probe": "output-only-empty-keeps-defaults",
+    "filter": "Nvm.*",
+    "rc": 1,
+    "expect_rc": 1,
+    "checks": [
+      {
+        "test": "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "words": "the empty list survives the power cycle",
+        "expect_failure": true,
+        "caught": true
+      }
+    ],
+    "ok": true,
+    "summary": [
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (1 ms)",
+      "[  PASSED  ] 7 tests.",
+      "[  FAILED  ] 1 test, listed below:",
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+      "RESULT: FAIL",
+      "  verdict: FAIL (its tallies report 1 failure(s) across 8 checks, exit 1)"
+    ]
+  },
+  {
+    "probe": "input-only-empty-keeps-defaults",
+    "filter": "Nvm.*",
+    "rc": 1,
+    "expect_rc": 1,
+    "checks": [
+      {
+        "test": "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "words": "the empty list survives the power cycle",
+        "expect_failure": true,
+        "caught": true
+      }
+    ],
+    "ok": true,
+    "summary": [
+      "[  FAILED  ] Nvm.WholeMapFramingAndEmptySetAreDistinct (0 ms)",
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (1 ms)",
+      "[  PASSED  ] 6 tests.",
+      "[  FAILED  ] 2 tests, listed below:",
+      "[  FAILED  ] Nvm.WholeMapFramingAndEmptySetAreDistinct",
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+      "RESULT: FAIL",
+      "  verdict: FAIL (its tallies report 2 failure(s) across 8 checks, exit 1)"
+    ]
+  },
+  {
+    "probe": "nonempty-saved-map-ignored",
+    "filter": "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+    "rc": 1,
+    "expect_rc": 1,
+    "checks": [
+      {
+        "test": "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "words": "the non-default list survives the power cycle",
+        "expect_failure": true,
+        "caught": true
+      }
+    ],
+    "ok": true,
+    "summary": [
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle (4 ms)",
+      "[  PASSED  ] 0 tests.",
+      "[  FAILED  ] 1 test, listed below:",
+      "[  FAILED  ] Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+      "RESULT: FAIL",
+      "  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)"
+    ]
+  }
+]

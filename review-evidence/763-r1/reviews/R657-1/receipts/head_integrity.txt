@@ -1,0 +1,43 @@
+HEAD 07c6c72fce79e705bcf28a70071497d0ce7040e4 tree c70d7afe29d34724474bfc05053fe3cb43801026
+worktree vs HEAD: identical
+index vs HEAD: identical
+index-as-tree c70d7afe29d34724474bfc05053fe3cb43801026
+ls-files(mode blob path) sha256 f806495528bc0b52bd3e9e721818f27441c829003ae9f054477789c7fdcdcfe4  -
+ls-tree(mode blob path) sha256 f806495528bc0b52bd3e9e721818f27441c829003ae9f054477789c7fdcdcfe4  -
+untracked/ignored before:
+!! scripts/__pycache__/
+!! sw/firmware/ctrl/test/__pycache__/
+!! sw/firmware/gtest/__pycache__/
+untracked/ignored after:
+!! avdecc/__pycache__/
+!! scripts/__pycache__/
+!! sw/builder/__pycache__/
+!! sw/firmware/ctrl/test/__pycache__/
+!! sw/firmware/ctrl_nvm/test/__pycache__/
+!! sw/firmware/gtest/__pycache__/
+!! sw/firmware/nvm_hosttest/__pycache__/
+!! sw/litex/__pycache__/
+!! sw/litex/platforms/__pycache__/
+!! sw/mailbox/__pycache__/
+!! tb/verilator/mbx/obj_axil/
+!! tb/verilator/mbx/obj_cosim/
+!! tb/verilator/mbx/obj_fw/
+!! tb/verilator/mbx/obj_if2/
+!! tb/verilator/mbx/obj_wb/
+submodule gitlinks (HEAD vs checked-out):
+160000 commit e4869fd0c42889b2ac806587cc5c78afb1c33461	gptp-processor
+160000 commit 2cbed0a987c1e68402658d69459ab7e5aa571adc	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+ e4869fd0c42889b2ac806587cc5c78afb1c33461 gptp-processor (e4869fd)
+ 2cbed0a987c1e68402658d69459ab7e5aa571adc protocol-processor (v2.0-695-g2cbed0a)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+third_party/verilog-axis dirty=0
+protocol-processor dirty=0
+gptp-processor dirty=0
+third_party/lwSRP dirty=0
+third_party/tsn-c-stack dirty=0
+post-cleanup: ignored/untracked set equals the pre-review set; worktree and index identical to HEAD

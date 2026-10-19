@@ -1,0 +1,14 @@
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmModel
+[ RUN      ] NvmModel.shape_mismatch_disables_persistence
+[       OK ] NvmModel.shape_mismatch_disables_persistence (5 ms)
+[----------] 1 test from NvmModel (5 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 0 us with no stall armed, 0 us with a command-master stall
+[==========] 1 test from 1 test suite ran. (5 ms total)
+[  PASSED  ] 1 test.
+== ctrl_nvm saved-state store, a build whose record walk and sizes disagree: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
