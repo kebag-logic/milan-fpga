@@ -1,0 +1,120 @@
+[
+ {
+  "mutant": "golden-acmp_listener",
+  "suite": "tb/acmp_listener",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top--acmp-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "park_never_retires@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS7: the MRPDU after it declares the new stream"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS7: the MRPDU after it declares the new stream, New Ready (decl 0, reg 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rebind_abandons_leave@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS7: a rebind settled"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS7: a rebind settled 6 ms after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and nothing for the new one (ready 1, settled 1, quiet 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rf_swap_unlatched@acmp_listener",
+  "suite": "tb/acmp_listener",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "B4: no invented arc; the swap to Talker Failed latches RF",
+   "B4: after the swap to Talker Failed GET_RX_STATE carries REGISTERING_FAILED"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "F05.3 TK_REG x SOK: flags got b1 s1 w0 r0 d1 g1 t0 want b1 s1 w0 r0 d3 g1 t0",
+   "B4 REF-BUG: flags got b1 s1 w0 r0 d1 g1 t0 want b1 s1 w0 r0 d3 g1 t0",
+   "B4: no invented arc; the swap to Talker Failed latches RF",
+   "B4: after the swap to Talker Failed GET_RX_STATE carries REGISTERING_FAILED 0x0040 (flags 0x0002)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rf_swap_sticky@acmp_listener",
+  "suite": "tb/acmp_listener",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "B4b: no invented arc; the swap back to Talker Advertise clears RF",
+   "B4b: after the swap back GET_RX_STATE clears REGISTERING_FAILED"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "B4b: no invented arc; the swap back to Talker Advertise clears RF",
+   "B4b: after the swap back GET_RX_STATE clears REGISTERING_FAILED (flags 0x0042)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rf_swap_unlatched@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5b: after the in-place swap to Talker Failed"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 2, decl 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rf_swap_sticky@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5c: after the swap back to Talker Advertise"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 1, decl 2)"
+  ],
+  "verdict": "KILLED"
+ }
+]

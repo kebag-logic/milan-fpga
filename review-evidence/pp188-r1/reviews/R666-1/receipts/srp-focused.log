@@ -1,0 +1,13 @@
+COMMAND ['python3', 'tb/srp_top/mutants.py', '--jobs', '2', '--output', '<review-packet>/receipts/srp-focused', '--only', 'listener-rebind-abandons-leave,listener-declaration-not-held,listener-park-never-retires,listener-reprobe-abandons-leave,listener-reprobe-parks-own-stream,walk-ignores-leave-copy,lsid-ram-read-sink-0,lsid-flops-read-sink-0,lsid-ram-written-with-new-stream']
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+listener-rebind-abandons-leave: rc=2 failures=1 KILLED tags=RB1
+listener-declaration-not-held: rc=2 failures=3 KILLED tags=RB1
+listener-park-never-retires: rc=2 failures=1 KILLED tags=RB1
+listener-reprobe-abandons-leave: rc=2 failures=1 KILLED tags=RB2
+listener-reprobe-parks-own-stream: rc=2 failures=1 KILLED tags=RB3
+walk-ignores-leave-copy: rc=2 failures=17 KILLED tags=WK11
+lsid-ram-read-sink-0: rc=2 failures=12 KILLED tags=WK11
+lsid-flops-read-sink-0: rc=2 failures=1 KILLED tags=WK11
+lsid-ram-written-with-new-stream: rc=2 failures=14 KILLED tags=WK11
+11 checks: 11 PASS, 0 FAIL
