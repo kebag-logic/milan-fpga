@@ -90,6 +90,11 @@ id, media clock reference):
      highest id derived here for the two shapes it names -- a figure there
      is derived, never restated, and a row without one cell per column is
      itself a finding, so a dropped figure is never an unchecked one (#652)
+ 15. the parent's channel-map record writer (`hdl/milan/milan_datapath.sv`,
+     `AMR_LAYOUT_C`, #637) frames its records with the donor's
+     `LAYOUT_VER_P`: the parent cannot read the donor parameter at
+     elaboration, so its one literal is held to it here, and a parent that
+     names the literal twice or not at all is a finding too
 
 THE LEDGER. Check 0 does not ask the inventory what it built. `LEDGER` below
 declares, per persisted group, its clause and a cardinality rule evaluated from
@@ -296,6 +301,45 @@ def _mut_changed_1x1_image():
     SEAM.CHANGE_1X1_IMAGE = True
 
 
+#: #637: the parent map writer's F07.8 layout_version literal
+PARENT_LAYOUT_RTL = ROOT / "hdl/milan/milan_datapath.sv"
+PARENT_LAYOUT_RE = re.compile(
+    r"localparam\s+logic\s*\[7:0\]\s+AMR_LAYOUT_C\s*=\s*8'h([0-9A-Fa-f]{2})\s*;")
+
+
+def parent_layout_findings(donor: Donor) -> list[str]:
+    """Check 15: the parent's map writer frames records 0x60/0x70 with
+    exactly the layout_version the donor's port and binding manager check,
+    so a record it writes is never refused as foreign by its own restore or
+    by the firmware's KLJ2 acceptance (rule 8)."""
+    text = PARENT_LAYOUT_RTL.read_text()
+    if SEAM.PARENT_LAYOUT_EDIT is not None:
+        text = SEAM.PARENT_LAYOUT_EDIT(text)
+    found = PARENT_LAYOUT_RE.findall(text)
+    name = PARENT_LAYOUT_RTL.relative_to(ROOT)
+    if len(found) != 1:
+        return [f"{name} declares AMR_LAYOUT_C {len(found)} times; the parent "
+                f"map writer's layout_version must be read exactly once"]
+    value = int(found[0], 16)
+    if value != donor.layout:
+        return [f"the parent map writer frames layout_version 0x{value:02X} "
+                f"({name} AMR_LAYOUT_C) but the donor's LAYOUT_VER_P is "
+                f"0x{donor.layout:02X}"]
+    return []
+
+
+def _mut_parent_layout():
+    """Move the parent map writer's layout literal one past the donor's, as
+    a donor bump the parent did not follow would leave it."""
+    def bump(text: str) -> str:
+        """The literal, incremented by one."""
+        return PARENT_LAYOUT_RE.sub(
+            lambda m: m.group(0).replace(
+                f"8'h{m.group(1)}", f"8'h{(int(m.group(1), 16) + 1) & 0xFF:02X}"),
+            text, count=1)
+    SEAM.PARENT_LAYOUT_EDIT = bump
+
+
 def _mut_stale_allocation_table():
     """Prefix a digit to the page's 1x1 user-name count, as a figure copied
     before the shape moved would read; the allocation check must name it."""
@@ -322,6 +366,7 @@ def _mut_long_allocation_row():
 
 
 MUTATIONS = {
+    "parent_layout": (_mut_parent_layout, "the parent map writer frames layout_version"),
     "stale_allocation_table": (_mut_stale_allocation_table, "1x1 user name reads 1"),
     "short_allocation_row": (_mut_short_allocation_row, "user name has no 8x8 figure"),
     "long_allocation_row": (_mut_long_allocation_row,
@@ -925,6 +970,7 @@ def main() -> int:
               f"heartbeat = {T_NVM_HEARTBEAT_MS} ms")
 
     findings = check_deadline_shape()
+    findings += parent_layout_findings(donor)
     floors, census = [], {}
     with tempfile.TemporaryDirectory(prefix="nvmrec.") as tmp:
         for cfg in cfgs:

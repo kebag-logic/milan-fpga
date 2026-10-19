@@ -17,6 +17,15 @@ CLOSED terminal; the sweep after the terminal; its drain clock; and the edit
 face's wait. Each is caught by the staged arm that places its stimulus on
 the clock the guard owns.
 
+Twenty-three more, the #637 controls, plant one defect each in the parent's
+channel-map record writer and restore (milan_datapath's amr_* blocks) or in
+the device-face arbiter KL_pp_shadow adds in front of the backend, and each
+is caught by its named [MAPREC] check: the trigger, the debounce, the empty
+list read as an erased record (#763), every framed record refused, the
+crc16 ignored, both roll-backs, the faces' waits, the change qualification
+(DR2b), the taint, the restore's own writes, the entity enable, the three
+DR2c arms, the restore's deadline, and four arbiter and glue arms.
+
 The empty reset is also planted under the two end-to-end checks the ruling
 asks for, each in its own suite: the listener (tb/verilator/milan_dp_render,
 whose `T18 POWER-ON` decodes stream channel c at TDM8 serial slot c) and the
@@ -55,6 +64,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
+#: the #637 arbiter's file, planted through the suite's SHADOW_SRC
+SHADOW_RTL = HERE / "../../../hdl/milan/KL_pp_shadow.sv"
 #: each leg's suite, build target, objdir variable, clean objdir, executable,
 #: the arguments it runs with and the generated inputs its build may not remake
 LEGS = {
@@ -149,6 +160,87 @@ MUTATIONS = [
      [(WAIT, "  assign pp_amap_edit_wait_w = 1'b0;")],
      "[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep "
      "ends"),
+    ("dynmap", "the map writer never marks a record dirty",
+     [("      amr_dirty_r <= amr_dirty_r | amr_set_w;\n",
+       "      amr_dirty_r <= amr_dirty_r;\n")],
+     "[MAPREC] empty: the window holds the codec's records and the pend has fallen"),
+    ("dynmap", "an empty saved list reads as an erased record (#763)",
+     [("          if ((amr_magic_r != 16'h1722) || (amr_hplen_r != amr_plen_w)) begin",
+       "          if ((amr_magic_r != 16'h1722) || (amr_hplen_r != amr_plen_w)\n"
+       "              || !((|amr_li_r) || (|amr_lo_r))) begin")],
+     "[MAPREC] empty, after the power cycle: SPI 0: number_of_mappings"),
+    ("dynmap", "no first-dirty window: the change is written at the next tick",
+     [("            if (amr_mscnt_r == 10'd500) begin", "            if (1'b1) begin")],
+     "[MAPREC] empty: the write waited out the 500 ms first-dirty window"),
+    ("dynmap", "the restore refuses every framed record",
+     [("                       || amr_refuse_r) begin", "                       || 1'b1) begin")],
+     "[MAPREC] saved, after the power cycle: SPI 0: number_of_mappings"),
+    ("dynmap", "the restore ignores the record's crc16",
+     [("(amr_hcrc_r != amr_crc_r)", "1'b0")],
+     "[MAPREC] torn input record: SPI 0: number_of_mappings"),
+    ("dynmap", "a failed walk rolls nothing back",
+     [("          amr_rb_r      <= 1'b1;\n", "          amr_rb_r      <= 1'b0;\n")],
+     "[MAPREC] roll-back: SPI 0: number_of_mappings"),
+    ("dynmap", "the roll-back sweeps the RAMs and leaves the stores",
+     [("      if (amap_boot_r || amr_rb_r) begin", "      if (amap_boot_r) begin")],
+     "[MAPREC] roll-back: SPI 0: number_of_mappings"),
+    ("dynmap", "the roll-back puts the stores back and never sweeps the RAMs",
+     [("        amap_boot_last_r <= amr_rb_r;", "        amap_boot_last_r <= 1'b0;")],
+     "[MAPREC] roll-back: render RAM keys 2..9 hold the input list"),
+    ("dynmap", "the map restore runs over the D3 walk's roll-back",
+     [("(pp_restore_rb_w || (pp_rs_cause_w != 3'd0))", "(pp_rs_cause_w != 3'd0)")],
+     "[MAPREC] D3 roll-back: SPI 0: number_of_mappings"),
+    ("dynmap", "GET_AUDIO_MAP does not wait for the map restore",
+     [("                          && (amr_rs_hold_r || !(amap_srv_r && amap_sel_match_w));",
+       "                          && !(amap_srv_r && amap_sel_match_w);")],
+     "[MAPREC] held GET: answered with the restored list"),
+    ("dynmap", "the format judge does not wait for the map restore",
+     [("                             || (amr_rs_run_w && (pp_gsi_kind_w == 2'd0)",
+       "                             || (1'b0 && (pp_gsi_kind_w == 2'd0)")],
+     "[MAPREC] held SET_STREAM_FORMAT: SUCCESS against the restored list"),
+    ("dynmap", "the entity enable does not wait for the map restore",
+     [("      .enable_i          ((pp_enable_w | cfg_adp_enable) && !amr_rs_hold_r),",
+       "      .enable_i          (pp_enable_w | cfg_adp_enable),")],
+     "[MAPREC] held GET: the entity enable waits for the map restore"),
+    ("dynmap", "every phase-5 beat marks its record, changed or not (DR2b)",
+     [("      if (amap_edit_live_wr_p && (amap_edit_type_r == DESC_STREAM_PORT_IN_C)",
+       "      if (amap_edit_beat_w && (pp_amap_edit_phase_w == 3'd5) && amap_edit_context_w\n"
+       "          && (amap_edit_type_r == DESC_STREAM_PORT_IN_C)")],
+     "[MAPREC] unchanged: no record write follows an unchanged edit"),
+    ("dynmap", "a restore write counts as a change",
+     [("  assign amap_edit_live_wr_p = axis_resetn && amap_edit_beat_w && !amr_own_r",
+       "  assign amap_edit_live_wr_p = axis_resetn && amap_edit_beat_w")],
+     "[MAPREC] saved: the restore itself writes no record"),
+    ("dynmap", "a change after the latch does not taint the write",
+     [("      if (amr_set_r_w) amr_taint_r <= 1'b1;\n", "")],
+     "[MAPREC] taint: the window ends on the final list"),
+    ("dynmap", "a fourth attempt follows the third failure",
+     [("          if (amr_fails_r == 2'd2) begin", "          if (amr_fails_r == 2'd3) begin")],
+     "[MAPREC] failing writes: three attempts, then no more"),
+    ("dynmap", "no backoff between attempts",
+     [("            amr_st_r    <= AS_WBWAIT;", "            amr_st_r    <= AS_WLAT;")],
+     "[MAPREC] failing writes: the attempts are at least 500 ms apart"),
+    ("dynmap", "the last failed attempt raises no alarm",
+     [("            amr_alarm_r <= 1'b1;", "            amr_alarm_r <= 1'b0;")],
+     "[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised"),
+    ("dynmap", "the map restore has no per-wait deadline",
+     [("(amr_rs_w ? AMR_RS_TMO_CYC_P : AMR_MEM_TMO_CYC_P)",
+       "(amr_rs_w ? 32'h7FFF_FFFF : AMR_MEM_TMO_CYC_P)")],
+     "[MAPREC] silent memory: the restore reached its terminal and the map restore ended"),
+    ("dynmap", "the arbiter does not drain a read the map writer abandoned",
+     [("        da_drain_r <= 1'b1;\n", "        da_drain_r <= 1'b0;\n")],
+     "[MAPREC] silent memory, late answer: a later change reaches the window", "shadow"),
+    ("dynmap", "the arbiter's selection moves while the backend serves a command",
+     [("  assign da_free_w = !nvm_busy_w && !nvm_gnt_w && !nvm_done_w && !nvm_err_w\n",
+       "  assign da_free_w = !nvm_gnt_w && !nvm_done_w && !nvm_err_w\n")],
+     "[MAPREC] shared face: both writers' records are in the window", "shadow"),
+    ("dynmap", "the map writer's pending is not reported",
+     [("                    | amap_unflushed_i\n", "")],
+     "[MAPREC] empty: PP_STAT pend rises with the accepted change", "shadow"),
+    ("dynmap", "the map writer's alarm does not reach nvm_alarm",
+     [("      .alarm_i         (nvm_alarm_w | amap_alarm_i),", "      .alarm_i         (nvm_alarm_w),"),
+      ("  assign nvm_alarm_o     = nvm_alarm_w | amap_alarm_i;", "  assign nvm_alarm_o     = nvm_alarm_w;")],
+     "[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised", "shadow"),
     ("listener", "an empty reset, under the listener's end-to-end check", EMPTY,
      "T18 POWER-ON: with no map command since the reset, the lane renders "
      "injected events"),
@@ -157,8 +249,10 @@ MUTATIONS = [
 ]
 
 
-def build(leg: str, dp_path: Path, mdir: Path) -> Path | None:
-    """Build `leg` against `dp_path` through its suite's own recipe; the
+def build(leg: str, dp_path: Path, mdir: Path,
+          shadow_path: Path | None = None) -> Path | None:
+    """Build `leg` against `dp_path` (and `shadow_path` for KL_pp_shadow, the
+    suite's own copy when None) through its suite's own recipe; the
     executable, or None when the recipe failed or left none. The generated
     inputs the leg reads are the clean build's: `-o` keeps them unmade."""
     suite, target, mvar, _clean, exe_name, _args, keep = LEGS[leg]
@@ -166,6 +260,8 @@ def build(leg: str, dp_path: Path, mdir: Path) -> Path | None:
     for name in keep:
         cmd += ["-o", name]
     cmd += [target, f"DP_SRC={dp_path}", f"{mvar}={mdir}"]
+    if shadow_path is not None:
+        cmd += [f"SHADOW_SRC={shadow_path}"]
     out = subprocess.run(cmd, capture_output=True, text=True, check=False)
     exe = mdir / exe_name
     if out.returncode != 0 or not exe.is_file():
@@ -201,32 +297,40 @@ def verdict(rc: int, out: str, must_fail: str | None) -> str:
     return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
 
 
-def plant(name: str, edits: list[tuple[str, str]], work: Path, tag: str) -> Path | None:
-    """Write the mutant's datapath; None when a pattern no longer matches
-    exactly once, so the mutant would mutate nothing."""
-    text = DP_RTL.read_text()
+def plant(name: str, edits: list[tuple[str, str]], work: Path, tag: str,
+          source: Path = DP_RTL) -> Path | None:
+    """Write the mutant's copy of `source` (the datapath unless the arm names
+    KL_pp_shadow); None when a pattern no longer matches exactly once, so the
+    mutant would mutate nothing."""
+    text = source.read_text()
     for pattern, replacement in edits:
         count = text.count(pattern)
         if count != 1:
             print(f"[FAIL] mutation {name!r}: a pattern appears {count} time(s) in "
-                  f"milan_datapath.sv, expected exactly 1. The RTL moved and this "
+                  f"{source.name}, expected exactly 1. The RTL moved and this "
                   f"mutant is no longer mutating anything - fix the pattern, do not "
                   f"delete the arm.")
             return None
         text = text.replace(pattern, replacement)
-    dp_path = work / f"milan_datapath_{tag}.sv"
-    dp_path.write_text(text)
-    return dp_path
+    out = work / f"{source.stem}_{tag}.sv"
+    out.write_text(text)
+    return out
 
 
-def run_mutant(mutation: tuple[str, str, list[tuple[str, str]], str], work: Path) -> bool:
-    """Plant one mutation, build and run its leg; True when it was caught."""
-    leg, name, edits, breaks = mutation
+def run_mutant(mutation: tuple, work: Path) -> bool:
+    """Plant one mutation, build and run its leg; True when it was caught.
+    A fifth element "shadow" plants it in KL_pp_shadow instead of the
+    datapath."""
+    leg, name, edits, breaks = mutation[:4]
+    in_shadow = len(mutation) > 4 and mutation[4] == "shadow"
     tag = "".join(c if c.isalnum() else "_" for c in name)[:48]
-    dp_path = plant(name, edits, work, tag)
-    if dp_path is None:
+    planted = plant(name, edits, work, tag, SHADOW_RTL if in_shadow else DP_RTL)
+    if planted is None:
         return False
-    exe = build(leg, dp_path, work / f"obj_{tag}")
+    if in_shadow:
+        exe = build(leg, DP_RTL, work / f"obj_{tag}", planted)
+    else:
+        exe = build(leg, planted, work / f"obj_{tag}")
     if exe is None:
         print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
               f"proves nothing about the leg")
@@ -244,7 +348,7 @@ def run_mutant(mutation: tuple[str, str, list[tuple[str, str]], str], work: Path
     return False
 
 
-def selected(argv: list[str]) -> list[tuple[str, str, list[tuple[str, str]], str]] | None:
+def selected(argv: list[str]) -> list[tuple] | None:
     """The mutants `argv` names by 1-based place, every one when it names
     none; None when an argument names no mutant."""
     if not argv:

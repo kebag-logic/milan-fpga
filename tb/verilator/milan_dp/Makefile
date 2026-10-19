@@ -154,8 +154,11 @@ PP_DERIVED := $(shell python3 $(CURDIR)/../../../scripts/pp_srcs.py --prefix $(P
 ifneq ($(.SHELLSTATUS),0)
 $(error scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived)
 endif
+# SHADOW_SRC is overridable for the same reason DP_SRC is: dynmap_mutants.py
+# plants the device-face arbiter's controls in a copy of it (#637)
+SHADOW_SRC ?= $(RTL_DIR)/milan/KL_pp_shadow.sv
 PP_SRCS := $(PP_DERIVED) \
-       $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv \
+       $(SHADOW_SRC) $(RTL_DIR)/milan/KL_pp_maap_shim.sv \
        $(RTL_DIR)/milan/KL_nvm_backend.sv
 
 # the gPTP plane (issue #114): parsed by every leg (the instantiation
