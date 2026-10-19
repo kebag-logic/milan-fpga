@@ -315,21 +315,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter int PP_TIM_DIV_US_P = MILAN_CLK_FREQ_HZ / 1_000_000,
   parameter int PP_TIM_DIV_MS_P = 1000,
   //! ---- #637: the channel-map record writer and restore ------------------
-  //! Clocks per millisecond of the map writer's debounce (DR2a, 500 ms) and
-  //! retry backoff (DR2c, 500 ms). Real time by default, as the processor's
-  //! own timebase derives it; a harness may compress it alone.
+  //! Clocks per millisecond of the map writer's timers: its debounce (DR2a,
+  //! 500 ms), its retry backoff (DR2c, 500 ms) and its deadlines (DR3a's
+  //! 20 ms per wait and 1,000 ms aggregate, the port's 1,000 ms). Real time
+  //! by default, as the processor's own timebase derives it; a harness may
+  //! compress it alone.
   parameter int AMR_MS_CYC_P = PP_TIM_DIV_US_P * PP_TIM_DIV_MS_P,
-  //! each map restore wait's deadline, DR3a's ratified 20 ms:
-  //! ceil(MILAN_CLK_FREQ_HZ / 50), as the processor derives NVM_RS_TMO_CYC_P
-  parameter int AMR_RS_TMO_CYC_P = (MILAN_CLK_FREQ_HZ / 50)
-                                 + (((MILAN_CLK_FREQ_HZ % 50) != 0) ? 1 : 0),
-  //! the whole restore's bound from accepted PP_CTRL[1], DR3a's ratified
-  //! 1,000 ms aggregate (the processor's NVM_RS_AGG_CYC_P counts from the
-  //! same start, so the map restore inherits what the D3 walk left of it)
-  parameter int AMR_RS_AGG_CYC_P = MILAN_CLK_FREQ_HZ,
-  //! each record write's wait deadline in service: the processor port's
-  //! T-NVM-PORT-DEADLINE, 1,000 ms (NVM_MEM_TMO_CYC_P)
-  parameter int AMR_MEM_TMO_CYC_P = MILAN_CLK_FREQ_HZ,
+  //! the deadlines, in those milliseconds: DR3a's ratified 20 ms per restore
+  //! wait and 1,000 ms for the whole restore from PP_CTRL[1] (the
+  //! processor's NVM_RS_AGG_CYC_P counts from the same start, so the map
+  //! restore keeps what the D3 walk left of it), and the port's
+  //! T-NVM-PORT-DEADLINE, 1,000 ms, per record-write wait in service. A wait
+  //! expires one tick past its bound, so it never ends early. Product builds
+  //! keep these values.
+  parameter int AMR_RS_TMO_MS_P  = 20,
+  parameter int AMR_RS_AGG_MS_P  = 1000,
+  parameter int AMR_MEM_TMO_MS_P = 1000,
   //! ACMP listener transition-ROM image. The processor $readmemh's it by this
   //! name, and Vivado resolves a RELATIVE name against its own run directory -
   //! so the integration hands over an ABSOLUTE path and the build stops
@@ -4912,7 +4913,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! refused ADD puts the reset set back with an ADD of the clipped image;
   //! that one refused in turn, or a refused REMOVE, is a failure of the
   //! walk. A failure of the walk (a device error, a short read, a wait past
-  //! AMR_RS_TMO_CYC_P, the aggregate AMR_RS_AGG_CYC_P from PP_CTRL[1], or
+  //! AMR_RS_TMO_MS_P, the aggregate AMR_RS_AGG_MS_P from PP_CTRL[1], or
   //! such a refusal) ROLLS BACK every map to its reset set, so no partial
   //! restore survives. One read pass is enough: the processor reads twice
   //! because a pass-1 abort must not leave state its roll-back cannot
@@ -4949,15 +4950,28 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int AMR_ICL_C = amr_icl_max();
   localparam int AMR_OCW_C = $clog2(amr_ocl_max());
   localparam int AMR_OK_C  = AMAP_OUT_KEYS_C;
+  //! an output key's owner register only ever holds a value below
+  //! max(N_STREAMS, ports): a phase-5 commit writes an index below the port
+  //! count (commit_ok), the CSR writer and the image a stream index. So its
+  //! low AMR_PW_C bits name it, and on a one-port, one-stream shape no bit
+  //! does and every owned key is the port's.
+  localparam int AMR_PW_C  = $clog2((N_STREAMS > AMR_NO_C) ? N_STREAMS : AMR_NO_C);
+  localparam int AMR_PWX_C = (AMR_PW_C > 0) ? AMR_PW_C : 1;
+  function automatic logic amr_owned(input logic [15:0] owner_i,
+                                     input logic [7:0] port_i);
+    return (AMR_PW_C == 0)
+           || (owner_i[AMR_PWX_C-1:0] == port_i[AMR_PWX_C-1:0]);
+  endfunction
 
   //! The set always fits its record, so the over-capacity skip of D3 rule 9
   //! has no case here: an input store holds one mapping per cluster and the
   //! record one entry per cluster; an output store one per stream-channel
   //! key, N_STREAMS * 8, and the record max(clusters, STREAM_OUTPUT * 8).
   //! The cursors are eight bits wide.
-  if ((AMR_ICL_C > 127) || (AMR_OK_C > 127)
-      || (ADP_TALKER_SRC_C < N_STREAMS)) begin : g_amr_shape_check
-    $error("milan_datapath: a channel-map set this shape allows would not fit its record or the map writer's cursors");
+  if ((AMR_ICL_C > 127) || (AMR_OK_C > 127) || (AMR_NO_C > 127)
+      || (ADP_TALKER_SRC_C < N_STREAMS) || (AMR_RS_TMO_MS_P > 2000)
+      || (AMR_RS_AGG_MS_P > 2000) || (AMR_MEM_TMO_MS_P > 2000)) begin : g_amr_shape_check
+    $error("milan_datapath: a channel-map set this shape allows would not fit its record or the map writer's cursors, or a map writer deadline exceeds its 11-bit millisecond count");
   end
 
   //! ---- the record in hand: its port, id, length and key range ---------
@@ -4996,12 +5010,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       end
   end : amr_rec_shape
 
-  //! ---- one mapping at the cursor, from the latch, the store or the clip
-  //! (amr_src_r 0, 1, 2): the set the record holds, the port's live set,
-  //! and its reset set, the #658 image clipped to the current formats
+  //! ---- one mapping at the cursor, from the latch or the clip (amr_src_r
+  //! 0 or 1): the set the record holds, or the port's reset set, the #658
+  //! image clipped to the current formats. The clip is also the port's live
+  //! set while the restore runs: the boot window held the stores at it to
+  //! the terminal, and since then the edit face, the CSR writer and the
+  //! format judge have all waited, so no store or format has moved but the
+  //! ports this walk restored, whose keys it never reads again. A REMOVE of
+  //! a set the stores do not hold is refused, and the walk rolls back.
   logic [AMR_ICL_C*7-1:0]          amr_li_r;
   logic [AMR_OK_C*(1+AMR_OCW_C)-1:0] amr_lo_r;
-  logic  [1:0] amr_src_r;
+  logic        amr_src_r;
   logic  [7:0] amr_k_r;
   logic        amr_sv_w;
   logic [63:0] amr_srec_w;
@@ -5016,34 +5035,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           for (int c = 0; c < AMR_ICL_C; c++)
             if ((32'(amr_k_r) == c) && (c < 32'(ADP_DMAP_IN_PCLS_C[p]))
                 && ((32'(ADP_DMAP_IN_PBASE_C[p]) + c) < AMAP_IN_KEYS_C)) begin
-              unique case (amr_src_r)
-                2'd0:    w_c = {amr_li_r[c*7 + 6], 1'b0, amr_li_r[c*7 +: 6]};
-                2'd1:    w_c = amap_in_store_r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8];
-                default: w_c = amap_in_boot_w[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8];
-              endcase
+              w_c = amr_src_r
+                  ? amap_in_boot_w[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8]
+                  : {amr_li_r[c*7 + 6], 1'b0, amr_li_r[c*7 +: 6]};
               amr_sv_w   = w_c[7] && !w_c[6];
               amr_srec_w = {13'd0, w_c[5:3], 13'd0, w_c[2:0], 16'(c), 16'd0};
             end
     end else begin
       for (int k = 0; k < AMR_OK_C; k++)
         if (32'(amr_k_r) == k) begin
-          unique case (amr_src_r)
-            2'd0: begin
-              amr_sv_w   = amr_lo_r[k*(1+AMR_OCW_C) + AMR_OCW_C];
-              amr_srec_w = {16'(k / 8), 16'(k % 8),
-                            16'(amr_lo_r[k*(1+AMR_OCW_C) +: AMR_OCW_C]), 16'd0};
-            end
-            2'd1: begin
-              amr_sv_w   = amap_out_owner_v_r[k]
-                           && (amap_out_owner_r[k*16 +: 16] == 16'(amr_port_w));
-              amr_srec_w = {16'(k / 8), 16'(k % 8),
-                            amap_out_cluster_r[k*16 +: 16], 16'd0};
-            end
-            default: begin
-              amr_sv_w   = amap_out_boot_w[k] && ((k / 8) == 32'(amr_port_w));
-              amr_srec_w = {16'(k / 8), 16'(k % 8), 16'(k % 8), 16'd0};
-            end
-          endcase
+          if (amr_src_r) begin
+            amr_sv_w   = amap_out_boot_w[k] && ((k / 8) == 32'(amr_port_w));
+            amr_srec_w = {16'(k / 8), 16'(k % 8), 16'(k % 8), 16'd0};
+          end else begin
+            amr_sv_w   = amr_lo_r[k*(1+AMR_OCW_C) + AMR_OCW_C];
+            amr_srec_w = {16'(k / 8), 16'(k % 8),
+                          16'(amr_lo_r[k*(1+AMR_OCW_C) +: AMR_OCW_C]), 16'd0};
+          end
         end
     end
   end : amr_src_slot
@@ -5089,18 +5097,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end : amr_gen_entry
 
   //! the framed record's byte bi: the header, then the generated payload
-  logic [15:0] amr_bi_r, amr_crc_r;
+  //! the record's byte counter: a record is at most 8 + 127 * 8 bytes
+  logic [10:0] amr_bi_r;
+  logic [15:0] amr_crc_r;
+  wire  [10:0] amr_plen_b_w = amr_plen_w[10:0];
   logic  [7:0] amr_fbyte_w;
   always_comb begin : amr_frame_byte
     unique case (amr_bi_r)
-      16'd0:   amr_fbyte_w = 8'h17;
-      16'd1:   amr_fbyte_w = 8'h22;
-      16'd2:   amr_fbyte_w = AMR_LAYOUT_C;
-      16'd3:   amr_fbyte_w = amr_rid_w;
-      16'd4:   amr_fbyte_w = amr_plen_w[15:8];
-      16'd5:   amr_fbyte_w = amr_plen_w[7:0];
-      16'd6:   amr_fbyte_w = amr_crc_r[15:8];
-      16'd7:   amr_fbyte_w = amr_crc_r[7:0];
+      11'd0:   amr_fbyte_w = 8'h17;
+      11'd1:   amr_fbyte_w = 8'h22;
+      11'd2:   amr_fbyte_w = AMR_LAYOUT_C;
+      11'd3:   amr_fbyte_w = amr_rid_w;
+      11'd4:   amr_fbyte_w = amr_plen_w[15:8];
+      11'd5:   amr_fbyte_w = amr_plen_w[7:0];
+      11'd6:   amr_fbyte_w = amr_crc_r[15:8];
+      11'd7:   amr_fbyte_w = amr_crc_r[7:0];
       default: amr_fbyte_w = amr_eu_r ? 8'hFF
                                       : amr_erec_w[63 - 8*32'(amr_bi_r[2:0]) -: 8];
     endcase
@@ -5136,7 +5147,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       for (int k = 0; k < AMR_OK_C; k++)
         amr_lo_live_w[k*(1+AMR_OCW_C) +: (1+AMR_OCW_C)] =
             {amap_out_owner_v_r[k]
-               && (amap_out_owner_r[k*16 +: 16] == 16'(amr_port_w)),
+               && amr_owned(amap_out_owner_r[k*16 +: 16], amr_port_w),
              amap_out_cluster_r[k*16 +: AMR_OCW_C]};
   end : amr_latch_live
 
@@ -5179,14 +5190,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     end
   end : amr_ms_tick
 
-  //! ---- deadlines: the wait in hand, and the restore's aggregate ---------
-  localparam int AMR_TMO_MAX_C = (AMR_MEM_TMO_CYC_P > AMR_RS_TMO_CYC_P)
-                               ? AMR_MEM_TMO_CYC_P : AMR_RS_TMO_CYC_P;
-  localparam int AMR_WDW_C  = $clog2(AMR_TMO_MAX_C + 1);
-  localparam int AMR_AGGW_C = $clog2(AMR_RS_AGG_CYC_P + 1);
-  logic [AMR_WDW_C-1:0]  amr_wd_r;
-  logic [AMR_AGGW_C-1:0] amr_agg_r;
-  logic                  amr_go_r, amr_agg_x_r;
+  //! ---- deadlines, in milliseconds: the wait in hand, and the restore's
+  //! aggregate from the accepted PP_CTRL[1]
+  logic [10:0] amr_wd_r, amr_agg_r;
+  logic        amr_go_r, amr_agg_x_r;
 
   typedef enum logic [4:0] {
     AS_BOOT, AS_RNEXT, AS_RREQ, AS_RRD, AS_RJDG,
@@ -5196,9 +5203,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   } amr_st_e;
   amr_st_e amr_st_r;
 
-  //! the restore's read: the header fields and the entry being parsed
-  logic [15:0] amr_magic_r, amr_hplen_r, amr_hcrc_r;
-  logic  [7:0] amr_hlay_r, amr_hid_r;
+  //! the restore's read: the header judged as it streams (magic and length
+  //! frame the record, layout and id name it), its crc, and the entry
+  //! being parsed
+  logic        amr_hframe_r, amr_hid_r;
+  logic [15:0] amr_hcrc_r;
   logic        amr_e_ff_r, amr_e_z_r;
   logic  [7:0] amr_e_b1_r, amr_e_b3_r, amr_e_b5_r;
   logic        amr_unused_r, amr_malformed_r, amr_refuse_r;
@@ -5229,8 +5238,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                        || (amr_st_r == AS_WWAIT);
   wire amr_rs_w = amr_rs_hold_r;
   wire amr_expire_w = amr_waiting_w && !amr_prog_w
-      && ((32'(amr_wd_r) >= (amr_rs_w ? AMR_RS_TMO_CYC_P : AMR_MEM_TMO_CYC_P) - 1)
+      && ((32'(amr_wd_r) > (amr_rs_w ? AMR_RS_TMO_MS_P : AMR_MEM_TMO_MS_P))
           || (amr_rs_w && amr_agg_x_r));
+  //! one crc16 step, on the byte the restore reads or the writer frames
+  wire [15:0] amr_crc_nx_w = amr_crc16(amr_crc_r, (amr_st_r == AS_RRD)
+                                                  ? mrec_rdata_w : amr_fbyte_w);
 
   assign amr_rs_run_w = amr_rs_hold_r && (amr_st_r != AS_BOOT);
   assign amr_wvalid_w = (amr_st_r == AS_WSTR);
@@ -5243,13 +5255,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       amr_go_r    <= 1'b0;
       amr_agg_x_r <= 1'b0;
     end else begin
-      amr_wd_r <= (amr_waiting_w && !amr_prog_w) ? amr_wd_r + AMR_WDW_C'(1) : '0;
+      if (!amr_waiting_w || amr_prog_w) amr_wd_r <= '0;
+      else if (amr_tick_r && (amr_wd_r != 11'h7FF)) amr_wd_r <= amr_wd_r + 11'd1;
       //! the aggregate counts from the accepted restore start, as the
-      //! processor's NVM_RS_AGG_CYC_P does, and saturates at the bound
+      //! processor's NVM_RS_AGG_CYC_P does, and holds once past its bound
       if (pp_restore_go_w) amr_go_r <= 1'b1;
-      if (amr_go_r && !amr_agg_x_r) begin
-        if (32'(amr_agg_r) >= AMR_RS_AGG_CYC_P - 1) amr_agg_x_r <= 1'b1;
-        else amr_agg_r <= amr_agg_r + AMR_AGGW_C'(1);
+      if (amr_go_r && !amr_agg_x_r && amr_tick_r) begin
+        if (32'(amr_agg_r) >= AMR_RS_AGG_MS_P) amr_agg_x_r <= 1'b1;
+        else amr_agg_r <= amr_agg_r + 11'd1;
       end
     end
   end : amr_deadlines
@@ -5262,23 +5275,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       amr_rb_r        <= 1'b0;
       amr_own_r       <= 1'b0;
       amr_r_r         <= '0;
-      amr_src_r       <= 2'd0;
+      amr_src_r       <= 1'b0;
       amr_k_r         <= 8'd0;
       amr_li_r        <= '0;
       amr_lo_r        <= '0;
       amr_gk_r        <= 8'd0;
       amr_ek_r        <= 8'd0;
       amr_eu_r        <= 1'b1;
-      amr_bi_r        <= 16'd0;
+      amr_bi_r        <= 11'd0;
       amr_crc_r       <= 16'hFFFF;
       amr_req_r       <= 1'b0;
       amr_we_r        <= 1'b0;
       amr_abort_r     <= 1'b0;
-      amr_magic_r     <= 16'd0;
-      amr_hplen_r     <= 16'd0;
+      amr_hframe_r    <= 1'b0;
+      amr_hid_r       <= 1'b0;
       amr_hcrc_r      <= 16'd0;
-      amr_hlay_r      <= 8'd0;
-      amr_hid_r       <= 8'd0;
       amr_e_ff_r      <= 1'b1;
       amr_e_z_r       <= 1'b1;
       amr_e_b1_r      <= 8'd0;
@@ -5343,7 +5354,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           end else begin
             amr_req_r       <= 1'b1;
             amr_we_r        <= 1'b0;
-            amr_bi_r        <= 16'd0;
+            amr_bi_r        <= 11'd0;
             amr_crc_r       <= 16'hFFFF;
             amr_li_r        <= '0;
             amr_lo_r        <= '0;
@@ -5367,18 +5378,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         end
         AS_RRD: begin
           if (mrec_rvalid_w) begin
-            amr_bi_r <= amr_bi_r + 16'd1;
-            if ((amr_bi_r < 16'd6) || (amr_bi_r >= 16'd8))
-              amr_crc_r <= amr_crc16(amr_crc_r, mrec_rdata_w);
+            amr_bi_r <= amr_bi_r + 11'd1;
+            if ((amr_bi_r < 11'd6) || (amr_bi_r >= 11'd8))
+              amr_crc_r <= amr_crc_nx_w;
             unique case (amr_bi_r)
-              16'd0: amr_magic_r[15:8] <= mrec_rdata_w;
-              16'd1: amr_magic_r[7:0]  <= mrec_rdata_w;
-              16'd2: amr_hlay_r        <= mrec_rdata_w;
-              16'd3: amr_hid_r         <= mrec_rdata_w;
-              16'd4: amr_hplen_r[15:8] <= mrec_rdata_w;
-              16'd5: amr_hplen_r[7:0]  <= mrec_rdata_w;
-              16'd6: amr_hcrc_r[15:8]  <= mrec_rdata_w;
-              16'd7: amr_hcrc_r[7:0]   <= mrec_rdata_w;
+              11'd0: amr_hframe_r <= (mrec_rdata_w == 8'h17);
+              11'd1: amr_hframe_r <= amr_hframe_r && (mrec_rdata_w == 8'h22);
+              11'd2: amr_hid_r    <= (mrec_rdata_w == AMR_LAYOUT_C);
+              11'd3: amr_hid_r    <= amr_hid_r && (mrec_rdata_w == amr_rid_w);
+              11'd4: amr_hframe_r <= amr_hframe_r && (mrec_rdata_w == amr_plen_w[15:8]);
+              11'd5: amr_hframe_r <= amr_hframe_r && (mrec_rdata_w == amr_plen_w[7:0]);
+              11'd6: amr_hcrc_r[15:8] <= mrec_rdata_w;
+              11'd7: amr_hcrc_r[7:0]  <= mrec_rdata_w;
               default: begin
                 //! one byte of entry (bi - 8) / 8
                 if (amr_bi_r[2:0] != 3'd7) begin
@@ -5428,7 +5439,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
               end
             endcase
           end
-          if (mrec_err_w || (mrec_done_w && (amr_bi_r != amr_plen_w + 16'd8))
+          if (mrec_err_w || (mrec_done_w && (amr_bi_r != amr_plen_b_w + 11'd8))
               || amr_expire_w) begin
             //! a device error, a short read or a deadline: roll back
             amr_abort_r <= amr_expire_w;
@@ -5438,11 +5449,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           end
         end
         AS_RJDG: begin
-          if ((amr_magic_r != 16'h1722) || (amr_hplen_r != amr_plen_w)) begin
+          if (!amr_hframe_r) begin
             //! erased or unframed: the reset set stands
             amr_r_r  <= amr_r_r + AMR_RW_C'(1);
             amr_st_r <= AS_RNEXT;
-          end else if ((amr_hlay_r != AMR_LAYOUT_C) || (amr_hid_r != amr_rid_w)
+          end else if (!amr_hid_r
                        || (amr_hcrc_r != amr_crc_r) || amr_malformed_r
                        || amr_refuse_r) begin
             //! refused before the port is touched: the reset set stands
@@ -5452,7 +5463,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
             //! well formed: REMOVE the port's set, once the sweep after the
             //! terminal has left the crossbar RAMs equal to the stores
             amr_step_r <= 2'd0;
-            amr_src_r  <= 2'd1;
+            amr_src_r  <= 1'b1;
             amr_k_r    <= 8'd0;
             amr_idx_r  <= 8'd0;
             amr_st_r   <= AS_ECNT;
@@ -5550,11 +5561,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           amr_idx_r    <= 8'd0;
           if ((amr_step_r == 2'd0) && amr_ok_r) begin
             amr_step_r <= 2'd1;                  //! now ADD the saved set
-            amr_src_r  <= 2'd0;
+            amr_src_r  <= 1'b0;
             amr_st_r   <= AS_ECNT;
           end else if ((amr_step_r == 2'd1) && !amr_ok_r) begin
             amr_step_r <= 2'd2;                  //! refused: the reset set back
-            amr_src_r  <= 2'd2;
+            amr_src_r  <= 1'b1;
             amr_st_r   <= AS_ECNT;
           end else if (amr_ok_r) begin
             amr_r_r  <= amr_r_r + AMR_RW_C'(1);  //! applied, or put back
@@ -5618,32 +5629,32 @@ module milan_datapath import ethernet_packet_pkg::*; #(
             amr_taint_r <= amr_set_r_w;
             amr_gk_r    <= 8'd0;
             amr_eu_r    <= 1'b1;
-            amr_bi_r    <= 16'd0;
+            amr_bi_r    <= 11'd0;
             amr_crc_r   <= 16'hFFFF;
             amr_st_r    <= AS_WCRC;
           end
         end
         AS_WCRC: begin
           //! the crc over the header without its crc and the payload
-          amr_crc_r <= amr_crc16(amr_crc_r, amr_fbyte_w);
-          if (amr_bi_r == 16'd5) begin
-            amr_bi_r <= 16'd8;
-          end else if (amr_bi_r == amr_plen_w + 16'd7) begin
-            amr_bi_r <= 16'd0;
+          amr_crc_r <= amr_crc_nx_w;
+          if (amr_bi_r == 11'd5) begin
+            amr_bi_r <= 11'd8;
+          end else if (amr_bi_r == amr_plen_b_w + 11'd7) begin
+            amr_bi_r <= 11'd0;
             amr_req_r <= 1'b1;
             amr_we_r  <= 1'b1;
             amr_st_r  <= AS_WREQ;
           end else begin
-            amr_bi_r <= amr_bi_r + 16'd1;
+            amr_bi_r <= amr_bi_r + 11'd1;
           end
-          if ((amr_bi_r == 16'd5) || ((amr_bi_r >= 16'd8) && (amr_bi_r[2:0] == 3'd7))) begin
+          if ((amr_bi_r == 11'd5) || ((amr_bi_r >= 11'd8) && (amr_bi_r[2:0] == 3'd7))) begin
             //! the next entry: the next mapping in key order, else UNUSED
             amr_ek_r <= amr_nxt_k_w;
             amr_eu_r <= !amr_nxt_v_w;
             if (amr_nxt_v_w) amr_gk_r <= amr_nxt_k_w + 8'd1;
             else             amr_gk_r <= amr_keys_w;
           end
-          if (amr_bi_r == amr_plen_w + 16'd7) begin
+          if (amr_bi_r == amr_plen_b_w + 11'd7) begin
             amr_gk_r <= 8'd0;
             amr_eu_r <= 1'b1;
           end
@@ -5660,14 +5671,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         end
         AS_WSTR: begin
           if (mrec_wready_w) begin
-            amr_bi_r <= amr_bi_r + 16'd1;
-            if ((amr_bi_r == 16'd7) || ((amr_bi_r >= 16'd8) && (amr_bi_r[2:0] == 3'd7))) begin
+            amr_bi_r <= amr_bi_r + 11'd1;
+            if ((amr_bi_r == 11'd7) || ((amr_bi_r >= 11'd8) && (amr_bi_r[2:0] == 3'd7))) begin
               amr_ek_r <= amr_nxt_k_w;
               amr_eu_r <= !amr_nxt_v_w;
               if (amr_nxt_v_w) amr_gk_r <= amr_nxt_k_w + 8'd1;
               else             amr_gk_r <= amr_keys_w;
             end
-            if (amr_bi_r == amr_plen_w + 16'd7) amr_st_r <= AS_WWAIT;
+            if (amr_bi_r == amr_plen_b_w + 11'd7) amr_st_r <= AS_WWAIT;
           end
           if (mrec_err_w || amr_expire_w) begin
             amr_abort_r <= amr_expire_w;

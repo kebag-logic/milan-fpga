@@ -250,6 +250,12 @@ class NxnDatapathHarness {
     uint32_t nm_wslow_hi = 0;
     long nm_wslow_cyc = 0;
     long nm_wwait = 0;
+    //! ...and slow reads: a burst starting in [nm_rslow_lo, nm_rslow_hi)
+    //! answers nm_rslow_cyc clocks after it is accepted
+    uint32_t nm_rslow_lo = 0;
+    uint32_t nm_rslow_hi = 0;
+    long nm_rslow_cyc = 0;
+    long nm_rwait = 0;
 
     uint64_t nmem_beat(uint32_t byte_addr) {
         uint64_t v = 0;
@@ -264,7 +270,7 @@ class NxnDatapathHarness {
         if (!nm_answering) return;
         dut->i_nvm_mem_req_ready = nm_busy ? 0 : 1;
         const bool silent = nm_busy && nm_cur >= nm_silent_lo && nm_cur < nm_silent_hi;
-        dut->i_nvm_mem_rsp_valid = (nm_busy && !silent) ? 1 : 0;
+        dut->i_nvm_mem_rsp_valid = (nm_busy && !silent && nm_rwait == 0) ? 1 : 0;
         dut->i_nvm_mem_rsp_data  = nm_busy ? nmem_beat(nm_cur) : 0;
         dut->i_nvm_mem_rsp_last  = (nm_busy && nm_left == 1) ? 1 : 0;
         dut->i_nvm_mem_rsp_err   = (nm_busy && nm_cur >= nm_err_lo
@@ -283,7 +289,11 @@ class NxnDatapathHarness {
                 nm_cur  = dut->o_nvm_mem_req_addr;
                 nm_left = static_cast<int>(dut->o_nvm_mem_req_beats);
                 nm_busy = (nm_left > 0);
+                nm_rwait = (nm_cur >= nm_rslow_lo && nm_cur < nm_rslow_hi)
+                           ? nm_rslow_cyc : 0;
             }
+        } else if (nm_rwait > 0) {
+            nm_rwait--;
         } else if (dut->o_nvm_mem_rsp_ready && !(nm_cur >= nm_silent_lo
                                                  && nm_cur < nm_silent_hi)) {
             nm_cur += 8;                                // real backpressure
@@ -4651,6 +4661,8 @@ class NxnDatapathHarness {
     static constexpr uint32_t kPpAlarm = 1u << 4;
     //! this leg's millisecond of the map writer (-GAMR_MS_CYC_P)
     static constexpr long kMapMs = AMR_MS_CYC_TB;
+    //! this leg's map restore aggregate (-GAMR_RS_AGG_MS_P), a test value
+    static constexpr long kMapAggMs = AMR_AGG_MS_TB;
 
     static MapSet identity_set(uint16_t n) {
         MapSet s;
@@ -4737,6 +4749,7 @@ class NxnDatapathHarness {
         nm_left = 0;
         nm_wpend = false;
         nm_wwait = 0;
+        nm_rwait = 0;
         bring_the_datapath_out_of_reset();
         axi_write(A_ADP_EIDHI, 0x020000FF);
         axi_write(A_ADP_EIDLO, 0xFE000001);
@@ -4748,6 +4761,7 @@ class NxnDatapathHarness {
     //! walk's roll-back terminal is planted (dynmap_probes.vlt) when
     //! `d3_rolled_back`; nothing else is touched. Returns the clocks from the
     //! combined restore_done to the end of the map restore, or -1.
+    long maprec_go_to_end = -1;   //! the last power cycle's PP_CTRL[1] to map-restore end
     long maprec_power_cycle(const char* tag, bool d3_rolled_back) {
         constexpr uint16_t A_PP_CTRL = 0x920;
         maprec_cut_the_power();
@@ -4766,8 +4780,10 @@ class NxnDatapathHarness {
                  "the map restore ended", tag);
         ck(w, static_cast<unsigned long>(t_end >= 0), 1);
         for (int c = 0; c < 64; c++) step();
+        maprec_go_to_end = t_end;
         printf("  [i]    %s: the map restore held the faces %ld clocks after "
-               "restore_done\n", tag, (t_end >= 0) ? t_end - t_done : -1);
+               "restore_done, %ld after PP_CTRL[1]\n", tag,
+               (t_end >= 0) ? t_end - t_done : -1, t_end);
         return (t_end >= 0) ? t_end - t_done : -1;
     }
 
@@ -5122,7 +5138,10 @@ class NxnDatapathHarness {
                 const uint32_t off80 = at3[0x80].first;
                 nm_wslow_lo = (NVM_AREA_BASE + off80) & ~7u;
                 nm_wslow_hi = (NVM_AREA_BASE + off80 + 8 + at3[0x80].second) & ~7u;
-                nm_wslow_cyc = 4000;
+                //! 6 ms per lane write: the ERASE and the WRITE (144 lane
+                //! writes) then span the map writer's 500 ms window and end
+                //! well inside its 1,000 ms wait for the device
+                nm_wslow_cyc = 6 * kMapMs;
                 nm_watch_addr = NVM_AREA_BASE + off80;
                 nm_watch_hits.clear();
                 std::vector<uint8_t> pl(72, 0);
@@ -5217,6 +5236,27 @@ class NxnDatapathHarness {
             nm_watch_addr = 0xFFFFFFFFu;
         }
 
+        //! 7b. A SLOW MEMORY UNDER THE MAP RESTORE (DR3a): every lane of
+        //! both map records answers 15 ms late, inside each wait's 20 ms, so
+        //! only the aggregate from PP_CTRL[1] can end the walk. This leg
+        //! compiles that aggregate to DYNMAP_AGG_MS (a test value; the
+        //! product's is 1,000 ms), short of the walk's own length, and the
+        //! walk rolls every map back there
+        {
+            nmem = area_saved;
+            nm_rslow_lo = (NVM_AREA_BASE + off60) & ~7u;
+            nm_rslow_hi = NVM_AREA_BASE + off70 + len70;
+            nm_rslow_cyc = 15 * kMapMs;
+            maprec_power_cycle("slow memory", false);
+            nm_rslow_lo = nm_rslow_hi = 0;
+            ck("[MAPREC] slow memory: the walk ends at its aggregate bound",
+               static_cast<unsigned long>(maprec_go_to_end >= kMapAggMs * kMapMs
+                   && maprec_go_to_end < (kMapAggMs + 25) * kMapMs), 1);
+            maprec_grade_both("slow memory", in_id, out_id);
+            ck("[MAPREC] slow memory: the restore reports it rolled back",
+               static_cast<unsigned long>(dut->rootp->milan_datapath__DOT__amr_rs_fail_r), 1);
+        }
+
         //! 8. A SILENT MEMORY UNDER THE MAP RESTORE: the output record's
         //! payload lanes never answer. The walk ends at its per-wait
         //! deadline, rolls every map back and releases the faces
@@ -5224,7 +5264,11 @@ class NxnDatapathHarness {
             nmem = area_saved;
             nm_silent_lo = ((NVM_AREA_BASE + off70) & ~7u) + 8u;
             nm_silent_hi = (NVM_AREA_BASE + off70 + len70) & ~7u;
-            maprec_power_cycle("silent memory", false);
+            const long silent_hold = maprec_power_cycle("silent memory", false);
+            //! one 20 ms per-wait deadline, long before the aggregate
+            ck("[MAPREC] silent memory: the walk ends at its per-wait deadline",
+               static_cast<unsigned long>(silent_hold >= 20 * kMapMs
+                                          && silent_hold < 25 * kMapMs), 1);
             maprec_grade_both("silent memory", in_id, out_id);
             ck("[MAPREC] silent memory: the restore reports it rolled back",
                static_cast<unsigned long>(dut->rootp->milan_datapath__DOT__amr_rs_fail_r), 1);
@@ -5247,7 +5291,7 @@ class NxnDatapathHarness {
         //! every page above ran: a GET that never answered would otherwise
         //! leave its checks unrun rather than failed
         ck("[MAPREC] every page ran (vacuity guard)",
-           static_cast<unsigned long>(maprec_pages), 17);
+           static_cast<unsigned long>(maprec_pages), 19);
         bring_the_datapath_out_of_reset();
     }
     #endif
