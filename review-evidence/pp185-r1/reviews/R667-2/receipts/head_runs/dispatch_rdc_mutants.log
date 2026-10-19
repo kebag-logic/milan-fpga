@@ -1,0 +1,22 @@
+control aecp-dispatch: rc=0 PASS
+rdc-ctype-any: rc=2 failures=5 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 0011223344556677, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-w82-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-w84-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-w86-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-w88-nop: rc=2 failures=1 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+rdc-ctype-status-kept: rc=2 failures=5 named=1 KILLED
+    FAIL: RDC7 CONTROL 0 with control_type 0011223344556677, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 91e0f00000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f10000000001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000010001, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+    FAIL: RDC7 CONTROL 0 with control_type 90e0f00000000002, not IDENTIFY, IDENTIFY 255: its image whole: READ_DESCRIPTOR byte-exact, @108 carrying 0x5a
+7 checks: 7 PASS, 0 FAIL
