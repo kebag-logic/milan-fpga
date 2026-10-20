@@ -78,12 +78,27 @@ constexpr uint16_t A_STRMW_SID_LO = 0x814;
 constexpr uint16_t A_STRMW_SID_HI = 0x818;
 constexpr uint16_t A_STRMW_FMT_LO = 0x824;
 constexpr uint16_t A_STRMW_FMT_HI = 0x828;
-//! the shipping listener stream as sim_aclk.cpp feeds it: 8 wire channels,
-//! 6 events per class-A PDU, 12 500 axis cycles per PDU at 48 kHz
-constexpr int kAafChans = 8;
+//! the listener stream in STREAM_INPUT 0's declared format, 6 events per
+//! class-A PDU, 12 500 axis cycles per PDU at 48 kHz. The receive monitor
+//! compares the channel count with that format (Milan v1.2 4.4.2.2, #765),
+//! so it is read from IN0_FMT_TB, which the Makefile takes out of the shape
+//! header this build includes ([31:22], IEEE 1722-2016 I.2.4.1)
+#ifndef IN0_FMT_TB
+#error "IN0_FMT_TB is unset: build through tb/verilator/milan_dp/Makefile"
+#endif
+constexpr int kAafChans =
+    static_cast<int>((static_cast<uint64_t>(IN0_FMT_TB) >> 22) & 0x3FF);
 constexpr int kAafEvents = 6;
 constexpr size_t kAafPayloadBytes = static_cast<size_t>(kAafChans) * kAafEvents * 4;
-constexpr size_t kAafFrameBytes = 14 + 24 + kAafPayloadBytes;
+constexpr size_t kAafPduBytes = 14 + 24 + kAafPayloadBytes;
+//! the frame is zero-padded past the PDU to the 230 octets of an 8-channel
+//! PDU, the length this leg fed before #765. The depacketizer commits a PDU
+//! only if its accept verdict lands before the frame's last beat, and on
+//! this shape a bare 86-octet 2-channel frame ends first: 16 PDUs accepted,
+//! none emitted, at the base commit too (an open defect outside #765).
+constexpr size_t kAafFrameBytes =
+    kAafPduBytes < 14 + 24 + 8 * kAafEvents * 4 ? 14 + 24 + 8 * kAafEvents * 4
+                                                : kAafPduBytes;
 constexpr int kAafPduPeriodCycles = 12500;
 constexpr int kAafPdusFed = 16;
 //! one media tick is 2083.3 axis cycles; twenty of them starve a built ring
@@ -270,13 +285,15 @@ class PrunedShapeHarness {
         axi_write(A_STRM_SEL, 0);
         axi_write(A_STRMW_SID_LO, 0x00020000);      // sid 02:00:00:00:00:02:00:00
         axi_write(A_STRMW_SID_HI, 0x02000000);
-        axi_write(A_STRMW_FMT_LO, 0x02006000);
-        axi_write(A_STRMW_FMT_HI, 0x02050220);
+        //! stream 0's monitor reads fmt0_i, not this LCTX copy; the copy is
+        //! the same declared format so the harness states only one (#765)
+        axi_write(A_STRMW_FMT_LO, static_cast<uint32_t>(IN0_FMT_TB & 0xFFFFFFFFULL));
+        axi_write(A_STRMW_FMT_HI, static_cast<uint32_t>(IN0_FMT_TB >> 32));
         axi_write(A_STRMW_CTRL, 1);
     }
 
     //! one well-formed AAF PDU into the bound listener: sv and tv set, the
-    //! bound sid, INT32 at 48 kHz, 8 channels x 6 events (sim_aclk's frame)
+    //! bound sid, INT32 at 48 kHz, kAafChans channels x 6 events
     uint8_t aaf_seq = 0;
     void send_aaf_pdu(int pdu) {
         uint8_t f[kAafFrameBytes]; memset(f, 0, sizeof f);

@@ -92,8 +92,10 @@
                 flat instrument counts FRAMES (the flat module keeps the
                 1722.1 per-frame reading on purpose - TBs use it as a
                 frame-accurate loop-integrity probe); the flat module does
-                not count a silence as STREAM_INTERRUPTED (#762). Wire bytes
-                and accept verdicts are unchanged.
+                not count a silence as STREAM_INTERRUPTED (#762), and it
+                does not compare the channel count with the current format
+                (#765). Wire bytes are unchanged, and so are the accept
+                verdicts for a PDU carrying the current format's count.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -496,28 +498,33 @@ module KL_avtp_rx_monitor_ctx #(
   wire [3:0] f_nsr_w     = fmt_r[51:48];
   wire [7:0] f_format_w  = fmt_r[47:40];
   wire [7:0] f_depth_w   = fmt_r[39:32];
+  wire [9:0] f_cpf_w     = fmt_r[31:22];   //! channels_per_frame
 
   //! received AAF fields from the format-specific header (wire layout)
   wire [7:0] p_format_w = cur_w.fsh[63:56];
   wire [3:0] p_nsr_w    = cur_w.fsh[55:52];
   wire [7:0] p_chans_w  = cur_w.fsh[47:40];
+  //! the full 10-bit channels_per_frame (IEEE 1722-2016 7.3 Figure 26)
+  wire [9:0] p_cpf_w    = cur_w.fsh[49:40];
   wire [7:0] p_depth_w  = cur_w.fsh[39:32];
   wire       p_sp_w     = cur_w.fsh[12];
 
-  //! reference aaf_pdu_format_matches, FAMILY compare (Milan BAF v1.1
-  //! Section 4 + USER 08-07: "the stream input format must accept every
-  //! format, but does not need to route all channels"). A Base Listener's
-  //! STREAM_INPUT supports ALL channel counts of its rate family - the
-  //! configured format is the NOMINAL selection, never an acceptance
-  //! bound, so the wire's channels_per_frame does not appear here at all:
-  //! the depacketizer de-interleaves by the PDU's own count and the input
-  //! maps route the subset. UNSUPPORTED_FORMAT remains for genuine family
-  //! mismatches only (subtype, encoding, rate, depth, sparse).
+  //! the PDU against the Stream Input's CURRENT format (#765, FR-STR-03):
+  //! Milan v1.2 Table 5.6 counts UNSUPPORTED_FORMAT for a PDU whose format
+  //! does not match the current format, and 4.4.2.2 discards it. The
+  //! channel count is part of the format (Milan v1.2 Table 6.2; IEEE
+  //! 1722-2016 I.2.4.1 says channels_per_frame matches the PDU's field,
+  //! and I.2.4 keeps ut zero in a current format), so a PDU with another
+  //! count is rejected: no accept verdict, so the depacketizer drops it.
+  //! A Base Listener advertising every count of a rate family (Milan v1.2
+  //! 6.4) is served by SET_STREAM_FORMAT, which moves the current format.
+  //! A zero count is no PCM format and is rejected even against itself.
   wire fmt_ok_w = (cur_w.subtype == f_subtype_w) &&
                   (p_format_w  == f_format_w)  &&
                   (p_nsr_w     == f_nsr_w)     &&
                   (p_depth_w   == f_depth_w)   &&
-                  (p_chans_w   != 8'd0)        &&
+                  (p_cpf_w     == f_cpf_w)     &&
+                  (p_cpf_w     != 10'd0)       &&
                   (p_sp_w      == 1'b0);
 
   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;

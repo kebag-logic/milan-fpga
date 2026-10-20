@@ -5,11 +5,13 @@
 
 The discontinuity mutants run sim_discontinuity.cpp; the #762 STREAM_INTERRUPTED
 mutants (a silence, a sequence gap, an unbind and a stopped input's silence,
-each the cause its check names) run the counter harness, sim_main.cpp, through
-`make unit-build`. The stopped-gap mutants (a stopped sink's gap counted, and a
-STOP that disarms the gap until the next bind) are planted in the engine AND in
-the harness's replica, so the per-PDU replica compare cannot see them and only
-the named count check can fail.
+each the cause its check names) and the #765 subtype mutants (an AAF PDU on
+this stream_id ignored or accepted, and a matching CRF PDU rejected) run the
+counter harness, sim_main.cpp, through `make unit-build`. The stopped-gap
+mutants (a stopped sink's gap counted, and a STOP that disarms the gap until
+the next bind) are planted in the engine AND in the harness's replica, so the
+per-PDU replica compare cannot see them and only the named count check can
+fail.
 
 No checkout is edited. Every executable, including the positive control,
 is rebuilt from this invocation's source. The harness has bounded loops.
@@ -40,7 +42,7 @@ MUTANTS = (
     ("accept_edge_late", "!w_bind_rise_w && !rate_break_w;", "!w_bind_rise_w;",
      "tu edge invalidates before the sampling edge"),
 )
-#: #762, graded by the counter harness: (name, anchor, replacement, check)
+#: #762 and #765, graded by the counter harness: (name, anchor, replacement, check)
 UNIT_MUTANTS = (
     ("silence_not_interrupted", "if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
      "if (1'b0) cnt_intr_o <= cnt_intr_o + 32'd1;",
@@ -63,6 +65,20 @@ UNIT_MUTANTS = (
      "if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
      "if (en_i) cnt_intr_o <= cnt_intr_o + 32'd1;",
      "[762-ST-b2] stopped silence: no STREAM_INTERRUPTED"),
+    #: #765: the subtype is part of the CRF input's format
+    ("aaf_ignored",
+     "  wire w_hit = frame_p_i && en_i && (sid_frame_i == sid_i);",
+     "  wire w_hit = frame_p_i && en_i && (subtype_i == CRF_SUBTYPE_C)\n"
+     "             && (sid_frame_i == sid_i);",
+     "[FMT-b3] ...and counts UNSUPPORTED_FORMAT once"),
+    ("aaf_accepted",
+     "  wire w_fmt_ok = (subtype_i == CRF_SUBTYPE_C)\n               && (type_i == CRF_TYPE_AS_C)",
+     "  wire w_fmt_ok = (type_i == CRF_TYPE_AS_C)",
+     "[FMT-b1] an AAF PDU on the CRF stream_id is not accepted"),
+    ("crf_rejected",
+     "  wire w_fmt_ok = (subtype_i == CRF_SUBTYPE_C)",
+     "  wire w_fmt_ok = (subtype_i != CRF_SUBTYPE_C)",
+     "[FMT-a1] a matching CRF PDU is accepted"),
 )
 #: the gap's stopped-state gate, in the engine and in the replica
 GAP_RTL = "(w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;"

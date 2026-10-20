@@ -1144,10 +1144,29 @@ class NxnDatapathHarness {
         return true;
     }
 
-    // AAF PDU: sid = 8 wire bytes, chans = wire channels_per_frame
+    //! #765: the channel count of the format the receive monitor compares
+    //! with a PDU on STREAM_INPUT `s`. Input 0 follows the processor's
+    //! current format (GET_STREAM_FORMAT, which the fmt0_i fold serves);
+    //! every other input follows the LCTX format this harness writes (FMT_LO)
+    uint8_t rx_chans(int s) {
+        if (s != 0) return static_cast<uint8_t>((FMT_LO >> 22) & 0x3FF);
+        uint64_t fmt = 0;
+        const long ch = current_channels(0x0005, 0, &fmt);
+        ck("[765] STREAM_INPUT 0's current channel count is readable", ch > 0, 1);
+        return static_cast<uint8_t>(ch > 0 ? ch : 0);
+    }
+    //! octets of an AAF PDU at `chans`: 14 + 24 header and six four-octet
+    //! samples per channel (Milan v1.2 Table 6.1, 48 kHz), padded to the
+    //! 120 the fixed-size callers inject
+    static int aaf_bytes(uint8_t chans) {
+        return std::max(120, 38 + 24 * static_cast<int>(chans));
+    }
+
+    // AAF PDU: sid = 8 wire bytes, chans = wire channels_per_frame,
+    // stream_data_length six samples per channel (48 octets at 2 channels)
     const uint8_t* mkaaf(const uint8_t sid[8], uint8_t seq, uint8_t chans,
                                 uint8_t pay0) {
-        static uint8_t f[120];
+        static uint8_t f[38 + 24 * 255];          // any 8-bit channel count
         memset(f, 0, sizeof f);
         const uint8_t dmac[6] = {
             0x91,0xE0,0xF0,0x00,0x2A,0x02};
@@ -1163,8 +1182,9 @@ class NxnDatapathHarness {
         f[31]=static_cast<uint8_t>(0x05 << 4);                // nsr = 48 kHz
         f[32]=chans;
         f[33]=32;                                  // bit depth
-        f[34]=0x00; f[35]=0x30;                    // data_len 48
-        for (int i = 0; i < 48; i++) f[38+i] = static_cast<uint8_t>(pay0 + i);
+        const int dlen = 24 * chans;               // data_len (48 at 2 ch)
+        f[34]=static_cast<uint8_t>(dlen >> 8); f[35]=static_cast<uint8_t>(dlen);
+        for (int i = 0; i < dlen; i++) f[38+i] = static_cast<uint8_t>(pay0 + i);
         return f;
     }
 
@@ -2437,6 +2457,8 @@ class NxnDatapathHarness {
     long unb_next = 0;
     //! the talker's PDU sequence cursor
     uint8_t unb_seq = 0;
+    //! STREAM_INPUT 0's current channel count, read once per AAF bind (#765)
+    uint8_t unb_chans0 = 0;
     //! the talker unique_id sink `s` binds: the sink index
     static uint16_t unb_tuid(int s) { return static_cast<uint16_t>(s); }
 
@@ -2486,13 +2508,14 @@ class NxnDatapathHarness {
     }
 
     //! One clean PDU of sink `s`'s settled stream to its settled address,
-    //! timestamped `ahead_ns` past the PHC: an AAF PDU in the image's input
-    //! format (INT32, 48 kHz, 32 bit, two channels) or a CRF_AUDIO_SAMPLE
-    //! PDU (48 kHz, interval 96, one timestamp). In order, in time, neither
-    //! late nor early, so no Table 5.6 anomaly arms a push of its own.
+    //! timestamped `ahead_ns` past the PHC: an AAF PDU in the input's current
+    //! format (INT32, 48 kHz, 32 bit, unb_chans0 channels, #765) or a
+    //! CRF_AUDIO_SAMPLE PDU (48 kHz, interval 96, one timestamp). In order,
+    //! in time, neither late nor early, so no Table 5.6 anomaly arms a push
+    //! of its own.
     std::vector<uint8_t> unb_pdu(int s, uint64_t ahead_ns) {
         const uint64_t ts = phc_now_ns() + ahead_ns;
-        std::vector<uint8_t> f(s == 0 ? 86 : 64, 0);
+        std::vector<uint8_t> f(s == 0 ? 38 + 24 * unb_chans0 : 64, 0);
         gsi_put(f, 0, kGsiSink[s].dmac, 6);
         gsi_put(f, 6, 0x021122334455ull, 6);
         gsi_put(f, 12, 0x22F0, 2);
@@ -2502,8 +2525,8 @@ class NxnDatapathHarness {
             f[14] = 0x02; f[15] = 0x81;              // AAF, sv, tv
             gsi_put(f, 26, ts & 0xFFFFFFFFull, 4);   // avtp_timestamp
             f[30] = 0x02; f[31] = 0x50;              // INT32, nsr 48 kHz
-            f[32] = 2; f[33] = 32;                   // channels, bit depth
-            gsi_put(f, 34, 48, 2);                   // stream_data_length
+            f[32] = unb_chans0; f[33] = 32;          // channels, bit depth
+            gsi_put(f, 34, 24u * unb_chans0, 2);     // stream_data_length
         } else {
             f[14] = 0x04; f[15] = 0x80; f[17] = 0x01;    // CRF, sv, AUDIO_SAMPLE
             gsi_put(f, 26, 48000, 4);                // pull 0, base_frequency
@@ -2551,6 +2574,7 @@ class NxnDatapathHarness {
     //! The pause is bounded below the receiver's real 100 ms silence timeout.
     void unb_bind_and_lock(int s, const char* kind) {
         char w[160];
+        if (s == 0) unb_chans0 = rx_chans(0);
         gsi_acmp_rsp.erase((0x07u << 8) | static_cast<unsigned>(s));
         const long probes0 = gsi_probes[static_cast<size_t>(s)];
         notify_clear();
@@ -6629,6 +6653,8 @@ class NxnDatapathHarness {
     // not CLASSIFY it - which is exactly "discard", and is why the check
     // is a pair rather than "nothing happened".
     void prove_a_stopped_stream_input_discards() {
+        //! the stimulus carries STREAM_INPUT 0's current format (#765)
+        const uint8_t ch0 = rx_chans(0);
         std::vector<uint8_t> ti4(4, 0);
         ti4[1] = 0x05;                       // STREAM_INPUT
         ti4[2] = 0x00; ti4[3] = 0x00;        // index 0
@@ -6661,7 +6687,7 @@ class NxnDatapathHarness {
 
         unsigned long ms = aprb_matched(), ps = aprb_parsed();
         long pc = axi_read(A_PCMRX_CNT);
-        inject(mkaaf(sid0, 0x21, 2, 0xC0), 120);
+        inject(mkaaf(sid0, 0x21, ch0, 0xC0), aaf_bytes(ch0));
         ck("5.3.8.7 stopped: the frame still REACHES the parser",
            aprb_parsed() - ps, 1);
         // ...and it must still be CLASSIFIED. The clause says a stopped
@@ -6683,7 +6709,7 @@ class NxnDatapathHarness {
             aecp_xact(0x0022, 0x9102, ti4);  // START_STREAMING
         ck("5.3.8.7 START_STREAMING answered SUCCESS", aecp_status(rt), 0);
         ms = aprb_matched(); ps = aprb_parsed(); pc = axi_read(A_PCMRX_CNT);
-        inject(mkaaf(sid0, 0x22, 2, 0xC0), 120);
+        inject(mkaaf(sid0, 0x22, ch0, 0xC0), aaf_bytes(ch0));
         ck("5.3.8.7 restarted: PARSED climbs", aprb_parsed() - ps, 1);
         ck("5.3.8.7 restarted: MATCHED climbs again", aprb_matched() - ms, 1);
         ck("5.3.8.7 restarted: ...and the media path receives again",
@@ -6735,9 +6761,15 @@ class NxnDatapathHarness {
     void prove_a_stopped_stream_input_counts_no_interruption() {
         printf("-- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED --\n");
         const std::vector<uint8_t> ti4 = {0x00, 0x05, 0x00, 0x00};
+        //! the stimulus carries STREAM_INPUT 0's current format (#765)
+        const uint8_t ch0 = rx_chans(0);
+        printf("   STREAM_INPUT 0's current format: %u channels\n",
+               static_cast<unsigned>(ch0));
         // one PDU per 256-cycle counter interval, so each interval flag
         // (SEQ_NUM_MISMATCH) commits before the next PDU
-        auto pdu = [this](uint8_t seq) { inject(mkaaf(sid0, seq, 2, 0xC0), 400); };
+        auto pdu = [this, ch0](uint8_t seq) {
+            inject(mkaaf(sid0, seq, ch0, 0xC0), std::max(400, aaf_bytes(ch0)));
+        };
         // the discard section's last PDU was 0x22: carry on in order
         for (uint8_t s = 0x23; s <= 0x2B; s++) pdu(s);
         const std::vector<uint8_t> r1 = sin0_ctrs(0x9130);

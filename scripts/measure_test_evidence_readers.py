@@ -68,6 +68,12 @@ DUT_READER_DISPOSITIONS = {
         "read, a wrong stream index, a missed reset) into a copy and requires its named lockstep "
         "check to fail; expected values come from the frozen reference module and the harness's "
         "own arithmetic, never from the text",
+    "tb/verilator/avtp_rxmon/format_mutants.py":
+        "mutation campaign; it plants one of five #765 current-format compare defects (the channel "
+        "count dropped, its high bits dropped, a matching count rejected, a constant count, stream 0's "
+        "format word not loaded) into a copy and requires its named [UF] check of the N=4 harness to "
+        "fail; expected values come from the Milan v1.2 Table 6.2 formats the harness drives, never "
+        "from the text",
     "tb/verilator/chmap_capture/lockstep_mutants.py":
         "mutation campaign; it plants one of three source-table and skid defects into a copy and "
         "requires its named lockstep check to fail; expected samples come from the harness's own "
@@ -80,7 +86,8 @@ DUT_READER_DISPOSITIONS = {
     "tb/verilator/crf_rx/mutants.py":
         "mutation campaign; copies the receiver and servo, requiring named failures "
         "for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, "
-        "refill, accept-edge, ignored-validity and PI-resume defects; "
+        "refill, accept-edge, ignored-validity and PI-resume defects, and the #765 "
+        "subtype defects (an AAF PDU ignored or accepted, a matching CRF PDU rejected); "
         "no expectations read from RTL",
     "tb/verilator/maap/mutants.py":
         "mutation campaign; it plants one #686 Annex B defect from its own table (DEFEND destination "
