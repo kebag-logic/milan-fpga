@@ -1,0 +1,12 @@
+[PASS] mutant caught: the CSR writer is not held while the boot writer is busy - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 4 failure(s) across 199 checks)
+[PASS] mutant caught: the input store alone takes a CSR write while the writer is busy - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 2 failure(s) across 199 checks)
+[PASS] mutant caught: the output store alone takes a CSR write while the writer is busy - breaks "[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM" (its tallies report 2 failure(s) across 199 checks)
+[PASS] mutant caught: the boot window ignores the CLOSED terminal - breaks "[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended" (its tallies report 2 failure(s) across 199 checks)
+[PASS] mutant caught: no sweep after the restore's terminal - breaks "[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map" (its tallies report 6 failure(s) across 199 checks)
+[PASS] mutant caught: no drain clock: busy ends while the last boot write is in flight - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 4 failure(s) across 199 checks)
+[PASS] mutant caught: the edit face never waits for the boot writer - breaks "[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends" (its tallies report 2 failure(s) across 199 checks)
+[PASS] mutant caught: an empty reset, under the listener's end-to-end check - breaks "T18 POWER-ON: with no map command since the reset, the lane renders injected events" (its tallies report 8 failure(s) across 264 checks)
+[PASS] mutant caught: an empty reset, under the talker's end-to-end check - breaks "[V] every requested column was decoded" (its tallies report 20 failure(s) across 134 checks)
+
+16 checks: 16 PASS, 0 FAIL
+make: Leaving directory '<clone>/tb/verilator/milan_dp'
