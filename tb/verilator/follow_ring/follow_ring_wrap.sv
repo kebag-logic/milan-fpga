@@ -209,7 +209,7 @@ module follow_ring_wrap #(
     .pdu_count_o (), .fmt_err_o (), .seq_err_o (), .mr_cnt_o (), .tu_cnt_o (),
     .late_cnt_o (), .early_cnt_o (), .locked_o (crf_locked_w),
     .cnt_locked_o (), .cnt_unlocked_o (), .cnt_intr_o (), .dirty_p_o (),
-    .mr_toggle_p_o ()
+    .mr_toggle_p_o (), .ts_p_o (), .ts_o ()
   );
 
   // ---------------------------------------------------------------------- //
@@ -232,6 +232,11 @@ module follow_ring_wrap #(
     .sel_i (follow_sel_r), .ref_locked_i (ref_locked_w),
 `endif
     .ref_rate_ns_i (ref_rate_w), .ref_rate_valid_i (ref_rate_valid_w),
+    //! this bench grades the rate loop's transients (#645): its talkers carry
+    //! no timing points for the phase term (#632), which stays off
+    .ph_en_i (1'b0), .dom_ev_p_i (1'b0), .dom_ns_i (64'd0),
+    .ref_ts_p_i (1'b0), .ref_ts_i (64'd0), .ref_restart_p_i (1'b0),
+    .phase_o (), .ph_settled_o (),
     .auto_repair_i (1'b0), .ps_invert_i (1'b0),
     .drp_addr_o (drp_addr_o), .drp_en_o (drp_en_o), .drp_we_o (drp_we_o),
     .drp_di_o (drp_di_o), .drp_do_i (drp_do_i), .drp_rdy_i (drp_rdy_i),
