@@ -1496,8 +1496,10 @@ owners leave reset only after the late burst.
   back its reset set. The binding walk fails on a torn read, a device error
   with nothing forwarded, or its deadline. Since #637 the parent's map
   restore fails, and rolls every map back, on a device error, a short read,
-  a deadline, or a port that refuses to give up or take back its reset set;
-  both cause fields then read 0.
+  a deadline, or a port that refuses to give up or take back its reset set.
+  It adds no cause of its own: the D3 walk's cause reads 0, since the map
+  restore runs only after a D3 walk that ended with none, and the binding
+  walk's cause keeps its value.
 - restore blank: the restore did NOT fail, and NEITHER walk validated a
   record, nor did the parent's map restore (#637). V7, a name back and no binding, reads "blank 0, done 1";
   G04_blank_ignores_d3, the binding walk's blank alone, reads "blank 1".
