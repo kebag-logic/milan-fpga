@@ -3438,7 +3438,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! back is the one it stamps).
   function automatic logic [ACMP_SRC_C*32-1:0] pres_reset_rows();
     logic [ACMP_SRC_C*32-1:0] r;
-    for (int k = 0; k < ACMP_SRC_C; k++) r[32*k +: 32] = ADP_STROUT_PRES_NS_C[k];
+    for (int row = 0; row < ACMP_SRC_C; row++) r[32*row +: 32] = ADP_STROUT_PRES_NS_C[row];
     return r;
   endfunction
   localparam logic [ACMP_SRC_C*32-1:0] PRES_RESET_ROWS_C = pres_reset_rows();
