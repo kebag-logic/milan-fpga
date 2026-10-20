@@ -6,7 +6,8 @@
 Each mutant is a text substitution on a temporary copy of the RTL (or, for
 the synthetic three-interface shape, of pin_wrap.sv, the integration that bench
 plays), built through this directory's Makefile and run on the one case that
-grades its term; it passes only when that case exits 1 with the named [FAIL]
+grades its term (a loop case, the pins, or a detector case of sim_det.cpp,
+named det:<case>); it passes only when that case exits 1 with the named [FAIL]
 line. A
 mutant whose anchor is not found exactly once, or that fails to compile,
 counts as a failure of the campaign, never as a kill. The clean build of the
@@ -28,14 +29,29 @@ HDL = HERE / "../../../hdl/ieee1722/crf"
 SERVO = "KL_mmcm_drp_servo.sv"
 DOMEV = "KL_media_domain_event.sv"
 CRFTX = "KL_crf_tx.sv"
+MTTR = "KL_mtt_round.sv"
 #: the synthetic three-interface shape's integration (the bench plays it)
 PINWRAP = "pin_wrap.sv"
-SOURCES = {SERVO: HDL / SERVO, DOMEV: HDL / DOMEV, CRFTX: HDL / CRFTX, PINWRAP: HERE / PINWRAP}
+SOURCES = {SERVO: HDL / SERVO, DOMEV: HDL / DOMEV, CRFTX: HDL / CRFTX, MTTR: HDL / MTTR,
+           PINWRAP: HERE / PINWRAP}
 #: Makefile variable that names each mutable source
-MAKEVAR = {SERVO: "SERVO_RTL", DOMEV: "DOMEV_RTL", CRFTX: "CRFTX_RTL", PINWRAP: "PIN_WRAP"}
-#: the two harnesses: (build target, objdir variable, executable)
+MAKEVAR = {SERVO: "SERVO_RTL", DOMEV: "DOMEV_RTL", CRFTX: "CRFTX_RTL", MTTR: "MTTR_RTL",
+           PINWRAP: "PIN_WRAP"}
+#: the four harnesses: (build target, objdir variable, executable)
 PINS = "pins"
-HARNESS = {"cases": ("build", "MDIR", "Vmedia_phase"), PINS: ("pins-build", "PIN_MDIR", "Vpin_wrap")}
+OFS = "ofs"
+DET = "det"
+HARNESS = {"cases": ("build", "MDIR", "Vmedia_phase"), PINS: ("pins-build", "PIN_MDIR", "Vpin_wrap"),
+           OFS: ("ofs-build", "OFS_MDIR", "Vofs_wrap"), DET: ("det-build", "DET_MDIR", "Vdet")}
+#: the harnesses that are one case each
+SINGLE = (PINS, OFS)
+
+
+def harness_of(case: str) -> str:
+    """The harness a case runs on: the pins, the offsets, the detector (det:<case>) or the loop."""
+    if case in SINGLE:
+        return case
+    return DET if case.startswith(DET + ":") else "cases"
 
 #: (name, file, ((anchor, replacement), ...), case, failing check)
 MUTANTS = (
@@ -60,15 +76,52 @@ MUTANTS = (
        "  localparam int signed   PH_CLAMP_C = PH_HALF_C - 1;"),),
      "engage", "[engage] the pull is slew-limited"),
     #: the fold left in [0, Ps): the phase gains the one bit that range needs,
-    #: or the upper half would wrap back to nearly the centred reading
+    #: or the upper half would wrap back to nearly the centred reading. The
+    #: window's re-fold still pulls the short way, but a sample just below
+    #: zero now reads near Ps, outside the band, so nothing settles
     ("fold_not_centred", SERVO,
      (("      (dv_rem_r >= PH_RW_C'(PH_HALF_C)) ? PH_TW_C'($signed({1'b0, dv_rem_r}) - PS_U_C)",
        "      1'b0 ? PH_TW_C'($signed({1'b0, dv_rem_r}) - PS_U_C)"),
       ("  localparam int unsigned PH_TW_C = 16; ", "  localparam int unsigned PH_TW_C = 17; ")),
-     "engage2", "[engage2] the pull went the short way"),
+     "det:inband", "[det inband] settled first reads 1 at the close of the fourth full in-band window"),
+    #: R678-1-F3: each sample summed as folded, no tracking reference, so
+    #: samples either side of +/-Ps/2 cancel towards zero
+    ("tracking_fold_removed", SERVO,
+     (("  wire signed [PH_UW_C-1:0] ph_unw_w = ph_ref_v_r ? PH_UW_C'(ph_ref_r) + PH_UW_C'(ph_dxf_w)",
+       "  wire signed [PH_UW_C-1:0] ph_unw_w = 1'b0 ? PH_UW_C'(ph_ref_r) + PH_UW_C'(ph_dxf_w)"),),
+     "det:balanced", "[det balanced] the window phase reads the half-period phase"),
+    #: the window phase left unwrapped: past +Ps/2 it pulls the long way
+    ("window_refold_removed", SERVO,
+     (("      (ph_wraw_w >= PH_UW_C'(PH_HALF_C))  ? PH_TW_C'(ph_wraw_w - PH_UW_C'(PS_U_C))",
+       "      1'b0  ? PH_TW_C'(ph_wraw_w - PH_UW_C'(PS_U_C))"),
+      ("    : (ph_wraw_w < -PH_UW_C'(PH_HALF_C))  ? PH_TW_C'(ph_wraw_w + PH_UW_C'(PS_U_C))",
+       "    : 1'b0  ? PH_TW_C'(ph_wraw_w + PH_UW_C'(PS_U_C))")),
+     "det:cross", "[det cross] past +Ps/2 the window phase re-folds to the short way"),
+    #: R678-1-F3: settled from the window mean alone
+    ("settled_on_mean_only", SERVO,
+     (("  wire ph_inband_w    = (ph_wmean_w < PH_TW_C'(PH_BAND_C)) && (ph_wmean_w > -PH_TW_C'(PH_BAND_C))\n"
+       "                        && ph_allin_r;",
+       "  wire ph_inband_w    = (ph_wmean_w < PH_TW_C'(PH_BAND_C)) && (ph_wmean_w > -PH_TW_C'(PH_BAND_C));"),),
+     "det:meanin", "[det meanin] settled never asserts with every sample outside the band"),
+    #: R678-1-F4: the snapshot reads only the valid flag the hold clears after it
+    ("snapshot_hold_ignored", SERVO,
+     (("            pp_ph_r     <= (!ph_theta_v_r || ph_hold_w) ? '0",
+       "            pp_ph_r     <= !ph_theta_v_r ? '0"),),
+     "det:snap", "[det snap] mr on the closing edge"),
+    #: R677-1-F3: settled is the engaged bit, no band and no four windows
+    ("settled_is_engaged", SERVO,
+     (("  assign ph_settled_o = ph_theta_v_r &&\n"
+       "                        (ph_set_cnt_r == ($bits(ph_set_cnt_r))'(PH_SETTLE_WIN_P));",
+       "  assign ph_settled_o = ph_theta_v_r;"),),
+     "det:inband", "[det inband] settled first reads 1 at the close of the fourth full in-band window"),
+    #: R677-1-F3: a timestamp outside the fold range sampled anyway
+    ("fold_range_guard_removed", SERVO,
+     (("        if (dom_fresh_r && ph_d_ok_w && !dv_busy_r) begin",
+       "        if (dom_fresh_r && !dv_busy_r) begin"),),
+     "det:range", "[det range] a timestamp 2^25 ns from the domain event is not sampled"),
     ("window_cap_removed", SERVO,
-     (("      end else if (ph_acc_w && ph_cnt_r != PH_CW_C'(PH_CAP_C)) begin",
-       "      end else if (ph_acc_w) begin"),),
+     (("        if (ph_cnt_r != PH_CW_C'(PH_CAP_C)) begin",
+       "        if (1'b1) begin"),),
      "burst", "[burst] the window the burst filled kept exactly 264 samples, the cap"),
     ("history_hold_removed", SERVO,
      (("                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;",
@@ -94,6 +147,16 @@ MUTANTS = (
      (("                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;",
        "                   !ref_rate_valid_i || ptp_jump_r;"),),
      "slew", "[slew] the phase term let go at the slew level"),
+    #: R677-1-F2: the local PHC step (#539) left out of the hold
+    ("step_hold_removed", SERVO,
+     (("                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;",
+       "                   !ref_rate_valid_i || phc_slew_q_r;"),),
+     "phcstep", "[phcstep] the phase term let go at the PHC step"),
+    #: R678-1-F2: the offsets stamped as set, not in whole periods
+    ("offset_rounding_bypassed", MTTR,
+     (("      ofs_o[32*row_r +: 32] <= dv_quot_r[31:0];",
+       "      ofs_o[32*row_r +: 32] <= cur_r;"),),
+     OFS, "[ofs A] every AAF output stamps whole periods from the CRF timing points"),
     ("domain_event_not_backdated", DOMEV,
      (("  assign mark_ns_o = ptp_ns_i - 64'(MARK_LAT_NS_P);", "  assign mark_ns_o = ptp_ns_i;"),),
      "engage", "[engage] every DUT CRF timestamp is a frame instant of its own grid"),
@@ -145,7 +208,8 @@ def build(work: Path, name: str, sources: dict[str, str], harness: str = "cases"
 
 def run(binary: Path, case: str) -> tuple[int, str]:
     """One case (or the pins harness); its exit status and its whole output."""
-    argv = [str(binary)] if case == PINS else [str(binary), f"+case={case}"]
+    arg = case.split(":", 1)[1] if harness_of(case) == DET else case
+    argv = [str(binary)] if case in SINGLE else [str(binary), f"+case={arg}"]
     result = subprocess.run(argv, capture_output=True, text=True, check=False)
     return result.returncode, result.stdout + result.stderr
 
@@ -159,7 +223,7 @@ def one_mutant(work: Path, originals: dict[str, str], mutant: tuple) -> bool:
             print(f"[FAIL] {name}: anchor not found exactly once: {anchor!r}", flush=True)
             return False
         text = text.replace(anchor, replacement)
-    binary = build(work, name, {fname: text}, PINS if case == PINS else "cases")
+    binary = build(work, name, {fname: text}, harness_of(case))
     if binary is None:
         print(f"[FAIL] {name}: compilation failed (never a kill)", flush=True)
         return False
@@ -193,14 +257,12 @@ def main() -> int:
     results = []
     with tempfile.TemporaryDirectory(prefix="media-phase-mutants-") as directory:
         work = Path(directory)
-        clean = build(work, "clean", {})
-        clean_pins = build(work, "clean", {}, PINS)
-        if clean is None or clean_pins is None:
+        clean = {h: build(work, "clean", {}, h) for h in sorted({harness_of(c) for c in cases})}
+        if any(b is None for b in clean.values()):
             print("[FAIL] clean: compilation failed", flush=True)
             return 1
         with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-            verdicts = list(pool.map(lambda c: (c, run(clean_pins if c == PINS else clean, c)),
-                                     cases))
+            verdicts = list(pool.map(lambda c: (c, run(clean[harness_of(c)], c)), cases))
         for case, (rc, out) in verdicts:
             ok = rc == 0 and "RESULT: PASS" in out
             print(f"[{'PASS' if ok else 'FAIL'}] clean {case}: rc={rc}", flush=True)

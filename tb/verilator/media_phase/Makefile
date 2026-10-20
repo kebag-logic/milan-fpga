@@ -7,8 +7,13 @@
 # MMCM, a free-running local oscillator and a CRF talker on an exact 2 ms
 # grid. sim_main.cpp lists the cases; each runs in its own process.
 #
-#   make          - the three-interface pins, then every case (CASE_JOBS at once)
+#   make          - the three-interface pins, the offsets, the detector
+#                   cases, then every loop case (CASE_JOBS at once)
 #   make pins     - the synthetic three-interface shape graded at its pins
+#   make ofs      - several AAF outputs of one domain, each its own offset,
+#                   graded against the CRF timing points (sim_ofs.cpp)
+#   make det      - the phase detector alone, every boundary placed exactly
+#                   (sim_det.cpp)
 #   make cases    - build and run every case
 #   make mutants  - THE MUTATION CAMPAIGN, explicit: one planted defect per
 #                   loop term and per interface constant, each required to
@@ -53,23 +58,54 @@ PIN_SRCS = $(RTL_DIR)/ieee1722/crf/KL_media_if_latency_pkg.sv \
            $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
            $(DOMEV_RTL) $(CRFTX_RTL) $(PIN_WRAP)
 
-CASES = engage engage2 step ramp holdover internal mr slew burst carry
+# the detector alone (#632): KL_mmcm_drp_servo with a 32-cycle tick, so a
+# window is 16,384 cycles
+DET_MDIR ?= obj_det
+DET_CASES = inband events meanin balanced unbal129 unbal160 jitter cross range snap
+
+CASES = engage engage2 edge edge2 step ramp holdover internal mr slew phcstep burst carry
 OUT  ?= obj_logs
 
-.PHONY: all run build cases pins pins-build mutants clean
+.PHONY: all run build cases pins pins-build ofs ofs-build det det-build mutants clean
 all: run
 
 build:
 	$(VERILATOR) $(VFLAGS) --Mdir $(MDIR) --top-module $(TOP) $(SRCS) sim_main.cpp -o Vmedia_phase
 
-run: pins cases
+run: pins ofs det cases
 
 pins-build:
 	$(VERILATOR) $(VFLAGS) --Mdir $(PIN_MDIR) --top-module pin_wrap $(PIN_SRCS) sim_pins.cpp -o Vpin_wrap
 
 pins: pins-build
 	@echo "======================================================================"
-	./$(PIN_MDIR)/Vpin_wrap
+	$(PIN_MDIR)/Vpin_wrap
+
+det-build:
+	$(VERILATOR) $(VFLAGS) --Mdir $(DET_MDIR) --top-module KL_mmcm_drp_servo --prefix Vdet_servo \
+	  -GTICK_CYC_P=32 $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
+	  $(SERVO_RTL) sim_det.cpp -o Vdet
+
+# several AAF outputs of one domain with their own offsets (#632, R678-1-F2):
+# ofs_wrap.sv, sim_ofs.cpp
+OFS_WRAP ?= ofs_wrap.sv
+OFS_MDIR ?= obj_ofs
+MTTR_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_mtt_round.sv
+OFS_SRCS = $(MTTR_RTL) $(RTL_DIR)/ieee1722/aaf/KL_aaf_packetizer.sv $(CRFTX_RTL) $(OFS_WRAP)
+
+ofs-build:
+	$(VERILATOR) $(VFLAGS) --Mdir $(OFS_MDIR) --top-module ofs_wrap $(OFS_SRCS) sim_ofs.cpp -o Vofs_wrap
+
+ofs: ofs-build
+	@echo "======================================================================"
+	$(OFS_MDIR)/Vofs_wrap
+
+# every detector case in its own process; the verdict is make's
+det: det-build
+	@rc=0; for c in $(DET_CASES); do \
+	  echo "======================================================================"; \
+	  $(DET_MDIR)/Vdet +case=$$c || rc=1; \
+	done; exit $$rc
 
 # every case, one process each, CASE_JOBS at once; each case's whole log is
 # kept in OUT, and printed here without its per-window trace lines. The
@@ -78,7 +114,7 @@ CASE_JOBS ?= 3
 cases: build
 	@mkdir -p $(OUT)
 	@printf '%s\n' $(CASES) | xargs -P $(CASE_JOBS) -I{} sh -c \
-	  './$(MDIR)/Vmedia_phase +case=$$1 > $(OUT)/$$1.log 2>&1; echo $$? > $(OUT)/$$1.rc' sh {}
+	  '$(MDIR)/Vmedia_phase +case=$$1 > $(OUT)/$$1.log 2>&1; echo $$? > $(OUT)/$$1.rc' sh {}
 	@rc=0; for c in $(CASES); do \
 	  echo "======================================================================"; \
 	  grep -v '^  t=' $(OUT)/$$c.log; \
@@ -92,4 +128,4 @@ mutants:
 	python3 phase_mutants.py --jobs $(MUTANT_JOBS)
 
 clean:
-	rm -rf obj_dir obj_pins obj_logs __pycache__
+	rm -rf obj_dir obj_pins obj_det obj_ofs obj_logs __pycache__

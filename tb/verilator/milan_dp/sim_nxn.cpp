@@ -7214,6 +7214,27 @@ class NxnDatapathHarness {
             ck("#403 runtime factory value can be selected again", aecp_status(response), 0);
             expected[target] = 2000000;
         }
+        // #632 (R678-1-F2): an offset that is no whole number of media clock
+        // periods is applied rounded up to one (IEEE 1722-2016 10.7 Eq. 14,
+        // 4.3.5), on an AAF output and on the CRF output, and GET_STREAM_INFO
+        // reads back the value applied: 2,010,000 ns is 96.48 periods at
+        // 48 kHz, applied as 97, 2,020,834 ns
+        for (unsigned target : {1u, static_cast<unsigned>(kNstreamsTb)}) {
+            auto response = aecp_xact(0x000E, setter_sq++,
+                                      si_pl(0x0006, target, 0x20000000u, 2010000));
+            ck("#632 a non-period offset is accepted", aecp_status(response), 0);
+            for (int c = 0; c < 2000; ++c) step();   // the rounder's conversion
+            response = aecp_xact(0x000F, setter_sq++, desc_key(0x0006, target));
+            ck("#632 GET_STREAM_INFO reads the offset applied, whole periods", lat_of(response), 2020834ul);
+            expected[target] = 2020834;
+        }
+        grade_output_timestamps(expected);
+        for (unsigned target : {1u, static_cast<unsigned>(kNstreamsTb)}) {
+            auto response = aecp_xact(0x000E, setter_sq++,
+                                      si_pl(0x0006, target, 0x20000000u, 2000000));
+            ck("#632 the factory offset is selected again", aecp_status(response), 0);
+            expected[target] = 2000000;
+        }
         axi_write(A_STRM_SEL, 0x101); axi_write(A_SW_DMAC_HI, source1);
         axi_write(A_STRM_SEL, selection);
         axi_write(A_LWSRP_CTRL, srp); axi_write(A_MAAP_CTRL, maap);

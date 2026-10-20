@@ -21,6 +21,11 @@
 //   engage    an arbitrary engagement phase, 0.47 Ps (near the fold), pulled
 //             the short way into +/-5 % and held; the pull is slew-limited
 //   engage2   the same from -0.33 Ps
+//   edge      the reference stepped so the phase lands 2 ns inside +Ps/2,
+//             its timestamps truncated to 8 ns and jittered +/-48 ns, so the
+//             samples straddle the fold: re-acquired within a bound, never
+//             reading settled outside the band
+//   edge2     the same at -Ps/2 exactly
 //   step      a reference phase step of 0.37 Ps (a CRF timestamp jump),
 //             re-acquired and held
 //   ramp      a local-oscillator ramp of 4 ppm over 80 s, held throughout
@@ -33,14 +38,19 @@
 //   slew      the local PHC slews 27 us at 200 ppm under the #545 slew level:
 //             re-acquired the short way (6.2 us, not the 27 us the slew
 //             moved) and held
+//   phcstep   the local PHC steps +7 us (0.34 Ps) with no slew level (#539):
+//             the step's hold lets the term go, and it re-acquires and holds
 //   burst     the talker sends 4 % faster than its declared interval for
 //             one window, its timestamps still on its grid: the window keeps
 //             264 samples, the cap, so its phase cannot wrap, and the phase
 //             is held
 //
 // Each event case also requires the phase term to let go at the event (the
-// engaged bit, phase_o[20], low on some datapath cycle shortly after it):
-// the hold conditions are graded one by one.
+// engaged bit, phase_o[20], low on some datapath cycle shortly after it) and
+// the settled flag to fall with it: the hold conditions are graded one by
+// one. Every case requires the settled flag never to read 1 at a window
+// sample whose true phase lies outside the band, and MCSRV_STAT[9] to mirror
+// phase_o[21] on every cycle.
 //   carry     the phase term off: the integrator carries every odd error
 //             exactly (#764's floor leak), and the phase does not walk
 //
@@ -141,9 +151,10 @@ class MediaPhaseHarness {
     //! instants (#545), zero before it
     double phc_offset_ns() const {
         const double t = now_s();
-        if (t <= slew_t0_) return 0.0;
-        if (t >= slew_t1_) return slew_ns_;
-        return slew_ns_ * (t - slew_t0_) / (slew_t1_ - slew_t0_);
+        const double st = (t >= step_t_) ? step_ns_ : 0.0;
+        if (t <= slew_t0_) return st;
+        if (t >= slew_t1_) return st + slew_ns_;
+        return st + slew_ns_ * (t - slew_t0_) / (slew_t1_ - slew_t0_);
     }
 
     //! the oscillator: base offset plus a linear ramp between two instants
@@ -173,13 +184,25 @@ class MediaPhaseHarness {
         }
         if (!ref_on_) return;
         dut_->frame_p_i = 1;
-        dut_->ts_ns_i = static_cast<uint64_t>(std::llround(src + kMttNs));
+        int64_t ts = std::llround(src + kMttNs);
+        //! the talker's timestamp error: uniform jitter, then its PHC's
+        //! 8 ns resolution (truncated)
+        if (ts_jit_ns_ > 0) {
+            ts += static_cast<int64_t>(ts_jitter_ns());
+            ts &= ~static_cast<int64_t>(7);
+        }
+        dut_->ts_ns_i = static_cast<uint64_t>(ts);
         dut_->seq_i = static_cast<uint8_t>(ref_seq_++);
         dut_->mr_i = ref_mr_;
     }
     double jitter_ns() {
         lcg_ = lcg_ * 6364136223846793005ULL + 1442695040888963407ULL;
         return static_cast<double>((lcg_ >> 33) % 4000);
+    }
+    double ts_jitter_ns() {
+        tlcg_ = tlcg_ * 6364136223846793005ULL + 1442695040888963407ULL;
+        const auto span = static_cast<uint64_t>(2 * ts_jit_ns_ + 1);
+        return static_cast<double>((tlcg_ >> 33) % span) - ts_jit_ns_;
     }
     //! the reference's phase step: its grid moves by d ns from the next PDU
     void step_reference(double d_ns) {
@@ -197,8 +220,12 @@ class MediaPhaseHarness {
     double true_phase() const { return fold(last_frame_ns_ - ref_t0_ns_); }
 
     void observe_clk() {
-        // the hold: the phase term must let go at each event that holds it
+        // the hold: the phase term must let go at each event that holds it,
+        // and the settled flag fall with it
         if (now_s() >= letgo_from_ && now_s() <= letgo_until_ && !engaged()) letgo_seen_ = true;
+        if (now_s() >= letgo_from_ && now_s() <= letgo_until_ && !settled()) unset_seen_ = true;
+        // MCSRV_STAT[9] is the settled flag
+        if (((dut_->status_o >> 9) & 1) != ((dut_->phase_o >> 21) & 1)) bad_mirror_ = true;
         // the most samples any window kept (phase_o[31:23])
         const unsigned wcnt = (dut_->phase_o >> 23) & 0x1FF;
         if (wcnt > max_wcnt_) max_wcnt_ = wcnt;
@@ -256,6 +283,11 @@ class MediaPhaseHarness {
         if (have_eng_ && pull_watch_ && std::fabs(p) > max_after_eng_) max_after_eng_ = std::fabs(p);
         prev_phase_ = p;
         have_prev_ = true;
+        //! settled only ever inside the band
+        if (settled() && std::fabs(p) >= kBandNs) {
+            false_settled_++;
+            if (std::fabs(p) > worst_settled_ns_) worst_settled_ns_ = std::fabs(p);
+        }
         if (grading_) {
             if (std::fabs(p) > max_held_ns_) max_held_ns_ = std::fabs(p);
         }
@@ -269,19 +301,24 @@ class MediaPhaseHarness {
 
     int state() const { return static_cast<int>(dut_->status_o & 7); }
     bool engaged() const { return ((dut_->phase_o >> 20) & 1) != 0; }
+    bool settled() const { return ((dut_->phase_o >> 21) & 1) != 0; }
     //! watch the engaged bit from now for `within_s`: an event that holds the
     //! phase term must make it let go, observed on every datapath cycle
     void watch_letgo(double within_s) {
         letgo_from_ = now_s();
         letgo_until_ = now_s() + within_s;
         letgo_seen_ = false;
+        unset_seen_ = false;
         engaged_before_ = engaged();
+        settled_before_ = settled();
     }
     void check_letgo(const char* tag, const char* event) {
         char what[160];
         std::snprintf(what, sizeof what, "[%s] the phase term let go at %s (within %.0f ms)", tag, event,
                       (letgo_until_ - letgo_from_) * 1e3);
         check_.that(what, engaged_before_ && letgo_seen_);
+        std::snprintf(what, sizeof what, "[%s] the settled flag fell at %s", tag, event);
+        check_.that(what, settled_before_ && unset_seen_);
     }
     bool locked() const { return state() == 4; }
     double dut_phase_ns() const {
@@ -338,6 +375,12 @@ class MediaPhaseHarness {
         check_.that(what, crf_n_ > 10 && max_crf_vs_frame_ns_ < 0.01 * kPsNs);
         std::snprintf(what, sizeof what, "[%s] fine-PS protocol clean", tag);
         check_.that(what, mm_.ps_viol == 0 && mm_.ps_during_drp_rst == 0);
+        std::snprintf(what, sizeof what,
+                      "[%s] settled never read 1 with the true phase outside the band (%d windows, worst %.1f ns)",
+                      tag, false_settled_, worst_settled_ns_);
+        check_.that(what, false_settled_ == 0);
+        std::snprintf(what, sizeof what, "[%s] MCSRV_STAT[9] mirrors phase_o[21] on every cycle", tag);
+        check_.that(what, !bad_mirror_);
     }
 
     //! the reference's grid is placed against the DUT's first frame, so the
@@ -492,6 +535,56 @@ class MediaPhaseHarness {
         common_checks("slew");
     }
 
+    //! an instantaneous step of the local PHC with no slew level (#539): the
+    //! DUT's timescale moves 7 us (0.34 Ps) under the reference. The step's
+    //! hold lets the term go; it re-acquires from the folded phase and holds
+    void case_phcstep() {
+        start_settled();
+        watch_letgo(0.005);
+        step_ns_ = 7000.0;
+        step_t_ = now_s();
+        std::printf("  info: [phcstep] the local PHC steps %+.0f ns at %.2f s\n", step_ns_, now_s());
+        run_to(now_s() + 0.002);
+        std::printf("  info: [phcstep] phase %+.4f Ps after the step\n", true_phase() / kPsNs);
+        grade_reacquired("phcstep", step_t_, 40.0, 70.0);
+        check_letgo("phcstep", "the PHC step");
+        common_checks("phcstep");
+    }
+
+    //! an engagement at the fold: the reference stepped so the true phase
+    //! lands `at_ps` (+/-0.5 Ps or just inside it), its timestamps truncated to
+    //! 8 ns and jittered +/-48 ns throughout, so the samples of one window
+    //! read on both sides of +/-Ps/2. Acquisition is bounded and the settled
+    //! flag never reads 1 outside the band
+    void case_edge(double at_ps, const char* tag) {
+        ts_jit_ns_ = 48.0;
+        start_settled();
+        watch_letgo(0.010);
+        //! the true phase reads (frame - reference grid): moving the grid by
+        //! (phase - target) puts the phase on the target
+        const double t_event = now_s();
+        step_reference(true_phase() - at_ps * kPsNs);
+        std::printf("  info: [%s] the reference stepped to put the phase at %+.4f Ps at %.2f s\n",
+                    tag, true_phase() / kPsNs, now_s());
+        //! the engagement is the first after the step's hold
+        run_to(now_s() + 0.012);
+        have_eng_ = false;
+        pull_watch_ = true;
+        max_pull_ns_ = 0;
+        //! the step itself is no pull: the next window sample starts afresh
+        have_prev_ = false;
+        grade_reacquired(tag, t_event, 45.0, 70.0);
+        char what[160];
+        std::snprintf(what, sizeof what, "[%s] re-engaged at the fold (%+.4f Ps from the reference's grid)",
+                      tag, eng_phase_ / kPsNs);
+        check_.that(what, have_eng_ && std::fabs(eng_phase_) > 0.49 * kPsNs);
+        std::snprintf(what, sizeof what, "[%s] the pull is slew-limited: <= 400 ns of phase per window (max %.1f)",
+                      tag, max_pull_ns_);
+        check_.that(what, max_pull_ns_ <= 400.0);
+        check_letgo(tag, "the reference's history restart");
+        common_checks(tag);
+    }
+
     //! a talker sending 4 % faster than its declared timestamp_interval, its
     //! timestamps still 2 ms apart on its grid (so the phase each sample
     //! reads is unchanged): about 266 PDUs land in a 512 ms window.
@@ -576,6 +669,10 @@ class MediaPhaseHarness {
     double slew_t0_ = 1e9;
     double slew_t1_ = 1e9;
     double slew_ns_ = 0;
+    double step_t_ = 1e9;
+    double step_ns_ = 0;
+    double ts_jit_ns_ = 0;
+    uint64_t tlcg_ = 0x764632ULL;
     double burst_t0_ = 1e9;
     double burst_t1_ = 1e9;
     std::vector<double> burst_sent_;
@@ -609,7 +706,12 @@ class MediaPhaseHarness {
     double letgo_from_ = 1e9;
     double letgo_until_ = 0;
     bool letgo_seen_ = false;
+    bool unset_seen_ = false;
     bool engaged_before_ = false;
+    bool settled_before_ = false;
+    bool bad_mirror_ = false;
+    int false_settled_ = 0;
+    double worst_settled_ns_ = 0;
     double eng_phase_ = 0;
     double max_after_eng_ = 0;
     int locked_windows_ = 0;
@@ -620,6 +722,9 @@ int MediaPhaseHarness::run(const std::string& name) {
                 name.c_str(), kClkHz / 1e6, kAudHz / 1e3);
     if (name == "engage") case_engage(0.47, "engage");
     else if (name == "engage2") case_engage(-0.33, "engage2");
+    else if (name == "edge") case_edge(0.5 - 2.0 / kPsNs, "edge");
+    else if (name == "edge2") case_edge(-0.5, "edge2");
+    else if (name == "phcstep") case_phcstep();
     else if (name == "step") case_step();
     else if (name == "ramp") case_ramp();
     else if (name == "holdover") case_holdover();
