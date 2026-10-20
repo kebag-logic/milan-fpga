@@ -1,0 +1,20 @@
+M193 settle sink0 got=1 status=0, sink1 got=1 status=0
+M193 after peer Advertise: tk_reg {1,1} ls_decl {2,2} registrar {1,1}
+  one-declaration reference (independent builder) (35 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+M193 two-settled frame 0 @403 ms: 2 Listener value(s) for 1122334455660001: [vec fv=1122334455660001 nov=1 j=0 ev=0 fp=2] [vec fv=1122334455660001 nov=1 j=0 ev=0 fp=2]
+  bytes (47 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 1a 00 01 11 22 33 44 55 66 00 01 00 80 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+M193 two-settled frame 1 @603 ms: 2 Listener value(s) for 1122334455660001: [vec fv=1122334455660001 nov=1 j=0 ev=0 fp=2] [vec fv=1122334455660001 nov=1 j=0 ev=0 fp=2]
+  bytes (47 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 1a 00 01 11 22 33 44 55 66 00 01 00 80 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+M193 two-settled frame 2 @803 ms: 2 Listener value(s) for 1122334455660001: [vec fv=1122334455660001 nov=1 j=0 ev=3 fp=2] [vec fv=1122334455660001 nov=1 j=0 ev=3 fp=2]
+  bytes (47 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 1a 00 01 11 22 33 44 55 66 00 01 6c 80 00 01 11 22 33 44 55 66 00 01 6c 80 00 00 00 00
+M193 two-settled frame 3 @1003 ms: 1 Listener value(s) for 1122334455660001: [vec fv=1122334455660001 nov=1 j=0 ev=3 fp=2]
+  bytes (48 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 04 04 00 09 00 01 06 03 00 02 6c 00 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 6c 80 00 00 00 00
+M193 unbind sink0 got=1 status=0
+M193 after-unbind-sink0 frame 0 @1402 ms: 1 Listener value(s) for 1122334455660001: [vec fv=1122334455660001 nov=1 j=0 ev=5 fp=2]
+  bytes (35 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 b4 80 00 00 00 00
+M193 after-unbind-sink0 frame 1 @2003 ms: 1 Listener value(s) for 1122334455660001: [vec fv=1122334455660001 nov=1 j=0 ev=3 fp=2]
+  bytes (48 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 04 04 00 09 00 01 06 03 00 02 6c 00 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 6c 80 00 00 00 00
+M193 after-unbind-sink0 frame 2 @3003 ms: 1 Listener value(s) for 1122334455660001: [vec fv=1122334455660001 nov=1 j=0 ev=3 fp=2]
+  bytes (48 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 04 04 00 09 00 01 06 03 00 02 6c 00 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 6c 80 00 00 00 00
+TOTAL_CLOCKS 120138
+0 checks: 0 PASS, 0 FAIL

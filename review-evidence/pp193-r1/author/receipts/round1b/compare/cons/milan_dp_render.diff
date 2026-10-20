@@ -1,0 +1,458 @@
+--- base/milan_dp_render.log
++++ head/milan_dp_render.log
+@@ -2,53 +1,0 @@
+-python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+-python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+-python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_tdm8r_aem
+-python3 gen_tdm8r_multi_shape.py
+-wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+-ucode.hex: 2048 words, 92 programs
+-multi-stream render shape: ports_in=2 port0 keys 0..7 physical, port1 keys 8..15 NONPHYSICAL; config tb/verilator/milan_dp_render/gen_tdm8r_multi/endstation_tdm8r_multi.yaml
+-python3 ../../../sw/builder/endstation_builder.py gen_tdm8r_multi/endstation_tdm8r_multi.yaml -o obj_tdm8rm_aem
+-[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC5C1935893E1 (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/soc_params.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aem_overlay.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/build_plan.md
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/platform_shape.json
+-  wrote configs/generated/sweep_opts_ax7101.sh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+-  wrote tb/verilator/milan_dp_render/obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+-python3 ../../../avdecc/gen_aemi_image.py --overlay obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o tdm8r_aemi.bin
+-[gen_aemi_image] obj_tdm8r_aem/endstation_ax7101_1x1_tdm8/aem_overlay.json: 42 descriptors -> tdm8r_aemi.bin, 7512 bytes
+-magic AEMI  layout_version 1
+-configurations 1  index entries 15  names 39
+-index_off 0x000020  names_off 0x001398  image_bytes 7512  desc_max_len 452
+-checksum 0xBCE6817E
+-
+-  cfg  type    first  count  elem_len  stride  elem_off   name_base
+-    0  0x0000      0      1       312     312  0x000110          0
+-    0  0x0001      0      1       106     112  0x000248          2
+-    0  0x0002      0      1       148     152  0x0002B8          3
+-    0  0x0005      0      1       154     160  0x000350          4
+-    0  0x0005      1      1       146     152  0x0003F0          5
+-    0  0x0006      0      2       146     152  0x000488          6
+-    0  0x0009      0      1       102     104  0x0005B8          8
+-    0  0x000A      0      3        86      88  0x000620          9
+-    0  0x000C      0      1        72      72  0x000728          -
+-    0  0x000D      0      1       452     456  0x000770          -
+-    0  0x000E      0      1        20      24  0x000938          -
+-    0  0x000F      0      1        20      24  0x000950          -
+-    0  0x0014      0     25        90      96  0x000968         12
+-    0  0x001A      0      1       113     120  0x0012C8         37
+-    0  0x0024      0      1        82      88  0x001340         38
+-
+-semantic lint: on (07 §3.1 rules L1 to L12)
+-lint waivers applied: 0
+-ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+-  entity_model_id_i  0x001BC5C1935893E1
+-  talker_sources_i   2
+-  listener_sinks_i   2
+-  identify_index_i   0
+-model digest sha256 1ec821bbaef9c1911ba0c6af2b42cf64af860939332a6df3dd2049a64f46852e (IEEE 1722.1-2021 §6.2.2.8)
+@@ -56,45 +2,0 @@
+-[endstation_builder] endstation_tdm8r_multi: 2x1 AAF + CRF, tdm8, 24 clusters (cluster-per-stream-channel), model_id 0x001BC5374BCA9B39 (hash); 3 planned element(s); resources TIGHT (worst LUT 80.0%)
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/soc_params.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/aem_overlay.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/build_plan.md
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/lwsrp_table.json
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/lwsrp_table.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/lwsrp_csr_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/adp_shape_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/gen/adp_shape_defaults.svh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/platform_shape.json
+-  wrote configs/generated/sweep_opts_ax7101.sh
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/gptp_ucode.hex
+-  wrote tb/verilator/milan_dp_render/obj_tdm8rm_aem/endstation_tdm8r_multi/aecp_aem_rom.svh
+-python3 ../../../avdecc/gen_aemi_image.py --overlay obj_tdm8rm_aem/endstation_tdm8r_multi/aem_overlay.json --line-bytes 576 -o tdm8rm_aemi.bin
+-[gen_aemi_image] obj_tdm8rm_aem/endstation_tdm8r_multi/aem_overlay.json: 44 descriptors -> tdm8rm_aemi.bin, 7752 bytes
+-magic AEMI  layout_version 1
+-configurations 1  index entries 15  names 40
+-index_off 0x000020  names_off 0x001448  image_bytes 7752  desc_max_len 452
+-checksum 0xBCE67FDD
+-
+-  cfg  type    first  count  elem_len  stride  elem_off   name_base
+-    0  0x0000      0      1       312     312  0x000110          0
+-    0  0x0001      0      1       106     112  0x000248          2
+-    0  0x0002      0      1       148     152  0x0002B8          3
+-    0  0x0005      0      2       154     160  0x000350          4
+-    0  0x0005      2      1       146     152  0x000490          6
+-    0  0x0006      0      2       146     152  0x000528          7
+-    0  0x0009      0      1       102     104  0x000658          9
+-    0  0x000A      0      4        86      88  0x0006C0         10
+-    0  0x000C      0      1        72      72  0x000820          -
+-    0  0x000D      0      1       452     456  0x000868          -
+-    0  0x000E      0      2        20      24  0x000A30          -
+-    0  0x000F      0      1        20      24  0x000A60          -
+-    0  0x0014      0     24        90      96  0x000A78         14
+-    0  0x001A      0      1       113     120  0x001378         38
+-    0  0x0024      0      1        84      88  0x0013F0         39
+-
+-semantic lint: on (07 §3.1 rules L1 to L12)
+-lint waivers applied: 0
+-ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+-  entity_model_id_i  0x001BC5374BCA9B39
+-  talker_sources_i   2
+-  listener_sinks_i   3
+-  identify_index_i   0
+-model digest sha256 97845bcc1f11bdd64099f1e535330fc502374a5f24ef6c12eb503a635b1d2ad5 (IEEE 1722.1-2021 §6.2.2.8)
+@@ -101,0 +4,124 @@
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:864:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++  864 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
++      |     ^~~~~~
++                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
++                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:868:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++  868 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:871:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:911:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++  911 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:915:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:962:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++  962 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:965:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++  965 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:968:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++  968 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:971:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++  971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:977:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
++                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:1651:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
++                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
++ 1651 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
++   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
++  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:209:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
++  209 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:197:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++  197 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:200:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
++                                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
++  200 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:132:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
++  132 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
++  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
++                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
++  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
++                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
++  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
++                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
++  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
++      |     ^~~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
++  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
++      |                                                               ^
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
++                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
++  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
++      |                                                               ^
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
++                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
++  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
++      |                                                               ^
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
++                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
++  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
++      |                                                               ^
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
++                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
++  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
++      |                                                               ^
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
++                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
++  409 | if (!OUTPUT_FIFO_ENABLE) begin
++      |                          ^~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
++                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
++  546 | end else begin
++      |          ^~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:62:32: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
++   62 |         if (LSB_HIGH_PRIORITY) begin
++      |                                ^~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:65:18: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
++   65 |         end else begin
++      |                  ^~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:75:36: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
++   75 |             if (LSB_HIGH_PRIORITY) begin
++      |                                    ^~~~~
++%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:78:22: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
++                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
++   78 |             end else begin
++      |                      ^~~~~
+@@ -141,0 +168,14 @@
++%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:65:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
++   65 |   parameter int TDATA_WIDTH = 64,
++      |                 ^~~~~~~~~~~
++                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
++   39 | parameter int TDATA_WIDTH = 64;
++      |               ^~~~~~~~~~~
++                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
++                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
++%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:48:19: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
++   48 |     parameter int TDATA_WIDTH  = 64,
++      |                   ^~~~~~~~~~~
++                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
++   39 | parameter int TDATA_WIDTH = 64;
++      |               ^~~~~~~~~~~
+@@ -149,0 +190,6 @@
++%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
++   58 |   parameter int TDATA_WIDTH = 64,      
++      |                 ^~~~~~~~~~~
++                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
++   39 | parameter int TDATA_WIDTH = 64;
++      |               ^~~~~~~~~~~
+@@ -153,0 +200,6 @@
++%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_i2s_playback.sv:52:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
++   52 |   parameter int CLK_FREQ_HZ   = 50_000_000,  
++      |                 ^~~~~~~~~~~
++                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
++  344 | parameter int CLK_FREQ_HZ = 100_000_000;
++      |               ^~~~~~~~~~~
+@@ -250,150 +301,0 @@
+-  344 | parameter int CLK_FREQ_HZ = 100_000_000;
+-      |               ^~~~~~~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:864:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  864 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+-      |     ^~~~~~
+-                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+-                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:868:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  868 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:871:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:911:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  911 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:915:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:962:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  962 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:965:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  965 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:968:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  968 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:971:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  971 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:977:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+-                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:1651:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+-                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+- 1651 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
+-   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:209:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  209 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:197:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  197 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:200:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+-                                                                                                       : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  200 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:132:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  132 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+-                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+-                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+-                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+-      |     ^~~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+-      |                                                               ^
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+-                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+-      |                                                               ^
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+-                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+-      |                                                               ^
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+-                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+-      |                                                               ^
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+-                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+-      |                                                               ^
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+-                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  409 | if (!OUTPUT_FIFO_ENABLE) begin
+-      |                          ^~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+-                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+-  546 | end else begin
+-      |          ^~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:62:32: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+-   62 |         if (LSB_HIGH_PRIORITY) begin
+-      |                                ^~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:65:18: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+-   65 |         end else begin
+-      |                  ^~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:75:36: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+-   75 |             if (LSB_HIGH_PRIORITY) begin
+-      |                                    ^~~~~
+-%Warning-GENUNNAMED: ../../../hdl/common/csr/../../../third_party/verilog-axis/rtl/priority_encoder.v:78:22: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+-                                                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+-   78 |             end else begin
+-      |                      ^~~~~
+-%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/milan/milan_datapath.sv:65:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+-   65 |   parameter int TDATA_WIDTH = 64,
+-      |                 ^~~~~~~~~~~
+-                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+-   39 | parameter int TDATA_WIDTH = 64;
+-      |               ^~~~~~~~~~~
+-                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+-                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+-%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:48:19: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+-   48 |     parameter int TDATA_WIDTH  = 64,
+-      |                   ^~~~~~~~~~~
+-                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+-   39 | parameter int TDATA_WIDTH = 64;
+-      |               ^~~~~~~~~~~
+-%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+-   58 |   parameter int TDATA_WIDTH = 64,      
+-      |                 ^~~~~~~~~~~
+-                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+-   39 | parameter int TDATA_WIDTH = 64;
+-      |               ^~~~~~~~~~~
+-%Warning-VARHIDDEN: ../../../hdl/common/csr/../../../hdl/ieee1722/aaf/KL_i2s_playback.sv:52:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
+-   52 |   parameter int CLK_FREQ_HZ   = 50_000_000,  
+-      |                 ^~~~~~~~~~~
+-                    ../../../hdl/common/csr/../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
+@@ -856,7 +757,0 @@
+-make[1]: Entering directory '<scratch>/parent/tb/verilator/milan_dp_render/obj_tdm8rm'
+-g++  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -Os  -c -o sim_tdm8_render.o ../sim_tdm8_render.cpp
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -c -o verilated.o <toolroot>/usr/share/verilator/include/verilated.cpp
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -c -o verilated_dpi.o <toolroot>/usr/share/verilator/include/verilated_dpi.cpp
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -c -o verilated_threads.o <toolroot>/usr/share/verilator/include/verilated_threads.cpp
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+-g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+@@ -869 +763,0 @@
+-g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_0.cpp
+@@ -870,0 +765,7 @@
++make[1]: Entering directory '<scratch>/parent/tb/verilator/milan_dp_render/obj_tdm8rm'
++g++  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -Os  -c -o sim_tdm8_render.o ../sim_tdm8_render.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -c -o verilated.o <toolroot>/usr/share/verilator/include/verilated.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -c -o verilated_dpi.o <toolroot>/usr/share/verilator/include/verilated_dpi.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -c -o verilated_threads.o <toolroot>/usr/share/verilator/include/verilated_threads.cpp
++g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_0.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+@@ -877,0 +779,11 @@
++g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
++g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__3__Slow.cpp
++g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_1.cpp
++g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_0.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_0.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_1.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_1.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
++g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
++g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_0.cpp
+@@ -881,10 +792,0 @@
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_0.cpp
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_1.cpp
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_0.cpp
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_1.cpp
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTDM8R_MULTI_TB=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
+-g++ -Os  -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
+-g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_0.cpp
+-g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__3__Slow.cpp
+-g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_1.cpp
+-g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+@@ -895,2 +797,2 @@
+-- Verilator: Built from 149.853 MB sources in 118 modules, into 14.677 MB in 23 C++ files needing 0.006 MB
+-- Verilator: Walltime <t> (elab=0.618, cvt=5.071, bld=27.152); cpu <t> on 2 threads; allocated <m>
++- Verilator: Built from 150.346 MB sources in 118 modules, into 14.783 MB in 23 C++ files needing 0.006 MB
++- Verilator: Walltime <t> (elab=0.722, cvt=5.901, bld=36.635); cpu <t> on 2 threads; allocated <m>
+@@ -902,2 +804,2 @@
+-- Verilator: Built from 138.096 MB sources in 118 modules, into 15.021 MB in 23 C++ files needing 0.006 MB
+-- Verilator: Walltime <t> (elab=0.618, cvt=4.967, bld=28.702); cpu <t> on 2 threads; allocated <m>
++- Verilator: Built from 138.584 MB sources in 118 modules, into 15.214 MB in 23 C++ files needing 0.006 MB
++- Verilator: Walltime <t> (elab=0.818, cvt=6.602, bld=36.087); cpu <t> on 2 threads; allocated <m>
