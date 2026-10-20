@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index 40d0a729e..cf234d0ac 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -6768,7 +6768,7 @@ class NxnDatapathHarness {
+         // one PDU per 256-cycle counter interval, so each interval flag
+         // (SEQ_NUM_MISMATCH) commits before the next PDU
+         auto pdu = [this, ch0](uint8_t seq) {
+-            inject(mkaaf(sid0, seq, ch0, 0xC0), std::max(400, aaf_bytes(ch0)));
++            inject(mkaaf(sid0, seq, 2, 0xC0), 400);
+         };
+         // the discard section's last PDU was 0x22: carry on in order
+         for (uint8_t s = 0x23; s <= 0x2B; s++) pdu(s);

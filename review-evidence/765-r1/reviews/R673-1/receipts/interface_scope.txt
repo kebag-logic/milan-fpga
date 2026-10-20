@@ -1,0 +1,10 @@
+# added/removed RTL lines that declare a port, parameter or localparam (vs dev 78ca9bdf)
+-  //! Section 4 + USER 08-07: "the stream input format must accept every
+-  //! the depacketizer de-interleaves by the PDU's own count and the input
++  //! a Stream Data AVTPDU on this input's stream_id is received on it,
++  //! format does not match the input's current format, and 4.4.2.2
+# files under hdl/common/csr and syn changed vs dev
+(end)
+# REGISTER_MAP.md change vs dev (description column only)
+-| `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
++| `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (subtype, #765, and the 7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |

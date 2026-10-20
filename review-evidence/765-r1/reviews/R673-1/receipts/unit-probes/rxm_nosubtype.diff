@@ -1,0 +1,11 @@
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -519,7 +519,7 @@
+   //! A Base Listener advertising every count of a rate family (Milan v1.2
+   //! 6.4) is served by SET_STREAM_FORMAT, which moves the current format.
+   //! A zero count is no PCM format and is rejected even against itself.
+-  wire fmt_ok_w = (cur_w.subtype == f_subtype_w) &&
++  wire fmt_ok_w = 1'b1 &&
+                   (p_format_w  == f_format_w)  &&
+                   (p_nsr_w     == f_nsr_w)     &&
+                   (p_depth_w   == f_depth_w)   &&
