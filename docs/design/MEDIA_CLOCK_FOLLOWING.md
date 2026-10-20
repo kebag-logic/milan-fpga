@@ -1757,9 +1757,10 @@ contracts alone:
   presentation offset less its arrival lead, about 1.9 ms at the 2 ms default:
   about 96 events, so 128 event rows per 8-channel stream where the stage keeps
   32. Vivado out of context at the AX7101 1x1 parameters, the queue alone grows
-  from 456 to 1,006 LUTs (LUTRAM 128 to 512), against 469 LUTs and 20 slices of
-  route-1x1 headroom; in block RAM it adds two or three RAMB18 (the parity-split
-  rows need a write port each) against a RAMB tolerance of zero. The
+  from 456 to 1,006 LUTs (LUTRAM 128 to 512), against 404 LUTs and 8 slices of
+  route-1x1 headroom left at this lane's head; in block RAM it adds two or three
+  RAMB18 (the parity-split rows need a write port each) against a RAMB tolerance
+  of zero. The
   depacketizer's frame FIFO, the other place a PDU could wait, is 2,048 bytes,
   about eight PDUs of the shipping stream, under the fourteen a 2 ms hold needs.
 - **The law it replaces.** The #386 fill law (8 events after accept, the
