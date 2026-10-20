@@ -1,0 +1,8 @@
+clean	dynmap	rc=0	checks: 201 failures: 0	PASS	
+clean	nxn4c	rc=0	checks: 1983 failures: 0	PASS	
+tie0	dynmap	rc=2	checks: 201 failures: 2	CAUGHT	[762-DP] 2 stopped gap: STREAM_INTERRUPTED +0; [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0
+tie0	nxn4c	rc=2	checks: 1983 failures: 2	CAUGHT	[762-DP] 2 stopped gap: STREAM_INTERRUPTED +0; [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0
+sink1	dynmap	rc=2	checks: 201 failures: 2	CAUGHT	[762-DP] 2 stopped gap: STREAM_INTERRUPTED +0; [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0
+sink1	nxn4c	rc=2	checks: 1983 failures: 2	CAUGHT	[762-DP] 2 stopped gap: STREAM_INTERRUPTED +0; [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0
+bound	dynmap	rc=2	checks: 201 failures: 1	CAUGHT	[762-DP] 4 started gap: STREAM_INTERRUPTED +1
+bound	nxn4c	rc=2	checks: 1983 failures: 1	CAUGHT	[762-DP] 4 started gap: STREAM_INTERRUPTED +1
