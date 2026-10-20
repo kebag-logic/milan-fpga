@@ -1,0 +1,33 @@
+| LUT delta | depth | instance | module | LUT base -> cand | FF base -> cand |
+|---:|---:|---|---|---|---|
+| +621 | 1 | `alinx_ax7101` | `(top)` | 52284 -> 52905 | 52448 -> 52464 |
+| +369 | 3 | `VexiiRiscvLitex_f5f08b170311db53220574624f819159` | `VexiiRiscvLitex_f5f08b170311db53220574624f819159` | 3702 -> 4071 | 4734 -> 4734 |
+| +308 | 5 | `(VexiiRiscvLitex_f5f08b170311db53220574624f819159)` | `VexiiRiscvLitex_f5f08b170311db53220574624f819159` | 723 -> 1031 | 1807 -> 1807 |
+| +248 | 3 | `(alinx_ax7101)` | `(top)` | 5086 -> 5334 | 6031 -> 6064 |
+| -116 | 5 | `csr` | `milan_csr` | 3093 -> 2977 | 2111 -> 2111 |
+| +82 | 5 | `chan_map_render` | `KL_chan_map_render` | 118 -> 200 | 676 -> 676 |
+| +80 | 5 | `ctl_tx_mux` | `adp_tx_arbiter__parameterized0` | 0 -> 80 | 0 -> 22 |
+| +39 | 5 | `vexiis_0_logic_core` | `VexiiRiscv` | 1180 -> 1219 | 1041 -> 1041 |
+| +35 | 5 | `ptp_clock_validity` | `KL_ptp_clock_validity` | 15 -> 50 | 61 -> 125 |
+| -33 | 5 | `aaf_rx_depkt` | `KL_aaf_rx_depacketizer` | 297 -> 264 | 143 -> 127 |
+| +32 | 7 | `FetchCachelessPlugin_logic_buffer_words` | `Ram_1w_1ra` | 128 -> 160 | 0 -> 0 |
+| +28 | 5 | `crf_rx` | `KL_crf_rx` | 254 -> 282 | 541 -> 541 |
+| -25 | 5 | `g_gptp_plane.gptp_ctl_mux` | `adp_tx_arbiter_0` | 83 -> 58 | 23 -> 23 |
+| +24 | 5 | `avtp_rx_parser` | `avtp_stream_parser` | 583 -> 607 | 800 -> 800 |
+| -24 | 7 | `(g_gptp_plane.u_gptp_shadow)` | `KL_gptp_shadow` | 911 -> 887 | 969 -> 969 |
+| -24 | 11 | `u_d3` | `KL_aecp_nvm_writer` | 2046 -> 2022 | 582 -> 582 |
+| +24 | 11 | `u_dyn` | `KL_aecp_dyn_state` | 1192 -> 1216 | 467 -> 467 |
+| -23 | 5 | `g_gptp_plane.u_gptp_shadow` | `KL_gptp_shadow` | 5379 -> 5356 | 4750 -> 4750 |
+| -21 | 9 | `(u_pp)` | `protocol_processor_top` | 673 -> 652 | 1986 -> 1986 |
+| +20 | 5 | `peripheral_toAxiLite4_logic_bridge` | `AxiLite4Bridge` | 522 -> 542 | 104 -> 104 |
+| +19 | 7 | `(peripheral_toAxiLite4_logic_bridge)` | `AxiLite4Bridge` | 317 -> 336 | 103 -> 103 |
+| -18 | 5 | `unified_mBus_to_mem_toAxi4_up_widthAdapter` | `WidthAdapter` | 137 -> 119 | 346 -> 346 |
+| +18 | 11 | `u_talker` | `KL_srp_talker_fsm` | 446 -> 464 | 604 -> 604 |
+| -17 | 7 | `(aaf_rx_depkt)` | `KL_aaf_rx_depacketizer` | 60 -> 43 | 111 -> 96 |
+| +16 | 5 | `talker_diag` | `KL_talker_diag_ctx` | 167 -> 183 | 357 -> 357 |
+| -16 | 7 | `frame_fifo` | `axis_fifo__parameterized1` | 237 -> 221 | 32 -> 31 |
+| -16 | 7 | `upsize_d_ctx` | `ContextAsyncBufferFull` | 120 -> 104 | 0 -> 0 |
+| -16 | 9 | `contexts` | `Ram_1w_1ra__parameterized0` | 120 -> 104 | 0 -> 0 |
+| +11 | 9 | `u_srp` | `KL_srp_top` | 3906 -> 3917 | 3842 -> 3841 |
+| +10 | 5 | `aaf_packetizer` | `KL_aaf_packetizer` | 812 -> 822 | 1332 -> 1332 |
+| -5 | 5 | `avtp_rx_monitor` | `KL_avtp_rx_monitor_ctx` | 814 -> 809 | 732 -> 734 |

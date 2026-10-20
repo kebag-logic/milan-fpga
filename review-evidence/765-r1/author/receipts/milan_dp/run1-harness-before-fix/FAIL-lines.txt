@@ -1,0 +1,36 @@
+ax1x1.log:  [FAIL] in0 fmt is the DECLARED format: a conformant PDU is ACCEPTED got=0x00000001 exp=0x00000000
+ax1x1.log:  [FAIL] ...so FRAMES_RX moved (0x6BC)      got=0x00000000 exp=0x00000001
+ax1x1.log:  [FAIL] ...and PCMRX advanced (0x6C4)      got=0x00000000 exp=0x00000001
+ax1x1.log:  [FAIL] ...and the 48-byte PDU reached fabric render (6 beats) got=0x00000000 exp=0x00000006
+ax1x1.log:  [FAIL] ...and MEDIA_LOCKED asserts (0x6B8) got=0x00000000 exp=0x00000001
+ax1x1.log:  [FAIL] tagged: the format gate accepts it too (UNSUPPORTED still 0) got=0x00000002 exp=0x00000000
+ax1x1.log:  [FAIL] tagged: FRAMES_RX = 2              got=0x00000000 exp=0x00000002
+ax1x1.log:  [FAIL] tagged: 48-byte PDU reached fabric render (6 beats) got=0x00000000 exp=0x00000006
+ax1x1.log:  [FAIL] APRB unknown-sid: FRAMES_RX still 2 (unbound sid refused) got=0x00000000 exp=0x00000002
+ax1x1.log:  [FAIL] prefilter: PCMRX KEPT consuming (+2 PDUs) got=0x00000000 exp=0x00000002
+ax1x1.log:  [FAIL] prefilter: fabric render KEPT consuming (+12 beats) got=0x00000000 exp=0x0000000c
+counters-1-frames.log:    raise RuntimeError(f"{variant}/{name}: rc={result.returncode}, {failures}")
+counters-1-frames.log:RuntimeError: clean/run.log: rc=1, ['  [FAIL] [726 RX] every received PDU counted            got=0x0 exp=0x1f4', '  [FAIL] [726 RX] batch crosses 65535 without loss      got=0x0 exp=0x10001']
+counters-1.log:    raise RuntimeError(f"{variant}/{name}: rc={result.returncode}, {failures}")
+counters-1.log:RuntimeError: clean/run.log: rc=1, ['  [FAIL] [726 RX] every received PDU counted            got=0x0 exp=0x1f4', '  [FAIL] [726 RX] batch crosses 65535 without loss      got=0x0 exp=0x10001']
+counters-8-frames.log:    raise RuntimeError(f"{variant}/{name}: rc={result.returncode}, {failures}")
+counters-8-frames.log:RuntimeError: clean/run.log: rc=1, ['  [FAIL] [726 RX] every received PDU counted            got=0x0 exp=0x1f4', '  [FAIL] [726 RX] batch crosses 65535 without loss      got=0x0 exp=0x10001']
+counters-8.log:    raise RuntimeError(f"{variant}/{name}: rc={result.returncode}, {failures}")
+counters-8.log:RuntimeError: clean/run.log: rc=1, ['  [FAIL] [726 RX] every received PDU counted            got=0x0 exp=0x1f4', '  [FAIL] [726 RX] batch crosses 65535 without loss      got=0x0 exp=0x10001']
+notify.log:  [FAIL] [UNB] AAF sink 0 locked: MEDIA_LOCKED          got=0x0 exp=0x1
+notify.log:  [FAIL] [UNB] AAF sink 0 the lock was pushed           got=0x0 exp=0x1
+notify.log:  [FAIL] [UNB] AAF sink 0 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED got=0x0 exp=0x101
+notify.log:  [FAIL] [UNB] AAF sink 0 U3 right after the response: MEDIA_LOCKED got=0x0 exp=0x1
+notify.log:  [FAIL] [UNB] AAF sink 0 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED got=0x0 exp=0x1
+notify.log:  [FAIL] [UNB] AAF sink 0 U2 a push reporting the unlock reached A got=0x0 exp=0x1
+notify.log:  [FAIL] [UNB] AAF sink 0 U2 a push reporting the unlock reached B got=0x0 exp=0x1
+notify.log:  [FAIL] [UNB] AAF sink 0 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED got=0x0 exp=0x10100
+nxn4c.log:  [FAIL] 5.3.8.7 restarted: ...and the media path receives again got=0x0 exp=0x1
+nxn4c.log:  [FAIL] 5.3.8.7 Table 5.6: ...and counted the frame arriving while STOPPED (the clause says a stopped input RECEIVES) got=0x0 exp=0x1
+nxn8.log:  [FAIL] 5.3.8.7 restarted: ...and the media path receives again got=0x0 exp=0x1
+nxn8.log:  [FAIL] 5.3.8.7 Table 5.6: ...and counted the frame arriving while STOPPED (the clause says a stopped input RECEIVES) got=0x0 exp=0x1
+nxndv.log:  [FAIL] 5.3.8.7 restarted: ...and the media path receives again got=0x0 exp=0x1
+nxndv.log:  [FAIL] 5.3.8.7 Table 5.6: ...and counted the frame arriving while STOPPED (the clause says a stopped input RECEIVES) got=0x0 exp=0x1
+nxn.log:  [FAIL] 5.3.8.7 restarted: ...and the media path receives again got=0x0 exp=0x1
+nxn.log:  [FAIL] 5.3.8.7 Table 5.6: ...and counted the frame arriving while STOPPED (the clause says a stopped input RECEIVES) got=0x0 exp=0x1
+prune.log:  [FAIL] listener 0 accepted the fed AAF PDUs (PCMRX_CNT pdus) got=0x0 exp=0x10

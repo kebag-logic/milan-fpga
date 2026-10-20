@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index c5b1eda06..855070022 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -6305,7 +6305,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .bind_rise_i    (strtbl_bind_rise_w),
+     .bind_fall_i    (strtbl_bind_fall_w),
+     //! #762: a stopped input's silence or sequence gap interrupts no playback (5.3.8.7)
+-    .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
++    .stopped_i      (acmpl_bound_v_w[N_STREAMS-1:0]),
+     .sid0_i         (acmpl_sid),
+     .fmt0_i         (aecp_in0_fmt),
+     .ptp_now_i      (ptp_now_w[31:0]),

@@ -1,0 +1,145 @@
+# HANDOFF — lane 765 ([A657]), round 1c
+
+Issue: kebag-logic/milan-fpga#765 — UNSUPPORTED_FORMAT counts and discards a PDU whose format differs from the current one.
+Branch: `765-unsupported-format`, head `75db4b57cff47bb614d14dead084649a4c2aa2a3`. Nothing pushed; no PR opened (`PR-BODY.md` is ready).
+Assignment: the [A10] round-1c comment on #765: merge dev `78ca9bdf`, give `[762-DP]` the current-format stimulus, re-run the full gate list and route-1x1.
+
+## Status
+
+REVIEW READY at `75db4b57`, posted as issuecomment-6296846970 (text in `receipts/round1c/REVIEW-READY-COMMENT.md`). Every gate in the assignment's list is rc 0 at this head (table below). The route-1x1 resource gate passes (LUT 49,857, +244 over the record, tolerance 500); the route is identical to round 1b's.
+
+The round-1b hand-off (REVIEW READY at `4605409b`) is kept as `receipts/round1b/HANDOFF.round1b.md`, with its PR body. Round 1's is `receipts/round1/HANDOFF.round1.md`.
+
+## Round 1c
+
+### Commits (assignment item 1)
+
+| Commit | What |
+|---|---|
+| `31903ec1`, `91aaa6bd`, `cc71db3a`, `2f33a9ce`, `4605409b` | rounds 1 and 1b, unchanged |
+| `7f84892a` | **merge** of dev `78ca9bdf` (first parent `4605409b`, second `78ca9bdf`). It brings PR #767's rounds 3 and 4 (`cb65d9d7` .. `f3fef856`, merged at `78ca9bdf`) and PR #766 (`94264da7`, `07c6c72f`, merged at `e26f1816`). `git merge` reported no conflict. No rebase; no earlier commit rewritten |
+| `75db4b57` | `[762-DP]` feeds STREAM_INPUT 0's current format (item 2) |
+
+What the merge brought into build inputs: two RTL comment lines (`KL_avtp_rx_monitor_ctx.sv:154`, `milan_datapath.sv:6307`, #767) and `sw/firmware/ctrl/test/*` plus `sw/firmware/ctrl/aecp/README.md` (#766, host tests and text). `git diff 2f33a9ce 75db4b57 -- hdl` is those two comment lines only. Both sides keep their behaviour: the #765 compare (`KL_avtp_rx_monitor_ctx.sv:501,508,512-528`; `KL_crf_rx.sv:323-335`) and #762's stopped-input rules (`KL_avtp_rx_monitor_ctx.sv:155,917,1032`; `milan_datapath.sv:6308`) are unchanged by the merge.
+
+### The `[762-DP]` stimulus (assignment item 2)
+
+**The risk was real.** At the merge commit `7f84892a`, before any change, `[762-DP]` fails on both legs I ran (`receipts/round1c/merge-7f84892a/`):
+
+| Leg (merge `7f84892a`) | Result | Failing checks |
+|---|---|---|
+| `obj_dynmap` (AX7101 1x1 TDM8, input 0 at 8 ch) | rc 2, 200 checks / 4 failures | `2 stopped gap: SEQ_NUM_MISMATCH +1`, `4 started again: MEDIA_LOCKED +1`, `4 started gap: SEQ_NUM_MISMATCH +1`, `4 started gap: STREAM_INTERRUPTED +1` |
+| `obj_nxn4c` (input 0 at 4 ch) | rc 2, 1982 checks / 4 failures | the same four |
+
+The fixed 2-channel PDU is a format reject under #765, so it counts UNSUPPORTED_FORMAT and is discarded: no gap is seen, nothing relocks, and nothing is counted after START. The two stopped `STREAM_INTERRUPTED +0` checks still passed there, but vacuously: no gap reached the counters at all. Phase 1's "locked" check passed only because the 5.3.8.7 discard section just before it had already fed the input current-format PDUs.
+
+**Change** (`75db4b57`):
+
+| File:line | Change | Reason |
+|---|---|---|
+| `tb/verilator/milan_dp/sim_nxn.cpp:6764-6772` | `[762-DP]` reads STREAM_INPUT 0's current channel count with `rx_chans(0)` (GET_STREAM_FORMAT, the same helper the 5.3.8.7 discard section above it uses since round 1), logs it, and builds every PDU with it: `mkaaf(sid0, seq, ch0, 0xC0)`, length `max(400, aaf_bytes(ch0))`. The 400-octet floor keeps #767's frame length wherever it was enough | Milan v1.2 4.4.2.2, Table 5.6 UNSUPPORTED_FORMAT, Table 6.2 (#765) |
+| `tb/verilator/milan_dp/README.md:1199-1201` | the `[762-DP]` paragraph says its PDUs carry the input's current format, and why | -- |
+
+No `[762-DP]` check, count or expectation is changed. `rx_chans()` adds its own check (`[765] STREAM_INPUT 0's current channel count is readable`), so each leg that runs the case has one more check.
+
+**Counts keep their meaning**, on every leg that runs the case (sweep shard 0, `receipts/round1c/sweep-s0/milan_dp.log.tail` and the full log's SHA-256 there):
+
+| Leg | Input 0 format | Checks (round 1b `4605409b` -> merge -> head) | `[762-DP]` 2: SEQ_NUM_MISMATCH / STREAM_INTERRUPTED | 3: MEDIA_UNLOCKED / STREAM_INTERRUPTED | 4: MEDIA_LOCKED / SEQ_NUM_MISMATCH / STREAM_INTERRUPTED |
+|---|---|---|---|---|---|
+| `obj_dynmap` | 8 ch | 162 -> 200 (4 fail) -> 201 | +1 / +0 | +1 / +0 | +1 / +1 / +1 |
+| `obj_nxn` | 4 ch | 1969 -> -- -> 1983 | +1 / +0 | +1 / +0 | +1 / +1 / +1 |
+| `obj_nxndv` | 4 ch | 1971 -> -- -> 1985 | +1 / +0 | +1 / +0 | +1 / +1 / +1 |
+| `obj_nxn8` | 8 ch | 3753 -> -- -> 3767 | +1 / +0 | +1 / +0 | +1 / +1 / +1 |
+| `obj_nxn4c` | 4 ch | 1969 -> 1982 (4 fail) -> 1983 | +1 / +0 | +1 / +0 | +1 / +1 / +1 |
+
+Round 1b to head: `obj_dynmap` +39 (#767's round-4 tail: geometry guards, fresh boot, discard section and `[762-DP]`, plus the one `[765]` check), each broad leg +14 (#767's 13 case checks plus the one `[765]` check). Shard 0 moves 1,574,154 -> 1,574,249 (+95 = 39 + 4 x 14); shard 1 is unchanged at 613,574.
+
+### `[762-DP]` wiring mutants at `milan_datapath.sv:6308`
+
+Driver `receipts/round1c/scripts/dp762_mutants.py`, run by `dp762.sh` in a clean clone at `75db4b57`. It checks that `:6308` is the clean `.stopped_i (acmpl_stopped_v_w[N_STREAMS-1:0])` line (the same slice at `:5952`, the clock meter, is not touched). Then, for each plant, it makes a byte copy of the clone without built objects, replaces that one line, runs `make run-<leg>` through the leg's own recipe, and grades the run. A plant counts as **caught** only if the run exits nonzero and its `[FAIL]` set is exactly the named checks. Results are in `receipts/round1c/dp762-mutants/` (`SUMMARY.tsv`, each plant's `git diff`, every log):
+
+| Plant (`:6308` `.stopped_i`) | `obj_dynmap` | `obj_nxn4c` | Fails exactly |
+|---|---|---|---|
+| clean control | rc 0, 201 / 0 | rc 0, 1983 / 0 | -- |
+| `'0` (tie-off) | rc 2, 201 / 2, CAUGHT | rc 2, 1983 / 2, CAUGHT | `[762-DP] 2 stopped gap: STREAM_INTERRUPTED +0`; `[762-DP] 3 stopped silence: STREAM_INTERRUPTED +0` |
+| `acmpl_stopped_v_w[N_STREAMS:1]` (sink 1: the CRF sink on `obj_dynmap`, an AAF sink on `obj_nxn4c`) | rc 2, 201 / 2, CAUGHT | rc 2, 1983 / 2, CAUGHT | the same two |
+| `acmpl_bound_v_w[N_STREAMS-1:0]` (the bound level) | rc 2, 201 / 1, CAUGHT | rc 2, 1983 / 1, CAUGHT | `[762-DP] 4 started gap: STREAM_INTERRUPTED +1` |
+
+Result 8/8. These are the same failures #767 published for those plants. On `obj_dynmap`, the elaborated-parameter lines the leg prints hash to `d2094321fbb6f594...` in the clean run and in all three plants. That is the same digest #767's review recorded for this elaboration.
+
+## Changes from rounds 1 and 1b (file:line at `75db4b57` — clause)
+
+| File:line | Change | Clause |
+|---|---|---|
+| `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:501` | `f_cpf_w = fmt_r[31:22]`, the current format's 10-bit channels_per_frame | IEEE 1722-2016 I.2.4.1 |
+| `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:508` | `p_cpf_w = fsh[49:40]`, the PDU's 10-bit channels_per_frame | IEEE 1722-2016 7.3, Figure 26 |
+| `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:512-528` | `fmt_ok_w` adds `p_cpf_w == f_cpf_w` (nonzero kept); the comment citing the superseded BAF v1.1 reading is replaced | Milan v1.2 4.4.2.2, Table 5.6 UNSUPPORTED_FORMAT, Table 6.2; 1722-2016 I.2.4 |
+| `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:95-98` | banner: the flat `KL_avtp_rx_monitor` (test instrument, not shipped) keeps no channel compare | -- |
+| `hdl/ieee1722/crf/KL_crf_rx.sv:323-328` | `w_hit` no longer requires the CRF subtype | Milan v1.2 Table 5.6, 4.4.2.2 |
+| `hdl/ieee1722/crf/KL_crf_rx.sv:330` | `w_fmt_ok` requires `subtype_i == CRF_SUBTYPE_C`: an AAF PDU is a format reject | Milan v1.2 Table 5.6, 4.4.2.2, 7.3.2 |
+| `tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv` | the lockstep reference applies the same compare (the #762 precedent) | -- |
+| `docs/reference/FR_NFR.md` FR-STR-03 and its status row; `docs/reference/MILAN_COMPLIANCE_MATRIX.md` 4.4.2.2 / Table 5.6 row; `docs/reference/REGISTER_MAP.md` `CRF_STATUS[15:8]`; `docs/design/MEDIA_CLOCK_FOLLOWING.md`; `docs/testing/TESTING.md` | as round 1 | FR-STR-03 |
+| `tb/verilator/milan_dp/{Makefile,sim_main.cpp,sim_nxn.cpp,sim_prune.cpp,stream_counters.hpp}` | stimulus carries each input's current format: round 1's 11 cases, and `[762-DP]` (round 1c) | -- |
+
+No register-map layout, top-level port or parameter change from this lane (the `stopped_i` port is #767's).
+
+## New checks and planted mutants (re-run at `75db4b57`, sweep shard 1)
+
+AAF inputs, `tb/verilator/avtp_rxmon/sim_main_nx.cpp:903` `[UF]`, mutants in `format_mutants.py`: `[UF1a]` matching 8 ch accepted (`inverted`), `[UF2a]` 2 ch vs 8 ch rejected, discarded, UF +1 (`family compare`), `[UF3a]` 264 ch rejected (`low byte`), `[UF4a]` format moved to 2 ch (`fixed count`), `[UF5a]` stream 0 via `fmt0_i` (`stream 0`). `format_mutants.py` 6/6 and `lockstep_mutants.py` 14/14 in the sweep's avtp_rxmon run.
+
+CRF input, `tb/verilator/crf_rx/sim_main.cpp` `[FMT]`, mutants in `mutants.py`: `[FMT-a1]` matching CRF accepted (`crf_rejected`), `[FMT-b1]` AAF on the CRF stream_id not accepted (`aaf_accepted`), `[FMT-b3]` counts UNSUPPORTED_FORMAT once (`aaf_ignored`). crf_rx `mutants.py` 21/21 in the sweep (three clean controls and 18 plants, #762's seven and #765's three among them).
+
+## Resource and route timing (route-1x1)
+
+Recipe `docs/testing/PP_SHADOW_BASELINE_RECIPE.md`, unchanged: the shipping AX7101 1x1 export from a clean clone at `75db4b57`, `pp_baseline.py --single-thread-synthesis`, Vivado v2026.1 SW Build 6511674. It ran under the exclusive lock from 18:35 to 19:18, with nothing else running. Build inputs differ from round 1b's routed `2f33a9ce` by the two RTL comment lines only.
+
+| Figure | Record | Base `eef90b42` (#767's route, round 1b) | Round 1b `2f33a9ce` | Head `75db4b57` | Gate verdict (head) |
+|---|---:|---:|---:|---:|---|
+| LUT | 49,613 | 49,597 | 49,857 | 49,857 | ok (+244 over the record, tolerance 500) |
+| FF | 52,353 | 52,400 | 52,291 | 52,291 | ok, below the record |
+| SLICE | 15,725 | 15,680 | 15,738 | 15,738 | ok |
+| RAMB36 / RAMB18 / DSP | 74 / 25 / 14 | 74 / 25 / 14 | 74 / 25 / 14 | 74 / 25 / 14 | ok |
+| WNS ns | +0.215 | +0.189 | +0.137 | +0.137 | ok |
+| WHS ns | +0.036 | +0.014 | +0.024 | +0.024 | ok |
+
+- `syn/ooc/pp_resource_gate.py check --endpoint route-1x1`: **rc 0, RESULT: PASS**. Route complete: 99,152 routable nets, all fully routed, 0 with routing errors. "All user specified timing constraints are met."
+- **The head reproduces round 1b's route exactly.** The timing report from its Design Timing Summary to the end, and the flat and hierarchical utilization reports (synth and place) once their date/host/command header lines are dropped, have 0 differing lines against `2f33a9ce`'s. `timing_summary.txt` and `worst_setup_path.txt` are byte-identical (`receipts/round1c/route/head-vs-2f33a9ce.md`). So round 1b's per-block attribution stands unchanged. Against the base `eef90b42`: `avtp_rx_monitor` 800 -> 697 LUT after place, `crf_rx` 276 -> 282; design +260 LUT, of which after synthesis only +27; the rest is placement movement in blocks this RTL does not reach (`receipts/round1b/route/hier-place-base-vs-cand.md`).
+- Worst setup path: `milansoc_write_w_buffer_readable_reg/C` -> `storage_10_dat1_reg[44]/D`, `clkout0`, 14 logic levels, in the SoC bus. Not the changed logic.
+- `alinx_ax7101_timing.rpt` at the head: SHA-256 `377b7ce95fe27bccc825787b1a0a45f8ada3bcf6d048dc695fc60545e44ea39d`, 1,294,971 B (in scratch; its header differs from round 1b's only in date and paths).
+
+## Gate table (head `75db4b57`)
+
+Verilator 5.050 (pinned), sv2v 0.0.12, Yosys 0.66, Vivado 2026.1 build 6511674. Python gates on CPython 3.12.3; the sweep on the host CPython 3.14.8, because the provided 3.12.3 build lacks `os.pidfd_open`, which `scripts/owned_process.py` requires.
+
+| Gate | Result |
+|---|---|
+| `scripts/run_all_suites.sh <logs> --shard 0/2`, clean clone | rc 0: 32/32 PASS, 1,574,249 checks, 0 in-suite failures (16:25 to 18:35). milan_dp: every leg, including `obj_dynmap`, `counters-1/-8` and `-frames`, `notify`, `crflic`, `nxn`, `nxndv`, `nxn8`, `nxn4c`, `nolpf`, `prune`, `ax1x1`, `aclk`, and `render_mutants.py` 6/6 (`receipts/round1c/sweep-s0/`) |
+| `scripts/run_all_suites.sh <logs> --shard 1/2`, clean clone | rc 0: 31/31 PASS, 613,574 checks, 0 in-suite failures (16:25 to 17:58). avtp_rxmon: flat, NX, lockstep N=1 / N=8, `lockstep_mutants.py` 14/14, `format_mutants.py` 6/6. crf_rx: unit, discontinuity, talker step, `mutants.py` 21/21 (`receipts/round1c/sweep-s1/`) |
+| Sweep total | **63/63 suites, 2,187,823 checks, 0 failures, 0 timeouts.** The sweep skips tsn_fuzz's tsn-gen campaigns (no `TSN_GEN_ROOT`); they ran separately (next row) |
+| `make -C tb/verilator/tsn_fuzz`, `TSN_GEN_ROOT` at the CI pin `deca300c` | rc 0: AAF/AVTP 164 pass / 0 fail, gPTP 677 / 0, both artifact freshness checks PASS. The run rewrote only the timestamp line of the two `TEST_RESULTS.md` files in the scratch clone (`TEST_RESULTS.diff`) (`receipts/round1c/tsnfuzz/`) |
+| `make -C tb/verilator/milan_dp unb-mutants` | rc 0, 6/6 (`receipts/round1c/unb/`) |
+| `[762-DP]` wiring mutants (`dp762_mutants.py`, `obj_dynmap` and `obj_nxn4c`) | rc 0, 8/8 (above) |
+| `syn/yosys/run.sh` | rc 0: 58/58 tops, tied-input and tap-purity PASS. Cell counts are identical to round 1b's run at `2f33a9ce` on all 58 tops (`receipts/round1c/yosys/`) |
+| `scripts/xvlog_gate.py --check` (exclusive lock) | rc 0: 0 findings == ratchet (`receipts/round1c/xvlog/`) |
+| Static and docs gates (`receipts/round1c/static/gates.tsv`): `lint_rtl.py --check`, `measure_test_evidence.py --check`, the four idiom checks, hygiene, port contracts, RTL source lists, TODO ownership, `check_em_dash.py` (base `e9cbb676` and base `78ca9bdf`), doc style, doc paths, archive, feature status, solution, submodule and gPTP docs, diagram PNGs, bare-metal only, SoC sources, NVM capture and record space, `ci_events.py`, `ci_gate_workflows.py`, module matrix, resource gate selftest and `check-baseline`, `git diff --check` (both bases), `docs_check.py` | all 32 rc 0 |
+| Builder bank: `scripts/ci_builder_legs.py run 0` and `run 1` with `sw/builder/test_builder.py --require-elaboration --require-rv32`, then `union --workflow elaborate`; clean clone with the three CI submodules | rc 0 / 0 / 0: 103 gates exactly once. One arm did not run, for a recorded reason: gate 11 reads a historic Arty build tree's utilization report, which is not on this host (`receipts/round1c/builder/`) |
+| route-1x1, clean clone at `75db4b57` | routed, rc 0; WNS +0.137 ns, WHS +0.024 ns, all constraints met (`receipts/round1c/route/head-75db4b57/`) |
+| `syn/ooc/pp_resource_gate.py check --endpoint route-1x1` | **rc 0, RESULT: PASS** (LUT +244 over the record) |
+
+Attempts that produced no verdict are kept in `receipts/round1c/attempts/` (README there).
+
+## Open risks / questions
+
+- Round 1's limitations stand: the short-frame depacketizer commit window on the pruned 1x1 leg; inputs above 0 read their current format only from LCTX words 2/3; samples_per_frame has no PDU field; the flat test-instrument monitor keeps no channel compare. New issues recommended; none filed.
+- `dynmap-mutants` (the `[DYNMAP]` campaign, 13 elaborations) was not re-run. The round-1c change touches only `[762-DP]`, which runs after `[DYNMAP]` on a fresh boot, and the clean `obj_dynmap` leg passes at the head.
+- `docs/design/MEDIA_CLOCK_FOLLOWING.md` still carries `KL_crf_rx.sv:<line>` references that predate this lane and do not land on what they describe (round 1b). Not this lane's; left alone.
+
+## Receipts
+
+`receipts/` (index `receipts/INDEX.md`, generated from the files present). Host paths in copied logs are replaced by placeholders; a log over 200 KB is kept as its SHA-256, size and last 200 lines (`.tail`).
+
+- `round1c/merge-7f84892a/`: `obj_dynmap` and `obj_nxn4c` at the merge commit (the failure the change answers).
+- `round1c/lane-tree-75db4b57/`: the same two legs on the lane tree with the change, before the commit.
+- `round1c/dp762-mutants/`, `round1c/sweep-s0/`, `round1c/sweep-s1/`, `round1c/tsnfuzz/`, `round1c/unb/`, `round1c/yosys/`, `round1c/xvlog/`, `round1c/static/`, `round1c/builder/`, `round1c/route/`.
+- `round1c/scripts/`: the scripts that produced them.
+- `round1b/`, `round1/`: earlier rounds' evidence, unchanged.
