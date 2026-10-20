@@ -1,0 +1,9 @@
+[28] flat instrument FAMILY compare, kept on purpose: any
+  [ ok ] [28a] 2ch-wire ACCEPTED under 8ch fmt    = 1
+  [ ok ] [28b] no UNSUPPORTED for adapted PDU     = 0
+  [ ok ] [28c] 8ch-wire accepted                  = 2
+  [ ok ] [28d] 0ch rejected                       = 1
+  [ ok ] [28e] 9ch-wire ACCEPTED over 8ch fmt (family compare) = 3
+  [ ok ] [28f] ...and no UNSUPPORTED for it       = 1
+PROBE cpf=256: frames_rx=3 unsupported=2
+PROBE cpf=257: frames_rx=4 unsupported=2
