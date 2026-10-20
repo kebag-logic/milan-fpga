@@ -1,0 +1,94 @@
+=== milan_datapath NxN integration (N_STREAMS=1, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 7512 bytes, 42 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 463 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +20 for STREAM_INPUT 1 (146 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+  [ok]   TRAP-1 bind: the listener launched its PROBE_TX = 0x1
+  [ok]   TRAP-1 bound: PARSED climbs                    = 0x1
+  [ok]   TRAP-1 bound: MATCHED climbs (alias intact)    = 0x1
+  [ok]   TRAP-1 bound: INFO match flag set              = 0x1
+  [ok]   TRAP-1 bound: INFO index 0                     = 0x0
+  [ok]   TRAP-1 bound: the ACMP alias counts as one armed entry = 0x1
+  [ok]   5.3.8.7 GET_STREAM_INFO answers before the stop = 0x0
+  [ok]   5.3.8.7 started: STREAMING_WAIT reads 0        = 0x1
+  [ok]   5.3.8.7 STOP_STREAMING answered SUCCESS        = 0x0
+  [ok]   5.3.8.7 stopped: STREAMING_WAIT reads 1        = 0x1
+  [ok]   5.3.8.7 stopped: ...and BOUND still reads 1 - the clause stops the data, it does not unbind the sink = 0x1
+  [ok]   5.3.8.7 stopped: the frame still REACHES the parser = 0x1
+  [ok]   5.3.8.7 stopped: ...and is STILL matched (it is still bound) = 0x1
+  [ok]   5.3.8.7 stopped: ...but the media path got NOTHING = 0x0
+  [ok]   5.3.8.7 START_STREAMING answered SUCCESS       = 0x0
+  [ok]   5.3.8.7 restarted: PARSED climbs               = 0x1
+  [ok]   5.3.8.7 restarted: MATCHED climbs again        = 0x1
+  [ok]   5.3.8.7 restarted: ...and the media path receives again = 0x1
+  [ok]   5.3.8.7 restarted: STREAMING_WAIT reads 0 again = 0x1
+  [ok]   5.3.8.7 Table 5.6: FRAMES_RX SURVIVED the stop/start pair = 0x1
+  [ok]   5.3.8.7 Table 5.6: ...and counted the frame arriving while STOPPED (the clause says a stopped input RECEIVES) = 0x1
+-- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED --
+  [ok]   [762-DP] 1 started: GET_COUNTERS(STREAM_INPUT,0) answers SUCCESS = 0x0
+  [ok]   [762-DP] 1 started: ...and the input reads locked = 0x1
+  [ok]   [762-DP] 2 STOP_STREAMING answered SUCCESS     = 0x0
+  [ok]   [762-DP] 2 stopped gap: SEQ_NUM_MISMATCH +1 (the gap was seen) = 0x1
+  [FAIL] [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  got=0x1 exp=0x0
+  [ok]   [762-DP] 3 the skip only shortens the silence (the watchdog was below it) = 0x1
+  [ok]   [762-DP] 3 the stopped input's silence unlocked it = 0x0
+  [ok]   [762-DP] 3 stopped silence: MEDIA_UNLOCKED +1 (the silence was seen) = 0x1
+  [FAIL] [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 got=0x1 exp=0x0
+  [ok]   [762-DP] 4 START_STREAMING answered SUCCESS    = 0x0
+  [ok]   [762-DP] 4 started again: MEDIA_LOCKED +1 (relocked) = 0x1
+  [ok]   [762-DP] 4 started gap: SEQ_NUM_MISMATCH +1    = 0x1
+  [ok]   [762-DP] 4 started gap: STREAM_INTERRUPTED +1  = 0x1
+--------------------------------------------------------------
+checks: 86   failures: 2
+RESULT: FAIL
