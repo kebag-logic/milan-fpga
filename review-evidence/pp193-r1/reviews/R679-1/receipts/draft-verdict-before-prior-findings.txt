@@ -1,0 +1,8 @@
+Draft written before reading any prior public review on PR #198 (2026-10-20, after the independent diff pass).
+Verdict: NEGATIVE - exact head 6ddfcda4c3170b8f463c8623833f7541ca8c1faf
+F1 MAJOR (Conformance, RTL, Robustness, Tests, Docs): a parked owed Leave (#188) for a stream_id and a new sink's
+  declaration of the same stream_id go out in one walk: two Listener VectorAttributes for one value in one MRPDU;
+  the suite's own Milan 4.2.7.2.2 PeerRegistrar deregisters while a settled, registered sink declares. Pre-existing at
+  base RTL; not covered by the PR's checks; contradicts the ruling's "only the owner's applicant transmits".
+F2 RESIDUE (Docs, PR body): OOC area figure without its sink count (KL_pp_shadow defaults 8 in / 8 out).
+Ledger draft: Conformance UNCLEAN, RTL UNCLEAN, Robustness UNCLEAN, Tests UNCLEAN, Docs UNCLEAN (F1); campaign pending.
