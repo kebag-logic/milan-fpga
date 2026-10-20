@@ -1,37 +1,48 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// A SYNTHETIC clock domain with two media interfaces (#632, the owner's
-// multi-interface requirement): no in-tree shape frames two independent
-// capture buses on one domain, so this wrapper plays the integration. Both
-// are real KL_tdm_capture_master instances on the one audio clock, framing
-// the same 48 kHz grid with different geometry, so their latencies differ:
+// A SYNTHETIC clock domain with three media interfaces (#632, the owner's
+// multi-interface requirement): no in-tree shape frames several capture
+// buses on one domain, so this wrapper plays the integration. All three are
+// real KL_tdm_capture_master instances framing the same 48 kHz grid with
+// different geometry, so their latencies differ:
 //   A  TDM8 x 32 bits, bit clock 12.288 MHz, slot-0 MSB one bit after the sync
-//      (data delay 1): the domain's frame-timing owner;
+//      (data delay 1): the domain's frame-timing owner, the shipping AX7101
+//      1x1 front end;
 //   B  TDM4 x 32 bits, bit clock 6.144 MHz, slot-0 MSB on the sync edge
-//      (data delay 0).
+//      (data delay 0);
+//   C  TDM32 x 32 bits, bit clock 49.152 MHz on its own 98.304 MHz clock,
+//      data delay 1: the shipping AX7101 8x8 front end, whose frame the
+//      capture crossbar closes on an INNER pair (pair 3 of 16, the last of
+//      the four it keeps), a quarter of a frame in.
 // The domain has ONE media event, A's (KL_media_domain_event), which the one
 // KL_crf_tx stamps. Each interface carries its OWN constant, derived from its
 // own parameters by KL_media_if_latency_pkg: its marker latency, which turns
-// the strobe of its frame's last pair back into the instant that frame
-// started at its pins. B's instant is what its talkers would stamp. Adding B
-// added its constant and a second back-dating, never a second loop.
+// the strobe of the pair closing its frame back into the instant that frame
+// started at its pins. B's and C's instants are what their talkers would
+// stamp. Adding them added their constants and a back-dating each, never a
+// second loop.
 `default_nettype none
 module pin_wrap #(
-  parameter int unsigned CLK_HZ_P = 50_000_000,
-  parameter int unsigned AUD_HZ_P = 24_576_000
+  parameter int unsigned CLK_HZ_P   = 50_000_000,
+  parameter int unsigned AUD_HZ_P   = 24_576_000,
+  parameter int unsigned TDM32_HZ_P = 98_304_000
 )(
   input  wire         clk_i,
   input  wire         rst_n,
   input  wire         clk_audio_i,
+  input  wire         clk_tdm32_i,     //! C's clock, 4 x clk_audio_i (one VCO)
   input  wire  [63:0] ptp_now_i,
   output wire         a_bclk_o, a_fsync_o,
   output wire         b_bclk_o, b_fsync_o,
-  //! the domain event (interface A's frame instant) and B's frame instant
+  output wire         c_bclk_o, c_fsync_o,
+  //! the domain event (interface A's frame instant) and B's and C's
   output wire         a_ev_p_o,
   output wire  [63:0] a_ns_o,
   output wire         b_ev_p_o,
   output wire  [63:0] b_ns_o,
+  output wire         c_ev_p_o,
+  output wire  [63:0] c_ns_o,
   //! the domain's CRF output
   output wire  [63:0] crft_tdata_o,
   output wire         crft_tvalid_o,
@@ -39,20 +50,31 @@ module pin_wrap #(
 );
   import KL_media_if_latency_pkg::*;
   localparam int unsigned FS_C = 48_000;
-  //! interface geometry: slots, word bits, data delay, bit clock
-  localparam int unsigned A_SLOTS_C = 8, A_DD_C = 1;
-  localparam int unsigned B_SLOTS_C = 4, B_DD_C = 0;
+  //! the capture crossbar keeps at most four pairs of a bus and closes its
+  //! frame on the last it keeps (milan_datapath CMAP_TDM_FRAME_PAIRS_C)
+  localparam int unsigned KEPT_C = 4;
+  //! interface geometry: slots, data delay, bit clock, closing pair
+  localparam int unsigned A_SLOTS_C = 8,  A_DD_C = 1;
+  localparam int unsigned B_SLOTS_C = 4,  B_DD_C = 0;
+  localparam int unsigned C_SLOTS_C = 32, C_DD_C = 1;
   localparam longint A_BIT_HZ_C = longint'(A_SLOTS_C) * 32 * FS_C;
   localparam longint B_BIT_HZ_C = longint'(B_SLOTS_C) * 32 * FS_C;
-  //! each interface's constant, from its own parameters (one clk_audio_i
-  //! cycle from its last bit to its FIFO write, as KL_tdm_capture_master)
-  localparam int unsigned A_LAT_C =
-      32'(mark_lat_ns(FS_C, A_BIT_HZ_C, A_DD_C, AUD_HZ_P, 1, CLK_HZ_P));
-  localparam int unsigned B_LAT_C =
-      32'(mark_lat_ns(FS_C, B_BIT_HZ_C, B_DD_C, AUD_HZ_P, 1, CLK_HZ_P));
+  localparam longint C_BIT_HZ_C = longint'(C_SLOTS_C) * 32 * FS_C;
+  localparam int A_CLOSE_C = close_pair((A_SLOTS_C / 2 < KEPT_C) ? A_SLOTS_C / 2 : KEPT_C, 0);
+  localparam int B_CLOSE_C = close_pair((B_SLOTS_C / 2 < KEPT_C) ? B_SLOTS_C / 2 : KEPT_C, 0);
+  localparam int C_CLOSE_C = close_pair((C_SLOTS_C / 2 < KEPT_C) ? C_SLOTS_C / 2 : KEPT_C, 0);
+  //! each interface's constant, from its own parameters (one cycle of its
+  //! write clock from the closing pair's last bit to its FIFO write, as
+  //! KL_tdm_capture_master)
+  localparam int unsigned A_LAT_C = 32'(mark_lat_ns(pair_end_bits(A_CLOSE_C, 32, A_DD_C),
+                                                    A_BIT_HZ_C, AUD_HZ_P, 1, CLK_HZ_P));
+  localparam int unsigned B_LAT_C = 32'(mark_lat_ns(pair_end_bits(B_CLOSE_C, 32, B_DD_C),
+                                                    B_BIT_HZ_C, AUD_HZ_P, 1, CLK_HZ_P));
+  localparam int unsigned C_LAT_C = 32'(mark_lat_ns(pair_end_bits(C_CLOSE_C, 32, C_DD_C),
+                                                    C_BIT_HZ_C, TDM32_HZ_P, 1, CLK_HZ_P));
 
-  wire       a_pv_w, b_pv_w;
-  wire [3:0] a_slot_w, b_slot_w;
+  wire       a_pv_w, b_pv_w, c_pv_w;
+  wire [3:0] a_slot_w, b_slot_w, c_slot_w;
   KL_tdm_capture_master #(
     .SLOTS_P (A_SLOTS_C), .WORD_BITS_P (32),
     .BCLK_HALF_P (32'(AUD_HZ_P / (2 * A_BIT_HZ_C))), .DATA_DELAY_P (1'(A_DD_C))
@@ -73,22 +95,43 @@ module pin_wrap #(
     .pair_valid_o (b_pv_w), .pair_slot_o (b_slot_w), .pair_l_o (), .pair_r_o (),
     .pairs_captured_o ()
   );
+  KL_tdm_capture_master #(
+    .SLOTS_P (C_SLOTS_C), .WORD_BITS_P (32),
+    .BCLK_HALF_P (32'(TDM32_HZ_P / (2 * C_BIT_HZ_C))), .DATA_DELAY_P (1'(C_DD_C))
+  ) u_c (
+    .clk_i (clk_i), .rst_n (rst_n), .clk_audio_i (clk_tdm32_i),
+    .tdm_mclk_o (), .tdm_bclk_o (c_bclk_o), .tdm_fsync_o (c_fsync_o),
+    .tdm_data_i (1'b0), .bclk_rise_o (), .bclk_fall_o (), .frame_pos_o (),
+    .pair_valid_o (c_pv_w), .pair_slot_o (c_slot_w), .pair_l_o (), .pair_r_o (),
+    .pairs_captured_o ()
+  );
 
   //! the domain's media event: the owner's frame marker, back-dated
   KL_media_domain_event #(
     .MARK_LAT_NS_P (A_LAT_C), .TIMEOUT_CYC_P (4 * (CLK_HZ_P / FS_C))
   ) u_dom (
     .clk_i (clk_i), .rst_n (rst_n),
-    .mark_i (a_pv_w && (32'(a_slot_w) == A_SLOTS_C / 2 - 1)), .alt_i (1'b0),
-    .ptp_now_i (ptp_now_i), .ev_p_o (a_ev_p_o), .ev_ns_o (a_ns_o), .live_o ()
+    .mark_i (a_pv_w && (32'(a_slot_w) == A_CLOSE_C)), .alt_i (1'b0),
+    .ptp_now_i (ptp_now_i), .ev_p_o (a_ev_p_o), .ev_ns_o (a_ns_o),
+    .mark_ns_o (), .live_o ()
   );
   //! interface B's own frame instant: its marker, back-dated by its constant
   KL_media_domain_event #(
     .MARK_LAT_NS_P (B_LAT_C), .TIMEOUT_CYC_P (4 * (CLK_HZ_P / FS_C))
   ) u_b_time (
     .clk_i (clk_i), .rst_n (rst_n),
-    .mark_i (b_pv_w && (32'(b_slot_w) == B_SLOTS_C / 2 - 1)), .alt_i (1'b0),
-    .ptp_now_i (ptp_now_i), .ev_p_o (b_ev_p_o), .ev_ns_o (b_ns_o), .live_o ()
+    .mark_i (b_pv_w && (32'(b_slot_w) == B_CLOSE_C)), .alt_i (1'b0),
+    .ptp_now_i (ptp_now_i), .ev_p_o (b_ev_p_o), .ev_ns_o (b_ns_o),
+    .mark_ns_o (), .live_o ()
+  );
+  //! interface C's: its INNER closing pair, back-dated by its constant
+  KL_media_domain_event #(
+    .MARK_LAT_NS_P (C_LAT_C), .TIMEOUT_CYC_P (4 * (CLK_HZ_P / FS_C))
+  ) u_c_time (
+    .clk_i (clk_i), .rst_n (rst_n),
+    .mark_i (c_pv_w && (32'(c_slot_w) == C_CLOSE_C)), .alt_i (1'b0),
+    .ptp_now_i (ptp_now_i), .ev_p_o (c_ev_p_o), .ev_ns_o (c_ns_o),
+    .mark_ns_o (), .live_o ()
   );
 
   KL_crf_tx u_tx (

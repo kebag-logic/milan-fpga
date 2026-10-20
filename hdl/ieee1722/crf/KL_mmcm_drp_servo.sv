@@ -64,8 +64,10 @@
                             integ += (3 * 2^PH_GAIN_LSH_P / 128) / 2 * Theta
                           which makes the loop type 2 against phase with
                           the rate error as its damping. At the default the
-                          phase pole is 0.94 per window (tau 8.5 s) and the
-                          rate pole 0.71 (tau 1.5 s). The clamp bounds the
+                          phase pole is 0.944 per window (tau 17 windows,
+                          8.9 s) and the rate pole 0.70 (tau 2.8 windows,
+                          1.4 s): the phase loop is six times slower than
+                          the rate loop it rides on. The clamp bounds the
                           phase-driven pull to PH_SLEW_NS_P per window
                           (0.5 ppm): the integrator settles at e = -pull,
                           so the phase moves at most that fast, glitch-free
@@ -74,10 +76,14 @@
                           domain event live, a valid reference history and
                           ph_en_i. Every other state, an mr toggle of the
                           followed stream (ref_restart_p_i), a broken
-                          reference history and a local PHC step RE-FOLD:
-                          the next sample restarts the unwrap at its own
-                          nearest whole period, so a re-acquisition pulls
-                          at most Ps/2, at the bounded slew.
+                          reference history, and a local PHC step (#539)
+                          or policy slew (#545) RE-FOLD: the next sample
+                          restarts the unwrap at its own nearest whole
+                          period, so a re-acquisition pulls at most Ps/2,
+                          at the bounded slew. A step or slew moves the
+                          timescale the domain event is stamped in, and an
+                          unwrap that tracked a slew of several periods
+                          would pull all of them back the long way.
 
                   step guard (2026-07-23 silicon): a local ptp_now
                           step/slew (GM reboot -> the active gPTP plane adjusting the
@@ -310,7 +316,8 @@ module KL_mmcm_drp_servo #(
   //! the sample period Ps the phase is folded into
   parameter int unsigned FS_HZ_P          = 48_000,
   //! phase integral gain: integ += (3 * 2^PH_GAIN_LSH_P / 128) / 2 * Theta_ns
-  //! per window (1 = phase pole 0.94 per window, about 5x below the rate loop)
+  //! per window (1 = phase pole 0.944 per window, six times slower than the
+  //! rate loop)
   parameter int unsigned PH_GAIN_LSH_P    = 1,
   //! slew limit: the largest phase-driven pull, ns per window (256 = 0.5 ppm)
   parameter int unsigned PH_SLEW_NS_P     = 256,
@@ -659,9 +666,10 @@ module KL_mmcm_drp_servo #(
                      (tick_cnt_r == (WIN_LOG2_P+1)'(WIN_TICKS_C - 1));
   //! re-fold: outside LOCKED, the term off, the followed stream's media clock
   //! restarted, its timestamp history broken (a jump, a tu edge, a gap), or
-  //! a local PHC step moved the timebase both operands are read in
+  //! a local PHC step or policy slew moving the timescale the domain event
+  //! is stamped in (the window it overlaps is spoiled, as for the rate)
   wire ph_hold_w = (state_r != LOCKED_S) || !ph_en_i || ref_restart_p_i ||
-                   !ref_rate_valid_i || ptp_jump_r;
+                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;
 
   logic [63:0]                 dom_ns_r;     //! the latest domain event's instant
   logic                        dom_fresh_r;  //! a domain event since the last PDU

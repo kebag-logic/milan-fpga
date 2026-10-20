@@ -24,6 +24,7 @@ module media_phase_wrap #(
   input  wire  [63:0] ptp_now_i,      //! gPTP ns
   input  wire         sel_i,          //! CRF followed (0 = INTERNAL: servo IDLE)
   input  wire         ph_en_i,        //! the phase term may run
+  input  wire         phc_slew_i,     //! the local PHC's policy slew level (#545)
 
   //! the followed CRF talker's PDU, already parsed
   input  wire         frame_p_i,
@@ -94,7 +95,7 @@ module media_phase_wrap #(
   ) u_dom (
     .clk_i (clk_i), .rst_n (rst_n), .mark_i (mark_w), .alt_i (1'b0),
     .ptp_now_i (ptp_now_i),
-    .ev_p_o (ev_p_o), .ev_ns_o (ev_ns_o), .live_o (ev_live_o)
+    .ev_p_o (ev_p_o), .ev_ns_o (ev_ns_o), .mark_ns_o (), .live_o (ev_live_o)
   );
 
   // ---- the followed reference ----------------------------------------------
@@ -125,7 +126,7 @@ module media_phase_wrap #(
   ) servo (
     .clk_i (clk_i), .rst_n (rst_n), .clk_audio_i (clk_audio_i),
     .ps_clk_i (clk_i), .ptp_now_i (ptp_now_i),
-    .phc_slew_active_i (1'b0), .sel_i (sel_i),
+    .phc_slew_active_i (phc_slew_i), .sel_i (sel_i),
     .ref_locked_i (rx_locked_o), .ref_rate_valid_i (rate_valid_o),
     .ref_rate_ns_i (rate_w),
     .ph_en_i (ph_en_i && ev_live_o), .dom_ev_p_i (ev_p_o), .dom_ns_i (ev_ns_o),

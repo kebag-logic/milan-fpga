@@ -81,6 +81,10 @@
                     one. It takes the frame the tick takes: the newest closed
                     before the tick cycle, or - with none pending - one
                     closing on that cycle itself (loaded a cycle late).
+                The frame's instant at the media interface (tdm_close_ns_i,
+                #632) rides the FRAME and WALK banks beside it, so the AAF
+                talkers' time base (tdm_walk_ns_o) is the instant of the
+                frame the walk reads, by construction.
                 The walk bank is required, not a convenience: at the 8x8
                 shape a walk (866 cycles) outlasts the two TDM slots between
                 a frame's last pair and the next frame's first (260 cycles at
@@ -438,6 +442,13 @@ module KL_chan_map_capture #(
   input  wire [3:0]   tdm_pair_slot_i,   //! TDM pair index (0..N_TDM_P/2-1)
   input  wire [23:0]  tdm_l_i,
   input  wire [23:0]  tdm_r_i,
+  //! #632: the instant the frame closed by THIS strobe started at the media
+  //! interface (KL_media_domain_event mark_ns_o), low 32 bits, which are all
+  //! an avtp_timestamp carries. It is banked with the frame and loaded into
+  //! the walk with it, so tdm_walk_ns_o is the instant of exactly the frame
+  //! the walk reads, the coincidence law and a queued tick included (TDM
+  //! FRAME HANDOFF). Defaulted: an integration with no time base reads 0.
+  input  wire [31:0]  tdm_close_ns_i = 32'd0,
 
   //! --- tone generator sample (live; drives both L/R when TONE) -----------
   input  wire [23:0]  tone_smp_i,
@@ -489,7 +500,10 @@ module KL_chan_map_capture #(
   //! so they go stale together and a per-pair count would just multiply the
   //! same slip by the pair count.
   output logic [15:0] tdm_dup_cnt_o,     //! tick with no fresh frame (grid fast)
-  output logic [15:0] tdm_skip_cnt_o     //! frame over unread frame (grid slow)
+  output logic [15:0] tdm_skip_cnt_o,    //! frame over unread frame (grid slow)
+  //! #632: the instant of the frame the walk reads (tdm_close_ns_i), held
+  //! for the whole walk with the walk bank
+  output logic [31:0] tdm_walk_ns_o
 );
 
   // ---------------------------------------------------------------------- //
@@ -609,6 +623,8 @@ module KL_chan_map_capture #(
   //! ever written" is the check that a physical cluster beyond channels 0..1
   //! can be backed at all - and it is the one a tie-off regression would trip.
   logic [47:0] tdm_frame_r [N_TDM_PAIRS_C] /* verilator public_flat_rd */;
+  //! ...and the instant that frame started at the media interface (#632)
+  logic [31:0] tdm_frame_ns_r;
 
   wire [47:0] tdm_pair_w  = {tdm_l_i, tdm_r_i};
   wire        tdm_stage_w = tdm_pair_valid_i &&
@@ -624,6 +640,7 @@ module KL_chan_map_capture #(
         tdm_stage_r[t] <= '0;
         tdm_frame_r[t] <= '0;
       end
+      tdm_frame_ns_r <= '0;
     end
     else begin
       if (i2s_pair_valid_i) i2s_hold_r <= {i2s_l_i, i2s_r_i};
@@ -634,6 +651,7 @@ module KL_chan_map_capture #(
         for (int t = 0; t < N_TDM_PAIRS_C; t++)
           tdm_frame_r[t] <= (t == int'(TDM_FRAME_PAIRS_P) - 1) ? tdm_pair_w
                                                                : tdm_stage_r[t];
+        tdm_frame_ns_r <= tdm_close_ns_i;
       end
     end
   end : source_latch
@@ -1255,11 +1273,15 @@ module KL_chan_map_capture #(
     if (!rst_n) begin
       tdm_snap_late_r <= 1'b0;
       for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= '0;
+      tdm_walk_ns_o <= '0;
     end
     else begin
       tdm_snap_late_r <= tdm_snap_take_w;
+      //! the frame and its instant load together, so the talkers' time base
+      //! can never name a frame the walk does not read (#632)
       if ((tdm_snap_w && !tdm_snap_take_w) || tdm_snap_late_r) begin
         for (int t = 0; t < N_TDM_PAIRS_C; t++) tdm_walk_r[t] <= tdm_frame_r[t];
+        tdm_walk_ns_o <= tdm_frame_ns_r;
       end
     end
   end : tdm_walk_snapshot

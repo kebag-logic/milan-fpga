@@ -251,6 +251,7 @@ suite_timeout() {
     milan_dp)          printf '%s\n' "${SUITE_TIMEOUT:-4800}" ;;
     milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
     milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+    media_phase)       printf '%s\n' "${SUITE_TIMEOUT:-900}" ;;
     *)                 printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
 }

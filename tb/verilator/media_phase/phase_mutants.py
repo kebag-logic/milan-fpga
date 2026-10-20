@@ -4,7 +4,7 @@
 """Plant one defect per term of the #632/#764 phase loop and require its check.
 
 Each mutant is a text substitution on a temporary copy of the RTL (or, for
-the synthetic two-interface shape, of pin_wrap.sv, the integration that bench
+the synthetic three-interface shape, of pin_wrap.sv, the integration that bench
 plays), built through this directory's Makefile and run on the one case that
 grades its term; it passes only when that case exits 1 with the named [FAIL]
 line. A
@@ -28,7 +28,7 @@ HDL = HERE / "../../../hdl/ieee1722/crf"
 SERVO = "KL_mmcm_drp_servo.sv"
 DOMEV = "KL_media_domain_event.sv"
 CRFTX = "KL_crf_tx.sv"
-#: the synthetic two-interface shape's integration (the bench plays it)
+#: the synthetic three-interface shape's integration (the bench plays it)
 PINWRAP = "pin_wrap.sv"
 SOURCES = {SERVO: HDL / SERVO, DOMEV: HDL / DOMEV, CRFTX: HDL / CRFTX, PINWRAP: HERE / PINWRAP}
 #: Makefile variable that names each mutable source
@@ -71,8 +71,12 @@ MUTANTS = (
       ("  wire ph_acc_w = dv_done_w && !dv_mean_r && ph_unw_ok_w;",
        "  wire ph_acc_w = dv_done_w && !dv_mean_r;")),
      "internal", "[internal] phase held inside +/-5 % of Ps to the end"),
+    ("slew_refold_removed", SERVO,
+     (("                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;",
+       "                   !ref_rate_valid_i || ptp_jump_r;"),),
+     "slew", "[slew] the pull went the short way"),
     ("domain_event_not_backdated", DOMEV,
-     (("ev_ns_o <= ptp_now_i - 64'(MARK_LAT_NS_P);", "ev_ns_o <= ptp_now_i;"),),
+     (("  assign mark_ns_o = ptp_now_i - 64'(MARK_LAT_NS_P);", "  assign mark_ns_o = ptp_now_i;"),),
      "engage", "[engage] every DUT CRF timestamp is a frame instant of its own grid"),
     ("crf_output_off_grid", CRFTX,
      (("        ts_r         <= evt_ns_r + 64'(mtt_ofs_r);",
@@ -87,6 +91,11 @@ MUTANTS = (
       ("    .MARK_LAT_NS_P (B_LAT_C),", "    .MARK_LAT_NS_P (A_LAT_C),"),
       ("    .MARK_LAT_NS_P (SWAP_C),", "    .MARK_LAT_NS_P (B_LAT_C),")),
      PINS, "[pins A] ...and inside the derivation"),
+    ("pins_c_closed_at_frame_end", PINWRAP,
+     (("  localparam int unsigned C_LAT_C = 32'(mark_lat_ns(pair_end_bits(C_CLOSE_C, 32, C_DD_C),",
+       "  localparam int unsigned C_LAT_C = 32'(mark_lat_ns(pair_end_bits(C_SLOTS_C / 2 - 1, 32, C_DD_C),"),),
+     PINS, "[pins C] every stamped frame instant is each slot's MSB pin instant less its offset, "
+           "inside +/-5 % of Ps"),
 )
 CLEAN_CASES = sorted({m[3] for m in MUTANTS})
 #: at most two Verilator builds at once, however many runs are in flight

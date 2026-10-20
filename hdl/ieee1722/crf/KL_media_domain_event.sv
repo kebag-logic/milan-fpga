@@ -21,7 +21,9 @@
                 constants relative to it (docs/design/MEDIA_CLOCK_FOLLOWING.md,
                 Phase alignment). The same instant stamps the domain's
                 outputs: KL_crf_tx counts 96 of these events per PDU, and the
-                AAF talkers stamp the frame they capture with it, so both
+                AAF talkers stamp the frame they capture with it (mark_ns_o,
+                carried through KL_chan_map_capture's frame and walk banks
+                with the frame itself), so both
                 outputs fall on whole periods of one grid (IEEE 1722-2016
                 4.3.5) and on the followed stream's timing points once the
                 servo holds the phase (10.8 Eq. 15).
@@ -68,11 +70,18 @@ module KL_media_domain_event #(
   input  wire  [63:0] ptp_now_i,   //! live PHC nanoseconds
   output logic        ev_p_o,      //! one cycle per frame, one cycle after mark_i
   output logic [63:0] ev_ns_o,     //! that frame's start at the pins, gPTP ns
+  //! the start of the frame a marker on THIS cycle closes: ptp_now_i
+  //! back-dated, combinational, for a consumer that banks the frame on the
+  //! marker's own edge (KL_chan_map_capture's frame bank). ev_ns_o is this
+  //! value registered, so the back-dating is derived once.
+  output wire  [63:0] mark_ns_o,
   output logic        live_o       //! a marker within TIMEOUT_CYC_P cycles
 );
 
   localparam int unsigned TOW_C = $clog2(TIMEOUT_CYC_P + 1);
   logic [TOW_C-1:0] quiet_r;
+
+  assign mark_ns_o = ptp_now_i - 64'(MARK_LAT_NS_P);
 
   always_ff @(posedge clk_i) begin : domain_event
     if (!rst_n) begin
@@ -83,7 +92,7 @@ module KL_media_domain_event #(
     end else begin
       ev_p_o <= mark_i || (alt_i && !live_o);
       if (mark_i) begin
-        ev_ns_o <= ptp_now_i - 64'(MARK_LAT_NS_P);
+        ev_ns_o <= mark_ns_o;
         quiet_r <= '0;
         live_o  <= 1'b1;
       end else begin

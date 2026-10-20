@@ -52,6 +52,9 @@ module chmap_wrap (
   input  wire [3:0]   tdm_pair_slot_i,
   input  wire [23:0]  tdm_l_i,
   input  wire [23:0]  tdm_r_i,
+  //! #632: the closing frame's instant (lane A only; lane B keeps the
+  //! port's default, which also proves the default inert)
+  input  wire [31:0]  tdm_close_ns_i,
   input  wire [23:0]  tone_smp_i,
 
   //! --- shared LOOPBACK payload AXIS (depacketizer clone; both chmaps) -----
@@ -72,6 +75,8 @@ module chmap_wrap (
   //! #74 TDM junction slip detector (frame close vs snapshot), lane A grades it
   output wire [15:0]  a_tdm_dup_cnt_o,
   output wire [15:0]  a_tdm_skip_cnt_o,
+  //! #632: the instant of the frame lane A's walk reads
+  output wire [31:0]  a_walk_ns_o,
   output wire [15:0]  b_dup_cnt_o,
   output wire [15:0]  b_skip_cnt_o,
 
@@ -164,7 +169,7 @@ module chmap_wrap (
     .map_rd_data_o (a_map_rd_data_o), .map_rd_valid_o (a_map_rd_valid_o),
     .i2s_pair_valid_i (i2s_pair_valid_i), .i2s_l_i (i2s_l_i), .i2s_r_i (i2s_r_i),
     .tdm_pair_valid_i (tdm_pair_valid_i), .tdm_pair_slot_i (tdm_pair_slot_i),
-    .tdm_l_i (tdm_l_i), .tdm_r_i (tdm_r_i),
+    .tdm_l_i (tdm_l_i), .tdm_r_i (tdm_r_i), .tdm_close_ns_i (tdm_close_ns_i),
     .tone_smp_i (tone_smp_i),
     .lb_tdata_i (lb_tdata_i), .lb_tvalid_i (lb_tvalid_i),
     .lb_tlast_i (lb_tlast_i), .lb_tuser_i (lb_tuser_i),
@@ -175,7 +180,8 @@ module chmap_wrap (
     .pair_valid_o (a_pv_w), .pair_slot_o (a_slot_w),
     .pair_l_o (a_l_w), .pair_r_o (a_r_w),
     .lb_dup_cnt_o (a_dup_cnt_o), .lb_skip_cnt_o (a_skip_cnt_o),
-    .tdm_dup_cnt_o (a_tdm_dup_cnt_o), .tdm_skip_cnt_o (a_tdm_skip_cnt_o)
+    .tdm_dup_cnt_o (a_tdm_dup_cnt_o), .tdm_skip_cnt_o (a_tdm_skip_cnt_o),
+    .tdm_walk_ns_o (a_walk_ns_o)
   );
 
   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
@@ -235,7 +241,7 @@ module chmap_wrap (
     .pair_l_o (b_l_w), .pair_r_o (b_r_w),
     .lb_dup_cnt_o (b_dup_cnt_o), .lb_skip_cnt_o (b_skip_cnt_o),
     //! lane A grades the junction detector; B leaves it explicitly open
-    .tdm_dup_cnt_o (), .tdm_skip_cnt_o ()
+    .tdm_dup_cnt_o (), .tdm_skip_cnt_o (), .tdm_walk_ns_o ()
   );
 
   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (

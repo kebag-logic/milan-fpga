@@ -1241,6 +1241,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int CMAP_TDM_SLOTS_C       = 8;
   localparam int CMAP_TDM_FRAME_PAIRS_C = (AIF_PAIRS_C < CMAP_TDM_SLOTS_C / 2)
                                         ? AIF_PAIRS_C : CMAP_TDM_SLOTS_C / 2;
+  //! #632: the instant the frame closing on this cycle started at the media
+  //! interface (the domain media event's back-dating, on the close's own
+  //! cycle), and the instant of the frame the capture walk reads, which the
+  //! crossbar banks with the frame itself: the AAF talkers' time base
+  wire [63:0] dom_mark_ns_w;
+  wire [31:0] cmap_walk_ns_w;
 
   KL_chan_map_capture #(
     .N_SLOTS_P (N_STREAMS*4),
@@ -1297,6 +1303,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! parks at slot 0.
     .tdm_pair_valid_i (aafcap_pv_w), .tdm_pair_slot_i (aafcap_slot_w),
     .tdm_l_i (aafcap_l_w), .tdm_r_i (aafcap_r_w),
+    .tdm_close_ns_i (dom_mark_ns_w[31:0]),
     //! the media-grid pilot (task #59): stepped by the same media_tick_p as
     //! the walk below, never the clk_audio-grid tone_smp
     .tone_smp_i (tone_smp_media),
@@ -1319,7 +1326,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! honest-slip evidence (dup-on-empty / drop-oldest, ZERO at lock)
     .lb_dup_cnt_o (lb_dup_cnt_w), .lb_skip_cnt_o (lb_skip_cnt_w),
     //! #74 junction evidence: fsync-frame writes vs media-tick reads
-    .tdm_dup_cnt_o (tdm_dup_cnt_w), .tdm_skip_cnt_o (tdm_skip_cnt_w)
+    .tdm_dup_cnt_o (tdm_dup_cnt_w), .tdm_skip_cnt_o (tdm_skip_cnt_w),
+    .tdm_walk_ns_o (cmap_walk_ns_w)
   );
 
   // ==========================================================================
@@ -1398,10 +1406,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [11:0] lwsrp_op_vid;
   //! The AAF talkers' time base (#632, #764): the instant the frame the
   //! capture walk reads started at the media interface - the domain media
-  //! event, latched at the walk's tick (aaf_tbase_r below) - so the capture
-  //! age and the pair offset leave the avtp_timestamp by construction and it
-  //! lies on the same grid as the CRF output (IEEE 1722-2016 4.3.5). The live
-  //! PHC, as before, while no frame grid runs.
+  //! event's instant, banked with that frame by the crossbar
+  //! (cmap_walk_ns_w) - so the capture age and the pair offset leave the
+  //! avtp_timestamp by construction and it lies on the same grid as the CRF
+  //! output (IEEE 1722-2016 4.3.5). The live PHC, as before, while no frame
+  //! grid runs. The packetizer reads the low 32 bits only (the
+  //! avtp_timestamp); the high half is the live PHC's.
   wire [63:0] aaf_tbase_w;
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS),
                       .WIRE_CHANS_P(TALKER_WIRE_CHANS_P)) aaf_packetizer (
@@ -6044,12 +6054,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  never a second loop.
   //
   //  The marker latency is the owner's, derived from its parameters by
-  //  KL_media_if_latency_pkg (one frame, the front-end's FIFO write, the
-  //  FIFO's read side here): every capture front-end of this root is
-  //  instantiated with a one-bit data delay, and writes its FIFO one clk_tdm_i
-  //  cycle (TDM master), one bit period (TDM slave) or five clk_audio_i cycles
-  //  (I2S master, 512 x fs by its divider) after the frame's last bit.
+  //  KL_media_if_latency_pkg: to the last bit of the pair that closes the
+  //  frame at the crossbar (the frame's last pair up to TDM8; pair 3 of 16 on
+  //  TDM32; one pair earlier on the I2S blend), then the front-end's FIFO
+  //  write and the FIFO's read side here. Every capture front-end of this
+  //  root is instantiated with a one-bit data delay, and writes its FIFO one
+  //  clk_tdm_i cycle (TDM master; KL_pair_blend passes its strobe through),
+  //  one bit period (TDM slave) or five clk_audio_i cycles (I2S master, 512 x
+  //  fs by its divider) after that pair's last bit.
   // ==========================================================================
+  localparam int     DOM_CLOSE_PAIR_C = KL_media_if_latency_pkg::close_pair(
+      CMAP_TDM_FRAME_PAIRS_C, AUDIO_IF_I2S_PAIR_P);
+  //! an I2S-only front end strobes one pair of two 32-bit words
+  localparam int     DOM_WORD_BITS_C  = (AUDIO_IF_SLOTS_P == 0) ? 32 : AIF_WORD_BITS_C;
+  localparam longint DOM_MARK_BITS_C  = KL_media_if_latency_pkg::pair_end_bits(
+      DOM_CLOSE_PAIR_C, DOM_WORD_BITS_C, 1);
   localparam longint DOM_BIT_HZ_C = (AUDIO_IF_SLOTS_P == 0) ? 64'(64 * AUDIO_IF_FS_HZ_P)
                                                             : 64'(AIF_BCLK_HZ_C);
   localparam longint DOM_WR_HZ_C  = (AUDIO_IF_SLOTS_P == 0) ? 64'(512 * AUDIO_IF_FS_HZ_P)
@@ -6057,9 +6076,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                                                              : DOM_BIT_HZ_C;
   localparam longint DOM_WR_CYC_C = (AUDIO_IF_SLOTS_P == 0) ? 64'd5 : 64'd1;
   localparam int unsigned DOM_MARK_LAT_NS_C = 32'(KL_media_if_latency_pkg::mark_lat_ns(
-      64'(AUDIO_IF_FS_HZ_P), DOM_BIT_HZ_C, 1, DOM_WR_HZ_C, DOM_WR_CYC_C,
-      64'(MILAN_CLK_FREQ_HZ)));
-  //! the owner's frame marker: the strobe of the frame's last pair (#617)
+      DOM_MARK_BITS_C, DOM_BIT_HZ_C, DOM_WR_HZ_C, DOM_WR_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
+  //! the owner's frame marker: the strobe of the pair that closes the frame
+  //! at the crossbar, the last it keeps (#617; DOM_CLOSE_PAIR_C above)
   wire        frame_mark_w = aafcap_pv_w &&
                              (32'(aafcap_slot_w) == CMAP_TDM_FRAME_PAIRS_C - 1);
   wire        dom_ev_p_w;
@@ -6077,18 +6096,16 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .ptp_now_i (ptp_now_w),
     .ev_p_o    (dom_ev_p_w),
     .ev_ns_o   (dom_ns_w),
+    .mark_ns_o (dom_mark_ns_w),
     .live_o    (dom_live_w)
   );
-  //! The frame the capture walk reads at a tick is the newest the crossbar
-  //! closed by that tick's cycle (TIME_SYNC.md, Talker capture handoff). The
-  //! crossbar's close and the event both register one cycle after the raw
-  //! marker, so the event the tick latches is exactly that frame's.
-  logic [63:0] aaf_tbase_r;
-  always_ff @(posedge axis_clk) begin : aaf_tbase_latch
-    if (!axis_resetn)      aaf_tbase_r <= '0;
-    else if (media_tick_p) aaf_tbase_r <= dom_ns_w;
-  end : aaf_tbase_latch
-  assign aaf_tbase_w = dom_live_w ? aaf_tbase_r : ptp_now_w;
+  //! The walk's frame is not always the newest closed by its tick: a close
+  //! on the tick's own cycle is taken only with no frame pending, and a tick
+  //! queued behind a running walk snapshots when that walk starts (TIME_SYNC
+  //! .md, Talker capture handoff). A time base latched at the tick named the
+  //! frame before on the first of these, a whole sample off. So the crossbar
+  //! banks each frame's instant with the frame and hands the walk's out.
+  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w} : ptp_now_w;
 
   // ==========================================================================
   //  Media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo. It

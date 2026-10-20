@@ -93,7 +93,8 @@ module media_grid_align_wrap (
     .tick_i (tick_o),
     .pair_valid_o (), .pair_slot_o (), .pair_l_o (), .pair_r_o (),
     .lb_dup_cnt_o (), .lb_skip_cnt_o (),
-    .tdm_dup_cnt_o (tdm_dup_cnt_o), .tdm_skip_cnt_o (tdm_skip_cnt_o)
+    .tdm_dup_cnt_o (tdm_dup_cnt_o), .tdm_skip_cnt_o (tdm_skip_cnt_o),
+    .tdm_walk_ns_o ()
   );
 
 endmodule

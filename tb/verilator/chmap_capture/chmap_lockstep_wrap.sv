@@ -104,7 +104,8 @@ module chmap_lockstep_wrap #(
     .pair_valid_o (dut_pair_valid_o), .pair_slot_o (dut_pair_slot_o),
     .pair_l_o (dut_pair_l_o), .pair_r_o (dut_pair_r_o),
     .lb_dup_cnt_o (dut_lb_dup_cnt_o), .lb_skip_cnt_o (dut_lb_skip_cnt_o),
-    .tdm_dup_cnt_o (dut_tdm_dup_cnt_o), .tdm_skip_cnt_o (dut_tdm_skip_cnt_o)
+    .tdm_dup_cnt_o (dut_tdm_dup_cnt_o), .tdm_skip_cnt_o (dut_tdm_skip_cnt_o),
+    .tdm_walk_ns_o ()
   );
 
 endmodule

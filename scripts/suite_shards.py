@@ -109,6 +109,7 @@ SUITE_SECONDS = {
     "mbx": 82,
     "media_grid_align": 255,
     "media_nco": 17,
+    "media_phase": 900,
     "milan_dp": 2797,
     "milan_dp_gm_steps": 926,
     "milan_dp_mclk": 2038,
@@ -138,7 +139,7 @@ SUITE_SECONDS = {
 #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
 #: driver's suite_timeout gives a new suite, until the change's own hosted run
 #: measures it (step 3 of the module docstring's new-suite steps).
-PROVISIONAL_SUITES: frozenset[str] = frozenset()
+PROVISIONAL_SUITES: frozenset[str] = frozenset({"media_phase"})
 
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker

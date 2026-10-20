@@ -12,7 +12,9 @@
 // instant of every frame of the DUT's frame grid (the audio edge that starts
 // it) and every timing point of the followed stream, so the phase it grades
 // is fold(frame instant - CRF timing point) in [-Ps/2, Ps/2), Ps = 1e9/48000
-// ns, against IEEE 1722-2016 10.8 Eq. 15's +/-5 % of Ps. The DUT's own CRF
+// ns, against IEEE 1722-2016 10.8 Eq. 15's +/-5 % of Ps. The frame instant is
+// read in the DUT's own gPTP timescale (its PHC), the one its timestamps are
+// in; only the slew case moves that off the harness's time. The DUT's own CRF
 // output is graded the same way, and against its own frame instants (4.3.5:
 // whole periods). One case per process (+case=<name>):
 //
@@ -28,6 +30,9 @@
 //             re-acquired and held
 //   mr        the followed stream toggles mr with a 1.8 us jump (inside the
 //             receiver's jump bound), re-acquired and held
+//   slew      the local PHC slews 27 us at 200 ppm under the #545 slew level:
+//             the phase re-folds, so it is re-acquired the short way (6.2 us,
+//             not the 27 us the slew moved) and held
 //   carry     the phase term off: the integrator carries every odd error
 //             exactly (#764's floor leak), and the phase does not walk
 //
@@ -91,7 +96,8 @@ class MediaPhaseHarness {
             next_i_ += kHalfIFs;
             dut_->clk_i ^= 1;
             if (dut_->clk_i) {
-                dut_->ptp_now_i = static_cast<uint64_t>(t_fs_ / 1e6 + ptp_step_ns_);
+                dut_->ptp_now_i = static_cast<uint64_t>(t_fs_ / 1e6 + phc_offset_ns());
+                dut_->phc_slew_i = now_s() >= slew_t0_ && now_s() <= slew_t1_;
                 drive_reference();
             }
             dut_->eval();
@@ -122,6 +128,14 @@ class MediaPhaseHarness {
         while (t_fs_ < te) tick_one();
     }
     double now_s() const { return t_fs_ * 1e-15; }
+    //! the local PHC against the harness's time: a linear slew between two
+    //! instants (#545), zero before it
+    double phc_offset_ns() const {
+        const double t = now_s();
+        if (t <= slew_t0_) return 0.0;
+        if (t >= slew_t1_) return slew_ns_;
+        return slew_ns_ * (t - slew_t0_) / (slew_t1_ - slew_t0_);
+    }
 
     //! the oscillator: base offset plus a linear ramp between two instants
     double lo_ppm_now() const {
@@ -160,7 +174,7 @@ class MediaPhaseHarness {
 
     // ------------------------------------------------------- observation
     void frame_edge() {
-        last_frame_ns_ = t_fs_ / 1e6;
+        last_frame_ns_ = t_fs_ / 1e6 + phc_offset_ns();
         frame_ns_.push_back(last_frame_ns_);
         if (frame_ns_.size() > 4096) frame_ns_.erase(frame_ns_.begin(), frame_ns_.begin() + 2048);
     }
@@ -303,6 +317,7 @@ class MediaPhaseHarness {
         dut_->rst_n = 0;
         dut_->sel_i = 0;
         dut_->ph_en_i = s.ph_en;
+        dut_->phc_slew_i = 0;
         dut_->mmcm_locked_i = 1;
         run_to(0.001);
         dut_->rst_n = 1;
@@ -408,6 +423,30 @@ class MediaPhaseHarness {
         common_checks("mr");
     }
 
+    //! a policy slew of the local PHC (#545): the DUT's timescale moves 27 us
+    //! under the reference, so its frames must move 27 us mod Ps = 6.2 us.
+    //! The phase re-folds while the slew level is up, so it is re-acquired the
+    //! short way; an unwrap that tracked the slew would pull all 27 us
+    void case_slew() {
+        start_settled();
+        slew_ns_ = 27000.0;
+        slew_t0_ = now_s();
+        slew_t1_ = slew_t0_ + slew_ns_ * 1e-9 / 200e-6;
+        std::printf("  info: [slew] the local PHC slews +27 us at 200 ppm from %.2f s\n", now_s());
+        run_to(slew_t1_ + 0.002);
+        have_eng_ = true;
+        eng_phase_ = true_phase();
+        max_after_eng_ = 0;
+        pull_watch_ = true;
+        std::printf("  info: [slew] phase %+.4f Ps when the slew ends\n", eng_phase_ / kPsNs);
+        grade_reacquired("slew", slew_t0_, 40.0, 70.0);
+        char what[160];
+        std::snprintf(what, sizeof what, "[slew] the pull went the short way (max |phase| %.4f Ps after the slew)",
+                      max_after_eng_ / kPsNs);
+        check_.that(what, max_after_eng_ <= std::fabs(eng_phase_) + kBandNs);
+        common_checks("slew");
+    }
+
     //! the phase term off (AAF following leaves it off): the integrator must
     //! carry every odd error exactly, so over N committed windows it moves by
     //! exactly sum(e) / 2^KI_SHIFT_P; the floored form drops every odd LSB
@@ -453,7 +492,7 @@ class MediaPhaseHarness {
     milan::tb::Checker& check_;
     MmcmModel mm_{};
     double t_fs_ = 0, next_i_ = kHalfIFs, next_a_ = kHalfANomFs, base_a_ = kHalfANomFs;
-    double ptp_step_ns_ = 0;
+    double slew_t0_ = 1e9, slew_t1_ = 1e9, slew_ns_ = 0;
     double lo_ppm_ = 8.0, ramp_t0_ = 1e9, ramp_t1_ = 2e9, ramp_ppm_ = 0;
     double ref_t0_ns_ = 0, ref_next_send_ns_ = 0;
     long ref_j_ = 0;
@@ -482,6 +521,7 @@ int MediaPhaseHarness::run(const std::string& name) {
     else if (name == "holdover") case_holdover();
     else if (name == "internal") case_internal();
     else if (name == "mr") case_mr();
+    else if (name == "slew") case_slew();
     else if (name == "carry") case_carry();
     else check_.fail("unknown case");
     return check_.report();
