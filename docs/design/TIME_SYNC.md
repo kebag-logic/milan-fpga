@@ -199,7 +199,7 @@ Each link has exactly one master.
 | Plan offset | -10.64 ppm; one sample would slip every 1.9582 s, and the aligner removes it at every source since #629 (A2-a) | `KL_chan_map_capture` dup/skip counters, readable at `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) |
 | MMCM servo error | Differential rate, ns per 512 ms window | `KL_mmcm_drp_servo` |
 | Domain media event | Each frame's instant at the media interface: the closing pair's strobe, back-dated by the owner's derived marker latency (#632) | `KL_media_domain_event`, `KL_media_if_latency_pkg` |
-| MMCM servo phase term | Under a followed CRF stream: its timing points against the domain event, folded into +/-Ps/2 exactly, one window mean per 512 ms; type 2; pull slew-limited to 0.5 ppm; settled inside +/-5 % of Ps is `MCSRV_STAT[9]` | `KL_mmcm_drp_servo`, [phase alignment](MEDIA_CLOCK_FOLLOWING.md#phase-alignment) |
+| MMCM servo phase term | Under a followed CRF stream: its timing points against the domain event, each folded into +/-Ps/2 exactly, one window sum over the nominal 256 PDUs per 512 ms; type 2; pull slew-limited to 0.5 ppm; settled inside +/-5 % of Ps is `MCSRV_STAT[9]` | `KL_mmcm_drp_servo`, [phase alignment](MEDIA_CLOCK_FOLLOWING.md#phase-alignment) |
 | MMCM servo integrator | Eight fractional bits: no window error or phase term is floored (#764) | `KL_mmcm_drp_servo` |
 | CRF output timing points | Every 96th domain event, stamped with its own instant | `KL_crf_tx` |
 | MMCM servo command | PI; 1/16 ppm per LSB; positive speeds up | `KL_mmcm_drp_servo`, `MCSRV_STAT[31:16]` |

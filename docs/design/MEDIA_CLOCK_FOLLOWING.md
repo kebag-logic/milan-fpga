@@ -1576,10 +1576,13 @@ detector never compares against a particular interface's pins.
    is not a whole number of nanoseconds, so the fold works in 1/3 ns: 3d mod
    62,500 by a restoring divider, moved into [-Ps/2, Ps/2). The fold is exact,
    because a CRF timestamp and a domain event both lie on whole periods.
-   Consecutive samples, 2 ms apart, are unwrapped against each other, summed
-   over the servo's 512 ms window and divided by their count in the same
-   divider. A window counts with at least 64 PDUs (256 nominal) and no
-   re-fold inside it.
+   Each sample folds to its own nearest whole period, so every pull is the
+   short way. The samples are summed over the servo's 512 ms window, and the
+   window phase Theta is that sum over the nominal 256 PDUs, a shift: a window
+   short of PDUs only pulls less. A window counts with at least 64 PDUs and no
+   hold inside it, and reads settled only when full. A phase within the sample
+   jitter of +/-Ps/2 straddles the fold and pulls in proportion to its distance
+   from it: an unstable point the loop leaves, never a stall.
 2. **Loop.** The window phase Theta enters the integrator one window late,
    clamped: integ += 3/128 of a trim unit per ns of Theta each window, beside
    the rate term e/2, with u = integ + e/4. The loop is therefore type 2
@@ -1587,15 +1590,15 @@ detector never compares against a particular interface's pins.
    8 fractional bits, so neither term is floored: the floored `e >>> 1` held
    mean(e) at P(e odd), a drift of up to 1.95 ns/s that no term saw (#764).
 3. **Where it runs.** Only in LOCKED, with the domain event live, a valid
-   reference history and a followed CRF stream. Each of these re-folds:
+   reference history and a followed CRF stream. Each of these holds it:
    leaving LOCKED (HOLDOVER, ACQUIRE, IDLE at INTERNAL), an `mr` toggle of the
    followed stream, a broken reference history (a timestamp jump, a `tu` edge
    or a sequence gap: `ref_rate_valid_i` low), and a local PHC step (#539) or
    policy slew (#545), which move the timescale the domain event is stamped
-   in. A re-fold restarts the unwrap at the next sample's own nearest whole
-   period, so a re-acquisition pulls at most Ps/2, at the slew limit. An
-   unwrap that tracked a slew of several periods would pull all of them back
-   the long way.
+   in. A hold lets the term go at once and spoils the open window, so only a
+   clean window re-engages it. Since every sample folds on its own, a
+   re-acquisition pulls at most Ps/2, at the slew limit, whatever the event
+   moved: a 27 us slew is re-acquired as the 6.2 us it folds to.
 
 | Term | Value | Why |
 |---|---|---|
@@ -1609,7 +1612,7 @@ detector never compares against a particular interface's pins.
 
 Measured in `tb/verilator/media_phase` at the silicon 512 ms window:
 
-| Event | Re-fold by | Inside +/-5 % of Ps after | Held to the end, largest phase |
+| Event | Held by | Inside +/-5 % of Ps after | Held to the end, largest phase |
 |---|---|---|---|
 | Engagement at +0.44 Ps | first LOCKED | 27.5 s | 723 ns |
 | Engagement at -0.36 Ps | first LOCKED | 23.4 s | 679 ns |
@@ -1617,8 +1620,8 @@ Measured in `tb/verilator/media_phase` at the silicon 512 ms window:
 | `mr` toggle with a 1.8 us jump | `mr`; the jump is inside the receiver's bound, so the rate loop takes most of it | 0.4 s | 145 ns |
 | 15 s holdover, the oscillator moved 0.5 ppm | HOLDOVER, ACQUIRE | 27.3 s from +0.48 Ps | 742 ns |
 | 15 s at INTERNAL | IDLE | 24.3 s from +0.24 Ps | 706 ns |
-| The local PHC slews 27 us at 200 ppm | the #545 slew level | 20.0 s from +0.30 Ps, the short way (27 us is 1.3 Ps) | 656 ns |
-| 4 ppm oscillator ramp over 80 s | none | held throughout | 652 ns |
+| The local PHC slews 27 us at 200 ppm | the #545 slew level | 20.0 s from +0.30 Ps, the short way (27 us is 1.3 Ps) | 662 ns |
+| 4 ppm oscillator ramp over 80 s | none | held throughout | 643 ns |
 
 The restart signalling of #761 is unchanged: the phase term raises no `mr`, no
 MEDIA_RESET and no CLOCK_DOMAIN count. A settle recentre (#645) fires once the
@@ -1734,8 +1737,9 @@ target was chosen for it.
 | Check | Where | Planted defects that must fail it |
 |---|---|---|
 | An arbitrary engagement phase (+0.44 and -0.36 Ps): inside the band within 45 s, held, the pull at most 400 ns a window, the short way | `tb/verilator/media_phase` `engage`, `engage2` | the phase term removed; its sign flipped; the rate damping removed; the slew clamp removed; the fold not centred |
-| A reference phase step, an `mr` toggle, a 15 s holdover, 15 s at INTERNAL, a 4 ppm ramp: re-acquired and held | `media_phase` `step`, `mr`, `holdover`, `internal`, `ramp` | the re-fold removed (`internal`) |
-| A 27 us policy slew of the local PHC: re-acquired the short way and held | `media_phase` `slew` | the slew left out of the re-fold |
+| A reference phase step, an `mr` toggle, a 15 s holdover, 15 s at INTERNAL, a 4 ppm ramp: re-acquired and held | `media_phase` `step`, `mr`, `holdover`, `internal`, `ramp` | covered by the engagement defects above |
+| The phase term lets go at each event that holds it: the engaged bit (`phase_o[20]`) low within 10 ms of the step, 5 ms of the `mr` toggle, INTERNAL and the slew level, 200 ms of HOLDOVER | `media_phase` `step`, `mr`, `holdover`, `internal`, `slew` | the history hold removed (`step`); the `mr` hold removed (`mr`); the state and history holds removed (`holdover`, where either alone suffices); the state hold and the IDLE reset removed (`internal`); the slew level left out of the hold (`slew`) |
+| A 27 us policy slew of the local PHC: re-acquired the short way and held | `media_phase` `slew` | the short way is the fold's, which the fold not centred fails at `engage2`; the slew's hold is graded in the row above |
 | The integrator carries every odd error exactly, the phase term off | `media_phase` `carry` | the integrator floored |
 | Every DUT CRF timestamp is one of its own frame instants, and on the reference's grid | every `media_phase` case | the domain event not back-dated; the CRF output stamped 0.46 Ps off its grid |
 | Three interfaces of one domain, each stamp graded at every slot's MSB pin instant; every CRF timing point a frame instant of all three | `media_phase` pins | B's constant dropped; A's and B's swapped; C's counted to the frame's end instead of its closing pair |
