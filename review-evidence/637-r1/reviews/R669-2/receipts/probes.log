@@ -1,0 +1,18 @@
+PROBE valid-no-crc: expected survives, observed survives
+PROBE valid-no-id: expected survives, observed survives
+PROBE valid-no-frame: expected survives, observed survives
+PROBE no-sweep-wait: expected unknown, observed survives
+PROBE takedown-no-rb: expected survives, observed survives
+PROBE takedown-no-rb-8: expected survives, observed survives
+PROBE pb-all-8: expected caught, observed caught
+    [FAIL] [MAPREC] transfers, after the power cycle: port 0: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] transfers, after the power cycle: port 1: number_of_mappings got=0x8 exp=0x7
+    [FAIL] [MAPREC] transfers, after the power cycle: port 1: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] transfers, after the power cycle: port 2: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] transfers, after the power cycle: port 3: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] transfers, after the power cycle: port 4: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] transfers, after the power cycle: port 7: number_of_mappings got=0x8 exp=0x9
+    [FAIL] [MAPREC] transfers, after the power cycle: port 7: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] transfers, after the power cycle: every key's owner and cluster in the stores got=0x5 exp=0x0
+    [FAIL] [MAPREC] transfers, after the power cycle: the crossbar RAM routes as the reference got=0x2 exp=0x0
+    [FAIL] [MAPREC] transfers, after the power cycle: PP_STAT fail 0 got=0x1 exp=0x0

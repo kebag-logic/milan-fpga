@@ -1,0 +1,8 @@
+[PASS] the unmutated gateware still passes the dynmap leg
+[PASS] the unmutated gateware still passes the maprec8 leg
+[PASS] mutant caught: PP_STAT busy does not cover the map restore - breaks "[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: the round-1 ordering: a port's reset set comes down just before its saved set - breaks "[MAPREC] transfers, after the power cycle: port 0: the mappings are the expected list" (its tallies report 12 failure(s) across 219 checks)
+[PASS] mutant caught: a refused put-back does not roll back - breaks "[MAPREC] refused put-back: port 7: number_of_mappings" (its tallies report 7 failure(s) across 219 checks)
+
+5 checks: 5 PASS, 0 FAIL
+rc=0
