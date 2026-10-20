@@ -136,8 +136,8 @@ module rails_wrap (
     .ref_rate_ns_i    (ref_rate_ns_i),
     .ref_rate_valid_i (1'b1), //! this harness supplies clean rate samples
     //! no timing points here: the phase term (#632) stays off
-    .ph_en_i (1'b0), .dom_ev_p_i (1'b0), .dom_ns_i (64'd0),
-    .ref_ts_p_i (1'b0), .ref_ts_i (64'd0), .ref_restart_p_i (1'b0),
+    .ph_en_i (1'b0), .dom_ev_p_i (1'b0), .dom_ns_i (32'd0),
+    .ref_ts_p_i (1'b0), .ref_ts_ns_i (32'd0), .ref_restart_p_i (1'b0),
     .auto_repair_i (1'b0),
     .ps_invert_i   (1'b0),
     .drp_addr_o    (drp_addr_o),

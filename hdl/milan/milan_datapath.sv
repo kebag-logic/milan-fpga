@@ -6150,9 +6150,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! keeps the rate loop alone (the per-source contract's follow-on).
     .ph_en_i         (crf_clk_selected_r && dom_live_w),
     .dom_ev_p_i      (dom_ev_p_w),
-    .dom_ns_i        (dom_ns_w),
+    .dom_ns_i        (dom_ns_w[31:0]),
     .ref_ts_p_i      (crf_ts_p_w),
-    .ref_ts_i        (crf_ts_w),
+    .ref_ts_ns_i     (crf_ts_w[31:0]),
     .ref_restart_p_i (crf_mr_toggle_p_w),
     .auto_repair_i (mcsrv_auto_repair_w),
     .ps_invert_i   (mcsrv_ps_invert_w),

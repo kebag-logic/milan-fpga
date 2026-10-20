@@ -234,8 +234,8 @@ module follow_ring_wrap #(
     .ref_rate_ns_i (ref_rate_w), .ref_rate_valid_i (ref_rate_valid_w),
     //! this bench grades the rate loop's transients (#645): its talkers carry
     //! no timing points for the phase term (#632), which stays off
-    .ph_en_i (1'b0), .dom_ev_p_i (1'b0), .dom_ns_i (64'd0),
-    .ref_ts_p_i (1'b0), .ref_ts_i (64'd0), .ref_restart_p_i (1'b0),
+    .ph_en_i (1'b0), .dom_ev_p_i (1'b0), .dom_ns_i (32'd0),
+    .ref_ts_p_i (1'b0), .ref_ts_ns_i (32'd0), .ref_restart_p_i (1'b0),
     .phase_o (), .ph_settled_o (),
     .auto_repair_i (1'b0), .ps_invert_i (1'b0),
     .drp_addr_o (drp_addr_o), .drp_en_o (drp_en_o), .drp_we_o (drp_we_o),

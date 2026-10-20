@@ -68,8 +68,8 @@ module crf_talker_wrap (
     .ref_locked_i(rx_locked_o), .ref_rate_ns_i(rate_o),
     .ref_rate_valid_i(rate_valid_o),
     // This fixture grades the rate path: the phase term (#632) stays off.
-    .ph_en_i(1'b0), .dom_ev_p_i(1'b0), .dom_ns_i(64'd0),
-    .ref_ts_p_i(1'b0), .ref_ts_i(64'd0), .ref_restart_p_i(1'b0),
+    .ph_en_i(1'b0), .dom_ev_p_i(1'b0), .dom_ns_i(32'd0),
+    .ref_ts_p_i(1'b0), .ref_ts_ns_i(32'd0), .ref_restart_p_i(1'b0),
     .phase_o(), .ph_settled_o(), .*
   );
 endmodule

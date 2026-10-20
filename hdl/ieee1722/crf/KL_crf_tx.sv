@@ -384,26 +384,14 @@ module KL_crf_tx (
   // periods from the AAF talkers' (4.3.5).
   // -----------------------------------------------------------------------
   logic [6:0]  evt_cnt_r;               //! 0..95 domain events per CRF PDU
-  logic        evt_p_r;                 //! this cycle is a CRF timing point
-  logic [63:0] evt_ns_r;                //! ...and its instant
+  //! this event is a CRF timing point; the engine takes its instant directly
+  wire         evt_take_w = ev_p_i && (evt_cnt_r == 7'(CRF_IVAL_C - 1));
   always_ff @(posedge clk_i or negedge rst_n) begin : evt_grid
     if (!rst_n) begin
       evt_cnt_r <= '0;
-      evt_p_r   <= 1'b0;
-      evt_ns_r  <= '0;
     end
-    else begin
-      evt_p_r <= 1'b0;
-      if (ev_p_i) begin
-        if (evt_cnt_r == 7'(CRF_IVAL_C - 1)) begin
-          evt_cnt_r <= '0;
-          evt_p_r   <= 1'b1;
-          evt_ns_r  <= ev_ns_i;
-        end
-        else begin
-          evt_cnt_r <= evt_cnt_r + 1'b1;
-        end
-      end
+    else if (ev_p_i) begin
+      evt_cnt_r <= evt_take_w ? '0 : evt_cnt_r + 1'b1;
     end
   end : evt_grid
 
@@ -489,10 +477,10 @@ module KL_crf_tx (
       tx_count_o <= '0;
     end
     else begin
-      if (evt_p_r && enable_i && !frame_pend_r && (st_r == IDLE_S)) begin
+      if (evt_take_w && enable_i && !frame_pend_r && (st_r == IDLE_S)) begin
         //! Equation 14: the ROUNDED offset, never the raw transit_ns_i. If a
         //! conversion is in flight this is still the previous whole answer.
-        ts_r         <= evt_ns_r + 64'(mtt_ofs_r);
+        ts_r         <= ev_ns_i + 64'(mtt_ofs_r);
         tu_r         <= ts_uncertain_i;   //! same PHC, same verdict
         mr_r         <= mr_i;             //! 10.4.3 level frozen for this PDU
         vln_r        <= vlan_en_i;        //! shape frozen for this frame

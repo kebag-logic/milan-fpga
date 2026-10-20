@@ -31,8 +31,12 @@
 //   mr        the followed stream toggles mr with a 1.8 us jump (inside the
 //             receiver's jump bound), re-acquired and held
 //   slew      the local PHC slews 27 us at 200 ppm under the #545 slew level:
-//             the phase re-folds, so it is re-acquired the short way (6.2 us,
-//             not the 27 us the slew moved) and held
+//             re-acquired the short way (6.2 us, not the 27 us the slew
+//             moved) and held
+//
+// Each event case also requires the phase term to let go at the event (the
+// engaged bit, phase_o[20], low on some datapath cycle shortly after it):
+// the hold conditions are graded one by one.
 //   carry     the phase term off: the integrator carries every odd error
 //             exactly (#764's floor leak), and the phase does not walk
 //
@@ -182,6 +186,8 @@ class MediaPhaseHarness {
     double true_phase() const { return fold(last_frame_ns_ - ref_t0_ns_); }
 
     void observe_clk() {
+        // the hold: the phase term must let go at each event that holds it
+        if (now_s() >= letgo_from_ && now_s() <= letgo_until_ && !engaged()) letgo_seen_ = true;
         // the DUT's CRF output frames: 8 beats, timestamp at frame bytes 34..41
         if (dut_->crft_tvalid_o) {
             const uint64_t d = dut_->crft_tdata_o;
@@ -248,6 +254,21 @@ class MediaPhaseHarness {
     }
 
     int state() const { return static_cast<int>(dut_->status_o & 7); }
+    bool engaged() const { return ((dut_->phase_o >> 20) & 1) != 0; }
+    //! watch the engaged bit from now for `within_s`: an event that holds the
+    //! phase term must make it let go, observed on every datapath cycle
+    void watch_letgo(double within_s) {
+        letgo_from_ = now_s();
+        letgo_until_ = now_s() + within_s;
+        letgo_seen_ = false;
+        engaged_before_ = engaged();
+    }
+    void check_letgo(const char* tag, const char* event) {
+        char what[160];
+        std::snprintf(what, sizeof what, "[%s] the phase term let go at %s (within %.0f ms)", tag, event,
+                      (letgo_until_ - letgo_from_) * 1e3);
+        check_.that(what, engaged_before_ && letgo_seen_);
+    }
     bool locked() const { return state() == 4; }
     double dut_phase_ns() const {
         int32_t v = static_cast<int32_t>(dut_->phase_o & 0xFFFFF);
@@ -361,9 +382,11 @@ class MediaPhaseHarness {
 
     void case_step() {
         start_settled();
+        watch_letgo(0.010);
         step_reference(0.37 * kPsNs);
         std::printf("  info: [step] the reference stepped by 0.37 Ps at %.2f s\n", now_s());
         grade_reacquired("step", now_s(), 35.0, 60.0);
+        check_letgo("step", "the reference's history restart");
         common_checks("step");
     }
 
@@ -386,6 +409,7 @@ class MediaPhaseHarness {
 
     void case_holdover() {
         start_settled();
+        watch_letgo(0.200);
         ref_on_ = false;
         lo_ppm_ += 0.5;                  // the oscillator moves while held
         run_to(16.0);
@@ -395,6 +419,7 @@ class MediaPhaseHarness {
         std::printf("  info: [holdover] the reference returns at %.2f s, phase %+.4f Ps\n",
                     now_s(), true_phase() / kPsNs);
         grade_reacquired("holdover", now_s(), 40.0, 80.0);
+        check_letgo("holdover", "HOLDOVER");
         common_checks("holdover");
     }
 
@@ -402,6 +427,7 @@ class MediaPhaseHarness {
     //! oscillator's 8 ppm for 15 s (5.8 periods) and re-engages anywhere
     void case_internal() {
         start_settled();
+        watch_letgo(0.005);
         dut_->sel_i = 0;
         lo_ppm_ = 8.0;
         run_to(16.0);
@@ -411,27 +437,31 @@ class MediaPhaseHarness {
         std::printf("  info: [internal] CRF selected again at %.2f s, phase %+.4f Ps\n",
                     now_s(), true_phase() / kPsNs);
         grade_reacquired("internal", now_s(), 45.0, 85.0);
+        check_letgo("internal", "INTERNAL");
         common_checks("internal");
     }
 
     void case_mr() {
         start_settled();
+        watch_letgo(0.005);
         ref_mr_ = !ref_mr_;
         step_reference(1800.0);
         std::printf("  info: [mr] mr toggled with a 1.8 us jump at %.2f s\n", now_s());
         grade_reacquired("mr", now_s(), 30.0, 55.0);
+        check_letgo("mr", "the mr toggle");
         common_checks("mr");
     }
 
     //! a policy slew of the local PHC (#545): the DUT's timescale moves 27 us
     //! under the reference, so its frames must move 27 us mod Ps = 6.2 us.
-    //! The phase re-folds while the slew level is up, so it is re-acquired the
-    //! short way; an unwrap that tracked the slew would pull all 27 us
+    //! The term lets go while the slew level is up and re-acquires the short
+    //! way from the folded phase
     void case_slew() {
         start_settled();
         slew_ns_ = 27000.0;
         slew_t0_ = now_s();
         slew_t1_ = slew_t0_ + slew_ns_ * 1e-9 / 200e-6;
+        watch_letgo(0.005);
         std::printf("  info: [slew] the local PHC slews +27 us at 200 ppm from %.2f s\n", now_s());
         run_to(slew_t1_ + 0.002);
         have_eng_ = true;
@@ -444,6 +474,7 @@ class MediaPhaseHarness {
         std::snprintf(what, sizeof what, "[slew] the pull went the short way (max |phase| %.4f Ps after the slew)",
                       max_after_eng_ / kPsNs);
         check_.that(what, max_after_eng_ <= std::fabs(eng_phase_) + kBandNs);
+        check_letgo("slew", "the slew level");
         common_checks("slew");
     }
 
@@ -525,6 +556,10 @@ class MediaPhaseHarness {
     bool pull_watch_ = false;
     bool verbose_ = false;
     bool have_eng_ = false;
+    double letgo_from_ = 1e9;
+    double letgo_until_ = 0;
+    bool letgo_seen_ = false;
+    bool engaged_before_ = false;
     double eng_phase_ = 0;
     double max_after_eng_ = 0;
     int locked_windows_ = 0;
