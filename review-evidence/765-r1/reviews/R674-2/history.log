@@ -1,0 +1,23 @@
+d4a27e6334118c9eef1023aa27e9fd2b7de9f076 Rewrap the [27] case comment in the flat avtp_rxmon harness (#765)
+11119970cf2ad60e0f51a25c1ca79c557a05399d Say the flat instrument keeps the family compare on purpose while the device listener rejects another channel count, and regenerate the AAF campaign record (#765)
+059ecec1eccbb761f4c9bae35675ec9f2caca526 State the lockstep reference's current-format compare, channel count included, in its own comment (#765)
+75db4b57cff47bb614d14dead084649a4c2aa2a3 Feed the [762-DP] case STREAM_INPUT 0's current format, as the other milan_dp cases are since the channel count is compared (#765)
+7f84892a4389c824927093188884cd95847e77d8 Merge dev 78ca9bdf (PR #767 merged, with PR #766), keeping #762's stopped-input rules and its [762-DP] case beside the #765 current-format compare
+78ca9bdf104819265588726bce4322696c38b8c2 Merge PR #767: Media clock restart on the CRF's return; STREAM_INTERRUPTED counts a silence (#761, #762)
+f3fef856dbf7f8e559fa9066f6fc9af1ea091c9d Describe the [762-DP] tail of the shipping AX 1x1 TDM8 dynmap leg in the milan_dp README (#762)
+16358b62734706dd7adf8bb07e72c7f973f36abd Grade a stopped AAF input's gap and silence by count on the shipping AX 1x1 TDM8 dynmap leg, logging its elaborated parameters (#762)
+4605409b1f4f7388c6050af902d3af8b8c9c0e8c Point the #765 format-check references at their lines after the merge, and name the [FMT] case rather than its old place in the crf_rx run
+d30a208d44d5868cc356e6a8b7abc89b062ca9bd Describe the [762-DP] datapath grade of the stopped_i wiring in the milan_dp README (#762)
+336a6f6aa635c149166f58dba16d640e7466973e Grade a stopped AAF input's gap and silence by count through the datapath's stopped_i wiring (#762)
+cb65d9d7d7b1a4adc2f12f8e41d8c4e3af1622e5 Name the sequence gap beside the silence in the two stopped_i port comments (#762)
+2f33a9ce31d2a799b7448854359a4ec4a0609221 Merge PR #767's round-2b head eef90b42, keeping #762's stopped-input rules beside the #765 current-format compare
+e26f1816e456dc8027924bc2e5d327a8aa6e46db Merge PR #766: Prove empty and non-default dynamic maps survive the firmware store's power cycle (#763)
+eef90b4238b6c19b679b44adc6f09362809be153 Count no STREAM_INTERRUPTED for a sequence gap on a stopped input, in both engines (#762)
+cc71db3a557bb6160c81e69a52fd3ceed6622dc5 Feed each milan_dp Stream Input PDUs in its current format, now that the channel count is compared (#765)
+2cd2750d0a07b8516328de7c0b57773ed0000f45 Grade each #762 boundary trial in its own function, inside the C++ length rule
+492207f71eafcbafd25ba8d2b1f361b8a9dbf9c3 Count a silence once its watchdog expires, whatever Unbind follows, and never on a stopped input (#762)
+ba9ac06a156e9ba21f11a399cd0b3cabcd76512d Derive the over-shard receipt control from the mclk driver's real case count
+91aaa6bd478c4f44a5fea9b0432bbbec2bc05f27 Record the current-format compare of #765 in FR-STR-03, the compliance matrix and the test index
+31903ec1fa410ea024f0c9a58584501ddd0d5e2f Count a PDU whose channel count or subtype differs from the Stream Input's current format as UNSUPPORTED_FORMAT and discard it (#765)
+07c6c72fce79e705bcf28a70071497d0ce7040e4 Document the #763 empty-map persistence and the AECP campaign's planted store copy
+94264da763c161c62502edf423b1a7d1efd8d839 Prove an empty and a non-default dynamic map survive the store's power cycle, with both #763 plants as AECP mutants
