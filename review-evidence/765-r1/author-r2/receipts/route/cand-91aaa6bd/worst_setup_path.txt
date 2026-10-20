@@ -1,0 +1,41 @@
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.363ns  (required time - arrival time)
+  Source:                 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[2]/C
+                            (rising edge-triggered cell FDCE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+                            (rising edge-triggered cell FDCE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.583ns  (logic 2.428ns (25.337%)  route 7.155ns (74.663%))
+  Logic Levels:           19  (LUT2=2 LUT3=3 LUT4=6 LUT5=2 LUT6=6)
+  Clock Path Skew:        -0.028ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.760ns = ( 16.760 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.192ns
+    Clock Pessimism Removal (CPR):    0.404ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7250, routed)        1.522     7.192    VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/slots_0_error_reg_0
+    SLICE_X58Y154        FDCE                                         r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[2]/C
+  -------------------------------------------------------------------    -------------------

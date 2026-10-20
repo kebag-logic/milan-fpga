@@ -1,0 +1,10 @@
+33a34
+> #include "Vmilan_datapath___024root.h"
+83c84
+< constexpr int kAafChans = 8;
+---
+> constexpr int kAafChans = 2;   // DEBUG: the arty_current declared count, 86-byte frames
+475a477,479
+>             printf("DBG in0_fmt=%016llx ERR=%08x FRX=%u PCMRX=%08x\n",
+>                    (unsigned long long)dut->rootp->milan_datapath__DOT__aecp_in0_fmt,
+>                    axi_read(0x6C0), axi_read(0x6BC), axi_read(A_PCMRX_CNT));
