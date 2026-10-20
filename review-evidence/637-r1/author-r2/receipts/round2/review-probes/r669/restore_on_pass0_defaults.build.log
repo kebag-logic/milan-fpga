@@ -1,0 +1,39 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 149.529 MB sources in 118 modules, into 14.650 MB in 23 C++ files needing 0.006 MB
+- Verilator: Walltime 31.060 s (elab=0.609, cvt=4.263, bld=25.571); cpu 5.710 s on 2 threads; allocated 651.293 MB
+d_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                                                    : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                                    : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                                                   : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: <scratch>/r2/probes/r669/out/milan_datapath_restore_on_pass0_defaults.sv:470:15: Signal flopped as both synchronous and async: 'axis_resetn'
+                       <scratch>/r2/probes/r669/out/milan_datapath_restore_on_pass0_defaults.sv:3543:10: ... Location of async usage
+ 3543 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       <scratch>/r2/probes/r669/out/milan_datapath_restore_on_pass0_defaults.sv:790:10: ... Location of sync usage
+  790 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
