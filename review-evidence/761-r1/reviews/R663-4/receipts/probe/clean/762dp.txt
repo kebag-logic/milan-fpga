@@ -1,0 +1,17 @@
+-- [762-DP] the AX7101 1x1 TDM8 geometry: a stopped AAF Stream Input counts no STREAM_INTERRUPTED --
+  [ok]   [762-DP] AX 1x1: one AAF Stream Input (N_STREAMS 1) = 0x1
+  [ok]   [762-DP] AX 1x1: the CRF Media Clock Input is sink N_STREAMS, the entity's last = 0x1
+-- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED --
+  [ok]   [762-DP] 1 started: GET_COUNTERS(STREAM_INPUT,0) answers SUCCESS = 0x0
+  [ok]   [762-DP] 1 started: ...and the input reads locked = 0x1
+  [ok]   [762-DP] 2 STOP_STREAMING answered SUCCESS     = 0x0
+  [ok]   [762-DP] 2 stopped gap: SEQ_NUM_MISMATCH +1 (the gap was seen) = 0x1
+  [ok]   [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  = 0x0
+  [ok]   [762-DP] 3 the skip only shortens the silence (the watchdog was below it) = 0x1
+  [ok]   [762-DP] 3 the stopped input's silence unlocked it = 0x0
+  [ok]   [762-DP] 3 stopped silence: MEDIA_UNLOCKED +1 (the silence was seen) = 0x1
+  [ok]   [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 = 0x0
+  [ok]   [762-DP] 4 START_STREAMING answered SUCCESS    = 0x0
+  [ok]   [762-DP] 4 started again: MEDIA_LOCKED +1 (relocked) = 0x1
+  [ok]   [762-DP] 4 started gap: SEQ_NUM_MISMATCH +1    = 0x1
+  [ok]   [762-DP] 4 started gap: STREAM_INTERRUPTED +1  = 0x1

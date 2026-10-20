@@ -1,0 +1,11 @@
+--- <src>/hdl/milan/milan_datapath.sv	2026-10-20 08:49:15.085925056 +0200
++++ <probe>/hdl/milan/milan_datapath.sv	2026-10-20 08:54:05.912932222 +0200
+@@ -6305,7 +6305,7 @@
+     .bind_rise_i    (strtbl_bind_rise_w),
+     .bind_fall_i    (strtbl_bind_fall_w),
+     //! #762: a stopped input's silence or sequence gap interrupts no playback (5.3.8.7)
+-    .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
++    .stopped_i      ('0),
+     .sid0_i         (acmpl_sid),
+     .fmt0_i         (aecp_in0_fmt),
+     .ptp_now_i      (ptp_now_w[31:0]),
