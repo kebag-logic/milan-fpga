@@ -1,0 +1,13 @@
+Verilator 5.050 2026-07-01 rev v5.050
+Published probe SHA256: 4598ce131eca8b9c08cbb44163b78e7da1a549c716d074b290c5b9e3f6f24a2a
+[28] flat instrument FAMILY compare, kept on purpose: a channel
+  [ ok ] [28a] 2ch-wire ACCEPTED under 8ch fmt    = 1
+  [ ok ] [28b] no UNSUPPORTED for adapted PDU     = 0
+  [ ok ] [28c] 8ch-wire accepted                  = 2
+  [ ok ] [28d] 0ch rejected                       = 1
+  [ ok ] [28e] 9ch-wire ACCEPTED over 8ch fmt (family compare) = 3
+  [ ok ] [28f] ...and no UNSUPPORTED for it       = 1
+PROBE cpf=256: frames_rx=3 unsupported=2
+PROBE cpf=257: frames_rx=4 unsupported=2
+
+PASS: 256 rejected and counted; 257 accepted; existing 97 checks pass.

@@ -1,0 +1,10 @@
+Added source-comment lines examined; no new lane labels, lane names, review rounds, reviewer IDs or issue-comment IDs.
+Automated named-pattern matches: 0. Manual review includes all added comment/docstring text in round3.diff.
+
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv: //! subtype, format, nsr and bit_depth strict, a channel count whose low
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv: //! eight bits are nonzero accepted (this instrument reads only
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv: //! channels_per_frame[7:0], so a count of 256 is rejected), sparse always
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv: //! NORMAL=0. The TBs use it to drive counts other than the set format's
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv: //! through the parser and depacketizer. It is NOT the
+tb/verilator/tsn_fuzz/fuzz_aaf.py: # compare on purpose and accepts a channel count whose low eight bits
+tb/verilator/tsn_fuzz/fuzz_aaf.py: # are nonzero (it reads only channels_per_frame[7:0]), so a count
