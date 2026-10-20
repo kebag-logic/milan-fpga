@@ -1,0 +1,61 @@
+Published author receipt hashes verified: 873
+Preserved ancestor: 4191b098
+Preserved ancestor: cc71db3a
+Preserved ancestor: 2f33a9ce
+Preserved ancestor: 4605409b
+Preserved ancestor: 78ca9bdf104819265588726bce4322696c38b8c2
+Byte-identical to merged dev: hdl/milan/milan_datapath.sv
+Unchanged module interface and downstream state/counter logic: hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+Unchanged module interface and downstream state/counter logic: hdl/ieee1722/crf/KL_crf_rx.sv
+No #765 CSR decode, configuration or gitlink delta
+Exact source head recorded: sweep-s0
+Exact source head recorded: sweep-s1
+Exact source head recorded: static
+Exact source head recorded: tsnfuzz
+Exact source head recorded: yosys
+Exact source head recorded: xvlog
+Exact source head recorded: builder
+Exact source head recorded: dp762-mutants
+Exact source head recorded: unb
+DP wiring receipt: clean dynmap failure lines: 0
+  elaborated-parameter SHA-256: d2094321fbb6f594ec13bbc5332fa7f2a284a663700daf5605f08e908eaf5e6f
+DP wiring receipt: clean nxn4c failure lines: 0
+  Published 200-line tail verifies total only; named failures are in driver.log and SUMMARY.tsv.
+DP wiring receipt: mut-tie0 dynmap failure lines: 2
+  [FAIL] [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  got=0x1 exp=0x0
+  [FAIL] [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 got=0x1 exp=0x0
+  elaborated-parameter SHA-256: d2094321fbb6f594ec13bbc5332fa7f2a284a663700daf5605f08e908eaf5e6f
+DP wiring receipt: mut-tie0 nxn4c failure lines: 0
+  Published 200-line tail verifies total only; named failures are in driver.log and SUMMARY.tsv.
+DP wiring receipt: mut-sink1 dynmap failure lines: 2
+  [FAIL] [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  got=0x1 exp=0x0
+  [FAIL] [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 got=0x1 exp=0x0
+  elaborated-parameter SHA-256: d2094321fbb6f594ec13bbc5332fa7f2a284a663700daf5605f08e908eaf5e6f
+DP wiring receipt: mut-sink1 nxn4c failure lines: 0
+  Published 200-line tail verifies total only; named failures are in driver.log and SUMMARY.tsv.
+DP wiring receipt: mut-bound dynmap failure lines: 1
+  [FAIL] [762-DP] 4 started gap: STREAM_INTERRUPTED +1  got=0x0 exp=0x1
+  elaborated-parameter SHA-256: d2094321fbb6f594ec13bbc5332fa7f2a284a663700daf5605f08e908eaf5e6f
+DP wiring receipt: mut-bound nxn4c failure lines: 0
+  Published 200-line tail verifies total only; named failures are in driver.log and SUMMARY.tsv.
+DP mutation matrix: two controls and six named rejections; dynmap digest unchanged
+Published route gate: LUT 49857 - 49613 = +244, PASS
+sweep-s0
+suites: 32   passed: 32   failed: 0   timed out: 0
+checks: 1574249   in-suite failures: 0
+sweep-s1
+suites: 31   passed: 31   failed: 0   timed out: 0
+checks: 613574   in-suite failures: 0
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+Builder limitation: --require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 1 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+builder: 103 gates exactly once; requirements judged on the union
+Separate field campaign:
+== AAF/AVTP stream field campaign (tsn-gen driven): 164 pass, 0 fail, 0 known gaps ==
+campaign artifact freshness (hdl/ieee1722/avtp/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+== gPTP/802.1AS field campaign (tsn-gen driven): 677 pass, 0 fail, 0 known gaps ==
+campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+EVIDENCE AUDIT PASS
