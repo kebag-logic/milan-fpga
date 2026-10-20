@@ -180,9 +180,11 @@ module KL_avtp_rx_monitor #(
   wire       p_sp      = fsh_i[12];      // O+22 [4]
 
   //! family compare, kept on purpose in this flat test instrument:
-  //! subtype, format, nsr and bit_depth strict, any nonzero channel count
-  //! accepted, sparse always NORMAL=0. The TBs use it to drive any count
-  //! of the family through the parser and depacketizer. It is NOT the
+  //! subtype, format, nsr and bit_depth strict, a channel count whose low
+  //! eight bits are nonzero accepted (this instrument reads only
+  //! channels_per_frame[7:0], so a count of 256 is rejected), sparse always
+  //! NORMAL=0. The TBs use it to drive counts other than the set format's
+  //! through the parser and depacketizer. It is NOT the
   //! device listener's rule: the shipping KL_avtp_rx_monitor_ctx also
   //! compares the 10-bit channels_per_frame with the STREAM_INPUT's
   //! current format, and counts UNSUPPORTED_FORMAT for and discards a PDU

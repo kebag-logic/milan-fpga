@@ -457,10 +457,11 @@ class AvtpRxMonitorHarness {
     }
 
     void channel_freedom_accepts_every_count(){
-        printf("\n[28] flat instrument FAMILY compare, kept on purpose: any\n"
-               "     nonzero channel count is accepted here. The device listener\n"
-               "     KL_avtp_rx_monitor_ctx rejects a count other than the current\n"
-               "     format's (#765; Milan v1.2 4.4.2.2, Table 5.6, Table 6.2)\n");
+        printf("\n[28] flat instrument FAMILY compare, kept on purpose: a channel\n"
+               "     count whose low eight bits are nonzero is accepted here (this\n"
+               "     instrument reads only channels_per_frame[7:0]). The device\n"
+               "     listener KL_avtp_rx_monitor_ctx rejects a count other than the\n"
+               "     current format's (#765; Milan v1.2 4.4.2.2, Table 5.6, Table 6.2)\n");
         dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);   // fresh era (counters reset)
         { AafCfg c; c.seq=0; c.chans=2; feed(build_aaf(stim, c)); } // 2ch wire vs 8ch fmt
         ck("[28a] 2ch-wire ACCEPTED under 8ch fmt", dut->cnt_frames_rx_o, 1);

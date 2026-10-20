@@ -140,7 +140,8 @@ class Campaign:
         #
         # channels_per_frame is deliberately absent: this campaign's DUT is the
         # flat test instrument KL_avtp_rx_monitor, which keeps the family
-        # compare on purpose and accepts any nonzero channel count, so a count
+        # compare on purpose and accepts a channel count whose low eight bits
+        # are nonzero (it reads only channels_per_frame[7:0]), so a count
         # probe is graded as ACCEPTED below, not as a rejection. That is the
         # instrument's behaviour, not the device listener's rule: the shipping
         # KL_avtp_rx_monitor_ctx counts UNSUPPORTED_FORMAT for and discards a
@@ -173,11 +174,16 @@ class Campaign:
                         after[C_UNLOCKCNT], before[C_UNLOCKCNT])
 
     def instrument_channel_family(self) -> None:
-        """The flat instrument's family compare accepts any nonzero
-        channels_per_frame; the device listener does not (#765)."""
-        self.rep.section("flat instrument family compare: any channel count "
-                         "accepted (the device listener rejects, #765)")
-        for chans in (1, 2, 3, 4, 8):
+        """The flat instrument's family compare accepts each probed
+        channels_per_frame: it reads only channels_per_frame[7:0] and accepts
+        a nonzero value there. The device listener rejects a count other than
+        its current format's (#765)."""
+        counts = (1, 2, 3, 4, 8)
+        self.rep.section("flat instrument family compare: channels_per_frame "
+                         "%s accepted (the device listener rejects a count "
+                         "other than its current format's, #765)"
+                         % ", ".join(str(c) for c in counts))
+        for chans in counts:
             before = self.lock_stream()
             after = self.send(channels_per_frame=chans)
             self.rep.ck("channels_per_frame=%d: accepted (family compare)" % chans,
