@@ -1,0 +1,10 @@
+wavedrom_selftest	0	0	<scratch>/r2/bin/python3-hdlref scripts/gen_wavedrom.py --selftest
+wavedrom_axis	0	0	<scratch>/r2/bin/python3-hdlref scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+wavedrom_cdc	0	0	<scratch>/r2/bin/python3-hdlref scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+wavedrom_pdelay	0	0	<scratch>/r2/bin/python3-hdlref scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+ci_events_selftest	0	257	python3 scripts/ci_events.py --selftest
+act_ci_selftest	1	270	python3 scripts/act_ci.py --selftest
+lint	0	13	python3 scripts/lint_rtl.py --check
+pp_srcs	0	0	python3 scripts/pp_srcs.py --check
+pp_srcs_selftest	0	0	python3 scripts/pp_srcs.py --selftest
+xvlog_selftest	0	26	python3 scripts/xvlog_gate.py --selftest

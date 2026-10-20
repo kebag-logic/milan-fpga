@@ -1,0 +1,201 @@
+full log sha256 ebd3e67c668e2c68369ca8096cc2fffd4b0f3ad5ba17db78d736136da4b916e8 size 1326646 bytes (kept in scratch, over 200 KB); last 200 lines:
+ddram_dq[20]       |  -1.875 (f) | FAST    |   5.864 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[21]       |  -1.959 (r) | FAST    |   5.880 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[21]       |  -1.887 (f) | FAST    |   5.880 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[22]       |  -1.959 (r) | FAST    |   5.875 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[22]       |  -1.887 (f) | FAST    |   5.875 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[23]       |  -1.959 (r) | FAST    |   5.879 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[23]       |  -1.887 (f) | FAST    |   5.879 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[24]       |  -1.937 (r) | FAST    |   5.861 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[24]       |  -1.865 (f) | FAST    |   5.861 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[25]       |  -1.940 (r) | FAST    |   5.862 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[25]       |  -1.868 (f) | FAST    |   5.862 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[26]       |  -1.927 (r) | FAST    |   5.851 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[26]       |  -1.855 (f) | FAST    |   5.851 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[27]       |  -1.942 (r) | FAST    |   5.865 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[27]       |  -1.870 (f) | FAST    |   5.865 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[28]       |  -1.956 (r) | FAST    |   5.880 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[28]       |  -1.884 (f) | FAST    |   5.880 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[29]       |  -1.954 (r) | FAST    |   5.878 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[29]       |  -1.882 (f) | FAST    |   5.878 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[30]       |  -1.958 (r) | FAST    |   5.881 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[30]       |  -1.886 (f) | FAST    |   5.881 (f) | SLOW    |       inf |       inf |             - |
+ddram_dq[31]       |  -1.939 (r) | FAST    |   5.863 (r) | SLOW    |       inf |       inf |             - |
+ddram_dq[31]       |  -1.867 (f) | FAST    |   5.863 (f) | SLOW    |       inf |       inf |             - |
+-------------------+-------------+---------+-------------+---------+-----------+-----------+---------------+
+<hidden>           |  -1.853 (f) | FAST    |   5.883 (r) | SLOW    |       inf |       inf |             - |
+-------------------+-------------+---------+-------------+---------+-----------+-----------+---------------+
+
+
+
+Setup / Hold times for input bus
+Clocked by: eth_clocks0_rx
+Worst Case Data Window: 2.753 ns
+Ideal Clock Offset to Actual Clock: -1.825 ns
+-------------------+-------------+---------+------------+---------+-----------+-----------+---------------+
+                   |             | Process |            | Process | Setup     |  Hold     | Source Offset |
+Source             |   Setup(ns) | Corner  |   Hold(ns) | Corner  | Slack(ns) | Slack(ns) | to Center(ns) |
+-------------------+-------------+---------+------------+---------+-----------+-----------+---------------+
+eth0_rx_data[0]    |   3.202 (r) | SLOW    | -0.498 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[1]    |   3.158 (r) | SLOW    | -0.456 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[2]    |   3.150 (r) | SLOW    | -0.449 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[3]    |   3.189 (r) | SLOW    | -0.486 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[4]    |   3.187 (r) | SLOW    | -0.484 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[5]    |   3.194 (r) | SLOW    | -0.492 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[6]    |   3.191 (r) | SLOW    | -0.490 (r) | FAST    |       inf |       inf |             - |
+eth0_rx_data[7]    |   3.195 (r) | SLOW    | -0.493 (r) | FAST    |       inf |       inf |             - |
+-------------------+-------------+---------+------------+---------+-----------+-----------+---------------+
+<hidden>           |   3.202 (r) | SLOW    | -0.449 (r) | FAST    |       inf |       inf |             - |
+-------------------+-------------+---------+------------+---------+-----------+-----------+---------------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 0.048 ns
+-------------------+-------------+---------+-------------+---------+----------+
+                   |     Max     | Process |     Min     | Process | Edge     |
+Pad                |   Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+-------------+---------+-------------+---------+----------+
+ddram_a[0]         |   8.996 (r) | SLOW    |   3.459 (r) | FAST    |    0.012 |
+ddram_a[1]         |   9.032 (r) | SLOW    |   3.492 (r) | FAST    |    0.045 |
+ddram_a[2]         |   9.017 (r) | SLOW    |   3.480 (r) | FAST    |    0.033 |
+ddram_a[3]         |   9.019 (r) | SLOW    |   3.482 (r) | FAST    |    0.035 |
+ddram_a[4]         |   9.035 (r) | SLOW    |   3.495 (r) | FAST    |    0.048 |
+ddram_a[5]         |   8.993 (r) | SLOW    |   3.452 (r) | FAST    |    0.005 |
+ddram_a[6]         |   9.006 (r) | SLOW    |   3.463 (r) | FAST    |    0.018 |
+ddram_a[7]         |   8.998 (r) | SLOW    |   3.455 (r) | FAST    |    0.010 |
+ddram_a[8]         |   8.998 (r) | SLOW    |   3.454 (r) | FAST    |    0.010 |
+ddram_a[9]         |   9.010 (r) | SLOW    |   3.466 (r) | FAST    |    0.022 |
+ddram_a[10]        |   9.017 (r) | SLOW    |   3.474 (r) | FAST    |    0.029 |
+ddram_a[11]        |   9.010 (r) | SLOW    |   3.468 (r) | FAST    |    0.023 |
+ddram_a[12]        |   9.006 (r) | SLOW    |   3.463 (r) | FAST    |    0.018 |
+ddram_a[13]        |   8.997 (r) | SLOW    |   3.454 (r) | FAST    |    0.009 |
+ddram_a[14]        |   8.988 (r) | SLOW    |   3.447 (r) | FAST    |    0.000 |
+-------------------+-------------+---------+-------------+---------+----------+
+<hidden>           |   9.035 (r) | SLOW    |   3.447 (r) | FAST    |    0.048 |
+-------------------+-------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 0.008 ns
+-------------------+-------------+---------+-------------+---------+----------+
+                   |     Max     | Process |     Min     | Process | Edge     |
+Pad                |   Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+-------------+---------+-------------+---------+----------+
+ddram_ba[0]        |   9.007 (r) | SLOW    |   3.469 (r) | FAST    |    0.008 |
+ddram_ba[1]        |   9.007 (r) | SLOW    |   3.470 (r) | FAST    |    0.008 |
+ddram_ba[2]        |   8.999 (r) | SLOW    |   3.462 (r) | FAST    |    0.000 |
+-------------------+-------------+---------+-------------+---------+----------+
+<hidden>           |   9.007 (r) | SLOW    |   3.462 (r) | FAST    |    0.008 |
+-------------------+-------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 0.030 ns
+-------------------+-------------+---------+-------------+---------+----------+
+                   |     Max     | Process |     Min     | Process | Edge     |
+Pad                |   Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+-------------+---------+-------------+---------+----------+
+ddram_dm[0]        |   8.973 (r) | SLOW    |   3.442 (r) | FAST    |    0.030 |
+ddram_dm[1]        |   8.943 (r) | SLOW    |   3.415 (r) | FAST    |    0.000 |
+ddram_dm[2]        |   8.945 (r) | SLOW    |   3.419 (r) | FAST    |    0.004 |
+ddram_dm[3]        |   8.951 (r) | SLOW    |   3.419 (r) | FAST    |    0.008 |
+-------------------+-------------+---------+-------------+---------+----------+
+<hidden>           |   8.973 (r) | SLOW    |   3.415 (r) | FAST    |    0.030 |
+-------------------+-------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 4.003 ns
+-------------------+--------------+---------+-------------+---------+----------+
+                   |      Max     | Process |     Min     | Process | Edge     |
+Pad                |    Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+--------------+---------+-------------+---------+----------+
+ddram_dq[0]        |   12.523 (r) | SLOW    |   3.127 (r) | FAST    |    0.118 |
+ddram_dq[1]        |   12.875 (r) | SLOW    |   3.112 (r) | FAST    |    0.470 |
+ddram_dq[2]        |   12.405 (r) | SLOW    |   3.136 (r) | FAST    |    0.051 |
+ddram_dq[3]        |   13.108 (r) | SLOW    |   3.117 (r) | FAST    |    0.703 |
+ddram_dq[4]        |   12.413 (r) | SLOW    |   3.127 (r) | FAST    |    0.042 |
+ddram_dq[5]        |   12.991 (r) | SLOW    |   3.115 (r) | FAST    |    0.587 |
+ddram_dq[6]        |   12.515 (r) | SLOW    |   3.136 (r) | FAST    |    0.110 |
+ddram_dq[7]        |   12.649 (r) | SLOW    |   3.126 (r) | FAST    |    0.244 |
+ddram_dq[8]        |   13.952 (r) | SLOW    |   3.097 (r) | FAST    |    1.547 |
+ddram_dq[9]        |   14.069 (r) | SLOW    |   3.100 (r) | FAST    |    1.664 |
+ddram_dq[10]       |   13.471 (r) | SLOW    |   3.100 (r) | FAST    |    1.066 |
+ddram_dq[11]       |   13.835 (r) | SLOW    |   3.093 (r) | FAST    |    1.430 |
+ddram_dq[12]       |   13.354 (r) | SLOW    |   3.120 (r) | FAST    |    0.949 |
+ddram_dq[13]       |   13.945 (r) | SLOW    |   3.092 (r) | FAST    |    1.540 |
+ddram_dq[14]       |   13.464 (r) | SLOW    |   3.120 (r) | FAST    |    1.059 |
+ddram_dq[15]       |   14.185 (r) | SLOW    |   3.088 (r) | FAST    |    1.781 |
+ddram_dq[16]       |   15.327 (r) | SLOW    |   3.092 (r) | FAST    |    2.922 |
+ddram_dq[17]       |   14.848 (r) | SLOW    |   3.106 (r) | FAST    |    2.443 |
+ddram_dq[18]       |   14.722 (r) | SLOW    |   3.101 (r) | FAST    |    2.318 |
+ddram_dq[19]       |   15.094 (r) | SLOW    |   3.093 (r) | FAST    |    2.689 |
+ddram_dq[20]       |   14.612 (r) | SLOW    |   3.099 (r) | FAST    |    2.208 |
+ddram_dq[21]       |   15.204 (r) | SLOW    |   3.095 (r) | FAST    |    2.799 |
+ddram_dq[22]       |   14.476 (r) | SLOW    |   3.085 (r) | FAST    |    2.071 |
+ddram_dq[23]       |   15.210 (r) | SLOW    |   3.095 (r) | FAST    |    2.806 |
+ddram_dq[24]       |   15.690 (r) | SLOW    |   3.121 (r) | FAST    |    3.285 |
+ddram_dq[25]       |   15.444 (r) | SLOW    |   3.118 (r) | FAST    |    3.039 |
+ddram_dq[26]       |   15.800 (r) | SLOW    |   3.131 (r) | FAST    |    3.395 |
+ddram_dq[27]       |   15.945 (r) | SLOW    |   3.116 (r) | FAST    |    3.540 |
+ddram_dq[28]       |   16.062 (r) | SLOW    |   3.104 (r) | FAST    |    3.657 |
+ddram_dq[29]       |   16.298 (r) | SLOW    |   3.108 (r) | FAST    |    3.893 |
+ddram_dq[30]       |   16.408 (r) | SLOW    |   3.104 (r) | FAST    |    4.003 |
+ddram_dq[31]       |   16.055 (r) | SLOW    |   3.119 (r) | FAST    |    3.650 |
+-------------------+--------------+---------+-------------+---------+----------+
+<hidden>           |   16.408 (r) | SLOW    |   3.085 (r) | FAST    |    4.003 |
+-------------------+--------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: clk200_p
+Bus Skew: 1.795 ns
+-------------------+--------------+---------+-------------+---------+----------+
+                   |      Max     | Process |     Min     | Process | Edge     |
+Pad                |    Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+--------------+---------+-------------+---------+----------+
+ddram_dqs_n[0]     |   11.944 (r) | SLOW    |   3.713 (r) | FAST    |    0.014 |
+ddram_dqs_n[1]     |   12.538 (r) | SLOW    |   3.699 (r) | FAST    |    0.594 |
+ddram_dqs_n[2]     |   13.034 (r) | SLOW    |   3.703 (r) | FAST    |    1.090 |
+ddram_dqs_n[3]     |   13.738 (r) | SLOW    |   3.700 (r) | FAST    |    1.794 |
+ddram_dqs_p[0]     |   11.945 (r) | SLOW    |   3.715 (r) | FAST    |    0.016 |
+ddram_dqs_p[1]     |   12.539 (r) | SLOW    |   3.702 (r) | FAST    |    0.595 |
+ddram_dqs_p[2]     |   13.035 (r) | SLOW    |   3.707 (r) | FAST    |    1.091 |
+ddram_dqs_p[3]     |   13.739 (r) | SLOW    |   3.705 (r) | FAST    |    1.795 |
+-------------------+--------------+---------+-------------+---------+----------+
+<hidden>           |   13.739 (r) | SLOW    |   3.699 (r) | FAST    |    1.795 |
+-------------------+--------------+---------+-------------+---------+----------+
+
+
+
+Max / Min delays for output bus
+Clocked by: eth_clocks0_rx
+Bus Skew: 0.199 ns
+-------------------+-------------+---------+-------------+---------+----------+
+                   |     Max     | Process |     Min     | Process | Edge     |
+Pad                |   Delay(ns) | Corner  |   Delay(ns) | Corner  | Skew(ns) |
+-------------------+-------------+---------+-------------+---------+----------+
+eth0_tx_data[0]    |   8.588 (r) | SLOW    |   3.016 (r) | FAST    |    0.199 |
+eth0_tx_data[1]    |   8.398 (r) | SLOW    |   2.911 (r) | FAST    |    0.009 |
+eth0_tx_data[2]    |   8.403 (r) | SLOW    |   2.916 (r) | FAST    |    0.014 |
+eth0_tx_data[3]    |   8.405 (r) | SLOW    |   2.918 (r) | FAST    |    0.016 |
+eth0_tx_data[4]    |   8.402 (r) | SLOW    |   2.917 (r) | FAST    |    0.013 |
+eth0_tx_data[5]    |   8.393 (r) | SLOW    |   2.909 (r) | FAST    |    0.004 |
+eth0_tx_data[6]    |   8.389 (r) | SLOW    |   2.906 (r) | FAST    |    0.000 |
+eth0_tx_data[7]    |   8.391 (r) | SLOW    |   2.907 (r) | FAST    |    0.002 |
+-------------------+-------------+---------+-------------+---------+----------+
+<hidden>           |   8.588 (r) | SLOW    |   2.906 (r) | FAST    |    0.199 |
+-------------------+-------------+---------+-------------+---------+----------+
+
+
+
+

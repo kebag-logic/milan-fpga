@@ -1,0 +1,291 @@
+make: Entering directory '<clone>/tb/verilator/milan_dp'
+verilator dynmap_probes.vlt +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 2 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 --Mdir obj_dynmap -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 -CFLAGS "-DNSTREAMS_TB=1 -DDYNMAP_DEFAULT_TB=1 -Wall -Wextra" ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_nxn.cpp -o Vmilan_dp_dynmap
+make[1]: Entering directory '<clone>/tb/verilator/milan_dp/obj_dynmap'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<clone>/tb/verilator/milan_dp/obj_dynmap'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.013 s (elab=0.000, cvt=0.000, bld=0.011); cpu 0.002 s on 2 threads; allocated 16.637 MB
+<clone>/tb/verilator/milan_dp/obj_dynmap/Vmilan_dp_dynmap
+=== milan_datapath NxN integration (N_STREAMS=1, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 7512 bytes, 42 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 463 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +20 for STREAM_INPUT 1 (146 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [DYNMAP] #658: the power-on maps, a format change under Milan 5.4.2.7, and a restored format --
+  [i]    STREAM_INPUT 0 0205022002006000 (8 ch), STREAM_OUTPUT 0 0205022002006000 (8 ch); clusters SPI 0 8, SPO 0 17
+  [ok]   [DYNMAP] the reset input format is 8 channels  = 0x8
+  [ok]   [DYNMAP] the image declares both ports' clusters = 0x1
+  [i]    power-on SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPI 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPI 0: records off the identity = 0x0
+  [i]    power-on SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] power-on: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] power-on: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: SET_STREAM_FORMAT BAD_ARGUMENTS (Milan 5.4.2.7) = 0x7
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: GET_STREAM_FORMAT reads the unchanged format = 0x1
+  [i]    8->4 while 4..7 are mapped: STREAM_INPUT 0 format 0205022002006000
+  [i]    refused 8->4 SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPI 0: records off the identity = 0x0
+  [i]    refused 8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] REMOVE_AUDIO_MAPPINGS of channels 4..7 SUCCESS = 0x0
+  [i]    after REMOVE 4..7 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: records off the identity = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 8->4: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    8->4: STREAM_INPUT 0 format 0205022001006000
+  [i]    8->4 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 8->4 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 8->4 SPI 0: records off the identity  = 0x0
+  [i]    8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 8->4 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 8->4 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 4->8 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 4->8 SPI 0: records off the identity  = 0x0
+  [i]    4->8 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 4->8 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 4->8 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] 4->8: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [DYNMAP] restore: the saved-state window holds a 4 ch input format = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [DYNMAP] restore: the walk applied a record (fail 0, blank 0) = 0x0
+  [i]    restored STREAM_INPUT 0 format 0205022001006000 (4 ch)
+  [ok]   [DYNMAP] restore: GET_STREAM_FORMAT reads the saved 4 ch format = 0x1
+  [i]    restored SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored SPI 0: number_of_mappings    = 0x4
+  [ok]   [DYNMAP] restored SPI 0: records off the identity = 0x0
+  [i]    restored SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] restored SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] restored SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] restored SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] restored: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] restored: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] restored 4->8: SET_STREAM_FORMAT SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    restored 4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    restored 4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] restored 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] restored 4->8 SPI 0: records off the identity = 0x0
+  [i]    CSR hold, input: CSR commit at CLOSED-2: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED-1: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+0: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+1: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+2: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+3: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+4: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+5: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+6: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+7: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+8: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+9: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+10: store 0x00083, RAM 0x0083 (landed)
+  [i]    CSR hold, input: CSR commit at CLOSED+11: store 0x00083, RAM 0x0083 (landed)
+  [i]    CSR hold, input: CSR commit at CLOSED+12: store 0x00083, RAM 0x0083 (landed)
+  [ok]   [DYNMAP] CSR hold, input: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+  [ok]   [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM = 0x0
+  [ok]   [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED = 0x0
+  [ok]   [DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended = 0x0
+  [i]    CSR hold, output: CSR commit at CLOSED-2: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED-1: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+0: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+1: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+2: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+3: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+4: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+5: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+6: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+7: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+8: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+9: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+10: store 0x10006, RAM 0x1203 (landed)
+  [i]    CSR hold, output: CSR commit at CLOSED+11: store 0x10006, RAM 0x1203 (landed)
+  [i]    CSR hold, output: CSR commit at CLOSED+12: store 0x10006, RAM 0x1203 (landed)
+  [ok]   [DYNMAP] CSR hold, output: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+  [ok]   [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM = 0x0
+  [ok]   [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED = 0x0
+  [ok]   [DYNMAP] CSR hold, output: CSR lands in both once the sweep after CLOSED has ended = 0x0
+  [ok]   [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, both rows staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: both stores hold the whole image = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [DYNMAP] edit meets the sweep: REMOVE of the top two output channels SUCCESS = 0x0
+  [i]    edit meets the sweep: ADD answered 1190 clocks into the wait, the sweep held for 1000
+  [ok]   [DYNMAP] edit meets the sweep: ADD of the moved channel SUCCESS = 0x0
+  [ok]   [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends = 0x1
+  [ok]   [DYNMAP] edit meets the sweep: GET reads the moved channel on its new cluster = 0x1
+  [ok]   [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word = 0x1203
+  [ok]   [DYNMAP] edit meets the sweep: the removed channel's capture key stays empty = 0x0
+  [ok]   [DYNMAP] every identity page ran (vacuity guard) = 0xc
+-- [762-DP] the AX7101 1x1 TDM8 geometry: a stopped AAF Stream Input counts no STREAM_INTERRUPTED --
+  [i]    elaborated: N_STREAMS 1 ADP_TALKER_SRC_C 2 ADP_LISTENER_SINK_C 2 CRF_SNK_IDX_C 1 MILAN_CLK_FREQ_HZ 100000000 GPTP_PLANE_EN_P 0
+  [i]    elaborated: TALKER_WIRE_CHANS_P 8 AUDIO_IF_SLOTS_P 8 AUDIO_IF_MASTER_P 1 AUDIO_IF_RENDER_SLOTS_P 0 AUDIO_IF_I2S_PAIR_P 0 AUDIO_IF_WORD_BITS_P 32 AUDIO_IF_FS_HZ_P 48000 AUDIO_IF_CLK_HZ_P 24576000 LOOPBACK_P 1
+  [i]    elaborated prunes: MCSERVO_P 1 LTAP_P 1 MAAP_P 1 I2SPB_P 0 RXFILT_P 1 LPF_P 0 DPROBES_P 1
+  [ok]   [762-DP] AX 1x1: one AAF Stream Input (N_STREAMS 1) = 0x1
+  [ok]   [762-DP] AX 1x1: the CRF Media Clock Input is sink N_STREAMS, the entity's last = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   TRAP-1 bind: the listener launched its PROBE_TX = 0x1
+  [ok]   TRAP-1 bound: PARSED climbs                    = 0x1
+  [ok]   TRAP-1 bound: MATCHED climbs (alias intact)    = 0x1
+  [ok]   TRAP-1 bound: INFO match flag set              = 0x1
+  [ok]   TRAP-1 bound: INFO index 0                     = 0x0
+  [ok]   TRAP-1 bound: the ACMP alias counts as one armed entry = 0x1
+  [ok]   5.3.8.7 GET_STREAM_INFO answers before the stop = 0x0
+  [ok]   5.3.8.7 started: STREAMING_WAIT reads 0        = 0x1
+  [ok]   5.3.8.7 STOP_STREAMING answered SUCCESS        = 0x0
+  [ok]   5.3.8.7 stopped: STREAMING_WAIT reads 1        = 0x1
+  [ok]   5.3.8.7 stopped: ...and BOUND still reads 1 - the clause stops the data, it does not unbind the sink = 0x1
+  [ok]   5.3.8.7 stopped: the frame still REACHES the parser = 0x1
+  [ok]   5.3.8.7 stopped: ...and is STILL matched (it is still bound) = 0x1
+  [ok]   5.3.8.7 stopped: ...but the media path got NOTHING = 0x0
+  [ok]   5.3.8.7 START_STREAMING answered SUCCESS       = 0x0
+  [ok]   5.3.8.7 restarted: PARSED climbs               = 0x1
+  [ok]   5.3.8.7 restarted: MATCHED climbs again        = 0x1
+  [ok]   5.3.8.7 restarted: ...and the media path receives again = 0x1
+  [ok]   5.3.8.7 restarted: STREAMING_WAIT reads 0 again = 0x1
+  [ok]   5.3.8.7 Table 5.6: FRAMES_RX SURVIVED the stop/start pair = 0x1
+  [ok]   5.3.8.7 Table 5.6: ...and counted the frame arriving while STOPPED (the clause says a stopped input RECEIVES) = 0x1
+-- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED --
+  [ok]   [762-DP] 1 started: GET_COUNTERS(STREAM_INPUT,0) answers SUCCESS = 0x0
+  [ok]   [762-DP] 1 started: ...and the input reads locked = 0x1
+  [ok]   [762-DP] 2 STOP_STREAMING answered SUCCESS     = 0x0
+  [ok]   [762-DP] 2 stopped gap: SEQ_NUM_MISMATCH +1 (the gap was seen) = 0x1
+  [ok]   [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  = 0x0
+  [ok]   [762-DP] 3 the skip only shortens the silence (the watchdog was below it) = 0x1
+  [ok]   [762-DP] 3 the stopped input's silence unlocked it = 0x0
+  [ok]   [762-DP] 3 stopped silence: MEDIA_UNLOCKED +1 (the silence was seen) = 0x1
+  [ok]   [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 = 0x0
+  [ok]   [762-DP] 4 START_STREAMING answered SUCCESS    = 0x0
+  [ok]   [762-DP] 4 started again: MEDIA_LOCKED +1 (relocked) = 0x1
+  [ok]   [762-DP] 4 started gap: SEQ_NUM_MISMATCH +1    = 0x1
+  [ok]   [762-DP] 4 started gap: STREAM_INTERRUPTED +1  = 0x1
+--------------------------------------------------------------
+checks: 199   failures: 0
+RESULT: PASS
+python3 dynmap_mutants.py
+[PASS] the unmutated gateware still passes the dynmap leg
+[FAIL] the unmutated gateware does NOT pass the listener leg (caught) - its mutant results are meaningless
+[PASS] the unmutated gateware still passes the talker leg
+[PASS] mutant caught: an empty reset: the power-on image holds no mapping - breaks "[DYNMAP] power-on SPI 0: number_of_mappings" (its tallies report 50 failure(s) across 199 checks)
+[PASS] mutant caught: no clip after the restore: the window ignores a restored input format - breaks "[DYNMAP] restored SPI 0: number_of_mappings" (its tallies report 6 failure(s) across 199 checks)
+[PASS] mutant caught: no output clip: the window ignores a STREAM_OUTPUT row - breaks "[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map" (its tallies report 2 failure(s) across 199 checks)
+[PASS] mutant caught: the boot writer never fills the crossbar RAMs - breaks "[DYNMAP] power-on: render RAM keys 2..9 hold the input map" (its tallies report 25 failure(s) across 199 checks)
+[PASS] mutant caught: the CSR writer is not held while the boot writer is busy - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 4 failure(s) across 199 checks)
+[PASS] mutant caught: the input store alone takes a CSR write while the writer is busy - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 2 failure(s) across 199 checks)
+[PASS] mutant caught: the output store alone takes a CSR write while the writer is busy - breaks "[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM" (its tallies report 2 failure(s) across 199 checks)
+[PASS] mutant caught: the boot window ignores the CLOSED terminal - breaks "[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended" (its tallies report 2 failure(s) across 199 checks)
+[PASS] mutant caught: no sweep after the restore's terminal - breaks "[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map" (its tallies report 6 failure(s) across 199 checks)
+[PASS] mutant caught: no drain clock: busy ends while the last boot write is in flight - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 4 failure(s) across 199 checks)
+[PASS] mutant caught: the edit face never waits for the boot writer - breaks "[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends" (its tallies report 2 failure(s) across 199 checks)
+[FAIL] mutant "an empty reset, under the listener's end-to-end check" failed, but not the named check ('T18 POWER-ON: with no map command since the reset, the lane renders injected events')
+[PASS] mutant caught: an empty reset, under the talker's end-to-end check - breaks "[V] every requested column was decoded" (its tallies report 20 failure(s) across 134 checks)
+
+16 checks: 14 PASS, 2 FAIL
+make: *** [Makefile:533: dynmap-mutants] Error 1
+make: Leaving directory '<clone>/tb/verilator/milan_dp'
