@@ -94,8 +94,8 @@ MUTANTS = (
     #: R678-1-F3: each sample summed as folded, no tracking reference, so
     #: samples either side of +/-Ps/2 cancel towards zero
     ("tracking_fold_removed", SERVO,
-     (("  wire signed [PH_UW_C-1:0] ph_unw_w = ph_ref_v_r ? PH_UW_C'(ph_ref_r) + PH_UW_C'(ph_dxf_w)",
-       "  wire signed [PH_UW_C-1:0] ph_unw_w = 1'b0 ? PH_UW_C'(ph_ref_r) + PH_UW_C'(ph_dxf_w)"),),
+     (("  wire                      ph_wrap_w   = ph_ref_v_r && (",
+       "  wire                      ph_wrap_w   = 1'b0 && ("),),
      "det:balanced", "[det balanced] the window phase reads the half-period phase"),
     #: the window phase left unwrapped: past +Ps/2 it pulls the long way
     ("window_refold_removed", SERVO,

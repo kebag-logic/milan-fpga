@@ -781,13 +781,19 @@ module KL_mmcm_drp_servo #(
   //! the reference, so it lies in [ref - Ps/2, ref + Ps/2). A phase at
   //! +/-Ps/2 whose samples straddle the fold then sums as itself, about Ps/2,
   //! and pulls at the slew limit; folded on their own the two sides cancel
-  //! towards zero. With no reference yet the sample is its own.
-  wire signed [PH_TW_C:0]   ph_dx_w  = (PH_TW_C+1)'(ph_fold_w) - (PH_TW_C+1)'(ph_ref_r);
-  wire signed [PH_TW_C:0]   ph_dxf_w = (ph_dx_w >= (PH_TW_C+1)'(PH_HALF_C))  ? ph_dx_w - (PH_TW_C+1)'(PS_U_C)
-                                     : (ph_dx_w < -(PH_TW_C+1)'(PH_HALF_C))  ? ph_dx_w + (PH_TW_C+1)'(PS_U_C)
-                                                                             : ph_dx_w;
-  wire signed [PH_UW_C-1:0] ph_unw_w = ph_ref_v_r ? PH_UW_C'(ph_ref_r) + PH_UW_C'(ph_dxf_w)
-                                                  : PH_UW_C'(ph_fold_w);
+  //! towards zero. With no reference yet the sample is its own. Sample and
+  //! reference both lie in [-Ps/2, Ps/2), so at most one period moves the
+  //! sample, on the reference's side: up by Ps below ref - Ps/2 for a
+  //! reference at or above zero, down by Ps at or above ref + Ps/2 for one
+  //! below it
+  wire                      ph_ref_up_w = !ph_ref_r[PH_TW_C-1];
+  wire signed [PH_TW_C:0]   ph_edge_w   = ph_ref_up_w ? (PH_TW_C+1)'(ph_ref_r) - (PH_TW_C+1)'(PH_HALF_C)
+                                                      : (PH_TW_C+1)'(ph_ref_r) + (PH_TW_C+1)'(PH_HALF_C);
+  wire                      ph_wrap_w   = ph_ref_v_r && (ph_ref_up_w ? ((PH_TW_C+1)'(ph_fold_w) <  ph_edge_w)
+                                                                     : ((PH_TW_C+1)'(ph_fold_w) >= ph_edge_w));
+  wire signed [PH_UW_C-1:0] ph_unw_w    = !ph_wrap_w  ? PH_UW_C'(ph_fold_w)
+                                        : ph_ref_up_w ? PH_UW_C'(ph_fold_w) + PH_UW_C'(PS_U_C)
+                                                      : PH_UW_C'(ph_fold_w) - PH_UW_C'(PS_U_C);
 
   //! the closing window's phase: its sum over the nominal count (floored:
   //! a bias under one unit, 1/3 ns), within 33/32 of Ps, re-folded once into
